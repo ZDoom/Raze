@@ -279,8 +279,8 @@ static void sub_6CB00(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
@@ -315,8 +315,8 @@ static void sub_6CD74(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
@@ -349,8 +349,8 @@ static void sub_6D03C(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;

@@ -402,7 +402,7 @@ static void beastMoveForward(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (nDist <= 0x400 && Random(64) < 32)
 		return;
-	actor->__int_vel.X += MulScale(pDudeInfo->frontSpeed, Cos(actor->int_ang()), 30);
+	actor->add_int_bvel_x(MulScale(pDudeInfo->frontSpeed, Cos(actor->int_ang()), 30));
 	actor->__int_vel.Y += MulScale(pDudeInfo->frontSpeed, Sin(actor->int_ang()), 30);
 }
 
@@ -424,8 +424,8 @@ static void sub_628A0(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
@@ -460,8 +460,8 @@ static void sub_62AE0(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
@@ -494,8 +494,8 @@ static void sub_62D7C(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;

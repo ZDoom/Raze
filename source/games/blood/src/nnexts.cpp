@@ -1314,7 +1314,7 @@ void nnExtProcessSuperSprites()
 						angle = (angle + GetWallAngle(debrisactor->sector()->firstWall()) + 512) & 2047;
 					int dx = MulScale(speed, Cos(angle), 30);
 					int dy = MulScale(speed, Sin(angle), 30);
-					debrisactor->__int_vel.X += dx;
+					debrisactor->add_int_bvel_x(dx);
 					debrisactor->__int_vel.Y += dy;
 				}
 			}
@@ -1334,7 +1334,7 @@ void nnExtProcessSuperSprites()
 						int nSpeed = approxDist(pact->int_vel().X, pact->int_vel().Y);
 						nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
 
-						debrisactor->__int_vel.X += MulScale(nSpeed, Cos(pPlayer->actor->int_ang()), 30);
+						debrisactor->add_int_bvel_x(MulScale(nSpeed, Cos(pPlayer->actor->int_ang()), 30));
 						debrisactor->__int_vel.Y += MulScale(nSpeed, Sin(pPlayer->actor->int_ang()), 30);
 
 						debrisactor->hit.hit.setSprite(pPlayer->actor);
@@ -1581,7 +1581,7 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, 
 			{
 				int t = Scale(dmg, size, actor->spriteMass.mass);
 
-				actor->__int_vel.X += MulScale(t, dx, 16);
+				actor->add_int_bvel_x(MulScale(t, dx, 16));
 				actor->__int_vel.Y += MulScale(t, dy, 16);
 				actor->__int_vel.Z += MulScale(t, dz, 16);
 			}
@@ -1854,7 +1854,7 @@ void debrisMove(int listIndex)
 
 		if ((floorColl.actor()->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
-			actor->__int_vel.X += MulScale(4, actor->int_pos().X - floorColl.actor()->int_pos().X, 2);
+			actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - floorColl.actor()->int_pos().X, 2));
 			actor->__int_vel.Y += MulScale(4, actor->int_pos().Y - floorColl.actor()->int_pos().Y, 2);
 			return;
 		}
@@ -1871,7 +1871,7 @@ void debrisMove(int listIndex)
 	actor->__int_vel.X -= mulscale16r(actor->int_vel().X, nDrag);
 	actor->__int_vel.Y -= mulscale16r(actor->int_vel().Y, nDrag);
 	if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
-		actor->__int_vel.X = actor->__int_vel.Y = 0;
+		actor->clear_vel_xy();
 }
 
 //---------------------------------------------------------------------------
@@ -3118,7 +3118,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 
 		if (relative)
 		{
-			pSprite->__int_vel.X += xv;
+			pSprite->add_int_bvel_x(xv);
 			pSprite->__int_vel.Y += yv;
 			pSprite->__int_vel.Z += zv;
 		}
@@ -8223,7 +8223,7 @@ void aiPatrolMove(DBloodActor* actor)
 		}
 
 		frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
-		actor->__int_vel.X += MulScale(frontSpeed, Cos(actor->int_ang()), 30);
+		actor->add_int_bvel_x(MulScale(frontSpeed, Cos(actor->int_ang()), 30));
 		actor->__int_vel.Y += MulScale(frontSpeed, Sin(actor->int_ang()), 30);
 	}
 
@@ -9232,7 +9232,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 			dz >>= 1;
 		}
 		RotateVector(&dx, &dy, nAngle);
-		burstactor->__int_vel.X += dx;
+		burstactor->add_int_bvel_x(dx);
 		burstactor->__int_vel.Y += dy;
 		burstactor->__int_vel.Z += dz;
 		evPostActor(burstactor, 960, kCallbackRemove);
@@ -9297,7 +9297,7 @@ void triggerTouchSprite(DBloodActor* actor, DBloodActor* hActor)
 			trTriggerSprite(hActor, kCmdSpriteTouch, actor);
 
 		// enough to reset gSpriteHit values
-		actor->__int_vel.X += 5;
+		actor->add_int_bvel_x(5);
 	}
 }
 
@@ -9309,7 +9309,7 @@ void triggerTouchWall(DBloodActor* actor, walltype* pHWall)
 			trTriggerWall(pHWall, kCmdWallTouch, actor);
 
 		// enough to reset gSpriteHit values
-		actor->__int_vel.X += 5;
+		actor->add_int_bvel_x(5);
 	}
 }
 

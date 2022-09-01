@@ -220,7 +220,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	if (actor->GetTarget() == nullptr) return;
 
 	int dx, dy, dz;
-	actor->__int_vel.X = actor->__int_vel.Y = 0;
+	actor->clear_vel_xy();
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	int dispersion = pExtra->baseDispersion;
@@ -487,8 +487,8 @@ static void unicultThinkChase(DBloodActor* actor)
 	// quick hack to prevent spinning around or changing attacker's sprite angle on high movement speeds
 	// when attacking the target. It happens because vanilla function takes in account x and y velocity, 
 	// so i use fake velocity with fixed value and pass it as argument.
-	int xvelocity = actor->int_vel().X;
-	int yvelocity = actor->int_vel().Y;
+	int xvelocity = actor->__int_vel.X;
+	int yvelocity = actor->__int_vel.Y;
 	if (inAttack(actor->xspr.aiState))
 		xvelocity = yvelocity = ClipLow(actor->spr.clipdist >> 1, 1);
 
@@ -1128,8 +1128,8 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 			return;
 		int nCos = Cos(actor->int_ang());
 		int nSin = Sin(actor->int_ang());
-		int vx = actor->int_vel().X;
-		int vy = actor->int_vel().Y;
+		int vx = actor->__int_vel.X;
+		int vy = actor->__int_vel.Y;
 		int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 		int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 		if (actor->GetTarget() == nullptr)
@@ -1152,7 +1152,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 		int cos = Cos(actor->int_ang());
 
 		int frontSpeed = actor->genDudeExtra.moveSpeed;
-		actor->__int_vel.X += MulScale(cos, frontSpeed, 30);
+		actor->add_int_bvel_x(MulScale(cos, frontSpeed, 30));
 		actor->__int_vel.Y += MulScale(sin, frontSpeed, 30);
 	}
 }

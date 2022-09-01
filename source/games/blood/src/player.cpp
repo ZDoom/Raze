@@ -1451,7 +1451,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 				if (nMass)
 				{
 					int t2 = DivScale(0xccccc, nMass, 8);
-					hitactor->__int_vel.X += MulScale(x, t2, 16);
+					hitactor->add_int_bvel_x(MulScale(x, t2, 16));
 					hitactor->__int_vel.Y += MulScale(y, t2, 16);
 					hitactor->__int_vel.Z += MulScale(z, t2, 16);
 				}
@@ -1600,14 +1600,14 @@ void ProcessInput(PLAYER* pPlayer)
 				forward = MulScale(pPosture->frontAccel, forward, 8);
 			else
 				forward = MulScale(pPosture->backAccel, forward, 8);
-			actor->__int_vel.X += MulScale(forward, x, 30);
+			actor->add_int_bvel_x(MulScale(forward, x, 30));
 			actor->__int_vel.Y += MulScale(forward, y, 30);
 		}
 		if (pInput->svel)
 		{
 			int strafe = pInput->svel;
 			strafe = MulScale(pPosture->sideAccel, strafe, 8);
-			actor->__int_vel.X += MulScale(strafe, y, 30);
+			actor->add_int_bvel_x(MulScale(strafe, y, 30));
 			actor->__int_vel.Y -= MulScale(strafe, x, 30);
 		}
 	}
@@ -1627,7 +1627,7 @@ void ProcessInput(PLAYER* pPlayer)
 				forward = MulScale(pPosture->backAccel, forward, 8);
 			if (actor->xspr.height)
 				forward = MulScale(forward, speed, 16);
-			actor->__int_vel.X += MulScale(forward, x, 30);
+			actor->add_int_bvel_x(MulScale(forward, x, 30));
 			actor->__int_vel.Y += MulScale(forward, y, 30);
 		}
 		if (pInput->svel)
@@ -1636,7 +1636,7 @@ void ProcessInput(PLAYER* pPlayer)
 			strafe = MulScale(pPosture->sideAccel, strafe, 8);
 			if (actor->xspr.height)
 				strafe = MulScale(strafe, speed, 16);
-			actor->__int_vel.X += MulScale(strafe, y, 30);
+			actor->add_int_bvel_x(MulScale(strafe, y, 30));
 			actor->__int_vel.Y -= MulScale(strafe, x, 30);
 		}
 	}

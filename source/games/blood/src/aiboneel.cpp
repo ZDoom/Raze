@@ -220,8 +220,8 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int dx = actor->int_vel().X;
-	int dy = actor->int_vel().Y;
+	int dx = actor->__int_vel.X;
+	int dy = actor->__int_vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -245,8 +245,8 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int dx = actor->int_vel().X;
-	int dy = actor->int_vel().Y;
+	int dx = actor->__int_vel.X;
+	int dy = actor->__int_vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -333,8 +333,8 @@ static void eelMoveForward(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
@@ -361,8 +361,8 @@ static void eelMoveSwoop(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
@@ -387,8 +387,8 @@ static void eelMoveAscend(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;

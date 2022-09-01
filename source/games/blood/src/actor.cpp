@@ -2575,7 +2575,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 		{
 			int size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat) >> 1;
 			int t = Scale(damage, size, mass);
-			actor->__int_vel.X += (int)MulScaleF(t, vect.X, 12);
+			actor->add_int_bvel_x((int)MulScaleF(t, vect.X, 12));
 			actor->__int_vel.Y += (int)MulScaleF(t, vect.Y, 12);
 			actor->__int_vel.Z += (int)MulScaleF(t, vect.Z, 12);
 		}
@@ -2950,7 +2950,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			actDropObject(actor, actor->xspr.dropMsg);
 
 		actor->spr.flags &= ~kPhysMove;
-		actor->__int_vel.X = actor->__int_vel.Y = 0;
+		actor->clear_vel_xy();
 
 		playGenDudeSound(actor, kGenDudeSndTransforming);
 		int seqId = actor->xspr.data2 + kGenDudeSeqTransform;
@@ -4159,13 +4159,13 @@ static void checkCeilHit(DBloodActor* actor)
 					if (pThingInfo->flags & 1) actor2->spr.flags |= 1;
 					if (pThingInfo->flags & 2) actor2->spr.flags |= 4;
 					// Inlined ?
-					actor2->__int_vel.X += int(adelta.X * 16);
+					actor2->add_int_bvel_x(int(adelta.X * 16));
 					actor2->__int_vel.Y += int(adelta.Y * 16);
 				}
 				else
 				{
 					actor2->spr.flags |= 5;
-					actor2->__int_vel.X += int(adelta.X * 16);
+					actor2->add_int_bvel_x(int(adelta.X * 16));
 					actor2->__int_vel.Y += int(adelta.Y * 16);
 #ifdef NOONE_EXTENSIONS
 					// add size shroom abilities
@@ -4501,7 +4501,7 @@ void actAirDrag(DBloodActor* actor, int a2)
 			wind_y = MulScale(wind, Sin(pXSector->windAng), 30);
 		}
 	}
-	actor->__int_vel.X += MulScale(wind_x - actor->int_vel().X, a2, 16);
+	actor->add_int_bvel_x(MulScale(wind_x - actor->int_vel().X, a2, 16));
 	actor->__int_vel.Y += MulScale(wind_y - actor->int_vel().Y, a2, 16);
 	actor->__int_vel.Z -= MulScale(actor->int_vel().Z, a2, 16);
 }
@@ -4697,7 +4697,7 @@ static Collision MoveThing(DBloodActor* actor)
 			auto hitActor = coll.actor();
 			if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->__int_vel.X += MulScale(4, actor->int_pos().X - hitActor->int_pos().X, 2);
+				actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - hitActor->int_pos().X, 2));
 				actor->__int_vel.Y += MulScale(4, actor->int_pos().Y - hitActor->int_pos().Y, 2);
 				lhit = actor->hit.hit;
 			}
@@ -5180,7 +5180,7 @@ void MoveDude(DBloodActor* actor)
 			auto hitAct = floorColl.actor();
 			if ((hitAct->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->__int_vel.X += MulScale(4, actor->int_pos().X - hitAct->int_pos().X, 2);
+				actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - hitAct->int_pos().X, 2));
 				actor->__int_vel.Y += MulScale(4, actor->int_pos().Y - hitAct->int_pos().Y, 2);
 				return;
 			}
@@ -5196,7 +5196,7 @@ void MoveDude(DBloodActor* actor)
 		actor->__int_vel.Y -= mulscale16r(actor->int_vel().Y, nDrag);
 
 		if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
-			actor->__int_vel.X = actor->__int_vel.Y = 0;
+			actor->clear_vel_xy();
 	}
 }
 
@@ -5671,7 +5671,7 @@ static void actCheckThings()
 					}
 					if (pSector->floorstat & CSTAT_SECTOR_ALIGN) angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
 
-					actor->__int_vel.X += MulScale(speed, Cos(angle), 30);
+					actor->add_int_bvel_x(MulScale(speed, Cos(angle), 30));
 					actor->__int_vel.Y += MulScale(speed, Sin(angle), 30);
 				}
 			}
@@ -6001,7 +6001,7 @@ static void actCheckDudes()
 			// handle incarnations of custom dude
 			if (actor->spr.type == kDudeModernCustom && actor->xspr.txID > 0 && actor->xspr.sysData1 == kGenDudeTransformStatus)
 			{
-				actor->__int_vel.X = actor->__int_vel.Y = 0;
+				actor->clear_vel_xy();
 				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
 			}
 #endif
@@ -6099,7 +6099,7 @@ static void actCheckDudes()
 					angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
 				int dx = MulScale(speed, Cos(angle), 30);
 				int dy = MulScale(speed, Sin(angle), 30);
-				actor->__int_vel.X += dx;
+				actor->add_int_bvel_x(dx);
 				actor->__int_vel.Y += dy;
 			}
 		}
@@ -6403,7 +6403,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	fired->__int_vel.X = MulScale(a6, Cos(fired->int_ang()), 30);
 	fired->__int_vel.Y = MulScale(a6, Sin(fired->int_ang()), 30);
 	fired->__int_vel.Z = MulScale(a6, a4, 14);
-	fired->__int_vel.X += actor->int_vel().X / 2;
+	fired->add_int_bvel_x(actor->int_vel().X / 2);
 	fired->__int_vel.Y += actor->int_vel().Y / 2;
 	fired->__int_vel.Z += actor->int_vel().Z / 2;
 	return fired;
@@ -6448,7 +6448,7 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		break;
 	case kMissileFlameHound:
 		seqSpawn(27, spawned, -1);
-		spawned->__int_vel.X += actor->int_vel().X / 2 + Random2(0x11111);
+		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
 		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
 		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
@@ -6458,14 +6458,14 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		break;
 	case kMissileFireballTchernobog:
 		seqSpawn(23, spawned, dword_2192D8);
-		spawned->__int_vel.X += actor->int_vel().X / 2 + Random2(0x11111);
+		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
 		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
 		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
 	case kMissileFlameSpray:
 		if (Chance(0x8000))	seqSpawn(0, spawned, -1);
 		else seqSpawn(1, spawned, -1);
-		spawned->__int_vel.X += actor->int_vel().X / 2 + Random2(0x11111);
+		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
 		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
 		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
@@ -6769,7 +6769,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				if (t > 0 && pVectorData->impulse)
 				{
 					int t2 = DivScale(pVectorData->impulse, t, 8);
-					actor->__int_vel.X += MulScale(a4, t2, 16);
+					actor->add_int_bvel_x(MulScale(a4, t2, 16));
 					actor->__int_vel.Y += MulScale(a5, t2, 16);
 					actor->__int_vel.Z += MulScale(a6, t2, 16);
 				}
@@ -6799,7 +6799,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				if (t > 0 && pVectorData->impulse)
 				{
 					int t2 = DivScale(pVectorData->impulse, t, 8);
-					actor->__int_vel.X += MulScale(a4, t2, 16);
+					actor->add_int_bvel_x(MulScale(a4, t2, 16));
 					actor->__int_vel.Y += MulScale(a5, t2, 16);
 					actor->__int_vel.Z += MulScale(a6, t2, 16);
 				}
@@ -6857,7 +6857,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					if (actor->xspr.physAttr & kPhysDebrisVector) {
 
 						int impulse = DivScale(pVectorData->impulse, ClipLow(actor->spriteMass.mass, 10), 6);
-						actor->__int_vel.X += MulScale(a4, impulse, 16);
+						actor->add_int_bvel_x(MulScale(a4, impulse, 16));
 						actor->__int_vel.Y += MulScale(a5, impulse, 16);
 						actor->__int_vel.Z += MulScale(a6, impulse, 16);
 
@@ -6926,7 +6926,7 @@ void FireballSeqCallback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_11, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel = actor->int_vel();
+		pFX->__int_vel = actor->__int_vel;
 	}
 }
 
@@ -6935,7 +6935,7 @@ void NapalmSeqCallback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_12, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel = actor->int_vel();
+		pFX->__int_vel = actor->__int_vel;
 	}
 }
 
@@ -6944,7 +6944,7 @@ void Fx32Callback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel = actor->int_vel();
+		pFX->__int_vel = actor->__int_vel;
 	}
 }
 
@@ -6953,7 +6953,7 @@ void Fx33Callback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_33, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->__int_vel = actor->int_vel();
+		pFX->__int_vel = actor->__int_vel;
 	}
 }
 

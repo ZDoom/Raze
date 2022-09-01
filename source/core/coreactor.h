@@ -223,32 +223,32 @@ public:
 
 	void set_int_bvel_x(int x)
 	{
-		__int_vel.X = x;
+		__int_vel .X = x;
 	}
 
 	void set_int_bvel_y(int x)
 	{
-		__int_vel.Y = x;
+		__int_vel .Y = x;
 	}
 
 	void set_int_bvel_z(int x)
 	{
-		__int_vel.Z = x;
+		__int_vel .Z = x;
 	}
 
 	void add_int_bvel_x(int x)
 	{
-		__int_vel.X += x;
+		__int_vel .X += x;
 	}
 
 	void add_int_bvel_y(int x)
 	{
-		__int_vel.Y += x;
+		__int_vel .Y += x;
 	}
 
 	void clear_vel_xy()
 	{
-		__int_vel.X = __int_vel.Y = 0;
+		__int_vel .X = __int_vel .Y = 0;
 	}
 
 	void add_int_bvel_z(int x)
