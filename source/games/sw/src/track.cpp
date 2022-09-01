@@ -3490,8 +3490,8 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 			vec.XY() = actor->spr.angle.ToVector() * actor->spr.xvel * inttoworld;
         }
 
-        if (actor->int_zvel())
-            vec.Z = actor->int_zvel() * locktics * zinttoworld;
+        if (actor->float_zvel() != 0)
+            vec.Z = actor->float_zvel() * locktics;
     }
 
     actor->user.coll = move_sprite(actor, vec, actor->user.ceiling_dist, actor->user.floor_dist, 0, locktics);

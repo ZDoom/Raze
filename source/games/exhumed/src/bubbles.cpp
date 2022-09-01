@@ -87,7 +87,7 @@ void AIBubble::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
     }
 
-    pActor->add_int_z(pActor->int_zvel());
+    pActor->spr.pos.Z = pActor->float_zvel();
 
     auto pSector = pActor->sector();
 

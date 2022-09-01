@@ -16227,7 +16227,7 @@ int InitEnemyFireball(DSWActor* actor)
             if (dist != 0)
             {
                 actorNew->set_int_zvel((GORO_FIREBALL_VELOCITY * (targ_z - actorNew->int_pos().Z)) / dist);
-                actorNew->user.set_int_change_z(actorNew->int_zvel());
+                actorNew->user.change.Z = actorNew->float_zvel();
             }
             // back up first one
             lastvel = actorNew->int_zvel();

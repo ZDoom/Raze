@@ -693,7 +693,7 @@ void movefallers_r(void)
 					act->add_int_zvel( x);
 					if (act->float_zvel() > 24)
 						act->set_int_zvel(6144);
-					act->add_int_z(act->int_zvel());
+					act->spr.pos.Z += act->float_zvel();
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
@@ -2379,7 +2379,7 @@ static void heavyhbomb(DDukeActor *actor)
 		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14),
 		actor->int_zvel(), CLIPMASK0, coll);
 
-	if (actor->sector()->lotag == 1 && actor->int_zvel() == 0)
+	if (actor->sector()->lotag == 1 && actor->float_zvel() == 0)
 	{
 		actor->spr.pos.Z += 32;
 		if (actor->temp_data[5] == 0)
@@ -3633,7 +3633,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	a = badguy(actor);
 
-	if (actor->spr.xvel || actor->int_zvel())
+	if (actor->spr.xvel || actor->float_zvel() != 0)
 	{
 		if (a)
 		{

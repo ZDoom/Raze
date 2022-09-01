@@ -305,7 +305,7 @@ void AIRat::Tick(RunListEvent* ev)
     }
     case 2:
     {
-        if (pActor->spr.xvel || pActor->spr.yvel || pActor->int_zvel()) {
+        if (pActor->spr.xvel || pActor->spr.yvel || pActor->float_zvel() != 0) {
             MoveCreature(pActor);
         }
 

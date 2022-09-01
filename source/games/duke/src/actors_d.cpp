@@ -473,7 +473,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			((actor->actorstayput != nullptr && actor->actorstayput != dasectp) ||
 			 ((actor->spr.picnum == BOSS2) && actor->spr.pal == 0 && dasectp->lotag != 3) ||
 			 ((actor->spr.picnum == BOSS1 || actor->spr.picnum == BOSS2) && dasectp->lotag == ST_1_ABOVE_WATER) ||
-			 (dasectp->lotag == ST_1_ABOVE_WATER && (actor->spr.picnum == LIZMAN || (actor->spr.picnum == LIZTROOP && actor->int_zvel() == 0)))
+			 (dasectp->lotag == ST_1_ABOVE_WATER && (actor->spr.picnum == LIZMAN || (actor->spr.picnum == LIZTROOP && actor->float_zvel() == 0)))
 			))
 		 )
 		{
@@ -775,7 +775,7 @@ void movefallers_d(void)
 					act->add_int_zvel( x);
 					if (act->float_zvel() > 24)
 						act->set_int_zvel(6144);
-					act->add_int_z(act->int_zvel());
+					act->spr.pos.Z += act->float_zvel();
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
@@ -2602,7 +2602,7 @@ static void heavyhbomb(DDukeActor *actor)
 		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14),
 		actor->int_zvel(), CLIPMASK0, coll);
 
-	if (actor->sector()->lotag == 1 && actor->int_zvel() == 0)
+	if (actor->sector()->lotag == 1 && actor->float_zvel() == 0)
 	{
 		actor->spr.pos.Z += 32;
 		if (actor->temp_data[5] == 0)
@@ -2676,7 +2676,7 @@ DETONATEB:
 
 			fi.hitradius(actor, m, x >> 2, x >> 1, x - (x >> 2), x);
 			spawn(actor, EXPLOSION2);
-			if (actor->int_zvel() == 0)	spawn(actor, EXPLOSION2BOT);
+			if (actor->float_zvel() == 0)	spawn(actor, EXPLOSION2BOT);
 			S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 			for (x = 0; x < 8; x++)
 				RANDOMSCRAP(actor);
@@ -2836,7 +2836,7 @@ void moveactors_d(void)
 		case HELECOPT:
 		case DUKECAR:
 
-			act->add_int_z(act->int_zvel());
+			act->spr.pos.Z += act->float_zvel();
 			act->temp_data[0]++;
 
 			if (act->temp_data[0] == 4) S_PlayActorSound(WAR_AMBIENCE2, act);

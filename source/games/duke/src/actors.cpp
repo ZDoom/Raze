@@ -490,7 +490,7 @@ void moveplayers(void)
 				act->spr.yrepeat = 36;
 				if (act->sector()->lotag != ST_2_UNDERWATER)
 					makeitfall(act);
-				if (act->int_zvel() == 0 && act->sector()->lotag == ST_1_ABOVE_WATER)
+				if (act->float_zvel() == 0 && act->sector()->lotag == ST_1_ABOVE_WATER)
 					act->spr.pos.Z += 32;
 			}
 
@@ -1031,7 +1031,7 @@ void movewaterdrip(DDukeActor *actor, int drip)
 		ssp(actor, CLIPMASK0);
 		if (actor->spr.xvel > 0) actor->spr.xvel -= 2;
 
-		if (actor->int_zvel() == 0)
+		if (actor->float_zvel() == 0)
 		{
 			actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
@@ -3926,7 +3926,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						{
 							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].pos.Z += extra;
 						}
-						if (a2->int_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
+						if (a2->float_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->spr.pos.Z += extra;
 							a2->floorz = sc->floorz;
@@ -3965,7 +3965,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						{
 							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].pos.Z -= extra;
 						}
-						if (a2->int_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
+						if (a2->float_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
 							a2->spr.pos.Z -= extra;
 							a2->floorz = sc->floorz;
@@ -4136,7 +4136,7 @@ void handle_se20(DDukeActor* actor)
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
-			if (a2->spr.statnum != 3 && a2->int_zvel() == 0)
+			if (a2->spr.statnum != 3 && a2->float_zvel() == 0)
 			{
 				a2->add_int_pos({ x, l, 0 });
 				if (a2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
@@ -4657,7 +4657,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
 								ps[a2->PlayerIndex()].player_add_int_z(l);
-						if (a2->int_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
+						if (a2->float_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->add_int_z(l);
 							a2->floorz = sec->floorz;
@@ -4686,7 +4686,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
 								ps[a2->PlayerIndex()].player_add_int_z(l);
-						if (a2->int_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
+						if (a2->float_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->add_int_z(l);
 							a2->floorz = sec->floorz;
@@ -4717,7 +4717,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
 							ps[a2->PlayerIndex()].player_add_int_z(l);
-					if (a2->int_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
+					if (a2->float_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->add_int_z(l);
 						a2->floorz = sec->floorz;
@@ -4745,7 +4745,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
 							ps[a2->PlayerIndex()].player_add_int_z(-l);
-					if (a2->int_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
+					if (a2->float_zvel() == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->add_int_z(-l);
 						a2->floorz = sec->floorz;

@@ -819,7 +819,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 pActor->spr.xvel = 0;
                 pActor->spr.yvel = 0;
 
-                if (pActor->int_zvel() == 0)
+                if (pActor->float_zvel() == 0)
                 {
                     QueenHead.nIndex = 120;
                 }

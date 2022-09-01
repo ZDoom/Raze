@@ -422,8 +422,8 @@ void DoRegenerates()
         pActor->spr.yrepeat = (uint8_t)pActor->spr.xvel;
         pActor->spr.xrepeat = (uint8_t)pActor->spr.xvel;
         pActor->spr.pal  = (uint8_t)pActor->spr.yvel;
-        pActor->spr.yvel = pActor->int_zvel(); // setting to 0
-        pActor->spr.xvel = pActor->int_zvel(); // setting to 0
+        pActor->spr.yvel = 0;
+        pActor->spr.xvel = 0;
 
         if (pActor->spr.statnum == kStatExplodeTrigger) {
             pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;

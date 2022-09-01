@@ -333,9 +333,9 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         auto pSector =pActor->sector();
 
-        pActor->add_int_z(pActor->int_zvel());
+        pActor->spr.pos.Z = pActor->float_zvel();
 
-        if (pActor->int_pos().Z >= pSector->int_floorz())
+        if (pActor->spr.pos.Z >= pSector->floorz)
         {
             if (pSector->pBelow != nullptr)
             {
