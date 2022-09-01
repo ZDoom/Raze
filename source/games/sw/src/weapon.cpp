@@ -13188,7 +13188,6 @@ int InitBunnyRocket(PLAYER* pp)
 int InitNuke(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx, ny, nz;
     int zvel;
 
     if (pp->WpnRocketNuke > 0)
@@ -13207,15 +13206,12 @@ int InitNuke(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), 700);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->angle.ang, 700);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 128;
@@ -13355,13 +13351,12 @@ int InitEnemyNuke(DSWActor* actor)
 int InitMicro(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx, ny, nz, dist;
-    short i,ang;
+    int dist;
+    short i;
+    DAngle angle;
     TARGET_SORT* ts = TargetSort;
     DSWActor* picked = nullptr;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
 
     const int MAX_MICRO = 1;
 
@@ -13379,24 +13374,22 @@ int InitMicro(PLAYER* pp)
         {
             picked = ts->actor;
 
-            ang = getangle(picked->int_pos().X - nx, picked->int_pos().Y - ny);
+            angle = VecToAngle(picked->spr.pos.XY() - pp->pos.XY());
 
             ts++;
         }
         else
         {
             picked = nullptr;
-            ang = pp->angle.ang.Buildang();
+            angle = pp->angle.ang;
         }
 
-        nz = pp->int_ppos().Z + pp->int_bob_z() + Z(14);
-        nz += Z(RandomRange(20)) - Z(10);
+        auto pos = pp->pos.plusZ(pp->bob_z + 4 + RandomRange(20));
 
         // Spawn a shot
         // Inserting and setting up variables
 
-        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector,
-                        nx, ny, nz, ang, 1200);
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector, pos, angle, 1200);
 
         SetOwner(pp->actor, actorNew);
         actorNew->spr.yrepeat = 24;
