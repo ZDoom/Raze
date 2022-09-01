@@ -11358,7 +11358,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->spr.zvel = Z(3);
         actorNew->spr.pal = 0;
 
-        actorNew->set_int_z(int_ActorZOfTop(actor) - Z(20));
+        actorNew->spr.pos.Z = ActorZOfTop(actor) - 20;
         actorNew->user.pos.Z = 50;
 
         // ang around the serp is now slide_ang
@@ -12170,9 +12170,6 @@ int InitMiniSumoClap(DSWActor* actor)
 
 int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 {
-    int dist;
-    int zh;
-
     if (actor->hasU() && actor->user.PlayerP)
     {
         if (Autoaim(actor->user.PlayerP->pnum) != 1)
@@ -12188,28 +12185,28 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
         hitActor->user.Flags |= (SPR_TARGETED);
         hitActor->user.Flags |= (SPR_ATTACKED);
 
-        mislActor->set_int_ang(NORM_ANGLE(getangle(hitActor->int_pos().X - mislActor->int_pos().X, hitActor->int_pos().Y - mislActor->int_pos().Y)));
-        dist = FindDistance2D(mislActor->int_pos().vec2 - hitActor->int_pos().vec2);
+        auto delta = hitActor->spr.pos.XY() - mislActor->spr.pos.XY();
+        mislActor->spr.angle = VecToAngle(delta);
+        double dist = delta.Length();
 
         if (dist != 0)
         {
-            int tos, diff, siz;
-
-            tos = int_ActorZOfTop(hitActor);
-            diff = mislActor->int_pos().Z - tos;
-            siz = int_ActorSizeZ(hitActor);
+            double zh;
+            double tos = ActorZOfTop(hitActor);
+            double diff = mislActor->spr.pos.Z - tos;
+            double siz = ActorSizeZ(hitActor);
 
             // hit_sprite is below
-            if (diff < -Z(50))
-                zh = tos + (siz >> 1);
+            if (diff < -50)
+                zh = tos + (siz * 0.5);
             else
             // hit_sprite is above
-            if (diff > Z(50))
-                zh = tos + (siz >> 3);
+            if (diff > 50)
+                zh = tos + (siz * 0.125);
             else
-                zh = tos + (siz >> 2);
+                zh = tos + (siz * 0.25);
 
-            mislActor->spr.zvel = (mislActor->spr.xvel * (zh - mislActor->int_pos().Z)) / dist;
+            mislActor->spr.zvel = int((mislActor->spr.xvel * (zh - mislActor->spr.pos.Z)) / dist) * (zworldtoint / worldtoint);
         }
         return 0;
     }
