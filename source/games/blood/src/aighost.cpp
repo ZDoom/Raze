@@ -115,9 +115,9 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 		if (tt.at10)
 		{
 			int t = DivScale(nDist, tt.at10, 12);
-			x2 += (actor->vel.X * t) >> 12;
-			y2 += (actor->vel.Y * t) >> 12;
-			z2 += (actor->vel.Z * t) >> 8;
+			x2 += (actor->__int_vel.X * t) >> 12;
+			y2 += (actor->__int_vel.Y * t) >> 12;
+			z2 += (actor->__int_vel.Z * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(actor->int_ang()), nDist, 30);
 		int ty = y + MulScale(Sin(actor->int_ang()), nDist, 30);
@@ -260,8 +260,8 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int dx = actor->vel.X;
-	int dy = actor->vel.Y;
+	int dx = actor->__int_vel.X;
+	int dy = actor->__int_vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -269,9 +269,9 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 	else
 		t2 -= pDudeInfo->sideSpeed;
 
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->vel.Z = -0x1d555;
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.Z = -0x1d555;
 }
 
 static void ghostMoveDodgeDown(DBloodActor* actor)
@@ -288,8 +288,8 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int dx = actor->vel.X;
-	int dy = actor->vel.Y;
+	int dx = actor->__int_vel.X;
+	int dy = actor->__int_vel.Y;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 	if (actor->xspr.dodgeDir > 0)
@@ -297,9 +297,9 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 	else
 		t2 -= pDudeInfo->sideSpeed;
 
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->vel.Z = 0x44444;
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.Z = 0x44444;
 }
 
 static void ghostThinkChase(DBloodActor* actor)
@@ -430,16 +430,16 @@ static void ghostMoveForward(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->vel.X;
-	int vy = actor->vel.Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 1;
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void ghostMoveSlow(DBloodActor* actor)
@@ -464,17 +464,17 @@ static void ghostMoveSlow(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->vel.X;
-	int vy = actor->vel.Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 = nAccel >> 1;
 	t2 >>= 1;
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->vel.Z = 0x44444;
+		actor->__int_vel.Z = 0x44444;
 		break;
 	}
 }
@@ -501,16 +501,16 @@ static void ghostMoveSwoop(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->vel.X;
-	int vy = actor->vel.Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->vel.Z = t1;
+		actor->__int_vel.Z = t1;
 		break;
 	}
 }
@@ -537,16 +537,16 @@ static void ghostMoveFly(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->vel.X;
-	int vy = actor->vel.Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->vel.Z = -t1;
+		actor->__int_vel.Z = -t1;
 		break;
 	}
 }

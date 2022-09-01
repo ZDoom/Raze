@@ -274,8 +274,8 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 					if (nDist != 0 && cansee(actor->int_pos().X, actor->int_pos().Y, top, actor->sector(), x, y, z, target->sector()))
 					{
 						int t = DivScale(nDist, 0x1aaaaa, 12);
-						x += (target->vel.X * t) >> 12;
-						y += (target->vel.Y * t) >> 12;
+						x += (target->__int_vel.X * t) >> 12;
+						y += (target->__int_vel.Y * t) >> 12;
 						auto angBak = actor->spr.angle;
 						actor->spr.angle = VecToAngle(x - actor->int_pos().X, y - actor->int_pos().Y);
 						int dx = bcos(actor->int_ang());

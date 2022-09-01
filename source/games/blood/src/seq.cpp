@@ -348,7 +348,7 @@ void SEQINST::Update()
 
 
 		// by NoOne: add surfaceSound trigger feature
-		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->vel.Z == 0 && actor->vel.X != 0) {
+		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->__int_vel.Z == 0 && actor->__int_vel.X != 0) {
 
 			if (actor->sector()->upperLink) break; // don't play surface sound for stacked sectors
 			int surf = tileGetSurfType(actor->sector()->floorpicnum);

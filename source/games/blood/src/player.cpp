@@ -1451,9 +1451,9 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 				if (nMass)
 				{
 					int t2 = DivScale(0xccccc, nMass, 8);
-					hitactor->vel.X += MulScale(x, t2, 16);
-					hitactor->vel.Y += MulScale(y, t2, 16);
-					hitactor->vel.Z += MulScale(z, t2, 16);
+					hitactor->__int_vel.X += MulScale(x, t2, 16);
+					hitactor->__int_vel.Y += MulScale(y, t2, 16);
+					hitactor->__int_vel.Z += MulScale(z, t2, 16);
 				}
 				if (hitactor->xspr.Push && !hitactor->xspr.state && !hitactor->xspr.isTriggered)
 					trTriggerSprite(hitactor, kCmdSpritePush);
@@ -1600,15 +1600,15 @@ void ProcessInput(PLAYER* pPlayer)
 				forward = MulScale(pPosture->frontAccel, forward, 8);
 			else
 				forward = MulScale(pPosture->backAccel, forward, 8);
-			actor->vel.X += MulScale(forward, x, 30);
-			actor->vel.Y += MulScale(forward, y, 30);
+			actor->__int_vel.X += MulScale(forward, x, 30);
+			actor->__int_vel.Y += MulScale(forward, y, 30);
 		}
 		if (pInput->svel)
 		{
 			int strafe = pInput->svel;
 			strafe = MulScale(pPosture->sideAccel, strafe, 8);
-			actor->vel.X += MulScale(strafe, y, 30);
-			actor->vel.Y -= MulScale(strafe, x, 30);
+			actor->__int_vel.X += MulScale(strafe, y, 30);
+			actor->__int_vel.Y -= MulScale(strafe, x, 30);
 		}
 	}
 	else if (actor->xspr.height < 256)
@@ -1627,8 +1627,8 @@ void ProcessInput(PLAYER* pPlayer)
 				forward = MulScale(pPosture->backAccel, forward, 8);
 			if (actor->xspr.height)
 				forward = MulScale(forward, speed, 16);
-			actor->vel.X += MulScale(forward, x, 30);
-			actor->vel.Y += MulScale(forward, y, 30);
+			actor->__int_vel.X += MulScale(forward, x, 30);
+			actor->__int_vel.Y += MulScale(forward, y, 30);
 		}
 		if (pInput->svel)
 		{
@@ -1636,8 +1636,8 @@ void ProcessInput(PLAYER* pPlayer)
 			strafe = MulScale(pPosture->sideAccel, strafe, 8);
 			if (actor->xspr.height)
 				strafe = MulScale(strafe, speed, 16);
-			actor->vel.X += MulScale(strafe, y, 30);
-			actor->vel.Y -= MulScale(strafe, x, 30);
+			actor->__int_vel.X += MulScale(strafe, y, 30);
+			actor->__int_vel.Y -= MulScale(strafe, x, 30);
 		}
 	}
 
@@ -1656,9 +1656,9 @@ void ProcessInput(PLAYER* pPlayer)
 	switch (pPlayer->posture) {
 	case 1:
 		if (pInput->actions & SB_JUMP)
-			actor->vel.Z -= pPosture->normalJumpZ;//0x5b05;
+			actor->__int_vel.Z -= pPosture->normalJumpZ;//0x5b05;
 		if (pInput->actions & SB_CROUCH)
-			actor->vel.Z += pPosture->normalJumpZ;//0x5b05;
+			actor->__int_vel.Z += pPosture->normalJumpZ;//0x5b05;
 		break;
 	case 2:
 		if (!(pInput->actions & SB_CROUCH))
@@ -1671,8 +1671,8 @@ void ProcessInput(PLAYER* pPlayer)
 #endif
 				sfxPlay3DSound(actor, 700, 0, 0);
 
-			if (packItemActive(pPlayer, 4)) actor->vel.Z = pPosture->pwupJumpZ; //-0x175555;
-			else actor->vel.Z = pPosture->normalJumpZ; //-0xbaaaa;
+			if (packItemActive(pPlayer, 4)) actor->__int_vel.Z = pPosture->pwupJumpZ; //-0x175555;
+			else actor->__int_vel.Z = pPosture->normalJumpZ; //-0xbaaaa;
 			pPlayer->cantJump = 1;
 		}
 
@@ -1764,9 +1764,9 @@ void ProcessInput(PLAYER* pPlayer)
 				spawned->set_int_ang((pPlayer->actor->int_ang() + 1024) & 2047);
 				int x = bcos(pPlayer->actor->int_ang());
 				int y = bsin(pPlayer->actor->int_ang());
-				spawned->vel.X = pPlayer->actor->vel.X + MulScale(0x155555, x, 14);
-				spawned->vel.Y = pPlayer->actor->vel.Y + MulScale(0x155555, y, 14);
-				spawned->vel.Z = pPlayer->actor->vel.Z;
+				spawned->__int_vel.X = pPlayer->actor->__int_vel.X + MulScale(0x155555, x, 14);
+				spawned->__int_vel.Y = pPlayer->actor->__int_vel.Y + MulScale(0x155555, y, 14);
+				spawned->__int_vel.Z = pPlayer->actor->__int_vel.Z;
 			}
 			pPlayer->hand = 0;
 		}
@@ -1862,15 +1862,15 @@ void playerProcess(PLAYER* pPlayer)
 		}
 	}
 	ProcessInput(pPlayer);
-	int nSpeed = approxDist(actor->vel.X, actor->vel.Y);
-	pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->vel.Z, 0x7000);
+	int nSpeed = approxDist(actor->__int_vel.X, actor->__int_vel.Y);
+	pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->__int_vel.Z, 0x7000);
 	int dz = pPlayer->actor->int_pos().Z - pPosture->eyeAboveZ - pPlayer->zView;
 	if (dz > 0)
 		pPlayer->zViewVel += MulScale(dz << 8, 0xa000, 16);
 	else
 		pPlayer->zViewVel += MulScale(dz << 8, 0x1800, 16);
 	pPlayer->zView += pPlayer->zViewVel >> 8;
-	pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->vel.Z, 0x5000);
+	pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->__int_vel.Z, 0x5000);
 	dz = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ - pPlayer->zWeapon;
 	if (dz > 0)
 		pPlayer->zWeaponVel += MulScale(dz << 8, 0x8000, 16);
@@ -2173,7 +2173,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamage
 				double top, bottom;
 				GetActorExtents(pActor, &top, &bottom);
 				DVector3 gibPos(pActor->spr.pos.XY(), top);
-				CGibVelocity gibVel(pActor->vel.X >> 1, pActor->vel.Y >> 1, -0xccccc);
+				CGibVelocity gibVel(pActor->__int_vel.X >> 1, pActor->__int_vel.Y >> 1, -0xccccc);
 				GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
 				GibSprite(pActor, GIBTYPE_7, NULL, NULL);
 				fxSpawnBlood(pActor, nDamage << 4);

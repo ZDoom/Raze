@@ -279,16 +279,16 @@ static void sub_6CB00(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->vel.X;
-	int vy = actor->vel.Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 2;
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void sub_6CD74(DBloodActor* actor)
@@ -315,14 +315,14 @@ static void sub_6CD74(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->vel.X;
-	int vy = actor->vel.Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->vel.Z = -dz;
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.Z = -dz;
 }
 
 static void sub_6D03C(DBloodActor* actor)
@@ -349,14 +349,14 @@ static void sub_6D03C(DBloodActor* actor)
 		return;
 	int nCos = Cos(actor->int_ang());
 	int nSin = Sin(actor->int_ang());
-	int vx = actor->vel.X;
-	int vy = actor->vel.Y;
+	int vx = actor->__int_vel.X;
+	int vy = actor->__int_vel.Y;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-	actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->vel.Z = dz;
+	actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+	actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+	actor->__int_vel.Z = dz;
 }
 
 END_BLD_NS

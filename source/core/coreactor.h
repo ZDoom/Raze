@@ -45,7 +45,7 @@ public:
 	DVector3 opos;
 	int time;
 	DAngle oang;
-	vec3_t vel;
+	vec3_t __int_vel;
 
 	int16_t spritesetindex;
 
@@ -213,42 +213,42 @@ public:
 
 	DVector3 fVel() const
 	{
-		return { FixedToFloat(vel.X), FixedToFloat(vel.Y), FixedToFloat(vel.Z) };
+		return { FixedToFloat(__int_vel.X), FixedToFloat(__int_vel.Y), FixedToFloat(__int_vel.Z) };
 	}
 
 	vec3_t int_vel() const
 	{
-		return vel;
+		return __int_vel;
 	}
 
 	void set_int_bvel_x(int x)
 	{
-		vel.X = x;
+		__int_vel.X = x;
 	}
 
 	void set_int_bvel_y(int x)
 	{
-		vel.Y = x;
+		__int_vel.Y = x;
 	}
 
 	void set_int_bvel_z(int x)
 	{
-		vel.Z = x;
+		__int_vel.Z = x;
 	}
 
 	void add_int_bvel_x(int x)
 	{
-		vel.X += x;
+		__int_vel.X += x;
 	}
 
 	void add_int_bvel_y(int x)
 	{
-		vel.Y += x;
+		__int_vel.Y += x;
 	}
 
 	void add_int_bvel_z(int x)
 	{
-		vel.Z += x;
+		__int_vel.Z += x;
 	}
 
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.

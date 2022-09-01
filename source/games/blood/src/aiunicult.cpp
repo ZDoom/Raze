@@ -220,7 +220,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	if (actor->GetTarget() == nullptr) return;
 
 	int dx, dy, dz;
-	actor->vel.X = actor->vel.Y = 0;
+	actor->__int_vel.X = actor->__int_vel.Y = 0;
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	int dispersion = pExtra->baseDispersion;
@@ -487,8 +487,8 @@ static void unicultThinkChase(DBloodActor* actor)
 	// quick hack to prevent spinning around or changing attacker's sprite angle on high movement speeds
 	// when attacking the target. It happens because vanilla function takes in account x and y velocity, 
 	// so i use fake velocity with fixed value and pass it as argument.
-	int xvelocity = actor->vel.X;
-	int yvelocity = actor->vel.Y;
+	int xvelocity = actor->__int_vel.X;
+	int yvelocity = actor->__int_vel.Y;
 	if (inAttack(actor->xspr.aiState))
 		xvelocity = yvelocity = ClipLow(actor->spr.clipdist >> 1, 1);
 
@@ -1128,16 +1128,16 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 			return;
 		int nCos = Cos(actor->int_ang());
 		int nSin = Sin(actor->int_ang());
-		int vx = actor->vel.X;
-		int vy = actor->vel.Y;
+		int vx = actor->__int_vel.X;
+		int vy = actor->__int_vel.Y;
 		int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 		int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 		if (actor->GetTarget() == nullptr)
 			t1 += nAccel;
 		else
 			t1 += nAccel >> 1;
-		actor->vel.X = DMulScale(t1, nCos, t2, nSin, 30);
-		actor->vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
+		actor->__int_vel.X = DMulScale(t1, nCos, t2, nSin, 30);
+		actor->__int_vel.Y = DMulScale(t1, nSin, -t2, nCos, 30);
 	}
 	else
 	{
@@ -1152,8 +1152,8 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 		int cos = Cos(actor->int_ang());
 
 		int frontSpeed = actor->genDudeExtra.moveSpeed;
-		actor->vel.X += MulScale(cos, frontSpeed, 30);
-		actor->vel.Y += MulScale(sin, frontSpeed, 30);
+		actor->__int_vel.X += MulScale(cos, frontSpeed, 30);
+		actor->__int_vel.Y += MulScale(sin, frontSpeed, 30);
 	}
 }
 
@@ -1798,8 +1798,8 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 			if (nDist != 0 && cansee(actor->int_pos().X, actor->int_pos().Y, top, actor->sector(), x, y, z, actTarget->sector()))
 			{
 				int t = DivScale(nDist, 0x1aaaaa, 12);
-				x += (actTarget->vel.X * t) >> 12;
-				y += (actTarget->vel.Y * t) >> 12;
+				x += (actTarget->__int_vel.X * t) >> 12;
+				y += (actTarget->__int_vel.Y * t) >> 12;
 				auto angBak = actor->spr.angle;
 				actor->spr.angle = VecToAngle(atpos - actor->spr.pos.XY());
 				int dx = bcos(actor->int_ang());

@@ -120,7 +120,7 @@ public:
 	
 	void ZeroVelocity()
 	{
-		vel = { 0,0,0 };
+		__int_vel = { 0,0,0 };
 	}
 
 	bool isActive()
