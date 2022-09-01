@@ -387,7 +387,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 
 bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, const double czoom, const DAngle cang, double const smoothratio)
 {
-	DVector2 v1, v2, v3, v4;
+	DVector2 b1, b2, b3, b4, v1, v2, v3, v4;
 	DAngle an;
 	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
 	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
@@ -419,6 +419,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 			spry = act->int_pos().Y;
 
 			auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
+			auto sp = DVector2(sprx, spry) * inttoworld;
+			auto cp = DVector2(cposx, cposy) * inttoworld;
 
 			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
@@ -435,36 +437,22 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
 				if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP))
 				{
-					x1 = sprx;
-					y1 = spry;
 					tilenum = act->spr.picnum;
 					xoff = tileLeftOffset(tilenum) + act->spr.xoffset;
 					if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
-					k = act->int_ang();
-					l = act->spr.xrepeat;
-					dax = bsin(k) * l;
-					day = -bcos(k) * l;
-					l = tileWidth(tilenum);
-					k = (l >> 1) + xoff;
-					x1 -= MulScale(dax, k, 16);
-					x2 = x1 + MulScale(dax, l, 16);
-					y1 -= MulScale(day, k, 16);
-					y2 = y1 + MulScale(day, l, 16);
 
-					ox = x1 - cposx;
-					oy = y1 - cposy;
-					x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-					y1 = DMulScale(oy, xvect, ox, yvect, 16);
+					xspan = tileWidth(tilenum);
 
-					ox = x2 - cposx;
-					oy = y2 - cposy;
-					x2 = DMulScale(ox, xvect, -oy, yvect, 16);
-					y2 = DMulScale(oy, xvect, ox, yvect, 16);
+					an = -cang;
+					b1 = act->spr.angle.ToVector().Rotated90CW() * act->spr.xrepeat * (1. / 64.);
+					b2 = sp * inttoworld - b1 * ((xspan * 0.5) + xoff);
+					b3 = b2 + b1 * xspan;
 
-					drawlinergb(x1 + xdim, y1 + ydim,
-						x2 + xdim, y2 + ydim, col);
+					v1 = OutAutomapVector(b2 - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
+					v2 = OutAutomapVector(b3 - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
+
+					drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
 				}
-
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_FLOOR:
