@@ -402,6 +402,9 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 	int xdim = twod->GetWidth() << 11;
 	int ydim = twod->GetHeight() << 11;
 
+	auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
+	auto cp = DVector2(cposx, cposy) * inttoworld;
+
 	//Draw sprites
 	auto pactor = ps[screenpeek].GetActor();
 	for (unsigned ii = 0; ii < sector.Size(); ii++)
@@ -418,9 +421,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 			sprx = act->int_pos().X;
 			spry = act->int_pos().Y;
 
-			auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
 			auto sp = DVector2(sprx, spry) * inttoworld;
-			auto cp = DVector2(cposx, cposy) * inttoworld;
 
 			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
@@ -504,32 +505,18 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		auto act = ps[p].GetActor();
-
-		ox = mx - cposx;
-		oy = my - cposy;
-		x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-		y1 = DMulScale(oy, xvect, ox, yvect, 16);
-		int xx = twod->GetWidth() / 2. + x1 / 4096.;
-		int yy = twod->GetHeight() / 2. + y1 / 4096.;
-
-		auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(smoothratio / 65536.)) - cang).Normalized360().Degrees();
-
 		if (p == screenpeek || ud.coop == 1)
 		{
 			auto& pp = ps[p];
-			if (act->spr.xvel > 16 && pp.on_ground)
-				i = TILE_APLAYERTOP + ((PlayClock >> 4) & 3);
-			else
-				i = TILE_APLAYERTOP;
+			auto act = pp.GetActor();
+			i = TILE_APLAYERTOP + (act->spr.xvel > 16 && pp.on_ground ? (PlayClock >> 4) & 3 : 0);
+			j = clamp(czoom * (act->spr.yrepeat + abs(pp.truefz - pp.pos.Z)), 22000., 131072.);
 
-			j = abs(int(pp.truefz - pp.pos.Z));
-			j = czoom * (act->spr.yrepeat + j);
+			an = -cang;
+			auto const vec = OutAutomapVector(DVector2(mx, my) * inttoworld - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
+			auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(smoothratio / 65536.)) - cang).Normalized360().Degrees();
 
-			if (j < 22000) j = 22000;
-			else if (j > (65536 << 1)) j = (65536 << 1);
-
-			DrawTexture(twod, tileGetTexture(i), xx, yy, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), act->spr.pal), DTA_CenterOffset, true,
+			DrawTexture(twod, tileGetTexture(i), vec.X, vec.Y, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), act->spr.pal), DTA_CenterOffset, true,
 				DTA_Rotate, daang, DTA_Color, shadeToLight(act->spr.shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}
