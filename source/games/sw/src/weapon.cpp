@@ -14706,8 +14706,8 @@ int InitUzi(PLAYER* pp)
     if (RANDOM_P2(1024) < 400)
         InitTracerUzi(pp);
 
-    nz = pp->int_ppos().Z + pp->int_bob_z();
-    daz = pp->int_ppos().Z + pp->int_bob_z();
+    nz = pp->int_ppos().Z + pp->bob_z * zworldtoint;
+    daz = nz;
     daang = 32;
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
     {
@@ -15809,7 +15809,6 @@ int InitEnemyUzi(DSWActor* actor)
 int InitGrenade(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx, ny, nz;
     int zvel;
     bool auto_aim = false;
 
@@ -15825,15 +15824,12 @@ int InitGrenade(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), GRENADE_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector, pos, pp->angle.ang, GRENADE_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -15949,7 +15945,6 @@ int InitSpriteGrenade(DSWActor* actor)
 int InitMine(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx, ny, nz;
     int dot;
 
     PlayerUpdateAmmo(pp, actor->user.WeaponNum, -1);
@@ -15959,15 +15954,12 @@ int InitMine(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->int_ppos().X;
-    ny = pp->int_ppos().Y;
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(8);
+    auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector,
-                    nx, ny, nz, pp->angle.ang.Buildang(), MINE_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector, pos, pp->angle.ang, MINE_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = 32;
@@ -16071,7 +16063,6 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 int InitFireball(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx = 0, ny = 0, nz;
     int zvel;
 
     PlayerUpdateAmmo(pp, WPN_HOTHEAD, -1);
@@ -16084,12 +16075,9 @@ int InitFireball(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    nx += pp->int_ppos().X;
-    ny += pp->int_ppos().Y;
+    auto pos = pp->pos.plusZ(pp->bob_z + 15);
 
-    nz = pp->int_ppos().Z + pp->int_bob_z() + Z(15);
-
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, nx, ny, nz, pp->angle.ang.Buildang(), FIREBALL_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, pos, pp->angle.ang, FIREBALL_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.xrepeat = 40;
