@@ -1360,7 +1360,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         pSector = pActor->sector();
 
         pActor->clear_xvel();
-        pActor->spr.yvel = 0;
+        pActor->clear_yvel();
         pActor->clear_zvel();
         pActor->spr.pos.Z = pSector->floorz;
     }

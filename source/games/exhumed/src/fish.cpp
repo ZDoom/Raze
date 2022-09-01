@@ -123,7 +123,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
         if (coll.type != kHitNone)
         {
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
         }
     }
 
@@ -161,7 +161,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].a, 0);
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->clear_zvel();
     pActor->set_int_ang(nAngle);
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -379,7 +379,7 @@ void AIFish::Tick(RunListEvent* ev)
             else
             {
                 pActor->clear_xvel();
-                pActor->spr.yvel = 0;
+                pActor->clear_yvel();
             }
 
             pActor->set_int_zvel(int((pTargetActor->spr.pos.Z - pActor->spr.pos.Z) * zworldtoint / 8));

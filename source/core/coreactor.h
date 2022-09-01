@@ -178,6 +178,37 @@ public:
 		spr.xint = int(spr.xint * v);
 	}
 
+	// Only used this way by Exhumed.
+	int int_yvel() const
+	{
+		return spr.yint;
+	}
+
+	double float_yvel() const
+	{
+		return spr.yint * inttoworld;
+	}
+
+	void clear_yvel()
+	{
+		spr.yint = 0;
+	}
+
+	void set_int_yvel(int v)
+	{
+		spr.yint = v;
+	}
+
+	void add_int_yvel(int v)
+	{
+		spr.yint += v;
+	}
+
+	void mul_int_yvel(double v)
+	{
+		spr.yint = int(spr.yint * v);
+	}
+
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 
 	double interpolatedx(double const smoothratio, int const scale = 16)

@@ -57,7 +57,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 110;
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->clear_zvel();
     pActor->spr.xrepeat = 87;
     pActor->spr.yrepeat = 96;
@@ -106,7 +106,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
     pActor->set_int_ang(RandomSize(11));
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->set_int_zvel((-256) - RandomSize(10));
     pActor->spr.pos = DVector3(pSet->spr.pos.XY(), RandomSize(8) + 32 + pActor->sector()->ceilingz - GetActorHeightF(pActor));
 
@@ -186,7 +186,7 @@ void AISet::Damage(RunListEvent* ev)
         if (pActor->nHealth <= 0)
         {
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
             pActor->clear_zvel();
             pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
@@ -327,7 +327,7 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
 
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
 
             pActor->pTarget = FindPlayer(pActor, 1000);
         }
@@ -358,7 +358,7 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nAction = 7;
                     pActor->nFrame = 0;
                     pActor->clear_xvel();
-                    pActor->spr.yvel = 0;
+                    pActor->clear_yvel();
                     return;
                 }
                 case 1:
@@ -369,7 +369,7 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nFrame = 0;
                     pActor->nRun = 5;
                     pActor->clear_xvel();
-                    pActor->spr.yvel = 0;
+                    pActor->clear_yvel();
                     return;
                 }
                 default:
@@ -412,7 +412,7 @@ void AISet::Tick(RunListEvent* ev)
                             pActor->nAction = 7;
                             pActor->nFrame = 0;
                             pActor->clear_xvel();
-                            pActor->spr.yvel = 0;
+                            pActor->clear_yvel();
                             return;
                         }
                     }
@@ -441,7 +441,7 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nAction = 7;
                     pActor->nFrame = 0;
                     pActor->clear_xvel();
-                    pActor->spr.yvel = 0;
+                    pActor->clear_yvel();
                     return;
                 }
             }
@@ -552,7 +552,7 @@ void AISet::Tick(RunListEvent* ev)
         if (bVal)
         {
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
 
             PlotCourseToSprite(pActor, pTarget);
 
@@ -561,7 +561,7 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nRun = 5;
 
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
         }
         return;
     }
@@ -609,7 +609,7 @@ void AISet::Tick(RunListEvent* ev)
                 pActor->nCount = 100;
                 pActor->pTarget = nullptr;
                 pActor->clear_xvel();
-                pActor->spr.yvel = 0;
+                pActor->clear_yvel();
             }
         }
     }

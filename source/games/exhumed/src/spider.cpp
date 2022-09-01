@@ -55,7 +55,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
     spp->spr.shade = -12;
     spp->spr.clipdist = 15;
     spp->clear_xvel();
-    spp->spr.yvel = 0;
+    spp->clear_yvel();
     spp->clear_zvel();
     spp->spr.xrepeat = 40;
     spp->spr.yrepeat = 40;
@@ -199,7 +199,7 @@ void AISpider::Tick(RunListEvent* ev)
                 else
                 {
                     spp->clear_xvel();
-                    spp->spr.yvel = 0;
+                    spp->clear_yvel();
                 }
 
                 if (spp->nAction == 1 && RandomBit())
@@ -257,7 +257,7 @@ void AISpider::Tick(RunListEvent* ev)
             {
                 spp->nAction = 0;
                 spp->clear_xvel();
-                spp->spr.yvel = 0;
+                spp->clear_yvel();
             }
 
             spp->nFrame = 0;
@@ -272,7 +272,7 @@ void AISpider::Tick(RunListEvent* ev)
         spp->nFrame = 0;
 
         spp->clear_xvel();
-        spp->spr.yvel = 0;
+        spp->clear_yvel();
     }
 
     auto nMov = movesprite(spp, spp->int_xvel() << nVel, spp->spr.yvel << nVel, spp->int_zvel(), 1280, -1280, CLIPMASK0);

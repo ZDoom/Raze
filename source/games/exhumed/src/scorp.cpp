@@ -63,7 +63,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.yoffset = 0;
     pActor->set_int_ang(nAngle);
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->clear_zvel();
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;
@@ -128,7 +128,7 @@ void AIScorp::Damage(RunListEvent* ev)
         pActor->nCount = 10;
 
         pActor->clear_xvel();
-        pActor->spr.yvel = 0;
+        pActor->clear_yvel();
         pActor->clear_zvel();
         pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
@@ -427,7 +427,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
                 pTarget->spr.pos.plusZ(-GetActorHeightF(pTarget)), pTarget->sector()))
             {
                 pActor->clear_xvel();
-                pActor->spr.yvel = 0;
+                pActor->clear_yvel();
 				pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
 
                 pActor->nIndex = RandomSize(2) + RandomSize(3);
@@ -456,7 +456,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         pActor->pTarget = nullptr;
 
         pActor->clear_xvel();
-        pActor->spr.yvel = 0;
+        pActor->clear_yvel();
     }
 }
 

@@ -115,7 +115,7 @@ void BuildGrenade(int nPlayer)
     pActor->spr.angle = pPlayerActor->spr.angle;
     pActor->spr.intowner = nPlayer;
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->clear_zvel();
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;

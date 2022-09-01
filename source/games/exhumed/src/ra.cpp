@@ -91,7 +91,7 @@ void BuildRa(int nPlayer)
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->clear_zvel();
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;

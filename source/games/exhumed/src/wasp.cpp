@@ -75,7 +75,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
     pActor->spr.picnum = 1;
     pActor->set_int_ang(nAngle);
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->clear_zvel();
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -288,7 +288,7 @@ void AIWasp::Tick(RunListEvent* ev)
             if (nChaseVal.actor() == pTarget)
             {
                 pActor->clear_xvel();
-                pActor->spr.yvel = 0;
+                pActor->clear_yvel();
                 runlist_DamageEnemy(pTarget, pActor, pActor->nDamage);
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
@@ -321,7 +321,7 @@ void AIWasp::Tick(RunListEvent* ev)
         //if (nMove.type != kHitNone) // The code messed up the return value so this check always was true.
         {
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
             pActor->set_int_zvel(1024);
             pActor->nAction = 5;
             pActor->nFrame = 0;
@@ -344,7 +344,7 @@ void AIWasp::Tick(RunListEvent* ev)
             }
 
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
             pActor->clear_zvel();
             pActor->nAction = 6;
             pActor->nFrame = 0;

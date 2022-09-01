@@ -66,7 +66,7 @@ void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.yoffset = 0;
     pActor->set_int_ang(nAngle);
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->clear_zvel();
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
@@ -120,7 +120,7 @@ void AILion::Damage(RunListEvent* ev)
         {
             // R.I.P.
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
             pActor->clear_zvel();
             pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
@@ -161,7 +161,7 @@ void AILion::Damage(RunListEvent* ev)
                     {
                         pActor->nAction = 4;
                         pActor->clear_xvel();
-                        pActor->spr.yvel = 0;
+                        pActor->clear_yvel();
                     }
                     else if (RandomSize(1))
                     {
@@ -174,7 +174,7 @@ void AILion::Damage(RunListEvent* ev)
                     {
                         pActor->nAction = 8;
                         pActor->clear_xvel();
-                        pActor->spr.yvel = 0;
+                        pActor->clear_yvel();
                         pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
                     }
 
@@ -258,7 +258,7 @@ void AILion::Tick(RunListEvent* ev)
                 else
                 {
                     pActor->clear_xvel();
-                    pActor->spr.yvel = 0;
+                    pActor->clear_yvel();
                 }
 
                 pActor->nCount = 100;
@@ -305,7 +305,7 @@ void AILion::Tick(RunListEvent* ev)
                     pActor->nAction = 9;
                     pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
                     pActor->clear_xvel();
-                    pActor->spr.yvel = 0;
+                    pActor->clear_yvel();
                 }
                 else
                 {
@@ -529,7 +529,7 @@ void AILion::Tick(RunListEvent* ev)
             pActor->nCount = 100;
             pActor->pTarget = nullptr;
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
         }
     }
 }

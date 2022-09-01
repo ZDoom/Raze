@@ -69,7 +69,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, in
     ap->spr.xrepeat = 40;
     ap->spr.yrepeat = 40;
     ap->clear_xvel();
-    ap->spr.yvel = 0;
+    ap->clear_yvel();
     ap->clear_zvel();
     ap->spr.hitag = 0;
     ap->spr.lotag = runlist_HeadRun() + 1;
@@ -215,7 +215,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                         pTarget->spr.pos.plusZ(-GetActorHeightF(pTarget)), pTarget->sector()))
                     {
                         ap->clear_xvel();
-                        ap->spr.yvel = 0;
+                        ap->clear_yvel();
                         ap->spr.angle = VecToAngle(pTarget->spr.pos - ap->spr.pos);
 
                         ap->nAction = 3;
@@ -277,7 +277,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     case 5:
     {
         ap->clear_xvel();
-        ap->spr.yvel = 0;
+        ap->clear_yvel();
 
         if (bVal)
         {
@@ -308,7 +308,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             ap->nFrame = 0;
 
             ap->clear_xvel();
-            ap->spr.yvel = 0;
+            ap->clear_yvel();
         }
         return;
     }
@@ -334,7 +334,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             ap->pTarget = nullptr;
 
             ap->clear_xvel();
-            ap->spr.yvel = 0;
+            ap->clear_yvel();
         }
     }
 }
@@ -414,7 +414,7 @@ void AIAnubis::Damage(RunListEvent* ev)
         {
             // he ded.
             ap->clear_xvel();
-            ap->spr.yvel = 0;
+            ap->clear_yvel();
             ap->clear_zvel();
 			ap->spr.pos.Z = ap->sector()->floorz;
             ap->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;

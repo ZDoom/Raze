@@ -54,7 +54,7 @@ void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 32;
     pActor->clear_xvel();
-    pActor->spr.yvel = 0;
+    pActor->clear_yvel();
     pActor->clear_zvel();
     pActor->spr.xrepeat = 42;
     pActor->spr.yrepeat = 42;
@@ -148,7 +148,7 @@ void AIMummy::Tick(RunListEvent* ev)
             pActor->nAction = 0;
             pActor->nFrame = 0;
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
         }
     }
 
@@ -208,7 +208,7 @@ void AIMummy::Tick(RunListEvent* ev)
                         pActor->nFrame = 0;
 
                         pActor->clear_xvel();
-                        pActor->spr.yvel = 0;
+                        pActor->clear_yvel();
                         return;
                     }
                 }
@@ -243,14 +243,14 @@ void AIMummy::Tick(RunListEvent* ev)
             {
                 pActor->spr.yvel -= 1024;
                 if (pActor->spr.yvel < 0) {
-                    pActor->spr.yvel = 0;
+                    pActor->clear_yvel();
                 }
             }
             else if (pActor->spr.yvel < 0)
             {
                 pActor->spr.yvel += 1024;
                 if (pActor->spr.yvel > 0) {
-                    pActor->spr.yvel = 0;
+                    pActor->clear_yvel();
                 }
             }
         }
@@ -276,7 +276,7 @@ void AIMummy::Tick(RunListEvent* ev)
                     pActor->nFrame = 0;
 
                     pActor->clear_xvel();
-                    pActor->spr.yvel = 0;
+                    pActor->clear_yvel();
                 }
             }
             return;
@@ -380,7 +380,7 @@ void AIMummy::Tick(RunListEvent* ev)
         if (bVal)
         {
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
             pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nAction = 0;
@@ -441,7 +441,7 @@ void AIMummy::Damage(RunListEvent* ev)
         pActor->nAction = 4;
 
         pActor->clear_xvel();
-        pActor->spr.yvel = 0;
+        pActor->clear_yvel();
         pActor->clear_zvel();
         pActor->spr.pos.Z = pActor->sector()->floorz;
     }
@@ -453,7 +453,7 @@ void AIMummy::Damage(RunListEvent* ev)
             pActor->nFrame = 0;
 
             pActor->clear_xvel();
-            pActor->spr.yvel = 0;
+            pActor->clear_yvel();
         }
     }
 
