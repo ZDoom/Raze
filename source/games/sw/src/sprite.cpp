@@ -2403,7 +2403,6 @@ void SpriteSetup(void)
                     break;
 
                 case DEMO_CAMERA:
-                    actor->spr.yvel = 100;
                     actor->set_int_zvel(100); //attempt horiz control
                     change_actor_stat(actor, STAT_DEMO_CAMERA);
                     break;

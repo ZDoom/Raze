@@ -520,10 +520,11 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
     actorNew->spr.xoffset = tsp->xoffset;
     actorNew->spr.yoffset = tsp->yoffset;
     actorNew->spr.angle = tsp->angle;
-    actorNew->spr.xvel = tsp->xvel;
-    actorNew->spr.yvel = tsp->yvel;
+    actorNew->spr.xint = tsp->xint;
+    actorNew->spr.yint = tsp->yint;
     actorNew->spr.inittype = tsp->inittype;
     actorNew->spr.shade = tsp->shade;
+    // this later also needs to copy the real velocity, because the sprite renderer accesses it. :(
 
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 

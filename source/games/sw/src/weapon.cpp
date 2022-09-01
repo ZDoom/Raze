@@ -9134,7 +9134,6 @@ int DoRail(DSWActor* actor)
             auto actorNew = SpawnActor(STAT_MISSILE, PUFF, &s_RailPuff[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 20);
 
             actorNew->spr.xvel += (RandomRange(140)-RandomRange(140));
-            actorNew->spr.yvel += (RandomRange(140)-RandomRange(140));
             actorNew->add_int_zvel( (RandomRange(140)-RandomRange(140)));
 
             actorNew->user.RotNum = 5;
@@ -11121,7 +11120,7 @@ int DoSerpRing(DSWActor* actor)
     }
 
     // rotate the ring
-    actor->user.slide_ang = NORM_ANGLE(actor->user.slide_ang + actor->spr.yvel);
+    actor->user.slide_ang = NORM_ANGLE(actor->user.slide_ang + actor->spr.yint);
 
     // rotate the heads
     if (actor->user.Flags & (SPR_BOUNCE))
@@ -11336,7 +11335,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->spr.shade = -20;
         actorNew->spr.xrepeat = 64;
         actorNew->spr.yrepeat = 64;
-        actorNew->spr.yvel = 2*RINGMOVETICS;
+        actorNew->spr.yint = 2*RINGMOVETICS;
         actorNew->set_int_zvel(Z(3));
         actorNew->spr.pal = 0;
 

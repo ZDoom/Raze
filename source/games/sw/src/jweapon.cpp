@@ -437,7 +437,7 @@ int DoBloodSpray(DSWActor* actor)
                     return 0;
                 }
 
-                actor->clear_xyvel();
+                actor->clear_xvel();
                 actor->user.change.X = actor->user.change.Y = 0;
                 actor->spr.xrepeat = actor->spr.yrepeat = 70 - RandomRange(25);
                 actor->spr.pos.XY() = bldActor->spr.pos.XY();
@@ -1336,7 +1336,7 @@ int InitChemBomb(DSWActor* actor)
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
     {
 		actor->user.change.Zero();
-        actorNew->spr.xvel = actorNew->spr.yvel = 0;
+        actorNew->clear_xvel();
         actorNew->clear_zvel();
         // Smoke will come out for this many seconds
         actorNew->user.WaitTics = 40*120;
