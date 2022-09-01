@@ -1073,6 +1073,7 @@ void DrawCrosshair(PLAYER* pp)
 
 void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngle *tang, fixedhoriz *thoriz)
 {
+
     DAngle ang;
     bool found_camera = false;
     bool player_in_camera = false;
@@ -1084,12 +1085,14 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngl
         SWStatIterator it(STAT_DEMO_CAMERA);
         while (auto actor = it.Next())
         {
-            ang = VecToAngle(*tx - actor->int_pos().X, *ty - actor->int_pos().Y);
+		    DVector3 test1(*tx * inttoworld, *ty * inttoworld, *tz * zinttoworld);
+			
+            ang = VecToAngle(test1.XY() - actor->spr.pos.XY());
             ang_test = deltaangle(ang, actor->spr.angle) < DAngle::fromBuild(actor->spr.lotag);
 
             FAFcansee_test =
-                (FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz, pp->cursector) ||
-                 FAFcansee_(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), *tx, *ty, *tz + int_ActorSizeZ(pp->actor), pp->cursector));
+                (FAFcansee(actor->spr.pos, actor->sector(), test1, pp->cursector) ||
+                 FAFcansee(actor->spr.pos, actor->sector(), test1.plusZ(ActorSizeZ(pp->actor)), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 
