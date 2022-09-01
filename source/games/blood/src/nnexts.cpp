@@ -1315,7 +1315,7 @@ void nnExtProcessSuperSprites()
 					int dx = MulScale(speed, Cos(angle), 30);
 					int dy = MulScale(speed, Sin(angle), 30);
 					debrisactor->add_int_bvel_x(dx);
-					debrisactor->__int_vel.Y += dy;
+					debrisactor->add_int_bvel_y(dy);
 				}
 			}
 
@@ -1335,7 +1335,7 @@ void nnExtProcessSuperSprites()
 						nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
 
 						debrisactor->add_int_bvel_x(MulScale(nSpeed, Cos(pPlayer->actor->int_ang()), 30));
-						debrisactor->__int_vel.Y += MulScale(nSpeed, Sin(pPlayer->actor->int_ang()), 30);
+						debrisactor->add_int_bvel_y(MulScale(nSpeed, Sin(pPlayer->actor->int_ang()), 30));
 
 						debrisactor->hit.hit.setSprite(pPlayer->actor);
 					}
@@ -1582,7 +1582,7 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, 
 				int t = Scale(dmg, size, actor->spriteMass.mass);
 
 				actor->add_int_bvel_x(MulScale(t, dx, 16));
-				actor->__int_vel.Y += MulScale(t, dy, 16);
+				actor->add_int_bvel_y(MulScale(t, dy, 16));
 				actor->__int_vel.Z += MulScale(t, dz, 16);
 			}
 
@@ -1855,7 +1855,7 @@ void debrisMove(int listIndex)
 		if ((floorColl.actor()->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
 			actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - floorColl.actor()->int_pos().X, 2));
-			actor->__int_vel.Y += MulScale(4, actor->int_pos().Y - floorColl.actor()->int_pos().Y, 2);
+			actor->add_int_bvel_y(MulScale(4, actor->int_pos().Y - floorColl.actor()->int_pos().Y, 2));
 			return;
 		}
 	}
@@ -3119,7 +3119,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 		if (relative)
 		{
 			pSprite->add_int_bvel_x(xv);
-			pSprite->__int_vel.Y += yv;
+			pSprite->add_int_bvel_y(yv);
 			pSprite->__int_vel.Z += zv;
 		}
 		else
@@ -8224,7 +8224,7 @@ void aiPatrolMove(DBloodActor* actor)
 
 		frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
 		actor->add_int_bvel_x(MulScale(frontSpeed, Cos(actor->int_ang()), 30));
-		actor->__int_vel.Y += MulScale(frontSpeed, Sin(actor->int_ang()), 30);
+		actor->add_int_bvel_y(MulScale(frontSpeed, Sin(actor->int_ang()), 30));
 	}
 
 	vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
@@ -9233,7 +9233,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		}
 		RotateVector(&dx, &dy, nAngle);
 		burstactor->add_int_bvel_x(dx);
-		burstactor->__int_vel.Y += dy;
+		burstactor->add_int_bvel_y(dy);
 		burstactor->__int_vel.Z += dz;
 		evPostActor(burstactor, 960, kCallbackRemove);
 	}

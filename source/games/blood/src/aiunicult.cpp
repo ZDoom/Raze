@@ -1153,7 +1153,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 
 		int frontSpeed = actor->genDudeExtra.moveSpeed;
 		actor->add_int_bvel_x(MulScale(cos, frontSpeed, 30));
-		actor->__int_vel.Y += MulScale(sin, frontSpeed, 30);
+		actor->add_int_bvel_y(MulScale(sin, frontSpeed, 30));
 	}
 }
 

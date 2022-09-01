@@ -403,7 +403,7 @@ static void beastMoveForward(DBloodActor* actor)
 	if (nDist <= 0x400 && Random(64) < 32)
 		return;
 	actor->add_int_bvel_x(MulScale(pDudeInfo->frontSpeed, Cos(actor->int_ang()), 30));
-	actor->__int_vel.Y += MulScale(pDudeInfo->frontSpeed, Sin(actor->int_ang()), 30);
+	actor->add_int_bvel_y(MulScale(pDudeInfo->frontSpeed, Sin(actor->int_ang()), 30));
 }
 
 static void sub_628A0(DBloodActor* actor)

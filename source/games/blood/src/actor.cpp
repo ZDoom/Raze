@@ -2576,7 +2576,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 			int size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat) >> 1;
 			int t = Scale(damage, size, mass);
 			actor->add_int_bvel_x((int)MulScaleF(t, vect.X, 12));
-			actor->__int_vel.Y += (int)MulScaleF(t, vect.Y, 12);
+			actor->add_int_bvel_y((int)MulScaleF(t, vect.Y, 12));
 			actor->__int_vel.Z += (int)MulScaleF(t, vect.Z, 12);
 		}
 	}
@@ -4160,13 +4160,13 @@ static void checkCeilHit(DBloodActor* actor)
 					if (pThingInfo->flags & 2) actor2->spr.flags |= 4;
 					// Inlined ?
 					actor2->add_int_bvel_x(int(adelta.X * 16));
-					actor2->__int_vel.Y += int(adelta.Y * 16);
+					actor2->add_int_bvel_y(int(adelta.Y * 16));
 				}
 				else
 				{
 					actor2->spr.flags |= 5;
 					actor2->add_int_bvel_x(int(adelta.X * 16));
-					actor2->__int_vel.Y += int(adelta.Y * 16);
+					actor2->add_int_bvel_y(int(adelta.Y * 16));
 #ifdef NOONE_EXTENSIONS
 					// add size shroom abilities
 					if ((actor->IsPlayerActor() && isShrinked(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
@@ -4502,7 +4502,7 @@ void actAirDrag(DBloodActor* actor, int a2)
 		}
 	}
 	actor->add_int_bvel_x(MulScale(wind_x - actor->int_vel().X, a2, 16));
-	actor->__int_vel.Y += MulScale(wind_y - actor->int_vel().Y, a2, 16);
+	actor->add_int_bvel_y(MulScale(wind_y - actor->int_vel().Y, a2, 16));
 	actor->__int_vel.Z -= MulScale(actor->int_vel().Z, a2, 16);
 }
 
@@ -4698,7 +4698,7 @@ static Collision MoveThing(DBloodActor* actor)
 			if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
 				actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - hitActor->int_pos().X, 2));
-				actor->__int_vel.Y += MulScale(4, actor->int_pos().Y - hitActor->int_pos().Y, 2);
+				actor->add_int_bvel_y(MulScale(4, actor->int_pos().Y - hitActor->int_pos().Y, 2));
 				lhit = actor->hit.hit;
 			}
 		}
@@ -5181,7 +5181,7 @@ void MoveDude(DBloodActor* actor)
 			if ((hitAct->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
 				actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - hitAct->int_pos().X, 2));
-				actor->__int_vel.Y += MulScale(4, actor->int_pos().Y - hitAct->int_pos().Y, 2);
+				actor->add_int_bvel_y(MulScale(4, actor->int_pos().Y - hitAct->int_pos().Y, 2));
 				return;
 			}
 		}
@@ -5672,7 +5672,7 @@ static void actCheckThings()
 					if (pSector->floorstat & CSTAT_SECTOR_ALIGN) angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
 
 					actor->add_int_bvel_x(MulScale(speed, Cos(angle), 30));
-					actor->__int_vel.Y += MulScale(speed, Sin(angle), 30);
+					actor->add_int_bvel_y(MulScale(speed, Sin(angle), 30));
 				}
 			}
 			actAirDrag(actor, 128);
@@ -6100,7 +6100,7 @@ static void actCheckDudes()
 				int dx = MulScale(speed, Cos(angle), 30);
 				int dy = MulScale(speed, Sin(angle), 30);
 				actor->add_int_bvel_x(dx);
-				actor->__int_vel.Y += dy;
+				actor->add_int_bvel_y(dy);
 			}
 		}
 		if (pXSector && pXSector->Underwater) actAirDrag(actor, 5376);
@@ -6404,7 +6404,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	fired->__int_vel.Y = MulScale(a6, Sin(fired->int_ang()), 30);
 	fired->__int_vel.Z = MulScale(a6, a4, 14);
 	fired->add_int_bvel_x(actor->int_vel().X / 2);
-	fired->__int_vel.Y += actor->int_vel().Y / 2;
+	fired->add_int_bvel_y(actor->int_vel().Y / 2);
 	fired->__int_vel.Z += actor->int_vel().Z / 2;
 	return fired;
 }
@@ -6449,7 +6449,7 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 	case kMissileFlameHound:
 		seqSpawn(27, spawned, -1);
 		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
-		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
+		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
 		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
 	case kMissileFireballCerberus:
@@ -6459,14 +6459,14 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 	case kMissileFireballTchernobog:
 		seqSpawn(23, spawned, dword_2192D8);
 		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
-		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
+		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
 		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
 	case kMissileFlameSpray:
 		if (Chance(0x8000))	seqSpawn(0, spawned, -1);
 		else seqSpawn(1, spawned, -1);
 		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
-		spawned->__int_vel.Y += actor->int_vel().Y / 2 + Random2(0x11111);
+		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
 		spawned->__int_vel.Z += actor->int_vel().Z / 2 + Random2(0x11111);
 		break;
 	case kMissileFlareAlt:
@@ -6770,7 +6770,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				{
 					int t2 = DivScale(pVectorData->impulse, t, 8);
 					actor->add_int_bvel_x(MulScale(a4, t2, 16));
-					actor->__int_vel.Y += MulScale(a5, t2, 16);
+					actor->add_int_bvel_y(MulScale(a5, t2, 16));
 					actor->__int_vel.Z += MulScale(a6, t2, 16);
 				}
 				if (pVectorData->burnTime)
@@ -6800,7 +6800,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				{
 					int t2 = DivScale(pVectorData->impulse, t, 8);
 					actor->add_int_bvel_x(MulScale(a4, t2, 16));
-					actor->__int_vel.Y += MulScale(a5, t2, 16);
+					actor->add_int_bvel_y(MulScale(a5, t2, 16));
 					actor->__int_vel.Z += MulScale(a6, t2, 16);
 				}
 				if (pVectorData->burnTime)
@@ -6858,7 +6858,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 
 						int impulse = DivScale(pVectorData->impulse, ClipLow(actor->spriteMass.mass, 10), 6);
 						actor->add_int_bvel_x(MulScale(a4, impulse, 16));
-						actor->__int_vel.Y += MulScale(a5, impulse, 16);
+						actor->add_int_bvel_y(MulScale(a5, impulse, 16));
 						actor->__int_vel.Z += MulScale(a6, impulse, 16);
 
 						if (pVectorData->burnTime != 0) {

@@ -304,7 +304,7 @@ void aiMoveForward(DBloodActor* actor)
 	if (abs(nAng) > DAngle60)
 		return;
 	actor->add_int_bvel_x(MulScale(pDudeInfo->frontSpeed, Cos(actor->int_ang()), 30));
-	actor->__int_vel.Y += MulScale(pDudeInfo->frontSpeed, Sin(actor->int_ang()), 30);
+	actor->add_int_bvel_y(MulScale(pDudeInfo->frontSpeed, Sin(actor->int_ang()), 30));
 }
 
 //---------------------------------------------------------------------------

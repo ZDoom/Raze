@@ -1452,7 +1452,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 				{
 					int t2 = DivScale(0xccccc, nMass, 8);
 					hitactor->add_int_bvel_x(MulScale(x, t2, 16));
-					hitactor->__int_vel.Y += MulScale(y, t2, 16);
+					hitactor->add_int_bvel_y(MulScale(y, t2, 16));
 					hitactor->__int_vel.Z += MulScale(z, t2, 16);
 				}
 				if (hitactor->xspr.Push && !hitactor->xspr.state && !hitactor->xspr.isTriggered)
@@ -1601,7 +1601,7 @@ void ProcessInput(PLAYER* pPlayer)
 			else
 				forward = MulScale(pPosture->backAccel, forward, 8);
 			actor->add_int_bvel_x(MulScale(forward, x, 30));
-			actor->__int_vel.Y += MulScale(forward, y, 30);
+			actor->add_int_bvel_y(MulScale(forward, y, 30));
 		}
 		if (pInput->svel)
 		{
@@ -1628,7 +1628,7 @@ void ProcessInput(PLAYER* pPlayer)
 			if (actor->xspr.height)
 				forward = MulScale(forward, speed, 16);
 			actor->add_int_bvel_x(MulScale(forward, x, 30));
-			actor->__int_vel.Y += MulScale(forward, y, 30);
+			actor->add_int_bvel_y(MulScale(forward, y, 30));
 		}
 		if (pInput->svel)
 		{
