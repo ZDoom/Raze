@@ -7920,7 +7920,7 @@ int DoPlasma(DSWActor* actor)
 	auto oldv = actor->spr.pos;
     DoBlurExtend(actor, 0, 4);
 
-    auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+    auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
     double daz = actor->float_zvel();
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), 16, 16, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -8849,7 +8849,7 @@ int DoBoltThinMan(DSWActor* actor)
 {
     DoBlurExtend(actor, 0, 4);
 
-	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
 	double daz = actor->float_zvel();
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -9420,7 +9420,7 @@ int DoBoltSeeker(DSWActor* actor)
     MissileSeek(actor, 30, 768/*, 4, 48, 6*/);
     DoBlurExtend(actor, 0, 4);
 
-	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
 	double daz = actor->float_zvel();
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -9459,7 +9459,7 @@ int DoElectro(DSWActor* actor)
     if (actor->user.Counter > 0)
         MissileSeek(actor, 30, 512/*, 3, 52, 2*/);
 
-	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
 	double daz = actor->float_zvel();
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -16081,7 +16081,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 
     actor->spr.xvel = dist;
 	
-	auto vec = MOVExy(actor->spr.xvel, actor->spr.angle);
+	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
 
     actor->spr.clipdist = 32L >> 2;
 

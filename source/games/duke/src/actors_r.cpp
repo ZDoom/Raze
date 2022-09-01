@@ -2375,8 +2375,8 @@ static void heavyhbomb(DDukeActor *actor)
 
 	Collision coll;
 	movesprite_ex(actor,
-		MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14),
-		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14),
+		MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14),
+		MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14),
 		actor->int_zvel(), CLIPMASK0, coll);
 
 	if (actor->sector()->lotag == 1 && actor->float_zvel() == 0)
@@ -2563,8 +2563,8 @@ static int henstand(DDukeActor *actor)
 		makeitfall(actor);
 		Collision coll;
 		movesprite_ex(actor,
-			MulScale(bcos(actor->int_ang()), actor->spr.xvel, 14),
-			MulScale(bsin(actor->int_ang()), actor->spr.xvel, 14),
+			MulScale(bcos(actor->int_ang()), actor->int_xvel(), 14),
+			MulScale(bsin(actor->int_ang()), actor->int_xvel(), 14),
 			actor->int_zvel(), CLIPMASK0, coll);
 		if (coll.type)
 		{

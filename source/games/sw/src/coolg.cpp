@@ -706,8 +706,8 @@ int DoCoolgCircle(DSWActor* actor)
 
     actor->set_int_ang(NORM_ANGLE(actor->int_ang() + actor->user.Counter2));
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
     if (!move_actor(actor, nx, ny, 0L))
     {

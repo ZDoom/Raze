@@ -225,8 +225,8 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 	Collision c;
 
 	return movesprite_ex(actor,
-		MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14),
-		MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->int_zvel(),
+		MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14),
+		MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14), actor->int_zvel(),
 		cliptype, c) == kHitNone;
 }
 
@@ -1257,8 +1257,8 @@ void movecanwithsomething(DDukeActor* actor)
 
 void bounce(DDukeActor* actor)
 {
-	int xvect = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 10);
-	int yvect = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 10);
+	int xvect = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 10);
+	int yvect = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 10);
 	int zvect = actor->int_zvel();
 
 	auto sectp = actor->sector();
@@ -1464,8 +1464,8 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		auto sect = actor->sector();
 		auto pos = actor->spr.pos;
 		int j = clipmove(pos, &sect,
-			(MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14) * TICSPERFRAME) << 11,
-			(MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14) * TICSPERFRAME) << 11,
+			(MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14) * TICSPERFRAME) << 11,
+			(MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14) * TICSPERFRAME) << 11,
 			24, (4 << 8), (4 << 8), CLIPMASK1, coll);
 		actor->spr.pos = pos;;
 		actor->setsector(sect);
@@ -2219,7 +2219,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			else actor->add_int_zvel( gs.gravity - 50);
 		}
 
-		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), 0 });
+		actor->add_int_pos({ MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14), MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14), 0 });
 		actor->spr.pos.Z += actor->float_zvel();
 
 		if (floorcheck && actor->spr.pos.Z >= actor->sector()->floorz)
@@ -2494,7 +2494,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 			}
 		}
 		if (actor->float_zvel() < 16) actor->add_int_zvel( gs.gravity - 50);
-		actor->add_int_pos({ MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14), MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14), actor->int_zvel()});
+		actor->add_int_pos({ MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14), MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14), actor->int_zvel()});
 	}
 	else
 	{
@@ -2824,8 +2824,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				}
 		}
 
-		int m = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-		x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+		int m = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+		x = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 		double mm = m * inttoworld;
 		double xx = x * inttoworld;
 
@@ -2983,8 +2983,8 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 	if (actor->spr.xvel)
 	{
-		int l = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-		int x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+		int l = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+		int x = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
 		if ((sc->floorz - sc->ceilingz) < 108)
 			if (ud.clipping == 0)
@@ -3134,8 +3134,8 @@ void handle_se02(DDukeActor* actor)
 			else sc->setfloorslope(sc->getfloorslope() + (Sgn(actor->temp_data[5] - sc->getfloorslope()) << 4));
 		}
 
-		int m = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-		int x = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+		int m = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+		int x = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -4118,8 +4118,8 @@ void handle_se20(DDukeActor* actor)
 
 	if (actor->spr.xvel) //Moving
 	{
-		int x = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-		int l = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+		int x = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+		int l = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
 		actor->temp_data[3] += actor->spr.xvel;
 

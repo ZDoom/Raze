@@ -773,8 +773,8 @@ int DoActorDeathMove(DSWActor* actor)
             DoActorFall(actor);
     }
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
     actor->spr.clipdist = (128+64)>>2;
     move_actor(actor, nx, ny, 0);

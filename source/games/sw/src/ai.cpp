@@ -805,8 +805,8 @@ int DoActorMoveCloser(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0))
@@ -1282,8 +1282,8 @@ int DoActorMoveJump(DSWActor* actor)
 
     // Move while jumping
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
     move_actor(actor, nx, ny, 0L);
 
@@ -1590,8 +1590,8 @@ int DoActorReposition(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = MulScale(actor->spr.xvel, bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->spr.xvel, bsin(actor->int_ang()), 14);
+    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
+    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
     // still might hit something and have to handle it.
     if (!move_actor(actor, nx, ny, 0L))
