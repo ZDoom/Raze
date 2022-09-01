@@ -60,7 +60,7 @@ static struct so_interp
         double bakipos;
         double lastipos;
         double lastoldipos;
-        double lastangdiff;
+        DAngle lastangdiff;
         TObjPtr<DSWActor*> actorofang;
     } data[SO_MAXINTERPOLATIONS];
 
@@ -209,7 +209,7 @@ static void so_setspriteanginterpolation(so_interp *interp, DSWActor* actor)
     data->oldipos =
         data->lastipos =
         data->lastoldipos = actor->int_ang();
-    data->lastangdiff = 0;
+    data->lastangdiff = nullAngle;
     data->actorofang = actor;
 }
 
@@ -333,9 +333,9 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
                 if (actorofang)
                 {
                     if (actorofang->hasU())
-                        actorofang->user.oangdiff = 0;
+                        actorofang->user.oangdiff = nullAngle;
                     if (!interpolating)
-                        data->lastangdiff = 0;
+                        data->lastangdiff = nullAngle;
                     data->oldipos = actorofang->int_ang();
                 }
             }
@@ -390,7 +390,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                     auto actorofang = data->actorofang;
                     if (actorofang)
                     {
-                        data->lastangdiff = actorofang->hasU() ? actorofang->user.oangdiff : 0;
+                        data->lastangdiff = actorofang->hasU() ? actorofang->user.oangdiff : nullAngle;
                     }
                 }
             }
@@ -443,7 +443,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             {
                 DSWActor* actor = data->actorofang;
                 if (!actor) continue;
-                actor->set_int_ang(NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16)));
+                actor->set_int_ang(NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff.Buildang(), ratio, 16)));
             }
             else
             {
@@ -508,7 +508,7 @@ void so_serializeinterpolations(FSerializer& arc)
                             if (arc.isReading())
                             {
                                 data->lastipos = data->lastoldipos = data->oldipos;
-                                data->lastangdiff = 0;
+                                data->lastangdiff = nullAngle;
                             }
                         }
                     }

@@ -59,10 +59,10 @@ void SOwallmove(SECTOR_OBJECT* sop, DSWActor* actor, walltype* find_wallp, int d
             if (&wal == find_wallp)
             {
                 // move orig x and y in saved angle
-                int ang = actor->user.sang;
+                auto ang = actor->user.sang;
 
-                *nx = MulScale(dist, bcos(ang), 14);
-                *ny = MulScale(dist, bsin(ang), 14);
+                *nx = dist * ang.Cos();
+                *ny = dist * ang.Sin();
 
                 sop->xorig[wallcount] -= *nx;
                 sop->yorig[wallcount] -= *ny;

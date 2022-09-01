@@ -855,7 +855,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 
 		if (arc.isReading())
 		{
-			w.oangdiff = 0;
+			w.oangdiff = nullAngle;
 		}
 	}
 	return arc;

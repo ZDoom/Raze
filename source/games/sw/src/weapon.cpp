@@ -10070,7 +10070,7 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECT* sop)
     actor->user.pos.XY() = sop->pmid.XY() - actor->spr.pos.XY();
     actor->user.pos.Z = sop->mid_sector->floorz - actor->spr.pos.Z;
 
-    actor->user.sang = actor->int_ang();
+    actor->user.sang = actor->spr.angle;
 }
 
 void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, bool smallflames)

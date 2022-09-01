@@ -838,7 +838,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
                 itActor->user.Flags |= (SPR_SO_ATTACHED);
 
-                itActor->user.sang = itActor->int_ang();
+                itActor->user.sang = itActor->spr.angle;
                 itActor->user.spal = itActor->spr.pal;
 
                 // search SO's sectors to make sure that it is not on a
@@ -1673,8 +1673,8 @@ PlayerPart:
             }
         }
 
-        int16_t oldang = actor->int_ang();
-        actor->set_int_ang(actor->user.sang);
+        auto oldang = actor->spr.angle;
+        actor->spr.angle = actor->user.sang;
 
         if (actor->user.Flags & (SPR_ON_SO_SECTOR))
         {
@@ -1714,7 +1714,7 @@ PlayerPart:
                 SetActorZ(sop->so_actors[i], actor->spr.pos);
         }
 
-        actor->user.oangdiff += getincangle(oldang, actor->int_ang());
+        actor->user.oangdiff += ::deltaangle(oldang, actor->spr.angle);
 
         if ((actor->spr.extra & SPRX_BLADE))
         {
