@@ -7715,7 +7715,7 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
         double zdiff = actor->spr.pos.Z - ActorZOfTop(goal) - (ActorSizeZ(goal) * 0.25);
         double dist = g_sqrt((actor->spr.pos.XY() - goal->spr.pos.XY()).LengthSquared() + zdiff * zdiff);
 
-        actor->user.change.Z = (actor->spr.xvel * zinttoworld) * zdiff / dist + actor->user.change.Z * (15 / 16.);
+        actor->user.change.Z = (actor->float_xvel()) * zdiff / dist + actor->user.change.Z * (15 / 16.);
     }
     return 0;
 }
@@ -7779,7 +7779,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 
 		auto oc = actor->user.change;
 
-        auto vel = (actor->spr.xvel * zinttoworld) / dist;
+        auto vel = (actor->int_xvel() * zinttoworld) / dist;
         actor->user.change = DVector3(delta, -zdiff) * vel;
 
         // the large turn_speed is the slower the turn
@@ -7827,7 +7827,7 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
 
         auto oc = actor->user.change;
 
-        auto vel = (actor->spr.xvel * zinttoworld) / dist;
+        auto vel = (actor->int_xvel() * zinttoworld) / dist;
         actor->user.change = DVector3(delta, zdiff) * vel + oc * (7. / 8);
 
         SetAngleFromChange(actor);

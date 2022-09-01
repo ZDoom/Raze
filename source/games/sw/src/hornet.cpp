@@ -504,7 +504,7 @@ int DoHornetDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-	auto vec = actor->spr.angle.ToVector() * actor->spr.xvel * inttoworld;
+	auto vec = actor->spr.angle.ToVector() * actor->float_xvel();
 
     actor->user.coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, 1, ACTORMOVETICS);
 

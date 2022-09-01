@@ -278,8 +278,8 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
-	actor->spr.pos.X += actor->spr.xvel * actor->spr.angle.Cos() * inttoworld;
-	actor->spr.pos.Y += actor->spr.xvel * actor->spr.angle.Sin() * inttoworld;
+	actor->spr.pos.X += actor->float_xvel() * actor->spr.angle.Cos();
+	actor->spr.pos.Y += actor->float_xvel() * actor->spr.angle.Sin();
 
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];

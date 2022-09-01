@@ -1448,7 +1448,7 @@ void PlaceActorsOnTracks(void)
             actor->user.track_dir = 1;
         }
 
-        actor->user.track_vel = actor->spr.xvel * 256;
+        actor->user.track_vel = actor->int_xvel() * 256;
         actor->user.vel_tgt = actor->user.track_vel;
         actor->user.vel_rate = 6;
 
@@ -3433,7 +3433,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
             // (velocity * difference between the target and the object) /
             // distance
-            actor->set_int_zvel((int) -((actor->spr.xvel * (actor->spr.pos.Z - tpoint->pos.Z)) / dist));
+            actor->set_int_zvel((int) -((actor->int_xvel() * (actor->spr.pos.Z - tpoint->pos.Z)) / dist));
         }
     }
     else
@@ -3487,7 +3487,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         else
         {
             // calculate a new x and y
-			vec.XY() = actor->spr.angle.ToVector() * actor->spr.xvel * inttoworld;
+			vec.XY() = actor->spr.angle.ToVector() * actor->float_xvel();
         }
 
         if (actor->float_zvel() != 0)
