@@ -623,7 +623,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT& w, 
 			("clipbox_num", w.clipbox_num, def->clipbox_num)
 			.Array("sectp", w.sectp, def->sectp, w.num_sectors)
 			.Array("zorig_floor", w.zorig_floor, def->zorig_floor, w.num_sectors)
-			.Array("zorig_ceiling", w.zorig_ceiling, def->zorig_ceiling, w.num_sectors)
 			.Array("sp_num", w.so_actors, def->so_actors, countof(w.so_actors))
 			.Array("xorig", w.xorig, def->xorig, w.num_walls)
 			.Array("yorig", w.yorig, def->yorig, w.num_walls)
@@ -634,8 +633,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT& w, 
 			("zmid", w.pmid.Z, def->pmid.Z)
 			("vel", w.vel, def->vel)
 			("vel_tgt", w.vel_tgt, def->vel_tgt)
-			("player_xoff", w.player_xoff, def->player_xoff)
-			("player_yoff", w.player_yoff, def->player_yoff)
 			("zdelta", w.zdelta, def->zdelta)
 
 			("z_tgt", w.z_tgt, def->z_tgt)

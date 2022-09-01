@@ -1467,13 +1467,12 @@ struct SECTOR_OBJECT
 
     int    vel,            // velocity
            vel_tgt,        // target velocity
-           player_xoff,    // player x offset from the xmid
-           player_yoff,    // player y offset from the ymid
+           update,         // Distance from player at which you continue updating
+
+        // start of must floatify
            zorig_floor[MAX_SO_SECTOR],      // original z values for all sectors
-           zorig_ceiling[MAX_SO_SECTOR],      // original z values for all sectors
            z_tgt,          // target z delta
            z_rate,         // rate at which z aproaches target
-           update,         // Distance from player at which you continue updating
     // only works for single player.
            bob_diff,       // bobbing difference for the frame
            floor_loz,      // floor low z
@@ -1482,6 +1481,8 @@ struct SECTOR_OBJECT
            morph_z_min,    // morphing point z min
            morph_z_max,
            bob_amt,        // bob amount max in z coord
+        // end of must floatify
+
     // variables set by mappers for drivables
            drive_angspeed,
            drive_angslide,

@@ -723,7 +723,6 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
             sect->extra |= SECTFX_SECTOR_OBJECT;
 
             sop->zorig_floor[sop->num_sectors] = sect->int_floorz();
-            sop->zorig_ceiling[sop->num_sectors] = sect->int_ceilingz();
 
             if ((sect->extra & SECTFX_SINK))
                 sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->depth_fixed));
@@ -954,7 +953,6 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->turn_speed = 4;
         sop->floor_loz = -9999999;
         sop->floor_hiz = 9999999;
-        sop->player_xoff = sop->player_yoff = 0;
         sop->ang_tgt = sop->ang = sop->ang_moving = 0;
         sop->op_main_sector = nullptr;
         sop->ram_damage = 0;
