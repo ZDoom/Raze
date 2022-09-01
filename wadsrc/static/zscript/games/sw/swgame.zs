@@ -188,8 +188,7 @@ struct SWPlayer native
     native voidptr sop_remote;	// the status bar needs to check this - remove once the underlying type can be supported.
 
     native int jump_count, jump_speed;     // jumping
-    native int16 down_speed, up_speed; // diving
-    native double z_speed; // used for diving and flying instead of down_speed, up_speed
+    native double z_speed;
     native int climb_ndx;
     native double hiz,loz;
     native double p_ceiling_dist,p_floor_dist;

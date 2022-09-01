@@ -449,8 +449,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("sop", w.sop)
 			("jump_count", w.jump_count)
 			("jump_speed", w.jump_speed)
-			("down_speed", w.down_speed)
-			("up_speed", w.up_speed)
 			("z_speed", w.z_speed)
 			("climb_ndx", w.climb_ndx)
 			("hiz", w.hiz)

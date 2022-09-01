@@ -4401,7 +4401,7 @@ void DoPlayerDive(PLAYER* pp)
     }
 
     // make player bob if sitting still
-    if (!PLAYER_MOVING(pp) && pp->z_speed == 0 && pp->up_speed == 0)
+    if (!PLAYER_MOVING(pp) && pp->z_speed == 0)
     {
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMT, 3);
     }
@@ -6989,8 +6989,6 @@ saveable_module saveable_player =
 DEFINE_FIELD_X(SWPlayer, PLAYER, sop_remote)
 DEFINE_FIELD_X(SWPlayer, PLAYER, jump_count)
 DEFINE_FIELD_X(SWPlayer, PLAYER, jump_speed)
-DEFINE_FIELD_X(SWPlayer, PLAYER, down_speed)
-DEFINE_FIELD_X(SWPlayer, PLAYER, up_speed)
 DEFINE_FIELD_X(SWPlayer, PLAYER, z_speed)
 DEFINE_FIELD_X(SWPlayer, PLAYER, climb_ndx)
 DEFINE_FIELD_X(SWPlayer, PLAYER, hiz)
