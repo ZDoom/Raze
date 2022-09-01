@@ -677,7 +677,10 @@ void DCoreActor::Serialize(FSerializer& arc)
 		("sprite", spr)
 		("time", time)
 		("spritesetindex", spritesetindex)
-		("spriteext", sprext);
+		("spriteext", sprext)
+		("xvel", vel.X)
+		("yvel", vel.Y)
+		("zvel", vel.Z);
 
 	if (arc.isReading()) spsmooth = {};
 }

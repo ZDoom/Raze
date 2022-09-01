@@ -19,7 +19,6 @@ class DBloodActor : public DCoreActor
 
 public:
 	int dudeSlope;
-	vec3_t vel;
 	bool hasx;
 	XSPRITE xspr;
 	SPRITEHIT hit;
@@ -43,11 +42,6 @@ public:
 	bool hasX() { return hasx; }
 	void addX() { hasx = true; }
 	
-	DVector3 fVel() const
-	{
-		return { FixedToFloat(vel.X), FixedToFloat(vel.Y), FixedToFloat(vel.Z) };
-	}
-
 	void SetOwner(DBloodActor* own)
 	{
 		ownerActor = own;

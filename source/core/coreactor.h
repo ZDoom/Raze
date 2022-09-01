@@ -45,6 +45,8 @@ public:
 	DVector3 opos;
 	int time;
 	DAngle oang;
+	vec3_t vel;
+
 	int16_t spritesetindex;
 
 
@@ -208,6 +210,12 @@ public:
 	{
 		spr.yint = int(spr.yint * v);
 	}
+
+	DVector3 fVel() const
+	{
+		return { FixedToFloat(vel.X), FixedToFloat(vel.Y), FixedToFloat(vel.Z) };
+	}
+
 
 	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
 
