@@ -625,9 +625,9 @@ struct PLAYER
     DVector3 si; // save player interp position for PlayerSprite
     DAngle siang;
 
-    vec2_t vect, ovect, slide_vect;
+    vec2_t vect, ovect, slide_vect; // these need floatification, but must be done together.
     int friction;
-    int16_t slide_ang;
+    int16_t slide_ang; // todo: floatify
     int slide_dec;
     float drive_avel;
 
@@ -644,7 +644,6 @@ struct PLAYER
     bool insector() const { return cursector != nullptr; }
 
     // variables that do not fit into sprite structure
-    int hvel,tilt,tilt_dest;
     PlayerHorizon horizon;
     PlayerAngle angle;
     int16_t recoil_amt;

@@ -206,7 +206,6 @@ struct SWPlayer native
     //native int /*cursectnum,*/lastcursectnum;
 
     // variables that do not fit into sprite structure
-    native int hvel,tilt,tilt_dest;
     native int16 recoil_amt;
     native int16 recoil_speed;
     native int16 recoil_ndx;

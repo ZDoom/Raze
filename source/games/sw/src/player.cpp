@@ -5363,8 +5363,6 @@ void DoPlayerBeginDie(PLAYER* pp)
 
     pp->Flags &= ~(PF_JUMPING|PF_FALLING|PF_DIVING|PF_FLYING|PF_CLIMBING|PF_CRAWLING|PF_LOCK_CRAWL);
 
-    pp->tilt_dest = 0;
-
     ActorCoughItem(pp->actor);
 
     if (numplayers > 1)
@@ -5542,26 +5540,6 @@ void DoPlayerDeathHoriz(PLAYER* pp, short target, short speed)
     }
 }
 
-int DoPlayerDeathTilt(PLAYER* pp, short target, short speed)
-{
-    if (pp->tilt > target)
-    {
-        pp->tilt -= speed;
-        if (pp->tilt <= target)
-            pp->tilt = target;
-    }
-
-    if (pp->tilt < target)
-    {
-        pp->tilt += speed;
-        if (pp->tilt >= target)
-            pp->tilt = target;
-    }
-
-    return pp->tilt == target;
-}
-
-
 void DoPlayerDeathZrange(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -5608,7 +5586,6 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     // if it didn't make it to this angle because of a low ceiling or something
     // continue on to it
     DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 4);
-    //DoPlayerDeathTilt(pp, pp->tilt_dest, 4 * synctics);
 
     // allow turning
     if (pp->Flags & (PF_DEAD_HEAD|PF_HEAD_CONTROL))
@@ -5683,7 +5660,6 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
 
-        //pp->tilt = 0;
         pp->horizon.horiz = q16horiz(0);
         DoPlayerResetMovement(pp);
         plActor->user.ID = NINJA_RUN_R0;
@@ -7003,9 +6979,6 @@ DEFINE_FIELD_X(SWPlayer, PLAYER, circle_camera_ang)
 DEFINE_FIELD_X(SWPlayer, PLAYER, camera_check_time_delay)
 DEFINE_FIELD_X(SWPlayer, PLAYER, cursector)
 DEFINE_FIELD_X(SWPlayer, PLAYER, lastcursector)
-DEFINE_FIELD_X(SWPlayer, PLAYER, hvel)
-DEFINE_FIELD_X(SWPlayer, PLAYER, tilt)
-DEFINE_FIELD_X(SWPlayer, PLAYER, tilt_dest)
 DEFINE_FIELD_X(SWPlayer, PLAYER, recoil_amt)
 DEFINE_FIELD_X(SWPlayer, PLAYER, recoil_speed)
 DEFINE_FIELD_X(SWPlayer, PLAYER, recoil_ndx)
