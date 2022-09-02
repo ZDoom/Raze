@@ -1572,7 +1572,7 @@ bool GameInterface::GenerateSavePic()
 
 bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
 {
-    DVector2 b1, b2, b3, b4, v1, v2, v3, v4;
+    DVector2 b0, b1, b2, b3, b4, v1, v2, v3, v4;
     int xoff, yoff, xspan, yspan, tilenum, p;
     static int pspr_ndx[8] = { 0,0,0,0,0,0,0,0 };
     bool sprisplayer = false;
@@ -1629,6 +1629,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                             }
                             else spnum = actor->spr.picnum;
 
+                            // This yrepeat scale is correct.
                             double sc = czoom * actor->spr.yrepeat * (1. / 32.);
                             if (spnum >= 0)
                             {
@@ -1647,12 +1648,12 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                     xspan = tileWidth(tilenum);
 
-                    b1 = actor->spr.angle.ToVector().Rotated90CW() * actor->spr.xrepeat * (1. / 64.);
-                    b2 = sprxy - b1 * ((xspan * 0.5) + xoff);
-                    b3 = b2 + b1 * xspan;
+                    b0 = actor->spr.angle.ToVector().Rotated90CW() * actor->spr.xrepeat * (1. / 64.);
+                    b1 = sprxy - b0 * ((xspan * 0.5) + xoff);
+                    b2 = b1 + b0 * xspan;
 
-                    v1 = OutAutomapVector(b2 - cpos, cangsin, cangcos, czoom, xydim);
-                    v2 = OutAutomapVector(b3 - cpos, cangsin, cangcos, czoom, xydim);
+                    v1 = OutAutomapVector(b1 - cpos, cangsin, cangcos, czoom, xydim);
+                    v2 = OutAutomapVector(b2 - cpos, cangsin, cangcos, czoom, xydim);
 
                     drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
                     break;
@@ -1678,7 +1679,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                         auto xscale = DVector2(-sprsin * xspan * xrep, +sprcos * xspan * xrep);
                         auto yscale = DVector2(-sprcos * yspan * yrep, -sprsin * yspan * yrep);
 
-                        auto b0 = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);
+                        b0 = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);
                         b1 = sprxy + (b0 * sprsin) + (b0.Rotated90CW() * sprcos);
                         b2 = b1 + xscale;
                         b3 = b2 + yscale;
