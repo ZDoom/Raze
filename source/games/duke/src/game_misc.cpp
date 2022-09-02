@@ -405,12 +405,17 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case CSTAT_SPRITE_ALIGNMENT_FACING:
-				v1 = OutAutomapVector(act->spr.pos.XY() - cpos, cangsin, cangcos, czoom);
-				v2 = OutAutomapVector(act->spr.angle.ToVector() * 8., cangsin, cangcos, czoom);
+				b1 = OutAutomapVector(act->spr.pos.XY() - cpos, cangsin, cangcos, czoom);
+				b2 = OutAutomapVector(act->spr.angle.ToVector() * 8., cangsin, cangcos, czoom);
 
-				drawlinergb(v1.X - v2.X + xydim.X, v1.Y - v2.Y + xydim.Y, v1.X + v2.X + xydim.X, v1.Y + v2.Y + xydim.Y, col);
-				drawlinergb(v1.X - v2.Y + xydim.X, v1.Y + v2.X + xydim.Y, v1.X + v2.X + xydim.X, v1.Y + v2.Y + xydim.Y, col);
-				drawlinergb(v1.X + v2.Y + xydim.X, v1.Y - v2.X + xydim.Y, v1.X + v2.X + xydim.X, v1.Y + v2.Y + xydim.Y, col);
+				v1 = b1 - b2 + xydim;
+				v2 = DVector2(b1.X - b2.Y, b1.Y + b2.X) + xydim;
+				v3 = DVector2(b1.X + b2.Y, b1.Y - b2.X) + xydim;
+				v4 = b1 + b2 + xydim;
+
+				drawlinergb(v1.X, v1.Y, v4.X, v4.Y, col);
+				drawlinergb(v2.X, v2.Y, v4.X, v4.Y, col);
+				drawlinergb(v3.X, v3.Y, v4.X, v4.Y, col);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
