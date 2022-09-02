@@ -4145,7 +4145,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
 			UpdateChangeXY(actorNew);
 
             // for FastShrap
-            actorNew->user.set_int_change_z(abs(actorNew->user.jump_speed*4) - RandomRange(labs(actorNew->user.jump_speed)*8));
+            actorNew->user.set_int_change_z(abs(actorNew->user.jump_speed*4) - RandomRange(abs(actorNew->user.jump_speed)*8));
             actorNew->user.WaitTics = 64 + RANDOM_P2(32);
 
             actor->user.Flags |= (SPR_BOUNCE);
@@ -15986,7 +15986,7 @@ int InitMine(PLAYER* pp)
     dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
 
     // don't adjust for strafing
-    if (labs(dot) > 10000)
+    if (abs(dot) > 10000)
     {
         // adjust xvel according to player velocity
         actorNew->user.add_int_change_x(pp->vect.X>>13);

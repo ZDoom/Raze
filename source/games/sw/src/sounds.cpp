@@ -166,7 +166,7 @@ FRolloffInfo GetRolloff(int basedist)
     if (basedist < 0) // if basedist is negative
     {
         double decayshift = 2;
-        int decay = labs(basedist) / DECAY_CONST;
+        int decay = abs(basedist) / DECAY_CONST;
 
         for (int i = 0; i < decay; i++)
             decayshift *= 2;

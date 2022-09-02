@@ -870,7 +870,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 		case SE_9_DOWN_OPEN_DOOR_LIGHTS:
 			if (sectp->lotag &&
-				labs(sectp->int_ceilingz() - actor->int_pos().Z) > 1024)
+				abs(sectp->ceilingz - actor->spr.pos.Z) > 4)
 				sectp->lotag |= 32768; //If its open
 			[[fallthrough]];
 		case SE_8_UP_OPEN_DOOR_LIGHTS:

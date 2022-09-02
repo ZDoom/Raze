@@ -254,7 +254,7 @@ void PlayerUpdateHealth(PLAYER* pp, short value)
         if (pp->Armor && !NoArmor)
         {
             int armor_damage, player_damage;
-            ArmorCalc(labs(value), &armor_damage, &player_damage);
+            ArmorCalc(abs(value), &armor_damage, &player_damage);
             PlayerUpdateArmor(pp, -armor_damage);
             value = -player_damage;
         }
@@ -6317,7 +6317,7 @@ void pWeaponBob(PANEL_SPRITE* psp, short condition)
     }
     else
     {
-        if (labs((psp->sin_ndx & 1023) - 0) < 70)
+        if (abs((psp->sin_ndx & 1023) - 0) < 70)
         {
             psp->flags &= ~(PANF_BOB);
             psp->sin_ndx = (RANDOM_P2(1024) < 512) ? 1024 : 0;

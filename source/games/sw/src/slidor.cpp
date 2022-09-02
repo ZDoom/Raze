@@ -470,7 +470,7 @@ int DoSlidor(DSWActor* actor)
 
             // new tgt is OPEN (open)
             r->speed = r->orig_speed;
-            r->vel = labs(r->vel);
+            r->vel = abs(r->vel);
 
             r->tgt = r->open_dest;
             SetSlidorInactive(actor);

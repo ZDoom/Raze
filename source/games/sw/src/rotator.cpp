@@ -301,7 +301,7 @@ int DoRotator(DSWActor* actor)
             // new tgt is OPEN (open)
             r->tgt = r->open_dest;
             r->speed = r->orig_speed;
-            r->vel = labs(r->vel);
+            r->vel = abs(r->vel);
 
             SetRotatorInactive(actor);
 

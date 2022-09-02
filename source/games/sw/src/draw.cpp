@@ -488,7 +488,7 @@ void DoStarView(tspritetype* tsp, DSWActor* tActor, int viewz)
     extern STATE s_StarStuck[], s_StarDownStuck[];
     int zdiff = viewz - tsp->int_pos().Z;
 
-    if (labs(zdiff) > Z(24))
+    if (abs(zdiff) > Z(24))
     {
         if (tActor->user.StateStart == s_StarStuck)
             tsp->picnum = s_StarDownStuck[tActor->user.State - s_StarStuck].Pic;
@@ -1127,9 +1127,9 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngl
                     yvect = int(ang.Sin() * 2048.);
 
                     zdiff = actor->int_pos().Z - *tz;
-                    if (labs(actor->int_pos().X - *tx) > 1000)
+                    if (abs(actor->int_pos().X - *tx) > 1000)
                         zvect = Scale(xvect, zdiff, actor->int_pos().X - *tx);
-                    else if (labs(actor->int_pos().Y - *ty) > 1000)
+                    else if (abs(actor->int_pos().Y - *ty) > 1000)
                         zvect = Scale(yvect, zdiff, actor->int_pos().Y - *ty);
                     else if (actor->int_pos().X - *tx != 0)
                         zvect = Scale(xvect, zdiff, actor->int_pos().X - *tx);

@@ -205,7 +205,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
                 plax_found = true;
             }
         }
-        else if (labs(hit.int_hitpos().Z - hiz) < Z(4))
+        else if (abs(hit.int_hitpos().Z - hiz) < Z(4))
         {
             if (FAF_ConnectCeiling(hit.hitSector) && !(hit.hitSector->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
@@ -273,7 +273,7 @@ bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     if (hit.hitWall == nullptr && hit.actor() == nullptr)
     {
         getzsofslopeptr(hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, &hiz, &loz);
-        if (labs(hit.int_hitpos().Z - loz) < Z(4))
+        if (abs(hit.int_hitpos().Z - loz) < Z(4))
         {
             if (FAF_ConnectFloor(hit.hitSector))
             {
@@ -281,7 +281,7 @@ bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
                 plax_found = true;
             }
         }
-        else if (labs(hit.int_hitpos().Z - hiz) < Z(4))
+        else if (abs(hit.int_hitpos().Z - hiz) < Z(4))
         {
             if (FAF_ConnectCeiling(hit.hitSector))
             {

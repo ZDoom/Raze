@@ -1508,7 +1508,7 @@ void SpriteSetupPost(void)
                 continue;
 
             getzsofslopeptr(jActor->sector(), jActor->int_pos().X, jActor->int_pos().Y, &cz, &fz);
-            if (labs(jActor->int_pos().Z - fz) > Z(4))
+            if (abs(jActor->int_pos().Z - fz) > Z(4))
                 continue;
 
             SpawnUser(jActor, 0, nullptr);

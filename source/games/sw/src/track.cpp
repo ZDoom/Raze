@@ -2964,7 +2964,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 if (!hit.hitWall->twoSided())
                     return false;
 
-                zdiff = labs(actor->int_pos().Z - hit.hitWall->nextSector()->int_floorz()) >> 8;
+                zdiff = abs(actor->int_pos().Z - hit.hitWall->nextSector()->int_floorz()) >> 8;
 
                 actor->user.jump_speed = PickJumpSpeed(actor, zdiff);
             }

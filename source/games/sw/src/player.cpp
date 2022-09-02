@@ -1175,7 +1175,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             angle2 = NORM_ANGLE(getangle(itActor->int_pos().X - actor->int_pos().X, itActor->int_pos().Y - actor->int_pos().Y));
 
             // Get the angle difference
-            // delta_ang = labs(pp->angle.ang.Buildang() - angle2);
+            // delta_ang = abs(pp->angle.ang.Buildang() - angle2);
 
             delta_ang = short(abs(getincangle(angle2, actor->int_ang())));
 
@@ -1855,7 +1855,7 @@ void DoPlayerSlide(PLAYER* pp)
     pp->slide_vect.X  = MulScale(pp->slide_vect.X, PLAYER_SLIDE_FRICTION, 16);
     pp->slide_vect.Y  = MulScale(pp->slide_vect.Y, PLAYER_SLIDE_FRICTION, 16);
 
-    if (labs(pp->slide_vect.X) < 12800 && labs(pp->slide_vect.Y) < 12800)
+    if (abs(pp->slide_vect.X) < 12800 && abs(pp->slide_vect.Y) < 12800)
         pp->slide_vect.X = pp->slide_vect.Y = 0;
 
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
@@ -1988,7 +1988,7 @@ void DoPlayerMove(PLAYER* pp)
         pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*2))/3;
     }
 
-    if (labs(pp->vect.X) < 12800 && labs(pp->vect.Y) < 12800)
+    if (abs(pp->vect.X) < 12800 && abs(pp->vect.Y) < 12800)
         pp->vect.X = pp->vect.Y = 0;
 
     actor->set_int_xvel(FindDistance2D(pp->vect.X,pp->vect.Y)>>14);
@@ -2468,9 +2468,9 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
     if (!Prediction)
     {
-        if (labs(pp->input.fvel|pp->input.svel) && !labs(pp->lastinput.fvel| pp->lastinput.svel))
+        if (abs(pp->input.fvel|pp->input.svel) && !abs(pp->lastinput.fvel| pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!labs(pp->input.fvel|pp->input.svel) && labs(pp->lastinput.fvel| pp->lastinput.svel))
+        else if (!abs(pp->input.fvel|pp->input.svel) && abs(pp->lastinput.fvel| pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -2506,7 +2506,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*1))/2;
     }
 
-    if (labs(pp->vect.X) < 12800 && labs(pp->vect.Y) < 12800)
+    if (abs(pp->vect.X) < 12800 && abs(pp->vect.Y) < 12800)
         pp->vect.X = pp->vect.Y = 0;
 
     pp->lastcursector = pp->cursector;
@@ -2540,7 +2540,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), { MAXSO, MAXSO });
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
-    floor_dist = labs(z - pp->sop->floor_loz);
+    floor_dist = abs(z - pp->sop->floor_loz);
 
 
     if (RectClip)
@@ -3099,7 +3099,7 @@ void DoPlayerClimb(PLAYER* pp)
     pp->vect.Y += ((pp->input.svel*synctics*2)<<6);
     pp->vect.X  = MulScale(pp->vect.X, PLAYER_CLIMB_FRICTION, 16);
     pp->vect.Y  = MulScale(pp->vect.Y, PLAYER_CLIMB_FRICTION, 16);
-    if (labs(pp->vect.X) < 12800 && labs(pp->vect.Y) < 12800)
+    if (abs(pp->vect.X) < 12800 && abs(pp->vect.Y) < 12800)
         pp->vect.X = pp->vect.Y = 0;
 
     climbvel = FindDistance2D(pp->vect.X, pp->vect.Y)>>9;
@@ -3333,7 +3333,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
         {
             hit.hitSector = hit.hitWall->nextSector();
 
-            if (hit.hitSector != nullptr && labs(hit.hitSector->int_floorz() - pp->int_ppos().Z) < Z(50))
+            if (hit.hitSector != nullptr && abs(hit.hitSector->int_floorz() - pp->int_ppos().Z) < Z(50))
             {
                 if (Distance(pp->int_ppos().X, pp->int_ppos().Y, hit.int_hitpos().X, hit.int_hitpos().Y) < ((((int)pp->actor->spr.clipdist)<<2) + 256))
                     return true;
@@ -3381,7 +3381,7 @@ bool PlayerFallTest(PLAYER* pp, double player_height)
     {
         // if on a STEEP slope sector and you have not moved off of the sector
         if (pp->lo_sectp &&
-            labs(pp->lo_sectp->floorheinum) > 3000 &&
+            abs(pp->lo_sectp->floorheinum) > 3000 &&
             (pp->lo_sectp->floorstat & CSTAT_SECTOR_SLOPE) &&
             pp->lo_sectp == pp->lastcursector)
         {
