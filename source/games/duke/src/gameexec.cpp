@@ -710,11 +710,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet)
-		{
-			ps[iPlayer].angle.orotscrnang = ps[iPlayer].angle.rotscrnang;
-			ps[iPlayer].angle.rotscrnang = DAngle::fromBuild(lValue);
-		}
+		if (bSet) ps[iPlayer].angle.orotscrnang = ps[iPlayer].angle.rotscrnang = DAngle::fromBuild(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.rotscrnang.Buildang(), sActor, sPlayer);
 		break;
 
