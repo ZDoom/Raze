@@ -240,6 +240,16 @@ public:
 		__int_vel = x;
 	}
 
+	void set_float_bvel(DVector3 x)
+	{
+		__int_vel = { FloatToFixed(x.X), FloatToFixed(x.Y), FloatToFixed(x.Z) };
+	}
+
+	void set_float_bvel_xy(DVector2 x)
+	{
+		__int_vel.XY() = { FloatToFixed(x.X), FloatToFixed(x.Y) };
+	}
+
 	void add_int_bvel_x(int x)
 	{
 		__int_vel .X += x;
