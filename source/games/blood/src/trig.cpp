@@ -27,13 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-int OctantTable[8] = { 5, 6, 2, 1, 4, 7, 3, 0 };
-
-int GetOctant(int x, int y)
-{
-	int vc = abs(x) - abs(y);
-	return OctantTable[7 - (x < 0) - (y < 0) * 2 - (vc < 0) * 4];
-}
 
 void RotateVector(int* dx, int* dy, int nAngle)
 {

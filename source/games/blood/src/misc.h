@@ -68,7 +68,6 @@ void warpInit(TArray<DBloodActor*>& actors);
 int CheckLink(DBloodActor* pSprite);
 int CheckLink(int* x, int* y, int* z, sectortype** pSector);
 
-int GetOctant(int x, int y);
 void RotateVector(int* dx, int* dy, int nAngle);
 
 #include "m_fixed.h"

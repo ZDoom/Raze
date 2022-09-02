@@ -515,6 +515,13 @@ static void viewApplyDefaultPal(tspritetype* pTSprite, sectortype const* pSector
 //
 //---------------------------------------------------------------------------
 
+static int GetOctant(int x, int y)
+{
+	static const uint8_t OctantTable[8] = { 5, 6, 2, 1, 4, 7, 3, 0 };
+	int vc = abs(x) - abs(y);
+	return OctantTable[7 - (x < 0) - (y < 0) * 2 - (vc < 0) * 4];
+}
+
 void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, DAngle cA, int32_t smoothratio)
 {
 	int nViewSprites = tsprites.Size();
