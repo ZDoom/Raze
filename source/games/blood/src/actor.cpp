@@ -2717,13 +2717,13 @@ static void actNapalmMove(DBloodActor* actor)
 		int spawnparam[2];
 		spawnparam[0] = actor->xspr.data4 >> 1;
 		spawnparam[1] = actor->xspr.data4 - spawnparam[0];
-		int ang = actor->int_ang();
+		auto ang = actor->spr.angle;
 		actor->ZeroVelocity();
 		for (int i = 0; i < 2; i++)
 		{
 			int t1 = Random(0x33333) + 0x33333;
-			int rndang = Random2(0x71);
-			actor->set_int_ang((rndang + ang + 2048) & 2047);
+			auto rndang = DAngle::fromBuild(Random2(0x71));
+			actor->spr.angle = (ang + rndang).Normalized360();
 			auto spawned = actFireThing(actor, 0, 0, -0x93d0, kThingNapalmBall, t1);
 			spawned->SetOwner(actor->GetOwner());
 			seqSpawn(61, spawned, nNapalmClient);
@@ -3852,7 +3852,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		if (missileActor->hasX())
 		{
 			actPostSprite(missileActor, kStatDecoration);
-			if (missileActor->int_ang() == 1024) sfxPlay3DSound(missileActor, 307, -1, 0);
+			if (missileActor->spr.angle == DAngle180) sfxPlay3DSound(missileActor, 307, -1, 0);
 			missileActor->spr.type = kSpriteDecoration;
 			seqSpawn(9, missileActor, -1);
 		}
