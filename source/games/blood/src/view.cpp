@@ -811,6 +811,9 @@ void viewDrawScreen(bool sceneonly)
 #endif
 	}
 	UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
+
+	MarkSectorSeen(gView->actor->sector());
+
 	if (automapMode != am_off)
 	{
 		DrawMap(gView->actor);
