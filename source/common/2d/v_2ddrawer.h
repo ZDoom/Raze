@@ -231,6 +231,15 @@ public:
 	void AddThickLine(const DVector2& v1, const DVector2& v2, double thickness, uint32_t color, uint8_t alpha = 255);
 	void AddPixel(int x1, int y1, uint32_t color);
 
+	void AddLine(double x1, double y1, double x2, double y2, const IntRect* clip, uint32_t color, uint8_t alpha = 255)
+	{
+		AddLine(DVector2(x1, y1), DVector2(x2, y2), clip, color, alpha);
+	}
+	void AddThickLine(double x1, double y1, double x2, double y2, double thickness, uint32_t color, uint8_t alpha = 255)
+	{
+		AddThickLine(DVector2(x1, y1), DVector2(x2, y2), thickness, color, alpha);
+	}
+
 	void AddEnableStencil(bool on);
 	void AddSetStencil(int offs, int op, int flags);
 	void AddClearStencil();
