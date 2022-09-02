@@ -50,7 +50,7 @@ void DrawMap(double const smoothratio)
     {
         auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
         auto ang = !SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(smoothratio);
-        DrawOverheadMap(pPlayerActor->interpolatedvec3(smoothratio / 65536.).XY(), ang, smoothratio);
+        DrawOverheadMap(pPlayerActor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio)).XY(), ang, smoothratio);
     }
 }
 

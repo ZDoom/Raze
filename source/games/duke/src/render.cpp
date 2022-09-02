@@ -95,7 +95,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				display_mirror = 1; // should really be 'display external view'.
 				auto cstat = camera->spr.cstat;
 				camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				render_camtex(camera, camera->int_pos(), camera->sector(), camera->interpolatedangle(smoothratio / 65536.), buildhoriz(camera->spr.shade), nullAngle, tex, rect, smoothratio);
+				render_camtex(camera, camera->int_pos(), camera->sector(), camera->interpolatedangle(smoothratio * (1. / MaxSmoothRatio)), buildhoriz(camera->spr.shade), nullAngle, tex, rect, smoothratio);
 				camera->spr.cstat = cstat;
 				display_mirror = 0;
 			});
@@ -245,7 +245,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 
 	GlobalMapFog = fogactive ? 0x999999 : 0;
 	GlobalFogDensity = fogactive ? 350.f : 0.f;
-	DoInterpolations(smoothratio / 65536.);
+	DoInterpolations(smoothratio * (1. / MaxSmoothRatio));
 
 	setgamepalette(BASEPAL);
 
@@ -326,7 +326,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		if (p->newOwner != nullptr)
 		{
 			auto act = p->newOwner;
-			cang = act->interpolatedangle(smoothratio / 65536.);
+			cang = act->interpolatedangle(smoothratio * (1. / MaxSmoothRatio));
 			choriz = buildhoriz(act->spr.shade);
 			cposx = act->int_pos().X;
 			cposy = act->int_pos().Y;

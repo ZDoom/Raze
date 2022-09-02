@@ -321,7 +321,7 @@ void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sect
 	// Get this before everything else
 	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang, fov);
 	if (cl_capfps) r_viewpoint.TicFrac = 1.;
-	else r_viewpoint.TicFrac = smoothratio * (1/65536.);
+	else r_viewpoint.TicFrac = smoothratio * (1./MaxSmoothRatio);
 
 	screen->mLights->Clear();
 	screen->mViewpoints->Clear();

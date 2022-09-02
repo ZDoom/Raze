@@ -229,8 +229,8 @@ struct QAV
 	int y; // 18
 	uint16_t res_id;
 	FRAMEINFO frames[1]; // 24
-	void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536);
-	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio); }
+	void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = MaxSmoothRatio);
+	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = MaxSmoothRatio) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio); }
 	void Play(int, int, int, PLAYER*);
 	void Precache(int palette = 0);
 };

@@ -418,9 +418,9 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                !Player[screenpeek].sop_remote)))
             continue;
 
-        int32_t ratio = smoothratio * synctics + 65536 * interp->tic;
+        int32_t ratio = smoothratio * synctics + MaxSmoothRatio * interp->tic;
         ratio /= interp->lasttic;
-        ratio = (interp->tic == interp->lasttic) ? 65536 : ratio;
+        ratio = (interp->tic == interp->lasttic) ? MaxSmoothRatio : ratio;
 
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
         {

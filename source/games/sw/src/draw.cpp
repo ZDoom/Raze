@@ -618,7 +618,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->pos = tActor->interpolatedvec3(smr4 / 262144.);
+                        tsp->pos = tActor->interpolatedvec3(smr4 * (0.25 / MaxSmoothRatio));
                     }
                 }
 
@@ -626,7 +626,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->pos = tActor->interpolatedvec3(smr2 / 131072.);
+                        tsp->pos = tActor->interpolatedvec3(smr2 * (0.5 / MaxSmoothRatio));
                     }
                 }
             }
@@ -781,7 +781,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             else // Otherwise just interpolate the player sprite
             {
                 pp = tActor->user.PlayerP;
-                double sr = 1. - smoothratio * (1. / 65536.);
+                double sr = 1. - smoothratio * (1. / MaxSmoothRatio);
                 tsp->pos -= (pp->pos - pp->opos) * sr;
                 tsp->angle = pp->angle.interpolatedang(sr);
             }
@@ -1367,7 +1367,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
     if (!sceneonly)
     {
-        DoInterpolations(smoothratio / 65536.);                      // Stick at beginning of drawscreen
+        DoInterpolations(smoothratio * (1. / MaxSmoothRatio));                      // Stick at beginning of drawscreen
         if (cl_sointerpolation)
             so_dointerpolations(sr);                           // Stick at beginning of drawscreen
     }
@@ -1606,7 +1606,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                 PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == peekActor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
 
                 auto statnum = actor->spr.statnum;
-                auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedvec3(smoothratio / 65536.) : actor->spr.pos).XY();
+                auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio)) : actor->spr.pos).XY();
 
                 switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
@@ -1615,7 +1615,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                     {
                         if (czoom > 0.1875)
                         {
-                            const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio / 65536.)) + cang).Normalized360().Degrees();
+                            const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio * (1. / MaxSmoothRatio))) + cang).Normalized360().Degrees();
                             auto vect = OutAutomapVector(mxy - cpos, cangsin, cangcos, czoom, xydim);
 
                             // Special case tiles

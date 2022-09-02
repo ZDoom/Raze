@@ -69,8 +69,8 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
         if (pTSprite->ownerActor)
         {
             // interpolate sprite position
-            pTSprite->pos = pTSprite->ownerActor->interpolatedvec3(smoothratio / 65536.);
-            pTSprite->angle = pTSprite->ownerActor->interpolatedangle(smoothratio / 65536.);
+            pTSprite->pos = pTSprite->ownerActor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio));
+            pTSprite->angle = pTSprite->ownerActor->interpolatedangle(smoothratio * (1. / MaxSmoothRatio));
         }
     }
 
@@ -192,7 +192,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     zbob = bsin(2 * bobangle, -3);
 
-    DoInterpolations(smoothRatio / 65536.);
+    DoInterpolations(smoothRatio * (1. / MaxSmoothRatio));
 
     auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
     auto nPlayerOldCstat = pPlayerActor->spr.cstat;
