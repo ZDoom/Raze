@@ -1785,8 +1785,9 @@ void debrisMove(int listIndex)
 		if (v30 > 0)
 		{
 			actor->xspr.physAttr |= kPhysFalling;
-			actFloorBounceVector(&actor->__int_vel.X, &actor->__int_vel.Y, &v30, actor->sector(), tmpFraction);
-			actor->set_int_bvel_z(v30);
+			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v30), actor->sector(), FixedToFloat(tmpFraction));
+			actor->set_float_bvel(vec4.XYZ());
+			v30 = actor->int_vel().Z;
 
 			if (abs(actor->int_vel().Z) < 0x10000)
 			{

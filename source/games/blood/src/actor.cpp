@@ -2632,6 +2632,15 @@ int actFloorBounceVector(int* x, int* y, int* z, sectortype* pSector, int a5)
 	return mulscale16r(t8, t);
 }
 
+DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSector, double factor)
+{
+	int ioldz = FloatToFixed(oldz);
+	auto vel = actor->int_vel();
+	int v4 = actFloorBounceVector(&vel.X, &vel.Y, &ioldz, pSector, FloatToFixed(factor));
+	return { FixedToFloat(vel.X), FixedToFloat(vel.Y), FixedToFloat(ioldz), FixedToFloat(v4) };
+}
+
+
 //---------------------------------------------------------------------------
 //
 //
@@ -4612,11 +4621,15 @@ static Collision MoveThing(DBloodActor* actor)
 		{
 
 			actor->spr.flags |= 4;
-			int vax = actFloorBounceVector(&actor->__int_vel.X, &actor->__int_vel.Y, (int*)&v20, actor->sector(), pThingInfo->elastic);
+
+			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v20), actor->sector(), FixedToFloat(pThingInfo->elastic));
+			actor->set_float_bvel_xy(vec4.XY());
+			int vax = FloatToFixed(vec4.W);
+
 			int nDamage = MulScale(vax, vax, 30) - pThingInfo->dmgResist;
 			if (nDamage > 0) actDamageSprite(actor, actor, kDamageFall, nDamage);
 
-			actor->set_int_bvel_z(v20);
+			actor->set_int_bvel_z(FloatToFixed(vec4.Z));
 			if (actor->sector()->velFloor == 0 && abs(actor->int_vel().Z) < 0x10000)
 			{
 				actor->set_int_bvel_z(0);
@@ -5099,7 +5112,10 @@ void MoveDude(DBloodActor* actor)
 		int v30 = actor->int_vel().Z - actor->sector()->velFloor;
 		if (v30 > 0)
 		{
-			int vax = actFloorBounceVector((int*)&actor->__int_vel.X, (int*)&actor->__int_vel.Y, (int*)&v30, actor->sector(), 0);
+			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v30), actor->sector(), 0);
+			actor->set_float_bvel_xy(vec4.XY());
+			int vax = FloatToFixed(vec4.W);
+
 			int nDamage = MulScale(vax, vax, 30);
 			if (pPlayer)
 			{
@@ -5113,7 +5129,7 @@ void MoveDude(DBloodActor* actor)
 			nDamage -= 100 << 4;
 			if (nDamage > 0)
 				actDamageSprite(actor, actor, kDamageFall, nDamage);
-			actor->set_int_bvel_z(v30);
+			actor->set_int_bvel_z(FloatToFixed(vec4.Z));
 			if (abs(actor->int_vel().Z) < 0x10000)
 			{
 				actor->set_int_bvel_z(actor->sector()->velFloor);
