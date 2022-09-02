@@ -2606,17 +2606,18 @@ int actWallBounceVector(int* x, int* y, walltype* pWall, int a4)
 //
 //---------------------------------------------------------------------------
 
-int actFloorBounceVector(int* x, int* y, int* z, sectortype* pSector, int a5)
+DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSector, double factor)
 {
-	int t = 0x10000 - a5;
+	DVector4 retval;
+	double t = 1. - factor;
 	if (pSector->floorheinum == 0)
 	{
-		int t2 = MulScale(*z, t, 16);
-		*z = -(*z - t2);
-		return t2;
+		double t2 = oldz * t;
+		return { actor->fVel().X, actor->fVel().Y, oldz - t2, t2};
 	}
 
 	walltype* pWall = pSector->firstWall();
+	auto p = actor->int_vel();
 	int angle = getangle(pWall->delta()) + 512;
 	int t2 = pSector->floorheinum << 4;
 	int t3 = approxDist(-0x10000, t2);
@@ -2624,20 +2625,13 @@ int actFloorBounceVector(int* x, int* y, int* z, sectortype* pSector, int a5)
 	int t5 = DivScale(t2, t3, 16);
 	int t6 = MulScale(t5, Cos(angle), 30);
 	int t7 = MulScale(t5, Sin(angle), 30);
-	int t8 = TMulScale(*x, t6, *y, t7, *z, t4, 16);
-	int t9 = MulScale(t8, 0x10000 + a5, 16);
-	*x -= MulScale(t6, t9, 16);
-	*y -= MulScale(t7, t9, 16);
-	*z -= MulScale(t4, t9, 16);
-	return mulscale16r(t8, t);
-}
-
-DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSector, double factor)
-{
-	int ioldz = FloatToFixed(oldz);
-	auto vel = actor->int_vel();
-	int v4 = actFloorBounceVector(&vel.X, &vel.Y, &ioldz, pSector, FloatToFixed(factor));
-	return { FixedToFloat(vel.X), FixedToFloat(vel.Y), FixedToFloat(ioldz), FixedToFloat(v4) };
+	int t8 = TMulScale(p.X, t6, p.Y, t7, oldz, t4, 16);
+	int t9 = MulScale(t8, 0x10000 + FloatToFixed(factor), 16);
+	retval.X = FixedToFloat(p.X - MulScale(t6, t9, 16));
+	retval.Y = FixedToFloat(p.Y - MulScale(t7, t9, 16));
+	retval.Z = FixedToFloat(oldz - MulScale(t4, t9, 16));
+	retval.W = FixedToFloat(t8 * t);
+	return retval;
 }
 
 
