@@ -2032,19 +2032,25 @@ int operateTripbomb(int snum)
 	DukeSectIterator it(hit.hitSector);
 	while ((act = it.Next()))
 	{
-		if (!actorflag(act, SFLAG_BLOCK_TRIPBOMB) &&
-			abs(act->int_pos().Z - hit.int_hitpos().Z) < (12 << 8) && ((act->int_pos().X - hit.int_hitpos().X) * (act->int_pos().X - hit.int_hitpos().X) + (act->int_pos().Y - hit.int_hitpos().Y) * (act->int_pos().Y - hit.int_hitpos().Y)) < (290 * 290))
-			return 0;
+		if (!actorflag(act, SFLAG_BLOCK_TRIPBOMB))
+		{
+			auto delta = act->spr.pos - hit.hitpos;
+			if (abs(delta.Z) < 12 && delta.XY().LengthSquared() < (18.125 * 18.125))
+				return 0;
+		}
 	}
 
 	if (act == nullptr && hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
 		if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag <= 2) || (!hit.hitWall->twoSided() && hit.hitSector->lotag <= 2))
-			if (((hit.int_hitpos().X - p->player_int_pos().X) * (hit.int_hitpos().X - p->player_int_pos().X) + (hit.int_hitpos().Y - p->player_int_pos().Y) * (hit.int_hitpos().Y - p->player_int_pos().Y)) < (290 * 290))
+		{
+			auto delta = hit.hitpos.XY() - p->pos.XY();
+			if (delta.LengthSquared() < (18.125 * 18.125))
 			{
 				p->pos.Z = p->opos.Z;
 				p->vel.Z = 0;
 				return 1;
 			}
+		}
 
 	return 0;
 }
