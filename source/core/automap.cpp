@@ -292,15 +292,15 @@ void MarkSectorSeen(sectortype* sec)
 //
 //---------------------------------------------------------------------------
 
-void drawlinergb(const double x1, const double y1, const double x2, const double y2, PalEntry p)
+void drawlinergb(const DVector2& v1, const DVector2& v2, PalEntry p)
 {
 	if (am_linethickness <= 1) 
 	{
-		twod->AddLine(x1, y1, x2, y2, &viewport3d, p, uint8_t(am_linealpha * 255));
+		twod->AddLine(v1, v2, &viewport3d, p, uint8_t(am_linealpha * 255));
 	}
 	else
 	{
-		twod->AddThickLine(x1, y1, x2, y2, am_linethickness, p, uint8_t(am_linealpha * 255));
+		twod->AddThickLine(v1, v2, am_linethickness, p, uint8_t(am_linealpha * 255));
 	}
 }
 
@@ -408,7 +408,7 @@ static void drawredlines(const DVector2& cpos, const double sine, const double c
 			{
 				auto v1 = OutAutomapVector(wal.pos - cpos, sine, cosine, gZoom, xydim);
 				auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, sine, cosine, gZoom, xydim);
-				drawlinergb(v1.X, v1.Y, v2.X, v2.Y, RedLineColor());
+				drawlinergb(v1, v2, RedLineColor());
 			}
 		}
 	}
@@ -436,7 +436,7 @@ static void drawwhitelines(const DVector2& cpos, const double sine, const double
 
 			auto v1 = OutAutomapVector(wal.pos - cpos, sine, cosine, gZoom, xydim);
 			auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, sine, cosine, gZoom, xydim);
-			drawlinergb(v1.X, v1.Y, v2.X, v2.Y, WhiteLineColor());
+			drawlinergb(v1, v2, WhiteLineColor());
 		}
 	}
 }
@@ -449,6 +449,7 @@ static void drawwhitelines(const DVector2& cpos, const double sine, const double
 
 static void DrawPlayerArrow(const DVector2& cpos, const DAngle cang, const double czoom, const DAngle pl_angle)
 {
+#if 0
 	static constexpr int arrow[] =
 	{
 		0, 65536, 0, -65536,
@@ -484,6 +485,7 @@ static void DrawPlayerArrow(const DVector2& cpos, const DAngle cang, const doubl
 
 		drawlinergb(sx1, sy1, sx2, sy2, WhiteLineColor());
 	}
+#endif
 }
 
 

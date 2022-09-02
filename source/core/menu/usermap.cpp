@@ -226,29 +226,22 @@ DEFINE_ACTION_FUNCTION(_UserMapMenu, DrawPreview)
 	}
 	float scalex = float(width / (maxx - minx));
 	float scaley = float(height / (maxy - miny));
-	float centerx = (minx + maxx) * 0.5f;
-	float centery = (miny + maxy) * 0.5f;
-	float dcenterx = left + (width * 0.5f);
-	float dcentery = top + (height * 0.5f);
 	float scale = min(scalex, scaley);
-	float drawleft = dcenterx - (centerx - minx) * scale;
-	float drawtop = dcentery - (centery - miny) * scale;
+
+	DVector2 center = { (minx + maxx) * 0.5, (miny + maxy) * 0.5 };
+	DVector2 dcenter = { left + (width * 0.5), top + (height * 0.5) };
 
 	for (auto& wal : entry->walls)
 	{
 		if (wal.nextwall < 0) continue;
 		auto point2 = &entry->walls[wal.point2];
-		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
-			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
-			nullptr, 0xff808080);
+		twod->AddLine(dcenter + (wal.pos - center) * scale, dcenter + (point2->pos - center) * scale, nullptr, 0xff808080);
 	}
 	for (auto& wal : entry->walls)
 	{
 		if (wal.nextwall >= 0) continue;
 		auto point2 = &entry->walls[wal.point2];
-		twod->AddLine(dcenterx + (wal.pos.X - centerx) * scale, dcentery + (wal.pos.Y - centery) * scale,
-			dcenterx + (point2->pos.X - centerx) * scale, dcentery + (point2->pos.Y - centery) * scale,
-			nullptr, 0xffffffff);
+		twod->AddLine(dcenter + (wal.pos - center) * scale, dcenter + (point2->pos - center) * scale, nullptr, 0xffffffff);
 	}
 	return 0;
 }

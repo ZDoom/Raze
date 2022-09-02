@@ -413,9 +413,9 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 				v3 = DVector2(b1.X + b2.Y, b1.Y - b2.X) + xydim;
 				v4 = b1 + b2 + xydim;
 
-				drawlinergb(v1.X, v1.Y, v4.X, v4.Y, col);
-				drawlinergb(v2.X, v2.Y, v4.X, v4.Y, col);
-				drawlinergb(v3.X, v3.Y, v4.X, v4.Y, col);
+				drawlinergb(v1, v4, col);
+				drawlinergb(v2, v4, col);
+				drawlinergb(v3, v4, col);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
@@ -434,7 +434,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 					v1 = OutAutomapVector(b1 - cpos, cangsin, cangcos, czoom, xydim);
 					v2 = OutAutomapVector(b2 - cpos, cangsin, cangcos, czoom, xydim);
 
-					drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
+					drawlinergb(v1, v2, col);
 				}
 				break;
 
@@ -474,10 +474,10 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 				v3 = OutAutomapVector(b3 - cpos, cangsin, cangcos, czoom, xydim);
 				v4 = OutAutomapVector(b4 - cpos, cangsin, cangcos, czoom, xydim);
 
-				drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
-				drawlinergb(v2.X, v2.Y, v3.X, v3.Y, col);
-				drawlinergb(v3.X, v3.Y, v4.X, v4.Y, col);
-				drawlinergb(v4.X, v4.Y, v1.X, v1.Y, col);
+				drawlinergb(v1, v2, col);
+				drawlinergb(v2, v3, col);
+				drawlinergb(v3, v4, col);
+				drawlinergb(v4, v1, col);
 				break;
 			}
 		}

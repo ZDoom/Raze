@@ -18,7 +18,7 @@ void ClearAutomap();
 void MarkSectorSeen(sectortype* sect);
 void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const smoothratio);
 bool AM_Responder(event_t* ev, bool last);
-void drawlinergb(const double x1, const double y1, const double x2, const double y2, PalEntry p);
+void drawlinergb(const DVector2& v1, const DVector2& v2, PalEntry p);
 
 inline DVector2 OutAutomapVector(const DVector2& pos, const double sine, const double cosine, const double zoom = 1., const DVector2& xydim = { 0, 0 })
 {
