@@ -113,102 +113,101 @@ public:
 		spr.angle = spr.angle.Normalized360();
 	}
 
-	// these use Blood's inittype alias to not get caught up in searches.
 	int int_zvel() const
 	{
-		return spr.inittype;
+		return __int_vel.Z;
 	}
 
 	double float_zvel() const
 	{
-		return spr.inittype * zinttoworld; 
+		return __int_vel.Z * zinttoworld;
 	}
 
 	void clear_zvel()
 	{
-		spr.inittype = 0;
+		__int_vel.Z = 0;
 	}
 
 	void set_int_zvel(int v)
 	{
-		spr.inittype = v;
+		__int_vel.Z = v;
 	}
 
 	void add_int_zvel(int v)
 	{
-		spr.inittype += v;
+		__int_vel.Z += v;
 	}
 
 	void mul_int_zvel(double v)
 	{
-		spr.inittype = int(spr.inittype * v);
+		__int_vel.Z = int(__int_vel.Z * v);
 	}
 
 	void clear_xyvel()
 	{
-		spr.xint = spr.yint = 0;
+		__int_vel.X = __int_vel.Y = 0;
 	}
 
 	// Note: Both Duke and SW use Q12.4 for this, Exhumed doesn't seem to treat horizontal velocity with a fixed factor.
 	int int_xvel() const
 	{
-		return spr.xint;
+		return __int_vel.X;
 	}
 
 	double float_xvel() const
 	{
-		return spr.xint * inttoworld;
+		return __int_vel.X * inttoworld;
 	}
 
 	void clear_xvel()
 	{
-		spr.xint = 0;
+		__int_vel.X = 0;
 	}
 
 	void set_int_xvel(int v)
 	{
-		spr.xint = v;
+		__int_vel.X = v;
 	}
 
 	void add_int_xvel(int v)
 	{
-		spr.xint += v;
+		__int_vel.X += v;
 	}
 
 	void mul_int_xvel(double v)
 	{
-		spr.xint = int(spr.xint * v);
+		__int_vel.X = int(__int_vel.X * v);
 	}
 
 	// Only used this way by Exhumed.
 	int int_yvel() const
 	{
-		return spr.yint;
+		return __int_vel.Y;
 	}
 
 	double float_yvel() const
 	{
-		return spr.yint * inttoworld;
+		return __int_vel.Y * inttoworld;
 	}
 
 	void clear_yvel()
 	{
-		spr.yint = 0;
+		__int_vel.Y = 0;
 	}
 
 	void set_int_yvel(int v)
 	{
-		spr.yint = v;
+		__int_vel.Y = v;
 	}
 
 	void add_int_yvel(int v)
 	{
-		spr.yint += v;
+		__int_vel.Y += v;
 	}
 
 	void mul_int_yvel(double v)
 	{
-		spr.yint = int(spr.yint * v);
+		__int_vel.Y = int(__int_vel.Y * v);
 	}
 
 	DVector3 fVel() const
