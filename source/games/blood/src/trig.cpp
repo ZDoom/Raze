@@ -43,12 +43,4 @@ void RotateVector(int* dx, int* dy, int nAngle)
 	*dy = dmulscale30r(ox, Sin(nAngle), oy, Cos(nAngle));
 }
 
-void RotatePoint(int* x, int* y, int nAngle, int ox, int oy)
-{
-	int dx = *x - ox;
-	int dy = *y - oy;
-	*x = ox + dmulscale30r(dx, Cos(nAngle), -dy, Sin(nAngle));
-	*y = oy + dmulscale30r(dx, Sin(nAngle), dy, Cos(nAngle));
-}
-
 END_BLD_NS

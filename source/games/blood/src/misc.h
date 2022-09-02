@@ -70,7 +70,6 @@ int CheckLink(int* x, int* y, int* z, sectortype** pSector);
 
 int GetOctant(int x, int y);
 void RotateVector(int* dx, int* dy, int nAngle);
-void RotatePoint(int* x, int* y, int nAngle, int ox, int oy);
 
 #include "m_fixed.h"
 

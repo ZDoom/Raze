@@ -3133,10 +3133,15 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 
 		if (toAng)
 		{
-			if (toAng180)
-				RotatePoint(&pSprite->__int_vel.X, &pSprite->__int_vel.Y, kAng180, pSprite->int_pos().X, pSprite->int_pos().Y);
-			else
-				RotatePoint(&pSprite->__int_vel.X, &pSprite->__int_vel.Y, (nAng - vAng) & 2047, pSprite->int_pos().X, pSprite->int_pos().Y);
+			DAngle angl;
+			if (toAng180) angl = DAngle180;
+			else angl = DAngle::fromBuild(nAng - vAng);
+			
+			auto velv = pSprite->fVel().XY();
+			auto pt = rotatepoint(pSprite->spr.pos.XY(), velv, angl);
+			//actor->vel.XY() = pt;
+			pSprite->set_int_bvel_x(pt.X * worldtoint);
+			pSprite->set_int_bvel_y(pt.Y * worldtoint);
 
 
 			vAng = getVelocityAngle(pSprite);
@@ -3286,8 +3291,11 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		// change movement direction according source angle
 		if (sourceactor->xspr.data3 & kModernTypeFlag2)
 		{
-			int vAng = getVelocityAngle(actor);
-			RotatePoint(&actor->__int_vel.X, &actor->__int_vel.Y, (sourceactor->spr.int_ang() - vAng) & 2047, actor->int_pos().X, actor->int_pos().Y);
+			auto velv = actor->fVel().XY();
+			auto pt = rotatepoint(actor->spr.pos.XY(), velv, sourceactor->spr.angle - VecToAngle(velv));
+			//actor->vel.XY() = pt;
+			actor->set_int_bvel_x(pt.X * worldtoint);
+			actor->set_int_bvel_y(pt.Y * worldtoint);
 		}
 
 		if (sourceactor->xspr.data3 & kModernTypeFlag4)
