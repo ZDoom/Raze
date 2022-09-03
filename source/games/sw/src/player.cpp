@@ -3086,9 +3086,8 @@ void DoPlayerBeginClimb(PLAYER* pp)
 void DoPlayerClimb(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    int climb_amt;
+    double climbVel;
     int i;
-    int climbvel;
     int dot;
     bool LadderUpdate = false;
 
@@ -3102,10 +3101,10 @@ void DoPlayerClimb(PLAYER* pp)
     if (abs(pp->vect.X) < 12800 && abs(pp->vect.Y) < 12800)
         pp->vect.X = pp->vect.Y = 0;
 
-    climbvel = FindDistance2D(pp->vect.X, pp->vect.Y)>>9;
+    climbVel = DVector2(pp->vect.X, pp->vect.Y).Length() * (1. / 512) * zinttoworld;
     dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
     if (dot < 0)
-        climbvel = -climbvel;
+        climbVel = -climbVel;
 
     // need to rewrite this for FAF stuff
 
@@ -3118,7 +3117,7 @@ void DoPlayerClimb(PLAYER* pp)
         return;
     }
 
-    if (climbvel != 0)
+    if (climbVel != 0)
     {
         // move player to center of ladder
         for (i = synctics; i; i--)
@@ -3185,14 +3184,10 @@ void DoPlayerClimb(PLAYER* pp)
 	}
 
     // moving UP
-    if (climbvel > 0)
+    if (climbVel > 0)
     {
-        // pp->climb_ndx += climb_rate * synctics;
-        climb_amt = (climbvel>>4) * 8;
-
+        pp->pos.Z -= climbVel;
         pp->climb_ndx &= 1023;
-
-        pp->add_int_ppos_Z(-climb_amt);
 
         // if player gets to close the ceiling while climbing
         if (PlayerCeilingHit(pp, pp->hiz))
@@ -3223,15 +3218,10 @@ void DoPlayerClimb(PLAYER* pp)
     }
     else
     // move DOWN
-    if (climbvel < 0)
+    if (climbVel < 0)
     {
-        // pp->climb_ndx += climb_rate * synctics;
-        climb_amt = -(climbvel>>4) * 8;
-
+        pp->pos.Z -= climbVel;
         pp->climb_ndx &= 1023;
-
-        // pp->posz += MulScale(climb_amt, bsin(pp->climb_ndx), 14);
-        pp->add_int_ppos_Z(climb_amt);
 
         // if you are touching the floor
         if (PlayerFloorHit(pp, pp->loz - 4 - PLAYER_HEIGHTF))
@@ -3240,7 +3230,7 @@ void DoPlayerClimb(PLAYER* pp)
             pp->pos.Z = pp->loz - 4 - PLAYER_HEIGHTF;
 
             // if moving backwards start running
-            if (climbvel < 0)
+            if (climbVel < 0)
             {
                 pp->Flags &= ~(PF_CLIMBING|PF_WEAPON_DOWN);
                 plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
