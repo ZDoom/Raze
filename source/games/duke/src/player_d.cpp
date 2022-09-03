@@ -297,7 +297,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
 				splash->spr.angle = ps[p].angle.ang; // Total tweek
-				splash->set_int_xvel(32);
+				splash->vel.X = 2;
 				ssp(actor, CLIPMASK0);
 				splash->vel.X = 0;
 			}
@@ -442,7 +442,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				if (jib)
 				{
 					jib->spr.pos.Z += 4;
-					jib->set_int_xvel(16);
+					jib->vel.X = 1;
 					jib->spr.xrepeat = jib->spr.yrepeat = 24;
 					jib->add_int_ang(64 - (krand() & 127));
 				}

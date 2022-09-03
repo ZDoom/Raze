@@ -336,7 +336,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
 		act->spr.hitag = ud.bomb_tag;
 
-		act->set_int_xvel(16);
+		act->vel.X = 1;
 		ssp(act, CLIPMASK0);
 		act->temp_data[0] = 17;
 		act->temp_data[2] = 0;

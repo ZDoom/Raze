@@ -487,7 +487,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 32;
 		act->spr.yrepeat = 26;
-		act->set_int_xvel(32);
+		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3120:
@@ -495,7 +495,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 12;
 		act->spr.yrepeat = 10;
-		act->set_int_xvel(32);
+		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3122:
@@ -503,7 +503,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 2;
 		act->spr.xrepeat = 8;
 		act->spr.yrepeat = 6;
-		act->set_int_xvel(16);
+		act->vel.X = 1;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3123:
@@ -511,7 +511,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 13;
 		act->spr.yrepeat = 13;
-		act->set_int_xvel(16);
+		act->vel.X = 1;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3124:
@@ -519,7 +519,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 17;
 		act->spr.yrepeat = 12;
-		act->set_int_xvel(32);
+		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3132:
@@ -1277,7 +1277,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = 11;
 			act->spr.yrepeat = 11;
 			act->spr.yint = 4;
-			act->set_int_xvel(32);
+			act->vel.X = 2;
 			break;
 		case RPGSPRITE:
 			act->spr.xrepeat = 16;

@@ -241,14 +241,14 @@ void AIMummy::Tick(RunListEvent* ev)
 
             if (pActor->vel.Y > 0)
             {
-                pActor->add_int_yvel(-1024);
+				pActor->vel.Y -= 64;
                 if (pActor->vel.Y < 0) {
                     pActor->vel.Y = 0;
                 }
             }
             else if (pActor->vel.Y < 0)
             {
-                pActor->add_int_yvel(1024);
+                pActor->vel.Y += 64;
                 if (pActor->vel.Y > 0) {
                     pActor->vel.Y = 0;
                 }

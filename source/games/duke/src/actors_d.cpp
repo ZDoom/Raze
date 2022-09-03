@@ -757,7 +757,7 @@ void movefallers_d(void)
 			{
 				if (act->int_xvel() > 0)
 				{
-					act->add_int_xvel(-8);
+					act->vel.X -= 0.5;
 					ssp(act, CLIPMASK0);
 				}
 
@@ -2372,7 +2372,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else
 		{
-			if (actor->int_xvel() < 32) actor->add_int_xvel( 4);
+			if (actor->int_xvel() < 32) actor->vel.X += 0.25;
 			actor->set_int_xvel(64 - bcos(actor->temp_data[1], -9));
 
 			actor->add_int_ang(getincangle(actor->int_ang(),

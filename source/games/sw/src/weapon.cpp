@@ -9290,7 +9290,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
     actorNew->spr.cstat = actor->spr.cstat;
 
     actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + RandomRange(64) - 32));
-    actorNew->set_int_zvel(actor->int_zvel());
+    actorNew->vel.Z = -actor->vel.Z;
     actorNew->add_int_zvel( RandomRange(Z(16)) - Z(8));
 
 	UpdateChange(actorNew);
@@ -9318,7 +9318,7 @@ int DoMicro(DSWActor* actor)
         actorNew->spr.xrepeat = 20;
         actorNew->spr.yrepeat = 20;
         actorNew->opos = actor->opos;
-        actorNew->set_int_zvel(actor->int_zvel());
+        actorNew->vel.Z = -actor->vel.Z;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 

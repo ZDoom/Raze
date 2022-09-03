@@ -2583,7 +2583,7 @@ static int henstand(DDukeActor *actor)
 					deletesprite(hitact);
 					if (ns)
 					{
-						ns->set_int_xvel(32);
+						ns->vel.X = 2;
 						ns->spr.lotag = 40;
 						ns->spr.angle = actor->spr.angle;
 					}

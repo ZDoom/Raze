@@ -198,12 +198,12 @@ void IdleFish(DExhumedActor* pActor, int edx)
     if (!edx)
     {
         if (RandomBit()) {
-            pActor->set_int_zvel(-pActor->int_zvel());
+            pActor->vel.Z = -pActor->vel.Z;
         }
     }
     else if (edx < 0)
     {
-        pActor->set_int_zvel(-pActor->int_zvel());
+        pActor->vel.Z = -pActor->vel.Z;
     }
 }
 

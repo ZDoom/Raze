@@ -1381,7 +1381,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             {
                 pActor->vel.X *= 0.5;
                 pActor->vel.Y *= 0.5;
-                pActor->set_int_zvel(-pActor->int_zvel());
+                pActor->vel.Z = -pActor->vel.Z;
                 return;
             }
             else if (nVal.type == kHitSprite)

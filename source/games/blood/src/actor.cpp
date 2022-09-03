@@ -6934,7 +6934,7 @@ void FireballSeqCallback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_11, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel(actor->int_vel());
+		pFX->vel = actor->vel;
 	}
 }
 
@@ -6943,7 +6943,7 @@ void NapalmSeqCallback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_12, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel(actor->int_vel());
+		pFX->vel = actor->vel;
 	}
 }
 
@@ -6952,7 +6952,7 @@ void Fx32Callback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel(actor->int_vel());
+		pFX->vel = actor->vel;
 	}
 }
 
@@ -6961,7 +6961,7 @@ void Fx33Callback(int, DBloodActor* actor)
 	auto pFX = gFX.fxSpawnActor(FX_33, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel(actor->int_vel());
+		pFX->vel = actor->vel;
 	}
 }
 

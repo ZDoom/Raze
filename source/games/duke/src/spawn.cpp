@@ -328,7 +328,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	act->spr.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 	act->spr.angle = actj->spr.angle;
 
-	act->set_int_xvel(128);
+	act->vel.X = 8;
 	ChangeActorStat(act, STAT_MISC);
 	ssp(act, CLIPMASK0);
 	SetActor(act, act->spr.pos);
@@ -1005,7 +1005,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			{
 				actor->temp_pos.XY() = actor->spr.pos.XY();
 				if (actor->spr.shade == sectp->floorshade) //UP
-					actor->set_int_zvel(-256);
+					actor->vel.Z = -1;
 				else
 					actor->vel.Z = 1;
 
