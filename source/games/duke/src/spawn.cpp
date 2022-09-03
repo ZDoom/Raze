@@ -700,7 +700,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			bool ceiling = (abs(actor->temp_data[0] - actor->int_pos().Z) < abs(actor->temp_data[1] - actor->int_pos().Z));
 			actor->spriteextra = ceiling;
 
-			if (actor->int_ang() == 512)
+			if (actor->spr.angle == DAngle90)
 			{
 				if (ceiling)
 					sectp->setceilingz(actor->spr.pos.Z);
@@ -718,7 +718,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				sectp->ceilingstat ^= CSTAT_SECTOR_SKY;
 				actor->temp_data[3] = 1;
 
-				if (!ceiling && actor->int_ang() == 512)
+				if (!ceiling && actor->spr.angle == DAngle90)
 				{
 					sectp->ceilingstat ^= CSTAT_SECTOR_SKY;
 					actor->temp_data[3] = 0;
@@ -727,7 +727,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				sectp->ceilingshade =
 					sectp->floorshade;
 
-				if (actor->int_ang() == 512)
+				if (actor->spr.angle == DAngle90)
 				{
 					for (auto& wl : wallsofsector(sectp))
 					{

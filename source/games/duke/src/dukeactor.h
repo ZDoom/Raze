@@ -42,6 +42,11 @@ inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchang
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
 
+inline int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision& result)
+{
+	auto f = isRR() ? movesprite_ex_r : movesprite_ex_d;
+	return f(actor, change.X * worldtoint, change.Y * worldtoint, change.Z * zworldtoint, cliptype, result);
+}
 
 
 END_DUKE_NS

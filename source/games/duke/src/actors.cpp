@@ -1119,7 +1119,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 	if (actor->temp_data[5] == 1) return;
 
 	p = checkcursectnums(actor->sector());
-	if (p >= 0 && (ps[p].on_ground || actor->int_ang() == 512))
+	if (p >= 0 && (ps[p].on_ground || actor->spr.angle == DAngle90))
 	{
 		if (actor->temp_data[0] == 0 && !check_activator_motion(actor->spr.lotag))
 		{
@@ -3639,7 +3639,7 @@ void handle_se13(DDukeActor* actor)
 	{
 		int j = (actor->spr.yint << 5) | 1;
 
-		if (actor->int_ang() == 512)
+		if (actor->spr.angle == DAngle90)
 		{
 			if (actor->spriteextra)
 			{
@@ -3671,7 +3671,7 @@ void handle_se13(DDukeActor* actor)
 			actor->temp_data[3]++;
 			sc->ceilingstat ^= CSTAT_SECTOR_SKY;
 
-			if (actor->int_ang() == 512)
+			if (actor->spr.angle == DAngle90)
 			{
 				for (auto& wal : wallsofsector(sc))
 					wal.shade = actor->spr.shade;

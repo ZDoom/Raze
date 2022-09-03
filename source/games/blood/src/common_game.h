@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_text.h"
 #include "seqcb.h"
 #include "coreactor.h"
+#include "vectors.h"
 
 BEGIN_BLD_NS
 
@@ -539,6 +540,11 @@ inline uint8_t Chance(int a1)
 inline unsigned int Random(int a1)
 {
 	return MulScale(wrand(), a1, 15);
+}
+
+inline DAngle RandomAngle(int base = 2048)
+{
+	return DAngle::fromBuild(MulScale(wrand(), base, 15));
 }
 
 inline int Random2(int a1)
