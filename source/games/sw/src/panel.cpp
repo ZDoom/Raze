@@ -6344,9 +6344,9 @@ void pWeaponBob(PANEL_SPRITE* psp, short condition)
         // proportion
         double bob_ndx = (psp->sin_ndx + 512) & 1023;
 
-        // base bob_amt on the players velocity - Max of 128
-        double bob_amt = bobvel / psp->bob_height_divider;
-        ydiff = bob_amt * bsinf(bob_ndx, -14);
+        // base bob amt on the players velocity - Max of 128
+        double bobamt = bobvel / psp->bob_height_divider;
+        ydiff = bobamt * bsinf(bob_ndx, -14);
     }
 
     // Back up current coordinates for interpolating.

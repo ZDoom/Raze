@@ -1354,7 +1354,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     fixedhoriz thoriz;
     sectortype* tsect;
     short i,j;
-    int bob_amt = 0;
+    int bobamt = 0;
     int quake_z, quake_x, quake_y;
     short quake_ang;
     extern bool FAF_DebugView;
@@ -1452,7 +1452,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     }
     else
     {
-        bob_amt = camerapp->pbob_amt * zworldtoint;
+        bobamt = camerapp->pbob_amt * zworldtoint;
 
         if (CameraTestMode)
         {
@@ -1464,7 +1464,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     {
         if (cl_viewbob)
         {
-            tz += bob_amt;
+            tz += bobamt;
             tz += interpolatedvalue(pp->obob_z, pp->bob_z, smoothratio) * zworldtoint;
         }
 

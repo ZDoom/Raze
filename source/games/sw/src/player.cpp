@@ -1640,10 +1640,10 @@ void DoPlayerRecoil(PLAYER* pp)
 
 
 // for wading
-void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bob_amt, short bob_speed)
+void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bobamt, short bob_speed)
 {
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
-    pp->pbob_amt = bob_amt * DAngle::fromBuild(pp->bob_ndx).Sin();
+    pp->pbob_amt = bobamt * DAngle::fromBuild(pp->bob_ndx).Sin();
     pp->actor->spr.pos.Z = pp->pos.Z + player_height + pp->pbob_amt;
 }
 
@@ -3471,13 +3471,13 @@ void DoPlayerBeginFly(PLAYER* pp)
     NewStateGroup(pp->actor, sg_PlayerNinjaFly);
 }
 
-int GetSinNdx(int range, int bob_amt)
+int GetSinNdx(int range, int bobamt)
 {
     int amt;
 
     amt = Z(512) / range;
 
-    return bob_amt * amt;
+    return bobamt * amt;
 }
 
 void PlayerWarpUpdatePos(PLAYER* pp)
@@ -4382,7 +4382,7 @@ void DoPlayerDive(PLAYER* pp)
     // player is moving
     else
     {
-        // if bob_amt is approx 0
+        // if bob amt is approx 0
         if (abs(pp->pbob_amt) < 1)
         {
             pp->pbob_amt = 0;

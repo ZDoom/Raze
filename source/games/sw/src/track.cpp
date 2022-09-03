@@ -2394,7 +2394,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             sop->zdelta = tpoint->tag_high;
             break;
         case TRACK_ZRATE:
-            sop->z_rate = Z(tpoint->tag_high);
+            sop->z_rate = Z(tpoint->tag_high); // looks like a bug. z_rate is pixel based.
             break;
         case TRACK_ZUP:
             sop->flags &= ~(SOBJ_ZDOWN | SOBJ_ZUP);
