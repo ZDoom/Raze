@@ -255,34 +255,34 @@ DVector2 ScaleRandomPoint(SECTOR_OBJECT* sop, short k, DAngle ang, const DVector
 {
     int xmul, ymul;
 
-    sop->scale_point_dist[k] += sop->scale_point_speed[k];
-    if (sop->scale_point_dist[k] > sop->scale_point_dist_max)
+    sop->_scale_point_dist[k] += sop->_scale_point_speed[k];
+    if (sop->_scale_point_dist[k] > sop->_scale_point_dist_max)
     {
-        sop->scale_point_speed[k] *= -1;
-        sop->scale_point_dist[k] = sop->scale_point_dist_max;
+        sop->_scale_point_speed[k] *= -1;
+        sop->_scale_point_dist[k] = sop->_scale_point_dist_max;
     }
-    else if (sop->scale_point_dist[k] < sop->scale_point_dist_min)
+    else if (sop->_scale_point_dist[k] < sop->_scale_point_dist_min)
     {
-        sop->scale_point_speed[k] *= -1;
-        sop->scale_point_dist[k] = sop->scale_point_dist_min;
+        sop->_scale_point_speed[k] *= -1;
+        sop->_scale_point_dist[k] = sop->_scale_point_dist_min;
     }
 
     if (RANDOM_P2(1024) < sop->scale_point_rand_freq)
     {
-        sop->scale_point_speed[k] *= -1;
+        sop->_scale_point_speed[k] *= -1;
     }
 
     // change up speed at random
     if (RANDOM_P2(1024) < (sop->scale_point_rand_freq / 2))
     {
         //sop->scale_point_speed[k] = SCALE_POINT_SPEED;
-        short half = sop->scale_point_base_speed / 2;
-        short quart = sop->scale_point_base_speed / 4;
-        sop->scale_point_speed[k] = sop->scale_point_base_speed + (RandomRange(half) - quart);
+        short half = sop->_scale_point_base_speed / 2;
+        short quart = sop->_scale_point_base_speed / 4;
+        sop->_scale_point_speed[k] = sop->_scale_point_base_speed + (RandomRange(half) - quart);
     }
 
-    xmul = (sop->scale_point_dist[k] * sop->scale_x_mult) >> 8;
-    ymul = (sop->scale_point_dist[k] * sop->scale_y_mult) >> 8;
+    xmul = (sop->_scale_point_dist[k] * sop->scale_x_mult) >> 8;
+    ymul = (sop->_scale_point_dist[k] * sop->scale_y_mult) >> 8;
     DVector2 mul(xmul / 16., ymul / 16.);
 
     DVector2 ret;

@@ -1525,11 +1525,11 @@ struct SECTOR_OBJECT
             scale_speed;        // speed of scaling
 
     // values for single point scaling
-    int16_t scale_point_dist[MAX_SO_POINTS],         // distance from center
-            scale_point_speed[MAX_SO_POINTS],        // speed of scaling
-            scale_point_base_speed,                       // base speed of scaling
-            scale_point_dist_min,     // absolute min
-            scale_point_dist_max,     // absolute max
+    int16_t _scale_point_dist[MAX_SO_POINTS],         // distance from center
+            _scale_point_speed[MAX_SO_POINTS],        // speed of scaling
+            _scale_point_base_speed,                       // base speed of scaling
+            _scale_point_dist_min,     // absolute min
+            _scale_point_dist_max,     // absolute max
             scale_point_rand_freq,    // freqency of direction change - based on rand(1024)
 
             scale_x_mult,           // x multiplyer for scaling

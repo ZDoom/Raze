@@ -1012,11 +1012,11 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                 case SO_SCALE_POINT_INFO:
 
-                    memset(sop->scale_point_dist,0,sizeof(sop->scale_point_dist));
-                    sop->scale_point_base_speed = SP_TAG2(actor);
-                    for (j = 0; j < (int)SIZ(sop->scale_point_speed); j++)
+                    memset(sop->_scale_point_dist,0,sizeof(sop->_scale_point_dist));
+                    sop->_scale_point_base_speed = SP_TAG2(actor);
+                    for (j = 0; j < (int)SIZ(sop->_scale_point_speed); j++)
                     {
-                        sop->scale_point_speed[j] = SP_TAG2(actor);
+                        sop->_scale_point_speed[j] = SP_TAG2(actor);
                     }
 
                     if (SP_TAG4(actor))
@@ -1024,8 +1024,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     else
                         sop->scale_point_rand_freq = 64;
 
-                    sop->scale_point_dist_min = -SP_TAG5(actor);
-                    sop->scale_point_dist_max = SP_TAG6(actor);
+                    sop->_scale_point_dist_min = -SP_TAG5(actor);
+                    sop->_scale_point_dist_max = SP_TAG6(actor);
                     KillActor(actor);
                     break;
 
@@ -1105,13 +1105,13 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->scale_type = SO_SCALE_RANDOM_POINT;
                     sop->PreMoveAnimator = ScaleSectorObject;
 
-                    memset(sop->scale_point_dist,0,sizeof(sop->scale_point_dist));;
-                    sop->scale_point_base_speed = SCALE_POINT_SPEED;
-                    for (j = 0; j < (int)SIZ(sop->scale_point_speed); j++)
-                        sop->scale_point_speed[j] = SCALE_POINT_SPEED;
+                    memset(sop->_scale_point_dist,0,sizeof(sop->_scale_point_dist));;
+                    sop->_scale_point_base_speed = SCALE_POINT_SPEED;
+                    for (j = 0; j < (int)SIZ(sop->_scale_point_speed); j++)
+                        sop->_scale_point_speed[j] = SCALE_POINT_SPEED;
 
-                    sop->scale_point_dist_min = -256;
-                    sop->scale_point_dist_max = 256;
+                    sop->_scale_point_dist_min = -256;
+                    sop->_scale_point_dist_max = 256;
                     sop->scale_point_rand_freq = 32;
                     KillActor(actor);
                     break;
