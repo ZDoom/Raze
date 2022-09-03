@@ -803,13 +803,8 @@ int DoActorCantMoveCloser(DSWActor* actor)
 
 int DoActorMoveCloser(DSWActor* actor)
 {
-    int nx, ny;
-
-    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-
     // if cannot move the sprite
-    if (!move_actor(actor, nx, ny, 0))
+    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
     {
         if (ActorMoveHitReact(actor))
             return 0;
@@ -1278,14 +1273,7 @@ int DoActorDuck(DSWActor* actor)
 
 int DoActorMoveJump(DSWActor* actor)
 {
-    int nx, ny;
-
-    // Move while jumping
-
-    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-
-    move_actor(actor, nx, ny, 0L);
+	move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0));
 
     if (!(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
     {
@@ -1588,13 +1576,8 @@ int InitActorReposition(DSWActor* actor)
 
 int DoActorReposition(DSWActor* actor)
 {
-    int nx, ny;
-
-    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-
     // still might hit something and have to handle it.
-    if (!move_actor(actor, nx, ny, 0L))
+    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
     {
         if (ActorMoveHitReact(actor))
             return 0;

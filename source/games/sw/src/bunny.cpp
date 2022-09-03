@@ -863,13 +863,7 @@ int DoBunnyMoveJump(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
-        int nx, ny;
-
-        // Move while jumping
-        nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-        ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-
-        move_actor(actor, nx, ny, 0L);
+        move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0));
 
         if (actor->user.Flags & (SPR_JUMPING))
             DoActorJump(actor);

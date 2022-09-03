@@ -4566,9 +4566,8 @@ bool DropAhead(DSWActor* actor, double min_height)
 
 */
 
-int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
+int move_actor(DSWActor* actor, const DVector3& change)
 {
-	DVector3 change(xchange * inttoworld, ychange * inttoworld, zchange * zinttoworld);
     DSWActor* highActor;
     DSWActor* lowActor;
     sectortype* lo_sectp,* hi_sectp;
@@ -4648,7 +4647,6 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     {
         return false;
     }
-
 }
 
 int DoStayOnFloor(DSWActor* actor)

@@ -39,7 +39,7 @@ inline DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, in
 }
 
 void SpriteSetup(void);
-int move_actor(DSWActor* actor, int xchange, int ychange, int zchange);
+int move_actor(DSWActor* actor, const DVector3& change);
 short GetSpriteDir(short sn);
 short GetDirToPlayer(short sn);
 short PlayerInVision(short sn, short view_deg);

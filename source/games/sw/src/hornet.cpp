@@ -434,25 +434,19 @@ int InitHornetCircle(DSWActor* actor)
 
 int DoHornetCircle(DSWActor* actor)
 {
-    int nx,ny;
     double bound;
 
     actor->set_int_ang(NORM_ANGLE(actor->int_ang() + actor->user.Counter2));
 
-    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-
-    if (!move_actor(actor, nx, ny, 0L))
+    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
     {
         //ActorMoveHitReact(actor);
 
         // try moving in the opposite direction
         actor->user.Counter2 = -actor->user.Counter2;
         actor->spr.angle += DAngle180;
-        nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-        ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
 
-        if (!move_actor(actor, nx, ny, 0))
+        if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
         {
             InitActorReposition(actor);
             return 0;

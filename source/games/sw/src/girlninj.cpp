@@ -776,14 +776,8 @@ int DoGirlNinjaMove(DSWActor* actor)
 
 int GirlNinjaJumpActionFunc(DSWActor* actor)
 {
-    int nx, ny;
-
-    // Move while jumping
-    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-
     // if cannot move the sprite
-    if (!move_actor(actor, nx, ny, 0L))
+    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
     {
         return 0;
     }

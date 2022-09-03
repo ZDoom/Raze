@@ -435,13 +435,8 @@ int DoActorDebris(DSWActor* actor)
 
 int DoFireFly(DSWActor* actor)
 {
-    int nx, ny;
-
-    nx = 4 * ACTORMOVETICS * bcos(actor->int_ang()) >> 14;
-    ny = 4 * ACTORMOVETICS * bsin(actor->int_ang()) >> 14;
-
     actor->spr.clipdist = 256>>2;
-    if (!move_actor(actor, nx, ny, 0L))
+    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * (0.25 * ACTORMOVETICS), 0)))
     {
         actor->spr.angle += DAngle180;
     }
@@ -590,7 +585,7 @@ int DoActorSlide(DSWActor* actor)
     nx = MulScale(actor->user.slide_vel, bcos(actor->user.slide_ang), 14);
     ny = MulScale(actor->user.slide_vel, bsin(actor->user.slide_ang), 14);
 
-    if (!move_actor(actor, nx, ny, 0L))
+    if (!move_actor(actor, DVector3(nx * inttoworld, ny * inttoworld, 0)))
     {
         actor->user.Flags &= ~(SPR_SLIDING);
         return false;
@@ -763,8 +758,6 @@ int DoActorStopFall(DSWActor* actor)
 
 int DoActorDeathMove(DSWActor* actor)
 {
-    int nx, ny;
-
     if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
     {
         if (actor->user.Flags & (SPR_JUMPING))
@@ -773,11 +766,9 @@ int DoActorDeathMove(DSWActor* actor)
             DoActorFall(actor);
     }
 
-    nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-    ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-
     actor->spr.clipdist = (128+64)>>2;
-    move_actor(actor, nx, ny, 0);
+	move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0));
+
 
     // only fall on top of floor sprite or sector
     DoFindGroundPoint(actor);
