@@ -45,7 +45,7 @@ public:
 	DVector3 opos;
 	int time;
 	DAngle oang;
-	vec3_t __int_vel;
+	DVector3 vel;
 
 	int16_t spritesetindex;
 
@@ -115,164 +115,164 @@ public:
 
 	int int_zvel() const
 	{
-		return __int_vel.Z;
+		return vel.Z * zworldtoint;
 	}
 
 	double float_zvel() const
 	{
-		return __int_vel.Z * zinttoworld;
+		return vel.Z;
 	}
 
 	void clear_zvel()
 	{
-		__int_vel.Z = 0;
+		vel.Z = 0;
 	}
 
 	void set_int_zvel(int v)
 	{
-		__int_vel.Z = v;
+		vel.Z = v * zinttoworld;
 	}
 
 	void add_int_zvel(int v)
 	{
-		__int_vel.Z += v;
+		vel.Z += v * zinttoworld;
 	}
 
 	void mul_int_zvel(double v)
 	{
-		__int_vel.Z = int(__int_vel.Z * v);
+		vel.Z *= v;
 	}
 
 	void clear_xyvel()
 	{
-		__int_vel.X = __int_vel.Y = 0;
+		vel.X = vel.Y = 0;
 	}
 
 	// Note: Both Duke and SW use Q12.4 for this, Exhumed doesn't seem to treat horizontal velocity with a fixed factor.
 	int int_xvel() const
 	{
-		return __int_vel.X;
+		return vel.X * worldtoint;
 	}
 
 	double float_xvel() const
 	{
-		return __int_vel.X * inttoworld;
+		return vel.X;
 	}
 
 	void clear_xvel()
 	{
-		__int_vel.X = 0;
+		vel.X = 0;
 	}
 
 	void set_int_xvel(int v)
 	{
-		__int_vel.X = v;
+		vel.X = v * inttoworld;
 	}
 
 	void add_int_xvel(int v)
 	{
-		__int_vel.X += v;
+		vel.X += v * inttoworld;
 	}
 
 	void mul_int_xvel(double v)
 	{
-		__int_vel.X = int(__int_vel.X * v);
+		vel.X *= v;
 	}
 
 	// Only used this way by Exhumed.
 	int int_yvel() const
 	{
-		return __int_vel.Y;
+		return vel.Y * worldtoint;
 	}
 
 	double float_yvel() const
 	{
-		return __int_vel.Y * inttoworld;
+		return vel.Y;
 	}
 
 	void clear_yvel()
 	{
-		__int_vel.Y = 0;
+		vel.Y = 0;
 	}
 
 	void set_int_yvel(int v)
 	{
-		__int_vel.Y = v;
+		vel.Y = v * inttoworld;
 	}
 
 	void add_int_yvel(int v)
 	{
-		__int_vel.Y += v;
+		vel.Y += v * inttoworld;
 	}
 
 	void mul_int_yvel(double v)
 	{
-		__int_vel.Y = int(__int_vel.Y * v);
+		vel.Y *= v;
 	}
 
 	DVector3 fVel() const
 	{
-		return { FixedToFloat(int_vel().X), FixedToFloat(int_vel().Y), FixedToFloat(int_vel().Z) };
+		return vel;
 	}
 
 	vec3_t int_vel() const
 	{
-		return __int_vel;
+		return vec3_t(FloatToFixed(vel.X), FloatToFixed(vel.Y), FloatToFixed(vel.Z));
 	}
 
 	void set_int_bvel_x(int x)
 	{
-		__int_vel .X = x;
+		vel .X = FixedToFloat(x);
 	}
 
 	void set_int_bvel_y(int x)
 	{
-		__int_vel .Y = x;
+		vel .Y = FixedToFloat(x);
 	}
 
 	void set_int_bvel_z(int x)
 	{
-		__int_vel .Z = x;
+		vel .Z = FixedToFloat(x);
 	}
 
 	void set_int_bvel(vec3_t x)
 	{
-		__int_vel = x;
+		vel = { FixedToFloat(x.X), FixedToFloat(x.Y), FixedToFloat(x.Z) };
 	}
 
 	void set_float_bvel(DVector3 x)
 	{
-		__int_vel = { FloatToFixed(x.X), FloatToFixed(x.Y), FloatToFixed(x.Z) };
+		vel = x;
 	}
 
 	void set_float_bvel_xy(DVector2 x)
 	{
-		__int_vel.XY() = { FloatToFixed(x.X), FloatToFixed(x.Y) };
+		vel.XY() = x;
 	}
 
 	void add_int_bvel_x(int x)
 	{
-		__int_vel .X += x;
+		vel .X += FixedToFloat(x);
 	}
 
 	void add_int_bvel_y(int x)
 	{
-		__int_vel .Y += x;
+		vel .Y += FixedToFloat(x);
 	}
 
 	void add_int_bvel_z(int x)
 	{
-		__int_vel .Z += x;
+		vel .Z += FixedToFloat(x);
 	}
 
 	void clear_vel_xy()
 	{
-		__int_vel .X = __int_vel .Y = 0;
+		vel .X = vel .Y = 0;
 	}
 
 	void ZeroVelocity()
 	{
-		__int_vel = { 0,0,0 };
+		vel = { 0,0,0 };
 	}
 
 
