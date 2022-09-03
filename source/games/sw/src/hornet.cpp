@@ -390,7 +390,7 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     actor->user.pos.Z = max(actor->user.pos.Z, hiz + actor->user.ceiling_dist);
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->spr.pos.Z = actor->user.pos.Z + HORNET_BOB_AMT * DAngle::fromBuild(actor->user.Counter).Sin();
+    actor->spr.pos.Z = actor->user.pos.Z + HORNET_BOB_AMT * BobVal(actor->user.Counter);
 
     bound = actor->user.hiz + actor->user.ceiling_dist + HORNET_BOB_AMT;
     if (actor->spr.pos.Z < bound)

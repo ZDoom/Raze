@@ -421,7 +421,7 @@ int DoActorDebris(DSWActor* actor)
         if (actor->sector()->hasU() && FixedToInt(actor->sector()->depth_fixed) > 10) // JBF: added null check
         {
             actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 3)) & 1023;
-            actor->spr.pos.Z = actor->user.loz - 2 * DAngle::fromBuild(actor->user.WaitTics).Sin();
+            actor->spr.pos.Z = actor->user.loz - 2 * BobVal(actor->user.WaitTics);
         }
     }
     else
@@ -443,7 +443,7 @@ int DoFireFly(DSWActor* actor)
 
     actor->user.WaitTics = (actor->user.WaitTics + (ACTORMOVETICS << 1)) & 2047;
 
-    actor->spr.pos.Z = actor->user.pos.Z + 32 * DAngle::fromBuild(actor->user.WaitTics).Sin();
+    actor->spr.pos.Z = actor->user.pos.Z + 32 * BobVal(actor->user.WaitTics);
     return 0;
 }
 

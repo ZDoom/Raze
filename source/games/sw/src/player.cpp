@@ -1607,7 +1607,7 @@ void DoPlayerBob(PLAYER* pp)
     pp->bcnt &= 2047;
 
     // move pp->q16horiz up and down from 100 using sintable
-    pp->bob_z = amt * DAngle::fromBuild(pp->bcnt).Sin();
+    pp->bob_z = amt * BobVal(pp->bcnt);
 }
 
 void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt)
@@ -1643,7 +1643,7 @@ void DoPlayerRecoil(PLAYER* pp)
 void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bobamt, short bob_speed)
 {
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
-    pp->pbob_amt = bobamt * DAngle::fromBuild(pp->bob_ndx).Sin();
+    pp->pbob_amt = bobamt * BobVal(pp->bob_ndx);
     pp->actor->spr.pos.Z = pp->pos.Z + player_height + pp->pbob_amt;
 }
 

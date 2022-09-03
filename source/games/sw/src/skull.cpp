@@ -404,7 +404,7 @@ int DoSkullBob(DSWActor* actor)
     const int SKULL_BOB_AMT = 16;
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->spr.pos.Z = actor->user.pos.Z + SKULL_BOB_AMT * 1.5 * DAngle::fromBuild(actor->user.Counter).Sin();
+    actor->spr.pos.Z = actor->user.pos.Z + SKULL_BOB_AMT * 1.5 * BobVal(actor->user.Counter);
 
     return 0;
 }
@@ -771,7 +771,7 @@ int DoBettyBob(DSWActor* actor)
     const int  BETTY_BOB_AMT = 16;
 
     actor->user.Counter = (actor->user.Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    actor->spr.pos.Z = actor->user.pos.Z + BETTY_BOB_AMT * 1.5 * DAngle::fromBuild(actor->user.Counter).Sin();
+    actor->spr.pos.Z = actor->user.pos.Z + BETTY_BOB_AMT * 1.5 * BobVal(actor->user.Counter);
 
     return 0;
 }

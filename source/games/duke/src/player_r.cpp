@@ -2080,7 +2080,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			i = 34;
 			p->pycount += 32;
 			p->pycount &= 2047;
-			p->pyoff = DAngle::fromBuild(p->pycount).Sin() * 2;
+			p->pyoff = BobVal(p->pycount) * 2;
 		}
 		else i = 12;
 
@@ -2300,7 +2300,7 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 
 	p->pycount += 32;
 	p->pycount &= 2047;
-	p->pyoff = DAngle::fromBuild(p->pycount).Sin();
+	p->pyoff = BobVal(p->pycount);
 
 	if (!S_CheckActorSoundPlaying(pact, DUKE_UNDERWATER))
 		S_PlayActorSound(DUKE_UNDERWATER, pact);
@@ -3605,7 +3605,7 @@ void processinput_r(int snum)
 	{
 		p->pycount += 32;
 		p->pycount &= 2047;
-		p->pyoff = DAngle::fromBuild(p->pycount).Sin() * (p->SeaSick? 32 : 1);
+		p->pyoff = BobVal(p->pycount) * (p->SeaSick? 32 : 1);
 	}
 
 	if (psectlotag == ST_2_UNDERWATER)
@@ -3889,7 +3889,7 @@ HORIZONLY:
 				p->pycount += 52;
 				p->pycount &= 2047;
 				const double factor = 64. / 1596; // What is 1596?
-				p->pyoff = abs(pact->int_xvel() * DAngle::fromBuild(p->pycount).Sin()) * factor;
+				p->pyoff = abs(pact->int_xvel() * BobVal(p->pycount)) * factor;
 			}
 		}
 		else if (psectlotag != ST_2_UNDERWATER && psectlotag != 1 && (!isRRRA() || !p->sea_sick_stat))

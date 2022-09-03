@@ -1679,7 +1679,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 
 	p->pycount += 32;
 	p->pycount &= 2047;
-	p->pyoff = DAngle::fromBuild(p->pycount).Sin();
+	p->pyoff = BobVal(p->pycount);
 
 	if (p->jetpack_on && S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
 	{
@@ -1764,7 +1764,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			i = 34;
 			p->pycount += 32;
 			p->pycount &= 2047;
-			p->pyoff = DAngle::fromBuild(p->pycount).Sin() * 2;
+			p->pyoff = BobVal(p->pycount) * 2;
 		}
 		else i = 12;
 
@@ -1942,7 +1942,7 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 
 	p->pycount += 32;
 	p->pycount &= 2047;
-	p->pyoff = DAngle::fromBuild(p->pycount).Sin();
+	p->pyoff = BobVal(p->pycount);
 
 	if (!S_CheckActorSoundPlaying(pact, DUKE_UNDERWATER))
 		S_PlayActorSound(DUKE_UNDERWATER, pact);
@@ -3059,10 +3059,10 @@ HORIZONLY:
 			{
 				p->pycount += 52;
 				p->pycount &= 2047;
-				p->pyoff = DAngle::fromBuild(p->pycount).Sin() * pact->int_xvel();
+				p->pyoff = BobVal(p->pycount) * pact->int_xvel();
 
 				const double factor = 64. / 1596; // What is 1596?
-				p->pyoff = abs(pact->int_xvel() * DAngle::fromBuild(p->pycount).Sin()) * factor;
+				p->pyoff = abs(pact->int_xvel() * BobVal(p->pycount)) * factor;
 			}
 		}
 		else if (psectlotag != 2 && psectlotag != 1)

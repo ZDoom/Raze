@@ -603,4 +603,9 @@ inline void alignflorslope(sectortype* sect, const DVector3& pos)
 	sect->setfloorslope(getslopeval(sect, pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint, sect->int_floorz()));
 }
 
+inline double BobVal(int val)
+{
+	return g_sinbam((unsigned)val << 21);
+}
+
 #include "updatesector.h"
