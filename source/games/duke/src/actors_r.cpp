@@ -330,7 +330,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						(pic != HULK && pic != MAMA && pic != BILLYPLAY && pic != COOTPLAY && pic != MAMACLOUD) :
 						(pic != HULK && pic != SBMOVE))
 					{
-						if (act2->int_xvel() < 0) act2->clear_xvel();
+						if (act2->int_xvel() < 0) act2->vel.X = 0;
 						act2->add_int_xvel( (act2->spr.extra << 2));
 					}
 
@@ -2341,7 +2341,7 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->temp_data[3] = 1;
 			actor->temp_data[4] = 0;
 			l = 0;
-			actor->clear_xvel();
+			actor->vel.X = 0;
 			goto DETONATEB;
 		}
 	}
@@ -2370,7 +2370,7 @@ static void heavyhbomb(DDukeActor *actor)
 	if (actor->spr.picnum != CHEERBOMB && actor->spr.pos.Z < actor->ceilingz + 16 && sectp->lotag != 2)
 	{
 		actor->spr.pos.Z = actor->ceilingz + 16;
-		actor->clear_zvel();
+		actor->vel.Z = 0;
 	}
 
 	Collision coll;
@@ -2387,7 +2387,7 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->temp_data[5] = 1;
 			spawn(actor, WATERSPLASH2);
 			if (isRRRA() && actor->spr.picnum == MORTER)
-				actor->clear_xvel();
+				actor->vel.X = 0;
 		}
 	}
 	else actor->temp_data[5] = 0;
@@ -2397,7 +2397,7 @@ static void heavyhbomb(DDukeActor *actor)
 		actor->temp_data[3] = 1;
 		actor->temp_data[4] = 0;
 		l = 0;
-		actor->clear_xvel();
+		actor->vel.X = 0;
 		goto DETONATEB;
 	}
 
@@ -2406,7 +2406,7 @@ static void heavyhbomb(DDukeActor *actor)
 		actor->temp_data[3] = 1;
 		actor->temp_data[4] = 0;
 		l = 0;
-		actor->clear_xvel();
+		actor->vel.X = 0;
 		goto DETONATEB;
 	}
 
@@ -2421,7 +2421,7 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->add_int_xvel(-10);
 
 		if(actor->float_xvel() < 0)
-			actor->clear_xvel();
+			actor->vel.X = 0;
 		if (int(actor->float_xvel() * 16) & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 
@@ -2437,7 +2437,7 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->temp_data[3] = 1;
 			actor->temp_data[4] = 0;
 			l = 0;
-			actor->clear_xvel();
+			actor->vel.X = 0;
 			goto DETONATEB;
 		}
 		actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
@@ -2557,7 +2557,7 @@ static int henstand(DDukeActor *actor)
 		}
 	}
 	if (actor->sector()->lotag == 900)
-		actor->clear_xvel();
+		actor->vel.X = 0;
 	if(actor->float_xvel() != 0)
 	{
 		makeitfall(actor);
@@ -2591,7 +2591,7 @@ static int henstand(DDukeActor *actor)
 			}
 		}
 		actor->add_int_xvel(-1);
-		if(actor->float_xvel() < 0) actor->clear_xvel();
+		if(actor->float_xvel() < 0) actor->vel.X = 0;
 		actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		if (actor->spr.picnum == BOWLINGPIN)
 		{
@@ -3153,7 +3153,7 @@ void handle_se06_r(DDukeActor *actor)
 		if (actor->temp_data[4] >= (k - (k >> 3)))
 			actor->add_int_xvel(-(k >> 5));
 		if (actor->temp_data[4] > ((k >> 1) - 1) && actor->temp_data[4] < (k - (k >> 3)))
-			actor->clear_xvel();
+			actor->vel.X = 0;
 		if (actor->temp_data[4] < (k >> 1))
 			actor->add_int_xvel( (k >> 5));
 		if (actor->temp_data[4] < ((k >> 1) - (k >> 3)))
@@ -3629,7 +3629,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (actor->spr.picnum != APLAYER)
 		alterang(a, actor, pnum);
 
-	if (actor->int_xvel() > -6 && actor->int_xvel() < 6) actor->clear_xvel();
+	if (actor->int_xvel() > -6 && actor->int_xvel() < 6) actor->vel.X = 0;
 
 	a = badguy(actor);
 
@@ -3654,7 +3654,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					if (actor->spr.pos.Z < c + 50)
 					{
 						actor->spr.pos.Z = c + 50;
-						actor->clear_zvel();
+						actor->vel.Z = 0;
 					}
 				}
 			}

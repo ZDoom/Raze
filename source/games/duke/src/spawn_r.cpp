@@ -527,7 +527,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 13;
 		act->spr.yrepeat = 10;
-		act->clear_xvel();
+		act->vel.X = 0;
 		ChangeActorStat(act, 1);
 		break;
 	case BOWLINGPIN:
@@ -1160,7 +1160,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				act->clear_zvel();
+				act->vel.Z = 0;
 			}
 			ssp(act, CLIPMASK0);
 			act->spr.cstat = randomXFlip();

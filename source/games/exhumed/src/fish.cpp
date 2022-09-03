@@ -106,7 +106,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
         if ((pActor->spr.pos.Z - FloorZ) > 100)
         {
-            pActor->clear_zvel();
+            pActor->vel.Z = 0;
             runlist_DoSubRunRec(pActor->spr.intowner);
             runlist_FreeRun(pActor->spr.lotag - 1);
             runlist_SubRunRec(pActor->spr.hitag);
@@ -122,8 +122,8 @@ void AIFishLimb::Tick(RunListEvent* ev)
         auto coll = movesprite(pActor, pActor->int_xvel() << 8, pActor->int_yvel() << 8, pActor->int_zvel(), 2560, -2560, CLIPMASK1);
         if (coll.type != kHitNone)
         {
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
         }
     }
 
@@ -160,9 +160,9 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].a, 0);
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
     pActor->set_int_ang(nAngle);
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
@@ -378,8 +378,8 @@ void AIFish::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->clear_xvel();
-                pActor->clear_yvel();
+                pActor->vel.X = 0;
+                pActor->vel.Y = 0;
             }
 
             pActor->set_int_zvel(int((pTargetActor->spr.pos.Z - pActor->spr.pos.Z) * zworldtoint / 8));

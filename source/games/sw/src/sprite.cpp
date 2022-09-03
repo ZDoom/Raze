@@ -1827,7 +1827,7 @@ void SpriteSetup(void)
                 {
                     // if moves with SO
                     if (TEST_BOOL1(actor))
-                        actor->clear_xvel();
+                        actor->vel.X = 0;
                     else
                         actor->set_int_xvel(actor->spr.lotag);
 
@@ -1841,7 +1841,7 @@ void SpriteSetup(void)
                 {
                     // if moves with SO
                     if (TEST_BOOL1(actor))
-                        actor->clear_xvel();
+                        actor->vel.X = 0;
                     else
                         actor->set_int_xvel(actor->spr.lotag);
                     StartInterpolation(actor->sector(), Interp_Sect_CeilingPanX);
@@ -1867,7 +1867,7 @@ void SpriteSetup(void)
                     actor->tempwall = hit.hitWall;
                     // if moves with SO
                     if (TEST_BOOL1(actor))
-                        actor->clear_xvel();
+                        actor->vel.X = 0;
                     else
                         actor->set_int_xvel(actor->spr.lotag);
                     actor->set_int_ang(SP_TAG6(actor));
@@ -4971,7 +4971,7 @@ int DoGet(DSWActor* actor)
     {
         if (!DoItemFly(actor))
         {
-            actor->clear_xvel();
+            actor->vel.X = 0;
             change_actor_stat(actor, STAT_ITEM);
         }
     }

@@ -189,7 +189,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				splash->spr.angle = ps[p].angle.ang; // Total tweek
 				splash->set_int_xvel(32);
 				ssp(actor, 0);
-				splash->clear_xvel();
+				splash->vel.X = 0;
 			}
 		}
 	}
@@ -3561,7 +3561,7 @@ void processinput_r(int snum)
 	if (p->newOwner != nullptr)
 	{
 		p->vel.X = p->vel.Y = 0;
-		pact->clear_xvel();
+		pact->vel.X = 0;
 
 		fi.doincrements(p);
 

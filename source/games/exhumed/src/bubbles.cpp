@@ -53,8 +53,8 @@ DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector)
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
     pActor->set_int_ang(inita);
-    pActor->clear_xvel();
-    pActor->clear_yvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
     pActor->set_int_zvel(-1200);
     pActor->spr.hitag = -1;
     pActor->spr.extra = -1;

@@ -61,9 +61,9 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->set_int_ang(nAngle);
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.extra = -1;
     pActor->spr.hitag = 0;
@@ -122,9 +122,9 @@ void AIRex::Damage(RunListEvent* ev)
 
             if (pActor->nHealth <= 0)
             {
-                pActor->clear_xvel();
-                pActor->clear_yvel();
-                pActor->clear_zvel();
+                pActor->vel.X = 0;
+                pActor->vel.Y = 0;
+                pActor->vel.Z = 0;
                 pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
                 pActor->nHealth = 0;
@@ -246,8 +246,8 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 pActor->nAction = 5;
                 pActor->nFrame = 0;
-                pActor->clear_xvel();
-                pActor->clear_yvel();
+                pActor->vel.X = 0;
+                pActor->vel.Y = 0;
                 return;
             }
             else
@@ -437,8 +437,8 @@ void AIRex::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->nCount = 0;
             pActor->pTarget = nullptr;
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
         }
     }
     return;

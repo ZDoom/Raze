@@ -300,9 +300,9 @@ void RestartPlayer(int nPlayer)
 	pActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
 
 	int nHeight = GetActorHeight(pActor);
-	pActor->clear_xvel();
-	pActor->clear_yvel();
-	pActor->clear_zvel();
+	pActor->vel.X = 0;
+	pActor->vel.Y = 0;
+	pActor->vel.Z = 0;
 
 	nStandHeight = nHeight;
 
@@ -545,8 +545,8 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
     DExhumedActor* pActor = PlayerList[nPlayer].pActor;
 
-    pActor->clear_yvel();
-    pActor->clear_xvel();
+    pActor->vel.Y = 0;
+    pActor->vel.X = 0;
 
     PlayerList[nPlayer].bIsMummified = bIsMummified;
 
@@ -923,9 +923,9 @@ void AIPlayer::Tick(RunListEvent* ev)
             lPlayerXVel = 0;
             lPlayerYVel = 0;
 
-            pPlayerActor->clear_xvel();
-            pPlayerActor->clear_yvel();
-            pPlayerActor->clear_zvel();
+            pPlayerActor->vel.X = 0;
+            pPlayerActor->vel.Y = 0;
+            pPlayerActor->vel.Z = 0;
 
             if (nFreeze < 1)
             {
@@ -976,8 +976,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
                 if (PlayerList[nPlayer].nHealth <= 0)
                 {
-                    pPlayerActor->clear_xvel();
-                    pPlayerActor->clear_yvel();
+                    pPlayerActor->vel.X = 0;
+                    pPlayerActor->vel.Y = 0;
 
                     StopActorSound(pPlayerActor);
                     PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerActor->spr.pos, CHANF_NONE, 1); // CHECKME

@@ -167,7 +167,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             if (RandomRange(1000) > 500)
                 actor->spr.cstat |= (CSTAT_SPRITE_YFLIP);
             ChangeState(actor, actor->user.StateEnd);
-            actor->clear_xvel();
+            actor->vel.X = 0;
             actor->user.jump_speed = 0;
             DoActorBeginJump(actor);
         }
@@ -205,7 +205,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         }
         else
         {
-            actor->clear_xvel();
+            actor->vel.X = 0;
             actor->user.jump_speed = -10 - RandomRange(25);
             DoActorBeginJump(actor);
         }

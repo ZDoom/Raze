@@ -54,9 +54,9 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
     spp->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     spp->spr.shade = -12;
     spp->spr.clipdist = 15;
-    spp->clear_xvel();
-    spp->clear_yvel();
-    spp->clear_zvel();
+    spp->vel.X = 0;
+    spp->vel.Y = 0;
+    spp->vel.Z = 0;
     spp->spr.xrepeat = 40;
     spp->spr.yrepeat = 40;
     spp->spr.pal = spp->sector()->ceilingpal;
@@ -174,7 +174,7 @@ void AISpider::Tick(RunListEvent* ev)
 
             if (spp->spr.cstat & CSTAT_SPRITE_YFLIP)
             {
-                spp->clear_zvel();
+                spp->vel.Z = 0;
                 spp->spr.pos.Z = pSector->ceilingz + (tileHeight(spp->spr.picnum) / 8.); // was << 5 in Build coordinates
 
                 if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
@@ -198,8 +198,8 @@ void AISpider::Tick(RunListEvent* ev)
                 }
                 else
                 {
-                    spp->clear_xvel();
-                    spp->clear_yvel();
+                    spp->vel.X = 0;
+                    spp->vel.Y = 0;
                 }
 
                 if (spp->nAction == 1 && RandomBit())
@@ -256,8 +256,8 @@ void AISpider::Tick(RunListEvent* ev)
             else
             {
                 spp->nAction = 0;
-                spp->clear_xvel();
-                spp->clear_yvel();
+                spp->vel.X = 0;
+                spp->vel.Y = 0;
             }
 
             spp->nFrame = 0;
@@ -271,8 +271,8 @@ void AISpider::Tick(RunListEvent* ev)
         spp->nAction = 0;
         spp->nFrame = 0;
 
-        spp->clear_xvel();
-        spp->clear_yvel();
+        spp->vel.X = 0;
+        spp->vel.Y = 0;
     }
 
     auto nMov = movesprite(spp, spp->int_xvel() << nVel, spp->int_yvel() << nVel, spp->int_zvel(), 1280, -1280, CLIPMASK0);
@@ -287,7 +287,7 @@ void AISpider::Tick(RunListEvent* ev)
     {
         spp->spr.cstat |= CSTAT_SPRITE_YFLIP;
 		spp->spr.pos.Z = spp->sector()->ceilingz + GetActorHeightF(spp);
-        spp->clear_zvel();
+        spp->vel.Z = 0;
 
         spp->nAction = 1;
         spp->nFrame = 0;

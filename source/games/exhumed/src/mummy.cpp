@@ -53,9 +53,9 @@ void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 32;
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
     pActor->spr.xrepeat = 42;
     pActor->spr.yrepeat = 42;
     pActor->spr.pal = pActor->sector()->ceilingpal;
@@ -147,8 +147,8 @@ void AIMummy::Tick(RunListEvent* ev)
         {
             pActor->nAction = 0;
             pActor->nFrame = 0;
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
         }
     }
 
@@ -207,8 +207,8 @@ void AIMummy::Tick(RunListEvent* ev)
                         pActor->nAction = 3;
                         pActor->nFrame = 0;
 
-                        pActor->clear_xvel();
-                        pActor->clear_yvel();
+                        pActor->vel.X = 0;
+                        pActor->vel.Y = 0;
                         return;
                     }
                 }
@@ -228,14 +228,14 @@ void AIMummy::Tick(RunListEvent* ev)
             {
                 pActor->add_int_xvel(-1024);
                 if (pActor->float_xvel() < 0) {
-                    pActor->clear_xvel();
+                    pActor->vel.X = 0;
                 }
             }
             else if (pActor->float_xvel() < 0)
             {
                 pActor->add_int_xvel( 1024);
                 if (pActor->float_xvel() > 0) {
-                    pActor->clear_xvel();
+                    pActor->vel.X = 0;
                 }
             }
 
@@ -243,14 +243,14 @@ void AIMummy::Tick(RunListEvent* ev)
             {
                 pActor->add_int_yvel(-1024);
                 if (pActor->float_yvel() < 0) {
-                    pActor->clear_yvel();
+                    pActor->vel.Y = 0;
                 }
             }
             else if (pActor->float_yvel() < 0)
             {
                 pActor->add_int_yvel(1024);
                 if (pActor->float_yvel() > 0) {
-                    pActor->clear_yvel();
+                    pActor->vel.Y = 0;
                 }
             }
         }
@@ -275,8 +275,8 @@ void AIMummy::Tick(RunListEvent* ev)
                     pActor->nAction = 2;
                     pActor->nFrame = 0;
 
-                    pActor->clear_xvel();
-                    pActor->clear_yvel();
+                    pActor->vel.X = 0;
+                    pActor->vel.Y = 0;
                 }
             }
             return;
@@ -379,8 +379,8 @@ void AIMummy::Tick(RunListEvent* ev)
 
         if (bVal)
         {
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
             pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nAction = 0;
@@ -440,9 +440,9 @@ void AIMummy::Damage(RunListEvent* ev)
         pActor->nFrame = 0;
         pActor->nAction = 4;
 
-        pActor->clear_xvel();
-        pActor->clear_yvel();
-        pActor->clear_zvel();
+        pActor->vel.X = 0;
+        pActor->vel.Y = 0;
+        pActor->vel.Z = 0;
         pActor->spr.pos.Z = pActor->sector()->floorz;
     }
     else
@@ -452,8 +452,8 @@ void AIMummy::Damage(RunListEvent* ev)
             pActor->nAction = 7;
             pActor->nFrame = 0;
 
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
         }
     }
 

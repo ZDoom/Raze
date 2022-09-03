@@ -422,9 +422,9 @@ void DoRegenerates()
         pActor->spr.yint = 0;
         pActor->spr.xint = 0;
 
-        pActor->clear_yvel();
-        pActor->clear_xvel();
-        pActor->clear_zvel();
+        pActor->vel.Y = 0;
+        pActor->vel.X = 0;
+        pActor->vel.Z = 0;
 
 
         if (pActor->spr.statnum == kStatExplodeTrigger) {

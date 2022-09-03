@@ -56,9 +56,9 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->spr.clipdist = 110;
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
     pActor->spr.xrepeat = 87;
     pActor->spr.yrepeat = 96;
     pActor->spr.pal = pActor->sector()->ceilingpal;
@@ -105,8 +105,8 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
     pActor->set_int_ang(RandomSize(11));
-    pActor->clear_xvel();
-    pActor->clear_yvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
     pActor->set_int_zvel((-256) - RandomSize(10));
     pActor->spr.pos = DVector3(pSet->spr.pos.XY(), RandomSize(8) + 32 + pActor->sector()->ceilingz - GetActorHeightF(pActor));
 
@@ -185,9 +185,9 @@ void AISet::Damage(RunListEvent* ev)
 
         if (pActor->nHealth <= 0)
         {
-            pActor->clear_xvel();
-            pActor->clear_yvel();
-            pActor->clear_zvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
+            pActor->vel.Z = 0;
             pActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nHealth = 0;
@@ -326,8 +326,8 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nIndex = 0;
             pActor->nFrame = 0;
 
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
 
             pActor->pTarget = FindPlayer(pActor, 1000);
         }
@@ -357,8 +357,8 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nIndex = 0;
                     pActor->nAction = 7;
                     pActor->nFrame = 0;
-                    pActor->clear_xvel();
-                    pActor->clear_yvel();
+                    pActor->vel.X = 0;
+                    pActor->vel.Y = 0;
                     return;
                 }
                 case 1:
@@ -368,8 +368,8 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nAction = 6;
                     pActor->nFrame = 0;
                     pActor->nRun = 5;
-                    pActor->clear_xvel();
-                    pActor->clear_yvel();
+                    pActor->vel.X = 0;
+                    pActor->vel.Y = 0;
                     return;
                 }
                 default:
@@ -411,8 +411,8 @@ void AISet::Tick(RunListEvent* ev)
                             pActor->nIndex = 1;
                             pActor->nAction = 7;
                             pActor->nFrame = 0;
-                            pActor->clear_xvel();
-                            pActor->clear_yvel();
+                            pActor->vel.X = 0;
+                            pActor->vel.Y = 0;
                             return;
                         }
                     }
@@ -440,8 +440,8 @@ void AISet::Tick(RunListEvent* ev)
                     pActor->nIndex = 1;
                     pActor->nAction = 7;
                     pActor->nFrame = 0;
-                    pActor->clear_xvel();
-                    pActor->clear_yvel();
+                    pActor->vel.X = 0;
+                    pActor->vel.Y = 0;
                     return;
                 }
             }
@@ -551,8 +551,8 @@ void AISet::Tick(RunListEvent* ev)
 
         if (bVal)
         {
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
 
             PlotCourseToSprite(pActor, pTarget);
 
@@ -560,8 +560,8 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->nRun = 5;
 
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
         }
         return;
     }
@@ -608,8 +608,8 @@ void AISet::Tick(RunListEvent* ev)
                 pActor->nFrame = 0;
                 pActor->nCount = 100;
                 pActor->pTarget = nullptr;
-                pActor->clear_xvel();
-                pActor->clear_yvel();
+                pActor->vel.X = 0;
+                pActor->vel.Y = 0;
             }
         }
     }

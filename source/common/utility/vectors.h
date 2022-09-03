@@ -577,7 +577,7 @@ struct TVector3
 		}
 
 		up = n ^right;
-		right.MakeUnit();;
+		right.MakeUnit();
 		up.MakeUnit();
 	}
 

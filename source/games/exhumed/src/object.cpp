@@ -1202,9 +1202,9 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
     ChangeActorStat(pActor, 0);
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
     pActor->spr.extra = -1;
 
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -1446,9 +1446,9 @@ void AISpark::Tick(RunListEvent* ev)
         }
     }
 
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
 
     if (pActor->spr.picnum > kTile3000) {
         nSmokeSparks--;
@@ -1583,9 +1583,9 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 
     pActor->spr.xrepeat = nRepeat;
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
@@ -1784,9 +1784,9 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 
     // 0x7FFD to ensure set as blocking ('B' and 'H') sprite and also disable translucency and set not invisible
     pActor->spr.cstat = (pActor->spr.cstat | CSTAT_SPRITE_BLOCK_ALL) & ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_INVISIBLE);
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
     pActor->spr.extra = -1;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
@@ -1902,8 +1902,8 @@ void AIObject::Tick(RunListEvent* ev)
 
             if (nMov.type == kHitSprite)
             {
-                pActor->clear_yvel();
-                pActor->clear_xvel();
+                pActor->vel.Y = 0;
+                pActor->vel.X = 0;
             }
         }
 
@@ -2031,9 +2031,9 @@ void AIObject::RadialDamage(RunListEvent* ev)
 
         if (pActor->spr.statnum == kStatExplodeTarget)
         {
-            pActor->clear_xvel();
-            pActor->clear_yvel();
-            pActor->clear_zvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
+            pActor->vel.Z = 0;
         }
         else if (pActor->spr.statnum != kStatAnubisDrum)
         {

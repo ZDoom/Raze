@@ -295,7 +295,7 @@ int BelowNear(DExhumedActor* pActor, double walldist)
     {
         pActor->set_int_z(z2);
         overridesect = pSector;
-        pActor->clear_zvel();
+        pActor->vel.Z = 0;
 
         bTouchFloor = true;
 
@@ -412,7 +412,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
                         nRet = loHit;
                     }
 
-                    pActor->clear_zvel();
+                    pActor->vel.Z = 0;
                 }
             }
             else
@@ -438,7 +438,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
                         }
                     }
 
-                    pActor->clear_zvel();
+                    pActor->vel.Z = 0;
                 }
             }
         }
@@ -589,14 +589,14 @@ void Gravity(DExhumedActor* pActor)
             {
                 pActor->add_int_zvel(- 64);
                 if (pActor->float_zvel() < 0) {
-                    pActor->clear_zvel();
+                    pActor->vel.Z = 0;
                 }
             }
             else if (pActor->float_zvel() < 0)
             {
                 pActor->add_int_zvel( 64);
                 if (pActor->float_zvel() > 0) {
-                    pActor->clear_zvel();
+                    pActor->vel.Z = 0;
                 }
             }
         }
@@ -1359,9 +1359,9 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         // re-grab this variable as it may have changed in movesprite(). Note the check above is against the value *before* movesprite so don't change it.
         pSector = pActor->sector();
 
-        pActor->clear_xvel();
-        pActor->clear_yvel();
-        pActor->clear_zvel();
+        pActor->vel.X = 0;
+        pActor->vel.Y = 0;
+        pActor->vel.Z = 0;
         pActor->spr.pos.Z = pSector->floorz;
     }
     else

@@ -123,11 +123,6 @@ public:
 		return vel.Z;
 	}
 
-	void clear_zvel()
-	{
-		vel.Z = 0;
-	}
-
 	void set_int_zvel(int v)
 	{
 		vel.Z = v * zinttoworld;
@@ -143,11 +138,6 @@ public:
 		vel.Z *= v;
 	}
 
-	void clear_xyvel()
-	{
-		vel.X = vel.Y = 0;
-	}
-
 	// Note: Both Duke and SW use Q12.4 for this, Exhumed doesn't seem to treat horizontal velocity with a fixed factor.
 	int int_xvel() const
 	{
@@ -157,11 +147,6 @@ public:
 	double float_xvel() const
 	{
 		return vel.X;
-	}
-
-	void clear_xvel()
-	{
-		vel.X = 0;
 	}
 
 	void set_int_xvel(int v)
@@ -188,11 +173,6 @@ public:
 	double float_yvel() const
 	{
 		return vel.Y;
-	}
-
-	void clear_yvel()
-	{
-		vel.Y = 0;
 	}
 
 	void set_int_yvel(int v)

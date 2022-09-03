@@ -97,9 +97,9 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->set_int_ang(nAngle);
     pActor->spr.xrepeat = 50;
     pActor->spr.yrepeat = 50;
-    pActor->clear_xvel();
-    pActor->clear_yvel();
-    pActor->clear_zvel();
+    pActor->vel.X = 0;
+    pActor->vel.Y = 0;
+    pActor->vel.Z = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
     pActor->spr.extra = -1;
@@ -171,8 +171,8 @@ void AIRat::Damage(RunListEvent* ev)
     if (ev->nDamage)
     {
         pActor->spr.cstat = 0;
-        pActor->clear_xvel();
-        pActor->clear_yvel();
+        pActor->vel.X = 0;
+        pActor->vel.Y = 0;
         pActor->nAction = 3;
         pActor->nFrame = 0;
     }
@@ -234,8 +234,8 @@ void AIRat::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->pTarget = nullptr;
 
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
             return;
         }
 
@@ -272,8 +272,8 @@ void AIRat::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->pTarget = nullptr;
 
-            pActor->clear_xvel();
-            pActor->clear_yvel();
+            pActor->vel.X = 0;
+            pActor->vel.Y = 0;
         }
 
         MoveCreature(pActor);
@@ -299,8 +299,8 @@ void AIRat::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
         pActor->nPhase = RandomSize(3);
 
-        pActor->clear_xvel();
-        pActor->clear_yvel();
+        pActor->vel.X = 0;
+        pActor->vel.Y = 0;
         return;
     }
     case 2:
@@ -319,8 +319,8 @@ void AIRat::Tick(RunListEvent* ev)
                 pActor->nCount = RandomSize(6);
                 if (pActor->float_xvel() != 0 || pActor->float_yvel() != 0)
                 {
-                    pActor->clear_xvel();
-                    pActor->clear_yvel();
+                    pActor->vel.X = 0;
+                    pActor->vel.Y = 0;
                     return;
                 }
 

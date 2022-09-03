@@ -4615,7 +4615,7 @@ static Collision MoveThing(DBloodActor* actor)
 			actor->spr.flags |= 4;
 
 			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v20), actor->sector(), FixedToFloat(pThingInfo->elastic));
-			actor->vel,XY() = vec4.XY();
+			actor->vel.XY() = vec4.XY();
 			int vax = FloatToFixed(vec4.W);
 
 			int nDamage = MulScale(vax, vax, 30) - pThingInfo->dmgResist;
