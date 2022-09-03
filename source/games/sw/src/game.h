@@ -1524,10 +1524,10 @@ struct SECTOR_OBJECT
             scale_active_type,  // activated by a switch or trigger
 
     // values for whole SO
-            scale_dist,         // distance from center
+            _scale_dist,         // distance from center
             scale_speed,        // speed of scaling
-            scale_dist_min,     // absolute min
-            scale_dist_max,     // absolute max
+            _scale_dist_min,     // absolute min
+            _scale_dist_max,     // absolute max
             scale_rand_freq,    // freqency of direction change - based on rand(1024)
 
     // values for single point scaling

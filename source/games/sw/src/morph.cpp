@@ -72,13 +72,13 @@ short DoSectorObjectSetScale(short match)
 
                 sop->scale_type = sop->scale_active_type;
 
-                if (sop->scale_dist == sop->scale_dist_max)
+                if (sop->_scale_dist == sop->_scale_dist_max)
                 {
                     // make it negative
                     if (sop->scale_speed > 0)
                         sop->scale_speed = -sop->scale_speed;
                 }
-                else if (sop->scale_dist == sop->scale_dist_min)
+                else if (sop->_scale_dist == sop->_scale_dist_min)
                 {
                     // make it positive
                     if (sop->scale_speed < 0)
@@ -196,16 +196,16 @@ void ScaleSectorObject(SECTOR_OBJECT* sop)
 
     // to dest
     case SO_SCALE_DEST:
-        sop->scale_dist += sop->scale_speed;
+        sop->_scale_dist += sop->scale_speed;
 
-        if (sop->scale_dist > sop->scale_dist_max)
+        if (sop->_scale_dist > sop->_scale_dist_max)
         {
-            sop->scale_dist = sop->scale_dist_max;
+            sop->_scale_dist = sop->_scale_dist_max;
             sop->scale_type = SO_SCALE_HOLD;
         }
-        else if (sop->scale_dist < sop->scale_dist_min)
+        else if (sop->_scale_dist < sop->_scale_dist_min)
         {
-            sop->scale_dist = sop->scale_dist_min;
+            sop->_scale_dist = sop->_scale_dist_min;
             sop->scale_type = SO_SCALE_HOLD;
         }
 
@@ -214,16 +214,16 @@ void ScaleSectorObject(SECTOR_OBJECT* sop)
     // random direction change
     case SO_SCALE_RANDOM:
 
-        sop->scale_dist += sop->scale_speed;
-        if (sop->scale_dist > sop->scale_dist_max)
+        sop->_scale_dist += sop->scale_speed;
+        if (sop->_scale_dist > sop->_scale_dist_max)
         {
             sop->scale_speed *= -1;
-            sop->scale_dist = sop->scale_dist_max;
+            sop->_scale_dist = sop->_scale_dist_max;
         }
-        else if (sop->scale_dist < sop->scale_dist_min)
+        else if (sop->_scale_dist < sop->_scale_dist_min)
         {
             sop->scale_speed *= -1;
-            sop->scale_dist = sop->scale_dist_min;
+            sop->_scale_dist = sop->_scale_dist_min;
         }
 
         if (RANDOM_P2(1024) < sop->scale_rand_freq<<3)
@@ -235,17 +235,17 @@ void ScaleSectorObject(SECTOR_OBJECT* sop)
 
     // cycle through max and min
     case SO_SCALE_CYCLE:
-        sop->scale_dist += sop->scale_speed;
+        sop->_scale_dist += sop->scale_speed;
 
-        if (sop->scale_dist > sop->scale_dist_max)
+        if (sop->_scale_dist > sop->_scale_dist_max)
         {
             sop->scale_speed *= -1;
-            sop->scale_dist = sop->scale_dist_max;
+            sop->_scale_dist = sop->_scale_dist_max;
         }
-        else if (sop->scale_dist < sop->scale_dist_min)
+        else if (sop->_scale_dist < sop->_scale_dist_min)
         {
             sop->scale_speed *= -1;
-            sop->scale_dist = sop->scale_dist_min;
+            sop->_scale_dist = sop->_scale_dist_min;
         }
         break;
     }
@@ -313,7 +313,7 @@ void MorphTornado(SECTOR_OBJECT* sop)
     DVector2 mpos = pos + sop->morph_ang.ToVector() * sop->morph_speed;
 
     // bound check radius
-    if ((sop->pmid - mpos).Length() > sop->morph_dist_max + sop->scale_dist * zinttoworld)
+    if ((sop->pmid - mpos).Length() > sop->morph_dist_max + sop->_scale_dist * zinttoworld)
     {
         // find and reverse angle
         sop->morph_ang = VecToAngle(mpos - sop->pmid) + DAngle180;
