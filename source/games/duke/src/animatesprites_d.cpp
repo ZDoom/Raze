@@ -147,7 +147,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		switch (h->spr.picnum)
 		{
 		case SECTOREFFECTOR:
-			if (t->lotag == 27 && ud.recstat == 1)
+			if (t->lotag == SE_27_DEMO_CAM && ud.recstat == 1)
 			{
 				t->picnum = 11 + ((PlayClock >> 3) & 1);
 				t->cstat |= CSTAT_SPRITE_YCENTER;
