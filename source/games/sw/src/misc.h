@@ -46,7 +46,7 @@ enum TriggerType { TRIGGER_TYPE_REMOTE_SO };
 
 int ActorFollowTrack(DSWActor*, short locktics);
 void ActorLeaveTrack(DSWActor*);
-void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic);
+void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& pos, bool dynamic);
 void TrackSetup(void);
 void PlaceSectorObject(SECTOR_OBJECT* sop, const DVector2& newpos);
 void PlaceSectorObjectsOnTracks(void);

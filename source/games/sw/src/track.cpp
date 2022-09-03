@@ -41,7 +41,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny);
+DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics);
 void DoAutoTurretObject(SECTOR_OBJECT* sop);
 void DoTornadoObject(SECTOR_OBJECT* sop);
 int PickJumpSpeed(DSWActor*, int pix_height);
@@ -1451,7 +1451,7 @@ void PlaceActorsOnTracks(void)
 }
 
 
-void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
+void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
 {
     void DoPlayerZrange(PLAYER* pp);
 
@@ -1474,7 +1474,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         pp->RevolveDeltaAng = nullAngle;
     }
 
-    pp->add_int_ppos_XY({ nx, ny });
+    pp->pos += move;
 
     if ((sop->flags & SOBJ_DONT_ROTATE))
     {
@@ -1500,8 +1500,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
         // Player is NOT moving
 
         // Move saved x&y variables
-        pp->Revolve.X += nx * inttoworld;
-        pp->Revolve.Y += ny * inttoworld;
+        pp->Revolve += move;
 
         // Last known angle is now adjusted by the delta angle
         pp->RevolveAng = deltaangle(pp->RevolveDeltaAng, pp->angle.ang);
@@ -1522,7 +1521,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, int nx, int ny)
     UpdatePlayerSprite(pp);
 }
 
-void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
+void MovePoints(SECTOR_OBJECT* sop, short delta_ang, const DVector2& move)
 {
     auto deltaangle = DAngle::fromBuild(delta_ang);
     int j;
@@ -1537,8 +1536,7 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
         PlayerMove = false;
 
     // move along little midpoint
-    sop->pmid.X += nx * inttoworld;
-    sop->pmid.Y += ny * inttoworld;
+    sop->pmid += move;
 
     if (SO_EMPTY(sop))
         PlayerMove = false;
@@ -1551,7 +1549,6 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, int nx, int ny)
         sop->pmid.Z = sop->mid_sector->floorz;
 
     DVector2 pivot = sop->pmid.XY();
-    DVector2 move = { nx * inttoworld, ny * inttoworld };
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((sop->flags & (SOBJ_SPRITE_OBJ | SOBJ_DONT_ROTATE)))
@@ -1617,7 +1614,7 @@ PlayerPart:
             if (pp->lo_sectp == sop->sectp[j])
             {
                 if (PlayerMove)
-                    MovePlayer(pp, sop, nx, ny);
+                    MovePlayer(pp, sop, move);
             }
         }
     }
@@ -1639,7 +1636,7 @@ PlayerPart:
             if (pp->lowActor && pp->lowActor == actor)
             {
                 if (PlayerMove)
-                    MovePlayer(pp, sop, nx, ny);
+                    MovePlayer(pp, sop, move);
             }
         }
 
@@ -1757,7 +1754,7 @@ PlayerPart:
     }
 }
 
-void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
+void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
 {
     short wallcount = 0, delta_ang_from_orig;
 
@@ -1831,7 +1828,8 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
 
     // Note that this delta angle is from the original angle
     // nx,ny are 0 so the points are not moved, just rotated
-    MovePoints(sop, delta_ang_from_orig, nx, ny);
+
+    MovePoints(sop, delta_ang_from_orig, move);
 
     // do morphing - angle independent
     if (dynamic && sop->PostMoveAnimator)
@@ -2095,7 +2093,6 @@ void CallbackSOsink(ANIM* ap, void *data)
 
 void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
 {
-    int nx, ny;
     short speed;
     short delta_ang;
 
@@ -2106,13 +2103,11 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
         if ((sop->flags & SOBJ_UPDATE_ONCE))
         {
             sop->flags &= ~(SOBJ_UPDATE_ONCE);
-            RefreshPoints(sop, 0, 0, false);
+            RefreshPoints(sop, DVector2(0, 0), false);
         }
         return;
     }
 
-    nx = 0;
-    ny = 0;
 
     // if pausing the return
     if (sop->wait_tics)
@@ -2126,8 +2121,9 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
 
     delta_ang = 0;
 
+    DVector2 npos(0, 0);
     if (sop->track > -1)
-        DoTrack(sop, locktics, &nx, &ny);
+        npos = DoTrack(sop, locktics);
 
     // get delta to target angle
     delta_ang = getincangle(sop->ang, sop->ang_tgt);
@@ -2157,7 +2153,7 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
     if ((sop->flags & SOBJ_DYNAMIC))
     {
         // trick tricks
-        RefreshPoints(sop, nx, ny, true);
+        RefreshPoints(sop, npos, true);
     }
     else
     {
@@ -2168,12 +2164,12 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
             GlobSpeedSO.Degrees())
         {
             sop->flags &= ~(SOBJ_UPDATE_ONCE);
-            RefreshPoints(sop, nx, ny, false);
+            RefreshPoints(sop, npos, false);
         }
     }
 }
 
-void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
+DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
 {
     TRACK_POINT* tpoint;
 
@@ -2496,12 +2492,14 @@ void DoTrack(SECTOR_OBJECT* sop, short locktics, int *nx, int *ny)
     // calculate a new x and y
     if (sop->vel && !(sop->flags & SOBJ_MOVE_VERTICAL))
     {
-        *nx = ((sop->vel) >> 8) * locktics * bcos(sop->ang_moving) >> 14;
-        *ny = ((sop->vel) >> 8) * locktics * bsin(sop->ang_moving) >> 14;
+        DVector2 n;
+        n.X = (((sop->vel) >> 8) * locktics * bcos(sop->ang_moving) >> 14) * inttoworld;
+        n.Y = (((sop->vel) >> 8) * locktics * bsin(sop->ang_moving) >> 14) * inttoworld;
 
-        auto dist = Distance(0, 0, *nx, *ny) * inttoworld;
-        sop->target_dist -= dist;
+        sop->target_dist -= n.Length();
+        return n;
     }
+    return { 0,0 };
 }
 
 
@@ -2541,7 +2539,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2
     sop->spin_ang = 0;
     sop->ang = newang;
 
-    RefreshPoints(sop, int((pos.X - sop->pmid.X) * worldtoint), int((pos.Y - sop->pmid.Y) * worldtoint), false);
+    RefreshPoints(sop, pos - sop->pmid.XY(), false);
 }
 
 void OperateSectorObject(SECTOR_OBJECT* sop, short newang, const DVector2& pos)
@@ -2552,7 +2550,7 @@ void OperateSectorObject(SECTOR_OBJECT* sop, short newang, const DVector2& pos)
 void PlaceSectorObject(SECTOR_OBJECT* sop, const DVector2& pos)
 {
     so_setinterpolationtics(sop, synctics);
-    RefreshPoints(sop, int((pos.X - sop->pmid.X) * worldtoint), int((pos.Y - sop->pmid.Y) * worldtoint), false);
+    RefreshPoints(sop, pos - sop->pmid.XY(), false);
 }
 
 void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
@@ -2630,8 +2628,6 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     int xvect,yvect;
     // this made them move together more or less - cool!
     //static short ang = 1024;
-    int floor_dist;
-    vec3_t pos;
     int ret;
     short *ang = &sop->ang_moving;
 
@@ -2639,14 +2635,12 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     yvect = sop->vel * bcos(*ang);
 
     auto cursect = sop->op_main_sector; // for sop->vel
-    floor_dist = (abs(cursect->int_ceilingz() - cursect->int_floorz())) >> 2;
-    pos.X = sop->int_pmid().X;
-    pos.Y = sop->int_pmid().Y;
-    pos.Z = floor_dist;
+    double floor_dist = (abs(cursect->ceilingz - cursect->floorz)) * 0.25;
+    DVector3 pos(sop->pmid.XY(), floor_dist);
 
     PlaceSectorObject(sop, {MAXSO, MAXSO});
     Collision coll;
-    clipmove(pos, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), floor_dist, CLIPMASK_ACTOR, coll);
+    clipmove(pos, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), int(floor_dist * zworldtoint), CLIPMASK_ACTOR, coll);
 
     if (coll.type != kHitNone)
     {
@@ -2654,7 +2648,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     }
 
     TornadoSpin(sop);
-    RefreshPoints(sop, pos.X - sop->int_pmid().X, pos.Y - sop->int_pmid().Y, true);
+    RefreshPoints(sop, pos - sop->pmid.XY(), true);
 }
 
 void DoAutoTurretObject(SECTOR_OBJECT* sop)
@@ -2723,7 +2717,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        sop->ang_tgt = getangle(actor->user.targetActor->int_pos().X - sop->int_pmid().X,  actor->user.targetActor->int_pos().Y - sop->int_pmid().Y);
+        sop->ang_tgt = getangle(actor->user.targetActor->spr.pos - sop->pmid);
 
         // get delta to target angle
         delta_ang = getincangle(sop->ang, sop->ang_tgt);
