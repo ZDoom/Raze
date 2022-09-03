@@ -303,45 +303,45 @@ void MorphTornado(SECTOR_OBJECT* sop)
 
     // z direction
     ASSERT(sop->op_main_sector != nullptr);
-    sop->morph_z += Z(sop->morph_z_speed);
+    sop->_morph_z += Z(sop->_morph_z_speed);
 
     // move vector
     if (sop->morph_wall_point == nullptr)
         return;
 
     // place at correct x,y offset from center
-    x = sop->int_pmid().X - sop->morph_xoff;
-    y = sop->int_pmid().Y - sop->morph_yoff;
+    x = sop->int_pmid().X - sop->_morph_xoff;
+    y = sop->int_pmid().Y - sop->_morph_yoff;
 
     sx = x;
     sy = y;
 
     // move it from last x,y
-    mx = x + MulScale(sop->morph_speed, bcos(sop->morph_ang), 14);
-    my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
+    mx = x + MulScale(sop->_morph_speed, bcos(sop->_morph_ang), 14);
+    my = y + MulScale(sop->_morph_speed, bsin(sop->_morph_ang), 14);
 
     // bound check radius
-    if (ksqrt(SQ(sop->int_pmid().X - mx) + SQ(sop->int_pmid().Y - my)) > sop->morph_dist_max + sop->scale_dist)
+    if (ksqrt(SQ(sop->int_pmid().X - mx) + SQ(sop->int_pmid().Y - my)) > sop->_morph_dist_max + sop->scale_dist)
     {
         // find angle
-        sop->morph_ang = NORM_ANGLE(getangle(mx - sop->int_pmid().X, my - sop->int_pmid().Y));
+        sop->_morph_ang = NORM_ANGLE(getangle(mx - sop->int_pmid().X, my - sop->int_pmid().Y));
         // reverse angle
-        sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
+        sop->_morph_ang = NORM_ANGLE(sop->_morph_ang + 1024);
 
         // move back some from last point
-        mx = sx + MulScale(sop->morph_speed << 1, bcos(sop->morph_ang), 14);
-        my = sy + MulScale(sop->morph_speed << 1, bsin(sop->morph_ang), 14);
+        mx = sx + MulScale(sop->_morph_speed << 1, bcos(sop->_morph_ang), 14);
+        my = sy + MulScale(sop->_morph_speed << 1, bsin(sop->_morph_ang), 14);
 
-        sop->morph_xoff = sop->int_pmid().X - mx;
-        sop->morph_yoff = sop->int_pmid().Y - my;
+        sop->_morph_xoff = sop->int_pmid().X - mx;
+        sop->_morph_yoff = sop->int_pmid().Y - my;
     }
 
     // save x,y back as offset info
-    sop->morph_xoff = sop->int_pmid().X - mx;
-    sop->morph_yoff = sop->int_pmid().Y - my;
+    sop->_morph_xoff = sop->int_pmid().X - mx;
+    sop->_morph_yoff = sop->int_pmid().Y - my;
 
     if ((RANDOM_P2(1024<<4)>>4) < sop->morph_rand_freq)
-        sop->morph_ang = RANDOM_P2(2048);
+        sop->_morph_ang = RANDOM_P2(2048);
 
     // move it x,y
     dragpoint(sop->morph_wall_point, mx, my);
@@ -356,18 +356,18 @@ void MorphTornado(SECTOR_OBJECT* sop)
             ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
 #define TOR_LOW (florz)
-            if (sop->morph_z > TOR_LOW)
+            if (sop->_morph_z > TOR_LOW)
             {
-                sop->morph_z_speed *= -1;
-                sop->morph_z = TOR_LOW;
+                sop->_morph_z_speed *= -1;
+                sop->_morph_z = TOR_LOW;
             }
-            else if (sop->morph_z < ceilz)
+            else if (sop->_morph_z < ceilz)
             {
-                sop->morph_z_speed *= -1;
-                sop->morph_z = ceilz;
+                sop->_morph_z_speed *= -1;
+                sop->_morph_z = ceilz;
             }
 
-            alignceilslope(*sectp, mx, my, sop->morph_z);
+            alignceilslope(*sectp, mx, my, sop->_morph_z);
         }
     }
 }
@@ -383,43 +383,43 @@ void MorphFloor(SECTOR_OBJECT* sop)
 
     // z direction
     ASSERT(sop->op_main_sector != nullptr);
-    sop->morph_z -= Z(sop->morph_z_speed);
+    sop->_morph_z -= Z(sop->_morph_z_speed);
 
     // move vector
     if (sop->morph_wall_point == nullptr)
         return;
 
     // place at correct x,y offset from center
-    x = sop->int_pmid().X - sop->morph_xoff;
-    y = sop->int_pmid().Y - sop->morph_yoff;
+    x = sop->int_pmid().X - sop->_morph_xoff;
+    y = sop->int_pmid().Y - sop->_morph_yoff;
 
     // move it from last x,y
-    mx = x + MulScale(sop->morph_speed, bcos(sop->morph_ang), 14);
-    my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
+    mx = x + MulScale(sop->_morph_speed, bcos(sop->_morph_ang), 14);
+    my = y + MulScale(sop->_morph_speed, bsin(sop->_morph_ang), 14);
 
     // save x,y back as offset info
-    sop->morph_xoff = sop->int_pmid().X - mx;
-    sop->morph_yoff = sop->int_pmid().Y - my;
+    sop->_morph_xoff = sop->int_pmid().X - mx;
+    sop->_morph_yoff = sop->int_pmid().Y - my;
 
     // bound check radius
-    if (Distance(sop->int_pmid().X, sop->int_pmid().Y, mx, my) > sop->morph_dist_max)
+    if (Distance(sop->int_pmid().X, sop->int_pmid().Y, mx, my) > sop->_morph_dist_max)
     {
         // go in the other direction
         //sop->morph_speed *= -1;
-        sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
+        sop->_morph_ang = NORM_ANGLE(sop->_morph_ang + 1024);
 
         // back it up and save it off
-        mx = x + MulScale(sop->morph_speed, bcos(sop->morph_ang), 14);
-        my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
-        sop->morph_xoff = sop->int_pmid().X - mx;
-        sop->morph_yoff = sop->int_pmid().Y - my;
+        mx = x + MulScale(sop->_morph_speed, bcos(sop->_morph_ang), 14);
+        my = y + MulScale(sop->_morph_speed, bsin(sop->_morph_ang), 14);
+        sop->_morph_xoff = sop->int_pmid().X - mx;
+        sop->_morph_yoff = sop->int_pmid().Y - my;
 
         // turn it all the way around and then do a random -512 to 512 from there
         //sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024 + (RANDOM_P2(1024) - 512));
     }
 
     if ((RANDOM_P2(1024<<4)>>4) < sop->morph_rand_freq)
-        sop->morph_ang = RANDOM_P2(2048);
+        sop->_morph_ang = RANDOM_P2(2048);
 
     // move x,y point "just like in build"
     dragpoint(sop->morph_wall_point, mx, my);
@@ -429,17 +429,17 @@ void MorphFloor(SECTOR_OBJECT* sop)
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 
-    if (sop->morph_z > MORPH_FLOOR_ZRANGE)
+    if (sop->_morph_z > MORPH_FLOOR_ZRANGE)
     {
-        sop->morph_z = MORPH_FLOOR_ZRANGE;
+        sop->_morph_z = MORPH_FLOOR_ZRANGE;
         //sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
-        sop->morph_z_speed *= -1;
+        sop->_morph_z_speed *= -1;
     }
-    else if (sop->morph_z < -MORPH_FLOOR_ZRANGE)
+    else if (sop->_morph_z < -MORPH_FLOOR_ZRANGE)
     {
-        sop->morph_z = -MORPH_FLOOR_ZRANGE;
+        sop->_morph_z = -MORPH_FLOOR_ZRANGE;
         //sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
-        sop->morph_z_speed *= -1;
+        sop->_morph_z_speed *= -1;
     }
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
@@ -447,7 +447,7 @@ void MorphFloor(SECTOR_OBJECT* sop)
         if ((*sectp)->hasU() &&
             ((*sectp)->flags & SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(*sectp, mx, my, florz + sop->morph_z);
+            alignflorslope(*sectp, mx, my, florz + sop->_morph_z);
         }
     }
 }
@@ -487,7 +487,7 @@ void SpikeFloor(SECTOR_OBJECT* sop)
 {
     // z direction
     ASSERT(sop->op_main_sector != nullptr);
-    sop->morph_z -= Z(sop->morph_z_speed);
+    sop->_morph_z -= Z(sop->_morph_z_speed);
 
     // move vector
     if (sop->morph_wall_point == nullptr)
@@ -496,24 +496,24 @@ void SpikeFloor(SECTOR_OBJECT* sop)
     DVector3 pos;
 
     // place at correct x,y offset from center
-    pos.X = sop->pmid.X - sop->morph_xoff * inttoworld;
-    pos.Y = sop->pmid.Y - sop->morph_yoff * inttoworld;
+    pos.X = sop->pmid.X - sop->_morph_xoff * inttoworld;
+    pos.Y = sop->pmid.Y - sop->_morph_yoff * inttoworld;
 
     // bound the Z
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 
-    if (sop->morph_z > MORPH_FLOOR_ZRANGE)
+    if (sop->_morph_z > MORPH_FLOOR_ZRANGE)
     {
-        sop->morph_z = MORPH_FLOOR_ZRANGE;
-        sop->morph_z_speed *= -1;
+        sop->_morph_z = MORPH_FLOOR_ZRANGE;
+        sop->_morph_z_speed *= -1;
     }
-    else if (sop->morph_z < -MORPH_FLOOR_ZRANGE)
+    else if (sop->_morph_z < -MORPH_FLOOR_ZRANGE)
     {
-        sop->morph_z = -MORPH_FLOOR_ZRANGE;
-        sop->morph_z_speed *= -1;
+        sop->_morph_z = -MORPH_FLOOR_ZRANGE;
+        sop->_morph_z_speed *= -1;
     }
-    pos.Z = sop->op_main_sector->floorz + sop->morph_z * inttoworld;
+    pos.Z = sop->op_main_sector->floorz + sop->_morph_z * inttoworld;
 
     SOBJ_AlignFloorToPoint(sop, pos);
 }

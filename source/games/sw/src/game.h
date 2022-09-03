@@ -1472,9 +1472,9 @@ struct SECTOR_OBJECT
            bob_diff,       // bobbing difference for the frame
            floor_loz,      // floor low z
            floor_hiz,      // floor hi z
-           morph_z,        // morphing point z
-           morph_z_min,    // morphing point z min
-           morph_z_max,
+           _morph_z,        // morphing point z
+           _morph_z_min,    // morphing point z min
+           _morph_z_max,
            bob_amt,        // bob amount max in z coord
         // end of must floatify
 
@@ -1541,14 +1541,14 @@ struct SECTOR_OBJECT
             scale_y_mult,           // y multiplyer for scaling
 
     // Used for center point movement
-            morph_ang,              // angle moving from CENTER
-            morph_speed,            // speed of movement
-            morph_dist_max,         // radius boundry
+            _morph_ang,              // angle moving from CENTER
+            _morph_speed,            // speed of movement
+            _morph_dist_max,         // radius boundry
             morph_rand_freq,        // freq of dir change
-            morph_dist,             // dist from CENTER
-            morph_z_speed,          // z speed for morph point
-            morph_xoff,             // save xoff from center
-            morph_yoff;             // save yoff from center
+            _morph_dist,             // dist from CENTER
+            _morph_z_speed,          // z speed for morph point
+            _morph_xoff,             // save xoff from center
+            _morph_yoff;             // save yoff from center
 
     //scale_rand_reverse;            // random at random interval
     // limit rotation angle
