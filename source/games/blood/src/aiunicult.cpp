@@ -1126,18 +1126,13 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 		int nDist = approxDist(dvec);
 		if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
 			return;
-		int nCos = Cos(actor->int_ang());
-		int nSin = Sin(actor->int_ang());
-		int vx = actor->int_vel().X;
-		int vy = actor->int_vel().Y;
-		int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-		int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-		if (actor->GetTarget() == nullptr)
-			t1 += nAccel;
-		else
-			t1 += nAccel >> 1;
-		actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-		actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+		AdjustVelocity(actor, ADJUSTER{
+			if (actor->GetTarget() == nullptr)
+				t1 += FixedToFloat(nAccel);
+			else
+				t1 += FixedToFloat(nAccel * 0.5);
+		});
+
 	}
 	else
 	{

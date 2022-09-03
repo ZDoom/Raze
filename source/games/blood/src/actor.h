@@ -241,4 +241,5 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor);
 
 extern const int16_t DudeDifficulty[];
 
+
 END_BLD_NS

@@ -331,18 +331,13 @@ static void eelMoveForward(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (nDist <= 0x399)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	if (actor->GetTarget() == nullptr)
-		t1 += nAccel;
-	else
-		t1 += nAccel >> 1;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+	AdjustVelocity(actor, ADJUSTER{
+		if (actor->GetTarget() == nullptr)
+			t1 += FixedToFloat(nAccel);
+		else
+			t1 += FixedToFloat(nAccel * 0.5);
+	});
+
 }
 
 static void eelMoveSwoop(DBloodActor* actor)
@@ -359,15 +354,10 @@ static void eelMoveSwoop(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (Chance(0x8000) && nDist <= 0x399)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	t1 += nAccel >> 1;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+	AdjustVelocity(actor, ADJUSTER{
+		t1 += FixedToFloat(nAccel * 0.5);
+	});
+
 	actor->set_int_bvel_z(0x22222);
 }
 
@@ -385,15 +375,10 @@ static void eelMoveAscend(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (Chance(0x4000) && nDist <= 0x399)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	t1 += nAccel >> 1;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+	AdjustVelocity(actor, ADJUSTER{
+		t1 += FixedToFloat(nAccel * 0.5);
+	});
+
 	actor->set_int_bvel_z(-0x8000);
 }
 

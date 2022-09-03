@@ -532,18 +532,13 @@ static void gargMoveForward(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	if (actor->GetTarget() == nullptr)
-		t1 += nAccel;
-	else
-		t1 += nAccel >> 1;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+	AdjustVelocity(actor, ADJUSTER{
+		if (actor->GetTarget() == nullptr)
+			t1 += FixedToFloat(nAccel);
+		else
+			t1 += FixedToFloat(nAccel * 0.5);
+	});
+
 }
 
 static void gargMoveSlow(DBloodActor* actor)
@@ -566,16 +561,11 @@ static void gargMoveSlow(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	t1 = nAccel >> 1;
-	t2 >>= 1;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+	AdjustVelocity(actor, ADJUSTER{
+		t1 += FixedToFloat(nAccel * 0.5);
+		t2 *= 0.5;
+	});
+
 	switch (actor->spr.type) {
 	case kDudeGargoyleFlesh:
 		actor->set_int_bvel_z(0x44444);
@@ -606,23 +596,19 @@ static void gargMoveSwoop(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	t1 += nAccel >> 1;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	switch (actor->spr.type) {
-	case kDudeGargoyleFlesh:
-		actor->set_int_bvel_z(t1);
-		break;
-	case kDudeGargoyleStone:
-		actor->set_int_bvel_z(t1);
-		break;
-	}
+
+	AdjustVelocity(actor, ADJUSTER{
+		t1 += FixedToFloat(nAccel * 0.5);
+		switch (actor->spr.type) {
+		case kDudeGargoyleFlesh:
+			actor->vel.Z = t1;
+			break;
+		case kDudeGargoyleStone:
+			actor->vel.Z = t1;
+			break;
+		}
+	});
+
 }
 
 static void gargMoveFly(DBloodActor* actor)
@@ -645,23 +631,19 @@ static void gargMoveFly(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (Chance(0x4000) && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	t1 += nAccel >> 1;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
-	switch (actor->spr.type) {
-	case kDudeGargoyleFlesh:
-		actor->set_int_bvel_z(-t1);
-		break;
-	case kDudeGargoyleStone:
-		actor->set_int_bvel_z(-t1);
-		break;
-	}
+	
+	AdjustVelocity(actor, ADJUSTER{
+		t1 += FixedToFloat(nAccel * 0.5);
+		switch (actor->spr.type) {
+		case kDudeGargoyleFlesh:
+			actor->vel.Z = -t1;
+			break;
+		case kDudeGargoyleStone:
+			actor->vel.Z = -t1;
+			break;
+		}
+	});
+
 }
 
 END_BLD_NS

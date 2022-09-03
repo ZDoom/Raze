@@ -290,18 +290,13 @@ static void sub_65D04(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (Random(64) < 32 && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	if (actor->GetTarget() == nullptr)
-		t1 += nAccel;
-	else
-		t1 += nAccel >> 2;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+	AdjustVelocity(actor, ADJUSTER{
+		if (actor->GetTarget() == nullptr)
+			t1 += FixedToFloat(nAccel);
+		else
+			t1 += FixedToFloat(nAccel * 0.25);
+	});
+
 }
 
 static void sub_65F44(DBloodActor* actor)
@@ -327,15 +322,10 @@ static void sub_65F44(DBloodActor* actor)
 	int dz = z2 - z;
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	t1 += nAccel;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+	AdjustVelocity(actor, ADJUSTER{
+		t1 += FixedToFloat(nAccel);
+	});
+
 	actor->set_int_bvel_z(-dz);
 }
 
@@ -362,15 +352,10 @@ static void sub_661E0(DBloodActor* actor)
 	int dz = (z2 - z) << 3;
 	if (Chance(0x4000) && nDist <= 0x400)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int vx = actor->int_vel().X;
-	int vy = actor->int_vel().Y;
-	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
-	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-	t1 += nAccel >> 1;
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
+	AdjustVelocity(actor, ADJUSTER{
+		t1 += FixedToFloat(nAccel * 0.5);
+	});
+
 	actor->set_int_bvel_z(dz);
 }
 
