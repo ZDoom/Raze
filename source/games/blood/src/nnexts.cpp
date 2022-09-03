@@ -3140,9 +3140,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 			
 			auto velv = pSprite->vel.XY();
 			auto pt = rotatepoint(pSprite->spr.pos.XY(), velv, angl);
-			//actor->vel.XY() = pt;
-			pSprite->set_int_bvel_x(pt.X * worldtoint);
-			pSprite->set_int_bvel_y(pt.Y * worldtoint);
+			pSprite->vel.XY() = pt;
 
 
 			vAng = getVelocityAngle(pSprite);
@@ -3294,13 +3292,12 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		{
 			auto velv = actor->vel.XY();
 			auto pt = rotatepoint(actor->spr.pos.XY(), velv, sourceactor->spr.angle - VecToAngle(velv));
-			//actor->vel.XY() = pt;
-			actor->set_int_bvel_x(pt.X * worldtoint);
-			actor->set_int_bvel_y(pt.Y * worldtoint);
+			actor->vel.XY() = pt;
+
 		}
 
 		if (sourceactor->xspr.data3 & kModernTypeFlag4)
-			actor->set_int_bvel_z(0);
+			actor->vel.Z = 0;
 	}
 
 	if (sourceactor->xspr.data2 == 1)

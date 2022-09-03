@@ -243,9 +243,7 @@ void fxDynPuff(DBloodActor* actor, sectortype*) // 8
 		auto pFX = gFX.fxSpawnActor(FX_7, actor->sector(), x, y, z, 0);
 		if (pFX)
 		{
-			pFX->set_int_bvel_x(actor->int_vel().X);
-			pFX->set_int_bvel_y(actor->int_vel().Y);
-			pFX->set_int_bvel_z(actor->int_vel().Z);
+			pFX->vel = actor->vel;
 		}
 	}
 	evPostActor(actor, 12, kCallbackFXDynPuff);

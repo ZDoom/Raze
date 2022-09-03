@@ -4624,7 +4624,7 @@ static Collision MoveThing(DBloodActor* actor)
 			actor->set_int_bvel_z(FloatToFixed(vec4.Z));
 			if (actor->sector()->velFloor == 0 && abs(actor->int_vel().Z) < 0x10000)
 			{
-				actor->set_int_bvel_z(0);
+				actor->vel.Z = 0;
 				actor->spr.flags &= ~4;
 			}
 
