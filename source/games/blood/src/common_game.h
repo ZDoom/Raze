@@ -546,6 +546,11 @@ inline int Random2(int a1)
 	return MulScale(wrand(), a1, 14) - a1;
 }
 
+inline double Random2F(int a1)
+{
+	return FixedToFloat(MulScale(wrand(), a1, 14) - a1);
+}
+
 inline int Random3(int a1)
 {
 	return MulScale(wrand() + wrand(), a1, 15) - a1;

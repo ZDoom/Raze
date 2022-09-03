@@ -5146,9 +5146,9 @@ void MoveDude(DBloodActor* actor)
 						auto pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos, 0);
 						if (pFX2)
 						{
-							pFX2->set_int_bvel_x(Random2(0x6aaaa));
-							pFX2->set_int_bvel_y(Random2(0x6aaaa));
-							pFX2->set_int_bvel_z(-(int)Random(0xd5555));
+							pFX2->vel.X = Random2F(0x6aaaa);
+							pFX2->vel.Y = Random2F(0x6aaaa);
+							pFX2->vel.Z = -Random2F(0xd5555);
 						}
 					}
 				}
@@ -5955,7 +5955,7 @@ static void actCheckTraps()
 					{
 						pFX->set_int_bvel_x(dx + Random2(0x8888));
 						pFX->set_int_bvel_y(dy + Random2(0x8888));
-						pFX->set_int_bvel_z(Random2(0x8888));
+						pFX->vel.Z = Random2F(0x8888);
 					}
 					x += (dx / 2) >> 12;
 					y += (dy / 2) >> 12;

@@ -1805,9 +1805,9 @@ void debrisMove(int listIndex)
 				for (i = 0; i < 7; i++)
 				{
 					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos, 0)) == NULL) continue;
-					pFX2->set_int_bvel_x(Random2(0x6aaaa));
-					pFX2->set_int_bvel_y(Random2(0x6aaaa));
-					pFX2->set_int_bvel_z(-(int)Random(0xd5555));
+					pFX2->vel.X = Random2F(0x6aaaa);
+					pFX2->vel.Y = Random2F(0x6aaaa);
+					pFX2->vel.Z = -Random2F(0xd5555);
 				}
 				break;
 			case kSurfWater:
@@ -8823,7 +8823,7 @@ void aiPatrolThink(DBloodActor* actor)
 		if (actor->xspr.stateTimer > 0 || markeractor->xspr.data1 == markeractor->xspr.data2)
 		{
 			if (pExtra->flying)
-				actor->set_int_bvel_z(Random2(0x8000));
+				actor->vel.Z = Random2F(0x8000);
 
 			// turn while waiting
 			if (markeractor->spr.flags & kModernTypeFlag16)

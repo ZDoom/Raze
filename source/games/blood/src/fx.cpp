@@ -283,9 +283,9 @@ void fxSpawnBlood(DBloodActor* actor, int)
 	if (bloodactor)
 	{
 		bloodactor->set_int_ang(1024);
-		bloodactor->set_int_bvel_x(Random2(0x6aaaa));
-		bloodactor->set_int_bvel_y(Random2(0x6aaaa));
-		bloodactor->set_int_bvel_z(-(int)Random(0x10aaaa) - 100);
+		bloodactor->vel.X = Random2F(0x6aaaa);
+		bloodactor->vel.Y = Random2F(0x6aaaa);
+		bloodactor->vel.Z = -Random2F(0x10aaaa) - FixedToFloat(100);
 		evPostActor(bloodactor, 8, kCallbackFXBloodSpurt);
 	}
 }
@@ -313,9 +313,9 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 	if (spawnactor)
 	{
 		spawnactor->set_int_ang(1024);
-		spawnactor->set_int_bvel_x(Random2(0x6aaaa));
-		spawnactor->set_int_bvel_y(Random2(0x6aaaa));
-		spawnactor->set_int_bvel_z(-(int)Random(0x10aaaa) - 100);
+		spawnactor->vel.X = Random2F(0x6aaaa);
+		spawnactor->vel.Y = Random2F(0x6aaaa);
+		spawnactor->vel.Z = -Random2F(0x10aaaa) - FixedToFloat(100);
 		evPostActor(spawnactor, 8, kCallbackFXPodBloodSpray);
 	}
 }
