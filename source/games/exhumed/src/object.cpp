@@ -2031,15 +2031,11 @@ void AIObject::RadialDamage(RunListEvent* ev)
 
         if (pActor->spr.statnum == kStatExplodeTarget)
         {
-            pActor->vel.X = 0;
-            pActor->vel.Y = 0;
-            pActor->vel.Z = 0;
+            pActor->ZeroVelocity();
         }
         else if (pActor->spr.statnum != kStatAnubisDrum)
         {
-            pActor->mul_int_xvel(0.5);
-            pActor->mul_int_yvel(0.5);
-            pActor->mul_int_zvel(0.5);
+            pActor->vel *= 0.5;
         }
 
         if (pActor->nHealth > 0) {

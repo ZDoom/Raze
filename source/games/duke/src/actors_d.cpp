@@ -2584,7 +2584,7 @@ static void heavyhbomb(DDukeActor *actor)
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
 			actor->set_int_zvel(-((4 - actor->spr.yint) << 8));
 			if (actor->sector()->lotag == 2)
-				actor->mul_int_zvel(0.25);
+				actor->vel.Z *= 0.25;
 			actor->spr.yint++;
 		}
 		if (actor->spr.pos.Z < actor->ceilingz) // && sectp->lotag != 2 )
@@ -2643,7 +2643,7 @@ static void heavyhbomb(DDukeActor *actor)
 		int k = getangle(wal->delta());
 
 		actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
-		actor->mul_int_xvel(0.5);
+		actor->vel.X *= 0.5;
 	}
 
 DETONATEB:
@@ -3618,7 +3618,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 					if (actor->spr.pos.Z < c + 66)
 					{
 						actor->spr.pos.Z = c + 66;
-						actor->mul_int_zvel(0.5);
+						actor->vel.Z *= 0.5;
 					}
 				}
 			}

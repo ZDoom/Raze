@@ -3910,7 +3910,7 @@ int DoShrapDamage(DSWActor* actor)
         {
             actor->user.Flags |= (SPR_BOUNCE);
             actor->user.jump_speed = -300;
-            actor->mul_int_xvel(0.25);
+            actor->vel.X *= 0.25;
             DoBeginJump(actor);
             return 0;
         }
@@ -16602,7 +16602,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
     actorNew->user.floor_dist = 1;
     actorNew->spr.shade = actor->sector()->floorshade - 10;
     actorNew->user.WaitTics = 120 * 120;
-    actorNew->set_int_zvel(512);
+    actorNew->vel.Z = 2;
     actorNew->spr.clipdist = 12 >> 2;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.Flags |= (SPR_UNDERWATER);

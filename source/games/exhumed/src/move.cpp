@@ -1320,9 +1320,9 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 
     if (bSpecial)
     {
-        pActor->mul_int_xvel(4);
-        pActor->mul_int_yvel(4);
-        pActor->mul_int_zvel(2);
+        pActor->vel.X *= 4;
+        pActor->vel.Y *= 4;
+        pActor->vel.Z *= 2;
     }
 
     pActor->spr.xrepeat = 64;
@@ -1379,8 +1379,8 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         {
             if (nVal.exbits & kHitAux1)
             {
-                pActor->mul_int_xvel(0.5);
-                pActor->mul_int_yvel(0.5);
+                pActor->vel.X *= 0.5;
+                pActor->vel.Y *= 0.5;
                 pActor->set_int_zvel(-pActor->int_zvel());
                 return;
             }

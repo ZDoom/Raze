@@ -2231,9 +2231,8 @@ static void operateweapon(int snum, ESyncBits actions)
 			k = hits(pact);
 			if (k < 512)
 			{
-				spawned->add_int_ang(1024);
-				spawned->mul_int_zvel(1./3.);
-				spawned->mul_int_xvel(1./3.);
+				spawned->spr.angle += DAngle180;
+				spawned->vel *= 1./3.;
 			}
 
 			p->hbomb_on = 1;

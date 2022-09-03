@@ -1718,7 +1718,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		if (l <= 1524)
 		{
 			a = actor->int_ang();
-			actor->mul_int_xvel(0.5);
+			actor->vel.X *= 0.5;
 		}
 		else a = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 
@@ -2214,7 +2214,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			{
 				if (actor->vel.Z < 4)
 					actor->add_int_zvel( 48);
-				else actor->set_int_zvel(1024);
+				else actor->vel.Z = 4;
 			}
 			else actor->add_int_zvel( gs.gravity - 50);
 		}
@@ -2429,7 +2429,7 @@ void glasspieces(DDukeActor* actor)
 	{
 		actor->set_int_zvel(-((3 - actor->temp_data[0]) << 8) - (krand() & 511));
 		if (sectp->lotag == 2)
-			actor->mul_int_zvel(0.5);
+			actor->vel.Z *= 0.5;
 		actor->spr.xrepeat >>= 1;
 		actor->spr.yrepeat >>= 1;
 		if (rnd(96))

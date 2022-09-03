@@ -1007,7 +1007,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				if (actor->spr.shade == sectp->floorshade) //UP
 					actor->set_int_zvel(-256);
 				else
-					actor->set_int_zvel(256);
+					actor->vel.Z = 1;
 
 				actor->spr.shade = 0;
 			}

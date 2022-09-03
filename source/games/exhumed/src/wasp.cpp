@@ -174,7 +174,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
             SetWaspVel(pActor);
 
-            pActor->set_int_zvel(512);
+            pActor->vel.Z = 2;
 
             nCreaturesKilled++;
         }
@@ -322,7 +322,7 @@ void AIWasp::Tick(RunListEvent* ev)
         {
             pActor->vel.X = 0;
             pActor->vel.Y = 0;
-            pActor->set_int_zvel(1024);
+            pActor->vel.Z = 4;
             pActor->nAction = 5;
             pActor->nFrame = 0;
         }

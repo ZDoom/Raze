@@ -663,7 +663,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->spr.xrepeat = actj->spr.xrepeat;
 			act->spr.yrepeat = actj->spr.yrepeat;
-			act->set_int_zvel(128);
+			act->vel.Z = 0.5;
 			if (act->sector()->lotag != 2)
 				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		}

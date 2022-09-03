@@ -114,7 +114,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
         }
         else if ((pActor->spr.pos.Z - FloorZ) > 0)
         {
-            pActor->set_int_zvel(1024);
+            pActor->vel.Z = 4;
         }
     }
     else
