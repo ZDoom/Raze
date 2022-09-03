@@ -37,9 +37,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 
-Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
+Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
 {
-    double zz = z * inttoworld;
     int i;
     DVector3 opos[MAX_CLIPBOX], pos[MAX_CLIPBOX];
     SECTOR_OBJECT* sop = pp->sop;
@@ -62,7 +61,7 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
 
         int xvect = vect.X * 16 * worldtoint; // note: this means clipmove input is Q18.14!
         int yvect = vect.Y * 16 * worldtoint;
-        clipmove(spos, &pp->cursector, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll, 1);
+        clipmove(spos, &pp->cursector, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), int(floordist * zworldtoint), CLIPMASK_PLAYER, coll, 1);
 
         if (coll.type != kHitNone)
         {
@@ -90,10 +89,10 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
         {
             // save off the start position
             opos[i] = pos[i] = spos;
-            pos[i].Z = z;
+            pos[i].Z = zz;
 
             // move the box
-            clipmove(pos[i], &pp->cursector, pp->vect.X, pp->vect.Y, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll);
+            clipmove(pos[i], &pp->cursector, pp->vect.X, pp->vect.Y, (int)sop->clipbox_dist[i], Z(4), int(floordist * zworldtoint), CLIPMASK_PLAYER, coll);
 
             // save the dist moved
             dist = (pos[i].XY() - opos[i].XY()).Length();
@@ -113,9 +112,8 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
     return min_ret;
 }
 
-short MultiClipTurn(PLAYER* pp, DAngle new_ang, int z, int floor_dist)
+int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
 {
-    double zz = z * inttoworld;
     int i;
     SECTOR_OBJECT* sop = pp->sop;
     int ret;
@@ -132,7 +130,7 @@ short MultiClipTurn(PLAYER* pp, DAngle new_ang, int z, int floor_dist)
 
         int xvect = vect.X * 16 * worldtoint; // note: this means clipmove input is Q18.14!
         int yvect = vect.Y * 16 * worldtoint;
-        clipmove(spos, &cursect, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(spos, &cursect, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), int(floordist * zworldtoint), CLIPMASK_PLAYER, coll);
 
         ASSERT(cursect);
 

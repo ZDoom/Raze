@@ -1469,7 +1469,7 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, int z, int floor_dist)
     if (avel != 0)
     {
         auto sum = pp->angle.ang + DAngle::fromDeg(avel);
-        if (MultiClipTurn(pp, sum, z, floor_dist))
+        if (MultiClipTurn(pp, sum, z * zinttoworld, floor_dist * zinttoworld))
         {
             pp->angle.ang = sum;
             pp->actor->set_int_ang(pp->angle.ang.Buildang());
@@ -2608,7 +2608,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         }
         else
         {
-            actor->user.coll = MultiClipMove(pp, z, floor_dist);
+            actor->user.coll = MultiClipMove(pp, z * zinttoworld, floor_dist * zinttoworld);
         }
         plActor->spr.cstat = save_cstat;
 
