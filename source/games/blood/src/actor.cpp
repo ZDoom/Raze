@@ -2592,10 +2592,10 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 void actWallBounceVector(DBloodActor* actor, walltype* pWall, double factor)
 {
 	auto delta = pWall->delta().Unit();
-	auto vel = actor->fVel().XY();
+	auto vel = actor->vel.XY();
 	double t = vel.X * -delta.Y + vel.Y * delta.X;
 	double t2 = t * (factor+1);
-	actor->set_float_bvel_xy(vel - DVector2(-delta.Y * t2, delta.X * t2));
+	actor->vel.XY() = (vel - DVector2(-delta.Y * t2, delta.X * t2));
 }
 
 //---------------------------------------------------------------------------
@@ -2611,7 +2611,7 @@ DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSect
 	if (pSector->floorheinum == 0)
 	{
 		double t2 = oldz * t;
-		return { actor->fVel().X, actor->fVel().Y, oldz - t2, t2};
+		return { actor->vel.X, actor->vel.Y, oldz - t2, t2};
 	}
 
 	walltype* pWall = pSector->firstWall();
@@ -2951,7 +2951,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			actDropObject(actor, actor->xspr.dropMsg);
 
 		actor->spr.flags &= ~kPhysMove;
-		actor->clear_vel_xy();
+		actor->ZeroVelocityXY();
 
 		playGenDudeSound(actor, kGenDudeSndTransforming);
 		int seqId = actor->xspr.data2 + kGenDudeSeqTransform;
@@ -4615,7 +4615,7 @@ static Collision MoveThing(DBloodActor* actor)
 			actor->spr.flags |= 4;
 
 			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v20), actor->sector(), FixedToFloat(pThingInfo->elastic));
-			actor->set_float_bvel_xy(vec4.XY());
+			actor->vel,XY() = vec4.XY();
 			int vax = FloatToFixed(vec4.W);
 
 			int nDamage = MulScale(vax, vax, 30) - pThingInfo->dmgResist;
@@ -5105,7 +5105,7 @@ void MoveDude(DBloodActor* actor)
 		if (v30 > 0)
 		{
 			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v30), actor->sector(), 0);
-			actor->set_float_bvel_xy(vec4.XY());
+			actor->vel.XY() = vec4.XY();
 			int vax = FloatToFixed(vec4.W);
 
 			int nDamage = MulScale(vax, vax, 30);
@@ -5204,7 +5204,7 @@ void MoveDude(DBloodActor* actor)
 		actor->add_int_bvel_y(-mulscale16r(actor->int_vel().Y, nDrag));
 
 		if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
-			actor->clear_vel_xy();
+			actor->ZeroVelocityXY();
 	}
 }
 
@@ -5249,7 +5249,7 @@ int MoveMissile(DBloodActor* actor)
 			actor->add_int_bvel_z(deltaz);
 		}
 	}
-	auto vel = actor->fVel();
+	auto vel = actor->vel;
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	int i = 1;
@@ -5314,9 +5314,9 @@ int MoveMissile(DBloodActor* actor)
 		}
 		if (cliptype >= 0 && cliptype != 3)
 		{
-			double nVel = actor->fVel().XY().Length();
-			ppos.XY() -= actor->fVel().XY() / nVel;
-			vel.Z -= actor->fVel().Z / nVel;
+			double nVel = actor->vel.XY().Length();
+			ppos.XY() -= actor->vel.XY() / nVel;
+			vel.Z -= actor->vel.Z / nVel;
 			updatesector(ppos, &pSector);
 			pSector2 = pSector;
 		}
@@ -6009,7 +6009,7 @@ static void actCheckDudes()
 			// handle incarnations of custom dude
 			if (actor->spr.type == kDudeModernCustom && actor->xspr.txID > 0 && actor->xspr.sysData1 == kGenDudeTransformStatus)
 			{
-				actor->clear_vel_xy();
+				actor->ZeroVelocityXY();
 				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
 			}
 #endif

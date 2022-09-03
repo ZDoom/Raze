@@ -210,11 +210,6 @@ public:
 		vel.Y *= v;
 	}
 
-	DVector3 fVel() const
-	{
-		return vel;
-	}
-
 	vec3_t int_vel() const
 	{
 		return vec3_t(FloatToFixed(vel.X), FloatToFixed(vel.Y), FloatToFixed(vel.Z));
@@ -240,16 +235,6 @@ public:
 		vel = { FixedToFloat(x.X), FixedToFloat(x.Y), FixedToFloat(x.Z) };
 	}
 
-	void set_float_bvel(DVector3 x)
-	{
-		vel = x;
-	}
-
-	void set_float_bvel_xy(DVector2 x)
-	{
-		vel.XY() = x;
-	}
-
 	void add_int_bvel_x(int x)
 	{
 		vel .X += FixedToFloat(x);
@@ -265,7 +250,7 @@ public:
 		vel .Z += FixedToFloat(x);
 	}
 
-	void clear_vel_xy()
+	void ZeroVelocityXY()
 	{
 		vel .X = vel .Y = 0;
 	}

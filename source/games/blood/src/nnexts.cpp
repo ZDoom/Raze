@@ -1786,7 +1786,7 @@ void debrisMove(int listIndex)
 		{
 			actor->xspr.physAttr |= kPhysFalling;
 			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v30), actor->sector(), FixedToFloat(tmpFraction));
-			actor->set_float_bvel(vec4.XYZ());
+			actor->vel = vec4.XYZ();
 			v30 = actor->int_vel().Z;
 
 			if (abs(actor->int_vel().Z) < 0x10000)
@@ -1872,7 +1872,7 @@ void debrisMove(int listIndex)
 	actor->add_int_bvel_x(-mulscale16r(actor->int_vel().X, nDrag));
 	actor->add_int_bvel_y(-mulscale16r(actor->int_vel().Y, nDrag));
 	if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
-		actor->clear_vel_xy();
+		actor->ZeroVelocityXY();
 }
 
 //---------------------------------------------------------------------------
@@ -3138,7 +3138,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 			if (toAng180) angl = DAngle180;
 			else angl = DAngle::fromBuild(nAng - vAng);
 			
-			auto velv = pSprite->fVel().XY();
+			auto velv = pSprite->vel.XY();
 			auto pt = rotatepoint(pSprite->spr.pos.XY(), velv, angl);
 			//actor->vel.XY() = pt;
 			pSprite->set_int_bvel_x(pt.X * worldtoint);
@@ -3292,7 +3292,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		// change movement direction according source angle
 		if (sourceactor->xspr.data3 & kModernTypeFlag2)
 		{
-			auto velv = actor->fVel().XY();
+			auto velv = actor->vel.XY();
 			auto pt = rotatepoint(actor->spr.pos.XY(), velv, sourceactor->spr.angle - VecToAngle(velv));
 			//actor->vel.XY() = pt;
 			actor->set_int_bvel_x(pt.X * worldtoint);
@@ -8200,7 +8200,7 @@ void aiPatrolMove(DBloodActor* actor)
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
 	{
-		actor->clear_vel_xy();
+		actor->ZeroVelocityXY();
 		return;
 	}
 
