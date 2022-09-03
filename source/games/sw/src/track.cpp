@@ -718,10 +718,10 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
             // detection and recognition
             sect->extra |= SECTFX_SECTOR_OBJECT;
 
-            sop->zorig_floor[sop->num_sectors] = sect->int_floorz();
+            sop->zorig_floor[sop->num_sectors] = sect->floorz;
 
             if ((sect->extra & SECTFX_SINK))
-                sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->depth_fixed));
+                sop->zorig_floor[sop->num_sectors] += FixedToInt(sect->depth_fixed);
 
             // lowest and highest floor z's
             if (sect->floorz > sop->floor_loz)
@@ -1972,7 +1972,7 @@ void MoveZ(SECTOR_OBJECT* sop)
             if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_BOB))
                 continue;
 
-            (*sectp)->set_int_floorz(sop->zorig_floor[i] + sop->bob_diff);
+            (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff * zinttoworld;
         }
     }
 
@@ -1993,7 +1993,7 @@ void MoveZ(SECTOR_OBJECT* sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, *sectp, (sop->zorig_floor[i] + sop->z_tgt) * zinttoworld, sop->z_rate);
+            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt * zinttoworld, sop->z_rate);
         }
 
         sop->flags &= ~(SOBJ_ZDOWN);
@@ -2002,7 +2002,7 @@ void MoveZ(SECTOR_OBJECT* sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, *sectp, (sop->zorig_floor[i] + sop->z_tgt) * zinttoworld, sop->z_rate);
+            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt * zinttoworld, sop->z_rate);
         }
 
         sop->flags &= ~(SOBJ_ZUP);
@@ -2523,7 +2523,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, DAngle newang, const DVector
             if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_BOB))
                 continue;
 
-            (*sectp)->set_int_floorz(sop->zorig_floor[i] + sop->bob_diff);
+            (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff * zinttoworld;
         }
     }
 

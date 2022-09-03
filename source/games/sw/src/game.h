@@ -1462,11 +1462,11 @@ struct SECTOR_OBJECT
 
     int    vel,            // velocity
            vel_tgt,        // target velocity
-           update,         // Distance from player at which you continue updating
+           update;         // Distance from player at which you continue updating
 
         // start of must floatify
-           zorig_floor[MAX_SO_SECTOR],      // original z values for all sectors
-           z_tgt,          // target z delta
+    double  zorig_floor[MAX_SO_SECTOR];      // original z values for all sectors
+    int    z_tgt,          // target z delta
            z_rate,         // rate at which z aproaches target
     // only works for single player.
            bob_diff;       // bobbing difference for the frame
