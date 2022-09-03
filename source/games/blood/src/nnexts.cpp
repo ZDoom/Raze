@@ -1343,7 +1343,7 @@ void nnExtProcessSuperSprites()
 			}
 
 			if (debrisactor->xspr.physAttr & kPhysGravity) debrisactor->xspr.physAttr |= kPhysFalling;
-			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->vel.X != 0 || debrisactor->vel.Y != 0 || debrisactor->vel.Z != 0 || debrisactor->sector()->velFloor || debrisactor->sector()->velCeil)
+			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->vel.X != 0 || debrisactor->vel.Y != 0 || debrisactor->vel.Z != 0 || debrisactor->sector()->_velFloor || debrisactor->sector()->_velCeil)
 				debrisMove(i);
 
 			if (debrisactor->vel.X != 0 || debrisactor->int_vel().Y)
@@ -1780,7 +1780,7 @@ void debrisMove(int listIndex)
 	if (floorZ <= bottom) {
 
 		actor->hit.florhit = floorColl;
-		int v30 = actor->int_vel().Z - actor->sector()->velFloor;
+		int v30 = actor->int_vel().Z - actor->sector()->_velFloor;
 
 		if (v30 > 0)
 		{
@@ -1791,7 +1791,7 @@ void debrisMove(int listIndex)
 
 			if (abs(actor->int_vel().Z) < 0x10000)
 			{
-				actor->set_int_bvel_z(actor->sector()->velFloor);
+				actor->set_int_bvel_z(actor->sector()->_velFloor);
 				actor->xspr.physAttr &= ~kPhysFalling;
 			}
 

@@ -1020,7 +1020,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 		int oldZ = pSector->int_floorz();
 		pSector->set_int_floorz((pXSector->offFloorZ + MulScale(dfz, GetWaveValue(a3, a4), 16)));
 		pSector->baseFloor = pSector->floorz;
-		pSector->velFloor += (pSector->int_floorz() - oldZ) << 8;
+		pSector->_velFloor += (pSector->int_floorz() - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
 		while (auto actor = it.Next())
@@ -1068,7 +1068,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 		int oldZ = pSector->int_ceilingz();
 		pSector->set_int_ceilingz((pXSector->offCeilZ + MulScale(dcz, GetWaveValue(a3, a4), 16)));
 		pSector->baseCeil = pSector->ceilingz;
-		pSector->velCeil += (pSector->int_ceilingz() - oldZ) << 8;
+		pSector->_velCeil += (pSector->int_ceilingz() - oldZ) << 8;
 
 		BloodSectIterator it(pSector);
 		while (auto actor = it.Next())
@@ -2214,7 +2214,7 @@ void trProcessBusy(void)
 {
 	for (auto& sect : sector)
 	{
-		sect.velCeil = sect.velFloor = 0;
+		sect._velCeil = sect._velFloor = 0;
 	}
 	for (int i = gBusy.Size()-1; i >= 0; i--)
 	{

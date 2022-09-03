@@ -517,7 +517,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 	int top, bottom; GetActorExtents(actor, &top, &bottom);
 	actor->add_int_z(floorZ - bottom);
 
-	int zv = actor->int_vel().Z - actor->sector()->velFloor;
+	int zv = actor->int_vel().Z - actor->sector()->_velFloor;
 
 	if (actor->vel.Z == 0) sleeveStopBouncing(actor);
 	else if (zv > 0)
@@ -525,7 +525,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 		auto vec4 = actFloorBounceVector(actor, FixedToFloat(zv), actor->sector(), FixedToFloat(0x9000));
 		actor->vel = vec4.XYZ();
 
-		if (actor->sector()->velFloor == 0 && abs(actor->int_vel().Z) < 0x20000) {
+		if (actor->sector()->_velFloor == 0 && abs(actor->int_vel().Z) < 0x20000) {
 			sleeveStopBouncing(actor);
 			return;
 		}
