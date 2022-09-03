@@ -199,9 +199,7 @@ void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 	if (pFX)
 	{
 		pFX->set_int_ang(0);
-		pFX->set_int_bvel_x(actor->int_vel().X >> 8);
-		pFX->set_int_bvel_y(actor->int_vel().Y >> 8);
-		pFX->set_int_bvel_z(actor->int_vel().Z >> 8);
+		pFX->vel = actor->vel * (1./256);
 	}
 	evPostActor(actor, 6, kCallbackFXBloodSpurt);
 }
@@ -521,7 +519,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 
 	int zv = actor->int_vel().Z - actor->sector()->velFloor;
 
-	if (actor->int_vel().Z == 0) sleeveStopBouncing(actor);
+	if (actor->vel.Z == 0) sleeveStopBouncing(actor);
 	else if (zv > 0)
 	{
 		auto vec4 = actFloorBounceVector(actor, FixedToFloat(zv), actor->sector(), FixedToFloat(0x9000));
@@ -626,9 +624,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 	if (pFX)
 	{
 		pFX->set_int_ang(0);
-		pFX->set_int_bvel_x(actor->int_vel().X >> 8);
-		pFX->set_int_bvel_y(actor->int_vel().Y >> 8);
-		pFX->set_int_bvel_z(actor->int_vel().Z >> 8);
+		pFX->vel = actor->vel * (1./256);
 	}
 	evPostActor(actor, 6, kCallbackFXPodBloodSpray);
 }

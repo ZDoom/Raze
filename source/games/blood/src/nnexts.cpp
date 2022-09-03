@@ -1054,7 +1054,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		if (maxZfound && actor->int_pos().Z <= maxZ)
 		{
 			zdiff = actor->int_pos().Z - maxZ;
-			if (actor->int_vel().Z < 0) actor->add_int_bvel_z(MulScale(actor->int_vel().Z >> 4, zdiff, 16));
+			if (actor->vel.Z < 0) actor->add_int_bvel_z(MulScale(actor->int_vel().Z >> 4, zdiff, 16));
 			continue;
 
 		}
@@ -1343,17 +1343,17 @@ void nnExtProcessSuperSprites()
 			}
 
 			if (debrisactor->xspr.physAttr & kPhysGravity) debrisactor->xspr.physAttr |= kPhysFalling;
-			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->int_vel().X != 0 || debrisactor->int_vel().Y != 0 || debrisactor->int_vel().Z != 0 || debrisactor->sector()->velFloor || debrisactor->sector()->velCeil)
+			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->vel.X != 0 || debrisactor->vel.Y != 0 || debrisactor->vel.Z != 0 || debrisactor->sector()->velFloor || debrisactor->sector()->velCeil)
 				debrisMove(i);
 
-			if (debrisactor->int_vel().X != 0 || debrisactor->int_vel().Y)
+			if (debrisactor->vel.X != 0 || debrisactor->int_vel().Y)
 				debrisactor->xspr.goalAng = getangle(debrisactor->int_vel().X, debrisactor->int_vel().Y) & 2047;
 
 			int ang = debrisactor->int_ang() & 2047;
 			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
 			else if (Chance(0x1000 - mass))
 			{
-				if (debrisactor->int_vel().Z > 0x100) debrisBubble(debrisactor);
+				if (debrisactor->vel.Z > 0x100) debrisBubble(debrisactor);
 				if (ang == debrisactor->xspr.goalAng)
 				{
 					debrisactor->xspr.goalAng = (debrisactor->int_ang() + Random3(kAng60)) & 2047;
@@ -1662,7 +1662,7 @@ void debrisMove(int listIndex)
 		uwater = true;
 	}
 
-	if (actor->int_vel().X != 0 || actor->int_vel().Y)
+	if (actor->vel.X != 0 || actor->int_vel().Y)
 	{
 
 		auto oldcstat = actor->spr.cstat;
@@ -1816,7 +1816,7 @@ void debrisMove(int listIndex)
 			}
 
 		}
-		else if (actor->int_vel().Z == 0)
+		else if (actor->vel.Z == 0)
 		{
 			actor->xspr.physAttr &= ~kPhysFalling;
 		}
@@ -1849,7 +1849,7 @@ void debrisMove(int listIndex)
 		trTriggerSprite(actor, kCmdToggle, actor);
 	}
 
-	if (actor->int_vel().X == 0 && actor->int_vel().Y == 0) return;
+	if (actor->vel.X == 0 && actor->vel.Y == 0) return;
 	else if (floorColl.type == kHitSprite)
 	{
 
@@ -2783,7 +2783,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						if (targetactor->spr.statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
 						// set random goal ang for swimming so they start turning
-						if ((flags & kPhysDebrisSwim) && targetactor->int_vel().X ==0 && targetactor->int_vel().Y == 0 && targetactor->int_vel().Z == 0)
+						if ((flags & kPhysDebrisSwim) && targetactor->int_vel().X ==0 && targetactor->vel.Y == 0 && targetactor->vel.Z == 0)
 							targetactor->xspr.goalAng = (targetactor->int_ang() + Random3(kAng45)) & 2047;
 
 						if (targetactor->xspr.physAttr & kPhysDebrisVector)
@@ -4623,7 +4623,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 				else if (arg1 == 2) return condCmp(objActor->int_vel().Y, arg1, arg2, cmpOp);
 				else if (arg1 == 3) return condCmp(objActor->int_vel().Z, arg1, arg2, cmpOp);
 			}
-			else if (arg1 == 0) return (objActor->int_vel().X != 0 || objActor->int_vel().Y != 0 || objActor->int_vel().Z);
+			else if (arg1 == 0) return (objActor->vel.X != 0 || objActor->vel.Y != 0 || objActor->int_vel().Z);
 			else if (arg1 == 1) return (objActor->int_vel().X);
 			else if (arg1 == 2) return (objActor->int_vel().Y);
 			else if (arg1 == 3) return (objActor->int_vel().Z);
@@ -8210,7 +8210,7 @@ void aiPatrolMove(DBloodActor* actor)
 			if (hitactor->hasX() && hitactor->xspr.health)
 			{
 				hitactor->xspr.dodgeDir = (actor->xspr.dodgeDir > 0) ? -1 : 1;
-				if (hitactor->int_vel().X != 0 || hitactor->int_vel().Y)
+				if (hitactor->vel.X != 0 || hitactor->int_vel().Y)
 					aiMoveDodge(hitactor);
 			}
 		}
@@ -8580,7 +8580,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 			{
 				DBloodActor* act = pPlayer->actor;
 				itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-				if (act && itCanHear && nDist < feelDist && (act->int_vel().X != 0 || act->int_vel().Y != 0 || act->int_vel().Z))
+				if (act && itCanHear && nDist < feelDist && (act->vel.X != 0 || act->vel.Y != 0 || act->int_vel().Z))
 					hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->int_vel().X) + abs(act->int_vel().Y) + abs(act->int_vel().Z))) >> 6, 0)), 0);
 			}
 

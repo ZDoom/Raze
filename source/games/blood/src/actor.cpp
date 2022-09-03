@@ -4150,7 +4150,7 @@ static void checkCeilHit(DBloodActor* actor)
 		auto actor2 = coll.actor();
 		if (actor2 && actor2->hasX())
 		{
-			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && (actor->int_vel().X != 0 || actor->int_vel().Y != 0 || actor->int_vel().Z != 0))
+			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && (actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0))
 			{
 				auto adelta = actor2->spr.pos - actor->spr.pos;
 				if (actor2->spr.statnum == kStatThing)
@@ -4258,7 +4258,7 @@ static void checkHit(DBloodActor* actor)
 			// add size shroom abilities
 			if ((actor2->IsPlayerActor() && isShrinked(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
 			{
-				if (actor->int_vel().X != 0 && actor2->IsDudeActor())
+				if (actor->vel.X != 0 && actor2->IsDudeActor())
 				{
 					int mass1 = getDudeInfo(actor->spr.type)->mass;
 					int mass2 = getDudeInfo(actor2->spr.type)->mass;
@@ -4526,7 +4526,7 @@ static Collision MoveThing(DBloodActor* actor)
 	lhit.setNone();
 	GetActorExtents(actor, &top, &bottom);
 	const int bakCompat = enginecompatibility_mode;
-	if (actor->int_vel().X != 0 || actor->int_vel().Y)
+	if (actor->vel.X != 0 || actor->int_vel().Y)
 	{
 		auto bakCstat = actor->spr.cstat;
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -4631,7 +4631,7 @@ static Collision MoveThing(DBloodActor* actor)
 			switch (actor->spr.type)
 			{
 			case kThingNapalmBall:
-				if (actor->int_vel().Z == 0 || Chance(0xA000)) actNapalmMove(actor);
+				if (actor->vel.Z == 0 || Chance(0xA000)) actNapalmMove(actor);
 				break;
 
 			case kThingZombieHead:
@@ -4650,7 +4650,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 			lhit.setSector(pSector);
 		}
-		else if (actor->int_vel().Z == 0)
+		else if (actor->vel.Z == 0)
 
 			actor->spr.flags &= ~4;
 	}
@@ -4666,7 +4666,7 @@ static Collision MoveThing(DBloodActor* actor)
 	{
 		actor->hit.ceilhit = ceilColl;
 		actor->add_int_z(ClipLow(ceilZ - top, 0));
-		if (actor->int_vel().Z < 0)
+		if (actor->vel.Z < 0)
 		{
 			actor->set_int_bvel_x(MulScale(actor->int_vel().X, 0xc000, 16));
 			actor->set_int_bvel_y(MulScale(actor->int_vel().Y, 0xc000, 16));
@@ -4714,7 +4714,7 @@ static Collision MoveThing(DBloodActor* actor)
 			actor->add_int_bvel_y(-MulScale(t, actor->int_vel().Y, 16));
 		}
 	}
-	if (actor->int_vel().X != 0 || actor->int_vel().Y)
+	if (actor->vel.X != 0 || actor->int_vel().Y)
 		actor->spr.angle = VecToAngle(actor->int_vel().X, actor->int_vel().Y);
 	return lhit;
 }
@@ -4746,7 +4746,7 @@ void MoveDude(DBloodActor* actor)
 
 	assert(pSector);
 
-	if (actor->int_vel().X != 0 || actor->int_vel().Y)
+	if (actor->vel.X != 0 || actor->int_vel().Y)
 	{
 		if (pPlayer && gNoClip)
 		{
@@ -4913,7 +4913,7 @@ void MoveDude(DBloodActor* actor)
 			actor->add_int_bvel_z(vc);
 		}
 	}
-	if (pPlayer && actor->int_vel().Z > 0x155555 && !pPlayer->fallScream && actor->xspr.height > 0)
+	if (pPlayer && actor->vel.Z > 0x155555 && !pPlayer->fallScream && actor->xspr.height > 0)
 	{
 		const bool playerAlive = (actor->xspr.health > 0) || VanillaMode(); // only trigger falling scream if player is alive or vanilla mode
 		if (playerAlive)
@@ -5156,7 +5156,7 @@ void MoveDude(DBloodActor* actor)
 			}
 			}
 		}
-		else if (actor->int_vel().Z == 0)
+		else if (actor->vel.Z == 0)
 
 			actor->spr.flags &= ~4;
 	}
@@ -5181,7 +5181,7 @@ void MoveDude(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 
 	actor->xspr.height = ClipLow(floorZ - bottom, 0) >> 8;
-	if (actor->int_vel().X != 0 || actor->int_vel().Y)
+	if (actor->vel.X != 0 || actor->int_vel().Y)
 	{
 		if (floorColl.type == kHitSprite)
 		{
@@ -5230,7 +5230,7 @@ int MoveMissile(DBloodActor* actor)
 	gHitInfo.clearObj();
 	if (actor->spr.type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
 
-	if (actor->GetTarget() != nullptr && (actor->int_vel().X != 0 || actor->int_vel().Y != 0 || actor->int_vel().Z))
+	if (actor->GetTarget() != nullptr && (actor->vel.X != 0 || actor->vel.Y != 0 || actor->int_vel().Z))
 	{
 		auto target = actor->GetTarget();
 
@@ -5686,7 +5686,7 @@ static void actCheckThings()
 			actAirDrag(actor, 128);
 
 			if (((actor->GetIndex() >> 8) & 15) == (gFrameCount & 15) && (actor->spr.flags & 2))	actor->spr.flags |= 4;
-			if ((actor->spr.flags & 4) || actor->int_vel().X != 0 || actor->int_vel().Y != 0 || actor->int_vel().Z != 0 || actor->sector()->velFloor || actor->sector()->velCeil)
+			if ((actor->spr.flags & 4) || actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0 || actor->sector()->velFloor || actor->sector()->velCeil)
 			{
 				Collision hit = MoveThing(actor);
 				if (hit.type)
@@ -6062,7 +6062,7 @@ static void actCheckDudes()
 					else
 						pPlayer->chokeEffect = 0;
 
-					if (actor->int_vel().X != 0 || actor->int_vel().Y)
+					if (actor->vel.X != 0 || actor->int_vel().Y)
 						sfxPlay3DSound(actor, 709, 100, 2);
 
 					pPlayer->bubbleTime = ClipLow(pPlayer->bubbleTime - 4, 0);
@@ -6114,7 +6114,7 @@ static void actCheckDudes()
 		if (pXSector && pXSector->Underwater) actAirDrag(actor, 5376);
 		else actAirDrag(actor, 128);
 
-		if ((actor->spr.flags & 4) || actor->int_vel().X != 0 || actor->int_vel().Y != 0 || actor->int_vel().Z != 0 || actor->sector()->velFloor || actor->sector()->velCeil)
+		if ((actor->spr.flags & 4) || actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0 || actor->sector()->velFloor || actor->sector()->velCeil)
 			MoveDude(actor);
 	}
 }
