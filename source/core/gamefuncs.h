@@ -358,7 +358,7 @@ enum EFindNextSector
 	Find_FloorUp = Find_Floor | Find_Up,
 	Find_FloorDown = Find_Floor | Find_Down,
 };
-sectortype* nextsectorneighborzptr(sectortype* sectp, int startz, int flags);
+sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags);
 
 
 

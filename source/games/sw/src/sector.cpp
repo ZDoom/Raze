@@ -640,7 +640,7 @@ void DoSpringBoardDown(void)
         {
             if ((sbp->TimeOut -= synctics) <= 0)
             {
-				auto destz = nextsectorneighborzptr(sbp->sectp, sbp->sectp->int_floorz(), Find_FloorDown | Find_Safe)->floorz;
+				auto destz = nextsectorneighborzptr(sbp->sectp, sbp->sectp->floorz, Find_FloorDown | Find_Safe)->floorz;
                 AnimSet(ANIM_Floorz, sbp->sectp, destz, 256);
 
                 sbp->sectp->lotag = TAG_SPRING_BOARD;

@@ -535,9 +535,8 @@ int inside(double x, double y, const sectortype* sect)
 //
 //==========================================================================
 
-sectortype* nextsectorneighborzptr(sectortype* sectp, int startz_, int flags)
+sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags)
 {
-	double startz = startz_ * zinttoworld;
 	double factor = (flags & Find_Up)? -1 : 1;
 	double bestz = INT_MAX;
 	sectortype* bestsec = (flags & Find_Safe)? sectp : nullptr;

@@ -750,8 +750,8 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_17_WARP_ELEVATOR:
 		{
 			actor->temp_data[2] = sectp->int_floorz(); //Stopping loc
-			actor->temp_data[3] = nextsectorneighborzptr(sectp, sectp->int_floorz(), Find_CeilingUp | Find_Safe)->int_ceilingz();
-			actor->temp_data[4] = nextsectorneighborzptr(sectp, sectp->int_ceilingz(), Find_FloorDown | Find_Safe)->int_floorz();
+			actor->temp_data[3] = nextsectorneighborzptr(sectp, sectp->floorz, Find_CeilingUp | Find_Safe)->int_ceilingz();
+			actor->temp_data[4] = nextsectorneighborzptr(sectp, sectp->ceilingz, Find_FloorDown | Find_Safe)->int_floorz();
 
 			if (numplayers < 2)
 			{

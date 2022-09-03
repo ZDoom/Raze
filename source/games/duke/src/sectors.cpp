@@ -667,10 +667,10 @@ static void handle_st16(sectortype* sptr, DDukeActor* actor)
 
 	if (i == -1)
 	{
-		sectp = nextsectorneighborzptr(sptr, sptr->int_floorz(), Find_FloorDown);
+		sectp = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorDown);
 		if (sectp == nullptr)
 		{
-			sectp = nextsectorneighborzptr(sptr, sptr->int_floorz(), Find_FloorUp);
+			sectp = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorUp);
 			if (sectp == nullptr) return;
 			setanimation(sptr, anim_floorz, sptr, sectp->int_floorz(), sptr->extra);
 		}
@@ -694,8 +694,8 @@ static void handle_st18(sectortype* sptr, DDukeActor* actor)
 
 	if (i == -1)
 	{
-		auto sectp = nextsectorneighborzptr(sptr, sptr->int_floorz(), Find_FloorUp);
-		if (sectp == nullptr) sectp = nextsectorneighborzptr(sptr, sptr->int_floorz(), Find_FloorDown);
+		auto sectp = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorUp);
+		if (sectp == nullptr) sectp = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorDown);
 		if (sectp == nullptr) return;
 		int j = sectp->int_floorz();
 		int q = sptr->extra;
@@ -717,9 +717,9 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 	int j;
 
 	if (sptr->lotag & 0x8000)
-		j = nextsectorneighborzptr(sptr, sptr->int_ceilingz(), Find_FloorDown | Find_Safe)->int_floorz();
+		j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->int_floorz();
 	else
-		j = nextsectorneighborzptr(sptr, sptr->int_ceilingz(), Find_CeilingUp | Find_Safe)->int_ceilingz();
+		j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_CeilingUp | Find_Safe)->int_ceilingz();
 
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
@@ -769,7 +769,7 @@ REDODOOR:
 	}
 	else
 	{
-		auto sectp = nextsectorneighborzptr(sptr, sptr->int_ceilingz(), Find_CeilingUp);
+		auto sectp = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_CeilingUp);
 
 		if (sectp) j = sectp->int_ceilingz();
 		else
@@ -798,14 +798,14 @@ static void handle_st21(sectortype* sptr, DDukeActor* actor)
 	if (i >= 0)
 	{
 		if (animategoal[i] == sptr->int_ceilingz())
-			animategoal[i] = nextsectorneighborzptr(sptr, sptr->int_ceilingz(), Find_FloorDown | Find_Safe)->int_floorz();
+			animategoal[i] = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->int_floorz();
 		else animategoal[i] = sptr->int_ceilingz();
 		j = animategoal[i];
 	}
 	else
 	{
 		if (sptr->ceilingz == sptr->floorz)
-			j = nextsectorneighborzptr(sptr, sptr->int_ceilingz(), Find_FloorDown | Find_Safe)->int_floorz();
+			j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->int_floorz();
 		else j = sptr->int_ceilingz();
 
 		sptr->lotag ^= 0x8000;
@@ -832,9 +832,9 @@ static void handle_st22(sectortype* sptr, DDukeActor* actor)
 	}
 	else
 	{
-		q = nextsectorneighborzptr(sptr, sptr->int_floorz(), Find_FloorDown | Find_Safe)->int_floorz();
+		q = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorDown | Find_Safe)->int_floorz();
 		j = setanimation(sptr, anim_floorz, sptr, q, sptr->extra);
-		q = nextsectorneighborzptr(sptr, sptr->int_ceilingz(), Find_CeilingUp | Find_Safe)->int_ceilingz();
+		q = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_CeilingUp | Find_Safe)->int_ceilingz();
 		j = setanimation(sptr, anim_ceilingz, sptr, q, sptr->extra);
 	}
 
