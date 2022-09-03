@@ -405,17 +405,14 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case CSTAT_SPRITE_ALIGNMENT_FACING:
-				b1 = OutAutomapVector(act->spr.pos.XY() - cpos, cangsin, cangcos, czoom);
-				b2 = OutAutomapVector(act->spr.angle.ToVector() * 8., cangsin, cangcos, czoom);
+				v1 = OutAutomapVector(act->spr.pos.XY() - cpos, cangsin, cangcos, czoom, xydim);
+				v2 = OutAutomapVector(act->spr.angle.ToVector() * 8., cangsin, cangcos, czoom);
+				v3 = v2.Rotated90CW();
+				v4 = v1 + v2;
 
-				v1 = b1 - b2 + xydim;
-				v2 = DVector2(b1.X - b2.Y, b1.Y + b2.X) + xydim;
-				v3 = DVector2(b1.X + b2.Y, b1.Y - b2.X) + xydim;
-				v4 = b1 + b2 + xydim;
-
-				drawlinergb(v1, v4, col);
-				drawlinergb(v2, v4, col);
-				drawlinergb(v3, v4, col);
+				drawlinergb(v1 - v2, v4, col);
+				drawlinergb(v1 - v3, v4, col);
+				drawlinergb(v1 + v3, v4, col);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
@@ -428,11 +425,11 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 					xspan = tileWidth(tilenum);
 
 					b0 = act->spr.angle.ToVector().Rotated90CW() * act->spr.xrepeat * (1. / 64.);
-					b1 = act->spr.pos.XY() - b0 * ((xspan * 0.5) + xoff);
+					b1 = act->spr.pos.XY() - b0 * ((xspan * 0.5) + xoff) - cpos;
 					b2 = b1 + b0 * xspan;
 
-					v1 = OutAutomapVector(b1 - cpos, cangsin, cangcos, czoom, xydim);
-					v2 = OutAutomapVector(b2 - cpos, cangsin, cangcos, czoom, xydim);
+					v1 = OutAutomapVector(b1, cangsin, cangcos, czoom, xydim);
+					v2 = OutAutomapVector(b2, cangsin, cangcos, czoom, xydim);
 
 					drawlinergb(v1, v2, col);
 				}
@@ -452,27 +449,25 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 				if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
 				if ((act->spr.cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
 
-				auto sprcos = act->spr.angle.Cos();
-				auto sprsin = act->spr.angle.Sin();
-
 				xspan = tileWidth(tilenum);
 				auto xrep = act->spr.xrepeat * (1. / 64.);
 				yspan = tileHeight(tilenum);
 				auto yrep = act->spr.yrepeat * (1. / 64.);
 
-				auto xscale = DVector2(-sprsin * xspan * xrep, +sprcos * xspan * xrep);
-				auto yscale = DVector2(-sprcos * yspan * yrep, -sprsin * yspan * yrep);
+				auto sprvec = act->spr.angle.ToVector();
+				auto xscale = sprvec.Rotated90CW() * xspan * xrep;
+				auto yscale = sprvec * yspan * yrep;
 
 				b0 = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);
-				b1 = act->spr.pos.XY() + (b0 * sprsin) + (b0.Rotated90CW() * sprcos);
-				b2 = b1 + xscale;
-				b3 = b2 + yscale;
-				b4 = b1 + yscale;
+				b1 = act->spr.pos.XY() + (b0 * sprvec.Y) + (b0.Rotated90CW() * sprvec.X) - cpos;
+				b2 = b1 - xscale;
+				b3 = b2 - yscale;
+				b4 = b1 - yscale;
 
-				v1 = OutAutomapVector(b1 - cpos, cangsin, cangcos, czoom, xydim);
-				v2 = OutAutomapVector(b2 - cpos, cangsin, cangcos, czoom, xydim);
-				v3 = OutAutomapVector(b3 - cpos, cangsin, cangcos, czoom, xydim);
-				v4 = OutAutomapVector(b4 - cpos, cangsin, cangcos, czoom, xydim);
+				v1 = OutAutomapVector(b1, cangsin, cangcos, czoom, xydim);
+				v2 = OutAutomapVector(b2, cangsin, cangcos, czoom, xydim);
+				v3 = OutAutomapVector(b3, cangsin, cangcos, czoom, xydim);
+				v4 = OutAutomapVector(b4, cangsin, cangcos, czoom, xydim);
 
 				drawlinergb(v1, v2, col);
 				drawlinergb(v2, v3, col);
