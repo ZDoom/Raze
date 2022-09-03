@@ -1450,7 +1450,7 @@ void DoPlayerTurn(PLAYER* pp, float const avel, double const scaleAdjust)
     UpdatePlayerSpriteAngle(pp);
 }
 
-void DoPlayerTurnVehicle(PLAYER* pp, float avel, int z, int floor_dist)
+void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
 {
     SECTOR_OBJECT* sop = pp->sop;
 
@@ -1469,10 +1469,10 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, int z, int floor_dist)
     if (avel != 0)
     {
         auto sum = pp->angle.ang + DAngle::fromDeg(avel);
-        if (MultiClipTurn(pp, sum, z * zinttoworld, floor_dist * zinttoworld))
+        if (MultiClipTurn(pp, sum, zz, floordist))
         {
             pp->angle.ang = sum;
-            pp->actor->set_int_ang(pp->angle.ang.Buildang());
+            pp->actor->spr.angle = pp->angle.ang;
         }
     }
 }
@@ -2596,7 +2596,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         }
         else
         {
-            DoPlayerTurnVehicle(pp, pp->input.avel, z, floor_dist);
+            DoPlayerTurnVehicle(pp, pp->input.avel, z * zinttoworld, floor_dist * zinttoworld);
         }
 
         auto save_cstat = plActor->spr.cstat;
