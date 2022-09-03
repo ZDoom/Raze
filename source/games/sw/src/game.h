@@ -1472,9 +1472,6 @@ struct SECTOR_OBJECT
            bob_diff,       // bobbing difference for the frame
            floor_loz,      // floor low z
            floor_hiz,      // floor hi z
-           _morph_z,        // morphing point z
-           _morph_z_min,    // morphing point z min
-           _morph_z_max,
            bob_amt,        // bob amount max in z coord
         // end of must floatify
 
@@ -1485,6 +1482,10 @@ struct SECTOR_OBJECT
            drive_slide,
            crush_z,
            flags;
+
+    double morph_z,        // morphing point z
+           morph_z_min,    // morphing point z min
+           morph_z_max;
 
     int16_t xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
             yorig[MAX_SO_POINTS],   // refreshed
@@ -1541,14 +1542,14 @@ struct SECTOR_OBJECT
             scale_y_mult,           // y multiplyer for scaling
 
     // Used for center point movement
-            _morph_ang,              // angle moving from CENTER
-            _morph_speed,            // speed of movement
-            _morph_dist_max,         // radius boundry
-            morph_rand_freq,        // freq of dir change
-            _morph_dist,             // dist from CENTER
-            _morph_z_speed,          // z speed for morph point
-            _morph_xoff,             // save xoff from center
-            _morph_yoff;             // save yoff from center
+            morph_rand_freq;        // freq of dir change
+
+    DAngle  morph_ang;              // angle moving from CENTER
+    double  morph_speed,            // speed of movement
+            morph_dist_max,         // radius boundry
+            morph_dist,             // dist from CENTER
+            morph_z_speed;          // z speed for morph point
+    DVector2 morph_off;             // save yoff from center
 
     //scale_rand_reverse;            // random at random interval
     // limit rotation angle

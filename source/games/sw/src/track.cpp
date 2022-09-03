@@ -968,14 +968,13 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->scale_x_mult = 256;
         sop->scale_y_mult = 256;
 
-        sop->_morph_ang = RANDOM_P2(2048);
-        sop->_morph_z_speed = 20;
-        sop->_morph_speed = 32;
-        sop->_morph_dist_max = 1024;
+        sop->morph_ang = RANDOM_ANGLE();
+        sop->morph_z_speed = 20;
+        sop->morph_speed = 2;
+        sop->morph_dist_max = 64;
         sop->morph_rand_freq = 64;
-        sop->_morph_dist = 0;
-        sop->_morph_xoff = 0;
-        sop->_morph_yoff = 0;
+        sop->morph_dist = 0;
+        sop->morph_off = { 0,0 };
 
         sop->PreMoveAnimator = nullptr;
         sop->PostMoveAnimator = nullptr;
@@ -1084,9 +1083,9 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     // clip
                     sop->clipdist = 2500;
                     // morph point
-                    sop->_morph_speed = 16;
-                    sop->_morph_z_speed = 6;
-                    sop->_morph_dist_max = 1024;
+                    sop->morph_speed = 1;
+                    sop->morph_z_speed = 6;
+                    sop->morph_dist_max = 64;
                     sop->morph_rand_freq = 8;
                     sop->scale_dist_min = -768;
                     KillActor(actor);
@@ -1095,10 +1094,10 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     if (SW_SHAREWARE) break;
                     sop->flags |= (SOBJ_DYNAMIC);
                     sop->scale_type = SO_SCALE_NONE;
-                    sop->_morph_speed = 120;
-                    sop->_morph_z_speed = 7;
+                    sop->morph_speed = 7.5;
+                    sop->morph_z_speed = 7;
                     sop->PostMoveAnimator = MorphFloor;
-                    sop->_morph_dist_max = 4000;
+                    sop->morph_dist_max = 250;
                     sop->morph_rand_freq = 8;
                     KillActor(actor);
                     break;
