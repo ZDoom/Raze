@@ -236,8 +236,7 @@ void AILion::Tick(RunListEvent* ev)
                     pActor->nAction = 2;
                     pActor->nFrame = 0;
 
-                    pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-                    pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
+                    pActor->VelFromAngle(-1);
                     pActor->pTarget = pTarget;
                     return;
                 }
@@ -252,8 +251,7 @@ void AILion::Tick(RunListEvent* ev)
                 if (RandomBit())
                 {
                     pActor->set_int_ang(RandomWord() & kAngleMask);
-                    pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-                    pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
+                    pActor->VelFromAngle(-1);
                 }
                 else
                 {
@@ -292,8 +290,7 @@ void AILion::Tick(RunListEvent* ev)
         {
             // loc_378FA:
             pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
-            pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-            pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
+            pActor->VelFromAngle(-1);
             break;
         }
         else if (nMov.type == kHitSprite)
@@ -323,8 +320,7 @@ void AILion::Tick(RunListEvent* ev)
             {
                 // loc_378FA:
                 pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
-                pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-                pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
+                pActor->VelFromAngle(-1);
                 break;
             }
         }
@@ -448,8 +444,7 @@ void AILion::Tick(RunListEvent* ev)
             {
                 // loc_378FA:
                 pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
-                pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-                pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
+                pActor->VelFromAngle(-1);
                 break;
             }
         }
@@ -476,7 +471,7 @@ void AILion::Tick(RunListEvent* ev)
             pActor->set_int_zvel(-1000);
 
             pActor->nAction = 6;
-            pActor->set_int_xvel(bcos(pActor->int_ang()) - bcos(pActor->int_ang(), -3));
+			pActor->set_int_xvel(bcos(pActor->int_ang()) - bcos(pActor->int_ang(), -3));
             pActor->set_int_yvel(bsin(pActor->int_ang()) - bsin(pActor->int_ang(), -3));
             D3PlayFX(StaticSound[kSound24], pActor);
         }

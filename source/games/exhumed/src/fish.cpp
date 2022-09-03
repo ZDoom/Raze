@@ -187,8 +187,7 @@ void IdleFish(DExhumedActor* pActor, int edx)
     pActor->add_int_ang((256 - RandomSize(9)) + 1024);
     pActor->norm_ang();
 
-    pActor->set_int_xvel(bcos(pActor->int_ang(), -8));
-    pActor->set_int_yvel(bsin(pActor->int_ang(), -8));
+    pActor->VelFromAngle(-8);
 
     pActor->nAction = 0;
     pActor->nFrame = 0;

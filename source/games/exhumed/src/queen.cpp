@@ -604,8 +604,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         case kHitWall:
             pActor->set_int_ang((RandomSize(9) + 768));
             pActor->norm_ang();
-            pActor->set_int_xvel(bcos(pActor->int_ang(), -3));
-            pActor->set_int_yvel(bsin(pActor->int_ang(), -3));
+            pActor->VelFromAngle(-3);
             pActor->set_int_zvel(-RandomSize(5));
             break;
         }
@@ -1128,8 +1127,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 
 void SetQueenSpeed(DExhumedActor* pActor, int nSpeed)
 {
-    pActor->set_int_xvel(bcos(pActor->int_ang(), -(2 - nSpeed)));
-    pActor->set_int_yvel(bsin(pActor->int_ang(), -(2 - nSpeed)));
+    pActor->VelFromAngle(-(2 - nSpeed));
 }
 
 void AIQueen::Tick(RunListEvent* ev)

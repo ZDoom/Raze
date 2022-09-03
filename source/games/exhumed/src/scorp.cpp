@@ -217,8 +217,7 @@ void AIScorp::Tick(RunListEvent* ev)
                     D3PlayFX(StaticSound[kSound41], pActor);
 
                     pActor->nFrame = 0;
-                    pActor->set_int_xvel(bcos(pActor->int_ang()));
-                    pActor->set_int_yvel(bsin(pActor->int_ang()));
+                    pActor->VelFromAngle();
 
                     pActor->nAction = 1;
                     pActor->pTarget = pTarget;
@@ -302,8 +301,7 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 pActor->nAction = 1;
 
-                pActor->set_int_xvel(bcos(pActor->int_ang()));
-                pActor->set_int_yvel(bsin(pActor->int_ang()));
+                pActor->VelFromAngle();
 
                 pActor->nFrame = 0;
                 return;
@@ -410,8 +408,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         pActor->add_int_ang(RandomSize(7) - 63);
         pActor->norm_ang();
 
-        pActor->set_int_xvel(bcos(pActor->int_ang()));
-        pActor->set_int_yvel(bsin(pActor->int_ang()));
+        pActor->VelFromAngle();
     }
     if (mode <= 1)
     {

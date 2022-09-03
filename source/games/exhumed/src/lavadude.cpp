@@ -264,8 +264,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             PlotCourseToSprite(pActor, pTarget);
 
-            pActor->set_int_xvel(bcos(pActor->int_ang()));
-            pActor->set_int_yvel(bsin(pActor->int_ang()));
+            pActor->VelFromAngle();
 
             if (pTarget && !RandomSize(1))
             {
@@ -288,8 +287,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 			pActor->spr.pos = pos;
 
             pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
-            pActor->set_int_xvel(bcos(pActor->int_ang()));
-            pActor->set_int_yvel(bsin(pActor->int_ang()));
+            pActor->VelFromAngle();
             break;
         }
 
@@ -300,8 +298,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         if (coll.type == kHitWall)
         {
             pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
-            pActor->set_int_xvel(bcos(pActor->int_ang()));
-            pActor->set_int_yvel(bsin(pActor->int_ang()));
+            pActor->VelFromAngle();
             break;
         }
         else if (coll.type == kHitSprite)

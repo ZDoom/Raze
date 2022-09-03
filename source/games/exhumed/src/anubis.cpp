@@ -157,8 +157,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                 ap->nFrame = 0;
                 ap->pTarget = pTarget;
 
-                ap->set_int_xvel(bcos(ap->int_ang(), -2));
-                ap->set_int_yvel(bsin(ap->int_ang(), -2));
+                ap->VelFromAngle(-2);
             }
         }
         return;
@@ -194,8 +193,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         case kHitWall:
         {
             ap->set_int_ang((ap->int_ang() + 256) & kAngleMask);
-            ap->set_int_xvel(bcos(ap->int_ang(), -2));
-            ap->set_int_yvel(bsin(ap->int_ang(), -2));
+            ap->VelFromAngle(-2);
             break;
         }
 

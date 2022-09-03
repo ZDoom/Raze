@@ -238,8 +238,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
                 int xVel = pHitActor->int_xvel();
                 int yVel = pHitActor->int_yvel();
 
-                pHitActor->set_int_xvel(bcos(pActor->int_ang(), -2));
-                pHitActor->set_int_yvel(bsin(pActor->int_ang(), -2));
+                pHitActor->VelFromAngle(-2);
 
                 MoveCreature(pHitActor);
 

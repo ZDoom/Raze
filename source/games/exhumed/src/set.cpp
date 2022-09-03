@@ -295,8 +295,7 @@ void AISet::Tick(RunListEvent* ev)
                 pActor->nFrame = 0;
                 pActor->pTarget = pTarget;
 
-                pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-                pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
+                pActor->VelFromAngle(-1);
             }
         }
 
@@ -419,8 +418,7 @@ void AISet::Tick(RunListEvent* ev)
                 }
 
                 pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
-                pActor->set_int_xvel(bcos(pActor->int_ang(), -1));
-                pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
+                pActor->VelFromAngle(-1);
                 break;
             }
             else if (nMov.type == kHitSprite)
@@ -522,8 +520,7 @@ void AISet::Tick(RunListEvent* ev)
             pActor->nAction = 8;
             pActor->nFrame = 0;
 
-            pActor->set_int_xvel(bcos(pActor->int_ang()));
-            pActor->set_int_yvel(bsin(pActor->int_ang()));
+            pActor->VelFromAngle();
         }
         return;
     }

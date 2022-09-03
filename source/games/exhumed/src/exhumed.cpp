@@ -608,6 +608,18 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 }
 
 
+/*
+void DExhumedActor::VelFromAngle(int shift = 0)
+{
+    vel.XY() = spr.angle.ToVector() * (1 << (14 + shift));
+}
+*/
+void DExhumedActor::VelFromAngle(int shift)
+{
+    set_int_xvel(bcos(int_ang(), shift));
+    set_int_yvel(bsin(int_ang(), shift));
+}
+
 void DExhumedActor::Serialize(FSerializer& arc)
 {
     Super::Serialize(arc);
