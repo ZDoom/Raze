@@ -1465,9 +1465,9 @@ struct SECTOR_OBJECT
            update;         // Distance from player at which you continue updating
 
         // start of must floatify
-    double  zorig_floor[MAX_SO_SECTOR];      // original z values for all sectors
-    int    z_tgt,          // target z delta
-           z_rate,         // rate at which z aproaches target
+    double  zorig_floor[MAX_SO_SECTOR],      // original z values for all sectors
+           z_tgt;          // target z delta
+    int    z_rate,         // rate at which z aproaches target
     // only works for single player.
            bob_diff;       // bobbing difference for the frame
      double floor_loz,      // floor low z

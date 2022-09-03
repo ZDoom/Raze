@@ -1993,7 +1993,7 @@ void MoveZ(SECTOR_OBJECT* sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt * zinttoworld, sop->z_rate);
+            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         sop->flags &= ~(SOBJ_ZDOWN);
@@ -2002,7 +2002,7 @@ void MoveZ(SECTOR_OBJECT* sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt * zinttoworld, sop->z_rate);
+            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         sop->flags &= ~(SOBJ_ZUP);
@@ -2400,12 +2400,12 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             sop->flags &= ~(SOBJ_ZDOWN | SOBJ_ZUP);
             if (sop->dir < 0)
             {
-                sop->z_tgt = sop->z_tgt + Z(tpoint->tag_high);
+                sop->z_tgt += tpoint->tag_high;
                 sop->flags |= (SOBJ_ZDOWN);
             }
             else
             {
-                sop->z_tgt = sop->z_tgt - Z(tpoint->tag_high);
+                sop->z_tgt -= tpoint->tag_high;
                 sop->flags |= (SOBJ_ZUP);
             }
             break;
@@ -2413,12 +2413,12 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             sop->flags &= ~(SOBJ_ZDOWN | SOBJ_ZUP);
             if (sop->dir > 0)
             {
-                sop->z_tgt = sop->z_tgt + Z(tpoint->tag_high);
+                sop->z_tgt += tpoint->tag_high;
                 sop->flags |= (SOBJ_ZDOWN);
             }
             else
             {
-                sop->z_tgt = sop->z_tgt - Z(tpoint->tag_high);
+                sop->z_tgt -= tpoint->tag_high;
                 sop->flags |= (SOBJ_ZUP);
             }
             break;
