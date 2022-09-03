@@ -310,8 +310,8 @@ struct sectortype
 			TObjPtr<DCoreActor*> lowerLink;
 			double baseFloor;
 			double baseCeil;
-			int _velFloor;
-			int _velCeil;
+			double velFloor;
+			double velCeil;
 			uint8_t slopewallofs; // This was originally the repurposed filler byte.
 		};
 		struct // Exhumed

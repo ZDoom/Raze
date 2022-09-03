@@ -1343,11 +1343,11 @@ void nnExtProcessSuperSprites()
 			}
 
 			if (debrisactor->xspr.physAttr & kPhysGravity) debrisactor->xspr.physAttr |= kPhysFalling;
-			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->vel.X != 0 || debrisactor->vel.Y != 0 || debrisactor->vel.Z != 0 || debrisactor->sector()->_velFloor || debrisactor->sector()->_velCeil)
+			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->vel.X != 0 || debrisactor->vel.Y != 0 || debrisactor->vel.Z != 0 || debrisactor->sector()->velFloor || debrisactor->sector()->velCeil)
 				debrisMove(i);
 
 			if (debrisactor->vel.X != 0 || debrisactor->int_vel().Y)
-				debrisactor->xspr.goalAng = getangle(debrisactor->int_vel().X, debrisactor->int_vel().Y) & 2047;
+				debrisactor->xspr.goalAng = getangle(debrisactor->vel) & 2047;
 
 			int ang = debrisactor->int_ang() & 2047;
 			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
@@ -1780,18 +1780,18 @@ void debrisMove(int listIndex)
 	if (floorZ <= bottom) {
 
 		actor->hit.florhit = floorColl;
-		int v30 = actor->int_vel().Z - actor->sector()->_velFloor;
+		double veldiff = actor->vel.Z - actor->sector()->velFloor;
 
-		if (v30 > 0)
+		if (veldiff > 0)
 		{
 			actor->xspr.physAttr |= kPhysFalling;
-			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v30), actor->sector(), FixedToFloat(tmpFraction));
+			auto vec4 = actFloorBounceVector(actor, veldiff, actor->sector(), FixedToFloat(tmpFraction));
 			actor->vel = vec4.XYZ();
-			v30 = actor->int_vel().Z;
+			veldiff = actor->vel.Z;
 
-			if (abs(actor->int_vel().Z) < 0x10000)
+			if (abs(actor->vel.Z) < 1)
 			{
-				actor->set_int_bvel_z(actor->sector()->_velFloor);
+				actor->vel.Z = actor->sector()->velFloor;
 				actor->xspr.physAttr &= ~kPhysFalling;
 			}
 

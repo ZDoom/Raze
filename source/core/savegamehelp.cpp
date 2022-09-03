@@ -553,8 +553,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 				("lowerlink", c.lowerLink, def->lowerLink)
 				("basefloor", c.baseFloor, def->baseFloor)
 				("baseCeil", c.baseCeil, def->baseCeil)
-				("velfloor", c._velFloor, def->_velFloor)
-				("velCeil", c._velCeil, def->_velCeil)
+				("velfloor", c.velFloor, def->velFloor)
+				("velCeil", c.velCeil, def->velCeil)
 				("slopwwallofs", c.slopewallofs, def->slopewallofs);
 
 			if (arc.isWriting())

@@ -4608,13 +4608,12 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->hit.florhit = floorColl;
 		actor->add_int_z(floorZ - bottom);
 
-		int v20 = actor->int_vel().Z - actor->sector()->_velFloor;
-		if (v20 > 0)
+		double veldiff = actor->vel.Z - actor->sector()->velFloor;
+		if (veldiff > 0)
 		{
-
 			actor->spr.flags |= 4;
 
-			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v20), actor->sector(), FixedToFloat(pThingInfo->elastic));
+			auto vec4 = actFloorBounceVector(actor, veldiff, actor->sector(), FixedToFloat(pThingInfo->elastic));
 			actor->vel.XY() = vec4.XY();
 			int vax = FloatToFixed(vec4.W);
 
@@ -4622,7 +4621,7 @@ static Collision MoveThing(DBloodActor* actor)
 			if (nDamage > 0) actDamageSprite(actor, actor, kDamageFall, nDamage);
 
 			actor->set_int_bvel_z(FloatToFixed(vec4.Z));
-			if (actor->sector()->_velFloor == 0 && abs(actor->int_vel().Z) < 0x10000)
+			if (actor->sector()->velFloor == 0 && abs(actor->vel.Z) < 1)
 			{
 				actor->vel.Z = 0;
 				actor->spr.flags &= ~4;
@@ -5097,10 +5096,10 @@ void MoveDude(DBloodActor* actor)
 	{
 		actor->hit.florhit = floorColl;
 		actor->add_int_z(floorZ - bottom);
-		int v30 = actor->int_vel().Z - actor->sector()->_velFloor;
-		if (v30 > 0)
+		double veldiff = actor->vel.Z - actor->sector()->velFloor;
+		if (veldiff > 0)
 		{
-			auto vec4 = actFloorBounceVector(actor, FixedToFloat(v30), actor->sector(), 0);
+			auto vec4 = actFloorBounceVector(actor, veldiff, actor->sector(), 0);
 			actor->vel.XY() = vec4.XY();
 			int vax = FloatToFixed(vec4.W);
 
@@ -5118,9 +5117,9 @@ void MoveDude(DBloodActor* actor)
 			if (nDamage > 0)
 				actDamageSprite(actor, actor, kDamageFall, nDamage);
 			actor->set_int_bvel_z(FloatToFixed(vec4.Z));
-			if (abs(actor->int_vel().Z) < 0x10000)
+			if (abs(actor->vel.Z) < 1)
 			{
-				actor->set_int_bvel_z(actor->sector()->_velFloor);
+				actor->vel.Z = actor->sector()->velFloor;
 				actor->spr.flags &= ~4;
 			}
 			else
@@ -5682,7 +5681,7 @@ static void actCheckThings()
 			actAirDrag(actor, 128);
 
 			if (((actor->GetIndex() >> 8) & 15) == (gFrameCount & 15) && (actor->spr.flags & 2))	actor->spr.flags |= 4;
-			if ((actor->spr.flags & 4) || actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0 || actor->sector()->_velFloor || actor->sector()->_velCeil)
+			if ((actor->spr.flags & 4) || actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0 || actor->sector()->velFloor || actor->sector()->velCeil)
 			{
 				Collision hit = MoveThing(actor);
 				if (hit.type)
@@ -6110,7 +6109,7 @@ static void actCheckDudes()
 		if (pXSector && pXSector->Underwater) actAirDrag(actor, 5376);
 		else actAirDrag(actor, 128);
 
-		if ((actor->spr.flags & 4) || actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0 || actor->sector()->_velFloor || actor->sector()->_velCeil)
+		if ((actor->spr.flags & 4) || actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0 || actor->sector()->velFloor || actor->sector()->velCeil)
 			MoveDude(actor);
 	}
 }

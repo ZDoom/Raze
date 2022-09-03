@@ -1017,29 +1017,29 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 
 	if (dfz != 0)
 	{
-		int oldZ = pSector->int_floorz();
+		double old_Z = pSector->floorz;
 		pSector->set_int_floorz((pXSector->offFloorZ + MulScale(dfz, GetWaveValue(a3, a4), 16)));
 		pSector->baseFloor = pSector->floorz;
-		pSector->_velFloor += (pSector->int_floorz() - oldZ) << 8;
+		pSector->velFloor += (pSector->floorz - old_Z);
 
 		BloodSectIterator it(pSector);
 		while (auto actor = it.Next())
 		{
 			if (actor->spr.statnum == kStatMarker || actor->spr.statnum == kStatPathMarker)
 				continue;
-			int top, bottom;
+			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->add_int_z(pSector->int_floorz() - oldZ);
+				actor->spr.pos.Z += pSector->floorz - old_Z;
 			}
 			else if (actor->spr.flags & 2)
 				actor->spr.flags |= 4;
-			else if (oldZ <= bottom && !(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
+			else if (old_Z <= bottom && !(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
 			{
 				viewBackupSpriteLoc(actor);
-				actor->add_int_z(pSector->int_floorz() - oldZ);
+				actor->spr.pos.Z += pSector->floorz - old_Z;
 			}
 		}
 
@@ -1054,7 +1054,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD))
 				{
 					viewBackupSpriteLoc(ac);
-					ac->add_int_z(pSector->int_floorz() - oldZ);
+					ac->spr.pos.Z += pSector->floorz - old_Z;
 				}
 			}
 		}
@@ -1065,10 +1065,10 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 
 	if (dcz != 0)
 	{
-		int oldZ = pSector->int_ceilingz();
+		double old_Z = pSector->ceilingz;
 		pSector->set_int_ceilingz((pXSector->offCeilZ + MulScale(dcz, GetWaveValue(a3, a4), 16)));
 		pSector->baseCeil = pSector->ceilingz;
-		pSector->_velCeil += (pSector->int_ceilingz() - oldZ) << 8;
+		pSector->velCeil += pSector->ceilingz - old_Z;
 
 		BloodSectIterator it(pSector);
 		while (auto actor = it.Next())
@@ -1078,7 +1078,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->add_int_z(pSector->int_ceilingz() - oldZ);
+				actor->spr.pos.Z += pSector->ceilingz - old_Z;
 			}
 		}
 
@@ -1093,7 +1093,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 				if (ac && (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE))
 				{
 					viewBackupSpriteLoc(ac);
-					ac->add_int_z(pSector->int_ceilingz() - oldZ);
+					ac->spr.pos.Z += pSector->ceilingz - old_Z;
 				}
 			}
 		}
@@ -2214,7 +2214,7 @@ void trProcessBusy(void)
 {
 	for (auto& sect : sector)
 	{
-		sect._velCeil = sect._velFloor = 0;
+		sect.velCeil = sect.velFloor = 0;
 	}
 	for (int i = gBusy.Size()-1; i >= 0; i--)
 	{
