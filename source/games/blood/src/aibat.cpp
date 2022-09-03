@@ -85,7 +85,7 @@ static void batThinkTarget(DBloodActor* actor)
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
 		pDudeExtraE->thinkTime = 0;
-		actor->xspr._goalAng += 256;
+		actor->xspr.goalAng += DAngle45;
 		aiSetTarget(actor, actor->basePoint);
 		aiNewState(actor, &batTurn);
 		return;
@@ -127,7 +127,7 @@ static void batThinkTarget(DBloodActor* actor)
 
 static void batThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr._goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	batThinkTarget(actor);
 }
 
@@ -136,10 +136,10 @@ static void batThinkGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
-	int nAngle = getangle(dvec);
+	auto nAngle = VecToAngle(dvec);
 	int nDist = approxDist(dvec);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < DAngle::fromBuild(pDudeInfo->periphery))
 		aiNewState(actor, &batSearch);
 	batThinkTarget(actor);
 }
@@ -156,7 +156,7 @@ static void batThinkPonder(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto pTarget = actor->GetTarget();
 	auto dvec = pTarget->spr.pos.XY() - actor->spr.pos.XY();
-	aiChooseDirection(actor, getangle(dvec));
+	aiChooseDirection(actor, VecToAngle(dvec));
 	if (pTarget->xspr.health == 0)
 	{
 		aiNewState(actor, &batSearch);
@@ -200,7 +200,7 @@ static void batMoveDodgeUp(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
+	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	AdjustVelocity(actor, ADJUSTER{
@@ -217,7 +217,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
+	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir == 0)
@@ -245,7 +245,7 @@ static void batThinkChase(DBloodActor* actor)
 	auto pTarget = actor->GetTarget();
 	auto dvec = pTarget->spr.pos.XY() - actor->spr.pos.XY();
 
-	aiChooseDirection(actor, getangle(dvec));
+	aiChooseDirection(actor, VecToAngle(dvec));
 	if (pTarget->xspr.health == 0)
 	{
 		aiNewState(actor, &batSearch);
@@ -295,7 +295,7 @@ static void batMoveForward(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
+	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
@@ -320,13 +320,13 @@ static void batMoveSwoop(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
+	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)
 	{
-		actor->xspr._goalAng = (actor->int_ang() + 512) & 2047;
+		actor->xspr.goalAng += DAngle90;
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
@@ -344,7 +344,7 @@ static void batMoveFly(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
+	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;

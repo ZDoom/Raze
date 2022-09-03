@@ -1295,13 +1295,13 @@ void nnExtProcessSuperSprites()
 			int mass = debrisactor->spriteMass.mass;
 			int airVel = debrisactor->spriteMass.airVel;
 
-			int top, bottom;
+			double top, bottom;
 			GetActorExtents(debrisactor, &top, &bottom);
 
 			if (pXSector != nullptr)
 			{
 				if ((uwater = pXSector->Underwater) != 0) airVel <<= 6;
-				if (pXSector->panVel != 0 && getflorzofslopeptr(debrisactor->sector(), debrisactor->int_pos().X, debrisactor->int_pos().Y) <= bottom)
+				if (pXSector->panVel != 0 && getflorzofslopeptrf(debrisactor->sector(), debrisactor->spr.pos) <= bottom)
 				{
 					int angle = pXSector->panAngle; int speed = 0;
 					if (pXSector->panAlways || pXSector->state || pXSector->busy)
@@ -1347,31 +1347,35 @@ void nnExtProcessSuperSprites()
 				debrisMove(i);
 
 			if (debrisactor->vel.X != 0 || debrisactor->int_vel().Y)
-				debrisactor->xspr._goalAng = getangle(debrisactor->vel) & 2047;
+				debrisactor->xspr.goalAng = VecToAngle(debrisactor->vel);
 
-			int ang = debrisactor->int_ang() & 2047;
+			debrisactor->norm_ang();
+			DAngle ang = debrisactor->spr.angle;
 			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
 			else if (Chance(0x1000 - mass))
 			{
 				if (debrisactor->vel.Z > 0x100) debrisBubble(debrisactor);
-				if (ang == debrisactor->xspr._goalAng)
+				if (absangle(ang, debrisactor->xspr.goalAng) < minAngle) // need to be very careful with comparing angles for equality!
 				{
-					debrisactor->xspr._goalAng = (debrisactor->int_ang() + Random3(kAng60)) & 2047;
+					debrisactor->xspr.goalAng += RandomAngle(kAng60);
+					debrisactor->norm_ang();
 					debrisBubble(debrisactor);
 				}
 			}
 
-			int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->int_vel().X) + abs(debrisactor->int_vel().Y)) >> 5)), (uwater) ? 1 : 0);
-			if (ang < debrisactor->xspr._goalAng) debrisactor->set_int_ang(ClipHigh(ang + angStep, debrisactor->xspr._goalAng));
-			else if (ang > debrisactor->xspr._goalAng) debrisactor->set_int_ang(ClipLow(ang - angStep, debrisactor->xspr._goalAng));
+			int vdist = max((int)(abs(debrisactor->vel.X) + abs(debrisactor->vel.Y) * 2048.), (uwater) ? 1 : 0);
+			auto angStep = DAngle::fromBuild(vdist);
+
+			if (ang < debrisactor->xspr.goalAng) debrisactor->spr.angle = min(ang + angStep, debrisactor->xspr.goalAng);
+			else if (ang > debrisactor->xspr.goalAng) debrisactor->spr.angle = max(ang - angStep, debrisactor->xspr.goalAng);
 
 			auto pSector = debrisactor->sector();
-			int cz = getceilzofslopeptr(pSector, debrisactor->int_pos().X, debrisactor->int_pos().Y);
-			int fz = getflorzofslopeptr(pSector, debrisactor->int_pos().X, debrisactor->int_pos().Y);
-
+			double fz, cz;
+			getzsofslopeptr(pSector, debrisactor->spr.pos, &cz, &fz);
 			GetActorExtents(debrisactor, &top, &bottom);
-			if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & CSTAT_SECTOR_SKY)) debrisactor->add_int_z(ClipLow(cz - top, 0));
-			if (cz <= top && pSector->upperLink == nullptr && !(pSector->floorstat & CSTAT_SECTOR_SKY)) debrisactor->add_int_z(ClipHigh(fz - bottom, 0));
+
+			if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & CSTAT_SECTOR_SKY)) debrisactor->spr.pos.Z += max(cz - top, 0.);
+			if (cz <= top && pSector->upperLink == nullptr && !(pSector->floorstat & CSTAT_SECTOR_SKY)) debrisactor->spr.pos.Z += min(fz - bottom, 0.);
 		}
 	}
 }
@@ -2783,8 +2787,8 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						if (targetactor->spr.statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
 						// set random goal ang for swimming so they start turning
-						if ((flags & kPhysDebrisSwim) && targetactor->int_vel().X ==0 && targetactor->vel.Y == 0 && targetactor->vel.Z == 0)
-							targetactor->xspr._goalAng = (targetactor->int_ang() + Random3(kAng45)) & 2047;
+						if ((flags & kPhysDebrisSwim) && targetactor->vel.isZero())
+							targetactor->xspr.goalAng = (targetactor->spr.angle + DAngle::fromBuild(Random3(kAng45))).Normalized360();
 
 						if (targetactor->xspr.physAttr & kPhysDebrisVector)
 							targetactor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -7694,8 +7698,9 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 //
 //---------------------------------------------------------------------------
 
-bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
+bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle_, int nRange)
 {
+	int nAngle = nAngle_.Buildang();
 	int x = actor->int_pos().X, y = actor->int_pos().Y, z = actor->int_pos().Z;
 	auto pSector = actor->sector();
 	HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
@@ -7725,39 +7730,38 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
 //
 //---------------------------------------------------------------------------
 
-void nnExtAiSetDirection(DBloodActor* actor, int a3)
+void nnExtAiSetDirection(DBloodActor* actor, DAngle direction)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 
-	int vc = getincangle(actor->int_ang(), a3);
-	int t1 = DMulScale(actor->int_vel().X, Cos(actor->int_ang()), actor->int_vel().Y, Sin(actor->int_ang()), 30);
-	int vsi = ((t1 * 15) >> 12) / 2;
-	int v8 = 341;
+	DAngle vc = deltaangle(actor->spr.angle, direction);
+	double nCos = actor->spr.angle.Cos();
+	double nSin = actor->spr.angle.Sin();
+	double t1 = actor->vel.X * nCos + actor->vel.Y * nSin;
+	int range = FloatToFixed(t1 * (15 / 8192.));
+	DAngle v8 = vc > nullAngle ? DAngle180 / 3 : -DAngle180 / 3;
 
-	if (vc < 0)
-		v8 = -341;
-
-	if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() + vc, vsi))
-		actor->xspr._goalAng = actor->int_ang() + vc;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() + vc / 2, vsi))
-		actor->xspr._goalAng = actor->int_ang() + vc / 2;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() - vc / 2, vsi))
-		actor->xspr._goalAng = actor->int_ang() - vc / 2;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() + v8, vsi))
-		actor->xspr._goalAng = actor->int_ang() + v8;
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang(), vsi))
-		actor->xspr._goalAng = actor->int_ang();
-	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
-		actor->xspr._goalAng = actor->int_ang() - v8;
+	if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle + vc, range))
+		actor->xspr.goalAng = actor->spr.angle + vc;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle + vc / 2, range))
+		actor->xspr.goalAng = actor->spr.angle + vc / 2;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle - vc / 2, range))
+		actor->xspr.goalAng = actor->spr.angle - vc / 2;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle + v8, range))
+		actor->xspr.goalAng = actor->spr.angle + v8;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle, range))
+		actor->xspr.goalAng = actor->spr.angle;
+	else if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle - v8, range))
+		actor->xspr.goalAng = actor->spr.angle - v8;
 	else
-		actor->xspr._goalAng = actor->int_ang() + 341;
+		actor->xspr.goalAng = actor->spr.angle + DAngle180 / 3;
 
 	if (actor->xspr.dodgeDir)
 	{
-		if (!nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() + actor->xspr.dodgeDir * 512, 512))
+		if (!nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle + DAngle90 * actor->xspr.dodgeDir, 512))
 		{
 			actor->xspr.dodgeDir = -actor->xspr.dodgeDir;
-			if (!nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() + actor->xspr.dodgeDir * 512, 512))
+			if (!nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle + DAngle90 * actor->xspr.dodgeDir, 512))
 				actor->xspr.dodgeDir = 0;
 		}
 	}
@@ -8122,17 +8126,17 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 
 void aiPatrolRandGoalAng(DBloodActor* actor)
 {
-	int goal = kAng90;
+	DAngle goal = DAngle90;
 	if (Chance(0x4000))
-		goal = kAng120;
+		goal = DAngle360 / 3;
 
 	if (Chance(0x4000))
-		goal = kAng180;
+		goal = DAngle180;
 
 	if (Chance(0x8000))
 		goal = -goal;
 
-	actor->xspr._goalAng = (actor->int_ang() + goal) & 2047;
+	actor->xspr.goalAng = (actor->spr.angle + goal).Normalized360();
 }
 
 //---------------------------------------------------------------------------
@@ -8143,9 +8147,9 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 
 void aiPatrolTurn(DBloodActor* actor)
 {
-	int nTurnRange = (getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4;
-	int nAng = getincangle(actor->int_ang(), actor->xspr._goalAng);
-	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
+	DAngle nTurnRange = DAngle::fromBuild((getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4);
+	DAngle nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 
 }
 
@@ -8177,11 +8181,11 @@ void aiPatrolMove(DBloodActor* actor)
 	int dy = (targetactor->int_pos().Y - actor->int_pos().Y);
 	int dz = (targetactor->int_pos().Z - (actor->int_pos().Z - pDudeInfo->eyeHeight)) * 6;
 	int vel = (actor->xspr.unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
-	int goalAng = 341;
+	DAngle goalAng = DAngle180 / 3;
 
 	if (pExtra->flying || spriteIsUnderwater(actor))
 	{
-		goalAng >>= 1;
+		goalAng *= 0.5;
 		actor->set_int_bvel_z(dz);
 		if (actor->spr.flags & kPhysGravity)
 			actor->spr.flags &= ~kPhysGravity;
@@ -8191,9 +8195,10 @@ void aiPatrolMove(DBloodActor* actor)
 		actor->spr.flags |= kPhysGravity | kPhysFalling;
 	}
 
-	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	int nAng = getincangle(actor->int_ang(), actor->xspr._goalAng);
-	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
+	DAngle nTurnRange = DAngle::fromBuild((pDudeInfo->angSpeed << 2) >> 4);
+	DAngle nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
 	{
@@ -8873,7 +8878,7 @@ void aiPatrolThink(DBloodActor* actor)
 	else if (aiPatrolTurning(actor->xspr.aiState))
 	{
 		//viewSetSystemMessage("TURN");
-		if ((int)actor->int_ang() == (int)actor->xspr._goalAng)
+		if (absangle(actor->spr.angle, actor->xspr.goalAng) < minAngle)
 		{
 			// save imer for waiting
 			stateTimer = actor->xspr.stateTimer;
@@ -8904,8 +8909,8 @@ void aiPatrolThink(DBloodActor* actor)
 			// take marker's angle
 			if (!(markeractor->spr.flags & kModernTypeFlag4))
 			{
-				actor->xspr._goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.unused2) ? markeractor->int_ang() + kAng180 : markeractor->int_ang()) & 2047;
-				if ((int)actor->int_ang() != (int)actor->xspr._goalAng) // let the enemy play move animation while turning
+				actor->xspr.goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.unused2) ? markeractor->spr.angle+ DAngle180 : markeractor->spr.angle).Normalized360();
+				if (absangle(actor->spr.angle, actor->xspr.goalAng) > minAngle) // let the enemy play move animation while turning
 					return;
 			}
 
@@ -8980,7 +8985,7 @@ void aiPatrolThink(DBloodActor* actor)
 		}
 	}
 
-	nnExtAiSetDirection(actor, getangle(markeractor->int_pos().X - actor->int_pos().X, markeractor->int_pos().Y - actor->int_pos().Y));
+	nnExtAiSetDirection(actor, VecToAngle(markeractor->spr.pos - actor->spr.pos));
 
 	if (aiPatrolMoving(actor->xspr.aiState) && !reached) return;
 	else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
@@ -9331,7 +9336,7 @@ void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 		{
 			pSpr->set_int_ang(nAng);
 			if (pSpr->hasX())
-				pSpr->xspr._goalAng = pSpr->int_ang();
+				pSpr->xspr.goalAng = pSpr->spr.angle;
 		}
 	}
 }

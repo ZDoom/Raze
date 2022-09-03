@@ -186,7 +186,7 @@ static bool TargetNearExplosion(sectortype* sector)
 
 static void cultThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr._goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiLookForTarget(actor);
 }
 
@@ -197,7 +197,7 @@ static void cultThinkGoto(DBloodActor* actor)
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	int nAngle = getangle(dvec);
 	int nDist = approxDist(dvec);
-	aiChooseDirection(actor, nAngle);
+	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
 	if (nDist < 5120 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 	{
 		switch (actor->xspr.medium)
@@ -236,7 +236,7 @@ static void cultThinkChase(DBloodActor* actor)
 
 	int dx = target->int_pos().X - actor->int_pos().X;
 	int dy = target->int_pos().Y - actor->int_pos().Y;
-	aiChooseDirection(actor, getangle(dx, dy));
+	aiChooseDirection(actor, VecToAngle(dx, dy));
 	if (target->xspr.health == 0)
 	{
 		switch (actor->xspr.medium)

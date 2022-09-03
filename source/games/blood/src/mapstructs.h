@@ -104,7 +104,7 @@ struct XSPRITE {
 	const vec3_t int_TargetPos() const { return { int(TargetPos.X * worldtoint), int(TargetPos.Y * worldtoint), int(TargetPos.Z * worldtoint)}; }
 
 	DVector3 TargetPos;
-	uint16_t _goalAng;          // Dude goal ang
+	DAngle goalAng;          // Dude goal ang
 
 	int32_t sysData1;            // used to keep here various system data, so user can't change it in map editor
 	int32_t sysData2;            //

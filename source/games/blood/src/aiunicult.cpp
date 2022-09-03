@@ -401,7 +401,7 @@ static void unicultThinkSearch(DBloodActor* actor)
 {
 	// TO DO: if can't see the target, but in fireDist range - stop moving and look around
 
-	aiChooseDirection(actor, actor->xspr._goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiLookForTarget(actor);
 }
 
@@ -423,7 +423,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 	int nAngle = getangle(dvec);
 	int nDist = approxDist(dvec);
 
-	aiChooseDirection(actor, nAngle);
+	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
 
 	// if reached target, change to search mode
 	if (nDist < 5120 && abs(actor->int_ang() - nAngle) < getDudeInfo(actor->spr.type)->periphery)
@@ -487,13 +487,12 @@ static void unicultThinkChase(DBloodActor* actor)
 	// quick hack to prevent spinning around or changing attacker's sprite angle on high movement speeds
 	// when attacking the target. It happens because vanilla function takes in account x and y velocity, 
 	// so i use fake velocity with fixed value and pass it as argument.
-	int xvelocity = actor->int_vel().X;
-	int yvelocity = actor->int_vel().Y;
+	auto velocity = actor->vel;
 	if (inAttack(actor->xspr.aiState))
-		xvelocity = yvelocity = ClipLow(actor->spr.clipdist >> 1, 1);
+		velocity.X = velocity.Y = FixedToFloat(ClipLow(actor->spr.clipdist >> 1, 1));
 
 	//aiChooseDirection(actor,getangle(dx, dy));
-	aiGenDudeChooseDirection(actor, getangle(dx, dy), xvelocity, yvelocity);
+	aiGenDudeChooseDirection(actor, VecToAngle(dx, dy), velocity);
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	if (!pExtra->canAttack)
@@ -899,7 +898,7 @@ static void unicultThinkChase(DBloodActor* actor)
 										{
 											if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
 											else aiGenDudeNewState(actor, &genDudeChaseL);
-											actor->xspr._goalAng = Random(kAng360);
+											actor->xspr.goalAng = RandomAngle();
 											//viewSetSystemMessage("WALL OR SPRITE TOUCH");
 										}
 
@@ -1110,11 +1109,10 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-	int maxTurn = pDudeInfo->angSpeed * 4 >> 4;
 
 	if (pExtra->canFly)
 	{
-		auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
+		auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 		auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 		actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 		int nAccel = pDudeInfo->frontSpeed << 2;
@@ -1136,19 +1134,17 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	}
 	else
 	{
-		int dang = ((kAng180 + actor->xspr._goalAng - actor->int_ang()) & 2047) - kAng180;
-		actor->set_int_ang(((actor->int_ang() + ClipRange(dang, -maxTurn, maxTurn)) & 2047));
+		DAngle maxTurn = DAngle::fromBuild(pDudeInfo->angSpeed * 4 >> 4);
+
+		DAngle dang = actor->xspr.goalAng - actor->spr.angle;
+		actor->spr.angle += clamp(dang, -maxTurn, maxTurn);
 
 		// don't move forward if trying to turn around
-		if (abs(dang) > kAng60)
+		if (abs(dang) > DAngle180 / 3)
 			return;
 
-		int sin = Sin(actor->int_ang());
-		int cos = Cos(actor->int_ang());
-
-		int frontSpeed = actor->genDudeExtra.moveSpeed;
-		actor->add_int_bvel_x(MulScale(cos, frontSpeed, 30));
-		actor->add_int_bvel_y(MulScale(sin, frontSpeed, 30));
+		double frontSpeed = FixedToFloat(actor->genDudeExtra.moveSpeed);
+		actor->vel += actor->spr.angle.ToVector() * frontSpeed;
 	}
 }
 
@@ -1158,7 +1154,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int xvel, int yvel)
+void aiGenDudeChooseDirection(DBloodActor* actor, DAngle direction, const DVector2& vel)
 {
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax))
 	{
@@ -1168,31 +1164,33 @@ void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int xvel, int yvel)
 
 	// TO-DO: Take in account if sprite is flip-x, so enemy select correct angle
 
-	int vc = getincangle(actor->int_ang(), a3);
-	int t1 = DMulScale(xvel, Cos(actor->int_ang()), yvel, Sin(actor->int_ang()), 30);
-	int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
+	DAngle vc = deltaangle(actor->spr.angle, direction);
+	double t1 = vel.X * actor->spr.angle.Cos() + vel.Y * actor->spr.angle.Sin();
+	int range = FloatToFixed(t1 * (15 / 8192.));
+	DAngle v8 = vc > nullAngle ? DAngle180 / 3 : -DAngle180 / 3;
 
-	if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc, vsi))
-		actor->xspr._goalAng = actor->int_ang() + vc;
-	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc / 2, vsi))
-		actor->xspr._goalAng = actor->int_ang() + vc / 2;
-	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - vc / 2, vsi))
-		actor->xspr._goalAng = actor->int_ang() - vc / 2;
-	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + v8, vsi))
-		actor->xspr._goalAng = actor->int_ang() + v8;
-	else if (CanMove(actor, actor->GetTarget(), actor->int_ang(), vsi))
-		actor->xspr._goalAng = actor->int_ang();
-	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
-		actor->xspr._goalAng = actor->int_ang() - v8;
+	if (CanMove(actor, actor->GetTarget(), actor->spr.angle + vc, range))
+		actor->xspr.goalAng = actor->spr.angle + vc;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle + vc / 2, range))
+		actor->xspr.goalAng = actor->spr.angle + vc / 2;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle - vc / 2, range))
+		actor->xspr.goalAng = actor->spr.angle - vc / 2;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle + v8, range))
+		actor->xspr.goalAng = actor->spr.angle + v8;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle, range))
+		actor->xspr.goalAng = actor->spr.angle;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle - v8, range))
+		actor->xspr.goalAng = actor->spr.angle - v8;
 	else
-		actor->xspr._goalAng = actor->int_ang() + 341;
+		actor->xspr.goalAng = actor->spr.angle + DAngle180 / 3;
 
+	actor->xspr.goalAng = actor->xspr.goalAng.Normalized360();
 	actor->xspr.dodgeDir = (Chance(0x8000)) ? 1 : -1;
 
-	if (!CanMove(actor, actor->GetTarget(), actor->int_ang() + actor->xspr.dodgeDir * 512, 512))
+	if (!CanMove(actor, actor->GetTarget(), actor->spr.angle + DAngle90 * actor->xspr.dodgeDir, 512))
 	{
 		actor->xspr.dodgeDir = -actor->xspr.dodgeDir;
-		if (!CanMove(actor, actor->GetTarget(), actor->int_ang() + actor->xspr.dodgeDir * 512, 512))
+		if (!CanMove(actor, actor->GetTarget(), actor->spr.angle + DAngle90 * actor->xspr.dodgeDir, 512))
 			actor->xspr.dodgeDir = 0;
 	}
 }

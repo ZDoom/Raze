@@ -200,7 +200,7 @@ DBloodActor* leechIsDropped(DBloodActor* pSprite);
 bool spriteIsUnderwater(DBloodActor* pSprite, bool oldWay = false);
 bool playGenDudeSound(DBloodActor* actor, int mode);
 void aiGenDudeMoveForward(DBloodActor* actor);
-void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int aXvel = -1, int aYvel = -1);
+void aiGenDudeChooseDirection(DBloodActor* actor, DAngle a3, const DVector2& vel);
 void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState);
 int checkAttackState(DBloodActor* actor);
 bool doExplosion(DBloodActor* pSprite, int nType);

@@ -80,7 +80,7 @@ extern const int gCultTeslaFireChance[5];
 bool dudeIsPlayingSeq(DBloodActor* pSprite, int nSeq);
 void aiPlay3DSound(DBloodActor* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
 void aiNewState(DBloodActor* actor, AISTATE *pAIState);
-void aiChooseDirection(DBloodActor* actor, int a3);
+void aiChooseDirection(DBloodActor* actor, DAngle a3);
 void aiMoveForward(DBloodActor*pXSprite);
 void aiMoveTurn(DBloodActor*pXSprite);
 void aiMoveDodge(DBloodActor *actor);
@@ -97,6 +97,10 @@ void aiLookForTarget(DBloodActor* actor);
 void aiProcessDudes(void);
 void aiInit(void);
 void aiInitSprite(DBloodActor* pSprite);
-bool CanMove(DBloodActor* pSprite, int a2, int nAngle, int nRange);
+bool CanMove(DBloodActor* pSprite, DBloodActor* target, int nAngle, int nRange);
+inline bool CanMove(DBloodActor* pSprite, DBloodActor* target, DAngle nAngle, int nRange)
+{
+	return CanMove(pSprite, target, nAngle.Buildang(), nRange);
+}
 
 END_BLD_NS

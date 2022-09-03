@@ -549,7 +549,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, int* cursectnum,
 			pXSprite->data1 = bitReader.readSigned(16);
 			pXSprite->data2 = bitReader.readSigned(16);
 			pXSprite->data3 = bitReader.readSigned(16);
-			pXSprite->_goalAng = bitReader.readUnsigned(11);
+			pXSprite->goalAng = DAngle::fromBuild(bitReader.readUnsigned(11));
 			pXSprite->dodgeDir = bitReader.readSigned(2);
 			pXSprite->locked = bitReader.readUnsigned(1);
 			pXSprite->medium = bitReader.readUnsigned(2);

@@ -634,7 +634,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 			("burnsource", w.burnSource, def->burnSource)
 			("busytime", w.busyTime, def->busyTime)
 			("waittime", w.waitTime, def->waitTime)
-			("goalang", w._goalAng, def->_goalAng)
+			("goalang", w.goalAng, def->goalAng)
 			("burntime", w.burnTime, def->burnTime)
 			("height", w.height, def->height)
 			("statetimer", w.stateTimer, def->stateTimer)
