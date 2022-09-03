@@ -4816,7 +4816,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->actor;
 
-    pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
+    pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->__i_ang);
     pp->pos.XY() = sop->pmid.XY();
     updatesector(pp->pos, &pp->cursector);
     getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
@@ -4900,7 +4900,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 
     auto save_sect = pp->cursector;
 
-    pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->ang);
+    pp->angle.oang = pp->angle.ang = DAngle::fromBuild(sop->__i_ang);
     pp->pos.XY() = sop->pmid.XY();
     updatesector(pp->pos, &pp->cursector);
     getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);

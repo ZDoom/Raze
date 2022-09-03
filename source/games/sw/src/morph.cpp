@@ -129,7 +129,7 @@ short DoSOevent(short match, short state)
                 {
                     sop->flags &= ~(SOBJ_WAIT_FOR_EVENT);
                     sop->vel = sop->save_vel;
-                    sop->spin_speed = sop->save_spin_speed;
+                    sop->__i_spin_speed = sop->save_spin_speed;
                 }
             }
 
@@ -163,7 +163,7 @@ short DoSOevent(short match, short state)
                 vel_adj = -SP_TAG7(me_act);
             }
 
-            sop->spin_speed += spin_adj;
+            sop->__i_spin_speed += spin_adj;
 
             if (TEST_BOOL1(me_act))
                 sop->vel_tgt += vel_adj;

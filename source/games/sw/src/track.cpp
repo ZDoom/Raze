@@ -809,7 +809,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                         sop->clipbox_vdist[sop->clipbox_num] = (sop->pmid.XY() - itActor->spr.pos.XY()).Length();
 
                         auto ang2 = VecToAngle(itActor->spr.pos.XY() - sop->pmid.XY());
-                        sop->clipbox_ang[sop->clipbox_num] = deltaangle(ang2, DAngle::fromBuild(sop->ang));
+                        sop->clipbox_ang[sop->clipbox_num] = deltaangle(ang2, DAngle::fromBuild(sop->__i_ang));
 
                         sop->clipbox_num++;
                         KillActor(itActor);
@@ -942,15 +942,15 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->z_tgt = 0;
         sop->zdelta = 0;
         sop->wait_tics = 0;
-        sop->spin_speed = 0;
-        sop->spin_ang = 0;
-        sop->ang_orig = 0;
+        sop->__i_spin_speed = 0;
+        sop->__i_spin_ang = 0;
+        sop->__i_ang_orig = 0;
         sop->clipdist = 1024;
         sop->target_dist = 0;
         sop->turn_speed = 4;
         sop->floor_loz = -9999999;
         sop->floor_hiz = 9999999;
-        sop->ang_tgt = sop->ang = sop->ang_moving = 0;
+        sop->__i_ang_tgt = sop->__i_ang = sop->__i_ang_moving = 0;
         sop->op_main_sector = nullptr;
         sop->ram_damage = 0;
         sop->max_damage = -9999;
@@ -1071,8 +1071,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->flags |= (SOBJ_DYNAMIC);
                     sop->scale_type = SO_SCALE_CYCLE;
                     // spin stuff
-                    sop->spin_speed = 16;
-                    sop->last_ang = sop->ang;
+                    sop->__i_spin_speed = 16;
+                    sop->__i_last_ang = sop->__i_ang;
                     // animators
                     sop->Animator = DoTornadoObject;
                     sop->PreMoveAnimator = ScaleSectorObject;
@@ -1193,25 +1193,25 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_SPIN:
-                    if (sop->spin_speed)
+                    if (sop->__i_spin_speed)
                         break;
-                    sop->spin_speed = actor->spr.lotag;
-                    sop->last_ang = sop->ang;
+                    sop->__i_spin_speed = actor->spr.lotag;
+                    sop->__i_last_ang = sop->__i_ang;
                     KillActor(actor);
                     break;
                 case SO_ANGLE:
-                    sop->ang = sop->ang_moving = actor->int_ang();
-                    sop->last_ang = sop->ang_orig = sop->ang;
-                    sop->spin_ang = 0;
+                    sop->__i_ang = sop->__i_ang_moving = actor->int_ang();
+                    sop->__i_last_ang = sop->__i_ang_orig = sop->__i_ang;
+                    sop->__i_spin_ang = 0;
                     KillActor(actor);
                     break;
                 case SO_SPIN_REVERSE:
 
-                    sop->spin_speed = actor->spr.lotag;
-                    sop->last_ang = sop->ang;
+                    sop->__i_spin_speed = actor->spr.lotag;
+                    sop->__i_last_ang = sop->__i_ang;
 
-                    if (sop->spin_speed >= 0)
-                        sop->spin_speed = -sop->spin_speed;
+                    if (sop->__i_spin_speed >= 0)
+                        sop->__i_spin_speed = -sop->__i_spin_speed;
 
                     KillActor(actor);
                     break;
@@ -1382,9 +1382,9 @@ void PlaceSectorObjectsOnTracks(void)
 
         NextTrackPoint(sop);
 
-        sop->ang = getangle((tpoint + sop->point)->pos - sop->pmid);
+        sop->__i_ang = getangle((tpoint + sop->point)->pos - sop->pmid);
 
-        sop->ang_moving = sop->ang_tgt = sop->ang;
+        sop->__i_ang_moving = sop->__i_ang_tgt = sop->__i_ang;
     }
 
 }
@@ -1813,17 +1813,17 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
         }
     }
 
-    if (sop->spin_speed)
+    if (sop->__i_spin_speed)
     {
         // same as below - ignore the objects angle
         // last_ang is the last true angle before SO started spinning
-        delta_ang_from_orig = NORM_ANGLE(sop->last_ang + sop->spin_ang - sop->ang_orig);
+        delta_ang_from_orig = NORM_ANGLE(sop->__i_last_ang + sop->__i_spin_ang - sop->__i_ang_orig);
     }
     else
     {
         // angle traveling + the new spin angle all offset from the original
         // angle
-        delta_ang_from_orig = NORM_ANGLE(sop->ang + sop->spin_ang - sop->ang_orig);
+        delta_ang_from_orig = NORM_ANGLE(sop->__i_ang + sop->__i_spin_ang - sop->__i_ang_orig);
     }
 
     // Note that this delta angle is from the original angle
@@ -2126,20 +2126,20 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
         npos = DoTrack(sop, locktics);
 
     // get delta to target angle
-    delta_ang = getincangle(sop->ang, sop->ang_tgt);
+    delta_ang = getincangle(sop->__i_ang, sop->__i_ang_tgt);
 
-    sop->ang = NORM_ANGLE(sop->ang + (delta_ang >> sop->turn_speed));
+    sop->__i_ang = NORM_ANGLE(sop->__i_ang + (delta_ang >> sop->turn_speed));
     delta_ang = delta_ang >> sop->turn_speed;
 
     // move z values
     MoveZ(sop);
 
     // calculate the spin speed
-    speed = sop->spin_speed * locktics;
+    speed = sop->__i_spin_speed * locktics;
     // spin_ang is incremented by the spin_speed
-    sop->spin_ang = NORM_ANGLE(sop->spin_ang + speed);
+    sop->__i_spin_ang = NORM_ANGLE(sop->__i_spin_ang + speed);
 
-    if (sop->spin_speed)
+    if (sop->__i_spin_speed)
     {
         // ignore delta angle if spinning
         GlobSpeedSO = DAngle::fromBuild(speed);
@@ -2160,7 +2160,7 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
         // Update the points so there will be no warping
         if ((sop->flags & (SOBJ_UPDATE|SOBJ_UPDATE_ONCE)) ||
             sop->vel ||
-            (sop->ang != sop->ang_tgt) ||
+            (sop->__i_ang != sop->__i_ang_tgt) ||
             GlobSpeedSO.Degrees())
         {
             sop->flags &= ~(SOBJ_UPDATE_ONCE);
@@ -2178,7 +2178,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
     // calculate an angle to the target
 
     if (sop->vel)
-        sop->ang_moving = sop->ang_tgt = getangle(tpoint->pos - sop->pmid);
+        sop->__i_ang_moving = sop->__i_ang_tgt = getangle(tpoint->pos - sop->pmid);
 
     // NOTE: Jittery ride - try new value out here
     // NOTE: Put a loop around this (locktics) to make it more acuruate
@@ -2198,30 +2198,30 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             break;
 
         case TRACK_SPIN:
-            if (sop->spin_speed)
+            if (sop->__i_spin_speed)
                 break;
 
-            sop->spin_speed = tpoint->tag_high;
-            sop->last_ang = sop->ang;
+            sop->__i_spin_speed = tpoint->tag_high;
+            sop->__i_last_ang = sop->__i_ang;
             break;
 
         case TRACK_SPIN_REVERSE:
         {
-            if (!sop->spin_speed)
+            if (!sop->__i_spin_speed)
                 break;
 
-            if (sop->spin_speed >= 0)
+            if (sop->__i_spin_speed >= 0)
             {
-                sop->spin_speed = -sop->spin_speed;
+                sop->__i_spin_speed = -sop->__i_spin_speed;
             }
         }
         break;
 
         case TRACK_SPIN_STOP:
-            if (!sop->spin_speed)
+            if (!sop->__i_spin_speed)
                 break;
 
-            sop->spin_speed = 0;
+            sop->__i_spin_speed = 0;
             break;
 
         case TRACK_BOB_START:
@@ -2384,9 +2384,9 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
 
             sop->flags |= (SOBJ_WAIT_FOR_EVENT);
             sop->save_vel = sop->vel;
-            sop->save_spin_speed = sop->spin_speed;
+            sop->save_spin_speed = sop->__i_spin_speed;
 
-            sop->vel = sop->spin_speed = 0;
+            sop->vel = sop->__i_spin_speed = 0;
             // only set event if non-zero
             if (tpoint->tag_high)
                 sop->match_event = tpoint->tag_high;
@@ -2437,7 +2437,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
         sop->target_dist = (sop->pmid.XY() - tpoint->pos.XY()).Length();
 
         // calculate a new angle to the target
-        sop->ang_moving = sop->ang_tgt = getangle(tpoint->pos - sop->pmid);
+        sop->__i_ang_moving = sop->__i_ang_tgt = getangle(tpoint->pos - sop->pmid);
 
         if ((sop->flags & SOBJ_ZDIFF_MODE))
         {
@@ -2493,8 +2493,8 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
     if (sop->vel && !(sop->flags & SOBJ_MOVE_VERTICAL))
     {
         DVector2 n;
-        n.X = (((sop->vel) >> 8) * locktics * bcos(sop->ang_moving) >> 14) * inttoworld;
-        n.Y = (((sop->vel) >> 8) * locktics * bsin(sop->ang_moving) >> 14) * inttoworld;
+        n.X = (((sop->vel) >> 8) * locktics * bcos(sop->__i_ang_moving) >> 14) * inttoworld;
+        n.Y = (((sop->vel) >> 8) * locktics * bsin(sop->__i_ang_moving) >> 14) * inttoworld;
 
         sop->target_dist -= n.Length();
         return n;
@@ -2534,10 +2534,10 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2
     GlobSpeedSO = nullAngle;
 
     //sop->ang_tgt = newang;
-    sop->ang_moving = newang;
+    sop->__i_ang_moving = newang;
 
-    sop->spin_ang = 0;
-    sop->ang = newang;
+    sop->__i_spin_ang = 0;
+    sop->__i_ang = newang;
 
     RefreshPoints(sop, pos - sop->pmid.XY(), false);
 }
@@ -2598,20 +2598,20 @@ void TornadoSpin(SECTOR_OBJECT* sop)
     short locktics = synctics;
 
     // get delta to target angle
-    delta_ang = getincangle(sop->ang, sop->ang_tgt);
+    delta_ang = getincangle(sop->__i_ang, sop->__i_ang_tgt);
 
-    sop->ang = NORM_ANGLE(sop->ang + (delta_ang >> sop->turn_speed));
+    sop->__i_ang = NORM_ANGLE(sop->__i_ang + (delta_ang >> sop->turn_speed));
     delta_ang = delta_ang >> sop->turn_speed;
 
     // move z values
     MoveZ(sop);
 
     // calculate the spin speed
-    speed = sop->spin_speed * locktics;
+    speed = sop->__i_spin_speed * locktics;
     // spin_ang is incremented by the spin_speed
-    sop->spin_ang = NORM_ANGLE(sop->spin_ang + speed);
+    sop->__i_spin_ang = NORM_ANGLE(sop->__i_spin_ang + speed);
 
-    if (sop->spin_speed)
+    if (sop->__i_spin_speed)
     {
         // ignore delta angle if spinning
         GlobSpeedSO = DAngle::fromBuild(speed);
@@ -2629,7 +2629,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     // this made them move together more or less - cool!
     //static short ang = 1024;
     int ret;
-    short *ang = &sop->ang_moving;
+    short *ang = &sop->__i_ang_moving;
 
     xvect = sop->vel * bcos(*ang);
     yvect = sop->vel * bcos(*ang);
@@ -2717,30 +2717,30 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        sop->ang_tgt = getangle(actor->user.targetActor->spr.pos - sop->pmid);
+        sop->__i_ang_tgt = getangle(actor->user.targetActor->spr.pos - sop->pmid);
 
         // get delta to target angle
-        delta_ang = getincangle(sop->ang, sop->ang_tgt);
+        delta_ang = getincangle(sop->__i_ang, sop->__i_ang_tgt);
 
-        //sop->ang += delta_ang >> 4;
-        sop->ang = NORM_ANGLE(sop->ang + (delta_ang >> 3));
-        //sop->ang += delta_ang >> 2;
+        //sop->__i_ang += delta_ang >> 4;
+        sop->__i_ang = NORM_ANGLE(sop->__i_ang + (delta_ang >> 3));
+        //sop->__i_ang += delta_ang >> 2;
 
         if (sop->limit_ang_center >= nullAngle)
         {
-            diff = deltaangle(sop->limit_ang_center, DAngle::fromBuild(sop->ang));
+            diff = deltaangle(sop->limit_ang_center, DAngle::fromBuild(sop->__i_ang));
 
             if (abs(diff) >= sop->limit_ang_delta)
             {
                 if (diff < nullAngle)
-                    sop->ang = (sop->limit_ang_center - sop->limit_ang_delta).Buildang();
+                    sop->__i_ang = (sop->limit_ang_center - sop->limit_ang_delta).Buildang();
                 else
-                    sop->ang = (sop->limit_ang_center + sop->limit_ang_delta).Buildang();
+                    sop->__i_ang = (sop->limit_ang_center + sop->limit_ang_delta).Buildang();
 
             }
         }
 
-        OperateSectorObjectForTics(sop, sop->ang, sop->pmid, 2*synctics);
+        OperateSectorObjectForTics(sop, sop->__i_ang, sop->pmid, 2*synctics);
     }
 }
 

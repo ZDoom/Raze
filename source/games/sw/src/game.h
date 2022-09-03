@@ -1497,19 +1497,19 @@ struct SECTOR_OBJECT
             point,          // the point on the track that the sector object is headed toward
             vel_rate,       // rate at which velocity aproaches target
             dir,            // direction traveling on the track
-            ang,            // angle facing
-            ang_moving,     // angle the SO is facing
             clipdist,       // cliping distance for operational sector objects
             clipbox_dist[MAX_CLIPBOX]; // mult-clip box variables (clipdist equivalent)
     double  clipbox_vdist[MAX_CLIPBOX]; // mult-clip box variables
     DAngle  clipbox_ang[MAX_CLIPBOX]; // mult-clip box variables
     int16_t clipbox_num,
-            ang_tgt,        // target angle
-            ang_orig,       // original angle
-            last_ang,       // last angle before started spinning
-            old_ang,        // holding variable for the old angle
-            spin_speed,     // spin_speed
-            spin_ang,       // spin angle
+            __i_ang,            // angle facing
+            __i_ang_moving,     // angle the SO is facing
+            __i_ang_tgt,        // target angle
+            __i_ang_orig,       // original angle
+            __i_last_ang,       // last angle before started spinning
+            __i_old_ang,        // holding variable for the old angle
+            __i_spin_speed,     // spin_speed
+            __i_spin_ang,       // spin angle
             turn_speed,     // shift value determines how fast SO turns to match new angle
             bob_sine_ndx,   // index into sine table
             bob_speed,      // shift value for speed
