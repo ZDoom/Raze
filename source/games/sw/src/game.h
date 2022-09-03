@@ -1470,8 +1470,8 @@ struct SECTOR_OBJECT
            z_rate,         // rate at which z aproaches target
     // only works for single player.
            bob_diff,       // bobbing difference for the frame
-           floor_loz,      // floor low z
-           floor_hiz,      // floor hi z
+           _floor_loz,      // floor low z
+           _floor_hiz,      // floor hi z
            bob_amt,        // bob amount max in z coord
         // end of must floatify
 

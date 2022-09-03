@@ -2535,7 +2535,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), { MAXSO, MAXSO });
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
-    floor_dist = abs(z - pp->sop->floor_loz);
+    floor_dist = abs(z - pp->sop->_floor_loz);
 
 
     if (RectClip)
