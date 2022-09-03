@@ -227,7 +227,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 
 static void cerberusThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 
@@ -243,7 +243,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 		pDudeExtraE->thinkTime++;
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
-		actor->xspr.goalAng += 256;
+		actor->xspr._goalAng += 256;
 		aiSetTarget(actor, actor->basePoint);
 		if (actor->spr.type == kDudeCerberusTwoHead)
 			aiNewState(actor, &cerberus139890);

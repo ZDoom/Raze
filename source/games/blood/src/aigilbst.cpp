@@ -73,7 +73,7 @@ void GillBiteSeqCallback(int, DBloodActor* actor)
 
 static void gillThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 
@@ -265,7 +265,7 @@ static void sub_6CB00(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2;
@@ -294,13 +294,13 @@ static void sub_6CD74(DBloodActor* actor)
 	auto target = actor->GetTarget();
 	int z = actor->int_pos().Z + getDudeInfo(actor->spr.type)->eyeHeight;
 	int z2 = target->int_pos().Z + getDudeInfo(target->spr.type)->eyeHeight;
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2;
 	if (abs(nAng) > DAngle60)
 	{
-		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
+		actor->xspr._goalAng = (actor->int_ang() + 512) & 2047;
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
@@ -323,7 +323,7 @@ static void sub_6D03C(DBloodActor* actor)
 	auto target = actor->GetTarget();
 	int z = actor->int_pos().Z + getDudeInfo(actor->spr.type)->eyeHeight;
 	int z2 = target->int_pos().Z + getDudeInfo(target->spr.type)->eyeHeight;
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2;

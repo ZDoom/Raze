@@ -83,7 +83,7 @@ void StandSeqCallback(int, DBloodActor* actor)
 
 static void zombaThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiLookForTarget(actor);
 }
 
@@ -248,7 +248,7 @@ static void myThinkTarget(DBloodActor* actor)
 
 static void myThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	myThinkTarget(actor);
 }
 

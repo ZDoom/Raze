@@ -97,7 +97,7 @@ static void eelThinkTarget(DBloodActor* actor)
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
 		pDudeExtraE->thinkTime = 0;
-		actor->xspr.goalAng += 256;
+		actor->xspr._goalAng += 256;
 		aiSetTarget(actor, actor->basePoint);
 		aiNewState(actor, &eelTurn);
 		return;
@@ -140,7 +140,7 @@ static void eelThinkTarget(DBloodActor* actor)
 
 static void eelThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	eelThinkTarget(actor);
 }
 
@@ -215,7 +215,7 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	AdjustVelocity(actor, ADJUSTER{
@@ -232,7 +232,7 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir == 0)
@@ -307,7 +307,7 @@ static void eelMoveForward(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
@@ -332,7 +332,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
@@ -353,7 +353,7 @@ static void eelMoveAscend(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;

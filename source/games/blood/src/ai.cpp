@@ -261,21 +261,21 @@ void aiChooseDirection(DBloodActor* actor, int a3)
 	if (vc < 0)
 		v8 = -341;
 	if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc, vsi))
-		actor->xspr.goalAng = actor->int_ang() + vc;
+		actor->xspr._goalAng = actor->int_ang() + vc;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc / 2, vsi))
-		actor->xspr.goalAng = actor->int_ang() + vc / 2;
+		actor->xspr._goalAng = actor->int_ang() + vc / 2;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - vc / 2, vsi))
-		actor->xspr.goalAng = actor->int_ang() - vc / 2;
+		actor->xspr._goalAng = actor->int_ang() - vc / 2;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + v8, vsi))
-		actor->xspr.goalAng = actor->int_ang() + v8;
+		actor->xspr._goalAng = actor->int_ang() + v8;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang(), vsi))
-		actor->xspr.goalAng = actor->int_ang();
+		actor->xspr._goalAng = actor->int_ang();
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
-		actor->xspr.goalAng = actor->int_ang() - v8;
+		actor->xspr._goalAng = actor->int_ang() - v8;
 	//else if (actor->spr.flags&2)
 		//actor->xspr.goalAng = actor->spr.angle+341;
 	else // Weird..
-		actor->xspr.goalAng = actor->int_ang() + 341;
+		actor->xspr._goalAng = actor->int_ang() + 341;
 	if (Chance(0x8000))
 		actor->xspr.dodgeDir = 1;
 	else
@@ -298,7 +298,7 @@ void aiMoveForward(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (abs(nAng) > DAngle60)
@@ -317,7 +317,7 @@ void aiMoveTurn(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 }
@@ -332,7 +332,7 @@ void aiMoveDodge(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir)

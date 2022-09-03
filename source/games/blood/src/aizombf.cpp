@@ -82,7 +82,7 @@ void ThrowSeqCallback(int, DBloodActor* actor)
 
 static void zombfThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 

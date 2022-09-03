@@ -1347,23 +1347,23 @@ void nnExtProcessSuperSprites()
 				debrisMove(i);
 
 			if (debrisactor->vel.X != 0 || debrisactor->int_vel().Y)
-				debrisactor->xspr.goalAng = getangle(debrisactor->vel) & 2047;
+				debrisactor->xspr._goalAng = getangle(debrisactor->vel) & 2047;
 
 			int ang = debrisactor->int_ang() & 2047;
 			if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
 			else if (Chance(0x1000 - mass))
 			{
 				if (debrisactor->vel.Z > 0x100) debrisBubble(debrisactor);
-				if (ang == debrisactor->xspr.goalAng)
+				if (ang == debrisactor->xspr._goalAng)
 				{
-					debrisactor->xspr.goalAng = (debrisactor->int_ang() + Random3(kAng60)) & 2047;
+					debrisactor->xspr._goalAng = (debrisactor->int_ang() + Random3(kAng60)) & 2047;
 					debrisBubble(debrisactor);
 				}
 			}
 
 			int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->int_vel().X) + abs(debrisactor->int_vel().Y)) >> 5)), (uwater) ? 1 : 0);
-			if (ang < debrisactor->xspr.goalAng) debrisactor->set_int_ang(ClipHigh(ang + angStep, debrisactor->xspr.goalAng));
-			else if (ang > debrisactor->xspr.goalAng) debrisactor->set_int_ang(ClipLow(ang - angStep, debrisactor->xspr.goalAng));
+			if (ang < debrisactor->xspr._goalAng) debrisactor->set_int_ang(ClipHigh(ang + angStep, debrisactor->xspr._goalAng));
+			else if (ang > debrisactor->xspr._goalAng) debrisactor->set_int_ang(ClipLow(ang - angStep, debrisactor->xspr._goalAng));
 
 			auto pSector = debrisactor->sector();
 			int cz = getceilzofslopeptr(pSector, debrisactor->int_pos().X, debrisactor->int_pos().Y);
@@ -2784,7 +2784,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
 						// set random goal ang for swimming so they start turning
 						if ((flags & kPhysDebrisSwim) && targetactor->int_vel().X ==0 && targetactor->vel.Y == 0 && targetactor->vel.Z == 0)
-							targetactor->xspr.goalAng = (targetactor->int_ang() + Random3(kAng45)) & 2047;
+							targetactor->xspr._goalAng = (targetactor->int_ang() + Random3(kAng45)) & 2047;
 
 						if (targetactor->xspr.physAttr & kPhysDebrisVector)
 							targetactor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -7738,19 +7738,19 @@ void nnExtAiSetDirection(DBloodActor* actor, int a3)
 		v8 = -341;
 
 	if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() + vc, vsi))
-		actor->xspr.goalAng = actor->int_ang() + vc;
+		actor->xspr._goalAng = actor->int_ang() + vc;
 	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() + vc / 2, vsi))
-		actor->xspr.goalAng = actor->int_ang() + vc / 2;
+		actor->xspr._goalAng = actor->int_ang() + vc / 2;
 	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() - vc / 2, vsi))
-		actor->xspr.goalAng = actor->int_ang() - vc / 2;
+		actor->xspr._goalAng = actor->int_ang() - vc / 2;
 	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() + v8, vsi))
-		actor->xspr.goalAng = actor->int_ang() + v8;
+		actor->xspr._goalAng = actor->int_ang() + v8;
 	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang(), vsi))
-		actor->xspr.goalAng = actor->int_ang();
+		actor->xspr._goalAng = actor->int_ang();
 	else if (nnExtCanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
-		actor->xspr.goalAng = actor->int_ang() - v8;
+		actor->xspr._goalAng = actor->int_ang() - v8;
 	else
-		actor->xspr.goalAng = actor->int_ang() + 341;
+		actor->xspr._goalAng = actor->int_ang() + 341;
 
 	if (actor->xspr.dodgeDir)
 	{
@@ -8132,7 +8132,7 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 	if (Chance(0x8000))
 		goal = -goal;
 
-	actor->xspr.goalAng = (actor->int_ang() + goal) & 2047;
+	actor->xspr._goalAng = (actor->int_ang() + goal) & 2047;
 }
 
 //---------------------------------------------------------------------------
@@ -8144,7 +8144,7 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 void aiPatrolTurn(DBloodActor* actor)
 {
 	int nTurnRange = (getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4;
-	int nAng = getincangle(actor->int_ang(), actor->xspr.goalAng);
+	int nAng = getincangle(actor->int_ang(), actor->xspr._goalAng);
 	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
 
 }
@@ -8192,7 +8192,7 @@ void aiPatrolMove(DBloodActor* actor)
 	}
 
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
-	int nAng = getincangle(actor->int_ang(), actor->xspr.goalAng);
+	int nAng = getincangle(actor->int_ang(), actor->xspr._goalAng);
 	actor->set_int_ang((actor->int_ang() + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047);
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
@@ -8873,7 +8873,7 @@ void aiPatrolThink(DBloodActor* actor)
 	else if (aiPatrolTurning(actor->xspr.aiState))
 	{
 		//viewSetSystemMessage("TURN");
-		if ((int)actor->int_ang() == (int)actor->xspr.goalAng)
+		if ((int)actor->int_ang() == (int)actor->xspr._goalAng)
 		{
 			// save imer for waiting
 			stateTimer = actor->xspr.stateTimer;
@@ -8904,8 +8904,8 @@ void aiPatrolThink(DBloodActor* actor)
 			// take marker's angle
 			if (!(markeractor->spr.flags & kModernTypeFlag4))
 			{
-				actor->xspr.goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.unused2) ? markeractor->int_ang() + kAng180 : markeractor->int_ang()) & 2047;
-				if ((int)actor->int_ang() != (int)actor->xspr.goalAng) // let the enemy play move animation while turning
+				actor->xspr._goalAng = ((!(markeractor->spr.flags & kModernTypeFlag8) && actor->xspr.unused2) ? markeractor->int_ang() + kAng180 : markeractor->int_ang()) & 2047;
+				if ((int)actor->int_ang() != (int)actor->xspr._goalAng) // let the enemy play move animation while turning
 					return;
 			}
 
@@ -9331,7 +9331,7 @@ void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 		{
 			pSpr->set_int_ang(nAng);
 			if (pSpr->hasX())
-				pSpr->xspr.goalAng = pSpr->int_ang();
+				pSpr->xspr._goalAng = pSpr->int_ang();
 		}
 	}
 }

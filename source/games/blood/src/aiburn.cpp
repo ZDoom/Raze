@@ -76,7 +76,7 @@ void BurnSeqCallback(int, DBloodActor*)
 
 static void burnThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 

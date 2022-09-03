@@ -127,7 +127,7 @@ void sub_70284(int, DBloodActor* actor)
 
 static void aiPodSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 

@@ -197,7 +197,7 @@ void sub_720AC(int, DBloodActor* actor)
 
 static void sub_72580(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 
@@ -213,7 +213,7 @@ static void sub_725A4(DBloodActor* actor)
 		pDudeExtraE->thinkTime++;
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
-		actor->xspr.goalAng += 256;
+		actor->xspr._goalAng += 256;
 		aiSetTarget(actor, actor->basePoint);
 		aiNewState(actor, &tcherno13AA28);
 		return;

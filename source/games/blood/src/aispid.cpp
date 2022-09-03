@@ -162,7 +162,7 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 
 static void spidThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 

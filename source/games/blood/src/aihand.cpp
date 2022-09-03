@@ -58,7 +58,7 @@ void HandJumpSeqCallback(int, DBloodActor* actor)
 
 static void handThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 

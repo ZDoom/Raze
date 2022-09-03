@@ -206,7 +206,7 @@ static void gargThinkTarget(DBloodActor* actor)
 		pDudeExtraE->thinkTime++;
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
-		actor->xspr.goalAng += 256;
+		actor->xspr._goalAng += 256;
 		aiSetTarget(actor, actor->basePoint);
 		aiNewState(actor, &gargoyleTurn);
 		return;
@@ -249,7 +249,7 @@ static void gargThinkTarget(DBloodActor* actor)
 
 static void gargThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiLookForTarget(actor);
 }
 
@@ -276,7 +276,7 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	AdjustVelocity(actor, ADJUSTER{
@@ -296,7 +296,7 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir == 0)
@@ -508,7 +508,7 @@ static void gargMoveForward(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
@@ -536,13 +536,13 @@ static void gargMoveSlow(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)
 	{
-		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
+		actor->xspr._goalAng = (actor->int_ang() + 512) & 2047;
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
@@ -571,13 +571,13 @@ static void gargMoveSwoop(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)
 	{
-		actor->xspr.goalAng = (actor->int_ang() + 512) & 2047;
+		actor->xspr._goalAng = (actor->int_ang() + 512) & 2047;
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
@@ -606,7 +606,7 @@ static void gargMoveFly(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;

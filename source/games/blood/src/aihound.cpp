@@ -69,7 +69,7 @@ void houndBurnSeqCallback(int, DBloodActor* actor)
 
 static void houndThinkSearch(DBloodActor* actor)
 {
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiThinkTarget(actor);
 }
 

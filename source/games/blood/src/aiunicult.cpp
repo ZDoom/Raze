@@ -401,7 +401,7 @@ static void unicultThinkSearch(DBloodActor* actor)
 {
 	// TO DO: if can't see the target, but in fireDist range - stop moving and look around
 
-	aiChooseDirection(actor, actor->xspr.goalAng);
+	aiChooseDirection(actor, actor->xspr._goalAng);
 	aiLookForTarget(actor);
 }
 
@@ -899,7 +899,7 @@ static void unicultThinkChase(DBloodActor* actor)
 										{
 											if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
 											else aiGenDudeNewState(actor, &genDudeChaseL);
-											actor->xspr.goalAng = Random(kAng360);
+											actor->xspr._goalAng = Random(kAng360);
 											//viewSetSystemMessage("WALL OR SPRITE TOUCH");
 										}
 
@@ -1114,7 +1114,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 
 	if (pExtra->canFly)
 	{
-		auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
+		auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr._goalAng));
 		auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 		actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 		int nAccel = pDudeInfo->frontSpeed << 2;
@@ -1136,7 +1136,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	}
 	else
 	{
-		int dang = ((kAng180 + actor->xspr.goalAng - actor->int_ang()) & 2047) - kAng180;
+		int dang = ((kAng180 + actor->xspr._goalAng - actor->int_ang()) & 2047) - kAng180;
 		actor->set_int_ang(((actor->int_ang() + ClipRange(dang, -maxTurn, maxTurn)) & 2047));
 
 		// don't move forward if trying to turn around
@@ -1173,19 +1173,19 @@ void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int xvel, int yvel)
 	int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
 
 	if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc, vsi))
-		actor->xspr.goalAng = actor->int_ang() + vc;
+		actor->xspr._goalAng = actor->int_ang() + vc;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + vc / 2, vsi))
-		actor->xspr.goalAng = actor->int_ang() + vc / 2;
+		actor->xspr._goalAng = actor->int_ang() + vc / 2;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - vc / 2, vsi))
-		actor->xspr.goalAng = actor->int_ang() - vc / 2;
+		actor->xspr._goalAng = actor->int_ang() - vc / 2;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() + v8, vsi))
-		actor->xspr.goalAng = actor->int_ang() + v8;
+		actor->xspr._goalAng = actor->int_ang() + v8;
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang(), vsi))
-		actor->xspr.goalAng = actor->int_ang();
+		actor->xspr._goalAng = actor->int_ang();
 	else if (CanMove(actor, actor->GetTarget(), actor->int_ang() - v8, vsi))
-		actor->xspr.goalAng = actor->int_ang() - v8;
+		actor->xspr._goalAng = actor->int_ang() - v8;
 	else
-		actor->xspr.goalAng = actor->int_ang() + 341;
+		actor->xspr._goalAng = actor->int_ang() + 341;
 
 	actor->xspr.dodgeDir = (Chance(0x8000)) ? 1 : -1;
 
