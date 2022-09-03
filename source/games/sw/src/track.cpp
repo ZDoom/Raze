@@ -1212,7 +1212,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_BOB_START:
-                    sop->bob_amt = Z(actor->spr.lotag);
+                    sop->bob_amt = actor->spr.lotag;
                     sop->bob_sine_ndx = 0;
                     sop->bob_speed = 4;
                     KillActor(actor);
@@ -1255,7 +1255,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
 #if 0
             case SO_SPEED_BOAT:
                 sop->vel = 0;
-                sop->bob_amt = Z(2);
+                sop->bob_amt = 2;
                 sop->bob_speed = 4;
                 sop->flags |= (SOBJ_OPERATIONAL);
                 break;
@@ -1964,7 +1964,7 @@ void MoveZ(SECTOR_OBJECT* sop)
     if (sop->bob_amt)
     {
         sop->bob_sine_ndx = (PlayClock << sop->bob_speed) & 2047;
-        sop->bob_diff = MulScale(sop->bob_amt, bsin(sop->bob_sine_ndx), 14);
+        sop->bob_diff = sop->bob_amt * BobVal(sop->bob_sine_ndx);
 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
@@ -1972,7 +1972,7 @@ void MoveZ(SECTOR_OBJECT* sop)
             if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_BOB))
                 continue;
 
-            (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff * zinttoworld;
+            (*sectp)->setfloorz(sop->zorig_floor[i] + sop->bob_diff);
         }
     }
 
@@ -2220,7 +2220,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
 
         case TRACK_BOB_START:
             sop->flags |= (SOBJ_ZMID_FLOOR);
-            sop->bob_amt = Z(tpoint->tag_high);
+            sop->bob_amt = tpoint->tag_high;
             sop->bob_sine_ndx = 0;
             sop->bob_speed = 4;
             break;
@@ -2515,7 +2515,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, DAngle newang, const DVector
     if (sop->bob_amt)
     {
         sop->bob_sine_ndx = (PlayClock << sop->bob_speed) & 2047;
-        sop->bob_diff = MulScale(sop->bob_amt, bsin(sop->bob_sine_ndx), 14);
+        sop->bob_diff = sop->bob_amt * BobVal(sop->bob_sine_ndx);
 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
@@ -2523,7 +2523,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, DAngle newang, const DVector
             if (sop->sectp[i]->hasU() && (sop->sectp[i]->flags & SECTFU_SO_DONT_BOB))
                 continue;
 
-            (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff * zinttoworld;
+            (*sectp)->setfloorz(sop->zorig_floor[i] + sop->bob_diff);
         }
     }
 
