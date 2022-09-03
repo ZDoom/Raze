@@ -335,12 +335,12 @@ void QuickJumpSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
-        actor->add_int_pos({ MulScale(64, bcos(actor->int_ang()), 14), MulScale(64, bsin(actor->int_ang()), 14), 0 });
+        actor->spr.pos += actor->spr.angle.ToVector() * 4;
         actor->spr.lotag = lotag;
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->add_int_pos({ MulScale(2048, bcos(end_sprite->int_ang()), 14), MulScale(2048, bsin(end_sprite->int_ang()), 14), 0 });
+        end_sprite->spr.pos += end_sprite->spr.angle.ToVector() * 128;
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -388,7 +388,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->add_int_pos({ MulScale(64, -bcos(start_sprite->int_ang()), 14), MulScale(64, -bsin(start_sprite->int_ang()), 14), 0 });
+        start_sprite->spr.pos += start_sprite->spr.angle.ToVector() * 4;
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
@@ -396,7 +396,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->add_int_pos({ MulScale(64, bcos(end_sprite->int_ang()), 14), MulScale(64, bsin(end_sprite->int_ang()), 14), 0 });
+        end_sprite->spr.pos += end_sprite->spr.angle.ToVector() * 4;
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -446,7 +446,7 @@ void QuickExitSetup(short stat, short type)
         KillActor(actor);
 
         // add end point
-        end_sprite->add_int_pos({ MulScale(1024, bcos(end_sprite->int_ang()), 14), MulScale(1024, bsin(end_sprite->int_ang()), 14), 0 });
+        end_sprite->spr.pos += end_sprite->spr.angle.ToVector() * 64;
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -491,7 +491,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->spr.pos += DVector2(MOVEx(256,start_sprite->spr.angle + DAngle180), MOVEy(256,start_sprite->spr.angle + DAngle180));
+        start_sprite->spr.pos += (start_sprite->spr.angle + DAngle180).ToVector() * 16;
         TrackAddPoint(t, tp, start_sprite);
 
         // add climb point
@@ -499,7 +499,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->spr.pos += DVector2(MOVEx(512,end_sprite->spr.angle), MOVEy(512,end_sprite->spr.angle));
+        end_sprite->spr.pos += end_sprite->spr.angle.ToVector() * 32;
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -558,7 +558,7 @@ void TrackSetup(void)
             int i;
             it.Reset(STAT_TRACK + ndx);
             auto itActor = it.Next();
-            Printf("WARNING: Did not find first point of Track Number %d, x %d, y %d\n", ndx, itActor->int_pos().X, itActor->int_pos().Y);
+            Printf("WARNING: Did not find first point of Track Number %d, x %d, y %d\n", ndx, int(itActor->spr.pos.X), int(itActor->spr.pos.Y));
             it.Reset(STAT_TRACK + ndx);
             while (auto actor = it.Next())
             {
@@ -639,7 +639,6 @@ DSWActor* FindBoundSprite(int tag)
 
 void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 {
-    int xlow, ylow, xhigh, yhigh;
     int startwall, endwall;
     int i, k, j;
     DSWActor* BoundActor = nullptr;
@@ -668,8 +667,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
         I_Error("SOP bound sprite with hitag %d not found", 500 + (int(sop - SectorObject) * 5));
     }
 
-    xlow = BoundActor->int_pos().X;
-    ylow = BoundActor->int_pos().Y;
+    DVector2 vlow = BoundActor->spr.pos;
 
     KillActor(BoundActor);
 
@@ -678,14 +676,12 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
     {
         I_Error("SOP bound sprite with hitag %d not found", 501 + (int(sop - SectorObject) * 5));
     }
-    xhigh = BoundActor->int_pos().X;
-    yhigh = BoundActor->int_pos().Y;
+    DVector2 vhigh = BoundActor->spr.pos;
 
     KillActor(BoundActor);
 
     // set radius for explosion checking - based on bounding box
-    child->user.Radius = ((xhigh - xlow) + (yhigh - ylow)) >> 2;
-    child->user.Radius -= (child->user.Radius >> 2); // trying to get it a good size
+    child->user.Radius = ((vhigh.X - vlow.X) + (vhigh.Y - vlow.Y)) * (0.75 * 0.25) * worldtoint; // trying to get it a good size
 
     // search for center sprite if it exists
 
@@ -706,7 +702,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
         for(auto& wal : wallsofsector(sect))
         {
             // all walls have to be in bounds to be in sector object
-            if (!(wal.wall_int_pos().X > xlow && wal.wall_int_pos().X < xhigh && wal.wall_int_pos().Y > ylow && wal.wall_int_pos().Y < yhigh))
+            if (!(wal.pos.X > vlow.X && wal.pos.X < vhigh.X && wal.pos.Y > vlow.Y && wal.pos.Y < vhigh.Y))
             {
                 SectorInBounds = false;
                 break;
@@ -777,7 +773,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
         SWStatIterator it(StatList[i]);
         while (auto itActor = it.Next())
         {
-            if (itActor->int_pos().X > xlow && itActor->int_pos().X < xhigh && itActor->int_pos().Y > ylow && itActor->int_pos().Y < yhigh)
+            if (itActor->spr.pos.X > vlow.X && itActor->spr.pos.X < vhigh.X && itActor->spr.pos.Y > vlow.Y && itActor->spr.pos.Y < vhigh.Y)
             {
                 // some delete sprites ride others don't
                 if (itActor->spr.statnum == STAT_DELETE_SPRITE)
@@ -877,20 +873,20 @@ cont:
     // between the zmid and the actor->spr.z
     if ((sop->flags & SOBJ_SPRITE_OBJ))
     {
-        int zmid = -9999999;
+        double zmid = -9999999;
 
         // choose the lowest sprite for the zmid
         for (i = 0; sop->so_actors[i] != nullptr; i++)
         {
             auto actor = sop->so_actors[i];
 
-            if (actor->int_pos().Z > zmid)
-                zmid = actor->int_pos().Z;
+            if (actor->spr.pos.Z > zmid)
+                zmid = actor->spr.pos.Z;
         }
 
         ASSERT(zmid != -9999999);
 
-        sop->pmid.Z = zmid * inttoworld;
+        sop->pmid.Z = zmid;
 
 		for (i = 0; sop->so_actors[i] != nullptr; i++)
 		{

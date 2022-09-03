@@ -204,7 +204,7 @@ inline int MOVEy(int vel, int ang)
 
 inline DVector2 MOVExy(int vel, DAngle ang)
 {
-	return { vel * ang.Cos() * inttoworld, vel * ang.Sin() * inttoworld };
+	return ang.ToVector() * vel * inttoworld;
 }
 
 inline double MOVEx(int vel, DAngle ang)
