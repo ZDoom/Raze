@@ -584,10 +584,6 @@ struct PLAYER
     {
         return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
     }
-    void add_int_ppos_Z(int z)
-    {
-        pos.Z += z * zinttoworld;
-    }
     void add_int_ppos_XY(vec2_t z)
     {
         pos.XY() += { z.X * inttoworld, z.Y * inttoworld };
