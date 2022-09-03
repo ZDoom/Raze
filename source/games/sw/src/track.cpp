@@ -1403,9 +1403,9 @@ void PlaceActorsOnTracks(void)
 
         // setup sprite track defaults
         actor->user.track = tag - TAG_ACTOR_TRACK_BEGIN;
-
+        actor->norm_ang();
         // if facing left go backward
-        if (actor->int_ang() >= 513 && actor->int_ang() <= 1535)
+        if (actor->spr.angle > DAngle90  && actor->spr.angle < DAngle270)
         {
             actor->user.track_dir = -1;
         }
@@ -1414,7 +1414,7 @@ void PlaceActorsOnTracks(void)
             actor->user.track_dir = 1;
         }
 
-        actor->user.track_vel = actor->int_xvel() * 256;
+        actor->user.track_vel = int(actor->vel.X * 4096);
         actor->user.vel_tgt = actor->user.track_vel;
         actor->user.vel_rate = 6;
 
@@ -1717,7 +1717,7 @@ PlayerPart:
             // prevents you from falling into map HOLEs created by moving
             // Sectors and sprites around.
             //if (!SO_EMPTY(sop))
-            updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
+            updatesector(pp->pos, &pp->cursector);
 
             // in case you are in a whirlpool
             // move perfectly with the ride in the z direction
@@ -1925,7 +1925,7 @@ SECTOR_OBJECT* DetectSectorObjectByWall(walltype* wph)
 }
 
 
-void CollapseSectorObject(SECTOR_OBJECT* sop, int nx, int ny)
+void CollapseSectorObject(SECTOR_OBJECT* sop, const DVector2& pos)
 {
     int j;
     sectortype* *sectp;
@@ -1944,11 +1944,11 @@ void CollapseSectorObject(SECTOR_OBJECT* sop, int nx, int ny)
 
                 if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
                 {
-                    dragpoint(&wal, nx, ny);
+                    dragpoint(&wal, pos);
                 }
                 else
                 {
-                    wal.movexy(nx, ny);
+                    wal.move(pos);
                 }
             }
         }
@@ -2922,11 +2922,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             {
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-                FAFhitscan(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(24), actor->sector(),      // Start position
-                           bcos(actor->int_ang()),    // X vector of 3D ang
-                           bsin(actor->int_ang()),    // Y vector of 3D ang
-                           0,                // Z vector of 3D ang
-                           hit, CLIPMASK_MISSILE);
+                FAFhitscan(actor->spr.pos.plusZ(-24), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
                 actor->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
@@ -2941,7 +2937,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
                 if (!hit.hitWall->twoSided())
                     return false;
 
-                zdiff = abs(actor->int_pos().Z - hit.hitWall->nextSector()->int_floorz()) >> 8;
+                zdiff = (int)abs(actor->spr.pos.Z - hit.hitWall->nextSector()->floorz);
 
                 actor->user.jump_speed = PickJumpSpeed(actor, zdiff);
             }
@@ -3228,10 +3224,9 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-            double vx = MOVEx(100, lActor->spr.angle);
-            double vy = MOVEy(100, lActor->spr.angle);
+            auto vec = lActor->spr.angle.ToVector() * 6.25;
 
-			actor->spr.pos.XY() = lActor->spr.pos.XY() + DVector2(vx, vy);
+			actor->spr.pos.XY() = lActor->spr.pos.XY() + vec;
 
 			actor->spr.angle += DAngle180;
 
@@ -3327,7 +3322,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             {
                 pp = &Player[pnum];
 
-                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->int_ppos().Y) < actor->user.Dist)
+                if ((actor->spr.pos.XY() - pp->pos.XY()).Length() < actor->user.Dist * inttoworld)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_PLAYER);
@@ -3384,7 +3379,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
             // (velocity * difference between the target and the object) /
             // distance
-            actor->set_int_zvel((int) -((actor->int_xvel() * (actor->spr.pos.Z - tpoint->pos.Z)) / dist));
+            actor->vel.Z = -((actor->vel.Z * (actor->spr.pos.Z - tpoint->pos.Z)) / dist);
         }
     }
     else
@@ -3399,7 +3394,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             }
 
             // update the real velocity
-            actor->set_int_xvel((actor->user.track_vel) >> 8);
+            actor->vel.X = actor->user.track_vel / 4096.;
         }
         else if (actor->user.Flags & (SPR_SLOW_DOWN))
         {
@@ -3408,8 +3403,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
                 actor->user.track_vel = actor->user.vel_tgt;
                 actor->user.Flags &= ~(SOBJ_SLOW_DOWN);
             }
-
-            actor->set_int_xvel((actor->user.track_vel) >> 8);
+            actor->vel.X = actor->user.track_vel / 4096.;
         }
 
 

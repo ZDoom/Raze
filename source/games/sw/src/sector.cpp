@@ -1071,7 +1071,7 @@ bool TestKillSectorObject(SECTOR_OBJECT* sop)
     {
         KillMatchingCrackSprites(sop->match_event);
         // get new sectnums
-        CollapseSectorObject(sop, sop->int_pmid().X, sop->int_pmid().Y);
+        CollapseSectorObject(sop, sop->pmid);
         DoSpawnSpotsForKill(sop->match_event);
         KillSectorObjectSprites(sop);
         return true;
