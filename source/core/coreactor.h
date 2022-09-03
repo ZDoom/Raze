@@ -180,11 +180,6 @@ public:
 		vel .Z = FixedToFloat(x);
 	}
 
-	void set_int_bvel(vec3_t x)
-	{
-		vel = { FixedToFloat(x.X), FixedToFloat(x.Y), FixedToFloat(x.Z) };
-	}
-
 	void add_int_bvel_x(int x)
 	{
 		vel .X += FixedToFloat(x);

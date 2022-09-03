@@ -6148,7 +6148,7 @@ void actCheckFlares()
 			pos.Y += mulscale30r(Sin(actor->xspr.goalAng + target->int_ang()), target->spr.clipdist * 2) * inttoworld;
 			pos.Z += actor->xspr.TargetPos.Z;
 			SetActor(actor, pos);
-			actor->set_int_bvel(target->int_vel());
+			actor->vel = target->vel;
 		}
 		else
 		{
@@ -6214,7 +6214,7 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 	DBloodActor* actor = InsertSprite(source->sector(), nStat);
 
 	actor->spr.pos = source->spr.pos;
-	actor->set_int_bvel(source->int_vel());
+	actor->vel = source->vel;
 	actor->spr.flags = 0;
 	actor->addX();
 	actor->hit.florhit.setNone();
