@@ -1760,8 +1760,6 @@ PlayerPart:
 void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
 {
     short wallcount = 0, delta_ang_from_orig;
-    short ang;
-    int dx,dy,x,y;
 
     // do scaling
     if (dynamic && sop->PreMoveAnimator)
@@ -1778,39 +1776,39 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
             {
                 if (!(wal.extra && (wal.extra & WALLFX_DONT_MOVE)))
                 {
-                    dx = x = sop->int_pmid().X - sop->orig[wallcount].X * worldtoint;
-                    dy = y = sop->int_pmid().Y - sop->orig[wallcount].Y * worldtoint;
+                    DVector2 pos = sop->pmid.XY() - sop->orig[wallcount];
+                    DVector2 dpos = pos;
 
                     if (dynamic && sop->scale_type)
                     {
                         if (!(wal.extra & WALLFX_DONT_SCALE))
                         {
-                            ang = NORM_ANGLE(getangle(x - sop->int_pmid().X, y - sop->int_pmid().Y));
+                            auto ang = VecToAngle(pos - sop->pmid);
 
                             if (sop->scale_type == SO_SCALE_RANDOM_POINT)
                             {
                                 // was causing memory overwrites
-                                //ScaleRandomPoint(sop, k, ang, x, y, &dx, &dy);
-                                ScaleRandomPoint(sop, wallcount, ang, x, y, &dx, &dy);
+                                dpos = ScaleRandomPoint(sop, wallcount, ang, pos);
                             }
                             else
                             {
                                 int xmul = int(sop->scale_dist * sop->scale_x_mult)>>4;
                                 int ymul = int(sop->scale_dist * sop->scale_y_mult)>>4;
+                                DVector2 mul(xmul / 16., ymul / 16.);
 
-                                dx = x + MulScale(xmul, bcos(ang), 14);
-                                dy = y + MulScale(ymul, bsin(ang), 14);
+                                dpos.X = pos.X + mul.X * ang.Cos();
+                                dpos.Y = pos.Y + mul.Y * ang.Sin();
                             }
                         }
                     }
 
                     if (wal.extra & WALLFX_LOOP_OUTER)
                     {
-                        dragpoint(&wal, dx, dy);
+                        dragpoint(&wal, dpos);
                     }
                     else
                     {
-                        wal.movexy(dx, dy);
+                        wal.move(dpos);
                     }
                 }
 

@@ -5010,7 +5010,7 @@ void DoPlayerStopOperate(PLAYER* pp)
         if (TEST_BOOL1(rsp))
             pp->angle.ang = pp->angle.oang = rsp->spr.angle;
         else
-            pp->angle.ang = pp->angle.oang = VecToAngle(pp->sop_remote->int_pmid().X - pp->int_ppos().X, pp->sop_remote->int_pmid().Y - pp->int_ppos().Y);
+            pp->angle.ang = pp->angle.oang = VecToAngle(pp->sop_remote->pmid.XY() - pp->pos.XY());
     }
 
     if (pp->sop_control)

@@ -251,9 +251,9 @@ void ScaleSectorObject(SECTOR_OBJECT* sop)
     }
 }
 
-void ScaleRandomPoint(SECTOR_OBJECT* sop, short k, short ang, int x, int y, int *dx, int *dy)
+DVector2 ScaleRandomPoint(SECTOR_OBJECT* sop, short k, DAngle ang, const DVector2& pos)
 {
-    int xmul,ymul;
+    int xmul, ymul;
 
     sop->scale_point_dist[k] += sop->scale_point_speed[k];
     if (sop->scale_point_dist[k] > sop->scale_point_dist_max)
@@ -273,19 +273,23 @@ void ScaleRandomPoint(SECTOR_OBJECT* sop, short k, short ang, int x, int y, int 
     }
 
     // change up speed at random
-    if (RANDOM_P2(1024) < (sop->scale_point_rand_freq/2))
+    if (RANDOM_P2(1024) < (sop->scale_point_rand_freq / 2))
     {
         //sop->scale_point_speed[k] = SCALE_POINT_SPEED;
-        short half = sop->scale_point_base_speed/2;
-        short quart = sop->scale_point_base_speed/4;
+        short half = sop->scale_point_base_speed / 2;
+        short quart = sop->scale_point_base_speed / 4;
         sop->scale_point_speed[k] = sop->scale_point_base_speed + (RandomRange(half) - quart);
     }
 
-    xmul = (sop->scale_point_dist[k] * sop->scale_x_mult)>>8;
-    ymul = (sop->scale_point_dist[k] * sop->scale_y_mult)>>8;
+    xmul = (sop->scale_point_dist[k] * sop->scale_x_mult) >> 8;
+    ymul = (sop->scale_point_dist[k] * sop->scale_y_mult) >> 8;
+    DVector2 mul(xmul / 16., ymul / 16.);
 
-    *dx = x + MulScale(xmul, bcos(ang), 14);
-    *dy = y + MulScale(ymul, bsin(ang), 14);
+    DVector2 ret;
+
+    ret.X = pos.X + mul.X * ang.Cos();
+    ret.Y = pos.Y + mul.Y * ang.Sin();
+    return ret;
 }
 
 //
