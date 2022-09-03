@@ -239,20 +239,6 @@ int GetWallAngle(walltype* pWall)
 	return getangle(pWall->delta());
 }
 
-void GetWallNormal(walltype* pWall, int* pX, int* pY)
-{
-
-	auto delta = pWall->int_delta();
-	int dX = -delta.Y >> 4;
-	int dY = delta.X >> 4;
-
-	int nLength = ksqrt(dX * dX + dY * dY);
-	if (nLength <= 0)
-		nLength = 1;
-	*pX = DivScale(dX, nLength, 16);
-	*pY = DivScale(dY, nLength, 16);
-}
-
 //---------------------------------------------------------------------------
 //
 //

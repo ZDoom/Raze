@@ -1689,7 +1689,7 @@ void debrisMove(int listIndex)
 		if (actor->hit.hit.type == kHitWall)
 		{
 			moveHit = actor->hit.hit;
-			actWallBounceVector(&actor->__int_vel.X, &actor->__int_vel.Y, moveHit.hitWall, tmpFraction);
+			actWallBounceVector(actor, moveHit.hitWall, FixedToFloat(tmpFraction));
 		}
 
 	}
