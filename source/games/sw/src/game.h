@@ -1497,11 +1497,11 @@ struct SECTOR_OBJECT
             ang_moving,     // angle the SO is facing
             clipdist,       // cliping distance for operational sector objects
             clipbox_dist[MAX_CLIPBOX], // mult-clip box variables
-            clipbox_xoff[MAX_CLIPBOX], // mult-clip box variables
-            clipbox_yoff[MAX_CLIPBOX], // mult-clip box variables
-            clipbox_ang[MAX_CLIPBOX], // mult-clip box variables
-            clipbox_vdist[MAX_CLIPBOX], // mult-clip box variables
-            clipbox_num,
+            _clipbox_xoff[MAX_CLIPBOX], // mult-clip box variables
+            _clipbox_yoff[MAX_CLIPBOX], // mult-clip box variables
+            _clipbox_ang[MAX_CLIPBOX], // mult-clip box variables
+            _clipbox_vdist[MAX_CLIPBOX]; // mult-clip box variables
+    int16_t clipbox_num,
             ang_tgt,        // target angle
             ang_orig,       // original angle
             last_ang,       // last angle before started spinning

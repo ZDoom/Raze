@@ -56,12 +56,12 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
     {
         // move the box to position instead of using offset- this prevents small rounding errors
         // allowing you to move through wall
-        ang = NORM_ANGLE(pp->angle.ang.Buildang() + sop->clipbox_ang[i]);
+        ang = NORM_ANGLE(pp->angle.ang.Buildang() + sop->_clipbox_ang[i]);
 
         vec3_t spos = { pp->int_ppos().X, pp->int_ppos().Y, z };
 
-        xvect = sop->clipbox_vdist[i] * bcos(ang);
-        yvect = sop->clipbox_vdist[i] * bsin(ang);
+        xvect = sop->_clipbox_vdist[i] * bcos(ang);
+        yvect = sop->_clipbox_vdist[i] * bsin(ang);
         Collision coll;
         clipmove(spos, &pp->cursector, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll, 1);
 
@@ -71,8 +71,8 @@ Collision MultiClipMove(PLAYER* pp, int z, int floor_dist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            opos[i].X = pos[i].X = pp->int_ppos().X + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
-            opos[i].Y = pos[i].Y = pp->int_ppos().Y + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
+            opos[i].X = pos[i].X = pp->int_ppos().X + MulScale(sop->_clipbox_vdist[i], bcos(ang), 14);
+            opos[i].Y = pos[i].Y = pp->int_ppos().Y + MulScale(sop->_clipbox_vdist[i], bsin(ang), 14);
 
             // spos.x is where it hit
             pos[i].X = spos.X;
@@ -128,12 +128,12 @@ short MultiClipTurn(PLAYER* pp, short new_ang, int z, int floor_dist)
 
     for (i = 0; i < sop->clipbox_num; i++)
     {
-        ang = NORM_ANGLE(new_ang + sop->clipbox_ang[i]);
+        ang = NORM_ANGLE(new_ang + sop->_clipbox_ang[i]);
 
         vec3_t pos = { pp->int_ppos().X, pp->int_ppos().Y, z };
 
-        xvect = sop->clipbox_vdist[i] * bcos(ang);
-        yvect = sop->clipbox_vdist[i] * bsin(ang);
+        xvect = sop->_clipbox_vdist[i] * bcos(ang);
+        yvect = sop->_clipbox_vdist[i] * bsin(ang);
 
         // move the box
         Collision coll;
