@@ -203,19 +203,13 @@ static void batMoveDodgeUp(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, DAngle::fromBuild(actor->xspr.goalAng));
 	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int dx = actor->int_vel().X;
-	int dy = actor->int_vel().Y;
-	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
-	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
-	if (actor->xspr.dodgeDir > 0)
-		t2 += pDudeInfo->sideSpeed;
-	else
-		t2 -= pDudeInfo->sideSpeed;
+	AdjustVelocity(actor, ADJUSTER{
+		if (actor->xspr.dodgeDir > 0)
+			t2 += pDudeInfo->sideSpeed;
+		else
+			t2 -= pDudeInfo->sideSpeed;
+	});
 
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->set_int_bvel_z(-0x52aaa);
 }
 
@@ -228,19 +222,13 @@ static void batMoveDodgeDown(DBloodActor* actor)
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir == 0)
 		return;
-	int nCos = Cos(actor->int_ang());
-	int nSin = Sin(actor->int_ang());
-	int dx = actor->int_vel().X;
-	int dy = actor->int_vel().Y;
-	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
-	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
-	if (actor->xspr.dodgeDir > 0)
-		t2 += pDudeInfo->sideSpeed;
-	else
-		t2 -= pDudeInfo->sideSpeed;
+	AdjustVelocity(actor, ADJUSTER{
+		if (actor->xspr.dodgeDir > 0)
+			t2 += FixedToFloat(pDudeInfo->sideSpeed);
+		else
+			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
+	});
 
-	actor->set_int_bvel_x(DMulScale(t1, nCos, t2, nSin, 30));
-	actor->set_int_bvel_y(DMulScale(t1, nSin, -t2, nCos, 30));
 	actor->set_int_bvel_z(0x44444);
 }
 
