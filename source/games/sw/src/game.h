@@ -1469,10 +1469,10 @@ struct SECTOR_OBJECT
            z_tgt,          // target z delta
            z_rate,         // rate at which z aproaches target
     // only works for single player.
-           bob_diff,       // bobbing difference for the frame
-           _floor_loz,      // floor low z
-           _floor_hiz,      // floor hi z
-           bob_amt,        // bob amount max in z coord
+           bob_diff;       // bobbing difference for the frame
+     double floor_loz,      // floor low z
+           floor_hiz;      // floor hi z
+     int   bob_amt,        // bob amount max in z coord
         // end of must floatify
 
     // variables set by mappers for drivables

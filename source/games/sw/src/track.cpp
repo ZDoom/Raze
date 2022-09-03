@@ -728,11 +728,11 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                 sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->depth_fixed));
 
             // lowest and highest floor z's
-            if (sect->int_floorz() > sop->_floor_loz)
-                sop->_floor_loz = sect->int_floorz();
+            if (sect->floorz > sop->floor_loz)
+                sop->floor_loz = sect->floorz;
 
-            if (sect->int_floorz() < sop->_floor_hiz)
-                sop->_floor_hiz = sect->int_floorz();
+            if (sect->floorz < sop->floor_hiz)
+                sop->floor_hiz = sect->floorz;
 
             sop->num_sectors++;
         }
@@ -948,8 +948,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->clipdist = 1024;
         sop->target_dist = 0;
         sop->turn_speed = 4;
-        sop->_floor_loz = -9999999;
-        sop->_floor_hiz = 9999999;
+        sop->floor_loz = -9999999;
+        sop->floor_hiz = 9999999;
         sop->ang_tgt = sop->ang = sop->ang_moving = 0;
         sop->op_main_sector = nullptr;
         sop->ram_damage = 0;
