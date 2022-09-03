@@ -53,8 +53,8 @@ void fxFlameLick(DBloodActor* actor, sectortype*) // 0
 		auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), x, y, z, 0);
 		if (pFX)
 		{
-			pFX->set_int_bvel_x(actor->int_vel().X + Random2(-dx));
-			pFX->set_int_bvel_y(actor->int_vel().Y + Random2(-dy));
+			pFX->vel.X = actor->vel.X + Random2F(-dx);
+			pFX->vel.Y = actor->vel.Y + Random2F(-dy);
 			pFX->set_int_bvel_z(actor->int_vel().Z - Random(0x1aaaa));
 		}
 	}
@@ -128,8 +128,8 @@ void fxFlareSpark(DBloodActor* actor, sectortype*) // 3
 	auto pFX = gFX.fxSpawnActor(FX_28, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
-		pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x1aaaa));
+		pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
+		pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
 		pFX->set_int_bvel_z(actor->int_vel().Z - Random(0x1aaaa));
 	}
 	evPostActor(actor, 4, kCallbackFXFlareSpark);
@@ -147,8 +147,8 @@ void fxFlareSparkLite(DBloodActor* actor, sectortype*) // 4
 	auto pFX = gFX.fxSpawnActor(FX_28, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
-		pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x1aaaa));
+		pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
+		pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
 		pFX->set_int_bvel_z(actor->int_vel().Z - Random(0x1aaaa));
 	}
 	evPostActor(actor, 12, kCallbackFXFlareSparkLite);
@@ -169,8 +169,8 @@ void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
 	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), DVector3(actor->spr.pos.XY(), top), 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x11111));
-		pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x11111));
+		pFX->vel.X = actor->vel.X + Random2F(0x11111);
+		pFX->vel.Y = actor->vel.Y + Random2F(0x11111);
 		pFX->set_int_bvel_z(actor->int_vel().Z - 0x6aaaa);
 	}
 	if (actor->xspr.data1 > 0)
@@ -218,8 +218,8 @@ void fxArcSpark(DBloodActor* actor, sectortype*) // 7
 	auto pFX = gFX.fxSpawnActor(FX_15, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x10000));
-		pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x10000));
+		pFX->vel.X = actor->vel.X + Random2F(0x10000);
+		pFX->vel.Y = actor->vel.Y + Random2F(0x10000);
 		pFX->set_int_bvel_z(actor->int_vel().Z - Random(0x1aaaa));
 	}
 	evPostActor(actor, 3, kCallbackFXArcSpark);
@@ -367,9 +367,9 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 			auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
 			if (pFX)
 			{
-				pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
-				pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x1aaaa));
-				pFX->set_int_bvel_z(actor->int_vel().Z + Random2(0x1aaaa));
+				pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
+				pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
+				pFX->vel.Z = actor->vel.Z + Random2F(0x1aaaa);
 			}
 		}
 		evPostActor(actor, 4, kCallbackPlayerBubble);
@@ -397,9 +397,9 @@ void EnemyBubble(DBloodActor* actor, sectortype*) // 11
 		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
 		if (pFX)
 		{
-			pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
-			pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x1aaaa));
-			pFX->set_int_bvel_z(actor->int_vel().Z + Random2(0x1aaaa));
+			pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
+			pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
+			pFX->vel.Z = actor->vel.Z + Random2F(0x1aaaa);
 		}
 	}
 	evPostActor(actor, 4, kCallbackEnemeyBubble);
@@ -494,8 +494,8 @@ void fxTeslaAlt(DBloodActor* actor, sectortype*) // 15
 	auto pFX = gFX.fxSpawnActor(FX_49, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
-		pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x1aaaa));
+		pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
+		pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
 		pFX->set_int_bvel_z(actor->int_vel().Z - Random(0x1aaaa));
 	}
 	evPostActor(actor, 3, kCallbackFXTeslaAlt);

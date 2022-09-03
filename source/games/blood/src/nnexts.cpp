@@ -1616,9 +1616,9 @@ void debrisBubble(DBloodActor* actor)
 		int z = bottom - Random(bottom - top);
 		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
 		if (pFX) {
-			pFX->set_int_bvel_x(actor->int_vel().X + Random2(0x1aaaa));
-			pFX->set_int_bvel_y(actor->int_vel().Y + Random2(0x1aaaa));
-			pFX->set_int_bvel_z(actor->int_vel().Z + Random2(0x1aaaa));
+			pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
+			pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
+			pFX->vel.Z = actor->vel.Z + Random2F(0x1aaaa);
 		}
 
 	}
