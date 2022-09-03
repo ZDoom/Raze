@@ -934,7 +934,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 							act2->spr.lotag == SE_1_PIVOT &&
 							act2->spr.hitag == actor->spr.hitag)
 						{
-							if (actor->int_ang() == 512)
+							if (actor->spr.angle == DAngle90)
 							{
 								actor->spr.pos.XY() = act2->spr.pos.XY();
 							}

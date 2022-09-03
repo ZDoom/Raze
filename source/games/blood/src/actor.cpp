@@ -4526,7 +4526,7 @@ static Collision MoveThing(DBloodActor* actor)
 	lhit.setNone();
 	GetActorExtents(actor, &top, &bottom);
 	const int bakCompat = enginecompatibility_mode;
-	if (actor->vel.X != 0 || actor->int_vel().Y)
+	if (actor->vel.X != 0 || actor->vel.Y != 0)
 	{
 		auto bakCstat = actor->spr.cstat;
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -4568,7 +4568,7 @@ static Collision MoveThing(DBloodActor* actor)
 		if (pSector2) pSector = pSector2;
 	}
 
-	actor->add_int_z(actor->int_vel().Z >> 8);
+	actor->spr.pos.Z += actor->vel.Z;
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -4668,9 +4668,8 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->add_int_z(ClipLow(ceilZ - top, 0));
 		if (actor->vel.Z < 0)
 		{
-			actor->set_int_bvel_x(MulScale(actor->int_vel().X, 0xc000, 16));
-			actor->set_int_bvel_y(MulScale(actor->int_vel().Y, 0xc000, 16));
-			actor->set_int_bvel_z(MulScale(-actor->int_vel().Z, 0x4000, 16));
+			actor->vel.XY() *= 0.75;
+			actor->vel.Z *= -0.25;
 
 			switch (actor->spr.type)
 			{
@@ -4693,8 +4692,8 @@ static Collision MoveThing(DBloodActor* actor)
 
 	if (bottom >= floorZ)
 	{
-		int nVel = approxDist(actor->int_vel().X, actor->int_vel().Y);
-		int nVelClipped = ClipHigh(nVel, 0x11111);
+		double nVel = actor->vel.XY().Length();
+		int nVelClipped = min(nVel, FixedToFloat(0x11111));
 		Collision& coll = floorColl;
 
 		if (coll.type == kHitSprite)
@@ -4702,20 +4701,17 @@ static Collision MoveThing(DBloodActor* actor)
 			auto hitActor = coll.actor();
 			if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - hitActor->int_pos().X, 2));
-				actor->add_int_bvel_y(MulScale(4, actor->int_pos().Y - hitActor->int_pos().Y, 2));
+				actor->vel.XY() += (actor->spr.pos.XY() - hitActor->spr.pos.XY()) / 4096.;
 				lhit = actor->hit.hit;
 			}
 		}
 		if (nVel > 0)
 		{
-			int t = DivScale(nVelClipped, nVel, 16);
-			actor->add_int_bvel_x(-MulScale(t, actor->int_vel().X, 16));
-			actor->add_int_bvel_y(-MulScale(t, actor->int_vel().Y, 16));
+			actor->vel.XY() *= nVelClipped / nVel;
 		}
 	}
-	if (actor->vel.X != 0 || actor->int_vel().Y)
-		actor->spr.angle = VecToAngle(actor->int_vel().X, actor->int_vel().Y);
+	if (actor->vel.X != 0 || actor->vel.Y != 0)
+		actor->spr.angle = VecToAngle(actor->vel);
 	return lhit;
 }
 
