@@ -3457,7 +3457,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
-	if ((sc->lotag & 0xff) == 27 || (sc->int_floorz() > sc->int_ceilingz() && (sc->lotag & 0xff) != 23) || sc->lotag == 32791 - 65536)
+	if ((sc->lotag & 0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag & 0xff) != 23) || sc->lotag == 32791 - 65536)
 	{
 		int j = 1;
 
@@ -4508,7 +4508,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 {
 	auto sc = actor->sector();
 
-	if (sc->int_ceilingz() > actor->int_pos().Z)
+	if (sc->ceilingz > actor->spr.pos.Z)
 		for (int j = 0; j < 8; j++)
 		{
 			actor->add_int_ang(krand() & 511);
@@ -4598,7 +4598,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 	}
 	else actor->temp_data[0]++;
 
-	int x = sc->int_floorz() - sc->int_ceilingz();
+	double x = sc->floorz - sc->ceilingz;
 
 	if (rnd(64))
 	{
@@ -4606,7 +4606,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 		if (k)
 		{
 			k->spr.xrepeat = k->spr.yrepeat = 2 + (krand() & 7);
-			k->set_int_z(sc->int_floorz() - (krand() % x));
+			k->spr.pos.Z = sc->floorz + krandf(x);
 			k->add_int_ang(256 - (krand() % 511));
 			k->set_int_xvel(krand() & 127);
 			ssp(k, CLIPMASK0);

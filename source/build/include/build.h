@@ -188,6 +188,11 @@ inline int32_t krand(void)
     return ((uint32_t) randomseed)>>16;
 }
 
+inline double krandf(double span)
+{
+    return (krand() & 0x7fff) * span / 32767;
+}
+
 inline int32_t ksqrt(uint64_t num)
 {
     return int(sqrt(double(num)));

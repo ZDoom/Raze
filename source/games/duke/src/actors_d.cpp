@@ -222,14 +222,14 @@ bool ifsquished(DDukeActor* actor, int p)
 		return false;
 
 	auto sectp = actor->sector();
-	int floorceildist = sectp->int_floorz() - sectp->int_ceilingz();
+	double floorceildist = sectp->floorz - sectp->ceilingz;
 
 	if (sectp->lotag != ST_23_SWINGING_DOOR)
 	{
 		if (actor->spr.pal == 1)
-			squishme = floorceildist < (32 << 8) && (sectp->lotag & 32768) == 0;
+			squishme = floorceildist < 32 && (sectp->lotag & 32768) == 0;
 		else
-			squishme = floorceildist < (12 << 8);
+			squishme = floorceildist < 12;
 	}
 
 	if (squishme)
@@ -267,7 +267,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 		while (auto dasectp = search.GetNext())
 		{
-			if (((dasectp->int_ceilingz() - actor->int_pos().Z) >> 8) < r)
+			if (((dasectp->int_ceilingz() - actor->int_pos().Z) >> 8) < r) // what value range is this supposed to be?
 			{
 				auto wal = dasectp->firstWall();
 				int d = abs(wal->wall_int_pos().X - actor->int_pos().X) + abs(wal->wall_int_pos().Y - actor->int_pos().Y);
