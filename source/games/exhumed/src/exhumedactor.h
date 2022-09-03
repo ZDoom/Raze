@@ -43,7 +43,12 @@ public:
 	DExhumedActor() = default;
 
 	void Serialize(FSerializer& arc) override;
-	void VelFromAngle(int shift = 0);
+	void VelFromAngle(int shift = 0)
+	{
+		vel.XY() = spr.angle.ToVector() * (1 << (10 + shift));
+	}
+
+
 };
 
 // subclassed to add a game specific actor() method
