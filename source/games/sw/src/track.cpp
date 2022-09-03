@@ -959,10 +959,10 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->max_damage = -9999;
 
         sop->scale_type = SO_SCALE_NONE;
-        sop->_scale_dist = 0;
-        sop->scale_speed = 20;
-        sop->_scale_dist_min = -1024;
-        sop->_scale_dist_max = 1024;
+        sop->scale_dist = 0;
+        sop->scale_speed = 1.25;
+        sop->scale_dist_min = -64;
+        sop->scale_dist_max = 64;
         sop->scale_rand_freq = 64>>3;
 
         sop->scale_x_mult = 256;
@@ -1034,9 +1034,9 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                 case SO_SCALE_INFO:
                     sop->flags |= (SOBJ_DYNAMIC);
-                    sop->scale_speed = SP_TAG2(actor);
-                    sop->_scale_dist_min = -SP_TAG5(actor);
-                    sop->_scale_dist_max = SP_TAG6(actor);
+                    sop->scale_speed = SP_TAG2(actor) * maptoworld;
+                    sop->scale_dist_min = -SP_TAG5(actor) * maptoworld;
+                    sop->scale_dist_max = SP_TAG6(actor) * maptoworld;
 
                     sop->scale_type = SP_TAG4(actor);
                     sop->scale_active_type = SP_TAG7(actor);
@@ -1047,9 +1047,9 @@ void SetupSectorObject(sectortype* sectp, short tag)
                         sop->scale_rand_freq = 64>>3;
 
                     if (SP_TAG3(actor) == 0)
-                        sop->_scale_dist = sop->_scale_dist_min;
+                        sop->scale_dist = sop->scale_dist_min;
                     else if (SP_TAG3(actor) == 1)
-                        sop->_scale_dist = sop->_scale_dist_max;
+                        sop->scale_dist = sop->scale_dist_max;
 
                     KillActor(actor);
                     break;
@@ -1087,7 +1087,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->morph_z_speed = 6;
                     sop->morph_dist_max = 64;
                     sop->morph_rand_freq = 8;
-                    sop->_scale_dist_min = -768;
+                    sop->scale_dist_min = -48;
                     KillActor(actor);
                     break;
                 case SO_FLOOR_MORPH:
@@ -1799,8 +1799,8 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
                             }
                             else
                             {
-                                int xmul = (sop->_scale_dist * sop->scale_x_mult)>>8;
-                                int ymul = (sop->_scale_dist * sop->scale_y_mult)>>8;
+                                int xmul = int(sop->scale_dist * sop->scale_x_mult)>>4;
+                                int ymul = int(sop->scale_dist * sop->scale_y_mult)>>4;
 
                                 dx = x + MulScale(xmul, bcos(ang), 14);
                                 dy = y + MulScale(ymul, bsin(ang), 14);
