@@ -4635,7 +4635,7 @@ static Collision MoveThing(DBloodActor* actor)
 				break;
 
 			case kThingZombieHead:
-				if (abs(actor->int_vel().Z) > 0x80000)
+				if (abs(actor->vel.Z) > 8)
 				{
 					sfxPlay3DSound(actor, 607, 0, 0);
 					actDamageSprite(nullptr, actor, kDamageFall, 80);
@@ -4643,7 +4643,7 @@ static Collision MoveThing(DBloodActor* actor)
 				break;
 
 			case kThingKickablePail:
-				if (abs(actor->int_vel().Z) > 0x80000)
+				if (abs(actor->vel.Z) > 8)
 					sfxPlay3DSound(actor, 374, 0, 0);
 				break;
 			}
@@ -4675,7 +4675,7 @@ static Collision MoveThing(DBloodActor* actor)
 			switch (actor->spr.type)
 			{
 			case kThingZombieHead:
-				if (abs(actor->int_vel().Z) > 0x80000)
+				if (abs(actor->vel.Z) > 8)
 				{
 					sfxPlay3DSound(actor, 607, 0, 0);
 					actDamageSprite(nullptr, actor, kDamageFall, 80);
@@ -4683,7 +4683,7 @@ static Collision MoveThing(DBloodActor* actor)
 				break;
 
 			case kThingKickablePail:
-				if (abs(actor->int_vel().Z) > 0x80000)
+				if (abs(actor->vel.Z) > 8)
 					sfxPlay3DSound(actor, 374, 0, 0);
 				break;
 			}
@@ -6411,9 +6411,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	fired->set_int_bvel_x(MulScale(a6, Cos(fired->int_ang()), 30));
 	fired->set_int_bvel_y(MulScale(a6, Sin(fired->int_ang()), 30));
 	fired->set_int_bvel_z(MulScale(a6, a4, 14));
-	fired->add_int_bvel_x(actor->int_vel().X / 2);
-	fired->add_int_bvel_y(actor->int_vel().Y / 2);
-	fired->add_int_bvel_z(actor->int_vel().Z / 2);
+	fired->vel += actor->vel * 0.5;
 	return fired;
 }
 
@@ -6456,9 +6454,10 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		break;
 	case kMissileFlameHound:
 		seqSpawn(27, spawned, -1);
-		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
-		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
-		spawned->add_int_bvel_z(actor->int_vel().Z / 2 + Random2(0x11111));
+		spawned->vel += actor->vel * 0.5;
+		spawned->vel.X += Random2F(0x11111);
+		spawned->vel.Y += Random2F(0x11111);
+		spawned->vel.Z += Random2F(0x11111);
 		break;
 	case kMissileFireballCerberus:
 		seqSpawn(61, spawned, dword_2192E0);
@@ -6466,16 +6465,18 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		break;
 	case kMissileFireballTchernobog:
 		seqSpawn(23, spawned, dword_2192D8);
-		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
-		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
-		spawned->add_int_bvel_z(actor->int_vel().Z / 2 + Random2(0x11111));
+		spawned->vel += actor->vel * 0.5;
+		spawned->vel.X += Random2F(0x11111);
+		spawned->vel.Y += Random2F(0x11111);
+		spawned->vel.Z += Random2F(0x11111);
 		break;
 	case kMissileFlameSpray:
 		if (Chance(0x8000))	seqSpawn(0, spawned, -1);
 		else seqSpawn(1, spawned, -1);
-		spawned->add_int_bvel_x(actor->int_vel().X / 2 + Random2(0x11111));
-		spawned->add_int_bvel_y(actor->int_vel().Y / 2 + Random2(0x11111));
-		spawned->add_int_bvel_z(actor->int_vel().Z / 2 + Random2(0x11111));
+		spawned->vel += actor->vel * 0.5;
+		spawned->vel.X += Random2F(0x11111);
+		spawned->vel.Y += Random2F(0x11111);
+		spawned->vel.Z += Random2F(0x11111);
 		break;
 	case kMissileFlareAlt:
 		evPostActor(spawned, 30, kCallbackFXFlareBurst);
