@@ -1284,7 +1284,7 @@ int DoActorMoveJump(DSWActor* actor)
 }
 
 
-Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, int *stopz)
+Collision move_scan(DSWActor* actor, int ang, int dist, DVector3& stop)
 {
     uint32_t cliptype = CLIPMASK_ACTOR;
 
@@ -1316,9 +1316,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     // should I look down with a FAFgetzrange to see where I am?
 
     // remember where it stopped
-    *stopx = actor->int_pos().X;
-    *stopy = actor->int_pos().Y;
-    *stopz = actor->int_pos().Z;
+    stop = actor->spr.pos;
 
     // reset position information
 	actor->spr.pos = pos;
@@ -1364,9 +1362,6 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
     int new_ang, oang;
     int save_ang = -1;
     int set;
-
-    int dist, stopx, stopy, stopz;
-    // start out with mininum distance that will be accepted as a move
     int save_dist = 500;
 
     // if on fire, run shorter distances
@@ -1417,19 +1412,22 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         }
 #endif
 
+        DVector3 stop;
+        // start out with mininum distance that will be accepted as a move
+
         // check to see how far we can move
-        auto ret = move_scan(actor, new_ang, DistToMove, &stopx, &stopy, &stopz);
+        auto ret = move_scan(actor, new_ang, DistToMove, stop);
+        int dist = (actor->spr.pos.XY() - stop.XY()).Length() * worldtoint;
 
         if (ret.type == kHitNone)
         {
             // cleanly moved in new direction without hitting something
-            actor->user.TargetDist = Distance(actor->int_pos().X, actor->int_pos().Y, stopx, stopy);
+            actor->user.TargetDist = dist;
             return new_ang;
         }
         else
         {
             // hit something
-            dist = Distance(actor->int_pos().X, actor->int_pos().Y, stopx, stopy);
 
             if (dist > save_dist)
             {
