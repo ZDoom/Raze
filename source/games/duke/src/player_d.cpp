@@ -3039,7 +3039,7 @@ HORIZONLY:
 	if (ud.clipping)
 	{
 		p->player_add_int_xy({ p->vel.X >> 14, p->vel.Y >> 14 });
-		updatesector(p->player_int_pos().X, p->player_int_pos().Y, &p->cursector);
+		updatesector(p->pos, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else

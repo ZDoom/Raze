@@ -2001,7 +2001,7 @@ void DoPlayerMove(PLAYER* pp)
             pp->opos.XY() = pp->pos.XY();
         }
         pp->add_int_ppos_XY({ pp->vect.X >> 14, pp->vect.Y >> 14 });
-        updatesector(pp->int_ppos().X, pp->int_ppos().Y, &sect);
+        updatesector(pp->pos, &sect);
         if (sect != nullptr)
             pp->cursector = sect;
     }

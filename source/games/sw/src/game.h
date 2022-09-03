@@ -625,7 +625,7 @@ struct PLAYER
     DVector3 si; // save player interp position for PlayerSprite
     DAngle siang;
 
-    vec2_t vect, ovect, slide_vect; // these need floatification, but must be done together.
+    vec2_t vect, ovect, slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
     int friction;
     int16_t slide_ang; // todo: floatify
     int slide_dec;

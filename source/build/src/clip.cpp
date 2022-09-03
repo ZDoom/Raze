@@ -1133,7 +1133,9 @@ static inline void hit_set(HitInfoBase *hit, sectortype* sect, walltype* wal, DC
     hit->hitSector = sect;
     hit->hitWall = wal;
     hit->hitActor = actor;
-	hit->set_int_hitpos(x, y, z);
+    hit->hitpos.X = x * inttoworld;
+    hit->hitpos.Y = y * inttoworld;
+    hit->hitpos.Z = z * zinttoworld;
 }
 
 static int32_t hitscan_hitsectcf=-1;
@@ -1212,7 +1214,8 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
     if (startsect == nullptr)
         return -1;
 
-	hitinfo. set_int_hitpos_xy(hitscangoal.X, hitscangoal.Y);
+    hitinfo.hitpos.X = hitscangoal.X * inttoworld;
+    hitinfo.hitpos.Y = hitscangoal.Y * inttoworld;
 
     BFSSectorSearch search(startsect);
     while (auto sec = search.GetNext())
@@ -1282,10 +1285,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
 				auto v = hitinfo.int_hitpos();
                 if (try_facespr_intersect(actor, *sv, vx, vy, vz, &v, 0))
                 {
-                    hitinfo.hitSector = sec;
-                    hitinfo.hitWall = nullptr;
-                    hitinfo.hitActor = actor;
-					hitinfo.set_int_hitpos(v.X, v.Y, v.Z);
+                    hit_set(&hitinfo, sec, nullptr, actor, v.X, v.Y, v.Z);
                 }
 
                 break;
