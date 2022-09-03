@@ -265,7 +265,7 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
 	});
 
-	actor->set_int_bvel_z(-0x1d555);
+	actor->vel.Z = FixedToFloat(-0x1d555);
 }
 
 static void ghostMoveDodgeDown(DBloodActor* actor)
@@ -286,7 +286,7 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 		else
 			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
 	});
-	actor->set_int_bvel_z(0x44444);
+	actor->vel.Z = FixedToFloat(0x44444);
 }
 
 static void ghostThinkChase(DBloodActor* actor)
@@ -449,7 +449,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	});
 	switch (actor->spr.type) {
 	case kDudePhantasm:
-		actor->set_int_bvel_z(0x44444);
+		actor->vel.Z = FixedToFloat(0x44444);
 		break;
 	}
 }

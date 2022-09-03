@@ -225,7 +225,7 @@ static void eelMoveDodgeUp(DBloodActor* actor)
 			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
 	});
 
-	actor->set_int_bvel_z(-0x8000);
+	actor->vel.Z = -0.5;
 }
 
 static void eelMoveDodgeDown(DBloodActor* actor)
@@ -244,7 +244,7 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
 	});
 
-	actor->set_int_bvel_z(0x44444);
+	actor->vel.Z = FixedToFloat(0x44444);
 }
 
 static void eelThinkChase(DBloodActor* actor)
@@ -346,7 +346,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 		t1 += FixedToFloat(nAccel * 0.5);
 	});
 
-	actor->set_int_bvel_z(0x22222);
+	actor->vel.Z = FixedToFloat(0x22222);
 }
 
 static void eelMoveAscend(DBloodActor* actor)
@@ -367,7 +367,7 @@ static void eelMoveAscend(DBloodActor* actor)
 		t1 += FixedToFloat(nAccel * 0.5);
 	});
 
-	actor->set_int_bvel_z(-0x8000);
+	actor->vel.Z = FixedToFloat(-0x8000);
 }
 
 void eelMoveToCeil(DBloodActor* actor)

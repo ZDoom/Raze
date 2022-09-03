@@ -210,7 +210,7 @@ static void batMoveDodgeUp(DBloodActor* actor)
 			t2 -= pDudeInfo->sideSpeed;
 	});
 
-	actor->set_int_bvel_z(-0x52aaa);
+	actor->vel.Z = FixedToFloat(-0x52aaa);
 }
 
 static void batMoveDodgeDown(DBloodActor* actor)
@@ -229,7 +229,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
 			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
 	});
 
-	actor->set_int_bvel_z(0x44444);
+	actor->vel.Z = FixedToFloat(0x44444);
 }
 
 static void batThinkChase(DBloodActor* actor)
@@ -337,7 +337,7 @@ static void batMoveSwoop(DBloodActor* actor)
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += FixedToFloat(nAccel) * 0.5;
 	});
-	actor->set_int_bvel_z(0x44444);
+	actor->vel.Z = FixedToFloat(0x44444);
 }
 
 static void batMoveFly(DBloodActor* actor)
@@ -360,7 +360,7 @@ static void batMoveFly(DBloodActor* actor)
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += FixedToFloat(nAccel) * 0.5;
 	});
-	actor->set_int_bvel_z(-0x2d555);
+	actor->vel.Z = FixedToFloat(-0x2d555);
 }
 
 void batMoveToCeil(DBloodActor* actor)

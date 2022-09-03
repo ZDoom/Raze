@@ -4948,7 +4948,7 @@ void MoveDude(DBloodActor* actor)
 				pPlayer->bubbleTime = 0;
 				if (!pPlayer->cantJump && (pPlayer->input.actions & SB_JUMP))
 				{
-					actor->set_int_bvel_z(-0x6aaaa);
+					actor->vel.Z = FixedToFloat(-0x6aaaa);
 					pPlayer->cantJump = 1;
 				}
 				sfxPlay3DSound(actor, 721, -1, 0);
@@ -6844,7 +6844,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 								else if (t3 > FX_NONE) pFX = gFX.fxSpawnActor(t3, pSector1, xx, yy, zz, 0);
 								if (pFX)
 								{
-									pFX->set_int_bvel_z(0x2222);
+									pFX->vel.Z = FixedToFloat(0x2222);
 									pFX->set_int_ang((GetWallAngle(pWall) + 512) & 2047);
 									pFX->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 								}
