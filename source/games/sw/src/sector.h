@@ -54,7 +54,6 @@ enum SO_SCALE_TYPE
     SO_SCALE_RANDOM_POINT
 };
 
-#define SCALE_POINT_SPEED (4 + RandomRange(8))
 
 struct NEAR_TAG_INFO
 {

@@ -253,42 +253,38 @@ void ScaleSectorObject(SECTOR_OBJECT* sop)
 
 DVector2 ScaleRandomPoint(SECTOR_OBJECT* sop, short k, DAngle ang, const DVector2& pos)
 {
-    int xmul, ymul;
-
-    sop->_scale_point_dist[k] += sop->_scale_point_speed[k];
-    if (sop->_scale_point_dist[k] > sop->_scale_point_dist_max)
+    sop->scale_point_dist[k] += sop->scale_point_speed[k];
+    if (sop->scale_point_dist[k] > sop->scale_point_dist_max)
     {
-        sop->_scale_point_speed[k] *= -1;
-        sop->_scale_point_dist[k] = sop->_scale_point_dist_max;
+        sop->scale_point_speed[k] *= -1;
+        sop->scale_point_dist[k] = sop->scale_point_dist_max;
     }
-    else if (sop->_scale_point_dist[k] < sop->_scale_point_dist_min)
+    else if (sop->scale_point_dist[k] < sop->scale_point_dist_min)
     {
-        sop->_scale_point_speed[k] *= -1;
-        sop->_scale_point_dist[k] = sop->_scale_point_dist_min;
+        sop->scale_point_speed[k] *= -1;
+        sop->scale_point_dist[k] = sop->scale_point_dist_min;
     }
 
     if (RANDOM_P2(1024) < sop->scale_point_rand_freq)
     {
-        sop->_scale_point_speed[k] *= -1;
+        sop->scale_point_speed[k] *= -1;
     }
 
     // change up speed at random
     if (RANDOM_P2(1024) < (sop->scale_point_rand_freq / 2))
     {
-        //sop->scale_point_speed[k] = SCALE_POINT_SPEED;
-        short half = sop->_scale_point_base_speed / 2;
-        short quart = sop->_scale_point_base_speed / 4;
-        sop->_scale_point_speed[k] = sop->_scale_point_base_speed + (RandomRange(half) - quart);
+        double half = sop->scale_point_base_speed / 2;
+        double quart = sop->scale_point_base_speed / 4;
+        sop->scale_point_speed[k] = sop->scale_point_base_speed + (RandomRangeF(half) - quart);
     }
 
-    xmul = (sop->_scale_point_dist[k] * sop->scale_x_mult) >> 8;
-    ymul = (sop->_scale_point_dist[k] * sop->scale_y_mult) >> 8;
-    DVector2 mul(xmul / 16., ymul / 16.);
+    double xmul = (sop->scale_point_dist[k] * sop->scale_x_mult) * (1 / 256.);
+    double ymul = (sop->scale_point_dist[k] * sop->scale_y_mult) * (1 / 256.);
 
     DVector2 ret;
 
-    ret.X = pos.X + mul.X * ang.Cos();
-    ret.Y = pos.Y + mul.Y * ang.Sin();
+    ret.X = pos.X + xmul * ang.Cos();
+    ret.Y = pos.Y + ymul * ang.Sin();
     return ret;
 }
 

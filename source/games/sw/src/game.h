@@ -114,6 +114,10 @@ inline int RANDOM(void)
     randomseed = ((randomseed * 21 + 1) & 65535);
     return randomseed;
 }
+inline double RandomRangeF(double range)
+{
+    return RANDOM() * range / 65536;
+}
 int RANDOM_P2(int pwr_of_2) { return (RANDOM() & (pwr_of_2 - 1)); }
 double RANDOM_P2F(int pwr_of_2, int shift) { return (RANDOM() & ((pwr_of_2 << shift) - 1)) * (1./(1 << shift)); }
 DAngle RANDOM_ANGLE() { return DAngle::fromBuild(RANDOM_P2(2048)); }
@@ -1522,15 +1526,15 @@ struct SECTOR_OBJECT
     double  scale_dist,         // distance from center
             scale_dist_min,     // absolute min
             scale_dist_max,     // absolute max
-            scale_speed;        // speed of scaling
+            scale_speed,        // speed of scaling
 
     // values for single point scaling
-    int16_t _scale_point_dist[MAX_SO_POINTS],         // distance from center
-            _scale_point_speed[MAX_SO_POINTS],        // speed of scaling
-            _scale_point_base_speed,                       // base speed of scaling
-            _scale_point_dist_min,     // absolute min
-            _scale_point_dist_max,     // absolute max
-            scale_point_rand_freq,    // freqency of direction change - based on rand(1024)
+            scale_point_dist[MAX_SO_POINTS],         // distance from center
+            scale_point_speed[MAX_SO_POINTS],        // speed of scaling
+            scale_point_base_speed,                       // base speed of scaling
+            scale_point_dist_min,     // absolute min
+            scale_point_dist_max;     // absolute max
+     int16_t scale_point_rand_freq,    // freqency of direction change - based on rand(1024)
 
             scale_x_mult,           // x multiplyer for scaling
             scale_y_mult,           // y multiplyer for scaling

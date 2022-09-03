@@ -1012,11 +1012,11 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                 case SO_SCALE_POINT_INFO:
 
-                    memset(sop->_scale_point_dist,0,sizeof(sop->_scale_point_dist));
-                    sop->_scale_point_base_speed = SP_TAG2(actor);
-                    for (j = 0; j < (int)SIZ(sop->_scale_point_speed); j++)
+                    memset(sop->scale_point_dist,0,sizeof(sop->scale_point_dist));
+                    sop->scale_point_base_speed = SP_TAG2(actor) * maptoworld;
+                    for (j = 0; j < (int)SIZ(sop->scale_point_speed); j++)
                     {
-                        sop->_scale_point_speed[j] = SP_TAG2(actor);
+                        sop->scale_point_speed[j] = SP_TAG2(actor) * maptoworld;
                     }
 
                     if (SP_TAG4(actor))
@@ -1024,8 +1024,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     else
                         sop->scale_point_rand_freq = 64;
 
-                    sop->_scale_point_dist_min = -SP_TAG5(actor);
-                    sop->_scale_point_dist_max = SP_TAG6(actor);
+                    sop->scale_point_dist_min = -SP_TAG5(actor) * maptoworld;
+                    sop->scale_point_dist_max = SP_TAG6(actor) * maptoworld;
                     KillActor(actor);
                     break;
 
@@ -1105,13 +1105,13 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->scale_type = SO_SCALE_RANDOM_POINT;
                     sop->PreMoveAnimator = ScaleSectorObject;
 
-                    memset(sop->_scale_point_dist,0,sizeof(sop->_scale_point_dist));;
-                    sop->_scale_point_base_speed = SCALE_POINT_SPEED;
-                    for (j = 0; j < (int)SIZ(sop->_scale_point_speed); j++)
-                        sop->_scale_point_speed[j] = SCALE_POINT_SPEED;
+                    memset(sop->scale_point_dist,0,sizeof(sop->scale_point_dist));;
+                    sop->scale_point_base_speed = 0.25 + RandomRangeF(0.5);
+                    for (j = 0; j < (int)SIZ(sop->scale_point_speed); j++)
+                        sop->scale_point_speed[j] = 0.25 + RandomRangeF(0.5);
 
-                    sop->_scale_point_dist_min = -256;
-                    sop->_scale_point_dist_max = 256;
+                    sop->scale_point_dist_min = -16;
+                    sop->scale_point_dist_max = 16;
                     sop->scale_point_rand_freq = 32;
                     KillActor(actor);
                     break;
@@ -1792,8 +1792,8 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
                             }
                             else
                             {
-                                double xmul = (sop->scale_dist * sop->scale_x_mult) / 256.;
-                                double ymul = (sop->scale_dist * sop->scale_y_mult) / 256.;
+                                double xmul = (sop->scale_dist * sop->scale_x_mult) * (1 / 256.);
+                                double ymul = (sop->scale_dist * sop->scale_y_mult) * (1 / 256.);
 
                                 dpos.X = pos.X + xmul * ang.Cos();
                                 dpos.Y = pos.Y + ymul * ang.Sin();
