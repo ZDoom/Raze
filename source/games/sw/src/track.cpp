@@ -1792,12 +1792,11 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
                             }
                             else
                             {
-                                int xmul = int(sop->scale_dist * sop->scale_x_mult)>>4;
-                                int ymul = int(sop->scale_dist * sop->scale_y_mult)>>4;
-                                DVector2 mul(xmul / 16., ymul / 16.);
+                                double xmul = (sop->scale_dist * sop->scale_x_mult) / 256.;
+                                double ymul = (sop->scale_dist * sop->scale_y_mult) / 256.;
 
-                                dpos.X = pos.X + mul.X * ang.Cos();
-                                dpos.Y = pos.Y + mul.Y * ang.Sin();
+                                dpos.X = pos.X + xmul * ang.Cos();
+                                dpos.Y = pos.Y + ymul * ang.Sin();
                             }
                         }
                     }
