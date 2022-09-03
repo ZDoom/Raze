@@ -224,10 +224,7 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 {
 	Collision c;
 
-	return movesprite_ex(actor,
-		MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14),
-		MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14), actor->int_zvel(),
-		cliptype, c) == kHitNone;
+	return movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z), cliptype, c) == kHitNone;
 }
 
 //---------------------------------------------------------------------------

@@ -1724,8 +1724,7 @@ void movetransports_r(void)
 
 								ChangeActorSect(act2, Owner->sector());
 
-								movesprite_ex(act2, MulScale(act2->int_xvel(), bcos(act2->int_ang()), 14),
-									MulScale(act2->int_xvel(), bsin(act2->int_ang()), 14), 0, CLIPMASK1, coll);
+								movesprite_ex(act2, DVector3(act2->spr.angle.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
 
 								break;
 							case 161:
@@ -1736,8 +1735,7 @@ void movetransports_r(void)
 
 								ChangeActorSect(act2, Owner->sector());
 
-								movesprite_ex(act2, MulScale(act2->int_xvel(), bcos(act2->int_ang()), 14),
-									MulScale(act2->int_xvel(), bsin(act2->int_ang()), 14), 0, CLIPMASK1, coll);
+								movesprite_ex(act2, DVector3(act2->spr.angle.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
 
 								break;
 							}
@@ -2678,10 +2676,7 @@ void moveactors_r(void)
 				}
 				if (sectp->lotag == 903)
 					makeitfall(act);
-				movesprite_ex(act,
-					MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
-					MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
-					act->int_zvel(),CLIPMASK0, coll);
+				movesprite_ex(act, DVector3(act->spr.angle.ToVector() * act->vel.X, act->vel.Z), CLIPMASK0, coll);
 				switch (sectp->lotag)
 				{
 					case 901:
@@ -2719,10 +2714,7 @@ void moveactors_r(void)
 					continue;
 				}
 				makeitfall(act);
-				movesprite_ex(act,
-					MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
-					MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
-					act->int_zvel(),CLIPMASK0, coll);
+				movesprite_ex(act, DVector3(act->spr.angle.ToVector() * act->vel.X, act->vel.Z), CLIPMASK0, coll);
 				if (coll.type > kHitSector)
 				{
 					deletesprite(act);
@@ -2750,10 +2742,7 @@ void moveactors_r(void)
 					continue;
 				}
 				makeitfall(act);
-				movesprite_ex(act,
-					MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
-					MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
-					act->int_zvel(),CLIPMASK0, coll);
+				movesprite_ex(act, DVector3(act->spr.angle.ToVector() * act->vel.X, act->vel.Z), CLIPMASK0, coll);
 				if (act->spr.pos.Z >= sectp->floorz - 8)
 				{
 					if (sectp->lotag == 1)
@@ -2766,7 +2755,7 @@ void moveactors_r(void)
 				}
 				break;
 			case BOWLINGBALL:
-				if (act->int_xvel())
+				if (act->vel.X != 0)
 				{
 					if(!S_CheckSoundPlaying(356))
 						S_PlayActorSound(356,act);
@@ -2847,13 +2836,10 @@ void moveactors_r(void)
 
 			case POWDERKEG:
 				if (!isRRRA() || (sectp->lotag != 1 && sectp->lotag != 160))
-					if (act->int_xvel())
+					if (act->vel.X != 0)
 					{
-						movesprite_ex(act,
-							MulScale(act->int_xvel(), bcos(act->int_ang()), 14),
-							MulScale(act->int_xvel(), bsin(act->int_ang()), 14),
-							act->int_zvel(),CLIPMASK0, coll);
-						act->add_int_xvel(-1);
+						movesprite_ex(act, DVector3(act->spr.angle.ToVector()* act->vel.X, act->vel.Z), CLIPMASK0, coll);
+						act->vel.X -= 1. / 16.;
 					}
 				break;
 
