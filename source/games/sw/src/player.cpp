@@ -160,7 +160,7 @@ void DoPlayerBeginDive(PLAYER* pp);
 void DoPlayerDive(PLAYER* pp);
 void DoPlayerTeleportPause(PLAYER* pp);
 bool PlayerFlyKey(void);
-void OperateSectorObject(SECTOR_OBJECT* sop, short newang, const DVector2& newpos);
+void OperateSectorObject(SECTOR_OBJECT* sop, DAngle newang, const DVector2& newpos);
 void CheckFootPrints(PLAYER* pp);
 bool DoPlayerTestCrawl(PLAYER* pp);
 void DoPlayerDeathFlip(PLAYER* pp);
@@ -1540,10 +1540,10 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
         }
 
         pp->angle.ang = new_ang;
-        pp->actor->set_int_ang(pp->angle.ang.Buildang());
+        pp->actor->spr.angle = pp->angle.ang;
     }
 
-    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), pp->sop->pmid);
+    OperateSectorObject(pp->sop, pp->angle.ang, pp->sop->pmid);
 }
 
 void SlipSlope(PLAYER* pp)
@@ -2532,7 +2532,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     }
 
     auto save_sect = pp->cursector;
-    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), { MAXSO, MAXSO });
+    OperateSectorObject(pp->sop, pp->angle.ang, { MAXSO, MAXSO });
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
     floor_dist = abs(z - pp->sop->floor_loz * worldtoint);
@@ -2634,7 +2634,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         }
     }
 
-    OperateSectorObject(pp->sop, pp->angle.ang.Buildang(), { pp->int_ppos().X * inttoworld, pp->int_ppos().Y * inttoworld });
+    OperateSectorObject(pp->sop, pp->angle.ang, pp->pos.XY());
     pp->cursector = save_sect; // for speed
 
     if (!SyncInput())

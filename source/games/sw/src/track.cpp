@@ -2542,9 +2542,9 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2
     RefreshPoints(sop, pos - sop->pmid.XY(), false);
 }
 
-void OperateSectorObject(SECTOR_OBJECT* sop, short newang, const DVector2& pos)
+void OperateSectorObject(SECTOR_OBJECT* sop, DAngle newang, const DVector2& pos)
 {
-    OperateSectorObjectForTics(sop, newang, pos, synctics);
+    OperateSectorObjectForTics(sop, newang.Buildang(), pos, synctics);
 }
 
 void PlaceSectorObject(SECTOR_OBJECT* sop, const DVector2& pos)
