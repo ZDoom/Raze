@@ -1487,9 +1487,8 @@ struct SECTOR_OBJECT
            morph_z_min,    // morphing point z min
            morph_z_max;
 
-    int16_t xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
-            yorig[MAX_SO_POINTS],   // refreshed
-            max_damage,     // max damage
+    DVector2 orig[MAX_SO_POINTS];   // save the original x & y location of each wall so it can be
+    int16_t max_damage,     // max damage
             ram_damage,     // damage taken by ramming
             wait_tics,      //
             num_sectors,    // number of sectors

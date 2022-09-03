@@ -154,7 +154,7 @@ short MultiClipTurn(PLAYER* pp, short new_ang, int z, int floor_dist)
     return true;
 }
 
-int testquadinsect(int *point_num, vec2_t const * q, sectortype* sect)
+int testquadinsect(int *point_num, DVector2 const * qp, sectortype* sect)
 {
     int i,next_i;
 
@@ -162,7 +162,7 @@ int testquadinsect(int *point_num, vec2_t const * q, sectortype* sect)
 
     for (i=0; i < 4; i++)
     {
-        if (!inside(q[i].X, q[i].Y, sect))
+        if (!inside(qp[i].X, qp[i].Y, sect))
         {
             *point_num = i;
 
@@ -173,8 +173,7 @@ int testquadinsect(int *point_num, vec2_t const * q, sectortype* sect)
     for (i=0; i<4; i++)
     {
         next_i = (i+1) & 3;
-        if (!cansee(q[i].X, q[i].Y,0x3fffffff, sect,
-                    q[next_i].X, q[next_i].Y,0x3fffffff, sect))
+        if (!cansee(DVector3(qp[i], 0x3fffff), sect, DVector3(qp[next_i], 0x3fffff), sect))
         {
             return false;
         }
@@ -185,22 +184,22 @@ int testquadinsect(int *point_num, vec2_t const * q, sectortype* sect)
 
 
 //Ken gives the tank clippin' a try...
-int RectClipMove(PLAYER* pp, int *qx, int *qy)
+int RectClipMove(PLAYER* pp, DVector2* qpos)
 {
     int i;
-    vec2_t xy[4];
+    DVector2 xy[4];
     int point_num;
+    DVector2 pvect((pp->vect.X >> 14) * inttoworld, (pp->vect.Y >> 14) * inttoworld);
 
     for (i = 0; i < 4; i++)
     {
-        xy[i].X = qx[i] + (pp->vect.X>>14);
-        xy[i].Y = qy[i] + (pp->vect.Y>>14);
+        xy[i] = qpos[i] + pvect;
     }
 
     //Given the 4 points: x[4], y[4]
     if (testquadinsect(&point_num, xy, pp->cursector))
     {
-        pp->add_int_ppos_XY({ (pp->vect.X >> 14), (pp->vect.Y >> 14) });
+        pp->pos += pvect;
         return true;
     }
 
@@ -211,12 +210,12 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
     {
         for (i = 0; i < 4; i++)
         {
-            xy[i].X = qx[i] - (pp->vect.Y>>15);
-            xy[i].Y = qy[i] + (pp->vect.X>>15);
+            xy[i].X = qpos[i].X - pvect.Y * 0.5;
+            xy[i].Y = qpos[i].Y + pvect.X * 0.5;
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->add_int_ppos_XY({ -(pp->vect.Y >> 15), (pp->vect.X >> 15) });
+            pp->pos.XY() += { -pvect.X * 0.5, pvect.X * 0.5 };
         }
 
         return false;
@@ -226,12 +225,12 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
     {
         for (i = 0; i < 4; i++)
         {
-            xy[i].X = qx[i] + (pp->vect.Y>>15);
-            xy[i].Y = qy[i] - (pp->vect.X>>15);
+            xy[i].X = qpos[i].X + pvect.Y * 0.5;
+            xy[i].Y = qpos[i].Y - pvect.X * 0.5;
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->add_int_ppos_XY({ (pp->vect.Y >> 15), -(pp->vect.X >> 15) });
+            pp->pos.XY() += { pvect.X * 0.5, -pvect.X * 0.5 };
         }
 
         return false;
@@ -240,42 +239,29 @@ int RectClipMove(PLAYER* pp, int *qx, int *qy)
     return false;
 }
 
-int testpointinquad(int x, int y, int *qx, int *qy)
+int testpointinquad(const DVector2& pt, const DVector2* quad)
 {
-    int i, cnt, x1, y1, x2, y2;
-
-    cnt = 0;
-    for (i=0; i<4; i++)
+    for (int i = 0; i < 4; i++)
     {
-        y1 = qy[i]-y;
-        y2 = qy[(i+1)&3]-y;
-        if ((y1^y2) >= 0) continue;
-
-        x1 = qx[i]-x;
-        x2 = qx[(i+1)&3]-x;
-        if ((x1^x2) >= 0)
-            cnt ^= x1;
-        else
-            cnt ^= (x1*y2-x2*y1)^y2;
+        double dist = PointOnLineSide(pt.X, pt.Y, quad[i].X, quad[i].Y, quad[(i + 1) & 3].X - quad[i].X, quad[(i + 1) & 3].Y - quad[i].Y);
+        if (dist > 0) return false;
     }
-    return cnt>>31;
+    return true;
 }
 
-short RectClipTurn(PLAYER* pp, short new_ang, int *qx, int *qy, int *ox, int *oy)
+short RectClipTurn(PLAYER* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
 {
     int i;
-    vec2_t xy[4];
+    DVector2 xy[4];
     SECTOR_OBJECT* sop = pp->sop;
-    short rot_ang;
+    DAngle rot_angl;
     int point_num;
 
-    rot_ang = NORM_ANGLE(new_ang + sop->spin_ang - sop->ang_orig);
+    rot_angl = new_angl + DAngle::fromBuild(sop->spin_ang - sop->ang_orig);
     for (i = 0; i < 4; i++)
     {
-        vec2_t const p = { ox[i], oy[i] };
-        rotatepoint(pp->int_ppos().vec2, p, rot_ang, &xy[i]);
+        xy[i] = rotatepoint(pp->pos.XY(), opos[i], rot_angl);
         // cannot use sop->xmid and ymid because the SO is off the map at this point
-        //rotatepoint(&sop->xmid, p, rot_ang, &xy[i]);
     }
 
     //Given the 4 points: x[4], y[4]
@@ -284,8 +270,7 @@ short RectClipTurn(PLAYER* pp, short new_ang, int *qx, int *qy, int *ox, int *oy
         // move to new pos
         for (i = 0; i < 4; i++)
         {
-            qx[i] = xy[i].X;
-            qy[i] = xy[i].Y;
+            qpos[i] = xy[i];
         }
         return true;
     }

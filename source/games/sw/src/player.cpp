@@ -1477,7 +1477,7 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, int z, int floor_dist)
     }
 }
 
-void DoPlayerTurnVehicleRect(PLAYER* pp, int *x, int *y, int *ox, int *oy)
+void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
 {
     float avel;
     SECTOR_OBJECT* sop = pp->sop;
@@ -1497,10 +1497,10 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, int *x, int *y, int *ox, int *oy)
     if (avel != 0)
     {
         auto sum = pp->angle.ang + DAngle::fromDeg(avel);
-        if (RectClipTurn(pp, NORM_ANGLE(sum.Buildang()), x, y, ox, oy))
+        if (RectClipTurn(pp, sum, pos, opos))
         {
             pp->angle.ang = sum;
-            pp->actor->set_int_ang(pp->angle.ang.Buildang());
+            pp->actor->spr.angle = pp->angle.ang;
         }
     }
 }
@@ -2301,10 +2301,8 @@ void SetupDriveCrush(PLAYER* pp, int *x, int *y)
     y[3] = pp->int_ppos().Y + radius;
 }
 
-void DriveCrush(PLAYER* pp, int *x, int *y)
+void DriveCrush(PLAYER* pp, DVector2* quad)
 {
-    int testpointinquad(int x, int y, int *qx, int *qy);
-
     SECTOR_OBJECT* sop = pp->sop_control;
     short stat;
     sectortype* *sectp;
@@ -2320,7 +2318,7 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
     SWSectIterator it(sop->op_main_sector);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->int_pos().X, actor->int_pos().Y, x, y))
+        if (testpointinquad(actor->spr.pos, quad))
         {
             if ((actor->spr.extra & SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
                 continue;
@@ -2355,7 +2353,7 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
     SWStatIterator it2(STAT_ENEMY);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->int_pos().X, actor->int_pos().Y, x, y))
+        if (testpointinquad(actor->spr.pos, quad))
         {
             //if (actor->spr.z < pp->posz)
             if (actor->int_pos().Z < sop->crush_z)
@@ -2382,7 +2380,7 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
     it2.Reset(STAT_DEAD_ACTOR);
     while (auto actor = it.Next())
     {
-        if (testpointinquad(actor->int_pos().X, actor->int_pos().Y, x, y))
+        if (testpointinquad(actor->spr.pos, quad))
         {
             if (actor->int_pos().Z < sop->crush_z)
                 continue;
@@ -2404,7 +2402,7 @@ void DriveCrush(PLAYER* pp, int *x, int *y)
         if (actor->user.PlayerP == pp)
             continue;
 
-        if (testpointinquad(actor->int_pos().X, actor->int_pos().Y, x, y))
+        if (testpointinquad(actor->spr.pos, quad))
         {
             int damage;
 
@@ -2451,7 +2449,6 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     DSWActor* actor = pp->sop->sp_child;
     if (!actor) return;
     DSWActor* plActor = pp->actor;
-    int x[4], y[4], ox[4], oy[4];
     int wallcount;
     int count=0;
 
@@ -2512,6 +2509,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     pp->lastcursector = pp->cursector;
     z = pp->int_ppos().Z + Z(10);
 
+    DVector2 pos[4], opos[4];
+
     if (RectClip)
     {
         for (sectp = sop->sectp, wallcount = 0, j = 0; *sectp; sectp++, j++)
@@ -2520,12 +2519,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
             {
                 if (wal.extra && (wal.extra & (WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY)) == WALLFX_LOOP_OUTER)
                 {
-                    x[count] = wal.wall_int_pos().X;
-                    y[count] = wal.wall_int_pos().Y;
-
-                    ox[count] = sop->int_pmid().X - sop->xorig[wallcount];
-                    oy[count] = sop->int_pmid().Y - sop->yorig[wallcount];
-
+                    pos[count] = wal.pos;
+                    opos[count] = sop->pmid - sop->orig[wallcount];
                     count++;
                 }
 
@@ -2551,10 +2546,10 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
         auto save_cstat = plActor->spr.cstat;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
-        DoPlayerTurnVehicleRect(pp, x, y, ox, oy);
+        DoPlayerTurnVehicleRect(pp, pos, opos);
 
-        ret = RectClipMove(pp, x, y);
-        DriveCrush(pp, x, y);
+        ret = RectClipMove(pp, pos);
+        DriveCrush(pp, pos);
         plActor->spr.cstat = save_cstat;
 
         if (!ret)
@@ -2563,14 +2558,13 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
             if (vel > 13000)
             {
-                vec3_t hit_pos = { (x[0] + x[1]) >> 1, (y[0] + y[1]) >> 1, pp->cursector->int_floorz() - Z(10) };
-                DVector3 hitpos(hit_pos.X * inttoworld, hit_pos.Y * inttoworld, pp->cursector->floorz - 10);
+                DVector3 hitpos((pos[0] + pos[1]) * 0.5, pp->cursector->floorz - 10);
 
                 hitscan(hitpos, pp->cursector,
                     DVector3(MOVEx(256, pp->angle.ang), MOVEy(256, pp->angle.ang), 0),
                     hit, CLIPMASK_PLAYER);
 
-                if (FindDistance2D(hit.int_hitpos().vec2 - hit_pos.vec2) < 800)
+                if ((hit.hitpos.XY() - hitpos.XY()).LengthSquared() < 50 * 50)
                 {
                     if (hit.hitWall)
                         actor->user.coll.setWall(wallnum(hit.hitWall));

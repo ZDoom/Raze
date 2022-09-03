@@ -1348,13 +1348,12 @@ void PlaceSectorObjectsOnTracks(void)
             // move all walls in sectors
             for (auto& wal : wallsofsector(sop->sectp[j]))
             {
-                sop->xorig[sop->num_walls] = sop->int_pmid().X - wal.wall_int_pos().X;
-                sop->yorig[sop->num_walls] = sop->int_pmid().Y - wal.wall_int_pos().Y;
+                sop->orig[sop->num_walls] = sop->pmid - wal.pos;
                 sop->num_walls++;
             }
         }
 
-        ASSERT((uint16_t)sop->num_walls < SIZ(sop->xorig));
+        ASSERT((uint16_t)sop->num_walls < SIZ(sop->orig));
 
         if (sop->track <= -1)
             continue;
@@ -1782,8 +1781,8 @@ void RefreshPoints(SECTOR_OBJECT* sop, int nx, int ny, bool dynamic)
             {
                 if (!(wal.extra && (wal.extra & WALLFX_DONT_MOVE)))
                 {
-                    dx = x = sop->int_pmid().X - sop->xorig[wallcount];
-                    dy = y = sop->int_pmid().Y - sop->yorig[wallcount];
+                    dx = x = sop->int_pmid().X - sop->orig[wallcount].X * worldtoint;
+                    dy = y = sop->int_pmid().Y - sop->orig[wallcount].Y * worldtoint;
 
                     if (dynamic && sop->scale_type)
                     {

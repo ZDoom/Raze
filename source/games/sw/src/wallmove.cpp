@@ -64,8 +64,8 @@ void SOwallmove(SECTOR_OBJECT* sop, DSWActor* actor, walltype* find_wallp, int d
                 *nx = dist * ang.Cos();
                 *ny = dist * ang.Sin();
 
-                sop->xorig[wallcount] -= *nx;
-                sop->yorig[wallcount] -= *ny;
+                sop->orig[wallcount].X -= *nx * inttoworld;
+                sop->orig[wallcount].Y -= *ny * inttoworld;
 
                 sop->flags |= (SOBJ_UPDATE_ONCE);
                 return;
