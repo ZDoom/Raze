@@ -267,7 +267,7 @@ void AISet::Tick(RunListEvent* ev)
     pushmove(pActor, &sect, pActor->spr.clipdist << 2, 5120, -5120, CLIPMASK0);
     pActor->setsector(sect);
 
-    if (pActor->float_zvel() > 4000/256.)
+    if (pActor->vel.Z > 4000/256.)
     {
         if (nMov.exbits & kHitAux2)
         {

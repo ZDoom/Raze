@@ -834,7 +834,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     Gravity(pPlayerActor);
 
-    if (pPlayerActor->float_zvel() >= 6500/256. && zVel < 6500)
+    if (pPlayerActor->vel.Z >= 6500/256. && zVel < 6500)
     {
         D3PlayFX(StaticSound[kSound17], pPlayerActor);
     }
@@ -850,7 +850,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
     int z = (pPlayerActor->int_zvel() * 4) >> 2;
 
-    if (pPlayerActor->float_zvel() > 32)
+    if (pPlayerActor->vel.Z > 32)
         pPlayerActor->set_int_zvel(8192);
 
     if (PlayerList[nPlayer].bIsMummified)

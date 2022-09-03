@@ -265,18 +265,18 @@ int DoWallBloodDrip(DSWActor* actor)
         if (actor->spr.pos.Z > actor->user.pos.Y && actor->spr.pos.Z < actor->user.pos.Z)
         {
             actor->add_int_zvel( 300);
-            actor->spr.pos.Z += actor->float_zvel();
+            actor->spr.pos.Z += actor->vel.Z;
         }
         else
         {
             actor->set_int_zvel((300+RandomRange(2300)) >> 1);
-            actor->spr.pos.Z += actor->float_zvel();
+            actor->spr.pos.Z += actor->vel.Z;
         }
     }
     else
     {
         actor->set_int_zvel((300+RandomRange(2300)) >> 1);
-        actor->spr.pos.Z += actor->float_zvel();
+        actor->spr.pos.Z += actor->vel.Z;
     }
 
     if (actor->spr.pos.Z >= actor->user.loz)
@@ -1188,7 +1188,7 @@ int SpawnRadiationCloud(DSWActor* actor)
 int DoRadiationCloud(DSWActor* actor)
 {
 	actor->spr.pos.XY() += actor->user.change;
-    actor->spr.pos.Z -= actor->float_zvel();
+    actor->spr.pos.Z -= actor->vel.Z;
 
     if (actor->user.ID)
     {

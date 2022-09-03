@@ -620,7 +620,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         if (nMov.exbits & kHitAux2)
         {
             pActor->set_int_zvel(-(pActor->int_zvel() - 256));
-            if (pActor->float_zvel() < -2)
+            if (pActor->vel.Z < -2)
             {
                 pActor->vel.Z = 0;
             }
@@ -799,7 +799,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             {
                 pActor->set_int_zvel(-(pActor->int_zvel() >> 1));
 
-                if (pActor->float_zvel() > -1)
+                if (pActor->vel.Z > -1)
                 {
                     nVelShift = 100;
                     pActor->vel.Z = 0;
@@ -819,7 +819,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 pActor->vel.X = 0;
                 pActor->vel.Y = 0;
 
-                if (pActor->float_zvel() == 0)
+                if (pActor->vel.Z == 0)
                 {
                     QueenHead.nIndex = 120;
                 }

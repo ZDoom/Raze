@@ -222,34 +222,34 @@ void AIMummy::Tick(RunListEvent* ev)
             pActor->set_int_yvel(bsin(pActor->int_ang(), -1));
         }
 
-        if (pActor->float_xvel() != 0 || pActor->float_yvel() != 0)
+        if (pActor->vel.X != 0 || pActor->vel.Y != 0)
         {
-            if (pActor->float_xvel() > 0)
+            if (pActor->vel.X > 0)
             {
                 pActor->add_int_xvel(-1024);
-                if (pActor->float_xvel() < 0) {
+                if (pActor->vel.X < 0) {
                     pActor->vel.X = 0;
                 }
             }
-            else if (pActor->float_xvel() < 0)
+            else if (pActor->vel.X < 0)
             {
                 pActor->add_int_xvel( 1024);
-                if (pActor->float_xvel() > 0) {
+                if (pActor->vel.X > 0) {
                     pActor->vel.X = 0;
                 }
             }
 
-            if (pActor->float_yvel() > 0)
+            if (pActor->vel.Y > 0)
             {
                 pActor->add_int_yvel(-1024);
-                if (pActor->float_yvel() < 0) {
+                if (pActor->vel.Y < 0) {
                     pActor->vel.Y = 0;
                 }
             }
-            else if (pActor->float_yvel() < 0)
+            else if (pActor->vel.Y < 0)
             {
                 pActor->add_int_yvel(1024);
-                if (pActor->float_yvel() > 0) {
+                if (pActor->vel.Y > 0) {
                     pActor->vel.Y = 0;
                 }
             }

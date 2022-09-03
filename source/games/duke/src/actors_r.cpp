@@ -691,9 +691,9 @@ void movefallers_r(void)
 				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
 					act->add_int_zvel( x);
-					if (act->float_zvel() > 24)
+					if (act->vel.Z > 24)
 						act->set_int_zvel(6144);
-					act->spr.pos.Z += act->float_zvel();
+					act->spr.pos.Z += act->vel.Z;
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
@@ -955,7 +955,7 @@ static void chickenarrow(DDukeActor* actor)
 			actor->set_int_ang(ang);
 
 		if (actor->spr.hitag > 180)
-			if (actor->float_zvel() <= 0)
+			if (actor->vel.Z <= 0)
 				actor->add_int_zvel( 200);
 	}
 }
@@ -1135,7 +1135,7 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		guts_r(proj, RABBITJIBC, 2, myconnectindex);
 	}
 
-	if (proj->float_zvel() < 0)
+	if (proj->vel.Z < 0)
 	{
 		if (proj->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (proj->sector()->ceilingpal == 0)
@@ -1274,7 +1274,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			}
 		}
 	}
-	else if (proj->spr.picnum == SPIT) if (proj->float_zvel() < 24)
+	else if (proj->spr.picnum == SPIT) if (proj->vel.Z < 24)
 		proj->add_int_zvel( gs.gravity - 112);
 
 	if (coll.type != 0)
@@ -1305,7 +1305,7 @@ static void weaponcommon_r(DDukeActor *proj)
 					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
-						if (proj->float_zvel() < 0)
+						if (proj->vel.Z < 0)
 						{
 							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
 							spawned->spr.pos.Z += 72;
@@ -1579,10 +1579,10 @@ void movetransports_r(void)
 			case STAT_MISC:
 			case STAT_DUMMYPLAYER:
 
-				ll = abs(act2->float_zvel());
+				ll = abs(act2->vel.Z);
 				if (isRRRA())
 				{
-					if (act2->float_zvel() >= 0)
+					if (act2->vel.Z >= 0)
 						warpdir = 2;
 					else
 						warpdir = 1;
@@ -2379,7 +2379,7 @@ static void heavyhbomb(DDukeActor *actor)
 		MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14),
 		actor->int_zvel(), CLIPMASK0, coll);
 
-	if (actor->sector()->lotag == 1 && actor->float_zvel() == 0)
+	if (actor->sector()->lotag == 1 && actor->vel.Z == 0)
 	{
 		actor->spr.pos.Z += 32;
 		if (actor->temp_data[5] == 0)
@@ -2414,15 +2414,15 @@ static void heavyhbomb(DDukeActor *actor)
 		l = Owner->PlayerIndex();
 	else l = -1;
 
-	if(actor->float_xvel() > 0)
+	if(actor->vel.X > 0)
 	{
 		actor->add_int_xvel(-5);
 		if (sectp->lotag == 2)
 			actor->add_int_xvel(-10);
 
-		if(actor->float_xvel() < 0)
+		if(actor->vel.X < 0)
 			actor->vel.X = 0;
-		if (int(actor->float_xvel() * 16) & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
+		if (int(actor->vel.X * 16) & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 
 	if (coll.type == kHitWall)
@@ -2558,7 +2558,7 @@ static int henstand(DDukeActor *actor)
 	}
 	if (actor->sector()->lotag == 900)
 		actor->vel.X = 0;
-	if(actor->float_xvel() != 0)
+	if(actor->vel.X != 0)
 	{
 		makeitfall(actor);
 		Collision coll;
@@ -2591,19 +2591,19 @@ static int henstand(DDukeActor *actor)
 			}
 		}
 		actor->add_int_xvel(-1);
-		if(actor->float_xvel() < 0) actor->vel.X = 0;
+		if(actor->vel.X < 0) actor->vel.X = 0;
 		actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		if (actor->spr.picnum == BOWLINGPIN)
 		{
-			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(int(actor->float_xvel() * 16));
-			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->float_xvel() * 16));
+			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
+			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
 			if (krand() & 1)
 				actor->spr.picnum = BOWLINGPIN + 1;
 		}
 		else if (actor->spr.picnum == HENSTAND)
 		{
-			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(int(actor->float_xvel() * 16));
-			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->float_xvel() * 16));
+			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
+			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
 			if (krand() & 1)
 				actor->spr.picnum = HENSTAND + 1;
 			if (!actor->int_xvel())
@@ -3633,13 +3633,13 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	a = badguy(actor);
 
-	if (actor->float_xvel() != 0 || actor->float_zvel() != 0)
+	if (actor->vel.X != 0 || actor->vel.Z != 0)
 	{
 		if (a)
 		{
 			if (actor->spr.picnum == DRONE && actor->spr.extra > 0)
 			{
-				if (actor->float_zvel() > 0)
+				if (actor->vel.Z > 0)
 				{
 					double dist = isRRRA() ? 28 : 30;
 					double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
@@ -3658,9 +3658,9 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					}
 				}
 			}
-			if (actor->float_zvel() > 0 && actor->floorz < actor->spr.pos.Z)
+			if (actor->vel.Z > 0 && actor->floorz < actor->spr.pos.Z)
 				actor->spr.pos.Z = actor->floorz;
-			if (actor->float_zvel() < 0)
+			if (actor->vel.Z < 0)
 			{
 				double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				if (actor->spr.pos.Z < c + 66)

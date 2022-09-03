@@ -253,7 +253,7 @@ int SetupSkull(DSWActor* actor)
 int DoSkullMove(DSWActor* actor)
 {
     auto vect = MOVExy(actor->int_xvel(), actor->spr.angle);
-    double daz = actor->float_zvel();
+    double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vect, daz), 16, 16, CLIPMASK_MISSILE, ACTORMOVETICS);
 
@@ -341,7 +341,7 @@ int DoSkullBeginDeath(DSWActor* actor)
 
 int DoSkullJump(DSWActor* actor)
 {
-    if(actor->float_xvel() != 0)
+    if(actor->vel.X != 0)
         DoSkullMove(actor);
     else
         actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (64 * ACTORMOVETICS)));
@@ -355,7 +355,7 @@ int DoSkullJump(DSWActor* actor)
         DoFall(actor);
 
         // jump/fall type
-        if(actor->float_xvel() != 0)
+        if(actor->vel.X != 0)
         {
 
             int dist,a,b,c;
@@ -710,7 +710,7 @@ int DoBettyBeginDeath(DSWActor* actor)
 
 int DoBettyJump(DSWActor* actor)
 {
-    if(actor->float_xvel() != 0)
+    if(actor->vel.X != 0)
         DoBettyMove(actor);
     else
         actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (64 * ACTORMOVETICS)));
@@ -724,7 +724,7 @@ int DoBettyJump(DSWActor* actor)
         DoFall(actor);
 
         // jump/fall type
-        if(actor->float_xvel() != 0)
+        if(actor->vel.X != 0)
         {
             int dist,a,b,c;
 

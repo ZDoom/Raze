@@ -473,7 +473,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			((actor->actorstayput != nullptr && actor->actorstayput != dasectp) ||
 			 ((actor->spr.picnum == BOSS2) && actor->spr.pal == 0 && dasectp->lotag != 3) ||
 			 ((actor->spr.picnum == BOSS1 || actor->spr.picnum == BOSS2) && dasectp->lotag == ST_1_ABOVE_WATER) ||
-			 (dasectp->lotag == ST_1_ABOVE_WATER && (actor->spr.picnum == LIZMAN || (actor->spr.picnum == LIZTROOP && actor->float_zvel() == 0)))
+			 (dasectp->lotag == ST_1_ABOVE_WATER && (actor->spr.picnum == LIZMAN || (actor->spr.picnum == LIZTROOP && actor->vel.Z == 0)))
 			))
 		 )
 		{
@@ -773,9 +773,9 @@ void movefallers_d(void)
 				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
 					act->add_int_zvel( x);
-					if (act->float_zvel() > 24)
+					if (act->vel.Z > 24)
 						act->set_int_zvel(6144);
-					act->spr.pos.Z += act->float_zvel();
+					act->spr.pos.Z += act->vel.Z;
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
@@ -1337,7 +1337,7 @@ static bool movefireball(DDukeActor* actor)
 		}
 		actor->temp_data[0]++;
 	}
-	if (actor->float_zvel() < 15000./256.)
+	if (actor->vel.Z < 15000./256.)
 		actor->add_int_zvel( 200);
 	return false;
 }
@@ -1453,7 +1453,7 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 {
 	SetActor(proj, oldpos);
 
-	if (proj->float_zvel() < 0)
+	if (proj->vel.Z < 0)
 	{
 		if (proj->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (proj->sector()->ceilingpal == 0)
@@ -1591,7 +1591,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			}
 		}
 	}
-	else if (proj->spr.picnum == SPIT) if (proj->float_zvel() < 24)
+	else if (proj->spr.picnum == SPIT) if (proj->vel.Z < 24)
 		proj->add_int_zvel( gs.gravity - 112);
 
 	if (coll.type != 0)
@@ -1642,7 +1642,7 @@ static void weaponcommon_d(DDukeActor* proj)
 					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
-						if (proj->float_zvel() < 0)
+						if (proj->vel.Z < 0)
 						{
 							spawned->spr.cstat |= CSTAT_SPRITE_YFLIP; 
 							spawned->spr.pos.Z += 72;
@@ -1704,7 +1704,7 @@ void moveweapons_d(void)
 			continue;
 
 		case FREEZEBLAST:
-			if (act->spr.yint < 1 || act->spr.extra < 2 || (act->float_xvel() == 0 && act->float_zvel() == 0))
+			if (act->spr.yint < 1 || act->spr.extra < 2 || (act->vel.X == 0 && act->vel.Z == 0))
 			{
 				auto spawned = spawn(act,TRANSPORTERSTAR);
 				if (spawned)
@@ -2397,9 +2397,9 @@ static void greenslime(DDukeActor *actor)
 		actor->spr.picnum = GREENSLIME;
 		if (actor->spr.yrepeat < 40) actor->spr.yrepeat += 8;
 		if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
-		if (actor->float_zvel() > -12)
+		if (actor->vel.Z > -12)
 			actor->add_int_zvel(- 348);
-		actor->spr.pos.Z += actor->float_zvel();
+		actor->spr.pos.Z += actor->vel.Z;
 		if (actor->spr.pos.Z < actor->ceilingz + 16)
 		{
 			actor->spr.pos.Z = actor->ceilingz + 16;
@@ -2515,7 +2515,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		else if (coll.type == kHitSector)
 		{
 			SetActor(actor, dapos);
-			if (actor->float_zvel() < 0)
+			if (actor->vel.Z < 0)
 				fi.checkhitceiling(actor->sector());
 		}
 
@@ -2600,7 +2600,7 @@ static void heavyhbomb(DDukeActor *actor)
 		MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14),
 		actor->int_zvel(), CLIPMASK0, coll);
 
-	if (actor->sector()->lotag == 1 && actor->float_zvel() == 0)
+	if (actor->sector()->lotag == 1 && actor->vel.Z == 0)
 	{
 		actor->spr.pos.Z += 32;
 		if (actor->temp_data[5] == 0)
@@ -2624,15 +2624,15 @@ static void heavyhbomb(DDukeActor *actor)
 		l = Owner->PlayerIndex();
 	else l = -1;
 
-	if(actor->float_xvel() > 0)
+	if(actor->vel.X > 0)
 	{
 		actor->add_int_xvel(-5);
 		if (sectp->lotag == 2)
 			actor->add_int_xvel(-10);
 
-		if(actor->float_xvel() < 0)
+		if(actor->vel.X < 0)
 			actor->vel.X = 0;
-		if (int(actor->float_xvel() * 16) & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
+		if (int(actor->vel.X * 16) & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 
 	if (coll.type== kHitWall)
@@ -2674,7 +2674,7 @@ DETONATEB:
 
 			fi.hitradius(actor, m, x >> 2, x >> 1, x - (x >> 2), x);
 			spawn(actor, EXPLOSION2);
-			if (actor->float_zvel() == 0)	spawn(actor, EXPLOSION2BOT);
+			if (actor->vel.Z == 0)	spawn(actor, EXPLOSION2BOT);
 			S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 			for (x = 0; x < 8; x++)
 				RANDOMSCRAP(actor);
@@ -2834,7 +2834,7 @@ void moveactors_d(void)
 		case HELECOPT:
 		case DUKECAR:
 
-			act->spr.pos.Z += act->float_zvel();
+			act->spr.pos.Z += act->vel.Z;
 			act->temp_data[0]++;
 
 			if (act->temp_data[0] == 4) S_PlayActorSound(WAR_AMBIENCE2, act);
@@ -3562,7 +3562,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	a = badguy(actor);
 
-	if (actor->float_xvel() != 0 || actor->int_zvel())
+	if (actor->vel.X != 0 || actor->int_zvel())
 	{
 		if (a && actor->spr.picnum != ROTATEGUN)
 		{
@@ -3589,7 +3589,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				}
 				else
 				{
-					if (actor->float_zvel() > 0)
+					if (actor->vel.Z > 0)
 					{
 						double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 						actor->floorz = f;
@@ -3610,9 +3610,9 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 			else if (actor->spr.picnum != ORGANTIC)
 			{
-				if (actor->float_zvel() > 0 && actor->floorz < actor->spr.pos.Z)
+				if (actor->vel.Z > 0 && actor->floorz < actor->spr.pos.Z)
 					actor->spr.pos.Z = actor->floorz;
-				if (actor->float_zvel() < 0)
+				if (actor->vel.Z < 0)
 				{
 					double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 					if (actor->spr.pos.Z < c + 66)

@@ -7715,7 +7715,7 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
         double zdiff = actor->spr.pos.Z - ActorZOfTop(goal) - (ActorSizeZ(goal) * 0.25);
         double dist = g_sqrt((actor->spr.pos.XY() - goal->spr.pos.XY()).LengthSquared() + zdiff * zdiff);
 
-        actor->user.change.Z = (actor->float_xvel()) * zdiff / dist + actor->user.change.Z * (15 / 16.);
+        actor->user.change.Z = (actor->vel.X) * zdiff / dist + actor->user.change.Z * (15 / 16.);
     }
     return 0;
 }
@@ -7921,7 +7921,7 @@ int DoPlasma(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
     auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
-    double daz = actor->float_zvel();
+    double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), 16, 16, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -8850,7 +8850,7 @@ int DoBoltThinMan(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
 	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
-	double daz = actor->float_zvel();
+	double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -9421,7 +9421,7 @@ int DoBoltSeeker(DSWActor* actor)
     DoBlurExtend(actor, 0, 4);
 
 	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
-	double daz = actor->float_zvel();
+	double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -9460,7 +9460,7 @@ int DoElectro(DSWActor* actor)
         MissileSeek(actor, 30, 512/*, 3, 52, 2*/);
 
 	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
-	double daz = actor->float_zvel();
+	double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -11102,7 +11102,7 @@ int DoSerpRing(DSWActor* actor)
         return 0;
     }
 
-    double zz = actor->int_pos().Z + actor->float_zvel();
+    double zz = actor->int_pos().Z + actor->vel.Z;
     if (zz > own->spr.pos.Z - actor->user.pos.Z)
         zz = own->spr.pos.Z - actor->user.pos.Z;
 
@@ -16187,7 +16187,7 @@ int InitEnemyFireball(DSWActor* actor)
             if (dist != 0)
             {
                 actorNew->set_int_zvel((GORO_FIREBALL_VELOCITY * (targ_z - actorNew->int_pos().Z)) / dist);
-                actorNew->user.change.Z = actorNew->float_zvel();
+                actorNew->user.change.Z = actorNew->vel.Z;
             }
             // back up first one
             lastvel = actorNew->int_zvel();
@@ -16614,13 +16614,13 @@ DSWActor* SpawnBubble(DSWActor* actor)
 int DoVehicleSmoke(DSWActor* actor)
 {
 	actor->spr.pos.XY() += actor->user.change.XY();
-    actor->spr.pos.Z -= actor->float_zvel();
+    actor->spr.pos.Z -= actor->vel.Z;
     return false;
 }
 
 int DoWaterSmoke(DSWActor* actor)
 {
-    actor->spr.pos.Z -= actor->float_zvel();
+    actor->spr.pos.Z -= actor->vel.Z;
     return false;
 }
 
@@ -16678,10 +16678,10 @@ int SpawnSmokePuff(DSWActor* actor)
 
 int DoBubble(DSWActor* actor)
 {
-    actor->spr.pos.Z -= actor->float_zvel();
+    actor->spr.pos.Z -= actor->vel.Z;
     actor->add_int_zvel( 32);
 
-    if (actor->float_zvel() > 3)
+    if (actor->vel.Z > 3)
         actor->set_int_zvel(768);
 
     // notreallypos

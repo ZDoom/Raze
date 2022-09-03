@@ -185,7 +185,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		
 		// WTF???
 		DAngle myang = (DAngle90 - (DAngle180 - fabs(fabs(VecToAngle(spos.XY() - ps[p].pos.XY()) - sang) - DAngle180)));
-		if (ps[p].GetActor()->float_xvel() != 0)
+		if (ps[p].GetActor()->vel.X != 0)
 			vel = (int)((myang.Buildang() * 0.001953125f * ps[p].GetActor()->int_xvel()) + 400);
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
@@ -3079,7 +3079,7 @@ HORIZONLY:
 		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
 			auto secact = barrier_cast<DDukeActor*>(psectp->hitagactor);
-			if (secact && secact->float_xvel() != 0 && secact->temp_data[0] == 0)
+			if (secact && secact->vel.X != 0 && secact->temp_data[0] == 0)
 			{
 				quickkill(p);
 				return;

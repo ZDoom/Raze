@@ -305,7 +305,7 @@ void AIRat::Tick(RunListEvent* ev)
     }
     case 2:
     {
-        if (pActor->float_xvel() != 0 || pActor->float_yvel() != 0 || pActor->float_zvel() != 0) {
+        if (pActor->vel.X != 0 || pActor->vel.Y != 0 || pActor->vel.Z != 0) {
             MoveCreature(pActor);
         }
 
@@ -317,7 +317,7 @@ void AIRat::Tick(RunListEvent* ev)
             if (pActor->pTarget == nullptr)
             {
                 pActor->nCount = RandomSize(6);
-                if (pActor->float_xvel() != 0 || pActor->float_yvel() != 0)
+                if (pActor->vel.X != 0 || pActor->vel.Y != 0)
                 {
                     pActor->vel.X = 0;
                     pActor->vel.Y = 0;

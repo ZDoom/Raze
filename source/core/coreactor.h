@@ -118,11 +118,6 @@ public:
 		return vel.Z * zworldtoint;
 	}
 
-	double float_zvel() const
-	{
-		return vel.Z;
-	}
-
 	void set_int_zvel(int v)
 	{
 		vel.Z = v * zinttoworld;
@@ -144,11 +139,6 @@ public:
 		return vel.X * worldtoint;
 	}
 
-	double float_xvel() const
-	{
-		return vel.X;
-	}
-
 	void set_int_xvel(int v)
 	{
 		vel.X = v * inttoworld;
@@ -168,11 +158,6 @@ public:
 	int int_yvel() const
 	{
 		return vel.Y * worldtoint;
-	}
-
-	double float_yvel() const
-	{
-		return vel.Y;
 	}
 
 	void set_int_yvel(int v)
