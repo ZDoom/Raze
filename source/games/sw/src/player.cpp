@@ -1469,7 +1469,7 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, int z, int floor_dist)
     if (avel != 0)
     {
         auto sum = pp->angle.ang + DAngle::fromDeg(avel);
-        if (MultiClipTurn(pp, NORM_ANGLE(sum.Buildang()), z, floor_dist))
+        if (MultiClipTurn(pp, sum, z, floor_dist))
         {
             pp->angle.ang = sum;
             pp->actor->set_int_ang(pp->angle.ang.Buildang());

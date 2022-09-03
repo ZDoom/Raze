@@ -803,16 +803,13 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                     {
                     case SO_CLIP_BOX:
                     {
-                        short ang2;
                         sop->clipdist = 0;
                         sop->clipbox_dist[sop->clipbox_num] = itActor->spr.lotag;
-                        sop->_clipbox_xoff[sop->clipbox_num] = sop->int_pmid().X - itActor->int_pos().X;
-                        sop->_clipbox_yoff[sop->clipbox_num] = sop->int_pmid().Y - itActor->int_pos().Y;
 
-                        sop->_clipbox_vdist[sop->clipbox_num] = ksqrt(SQ(sop->int_pmid().X - itActor->int_pos().X) + SQ(sop->int_pmid().Y - itActor->int_pos().Y));
+                        sop->clipbox_vdist[sop->clipbox_num] = (sop->pmid.XY() - itActor->spr.pos.XY()).Length();
 
-                        ang2 = getangle(itActor->int_pos().X - sop->int_pmid().X, itActor->int_pos().Y - sop->int_pmid().Y);
-                        sop->_clipbox_ang[sop->clipbox_num] = getincangle(ang2, sop->ang);
+                        auto ang2 = VecToAngle(itActor->spr.pos.XY() - sop->pmid.XY());
+                        sop->clipbox_ang[sop->clipbox_num] = deltaangle(ang2, DAngle::fromBuild(sop->ang));
 
                         sop->clipbox_num++;
                         KillActor(itActor);
