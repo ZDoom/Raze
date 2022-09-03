@@ -12822,7 +12822,7 @@ int InitLaser(PLAYER* pp)
 
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
+        actorNew->spr.angle -= DAngle::fromBuild(5);
     }
 
 	UpdateChange(actorNew);
@@ -12900,7 +12900,7 @@ int InitRail(PLAYER* pp)
     actorNew->set_int_zvel(zvel >> 1);
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 4));
+        actorNew->spr.angle -= DAngle::fromBuild(4);
     }
     else
         zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
@@ -13073,7 +13073,7 @@ int InitRocket(PLAYER* pp)
     actorNew->set_int_zvel(zvel >> 1);
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
+        actorNew->spr.angle -= DAngle::fromBuild(5);
     }
     else
         zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
@@ -13173,7 +13173,7 @@ int InitBunnyRocket(PLAYER* pp)
     actorNew->set_int_zvel(zvel >> 1);
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
+        actorNew->spr.angle -= DAngle::fromBuild(5);
     }
     else
         zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
@@ -13261,7 +13261,7 @@ int InitNuke(PLAYER* pp)
     actorNew->set_int_zvel(zvel >> 1);
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
+        actorNew->spr.angle -= DAngle::fromBuild(5);
     }
     else
         zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
@@ -13337,7 +13337,7 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->set_int_zvel(zvel >> 1);
     if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 5));
+        actorNew->spr.angle -= DAngle::fromBuild(5);
     }
     else
         zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
@@ -14897,7 +14897,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
     actorNew->add_int_ang(RandomRange(30) - 15);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
+    actorNew->norm_ang();
 
 	UpdateChange(actorNew);
 
@@ -15063,7 +15063,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
     actorNew->add_int_ang(RandomRange(30) - 15);
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
+    actorNew->norm_ang();
 
 	UpdateChange(actorNew);
 
@@ -15106,7 +15106,7 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
 
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
+        actorNew->norm_ang();
     }
 
 	UpdateChange(actorNew);
@@ -15144,7 +15144,7 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
 
     if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
+        actorNew->norm_ang();
     }
 
 	UpdateChange(actorNew);

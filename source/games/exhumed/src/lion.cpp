@@ -289,7 +289,7 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.type == kHitWall)
         {
             // loc_378FA:
-            pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
+            pActor->spr.angle += DAngle45;
             pActor->VelFromAngle(-1);
             break;
         }
@@ -319,7 +319,7 @@ void AILion::Tick(RunListEvent* ev)
             else
             {
                 // loc_378FA:
-                pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
+                pActor->spr.angle += DAngle45;
                 pActor->VelFromAngle(-1);
                 break;
             }
@@ -443,7 +443,7 @@ void AILion::Tick(RunListEvent* ev)
             else
             {
                 // loc_378FA:
-                pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
+                pActor->spr.angle += DAngle45;
                 pActor->VelFromAngle(-1);
                 break;
             }

@@ -417,7 +417,7 @@ void AISet::Tick(RunListEvent* ev)
                     }
                 }
 
-                pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
+                pActor->spr.angle += DAngle45;
                 pActor->VelFromAngle(-1);
                 break;
             }

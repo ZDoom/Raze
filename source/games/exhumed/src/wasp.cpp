@@ -169,7 +169,7 @@ void AIWasp::Damage(RunListEvent* ev)
             pActor->nFrame = 0;
 
             pActor->spr.cstat = 0;
-            pActor->set_int_ang((pActor->int_ang() + 1024) & kAngleMask);
+            pActor->spr.angle += DAngle180;
 
             SetWaspVel(pActor);
 

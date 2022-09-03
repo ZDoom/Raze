@@ -2106,7 +2106,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         {
             actorNew->spr.angle = actor->spr.angle;
             HelpMissileLateral(actorNew,2500);
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 512));
+            actorNew->spr.angle -= DAngle90;
             HelpMissileLateral(actorNew,1000); // Was 1500
             actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 712));
         }
@@ -2114,12 +2114,12 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         {
             actorNew->spr.angle = actor->spr.angle;
             HelpMissileLateral(actorNew,2500);
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 512));
+            actorNew->spr.angle += DAngle90;
             HelpMissileLateral(actorNew,1500);
             actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 128));
         }
         actorNew->add_int_ang((RANDOM_P2(128<<5)>>5) - (128 / 2));
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
+        actorNew->norm_ang();
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;
@@ -2129,11 +2129,11 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 		actorNew->spr.pos.Z -= 13;
         actorNew->spr.angle = actor->spr.angle;
         HelpMissileLateral(actorNew,2500);
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 512));
+        actorNew->spr.angle += DAngle90;
         HelpMissileLateral(actorNew,1300);
         actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 128 - 64));
         actorNew->add_int_ang((RANDOM_P2(128<<5)>>5) - (128 / 2));
-         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang()));
+        actorNew->norm_ang();
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;

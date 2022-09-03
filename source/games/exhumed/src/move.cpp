@@ -637,7 +637,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
             ChangeActorSect(pActor, pSectorPre);
 
-            pActor->set_int_ang((pActor->int_ang() + 256) & kAngleMask);
+            pActor->spr.angle += DAngle45;
             pActor->VelFromAngle(-2);
             Collision c;
             c.setNone();
