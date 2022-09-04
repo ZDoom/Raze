@@ -499,6 +499,12 @@ ACTOR_ACTION_SET CoolgActionSet =
 
 int DoCoolgMatchPlayerZ(DSWActor* actor);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void CoolgCommon(DSWActor* actor)
 {
     actor->spr.clipdist = (200) >> 2;
@@ -511,6 +517,12 @@ void CoolgCommon(DSWActor* actor)
     actor->spr.yrepeat = 42;
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int SetupCoolg(DSWActor* actor)
 {
@@ -537,6 +549,12 @@ int SetupCoolg(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int NewCoolg(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
@@ -562,6 +580,12 @@ int NewCoolg(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoCoolgBirth(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
@@ -584,6 +608,12 @@ int DoCoolgBirth(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int NullCoolg(DSWActor* actor)
 {
     actor->user.ShellNum -= ACTORMOVETICS;
@@ -596,6 +626,12 @@ int NullCoolg(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoCoolgMatchPlayerZ(DSWActor* actor)
 {
@@ -670,6 +706,12 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitCoolgCircle(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoCoolgCircle;
@@ -699,11 +741,17 @@ int InitCoolgCircle(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoCoolgCircle(DSWActor* actor)
 {
     double bound;
 
-    actor->set_int_ang(NORM_ANGLE(actor->int_ang() + actor->user.Counter2));
+    actor->spr.angle += DAngle::fromBuild(actor->user.Counter2);
 
     if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
     {
@@ -734,6 +782,12 @@ int DoCoolgCircle(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoCoolgDeath(DSWActor* actor)
 {
@@ -774,6 +828,11 @@ int DoCoolgDeath(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoCoolgMove(DSWActor* actor)
 {
@@ -858,6 +917,12 @@ int DoCoolgMove(DSWActor* actor)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoCoolgPain(DSWActor* actor)
 {
     NullCoolg(actor);
@@ -868,6 +933,12 @@ int DoCoolgPain(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 
