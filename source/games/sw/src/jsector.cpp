@@ -309,8 +309,7 @@ void JS_InitMirrors(void)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
-                            SP_TAG5(itActor) = itActor->int_ang();      // Set current angle to
-                            // sprite angle
+                            itActor->user.sang = itActor->spr.angle;      // Set current angle to sprite angle
                             Found_Cam = true;
                         }
                     }
@@ -323,8 +322,7 @@ void JS_InitMirrors(void)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
-                            SP_TAG5(itActor) = itActor->int_ang();      // Set current angle to
-                            // sprite angle
+                            itActor->user.sang = itActor->spr.angle;      // Set current angle to sprite angle
                             Found_Cam = true;
                         }
                     }
@@ -332,7 +330,7 @@ void JS_InitMirrors(void)
                     if (!Found_Cam)
                     {
                         Printf("Cound not find the camera view sprite for match %d\n", wal.hitag);
-                        Printf("Map Coordinates: x = %d, y = %d\n", wal.wall_int_pos().X, wal.wall_int_pos().Y);
+                        Printf("Map Coordinates: x = %d, y = %d\n", int(wal.pos.X), int(wal.pos.Y));
                         break;
                     }
 
@@ -361,7 +359,7 @@ void JS_InitMirrors(void)
                         {
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
                             Printf("wall(%d).hitag == %d\n", wallnum(&wal), wal.hitag);
-                            Printf("Map Coordinates: x = %d, y = %d\n", wal.wall_int_pos().X, wal.wall_int_pos().Y);
+                            Printf("Map Coordinates: x = %d, y = %d\n", int(wal.pos.X), int(wal.pos.Y));
                             RESET_BOOL1(mirror[mirrorcnt].cameraActor);
                         }
                     }
@@ -402,9 +400,12 @@ void JS_InitMirrors(void)
 /////////////////////////////////////////////////////
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
-void drawroomstotile(int daposx, int daposy, int daposz,
+void drawroomstotile(const DVector3& pos,
                      DAngle ang, fixedhoriz horiz, sectortype* dacursect, short tilenume, double smoothratio)
 {
+    int daposx = pos.X * worldtoint;
+    int daposy = pos.Y * worldtoint;
+    int daposz = pos.Z * zworldtoint;
     auto canvas = tileGetCanvas(tilenume);
     if (!canvas) return;
 
@@ -458,10 +459,10 @@ short camplayerview = 1;                // Don't show yourself!
 // Hack job alert!
 // Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.
 // So this function replicates JS_DrawMirrors to only process the camera textures but not change any global state.
-void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
+void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 {
-    int j, cnt;
-    int dist;
+    int  cnt;
+    double dist;
     int tposx, tposy; // Camera
     int* longptr;
 
@@ -483,6 +484,7 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
         oscilation_delta -= oscilation_delta % 4;
         oscilationclock += oscilation_delta;
         oscilation_delta *= 2;
+        DAngle oscillation_angle = DAngle::fromBuild(oscilation_delta);
         for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--) 
         {
             if (!mirror[cnt].ismagic) continue; // these are definitely not camera textures.
@@ -491,28 +493,22 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
             {
                 // Do not change any global state here!
                 bIsWallMirror = testgotpic(cnt + MIRRORLABEL);
-                dist = 0x7fffffff;
 
+                DVector2 vec;
                 if (bIsWallMirror)
                 {
-                    j = abs(mirror[cnt].mirrorWall->wall_int_pos().X - tx);
-                    j += abs(mirror[cnt].mirrorWall->wall_int_pos().Y - ty);
-                    if (j < dist)
-                        dist = j;
+                    vec = mirror[cnt].mirrorWall->pos - campos.XY();
                 }
                 else
                 {
                     DSWActor* camactor = mirror[cnt].camspriteActor;
 
-                    j = abs(camactor->int_pos().X - tx);
-                    j += abs(camactor->int_pos().Y - ty);
-                    if (j < dist)
-                        dist = j;
+                    vec = camactor->spr.pos - campos.XY();
                 }
+                dist = abs(vec.X) + abs(vec.Y);
 
 
                 short w;
-                int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
                 DSWActor *camactor = mirror[cnt].cameraActor;
                 assert(camactor);
@@ -521,28 +517,28 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
                 auto wal = mirror[cnt].mirrorWall;
 
                 // Get wall midpoint for offset in mirror view
-                midx = (wal->wall_int_pos().X + wal->point2Wall()->wall_int_pos().X) / 2;
-                midy = (wal->wall_int_pos().Y + wal->point2Wall()->wall_int_pos().Y) / 2;
+                DVector2 mid = wal->center();
 
                 // Finish finding offsets
-                tdx = abs(midx - tx);
-                tdy = abs(midy - ty);
+                DVector3 dpos;
+                DVector3 tdpos;
+                tdpos.XY() = mid - campos;
 
-                if (midx >= tx)
-                    dx = camactor->int_pos().X - tdx;
+                if (mid.X >= campos.X)
+                    dpos.X = camactor->spr.pos.X - campos.X;
                 else
-                    dx = camactor->int_pos().X + tdx;
+                    dpos.X = camactor->spr.pos.X + campos.X;
 
-                if (midy >= ty)
-                    dy = camactor->int_pos().Y - tdy;
+                if (mid.Y >= campos.Y)
+                    dpos.Y = camactor->spr.pos.Y - campos.Y;
                 else
-                    dy = camactor->int_pos().Y + tdy;
+                    dpos.Y = camactor->spr.pos.Y + campos.Y;
 
-                tdz = abs(tz - camactor->int_pos().Z);
-                if (tz >= camactor->int_pos().Z)
-                    dz = camactor->int_pos().Z + tdz;
+                tdpos.Z = abs(campos.Z - camactor->spr.pos.Z);
+                if (tdpos.Z >= camactor->spr.pos.Z)
+                    dpos.Z = camactor->spr.pos.Z + tdpos.Z;
                 else
-                    dz = camactor->int_pos().Z - tdz;
+                    dpos.Z = camactor->spr.pos.Z - tdpos.Z;
 
 
                 // Is it a TV cam or a teleporter that shows destination?
@@ -561,10 +557,11 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
                     if (mirror[cnt].campic == -1)
                     {
                         Printf("Missing campic for mirror %d\n",cnt);
-                        Printf("Map Coordinates: x = %d, y = %d\n",midx,midy);
+                        Printf("Map Coordinates: x = %d, y = %d\n",int(mid.X), int(mid.Y));
                         return;
                     }
 
+                    auto maxang = DAngle::fromBuild(SP_TAG6(camactor));
                     // BOOL2 = Oscilate camera
                     if (TEST_BOOL2(camactor) && MoveSkip2 == 0)
                     {
@@ -572,34 +569,31 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
                         // angle else subtract
                         {
                             // Store current angle in TAG5
-                            SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) + oscilation_delta));
+                            camactor->user.sang += oscillation_angle;
 
                             // TAG6 = Turn radius
-                            if (abs(getincangle(camactor->int_ang(), SP_TAG5(camactor))) >= SP_TAG6(camactor))
+                            if (absangle(camactor->spr.angle, camactor->user.sang) >= maxang)
                             {
-                                SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) - oscilation_delta));
-                                RESET_BOOL3(camactor);    // Reverse turn
-                                // direction.
+                                camactor->user.sang -= oscillation_angle;
+                                RESET_BOOL3(camactor);    // Reverse turn direction.
                             }
                         }
                         else
                         {
                             // Store current angle in TAG5
-                            SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) - oscilation_delta));
+                            camactor->user.sang -= oscillation_angle;
 
                             // TAG6 = Turn radius
-                            if (abs(getincangle(camactor->int_ang(), SP_TAG5(camactor))) >= SP_TAG6(camactor))
+                            if (absangle(camactor->spr.angle, camactor->user.sang) >= maxang)
                             {
-                                SP_TAG5(camactor) = NORM_ANGLE((SP_TAG5(camactor) + oscilation_delta));
-                                SET_BOOL3(camactor);      // Reverse turn
-                                // direction.
+                                camactor->user.sang += oscillation_angle;
+                                SET_BOOL3(camactor);      // Reverse turn direction.
                             }
                         }
                     }
                     else if (!TEST_BOOL2(camactor))
                     {
-                        SP_TAG5(camactor) = camactor->int_ang();      // Copy sprite angle to
-                        // tag5
+                        camactor->user.sang = camactor->spr.angle;      // Copy sprite angle to tag5
                     }
 
                     // Set the horizon value.
@@ -621,11 +615,11 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
-                                drawroomstotile(cp->int_ppos().X, cp->int_ppos().Y, cp->int_ppos().Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->pos, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {
-                                drawroomstotile(camactor->int_pos().X, camactor->int_pos().Y, camactor->int_pos().Z, DAngle::fromBuild(SP_TAG5(camactor)), camhoriz, camactor->sector(), mirror[cnt].campic, smoothratio);
+                                drawroomstotile(camactor->spr.pos, camactor->user.sang, camhoriz, camactor->sector(), mirror[cnt].campic, smoothratio);
                             }
                         }
                     }
@@ -638,20 +632,18 @@ void JS_DrawCameras(PLAYER* pp, int tx, int ty, int tz, double smoothratio)
 // Workaround until the camera code can be refactored to process all camera textures that were visible last frame.
 // Need to stash the parameters for later use. This is only used to find the nearest camera.
 static PLAYER* cam_pp;
-static int cam_tx, cam_ty, cam_tz;
+DVector3 cam_pos;
 static int oldstat;
 
 void JS_CameraParms(PLAYER* pp, int tx, int ty, int tz)
 {
     cam_pp = pp;
-    cam_tx = tx;
-    cam_ty = ty;
-    cam_tz = tz;
+    cam_pos = { tx * inttoworld, ty * inttoworld, tz * zinttoworld };
 }
 
 void GameInterface::UpdateCameras(double smoothratio)
 {
-    JS_DrawCameras(cam_pp, cam_tx, cam_ty, cam_tz, smoothratio);
+    JS_DrawCameras(cam_pp, cam_pos, smoothratio);
 }
 
 void GameInterface::EnterPortal(DCoreActor* viewer, int type)
