@@ -78,6 +78,11 @@ bool ActorMoveHitReact(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool ActorFlaming(DSWActor* actor)
 {
@@ -90,6 +95,12 @@ bool ActorFlaming(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
 {
@@ -109,11 +120,13 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
     actor->vel.X = vel * maptoworld;
 }
 
+//---------------------------------------------------------------------------
 /*
   !AIC - Does a table lookup based on a random value from 0 to 1023.
   These tables are defined at the top of all actor files such as ninja.c,
   goro.c etc.
 */
+//---------------------------------------------------------------------------
 
 ANIMATOR* ChooseAction(DECISION decision[])
 {
@@ -131,9 +144,11 @@ ANIMATOR* ChooseAction(DECISION decision[])
     }
 }
 
+//---------------------------------------------------------------------------
 /*
   !AIC - Sometimes just want the offset of the action
 */
+//---------------------------------------------------------------------------
 
 int ChooseActionNumber(int16_t decision[])
 {
@@ -147,6 +162,12 @@ int ChooseActionNumber(int16_t decision[])
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorNoise(ANIMATOR* Action, DSWActor* actor)
 {
@@ -199,10 +220,22 @@ int DoActorNoise(ANIMATOR* Action, DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool CanSeePlayer(DSWActor* actor)
 {
     return actor->user.targetActor && FAFcansee(ActorVectOfTop(actor), actor->sector(), ActorUpperVect(actor->user.targetActor), actor->user.targetActor->sector());
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int CanHitPlayer(DSWActor* actor)
 {
@@ -226,9 +259,11 @@ int CanHitPlayer(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
 /*
   !AIC - Pick a nearby player to be the actors target
 */
+//---------------------------------------------------------------------------
 
 int DoActorPickClosePlayer(DSWActor* actor)
 {
