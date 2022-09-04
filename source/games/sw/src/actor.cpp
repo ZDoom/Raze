@@ -55,6 +55,12 @@ extern STATE* sg_NinjaGrabThroat[];
 
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoScaleSprite(DSWActor* actor)
 {
     int scale_value;
@@ -84,6 +90,12 @@ int DoScaleSprite(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 {
@@ -281,6 +293,12 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void DoDebrisCurrent(DSWActor* actor)
 {
     int nx, ny;
@@ -305,6 +323,12 @@ void DoDebrisCurrent(DSWActor* actor)
 
     actor->spr.pos.Z = actor->user.loz;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorSectorDamage(DSWActor* actor)
 {
@@ -368,6 +392,11 @@ int DoActorSectorDamage(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool move_debris(DSWActor* actor, const DVector2& change)
 {
@@ -375,8 +404,12 @@ bool move_debris(DSWActor* actor, const DVector2& change)
     return actor->user.coll.type == kHitNone;
 }
 
+//---------------------------------------------------------------------------
+//
 // !AIC - Supposed to allow floating of DEBRIS (dead bodies, flotsam, jetsam).  Or if water has
 // current move with the current.
+//
+//---------------------------------------------------------------------------
 
 int DoActorDebris(DSWActor* actor)
 {
@@ -432,6 +465,11 @@ int DoActorDebris(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoFireFly(DSWActor* actor)
 {
@@ -446,6 +484,12 @@ int DoFireFly(DSWActor* actor)
     actor->spr.pos.Z = actor->user.pos.Z + 32 * BobVal(actor->user.WaitTics);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoGenerateSewerDebris(DSWActor* actor)
 {
@@ -471,7 +515,11 @@ int DoGenerateSewerDebris(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
 // !AIC - Tries to keep actors correctly on the floor.  More that a bit messy.
+//
+//---------------------------------------------------------------------------
 
 void KeepActorOnFloor(DSWActor* actor)
 {
@@ -558,9 +606,13 @@ void KeepActorOnFloor(DSWActor* actor)
         actor->backupz();
     }
 #endif
-
-
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec)
 {
