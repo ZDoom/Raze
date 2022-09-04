@@ -1628,17 +1628,28 @@ extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
 ANIMATOR NullAnimator;
 
-int Distance(int x1, int y1, int x2, int y2);
-int DistanceI(const DVector2& pos1, const DVector2& pos2)
+inline int Distance(int x1, int y1, int x2, int y2)
+{
+    int min;
+
+    if ((x2 = x2 - x1) < 0)
+        x2 = -x2;
+
+    if ((y2 = y2 - y1) < 0)
+        y2 = -y2;
+
+    if (x2 > y2)
+        min = y2;
+    else
+        min = x2;
+
+    return x2 + y2 - (min >> 1);
+}
+
+inline int DistanceI(const DVector2& pos1, const DVector2& pos2)
 {
 	return Distance(int(pos1.X * worldtoint), int(pos1.Y * worldtoint), int(pos2.X * worldtoint), int(pos2.Y * worldtoint));
 }
-/*
-double Distance(const DVector2& pos1, const DVector2& pos2)
-{
-	return (pos2 - pos1).Length();
-}
- */
 
 int NewStateGroup(DSWActor* actor, STATE* SpriteGroup[]);
 void SectorMidPoint(sectortype* sect, int *xmid, int *ymid, int *zmid);

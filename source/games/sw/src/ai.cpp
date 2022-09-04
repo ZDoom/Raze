@@ -48,25 +48,11 @@ ANIMATOR* ChooseAction(DECISION decision[]);
 
 #define CHOOSE2(value) (RANDOM_P2(1024) < (value))
 
-int Distance(int x1, int y1, int x2, int y2)
-{
-    int min;
-
-    if ((x2 = x2 - x1) < 0)
-        x2 = -x2;
-
-    if ((y2 = y2 - y1) < 0)
-        y2 = -y2;
-
-    if (x2 > y2)
-        min = y2;
-    else
-        min = x2;
-
-    return x2 + y2 - (min >> 1);
-}
-
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool ActorMoveHitReact(DSWActor* actor)
 {
@@ -114,10 +100,13 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
 
     actor->user.speed = speed;
 
+    int vel;
     if (ActorFlaming(actor))
-        actor->set_int_xvel(actor->user.Attrib->Speed[speed] + (actor->user.Attrib->Speed[speed] >> 1));
+        vel = actor->user.Attrib->Speed[speed] + (actor->user.Attrib->Speed[speed] >> 1);
     else
-        actor->set_int_xvel(actor->user.Attrib->Speed[speed]);
+        vel = actor->user.Attrib->Speed[speed];
+
+    actor->vel.X = vel * maptoworld;
 }
 
 /*
