@@ -1340,9 +1340,9 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
-    actorNew->vel.Z = -RandomRangeF(6.25 * HORIZ_MULT);
+	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
 
-    actorNew->spr.clipdist = 80L >> 2;
+    actorNew->spr.clipdist = 80 >> 2;
 
 	UpdateChange(actorNew, 0.5);
 
@@ -1381,7 +1381,7 @@ int InitChemBomb(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-	actorNew->vel.Z = -RandomRangeF(6.25 * HORIZ_MULT);
+	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
     actorNew->spr.clipdist = 0;
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
@@ -1412,7 +1412,7 @@ int InitChemBomb(DSWActor* actor)
 int PlayerInitFlashBomb(PLAYER* pp)
 {
     unsigned int stat;
-    int dist, tx, ty, tmin;
+
     short damage;
     DSWActor* actor = pp->actor;
 
@@ -1429,8 +1429,8 @@ int PlayerInitFlashBomb(PLAYER* pp)
             if (itActor == pp->actor)
                 break;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
-            if (dist > 16384)           // Flash radius
+			double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+            if (dist > 1024)           // Flash radius
                 continue;
 
             if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
@@ -1477,7 +1477,6 @@ int InitFlashBomb(DSWActor* actor)
 {
     int i;
     unsigned int stat;
-    int dist, tx, ty, tmin;
     short damage;
     PLAYER* pp = Player + screenpeek;
 
@@ -1488,8 +1487,8 @@ int InitFlashBomb(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
-            if (dist > 16384)           // Flash radius
+            double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+            if (dist > 1024)           // Flash radius
                 continue;
 
             if (!(actor->spr.cstat & CSTAT_SPRITE_BLOCK))
@@ -1625,7 +1624,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
     {
-        actorNew->add_int_xvel(-(actorNew->int_xvel() >> 2));
+		actorNew->vel.X *= 0.75;
     }
 
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -1644,7 +1643,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->set_int_zvel(-pp->horizon.horiz.asq16() >> 9);
+    actorNew->vel.Z -= pp->horizon.horiz.asbuildf() * 0.5;
 
     oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 0;
@@ -1686,11 +1685,8 @@ int InitCaltrops(DSWActor* actor)
     actorNew->user.ceiling_dist = 3;
     actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
-
-    actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
-
-    // spawnedActor->spr.clipdist = 80L>>2;
-
+	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
+	
 	UpdateChange(actorNew, 0.5);
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
@@ -1726,8 +1722,7 @@ int InitPhosphorus(DSWActor* actor)
     actorNew->user.ceiling_dist = 3;
     actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
-
-    actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
+	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
 
 	UpdateChange(actorNew, 0.5);
 
@@ -1792,7 +1787,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         actorNew->user.floor_dist = 3;
         actorNew->user.Counter = 0;
 
-        actorNew->set_int_zvel(short((-10 - RandomRange(50)) * HORIZ_MULT));
+        actorNew->vel.Z = (-10 - RandomRange(50)) * HORIZ_MULTF;
 
 		UpdateChange(actorNew, 0.5);
 
@@ -2139,7 +2134,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     if (actor->user.PlayerP)
     {
-        actorNew->add_int_z(int(-actor->user.PlayerP->horizon.horiz.asbuildf() * HORIZ_MULT * (1. / 3.)));
+		actorNew->vel.Z = -actor->user.PlayerP->horizon.horiz.asbuildf() * HORIZ_MULTF * (1. / 3.);
     }
 
     switch (actorNew->user.ID)
@@ -2153,7 +2148,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
             HelpMissileLateral(actorNew,2500);
             actorNew->spr.angle -= DAngle90;
             HelpMissileLateral(actorNew,1000); // Was 1500
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() + 712));
+			actorNew->spr.angle += DAngle::fromBuild(712); // somewhat weird number...
         }
         else
         {
@@ -2161,9 +2156,9 @@ int SpawnShell(DSWActor* actor, int ShellNum)
             HelpMissileLateral(actorNew,2500);
             actorNew->spr.angle += DAngle90;
             HelpMissileLateral(actorNew,1500);
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 128));
+			actorNew->spr.angle -= DAngle22_5;
         }
-        actorNew->add_int_ang((RANDOM_P2(128<<5)>>5) - (128 / 2));
+		actorNew->spr.angle += RandomAngle(22.5) - DAngle22_5/2;
         actorNew->norm_ang();
 
         // Set the shell number
@@ -2176,8 +2171,8 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         HelpMissileLateral(actorNew,2500);
         actorNew->spr.angle += DAngle90;
         HelpMissileLateral(actorNew,1300);
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->spr.int_ang() - 128 - 64));
-        actorNew->add_int_ang((RANDOM_P2(128<<5)>>5) - (128 / 2));
+        actorNew->spr.angle -= DAngle22_5 * 1.5;
+		actorNew->spr.angle += RandomAngle(22.5) - DAngle22_5/2;
         actorNew->norm_ang();
 
         // Set the shell number
@@ -2188,8 +2183,8 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -15;
-    actorNew->user.ceiling_dist = (1);
-    actorNew->user.floor_dist = (1);
+    actorNew->user.ceiling_dist = 1;
+    actorNew->user.floor_dist = 1;
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
