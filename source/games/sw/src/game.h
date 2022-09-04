@@ -1430,11 +1430,6 @@ extern TRACK Track[MAX_TRACKS];
 
 struct SECTOR_OBJECT
 {
-    vec3_t int_pmid() const
-    {
-        return { int(pmid.X * worldtoint), int(pmid.Y * worldtoint),int(pmid.Z * zworldtoint) };
-    }
-
     soANIMATORp PreMoveAnimator;
     soANIMATORp PostMoveAnimator;
     soANIMATORp Animator;

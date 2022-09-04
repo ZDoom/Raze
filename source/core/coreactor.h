@@ -310,12 +310,6 @@ struct HitInfoBase
 	{
 		return { int(hitpos.X * worldtoint), int(hitpos.Y * worldtoint), int(hitpos.Z * zworldtoint), };
 	}
-	
-	void set_int_hitpos_xy(int x, int y)
-	{
-		hitpos.X = x * inttoworld;
-		hitpos.Y = y * inttoworld;
-	}
 };
 
 template<class T>
