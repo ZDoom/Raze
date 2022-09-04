@@ -1525,7 +1525,7 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
     if (!Prediction && plActor)
     {
         plActor->backupang();
-        plActor->set_int_ang(pp->angle.ang.Buildang());
+        plActor->spr.angle = pp->angle.ang;
     }
 }
 
@@ -1863,7 +1863,7 @@ void UpdatePlayerSprite(PLAYER* pp)
     if (pp->Flags & (PF_DEAD))
     {
         ChangeActorSect(pp->actor, pp->cursector);
-        actor->set_int_ang(pp->angle.ang.Buildang());
+        actor->spr.angle = pp->angle.ang;
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -1924,7 +1924,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     UpdatePlayerUnderSprite(pp);
 
-    actor->set_int_ang(pp->angle.ang.Buildang());
+    actor->spr.angle = pp->angle.ang;
 }
 
 //---------------------------------------------------------------------------
@@ -5780,7 +5780,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.xrepeat = plActor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.pos = pp->pos.plusZ(PLAYER_HEIGHTF);
-        plActor->set_int_ang(pp->angle.ang.Buildang());
+        plActor->spr.angle = pp->angle.ang;
 
         DoSpawnTeleporterEffect(plActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
