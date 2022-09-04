@@ -1487,7 +1487,7 @@ enum
     AWAY = -1
 };
 
-DAngle FindNewAngle(DSWActor* actor, int dir, int DistToMove)
+DAngle FindNewAngle(DSWActor* actor, int dir, double DistToMove)
 {
     static const int16_t toward_angle_delta[4][9] =
     {
@@ -1518,7 +1518,7 @@ DAngle FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 
     // if on fire, run shorter distances
     if (ActorFlaming(actor))
-        DistToMove = (DistToMove >> 2) + (DistToMove >> 3);
+        DistToMove *= .375;
 
     // Find angle to from the player
     auto oang = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
@@ -1610,8 +1610,8 @@ DAngle FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 }
 
 
+//---------------------------------------------------------------------------
 /*
-
   !AIC KEY - Reposition code is called throughout this file.  What this does is
   pick a new direction close to the target direction (or away from the target
   direction if running away) and a distance to move in and tries to move there
@@ -1620,55 +1620,55 @@ DAngle FindNewAngle(DSWActor* actor, int dir, int DistToMove)
   Location variables that are changed are saved and reset.  FindNewAngle() and
   move_scan() are two routines (above) that go with this.  This is definately
   not called every time through the loop.  It would be majorly slow.
-
 */
+//---------------------------------------------------------------------------
 
 int InitActorReposition(DSWActor* actor)
 {
     DAngle ang;
     int rnum;
-    int dist;
+    double dist;
 
-    static const int AwayDist[8] =
+    static const int16_t AwayDist[8] =
     {
-        17000,
-        20000,
-        26000,
-        26000,
-        26000,
-        32000,
-        32000,
-        42000
+        17000 / 16,
+        20000 / 16,
+        26000 / 16,
+        26000 / 16,
+        26000 / 16,
+        32000 / 16,
+        32000 / 16,
+        42000 / 16
     };
 
-    static const int TowardDist[8] =
+    static const int16_t TowardDist[8] =
     {
-        10000,
-        15000,
-        20000,
-        20000,
-        25000,
-        30000,
-        35000,
-        40000
+        10000 / 16,
+        15000 / 16,
+        20000 / 16,
+        20000 / 16,
+        25000 / 16,
+        30000 / 16,
+        35000 / 16,
+        40000 / 16
     };
 
     static const int16_t PlayerDist[8] =
     {
-        2000,
-        3000,
-        3000,
-        5000,
-        5000,
-        5000,
-        9000,
-        9000
+        2000 / 16,
+        3000 / 16,
+        3000 / 16,
+        5000 / 16,
+        5000 / 16,
+        5000 / 16,
+        9000 / 16,
+        9000 / 16
     };
 
     actor->user.Dist = 0;
 
     rnum = RANDOM_P2(8<<8)>>8;
-	dist = DistanceI(actor->spr.pos, actor->user.targetActor->spr.pos);
+	dist = (actor->spr.pos.XY(), actor->user.targetActor->spr.pos.XY()).Length();
 
     if (dist < PlayerDist[rnum] || (actor->user.Flags & SPR_RUN_AWAY))
     {
@@ -1724,6 +1724,12 @@ int InitActorReposition(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoActorReposition(DSWActor* actor)
 {
     // still might hit something and have to handle it.
@@ -1747,6 +1753,12 @@ int DoActorReposition(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int InitActorPause(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorPause;
@@ -1755,6 +1767,12 @@ int InitActorPause(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorPause(DSWActor* actor)
 {
@@ -1769,7 +1787,11 @@ int DoActorPause(DSWActor* actor)
     return 0;
 }
 
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 

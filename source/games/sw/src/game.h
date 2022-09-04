@@ -159,11 +159,12 @@ extern bool MenuInputMode;
 // Defines
 //
 
+// dist at which actors will not move (unless shot?? to do)
+constexpr int MAX_ACTIVE_RANGE = 2625;
+
 enum
 {
     CIRCLE_CAMERA_DIST_MIN = 12000,
-    // dist at which actors will not move (unless shot?? to do)
-    MAX_ACTIVE_RANGE = 42000 / 16,
     // dist at which actors roam about on their own
     MIN_ACTIVE_RANGE = 20000,
 };
