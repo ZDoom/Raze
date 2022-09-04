@@ -14617,7 +14617,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos
                 if (!hitActor->user.PlayerP)
                     SpawnBlood(hitActor, nullptr, actor->spr.angle + DAngle180, &hit_pos);
                 if (hitActor->user.ID != TRASHCAN && hitActor->user.ID != ZILLA_RUN_R0)
-                    QueueWallBlood(hitActor, actor->int_ang());  //QueueWallBlood needs bullet angle.
+                    QueueWallBlood(hitActor, actor->spr.angle);  //QueueWallBlood needs bullet angle.
             }
         }
 
@@ -17108,7 +17108,7 @@ STATE s_WallBlood4[] =
 };
 
 
-DSWActor* QueueWallBlood(DSWActor* actor, short ang)
+DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
 {
     short w,nw,wall_ang,dang;
     DSWActor* spawnedActor;
@@ -17116,7 +17116,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     short rndnum;
     int daz;
     HitInfo hit{};
-	DAngle bang = DAngle::fromBuild(ang);
+	int ang = bang.Buildang();
 
     if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return nullptr;   // No blood underwater!

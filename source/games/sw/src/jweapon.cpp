@@ -406,7 +406,7 @@ int DoBloodSpray(DSWActor* actor)
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 SpawnMidSplash(actor);
-                QueueWallBlood(actor, hitActor->int_ang());
+                QueueWallBlood(actor, hitActor->spr.angle);
                 WallBounce(actor, hitActor->spr.angle);
                 ScaleSpriteVector(actor, 32000);
             }
@@ -414,7 +414,7 @@ int DoBloodSpray(DSWActor* actor)
             {
                 actor->user.change.X = actor->user.change.Y = 0;
                 SpawnMidSplash(actor);
-                QueueWallBlood(actor, hitActor->int_ang());
+                QueueWallBlood(actor, hitActor->spr.angle);
                 KillActor(actor);
                 return true;
             }
@@ -425,9 +425,9 @@ int DoBloodSpray(DSWActor* actor)
 
         case kHitWall:
         {
-            short hit_wall, nw, wall_ang;
+            int hit_wall, nw;
             walltype* wph;
-            short wb;
+            int wb;
 
             wph = actor->user.coll.hitWall;
 
@@ -438,10 +438,10 @@ int DoBloodSpray(DSWActor* actor)
                 break;
             }
 
-            wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
+            auto wall_ang = VecToAngle(wph->delta()) + DAngle90;
 
             SpawnMidSplash(actor);
-            auto bldActor = QueueWallBlood(actor, NORM_ANGLE(wall_ang+1024));
+            auto bldActor = QueueWallBlood(actor, wall_ang + DAngle180);
 
             if (bldActor== nullptr)
             {
