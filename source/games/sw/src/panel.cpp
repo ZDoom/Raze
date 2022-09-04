@@ -107,6 +107,12 @@ void pNullAnimator(PANEL_SPRITE*)
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 PANEL_SPRITE* pFindMatchingSprite(PLAYER* pp, int x, int y, short pri)
 {
     PANEL_SPRITE* next;
@@ -126,6 +132,12 @@ PANEL_SPRITE* pFindMatchingSprite(PLAYER* pp, int x, int y, short pri)
 
     return nullptr;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 PANEL_SPRITE* pFindMatchingSpriteID(PLAYER* pp, short id, int x, int y, short pri)
 {
@@ -147,6 +159,12 @@ PANEL_SPRITE* pFindMatchingSpriteID(PLAYER* pp, short id, int x, int y, short pr
     return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool pKillScreenSpiteIDs(PLAYER* pp, short id)
 {
     PANEL_SPRITE* next;
@@ -167,7 +185,11 @@ bool pKillScreenSpiteIDs(PLAYER* pp, short id)
 }
 
 
+//---------------------------------------------------------------------------
+//
 // Used to sprites in the view at correct aspect ratio and x,y location.
+//
+//---------------------------------------------------------------------------
 
 void pSetSuicide(PANEL_SPRITE* psp)
 {
@@ -181,7 +203,12 @@ void pToggleCrosshair(void)
 	cl_crosshair = !cl_crosshair;
 }
 
+//---------------------------------------------------------------------------
+//
 // Player has a chance of yelling out during combat, when firing a weapon.
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerChooseYell(PLAYER* pp)
 {
     int choose_snd = 0;
@@ -193,6 +220,12 @@ void DoPlayerChooseYell(PLAYER* pp)
     if (pp == Player+myconnectindex)
         PlayerSound(PlayerYellVocs[choose_snd], v3df_follow|v3df_dontpan,pp);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 {
@@ -213,6 +246,12 @@ void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
     *armor_damage = damage_percent;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PlayerUpdateHealth(PLAYER* pp, short value)
 {
@@ -318,6 +357,12 @@ void PlayerUpdateHealth(PLAYER* pp, short value)
         plActor->user.Health = pp->MaxHealth;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerUpdateAmmo(PLAYER* pp, short UpdateWeaponNum, short value)
 {
     short x,y;
@@ -356,6 +401,12 @@ void PlayerUpdateAmmo(PLAYER* pp, short UpdateWeaponNum, short value)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerUpdateWeapon(PLAYER* pp, short WeaponNum)
 {
     DSWActor* plActor = pp->actor;
@@ -366,6 +417,12 @@ void PlayerUpdateWeapon(PLAYER* pp, short WeaponNum)
 
     plActor->user.WeaponNum = int8_t(WeaponNum);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PlayerUpdateKills(PLAYER* pp, short value)
 {
@@ -404,6 +461,12 @@ void PlayerUpdateKills(PLAYER* pp, short value)
         pp->Kills = -99;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerUpdateArmor(PLAYER* pp, short value)
 {
     if (Prediction)
@@ -420,6 +483,12 @@ void PlayerUpdateArmor(PLAYER* pp, short value)
         pp->Armor = 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int WeaponOperate(PLAYER* pp)
 {
@@ -639,6 +708,12 @@ int WeaponOperate(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool WeaponOK(PLAYER* pp)
 {
     short min_ammo, WeaponNum, FindWeaponNum;
@@ -713,11 +788,12 @@ bool WeaponOK(PLAYER* pp)
     return true;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
 //
 // X/Y POSITION INLINES
 //
-//////////////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
+
 
 inline double pspSinVel(PANEL_SPRITE* const psp, int const ang = INT_MAX)
 {
@@ -751,6 +827,12 @@ static short SwordAngTable[] =
 
 short SwordAng = 0;
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SwordBlur(PANEL_SPRITE* psp)
 {
     psp->kill_tics -= synctics;
@@ -770,6 +852,12 @@ void SwordBlur(PANEL_SPRITE* psp)
     psp->priority--;
     InsertPanelSprite(psp->PlayerP, psp);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnSwordBlur(PANEL_SPRITE* psp)
 {
@@ -801,6 +889,12 @@ void SpawnSwordBlur(PANEL_SPRITE* psp)
 
     nsp->flags |= (PANF_TRANSLUCENT);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pSwordPresent(PANEL_SPRITE* psp);
 void pSwordRetract(PANEL_SPRITE* psp);
@@ -876,6 +970,12 @@ PANEL_STATE ps_RetractSword[] =
 #define SWORD_POWER_VEL 2500
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpecialUziRetractFunc(PANEL_SPRITE* psp)
 {
     psp->backupy();
@@ -886,6 +986,12 @@ void SpecialUziRetractFunc(PANEL_SPRITE* psp)
         pKillSprite(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void RetractCurWpn(PLAYER* pp)
 {
@@ -923,6 +1029,12 @@ void RetractCurWpn(PLAYER* pp)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitWeaponSword(PLAYER* pp)
 {
@@ -992,6 +1104,12 @@ void InitWeaponSword(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pSwordPresent(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
@@ -1008,9 +1126,11 @@ void pSwordPresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
 //
 // LEFT SWING
 //
+//---------------------------------------------------------------------------
 
 void pSwordSlide(PANEL_SPRITE* psp)
 {
@@ -1023,6 +1143,12 @@ void pSwordSlide(PANEL_SPRITE* psp)
 
     psp->vel += 24 * synctics;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pSwordSlideDown(PANEL_SPRITE* psp)
 {
@@ -1066,9 +1192,11 @@ void pSwordSlideDown(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
 //
 // RIGHT SWING
 //
+//---------------------------------------------------------------------------
 
 void pSwordSlideR(PANEL_SPRITE* psp)
 {
@@ -1081,6 +1209,12 @@ void pSwordSlideR(PANEL_SPRITE* psp)
 
     psp->vel += 24 * synctics;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pSwordSlideDownR(PANEL_SPRITE* psp)
 {
@@ -1124,6 +1258,12 @@ void pSwordSlideDownR(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pSwordBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -1135,6 +1275,12 @@ void pSwordBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 8;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pSwordHide(PANEL_SPRITE* psp)
 {
@@ -1151,6 +1297,12 @@ void pSwordHide(PANEL_SPRITE* psp)
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pSwordRest(PANEL_SPRITE* psp)
 {
@@ -1188,18 +1340,28 @@ void pSwordRest(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pSwordAction(PANEL_SPRITE* psp)
 {
     pSwordBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 }
 
-
 void pSwordAttack(PANEL_SPRITE* psp)
 {
-
     InitSwordAttack(psp->PlayerP);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pSwordRetract(PANEL_SPRITE* psp)
 {
@@ -1299,6 +1461,12 @@ PANEL_STATE ps_RetractStar[] =
 #define STAR_YOFF 208
 #define STAR_XOFF (160+80)
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pStarRestTest(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->input.actions & SB_FIRE)
@@ -1317,6 +1485,12 @@ void pStarRestTest(PANEL_SPRITE* psp)
 
     pSetState(psp, psp->RestState);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitWeaponStar(PLAYER* pp)
 {
@@ -1381,6 +1555,12 @@ void InitWeaponStar(PLAYER* pp)
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pStarPresent(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
@@ -1399,6 +1579,12 @@ void pStarPresent(PANEL_SPRITE* psp)
         pSetState(psp, psp->RestState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pStarBobSetup(PANEL_SPRITE* psp)
 {
@@ -1424,6 +1610,12 @@ void pLStarBobSetup(PANEL_SPRITE* psp)
     psp->bob_height_divider = 16;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pStarHide(PANEL_SPRITE* psp)
 {
     int picnum = psp->picndx;
@@ -1438,6 +1630,12 @@ void pStarHide(PANEL_SPRITE* psp)
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pStarRest(PANEL_SPRITE* psp)
 {
@@ -1469,17 +1667,28 @@ void pStarRest(PANEL_SPRITE* psp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pStarAction(PANEL_SPRITE* psp)
 {
     pStarBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 }
 
-
 void pStarThrow(PANEL_SPRITE* psp)
 {
     InitStar(psp->PlayerP);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pStarRetract(PANEL_SPRITE* psp)
 {
@@ -1653,6 +1862,12 @@ PANEL_STATE ps_UziDoneReload[] =
     {ID_UziEject0, RELOAD_UZI_RATE, pUziDoneReload, &ps_UziDoneReload[0], 0,0,0}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 #define CHAMBER_REST 0
 #define CHAMBER_FIRE 1
 #define CHAMBER_RELOAD 2
@@ -1698,9 +1913,12 @@ void pUziOverlays(PANEL_SPRITE* psp, short mode)
 #define UZI_RELOAD_YOFF 200
 
 
+//---------------------------------------------------------------------------
 //
 // Uzi Reload
 //
+//---------------------------------------------------------------------------
+
 
 void pUziEjectDown(PANEL_SPRITE* gun)
 {
@@ -1713,6 +1931,12 @@ void pUziEjectDown(PANEL_SPRITE* gun)
         pStatePlusOne(gun);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pUziEjectUp(PANEL_SPRITE* gun)
 {
@@ -1729,6 +1953,11 @@ void pUziEjectUp(PANEL_SPRITE* gun)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pSpawnUziClip(PANEL_SPRITE* gun)
 {
@@ -1757,6 +1986,12 @@ void pSpawnUziClip(PANEL_SPRITE* gun)
     New->sibling = gun;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pSpawnUziReload(PANEL_SPRITE* oclip)
 {
     PANEL_SPRITE* nclip;
@@ -1774,6 +2009,12 @@ void pSpawnUziReload(PANEL_SPRITE* oclip)
     // move gun sprite from clip to reload
     nclip->sibling = oclip->sibling;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pUziReload(PANEL_SPRITE* nclip)
 {
@@ -1823,6 +2064,12 @@ void pUziReload(PANEL_SPRITE* nclip)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pUziReloadRetract(PANEL_SPRITE* nclip)
 {
     PANEL_SPRITE* gun = nclip->sibling;
@@ -1848,6 +2095,12 @@ void pUziReloadRetract(PANEL_SPRITE* nclip)
         pKillSprite(nclip);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pUziDoneReload(PANEL_SPRITE* psp)
 {
@@ -1893,6 +2146,12 @@ void pUziDoneReload(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pUziClip(PANEL_SPRITE* oclip)
 {
 
@@ -1926,9 +2185,11 @@ void pUziClip(PANEL_SPRITE* oclip)
     }
 }
 
+//---------------------------------------------------------------------------
 //
 // Uzi Basic Stuff
 //
+//---------------------------------------------------------------------------
 
 void InitWeaponUzi(PLAYER* pp)
 {
@@ -2010,6 +2271,12 @@ void InitWeaponUzi(PLAYER* pp)
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 PANEL_SPRITE* InitWeaponUzi2(PANEL_SPRITE* uzi_orig)
 {
     PANEL_SPRITE* New;
@@ -2045,6 +2312,12 @@ PANEL_SPRITE* InitWeaponUzi2(PANEL_SPRITE* uzi_orig)
     return New;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 PANEL_SPRITE* InitWeaponUziSecondaryReload(PANEL_SPRITE* uzi_orig)
 {
     PANEL_SPRITE* New;
@@ -2071,6 +2344,12 @@ PANEL_SPRITE* InitWeaponUziSecondaryReload(PANEL_SPRITE* uzi_orig)
     return New;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pUziPresent(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
@@ -2095,7 +2374,12 @@ void pUziPresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // same as pUziPresent only faster for reload sequence
+//
+//---------------------------------------------------------------------------
+
 void pUziPresentReload(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
@@ -2115,6 +2399,12 @@ void pUziPresentReload(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pUziBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -2126,6 +2416,12 @@ void pUziBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 8;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pUziStartReload(PANEL_SPRITE* psp)
 {
@@ -2149,6 +2445,12 @@ void pUziStartReload(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pUziHide(PANEL_SPRITE* psp)
 {
     int picnum = psp->picndx;
@@ -2171,6 +2473,12 @@ void pUziHide(PANEL_SPRITE* psp)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pUziRest(PANEL_SPRITE* psp)
 {
@@ -2223,6 +2531,12 @@ void pUziRest(PANEL_SPRITE* psp)
         WeaponOK(psp->PlayerP);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pUziAction(PANEL_SPRITE* psp)
 {
     static int alternate = 0;
@@ -2257,6 +2571,12 @@ void pUziAction(PANEL_SPRITE* psp)
         pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP) || shooting);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pUziFire(PANEL_SPRITE* psp)
 {
@@ -2301,6 +2621,12 @@ void pUziFire(PANEL_SPRITE* psp)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pUziRetract(PANEL_SPRITE* psp)
 {
@@ -2379,6 +2705,12 @@ PANEL_STATE ps_Uzi2Shell[] =
     {ID_Uzi2Shell5, UZI_SHELL_RATE, pUziShell, &ps_Uzi2Shell[0], psf_Xflip, 0,0},
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnUziShell(PANEL_SPRITE* psp)
 {
     PLAYER* pp = psp->PlayerP;
@@ -2398,6 +2730,12 @@ void SpawnUziShell(PANEL_SPRITE* psp)
             SpawnShell(pp->actor,-2);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pUziShell(PANEL_SPRITE* psp)
 {
@@ -2591,6 +2929,12 @@ PANEL_STATE ps_RetractShotgun[] =
 #define SHOTGUN_YOFF 200
 #define SHOTGUN_XOFF (160+42)
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitWeaponShotgun(PLAYER* pp)
 {
     PANEL_SPRITE* psp = nullptr;
@@ -2638,11 +2982,23 @@ void InitWeaponShotgun(PLAYER* pp)
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pShotgunSetRecoil(PANEL_SPRITE* psp)
 {
     psp->vel = 900;
     psp->ang = NORM_ANGLE(-256);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pShotgunRecoilDown(PANEL_SPRITE* psp)
 {
@@ -2663,6 +3019,12 @@ void pShotgunRecoilDown(PANEL_SPRITE* psp)
         pStatePlusOne(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pShotgunRecoilUp(PANEL_SPRITE* psp)
 {
@@ -2685,6 +3047,12 @@ void pShotgunRecoilUp(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 #if 1
 void pShotgunReloadDown(PANEL_SPRITE* psp)
 {
@@ -2702,6 +3070,12 @@ void pShotgunReloadDown(PANEL_SPRITE* psp)
         pStatePlusOne(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pShotgunReloadUp(PANEL_SPRITE* psp)
 {
@@ -2723,6 +3097,12 @@ void pShotgunReloadUp(PANEL_SPRITE* psp)
 }
 #endif
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pShotgunPresent(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
@@ -2743,6 +3123,12 @@ void pShotgunPresent(PANEL_SPRITE* psp)
         pSetState(psp, psp->RestState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pShotgunBobSetup(PANEL_SPRITE* psp)
 {
@@ -2799,6 +3185,12 @@ PANEL_STATE ps_ShotgunFlash[] =
 };
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pShotgunHide(PANEL_SPRITE* psp)
 {
     int picnum = psp->picndx;
@@ -2813,6 +3205,12 @@ void pShotgunHide(PANEL_SPRITE* psp)
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 #if 1
 bool pShotgunReloadTest(PANEL_SPRITE* psp)
@@ -2832,6 +3230,12 @@ bool pShotgunReloadTest(PANEL_SPRITE* psp)
     return false;
 }
 #endif
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pShotgunRest(PANEL_SPRITE* psp)
 {
@@ -2881,6 +3285,12 @@ void pShotgunRest(PANEL_SPRITE* psp)
         WeaponOK(psp->PlayerP);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pShotgunRestTest(PANEL_SPRITE* psp)
 {
     bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
@@ -2914,6 +3324,12 @@ void pShotgunRestTest(PANEL_SPRITE* psp)
     pSetState(psp, psp->RestState);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pShotgunAction(PANEL_SPRITE* psp)
 {
     pShotgunBobSetup(psp);
@@ -2927,6 +3343,12 @@ void pShotgunFire(PANEL_SPRITE* psp)
     InitShotgun(psp->PlayerP);
     //SpawnShotgunShell(psp);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pShotgunRetract(PANEL_SPRITE* psp)
 {
@@ -3061,6 +3483,12 @@ PANEL_STATE ps_RetractRail[] =
 //#define RAIL_XOFF (160+60)
 #define RAIL_XOFF (160+6)
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitWeaponRail(PLAYER* pp)
 {
     PANEL_SPRITE* psp = nullptr;
@@ -3110,11 +3538,23 @@ void InitWeaponRail(PLAYER* pp)
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pRailSetRecoil(PANEL_SPRITE* psp)
 {
     psp->vel = 900;
     psp->ang = NORM_ANGLE(-256);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pRailRecoilDown(PANEL_SPRITE* psp)
 {
@@ -3133,6 +3573,12 @@ void pRailRecoilDown(PANEL_SPRITE* psp)
         pStatePlusOne(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pRailRecoilUp(PANEL_SPRITE* psp)
 {
@@ -3155,6 +3601,12 @@ void pRailRecoilUp(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pRailPresent(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
@@ -3176,6 +3628,12 @@ void pRailPresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pRailBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -3187,6 +3645,12 @@ void pRailBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 8;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pRailHide(PANEL_SPRITE* psp)
 {
@@ -3203,6 +3667,12 @@ void pRailHide(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pRailOkTest(PANEL_SPRITE* psp)
 {
     if (pWeaponHideKeys(psp, ps_RailHide))
@@ -3210,6 +3680,12 @@ void pRailOkTest(PANEL_SPRITE* psp)
 
     WeaponOK(psp->PlayerP);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pRailRest(PANEL_SPRITE* psp)
 {
@@ -3245,6 +3721,12 @@ void pRailRest(PANEL_SPRITE* psp)
         WeaponOK(psp->PlayerP);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pRailRestTest(PANEL_SPRITE* psp)
 {
     bool force = !!(psp->flags & PANF_UNHIDE_SHOOT);
@@ -3272,6 +3754,12 @@ void pRailRestTest(PANEL_SPRITE* psp)
     pSetState(psp, psp->RestState);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pRailAction(PANEL_SPRITE* psp)
 {
     pRailBobSetup(psp);
@@ -3279,11 +3767,23 @@ void pRailAction(PANEL_SPRITE* psp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pRailFire(PANEL_SPRITE* psp)
 {
     SpawnVis(psp->PlayerP->actor, nullptr, {}, 16);
     InitRail(psp->PlayerP);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pRailRetract(PANEL_SPRITE* psp)
 {
@@ -3457,6 +3957,12 @@ PANEL_STATE* HotheadTurnStates[] =
     ps_HotheadTurnNapalm
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 #define FIREBALL_MODE 0
 #define     RING_MODE 1
 #define   NAPALM_MODE 2
@@ -3478,6 +3984,12 @@ void pHotHeadOverlays(PANEL_SPRITE* psp, short mode)
         break;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 #define HOTHEAD_BOB_X_AMT 10
 
@@ -3535,6 +4047,12 @@ void InitWeaponHothead(PLAYER* pp)
     PlaySound(DIGI_GRDALERT, pp, v3df_follow|v3df_dontpan);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHotheadRestTest(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->input.actions & SB_FIRE)
@@ -3565,6 +4083,12 @@ void pHotheadRestTest(PANEL_SPRITE* psp)
     psp->over[0].yoff = HOTHEAD_FINGER_YOFF;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHotheadPresent(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
@@ -3582,6 +4106,12 @@ void pHotheadPresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHotheadBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -3593,6 +4123,12 @@ void pHotheadBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 4;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pHotheadHide(PANEL_SPRITE* psp)
 {
@@ -3610,6 +4146,11 @@ void pHotheadHide(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pHotheadRest(PANEL_SPRITE* psp)
 {
@@ -3659,6 +4200,12 @@ void pHotheadRest(PANEL_SPRITE* psp)
         WeaponOK(psp->PlayerP);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHotheadAction(PANEL_SPRITE* psp)
 {
     bool shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
@@ -3669,6 +4216,12 @@ void pHotheadAction(PANEL_SPRITE* psp)
         pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP) || shooting);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pHotheadAttack(PANEL_SPRITE* psp)
 {
@@ -3688,6 +4241,12 @@ void pHotheadAttack(PANEL_SPRITE* psp)
         break;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pHotheadRetract(PANEL_SPRITE* psp)
 {
@@ -3734,6 +4293,12 @@ PANEL_STATE ps_OnFire[] =
 #define ON_FIRE_Y_TOP 190
 #define ON_FIRE_Y_BOT 230
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnOnFire(PLAYER* pp)
 {
     PANEL_SPRITE* fire;
@@ -3746,6 +4311,12 @@ void SpawnOnFire(PLAYER* pp)
         x += tileWidth(fire->picndx);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pOnFire(PANEL_SPRITE* psp)
 {
@@ -3884,6 +4455,12 @@ PANEL_STATE ps_RetractMicro[] =
     {ID_MicroPresent0, Micro_REST_RATE, pMicroRetract, &ps_RetractMicro[0], 0,0,0}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 #define MICRO_BOB_X_AMT 10
 #define MICRO_YOFF 205
 #define MICRO_XOFF (150+MICRO_BOB_X_AMT)
@@ -3893,6 +4470,12 @@ void pMicroSetRecoil(PANEL_SPRITE* psp)
     psp->vel = 900;
     psp->ang = NORM_ANGLE(-256);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitWeaponMicro(PLAYER* pp)
 {
@@ -3949,6 +4532,12 @@ void InitWeaponMicro(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMicroRecoilDown(PANEL_SPRITE* psp)
 {
     psp->backupcoords();
@@ -3966,6 +4555,12 @@ void pMicroRecoilDown(PANEL_SPRITE* psp)
         pStatePlusOne(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMicroRecoilUp(PANEL_SPRITE* psp)
 {
@@ -3987,6 +4582,12 @@ void pMicroRecoilUp(PANEL_SPRITE* psp)
         psp->flags &= ~(PANF_BOB);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMicroPresent(PANEL_SPRITE* psp)
 {
@@ -4017,6 +4618,12 @@ void pMicroPresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMicroBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -4028,6 +4635,12 @@ void pMicroBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 8;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMicroHide(PANEL_SPRITE* psp)
 {
@@ -4044,6 +4657,12 @@ void pMicroHide(PANEL_SPRITE* psp)
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool pMicroOverlays(PANEL_SPRITE* psp)
 {
@@ -4110,6 +4729,12 @@ bool pMicroOverlays(PANEL_SPRITE* psp)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 PANEL_STATE ps_MicroHeatFlash[] =
 {
     {MICRO_HEAT, 30, nullptr, &ps_MicroHeatFlash[1], 0,0,0},
@@ -4137,6 +4762,12 @@ PANEL_STATE ps_MicroNukeFlash[] =
     {MICRO_SHOT_20, 30, nullptr, &ps_MicroNukeFlash[9], 0,0,0},
     {0,              0, nullptr, nullptr, 0,0,0}
 };
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMicroRest(PANEL_SPRITE* psp)
 {
@@ -4203,12 +4834,24 @@ void pMicroRest(PANEL_SPRITE* psp)
         WeaponOK(psp->PlayerP);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMicroAction(PANEL_SPRITE* psp)
 {
     pMicroBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMicroFire(PANEL_SPRITE* psp)
 {
@@ -4235,6 +4878,12 @@ void pMicroFire(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMicroRetract(PANEL_SPRITE* psp)
 {
     int picnum = psp->picndx;
@@ -4249,6 +4898,12 @@ void pMicroRetract(PANEL_SPRITE* psp)
         pKillSprite(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pNukeAction(PANEL_SPRITE* psp)
 {
@@ -4270,6 +4925,12 @@ void pNukeAction(PANEL_SPRITE* psp)
     if (!pp->InitingNuke)
         pSetState(psp, psp->PresentState);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMicroStandBy(PANEL_SPRITE* psp)
 {
@@ -4360,6 +5021,12 @@ PANEL_STATE ps_RetractHeart[] =
 
 #define HEART_YOFF 212
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitWeaponHeart(PLAYER* pp)
 {
     PANEL_SPRITE* psp;
@@ -4405,6 +5072,12 @@ void InitWeaponHeart(PLAYER* pp)
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHeartPresent(PANEL_SPRITE* psp)
 {
     if (psp->PlayerP->Flags & (PF_WEAPON_RETRACT))
@@ -4421,6 +5094,12 @@ void pHeartPresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHeartBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -4432,6 +5111,12 @@ void pHeartBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 8;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pHeartHide(PANEL_SPRITE* psp)
 {
@@ -4447,6 +5132,12 @@ void pHeartHide(PANEL_SPRITE* psp)
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pHeartRest(PANEL_SPRITE* psp)
 {
@@ -4486,6 +5177,12 @@ void pHeartRest(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHeartAction(PANEL_SPRITE* psp)
 {
     psp->bobpos.Y -= synctics;
@@ -4498,6 +5195,12 @@ void pHeartAction(PANEL_SPRITE* psp)
     pHeartBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pHeartActionBlood(PANEL_SPRITE* psp)
 {
@@ -4519,6 +5222,12 @@ void pHeartActionBlood(PANEL_SPRITE* psp)
 
 void InitHeartAttack(PLAYER* pp);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHeartAttack(PANEL_SPRITE* psp)
 {
     PLAYER* pp = psp->PlayerP;
@@ -4531,6 +5240,12 @@ void pHeartAttack(PANEL_SPRITE* psp)
         PlayerSound(DIGI_JG9009, v3df_follow|v3df_dontpan,pp);
     InitHeartAttack(psp->PlayerP);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pHeartRetract(PANEL_SPRITE* psp)
 {
@@ -4581,6 +5296,12 @@ PANEL_STATE ps_HeartBloodSmall[] =
     {ID_HeartBlood5, HEART_BLOOD_SMALL_RATE, pSuicide, &ps_HeartBlood[6], 0,0,0},
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnHeartBlood(PANEL_SPRITE* psp)
 {
     PLAYER* pp = psp->PlayerP;
@@ -4620,6 +5341,12 @@ void SpawnHeartBlood(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnSmallHeartBlood(PANEL_SPRITE* psp)
 {
     PLAYER* pp = psp->PlayerP;
@@ -4655,6 +5382,12 @@ void SpawnSmallHeartBlood(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pHeartBlood(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_JUMPING))
@@ -4676,6 +5409,12 @@ void pHeartBlood(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoBeginPanelJump(PANEL_SPRITE* psp)
 {
 #define PANEL_JUMP_GRAVITY FIXED(0,8000)
@@ -4690,6 +5429,12 @@ int DoBeginPanelJump(PANEL_SPRITE* psp)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoPanelJump(PANEL_SPRITE* psp)
 {
@@ -4710,6 +5455,12 @@ int DoPanelJump(PANEL_SPRITE* psp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoBeginPanelFall(PANEL_SPRITE* psp)
 {
     psp->flags |= (PANF_FALLING);
@@ -4722,6 +5473,12 @@ int DoBeginPanelFall(PANEL_SPRITE* psp)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoPanelFall(PANEL_SPRITE* psp)
 {
@@ -4799,6 +5556,12 @@ PANEL_STATE ps_RetractGrenade[] =
     {ID_GrenadePresent0, Grenade_REST_RATE, pGrenadeRetract, &ps_RetractGrenade[0], 0,0,0}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 #define GRENADE_YOFF 200
 #define GRENADE_XOFF (160+20)
 
@@ -4817,6 +5580,12 @@ void pGrenadePresentSetup(PANEL_SPRITE* psp)
     psp->ang = 256 + 128;
     psp->vel = 680;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitWeaponGrenade(PLAYER* pp)
 {
@@ -4864,6 +5633,12 @@ void InitWeaponGrenade(PLAYER* pp)
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pGrenadeRecoilDown(PANEL_SPRITE* psp)
 {
 //    int picnum = psp->picndx;
@@ -4887,6 +5662,12 @@ void pGrenadeRecoilDown(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pGrenadeRecoilUp(PANEL_SPRITE* psp)
 {
     psp->backupcoords();
@@ -4907,6 +5688,12 @@ void pGrenadeRecoilUp(PANEL_SPRITE* psp)
         psp->flags &= ~(PANF_BOB);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pGrenadePresent(PANEL_SPRITE* psp)
 {
@@ -4934,6 +5721,12 @@ void pGrenadePresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pGrenadeBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -4945,6 +5738,12 @@ void pGrenadeBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 8;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pGrenadeHide(PANEL_SPRITE* psp)
 {
@@ -4963,6 +5762,12 @@ void pGrenadeHide(PANEL_SPRITE* psp)
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pGrenadeRest(PANEL_SPRITE* psp)
 {
@@ -4991,6 +5796,12 @@ void pGrenadeRest(PANEL_SPRITE* psp)
         WeaponOK(psp->PlayerP);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pGrenadeAction(PANEL_SPRITE* psp)
 {
     pGrenadeBobSetup(psp);
@@ -5003,6 +5814,12 @@ void pGrenadeFire(PANEL_SPRITE* psp)
     SpawnVis(psp->PlayerP->actor, nullptr, {}, 32);
     InitGrenade(psp->PlayerP);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pGrenadeRetract(PANEL_SPRITE* psp)
 {
@@ -5073,6 +5890,12 @@ PANEL_STATE ps_RetractMine[] =
     {ID_MinePresent0, Mine_REST_RATE, pMineRetract, &ps_RetractMine[0], 0,0,0}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 #define MINE_YOFF 200
 //#define MINE_XOFF (160+20)
 #define MINE_XOFF (160+50)
@@ -5123,12 +5946,24 @@ void InitWeaponMine(PLAYER* pp)
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMineUpSound(PANEL_SPRITE* psp)
 {
     PLAYER* pp = psp->PlayerP;
 
     PlaySound(DIGI_MINE_UP, pp, v3df_follow);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMineLower(PANEL_SPRITE* psp)
 {
@@ -5144,6 +5979,12 @@ void pMineLower(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMineRaise(PANEL_SPRITE* psp)
 {
     psp->backupy();
@@ -5155,6 +5996,12 @@ void pMineRaise(PANEL_SPRITE* psp)
         pStatePlusOne(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMinePresent(PANEL_SPRITE* psp)
 {
@@ -5173,6 +6020,12 @@ void pMinePresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMineBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -5184,6 +6037,12 @@ void pMineBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 8;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMineHide(PANEL_SPRITE* psp)
 {
@@ -5200,6 +6059,12 @@ void pMineHide(PANEL_SPRITE* psp)
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMineRest(PANEL_SPRITE* psp)
 {
@@ -5228,6 +6093,12 @@ void pMineRest(PANEL_SPRITE* psp)
         WeaponOK(psp->PlayerP);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMineAction(PANEL_SPRITE* psp)
 {
     pMineBobSetup(psp);
@@ -5235,10 +6106,22 @@ void pMineAction(PANEL_SPRITE* psp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pMineThrow(PANEL_SPRITE* psp)
 {
     InitMine(psp->PlayerP);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pMineRetract(PANEL_SPRITE* psp)
 {
@@ -5348,6 +6231,12 @@ PANEL_STATE ps_ChopsRetract[] =
 #define CHOPS_YOFF 200
 #define CHOPS_XOFF (160+20)
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitChops(PLAYER* pp)
 {
     PANEL_SPRITE* psp;
@@ -5378,6 +6267,12 @@ void InitChops(PLAYER* pp)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pChopsClick(PANEL_SPRITE* psp)
 {
     int16_t rnd_rng;
@@ -5392,6 +6287,12 @@ void pChopsClick(PANEL_SPRITE* psp)
         PlayerSound(DIGI_SHISEISI,v3df_follow|v3df_dontpan,psp->PlayerP);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pChopsUp(PANEL_SPRITE* psp)
 {
     psp->backupy();
@@ -5403,6 +6304,12 @@ void pChopsUp(PANEL_SPRITE* psp)
         pStatePlusOne(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pChopsDown(PANEL_SPRITE* psp)
 {
@@ -5416,6 +6323,12 @@ void pChopsDown(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pChopsDownSlow(PANEL_SPRITE* psp)
 {
     psp->backupy();
@@ -5427,6 +6340,12 @@ void pChopsDownSlow(PANEL_SPRITE* psp)
         pSetState(psp, ps_ChopsWait);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pChopsShake(PANEL_SPRITE* psp)
 {
@@ -5440,6 +6359,12 @@ void pChopsShake(PANEL_SPRITE* psp)
         psp->opos.Y = psp->pos.Y = CHOPS_YOFF;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pChopsWait(PANEL_SPRITE* psp)
 {
@@ -5455,6 +6380,12 @@ void pChopsWait(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ChopsSetRetract(PLAYER* pp)
  {
     if (pp == nullptr || pp->Chops == nullptr)
@@ -5462,6 +6393,12 @@ void ChopsSetRetract(PLAYER* pp)
 
     pSetState(pp->Chops, pp->Chops->RetractState);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pChopsRetract(PANEL_SPRITE* psp)
 {
@@ -5541,6 +6478,12 @@ void FistBlur(PANEL_SPRITE* psp)
     InsertPanelSprite(psp->PlayerP, psp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnFistBlur(PANEL_SPRITE* psp)
 {
     if (cl_nomeleeblur) return;
@@ -5571,6 +6514,12 @@ void SpawnFistBlur(PANEL_SPRITE* psp)
 
     nsp->flags |= (PANF_TRANSLUCENT);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pFistPresent(PANEL_SPRITE* psp);
 void pFistRetract(PANEL_SPRITE* psp);
@@ -5709,6 +6658,12 @@ PANEL_STATE ps_RetractFist[] =
 #define FIST_VEL 3000
 #define FIST_POWER_VEL 3000
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitWeaponFist(PLAYER* pp)
 {
     PANEL_SPRITE* psp;
@@ -5767,6 +6722,12 @@ void InitWeaponFist(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pFistPresent(PANEL_SPRITE* psp)
 {
     int rnd;
@@ -5797,9 +6758,11 @@ void pFistPresent(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
 //
 // LEFT SWING
 //
+//---------------------------------------------------------------------------
 
 void pFistSlide(PANEL_SPRITE* psp)
 {
@@ -5813,6 +6776,12 @@ void pFistSlide(PANEL_SPRITE* psp)
 
     psp->vel += 68 * synctics;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pFistSlideDown(PANEL_SPRITE* psp)
 {
@@ -5892,9 +6861,11 @@ void pFistSlideDown(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
 //
 // RIGHT SWING
 //
+//---------------------------------------------------------------------------
 
 void pFistSlideR(PANEL_SPRITE* psp)
 {
@@ -5908,6 +6879,12 @@ void pFistSlideR(PANEL_SPRITE* psp)
 
     psp->vel += 68 * synctics;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pFistSlideDownR(PANEL_SPRITE* psp)
 {
@@ -5980,6 +6957,12 @@ void pFistSlideDownR(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pFistBobSetup(PANEL_SPRITE* psp)
 {
     if (psp->flags & (PANF_BOB))
@@ -5991,6 +6974,12 @@ void pFistBobSetup(PANEL_SPRITE* psp)
     psp->sin_ndx = 0;
     psp->bob_height_divider = 8;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pFistHide(PANEL_SPRITE* psp)
 {
@@ -6006,6 +6995,12 @@ void pFistHide(PANEL_SPRITE* psp)
         pWeaponUnHideKeys(psp, psp->PresentState);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pFistRest(PANEL_SPRITE* psp)
 {
@@ -6052,6 +7047,12 @@ void pFistRest(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pFistAction(PANEL_SPRITE* psp)
 {
     pFistBobSetup(psp);
@@ -6063,6 +7064,12 @@ void pFistAttack(PANEL_SPRITE* psp)
 {
     InitFistAttack(psp->PlayerP);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pFistRetract(PANEL_SPRITE* psp)
 {
@@ -6078,6 +7085,12 @@ void pFistRetract(PANEL_SPRITE* psp)
         pKillSprite(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pFistBlock(PANEL_SPRITE* psp)
 {
@@ -6110,6 +7123,12 @@ void pWeaponForceRest(PLAYER* pp)
 {
     pSetState(pp->CurWpn, pp->CurWpn->RestState);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool pWeaponUnHideKeys(PANEL_SPRITE* psp, PANEL_STATE* state)
 {
@@ -6158,6 +7177,12 @@ bool pWeaponUnHideKeys(PANEL_SPRITE* psp, PANEL_STATE* state)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool pWeaponHideKeys(PANEL_SPRITE* psp, PANEL_STATE* state)
 {
     if (psp->PlayerP->Flags & (PF_DEAD))
@@ -6192,6 +7217,12 @@ bool pWeaponHideKeys(PANEL_SPRITE* psp, PANEL_STATE* state)
     return false;
 
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InsertPanelSprite(PLAYER* pp, PANEL_SPRITE* psp)
 {
@@ -6235,6 +7266,12 @@ void InsertPanelSprite(PLAYER* pp, PANEL_SPRITE* psp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 PANEL_SPRITE* pSpawnSprite(PLAYER* pp, PANEL_STATE* state, uint8_t priority, double x, double y)
 {
     unsigned i;
@@ -6277,6 +7314,12 @@ PANEL_SPRITE* pSpawnSprite(PLAYER* pp, PANEL_STATE* state, uint8_t priority, dou
     return psp;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pSuicide(PANEL_SPRITE* psp)
 {
     pKillSprite(psp);
@@ -6291,6 +7334,12 @@ void pKillSprite(PANEL_SPRITE* psp)
     FreeMem(psp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pClearSpriteList(PLAYER* pp)
 {
     PANEL_SPRITE* psp = nullptr, * next_psp = nullptr;
@@ -6302,6 +7351,12 @@ void pClearSpriteList(PLAYER* pp)
         pKillSprite(psp);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pWeaponBob(PANEL_SPRITE* psp, short condition)
 {
@@ -6649,6 +7704,12 @@ void pDisplaySprites(PLAYER* pp, double interpfrac)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void pSpriteControl(PLAYER* pp)
 {
     PANEL_SPRITE* next=nullptr;
@@ -6672,6 +7733,12 @@ void pSpriteControl(PLAYER* pp)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pSetState(PANEL_SPRITE* psp, PANEL_STATE* panel_state)
 {
@@ -6706,6 +7773,11 @@ void pStatePlusOne(PANEL_SPRITE* psp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void pStateControl(PANEL_SPRITE* psp)
 {
@@ -6753,6 +7825,12 @@ void pStateControl(PANEL_SPRITE* psp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void UpdatePanel(double interpfrac)
 {
     short pnum;
@@ -6763,6 +7841,12 @@ void UpdatePanel(double interpfrac)
             pDisplaySprites(Player + pnum, interpfrac);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PreUpdatePanel(double interpfrac)
 {
@@ -6797,6 +7881,11 @@ PANEL_STATE ps_PanelEnvironSuit[] =
     {ID_PanelEnvironSuit, EnvironSuit_RATE, PanelInvTestSuicide, &ps_PanelEnvironSuit[0], 0,0,0}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 

@@ -1048,7 +1048,11 @@ STATE* sg_PlayerNinjaFly[] =
     s_PlayerNinjaFly[4]
 };
 
-/////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerSpriteThrow(PLAYER* pp)
 {
@@ -1063,6 +1067,12 @@ void DoPlayerSpriteThrow(PLAYER* pp)
         //    NewStateGroup(pp->actor, sg_PlayerNinjaThrow);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoPlayerSpriteReset(DSWActor* actor)
 {
@@ -1087,6 +1097,12 @@ int DoPlayerSpriteReset(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SetVisHigh(void)
 {
 //    g_visibility = NormalVisibility>>1;
@@ -1104,6 +1120,12 @@ void pSetVisNorm(PANEL_SPRITE* psp)
 //    SetVisNorm();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 TARGET_SORT TargetSort[MAX_TARGET_SORT];
 unsigned TargetSortCount;
 
@@ -1119,6 +1141,12 @@ static int CompareTarget(void const * a, void const * b)
 bool
 FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte);
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
 {
@@ -1238,6 +1266,12 @@ DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
     return TargetSort[0].actor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerResetMovement(PLAYER* pp)
 {
     pp->vect.Zero();
@@ -1246,6 +1280,12 @@ void DoPlayerResetMovement(PLAYER* pp)
     pp->drive_avel = 0;
     pp->Flags &= ~(PF_PLAYER_MOVED);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerTeleportPause(PLAYER* pp)
 {
@@ -1264,6 +1304,12 @@ void DoPlayerTeleportPause(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
     pp->angle.ang = pp->angle.oang = ang;
@@ -1274,6 +1320,12 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerTeleportToOffset(PLAYER* pp)
 {
     pp->oldpos.XY() = pp->opos.XY() = pp->pos.XY();
@@ -1281,6 +1333,12 @@ void DoPlayerTeleportToOffset(PLAYER* pp)
     updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoSpawnTeleporterEffect(DSWActor* actor)
 {
@@ -1300,6 +1358,12 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     effectActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
@@ -1315,6 +1379,12 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 
     effectActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerWarpTeleporter(PLAYER* pp)
 {
@@ -1382,6 +1452,12 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
     ppActor->backuppos();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerSetWadeDepth(PLAYER* pp)
 {
     sectortype* sectp;
@@ -1401,6 +1477,12 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
     }
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerHeight(PLAYER* pp)
 {
@@ -1426,6 +1508,12 @@ void DoPlayerCrawlHeight(PLAYER* pp)
     pp->pos.Z -= diff * 0.375;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void UpdatePlayerSpriteAngle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -1441,11 +1529,23 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerTurn(PLAYER* pp, float const avel, double const scaleAdjust)
 {
     pp->angle.applyinput(avel, &pp->input.actions, scaleAdjust);
     UpdatePlayerSpriteAngle(pp);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
 {
@@ -1474,6 +1574,12 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
 {
     float avel;
@@ -1501,6 +1607,12 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerTurnTurret(PLAYER* pp, float avel)
 {
@@ -1543,6 +1655,12 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
     OperateSectorObject(pp->sop, pp->angle.ang, pp->sop->pmid);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SlipSlope(PLAYER* pp)
 {
     if (!pp->insector() || !pp->cursector->hasU())
@@ -1558,12 +1676,24 @@ void SlipSlope(PLAYER* pp)
 	pp->vect += ang.ToVector() * pp->cursector->floorheinum / (1 << (sectu->speed + 4)); // todo confirm scale
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
     pp->horizon.calcviewpitch(pp->int_ppos().vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerBob(PLAYER* pp)
 {
@@ -1602,6 +1732,12 @@ void DoPlayerBob(PLAYER* pp)
     pp->bob_z = amt * BobVal(pp->bcnt);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt)
 {
     pp->Flags |= (PF_RECOIL);
@@ -1629,15 +1765,24 @@ void DoPlayerRecoil(PLAYER* pp)
     pp->recoil_horizoff = pp->recoil_amt * bsin(pp->recoil_ndx, 2);
 }
 
-
-
+//---------------------------------------------------------------------------
+//
 // for wading
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bobamt, short bob_speed)
 {
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
     pp->pbob_amt = bobamt * BobVal(pp->bob_ndx);
     pp->actor->spr.pos.Z = pp->pos.Z + player_height + pp->pbob_amt;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void UpdatePlayerUnderSprite(PLAYER* pp)
 {
@@ -1699,6 +1844,11 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
     act_under->spr.picnum = act_over->spr.picnum;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void UpdatePlayerSprite(PLAYER* pp)
 {
@@ -1777,6 +1927,12 @@ void UpdatePlayerSprite(PLAYER* pp)
     actor->set_int_ang(pp->angle.ang.Buildang());
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerZrange(PLAYER* pp)
 {
     Collision ceilhit, florhit;
@@ -1832,6 +1988,12 @@ void DoPlayerZrange(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerSlide(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
@@ -1881,6 +2043,12 @@ void DoPlayerSlide(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
@@ -1889,6 +2057,12 @@ void PlayerCheckValidMove(PLAYER* pp)
         pp->cursector = pp->lastcursector;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PlayerSectorBound(PLAYER* pp, double amt)
 {
@@ -1915,6 +2089,12 @@ void PlayerSectorBound(PLAYER* pp, double amt)
         pp->pos.Z = cz + amt;
 
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerMove(PLAYER* pp)
 {
@@ -2084,6 +2264,12 @@ void DoPlayerMove(PLAYER* pp)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerSectorUpdatePreMove(PLAYER* pp)
 {
