@@ -1356,8 +1356,6 @@ int InitActorFindPlayer(DSWActor* actor)
 
 int InitActorDuck(DSWActor* actor)
 {
-    int dist;
-
     if (!actor->user.ActorActionSet->Duck)
     {
         actor->user.ActorActionFunc = DoActorDecide;
@@ -1367,9 +1365,9 @@ int InitActorDuck(DSWActor* actor)
     actor->user.ActorActionFunc = DoActorDuck;
     NewStateGroup(actor, actor->user.ActorActionSet->Duck);
 
-	dist = DistanceI(actor->spr.pos, actor->user.targetActor->spr.pos);
+	double dist = (actor->spr.pos.XY(), actor->user.targetActor->spr.pos.XY()).LengthSquared();
 
-    if (dist > 8000)
+    if (dist > 500*500)
     {
         actor->user.WaitTics = 190;
     }
