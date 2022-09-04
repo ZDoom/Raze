@@ -722,6 +722,12 @@ ACTOR_ACTION_SET BunnyWhiteActionSet =
     nullptr
 };
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int SetupBunny(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
@@ -789,6 +795,12 @@ int SetupBunny(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int GetBunnyJumpHeight(int jump_speed, int jump_grav)
 {
     int jump_iterations;
@@ -802,6 +814,12 @@ int GetBunnyJumpHeight(int jump_speed, int jump_grav)
 
     return height >> 9;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int PickBunnyJumpSpeed(DSWActor* actor, int pix_height)
 {
@@ -823,9 +841,11 @@ int PickBunnyJumpSpeed(DSWActor* actor, int pix_height)
     return actor->user.jump_speed;
 }
 
+//---------------------------------------------------------------------------
 //
 // JUMP ATTACK
 //
+//---------------------------------------------------------------------------
 
 int DoBunnyBeginJumpAttack(DSWActor* actor)
 {
@@ -881,9 +901,15 @@ int DoBunnyMoveJump(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void DoPickCloseBunny(DSWActor* actor)
 {
-    int dist, near_dist = 1000, a,b,c;
+    double near_dist = 62.5;
 
     // if actor can still see the player
     bool ICanSee = false;
@@ -895,7 +921,7 @@ void DoPickCloseBunny(DSWActor* actor)
 
         if (itActor->user.ID != BUNNY_RUN_R0) continue;
 
-        DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+        double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
         if (dist > near_dist) continue;
 
@@ -911,6 +937,12 @@ void DoPickCloseBunny(DSWActor* actor)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoBunnyQuickJump(DSWActor* actor)
 {
@@ -1034,6 +1066,11 @@ int DoBunnyQuickJump(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int NullBunny(DSWActor* actor)
 {
@@ -1057,6 +1094,12 @@ int NullBunny(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoBunnyPain(DSWActor* actor)
 {
@@ -1093,12 +1136,15 @@ int DoBunnyStandKill(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void BunnyHatch(DSWActor* actor)
 {
     const int MAX_BUNNYS = 1;
-    int16_t rip_ang[MAX_BUNNYS];
-
-    rip_ang[0] = RANDOM_P2(2048);
 
     for (int i = 0; i < MAX_BUNNYS; i++)
     {
@@ -1106,7 +1152,7 @@ void BunnyHatch(DSWActor* actor)
         actorNew->spr.pos = actor->spr.pos;
         actorNew->spr.xrepeat = 30;  // Baby size
         actorNew->spr.yrepeat = 24;
-        actorNew->set_int_ang(rip_ang[i]);
+        actorNew->spr.angle = RANDOM_ANGLE();
         actorNew->spr.pal = 0;
         SetupBunny(actorNew);
         actorNew->spr.shade = actor->spr.shade;
@@ -1155,9 +1201,14 @@ void BunnyHatch(DSWActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 DSWActor* BunnyHatch2(DSWActor* actor)
 {
-
     auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
     actorNew->spr.pos = actor->spr.pos;
     actorNew->spr.xrepeat = 30;  // Baby size
@@ -1189,10 +1240,9 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     {
         PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
-        actorNew->set_int_xvel(150 + RandomRange(1000));
+        actorNew->vel.X = (150 + RandomRange(1000)) * maptoworld;
         actorNew->user.Health = 1; // Easy to pop. Like shootn' skeet.
-        actorNew->add_int_ang(-RandomRange(128));
-        actorNew->add_int_ang(RandomRange(128));
+        actorNew->spr.angle += DAngle::fromBuild(RandomRange(128) - RandomRange(128));
     }
     else
         PickJumpMaxSpeed(actorNew, -600);
@@ -1212,6 +1262,12 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 
     return actorNew;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoBunnyMove(DSWActor* actor)
 {
@@ -1273,7 +1329,7 @@ int DoBunnyMove(DSWActor* actor)
             NewStateGroup(actor,sg_BunnyStand);
             break;
         default:
-            actor->set_int_ang(NORM_ANGLE(RandomRange(2048 << 6) >> 6));
+            actor->spr.angle = DAngle::fromBuild(RandomRange(2048 << 6) >> 6);
             actor->user.jump_speed = -350;
             DoActorBeginJump(actor);
             actor->user.ActorActionFunc = DoActorMoveJump;
@@ -1284,11 +1340,23 @@ int DoBunnyMove(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int BunnySpew(DSWActor* actor)
 {
     InitBloodSpray(actor, true, -1);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoBunnyEat(DSWActor* actor)
 {
@@ -1337,6 +1405,12 @@ int DoBunnyEat(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoBunnyScrew(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
@@ -1382,6 +1456,12 @@ int DoBunnyScrew(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoBunnyGrowUp(DSWActor* actor)
 {
     if (actor->spr.pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies
@@ -1414,6 +1494,11 @@ int DoBunnyGrowUp(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 
