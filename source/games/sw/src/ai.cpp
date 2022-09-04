@@ -1427,7 +1427,7 @@ int DoActorMoveJump(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-Collision move_scan(DSWActor* actor, int ang, int dist, DVector3& stop)
+Collision move_scan(DSWActor* actor, DAngle ang, double dst, DVector3& stop)
 {
     uint32_t cliptype = CLIPMASK_ACTOR;
 
@@ -1450,8 +1450,8 @@ Collision move_scan(DSWActor* actor, int ang, int dist, DVector3& stop)
     ssp = actor->sector();
 
     // do the move
-    actor->set_int_ang(ang);
-	auto vec = actor->spr.angle.ToVector() * dist * inttoworld;
+    actor->spr.angle = ang;
+	auto vec = ang.ToVector() * dst;
 
     Collision ret = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, cliptype, 1);
     // move_sprite DOES do a getzrange point?
@@ -1475,13 +1475,19 @@ Collision move_scan(DSWActor* actor, int ang, int dist, DVector3& stop)
     return ret;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 enum
 {
     TOWARD = 1,
     AWAY = -1
 };
 
-int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
+DAngle FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 {
     static const int16_t toward_angle_delta[4][9] =
     {
@@ -1502,8 +1508,10 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 
     const int16_t* adp = nullptr;
 
-    int new_ang, oang;
-    int save_ang = -1;
+    DAngle new_ang;
+    DAngle save_ang = -minAngle;
+    bool save_set = false;
+    
     int set;
     // start out with mininum distance that will be accepted as a move
     double save_dist = 31.25;
@@ -1513,7 +1521,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         DistToMove = (DistToMove >> 2) + (DistToMove >> 3);
 
     // Find angle to from the player
-    oang = NORM_ANGLE(getangle(actor->user.targetActor->spr.pos - actor->spr.pos));
+    auto oang = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
 
     // choose a random angle array
     switch (dir)
@@ -1535,24 +1543,24 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         break;
     default:
         Printf("FindNewAngle called with dir=%d!\n",dir);
-        return 0;
+        return nullAngle;
     }
 
     for (; *adp != -99; adp++)
     {
-        new_ang = NORM_ANGLE(oang + *adp);
+        new_ang = oang + DAngle::fromBuild(* adp);
 
 #if 1
         // look directly ahead for a ledge
         if (!(actor->user.Flags & (SPR_NO_SCAREDZ | SPR_JUMPING | SPR_FALLING | SPR_SWIMMING | SPR_DEAD)))
         {
-            actor->set_int_ang(new_ang);
+            actor->spr.angle = new_ang;
             if (DropAhead(actor, actor->user.lo_step))
             {
-                actor->set_int_ang(oang);
+                actor->spr.angle = oang;
                 continue;
             }
-            actor->set_int_ang(oang);
+            actor->spr.angle = oang;
         }
 #endif
 
@@ -1575,12 +1583,13 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
             if (dist > save_dist)
             {
                 save_ang = new_ang;
+                save_set = true;
                 save_dist = dist;
             }
         }
     }
 
-    if (save_ang != -1)
+    if (save_set)
     {
         actor->user.TargetDist = save_dist;
 
@@ -1593,11 +1602,11 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         if (actor->user.TargetDist > 250)
             actor->user.TargetDist -= 218.75;
 
-        actor->set_int_ang(save_ang);
+        actor->spr.angle = save_ang;
         return save_ang;
     }
 
-    return -1;
+    return -minAngle;
 }
 
 
@@ -1616,7 +1625,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 
 int InitActorReposition(DSWActor* actor)
 {
-    int ang;
+    DAngle ang;
     int rnum;
     int dist;
 
@@ -1665,14 +1674,14 @@ int InitActorReposition(DSWActor* actor)
     {
         rnum = RANDOM_P2(8<<8)>>8;
         ang = FindNewAngle(actor, AWAY, AwayDist[rnum]);
-        if (ang == -1)
+        if (ang == -minAngle)
         {
             actor->user.Vis = 8;
             InitActorPause(actor);
             return 0;
         }
 
-        actor->set_int_ang(ang);
+        actor->spr.angle = ang;
         DoActorSetSpeed(actor, FAST_SPEED);
         actor->user.Flags &= ~(SPR_RUN_AWAY);
     }
@@ -1681,12 +1690,12 @@ int InitActorReposition(DSWActor* actor)
         // try to move toward player
         rnum = RANDOM_P2(8<<8)>>8;
         ang = FindNewAngle(actor, TOWARD, TowardDist[rnum]);
-        if (ang == -1)
+        if (ang == -minAngle)
         {
             // try to move away from player
             rnum = RANDOM_P2(8<<8)>>8;
             ang = FindNewAngle(actor, AWAY, AwayDist[rnum]);
-            if (ang == -1)
+            if (ang == -minAngle)
             {
                 actor->user.Vis = 8;
                 InitActorPause(actor);
@@ -1702,7 +1711,7 @@ int InitActorReposition(DSWActor* actor)
                 DoActorSetSpeed(actor, MID_SPEED);
         }
 
-        actor->set_int_ang(ang);
+        actor->spr.angle = ang;
     }
 
 
