@@ -383,6 +383,12 @@ TARGETACTOR:
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 DSWActor* GetPlayerSpriteNum(DSWActor* actor)
 {
     int pnum;
@@ -400,6 +406,12 @@ DSWActor* GetPlayerSpriteNum(DSWActor* actor)
     return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int CloseRangeDist(DSWActor* actor1, DSWActor* actor2)
 {
     int clip1 = actor1->spr.clipdist;
@@ -415,6 +427,12 @@ double CloseRangeDistF(DSWActor* actor1, DSWActor* actor2)
 {
     return CloseRangeDist(actor1, actor2) * inttoworld;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorOperate(DSWActor* actor)
 {
@@ -452,6 +470,12 @@ int DoActorOperate(DSWActor* actor)
     return true;
 
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 DECISION GenericFlaming[] =
 {
@@ -639,16 +663,23 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
     return action;
 }
 
-/*
-  !AIC - Setup to do the decision
-*/
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int InitActorDecide(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorDecide;
     return DoActorDecide(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorDecide(DSWActor* actor)
 {
@@ -700,6 +731,12 @@ int DoActorDecide(DSWActor* actor)
 // Assigning 'sw_snd_scratch' different values makes them different so that merging does not occur.
 int sw_snd_scratch = 0;
 
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int InitActorAlertNoise(DSWActor* actor)
 {
@@ -791,9 +828,11 @@ int InitActorExtra6Noise(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
 /*
   !AIC KEY - Routines handle moving toward the player.
 */
+//---------------------------------------------------------------------------
 
 int InitActorMoveCloser(DSWActor* actor)
 {
@@ -806,6 +845,12 @@ int InitActorMoveCloser(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorCantMoveCloser(DSWActor* actor)
 {
@@ -829,6 +874,12 @@ int DoActorCantMoveCloser(DSWActor* actor)
     }
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorMoveCloser(DSWActor* actor)
 {
@@ -874,10 +925,11 @@ int DoActorMoveCloser(DSWActor* actor)
 
 }
 
+//---------------------------------------------------------------------------
 /*
   !AIC - Find tracks of different types.  Toward target, away from target, etc.
 */
-
+//---------------------------------------------------------------------------
 
 int FindTrackToPlayer(DSWActor* actor)
 {
@@ -955,7 +1007,11 @@ int FindTrackToPlayer(DSWActor* actor)
 
 }
 
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int FindTrackAwayFromPlayer(DSWActor* actor)
 {
@@ -994,6 +1050,11 @@ int FindTrackAwayFromPlayer(DSWActor* actor)
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int FindWanderTrack(DSWActor* actor)
 {
@@ -1031,6 +1092,11 @@ int FindWanderTrack(DSWActor* actor)
     return -1;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int InitActorRunAway(DSWActor* actor)
 {
@@ -1055,6 +1121,12 @@ int InitActorRunAway(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int InitActorRunToward(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorDecide;
@@ -1066,12 +1138,13 @@ int InitActorRunToward(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
 /*
   !AIC - Where actors do their attacks.  There is some special case code throughout
   these.  Both close and long range attacks are handled here by transitioning to
   the correct attack state.
 */
-
+//---------------------------------------------------------------------------
 
 int InitActorAttack(DSWActor* actor)
 {
@@ -1153,6 +1226,11 @@ int InitActorAttack(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorAttack(DSWActor* actor)
 {
@@ -1187,6 +1265,12 @@ int DoActorAttack(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int InitActorEvade(DSWActor* actor)
 {
     // Evade is same thing as run away except when you get to the end of the track
@@ -1209,6 +1293,12 @@ int InitActorEvade(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int InitActorWanderAround(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoActorDecide;
@@ -1227,6 +1317,12 @@ int InitActorWanderAround(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int InitActorFindPlayer(DSWActor* actor)
 {
@@ -1249,10 +1345,14 @@ int InitActorFindPlayer(DSWActor* actor)
     {
         InitActorReposition(actor);
     }
-
-
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int InitActorDuck(DSWActor* actor)
 {
@@ -1285,6 +1385,12 @@ int InitActorDuck(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoActorDuck(DSWActor* actor)
 {
     if ((actor->user.WaitTics -= ACTORMOVETICS) < 0)
@@ -1296,6 +1402,12 @@ int DoActorDuck(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorMoveJump(DSWActor* actor)
 {
@@ -1309,6 +1421,11 @@ int DoActorMoveJump(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 Collision move_scan(DSWActor* actor, int ang, int dist, DVector3& stop)
 {
