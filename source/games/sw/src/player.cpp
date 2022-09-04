@@ -5451,7 +5451,7 @@ void DoPlayerBeginDie(PLAYER* pp)
 
         pp->Flags |= (PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -300;
-        plActor->user.slide_vel = 0;
+        plActor->user._slide_vel = 0;
         SpawnShrap(pp->actor, nullptr);
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
@@ -5484,7 +5484,7 @@ void DoPlayerBeginDie(PLAYER* pp)
 
         pp->Flags |= (PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = 200;
-        plActor->user.slide_vel = 800;
+        plActor->user._slide_vel = 800;
         SpawnShrap(pp->actor, nullptr);
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
@@ -5703,10 +5703,10 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
             {
                 pp->KillerActor = itActor;
 
-                plActor->user.slide_ang = getangle(plActor->int_pos().X - itActor->int_pos().X, plActor->int_pos().Y - itActor->int_pos().Y);
-                plActor->user.slide_ang = NORM_ANGLE(plActor->user.slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
+                plActor->user._slide_ang = getangle(plActor->int_pos().X - itActor->int_pos().X, plActor->int_pos().Y - itActor->int_pos().Y);
+                plActor->user._slide_ang = NORM_ANGLE(plActor->user._slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
 
-                plActor->user.slide_vel = itActor->int_xvel() << 1;
+                plActor->user._slide_vel = itActor->int_xvel() << 1;
                 plActor->user.Flags &= ~(SPR_BOUNCE);
                 pp->jump_speed = -500;
                 NewStateGroup(pp->actor, sg_PlayerHeadFly);
@@ -5721,8 +5721,8 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
     // sector stomper kick
     if (abs(pp->loz - pp->hiz) < ActorSizeZ(plActor) - 8)
     {
-        plActor->user.slide_ang = RANDOM_P2(2048);
-        plActor->user.slide_vel = 1000;
+        plActor->user._slide_ang = RANDOM_P2(2048);
+        plActor->user._slide_vel = 1000;
         plActor->user.Flags &= ~(SPR_BOUNCE);
         pp->jump_speed = -100;
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
@@ -5737,8 +5737,8 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
     DSWActor* plActor = pp->actor;
     int dax,day;
 
-    dax = MOVEx(plActor->user.slide_vel, plActor->user.slide_ang);
-    day = MOVEy(plActor->user.slide_vel, plActor->user.slide_ang);
+    dax = MOVEx(plActor->user._slide_vel, plActor->user._slide_ang);
+    day = MOVEy(plActor->user._slide_vel, plActor->user._slide_ang);
 
     plActor->user.coll = move_sprite(pp->actor, dax, day, 0, Z(16), Z(16), 1, synctics);
     {
@@ -5755,8 +5755,8 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
 
 
             wall_ang = NORM_ANGLE(hitActor->int_ang());
-            dang = getincangle(wall_ang, plActor->user.slide_ang);
-            plActor->user.slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
+            dang = getincangle(wall_ang, plActor->user._slide_ang);
+            plActor->user._slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
             SpawnShrap(pp->actor, nullptr);
             break;
@@ -5765,8 +5765,8 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
         {
             int wall_ang = NORM_ANGLE(getangle(plActor->user.coll.hitWall->delta())-512);
 
-            int dang = getincangle(wall_ang, plActor->user.slide_ang);
-            plActor->user.slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
+            int dang = getincangle(wall_ang, plActor->user._slide_ang);
+            plActor->user._slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
             SpawnShrap(pp->actor, nullptr);
             break;
@@ -5879,7 +5879,7 @@ void DoPlayerDeathBounce(PLAYER* pp)
     {
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         NewStateGroup(pp->actor, sg_PlayerHead);
-        plActor->user.slide_vel = 0;
+        plActor->user._slide_vel = 0;
         plActor->user.Flags |= (SPR_BOUNCE);
 
 
@@ -5888,8 +5888,8 @@ void DoPlayerDeathBounce(PLAYER* pp)
 
     plActor->user.Flags |= (SPR_BOUNCE);
     pp->jump_speed = -300;
-    plActor->user.slide_vel >>= 2;
-    plActor->user.slide_ang = NORM_ANGLE((RANDOM_P2(64<<8)>>8) - 32);
+    plActor->user._slide_vel >>= 2;
+    plActor->user._slide_ang = NORM_ANGLE((RANDOM_P2(64<<8)>>8) - 32);
     pp->Flags |= (PF_JUMPING);
     SpawnShrap(pp->actor, nullptr);
 }

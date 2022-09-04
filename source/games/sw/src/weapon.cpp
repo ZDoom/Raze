@@ -5366,9 +5366,9 @@ int PlayerCheckDeath(PLAYER* pp, DSWActor* weapActor)
         DoPlayerBeginDie(pp);
 
         // for death direction
-        actor->user.slide_ang = getangle(actor->int_pos().X - weapActor->int_pos().X, actor->int_pos().Y - weapActor->int_pos().Y);
+        actor->user._slide_ang = getangle(actor->int_pos().X - weapActor->int_pos().X, actor->int_pos().Y - weapActor->int_pos().Y);
         // for death velocity
-        actor->user.slide_vel = actor->user.LastDamage * 5;
+        actor->user._slide_vel = actor->user.LastDamage * 5;
 
         return true;
     }
@@ -11114,7 +11114,7 @@ int DoSerpRing(DSWActor* actor)
     }
 
     // rotate the ring
-    actor->user.slide_ang = NORM_ANGLE(actor->user.slide_ang + actor->spr.yint);
+    actor->user._slide_ang = NORM_ANGLE(actor->user._slide_ang + actor->spr.yint);
 
     // rotate the heads
     if (actor->user.Flags & (SPR_BOUNCE))
@@ -11123,7 +11123,7 @@ int DoSerpRing(DSWActor* actor)
         actor->set_int_ang(NORM_ANGLE(actor->int_ang() - (28 * RINGMOVETICS)));
 
     // put it out there
-    actor->add_int_pos({ MulScale(int(actor->user.Dist * worldtoint), bcos(actor->user.slide_ang), 14), MulScale(int(actor->user.Dist * worldtoint), bsin(actor->user.slide_ang), 14), 0 });
+    actor->add_int_pos({ MulScale(int(actor->user.Dist * worldtoint), bcos(actor->user._slide_ang), 14), MulScale(int(actor->user.Dist * worldtoint), bsin(actor->user._slide_ang), 14), 0 });
 
     SetActor(actor, actor->spr.pos);
 
@@ -11337,7 +11337,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->user.pos.Z = 50;
 
         // ang around the serp is now slide_ang
-        actorNew->user.slide_ang = actorNew->int_ang();
+        actorNew->user._slide_ang = actorNew->int_ang();
         // randomize the head turning angle
         actorNew->set_int_ang(RANDOM_P2(2048<<5)>>5);
 

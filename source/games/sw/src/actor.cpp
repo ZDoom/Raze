@@ -618,9 +618,9 @@ int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec)
 {
     actor->user.Flags |= (SPR_SLIDING);
 
-    actor->user.slide_ang = ang;
-    actor->user.slide_vel = vel;
-    actor->user.slide_dec = dec;
+    actor->user._slide_ang = ang;
+    actor->user._slide_vel = vel;
+    actor->user._slide_dec = dec;
 
     //DoActorSlide(actor);
 
@@ -634,8 +634,8 @@ int DoActorSlide(DSWActor* actor)
 {
     int nx, ny;
 
-    nx = MulScale(actor->user.slide_vel, bcos(actor->user.slide_ang), 14);
-    ny = MulScale(actor->user.slide_vel, bsin(actor->user.slide_ang), 14);
+    nx = MulScale(actor->user._slide_vel, bcos(actor->user._slide_ang), 14);
+    ny = MulScale(actor->user._slide_vel, bsin(actor->user._slide_ang), 14);
 
     if (!move_actor(actor, DVector3(nx * inttoworld, ny * inttoworld, 0)))
     {
@@ -643,9 +643,9 @@ int DoActorSlide(DSWActor* actor)
         return false;
     }
 
-    actor->user.slide_vel -= actor->user.slide_dec * ACTORMOVETICS;
+    actor->user._slide_vel -= actor->user._slide_dec * ACTORMOVETICS;
 
-    if (actor->user.slide_vel < 20)
+    if (actor->user._slide_vel < 20)
     {
         actor->user.Flags &= ~(SPR_SLIDING);
     }

@@ -1040,9 +1040,9 @@ struct USER
     int  track_vel;
 
     // sliding variables - slide backwards etc
-    int16_t slide_ang;
-    int  slide_vel;
-    int16_t slide_dec;
+    int16_t _slide_ang;
+    int  _slide_vel;
+    int16_t _slide_dec;
 
     int16_t motion_blur_dist;
     int16_t motion_blur_num;
