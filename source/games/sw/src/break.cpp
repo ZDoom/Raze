@@ -440,21 +440,21 @@ static int CompareBreakInfo(void const * a, void const * b)
     return break_info1->picnum - break_info2->picnum;
 }
 
-int CompareSearchBreakInfo(int *picnum, BREAK_INFO* break_info)
-    {
+int CompareSearchBreakInfo(int* picnum, BREAK_INFO* break_info)
+{
     // will return a number less than 0 if picnum < break_info->picnum
     return(*picnum - break_info->picnum);
-    }
+}
 
 BREAK_INFO* FindWallBreakInfo(int picnum)
-    {
-    return(BREAK_INFO*)(bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
-    }
+{
+    return(BREAK_INFO*)(bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*, const void*))CompareSearchBreakInfo));
+}
 
 BREAK_INFO* FindSpriteBreakInfo(int picnum)
-    {
-    return(BREAK_INFO*)(bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
-    }
+{
+    return(BREAK_INFO*)(bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*, const void*))CompareSearchBreakInfo));
+}
 
 //////////////////////////////////////////////
 // SETUP
@@ -465,6 +465,12 @@ void SortBreakInfo(void)
     qsort(&SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
     qsort(&WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), CompareBreakInfo);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 BREAK_INFO* SetupWallForBreak(walltype* wallp)
 {
@@ -489,6 +495,12 @@ BREAK_INFO* SetupWallForBreak(walltype* wallp)
 
     return break_info;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 BREAK_INFO* SetupSpriteForBreak(DSWActor* actor)
 {
@@ -544,11 +556,13 @@ DSWActor* FindBreakSpriteMatch(int match)
     return nullptr;
 }
 
+//---------------------------------------------------------------------------
 //
 // WALL
 //
+//---------------------------------------------------------------------------
 
-int AutoBreakWall(walltype* wallp, int hit_x, int hit_y, int hit_z, int ang, int type)
+int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type)
 {
     BREAK_INFO* break_info;
     walltype* nwp;
@@ -582,14 +596,13 @@ int AutoBreakWall(walltype* wallp, int hit_x, int hit_y, int hit_z, int ang, int
     // Check to see if it should break with current weapon type
     if (!CheckBreakToughness(break_info, type)) return false;
 
-    if (hit_x != INT32_MAX)
+    if (hit_pos.X != INT32_MAX)
     {
-        DVector3 hit_pos( hit_x * inttoworld, hit_y * inttoworld, hit_z * zinttoworld);
         // need correct location for spawning shrap
         auto breakActor = insertActor(0, STAT_DEFAULT);
         breakActor->spr.cstat = 0;
         breakActor->spr.extra = 0;
-        breakActor->set_int_ang(ang);
+        breakActor->spr.angle = ang;
         breakActor->spr.picnum = ST1;
         breakActor->spr.xrepeat = breakActor->spr.yrepeat = 64;
         SetActorZ(breakActor, hit_pos);
@@ -724,24 +737,21 @@ bool UserBreakWall(walltype* wp)
     return false;
 }
 
-int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, int *ang)
+int WallBreakPosition(walltype* wp, sectortype** sectp, DVector3& pos, DAngle& ang)
 {
     int nx,ny;
-    int wall_ang;
-
-    wall_ang = NORM_ANGLE(getangle(wp->delta())+512);
+    DAngle wall_ang = VecToAngle(wp->delta()) + DAngle90;
 
     *sectp = wp->sectorp();
     ASSERT(*sectp);
 
     // midpoint of wall
-    *x = (wp->wall_int_pos().X + wp->wall_int_pos().X) >> 1;
-    *y = (wp->wall_int_pos().Y + wp->wall_int_pos().Y) >> 1;
+    pos.XY() = wp->center();
 
     if (!wp->twoSided())
     {
         // white wall
-        *z = ((*sectp)->int_floorz() + (*sectp)->int_ceilingz()) >> 1;
+        pos.Z = ((*sectp)->floorz + (*sectp)->ceilingz) * 0.5;
     }
     else
     {
@@ -752,29 +762,25 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, 
 
         // floor and ceiling meet
         if (next_sect->floorz == next_sect->ceilingz)
-            *z = ((*sectp)->int_floorz() + (*sectp)->int_ceilingz()) >> 1;
+            pos.Z = ((*sectp)->floorz + (*sectp)->ceilingz) * 0.5;
         else
         // floor is above other sector
         if (next_sect->floorz < (*sectp)->floorz)
-            *z = (next_sect->int_floorz() + (*sectp)->int_floorz()) >> 1;
+            pos.Z = (next_sect->floorz + (*sectp)->floorz) * 0.5;
         else
         // ceiling is below other sector
         if (next_sect->ceilingz > (*sectp)->ceilingz)
-            *z = (next_sect->int_ceilingz() + (*sectp)->int_ceilingz()) >> 1;
+            pos.Z = (next_sect->ceilingz + (*sectp)->ceilingz) * 0.5;
     }
 
-    *ang = wall_ang;
+    ang = wall_ang;
 
-    nx = MOVEx(128, wall_ang);
-    ny = MOVEy(128, wall_ang);
+    pos.XY() += wall_ang.ToVector() * 16;
 
-    *x += nx;
-    *y += ny;
-
-    updatesectorz(*x,*y,*z,sectp);
+    updatesectorz(pos, sectp);
     if (*sectp == nullptr)
     {
-        *x = INT32_MAX;  // don't spawn shrap, just change wall
+        pos.X = INT32_MAX;  // don't spawn shrap, just change wall
         return false;
     }
 
@@ -782,7 +788,7 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, 
 }
 
 // If the tough parameter is not set, then it can't break tough walls and sprites
-bool HitBreakWall(walltype* wp, int hit_x, int hit_y, int hit_z, int ang, int type)
+bool HitBreakWall(walltype* wp, DVector3 hitpos, DAngle ang, int type)
 {
     int match = wp->hitag;
 
@@ -795,10 +801,10 @@ bool HitBreakWall(walltype* wp, int hit_x, int hit_y, int hit_z, int ang, int ty
     //if (hit_x == INT32_MAX)
     {
         sectortype* sect = nullptr;
-        WallBreakPosition(wp, &sect, &hit_x, &hit_y, &hit_z, &ang);
+        WallBreakPosition(wp, &sect, hitpos, ang);
     }
 
-    AutoBreakWall(wp, hit_x, hit_y, hit_z, ang, type);
+    AutoBreakWall(wp, hitpos, ang, type);
     return true;
 }
 
@@ -1020,17 +1026,17 @@ int HitBreakSprite(DSWActor* breakActor, int type)
 void DoWallBreakMatch(int match)
 {
     sectortype* sect = nullptr;
-    int x,y,z;
-    int wall_ang;
+    DVector3 hitpos;
+    DAngle wall_ang;
 
     for(auto& wal : wall)
     {
         if (wal.hitag == match)
         {
-            WallBreakPosition(&wal, &sect, &x, &y, &z, &wall_ang);
+            WallBreakPosition(&wal, &sect, hitpos, wall_ang);
 
             wal.hitag = 0; // Reset the hitag
-            AutoBreakWall(&wal, x, y, z, wall_ang, 0);
+            AutoBreakWall(&wal, hitpos, wall_ang, 0);
         }
     }
 }

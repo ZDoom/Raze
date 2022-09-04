@@ -50,13 +50,9 @@ BREAK_INFO* FindSpriteBreakInfo(int picnum);
 void SortBreakInfo(void);
 BREAK_INFO* SetupWallForBreak(walltype* wallp);
 BREAK_INFO* SetupSpriteForBreak(DSWActor* actor);
-bool HitBreakWall(walltype* wp, int, int, int, int ang, int type);
-inline bool HitBreakWall(walltype* wp, const DVector3& pos, DAngle angle, int type)
-{
-	return HitBreakWall(wp, pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint, angle.Buildang(), type);
-}
+bool HitBreakWall(walltype* wp, DVector3 pos, DAngle angle, int type);
 bool CheckBreakToughness(BREAK_INFO* break_info, int ID);
-int WallBreakPosition(walltype* wp, sectortype** sectp, int* x, int* y, int* z, int* ang);
+int WallBreakPosition(walltype* wp, sectortype** sectp, DVector3& pos, DAngle& ang);
 void SortBreakInfo(void);
 void DoWallBreakMatch(int match);
 

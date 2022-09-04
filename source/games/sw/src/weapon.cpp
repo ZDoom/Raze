@@ -7148,10 +7148,6 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
     int dist;
     int break_count;
 
-    int wall_ang;
-    int hit_x,hit_y,hit_z;
-
-
     // limit radius
     if (radius > 2000)
         radius = 2000;
@@ -7177,11 +7173,13 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
                     continue;
 
                 sectortype* sectp = nullptr;
-                if (WallBreakPosition(&wal, &sectp, &hit_x, &hit_y, &hit_z, &wall_ang))
+                DVector3 hitpos;
+                DAngle wall_ang;
+                if (WallBreakPosition(&wal, &sectp, hitpos, wall_ang))
                 {
-                    if (hit_x != INT32_MAX && sectp != nullptr && FAFcansee_(x, y, z, start_sect, hit_x, hit_y, hit_z, sectp))
+                    if (sectp != nullptr && FAFcansee(DVector3(x* inttoworld, y* inttoworld, z* zinttoworld), start_sect, hitpos, sectp))
                     {
-                        HitBreakWall(&wal, INT32_MAX, INT32_MAX, INT32_MAX, ang, 0);
+                        HitBreakWall(&wal, DVector3(INT32_MAX, INT32_MAX, INT32_MAX), DAngle::fromBuild(ang), 0);
 
                         break_count++;
                         if (break_count > 4)
@@ -12528,7 +12526,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
 
         if (hit.hitWall->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, ang, actor->user.ID);
+            HitBreakWall(hit.hitWall, hit.hitpos, DAngle::fromBuild(ang), actor->user.ID);
             return 0;
         }
 
@@ -12683,7 +12681,7 @@ int InitShotgun(PLAYER* pp)
 
             if (hit.hitWall->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, ndaang, actor->user.ID);
+                HitBreakWall(hit.hitWall, hit.hitpos, DAngle::fromBuild(ndaang), actor->user.ID);
                 continue;
             }
 
@@ -14782,7 +14780,7 @@ int InitUzi(PLAYER* pp)
 
         if (hit.hitWall->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, actor->user.ID);
+            HitBreakWall(hit.hitWall, hit.hitpos, DAngle::fromBuild(daang), actor->user.ID);
             return 0;
         }
 
@@ -15610,7 +15608,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
 
                 if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, 0);
+                    HitBreakWall(hit.hitWall, hit.hitpos, DAngle::fromBuild(daang), 0);
                     continue;
                 }
 
