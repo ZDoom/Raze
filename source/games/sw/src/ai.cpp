@@ -817,7 +817,7 @@ int DoActorMoveCloser(DSWActor* actor)
     DoActorNoise(ChooseAction(actor->user.Personality->Broadcast), actor);
 
     // after moving a ways check to see if player is still in sight
-    if (actor->user.DistCheck > 550)
+    if (actor->user.DistCheck > 34.375)
     {
         actor->user.DistCheck = 0;
 
@@ -1362,7 +1362,8 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
     int new_ang, oang;
     int save_ang = -1;
     int set;
-    int save_dist = 500;
+    // start out with mininum distance that will be accepted as a move
+    double save_dist = 31.25;
 
     // if on fire, run shorter distances
     if (ActorFlaming(actor))
@@ -1413,11 +1414,10 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 #endif
 
         DVector3 stop;
-        // start out with mininum distance that will be accepted as a move
 
         // check to see how far we can move
         auto ret = move_scan(actor, new_ang, DistToMove, stop);
-        int dist = (actor->spr.pos.XY() - stop.XY()).Length() * worldtoint;
+        double dist = (actor->spr.pos.XY() - stop.XY()).Length();
 
         if (ret.type == kHitNone)
         {
@@ -1447,8 +1447,8 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         // To keep this from happening make the TargetDist is less than the
         // point you would hit something
 
-        if (actor->user.TargetDist > 4000)
-            actor->user.TargetDist -= 3500;
+        if (actor->user.TargetDist > 250)
+            actor->user.TargetDist -= 218.75;
 
         actor->set_int_ang(save_ang);
         return save_ang;
@@ -1586,7 +1586,7 @@ int DoActorReposition(DSWActor* actor)
     }
 
     // if close to target distance do a Decision again
-    if (actor->user.TargetDist < 50)
+    if (actor->user.TargetDist < 3.125)
     {
         InitActorDecide(actor);
     }

@@ -4640,9 +4640,9 @@ int move_actor(DSWActor* actor, const DVector3& change)
     {
         // Keep track of how far sprite has moved
         dist = DistanceI(apos, actor->spr.pos);
-        actor->user.TargetDist -= dist;
+        actor->user.TargetDist -= dist * inttoworld;
         actor->user.Dist += dist;
-        actor->user.DistCheck += dist;
+        actor->user.DistCheck += dist * inttoworld;
         return true;
     }
     else

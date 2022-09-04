@@ -11115,7 +11115,7 @@ int DoSerpRing(DSWActor* actor)
     {
         actor->user.Dist += 8 * RINGMOVETICS;
 
-        if (actor->user.Dist > actor->user.TargetDist)
+        if (actor->user.Dist * inttoworld > actor->user.TargetDist)
             actor->user.Counter2 = true;
     }
 

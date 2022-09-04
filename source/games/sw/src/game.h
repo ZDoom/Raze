@@ -1027,10 +1027,10 @@ struct USER
     int16_t scale_tgt;
 
     // zig zagging
-    int16_t DistCheck;
+    double DistCheck;
 
     int16_t Dist;
-    int16_t TargetDist;
+    double TargetDist;
     int16_t WaitTics;
 
     // track
