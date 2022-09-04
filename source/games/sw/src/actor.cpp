@@ -627,8 +627,12 @@ int DoActorBeginSlide(DSWActor* actor, DAngle ang, double vel)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
 // !AIC - Sliding can occur in different directions from movement of the actor.
 // Has its own set of variables
+//
+//---------------------------------------------------------------------------
 
 int DoActorSlide(DSWActor* actor)
 {
@@ -650,7 +654,11 @@ int DoActorSlide(DSWActor* actor)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
 // !AIC - Actor jumping and falling
+//
+//---------------------------------------------------------------------------
 
 int DoActorBeginJump(DSWActor* actor)
 {
@@ -677,6 +685,12 @@ int DoActorBeginJump(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorJump(DSWActor* actor)
 {
@@ -714,6 +728,11 @@ int DoActorJump(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorBeginFall(DSWActor* actor)
 {
@@ -743,6 +762,11 @@ int DoActorBeginFall(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoActorFall(DSWActor* actor)
 {
@@ -761,6 +785,12 @@ int DoActorFall(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoActorStopFall(DSWActor* actor)
 {
     actor->spr.pos.Z = actor->user.loz;
@@ -772,8 +802,7 @@ int DoActorStopFall(DSWActor* actor)
     // don't stand on face or wall sprites - jump again
     if (actor->user.lowActor && !(actor->user.lowActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
-        //actor->spr.__int_angle = NORM_ANGLE(actor->spr.angle + (RANDOM_P2(64<<8)>>8) - 32);
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024 + (RANDOM_P2(512<<8)>>8)));
+        actor->spr.angle += DAngle180 + DAngle::fromBuild(RANDOM_P2(512<<8)>>8);
         actor->user.jump_speed = -350;
 
         DoActorBeginJump(actor);
@@ -805,6 +834,12 @@ int DoActorStopFall(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoActorDeathMove(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
@@ -825,7 +860,12 @@ int DoActorDeathMove(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
 // !AIC - Jumping a falling for shrapnel and other stuff, not actors.
+//
+//---------------------------------------------------------------------------
+
 
 int DoBeginJump(DSWActor* actor)
 {
@@ -839,6 +879,12 @@ int DoBeginJump(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoJump(DSWActor* actor)
 {
@@ -876,6 +922,11 @@ int DoJump(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoBeginFall(DSWActor* actor)
 {
@@ -888,6 +939,12 @@ int DoBeginFall(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoFall(DSWActor* actor)
 {
@@ -907,6 +964,11 @@ int DoFall(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 
