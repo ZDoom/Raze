@@ -1284,9 +1284,9 @@ enum ShrapType
 struct TARGET_SORT
 {
     DSWActor* actor;
-    int16_t dang;
-    int dist;
-    int weight;
+    DAngle dangle;
+    double dst;
+    double weight;
 };
 
 enum { MAX_TARGET_SORT = 16 };
@@ -1732,8 +1732,12 @@ inline Collision move_sprite(DSWActor* actor, const DVector3& change, double cei
 Collision move_missile(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics);
 
 
+DSWActor* DoPickTarget(DSWActor*, DAngle max_delta_ang, int skip_targets);
 
-DSWActor* DoPickTarget(DSWActor*, uint32_t max_delta_ang, int skip_targets);
+DSWActor* DoPickTarget(DSWActor* a, uint32_t max_delta_ang, int skip_targets)
+{
+    return DoPickTarget(a, DAngle::fromBuild(max_delta_ang), skip_targets);
+}
 
 void change_actor_stat(DSWActor* actor, int stat, bool quick = false);
 void SetOwner(DSWActor*, DSWActor*, bool flag = true);

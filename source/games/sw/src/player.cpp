@@ -1116,26 +1116,25 @@ static int CompareTarget(void const * a, void const * b)
     auto tgt2 = (TARGET_SORT const *)b;
 
     // will return a number less than 0 if tgt1 < tgt2
-    return tgt2->weight - tgt1->weight;
+    return Sgn(tgt2->weight - tgt1->weight);
 }
 
 bool
 FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
-DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets)
+DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
 {
-    const int PICK_DIST = 40000;
+    const int PICK_DIST = 2500;
+    
 
-    short angle2, delta_ang;
-    int dist;
     int16_t* shp;
     unsigned ndx;
     TARGET_SORT* ts;
-    int ang_weight, dist_weight;
+    double ang_weight, dist_weight;
 
     // !JIM! Watch out for max_delta_ang of zero!
-    if (max_delta_ang == 0) max_delta_ang = 1;
+    if (max_delta_ang == nullAngle) max_delta_ang = minAngle;
 
     TargetSortCount = 0;
     TargetSort[0].actor = nullptr;
@@ -1160,8 +1159,8 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             }
 
             // Only look at closest ones
-            //if ((dist = Distance(actor->spr.x, actor->spr.y, itActor->spr.x, itActor->spr.y)) > PICK_DIST)
-            if ((dist = FindDistance3D(actor->int_pos() - itActor->int_pos())) > PICK_DIST)
+            double dist = (actor->spr.pos - itActor->spr.pos).Length();
+            if (dist > PICK_DIST)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
@@ -1172,15 +1171,15 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             }
 
             // Get the angle to the player
-            angle2 = NORM_ANGLE(getangle(itActor->int_pos().X - actor->int_pos().X, itActor->int_pos().Y - actor->int_pos().Y));
+            DAngle angle2 = VecToAngle(itActor->spr.pos - actor->spr.pos);
 
             // Get the angle difference
             // delta_ang = abs(pp->angle.ang.Buildang() - angle2);
 
-            delta_ang = short(abs(getincangle(angle2, actor->int_ang())));
+            DAngle delta_ang = absangle(angle2, actor->spr.angle);
 
             // If delta_ang not in the range skip this one
-            if (delta_ang > (int)max_delta_ang)
+            if (delta_ang > max_delta_ang)
                 continue;
 
             DVector3 apos = actor->spr.pos;
@@ -1207,7 +1206,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             {
                 for (ndx = 0; ndx < SIZ(TargetSort); ndx++)
                 {
-                    if (dist < TargetSort[ndx].dist)
+                    if (dist < TargetSort[ndx].dst)
                         break;
                 }
 
@@ -1221,12 +1220,12 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 
             ts = &TargetSort[ndx];
             ts->actor = itActor;
-            ts->dang = delta_ang;
-            ts->dist = dist;
+            ts->dangle = delta_ang;
+            ts->dst = dist;
             // gives a value between 0 and 65535
-            ang_weight = IntToFixed(max_delta_ang - ts->dang)/max_delta_ang;
+            ang_weight = (max_delta_ang.Degrees() - ts->dangle.Degrees()) / max_delta_ang.Degrees();
             // gives a value between 0 and 65535
-            dist_weight = IntToFixed((PICK_DIST / 2) - ((ts->dist) >> 1)) / (PICK_DIST / 2);
+            dist_weight = ((PICK_DIST - ts->dst) / PICK_DIST);
             //weighted average
             ts->weight = (ang_weight + dist_weight*4)/5;
 
