@@ -1330,7 +1330,7 @@ void DoPlayerTeleportToOffset(PLAYER* pp)
 {
     pp->oldpos.XY() = pp->opos.XY() = pp->pos.XY();
 
-    updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
+    updatesector(pp->pos, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
@@ -2196,7 +2196,7 @@ void DoPlayerMove(PLAYER* pp)
         auto save_cstat = actor->spr.cstat;
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
-        updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
+        updatesector(pp->pos, &pp->cursector);
         clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->vect.X), FloatToFixed<18>(pp->vect.Y), ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
@@ -2284,7 +2284,7 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
         if (sect == nullptr)
         {
             sect = pp->cursector;
-            updatesector(pp->int_ppos().X, pp->int_ppos().Y, &sect);
+            updatesector(pp->pos, &sect);
         }
         ASSERT(sect);
     }
@@ -2294,7 +2294,7 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
         if (sect == nullptr)
         {
             sect = pp->cursector;
-            updatesector(pp->int_ppos().X, pp->int_ppos().Y, &sect);
+            updatesector(pp->pos, &sect);
         }
         ASSERT(sect);
     }
