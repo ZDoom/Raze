@@ -5250,23 +5250,23 @@ int PlayerDamageSlide(PLAYER* pp, int damage, short ang)
     else if (damage <= 10)
     {
         //nudge
-        pp->slide_vect.X = MOVEx(16, ang)<<15;
-        pp->slide_vect.Y = MOVEy(16, ang)<<15;
+        pp->_slide_vect.X = MOVEx(16, ang)<<15;
+        pp->_slide_vect.Y = MOVEy(16, ang)<<15;
         return true;
     }
     else if (damage <= 20)
     {
         //bigger nudge
-        pp->slide_vect.X = MOVEx(64, ang)<<15;
-        pp->slide_vect.Y = MOVEy(64, ang)<<15;
+        pp->_slide_vect.X = MOVEx(64, ang)<<15;
+        pp->_slide_vect.Y = MOVEy(64, ang)<<15;
         return true;
     }
     else
     {
         slide_vel = (damage * 6);
 
-        pp->slide_vect.X = MOVEx(slide_vel, ang)<<15;
-        pp->slide_vect.Y = MOVEy(slide_vel, ang)<<15;
+        pp->_slide_vect.X = MOVEx(slide_vel, ang)<<15;
+        pp->_slide_vect.Y = MOVEy(slide_vel, ang)<<15;
 
         return true;
     }
@@ -15877,8 +15877,8 @@ int InitGrenade(PLAYER* pp)
     if (!auto_aim)
     {
         // adjust xvel according to player velocity
-		actorNew->user.change.X += FixedToFloat<18>(pp->vect.X);
-		actorNew->user.change.Y += FixedToFloat<18>(pp->vect.Y);
+		actorNew->user.change.X += FixedToFloat<18>(pp->_vect.X);
+		actorNew->user.change.Y += FixedToFloat<18>(pp->_vect.Y);
     }
 
     actorNew->user.Counter2 = true;  // Phosphorus Grenade
@@ -15974,14 +15974,14 @@ int InitMine(PLAYER* pp)
 
 	UpdateChange(actorNew, 0.5);
 
-    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    dot = DOT_PRODUCT_2D(pp->_vect.X, pp->_vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
 
     // don't adjust for strafing
     if (abs(dot) > 10000)
     {
         // adjust xvel according to player velocity
-		actorNew->user.change.X += FixedToFloat<18>(2 * pp->vect.X);
-		actorNew->user.change.Y += FixedToFloat<18>(2 * pp->vect.Y);
+		actorNew->user.change.X += FixedToFloat<18>(2 * pp->_vect.X);
+		actorNew->user.change.Y += FixedToFloat<18>(2 * pp->_vect.Y);
     }
 
     return 0;

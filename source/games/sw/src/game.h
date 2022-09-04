@@ -581,7 +581,7 @@ struct REMOTE_CONTROL
 {
     sectortype* cursectp, * lastcursectp;
     int pang;
-    vec2_t vect, ovect, slide_vect;
+    vec2_t _vect, _ovect, _slide_vect;
     DVector3 pos;
     SECTOR_OBJECT* sop_control;
 };
@@ -629,7 +629,7 @@ struct PLAYER
     DVector3 si; // save player interp position for PlayerSprite
     DAngle siang;
 
-    vec2_t vect, ovect, slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
+    vec2_t _vect, _ovect, _slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
     int friction;
     int16_t slide_ang; // todo: floatify
     int slide_dec;
@@ -2240,7 +2240,7 @@ inline bool SpriteInUnderwaterArea(DSWActor* a)
 // just determine if the player is moving
 inline bool PLAYER_MOVING(PLAYER* pp)
 {
-	return (pp->vect.X | pp->vect.Y);
+	return (pp->_vect.X | pp->_vect.Y);
 }
 
 inline void PlaySound(int num, DSWActor* actor, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)

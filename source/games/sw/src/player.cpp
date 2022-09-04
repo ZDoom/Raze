@@ -1243,8 +1243,8 @@ DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
 
 void DoPlayerResetMovement(PLAYER* pp)
 {
-    pp->vect = pp->ovect = { 0, 0 };
-    pp->slide_vect = { 0, 0 };
+    pp->_vect = pp->_ovect = { 0, 0 };
+    pp->_slide_vect = { 0, 0 };
     pp->drive_avel = 0;
     pp->Flags &= ~(PF_PLAYER_MOVED);
 }
@@ -1561,8 +1561,8 @@ void SlipSlope(PLAYER* pp)
 
     ang = NORM_ANGLE(ang + 512);
 
-    pp->vect.X += MulScale(bcos(ang), pp->cursector->floorheinum, sectu->speed);
-    pp->vect.Y += MulScale(bsin(ang), pp->cursector->floorheinum, sectu->speed);
+    pp->_vect.X += MulScale(bcos(ang), pp->cursector->floorheinum, sectu->speed);
+    pp->_vect.Y += MulScale(bsin(ang), pp->cursector->floorheinum, sectu->speed);
 }
 
 void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
@@ -1845,17 +1845,17 @@ void DoPlayerSlide(PLAYER* pp)
 
     int push_ret;
 
-    if ((pp->slide_vect.X|pp->slide_vect.Y) == 0)
+    if ((pp->_slide_vect.X|pp->_slide_vect.Y) == 0)
         return;
 
     if (pp->sop)
         return;
 
-    pp->slide_vect.X  = MulScale(pp->slide_vect.X, PLAYER_SLIDE_FRICTION, 16);
-    pp->slide_vect.Y  = MulScale(pp->slide_vect.Y, PLAYER_SLIDE_FRICTION, 16);
+    pp->_slide_vect.X  = MulScale(pp->_slide_vect.X, PLAYER_SLIDE_FRICTION, 16);
+    pp->_slide_vect.Y  = MulScale(pp->_slide_vect.Y, PLAYER_SLIDE_FRICTION, 16);
 
-    if (abs(pp->slide_vect.X) < 12800 && abs(pp->slide_vect.Y) < 12800)
-        pp->slide_vect.X = pp->slide_vect.Y = 0;
+    if (abs(pp->_slide_vect.X) < 12800 && abs(pp->_slide_vect.Y) < 12800)
+        pp->_slide_vect.X = pp->_slide_vect.Y = 0;
 
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
@@ -1871,7 +1871,7 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->slide_vect.X, pp->slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->_slide_vect.X, pp->_slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
@@ -1959,11 +1959,11 @@ void DoPlayerMove(PLAYER* pp)
 
     DoPlayerSlide(pp);
 
-    pp->ovect.X = pp->vect.X;
-    pp->ovect.Y = pp->vect.Y;
+    pp->_ovect.X = pp->_vect.X;
+    pp->_ovect.Y = pp->_vect.Y;
 
-    pp->vect.X += ((pp->input.fvel*synctics*2)<<6);
-    pp->vect.Y += ((pp->input.svel*synctics*2)<<6);
+    pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
+    pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
 
     friction = pp->friction;
     if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
@@ -1971,26 +1971,26 @@ void DoPlayerMove(PLAYER* pp)
         friction -= pp->WadeDepth * 100;
     }
 
-    pp->vect.X  = MulScale(pp->vect.X, friction, 16);
-    pp->vect.Y  = MulScale(pp->vect.Y, friction, 16);
+    pp->_vect.X  = MulScale(pp->_vect.X, friction, 16);
+    pp->_vect.Y  = MulScale(pp->_vect.Y, friction, 16);
 
     if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
-        pp->vect.X = (pp->vect.X + (pp->ovect.X*1))/2;
-        pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*1))/2;
+        pp->_vect.X = (pp->_vect.X + (pp->_ovect.X*1))/2;
+        pp->_vect.Y = (pp->_vect.Y + (pp->_ovect.Y*1))/2;
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
-        pp->vect.X = (pp->vect.X + (pp->ovect.X*2))/3;
-        pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*2))/3;
+        pp->_vect.X = (pp->_vect.X + (pp->_ovect.X*2))/3;
+        pp->_vect.Y = (pp->_vect.Y + (pp->_ovect.Y*2))/3;
     }
 
-    if (abs(pp->vect.X) < 12800 && abs(pp->vect.Y) < 12800)
-        pp->vect.X = pp->vect.Y = 0;
+    if (abs(pp->_vect.X) < 12800 && abs(pp->_vect.Y) < 12800)
+        pp->_vect.X = pp->_vect.Y = 0;
 
-    actor->set_int_xvel(FindDistance2D(pp->vect.X,pp->vect.Y)>>14);
+    actor->set_int_xvel(FindDistance2D(pp->_vect.X,pp->_vect.Y)>>14);
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {
@@ -1999,7 +1999,7 @@ void DoPlayerMove(PLAYER* pp)
         {
             pp->opos.XY() = pp->pos.XY();
         }
-        pp->add_int_ppos_XY({ pp->vect.X >> 14, pp->vect.Y >> 14 });
+        pp->add_int_ppos_XY({ pp->_vect.X >> 14, pp->_vect.Y >> 14 });
         updatesector(pp->pos, &sect);
         if (sect != nullptr)
             pp->cursector = sect;
@@ -2029,7 +2029,7 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->_vect.X, pp->_vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
@@ -2200,8 +2200,8 @@ void DoTankTreads(PLAYER* pp)
     if (Prediction)
         return;
 
-    vel = FindDistance2D(pp->vect.X>>8, pp->vect.Y>>8);
-    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    vel = FindDistance2D(pp->_vect.X>>8, pp->_vect.Y>>8);
+    dot = DOT_PRODUCT_2D(pp->_vect.X, pp->_vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
     if (dot < 0)
         reverse = true;
 
@@ -2310,7 +2310,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
         return;
 
     // not moving - don't crush
-    if ((pp->vect.X|pp->vect.Y) == 0 && pp->input.avel == 0)
+    if ((pp->_vect.X|pp->_vect.Y) == 0 && pp->input.avel == 0)
         return;
 
     // main sector
@@ -2358,10 +2358,10 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
             if (actor->int_pos().Z < sop->crush_z)
                 continue;
 
-            int32_t const vel = FindDistance2D(pp->vect.X>>8, pp->vect.Y>>8);
+            int32_t const vel = FindDistance2D(pp->_vect.X>>8, pp->_vect.Y>>8);
             if (vel < 9000)
             {
-                DoActorBeginSlide(actor, VecToAngle(pp->vect.X, pp->vect.Y), vel/8 * inttoworld);
+                DoActorBeginSlide(actor, VecToAngle(pp->_vect.X, pp->_vect.Y), vel/8 * inttoworld);
                 if (DoActorSlide(actor))
                     continue;
             }
@@ -2478,32 +2478,32 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
-    pp->ovect.X = pp->vect.X;
-    pp->ovect.Y = pp->vect.Y;
+    pp->_ovect.X = pp->_vect.X;
+    pp->_ovect.Y = pp->_vect.Y;
 
     if (sop->drive_speed)
     {
-        pp->vect.X = MulScale(pp->input.fvel, sop->drive_speed, 6);
-        pp->vect.Y = MulScale(pp->input.svel, sop->drive_speed, 6);
+        pp->_vect.X = MulScale(pp->input.fvel, sop->drive_speed, 6);
+        pp->_vect.Y = MulScale(pp->input.svel, sop->drive_speed, 6);
 
         // does sliding/momentum
-        pp->vect.X = (pp->vect.X + (pp->ovect.X*(sop->drive_slide-1)))/sop->drive_slide;
-        pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*(sop->drive_slide-1)))/sop->drive_slide;
+        pp->_vect.X = (pp->_vect.X + (pp->_ovect.X*(sop->drive_slide-1)))/sop->drive_slide;
+        pp->_vect.Y = (pp->_vect.Y + (pp->_ovect.Y*(sop->drive_slide-1)))/sop->drive_slide;
     }
     else
     {
-        pp->vect.X += ((pp->input.fvel*synctics*2)<<6);
-        pp->vect.Y += ((pp->input.svel*synctics*2)<<6);
+        pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
+        pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
 
-        pp->vect.X  = MulScale(pp->vect.X, TANK_FRICTION, 16);
-        pp->vect.Y  = MulScale(pp->vect.Y, TANK_FRICTION, 16);
+        pp->_vect.X  = MulScale(pp->_vect.X, TANK_FRICTION, 16);
+        pp->_vect.Y  = MulScale(pp->_vect.Y, TANK_FRICTION, 16);
 
-        pp->vect.X = (pp->vect.X + (pp->ovect.X*1))/2;
-        pp->vect.Y = (pp->vect.Y + (pp->ovect.Y*1))/2;
+        pp->_vect.X = (pp->_vect.X + (pp->_ovect.X*1))/2;
+        pp->_vect.Y = (pp->_vect.Y + (pp->_ovect.Y*1))/2;
     }
 
-    if (abs(pp->vect.X) < 12800 && abs(pp->vect.Y) < 12800)
-        pp->vect.X = pp->vect.Y = 0;
+    if (abs(pp->_vect.X) < 12800 && abs(pp->_vect.Y) < 12800)
+        pp->_vect.X = pp->_vect.Y = 0;
 
     pp->lastcursector = pp->cursector;
     z = pp->int_ppos().Z + Z(10);
@@ -2553,7 +2553,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
         if (!ret)
         {
-            vel = FindDistance2D(pp->vect.X>>8, pp->vect.Y>>8);
+            vel = FindDistance2D(pp->_vect.X>>8, pp->_vect.Y>>8);
 
             if (vel > 13000)
             {
@@ -2583,7 +2583,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
             if (vel > 12000)
             {
-                pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = 0;
+                pp->_vect.X = pp->_vect.Y = pp->_ovect.X = pp->_ovect.Y = 0;
             }
         }
     }
@@ -2603,7 +2603,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(pp->pos, &pp->cursector, pp->vect.X, pp->vect.Y, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
+            clipmove(pp->pos, &pp->cursector, pp->_vect.X, pp->_vect.Y, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
@@ -2615,20 +2615,20 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         {
             int vel;
 
-            vel = FindDistance2D(pp->vect.X>>8, pp->vect.Y>>8);
+            vel = FindDistance2D(pp->_vect.X>>8, pp->_vect.Y>>8);
 
             if (vel > 13000)
             {
                 VehicleMoveHit(actor);
-                pp->slide_vect.X = -pp->vect.X<<1;
-                pp->slide_vect.Y = -pp->vect.Y<<1;
+                pp->_slide_vect.X = -pp->_vect.X<<1;
+                pp->_slide_vect.Y = -pp->_vect.Y<<1;
                 if (!(sop->flags & SOBJ_NO_QUAKE))
                     SetPlayerQuake(pp);
             }
 
             if (vel > 12000)
             {
-                pp->vect.X = pp->vect.Y = pp->ovect.X = pp->ovect.Y = 0;
+                pp->_vect.X = pp->_vect.Y = pp->_ovect.X = pp->_ovect.Y = 0;
             }
         }
     }
@@ -3087,15 +3087,15 @@ void DoPlayerClimb(PLAYER* pp)
     if (Prediction)
         return;
 
-    pp->vect.X += ((pp->input.fvel*synctics*2)<<6);
-    pp->vect.Y += ((pp->input.svel*synctics*2)<<6);
-    pp->vect.X  = MulScale(pp->vect.X, PLAYER_CLIMB_FRICTION, 16);
-    pp->vect.Y  = MulScale(pp->vect.Y, PLAYER_CLIMB_FRICTION, 16);
-    if (abs(pp->vect.X) < 12800 && abs(pp->vect.Y) < 12800)
-        pp->vect.X = pp->vect.Y = 0;
+    pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
+    pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
+    pp->_vect.X  = MulScale(pp->_vect.X, PLAYER_CLIMB_FRICTION, 16);
+    pp->_vect.Y  = MulScale(pp->_vect.Y, PLAYER_CLIMB_FRICTION, 16);
+    if (abs(pp->_vect.X) < 12800 && abs(pp->_vect.Y) < 12800)
+        pp->_vect.X = pp->_vect.Y = 0;
 
-    climbVel = DVector2(pp->vect.X, pp->vect.Y).Length() * (1. / 512) * zinttoworld;
-    dot = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    climbVel = DVector2(pp->_vect.X, pp->_vect.Y).Length() * (1. / 512) * zinttoworld;
+    dot = DOT_PRODUCT_2D(pp->_vect.X, pp->_vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
     if (dot < 0)
         climbVel = -climbVel;
 
@@ -3588,7 +3588,7 @@ bool PlayerOnLadder(PLAYER* pp)
 
     neartag(pp->int_ppos(), pp->cursector, pp->angle.ang.Buildang(), near, 1024 + 768, NTAG_SEARCH_LO_HI);
 
-    dir = DOT_PRODUCT_2D(pp->vect.X, pp->vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    dir = DOT_PRODUCT_2D(pp->_vect.X, pp->_vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
 
     if (dir < 0)
         return false;
@@ -4957,9 +4957,9 @@ void PlayerToRemote(PLAYER* pp)
 
     pp->remote.pos = pp->pos;
 
-    pp->remote.vect = pp->vect;
-    pp->remote.ovect = pp->ovect;
-    pp->remote.slide_vect = pp->slide_vect;
+    pp->remote._vect = pp->_vect;
+    pp->remote._ovect = pp->_ovect;
+    pp->remote._slide_vect = pp->_slide_vect;
 }
 
 void RemoteToPlayer(PLAYER* pp)
@@ -4969,9 +4969,9 @@ void RemoteToPlayer(PLAYER* pp)
 
     pp->pos = pp->remote.pos;
 
-    pp->vect = pp->remote.vect;
-    pp->ovect = pp->remote.ovect;
-    pp->slide_vect = pp->remote.slide_vect;
+    pp->_vect = pp->remote._vect;
+    pp->_ovect = pp->remote._ovect;
+    pp->_slide_vect = pp->remote._slide_vect;
 }
 
 void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
@@ -4983,16 +4983,16 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
     pp->pos.XY() = rsp->spr.pos.XY();
     pp->pos.Z = sect->floorz - PLAYER_HEIGHTF;
 
-    pp->vect = pp->ovect = pp->slide_vect = { 0,0 };
+    pp->_vect = pp->_ovect = pp->_slide_vect = { 0,0 };
 
     UpdatePlayerSprite(pp);
 }
 
 void PlayerRemoteInit(PLAYER* pp)
 {
-    pp->remote.vect = { 0,0 };
-    pp->remote.ovect = { 0,0 };
-    pp->remote.slide_vect = { 0,0 };
+    pp->remote._vect = { 0,0 };
+    pp->remote._ovect = { 0,0 };
+    pp->remote._slide_vect = { 0,0 };
 }
 
 void DoPlayerStopOperate(PLAYER* pp)
@@ -5399,7 +5399,7 @@ void DoPlayerBeginDie(PLAYER* pp)
     pp->input.actions &= ~SB_CENTERVIEW;
 
     pp->friction = PLAYER_RUN_FRICTION;
-    pp->slide_vect = { 0,0 };
+    pp->_slide_vect = { 0,0 };
     pp->p_floor_dist = PLAYER_WADE_FLOOR_DIST;
     pp->p_ceiling_dist = PLAYER_WADE_CEILING_DIST;
     ASSERT(pp->DeathType < SIZ(PlayerDeathFunc));
