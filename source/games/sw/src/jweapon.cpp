@@ -1303,8 +1303,8 @@ int PlayerInitChemBomb(PLAYER* pp)
 	UpdateChange(actorNew, 0.5);
 
     // adjust xvel according to player velocity
-    actorNew->user.add_int_change_x(pp->vect.X >> 14);
-    actorNew->user.add_int_change_y(pp->vect.Y >> 14);
+	actorNew->user.change.X += FixedToFloat<18>(pp->vect.X);
+	actorNew->user.change.Y += FixedToFloat<18>(pp->vect.Y);
 
     // Smoke will come out for this many seconds
     actorNew->user.WaitTics = CHEMTICS;
@@ -1645,9 +1645,6 @@ int PlayerInitCaltrops(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    // They go out at different angles
-//        spawnedActor->spr.ang = NORM_ANGLE(pp->angle.ang.Buildang() + (RandomRange(50) - 25));
-
     actorNew->set_int_zvel(-pp->horizon.horiz.asq16() >> 9);
 
     oclipdist = plActor->spr.clipdist;
@@ -1662,8 +1659,8 @@ int PlayerInitCaltrops(PLAYER* pp)
 	UpdateChange(actorNew, 0.5);
 
     // adjust xvel according to player velocity
-    actorNew->user.add_int_change_x(pp->vect.X >> 14);
-    actorNew->user.add_int_change_y(pp->vect.Y >> 14);
+    actorNew->user.change.X += FixedToFloat<18>(pp->vect.X);
+	actorNew->user.change.Y += FixedToFloat<18>(pp->vect.Y);
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;

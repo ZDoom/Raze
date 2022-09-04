@@ -928,8 +928,6 @@ struct USER
 	void set_int_change_x(int x) { change.X = x * inttoworld; }
 	void set_int_change_y(int x) { change.Y = x * inttoworld; }
 	void set_int_change_z(int x) { change.Z = x * zinttoworld; }
-	void add_int_change_x(int x) { change.X += x * inttoworld; }
-	void add_int_change_y(int x) { change.Y += x * inttoworld; }
 
 	// frequently repeated patterns
 	void addCounterToChange() { change.Z += Counter * zinttoworld; }
