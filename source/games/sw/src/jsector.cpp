@@ -415,10 +415,8 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 
 }
 
-void
-JS_ProcessEchoSpot()
+void JS_ProcessEchoSpot()
 {
-    int j,dist;
     PLAYER* pp = Player+screenpeek;
     int16_t reverb;
     bool reverb_set = false;
@@ -427,14 +425,11 @@ JS_ProcessEchoSpot()
     SWStatIterator it(STAT_ECHO);
     while (auto actor = it.Next())
     {
-        dist = 0x7fffffff;
+        double maxdist = SP_TAG4(actor) * maptoworld;
+        auto v = actor->spr.pos.XY() - pp->pos.XY();
+        double dist = abs(v.X) + abs(v.Y);
 
-        j = abs(actor->int_pos().X - pp->int_ppos().X);
-        j += abs(actor->int_pos().Y - pp->int_ppos().Y);
-        if (j < dist)
-            dist = j;
-
-        if (dist <= SP_TAG4(actor)) // tag4 = ang
+        if (dist <= maxdist) // tag4 = ang
         {
             reverb = SP_TAG2(actor);
             if (reverb > 200) reverb = 200;
