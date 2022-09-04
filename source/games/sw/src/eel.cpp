@@ -438,8 +438,6 @@ int NullEel(DSWActor* actor)
 
 int DoEelMatchPlayerZ(DSWActor* actor)
 {
-    int dist,a,b,c;
-
     if (FAF_ConnectArea(actor->sector()))
     {
         if (actor->user.hi_sectp)
@@ -483,8 +481,8 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     double bound;
     if (actor->user.lowActor && actor->user.targetActor == actor->user.highActor) // this doesn't look right...
     {
-        DISTANCE(actor->spr.pos, actor->user.lowActor->spr.pos, dist, a, b, c);
-        if (dist <= 300)
+        double dist = (actor->spr.pos.XY() - actor->user.lowActor->spr.pos.XY()).Length();
+        if (dist <= 18.75)
             bound = actor->user.pos.Z;
         else
             bound = loz - actor->user.floor_dist;
@@ -500,8 +498,8 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     // upper bound
     if (actor->user.highActor && actor->user.targetActor == actor->user.highActor)
     {
-        DISTANCE(actor->spr.pos, actor->user.highActor->spr.pos, dist, a, b, c);
-        if (dist <= 300)
+        double dist = (actor->spr.pos.XY() - actor->user.highActor->spr.pos.XY()).Length();
+        if (dist <= 18.75)
             bound = actor->user.pos.Z;
         else
             bound = hiz + actor->user.ceiling_dist;
