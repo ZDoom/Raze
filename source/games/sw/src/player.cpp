@@ -5704,7 +5704,7 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
                 pp->KillerActor = itActor;
 
                 plActor->user.slide_ang = VecToAngle(plActor->spr.pos - itActor->spr.pos);
-                plActor->user.slide_ang += DAngle::fromBuild((RANDOM_P2(128<<5)>>5) - 64);
+				plActor->user.slide_ang += RandomAngle(22.5) - DAngle22_5 / 2;
 
                 plActor->user.slide_vel = itActor->vel.X * 2;
                 plActor->user.Flags &= ~(SPR_BOUNCE);
@@ -5721,7 +5721,7 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
     // sector stomper kick
     if (abs(pp->loz - pp->hiz) < ActorSizeZ(plActor) - 8)
     {
-        plActor->user.slide_ang = RANDOM_ANGLE();
+        plActor->user.slide_ang = RandomAngle();
         plActor->user.slide_vel = 62.5;
         plActor->user.Flags &= ~(SPR_BOUNCE);
         pp->jump_speed = -100;
@@ -5884,7 +5884,7 @@ void DoPlayerDeathBounce(PLAYER* pp)
     plActor->user.Flags |= (SPR_BOUNCE);
     pp->jump_speed = -300;
     plActor->user.slide_vel *= 0.25;
-    plActor->user.slide_ang = DAngle::fromBuild((RANDOM_P2(64<<8)>>8) - 32);
+	plActor->user.slide_ang = RandomAngle(11.25) - DAngle22_5 / 4;
     pp->Flags |= (PF_JUMPING);
     SpawnShrap(pp->actor, nullptr);
 }

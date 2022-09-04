@@ -1031,9 +1031,9 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
 	Collision coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
-        actor->spr.angle += DAngle180 + DAngle::fromBuild(RANDOM_NEG(256, 6) >> 6);
+		actor->spr.angle += RandomAngle(DAngle45) + DAngle180 - DAngle22_5;
     else
-		actor->spr.angle = VecToAngle(vec) + DAngle::fromBuild(RANDOM_NEG(256, 6) >> 6);
+		actor->spr.angle = VecToAngle(vec) + RandomAngle(DAngle45) - DAngle22_5;
 
     DoActorSetSpeed(actor, FAST_SPEED);
 

@@ -855,7 +855,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
 
     Collision coll = move_sprite(actor, DVector3(tang.ToVector() * 8, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
-	auto rndang = DAngle::fromBuild(RANDOM_NEG(256, 6) >> 6);
+	auto rndang = RandomAngle(DAngle45) - DAngle22_5;
     if (coll.type != kHitNone)
 		actor->spr.angle += DAngle180 + rndang; 
 	else
@@ -1152,7 +1152,7 @@ void BunnyHatch(DSWActor* actor)
         actorNew->spr.pos = actor->spr.pos;
         actorNew->spr.xrepeat = 30;  // Baby size
         actorNew->spr.yrepeat = 24;
-        actorNew->spr.angle = RANDOM_ANGLE();
+        actorNew->spr.angle = RandomAngle();
         actorNew->spr.pal = 0;
         SetupBunny(actorNew);
         actorNew->spr.shade = actor->spr.shade;
@@ -1213,7 +1213,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     actorNew->spr.pos = actor->spr.pos;
     actorNew->spr.xrepeat = 30;  // Baby size
     actorNew->spr.yrepeat = 24;
-    actorNew->spr.angle = RANDOM_ANGLE();
+    actorNew->spr.angle = RandomAngle();
     actorNew->spr.pal = 0;
     SetupBunny(actorNew);
     actorNew->spr.shade = actor->spr.shade;
@@ -1240,9 +1240,9 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     {
         PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
-        actorNew->vel.X = (150 + RandomRange(1000)) * maptoworld;
+        actorNew->vel.X = 9.375 + RandomRangeF(62.5);
         actorNew->user.Health = 1; // Easy to pop. Like shootn' skeet.
-        actorNew->spr.angle += DAngle::fromBuild(RandomRange(128) - RandomRange(128));
+		actorNew->spr.angle += RandomAngle(22.5) - RandomAngle(22.5);
     }
     else
         PickJumpMaxSpeed(actorNew, -600);
@@ -1329,7 +1329,7 @@ int DoBunnyMove(DSWActor* actor)
             NewStateGroup(actor,sg_BunnyStand);
             break;
         default:
-            actor->spr.angle = DAngle::fromBuild(RandomRange(2048 << 6) >> 6);
+			actor->spr.angle = RandomAngle();
             actor->user.jump_speed = -350;
             DoActorBeginJump(actor);
             actor->user.ActorActionFunc = DoActorMoveJump;

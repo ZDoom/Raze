@@ -273,13 +273,13 @@ int DoWallBloodDrip(DSWActor* actor)
         }
         else
         {
-            actor->vel.Z = (((300+RandomRange(2300)) >> 1)) * maptoworld;
+            actor->vel.Z = 9.375 + RandomRangeF(71.875);
             actor->spr.pos.Z += actor->vel.Z;
         }
     }
     else
     {
-        actor->vel.Z = (((300+RandomRange(2300)) >> 1)) * maptoworld;
+		actor->vel.Z = 9.375 + RandomRangeF(71.875);
         actor->spr.pos.Z += actor->vel.Z;
     }
 
@@ -1202,8 +1202,8 @@ int SpawnRadiationCloud(DSWActor* actor)
     //if (RANDOM_P2(1024) < 512)
     //actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
-    actorNew->spr.angle = RANDOM_ANGLE();
-    actorNew->vel.X = (RANDOM_P2(32)) * maptoworld;
+    actorNew->spr.angle = RandomAngle();
+    actorNew->vel.X = RandomRangeF(2);
 
     actorNew->user.Counter = 0;
     actorNew->user.Counter2 = 0;
@@ -1212,12 +1212,12 @@ int SpawnRadiationCloud(DSWActor* actor)
     {
         actorNew->user.Radius = 2000;
         actorNew->user.change.XY() = actorNew->spr.angle.ToVector() * actorNew->vel.X * 0.25;
-        actorNew->vel.Z = 1 + (RANDOM_P2(Z(2))) * zmaptoworld;
+		actorNew->vel.Z = 1 + RandomRangeF(2);
     }
     else
     {
 		UpdateChangeXY(actorNew);
-        actorNew->vel.Z = 4 + (RANDOM_P2(Z(4))) * zmaptoworld;
+        actorNew->vel.Z = 4 + RandomRangeF(4);
         actorNew->user.Radius = 4000;
     }
 
@@ -1341,7 +1341,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
-    actorNew->vel.Z = (-RandomRange(100) * HORIZ_MULT) * zmaptoworld;
+    actorNew->vel.Z = -RandomRangeF(6.25 * HORIZ_MULT);
 
     actorNew->spr.clipdist = 80L >> 2;
 
@@ -1382,7 +1382,7 @@ int InitChemBomb(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->vel.Z = (-RandomRange(100) * HORIZ_MULT) * zmaptoworld;
+	actorNew->vel.Z = -RandomRangeF(6.25 * HORIZ_MULT);
     actorNew->spr.clipdist = 0;
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
@@ -1709,7 +1709,7 @@ int InitPhosphorus(DSWActor* actor)
     // Spawn a shot
     // Inserting and setting up variables
     auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, actor->sector(),
-							   actor->spr.pos, RANDOM_ANGLE(), CHEMBOMB_VELOCITY/3);
+							   actor->spr.pos, RandomAngle(), CHEMBOMB_VELOCITY/3);
 
     actorNew->spr.hitag = LUMINOUS;               // Always full brightness
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
@@ -1773,7 +1773,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         if (dogib)
             ang = ang + DAngle90 + DAngle::fromBuild(RandomRange(200));
         else
-            ang = ang + DAngle180 + DAngle45 - DAngle::fromBuild(RandomRange(256));
+            ang = ang + DAngle180 + DAngle45 - RandomAngle(45);
 
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->sector(),

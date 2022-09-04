@@ -314,7 +314,7 @@ void DoDebrisCurrent(DSWActor* actor)
     // attempt to move away from wall
     if (ret.type != kHitNone)
     {
-        DAngle rang = RANDOM_ANGLE();
+        DAngle rang = RandomAngle();
 
 		vect = (sectp->angle + rang).ToVector() * spd;
 
@@ -447,7 +447,7 @@ int DoActorDebris(DSWActor* actor)
 
             if (!move_debris(actor, nvec))
             {
-                actor->spr.angle = RANDOM_ANGLE();
+                actor->spr.angle = RandomAngle();
             }
         }
 
@@ -802,7 +802,7 @@ int DoActorStopFall(DSWActor* actor)
     // don't stand on face or wall sprites - jump again
     if (actor->user.lowActor && !(actor->user.lowActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
-        actor->spr.angle += DAngle180 + DAngle::fromBuild(RANDOM_P2(512<<8)>>8);
+		actor->spr.angle += DAngle180 + RandomAngle(DAngle90);
         actor->user.jump_speed = -350;
 
         DoActorBeginJump(actor);

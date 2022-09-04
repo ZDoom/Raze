@@ -961,7 +961,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->scale_x_mult = 256;
         sop->scale_y_mult = 256;
 
-        sop->morph_ang = RANDOM_ANGLE();
+        sop->morph_ang = RandomAngle();
         sop->morph_z_speed = 20;
         sop->morph_speed = 2;
         sop->morph_dist_max = 64;
@@ -2638,7 +2638,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
 
     if (coll.type != kHitNone)
     {
-        ang = ang + DAngle180 - DAngle45 + DAngle::fromBuild(RANDOM_P2(512));
+		ang = ang + DAngle180 - DAngle45 + RandomAngle(90);
     }
 
     TornadoSpin(sop);

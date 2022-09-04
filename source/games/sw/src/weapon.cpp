@@ -11252,7 +11252,7 @@ void InitVulcanBoulder(DSWActor* actor)
     }
     else
     {
-        nang = RANDOM_ANGLE();
+        nang = RandomAngle();
     }
 
     if (SP_TAG6(actor))
@@ -11604,7 +11604,7 @@ int InitSwordAttack(PLAYER* pp)
             {
                 bubble->set_int_ang(pp->angle.ang.Buildang());
 
-				auto random_amt = DAngle::fromBuild((RANDOM_P2(32<<8)>>8) - 16);
+				auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
                 // back it up a bit to get it out of your face
                 auto vec = MOVExy((1024 + 256) * 3, bubble->spr.angle + dangs[i] + random_amt);
@@ -11772,7 +11772,7 @@ int InitFistAttack(PLAYER* pp)
             {
                 bubble->set_int_ang(pp->angle.ang.Buildang());
 
-                auto random_amt = DAngle::fromBuild((RANDOM_P2(32<<8)>>8) - 16);
+                auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
                 // back it up a bit to get it out of your face
                 auto vec = MOVExy((1024+256)*3, bubble->spr.angle + dangs[i] + random_amt);
@@ -15692,7 +15692,7 @@ int InitEnemyUzi(DSWActor* actor)
             return 0;
 
         daz = 0;
-        daang = actor->spr.angle + DAngle::fromBuild((RANDOM_P2(128)) - 64);
+        daang = actor->spr.angle + RandomAngle(DAngle22_5) - DAngle22_5/2;
     }
 
     // todo: confirm the ToVector factor.
@@ -16634,7 +16634,7 @@ int SpawnVehicleSmoke(DSWActor* actor)
     if (RANDOM_P2(1024) < 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
-    actorNew->spr.angle = RANDOM_ANGLE();
+    actorNew->spr.angle = RandomAngle();
     actorNew->set_int_xvel(RANDOM_P2(32));
 	UpdateChangeXY(actorNew);
     actorNew->set_int_zvel(Z(4) + RANDOM_P2(Z(4)));
@@ -16658,7 +16658,7 @@ int SpawnSmokePuff(DSWActor* actor)
     if (RANDOM_P2(1024) < 512)
         actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
-    actorNew->spr.angle = RANDOM_ANGLE();
+    actorNew->spr.angle = RandomAngle();
     actorNew->set_int_xvel(RANDOM_P2(32));
 	UpdateChangeXY(actorNew);
     actorNew->set_int_zvel(Z(1) + RANDOM_P2(Z(2)));
@@ -16953,7 +16953,7 @@ int QueueFloorBlood(DSWActor* actor)
     spawnedActor->spr.clipdist = 0;
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = actor->spr.pos.plusZ(1);
-    spawnedActor->spr.angle = RANDOM_ANGLE(); // Just make it any old angle
+    spawnedActor->spr.angle = RandomAngle(); // Just make it any old angle
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit
 
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_FLOOR);

@@ -105,53 +105,6 @@ int InitActorReposition(DSWActor* actor);
 int DoActorReposition(DSWActor* actor);
 int InitActorPause(DSWActor* actor);
 int DoActorPause(DSWActor* actor);
-
-/*
-ANIMATOR
-InitActorDecide,
-InitActorMoveCloser,
-InitActorAttack,
-InitActorRunAway,
-InitActorEvade,
-InitActorWanderAround,
-InitActorFindPlayer,
-InitActorReposition,
-InitActorPause,
-InitActorDuck,
-InitActorAmbientNoise,
-InitActorAlertNoise,
-InitActorAttackNoise,
-InitActorPainNoise,
-InitActorDieNoise,
-InitActorExtra1Noise,
-InitActorExtra2Noise,
-InitActorExtra3Noise,
-InitActorExtra4Noise,
-InitActorExtra5Noise,
-InitActorExtra6Noise;
-
-ANIMATOR
-DoActorDecide,
-DoActorMoveCloser,
-DoActorAttack,
-DoActorRunAway,
-DoActorWanderAround,
-DoActorReposition,
-DoActorPause,
-DoActorDuck,
-DoActorAmbientNoise,
-DoActorAlertNoise,
-DoActorAttackNoise,
-DoActorPainNoise,
-DoActorDieNoise,
-DoActorExtra1Noise,
-DoActorExtra2Noise,
-DoActorExtra3Noise,
-DoActorExtra4Noise,
-DoActorExtra5Noise,
-DoActorExtra6Noise;
-*/
-
 void DoActorSetSpeed(DSWActor* actor, uint8_t speed);
 
 END_SW_NS

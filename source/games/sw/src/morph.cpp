@@ -326,7 +326,7 @@ void MorphTornado(SECTOR_OBJECT* sop)
     sop->morph_off = sop->pmid - mpos;
 
     if ((RANDOM_P2(1024<<4)>>4) < sop->morph_rand_freq)
-        sop->morph_ang = RANDOM_ANGLE();
+        sop->morph_ang = RandomAngle();
 
     // move it x,y
     dragpoint(sop->morph_wall_point, mpos);
@@ -394,7 +394,7 @@ void MorphFloor(SECTOR_OBJECT* sop)
     }
 
     if ((RANDOM_P2(1024<<4)>>4) < sop->morph_rand_freq)
-        sop->morph_ang = RANDOM_ANGLE();
+        sop->morph_ang = RandomAngle();
 
     // move x,y point "just like in build"
     dragpoint(sop->morph_wall_point, mpos);

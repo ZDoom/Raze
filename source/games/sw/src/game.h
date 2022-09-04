@@ -118,9 +118,17 @@ inline double RandomRangeF(double range)
 {
     return RANDOM() * range / 65536;
 }
+inline DAngle RandomAngle(double range = 360.)
+{
+	return DAngle::fromDeg(RandomRangeF(range));
+}
+inline DAngle RandomAngle(DAngle range)
+{
+	return DAngle::fromDeg(RandomRangeF(range.Degrees()));
+}
+
 int RANDOM_P2(int pwr_of_2) { return (RANDOM() & (pwr_of_2 - 1)); }
 double RANDOM_P2F(int pwr_of_2, int shift) { return (RANDOM() & ((pwr_of_2 << shift) - 1)) * (1./(1 << shift)); }
-DAngle RANDOM_ANGLE(int range = 2048) { return DAngle::fromBuild(RANDOM_P2(range)); }
 
 //
 // Map directions/degrees
@@ -190,7 +198,6 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 
 
 constexpr int NORM_ANGLE(int ang) { return ((ang) & 2047); }
-inline int RANDOM_NEG(int x, int y) { return ((RANDOM_P2(((x) << (y)) << 1) - (x)) << (y)); }
 
 int StdRandomRange(int range);
 
