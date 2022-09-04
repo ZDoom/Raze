@@ -17116,14 +17116,13 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     short rndnum;
     int daz;
     HitInfo hit{};
-	int ang = bang.Buildang();
 
     if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return nullptr;   // No blood underwater!
 
     daz = Z(RANDOM_P2(128))<<3;
     daz -= (Z(128)<<2);
-    dang = (ang+(RANDOM_P2(128<<5) >> 5)) - (64);
+    dang = (bang.Buildang() + (RANDOM_P2(128 << 5) >> 5)) - (64);
 
     FAFhitscan(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(30), actor->sector(),    // Start position
                bcos(dang),      // X vector of 3D ang

@@ -438,10 +438,10 @@ int DoBloodSpray(DSWActor* actor)
                 break;
             }
 
-            auto wall_ang = VecToAngle(wph->delta()) + DAngle90;
+            auto wall_ang = VecToAngle(wph->delta()) - DAngle90;
 
             SpawnMidSplash(actor);
-            auto bldActor = QueueWallBlood(actor, wall_ang + DAngle180);
+            auto bldActor = QueueWallBlood(actor, wall_ang);
 
             if (bldActor== nullptr)
             {
@@ -555,6 +555,11 @@ int DoBloodSpray(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoPhosphorus(DSWActor* actor)
 {
@@ -617,10 +622,7 @@ int DoPhosphorus(DSWActor* actor)
 
         case kHitWall:
         {
-            short hit_wall, nw, wall_ang;
-            walltype* wph;
-
-            wph = actor->user.coll.hitWall;
+            walltype* wph = actor->user.coll.hitWall;
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -752,6 +754,12 @@ int DoPhosphorus(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoChemBomb(DSWActor* actor)
 {
@@ -965,6 +973,12 @@ int DoChemBomb(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoCaltropsStick(DSWActor* actor)
 {
     actor->user.Counter = !actor->user.Counter;
@@ -974,6 +988,12 @@ int DoCaltropsStick(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoCaltrops(DSWActor* actor)
 {
@@ -1203,6 +1223,12 @@ int SpawnRadiationCloud(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoRadiationCloud(DSWActor* actor)
 {
