@@ -1280,8 +1280,8 @@ int PlayerInitChemBomb(PLAYER* pp)
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = (3);
-    actorNew->user.floor_dist = (3);
+    actorNew->user.ceiling_dist = 3;
+    actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
@@ -1298,7 +1298,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
     plActor->spr.clipdist = uint8_t(oclipdist);
-    actorNew->spr.clipdist = 80L >> 2;
+    actorNew->spr.clipdist = 80 >> 2;
 
 	UpdateChange(actorNew, 0.5);
 
@@ -1311,6 +1311,12 @@ int PlayerInitChemBomb(PLAYER* pp)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int InitSpriteChemBomb(DSWActor* actor)
 {
@@ -1335,7 +1341,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
-    actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
+    actorNew->vel.Z = (-RandomRange(100) * HORIZ_MULT) * zmaptoworld;
 
     actorNew->spr.clipdist = 80L >> 2;
 
@@ -1347,6 +1353,11 @@ int InitSpriteChemBomb(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int InitChemBomb(DSWActor* actor)
 {
@@ -1361,8 +1372,8 @@ int InitChemBomb(DSWActor* actor)
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = (3);
-    actorNew->user.floor_dist = (3);
+    actorNew->user.ceiling_dist = 3;
+    actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);      // Make nuke radiation
     // invis.
@@ -1371,7 +1382,7 @@ int InitChemBomb(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
+    actorNew->vel.Z = (-RandomRange(100) * HORIZ_MULT) * zmaptoworld;
     actorNew->spr.clipdist = 0;
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
@@ -1626,8 +1637,8 @@ int PlayerInitCaltrops(PLAYER* pp)
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = (3);
-    actorNew->user.floor_dist = (3);
+    actorNew->user.ceiling_dist = 3;
+    actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
 //      spawnedActor->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
@@ -1677,8 +1688,8 @@ int InitCaltrops(DSWActor* actor)
     actorNew->spr.clipdist = actor->spr.clipdist;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = (3);
-    actorNew->user.floor_dist = (3);
+    actorNew->user.ceiling_dist = 3;
+    actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
 
     actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
@@ -1717,8 +1728,8 @@ int InitPhosphorus(DSWActor* actor)
         actorNew->spr.clipdist = actor->spr.clipdist;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 600;
-    actorNew->user.ceiling_dist = (3);
-    actorNew->user.floor_dist = (3);
+    actorNew->user.ceiling_dist = 3;
+    actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
 
     actorNew->set_int_zvel(short(-RandomRange(100) * HORIZ_MULT));
@@ -1782,8 +1793,8 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         actorNew->spr.clipdist = actor->spr.clipdist;
         actorNew->user.WeaponNum = actor->user.WeaponNum;
         actorNew->user.Radius = 600;
-        actorNew->user.ceiling_dist = (3);
-        actorNew->user.floor_dist = (3);
+        actorNew->user.ceiling_dist = 3;
+        actorNew->user.floor_dist = 3;
         actorNew->user.Counter = 0;
 
         actorNew->set_int_zvel(short((-10 - RandomRange(50)) * HORIZ_MULT));
