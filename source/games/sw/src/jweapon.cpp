@@ -254,7 +254,11 @@ STATE s_BloodSprayDrip[] =
     {DRIP + 2, PHOSPHORUS_RATE, DoWallBloodDrip, &s_BloodSprayDrip[0]},
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoWallBloodDrip(DSWActor* actor)
 {
@@ -264,18 +268,18 @@ int DoWallBloodDrip(DSWActor* actor)
         // if you are between the ceiling and floor fall fast
         if (actor->spr.pos.Z > actor->user.pos.Y && actor->spr.pos.Z < actor->user.pos.Z)
         {
-            actor->add_int_zvel( 300);
+            actor->vel.Z += 18.75;
             actor->spr.pos.Z += actor->vel.Z;
         }
         else
         {
-            actor->set_int_zvel((300+RandomRange(2300)) >> 1);
+            actor->vel.Z = (((300+RandomRange(2300)) >> 1)) * maptoworld;
             actor->spr.pos.Z += actor->vel.Z;
         }
     }
     else
     {
-        actor->set_int_zvel((300+RandomRange(2300)) >> 1);
+        actor->vel.Z = (((300+RandomRange(2300)) >> 1)) * maptoworld;
         actor->spr.pos.Z += actor->vel.Z;
     }
 
@@ -289,6 +293,12 @@ int DoWallBloodDrip(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void SpawnMidSplash(DSWActor* actor)
 {
@@ -311,6 +321,12 @@ void SpawnMidSplash(DSWActor* actor)
         actorNew->user.Flags |= (SPR_UNDERWATER);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void SpawnFloorSplash(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
@@ -331,6 +347,11 @@ void SpawnFloorSplash(DSWActor* actor)
         actorNew->user.Flags |= (SPR_UNDERWATER);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoBloodSpray(DSWActor* actor)
 {
@@ -349,7 +370,7 @@ int DoBloodSpray(DSWActor* actor)
         actor->user.addCounterToChange();
     }
 
-    if (actor->int_xvel() <= 2)
+    if (actor->vel.X <= 0.125)
     {
         // special stuff for blood worm
         actor->spr.pos.Z += actor->user.change.Z * 0.5;
@@ -380,12 +401,10 @@ int DoBloodSpray(DSWActor* actor)
             return true;
         case kHitSprite:
         {
-            short wall_ang;
             auto hitActor = actor->user.coll.actor();
 
             if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                wall_ang = NORM_ANGLE(hitActor->int_ang());
                 SpawnMidSplash(actor);
                 QueueWallBlood(actor, hitActor->int_ang());
                 WallBounce(actor, hitActor->spr.angle);
