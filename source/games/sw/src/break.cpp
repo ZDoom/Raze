@@ -643,12 +643,18 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
         else
         {
             wallp->picnum = break_info->breaknum;
-            if ((int16_t)wallp->hitag < 0)
+            if (wallp->hitag < 0)
                 DoWallBreakSpriteMatch(wallp->hitag);
         }
     }
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool UserBreakWall(walltype* wp)
 {
@@ -737,6 +743,12 @@ bool UserBreakWall(walltype* wp)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int WallBreakPosition(walltype* wp, sectortype** sectp, DVector3& pos, DAngle& ang)
 {
     int nx,ny;
@@ -787,7 +799,12 @@ int WallBreakPosition(walltype* wp, sectortype** sectp, DVector3& pos, DAngle& a
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
 // If the tough parameter is not set, then it can't break tough walls and sprites
+//
+//---------------------------------------------------------------------------
+
 bool HitBreakWall(walltype* wp, DVector3 hitpos, DAngle ang, int type)
 {
     int match = wp->hitag;
@@ -808,9 +825,11 @@ bool HitBreakWall(walltype* wp, DVector3 hitpos, DAngle ang, int type)
     return true;
 }
 
+//---------------------------------------------------------------------------
 //
-// SPRITE
+// 
 //
+//---------------------------------------------------------------------------
 
 int KillBreakSprite(DSWActor* breakActor)
 {
@@ -844,6 +863,11 @@ int KillBreakSprite(DSWActor* breakActor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int UserBreakSprite(DSWActor* breakActor)
 {
@@ -915,6 +939,12 @@ int UserBreakSprite(DSWActor* breakActor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int AutoBreakSprite(DSWActor* breakActor, int type)
 {
     BREAK_INFO* break_info;
@@ -980,6 +1010,12 @@ int AutoBreakSprite(DSWActor* breakActor, int type)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool NullActor(DSWActor* actor)
 {
     // a Null Actor is defined as an actor that has no real controlling programming attached
@@ -998,6 +1034,12 @@ bool NullActor(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int HitBreakSprite(DSWActor* breakActor, int type)
 {
@@ -1023,6 +1065,12 @@ int HitBreakSprite(DSWActor* breakActor, int type)
     return AutoBreakSprite(breakActor, type);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void DoWallBreakMatch(int match)
 {
     sectortype* sect = nullptr;
@@ -1041,6 +1089,12 @@ void DoWallBreakMatch(int match)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static void DoWallBreakSpriteMatch(int match)
 {
     SWStatIterator it(STAT_ENEMY);
@@ -1052,4 +1106,5 @@ static void DoWallBreakSpriteMatch(int match)
         }
     }
 }
+
 END_SW_NS
