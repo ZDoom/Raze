@@ -411,6 +411,11 @@ int CloseRangeDist(DSWActor* actor1, DSWActor* actor2)
     return (clip1 << 2) + (clip2 << 2) + DIST_CLOSE_RANGE;
 }
 
+double CloseRangeDistF(DSWActor* actor1, DSWActor* actor2)
+{
+    return CloseRangeDist(actor1, actor2) * inttoworld;
+}
+
 int DoActorOperate(DSWActor* actor)
 {
     HitInfo near{};
@@ -468,7 +473,6 @@ DECISION GenericFlaming[] =
 
 ANIMATOR* DoActorActionDecide(DSWActor* actor)
 {
-    int dist;
     ANIMATOR* action;
     bool ICanSee=false;
 
@@ -511,9 +515,9 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
         DoActorOperate(actor);
 
         // if far enough away and cannot see the player
-        dist = DistanceI(actor->spr.pos, actor->user.targetActor->spr.pos);
+        double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
-        if (dist > 30000 && !ICanSee)
+        if (dist > 1875 && !ICanSee)
         {
             // Enemy goes inactive - he is still allowed to roam about for about
             // 5 seconds trying to find another player before his active_range is
@@ -529,7 +533,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
 
         auto pActor = GetPlayerSpriteNum(actor);
         // check for short range attack possibility
-        if ((dist < CloseRangeDist(actor, actor->user.targetActor) && ICanSee) ||
+        if ((dist < CloseRangeDistF(actor, actor->user.targetActor) && ICanSee) ||
             (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST && actor->user.ID != RIPPER2_RUN_R0 && actor->user.ID != RIPPER_RUN_R0))
         {
             if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
@@ -602,10 +606,10 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
             DoActorPickClosePlayer(actor);
 
         // if close by
-		dist = DistanceI(actor->spr.pos, actor->user.targetActor->spr.pos);
-        if (dist < 15000 || ICanSee)
+		double const dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
+        if (dist < 937.5 || ICanSee)
         {
-            if ((Facing(actor, actor->user.targetActor) && dist < 10000) || ICanSee)
+            if ((Facing(actor, actor->user.targetActor) && dist < 625) || ICanSee)
             {
                 DoActorOperate(actor);
 
@@ -1130,9 +1134,7 @@ int InitActorAttack(DSWActor* actor)
     // Hari Kari for Ninja's
     if (actor->user.ActorActionSet->Death2)
     {
-        //#define SUICIDE_HEALTH_VALUE 26
-#define SUICIDE_HEALTH_VALUE 38
-        //#define SUICIDE_HEALTH_VALUE 50
+        const int SUICIDE_HEALTH_VALUE = 38;
 
         if (actor->user.Health < SUICIDE_HEALTH_VALUE)
         {
@@ -1155,14 +1157,13 @@ int InitActorAttack(DSWActor* actor)
 int DoActorAttack(DSWActor* actor)
 {
     int rand_num;
-    int dist,a,b,c;
 
     DoActorNoise(ChooseAction(actor->user.Personality->Broadcast),actor);
 
-    DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
+    double dist =(actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
     auto pActor = GetPlayerSpriteNum(actor);
-    if ((actor->user.ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(actor, actor->user.targetActor)) ||
+    if ((actor->user.ActorActionSet->CloseAttack[0] && dist < CloseRangeDistF(actor, actor->user.targetActor)) ||
         (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST))      // JBF: added null check
     {
         rand_num = ChooseActionNumber(actor->user.ActorActionSet->CloseAttackPercent);
