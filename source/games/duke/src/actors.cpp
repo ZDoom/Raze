@@ -3355,8 +3355,8 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	}
 
 	actor->spr.pos.Z += actor->vel.Z;
-	sc->ceilingz = actor->vel.Z;
-	sector[actor->temp_data[0]].ceilingz = actor->vel.Z;
+	sc->setceilingz(actor->vel.Z);
+	sector[actor->temp_data[0]].setceilingz(actor->vel.Z);
 	ms(actor);
 	//SetActor(actor, actor->spr.pos);
 }
