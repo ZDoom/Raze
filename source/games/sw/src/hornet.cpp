@@ -437,9 +437,9 @@ int InitHornetCircle(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     // set to really fast
-    actor->set_int_xvel(400);
+    actor->vel.X = 25;
     // angle adjuster
-    actor->user.Counter2 = actor->int_xvel() / 3;
+    actor->user.Counter2 = 400 / 3;
     // random angle direction
     if (RANDOM_P2(1024) < 512)
         actor->user.Counter2 = -actor->user.Counter2;
@@ -466,7 +466,7 @@ int DoHornetCircle(DSWActor* actor)
 {
     double bound;
 
-    actor->set_int_ang(NORM_ANGLE(actor->int_ang() + actor->user.Counter2));
+    actor->spr.angle += DAngle::fromBuild(actor->user.Counter2);
 
     if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
     {
@@ -559,7 +559,7 @@ int DoHornetDeath(DSWActor* actor)
 
 int DoCheckSwarm(DSWActor* actor)
 {
-    int dist, pdist, a,b,c;
+    double dist, pdist;
     PLAYER* pp;
 
     if (!MoveSkip8) return 0;     // Don't over check
@@ -572,7 +572,7 @@ int DoCheckSwarm(DSWActor* actor)
     if (actor->user.targetActor->user.PlayerP)
     {
         pp = actor->user.targetActor->user.PlayerP;
-        DISTANCE(actor->spr.pos, pp->pos, pdist, a, b, c);
+        pdist = (actor->spr.pos.XY() - pp->pos.XY()).LengthSquared();
     }
     else
         return 0;
@@ -585,7 +585,7 @@ int DoCheckSwarm(DSWActor* actor)
 
         if (itActor->spr.hitag != TAG_SWARMSPOT || itActor->spr.lotag != 2) continue;
 
-        DISTANCE(actor->spr.pos, itActor->spr.pos, dist, a, b, c);
+        dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).LengthSquared();
 
         if (dist < pdist && actor->user.ID == itActor->user.ID) // Only flock to your own kind
         {
