@@ -1203,7 +1203,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     //actorNew->spr.cstat |= (CSTAT_SPRITE_YFLIP);
 
     actorNew->spr.angle = RANDOM_ANGLE();
-    actorNew->set_int_xvel(RANDOM_P2(32));
+    actorNew->vel.X = (RANDOM_P2(32)) * maptoworld;
 
     actorNew->user.Counter = 0;
     actorNew->user.Counter2 = 0;
@@ -1211,13 +1211,13 @@ int SpawnRadiationCloud(DSWActor* actor)
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121)
     {
         actorNew->user.Radius = 2000;
-        actorNew->user.change.XY() = MOVExy(actorNew->int_xvel() >> 2, actorNew->spr.angle);
-        actorNew->set_int_zvel(Z(1) + RANDOM_P2(Z(2)));
+        actorNew->user.change.XY() = actorNew->spr.angle.ToVector() * actorNew->vel.X * 0.25;
+        actorNew->vel.Z = 1 + (RANDOM_P2(Z(2))) * zmaptoworld;
     }
     else
     {
 		UpdateChangeXY(actorNew);
-        actorNew->set_int_zvel(Z(4) + RANDOM_P2(Z(4)));
+        actorNew->vel.Z = 4 + (RANDOM_P2(Z(4))) * zmaptoworld;
         actorNew->user.Radius = 4000;
     }
 
