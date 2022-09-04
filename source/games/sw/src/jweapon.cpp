@@ -1785,19 +1785,17 @@ void DoFlagScore(int16_t pal)
     }
 }
 
-DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
+DSWActor* DoFlagRangeTest(DSWActor* actor, double range)
 {
     unsigned int stat;
-    int dist, tx, ty;
-    int tmin;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
-            if (dist > range)
+            double dist = (itActor->spr.pos - actor->spr.pos).LengthSquared();
+            if (dist > range * range)
                 continue;
 
             if (actor == itActor)
@@ -1810,10 +1808,6 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
                 continue;
 
             if (!FAFcansee(itActor->spr.pos, itActor->sector(), actor->spr.pos, actor->sector()))
-                continue;
-
-            dist = FindDistance3D(actor->int_pos() - itActor->int_pos());
-            if (dist > range)
                 continue;
 
             return itActor;
@@ -2046,7 +2040,7 @@ int SetCarryFlag(DSWActor* actor)
 
 int DoFlag(DSWActor* actor)
 {
-    auto hitActor = DoFlagRangeTest(actor, 1000);
+    auto hitActor = DoFlagRangeTest(actor, 62.5);
 
     if (hitActor)
     {
