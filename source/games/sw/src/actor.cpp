@@ -614,13 +614,13 @@ void KeepActorOnFloor(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec)
+int DoActorBeginSlide(DSWActor* actor, DAngle ang, double vel)
 {
     actor->user.Flags |= (SPR_SLIDING);
 
-    actor->user._slide_ang = ang;
-    actor->user._slide_vel = vel;
-    actor->user._slide_dec = dec;
+    actor->user.slide_ang = ang;
+    actor->user.slide_vel = vel;
+    actor->user.slide_dec = 5/16.;
 
     //DoActorSlide(actor);
 
@@ -632,20 +632,17 @@ int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec)
 
 int DoActorSlide(DSWActor* actor)
 {
-    int nx, ny;
+    auto vec = actor->user.slide_ang.ToVector() * actor->user.slide_vel;
 
-    nx = MulScale(actor->user._slide_vel, bcos(actor->user._slide_ang), 14);
-    ny = MulScale(actor->user._slide_vel, bsin(actor->user._slide_ang), 14);
-
-    if (!move_actor(actor, DVector3(nx * inttoworld, ny * inttoworld, 0)))
+    if (!move_actor(actor, DVector3(vec, 0)))
     {
         actor->user.Flags &= ~(SPR_SLIDING);
         return false;
     }
 
-    actor->user._slide_vel -= actor->user._slide_dec * ACTORMOVETICS;
+    actor->user.slide_vel -= actor->user.slide_dec * ACTORMOVETICS;
 
-    if (actor->user._slide_vel < 20)
+    if (actor->user.slide_vel < 1.25)
     {
         actor->user.Flags &= ~(SPR_SLIDING);
     }

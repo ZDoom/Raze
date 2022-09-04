@@ -120,7 +120,7 @@ inline double RandomRangeF(double range)
 }
 int RANDOM_P2(int pwr_of_2) { return (RANDOM() & (pwr_of_2 - 1)); }
 double RANDOM_P2F(int pwr_of_2, int shift) { return (RANDOM() & ((pwr_of_2 << shift) - 1)) * (1./(1 << shift)); }
-DAngle RANDOM_ANGLE() { return DAngle::fromBuild(RANDOM_P2(2048)); }
+DAngle RANDOM_ANGLE(int range = 2048) { return DAngle::fromBuild(RANDOM_P2(range)); }
 
 //
 // Map directions/degrees
@@ -1040,9 +1040,9 @@ struct USER
     int  track_vel;
 
     // sliding variables - slide backwards etc
-    int16_t _slide_ang;
-    int  _slide_vel;
-    int16_t _slide_dec;
+    DAngle slide_ang;
+    double slide_vel;
+    double slide_dec;
 
     int16_t motion_blur_dist;
     int16_t motion_blur_num;

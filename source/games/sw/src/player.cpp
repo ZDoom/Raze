@@ -2361,7 +2361,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
             int32_t const vel = FindDistance2D(pp->vect.X>>8, pp->vect.Y>>8);
             if (vel < 9000)
             {
-                DoActorBeginSlide(actor, getangle(pp->vect.X, pp->vect.Y), vel/8, 5);
+                DoActorBeginSlide(actor, VecToAngle(pp->vect.X, pp->vect.Y), vel/8 * inttoworld);
                 if (DoActorSlide(actor))
                     continue;
             }
@@ -5451,7 +5451,7 @@ void DoPlayerBeginDie(PLAYER* pp)
 
         pp->Flags |= (PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -300;
-        plActor->user._slide_vel = 0;
+        plActor->user.slide_vel = 0;
         SpawnShrap(pp->actor, nullptr);
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
@@ -5484,7 +5484,7 @@ void DoPlayerBeginDie(PLAYER* pp)
 
         pp->Flags |= (PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = 200;
-        plActor->user._slide_vel = 800;
+        plActor->user.slide_vel = 50;
         SpawnShrap(pp->actor, nullptr);
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
@@ -5703,10 +5703,10 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
             {
                 pp->KillerActor = itActor;
 
-                plActor->user._slide_ang = getangle(plActor->int_pos().X - itActor->int_pos().X, plActor->int_pos().Y - itActor->int_pos().Y);
-                plActor->user._slide_ang = NORM_ANGLE(plActor->user._slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
+                plActor->user.slide_ang = VecToAngle(plActor->spr.pos - itActor->spr.pos);
+                plActor->user.slide_ang += DAngle::fromBuild((RANDOM_P2(128<<5)>>5) - 64);
 
-                plActor->user._slide_vel = itActor->int_xvel() << 1;
+                plActor->user.slide_vel = itActor->vel.X * 2;
                 plActor->user.Flags &= ~(SPR_BOUNCE);
                 pp->jump_speed = -500;
                 NewStateGroup(pp->actor, sg_PlayerHeadFly);
@@ -5721,8 +5721,8 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
     // sector stomper kick
     if (abs(pp->loz - pp->hiz) < ActorSizeZ(plActor) - 8)
     {
-        plActor->user._slide_ang = RANDOM_P2(2048);
-        plActor->user._slide_vel = 1000;
+        plActor->user.slide_ang = RANDOM_ANGLE();
+        plActor->user.slide_vel = 62.5;
         plActor->user.Flags &= ~(SPR_BOUNCE);
         pp->jump_speed = -100;
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
@@ -5735,38 +5735,33 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
 void DoPlayerDeathMoveHead(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    int dax,day;
 
-    dax = MOVEx(plActor->user._slide_vel, plActor->user._slide_ang);
-    day = MOVEy(plActor->user._slide_vel, plActor->user._slide_ang);
+    auto davec = plActor->user.slide_ang.ToVector() * plActor->user.slide_vel;
 
-    plActor->user.coll = move_sprite(pp->actor, dax, day, 0, Z(16), Z(16), 1, synctics);
+    plActor->user.coll = move_sprite(pp->actor, DVector3(davec, 0), 16, 16, 1, synctics);
     {
         switch (plActor->user.coll.type)
         {
         case kHitSprite:
         {
-            short wall_ang, dang;
-
             auto hitActor = plActor->user.coll.actor();
 
             if (!(hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
                 break;
 
 
-            wall_ang = NORM_ANGLE(hitActor->int_ang());
-            dang = getincangle(wall_ang, plActor->user._slide_ang);
-            plActor->user._slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
+            DAngle wall_ang = hitActor->spr.angle;
+            DAngle dang = deltaangle(wall_ang, plActor->user.slide_ang);
+            plActor->user.slide_ang = wall_ang + DAngle180 - dang;
 
             SpawnShrap(pp->actor, nullptr);
             break;
         }
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(plActor->user.coll.hitWall->delta())-512);
-
-            int dang = getincangle(wall_ang, plActor->user._slide_ang);
-            plActor->user._slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
+            DAngle wall_ang = VecToAngle(plActor->user.coll.hitWall->delta()) - DAngle90;
+            DAngle dang = deltaangle(wall_ang, plActor->user.slide_ang);
+            plActor->user.slide_ang = wall_ang + DAngle180 - dang;
 
             SpawnShrap(pp->actor, nullptr);
             break;
@@ -5879,7 +5874,7 @@ void DoPlayerDeathBounce(PLAYER* pp)
     {
         plActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         NewStateGroup(pp->actor, sg_PlayerHead);
-        plActor->user._slide_vel = 0;
+        plActor->user.slide_vel = 0;
         plActor->user.Flags |= (SPR_BOUNCE);
 
 
@@ -5888,8 +5883,8 @@ void DoPlayerDeathBounce(PLAYER* pp)
 
     plActor->user.Flags |= (SPR_BOUNCE);
     pp->jump_speed = -300;
-    plActor->user._slide_vel >>= 2;
-    plActor->user._slide_ang = NORM_ANGLE((RANDOM_P2(64<<8)>>8) - 32);
+    plActor->user.slide_vel *= 0.25;
+    plActor->user.slide_ang = DAngle::fromBuild((RANDOM_P2(64<<8)>>8) - 32);
     pp->Flags |= (PF_JUMPING);
     SpawnShrap(pp->actor, nullptr);
 }
