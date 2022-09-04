@@ -287,6 +287,12 @@ ACTOR_ACTION_SET HornetActionSet =
 int DoHornetMatchPlayerZ(DSWActor* actor);
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int SetupHornet(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
@@ -323,6 +329,12 @@ int SetupHornet(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int NullHornet(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_SLIDING))
@@ -333,6 +345,12 @@ int NullHornet(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 static const int HORNET_BOB_AMT = 16;
 
@@ -403,6 +421,12 @@ int DoHornetMatchPlayerZ(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int InitHornetCircle(DSWActor* actor)
 {
     actor->user.ActorActionFunc = DoHornetCircle;
@@ -431,6 +455,12 @@ int InitHornetCircle(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoHornetCircle(DSWActor* actor)
 {
@@ -477,6 +507,12 @@ int DoHornetCircle(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoHornetDeath(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_FALLING))
@@ -515,7 +551,12 @@ int DoHornetDeath(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
 // Hornets can swarm around other hornets or whatever is tagged as swarm target
+//
+//---------------------------------------------------------------------------
+
 int DoCheckSwarm(DSWActor* actor)
 {
     int dist, pdist, a,b,c;
@@ -556,6 +597,12 @@ int DoCheckSwarm(DSWActor* actor)
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoHornetMove(DSWActor* actor)
 {
     // Check for swarming
@@ -578,6 +625,12 @@ int DoHornetMove(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 
 #include "saveable.h"

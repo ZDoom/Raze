@@ -34,6 +34,12 @@ BEGIN_SW_NS
 
 int f_c = 3;
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void MapColors(int num, COLOR_MAP cm, int create, uint8_t *tempbuf)
 {
     int i;
@@ -56,6 +62,12 @@ void MapColors(int num, COLOR_MAP cm, int create, uint8_t *tempbuf)
         tempbuf[i + cm.FromColor] = uint8_t((i*inc) + cm.ToColor);
 }
 
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 #define PLAYER_COLOR_MAPS 15
 static COLOR_MAP PlayerColorMap[PLAYER_COLOR_MAPS][1] =
@@ -108,6 +120,12 @@ static COLOR_MAP PlayerColorMap[PLAYER_COLOR_MAPS][1] =
     }
 
 };
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void GameInterface::loadPalette(void)
 {

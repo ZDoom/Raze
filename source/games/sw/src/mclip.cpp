@@ -37,6 +37,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
 {
     int i;
@@ -112,6 +118,12 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
     return min_ret;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
 {
     int i;
@@ -147,6 +159,12 @@ int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int testquadinsect(int *point_num, DVector2 const * qp, sectortype* sect)
 {
     int i,next_i;
@@ -176,7 +194,12 @@ int testquadinsect(int *point_num, DVector2 const * qp, sectortype* sect)
 }
 
 
+//---------------------------------------------------------------------------
+//
 //Ken gives the tank clippin' a try...
+//
+//---------------------------------------------------------------------------
+
 int RectClipMove(PLAYER* pp, DVector2* qpos)
 {
     int i;
@@ -232,6 +255,12 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int testpointinquad(const DVector2& pt, const DVector2* quad)
 {
     for (int i = 0; i < 4; i++)
@@ -241,6 +270,12 @@ int testpointinquad(const DVector2& pt, const DVector2* quad)
     }
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 short RectClipTurn(PLAYER* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
 {

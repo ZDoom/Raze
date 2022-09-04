@@ -69,6 +69,12 @@ static struct so_interp
     bool hasvator;
 } so_interpdata[MAX_SECTOR_OBJECTS];
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void MarkSOInterp()
 {
     int32_t i;
@@ -87,6 +93,12 @@ void MarkSOInterp()
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 static double getvalue(so_interp::interp_data& element)
 {
@@ -125,6 +137,12 @@ static double getvalue(so_interp::interp_data& element)
     }
 	return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 static void setvalue(so_interp::interp_data& element, double value)
 {
@@ -172,6 +190,12 @@ static void setvalue(so_interp::interp_data& element, double value)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static void so_setpointinterpolation(so_interp *interp, int element, DSWActor* actor = nullptr)
 {
     int32_t i;
@@ -193,6 +217,12 @@ static void so_setpointinterpolation(so_interp *interp, int element, DSWActor* a
         data->lastoldipos = getvalue(*data);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static void so_setspriteanginterpolation(so_interp *interp, DSWActor* actor)
 {
     int32_t i;
@@ -213,7 +243,12 @@ static void so_setspriteanginterpolation(so_interp *interp, DSWActor* actor)
     data->actorofang = actor;
 }
 
+//---------------------------------------------------------------------------
+//
 // Covers points and angles altogether
+//
+//---------------------------------------------------------------------------
+
 static void so_stopdatainterpolation(so_interp *interp, int element, DSWActor* actor)
 {
 	for (int i = 0; i < interp->numinterpolations; i++)
@@ -225,6 +260,12 @@ static void so_stopdatainterpolation(so_interp *interp, int element, DSWActor* a
 		}
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void so_addinterpolation(SECTOR_OBJECT* sop)
 {
@@ -277,6 +318,12 @@ void so_addinterpolation(SECTOR_OBJECT* sop)
     interp->lasttic = synctics;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void so_setspriteinterpolation(SECTOR_OBJECT* sop, DSWActor* actor)
 {
     so_interp *interp = &so_interpdata[sop - SectorObject];
@@ -287,6 +334,12 @@ void so_setspriteinterpolation(SECTOR_OBJECT* sop, DSWActor* actor)
         so_setpointinterpolation(interp, soi_sprz, actor);
     so_setspriteanginterpolation(interp, actor);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void so_stopspriteinterpolation(SECTOR_OBJECT* sop, DSWActor *actor)
 {
@@ -299,6 +352,12 @@ void so_stopspriteinterpolation(SECTOR_OBJECT* sop, DSWActor *actor)
     so_stopdatainterpolation(interp, soi_sprang, actor);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void so_setinterpolationtics(SECTOR_OBJECT* sop, int16_t locktics)
 {
     so_interp *interp = &so_interpdata[sop - SectorObject];
@@ -306,6 +365,12 @@ void so_setinterpolationtics(SECTOR_OBJECT* sop, int16_t locktics)
     interp->tic = 0;
     interp->lasttic = locktics;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void so_updateinterpolations(void) // Stick at beginning of domovethings
 {
@@ -350,8 +415,13 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // must call restore for every do interpolations
 // make sure you don't exit
+//
+//---------------------------------------------------------------------------
+
 void so_dointerpolations(double interpfrac)                      // Stick at beginning of drawscreen
 {
     int32_t i;
@@ -454,6 +524,12 @@ void so_dointerpolations(double interpfrac)                      // Stick at beg
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void so_restoreinterpolations(void)                 // Stick at end of drawscreen
 {
     int32_t i;
@@ -480,6 +556,12 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
             }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void so_serializeinterpolations(FSerializer& arc)
 {

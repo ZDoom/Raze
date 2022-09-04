@@ -53,6 +53,12 @@ extern bool ToggleFlyMode;
 const char *CheatKeyType;
 void KeysCheat(PLAYER* pp, const char *cheat_string);
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static PLAYER* checkCheat(cheatseq_t* c)
 {
 	if (::CheckCheatmode(true, true)) return nullptr;
@@ -97,6 +103,11 @@ const char *GameInterface::GenericCheat(int player, int cheat)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool RestartCheat(cheatseq_t* c)
 {
@@ -139,6 +150,11 @@ bool MapCheat(cheatseq_t* c)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool WarpCheat(cheatseq_t* c)
 {
@@ -162,6 +178,12 @@ bool WarpCheat(cheatseq_t* c)
     DeferredStartGame(maprec, g_nextskill);
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool EveryCheatToggle(cheatseq_t* c)
 {
@@ -192,6 +214,12 @@ static cheatseq_t swcheats[] = {
     {"lwroom",     nullptr,     RoomCheat, true}, // Room above room debug
 };
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static void WeaponCheat(int player)
 {
     auto p = &Player[player];
@@ -216,6 +244,12 @@ static void WeaponCheat(int player)
 
     PlayerUpdateWeapon(p, p->actor->user.WeaponNum);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 static void ItemCheat(int player)
 {
@@ -243,6 +277,11 @@ static void ItemCheat(int player)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 static void cmd_Give(int player, uint8_t** stream, bool skip)
 {
@@ -329,6 +368,12 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         break;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void InitCheats()
 {

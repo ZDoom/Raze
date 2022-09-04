@@ -40,6 +40,12 @@ BEGIN_SW_NS
 
 extern DAngle GlobSpeedSO;
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
 {
     SECTOR_OBJECT* sop;
@@ -103,6 +109,12 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
             }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void CopySectorMatch(int match)
 {

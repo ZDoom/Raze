@@ -364,6 +364,11 @@ void spawnactors(SpawnSpriteDef& sprites)
     leveltimer = sprites.sprites.Size();
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void InitLevel(MapRecord *maprec)
 {

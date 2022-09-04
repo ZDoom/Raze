@@ -89,6 +89,12 @@ bool GameInterface::CanSave()
     return (gamestate == GS_LEVEL && !CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !(Player[myconnectindex].Flags & PF_DEAD));
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool GameInterface::StartGame(FNewGameStartup& gs)
 {
     PLAYER* pp = Player + screenpeek;
