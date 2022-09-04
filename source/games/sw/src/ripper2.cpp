@@ -941,9 +941,9 @@ int InitRipper2Hang(DSWActor* actor)
         if (hit.hitSector == nullptr)
             continue;
 
-		int dist = DistanceI(actor->spr.pos, hit.hitpos);
+		double dist = (actor->spr.pos.XY() - hit.hitpos.XY()).Length();
 
-        if (hit.hitWall == nullptr || dist < 2000 || dist > 7000)
+		if (hit.hitWall == nullptr || dist < 125 || dist > 437.5)
         {
             continue;
         }

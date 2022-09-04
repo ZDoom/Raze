@@ -1832,17 +1832,14 @@ void OperateTripTrigger(PLAYER* pp)
 
     case TAG_TRIGGER_ACTORS:
     {
-        int dist;
-        int i;
-
-        dist = sectp->hitag;
+        double dist = sectp->hitag * maptoworld;
 
         SWStatIterator it(STAT_ENEMY);
         while (auto actor = it.Next())
         {
             if (actor->user.Flags & (SPR_WAIT_FOR_TRIGGER))
             {
-                if (Distance(actor->int_pos().X, actor->int_pos().Y, pp->int_ppos().X, pp->int_ppos().Y) < dist)
+                if ((actor->spr.pos.XY() - pp->pos.XY()).Length() < dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_TRIGGER);
@@ -1982,7 +1979,7 @@ bool NearThings(PLAYER* pp)
         if (hit.hitSector == nullptr)
             return false;
 
-        if (Distance(hit.int_hitpos().X, hit.int_hitpos().Y, pp->int_ppos().X, pp->int_ppos().Y) > 1500)
+        if ((hit.hitpos.XY() - pp->pos.XY()).Length() > 93.75)
             return false;
 
         // hit a sprite?

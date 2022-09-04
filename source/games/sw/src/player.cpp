@@ -1697,33 +1697,27 @@ void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
 
 void DoPlayerBob(PLAYER* pp)
 {
-    int dist;
-    int amt;
+    double amt;
 
-    dist = 0;
+    double dist = (pp->pos.XY() - pp->oldpos.XY()).Length();
 
-    dist = DistanceI(pp->pos, pp->oldpos);
-
-    if (dist > 512)
+    if (dist > 32)
         dist = 0;
 
     // if running make a longer stride
     if (pp->input.actions & SB_RUN)
     {
-        //amt = 10;
-        amt = 12;
-        amt = MulScale(amt, dist<<8, 16);
-        dist = MulScale(dist, 26000, 16);
+        amt = dist * (12. / 16.);
+        dist *= FixedToFloat(26000);
     }
     else
     {
-        amt = 5;
-        amt = MulScale(amt, dist<<9, 16);
-        dist = MulScale(dist, 32000, 16);
+        amt = dist * (5. / 8.);
+        dist *= FixedToFloat(32000);
     }
 
     // controls how fast you move through the sin table
-    pp->bcnt += dist;
+    pp->bcnt += int(dist * 16);
 
     // wrap bcnt
     pp->bcnt &= 2047;
@@ -1747,6 +1741,12 @@ void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt)
     pp->recoil_ndx = 0;
     pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerRecoil(PLAYER* pp)
 {
@@ -3481,7 +3481,9 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
 
             if (hit.hitSector != nullptr && abs(hit.hitSector->int_floorz() - pp->int_ppos().Z) < Z(50))
             {
-                if (Distance(pp->int_ppos().X, pp->int_ppos().Y, hit.int_hitpos().X, hit.int_hitpos().Y) < ((((int)pp->actor->spr.clipdist)<<2) + 256))
+				double dist = (pp->pos.XY() - hit.hitpos.XY()).Length();
+				double comp = ((((int)pp->actor->spr.clipdist)<<2) + 256) * inttoworld;
+                if (dist < comp)
                     return true;
             }
         }
@@ -3714,14 +3716,14 @@ void DoPlayerFly(PLAYER* pp)
 DSWActor* FindNearSprite(DSWActor* actor, short stat)
 {
     int fs;
-    int dist, near_dist = 15000;
+    double dist, near_dist = 937.5;
     DSWActor* near_fp = nullptr;
 
 
     SWStatIterator it(stat);
     while (auto itActor = it.Next())
     {
-        dist = DistanceI(actor->spr.pos, itActor->spr.pos);
+		dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
         if (dist < near_dist)
         {

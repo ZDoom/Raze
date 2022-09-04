@@ -4239,7 +4239,8 @@ int NewStateGroup(DSWActor* actor, STATE* StateGroup[])
 bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
 {
     if (!actor_a->hasU() || !actor_b->hasU()) return false;
-    if ((unsigned)DistanceI(actor_a->spr.pos, actor_b->spr.pos) > actor_a->user.Radius + actor_b->user.Radius)
+	double dist = (actor_a->spr.pos.XY() - actor_b->spr.pos.XY()).Length();
+    if (dist > (actor_a->user.Radius + actor_b->user.Radius) * inttoworld)
     {
         return false;
     }

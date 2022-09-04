@@ -11621,7 +11621,7 @@ int InitSwordAttack(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = Distance(pp->int_ppos().X, pp->int_ppos().Y, itActor->int_pos().X, itActor->int_pos().Y);
+            dist = DistanceI(pp->pos, itActor->spr.pos);
 
             reach = 1000; // !JIM! was 800
             face = 200;
@@ -11786,7 +11786,7 @@ int InitFistAttack(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = Distance(pp->int_ppos().X, pp->int_ppos().Y, itActor->int_pos().X, itActor->int_pos().Y);
+			dist = DistanceI(pp->pos, itActor->spr.pos);
 
             if (pp->InventoryActive[2]) // Shadow Bombs give you demon fist
             {
@@ -12170,13 +12170,6 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short ang, bool test)
 {
     int dist;
-
-#if 0
-    //formula for leading a player
-    dist = Distance(actor->int_pos().X, actor->int_pos().Y, hp->pos.X, hp->pos.Y);
-    time_to_target = dist/missileActor->int_xvel();
-    lead_dist = time_to_target*hp->vel;
-#endif
 
     if (actor->hasU() && actor->user.PlayerP)
     {
@@ -17124,8 +17117,8 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     if (hit.hitSector == nullptr)
         return nullptr;
 
-    const int WALLBLOOD_DIST_MAX = 2500;
-    if (DistanceI(hit.hitpos, actor->spr.pos) > WALLBLOOD_DIST_MAX)
+    const double WALLBLOOD_DIST_MAX = 156.25;
+    if ((hit.hitpos.XY(), actor->spr.pos.XY()).Length() > WALLBLOOD_DIST_MAX)
         return nullptr;
 
     // hit a sprite?
