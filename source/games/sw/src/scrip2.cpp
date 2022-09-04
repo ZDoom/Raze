@@ -393,7 +393,12 @@ static struct
     { "WPN_HOTHEAD_RING",   WPN_RING,    WM_DAMAGE },
 };
 
-// FIXME: yes, we are leaking memory here at the end of the program by not freeing anything
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void LoadCustomInfoFromScript(const char *filename)
 {
     FScanner sc;

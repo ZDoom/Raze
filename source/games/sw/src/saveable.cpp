@@ -77,6 +77,12 @@ void Saveable_Init(void)
     MODULE(sector)
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int Saveable_FindCodeSym(void *ptr, savedcodesym *sym)
 {
     unsigned m,i;
@@ -101,6 +107,12 @@ int Saveable_FindCodeSym(void *ptr, savedcodesym *sym)
     debug_break();
     return -1;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int Saveable_FindDataSym(void *ptr, saveddatasym *sym)
 {
@@ -132,6 +144,12 @@ int Saveable_FindDataSym(void *ptr, saveddatasym *sym)
     return -1;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int Saveable_RestoreCodeSym(savedcodesym *sym, void **ptr)
 {
     if (sym->name.IsEmpty())
@@ -156,6 +174,12 @@ int Saveable_RestoreCodeSym(savedcodesym *sym, void **ptr)
     I_FatalError("Unknown code reference '%s' in savegame\n", sym->name.GetChars());
     return -1;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int Saveable_RestoreDataSym(saveddatasym *sym, void **ptr)
 {

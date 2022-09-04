@@ -39,6 +39,12 @@ BEGIN_SW_NS
 
 void ScaleSectorObject(SECTOR_OBJECT*);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 short DoSectorObjectSetScale(short match)
 {
     SECTOR_OBJECT* sop;
@@ -111,6 +117,12 @@ short DoSectorObjectSetScale(short match)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 short DoSOevent(short match, short state)
 {
     SECTOR_OBJECT* sop;
@@ -180,9 +192,11 @@ short DoSOevent(short match, short state)
 }
 
 
+//---------------------------------------------------------------------------
 //
 // SCALING - PreAnimator
 //
+//---------------------------------------------------------------------------
 
 void ScaleSectorObject(SECTOR_OBJECT* sop)
 {
@@ -251,7 +265,13 @@ void ScaleSectorObject(SECTOR_OBJECT* sop)
     }
 }
 
-DVector2 ScaleRandomPoint(SECTOR_OBJECT* sop, short k, DAngle ang, const DVector2& pos)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DVector2 ScaleRandomPoint(SECTOR_OBJECT* sop, int k, DAngle ang, const DVector2& pos)
 {
     sop->scale_point_dist[k] += sop->scale_point_speed[k];
     if (sop->scale_point_dist[k] > sop->scale_point_dist_max)
@@ -288,9 +308,11 @@ DVector2 ScaleRandomPoint(SECTOR_OBJECT* sop, short k, DAngle ang, const DVector
     return ret;
 }
 
+//---------------------------------------------------------------------------
 //
 // Morph point - move point around
 //
+//---------------------------------------------------------------------------
 
 void MorphTornado(SECTOR_OBJECT* sop)
 {
@@ -356,7 +378,12 @@ void MorphTornado(SECTOR_OBJECT* sop)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // moves center point around and aligns slope
+//
+//---------------------------------------------------------------------------
+
 void MorphFloor(SECTOR_OBJECT* sop)
 {
     sectortype* *sectp;
@@ -425,6 +452,12 @@ void MorphFloor(SECTOR_OBJECT* sop)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SOBJ_AlignFloorToPoint(SECTOR_OBJECT* sop, const DVector3& pos)
 {
     sectortype* *sectp;
@@ -439,6 +472,12 @@ void SOBJ_AlignFloorToPoint(SECTOR_OBJECT* sop, const DVector3& pos)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SOBJ_AlignCeilingToPoint(SECTOR_OBJECT* sop, const DVector3& pos)
 {
@@ -455,7 +494,12 @@ void SOBJ_AlignCeilingToPoint(SECTOR_OBJECT* sop, const DVector3& pos)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // moves center point around and aligns slope
+//
+//---------------------------------------------------------------------------
+
 void SpikeFloor(SECTOR_OBJECT* sop)
 {
     // z direction
@@ -488,6 +532,11 @@ void SpikeFloor(SECTOR_OBJECT* sop)
     SOBJ_AlignFloorToPoint(sop, pos);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 
