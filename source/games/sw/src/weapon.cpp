@@ -9358,20 +9358,16 @@ int DoMicro(DSWActor* actor)
 
 int DoUziBullet(DSWActor* actor)
 {
-    int sx,sy;
-    short i;
-
     // call move_sprite twice for each movement
     // otherwize the moves are in too big an increment
-    for (i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
 		auto vec = MOVExy((actor->int_xvel() >> 1), actor->spr.angle);
 		double daz = (actor->int_zvel() >> 1) * zinttoworld;
 
-        sx = actor->int_pos().X;
-        sy = actor->int_pos().Y;
+        auto spos = actor->spr.pos.XY();
         actor->user.coll = move_missile(actor, DVector3(vec, daz), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
-        actor->user.Dist += Distance(sx, sy, actor->int_pos().X, actor->int_pos().Y);
+        actor->user.Dist += (spos - actor->spr.pos.XY()). Length();
 
         MissileHitDiveArea(actor);
 
@@ -9405,7 +9401,7 @@ int DoUziBullet(DSWActor* actor)
             KillActor(actor);
             return true;
         }
-        else if (actor->user.Dist > 8000)
+        else if (actor->user.Dist > 500)
         {
             KillActor(actor);
             return 0;
@@ -10853,7 +10849,7 @@ int DoMirv(DSWActor* actor)
 
             actorNew->user.ceiling_dist = (16);
             actorNew->user.floor_dist = (16);
-            actorNew->user.Dist = 200;
+            actorNew->user.Dist = 12.5;
             //actorNew->user.Dist = 0;
 
 			UpdateChange(actorNew);
@@ -10941,12 +10937,10 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
     return retval;
 }
 
-enum
-{
-    RINGMOVETICS = (MISSILEMOVETICS * 2),
-    RING_OUTER_DIST = 3200,
-    RING_INNER_DIST = 800,
-};
+
+constexpr int RINGMOVETICS = (MISSILEMOVETICS * 2);
+constexpr double RING_OUTER_DIST = 200;
+constexpr double RING_INNER_DIST = 50;
 
 int DoRing(DSWActor* actor)
 {
@@ -10978,7 +10972,7 @@ int DoRing(DSWActor* actor)
     // go out until its time to come back in
     if (actor->user.Counter2 == false)
     {
-        actor->user.Dist += 8 * RINGMOVETICS;
+        actor->user.Dist += 0.5 * RINGMOVETICS;
 
         if (actor->user.Dist > RING_OUTER_DIST)
         {
@@ -10987,7 +10981,7 @@ int DoRing(DSWActor* actor)
     }
     else
     {
-        actor->user.Dist -= 8 * RINGMOVETICS;
+        actor->user.Dist -= 0.5 * RINGMOVETICS;
 
         if (actor->user.Dist <= RING_INNER_DIST)
         {
@@ -11002,8 +10996,8 @@ int DoRing(DSWActor* actor)
     actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (4 * RINGMOVETICS) + RINGMOVETICS));
 
     // put it out there
-    actor->add_int_pos({ MulScale(actor->user.Dist, bcos(actor->int_ang()), 14), MulScale(actor->user.Dist, bsin(actor->int_ang()), 14),
-        pp ? (actor->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9 : 0 });
+    actor->spr.pos += actor->spr.angle.ToVector() * actor->user.Dist;
+    if (pp) actor->spr.pos.Z += (actor->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) * (1/ (512.*16.)); // horizon math sucks...
 
     SetActor(actor, actor->spr.pos);
 
@@ -11073,8 +11067,8 @@ void InitSpellRing(PLAYER* pp)
         actorNew->user.floor_dist = 10;
 
         // put it out there
-        actorNew->add_int_pos({ MulScale(actorNew->user.Dist, bcos(actorNew->int_ang()), 14), MulScale(actorNew->user.Dist, bsin(actorNew->int_ang()), 14),
-                pp->int_ppos().Z + Z(20) + ((actorNew->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9) });
+        actorNew->spr.pos += actorNew->spr.angle.ToVector() * actorNew->user.Dist;
+        actorNew->spr.pos.Z += pp->pos.Z + 20 + (actorNew->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) * (1 / (512. * 16.)); // horizon math sucks...
 
         actorNew->spr.angle += DAngle90;
 
@@ -11113,9 +11107,9 @@ int DoSerpRing(DSWActor* actor)
     // go out until its time to come back in
     if (actor->user.Counter2 == false)
     {
-        actor->user.Dist += 8 * RINGMOVETICS;
+        actor->user.Dist += 0.5 * RINGMOVETICS;
 
-        if (actor->user.Dist * inttoworld > actor->user.TargetDist)
+        if (actor->user.Dist > actor->user.TargetDist)
             actor->user.Counter2 = true;
     }
 
@@ -11129,7 +11123,7 @@ int DoSerpRing(DSWActor* actor)
         actor->set_int_ang(NORM_ANGLE(actor->int_ang() - (28 * RINGMOVETICS)));
 
     // put it out there
-    actor->add_int_pos({ MulScale(actor->user.Dist, bcos(actor->user.slide_ang), 14), MulScale(actor->user.Dist, bsin(actor->user.slide_ang), 14), 0 });
+    actor->add_int_pos({ MulScale(int(actor->user.Dist * worldtoint), bcos(actor->user.slide_ang), 14), MulScale(int(actor->user.Dist * worldtoint), bsin(actor->user.slide_ang), 14), 0 });
 
     SetActor(actor, actor->spr.pos);
 
@@ -11310,7 +11304,7 @@ int InitSerpRing(DSWActor* actor)
     short ang, ang_diff, ang_start, missiles;
     short max_missiles;
 
-    const int SERP_RING_DIST = 2800; // Was 3500
+    const int SERP_RING_DIST = 175;
 
     extern STATE s_SkullExplode[];
     extern STATE s_SkullRing[5][1];
@@ -11351,7 +11345,7 @@ int InitSerpRing(DSWActor* actor)
         actor->user.Flags ^= SPR_BOUNCE;
         actorNew->user.Flags |= (actor->user.Flags & (SPR_BOUNCE));
 
-        actorNew->user.Dist = 600;
+        actorNew->user.Dist = 37.5;
         actorNew->user.TargetDist = SERP_RING_DIST;
         actorNew->user.Counter2 = 0;
 
@@ -11421,7 +11415,7 @@ void InitSpellNapalm(PLAYER* pp)
 
         actor->user.floor_dist = (1);
         actor->user.ceiling_dist = (1);
-        actor->user.Dist = 200;
+        actor->user.Dist = 12.5;
 
         auto oclipdist = plActor->spr.clipdist;
         plActor->spr.clipdist = 1;
@@ -11491,7 +11485,7 @@ int InitEnemyNapalm(DSWActor* actor)
 
         actorNew->user.floor_dist = (1);
         actorNew->user.ceiling_dist = (1);
-        actorNew->user.Dist = 200;
+        actorNew->user.Dist = 12.5;
 
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;
@@ -11540,7 +11534,7 @@ int InitSpellMirv(PLAYER* pp)
 
     actorNew->user.floor_dist = (16);
     actorNew->user.ceiling_dist = (16);
-    actorNew->user.Dist = 200;
+    actorNew->user.Dist = 12.5;
 
     DSWActor* plActor = pp->actor;
     auto oclipdist = plActor->spr.clipdist;
@@ -11575,7 +11569,7 @@ int InitEnemyMirv(DSWActor* actor)
 
     actorNew->user.floor_dist = (16);
     actorNew->user.ceiling_dist = (16);
-    actorNew->user.Dist = 200;
+    actorNew->user.Dist = 12.5;
 
 	UpdateChange(actorNew);
 
@@ -11990,7 +11984,7 @@ int InitSumoNapalm(DSWActor* actor)
 
             actorNew->user.floor_dist = (1);
             actorNew->user.ceiling_dist = (1);
-            actorNew->user.Dist = 200;
+            actorNew->user.Dist = 12.5;
 
             auto oclipdist = actor->spr.clipdist;
             actor->spr.clipdist = 1;
@@ -12479,7 +12473,7 @@ void InitHeartAttack(PLAYER* pp)
 
     actorNew->user.floor_dist = (1);
     actorNew->user.ceiling_dist = (1);
-    actorNew->user.Dist = 200;
+    actorNew->user.Dist = 12.5;
 
     auto oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 1;
@@ -13774,7 +13768,7 @@ int InitSerpSpell(DSWActor* actor)
 
         actorNew->user.ceiling_dist = (16);
         actorNew->user.floor_dist = (16);
-        actorNew->user.Dist = 200;
+        actorNew->user.Dist = 12.5;
 
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;
@@ -13866,7 +13860,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->user.ceiling_dist = (16);
         actorNew->user.floor_dist = (16);
 
-        actorNew->user.Dist = 200;
+        actorNew->user.Dist = 12.5;
 
         auto oclipdist = actor->spr.clipdist;
         actor->spr.clipdist = 1;

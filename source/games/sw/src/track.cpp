@@ -2829,14 +2829,14 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     case TRACK_ACTOR_WAIT_FOR_PLAYER:
     {
         actor->user.Flags |= (SPR_WAIT_FOR_PLAYER);
-        actor->user.Dist = tpoint->tag_high;
+        actor->user.Dist = tpoint->tag_high * maptoworld;
         break;
     }
 
     case TRACK_ACTOR_WAIT_FOR_TRIGGER:
     {
         actor->user.Flags |= (SPR_WAIT_FOR_TRIGGER);
-        actor->user.Dist = tpoint->tag_high;
+        actor->user.Dist = tpoint->tag_high * maptoworld;
         break;
     }
 
@@ -3322,7 +3322,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             {
                 pp = &Player[pnum];
 
-                if ((actor->spr.pos.XY() - pp->pos.XY()).Length() < actor->user.Dist * inttoworld)
+                if ((actor->spr.pos.XY() - pp->pos.XY()).Length() < actor->user.Dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_PLAYER);

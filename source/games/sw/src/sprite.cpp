@@ -4573,7 +4573,6 @@ int move_actor(DSWActor* actor, const DVector3& change)
     DSWActor* highActor;
     DSWActor* lowActor;
     sectortype* lo_sectp,* hi_sectp;
-    short dist;
     int cliptype = CLIPMASK_ACTOR;
 
 
@@ -4639,10 +4638,11 @@ int move_actor(DSWActor* actor, const DVector3& change)
     if (actor->user.coll.type == kHitNone)
     {
         // Keep track of how far sprite has moved
-        dist = DistanceI(apos, actor->spr.pos);
-        actor->user.TargetDist -= dist * inttoworld;
+        double dist = (apos.XY() - actor->spr.pos.XY()).Length();
+        actor->user.TargetDist -= dist;
         actor->user.Dist += dist;
-        actor->user.DistCheck += dist * inttoworld;
+        actor->user.DistCheck += dist;
+		
         return true;
     }
     else

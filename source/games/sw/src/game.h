@@ -1029,7 +1029,7 @@ struct USER
     // zig zagging
     double DistCheck;
 
-    int16_t Dist;
+    double Dist;
     double TargetDist;
     int16_t WaitTics;
 

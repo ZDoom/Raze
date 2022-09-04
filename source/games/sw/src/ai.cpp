@@ -836,7 +836,7 @@ int DoActorMoveCloser(DSWActor* actor)
     }
 
     // Should be a random value test
-    if (actor->user.Dist > 512 * 3)
+    if (actor->user.Dist > 32 * 3)
     {
         InitActorDecide(actor);
     }
