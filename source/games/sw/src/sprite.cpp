@@ -5845,7 +5845,7 @@ void AdjustActiveRange(PLAYER* pp, DSWActor* actor, int dist)
     actor->user.wait_active_check = 0;
 
     // check aboslute max
-    if (dist > MAX_ACTIVE_RANGE)
+    if (dist > MAX_ACTIVE_RANGE * worldtoint)
         return;
 
     // do not do a FAFcansee if your already active

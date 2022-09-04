@@ -267,12 +267,14 @@ int CanHitPlayer(DSWActor* actor)
 
 int DoActorPickClosePlayer(DSWActor* actor)
 {
-    int dist, near_dist = MAX_ACTIVE_RANGE, a,b,c;
     int pnum;
     PLAYER* pp;
     // if actor can still see the player
     bool found = false;
     int i;
+
+    double near_dist = MAX_ACTIVE_RANGE;
+    double dist;
 
     if (actor->user.ID == ZOMBIE_RUN_R0 && gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
         goto TARGETACTOR;
@@ -296,7 +298,6 @@ int DoActorPickClosePlayer(DSWActor* actor)
 
 
     // Set initial target to the closest player
-    near_dist = MAX_ACTIVE_RANGE;
     TRAVERSE_CONNECT(pnum)
     {
         pp = &Player[pnum];
@@ -315,7 +316,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
             //    continue;
         }
 
-        DISTANCE(actor->spr.pos, pp->pos, dist, a, b, c);
+        dist = (actor->spr.pos - pp->pos).Length();
 
         if (dist < near_dist)
         {
@@ -341,7 +342,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
                 continue;
         }
 
-        DISTANCE(actor->spr.pos, pp->pos, dist, a, b, c);
+        dist = (actor->spr.pos - pp->pos).Length();
 
         DSWActor* plActor = pp->actor;
 
@@ -369,7 +370,7 @@ TARGETACTOR:
             if ((itActor->user.Flags & (SPR_SUICIDE | SPR_DEAD)))
                 continue;
 
-            DISTANCE(actor->spr.pos, itActor->spr.pos, dist, a, b, c);
+            dist = (actor->spr.pos - itActor->spr.pos).Length();
 
             if (dist < near_dist && FAFcansee(ActorVectOfTop(actor), actor->sector(), ActorUpperVect(itActor), itActor->sector()))
             {
