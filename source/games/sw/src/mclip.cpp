@@ -140,9 +140,7 @@ int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
         DVector2 vect = ang.ToVector() * 1024 * sop->clipbox_vdist[i];
         Collision coll;
 
-        int xvect = vect.X * 16 * worldtoint; // note: this means clipmove input is Q18.14!
-        int yvect = vect.Y * 16 * worldtoint;
-        clipmove(spos, &cursect, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), int(floordist * zworldtoint), CLIPMASK_PLAYER, coll);
+        clipmove(spos, &cursect, FloatToFixed<18>(vect.X), FixedToFloat<18>(vect.Y), (int)sop->clipbox_dist[i], Z(4), int(floordist * zworldtoint), CLIPMASK_PLAYER, coll);
 
         ASSERT(cursect);
 
