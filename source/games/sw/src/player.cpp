@@ -7263,7 +7263,7 @@ int SearchSpawnPosition(PLAYER* pp)
 
             if (opp != pp)  // don't test for yourself
             {
-                if (FindDistance3D(spawn_sprite->int_pos() - opp->int_ppos()) < 1000)
+                if ((spawn_sprite->spr.pos.XY() - opp->pos.XY()).Length() < 62.25)
                 {
                     blocked = true;
                     break;
