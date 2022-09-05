@@ -510,22 +510,6 @@ void dragpoint(walltype* startwall, const DVector2& pos)
 //
 //==========================================================================
 
-DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, DAngle angle)
-{
-	auto cosang = angle.Cos();
-	auto sinang = angle.Sin();
-	auto p = point - pivot;
-	return {
-		p.X * cosang - p.Y * sinang + pivot.X,
-		p.Y * cosang + p.X * sinang + pivot.Y };
-}
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
 int inside(double x, double y, const sectortype* sect)
 {
 	if (sect)
