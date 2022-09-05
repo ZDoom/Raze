@@ -1685,7 +1685,7 @@ void SlipSlope(PLAYER* pp)
 void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
-    pp->horizon.calcviewpitch(pp->int_ppos().vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
+    pp->horizon.calcviewpitch(pp->pos.XY(), pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
 
@@ -2632,8 +2632,6 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
 
 void DoPlayerMoveVehicle(PLAYER* pp)
 {
-    int z;
-    int floor_dist;
     DSWActor* actor = pp->sop->sp_child;
     if (!actor) return;
     DSWActor* plActor = pp->actor;
@@ -2690,7 +2688,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->vect.X = pp->vect.Y = 0;
 
     pp->lastcursector = pp->cursector;
-    z = pp->int_ppos().Z + Z(10);
+    double zz = pp->pos.Z + 10;
 
     DVector2 pos[4], opos[4];
 
@@ -2718,7 +2716,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     OperateSectorObject(pp->sop, pp->angle.ang, { MAXSO, MAXSO });
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
-    floor_dist = abs(z - pp->sop->floor_loz * worldtoint);
+    double floordist = abs(zz - pp->sop->floor_loz);
 
 
     if (RectClip)
@@ -2779,7 +2777,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         }
         else
         {
-            DoPlayerTurnVehicle(pp, pp->input.avel, z * zinttoworld, floor_dist * zinttoworld);
+            DoPlayerTurnVehicle(pp, pp->input.avel, zz, floordist);
         }
 
         auto save_cstat = plActor->spr.cstat;
@@ -2787,11 +2785,11 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->vect.X), FloatToFixed<18>(pp->vect.Y), (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
+            clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->vect.X), FloatToFixed<18>(pp->vect.Y), (int)pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
-            actor->user.coll = MultiClipMove(pp, z * zinttoworld, floor_dist * zinttoworld);
+            actor->user.coll = MultiClipMove(pp, zz, floordist);
         }
         plActor->spr.cstat = save_cstat;
 
@@ -3522,8 +3520,7 @@ void DoPlayerClimb(PLAYER* pp)
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-            nx = MOVEx(100, lActor->int_ang());
-            ny = MOVEy(100, lActor->int_ang());
+			auto nvec = lActor->spr.angle.ToVector() * 31.25;
 
             // set ladder sector
             pp->LadderSector = near.hitWall->twoSided()? near.hitWall->nextSector() : near.hitWall->sectorp();
@@ -3531,8 +3528,7 @@ void DoPlayerClimb(PLAYER* pp)
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
 
-            pp->LadderPosition.X = lActor->spr.pos.X + nx * 5 * inttoworld;
-            pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5 * inttoworld;
+            pp->LadderPosition = lActor->spr.pos.XY() + nvec;
 
             pp->angle.settarget(lActor->spr.angle + DAngle180);
         }
@@ -3890,7 +3886,7 @@ bool PlayerOnLadder(PLAYER* pp)
     {
         neartag(pp->pos, pp->cursector, pp->angle.ang + angles[i], near, 600, NTAG_SEARCH_LO_HI);
 
-        if (near.hitWall == nullptr || near.int_hitpos().X < 100 || near.hitWall->lotag != TAG_WALL_CLIMB)
+        if (near.hitWall == nullptr || near.hitpos.X < 6.25 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;
 
         FAFhitscan(pp->pos, pp->cursector, DVector3((pp->angle.ang + angles[i]).ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
@@ -6102,7 +6098,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     {
         if (FAFcansee(ActorVectOfTop(killer), killer->sector(), pp->pos, pp->cursector))
         {
-            pp->angle.addadjustment(deltaangle(pp->angle.ang, VecToAngle(killer->int_pos().X - pp->int_ppos().X, killer->int_pos().Y - pp->int_ppos().Y)) * (1. / 16.));
+            pp->angle.addadjustment(deltaangle(pp->angle.ang, VecToAngle(killer->spr.pos.XY() - pp->pos.Y)) * (1. / 16.));
         }
     }
 }
@@ -7110,9 +7106,7 @@ void domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            int deltax = Player[myconnectindex].int_ppos().X - Player[screenpeek].int_ppos().X;
-            int deltay = Player[myconnectindex].int_ppos().Y - Player[screenpeek].int_ppos().Y;
-            Player[screenpeek].angle.settarget(VecToAngle(deltax, deltay));
+            Player[screenpeek].angle.settarget(VecToAngle(Player[myconnectindex].pos - Player[screenpeek].pos));
         }
 
         if (!(pp->Flags & PF_DEAD))
