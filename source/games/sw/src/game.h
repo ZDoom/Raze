@@ -1760,13 +1760,13 @@ inline bool FAF_ConnectArea(sectortype* sect)
 }
 
 
-void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
+void FAFhitscan_(int32_t x, int32_t y, int32_t z, sectortype* sect,
     int32_t xvect, int32_t yvect, int32_t zvect,
     HitInfo& hit, int32_t clipmask);
 
 inline void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, HitInfo& hit, int32_t clipmask)
 {
-    FAFhitscan(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint), sect,
+    FAFhitscan_(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint), sect,
         int(vect.X * worldtoint), int(vect.Y * worldtoint), int(vect.Z * zworldtoint), hit, clipmask);
 }
 

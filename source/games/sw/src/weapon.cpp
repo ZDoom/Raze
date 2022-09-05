@@ -11625,22 +11625,15 @@ int InitSwordAttack(PLAYER* pp)
     // all this is to break glass
     {
         HitInfo hit{};
-        short daang;
-        int daz;
 
-        daang = pp->angle.ang.Buildang();
-        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
-
-        FAFhitscan(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector,       // Start position
-            bcos(daang),      // X vector of 3D ang
-            bsin(daang),      // Y vector of 3D ang
-            daz,              // Z vector of 3D ang
-            hit, CLIPMASK_MISSILE);
+        double daz = (-MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000)) * zinttoworld;
+        int daang = pp->angle.ang.Buildang();
+        FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->int_ppos() - hit.int_hitpos()) < 700)
+        if ((pp->pos - hit.hitpos).Length() < 43.75)
         {
 
             if (hit.actor() != nullptr)
@@ -11748,7 +11741,7 @@ int InitFistAttack(PLAYER* pp)
             bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
-                bubble->set_int_ang(pp->angle.ang.Buildang());
+                bubble->spr.angle = pp->angle.ang;
 
                 auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
@@ -11803,22 +11796,14 @@ int InitFistAttack(PLAYER* pp)
     // all this is to break glass
     {
         HitInfo hit{};
-        short daang;
-        int daz;
-
-        daang = pp->angle.ang.Buildang();
-        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
-
-        FAFhitscan(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector,       // Start position
-                   bcos(daang),      // X vector of 3D ang
-                   bsin(daang),      // Y vector of 3D ang
-                   daz,              // Z vector of 3D ang
-                   hit, CLIPMASK_MISSILE);
+        double daz = (-MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000)) * zinttoworld;
+        int daang = pp->angle.ang.Buildang();
+        FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->int_ppos() - hit.int_hitpos()) < 700)
+        if ((pp->pos - hit.hitpos).Length() < 43.75)
         {
 
             if (hit.actor() != nullptr)
@@ -12462,9 +12447,9 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
     HitInfo hit{};
     DSWActor* actor = pp->actor;
 
-    FAFhitscan(x, y, z, sect,
-               xvect, yvect, zvect,
-               hit, CLIPMASK_MISSILE);
+    DVector3 start(x * inttoworld, y * inttoworld, z * zmaptoworld);
+    DVector3 vect(xvect * inttoworld, yvect * inttoworld, zvect * zmaptoworld);
+    FAFhitscan(start, sect, vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
         return 0;
@@ -14674,7 +14659,6 @@ int InitUzi(PLAYER* pp)
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
     {
         daang += RandomRange(24) - 12;
-        daang = NORM_ANGLE(daang);
         daz += RandomRange(10000) - 5000;
     }
     else
@@ -14688,9 +14672,9 @@ int InitUzi(PLAYER* pp)
     xvect = bcos(daang);
     yvect = bsin(daang);
     zvect = daz;
-    FAFhitscan(pp->int_ppos().X, pp->int_ppos().Y, nz, pp->cursector,       // Start position
-               xvect,yvect,zvect,
-               hit, CLIPMASK_MISSILE);
+    DVector3 vect(xvect * inttoworld, yvect * inttoworld, zvect * zmaptoworld);
+
+    FAFhitscan(DVector3(pp->pos, nz * zinttoworld), pp->cursector, vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
     {
@@ -15149,11 +15133,10 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
         daang = actor->int_ang();
     }
 
-    FAFhitscan(nx, ny, nz, actor->sector(),       // Start position
-               bcos(daang),      // X vector of 3D ang
-               bsin(daang),      // Y vector of 3D ang
-               daz,              // Z vector of 3D ang
-               hit, CLIPMASK_MISSILE);
+    DVector3 start(nx * inttoworld, ny * inttoworld, nz * zmaptoworld);
+    DVector3 vect(bcos(daang) * inttoworld, bsin(daang) * inttoworld, daz * zmaptoworld);
+
+    FAFhitscan(start, actor->sector(), vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
     {
@@ -15467,7 +15450,6 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
     int nx,ny,nz;
     short cstat = 0;
     short delta;
-    int xvect,yvect,zvect;
 
     PlaySound(DIGI_BOATFIRE, sop->pmid, v3df_dontpan|v3df_doppler);
 
@@ -15526,13 +15508,13 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                 }
             }
 
-            xvect = bcos(daang);
-            yvect = bsin(daang);
-            zvect = daz;
+            DVector3 start(nx * inttoworld, ny * inttoworld, nz * zmaptoworld);
+            int xvect = bcos(daang);
+            int yvect = bsin(daang);
+            int zvect = daz;
+            DVector3 vect(xvect * inttoworld, yvect * inttoworld, zvect * zmaptoworld);
 
-            FAFhitscan(nx, ny, nz, actor->sector(),       // Start position
-                       xvect, yvect, zvect,
-                       hit, CLIPMASK_MISSILE);
+            FAFhitscan(start, actor->sector(), vect, hit, CLIPMASK_MISSILE);
 
             if (RANDOM_P2(1024) < 400)
             {
@@ -17086,11 +17068,9 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     daz -= (Z(128)<<2);
     dang = (bang.Buildang() + (RANDOM_P2(128 << 5) >> 5)) - (64);
 
-    FAFhitscan(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(30), actor->sector(),    // Start position
-               bcos(dang),      // X vector of 3D ang
-               bsin(dang),      // Y vector of 3D ang
-               daz,              // Z vector of 3D ang
-               hit, CLIPMASK_MISSILE);
+    DVector3 vect(bcos(dang) * inttoworld, bsin(dang) * inttoworld, daz * zmaptoworld);
+
+    FAFhitscan(actor->spr.pos.plusZ(-30), actor->sector(), vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
         return nullptr;

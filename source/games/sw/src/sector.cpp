@@ -2196,13 +2196,8 @@ bool NearThings(PLAYER* pp)
     // This only gets called if nothing else worked, check for nearness to a wall
     {
         HitInfo hit{};
-        short dang = pp->angle.ang.Buildang();
 
-        FAFhitscan(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z - Z(30), pp->cursector,    // Start position
-                   bcos(dang),  // X vector of 3D ang
-                   bsin(dang),  // Y vector of 3D ang
-                   0,           // Z vector of 3D ang
-                   hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->pos.plusZ(-30), pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return false;
