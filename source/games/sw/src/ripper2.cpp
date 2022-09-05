@@ -882,6 +882,12 @@ ACTOR_ACTION_SET Ripper2BrownActionSet =
     nullptr
 };
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int SetupRipper2(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
@@ -921,9 +927,11 @@ int SetupRipper2(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
 //
 // HANGING - Jumping/Falling/Stationary
 //
+//---------------------------------------------------------------------------
 
 int InitRipper2Hang(DSWActor* actor)
 {
@@ -976,6 +984,12 @@ int InitRipper2Hang(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoRipper2Hang(DSWActor* actor)
 {
     if ((actor->user.WaitTics -= ACTORMOVETICS) > 0)
@@ -987,6 +1001,12 @@ int DoRipper2Hang(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoRipper2MoveHang(DSWActor* actor)
 {
@@ -1018,6 +1038,11 @@ int DoRipper2MoveHang(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoRipper2HangJF(DSWActor* actor)
 {
@@ -1043,9 +1068,11 @@ int DoRipper2HangJF(DSWActor* actor)
 
 }
 
+//---------------------------------------------------------------------------
 //
 // JUMP ATTACK
 //
+//---------------------------------------------------------------------------
 
 int DoRipper2BeginJumpAttack(DSWActor* actor)
 {
@@ -1079,6 +1106,12 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoRipper2MoveJump(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_JUMPING | SPR_FALLING))
@@ -1101,9 +1134,11 @@ int DoRipper2MoveJump(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
 //
 // STD MOVEMENT
 //
+//---------------------------------------------------------------------------
 
 int DoRipper2QuickJump(DSWActor* actor)
 {
@@ -1125,6 +1160,11 @@ int DoRipper2QuickJump(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int NullRipper2(DSWActor* actor)
 {
@@ -1136,6 +1176,11 @@ int NullRipper2(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoRipper2Pain(DSWActor* actor)
 {
@@ -1146,6 +1191,11 @@ int DoRipper2Pain(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoRipper2RipHeart(DSWActor* actor)
 {
@@ -1157,6 +1207,12 @@ int DoRipper2RipHeart(DSWActor* actor)
     target->spr.angle = VecToAngle(actor->spr.pos - target->spr.pos);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoRipper2StandHeart(DSWActor* actor)
 {
@@ -1170,13 +1226,15 @@ int DoRipper2StandHeart(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void Ripper2Hatch(DSWActor* actor)
 {
 	const int MAX_RIPPER2S = 1;
-    short rip_ang[MAX_RIPPER2S];
-
-    rip_ang[0] = RANDOM_P2(2048);
-    //rip_ang[1] = NORM_ANGLE(rip_ang[0] + 1024 + (RANDOM_P2(512) - 256));
 
     for (int i = 0; i < MAX_RIPPER2S; i++)
     {
@@ -1185,7 +1243,7 @@ void Ripper2Hatch(DSWActor* actor)
         actorNew->spr.pos = actor->spr.pos;
 
         actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
-        actorNew->set_int_ang(rip_ang[i]);
+        actorNew->spr.angle = RandomAngle();
         actorNew->spr.pal = 0;
         actorNew->spr.shade = -10;
         SetupRipper2(actorNew);
@@ -1209,6 +1267,12 @@ void Ripper2Hatch(DSWActor* actor)
         DoJump(actorNew);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoRipper2Move(DSWActor* actor)
 {
@@ -1250,6 +1314,11 @@ int DoRipper2Move(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int InitRipper2Charge(DSWActor* actor)
 {
@@ -1262,12 +1331,23 @@ int InitRipper2Charge(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int ChestRipper2(DSWActor* actor)
 {
     PlaySound(DIGI_RIPPER2CHEST, actor, v3df_follow);
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 
