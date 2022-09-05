@@ -3397,7 +3397,7 @@ void DoPlayerClimb(PLAYER* pp)
 
     if (FAF_ConnectArea(pp->cursector))
     {
-        updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, &pp->cursector);
+        updatesectorz(pp->pos, &pp->cursector);
         LadderUpdate = true;
     }
 
@@ -3413,7 +3413,7 @@ void DoPlayerClimb(PLAYER* pp)
         HitInfo near;
 
         // constantly look for new ladder sector because of warping at any time
-        neartag(pp->int_ppos(), pp->cursector, pp->angle.ang.Buildang(), near, 800, NTAG_SEARCH_LO_HI);
+        neartag(pp->pos, pp->cursector, pp->angle.ang, near, 800, NTAG_SEARCH_LO_HI);
 
         if (near.hitWall)
         {
@@ -3461,7 +3461,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
         {
             hit.hitSector = hit.hitWall->nextSector();
 
-            if (hit.hitSector != nullptr && abs(hit.hitSector->int_floorz() - pp->int_ppos().Z) < Z(50))
+            if (hit.hitSector != nullptr && abs(hit.hitSector->floorz - pp->pos.Z) < 50)
             {
 				double dist = (pp->pos.XY() - hit.hitpos.XY()).Length();
 				double comp = ((((int)pp->actor->spr.clipdist)<<2) + 256) * inttoworld;
@@ -3733,7 +3733,7 @@ bool PlayerOnLadder(PLAYER* pp)
     if (Prediction)
         return false;
 
-    neartag(pp->int_ppos(), pp->cursector, pp->angle.ang.Buildang(), near, 1024 + 768, NTAG_SEARCH_LO_HI);
+    neartag(pp->pos, pp->cursector, pp->angle.ang, near, 1024 + 768, NTAG_SEARCH_LO_HI);
 
     double dir = pp->vect.dot(pp->angle.ang.ToVector());
 
