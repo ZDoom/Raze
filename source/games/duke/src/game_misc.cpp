@@ -384,9 +384,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 
 bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
 {
-	DVector2 b0, b1, b2, b3, b4, v1, v2, v3, v4;
-	int xoff, yoff, xspan, yspan, tilenum;
-
+	// Pre-caculate incoming angle vector.
 	auto cangvect = cang.ToVector();
 
 	// Draw sprites
@@ -400,27 +398,21 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			if (act == pactor || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.xrepeat == 0) continue;
 
 			PalEntry col = act->spr.cstat & CSTAT_SPRITE_BLOCK ? PalEntry(170, 0, 170) : PalEntry(0, 170, 170);
+			auto sprpos = act->spr.pos.XY() - cpos;
 
 			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case CSTAT_SPRITE_ALIGNMENT_FACING:
-				v1 = OutAutomapVector(act->spr.pos.XY() - cpos, cangvect, czoom, xydim);
-				v2 = OutAutomapVector(act->spr.angle.ToVector() * 8., cangvect, czoom);
-				v3 = v2.Rotated90CW();
-				v4 = v1 + v2;
-
-				drawlinergb(v1 - v2, v4, col);
-				drawlinergb(v1 - v3, v4, col);
-				drawlinergb(v1 + v3, v4, col);
+				DrawAutomapAlignmentFacing(act->spr, sprpos, cangvect, czoom, xydim, col);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
-				if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP)) DrawAutomapAlignmentWall(act->spr, act->spr.pos.XY() - cpos, cangvect, czoom, xydim, col);
+				if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP)) DrawAutomapAlignmentWall(act->spr, sprpos, cangvect, czoom, xydim, col);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_FLOOR:
 			case CSTAT_SPRITE_ALIGNMENT_SLOPE:
-				DrawAutomapAlignmentFloor(act->spr, act->spr.pos.XY() - cpos, cangvect, czoom, xydim, col);
+				DrawAutomapAlignmentFloor(act->spr, sprpos, cangvect, czoom, xydim, col);
 				break;
 			}
 		}

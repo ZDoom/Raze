@@ -621,6 +621,24 @@ void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const s
 
 //---------------------------------------------------------------------------
 //
+// Draws lines for alls in Duke/SW when cstat is CSTAT_SPRITE_ALIGNMENT_FACING.
+//
+//---------------------------------------------------------------------------
+
+void DrawAutomapAlignmentFacing(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col)
+{
+	auto v1 = OutAutomapVector(bpos, cangvect, czoom, xydim);
+	auto v2 = OutAutomapVector(spr.angle.ToVector() * 8., cangvect, czoom);
+	auto v3 = v2.Rotated90CW();
+	auto v4 = v1 + v2;
+
+	drawlinergb(v1 - v2, v4, col);
+	drawlinergb(v1 - v3, v4, col);
+	drawlinergb(v1 + v3, v4, col);
+}
+
+//---------------------------------------------------------------------------
+//
 // Draws lines for alls in Duke/SW when cstat is CSTAT_SPRITE_ALIGNMENT_WALL.
 //
 //---------------------------------------------------------------------------

@@ -1573,79 +1573,71 @@ bool GameInterface::GenerateSavePic()
 
 bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
 {
-    DVector2 b0, b1, b2, b3, b4, v1, v2, v3, v4;
-    int xoff, yoff, xspan, yspan, tilenum, p;
     static int pspr_ndx[8] = { 0,0,0,0,0,0,0,0 };
     bool sprisplayer = false;
 
+    // Pre-caculate incoming angle vector.
     auto cangvect = cang.ToVector();
 
     // Draw sprites
-    auto peekActor = Player[screenpeek].actor;
     for (unsigned i = 0; i < sector.Size(); i++)
     {
         SWSectIterator it(i);
         while (auto actor = it.Next())
         {
-            for (p = connecthead; p >= 0; p = connectpoint2[p])
-            {
-                if (Player[p].actor == actor)
-                {
-                    if (actor->int_xvel() > 16)
-                        pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
-                    sprisplayer = true;
-
-                    goto SHOWSPRITE;
-                }
-            }
             if (gFullMap || (actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED))
             {
-            SHOWSPRITE:
-
                 // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
-                PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == peekActor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
+                PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == Player[screenpeek].actor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
 
                 auto statnum = actor->spr.statnum;
-                auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio)) : actor->spr.pos).XY();
+                auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio)) : actor->spr.pos).XY() - cpos;
 
                 switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
-                case CSTAT_SPRITE_ALIGNMENT_FACING:  // Regular sprite
-                    if (Player[p].actor == actor)
-                    {
-                        if (czoom > 0.1875)
-                        {
-                            const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio * (1. / MaxSmoothRatio))) - cang).Normalized360().Degrees();
-                            auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
-
-                            // Special case tiles
-                            if (actor->spr.picnum == 3123) break;
-
-                            int spnum = -1;
-                            if (sprisplayer)
-                            {
-                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].actor)
-                                    spnum = 1196 + pspr_ndx[myconnectindex];
-                            }
-                            else spnum = actor->spr.picnum;
-
-                            // This yrepeat scale is correct.
-                            double sc = czoom * actor->spr.yrepeat * (1. / 32.);
-                            if (spnum >= 0)
-                            {
-                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), vect.X, vect.Y, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang,
-                                    DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, actor->spr.pal), DTA_Color, shadeToLight(actor->spr.shade),
-                                    DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT) ? 0.33 : 1., TAG_DONE);
-                            }
-                        }
-                    }
-                    break;
                 case CSTAT_SPRITE_ALIGNMENT_WALL: // Rotated sprite
-                    DrawAutomapAlignmentWall(actor->spr, sprxy - cpos, cangvect, czoom, xydim, col);
+                    DrawAutomapAlignmentWall(actor->spr, sprxy, cangvect, czoom, xydim, col);
                     break;
                 case CSTAT_SPRITE_ALIGNMENT_FLOOR:    // Floor sprite
-                    if (automapMode == am_overlay) DrawAutomapAlignmentFloor(actor->spr, sprxy - cpos, cangvect, czoom, xydim, col);
+                    if (automapMode == am_overlay) DrawAutomapAlignmentFloor(actor->spr, sprxy, cangvect, czoom, xydim, col);
                     break;
+                }
+            }
+        }
+    }
+
+    for (int p = connecthead; p >= 0; p = connectpoint2[p])
+    {
+        if (p == screenpeek)
+        {
+            auto actor = Player[p].actor;
+            if (actor->int_xvel() > 16) pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
+            sprisplayer = true;
+
+            if (czoom > 0.1875)
+            {
+                // Special case tiles
+                if (actor->spr.picnum == 3123) break;
+
+                int spnum = -1;
+                if (sprisplayer)
+                {
+                    if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].actor)
+                        spnum = 1196 + pspr_ndx[myconnectindex];
+                }
+                else spnum = actor->spr.picnum;
+
+                if (spnum >= 0)
+                {
+                    const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio * (1. / MaxSmoothRatio))) - cang).Normalized360().Degrees();
+                    auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
+
+                    // This yrepeat scale is correct.
+                    double sc = czoom * actor->spr.yrepeat * (1. / 32.);
+
+                    DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), vect.X, vect.Y, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang,
+                        DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, actor->spr.pal), DTA_Color, shadeToLight(actor->spr.shade),
+                        DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT) ? 0.33 : 1., TAG_DONE);
                 }
             }
         }
