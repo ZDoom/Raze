@@ -180,6 +180,11 @@ inline void neartag(const DVector3& start, sectortype* sect, DAngle angle, HitIn
     vec3_t vec(start.X * worldtoint, start.Y * worldtoint, start.Z * zworldtoint);
     neartag(vec, sect, angle.Buildang(), result, neartagrange, tagsearch);
 }
+inline void neartag(const DVector3& start, sectortype* sect, DAngle angle, HitInfoBase& result, double neartagrange, int tagsearch)
+{
+	vec3_t vec(start.X * worldtoint, start.Y * worldtoint, start.Z * zworldtoint);
+	neartag(vec, sect, angle.Buildang(), result, int(neartagrange * worldtoint), tagsearch);
+}
 
 int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2);
 

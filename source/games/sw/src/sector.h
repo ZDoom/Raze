@@ -57,7 +57,7 @@ enum SO_SCALE_TYPE
 
 struct NEAR_TAG_INFO
 {
-    int dist;
+    double Dist;
     sectortype* sectp;
     walltype* wallp;
     DSWActor* actor;

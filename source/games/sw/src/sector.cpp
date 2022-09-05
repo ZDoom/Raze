@@ -2215,13 +2215,13 @@ bool NearThings(PLAYER* pp)
 
 short nti_cnt;
 
-void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int count)
+void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int type, int count)
 {
     short save_lotag, save_hitag;
     HitInfo near;
 
 
-    neartag({ pp->int_ppos().X, pp->int_ppos().Y, z }, pp->cursector, pp->angle.ang.Buildang(), near, dist, type);
+    neartag(DVector3(pp->pos.XY(), z), pp->cursector, pp->angle.ang, near, dist, type);
 
     if (near.hitSector != nullptr)
     {
@@ -2230,7 +2230,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
         save_lotag = ntsec->lotag;
         save_hitag = ntsec->hitag;
 
-        ntip->dist = near.int_hitpos().X;
+        ntip->Dist = near.hitpos.X;
         ntip->sectp = ntsec;
         ntip->wallp = nullptr;
         ntip->actor = nullptr;
@@ -2257,7 +2257,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
         save_lotag = ntwall->lotag;
         save_hitag = ntwall->hitag;
 
-        ntip->dist = near.int_hitpos().X;
+        ntip->Dist = near.hitpos.X;
         ntip->sectp = nullptr;
         ntip->wallp = ntwall;
         ntip->actor = nullptr;
@@ -2284,7 +2284,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
         save_lotag = actor->spr.lotag;
         save_hitag = actor->spr.hitag;
 
-        ntip->dist = near.int_hitpos().X;
+        ntip->Dist = near.hitpos.X;
         ntip->sectp = nullptr;
         ntip->wallp = nullptr;
         ntip->actor = actor;
@@ -2306,7 +2306,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
     }
     else
     {
-        ntip->dist = -1;
+        ntip->Dist = -1;
         ntip->sectp = nullptr;
         ntip->wallp = nullptr;
         ntip->actor = nullptr;
@@ -2327,7 +2327,7 @@ void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, double z, int d
 {
     memset(ntip, -1, size);
     nti_cnt = 0;
-    NearTagList(ntip, pp, int(z * zworldtoint), dist, type, count);
+    NearTagList(ntip, pp, z, dist, type, count);
 }
 
 //---------------------------------------------------------------------------
@@ -2404,14 +2404,14 @@ void PlayerOperateEnv(PLAYER* pp)
                 NearThings(pp); // Check for player sound specified in a level sprite
             }
 
-            BuildNearTagList(nti, sizeof(nti), pp, pp->pos.Z, 2048, NTAG_SEARCH_LO_HI, 8);
+            BuildNearTagList(nti, sizeof(nti), pp, pp->pos.Z, 128, NTAG_SEARCH_LO_HI, 8);
 
             found = false;
 
             // try and find a sprite
-            for (nt_ndx = 0; nti[nt_ndx].dist >= 0; nt_ndx++)
+            for (nt_ndx = 0; nti[nt_ndx].Dist >= 0; nt_ndx++)
             {
-                if (nti[nt_ndx].actor != nullptr && nti[nt_ndx].dist < 1024 + 768)
+                if (nti[nt_ndx].actor != nullptr && nti[nt_ndx].Dist < 64 + 48)
                 {
                     if (OperateSprite(nti[nt_ndx].actor, true))
                     {
@@ -2433,11 +2433,11 @@ void PlayerOperateEnv(PLAYER* pp)
 
                 for (unsigned i = 0; i < SIZ(z); i++)
                 {
-                    BuildNearTagList(nti, sizeof(nti), pp, z[i], 1024 + 768, NTAG_SEARCH_LO_HI, 8);
+                    BuildNearTagList(nti, sizeof(nti), pp, z[i], 64 + 48, NTAG_SEARCH_LO_HI, 8);
 
-                    for (nt_ndx = 0; nti[nt_ndx].dist >= 0; nt_ndx++)
+                    for (nt_ndx = 0; nti[nt_ndx].Dist >= 0; nt_ndx++)
                     {
-                        if (nti[nt_ndx].actor != nullptr && nti[nt_ndx].dist < 1024 + 768)
+                        if (nti[nt_ndx].actor != nullptr && nti[nt_ndx].Dist < 64 + 48)
                         {
                             if (OperateSprite(nti[nt_ndx].actor, true))
                             {
@@ -2450,13 +2450,13 @@ void PlayerOperateEnv(PLAYER* pp)
             }
 
             {
-                int neartaghitdist;
+                double neartaghitdist;
                 sectortype* neartagsector;
 
-                neartaghitdist = nti[0].dist;
+                neartaghitdist = nti[0].Dist;
                 neartagsector = nti[0].sectp;
 
-                if (neartagsector != nullptr && neartaghitdist < 1024)
+                if (neartagsector != nullptr && neartaghitdist < 64)
                 {
                     if (OperateSector(neartagsector, true))
                     {
