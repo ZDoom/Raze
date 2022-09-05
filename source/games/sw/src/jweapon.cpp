@@ -1268,7 +1268,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
     {
-        actorNew->add_int_xvel(-(actorNew->int_xvel() >> 2));
+        actorNew->vel.X *= 0.75;
     }
 
 //    actorNew->user.RotNum = 5;
@@ -1289,7 +1289,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->set_int_zvel(-pp->horizon.horiz.asq16() >> 9);
+    actorNew->vel.Z -= pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
 
     oclipdist = plActor->spr.clipdist;
     plActor->spr.clipdist = 0;
@@ -2171,7 +2171,8 @@ int DoFlag(DSWActor* actor)
 
 int SpawnShell(DSWActor* actor, int ShellNum)
 {
-    short id=0,velocity=0;    
+    short id = 0;
+    double velocity = 0;
     STATE* p=nullptr;
     extern STATE s_UziShellShrap[];
     extern STATE s_ShotgunShellShrap[];
@@ -2182,18 +2183,18 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     case -3:
         id = UZI_SHELL;
         p = s_UziShellShrap;
-        velocity = 1500 + RandomRange(1000);
+        velocity = 5.85 + RandomRangeF(3.9);
         break;
     case -4:
         id = SHOT_SHELL;
         p = s_ShotgunShellShrap;
-        velocity = 2000 + RandomRange(1000);
+        velocity = 7.8 + RandomRangeF(3.9);
         break;
     }
 
     auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 64);
 
-    actorNew->set_int_zvel(-(velocity));
+    actorNew->vel.Z = -velocity;
 
     if (actor->user.PlayerP)
     {

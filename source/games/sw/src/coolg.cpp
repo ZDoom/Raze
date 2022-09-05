@@ -722,9 +722,9 @@ int InitCoolgCircle(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     // set to really fast
-    actor->set_int_zvel(400);
+    actor->vel.Z = 400 / 256.;
     // angle adjuster
-    actor->user.Counter2 = actor->int_xvel() / 3;
+    actor->user.Counter2 = actor->vel.X * (16. / 3);
     // random angle direction
     if (RANDOM_P2(1024) < 512)
         actor->user.Counter2 = -actor->user.Counter2;
