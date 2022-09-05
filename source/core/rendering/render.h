@@ -34,17 +34,6 @@ inline void portalClear()
 	allPortals.Clear();
 }
 
-inline int portalAdd(int type, int target, int dx = 0, int dy = 0, int dz = 0)
-{
-	auto& pt = allPortals[allPortals.Reserve(1)];
-	pt.type = type;
-	if (target >= 0) pt.targets.Push(target);
-	pt.dx = dx;
-	pt.dy = dy;
-	pt.dz = dz;
-	return allPortals.Size() - 1;
-}
-
 inline int portalAdd(int type, int target, const DVector3& offset)
 {
 	auto& pt = allPortals[allPortals.Reserve(1)];
@@ -52,7 +41,7 @@ inline int portalAdd(int type, int target, const DVector3& offset)
 	if (target >= 0) pt.targets.Push(target);
 	pt.dx = offset.X * worldtoint;
 	pt.dy = offset.Y * worldtoint;
-	pt.dz = offset.Y * zworldtoint;
+	pt.dz = offset.Z * zworldtoint;
 	return allPortals.Size() - 1;
 }
 

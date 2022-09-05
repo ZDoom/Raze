@@ -87,9 +87,7 @@ struct MIRROR
 {
 	int type;
 	int link;
-	int dx;
-	int dy;
-	int dz;
+	DVector3 diff;
 	int wallnum;
 };
 

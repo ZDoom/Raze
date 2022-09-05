@@ -128,24 +128,20 @@ void InitMirrors(void)
 			if (sectj->ceilingpicnum != 504)
 				I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
 			mirror[mirrorcnt].type = 2;
-			mirror[mirrorcnt].dx = link2->int_pos().X - link->int_pos().X;
-			mirror[mirrorcnt].dy = link2->int_pos().Y - link->int_pos().Y;
-			mirror[mirrorcnt].dz = link2->int_pos().Z - link->int_pos().Z;
+			mirror[mirrorcnt].diff = link2->spr.pos - link->spr.pos;
 			mirror[mirrorcnt].wallnum = i;
 			mirror[mirrorcnt].link = j;
 			secti->floorpicnum = 4080 + mirrorcnt;
 			secti->portalflags = PORTAL_SECTOR_FLOOR;
-			secti->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
+			secti->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].diff);
 			mirrorcnt++;
 			mirror[mirrorcnt].type = 1;
-			mirror[mirrorcnt].dx = link->int_pos().X - link2->int_pos().X;
-			mirror[mirrorcnt].dy = link->int_pos().Y - link2->int_pos().Y;
-			mirror[mirrorcnt].dz = link->int_pos().Z - link2->int_pos().Z;
+			mirror[mirrorcnt].diff = link->spr.pos - link2->spr.pos;
 			mirror[mirrorcnt].wallnum = j;
 			mirror[mirrorcnt].link = i;
 			sectj->ceilingpicnum = 4080 + mirrorcnt;
 			sectj->portalflags = PORTAL_SECTOR_CEILING;
-			sectj->portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
+			sectj->portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, mirror[mirrorcnt].diff);
 			mirrorcnt++;
 		}
 	}
@@ -165,9 +161,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRROR& w, MIRROR*
 	{
 		arc("type", w.type)
 			("link", w.link)
-			("dx", w.dx)
-			("dy", w.dy)
-			("dz", w.dz)
+			("diff", w.diff)
 			("wallnum", w.wallnum)
 			.EndObject();
 	}
