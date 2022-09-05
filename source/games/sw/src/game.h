@@ -1476,10 +1476,10 @@ struct SECTOR_OBJECT
            drive_angslide,
            drive_speed,
            drive_slide,
-           crush_z,
            flags;
 
-    double morph_z,        // morphing point z
+    double crush_z,
+	       morph_z,        // morphing point z
            morph_z_min,    // morphing point z min
            morph_z_max;
 

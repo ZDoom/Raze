@@ -1151,7 +1151,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                     if (TEST_BOOL4(actor))
                     {
-                        sop->crush_z = actor->int_pos().Z;
+                        sop->crush_z = actor->spr.pos.Z;
                         sop->flags |= (SOBJ_RECT_CLIP);
                     }
 

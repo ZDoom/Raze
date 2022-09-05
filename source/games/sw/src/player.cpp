@@ -2523,7 +2523,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
             if (actor->spr.statnum > STAT_DONT_DRAW)
                 continue;
 
-            if (actor->int_pos().Z < sop->crush_z)
+            if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
             SpriteQueueDelete(actor);
@@ -2538,7 +2538,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
         if (testpointinquad(actor->spr.pos, quad))
         {
             //if (actor->spr.z < pp->posz)
-            if (actor->int_pos().Z < sop->crush_z)
+            if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
 			double const vel = pp->vect.Length() * 8;
@@ -2564,7 +2564,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
     {
         if (testpointinquad(actor->spr.pos, quad))
         {
-            if (actor->int_pos().Z < sop->crush_z)
+            if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
             SpriteQueueDelete(actor);
@@ -2589,7 +2589,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
             int damage;
 
             //if (actor->spr.z < pp->posz)
-            if (actor->int_pos().Z < sop->crush_z)
+            if (actor->spr.pos.Z < sop->crush_z)
                 continue;
 
             damage = -(actor->user.Health + 100);
@@ -2607,7 +2607,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
         while (auto actor = it.Next())
         {
             // give some extra buffer
-            if (actor->int_pos().Z < sop->crush_z + Z(40))
+            if (actor->spr.pos.Z < sop->crush_z + 40)
                 continue;
 
             if ((actor->spr.extra & SPRX_PLAYER_OR_ENEMY))
@@ -3744,15 +3744,6 @@ void DoPlayerBeginFly(PLAYER* pp)
     pp->bob_ndx = 1024;
 
     NewStateGroup(pp->actor, sg_PlayerNinjaFly);
-}
-
-int GetSinNdx(int range, int bobamt)
-{
-    int amt;
-
-    amt = Z(512) / range;
-
-    return bobamt * amt;
 }
 
 void PlayerWarpUpdatePos(PLAYER* pp)
