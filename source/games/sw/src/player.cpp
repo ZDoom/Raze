@@ -7278,6 +7278,12 @@ int SearchSpawnPosition(PLAYER* pp)
 
 bool SpawnPositionUsed[MAX_SW_PLAYERS_REG+1];
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerSpawnPosition(PLAYER* pp)
 {
     short pnum = short(pp - Player);
@@ -7355,6 +7361,11 @@ void PlayerSpawnPosition(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitMultiPlayerInfo(void)
 {
@@ -7433,7 +7444,12 @@ void InitMultiPlayerInfo(void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // If player stepped in something gooey, track it all over the place.
+//
+//---------------------------------------------------------------------------
+
 int DoFootPrints(DSWActor* actor)
 {
     if (actor->user.PlayerP)
