@@ -1627,7 +1627,6 @@ inline int DistanceI(const DVector2& pos1, const DVector2& pos2)
 }
 
 int NewStateGroup(DSWActor* actor, STATE* SpriteGroup[]);
-void SectorMidPoint(sectortype* sect, int *xmid, int *ymid, int *zmid);
 DVector3 SectorMidPoint(sectortype* sectp);
 void SpawnUser(DSWActor* actor, short id, STATE* state);
 

@@ -633,28 +633,6 @@ void SectorSetup(void)
 //
 //---------------------------------------------------------------------------
 
-void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
-{
-    int xsum = 0, ysum = 0;
-
-    for(auto& wal : wallsofsector(sectp))
-    {
-        xsum += wal.wall_int_pos().X;
-        ysum += wal.wall_int_pos().Y;
-    }
-
-    *xmid = xsum / (sectp->wallnum);
-    *ymid = ysum / (sectp->wallnum);
-
-    *zmid = (sectp->int_floorz() + sectp->int_ceilingz()) >> 1;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 DVector3 SectorMidPoint(sectortype* sectp)
 {
     DVector3 sum(0,0,0);
@@ -1285,21 +1263,20 @@ void KillMatchingCrackSprites(short match)
 
 void WeaponExplodeSectorInRange(DSWActor* wActor)
 {
-    int dist;
     int radius;
 
     SWStatIterator it(STAT_SPRITE_HIT_MATCH);
     while (auto actor = it.Next())
     {
         // test to see if explosion is close to crack sprite
-        dist = FindDistance3D(wActor->int_pos() - actor->int_pos());
+        double dist = (wActor->spr.pos - actor->spr.pos).Length();
 
         if (actor->spr.clipdist == 0)
             continue;
 
         radius = (((int)actor->spr.clipdist) << 2) * 8;
 
-        if ((unsigned int)dist > (wActor->user.Radius/2) + radius)
+		if (dist > ((wActor->user.Radius/2) + radius) * inttoworld)
             continue;
 
         if (!FAFcansee(wActor->spr.pos, wActor->sector(), actor->spr.pos, actor->sector()))
@@ -1356,7 +1333,7 @@ void DoDeleteSpriteMatch(short match)
         STAT_FAF
     };
 
-    int del_x = 0,del_y = 0;
+	DVector2 del = {0,0};
     unsigned stat;
 
     while (true)
@@ -1370,8 +1347,7 @@ void DoDeleteSpriteMatch(short match)
             if (actor->spr.lotag == match)
             {
                 found = actor;
-                del_x = actor->int_pos().X;
-                del_y = actor->int_pos().Y;
+                del = actor->spr.pos;
                 break;
             }
         }
@@ -1384,7 +1360,7 @@ void DoDeleteSpriteMatch(short match)
             it.Reset(StatList[stat]);
             while (auto actor = it.Next())
             {
-                if (del_x == actor->int_pos().X && del_y == actor->int_pos().Y)
+                if (del == actor->spr.pos)
                 {
                     // special case lighting delete of Fade On/off after fades
                     if (StatList[stat] == STAT_LIGHTING)
