@@ -1789,7 +1789,7 @@ inline void FAFgetzrange(const DVector3& pos, sectortype* sect,
     FAFgetzrange(p, sect, hiz, ceilhit, loz, florhit, clipdist, clipmask);
 }
 
-void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* sect,
+void FAFgetzrangepoint_(int32_t x, int32_t y, int32_t z, sectortype* sect,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit);
 
@@ -1798,7 +1798,7 @@ inline void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* sect,
                        double* loz, Collision* florhit)
 {
     int32_t hi, lo;
-    FAFgetzrangepoint(x, y, z, sect, &hi, ceilhit, &lo, florhit);
+    FAFgetzrangepoint_(x, y, z, sect, &hi, ceilhit, &lo, florhit);
     *hiz = hi * zinttoworld;
     *loz = lo * zinttoworld;
 }
@@ -1808,7 +1808,7 @@ inline void FAFgetzrangepoint(const DVector3& pos, sectortype* sect,
     double* loz, Collision* florhit)
 {
     int32_t hi, lo;
-    FAFgetzrangepoint(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), sect, &hi, ceilhit, &lo, florhit);
+    FAFgetzrangepoint_(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), sect, &hi, ceilhit, &lo, florhit);
     *hiz = hi * zinttoworld;
     *loz = lo * zinttoworld;
 }

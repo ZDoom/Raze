@@ -554,7 +554,7 @@ void FAFgetzrange(vec3_t pos, sectortype* sect, int32_t* hiz, Collision* ceilhit
 //
 //---------------------------------------------------------------------------
 
-void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
+void FAFgetzrangepoint_(int32_t x, int32_t y, int32_t z, sectortype* const sect,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit)
 {
