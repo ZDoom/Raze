@@ -3723,6 +3723,12 @@ void DoPlayerCrawl(PLAYER* pp)
     DoPlayerCrawlHeight(pp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginFly(PLAYER* pp)
 {
     pp->Flags &= ~(PF_FALLING | PF_JUMPING | PF_CRAWLING);
@@ -3741,6 +3747,12 @@ void DoPlayerBeginFly(PLAYER* pp)
     NewStateGroup(pp->actor, sg_PlayerNinjaFly);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerWarpUpdatePos(PLAYER* pp)
 {
     if (Prediction)
@@ -3750,6 +3762,12 @@ void PlayerWarpUpdatePos(PLAYER* pp)
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerFly(PLAYER* pp)
 {
@@ -3810,6 +3828,12 @@ void DoPlayerFly(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DSWActor* FindNearSprite(DSWActor* actor, short stat)
 {
     int fs;
@@ -3832,17 +3856,21 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
     return near_fp;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool PlayerOnLadder(PLAYER* pp)
 {
     int nx, ny;
     unsigned i;
     HitInfo hit, near;
-    int dist;
 
-
-    static short angles[] =
+    static DAngle angles[] =
     {
-        30, -30
+        DAngle::fromBuild(30), -DAngle::fromBuild(30)
     };
 
     if (Prediction)
@@ -3860,18 +3888,12 @@ bool PlayerOnLadder(PLAYER* pp)
 
     for (i = 0; i < SIZ(angles); i++)
     {
-        neartag(pp->int_ppos(), pp->cursector, NORM_ANGLE(pp->angle.ang.Buildang() + angles[i]), near, 600, NTAG_SEARCH_LO_HI);
+        neartag(pp->pos, pp->cursector, pp->angle.ang + angles[i], near, 600, NTAG_SEARCH_LO_HI);
 
         if (near.hitWall == nullptr || near.int_hitpos().X < 100 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;
 
-        FAFhitscan(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, pp->cursector,
-                   bcos(pp->angle.ang.Buildang() + angles[i]),
-                   bsin(pp->angle.ang.Buildang() + angles[i]),
-                   0,
-                   hit, CLIPMASK_MISSILE);
-
-        dist = DIST(pp->int_ppos().X, pp->int_ppos().Y, hit.int_hitpos().X, hit.int_hitpos().Y);
+        FAFhitscan(pp->pos, pp->cursector, DVector3((pp->angle.ang + angles[i]).ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.actor() != nullptr)
         {
@@ -3900,17 +3922,14 @@ bool PlayerOnLadder(PLAYER* pp)
 
     // determine where the player is supposed to be in relation to the ladder
     // move out in front of the ladder
-    nx = MOVEx(100, lActor->int_ang());
-    ny = MOVEy(100, lActor->int_ang());
+	auto npos = lActor->spr.angle.ToVector() * 31.25;
 
     pp->LadderSector = near.hitWall->twoSided() ? near.hitWall->nextSector() : near.hitWall->sectorp();
 
     // set players "view" distance from the ladder - needs to be farther than
     // the sprite
 
-    pp->LadderPosition.X = lActor->spr.pos.X + nx * 5 * inttoworld;
-    pp->LadderPosition.Y = lActor->spr.pos.Y + ny * 5 * inttoworld;
-
+	pp->LadderPosition = lActor->spr.pos + npos;
     pp->angle.settarget(lActor->spr.angle + DAngle180);
 
     return true;
