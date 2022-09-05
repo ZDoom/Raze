@@ -388,32 +388,37 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 	auto cangvect = cang.ToVector();
 
 	// Draw sprites
-	auto pactor = ps[screenpeek].GetActor();
-	for (unsigned ii = 0; ii < sector.Size(); ii++)
+	if (gFullMap)
 	{
-		if (!gFullMap || !show2dsector[ii]) continue;
-		DukeSectIterator it(ii);
-		while (auto act = it.Next())
+		for (unsigned ii = 0; ii < sector.Size(); ii++)
 		{
-			if (act == pactor || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.xrepeat == 0) continue;
-
-			PalEntry col = act->spr.cstat & CSTAT_SPRITE_BLOCK ? PalEntry(170, 0, 170) : PalEntry(0, 170, 170);
-			auto sprpos = act->spr.pos.XY() - cpos;
-
-			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+			if (show2dsector[ii]) continue;
+			DukeSectIterator it(ii);
+			while (auto act = it.Next())
 			{
-			case CSTAT_SPRITE_ALIGNMENT_FACING:
-				DrawAutomapAlignmentFacing(act->spr, sprpos, cangvect, czoom, xydim, col);
-				break;
+				if (act == ps[screenpeek].actor || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.xrepeat == 0) continue;
 
-			case CSTAT_SPRITE_ALIGNMENT_WALL:
-				if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP)) DrawAutomapAlignmentWall(act->spr, sprpos, cangvect, czoom, xydim, col);
-				break;
+				if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
+				{
+					PalEntry col = act->spr.cstat & CSTAT_SPRITE_BLOCK ? PalEntry(170, 0, 170) : PalEntry(0, 170, 170);
+					auto sprpos = act->spr.pos.XY() - cpos;
 
-			case CSTAT_SPRITE_ALIGNMENT_FLOOR:
-			case CSTAT_SPRITE_ALIGNMENT_SLOPE:
-				DrawAutomapAlignmentFloor(act->spr, sprpos, cangvect, czoom, xydim, col);
-				break;
+					switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+					{
+					case CSTAT_SPRITE_ALIGNMENT_FACING:
+						DrawAutomapAlignmentFacing(act->spr, sprpos, cangvect, czoom, xydim, col);
+						break;
+
+					case CSTAT_SPRITE_ALIGNMENT_WALL:
+						if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP)) DrawAutomapAlignmentWall(act->spr, sprpos, cangvect, czoom, xydim, col);
+						break;
+
+					case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+					case CSTAT_SPRITE_ALIGNMENT_SLOPE:
+						DrawAutomapAlignmentFloor(act->spr, sprpos, cangvect, czoom, xydim, col);
+						break;
+					}
+				}
 			}
 		}
 	}

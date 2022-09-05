@@ -1580,27 +1580,29 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
     auto cangvect = cang.ToVector();
 
     // Draw sprites
-    for (unsigned i = 0; i < sector.Size(); i++)
+    if (gFullMap)
     {
-        SWSectIterator it(i);
-        while (auto actor = it.Next())
+        for (unsigned i = 0; i < sector.Size(); i++)
         {
-            if (gFullMap || (actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED))
+            SWSectIterator it(i);
+            while (auto actor = it.Next())
             {
-                // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
-                PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == Player[screenpeek].actor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
-
-                auto statnum = actor->spr.statnum;
-                auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio)) : actor->spr.pos).XY() - cpos;
-
-                switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+                if (actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED)
                 {
-                case CSTAT_SPRITE_ALIGNMENT_WALL: // Rotated sprite
-                    DrawAutomapAlignmentWall(actor->spr, sprxy, cangvect, czoom, xydim, col);
-                    break;
-                case CSTAT_SPRITE_ALIGNMENT_FLOOR:    // Floor sprite
-                    if (automapMode == am_overlay) DrawAutomapAlignmentFloor(actor->spr, sprxy, cangvect, czoom, xydim, col);
-                    break;
+                    // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
+                    PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == Player[screenpeek].actor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
+                    auto statnum = actor->spr.statnum;
+                    auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio)) : actor->spr.pos).XY() - cpos;
+
+                    switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+                    {
+                    case CSTAT_SPRITE_ALIGNMENT_WALL: // Rotated sprite
+                        DrawAutomapAlignmentWall(actor->spr, sprxy, cangvect, czoom, xydim, col);
+                        break;
+                    case CSTAT_SPRITE_ALIGNMENT_FLOOR:    // Floor sprite
+                        if (automapMode == am_overlay) DrawAutomapAlignmentFloor(actor->spr, sprxy, cangvect, czoom, xydim, col);
+                        break;
+                    }
                 }
             }
         }
