@@ -202,29 +202,9 @@ constexpr int NORM_ANGLE(int ang) { return ((ang) & 2047); }
 int StdRandomRange(int range);
 
 
-inline int MOVEx(int vel, int ang)
-{
-    return (MulScale(vel, bcos(ang), 14));
-}
-
-inline int MOVEy(int vel, int ang)
-{
-    return (MulScale(vel, bsin(ang), 14));
-}
-
 inline DVector2 MOVExy(int vel, DAngle ang)
 {
 	return ang.ToVector() * vel * inttoworld;
-}
-
-inline double MOVEx(int vel, DAngle ang)
-{
-	return vel * ang.Cos() * inttoworld;
-}
-
-inline double MOVEy(int vel, DAngle ang)
-{
-	return vel * ang.Sin() * inttoworld;
 }
 
 inline int SQ(int val)

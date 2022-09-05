@@ -860,7 +860,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
 
     exp->spr.xrepeat += (RANDOM_P2(32<<8)>>8) - 16;
     exp->spr.yrepeat += (RANDOM_P2(32<<8)>>8) - 16;
-    exp->user.change.XY() = MOVExy(92, exp->spr.angle);
+    exp->user.change.XY() = exp->spr.angle.ToVector(5.75);
 }
 
 

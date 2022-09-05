@@ -7895,7 +7895,7 @@ int DoPlasma(DSWActor* actor)
 	auto oldv = actor->spr.pos;
     DoBlurExtend(actor, 0, 4);
 
-    auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
+    auto vec = actor->spr.angle.ToVector() * actor->vel.X;
     double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), 16, 16, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -8824,7 +8824,7 @@ int DoBoltThinMan(DSWActor* actor)
 {
     DoBlurExtend(actor, 0, 4);
 
-	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
+	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
 	double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -9337,7 +9337,7 @@ int DoUziBullet(DSWActor* actor)
     // otherwize the moves are in too big an increment
     for (int i = 0; i < 2; i++)
     {
-		auto vec = MOVExy((actor->int_xvel() >> 1), actor->spr.angle);
+		auto vec = actor->spr.angle.ToVector() * actor->vel.X * 0.5;
 		double daz = (actor->int_zvel() >> 1) * zinttoworld;
 
         auto spos = actor->spr.pos.XY();
@@ -9391,7 +9391,7 @@ int DoBoltSeeker(DSWActor* actor)
     MissileSeek(actor, 30, 768/*, 4, 48, 6*/);
     DoBlurExtend(actor, 0, 4);
 
-	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
+	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
 	double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -9430,7 +9430,7 @@ int DoElectro(DSWActor* actor)
     if (actor->user.Counter > 0)
         MissileSeek(actor, 30, 512/*, 3, 52, 2*/);
 
-	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
+	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
 	double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vec, daz), CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -16006,7 +16006,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 
     actor->set_int_xvel(dist);
 	
-	auto vec = MOVExy(actor->int_xvel(), actor->spr.angle);
+	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
 
     actor->spr.clipdist = 32L >> 2;
 
@@ -16089,7 +16089,7 @@ int InitEnemyFireball(DSWActor* actor)
 {
     int nz, dist;
     int size_z;
-    int i, targ_z, xchange, ychange;
+    int i, targ_z;
 
     static short lat_ang[] =
     {
@@ -16107,14 +16107,13 @@ int InitEnemyFireball(DSWActor* actor)
     size_z = Z(ActorSizeY(actor));
     nz = actor->int_pos().Z - size_z + (size_z >> 2) + (size_z >> 3) + Z(4);
 
-    xchange = MOVEx(GORO_FIREBALL_VELOCITY, actor->int_ang());
-    ychange = MOVEy(GORO_FIREBALL_VELOCITY, actor->int_ang());
+    auto change = actor->spr.angle.ToVector() * GORO_FIREBALL_VELOCITY;;
 
     int lastvel = 0;
     for (i = 0; i < 2; i++)
     {
         auto actorNew = SpawnActor(STAT_MISSILE, GORO_FIREBALL, s_Fireball, actor->sector(),
-                        actor->int_pos().X, actor->int_pos().Y, nz, actor->int_ang(), GORO_FIREBALL_VELOCITY);
+                        actor->int_pos().X, actor->int_pos().Y, nz, actor->int_ang(), int(GORO_FIREBALL_VELOCITY * worldtoint));
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->spr.xrepeat = 20;
@@ -16129,8 +16128,7 @@ int InitEnemyFireball(DSWActor* actor)
         HelpMissileLateral(actorNew, 500);
         actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - lat_ang[i]));
 
-        actorNew->user.set_int_change_x(xchange);
-        actorNew->user.set_int_change_y(ychange);
+        actorNew->user.change.XY() = change;
 
         MissileSetPos(actorNew, DoFireball, 700);
 
@@ -16146,7 +16144,7 @@ int InitEnemyFireball(DSWActor* actor)
             // distance
             if (dist != 0)
             {
-                actorNew->set_int_zvel((GORO_FIREBALL_VELOCITY * (targ_z - actorNew->int_pos().Z)) / dist);
+                actorNew->set_int_zvel((GORO_FIREBALL_VELOCITY * worldtoint * (targ_z - actorNew->int_pos().Z)) / dist);
                 actorNew->user.change.Z = actorNew->vel.Z;
             }
             // back up first one

@@ -2486,10 +2486,10 @@ void SpriteSetup(void)
                     actorNew->spr.cstat = 0;
                     actorNew->spr.extra = 0;
                     actorNew->spr.pos = actor->spr.pos;
-                    actorNew->set_int_ang(NORM_ANGLE(actor->int_ang() + 1024));
+                    actorNew->spr.angle += DAngle180;
                     actorNew->spr.picnum = actor->spr.picnum;
 
-                    actorNew->spr.pos += DVector2(MOVEx(256 + 128, actor->spr.angle), MOVEy(256 + 128, actor->spr.angle));
+                    actorNew->spr.pos += actor->spr.angle.ToVector() * 24;
 
                     break;
                 }
@@ -4547,7 +4547,7 @@ bool ActorDrop(DSWActor* actor, const DVector3& pos, sectortype* new_sector, dou
 // Primarily used in ai.c for now - need to get rid of
 bool DropAhead(DSWActor* actor, double min_height)
 {
-    auto vect = actor->spr.pos + MOVExy(256, actor->spr.angle);
+    auto vect = actor->spr.pos + actor->spr.angle.ToVector() * 16;
 
     auto newsector = actor->sector();
     updatesector(vect, &newsector);

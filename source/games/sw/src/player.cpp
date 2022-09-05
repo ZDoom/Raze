@@ -1343,7 +1343,7 @@ void DoPlayerTeleportToOffset(PLAYER* pp)
 void DoSpawnTeleporterEffect(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
-    DVector2 vect = MOVExy(512, actor->spr.angle);
+    DVector2 vect = actor->spr.angle.ToVector() * 32;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
                          ActorVectOfTop(actor).plusZ(16) + vect, actor->spr.angle, 0);
@@ -2741,7 +2741,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
                 DVector3 hitpos((pos[0] + pos[1]) * 0.5, pp->cursector->floorz - 10);
 
                 hitscan(hitpos, pp->cursector,
-                    DVector3(MOVEx(256, pp->angle.ang), MOVEy(256, pp->angle.ang), 0),
+                    DVector3(pp->angle.ang.ToVector() * 16, 0),
                     hit, CLIPMASK_PLAYER);
 
                 if ((hit.hitpos.XY() - hitpos.XY()).LengthSquared() < 50 * 50)
@@ -4786,7 +4786,7 @@ void DoPlayerDive(PLAYER* pp)
         if (bubble != nullptr)
         {
             // back it up a bit to get it out of your face
-			auto vec = MOVExy((128+64), bubble->spr.angle + DAngle180);
+            auto vec = (bubble->spr.angle + DAngle180).ToVector() * 12;
 
             move_sprite(bubble, DVector3(vec, 0), plActor->user.ceiling_dist, plActor->user.floor_dist, 0, synctics);
         }

@@ -139,7 +139,7 @@ const char *DeathString(DSWActor*);
 // NPC Missile Speeds
 #define NINJA_STAR_VELOCITY     (1800)
 #define NINJA_BOLT_VELOCITY     (500)
-#define GORO_FIREBALL_VELOCITY  (800)
+constexpr int GORO_FIREBALL_VELOCITY = 50;
 #define SKEL_ELECTRO_VELOCITY   (850)
 #define COOLG_FIRE_VELOCITY     (400)
 

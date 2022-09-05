@@ -346,6 +346,16 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     //DoVoxelShadow(New);
 }
 
+inline int MOVEx(int vel, int ang)
+{
+    return (MulScale(vel, bcos(ang), 14));
+}
+
+inline int MOVEy(int vel, int ang)
+{
+    return (MulScale(vel, bsin(ang), 14));
+}
+
 void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
 {
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
@@ -756,8 +766,7 @@ static void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int vie
                     {
                         // move sprite forward some so he looks like he's
                         // climbing
-                        pos.X = pp->si.X + MOVEx(128 + 80, tsp->angle);
-                        pos.Y = pp->si.Y + MOVEy(128 + 80, tsp->angle);
+                        pos.XY() = pp->si.XY() + tsp->angle.ToVector() * 13;
                     }
                     else
                     {

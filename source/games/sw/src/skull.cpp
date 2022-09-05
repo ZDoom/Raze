@@ -252,7 +252,7 @@ int SetupSkull(DSWActor* actor)
 
 int DoSkullMove(DSWActor* actor)
 {
-    auto vect = MOVExy(actor->int_xvel(), actor->spr.angle);
+    auto vect = actor->spr.angle.ToVector() * actor->vel.X;
     double daz = actor->vel.Z;
 
     actor->user.coll = move_missile(actor, DVector3(vect, daz), 16, 16, CLIPMASK_MISSILE, ACTORMOVETICS);
