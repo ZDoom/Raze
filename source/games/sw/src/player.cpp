@@ -170,7 +170,7 @@ void PlayerWarpUpdatePos(PLAYER* pp);
 void DoPlayerBeginDiveNoWarp(PLAYER* pp);
 int PlayerCanDiveNoWarp(PLAYER* pp);
 void DoPlayerCurrent(PLAYER* pp);
-int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under);
+int GetOverlapSector2(const DVector2& pos, sectortype** over, sectortype** under);
 void PlayerToRemote(PLAYER* pp);
 void PlayerRemoteInit(PLAYER* pp);
 void PlayerSpawnPosition(PLAYER* pp);
@@ -3935,6 +3935,12 @@ bool PlayerOnLadder(PLAYER* pp)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool DoPlayerTestCrawl(PLAYER* pp)
 {
     if (abs(pp->loz - pp->hiz) < PLAYER_STANDING_ROOM)
@@ -3942,6 +3948,12 @@ bool DoPlayerTestCrawl(PLAYER* pp)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int PlayerInDiveArea(PLAYER* pp)
 {
@@ -3966,6 +3978,12 @@ int PlayerInDiveArea(PLAYER* pp)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int PlayerCanDive(PLAYER* pp)
 {
@@ -3992,6 +4010,12 @@ int PlayerCanDive(PLAYER* pp)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int PlayerCanDiveNoWarp(PLAYER* pp)
 {
@@ -4026,7 +4050,13 @@ int PlayerCanDiveNoWarp(PLAYER* pp)
 }
 
 
-int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int GetOverlapSector(const DVector2& pos, sectortype** over, sectortype** under)
 {
     int i, found = 0;
     sectortype* sf[3]= {nullptr,nullptr};                       // sectors found
@@ -4034,16 +4064,16 @@ int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
     auto sectu = *under;
 
     if ((sectu->hasU() && sectu->number >= 30000) || (secto->hasU() && secto->number >= 30000))
-        return GetOverlapSector2(x,y,over,under);
+        return GetOverlapSector2(pos, over, under);
 
     // instead of check ALL sectors, just check the two most likely first
-    if (inside(x, y, *over))
+    if (inside(pos.X, pos.Y, *over))
     {
         sf[found] = *over;
         found++;
     }
 
-    if (inside(x, y, *under))
+    if (inside(pos.X, pos.Y, *under))
     {
         sf[found] = *under;
         found++;
@@ -4054,7 +4084,7 @@ int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
     {
         for (auto& sect: sector)
         {
-            if (inside(x, y, &sect))
+            if (inside(pos.X, pos.Y, &sect))
             {
                 sf[found] = &sect;
                 found++;
@@ -4066,7 +4096,6 @@ int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
     if (!found)
     {
         // Contrary to expectations, this *CAN* happen in valid scenarios and therefore should not abort.
-        //I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
         return 0;
     }
 
@@ -4096,7 +4125,13 @@ int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
     return found;
 }
 
-int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int GetOverlapSector2(const DVector2& pos, sectortype** over, sectortype** under)
 {
     int found = 0;
     sectortype* sf[2]= {nullptr, nullptr};                       // sectors found
@@ -4108,13 +4143,13 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
     // method.
 
     // instead of check ALL sectors, just check the two most likely first
-    if (inside(x, y, *over))
+    if (inside(pos.X, pos.Y, *over))
     {
         sf[found] = *over;
         found++;
     }
 
-    if (inside(x, y, *under))
+    if (inside(pos.X, pos.Y, *under))
     {
         sf[found] = *under;
         found++;
@@ -4126,7 +4161,7 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
         SWStatIterator it(STAT_DIVE_AREA);
         while (auto actor = it.Next())
         {
-            if (inside(x, y, actor->sector()))
+            if (inside(pos.X, pos.Y, actor->sector()))
             {
                 sf[found] = actor->sector();
                 found++;
@@ -4143,7 +4178,7 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
                 if (actor->spr.lotag == 0)
                     continue;
 
-                if (inside(x, y, actor->sector()))
+                if (inside(pos.X, pos.Y, actor->sector()))
                 {
                     sf[found] = actor->sector();
                     found++;
@@ -4156,7 +4191,6 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
     if (!found)
     {
         // Contrary to expectations, this *CAN* happen in valid scenarios and therefore should not abort.
-        //I_Error("GetOverlapSector2 x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
         return 0;
     }
 
@@ -4186,6 +4220,12 @@ int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
     return found;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerWarpToUnderwater(PLAYER* pp)
 {
@@ -4239,7 +4279,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     auto over  = over_act->sector();
     auto under = under_act->sector();
 
-    if (GetOverlapSector(pp->int_ppos().X, pp->int_ppos().Y, &over, &under) == 2)
+    if (GetOverlapSector(pp->pos, &over, &under) == 2)
     {
         pp->setcursector(under);
     }
@@ -4305,7 +4345,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
     auto over = over_act->sector();
     auto under = under_act->sector();
 
-    if (GetOverlapSector(pp->int_ppos().X, pp->int_ppos().Y, &over, &under))
+    if (GetOverlapSector(pp->pos, &over, &under))
     {
         pp->setcursector(over);
     }

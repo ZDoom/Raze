@@ -109,24 +109,9 @@ ANIMATOR DoShrapJumpFall;
 ANIMATOR DoFastShrapJumpFall;
 
 int SpawnSmokePuff(DSWActor* actor);
-bool WarpToUnderwater(sectortype** sect, int *x, int *y, int *z);
-bool WarpToSurface(sectortype** sect, int *x, int *y, int *z);
 
-inline bool WarpToSurface(DVector3& pos, sectortype** sect)
-{
-    vec3_t vv = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
-    auto act = WarpToSurface(sect, &vv.X, &vv.Y, &vv.Z);
-    pos = { vv.X * inttoworld, vv.Y * inttoworld, vv.Z * zinttoworld };
-    return act;
-}
-
-inline bool WarpToUnderwater(DVector3& pos, sectortype** sect)
-{
-    vec3_t vv = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
-    auto act = WarpToUnderwater(sect, &vv.X, &vv.Y, &vv.Z);
-    pos = { vv.X * inttoworld, vv.Y * inttoworld, vv.Z * zinttoworld };
-    return act;
-}
+bool WarpToSurface(DVector3& pos, sectortype** sect);
+bool WarpToUnderwater(DVector3& pos, sectortype** sect);
 
 bool TestDontStickSector(sectortype* hit_sect);
 ANIMATOR SpawnShrapX;
@@ -16183,12 +16168,12 @@ int InitEnemyFireball(DSWActor* actor)
 // for hitscans or other uses
 ///////////////////////////////////////////////////////////////////////////////
 
-bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
+bool WarpToUnderwater(DVector3& pos, sectortype** psectu)
 {
     int i;
     auto sectu = *psectu;
     bool Found = false;
-    int sx, sy;
+	DVector2 spos;
     DSWActor* overActor = nullptr;
     DSWActor* underActor = nullptr;
 
@@ -16228,17 +16213,15 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
     ASSERT(Found);
 
     // get the offset from the sprite
-    sx = overActor->int_pos().X - *x;
-    sy = overActor->int_pos().Y - *y;
+	spos = overActor->spr.pos.XY() - pos.XY();
 
     // update to the new x y position
-    *x = underActor->int_pos().X - sx;
-    *y = underActor->int_pos().Y - sy;
+	pos.XY() = underActor->spr.pos - spos;
 
     auto over = overActor->sector();
     auto under = underActor->sector();
 
-    if (GetOverlapSector(*x, *y, &over, &under) == 2)
+    if (GetOverlapSector(pos.XY(), &over, &under) == 2)
     {
         *psectu = under;
     }
@@ -16247,16 +16230,15 @@ bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
         *psectu = under;
     }
 
-    *z = underActor->sector()->int_ceilingz() + Z(1);
+	pos.Z =  underActor->sector()->ceilingz+ 1;
 
     return true;
 }
 
-bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
+bool WarpToSurface(DVector3& pos, sectortype** psectu)
 {
     int i;
     auto sectu = *psectu;
-    int sx, sy;
     DSWActor* overActor = nullptr;
     DSWActor* underActor = nullptr;
     bool Found = false;
@@ -16297,22 +16279,20 @@ bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
     ASSERT(Found);
 
     // get the offset from the under sprite
-    sx = underActor->int_pos().X - *x;
-    sy = underActor->int_pos().Y - *y;
+	DVector2 spos = underActor->spr.pos.XY() - pos.XY();
 
     // update to the new x y position
-    *x = overActor->int_pos().X - sx;
-    *y = overActor->int_pos().Y - sy;
+    pos.XY() = overActor->spr.pos.XY() - spos;
 
     auto over = overActor->sector();
     auto under = underActor->sector();
 
-    if (GetOverlapSector(*x, *y, &over, &under))
+    if (GetOverlapSector(pos.XY(), &over, &under))
     {
         *psectu = over;
     }
 
-    *z = overActor->sector()->int_floorz() - Z(2);
+    pos.Z = overActor->sector()->floorz- 2;
 
     return true;
 }
@@ -16367,7 +16347,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     auto over = overActor->sector();
     auto under = underActor->sector();
 
-    if (GetOverlapSector(actor->int_pos().X, actor->int_pos().Y, &over, &under) == 2)
+    if (GetOverlapSector(actor->spr.pos, &over, &under) == 2)
     {
         ChangeActorSect(actor, under);
     }
@@ -16437,7 +16417,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
     auto over = overActor->sector();
     auto under = underActor->sector();
 
-    if (GetOverlapSector(actor->int_pos().X, actor->int_pos().Y, &over, &under))
+    if (GetOverlapSector(actor->spr.pos, &over, &under))
     {
         ChangeActorSect(actor, over);
     }
