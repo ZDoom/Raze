@@ -300,7 +300,6 @@ int DoRotator(DSWActor* actor)
     ROTATOR* r;
     short ndx,w,startwall,endwall;
     DSWActor* pivot = nullptr;
-    vec2_t nxy;
     bool kill = false;
 
     r = actor->user.rotator.Data();
@@ -397,10 +396,9 @@ int DoRotator(DSWActor* actor)
     ndx = 0;
     for(auto& wal : wallsofsector(actor->sector()))
     {
-        vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
-        rotatepoint(pivot->int_pos().vec2, orig, r->pos, &nxy);
+        auto nxy = rotatepoint(pivot->spr.pos, r->orig[ndx], DAngle::fromBuild(r->pos));
 
-        dragpoint(&wal, nxy.X, nxy.Y);
+        dragpoint(&wal, nxy);
         ndx++;
     }
 

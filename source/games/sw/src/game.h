@@ -870,21 +870,17 @@ struct ROTATOR
     int orig_speed;    // original speed - vel jacks with speed
     int vel;           // velocity adjuments
 
-    TArray<int> origX;
-    TArray<int> origY;
+	TArray<DVector2> orig;
 
     void SetNumWalls(int num)
     {
-        origX.Resize(num);
-        origY.Resize(num);
-        memset(origX.Data(), 0, num * sizeof(int));
-        memset(origY.Data(), 0, num * sizeof(int));
+        orig.Resize(num);
+        memset(orig.Data(), 0, num * sizeof(DVector2));
     }
 
     void ClearWalls()
     {
-        origX.Reset();
-        origY.Reset();
+        orig.Reset();
     }
 
 };

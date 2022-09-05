@@ -727,8 +727,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ROTATOR& w, ROTATO
 			("speed", w.speed)
 			("orig_speed", w.orig_speed)
 			("vel", w.vel)
-			("origx", w.origX)
-			("origy", w.origY)
+			("orig", w.orig)
 			.EndObject();
 	}
 	return arc;

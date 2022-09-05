@@ -2121,8 +2121,7 @@ void SpriteSetup(void)
                     wallcount = 0;
                     for(auto& wal : wallsofsector(actor->sector()))
                     {
-                        actor->user.rotator->origX[wallcount] = wal.wall_int_pos().X;
-                        actor->user.rotator->origY[wallcount] = wal.wall_int_pos().Y;
+                        actor->user.rotator->orig[wallcount] = wal.pos;
                         wallcount++;
                     }
 
