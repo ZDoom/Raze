@@ -4294,6 +4294,12 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerWarpToSurface(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -4364,6 +4370,12 @@ void DoPlayerWarpToSurface(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerDivePalette(PLAYER* pp)
 {
     if (pp != Player + screenpeek) return;
@@ -4383,6 +4395,12 @@ void DoPlayerDivePalette(PLAYER* pp)
     }
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerBeginDive(PLAYER* pp)
 {
@@ -4431,6 +4449,12 @@ void DoPlayerBeginDive(PLAYER* pp)
     DoPlayerDive(pp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginDiveNoWarp(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -4477,6 +4501,12 @@ void DoPlayerBeginDiveNoWarp(PLAYER* pp)
     DoPlayerDive(pp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerStopDiveNoWarp(PLAYER* pp)
 {
     if (Prediction)
@@ -4501,6 +4531,12 @@ void DoPlayerStopDiveNoWarp(PLAYER* pp)
 
     DoPlayerZrange(pp);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerStopDive(PLAYER* pp)
 {
@@ -4528,6 +4564,12 @@ void DoPlayerStopDive(PLAYER* pp)
         pp->Reverb = 0;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDiveMeter(PLAYER* pp)
 {
@@ -4573,6 +4615,12 @@ void DoPlayerDiveMeter(PLAYER* pp)
     DrawTexture(twod, tileGetTexture(5406 - metertics, true), 265, y, DTA_FullscreenScale, FSMode_Fit320x200,
         DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, color), TAG_DONE);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDive(PLAYER* pp)
 {
@@ -4749,6 +4797,12 @@ void DoPlayerDive(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoPlayerTestPlaxDeath(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -4763,6 +4817,12 @@ int DoPlayerTestPlaxDeath(PLAYER* pp)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerCurrent(PLAYER* pp)
 {
@@ -4813,6 +4873,12 @@ void DoPlayerCurrent(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerFireOutWater(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -4829,6 +4895,12 @@ void DoPlayerFireOutWater(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerFireOutDeath(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -4842,6 +4914,12 @@ void DoPlayerFireOutDeath(PLAYER* pp)
     plActor->user.flameActor = nullptr;
     plActor->user.Flags2 |= SPR2_FLAMEDIE;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerBeginWade(PLAYER* pp)
 {
@@ -4874,6 +4952,12 @@ void DoPlayerBeginWade(PLAYER* pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Run);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerWade(PLAYER* pp)
 {
@@ -5014,6 +5098,12 @@ void DoPlayerWade(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginOperateVehicle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -5032,6 +5122,12 @@ void DoPlayerBeginOperateVehicle(PLAYER* pp)
 
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerBeginOperateTurret(PLAYER* pp)
 {
@@ -5052,6 +5148,12 @@ void DoPlayerBeginOperateTurret(PLAYER* pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void FindMainSector(SECTOR_OBJECT* sop)
 {
     // find the main sector - only do this once for each sector object
@@ -5069,6 +5171,12 @@ void FindMainSector(SECTOR_OBJECT* sop)
         PlaceSectorObject(sop, oldpos.XY());
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerOperateMatch(PLAYER* pp, bool starting)
 {
@@ -5094,6 +5202,12 @@ void DoPlayerOperateMatch(PLAYER* pp, bool starting)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerBeginOperate(PLAYER* pp)
 {
@@ -5193,6 +5307,12 @@ void DoPlayerBeginOperate(PLAYER* pp)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 {
     double cz, fz;
@@ -5271,6 +5391,12 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     PlayerRemoteReset(pp, save_sect);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerToRemote(PLAYER* pp)
 {
     pp->remote.cursectp = pp->cursector;
@@ -5318,6 +5444,12 @@ void PlayerRemoteInit(PLAYER* pp)
     pp->remote.slide_vect.Zero();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerStopOperate(PLAYER* pp)
 {
     pp->Flags &= ~(PF_WEAPON_DOWN);
@@ -5345,6 +5477,12 @@ void DoPlayerStopOperate(PLAYER* pp)
     pp->sop = nullptr;
     DoPlayerBeginRun(pp);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerOperateTurret(PLAYER* pp)
 {
@@ -5384,6 +5522,12 @@ void DoPlayerOperateTurret(PLAYER* pp)
 
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerOperateVehicle(PLAYER* pp)
 {
     if (pp->input.actions & SB_OPEN)
@@ -5419,6 +5563,12 @@ void DoPlayerOperateVehicle(PLAYER* pp)
         PlayerRemoteReset(pp, save_sect);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathJump(PLAYER* pp)
 {
@@ -5461,6 +5611,12 @@ void DoPlayerDeathJump(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerDeathFall(PLAYER* pp)
 {
     double loz;
@@ -5495,6 +5651,12 @@ void DoPlayerDeathFall(PLAYER* pp)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 #define MAX_SUICIDE 11
 const char *SuicideNote[MAX_SUICIDE] =
@@ -5579,6 +5741,12 @@ char *KilledPlayerMessage(PLAYER* pp, PLAYER* killer)
     return nullptr;
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerDeathMessage(PLAYER* pp, PLAYER* killer)
 {
     int pnum;
@@ -5611,6 +5779,12 @@ void DoPlayerDeathMessage(PLAYER* pp, PLAYER* killer)
     }
 
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 enum
 {
@@ -5825,6 +5999,12 @@ void DoPlayerBeginDie(PLAYER* pp)
     pp->Flags &= ~(PF_HEAD_CONTROL);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerDeathHoriz(PLAYER* pp, short target, short speed)
 {
     if ((pp->horizon.horiz.asbuild() - target) > 1)
@@ -5838,6 +6018,12 @@ void DoPlayerDeathHoriz(PLAYER* pp, short target, short speed)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerDeathZrange(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -5850,6 +6036,12 @@ void DoPlayerDeathZrange(PLAYER* pp)
     pp->lowActor = plActor->user.lowActor;
     pp->lo_sectp = plActor->user.lo_sectp;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathHurl(PLAYER* pp)
 {
@@ -5878,6 +6070,12 @@ void DoPlayerDeathHurl(PLAYER* pp)
         NewStateGroup(pp->actor, sg_PlayerHead);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathFollowKiller(PLAYER* pp)
 {
@@ -5908,6 +6106,12 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathCheckKeys(PLAYER* pp)
 {
@@ -5987,6 +6191,12 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerHeadDebris(PLAYER* pp)
 {
     sectortype* sectp = pp->cursector;
@@ -6000,6 +6210,12 @@ void DoPlayerHeadDebris(PLAYER* pp)
         pp->pbob_amt = 0;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathCheckKick(PLAYER* pp)
 {
@@ -6054,6 +6270,12 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
     }
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathMoveHead(PLAYER* pp)
 {
@@ -6112,6 +6334,12 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerDeathFlip(PLAYER* pp)
 {
     if (Prediction)
@@ -6146,6 +6374,12 @@ void DoPlayerDeathFlip(PLAYER* pp)
 }
 
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathDrown(PLAYER* pp)
 {
@@ -6186,6 +6420,12 @@ void DoPlayerDeathDrown(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerDeathBounce(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -6212,8 +6452,11 @@ void DoPlayerDeathBounce(PLAYER* pp)
     SpawnShrap(pp->actor, nullptr);
 }
 
-
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathCrumble(PLAYER* pp)
 {
@@ -6266,6 +6509,12 @@ void DoPlayerDeathCrumble(PLAYER* pp)
     plActor->spr.pos.Z = pp->pos.Z + PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerDeathExplode(PLAYER* pp)
 {
@@ -6320,6 +6569,12 @@ void DoPlayerDeathExplode(PLAYER* pp)
     DoPlayerHeadDebris(pp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginRun(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -6353,6 +6608,12 @@ void DoPlayerBeginRun(PLAYER* pp)
     else
         NewStateGroup(pp->actor, plActor->user.ActorActionSet->Stand);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerRun(PLAYER* pp)
 {
@@ -6493,6 +6754,12 @@ void DoPlayerRun(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerStateControl(DSWActor* actor)
 {
     if (actor == nullptr || !actor->hasU()) return;
@@ -6541,6 +6808,12 @@ void PlayerStateControl(DSWActor* actor)
 
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void MoveSkipSavePos(void)
 {
@@ -6606,6 +6879,12 @@ void MoveSkipSavePos(void)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerTimers(PLAYER* pp)
 {
     InventoryTimer(pp);
@@ -6657,6 +6936,12 @@ void ChopsCheck(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayerGlobal(PLAYER* pp)
 {
     // This is the place for things that effect the player no matter what hes
@@ -6706,6 +6991,12 @@ void PlayerGlobal(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void MultiPlayLimits(void)
 {
     short pnum;
@@ -6748,6 +7039,12 @@ void MultiPlayLimits(void)
 void PauseMultiPlay(void)
 {
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void domovethings(void)
 {
@@ -6871,6 +7168,12 @@ void domovethings(void)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitAllPlayers(void)
 {
     PLAYER* pp;
@@ -6928,6 +7231,12 @@ void InitAllPlayers(void)
         INITLIST(&pp->PanelSpriteList);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int SearchSpawnPosition(PLAYER* pp)
 {
