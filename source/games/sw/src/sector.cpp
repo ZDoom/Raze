@@ -88,6 +88,12 @@ SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 SPRING_BOARD SpringBoard[20];
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool set_nextwall)
 {
     auto start_wall = sect->firstWall();
@@ -109,6 +115,12 @@ void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool s
     while (wall_num != start_wall);
 
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void WallSetupDontMove(void)
 {
@@ -134,6 +146,12 @@ void WallSetupDontMove(void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static void WallSetupLoop(walltype* wp, int16_t lotag, int16_t extra)
 {
     // set first wall
@@ -154,6 +172,12 @@ static void WallSetupLoop(walltype* wp, int16_t lotag, int16_t extra)
             wall_num->nextWall()->extra |= extra;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void WallSetup(void)
 {
@@ -318,6 +342,11 @@ void WallSetup(void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void SectorLiquidSet(sectortype* sectp)
 {
@@ -355,6 +384,12 @@ void SectorLiquidSet(sectortype* sectp)
             sectp->damage = 40;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void SectorSetup(void)
 {
@@ -592,6 +627,12 @@ void SectorSetup(void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
 {
     int xsum = 0, ysum = 0;
@@ -608,6 +649,12 @@ void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
     *zmid = (sectp->int_floorz() + sectp->int_ceilingz()) >> 1;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 DVector3 SectorMidPoint(sectortype* sectp)
 {
     DVector3 sum(0,0,0);
@@ -621,6 +668,12 @@ DVector3 SectorMidPoint(sectortype* sectp)
     return sum;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void DoSpringBoard(PLAYER* pp)
 {
 
@@ -629,6 +682,11 @@ void DoSpringBoard(PLAYER* pp)
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoSpringBoardDown(void)
 {
@@ -658,6 +716,12 @@ void DoSpringBoardDown(void)
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 sectortype* FindNextSectorByTag(sectortype* sect, int tag)
 {
     for(auto& wal : wallsofsector(sect))
@@ -675,6 +739,11 @@ sectortype* FindNextSectorByTag(sectortype* sect, int tag)
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 short DoSpawnActorTrigger(short match)
 {
@@ -696,6 +765,12 @@ short DoSpawnActorTrigger(short match)
 
     return spawn_count;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int OperateSector(sectortype* sect, short player_is_operating)
 {
@@ -766,6 +841,12 @@ enum
 
     SWITCH_SKULL = 553,
 };
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int AnimateSwitch(DSWActor* actor, int tgt_value)
 {
@@ -842,6 +923,12 @@ int AnimateSwitch(DSWActor* actor, int tgt_value)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
 {
     actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
@@ -863,6 +950,12 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
     exp->user.change.XY() = exp->spr.angle.ToVector(5.75);
 }
 
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoExplodeSector(short match)
 {
@@ -901,6 +994,11 @@ void DoExplodeSector(short match)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoSpawnSpot(DSWActor* actor)
 {
@@ -919,7 +1017,12 @@ int DoSpawnSpot(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
 // spawns shrap when killing an object
+//
+//---------------------------------------------------------------------------
+
 void DoSpawnSpotsForKill(short match)
 {
     if (match < 0)
@@ -941,7 +1044,12 @@ void DoSpawnSpotsForKill(short match)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // spawns shrap when damaging an object
+//
+//---------------------------------------------------------------------------
+
 void DoSpawnSpotsForDamage(short match)
 {
     if (match < 0)
@@ -961,6 +1069,12 @@ void DoSpawnSpotsForDamage(short match)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoSoundSpotMatch(short match, short sound_num, short sound_type)
 {
@@ -1038,6 +1152,12 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void DoSoundSpotStopSound(short match)
 {
 
@@ -1052,6 +1172,12 @@ void DoSoundSpotStopSound(short match)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void DoStopSoundSpotMatch(short match)
 {
     SWStatIterator it(STAT_STOP_SOUND_SPOT);
@@ -1064,6 +1190,11 @@ void DoStopSoundSpotMatch(short match)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool TestKillSectorObject(SECTOR_OBJECT* sop)
 {
@@ -1079,6 +1210,12 @@ bool TestKillSectorObject(SECTOR_OBJECT* sop)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 short DoSectorObjectKillMatch(short match)
 {
@@ -1096,6 +1233,11 @@ short DoSectorObjectKillMatch(short match)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool SearchExplodeSectorMatch(short match)
 {
@@ -1114,6 +1256,12 @@ bool SearchExplodeSectorMatch(short match)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void KillMatchingCrackSprites(short match)
 {
     SWStatIterator it(STAT_SPRITE_HIT_MATCH);
@@ -1128,6 +1276,12 @@ void KillMatchingCrackSprites(short match)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void WeaponExplodeSectorInRange(DSWActor* wActor)
 {
@@ -1157,6 +1311,11 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void ShootableSwitch(DSWActor* actor)
 {
@@ -1175,6 +1334,12 @@ void ShootableSwitch(DSWActor* actor)
         break;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoDeleteSpriteMatch(short match)
 {
@@ -1242,6 +1407,12 @@ void DoDeleteSpriteMatch(short match)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void DoChangorMatch(short match)
 {
     SWStatIterator it(STAT_CHANGOR);
@@ -1290,6 +1461,12 @@ void DoChangorMatch(short match)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoMatchEverything(PLAYER* pp, short match, short state)
 {
@@ -1341,6 +1518,12 @@ void DoMatchEverything(PLAYER* pp, short match, short state)
     DoDeleteSpriteMatch(match);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool ComboSwitchTest(short combo_type, short match)
 {
     int state;
@@ -1364,7 +1547,12 @@ bool ComboSwitchTest(short combo_type, short match)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
 // NOTE: switches are always wall sprites
+//
+//---------------------------------------------------------------------------
+
 int OperateSprite(DSWActor* actor, short player_is_operating)
 {
     PLAYER* pp = nullptr;
@@ -1680,6 +1868,12 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int DoTrapReset(short match)
 {
     SWStatIterator it(STAT_TRAP);
@@ -1702,6 +1896,12 @@ int DoTrapReset(short match)
     }
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoTrapMatch(short match)
 {
@@ -1752,6 +1952,12 @@ int DoTrapMatch(short match)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void TriggerSecret(sectortype* sectp, PLAYER* pp)
 {
     if (pp == Player + myconnectindex)
@@ -1764,6 +1970,12 @@ void TriggerSecret(sectortype* sectp, PLAYER* pp)
     Player->SecretsFound++;
     sectp->lotag = 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void OperateTripTrigger(PLAYER* pp)
 {
@@ -1885,6 +2097,12 @@ void OperateTripTrigger(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void OperateContinuousTrigger(PLAYER* pp)
 {
     if (Prediction)
@@ -1904,6 +2122,11 @@ void OperateContinuousTrigger(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 short PlayerTakeSectorDamage(PLAYER* pp)
 {
@@ -1921,8 +2144,13 @@ short PlayerTakeSectorDamage(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
 // Needed in order to see if Player should grunt if he can't find a wall to operate on
 // If player is too far away, don't grunt
+//
+//---------------------------------------------------------------------------
+
 enum { PLAYER_SOUNDEVENT_TAG = 900 };
 bool NearThings(PLAYER* pp)
 {
@@ -1936,7 +2164,7 @@ bool NearThings(PLAYER* pp)
         return false;
     }
 
-    neartag(pp->int_ppos(), pp->cursector, pp->angle.ang.Buildang(), near, 1024, NTAG_SEARCH_LO_HI);
+    neartag(pp->pos, pp->cursector, pp->angle.ang, near, 1024, NTAG_SEARCH_LO_HI);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2007,6 +2235,12 @@ bool NearThings(PLAYER* pp)
     }
 
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 short nti_cnt;
 
@@ -2112,6 +2346,12 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, int z, int dist, int type, int
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, double z, int dist, int type, int count)
 {
     memset(ntip, -1, size);
@@ -2119,6 +2359,11 @@ void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, double z, int d
     NearTagList(ntip, pp, int(z * zworldtoint), dist, type, count);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoPlayerGrabStar(PLAYER* pp)
 {
@@ -2154,7 +2399,11 @@ int DoPlayerGrabStar(PLAYER* pp)
     return false;
 }
 
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void PlayerOperateEnv(PLAYER* pp)
 {
@@ -2331,7 +2580,11 @@ void PlayerOperateEnv(PLAYER* pp)
     }
 }
 
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoSineWaveFloor(void)
 {
@@ -2396,6 +2649,11 @@ void DoSineWaveFloor(void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoSineWaveWall(void)
 {
@@ -2424,6 +2682,12 @@ void DoSineWaveWall(void)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoAnim(int numtics)
 {
@@ -2484,6 +2748,12 @@ void DoAnim(int numtics)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void AnimClear(void)
 {
     AnimCnt = 0;
@@ -2505,6 +2775,12 @@ short AnimGetGoal(int animtype, int animindex, DSWActor* animactor)
 
     return j;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void AnimDelete(int animtype, int animindex, DSWActor* animactor)
 {
@@ -2530,6 +2806,11 @@ void AnimDelete(int animtype, int animindex, DSWActor* animactor)
     Anim[j] = Anim[AnimCnt];
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, int thevel)
 {
@@ -2564,6 +2845,12 @@ int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, in
     return j;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECT* data)
 {
     ASSERT(anim_ndx < AnimCnt);
@@ -2577,6 +2864,12 @@ short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECT* data)
     return anim_ndx;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 short AnimSetVelAdj(short anim_ndx, double vel_adj)
 {
     ASSERT(anim_ndx < AnimCnt);
@@ -2589,7 +2882,11 @@ short AnimSetVelAdj(short anim_ndx, double vel_adj)
     return anim_ndx;
 }
 
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoPanning(void)
 {
@@ -2635,6 +2932,11 @@ void DoPanning(void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoSector(void)
 {
@@ -2722,6 +3024,12 @@ void DoSector(void)
     DoSineWaveWall();
     DoSpringBoardDown();
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 
 #include "saveable.h"

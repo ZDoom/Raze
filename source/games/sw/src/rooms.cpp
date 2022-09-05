@@ -58,6 +58,12 @@ SAVE save;
 
 bool FAF_DebugView = false;
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 DSWActor* insertActor(sectortype* sect, int statnum)
 {
     auto pActor = static_cast<DSWActor*>(::InsertActor(RUNTIME_CLASS(DSWActor), sect, statnum));
@@ -65,6 +71,12 @@ DSWActor* insertActor(sectortype* sect, int statnum)
     pActor->spr.intowner = -1;
     return pActor;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool FAF_Sector(sectortype* sect)
 {
@@ -80,6 +92,12 @@ bool FAF_Sector(sectortype* sect)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void SetWallWarpHitscan(sectortype* sect)
 {
@@ -104,6 +122,12 @@ void SetWallWarpHitscan(sectortype* sect)
     while (wall_num != start_wall);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void ResetWallWarpHitscan(sectortype* sect)
 {
     auto start_wall = sect->firstWall();
@@ -117,6 +141,12 @@ void ResetWallWarpHitscan(sectortype* sect)
     }
     while (wall_num != start_wall);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void
 FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
@@ -222,6 +252,12 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
           int32_t xe, int32_t ye, int32_t ze, sectortype* secte)
 {
@@ -302,6 +338,12 @@ bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int GetZadjustment(sectortype* sect, short hitag)
 {
     if (sect == nullptr || !(sect->extra & SECTFX_Z_ADJUST))
@@ -318,6 +360,12 @@ int GetZadjustment(sectortype* sect, short hitag)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& florhit, int32_t* loz)
 {
@@ -433,6 +481,12 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
     return SkipFAFcheck;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void WaterAdjust(const Collision& florhit, int32_t* loz)
 {
     if (florhit.type == kHitSector)
@@ -444,6 +498,12 @@ void WaterAdjust(const Collision& florhit, int32_t* loz)
             *loz += Z(FixedToInt(sect->depth_fixed));
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void FAFgetzrange(vec3_t pos, sectortype* sect, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
 {
@@ -505,6 +565,12 @@ void FAFgetzrange(vec3_t pos, sectortype* sect, int32_t* hiz, Collision* ceilhit
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit)
@@ -562,6 +628,12 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void SetupMirrorTiles(void)
 {
     SWStatIterator it(STAT_FAF);
@@ -586,6 +658,12 @@ void SetupMirrorTiles(void)
             actor->sector()->floorpicnum = FAF_MIRROR_PIC+1;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectortype** lower)
 {
@@ -655,6 +733,12 @@ void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectorty
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
 {
     int xoff = 0;
@@ -711,6 +795,12 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
 
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
 {
@@ -769,6 +859,12 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 short FindViewSectorInScene(sectortype* cursect, short level)
 {
     short match;
@@ -796,6 +892,12 @@ short FindViewSectorInScene(sectortype* cursect, short level)
 
     return -1;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 struct PortalGroup
 {

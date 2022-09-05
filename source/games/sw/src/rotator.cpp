@@ -44,6 +44,12 @@ void DoMatchEverything(PLAYER* pp, short match, short state);
 void DoRotatorSetInterp(DSWActor*);
 void DoRotatorStopInterp(DSWActor*);
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void ReverseRotator(DSWActor* actor)
 {
     ROTATOR* r;
@@ -71,6 +77,12 @@ void ReverseRotator(DSWActor* actor)
     r->vel = -r->vel;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool RotatorSwitch(short match, short setting)
 {
     bool found = false;
@@ -87,6 +99,12 @@ bool RotatorSwitch(short match, short setting)
 
     return found;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void SetRotatorActive(DSWActor* actor)
 {
@@ -109,6 +127,12 @@ void SetRotatorActive(DSWActor* actor)
         VatorSwitch(SP_TAG2(actor), true);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void SetRotatorInactive(DSWActor* actor)
 {
     DoRotatorStopInterp(actor);
@@ -119,7 +143,12 @@ void SetRotatorInactive(DSWActor* actor)
     actor->user.Flags &= ~(SPR_ACTIVE);
 }
 
+//---------------------------------------------------------------------------
+//
 // called for operation from the space bar
+//
+//---------------------------------------------------------------------------
+
 void DoRotatorOperate(PLAYER* pp, sectortype* sect)
 {
     short match = sect->hitag;
@@ -131,8 +160,13 @@ void DoRotatorOperate(PLAYER* pp, sectortype* sect)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // called from switches and triggers
 // returns first vator found
+//
+//---------------------------------------------------------------------------
+
 void DoRotatorMatch(PLAYER* pp, short match, bool manual)
 {
     DSWActor* firstVator = nullptr;
@@ -186,6 +220,11 @@ void DoRotatorMatch(PLAYER* pp, short match, bool manual)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool TestRotatorMatchActive(short match)
 {
@@ -206,6 +245,11 @@ bool TestRotatorMatchActive(short match)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoRotatorSetInterp(DSWActor* actor)
 {
@@ -223,6 +267,12 @@ void DoRotatorSetInterp(DSWActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void DoRotatorStopInterp(DSWActor* actor)
 {
     for (auto& wal : wallsofsector(actor->sector()))
@@ -238,6 +288,12 @@ void DoRotatorStopInterp(DSWActor* actor)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int DoRotator(DSWActor* actor)
 {
@@ -358,6 +414,11 @@ int DoRotator(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 
