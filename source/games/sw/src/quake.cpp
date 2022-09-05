@@ -52,6 +52,12 @@ inline uint8_t& QUAKE_Zamt(DSWActor* actor) { return SP_TAG3(actor); }
 // only for timed quakes
 #define QUAKE_WaitForTrigger(actor) (TEST_BOOL3(actor))
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void CopyQuakeSpotToOn(DSWActor* actor)
 {
     auto actorNew = insertActor(actor->sector(), STAT_QUAKE_SPOT);
@@ -65,6 +71,12 @@ void CopyQuakeSpotToOn(DSWActor* actor)
     QUAKE_Duration(actorNew) *= 120;
 }
 
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void DoQuakeMatch(short match)
 {
@@ -92,6 +104,12 @@ void DoQuakeMatch(short match)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void ProcessQuakeOn(void)
 {
     SWStatIterator it(STAT_QUAKE_ON);
@@ -106,6 +124,12 @@ void ProcessQuakeOn(void)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void ProcessQuakeSpot(void)
 {
@@ -149,6 +173,11 @@ void ProcessQuakeSpot(void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 void QuakeViewChange(PLAYER* pp, DVector3& tpos, DAngle& tang)
 {
     DSWActor* save_act = nullptr;
@@ -214,6 +243,12 @@ void QuakeViewChange(PLAYER* pp, DVector3& tpos, DAngle& tang)
     tang += tangdiff;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void SpawnQuake(sectortype* sect, const DVector3& pos, int tics, int amt, int radius)
 {
 
@@ -232,6 +267,12 @@ void SpawnQuake(sectortype* sect, const DVector3& pos, int tics, int amt, int ra
 
     PlaySound(DIGI_ERUPTION, actorNew, v3df_follow|v3df_dontpan);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool SetQuake(PLAYER* pp, short tics, short amt)
 {
