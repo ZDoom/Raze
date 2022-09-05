@@ -250,49 +250,40 @@ inline void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& 
 //
 //---------------------------------------------------------------------------
 
-bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
-          int32_t xe, int32_t ye, int32_t ze, sectortype* secte)
+bool FAFcansee(const DVector3& start, sectortype* sects, const DVector3& end, sectortype* secte)
 {
-    int loz, hiz;
     auto newsect = sects;
-    int xvect, yvect, zvect;
-    short ang;
-    int dist;
     bool plax_found = false;
-    vec3_t s = { xs, ys, zs };
-
     // ASSERT(sects >= 0 && secte >= 0);
 
     // early out to regular routine
     if ((!sects || !FAF_Sector(sects)) && (!secte || !FAF_Sector(secte)))
     {
-        return !!cansee(xs,ys,zs,sects,xe,ye,ze,secte);
+        return !!cansee(start, sects, end, secte);
     }
 
     // get angle
-    ang = getangle(xe - xs, ye - ys);
+    DVector3 diff = end - start;
+    DAngle ang = VecToAngle(diff);
+    DVector3 vect; 
+    vect.XY() = ang.ToVector() * 1024;
+    double dist = diff.XY().Length();
 
     // get x,y,z, vectors
-    xvect = bcos(ang);
-    yvect = bsin(ang);
-
-    // find the distance to the target
-    dist = ksqrt(SQ(xe - xs) + SQ(ye - ys));
-
     if (dist != 0)
     {
-        if (xe - xs != 0)
-            zvect = Scale(xvect, ze - zs, xe - xs);
-        else if (ye - ys != 0)
-            zvect = Scale(yvect, ze - zs, ye - ys);
+        if (end.X != start.X)
+            vect.Z = vect.X * diff.Z / diff.X;
+        else if (end.Y != start.Y)
+            vect.Z = vect.Y * diff.Z / diff.Y;
         else
-            zvect = 0;
+            vect.Z = 0;
     }
     else
-        zvect = 0;
+        vect.Z = 0;
 
     HitInfo hit{};
-    hitscan(s, sects, { xvect, yvect, zvect }, hit, CLIPMASK_MISSILE);
+    hitscan(start, sects, vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
         return false;
@@ -300,35 +291,35 @@ bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     // make sure it hit JUST a sector before doing a check
     if (hit.hitWall == nullptr && hit.actor() == nullptr)
     {
-        getzsofslopeptr(hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, &hiz, &loz);
-        if (abs(hit.int_hitpos().Z - loz) < Z(4))
+        double loz, hiz;
+        getzsofslopeptr(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, &hiz, &loz);
+        if (abs(hit.hitpos.Z - loz) < 4)
         {
             if (FAF_ConnectFloor(hit.hitSector))
             {
-                updatesectorz(hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z + Z(12), &newsect);
+                updatesectorz(hit.hitpos.plusZ(12), &newsect);
                 plax_found = true;
             }
         }
-        else if (abs(hit.int_hitpos().Z - hiz) < Z(4))
+        else if (abs(hit.hitpos.Z - hiz) < 4)
         {
             if (FAF_ConnectCeiling(hit.hitSector))
             {
-                updatesectorz(hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z - Z(12), &newsect);
+                updatesectorz(hit.hitpos.plusZ(-12), &newsect);
                 plax_found = true;
             }
         }
     }
     else
     {
-        return !!cansee(xs,ys,zs,sects,xe,ye,ze,secte);
+        return !!cansee(start, sects, end, secte);
     }
 
     if (plax_found)
-        return !!cansee(hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, newsect, xe, ye, ze, secte);
+        return !!cansee(hit.hitpos, newsect, end, secte);
 
     return false;
 }
-
 
 //---------------------------------------------------------------------------
 //

@@ -1762,12 +1762,7 @@ inline bool FAF_ConnectArea(sectortype* sect)
 
 void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, HitInfo& hit, int32_t clipmask);
 
-bool FAFcansee_(int32_t xs, int32_t ys, int32_t zs, sectortype* sects, int32_t xe, int32_t ye, int32_t ze, sectortype* secte);
-inline bool FAFcansee(const DVector3& start, sectortype* sects, const DVector3& end, sectortype* secte)
-{
-    return FAFcansee_(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint), sects,
-        int(end.X * worldtoint), int(end.Y * worldtoint), int(end.Z * zworldtoint), secte);
-}
+bool FAFcansee(const DVector3& start, sectortype* sects, const DVector3& end, sectortype* secte);
 
 void FAFgetzrange(vec3_t pos, sectortype* sect,
                   int32_t* hiz, Collision* ceilhit,
