@@ -500,7 +500,7 @@ void SectorSetup(void)
             SINE_WAVE_FLOOR *swf;
             uint16_t swf_ndx = 0;
             short cnt = 0, sector_cnt;
-            int range;
+            double Range;
             int range_diff = 0;
             int wave_diff = 0;
             short peak_dist = 0;
@@ -536,9 +536,9 @@ void SectorSetup(void)
 
             swf->sectp = sectp;
             ASSERT(swf->sectp->hitag != 0);
-            swf->range = range = Z(swf->sectp->hitag);
-            swf->floor_origz = swf->sectp->int_floorz() - (range >> 2);
-            swf->ceiling_origz = swf->sectp->int_ceilingz() - (range >> 2);
+            swf->Range = Range = swf->sectp->hitag;
+            swf->floorOrigz = swf->sectp->floorz - (Range * 0.25);
+            swf->ceilingOrigz = swf->sectp->ceilingz- (Range * 0.25);
 
             // look for the rest by distance
             auto near_sectp = sectp, base_sectp = sectp;
@@ -558,10 +558,10 @@ void SectorSetup(void)
                         peak_dist = near_sectp->hitag;
 
                     swf->sectp = near_sectp;
-                    swf->floor_origz = swf->sectp->int_floorz() - (range >> 2);
-                    swf->ceiling_origz = swf->sectp->int_ceilingz() - (range >> 2);
-                    range -= range_diff;
-                    swf->range = range;
+					swf->floorOrigz = swf->sectp->floorz - (Range * 0.25);
+					swf->ceilingOrigz = swf->sectp->ceilingz- (Range * 0.25);
+                    Range -= range_diff * zmaptoworld;
+                    swf->Range = Range;
 
                     base_sectp = swf->sectp;
                     sector_cnt++;
@@ -604,16 +604,16 @@ void SectorSetup(void)
 
                     swf = &SineWaveFloor[NextSineWave][cnt];
 
-                    swf->range -= wave_diff;
+                    swf->Range -= wave_diff * zmaptoworld;
 
                     wave_diff += wave_diff;
 
-                    if (swf->range < Z(4))
-                        swf->range = Z(4);
+                    if (swf->Range < 4)
+                        swf->Range = 4;
 
                     // reset origz's based on new range
-                    swf->floor_origz = swf->sectp->int_floorz() - (swf->range >> 2);
-                    swf->ceiling_origz = swf->sectp->int_ceilingz() - (swf->range >> 2);
+                    swf->floorOrigz = swf->sectp->floorz - (swf->Range * 0.25);
+                    swf->ceilingOrigz = swf->sectp->ceilingz - (swf->Range * 0.25);
                 }
             }
 
@@ -2597,13 +2597,13 @@ void DoSineWaveFloor(void)
 
             if ((flags & SINE_FLOOR))
             {
-                newz = swf->floor_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
+                newz = swf->floorOrigz + swf->Range * BobVal(swf->sintable_ndx);
                 swf->sectp->set_int_floorz(newz);
             }
 
             if ((flags & SINE_CEILING))
             {
-                newz = swf->ceiling_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
+                newz = swf->ceilingOrigz + swf->Range * BobVal(swf->sintable_ndx);
                 swf->sectp->set_int_ceilingz(newz);
             }
 

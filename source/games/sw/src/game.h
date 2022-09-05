@@ -1299,7 +1299,7 @@ struct SWING
 struct SINE_WAVE_FLOOR
 {
     sectortype* sectp;
-    int floor_origz, ceiling_origz, range;
+    double floorOrigz, ceilingOrigz, Range;
     int16_t sintable_ndx, speed_shift;
     uint8_t flags;
 };
