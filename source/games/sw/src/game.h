@@ -1316,7 +1316,8 @@ extern SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 struct SINE_WALL
 {
     walltype* wallp;
-    int orig_xy, range;
+	double origXY;
+	double Range;
     int16_t sintable_ndx, speed_shift, type;
 };
 

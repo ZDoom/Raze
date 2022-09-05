@@ -896,8 +896,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WALL& w, SINE
 
 	if (arc.BeginObject(keyname))
 	{
-		arc("orig_xy", w.orig_xy, def->orig_xy)
-			("range", w.range, def->range)
+		arc("orig_xy", w.origXY, def->origXY)
+			("range", w.Range, def->Range)
 			("sector", w.wallp, def->wallp)
 			("sintable_ndx", w.sintable_ndx, def->sintable_ndx)
 			("speed_shift", w.speed_shift, def->speed_shift)

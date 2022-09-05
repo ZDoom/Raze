@@ -136,7 +136,7 @@ void WallSetupDontMove(void)
             {
                 for(auto& wal : wall)
                 {
-                    if (wal.wall_int_pos().X < jActor->int_pos().X && wal.wall_int_pos().X > iActor->int_pos().X && wal.wall_int_pos().Y < jActor->int_pos().Y && wal.wall_int_pos().Y > iActor->int_pos().Y)
+                    if (wal.pos.X < jActor->spr.pos.X && wal.pos.X > iActor->spr.pos.X && wal.pos.Y < jActor->spr.pos.Y && wal.pos.Y > iActor->spr.pos.Y)
                     {
                         wal.extra |= WALLFX_DONT_MOVE;
                     }
@@ -317,15 +317,15 @@ void WallSetup(void)
                 sw->type = type;
                 sw->wallp = wall_num;
                 sw->speed_shift = speed;
-                sw->range = range;
+                sw->Range = range * maptoworld;
 
                 // don't allow bullet holes/stars
                 wall_num->extra |= WALLFX_DONT_STICK;
 
                 if (!sw->type)
-                    sw->orig_xy = wall_num->wall_int_pos().Y - (sw->range >> 2);
+                    sw->origXY = wall_num->pos.Y - (sw->Range * 0.25);
                 else
-                    sw->orig_xy = wall_num->wall_int_pos().X - (sw->range >> 2);
+                    sw->origXY = wall_num->pos.X - (sw->Range * 0.25);
 
                 sw->sintable_ndx = cnt * (2048 / num_points);
             }
@@ -2653,7 +2653,7 @@ void DoSineWaveFloor(void)
 void DoSineWaveWall(void)
 {
     SINE_WALL *sw;
-    int New;
+    double New;
     short sw_num;
 
     for (sw_num = 0; sw_num < MAX_SINE_WALL; sw_num++)
@@ -2666,13 +2666,13 @@ void DoSineWaveWall(void)
 
             if (!sw->type)
             {
-                New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
-                dragpoint(wal, wal->wall_int_pos().X, New);
+                New = sw->origXY + sw->Range * BobVal(sw->sintable_ndx);
+                dragpoint(wal, DVector2(wal->pos.X, New));
             }
             else
             {
-                New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
-                dragpoint(wal, New, wal->wall_int_pos().Y);
+                New = sw->origXY + sw->Range * BobVal(sw->sintable_ndx);
+                dragpoint(wal, DVector2(New, wal->pos.Y));
             }
         }
     }
