@@ -1596,6 +1596,9 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                     switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                     {
+                    case CSTAT_SPRITE_ALIGNMENT_FACING:  // Regular sprite
+                        DrawAutomapAlignmentFacing(actor->spr, sprxy, cangvect, czoom, xydim, col);
+                        break;
                     case CSTAT_SPRITE_ALIGNMENT_WALL: // Rotated sprite
                         DrawAutomapAlignmentWall(actor->spr, sprxy, cangvect, czoom, xydim, col);
                         break;
