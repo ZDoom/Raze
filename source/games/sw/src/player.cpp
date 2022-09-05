@@ -2301,6 +2301,12 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
     pp->setcursector(sect);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerSectorUpdatePostMove(PLAYER* pp)
 {
     auto sect = pp->cursector;
@@ -2335,6 +2341,12 @@ void DoPlayerSectorUpdatePostMove(PLAYER* pp)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlaySOsound(sectortype* sect, short sound_num)
 {
     // play idle sound - sound 1
@@ -2349,6 +2361,12 @@ void PlaySOsound(sectortype* sect, short sound_num)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void StopSOsound(sectortype* sect)
 {
     // play idle sound - sound 1
@@ -2360,6 +2378,11 @@ void StopSOsound(sectortype* sect)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoTankTreads(PLAYER* pp)
 {
@@ -2453,6 +2476,12 @@ void DoTankTreads(PLAYER* pp)
 
 
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DriveCrush(PLAYER* pp, DVector2* quad)
 {
@@ -2594,6 +2623,12 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerMoveVehicle(PLAYER* pp)
 {
@@ -2796,6 +2831,12 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     DoTankTreads(pp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerMoveTurret(PLAYER* pp)
 {
     if (!Prediction)
@@ -2830,6 +2871,12 @@ void DoPlayerMoveTurret(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginJump(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -2860,6 +2907,12 @@ void DoPlayerBeginJump(PLAYER* pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginForceJump(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -2881,6 +2934,12 @@ void DoPlayerBeginForceJump(PLAYER* pp)
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Jump);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool PlayerCeilingHit(PLAYER* pp, double zlimit)
 {
     return (pp->pos.Z < zlimit);
@@ -2890,6 +2949,12 @@ bool PlayerFloorHit(PLAYER* pp, double zlimit)
 {
     return (pp->pos.Z > zlimit);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerJump(PLAYER* pp)
 {
@@ -2975,6 +3040,12 @@ void DoPlayerJump(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerForceJump(PLAYER* pp)
 {
     short i;
@@ -3014,6 +3085,12 @@ void DoPlayerForceJump(PLAYER* pp)
     DoPlayerMove(pp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginFall(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -3034,6 +3111,12 @@ void DoPlayerBeginFall(PLAYER* pp)
         NewStateGroup(pp->actor, plActor->user.ActorActionSet->Fall);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void StackedWaterSplash(PLAYER* pp)
 {
     if (FAF_ConnectArea(pp->cursector))
@@ -3048,6 +3131,12 @@ void StackedWaterSplash(PLAYER* pp)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerFall(PLAYER* pp)
 {
@@ -3204,6 +3293,12 @@ void DoPlayerFall(PLAYER* pp)
     DoPlayerMove(pp);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoPlayerBeginClimb(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
@@ -3223,6 +3318,11 @@ void DoPlayerBeginClimb(PLAYER* pp)
     NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerClimb(PLAYER* pp)
 {
@@ -3439,6 +3539,11 @@ void DoPlayerClimb(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoPlayerWadeSuperJump(PLAYER* pp)
 {
@@ -3474,6 +3579,12 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool PlayerFlyKey(void)
 {
     if (!ToggleFlyMode)
@@ -3486,6 +3597,12 @@ bool PlayerFlyKey(void)
 
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoPlayerBeginCrawl(PLAYER* pp)
 {
@@ -3503,6 +3620,12 @@ void DoPlayerBeginCrawl(PLAYER* pp)
 
     NewStateGroup(pp->actor, plActor->user.ActorActionSet->Crawl);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool PlayerFallTest(PLAYER* pp, double player_height)
 {
@@ -3525,6 +3648,12 @@ bool PlayerFallTest(PLAYER* pp, double player_height)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 const int PLAYER_STANDING_ROOM = 68;
 
