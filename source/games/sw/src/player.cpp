@@ -1945,9 +1945,8 @@ void DoPlayerZrange(PLAYER* pp)
     // for an entire box, NOT just a point.  -Useful for clipping
     auto bakcstat = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
-    vec3_t pos = pp->int_ppos();
-    pos.Z += Z(8);
-    FAFgetzrange(pos, pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)actor->spr.clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+
+    FAFgetzrange(pp->pos.plusZ(8), pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)actor->spr.clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     actor->spr.cstat = bakcstat;
 
     Collision ceilColl(ceilhit);
@@ -2280,7 +2279,7 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
 
     if ((pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
-        updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, &sect);
+        updatesectorz(pp->pos, &sect);
         if (sect == nullptr)
         {
             sect = pp->cursector;
@@ -2290,7 +2289,7 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
     }
     else if (FAF_ConnectArea(sect))
     {
-        updatesectorz(pp->int_ppos().X, pp->int_ppos().Y, pp->int_ppos().Z, &sect);
+        updatesectorz(pp->pos, &sect);
         if (sect == nullptr)
         {
             sect = pp->cursector;
@@ -2453,23 +2452,6 @@ void DoTankTreads(PLAYER* pp)
     }
 
 
-}
-
-void SetupDriveCrush(PLAYER* pp, int *x, int *y)
-{
-    int radius = pp->sop_control->clipdist;
-
-    x[0] = pp->int_ppos().X - radius;
-    y[0] = pp->int_ppos().Y - radius;
-
-    x[1] = pp->int_ppos().X + radius;
-    y[1] = pp->int_ppos().Y - radius;
-
-    x[2] = pp->int_ppos().X + radius;
-    y[2] = pp->int_ppos().Y + radius;
-
-    x[3] = pp->int_ppos().X - radius;
-    y[3] = pp->int_ppos().Y + radius;
 }
 
 void DriveCrush(PLAYER* pp, DVector2* quad)
