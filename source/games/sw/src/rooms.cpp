@@ -643,7 +643,7 @@ void SetupMirrorTiles(void)
 //
 //---------------------------------------------------------------------------
 
-void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectortype** lower)
+void GetUpperLowerSector(int match, double x, double y, sectortype** upper, sectortype** lower)
 {
     int i;
     sectortype* sectorlist[16];
@@ -694,7 +694,7 @@ void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectorty
     else if (sln > 2)
     {
         // try again moving the x,y pos around until you only get two sectors
-        GetUpperLowerSector(match, x - 1, y, upper, lower);
+        GetUpperLowerSector(match, x - 1/16., y, upper, lower);
     }
 
     if (sln == 2)
@@ -717,12 +717,10 @@ void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectorty
 //
 //---------------------------------------------------------------------------
 
-bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
+bool FindCeilingView(int match, double* x, double * y, double z, sectortype** sect)
 {
-    int xoff = 0;
-    int yoff = 0;
-    int pix_diff;
-    int newz;
+    double xoff = 0;
+    double yoff = 0;
 
     save.zcount = 0;
     DSWActor* actor = nullptr;
@@ -734,8 +732,8 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
     {
         if (actor->spr.hitag == VIEW_THRU_CEILING && actor->spr.lotag == match)
         {
-            xoff = *x - actor->int_pos().X;
-            yoff = *y - actor->int_pos().Y;
+            xoff = *x - actor->spr.pos.X;
+            yoff = *y - actor->spr.pos.Y;
             break;
         }
     }
@@ -750,8 +748,8 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
             {
                 sectortype* upper,* lower;
 
-                *x = actor->int_pos().X + xoff;
-                *y = actor->int_pos().Y + yoff;
+                *x = actor->spr.pos.X + xoff;
+                *y = actor->spr.pos.Y + yoff;
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
@@ -780,12 +778,10 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
 //
 //---------------------------------------------------------------------------
 
-bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
+bool FindFloorView(int match, double* x, double* y, double z, sectortype** sect)
 {
-    int xoff = 0;
-    int yoff = 0;
-    int newz;
-    int pix_diff;
+    double xoff = 0;
+    double yoff = 0;
 
     save.zcount = 0;
     DSWActor* actor = nullptr;
@@ -797,8 +793,8 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
     {
         if (actor->spr.hitag == VIEW_THRU_FLOOR && actor->spr.lotag == match)
         {
-            xoff = *x - actor->int_pos().X;
-            yoff = *y - actor->int_pos().Y;
+            xoff = *x - actor->spr.pos.X;
+            yoff = *y - actor->spr.pos.Y;
             break;
         }
     }
@@ -814,8 +810,8 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
             {
                 sectortype* upper,* lower;
 
-                *x = actor->int_pos().X + xoff;
-                *y = actor->int_pos().Y + yoff;
+                *x = actor->spr.pos.X + xoff;
+                *y = actor->spr.pos.Y + yoff;
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
@@ -843,9 +839,9 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
 //
 //---------------------------------------------------------------------------
 
-short FindViewSectorInScene(sectortype* cursect, short level)
+short FindViewSectorInScene(sectortype* cursect, int level)
 {
-    short match;
+    int match;
 
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
@@ -855,7 +851,7 @@ short FindViewSectorInScene(sectortype* cursect, short level)
             if (cursect == actor->sector())
             {
                 // ignore case if sprite is pointing up
-                if (actor->int_ang() == 1536)
+                if (actor->spr.angle == DAngle270)
                     continue;
 
                 // only gets to here is sprite is pointing down
@@ -881,7 +877,7 @@ struct PortalGroup
 {
     TArray<int> sectors;
     int othersector = -1;
-    vec3_t offset = { 0,0,0 };
+	DVector3 offset = {0,0,0};
 };
 
     // This is very messy because some portals are linked outside the actual portal sectors, so we have to use the complicated original linking logic to find the connection. :?
@@ -947,21 +943,18 @@ void CollectPortals()
             SWSectIterator it(sec);
             while (auto actor = it.Next())
             {
-                int tx = actor->int_pos().X;
-                int ty = actor->int_pos().Y;
-                int tz = actor->int_pos().Z;
+                auto tpos = actor->spr.pos;
                 auto tsect = &sector[sec];
 
                 int match = FindViewSectorInScene(tsect, VIEW_LEVEL1);
                 if (match != -1)
                 {
-                    FindCeilingView(match, &tx, &ty, tz, &tsect);
+                    FindCeilingView(match, &tpos.X, &tpos.Y, tpos.Z, &tsect);
                     if (tsect != nullptr &&tsect->floorpicnum == FAF_MIRROR_PIC)
                     {
                         // got something!
                         fp.othersector = sectnum(tsect);
-                        fp.offset = { tx, ty, tz };
-                        fp.offset -= actor->int_pos();
+                        fp.offset = tpos - actor->spr.pos;
                         goto nextfg;
                     }
                 }
@@ -977,21 +970,18 @@ void CollectPortals()
             SWSectIterator it(sec);
             while (auto actor = it.Next())
             {
-                int tx = actor->int_pos().X;
-                int ty = actor->int_pos().Y;
-                int tz = actor->int_pos().Z;
+				auto tpos = actor->spr.pos;
                 auto tsect = &sector[sec];
 
                 int match = FindViewSectorInScene(tsect, VIEW_LEVEL2);
                 if (match != -1)
                 {
-                    FindFloorView(match, &tx, &ty, tz, &tsect);
+                    FindFloorView(match, &tpos.X, &tpos.Y, tpos.Z, &tsect);
                     if (tsect != nullptr && tsect->ceilingpicnum == FAF_MIRROR_PIC)
                     {
                         // got something!
                         fp.othersector = sectnum(tsect);
-                        fp.offset = { tx, ty, tz };
-                        fp.offset -= actor->int_pos();
+						fp.offset = tpos - actor->spr.pos;
                         goto nextcg;
                     }
                 }
@@ -1015,7 +1005,8 @@ void CollectPortals()
             auto pt2 = findother(pt.othersector);
             if (pt2)
             {
-                int pnum = portalAdd(PORTAL_SECTOR_FLOOR, -1, pt.offset.X, pt.offset.Y, 0);
+				pt.offset.Z = 0;
+                int pnum = portalAdd(PORTAL_SECTOR_FLOOR, -1, pt.offset);
                 allPortals[pnum].targets = pt2->sectors; // do not move! We still need the original.
                 for (auto sec : pt.sectors)
                 {
@@ -1041,7 +1032,8 @@ void CollectPortals()
             auto pt2 = findother(pt.othersector);
             if (pt2)
             {
-                int pnum = portalAdd(PORTAL_SECTOR_CEILING, -1, pt.offset.X, pt.offset.Y, 0);
+				pt.offset.Z = 0;
+                int pnum = portalAdd(PORTAL_SECTOR_CEILING, -1, pt.offset);
                 allPortals[pnum].targets = std::move(pt2->sectors);
                 for (auto sec : pt.sectors)
                 {
