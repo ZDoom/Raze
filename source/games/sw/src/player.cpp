@@ -3549,18 +3549,13 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
 {
     HitInfo hit{};
     unsigned i;
-    //short angs[3];
-    static short angs[3] = {0, 0, 0};
-    int zh = pp->cursector->int_floorz() - Z(pp->WadeDepth) - Z(2);
+    double zh = pp->cursector->floorz - pp->WadeDepth - 2;
 
     if (Prediction) return false;   // !JIM! 8/5/97 Teleporter FAFhitscan SuperJump bug.
 
-    for (i = 0; i < SIZ(angs); i++)
+    //for (i = 0; i < SIZ(angs); i++)
     {
-        FAFhitscan(pp->int_ppos().X, pp->int_ppos().Y, zh, pp->cursector,    // Start position
-                   bcos(pp->angle.ang.Buildang() + angs[i]),   // X vector of 3D ang
-                   bsin(pp->angle.ang.Buildang() + angs[i]),   // Y vector of 3D ang
-                   0, hit, CLIPMASK_MISSILE);            // Z vector of 3D ang
+        FAFhitscan(DVector3(pp->pos.XY(), zh), pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.hitWall != nullptr && hit.hitSector != nullptr)
         {
