@@ -2346,7 +2346,7 @@ int DoPlayerGrabStar(PLAYER* pp)
         auto actor = StarQueue[i];
         if (actor != nullptr)
         {
-            if (FindDistance3D(actor->int_pos().X - pp->int_ppos().X, actor->int_pos().Y - pp->int_ppos().Y, actor->int_pos().Z - pp->int_ppos().Z + Z(12)) < 500)
+            if ((actor->spr.pos - pp->pos).plusZ(12).Length() < 31.25)
             {
                 break;
             }
@@ -2560,7 +2560,6 @@ void PlayerOperateEnv(PLAYER* pp)
 void DoSineWaveFloor(void)
 {
     SINE_WAVE_FLOOR *swf;
-    int newz;
     int wave;
     int flags;
 
@@ -2573,14 +2572,14 @@ void DoSineWaveFloor(void)
 
             if ((flags & SINE_FLOOR))
             {
-                newz = swf->floorOrigz + swf->Range * BobVal(swf->sintable_ndx);
-                swf->sectp->set_int_floorz(newz);
+                double newz = swf->floorOrigz + swf->Range * BobVal(swf->sintable_ndx);
+                swf->sectp->setfloorz(newz);
             }
 
             if ((flags & SINE_CEILING))
             {
-                newz = swf->ceilingOrigz + swf->Range * BobVal(swf->sintable_ndx);
-                swf->sectp->set_int_ceilingz(newz);
+                double newz = swf->ceilingOrigz + swf->Range * BobVal(swf->sintable_ndx);
+                swf->sectp->setceilingz(newz);
             }
 
         }
@@ -2613,7 +2612,7 @@ void DoSineWaveFloor(void)
                     wal = sect->firstWall() + 2;
 
                     //Pass (Sector, x, y, z)
-                    alignflorslope(sect,wal->wall_int_pos().X,wal->wall_int_pos().Y, wal->nextSector()->int_floorz());
+                    alignflorslope(sect,DVector3(wal->pos, wal->nextSector()->floorz));
                 }
             }
         }
@@ -2861,7 +2860,7 @@ short AnimSetVelAdj(short anim_ndx, double vel_adj)
 
 void DoPanning(void)
 {
-    int nx, ny;
+    double nx, ny;
     int i;
     sectortype* sectp;
     walltype* wallp;
@@ -2871,8 +2870,8 @@ void DoPanning(void)
     {
         sectp = actor->sector();
 
-        nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 20);
-        ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 20);
+		nx = actor->vel.X * actor->spr.angle.Cos();
+		ny = actor->vel.X * actor->spr.angle.Sin();
 
         sectp->addfloorxpan((float)nx);
         sectp->addfloorypan((float)ny);
@@ -2883,8 +2882,8 @@ void DoPanning(void)
     {
         sectp = actor->sector();
 
-        nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 20);
-        ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 20);
+		nx = actor->vel.X * actor->spr.angle.Cos();
+		ny = actor->vel.X * actor->spr.angle.Sin();
 
         sectp->addceilingxpan((float)nx);
         sectp->addceilingypan((float)ny);
@@ -2895,8 +2894,8 @@ void DoPanning(void)
     {
         wallp = actor->tempwall;
 
-        nx = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 20);
-        ny = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 20);
+		nx = actor->vel.X * actor->spr.angle.Cos();
+		ny = actor->vel.X * actor->spr.angle.Sin();
 
         wallp->addxpan((float)nx);
         wallp->addypan((float)ny);
@@ -2915,7 +2914,6 @@ void DoSector(void)
     bool riding;
     int sync_flag;
     short pnum;
-    int min_dist,dist,a,b,c;
     PLAYER* pp;
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
@@ -2926,7 +2924,7 @@ void DoSector(void)
 
 
         riding = false;
-        min_dist = 999999;
+        double min_dist = 999999;
 
         TRAVERSE_CONNECT(pnum)
         {
@@ -2940,7 +2938,7 @@ void DoSector(void)
             }
             else
             {
-                DISTANCE(pp->pos, sop->pmid, dist, a, b, c);
+				double dist = (pp->pos.XY(), sop->pmid.XY()).Length();
                 if (dist < min_dist)
                     min_dist = dist;
             }
@@ -2974,7 +2972,7 @@ void DoSector(void)
         }
         else
         {
-            if (min_dist < 15000)
+            if (min_dist < 937.5)
             {
                 // if close update every other time
                 if (MoveSkip2 == 0)
