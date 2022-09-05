@@ -11647,7 +11647,7 @@ int InitSwordAttack(PLAYER* pp)
                     {
                     case ZILLA_RUN_R0:
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                        PlaySound(DIGI_SWORDCLANK, hit.int_hitpos(), v3df_none);
+                        PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                         break;
                     case TRASHCAN:
                         if (hitActor->user.WaitTics <= 0)
@@ -11656,7 +11656,7 @@ int InitSwordAttack(PLAYER* pp)
                             ChangeState(hitActor, s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                        PlaySound(DIGI_SWORDCLANK, hit.int_hitpos(), v3df_none);
+                        PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                         PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                         break;
                     case PACHINKO1:
@@ -11665,7 +11665,7 @@ int InitSwordAttack(PLAYER* pp)
                     case PACHINKO4:
                     case 623:
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                        PlaySound(DIGI_SWORDCLANK, hit.int_hitpos(), v3df_none);
+                        PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                         break;
                     }
                 }
@@ -11710,7 +11710,7 @@ int InitSwordAttack(PLAYER* pp)
                 else
                 {
                     SpawnSwordSparks(pp, hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                    PlaySound(DIGI_SWORDCLANK, hit.int_hitpos(), v3df_none);
+                    PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                 }
             }
         }
@@ -11817,7 +11817,7 @@ int InitFistAttack(PLAYER* pp)
                     {
                     case ZILLA_RUN_R0:
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                        PlaySound(DIGI_ARMORHIT, hit.int_hitpos(), v3df_none);
+                        PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                         break;
                     case TRASHCAN:
                         if (hitActor->user.WaitTics <= 0)  
@@ -11826,7 +11826,7 @@ int InitFistAttack(PLAYER* pp)
                             ChangeState(hitActor, s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                        PlaySound(DIGI_ARMORHIT, hit.int_hitpos(), v3df_none);
+                        PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                         PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                         break;
                     case PACHINKO1:
@@ -11835,7 +11835,7 @@ int InitFistAttack(PLAYER* pp)
                     case PACHINKO4:
                     case 623:
                         SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                        PlaySound(DIGI_ARMORHIT, hit.int_hitpos(), v3df_none);
+                        PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                         break;
                     }
                 }
@@ -11863,7 +11863,7 @@ int InitFistAttack(PLAYER* pp)
                 case 5063:
                 case 4947:
                     SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                    PlaySound(DIGI_ARMORHIT, hit.int_hitpos(), v3df_none);
+                    PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                     if (RandomRange(1000) > 700)
                         PlayerUpdateHealth(pp,1); // Give some health
                     hitActor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -11893,7 +11893,7 @@ int InitFistAttack(PLAYER* pp)
                 else
                 {
                     SpawnSwordSparks(pp, hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
-                    PlaySound(DIGI_ARMORHIT, hit.int_hitpos(), v3df_none);
+                    PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                     if (PlayerTakeDamage(pp, nullptr))
                     {
                         PlayerUpdateHealth(pp, -(RandomRange(2<<8)>>8));

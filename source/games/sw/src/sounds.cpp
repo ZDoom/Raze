@@ -625,13 +625,13 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(int num, DSWActor* actor, PLAYER* pp, const vec3_t* const ppos, int flags, int channel, EChanFlags cflags)
+int _PlaySound(int num, DSWActor* actor, PLAYER* pp, const DVector3* const ppos, int flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
         return -1;
 
     auto sps = actor;
-    auto pos = ppos ? *ppos : vec3_t(0, 0, 0);
+    auto pos = ppos ? *ppos : DVector3(0, 0, 0);
 
     auto vp = &voc[num];
     int sourcetype = SOURCE_None;
@@ -643,13 +643,13 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, const vec3_t* const ppos, i
     {
         if (actor && !ppos)
         {
-            pos = actor->int_pos();
+            pos = actor->spr.pos;
             actor = nullptr;
             sourcetype = SOURCE_Unattached;
         }
         else if (pp && !ppos)
         {
-            pos = pp->int_ppos();
+            pos = pp->pos;
             pp = nullptr;
             sourcetype = SOURCE_Unattached;
         }
