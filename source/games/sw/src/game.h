@@ -1708,12 +1708,7 @@ inline void getzrangepoint(const DVector3& pos, sectortype* sect, double* hiz, C
 	*loz = lo * zinttoworld;
 }
 
-Collision move_sprite(DSWActor* , int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
-inline Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
-{
-	return move_sprite(actor, change.X * worldtoint, change.Y * worldtoint, change.Z * zworldtoint, ceildist * zworldtoint, flordist * zworldtoint, cliptype, numtics);
-}
-
+Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics);
 Collision move_missile(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics);
 
 

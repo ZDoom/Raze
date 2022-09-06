@@ -6404,7 +6404,7 @@ void SpriteControl(void)
 
 */
 
-Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+inline Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
 {
     Collision retval{};
     double zH;
@@ -6432,7 +6432,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
 
 //    ASSERT(inside(actor->spr.x,actor->spr.y,dasectnum));
-
+	int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
     clipmove(clip_pos, &dasect,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
@@ -6468,7 +6468,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     // Takes info from global variables
     DoActorGlobZ(actor);
 
-    clip_pos.Z = actor->spr.pos.Z + ((zchange * numtics) * 0.125) * inttoworld;
+    clip_pos.Z = actor->spr.pos.Z + ((change.Z * numtics) * 0.125);
 
     // test for hitting ceiling or floor
     if ((clip_pos.Z - zH <= globhiz) || (clip_pos.Z - zH > globloz))
