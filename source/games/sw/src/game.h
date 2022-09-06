@@ -1885,7 +1885,7 @@ void LoadGameDescr(short save_num, char *descr);    // save.c
 void SetRotatorActive(DSWActor* actor); // rotator.c
 
 bool VatorSwitch(short match, short setting); // vator.c
-void MoveSpritesWithSector(sectortype* sect,int z_amt,bool type);  // vator.c
+void MoveSpritesWithSector(sectortype* sect,double z_amt,bool type);  // vator.c
 void SetVatorActive(DSWActor*);   // vator.c
 
 void DoSpikeMatch(short match); // spike.c

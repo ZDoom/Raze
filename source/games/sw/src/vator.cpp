@@ -262,7 +262,7 @@ void InterpSectorSprites(sectortype* sect, bool state)
     }
 }
 
-void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
+void MoveSpritesWithSector(sectortype* sect, double z_amt, bool type)
 {
     bool both = false;
     if ( sect->hasU())
@@ -318,7 +318,7 @@ void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
             }
         }
 
-        actor->add_int_z(z_amt);
+        actor->spr.pos.Z += z_amt;
     }
 }
 
@@ -377,14 +377,14 @@ int DoVator(DSWActor* actor)
         zval = sectp->ceilingz;
         amt = DoVatorMove(actor, &zval);
         sectp->setceilingz(zval);
-        MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
+        MoveSpritesWithSector(actor->sector(), amt * zinttoworld, true); // ceiling
     }
     else
     {
         zval = sectp->floorz;
         amt = DoVatorMove(actor, &zval);
         sectp->setfloorz(zval);
-        MoveSpritesWithSector(actor->sector(), amt, false); // floor
+        MoveSpritesWithSector(actor->sector(), amt * zinttoworld, false); // floor
     }
 
     // EQUAL this entry has finished
@@ -530,14 +530,14 @@ int DoVatorAuto(DSWActor* actor)
         zval = sectp->ceilingz;
         amt = DoVatorMove(actor, &zval);
         sectp->setceilingz(zval);
-        MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
+        MoveSpritesWithSector(actor->sector(), amt * zinttoworld, true); // ceiling
     }
     else
     {
         zval = sectp->floorz;
         amt = DoVatorMove(actor, &zval);
         sectp->setfloorz(zval);
-        MoveSpritesWithSector(actor->sector(), amt, false); // floor
+        MoveSpritesWithSector(actor->sector(), amt * zinttoworld, false); // floor
     }
 
     // EQUAL this entry has finished

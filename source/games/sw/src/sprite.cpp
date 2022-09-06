@@ -1568,7 +1568,7 @@ void PreMapCombineFloors(void)
 
 void SpriteSetupPost(void)
 {
-    int cz,fz;
+    double cz,fz;
 
     // Post processing of some sprites after gone through the main SpriteSetup()
     // routine
@@ -1588,8 +1588,8 @@ void SpriteSetupPost(void)
             if (jActor->hasU())
                 continue;
 
-            getzsofslopeptr(jActor->sector(), jActor->int_pos().X, jActor->int_pos().Y, &cz, &fz);
-            if (abs(jActor->int_pos().Z - fz) > Z(4))
+            getzsofslopeptr(jActor->sector(), jActor->spr.pos, &cz, &fz);
+            if (abs(jActor->spr.pos.Z - fz) > 4)
                 continue;
 
             SpawnUser(jActor, 0, nullptr);
@@ -1614,7 +1614,7 @@ void SpriteSetupPost(void)
 void SpriteSetup(void)
 {
     short num;
-    int cz,fz;
+    double cz,fz;
 
     MinEnemySkill = EnemyCheckSkill();
 
@@ -1643,7 +1643,7 @@ void SpriteSetup(void)
     {
         // not used yetv
         getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
-        if (actor->int_pos().Z > ((cz + fz) >> 1))
+        if (actor->spr.pos.Z > ((cz + fz) * 0.5))
         {
             // closer to a floor
             actor->spr.cstat |= (CSTAT_SPRITE_CLOSE_FLOOR);
@@ -1929,7 +1929,7 @@ void SpriteSetup(void)
                     if (TEST_BOOL1(actor))
                         actor->vel.X = 0;
                     else
-                        actor->set_int_xvel(actor->spr.lotag);
+                        actor->vel.X = actor->spr.lotag * maptoworld;
                     StartInterpolation(actor->sector(), Interp_Sect_CeilingPanX);
                     StartInterpolation(actor->sector(), Interp_Sect_CeilingPanY);
                     change_actor_stat(actor, STAT_CEILING_PAN);
@@ -1938,11 +1938,8 @@ void SpriteSetup(void)
 
                 case SECT_WALL_PAN_SPEED:
                 {
-                    vec3_t hit_pos = { actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(8) };
                     HitInfo hit{};
-
-                    hitscan(hit_pos, actor->sector(),    // Start position
-                        { bcos(actor->int_ang()), bsin(actor->int_ang()), 0 }, hit, CLIPMASK_MISSILE);
+                    hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
                     if (hit.hitWall == nullptr)
                     {
@@ -1967,11 +1964,8 @@ void SpriteSetup(void)
 
                 case WALL_DONT_STICK:
                 {
-                    vec3_t hit_pos = { actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - Z(8) };
-                    HitInfo hit{};
-
-                    hitscan(hit_pos, actor->sector(),    // Start position
-                        { bcos(actor->int_ang()), bsin(actor->int_ang()), 0 }, hit, CLIPMASK_MISSILE);
+					HitInfo hit{};
+					hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
                     if (hit.hitWall == nullptr)
                     {
@@ -2041,7 +2035,7 @@ void SpriteSetup(void)
                 case QUAKE_SPOT:
                 {
                     change_actor_stat(actor, STAT_QUAKE_SPOT);
-                    SET_SP_TAG13(actor, ((SP_TAG6(actor)*10L) * 120L));
+                    SET_SP_TAG13(actor, ((SP_TAG6(actor)*10) * 120));
                     break;
                 }
 
@@ -2130,7 +2124,7 @@ void SpriteSetup(void)
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
-                            int amt = actor->int_pos().Z - sectp->int_floorz();
+                            double amt = actor->spr.pos.Z - sectp->floorz;
 
                             // start in the on position
                             sectp->setfloorz(actor->spr.pos.Z);
@@ -2150,8 +2144,7 @@ void SpriteSetup(void)
                         actor->user.z_tgt = actor->spr.pos.Z;
                         if (start_on)
                         {
-                            int amt;
-                            amt = actor->int_pos().Z - sectp->int_ceilingz();
+                            double amt = actor->spr.pos.Z - sectp->ceilingz;
 
                             // starting in the on position
                             sectp->setceilingz(actor->spr.pos.Z);
@@ -2283,7 +2276,7 @@ void SpriteSetup(void)
                 case SECT_SPIKE:
                 {
                     short speed,vel,time,type,start_on,floor_vator;
-                    int florz,ceilz;
+                    double florz,ceilz;
                     Collision trash;
                     SpawnUser(actor, 0, nullptr);
 
@@ -2325,11 +2318,11 @@ void SpriteSetup(void)
                         break;
                     }
 
-                    getzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), &ceilz, &trash, &florz, &trash);
+                    getzrangepoint(actor->spr.pos, actor->sector(), &ceilz, &trash, &florz, &trash);
 
                     if (floor_vator)
                     {
-                        actor->user.zclip = florz * zinttoworld;
+                        actor->user.zclip = florz;
 
                         // start off
                         actor->user.pos.Z = actor->user.zclip;
@@ -2348,7 +2341,7 @@ void SpriteSetup(void)
                     }
                     else
                     {
-                        actor->user.zclip = ceilz * zinttoworld;
+                        actor->user.zclip = ceilz;
 
                         // start off
                         actor->user.pos.Z = actor->user.zclip;
@@ -2660,7 +2653,7 @@ void SpriteSetup(void)
                     {
                         if (itActor->spr.hitag == actor->spr.hitag && itActor->spr.lotag == actor->spr.lotag)
                         {
-                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", actor->int_pos().X, actor->int_pos().Y, itActor->int_pos().X, itActor->int_pos().Y);
+                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", int(actor->spr.pos.X), int(actor->spr.pos.Y), int(itActor->spr.pos.X), int(itActor->spr.pos.Y));
                         }
                     }
                     change_actor_stat(actor, STAT_FAF);
