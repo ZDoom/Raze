@@ -128,7 +128,7 @@ void SpawnMicroExp(DSWActor*);
 void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, double upper_zsize, double lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& pos, short ID);
 int SpawnSplashXY(int hit_x,int hit_y,int hit_z,sectortype*);
-DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
+DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang);
 
 short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
 {
@@ -12442,13 +12442,11 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->user.WaitTics = 0;
 }
 
-int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang, int xvect, int yvect, int zvect)
+int ContinueHitscan(PLAYER* pp, sectortype* sect, const DVector3& start, DAngle ang, const DVector3& vect)
 {
     HitInfo hit{};
     DSWActor* actor = pp->actor;
 
-    DVector3 start(x * inttoworld, y * inttoworld, z * zmaptoworld);
-    DVector3 vect(xvect * inttoworld, yvect * inttoworld, zvect * zmaptoworld);
     FAFhitscan(start, sect, vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
@@ -12482,7 +12480,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
 
         if (hit.hitWall->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(hit.hitWall, hit.hitpos, DAngle::fromBuild(ang), actor->user.ID);
+            HitBreakWall(hit.hitWall, hit.hitpos, ang, actor->user.ID);
             return 0;
         }
 
@@ -12516,7 +12514,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, int x, int y, int z, short ang
         }
     }
 
-    auto j = SpawnShotgunSparks(pp, hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, ang);
+    auto j = SpawnShotgunSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, ang);
     DoHitscanDamage(j, hit.actor());
 
     return 0;
@@ -12601,7 +12599,7 @@ int InitShotgun(PLAYER* pp)
                 if (SectorIsUnderwaterArea(hit.hitSector))
                 {
                     WarpToSurface(hit.hitpos, &hit.hitSector);
-                    ContinueHitscan(pp, hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, ndaang, xvect, yvect, zvect);
+                    ContinueHitscan(pp, hit.hitSector, hit.hitpos, DAngle::fromBuild(ndaang), vect);
                     continue;
                 }
             }
@@ -12614,7 +12612,7 @@ int InitShotgun(PLAYER* pp)
                     if (SectorIsDiveArea(hit.hitSector))
                     {
 						WarpToUnderwater(hit.hitpos, &hit.hitSector);
-                        ContinueHitscan(pp, hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, ndaang, xvect, yvect, zvect);
+						ContinueHitscan(pp, hit.hitSector, hit.hitpos, DAngle::fromBuild(ndaang), vect);
                     }
 
                     continue;
@@ -12683,7 +12681,7 @@ int InitShotgun(PLAYER* pp)
             }
         }
 
-        auto j = SpawnShotgunSparks(pp, hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, ndaang);
+        auto j = SpawnShotgunSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, DAngle::fromBuild(ndaang));
         DoHitscanDamage(j, hit.actor());
     }
 
@@ -14697,7 +14695,7 @@ int InitUzi(PLAYER* pp)
             if (SectorIsUnderwaterArea(hit.hitSector))
             {
 				WarpToSurface(hit.hitpos, &hit.hitSector);
-                ContinueHitscan(pp, hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, xvect, yvect, zvect);
+				ContinueHitscan(pp, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), vect);
                 return 0;
             }
         }
@@ -14710,7 +14708,7 @@ int InitUzi(PLAYER* pp)
                 if (SectorIsDiveArea(hit.hitSector))
                 {
 					WarpToUnderwater(hit.hitpos, &hit.hitSector);
-                    ContinueHitscan(pp, hit.hitSector, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang, xvect, yvect, zvect);
+					ContinueHitscan(pp, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), vect);
                     return 0;
                 }
 
@@ -15171,7 +15169,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
         if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
-            spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+            spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, DAngle::fromBuild(daang));
             spark->user.Flags2 |= SPR2_SO_MISSILE;
             if (MissileHitMatch(spark, -1, hit.actor()))
                 return 0;
@@ -15194,7 +15192,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
         }
     }
 
-    spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+    spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, DAngle::fromBuild(daang));
     DoHitscanDamage(spark, hit.actor());
 
     return 0;
@@ -15306,9 +15304,9 @@ int InitSobjGun(PLAYER* pp)
     return 0;
 }
 
-DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
@@ -15323,7 +15321,7 @@ DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, 
 
     HitscanSpriteAdjust(actorNew, hit_wall);
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
 
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT + 10;
@@ -15378,9 +15376,9 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const
     return 0;
 }
 
-DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
@@ -15393,7 +15391,7 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, int hit_x,
     actorNew->spr.clipdist = 32 >> 2;
     HitscanSpriteAdjust(actorNew, hit_wall);
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
 
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT + 10;
@@ -15410,9 +15408,9 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, int hit_x,
     return actorNew;
 }
 
-DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
 
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
@@ -15425,7 +15423,7 @@ DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wal
 
     HitscanSpriteAdjust(actorNew, hit_wall);
 
-    actorNew = SpawnActor(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    actorNew = SpawnActor(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.xrepeat = SHOTGUN_SMOKE_REPEAT;
     actorNew->spr.yrepeat = SHOTGUN_SMOKE_REPEAT;
     SetOwner(pp->actor, actorNew);
@@ -15596,7 +15594,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
             }
 
 
-            auto j = SpawnTurretSparks(hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+            auto j = SpawnTurretSparks(hit.hitSector, hit.hitWall, hit.hitpos, DAngle::fromBuild(daang));
             DoHitscanDamage(j, hit.actor());
         }
     }
