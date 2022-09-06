@@ -49,7 +49,6 @@ fixedhoriz nCamerapan;
 int nViewTop;
 bool bCamera = false;
 
-int viewz;
 
 
 // We cannot drag these through the entire event system... :(
@@ -181,9 +180,6 @@ void DrawView(double smoothRatio, bool sceneonly)
 {
     DExhumedActor* pEnemy = nullptr;
     int nEnemyPal = -1;
-    int playerX;
-    int playerY;
-    int playerZ;
     sectortype* pSector = nullptr;
     DAngle nAngle, rotscrnang;
     fixedhoriz pan = {};
@@ -199,9 +195,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     {
         DExhumedActor* pActor = SnakeList[nSnakeCam].pSprites[0];
 
-        playerX = pActor->int_pos().X;
-        playerY = pActor->int_pos().Y;
-        playerZ = pActor->int_pos().Z;
+        nCamera = pActor->spr.pos;
         pSector = pActor->sector();
         nAngle = pActor->spr.angle;
         rotscrnang = nullAngle;
@@ -222,12 +216,10 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
     else
     {
-        playerX = pPlayerActor->__interpolatedx(smoothRatio);
-        playerY = pPlayerActor->__interpolatedy(smoothRatio);
-        playerZ = pPlayerActor->__interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
+        nCamera = pPlayerActor->interpolatedvec3(smoothRatio * (1. / MaxSmoothRatio)).plusZ(interpolatedvaluef(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio) * zinttoworld);
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
-        updatesector(playerX, playerY, &pSector);
+        updatesector(nCamera, &pSector);
         if (pSector == nullptr) pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
 
         if (!SyncInput())
@@ -261,42 +253,35 @@ void DrawView(double smoothRatio, bool sceneonly)
     if (nSnakeCam >= 0 && !sceneonly)
     {
         pan = q16horiz(0);
-        viewz = playerZ;
     }
     else
     {
-        viewz = playerZ + nQuake[nLocalPlayer];
-        int floorZ = pPlayerActor->sector()->int_floorz();
-
-        if (viewz > floorZ)
-            viewz = floorZ;
-
+        nCamera.Z = min(nCamera.Z + nQuake[nLocalPlayer] * zinttoworld, pPlayerActor->sector()->floorz);
         nCameraa += DAngle::fromBuild((nQuake[nLocalPlayer] >> 7) % 31);
 
         if (bCamera)
         {
-            viewz -= 2560;
-            if (!calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerActor, &pSector, nAngle, pan, smoothRatio))
+            nCamera.Z -= 10;
+            if (!calcChaseCamPos(nCamera, pPlayerActor, &pSector, nAngle, pan, smoothRatio))
             {
-                viewz += 2560;
-                calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerActor, &pSector, nAngle, pan, smoothRatio);
+                nCamera.Z += 10;
+                calcChaseCamPos(nCamera, pPlayerActor, &pSector, nAngle, pan, smoothRatio);
             }
         }
     }
-    nCamera = DVector3(playerX * inttoworld, playerY * inttoworld, playerZ * zinttoworld);
 
     if (pSector != nullptr)
     {
-        int Z = pSector->int_ceilingz() + 256;
-        if (Z <= viewz)
+        double Z = pSector->ceilingz + 1;
+        if (Z <= nCamera.Z)
         {
-            Z = pSector->int_floorz() - 256;
+            Z = pSector->floorz - 1;
 
-            if (Z < viewz)
-                viewz = Z;
+            if (Z < nCamera.Z)
+                nCamera.Z = Z;
         }
         else {
-            viewz = Z;
+            nCamera.Z = Z;
         }
     }
 
@@ -305,7 +290,6 @@ void DrawView(double smoothRatio, bool sceneonly)
     if (nFreeze == 2 || nFreeze == 1)
     {
         nSnakeCam = -1;
-        //???
         viewport3d = { 0, 0, screen->GetWidth(), screen->GetHeight() };
     }
 
@@ -336,7 +320,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(smoothRatio);
-        render_drawrooms(nullptr, vec3_t( int(nCamera.X * worldtoint), int(nCamera.Y * worldtoint), viewz ), sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
+        render_drawrooms(nullptr, nCamera, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
 
         if (HavePLURemap())
         {
@@ -456,7 +440,6 @@ void SerializeView(FSerializer& arc)
             ("cameraa", nCameraa)
             ("camerapan", nCamerapan)
             ("camera", bCamera)
-            ("viewz", viewz)
             .Array("vertpan", dVertPan, countof(dVertPan))
             .Array("quake", nQuake, countof(nQuake))
             .EndObject();
