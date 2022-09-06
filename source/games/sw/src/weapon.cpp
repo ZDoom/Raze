@@ -127,7 +127,7 @@ void SpawnTankShellExp(DSWActor*);
 void SpawnMicroExp(DSWActor*);
 void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, double upper_zsize, double lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& pos, short ID);
-int SpawnSplashXY(int hit_x,int hit_y,int hit_z,sectortype*);
+int SpawnSplashXY(const DVector3& pos, sectortype*);
 DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang);
 
 short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
@@ -12607,7 +12607,7 @@ int InitShotgun(PLAYER* pp)
             {
                 if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                 {
-                    SpawnSplashXY(hit.int_hitpos().X,hit.int_hitpos().Y,hit.int_hitpos().Z,hit.hitSector);
+                    SpawnSplashXY(hit.hitpos, hit.hitSector);
 
                     if (SectorIsDiveArea(hit.hitSector))
                     {
@@ -14703,7 +14703,7 @@ int InitUzi(PLAYER* pp)
         {
             if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hit.int_hitpos().X,hit.int_hitpos().Y,hit.int_hitpos().Z,hit.hitSector);
+				SpawnSplashXY(hit.hitpos, hit.hitSector);
 
                 if (SectorIsDiveArea(hit.hitSector))
                 {
@@ -15155,7 +15155,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
         {
             if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hit.int_hitpos().X,hit.int_hitpos().Y,hit.int_hitpos().Z,hit.hitSector);
+				SpawnSplashXY(hit.hitpos, hit.hitSector);
                 return 0;
             }
         }
@@ -15537,7 +15537,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                 {
                     if ((hit.hitSector->extra & SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                     {
-                        SpawnSplashXY(hit.int_hitpos().X,hit.int_hitpos().Y,hit.int_hitpos().Z,hit.hitSector);
+						SpawnSplashXY(hit.hitpos, hit.hitSector);
                         continue;
                     }
                 }
@@ -16444,7 +16444,7 @@ int SpawnSplash(DSWActor* actor)
     return 0;
 }
 
-int SpawnSplashXY(int hit_x, int hit_y, int hit_z, sectortype* sectp)
+int SpawnSplashXY(const DVector3& pos, sectortype* sectp)
 {
     if (Prediction)
         return 0;
@@ -16455,7 +16455,7 @@ int SpawnSplashXY(int hit_x, int hit_y, int hit_z, sectortype* sectp)
     if (sectp->hasU() && (sectp->floorstat & CSTAT_SECTOR_SKY))
         return 0;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sectp, hit_x, hit_y, hit_z, 0, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sectp, pos, nullAngle, 0);
 
     if (sectp->hasU() && (sectp->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         actorNew->user.spal = actorNew->spr.pal = PALETTE_RED_LIGHTING;
