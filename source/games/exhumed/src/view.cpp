@@ -336,7 +336,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(smoothRatio);
-        render_drawrooms(nullptr, { int(nCamera.X * worldtoint), int(nCamera.Y * worldtoint), viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
+        render_drawrooms(nullptr, vec3_t( int(nCamera.X * worldtoint), int(nCamera.Y * worldtoint), viewz ), sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
 
         if (HavePLURemap())
         {

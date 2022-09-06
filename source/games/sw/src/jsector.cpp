@@ -410,7 +410,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 
     screen->RenderTextureView(canvas, [=](IntRect& rect)
         {
-               render_camtex(nullptr, { daposx, daposy, daposz }, dacursect, ang, horiz, nullAngle, tileGetTexture(tilenume), rect, smoothratio);
+               render_camtex(nullptr, vec3_t( daposx, daposy, daposz ), dacursect, ang, horiz, nullAngle, tileGetTexture(tilenume), rect, smoothratio);
         });
 
 }

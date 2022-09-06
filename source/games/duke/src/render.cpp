@@ -62,7 +62,7 @@ BEGIN_DUKE_NS
 void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, DAngle a, fixedhoriz h, DAngle rotscrnang, double smoothratio, bool sceneonly, float fov)
 {
 	if (!sceneonly) drawweapon(smoothratio);
-	render_drawrooms(playersprite, { x, y, z }, sectnum(sect), a, h, rotscrnang, smoothratio, fov);
+	render_drawrooms(playersprite, vec3_t( x, y, z ), sectnum(sect), a, h, rotscrnang, smoothratio, fov);
 }
 
 //---------------------------------------------------------------------------

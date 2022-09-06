@@ -1480,7 +1480,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
     if (!sceneonly) UpdatePanel(smoothratio);
     UpdateWallPortalState();
-    render_drawrooms(pp->actor, { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
+    render_drawrooms(pp->actor, vec3_t( tx, ty, tz ), sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
     RestorePortalState();
 
     if (sceneonly)
