@@ -747,6 +747,12 @@ ACTOR_ACTION_SET ZombieActionSet =
     nullptr
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SetupZombie(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
@@ -768,6 +774,12 @@ int SetupZombie(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnZombie(PLAYER* pp, DSWActor* weaponActor)
 {
@@ -796,6 +808,12 @@ void SpawnZombie(PLAYER* pp, DSWActor* weaponActor)
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(actorNew);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnZombie2(DSWActor* actor)
 {
@@ -843,6 +861,12 @@ void SpawnZombie2(DSWActor* actor)
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(actorNew);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoZombieMove(DSWActor* actor)
 {
@@ -895,6 +919,12 @@ int DoZombieMove(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int NullZombie(DSWActor* actor)
 {
     if (actor->user.Counter3++ >= ZOMBIE_TIME_LIMIT)
@@ -928,6 +958,12 @@ int NullZombie(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoZombiePain(DSWActor* actor)
 {
     NullZombie(actor);
@@ -937,6 +973,12 @@ int DoZombiePain(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 
 #include "saveable.h"
