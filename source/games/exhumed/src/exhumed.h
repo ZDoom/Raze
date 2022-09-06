@@ -236,7 +236,7 @@ struct GameInterface : public ::GameInterface
     int playerKeyMove() override { return 6; }
     void WarpToCoords(double x, double y, double z, DAngle ang, int horz) override;
     void ToggleThirdPerson() override;
-    vec3_t chaseCamPos(DAngle ang, fixedhoriz horiz) { return vec3_t(int(-ang.Cos() * 1536.), int(-ang.Sin() * 1536.), (horiz.asq16() * 3) >> 10); }
+    DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 96., horiz.asbuildf() * 0.75); }
     void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio) override;
     int GetCurrentSkill() override;
     std::pair<DVector3, DAngle> GetCoordinates() override;

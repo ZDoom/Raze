@@ -2028,7 +2028,7 @@ struct GameInterface : public ::GameInterface
     void WarpToCoords(double x, double y, double z, DAngle ang, int horz) override;
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
-    vec3_t chaseCamPos(DAngle ang, fixedhoriz horiz) { return vec3_t(int(-ang.Cos() * 2048.), int(-ang.Sin() * 2048.), horiz.asq16() >> 8); }
+    DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 128., horiz.asbuildf()); }
     void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(DCoreActor* viewer, int type) override;

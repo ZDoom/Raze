@@ -44,7 +44,8 @@ bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* act, sectortype** ps
 
 	if (!*psect) return false;
 	// Calculate new pos to shoot backwards, using averaged values from the big three.
-	vec3_t np = gi->chaseCamPos(ang, horiz);
+	DVector3 npos = gi->chaseCamPos(ang, horiz);
+	vec3_t np = {int(npos.X * worldtoint), int(npos.Y * worldtoint), int(npos.Z * zworldtoint)};
 
 	auto bakcstat = act->spr.cstat;
 	act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
