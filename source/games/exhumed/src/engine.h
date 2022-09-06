@@ -103,7 +103,7 @@ extern bool bShowTowers;
 
 void GrabMap();
 void UpdateMap();
-void DrawMap(double const smoothratio);
+void DrawMap(double const interpfrac);
 
 // random
 

@@ -44,13 +44,13 @@ void UpdateMap()
     }
 }
 
-void DrawMap(double const smoothratio)
+void DrawMap(double const interpfrac)
 {
     if (!nFreeze && automapMode != am_off) 
     {
         auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
-        auto ang = !SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-        DrawOverheadMap(pPlayerActor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio)).XY(), ang, smoothratio);
+        auto ang = !SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(interpfrac);
+        DrawOverheadMap(pPlayerActor->interpolatedvec3(interpfrac).XY(), ang, interpfrac * MaxSmoothRatio);
     }
 }
 

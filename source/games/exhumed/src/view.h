@@ -26,7 +26,7 @@ extern TObjPtr<DExhumedActor*> bestTarget;
 extern bool bCamera;
 
 void DrawStatusBar();
-void DrawView(double smoothRatio, bool sceneonly = false);
+void DrawView(double interpfrac, bool sceneonly = false);
 void ResetView();
 void NoClip();
 void Clip();

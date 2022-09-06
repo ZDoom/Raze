@@ -57,7 +57,7 @@ int nBestLevel;
 void RunCinemaScene(int num);
 void GameMove(void);
 void DrawClock();
-double calc_smoothratio();
+double calc_interpfrac();
 void DoTitle(CompletionFunc completion);
 
 
@@ -73,15 +73,15 @@ void GameInterface::Render()
         DrawClock();
     }
 
-    double const smoothratio = calc_smoothratio();
+    double const interpfrac = calc_interpfrac();
 
 
 
-    DrawView(smoothratio);
+    DrawView(interpfrac);
     if (nFreeze != 2) // Hide when Ramses is talking.
     {
         DrawStatusBar();
-        DrawCrosshair(kCrosshairTile, PlayerList[nLocalPlayer].nHealth >> 3, -PlayerList[nLocalPlayer].angle.look_anghalf(smoothratio), 0, 1);
+        DrawCrosshair(kCrosshairTile, PlayerList[nLocalPlayer].nHealth >> 3, -PlayerList[nLocalPlayer].angle.look_anghalf(interpfrac), 0, 1);
 
         if (paused && !M_Active())
         {

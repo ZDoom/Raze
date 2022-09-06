@@ -245,12 +245,9 @@ void DrawClock()
     DoEnergyTile();
 }
 
-double calc_smoothratio()
+double calc_interpfrac()
 {
-    if (bRecord || bPlayback || nFreeze != 0 || paused || cl_capfps || !cl_interpolate || EndLevel)
-        return MaxSmoothRatio;
-
-    return I_GetTimeFrac() * MaxSmoothRatio;
+    return bRecord || bPlayback || nFreeze != 0 || paused || cl_capfps || !cl_interpolate || EndLevel ? 1. : I_GetTimeFrac();
 }
 
 void DoGameOverScene(bool finallevel)

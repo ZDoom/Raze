@@ -174,15 +174,15 @@ void ResetView()
 
 static TextOverlay subtitleOverlay;
 
-void DrawView(double smoothRatio, bool sceneonly)
+void DrawView(double interpfrac, bool sceneonly)
 {
     DExhumedActor* pEnemy = nullptr;
     int nEnemyPal = -1;
     sectortype* pSector = nullptr;
     DAngle nCameraa, rotscrnang;
-    fixedhoriz nCamerapan;
+    fixedhoriz nCamerapan = q16horiz(0);
 
-    DoInterpolations(smoothRatio * (1. / MaxSmoothRatio));
+    DoInterpolations(interpfrac);
 
     auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
     auto nPlayerOldCstat = pPlayerActor->spr.cstat;
@@ -214,7 +214,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
     else
     {
-        nCamera = pPlayerActor->interpolatedvec3(smoothRatio * (1. / MaxSmoothRatio)).plusZ(interpolatedvaluef(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio) * zinttoworld);
+        nCamera = pPlayerActor->interpolatedvec3(interpfrac).plusZ(interpolatedvaluef(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac * MaxSmoothRatio) * zinttoworld);
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
         updatesector(nCamera, &pSector);
@@ -228,9 +228,9 @@ void DrawView(double smoothRatio, bool sceneonly)
         }
         else
         {
-            nCamerapan = PlayerList[nLocalPlayer].horizon.interpolatedsum(smoothRatio);
-            nCameraa = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio * (1. / MaxSmoothRatio));
-            rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio * (1. / MaxSmoothRatio));
+            nCamerapan = PlayerList[nLocalPlayer].horizon.interpolatedsum(interpfrac * MaxSmoothRatio);
+            nCameraa = PlayerList[nLocalPlayer].angle.interpolatedsum(interpfrac);
+            rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(interpfrac);
         }
 
         if (!bCamera)
@@ -258,10 +258,10 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (bCamera)
         {
             nCamera.Z -= 10;
-            if (!calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraa, nCamerapan, smoothRatio))
+            if (!calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraa, nCamerapan, interpfrac * MaxSmoothRatio))
             {
                 nCamera.Z += 10;
-                calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraa, nCamerapan, smoothRatio);
+                calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraa, nCamerapan, interpfrac * MaxSmoothRatio);
             }
         }
     }
@@ -303,8 +303,8 @@ void DrawView(double smoothRatio, bool sceneonly)
         }
 
         if (!nFreeze && !sceneonly)
-            DrawWeapons(smoothRatio);
-        render_drawrooms(nullptr, nCamera, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
+            DrawWeapons(interpfrac * MaxSmoothRatio);
+        render_drawrooms(nullptr, nCamera, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, interpfrac * MaxSmoothRatio);
 
         if (HavePLURemap())
         {
@@ -369,7 +369,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         {
             if (nSnakeCam < 0)
             {
-                DrawMap(smoothRatio);
+                DrawMap(interpfrac);
             }
             else
             {
@@ -378,7 +378,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                     pEnemy->spr.pal = (uint8_t)nEnemyPal;
                 }
 
-                DrawMap(smoothRatio);
+                DrawMap(interpfrac);
             }
         }
     }
