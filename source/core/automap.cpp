@@ -558,7 +558,7 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 	{
 		if (!gFullMap && !(actor->spr.cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
 		DVector2 pp[4];
-		GetFlatSpritePosition(actor, actor->spr.pos.XY(), pp, true);
+		GetFlatSpritePosition(actor, actor->spr.pos.XY(), pp, nullptr, true);
 
 		for (unsigned j = 0; j < 4; j++)
 		{

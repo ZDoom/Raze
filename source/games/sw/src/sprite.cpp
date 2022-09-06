@@ -4417,25 +4417,22 @@ bool SpriteOverlapZ(DSWActor* actor_a, DSWActor* actor_b, double z_overlap)
 //
 //---------------------------------------------------------------------------
 
-void getzrangepoint(int x, int y, int z, sectortype* sect,
-               int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit)
+void getzrangepoint(const DVector3& pos, sectortype* sect,
+               double* ceil_z, Collision* ceilhit, double* flor_z, Collision* florhit)
 {
-    int j, k, l, dax, day, daz, xspan, yspan, xoff, yoff;
-    int x1, y1, x2, y2, x3, y3, x4, y4, cosang, sinang, tilenum;
     short cstat;
-    uint8_t clipyou;
 
     if (sect == nullptr)
     {
-        *ceilz = 0x80000000;
+        *ceil_z = 0x800000;
 
-        *florz = 0x7fffffff;
+        *flor_z = 0x7fffff;
         florhit->invalidate();
         return;
     }
 
     // Initialize z's and hits to the current sector's top&bottom
-    getzsofslopeptr(sect, x, y, ceilz, florz);
+    getzsofslopeptr(sect, pos, ceil_z, flor_z);
     ceilhit->setSector(sect);
     florhit->setSector(sect);
 
@@ -4447,94 +4444,30 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
         if ((cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_BLOCK)) != (CSTAT_SPRITE_ALIGNMENT_FLOOR|CSTAT_SPRITE_BLOCK))
             continue;                   // Only check blocking floor sprites
 
-        daz = itActor->int_pos().Z;
+		double fdaz = itActor->spr.pos.Z; // todo: consider slope sprites here.
 
         // Only check if sprite's 2-sided or your on the 1-sided side
-        if (((cstat & CSTAT_SPRITE_ONE_SIDE) != 0) && ((z > daz) == ((cstat & CSTAT_SPRITE_YFLIP) == 0)))
+        if (((cstat & CSTAT_SPRITE_ONE_SIDE) != 0) && ((pos.Z > fdaz) == ((cstat & CSTAT_SPRITE_YFLIP) == 0)))
             continue;
 
-        // Calculate and store centering offset information into xoff&yoff
-        tilenum = itActor->spr.picnum;
-        xoff = (int)tileLeftOffset(tilenum) + (int)itActor->spr.xoffset;
-        yoff = (int)tileTopOffset(tilenum) + (int)itActor->spr.yoffset;
-        if (cstat & CSTAT_SPRITE_XFLIP)
-            xoff = -xoff;
-        if (cstat & CSTAT_SPRITE_YFLIP)
-            yoff = -yoff;
-
-        // Calculate all 4 points of the floor sprite.
-        // (x1,y1),(x2,y2),(x3,y3),(x4,y4)
-        // These points will already have (x,y) subtracted from them
-        // [MR] Note, formula here appears identical to that of `DrawAutomapAlignmentFloor()`.
-        // Consider looking there when refactoring.
-        cosang = bcos(itActor->int_ang());
-        sinang = bsin(itActor->int_ang());
-        xspan = tileWidth(tilenum);
-        dax = ((xspan >> 1) + xoff) * itActor->spr.xrepeat;
-        yspan = tileHeight(tilenum);
-        day = ((yspan >> 1) + yoff) * itActor->spr.yrepeat;
-        x1 = itActor->int_pos().X + DMulScale(sinang, dax, cosang, day, 16) - x;
-        y1 = itActor->int_pos().Y + DMulScale(sinang, day, -cosang, dax, 16) - y;
-        l = xspan * itActor->spr.xrepeat;
-        x2 = x1 - MulScale(sinang, l, 16);
-        y2 = y1 + MulScale(cosang, l, 16);
-        l = yspan * itActor->spr.yrepeat;
-        k = -MulScale(cosang, l, 16);
-        x3 = x2 + k;
-        x4 = x1 + k;
-        k = -MulScale(sinang, l, 16);
-        y3 = y2 + k;
-        y4 = y1 + k;
-
-        // Check to see if point (0,0) is inside the 4 points by seeing if
-        // the number of lines crossed as a line is shot outward is odd
-        clipyou = 0;
-        if ((y1 ^ y2) < 0)              // If y1 and y2 have different signs
-        // (- / +)
-        {
-            if ((x1 ^ x2) < 0)
-                clipyou ^= (x1 * y2 < x2 * y1) ^ (y1 < y2);
-            else if (x1 >= 0)
-                clipyou ^= 1;
-        }
-        if ((y2 ^ y3) < 0)
-        {
-            if ((x2 ^ x3) < 0)
-                clipyou ^= (x2 * y3 < x3 * y2) ^ (y2 < y3);
-            else if (x2 >= 0)
-                clipyou ^= 1;
-        }
-        if ((y3 ^ y4) < 0)
-        {
-            if ((x3 ^ x4) < 0)
-                clipyou ^= (x3 * y4 < x4 * y3) ^ (y3 < y4);
-            else if (x3 >= 0)
-                clipyou ^= 1;
-        }
-        if ((y4 ^ y1) < 0)
-        {
-            if ((x4 ^ x1) < 0)
-                clipyou ^= (x4 * y1 < x1 * y4) ^ (y4 < y1);
-            else if (x4 >= 0)
-                clipyou ^= 1;
-        }
-        if (clipyou == 0)
-            continue;                   // Point is not inside, don't clip
-
+		DVector2 out[4];
+		GetFlatSpritePosition(itActor, itActor->spr.pos.XY(), out);
+		if (!insidePoly(pos.X, pos.Y, out, 4)) continue;
+		
         // Clipping time!
-        if (z > daz)
+        if (pos.Z > fdaz)
         {
-            if (daz > *ceilz)
+            if (fdaz > *ceil_z)
             {
-                *ceilz = daz;
+                *ceil_z = fdaz;
                 ceilhit->setSprite(itActor);
             }
         }
         else
         {
-            if (daz < *florz)
+            if (fdaz < *flor_z)
             {
-                *florz = daz;
+                *flor_z = fdaz;
                 florhit->setSprite(itActor);
             }
         }

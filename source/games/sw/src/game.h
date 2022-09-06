@@ -1635,15 +1635,7 @@ short AnimSetVelAdj(short anim_ndx, double vel_adj);
 
 void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* person);
 
-void getzrangepoint(int x, int y, int z, sectortype* sect, int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit);
-
-inline void getzrangepoint(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit)
-{
-	int32_t hi, lo;
-	getzrangepoint(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), sect, &hi, ceilhit, &lo, florhit);
-	*hiz = hi * zinttoworld;
-	*loz = lo * zinttoworld;
-}
+void getzrangepoint(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit);
 
 Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics);
 Collision move_missile(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics);

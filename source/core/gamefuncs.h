@@ -267,7 +267,7 @@ int getslopeval(sectortype* sect, int x, int y, int z, int planez);
 
 void setWallSectors();
 void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVector2* out, bool render = false);
-void GetFlatSpritePosition(DCoreActor* spr, const DVector2& pos, DVector2* out, bool render = false);
+void GetFlatSpritePosition(DCoreActor* spr, const DVector2& pos, DVector2* out, double* outz = nullptr, bool render = false);
 void GetFlatSpritePosition(const tspritetype* spr, const DVector2& pos, DVector2* out, double* outz, bool render = false);
 
 enum class EClose
@@ -284,6 +284,7 @@ bool sectorsConnected(int sect1, int sect2);
 [[deprecated]] void dragpoint(walltype* wal, int newx, int newy);
 void dragpoint(walltype* wal, const DVector2& pos);
 int32_t inside(double x, double y, const sectortype* sect);
+int insidePoly(double x, double y, const DVector2* points, int count);
 void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
 int getceilzofslopeptr(const sectortype* sec, int dax, int day);
 int getflorzofslopeptr(const sectortype* sec, int dax, int day);

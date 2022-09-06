@@ -371,9 +371,9 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 }
 
 
-void GetFlatSpritePosition(DCoreActor* actor, const DVector2& pos, DVector2* out, bool render)
+void GetFlatSpritePosition(DCoreActor* actor, const DVector2& pos, DVector2* out, double* outz, bool render)
 {
-	TGetFlatSpritePosition(&actor->spr, pos, out, nullptr, spriteGetSlope(actor), render);
+	TGetFlatSpritePosition(&actor->spr, pos, out, outz, spriteGetSlope(actor), render);
 }
 
 void GetFlatSpritePosition(const tspritetype* spr, const DVector2& pos, DVector2* out, double* outz, bool render)
@@ -526,6 +526,39 @@ int inside(double x, double y, const sectortype* sect)
 		return acc < 0;
 	}
 	return -1;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+int insidePoly(double x, double y, const DVector2* points, int count)
+{
+	int64_t acc = 1;
+	for (int i = 0; i < count; i++)
+	{
+		int j = (i + 1) % count;
+		// Perform the checks here in 48.16 fixed point.
+		// Doing it directly with floats and multiplications does not work reliably.
+		// Unfortunately, due to the conversions, this is a bit slower. :(
+		int64_t xs = int64_t(0x10000 * (points[i].X - x));
+		int64_t ys = int64_t(0x10000 * (points[i].Y - y));
+		int64_t xe = int64_t(0x10000 * (points[j].X - x));
+		int64_t ye = int64_t(0x10000 * (points[j].Y - y));
+		
+		if ((ys ^ ye) < 0)
+		{
+			int64_t val;
+			
+			if ((xs ^ xe) >= 0) val = xs;
+			else val = ((xs * ye) - xe * ys) ^ ye;
+			acc ^= val;
+		}
+	}
+	return acc < 0;
+	
 }
 
 //==========================================================================
