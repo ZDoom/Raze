@@ -1019,7 +1019,7 @@ int DoRipper2MoveHang(DSWActor* actor)
             short w, nw;
 
             // Don't keep clinging and going ever higher!
-            if (abs(actor->int_pos().Z - actor->user.targetActor->int_pos().Z) > (4000<<4))
+            if (abs(actor->spr.pos.Z - actor->user.targetActor->spr.pos.Z) > 250)
                 return 0;
 
             NewStateGroup(actor, actor->user.ActorActionSet->Special[1]);
@@ -1029,7 +1029,7 @@ int DoRipper2MoveHang(DSWActor* actor)
                 actor->user.WaitTics = 0; // Double jump
 
             // hang flush with the wall
-            actor->set_int_ang(NORM_ANGLE(getangle(actor->user.coll.hitWall->delta()) - 512));
+			actor->spr.angle = VecToAngle(actor->user.coll.hitWall->delta()) - DAngle90;
 
             return 0;
         }

@@ -1023,7 +1023,7 @@ int DoRipperMoveHang(DSWActor* actor)
             actor->user.WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
-            actor->set_int_ang(NORM_ANGLE(getangle(actor->user.coll.hitWall->delta()) - 512));
+            actor->spr.angle = VecToAngle(actor->user.coll.hitWall->delta()) - DAngle90;
 
             return 0;
         }
