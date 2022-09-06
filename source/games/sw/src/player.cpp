@@ -1346,7 +1346,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     DVector2 vect = actor->spr.angle.ToVector() * 32;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                         ActorVectOfTop(actor).plusZ(16) + vect, actor->spr.angle, 0);
+                         ActorVectOfTop(actor).plusZ(16) + vect, actor->spr.angle);
 
     SetActorZ(effectActor, effectActor->spr.pos);
 
@@ -1368,7 +1368,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), ActorVectOfTop(actor).plusZ(16), actor->spr.angle, 0);
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), ActorVectOfTop(actor).plusZ(16), actor->spr.angle);
 
     SetActorZ(effectActor, effectActor->spr.pos);
 
@@ -7406,7 +7406,7 @@ void InitMultiPlayerInfo(void)
                 continue;
         }
 
-        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, pp->pos, pp->angle.ang, 0);
+        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, pp->pos, pp->angle.ang);
         start0->clearUser();
         start0->spr.picnum = ST1;
     }

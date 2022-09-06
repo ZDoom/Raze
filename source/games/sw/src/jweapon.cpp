@@ -303,7 +303,7 @@ int DoWallBloodDrip(DSWActor* actor)
 void SpawnMidSplash(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->sector(),
-                      DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor)), actor->spr.angle, 0);
+                      DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor)), actor->spr.angle);
 
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
@@ -329,7 +329,7 @@ void SpawnMidSplash(DSWActor* actor)
 
 void SpawnFloorSplash(DSWActor* actor)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->sector(), actor->spr.pos, actor->spr.angle);
 
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
@@ -529,7 +529,7 @@ int DoBloodSpray(DSWActor* actor)
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)))
     {
 
-        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->sector(), actor->spr.pos, actor->spr.angle, 100);
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, actor->sector(), actor->spr.pos, actor->spr.angle, 6.25);
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -12;
@@ -726,7 +726,7 @@ int DoPhosphorus(DSWActor* actor)
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
 
-        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->sector(), actor->spr.pos, actor->spr.angle, 100);
+        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, actor->sector(), actor->spr.pos, actor->spr.angle, 6.25);
 
         actorNew->spr.hitag = LUMINOUS;           // Always full brightness
         SetOwner(actor, actorNew);
@@ -948,7 +948,7 @@ int DoChemBomb(DSWActor* actor)
     // if you haven't bounced or your going slow do some puffs
     if (!(actor->user.Flags & (SPR_BOUNCE | SPR_UNDERWATER)) && !(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
     {
-        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->sector(), actor->spr.pos, actor->spr.angle, 100);
+        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, actor->sector(), actor->spr.pos, actor->spr.angle, 6.25);
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
@@ -1183,7 +1183,7 @@ int SpawnRadiationCloud(DSWActor* actor)
         return -1;
 
     auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, actor->sector(),
-							   actor->spr.pos.plusZ(-RANDOM_P2F(8, 8)), actor->spr.angle, 0);
+							   actor->spr.pos.plusZ(-RANDOM_P2F(8, 8)), actor->spr.angle);
 
     SetOwner(GetOwner(actor), actorNew);
     actorNew->user.WaitTics = 1 * 120;
@@ -1582,7 +1582,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     }
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->sector(),
-							   actor->spr.pos, actor->spr.angle, 0);
+							   actor->spr.pos, actor->spr.angle);
 
     if (actor != nullptr)
         actor->user.flameActor = actorNew;
@@ -1629,7 +1629,7 @@ int PlayerInitCaltrops(PLAYER* pp)
 
     auto pos = pp->pos.plusZ(pp->bob_z + 8);
 
-    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector, pos, pp->angle.ang, (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
+    auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector, pos, pp->angle.ang, (CHEMBOMB_VELOCITY + RandomRangeF(CHEMBOMB_VELOCITY)) / 2);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -1795,7 +1795,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
         // Spawn a shot
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, actor->sector(),
-                        ActorVectOfTop(actor).plusZ(- 20/256.), ang, vel*2);
+                        ActorVectOfTop(actor).plusZ(- 20/256.), ang, vel / 8.);
 
         actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
         if (dogib)
@@ -2192,7 +2192,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     }
 
-    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 64);
+    auto actorNew = SpawnActor(STAT_SKIP4, id, p, actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 4);
 
     actorNew->vel.Z = -velocity;
 

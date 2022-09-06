@@ -111,37 +111,31 @@ const char *DeathString(DSWActor*);
 #define DAMAGE_BLADE_TIME       (10)
 
 // Player Missile Speeds
-#define STAR_VELOCITY           (1800)
-#define BOLT_VELOCITY           (900)
-#define ROCKET_VELOCITY         (1350)
-#define BOLT_SEEKER_VELOCITY    (820)
-#define FIREBALL_VELOCITY       (2000)
-#define ELECTRO_VELOCITY        (800)
-#define PLASMA_VELOCITY         (1000)
-#define UZI_BULLET_VELOCITY     (2500)
-#define TRACER_VELOCITY         (1200)
-#define TANK_SHELL_VELOCITY     (1200)
-#define GRENADE_VELOCITY        (900)
-#define MINE_VELOCITY           (520)   // Was 420
-#define CHEMBOMB_VELOCITY       (420)
+constexpr double STAR_VELOCITY     = (1800) / 16.;
+constexpr double ROCKET_VELOCITY   = (1350) / 16.;
+constexpr double FIREBALL_VELOCITY = 125;
+
+constexpr double TRACER_VELOCITY     = (1200)/ 16.;
+constexpr double TANK_SHELL_VELOCITY = (1200)/ 16.;
+constexpr double GRENADE_VELOCITY    = (900) / 16.;
+constexpr double MINE_VELOCITY       = (520) / 16.;  // Was 420
+constexpr double CHEMBOMB_VELOCITY = (420 /16.);
 
 // Player Spell Missile Speeds
-#define BLOOD_WORM_VELOCITY   (800)
-#define NAPALM_VELOCITY         (800)
-#define MIRV_VELOCITY          (600)
-#define SPIRAL_VELOCITY         (600)
+constexpr double BLOOD_WORM_VELOCITY =  (800 / 16.);
+constexpr double NAPALM_VELOCITY     =  (800 / 16.);
+constexpr double MIRV_VELOCITY       =  (600 / 16.);
 
 // Trap Speeds
-#define BOLT_TRAP_VELOCITY      (950)
-#define SPEAR_TRAP_VELOCITY     (650)
-#define FIREBALL_TRAP_VELOCITY  (750)
+constexpr double BOLT_TRAP_VELOCITY      = (950 / 16.);
+constexpr double FIREBALL_TRAP_VELOCITY  = (750 / 16.);
 
 // NPC Missile Speeds
-#define NINJA_STAR_VELOCITY     (1800)
-#define NINJA_BOLT_VELOCITY     (500)
+constexpr double NINJA_STAR_VELOCITY     = (1800 / 16.);
+constexpr double NINJA_BOLT_VELOCITY     = (500 / 16.);
+constexpr double SKEL_ELECTRO_VELOCITY   = (850 / 16.);
+constexpr double COOLG_FIRE_VELOCITY     = (400 / 16.);
 constexpr int GORO_FIREBALL_VELOCITY = 50;
-#define SKEL_ELECTRO_VELOCITY   (850)
-#define COOLG_FIRE_VELOCITY     (400)
 
 #define GRENADE_RECOIL_AMT      (12)
 #define ROCKET_RECOIL_AMT       (7)

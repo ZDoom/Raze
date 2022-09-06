@@ -507,7 +507,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         actor->user.Tics = actor->user.WaitTics;
 
-        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->spr.pos, actor->spr.angle, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], actor->sector(), actor->spr.pos, actor->spr.angle, 12.5);
 
         SetOwner(actor, spawned);
     }
