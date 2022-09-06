@@ -473,7 +473,7 @@ static void DrawMap(DBloodActor* view)
 	}
 	VIEW* pView = &gPrevView[gViewIndex];
 	auto xy = DVector2(interpolatedvalue(pView->x, view->int_pos().X, gInterpolate), interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate)) * inttoworld;
-	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate);
+	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate * (1. / MaxSmoothRatio));
 	DrawOverheadMap(xy, ang, gInterpolate);
 	if (tm)
 		setViewport(hud_size);
@@ -511,9 +511,9 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		}
 		else
 		{
-			cA = interpolatedangle(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, gInterpolate);
+			cA = interpolatedangle(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, gInterpolate * (1. / MaxSmoothRatio));
 			cH = interpolatedhorizon(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, gInterpolate);
-			rotscrnang = interpolatedangle(predictOld.rotscrnang, predict.rotscrnang, gInterpolate);
+			rotscrnang = interpolatedangle(predictOld.rotscrnang, predict.rotscrnang, gInterpolate * (1. / MaxSmoothRatio));
 		}
 	}
 	else
@@ -537,9 +537,9 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		}
 		else
 		{
-			cA = gView->angle.interpolatedsum(gInterpolate);
+			cA = gView->angle.interpolatedsum(gInterpolate * (1. / MaxSmoothRatio));
 			cH = gView->horizon.interpolatedsum(gInterpolate);
-			rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate);
+			rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate * (1. / MaxSmoothRatio));
 		}
 	}
 
@@ -686,7 +686,7 @@ void viewDrawScreen(bool sceneonly)
 		double shakeX, shakeY;
 		SetupView(cX, cY, cZ, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang);
 
-		DAngle tilt = interpolatedangle(gScreenTiltO, gScreenTilt, gInterpolate);
+		DAngle tilt = interpolatedangle(gScreenTiltO, gScreenTilt, gInterpolate * (1. / MaxSmoothRatio));
 		bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
 		static bool bDeliriumOld = false;
 		//int tiltcs, tiltdim;
@@ -735,7 +735,7 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 		g_relvisibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - brightness, 0)) - g_visibility;
-		cA += interpolatedangle(deliriumTurnO, deliriumTurn, gInterpolate);
+		cA += interpolatedangle(deliriumTurnO, deliriumTurn, gInterpolate * (1. / MaxSmoothRatio));
 
 		if (pSector != nullptr)
 		{

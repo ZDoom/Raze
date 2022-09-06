@@ -784,7 +784,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 pp = tActor->user.PlayerP;
                 double sr = 1. - smoothratio * (1. / MaxSmoothRatio);
                 tsp->pos -= (pp->pos - pp->opos) * sr;
-                tsp->angle = pp->angle.interpolatedang(sr);
+                tsp->angle = pp->angle.interpolatedang(sr * (1. / MaxSmoothRatio));
             }
         }
 
@@ -1388,9 +1388,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
     if (SyncInput() || pp != Player+myconnectindex)
     {
-        tang = camerapp->angle.interpolatedsum(smoothratio);
+        tang = camerapp->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
         thoriz = camerapp->horizon.interpolatedsum(smoothratio);
-        trotscrnang = camerapp->angle.interpolatedrotscrn(smoothratio);
+        trotscrnang = camerapp->angle.interpolatedrotscrn(smoothratio * (1. / MaxSmoothRatio));
     }
     else
     {

@@ -910,7 +910,7 @@ void DrawWeapons(double smooth)
 
         if (cl_hudinterpolation)
         {
-            nBobAngle = interpolatedangle(DAngle::fromBuild(obobangle), DAngle::fromBuild(bobangle), smooth).Buildfang();
+            nBobAngle = interpolatedangle(DAngle::fromBuild(obobangle), DAngle::fromBuild(bobangle), smooth * (1. / MaxSmoothRatio)).Buildfang();
             nVal = interpolatedvaluef(PlayerList[nLocalPlayer].ototalvel, PlayerList[nLocalPlayer].totalvel, smooth, 16) * 0.5;
         }
         else

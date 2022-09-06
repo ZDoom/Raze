@@ -267,12 +267,12 @@ void drawoverlays(double smoothratio)
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
 					cposxy = DVector2(interpolatedvalue(omyx, myx, smoothratio), interpolatedvalue(omyy, myy, smoothratio)) * inttoworld;
-					cang = !SyncInput() ? myang : interpolatedangle(omyang, myang, smoothratio);
+					cang = !SyncInput() ? myang : interpolatedangle(omyang, myang, smoothratio * (1. / MaxSmoothRatio));
 				}
 				else
 				{
 					cposxy = interpolatedvec3(pp->opos, pp->pos, smoothratio * (1. / MaxSmoothRatio)).XY();
-					cang = !SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio);
+					cang = !SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio * (1. / MaxSmoothRatio));
 				}
 			}
 			else

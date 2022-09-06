@@ -239,8 +239,8 @@ void DrawView(double smoothRatio, bool sceneonly)
         else
         {
             pan = PlayerList[nLocalPlayer].horizon.interpolatedsum(smoothRatio);
-            nAngle = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio);
-            rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio);
+            nAngle = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio * (1. / MaxSmoothRatio));
+            rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio * (1. / MaxSmoothRatio));
         }
 
         if (!bCamera)

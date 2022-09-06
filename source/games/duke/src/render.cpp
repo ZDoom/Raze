@@ -258,7 +258,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		if (act->spr.yint < 0) act->spr.yint = -100;
 		else if (act->spr.yint > 199) act->spr.yint = 300;
 
-		cang = interpolatedangle(DAngle::fromBuild(ud.cameraactor->tempang), act->spr.angle, smoothratio);
+		cang = interpolatedangle(DAngle::fromBuild(ud.cameraactor->tempang), act->spr.angle, smoothratio * (1. / MaxSmoothRatio));
 
 		auto bh = buildhoriz(act->spr.yint);
 		auto cstat = act->spr.cstat;
@@ -281,7 +281,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		setgamepalette(setpal(p));
 
 		// set screen rotation.
-		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
+		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio * (1. / MaxSmoothRatio));
 
 #if 0
 		if ((snum == myconnectindex) && (numplayers > 1))
@@ -292,7 +292,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			if (SyncInput())
 			{
 				choriz = interpolatedhorizon(omyhoriz + omyhorizoff, myhoriz + myhorizoff, smoothratio);
-				cang = interpolatedangle(omyang, myang, smoothratio);
+				cang = interpolatedangle(omyang, myang, smoothratio * (1. / MaxSmoothRatio));
 			}
 			else
 			{
@@ -310,7 +310,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
-				cang = p->angle.interpolatedsum(smoothratio);
+				cang = p->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
 				choriz = p->horizon.interpolatedsum(smoothratio);
 			}
 			else
