@@ -272,17 +272,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     if (pSector != nullptr)
     {
-        double Z = pSector->ceilingz + 1;
-        if (Z <= nCamera.Z)
-        {
-            Z = pSector->floorz - 1;
-
-            if (Z < nCamera.Z)
-                nCamera.Z = Z;
-        }
-        else {
-            nCamera.Z = Z;
-        }
+        nCamera.Z = min(max(nCamera.Z, pSector->ceilingz + 1), pSector->floorz - 1); // std::clamp may fail on this one if sectors are closed.
     }
 
     nCamerapan = pan;
