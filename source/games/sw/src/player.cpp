@@ -6217,8 +6217,6 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     unsigned stat;
-    int dist;
-    int a,b,c;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -6232,9 +6230,9 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->spr.pos, plActor->spr.pos, dist, a, b, c);
+			double dist = (itActor->spr.pos.XY() - plActor->spr.pos.XY()).Length();
 
-            if (unsigned(dist) < itActor->user.Radius + 100)
+            if (dist < (itActor->user.Radius + 100) * inttoworld)
             {
                 pp->KillerActor = itActor;
 

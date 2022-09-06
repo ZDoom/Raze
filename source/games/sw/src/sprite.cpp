@@ -4828,7 +4828,7 @@ int DoGrating(DSWActor* actor)
     const double GRATE_FACTOR = GRATE_FACTORI * maptoworld;
 
     // reduce to 0 to 3 value
-    dir = actor->int_ang() >> 9;
+    dir = int(actor->spr.angle.Normalized360().Degrees()) / 90;
 
     DVector2 v(0, 0);
     if ((dir & 1) == 0)
@@ -4868,7 +4868,7 @@ int DoGrating(DSWActor* actor)
 
 int DoKey(DSWActor* actor)
 {
-    actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (14 * ACTORMOVETICS)));
+    actor->spr.angle += DAngle::fromBuild(14 * ACTORMOVETICS);
 
     DoGet(actor);
     return 0;
@@ -5162,7 +5162,7 @@ int DoGet(DSWActor* actor)
 {
     PLAYER* pp;
     short pnum, key_num;
-    int dist, a,b,c;
+    int a,b,c;
     bool can_see;
 
     // For flag stuff
@@ -5200,8 +5200,8 @@ int DoGet(DSWActor* actor)
         if (pp->Flags & (PF_DEAD))
             continue;
 
-        DISTANCE(pp->pos, actor->spr.pos, dist, a,b,c);
-        if ((unsigned)dist > (plActor->user.Radius + actor->user.Radius))
+        double dist = (pp->pos.XY() - actor->spr.pos).Length();
+        if ((unsigned)dist > (plActor->user.Radius * 2 * inttoworld))
         {
             continue;
         }
@@ -6060,7 +6060,7 @@ void ProcessActiveVars(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void AdjustActiveRange(PLAYER* pp, DSWActor* actor, int dist)
+void AdjustActiveRange(PLAYER* pp, DSWActor* actor, double dist)
 {
     DSWActor* plActor = pp->actor;
 
@@ -6071,7 +6071,7 @@ void AdjustActiveRange(PLAYER* pp, DSWActor* actor, int dist)
     actor->user.wait_active_check = 0;
 
     // check aboslute max
-    if (dist > MAX_ACTIVE_RANGE * worldtoint)
+    if (dist > MAX_ACTIVE_RANGE)
         return;
 
     // do not do a FAFcansee if your already active
@@ -6209,7 +6209,7 @@ void SpriteControl(void)
     int32_t stat;
     short pnum, CloseToPlayer;
     PLAYER* pp;
-    int tx, ty, tmin, dist;
+    int tx, ty, tmin;
     short StateTics;
 
     SWStatIterator it(STAT_MISC);
@@ -6248,7 +6248,7 @@ void SpriteControl(void)
                 pp = &Player[pnum];
 
                 // Only update the ones closest
-                DISTANCE(pp->pos, actor->spr.pos, dist, tx, ty, tmin);
+				double dist = (pp->pos.XY() - actor->spr.pos.XY()).Length();
 
                 AdjustActiveRange(pp, actor, dist);
 
