@@ -36,8 +36,6 @@ BEGIN_PS_NS
 
 bool bSubTitles = true;
 
-int zbob;
-
 int16_t dVertPan[kMaxPlayers];
 DVector3 nCamera;
 bool bTouchFloor;
@@ -189,8 +187,6 @@ void DrawView(double smoothRatio, bool sceneonly)
     sectortype* pSector = nullptr;
     DAngle nAngle, rotscrnang;
     fixedhoriz pan = {};
-
-    zbob = bsin(2 * bobangle, -3);
 
     DoInterpolations(smoothRatio * (1. / MaxSmoothRatio));
 
