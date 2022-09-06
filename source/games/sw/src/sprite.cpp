@@ -1012,7 +1012,7 @@ bool ActorTestSpawn(DSWActor* actor)
             default: c = "?"; break;
             }
             Printf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
-                        "activates something\n", c, actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z);
+                        "activates something\n", c, int(actor->spr.pos.X), int(actor->spr.pos.Y), int(actor->spr.pos.Z));
             return true;
         }
         //always spawn girls in addons
@@ -1915,7 +1915,7 @@ void SpriteSetup(void)
                     if (TEST_BOOL1(actor))
                         actor->vel.X = 0;
                     else
-                        actor->set_int_xvel(actor->spr.lotag);
+                        actor->vel.X = actor->spr.lotag * maptoworld;
 
                     StartInterpolation(actor->sector(), Interp_Sect_FloorPanX);
                     StartInterpolation(actor->sector(), Interp_Sect_FloorPanY);
@@ -1952,8 +1952,8 @@ void SpriteSetup(void)
                     if (TEST_BOOL1(actor))
                         actor->vel.X = 0;
                     else
-                        actor->set_int_xvel(actor->spr.lotag);
-                    actor->set_int_ang(SP_TAG6(actor));
+						actor->vel.X = actor->spr.lotag * maptoworld;
+                    actor->spr.angle = DAngle::fromBuild(SP_TAG6(actor));
                     // attach to the sector that contains the wall
                     ChangeActorSect(actor, hit.hitSector);
                     StartInterpolation(hit.hitWall, Interp_Wall_PanX);
@@ -2481,7 +2481,7 @@ void SpriteSetup(void)
                     break;
 
                 case DEMO_CAMERA:
-                    actor->set_int_zvel(100); //attempt horiz control
+                    actor->vel.Z = 100 / 256.; //attempt horiz control
                     change_actor_stat(actor, STAT_DEMO_CAMERA);
                     break;
 
@@ -3593,7 +3593,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
-        actorNew->set_int_ang(0);
+		actorNew->spr.angle = nullAngle;
         actorNew->spr.extra = 0;
 
         // vel
@@ -3632,7 +3632,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
-        actorNew->set_int_ang(0);
+		actorNew->spr.angle = nullAngle;
         actorNew->spr.extra = 0;
 
         // vel
@@ -3747,7 +3747,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
-        actorNew->set_int_ang(0);
+		actorNew->spr.angle = nullAngle;
         actorNew->spr.extra = 0;
 
         // vel
