@@ -3567,8 +3567,8 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
         actor->user.floor_dist = (0);
         actor->user.Counter = 0;
 
-        actor->set_int_xvel((int)SP_TAG7(spawner)<<2);
-        actor->set_int_zvel(-(((int)SP_TAG8(spawner))<<5));
+        actor->vel.X = SP_TAG7(spawner) * 0.25;
+        actor->vel.Z = SP_TAG8(spawner) * -0.125;
 
 		UpdateChange(actor);
     }
@@ -3658,7 +3658,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
         actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
-        actorNew->set_int_ang(0);
+        actorNew->spr.angle = nullAngle;
         actorNew->spr.extra = 0;
 
         // vel
@@ -3687,7 +3687,7 @@ int ActorCoughItem(DSWActor* actor)
             actorNew->spr.cstat = 0;
             actorNew->spr.extra = 0;
 	        actorNew->spr.pos = { actor->spr.pos.XY(), ActorZOfMiddle(actor) };
-            actorNew->set_int_ang(0);
+			actorNew->spr.angle = nullAngle;
             actorNew->spr.extra = 0;
 
             // vel
