@@ -11627,7 +11627,7 @@ int InitSwordAttack(PLAYER* pp)
         HitInfo hit{};
 
         double daz = (-MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000)) * zinttoworld;
-        int daang = pp->angle.ang.Buildang();
+        DAngle daang = pp->angle.ang;
         FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
@@ -11646,7 +11646,7 @@ int InitSwordAttack(PLAYER* pp)
                     switch (hitActor->user.ID)
                     {
                     case ZILLA_RUN_R0:
-                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                         PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                         break;
                     case TRASHCAN:
@@ -11655,7 +11655,7 @@ int InitSwordAttack(PLAYER* pp)
                             hitActor->user.WaitTics = SEC(2);
                             ChangeState(hitActor, s_TrashCanPain);
                         }
-                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                         PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                         PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                         break;
@@ -11664,7 +11664,7 @@ int InitSwordAttack(PLAYER* pp)
                     case PACHINKO3:
                     case PACHINKO4:
                     case 623:
-                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                         PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                         break;
                     }
@@ -11709,7 +11709,7 @@ int InitSwordAttack(PLAYER* pp)
                 // hit non breakable wall - do sound and puff
                 else
                 {
-                    SpawnSwordSparks(pp, hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                    SpawnSwordSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, daang);
                     PlaySound(DIGI_SWORDCLANK, hit.hitpos, v3df_none);
                 }
             }
@@ -11797,7 +11797,7 @@ int InitFistAttack(PLAYER* pp)
     {
         HitInfo hit{};
         double daz = (-MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000)) * zinttoworld;
-        int daang = pp->angle.ang.Buildang();
+        auto daang = pp->angle.ang;
         FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
@@ -11816,7 +11816,7 @@ int InitFistAttack(PLAYER* pp)
                     switch (hitActor->user.ID)
                     {
                     case ZILLA_RUN_R0:
-                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                         PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                         break;
                     case TRASHCAN:
@@ -11825,7 +11825,7 @@ int InitFistAttack(PLAYER* pp)
                             hitActor->user.WaitTics = SEC(2);
                             ChangeState(hitActor, s_TrashCanPain);
                         }
-                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                         PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                         PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                         break;
@@ -11834,7 +11834,7 @@ int InitFistAttack(PLAYER* pp)
                     case PACHINKO3:
                     case PACHINKO4:
                     case 623:
-                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                         PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                         break;
                     }
@@ -11862,7 +11862,7 @@ int InitFistAttack(PLAYER* pp)
                 case 5062:
                 case 5063:
                 case 4947:
-                    SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                    SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos, daang);
                     PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                     if (RandomRange(1000) > 700)
                         PlayerUpdateHealth(pp,1); // Give some health
@@ -11892,7 +11892,7 @@ int InitFistAttack(PLAYER* pp)
                 // hit non breakable wall - do sound and puff
                 else
                 {
-                    SpawnSwordSparks(pp, hit.hitSector, hit.hitWall, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, daang);
+                    SpawnSwordSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, daang);
                     PlaySound(DIGI_ARMORHIT, hit.hitpos, v3df_none);
                     if (PlayerTakeDamage(pp, nullptr))
                     {
@@ -15342,11 +15342,11 @@ DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, 
     return actorNew;
 }
 
-int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
     DSWActor* actor = pp->actor;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
     SetOwner(pp->actor, actorNew);
@@ -15361,7 +15361,7 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, int h
     if (hit_wall != nullptr)
         HitscanSpriteAdjust(actorNew, hit_wall);
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
     SetOwner(pp->actor, actorNew);
