@@ -44,7 +44,6 @@ int16_t nQuake[kMaxPlayers] = { 0 };
 
 int nChunkTotal = 0;
 
-DAngle nCameraa;
 int nViewTop;
 bool bCamera = false;
 
@@ -180,7 +179,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     DExhumedActor* pEnemy = nullptr;
     int nEnemyPal = -1;
     sectortype* pSector = nullptr;
-    DAngle nAngle, rotscrnang;
+    DAngle nCameraa, rotscrnang;
     fixedhoriz nCamerapan;
 
     DoInterpolations(smoothRatio * (1. / MaxSmoothRatio));
@@ -196,7 +195,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         nCamera = pActor->spr.pos;
         pSector = pActor->sector();
-        nAngle = pActor->spr.angle;
+        nCameraa = pActor->spr.angle;
         rotscrnang = nullAngle;
 
         SetGreenPal();
@@ -224,13 +223,13 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!SyncInput())
         {
             nCamerapan = PlayerList[nLocalPlayer].horizon.sum();
-            nAngle = PlayerList[nLocalPlayer].angle.sum();
+            nCameraa = PlayerList[nLocalPlayer].angle.sum();
             rotscrnang = PlayerList[nLocalPlayer].angle.rotscrnang;
         }
         else
         {
             nCamerapan = PlayerList[nLocalPlayer].horizon.interpolatedsum(smoothRatio);
-            nAngle = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio * (1. / MaxSmoothRatio));
+            nCameraa = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio * (1. / MaxSmoothRatio));
             rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio * (1. / MaxSmoothRatio));
         }
 
@@ -247,8 +246,6 @@ void DrawView(double smoothRatio, bool sceneonly)
         nCamerapan = q16horiz(clamp(nCamerapan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
-    nCameraa = nAngle;
-
     if (nSnakeCam >= 0 && !sceneonly)
     {
         nCamerapan = q16horiz(0);
@@ -256,15 +253,15 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         nCamera.Z = min(nCamera.Z + nQuake[nLocalPlayer] * zinttoworld, pPlayerActor->sector()->floorz);
-        nCameraa += DAngle::fromBuild((nQuake[nLocalPlayer] >> 7) % 31);
+        nCameraa += DAngle::fromBam((nQuake[nLocalPlayer] % 4095) << 14);
 
         if (bCamera)
         {
             nCamera.Z -= 10;
-            if (!calcChaseCamPos(nCamera, pPlayerActor, &pSector, nAngle, nCamerapan, smoothRatio))
+            if (!calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraa, nCamerapan, smoothRatio))
             {
                 nCamera.Z += 10;
-                calcChaseCamPos(nCamera, pPlayerActor, &pSector, nAngle, nCamerapan, smoothRatio);
+                calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraa, nCamerapan, smoothRatio);
             }
         }
     }
@@ -424,7 +421,6 @@ void SerializeView(FSerializer& arc)
         arc("camera", nCamera)
             ("touchfloor", bTouchFloor)
             ("chunktotal", nChunkTotal)
-            ("cameraa", nCameraa)
             ("camera", bCamera)
             .Array("vertpan", dVertPan, countof(dVertPan))
             .Array("quake", nQuake, countof(nQuake))
