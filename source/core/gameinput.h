@@ -140,10 +140,10 @@ struct PlayerAngle
 	// Commonly used getters.
 	DAngle osum() { return oang + olook_ang; }
 	DAngle sum() { return ang + look_ang; }
-	DAngle interpolatedsum(double const smoothratio) { return interpolatedangle(osum(), sum(), smoothratio); }
-	DAngle interpolatedang(double const smoothratio) { return interpolatedangle(oang, ang, smoothratio); }
-	DAngle interpolatedlookang(double const smoothratio) { return interpolatedangle(olook_ang, look_ang, smoothratio); }
-	DAngle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
+	DAngle interpolatedsum(double const smoothratio) { return interpolatedvalue(osum(), sum(), smoothratio); }
+	DAngle interpolatedang(double const smoothratio) { return interpolatedvalue(oang, ang, smoothratio); }
+	DAngle interpolatedlookang(double const smoothratio) { return interpolatedvalue(olook_ang, look_ang, smoothratio); }
+	DAngle interpolatedrotscrn(double const smoothratio) { return interpolatedvalue(orotscrnang, rotscrnang, smoothratio); }
 	DAngle renderlookang(double const smoothratio) { return !SyncInput() ? look_ang : interpolatedlookang(smoothratio); }
 
 	// Ticrate playsim adjustment helpers.

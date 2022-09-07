@@ -511,9 +511,9 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		}
 		else
 		{
-			cA = interpolatedangle(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, gInterpolate * (1. / MaxSmoothRatio));
+			cA = interpolatedvalue(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, gInterpolate * (1. / MaxSmoothRatio));
 			cH = interpolatedhorizon(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, gInterpolate);
-			rotscrnang = interpolatedangle(predictOld.rotscrnang, predict.rotscrnang, gInterpolate * (1. / MaxSmoothRatio));
+			rotscrnang = interpolatedvalue(predictOld.rotscrnang, predict.rotscrnang, gInterpolate * (1. / MaxSmoothRatio));
 		}
 	}
 	else
@@ -686,7 +686,7 @@ void viewDrawScreen(bool sceneonly)
 		double shakeX, shakeY;
 		SetupView(cX, cY, cZ, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang);
 
-		DAngle tilt = interpolatedangle(gScreenTiltO, gScreenTilt, gInterpolate * (1. / MaxSmoothRatio));
+		DAngle tilt = interpolatedvalue(gScreenTiltO, gScreenTilt, gInterpolate * (1. / MaxSmoothRatio));
 		bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
 		static bool bDeliriumOld = false;
 		//int tiltcs, tiltdim;
@@ -735,7 +735,7 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 		g_relvisibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - brightness, 0)) - g_visibility;
-		cA += interpolatedangle(deliriumTurnO, deliriumTurn, gInterpolate * (1. / MaxSmoothRatio));
+		cA += interpolatedvalue(deliriumTurnO, deliriumTurn, gInterpolate * (1. / MaxSmoothRatio));
 
 		if (pSector != nullptr)
 		{
@@ -765,7 +765,7 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 
-		if (!sceneonly) hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate);
+		if (!sceneonly) hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate * (1. / MaxSmoothRatio));
 		fixedhoriz deliriumPitchI = interpolatedhorizon(q16horiz(deliriumPitchO), q16horiz(deliriumPitch), gInterpolate);
 		auto bakCstat = gView->actor->spr.cstat;
 		gView->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
@@ -778,7 +778,7 @@ void viewDrawScreen(bool sceneonly)
 		Collision c1, c2;
 		GetZRange(gView->actor, &vf4, &c1, &vec, &c2, nClipDist, 0);
 		if (sceneonly) return;
-		double look_anghalf = gView->angle.look_anghalf(gInterpolate);
+		double look_anghalf = gView->angle.look_anghalf(gInterpolate * (1. / MaxSmoothRatio));
 		DrawCrosshair(kCrosshairTile, gView->actor->xspr.health >> 4, -look_anghalf, 0, 2);
 #if 0 // This currently does not work. May have to be redone as a hardware effect.
 		if (v4 && gNetPlayers > 1)

@@ -352,7 +352,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					t->x = __interpvalue(omyx, myx, smoothratio);
 					t->y = __interpvalue(omyy, myy, smoothratio);
 					t->z = __interpvalue(omyz, myz, smoothratio) + gs.playerheight;
-					t->ang = interpolatedangle(omyang, myang, smoothratio * (1. / MaxSmoothRatio)).asbuild();
+					t->ang = interpolatedvalue(omyang, myang, smoothratio * (1. / MaxSmoothRatio)).asbuild();
 					t->sector = mycursectnum;
 				}
 #endif

@@ -267,12 +267,12 @@ void drawoverlays(double smoothratio)
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
 					cposxy = DVector2(__interpvalue(omyx, myx, smoothratio), __interpvalue(omyy, myy, smoothratio)) * inttoworld;
-					cang = !SyncInput() ? myang : interpolatedangle(omyang, myang, smoothratio * (1. / MaxSmoothRatio));
+					cang = !SyncInput() ? myang : interpolatedvalue(omyang, myang, smoothratio * (1. / MaxSmoothRatio));
 				}
 				else
 				{
-					cposxy = interpolatedvec3(pp->opos, pp->pos, smoothratio * (1. / MaxSmoothRatio)).XY();
-					cang = !SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio * (1. / MaxSmoothRatio));
+					cposxy = interpolatedvalue(pp->opos, pp->pos, smoothratio * (1. / MaxSmoothRatio)).XY();
+					cang = !SyncInput() ? pp->angle.ang : interpolatedvalue(pp->angle.oang, pp->angle.ang, smoothratio * (1. / MaxSmoothRatio));
 				}
 			}
 			else
@@ -289,7 +289,7 @@ void drawoverlays(double smoothratio)
 
 	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{
-		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -pp->angle.look_anghalf(smoothratio), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
+		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -pp->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio)), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
 	}
 
 	if (paused == 2)

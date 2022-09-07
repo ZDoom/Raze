@@ -224,9 +224,9 @@ public:
 		return __interpvaluef(opos.Z, spr.pos.Z, smoothratio, scale);
 	}
 
-	DVector3 interpolatedvec3(double const smoothratio)
+	DVector3 interpolatedvec3(double const interpfrac)
 	{
-		return ::interpolatedvec3(opos, spr.pos, smoothratio);
+		return ::interpolatedvalue(opos, spr.pos, interpfrac);
 	}
 
 
@@ -245,9 +245,9 @@ public:
 		return interpolatedz(smoothratio, scale) * zworldtoint;
 	}
 
-	DAngle interpolatedangle(double const smoothratio)
+	DAngle interpolatedangle(double const interpfrac)
 	{
-		return ::interpolatedangle(oang, spr.angle, smoothratio);
+		return ::interpolatedvalue(oang, spr.angle, interpfrac);
 	}
 
 	void backupz()

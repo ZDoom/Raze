@@ -1068,7 +1068,7 @@ void DrawCrosshair(PLAYER* pp)
 {
     if (!(CameraTestMode))
     {
-        ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(smoothratio), (pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio)), (pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 

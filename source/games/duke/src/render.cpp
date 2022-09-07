@@ -258,7 +258,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		if (act->spr.yint < 0) act->spr.yint = -100;
 		else if (act->spr.yint > 199) act->spr.yint = 300;
 
-		cang = interpolatedangle(DAngle::fromBuild(ud.cameraactor->tempang), act->spr.angle, smoothratio * (1. / MaxSmoothRatio));
+		cang = interpolatedvalue(DAngle::fromBuild(ud.cameraactor->tempang), act->spr.angle, smoothratio * (1. / MaxSmoothRatio));
 
 		auto bh = buildhoriz(act->spr.yint);
 		auto cstat = act->spr.cstat;
@@ -292,7 +292,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			if (SyncInput())
 			{
 				choriz = interpolatedhorizon(omyhoriz + omyhorizoff, myhoriz + myhorizoff, smoothratio);
-				cang = interpolatedangle(omyang, myang, smoothratio * (1. / MaxSmoothRatio));
+				cang = interpolatedvalue(omyang, myang, smoothratio * (1. / MaxSmoothRatio));
 			}
 			else
 			{

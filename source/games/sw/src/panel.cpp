@@ -6376,8 +6376,8 @@ void pDisplaySprites(PLAYER* pp, double smoothratio)
     short ang;
     int flags;
 
-    double const look_anghalf = pp->angle.look_anghalf(smoothratio);
-    double const looking_arc = pp->angle.looking_arc(smoothratio);
+    double const look_anghalf = pp->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio));
+    double const looking_arc = pp->angle.looking_arc(smoothratio * (1. / MaxSmoothRatio));
 
     auto list = pp->GetPanelSpriteList();
     for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)

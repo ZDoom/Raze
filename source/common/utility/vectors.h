@@ -1485,28 +1485,10 @@ inline TVector2<T> clamp(const TVector2<T> &vec, const TVector2<T> &min, const T
 	return TVector2<T>(clamp(vec.X, min.X, max.X), clamp(vec.Y, min.Y, max.Y));
 }
 
-template<class T>
-inline TVector2<T> interpolatedvec2(const TVector2<T> &ovec, const TVector2<T> &vec, const double scale)
+template <class T>
+inline T interpolatedvalue(const T& oval, const T& val, const double interpfrac)
 {
-	return ovec + ((vec - ovec) * scale);
-}
-
-template<class T>
-inline TVector3<T> interpolatedvec3(const TVector3<T> &ovec, const TVector3<T> &vec, const double scale)
-{
-	return ovec + ((vec - ovec) * scale);
-}
-
-template<class T>
-inline TVector4<T> interpolatedvec4(const TVector4<T> &ovec, const TVector4<T> &vec, const double scale)
-{
-	return ovec + ((vec - ovec) * scale);
-}
-
-template<class T>
-inline TAngle<T> interpolatedangle(const TAngle<T> &oang, const TAngle<T> &ang, const double scale)
-{
-	return oang + (deltaangle(oang, ang) * scale);
+	return T(oval + (val - oval) * interpfrac);
 }
 
 // Much of this is copied from TVector3. Is all that functionality really appropriate?

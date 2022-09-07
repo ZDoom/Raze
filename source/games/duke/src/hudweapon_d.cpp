@@ -232,8 +232,8 @@ void displayweapon_d(int snum, double smoothratio)
 
 	plravel = getavel(snum) * (1. / 16.);
 	horiz16th = p->horizon.horizsumfrac(smoothratio);
-	look_anghalf = p->angle.look_anghalf(smoothratio);
-	looking_arc = p->angle.looking_arc(smoothratio);
+	look_anghalf = p->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio));
+	looking_arc = p->angle.looking_arc(smoothratio * (1. / MaxSmoothRatio));
 	hard_landing *= 8.;
 
 	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 32 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));

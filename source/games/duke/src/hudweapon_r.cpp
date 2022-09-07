@@ -133,8 +133,8 @@ void displayweapon_r(int snum, double smoothratio)
 		TiltStatus = p->TiltStatus;
 	}
 
-	look_anghalf = p->angle.look_anghalf(smoothratio);
-	looking_arc = p->angle.looking_arc(smoothratio);
+	look_anghalf = p->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio));
+	looking_arc = p->angle.looking_arc(smoothratio * (1. / MaxSmoothRatio));
 	hard_landing *= 8.;
 
 	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 8 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
