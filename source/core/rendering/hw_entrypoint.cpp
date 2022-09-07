@@ -305,7 +305,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 void animatecamsprite(double s);
 
 
-void render_drawrooms(DCoreActor* playersprite, const DVector3& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, double smoothratio, float fov)
+void render_drawrooms(DCoreActor* playersprite, const DVector3& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, double interpfrac, float fov)
 {
 	checkRotatedWalls();
 
@@ -320,8 +320,7 @@ void render_drawrooms(DCoreActor* playersprite, const DVector3& position, int se
 
 	// Get this before everything else
 	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang, fov);
-	if (cl_capfps) r_viewpoint.TicFrac = 1.;
-	else r_viewpoint.TicFrac = smoothratio * (1./MaxSmoothRatio);
+	r_viewpoint.TicFrac = !cl_capfps ? interpfrac : 1.;
 
 	screen->mLights->Clear();
 	screen->mViewpoints->Clear();
@@ -360,7 +359,7 @@ void render_drawrooms(DCoreActor* playersprite, const DVector3& position, int se
 	All.Unclock();
 }
 
-void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
+void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double interpfrac)
 {
 	updatesector(position, &sect);
 	if (!sect) return;
@@ -371,7 +370,7 @@ void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortyp
 	float ratio = camtex->GetDisplayWidth() / camtex->GetDisplayHeight();
 
 	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum(sect), angle, horizon, rollang);
-	if (cl_capfps) r_viewpoint.TicFrac = smoothratio;
+	r_viewpoint.TicFrac = !cl_capfps ? interpfrac : 1.;
 
 	RenderViewpoint(r_viewpoint, &rect, r_viewpoint.FieldOfView.Degrees(), ratio, ratio, false, false);
 	All.Unclock();

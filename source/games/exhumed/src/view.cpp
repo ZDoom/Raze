@@ -304,7 +304,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(interpfrac);
-        render_drawrooms(nullptr, nCamerapos, sectnum(pSector), nCameraang, nCamerapan, rotscrnang, interpfrac * MaxSmoothRatio);
+        render_drawrooms(nullptr, nCamerapos, sectnum(pSector), nCameraang, nCamerapan, rotscrnang, interpfrac);
 
         if (HavePLURemap())
         {

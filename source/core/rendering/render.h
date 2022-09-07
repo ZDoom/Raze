@@ -5,16 +5,16 @@
 class FSerializer;
 struct IntRect;
 
-void render_drawrooms(DCoreActor* playersprite, const DVector3& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, double smoothratio, float fov = -1);
-void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio);
+void render_drawrooms(DCoreActor* playersprite, const DVector3& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, double interpfrac, float fov = -1);
+void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double interpfrac);
 
 inline void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, double smoothratio, float fov = -1)
 {
-	render_drawrooms(playersprite, DVector3(position.X * inttoworld, position.Y * inttoworld, position.Z * zinttoworld), sectnum, angle, horizon, rollang, smoothratio, fov);
+	render_drawrooms(playersprite, DVector3(position.X * inttoworld, position.Y * inttoworld, position.Z * zinttoworld), sectnum, angle, horizon, rollang, smoothratio * (1. / MaxSmoothRatio), fov);
 }
 inline void render_camtex(DCoreActor* playersprite, const vec3_t& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
 {
-	render_camtex(playersprite, DVector3(position.X* inttoworld, position.Y * inttoworld, position.Z* zinttoworld), sect, angle, horizon, rollang, camtex, rect, smoothratio);
+	render_camtex(playersprite, DVector3(position.X* inttoworld, position.Y * inttoworld, position.Z* zinttoworld), sect, angle, horizon, rollang, camtex, rect, smoothratio * (1. / MaxSmoothRatio));
 }
 
 struct PortalDesc
