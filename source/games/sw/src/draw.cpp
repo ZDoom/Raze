@@ -1054,28 +1054,21 @@ static void DrawCrosshair(PLAYER* pp, const double inputfrac)
     }
 }
 
-void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngle *tang, fixedhoriz *thoriz)
+static void CameraView(PLAYER* pp, DVector3& tpos, sectortype** tsect, DAngle *tang, fixedhoriz *thoriz)
 {
-
-    DAngle ang;
     bool found_camera = false;
     bool player_in_camera = false;
-    bool FAFcansee_test;
-    bool ang_test;
 
     if (pp == &Player[screenpeek])
     {
         SWStatIterator it(STAT_DEMO_CAMERA);
         while (auto actor = it.Next())
         {
-		    DVector3 test1(*tx * inttoworld, *ty * inttoworld, *tz * zinttoworld);
-			
-            ang = VecToAngle(test1.XY() - actor->spr.pos.XY());
-            ang_test = deltaangle(ang, actor->spr.angle) < DAngle::fromBuild(actor->spr.lotag);
+            DAngle ang = (tpos.XY() - actor->spr.pos.XY()).Angle();
+            bool ang_test = deltaangle(ang, actor->spr.angle) < DAngle::fromBuild(actor->spr.lotag);
 
-            FAFcansee_test =
-                (FAFcansee(actor->spr.pos, actor->sector(), test1, pp->cursector) ||
-                 FAFcansee(actor->spr.pos, actor->sector(), test1.plusZ(ActorSizeZ(pp->actor)), pp->cursector));
+            bool FAFcansee_test = (FAFcansee(actor->spr.pos, actor->sector(), tpos, pp->cursector) ||
+                FAFcansee(actor->spr.pos, actor->sector(), tpos.plusZ(ActorSizeZ(pp->actor)), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1095,41 +1088,32 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngl
                 {
                 case 1:
                     pp->last_camera_act = actor;
-                    CircleCamera(test1, tsect, tang, 0);
-                    (*tx) = test1.X * worldtoint;
-                    (*ty) = test1.Y * worldtoint;
-                    (*tz) = test1.Z * zworldtoint;
+                    CircleCamera(tpos, tsect, tang, 0);
                     found_camera = true;
                     break;
 
                 default:
                 {
-                    int xvect,yvect,zvect,zdiff;
-
                     pp->last_camera_act = actor;
+                    auto xyvect = ang.ToVector() * 128.;
+                    auto zdiff = actor->spr.pos.Z - tpos.Z;
+                    double zvect;
 
-                    xvect = int(ang.Cos() * 2048.);
-                    yvect = int(ang.Sin() * 2048.);
-
-                    zdiff = actor->int_pos().Z - *tz;
-                    if (abs(actor->int_pos().X - *tx) > 1000)
-                        zvect = Scale(xvect, zdiff, actor->int_pos().X - *tx);
-                    else if (abs(actor->int_pos().Y - *ty) > 1000)
-                        zvect = Scale(yvect, zdiff, actor->int_pos().Y - *ty);
-                    else if (actor->int_pos().X - *tx != 0)
-                        zvect = Scale(xvect, zdiff, actor->int_pos().X - *tx);
-                    else if (actor->int_pos().Y - *ty != 0)
-                        zvect = Scale(yvect, zdiff, actor->int_pos().Y - *ty);
+                    if (abs(actor->spr.pos.X - tpos.X) > 62.5)
+                        zvect = (xyvect.X * zdiff) / (actor->spr.pos.X - tpos.X);
+                    else if (abs(actor->spr.pos.Y - tpos.Y) > 62.5)
+                        zvect = (xyvect.Y * zdiff) / (actor->spr.pos.Y - tpos.Y);
+                    else if ((actor->spr.pos.X - tpos.X) != 0)
+                        zvect = (xyvect.X * zdiff) / (actor->spr.pos.X - tpos.X);
+                    else if ((actor->spr.pos.Y - tpos.Y) != 0)
+                        zvect = (xyvect.Y * zdiff) / (actor->spr.pos.Y - tpos.Y);
                     else
                         zvect = 0;
 
-                    // new horiz to player
-                    *thoriz = q16horiz(clamp(-(zvect << 8), gi->playerHorizMin(), gi->playerHorizMax()));
-
+                    // new positon for player
+                    tpos = actor->spr.pos;
+                    *thoriz = q16horiz(clamp(-FloatToFixed<12>(zvect), gi->playerHorizMin(), gi->playerHorizMax()));
                     *tang = ang;
-                    *tx = actor->int_pos().X;
-                    *ty = actor->int_pos().Y;
-                    *tz = actor->int_pos().Z;
                     *tsect = actor->sector();
 
                     found_camera = true;
@@ -1441,7 +1425,11 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
         if (CameraTestMode)
         {
-            CameraView(camerapp, &tx, &ty, &tz, &tsect, &tang, &thoriz);
+            DVector3 temp = { tx * inttoworld, ty * inttoworld, tz * zinttoworld };
+            CameraView(camerapp, temp, &tsect, &tang, &thoriz);
+            tx = temp.X * worldtoint;
+            ty = temp.Y * worldtoint;
+            tz = temp.Z * zworldtoint;
         }
     }
 
