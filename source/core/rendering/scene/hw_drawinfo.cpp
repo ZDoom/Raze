@@ -392,7 +392,7 @@ void HWDrawInfo::CreateScene(bool portal)
 		mDrawer.RenderScene(&vp.SectCount, 1, portal);
 
 	SetupSprite.Clock();
-	gi->processSprites(tsprites, view.X, view.Y, vp.Pos.Z * -256, DAngle::fromBam(vp.RotAngle), vp.TicFrac * 65536);
+	gi->processSprites(tsprites, view.X, view.Y, vp.Pos.Z * -256, DAngle::fromBam(vp.RotAngle), vp.TicFrac);
 	DispatchSprites();
 	SetupSprite.Unclock();
 

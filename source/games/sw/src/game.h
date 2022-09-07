@@ -1741,7 +1741,6 @@ void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);
 DSWActor* GetOwner(DSWActor* child);
 void SetAttach(DSWActor*, DSWActor*);
-void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int camang);
 void CollectPortals();
 
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle = nullAngle, const DVector3* hitpos = nullptr);

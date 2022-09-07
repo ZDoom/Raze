@@ -400,9 +400,9 @@ bool GameInterface::GenerateSavePic()
     return true;
 }
 
-void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
 {
-    analyzesprites(tsprites, viewx, viewy, viewz, smoothRatio * (1. / MaxSmoothRatio));
+    analyzesprites(tsprites, viewx, viewy, viewz, interpfrac);
 }
 
 

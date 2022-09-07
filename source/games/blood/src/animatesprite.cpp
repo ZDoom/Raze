@@ -522,11 +522,11 @@ static int GetOctant(int x, int y)
 	return OctantTable[7 - (x < 0) - (y < 0) * 2 - (vc < 0) * 4];
 }
 
-void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, DAngle cA, int32_t smoothratio)
+void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, DAngle cA, double interpfrac)
 {
 	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
-	int myclock = (PlayClock << 3) + MulScale(4 << 3, smoothratio, 16);
+	DAngle myclock = DAngle::fromDeg(((PlayClock << 3) + (4 << 3) * interpfrac) * BAngToDegree);
 	gCameraAng = cA;
 	for (int nTSprite = int(tsprites.Size()) - 1; nTSprite >= 0; nTSprite--)
 	{
@@ -554,8 +554,8 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
-			pTSprite->pos = owneractor->interpolatedpos(gInterpolate * (1. / MaxSmoothRatio));
-			pTSprite->angle = owneractor->interpolatedangle(gInterpolate * (1. / MaxSmoothRatio));
+			pTSprite->pos = owneractor->interpolatedpos(interpfrac);
+			pTSprite->angle = owneractor->interpolatedangle(interpfrac);
 		}
 		int nAnim = 0;
 		switch (picanm[nTile].extra & 7) {
@@ -645,7 +645,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 					pTSprite->picnum = voxelIndex[pTSprite->picnum];
 					if ((picanm[nTile].extra & 7) == 7)
 					{
-						pTSprite->set_int_ang( myclock & 2047);
+						pTSprite->angle = myclock.Normalized360();
 					}
 				}
 			}
@@ -993,9 +993,9 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
 {
-	viewProcessSprites(tsprites, viewx, viewy, viewz, viewang, int(smoothRatio));
+	viewProcessSprites(tsprites, viewx, viewy, viewz, viewang, interpfrac);
 }
 
 int display_mirror;

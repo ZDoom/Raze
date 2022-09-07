@@ -117,7 +117,7 @@ struct GameInterface
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
 	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }
 	virtual DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(0,0,0); }
-	virtual void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio) = 0;
+	virtual void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac) = 0;
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(DCoreActor* viewer, int type) {}
 	virtual void LeavePortal(DCoreActor* viewer, int type) {}

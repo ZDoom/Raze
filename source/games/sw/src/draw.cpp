@@ -568,10 +568,9 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
 }
 
 
-void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int camang)
+static void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int camang, double interpfrac)
 {
     int tSpriteNum;
-    double smr4, smr2;
     static int ang = 0;
     PLAYER* pp = Player + screenpeek;
     int newshade=0;
@@ -581,8 +580,8 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
 
     ang = NORM_ANGLE(ang + 12);
 
-    smr4 = smoothratio + IntToFixed(MoveSkip4);
-    smr2 = smoothratio + IntToFixed(MoveSkip2);
+    double smr4 = interpfrac + MoveSkip4;
+    double smr2 = interpfrac + MoveSkip2;
 
     for (tSpriteNum = (int)tsprites.Size() - 1; tSpriteNum >= 0; tSpriteNum--)
     {
@@ -619,7 +618,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->pos = tActor->interpolatedpos(smr4 * (0.25 / MaxSmoothRatio));
+                        tsp->pos = tActor->interpolatedpos(smr4 * 0.25);
                     }
                 }
 
@@ -627,7 +626,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->pos = tActor->interpolatedpos(smr2 * (0.5 / MaxSmoothRatio));
+                        tsp->pos = tActor->interpolatedpos(smr2 * 0.5);
                     }
                 }
             }
@@ -782,9 +781,8 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
             else // Otherwise just interpolate the player sprite
             {
                 pp = tActor->user.PlayerP;
-                double sr = 1. - smoothratio * (1. / MaxSmoothRatio);
-                tsp->pos -= (pp->pos - pp->opos) * sr;
-                tsp->angle = pp->angle.interpolatedang(sr * (1. / MaxSmoothRatio));
+                tsp->pos = interpolatedvalue(pp->opos, pp->pos, interpfrac);
+                tsp->angle = pp->angle.interpolatedang(interpfrac);
             }
         }
 
@@ -1650,9 +1648,9 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
     return true;
 }
 
-void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio)
+void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
 {
-    analyzesprites(tsprites, viewx, viewy, viewz, viewang.Buildang());
+    analyzesprites(tsprites, viewx, viewy, viewz, viewang.Buildang(), interpfrac);
     post_analyzesprites(tsprites);
 }
 
