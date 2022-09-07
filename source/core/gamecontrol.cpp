@@ -1519,35 +1519,6 @@ DEFINE_ACTION_FUNCTION(_Raze, PlayerName)
 	ACTION_RETURN_STRING(unsigned(index) >= MAXPLAYERS ? "" : PlayerName(index));
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bsin, bsin)
-{
-	PARAM_PROLOGUE;
-	PARAM_INT(v);
-	PARAM_INT(shift);
-	ACTION_RETURN_INT(bsin(v, shift));
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bcos, bcos)
-{
-	PARAM_PROLOGUE;
-	PARAM_INT(v);
-	PARAM_INT(shift);
-	ACTION_RETURN_INT(bcos(v, shift));
-}
-
-int raze_getangle(double x, double y)
-{
-	return VecToAngle(x, y).Buildang();
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, getangle, raze_getangle)
-{
-	PARAM_PROLOGUE;
-	PARAM_FLOAT(x);
-	PARAM_FLOAT(y);
-	ACTION_RETURN_INT(raze_getangle(x, y));
-}
-
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
 {
 	ACTION_RETURN_INT(I_GetBuildTime());

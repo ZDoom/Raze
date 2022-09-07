@@ -147,7 +147,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		{
 			int s = -8;
 			if (hud_flashing && p.last_extra > Duke.MaxPlayerHealth())
-				s += Raze.bsin(Raze.GetBuildTime() << 5, -10);
+				s += Raze.bsin(Raze.GetBuildTime() << 5) >> 10;
 			int intens = clamp(255 - 6 * s, 0, 255);
 			format = String.Format("%d", p.last_extra);
 			DrawString(numberFont, format, (25, texty), DI_TEXT_ALIGN_LEFT, Font.CR_UNTRANSLATED, intens / 255., 0, 0);

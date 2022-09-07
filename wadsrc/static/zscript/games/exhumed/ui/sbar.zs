@@ -259,7 +259,7 @@ class ExhumedStatusBar : RazeStatusBar
 		{
 			int s = -8;
 			if (hud_flashing && pp.nHealth > 800)
-				s += Raze.bsin(PlayClock << 5, -10);
+				s += Raze.bsin(PlayClock << 5) >> 10;
 			int intens = clamp(255 - 4 * s, 0, 255);
 			format = String.Format("%d", pp.nHealth >> 3);
 			DrawString(numberFont, format, (13, -numberFont.mFont.GetHeight() + 3), DI_TEXT_ALIGN_LEFT, Font.CR_UNTRANSLATED, intens / 255.);

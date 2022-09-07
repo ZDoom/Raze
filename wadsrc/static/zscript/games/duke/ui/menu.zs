@@ -137,7 +137,7 @@ class ListMenuItemDukeLogo : ListMenuItem
 			if (gameinfo.gametype & GAMEFLAG_PLUTOPAK)
 			{
 				let mclock = MSTimeF() * 120 / 1000;
-				int light = 223 + Raze.bsin(mclock * 16, -9);
+				int light = 223 + Raze.bsin(mclock * 16) >> 9;
 				let pe = Color(255, light, light, light);
 				Screen.DrawTexture(TexMan.CheckForTexture("MENUPLUTOPAKSPRITE"), false, x + 100, 36, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, pe, DTA_CenterOffsetRel, true);
 			}

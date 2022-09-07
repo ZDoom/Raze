@@ -751,7 +751,7 @@ class SWStatusBar : RazeStatusBar
 		{
 			int s = -8;
 			if (hud_flashing && Health > MaxHealth)
-				s += Raze.bsin(PlayClock << 5, -10);
+				s += Raze.bsin(PlayClock << 5) >> 10;
 			int intens = clamp(255 - 4 * s, 0, 255);
 			let pe = Color(255, intens, intens, intens);
 			format = String.Format("%d", Health);

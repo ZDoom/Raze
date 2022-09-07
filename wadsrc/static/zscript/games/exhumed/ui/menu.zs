@@ -110,7 +110,7 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		double y = mYpos + v.y / 2;
 
 		int shade;
-		if (selected) shade = Raze.bsin(now * 16 * 120 / 1000, -9);
+		if (selected) shade = Raze.bsin(now * 16 * 120 / 1000) >> 9;
 		else if (Selectable()) shade = 0;
 		else shade = 25;
 		let color = Raze.shadeToLight(shade);
