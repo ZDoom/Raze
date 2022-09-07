@@ -472,7 +472,7 @@ static void DrawMap(DBloodActor* view)
 		tm = 1;
 	}
 	VIEW* pView = &gPrevView[gViewIndex];
-	auto xy = DVector2(__interpvalue(pView->x, view->int_pos().X, gInterpolate), __interpvalue(pView->y, view->int_pos().Y, gInterpolate))* inttoworld;
+	auto xy = DVector2(interpolatedvalue(pView->x, view->int_pos().X, gInterpolate * (1. / MaxSmoothRatio)), interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate * (1. / MaxSmoothRatio)))* inttoworld;
 	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate * (1. / MaxSmoothRatio));
 	DrawOverheadMap(xy, ang, gInterpolate);
 	if (tm)
@@ -494,12 +494,12 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 	if (numplayers > 1 && gView == gMe && gPrediction && gMe->actor->xspr.health > 0)
 	{
 		nSectnum = predict.sectnum;
-		cX = __interpvalue(predictOld.x, predict.x, gInterpolate);
-		cY = __interpvalue(predictOld.y, predict.y, gInterpolate);
-		cZ = __interpvalue(predictOld.viewz, predict.viewz, gInterpolate);
+		cX = interpolatedvalue(predictOld.x, predict.x, gInterpolate * (1. / MaxSmoothRatio));
+		cY = interpolatedvalue(predictOld.y, predict.y, gInterpolate * (1. / MaxSmoothRatio));
+		cZ = interpolatedvalue(predictOld.viewz, predict.viewz, gInterpolate * (1. / MaxSmoothRatio));
 		zDelta = interpolatedvalue(predictOld.weaponZ, predict.weaponZ, gInterpolate * (1. / MaxSmoothRatio));
-		bobWidth = __interpvalue(predictOld.bobWidth, predict.bobWidth, gInterpolate);
-		bobHeight = __interpvalue(predictOld.bobHeight, predict.bobHeight, gInterpolate);
+		bobWidth = interpolatedvalue(predictOld.bobWidth, predict.bobWidth, gInterpolate * (1. / MaxSmoothRatio));
+		bobHeight = interpolatedvalue(predictOld.bobHeight, predict.bobHeight, gInterpolate * (1. / MaxSmoothRatio));
 		shakeX = interpolatedvalue(predictOld.shakeBobX, predict.shakeBobX, gInterpolate * (1. / MaxSmoothRatio));
 		shakeY = interpolatedvalue(predictOld.shakeBobY, predict.shakeBobY, gInterpolate * (1. / MaxSmoothRatio));
 
@@ -520,12 +520,12 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 #endif
 	{
 		VIEW* pView = &gPrevView[gViewIndex];
-		cX = __interpvalue(pView->x, gView->actor->int_pos().X, gInterpolate);
-		cY = __interpvalue(pView->y, gView->actor->int_pos().Y, gInterpolate);
-		cZ = __interpvalue(pView->viewz, gView->zView, gInterpolate);
+		cX = interpolatedvalue(pView->x, gView->actor->int_pos().X, gInterpolate * (1. / MaxSmoothRatio));
+		cY = interpolatedvalue(pView->y, gView->actor->int_pos().Y, gInterpolate * (1. / MaxSmoothRatio));
+		cZ = interpolatedvalue(pView->viewz, gView->zView, gInterpolate * (1. / MaxSmoothRatio));
 		zDelta = interpolatedvalue<double>(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate * (1. / MaxSmoothRatio));
-		bobWidth = __interpvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
-		bobHeight = __interpvalue(pView->bobHeight, gView->bobHeight, gInterpolate);
+		bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, gInterpolate * (1. / MaxSmoothRatio));
+		bobHeight = interpolatedvalue(pView->bobHeight, gView->bobHeight, gInterpolate * (1. / MaxSmoothRatio));
 		shakeX = interpolatedvalue<double>(pView->shakeBobX, gView->swayWidth, gInterpolate * (1. / MaxSmoothRatio));
 		shakeY = interpolatedvalue<double>(pView->shakeBobY, gView->swayHeight, gInterpolate * (1. / MaxSmoothRatio));
 
@@ -655,7 +655,7 @@ void viewDrawScreen(bool sceneonly)
 
 	if (cl_interpolate)
 	{
-		DoInterpolations(gInterpolate / MaxSmoothRatio);
+		DoInterpolations(gInterpolate * (1. / MaxSmoothRatio));
 	}
 
 	if (automapMode != am_full)

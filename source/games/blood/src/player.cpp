@@ -1863,14 +1863,14 @@ void playerProcess(PLAYER* pPlayer)
 	}
 	ProcessInput(pPlayer);
 	int nSpeed = approxDist(actor->int_vel().X, actor->int_vel().Y);
-	pPlayer->zViewVel = __interpvalue(pPlayer->zViewVel, actor->int_vel().Z, 0x7000);
+	pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->int_vel().Z, 0x7000 * (1. / MaxSmoothRatio));
 	int dz = pPlayer->actor->int_pos().Z - pPosture->eyeAboveZ - pPlayer->zView;
 	if (dz > 0)
 		pPlayer->zViewVel += MulScale(dz << 8, 0xa000, 16);
 	else
 		pPlayer->zViewVel += MulScale(dz << 8, 0x1800, 16);
 	pPlayer->zView += pPlayer->zViewVel >> 8;
-	pPlayer->zWeaponVel = __interpvalue(pPlayer->zWeaponVel, actor->int_vel().Z, 0x5000);
+	pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->int_vel().Z, 0x5000 * (1. / MaxSmoothRatio));
 	dz = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ - pPlayer->zWeapon;
 	if (dz > 0)
 		pPlayer->zWeaponVel += MulScale(dz << 8, 0x8000, 16);

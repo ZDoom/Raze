@@ -2,7 +2,6 @@
 
 #include "m_fixed.h"
 #include "fixedhorizon.h"
-#include "interphelpers.h"
 #include "gamecvars.h"
 #include "gamestruct.h"
 #include "gamefuncs.h"

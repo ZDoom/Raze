@@ -3,6 +3,7 @@
 #include "gamecontrol.h"
 #include "build.h"
 #include "coreactor.h"
+#include "fixedhorizon.h"
 #include "intrect.h"
 
 extern IntRect viewport3d;

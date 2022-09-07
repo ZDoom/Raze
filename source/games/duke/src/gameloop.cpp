@@ -134,7 +134,7 @@ void GameInterface::Render()
 		moveclouds(smoothRatio);
 
 	displayrooms(screenpeek, smoothRatio, false);
-	drawoverlays(smoothRatio);
+	drawoverlays(smoothRatio * (1. / MaxSmoothRatio));
 	drawtime.Unclock();
 }
 

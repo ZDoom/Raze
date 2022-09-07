@@ -1465,11 +1465,11 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         if (cl_viewbob)
         {
             tz += bobamt;
-            tz += __interpvalue(pp->obob_z, pp->bob_z, smoothratio) * zworldtoint;
+            tz += interpolatedvalue(pp->obob_z, pp->bob_z, smoothratio * (1. / MaxSmoothRatio)) * zworldtoint;
         }
 
         // recoil only when not in camera
-        thoriz = q16horiz(clamp(thoriz.asq16() + __interpvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, smoothratio), gi->playerHorizMin(), gi->playerHorizMax()));
+        thoriz = q16horiz(clamp(thoriz.asq16() + interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, smoothratio * (1. / MaxSmoothRatio)), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
     if (automapMode != am_full)

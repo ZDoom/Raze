@@ -286,9 +286,9 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 #if 0
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
-			cposx = __interpvalue(omyx, myx, smoothratio);
-			cposy = __interpvalue(omyy, myy, smoothratio);
-			cposz = __interpvalue(omyz, myz, smoothratio);
+			cposx = interpolatedvalue(omyx, myx, smoothratio * (1. / MaxSmoothRatio));
+			cposy = interpolatedvalue(omyy, myy, smoothratio * (1. / MaxSmoothRatio));
+			cposz = interpolatedvalue(omyz, myz, smoothratio * (1. / MaxSmoothRatio));
 			if (SyncInput())
 			{
 				choriz = interpolatedvalue(omyhoriz + omyhorizoff, myhoriz + myhorizoff, smoothratio * (1. / MaxSmoothRatio));
@@ -304,9 +304,9 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		else
 #endif
 		{
-			cposx = __interpvalue(p->player_int_opos().X, p->player_int_pos().X, smoothratio);
-			cposy = __interpvalue(p->player_int_opos().Y, p->player_int_pos().Y, smoothratio);
-			cposz = __interpvalue(p->player_int_opos().Z, p->player_int_pos().Z, smoothratio);;
+			cposx = interpolatedvalue(p->player_int_opos().X, p->player_int_pos().X, smoothratio * (1. / MaxSmoothRatio));
+			cposy = interpolatedvalue(p->player_int_opos().Y, p->player_int_pos().Y, smoothratio * (1. / MaxSmoothRatio));
+			cposz = interpolatedvalue(p->player_int_opos().Z, p->player_int_pos().Z, smoothratio * (1. / MaxSmoothRatio));;
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct

@@ -226,7 +226,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 //
 //---------------------------------------------------------------------------
 
-void drawoverlays(double smoothratio)
+void drawoverlays(double interpfrac)
 {
 	player_struct* pp;
 	DVector2 cposxy;
@@ -260,19 +260,19 @@ void drawoverlays(double smoothratio)
 	{
 		if (automapMode != am_off)
 		{
-			DoInterpolations(smoothratio * (1. / MaxSmoothRatio));
+			DoInterpolations(interpfrac);
 
 			if (pp->newOwner == nullptr && playrunning())
 			{
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
-					cposxy = DVector2(__interpvalue(omyx, myx, smoothratio), __interpvalue(omyy, myy, smoothratio)) * inttoworld;
-					cang = !SyncInput() ? myang : interpolatedvalue(omyang, myang, smoothratio * (1. / MaxSmoothRatio));
+					cposxy = DVector2(interpolatedvalue(omyx, myx, interpfrac), interpolatedvalue(omyy, myy, interpfrac)) * inttoworld;
+					cang = !SyncInput() ? myang : interpolatedvalue(omyang, myang, interpfrac);
 				}
 				else
 				{
-					cposxy = interpolatedvalue(pp->opos, pp->pos, smoothratio * (1. / MaxSmoothRatio)).XY();
-					cang = !SyncInput() ? pp->angle.ang : interpolatedvalue(pp->angle.oang, pp->angle.ang, smoothratio * (1. / MaxSmoothRatio));
+					cposxy = interpolatedvalue(pp->opos, pp->pos, interpfrac).XY();
+					cang = !SyncInput() ? pp->angle.ang : interpolatedvalue(pp->angle.oang, pp->angle.ang, interpfrac);
 				}
 			}
 			else
@@ -280,7 +280,7 @@ void drawoverlays(double smoothratio)
 				cposxy = pp->opos.XY();
 				cang = pp->angle.oang;
 			}
-			DrawOverheadMap(cposxy, cang, smoothratio);
+			DrawOverheadMap(cposxy, cang, interpfrac * MaxSmoothRatio);
 			RestoreInterpolations();
 		}
 	}
@@ -289,7 +289,7 @@ void drawoverlays(double smoothratio)
 
 	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{
-		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -pp->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio)), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
+		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -pp->angle.look_anghalf(interpfrac), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
 	}
 
 	if (paused == 2)
