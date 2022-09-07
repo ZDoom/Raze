@@ -1047,39 +1047,20 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
 void SetQuake(DExhumedActor* pActor, int nVal)
 {
-    int x = pActor->int_pos().X;
-    int y = pActor->int_pos().Y;
-
-    nVal *= 256;
-
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        auto pPlayerActor = PlayerList[i].pActor;
-
-
-        uint32_t xDiff = abs((int32_t)((pPlayerActor->int_pos().X - x) >> 8));
-        uint32_t yDiff = abs((int32_t)((pPlayerActor->int_pos().Y - y) >> 8));
-
-        uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
-
-        if (sqrtNum > INT_MAX)
-        {
-            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-            sqrtNum = INT_MAX;
-        }
-
-        int nSqrt = ksqrt(sqrtNum);
-
-        int eax = nVal;
+        auto nSqrt = ((PlayerList[i].pActor->spr.pos.XY() - pActor->spr.pos.XY()) * (1. / 16.)).Length();
+        double eax = nVal;
 
         if (nSqrt)
         {
             eax = eax / nSqrt;
 
-            if (eax >= 256)
+            if (eax >= 1)
             {
-                if (eax > 3840) {
-                    eax = 3840;
+                if (eax > 15)
+                {
+                    eax = 15;
                 }
             }
             else
@@ -1088,7 +1069,8 @@ void SetQuake(DExhumedActor* pActor, int nVal)
             }
         }
 
-        if (eax > nQuake[i]) {
+        if (eax > nQuake[i])
+        {
             nQuake[i] = eax;
         }
     }

@@ -40,7 +40,7 @@ int16_t dVertPan[kMaxPlayers];
 DVector3 nCamerapos;
 bool bTouchFloor;
 
-int16_t nQuake[kMaxPlayers] = { 0 };
+double nQuake[kMaxPlayers] = { 0 };
 
 int nChunkTotal = 0;
 
@@ -252,8 +252,8 @@ void DrawView(double interpfrac, bool sceneonly)
     }
     else
     {
-        nCamerapos.Z = min(nCamerapos.Z + nQuake[nLocalPlayer] * zinttoworld, pPlayerActor->sector()->floorz);
-        nCameraang += DAngle::fromBam((nQuake[nLocalPlayer] % 4095) << 14);
+        nCamerapos.Z = min(nCamerapos.Z + nQuake[nLocalPlayer], pPlayerActor->sector()->floorz);
+        nCameraang += DAngle::fromDeg(fmod(nQuake[nLocalPlayer], 16.) * (45. / 128.));
 
         if (bCamera)
         {

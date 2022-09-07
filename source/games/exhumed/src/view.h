@@ -32,7 +32,7 @@ void NoClip();
 void Clip();
 
 extern int16_t dVertPan[];
-extern int16_t nQuake[];
+extern double nQuake[];
 extern DVector3 nCamerapos;
 extern bool bTouchFloor;
 extern int nChunkTotal;

@@ -815,7 +815,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         nQuake[nPlayer] = -nQuake[nPlayer];
         if (nQuake[nPlayer] > 0)
         {
-            nQuake[nPlayer] -= 512;
+            nQuake[nPlayer] -= 2.;
             if (nQuake[nPlayer] < 0)
                 nQuake[nPlayer] = 0;
         }
@@ -1080,7 +1080,7 @@ sectdone:
 
     auto pViewSect = pPlayerActor->sector();
 
-    double EyeZ = PlayerList[nPlayer].eyelevel + pPlayerActor->spr.pos.Z + nQuake[nPlayer] * zinttoworld;
+    double EyeZ = PlayerList[nPlayer].eyelevel + pPlayerActor->spr.pos.Z + nQuake[nPlayer];
 
     while (1)
     {
