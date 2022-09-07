@@ -65,7 +65,7 @@ static void displayloogie(player_struct* p, double const smoothratio)
 {
 	if (p->loogcnt == 0) return;
 
-	const double loogi = interpolatedvaluef(p->oloogcnt, p->loogcnt, smoothratio);
+	const double loogi = __interpvaluef(p->oloogcnt, p->loogcnt, smoothratio);
 	const double y = loogi * 4.;
 
 	for (int i = 0; i < p->numloogs; i++)
@@ -86,7 +86,7 @@ static void displayloogie(player_struct* p, double const smoothratio)
 
 static bool animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal, double const smoothratio)
 {
-	const double fisti = min(interpolatedvaluef(p->ofist_incs, p->fist_incs, smoothratio), 32.);
+	const double fisti = min(__interpvaluef(p->ofist_incs, p->fist_incs, smoothratio), 32.);
 	if (fisti <= 0) return false;
 
 	hud_drawsprite(
@@ -108,7 +108,7 @@ static bool animateknee(int gs, player_struct* p, double look_anghalf, double lo
 	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
 	static const int8_t knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
-	const double kneei = interpolatedvaluef(knee_y[p->oknee_incs], knee_y[p->knee_incs], smoothratio);
+	const double kneei = __interpvaluef(knee_y[p->oknee_incs], knee_y[p->knee_incs], smoothratio);
 	looking_arc += kneei;
 
 	hud_drawpal(105 + plravel - look_anghalf + (kneei * 0.25), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
@@ -161,7 +161,7 @@ static bool animatetip(int gs, player_struct* p, double look_anghalf, double loo
 	if (p->tipincs == 0) return false;
 
 	static const int8_t tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
-	const double tipi = interpolatedvaluef(tip_y[p->otipincs], tip_y[p->tipincs], smoothratio) * 0.5;
+	const double tipi = __interpvaluef(tip_y[p->otipincs], tip_y[p->tipincs], smoothratio) * 0.5;
 
 	hud_drawpal(170 + plravel - look_anghalf, tipi + looking_arc + 240 - horiz16th, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal);
 
@@ -179,7 +179,7 @@ static bool animateaccess(int gs, player_struct* p, double look_anghalf, double 
 	if (p->access_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
 	static const int8_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
-	const double accessi = interpolatedvaluef(access_y[p->oaccess_incs], access_y[p->access_incs], smoothratio);
+	const double accessi = __interpvaluef(access_y[p->oaccess_incs], access_y[p->access_incs], smoothratio);
 	looking_arc += accessi;
 
 	const int pal = p->access_spritenum != nullptr ? p->access_spritenum->spr.pal : 0;
@@ -215,11 +215,11 @@ void displayweapon_d(int snum, double smoothratio)
 
 	if (cl_hudinterpolation)
 	{
-		weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
-		kickback_pic = interpolatedvaluef(p->okickback_pic, p->kickback_pic, smoothratio);
-		random_club_frame = interpolatedvaluef(p->orandom_club_frame, p->random_club_frame, smoothratio);
-		hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
-		gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
+		weapon_sway = __interpvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
+		kickback_pic = __interpvaluef(p->okickback_pic, p->kickback_pic, smoothratio);
+		random_club_frame = __interpvaluef(p->orandom_club_frame, p->random_club_frame, smoothratio);
+		hard_landing = __interpvaluef(p->ohard_landing, p->hard_landing, smoothratio);
+		gun_pos = 80 - __interpvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
 	}
 	else
 	{

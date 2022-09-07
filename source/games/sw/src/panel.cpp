@@ -6387,8 +6387,8 @@ void pDisplaySprites(PLAYER* pp, double smoothratio)
         flags = 0;
         if (cl_hudinterpolation)
         {
-            x = interpolatedvaluef(psp->opos.X, psp->pos.X, smoothratio);
-            y = interpolatedvaluef(psp->opos.Y, psp->pos.Y, smoothratio);
+            x = __interpvaluef(psp->opos.X, psp->pos.X, smoothratio);
+            y = __interpvaluef(psp->opos.Y, psp->pos.Y, smoothratio);
 
         }
         else

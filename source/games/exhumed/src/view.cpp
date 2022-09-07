@@ -214,7 +214,7 @@ void DrawView(double interpfrac, bool sceneonly)
     }
     else
     {
-        nCamerapos = pPlayerActor->interpolatedvec3(interpfrac).plusZ(interpolatedvaluef(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac * MaxSmoothRatio) * zinttoworld);
+        nCamerapos = pPlayerActor->interpolatedvec3(interpfrac).plusZ(__interpvaluef(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac * MaxSmoothRatio) * zinttoworld);
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
         updatesector(nCamerapos, &pSector);

@@ -497,11 +497,11 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		cX = interpolatedvalue(predictOld.x, predict.x, gInterpolate);
 		cY = interpolatedvalue(predictOld.y, predict.y, gInterpolate);
 		cZ = interpolatedvalue(predictOld.viewz, predict.viewz, gInterpolate);
-		zDelta = interpolatedvaluef(predictOld.weaponZ, predict.weaponZ, gInterpolate);
+		zDelta = __interpvaluef(predictOld.weaponZ, predict.weaponZ, gInterpolate);
 		bobWidth = interpolatedvalue(predictOld.bobWidth, predict.bobWidth, gInterpolate);
 		bobHeight = interpolatedvalue(predictOld.bobHeight, predict.bobHeight, gInterpolate);
-		shakeX = interpolatedvaluef(predictOld.shakeBobX, predict.shakeBobX, gInterpolate);
-		shakeY = interpolatedvaluef(predictOld.shakeBobY, predict.shakeBobY, gInterpolate);
+		shakeX = __interpvaluef(predictOld.shakeBobX, predict.shakeBobX, gInterpolate);
+		shakeY = __interpvaluef(predictOld.shakeBobY, predict.shakeBobY, gInterpolate);
 
 		if (!SyncInput())
 		{
@@ -523,11 +523,11 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		cX = interpolatedvalue(pView->x, gView->actor->int_pos().X, gInterpolate);
 		cY = interpolatedvalue(pView->y, gView->actor->int_pos().Y, gInterpolate);
 		cZ = interpolatedvalue(pView->viewz, gView->zView, gInterpolate);
-		zDelta = interpolatedvaluef(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
+		zDelta = __interpvaluef(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
 		bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
 		bobHeight = interpolatedvalue(pView->bobHeight, gView->bobHeight, gInterpolate);
-		shakeX = interpolatedvaluef(pView->shakeBobX, gView->swayWidth, gInterpolate);
-		shakeY = interpolatedvaluef(pView->shakeBobY, gView->swayHeight, gInterpolate);
+		shakeX = __interpvaluef(pView->shakeBobX, gView->swayWidth, gInterpolate);
+		shakeY = __interpvaluef(pView->shakeBobY, gView->swayHeight, gInterpolate);
 
 		if (!SyncInput())
 		{

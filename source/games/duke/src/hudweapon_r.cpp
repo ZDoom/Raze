@@ -120,10 +120,10 @@ void displayweapon_r(int snum, double smoothratio)
 
 	if (cl_hudinterpolation)
 	{
-		weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
-		hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
-		gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
-		TiltStatus = !SyncInput() ? p->TiltStatus : interpolatedvaluef(p->oTiltStatus, p->TiltStatus, smoothratio);
+		weapon_sway = __interpvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
+		hard_landing = __interpvaluef(p->ohard_landing, p->hard_landing, smoothratio);
+		gun_pos = 80 - __interpvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
+		TiltStatus = !SyncInput() ? p->TiltStatus : __interpvaluef(p->oTiltStatus, p->TiltStatus, smoothratio);
 	}
 	else
 	{

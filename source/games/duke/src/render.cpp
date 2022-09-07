@@ -339,7 +339,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		}
 		else if (p->over_shoulder_on == 0)
 		{
-			if (cl_viewbob) cposz += interpolatedvaluef(p->opyoff, p->pyoff, smoothratio) * zworldtoint;
+			if (cl_viewbob) cposz += __interpvaluef(p->opyoff, p->pyoff, smoothratio) * zworldtoint;
 			viewer = p->GetActor();
 		}
 		else
