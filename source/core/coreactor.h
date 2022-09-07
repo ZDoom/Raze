@@ -205,44 +205,9 @@ public:
 		vel = { 0,0,0 };
 	}
 
-
-
-	// Same as above but with inverted y and z axes to match the renderer's coordinate system.
-
-	double interpolatedx(double const smoothratio, int const scale = 16)
-	{
-		return __interpvaluef(opos.X, spr.pos.X, smoothratio, scale);
-	}
-
-	double interpolatedy(double const smoothratio, int const scale = 16)
-	{
-		return __interpvaluef(opos.Y, spr.pos.Y, smoothratio, scale);
-	}
-
-	double interpolatedz(double const smoothratio, int const scale = 16)
-	{
-		return __interpvaluef(opos.Z, spr.pos.Z, smoothratio, scale);
-	}
-
 	DVector3 interpolatedvec3(double const interpfrac)
 	{
 		return ::interpolatedvalue(opos, spr.pos, interpfrac);
-	}
-
-
-	int32_t __interpolatedx(double const smoothratio, int const scale = 16)
-	{
-		return interpolatedx(smoothratio, scale) * worldtoint;
-	}
-
-	int32_t __interpolatedy(double const smoothratio, int const scale = 16)
-	{
-		return interpolatedy(smoothratio, scale) * worldtoint;
-	}
-
-	int32_t __interpolatedz(double const smoothratio, int const scale = 16)
-	{
-		return interpolatedz(smoothratio, scale) * zworldtoint;
 	}
 
 	DAngle interpolatedangle(double const interpfrac)
