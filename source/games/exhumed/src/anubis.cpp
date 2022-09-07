@@ -43,7 +43,7 @@ static const actionSeq AnubisSeq[] = {
     { 43, 1 },
 };
 
-void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, int nAngle, uint8_t bIsDrummer)
+void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DAngle nAngle, uint8_t bIsDrummer)
 {
     if (ap == nullptr)
     {
@@ -55,7 +55,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, in
         ChangeActorStat(ap, 101);
 
 		ap->spr.pos.Z = ap->sector()->floorz;
-        nAngle = ap->int_ang();
+        nAngle = ap->spr.angle;
     }
 
     ap->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -65,7 +65,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, in
     ap->spr.picnum = 1;
     ap->spr.pal = ap->sector()->ceilingpal;
     ap->spr.clipdist = 60;
-    ap->set_int_ang(nAngle);
+    ap->spr.angle = nAngle;
     ap->spr.xrepeat = 40;
     ap->spr.yrepeat = 40;
     ap->vel.X = 0;
@@ -265,7 +265,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             // loc_25718:
             if (nFlag & 0x80)
             {
-                BuildBullet(ap, 8, -1, ap->int_ang(), pTarget, 1);
+                BuildBullet(ap, 8, -1, ap->spr.angle, pTarget, 1);
             }
         }
 

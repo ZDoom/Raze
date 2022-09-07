@@ -499,12 +499,12 @@ void GameInterface::UpdateSounds()
         return;
 
     DVector3 pos;
-    int ang;
+    DAngle ang;
     if (nSnakeCam > -1)
     {
         Snake *pSnake = &SnakeList[nSnakeCam];
         pos = pSnake->pSprites[0]->spr.pos;
-        ang = pSnake->pSprites[0]->int_ang();
+        ang = pSnake->pSprites[0]->spr.angle;
     }
     else
     {
@@ -512,7 +512,7 @@ void GameInterface::UpdateSounds()
         ang = inita;
     }
     SoundListener listener;
-    listener.angle = float(-ang * BAngRadian); // Build uses a period of 2048.
+    listener.angle = float(-ang.Radians()); // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos(pos);
     listener.underwater = false;

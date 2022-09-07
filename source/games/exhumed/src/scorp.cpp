@@ -38,7 +38,7 @@ static actionSeq ScorpSeq[] = {
     {53, 1}
 };
 
-void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, int nChannel)
+void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel)
 {
 	if (pActor == nullptr)
 	{
@@ -49,7 +49,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 	{
 		ChangeActorStat(pActor, 122);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-		nAngle = pActor->int_ang();
+		nAngle = pActor->spr.angle;
 	}
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -61,7 +61,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -312,7 +312,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto nBulletSprite = BuildBullet(pActor, 16, -1, pActor->int_ang(), pTarget, 1);
+        auto nBulletSprite = BuildBullet(pActor, 16, -1, pActor->spr.angle, pTarget, 1);
         if (nBulletSprite)
         {
             PlotCourseToSprite(nBulletSprite, pTarget);
@@ -362,7 +362,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto pSpiderActor = BuildSpider(nullptr, pActor->spr.pos, pActor->sector(), pActor->int_ang());
+        auto pSpiderActor = BuildSpider(nullptr, pActor->spr.pos, pActor->sector(), pActor->spr.angle);
         if (pSpiderActor)
         {
             pSpiderActor->set_int_ang(RandomSize(11));

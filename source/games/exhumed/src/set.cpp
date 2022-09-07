@@ -39,7 +39,7 @@ static actionSeq SetSeq[] = {
     {74, 1}
 };
 
-void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, int nChannel)
+void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel)
 {
     if (pActor == nullptr)
     {
@@ -50,7 +50,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     {
         ChangeActorStat(pActor, 120);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-        nAngle = pActor->int_ang();
+        nAngle = pActor->spr.angle;
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -64,7 +64,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->spr.picnum = 1;
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -490,7 +490,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            auto pBullet = BuildBullet(pActor, 11, -1, pActor->int_ang(), pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 11, -1, pActor->spr.angle, pTarget, 1);
             if (pBullet)
 				SetBulletEnemy(pBullet->nPhase, pTarget);
 

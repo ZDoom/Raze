@@ -35,7 +35,7 @@ static actionSeq RoachSeq[] = {
 };
 
 // TODO - make nType a bool?
-void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int angle)
+void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle angle)
 {
 	if (pActor == nullptr)
 	{
@@ -46,7 +46,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
 	{
 		ChangeActorStat(pActor, 105);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-		angle = pActor->int_ang();
+		angle = pActor->spr.angle;
 	}
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -56,7 +56,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.clipdist = 60;
-    pActor->set_int_ang(angle);
+    pActor->spr.angle = angle;
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
     pActor->vel.X = 0;
@@ -338,7 +338,7 @@ void AIRoach::Tick(RunListEvent* ev)
         {
             if (nFlag & 0x80)
             {
-                BuildBullet(pActor, 13, -1, pActor->int_ang(), pTarget, 1);
+                BuildBullet(pActor, 13, -1, pActor->spr.angle, pTarget, 1);
             }
         }
 

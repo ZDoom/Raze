@@ -334,12 +334,12 @@ void GameInterface::Ticker()
 	}
     else if (EndLevel == 0)
     {
-        inita &= kAngleMask;
+        inita = inita.Normalized360();
 
         for (int i = 0; i < 4; i++)
         {
-            lPlayerXVel += localInput.fvel * bcos(inita) + localInput.svel * bsin(inita);
-            lPlayerYVel += localInput.fvel * bsin(inita) - localInput.svel * bcos(inita);
+            lPlayerXVel += localInput.fvel * bcos(inita.Buildang()) + localInput.svel * bsin(inita.Buildang());
+            lPlayerYVel += localInput.fvel * bsin(inita.Buildang()) - localInput.svel * bcos(inita.Buildang());
             lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
             lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
         }

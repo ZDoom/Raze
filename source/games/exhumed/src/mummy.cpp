@@ -37,7 +37,7 @@ static actionSeq MummySeq[] = {
 };
 
 
-void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle)
+void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
     if (pActor == nullptr)
     {
@@ -46,7 +46,7 @@ void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     }
     else
     {
-        nAngle = pActor->int_ang();
+        nAngle = pActor->spr.angle;
         ChangeActorStat(pActor, 102);
     }
 
@@ -61,7 +61,7 @@ void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->spr.picnum = 1;
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -320,7 +320,7 @@ void AIMummy::Tick(RunListEvent* ev)
             SetQuake(pActor, 100);
 
             // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
-            auto pBullet = BuildBullet(pActor, 9, -15360, pActor->int_ang(), pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 9, -15360, pActor->spr.angle, pTarget, 1);
             CheckMummyRevive(pActor);
 
             if (pBullet)

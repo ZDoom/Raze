@@ -72,7 +72,7 @@ void SetRatVel(DExhumedActor* pActor)
     pActor->VelFromAngle(-2);
 }
 
-void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle)
+void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
 	if (pActor == nullptr)
 	{
@@ -83,7 +83,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
 	{
 		ChangeActorStat(pActor, 108);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-		nAngle = pActor->int_ang();
+		nAngle = pActor->spr.angle;
 	}
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -93,7 +93,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.clipdist = 30;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->spr.xrepeat = 50;
     pActor->spr.yrepeat = 50;
     pActor->vel.X = 0;
@@ -103,7 +103,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.hitag = 0;
     pActor->spr.extra = -1;
 
-    if (nAngle >= 0) {
+    if (nAngle.Degrees() >= 0) {
         pActor->nAction = 2;
     }
     else {

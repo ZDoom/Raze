@@ -97,7 +97,7 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
 }
 
 
-void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, int nChannel)
+void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel)
 {
     if (pActor == nullptr)
     {
@@ -107,7 +107,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     else
     {
         pSector = pActor->sector();
-        nAngle = pActor->int_ang();
+        nAngle = pActor->spr.angle;
 		pActor->spr.pos.Z = pSector->floorz;
 
         ChangeActorStat(pActor, 118);
@@ -125,7 +125,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
 
@@ -347,7 +347,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             int nHeight = GetActorHeight(pActor);
             GetUpAngle(pActor, -64000, pTarget, (-(nHeight >> 1)));
 
-            BuildBullet(pActor, 10, -1, pActor->int_ang(), pTarget, 1);
+            BuildBullet(pActor, 10, -1, pActor->spr.angle, pTarget, 1);
         }
         else if (var_1C)
         {

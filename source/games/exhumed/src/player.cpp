@@ -101,7 +101,7 @@ size_t MarkPlayers()
     return 5 * kMaxPlayers;
 }
 
-void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, int nAngle)
+void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
     PlayerList[nPlayer].sPlayerSave.pos = pos;
     PlayerList[nPlayer].sPlayerSave.pSector = pSector;
@@ -278,7 +278,7 @@ void RestartPlayer(int nPlayer)
 	{
         pActor->spr.pos.XY() = plr->sPlayerSave.pos.XY();
 		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
-		plr->angle.ang = DAngle::fromBuild(plr->sPlayerSave.nAngle&kAngleMask);
+		plr->angle.ang = plr->sPlayerSave.nAngle;
 		pActor->spr.angle = plr->angle.ang;
 
 		floorsprt = nullptr;
@@ -591,8 +591,8 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    inita = pPlayer->angle.ang.Buildang();
-    if (pPlayer->pActor) pPlayer->pActor->set_int_ang(inita);
+    inita = pPlayer->angle.ang;
+    if (pPlayer->pActor) pPlayer->pActor->spr.angle = inita;
 }
 
 void AIPlayer::Draw(RunListEvent* ev)
@@ -2170,7 +2170,7 @@ sectdone:
                         ChangeActorStat(pActorB, 899);
                     }
 
-                    SetSavePoint(nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->int_ang());
+                    SetSavePoint(nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.angle);
                     break;
                 }
 
@@ -2515,7 +2515,7 @@ sectdone:
     {
         initpos = pPlayerActor->spr.pos;
         initsectp = pPlayerActor->sector();
-        inita = pPlayerActor->int_ang();
+        inita = pPlayerActor->spr.angle;
     }
 
     if (!PlayerList[nPlayer].nHealth)

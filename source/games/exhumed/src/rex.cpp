@@ -37,7 +37,7 @@ static actionSeq RexSeq[] = {
     {28, 1}
 };
 
-void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, int nChannel)
+void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel)
 {
     if (pActor == nullptr)
     {
@@ -46,7 +46,7 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
 	}
 	else
 	{
-		nAngle = pActor->int_ang();
+		nAngle = pActor->spr.angle;
 		pActor->spr.pos.Z = pActor->sector()->floorz;
         ChangeActorStat(pActor, 119);
     }
@@ -60,7 +60,7 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, i
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;

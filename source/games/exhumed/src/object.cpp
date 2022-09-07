@@ -1308,7 +1308,7 @@ void AITrap::Tick(RunListEvent* ev)
                 return;
             }
 
-            auto pBullet = BuildBullet(pActor, nType, 0, pActor->int_ang(), nullptr, 1);
+            auto pBullet = BuildBullet(pActor, nType, 0, pActor->spr.angle, nullptr, 1);
             if (pBullet)
             {
                 if (nType == 15)

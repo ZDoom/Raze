@@ -40,7 +40,7 @@ enum
 };
 
 DVector3 initpos;
-int16_t inita;
+DAngle inita;
 sectortype* initsectp;
 
 int nCurChunkNum = 0;
@@ -142,7 +142,9 @@ uint8_t LoadLevel(MapRecord* map)
 
     int initsect;
     SpawnSpriteDef spawned;
-    loadMap(currentLevel->fileName, 0, &initpos, &inita, &initsect, spawned);
+    int16_t mapang;
+    loadMap(currentLevel->fileName, 0, &initpos, &mapang, &initsect, spawned);
+    inita = DAngle::fromBuild(mapang);
     initsectp = &sector[initsect];
     auto actors = spawnactors(spawned);
 
@@ -422,7 +424,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildAnubis(pActor, nulvec, nullptr, 0, 1);
+                BuildAnubis(pActor, nulvec, nullptr, nullAngle, 1);
                 return;
             }
             case 117:
@@ -432,27 +434,27 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildWasp(pActor, nulvec, nullptr, 0, false);
+                BuildWasp(pActor, nulvec, nullptr, nullAngle, false);
                 return;
             }
             case 116:
             {
-                BuildRat(pActor, nulvec, nullptr, -1);
+                BuildRat(pActor, nulvec, nullptr, DAngle::fromBam(unsigned(-1)));
                 return;
             }
             case 115: // Rat (eating)
             {
-                BuildRat(pActor, nulvec, nullptr, 0);
+                BuildRat(pActor, nulvec, nullptr, nullAngle);
                 return;
             }
             case 113:
             {
-                BuildQueen(pActor, nulvec, nullptr, 0, nChannel);
+                BuildQueen(pActor, nulvec, nullptr, nullAngle, nChannel);
                 return;
             }
             case 112:
             {
-                BuildScorp(pActor, nulvec, nullptr, 0, nChannel);
+                BuildScorp(pActor, nulvec, nullptr, nullAngle, nChannel);
                 return;
             }
             case 111:
@@ -462,7 +464,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildSet(pActor, nulvec, nullptr, 0, nChannel);
+                BuildSet(pActor, nulvec, nullptr, nullAngle, nChannel);
                 return;
             }
             case 108:
@@ -472,7 +474,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildLava(pActor, nulvec, nullptr, 0, nChannel);
+                BuildLava(pActor, nulvec, nullptr, nullAngle, nChannel);
                 return;
             }
             case 107:
@@ -482,7 +484,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildRex(pActor, nulvec, nullptr, 0, nChannel);
+                BuildRex(pActor, nulvec, nullptr, nullAngle, nChannel);
                 return;
             }
             case 106:
@@ -492,7 +494,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildFish(pActor, nulvec, nullptr, 0);
+                BuildFish(pActor, nulvec, nullptr, nullAngle);
                 return;
             }
             case 105:
@@ -502,7 +504,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildSpider(pActor, nulvec, nullptr, 0);
+                BuildSpider(pActor, nulvec, nullptr, nullAngle);
                 return;
             }
             case 104:
@@ -512,7 +514,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildRoach(1, pActor, nulvec, nullptr, 0);
+                BuildRoach(1, pActor, nulvec, nullptr, nullAngle);
                 return;
             }
             case 103:
@@ -522,7 +524,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildRoach(0, pActor, nulvec, nullptr, 0);
+                BuildRoach(0, pActor, nulvec, nullptr, nullAngle);
                 return;
             }
             case 102:
@@ -532,7 +534,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildLion(pActor, nulvec, nullptr, 0);
+                BuildLion(pActor, nulvec, nullptr, nullAngle);
                 return;
             }
             case 101:
@@ -542,7 +544,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildMummy(pActor, nulvec, nullptr, 0);
+                BuildMummy(pActor, nulvec, nullptr, nullAngle);
                 return;
             }
             case 100:
@@ -552,7 +554,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildAnubis(pActor, nulvec, nullptr, 0, 0);
+                BuildAnubis(pActor, nulvec, nullptr, nullAngle, 0);
                 return;
             }
             case 99: // underwater type 2

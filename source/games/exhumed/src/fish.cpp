@@ -138,7 +138,7 @@ void AIFishLimb::Draw(RunListEvent* ev)
 }
 
 
-void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle)
+void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
     if (pActor == nullptr)
     {
@@ -147,7 +147,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     }
     else
     {
-        nAngle = pActor->int_ang();
+        nAngle = pActor->spr.angle;
         ChangeActorStat(pActor, 103);
     }
 
@@ -163,7 +163,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
     pActor->spr.extra = -1;

@@ -36,7 +36,7 @@ static actionSeq SpiderSeq[] = {
 };
 
 
-DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* pSector, int nAngle)
+DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
     if (spp == nullptr)
     {
@@ -48,7 +48,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
         ChangeActorStat(spp, 99);
 
         spp->spr.pos.Z = spp->sector()->floorz;
-        nAngle = spp->int_ang();
+        nAngle = spp->spr.angle;
     }
 
     spp->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -62,7 +62,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
     spp->spr.pal = spp->sector()->ceilingpal;
     spp->spr.xoffset = 0;
     spp->spr.yoffset = 0;
-    spp->set_int_ang(nAngle);
+    spp->spr.angle = nAngle;
     spp->spr.picnum = 1;
     spp->spr.hitag = 0;
     spp->spr.lotag = runlist_HeadRun() + 1;

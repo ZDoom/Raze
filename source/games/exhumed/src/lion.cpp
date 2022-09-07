@@ -41,7 +41,7 @@ static actionSeq LionSeq[] = {
 };
 
 
-void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle)
+void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
     if (pActor == nullptr)
     {
@@ -52,7 +52,7 @@ void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     {
         ChangeActorStat(pActor, 104);
         pActor->spr.pos.Z = pActor->sector()->floorz;
-        nAngle = pActor->int_ang();
+        nAngle = pActor->spr.angle;
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -64,7 +64,7 @@ void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;

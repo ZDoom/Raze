@@ -632,11 +632,11 @@ loc_flag:
             }
 
             int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
-            int nAngle = pPlayerActor->int_ang();
+            DAngle nAngle = pPlayerActor->spr.angle;
 			auto thePos = pPlayerActor->spr.pos;
 
-            int ebp = bcos(nAngle) * (pPlayerActor->spr.clipdist << 3);
-            int ebx = bsin(nAngle) * (pPlayerActor->spr.clipdist << 3);
+            int ebp = nAngle.Cos() * (1 << 14) * (pPlayerActor->spr.clipdist << 3);
+            int ebx = nAngle.Sin() * (1 << 14) * (pPlayerActor->spr.clipdist << 3);
 
             if (WeaponInfo[nWeapon].c)
             {
@@ -648,9 +648,9 @@ loc_flag:
                 else
                     ecx = theVal;
 
-                int var_44 = (nAngle + 512) & kAngleMask;
-                ebp += bcos(var_44, -11) * ecx;
-                ebx += bsin(var_44, -11) * ecx;
+                DAngle var_44 = (nAngle + DAngle90).Normalized360();
+                ebp += var_44.Cos() * (1 << 3) * ecx;
+                ebx += var_44.Sin() * (1 << 3) * ecx;
             }
 
             int nHeight = (-GetActorHeight(pPlayerActor)) >> 1;

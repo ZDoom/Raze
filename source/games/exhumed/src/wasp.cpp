@@ -39,7 +39,7 @@ void SetWaspVel(DExhumedActor* pActor)
     pActor->VelFromAngle();
 }
 
-DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, int nAngle, bool bEggWasp)
+DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, bool bEggWasp)
 {
     if (pActor == nullptr)
     {
@@ -49,7 +49,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
     }
     else
     {
-        nAngle = pActor->int_ang();
+        nAngle = pActor->spr.angle;
         ChangeActorStat(pActor, 107);
     }
 
@@ -72,7 +72,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;

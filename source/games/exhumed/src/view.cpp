@@ -332,13 +332,13 @@ void DrawView(double interpfrac, bool sceneonly)
 
                     pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-                    int ang2 = nCameraang.Buildang() - pPlayerActor->int_ang();
-                    if (ang2 < 0)
+                    auto ang2 = nCameraang - pPlayerActor->spr.angle;
+                    if (ang2.Degrees() < 0)
                         ang2 = -ang2;
 
-                    if (ang2 > 10)
+                    if (ang2 > DAngle::fromBuild(10))
                     {
-                        inita -= (ang2 >> 3);
+                        inita -= ang2 * (1. / 8.);
                         return;
                     }
 

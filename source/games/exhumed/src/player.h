@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, int nAngle);
+void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle);
 void InitPlayer();
 void InitPlayerKeys(int nPlayer);
 int GrabPlayer();
@@ -47,7 +47,7 @@ struct PlayerSave
 {
     sectortype* pSector;
     DVector3 pos;
-    int16_t nAngle;
+    DAngle nAngle;
 };
 
 struct Player
