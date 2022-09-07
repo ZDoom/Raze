@@ -94,7 +94,7 @@ void SpawnPlayerUnderSprite(PLAYER* pp);
 void DoQuakeMatch(short match);
 void ProcessQuakeOn(void);
 void ProcessQuakeSpot(void);
-void QuakeViewChange(PLAYER* pp, int* z_diff, int* x_diff, int* y_diff, short* ang_diff);
+void QuakeViewChange(PLAYER* pp, DVector3& tpos, DAngle& tang);
 void DoQuake(PLAYER* pp);
 bool SetQuake(PLAYER* pp, short tics, short amt);
 int SetExpQuake(DSWActor*);

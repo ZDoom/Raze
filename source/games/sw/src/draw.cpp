@@ -1318,48 +1318,35 @@ void RestorePortalState()
 void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 {
     extern bool CameraTestMode;
-    int tx, ty, tz;
     DAngle tang, trotscrnang;
     fixedhoriz thoriz;
     sectortype* tsect;
-    short i,j;
-    int bobamt = 0;
-    int quake_z, quake_x, quake_y;
-    short quake_ang;
-    extern bool FAF_DebugView;
-    PLAYER* camerapp;                       // prediction player if prediction is on, else regular player
+
+    // prediction player if prediction is on, else regular player
+    PLAYER* camerapp = (PredictionOn && CommEnabled && pp == Player+myconnectindex) ? ppp : pp;
+
+    // temporary interpolation scaler.
+    double interpfrac = smoothratio * (1. / MaxSmoothRatio);
 
     DrawScreen = true;
     PreDraw();
 
-    PreUpdatePanel(smoothratio * (1. / MaxSmoothRatio));
-    int sr = (int)smoothratio;
+    PreUpdatePanel(interpfrac);
 
     if (!sceneonly)
     {
-        DoInterpolations(smoothratio * (1. / MaxSmoothRatio));                      // Stick at beginning of drawscreen
-        if (cl_sointerpolation)
-            so_dointerpolations(sr);                           // Stick at beginning of drawscreen
+        // Stick at beginning of drawscreen
+        DoInterpolations(interpfrac);
+        if (cl_sointerpolation) so_dointerpolations((int)smoothratio);
     }
 
-    // TENSW: when rendering with prediction, the only thing that counts should
-    // be the predicted player.
-    if (PredictionOn && CommEnabled && pp == Player+myconnectindex)
-        camerapp = ppp;
-    else
-        camerapp = pp;
-
-    tx = int(interpolatedvalue<double>(camerapp->opos.X, camerapp->pos.X, smoothratio * (1. / MaxSmoothRatio)) * worldtoint);
-    ty = int(interpolatedvalue<double>(camerapp->opos.Y, camerapp->pos.Y, smoothratio * (1. / MaxSmoothRatio)) * worldtoint);
-    tz = int(interpolatedvalue<double>(camerapp->opos.Z, camerapp->pos.Z, smoothratio * (1. / MaxSmoothRatio)) * zworldtoint);
-
-    // Interpolate the player's angle while on a sector object, just like VoidSW.
-    // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
+    // Get initial player position, interpolating if required.
+    DVector3 tpos = interpolatedvalue(camerapp->opos, camerapp->pos, interpfrac);
     if (SyncInput() || pp != Player+myconnectindex)
     {
-        tang = camerapp->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-        thoriz = camerapp->horizon.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-        trotscrnang = camerapp->angle.interpolatedrotscrn(smoothratio * (1. / MaxSmoothRatio));
+        tang = camerapp->angle.interpolatedsum(interpfrac);
+        thoriz = camerapp->horizon.interpolatedsum(interpfrac);
+        trotscrnang = camerapp->angle.interpolatedrotscrn(interpfrac);
     }
     else
     {
@@ -1369,91 +1356,70 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     }
     tsect = camerapp->cursector;
 
-    updatesector(tx, ty, &tsect);
+    updatesector(tpos, &tsect);
 
     if (pp->sop_riding || pp->sop_control)
     {
-        if (pp->sop_control &&
-            (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
+        if (pp->sop_control && (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
-            tx = pp->int_ppos().X;
-            ty = pp->int_ppos().Y;
-            tz = pp->int_ppos().Z;
+            tpos = pp->pos;
             tang = pp->angle.ang;
         }
         tsect = pp->cursector;
-        updatesectorz(tx, ty, tz, &tsect);
+        updatesectorz(tpos, &tsect);
     }
 
-    pp->si.X = tx * inttoworld;
-    pp->si.Y = ty * inttoworld;
-    pp->si.Z = tz * zinttoworld - pp->pos.Z;
+    pp->si = tpos.plusZ(-pp->pos.Z);
     pp->siang = tang;
 
-    QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
+    QuakeViewChange(camerapp, tpos, tang);
     int vis = g_visibility;
     VisViewChange(camerapp, &vis);
     g_relvisibility = vis - g_visibility;
-    tz = tz + quake_z;
-    tx = tx + quake_x;
-    ty = ty + quake_y;
-    //thoriz += buildhoriz(quake_x);
-    tang += DAngle::fromBuild(quake_ang);
 
     if (pp->sop_remote)
     {
         DSWActor* ractor = pp->remoteActor;
-        if (TEST_BOOL1(ractor))
-            tang = ractor->spr.angle;
-        else
-            tang = VecToAngle(pp->sop_remote->int_pmid().X - tx, pp->sop_remote->int_pmid().Y - ty);
+        tang = TEST_BOOL1(ractor) ? ractor->spr.angle : (pp->sop_remote->pmid.XY() - tpos.XY()).Angle();
     }
 
     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
     {
-        tz -= 8448;
+        tpos.Z -= 33;
 
-        if (!calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio))
+        if (!calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac))
         {
-            tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, pp->actor, &tsect, tang, thoriz, smoothratio);
+            tpos.Z += 33;
+            calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac);
         }
     }
-    else
+    else if(CameraTestMode)
     {
-        bobamt = camerapp->pbob_amt * zworldtoint;
-
-        if (CameraTestMode)
-        {
-            DVector3 temp = { tx * inttoworld, ty * inttoworld, tz * zinttoworld };
-            CameraView(camerapp, temp, &tsect, &tang, &thoriz);
-            tx = temp.X * worldtoint;
-            ty = temp.Y * worldtoint;
-            tz = temp.Z * zworldtoint;
-        }
+        CameraView(camerapp, tpos, &tsect, &tang, &thoriz);
     }
 
     if (!(pp->Flags & (PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE)))
     {
         if (cl_viewbob)
         {
-            tz += bobamt;
-            tz += interpolatedvalue(pp->obob_z, pp->bob_z, smoothratio * (1. / MaxSmoothRatio)) * zworldtoint;
+            tpos.Z += camerapp->pbob_amt + interpolatedvalue(pp->obob_z, pp->bob_z, interpfrac);
         }
 
         // recoil only when not in camera
-        thoriz = q16horiz(clamp(thoriz.asq16() + interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, smoothratio * (1. / MaxSmoothRatio)), gi->playerHorizMin(), gi->playerHorizMax()));
+        thoriz = q16horiz(clamp(thoriz.asq16() + interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, interpfrac), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
     if (automapMode != am_full)
     {
         // Cameras must be done before the main loop.
-        JS_CameraParms(pp, tx, ty, tz);  
+        JS_CameraParms(pp, tpos.X * worldtoint, tpos.Y * worldtoint, tpos.Z * zworldtoint);  
     }
 
-    if (!sceneonly) UpdatePanel(smoothratio * (1. / MaxSmoothRatio));
+    if (!sceneonly)
+        UpdatePanel(interpfrac);
+
     UpdateWallPortalState();
-    render_drawrooms(pp->actor, vec3_t( tx, ty, tz ), sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
+    render_drawrooms(pp->actor, tpos, sectnum(tsect), tang, thoriz, trotscrnang, interpfrac);
     RestorePortalState();
 
     if (sceneonly)
@@ -1461,9 +1427,6 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         DrawScreen = false;
         return;
     }
-
-    // if doing a screen save don't need to process the rest
-
 
     MarkSectorSeen(pp->cursector);
 
@@ -1482,7 +1445,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
                 }
             }
         }
-        DrawOverheadMap(DVector2(tx, ty) * inttoworld, tang, smoothratio * (1. / MaxSmoothRatio));
+        DrawOverheadMap(tpos.XY(), tang, interpfrac);
     }
 
     SWSpriteIterator it;
@@ -1496,24 +1459,18 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         }
     }
 
-#if SYNC_TEST
-    SyncStatMessage();
-#endif
-
     UpdateStatusBar();
-    DrawCrosshair(pp, smoothratio * (1. / MaxSmoothRatio));
-    DoPlayerDiveMeter(pp); // Do the underwater breathing bar
+    DrawCrosshair(pp, interpfrac);
+
+    // Do the underwater breathing bar
+    DoPlayerDiveMeter(pp);
 
     // Boss Health Meter, if Boss present
     BossHealthMeter();
 
-#if SYNC_TEST
-    SyncStatMessage();
-#endif
-
-    RestoreInterpolations();                 // Stick at end of drawscreen
-    if (cl_sointerpolation)
-        so_restoreinterpolations();                       // Stick at end of drawscreen
+    // Stick at end of drawscreen
+    RestoreInterpolations();
+    if (cl_sointerpolation) so_restoreinterpolations();
 
     if (paused && !M_Active())
     {

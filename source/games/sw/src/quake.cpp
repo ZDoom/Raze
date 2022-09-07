@@ -149,20 +149,13 @@ void ProcessQuakeSpot(void)
     }
 }
 
-void QuakeViewChange(PLAYER* pp, int *z_diff, int *x_diff, int *y_diff, short *ang_diff)
+void QuakeViewChange(PLAYER* pp, DVector3& tpos, DAngle& tang)
 {
-    int i;
     DSWActor* save_act = nullptr;
-    int dist,save_dist = 999999;
-    int dist_diff, scale_value;
-    int ang_amt;
-    int radius;
-    int pos_amt;
+    double save_dist = 62500;
 
-    *z_diff = 0;
-    *x_diff = 0;
-    *y_diff = 0;
-    *ang_diff = 0;
+    DVector3 tposdiff;
+    DAngle tangdiff;
 
     if (paused)
         return;
@@ -172,7 +165,7 @@ void QuakeViewChange(PLAYER* pp, int *z_diff, int *x_diff, int *y_diff, short *a
     SWStatIterator it(STAT_QUAKE_ON);
 	while ((actor = it.Next()))
 	{
-        dist = FindDistance3D(pp->int_ppos() - actor->int_pos());
+        auto dist = (pp->pos - actor->spr.pos).Length();
 
         // shake whole level
         if (QUAKE_TestDontTaper(actor))
@@ -194,30 +187,31 @@ void QuakeViewChange(PLAYER* pp, int *z_diff, int *x_diff, int *y_diff, short *a
     else
         actor = save_act;
 
-    radius = QUAKE_Radius(actor) * 8L;
+    double radius = QUAKE_Radius(actor) * 0.5;
     if (save_dist > radius)
         return;
 
-    *z_diff = Z(StdRandomRange(QUAKE_Zamt(actor)) - (QUAKE_Zamt(actor)/2));
+    tposdiff.Z = StdRandomRange(QUAKE_Zamt(actor)) - (QUAKE_Zamt(actor)/2);
 
-    ang_amt = QUAKE_AngAmt(actor) * 4L;
-    *ang_diff = StdRandomRange(ang_amt) - (ang_amt/2);
+    int ang_amt = QUAKE_AngAmt(actor) * 4L;
+    tangdiff = DAngle::fromBuild(StdRandomRange(ang_amt) - (ang_amt/2));
 
-    pos_amt = QUAKE_PosAmt(actor) * 4L;
-    *x_diff = StdRandomRange(pos_amt) - (pos_amt/2);
-    *y_diff = StdRandomRange(pos_amt) - (pos_amt/2);
+    int pos_amt = QUAKE_PosAmt(actor) * 4L;
+    tposdiff.XY() = DVector2(StdRandomRange(pos_amt) - (pos_amt/2), StdRandomRange(pos_amt) - (pos_amt/2)) * (1. / 4.);
 
     if (!QUAKE_TestDontTaper(actor))
     {
         // scale values from epicenter
-        dist_diff = radius - save_dist;
-        scale_value = DivScale(dist_diff, radius, 16);
+        double dist_diff = radius - save_dist;
+        double scale_value = dist_diff / radius;
 
-        *z_diff = MulScale(*z_diff, scale_value, 16);
-        *ang_diff = MulScale(*ang_diff, scale_value, 16);
-        *x_diff = MulScale(*x_diff, scale_value, 16);
-        *y_diff = MulScale(*y_diff, scale_value, 16);
+        tposdiff *= scale_value;
+        tangdiff *= scale_value;
     }
+
+    // Add difference values onto incoming references
+    tpos += tposdiff;
+    tang += tangdiff;
 }
 
 void SpawnQuake(sectortype* sect, const DVector3& pos, int tics, int amt, int radius)
