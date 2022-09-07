@@ -53,7 +53,7 @@ bool bCamera = false;
 tspriteArray* mytspriteArray;
 
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double const smoothratio)
+static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double const interpfrac)
 {
     mytspriteArray = &tsprites;
 
@@ -64,8 +64,8 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
         if (pTSprite->ownerActor)
         {
             // interpolate sprite position
-            pTSprite->pos = pTSprite->ownerActor->interpolatedpos(smoothratio * (1. / MaxSmoothRatio));
-            pTSprite->angle = pTSprite->ownerActor->interpolatedangle(smoothratio * (1. / MaxSmoothRatio));
+            pTSprite->pos = pTSprite->ownerActor->interpolatedpos(interpfrac);
+            pTSprite->angle = pTSprite->ownerActor->interpolatedangle(interpfrac);
         }
     }
 
@@ -402,7 +402,7 @@ bool GameInterface::GenerateSavePic()
 
 void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio)
 {
-    analyzesprites(tsprites, viewx, viewy, viewz, smoothRatio);
+    analyzesprites(tsprites, viewx, viewy, viewz, smoothRatio * (1. / MaxSmoothRatio));
 }
 
 
