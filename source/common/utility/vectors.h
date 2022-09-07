@@ -1485,6 +1485,12 @@ inline TVector2<T> clamp(const TVector2<T> &vec, const TVector2<T> &min, const T
 	return TVector2<T>(clamp(vec.X, min.X, max.X), clamp(vec.Y, min.Y, max.Y));
 }
 
+template<class T>
+inline TAngle<T> interpolatedvalue(const TAngle<T> &oang, const TAngle<T> &ang, const double interpfrac)
+{
+	return oang + (deltaangle(oang, ang) * interpfrac);
+}
+
 template <class T>
 inline T interpolatedvalue(const T& oval, const T& val, const double interpfrac)
 {
