@@ -42,7 +42,7 @@ struct PlayerHorizon
 	// Commonly used getters.
 	fixedhoriz osum() { return ohoriz + ohorizoff; }
 	fixedhoriz sum() { return horiz + horizoff; }
-	fixedhoriz interpolatedsum(double const smoothratio) { return interpolatedvalue(osum(), sum(), smoothratio); }
+	fixedhoriz interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = 0; }
@@ -54,7 +54,7 @@ struct PlayerHorizon
 	bool movementlocked() {	return targetset() || inputdisabled; }
 
 	// Draw code helpers.
-	double horizsumfrac(double const smoothratio) { return (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); }
+	double horizsumfrac(double const interpfrac) { return (!SyncInput() ? sum() : interpolatedsum(interpfrac)).asbuildf() * (1. / 16.); }
 
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(fixedhoriz const value)
@@ -139,11 +139,11 @@ struct PlayerAngle
 	// Commonly used getters.
 	DAngle osum() { return oang + olook_ang; }
 	DAngle sum() { return ang + look_ang; }
-	DAngle interpolatedsum(double const smoothratio) { return interpolatedvalue(osum(), sum(), smoothratio); }
-	DAngle interpolatedang(double const smoothratio) { return interpolatedvalue(oang, ang, smoothratio); }
-	DAngle interpolatedlookang(double const smoothratio) { return interpolatedvalue(olook_ang, look_ang, smoothratio); }
-	DAngle interpolatedrotscrn(double const smoothratio) { return interpolatedvalue(orotscrnang, rotscrnang, smoothratio); }
-	DAngle renderlookang(double const smoothratio) { return !SyncInput() ? look_ang : interpolatedlookang(smoothratio); }
+	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
+	DAngle interpolatedang(double const interpfrac) { return interpolatedvalue(oang, ang, interpfrac); }
+	DAngle interpolatedlookang(double const interpfrac) { return interpolatedvalue(olook_ang, look_ang, interpfrac); }
+	DAngle interpolatedrotscrn(double const interpfrac) { return interpolatedvalue(orotscrnang, rotscrnang, interpfrac); }
+	DAngle renderlookang(double const interpfrac) { return !SyncInput() ? look_ang : interpolatedlookang(interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = nullAngle; }
@@ -155,8 +155,8 @@ struct PlayerAngle
 	bool movementlocked() { return targetset() || inputdisabled; }
 
 	// Draw code helpers. The logic where these are used rely heavily on Build's angle period.
-	double look_anghalf(double const smoothratio) { return renderlookang(smoothratio).Normalized180().Buildfang() * 0.5; }
-	double looking_arc(double const smoothratio) { return fabs(renderlookang(smoothratio).Normalized180().Buildfang() * (1. / 9.)); }
+	double look_anghalf(double const interpfrac) { return renderlookang(interpfrac).Normalized180().Buildfang() * 0.5; }
+	double looking_arc(double const interpfrac) { return fabs(renderlookang(interpfrac).Normalized180().Buildfang() * (1. / 9.)); }
 
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(const DAngle value)
