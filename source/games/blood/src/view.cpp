@@ -497,11 +497,11 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		cX = __interpvalue(predictOld.x, predict.x, gInterpolate);
 		cY = __interpvalue(predictOld.y, predict.y, gInterpolate);
 		cZ = __interpvalue(predictOld.viewz, predict.viewz, gInterpolate);
-		zDelta = __interpvaluef(predictOld.weaponZ, predict.weaponZ, gInterpolate);
+		zDelta = interpolatedvalue(predictOld.weaponZ, predict.weaponZ, gInterpolate * (1. / MaxSmoothRatio));
 		bobWidth = __interpvalue(predictOld.bobWidth, predict.bobWidth, gInterpolate);
 		bobHeight = __interpvalue(predictOld.bobHeight, predict.bobHeight, gInterpolate);
-		shakeX = __interpvaluef(predictOld.shakeBobX, predict.shakeBobX, gInterpolate);
-		shakeY = __interpvaluef(predictOld.shakeBobY, predict.shakeBobY, gInterpolate);
+		shakeX = interpolatedvalue(predictOld.shakeBobX, predict.shakeBobX, gInterpolate * (1. / MaxSmoothRatio));
+		shakeY = interpolatedvalue(predictOld.shakeBobY, predict.shakeBobY, gInterpolate * (1. / MaxSmoothRatio));
 
 		if (!SyncInput())
 		{
@@ -523,11 +523,11 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		cX = __interpvalue(pView->x, gView->actor->int_pos().X, gInterpolate);
 		cY = __interpvalue(pView->y, gView->actor->int_pos().Y, gInterpolate);
 		cZ = __interpvalue(pView->viewz, gView->zView, gInterpolate);
-		zDelta = __interpvaluef(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
+		zDelta = interpolatedvalue<double>(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate * (1. / MaxSmoothRatio));
 		bobWidth = __interpvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
 		bobHeight = __interpvalue(pView->bobHeight, gView->bobHeight, gInterpolate);
-		shakeX = __interpvaluef(pView->shakeBobX, gView->swayWidth, gInterpolate);
-		shakeY = __interpvaluef(pView->shakeBobY, gView->swayHeight, gInterpolate);
+		shakeX = interpolatedvalue<double>(pView->shakeBobX, gView->swayWidth, gInterpolate * (1. / MaxSmoothRatio));
+		shakeY = interpolatedvalue<double>(pView->shakeBobY, gView->swayHeight, gInterpolate * (1. / MaxSmoothRatio));
 
 		if (!SyncInput())
 		{

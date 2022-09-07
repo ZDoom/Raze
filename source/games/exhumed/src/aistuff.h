@@ -137,7 +137,7 @@ void StopFiringWeapon(int nPlayer);
 void FireWeapon(int nPlayer);
 void CheckClip(int nPlayer);
 void MoveWeapons(int nPlayer);
-void DrawWeapons(double smooth);
+void DrawWeapons(double interpfrac);
 
 // items
 

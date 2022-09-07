@@ -1363,7 +1363,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     DrawScreen = true;
     PreDraw();
 
-    PreUpdatePanel(smoothratio);
+    PreUpdatePanel(smoothratio * (1. / MaxSmoothRatio));
     int sr = (int)smoothratio;
 
     if (!sceneonly)
@@ -1380,9 +1380,9 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     else
         camerapp = pp;
 
-    tx = int(__interpvaluef(camerapp->opos.X, camerapp->pos.X, smoothratio) * worldtoint);
-    ty = int(__interpvaluef(camerapp->opos.Y, camerapp->pos.Y, smoothratio) * worldtoint);
-    tz = int(__interpvaluef(camerapp->opos.Z, camerapp->pos.Z, smoothratio) * zworldtoint);
+    tx = int(interpolatedvalue<double>(camerapp->opos.X, camerapp->pos.X, smoothratio * (1. / MaxSmoothRatio)) * worldtoint);
+    ty = int(interpolatedvalue<double>(camerapp->opos.Y, camerapp->pos.Y, smoothratio * (1. / MaxSmoothRatio)) * worldtoint);
+    tz = int(interpolatedvalue<double>(camerapp->opos.Z, camerapp->pos.Z, smoothratio * (1. / MaxSmoothRatio)) * zworldtoint);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
@@ -1478,7 +1478,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
         JS_CameraParms(pp, tx, ty, tz);  
     }
 
-    if (!sceneonly) UpdatePanel(smoothratio);
+    if (!sceneonly) UpdatePanel(smoothratio * (1. / MaxSmoothRatio));
     UpdateWallPortalState();
     render_drawrooms(pp->actor, vec3_t( tx, ty, tz ), sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
     RestorePortalState();

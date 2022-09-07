@@ -92,14 +92,14 @@ void checkweapons_d(player_struct* p);
 void checkweapons_r(player_struct* p);
 void processinput_d(int snum);
 void processinput_r(int snum);
-void displayweapon_d(int snum, double smoothratio);
-void displayweapon_r(int snum, double smoothratio);
-void displaymasks_d(int snum, int p, double smoothratio);
-void displaymasks_r(int snum, int p, double smoothratio);
+void displayweapon_d(int snum, double interpfrac);
+void displayweapon_r(int snum, double interpfrac);
+void displaymasks_d(int snum, int p, double interpfrac);
+void displaymasks_r(int snum, int p, double interpfrac);
 void think_d();
 void think_r();
-void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothratio);
-void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothratio);
+void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, double interpfrac);
+void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interpfrac);
 
 Dispatcher fi;
 

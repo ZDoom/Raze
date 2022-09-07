@@ -93,7 +93,7 @@ void CGameMenuItemQAV::Draw(void)
 			duration = data->duration;
 		}
 		auto currentDuration = data->duration - duration;
-		auto smoothratio = !cl_interpolate || cl_capfps? MaxSmoothRatio : I_GetTimeFrac(data->ticrate) * MaxSmoothRatio;
+		auto interpfrac = !cl_interpolate || cl_capfps? 1. : I_GetTimeFrac(data->ticrate);
 
 		data->Play(currentDuration - data->ticksPerFrame, currentDuration, -1, NULL);
 
@@ -104,13 +104,13 @@ void CGameMenuItemQAV::Draw(void)
 			int backX = data->x;
 			for (int i = 0; i < nCount; i++)
 			{
-				data->Draw(currentDuration, 10 + kQavOrientationLeft, 0, 0, false, smoothratio);
+				data->Draw(currentDuration, 10 + kQavOrientationLeft, 0, 0, false, interpfrac);
 				data->x += 320;
 			}
 			data->x = backX;
 		}
 		else
-			data->Draw(currentDuration, 10, 0, 0, false, smoothratio);
+			data->Draw(currentDuration, 10, 0, 0, false, interpfrac);
 	}
 }
 

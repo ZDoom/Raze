@@ -194,7 +194,7 @@ PANEL_SPRITE* pSpawnSprite(PLAYER* pp, PANEL_STATE* state, uint8_t priority, dou
 void pSetSuicide(PANEL_SPRITE* psp);
 bool pKillScreenSpiteIDs(PLAYER* pp, short id);
 void PreUpdatePanel(double smoothratio);
-void UpdatePanel(double smoothratio);
+void UpdatePanel(double interpfrac);
 void PlayerUpdateArmor(PLAYER* pp,short value);
 void pToggleCrosshair(void);
 void pKillSprite(PANEL_SPRITE* psp);

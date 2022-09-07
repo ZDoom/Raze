@@ -37,7 +37,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 BEGIN_DUKE_NS
 
 
-void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothratio)
+void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interpfrac)
 {
 	DVector2 viewVec(x * inttoworld, y * inttoworld);
 	int k, p;
@@ -147,15 +147,13 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 		auto pp = &ps[h->PlayerIndex()];
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && pp->newOwner == nullptr && h->GetOwner())
 		{
-			t->pos.X -= MulScaleF(MaxSmoothRatio - smoothratio, pp->pos.X - pp->opos.X, 16);
-			t->pos.Y -= MulScaleF(MaxSmoothRatio - smoothratio, pp->pos.Y - pp->opos.Y, 16);
-			t->pos.Z = __interpvaluef(pp->opos.Z, pp->pos.Z, smoothratio) + gs.playerheight;
+			t->pos = interpolatedvalue(pp->opos, pp->pos, interpfrac).plusZ(gs.playerheight);
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
-			t->pos = h->interpolatedpos(smoothratio * (1. / MaxSmoothRatio));
+			t->pos = h->interpolatedpos(interpfrac);
 		}
 
 		auto sectp = h->sector();
@@ -349,10 +347,10 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 #if 0 // multiplayer only
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
-					t->x = __interpvalue(omyx, myx, smoothratio);
-					t->y = __interpvalue(omyy, myy, smoothratio);
-					t->z = __interpvalue(omyz, myz, smoothratio) + gs.playerheight;
-					t->ang = interpolatedvalue(omyang, myang, smoothratio * (1. / MaxSmoothRatio)).asbuild();
+					t->x = __interpvalue(omyx, myx, interpfrac * MaxSmoothRatio);
+					t->y = __interpvalue(omyy, myy, interpfrac * MaxSmoothRatio);
+					t->z = __interpvalue(omyz, myz, interpfrac * MaxSmoothRatio) + gs.playerheight;
+					t->ang = interpolatedvalue(omyang, myang, interpfrac).asbuild();
 					t->sector = mycursectnum;
 				}
 #endif

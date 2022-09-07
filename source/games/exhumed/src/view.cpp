@@ -214,7 +214,7 @@ void DrawView(double interpfrac, bool sceneonly)
     }
     else
     {
-        nCamerapos = pPlayerActor->interpolatedpos(interpfrac).plusZ(__interpvaluef(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac * MaxSmoothRatio) * zinttoworld);
+        nCamerapos = pPlayerActor->interpolatedpos(interpfrac).plusZ(interpolatedvalue<double>(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac) * zinttoworld);
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
         updatesector(nCamerapos, &pSector);
@@ -303,7 +303,7 @@ void DrawView(double interpfrac, bool sceneonly)
         }
 
         if (!nFreeze && !sceneonly)
-            DrawWeapons(interpfrac * MaxSmoothRatio);
+            DrawWeapons(interpfrac);
         render_drawrooms(nullptr, nCamerapos, sectnum(pSector), nCameraang, nCamerapan, rotscrnang, interpfrac * MaxSmoothRatio);
 
         if (HavePLURemap())

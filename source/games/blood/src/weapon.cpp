@@ -318,9 +318,9 @@ void WeaponDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum
 		return;
 	auto pQAV = getQAV(pPlayer->weaponQav);
 	int duration;
-	double smoothratio;
+	double interpfrac;
 
-	qavProcessTimer(pPlayer, pQAV, &duration, &smoothratio, pPlayer->weaponState == -1, pPlayer->curWeapon == kWeapShotgun && pPlayer->weaponState == 7);
+	qavProcessTimer(pPlayer, pQAV, &duration, &interpfrac, pPlayer->weaponState == -1, pPlayer->curWeapon == kWeapShotgun && pPlayer->weaponState == 7);
 
 	pQAV->x = int(xpos);
 	pQAV->y = int(ypos);
@@ -331,7 +331,7 @@ void WeaponDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum
 		shade = -128;
 		flags |= 1;
 	}
-	pQAV->Draw(xpos, ypos, duration, flags, shade, palnum, true, smoothratio);
+	pQAV->Draw(xpos, ypos, duration, flags, shade, palnum, true, interpfrac);
 }
 
 //---------------------------------------------------------------------------

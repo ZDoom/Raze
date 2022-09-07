@@ -206,16 +206,16 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
  //
  //---------------------------------------------------------------------------
 
- void drawweapon(double smoothratio)
+ void drawweapon(double interpfrac)
  {
 	 auto pp = &ps[screenpeek];
 	 if (!isRR() && pp->newOwner != nullptr)
 		 cameratext(pp->newOwner);
 	 else
 	 {
-		 fi.displayweapon(screenpeek, smoothratio);
+		 fi.displayweapon(screenpeek, interpfrac);
 		 if (pp->over_shoulder_on == 0)
-			 fi.displaymasks(screenpeek, pp->GetActor()->spr.pal == 1 || !pp->insector() ? 1 : pp->cursector->floorpal, smoothratio);
+			 fi.displaymasks(screenpeek, pp->GetActor()->spr.pal == 1 || !pp->insector() ? 1 : pp->cursector->floorpal, interpfrac);
 	 }
 
  }

@@ -105,10 +105,10 @@ struct Dispatcher
 	int (*doincrements)(player_struct* p);
 	void (*checkweapons)(player_struct* p);
 	void (*processinput)(int snum);
-	void (*displayweapon)(int snum, double smoothratio);
-	void (*displaymasks)(int snum, int p, double smoothratio);
+	void (*displayweapon)(int snum, double interpfrac);
+	void (*displaymasks)(int snum, int p, double interpfrac);
 
-	void (*animatesprites)(tspriteArray& tsprites, int x, int y, int a, int smoothratio);
+	void (*animatesprites)(tspriteArray& tsprites, int x, int y, int a, double interpfrac);
 
 
 };

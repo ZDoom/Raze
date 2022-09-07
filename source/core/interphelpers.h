@@ -46,8 +46,3 @@ inline constexpr int32_t __interpvalue(int32_t oval, int32_t val, int const smoo
 {
 	return oval + MulScale(val - oval, smoothratio, scale);
 }
-
-inline constexpr double __interpvaluef(double oval, double val, double const smoothratio, int const scale = 16)
-{
-	return oval + MulScaleF(val - oval, smoothratio, scale);
-}

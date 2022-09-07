@@ -6364,7 +6364,7 @@ void pWeaponBob(PANEL_SPRITE* psp, short condition)
 //////////////////////////////////////////////////////////////////////////////////////////
 
 bool DrawBeforeView = false;
-void pDisplaySprites(PLAYER* pp, double smoothratio)
+void pDisplaySprites(PLAYER* pp, double interpfrac)
 {
     DSWActor* plActor = pp->actor;
     PANEL_SPRITE* next=nullptr;
@@ -6376,8 +6376,8 @@ void pDisplaySprites(PLAYER* pp, double smoothratio)
     short ang;
     int flags;
 
-    double const look_anghalf = pp->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio));
-    double const looking_arc = pp->angle.looking_arc(smoothratio * (1. / MaxSmoothRatio));
+    double const look_anghalf = pp->angle.look_anghalf(interpfrac);
+    double const looking_arc = pp->angle.looking_arc(interpfrac);
 
     auto list = pp->GetPanelSpriteList();
     for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
@@ -6387,8 +6387,8 @@ void pDisplaySprites(PLAYER* pp, double smoothratio)
         flags = 0;
         if (cl_hudinterpolation)
         {
-            x = __interpvaluef(psp->opos.X, psp->pos.X, smoothratio);
-            y = __interpvaluef(psp->opos.Y, psp->pos.Y, smoothratio);
+            x = interpolatedvalue<double>(psp->opos.X, psp->pos.X, interpfrac);
+            y = interpolatedvalue<double>(psp->opos.Y, psp->pos.Y, interpfrac);
 
         }
         else
@@ -6756,18 +6756,18 @@ void pStateControl(PANEL_SPRITE* psp)
 }
 
 
-void UpdatePanel(double smoothratio)
+void UpdatePanel(double interpfrac)
 {
     short pnum;
 
     TRAVERSE_CONNECT(pnum)
     {
         if (pnum == screenpeek)
-            pDisplaySprites(Player + pnum, smoothratio);
+            pDisplaySprites(Player + pnum, interpfrac);
     }
 }
 
-void PreUpdatePanel(double smoothratio)
+void PreUpdatePanel(double interpfrac)
 {
     short pnum;
     DrawBeforeView = true;
@@ -6776,7 +6776,7 @@ void PreUpdatePanel(double smoothratio)
     TRAVERSE_CONNECT(pnum)
     {
         if (pnum == screenpeek)
-            pDisplaySprites(Player + pnum, smoothratio);
+            pDisplaySprites(Player + pnum, interpfrac);
     }
 
     DrawBeforeView = false;

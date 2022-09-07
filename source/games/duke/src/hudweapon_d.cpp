@@ -61,11 +61,11 @@ inline static void hud_drawpal(double x, double y, int tilenum, int shade, int o
 //
 //---------------------------------------------------------------------------
 
-static void displayloogie(player_struct* p, double const smoothratio)
+static void displayloogie(player_struct* p, double const interpfrac)
 {
 	if (p->loogcnt == 0) return;
 
-	const double loogi = __interpvaluef(p->oloogcnt, p->loogcnt, smoothratio);
+	const double loogi = interpolatedvalue<double>(p->oloogcnt, p->loogcnt, interpfrac);
 	const double y = loogi * 4.;
 
 	for (int i = 0; i < p->numloogs; i++)
@@ -84,9 +84,9 @@ static void displayloogie(player_struct* p, double const smoothratio)
 //
 //---------------------------------------------------------------------------
 
-static bool animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal, double const smoothratio)
+static bool animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal, double const interpfrac)
 {
-	const double fisti = min(__interpvaluef(p->ofist_incs, p->fist_incs, smoothratio), 32.);
+	const double fisti = min(interpolatedvalue<double>(p->ofist_incs, p->fist_incs, interpfrac), 32.);
 	if (fisti <= 0) return false;
 
 	hud_drawsprite(
@@ -103,12 +103,12 @@ static bool animatefist(int gs, player_struct* p, double look_anghalf, double lo
 //
 //---------------------------------------------------------------------------
 
-static bool animateknee(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal, double const smoothratio)
+static bool animateknee(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal, double const interpfrac)
 {
 	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
 	static const int8_t knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
-	const double kneei = __interpvaluef(knee_y[p->oknee_incs], knee_y[p->knee_incs], smoothratio);
+	const double kneei = interpolatedvalue<double>(knee_y[p->oknee_incs], knee_y[p->knee_incs], interpfrac);
 	looking_arc += kneei;
 
 	hud_drawpal(105 + plravel - look_anghalf + (kneei * 0.25), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
@@ -140,7 +140,7 @@ static bool animateknuckles(int gs, player_struct* p, double look_anghalf, doubl
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_d(int snum, int p, double)
+void displaymasks_d(int snum, int p, double interpfrac)
 {
 	if (ps[snum].scuba_on)
 	{
@@ -156,12 +156,12 @@ void displaymasks_d(int snum, int p, double)
 //
 //---------------------------------------------------------------------------
 
-static bool animatetip(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal, double const smoothratio)
+static bool animatetip(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal, double const interpfrac)
 {
 	if (p->tipincs == 0) return false;
 
 	static const int8_t tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
-	const double tipi = __interpvaluef(tip_y[p->otipincs], tip_y[p->tipincs], smoothratio) * 0.5;
+	const double tipi = interpolatedvalue<double>(tip_y[p->otipincs], tip_y[p->tipincs], interpfrac) * 0.5;
 
 	hud_drawpal(170 + plravel - look_anghalf, tipi + looking_arc + 240 - horiz16th, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal);
 
@@ -174,12 +174,12 @@ static bool animatetip(int gs, player_struct* p, double look_anghalf, double loo
 //
 //---------------------------------------------------------------------------
 
-static bool animateaccess(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, double const smoothratio)
+static bool animateaccess(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, double const interpfrac)
 {
 	if (p->access_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
 	static const int8_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
-	const double accessi = __interpvaluef(access_y[p->oaccess_incs], access_y[p->access_incs], smoothratio);
+	const double accessi = interpolatedvalue<double>(access_y[p->oaccess_incs], access_y[p->access_incs], interpfrac);
 	looking_arc += accessi;
 
 	const int pal = p->access_spritenum != nullptr ? p->access_spritenum->spr.pal : 0;
@@ -198,7 +198,7 @@ static bool animateaccess(int gs, player_struct* p, double look_anghalf, double 
 //
 //---------------------------------------------------------------------------
 
-void displayweapon_d(int snum, double smoothratio)
+void displayweapon_d(int snum, double interpfrac)
 {
 	int cw;
 	int i, j;
@@ -215,11 +215,11 @@ void displayweapon_d(int snum, double smoothratio)
 
 	if (cl_hudinterpolation)
 	{
-		weapon_sway = __interpvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
-		kickback_pic = __interpvaluef(p->okickback_pic, p->kickback_pic, smoothratio);
-		random_club_frame = __interpvaluef(p->orandom_club_frame, p->random_club_frame, smoothratio);
-		hard_landing = __interpvaluef(p->ohard_landing, p->hard_landing, smoothratio);
-		gun_pos = 80 - __interpvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
+		weapon_sway = interpolatedvalue<double>(p->oweapon_sway, p->weapon_sway, interpfrac);
+		kickback_pic = interpolatedvalue<double>(p->okickback_pic, p->kickback_pic, interpfrac);
+		random_club_frame = interpolatedvalue<double>(p->orandom_club_frame, p->random_club_frame, interpfrac);
+		hard_landing = interpolatedvalue<double>(p->ohard_landing, p->hard_landing, interpfrac);
+		gun_pos = 80 - interpolatedvalue<double>(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, interpfrac);
 	}
 	else
 	{
@@ -231,9 +231,9 @@ void displayweapon_d(int snum, double smoothratio)
 	}
 
 	plravel = getavel(snum) * (1. / 16.);
-	horiz16th = p->horizon.horizsumfrac(smoothratio * (1. / MaxSmoothRatio));
-	look_anghalf = p->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio));
-	looking_arc = p->angle.looking_arc(smoothratio * (1. / MaxSmoothRatio));
+	horiz16th = p->horizon.horizsumfrac(interpfrac);
+	look_anghalf = p->angle.look_anghalf(interpfrac);
+	looking_arc = p->angle.looking_arc(interpfrac);
 	hard_landing *= 8.;
 
 	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 32 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
@@ -252,13 +252,13 @@ void displayweapon_d(int snum, double smoothratio)
 
 	auto adjusted_arc = looking_arc - hard_landing;
 	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
-	bool playerAnims = animatefist(shade, p, look_anghalf, looking_arc, plravel, pal, smoothratio) || animateknuckles(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) ||
-					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, smoothratio) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, smoothratio);
+	bool playerAnims = animatefist(shade, p, look_anghalf, looking_arc, plravel, pal, interpfrac) || animateknuckles(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) ||
+					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, interpfrac) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, interpfrac);
 
 	if(playerVars || playerAnims)
 		return;
 
-	animateknee(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, smoothratio);
+	animateknee(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, interpfrac);
 
 	if (isWW2GI())
 	{
@@ -298,7 +298,7 @@ void displayweapon_d(int snum, double smoothratio)
 	if (p->GetActor()->spr.xrepeat < 40)
 	{
 		//shrunken..
-		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, FIST, shade, o, smoothratio);
+		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, FIST, shade, o, interpfrac);
 	}
 	else
 	{
@@ -1224,7 +1224,7 @@ void displayweapon_d(int snum, double smoothratio)
 		}
 	}
 
-	displayloogie(p, smoothratio);
+	displayloogie(p, interpfrac);
 
 }
 

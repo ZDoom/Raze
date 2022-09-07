@@ -229,15 +229,15 @@ struct QAV
 	int y; // 18
 	uint16_t res_id;
 	FRAMEINFO frames[1]; // 24
-	void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = MaxSmoothRatio);
-	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = MaxSmoothRatio) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio); }
+	void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac = 1.);
+	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac = 1.) { Draw(x, y, ticks, stat, shade, palnum, to3dview, interpfrac); }
 	void Play(int, int, int, PLAYER*);
 	void Precache(int palette = 0);
 };
 
 QAV* getQAV(int res_id);
 void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick);
-void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration = false, bool const ignoreWeaponTimer = false);
+void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* interpfrac, bool const fixedduration = false, bool const ignoreWeaponTimer = false);
 
 inline bool qavIsOriginal(const int res_id)
 {

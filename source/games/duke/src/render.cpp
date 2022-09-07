@@ -61,7 +61,7 @@ BEGIN_DUKE_NS
 
 void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, DAngle a, fixedhoriz h, DAngle rotscrnang, double smoothratio, bool sceneonly, float fov)
 {
-	if (!sceneonly) drawweapon(smoothratio);
+	if (!sceneonly) drawweapon(smoothratio * (1. / MaxSmoothRatio));
 	render_drawrooms(playersprite, vec3_t( x, y, z ), sectnum(sect), a, h, rotscrnang, smoothratio, fov);
 }
 
@@ -339,7 +339,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		}
 		else if (p->over_shoulder_on == 0)
 		{
-			if (cl_viewbob) cposz += __interpvaluef(p->opyoff, p->pyoff, smoothratio) * zworldtoint;
+			if (cl_viewbob) cposz += interpolatedvalue(p->opyoff, p->pyoff, smoothratio * (1. / MaxSmoothRatio)) * zworldtoint;
 			viewer = p->GetActor();
 		}
 		else
@@ -407,7 +407,7 @@ bool GameInterface::GenerateSavePic()
 
 void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double smoothRatio)
 {
-	fi.animatesprites(tsprites, viewx, viewy, viewang.Buildang(), int(smoothRatio));
+	fi.animatesprites(tsprites, viewx, viewy, viewang.Buildang(), smoothRatio * (1. / MaxSmoothRatio));
 }
 
 

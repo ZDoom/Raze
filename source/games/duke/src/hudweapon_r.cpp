@@ -65,13 +65,13 @@ inline static void rd3myospal(double x, double y, int tilenum, int shade, int or
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_r(int snum, int p, double smoothratio)
+void displaymasks_r(int snum, int p, double interpfrac)
 {
 	if (ps[snum].scuba_on)
 	{
 		//int pin = 0;
-		// to get the proper clock value with regards to interpolation we have add a smoothratio based offset to the value.
-		double interpclock = PlayClock + (+TICSPERFRAME/65536.) * smoothratio;
+		// to get the proper clock value with regards to interpolation we have add a interpfrac based offset to the value.
+		double interpclock = PlayClock + TICSPERFRAME * interpfrac;
 		int pin = RS_STRETCH;
 		hud_drawsprite((320 - (tileWidth(SCUBAMASK) >> 1) - 15), (200 - (tileHeight(SCUBAMASK) >> 1) + bsinf(interpclock, -10)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
 		hud_drawsprite((320 - tileWidth(SCUBAMASK + 4)), (200 - tileHeight(SCUBAMASK + 4)), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
@@ -105,7 +105,7 @@ inline static void ShowBoat(double x, double y, int tilenum, int shade, int orie
 //
 //---------------------------------------------------------------------------
 
-void displayweapon_r(int snum, double smoothratio)
+void displayweapon_r(int snum, double interpfrac)
 {
 	int cw;
 	int i, j;
@@ -120,10 +120,10 @@ void displayweapon_r(int snum, double smoothratio)
 
 	if (cl_hudinterpolation)
 	{
-		weapon_sway = __interpvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
-		hard_landing = __interpvaluef(p->ohard_landing, p->hard_landing, smoothratio);
-		gun_pos = 80 - __interpvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
-		TiltStatus = !SyncInput() ? p->TiltStatus : __interpvaluef(p->oTiltStatus, p->TiltStatus, smoothratio);
+		weapon_sway = interpolatedvalue<double>(p->oweapon_sway, p->weapon_sway, interpfrac);
+		hard_landing = interpolatedvalue<double>(p->ohard_landing, p->hard_landing, interpfrac);
+		gun_pos = 80 - interpolatedvalue<double>(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, interpfrac);
+		TiltStatus = !SyncInput() ? p->TiltStatus : interpolatedvalue<double>(p->oTiltStatus, p->TiltStatus, interpfrac);
 	}
 	else
 	{
@@ -133,8 +133,8 @@ void displayweapon_r(int snum, double smoothratio)
 		TiltStatus = p->TiltStatus;
 	}
 
-	look_anghalf = p->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio));
-	looking_arc = p->angle.looking_arc(smoothratio * (1. / MaxSmoothRatio));
+	look_anghalf = p->angle.look_anghalf(interpfrac);
+	looking_arc = p->angle.looking_arc(interpfrac);
 	hard_landing *= 8.;
 
 	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 8 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
@@ -291,7 +291,7 @@ void displayweapon_r(int snum, double smoothratio)
 
 	if (p->GetActor()->spr.xrepeat < 8)
 	{
-		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, FIST, shade, o, smoothratio);
+		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, FIST, shade, o, interpfrac);
 	}
 	else
 	{

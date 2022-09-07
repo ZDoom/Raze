@@ -164,7 +164,7 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 //
 //---------------------------------------------------------------------------
 
-void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio)
+void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac)
 {
 	assert(ticksPerFrame > 0);
 
@@ -176,7 +176,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 	auto const oFrame = clamp((nFrame == 0 && interpdata && interpdata->loopable ? nFrames : nFrame) - 1, 0, nFrames - 1);
 	FRAMEINFO* const prevFrame = &frames[oFrame];
 
-	bool const interpolate = interpdata && cl_hudinterpolation && cl_bloodqavinterp && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio);
+	bool const interpolate = interpdata && cl_hudinterpolation && cl_bloodqavinterp && (nFrames > 1) && (nFrame != oFrame) && (interpfrac != 1.);
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -185,8 +185,8 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 			TILE_FRAME* const thisTile = &thisFrame->tiles[i];
 			TILE_FRAME* const prevTile = interpolate && interpdata->CanInterpFrameTile(nFrame, i) ? interpdata->PrevTileFinder(thisFrame, prevFrame, i) : nullptr;
 
-			double tileX = x;
-			double tileY = y;
+			double tileX;
+			double tileY;
 			double tileZ;
 			double tileA;
 			double tileAlpha;
@@ -195,26 +195,26 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 
 			if (prevTile)
 			{
-				tileX += __interpvaluef(prevTile->x, thisTile->x, smoothratio);
-				tileY += __interpvaluef(prevTile->y, thisTile->y, smoothratio);
-				tileZ = __interpvaluef(prevTile->z, thisTile->z, smoothratio);
-				tileA = interpolatedvalue(DAngle::fromBuild(prevTile->angle), DAngle::fromBuild(thisTile->angle), smoothratio * (1. / MaxSmoothRatio)).Buildfang();
-				tileShade = __interpvalue(prevTile->shade, thisTile->shade, smoothratio) + shade;
-				auto prevAlpha = ((stat | prevTile->stat) & RS_TRANS1) ? glblend[0].def[!!((stat | prevTile->stat) & RS_TRANS2)].alpha : 1.;
-				auto thisAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.;
-				tileAlpha = __interpvaluef(prevAlpha, thisAlpha, smoothratio);
+				tileX = interpolatedvalue<double>(prevTile->x, thisTile->x, interpfrac);
+				tileY = interpolatedvalue<double>(prevTile->y, thisTile->y, interpfrac);
+				tileZ = interpolatedvalue<double>(prevTile->z, thisTile->z, interpfrac);
+				tileA = interpolatedvalue(DAngle::fromBuild(prevTile->angle), DAngle::fromBuild(thisTile->angle), interpfrac).Buildfang();
+				tileShade = interpolatedvalue(prevTile->shade, thisTile->shade, interpfrac) + shade;
+				auto prevAlpha = ((stat | prevTile->stat) & RS_TRANS1) ? glblend[0].def[!!((stat | prevTile->stat) & RS_TRANS2)].alpha : 1.f;
+				auto thisAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.f;
+				tileAlpha = interpolatedvalue(prevAlpha, thisAlpha, interpfrac);
 			}
 			else
 			{
-				tileX += thisTile->x;
-				tileY += thisTile->y;
+				tileX = thisTile->x;
+				tileY = thisTile->y;
 				tileZ = thisTile->z;
 				tileA = thisTile->angle;
 				tileShade = thisTile->shade + shade;
-				tileAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.;
+				tileAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.f;
 			}
 
-			DrawFrame(tileX, tileY, tileZ, tileA, tileAlpha, thisTile->picnum, tileStat, tileShade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
+			DrawFrame(tileX + x, tileY + y, tileZ, tileA, tileAlpha, thisTile->picnum, tileStat, tileShade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
 		}
 	}
 }
@@ -326,7 +326,7 @@ void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick)
 //
 //---------------------------------------------------------------------------
 
-void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration, bool const ignoreWeaponTimer)
+void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* interpfrac, bool const fixedduration, bool const ignoreWeaponTimer)
 {
 	// Process if not paused.
 	if (!paused)
@@ -338,24 +338,24 @@ void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, doub
 		{
 			// Check if we're playing an idle QAV as per the ticker's weapon timer.
 			*duration = fixedduration ? pQAV->duration - 1 : I_GetBuildTime() % pQAV->duration;
-			*smoothratio = MaxSmoothRatio;
+			*interpfrac = 1.;
 		}
 		else if (pPlayer->qavTimer == 0)
 		{
 			// If qavTimer is 0, play the last frame uninterpolated. Sometimes the timer can be just ahead of weaponTimer.
 			*duration = pQAV->duration - 1;
-			*smoothratio = MaxSmoothRatio;
+			*interpfrac = 1.;
 		}
 		else
 		{
 			// Apply normal values.
 			*duration = pQAV->duration - pPlayer->qavTimer;
-			*smoothratio = !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac(pQAV->ticrate) * MaxSmoothRatio;
+			*interpfrac = !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac(pQAV->ticrate);
 		}
 	}
 	else
 	{
-		*smoothratio = MaxSmoothRatio;
+		*interpfrac = 1.;
 	}
 }
 

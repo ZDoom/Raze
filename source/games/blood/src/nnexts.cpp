@@ -7351,9 +7351,9 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
 	{
 		QAV* pQAV = pQavScene->qavResrc;
 		int v4;
-		double smoothratio;
+		double interpfrac;
 
-		qavProcessTimer(pPlayer, pQAV, &v4, &smoothratio);
+		qavProcessTimer(pPlayer, pQAV, &v4, &interpfrac);
 
 		int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
 		if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32)))
@@ -7365,7 +7365,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
 		if (!(actor->spr.flags & kModernTypeFlag1))
 		{
 			pQAV->x = int(a3); pQAV->y = int(a4);
-			pQAV->Draw(a3, a4, v4, flags, a2, a5, true, smoothratio);
+			pQAV->Draw(a3, a4, v4, flags, a2, a5, true, interpfrac);
 
 			// draw fullscreen (currently 4:3 only)
 		}
@@ -7373,7 +7373,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
 		{
 			// What an awful hack. This throws proper ordering out of the window, but there is no way to reproduce this better with strict layering of elements.
 			// From the above commit it seems to be incomplete anyway...
-			pQAV->Draw(v4, flags, a2, a5, false, smoothratio);
+			pQAV->Draw(v4, flags, a2, a5, false, interpfrac);
 		}
 	}
 }

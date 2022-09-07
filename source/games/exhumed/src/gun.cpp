@@ -869,7 +869,7 @@ loc_flag:
     }
 }
 
-void DrawWeapons(double smooth)
+void DrawWeapons(double interpfrac)
 {
     if (bCamera) {
         return;
@@ -910,8 +910,8 @@ void DrawWeapons(double smooth)
 
         if (cl_hudinterpolation)
         {
-            nBobAngle = interpolatedvalue(DAngle::fromBuild(obobangle), DAngle::fromBuild(bobangle), smooth * (1. / MaxSmoothRatio)).Buildfang();
-            nVal = __interpvaluef(PlayerList[nLocalPlayer].ototalvel, PlayerList[nLocalPlayer].totalvel, smooth, 16) * 0.5;
+            nBobAngle = interpolatedvalue(DAngle::fromBuild(obobangle), DAngle::fromBuild(bobangle), interpfrac).Buildfang();
+            nVal = interpolatedvalue(PlayerList[nLocalPlayer].ototalvel, PlayerList[nLocalPlayer].totalvel, interpfrac) * 0.5;
         }
         else
         {
@@ -943,8 +943,8 @@ void DrawWeapons(double smooth)
         nShade = PlayerList[nLocalPlayer].pActor->spr.shade;
     }
 
-    double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(smooth * (1. / MaxSmoothRatio));
-    double const looking_arc = PlayerList[nLocalPlayer].angle.looking_arc(smooth * (1. / MaxSmoothRatio));
+    double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(interpfrac);
+    double const looking_arc = PlayerList[nLocalPlayer].angle.looking_arc(interpfrac);
 
     xOffset -= look_anghalf;
     yOffset += looking_arc;
