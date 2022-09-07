@@ -352,7 +352,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
 
 // must call restore for every do interpolations
 // make sure you don't exit
-void so_dointerpolations(int32_t smoothratio)                      // Stick at beginning of drawscreen
+void so_dointerpolations(double interpfrac)                      // Stick at beginning of drawscreen
 {
     int32_t i;
     SECTOR_OBJECT* sop;
@@ -418,9 +418,9 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                !Player[screenpeek].sop_remote)))
             continue;
 
-        int32_t ratio = smoothratio * synctics + MaxSmoothRatio * interp->tic;
+        double ratio = interpfrac * synctics + interp->tic;
         ratio /= interp->lasttic;
-        ratio = (interp->tic == interp->lasttic) ? MaxSmoothRatio : ratio;
+        ratio = (interp->tic == interp->lasttic) ? 1. : ratio;
 
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
         {
@@ -443,12 +443,12 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             {
                 DSWActor* actor = data->actorofang;
                 if (!actor) continue;
-                actor->set_int_ang(NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff.Buildang(), ratio, 16)));
+                actor->spr.angle = (DAngle::fromBuildf(data->lastoldipos) + data->lastangdiff * ratio).Normalized360();
             }
             else
             {
                 double delta = data->lastipos - data->lastoldipos;
-                setvalue(*data, data->lastoldipos + MulScaleF(delta, ratio, 16));
+                setvalue(*data, data->lastoldipos + delta * ratio);
             }
         }
     }

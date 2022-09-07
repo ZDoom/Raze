@@ -193,7 +193,7 @@ enum
 PANEL_SPRITE* pSpawnSprite(PLAYER* pp, PANEL_STATE* state, uint8_t priority, double x, double y);
 void pSetSuicide(PANEL_SPRITE* psp);
 bool pKillScreenSpiteIDs(PLAYER* pp, short id);
-void PreUpdatePanel(double smoothratio);
+void PreUpdatePanel(double interpfrac);
 void UpdatePanel(double interpfrac);
 void PlayerUpdateArmor(PLAYER* pp,short value);
 void pToggleCrosshair(void);

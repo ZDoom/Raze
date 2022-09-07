@@ -37,7 +37,7 @@ void so_stopspriteinterpolation(SECTOR_OBJECT* sop, DSWActor *sp);
 void so_setinterpolationangdiff(SECTOR_OBJECT* sop, int16_t angdiff);
 void so_setinterpolationtics(SECTOR_OBJECT* sop, int16_t locktics);
 void so_updateinterpolations(void);
-void so_dointerpolations(int32_t smoothratio);
+void so_dointerpolations(double interpfrac);
 void so_restoreinterpolations(void);
 void so_serializeinterpolations(FSerializer& arc);
 

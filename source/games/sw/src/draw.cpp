@@ -1128,7 +1128,7 @@ void RestorePortalState()
     }
 }
 
-void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
+void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
 {
     DAngle tang, trotscrnang;
     fixedhoriz thoriz;
@@ -1136,9 +1136,6 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 
     // prediction player if prediction is on, else regular player
     PLAYER* camerapp = (PredictionOn && CommEnabled && pp == Player+myconnectindex) ? ppp : pp;
-
-    // temporary interpolation scaler.
-    double interpfrac = smoothratio * (1. / MaxSmoothRatio);
 
     DrawScreen = true;
     PreDraw();
@@ -1149,7 +1146,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     {
         // Stick at beginning of drawscreen
         DoInterpolations(interpfrac);
-        if (cl_sointerpolation) so_dointerpolations((int)smoothratio);
+        if (cl_sointerpolation) so_dointerpolations(interpfrac);
     }
 
     // Get initial player position, interpolating if required.

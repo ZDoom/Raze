@@ -55,8 +55,6 @@ gNET gNet;
 bool CommEnabled = false;
 uint8_t CommPlayers = 0;
 
-double smoothratio;
-
 // must start out as 0
 
 void InitNetPlayerOptions(void)
