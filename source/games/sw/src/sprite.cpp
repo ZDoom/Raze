@@ -877,7 +877,7 @@ void SpawnUser(DSWActor* actor, short id, STATE* state)
     actor->user.bounce = 0;
 
     actor->user.motion_blur_num = 0;
-    actor->user.motion_blur_dist = 256;
+    actor->user.motion_blur_dist = 16;
 
     actor->backuppos();
     actor->user.oz = actor->opos.Z;

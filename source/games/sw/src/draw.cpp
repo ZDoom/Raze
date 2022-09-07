@@ -261,7 +261,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     auto sect = tsp->sectp;
     // make sure its the correct sector
     // DoShadowFindGroundPoint calls FAFgetzrangepoint and this is sensitive
-    updatesector(tsp->int_pos().X, tsp->int_pos().Y, &sect);
+    updatesector(tsp->pos, &sect);
 
     if (sect == nullptr)
     {
@@ -346,55 +346,32 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     //DoVoxelShadow(New);
 }
 
-inline int MOVEx(int vel, int ang)
-{
-    return (MulScale(vel, bcos(ang), 14));
-}
-
-inline int MOVEy(int vel, int ang)
-{
-    return (MulScale(vel, bsin(ang), 14));
-}
-
 void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
 {
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
-    int nx,ny,nz = 0,dx,dy,dz;
-    int i, ang;
+    DVector3 npos(0, 0, 0), dpos(0, 0, 0);
+    int i;
     int xrepeat, yrepeat, repeat_adj = 0;
-    int z_amt_per_pixel;
+    double z_amt_per_pixel;
 
-    ang = NORM_ANGLE(tsp->int_ang() + 1024);
+    auto angle = tsp->angle + DAngle180;
 
-    if (!ownerActor->hasU() || ownerActor->int_xvel() == 0)
+    if (!ownerActor->hasU() || ownerActor->vel.X == 0)
     {
         return;
     }
 
     if ((tsp->extra & SPRX_PLAYER_OR_ENEMY))
     {
-        z_amt_per_pixel = IntToFixed((int)-ownerActor->user.jump_speed * ACTORMOVETICS)/tsp->ownerActor->int_xvel();
+        z_amt_per_pixel = (- ownerActor->user.jump_speed * ACTORMOVETICS) * maptoworld / tsp->ownerActor->vel.X;
     }
     else
     {
-        z_amt_per_pixel = IntToFixed((int)-ownerActor->int_zvel())/tsp->ownerActor->int_xvel();
+        z_amt_per_pixel = -ownerActor->vel.Z / tsp->ownerActor->vel.X;
     }
 
-    switch (ownerActor->user.motion_blur_dist)
-    {
-    case 64:
-    case 128:
-    case 256:
-    case 512:
-        nz = FixedToInt(z_amt_per_pixel * ownerActor->user.motion_blur_dist);
-        [[fallthrough]];
-    default:
-        dx = nx = MOVEx(ownerActor->user.motion_blur_dist, ang);
-        dy = ny = MOVEy(ownerActor->user.motion_blur_dist, ang);
-        break;
-    }
-
-    dz = nz;
+    dpos.XY() = npos.XY() = angle.ToVector() * ownerActor->user.motion_blur_dist;
+    dpos.Z = npos.Z = z_amt_per_pixel * ownerActor->user.motion_blur_dist * (1./16);
 
     xrepeat = tsp->xrepeat;
     yrepeat = tsp->yrepeat;
@@ -418,13 +395,8 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
         *tSpr = *tsp;
         tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP;
 
-        tSpr->pos.X += (dx * inttoworld);
-        tSpr->pos.Y += (dy * inttoworld);
-        dx += nx;
-        dy += ny;
-
-        tSpr->add_int_z(dz);
-        dz += nz;
+        tSpr->pos += dpos;
+        dpos += npos;
 
         tSpr->xrepeat = uint8_t(xrepeat);
         tSpr->yrepeat = uint8_t(yrepeat);
