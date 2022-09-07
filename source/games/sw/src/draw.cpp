@@ -65,7 +65,6 @@ int display_mirror;
 static int OverlapDraw = false;
 extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;
-bool DrawScreen;
 extern int f_c;
 
 extern TILE_INFO_TYPE aVoxelArray[MAXTILES];
@@ -1137,9 +1136,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     // prediction player if prediction is on, else regular player
     PLAYER* camerapp = (PredictionOn && CommEnabled && pp == Player+myconnectindex) ? ppp : pp;
 
-    DrawScreen = true;
     PreDraw();
-
     PreUpdatePanel(interpfrac);
 
     if (!sceneonly)
@@ -1228,10 +1225,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     RestorePortalState();
 
     if (sceneonly)
-    {
-        DrawScreen = false;
         return;
-    }
 
     MarkSectorSeen(pp->cursector);
 
@@ -1285,16 +1279,10 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         DrawText(twod, font, CR_UNTRANSLATED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 
-    if (!CommEnabled && (pp->Flags & PF_DEAD))
-    {
-        if (ReloadPrompt)
-        {
-            ReloadPrompt = false;
-        }
-    }
+    if (!CommEnabled && (pp->Flags & PF_DEAD) && ReloadPrompt)
+        ReloadPrompt = false;
 
     PostDraw();
-    DrawScreen = false;
 }
 
 bool GameInterface::GenerateSavePic()
