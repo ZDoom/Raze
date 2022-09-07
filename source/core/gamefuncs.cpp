@@ -36,7 +36,7 @@ IntRect viewport3d;
 
 double cameradist, cameraclock;
 
-bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle ang, fixedhoriz horiz, double const smoothratio)
+bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle ang, fixedhoriz horiz, double const interpfrac)
 {
 	HitInfoBase hitinfo;
 	DAngle daang;
@@ -90,7 +90,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle
 			{
 				bakcstat = hit->spr.cstat;
 				hit->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-				calcChaseCamPos(ppos, act, psect, ang, horiz, smoothratio);
+				calcChaseCamPos(ppos, act, psect, ang, horiz, interpfrac);
 				hit->spr.cstat = bakcstat;
 				return false;
 			}
@@ -115,7 +115,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle
 	ppos += npos * cameradist;
 
 	// Calculate clock using GameTicRate so it increases the same rate on all speed computers.
-	double myclock = PlayClock + 120 / GameTicRate * smoothratio * (1. / MaxSmoothRatio);
+	double myclock = PlayClock + 120 / GameTicRate * interpfrac;
 	if (cameraclock == INT_MIN)
 	{
 		// Third person view was just started.

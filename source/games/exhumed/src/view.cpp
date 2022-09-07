@@ -258,10 +258,10 @@ void DrawView(double interpfrac, bool sceneonly)
         if (bCamera)
         {
             nCamerapos.Z -= 10;
-            if (!calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac * MaxSmoothRatio))
+            if (!calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac))
             {
                 nCamerapos.Z += 10;
-                calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac * MaxSmoothRatio);
+                calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac);
             }
         }
     }
