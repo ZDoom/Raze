@@ -179,7 +179,7 @@ void DrawView(double interpfrac, bool sceneonly)
     DExhumedActor* pEnemy = nullptr;
     int nEnemyPal = -1;
     sectortype* pSector = nullptr;
-    DAngle nCameraa, rotscrnang;
+    DAngle nCameraang, rotscrnang;
     fixedhoriz nCamerapan = q16horiz(0);
 
     DoInterpolations(interpfrac);
@@ -195,7 +195,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
         nCamera = pActor->spr.pos;
         pSector = pActor->sector();
-        nCameraa = pActor->spr.angle;
+        nCameraang = pActor->spr.angle;
         rotscrnang = nullAngle;
 
         SetGreenPal();
@@ -223,13 +223,13 @@ void DrawView(double interpfrac, bool sceneonly)
         if (!SyncInput())
         {
             nCamerapan = PlayerList[nLocalPlayer].horizon.sum();
-            nCameraa = PlayerList[nLocalPlayer].angle.sum();
+            nCameraang = PlayerList[nLocalPlayer].angle.sum();
             rotscrnang = PlayerList[nLocalPlayer].angle.rotscrnang;
         }
         else
         {
             nCamerapan = PlayerList[nLocalPlayer].horizon.interpolatedsum(interpfrac * MaxSmoothRatio);
-            nCameraa = PlayerList[nLocalPlayer].angle.interpolatedsum(interpfrac);
+            nCameraang = PlayerList[nLocalPlayer].angle.interpolatedsum(interpfrac);
             rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(interpfrac);
         }
 
@@ -253,15 +253,15 @@ void DrawView(double interpfrac, bool sceneonly)
     else
     {
         nCamera.Z = min(nCamera.Z + nQuake[nLocalPlayer] * zinttoworld, pPlayerActor->sector()->floorz);
-        nCameraa += DAngle::fromBam((nQuake[nLocalPlayer] % 4095) << 14);
+        nCameraang += DAngle::fromBam((nQuake[nLocalPlayer] % 4095) << 14);
 
         if (bCamera)
         {
             nCamera.Z -= 10;
-            if (!calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraa, nCamerapan, interpfrac * MaxSmoothRatio))
+            if (!calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac * MaxSmoothRatio))
             {
                 nCamera.Z += 10;
-                calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraa, nCamerapan, interpfrac * MaxSmoothRatio);
+                calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac * MaxSmoothRatio);
             }
         }
     }
@@ -304,7 +304,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(interpfrac * MaxSmoothRatio);
-        render_drawrooms(nullptr, nCamera, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, interpfrac * MaxSmoothRatio);
+        render_drawrooms(nullptr, nCamera, sectnum(pSector), nCameraang, nCamerapan, rotscrnang, interpfrac * MaxSmoothRatio);
 
         if (HavePLURemap())
         {
@@ -332,7 +332,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
                     pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-                    int ang2 = nCameraa.Buildang() - pPlayerActor->int_ang();
+                    int ang2 = nCameraang.Buildang() - pPlayerActor->int_ang();
                     if (ang2 < 0)
                         ang2 = -ang2;
 
