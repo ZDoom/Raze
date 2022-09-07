@@ -50,7 +50,7 @@ void DrawMap(double const interpfrac)
     {
         auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
         auto ang = !SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(interpfrac);
-        DrawOverheadMap(pPlayerActor->interpolatedpos(interpfrac).XY(), ang, interpfrac * MaxSmoothRatio);
+        DrawOverheadMap(pPlayerActor->interpolatedpos(interpfrac).XY(), ang, interpfrac);
     }
 }
 
@@ -66,7 +66,7 @@ void GetActorExtents(DExhumedActor* actor, int* top, int* bottom)
     }
 }
 
-bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac)
 {
     auto cangvect = cang.ToVector();
 

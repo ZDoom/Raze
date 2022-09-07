@@ -280,7 +280,7 @@ void drawoverlays(double interpfrac)
 				cposxy = pp->opos.XY();
 				cang = pp->angle.oang;
 			}
-			DrawOverheadMap(cposxy, cang, interpfrac * MaxSmoothRatio);
+			DrawOverheadMap(cposxy, cang, interpfrac);
 			RestoreInterpolations();
 		}
 	}
@@ -382,7 +382,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac)
 {
 	// Pre-caculate incoming angle vector.
 	auto cangvect = cang.ToVector();
@@ -433,7 +433,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			double j = clamp(czoom * act->spr.yrepeat + abs(pp.truefz - pp.pos.Z), 21.5, 128.) * REPEAT_SCALE;
 
 			auto const vec = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
-			auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(smoothratio * (1. / MaxSmoothRatio))) - cang).Normalized360().Degrees();
+			auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();
 
 			DrawTexture(twod, tileGetTexture(i), vec.X, vec.Y, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), act->spr.pal), DTA_CenterOffset, true,
 				DTA_Rotate, daang, DTA_Color, shadeToLight(act->spr.shade), DTA_ScaleX, j, DTA_ScaleY, j, TAG_DONE);

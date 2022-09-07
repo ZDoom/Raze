@@ -593,7 +593,7 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 //
 //---------------------------------------------------------------------------
 
-void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const smoothratio)
+void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const interpfrac)
 {
 	if (am_followplayer || follow.X == INT_MAX)
 	{
@@ -614,7 +614,7 @@ void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const s
 
 	drawredlines(follow, avect, xydim);
 	drawwhitelines(follow, avect, xydim);
-	if (!gi->DrawAutomapPlayer(plxy, follow, follow_a, xydim, gZoom, smoothratio))
+	if (!gi->DrawAutomapPlayer(plxy, follow, follow_a, xydim, gZoom, interpfrac))
 		DrawPlayerArrow(follow, follow_a, gZoom, pl_angle);
 
 }

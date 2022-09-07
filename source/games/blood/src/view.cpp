@@ -472,9 +472,9 @@ static void DrawMap(DBloodActor* view)
 		tm = 1;
 	}
 	VIEW* pView = &gPrevView[gViewIndex];
-	auto xy = DVector2(interpolatedvalue(pView->x, view->int_pos().X, gInterpolate * (1. / MaxSmoothRatio)), interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate * (1. / MaxSmoothRatio)))* inttoworld;
+	auto xy = DVector2(interpolatedvalue(pView->x, view->int_pos().X, gInterpolate * (1. / MaxSmoothRatio)), interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate * (1. / MaxSmoothRatio))) * inttoworld;
 	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate * (1. / MaxSmoothRatio));
-	DrawOverheadMap(xy, ang, gInterpolate);
+	DrawOverheadMap(xy, ang, gInterpolate * (1. / MaxSmoothRatio));
 	if (tm)
 		setViewport(hud_size);
 }
@@ -862,7 +862,7 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac)
 {
 	auto cangvect = cang.ToVector();
 

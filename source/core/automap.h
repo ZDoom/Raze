@@ -16,7 +16,7 @@ extern BitArray show2dwall;
 void SerializeAutomap(FSerializer& arc);
 void ClearAutomap();
 void MarkSectorSeen(sectortype* sect);
-void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const smoothratio);
+void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const interpfrac);
 bool AM_Responder(event_t* ev, bool last);
 void drawlinergb(const DVector2& v1, const DVector2& v2, PalEntry p);
 void DrawAutomapAlignmentFacing(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col);

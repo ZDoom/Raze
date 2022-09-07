@@ -1509,7 +1509,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
                 }
             }
         }
-        DrawOverheadMap(DVector2(tx, ty) * inttoworld, tang, smoothratio);
+        DrawOverheadMap(DVector2(tx, ty) * inttoworld, tang, smoothratio * (1. / MaxSmoothRatio));
     }
 
     SWSpriteIterator it;
@@ -1571,7 +1571,7 @@ bool GameInterface::GenerateSavePic()
 
 
 
-bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac)
 {
     static int pspr_ndx[8] = { 0,0,0,0,0,0,0,0 };
     bool sprisplayer = false;
@@ -1592,7 +1592,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                     // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
                     PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == Player[screenpeek].actor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
                     auto statnum = actor->spr.statnum;
-                    auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedpos(smoothratio * (1. / MaxSmoothRatio)) : actor->spr.pos).XY() - cpos;
+                    auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedpos(interpfrac) : actor->spr.pos).XY() - cpos;
 
                     switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                     {
@@ -1634,7 +1634,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                 if (spnum >= 0)
                 {
-                    const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio * (1. / MaxSmoothRatio))) - cang).Normalized360().Degrees();
+                    const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                     // This yrepeat scale is correct.
