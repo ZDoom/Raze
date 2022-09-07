@@ -250,7 +250,6 @@ int DoShadowFindGroundPoint(tspritetype* tspr)
 
 void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
 {
-    tspritetype* tSpr = tsprites.newTSprite();
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int ground_dist = 0;
     int view_dist = 0;
@@ -271,24 +270,17 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     }
 
     tsp->sectp = sect;
-    *tSpr = *tsp;
-    // shadow is ALWAYS draw last - status is priority
-    tSpr->statnum = MAXSTATUS;
-    tSpr->sectp = sect;
 
     if ((tsp->yrepeat >> 2) > 4)
     {
         yrepeat = (tsp->yrepeat >> 2) - (GetSpriteSizeY(tsp) / 64) * 2;
-        xrepeat = tSpr->xrepeat;
+        xrepeat = tsp->xrepeat;
     }
     else
     {
-        yrepeat = tSpr->yrepeat;
-        xrepeat = tSpr->xrepeat;
+        yrepeat = tsp->yrepeat;
+        xrepeat = tsp->xrepeat;
     }
-
-    tSpr->shade = 127;
-    tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
     loz = ownerActor->user.loz;
     if (ownerActor->user.lowActor)
@@ -300,12 +292,20 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     }
 
     // need to find the ground here
-    tSpr->pos.Z = loz;
 
     // if below or close to sprites z don't bother to draw it
     if ((viewz - loz) > -Z(8))
+    {
         return;
+    }
 
+    tspritetype* tSpr = tsprites.newTSprite();
+    *tSpr = *tsp;
+    // shadow is ALWAYS draw last - status is priority
+    tSpr->statnum = MAXSTATUS;
+    tSpr->shade = 127;
+    tSpr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
+    tSpr->pos.Z = loz;
     // if close to shadows z shrink it
     view_dist = labs(loz - viewz) >> 8;
     if (view_dist < 32)
