@@ -149,7 +149,7 @@ void UpdateInterpolations()
 	}		
 }
 
-void DoInterpolations(double smoothratio)
+void DoInterpolations(double interpfrac)
 {
 	if (!cl_interpolate) return;
     for (unsigned i = 0; i < interpolations.Size(); i++)
@@ -159,14 +159,14 @@ void DoInterpolations(double smoothratio)
 		double old = interpolations[i].old;
 		if (interpolations[i].type < Interp_Pan_First || fabs(bak-old) < 128.)
 		{
-			Set(interpolations[i].index, interpolations[i].actor, interpolations[i].type, old + (bak - old) * smoothratio);
+			Set(interpolations[i].index, interpolations[i].actor, interpolations[i].type, old + (bak - old) * interpfrac);
 		}
 		else
 		{
 			// with the panning types we need to check for potential wraparound.
 			if (bak < old) bak += 256.;
 			else old += 256;
-			double cur = old + (bak - old) * smoothratio;
+			double cur = old + (bak - old) * interpfrac;
 			if (cur >= 256.) cur -= 256.;
 			Set(interpolations[i].index, interpolations[i].actor, interpolations[i].type, cur);
 		}

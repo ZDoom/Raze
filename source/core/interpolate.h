@@ -32,7 +32,7 @@ void StopInterpolation(DCoreActor* actor, int type);
 void UpdateInterpolations();
 void ClearInterpolations();
 void ClearMovementInterpolations();
-void DoInterpolations(double smoothratio);
+void DoInterpolations(double interpfrac);
 void RestoreInterpolations();
 void SerializeInterpolations(FSerializer& arc);
 void clearsectinterpolate(sectortype* sectnum);
