@@ -709,18 +709,9 @@ void GameInterface::Ticker(void)
 
 void GameInterface::Render()
 {
-    if (paused)
-    {
-        smoothratio = MaxSmoothRatio;
-    }
-    else
-    {
-        smoothratio = !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac() * MaxSmoothRatio;
-    }
-
     drawtime.Reset();
     drawtime.Clock();
-    drawscreen(Player + screenpeek, smoothratio, false);
+    drawscreen(Player + screenpeek, (paused || !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac()) * MaxSmoothRatio, false);
     drawtime.Unclock();
 }
 

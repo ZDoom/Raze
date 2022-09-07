@@ -1062,11 +1062,11 @@ void PrintSpriteInfo(PLAYER* pp)
 }
 
 
-void DrawCrosshair(PLAYER* pp)
+static void DrawCrosshair(PLAYER* pp, const double inputfrac)
 {
     if (!(CameraTestMode))
     {
-        ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio)), (pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(inputfrac), (pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
@@ -1526,7 +1526,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 #endif
 
     UpdateStatusBar();
-    DrawCrosshair(pp);
+    DrawCrosshair(pp, smoothratio * (1. / MaxSmoothRatio));
     DoPlayerDiveMeter(pp); // Do the underwater breathing bar
 
     // Boss Health Meter, if Boss present

@@ -1891,7 +1891,6 @@ extern int *lastpacket2clock;
 //
 ///////////////////////////
 
-extern double smoothratio;
 extern int MoveSkip4, MoveSkip2, MoveSkip8;
 extern int MinEnemySkill;
 extern short screenpeek;
