@@ -37,7 +37,7 @@ BEGIN_PS_NS
 bool bSubTitles = true;
 
 int16_t dVertPan[kMaxPlayers];
-DVector3 nCamera;
+DVector3 nCamerapos;
 bool bTouchFloor;
 
 int16_t nQuake[kMaxPlayers] = { 0 };
@@ -193,7 +193,7 @@ void DrawView(double interpfrac, bool sceneonly)
     {
         DExhumedActor* pActor = SnakeList[nSnakeCam].pSprites[0];
 
-        nCamera = pActor->spr.pos;
+        nCamerapos = pActor->spr.pos;
         pSector = pActor->sector();
         nCameraang = pActor->spr.angle;
         rotscrnang = nullAngle;
@@ -214,10 +214,10 @@ void DrawView(double interpfrac, bool sceneonly)
     }
     else
     {
-        nCamera = pPlayerActor->interpolatedvec3(interpfrac).plusZ(interpolatedvaluef(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac * MaxSmoothRatio) * zinttoworld);
+        nCamerapos = pPlayerActor->interpolatedvec3(interpfrac).plusZ(interpolatedvaluef(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac * MaxSmoothRatio) * zinttoworld);
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
-        updatesector(nCamera, &pSector);
+        updatesector(nCamerapos, &pSector);
         if (pSector == nullptr) pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
 
         if (!SyncInput())
@@ -252,23 +252,23 @@ void DrawView(double interpfrac, bool sceneonly)
     }
     else
     {
-        nCamera.Z = min(nCamera.Z + nQuake[nLocalPlayer] * zinttoworld, pPlayerActor->sector()->floorz);
+        nCamerapos.Z = min(nCamerapos.Z + nQuake[nLocalPlayer] * zinttoworld, pPlayerActor->sector()->floorz);
         nCameraang += DAngle::fromBam((nQuake[nLocalPlayer] % 4095) << 14);
 
         if (bCamera)
         {
-            nCamera.Z -= 10;
-            if (!calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac * MaxSmoothRatio))
+            nCamerapos.Z -= 10;
+            if (!calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac * MaxSmoothRatio))
             {
-                nCamera.Z += 10;
-                calcChaseCamPos(nCamera, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac * MaxSmoothRatio);
+                nCamerapos.Z += 10;
+                calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac * MaxSmoothRatio);
             }
         }
     }
 
     if (pSector != nullptr)
     {
-        nCamera.Z = min(max(nCamera.Z, pSector->ceilingz + 1), pSector->floorz - 1); // std::clamp may fail on this one if sectors are closed.
+        nCamerapos.Z = min(max(nCamerapos.Z, pSector->ceilingz + 1), pSector->floorz - 1);
     }
 
     if (nFreeze == 2 || nFreeze == 1)
@@ -304,7 +304,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(interpfrac * MaxSmoothRatio);
-        render_drawrooms(nullptr, nCamera, sectnum(pSector), nCameraang, nCamerapan, rotscrnang, interpfrac * MaxSmoothRatio);
+        render_drawrooms(nullptr, nCamerapos, sectnum(pSector), nCameraang, nCamerapan, rotscrnang, interpfrac * MaxSmoothRatio);
 
         if (HavePLURemap())
         {
@@ -418,7 +418,7 @@ void SerializeView(FSerializer& arc)
 {
     if (arc.BeginObject("view"))
     {
-        arc("camera", nCamera)
+        arc("camera", nCamerapos)
             ("touchfloor", bTouchFloor)
             ("chunktotal", nChunkTotal)
             ("camera", bCamera)

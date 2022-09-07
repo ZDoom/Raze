@@ -479,7 +479,7 @@ int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
-    int nAngle = getangle(nCamera.XY() - pTSprite->pos.XY());
+    int nAngle = getangle(nCamerapos.XY() - pTSprite->pos.XY());
 
     int nSeqOffset = ((((pTSprite->int_ang() + 512) - nAngle) + 128) & kAngleMask) >> 8;
 
@@ -527,7 +527,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
-    int nAngle = getangle(nCamera.XY() - pTSprite->pos.XY());
+    int nAngle = getangle(nCamerapos.XY() - pTSprite->pos.XY());
 
 
     int val;

@@ -809,7 +809,7 @@ void LoadObjects(TArray<DExhumedActor*>& actors)
         runlist_ReadyChannel(nChannel);
     }
 
-    nCamera = initpos;
+    nCamerapos = initpos;
 }
 
 void SerializeInit(FSerializer& arc)
