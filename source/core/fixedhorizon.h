@@ -167,6 +167,18 @@ public:
 		return fixedhoriz(value >> shift);
 	}
 
+	template<class T>
+	constexpr fixedhoriz &operator*= (const T other)
+	{
+		value = value * other;
+		return *this;
+	}
+
+	template<class T>
+	constexpr fixedhoriz operator* (const T other) const
+	{
+		return value * other;
+	}
 };
 
 inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }

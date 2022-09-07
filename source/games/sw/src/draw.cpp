@@ -1389,7 +1389,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
     if (SyncInput() || pp != Player+myconnectindex)
     {
         tang = camerapp->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-        thoriz = camerapp->horizon.interpolatedsum(smoothratio);
+        thoriz = camerapp->horizon.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
         trotscrnang = camerapp->angle.interpolatedrotscrn(smoothratio * (1. / MaxSmoothRatio));
     }
     else

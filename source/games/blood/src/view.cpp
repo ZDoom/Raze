@@ -512,7 +512,7 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		else
 		{
 			cA = interpolatedvalue(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, gInterpolate * (1. / MaxSmoothRatio));
-			cH = interpolatedhorizon(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, gInterpolate);
+			cH = interpolatedvalue(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, gInterpolate);
 			rotscrnang = interpolatedvalue(predictOld.rotscrnang, predict.rotscrnang, gInterpolate * (1. / MaxSmoothRatio));
 		}
 	}
@@ -538,7 +538,7 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 		else
 		{
 			cA = gView->angle.interpolatedsum(gInterpolate * (1. / MaxSmoothRatio));
-			cH = gView->horizon.interpolatedsum(gInterpolate);
+			cH = gView->horizon.interpolatedsum(gInterpolate * (1. / MaxSmoothRatio));
 			rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate * (1. / MaxSmoothRatio));
 		}
 	}
@@ -766,7 +766,7 @@ void viewDrawScreen(bool sceneonly)
 		}
 
 		if (!sceneonly) hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate * (1. / MaxSmoothRatio));
-		fixedhoriz deliriumPitchI = interpolatedhorizon(q16horiz(deliriumPitchO), q16horiz(deliriumPitch), gInterpolate);
+		fixedhoriz deliriumPitchI = interpolatedvalue(q16horiz(deliriumPitchO), q16horiz(deliriumPitch), gInterpolate * (1. / MaxSmoothRatio));
 		auto bakCstat = gView->actor->spr.cstat;
 		gView->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		render_drawrooms(gView->actor, vec3_t( cX, cY, cZ ), sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);

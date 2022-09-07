@@ -291,7 +291,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			cposz = __interpvalue(omyz, myz, smoothratio);
 			if (SyncInput())
 			{
-				choriz = interpolatedhorizon(omyhoriz + omyhorizoff, myhoriz + myhorizoff, smoothratio);
+				choriz = interpolatedvalue(omyhoriz + omyhorizoff, myhoriz + myhorizoff, smoothratio * (1. / MaxSmoothRatio));
 				cang = interpolatedvalue(omyang, myang, smoothratio * (1. / MaxSmoothRatio));
 			}
 			else
@@ -311,7 +311,7 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 			{
 				// Original code for when the values are passed through the sync struct
 				cang = p->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-				choriz = p->horizon.interpolatedsum(smoothratio);
+				choriz = p->horizon.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
 			}
 			else
 			{

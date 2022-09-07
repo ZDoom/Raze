@@ -231,7 +231,7 @@ void displayweapon_d(int snum, double smoothratio)
 	}
 
 	plravel = getavel(snum) * (1. / 16.);
-	horiz16th = p->horizon.horizsumfrac(smoothratio);
+	horiz16th = p->horizon.horizsumfrac(smoothratio * (1. / MaxSmoothRatio));
 	look_anghalf = p->angle.look_anghalf(smoothratio * (1. / MaxSmoothRatio));
 	looking_arc = p->angle.looking_arc(smoothratio * (1. / MaxSmoothRatio));
 	hard_landing *= 8.;

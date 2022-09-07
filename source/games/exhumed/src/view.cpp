@@ -228,7 +228,7 @@ void DrawView(double interpfrac, bool sceneonly)
         }
         else
         {
-            nCamerapan = PlayerList[nLocalPlayer].horizon.interpolatedsum(interpfrac * MaxSmoothRatio);
+            nCamerapan = PlayerList[nLocalPlayer].horizon.interpolatedsum(interpfrac);
             nCameraang = PlayerList[nLocalPlayer].angle.interpolatedsum(interpfrac);
             rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(interpfrac);
         }

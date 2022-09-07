@@ -51,13 +51,3 @@ inline constexpr double __interpvaluef(double oval, double val, double const smo
 {
 	return oval + MulScaleF(val - oval, smoothratio, scale);
 }
-
-inline constexpr fixedhoriz interpolatedhorizon(fixedhoriz oval, fixedhoriz val, double const smoothratio, int const scale = 16)
-{
-	return q16horiz(oval.asq16() + MulScale((val - oval).asq16(), int(smoothratio), scale));
-}
-
-inline constexpr fixedhoriz interpolatedhorizon(fixedhoriz oval, fixedhoriz val, int const smoothratio, int const scale = 16)
-{
-	return q16horiz(oval.asq16() + MulScale((val - oval).asq16(), smoothratio, scale));
-}
