@@ -5162,7 +5162,6 @@ int DoGet(DSWActor* actor)
 {
     PLAYER* pp;
     short pnum, key_num;
-    int a,b,c;
     bool can_see;
 
     // For flag stuff
@@ -6209,7 +6208,6 @@ void SpriteControl(void)
     int32_t stat;
     short pnum, CloseToPlayer;
     PLAYER* pp;
-    int tx, ty, tmin;
     short StateTics;
 
     SWStatIterator it(STAT_MISC);
