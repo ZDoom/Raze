@@ -14646,7 +14646,7 @@ int InitUzi(PLAYER* pp)
     if (RANDOM_P2(1024) < 400)
         InitTracerUzi(pp);
 
-    nz = pp->int_ppos().Z + pp->bob_z * zworldtoint;
+    nz = (pp->pos.Z + pp->bob_z) * zworldtoint;
     daz = nz;
     daang = 32;
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)

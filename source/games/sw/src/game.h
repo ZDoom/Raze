@@ -572,11 +572,6 @@ struct PLAYER
 
     DVector3 pos, opos, oldpos;
 
-    const vec3_t int_ppos() const
-    {
-        return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
-    }
-
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
     TObjPtr<DSWActor*> remoteActor;
