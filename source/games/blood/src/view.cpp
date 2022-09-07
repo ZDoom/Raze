@@ -472,7 +472,7 @@ static void DrawMap(DBloodActor* view)
 		tm = 1;
 	}
 	VIEW* pView = &gPrevView[gViewIndex];
-	auto xy = DVector2(interpolatedvalue(pView->x, view->int_pos().X, gInterpolate), interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate)) * inttoworld;
+	auto xy = DVector2(__interpvalue(pView->x, view->int_pos().X, gInterpolate), __interpvalue(pView->y, view->int_pos().Y, gInterpolate))* inttoworld;
 	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate * (1. / MaxSmoothRatio));
 	DrawOverheadMap(xy, ang, gInterpolate);
 	if (tm)
@@ -494,12 +494,12 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 	if (numplayers > 1 && gView == gMe && gPrediction && gMe->actor->xspr.health > 0)
 	{
 		nSectnum = predict.sectnum;
-		cX = interpolatedvalue(predictOld.x, predict.x, gInterpolate);
-		cY = interpolatedvalue(predictOld.y, predict.y, gInterpolate);
-		cZ = interpolatedvalue(predictOld.viewz, predict.viewz, gInterpolate);
+		cX = __interpvalue(predictOld.x, predict.x, gInterpolate);
+		cY = __interpvalue(predictOld.y, predict.y, gInterpolate);
+		cZ = __interpvalue(predictOld.viewz, predict.viewz, gInterpolate);
 		zDelta = __interpvaluef(predictOld.weaponZ, predict.weaponZ, gInterpolate);
-		bobWidth = interpolatedvalue(predictOld.bobWidth, predict.bobWidth, gInterpolate);
-		bobHeight = interpolatedvalue(predictOld.bobHeight, predict.bobHeight, gInterpolate);
+		bobWidth = __interpvalue(predictOld.bobWidth, predict.bobWidth, gInterpolate);
+		bobHeight = __interpvalue(predictOld.bobHeight, predict.bobHeight, gInterpolate);
 		shakeX = __interpvaluef(predictOld.shakeBobX, predict.shakeBobX, gInterpolate);
 		shakeY = __interpvaluef(predictOld.shakeBobY, predict.shakeBobY, gInterpolate);
 
@@ -520,12 +520,12 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 #endif
 	{
 		VIEW* pView = &gPrevView[gViewIndex];
-		cX = interpolatedvalue(pView->x, gView->actor->int_pos().X, gInterpolate);
-		cY = interpolatedvalue(pView->y, gView->actor->int_pos().Y, gInterpolate);
-		cZ = interpolatedvalue(pView->viewz, gView->zView, gInterpolate);
+		cX = __interpvalue(pView->x, gView->actor->int_pos().X, gInterpolate);
+		cY = __interpvalue(pView->y, gView->actor->int_pos().Y, gInterpolate);
+		cZ = __interpvalue(pView->viewz, gView->zView, gInterpolate);
 		zDelta = __interpvaluef(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
-		bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
-		bobHeight = interpolatedvalue(pView->bobHeight, gView->bobHeight, gInterpolate);
+		bobWidth = __interpvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
+		bobHeight = __interpvalue(pView->bobHeight, gView->bobHeight, gInterpolate);
 		shakeX = __interpvaluef(pView->shakeBobX, gView->swayWidth, gInterpolate);
 		shakeY = __interpvaluef(pView->shakeBobY, gView->swayHeight, gInterpolate);
 

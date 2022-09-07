@@ -287,7 +287,7 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 
 	int nSpeed = approxDist(predict.xvel, predict.yvel);
 
-	predict.at3c = interpolatedvalue(predict.at3c, predict.zvel, 0x7000);
+	predict.at3c = __interpvalue(predict.at3c, predict.zvel, 0x7000);
 	int dz = predict.z - pPosture->eyeAboveZ - predict.viewz;
 	if (dz > 0)
 		predict.at3c += MulScale(dz << 8, 0xa000, 16);
@@ -295,7 +295,7 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 		predict.at3c += MulScale(dz << 8, 0x1800, 16);
 	predict.viewz += predict.at3c >> 8;
 
-	predict.at44 = interpolatedvalue(predict.at44, predict.zvel, 0x5000);
+	predict.at44 = __interpvalue(predict.at44, predict.zvel, 0x5000);
 	dz = predict.z - pPosture->weaponAboveZ - predict.at40;
 	if (dz > 0)
 		predict.at44 += MulScale(dz << 8, 0x8000, 16);

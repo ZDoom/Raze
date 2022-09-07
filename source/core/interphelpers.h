@@ -37,12 +37,12 @@
 
 #include "fixedhorizon.h"
 
-inline constexpr int32_t interpolatedvalue(int32_t oval, int32_t val, double const smoothratio, int const scale = 16)
+inline constexpr int32_t __interpvalue(int32_t oval, int32_t val, double const smoothratio, int const scale = 16)
 {
 	return oval + MulScale(val - oval, int(smoothratio), scale);
 }
 
-inline constexpr int32_t interpolatedvalue(int32_t oval, int32_t val, int const smoothratio, int const scale = 16)
+inline constexpr int32_t __interpvalue(int32_t oval, int32_t val, int const smoothratio, int const scale = 16)
 {
 	return oval + MulScale(val - oval, smoothratio, scale);
 }

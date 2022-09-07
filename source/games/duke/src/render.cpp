@@ -286,9 +286,9 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 #if 0
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
-			cposx = interpolatedvalue(omyx, myx, smoothratio);
-			cposy = interpolatedvalue(omyy, myy, smoothratio);
-			cposz = interpolatedvalue(omyz, myz, smoothratio);
+			cposx = __interpvalue(omyx, myx, smoothratio);
+			cposy = __interpvalue(omyy, myy, smoothratio);
+			cposz = __interpvalue(omyz, myz, smoothratio);
 			if (SyncInput())
 			{
 				choriz = interpolatedhorizon(omyhoriz + omyhorizoff, myhoriz + myhorizoff, smoothratio);
@@ -304,9 +304,9 @@ void displayrooms(int snum, double smoothratio, bool sceneonly)
 		else
 #endif
 		{
-			cposx = interpolatedvalue(p->player_int_opos().X, p->player_int_pos().X, smoothratio);
-			cposy = interpolatedvalue(p->player_int_opos().Y, p->player_int_pos().Y, smoothratio);
-			cposz = interpolatedvalue(p->player_int_opos().Z, p->player_int_pos().Z, smoothratio);;
+			cposx = __interpvalue(p->player_int_opos().X, p->player_int_pos().X, smoothratio);
+			cposy = __interpvalue(p->player_int_opos().Y, p->player_int_pos().Y, smoothratio);
+			cposz = __interpvalue(p->player_int_opos().Z, p->player_int_pos().Z, smoothratio);;
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct

@@ -546,9 +546,9 @@ void UpdateAimVector(PLAYER* pPlayer)
 	aim2 = aim;
 	RotateVector((int*)&aim2.dx, (int*)&aim2.dy, -plActor->int_ang());
 	aim2.dz -= pPlayer->slope;
-	pPlayer->relAim.dx = interpolatedvalue(pPlayer->relAim.dx, aim2.dx, pWeaponTrack->aimSpeedHorz);
-	pPlayer->relAim.dy = interpolatedvalue(pPlayer->relAim.dy, aim2.dy, pWeaponTrack->aimSpeedHorz);
-	pPlayer->relAim.dz = interpolatedvalue(pPlayer->relAim.dz, aim2.dz, pWeaponTrack->aimSpeedVert);
+	pPlayer->relAim.dx = __interpvalue(pPlayer->relAim.dx, aim2.dx, pWeaponTrack->aimSpeedHorz);
+	pPlayer->relAim.dy = __interpvalue(pPlayer->relAim.dy, aim2.dy, pWeaponTrack->aimSpeedHorz);
+	pPlayer->relAim.dz = __interpvalue(pPlayer->relAim.dz, aim2.dz, pWeaponTrack->aimSpeedVert);
 	pPlayer->aim = pPlayer->relAim;
 	RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, plActor->int_ang());
 	pPlayer->aim.dz += pPlayer->slope;

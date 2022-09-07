@@ -349,9 +349,9 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 #if 0 // multiplayer only
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
-					t->x = interpolatedvalue(omyx, myx, smoothratio);
-					t->y = interpolatedvalue(omyy, myy, smoothratio);
-					t->z = interpolatedvalue(omyz, myz, smoothratio) + gs.playerheight;
+					t->x = __interpvalue(omyx, myx, smoothratio);
+					t->y = __interpvalue(omyy, myy, smoothratio);
+					t->z = __interpvalue(omyz, myz, smoothratio) + gs.playerheight;
 					t->ang = interpolatedangle(omyang, myang, smoothratio * (1. / MaxSmoothRatio)).asbuild();
 					t->sector = mycursectnum;
 				}
