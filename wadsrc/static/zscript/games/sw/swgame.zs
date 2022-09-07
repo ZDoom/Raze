@@ -192,7 +192,7 @@ struct SWPlayer native
     native int climb_ndx;
     native double hiz,loz;
     native double p_ceiling_dist,p_floor_dist;
-    native int circle_camera_dist;
+    native double circle_camera_dist;
     native double siang;
 
     native int friction;

@@ -168,6 +168,8 @@ enum
     MIN_ACTIVE_RANGE = 20000,
 };
 
+constexpr double CIRCLE_CAMERA_DIST_MINF = 12000. / 65536.;
+
 inline int32_t FIXED(int32_t msw, int32_t lsw)
 {
     return IntToFixed(msw) | lsw;
@@ -617,7 +619,7 @@ struct PLAYER
     double p_ceiling_dist,p_floor_dist;
     sectortype* hi_sectp, *lo_sectp;
 
-    int circle_camera_dist;
+    double circle_camera_dist;
     DVector3 si; // save player interp position for PlayerSprite
     DAngle siang;
 

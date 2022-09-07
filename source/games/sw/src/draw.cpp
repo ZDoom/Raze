@@ -916,25 +916,16 @@ void post_analyzesprites(tspriteArray& tsprites)
 }
 #endif
 
-void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, DAngle *nang, fixed_t q16horiz)
+static void CircleCamera(DVector3& ppos, sectortype** vsect, DAngle *nang, fixed_t q16horiz)
 {
     HitInfo hit{};
-    int i, vx, vy, vz, hx, hy;
-    int daang;
+    double newdist;
     PLAYER* pp = &Player[screenpeek];
-    DAngle ang;
+    DAngle ang = *nang + pp->circle_camera_ang;
 
-    ang = *nang + pp->circle_camera_ang;
-
-    // Calculate the vector (nx,ny,nz) to shoot backwards
-    vx = int(-ang.Cos() * 1024.);
-    vy = int(-ang.Sin() * 1024.);
-
-    // lengthen the vector some
-    vx += vx >> 1;
-    vy += vy >> 1;
-
-    vz = q16horiz >> 8;
+    // Calculate the vector (nx,ny,nz) to shoot backwards and lengthen some
+    auto npos = DVector3(-ang.ToVector() * 64., FixedToFloat(q16horiz));
+    npos.XY() += npos.XY() * 0.5;
 
     // Player sprite of current view
     DSWActor* actor = pp->actor;
@@ -945,75 +936,68 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, DAngle *nang, f
     // Make sure sector passed to hitscan is correct
     //updatesector(*nx, *ny, vsect);
 
-    hitscan(vec3_t( *nx, *ny, *nz ), *vsect, { vx, vy, vz }, hit, CLIPMASK_MISSILE);
+    hitscan(ppos, *vsect, npos, hit, CLIPMASK_MISSILE);
 
-    actor->spr.cstat = bakcstat;              // Restore cstat
+    // Restore cstat
+    actor->spr.cstat = bakcstat;
 
-    hx = hit.int_hitpos().X - (*nx);
-    hy = hit.int_hitpos().Y - (*ny);
+    auto hpos = hit.hitpos.XY() - ppos.XY();
 
     // If something is in the way, make pp->circle_camera_dist lower if necessary
-    if (abs(vx) + abs(vy) > abs(hx) + abs(hy))
+    if (fabs(npos.X) + fabs(npos.Y) > fabs(hpos.X) + fabs(hpos.Y))
     {
-        if (hit.hitWall)               // Push you a little bit off the wall
+        if (hit.hitWall)
         {
+            // Push you a little bit off the wall
             *vsect = hit.hitSector;
+            auto daang = hit.hitWall->delta().Angle();
+            newdist = (npos.X * daang.Sin() + npos.Y * -daang.Cos()) * (1. / 1024.);
 
-            daang = getangle(hit.hitWall->delta());
-
-            i = vx * bsin(daang) + vy * -bcos(daang);
-            if (abs(vx) > abs(vy))
-                hx -= MulScale(vx, i, 28);
+            if (fabs(npos.X) > fabs(npos.Y))
+                hpos.X -= npos.X * newdist;
             else
-                hy -= MulScale(vy, i, 28);
+                hpos.Y -= npos.Y * newdist;
         }
-        else if (hit.actor() == nullptr)        // Push you off the ceiling/floor
+        else if (hit.actor() == nullptr)
         {
+            // Push you off the ceiling/floor
             *vsect = hit.hitSector;
 
-            if (abs(vx) > abs(vy))
-                hx -= (vx >> 5);
+            if (fabs(npos.X) > fabs(npos.Y))
+                hpos.X -= npos.X * (1. / 32.);
             else
-                hy -= (vy >> 5);
+                hpos.Y -= npos.Y * (1. / 32.);
         }
         else
         {
+            // if you hit a sprite that's not a wall sprite - try again
             auto hitactor = hit.actor();
 
-            // if you hit a sprite that's not a wall sprite - try again
             if (!(hitactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 auto flag_backup = hitactor->spr.cstat;
                 hitactor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
-                CircleCamera(nx, ny, nz, vsect, nang, q16horiz);
+                CircleCamera(ppos, vsect, nang, q16horiz);
                 hitactor->spr.cstat = flag_backup;
                 return;
             }
         }
 
-        if (abs(vx) > abs(vy))
-            i = IntToFixed(hx) / vx;
-        else
-            i = IntToFixed(hy) / vy;
-
-        if (i < pp->circle_camera_dist)
-            pp->circle_camera_dist = i;
+        newdist = fabs(npos.X) > fabs(npos.Y) ? hpos.X / npos.X : hpos.Y / npos.Y;
+        if (newdist < pp->circle_camera_dist) pp->circle_camera_dist = newdist;
     }
 
-    // Actually move you!  (Camerdist is 65536 if nothing is in the way)
-    *nx = (*nx) + FixedToInt(vx * pp->circle_camera_dist);
-    *ny = (*ny) + FixedToInt(vy * pp->circle_camera_dist);
-    *nz = (*nz) + FixedToInt(vz * pp->circle_camera_dist);
+    // Actually move you! (Camerdist is 1 if nothing is in the way)
+    ppos += npos * pp->circle_camera_dist;
 
     // Slowly increase pp->circle_camera_dist until it reaches 65536
     // Synctics is a timer variable so it increases the same rate
     // on all speed computers
-    pp->circle_camera_dist = min(pp->circle_camera_dist + (3 << 8), 65536);
+    pp->circle_camera_dist = min((pp->circle_camera_dist + (3 << 8)) * (1. / 64), 1.);
     //pp->circle_camera_dist = min(pp->circle_camera_dist + (synctics << 10), 65536);
 
     // Make sure vsect is correct
-    updatesectorz(*nx, *ny, *nz, vsect);
+    updatesectorz(ppos, vsect);
 
     *nang = ang;
 }
@@ -1111,7 +1095,10 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngl
                 {
                 case 1:
                     pp->last_camera_act = actor;
-                    CircleCamera(tx, ty, tz, tsect, tang, 0);
+                    CircleCamera(test1, tsect, tang, 0);
+                    (*tx) = test1.X * worldtoint;
+                    (*ty) = test1.Y * worldtoint;
+                    (*tz) = test1.Z * zworldtoint;
                     found_camera = true;
                     break;
 
@@ -1175,7 +1162,7 @@ void CameraView(PLAYER* pp, int *tx, int *ty, int *tz, sectortype** tsect, DAngl
         else
         {
             pp->circle_camera_ang = nullAngle;
-            pp->circle_camera_dist = CIRCLE_CAMERA_DIST_MIN;
+            pp->circle_camera_dist = CIRCLE_CAMERA_DIST_MINF;
             pp->Flags &= ~(PF_VIEW_FROM_CAMERA);
         }
     }

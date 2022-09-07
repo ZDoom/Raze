@@ -6377,7 +6377,7 @@ void PlayerGlobal(PLAYER* pp)
     }
 
     // camera stuff that can't be done in drawscreen
-    if (pp->circle_camera_dist > CIRCLE_CAMERA_DIST_MIN)
+    if (pp->circle_camera_dist > CIRCLE_CAMERA_DIST_MINF)
         pp->circle_camera_ang += DAngle::fromBuild(14);
 
     if (pp->camera_check_time_delay > 0)
