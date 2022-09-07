@@ -309,7 +309,6 @@ void GameMove(void)
     else
     {
         bobangle += 56;
-        bobangle &= kAngleMask;
     }
 
     UpdateCreepySounds();

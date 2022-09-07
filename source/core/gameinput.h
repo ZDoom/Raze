@@ -155,8 +155,8 @@ struct PlayerAngle
 	bool movementlocked() { return targetset() || inputdisabled; }
 
 	// Draw code helpers. The logic where these are used rely heavily on Build's angle period.
-	double look_anghalf(double const interpfrac) { return renderlookang(interpfrac).Normalized180().Buildfang() * 0.5; }
-	double looking_arc(double const interpfrac) { return fabs(renderlookang(interpfrac).Normalized180().Buildfang() * (1. / 9.)); }
+	double look_anghalf(double const interpfrac) { return renderlookang(interpfrac).Normalized180().Degrees() * (128. / 45.); }
+	double looking_arc(double const interpfrac) { return fabs(renderlookang(interpfrac).Normalized180().Degrees() * (1024. / 1620.)); }
 
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(const DAngle value)

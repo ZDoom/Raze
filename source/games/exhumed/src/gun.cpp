@@ -910,8 +910,8 @@ void DrawWeapons(double interpfrac)
 
         if (cl_hudinterpolation)
         {
-            nBobAngle = interpolatedvalue(DAngle::fromBuild(obobangle), DAngle::fromBuild(bobangle), interpfrac).Buildfang();
-            nVal = interpolatedvalue(PlayerList[nLocalPlayer].ototalvel, PlayerList[nLocalPlayer].totalvel, interpfrac) * 0.5;
+            nBobAngle = interpolatedvalue<double>(obobangle, bobangle, interpfrac) * BAngToDegree;
+            nVal = interpolatedvalue<double>(PlayerList[nLocalPlayer].ototalvel, PlayerList[nLocalPlayer].totalvel, interpfrac);
         }
         else
         {
@@ -919,11 +919,11 @@ void DrawWeapons(double interpfrac)
             nVal = PlayerList[nLocalPlayer].totalvel;
         }
 
-        yOffset = MulScaleF(nVal, bsinf(fmod(nBobAngle, 1024.), -8), 9);
+        yOffset = nVal * fabs(g_sindeg(nBobAngle)) * (1. / 16.);
 
         if (var_34 == 1)
         {
-            xOffset = MulScaleF(bcosf(nBobAngle, -8), nVal, 8);
+            xOffset = nVal * g_cosdeg(nBobAngle) * (1. / 8.);
         }
     }
     else

@@ -200,7 +200,7 @@ struct TILE_FRAME
 	int stat;
 	int8_t shade;
 	int8_t palnum;
-	uint16_t angle;
+	DAngle angle;
 };
 
 struct SOUNDINFO

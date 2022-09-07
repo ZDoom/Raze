@@ -129,7 +129,6 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 	{
 		auto tex = tileGetTexture(picnum);
 		double scale = z * (1. / 65536.);
-		double angle = a * BAngToDegree;
 		int renderstyle = (stat & RS_NOMASK) ? STYLE_Normal : STYLE_Translucent;
 		int pin = (stat & kQavOrientationLeft) ? -1 : (stat & RS_ALIGN_R) ? 1 : 0;
 		auto translation = TRANSLATION(Translation_Remap, palnum);
@@ -139,7 +138,7 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 		bool yflip = !!(stat & RS_YFLIP);
 		auto color = shadeToLight(shade);
 
-		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
+		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, a, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
 			DTA_TopLeft, topleft, DTA_CenterOffsetRel, topleft ? 0 : 2, DTA_FullscreenScale, FSMode_Fit320x200, DTA_FlipOffsets, true, DTA_Color, color,
 			DTA_FlipX, xflip, DTA_FlipY, yflip, TAG_DONE);
 	}
@@ -188,7 +187,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 			double tileX;
 			double tileY;
 			double tileZ;
-			double tileA;
+			DAngle tileA;
 			double tileAlpha;
 			int tileShade;
 			auto const tileStat = stat | thisTile->stat;
@@ -198,7 +197,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 				tileX = interpolatedvalue<double>(prevTile->x, thisTile->x, interpfrac);
 				tileY = interpolatedvalue<double>(prevTile->y, thisTile->y, interpfrac);
 				tileZ = interpolatedvalue<double>(prevTile->z, thisTile->z, interpfrac);
-				tileA = interpolatedvalue(DAngle::fromBuild(prevTile->angle), DAngle::fromBuild(thisTile->angle), interpfrac).Buildfang();
+				tileA = interpolatedvalue(prevTile->angle, thisTile->angle, interpfrac);
 				tileShade = interpolatedvalue(prevTile->shade, thisTile->shade, interpfrac) + shade;
 				auto prevAlpha = ((stat | prevTile->stat) & RS_TRANS1) ? glblend[0].def[!!((stat | prevTile->stat) & RS_TRANS2)].alpha : 1.f;
 				auto thisAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.f;
@@ -214,7 +213,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 				tileAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.f;
 			}
 
-			DrawFrame(tileX + x, tileY + y, tileZ, tileA, tileAlpha, thisTile->picnum, tileStat, tileShade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
+			DrawFrame(tileX + x, tileY + y, tileZ, tileA.Degrees(), tileAlpha, thisTile->picnum, tileStat, tileShade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
 		}
 	}
 }
@@ -418,7 +417,7 @@ QAV* getQAV(int res_id)
 			qavdata->frames[i].tiles[j].stat = fr.ReadInt32();
 			qavdata->frames[i].tiles[j].shade = fr.ReadInt8();
 			qavdata->frames[i].tiles[j].palnum = fr.ReadUInt8();
-			qavdata->frames[i].tiles[j].angle = fr.ReadUInt16();
+			qavdata->frames[i].tiles[j].angle = DAngle::fromBuild(fr.ReadUInt16());
 		}
 	}
 
