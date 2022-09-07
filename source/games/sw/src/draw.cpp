@@ -87,7 +87,7 @@ void ShadeSprite(tspritetype* tsp)
 #endif
 
 
-int GetRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int viewy)
+int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
 {
     static const uint8_t RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
     static const uint8_t RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
@@ -95,15 +95,14 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int viewy)
 
     tspritetype* tsp = tsprites.get(tSpriteNum);
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
-    int angle2;
 
     if (!ownerActor->hasU() || ownerActor->user.RotNum == 0)
         return 0;
 
     // Get which of the 8 angles of the sprite to draw (0-7)
     // rotation ranges from 0-7
-    angle2 = getangle(tsp->int_pos().X - viewx, tsp->int_pos().Y - viewy);
-    rotation = ((tsp->int_ang() + 3072 + 128 - angle2) & 2047);
+    DAngle angle2 = VecToAngle(tsp->pos.X - view.X, tsp->pos.Y - view.Y);
+    rotation = (tsp->angle + DAngle180 + DAngle22_5 * 0.5 - angle2).Buildang() & 2047;
     rotation = (rotation >> 8) & 7;
 
     if (ownerActor->user.RotNum == 5)
@@ -158,7 +157,7 @@ directions was not standardized.
 
 */
 
-int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int viewy)
+int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& viewpos)
 {
     tspritetype* tsp = tsprites.get(tSpriteNum);
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
@@ -176,7 +175,7 @@ int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, int viewx, int view
     StateOffset = int(State - StateStart);
 
     // Get the rotation angle
-    Rotation = GetRotation(tsprites, tSpriteNum, viewx, viewy);
+    Rotation = GetRotation(tsprites, tSpriteNum, viewpos);
 
     ASSERT(Rotation < 5);
 
@@ -247,7 +246,7 @@ double DoShadowFindGroundPoint(tspritetype* tspr)
     return loz;
 }
 
-void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
+void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 {
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     int ground_dist = 0;
@@ -296,7 +295,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     int iloz = loz * zworldtoint;
 
     // if below or close to sprites z don't bother to draw it
-    if ((viewz - iloz) > -Z(8))
+    if ((viewz - loz) > -8)
     {
         return;
     }
@@ -310,7 +309,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, int viewz, int camang)
     tSpr->pos.Z = loz;
 
     // if close to shadows z shrink it
-    view_dist = abs(iloz - viewz) >> 8;
+    view_dist = int(abs(loz - viewz));
     if (view_dist < 32)
         view_dist = 256/view_dist;
     else
@@ -462,13 +461,13 @@ void WarpCopySprite(tspriteArray& tsprites)
     }
 }
 
-void DoStarView(tspritetype* tsp, DSWActor* tActor, int viewz)
+void DoStarView(tspritetype* tsp, DSWActor* tActor, double viewz)
 {
     extern STATE s_Star[], s_StarDown[];
     extern STATE s_StarStuck[], s_StarDownStuck[];
-    int zdiff = viewz - tsp->int_pos().Z;
+    double zdiff = viewz - tsp->pos.Z;
 
-    if (abs(zdiff) > Z(24))
+    if (abs(zdiff) > 24)
     {
         if (tActor->user.StateStart == s_StarStuck)
             tsp->picnum = s_StarDownStuck[tActor->user.State - s_StarStuck].Pic;
@@ -548,7 +547,7 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
 }
 
 
-static void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int camang, double interpfrac)
+static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, double interpfrac)
 {
     int tSpriteNum;
     static int ang = 0;
@@ -621,7 +620,7 @@ static void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int vie
 
             if (r_shadows && (tActor->user.Flags & SPR_SHADOW))
             {
-                DoShadows(tsprites, tsp, viewz, camang);
+                DoShadows(tsprites, tsp, viewpos.Z);
             }
 
             //#define UK_VERSION 1
@@ -647,12 +646,12 @@ static void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int vie
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
                 else
-                    DoStarView(tsp, tActor, viewz);
+                    DoStarView(tsp, tActor, viewpos.Z);
             }
 
             // rotation
             if (tActor->user.RotNum > 0)
-                SetActorRotation(tsprites, tSpriteNum, viewx, viewy);
+                SetActorRotation(tsprites, tSpriteNum, viewpos.XY());
 
             if (tActor->user.motion_blur_num)
             {
@@ -1355,7 +1354,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
 void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
 {
-    analyzesprites(tsprites, viewx, viewy, viewz, viewang.Buildang(), interpfrac);
+    analyzesprites(tsprites, DVector3(viewx * inttoworld, viewy * inttoworld, viewz * zinttoworld), interpfrac);
     post_analyzesprites(tsprites);
 }
 
