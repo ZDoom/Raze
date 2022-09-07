@@ -4339,6 +4339,8 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
         // Calculate all 4 points of the floor sprite.
         // (x1,y1),(x2,y2),(x3,y3),(x4,y4)
         // These points will already have (x,y) subtracted from them
+        // [MR] Note, formula here appears identical to that of `DrawAutomapAlignmentFloor()`.
+        // Consider looking there when refactoring.
         cosang = bcos(itActor->int_ang());
         sinang = bsin(itActor->int_ang());
         xspan = tileWidth(tilenum);
