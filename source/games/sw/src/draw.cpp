@@ -916,92 +916,6 @@ void post_analyzesprites(tspriteArray& tsprites)
 }
 #endif
 
-static void CircleCamera(DVector3& ppos, sectortype** vsect, DAngle *nang, fixed_t q16horiz)
-{
-    HitInfo hit{};
-    double newdist;
-    PLAYER* pp = &Player[screenpeek];
-    DAngle ang = *nang + pp->circle_camera_ang;
-
-    // Calculate the vector (nx,ny,nz) to shoot backwards and lengthen some
-    auto npos = DVector3(-ang.ToVector() * 64., FixedToFloat(q16horiz));
-    npos.XY() += npos.XY() * 0.5;
-
-    // Player sprite of current view
-    DSWActor* actor = pp->actor;
-
-    auto bakcstat = actor->spr.cstat;
-    actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
-    // Make sure sector passed to hitscan is correct
-    //updatesector(*nx, *ny, vsect);
-
-    hitscan(ppos, *vsect, npos, hit, CLIPMASK_MISSILE);
-
-    // Restore cstat
-    actor->spr.cstat = bakcstat;
-
-    auto hpos = hit.hitpos.XY() - ppos.XY();
-
-    // If something is in the way, make pp->circle_camera_dist lower if necessary
-    if (fabs(npos.X) + fabs(npos.Y) > fabs(hpos.X) + fabs(hpos.Y))
-    {
-        if (hit.hitWall)
-        {
-            // Push you a little bit off the wall
-            *vsect = hit.hitSector;
-            auto daang = hit.hitWall->delta().Angle();
-            newdist = (npos.X * daang.Sin() + npos.Y * -daang.Cos()) * (1. / 1024.);
-
-            if (fabs(npos.X) > fabs(npos.Y))
-                hpos.X -= npos.X * newdist;
-            else
-                hpos.Y -= npos.Y * newdist;
-        }
-        else if (hit.actor() == nullptr)
-        {
-            // Push you off the ceiling/floor
-            *vsect = hit.hitSector;
-
-            if (fabs(npos.X) > fabs(npos.Y))
-                hpos.X -= npos.X * (1. / 32.);
-            else
-                hpos.Y -= npos.Y * (1. / 32.);
-        }
-        else
-        {
-            // if you hit a sprite that's not a wall sprite - try again
-            auto hitactor = hit.actor();
-
-            if (!(hitactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
-            {
-                auto flag_backup = hitactor->spr.cstat;
-                hitactor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-                CircleCamera(ppos, vsect, nang, q16horiz);
-                hitactor->spr.cstat = flag_backup;
-                return;
-            }
-        }
-
-        newdist = fabs(npos.X) > fabs(npos.Y) ? hpos.X / npos.X : hpos.Y / npos.Y;
-        if (newdist < pp->circle_camera_dist) pp->circle_camera_dist = newdist;
-    }
-
-    // Actually move you! (Camerdist is 1 if nothing is in the way)
-    ppos += npos * pp->circle_camera_dist;
-
-    // Slowly increase pp->circle_camera_dist until it reaches 65536
-    // Synctics is a timer variable so it increases the same rate
-    // on all speed computers
-    pp->circle_camera_dist = min((pp->circle_camera_dist + (3 << 8)) * (1. / 64), 1.);
-    //pp->circle_camera_dist = min(pp->circle_camera_dist + (synctics << 10), 65536);
-
-    // Make sure vsect is correct
-    updatesectorz(ppos, vsect);
-
-    *nang = ang;
-}
-
 std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
     PLAYER* pp = Player + myconnectindex;
@@ -1048,108 +962,7 @@ void PrintSpriteInfo(PLAYER* pp)
 
 static void DrawCrosshair(PLAYER* pp, const double inputfrac)
 {
-    if (!(CameraTestMode))
-    {
-        ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(inputfrac), (pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
-    }
-}
-
-static void CameraView(PLAYER* pp, DVector3& tpos, sectortype** tsect, DAngle *tang, fixedhoriz *thoriz)
-{
-    bool found_camera = false;
-    bool player_in_camera = false;
-
-    if (pp == &Player[screenpeek])
-    {
-        SWStatIterator it(STAT_DEMO_CAMERA);
-        while (auto actor = it.Next())
-        {
-            DAngle ang = (tpos.XY() - actor->spr.pos.XY()).Angle();
-            bool ang_test = deltaangle(ang, actor->spr.angle) < DAngle::fromBuild(actor->spr.lotag);
-
-            bool FAFcansee_test = (FAFcansee(actor->spr.pos, actor->sector(), tpos, pp->cursector) ||
-                FAFcansee(actor->spr.pos, actor->sector(), tpos.plusZ(ActorSizeZ(pp->actor)), pp->cursector));
-
-            player_in_camera = ang_test && FAFcansee_test;
-
-            if (player_in_camera || pp->camera_check_time_delay > 0)
-            {
-
-                // if your not in the camera but are still looking
-                // make sure that only the last camera shows you
-
-                if (!player_in_camera && pp->camera_check_time_delay > 0)
-                {
-                    if (pp->last_camera_act != actor)
-                        continue;
-                }
-
-                switch (actor->spr.clipdist)
-                {
-                case 1:
-                    pp->last_camera_act = actor;
-                    CircleCamera(tpos, tsect, tang, 0);
-                    found_camera = true;
-                    break;
-
-                default:
-                {
-                    pp->last_camera_act = actor;
-                    auto xyvect = ang.ToVector() * 128.;
-                    auto zdiff = actor->spr.pos.Z - tpos.Z;
-                    double zvect;
-
-                    if (abs(actor->spr.pos.X - tpos.X) > 62.5)
-                        zvect = (xyvect.X * zdiff) / (actor->spr.pos.X - tpos.X);
-                    else if (abs(actor->spr.pos.Y - tpos.Y) > 62.5)
-                        zvect = (xyvect.Y * zdiff) / (actor->spr.pos.Y - tpos.Y);
-                    else if ((actor->spr.pos.X - tpos.X) != 0)
-                        zvect = (xyvect.X * zdiff) / (actor->spr.pos.X - tpos.X);
-                    else if ((actor->spr.pos.Y - tpos.Y) != 0)
-                        zvect = (xyvect.Y * zdiff) / (actor->spr.pos.Y - tpos.Y);
-                    else
-                        zvect = 0;
-
-                    // new positon for player
-                    tpos = actor->spr.pos;
-                    *thoriz = q16horiz(clamp(-FloatToFixed<12>(zvect), gi->playerHorizMin(), gi->playerHorizMax()));
-                    *tang = ang;
-                    *tsect = actor->sector();
-
-                    found_camera = true;
-                    break;
-                }
-                }
-            }
-
-            if (found_camera)
-                break;
-        }
-    }
-
-    // if you player_in_camera you definately have a camera
-    if (player_in_camera)
-    {
-        pp->camera_check_time_delay = 120/2;
-        pp->Flags |= (PF_VIEW_FROM_CAMERA);
-
-        ASSERT(found_camera);
-    }
-    else
-    // if you !player_in_camera you still might have a camera
-    // for a split second
-    {
-        if (found_camera)
-        {
-            pp->Flags |= (PF_VIEW_FROM_CAMERA);
-        }
-        else
-        {
-            pp->circle_camera_ang = nullAngle;
-            pp->circle_camera_dist = CIRCLE_CAMERA_DIST_MINF;
-            pp->Flags &= ~(PF_VIEW_FROM_CAMERA);
-        }
-    }
+    ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(inputfrac), (pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
 }
 
 void PreDraw(void)
@@ -1317,7 +1130,6 @@ void RestorePortalState()
 
 void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
 {
-    extern bool CameraTestMode;
     DAngle tang, trotscrnang;
     fixedhoriz thoriz;
     sectortype* tsect;
@@ -1392,10 +1204,6 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
             tpos.Z += 33;
             calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac);
         }
-    }
-    else if(CameraTestMode)
-    {
-        CameraView(camerapp, tpos, &tsect, &tang, &thoriz);
     }
 
     if (!(pp->Flags & (PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE)))

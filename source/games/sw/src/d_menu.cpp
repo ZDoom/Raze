@@ -95,7 +95,6 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
     int handle = 0;
     int zero = 0;
 
-    CameraTestMode = false;
 	StopAmbientSound();
 
     //InitNewGame();

@@ -193,8 +193,6 @@ int OrigCommPlayers=0;
 extern uint8_t CommPlayers;
 extern bool CommEnabled;
 
-bool CameraTestMode = false;
-
 char ds[645];                           // debug string
 
 extern short NormalVisibility;
