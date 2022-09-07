@@ -63,7 +63,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle
 		{
 			// Push you a little bit off the wall
 			*psect = hitinfo.hitSector;
-			daang = (hitinfo.hitWall->point2Wall()->pos - hitinfo.hitWall->pos).Angle();
+			daang = hitinfo.hitWall->delta().Angle();
 			newdist = (npos.X * daang.Sin() + npos.Y * -daang.Cos()) * (1. / 1024.);
 
 			if (fabs(npos.X) > fabs(npos.Y))
