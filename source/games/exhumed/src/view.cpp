@@ -214,7 +214,7 @@ void DrawView(double interpfrac, bool sceneonly)
     }
     else
     {
-        nCamerapos = pPlayerActor->interpolatedpos(interpfrac).plusZ(interpolatedvalue<double>(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac) * zinttoworld);
+        nCamerapos = pPlayerActor->interpolatedpos(interpfrac).plusZ(interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac));
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
         updatesector(nCamerapos, &pSector);

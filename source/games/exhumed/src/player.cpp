@@ -56,10 +56,10 @@ static actionSeq PlayerSeq[] = {
 
 static const uint8_t nHeightTemplate[] = { 0, 0, 0, 0, 0, 0, 7, 7, 7, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-static const int16_t nActionEyeLevel[] = {
-    -14080, -14080, -14080, -14080, -14080, -14080, -8320,
-    -8320,  -8320,  -8320,  -8320,  -8320,  -8320,  -14080,
-    -14080, -14080, -14080, -14080, -14080, -14080, -14080
+static constexpr double nActionEyeLevel[] = {
+    -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -32.5,
+    -32.5,  -32.5,  -32.5,  -32.5,  -32.5,  -32.5,  -55.0,
+    -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -55.0,  -55.0
 };
 
 static const uint16_t nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
@@ -374,7 +374,7 @@ void RestartPlayer(int nPlayer)
 	}
 
 	plr->pPlayerGrenade = nullptr;
-	plr->oeyelevel = plr->eyelevel = -14080;
+	plr->oeyelevel = plr->eyelevel = -55.;
 	dVertPan[nPlayer] = 0;
 
 	nTemperature[nPlayer] = 0;
@@ -467,7 +467,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     StopFiringWeapon(nPlayer);
 
     PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = q16horiz(0);
-    PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel = -14080;
+    PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel = -55;
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
 
@@ -1080,11 +1080,11 @@ sectdone:
 
     auto pViewSect = pPlayerActor->sector();
 
-    int EyeZ = PlayerList[nPlayer].eyelevel + pPlayerActor->int_pos().Z + nQuake[nPlayer];
+    double EyeZ = PlayerList[nPlayer].eyelevel + pPlayerActor->spr.pos.Z + nQuake[nPlayer] * zinttoworld;
 
     while (1)
     {
-        int nCeilZ = pViewSect->int_ceilingz();
+        double nCeilZ = pViewSect->ceilingz;
 
         if (EyeZ >= nCeilZ)
             break;
@@ -2274,8 +2274,8 @@ sectdone:
                 }
                 else
                 {
-                    if (PlayerList[nPlayer].eyelevel < -8320) {
-                        PlayerList[nPlayer].eyelevel += ((-8320 - PlayerList[nPlayer].eyelevel) >> 1);
+                    if (PlayerList[nPlayer].eyelevel < -32.5) {
+                        PlayerList[nPlayer].eyelevel += ((-32.5 - PlayerList[nPlayer].eyelevel) * 0.5);
                     }
 
                 loc_1BD2E:
@@ -2293,8 +2293,7 @@ sectdone:
             {
                 if (PlayerList[nPlayer].nHealth > 0)
                 {
-                    int var_EC = nActionEyeLevel[nAction];
-                    PlayerList[nPlayer].eyelevel += (var_EC - PlayerList[nPlayer].eyelevel) >> 1;
+                    PlayerList[nPlayer].eyelevel += (nActionEyeLevel[nAction] - PlayerList[nPlayer].eyelevel) * 0.5;
 
                     if (bUnderwater)
                     {
@@ -2524,9 +2523,9 @@ sectdone:
         PlayerList[nPlayer].nDamage.Y = 0;
         PlayerList[nPlayer].nDamage.X = 0;
 
-        if (PlayerList[nPlayer].eyelevel >= -2816)
+        if (PlayerList[nPlayer].eyelevel >= -11)
         {
-            PlayerList[nPlayer].eyelevel = -2816;
+            PlayerList[nPlayer].eyelevel = -11;
             dVertPan[nPlayer] = 0;
         }
         else
@@ -2534,7 +2533,7 @@ sectdone:
             if (PlayerList[nPlayer].horizon.horiz.asq16() < 0)
             {
                 PlayerList[nPlayer].horizon.settarget(buildhoriz(0));
-                PlayerList[nPlayer].eyelevel -= (dVertPan[nPlayer] << 8);
+                PlayerList[nPlayer].eyelevel -= dVertPan[nPlayer];
             }
             else
             {

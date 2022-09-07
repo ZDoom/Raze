@@ -617,16 +617,16 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     else
     {
         auto pSector =pTSprite->sectp;
-        int nFloorZ = pSector->int_floorz();
+        double nFloorZ = pSector->floorz;
 
-        if (nFloorZ <= PlayerList[nLocalPlayer].eyelevel + int(initpos.Z * worldtoint)) {
+        if (nFloorZ <= PlayerList[nLocalPlayer].eyelevel + initpos.Z) {
             pTSprite->ownerActor = nullptr;
         }
         else
         {
             pTSprite->picnum = nShadowPic;
 
-            edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->int_pos().Z) >> 10);
+            edx = ((tileWidth(nPict) << 5) / nShadowWidth) - int16_t((nFloorZ - pTSprite->pos.Z) * 2.);
             if (edx < 1) {
                 edx = 1;
             }
