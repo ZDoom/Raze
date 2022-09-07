@@ -205,7 +205,7 @@ public:
 		vel = { 0,0,0 };
 	}
 
-	DVector3 interpolatedvec3(double const interpfrac)
+	DVector3 interpolatedpos(double const interpfrac)
 	{
 		return ::interpolatedvalue(opos, spr.pos, interpfrac);
 	}

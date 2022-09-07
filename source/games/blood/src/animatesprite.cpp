@@ -554,7 +554,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
-			pTSprite->pos = owneractor->interpolatedvec3(gInterpolate * (1. / MaxSmoothRatio));
+			pTSprite->pos = owneractor->interpolatedpos(gInterpolate * (1. / MaxSmoothRatio));
 			pTSprite->angle = owneractor->interpolatedangle(gInterpolate * (1. / MaxSmoothRatio));
 		}
 		int nAnim = 0;

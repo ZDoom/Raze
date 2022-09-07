@@ -619,7 +619,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->pos = tActor->interpolatedvec3(smr4 * (0.25 / MaxSmoothRatio));
+                        tsp->pos = tActor->interpolatedpos(smr4 * (0.25 / MaxSmoothRatio));
                     }
                 }
 
@@ -627,7 +627,7 @@ void analyzesprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, int
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->pos = tActor->interpolatedvec3(smr2 * (0.5 / MaxSmoothRatio));
+                        tsp->pos = tActor->interpolatedpos(smr2 * (0.5 / MaxSmoothRatio));
                     }
                 }
             }
@@ -1592,7 +1592,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                     // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
                     PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == Player[screenpeek].actor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
                     auto statnum = actor->spr.statnum;
-                    auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedvec3(smoothratio * (1. / MaxSmoothRatio)) : actor->spr.pos).XY() - cpos;
+                    auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedpos(smoothratio * (1. / MaxSmoothRatio)) : actor->spr.pos).XY() - cpos;
 
                     switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                     {
