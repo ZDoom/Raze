@@ -482,7 +482,6 @@ void WarpCopySprite(tspriteArray& tsprites)
                     tspritetype* newTSpr = renderAddTsprite(tsprites, itActor2);
                     newTSpr->statnum = 0;
 
-                    auto off = itActor1->int_pos() - newTSpr->int_pos();
                     newTSpr->pos += itActor->spr.pos - itActor1->spr.pos;
                     newTSpr->sectp = itActor->sector();
                 }
