@@ -58,9 +58,15 @@ void GameInterface::ToggleThirdPerson()
 {
 	if (gamestate != GS_LEVEL) return;
 	if (gViewPos > VIEWPOS_0)
+	{
 		gViewPos = VIEWPOS_0;
+	}
 	else
+	{
 		gViewPos = VIEWPOS_1;
+		cameradist = 0;
+		cameraclock = INT_MIN;
+	}
 }
 
 void GameInterface::SwitchCoopView()

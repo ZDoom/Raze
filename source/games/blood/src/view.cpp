@@ -557,8 +557,6 @@ void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype
 			cZ += bobHeight;
 		}
 		cZ += int(cH.asq16() * (1. / 6553.6));
-		cameradist = -1;
-		cameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);
 	}
 	else
 	{

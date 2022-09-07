@@ -107,6 +107,7 @@ void GameInterface::ToggleThirdPerson()
     {
         pp->Flags |= (PF_VIEW_FROM_OUTSIDE);
         cameradist = 0;
+        cameraclock = INT_MIN;
     }
 }
 
