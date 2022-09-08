@@ -2593,7 +2593,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
                 continue;
 
             damage = -(actor->user.Health + 100);
-            PlayerDamageSlide(actor->user.PlayerP, damage, pp->angle.ang.Buildang());
+            PlayerDamageSlide(actor->user.PlayerP, damage, pp->angle.ang);
             PlayerUpdateHealth(actor->user.PlayerP, damage);
             PlayerCheckDeath(actor->user.PlayerP, pp->actor);
         }

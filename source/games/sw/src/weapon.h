@@ -33,14 +33,14 @@ BEGIN_SW_NS
 #define HORIZ_MULT 128
 constexpr double HORIZ_MULTF = 0.5;
 
-inline int AngToSprite(DSWActor* actor, DSWActor* other)
+inline DAngle AngToSprite(DSWActor* actor, DSWActor* other)
 {
-    return getangle(actor->spr.pos - other->spr.pos);
+    return VecToAngle(actor->spr.pos - other->spr.pos);
 }
 
-inline int AngToPlayer(PLAYER* player, DSWActor* other)
+inline DAngle AngToPlayer(PLAYER* player, DSWActor* other)
 {
-    return getangle(player->pos - other->spr.pos);
+    return VecToAngle(player->pos - other->spr.pos);
 }
 
 
@@ -231,7 +231,7 @@ void AddSpriteToSectorObject(DSWActor*,SECTOR_OBJECT* sop);
 void QueueReset(void);
 int PlayerCheckDeath(PLAYER* pp,DSWActor*);
 bool SpriteWarpToUnderwater(DSWActor* actor);
-int PlayerDamageSlide(PLAYER* pp,int damage,short ang);
+int PlayerDamageSlide(PLAYER* pp,int damage,DAngle ang);
 bool VehicleMoveHit(DSWActor*);
 int SpawnSplash(DSWActor*);
 void SpawnMineExp(DSWActor*);
