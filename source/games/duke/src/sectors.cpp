@@ -1297,10 +1297,10 @@ void allignwarpelevators(void)
 //
 //---------------------------------------------------------------------------
 
-void moveclouds(double smoothratio)
+void moveclouds(double interpfrac)
 {
 	// The math here is very messy.. :(
-	int myclock = smoothratio < 32768? PlayClock-2 : PlayClock;
+	int myclock = interpfrac < 0.5 ? PlayClock-2 : PlayClock;
 	if (myclock > cloudclock || myclock < (cloudclock - 7))
 	{
 		cloudclock = myclock + 6;

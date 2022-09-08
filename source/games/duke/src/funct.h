@@ -26,7 +26,7 @@ void resetlanepics(void);
 void moveplayers();
 void doanimations();
 void movefx();
-void moveclouds(double smoothratio);
+void moveclouds(double interpfrac);
 void movefta();
 
 void clearcameras(int i, player_struct* p);
@@ -227,7 +227,7 @@ void dobonus(int bonusonly, const CompletionFunc& completion);
 void drawweapon(double interpfrac);
 void drawoverlays(double interpfrac);
 void drawbackground(void);
-void displayrooms(int32_t playerNum, double smoothratio, bool sceneonly);
+void displayrooms(int32_t playerNum, double interpfrac, bool sceneonly);
 void setgamepalette(int palid);
 void resetmys();
 void resettimevars();

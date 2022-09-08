@@ -129,12 +129,12 @@ void GameInterface::Render()
 	drawtime.Clock();
 
 	videoSetBrightness(thunder_brightness);
-	double const smoothRatio = !playrunning() || !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac() * MaxSmoothRatio;
+	double const interpfrac = !playrunning() || !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac();
 	if (!isRR())
-		moveclouds(smoothRatio);
+		moveclouds(interpfrac);
 
-	displayrooms(screenpeek, smoothRatio, false);
-	drawoverlays(smoothRatio * (1. / MaxSmoothRatio));
+	displayrooms(screenpeek, interpfrac, false);
+	drawoverlays(interpfrac);
 	drawtime.Unclock();
 }
 
