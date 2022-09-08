@@ -299,7 +299,7 @@ int DoSkullBeginDeath(DSWActor* actor)
         if (num_ord > 3) num_ord = 3;
         for (i=0; i<num_ord; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (i*1024)));
+            actor->spr.angle += DAngle180 * (i & 1);
             InitSpriteChemBomb(actor);
         }
         break;
@@ -311,7 +311,7 @@ int DoSkullBeginDeath(DSWActor* actor)
         if (num_ord > 10) num_ord = 10;
         for (i=0; i<num_ord; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(RandomRange(2048)));
+            actor->spr.angle = RandomAngle();
             InitCaltrops(actor);
         }
         break;
@@ -328,7 +328,7 @@ int DoSkullBeginDeath(DSWActor* actor)
         if (num_ord > 10) num_ord = 10;
         for (i=0; i<num_ord; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(actor->spr.int_ang() + (i * (2048 / num_ord))));
+            actor->spr.angle += DAngle360 * i / num_ord;
             InitSpriteGrenade(actor);
         }
         break;
@@ -336,7 +336,7 @@ int DoSkullBeginDeath(DSWActor* actor)
         SpawnMineExp(actor);
         for (i=0; i<3; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(RandomRange(2048)));
+            actor->spr.angle = RandomAngle();
             InitPhosphorus(actor);
         }
         break;
@@ -368,7 +368,7 @@ int DoSkullJump(DSWActor* actor)
     if(actor->vel.X != 0)
         DoSkullMove(actor);
     else
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (64 * ACTORMOVETICS)));
+        actor->spr.angle += DAngle22_5 * 0.5 * ACTORMOVETICS;
 
     if (actor->user.Flags & (SPR_JUMPING))
     {
@@ -491,7 +491,7 @@ int DoSkullWait(DSWActor* actor)
     else
     // above the floor type
     {
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (48 * ACTORMOVETICS)));
+        actor->spr.angle += DAngle22_5 * 0.375 * ACTORMOVETICS;
 
         DoSkullBob(actor);
 
@@ -711,7 +711,7 @@ int DoBettyBeginDeath(DSWActor* actor)
         if (num_ord > 3) num_ord = 3;
         for (i=0; i<num_ord; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (i*1024)));
+            actor->spr.angle += DAngle180 * (i & 1);
             InitSpriteChemBomb(actor);
         }
         break;
@@ -723,7 +723,7 @@ int DoBettyBeginDeath(DSWActor* actor)
         if (num_ord > 10) num_ord = 10;
         for (i=0; i<num_ord; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(RandomRange(2048)));
+            actor->spr.angle = RandomAngle();
             InitCaltrops(actor);
         }
         break;
@@ -739,14 +739,14 @@ int DoBettyBeginDeath(DSWActor* actor)
         if (num_ord > 10) num_ord = 10;
         for (i=0; i<num_ord; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (i*(2048/num_ord))));
+            actor->spr.angle += DAngle360 * i / num_ord;
             InitSpriteGrenade(actor);
         }
         break;
     default:
         for (i=0; i<5; i++)
         {
-            actor->set_int_ang(NORM_ANGLE(RandomRange(2048)));
+            actor->spr.angle = RandomAngle();
             InitPhosphorus(actor);
             SpawnMineExp(actor);
         }
@@ -778,7 +778,7 @@ int DoBettyJump(DSWActor* actor)
     if(actor->vel.X != 0)
         DoBettyMove(actor);
     else
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (64 * ACTORMOVETICS)));
+        actor->spr.angle += DAngle22_5 * 0.5 * ACTORMOVETICS;
 
     if (actor->user.Flags & (SPR_JUMPING))
     {
@@ -894,7 +894,7 @@ int DoBettyWait(DSWActor* actor)
     else
     // above the floor type
     {
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (48 * ACTORMOVETICS)));
+        actor->spr.angle += DAngle22_5 * 0.375 * ACTORMOVETICS;
 
         DoBettyBob(actor);
 
