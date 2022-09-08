@@ -13658,7 +13658,7 @@ int InitZillaRail(DSWActor* actor)
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
-    int zvel = (100 * (HORIZ_MULT+17));
+    double zvel = (100 * (HORIZ_MULT+17)) / 256.;
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
@@ -13683,7 +13683,7 @@ int InitZillaRail(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel * zworldtoint))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -13692,16 +13692,16 @@ int InitZillaRail(DSWActor* actor)
 
     actor->spr.clipdist = oclipdist;
 
-    actorNew->set_int_zvel(zvel >> 1);
+    actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(4);
     }
     else
-        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
+        zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(zvel);
+    actorNew->user.change.Z = zvel;
 
     return 0;
 }
@@ -16796,7 +16796,7 @@ int InitEnemyUzi(DSWActor* actor)
 int InitGrenade(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int zvel;
+    double zvel;
     bool auto_aim = false;
 
     DoPlayerBeginRecoil(pp, GRENADE_RECOIL_AMT);
@@ -16821,7 +16821,7 @@ int InitGrenade(PLAYER* pp)
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
     {
-        actorNew->add_int_xvel(-(actorNew->int_xvel() >> 2));
+        actorNew->vel.Z *= 0.75;
     }
 
     actorNew->user.RotNum = 5;
@@ -16861,12 +16861,12 @@ int InitGrenade(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    zvel = actorNew->int_zvel();
+    zvel = actorNew->vel.Z;
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) >= 0)
     {
         auto_aim = true;
     }
-    actorNew->set_int_zvel(zvel);
+    actorNew->vel.Z = zvel;;
 
 	UpdateChange(actorNew);
 
