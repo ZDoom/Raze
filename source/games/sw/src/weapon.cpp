@@ -15877,16 +15877,14 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
 int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    int nx, ny, nz;
-    short i,ang;
     TARGET_SORT* ts = TargetSort;
     DSWActor* picked = nullptr;
+    DAngle angle;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
+    auto npos = actor->spr.pos;
 
     const int MAX_TURRET_MICRO = 10;
 
@@ -15895,48 +15893,45 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
     if (TargetSortCount > MAX_TURRET_MICRO)
         TargetSortCount = MAX_TURRET_MICRO;
 
-    for (i = 0; i < MAX_TURRET_MICRO; i++)
+    for (int i = 0; i < MAX_TURRET_MICRO; i++)
     {
         if (ts < &TargetSort[TargetSortCount] && ts->actor != nullptr)
         {
             picked = ts->actor;
 
-            ang = getangle(picked->int_pos().X - nx, picked->int_pos().Y - ny);
+            angle = VecToAngle(picked->spr.pos - npos);
 
             ts++;
         }
         else
         {
             picked = nullptr;
-            ang = actor->int_ang();
+            angle = actor->spr.angle;
         }
+		npos.Z = actor->spr.pos.Z + (RandomRangeF(20) - 10);
 
-        nz = actor->int_pos().Z;
-        nz += Z(RandomRange(20)) - Z(10);
 
         // Spawn a shot
         // Inserting and setting up variables
 
         auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], actor->sector(),
-                        actor->spr.pos.plusZ(10 + RandomRangeF(20)), DAngle::fromBuild(ang), 75);
+                        actor->spr.pos.plusZ(10 + RandomRangeF(20)), angle, 75);
 
         SetOwner(plActor, actorNew);
         actorNew->spr.yrepeat = 24;
         actorNew->spr.xrepeat = 24;
         actorNew->spr.shade = -15;
-        actorNew->set_int_zvel(-pp->horizon.horiz.asq16() >> 9);
+        actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF + RandomRangeF(8) - 5;
         actorNew->spr.clipdist = 64L>>2;
 
-        // randomize zvelocity
-        actorNew->add_int_zvel( RandomRange(Z(8)) - Z(5));
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_Micro[0]);
 
         actorNew->user.WeaponNum = plActor->user.WeaponNum;
         actorNew->user.Radius = 200;
-        actorNew->user.ceiling_dist = (2);
-        actorNew->user.floor_dist = (2);
+        actorNew->user.ceiling_dist = 2;
+        actorNew->user.floor_dist = 2;
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
