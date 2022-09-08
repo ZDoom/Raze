@@ -64,6 +64,8 @@ ANIMATOR DoBettyBeginDeath;
 ANIMATOR DoSkullBeginDeath;
 ANIMATOR DoRipperGrow;
 
+constexpr DAngle FacingAngle = DAngle::fromBuild(150);
+
 //
 // Damage Amounts defined in damage.h
 //
@@ -14244,7 +14246,7 @@ int InitRipperSlash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14277,7 +14279,7 @@ int InitBunnySlash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14311,7 +14313,7 @@ int InitSerpSlash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 800) && FacingRange(itActor, actor,150))
+            if (dist < CloseRangeDist(actor, itActor, 800) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14439,7 +14441,7 @@ int InitCoolgBash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14472,7 +14474,7 @@ int InitSkelSlash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14505,7 +14507,7 @@ int InitGoroChop(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 700) && FacingRange(itActor, actor,150))
+            if (dist < CloseRangeDist(actor, itActor, 700) && FacingRange(itActor, actor,FacingAngle))
             {
                 PlaySound(DIGI_GRDAXEHIT, actor, v3df_none);
                 DoDamage(itActor, actor);
@@ -15202,7 +15204,7 @@ int InitEelFire(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
+            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
             {
                 PlaySound(DIGI_GIBS1, actor, v3df_none);
                 DoDamage(itActor, actor);

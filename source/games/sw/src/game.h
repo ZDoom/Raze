@@ -1969,9 +1969,9 @@ inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, int range)
     return (abs(getincangle(getangle(a->spr.pos - pp->pos), (pp)->angle.ang.Buildang())) < (range));
 }
 
-inline bool FacingRange(DSWActor* a1, DSWActor* a2, int range)
+inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)
 {
-    return (abs(getincangle(getangle(a1->spr.pos - a2->spr.pos), a2->int_ang())) < (range));
+    return absangle(VecToAngle(a1->spr.pos - a2->spr.pos), a2->spr.angle) < range;
 }
 inline void SET_BOOL1(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL1; }
 inline void SET_BOOL2(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL2; }
