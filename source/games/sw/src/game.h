@@ -202,16 +202,6 @@ constexpr int NORM_ANGLE(int ang) { return ((ang) & 2047); }
 int StdRandomRange(int range);
 
 
-// Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
-// that uses this macro
-inline void DISTANCE(const DVector2& p1, const DVector2& p2, int& dist, int& tx, int& ty, int& tmin)
-{
-    tx = int(abs(p2.X - p1.X) * worldtoint);
-    ty = int(abs(p2.Y - p1.Y) * worldtoint);
-    tmin = min(tx, ty);
-    dist = tx + ty - (tmin >> 1);
-}
-
 inline double GetSpriteSizeZ(const spritetypebase* sp)
 {
 	return (tileHeight(sp->picnum) * sp->yrepeat) * REPEAT_SCALE;

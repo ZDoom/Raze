@@ -5402,15 +5402,14 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
     // if ndx does radius
     if (d->radius > 0 && weapActor)
     {
-        int dist,a,b,c;
         int damage_per_pixel, damage_force, damage_amt;
 
 
-        DISTANCE(weapActor->spr.pos, actor->spr.pos,dist,a,b,c);
+        int dist = int((weapActor->spr.pos.XY() - actor->spr.pos.XY()).Length() * worldtoint);
 
         // take off the box around the player or else you'll never get
         // the max_damage;
-        dist -= ((int)actor->spr.clipdist)<<(2);
+        dist -= (((int)actor->spr.clipdist)<<(2));
 
         if (dist < 0) dist = 0;
 
@@ -18332,9 +18331,8 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
 
 int DoFloorBlood(DSWActor* actor)
 {
-    const int FEET_IN_BLOOD_DIST = 300;
+    constexpr double FEET_IN_BLOOD_DIST = 18.75;
 
-    int dist, near_dist = FEET_IN_BLOOD_DIST, a,b,c;
     short pnum;
     PLAYER* pp;
     short xsiz,ysiz;
@@ -18369,9 +18367,9 @@ int DoFloorBlood(DSWActor* actor)
         {
             pp = &Player[pnum];
 
-            DISTANCE(actor->spr.pos, pp->pos, dist, a, b, c);
+            double dist = (actor->spr.pos.XY() - pp->pos.XY()).Length();
 
-            if (dist < near_dist)
+            if (dist < FEET_IN_BLOOD_DIST)
             {
                 if (pp->NumFootPrints <= 0 || FootMode != BLOOD_FOOT)
                 {
