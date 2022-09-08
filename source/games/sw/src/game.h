@@ -1705,6 +1705,7 @@ Collision move_missile(DSWActor* actor, const DVector3& change, double ceildist,
 
 DSWActor* DoPickTarget(DSWActor*, DAngle max_delta_ang, int skip_targets);
 
+[[deprecated]]
 DSWActor* DoPickTarget(DSWActor* a, uint32_t max_delta_ang, int skip_targets)
 {
     return DoPickTarget(a, DAngle::fromBuild(max_delta_ang), skip_targets);

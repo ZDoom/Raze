@@ -992,7 +992,7 @@ void PrintSpriteInfo(PLAYER* pp)
 
     //if (SpriteInfo && !LocationInfo)
     {
-        auto actor = DoPickTarget(pp->actor, 32, 2);
+        auto actor = DoPickTarget(pp->actor, DAngle22_5/4, 2);
 
         actor->spr.hitag = 9997; // Special tag to make the actor glow red for one frame
 

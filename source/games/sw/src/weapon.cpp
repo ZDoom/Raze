@@ -12992,12 +12992,8 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, double *z, DAngle *ang, double z_r
 //
 //---------------------------------------------------------------------------
 
-DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
+DSWActor* WeaponAutoAimHitscan(DSWActor* actor, double *z, DAngle *ang, bool test)
 {
-    int zh;
-    int xvect;
-    int yvect;
-
     if (actor->hasU() && actor->user.PlayerP)
     {
         if (!Autoaim(actor->user.PlayerP->pnum))
@@ -13013,22 +13009,21 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
         picked->user.Flags |= (SPR_TARGETED);
         picked->user.Flags |= (SPR_ATTACKED);
 
-        *ang = NORM_ANGLE(getangle(picked->spr.pos.XY() - actor->spr.pos.XY()));
+        *ang = VecToAngle(picked->spr.pos.XY() - actor->spr.pos.XY());
 
         // find the distance to the target
         double dist = (actor->spr.pos.XY() - picked->spr.pos.XY()).Length();
 
         if (dist != 0)
         {
-            zh = (ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.5)) * zworldtoint;
+            double zh = (ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.5));
 
-            xvect = bcos(*ang);
-            yvect = bsin(*ang);
+            auto vect = ang->ToVector() * 1024;
 
             if (picked->spr.pos.X - actor->spr.pos.X != 0)
-                *z = Scale(xvect,zh - *z,picked->int_pos().X - actor->int_pos().X);
+                *z = vect.X * (zh - *z) / (picked->spr.pos.X - actor->spr.pos.X);
             else if (picked->spr.pos.Y - actor->spr.pos.Y != 0)
-                *z = Scale(yvect,zh - *z,picked->int_pos().Y - actor->int_pos().Y);
+                *z = vect.Y * (zh - *z) / (picked->spr.pos.Y - actor->spr.pos.Y);
             else
                 *z = 0;
         }
@@ -13336,8 +13331,12 @@ int InitShotgun(PLAYER* pp)
     daz = pos.Z * zworldtoint;
 
     daang = 64;
-    if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
+    double _daz = daz * inttoworld;
+    DAngle _daang = DAngle::fromBuild(daang);
+    if (WeaponAutoAimHitscan(pp->actor, &_daz, &_daang, false) != nullptr)
     {
+        daz = _daz * zworldtoint;
+        daang = _daang.Buildang();
     }
     else
     {
@@ -15681,8 +15680,13 @@ int InitUzi(PLAYER* pp)
     nz = (pp->pos.Z + pp->bob_z) * zworldtoint;
     daz = nz;
     daang = 32;
-    if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
+    double _daz = daz * inttoworld;
+    DAngle _daang = DAngle::fromBuild(daang);
+    if (WeaponAutoAimHitscan(pp->actor, &_daz, &_daang, false) != nullptr)
     {
+        daz = _daz * zworldtoint;
+        daang = _daang.Buildang();
+
         daang += RandomRange(24) - 12;
         daz += RandomRange(10000) - 5000;
     }
@@ -16184,8 +16188,12 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
         InitTracerTurret(actor, pp->actor, pp->horizon.horiz.asq16());
 
     daang = 64;
-    if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
+    double _daz = daz * inttoworld;
+    DAngle _daang = DAngle::fromBuild(daang);
+    if (WeaponAutoAimHitscan(actor, &_daz, &_daang, false) != nullptr)
     {
+        daz = _daz * zworldtoint;
+        daang = _daang.Buildang();
         daz += RandomRange(Z(30)) - Z(15);
         //daz += 0;
     }
@@ -16565,10 +16573,17 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
             {
                 // only auto aim for Z
                 daang = 512;
-                auto hitt = WeaponAutoAimHitscan(actor, &daz, &daang, false);
+
+                double _daz = daz * inttoworld;
+                DAngle _daang = DAngle::fromBuild(daang);
+
+                auto hitt = WeaponAutoAimHitscan(actor, &_daz, &_daang, false);
                 hit.hitActor = hitt;
                 if (hitt != nullptr)
                 {
+                    daz = _daz * zworldtoint;
+                    daang = _daang.Buildang();
+
                     delta = short(abs(getincangle(actor->int_ang(), daang)));
                     if (delta > 128)
                     {
@@ -16599,8 +16614,12 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
             else
             {
                 daang = 64;
-                if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
+                double _daz = daz * inttoworld;
+                DAngle _daang = DAngle::fromBuild(daang);
+                if (WeaponAutoAimHitscan(actor, &_daz, &_daang, false) != nullptr)
                 {
+                    daz = _daz * zworldtoint;
+                    daang = _daang.Buildang();
                     daz += RandomRange(Z(30)) - Z(15);
                 }
             }
