@@ -11257,10 +11257,6 @@ int DoNapalm(DSWActor* actor)
 
 int DoBloodWorm(DSWActor* actor)
 {
-    short ang;
-    int xvect,yvect;
-    int amt;
-
     actor->user.coll = move_ground_missile(actor, actor->user.change.XY(), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     if (actor->user.coll.type != kHitNone)
@@ -11303,15 +11299,12 @@ int DoBloodWorm(DSWActor* actor)
         }
     }
 
-    ang = NORM_ANGLE(actor->int_ang() + 512);
-
-    xvect = bcos(ang);
-    yvect = bsin(ang);
+    DAngle ang = actor->spr.angle + DAngle90;
+    double amt = (RandomRangeF(128) - 64) * 0.5;
 
 	auto bpos = actor->spr.pos.XY();
 
-    amt = RANDOM_P2(2048) - 1024;
-    actor->add_int_pos({ MulScale(amt,xvect, 15), MulScale(amt,yvect, 15), 0 });
+    actor->spr.pos += ang.ToVector() * 1024 * amt;
 
     auto sect = actor->sector();
     updatesectorz(actor->spr.pos, &sect);
