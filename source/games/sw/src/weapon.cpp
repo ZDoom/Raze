@@ -15454,7 +15454,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 //
 //---------------------------------------------------------------------------
 
-int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
+int InitTracerAutoTurret(DSWActor* actor, const DVector3& change)
 {
     // Spawn a shot
     // Inserting and setting up variables
@@ -15475,9 +15475,7 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->user.set_int_change_x(xchange);
-    actorNew->user.set_int_change_y(ychange);
-    actorNew->user.set_int_change_z(zchange);
+    actorNew->user.change = change;
 
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -16508,93 +16506,69 @@ DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wal
 
 int InitTurretMgun(SECTOR_OBJECT* sop)
 {
-    short daang, i;
     HitInfo hit{};
-    int daz;
-    int nx,ny,nz;
     short cstat = 0;
-    short delta;
 
     PlaySound(DIGI_BOATFIRE, sop->pmid, v3df_dontpan|v3df_doppler);
 
-    for (i = 0; sop->so_actors[i] != nullptr; i++)
+    for (int i = 0; sop->so_actors[i] != nullptr; i++)
     {
+        DAngle daang;
         DSWActor* actor = sop->so_actors[i];
         if (!actor) continue;
         if (actor->spr.statnum == STAT_SO_SHOOT_POINT)
         {
-            nx = actor->int_pos().X;
-            ny = actor->int_pos().Y;
-            daz = nz = actor->int_pos().Z;
+            auto npos = actor->spr.pos;
+            double daz = npos.Z;
 
             // if its not operated by a player
             if (sop->Animator)
             {
                 // only auto aim for Z
-                daang = 512;
+                daang = DAngle90;
 
-                double _daz = daz * inttoworld;
-                DAngle _daang = DAngle::fromBuild(daang);
-
-                auto hitt = WeaponAutoAimHitscan(actor, &_daz, &_daang, false);
+                auto hitt = WeaponAutoAimHitscan(actor, &daz, &daang, false);
                 hit.hitActor = hitt;
                 if (hitt != nullptr)
                 {
-                    daz = _daz * zworldtoint;
-                    daang = _daang.Buildang();
-
-                    delta = short(abs(getincangle(actor->int_ang(), daang)));
-                    if (delta > 128)
+                    DAngle delta = absangle(actor->spr.angle, daang);
+                    if (delta > DAngle22_5)
                     {
                         // don't shoot if greater than 128
                         return 0;
                     }
-                    else if (delta > 24)
+                    else if (delta > DAngle::fromBuild(24))
                     {
                         // always shoot the ground when tracking
                         // and not close
-                        double fdaz = daz * zinttoworld;
-                        WeaponHitscanShootFeet(actor, hitt, &fdaz);
-                        daz = fdaz * zworldtoint;
+                        WeaponHitscanShootFeet(actor, hitt, &daz);
 
-                        daang = actor->int_ang();
-                        daang = NORM_ANGLE(daang + RANDOM_P2(32) - 16);
+                        daang = actor->spr.angle + RandomAngle(22.5 / 4) - DAngle22_5 / 8;
                     }
                     else
                     {
                         // randomize the z for shots
-                        daz += RandomRange(Z(120)) - Z(60);
+                        daz += RandomRangeF(120) - 60;
                         // never auto aim the angle
-                        daang = actor->int_ang();
-                        daang = NORM_ANGLE(daang + RANDOM_P2(64) - 32);
+                        daang = actor->spr.angle + RandomAngle(22.5 / 2) - DAngle22_5 / 4;
                     }
                 }
             }
             else
             {
-                daang = 64;
-                double _daz = daz * inttoworld;
-                DAngle _daang = DAngle::fromBuild(daang);
-                if (WeaponAutoAimHitscan(actor, &_daz, &_daang, false) != nullptr)
+                daang = DAngle22_5 / 2;;
+                if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
                 {
-                    daz = _daz * zworldtoint;
-                    daang = _daang.Buildang();
-                    daz += RandomRange(Z(30)) - Z(15);
+                    daz += RandomRangeF(30) - 15;
                 }
             }
 
-            DVector3 start(nx * inttoworld, ny * inttoworld, nz * zmaptoworld);
-            int xvect = bcos(daang);
-            int yvect = bsin(daang);
-            int zvect = daz;
-            DVector3 vect(xvect * inttoworld, yvect * inttoworld, zvect * zmaptoworld);
-
-            FAFhitscan(start, actor->sector(), vect, hit, CLIPMASK_MISSILE);
+            DVector3 vect(daang.ToVector() * 1024, daz);
+            FAFhitscan(npos, actor->sector(), vect, hit, CLIPMASK_MISSILE);
 
             if (RANDOM_P2(1024) < 400)
             {
-                InitTracerAutoTurret(sop->so_actors[i],
-                                     xvect>>4, yvect>>4, zvect>>4);
+                InitTracerAutoTurret(sop->so_actors[i], vect);
             }
 
             if (hit.hitSector == nullptr)
@@ -16636,7 +16610,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
 
                 if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hit.hitWall, hit.hitpos, DAngle::fromBuild(daang), 0);
+                    HitBreakWall(hit.hitWall, hit.hitpos, daang, 0);
                     continue;
                 }
 
@@ -16671,7 +16645,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
             }
 
 
-            auto j = SpawnTurretSparks(hit.hitSector, hit.hitWall, hit.hitpos, DAngle::fromBuild(daang));
+            auto j = SpawnTurretSparks(hit.hitSector, hit.hitWall, hit.hitpos, daang);
             DoHitscanDamage(j, hit.actor());
         }
     }
