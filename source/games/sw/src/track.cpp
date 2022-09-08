@@ -2445,7 +2445,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
 
             // (velocity * difference between the target and the object)
             // take absolute value
-            sop->z_rate = (int)abs((sop->vel * zinttoworld * (sop->pmid.Z - pos.Z)) / dist);
+            sop->z_rate = (int)abs((sop->vel * zmaptoworld * (sop->pmid.Z - pos.Z)) / dist);
 
             if ((sop->flags & SOBJ_SPRITE_OBJ))
             {

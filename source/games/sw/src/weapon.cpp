@@ -11482,7 +11482,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
     double oldzvel = actor->vel.Z;
 
     // make missile move in smaller increments
-    actor->vel.X = dist * (6. / MISSILEMOVETICS) * inttoworld;
+    actor->vel.X = dist * (6. / MISSILEMOVETICS) * inttoworld; // not going to change 36 calls for this...
     actor->vel.Z *= (6. / MISSILEMOVETICS);
 
     // some Weapon Animators use this
@@ -12328,7 +12328,7 @@ int InitSwordAttack(PLAYER* pp)
     {
         HitInfo hit{};
 
-        double daz = -pp->horizon.horiz.asbuildf() * (2000 / 256.) + (RandomRangeF(24000 / 256.) - 12000 / 256.));
+        double daz = -pp->horizon.horiz.asbuildf() * (2000 / 256.) + (RandomRangeF(24000 / 256.) - 12000 / 256.);
         DAngle daang = pp->angle.ang;
         FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
@@ -12505,7 +12505,7 @@ int InitFistAttack(PLAYER* pp)
     // all this is to break glass
     {
         HitInfo hit{};
-        double daz = -pp->horizon.horiz.asbuildf() * (2000 / 256.) + (RandomRangeF(24000 / 256.) - 12000 / 256.));
+        double daz = -pp->horizon.horiz.asbuildf() * (2000 / 256.) + (RandomRangeF(24000 / 256.) - 12000 / 256.);
         auto daang = pp->angle.ang;
         FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
@@ -15519,9 +15519,6 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-		int hit_x = int(hit_pos.X * worldtoint);
-		int hit_y = int(hit_pos.Y * worldtoint);
-		int hit_z = int(hit_pos.Z * zworldtoint);
         if ((RANDOM_P2(1024<<5)>>5) < 512+128)
         {
             if (!hitActor->user.PlayerP)
@@ -15699,7 +15696,7 @@ int InitUzi(PLAYER* pp)
 
         if (hit.hitWall->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(hit.hitWall, hit.hitpos, DAngle::fromBuild(daang), actor->user.ID);
+            HitBreakWall(hit.hitWall, hit.hitpos, daang, actor->user.ID);
             return 0;
         }
 
@@ -15746,7 +15743,7 @@ int InitUzi(PLAYER* pp)
     }
 
 
-    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos, daang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
@@ -15757,7 +15754,7 @@ int InitUzi(PLAYER* pp)
     HitscanSpriteAdjust(actorNew, hit.hitWall);
     DoHitscanDamage(actorNew, hit.actor());
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos, daang, 0);
 
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
