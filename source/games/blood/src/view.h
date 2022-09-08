@@ -137,9 +137,8 @@ extern DAngle deliriumTurnO, deliriumTurn;
 extern DAngle gScreenTiltO, gScreenTilt;
 extern int gShowFrameRate;
 extern int gLastPal;
-extern double gInterpolate;
 
-void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double smoothratio);
+void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double interpfrac);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(InputPacket* pInput);
 void viewCorrectPrediction(void);

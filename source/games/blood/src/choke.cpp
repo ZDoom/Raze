@@ -56,11 +56,11 @@ void CChoke::init(int a1, void(*a2)(PLAYER*))
 //
 //---------------------------------------------------------------------------
 
-void CChoke::animateChoke(int x, int y, int smoothratio)
+void CChoke::animateChoke(int x, int y, double interpfrac)
 {
 	if (!qav)
 		return;
-	int myclock = PlayClock + MulScale(4, smoothratio, 16);
+	int myclock = PlayClock + int(4 * interpfrac);
 	qav->x = x;
 	qav->y = y;
 	int vd = myclock - time;

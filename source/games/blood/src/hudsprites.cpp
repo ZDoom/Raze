@@ -104,13 +104,13 @@ static void viewBurnTime(int gScale)
 //
 //---------------------------------------------------------------------------
 
-void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double smoothratio)
+void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double interpfrac)
 {
-	double look_anghalf = gView->angle.look_anghalf(smoothratio);
+	double look_anghalf = gView->angle.look_anghalf(interpfrac);
 
 	if (gViewPos == 0)
 	{
-		double looking_arc = gView->angle.looking_arc(smoothratio);
+		double looking_arc = gView->angle.looking_arc(interpfrac);
 
 		double cX = 160 - look_anghalf;
 		double cY = 220 + looking_arc;
@@ -177,7 +177,7 @@ void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, doubl
 	PLAYER* pPSprite = &gPlayer[gMe->actor->spr.type - kDudePlayer1];
 	if (gMe->actor->IsPlayerActor() && pPSprite->hand == 1)
 	{
-		gChoke.animateChoke(160, zn, (int)gInterpolate);
+		gChoke.animateChoke(160, zn, interpfrac);
 	}
 }
 

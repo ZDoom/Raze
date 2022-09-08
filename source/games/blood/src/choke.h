@@ -41,7 +41,7 @@ public:
 		y = 0;
 	};
 	void init(int a1, void(*a2)(PLAYER*));
-	void animateChoke(int x, int y, int smoothratio);
+	void animateChoke(int x, int y, double interpfrac);
 	void reset() { time = 0; }
 	QAV* qav;
 	int duration;
