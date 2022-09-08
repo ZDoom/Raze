@@ -99,12 +99,6 @@ void viewUpdatePrediction(InputPacket* pInput)
 	//gPredictTail++;
 }
 
-static void sub_158B4(PLAYER* pPlayer)
-{
-	predict.viewz = predict.pos.Z * worldtoint - pPlayer->pPosture[pPlayer->lifeMode][predict.posture].eyeAboveZ;
-	predict.zWeapon = predict.pos.Z * worldtoint - pPlayer->pPosture[pPlayer->lifeMode][predict.posture].weaponAboveZ;
-}
-
 static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 {
 #if 0
