@@ -68,7 +68,7 @@ void viewBackupView(int nPlayer)
 	pView->weaponZ = pPlayer->zWeapon - pPlayer->zView - 0xc00;
 	pView->horiz = pPlayer->horizon.horiz;
 	pView->horizoff = pPlayer->horizon.horizoff;
-	pView->at2c = pPlayer->slope;
+	pView->slope = pPlayer->slope;
 	pView->bobHeight = pPlayer->bobHeight;
 	pView->bobWidth = pPlayer->bobWidth;
 	pView->shakeBobY = pPlayer->swayHeight;

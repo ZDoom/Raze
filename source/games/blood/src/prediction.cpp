@@ -52,37 +52,37 @@ void viewInitializePrediction(void)
 	predict.angle = gMe->angle.ang;
 	predict.horiz = gMe->horizon.horiz;
 	predict.horizoff = gMe->horizon.horizoff;
-	predict.at2c = gMe->slope;
-	predict.at6f = gMe->cantJump;
-	predict.at70 = gMe->isRunning;
-	predict.at72 = gMe->isUnderwater;
-	predict.at71 = !!(gMe->input.actions & SB_JUMP);
+	predict.slope = gMe->slope;
+	predict.cantJump = gMe->cantJump;
+	predict.isRunning = gMe->isRunning;
+	predict.isUnderwater = gMe->isUnderwater;
+	predict.jump = !!(gMe->input.actions & SB_JUMP);
 	predict.x = gMe->actor->spr.x;
 	predict.y = gMe->actor->spr.y;
 	predict.z = gMe->actor->spr.z;
 	predict.sector = gMe->actor->spr.sector;
-	predict.at73 = gMe->actor->spr.flags;
+	predict.sprflags = gMe->actor->spr.flags;
 	predict.xvel = gMe->actor->xvel;
 	predict.yvel = gMe->actor->yvel;
 	predict.zvel = gMe->actor->zvel;
 	predict.floordist = gMe->actor->xspr.height;
-	predict.at48 = gMe->posture;
+	predict.posture = gMe->posture;
 	predict.spin = gMe->angle.spin;
-	predict.at6e = !!(gMe->input.actions & SB_CENTERVIEW);
-	predict.at75 = gMe->actor->hit;
+	predict.lookCenter = !!(gMe->input.actions & SB_CENTERVIEW);
+	predict.hit = gMe->actor->hit;
 	predict.bobPhase = gMe->bobPhase;
 	predict.Kills = gMe->bobAmp;
 	predict.bobHeight = gMe->bobHeight;
 	predict.bobWidth = gMe->bobWidth;
-	predict.at10 = gMe->swayPhase;
-	predict.at14 = gMe->swayAmp;
+	predict.swayPhase = gMe->swayPhase;
+	predict.swayAmp = gMe->swayAmp;
 	predict.shakeBobY = gMe->swayHeight;
 	predict.shakeBobX = gMe->swayWidth;
 	predict.weaponZ = gMe->zWeapon - gMe->zView - (12 << 8);
 	predict.viewz = gMe->zView;
-	predict.at3c = gMe->zViewVel;
-	predict.at40 = gMe->zWeapon;
-	predict.at44 = gMe->zWeaponVel;
+	predict.zViewVel = gMe->zViewVel;
+	predict.zWeapon = gMe->zWeapon;
+	predict.zWeaponVel = gMe->zWeaponVel;
 	predictOld = predict;
 #endif
 }
@@ -101,18 +101,18 @@ void viewUpdatePrediction(InputPacket* pInput)
 
 static void sub_158B4(PLAYER* pPlayer)
 {
-	predict.viewz = predict.z - pPlayer->pPosture[pPlayer->lifeMode][predict.at48].eyeAboveZ;
-	predict.at40 = predict.z - pPlayer->pPosture[pPlayer->lifeMode][predict.at48].weaponAboveZ;
+	predict.viewz = predict.z - pPlayer->pPosture[pPlayer->lifeMode][predict.posture].eyeAboveZ;
+	predict.zWeapon = predict.z - pPlayer->pPosture[pPlayer->lifeMode][predict.posture].weaponAboveZ;
 }
 
 static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 {
 #if 0
-	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
+	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.posture];
 
-	predict.at70 = !!(gMe->input.actions & SB_RUN);
-	predict.at71 = !!(gMe->input.actions & SB_JUMP);
-	if (predict.at48 == 1)
+	predict.isRunning = !!(gMe->input.actions & SB_RUN);
+	predict.jump = !!(gMe->input.actions & SB_JUMP);
+	if (predict.posture == 1)
 	{
 		int x = Cos(predict.angle.asbuild());
 		int y = Sin(predict.angle.asbuild());
@@ -171,7 +171,7 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 	if (predict.spin < 0)
 	{
 		int speed;
-		if (predict.at48 == 1)
+		if (predict.posture == 1)
 			speed = 64;
 		else
 			speed = 128;
@@ -180,41 +180,41 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 		predict.angle += DAngle::fromBuild(speed);
 	}
 
-	if (!predict.at71)
-		predict.at6f = 0;
+	if (!predict.jump)
+		predict.cantJump = 0;
 
-	switch (predict.at48)
+	switch (predict.posture)
 	{
 	case 1:
-		if (predict.at71)
+		if (predict.jump)
 			predict.zvel -= pPosture->normalJumpZ;//0x5b05;
 		if (pInput->actions & SB_CROUCH)
 			predict.zvel += pPosture->normalJumpZ;//0x5b05;
 		break;
 	case 2:
 		if (!(pInput->actions & SB_CROUCH))
-			predict.at48 = 0;
+			predict.posture = 0;
 		break;
 	default:
-		if (!predict.at6f && predict.at71 && predict.floordist == 0) {
+		if (!predict.cantJump && predict.jump && predict.floordist == 0) {
 			if (packItemActive(pPlayer, 4)) predict.zvel = pPosture->pwupJumpZ;//-0x175555;
 			else predict.zvel = pPosture->normalJumpZ;//-0xbaaaa;
-			predict.at6f = 1;
+			predict.cantJump = 1;
 		}
 		if (pInput->actions & SB_CROUCH)
-			predict.at48 = 2;
+			predict.posture = 2;
 		break;
 	}
 
 #if 0
-	if (predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
+	if (predict.lookCenter && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
 	{
 		if (predict.at20 < 0)
 			predict.at20 = min(predict.at20 + IntToFixed(4), 0);
 		if (predict.at20 > 0)
 			predict.at20 = max(predict.at20 - IntToFixed(4), 0);
 		if (predict.at20 == 0)
-			predict.at6e = 0;
+			predict.lookCenter = 0;
 	}
 	else
 	{
@@ -234,7 +234,7 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 #endif
 
 	int nSector = predict.sector;
-	int florhit = predict.at75.florhit.type;
+	int florhit = predict.hit.florhit.type;
 	bool va = (predict.floordist < 16 && (florhit == kHitSector || florhit == 0));
 
 	if (va && (sector[nSector].floorstat & 2) != 0)
@@ -256,7 +256,7 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 		if (abs(predict.horizoff.asq16()) < 4)
 			predict.horizoff = q16horiz(0);
 	}
-	predict.at2c = -predict.horiz.asq16() >> 9;
+	predict.slope = -predict.horiz.asq16() >> 9;
 #endif
 }
 
@@ -264,7 +264,7 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 {
 #if 0
 	auto pSprite = pPlayer->actor;
-	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
+	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.posture];
 
 	int top, bottom;
 	GetSpriteExtents(pSprite, &top, &bottom);
@@ -287,28 +287,28 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 
 	int nSpeed = approxDist(predict.xvel, predict.yvel);
 
-	predict.at3c = interpolatedvalue(predict.at3c, predict.zvel, 0x7000 * (1. / MaxSmoothRatio));
+	predict.zViewVel = interpolatedvalue(predict.zViewVel, predict.zvel, 0x7000 * (1. / MaxSmoothRatio));
 	int dz = predict.z - pPosture->eyeAboveZ - predict.viewz;
 	if (dz > 0)
-		predict.at3c += MulScale(dz << 8, 0xa000, 16);
+		predict.zViewVel += MulScale(dz << 8, 0xa000, 16);
 	else
-		predict.at3c += MulScale(dz << 8, 0x1800, 16);
-	predict.viewz += predict.at3c >> 8;
+		predict.zViewVel += MulScale(dz << 8, 0x1800, 16);
+	predict.viewz += predict.zViewVel >> 8;
 
-	predict.at44 = interpolatedvalue(predict.at44, predict.zvel, 0x5000 * (1. / MaxSmoothRatio));
-	dz = predict.z - pPosture->weaponAboveZ - predict.at40;
+	predict.zWeaponVel = interpolatedvalue(predict.zWeaponVel, predict.zvel, 0x5000 * (1. / MaxSmoothRatio));
+	dz = predict.z - pPosture->weaponAboveZ - predict.zWeapon;
 	if (dz > 0)
-		predict.at44 += MulScale(dz << 8, 0x8000, 16);
+		predict.azWeaponVelt44 += MulScale(dz << 8, 0x8000, 16);
 	else
-		predict.at44 += MulScale(dz << 8, 0xc00, 16);
-	predict.at40 += predict.at44 >> 8;
+		predict.zWeaponVel += MulScale(dz << 8, 0xc00, 16);
+	predict.zWeapon += predict.zWeaponVel >> 8;
 
-	predict.weaponZ = predict.at40 - predict.viewz - (12 << 8);
+	predict.weaponZ = predict.zWeapon - predict.viewz - (12 << 8);
 
 	predict.bobPhase = ClipLow(predict.bobPhase - 4, 0);
 
 	nSpeed >>= FRACBITS;
-	if (predict.at48 == 1)
+	if (predict.posture == 1)
 	{
 		predict.Kills = (predict.Kills + 17) & 2047;
 		predict.at14 = (predict.at14 + 17) & 2047;
@@ -321,9 +321,9 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 	{
 		if (pXSprite->height < 256)
 		{
-			predict.Kills = (predict.Kills + (pPosture->pace[predict.at70] * 4)) & 2047;
-			predict.at14 = (predict.at14 + (pPosture->pace[predict.at70] * 4) / 2) & 2047;
-			if (predict.at70)
+			predict.Kills = (predict.Kills + (pPosture->pace[predict.isRunning] * 4)) & 2047;
+			predict.at14 = (predict.at14 + (pPosture->pace[predict.isRunning] * 4) / 2) & 2047;
+			if (predict.isRunning)
 			{
 				if (predict.bobPhase < 60)
 					predict.bobPhase = ClipHigh(predict.bobPhase + nSpeed, 60);
@@ -341,16 +341,16 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 	}
 	if (!pXSprite->health)
 		return;
-	predict.at72 = 0;
-	if (predict.at48 == 1)
+	predict.isUnderwater = 0;
+	if (predict.posture == 1)
 	{
-		predict.at72 = 1;
+		predict.isUnderwater = 1;
 		int nSector = predict.sector;
 		auto nLink = getLowerLink(nSector);
 		if (nLink && (nLink->spr.type == kMarkerLowGoo || nLink->spr.type == kMarkerLowWater))
 		{
 			if (getceilzofslope(nSector, predict.x, predict.y) > predict.viewz)
-				predict.at72 = 0;
+				predict.isUnderwater = 0;
 		}
 	}
 #endif
@@ -385,7 +385,7 @@ static void fakeMoveDude(DBloodActor* actor)
 		{
 			auto bakCstat = pSprite->cstat;
 			pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-			ClipMove(&predict.pos, &nSector, predict.xvel >> 12, predict.yvel >> 12, wd, tz, bz, CLIPMASK0, predict.at75.hit);
+			ClipMove(&predict.pos, &nSector, predict.xvel >> 12, predict.yvel >> 12, wd, tz, bz, CLIPMASK0, predict.hit.hit);
 			if (nSector == -1)
 				nSector = predict.sector;
 
@@ -401,11 +401,11 @@ static void fakeMoveDude(DBloodActor* actor)
 
 			pSprite->cstat = bakCstat;
 		}
-		switch (predict.at75.hit.type)
+		switch (predict.hit.hit.type)
 		{
 		case kHitSprite:
 		{
-			int nHitWall = predict.at75.hit.index;
+			int nHitWall = predict.hit.hit.index;
 			walltype* pHitWall = &wall[nHitWall];
 			if (pHitWall->twoSided())
 			{
@@ -457,7 +457,7 @@ static void fakeMoveDude(DBloodActor* actor)
 	Collision ceilColl, floorColl;
 	GetZRange(pTempSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0);
 	GetSpriteExtents(pTempSprite, &top, &bottom);
-	if (predict.at73 & 2)
+	if (predict.sprflags & 2)
 	{
 		int vc = 58254;
 		if (bDepth)
@@ -504,7 +504,7 @@ static void fakeMoveDude(DBloodActor* actor)
 	}
 	if (floorZ <= bottom)
 	{
-		predict.at75.florhit = floorColl;
+		predict.hit.florhit = floorColl;
 		predict.z += floorZ - bottom;
 		int var44 = predict.zvel - predict.sector()->velFloor;
 		if (var44 > 0)
@@ -514,29 +514,29 @@ static void fakeMoveDude(DBloodActor* actor)
 			if (abs(predict.zvel) < 0x10000)
 			{
 				predict.zvel = predict.sector()->velFloor;
-				predict.at73 &= ~4;
+				predict.sprflags &= ~4;
 			}
 			else
-				predict.at73 |= 4;
+				predict.sprflags |= 4;
 		}
 		else if (predict.zvel == 0)
-			predict.at73 &= ~4;
+			predict.sprflags &= ~4;
 	}
 	else
 	{
-		predict.at75.florhit.setNone();
-		if (predict.at73 & 2)
-			predict.at73 |= 4;
+		predict.hit.florhit.setNone();
+		if (predict.sprflags & 2)
+			predict.sprflags |= 4;
 	}
 	if (top <= ceilZ)
 	{
-		predict.at75.ceilhit = ceilColl;
+		predict.hit.ceilhit = ceilColl;
 		predict.z += ClipLow(ceilZ - top, 0);
-		if (predict.zvel <= 0 && (predict.at73 & 4))
+		if (predict.zvel <= 0 && (predict.sprflags & 4))
 			predict.zvel = MulScale(-predict.zvel, 0x2000, 16);
 	}
 	else
-		predict.at75.ceilhit = 0;
+		predict.hit.ceilhit = 0;
 
 	GetSpriteExtents(pTempSprite, &top, &bottom);
 	memcpy(pSprite, &pSpriteBak, sizeof(pSpriteBak));
@@ -629,7 +629,7 @@ void fakeActProcessSprites(void)
 		else
 			fakeActAirDrag(pSprite, 128);
 
-		if ((predict.at73 & 4) != 0 || predict.xvel != 0 || predict.yvel != 0 || predict.zvel != 0 || predict.sector()->velFloor != 0 || predict.sector()->velCeil != 0)
+		if ((predict.sprflags & 4) != 0 || predict.xvel != 0 || predict.yvel != 0 || predict.zvel != 0 || predict.sector()->velFloor != 0 || predict.sector()->velCeil != 0)
 		{
 			fakeMoveDude(pSprite);
 		}
