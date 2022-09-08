@@ -16145,47 +16145,32 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
 
 int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
 {
-    short daang;
     HitInfo hit{};
-    int daz;
-    int nx,ny,nz;
     short cstat = 0;
     DSWActor* spark;
 
     PlaySound(DIGI_BOATFIRE, pp, v3df_dontpan|v3df_doppler);
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    daz = nz = actor->int_pos().Z;
+    auto npos = actor->spr.pos;
+    double daz = npos.Z;
 
     if (RANDOM_P2(1024) < 200)
         InitTracerTurret(actor, pp->actor, pp->horizon.horiz.asq16());
 
-    daang = 64;
-    double _daz = daz * inttoworld;
-    DAngle _daang = DAngle::fromBuild(daang);
-    if (WeaponAutoAimHitscan(actor, &_daz, &_daang, false) != nullptr)
+    DAngle daang = DAngle22_5 / 2;
+    if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
     {
-        daz = _daz * zworldtoint;
-        daang = _daang.Buildang();
-        daz += RandomRange(Z(30)) - Z(15);
-        //daz += 0;
+        daz += RandomRangeF(30) - 15;
     }
     else
     {
-        fixed_t q16horiz = pp->horizon.horiz.asq16();
-        fixed_t horizmin = IntToFixed(-25);
-        if (q16horiz < horizmin)
-            q16horiz = horizmin;
+        double horiz = max(pp->horizon.horiz.asbuildf(), -25.);
 
-        daz = -MulScale(q16horiz, 2000, 16) + (RandomRange(Z(80)) - Z(40));
-        daang = actor->int_ang();
+        daz = -(2000/256) * horiz + RandomRangeF(80) - 40;
+        daang = actor->spr.angle;
     }
 
-    DVector3 start(nx * inttoworld, ny * inttoworld, nz * zmaptoworld);
-    DVector3 vect(bcos(daang) * inttoworld, bsin(daang) * inttoworld, daz * zmaptoworld);
-
-    FAFhitscan(start, actor->sector(), vect, hit, CLIPMASK_MISSILE);
+    FAFhitscan(npos, actor->sector(), DVector3(daang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
     {
@@ -16220,7 +16205,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
         if (hitActor->spr.lotag == TAG_SPRITE_HIT_MATCH)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
-            spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, DAngle::fromBuild(daang));
+            spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, daang);
             spark->user.Flags2 |= SPR2_SO_MISSILE;
             if (MissileHitMatch(spark, -1, hit.actor()))
                 return 0;
@@ -16243,7 +16228,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
         }
     }
 
-    spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, DAngle::fromBuild(daang));
+    spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, daang);
     DoHitscanDamage(spark, hit.actor());
 
     return 0;
