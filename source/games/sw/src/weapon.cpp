@@ -11513,7 +11513,7 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 //
 //---------------------------------------------------------------------------
 
-bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
+bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, double zvel)
 {
     bool retval = false;
 
@@ -11524,11 +11524,11 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 
     // make missile move in smaller increments
     actor->set_int_xvel(short((dist * 6) / MISSILEMOVETICS));
-    zvel = short((zvel*6) / MISSILEMOVETICS);
+    zvel *= (6. / MISSILEMOVETICS);
 
     // some Weapon Animators use this
 	UpdateChangeXY(actor);
-    actor->user.set_int_change_z(zvel);
+    actor->user.change.Z = zvel;
 
     actor->user.Flags |= (SPR_SET_POS_DONT_KILL);
     if ((*DoWeapon)(actor))
@@ -13609,7 +13609,7 @@ int InitRail(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel * zworldtoint))
+    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -13683,7 +13683,7 @@ int InitZillaRail(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel * zworldtoint))
+    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -13792,7 +13792,7 @@ int InitRocket(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel * zworldtoint))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -13897,7 +13897,7 @@ int InitBunnyRocket(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel * zworldtoint))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -13991,7 +13991,7 @@ int InitNuke(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel * zworldtoint))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -14044,7 +14044,7 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->spr.yrepeat = 128;
     actorNew->spr.xrepeat = 128;
     actorNew->spr.shade = -15;
-    double zvel = (100 * (HORIZ_MULT-36)) * zmaptoworld; // Ugh...
+    double zvel = (100 * (HORIZ_MULT-36)) / 256.; // Ugh...
     actorNew->spr.clipdist = 64>>2;
 
     // Set to red palette
@@ -14839,7 +14839,7 @@ int InitEnemyRail(DSWActor* actor)
 
 	UpdateChange(actorNew);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 600, actorNew->int_zvel()))
+    if (TestMissileSetPos(actorNew, DoRailStart, 600, actorNew->vel.Z))
     {
         KillActor(actorNew);
         return 0;
@@ -17113,7 +17113,7 @@ int InitFireball(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScale(zvel,44000, 16)))
+    if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScale(zvel,44000, 16) * zinttoworld))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
