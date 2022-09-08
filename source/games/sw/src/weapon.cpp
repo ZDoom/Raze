@@ -11951,8 +11951,9 @@ void InitVulcanBoulder(DSWActor* actor)
 
 int InitSerpRing(DSWActor* actor)
 {
-    short ang, ang_diff, ang_start, missiles;
-    short max_missiles;
+    DAngle ang, ang_diff, ang_start;
+    int missiles;
+    int max_missiles;
 
     const int SERP_RING_DIST = 175;
 
@@ -11964,15 +11965,15 @@ int InitSerpRing(DSWActor* actor)
 
     actor->user.Counter = max_missiles;
 
-    ang_diff = 2048 / max_missiles;
+    ang_diff = DAngle360 / max_missiles;
 
-    ang_start = NORM_ANGLE(actor->int_ang() - (2048 / 2));
+    ang_start = actor->spr.angle - DAngle180;
 
     PlaySound(DIGI_SERPSUMMONHEADS, actor, v3df_none);
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], actor->sector(), actor->spr.pos, DAngle::fromBuild(ang), 0);
+        auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], actor->sector(), actor->spr.pos, ang, 0);
 
         actorNew->set_int_xvel(500);
         SetOwner(actor, actorNew);
@@ -11980,7 +11981,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->spr.xrepeat = 64;
         actorNew->spr.yrepeat = 64;
         actorNew->spr.yint = 2*RINGMOVETICS;
-        actorNew->set_int_zvel(Z(3));
+        actorNew->vel.Z = 3;
         actorNew->spr.pal = 0;
 
         actorNew->spr.pos.Z = ActorZOfTop(actor) - 20;
@@ -11989,7 +11990,7 @@ int InitSerpRing(DSWActor* actor)
         // ang around the serp is now slide_ang
         actorNew->user.slide_ang = actorNew->spr.angle;
         // randomize the head turning angle
-        actorNew->set_int_ang(RANDOM_P2(2048<<5)>>5);
+        actorNew->spr.angle = RandomAngle();;
 
         // control direction of spinning
         actor->user.Flags ^= SPR_BOUNCE;
@@ -15385,7 +15386,7 @@ int InitTracerUzi(PLAYER* pp)
     WeaponAutoAim(pp->actor, actorNew, 32, false);
 
     // a bit of randomness
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + RandomRange(30) - 15));
+    actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
 
 	UpdateChange(actorNew);
 
@@ -15430,7 +15431,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     WeaponAutoAim(actor, actorNew, 32, false);
 
     // a bit of randomness
-    actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + RandomRange(30) - 15));
+    actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
 
 	UpdateChange(actorNew);
 
@@ -15574,24 +15575,19 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos
 
 bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 {
-    int16_t ang;
-    int xvect,yvect;
-
     if (hit_wall)
     {
-        int16_t const wall_ang = NORM_ANGLE(getangle(hit_wall->delta()));
-        actor->set_int_ang(NORM_ANGLE(wall_ang + 512));
+        actor->spr.angle = VecToAngle(hit_wall->delta()) + DAngle90;
     }
-    ang = actor->int_ang();
+    DAngle ang = actor->spr.angle;
 
-    xvect = bcos(ang, 4);
-    yvect = bsin(ang, 4);
+    auto vect = ang.ToVector();
 
     // must have this
     auto sect = actor->sector();
 
     Collision coll;
-    clipmove(actor->spr.pos, &sect, xvect, yvect, 4, 4 << 8, 4 << 8, CLIPMASK_MISSILE, coll);
+    clipmove(actor->spr.pos, &sect, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), 4, 4., 4., CLIPMASK_MISSILE, coll);
 
     if (actor->sector() != sect)
         ChangeActorSect(actor, sect);
