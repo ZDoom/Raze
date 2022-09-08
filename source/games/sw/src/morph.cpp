@@ -415,9 +415,6 @@ void MorphFloor(SECTOR_OBJECT* sop)
         // back it up and save it off
         mpos = pos + sop->morph_ang.ToVector() * sop->morph_speed;
         sop->morph_off = sop->pmid - mpos;
-
-        // turn it all the way around and then do a random -512 to 512 from there
-        //sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024 + (RANDOM_P2(1024) - 512));
     }
 
     if ((RANDOM_P2(1024<<4)>>4) < sop->morph_rand_freq)

@@ -146,10 +146,6 @@ int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
 
         if (coll.type != kHitNone)
         {
-            // attempt to move a bit when turning against a wall
-            //ang = NORM_ANGLE(ang + 1024);
-            //pp->xvect += 20 * bcos(ang);
-            //pp->yvect += 20 * bsin(ang);
             return false;
         }
     }

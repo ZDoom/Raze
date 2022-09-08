@@ -179,7 +179,7 @@ enum
 
 constexpr double CIRCLE_CAMERA_DIST_MINF = 12000. / 65536.;
 
-inline int32_t FIXED(int32_t msw, int32_t lsw)
+constexpr int32_t FIXED(int32_t msw, int32_t lsw)
 {
     return IntToFixed(msw) | lsw;
 }
