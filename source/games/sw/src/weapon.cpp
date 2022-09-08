@@ -11643,9 +11643,10 @@ int DoRing(DSWActor* actor)
 
 void InitSpellRing(PLAYER* pp)
 {
-    short ang, ang_diff, ang_start, missiles;
+    short missiles;
     short max_missiles = 16;
     short ammo;
+    DAngle ang;
 
     ammo = NAPALM_MIN_AMMO;
 
@@ -11654,9 +11655,9 @@ void InitSpellRing(PLAYER* pp)
     else
         PlayerUpdateAmmo(pp, WPN_HOTHEAD, -ammo);
 
-    ang_diff = 2048 / max_missiles;
+    DAngle ang_diff = DAngle360 / max_missiles;
 
-    ang_start = NORM_ANGLE(pp->angle.ang.Buildang() - (2048 / 2));
+    DAngle ang_start = pp->angle.ang - DAngle180;
 
     if (!SW_SHAREWARE)
         PlaySound(DIGI_RFWIZ, pp, v3df_none);
@@ -11666,7 +11667,7 @@ void InitSpellRing(PLAYER* pp)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->pos, DAngle::fromBuild(ang), 0);
+        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->pos, ang, 0);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->vel.X = 31.25;
