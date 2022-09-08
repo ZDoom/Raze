@@ -2,7 +2,8 @@
 
 BEGIN_DUKE_NS
 
-extern int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
+extern DVector3 omypos, mypos;
+extern int myxvel, myyvel, myzvel;
 extern int globalskillsound;
 extern int mycursectnum, myjumpingcounter;
 extern DAngle myang, omyang;

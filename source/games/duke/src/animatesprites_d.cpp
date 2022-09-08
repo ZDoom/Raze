@@ -305,9 +305,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, double interp
 #if 0 // multiplayer only
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
-					t->x = interpolatedvalue(omyx, myx, interpfrac);
-					t->y = interpolatedvalue(omyy, myy, interpfrac);
-					t->z = interpolatedvalue(omyz, myz, interpfrac) + gs_playerheight;
+					t->pos = interpolatedvalue(omypos, mypos, interpfrac).plusZ(gs_playerheight);
 					t->ang = interpolatedvalue(omyang, myang, interpfrac).asbuild();
 					t->sector = mycursectnum;
 				}

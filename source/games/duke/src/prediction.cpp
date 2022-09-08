@@ -36,7 +36,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 BEGIN_DUKE_NS 
 
 
-int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
+DVector3 omypos, mypos;
+int myxvel, myyvel, myzvel;
 int globalskillsound;
 DAngle myang, omyang;
 fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
@@ -50,9 +51,7 @@ short myangbak[MOVEFIFOSIZ];
 
 void resetmys()
 {
-	myx = omyx = ps[myconnectindex].pos.X;
-	myy = omyy = ps[myconnectindex].pos.Y;
-	myz = omyz = ps[myconnectindex].pos.Z;
+	mypos = omypos = ps[myconnectindex].pos;
 	myxvel = myyvel = myzvel = 0;
 	myang = ps[myconnectindex].angle.ang;
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;
@@ -67,32 +66,34 @@ void resetmys()
 #if 0 // todo: fix this when networking works again
 void fakedomovethingscorrect(void)
 {
-	 int i;
-	 player_struct* p;
+	int i;
+	player_struct* p;
 
-	 if (numplayers < 2) return;
+	if (numplayers < 2) return;
 
-	 i = ((movefifoplc-1)&(MOVEFIFOSIZ-1));
-	 p = &ps[myconnectindex];
+	i = ((movefifoplc-1)&(MOVEFIFOSIZ-1));
+	p = &ps[myconnectindex];
 
-	 if (p->pos.x == myxbak[i] && p->pos.y == myybak[i] && p->pos.z == myzbak[i]
-		  && p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
+	if (p->pos.x == myxbak[i] && p->pos.y == myybak[i] && p->pos.z == myzbak[i]
+		&& p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
 
-	 myx = p->pos.x; omyx = p->oposx; myxvel = p->posxv;
-	 myy = p->pos.y; omyy = p->oposy; myyvel = p->posyv;
-	 myz = p->pos.z; omyz = p->oposz; myzvel = p->poszv;
-	 myang = p->ang; omyang = p->oang;
-	 mycursectnum = p->cursector;
-	 myhoriz = p->horiz; omyhoriz = p->ohoriz;
-	 myhorizoff = p->horizoff; omyhorizoff = p->ohorizoff;
-	 myjumpingcounter = p->jumping_counter;
-	 myjumpingtoggle = p->jumping_toggle;
-	 myonground = p->on_ground;
-	 myhardlanding = p->hard_landing;
+	omypos = p->opos;
+	mypos = p->pos;
+	myxvel = p->vel.X;
+	myyvel = p->vel.Y;
+	myzvel = p->vel.Z;
+	myang = p->ang; omyang = p->oang;
+	mycursectnum = p->cursector;
+	myhoriz = p->horiz; omyhoriz = p->ohoriz;
+	myhorizoff = p->horizoff; omyhorizoff = p->ohorizoff;
+	myjumpingcounter = p->jumping_counter;
+	myjumpingtoggle = p->jumping_toggle;
+	myonground = p->on_ground;
+	myhardlanding = p->hard_landing;
 
-	 fakemovefifoplc = movefifoplc;
-	 while (fakemovefifoplc < movefifoend[myconnectindex])
-		  fakedomovethings();
+	fakemovefifoplc = movefifoplc;
+	while (fakemovefifoplc < movefifoend[myconnectindex])
+		fakedomovethings();
 
 }
 
@@ -124,13 +125,11 @@ void fakedomovethings(void)
 
 		if( ud.clipping == 0 && ( psect->floorpicnum == MIRROR || psect == nullptr) )
 		{
-			myx = omyx;
-			myy = omyy;
+			mypos.XY() = omypos.XY();
 		}
 		else
 		{
-			omyx = myx;
-			omyy = myy;
+			omypos.XY() = mypos.XY();
 		}
 
 		omyhoriz = myhoriz;

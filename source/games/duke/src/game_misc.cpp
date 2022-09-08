@@ -266,7 +266,7 @@ void drawoverlays(double interpfrac)
 			{
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
-					cposxy = DVector2(interpolatedvalue(omyx, myx, interpfrac), interpolatedvalue(omyy, myy, interpfrac)) * inttoworld;
+					cposxy = interpolatedvalue(omypos, mypos, interpfrac).XY();
 					cang = !SyncInput() ? myang : interpolatedvalue(omyang, myang, interpfrac);
 				}
 				else
