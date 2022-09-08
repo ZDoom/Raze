@@ -12273,7 +12273,6 @@ int InitSwordAttack(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     unsigned stat;
-    int dist;
     short reach, face;
 
     PlaySound(DIGI_SWORDSWOOSH, pp, v3df_dontpan | v3df_doppler);
@@ -12319,7 +12318,7 @@ int InitSwordAttack(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = DistanceI(pp->pos, itActor->spr.pos);
+            double dist = (pp->pos.XY() - itActor->spr.pos.XY()).Length();
 
             reach = 1000; // !JIM! was 800
             face = 200;
@@ -12441,7 +12440,6 @@ int InitFistAttack(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     unsigned stat;
-    int dist;
     short reach,face;
 
     PlaySound(DIGI_STAR, pp, v3df_dontpan|v3df_doppler);
@@ -12483,7 +12481,7 @@ int InitFistAttack(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-			dist = DistanceI(pp->pos, itActor->spr.pos);
+			double dist = (pp->pos.XY() - itActor->spr.pos.XY()).Length();
 
             if (pp->InventoryActive[2]) // Shadow Bombs give you demon fist
             {
@@ -12760,7 +12758,6 @@ int InitSumoSkull(DSWActor* actor)
 int InitSumoStompAttack(DSWActor* actor)
 {
     unsigned stat;
-    int dist;
     short reach;
 
 
@@ -12777,11 +12774,9 @@ int InitSumoStompAttack(DSWActor* actor)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-			dist = DistanceI(actor->spr.pos, itActor->spr.pos);
+			double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            reach = 16384;
-
-            if (dist < CloseRangeDist(itActor, actor, reach))
+            if (dist < CloseRangeDist(itActor, actor, 16384))
             {
                 if (FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), ActorVectOfMiddle(actor), actor->sector()))
                     DoDamage(itActor, actor);
@@ -12801,15 +12796,10 @@ int InitSumoStompAttack(DSWActor* actor)
 
 int InitMiniSumoClap(DSWActor* actor)
 {
-    int dist;
-    short reach;
-
     auto targetActor = actor->user.targetActor;
     if (!targetActor) return 0;
 
-	dist = DistanceI(actor->spr.pos, targetActor->spr.pos);
-
-    reach = 10000;
+	double dist = (actor->spr.pos.XY() - targetActor->spr.pos.XY()).Length();
 
     if (dist < CloseRangeDist(targetActor, actor, 1000))
     {
@@ -12822,7 +12812,7 @@ int InitMiniSumoClap(DSWActor* actor)
             }
         }
     }
-    else if (dist < CloseRangeDist(targetActor, actor, reach))
+    else if (dist < CloseRangeDist(targetActor, actor, 10000))
     {
         if (FAFcansee(ActorVectOfMiddle(targetActor), targetActor->sector(), ActorVectOfMiddle(actor), actor->sector()))
         {
@@ -14248,7 +14238,6 @@ int InitRipperSlash(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, a, b, c;
 
     PlaySound(DIGI_RIPPER2ATTACK, actor, v3df_none);
 
@@ -14264,7 +14253,7 @@ int InitRipperSlash(DSWActor* actor)
             if (d > itActor->user.fRadius() * 2)
                 continue;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -14286,7 +14275,6 @@ int InitBunnySlash(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, a, b, c;
 
     PlaySound(DIGI_BUNNYATTACK, actor, v3df_none);
 
@@ -14298,7 +14286,7 @@ int InitBunnySlash(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -14321,7 +14309,6 @@ int InitSerpSlash(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, a, b, c;
 
     PlaySound(DIGI_SERPSWORDATTACK, actor, v3df_none);
 
@@ -14333,7 +14320,7 @@ int InitSerpSlash(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
             if (dist < CloseRangeDist(actor, itActor, 800) && FacingRange(itActor, actor,150))
             {
@@ -14446,7 +14433,6 @@ int InitCoolgBash(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, a, b, c;
 
     PlaySound(DIGI_CGTHIGHBONE, actor, v3df_none);
 
@@ -14462,7 +14448,7 @@ int InitCoolgBash(DSWActor* actor)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -14484,7 +14470,6 @@ int InitSkelSlash(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, a, b, c;
 
     PlaySound(DIGI_SPBLADE, actor, v3df_none);
 
@@ -14496,7 +14481,7 @@ int InitSkelSlash(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {
@@ -14518,7 +14503,6 @@ int InitGoroChop(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, a, b, c;
 
     PlaySound(DIGI_GRDSWINGAXE, actor, v3df_none);
 
@@ -14530,7 +14514,7 @@ int InitGoroChop(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
             if (dist < CloseRangeDist(actor, itActor, 700) && FacingRange(itActor, actor,150))
             {
@@ -15075,19 +15059,16 @@ int InitSkelSpell(DSWActor* actor)
 
 int InitCoolgFire(DSWActor* actor)
 {
-    int nx, ny, nz, dist;
-
     // get angle to player and also face player when attacking
     actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
-    nz = actor->int_pos().Z - Z(16);
     // Spawn a shot
     // Inserting and setting up variables
 
     PlaySound(DIGI_CGMAGIC, actor, v3df_follow);
 
     auto actorNew = SpawnActor(STAT_MISSILE, COOLG_FIRE, s_CoolgFire, actor->sector(),
-                    actor->spr.pos.plusZ(-16), actor->user.targetActor->spr.angle, COOLG_FIRE_VELOCITY);
+        actor->spr.pos.plusZ(-16), actor->user.targetActor->spr.angle, COOLG_FIRE_VELOCITY);
 
     SetOwner(actor, actorNew);
     actorNew->spr.hitag = LUMINOUS;
@@ -15215,7 +15196,6 @@ int GenerateDrips(DSWActor* actor)
 int InitEelFire(DSWActor* actor)
 {
     unsigned stat;
-    int dist, a, b, c;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -15228,10 +15208,10 @@ int InitEelFire(DSWActor* actor)
             if (itActor != actor->user.targetActor)
                 continue;
 
-            if ((unsigned)FindDistance3D(actor->int_pos() - itActor->int_pos()) > itActor->user.Radius + actor->user.Radius)
+            if ((actor->spr.pos - itActor->spr.pos).Length() > itActor->user.fRadius() * 2)
                 continue;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
             if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,150))
             {

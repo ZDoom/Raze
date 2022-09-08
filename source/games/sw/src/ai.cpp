@@ -412,28 +412,6 @@ DSWActor* GetPlayerSpriteNum(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int CloseRangeDist(DSWActor* actor1, DSWActor* actor2)
-{
-    int clip1 = actor1->spr.clipdist;
-    int clip2 = actor2->spr.clipdist;
-
-    // add clip boxes and a fudge factor
-    const int DIST_CLOSE_RANGE = 400;
-
-    return (clip1 << 2) + (clip2 << 2) + DIST_CLOSE_RANGE;
-}
-
-double CloseRangeDistF(DSWActor* actor1, DSWActor* actor2)
-{
-    return CloseRangeDist(actor1, actor2) * inttoworld;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 int DoActorOperate(DSWActor* actor)
 {
     HitInfo near{};
@@ -557,7 +535,7 @@ ANIMATOR* DoActorActionDecide(DSWActor* actor)
 
         auto pActor = GetPlayerSpriteNum(actor);
         // check for short range attack possibility
-        if ((dist < CloseRangeDistF(actor, actor->user.targetActor) && ICanSee) ||
+        if ((dist < CloseRangeDist(actor, actor->user.targetActor) && ICanSee) ||
             (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST && actor->user.ID != RIPPER2_RUN_R0 && actor->user.ID != RIPPER_RUN_R0))
         {
             if ((actor->user.ID == COOLG_RUN_R0 && (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
@@ -1241,7 +1219,7 @@ int DoActorAttack(DSWActor* actor)
     double dist =(actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
     auto pActor = GetPlayerSpriteNum(actor);
-    if ((actor->user.ActorActionSet->CloseAttack[0] && dist < CloseRangeDistF(actor, actor->user.targetActor)) ||
+    if ((actor->user.ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(actor, actor->user.targetActor)) ||
         (pActor && pActor->hasU() && pActor->user.WeaponNum == WPN_FIST))      // JBF: added null check
     {
         rand_num = ChooseActionNumber(actor->user.ActorActionSet->CloseAttackPercent);

@@ -155,11 +155,10 @@ extern int WeaponIsAmmo;
 
 #define MISSILEMOVETICS 6
 
-inline int CloseRangeDist(DSWActor* a1, DSWActor* a2, int fudge)
+inline double CloseRangeDist(DSWActor* a1, DSWActor* a2, int fudge = 400)
 {
-    return (((int)a1->spr.clipdist << 2) + ((int)a2->spr.clipdist << 2) + fudge);
+    return (((int)a1->spr.clipdist << 2) + ((int)a2->spr.clipdist << 2) + fudge) * inttoworld;
 }
-
 
 extern short target_ang;
 
