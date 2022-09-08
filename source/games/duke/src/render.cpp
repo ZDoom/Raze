@@ -59,12 +59,6 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-static void renderView(DDukeActor* playersprite, sectortype* sect, const DVector3& cpos, DAngle a, fixedhoriz h, DAngle rotscrnang, double interpfrac, bool sceneonly, float fov)
-{
-	if (!sceneonly) drawweapon(interpfrac);
-	render_drawrooms(playersprite, cpos, sectnum(sect), a, h, rotscrnang, interpfrac, fov);
-}
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -225,9 +219,8 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	DVector3 cpos;
 	DAngle cang, rotscrnang;
 	fixedhoriz choriz;
-	player_struct* p;
 
-	p = &ps[snum];
+	player_struct* p = &ps[snum];
 
 	if (automapMode == am_full || !p->insector())
 		return;
@@ -237,35 +230,34 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	{
 		p->visibility = ud.const_visibility;
 	}
-
 	g_visibility = ud.const_visibility;
 	g_relvisibility = p->visibility - ud.const_visibility;
-
-	auto sect = p->cursector;
-
 	GlobalMapFog = fogactive ? 0x999999 : 0;
 	GlobalFogDensity = fogactive ? 350.f : 0.f;
+
 	DoInterpolations(interpfrac);
 
 	setgamepalette(BASEPAL);
 
 	float fov = r_fov;
+	auto sect = p->cursector;
+
+	DDukeActor* viewer;
+	bool camview = false;
 
 	if (ud.cameraactor)
 	{
-		auto act = ud.cameraactor;
+		viewer = ud.cameraactor;
+		camview = true;
 
-		if (act->spr.yint < 0) act->spr.yint = -100;
-		else if (act->spr.yint > 199) act->spr.yint = 300;
+		if (viewer->spr.yint < 0) viewer->spr.yint = -100;
+		else if (viewer->spr.yint > 199) viewer->spr.yint = 300;
 
-		cang = interpolatedvalue(DAngle::fromBuild(ud.cameraactor->tempang), act->spr.angle, interpfrac);
-
-		auto bh = buildhoriz(act->spr.yint);
-		auto cstat = act->spr.cstat;
-		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		renderView(act, act->sector(), act->spr.pos.plusZ(-4), cang, bh, nullAngle, interpfrac, sceneonly, fov);
-		act->spr.cstat = cstat;
-
+		cpos = viewer->spr.pos.plusZ(-4);
+		cang = viewer->interpolatedangle(interpfrac);
+		choriz = buildhoriz(viewer->spr.yint);
+		rotscrnang = nullAngle;
+		sect = viewer->sector();
 	}
 	else
 	{
@@ -275,7 +267,6 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 			fov = (float)clamp<double>(r_fov + fovdelta * 0.6, r_fov, 150.);
 		}
 
-
 		// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
 		// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
 		setgamepalette(setpal(p));
@@ -283,7 +274,6 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		// set screen rotation.
 		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(interpfrac);
 
-#if 0
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
 			cpos = interpolatedvalue(omypos, mypos, interpfrac);
@@ -298,10 +288,8 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 				cang = myang;
 				choriz = myhoriz + myhorizoff;
 			}
-			sect = mycursectnum;
 		}
 		else
-#endif
 		{
 			cpos = interpolatedvalue(p->opos, p->pos, interpfrac);
 
@@ -319,18 +307,15 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 			}
 		}
 
-		DDukeActor* viewer;
-		bool camview = false;
 		if (p->newOwner != nullptr)
 		{
-			auto act = p->newOwner;
-			cang = act->interpolatedangle(interpfrac);
-			choriz = buildhoriz(act->spr.shade);
-			cpos = act->spr.pos;
-			sect = act->sector();
+			viewer = p->newOwner;
+			cang = viewer->interpolatedangle(interpfrac);
+			choriz = buildhoriz(viewer->spr.shade);
+			cpos = viewer->spr.pos;
+			sect = viewer->sector();
 			rotscrnang = nullAngle;
 			interpfrac = 1.;
-			viewer = act;
 			camview = true;
 		}
 		else if (p->over_shoulder_on == 0)
@@ -374,12 +359,14 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		}
 
 		choriz = clamp(choriz, q16horiz(gi->playerHorizMin()), q16horiz(gi->playerHorizMax()));
-
-		auto cstat = viewer->spr.cstat;
-		if (camview) viewer->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		renderView(viewer, sect, cpos, cang, choriz, rotscrnang, interpfrac, sceneonly, fov);
-		viewer->spr.cstat = cstat;
 	}
+
+	auto cstat = viewer->spr.cstat;
+	if (camview) viewer->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+	if (!sceneonly) drawweapon(interpfrac);
+	render_drawrooms(viewer, cpos, sectnum(sect), cang, choriz, rotscrnang, interpfrac, fov);
+	viewer->spr.cstat = cstat;
+
 	//GLInterface.SetMapFog(false);
 	RestoreInterpolations();
 
