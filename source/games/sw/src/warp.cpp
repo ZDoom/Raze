@@ -39,7 +39,7 @@ BEGIN_SW_NS
 ////////////////////////////////////////////////////////////////////////////////
 
 extern bool Prediction;
-DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
+DSWActor* WarpToArea(DSWActor* sp_from, DVector3& pos, sectortype** sect);
 
 bool WarpPlaneSectorInfo(sectortype* sect, DSWActor** sp_ceiling, DSWActor** sp_floor)
 {
@@ -81,7 +81,7 @@ bool WarpPlaneSectorInfo(sectortype* sect, DSWActor** sp_ceiling, DSWActor** sp_
 //
 //---------------------------------------------------------------------------
 
-DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
+DSWActor* WarpPlane(DVector3& pos, sectortype** sect)
 {
     DSWActor* sp_floor,* sp_ceiling;
 
@@ -93,17 +93,17 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     if (sp_ceiling)
     {
-        if (*z <= sp_ceiling->int_pos().Z)
+        if (pos.Z <= sp_ceiling->spr.pos.Z)
         {
-            return WarpToArea(sp_ceiling, x, y, z, sect);
+            return WarpToArea(sp_ceiling, pos, sect);
         }
     }
 
     if (sp_floor)
     {
-        if (*z >= sp_floor->int_pos().Z)
+        if (pos.Z >= sp_floor->spr.pos.Z)
         {
-            return WarpToArea(sp_floor, x, y, z, sect);
+            return WarpToArea(sp_floor, pos, sect);
         }
     }
 
@@ -116,19 +116,14 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 //
 //---------------------------------------------------------------------------
 
-DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
+DSWActor* WarpToArea(DSWActor* sp_from, DVector3& pos, sectortype** sect)
 {
-    int xoff;
-    int yoff;
-    int zoff;
     short match;
     short to_tag = 0;
     short match_rand[16];
-    int z_adj = 0;
+    double z_adj = 0;
 
-    xoff = *x - sp_from->int_pos().X;
-    yoff = *y - sp_from->int_pos().Y;
-    zoff = *z - sp_from->int_pos().Z;
+    auto off = pos - sp_from->spr.pos;
     match = sp_from->spr.lotag;
 
 #if 0
@@ -167,12 +162,12 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
     case WARP_CEILING_PLANE:
         to_tag = WARP_FLOOR_PLANE;
         // make sure you warp outside of warp plane
-        z_adj = -Z(2);
+        z_adj = -2;
         break;
     case WARP_FLOOR_PLANE:
         to_tag = WARP_CEILING_PLANE;
         // make sure you warp outside of warp plane
-        z_adj = Z(2);
+        z_adj = 2;
         break;
     }
 
@@ -188,16 +183,14 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
                     return nullptr;
 
                 // determine new x,y,z position
-                *x = actor->int_pos().X + xoff;
-                *y = actor->int_pos().Y + yoff;
-                *z = actor->int_pos().Z + zoff;
+                pos = actor->spr.pos + off;
 
                 // make sure you warp outside of warp plane
-                *z += z_adj;
+                pos.Z += z_adj;
 
                 // get new sector
                 *sect = actor->sector();
-                updatesector(*x, *y, sect);
+                updatesector(pos, sect);
 
                 return actor;
             }
@@ -245,7 +238,7 @@ bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp)
 //
 //---------------------------------------------------------------------------
 
-DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
+DSWActor* Warp(DVector3& pos, sectortype** sect)
 {
     DSWActor* sp_warp;
 
@@ -257,7 +250,7 @@ DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     if (sp_warp)
     {
-        return WarpToArea(sp_warp, x, y, z, sect);
+        return WarpToArea(sp_warp, pos, sect);
     }
 
     return nullptr;
