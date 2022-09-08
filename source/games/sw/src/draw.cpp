@@ -1319,7 +1319,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     if (automapMode != am_full)
     {
         // Cameras must be done before the main loop.
-        JS_CameraParms(pp, tpos.X * worldtoint, tpos.Y * worldtoint, tpos.Z * zworldtoint);  
+        JS_CameraParms(pp, tpos);  
     }
 
     if (!sceneonly)

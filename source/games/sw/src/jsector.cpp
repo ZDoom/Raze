@@ -635,10 +635,10 @@ static PLAYER* cam_pp;
 DVector3 cam_pos;
 static int oldstat;
 
-void JS_CameraParms(PLAYER* pp, int tx, int ty, int tz)
+void JS_CameraParms(PLAYER* pp, const DVector3& tpos)
 {
     cam_pp = pp;
-    cam_pos = { tx * inttoworld, ty * inttoworld, tz * zinttoworld };
+    cam_pos = tpos;
 }
 
 void GameInterface::UpdateCameras(double smoothratio)

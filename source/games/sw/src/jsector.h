@@ -64,7 +64,7 @@ extern bool mirrorinview;
 extern short NormalVisibility;
 
 void JAnalyzeSprites(tspritetype* tspr);
-void JS_CameraParms(PLAYER* pp, int tx, int ty, int tz);
+void JS_CameraParms(PLAYER* pp, const DVector3& tpos);
 void JS_DrawMirrors(PLAYER* pp,int tx,int ty,int tz,fixed_t tpq16ang,fixed_t tpq16horiz);
 void JS_InitMirrors(void);
 void JS_ProcessEchoSpot(void);
