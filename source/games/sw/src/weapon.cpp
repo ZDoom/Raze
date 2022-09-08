@@ -8009,7 +8009,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 
 		auto oc = actor->user.change;
 
-        auto vel = (actor->int_xvel() * zinttoworld) / dist;
+        auto vel = actor->vel.X / dist;
         actor->user.change = DVector3(delta, -zdiff) * vel;
 
         // the large turn_speed is the slower the turn
@@ -8062,7 +8062,7 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
 
         auto oc = actor->user.change;
 
-        auto vel = (actor->int_xvel() * zinttoworld) / dist;
+        auto vel = actor->vel.X / dist;
         actor->user.change = DVector3(delta, zdiff) * vel + oc * (7. / 8);
 
         SetAngleFromChange(actor);
@@ -11523,7 +11523,7 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, double zve
     double oldzvel = actor->vel.Z;
 
     // make missile move in smaller increments
-    actor->set_int_xvel(short((dist * 6) / MISSILEMOVETICS));
+    actor->vel.X = dist * ( 3. / 8. / MISSILEMOVETICS);
     zvel *= (6. / MISSILEMOVETICS);
 
     // some Weapon Animators use this
@@ -11673,7 +11673,7 @@ void InitSpellRing(PLAYER* pp)
         auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->pos, DAngle::fromBuild(ang), 0);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
-        actorNew->set_int_xvel(500);
+        actorNew->vel.X = 31.25;
         SetOwner(pp->actor, actorNew);
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 32;
@@ -11973,7 +11973,7 @@ int InitSerpRing(DSWActor* actor)
     {
         auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], actor->sector(), actor->spr.pos, ang, 0);
 
-        actorNew->set_int_xvel(500);
+        actorNew->vel.X = 31.25;
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -20;
         actorNew->spr.xrepeat = 64;
@@ -12705,7 +12705,7 @@ int InitSumoSkull(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), DVector3(actor->spr.pos, ActorZOfMiddle(actor)), actor->spr.angle, 0);
 		
-    actorNew->set_int_xvel(500);
+    actorNew->vel.X = 31.25;
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -20;
     actorNew->spr.xrepeat = 64;
@@ -17044,10 +17044,10 @@ int InitEnemyMine(DSWActor* actor)
 
 int HelpMissileLateral(DSWActor* actor, int dist)
 {
-    auto old_xvel = actor->int_xvel();
+    auto old_xvel = actor->vel.X;
     auto old_clipdist = actor->spr.clipdist;
 
-    actor->set_int_xvel(dist);
+    actor->vel.X = dist * maptoworld; // not worth changing 28 call locations...
 	
 	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
 
@@ -17055,7 +17055,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 
     actor->user.coll = move_missile(actor, DVector3(vec, 0), 16, 16, 0, 1);
 
-    actor->set_int_xvel(old_xvel);
+    actor->vel.X = old_xvel;
     actor->spr.clipdist = old_clipdist;
 
     actor->backuppos();
