@@ -1183,7 +1183,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     {
         if (cl_viewbob)
         {
-            tpos.Z += camerapp->pbob_amt + interpolatedvalue(pp->obob_z, pp->bob_z, interpfrac);
+            tpos.Z += interpolatedvalue(pp->obob_z + pp->opbob_amt, pp->bob_z + pp->pbob_amt, interpfrac);
         }
 
         // recoil only when not in camera

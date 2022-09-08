@@ -588,7 +588,7 @@ struct PLAYER
     SECTOR_OBJECT* sop;  // will either be sop_remote or sop_control
 
     double hiz, loz;
-    double pbob_amt;
+    double opbob_amt, pbob_amt;
 
     int jump_count, jump_speed;     // jumping
     double z_speed;
