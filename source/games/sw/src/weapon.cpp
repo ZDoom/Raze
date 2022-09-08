@@ -2748,12 +2748,24 @@ bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
 #endif
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnShrapX(DSWActor* actor)
 {
     //For shrap that has no Weapon to send over
     SpawnShrap(actor, nullptr);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoLavaErupt(DSWActor* actor)
 {
@@ -2830,6 +2842,11 @@ int DoLavaErupt(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFO* breakinfo)
 {
@@ -3773,10 +3790,22 @@ AutoShrap:
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoShrapMove(DSWActor* actor)
 {
     actor->user.coll = move_missile(actor, DVector3(actor->user.change.XY(), 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoVomit(DSWActor* actor)
 {
@@ -3819,6 +3848,12 @@ int DoVomit(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoVomitSplash(DSWActor* actor)
 {
@@ -3877,6 +3912,12 @@ int DoShrapJumpFall(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoShrapDamage(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_JUMPING))
@@ -3912,6 +3953,12 @@ int DoShrapDamage(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVector3* hit_pos)
 {
@@ -4141,6 +4188,11 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
     return retval;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool VehicleMoveHit(DSWActor* actor)
 {
@@ -4225,6 +4277,11 @@ bool VehicleMoveHit(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool WeaponMoveHit(DSWActor* actor)
 {
@@ -4441,6 +4498,12 @@ bool WeaponMoveHit(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoUziSmoke(DSWActor* actor)
 {
 	actor->spr.pos.Z -= 0.78125; // !JIM! Make them float up
@@ -4461,6 +4524,12 @@ int DoMineSpark(DSWActor* actor)
     }
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoFireballFlames(DSWActor* actor)
 {
@@ -4553,6 +4622,12 @@ int DoFireballFlames(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoBreakFlames(DSWActor* actor)
 {
     bool jumping = false;
@@ -4630,6 +4705,12 @@ int DoBreakFlames(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SetSuicide(DSWActor* actor)
 {
     if (actor->hasU())
@@ -4671,6 +4752,12 @@ int DoRipperGrow(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void UpdateSinglePlayKills(DSWActor* actor)
 {
     // single play and coop kill count
@@ -4711,6 +4798,11 @@ void UpdateSinglePlayKills(DSWActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 {
@@ -4955,6 +5047,12 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int ActorHealth(DSWActor* actor, short amt)
 {
     extern int FinishAnim;
@@ -5059,6 +5157,12 @@ int ActorHealth(DSWActor* actor, short amt)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SopDamage(SECTOR_OBJECT* sop, short amt)
 {
     auto actor = sop->sp_child;
@@ -5075,6 +5179,12 @@ int SopDamage(SECTOR_OBJECT* sop, short amt)
 
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int SopCheckKill(SECTOR_OBJECT* sop)
 {
@@ -5100,6 +5210,12 @@ int SopCheckKill(SECTOR_OBJECT* sop)
 
     return killed;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int ActorPain(DSWActor* actor)
 {
@@ -5133,6 +5249,12 @@ int ActorPain(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int ActorPainPlasma(DSWActor* actor)
 {
     if (!(actor->user.Flags & (SPR_JUMPING | SPR_FALLING | SPR_ELECTRO_TOLERANT)))
@@ -5152,6 +5274,12 @@ int ActorPainPlasma(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
 {
@@ -5180,6 +5308,12 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int ActorDamageSlide(DSWActor* actor, int damage, int ang)
 {
@@ -5214,6 +5348,12 @@ int ActorDamageSlide(DSWActor* actor, int damage, int ang)
         return true;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int PlayerDamageSlide(PLAYER* pp, int damage, short ang)
 {
@@ -5250,6 +5390,12 @@ int PlayerDamageSlide(PLAYER* pp, int damage, short ang)
     }
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 {
@@ -5291,6 +5437,12 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
     return -(d->damage_lo + RandomRange(d->damage_hi - d->damage_lo));
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int PlayerCheckDeath(PLAYER* pp, DSWActor* weapActor)
 {
@@ -5352,6 +5504,12 @@ int PlayerCheckDeath(PLAYER* pp, DSWActor* weapActor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool PlayerTakeDamage(PLAYER* pp, DSWActor* weapActor)
 {
@@ -5431,6 +5589,12 @@ bool PlayerTakeDamage(PLAYER* pp, DSWActor* weapActor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int StarBlood(DSWActor* actor, DSWActor* weapActor)
 {
     short blood_num = 1;
@@ -5452,7 +5616,12 @@ objects.
 
 */
 
+//---------------------------------------------------------------------------
+//
 // this was done wrong multiple times below, resulting in spurious crashes.
+//
+//---------------------------------------------------------------------------
+
 bool OwnerIs(DSWActor* actor, int pic)
 {
     auto Own = GetOwner(actor);
@@ -5461,6 +5630,12 @@ bool OwnerIs(DSWActor* actor, int pic)
 }
 
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoDamage(DSWActor* actor, DSWActor* weapActor)
 {
@@ -6884,7 +7059,12 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     return 0;
 }
 
-// Select death text based on ID
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 const char *DeathString(DSWActor* actor)
 {
     if (!actor->hasU()) return " ";
@@ -6986,6 +7166,12 @@ const char *DeathString(DSWActor* actor)
     return "";
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoDamageTest(DSWActor* actor)
 {
     int i;
@@ -7026,6 +7212,12 @@ int DoDamageTest(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void DoHitscanDamage(DSWActor* weaponActor, DSWActor* hitActor)
 {
     if (hitActor == nullptr)
@@ -7045,6 +7237,12 @@ static void DoHitscanDamage(DSWActor* weaponActor, DSWActor* hitActor)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoFlamesDamageTest(DSWActor* actor)
 {
@@ -7101,6 +7299,12 @@ int DoFlamesDamageTest(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 walltype* PrevWall(walltype* wall_num)
 {
     for(auto&wal : wallsofsector(wall_num->sectorp()))
@@ -7110,6 +7314,12 @@ walltype* PrevWall(walltype* wall_num)
     return wall_num; // should never happen unless the sector is malformed.
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 short StatBreakList[] =
 {
@@ -7175,6 +7385,12 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
     }
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoExpDamageTest(DSWActor* actor)
 {
@@ -7313,6 +7529,12 @@ int DoExpDamageTest(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoMineExpMine(DSWActor* actor)
 {
     int i;
@@ -7345,6 +7567,12 @@ int DoMineExpMine(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoStar(DSWActor* actor)
 {
@@ -7553,6 +7781,12 @@ int DoStar(DSWActor* actor)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoCrossBolt(DSWActor* actor)
 {
     DoBlurExtend(actor, 0, 2);
@@ -7575,6 +7809,12 @@ int DoCrossBolt(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoPlasmaDone(DSWActor* actor)
 {
     actor->spr.xrepeat += actor->user.Counter;
@@ -7589,6 +7829,12 @@ int DoPlasmaDone(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
 {
@@ -7609,6 +7855,12 @@ DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
 
     return nullptr;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
@@ -7657,7 +7909,12 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
     return 0;
 }
 
-// combination of vector manipulation
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
     if (actor->user.WaitTics <= delay_tics)
@@ -7700,7 +7957,12 @@ void SetAngleFromChange(DSWActor* actor)
 	actor->spr.angle = VecToAngle(actor->user.change);
 }
 
-// completely vector manipulation
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
 {
     if (actor->user.WaitTics <= delay_tics)
@@ -7767,7 +8029,12 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
     return 0;
 }
 
-// completely vector manipulation
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, int16_t aware_range2)
 {
     if (actor->user.WaitTics <= delay_tics)
@@ -7811,6 +8078,12 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num)
 {
     if (actor->user.motion_blur_num >= blur_num)
@@ -7830,6 +8103,12 @@ int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sActor->sector(),
@@ -7846,6 +8125,12 @@ int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
     actorNew->user.Radius = 50;
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoPlasmaFountain(DSWActor* actor)
 {
@@ -7889,6 +8174,12 @@ int DoPlasmaFountain(DSWActor* actor)
     }
     return 0; 
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoPlasma(DSWActor* actor)
 {
@@ -7951,6 +8242,12 @@ int DoPlasma(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoCoolgFire(DSWActor* actor)
 {
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -7975,6 +8272,12 @@ int DoCoolgFire(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoEelFire(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -7995,6 +8298,12 @@ void ScaleSpriteVector(DSWActor* actor, int scale)
 {
 	actor->user.change *= FixedToFloat(scale);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void WallBounce(DSWActor* actor, DAngle ang)
 {
@@ -8020,6 +8329,11 @@ void WallBounce(DSWActor* actor, DAngle ang)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool SlopeBounce(DSWActor* actor, bool* hit_wall)
 {
@@ -8081,6 +8395,12 @@ bool SlopeBounce(DSWActor* actor, bool* hit_wall)
     return true;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 extern STATE s_Phosphorus[];
 
@@ -8305,6 +8625,12 @@ int DoGrenade(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoVulcanBoulder(DSWActor* actor)
 {
     actor->user.Counter += 40;
@@ -8443,6 +8769,12 @@ bool OwnerIsPlayer(DSWActor* actor)
     return (own && own->hasU() && own->user.PlayerP != nullptr);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoMineRangeTest(DSWActor* actor, int range)
 {
     unsigned stat;
@@ -8487,6 +8819,12 @@ int DoMineRangeTest(DSWActor* actor, int range)
     return false;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoMineStuck(DSWActor* actor)
 {
@@ -8638,6 +8976,12 @@ int DoMineStuck(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetMineStuck(DSWActor* actor)
 {
     // stuck
@@ -8651,6 +8995,12 @@ void SetMineStuck(DSWActor* actor)
     change_actor_stat(actor, STAT_MINE_STUCK);
     ChangeState(actor, s_MineStuck);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoMine(DSWActor* actor)
 {
@@ -8820,6 +9170,12 @@ int DoRailPuff(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoBoltThinMan(DSWActor* actor)
 {
     DoBlurExtend(actor, 0, 4);
@@ -8851,6 +9207,12 @@ int DoBoltThinMan(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoTracer(DSWActor* actor)
 {
     for (int i = 0; i < 4; i++)
@@ -8873,6 +9235,12 @@ int DoTracer(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoEMP(DSWActor* actor)
 {
@@ -8907,6 +9275,12 @@ int DoEMP(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoEMPBurst(DSWActor* actor)
 {
@@ -8953,6 +9327,12 @@ int DoEMPBurst(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoTankShell(DSWActor* actor)
 {
     short i;
@@ -8977,6 +9357,12 @@ int DoTankShell(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoTracerStart(DSWActor* actor)
 {
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -8994,6 +9380,12 @@ int DoTracerStart(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoLaser(DSWActor* actor)
 {
@@ -9035,6 +9427,12 @@ int DoLaser(DSWActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoLaserStart(DSWActor* actor)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -9055,6 +9453,12 @@ int DoLaserStart(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoRail(DSWActor* actor)
 {
@@ -9131,6 +9535,12 @@ int DoRail(DSWActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoRailStart(DSWActor* actor)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -9151,6 +9561,12 @@ int DoRailStart(DSWActor* actor)
     }
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoRocket(DSWActor* actor)
 {
@@ -9219,6 +9635,12 @@ int DoRocket(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoMicroMini(DSWActor* actor)
 {
     short i;
@@ -9242,6 +9664,12 @@ int DoMicroMini(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int SpawnExtraMicroMini(DSWActor* actor)
 {
@@ -9267,6 +9695,12 @@ int SpawnExtraMicroMini(DSWActor* actor)
 	UpdateChange(actorNew);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoMicro(DSWActor* actor)
 {
@@ -9327,6 +9761,12 @@ int DoMicro(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoUziBullet(DSWActor* actor)
 {
     // call move_sprite twice for each movement
@@ -9382,6 +9822,12 @@ int DoUziBullet(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoBoltSeeker(DSWActor* actor)
 {
     MissileSeek(actor, 30, 768/*, 4, 48, 6*/);
@@ -9417,6 +9863,12 @@ int DoBoltFatMan(DSWActor* actor)
 {
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoElectro(DSWActor* actor)
 {
@@ -9465,6 +9917,12 @@ int DoElectro(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoLavaBoulder(DSWActor* actor)
 {
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -9488,6 +9946,12 @@ int DoLavaBoulder(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoSpear(DSWActor* actor)
 {
@@ -9513,6 +9977,12 @@ int DoSpear(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnCoolieExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
@@ -9537,6 +10007,12 @@ int SpawnCoolieExp(DSWActor* actor)
     DoExpDamageTest(actorNew);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 {
@@ -9647,6 +10123,12 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnBreakFlames(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
@@ -9677,6 +10159,12 @@ int SpawnBreakFlames(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnBreakStaticFlames(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_STATIC_FIRE, FIREBALL_FLAMES, nullptr, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
@@ -9702,6 +10190,12 @@ void SpawnBreakStaticFlames(DSWActor* actor)
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnFireballExp(DSWActor* actor)
 {
@@ -9734,6 +10228,12 @@ void SpawnFireballExp(DSWActor* actor)
         SpawnFireballFlames(actorNew, nullptr);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnGoroFireballExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
@@ -9761,6 +10261,12 @@ void SpawnGoroFireballExp(DSWActor* actor)
 
     SpawnExpZadjust(actor, actorNew, 15, 15);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnBoltExp(DSWActor* actor)
 {
@@ -9792,6 +10298,12 @@ void SpawnBoltExp(DSWActor* actor)
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnBunnyExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
@@ -9809,6 +10321,12 @@ int SpawnBunnyExp(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnTankShellExp(DSWActor* actor)
 {
@@ -9871,6 +10389,12 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     SpawnExpZadjust(actor, expActor, 50, 10);
     InitChemBomb(expActor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnNuclearExp(DSWActor* actor)
 {
@@ -9948,6 +10472,12 @@ void SpawnNuclearExp(DSWActor* actor)
     SpawnNuclearSecondaryExp(expActor, ang);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnTracerExp(DSWActor* actor)
 {
     DSWActor* expActor;
@@ -9981,6 +10511,12 @@ void SpawnTracerExp(DSWActor* actor)
         expActor->user.Radius = DamageData[DMG_BOLT_EXP].radius;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnMicroExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
@@ -10011,6 +10547,12 @@ void SpawnMicroExp(DSWActor* actor)
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECT* sop)
 {
     unsigned sn;
@@ -10039,6 +10581,12 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECT* sop)
 
     actor->user.sang = actor->spr.angle;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, bool smallflames)
 {
@@ -10097,6 +10645,12 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, 
     expActor->user.pos = actor->user.pos;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
 {
     int vel;
@@ -10132,12 +10686,24 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     expActor->backuppos();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnGrenadeSmallExp(DSWActor* actor)
 {
     int ang = RANDOM_P2(2048);
     SpawnGrenadeSecondaryExp(actor, ang);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SpawnGrenadeExp(DSWActor* actor)
 {
@@ -10191,6 +10757,12 @@ void SpawnGrenadeExp(DSWActor* actor)
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 0);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, double upper_zsize, double lower_zsize)
 {
     double tos_z, bos_z;
@@ -10235,6 +10807,12 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, double upper_zsize, do
     expActor->backupz();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnMineExp(DSWActor* actor)
 {
     ASSERT(actor->hasU());
@@ -10267,6 +10845,11 @@ void SpawnMineExp(DSWActor* actor)
     SetExpQuake(expActor);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoMineExp(DSWActor* actor)
 {
@@ -10279,6 +10862,12 @@ int DoSectorExp(DSWActor* actor)
 	actor->spr.pos += actor->user.change.XY();
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DSWActor* SpawnSectorExp(DSWActor* actor)
 {
@@ -10332,6 +10921,12 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     return expActor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnMeteorExp(DSWActor* actor)
 {
     DSWActor* expActor;
@@ -10370,6 +10965,12 @@ void SpawnMeteorExp(DSWActor* actor)
     expActor->user.Radius = DamageData[DMG_BASIC_EXP].radius;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpawnLittleExp(DSWActor* actor)
 {
     short explosion;
@@ -10386,6 +10987,12 @@ void SpawnLittleExp(DSWActor* actor)
     DoExpDamageTest(expActor);
     SpawnVis(nullptr, expActor->sector(), expActor->spr.pos, 16);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoFireball(DSWActor* actor)
 {
@@ -10443,6 +11050,12 @@ int DoFireball(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoFindGround(DSWActor* actor)
 {
     Collision ceilhit, florhit;
@@ -10495,6 +11108,12 @@ int DoFindGround(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoFindGroundPoint(DSWActor* actor)
 {
     Collision ceilhit, florhit;
@@ -10546,6 +11165,12 @@ int DoFindGroundPoint(DSWActor* actor)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoNapalm(DSWActor* actor)
 {
@@ -10637,6 +11262,12 @@ int DoNapalm(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoBloodWorm(DSWActor* actor)
 {
     short ang;
@@ -10710,6 +11341,12 @@ int DoBloodWorm(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoMeteor(DSWActor* actor)
 {
     return false;
@@ -10756,6 +11393,12 @@ int DoSerpMeteor(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoMirvMissile(DSWActor* actor)
 {
     actor->spr.xrepeat += MISSILEMOVETICS * 2;
@@ -10778,6 +11421,12 @@ int DoMirvMissile(DSWActor* actor)
     }
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoMirv(DSWActor* actor)
 {
@@ -10841,6 +11490,12 @@ int DoMirv(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 {
     int oldvel, oldzvel;
@@ -10873,6 +11528,12 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 
     return retval;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 {
@@ -10908,6 +11569,11 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
     return retval;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 constexpr int RINGMOVETICS = (MISSILEMOVETICS * 2);
 constexpr double RING_OUTER_DIST = 200;
@@ -10995,6 +11661,13 @@ int DoRing(DSWActor* actor)
 
 
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitSpellRing(PLAYER* pp)
 {
     short ang, ang_diff, ang_start, missiles;
@@ -11049,6 +11722,12 @@ void InitSpellRing(PLAYER* pp)
             actorNew->user.Flags |= (SPR_UNDERWATER);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoSerpRing(DSWActor* actor)
 {
@@ -11156,6 +11835,12 @@ int InitLavaFlame(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetZVelFromTarget(DSWActor* actorNew, DSWActor* actor, bool setchange = false, double offset = 0)
 {
     // find the distance to the target (player)
@@ -11169,6 +11854,12 @@ void SetZVelFromTarget(DSWActor* actorNew, DSWActor* actor, bool setchange = fal
         if (setchange) actorNew->user.change.Z = change;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitLavaThrow(DSWActor* actor)
 {
@@ -11210,6 +11901,12 @@ int InitLavaThrow(DSWActor* actor)
     SetZVelFromTarget(actorNew, actor, true);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitVulcanBoulder(DSWActor* actor)
 {
@@ -11269,6 +11966,12 @@ void InitVulcanBoulder(DSWActor* actor)
 	UpdateChangeXY(actorNew);
     actorNew->user.change.Z = -zvel -RandomRange(zvel_rand);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitSerpRing(DSWActor* actor)
 {
@@ -11336,6 +12039,12 @@ int InitSerpRing(DSWActor* actor)
     }
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitSpellNapalm(PLAYER* pp)
 {
@@ -11417,6 +12126,12 @@ void InitSpellNapalm(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitEnemyNapalm(DSWActor* actor)
 {
     unsigned i;
@@ -11483,6 +12198,12 @@ int InitEnemyNapalm(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitSpellMirv(PLAYER* pp)
 {
     PlaySound(DIGI_MIRVFIRE, pp, v3df_none);
@@ -11520,6 +12241,12 @@ int InitSpellMirv(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitEnemyMirv(DSWActor* actor)
 {
     PlaySound(DIGI_MIRVFIRE, actor, v3df_none);
@@ -11551,6 +12278,12 @@ int InitEnemyMirv(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitSwordAttack(PLAYER* pp)
 {
@@ -11713,6 +12446,12 @@ int InitSwordAttack(PLAYER* pp)
     }
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitFistAttack(PLAYER* pp)
 {
@@ -11903,6 +12642,12 @@ int InitFistAttack(PLAYER* pp)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitSumoNapalm(DSWActor* actor)
 {
     short dist;
@@ -11969,6 +12714,12 @@ int InitSumoNapalm(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitSumoSkull(DSWActor* actor)
 {
     extern STATE s_SkullExplode[];
@@ -12016,6 +12767,12 @@ int InitSumoSkull(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitSumoStompAttack(DSWActor* actor)
 {
     unsigned stat;
@@ -12052,6 +12809,12 @@ int InitSumoStompAttack(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitMiniSumoClap(DSWActor* actor)
 {
     int dist;
@@ -12086,6 +12849,12 @@ int InitMiniSumoClap(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 {
@@ -12132,6 +12901,12 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 
     return -1;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short ang, bool test)
 {
@@ -12181,6 +12956,12 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DSWActor* AimHitscanToTarget(DSWActor* actor, double *z, DAngle *ang, double z_ratio)
 {
     DSWActor* hitActor = actor->user.targetActor;
@@ -12222,6 +13003,12 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, double *z, DAngle *ang, double z_r
 
     return hitActor;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 {
@@ -12268,6 +13055,12 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 
     return picked;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, double *zvect)
 {
@@ -12390,6 +13183,12 @@ int InitStar(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitHeartAttack(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
@@ -12437,6 +13236,12 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->user.Counter3 = 0;
     actorNew->user.WaitTics = 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int ContinueHitscan(PLAYER* pp, sectortype* sect, const DVector3& start, DAngle ang, const DVector3& vect)
 {
@@ -12515,6 +13320,12 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, const DVector3& start, DAngle 
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitShotgun(PLAYER* pp)
 {
@@ -12685,6 +13496,12 @@ int InitShotgun(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitLaser(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
@@ -12770,7 +13587,11 @@ int InitLaser(PLAYER* pp)
     return 0;
 }
 
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitRail(PLAYER* pp)
 {
@@ -12852,6 +13673,12 @@ int InitRail(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitZillaRail(DSWActor* actor)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -12919,6 +13746,12 @@ int InitZillaRail(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitRocket(PLAYER* pp)
 {
@@ -13025,6 +13858,12 @@ int InitRocket(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitBunnyRocket(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
@@ -13126,6 +13965,12 @@ int InitBunnyRocket(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitNuke(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
@@ -13215,6 +14060,12 @@ int InitNuke(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitEnemyNuke(DSWActor* actor)
 {
     int nx, ny, nz;
@@ -13287,6 +14138,12 @@ int InitEnemyNuke(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitMicro(PLAYER* pp)
 {
@@ -13406,6 +14263,12 @@ int InitMicro(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitRipperSlash(DSWActor* actor)
 {
     int i;
@@ -13437,6 +14300,12 @@ int InitRipperSlash(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitBunnySlash(DSWActor* actor)
 {
     int i;
@@ -13466,6 +14335,12 @@ int InitBunnySlash(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitSerpSlash(DSWActor* actor)
 {
     int i;
@@ -13494,6 +14369,12 @@ int InitSerpSlash(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
 {
     DVector2 out[2];
@@ -13501,6 +14382,12 @@ bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
     return IsCloseToLine(actor->spr.pos.XY(), out[0], out[1], (((int) actor->spr.clipdist) << 2) * inttoworld) != EClose::Outside;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoBladeDamage(DSWActor* actor)
 {
@@ -13538,6 +14425,12 @@ int DoBladeDamage(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoStaticFlamesDamage(DSWActor* actor)
 {
@@ -13579,6 +14472,12 @@ int DoStaticFlamesDamage(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitCoolgBash(DSWActor* actor)
 {
     int i;
@@ -13611,6 +14510,12 @@ int InitCoolgBash(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitSkelSlash(DSWActor* actor)
 {
     int i;
@@ -13638,6 +14543,12 @@ int InitSkelSlash(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitGoroChop(DSWActor* actor)
 {
@@ -13668,12 +14579,24 @@ int InitGoroChop(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitHornetSting(DSWActor* actor)
 {
     DoDamage(actor->user.coll.actor(), actor);
     InitActorReposition(actor);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitSerpSpell(DSWActor* actor)
 {
@@ -13740,6 +14663,12 @@ int InitSerpSpell(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnDemonFist(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_SUICIDE))
@@ -13764,6 +14693,12 @@ int SpawnDemonFist(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitSerpMonstSpell(DSWActor* actor)
 {
@@ -13832,6 +14767,12 @@ int InitSerpMonstSpell(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoTeleRipper(DSWActor* actor)
 {
     PlaySound(DIGI_ITEM_SPAWN, actor, v3df_none);
@@ -13840,6 +14781,12 @@ int DoTeleRipper(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitEnemyRocket(DSWActor* actor)
 {
@@ -13890,6 +14837,12 @@ int InitEnemyRocket(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitEnemyRail(DSWActor* actor)
 {
@@ -13964,6 +14917,12 @@ int InitEnemyRail(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitZillaRocket(DSWActor* actor)
 {
     int dist;
@@ -14030,6 +14989,12 @@ int InitZillaRocket(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitEnemyStar(DSWActor* actor)
 {
     int dist;
@@ -14059,6 +15024,12 @@ int InitEnemyStar(DSWActor* actor)
     PlaySound(DIGI_STAR, actor, v3df_none);
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitEnemyCrossbow(DSWActor* actor)
 {
@@ -14097,6 +15068,12 @@ int InitEnemyCrossbow(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitSkelSpell(DSWActor* actor)
 {
     PlaySound(DIGI_SPELEC, actor, v3df_none);
@@ -14125,6 +15102,12 @@ int InitSkelSpell(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitCoolgFire(DSWActor* actor)
 {
@@ -14170,6 +15153,12 @@ int InitCoolgFire(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoCoolgDrip(DSWActor* actor)
 {
     actor->user.Counter += 220;
@@ -14185,6 +15174,12 @@ int DoCoolgDrip(DSWActor* actor)
     }
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitCoolgDrip(DSWActor* actor)
 {
@@ -14205,6 +15200,12 @@ int InitCoolgDrip(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int GenerateDrips(DSWActor* actor)
 {
@@ -14241,6 +15242,12 @@ int GenerateDrips(DSWActor* actor)
     return 1;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitEelFire(DSWActor* actor)
 {
     unsigned stat;
@@ -14275,6 +15282,12 @@ int InitEelFire(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitFireballTrap(DSWActor* actor)
 {
     short w;
@@ -14296,6 +15309,12 @@ void InitFireballTrap(DSWActor* actor)
 
 	UpdateChange(actorNew);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitBoltTrap(DSWActor* actor)
 {
@@ -14321,6 +15340,12 @@ void InitBoltTrap(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitSpearTrap(DSWActor* actor)
 {
     // Spawn a shot
@@ -14342,6 +15367,12 @@ void InitSpearTrap(DSWActor* actor)
     PlaySound(DIGI_STAR, actor, v3df_none);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoSuicide(DSWActor* actor)
 {
     KillActor(actor);
@@ -14354,6 +15385,12 @@ int DoDefaultStat(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitTracerUzi(PLAYER* pp)
 {
@@ -14423,6 +15460,12 @@ int InitTracerUzi(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 {
     // Spawn a shot
@@ -14462,6 +15505,12 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 {
     // Spawn a shot
@@ -14492,6 +15541,12 @@ int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos, short ID)
 {
@@ -14578,6 +15633,12 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 {
     int16_t ang;
@@ -14604,6 +15665,12 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitUzi(PLAYER* pp)
 {
@@ -14809,6 +15876,12 @@ int InitUzi(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitTankShell(DSWActor* actor, PLAYER* pp)
 {
     if (!SW_SHAREWARE)
@@ -14846,6 +15919,12 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 {
@@ -14943,6 +16022,12 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitTurretRocket(DSWActor* actor, PLAYER* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -14976,6 +16061,12 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 {
@@ -15011,6 +16102,12 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitTurretRail(DSWActor* actor, PLAYER* pp)
 {
@@ -15053,6 +16150,12 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitTurretLaser(DSWActor* actor, PLAYER* pp)
 {
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -15090,6 +16193,12 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
 {
@@ -15299,6 +16408,12 @@ int InitSobjGun(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
@@ -15334,6 +16449,12 @@ DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, 
 
     return actorNew;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
@@ -15371,6 +16492,12 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
@@ -15403,6 +16530,12 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVec
     return actorNew;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
@@ -15434,6 +16567,12 @@ DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wal
 
     return actorNew;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitTurretMgun(SECTOR_OBJECT* sop)
 {
@@ -15597,6 +16736,11 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitEnemyUzi(DSWActor* actor)
 {
@@ -15743,6 +16887,12 @@ int InitEnemyUzi(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitGrenade(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
@@ -15831,6 +16981,12 @@ int InitGrenade(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitSpriteGrenade(DSWActor* actor)
 {
     PlaySound(DIGI_30MMFIRE, actor, v3df_dontpan|v3df_doppler);
@@ -15877,6 +17033,12 @@ int InitSpriteGrenade(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitMine(PLAYER* pp)
 {
@@ -15931,6 +17093,12 @@ int InitMine(PLAYER* pp)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int InitEnemyMine(DSWActor* actor)
 {
     int nx, ny, nz;
@@ -15974,6 +17142,12 @@ int InitEnemyMine(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int HelpMissileLateral(DSWActor* actor, int dist)
 {
     auto old_xvel = actor->int_xvel();
@@ -15994,6 +17168,12 @@ int HelpMissileLateral(DSWActor* actor, int dist)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitFireball(PLAYER* pp)
 {
@@ -16059,6 +17239,12 @@ int InitFireball(PLAYER* pp)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int InitEnemyFireball(DSWActor* actor)
 {
@@ -16208,6 +17394,12 @@ bool WarpToUnderwater(DVector3& pos, sectortype** psectu)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool WarpToSurface(DVector3& pos, sectortype** psectu)
 {
     int i;
@@ -16270,6 +17462,12 @@ bool WarpToSurface(DVector3& pos, sectortype** psectu)
     return true;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool SpriteWarpToUnderwater(DSWActor* actor)
 {
@@ -16335,6 +17533,12 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool SpriteWarpToSurface(DSWActor* actor)
 {
@@ -16408,6 +17612,12 @@ bool SpriteWarpToSurface(DSWActor* actor)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnSplash(DSWActor* actor)
 {
     auto sectu = actor->sector();
@@ -16439,6 +17649,12 @@ int SpawnSplash(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnSplashXY(const DVector3& pos, sectortype* sectp)
 {
     if (Prediction)
@@ -16461,6 +17677,12 @@ int SpawnSplashXY(const DVector3& pos, sectortype* sectp)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool MissileHitDiveArea(DSWActor* actor)
 {
@@ -16514,6 +17736,12 @@ bool MissileHitDiveArea(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DSWActor* SpawnBubble(DSWActor* actor)
 {
     if (Prediction)
@@ -16539,6 +17767,12 @@ DSWActor* SpawnBubble(DSWActor* actor)
     return actorNew;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoVehicleSmoke(DSWActor* actor)
 {
 	actor->spr.pos.XY() += actor->user.change.XY();
@@ -16551,6 +17785,12 @@ int DoWaterSmoke(DSWActor* actor)
     actor->spr.pos.Z -= actor->vel.Z;
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int SpawnVehicleSmoke(DSWActor* actor)
 {
@@ -16579,6 +17819,12 @@ int SpawnVehicleSmoke(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int SpawnSmokePuff(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_WaterSmoke, actor->sector(), actor->spr.pos.plusZ(-RANDOM_P2F(8, 8)), actor->spr.angle, 0);
@@ -16603,6 +17849,12 @@ int SpawnSmokePuff(DSWActor* actor)
     return false;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoBubble(DSWActor* actor)
 {
@@ -16667,9 +17919,14 @@ int DoBubble(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
 // this needs to be called before killsprite
 // whenever killing a sprite that you aren't completely sure what it is, like
 // with the drivables, copy sectors, break sprites, etc
+//
+//---------------------------------------------------------------------------
+
 void SpriteQueueDelete(DSWActor* actor)
 {
     size_t i;
@@ -16699,6 +17956,12 @@ void SpriteQueueDelete(DSWActor* actor)
             LoWangsQueue[i] = nullptr;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void QueueReset(void)
 {
@@ -16730,6 +17993,12 @@ void QueueReset(void)
         LoWangsQueue[i] = nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool TestDontStick(DSWActor* actor, walltype* hit_wall)
 {
     if (hit_wall == nullptr)
@@ -16750,6 +18019,12 @@ bool TestDontStick(DSWActor* actor, walltype* hit_wall)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool TestDontStickSector(sectortype* hit_sect)
 {
     if ((hit_sect->extra & (SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT)))
@@ -16757,6 +18032,12 @@ bool TestDontStickSector(sectortype* hit_sect)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int QueueStar(DSWActor* actor)
 {
@@ -16788,6 +18069,12 @@ int QueueStar(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
 {
@@ -16839,6 +18126,12 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 enum { FLOORBLOOD_RATE = 30 };
 ANIMATOR DoFloorBlood;
 STATE s_FloorBlood1[] =
@@ -16846,6 +18139,12 @@ STATE s_FloorBlood1[] =
     {FLOORBLOOD1, SF_QUICK_CALL,   DoFloorBlood, &s_FloorBlood1[1]},
     {FLOORBLOOD1, FLOORBLOOD_RATE, NullAnimator, &s_FloorBlood1[0]},
 };
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int QueueFloorBlood(DSWActor* actor)
 {
@@ -16901,6 +18200,12 @@ int QueueFloorBlood(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 enum
 {
     FOOTPRINT1 = 2490,
@@ -16921,6 +18226,12 @@ STATE s_FootPrint3[] =
 {
     {FOOTPRINT3, FOOTPRINT_RATE, NullAnimator, &s_FootPrint3[0]},
 };
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int QueueFootPrint(DSWActor* actor)
 {
@@ -17014,6 +18325,12 @@ int QueueFootPrint(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 enum
 {
     WALLBLOOD1 = 2500,
@@ -17044,6 +18361,12 @@ STATE s_WallBlood4[] =
     {WALLBLOOD4, WALLBLOOD_RATE, NullAnimator, &s_WallBlood4[0]},
 };
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
 {
@@ -17148,6 +18471,12 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     return spawnedActor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoFloorBlood(DSWActor* actor)
 {
     const int FEET_IN_BLOOD_DIST = 300;
@@ -17211,6 +18540,12 @@ int DoFloorBlood(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoWallBlood(DSWActor* actor)
 {
     // Make blood drip down the wall
@@ -17223,7 +18558,12 @@ int DoWallBlood(DSWActor* actor)
     return 0;
 }
 
-// This is the FAST queue, it doesn't call any animator functions or states
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void QueueGeneric(DSWActor* actor, short pic)
 {
     if ((actor->sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
@@ -17294,32 +18634,11 @@ void QueueGeneric(DSWActor* actor, short pic)
     GenericQueueHead = (GenericQueueHead+1) & (MAX_GENERIC_QUEUE-1);
 }
 
-#if 0
-int DoShellShrap(DSWActor* actor)
-{
-    // If the shell doesn't fall in the allowable range, kill it.
-    if (actor->user.ShellNum < (ShellCount-MAXSHELLS))
-    {
-        KillActor(actor);
-        return 0;
-    }
-
-    // Get rid of shell if they fall in non-divable liquid areas
-    if ((actor->sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
-    {
-        KillActor(actor);
-        return 0;
-    }
-
-    if ((actor->sector()->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
-    {
-        KillActor(actor);
-        return 0;
-    }
-
-    return 0;
-}
-#endif
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoShrapVelocity(DSWActor* actor)
 {
@@ -17467,6 +18786,11 @@ int DoShrapVelocity(DSWActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int ShrapKillSprite(DSWActor* actor)
 {
@@ -17598,6 +18922,12 @@ int ShrapKillSprite(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool CheckBreakToughness(BREAK_INFO* break_info, int ID)
 {
     if ((break_info->flags & BF_TOUGH))
@@ -17701,7 +19031,12 @@ int DoItemFly(DSWActor* actor)
     return true;
 }
 
-// This is the FAST queue, it doesn't call any animator functions or states
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void QueueLoWangs(DSWActor* actor)
 {
     DSWActor* spawnedActor;
@@ -17747,6 +19082,12 @@ void QueueLoWangs(DSWActor* actor)
 
     LoWangsQueueHead = (LoWangsQueueHead+1) & (MAX_LOWANGS_QUEUE-1);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 
 #include "saveable.h"

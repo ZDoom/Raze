@@ -38,6 +38,12 @@ BEGIN_SW_NS
 
 SECTOR_OBJECT* DetectSectorObjectByWall(walltype*);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SOwallmove(SECTOR_OBJECT* sop, DSWActor* actor, walltype* find_wallp, int dist, int *nx, int *ny)
 {
     int j,k,wallcount;
@@ -75,6 +81,12 @@ void SOwallmove(SECTOR_OBJECT* sop, DSWActor* actor, walltype* find_wallp, int d
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoWallMove(DSWActor* actor)
 {
@@ -154,6 +166,12 @@ int DoWallMove(DSWActor* actor)
     return found;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool CanSeeWallMove(DSWActor* caller, int match)
 {
     int i;
@@ -176,6 +194,12 @@ bool CanSeeWallMove(DSWActor* caller, int match)
     return !found;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoWallMoveMatch(short match)
 {
     bool found = false;
@@ -193,6 +217,12 @@ int DoWallMoveMatch(short match)
 
     return found;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 
 #include "saveable.h"
