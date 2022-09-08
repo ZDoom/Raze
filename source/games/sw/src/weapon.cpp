@@ -17130,7 +17130,7 @@ int InitFireball(PLAYER* pp)
     actorNew->set_int_zvel(zvel >> 1);
     if (WeaponAutoAimZvel(pp->actor, actorNew, &zvel, 32, false) == -1)
     {
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - 9));
+        actorNew->spr.angle -= DAngle::fromBuild(9);
     }
 
 	UpdateChangeXY(actorNew);
@@ -17973,9 +17973,8 @@ int QueueStar(DSWActor* actor)
 
 void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
 {
-    short w,nw,wall_ang;
+    short w,nw;
     DSWActor* spawnedActor;
-    int nx,ny;
 
     if (TestDontStick(nullptr, hit_wall))
         return;
@@ -18004,17 +18003,15 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
     spawnedActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    wall_ang = NORM_ANGLE(getangle(hit_wall->delta())+512);
-    spawnedActor->set_int_ang(wall_ang);
+    spawnedActor->spr.angle = VecToAngle(hit_wall->delta()) + DAngle90;
 
     // move it back some
-    nx = bcos(spawnedActor->int_ang(), 4);
-    ny = bsin(spawnedActor->int_ang(), 4);
+    auto vec = spawnedActor->spr.angle.ToVector();
 
     auto sect = spawnedActor->sector();
 
     Collision coll;
-    clipmove(spawnedActor->spr.pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    clipmove(spawnedActor->spr.pos, &sect, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
 
     if (spawnedActor->sector() != sect)
         ChangeActorSect(spawnedActor, sect);
@@ -18352,13 +18349,12 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     spawnedActor->set_int_ang(wall_ang);
 
     // move it back some
-    nx = bcos(spawnedActor->int_ang(), 4);
-    ny = bsin(spawnedActor->int_ang(), 4);
+    auto vec = spawnedActor->spr.angle.ToVector();
 
     auto sect = spawnedActor->sector();
 
     Collision coll;
-    clipmove(spawnedActor->spr.pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    clipmove(spawnedActor->spr.pos, &sect, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
 
     if (spawnedActor->sector() != sect)
         ChangeActorSect(spawnedActor, sect);
