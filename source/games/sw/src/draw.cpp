@@ -71,6 +71,12 @@ extern TILE_INFO_TYPE aVoxelArray[MAXTILES];
 
 void PreDrawStackedWater(void);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 #if 1
 void ShadeSprite(tspritetype* tsp)
 {
@@ -86,6 +92,12 @@ void ShadeSprite(tspritetype* tsp)
 #else
 #endif
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
 {
@@ -148,6 +160,12 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 /*
 
 
@@ -191,6 +209,12 @@ int SetActorRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& vie
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 double DoShadowFindGroundPoint(tspritetype* tspr)
 {
@@ -245,6 +269,12 @@ double DoShadowFindGroundPoint(tspritetype* tspr)
 
     return loz;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 {
@@ -345,6 +375,12 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
     //DoVoxelShadow(New);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
 {
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
@@ -406,6 +442,12 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void WarpCopySprite(tspriteArray& tsprites)
 {
     int spnum;
@@ -461,6 +503,12 @@ void WarpCopySprite(tspriteArray& tsprites)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoStarView(tspritetype* tsp, DSWActor* tActor, double viewz)
 {
     extern STATE s_Star[], s_StarDown[];
@@ -484,8 +532,13 @@ void DoStarView(tspritetype* tsp, DSWActor* tActor, double viewz)
     }
 }
 
-template<class sprt>
-DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DSWActor* CopySprite(spritetypebase const* tsp, sectortype* newsector)
 {
 
     auto actorNew = insertActor(newsector, STAT_FAF_COPY);
@@ -509,6 +562,12 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
 
     return actorNew;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DSWActor* ConnectCopySprite(spritetypebase const* tsp)
 {
@@ -546,6 +605,11 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
     return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, double interpfrac)
 {
@@ -842,7 +906,12 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
 }
 
 
-#if 1
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 tspritetype* get_tsprite(tspriteArray& tsprites, DSWActor* actor)
 {
     int tSpriteNum;
@@ -855,6 +924,12 @@ tspritetype* get_tsprite(tspriteArray& tsprites, DSWActor* actor)
 
     return nullptr;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void post_analyzesprites(tspriteArray& tsprites)
 {
@@ -892,13 +967,24 @@ void post_analyzesprites(tspriteArray& tsprites)
         }
     }
 }
-#endif
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
     PLAYER* pp = Player + myconnectindex;
     return std::make_pair(pp->pos, pp->angle.ang);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PrintSpriteInfo(PLAYER* pp)
 {
@@ -938,10 +1024,22 @@ void PrintSpriteInfo(PLAYER* pp)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void DrawCrosshair(PLAYER* pp, const double inputfrac)
 {
     ::DrawCrosshair(2326, pp->actor->user.Health, -pp->angle.look_anghalf(inputfrac), (pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PreDraw(void)
 {
@@ -954,6 +1052,12 @@ void PreDraw(void)
         actor->sector()->floorstat &= ~(CSTAT_SECTOR_SLOPE);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PostDraw(void)
 {
@@ -971,6 +1075,12 @@ void PostDraw(void)
         actor->Destroy();
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PreDrawStackedWater(void)
 {
@@ -1022,7 +1132,11 @@ void PreDrawStackedWater(void)
 
 void DoPlayerDiveMeter(PLAYER* pp);
 
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void UpdateWallPortalState()
 {
@@ -1085,6 +1199,12 @@ void UpdateWallPortalState()
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void RestorePortalState()
 {
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
@@ -1105,6 +1225,12 @@ void RestorePortalState()
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
 {
@@ -1264,6 +1390,12 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     PostDraw();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool GameInterface::GenerateSavePic()
 {
     drawscreen(Player + myconnectindex, 65536, true);
@@ -1271,7 +1403,11 @@ bool GameInterface::GenerateSavePic()
 }
 
 
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac)
 {
@@ -1351,6 +1487,12 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
     }
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
 {
