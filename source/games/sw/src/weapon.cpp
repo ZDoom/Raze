@@ -9570,12 +9570,10 @@ int DoRailStart(DSWActor* actor)
 
 int DoRocket(DSWActor* actor)
 {
-    int dist,a,b,c;
-
     if ((actor->user.FlagOwner -= ACTORMOVETICS)<=0 && actor->user.spal == 20)
     {
-        DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
-        actor->user.FlagOwner = dist>>6;
+        double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
+        actor->user.FlagOwner = int(dist * 0.25);
         // Special warn sound attached to each seeker spawned
         PlaySound(DIGI_MINEBEEP, actor, v3df_follow);
     }
@@ -11731,7 +11729,6 @@ void InitSpellRing(PLAYER* pp)
 
 int DoSerpRing(DSWActor* actor)
 {
-    int dist,a,b,c;
     double cz,fz;
 
     auto own = GetOwner(actor);
@@ -11800,10 +11797,10 @@ int DoSerpRing(DSWActor* actor)
             !(tActor->user.PlayerP->Flags & PF_DEAD))
         {
             actor->user.targetActor = own->user.targetActor;
-            DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a,b,c);
+            double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
             // if ((dist ok and random ok) OR very few skulls left)
-            if ((dist < 18000 && (RANDOM_P2(2048<<5)>>5) < 16) || own->user.Counter < 4)
+            if ((dist < 625 && (RANDOM_P2(2048<<5)>>5) < 16) || own->user.Counter < 4)
             {
                 auto sect = actor->sector();
                 updatesector(actor->spr.pos, &sect);
@@ -11814,9 +11811,7 @@ int DoSerpRing(DSWActor* actor)
                     extern STATE* sg_SkullJump[];
                     actor->user.ID = SKULL_R0;
                     actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
-                    actor->set_int_xvel(dist>>5);
-                    actor->add_int_xvel( (actor->int_xvel() >> 1));
-                    actor->add_int_xvel( (RANDOM_P2(128<<8)>>8));
+                    actor->vel.X = dist * (3. / 64) + RandomRangeF(16);
                     actor->user.jump_speed = -800;
                     change_actor_stat(actor, STAT_ENEMY);
                     NewStateGroup(actor, sg_SkullJump);
