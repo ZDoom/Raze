@@ -9500,8 +9500,8 @@ int DoRail(DSWActor* actor)
         {
             auto actorNew = SpawnActor(STAT_MISSILE, PUFF, &s_RailPuff[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 1.25);
 
-            actorNew->add_int_xvel( (RandomRange(140)-RandomRange(140)));
-            actorNew->add_int_zvel( (RandomRange(140)-RandomRange(140)));
+            actorNew->vel.X += RandomRangeF(140 / 16.) - RandomRangeF(140 / 16.);
+            actorNew->vel.Z += RandomRangeF(140 / 256.) - RandomRangeF(140 / 256.);
 
             actorNew->user.RotNum = 5;
             NewStateGroup(actorNew, sg_RailPuff);
@@ -9676,7 +9676,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
 
     actorNew->spr.angle += RandomAngle(11.25) - DAngle22_5/2;
     actorNew->vel.Z = -actor->vel.Z;
-    actorNew->add_int_zvel( RandomRange(Z(16)) - Z(8));
+    actorNew->vel.Z += RandomRangeF(16) - 8;
 
 	UpdateChange(actorNew);
     return 0;
@@ -12873,7 +12873,7 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 //
 //---------------------------------------------------------------------------
 
-int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short ang, bool test)
+int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, double *zvel, DAngle ang, bool test)
 {
     if (actor->hasU() && actor->user.PlayerP)
     {
@@ -12910,7 +12910,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
                 else
                     zh = tos + (siz * 0.25);
 
-            *zvel = int((missileActor->vel.X * (zh - missileActor->spr.pos.Z)) / dist * zworldtoint);
+            *zvel = (missileActor->vel.X * (zh - missileActor->spr.pos.Z)) / dist;
         }
         return 0;
     }
@@ -14148,7 +14148,7 @@ int InitMicro(PLAYER* pp)
         actorNew->spr.clipdist = 64L>>2;
 
         // randomize zvelocity
-        actorNew->add_int_zvel( RandomRange(Z(8)) - Z(5));
+        actorNew->vel.Z += RandomRangeF(8) - 5;
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_Micro[0]);
@@ -15397,13 +15397,13 @@ int InitTracerUzi(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
+int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixedhoriz horiz)
 {
     // Spawn a shot
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, actor->sector(),
-                    actor->spr.pos.plusZ(-MulScaleF(q16horiz, 72, 24)), actor->spr.angle, TRACER_VELOCITY);
+                    actor->spr.pos.plusZ(-MulScaleF(horiz.asbuildf(), 72, 8)), actor->spr.angle, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     if (Operator!= nullptr)
@@ -15421,7 +15421,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->set_int_zvel(int(-MulScaleF(q16horiz, actorNew->int_xvel() * (1. / 8.), 16)));
+    actorNew->vel.Z = -horiz.asbuildf() * actorNew->vel.X * (1. / 128.);
 
     WeaponAutoAim(actor, actorNew, 32, false);
 
@@ -16136,7 +16136,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
     double daz = npos.Z;
 
     if (RANDOM_P2(1024) < 200)
-        InitTracerTurret(actor, pp->actor, pp->horizon.horiz.asq16());
+        InitTracerTurret(actor, pp->actor, pp->horizon.horiz);
 
     DAngle daang = DAngle22_5 / 2;
     if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
@@ -17072,7 +17072,6 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 int InitFireball(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int zvel;
 
     PlayerUpdateAmmo(pp, WPN_HOTHEAD, -1);
 
@@ -17099,7 +17098,7 @@ int InitFireball(PLAYER* pp)
 
     actorNew->user.ceiling_dist = (6);
     actorNew->user.floor_dist = (6);
-    zvel = -MulScale(pp->horizon.horiz.asq16(), 240, 16);
+    double zvel = -pp->horizon.horiz.asbuildf() * (240. / 256.);
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
@@ -17113,7 +17112,7 @@ int InitFireball(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScale(zvel,44000, 16) * zinttoworld))
+    if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScaleF(zvel,44000, 16)))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -17122,14 +17121,14 @@ int InitFireball(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    actorNew->set_int_zvel(zvel >> 1);
-    if (WeaponAutoAimZvel(pp->actor, actorNew, &zvel, 32, false) == -1)
+    actorNew->vel.Z * 0.5;
+    if (WeaponAutoAimZvel(pp->actor, actorNew, &zvel, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(9);
     }
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(zvel);
+    actorNew->user.change.Z = zvel;
 
     return 0;
 }
@@ -17749,7 +17748,7 @@ int SpawnSmokePuff(DSWActor* actor)
 int DoBubble(DSWActor* actor)
 {
     actor->spr.pos.Z -= actor->vel.Z;
-    actor->add_int_zvel( 32);
+    actor->vel.Z += 0.25;
 
     if (actor->vel.Z > 3)
         actor->vel.Z = 3;
