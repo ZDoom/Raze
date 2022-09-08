@@ -13285,9 +13285,7 @@ int ContinueHitscan(PLAYER* pp, sectortype* sect, const DVector3& start, DAngle 
 int InitShotgun(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    short daang,ndaang, i;
     HitInfo hit{};
-    int daz, ndaz;
     short cstat = 0;
 
     PlayerUpdateAmmo(pp, actor->user.WeaponNum, -1);
@@ -13307,45 +13305,36 @@ int InitShotgun(PLAYER* pp)
     }
 
     auto pos = pp->pos.plusZ(pp->bob_z);
-    daz = pos.Z * zworldtoint;
+    double daz = pos.Z;
 
-    daang = 64;
-    double _daz = daz * inttoworld;
-    DAngle _daang = DAngle::fromBuild(daang);
-    if (WeaponAutoAimHitscan(pp->actor, &_daz, &_daang, false) != nullptr)
+    DAngle daang = DAngle22_5 * 0.5;
+    if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
     {
-        daz = _daz * zworldtoint;
-        daang = _daang.Buildang();
     }
     else
     {
-        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16);
-        daang = pp->angle.ang.Buildang();
+        daz = -pp->horizon.horiz.asbuildf() * (2000 / 256.);
+        daang = pp->angle.ang;
     }
 
-    for (i = 0; i < 12; i++)
+    double ndaz;
+    DAngle ndaang;
+    for (int i = 0; i < 12; i++)
     {
         if (pp->WpnShotgunType == 0)
         {
-            ndaz = daz + (RandomRange(Z(120)) - Z(45));
-            ndaang = NORM_ANGLE(daang + (RandomRange(30) - 15));
+            ndaz = daz + RandomRangeF(120) - 45;
+            ndaang = daang + DAngle::fromBuild(RandomRange(30) - 15);
         }
         else
         {
-            ndaz = daz + (RandomRange(Z(200)) - Z(65));
-            ndaang = NORM_ANGLE(daang + (RandomRange(70) - 30));
+            ndaz = daz + RandomRangeF(200) - 65;
+            ndaang = daang + DAngle::fromBuild(RandomRange(70) - 30);
         }
 
-        DVector3 vect;
-        vect.XY() = DAngle::fromBuild(ndaang).ToVector() * 1024;
-        vect.Z = ndaz * zinttoworld;
+        DVector3 vect(ndaang.ToVector() * 1024, ndaz);
+
         FAFhitscan(pos, pp->cursector, vect, hit, CLIPMASK_MISSILE);
-
-        // still needed. Must go away later
-        int xvect = bcos(ndaang);
-        int yvect = bsin(ndaang);
-        int zvect = ndaz;
-
 
         if (hit.hitSector == nullptr)
         {
@@ -13365,7 +13354,7 @@ int InitShotgun(PLAYER* pp)
                 if (SectorIsUnderwaterArea(hit.hitSector))
                 {
                     WarpToSurface(hit.hitpos, &hit.hitSector);
-                    ContinueHitscan(pp, hit.hitSector, hit.hitpos, DAngle::fromBuild(ndaang), vect);
+                    ContinueHitscan(pp, hit.hitSector, hit.hitpos, ndaang, vect);
                     continue;
                 }
             }
@@ -13378,7 +13367,7 @@ int InitShotgun(PLAYER* pp)
                     if (SectorIsDiveArea(hit.hitSector))
                     {
 						WarpToUnderwater(hit.hitpos, &hit.hitSector);
-						ContinueHitscan(pp, hit.hitSector, hit.hitpos, DAngle::fromBuild(ndaang), vect);
+						ContinueHitscan(pp, hit.hitSector, hit.hitpos, ndaang, vect);
                     }
 
                     continue;
@@ -13401,7 +13390,7 @@ int InitShotgun(PLAYER* pp)
 
             if (hit.hitWall->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(hit.hitWall, hit.hitpos, DAngle::fromBuild(ndaang), actor->user.ID);
+                HitBreakWall(hit.hitWall, hit.hitpos, ndaang, actor->user.ID);
                 continue;
             }
 
@@ -13447,7 +13436,7 @@ int InitShotgun(PLAYER* pp)
             }
         }
 
-        auto j = SpawnShotgunSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, DAngle::fromBuild(ndaang));
+        auto j = SpawnShotgunSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos, ndaang);
         DoHitscanDamage(j, hit.actor());
     }
 
