@@ -14113,7 +14113,6 @@ int InitEnemyNuke(DSWActor* actor)
 int InitMicro(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int dist;
     short i;
     DAngle angle;
     TARGET_SORT* ts = TargetSort;
@@ -14206,11 +14205,11 @@ int InitMicro(PLAYER* pp)
 
         if (picked)
         {
-			dist = DistanceI(actorNew->spr.pos, picked->spr.pos);
+			double dist = (actorNew->spr.pos.XY() - picked->spr.pos.XY()).Length();
             if (dist != 0)
             {
                 double zh = ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.25);
-                actorNew->set_int_zvel((actorNew->int_xvel() * (zh - actorNew->spr.pos.Z) * zworldtoint) / dist);
+                actorNew->vel.Z = (actorNew->vel.X * (zh - actorNew->spr.pos.Z)) / dist;
             }
 
             actorNew->user.WpnGoalActor = ts->actor;
@@ -15878,7 +15877,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
 int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    int nx, ny, nz, dist;
+    int nx, ny, nz;
     short i,ang;
     TARGET_SORT* ts = TargetSort;
     DSWActor* picked = nullptr;
@@ -15948,11 +15947,11 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 
         if (picked)
         {
-			dist = DistanceI(actorNew->spr.pos, picked->spr.pos);
+            double dist = (actorNew->spr.pos.XY() - picked->spr.pos.XY()).Length();
             if (dist != 0)
             {
                 double zh = ActorZOfTop(picked) + (ActorSizeZ(picked) * 0.25);
-                actorNew->set_int_zvel((actorNew->int_xvel() * (zh - actorNew->spr.pos.Z) * zworldtoint) / dist);
+                actorNew->vel.Z = (actorNew->vel.X * (zh - actorNew->spr.pos.Z)) / dist;
             }
 
             actorNew->user.WpnGoalActor = ts->actor;
