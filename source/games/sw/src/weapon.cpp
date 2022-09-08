@@ -3767,8 +3767,7 @@ AutoShrap:
 
             actor->spr.pal = actor->user.spal = uint8_t(shrap_pal);
 
-            actor->set_int_xvel(p->min_vel*2);
-            actor->add_int_xvel( RandomRange(p->max_vel - p->min_vel));
+            actor->vel.X = ((p->min_vel*2) + RandomRange(p->max_vel - p->min_vel)) * maptoworld;
 
             actor->user.floor_dist = 2;
             actor->user.ceiling_dist = 2;
@@ -3811,8 +3810,9 @@ int DoVomit(DSWActor* actor)
 {
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
     // notreallypos
-    actor->spr.xrepeat = int(actor->user.pos.X) + MulScale(12, bcos(actor->user.Counter), 14);
-    actor->spr.yrepeat = int(actor->user.pos.Y) + MulScale(12, bsin(actor->user.Counter), 14);
+    auto v = actor->user.pos + DAngle::fromBuild(actor->user.Counter).ToVector() * 12;
+    actor->spr.xrepeat = int(v.X);
+    actor->spr.yrepeat = int(v.Y);
     if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
@@ -4161,13 +4161,12 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
 
             actorNew->spr.pal = actorNew->user.spal = uint8_t(shrap_pal);
 
-            actorNew->set_int_xvel(p->min_vel);
-            actorNew->add_int_xvel( RandomRange(p->max_vel - p->min_vel));
+            actorNew->vel.X = (p->min_vel + RandomRange(p->max_vel - p->min_vel)) * maptoworld;
 
             // special case
             // blood coming off of actors should have the acceleration of the actor
             // so add it in
-            actorNew->add_int_xvel( actor->int_xvel());
+            actorNew->vel.X += actor->vel.X;
 
             actorNew->user.ceiling_dist = actorNew->user.floor_dist = 2;
             actorNew->user.jump_speed = p->min_jspeed;
@@ -4464,7 +4463,7 @@ bool WeaponMoveHit(DSWActor* actor)
         // on walls, so look with hitscan
 
         HitInfo hit{};
-        hitscan(actor->int_pos(), actor->sector(), { bcos(actor->int_ang()), bsin(actor->int_ang()), actor->int_zvel()}, hit, CLIPMASK_MISSILE);
+        hitscan(actor->spr.pos, actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, actor->vel.Z), hit, CLIPMASK_MISSILE);
 
         if (!hit.hitSector)
         {
@@ -5140,7 +5139,7 @@ int ActorHealth(DSWActor* actor, short amt)
                     PlaySound(DIGI_NINJACHOKE, actor, v3df_follow);
                     InitPlasmaFountain(nullptr, actor);
                     InitBloodSpray(actor,false,105);
-                    actor->set_int_ang(NORM_ANGLE(getangle(actor->user.targetActor->int_pos().X - actor->int_pos().X, actor->user.targetActor->int_pos().Y - actor->int_pos().Y) + 1024));
+                    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()) + DAngle90;
                     actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
                     if (sw_ninjahack)
                         NewStateGroup(actor, sg_NinjaHariKari);
@@ -12915,7 +12914,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
         hitActor->user.Flags |= (SPR_TARGETED);
         hitActor->user.Flags |= (SPR_ATTACKED);
 
-        missileActor->set_int_ang(NORM_ANGLE(getangle(hitActor->int_pos().X - missileActor->int_pos().X, hitActor->int_pos().Y - missileActor->int_pos().Y)));
+        missileActor->spr.angle = VecToAngle(hitActor->spr.pos.XY() - missileActor->spr.pos.XY());
         dist = FindDistance2D(missileActor->int_pos().vec2 - hitActor->int_pos().vec2);
 
         if (dist != 0)
@@ -17251,7 +17250,7 @@ int InitEnemyFireball(DSWActor* actor)
     PlaySound(DIGI_FIREBALL1, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->set_int_ang(NORM_ANGLE(getangle(targetActor->int_pos().X - actor->int_pos().X, targetActor->int_pos().Y - actor->int_pos().Y)));
+    actor->spr.angle = VecToAngle(targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
     size_z = Z(ActorSizeY(actor));
     nz = actor->int_pos().Z - size_z + (size_z >> 2) + (size_z >> 3) + Z(4);
