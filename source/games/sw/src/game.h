@@ -2087,11 +2087,6 @@ inline int ActorSizeX(DSWActor* sp)
     return MulScale(tileWidth(sp->spr.picnum), sp->spr.xrepeat, 6);
 }
 
-inline int ActorSizeY(DSWActor* sp)
-{
-    return MulScale(tileHeight(sp->spr.picnum), sp->spr.yrepeat, 6);
-}
-
 inline bool Facing(DSWActor* actor1, DSWActor* actor2)
 {
     return absangle(VecToAngle(actor1->spr.pos - actor2->spr.pos), actor2->spr.angle) < DAngle90;

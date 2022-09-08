@@ -17018,13 +17018,7 @@ int InitMine(PLAYER* pp)
 
 int InitEnemyMine(DSWActor* actor)
 {
-    int nx, ny, nz;
-
     PlaySound(DIGI_MINETHROW, actor, v3df_dontpan|v3df_doppler);
-
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
-    nz = actor->int_pos().Z - Z(40);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -17034,12 +17028,12 @@ int InitEnemyMine(DSWActor* actor)
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    actorNew->spr.clipdist = 128L>>2;
+    actorNew->spr.clipdist = 128 >> 2;
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
-    actorNew->user.ceiling_dist = (5);
-    actorNew->user.floor_dist = (5);
+    actorNew->user.ceiling_dist = 5;
+    actorNew->user.floor_dist = 5;
     actorNew->user.Counter = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -17165,16 +17159,12 @@ int InitFireball(PLAYER* pp)
 
 int InitEnemyFireball(DSWActor* actor)
 {
-    int nz, dist;
-    int size_z;
-    int i, targ_z;
-
-    static short lat_ang[] =
+    static DAngle lat_ang[] =
     {
-        512, -512
+        DAngle90, -DAngle90
     };
 
-    auto targetActor = actor->user.targetActor;
+    DSWActor* targetActor = actor->user.targetActor;
     if (!targetActor) return 0;
 
     PlaySound(DIGI_FIREBALL1, actor, v3df_none);
@@ -17182,16 +17172,16 @@ int InitEnemyFireball(DSWActor* actor)
     // get angle to player and also face player when attacking
     actor->spr.angle = VecToAngle(targetActor->spr.pos.XY() - actor->spr.pos.XY());
 
-    size_z = Z(ActorSizeY(actor));
-    nz = actor->int_pos().Z - size_z + (size_z >> 2) + (size_z >> 3) + Z(4);
+    double size_z = ActorSizeZ(actor) * 0.625;
+    double nz = actor->spr.pos.Z - size_z + 4;
 
     auto change = actor->spr.angle.ToVector() * GORO_FIREBALL_VELOCITY;;
 
-    int lastvel = 0;
-    for (i = 0; i < 2; i++)
+    double lastvel = 0;
+    for (int i = 0; i < 2; i++)
     {
         auto actorNew = SpawnActor(STAT_MISSILE, GORO_FIREBALL, s_Fireball, actor->sector(),
-                        DVector3(actor->spr.pos, nz * zinttoworld), actor->spr.angle, GORO_FIREBALL_VELOCITY);
+                        DVector3(actor->spr.pos, nz), actor->spr.angle, GORO_FIREBALL_VELOCITY);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->spr.xrepeat = 20;
@@ -17202,9 +17192,9 @@ int InitEnemyFireball(DSWActor* actor)
         actorNew->vel.Z = 0;
         actorNew->spr.clipdist = 16>>2;
 
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + lat_ang[i]));
+        actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 500);
-        actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - lat_ang[i]));
+        actorNew->spr.angle -= lat_ang[i];
 
         actorNew->user.change.XY() = change;
 
@@ -17213,26 +17203,26 @@ int InitEnemyFireball(DSWActor* actor)
         if (i == 0)
         {
             // find the distance to the target (player)
-            dist = ksqrt(SQ(actorNew->int_pos().X - targetActor->int_pos().X) + SQ(actorNew->int_pos().Y - targetActor->int_pos().Y));
+            double dist = (actorNew->spr.pos.XY() - targetActor->spr.pos.XY()).Length();
 
             // Determine target Z value
-            targ_z = targetActor->int_pos().Z - (Z(ActorSizeY(actor)) >> 1);
+            double targ_z = targetActor->spr.pos.Z - ActorSizeZ(actor) * 0.5;
 
             // (velocity * difference between the target and the throwing star) /
             // distance
             if (dist != 0)
             {
-                actorNew->set_int_zvel((GORO_FIREBALL_VELOCITY * worldtoint * (targ_z - actorNew->int_pos().Z)) / dist);
+                actorNew->vel.Z = ((GORO_FIREBALL_VELOCITY * (targ_z - actorNew->spr.pos.Z)) / dist);
                 actorNew->user.change.Z = actorNew->vel.Z;
             }
             // back up first one
-            lastvel = actorNew->int_zvel();
+            lastvel = actorNew->vel.Z;
         }
         else
         {
             // use the first calculations so the balls stay together
-            actorNew->user.set_int_change_z(lastvel);
-            actorNew->set_int_zvel(lastvel);
+            actorNew->user.change.Z = lastvel;
+            actorNew->vel.Z = lastvel;
         }
     }
 
