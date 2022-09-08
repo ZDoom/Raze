@@ -7325,16 +7325,15 @@ short StatBreakList[] =
     STAT_DEAD_ACTOR,
 };
 
-void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short ang, int radius)
+void TraverseBreakableWalls(sectortype* start_sect, const DVector3& pos, DAngle angle, double radius)
 {
     int k;
-    int xmid,ymid;
-    int dist;
+    DVector2 mid;
     int break_count;
 
     // limit radius
-    if (radius > 2000)
-        radius = 2000;
+    if (radius > 125)
+        radius = 125;
 
     break_count = 0;
 
@@ -7347,12 +7346,11 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
             if (wal.lotag == TAG_WALL_BREAK)
             {
                 // find midpoint
-                xmid = (wal.wall_int_pos().X + wal.point2Wall()->wall_int_pos().X) >> 1;
-                ymid = (wal.wall_int_pos().Y + wal.point2Wall()->wall_int_pos().Y) >> 1;
+                mid = wal.center();
 
                 // don't need to go further if wall is too far out
 
-                dist = Distance(xmid, ymid, x, y);
+                double dist = (mid - pos.XY()).Length();
                 if (dist > radius)
                     continue;
 
@@ -7361,9 +7359,9 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
                 DAngle wall_ang;
                 if (WallBreakPosition(&wal, &sectp, hitpos, wall_ang))
                 {
-                    if (sectp != nullptr && FAFcansee(DVector3(x* inttoworld, y* inttoworld, z* zinttoworld), start_sect, hitpos, sectp))
+                    if (sectp != nullptr && FAFcansee(pos, start_sect, hitpos, sectp))
                     {
-                        HitBreakWall(&wal, DVector3(INT32_MAX, INT32_MAX, INT32_MAX), DAngle::fromBuild(ang), 0);
+                        HitBreakWall(&wal, DVector3(INT32_MAX, INT32_MAX, INT32_MAX), angle, 0);
 
                         break_count++;
                         if (break_count > 4)
@@ -7451,7 +7449,7 @@ int DoExpDamageTest(DSWActor* actor)
     if (actor->user.ID == MUSHROOM_CLOUD) return 0;   // Central Nuke doesn't break stuff
     // Only secondaries do that
 
-    TraverseBreakableWalls(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->int_ang(), actor->user.Radius);
+    TraverseBreakableWalls(actor->sector(), actor->spr.pos, actor->spr.angle, actor->user.Radius);
 
     break_count = 0;
     max_stat = SIZ(StatBreakList);
