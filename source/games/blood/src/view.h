@@ -51,13 +51,7 @@ struct VIEW {
 	int zWeaponVel;
 	int posture; // posture
 	double spin; // spin
-	union {
-		struct
-		{
-			int32_t x, y, z;
-		};
-		vec3_t pos;
-	};
+	DVector3 pos;
 	int xvel; //xvel
 	int yvel; //yvel
 	int zvel; //zvel
