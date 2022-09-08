@@ -202,16 +202,6 @@ constexpr int NORM_ANGLE(int ang) { return ((ang) & 2047); }
 int StdRandomRange(int range);
 
 
-inline DVector2 MOVExy(int vel, DAngle ang)
-{
-	return ang.ToVector() * vel * inttoworld;
-}
-
-inline int SQ(int val)
-{
-    return val * val;
-}
-
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
 inline void DISTANCE(const DVector2& p1, const DVector2& p2, int& dist, int& tx, int& ty, int& tmin)
@@ -889,7 +879,7 @@ struct USER
     }
 
 	// frequently repeated patterns
-	void addCounterToChange() { change.Z += Counter * zinttoworld; }
+	void addCounterToChange() { change.Z += Counter * zmaptoworld; }
 	
 
     //

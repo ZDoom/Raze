@@ -8768,7 +8768,7 @@ bool OwnerIsPlayer(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int DoMineRangeTest(DSWActor* actor, int range)
+int DoMineRangeTest(DSWActor* actor, double range)
 {
     unsigned stat;
     bool ownerisplayer = false;
@@ -8782,7 +8782,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
         {
             double dist = (itActor->spr.pos - actor->spr.pos).Length();
 
-            if (dist > range * zinttoworld)
+            if (dist > range)
                 continue;
 
             if (actor == itActor)
@@ -8869,7 +8869,7 @@ int DoMineStuck(DSWActor* actor)
         if (actor->user.Counter2 < MINE_DETONATE_STATE)
         {
             // if something came into range - detonate
-            if (DoMineRangeTest(actor, 3000))
+            if (DoMineRangeTest(actor, 187.5))
             {
                 // move directly to detonate state
                 actor->user.Counter2 = MINE_DETONATE_STATE;
@@ -12328,7 +12328,7 @@ int InitSwordAttack(PLAYER* pp)
     {
         HitInfo hit{};
 
-        double daz = (-MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000)) * zinttoworld;
+        double daz = -pp->horizon.horiz.asbuildf() * (2000 / 256.) + (RandomRangeF(24000 / 256.) - 12000 / 256.));
         DAngle daang = pp->angle.ang;
         FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
@@ -12505,7 +12505,7 @@ int InitFistAttack(PLAYER* pp)
     // all this is to break glass
     {
         HitInfo hit{};
-        double daz = (-MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000)) * zinttoworld;
+        double daz = -pp->horizon.horiz.asbuildf() * (2000 / 256.) + (RandomRangeF(24000 / 256.) - 12000 / 256.));
         auto daang = pp->angle.ang;
         FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
@@ -18231,19 +18231,18 @@ STATE s_WallBlood4[] =
 
 DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
 {
-    short w,nw,dang;
+    short w,nw;
     DSWActor* spawnedActor;
     short rndnum;
-    double daz;
     HitInfo hit{};
 
     if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return nullptr;   // No blood underwater!
 
-    daz = RandomRange(128) * 8 - 512;
-    dang = (bang. + RandomAngle(22.5) - DAngle22_5 / 2;
+    double daz = RandomRange(128) * 8 - 512;
+    DAngle dang = bang + RandomAngle(22.5) - DAngle22_5 / 2;
 
-    DVector3 vect(bcos(dang) * inttoworld, bsin(dang) * inttoworld, daz * zmaptoworld);
+    DVector3 vect(dang.ToVector() * 1024, daz);
 
     FAFhitscan(actor->spr.pos.plusZ(-30), actor->sector(), vect, hit, CLIPMASK_MISSILE);
 

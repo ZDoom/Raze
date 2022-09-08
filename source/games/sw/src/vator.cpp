@@ -322,10 +322,8 @@ void MoveSpritesWithSector(sectortype* sect, double z_amt, bool type)
     }
 }
 
-int DoVatorMove(DSWActor* actor, double *lptr)
+double DoVatorMove(DSWActor* actor, double *lptr)
 {
-    int move_amt;
-
     double zval = *lptr;
 
     // if LESS THAN goal
@@ -353,7 +351,7 @@ int DoVatorMove(DSWActor* actor, double *lptr)
             zval = actor->user.z_tgt;
     }
 
-    move_amt = int((zval - *lptr) * zworldtoint);
+    auto move_amt = (zval - *lptr);
     *lptr = zval;
 
     return move_amt;
@@ -364,7 +362,7 @@ int DoVator(DSWActor* actor)
 {
     sectortype* sectp = actor->sector();
     double zval;
-    int amt;
+    double amt;
 
     // actor->user.sz        - where the sector z started
     // actor->user.z_tgt     - current target z
@@ -377,14 +375,14 @@ int DoVator(DSWActor* actor)
         zval = sectp->ceilingz;
         amt = DoVatorMove(actor, &zval);
         sectp->setceilingz(zval);
-        MoveSpritesWithSector(actor->sector(), amt * zinttoworld, true); // ceiling
+        MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
     }
     else
     {
         zval = sectp->floorz;
         amt = DoVatorMove(actor, &zval);
         sectp->setfloorz(zval);
-        MoveSpritesWithSector(actor->sector(), amt * zinttoworld, false); // floor
+        MoveSpritesWithSector(actor->sector(), amt, false); // floor
     }
 
     // EQUAL this entry has finished
@@ -523,21 +521,21 @@ int DoVatorAuto(DSWActor* actor)
 {
     sectortype* sectp = actor->sector();
     double zval;
-    int amt;
+    double amt;
 
     if (actor->spr.cstat & (CSTAT_SPRITE_YFLIP))
     {
         zval = sectp->ceilingz;
         amt = DoVatorMove(actor, &zval);
         sectp->setceilingz(zval);
-        MoveSpritesWithSector(actor->sector(), amt * zinttoworld, true); // ceiling
+        MoveSpritesWithSector(actor->sector(), amt, true); // ceiling
     }
     else
     {
         zval = sectp->floorz;
         amt = DoVatorMove(actor, &zval);
         sectp->setfloorz(zval);
-        MoveSpritesWithSector(actor->sector(), amt * zinttoworld, false); // floor
+        MoveSpritesWithSector(actor->sector(), amt, false); // floor
     }
 
     // EQUAL this entry has finished
