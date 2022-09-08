@@ -7428,7 +7428,9 @@ int DoExpDamageTest(DSWActor* actor)
             }
             else
             {
-                if ((unsigned)FindDistance3D(itActor->int_pos().X - actor->int_pos().X, itActor->int_pos().Y - actor->int_pos().Y, itActor->int_pos().Z - actor->int_pos().Z) > actor->user.Radius + itActor->user.Radius)
+
+                double d = (itActor->spr.pos - actor->spr.pos).Length();
+                if (d > actor->user.fRadius() + itActor->user.fRadius())
                     continue;
 
                 // added hitscan block because mines no long clip against actors/players
@@ -8773,8 +8775,6 @@ bool OwnerIsPlayer(DSWActor* actor)
 int DoMineRangeTest(DSWActor* actor, int range)
 {
     unsigned stat;
-    int tx, ty;
-    int tmin;
     bool ownerisplayer = false;
 
     ownerisplayer = OwnerIsPlayer(actor);
@@ -10370,7 +10370,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
 									   expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    if (FindDistance3D(expActor->int_pos() - actor->int_pos()) < 1024)
+    if ((expActor->spr.pos - actor->spr.pos).Length() < 64)
     {
         KillActor(expActor);
         return;
@@ -10666,7 +10666,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
                            expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    if (FindDistance3D(expActor->int_pos() - actor->int_pos()) < 1024)
+    if ((expActor->spr.pos - actor->spr.pos).Length() < 64)
     {
         KillActor(expActor);
         return;
@@ -11735,7 +11735,7 @@ int DoSerpRing(DSWActor* actor)
         return 0;
     }
 
-    double zz = actor->int_pos().Z + actor->vel.Z;
+    double zz = actor->spr.pos.Z + actor->vel.Z;
     if (zz > own->spr.pos.Z - actor->user.pos.Z)
         zz = own->spr.pos.Z - actor->user.pos.Z;
 
@@ -12897,8 +12897,6 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 
 int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short ang, bool test)
 {
-    int dist;
-
     if (actor->hasU() && actor->user.PlayerP)
     {
         if (!Autoaim(actor->user.PlayerP->pnum))
@@ -12915,7 +12913,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
         hitActor->user.Flags |= (SPR_ATTACKED);
 
         missileActor->spr.angle = VecToAngle(hitActor->spr.pos.XY() - missileActor->spr.pos.XY());
-        dist = FindDistance2D(missileActor->int_pos().vec2 - hitActor->int_pos().vec2);
+        double dist = (missileActor->spr.pos.XY() - hitActor->spr.pos.XY()).Length();
 
         if (dist != 0)
         {
@@ -12934,7 +12932,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
                 else
                     zh = tos + (siz * 0.25);
 
-            *zvel = int((missileActor->int_xvel() * (zh - missileActor->spr.pos.Z)) / dist * (zworldtoint));
+            *zvel = int((missileActor->vel.X * (zh - missileActor->spr.pos.Z)) / dist * zworldtoint);
         }
         return 0;
     }
@@ -12999,7 +12997,6 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, double *z, DAngle *ang, double z_r
 
 DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 {
-    int dist;
     int zh;
     int xvect;
     int yvect;
@@ -13019,10 +13016,10 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
         picked->user.Flags |= (SPR_TARGETED);
         picked->user.Flags |= (SPR_ATTACKED);
 
-        *ang = NORM_ANGLE(getangle(picked->int_pos().X - actor->int_pos().X, picked->int_pos().Y - actor->int_pos().Y));
+        *ang = NORM_ANGLE(getangle(picked->spr.pos.XY() - actor->spr.pos.XY()));
 
         // find the distance to the target
-        dist = ksqrt(SQ(actor->int_pos().X - picked->int_pos().X) + SQ(actor->int_pos().Y - picked->int_pos().Y));
+        double dist = (actor->spr.pos.XY() - picked->spr.pos.XY()).Length();
 
         if (dist != 0)
         {
@@ -13031,9 +13028,9 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
             xvect = bcos(*ang);
             yvect = bsin(*ang);
 
-            if (picked->int_pos().X - actor->int_pos().X != 0)
+            if (picked->spr.pos.X - actor->spr.pos.X != 0)
                 *z = Scale(xvect,zh - *z,picked->int_pos().X - actor->int_pos().X);
-            else if (picked->int_pos().Y - actor->int_pos().Y != 0)
+            else if (picked->spr.pos.Y - actor->spr.pos.Y != 0)
                 *z = Scale(yvect,zh - *z,picked->int_pos().Y - actor->int_pos().Y);
             else
                 *z = 0;
@@ -14272,7 +14269,8 @@ int InitRipperSlash(DSWActor* actor)
             if (itActor == actor)
                 break;
 
-            if ((unsigned)FindDistance3D(actor->int_pos() - itActor->int_pos()) > itActor->user.Radius + actor->user.Radius)
+            double d = (actor->spr.pos - itActor->spr.pos).Length();
+            if (d > itActor->user.fRadius() * 2)
                 continue;
 
             DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
@@ -14380,7 +14378,6 @@ int DoBladeDamage(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, a, b, c;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -14393,14 +14390,9 @@ int DoBladeDamage(DSWActor* actor)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double d = (actor->spr.pos - itActor->spr.pos).Length();
 
-            if (dist > 2000)
-                continue;
-
-            dist = FindDistance3D(actor->int_pos() - itActor->int_pos());
-
-            if (dist > 2000)
+            if (d > 125)
                 continue;
 
             if (WallSpriteInsideSprite(actor, itActor))
@@ -14423,7 +14415,6 @@ int DoStaticFlamesDamage(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, a, b, c;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -14436,14 +14427,9 @@ int DoStaticFlamesDamage(DSWActor* actor)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, a, b, c);
+            double d = (actor->spr.pos - itActor->spr.pos).Length();
 
-            if (dist > 2000)
-                continue;
-
-            dist = FindDistance3D(actor->int_pos() - itActor->int_pos());
-
-            if (dist > 2000)
+            if (d > 125)
                 continue;
 
             if (SpriteOverlap(actor, itActor))  // If sprites are overlapping, cansee will fail!
