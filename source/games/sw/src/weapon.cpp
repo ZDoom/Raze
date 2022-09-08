@@ -48,7 +48,7 @@ BEGIN_SW_NS
 struct MISSILE_PLACEMENT
 {
     int dist_over, dist_out;
-    short ang;
+    DAngle ang;
 };
 
 
@@ -11609,7 +11609,7 @@ int DoRing(DSWActor* actor)
     }
 
     // rotate the ring
-    actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (4 * RINGMOVETICS) + RINGMOVETICS));
+    actor->spr.angle += DAngle::fromBuild(5 * RINGMOVETICS);
 
     // put it out there
     actor->spr.pos += actor->spr.angle.ToVector() * actor->user.Dist;
@@ -11746,9 +11746,9 @@ int DoSerpRing(DSWActor* actor)
 
     // rotate the heads
     if (actor->user.Flags & (SPR_BOUNCE))
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() + (28 * RINGMOVETICS)));
+        actor->spr.angle += DAngle::fromBuild(28 * RINGMOVETICS);
     else
-        actor->set_int_ang(NORM_ANGLE(actor->int_ang() - (28 * RINGMOVETICS)));
+        actor->spr.angle -= DAngle::fromBuild(28 * RINGMOVETICS);
 
     // put it out there
     actor->spr.pos += actor->user.slide_ang.ToVector() * actor->user.Dist;
@@ -12030,9 +12030,9 @@ void InitSpellNapalm(PLAYER* pp)
 
     static const MISSILE_PLACEMENT mp[] =
     {
-        {600 * 6, 400, 512},
-        {0, 1100, 0},
-        {600 * 6, 400, -512},
+        {600 * 6, 400, DAngle90},
+        {0, 1100, nullAngle},
+        {600 * 6, 400, -DAngle90},
     };
 
     ammo = NAPALM_MIN_AMMO;
@@ -12078,9 +12078,9 @@ void InitSpellNapalm(PLAYER* pp)
 
         if (mp[i].dist_over != 0)
         {
-            actor->set_int_ang(NORM_ANGLE(actor->int_ang() + mp[i].ang));
+            actor->spr.angle += mp[i].ang;
             HelpMissileLateral(actor, mp[i].dist_over);
-            actor->set_int_ang(NORM_ANGLE(actor->int_ang() - mp[i].ang));
+            actor->spr.angle -= mp[i].ang;
         }
 
 		UpdateChange(actor);
@@ -12114,9 +12114,9 @@ int InitEnemyNapalm(DSWActor* actor)
 
     static const MISSILE_PLACEMENT mp[] =
     {
-        {600 * 6, 400, 512},
-        {0, 1100, 0},
-        {600 * 6, 400, -512},
+        {600 * 6, 400, DAngle90},
+        {0, 1100, nullAngle},
+        {600 * 6, 400, -DAngle90},
     };
 
     PlaySound(DIGI_NAPFIRE, actor, v3df_none);
@@ -12154,9 +12154,9 @@ int InitEnemyNapalm(DSWActor* actor)
 
         if (mp[i].dist_over != 0)
         {
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + mp[i].ang));
+            actorNew->spr.angle += mp[i].ang;
             HelpMissileLateral(actorNew, mp[i].dist_over);
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - mp[i].ang));
+            actorNew->spr.angle -= mp[i].ang;
         }
 
         // find the distance to the target (player)
@@ -12631,18 +12631,18 @@ int InitSumoNapalm(DSWActor* actor)
 
     static const MISSILE_PLACEMENT mp[] =
     {
-        {0, 1100, 0},
+        {0, 1100, nullAngle},
     };
 
     PlaySound(DIGI_NAPFIRE, actor, v3df_none);
 
-    ang = actor->int_ang();
+    DAngle angle = actor->spr.angle;
     for (int j = 0; j < 4; j++)
     {
         for (size_t i = 0; i < countof(mp); i++)
         {
             auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, actor->sector(),
-									   DVector3(actor->spr.pos.XY(), ActorZOfTop(actor)), actor->spr.angle, NAPALM_VELOCITY);
+									   DVector3(actor->spr.pos.XY(), ActorZOfTop(actor)), angle, NAPALM_VELOCITY);
 
             actorNew->spr.hitag = LUMINOUS; //Always full brightness
             if (i == 0) // Only attach sound to first projectile
@@ -12668,9 +12668,7 @@ int InitSumoNapalm(DSWActor* actor)
 
             if (mp[i].dist_over != 0)
             {
-                actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + mp[i].ang));
                 HelpMissileLateral(actorNew, mp[i].dist_over);
-                actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - mp[i].ang));
             }
 
             // find the distance to the target (player)
@@ -12685,7 +12683,7 @@ int InitSumoNapalm(DSWActor* actor)
             actor->user.Counter = 0;
 
         }
-        ang += 512;
+        angle += DAngle90;
     }
     return 0;
 }
@@ -13156,7 +13154,7 @@ void InitHeartAttack(PLAYER* pp)
 
     static const MISSILE_PLACEMENT mp[] =
     {
-        {0, 1100, 0},
+        {0, 1100, nullAngle},
     };
 
     PlayerUpdateAmmo(pp, WPN_HEART, -1);
@@ -14871,12 +14869,12 @@ int InitZillaRocket(DSWActor* actor)
 
     static const MISSILE_PLACEMENT mp[] =
     {
-        {600 * 6, 400, 512},
-        {900 * 6, 400, 512},
-        {1100 * 6, 400, 512},
-        {600 * 6, 400, -512},
-        {900 * 6, 400, -512},
-        {1100 * 6, 400, -512},
+        {600 * 6, 400, DAngle90},
+        {900 * 6, 400, DAngle90},
+        {1100 * 6, 400, DAngle90},
+        {600 * 6, 400, -DAngle90},
+        {900 * 6, 400, -DAngle90},
+        {1100 * 6, 400, -DAngle90},
     };
 
     PlaySound(DIGI_NINJARIOTATTACK, actor, v3df_none);
@@ -14916,9 +14914,9 @@ int InitZillaRocket(DSWActor* actor)
 
         if (mp[i].dist_over != 0)
         {
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() + mp[i].ang));
+            actorNew->spr.angle += mp[i].ang;
             HelpMissileLateral(actorNew, mp[i].dist_over);
-            actorNew->set_int_ang(NORM_ANGLE(actorNew->int_ang() - mp[i].ang));
+            actorNew->spr.angle -= mp[i].ang;
         }
 
         MissileSetPos(actorNew, DoBoltThinMan, mp[i].dist_out);
