@@ -7829,7 +7829,7 @@ int DoPlasmaDone(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
+DSWActor* PickEnemyTarget(DSWActor* actor, DAngle aware_range)
 {
     TARGET_SORT* ts;
 
@@ -7855,7 +7855,7 @@ DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
 //
 //---------------------------------------------------------------------------
 
-int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
+int MissileSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
@@ -7908,7 +7908,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
 //
 //---------------------------------------------------------------------------
 
-int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
+int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
@@ -7956,7 +7956,7 @@ void SetAngleFromChange(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
+int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, DAngle aware_range1, DAngle aware_range2)
 {
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
@@ -8028,7 +8028,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 //
 //---------------------------------------------------------------------------
 
-int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, int16_t aware_range2)
+int VectorWormSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range1, DAngle aware_range2)
 {
     if (actor->user.WaitTics <= delay_tics)
         actor->user.WaitTics += MISSILEMOVETICS;
@@ -9568,7 +9568,7 @@ int DoRocket(DSWActor* actor)
 
     if (actor->user.Flags & (SPR_FIND_PLAYER))
     {
-        VectorMissileSeek(actor, 30, 16, 128, 768);
+        VectorMissileSeek(actor, 30, 16, DAngle22_5, DAngle90 + DAngle45);
     }
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -9816,7 +9816,7 @@ int DoUziBullet(DSWActor* actor)
 
 int DoBoltSeeker(DSWActor* actor)
 {
-    MissileSeek(actor, 30, 768/*, 4, 48, 6*/);
+    MissileSeek(actor, 30, DAngle90 + DAngle45/*, 4, 48, 6*/);
     DoBlurExtend(actor, 0, 4);
 
 	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
@@ -9862,7 +9862,7 @@ int DoElectro(DSWActor* actor)
 
     // only seek on Electro's after a hit on an actor
     if (actor->user.Counter > 0)
-        MissileSeek(actor, 30, 512/*, 3, 52, 2*/);
+        MissileSeek(actor, 30, DAngle90/*, 3, 52, 2*/);
 
 	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
 	double daz = actor->vel.Z;
@@ -12820,7 +12820,7 @@ int InitMiniSumoClap(DSWActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
+int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, DAngle ang, bool test)
 {
     if (actor->hasU() && actor->user.PlayerP)
     {
@@ -13087,7 +13087,7 @@ int InitStar(PLAYER* pp)
         return 0;
     }
 
-    if (WeaponAutoAim(pp->actor, actorNew, 32, false) != -1)
+    if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5/4, false) != -1)
     {
         zvel = actorNew->vel.Z;
     }
@@ -13526,7 +13526,7 @@ int InitLaser(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
@@ -13607,7 +13607,7 @@ int InitRail(PLAYER* pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
-    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(4);
     }
@@ -13681,7 +13681,7 @@ int InitZillaRail(DSWActor* actor)
     actor->spr.clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
-    if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(4);
     }
@@ -13792,7 +13792,7 @@ int InitRocket(PLAYER* pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
-    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
@@ -13897,7 +13897,7 @@ int InitBunnyRocket(PLAYER* pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
-    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
@@ -13991,7 +13991,7 @@ int InitNuke(PLAYER* pp)
     actor->spr.clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
-    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
@@ -14067,7 +14067,7 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->user.Counter = 0;
 
     actorNew->vel.Z = zvel * 0.5;
-    if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
@@ -14097,7 +14097,7 @@ int InitMicro(PLAYER* pp)
 
     const int MAX_MICRO = 1;
 
-    DoPickTarget(pp->actor, 256, false);
+    DoPickTarget(pp->actor, DAngle45, false);
 
     if (TargetSortCount > MAX_MICRO)
         TargetSortCount = MAX_MICRO;
@@ -15366,7 +15366,7 @@ int InitTracerUzi(PLAYER* pp)
 
     plActor->spr.clipdist = oclipdist;
 
-    WeaponAutoAim(pp->actor, actorNew, 32, false);
+    WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false);
 
     // a bit of randomness
     actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
@@ -15411,7 +15411,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixedhoriz horiz)
 
     actorNew->vel.Z = -horiz.asbuildf() * actorNew->vel.X * (1. / 128.);
 
-    WeaponAutoAim(actor, actorNew, 32, false);
+    WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false);
 
     // a bit of randomness
     actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
@@ -15807,7 +15807,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
 
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * actorNew->vel.X * (1. / 128.);
 
-    WeaponAutoAim(actor, actorNew, 64, false);
+    WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
     actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
     actorNew->norm_ang();
@@ -15841,7 +15841,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
 
     const int MAX_TURRET_MICRO = 10;
 
-    DoPickTarget(plActor, 256, false);
+    DoPickTarget(plActor, DAngle45, false);
 
     if (TargetSortCount > MAX_TURRET_MICRO)
         TargetSortCount = MAX_TURRET_MICRO;
@@ -15946,7 +15946,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
 
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * actorNew->vel.X * (1. / 128.);
 
-    WeaponAutoAim(actor, actorNew, 64, false);
+    WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
     //actorNew->spr.angle += RandomRange(30) - 15;
 
@@ -15986,7 +15986,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * actorNew->vel.X * (1. / 128.);
 
-    WeaponAutoAim(actor, actorNew, 64, false);
+    WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
     actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
     actorNew->norm_ang();
@@ -16036,7 +16036,7 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
 
     actorNew->spr.clipdist = 64L>>2;
 
-    if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->norm_ang();
     }
@@ -16080,7 +16080,7 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->spr.clipdist = 64L>>2;
 
-    if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
+    if (WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
         actorNew->norm_ang();
     }
@@ -16834,7 +16834,7 @@ int InitGrenade(PLAYER* pp)
     actor->spr.clipdist = oclipdist;
 
     zvel = actorNew->vel.Z;
-    if (WeaponAutoAim(pp->actor, actorNew, 32, false) >= 0)
+    if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) >= 0)
     {
         auto_aim = true;
     }
