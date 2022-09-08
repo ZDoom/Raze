@@ -2634,7 +2634,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     auto vect = ang.ToVector() * sop->vel; // vel is still in Build coordinates.
     int xvect = vect.X * 16384;
     int yvect = vect.Y * 16384;
-    clipmove(pos, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), int(floor_dist * zworldtoint), CLIPMASK_ACTOR, coll);
+    clipmove(pos, &cursect, xvect, yvect, (int)sop->clipdist, 0., floor_dist, CLIPMASK_ACTOR, coll);
 
     if (coll.type != kHitNone)
     {
@@ -3022,7 +3022,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         {
             neartag(DVector3(actor->spr.pos.XY(), zz), actor->sector(), actor->spr.angle, near, 1024, NTAG_SEARCH_LO_HI);
 
-            if (near.actor() != nullptr && near.int_hitpos().X < 1024)
+            if (near.actor() != nullptr && near.hitpos.X < 64)
             {
                 if (OperateSprite(near.actor(), false))
                 {
@@ -3036,7 +3036,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             }
         }
 
-        if (near.hitSector != nullptr && near.int_hitpos().X < 1024)
+        if (near.hitSector != nullptr && near.hitpos.X < 64)
         {
             if (OperateSector(near.hitSector, false))
             {
@@ -3278,7 +3278,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             actor->user.Flags |= (SPR_CLIMBING);
             NewStateGroup(actor, actor->user.ActorActionSet->Climb);
 
-            actor->set_int_zvel(-Z(1));
+            actor->vel.Z -= 1;
         }
 
         break;
