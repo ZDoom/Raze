@@ -12265,7 +12265,8 @@ int InitSwordAttack(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     unsigned stat;
-    short reach, face;
+    short reach;
+    DAngle face;
 
     PlaySound(DIGI_SWORDSWOOSH, pp, v3df_dontpan | v3df_doppler);
 
@@ -12313,7 +12314,7 @@ int InitSwordAttack(PLAYER* pp)
             double dist = (pp->pos.XY() - itActor->spr.pos.XY()).Length();
 
             reach = 1000; // !JIM! was 800
-            face = 200;
+            face = DAngle::fromBuild(200);
 
             if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
@@ -12432,7 +12433,8 @@ int InitFistAttack(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     unsigned stat;
-    short reach,face;
+    short reach;
+    DAngle face;
 
     PlaySound(DIGI_STAR, pp, v3df_dontpan|v3df_doppler);
 
@@ -12477,22 +12479,22 @@ int InitFistAttack(PLAYER* pp)
 
             if (pp->InventoryActive[2]) // Shadow Bombs give you demon fist
             {
-                face = 190;
+                face = DAngle::fromBuild(190);
                 reach = 2300;
             }
             else
             {
                 reach = 1000;
-                face = 200;
+                face = DAngle::fromBuild(200);
             }
 
             if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
-                if (SpriteOverlapZ(pp->actor, itActor, 20) || face == 190)
+                if (SpriteOverlapZ(pp->actor, itActor, 20) || reach == 2300)
                 {
                     if (FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), ActorVectOfMiddle(plActor), plActor->sector()))
                         DoDamage(itActor, plActor);
-                    if (face == 190)
+                    if (reach == 2300)
                     {
                         SpawnDemonFist(itActor);
                     }

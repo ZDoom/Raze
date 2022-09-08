@@ -1964,9 +1964,9 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
     return sect ? sect->extra & (SECTFX_UNDERWATER | SECTFX_UNDERWATER2) : false;
 }
 
-inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, int range)
+inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
 {
-    return (abs(getincangle(getangle(a->spr.pos - pp->pos), (pp)->angle.ang.Buildang())) < (range));
+    return absangle(VecToAngle(a->spr.pos - pp->pos), pp->angle.ang) < range;
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)
