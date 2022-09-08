@@ -7176,16 +7176,15 @@ int DoDamageTest(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, tx, ty;
-    int tmin;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
-            if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
+            double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+
+            if (dist > actor->user.Radius * 2 * inttoworld)
                 continue;
 
             if (actor == itActor)
@@ -7248,8 +7247,6 @@ int DoFlamesDamageTest(DSWActor* actor)
 {
     int i;
     unsigned stat;
-    int dist, tx, ty;
-    int tmin;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -7267,9 +7264,9 @@ int DoFlamesDamageTest(DSWActor* actor)
                 continue;
             }
 
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
+            double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-            if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
+            if (dist > actor->user.Radius * 2 * inttoworld)
                 continue;
 
             if (actor == itActor)
@@ -7395,13 +7392,11 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
 int DoExpDamageTest(DSWActor* actor)
 {
     short i, stat;
-    int dist, tx, ty;
-    int tmin;
     int max_stat;
     short break_count;
 
     DSWActor* found_act = nullptr;
-    int found_dist = 999999;
+    double found_dist = 999999;
     int DoWallMoveMatch(short match);
 
     // crack sprites
@@ -7420,9 +7415,9 @@ int DoExpDamageTest(DSWActor* actor)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
+            double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-            if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
+            if (dist > actor->user.Radius * 2 * inttoworld)
                 continue;
 
             if (itActor == actor)
@@ -7465,12 +7460,13 @@ int DoExpDamageTest(DSWActor* actor)
         SWStatIterator it(StatBreakList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
-            if ((unsigned)dist > actor->user.Radius)
+            double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+
+            if (dist > actor->user.Radius * inttoworld)
                 continue;
 
-            dist = (ActorVectOfMiddle(itActor) - actor->spr.pos).Length() * worldtoint;
-            if ((unsigned)dist > actor->user.Radius)
+            dist = (ActorVectOfMiddle(itActor) - actor->spr.pos).Length();
+            if (dist > actor->user.Radius * inttoworld)
                 continue;
 
             if (!FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), actor->spr.pos, actor->sector()))
@@ -7493,8 +7489,9 @@ int DoExpDamageTest(DSWActor* actor)
     SWStatIterator it(STAT_WALL_MOVE);
     while (auto itActor = it.Next())
     {
-        DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
-        if ((unsigned)dist > actor->user.Radius/4)
+        double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+
+        if (dist > actor->user.Radius * 0.25 * inttoworld)
             continue;
 
         if (TEST_BOOL1(actor))
@@ -7538,15 +7535,14 @@ int DoExpDamageTest(DSWActor* actor)
 int DoMineExpMine(DSWActor* actor)
 {
     int i;
-    int dist, tx, ty;
-    int tmin;
     int zdist;
 
     SWStatIterator it(STAT_MINE_STUCK);
     while (auto itActor = it.Next())
     {
-        DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
-        if ((unsigned)dist > actor->user.Radius + itActor->user.Radius)
+        double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+
+        if (dist > actor->user.Radius * 2 * inttoworld)
             continue;
 
         if (itActor == actor)
@@ -8778,7 +8774,7 @@ bool OwnerIsPlayer(DSWActor* actor)
 int DoMineRangeTest(DSWActor* actor, int range)
 {
     unsigned stat;
-    int dist, tx, ty;
+    int tx, ty;
     int tmin;
     bool ownerisplayer = false;
 
@@ -8789,8 +8785,9 @@ int DoMineRangeTest(DSWActor* actor, int range)
         SWStatIterator it(StatDamageList[stat]);
         while (auto itActor = it.Next())
         {
-            DISTANCE(itActor->spr.pos, actor->spr.pos, dist, tx, ty, tmin);
-            if (dist > range)
+            double dist = (itActor->spr.pos - actor->spr.pos).Length();
+
+            if (dist > range * zinttoworld)
                 continue;
 
             if (actor == itActor)
@@ -8803,10 +8800,6 @@ int DoMineRangeTest(DSWActor* actor, int range)
                 continue;
 
             if (itActor->user.ID == GIRLNINJA_RUN_R0 && !ownerisplayer)
-                continue;
-
-            dist = FindDistance3D(actor->int_pos() - itActor->int_pos());
-            if (dist > range)
                 continue;
 
             if (!FAFcansee(ActorUpperVect(actor),itActor->sector(),actor->spr.pos,actor->sector()))
