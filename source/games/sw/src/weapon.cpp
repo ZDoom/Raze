@@ -9760,7 +9760,7 @@ int DoUziBullet(DSWActor* actor)
     for (int i = 0; i < 2; i++)
     {
 		auto vec = actor->spr.angle.ToVector() * actor->vel.X * 0.5;
-		double daz = (actor->int_zvel() >> 1) * zinttoworld;
+		double daz = actor->vel.Z * 0.5;
 
         auto spos = actor->spr.pos.XY();
         actor->user.coll = move_missile(actor, DVector3(vec, daz), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -11515,13 +11515,12 @@ bool MissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist)
 
 bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 {
-    int oldvel, oldzvel;
     bool retval = false;
 
     // backup values
 	auto oldc = actor->user.change;
-    oldvel = actor->int_xvel();
-    oldzvel = actor->int_zvel();
+    double oldvel = actor->vel.X;
+    double oldzvel = actor->vel.Z;
 
     // make missile move in smaller increments
     actor->set_int_xvel(short((dist * 6) / MISSILEMOVETICS));
@@ -11538,8 +11537,8 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATOR* DoWeapon, int dist, int zvel)
 
     // reset values
 	actor->user.change = oldc;
-    actor->set_int_xvel(oldvel);
-    actor->set_int_zvel(oldzvel);
+    actor->vel.X = oldvel;
+    actor->vel.Z = oldzvel;
 
     // update for interpolation
     actor->backuppos();
@@ -13046,7 +13045,6 @@ void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, double *zvect)
 int InitStar(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    int zvel;
 
     static DAngle dang[] = { DAngle::fromBuild(-12), DAngle::fromBuild(12) };
     const int STAR_REPEAT = 26;
@@ -13071,7 +13069,7 @@ int InitStar(PLAYER* pp)
     actorNew->spr.shade = -25;
     actorNew->spr.clipdist = 32 >> 2;
     // zvel was overflowing with this calculation - had to move to a local long var
-    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
+    double zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + STAR_HORIZ_ADJ) / 256.);
 
     actorNew->user.ceiling_dist = (1);
     actorNew->user.floor_dist = (1);
@@ -13083,7 +13081,7 @@ int InitStar(PLAYER* pp)
     // zvel had to be tweaked alot for this weapon
     // MissileSetPos seemed to be pushing the sprite too far up or down when
     // the horizon was tilted.  Never figured out why.
-    actorNew->set_int_zvel(zvel >> 1);
+    actorNew->vel.Z = zvel * 0.5;
     if (MissileSetPos(actorNew, DoStar, 1000))
     {
         KillActor(actorNew);
@@ -13092,11 +13090,11 @@ int InitStar(PLAYER* pp)
 
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) != -1)
     {
-        zvel = actorNew->int_zvel();
+        zvel = actorNew->vel.Z;
     }
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(zvel);
+    actorNew->user.change.Z = zvel;
 
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -13122,8 +13120,8 @@ int InitStar(PLAYER* pp)
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
             actorNew2->user.Flags |= SPR_UNDERWATER;
 
-        zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
-        actorNew2->set_int_zvel(zvel >> 1);
+        zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + STAR_HORIZ_ADJ) / 256.);
+        actorNew2->vel.Z = zvel * 0.5;
 
         if (MissileSetPos(actorNew2, DoStar, 1000))
         {
@@ -13558,8 +13556,7 @@ int InitLaser(PLAYER* pp)
 int InitRail(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx, ny, nz;
-    int zvel;
+    double zvel;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -13587,7 +13584,7 @@ int InitRail(PLAYER* pp)
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
-    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 17, 16);
+    zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + 17) / 256.);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
@@ -13612,7 +13609,7 @@ int InitRail(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel * zworldtoint))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -13621,16 +13618,16 @@ int InitRail(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    actorNew->set_int_zvel(zvel >> 1);
+    actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(4);
     }
     else
-        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
+        zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(zvel);
+    actorNew->user.change.Z = zvel;
 
     return 0;
 }
@@ -13718,7 +13715,7 @@ int InitZillaRail(DSWActor* actor)
 int InitRocket(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int zvel;
+    double zvel;
 
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
 
@@ -13753,9 +13750,9 @@ int InitRocket(PLAYER* pp)
     actorNew->spr.yrepeat = 90;
     actorNew->spr.xrepeat = 90;
     actorNew->spr.shade = -15;
-    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 35, 16);
+    zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + 35) / 256.);
 
-    actorNew->spr.clipdist = 64L>>2;
+    actorNew->spr.clipdist = 64 >> 2;
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
@@ -13795,7 +13792,7 @@ int InitRocket(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel * zworldtoint))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -13806,16 +13803,16 @@ int InitRocket(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    actorNew->set_int_zvel(zvel >> 1);
+    actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
     else
-        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
+        zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(zvel);
+    actorNew->user.change.Z = zvel;
 
     return 0;
 }
@@ -13829,8 +13826,7 @@ int InitRocket(PLAYER* pp)
 int InitBunnyRocket(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int nx, ny, nz;
-    int zvel;
+    double zvel;
 
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
 
@@ -13862,9 +13858,9 @@ int InitBunnyRocket(PLAYER* pp)
     actorNew->spr.yrepeat = 64;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.shade = -15;
-    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 35, 16);
+    zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + 35) / 256.);
 
-    actorNew->spr.clipdist = 64L>>2;
+    actorNew->spr.clipdist = 64 >> 2;
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_BunnyRocket[0]);
@@ -13901,7 +13897,7 @@ int InitBunnyRocket(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel * zworldtoint))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -13912,16 +13908,16 @@ int InitBunnyRocket(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    actorNew->set_int_zvel(zvel >> 1);
+    actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
     else
-        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
+        zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(zvel);
+    actorNew->user.change.Z = zvel;
     actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER1;
 
     return 0;
@@ -13936,7 +13932,7 @@ int InitBunnyRocket(PLAYER* pp)
 int InitNuke(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int zvel;
+    double zvel;
 
     if (pp->WpnRocketNuke > 0)
         pp->WpnRocketNuke = 0;  // Bye Bye little nukie.
@@ -13965,7 +13961,7 @@ int InitNuke(PLAYER* pp)
     actorNew->spr.yrepeat = 128;
     actorNew->spr.xrepeat = 128;
     actorNew->spr.shade = -15;
-    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 36, 16);
+    zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + 36) / 256.);
     actorNew->spr.clipdist = 64L>>2;
 
     // Set to red palette
@@ -13976,8 +13972,8 @@ int InitNuke(PLAYER* pp)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = NUKE_RADIUS;
-    actorNew->user.ceiling_dist = (3);
-    actorNew->user.floor_dist = (3);
+    actorNew->user.ceiling_dist = 3;
+    actorNew->user.floor_dist = 3;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -13995,7 +13991,7 @@ int InitNuke(PLAYER* pp)
 
     // cancel smoke trail
     actorNew->user.Counter = 1;
-    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel * zworldtoint))
     {
         actor->spr.clipdist = oclipdist;
         KillActor(actorNew);
@@ -14006,16 +14002,16 @@ int InitNuke(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    actorNew->set_int_zvel(zvel >> 1);
+    actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
     else
-        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
+        zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(zvel);
+    actorNew->user.change.Z = zvel;
 
     PlayerDamageSlide(pp, -40, pp->angle.ang + DAngle180); // Recoil slide
 
