@@ -4178,7 +4178,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
 			UpdateChangeXY(actorNew);
 
             // for FastShrap
-            actorNew->user.set_int_change_z(abs(actorNew->user.jump_speed*4) - RandomRange(abs(actorNew->user.jump_speed)*8));
+            actorNew->user.change.Z = (abs(actorNew->user.jump_speed*4) - RandomRange(abs(actorNew->user.jump_speed)*8)) * JUMP_FACTOR;
             actorNew->user.WaitTics = 64 + RANDOM_P2(32);
 
             actor->user.Flags |= (SPR_BOUNCE);
