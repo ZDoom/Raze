@@ -9975,7 +9975,7 @@ int SpawnCoolieExp(DSWActor* actor)
 
     actor->user.Counter = RandomRange(120);  // This is the wait til birth time!
 
-    auto vect = actor->spr.pos + MOVExy(64, actor->spr.angle + DAngle180);
+    auto vect = actor->spr.pos + (actor->spr.angle + DAngle180).ToVector() * 4;
     vect.Z -= ActorSizeZ(actor) * 0.75;
 
     PlaySound(DIGI_COOLIEEXPLODE, actor, v3df_none);
@@ -10342,7 +10342,7 @@ void SpawnTankShellExp(DSWActor* actor)
 }
 
 
-void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
+void SpawnNuclearSecondaryExp(DSWActor* actor, DAngle ang)
 {
     ASSERT(actor->hasU());
 
@@ -10360,8 +10360,8 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //ang = RANDOM_P2(2048);
-    int32_t const vel = (2048+128) + RandomRange(2048);
-    expActor->user.change.XY() = MOVExy(vel, DAngle::fromBuild(ang));
+    double const vel = (128+8) + RandomRangeF(128);
+    expActor->user.change.XY() = ang.ToVector() * vel;
     expActor->user.Radius = 200; // was NUKE_RADIUS
     expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
 									   expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10384,7 +10384,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
 
 void SpawnNuclearExp(DSWActor* actor)
 {
-    short ang=0;
+    DAngle ang=nullAngle;
     PLAYER* pp = nullptr;
     short rnd_rng;
 
@@ -10448,13 +10448,13 @@ void SpawnNuclearExp(DSWActor* actor)
     SetFadeAmt(pp, -80, 1); // Nuclear flash
 
     // Secondary blasts
-    ang = RANDOM_P2(2048);
+    ang = RandomAngle();
     SpawnNuclearSecondaryExp(expActor, ang);
-    ang = ang + 512 + RANDOM_P2(256);
+    ang = ang + DAngle90 + RandomAngle(45);
     SpawnNuclearSecondaryExp(expActor, ang);
-    ang = ang + 512 + RANDOM_P2(256);
+    ang = ang + DAngle90 + RandomAngle(45);
     SpawnNuclearSecondaryExp(expActor, ang);
-    ang = ang + 512 + RANDOM_P2(256);
+    ang = ang + DAngle90 + RandomAngle(45);
     SpawnNuclearSecondaryExp(expActor, ang);
 }
 
@@ -10637,10 +10637,8 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, 
 //
 //---------------------------------------------------------------------------
 
-void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
+void SpawnGrenadeSecondaryExp(DSWActor* actor, DAngle ang)
 {
-    int vel;
-
     ASSERT(actor->hasU());
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeSmallExp, actor->sector(), actor->spr.pos, actor->spr.angle, 64);
 
@@ -10656,8 +10654,8 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //ang = RANDOM_P2(2048);
-    vel = (1024+512) + RandomRange(1024);
-    expActor->user.change.XY() = MOVExy(vel, DAngle::fromBuild(ang));
+    double vel = (96) + RandomRangeF(64);
+    expActor->user.change.XY() = ang.ToVector() * vel;
 
     expActor->user.coll = move_missile(expActor, DVector3(expActor->user.change.XY(), 0),
                            expActor->user.ceiling_dist,expActor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10680,8 +10678,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
 
 int SpawnGrenadeSmallExp(DSWActor* actor)
 {
-    int ang = RANDOM_P2(2048);
-    SpawnGrenadeSecondaryExp(actor, ang);
+    SpawnGrenadeSecondaryExp(actor, RandomAngle());
     return 0;
 }
 
@@ -12289,7 +12286,8 @@ int InitSwordAttack(PLAYER* pp)
 				auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
                 // back it up a bit to get it out of your face
-                auto vec = MOVExy((1024 + 256) * 3, bubble->spr.angle + dangs[i] + random_amt);
+                auto ang = bubble->spr.angle + dangs[i] + random_amt;
+                auto vec = ang.ToVector() * 240;
 
                 move_missile(bubble, DVector3(vec, 0), plActor->user.ceiling_dist, plActor->user.floor_dist, CLIPMASK_PLAYER, 1);
             }
@@ -12456,7 +12454,8 @@ int InitFistAttack(PLAYER* pp)
                 auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
                 // back it up a bit to get it out of your face
-                auto vec = MOVExy((1024+256)*3, bubble->spr.angle + dangs[i] + random_amt);
+                auto angle = bubble->spr.angle + dangs[i] + random_amt;
+                auto vec = angle.ToVector() * 240;
  
                 move_missile(bubble, DVector3(vec, 0), plActor->user.ceiling_dist, plActor->user.floor_dist, CLIPMASK_PLAYER, 1);
             }
@@ -17121,7 +17120,7 @@ int InitFireball(PLAYER* pp)
 
     actor->spr.clipdist = oclipdist;
 
-    actorNew->vel.Z * 0.5;
+    actorNew->vel.Z = 0.5;
     if (WeaponAutoAimZvel(pp->actor, actorNew, &zvel, DAngle22_5 / 4, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(9);
