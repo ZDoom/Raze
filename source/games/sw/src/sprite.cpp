@@ -4353,7 +4353,7 @@ bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
 {
     if (!actor_a->hasU() || !actor_b->hasU()) return false;
 	double dist = (actor_a->spr.pos.XY() - actor_b->spr.pos.XY()).Length();
-    if (dist > (actor_a->user.Radius + actor_b->user.Radius) * inttoworld)
+    if (dist > (actor_a->user.fRadius() + actor_b->user.fRadius()))
     {
         return false;
     }
@@ -5200,7 +5200,7 @@ int DoGet(DSWActor* actor)
             continue;
 
         double dist = (pp->pos.XY() - actor->spr.pos).Length();
-        if ((unsigned)dist > (plActor->user.Radius * 2 * inttoworld))
+        if ((unsigned)dist > (plActor->user.fRadius() * 2))
         {
             continue;
         }

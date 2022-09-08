@@ -7184,7 +7184,7 @@ int DoDamageTest(DSWActor* actor)
         {
             double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-            if (dist > actor->user.Radius * 2 * inttoworld)
+            if (dist > actor->user.fRadius() * 2)
                 continue;
 
             if (actor == itActor)
@@ -7266,7 +7266,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
             double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-            if (dist > actor->user.Radius * 2 * inttoworld)
+            if (dist > actor->user.fRadius() * 2)
                 continue;
 
             if (actor == itActor)
@@ -7417,7 +7417,7 @@ int DoExpDamageTest(DSWActor* actor)
         {
             double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-            if (dist > actor->user.Radius * 2 * inttoworld)
+            if (dist > actor->user.fRadius() * 2)
                 continue;
 
             if (itActor == actor)
@@ -7462,11 +7462,11 @@ int DoExpDamageTest(DSWActor* actor)
         {
             double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-            if (dist > actor->user.Radius * inttoworld)
+            if (dist > actor->user.fRadius())
                 continue;
 
             dist = (ActorVectOfMiddle(itActor) - actor->spr.pos).Length();
-            if (dist > actor->user.Radius * inttoworld)
+            if (dist > actor->user.fRadius())
                 continue;
 
             if (!FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), actor->spr.pos, actor->sector()))
@@ -7491,7 +7491,7 @@ int DoExpDamageTest(DSWActor* actor)
     {
         double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-        if (dist > actor->user.Radius * 0.25 * inttoworld)
+        if (dist > actor->user.fRadius() * 0.25)
             continue;
 
         if (TEST_BOOL1(actor))
@@ -7542,7 +7542,7 @@ int DoMineExpMine(DSWActor* actor)
     {
         double dist = (itActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-        if (dist > actor->user.Radius * 2 * inttoworld)
+        if (dist > actor->user.fRadius() * 2)
             continue;
 
         if (itActor == actor)

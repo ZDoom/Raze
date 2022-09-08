@@ -982,6 +982,7 @@ struct USER
     int16_t BladeDamageTics;
 
     unsigned int Radius;    // for distance checking
+    double fRadius() const { return Radius * inttoworld; }
     double  OverlapZ;  // for z overlap variable
 
     //

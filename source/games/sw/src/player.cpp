@@ -6232,7 +6232,7 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
 
 			double dist = (itActor->spr.pos.XY() - plActor->spr.pos.XY()).Length();
 
-            if (dist < (itActor->user.Radius + 100) * inttoworld)
+            if (dist < itActor->user.fRadius() + 6.25)
             {
                 pp->KillerActor = itActor;
 
