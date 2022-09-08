@@ -12286,7 +12286,7 @@ int InitSwordAttack(PLAYER* pp)
             bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
-                bubble->set_int_ang(pp->angle.ang.Buildang());
+                bubble->spr.angle = pp->angle.ang;
 
 				auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
@@ -12715,7 +12715,7 @@ int InitSumoSkull(DSWActor* actor)
     actorNew->spr.pal = 0;
 
     // randomize the head turning angle
-    actorNew->set_int_ang(RANDOM_P2(2048<<5)>>5);
+    actorNew->spr.angle = RandomAngle();
 
     // control direction of spinning
     actor->user.Flags ^= SPR_BOUNCE;
@@ -15842,7 +15842,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
-    actorNew->add_int_ang(RandomRange(30) - 15);
+    actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
     actorNew->norm_ang();
 
 	UpdateChange(actorNew);
@@ -16021,7 +16021,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 
     WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
-    actorNew->add_int_ang(RandomRange(30) - 15);
+    actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
     actorNew->norm_ang();
 
 	UpdateChange(actorNew);
@@ -18262,9 +18262,8 @@ STATE s_WallBlood4[] =
 
 DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
 {
-    short w,nw,wall_ang,dang;
+    short w,nw,dang;
     DSWActor* spawnedActor;
-    int nx,ny;
     short rndnum;
     int daz;
     HitInfo hit{};
@@ -18345,8 +18344,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     spawnedActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    wall_ang = NORM_ANGLE(getangle(hit.hitWall->delta()) + 512);
-    spawnedActor->set_int_ang(wall_ang);
+    spawnedActor->spr.angle = VecToAngle(hit.hitWall->delta()) + DAngle90;
 
     // move it back some
     auto vec = spawnedActor->spr.angle.ToVector();
