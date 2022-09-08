@@ -235,13 +235,6 @@ constexpr int PIXZ(int value)
 }
 
 
-// two vectors
-// can determin direction
-constexpr int DOT_PRODUCT_2D(int x1, int y1, int x2, int y2)
-{
-    return (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16));
-}
-
 constexpr int SEC(int value)
 {
     return ((value) * 120);
