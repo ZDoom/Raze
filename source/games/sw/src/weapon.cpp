@@ -7534,7 +7534,6 @@ int DoExpDamageTest(DSWActor* actor)
 int DoMineExpMine(DSWActor* actor)
 {
     int i;
-    int zdist;
 
     SWStatIterator it(STAT_MINE_STUCK);
     while (auto itActor = it.Next())
@@ -7551,8 +7550,8 @@ int DoMineExpMine(DSWActor* actor)
             continue;
 
         // Explosions are spherical, not planes, so let's check that way, well cylindrical at least.
-        zdist = abs(itActor->int_pos().Z - actor->int_pos().Z)>>4;
-        if (SpriteOverlap(actor, itActor) || (unsigned)zdist < actor->user.Radius + itActor->user.Radius)
+        double zdist = abs(itActor->spr.pos.Z - actor->spr.pos.Z);
+        if (SpriteOverlap(actor, itActor) || zdist < actor->user.fRadius() * 2)
         {
             DoDamage(itActor, actor);
             // only explode one mine at a time
@@ -14050,20 +14049,15 @@ int InitNuke(PLAYER* pp)
 
 int InitEnemyNuke(DSWActor* actor)
 {
-    int nx, ny, nz;
-    int zvel;
-
     PlaySound(DIGI_RIOTFIRE, actor, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     actor->user.Vis = 128;
 
-    nx = actor->int_pos().X;
-    ny = actor->int_pos().Y;
+    auto npos = actor->spr.pos.plusZ(40);
 
     // Spawn a shot
-    nz = actor->int_pos().Z + Z(40);
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), actor->spr.pos.plusZ(40), actor->spr.angle, 700/16.);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), npos, actor->spr.angle, 700/16.);
 
     if (actor->user.ID == ZOMBIE_RUN_R0)
         SetOwner(GetOwner(actor), actorNew);
@@ -14073,8 +14067,8 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->spr.yrepeat = 128;
     actorNew->spr.xrepeat = 128;
     actorNew->spr.shade = -15;
-    zvel = (100 * (HORIZ_MULT-36));
-    actorNew->spr.clipdist = 64L>>2;
+    double zvel = (100 * (HORIZ_MULT-36)) * zmaptoworld; // Ugh...
+    actorNew->spr.clipdist = 64>>2;
 
     // Set to red palette
     actorNew->spr.pal = actorNew->user.spal = 19;
@@ -14084,8 +14078,8 @@ int InitEnemyNuke(DSWActor* actor)
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = NUKE_RADIUS;
-    actorNew->user.ceiling_dist = (3);
-    actorNew->user.floor_dist = (3);
+    actorNew->user.ceiling_dist = 3;
+    actorNew->user.floor_dist = 3;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -14107,16 +14101,16 @@ int InitEnemyNuke(DSWActor* actor)
     // enable smoke trail
     actorNew->user.Counter = 0;
 
-    actorNew->set_int_zvel(zvel >> 1);
+    actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
     {
         actorNew->spr.angle -= DAngle::fromBuild(5);
     }
     else
-        zvel = actorNew->int_zvel();  // Let autoaiming set zvel now
+        zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
 
 	UpdateChangeXY(actorNew);
-    actorNew->user.set_int_change_z(zvel);
+    actorNew->user.change.Z = zvel;
 
     return 0;
 }
