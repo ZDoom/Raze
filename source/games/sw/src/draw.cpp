@@ -316,7 +316,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
         view_dist = 0;
 
     // make shadow smaller depending on height from ground
-    ground_dist = abs(iloz - GetSpriteZOfBottom(tsp)) >> 12;
+    ground_dist = int(abs(loz - GetSpriteZOfBottom(tsp)) * (1./16));
 
     xrepeat = max(xrepeat - ground_dist - view_dist, 4);
     yrepeat = max(yrepeat - ground_dist - view_dist, 4);
@@ -513,15 +513,15 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
 DSWActor* ConnectCopySprite(spritetypebase const* tsp)
 {
     sectortype* newsector;
-    int testz;
+    double testz;
 
     if (FAF_ConnectCeiling(tsp->sectp))
     {
         newsector = tsp->sectp;
-        testz = GetSpriteZOfTop(tsp) - Z(10);
+        testz = GetSpriteZOfTop(tsp) - 10;
 
-        if (testz < tsp->sectp->int_ceilingz())
-            updatesectorz(tsp->int_pos().X, tsp->int_pos().Y, testz, &newsector);
+        if (testz < tsp->sectp->ceilingz)
+            updatesectorz(DVector3(tsp->pos, testz), &newsector);
 
         if (newsector != nullptr && newsector != tsp->sectp)
         {
@@ -532,10 +532,10 @@ DSWActor* ConnectCopySprite(spritetypebase const* tsp)
     if (FAF_ConnectFloor(tsp->sectp))
     {
         newsector = tsp->sectp;
-        testz = GetSpriteZOfBottom(tsp) + Z(10);
+        testz = GetSpriteZOfBottom(tsp) + 10;
 
-        if (testz > tsp->sectp->int_floorz())
-            updatesectorz(tsp->int_pos().X, tsp->int_pos().Y, testz, &newsector);
+        if (testz > tsp->sectp->floorz)
+            updatesectorz(DVector3(tsp->pos, testz), &newsector);
 
         if (newsector != nullptr && newsector != tsp->sectp)
         {
@@ -641,7 +641,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                 {
 
                     tsp->picnum = DART_PIC;
-                    tsp->set_int_ang(NORM_ANGLE(tsp->int_ang() - 512 - 24));
+                    tsp->angle -= DAngle90 + DAngle::fromBuild(24);
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
@@ -705,7 +705,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             if (tsp->statnum == STAT_STAR_QUEUE)
             {
                 tsp->picnum = DART_PIC;
-                tsp->set_int_ang(NORM_ANGLE(tsp->int_ang() - 512));
+                tsp->angle -= DAngle90;
                 tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                 tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             }
@@ -929,10 +929,10 @@ void PrintSpriteInfo(PLAYER* pp)
         }
 
         {
-            Printf("POSX:%d, ", actor->int_pos().X);
-            Printf("POSY:%d, ", actor->int_pos().Y);
-            Printf("POSZ:%d,", actor->int_pos().Z);
-            Printf("ANG:%d\n", actor->int_ang());
+            Printf("POSX:%2.3f, ", actor->spr.pos.X);
+            Printf("POSY:%2.3f, ", actor->spr.pos.Y);
+            Printf("POSZ:%2.3f,", actor->spr.pos.Z);
+            Printf("ANG:%2.0f\n", actor->spr.angle.Degrees());
         }
     }
 }
@@ -1318,7 +1318,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
         if (p == screenpeek)
         {
             auto actor = Player[p].actor;
-            if (actor->int_xvel() > 16) pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
+            if (actor->vel.X > 1) pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
             sprisplayer = true;
 
             if (czoom > 0.1875)

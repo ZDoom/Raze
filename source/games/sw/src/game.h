@@ -227,25 +227,25 @@ inline void DISTANCE(const DVector2& p1, const DVector2& p2, int& dist, int& tx,
     dist = tx + ty - (tmin >> 1);
 }
 
-inline int GetSpriteSizeZ(const spritetypebase* sp)
+inline double GetSpriteSizeZ(const spritetypebase* sp)
 {
-	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
+	return (tileHeight(sp->picnum) * sp->yrepeat) * REPEAT_SCALE;
 }
 
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
-inline int GetSpriteZOfTop(const spritetypebase* sp)
+inline double GetSpriteZOfTop(const spritetypebase* sp)
 {
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->int_pos().Z - ((GetSpriteSizeZ(sp) >> 1) + (tileTopOffset(sp->picnum) << 8)) :
-        sp->int_pos().Z - GetSpriteSizeZ(sp);
+        sp->pos.Z - ((GetSpriteSizeZ(sp) * 0.5) + tileTopOffset(sp->picnum)) :
+        sp->pos.Z - GetSpriteSizeZ(sp);
 }
 
-inline int GetSpriteZOfBottom(const spritetypebase* sp)
+inline double GetSpriteZOfBottom(const spritetypebase* sp)
 {
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->int_pos().Z + ((GetSpriteSizeZ(sp) >> 1) - (tileTopOffset(sp->picnum) << 8)) :
-        sp->int_pos().Z;
+        sp->pos.Z + ((GetSpriteSizeZ(sp) * 0.5) - tileTopOffset(sp->picnum)) :
+        sp->pos.Z;
 }
 
 // mid and upper/lower sprite calculations
@@ -2054,7 +2054,7 @@ inline void SET_SP_TAG13(DSWActor* actor, int val) { actor->spr.xoffset = uint8_
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 inline double ActorZOfTop(DSWActor* actor)
 {
-    return GetSpriteZOfTop(&actor->spr) * zinttoworld;
+    return GetSpriteZOfTop(&actor->spr);
 }
 
 inline DVector3 ActorVectOfTop(DSWActor* actor)
@@ -2064,7 +2064,7 @@ inline DVector3 ActorVectOfTop(DSWActor* actor)
 
 inline double ActorZOfBottom(DSWActor* actor)
 {
-    return GetSpriteZOfBottom(&actor->spr) * zinttoworld;
+    return GetSpriteZOfBottom(&actor->spr);
 }
 
 inline double ActorZOfMiddle(DSWActor* actor)
