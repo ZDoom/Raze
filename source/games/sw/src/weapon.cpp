@@ -18287,7 +18287,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
         return nullptr;
 
     const double WALLBLOOD_DIST_MAX = 156.25;
-    if ((hit.hitpos.XY(), actor->spr.pos.XY()).Length() > WALLBLOOD_DIST_MAX)
+    if ((hit.hitpos.XY() - actor->spr.pos.XY()).Length() > WALLBLOOD_DIST_MAX)
         return nullptr;
 
     // hit a sprite?

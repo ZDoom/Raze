@@ -860,7 +860,7 @@ int DoBettySpawnShrap(DSWActor* actor)
 
 int DoBettyWait(DSWActor* actor)
 {
-    double dist = (actor->spr.pos.XY(), actor->user.targetActor->spr.pos.XY()).Length();
+    double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
     DoActorPickClosePlayer(actor);
 

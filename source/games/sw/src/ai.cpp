@@ -1343,7 +1343,7 @@ int InitActorDuck(DSWActor* actor)
     actor->user.ActorActionFunc = DoActorDuck;
     NewStateGroup(actor, actor->user.ActorActionSet->Duck);
 
-	double dist = (actor->spr.pos.XY(), actor->user.targetActor->spr.pos.XY()).LengthSquared();
+	double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).LengthSquared();
 
     if (dist > 500*500)
     {
@@ -1644,7 +1644,7 @@ int InitActorReposition(DSWActor* actor)
     actor->user.Dist = 0;
 
     rnum = RANDOM_P2(8<<8)>>8;
-	dist = (actor->spr.pos.XY(), actor->user.targetActor->spr.pos.XY()).Length();
+	dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
     if (dist < PlayerDist[rnum] || (actor->user.Flags & SPR_RUN_AWAY))
     {

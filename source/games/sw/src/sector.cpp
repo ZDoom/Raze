@@ -2938,7 +2938,7 @@ void DoSector(void)
             }
             else
             {
-				double dist = (pp->pos.XY(), sop->pmid.XY()).Length();
+				double dist = (pp->pos.XY() - sop->pmid.XY()).Length();
                 if (dist < min_dist)
                     min_dist = dist;
             }
