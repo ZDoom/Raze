@@ -39,6 +39,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ReverseSlidor(DSWActor* actor)
 {
     ROTATOR* r;
@@ -66,6 +72,11 @@ void ReverseSlidor(DSWActor* actor)
     r->vel = -r->vel;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool SlidorSwitch(short match, short setting)
 {
@@ -83,6 +94,12 @@ bool SlidorSwitch(short match, short setting)
 
     return found;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SetSlidorActive(DSWActor* actor)
 {
@@ -105,6 +122,12 @@ void SetSlidorActive(DSWActor* actor)
         VatorSwitch(SP_TAG2(actor), true);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetSlidorInactive(DSWActor* actor)
 {
     DoSlidorInterp(actor, StopInterpolation);
@@ -115,7 +138,12 @@ void SetSlidorInactive(DSWActor* actor)
     actor->user.Flags &= ~(SPR_ACTIVE);
 }
 
+//---------------------------------------------------------------------------
+//
 // called for operation from the space bar
+//
+//---------------------------------------------------------------------------
+
 void DoSlidorOperate(PLAYER* pp, sectortype* sect)
 {
     short match;
@@ -130,8 +158,13 @@ void DoSlidorOperate(PLAYER* pp, sectortype* sect)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // called from switches and triggers
 // returns first vator found
+//
+//---------------------------------------------------------------------------
+
 void DoSlidorMatch(PLAYER* pp, short match, bool manual)
 {
     SWStatIterator it(STAT_SLIDOR);
@@ -179,6 +212,12 @@ void DoSlidorMatch(PLAYER* pp, short match, bool manual)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool TestSlidorMatchActive(short match)
 {
     SWStatIterator it(STAT_SLIDOR);
@@ -197,6 +236,12 @@ bool TestSlidorMatchActive(short match)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 {
@@ -249,6 +294,12 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
     }
     while (wal != startWall);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoSlidorMoveWalls(DSWActor* actor, double amt)
 {
@@ -370,6 +421,12 @@ int DoSlidorMoveWalls(DSWActor* actor, double amt)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoSlidorInstantClose(DSWActor* actor)
 {
     double diff;
@@ -409,6 +466,12 @@ int DoSlidorInstantClose(DSWActor* actor)
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoSlidor(DSWActor* actor)
 {
@@ -545,6 +608,12 @@ int DoSlidor(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 #include "saveable.h"
 

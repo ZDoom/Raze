@@ -75,6 +75,12 @@ bool WarpPlaneSectorInfo(sectortype* sect, DSWActor** sp_ceiling, DSWActor** sp_
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 {
     DSWActor* sp_floor,* sp_ceiling;
@@ -103,6 +109,12 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     return nullptr;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 {
@@ -226,6 +238,12 @@ bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp)
 
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 {

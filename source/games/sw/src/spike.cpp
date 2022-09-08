@@ -38,6 +38,12 @@ BEGIN_SW_NS
 
 bool TestSpikeMatchActive(short match);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ReverseSpike(DSWActor* actor)
 {
     // if paused go ahead and start it up again
@@ -67,6 +73,12 @@ void ReverseSpike(DSWActor* actor)
     actor->user.vel_rate = -actor->user.vel_rate;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool SpikeSwitch(short match, short setting)
 {
     bool found = false;
@@ -83,6 +95,12 @@ bool SpikeSwitch(short match, short setting)
 
     return found;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SetSpikeActive(DSWActor* actor)
 {
@@ -110,6 +128,12 @@ void SetSpikeActive(DSWActor* actor)
         VatorSwitch(SP_TAG2(actor), false);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetSpikeInactive(DSWActor* actor)
 {
     sectortype* sectp = actor->sector();
@@ -127,7 +151,12 @@ void SetSpikeInactive(DSWActor* actor)
     actor->user.Flags &= ~(SPR_ACTIVE);
 }
 
+//---------------------------------------------------------------------------
+//
 // called for operation from the space bar
+//
+//---------------------------------------------------------------------------
+
 void DoSpikeOperate(sectortype* sect)
 {
     short match;
@@ -151,8 +180,13 @@ void DoSpikeOperate(sectortype* sect)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // called from switches and triggers
 // returns first spike found
+//
+//---------------------------------------------------------------------------
+
 void DoSpikeMatch(short match)
 {
     SWStatIterator it(STAT_SPIKE);
@@ -170,6 +204,12 @@ void DoSpikeMatch(short match)
     }
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool TestSpikeMatchActive(short match)
 {
@@ -189,6 +229,12 @@ bool TestSpikeMatchActive(short match)
 
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoSpikeMove(DSWActor* actor, int *lptr)
 {
@@ -226,6 +272,12 @@ int DoSpikeMove(DSWActor* actor, int *lptr)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SpikeAlign(DSWActor* actor)
 {
     // either work on single sector or all tagged in SOBJ
@@ -245,6 +297,12 @@ void SpikeAlign(DSWActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void MoveSpritesWithSpike(sectortype* sect)
 {
     int cz,fz;
@@ -262,6 +320,12 @@ void MoveSpritesWithSpike(sectortype* sect)
         actor->spr.pos.Z = fz;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int DoSpike(DSWActor* actor)
 {
@@ -373,6 +437,12 @@ int DoSpike(DSWActor* actor)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DoSpikeAuto(DSWActor* actor)
 {
     int *lptr;
@@ -414,6 +484,12 @@ int DoSpikeAuto(DSWActor* actor)
 
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 
 #include "saveable.h"
