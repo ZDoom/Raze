@@ -15587,10 +15587,7 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 int InitUzi(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    short daang;
     HitInfo hit{};
-    int daz, nz;
-    int xvect,yvect,zvect;
     ESpriteFlags cstat = 0;
     uint8_t pal = 0;
     static int uziclock=0;
@@ -15625,33 +15622,23 @@ int InitUzi(PLAYER* pp)
     if (RANDOM_P2(1024) < 400)
         InitTracerUzi(pp);
 
-    nz = (pp->pos.Z + pp->bob_z) * zworldtoint;
-    daz = nz;
-    daang = 32;
-    double _daz = daz * inttoworld;
-    DAngle _daang = DAngle::fromBuild(daang);
-    if (WeaponAutoAimHitscan(pp->actor, &_daz, &_daang, false) != nullptr)
+    double nz = (pp->pos.Z + pp->bob_z);
+    double daz = nz;
+    DAngle daang = DAngle22_5 / 4;
+    if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
     {
-        daz = _daz * zworldtoint;
-        daang = _daang.Buildang();
-
-        daang += RandomRange(24) - 12;
-        daz += RandomRange(10000) - 5000;
+        daang += DAngle::fromBuild(RandomRange(24) - 12);
+        daz += RandomRangeF(10000/256.) - 5000/256.;
     }
     else
     {
-        //daang = NORM_ANGLE(pp->angle.ang.Buildang() + (RandomRange(50) - 25));
-        daang = NORM_ANGLE(pp->angle.ang.Buildang() + (RandomRange(24) - 12));
-        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
+        daang = pp->angle.ang + DAngle::fromBuild(RandomRange(24) - 12);
+        daz = -pp->horizon.horiz.asbuildf() * (2000/256.) + (RandomRangeF(24000/256.) - 12000/256.);
     }
 
+    DVector3 vect(daang.ToVector() * 1024, daz);
 
-    xvect = bcos(daang);
-    yvect = bsin(daang);
-    zvect = daz;
-    DVector3 vect(xvect * inttoworld, yvect * inttoworld, zvect * zmaptoworld);
-
-    FAFhitscan(DVector3(pp->pos, nz * zinttoworld), pp->cursector, vect, hit, CLIPMASK_MISSILE);
+    FAFhitscan(DVector3(pp->pos.XY(), nz), pp->cursector, vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
     {
@@ -15674,7 +15661,7 @@ int InitUzi(PLAYER* pp)
             if (SectorIsUnderwaterArea(hit.hitSector))
             {
 				WarpToSurface(hit.hitpos, &hit.hitSector);
-				ContinueHitscan(pp, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), vect);
+				ContinueHitscan(pp, hit.hitSector, hit.hitpos, daang, vect);
                 return 0;
             }
         }
@@ -15687,7 +15674,7 @@ int InitUzi(PLAYER* pp)
                 if (SectorIsDiveArea(hit.hitSector))
                 {
 					WarpToUnderwater(hit.hitpos, &hit.hitSector);
-					ContinueHitscan(pp, hit.hitSector, hit.hitpos, DAngle::fromBuild(daang), vect);
+					ContinueHitscan(pp, hit.hitSector, hit.hitpos, daang, vect);
                     return 0;
                 }
 
@@ -18247,15 +18234,14 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     short w,nw,dang;
     DSWActor* spawnedActor;
     short rndnum;
-    int daz;
+    double daz;
     HitInfo hit{};
 
     if (actor->user.Flags & (SPR_UNDERWATER) || SpriteInUnderwaterArea(actor) || SpriteInDiveArea(actor))
         return nullptr;   // No blood underwater!
 
-    daz = Z(RANDOM_P2(128))<<3;
-    daz -= (Z(128)<<2);
-    dang = (bang.Buildang() + (RANDOM_P2(128 << 5) >> 5)) - (64);
+    daz = RandomRange(128) * 8 - 512;
+    dang = (bang. + RandomAngle(22.5) - DAngle22_5 / 2;
 
     DVector3 vect(bcos(dang) * inttoworld, bsin(dang) * inttoworld, daz * zmaptoworld);
 

@@ -1753,7 +1753,7 @@ void DoPlayerRecoil(PLAYER* pp)
     // controls how fast you move through the sin table
     pp->recoil_ndx += pp->recoil_speed;
 
-    if (bsin(pp->recoil_ndx) < 0)
+    if (BobVal(pp->recoil_ndx) < 0)
     {
         pp->Flags &= ~(PF_RECOIL);
         pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
@@ -1762,7 +1762,7 @@ void DoPlayerRecoil(PLAYER* pp)
 
     // move pp->q16horiz up and down
     pp->recoil_ohorizoff = pp->recoil_horizoff;
-    pp->recoil_horizoff = pp->recoil_amt * bsin(pp->recoil_ndx, 2);
+    pp->recoil_horizoff = pp->recoil_amt * BobVal(pp->recoil_ndx) * 4;
 }
 
 //---------------------------------------------------------------------------
