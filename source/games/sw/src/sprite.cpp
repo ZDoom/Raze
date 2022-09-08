@@ -6402,7 +6402,7 @@ void SpriteControl(void)
 
 */
 
-inline Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
+Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
 {
     Collision retval{};
     double zH;

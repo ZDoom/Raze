@@ -148,7 +148,7 @@ void ResetWallWarpHitscan(sectortype* sect)
 //
 //---------------------------------------------------------------------------
 
-inline void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, HitInfo& hit, int32_t clipmask)
+void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, HitInfo& hit, int32_t clipmask)
 {
     auto newsector = sect;
     int startclipmask = 0;
@@ -487,7 +487,7 @@ void WaterAdjust(const Collision& florhit, double* loz)
 //
 //---------------------------------------------------------------------------
 
-inline void FAFgetzrange(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
+void FAFgetzrange(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
 {
     double foo1;
     Collision foo2;
@@ -551,7 +551,7 @@ inline void FAFgetzrange(const DVector3& pos, sectortype* sect, double* hiz, Col
 //
 //---------------------------------------------------------------------------
 
-inline void FAFgetzrangepoint(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit)
+void FAFgetzrangepoint(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit)
 {
     double foo1;
     Collision foo2;
