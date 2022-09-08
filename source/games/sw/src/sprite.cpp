@@ -6760,7 +6760,6 @@ Collision move_missile(DSWActor* actor, const DVector3& change, double ceil_dist
 
 Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
 {
-	int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
     Collision retval{};
     int ox,oy;
 
@@ -6805,6 +6804,7 @@ Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ce
         lastsect = dasect;
         opos = actor->spr.pos;
         opos.Z = daz;
+        int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
         clipmove(opos, &dasect,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                           (((int) actor->spr.clipdist) << 2), ceildist, flordist, cliptype, retval, 1);

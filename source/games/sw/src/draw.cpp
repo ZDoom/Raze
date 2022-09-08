@@ -322,8 +322,6 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 
     // need to find the ground here
 
-    int iloz = loz * zworldtoint;
-
     // if below or close to sprites z don't bother to draw it
     if ((viewz - loz) > -8)
     {

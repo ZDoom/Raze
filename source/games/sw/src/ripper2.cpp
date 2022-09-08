@@ -940,9 +940,9 @@ int InitRipper2Hang(DSWActor* actor)
 
     bool Found = false;
 
-    for (int dang = 0; dang < 2048; dang += 128)
+    for (DAngle dang = nullAngle; dang < DAngle360; dang += DAngle22_5)
     {
-        auto tang = actor->spr.angle + DAngle::fromBuild(dang);
+        auto tang = actor->spr.angle + dang;
 
         FAFhitscan(actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->sector(), DVector3(tang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 

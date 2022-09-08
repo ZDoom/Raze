@@ -1199,7 +1199,6 @@ DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
             DAngle angle2 = VecToAngle(itActor->spr.pos - actor->spr.pos);
 
             // Get the angle difference
-            // delta_ang = abs(pp->angle.ang.Buildang() - angle2);
 
             DAngle delta_ang = absangle(angle2, actor->spr.angle);
 
