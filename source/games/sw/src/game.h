@@ -212,11 +212,6 @@ inline int SQ(int val)
     return val * val;
 }
 
-inline int DIST(int x1, int y1, int x2, int y2)
-{
-    return ksqrt(SQ((x1)-(x2)) + SQ((y1)-(y2)));
-}
-
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
 inline void DISTANCE(const DVector2& p1, const DVector2& p2, int& dist, int& tx, int& ty, int& tmin)

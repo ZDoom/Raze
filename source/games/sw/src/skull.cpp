@@ -381,12 +381,9 @@ int DoSkullJump(DSWActor* actor)
         // jump/fall type
         if(actor->vel.X != 0)
         {
+            double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
-            int dist,a,b,c;
-
-            DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
-
-            if (dist < 1000 &&
+            if (dist < 62.5 &&
                 SpriteOverlapZ(actor, actor->user.targetActor, 32))
             {
                 UpdateSinglePlayKills(actor);
@@ -461,9 +458,7 @@ int DoSkullSpawnShrap(DSWActor* actor)
 
 int DoSkullWait(DSWActor* actor)
 {
-    int a,b,c,dist;
-
-    DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
+    double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
     DoActorPickClosePlayer(actor);
 
@@ -480,7 +475,7 @@ int DoSkullWait(DSWActor* actor)
     if (actor->spr.pos.Z > actor->user.loz)
     {
         // look for closest player every once in a while
-        if (dist < 3500)
+        if (dist < 218.75)
         {
             actor->vel.X = 0;
             actor->user.jump_speed = -600;
@@ -495,7 +490,7 @@ int DoSkullWait(DSWActor* actor)
 
         DoSkullBob(actor);
 
-        if (dist < 8000)
+        if (dist < 500)
         {
             actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
             actor->vel.X = 8 + RandomRangeF(16);
@@ -791,11 +786,9 @@ int DoBettyJump(DSWActor* actor)
         // jump/fall type
         if(actor->vel.X != 0)
         {
-            int dist,a,b,c;
+            double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
-            DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
-
-            if (dist < 1000 &&
+            if (dist < 62.5 &&
                 SpriteOverlapZ(actor, actor->user.targetActor, 32))
             {
                 UpdateSinglePlayKills(actor);
@@ -867,9 +860,7 @@ int DoBettySpawnShrap(DSWActor* actor)
 
 int DoBettyWait(DSWActor* actor)
 {
-    int a,b,c,dist;
-
-    DISTANCE(actor->spr.pos, actor->user.targetActor->spr.pos, dist, a, b, c);
+    double dist = (actor->spr.pos.XY(), actor->user.targetActor->spr.pos.XY()).Length();
 
     DoActorPickClosePlayer(actor);
 
@@ -883,7 +874,7 @@ int DoBettyWait(DSWActor* actor)
     if (actor->spr.pos.Z > actor->user.loz)
     {
         // look for closest player every once in a while
-        if (dist < 3500)
+        if (dist < 218.75)
         {
             actor->vel.X = 0;
             actor->user.jump_speed = -600;
