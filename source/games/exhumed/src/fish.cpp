@@ -372,8 +372,7 @@ void AIFish::Tick(RunListEvent* ev)
 
             if (z <= nHeight)
             {
-                pActor->set_int_xvel(bcos(pActor->int_ang(), -5) - bcos(pActor->int_ang(), -7));
-                pActor->set_int_yvel(bsin(pActor->int_ang(), -5) - bsin(pActor->int_ang(), -7));
+				pActor->vel.XY() = pActor->spr.angle.ToVector() * (32 - 8);
             }
             else
             {

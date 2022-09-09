@@ -444,8 +444,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     {
         pActor2->spr.xrepeat = 30;
         pActor2->spr.yrepeat = 30;
-        pActor2->set_int_xvel(bcos(pActor2->int_ang()));
-        pActor2->set_int_yvel(bsin(pActor2->int_ang()));
+		pActor2->vel.XY() = pActor2->spr.angle.ToVector() * 1024;
         pActor2->set_int_zvel(-6000);
         pActor2->spr.cstat = 0;
     }
@@ -837,7 +836,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         [[fallthrough]];
 
     case 1:
-        if ((pTarget->int_pos().Z - 51200) > pActor->int_pos().Z)
+        if ((pTarget->spr.pos.Z - 200) > pActor->spr.pos.Z)
         {
             QueenHead.nAction = 4;
             QueenHead.nFrame = 0;

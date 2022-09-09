@@ -405,9 +405,8 @@ void AILion::Tick(RunListEvent* ev)
             pActor->set_int_ang(nAngle);
 
             pActor->nAction = 6;
-            pActor->set_int_xvel(bcos(pActor->int_ang()) - bcos(pActor->int_ang(), -3));
-            pActor->set_int_yvel(bsin(pActor->int_ang()) - bsin(pActor->int_ang(), -3));
-            D3PlayFX(StaticSound[kSound24], pActor);
+			pActor->vel.XY() = pActor->spr.angle.ToVector() * (1024 - 128);
+			D3PlayFX(StaticSound[kSound24], pActor);
         }
 
         return;
@@ -471,8 +470,7 @@ void AILion::Tick(RunListEvent* ev)
             pActor->set_int_zvel(-1000);
 
             pActor->nAction = 6;
-			pActor->set_int_xvel(bcos(pActor->int_ang()) - bcos(pActor->int_ang(), -3));
-            pActor->set_int_yvel(bsin(pActor->int_ang()) - bsin(pActor->int_ang(), -3));
+			pActor->vel.XY() = pActor->spr.angle.ToVector() * (1024 - 128);
             D3PlayFX(StaticSound[kSound24], pActor);
         }
 
