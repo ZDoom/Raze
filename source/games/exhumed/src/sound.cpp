@@ -716,14 +716,15 @@ void UpdateCreepySounds()
             int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves % SeqSize[SeqOffsets[kSeqCreepy]]);
             if (vsi >= 0 && (vsi & 0x1ff) < kMaxSounds)
             {
-                int vdx = (totalmoves + 32) & 31;
+				DVector2 adder;
+                adder.X = ((totalmoves + 32) & 31) / 16.;
                 if (totalmoves & 1)
-                    vdx = -vdx;
-                int vax = (totalmoves + 32) & 63;
+                    adder.X = -adder.X;
+                adder.Y = ((totalmoves + 32) & 63) / 16.;
                 if (totalmoves & 2)
-                    vax = -vax;
+					adder.Y = -adder.Y;
 
-                auto sp = PlayerList[nLocalPlayer].pActor->int_pos() + vec3_t({ vdx, vax, 0 });
+                auto sp = PlayerList[nLocalPlayer].pActor->spr.pos + adder;
                 creepy = GetSoundPos(sp);
 
                 if ((vsi & 0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((vsi & 0x1ff) + 1))
