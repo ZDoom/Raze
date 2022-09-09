@@ -1872,7 +1872,7 @@ static void rrra_specialstats()
 				{
 					act->spr.xrepeat <<= 1;
 					act->spr.yrepeat <<= 1;
-					act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+					act->setClipDistFromTile();
 				}
 				else if (enemysizecheat == 2)
 				{

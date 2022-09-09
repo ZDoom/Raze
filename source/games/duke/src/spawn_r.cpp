@@ -825,7 +825,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				act->spr.xrepeat = 22;
 				act->spr.yrepeat = 20;
 			}
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case HULKHANG:
 		case HULKHANGDEAD:
@@ -834,14 +834,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case HULKSTAYPUT:
 			act->spr.xrepeat = 32;
 			act->spr.yrepeat = 32;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case COOTPLAY:
 		case COOT:
 		case COOTSTAYPUT:
 			act->spr.xrepeat = 24;
 			act->spr.yrepeat = 18;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			act->spr.clipdist <<= 2;
 			break;
 		case DRONE:
@@ -858,12 +858,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case BUBBASTAND:
 			act->spr.xrepeat = 25;
 			act->spr.yrepeat = 21;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case COW:
 			act->spr.xrepeat = 32;
 			act->spr.yrepeat = 32;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case HEN:
 		case HENSTAYPUT:
@@ -872,7 +872,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				act->spr.xrepeat = 42;
 				act->spr.yrepeat = 30;
-				act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+				act->setClipDistFromTile();
 			}
 			else
 			{
@@ -885,7 +885,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case MINIONSTAYPUT:
 			act->spr.xrepeat = 16;
 			act->spr.yrepeat = 16;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			if (isRRRA() && ufospawnsminion)
 				act->spr.pal = 8;
 			break;
@@ -893,12 +893,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case PIG:
 			act->spr.xrepeat = 16;
 			act->spr.yrepeat = 16;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case RABBIT:
 			act->spr.xrepeat = 18;
 			act->spr.yrepeat = 18;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case MAMACLOUD:
 			act->spr.xrepeat = 64;
@@ -946,7 +946,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case BIKER:
 			act->spr.xrepeat = 28;
 			act->spr.yrepeat = 22;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case CHEERB:
 			act->spr.xrepeat = 28;
@@ -957,46 +957,46 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case CHEERSTAYPUT:
 			act->spr.xrepeat = 20;
 			act->spr.yrepeat = 20;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case MAKEOUT:
 			act->spr.xrepeat = 26;
 			act->spr.yrepeat = 26;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case MINIONBOAT:
 			act->spr.xrepeat = 16;
 			act->spr.yrepeat = 16;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case HULKBOAT:
 			act->spr.xrepeat = 48;
 			act->spr.yrepeat = 48;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case CHEERBOAT:
 			act->spr.xrepeat = 32;
 			act->spr.yrepeat = 32;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 
 		case TORNADO:
 			act->spr.xrepeat = 64;
 			act->spr.yrepeat = 128;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			act->spr.clipdist >>= 2;
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			break;
 		case LTH:
 			act->spr.xrepeat = 24;
 			act->spr.yrepeat = 22;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 		case ROCK:
 		case ROCK2:
 			act->spr.xrepeat = 64;
 			act->spr.yrepeat = 64;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 
 		case UFO1_RRRA:
@@ -1007,13 +1007,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case UFO5:
 			act->spr.xrepeat = 32;
 			act->spr.yrepeat = 32;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			act->spr.extra = 50;
 			break;
 		case SBMOVE:
 			act->spr.xrepeat = 48;
 			act->spr.yrepeat = 48;
-			act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+			act->setClipDistFromTile();
 			break;
 
 		default:
@@ -1414,7 +1414,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pal = 0;
 		act->spr.xrepeat = 18;
 		act->spr.yrepeat = 18;
-		act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+		act->setClipDistFromTile();
 		act->saved_ammo = 100;
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.lotag = 1;
@@ -1430,7 +1430,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pal = 0;
 		act->spr.xrepeat = 32;
 		act->spr.yrepeat = 32;
-		act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
+		act->setClipDistFromTile();
 		act->saved_ammo = 20;
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.lotag = 1;

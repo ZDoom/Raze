@@ -133,6 +133,11 @@ public:
 			SetClass(newtype);
 		}
 	}
+	
+	void setClipDistFromTile()
+	{
+		spr.clipdist = MulScale(spr.xrepeat, tileWidth(spr.picnum), 7);
+	}
 
 };
 
