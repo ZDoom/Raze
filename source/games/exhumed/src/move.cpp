@@ -148,17 +148,17 @@ void clipwall()
 int BelowNear(DExhumedActor* pActor, double walldist)
 {
     auto pSector = pActor->sector();
-    int z = pActor->int_pos().Z;
+    double z = pActor->spr.pos.Z;
 
-    int z2;
+    double z2;
 
     if (loHit.type == kHitSprite)
     {
-        z2 = loHit.actor()->int_pos().Z;
+        z2 = loHit.actor()->spr.pos.Z;
     }
     else
     {
-        z2 = pSector->int_floorz() + pSector->Depth;
+        z2 = pSector->floorz + pSector->Depth;
 
         BFSSectorSearch search(pSector);
 
@@ -187,21 +187,21 @@ int BelowNear(DExhumedActor* pActor, double walldist)
                 pSect2 = pSect2->pBelow;
             }
 
-            int ecx = pTempSect->int_floorz() + pTempSect->Depth;
-            int eax = ecx - z;
+            double lowestZ = pTempSect->floorz + pTempSect->Depth;
+            double lowestDiff = lowestZ - z;
 
-            if (eax < 0 && eax >= -5120)
+            if (lowestDiff < 0 && lowestDiff >= -20)
             {
-                z2 = ecx;
+                z2 = lowestZ;
                 pSector = pTempSect;
             }
         }
     }
 
 
-    if (z2 < pActor->int_pos().Z)
+    if (z2 < pActor->spr.pos.Z)
     {
-        pActor->set_int_z(z2);
+        pActor->spr.pos.Z = z2;
         overridesect = pSector;
         pActor->vel.Z = 0;
 
