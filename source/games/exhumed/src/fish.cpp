@@ -57,7 +57,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.yrepeat = 64;
     pChunkActor->spr.xoffset = 0;
     pChunkActor->spr.yoffset = 0;
-    pChunkActor->set_int_zvel((-(RandomByte() + 512)) * 2);
+    pChunkActor->vel.Z = ((-(RandomByte() + 512)) * 2) / 256.;
 
     seq_GetSeqPicnum(kSeqFish, pChunkActor->nCount, 0);
 

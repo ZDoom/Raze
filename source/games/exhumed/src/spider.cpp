@@ -179,7 +179,7 @@ void AISpider::Tick(RunListEvent* ev)
                 if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
                 {
                     spp->spr.cstat ^= CSTAT_SPRITE_YFLIP;
-                    spp->set_int_zvel(1);
+                    spp->vel.Z = 1./256.;
 
                     spp->nAction = 3;
                     spp->nFrame = 0;
@@ -205,12 +205,12 @@ void AISpider::Tick(RunListEvent* ev)
                     if (spp->spr.cstat & CSTAT_SPRITE_YFLIP)
                     {
                         spp->spr.cstat ^= CSTAT_SPRITE_YFLIP;
-                        spp->set_int_zvel(1);
+						spp->vel.Z = 1./256.;
 						spp->spr.pos.Z = spp->sector()->ceilingz+ GetActorHeightF(spp);
                     }
                     else
                     {
-                        spp->set_int_zvel(-5120);
+						spp->vel.Z = -20;
                     }
 
                     spp->nAction = 3;

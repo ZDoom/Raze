@@ -1432,7 +1432,7 @@ void AISpark::Tick(RunListEvent* ev)
             return;
         }
 
-        pActor->add_int_zvel( 128);
+        pActor->vel.Z += 0.5;
 
         auto nMov = movesprite(pActor, pActor->vel, 4096, 2560, -2560, CLIPMASK1);
         if (!nMov.type && !nMov.exbits) {

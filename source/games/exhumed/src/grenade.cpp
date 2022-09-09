@@ -85,7 +85,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
     else
     {
         pActor->nTurn = 0;
-        pActor->set_int_zvel(pPlayerActor->int_zvel());
+		pActor->vel.Z = pPlayerActor->vel.Z;
     }
 
     pActor->x = bcos(nAngle, -4) * pActor->nTurn;

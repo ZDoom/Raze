@@ -370,7 +370,7 @@ void AILion::Tick(RunListEvent* ev)
         pActor->nCount--;
         if (pActor->nCount <= 0)
         {
-            pActor->set_int_zvel(-4000);
+            pActor->vel.Z = -4000 / 256.;
             pActor->nCount = 0;
 
             double nCheckDist = 0x7FFFFFFF;
@@ -465,7 +465,7 @@ void AILion::Tick(RunListEvent* ev)
                 pActor->spr.angle += RandomAngle9() + DAngle45 + DAngle90;
             }
 
-            pActor->set_int_zvel(-1000);
+            pActor->vel.Z = -1000 / 256.;
 
             pActor->nAction = 6;
 			pActor->vel.XY() = pActor->spr.angle.ToVector() * (1024 - 128);

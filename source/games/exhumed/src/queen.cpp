@@ -441,7 +441,7 @@ void BuildQueenEgg(int nQueen, int nVal)
         pActor2->spr.xrepeat = 30;
         pActor2->spr.yrepeat = 30;
 		pActor2->vel.XY() = pActor2->spr.angle.ToVector() * 1024;
-        pActor2->set_int_zvel(-6000);
+        pActor2->vel.Z = -6000 / 256.;
         pActor2->spr.cstat = 0;
     }
     else
@@ -450,7 +450,7 @@ void BuildQueenEgg(int nQueen, int nVal)
         pActor2->spr.yrepeat = 60;
         pActor2->vel.X = 0;
         pActor2->vel.Y = 0;
-        pActor2->set_int_zvel(-2000);
+        pActor2->vel.Z = -2000 / 256.;
         pActor2->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
 
@@ -598,7 +598,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         case kHitWall:
             pActor->spr.angle = DAngle45 + DAngle90 + RandomAngle9();
             pActor->VelFromAngle(-3);
-            pActor->set_int_zvel(-RandomSize(5));
+            pActor->vel.Z = (-RandomSize(5)) / 256.;
             break;
         }
 
@@ -611,7 +611,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
 
         if (nMov.exbits & kHitAux2)
         {
-            pActor->set_int_zvel(-(pActor->int_zvel() - 256));
+            pActor->vel.Z = -(pActor->vel.Z - 1);
             if (pActor->vel.Z < -2)
             {
                 pActor->vel.Z = 0;
@@ -693,7 +693,7 @@ void BuildQueenHead(int nQueen)
     nVelShift = 2;
     SetHeadVel(pActor2);
 
-    pActor2->set_int_zvel(-8192);
+    pActor2->vel.Z = -32;
     pActor2->spr.lotag = runlist_HeadRun() + 1;
     pActor2->spr.hitag = 0;
     pActor2->spr.extra = -1;
@@ -789,7 +789,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
             else if (nMov.exbits == kHitAux2)
             {
-                pActor->set_int_zvel(-(pActor->int_zvel() >> 1));
+				pActor->vel.Z *= -0.5;
 
                 if (pActor->vel.Z > -1)
                 {
@@ -877,7 +877,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 					pActor->spr.angle += DAngle45 + DAngle90 + RandomAngle9();
                     pActor->norm_ang();
 
-                    pActor->set_int_zvel((-20) - RandomSize(6));
+                    pActor->vel.Z = ((-20) - RandomSize(6)) / 256.;
 
                     SetHeadVel(pActor);
                 }

@@ -160,7 +160,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
             pActor->nVel = 3000;
 
-            pActor->set_int_zvel((-20) - RandomSize(6));
+            pActor->vel.Z = -1.25 - RandomSize(6) / 256.;
         }
         else
         {
