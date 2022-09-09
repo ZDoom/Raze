@@ -575,7 +575,7 @@ inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec
 	double const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {
 	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
-	int res = clipmove(vect, sect, int(mvec.X * worldtoint), int(mvec.Y * worldtoint), int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, result, clipmoveboxtracenum);
+	int res = clipmove(vect, sect, FloatToFixed<18>(mvec.X), FloatToFixed<18>(mvec.Y), int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, result, clipmoveboxtracenum);
 	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
 	return res;
 }

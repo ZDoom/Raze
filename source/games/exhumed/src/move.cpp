@@ -396,14 +396,13 @@ DExhumedActor* insertActor(sectortype* s, int st)
 
 Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
 {
+    DVector2 vect(FixedToFloat<18>(dx), FixedToFloat<18>(dy));
+
     bTouchFloor = false;
 
 	auto spos = pActor->spr.pos;
-
-    int nSpriteHeight = GetActorHeight(pActor);
-
+    double nSpriteHeight = GetActorHeightF(pActor);
     int nClipDist = pActor->int_clipdist();
-
     auto pSector = pActor->sector();
     assert(pSector);
 
@@ -411,39 +410,33 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     if ((pSector->Flag & kSectUnderwater) || (floorZ < spos.Z))
     {
-        dx >>= 1;
-        dy >>= 1;
+        vect *= 0.5;
     }
 
-    Collision nRet = movespritez(pActor, dz * zinttoworld, nSpriteHeight * zinttoworld, nClipDist);
+    Collision nRet = movespritez(pActor, dz * zinttoworld, nSpriteHeight, nClipDist);
 
     pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 
     if (pActor->spr.statnum == 100)
     {
         int nPlayer = GetPlayerFromActor(pActor);
+        DVector2 thrust(0, 0);
 
-        int varA = 0;
-        int varB = 0;
-
-        CheckSectorFloor(overridesect, pActor->int_pos().Z, &varB, &varA);
-
-        if (varB || varA)
+        CheckSectorFloor(overridesect, pActor->spr.pos.Z, thrust);
+        if (!thrust.isZero())
         {
-            PlayerList[nPlayer].nThrust.X = varB;
-            PlayerList[nPlayer].nThrust.Y = varA;
+            PlayerList[nPlayer].nThrust = thrust;
         }
 
-        dx += PlayerList[nPlayer].nThrust.X;
-        dy += PlayerList[nPlayer].nThrust.Y;
+        vect += PlayerList[nPlayer].nThrust;
     }
     else
     {
-        CheckSectorFloor(overridesect, pActor->int_pos().Z, &dx, &dy);
+        CheckSectorFloor(overridesect, pActor->spr.pos.Z, vect);
     }
 
     Collision coll;
-    clipmove(pActor->spr.pos, &pSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask, coll);
+    clipmove(pActor->spr.pos, &pSector, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), nClipDist, int(nSpriteHeight * zworldtoint), flordist, clipmask, coll);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
         coll.exbits = nRet.exbits;
@@ -620,7 +613,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
     return pPlayerActor;
 }
 
-void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y)
+void CheckSectorFloor(sectortype* pSector, double z, DVector2& xy)
 {
     int nSpeed = pSector->Speed;
 
@@ -628,18 +621,15 @@ void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y)
         return;
     }
 
-    int nFlag = pSector->Flag;
-    int nAng = nFlag & kAngleMask;
+    DAngle nAng = DAngle::fromBuild(pSector->Flag & kAngleMask);
 
-    if (z >= pSector->int_floorz())
+    if (z >= pSector->floorz)
     {
-        *x += bcos(nAng, 3) * nSpeed;
-        *y += bsin(nAng, 3) * nSpeed;
+        xy += nAng.ToVector() * nSpeed * 0.5;
     }
-    else if (nFlag & 0x800)
+    else if (pSector->Flag & 0x800)
     {
-        *x += bcos(nAng, 4) * nSpeed;
-        *y += bsin(nAng, 4) * nSpeed;
+        xy += nAng.ToVector() * nSpeed;
     }
 }
 

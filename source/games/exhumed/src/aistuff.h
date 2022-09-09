@@ -228,7 +228,7 @@ DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage
 
 DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false);
 int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
-void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y);
+void CheckSectorFloor(sectortype* pSector, double z, DVector2& xy);
 int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 int GetWallNormal(walltype* nWall);
 void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel);

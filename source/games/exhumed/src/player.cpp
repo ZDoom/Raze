@@ -369,8 +369,7 @@ void RestartPlayer(int nPlayer)
 
 	nTemperature[nPlayer] = 0;
 
-	plr->nThrust.Y = 0;
-	plr->nThrust.X = 0;
+    plr->nThrust.Zero();
 
 	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = q16horiz(0);
 	plr->nBreathTimer = 90;
@@ -895,8 +894,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (bUnderwater)
     {
-        PlayerList[nPlayer].nThrust.X /= 2;
-        PlayerList[nPlayer].nThrust.Y /= 2;
+        PlayerList[nPlayer].nThrust /= 2;
     }
 
     // Trigger Ramses?
@@ -941,8 +939,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (bTouchFloor)
         {
             // Damage stuff..
-            PlayerList[nPlayer].nThrust.X /= 2;
-            PlayerList[nPlayer].nThrust.Y /= 2;
+            PlayerList[nPlayer].nThrust /= 2;
 
             if (nPlayer == nLocalPlayer)
             {
@@ -2510,8 +2507,7 @@ sectdone:
 
     if (!PlayerList[nPlayer].nHealth)
     {
-        PlayerList[nPlayer].nThrust.Y = 0;
-        PlayerList[nPlayer].nThrust.X = 0;
+        PlayerList[nPlayer].nThrust.Zero();
 
         if (PlayerList[nPlayer].eyelevel >= -11)
         {
