@@ -76,7 +76,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spr.xoffset = 0;
 	act->spr.yoffset = 0;
 	act->spr.yint = 0;
-	act->set_native_clipdist(0);
+	act->set_const_clipdist(0);
 	act->spr.pal = 0;
 	act->spr.lotag = 0;
 	act->backuploc();
@@ -270,7 +270,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			if (!isRR() || actorflag(act, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
 				ps[myconnectindex].max_actors_killed++;
 
-			act->set_native_clipdist(80);
+			act->set_const_clipdist(80);
 			if (actj)
 			{
 				if (actj->spr.picnum == RESPAWN)
@@ -281,7 +281,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		}
 		else
 		{
-			act->set_native_clipdist(40);
+			act->set_const_clipdist(40);
 			act->SetOwner(act);
 			ChangeActorStat(act, STAT_ACTOR);
 		}
@@ -919,8 +919,8 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			{
 				if (sectp->lotag == SE_30_TWO_WAY_TRAIN)
 				{
-					if (actor->spr.pal) actor->set_native_clipdist(1);
-					else actor->set_native_clipdist(0);
+					if (actor->spr.pal) actor->set_const_clipdist(1);
+					else actor->set_const_clipdist(0);
 					actor->temp_data[3] = sectp->int_floorz();
 					sectp->hitagactor = actor;
 				}

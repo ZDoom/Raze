@@ -109,7 +109,7 @@ void BuildGrenade(int nPlayer)
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.picnum = 1;
     pActor->spr.pal = 0;
-    pActor->set_native_clipdist(30);
+    pActor->set_const_clipdist(30);
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.angle = pPlayerActor->spr.angle;

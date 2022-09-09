@@ -56,7 +56,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
     pActor->spr.shade = -12;
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.pal = pActor->sector()->ceilingpal;
-    pActor->set_native_clipdist(70);
+    pActor->set_const_clipdist(70);
 
     if (bEggWasp)
     {

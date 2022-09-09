@@ -1292,13 +1292,13 @@ int PlayerInitChemBomb(PLAYER* pp)
     actorNew->vel.Z -= pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
 
     oclipdist = plActor->spr.clipdist;
-    plActor->set_native_clipdist(0);
-    actorNew->set_native_clipdist(0);
+    plActor->set_const_clipdist(0);
+    actorNew->set_const_clipdist(0);
 
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
-    plActor->spr.clipdist = uint8_t(oclipdist);
-    actorNew->set_native_clipdist(80 >> 2);
+    plActor->spr.clipdist = oclipdist;
+    actorNew->set_const_clipdist(80 >> 2);
 
 	UpdateChange(actorNew, 0.5);
 
@@ -1342,7 +1342,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
 	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
 
-    actorNew->set_native_clipdist(80 >> 2);
+    actorNew->set_const_clipdist(80 >> 2);
 
 	UpdateChange(actorNew, 0.5);
 
@@ -1382,7 +1382,7 @@ int InitChemBomb(DSWActor* actor)
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
 	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
-    actorNew->set_native_clipdist(0);
+    actorNew->set_const_clipdist(0);
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
     {
@@ -1656,13 +1656,13 @@ int PlayerInitCaltrops(PLAYER* pp)
     actorNew->vel.Z -= pp->horizon.horiz.asbuildf() * 0.5;
 
     oclipdist = plActor->spr.clipdist;
-    plActor->set_native_clipdist(0);
-    actorNew->set_native_clipdist(0);
+    plActor->set_const_clipdist(0);
+    actorNew->set_const_clipdist(0);
 
     MissileSetPos(actorNew, DoCaltrops, 1000);
 
-    plActor->spr.clipdist = uint8_t(oclipdist);
-    actorNew->set_native_clipdist(80 >> 2);
+    plActor->spr.clipdist = oclipdist;
+    actorNew->set_const_clipdist(80 >> 2);
 
 	UpdateChange(actorNew, 0.5);
 

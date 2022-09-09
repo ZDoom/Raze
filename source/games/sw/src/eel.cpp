@@ -365,7 +365,7 @@ int DoEelMatchPlayerZ(DSWActor* actor);
 
 void EelCommon(DSWActor* actor)
 {
-    actor->set_native_clipdist((100) >> 2);
+    actor->set_const_clipdist((100) >> 2);
     actor->user.floor_dist = (16);
     actor->user.floor_dist = (16);
     actor->user.ceiling_dist = (20);

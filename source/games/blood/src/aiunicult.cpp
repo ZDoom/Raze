@@ -374,7 +374,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 		spawned->xspr.data3 = 512 / (gGameOptions.nDifficulty + 1);
 		spawned->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 		spawned->spr.pal = 6;
-		spawned->set_native_clipdist(0);
+		spawned->set_const_clipdist(0);
 		spawned->SetTarget(actor->GetTarget());
 		spawned->xspr.Proximity = true;
 		spawned->xspr.stateTimer = 1;

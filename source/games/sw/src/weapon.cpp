@@ -3758,7 +3758,7 @@ AutoShrap:
             actor->spr.shade = int8_t(shrap_shade);
             actor->spr.xrepeat = uint8_t(shrap_xsize);
             actor->spr.yrepeat = uint8_t(shrap_ysize);
-            actor->set_native_clipdist(16 >> 2);
+            actor->set_const_clipdist(16 >> 2);
 
             if (ShrapOwner != nullptr)
             {
@@ -4162,7 +4162,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
             actorNew->spr.shade = int8_t(shrap_shade);
             actorNew->spr.xrepeat = uint8_t(shrap_xsize);
             actorNew->spr.yrepeat = uint8_t(shrap_ysize);
-            actorNew->set_native_clipdist(16 >> 2);
+            actorNew->set_const_clipdist(16 >> 2);
 
             actorNew->spr.pal = actorNew->user.spal = uint8_t(shrap_pal);
 
@@ -7649,7 +7649,7 @@ int DoStar(DSWActor* actor)
                 actor->spr.xrepeat -= 16;
                 actor->spr.yrepeat -= 16;
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-                actor->set_native_clipdist(16L >> 2);
+                actor->set_const_clipdist(16 >> 2);
                 actor->user.ceiling_dist = (2);
                 actor->user.floor_dist = (2);
                 // treat this just like a KillSprite but don't kill
@@ -8114,7 +8114,7 @@ int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
         SetOwner(GetOwner(wActor), actorNew);
     SetAttach(sActor, actorNew);
     actorNew->spr.yrepeat = 0;
-    actorNew->set_native_clipdist(8>>2);
+    actorNew->set_const_clipdist(8>>2);
 
     actorNew->user.WaitTics = 120+60;
     actorNew->user.Radius = 50;
@@ -9783,7 +9783,7 @@ int DoUziBullet(DSWActor* actor)
             actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
             SetOwner(GetOwner(actor), actorNew);
             actorNew->spr.angle = actor->spr.angle;
-            actorNew->set_native_clipdist(128 >> 2);
+            actorNew->set_const_clipdist(128 >> 2);
             actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
             if (!(actor->user.Flags & SPR_UNDERWATER))
@@ -11441,7 +11441,7 @@ int DoMirv(DSWActor* actor)
             actorNew->spr.shade = -40;
             actorNew->spr.xrepeat = 40;
             actorNew->spr.yrepeat = 40;
-            actorNew->set_native_clipdist(32 >> 2);
+            actorNew->set_const_clipdist(32 >> 2);
             actorNew->vel.Z = 0;
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -11863,7 +11863,7 @@ int InitLavaThrow(DSWActor* actor)
 
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    actorNew->set_native_clipdist(256>>2);
+    actorNew->set_const_clipdist(256>>2);
     actorNew->user.ceiling_dist = (14);
     actorNew->user.floor_dist = (14);
 
@@ -11918,7 +11918,7 @@ void InitVulcanBoulder(DSWActor* actor)
 
     actorNew->user.Radius = 200;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    actorNew->set_native_clipdist(256>>2);
+    actorNew->set_const_clipdist(256>>2);
     actorNew->user.ceiling_dist = zsize/2;
     actorNew->user.floor_dist = zsize/2;
     if (RANDOM_P2(1024) > 512)
@@ -12006,7 +12006,7 @@ int InitSerpRing(DSWActor* actor)
         change_actor_stat(actorNew, STAT_SKIP4);
         actorNew->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
-        actorNew->set_native_clipdist((128+64) >> 2);
+        actorNew->set_const_clipdist((128+64) >> 2);
         actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -12062,7 +12062,7 @@ void InitSpellNapalm(PLAYER* pp)
         actor->spr.shade = -40;
         actor->spr.xrepeat = 32;
         actor->spr.yrepeat = 32;
-        actor->set_native_clipdist(0);
+        actor->set_const_clipdist(0);
         actor->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
         actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -12073,7 +12073,7 @@ void InitSpellNapalm(PLAYER* pp)
         actor->user.Dist = 12.5;
 
         auto oclipdist = plActor->spr.clipdist;
-        plActor->set_native_clipdist(1);
+        plActor->set_const_clipdist(1);
 
         if (mp[i].dist_over != 0)
         {
@@ -12139,7 +12139,7 @@ int InitEnemyNapalm(DSWActor* actor)
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 32;
         actorNew->spr.yrepeat = 32;
-        actorNew->set_native_clipdist(0);
+        actorNew->set_const_clipdist(0);
         actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         actorNew->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
@@ -12149,7 +12149,7 @@ int InitEnemyNapalm(DSWActor* actor)
         actorNew->user.Dist = 12.5;
 
         SAVE_CLIP;
-        actor->set_native_clipdist(1);
+        actor->set_const_clipdist(1);
 
         if (mp[i].dist_over != 0)
         {
@@ -12194,7 +12194,7 @@ int InitSpellMirv(PLAYER* pp)
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 72;
     actorNew->spr.yrepeat = 72;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -12205,7 +12205,7 @@ int InitSpellMirv(PLAYER* pp)
 
     DSWActor* plActor = pp->actor;
     auto oclipdist = plActor->spr.clipdist;
-    plActor->set_native_clipdist(0);
+    plActor->set_const_clipdist(0);
 
 	UpdateChange(actorNew);
 
@@ -12235,7 +12235,7 @@ int InitEnemyMirv(DSWActor* actor)
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 72;
     actorNew->spr.yrepeat = 72;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -12653,7 +12653,7 @@ int InitSumoNapalm(DSWActor* actor)
             actorNew->spr.shade = -40;
             actorNew->spr.xrepeat = 32;
             actorNew->spr.yrepeat = 32;
-            actorNew->set_native_clipdist(0);
+            actorNew->set_const_clipdist(0);
             actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             actorNew->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
@@ -12663,7 +12663,7 @@ int InitSumoNapalm(DSWActor* actor)
             actorNew->user.Dist = 12.5;
 
             SAVE_CLIP;
-            actor->set_native_clipdist(1);
+            actor->set_const_clipdist(1);
 
             if (mp[i].dist_over != 0)
             {
@@ -12732,7 +12732,7 @@ int InitSumoSkull(DSWActor* actor)
     EnemyDefaults(actorNew, nullptr, nullptr);
     actorNew->spr.extra |= SPRX_PLAYER_OR_ENEMY;
 
-    actorNew->set_native_clipdist((128+64) >> 2);
+    actorNew->set_const_clipdist((128+64) >> 2);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -13067,7 +13067,7 @@ int InitStar(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = STAR_REPEAT;
     actorNew->spr.shade = -25;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     // zvel was overflowing with this calculation - had to move to a local long var
     double zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + STAR_HORIZ_ADJ) / 256.);
 
@@ -13169,7 +13169,7 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->spr.shade = -10;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.yrepeat = 52;
-    actorNew->set_native_clipdist(0);
+    actorNew->set_const_clipdist(0);
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
@@ -13180,7 +13180,7 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->user.Dist = 12.5;
 
     auto oclipdist = plActor->spr.clipdist;
-    plActor->set_native_clipdist(1);
+    plActor->set_const_clipdist(1);
 
 	UpdateChange(actorNew);
 
@@ -13474,7 +13474,7 @@ int InitLaser(PLAYER* pp)
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
-    actorNew->set_native_clipdist(64 >> 2);;
+    actorNew->set_const_clipdist(64 >> 2);;
 
     // the slower the missile travels the less of a zvel it needs
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF * 0.25;
@@ -13489,7 +13489,7 @@ int InitLaser(PLAYER* pp)
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
     SAVE_CLIP;
-    actor->set_native_clipdist(0);
+    actor->set_const_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 900);
@@ -13588,8 +13588,8 @@ int InitRail(PLAYER* pp)
     // at certain angles the clipping box was big enough to block the
     // initial positioning
     SAVE_CLIP;
-    actor->set_native_clipdist(0);
-    actorNew->set_native_clipdist(32 >> 2);
+    actor->set_const_clipdist(0);
+    actorNew->set_const_clipdist(32 >> 2);
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 700);
@@ -13662,8 +13662,8 @@ int InitZillaRail(DSWActor* actor)
     // at certain angles the clipping box was big enough to block the
     // initial positioning
     SAVE_CLIP;
-    actor->set_native_clipdist(0);
-    actorNew->set_native_clipdist(32 >> 2);
+    actor->set_const_clipdist(0);
+    actorNew->set_const_clipdist(32 >> 2);
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 700);
@@ -13741,7 +13741,7 @@ int InitRocket(PLAYER* pp)
     actorNew->spr.shade = -15;
     zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + 35) / 256.);
 
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
@@ -13770,7 +13770,7 @@ int InitRocket(PLAYER* pp)
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
     SAVE_CLIP;
-    actor->set_native_clipdist(0);
+    actor->set_const_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 900);
@@ -13849,7 +13849,7 @@ int InitBunnyRocket(PLAYER* pp)
     actorNew->spr.shade = -15;
     zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + 35) / 256.);
 
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_BunnyRocket[0]);
@@ -13875,7 +13875,7 @@ int InitBunnyRocket(PLAYER* pp)
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
     SAVE_CLIP;
-    actor->set_native_clipdist(0);
+    actor->set_const_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 900);
@@ -13951,7 +13951,7 @@ int InitNuke(PLAYER* pp)
     actorNew->spr.xrepeat = 128;
     actorNew->spr.shade = -15;
     zvel = -pp->horizon.horiz.asbuildf() * ((HORIZ_MULT + 36) / 256.);
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
     // Set to red palette
     actorNew->spr.pal = actorNew->user.spal = 19;
@@ -13969,7 +13969,7 @@ int InitNuke(PLAYER* pp)
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
     SAVE_CLIP;
-    actor->set_native_clipdist(0);
+    actor->set_const_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 900);
@@ -14034,7 +14034,7 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->spr.xrepeat = 128;
     actorNew->spr.shade = -15;
     double zvel = (100 * (HORIZ_MULT-36)) / 256.; // Ugh...
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
     // Set to red palette
     actorNew->spr.pal = actorNew->user.spal = 19;
@@ -14134,7 +14134,7 @@ int InitMicro(PLAYER* pp)
         actorNew->spr.xrepeat = 24;
         actorNew->spr.shade = -15;
         actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
-        actorNew->set_native_clipdist(64 >> 2);
+        actorNew->set_const_clipdist(64 >> 2);
 
         // randomize zvelocity
         actorNew->vel.Z += RandomRangeF(8) - 5;
@@ -14155,7 +14155,7 @@ int InitMicro(PLAYER* pp)
         // at certain angles the clipping box was big enough to block the
         // initial positioning of the fireball.
         SAVE_CLIP;
-        actor->set_native_clipdist(0);
+        actor->set_const_clipdist(0);
 
         actorNew->spr.angle += DAngle90;
         const int MICRO_LATERAL = 5000;
@@ -14555,7 +14555,7 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->user.spal = actorNew->spr.pal = 27; // Bright Green
         actorNew->spr.xrepeat = 64;
         actorNew->spr.yrepeat = 64;
-        actorNew->set_native_clipdist(32 >> 2);
+        actorNew->set_const_clipdist(32 >> 2);
         actorNew->vel.Z = 0;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -14564,7 +14564,7 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->user.Dist = 12.5;
 
         SAVE_CLIP;
-        actor->set_native_clipdist(1);
+        actor->set_const_clipdist(1);
 
         actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 4200);
@@ -14658,7 +14658,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->spr.shade = -40;
         actorNew->spr.xrepeat = 122;
         actorNew->spr.yrepeat = 116;
-        actorNew->set_native_clipdist(32 >> 2);
+        actorNew->set_const_clipdist(32 >> 2);
         actorNew->vel.Z = 0;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -14668,7 +14668,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->user.Dist = 12.5;
 
         SAVE_CLIP;
-        actor->set_native_clipdist(1);
+        actor->set_const_clipdist(1);
 
         actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 4200);
@@ -14739,7 +14739,7 @@ int InitEnemyRocket(DSWActor* actor)
     actorNew->spr.shade = -15;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rocket[0]);
@@ -14824,7 +14824,7 @@ int InitEnemyRail(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
 	UpdateChange(actorNew);
 
@@ -14879,7 +14879,7 @@ int InitZillaRocket(DSWActor* actor)
         actorNew->spr.shade = -15;
         actorNew->vel.Z = 0;
         actorNew->spr.angle = actor->spr.angle;
-        actorNew->set_native_clipdist(64 >> 2);
+        actorNew->set_const_clipdist(64 >> 2);
 
         actorNew->user.RotNum = 5;
         NewStateGroup(actorNew, &sg_Rocket[0]);
@@ -14936,7 +14936,7 @@ int InitEnemyStar(DSWActor* actor)
     actorNew->spr.shade = -25;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
 	UpdateChange(actorNew);
 
@@ -14972,7 +14972,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     actorNew->spr.shade = -25;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
@@ -15015,7 +15015,7 @@ int InitSkelSpell(DSWActor* actor)
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
     // find the distance to the target (player)
@@ -15053,7 +15053,7 @@ int InitCoolgFire(DSWActor* actor)
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     actorNew->user.ceiling_dist = (4);
     actorNew->user.floor_dist = (4);
     if (actor->user.ID == RIPPER_RUN_R0)
@@ -15112,7 +15112,7 @@ int InitCoolgDrip(DSWActor* actor)
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = 20;
     actorNew->spr.shade = -5;
     actorNew->vel.Z = 0;
-    actorNew->set_native_clipdist(16 >> 2);
+    actorNew->set_const_clipdist(16 >> 2);
     actorNew->user.ceiling_dist = (4);
     actorNew->user.floor_dist = (4);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -15151,7 +15151,7 @@ int GenerateDrips(DSWActor* actor)
         actorNew->spr.yrepeat = actorNew->spr.xrepeat = 20;
         actorNew->spr.shade = -10;
         actorNew->vel.Z = 0;
-        actorNew->set_native_clipdist(16 >> 2);
+        actorNew->set_const_clipdist(16 >> 2);
         actorNew->user.ceiling_dist = (4);
         actorNew->user.floor_dist = (4);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -15222,7 +15222,7 @@ void InitFireballTrap(DSWActor* actor)
     actorNew->spr.xrepeat -= 20;
     actorNew->spr.yrepeat -= 20;
     actorNew->spr.shade = -40;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     actorNew->vel.Z = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.WeaponNum = WPN_HOTHEAD;
@@ -15275,7 +15275,7 @@ void InitSpearTrap(DSWActor* actor)
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 26;
     actorNew->spr.shade = -25;
-    actorNew->set_native_clipdist(64 >> 2);;
+    actorNew->set_const_clipdist(64 >> 2);;
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
@@ -15334,7 +15334,7 @@ int InitTracerUzi(PLAYER* pp)
     actorNew->spr.xrepeat = 10;
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
@@ -15345,7 +15345,7 @@ int InitTracerUzi(PLAYER* pp)
 
     DSWActor* plActor = pp->actor;
     auto oclipdist = plActor->spr.clipdist;
-    plActor->set_native_clipdist(0);
+    plActor->set_const_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
     if (pp->Flags & (PF_TWO_UZI) && pp->WpnUziType == 0)
@@ -15399,7 +15399,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixedhoriz horiz)
     actorNew->spr.xrepeat = 10;
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
-    actorNew->set_native_clipdist(8 >> 2);
+    actorNew->set_const_clipdist(8 >> 2);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
@@ -15441,7 +15441,7 @@ int InitTracerAutoTurret(DSWActor* actor, const DVector3& change)
     actorNew->spr.xrepeat = 10;
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
-    actorNew->set_native_clipdist(8 >> 2);
+    actorNew->set_const_clipdist(8 >> 2);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
@@ -15748,7 +15748,7 @@ int InitUzi(PLAYER* pp)
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
     SetOwner(pp->actor, actorNew);
     actorNew->spr.cstat |= (cstat | CSTAT_SPRITE_YCENTER);
-    actorNew->set_native_clipdist(8 >> 2);
+    actorNew->set_const_clipdist(8 >> 2);
 
     HitscanSpriteAdjust(actorNew, hit.hitWall);
     DoHitscanDamage(actorNew, hit.actor());
@@ -15761,7 +15761,7 @@ int InitUzi(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = pal;
     actorNew->spr.cstat |= (cstat | CSTAT_SPRITE_YCENTER);
-    actorNew->set_native_clipdist(8 >> 2);
+    actorNew->set_const_clipdist(8 >> 2);
 
     HitscanSpriteAdjust(actorNew, hit.hitWall);
 
@@ -15794,7 +15794,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     actorNew->spr.xrepeat = 8;
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
@@ -15874,7 +15874,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         actorNew->spr.xrepeat = 24;
         actorNew->spr.shade = -15;
         actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF + RandomRangeF(8) - 5;
-        actorNew->set_native_clipdist(64 >> 2);
+        actorNew->set_const_clipdist(64 >> 2);
 
 
         actorNew->user.RotNum = 5;
@@ -15934,7 +15934,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
     actorNew->spr.xrepeat = 40;
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
@@ -15974,7 +15974,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
     actorNew->spr.xrepeat = 40;
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 50;
@@ -16033,7 +16033,7 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
@@ -16077,7 +16077,7 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_const_clipdist(64 >> 2);
 
     if (WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
@@ -16311,7 +16311,7 @@ DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, 
     // Sprite starts out with center exactly on wall.
     // This moves it back enough to see it at all angles.
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     HitscanSpriteAdjust(actorNew, hit_wall);
 
@@ -16324,7 +16324,7 @@ DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, 
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     HitscanSpriteAdjust(actorNew, hit_wall);
 
@@ -16354,7 +16354,7 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const
     // Sprite starts out with center exactly on wall.
     // This moves it back enough to see it at all angles.
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     if (hit_wall != nullptr)
         HitscanSpriteAdjust(actorNew, hit_wall);
@@ -16368,7 +16368,7 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const
     if (actor->user.WeaponNum == WPN_FIST)
         actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     if (hit_wall != nullptr)
         HitscanSpriteAdjust(actorNew, hit_wall);
@@ -16394,7 +16394,7 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVec
     // Sprite starts out with center exactly on wall.
     // This moves it back enough to see it at all angles.
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     HitscanSpriteAdjust(actorNew, hit_wall);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
@@ -16405,7 +16405,7 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVec
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     HitscanSpriteAdjust(actorNew, hit_wall);
 
     if (RANDOM_P2(1024) < 100)
@@ -16431,7 +16431,7 @@ DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wal
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     HitscanSpriteAdjust(actorNew, hit_wall);
 
@@ -16445,7 +16445,7 @@ DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wal
     // Sprite starts out with center exactly on wall.
     // This moves it back enough to see it at all angles.
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     HitscanSpriteAdjust(actorNew, hit_wall);
 
@@ -16722,7 +16722,7 @@ int InitEnemyUzi(DSWActor* actor)
     actorNew->user.WaitTics = 63;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos, daang, 0);
     actorNew->spr.shade = -40;
@@ -16730,7 +16730,7 @@ int InitEnemyUzi(DSWActor* actor)
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
     SetOwner(actor, actorNew);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    actorNew->set_native_clipdist(8 >> 2);
+    actorNew->set_const_clipdist(8 >> 2);
 
     HitscanSpriteAdjust(actorNew, hit.hitWall);
     DoHitscanDamage(actorNew, hit.actor());
@@ -16743,7 +16743,7 @@ int InitEnemyUzi(DSWActor* actor)
     SetOwner(actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
-    actorNew->set_native_clipdist(8 >> 2);
+    actorNew->set_const_clipdist(8 >> 2);
 
     HitscanSpriteAdjust(actorNew, hit.hitWall);
 
@@ -16803,8 +16803,8 @@ int InitGrenade(PLAYER* pp)
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    //actorNew->set_native_clipdist(80 >> 2);
-    actorNew->set_native_clipdist(32 >> 2);
+    //actorNew->set_const_clipdist(80 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (3);
@@ -16819,7 +16819,7 @@ int InitGrenade(PLAYER* pp)
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
 
     SAVE_CLIP;
-    actor->set_native_clipdist(0);
+    actor->set_const_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 800);
@@ -16878,8 +16878,8 @@ int InitSpriteGrenade(DSWActor* actor)
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    //actorNew->set_native_clipdist(80 >> 2);
-    actorNew->set_native_clipdist(32 >> 2);
+    //actorNew->set_const_clipdist(80 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (3);
@@ -16933,7 +16933,7 @@ int InitMine(PLAYER* pp)
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    actorNew->set_native_clipdist(128 >> 2);
+    actorNew->set_const_clipdist(128 >> 2);
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -16982,7 +16982,7 @@ int InitEnemyMine(DSWActor* actor)
     actorNew->spr.yrepeat = 32;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
-    actorNew->set_native_clipdist(128 >> 2);
+    actorNew->set_const_clipdist(128 >> 2);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -17022,7 +17022,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
 	
 	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
 
-    actor->set_native_clipdist(32 >> 2);
+    actor->set_const_clipdist(32 >> 2);
 
     actor->user.coll = move_missile(actor, DVector3(vec, 0), 16, 16, 0, 1);
 
@@ -17062,7 +17062,7 @@ int InitFireball(PLAYER* pp)
     actorNew->spr.xrepeat = 40;
     actorNew->spr.yrepeat = 40;
     actorNew->spr.shade = -40;
-    actorNew->set_native_clipdist(32 >> 2);
+    actorNew->set_const_clipdist(32 >> 2);
     SetOwner(pp->actor, actorNew);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.Radius = 100;
@@ -17074,7 +17074,7 @@ int InitFireball(PLAYER* pp)
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
     SAVE_CLIP;
-    actor->set_native_clipdist(0);
+    actor->set_const_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
     HelpMissileLateral(actorNew, 2100);
@@ -17143,7 +17143,7 @@ int InitEnemyFireball(DSWActor* actor)
 
         SetOwner(actor, actorNew);
         actorNew->vel.Z = 0;
-        actorNew->set_native_clipdist(16>>2);
+        actorNew->set_const_clipdist(16>>2);
 
         actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 500);
@@ -17619,7 +17619,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
     actorNew->spr.shade = actor->sector()->floorshade - 10;
     actorNew->user.WaitTics = 120 * 120;
     actorNew->vel.Z = 2;
-    actorNew->set_native_clipdist(12 >> 2);
+    actorNew->set_const_clipdist(12 >> 2);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.Flags |= (SPR_UNDERWATER);
     actorNew->spr.shade = -60; // Make em brighter
@@ -17956,7 +17956,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
     spawnedActor->spr.pal = 0;
     spawnedActor->spr.shade = 0;
     spawnedActor->spr.extra = 0;
-    spawnedActor->set_native_clipdist(0);
+    spawnedActor->set_const_clipdist(0);
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = pos;
     spawnedActor->spr.picnum = 2151;
@@ -18043,7 +18043,7 @@ int QueueFloorBlood(DSWActor* actor)
     spawnedActor->spr.pal = 0;
     spawnedActor->spr.shade = 0;
     spawnedActor->spr.extra = 0;
-    spawnedActor->set_native_clipdist(0);
+    spawnedActor->set_const_clipdist(0);
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = actor->spr.pos.plusZ(1);
     spawnedActor->spr.angle = RandomAngle(); // Just make it any old angle
@@ -18155,7 +18155,7 @@ int QueueFootPrint(DSWActor* actor)
     spawnedActor->spr.pal = 0;
     spawnedActor->spr.shade = 0;
     spawnedActor->spr.extra = 0;
-    spawnedActor->set_native_clipdist(0);
+    spawnedActor->set_const_clipdist(0);
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = actor->spr.pos;
     spawnedActor->spr.angle = actor->spr.angle;
@@ -18296,7 +18296,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     spawnedActor->spr.pal = 0;
     spawnedActor->spr.shade = 0;
     spawnedActor->spr.extra = 0;
-    spawnedActor->set_native_clipdist(0);
+    spawnedActor->set_const_clipdist(0);
     spawnedActor->spr.xoffset = spawnedActor->spr.yoffset = 0;
     spawnedActor->spr.pos = hit.hitpos;
     spawnedActor->spr.shade -= 5;  // Brighten it up just a bit

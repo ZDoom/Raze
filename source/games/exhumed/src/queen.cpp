@@ -393,7 +393,7 @@ void BuildTail()
         pTailActor->spr.shade = -12;
         pTailActor->spr.hitag = 0;
         pTailActor->spr.cstat = 0;
-        pTailActor->set_native_clipdist(100);
+        pTailActor->set_const_clipdist(100);
         pTailActor->spr.xrepeat = 80;
         pTailActor->spr.yrepeat = 80;
         pTailActor->spr.picnum = 1;
@@ -432,7 +432,7 @@ void BuildQueenEgg(int nQueen, int nVal)
 
 	pActor2->spr.pos = DVector3(pActor->spr.pos.XY(), pSector->floorz);
     pActor2->spr.pal = 0;
-    pActor2->set_native_clipdist(50);
+    pActor2->set_const_clipdist(50);
     pActor2->spr.xoffset = 0;
     pActor2->spr.yoffset = 0;
     pActor2->spr.shade = -12;
@@ -686,7 +686,7 @@ void BuildQueenHead(int nQueen)
 
 	pActor2->spr.pos.XY() = pActor->spr.pos.XY();
 	pActor2->spr.pos.Z = pSector->floorz;
-    pActor2->set_native_clipdist(70);
+    pActor2->set_const_clipdist(70);
     pActor2->spr.xrepeat = 80;
     pActor2->spr.yrepeat = 80;
     pActor2->spr.cstat = 0;
@@ -1090,7 +1090,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.pal = 0;
     pActor->spr.shade = -12;
-    pActor->set_native_clipdist(100);
+    pActor->set_const_clipdist(100);
     pActor->spr.xrepeat = 80;
     pActor->spr.yrepeat = 80;
     pActor->spr.xoffset = 0;

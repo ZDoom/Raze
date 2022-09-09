@@ -55,7 +55,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
     pLimbActor->spr.picnum = (move & 3) % 3;
     pLimbActor->spr.hitag = 0;
     pLimbActor->spr.lotag = runlist_HeadRun() + 1;
-    pLimbActor->set_native_clipdist(0);
+    pLimbActor->set_const_clipdist(0);
 
 //	GrabTimeSlot(3);
 
@@ -118,7 +118,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.yrepeat = 200;
     pActor->spr.shade = -12;
     pActor->spr.pal = 0;
-    pActor->set_native_clipdist(127);
+    pActor->set_const_clipdist(127);
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);

@@ -281,6 +281,11 @@ public:
 		spr. clipdist = val;
 	}
 	
+	void set_const_clipdist(int val) // only for searching purposes
+	{
+		spr. clipdist = val;
+	}
+	
 	void copy_clipdist(DCoreActor* other)
 	{
 		spr. clipdist = other->spr. clipdist;

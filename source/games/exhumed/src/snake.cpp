@@ -206,7 +206,7 @@ void BuildSnake(int nPlayer, int zVal)
                 pActor->spr.yrepeat = 40 - 3 * i;
             }
 
-            pActor->set_native_clipdist(10);
+            pActor->set_const_clipdist(10);
             pActor->spr.cstat = 0;
             pActor->spr.shade = -64;
             pActor->spr.pal = 0;

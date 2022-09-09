@@ -64,7 +64,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
     ap->spr.yoffset = 0;
     ap->spr.picnum = 1;
     ap->spr.pal = ap->sector()->ceilingpal;
-    ap->set_native_clipdist(60);
+    ap->set_const_clipdist(60);
     ap->spr.angle = nAngle;
     ap->spr.xrepeat = 40;
     ap->spr.yrepeat = 40;

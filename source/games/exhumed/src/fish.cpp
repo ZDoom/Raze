@@ -63,7 +63,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 
     pChunkActor->spr.picnum = anim;
     pChunkActor->spr.lotag = runlist_HeadRun() + 1;
-    pChunkActor->set_native_clipdist(0);
+    pChunkActor->set_const_clipdist(0);
 
 //	GrabTimeSlot(3);
 
@@ -153,7 +153,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
-    pActor->set_native_clipdist(80);
+    pActor->set_const_clipdist(80);
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
     pActor->spr.pal = pActor->sector()->ceilingpal;

@@ -46,7 +46,7 @@ DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector)
     pActor->spr.cstat = 0;
     pActor->spr.shade = -32;
     pActor->spr.pal = 0;
-    pActor->set_native_clipdist(5);
+    pActor->set_const_clipdist(5);
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
     pActor->spr.xoffset = 0;
