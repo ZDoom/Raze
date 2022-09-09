@@ -38,7 +38,7 @@ int word_966BE = 0;
 int ChannelList = -1;
 int ChannelLast = -1;
 
-int nDamageRadius;
+double nDamageRadius;
 int nRadialDamage;
 int RunChain;
 int NewRun;
@@ -1604,36 +1604,23 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         return 0;
     }
 
-    int x = (pActor->int_pos().X - pRadialActor->int_pos().X) >> 8;
-    int y = (pActor->int_pos().Y - pRadialActor->int_pos().Y) >> 8;
-    int z = (pActor->int_pos().Z - pRadialActor->int_pos().Z) >> 12;
-
-    if (abs(x) > nDamageRadius) {
-        return 0;
-    }
-
-    if (abs(y) > nDamageRadius) {
-        return 0;
-    }
-
-    if (abs(z) > nDamageRadius) {
-        return 0;
-    }
+	auto pos = (pActor->spr.pos - pRadialActor->spr.pos) / 16.;
 
     int edi = 0;
 
-    uint32_t xDiff = abs(x);
-    uint32_t yDiff = abs(y);
+	if (abs(pos.X) > nDamageRadius) {
+		return 0;
+	}
 
-    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+	if (abs(pos.Y) > nDamageRadius) {
+		return 0;
+	}
 
-    if (sqrtNum > INT_MAX)
-    {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-        sqrtNum = INT_MAX;
-    }
+	if (abs(pos.Z) > nDamageRadius) {
+		return 0;
+	}
 
-    int nDist = ksqrt(sqrtNum);
+	double nDist = pos.XY().Length();
 
     if (nDist < nDamageRadius)
     {
@@ -1646,14 +1633,14 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
                 pActor->spr.pos.plusZ(-32),
                 pActor->sector()))
         {
-            edi = (nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius;
+            edi = int((nRadialDamage * (nDamageRadius - nDist)) / (nDamageRadius));
 
             if (edi < 0) {
                 edi = 0;
             }
             else if (edi > 20)
             {
-                int nAngle = getangle(x, y);
+                int nAngle = getangle(pos);
 
                 pActor->add_int_xvel( (edi * bcos(nAngle)) >> 3);
                 pActor->add_int_yvel((edi * bsin(nAngle)) >> 3);

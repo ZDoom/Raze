@@ -379,7 +379,7 @@ struct RunListEvent
     int nDamage, nRun;
 
     int nRadialDamage;          // Radial damage needs a bit more info.
-    int nDamageRadius;
+    double nDamageRadius;
     DExhumedActor* pRadialActor;
 
     bool isRadialEvent() const { return nMessage == 1; }
