@@ -375,7 +375,7 @@ void AILion::Tick(RunListEvent* ev)
             pActor->set_int_zvel(-4000);
             pActor->nCount = 0;
 
-            int nCheckDist = 0x7FFFFFFF;
+            double nCheckDist = 0x7FFFFFFF;
 
             int nAngle = pActor->int_ang();
             int nScanAngle = (nAngle - 512) & kAngleMask;
@@ -388,8 +388,8 @@ void AILion::Tick(RunListEvent* ev)
 
                 if (hit.hitWall)
                 {
-                    int theX = abs(hit.int_hitpos().X - pActor->int_pos().X);
-                    int theY = abs(hit.int_hitpos().Y - pActor->int_pos().Y);
+                    double theX = abs(hit.hitpos.X - pActor->spr.pos.X);
+                    double theY = abs(hit.hitpos.Y - pActor->spr.pos.Y);
 
                     if ((theX + theY) < nCheckDist)
                     {

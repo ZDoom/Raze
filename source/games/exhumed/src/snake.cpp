@@ -124,37 +124,22 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
     StopActorSound(pActor);
 }
 
-void BuildSnake(int nPlayer, int zVal)
+void BuildSnake(int nPlayer, int zVal_)
 {
-
-    zVal -= 1280;
+    double zVal = zVal_ * zinttoworld - 5;
 
     auto pPlayerActor = PlayerList[nPlayer].pActor;
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
     int nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
 
-    int x = pPlayerActor->int_pos().X;
-    int y = pPlayerActor->int_pos().Y;
-    int z = (pPlayerActor->int_pos().Z + zVal) - 2560;
-    int nAngle = pPlayerActor->int_ang();
+	auto pos = pPlayerActor->spr.pos.plusZ(zVal - 10);
 
     HitInfo hit{};
-    hitscan(vec3_t( x, y, z ), pPlayerActor->sector(), { bcos(nAngle), bsin(nAngle), 0 }, hit, CLIPMASK1);
+    hitscan(pos, pPlayerActor->sector(), DVector3(pPlayerActor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK1);
 
-    uint32_t yDiff = abs(hit.int_hitpos().Y - y);
-    uint32_t xDiff = abs(hit.int_hitpos().X - x);
+	double nSize = (hit.hitpos.XY() - pos.XY()).Length();
 
-    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
-
-    if (sqrtNum > INT_MAX)
-    {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-        sqrtNum = INT_MAX;
-    }
-
-    int nSqrt = ksqrt(sqrtNum);
-
-    if (nSqrt < bsin(512, -4))
+    if (nSize < 64)
     {
 		hit.hitpos -= pPlayerActor->spr.angle.ToVector() * 0.5;
         auto pActor = insertActor(hit.hitSector, 202);
@@ -193,7 +178,7 @@ void BuildSnake(int nPlayer, int zVal)
 
             if (i == 0)
             {
-                pActor->spr.pos = pPlayerActor->spr.pos.plusZ(zVal * zinttoworld);
+                pActor->spr.pos = pPlayerActor->spr.pos.plusZ(zVal);
                 pActor->spr.xrepeat = 32;
                 pActor->spr.yrepeat = 32;
                 pViewSect = pActor->sector();
