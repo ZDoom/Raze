@@ -1175,7 +1175,7 @@ void nnExtProcessSuperSprites()
 			if (!pProx->xspr.Proximity || (!pProx->xspr.Interrutable && pProx->xspr.state != pProx->xspr.restState) || pProx->xspr.locked == 1
 				|| pProx->xspr.isTriggered) continue;  // don't process locked or triggered sprites
 
-			int okDist = (pProx->IsDudeActor()) ? 96 : ClipLow(pProx->spr.clipdist * 3, 32);
+			int okDist = (pProx->IsDudeActor()) ? 96 : ClipLow(pProx->native_clipdist() * 3, 32);
 			auto pos = pProx->spr.pos;
 			auto pSect = pProx->sector();
 

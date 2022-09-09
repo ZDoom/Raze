@@ -1896,7 +1896,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 	spawned->xspr.busyTime = source->xspr.busyTime;
 
 	// inherit clipdist?
-	if (source->spr.clipdist > 0)
+	if (source->native_clipdist() > 0)
 		spawned->copy_clipdist(source);
 
 	// inherit custom hp settings

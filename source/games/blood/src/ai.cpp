@@ -179,7 +179,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	case kDudeGargoyleFlesh:
 	case kDudeGargoyleStone:
 	case kDudeBat:
-		if (actor->spr.clipdist > nDist)
+		if (actor->native_clipdist() > nDist)
 			return 0;
 		if (Depth)
 		{
