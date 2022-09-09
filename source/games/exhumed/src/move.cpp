@@ -772,44 +772,17 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
             clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
 
-            int ebx = pos.X;
-            int ecx = x_b;
-            int edx = pos.Y;
-            int eax = xvect;
-            int esi = y_b;
+            int deltax = pos.X - x_b;
+            int deltay = pos.Y - y_b;
 
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            ebx -= ecx;
-            ecx = eax;
-            eax = ebx;
-            edx -= esi;
-
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            if (ecx > eax)
+            if (abs(xvect) > abs(deltax))
             {
-                xvect = ebx;
+                xvect = deltax;
             }
 
-            eax = yvect;
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            ebx = eax;
-            eax = edx;
-
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            if (ebx > eax) {
-                yvect = edx;
+            if (abs(yvect) > abs(deltay)) 
+            {
+                yvect = deltay;
             }
         }
     }
