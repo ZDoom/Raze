@@ -275,6 +275,11 @@ public:
 	{
 		return spr. clipdist << 2;
 	}
+	
+	void set_native_clipdist(int val)
+	{
+		spr. clipdist = val;
+	}
 
 };
 
