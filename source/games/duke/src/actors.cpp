@@ -1553,7 +1553,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 				if (k)
 				{
 					k->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_YCENTER;
-					k->spr.clipdist = 64;
+					k->set_native_clipdist(64);
 					k->set_int_ang(j);
 					k->set_int_zvel(bsin(l, -5));
 					k->set_int_xvel(bcos(l, -9));

@@ -2228,7 +2228,7 @@ int ParseState::parse(void)
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 			g_ac->spr.shade = -12;
-			g_ac->spr.clipdist = 64;
+			g_ac->set_native_clipdist(64);
 			g_ac->spr.xrepeat = 42;
 			g_ac->spr.yrepeat = 36;
 			g_ac->SetOwner(g_ac);
