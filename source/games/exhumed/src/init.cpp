@@ -607,7 +607,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             case 94: // water
             {
                 auto pSector = pActor->sector();
-                pSector->Depth = nHitag << 8;
+                pSector->Depth = nHitag;
 
                 DeleteActor(pActor);
                 return;

@@ -48,7 +48,6 @@ BlockInfo sBlockInfo[kMaxPushBlocks];
 TObjPtr<DExhumedActor*> nBodyGunSprite[50];
 int nCurBodyGunNum;
 
-int sprceiling, sprfloor;
 Collision loHit, hiHit;
 
 // think this belongs in init.c?
@@ -215,7 +214,7 @@ int BelowNear(DExhumedActor* pActor, double walldist)
     }
 }
 
-Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdist)
+Collision movespritez(DExhumedActor* pActor, double z, double height, int clipdist)
 {
     auto pSector = pActor->sector();
     assert(pSector);
@@ -234,28 +233,28 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     int nSectFlags = pSector->Flag;
 
     if (nSectFlags & kSectUnderwater) {
-        z >>= 1;
+        z *= 0.5;
     }
 
-    int spriteZ = pActor->int_pos().Z;
-    int floorZ = pSector->int_floorz();
+    double spriteZ = pActor->spr.pos.Z;
+    double floorZ = pSector->floorz;
 
-    int ebp = spriteZ + z;
-    int eax = pSector->int_ceilingz() + (height >> 1);
+    double destZ = spriteZ + z;
+    double highestZ = pSector->ceilingz + (height * 0.5);
 
-    if ((nSectFlags & kSectUnderwater) && ebp < eax) {
-        ebp = eax;
+    if ((nSectFlags & kSectUnderwater) && destZ < highestZ) {
+        destZ = highestZ;
     }
 
     // loc_151E7:
-    while (ebp > pActor->sector()->int_floorz() && pActor->sector()->pBelow != nullptr)
+    while (destZ > pActor->sector()->floorz && pActor->sector()->pBelow != nullptr)
     {
         ChangeActorSect(pActor, pActor->sector()->pBelow);
     }
 
     if (pSect2 != pSector)
     {
-        pActor->set_int_z(ebp);
+        pActor->spr.pos.Z = destZ;
 
         if (pSect2->Flag & kSectUnderwater)
         {
@@ -270,7 +269,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        while ((ebp < pActor->sector()->int_ceilingz()) && (pActor->sector()->pAbove != nullptr))
+        while ((destZ < pActor->sector()->ceilingz) && (pActor->sector()->pAbove != nullptr))
         {
             ChangeActorSect(pActor, pActor->sector()->pAbove);
         }
@@ -278,17 +277,18 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     // This function will keep the player from falling off cliffs when you're too close to the edge.
     // This function finds the highest and lowest z coordinates that your clipping BOX can get to.
-    vec3_t pos = pActor->int_pos();
-    pos.Z -= 256;
+    double sprceiling, sprfloor;
+
+    auto pos = pActor->spr.pos.plusZ(-1);
     getzrange(pos, pActor->sector(), &sprceiling, hiHit, &sprfloor, loHit, 128, CLIPMASK0);
 
-    int mySprfloor = sprfloor;
+    double mySprfloor = sprfloor;
 
     if (loHit.type != kHitSprite) {
         mySprfloor += pActor->sector()->Depth;
     }
 
-    if (ebp > mySprfloor)
+    if (destZ > mySprfloor)
     {
         if (z > 0)
         {
@@ -301,13 +301,13 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
                 if (pActor->spr.statnum == 100 && pFloorActor->spr.statnum != 0 && pFloorActor->spr.statnum < 100)
                 {
-                    int nDamage = (z >> 9);
+                    int nDamage = int(z * 0.5);
                     if (nDamage)
                     {
                         runlist_DamageEnemy(loHit.actor(), pActor, nDamage << 1);
                     }
 
-                    pActor->set_int_zvel(-z);
+                    pActor->vel.Z = -z;
                 }
                 else
                 {
@@ -352,19 +352,19 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
         }
 
         // loc_1543B:
-        ebp = mySprfloor;
-        pActor->set_int_z(mySprfloor);
+        destZ = mySprfloor;
+        pActor->spr.pos.Z = mySprfloor;
     }
     else
     {
-        if ((ebp - height) < sprceiling && (hiHit.type == kHitSprite || pActor->sector()->pAbove == nullptr))
+        if ((destZ - height) < sprceiling && (hiHit.type == kHitSprite || pActor->sector()->pAbove == nullptr))
         {
-            ebp = sprceiling + height;
+            destZ = sprceiling + height;
             nRet.exbits |= kHitAux1;
         }
     }
 
-    if (spriteZ <= floorZ && ebp > floorZ)
+    if (spriteZ <= floorZ && destZ > floorZ)
     {
         if ((pSector->Depth != 0) || (pSect2 != pSector && (pSect2->Flag & kSectUnderwater)))
         {
@@ -373,7 +373,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
 
     pActor->spr.cstat = cstat; // restore cstat
-    pActor->set_int_z(ebp);
+    pActor->spr.pos.Z = destZ;
 
     if (pActor->spr.statnum == 100)
     {
@@ -415,7 +415,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         dy >>= 1;
     }
 
-    Collision nRet = movespritez(pActor, dz, nSpriteHeight, flordist, nClipDist);
+    Collision nRet = movespritez(pActor, dz * zinttoworld, nSpriteHeight * zinttoworld, nClipDist);
 
     pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 

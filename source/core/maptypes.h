@@ -319,7 +319,7 @@ struct sectortype
 			sectortype* pSoundSect;
 			sectortype* pAbove;
 			sectortype* pBelow;
-			int   Depth;
+			double Depth;
 			short Sound;
 			short Flag;
 			short Damage;
