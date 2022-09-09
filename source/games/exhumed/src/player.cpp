@@ -820,11 +820,11 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // player.zvel is modified within Gravity()
-    int zVel = pPlayerActor->int_zvel();
+	double zVel = pPlayerActor->vel.Z;
 
     Gravity(pPlayerActor);
 
-    if (pPlayerActor->vel.Z >= 6500/256. && zVel < 6500)
+    if (pPlayerActor->vel.Z >= 6500/256. && zVel < 6500 / 256.)
     {
         D3PlayFX(StaticSound[kSound17], pPlayerActor);
     }
@@ -841,7 +841,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int z = (pPlayerActor->int_zvel() * 4) >> 2;
 
     if (pPlayerActor->vel.Z > 32)
-        pPlayerActor->set_int_zvel(8192);
+        pPlayerActor->vel.Z = 32;
 
     if (PlayerList[nPlayer].bIsMummified)
     {
@@ -855,7 +855,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     // TODO
     // nSectFlag & kSectUnderwater;
 
-    zVel = pPlayerActor->int_zvel();
+    zVel = pPlayerActor->vel.Z;
 
     Collision nMove;
     nMove.setNone();
@@ -885,8 +885,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
 		pPlayerActor->spr.pos.XY() = spr_pos.XY();
 
-        if (zVel < pPlayerActor->int_zvel()) {
-            pPlayerActor->set_int_zvel(zVel);
+        if (zVel < pPlayerActor->vel.Z) {
+            pPlayerActor->vel.Z = zVel;
         }
     }
 
@@ -946,22 +946,22 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             if (nPlayer == nLocalPlayer)
             {
-                int zVelB = zVel;
+                double zVelB = zVel;
 
                 if (zVelB < 0) {
                     zVelB = -zVelB;
                 }
 
-                if (zVelB > 512 && !PlayerList[nPlayer].horizon.horiz.asq16() && cl_slopetilting) {
+                if (zVelB > 2 && !PlayerList[nPlayer].horizon.horiz.asq16() && cl_slopetilting) {
                     PlayerList[nPlayer].nDestVertPan = q16horiz(0);
                 }
             }
 
-            if (zVel >= 6500)
+            if (zVel >= 6500 / 256.)
             {
                 pPlayerActor->vel.XY() *= 0.25;
 
-                runlist_DamageEnemy(pPlayerActor, nullptr, ((zVel - 6500) >> 7) + 10);
+                runlist_DamageEnemy(pPlayerActor, nullptr, ((int(zVel * 256) - 6500) >> 7) + 10);
 
                 if (PlayerList[nPlayer].nHealth <= 0)
                 {
@@ -2241,14 +2241,14 @@ sectdone:
             {
                 if (bUnderwater)
                 {
-                    pPlayerActor->set_int_zvel(-2048);
+                    pPlayerActor->vel.Z = -8;
                     nActionB = 10;
                 }
                 else if (bTouchFloor)
                 {
                     if (nAction < 6 || nAction > 8)
                     {
-                        pPlayerActor->set_int_zvel(-3584);
+                        pPlayerActor->vel.Z = -14;
                         nActionB = 3;
                     }
                 }
@@ -2259,7 +2259,7 @@ sectdone:
             {
                 if (bUnderwater)
                 {
-                    pPlayerActor->set_int_zvel(2048);
+					pPlayerActor->vel.Z = 8;
                     nActionB = 10;
                 }
                 else
