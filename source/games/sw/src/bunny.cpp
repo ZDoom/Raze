@@ -755,7 +755,7 @@ int SetupBunny(DSWActor* actor)
         actor->spr.xrepeat = 96;
         actor->spr.yrepeat = 90;
 
-        actor->spr.clipdist = 200>>2;
+        actor->set_native_clipdist(200>>2);
 
         if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = 60;

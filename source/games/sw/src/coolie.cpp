@@ -410,7 +410,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* perso
     actor->user.spal = actor->spr.pal;
 
     actor->user.RotNum = 5;
-    actor->spr.clipdist = 256 >> 2;
+    actor->set_native_clipdist(256 >> 2);
 
     actor->user.zclip = 48;
     actor->user.lo_step = 32;

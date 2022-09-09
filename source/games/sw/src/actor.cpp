@@ -473,7 +473,7 @@ int DoActorDebris(DSWActor* actor)
 
 int DoFireFly(DSWActor* actor)
 {
-    actor->spr.clipdist = 256>>2;
+    actor->set_native_clipdist(256>>2);
     if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * (0.25 * ACTORMOVETICS), 0)))
     {
         actor->spr.angle += DAngle180;
