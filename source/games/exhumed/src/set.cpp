@@ -488,7 +488,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            auto pBullet = BuildBullet(pActor, 11, -1, pActor->spr.angle, pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 11, INT_MAX, pActor->spr.angle, pTarget, 1);
             if (pBullet)
 				SetBulletEnemy(pBullet->nPhase, pTarget);
 

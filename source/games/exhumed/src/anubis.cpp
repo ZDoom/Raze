@@ -262,7 +262,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             // loc_25718:
             if (nFlag & 0x80)
             {
-                BuildBullet(ap, 8, -1, ap->spr.angle, pTarget, 1);
+                BuildBullet(ap, 8, INT_MAX, ap->spr.angle, pTarget, 1);
             }
         }
 

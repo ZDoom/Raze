@@ -1307,7 +1307,7 @@ void AIQueen::Tick(RunListEvent* ev)
 
                 if (!si)
                 {
-                    BuildBullet(pActor, 12, -1, pActor->spr.angle, pTarget, 1);
+                    BuildBullet(pActor, 12, INT_MAX, pActor->spr.angle, pTarget, 1);
                 }
                 else
                 {

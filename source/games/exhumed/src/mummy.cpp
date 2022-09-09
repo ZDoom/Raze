@@ -320,7 +320,7 @@ void AIMummy::Tick(RunListEvent* ev)
             SetQuake(pActor, 100);
 
             // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
-            auto pBullet = BuildBullet(pActor, 9, -15360, pActor->spr.angle, pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 9, -60, pActor->spr.angle, pTarget, 1);
             CheckMummyRevive(pActor);
 
             if (pBullet)

@@ -800,7 +800,7 @@ loc_flag:
                         }
                     }
 
-                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle, target, var_1C, h);
+                    BuildBullet(pPlayerActor, nAmmoType, nHeight * zinttoworld, nAngle, target, var_1C, h);
                     break;
                 }
 

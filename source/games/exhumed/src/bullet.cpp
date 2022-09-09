@@ -280,12 +280,6 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 }
 
 
-void BackUpBullet(int *x, int *y, int nAngle)
-{
-    *x -= bcos(nAngle, -11);
-    *y -= bsin(nAngle, -11);
-}
-
 int MoveBullet(int nBullet)
 {
 
@@ -524,7 +518,7 @@ void SetBulletEnemy(int nBullet, DExhumedActor* pEnemy)
     }
 }
 
-DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngle nAngle, DExhumedActor* pTarget, int nDoubleDamage, int nPitch)
+DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DAngle nAngle, DExhumedActor* pTarget, int nDoubleDamage, int nPitch)
 {
     Bullet sBullet;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
@@ -573,11 +567,10 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
     }
 
     auto pBulletActor = insertActor(pSector, 200);
-	int nHeight = GetActorHeight(pActor);
-    nHeight = nHeight - (nHeight >> 2);
+	double fHeight = GetActorHeightF(pActor) * 0.75;
 
-    if (nZOffset == -1) {
-        nZOffset = -nHeight;
+    if (fZOffset == INT_MAX) {
+        fZOffset = -fHeight;
     }
 
     pBulletActor->spr.pos = pActor->spr.pos;
@@ -650,10 +643,10 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
     pBullet->nRunRec = runlist_AddRunRec(pBulletActor->spr.lotag - 1, nBullet, 0xB0000);
     pBullet->nRunRec2 = runlist_AddRunRec(NewRun, nBullet, 0xB0000);
     pBullet->nDoubleDamage = nDoubleDamage;
-    pBulletActor->add_int_z(nZOffset);
+    pBulletActor->spr.pos.Z += fZOffset;
     pBulletActor->backuppos();
 
-    int var_18 = 0;
+    double nVertVel = 0;
 
     pSector = pBulletActor->sector();
 
@@ -671,7 +664,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
 
     if (pTarget == nullptr)
     {
-        var_18 = (-bsin(nPitch) * pBulletInfo->field_4) >> 11;
+        nVertVel = (-DAngle::fromBuild(nPitch).Sin() * 8 * pBulletInfo->field_4);
     }
     else
     {
@@ -681,18 +674,18 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
         }
         else
         {
-            nHeight = GetActorHeight(pTarget);
+            fHeight = GetActorHeightF(pTarget);
 
             if (pTarget->spr.statnum == 100)
             {
-                nHeight -= nHeight >> 2;
+                fHeight *= 0.75;
             }
             else
             {
-                nHeight -= nHeight >> 1;
+                fHeight *= 0.5;
             }
 
-            int var_20 = pTarget->int_pos().Z - nHeight;
+            double fTop = pTarget->spr.pos.Z - fHeight;
 
             DVector2 xy;
 
@@ -725,14 +718,14 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
                 xy = pTarget->spr.pos.XY() - pBulletActor->spr.pos.XY();
             }
 
-            int nSqrt = (xy * worldtoint).Length();
+            double nSqrt = xy.Length();
             if (nSqrt > 0)
             {
-                var_18 = ((var_20 - pBulletActor->int_pos().Z) * pBulletInfo->field_4) / nSqrt;
+                nVertVel = ((fTop - pBulletActor->spr.pos.Z) * pBulletInfo->field_4) / nSqrt;
             }
             else
             {
-                var_18 = 0;
+                nVertVel = 0;
             }
         }
     }
@@ -750,7 +743,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
     {
         pBullet->field_10 = pBulletInfo->field_4;
 		pBullet->vect.XY() = nAngle.ToVector() * pBulletInfo->field_4 * 128;
-        pBullet->vect.Z = (var_18 >> 3) * zinttoworld;
+        pBullet->vect.Z = nVertVel * 0.125 * zmaptoworld;
     }
 
     return pBulletActor;

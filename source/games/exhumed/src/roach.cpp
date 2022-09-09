@@ -337,7 +337,7 @@ void AIRoach::Tick(RunListEvent* ev)
         {
             if (nFlag & 0x80)
             {
-                BuildBullet(pActor, 13, -1, pActor->spr.angle, pTarget, 1);
+                BuildBullet(pActor, 13, INT_MAX, pActor->spr.angle, pTarget, 1);
             }
         }
 

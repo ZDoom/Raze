@@ -76,11 +76,10 @@ int GrabBullet();
 void DestroyBullet(int nRun);
 int MoveBullet(int nBullet);
 void SetBulletEnemy(int nBullet, DExhumedActor* nEnemy);
-DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int val1, DAngle nAngle, DExhumedActor* pTarget, int val3, int horiz = 0);
+DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double zofs, DAngle nAngle, DExhumedActor* pTarget, int val3, int horiz = 0);
 
 void IgniteSprite(DExhumedActor* nSprite);
 void FuncBullet(int, int, int, int);
-void BackUpBullet(int *x, int *y, int nAngle);
 
 // fish
 

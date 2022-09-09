@@ -312,7 +312,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto nBulletSprite = BuildBullet(pActor, 16, -1, pActor->spr.angle, pTarget, 1);
+        auto nBulletSprite = BuildBullet(pActor, 16, INT_MAX, pActor->spr.angle, pTarget, 1);
         if (nBulletSprite)
         {
             PlotCourseToSprite(nBulletSprite, pTarget);
