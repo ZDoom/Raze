@@ -1312,7 +1312,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = nPic;
     pActor->spr.lotag = runlist_HeadRun() + 1;
-    pActor->spr.clipdist = 40;
+    pActor->set_native_clipdist(40);
 
 //	GrabTimeSlot(3);
 

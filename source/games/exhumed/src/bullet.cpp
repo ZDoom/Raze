@@ -601,7 +601,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
         pBulletActor->spr.pal = 0;
     }
 
-    pBulletActor->spr.clipdist = 25;
+    pBulletActor->set_native_clipdist(25);
 
     int nRepeat = pBulletInfo->xyRepeat;
     if (nRepeat < 0) {

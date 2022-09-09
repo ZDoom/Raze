@@ -92,7 +92,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
-    pActor->spr.clipdist = 30;
+    pActor->set_native_clipdist(30);
     pActor->spr.angle = nAngle;
     pActor->spr.xrepeat = 50;
     pActor->spr.yrepeat = 50;

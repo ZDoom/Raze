@@ -291,7 +291,7 @@ void RestartPlayer(int nPlayer)
 
 	pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 	pActor->spr.shade = -12;
-	pActor->spr.clipdist = 58;
+	pActor->set_native_clipdist(58);
 	pActor->spr.pal = 0;
 	pActor->spr.xrepeat = 40;
 	pActor->spr.yrepeat = 40;

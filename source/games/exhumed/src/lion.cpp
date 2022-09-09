@@ -56,7 +56,7 @@ void BuildLion(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-    pActor->spr.clipdist = 60;
+    pActor->set_native_clipdist(60);
     pActor->spr.shade = -12;
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;
