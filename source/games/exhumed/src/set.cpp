@@ -387,9 +387,7 @@ void AISet::Tick(RunListEvent* ev)
             }
 
             // loc_338E2
-            int nAngle = pActor->int_ang() & 0xFFF8;
-            pActor->set_int_xvel(bcos(nAngle, -1));
-            pActor->set_int_yvel(bsin(nAngle, -1));
+			pActor->vel.XY() = pActor->spr.angle.ToVector() * 512;
 
             if (pActor->nIndex2)
             {

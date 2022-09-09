@@ -276,13 +276,11 @@ void AILion::Tick(RunListEvent* ev)
 
             if (pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
             {
-                pActor->set_int_xvel(bcos(nAng, 1));
-                pActor->set_int_yvel(bsin(nAng, 1));
+				pActor->vel.XY() = pActor->spr.angle.ToVector() * 2048;
             }
             else
             {
-                pActor->set_int_xvel(bcos(nAng, -1));
-                pActor->set_int_yvel(bsin(nAng, -1));
+				pActor->vel.XY() = pActor->spr.angle.ToVector() * 512;
             }
         }
 

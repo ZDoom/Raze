@@ -51,8 +51,8 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.cstat = 0;
     pChunkActor->spr.shade = -12;
     pChunkActor->spr.pal = 0;
-    pChunkActor->set_int_xvel((RandomSize(5) - 16) << 8);
-    pChunkActor->set_int_yvel((RandomSize(5) - 16) << 8);
+    pChunkActor->vel.X = ((RandomSize(5) - 16) << 4);
+    pChunkActor->vel.Y = ((RandomSize(5) - 16) << 4);
     pChunkActor->spr.xrepeat = 64;
     pChunkActor->spr.yrepeat = 64;
     pChunkActor->spr.xoffset = 0;

@@ -1606,7 +1606,6 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
 
 	auto pos = (pActor->spr.pos - pRadialActor->spr.pos) / 16.;
 
-    int edi = 0;
 
 	if (abs(pos.X) > nDamageRadius) {
 		return 0;
@@ -1622,6 +1621,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
 
 	double nDist = pos.XY().Length();
 
+	int edi = 0;
     if (nDist < nDamageRadius)
     {
         auto nCStat = pActor->spr.cstat;
@@ -1633,22 +1633,20 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
                 pActor->spr.pos.plusZ(-32),
                 pActor->sector()))
         {
-            edi = int((nRadialDamage * (nDamageRadius - nDist)) / (nDamageRadius));
+            edi = int((nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius);
 
             if (edi < 0) {
                 edi = 0;
             }
             else if (edi > 20)
             {
-                int nAngle = getangle(pos);
+                auto nAngle = VecToAngle(pos);
+				pActor->vel.XY() += nAngle.ToVector() * edi * 128;
 
-                pActor->add_int_xvel( (edi * bcos(nAngle)) >> 3);
-                pActor->add_int_yvel((edi * bsin(nAngle)) >> 3);
-                pActor->add_int_zvel(- edi * 24);
+                pActor->vel.Z = (- edi * 24) / 256.;
 
-                if (pActor->vel.Z < -14) {
-                    pActor->set_int_zvel(-3584);
-                }
+                if (pActor->vel.Z < -14)
+					pActor->vel.Z = -14;
             }
         }
 

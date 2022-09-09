@@ -92,98 +92,6 @@ void SerializeMove(FSerializer& arc)
     }
 }
 
-signed int lsqrt(int a1)
-{
-    int v1;
-    int v2;
-    signed int result;
-
-    v1 = a1;
-    v2 = a1 - 0x40000000;
-
-    result = 0;
-
-    if (v2 >= 0)
-    {
-        result = 32768;
-        v1 = v2;
-    }
-    if (v1 - ((result << 15) + 0x10000000) >= 0)
-    {
-        v1 -= (result << 15) + 0x10000000;
-        result += 16384;
-    }
-    if (v1 - ((result << 14) + 0x4000000) >= 0)
-    {
-        v1 -= (result << 14) + 0x4000000;
-        result += 8192;
-    }
-    if (v1 - ((result << 13) + 0x1000000) >= 0)
-    {
-        v1 -= (result << 13) + 0x1000000;
-        result += 4096;
-    }
-    if (v1 - ((result << 12) + 0x400000) >= 0)
-    {
-        v1 -= (result << 12) + 0x400000;
-        result += 2048;
-    }
-    if (v1 - ((result << 11) + 0x100000) >= 0)
-    {
-        v1 -= (result << 11) + 0x100000;
-        result += 1024;
-    }
-    if (v1 - ((result << 10) + 0x40000) >= 0)
-    {
-        v1 -= (result << 10) + 0x40000;
-        result += 512;
-    }
-    if (v1 - ((result << 9) + 0x10000) >= 0)
-    {
-        v1 -= (result << 9) + 0x10000;
-        result += 256;
-    }
-    if (v1 - ((result << 8) + 0x4000) >= 0)
-    {
-        v1 -= (result << 8) + 0x4000;
-        result += 128;
-    }
-    if (v1 - ((result << 7) + 4096) >= 0)
-    {
-        v1 -= (result << 7) + 4096;
-        result += 64;
-    }
-    if (v1 - ((result << 6) + 1024) >= 0)
-    {
-        v1 -= (result << 6) + 1024;
-        result += 32;
-    }
-    if (v1 - (32 * result + 256) >= 0)
-    {
-        v1 -= 32 * result + 256;
-        result += 16;
-    }
-    if (v1 - (16 * result + 64) >= 0)
-    {
-        v1 -= 16 * result + 64;
-        result += 8;
-    }
-    if (v1 - (8 * result + 16) >= 0)
-    {
-        v1 -= 8 * result + 16;
-        result += 4;
-    }
-    if (v1 - (4 * result + 4) >= 0)
-    {
-        v1 -= 4 * result + 4;
-        result += 2;
-    }
-    if (v1 - (2 * result + 1) >= 0)
-        result += 1;
-
-    return result;
-}
-
 void MoveThings()
 {
     thinktime.Reset();
@@ -1275,9 +1183,9 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     pActor->spr.shade = -12;
     pActor->spr.pal = 0;
 
-    pActor->set_int_xvel((RandomSize(5) - 16) << 7);
-    pActor->set_int_yvel((RandomSize(5) - 16) << 7);
-    pActor->set_int_zvel((-(RandomSize(8) + 512)) << 3);
+    pActor->vel.X = ((RandomSize(5) - 16) << 3);
+    pActor->vel.Y = ((RandomSize(5) - 16) << 3);
+    pActor->vel.Z = -(RandomSize(8) / 32. + 16);
 
     if (bSpecial)
     {
@@ -1330,7 +1238,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         if (!nVal.type && !nVal.exbits)
             return;
 
-        int nAngle;
+        DAngle nAngle;
 
         if (nVal.exbits & kHitAux2)
         {
@@ -1347,11 +1255,11 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
             else if (nVal.type == kHitSprite)
             {
-                nAngle = nVal.actor()->int_ang();
+                nAngle = nVal.actor()->spr.angle;
             }
             else if (nVal.type == kHitWall)
             {
-                nAngle = GetWallNormal(nVal.hitWall);
+                nAngle = DAngle::fromBuild(GetWallNormal(nVal.hitWall));
             }
             else
             {
@@ -1359,11 +1267,10 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
 
             // loc_16E0C
-            int nSqrt = lsqrt(((pActor->int_yvel() >> 10) * (pActor->int_yvel() >> 10)
-                + (pActor->int_xvel() >> 10) * (pActor->int_xvel() >> 10)) >> 8);
+			double nSqrt = pActor->vel.Length();
 
-            pActor->set_int_xvel(bcos(nAngle) * (nSqrt >> 1));
-            pActor->set_int_yvel(bsin(nAngle) * (nSqrt >> 1));
+
+			pActor->vel.XY() = nAngle.ToVector() * nSqrt * 0.5;
             return;
         }
     }

@@ -149,16 +149,6 @@ public:
 		return vel.Y * worldtoint;
 	}
 
-	void set_int_yvel(int v)
-	{
-		vel.Y = v * inttoworld;
-	}
-
-	void add_int_yvel(int v)
-	{
-		vel.Y += v * inttoworld;
-	}
-
 	vec3_t int_vel() const
 	{
 		return vec3_t(FloatToFixed(vel.X), FloatToFixed(vel.Y), FloatToFixed(vel.Z));

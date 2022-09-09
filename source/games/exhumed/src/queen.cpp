@@ -278,10 +278,7 @@ void DestroyAllEggs()
 
 void SetHeadVel(DExhumedActor* pActor)
 {
-    int nAngle = pActor->int_ang();
-
-    pActor->set_int_xvel(bcos(nAngle, nVelShift));
-    pActor->set_int_yvel(bsin(nAngle, nVelShift));
+	pActor->vel.XY() = pActor->spr.angle.ToVector() * 1024 * (1 << nVelShift);
 }
 
 Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val1, int val2)
@@ -570,8 +567,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
 
             pActor->set_int_ang(nAngle);
-            pActor->set_int_xvel(bcos(nAngle, -1));
-            pActor->set_int_yvel(bsin(nAngle, -1));
+			pActor->vel.XY() = pActor->spr.angle.ToVector() * 512;
         }
 
         break;

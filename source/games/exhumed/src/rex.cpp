@@ -253,9 +253,7 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 if (((PlotCourseToSprite(pActor, pTarget) >> 8) >= 60) || pActor->nCount > 0)
                 {
-                    int nAngle = pActor->int_ang() & 0xFFF8;
-                    pActor->set_int_xvel(bcos(nAngle, -2));
-                    pActor->set_int_yvel(bsin(nAngle, -2));
+					pActor->vel.XY() = pActor->spr.angle.ToVector() * 256;
                 }
                 else
                 {
@@ -331,25 +329,21 @@ void AIRex::Tick(RunListEvent* ev)
 
                 if (pHitActor->spr.statnum && pHitActor->spr.statnum < 107)
                 {
-                    int nAngle = pActor->int_ang();
-
                     runlist_DamageEnemy(nMov.actor(), pActor, 15);
 
-                    int xVel = bcos(nAngle) * 15;
-                    int yVel = bsin(nAngle) * 15;
+					auto vel = pActor->spr.angle.ToVector() * 1024 * 15;
 
                     if (pHitActor->spr.statnum == 100)
                     {
                         auto nPlayer = GetPlayerFromActor(nMov.actor());
-                        PlayerList[nPlayer].nDamage.X += (xVel << 4);
-                        PlayerList[nPlayer].nDamage.Y += (yVel << 4);
-                        pHitActor->set_int_zvel(-3584);
+                        PlayerList[nPlayer].nDamage.X += (int(vel.X * worldtoint) << 4);
+                        PlayerList[nPlayer].nDamage.Y += (int(vel.Y * worldtoint) << 4);
+                        pHitActor->vel.Z = -14;
                     }
                     else
                     {
-                        pHitActor->add_int_xvel( (xVel >> 3));
-                        pHitActor->add_int_yvel((yVel >> 3));
-                        pHitActor->set_int_zvel(-2880);
+						pHitActor->vel.XY() = vel / 8.;
+                        pHitActor->vel.Z = 11.25;
                     }
                 }
 

@@ -223,23 +223,18 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 
             if (nStat == kStatAnubisDrum)
             {
-                int nAngle = (pActor->int_ang() + 256) - RandomSize(9);
+                auto nAngle = (pActor->spr.angle + DAngle22_5) - DAngle::fromBuild(RandomSize(9));
 
-                pHitActor->set_int_xvel(bcos(nAngle, 1));
-                pHitActor->set_int_yvel(bsin(nAngle, 1));
-                pHitActor->set_int_zvel((-(RandomSize(3) + 1)) << 8);
+				pHitActor->vel.XY() = nAngle.ToVector() * 2048;
+                pHitActor->vel.Z = -(RandomSize(3) + 1);
             }
             else
             {
-                int xVel = pHitActor->int_xvel();
-                int yVel = pHitActor->int_yvel();
-
+                auto Vel = pHitActor->vel.XY();
                 pHitActor->VelFromAngle(-2);
 
                 MoveCreature(pHitActor);
-
-                pHitActor->set_int_xvel(xVel);
-                pHitActor->set_int_yvel(yVel);
+				pHitActor->vel.XY() = Vel;
             }
 
             break;

@@ -1380,20 +1380,18 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     }
     else
     {
-        int nAngle = (pActor->int_ang() + 256) - RandomSize(9);
+        auto nAngle = (pActor->spr.angle + DAngle22_5) - DAngle::fromBuild(RandomSize(9));
 
         if (nVal)
         {
-            pSpark->set_int_xvel(bcos(nAngle, -5));
-            pSpark->set_int_yvel(bsin(nAngle, -5));
+			pSpark->vel.XY() = nAngle.ToVector() * 32;
         }
         else
         {
-            pSpark->set_int_xvel(bcos(nAngle, -6));
-            pSpark->set_int_yvel(bsin(nAngle, -6));
+			pSpark->vel.XY() = nAngle.ToVector() * 16;
         }
 
-        pSpark->set_int_zvel(-(RandomSize(4) << 7));
+        pSpark->vel.Z = -RandomSize(4) * 0.5;
         pSpark->spr.picnum = kTile985 + nVal;
     }
 
