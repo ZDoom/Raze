@@ -1380,7 +1380,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     }
     else
     {
-        auto nAngle = (pActor->spr.angle + DAngle22_5) - DAngle::fromBuild(RandomSize(9));
+        auto nAngle = (pActor->spr.angle + DAngle22_5) - RandomAngle9();
 
         if (nVal)
         {

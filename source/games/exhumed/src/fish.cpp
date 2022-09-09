@@ -184,7 +184,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 
 void IdleFish(DExhumedActor* pActor, int edx)
 {
-    pActor->add_int_ang((256 - RandomSize(9)) + 1024);
+    pActor->spr.angle += DAngle180 + DAngle45 - RandomAngle9();
     pActor->norm_ang();
 
     pActor->VelFromAngle(-8);
@@ -192,7 +192,7 @@ void IdleFish(DExhumedActor* pActor, int edx)
     pActor->nAction = 0;
     pActor->nFrame = 0;
 
-    pActor->set_int_zvel(RandomSize(9));
+    pActor->vel.Z = RandomSize(9) / 256.;
 
     if (!edx)
     {

@@ -91,4 +91,9 @@ int RandomSize(int nSize)
 
     return randSize;
 }
+
+DAngle RandomAngle9()
+{
+	return DAngle::fromBuild(RandomSize(9));
+}
 END_PS_NS

@@ -423,7 +423,6 @@ void BuildQueenEgg(int nQueen, int nVal)
     if (!pActor) return;
 
     auto pSector =pActor->sector();
-    int nAngle = pActor->int_ang();
 
     auto pActor2 = insertActor(pSector, 121);
 
@@ -434,7 +433,7 @@ void BuildQueenEgg(int nQueen, int nVal)
     pActor2->spr.yoffset = 0;
     pActor2->spr.shade = -12;
     pActor2->spr.picnum = 1;
-    pActor2->set_int_ang((RandomSize(9) + (nAngle - 256)) & kAngleMask);
+	pActor2->spr.angle = pActor->spr.angle + RandomAngle9() - DAngle45;
     pActor2->backuppos();
 
     if (!nVal)
@@ -597,8 +596,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
             [[fallthrough]];
         case kHitWall:
-            pActor->set_int_ang((RandomSize(9) + 768));
-            pActor->norm_ang();
+            pActor->spr.angle = DAngle45 + DAngle90 + RandomAngle9();
             pActor->VelFromAngle(-3);
             pActor->set_int_zvel(-RandomSize(5));
             break;
@@ -876,7 +874,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     runlist_DamageEnemy(pTarget, pActor, 10);
                     D3PlayFX(StaticSound[kSoundQTail] | 0x2000, pActor);
 
-                    pActor->add_int_ang(RandomSize(9) + 768);
+					pActor->spr.angle += DAngle45 + DAngle90 + RandomAngle9();
                     pActor->norm_ang();
 
                     pActor->set_int_zvel((-20) - RandomSize(6));
@@ -1266,7 +1264,7 @@ void AIQueen::Tick(RunListEvent* ev)
             }
             [[fallthrough]];
         case 0x8000:
-            pActor->add_int_ang(256);
+			pActor->spr.angle += DAngle45;
             pActor->norm_ang();
 
             SetQueenSpeed(pActor, si);

@@ -462,7 +462,7 @@ void AILion::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->set_int_ang((RandomSize(9) + (pActor->int_ang() + 768)) & kAngleMask);
+                pActor->spr.angle += RandomAngle9() + DAngle45 + DAngle90;
             }
 
             pActor->set_int_zvel(-1000);

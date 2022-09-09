@@ -404,7 +404,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
     if (mode == 0)
     {
         PlotCourseToSprite(pActor, pTarget);
-        pActor->add_int_ang(RandomSize(7) - 63);
+        pActor->spr.angle += DAngle::fromBuild(RandomSize(7) - 63);
         pActor->norm_ang();
 
         pActor->VelFromAngle();

@@ -121,6 +121,7 @@ uint8_t RandomByte();
 uint16_t RandomWord();
 int RandomLong();
 int RandomSize(int nSize);
+DAngle RandomAngle9();
 
 // record
 
