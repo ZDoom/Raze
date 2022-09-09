@@ -834,9 +834,10 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			break;
 
 		case SE_31_FLOOR_RISE_FALL:
-			actor->temp_data[1] = sectp->int_floorz();
+			actor->temp_pos.Z = actor->spr.yint * zmaptoworld;
+			actor->temp_pos.Y = sectp->floorz;
 			//	actor->temp_data[2] = actor->spr.hitag;
-			if (actor->int_ang() != 1536) sectp->setfloorz(actor->spr.pos.Z);
+			if (actor->spr.intangle != 1536) sectp->setfloorz(actor->spr.pos.Z);
 
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;

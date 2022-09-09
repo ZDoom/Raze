@@ -4633,9 +4633,9 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 
 		if (actor->temp_data[2] == 1) // Retract
 		{
-			if (actor->int_ang() != 1536)
+			if (actor->spr.intangle != 1536)
 			{
-				if (abs(sec->int_floorz() - actor->int_pos().Z) < actor->spr.yint)
+				if (abs(sec->floorz- actor->spr.pos.Z) < actor->temp_pos.Z)
 				{
 					sec->setfloorz(actor->spr.pos.Z);
 					actor->temp_data[2] = 0;
@@ -4645,18 +4645,18 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = Sgn(actor->spr.pos.Z - sec->floorz) * actor->spr.yint;
-					sec->add_int_floorz(l);
+					double l = Sgn(actor->spr.pos.Z - sec->floorz) * actor->temp_pos.Z;
+					sec->addfloorz(l);
 
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
-								ps[a2->PlayerIndex()].player_add_int_z(l);
+								ps[a2->PlayerIndex()].pos.Z +=l;
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
-							a2->add_int_z(l);
+							a2->spr.pos.Z += l;
 							a2->floorz = sec->floorz;
 						}
 					}
@@ -4664,9 +4664,9 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				if (abs(sec->int_floorz() - actor->temp_data[1]) < actor->spr.yint)
+				if (abs(sec->floorz - actor->temp_pos.Y) < actor->temp_pos.Z)
 				{
-					sec->set_int_floorz(actor->temp_data[1]);
+					sec->floorz = actor->temp_pos.Y;
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
@@ -4674,18 +4674,18 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = Sgn(actor->temp_data[1] - sec->int_floorz()) * actor->spr.yint;
-					sec->add_int_floorz(l);
+					double l = Sgn(actor->temp_pos.Y - sec->floorz) * actor->temp_pos.Z;
+					sec->addfloorz(l);
 
 					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
-								ps[a2->PlayerIndex()].player_add_int_z(l);
+								ps[a2->PlayerIndex()].pos.Z += l;
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
-							a2->add_int_z(l);
+							a2->spr.pos.Z += l;
 							a2->floorz = sec->floorz;
 						}
 					}
@@ -4694,9 +4694,9 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			return;
 		}
 
-		if ((actor->int_ang() & 2047) == 1536)
+		if ((actor->spr.intangle & 2047) == 1536)
 		{
-			if (abs(actor->int_pos().Z - sec->int_floorz()) < actor->spr.yint)
+			if (abs(actor->spr.pos.Z - sec->floorz) < actor->temp_pos.Z)
 			{
 				callsound(actor->sector(), actor);
 				actor->temp_data[0] = 0;
@@ -4705,18 +4705,18 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				int l = Sgn(actor->int_pos().Z - sec->int_floorz()) * actor->spr.yint;
-				sec->add_int_floorz(l);
+				double l = Sgn(actor->spr.pos.Z - sec->floorz) * actor->temp_pos.Z;
+				sec->addfloorz(l);
 
 				DukeSectIterator it(actor->sector());
 				while (auto a2 = it.Next())
 				{
 					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
-							ps[a2->PlayerIndex()].player_add_int_z(l);
+							ps[a2->PlayerIndex()].pos.Z += l;
 					if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
-						a2->add_int_z(l);
+						a2->spr.pos.Z += l;
 						a2->floorz = sec->floorz;
 					}
 				}
@@ -4724,7 +4724,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 		}
 		else
 		{
-			if (abs(sec->int_floorz() - actor->temp_data[1]) < actor->spr.yint)
+			if (abs(sec->floorz - actor->temp_pos.Y) < actor->temp_pos.Z)
 			{
 				actor->temp_data[0] = 0;
 				callsound(actor->sector(), actor);
@@ -4733,18 +4733,18 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				int l = Sgn(actor->int_pos().Z - actor->temp_data[1]) * actor->spr.yint;
-				sec->add_int_floorz(-l);
+				double l = Sgn(actor->spr.pos.Z - actor->temp_pos.Y) * actor->temp_pos.Z;
+				sec->addfloorz(-l);
 
 				DukeSectIterator it(actor->sector());
 				while (auto a2 = it.Next())
 				{
 					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
-							ps[a2->PlayerIndex()].player_add_int_z(-l);
+							ps[a2->PlayerIndex()].pos.Z -= l;
 					if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
-						a2->add_int_z(-l);
+						a2->spr.pos.Z -= l;
 						a2->floorz = sec->floorz;
 					}
 				}
