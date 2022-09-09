@@ -812,7 +812,7 @@ void CreatePushBlock(sectortype* pSector)
 
     sBlockInfo[nBlock].field_8 = mindist * worldtoint;
 
-    pActor->spr.clipdist =  (int(mindist * worldtoint) & 0xFF) << 2;
+    pActor->set_native_clipdist( (int(mindist * worldtoint) & 0xFF) << 2);
     pSector->extra = nBlock;
 }
 
@@ -956,7 +956,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                     pos.Y = pActor->int_pos().Y;
                     pSectorB = pSector;
 
-                    clipmove(pos, &pSectorB, -xvect, -yvect, 4 * pActor->spr.clipdist, 0, 0, CLIPMASK0, scratch);
+                    clipmove(pos, &pSectorB, -xvect, -yvect, 4 * pActor->native_clipdist(), 0, 0, CLIPMASK0, scratch);
 
                     if (pSectorB) {
                         ChangeActorSect(pActor, pSectorB);
@@ -973,9 +973,9 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                 pSectorB = pNextSector;
 
                 clipmove(pos, &pSectorB,
-                    -xvect - (bcos(nAngle) * (4 * pActor->spr.clipdist)),
-                    -yvect - (bsin(nAngle) * (4 * pActor->spr.clipdist)),
-                    4 * pActor->spr.clipdist, 0, 0, CLIPMASK0, scratch);
+                    -xvect - (bcos(nAngle) * (4 * pActor->native_clipdist())),
+                    -yvect - (bsin(nAngle) * (4 * pActor->native_clipdist())),
+                    4 * pActor->native_clipdist(), 0, 0, CLIPMASK0, scratch);
 
 
                 if (pSectorB != pNextSector && (pSectorB == pSector || pNextSector == pSector))
@@ -989,8 +989,8 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                     else
                     {
                         movesprite(pActor,
-                            (xvect << 14) + bcos(nAngle) * pActor->spr.clipdist,
-                            (yvect << 14) + bsin(nAngle) * pActor->spr.clipdist,
+                            (xvect << 14) + bcos(nAngle) * pActor->native_clipdist(),
+                            (yvect << 14) + bsin(nAngle) * pActor->native_clipdist(),
                             0, 0, 0, CLIPMASK0);
                     }
                 }
@@ -1018,7 +1018,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             if (pActor->spr.statnum >= 99 && nZVal == pActor->int_pos().Z && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 pSectorB = pSector;
-                clipmove(pActor->spr.pos, &pSectorB, xvect, yvect, 4 * pActor->spr.clipdist, 5120, -5120, CLIPMASK0, scratch);
+                clipmove(pActor->spr.pos, &pSectorB, xvect, yvect, 4 * pActor->native_clipdist(), 5120, -5120, CLIPMASK0, scratch);
             }
         }
     }

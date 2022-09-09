@@ -1048,7 +1048,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
 
                 case SPAWN_SPOT:
-                    if (actor->spr.clipdist == 3)
+                    if (actor->native_clipdist() == 3)
                     {
                         change_actor_stat(actor, STAT_NO_STATE);
                         SpawnUser(actor, 0, nullptr);
@@ -1118,7 +1118,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     else
                         sop->max_damage = actorNew->user.MaxHealth;
 
-                    switch (actor->spr.clipdist)
+                    switch (actor->native_clipdist()) // notreallyclipdist
                     {
                     case 0:
                         break;
@@ -2562,7 +2562,7 @@ void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
             {
 
             case SPAWN_SPOT:
-                if (actor->spr.clipdist == 3)
+                if (actor->native_clipdist() == 3)
                 {
                     if (animator)
                     {

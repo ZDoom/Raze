@@ -3559,7 +3559,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
             if (hit.hitSector != nullptr && abs(hit.hitSector->floorz - pp->pos.Z) < 50)
             {
 				double dist = (pp->pos.XY() - hit.hitpos.XY()).Length();
-				double comp = ((((int)pp->actor->spr.clipdist)<<2) + 256) * inttoworld;
+				double comp = (pp->actor->fClipdist() + 16);
                 if (dist < comp)
                     return true;
             }

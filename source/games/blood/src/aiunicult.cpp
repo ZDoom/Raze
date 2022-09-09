@@ -243,7 +243,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	else if (pExtra->weaponType == kGenDudeWeaponSummon)
 	{
 		DBloodActor* spawned = nullptr;
-		int dist = actor->spr.clipdist << 4;
+		int dist = actor->native_clipdist() << 4;
 		if (pExtra->slaveCount <= gGameOptions.nDifficulty)
 		{
 			if ((spawned = actSpawnDude(actor, pExtra->curWeapon, dist + Random(dist), 0)) != NULL)
@@ -489,7 +489,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	// so i use fake velocity with fixed value and pass it as argument.
 	auto velocity = actor->vel;
 	if (inAttack(actor->xspr.aiState))
-		velocity.X = velocity.Y = FixedToFloat(ClipLow(actor->spr.clipdist >> 1, 1));
+		velocity.X = velocity.Y = FixedToFloat(ClipLow(actor->native_clipdist() >> 1, 1));
 
 	//aiChooseDirection(actor,getangle(dx, dy));
 	aiGenDudeChooseDirection(actor, VecToAngle(dx, dy), velocity);
@@ -1881,7 +1881,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 	spawned->spr.angle = actor->spr.angle;
 	SetActor(spawned, pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
-	spawned->spr.clipdist = dudeInfo[nType - kDudeBase].clipdist;
+	spawned->set_native_clipdist(dudeInfo[nType - kDudeBase].clipdist);
 
 	// inherit weapon, seq and sound settings.
 	spawned->xspr.data1 = source->xspr.data1;
@@ -2262,7 +2262,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		pExtra->moveSpeed = getGenDudeMoveSpeed(actor, 0, true, false);
 		pExtra->initVals[0] = actor->spr.xrepeat;
 		pExtra->initVals[1] = actor->spr.yrepeat;
-		pExtra->initVals[2] = actor->spr.clipdist;
+		pExtra->initVals[2] = actor->native_clipdist();
 		if (propId) break;
 		[[fallthrough]];
 
@@ -2476,7 +2476,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		if (!(actor->sector()->floorstat & CSTAT_SECTOR_SKY))
 			actor->add_int_z(ClipHigh(actor->sector()->int_floorz() - zBot, 0));
 
-		actor->spr.clipdist = ClipRange((actor->spr.xrepeat + actor->spr.yrepeat) >> 1, 4, 120);
+		actor->set_native_clipdist(ClipRange((actor->spr.xrepeat + actor->spr.yrepeat) >> 1, 4, 120));
 		if (propId) break;
 	}
 	}

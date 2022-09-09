@@ -144,11 +144,11 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 	if (target->IsPlayerActor() && pDudeExtraE->birthCounter < 10)
 	{
 		if (nDist < 0x1a00 && nDist > 0x1400 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
-			spawned = actSpawnDude(actor, kDudeSpiderRed, actor->spr.clipdist, 0);
+			spawned = actSpawnDude(actor, kDudeSpiderRed, actor->native_clipdist(), 0);
 		else if (nDist < 0x1400 && nDist > 0xc00 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
-			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->spr.clipdist, 0);
+			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->native_clipdist(), 0);
 		else if (nDist < 0xc00 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
-			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->spr.clipdist, 0);
+			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->native_clipdist(), 0);
 
 		if (spawned)
 		{

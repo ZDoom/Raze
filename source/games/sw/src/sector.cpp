@@ -1263,20 +1263,18 @@ void KillMatchingCrackSprites(short match)
 
 void WeaponExplodeSectorInRange(DSWActor* wActor)
 {
-    int radius;
-
     SWStatIterator it(STAT_SPRITE_HIT_MATCH);
     while (auto actor = it.Next())
     {
         // test to see if explosion is close to crack sprite
         double dist = (wActor->spr.pos - actor->spr.pos).Length();
 
-        if (actor->spr.clipdist == 0)
+        if (actor->native_clipdist() == 0)
             continue;
 
-        radius = (((int)actor->spr.clipdist) << 2) * 8;
+        double radius = actor->fClipdist() * 8;
 
-		if (dist > ((wActor->user.Radius/2) + radius) * inttoworld)
+		if (dist > (wActor->user.fRadius()/2) + radius)
             continue;
 
         if (!FAFcansee(wActor->spr.pos, wActor->sector(), actor->spr.pos, actor->sector()))

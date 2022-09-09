@@ -268,7 +268,7 @@ public:
 	
 	double fClipdist() const
 	{
-		return spr.clipdist * 0.25;
+		return spr. clipdist * 0.25;
 	}
 	
 	int int_clipdist()
@@ -279,6 +279,11 @@ public:
 	void set_native_clipdist(int val)
 	{
 		spr. clipdist = val;
+	}
+	
+	int native_clipdist()
+	{
+		return spr. clipdist;
 	}
 	
 	void set_const_clipdist(int val) // only for searching purposes

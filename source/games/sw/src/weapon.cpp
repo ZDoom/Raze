@@ -45,8 +45,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-#define RESTORE_CLIP actor->spr.clipdist = oclipdist
-#define SAVE_CLIP auto oclipdist = actor->spr.clipdist
+#define RESTORE_CLIP actor->set_native_clipdist(oclipdist)
+#define SAVE_CLIP auto oclipdist = actor->native_clipdist()
 
 struct MISSILE_PLACEMENT
 {
@@ -5412,7 +5412,7 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 
         // take off the box around the player or else you'll never get
         // the max_damage;
-        dist -= (((int)actor->spr.clipdist)<<(2));
+        dist -= (((int)actor->native_clipdist())<(2));
 
         if (dist < 0) dist = 0;
 
@@ -12072,7 +12072,7 @@ void InitSpellNapalm(PLAYER* pp)
         actor->user.ceiling_dist = (1);
         actor->user.Dist = 12.5;
 
-        auto oclipdist = plActor->spr.clipdist;
+        auto oclipdist = plActor->native_clipdist();
         plActor->set_const_clipdist(1);
 
         if (mp[i].dist_over != 0)
@@ -12086,7 +12086,7 @@ void InitSpellNapalm(PLAYER* pp)
 
         if (MissileSetPos(actor, DoNapalm, mp[i].dist_out))
         {
-            plActor->spr.clipdist = oclipdist;
+            plActor->set_native_clipdist(oclipdist);
             KillActor(actor);
             continue;
         }
@@ -12094,7 +12094,7 @@ void InitSpellNapalm(PLAYER* pp)
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actor))
             actor->user.Flags |= (SPR_UNDERWATER);
 
-        plActor->spr.clipdist = oclipdist;
+        plActor->set_native_clipdist(oclipdist);
 
         actor->user.Counter = 0;
 
@@ -12204,13 +12204,13 @@ int InitSpellMirv(PLAYER* pp)
     actorNew->user.Dist = 12.5;
 
     DSWActor* plActor = pp->actor;
-    auto oclipdist = plActor->spr.clipdist;
+    auto oclipdist = plActor->native_clipdist();
     plActor->set_const_clipdist(0);
 
 	UpdateChange(actorNew);
 
     MissileSetPos(actorNew, DoMirv, 600);
-    plActor->spr.clipdist = oclipdist;
+    plActor->set_native_clipdist(oclipdist);
 
     actorNew->user.Counter = 0;
     return 0;
@@ -13179,14 +13179,14 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->user.ceiling_dist = (1);
     actorNew->user.Dist = 12.5;
 
-    auto oclipdist = plActor->spr.clipdist;
+    auto oclipdist = plActor->native_clipdist();
     plActor->set_const_clipdist(1);
 
 	UpdateChange(actorNew);
 
     MissileSetPos(actorNew, DoBloodWorm, mp[i].dist_out);
 
-    plActor->spr.clipdist = oclipdist;
+    plActor->set_native_clipdist(oclipdist);
     actorNew->user.Counter = 0;
     actorNew->user.Counter2 = 0;
     actorNew->user.Counter3 = 0;
@@ -15344,7 +15344,7 @@ int InitTracerUzi(PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     DSWActor* plActor = pp->actor;
-    auto oclipdist = plActor->spr.clipdist;
+    auto oclipdist = plActor->native_clipdist();
     plActor->set_const_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
@@ -15356,14 +15356,14 @@ int InitTracerUzi(PLAYER* pp)
 
     if (MissileSetPos(actorNew, DoTracerStart, 800))
     {
-        plActor->spr.clipdist = oclipdist;
+        plActor->set_native_clipdist(oclipdist);
         KillActor(actorNew);
         return 0;
     }
 
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * actorNew->vel.X * (1. / 128.);
 
-    plActor->spr.clipdist = oclipdist;
+    plActor->set_native_clipdist(oclipdist);
 
     WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false);
 

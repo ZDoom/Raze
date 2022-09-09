@@ -694,7 +694,7 @@ void playerSetRace(PLAYER* pPlayer, int nLifeMode)
 	pPlayer->lifeMode = nLifeMode;
 
 	// By NoOne: don't forget to change clipdist for grow and shrink modes
-	pPlayer->actor->spr.clipdist = pDudeInfo->clipdist;
+	pPlayer->actor->set_native_clipdist(pDudeInfo->clipdist);
 
 	for (int i = 0; i < 7; i++)
 		pDudeInfo->damageVal[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
@@ -812,7 +812,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->set_int_ang(pStartZone->ang);
 	pPlayer->angle.ang = actor->spr.angle;
 	actor->spr.type = kDudePlayer1 + nPlayer;
-	actor->spr.clipdist = pDudeInfo->clipdist;
+	actor->set_native_clipdist(pDudeInfo->clipdist);
 	actor->spr.flags = 15;
 	actor->xspr.burnTime = 0;
 	actor->SetBurnSource(nullptr);
@@ -1758,7 +1758,7 @@ void ProcessInput(PLAYER* pPlayer)
 		if (pPlayer->handTime <= 0 && pPlayer->hand)
 		{
 			DBloodActor* pactor = pPlayer->actor;
-			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->spr.clipdist << 1, 0);
+			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->native_clipdist() << 1, 0);
 			if (spawned)
 			{
 				spawned->set_int_ang((pPlayer->actor->int_ang() + 1024) & 2047);

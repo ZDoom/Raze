@@ -355,7 +355,7 @@ int MoveBullet(int nBullet)
             }
         }
 
-        coll = movesprite(pActor, pBullet->vect, pActor->spr.clipdist >> 1, pActor->spr.clipdist >> 1, CLIPMASK1);
+        coll = movesprite(pActor, pBullet->vect, pActor->native_clipdist() >> 1, pActor->native_clipdist() >> 1, CLIPMASK1);
 
 MOVEEND:
         if (coll.type || coll.exbits)

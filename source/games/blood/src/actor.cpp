@@ -2383,7 +2383,7 @@ static void actInitThings()
 		// but what if it have voxel model...?
 		if (!gModernMap)
 #endif
-			act->spr.clipdist = thingInfo[nType].clipdist;
+			act->set_native_clipdist(thingInfo[nType].clipdist);
 
 		act->spr.flags = thingInfo[nType].flags;
 		if (act->spr.flags & kPhysGravity) act->spr.flags |= kPhysFalling;
@@ -2480,12 +2480,12 @@ static void actInitDudes()
 					if (gModernMap) break;
 					[[fallthrough]];
 				default:
-					act->spr.clipdist = dudeInfo[nType].clipdist;
+					act->set_native_clipdist(dudeInfo[nType].clipdist);
 					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 					break;
 				}
 #else
-				act->spr.clipdist = dudeInfo[nType].clipdist;
+				act->set_native_clipdist(dudeInfo[nType].clipdist);
 				act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 #endif
 
@@ -4183,7 +4183,7 @@ static void checkCeilHit(DBloodActor* actor)
 						}
 						if (mass1 > mass2)
 						{
-							int dmg = abs((mass1 - mass2) * (actor2->spr.clipdist - actor->spr.clipdist));
+							int dmg = abs((mass1 - mass2) * (actor2->native_clipdist()) - actor->native_clipdist());
 							if (actor2->IsDudeActor())
 							{
 								if (dmg > 0) actDamageSprite(actor2, actor, (Chance(0x2000)) ? kDamageFall : (Chance(0x4000)) ? kDamageExplode : kDamageBullet, dmg);
@@ -4347,7 +4347,7 @@ static void checkFloorHit(DBloodActor* actor)
 					if ((actor2->IsPlayerActor() && Chance(0x500)) || !actor2->IsPlayerActor())
 						actKickObject(actor, actor2);
 
-					int dmg = (mass1 - mass2) + actor->spr.clipdist;
+					int dmg = (mass1 - mass2) + actor->native_clipdist();
 					if (dmg > 0) actDamageSprite(actor, actor2, (Chance(0x2000)) ? kDamageFall : kDamageBullet, dmg);
 				}
 			}
@@ -6245,7 +6245,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 	SetActor(spawned, pos);
 
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
-	spawned->spr.clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
+	spawned->set_native_clipdist(getDudeInfo(nDude + kDudeBase)->clipdist);
 	spawned->xspr.health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
 	spawned->xspr.respawn = 1;
 	if (getSequence(getDudeInfo(nDude + kDudeBase)->seqStartID))
@@ -6303,7 +6303,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 	assert(actor->hasX());
 	const THINGINFO* pThingInfo = &thingInfo[nType];
 	actor->xspr.health = pThingInfo->startHealth << 4;
-	actor->spr.clipdist = pThingInfo->clipdist;
+	actor->set_native_clipdist(pThingInfo->clipdist);
 	actor->spr.flags = pThingInfo->flags;
 	if (actor->spr.flags & 2) actor->spr.flags |= 4;
 	actor->spr.cstat |= pThingInfo->cstat;
@@ -6392,12 +6392,12 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	int x = actor->int_pos().X + MulScale(a2, Cos(actor->int_ang() + 512), 30);
 	int y = actor->int_pos().Y + MulScale(a2, Sin(actor->int_ang() + 512), 30);
 	int z = actor->int_pos().Z + a3;
-	x += MulScale(actor->spr.clipdist, Cos(actor->int_ang()), 28);
-	y += MulScale(actor->spr.clipdist, Sin(actor->int_ang()), 28);
-	if (HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, actor->spr.clipdist) != -1)
+	x += MulScale(actor->native_clipdist(), Cos(actor->int_ang()), 28);
+	y += MulScale(actor->native_clipdist(), Sin(actor->int_ang()), 28);
+	if (HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, actor->native_clipdist()) != -1)
 	{
-		x = gHitInfo.int_hitpos().X - MulScale(actor->spr.clipdist << 1, Cos(actor->int_ang()), 28);
-		y = gHitInfo.int_hitpos().Y - MulScale(actor->spr.clipdist << 1, Sin(actor->int_ang()), 28);
+		x = gHitInfo.int_hitpos().X - MulScale(actor->native_clipdist() << 1, Cos(actor->int_ang()), 28);
+		y = gHitInfo.int_hitpos().Y - MulScale(actor->native_clipdist() << 1, Sin(actor->int_ang()), 28);
 	}
 	auto fired = actSpawnThing(actor->sector(), x, y, z, thingType);
 	fired->SetOwner(actor);
@@ -6505,7 +6505,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	int x = actor->int_pos().X + MulScale(a2, Cos(actor->int_ang() + 512), 30);
 	int y = actor->int_pos().Y + MulScale(a2, Sin(actor->int_ang() + 512), 30);
 	int z = actor->int_pos().Z + a3;
-	int clipdist = pMissileInfo->clipDist + actor->spr.clipdist;
+	int clipdist = pMissileInfo->clipDist + actor->native_clipdist();
 	x += MulScale(clipdist, Cos(actor->int_ang()), 28);
 	y += MulScale(clipdist, Sin(actor->int_ang()), 28);
 	int hit = HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, clipdist);
@@ -6530,7 +6530,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	spawned->spr.type = nType;
 	spawned->spr.shade = pMissileInfo->shade;
 	spawned->spr.pal = 0;
-	spawned->spr.clipdist = pMissileInfo->clipDist;
+	spawned->set_native_clipdist(pMissileInfo->clipDist);
 	spawned->spr.flags = 1;
 	spawned->spr.xrepeat = pMissileInfo->xrepeat;
 	spawned->spr.yrepeat = pMissileInfo->yrepeat;

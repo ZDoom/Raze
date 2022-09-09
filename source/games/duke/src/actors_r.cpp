@@ -1097,7 +1097,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 						j->spr.yrepeat = 8;
 						j->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 						j->set_int_ang((j->int_ang() + 512) & 2047);
-						j->spr.clipdist = MulScale(proj->spr.xrepeat, tileWidth(proj->spr.picnum), 7);
+						j->set_native_clipdist(MulScale(proj->spr.xrepeat, tileWidth(proj->spr.picnum), 7));
 					}
 				}
 				deletesprite(proj);
@@ -1878,7 +1878,7 @@ static void rrra_specialstats()
 				{
 					act->spr.xrepeat >>= 1;
 					act->spr.yrepeat >>= 1;
-					act->spr.clipdist = MulScale(act->spr.xrepeat, tileHeight(act->spr.picnum), 7);
+					act->set_native_clipdist(MulScale(act->spr.xrepeat, tileHeight(act->spr.picnum), 7));
 				}
 				break;
 			}

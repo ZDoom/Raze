@@ -1843,7 +1843,7 @@ void SpriteSetup(void)
                 {
                     sectp->u_defined = true;
                     sectp->number = actor->spr.lotag;
-                    if (actor->spr.clipdist == 1)
+                    if (actor->native_clipdist() == 1)
                         sectp->flags |= (SECTFU_CANT_SURFACE);
                     change_actor_stat(actor, STAT_UNDERWATER2);
                 }

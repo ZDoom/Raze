@@ -635,8 +635,8 @@ loc_flag:
             DAngle nAngle = pPlayerActor->spr.angle;
 			auto thePos = pPlayerActor->spr.pos;
 
-            int ebp = nAngle.Cos() * (1 << 14) * (pPlayerActor->spr.clipdist << 3);
-            int ebx = nAngle.Sin() * (1 << 14) * (pPlayerActor->spr.clipdist << 3);
+            int ebp = nAngle.Cos() * (1 << 14) * (pPlayerActor->native_clipdist() << 3);
+            int ebx = nAngle.Sin() * (1 << 14) * (pPlayerActor->native_clipdist() << 3);
 
             if (WeaponInfo[nWeapon].c)
             {

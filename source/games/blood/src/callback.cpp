@@ -302,7 +302,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 
 			switch (actor->spr.type) {
 			default:
-				actor->spr.clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
+				actor->set_native_clipdist(getDudeInfo(nType + kDudeBase)->clipdist);
 				if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
 					seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
 				break;
@@ -317,7 +317,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 				actor->SetTarget(nullptr);
 			}
 #else
-			actor->spr.clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
+			actor->set_native_clipdist(getDudeInfo(nType + kDudeBase)->clipdist);
 			actor->xspr.health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
 			if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
 				seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
@@ -454,7 +454,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	if (!actor) return;
 	int ceilZ, floorZ;
 	Collision floorColl, ceilColl;
-	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist, CLIPMASK0);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->native_clipdist(), CLIPMASK0);
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	actor->add_int_z(floorZ - bottom);
@@ -513,7 +513,7 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 	int ceilZ, floorZ;
 	Collision floorColl, ceilColl;
 
-	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist, CLIPMASK0);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->native_clipdist(), CLIPMASK0);
 	int top, bottom; GetActorExtents(actor, &top, &bottom);
 	actor->add_int_z(floorZ - bottom);
 
@@ -641,7 +641,7 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	int ceilZ, floorZ;
 	Collision floorColl, ceilColl;
 
-	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist, CLIPMASK0);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->native_clipdist(), CLIPMASK0);
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	actor->add_int_z(floorZ - bottom);

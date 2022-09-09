@@ -1291,13 +1291,13 @@ int PlayerInitChemBomb(PLAYER* pp)
 
     actorNew->vel.Z -= pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
 
-    oclipdist = plActor->spr.clipdist;
+    oclipdist = plActor->native_clipdist();
     plActor->set_const_clipdist(0);
     actorNew->set_const_clipdist(0);
 
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
-    plActor->spr.clipdist = oclipdist;
+    plActor->set_native_clipdist(oclipdist);
     actorNew->set_const_clipdist(80 >> 2);
 
 	UpdateChange(actorNew, 0.5);
@@ -1655,13 +1655,13 @@ int PlayerInitCaltrops(PLAYER* pp)
 
     actorNew->vel.Z -= pp->horizon.horiz.asbuildf() * 0.5;
 
-    oclipdist = plActor->spr.clipdist;
+    oclipdist = plActor->native_clipdist();
     plActor->set_const_clipdist(0);
     actorNew->set_const_clipdist(0);
 
     MissileSetPos(actorNew, DoCaltrops, 1000);
 
-    plActor->spr.clipdist = oclipdist;
+    plActor->set_native_clipdist(oclipdist);
     actorNew->set_const_clipdist(80 >> 2);
 
 	UpdateChange(actorNew, 0.5);
@@ -1736,7 +1736,7 @@ int InitPhosphorus(DSWActor* actor)
     actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
     if (actor->spr.clipdist > 0)
-        actorNew->spr.clipdist = actor->spr.clipdist-1;
+        actorNew->set_native_clipdist(actor->spr.clipdist-1);
     else
         actorNew->copy_clipdist(actor);
     actorNew->user.WeaponNum = actor->user.WeaponNum;

@@ -136,7 +136,7 @@ public:
 	
 	void setClipDistFromTile()
 	{
-		spr.clipdist = MulScale(spr.xrepeat, tileWidth(spr.picnum), 7);
+		set_native_clipdist(MulScale(spr.xrepeat, tileWidth(spr.picnum), 7));
 	}
 
 };
