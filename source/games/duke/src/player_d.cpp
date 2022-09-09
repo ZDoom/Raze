@@ -136,7 +136,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 		}
 		spawned->spr.yint = p;
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->spr.clipdist = 4;
+		spawned->set_native_clipdist(4);
 	}
 }
 
@@ -206,7 +206,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	spawned->spr.angle = sang;
 	spawned->spr.xrepeat = 2;
 	spawned->spr.yrepeat = 2;
-	spawned->spr.clipdist = 40;
+	spawned->set_native_clipdist(40);
 	spawned->spr.yint = p;
 	spawned->SetOwner(actor);
 
@@ -656,7 +656,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		}
 
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->spr.clipdist = 4;
+		spawned->set_native_clipdist(4);
 
 		sa = actor->int_ang() + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
@@ -821,9 +821,9 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 	if (atwith == RPG)
-		spawned->spr.clipdist = 4;
+		spawned->set_native_clipdist(4);
 	else
-		spawned->spr.clipdist = 40;
+		spawned->set_native_clipdist(40);
 
 }
 
@@ -1163,7 +1163,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		if (spawned)
 		{
 			spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-			spawned->spr.clipdist = 32;
+			spawned->set_native_clipdist(32);
 		}
 
 

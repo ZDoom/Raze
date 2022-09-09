@@ -628,7 +628,7 @@ void resetpspritevars(int g)
 			act->spr.yrepeat = isRR() ? 17 : 36;
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 			act->spr.xoffset = 0;
-			act->spr.clipdist = 64;
+			act->set_native_clipdist(64);
 
 			if (ps[j].last_extra == 0)
 			{
