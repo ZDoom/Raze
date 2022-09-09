@@ -17016,7 +17016,7 @@ int InitEnemyMine(DSWActor* actor)
 int HelpMissileLateral(DSWActor* actor, int dist)
 {
     auto old_xvel = actor->vel.X;
-    auto old_clipdist = actor->spr.clipdist;
+	SAVE_CLIP;
 
     actor->vel.X = dist * maptoworld; // not worth changing 28 call locations...
 	
@@ -17027,7 +17027,7 @@ int HelpMissileLateral(DSWActor* actor, int dist)
     actor->user.coll = move_missile(actor, DVector3(vec, 0), 16, 16, 0, 1);
 
     actor->vel.X = old_xvel;
-    actor->spr.clipdist = old_clipdist;
+    RESTORE_CLIP;
 
     actor->backuppos();
     return 0;
@@ -18698,7 +18698,7 @@ int ShrapKillSprite(DSWActor* actor)
         break;
     case GORE_Lung:
         if (RandomRange(1000) > 500) break;
-        actor->spr.clipdist = ActorSizeX(actor);
+        SetActorSizeX(actor);
         SpawnFloorSplash(actor);
         if (RandomRange(1000) < 500)
             PlaySound(DIGI_GIBS1, actor, v3df_none);
@@ -18720,7 +18720,7 @@ int ShrapKillSprite(DSWActor* actor)
         break;
     case GORE_Liver:
         if (RandomRange(1000) > 500) break;
-        actor->spr.clipdist = ActorSizeX(actor);
+        SetActorSizeX(actor);
         SpawnFloorSplash(actor);
         if (RandomRange(1000) < 500)
             PlaySound(DIGI_GIBS1, actor, v3df_none);
@@ -18742,7 +18742,7 @@ int ShrapKillSprite(DSWActor* actor)
         break;
     case GORE_SkullCap:
         if (RandomRange(1000) > 500) break;
-        actor->spr.clipdist = ActorSizeX(actor);
+        SetActorSizeX(actor);
         SpawnFloorSplash(actor);
         if (rnd_num > 683)
         {
@@ -18760,7 +18760,7 @@ int ShrapKillSprite(DSWActor* actor)
         break;
     case GORE_Head:
         if (RandomRange(1000) > 500) break;
-        actor->spr.clipdist = ActorSizeX(actor);
+        SetActorSizeX(actor);
         QueueFloorBlood(actor);
         QueueGeneric(actor,GORE_Head);
         return 0;

@@ -2051,9 +2051,9 @@ inline double ActorSizeToTop(DSWActor* a)
     return (ActorSizeZ(a) + tileTopOffset(a->spr.picnum)) * 0.5;
 }
 
-inline int ActorSizeX(DSWActor* sp)
+inline void SetActorSizeX(DSWActor* sp)
 {
-    return MulScale(tileWidth(sp->spr.picnum), sp->spr.xrepeat, 6);
+    sp->spr.clipdist = MulScale(tileWidth(sp->spr.picnum), sp->spr.xrepeat, 6);
 }
 
 inline bool Facing(DSWActor* actor1, DSWActor* actor2)

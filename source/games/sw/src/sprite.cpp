@@ -1682,7 +1682,7 @@ void SpriteSetup(void)
             case BREAKABLE:
                 // need something that tells missiles to hit them
                 // but allows actors to move through them
-                actor->spr.clipdist = ActorSizeX(actor);
+                SetActorSizeX(actor);
                 actor->spr.extra |= (SPRX_BREAKABLE);
                 actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
                 break;
@@ -3466,7 +3466,7 @@ NUKE_REPLACEMENT:
 
             SpawnUser(actor, actor->spr.picnum, nullptr);
 
-            actor->spr.clipdist = ActorSizeX(actor);
+            SetActorSizeX(actor);
             actor->spr.cstat |= (CSTAT_SPRITE_BREAKABLE);
             actor->spr.extra |= (SPRX_BREAKABLE);
             break;
