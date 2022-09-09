@@ -461,7 +461,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			if (actor->spr.picnum == LIZMAN)
 				clipdist = 292;
 			else if (actorflag(actor, SFLAG_BADGUY))
-				clipdist = actor->spr.clipdist << 2;
+				clipdist = actor->int_clipdist();
 			else
 				clipdist = 192;
 
@@ -492,7 +492,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		if (actor->spr.statnum == STAT_PROJECTILE)
 			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
 		else
-			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(actor->spr.clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(actor->int_clipdist()), (4 << 8), (4 << 8), cliptype, result);
 	}
 	actor->spr.pos.XY() = ppos.XY();
 

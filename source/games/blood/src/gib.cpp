@@ -289,8 +289,8 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, CGibVelocity* pVel)
 		if (!pPos && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
 			int nAngle = Random(2048);
-			gPos.X = actor->spr.pos.X + MulScale(actor->spr.clipdist << 2, Cos(nAngle), 30) * inttoworld;
-			gPos.Y = actor->spr.pos.Y + MulScale(actor->spr.clipdist << 2, Sin(nAngle), 30) * inttoworld;
+			gPos.X = actor->spr.pos.X + MulScale(actor->int_clipdist(), Cos(nAngle), 30) * inttoworld;
+			gPos.Y = actor->spr.pos.Y + MulScale(actor->int_clipdist(), Sin(nAngle), 30) * inttoworld;
 			gPos.Z = bottom - Random(bottom - top);
 		}
 		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos, 0);
@@ -360,8 +360,8 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, CGibVelocit
 		if (!pPos)
 		{
 			int nAngle = Random(2048);
-			x = actor->int_pos().X + MulScale(actor->spr.clipdist << 2, Cos(nAngle), 30);
-			y = actor->int_pos().Y + MulScale(actor->spr.clipdist << 2, Sin(nAngle), 30);
+			x = actor->int_pos().X + MulScale(actor->int_clipdist(), Cos(nAngle), 30);
+			y = actor->int_pos().Y + MulScale(actor->int_clipdist(), Sin(nAngle), 30);
 			z = bottom - Random(bottom - top);
 		}
 		else

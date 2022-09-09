@@ -1844,7 +1844,7 @@ void playerProcess(PLAYER* pPlayer)
 	GetActorExtents(actor, &top, &bottom);
 	int dzb = (bottom - actor->int_pos().Z) / 4;
 	int dzt = (actor->int_pos().Z - top) / 4;
-	int dw = actor->spr.clipdist << 2;
+	int dw = actor->int_clipdist();
 	if (!gNoClip)
 	{
 		auto pSector = actor->sector();

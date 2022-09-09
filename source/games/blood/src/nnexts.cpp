@@ -1655,7 +1655,7 @@ void debrisMove(int listIndex)
 	moveHit.setNone();
 	int floorDist = (bottom - actor->int_pos().Z) >> 2;
 	int ceilDist = (actor->int_pos().Z - top) >> 2;
-	int clipDist = actor->spr.clipdist << 2;
+	int clipDist = actor->int_clipdist();
 	int mass = actor->spriteMass.mass;
 
 	bool uwater = false;
@@ -7705,7 +7705,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle_, int n
 	auto pSector = actor->sector();
 	HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
 	int nDist = approxDist(actor->spr.pos.XY() - gHitInfo.hitpos.XY());
-	if (target != nullptr && nDist - (actor->spr.clipdist << 2) < nRange)
+	if (target != nullptr && nDist - (actor->int_clipdist()) < nRange)
 		return (target == gHitInfo.actor());
 
 	x += MulScale(nRange, Cos(nAngle), 30);

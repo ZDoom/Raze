@@ -494,7 +494,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     int nSpriteHeight = GetActorHeight(pActor);
 
-    int nClipDist = (int8_t)pActor->spr.clipdist << 2;
+    int nClipDist = pActor->int_clipdist();
 
     auto pSector = pActor->sector();
     assert(pSector);

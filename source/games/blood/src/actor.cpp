@@ -4532,7 +4532,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12, actor->int_vel().Y >> 12, actor->spr.clipdist << 2, (actor->int_pos().Z - top) / 4, (bottom - actor->int_pos().Z) / 4, CLIPMASK0, lhit);
+		ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12, actor->int_vel().Y >> 12, actor->int_clipdist(), (actor->int_pos().Z - top) / 4, (bottom - actor->int_pos().Z) / 4, CLIPMASK0, lhit);
 		actor->hit.hit = lhit;
 		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakCstat;
@@ -4572,7 +4572,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
-	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist << 2, CLIPMASK0);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0);
 	GetActorExtents(actor, &top, &bottom);
 
 	if ((actor->spr.flags & 2) && bottom < floorZ)
@@ -4599,7 +4599,7 @@ static Collision MoveThing(DBloodActor* actor)
 			}
 		}
 	}
-	if (CheckLink(actor)) GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist << 2, CLIPMASK0);
+	if (CheckLink(actor)) GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0);
 
 	GetActorExtents(actor, &top, &bottom);
 	if (bottom >= floorZ)
@@ -4735,7 +4735,7 @@ void MoveDude(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 	int bz = (bottom - actor->int_pos().Z) / 4;
 	int tz = (actor->int_pos().Z - top) / 4;
-	int wd = actor->spr.clipdist << 2;
+	int wd = actor->int_clipdist();
 	auto pSector = actor->sector();
 	int nAiStateType = (actor->xspr.aiState) ? actor->xspr.aiState->stateType : -1;
 
@@ -5085,7 +5085,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		int floorZ2 = floorZ;
 		auto floorColl2 = floorColl;
-		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist << 2, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (bottom <= floorZ && actor->int_pos().Z - floorZ2 < bz)
 		{
 			floorZ = floorZ2;
@@ -5261,7 +5261,7 @@ int MoveMissile(DBloodActor* actor)
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL; // remove self collisions for accurate clipmove
 		}
 		Collision clipmoveresult;
-		ClipMove(ppos, &pSector2, vel.XY(), actor->spr.clipdist << 2, (ppos.Z - top) / 4, (bottom - ppos.Z) / 4, CLIPMASK0, clipmoveresult, 1);
+		ClipMove(ppos, &pSector2, vel.XY(), actor->int_clipdist(), (ppos.Z - top) / 4, (bottom - ppos.Z) / 4, CLIPMASK0, clipmoveresult, 1);
 		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakSpriteCstat;
 		auto pSector = pSector2;
@@ -5317,7 +5317,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 		double ceilZ, floorZ;
 		Collision ceilColl, floorColl;
-		GetZRangeAtXYZ(ppos, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->spr.clipdist << 2, CLIPMASK0);
+		GetZRangeAtXYZ(ppos, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0);
 		GetActorExtents(actor, &top, &bottom);
 		top += vel.Z;
 		bottom += vel.Z;

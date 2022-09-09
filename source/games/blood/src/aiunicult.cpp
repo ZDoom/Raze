@@ -749,7 +749,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
 					if (hit >= 0)
 					{
-						targetDist = dist - (target->spr.clipdist << 2);
+						targetDist = dist - (target->int_clipdist());
 						objDist = approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY());
 					}
 

@@ -11047,7 +11047,7 @@ int DoFindGround(DSWActor* actor)
 
     auto save_cstat = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrange(actor->spr.pos, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    FAFgetzrange(actor->spr.pos, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, actor->int_clipdist() - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     actor->spr.cstat = save_cstat;
 
     switch (florhit.type)
@@ -14315,7 +14315,7 @@ bool WallSpriteInsideSprite(DSWActor* wactor, DSWActor* actor)
 {
     DVector2 out[2];
     GetWallSpritePosition(&wactor->spr, wactor->spr.pos, out);
-    return IsCloseToLine(actor->spr.pos.XY(), out[0], out[1], (((int) actor->spr.clipdist) << 2) * inttoworld) != EClose::Outside;
+    return IsCloseToLine(actor->spr.pos.XY(), out[0], out[1], actor->fClipdist()) != EClose::Outside;
 }
 
 

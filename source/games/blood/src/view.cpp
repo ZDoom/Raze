@@ -768,7 +768,7 @@ void viewDrawScreen(bool sceneonly)
 		gView->actor->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
-		int nClipDist = gView->actor->spr.clipdist << 2;
+		int nClipDist = gView->actor->int_clipdist();
 		int vec, vf4;
 		Collision c1, c2;
 		GetZRange(gView->actor, &vf4, &c1, &vec, &c2, nClipDist, 0);
