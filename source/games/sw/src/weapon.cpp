@@ -45,6 +45,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+#define RESTORE_CLIP actor->spr.clipdist = oclipdist
+#define SAVE_CLIP auto oclipdist = actor->spr.clipdist
+
 struct MISSILE_PLACEMENT
 {
     int dist_over, dist_out;
@@ -12145,7 +12148,7 @@ int InitEnemyNapalm(DSWActor* actor)
         actorNew->user.ceiling_dist = (1);
         actorNew->user.Dist = 12.5;
 
-        auto oclipdist = actor->spr.clipdist;
+        SAVE_CLIP;
         actor->set_native_clipdist(1);
 
         if (mp[i].dist_over != 0)
@@ -12162,7 +12165,7 @@ int InitEnemyNapalm(DSWActor* actor)
 
         MissileSetPos(actorNew, DoNapalm, mp[i].dist_out);
 
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
 
         actor->user.Counter = 0;
 
@@ -12659,7 +12662,7 @@ int InitSumoNapalm(DSWActor* actor)
             actorNew->user.ceiling_dist = (1);
             actorNew->user.Dist = 12.5;
 
-            auto oclipdist = actor->spr.clipdist;
+            SAVE_CLIP;
             actor->set_native_clipdist(1);
 
             if (mp[i].dist_over != 0)
@@ -12674,7 +12677,7 @@ int InitSumoNapalm(DSWActor* actor)
 
             MissileSetPos(actorNew, DoNapalm, mp[i].dist_out);
 
-            actor->spr.clipdist = oclipdist;
+            RESTORE_CLIP;;
 
             actor->user.Counter = 0;
 
@@ -13485,7 +13488,7 @@ int InitLaser(PLAYER* pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = actor->spr.clipdist;
+    SAVE_CLIP;
     actor->set_native_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
@@ -13499,30 +13502,30 @@ int InitLaser(PLAYER* pp)
     // move it 1200 dist in increments - works better
     if (MissileSetPos(actorNew, DoLaserStart, 300))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
     if (MissileSetPos(actorNew, DoLaserStart, 300))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
     if (MissileSetPos(actorNew, DoLaserStart, 300))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
     if (MissileSetPos(actorNew, DoLaserStart, 300))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
 
-    actor->spr.clipdist = oclipdist;
+    RESTORE_CLIP;;
 
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
@@ -13584,7 +13587,7 @@ int InitRail(PLAYER* pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning
-    auto oclipdist = actor->spr.clipdist;
+    SAVE_CLIP;
     actor->set_native_clipdist(0);
     actorNew->set_native_clipdist(32 >> 2);
 
@@ -13597,12 +13600,12 @@ int InitRail(PLAYER* pp)
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
 
-    actor->spr.clipdist = oclipdist;
+    RESTORE_CLIP;;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -13658,7 +13661,7 @@ int InitZillaRail(DSWActor* actor)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning
-    auto oclipdist = actor->spr.clipdist;
+    SAVE_CLIP;
     actor->set_native_clipdist(0);
     actorNew->set_native_clipdist(32 >> 2);
 
@@ -13671,12 +13674,12 @@ int InitZillaRail(DSWActor* actor)
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
 
-    actor->spr.clipdist = oclipdist;
+    RESTORE_CLIP;;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -13766,7 +13769,7 @@ int InitRocket(PLAYER* pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = actor->spr.clipdist;
+    SAVE_CLIP;
     actor->set_native_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
@@ -13780,14 +13783,14 @@ int InitRocket(PLAYER* pp)
     actorNew->user.Counter = 1;
     if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     actorNew->user.Counter = 0;
 
-    actor->spr.clipdist = oclipdist;
+    RESTORE_CLIP;;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -13871,7 +13874,7 @@ int InitBunnyRocket(PLAYER* pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = actor->spr.clipdist;
+    SAVE_CLIP;
     actor->set_native_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
@@ -13885,14 +13888,14 @@ int InitBunnyRocket(PLAYER* pp)
     actorNew->user.Counter = 1;
     if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     actorNew->user.Counter = 0;
 
-    actor->spr.clipdist = oclipdist;
+    RESTORE_CLIP;;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -13965,7 +13968,7 @@ int InitNuke(PLAYER* pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = actor->spr.clipdist;
+    SAVE_CLIP;
     actor->set_native_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
@@ -13979,14 +13982,14 @@ int InitNuke(PLAYER* pp)
     actorNew->user.Counter = 1;
     if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     actorNew->user.Counter = 0;
 
-    actor->spr.clipdist = oclipdist;
+    RESTORE_CLIP;;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -14151,7 +14154,7 @@ int InitMicro(PLAYER* pp)
 
         // at certain angles the clipping box was big enough to block the
         // initial positioning of the fireball.
-        auto oclipdist = actor->spr.clipdist;
+        SAVE_CLIP;
         actor->set_native_clipdist(0);
 
         actorNew->spr.angle += DAngle90;
@@ -14166,14 +14169,14 @@ int InitMicro(PLAYER* pp)
         actorNew->user.Counter = 1;
         if (MissileSetPos(actorNew, DoMicro, 700))
         {
-            actor->spr.clipdist = oclipdist;
+            RESTORE_CLIP;;
             KillActor(actorNew);
             continue;
         }
         // inable smoke trail
         actorNew->user.Counter = 0;
 
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
 
         const int MICRO_ANG = 400;
 
@@ -14560,7 +14563,7 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->user.floor_dist = (16);
         actorNew->user.Dist = 12.5;
 
-        auto oclipdist = actor->spr.clipdist;
+        SAVE_CLIP;
         actor->set_native_clipdist(1);
 
         actorNew->spr.angle += lat_ang[i];
@@ -14575,7 +14578,7 @@ int InitSerpSpell(DSWActor* actor)
 		UpdateChange(actorNew);
 
         MissileSetPos(actorNew, DoMirvMissile, 400);
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
 
         if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -14664,7 +14667,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 
         actorNew->user.Dist = 12.5;
 
-        auto oclipdist = actor->spr.clipdist;
+        SAVE_CLIP;
         actor->set_native_clipdist(1);
 
         actorNew->spr.angle += lat_ang[i];
@@ -14679,7 +14682,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 		UpdateChange(actorNew);
 
         MissileSetPos(actorNew, DoMirvMissile, 400);
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
 
         if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -15272,7 +15275,7 @@ void InitSpearTrap(DSWActor* actor)
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 26;
     actorNew->spr.shade = -25;
-    actorNew->set_native_clipdist(64 >> 2);
+    actorNew->set_native_clipdist(64 >> 2);;
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
@@ -15316,8 +15319,6 @@ int InitTracerUzi(PLAYER* pp)
 
     DSWActor* actor = pp->actor;
 
-    int oclipdist;
-
     static const short lat_dist[] = {800,-800};
 
     double nz = 8 - MulScaleF(pp->horizon.horiz.asq16(), 72, 24);
@@ -15343,7 +15344,7 @@ int InitTracerUzi(PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     DSWActor* plActor = pp->actor;
-    oclipdist = plActor->spr.clipdist;
+    auto oclipdist = plActor->spr.clipdist;
     plActor->set_native_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
@@ -16817,7 +16818,7 @@ int InitGrenade(PLAYER* pp)
 
     actorNew->vel.Z = -pp->horizon.horiz.asbuildf() * HORIZ_MULTF;
 
-    auto oclipdist = actor->spr.clipdist;
+    SAVE_CLIP;
     actor->set_native_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
@@ -16829,7 +16830,7 @@ int InitGrenade(PLAYER* pp)
     MissileSetPos(actorNew, DoGrenade, 1000);
     actorNew->user.Flags &= ~(SPR_BOUNCE);
 
-    actor->spr.clipdist = oclipdist;
+    RESTORE_CLIP;;
 
     zvel = actorNew->vel.Z;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) >= 0)
@@ -17072,7 +17073,7 @@ int InitFireball(PLAYER* pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = actor->spr.clipdist;
+    SAVE_CLIP;
     actor->set_native_clipdist(0);
 
     actorNew->spr.angle += DAngle90;
@@ -17084,12 +17085,12 @@ int InitFireball(PLAYER* pp)
 
     if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScaleF(zvel,44000, 16)))
     {
-        actor->spr.clipdist = oclipdist;
+        RESTORE_CLIP;;
         KillActor(actorNew);
         return 0;
     }
 
-    actor->spr.clipdist = oclipdist;
+    RESTORE_CLIP;;
 
     actorNew->vel.Z = 0.5;
     if (WeaponAutoAimZvel(pp->actor, actorNew, &zvel, DAngle22_5 / 4, false) == -1)
