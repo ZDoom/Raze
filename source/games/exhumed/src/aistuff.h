@@ -233,7 +233,6 @@ int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y);
 int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 int GetWallNormal(walltype* nWall);
-int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int ecx);
 void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel);
 Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1);
 void SetQuake(DExhumedActor* nSprite, int nVal);

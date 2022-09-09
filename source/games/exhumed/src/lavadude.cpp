@@ -344,10 +344,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         if ((nFlag & 0x80) && pTarget)
         {
-            int nHeight = GetActorHeight(pActor);
-            GetUpAngle(pActor, -64000, pTarget, (-(nHeight >> 1)));
-
-            BuildBullet(pActor, 10, -1, pActor->spr.angle, pTarget, 1);
+             BuildBullet(pActor, 10, -1, pActor->spr.angle, pTarget, 1);
         }
         else if (var_1C)
         {

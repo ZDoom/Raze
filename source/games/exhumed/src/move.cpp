@@ -735,26 +735,6 @@ void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y)
     }
 }
 
-int GetUpAngle(DExhumedActor* pActor1, int nVal, DExhumedActor* pActor2, int ecx)
-{
-    int x = pActor2->int_pos().X - pActor1->int_pos().X;
-    int y = pActor2->int_pos().Y - pActor1->int_pos().Y;
-
-    int ebx = (pActor2->int_pos().Z + ecx) - (pActor1->int_pos().Z + nVal);
-    int edx = (pActor2->int_pos().Z + ecx) - (pActor1->int_pos().Z + nVal);
-
-    ebx >>= 4;
-    edx >>= 8;
-
-    ebx = -ebx;
-
-    ebx -= edx;
-
-    int nSqrt = lsqrt(x * x + y * y);
-
-    return getangle(nSqrt, ebx);
-}
-
 void InitPushBlocks()
 {
     nPushBlocks = 0;
