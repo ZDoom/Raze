@@ -34,6 +34,10 @@ enum
 
 
 Collision movesprite(DExhumedActor* spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
+Collision movesprite(DExhumedActor* spritenum, const DVector3& pos, int ceildist, int flordist, unsigned int clipmask)
+{
+	return movesprite(spritenum, int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), ceildist, flordist, clipmask);
+}
 
 void precache();
 void resettiming();

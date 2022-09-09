@@ -265,6 +265,11 @@ public:
 	{
 		return static_cast<PClassActor*>(GetClass())->ActorInfo()->SpriteSet;
 	}
+	
+	double fClipdist() const
+	{
+		return spr.clipdist * 0.25;
+	}
 
 };
 

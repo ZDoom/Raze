@@ -47,9 +47,7 @@ struct Bullet
     uint16_t field_10;
     uint8_t field_12;
     uint8_t nDoubleDamage;
-    int x;
-    int y;
-    int z;
+	DVector3 vect;
 };
 
 FreeListArray<Bullet, kMaxBullets> BulletList;
@@ -82,9 +80,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
             ("frame", w.nFrame, def->nFrame)
             ("sprite", w.pActor, def->pActor)
             ("type", w.nType, def->nType)
-            ("x", w.x, def->x)
-            ("y", w.y, def->y)
-            ("z", w.z, def->z)
+            ("pos", w.vect, def->vect)
             ("at6", w.nRunRec, def->nRunRec)
             ("at8", w.nRunRec2, def->nRunRec2)
             ("atc", w.nPitch, def->nPitch)
@@ -336,7 +332,7 @@ int MoveBullet(int nBullet)
                 pActor->spr.xrepeat -= 1;
                 pActor->spr.yrepeat += 8;
 
-                pBullet->z -= 200;
+                pBullet->vect.Z -= 200/256.;
 
                 if (pActor->spr.shade < 90) {
                     pActor->spr.shade += 35;
@@ -359,7 +355,7 @@ int MoveBullet(int nBullet)
             }
         }
 
-        coll = movesprite(pActor, pBullet->x, pBullet->y, pBullet->z, pActor->spr.clipdist >> 1, pActor->spr.clipdist >> 1, CLIPMASK1);
+        coll = movesprite(pActor, pBullet->vect, pActor->spr.clipdist >> 1, pActor->spr.clipdist >> 1, CLIPMASK1);
 
 MOVEEND:
         if (coll.type || coll.exbits)
@@ -746,9 +742,8 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
         }
     }
 
-    pBullet->z = 0;
-    pBullet->x = (pActor->spr.clipdist << 2) * nAngle.Cos() * (1 << 14);
-    pBullet->y = (pActor->spr.clipdist << 2) * nAngle.Sin() * (1 << 14);
+    pBullet->vect.Z = 0;
+    pBullet->vect.XY() = nAngle.ToVector() * (1 << 14) * pActor->fClipdist();
     BulletList[nBullet].pEnemy = nullptr;
 
 
@@ -759,9 +754,8 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, DAngl
     else
     {
         pBullet->field_10 = pBulletInfo->field_4;
-        pBullet->x = nAngle.Cos() * (1 << 11) * pBulletInfo->field_4;
-        pBullet->y = nAngle.Sin() * (1 << 11) * pBulletInfo->field_4;
-        pBullet->z = var_18 >> 3;
+		pBullet->vect.XY() = nAngle.ToVector() * pBulletInfo->field_4 * 128;
+        pBullet->vect.Z = (var_18 >> 3) * zinttoworld;
     }
 
     return pBulletActor;
