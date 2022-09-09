@@ -812,7 +812,7 @@ void CreatePushBlock(sectortype* pSector)
 
     sBlockInfo[nBlock].field_8 = mindist * worldtoint;
 
-    pActor->spr.clipdist = (int(mindist * worldtoint) & 0xFF) << 2;
+    pActor->spr.clipdist =  (int(mindist * worldtoint) & 0xFF) << 2;
     pSector->extra = nBlock;
 }
 

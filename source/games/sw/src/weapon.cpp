@@ -9663,7 +9663,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.yrepeat = actorNew->spr.xrepeat = actor->spr.xrepeat;
     actorNew->spr.shade = actor->spr.shade;
-    actorNew->spr.clipdist = actor->spr.clipdist;
+    actorNew->copy_clipdist(actor);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_MicroMini[0]);
@@ -10352,7 +10352,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, DAngle ang)
     expActor->spr.shade = -128;
     expActor->spr.xrepeat = 218;
     expActor->spr.yrepeat = 152;
-    expActor->spr.clipdist = actor->spr.clipdist;
+    expActor->copy_clipdist(actor);
     expActor->user.ceiling_dist = (16);
     expActor->user.floor_dist = (16);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -10415,7 +10415,7 @@ void SpawnNuclearExp(DSWActor* actor)
     expActor->spr.shade = -128;
     expActor->spr.xrepeat = 255;
     expActor->spr.yrepeat = 255;
-    expActor->spr.clipdist = actor->spr.clipdist;
+    expActor->copy_clipdist(actor);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.spal = expActor->spr.pal = PALETTE_PLAYER1;  // Set nuke puff to gray
@@ -10646,7 +10646,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, DAngle ang)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 32;
     expActor->spr.yrepeat = 32;
-    expActor->spr.clipdist = actor->spr.clipdist;
+    expActor->copy_clipdist(actor);
     expActor->user.ceiling_dist = (16);
     expActor->user.floor_dist = (16);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -10721,7 +10721,7 @@ void SpawnGrenadeExp(DSWActor* actor)
     expActor->spr.shade = -40;
     expActor->spr.xrepeat = 64 + 32;
     expActor->spr.yrepeat = 64 + 32;
-    expActor->spr.clipdist = actor->spr.clipdist;
+    expActor->copy_clipdist(actor);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_GRENADE_EXP].radius;
@@ -13107,7 +13107,7 @@ int InitStar(PLAYER* pp)
         actorNew2->spr.shade = actorNew->spr.shade;
 
         actorNew2->spr.extra = actorNew->spr.extra;
-        actorNew2->spr.clipdist = actorNew->spr.clipdist;
+        actorNew2->copy_clipdist(actorNew);
         actorNew2->user.WeaponNum = actorNew->user.WeaponNum;
         actorNew2->user.Radius = actorNew->user.Radius;
         actorNew2->user.ceiling_dist = actorNew->user.ceiling_dist;

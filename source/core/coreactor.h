@@ -280,6 +280,11 @@ public:
 	{
 		spr. clipdist = val;
 	}
+	
+	void copy_clipdist(DCoreActor* other)
+	{
+		spr. clipdist = other->spr. clipdist;
+	}
 
 };
 

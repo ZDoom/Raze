@@ -2190,7 +2190,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_clipdist:
 		insptr++;
-		g_ac->spr.clipdist = (uint8_t) *insptr;
+		g_ac->spr.clipdist =  (uint8_t) *insptr;
 		insptr++;
 		break;
 	case concmd_cstat:

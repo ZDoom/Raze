@@ -1190,7 +1190,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     actorNew->spr.shade = -40;
     actorNew->spr.xrepeat = 32;
     actorNew->spr.yrepeat = 32;
-    actorNew->spr.clipdist = actor->spr.clipdist;
+    actorNew->copy_clipdist(actor);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_PLAYER6;
@@ -1695,7 +1695,7 @@ int InitCaltrops(DSWActor* actor)
     actorNew->spr.xrepeat = 64;
     actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
-    actorNew->spr.clipdist = actor->spr.clipdist;
+    actorNew->copy_clipdist(actor);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = 3;
@@ -1738,7 +1738,7 @@ int InitPhosphorus(DSWActor* actor)
     if (actor->spr.clipdist > 0)
         actorNew->spr.clipdist = actor->spr.clipdist-1;
     else
-        actorNew->spr.clipdist = actor->spr.clipdist;
+        actorNew->copy_clipdist(actor);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 600;
     actorNew->user.ceiling_dist = 3;
@@ -1808,7 +1808,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         actorNew->spr.yrepeat = 64-RandomRange(35);
         actorNew->spr.xrepeat = 64-RandomRange(35);
         actorNew->spr.shade = -15;
-        actorNew->spr.clipdist = actor->spr.clipdist;
+        actorNew->copy_clipdist(actor);
         actorNew->user.WeaponNum = actor->user.WeaponNum;
         actorNew->user.Radius = 600;
         actorNew->user.ceiling_dist = 3;
