@@ -499,7 +499,7 @@ int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, in
 
         Elevator[ElevCount].nCountZOffsets++;
 
-        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, int);
+        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, double) * zworldtoint;
     }
     va_end(zlist);
 
@@ -546,7 +546,7 @@ int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWall
 
         Elevator[ElevCount].nCountZOffsets++;
 
-        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, int);
+        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, double) * zworldtoint;
     }
     va_end(zlist);
 
@@ -1380,7 +1380,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     }
     else
     {
-        auto nAngle = (pActor->spr.angle + DAngle22_5) - RandomAngle9();
+        auto nAngle = pActor->spr.angle + DAngle22_5 - RandomAngle9();
 
         if (nVal)
         {
