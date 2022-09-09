@@ -304,7 +304,7 @@ void DoDebrisCurrent(DSWActor* actor)
     int nx, ny;
     auto sectp = actor->sector();
 
-    //actor->spr.clipdist = (256+128)>>2;
+    //actor->set_native_clipdist((256+128)>>2;
 	double spd = sectp->speed / 64.0;
 
 	auto vect = sectp->angle.ToVector() * spd;
@@ -850,7 +850,7 @@ int DoActorDeathMove(DSWActor* actor)
             DoActorFall(actor);
     }
 
-    actor->spr.clipdist = (128+64)>>2;
+    actor->set_native_clipdist((128+64)>>2);
 	move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0));
 
 

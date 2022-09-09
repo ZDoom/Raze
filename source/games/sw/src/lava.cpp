@@ -475,7 +475,7 @@ int SetupLava(DSWActor* actor)
 
     EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
     actor->spr.xrepeat = actor->spr.yrepeat = 110;
-    actor->spr.clipdist = (512) >> 2;
+    actor->set_native_clipdist((512) >> 2);
     actor->user.Flags |= (SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 
     actor->user.loz = actor->spr.pos.Z;

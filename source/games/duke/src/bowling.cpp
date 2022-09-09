@@ -184,11 +184,11 @@ void resetpins(sectortype* sect)
 				spawned->spr.lotag = a2->spr.lotag;
 				if (spawned->spr.lotag == 3 || spawned->spr.lotag == 5)
 				{
-					spawned->spr.clipdist = (1 + (krand() % 1)) * 16 + 32;
+					spawned->set_native_clipdist((1 + (krand() % 1)) * 16 + 32);
 				}
 				else
 				{
-					spawned->spr.clipdist = (1 + (krand() % 1)) * 16 + 32;
+					spawned->set_native_clipdist((1 + (krand() % 1)) * 16 + 32);
 				}
 				spawned->add_int_ang(-(((krand() & 32) - (krand() & 64)) & 2047));
 			}

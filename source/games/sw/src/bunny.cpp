@@ -746,7 +746,7 @@ int SetupBunny(DSWActor* actor)
     actor->user.ShellNum = 0; // Not Pregnant right now
     actor->user.FlagOwner = 0;
 
-    actor->spr.clipdist = (150) >> 2;
+    actor->set_native_clipdist((150) >> 2);
 
     if (actor->spr.pal == PALETTE_PLAYER1)
     {

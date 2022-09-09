@@ -12003,7 +12003,7 @@ int InitSerpRing(DSWActor* actor)
         change_actor_stat(actorNew, STAT_SKIP4);
         actorNew->spr.extra &= ~(SPRX_PLAYER_OR_ENEMY);
 
-        actorNew->spr.clipdist = (128+64) >> 2;
+        actorNew->set_native_clipdist((128+64) >> 2);
         actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -12729,7 +12729,7 @@ int InitSumoSkull(DSWActor* actor)
     EnemyDefaults(actorNew, nullptr, nullptr);
     actorNew->spr.extra |= SPRX_PLAYER_OR_ENEMY;
 
-    actorNew->spr.clipdist = (128+64) >> 2;
+    actorNew->set_native_clipdist((128+64) >> 2);
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
