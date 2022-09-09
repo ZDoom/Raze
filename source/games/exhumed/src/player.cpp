@@ -108,7 +108,7 @@ void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle 
     PlayerList[nPlayer].sPlayerSave.nAngle = nAngle;
 }
 
-void feebtag(int x, int y, int z, sectortype* pSector, DExhumedActor **nSprite, int nVal2, int nVal3)
+void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, int nVal2, double deflen)
 {
     *nSprite = nullptr;
 
@@ -130,25 +130,15 @@ void feebtag(int x, int y, int z, sectortype* pSector, DExhumedActor **nSprite, 
 
                 if (nStat >= 900 && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
                 {
-                    uint32_t xDiff = abs(pActor->int_pos().X - x);
-                    uint32_t yDiff = abs(pActor->int_pos().Y - y);
-                    int zDiff = pActor->int_pos().Z - z;
+					auto diff = pActor->spr.pos - pos;
 
-                    if (zDiff < 5120 && zDiff > -25600)
+                    if (diff.Z < 20 && diff.Z > -100)
                     {
-                        uint32_t diff = xDiff * xDiff + yDiff * yDiff;
+						double len = diff.XY().Length();
 
-                        if (diff > INT_MAX)
+                        if (len < deflen && ((nStat != 950 && nStat != 949) || !(var_14 & 1)) && ((nStat != 912 && nStat != 913) || !(var_20 & 2)))
                         {
-                            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-                            diff = INT_MAX;
-                        }
-
-                        int theSqrt = ksqrt(diff);
-
-                        if (theSqrt < nVal3 && ((nStat != 950 && nStat != 949) || !(var_14 & 1)) && ((nStat != 912 && nStat != 913) || !(var_20 & 2)))
-                        {
-                            nVal3 = theSqrt;
+                            deflen = len;
                             *nSprite = pActor;
                         }
                     }
@@ -1275,7 +1265,7 @@ sectdone:
         neartag(pPlayerActor->int_pos(), pPlayerActor->sector(), pPlayerActor->int_ang(), near, 1024, 2);
 
         DExhumedActor* pActorB;
-        feebtag(pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->int_pos().Z, pPlayerActor->sector(), &pActorB, var_30, 768);
+        feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), &pActorB, var_30, 48);
 
         // Item pickup code
         if (pActorB != nullptr && pActorB->spr.statnum >= 900)
