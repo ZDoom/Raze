@@ -430,12 +430,12 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
         if (varB || varA)
         {
-            PlayerList[nPlayer].nDamage.X = varB;
-            PlayerList[nPlayer].nDamage.Y = varA;
+            PlayerList[nPlayer].nThrust.X = varB;
+            PlayerList[nPlayer].nThrust.Y = varA;
         }
 
-        dx += PlayerList[nPlayer].nDamage.X;
-        dy += PlayerList[nPlayer].nDamage.Y;
+        dx += PlayerList[nPlayer].nThrust.X;
+        dy += PlayerList[nPlayer].nThrust.Y;
     }
     else
     {

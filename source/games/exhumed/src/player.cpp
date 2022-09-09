@@ -369,8 +369,8 @@ void RestartPlayer(int nPlayer)
 
 	nTemperature[nPlayer] = 0;
 
-	plr->nDamage.Y = 0;
-	plr->nDamage.X = 0;
+	plr->nThrust.Y = 0;
+	plr->nThrust.X = 0;
 
 	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = q16horiz(0);
 	plr->nBreathTimer = 90;
@@ -895,8 +895,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (bUnderwater)
     {
-        PlayerList[nPlayer].nDamage.X /= 2;
-        PlayerList[nPlayer].nDamage.Y /= 2;
+        PlayerList[nPlayer].nThrust.X /= 2;
+        PlayerList[nPlayer].nThrust.Y /= 2;
     }
 
     // Trigger Ramses?
@@ -941,8 +941,8 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (bTouchFloor)
         {
             // Damage stuff..
-            PlayerList[nPlayer].nDamage.X /= 2;
-            PlayerList[nPlayer].nDamage.Y /= 2;
+            PlayerList[nPlayer].nThrust.X /= 2;
+            PlayerList[nPlayer].nThrust.Y /= 2;
 
             if (nPlayer == nLocalPlayer)
             {
@@ -2510,8 +2510,8 @@ sectdone:
 
     if (!PlayerList[nPlayer].nHealth)
     {
-        PlayerList[nPlayer].nDamage.Y = 0;
-        PlayerList[nPlayer].nDamage.X = 0;
+        PlayerList[nPlayer].nThrust.Y = 0;
+        PlayerList[nPlayer].nThrust.X = 0;
 
         if (PlayerList[nPlayer].eyelevel >= -11)
         {
@@ -2604,8 +2604,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("dx", w.nPlayerD.X)
             ("dy", w.nPlayerD.Y)
             ("pistolclip", w.nPistolClip)
-            ("xdamage", w.nDamage.X)
-            ("ydamage", w.nDamage.Y)
+            ("thrustx", w.nThrust.X)
+            ("thrusty", w.nThrust.Y)
             ("dopplesprite", w.pDoppleSprite)
             ("oldweapon", w.nPlayerOldWeapon)
             ("clip", w.nPlayerClip)

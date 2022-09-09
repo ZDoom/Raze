@@ -814,8 +814,8 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 2.;
 
-                    PlayerList[nPlayer].nDamage.X -= bcos(pPlayerActor->int_ang(), 9);
-                    PlayerList[nPlayer].nDamage.Y -= bsin(pPlayerActor->int_ang(), 9);
+                    PlayerList[nPlayer].nThrust.X -= bcos(pPlayerActor->int_ang(), 9);
+                    PlayerList[nPlayer].nThrust.Y -= bsin(pPlayerActor->int_ang(), 9);
                     break;
                 }
                 case kWeaponRing:
