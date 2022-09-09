@@ -198,7 +198,7 @@ void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_ang(0);
+		pFX->spr.angle = nullAngle;
 		pFX->vel = actor->vel * (1./256);
 	}
 	evPostActor(actor, 6, kCallbackFXBloodSpurt);
@@ -623,7 +623,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 		pFX = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos, 0);
 	if (pFX)
 	{
-		pFX->set_int_ang(0);
+		pFX->spr.angle = nullAngle;
 		pFX->vel = actor->vel * (1./256);
 	}
 	evPostActor(actor, 6, kCallbackFXPodBloodSpray);

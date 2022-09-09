@@ -117,9 +117,9 @@ void DoSpawn(player_struct *p, int snum)
 	if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE2 ) )
 	{
 		// like shotgun shells
-		j->add_int_ang(1024);
+		j->spr.angle += DAngle180;
 		ssp(j,CLIPMASK0);
-		j->add_int_ang(1024);
+		j->spr.angle += DAngle180;
 //		p->kickback_pic++;
 	}
 	else if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE3 ) )

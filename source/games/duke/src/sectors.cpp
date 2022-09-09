@@ -927,7 +927,7 @@ static void handle_st25(sectortype* sptr, DDukeActor* actor)
 			if (act3->spr.lotag == 15)
 			{
 				act3->sector()->lotag ^= 0x8000; // Toggle the open or close
-				act3->add_int_ang(1024);
+				act3->spr.angle += DAngle180;
 				if (act3->temp_data[4]) callsound(act3->sector(), act3);
 				callsound(act3->sector(), act3);
 				if (act3->sector()->lotag & 0x8000) act3->temp_data[4] = 1;

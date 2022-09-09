@@ -2971,7 +2971,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				actor->vel.X = 0;
 				operateactivators(actor->spr.hitag + (short)actor->temp_data[3], -1);
 				actor->SetOwner(nullptr);
-				actor->add_int_ang(1024);
+				actor->spr.angle += DAngle180;
 				actor->temp_data[4] = 0;
 				fi.operateforcefields(actor, actor->spr.hitag);
 			}

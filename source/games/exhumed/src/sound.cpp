@@ -678,7 +678,7 @@ void CheckAmbience(sectortype* sect)
                 {
                     if (sect == pSector2)
                     {
-                        amb = GetSoundPos(PlayerList[0].pActor->int_pos());
+                        amb = GetSoundPos(PlayerList[0].pActor->spr.pos);
                     }
                     else
                     {
