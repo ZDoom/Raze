@@ -1897,7 +1897,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 
 	// inherit clipdist?
 	if (source->spr.clipdist > 0)
-		spawned->spr.clipdist = source->spr.clipdist;
+		spawned->copy_clipdist(source);
 
 	// inherit custom hp settings
 	if (source->xspr.data4 <= 0) spawned->xspr.health = dudeInfo[nType - kDudeBase].startHealth << 4;
@@ -1980,7 +1980,7 @@ void genDudeTransform(DBloodActor* actor)
 	actor->spr.flags = actIncarnation->spr.flags;
 	actor->spr.pal = actIncarnation->spr.pal;
 	actor->spr.shade = actIncarnation->spr.shade;
-	actor->spr.clipdist = actIncarnation->spr.clipdist;
+	actor->copy_clipdist(actIncarnation);
 	actor->spr.xrepeat = actIncarnation->spr.xrepeat;
 	actor->spr.yrepeat = actIncarnation->spr.yrepeat;
 
