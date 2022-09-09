@@ -273,7 +273,7 @@ void AISpider::Tick(RunListEvent* ev)
         spp->vel.Y = 0;
     }
 
-    auto nMov = movesprite(spp, spp->int_xvel() << nVel, spp->int_yvel() << nVel, spp->int_zvel(), 1280, -1280, CLIPMASK0);
+    auto nMov = movesprite(spp, spp->vel, 1 << nVel, 1280, -1280, CLIPMASK0);
 
     if (nMov.type == kHitNone && nMov.exbits == 0)
         return;

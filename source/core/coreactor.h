@@ -143,12 +143,6 @@ public:
 		vel.X += v * inttoworld;
 	}
 
-	// Only used this way by Exhumed.
-	int int_yvel() const
-	{
-		return vel.Y * worldtoint;
-	}
-
 	vec3_t int_vel() const
 	{
 		return vec3_t(FloatToFixed(vel.X), FloatToFixed(vel.Y), FloatToFixed(vel.Z));
