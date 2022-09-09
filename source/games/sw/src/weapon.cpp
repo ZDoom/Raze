@@ -12261,7 +12261,6 @@ int InitSwordAttack(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     unsigned stat;
-    short reach;
     DAngle face;
 
     PlaySound(DIGI_SWORDSWOOSH, pp, v3df_dontpan | v3df_doppler);
@@ -12310,10 +12309,9 @@ int InitSwordAttack(PLAYER* pp)
 
             double dist = (pp->pos.XY() - itActor->spr.pos.XY()).Length();
 
-            reach = 1000; // !JIM! was 800
             face = DAngle::fromBuild(200);
 
-            if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
+            if (dist < CloseRangeDist(itActor, plActor, 62.5) && PlayerFacingRange(pp, itActor, face))
             {
                 if (SpriteOverlapZ(pp->actor, itActor, 20))
                 {
@@ -12430,7 +12428,7 @@ int InitFistAttack(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     unsigned stat;
-    short reach;
+    double reach;
     DAngle face;
 
     PlaySound(DIGI_STAR, pp, v3df_dontpan|v3df_doppler);
@@ -12474,25 +12472,25 @@ int InitFistAttack(PLAYER* pp)
                 continue;
 
 			double dist = (pp->pos.XY() - itActor->spr.pos.XY()).Length();
-
-            if (pp->InventoryActive[2]) // Shadow Bombs give you demon fist
+			bool iactive = pp->InventoryActive[2];
+            if (iactive) // Shadow Bombs give you demon fist
             {
                 face = DAngle::fromBuild(190);
-                reach = 2300;
+                reach = 143.75;
             }
             else
             {
-                reach = 1000;
+                reach = 62.5;
                 face = DAngle::fromBuild(200);
             }
 
             if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
             {
-                if (SpriteOverlapZ(pp->actor, itActor, 20) || reach == 2300)
+                if (SpriteOverlapZ(pp->actor, itActor, 20) || iactive)
                 {
                     if (FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), ActorVectOfMiddle(plActor), plActor->sector()))
                         DoDamage(itActor, plActor);
-                    if (reach == 2300)
+                    if (iactive)
                     {
                         SpawnDemonFist(itActor);
                     }
@@ -12766,7 +12764,7 @@ int InitSumoStompAttack(DSWActor* actor)
 
 			double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(itActor, actor, 16384))
+            if (dist < CloseRangeDist(itActor, actor, 1024))
             {
                 if (FAFcansee(ActorVectOfMiddle(itActor), itActor->sector(), ActorVectOfMiddle(actor), actor->sector()))
                     DoDamage(itActor, actor);
@@ -12791,7 +12789,7 @@ int InitMiniSumoClap(DSWActor* actor)
 
 	double dist = (actor->spr.pos.XY() - targetActor->spr.pos.XY()).Length();
 
-    if (dist < CloseRangeDist(targetActor, actor, 1000))
+    if (dist < CloseRangeDist(targetActor, actor, 62.5))
     {
         if (SpriteOverlapZ(actor, targetActor, 20))
         {
@@ -12802,7 +12800,7 @@ int InitMiniSumoClap(DSWActor* actor)
             }
         }
     }
-    else if (dist < CloseRangeDist(targetActor, actor, 10000))
+    else if (dist < CloseRangeDist(targetActor, actor, 625))
     {
         if (FAFcansee(ActorVectOfMiddle(targetActor), targetActor->sector(), ActorVectOfMiddle(actor), actor->sector()))
         {
@@ -14230,7 +14228,7 @@ int InitRipperSlash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
+            if (dist < CloseRangeDist(actor, itActor, 37.5) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14263,7 +14261,7 @@ int InitBunnySlash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
+            if (dist < CloseRangeDist(actor, itActor, 37.5) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14297,7 +14295,7 @@ int InitSerpSlash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 800) && FacingRange(itActor, actor,FacingAngle))
+            if (dist < CloseRangeDist(actor, itActor, 50) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14425,7 +14423,7 @@ int InitCoolgBash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
+            if (dist < CloseRangeDist(actor, itActor, 37.5) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14458,7 +14456,7 @@ int InitSkelSlash(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
+            if (dist < CloseRangeDist(actor, itActor, 37.5) && FacingRange(itActor, actor,FacingAngle))
             {
                 DoDamage(itActor, actor);
             }
@@ -14491,7 +14489,7 @@ int InitGoroChop(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 700) && FacingRange(itActor, actor,FacingAngle))
+            if (dist < CloseRangeDist(actor, itActor, 48.75) && FacingRange(itActor, actor,FacingAngle))
             {
                 PlaySound(DIGI_GRDAXEHIT, actor, v3df_none);
                 DoDamage(itActor, actor);
@@ -15188,7 +15186,7 @@ int InitEelFire(DSWActor* actor)
 
             double dist = (actor->spr.pos.XY() - itActor->spr.pos.XY()).Length();
 
-            if (dist < CloseRangeDist(actor, itActor, 600) && FacingRange(itActor, actor,FacingAngle))
+            if (dist < CloseRangeDist(actor, itActor, 37.5) && FacingRange(itActor, actor,FacingAngle))
             {
                 PlaySound(DIGI_GIBS1, actor, v3df_none);
                 DoDamage(itActor, actor);
