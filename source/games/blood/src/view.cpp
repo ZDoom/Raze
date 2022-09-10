@@ -61,7 +61,6 @@ void viewBackupView(int nPlayer)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
-	pView->pos.XY() = pPlayer->actor->spr.pos.XY();
 	pView->viewz = pPlayer->zView;
 	pView->weaponZ = pPlayer->zWeapon - pPlayer->zView - 0xc00;
 	pView->horiz = pPlayer->horizon.horiz;
@@ -87,7 +86,7 @@ void viewCorrectViewOffsets(int nPlayer, const DVector3& oldpos)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
-	pView->pos.XY() += pPlayer->actor->spr.pos.XY() - oldpos.XY();
+	pPlayer->actor->opos.XY() += pPlayer->actor->spr.pos.XY() - oldpos.XY();
 	pView->viewz += (pPlayer->actor->spr.pos.Z - oldpos.Z) * zworldtoint;
 }
 
@@ -468,7 +467,7 @@ static void DrawMap(DBloodActor* view, const double smoothratio)
 	}
 	VIEW* pView = &gPrevView[gViewIndex];
 	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-	DrawOverheadMap(interpolatedvalue(pView->pos, view->spr.pos, smoothratio * (1. / MaxSmoothRatio)).XY(), ang, smoothratio * (1. / MaxSmoothRatio));
+	DrawOverheadMap(view->interpolatedpos(smoothratio * (1. / MaxSmoothRatio)).XY(), ang, smoothratio * (1. / MaxSmoothRatio));
 	if (tm)
 		setViewport(hud_size);
 }
@@ -514,8 +513,8 @@ static void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sec
 #endif
 	{
 		VIEW* pView = &gPrevView[gViewIndex];
-		cX = interpolatedvalue(pView->pos.X, gView->actor->spr.pos.X, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
-		cY = interpolatedvalue(pView->pos.Y, gView->actor->spr.pos.Y, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
+		cX = interpolatedvalue(gView->actor->opos.X, gView->actor->spr.pos.X, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
+		cY = interpolatedvalue(gView->actor->opos.Y, gView->actor->spr.pos.Y, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
 		cZ = interpolatedvalue(pView->viewz, gView->zView, smoothratio * (1. / MaxSmoothRatio));
 		zDelta = interpolatedvalue<double>(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), smoothratio * (1. / MaxSmoothRatio));
 		bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, smoothratio * (1. / MaxSmoothRatio));

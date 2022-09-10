@@ -36,10 +36,8 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int h
 	PLAYER* pPlayer = &gPlayer[myconnectindex];
 	VIEW* pView = &gPrevView[myconnectindex];
 
-	gView->actor->spr.pos.XY() = { x , y };
-	pPlayer->actor->spr.pos.XY() = gView->actor->spr.pos.XY();
-	pView->pos.XY() = gView->actor->spr.pos.XY();
-	pPlayer->zView = pView->viewz = gView->zView = z;
+	pPlayer->actor->opos.XY() = pPlayer->actor->spr.pos.XY() = { x , y };
+	pView->viewz = gView->zView = z;
 
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{
