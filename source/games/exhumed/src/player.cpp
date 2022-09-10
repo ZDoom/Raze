@@ -749,12 +749,11 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
                 {
                     PlayerList[nPlayer].pPlayerPushSect = sect;
 
-                    int xvel = sPlayerInput[nPlayer].xVel;
-                    int yvel = sPlayerInput[nPlayer].yVel;
-                    int nMyAngle = getangle(xvel, yvel) & 2047; // note: must be positive!
+                    DVector2 vel(FixedToFloat<18>(sPlayerInput[nPlayer].xVel), FixedToFloat<18>(sPlayerInput[nPlayer].yVel));
+                    auto nMyAngle = VecToAngle(vel).Normalized360();
 
                     setsectinterpolate(sect);
-                    MoveSector(sect, DAngle::fromBuild(nMyAngle), &xvel, &yvel);
+                    MoveSector(sect, nMyAngle, vel);
 
                     if (PlayerList[nPlayer].nPlayerPushSound <= -1)
                     {
@@ -770,7 +769,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
                         ChangeActorSect(pPlayerActor, spr_sect);
                     }
 
-                    movesprite(pPlayerActor, xvel, yvel, z, 5120, -5120, CLIPMASK0);
+                    movesprite(pPlayerActor, FloatToFixed<18>(vel.X), FloatToFixed<18>(vel.Y), z, 5120, -5120, CLIPMASK0);
                     return true;
                 }
             }

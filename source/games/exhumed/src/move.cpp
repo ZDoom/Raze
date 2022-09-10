@@ -686,7 +686,7 @@ void CreatePushBlock(sectortype* pSector)
 }
 
 
-void MoveSector(sectortype* pSector, DAngle nAngle, int *nXVel, int *nYVel)
+void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 {
     if (pSector == nullptr) {
         return;
@@ -696,7 +696,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, int *nXVel, int *nYVel)
 
     if (nAngle < nullAngle)
     {
-        nVect = { FixedToFloat<18>(*nXVel), FixedToFloat<18>(*nYVel) };
+        nVect = nVel;
         nAngle = VecToAngle(nVect);
     }
     else
@@ -863,8 +863,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, int *nXVel, int *nYVel)
         pSector->setfloorz(nZVal);
     }
 
-    *nXVel = FloatToFixed<18>(vect.X);
-    *nYVel = FloatToFixed<18>(vect.Y);
+    nVel = vect;
 
     /* 
         Update player position variables, in case the player sprite was moved by a sector,

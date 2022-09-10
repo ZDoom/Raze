@@ -2348,23 +2348,20 @@ void DoMovingSects()
             }
         }
 
-        int nXVel = FloatToFixed<18>(vel.X);
-        int nYVel = FloatToFixed<18>(vel.Y);
 
         // loc_2393A:
         if (sMoveSect[i].pCurSector != nullptr)
         {
-            MoveSector(sMoveSect[i].pCurSector, -minAngle, &nXVel, &nYVel);
+            MoveSector(sMoveSect[i].pCurSector, -minAngle, vel);
         }
-        int var_2C = nXVel;
-        int var_30 = nYVel;
+        auto ovel = vel;
 
-        MoveSector(pSector, -minAngle, &nXVel, &nYVel);
+        MoveSector(pSector, -minAngle, vel);
 
-        if (sMoveSect[i].pCurSector != nullptr && (nXVel != var_2C || nYVel != var_30))
+        if (sMoveSect[i].pCurSector != nullptr && vel != ovel)
         {
-            MoveSector(sMoveSect[i].pCurSector, -minAngle, &var_2C, &var_30);
-            MoveSector(sMoveSect[i].pCurSector, -minAngle, &nXVel, &nYVel);
+            MoveSector(sMoveSect[i].pCurSector, -minAngle, ovel);
+            MoveSector(sMoveSect[i].pCurSector, -minAngle, vel);
         }
     }
 }
