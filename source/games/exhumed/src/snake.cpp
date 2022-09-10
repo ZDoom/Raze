@@ -244,10 +244,10 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     if (!pActor) return nullptr;
 
-    int nAngle = pActor->int_ang();
+    DAngle nAngle = pActor->spr.angle;
     auto pSector =pActor->sector();
 
-    int esi = 2048;
+    DAngle maxangle = DAngle360;
 
 	DExhumedActor* pEnemy = nullptr;
 
@@ -258,11 +258,11 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
         {
             if (pAct2 != pPlayerActor && !(pAct2->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
-                int nAngle2 = (nAngle - GetAngleToSprite(pActor, pAct2)) & kAngleMask;
-                if (nAngle2 < esi)
+                DAngle nAngle2 = absangle(nAngle, GetAngleToSprite(pActor, pAct2));
+                if (nAngle2 < maxangle)
                 {
                     pEnemy = pAct2;
-                    esi = nAngle2;
+                    maxangle = nAngle2;
                 }
             }
         }

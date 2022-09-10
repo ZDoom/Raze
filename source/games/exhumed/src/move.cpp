@@ -545,12 +545,12 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
     return result;
 }
 
-int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
+DAngle GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
 {
     if (!a1 || !a2)
-        return -1;
+        return -minAngle;
 
-    return getangle(a2->spr.pos - a1->spr.pos);
+    return VecToAngle(a2->spr.pos - a1->spr.pos);
 }
 
 int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)

@@ -338,8 +338,8 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
 
-                int nAngle = getangle(pTargetActor->spr.pos - pActor->spr.pos);
-                pActor->set_int_zvel(bsin(nAngle, -5));
+                DAngle nAngle = VecToAngle(pTargetActor->spr.pos - pActor->spr.pos);
+                pActor->vel.Z = nAngle.Sin() * 2;
 
                 pActor->nCount = RandomSize(6) + 90;
             }
