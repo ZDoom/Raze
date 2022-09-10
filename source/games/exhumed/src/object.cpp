@@ -1251,7 +1251,7 @@ void AITrap::Tick(RunListEvent* ev)
             {
                 if (nType == 15)
                 {
-                    pBullet->set_int_ang((pBullet->int_ang() - 512) & kAngleMask);
+                    pBullet->spr.angle -= DAngle90;
                     D3PlayFX(StaticSound[kSound32], pBullet);
                 }
                 else

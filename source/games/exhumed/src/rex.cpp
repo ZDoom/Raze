@@ -203,9 +203,9 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 if (pTarget == nullptr)
                 {
-                    auto nAngle = pActor->int_ang(); // make backup of this variable
+                    auto nAngle = pActor->spr.angle;
                     pActor->pTarget = FindPlayer(pActor, 60);
-                    pActor->set_int_ang(nAngle);
+                    pActor->spr.angle = nAngle;
                 }
                 else
                 {

@@ -658,7 +658,6 @@ void BuildQueenHead(int nQueen)
     DExhumedActor* pActor = QueenList[nQueen].pActor;
     if (!pActor) return;
 
-    int nAngle = pActor->int_ang();
     auto pSector = pActor->sector();
 
     auto pActor2 = insertActor(pSector, 121);
@@ -674,7 +673,7 @@ void BuildQueenHead(int nQueen)
     pActor2->spr.pal = 0;
     pActor2->spr.xoffset = 0;
     pActor2->spr.yoffset = 0;
-    pActor2->set_int_ang(nAngle);
+    pActor2->spr.angle = pActor->spr.angle;
 
     nVelShift = 2;
     SetHeadVel(pActor2);

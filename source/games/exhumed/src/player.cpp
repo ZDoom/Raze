@@ -2705,7 +2705,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(self->pActor->int_ang());
+    ACTION_RETURN_INT(self->pActor->spr.angle.Buildang());
 }
 
 

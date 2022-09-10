@@ -257,7 +257,7 @@ void AIMummy::Tick(RunListEvent* ev)
         {
         case kHitWall:
         {
-            pActor->set_int_ang((pActor->int_ang() + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask);
+            pActor->spr.angle += DAngle180 + DAngle::fromBuild(RandomWord() & 0x3FF);
             pActor->VelFromAngle(-2);
             return;
         }

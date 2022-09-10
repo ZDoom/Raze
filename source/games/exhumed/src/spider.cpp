@@ -297,7 +297,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
         case kHitWall:
         {
-            spp->set_int_ang((spp->int_ang() + 256) & 0x7EF);
+            spp->spr.angle += DAngle45;
 			spp->VelFromAngle();
             return;
         }

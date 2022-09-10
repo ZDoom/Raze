@@ -168,7 +168,7 @@ void AILion::Damage(RunListEvent* ev)
                         PlotCourseToSprite(pActor, pTarget);
                         pActor->nAction = 5;
                         pActor->nCount = RandomSize(3);
-                        pActor->set_int_ang((pActor->int_ang() - (RandomSize(1) << 8)) + (RandomSize(1) << 8)); // NOTE: no angle mask in original code
+                        pActor->spr.angle += DAngle::fromBuild((- (RandomSize(1) << 8)) + (RandomSize(1) << 8)); // NOTE: no angle mask in original code
                     }
                     else
                     {
@@ -271,8 +271,6 @@ void AILion::Tick(RunListEvent* ev)
         if ((totalmoves & 0x1F) == (pActor->nPhase & 0x1F))
         {
             PlotCourseToSprite(pActor, pTarget);
-
-            int nAng = pActor->int_ang() & 0xFFF8;
 
             if (pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
             {
