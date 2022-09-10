@@ -41,7 +41,7 @@ void BounceGrenade(DExhumedActor* pActor, DAngle nAngle)
 {
     pActor->nTurn >>= 1;
 
-    pActor->vec = nAngle.ToVector() * pActor->nTurn * 32;
+    pActor->vec = nAngle.ToVector() * pActor->nTurn / 512.;
     D3PlayFX(StaticSound[kSound3], pActor);
 }
 
@@ -88,7 +88,7 @@ void ThrowGrenade(int nPlayer, double dz, int push1)
 		pActor->vel.Z = pPlayerActor->vel.Z;
     }
 
-    pActor->vec = nAngle.ToVector() * pActor->nTurn * 64;
+    pActor->vec = nAngle.ToVector() * pActor->nTurn / 256;
 
     PlayerList[nPlayer].pPlayerGrenade = nullptr;
 
@@ -276,10 +276,10 @@ void AIGrenade::Tick(RunListEvent* ev)
             return;
         }
 
-        int zVel = pActor->int_zvel();
+        double zVel = pActor->vel.Z;
 
         Gravity(pActor);
-        auto nMov = movesprite_(pActor, int(pActor->vec.X * worldtoint), int(pActor->vec.Y * worldtoint), pActor->int_zvel(), pActor->native_clipdist() >> 1, pActor->native_clipdist() >> 1, CLIPMASK1);
+        auto nMov = movesprite(pActor, pActor->vec, zVel, pActor->fClipdist() / 128., CLIPMASK1);
 
         if (!nMov.type && !nMov.exbits)
             return;
@@ -298,7 +298,7 @@ void AIGrenade::Tick(RunListEvent* ev)
 
                 D3PlayFX(StaticSound[kSound3], pActor);
 
-                pActor->set_int_zvel(-(zVel >> 1));
+                pActor->vel.Z = -zVel * 0.5;
 
                 if (pActor->vel.Z > -5)
                 {
