@@ -281,72 +281,58 @@ void SetHeadVel(DExhumedActor* pActor)
 	pActor->vel.XY() = pActor->spr.angle.ToVector() * 1024 * (1 << nVelShift);
 }
 
-Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val1, int val2)
+Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshold, DAngle val2)
 {
-    int nAngle;
+    DAngle nAngle;
 
     if (pActor2 == nullptr)
     {
         pActor->pitch = nullAngle;
-        nAngle = pActor->int_ang();
+        nAngle = pActor->spr.angle;
     }
     else
     {
-        int nTileY = (tileHeight(pActor2->spr.picnum) * pActor2->spr.yrepeat) * 2;
-
 		auto vect = pActor2->spr.pos.XY() - pActor->spr.pos.XY();
-        int nMyAngle = getangle(vect);
 
-        int edx = ((pActor2->int_pos().Z - nTileY) - pActor->int_pos().Z) >> 8;
+        double nTileY = GetActorHeightF(pActor2) / 2;
+        double edx = ((pActor2->spr.pos.Z - nTileY) - pActor->spr.pos.Z);
+        double nSqrt = vect.Length();
 
-        int nSqrt = int(vect.Length() * worldtoint);
+        DAngle nMyAngle = VecToAngle(vect);
+        DAngle nPitch = VecToAngle(nSqrt * 16, edx);
+        DAngle nAngDelta = deltaangle(pActor->spr.angle, nMyAngle);
 
-        int var_14 = getangle(nSqrt, edx);
-
-        int nAngDelta = AngleDelta(pActor->int_ang(), nMyAngle, 1024);
-
-        if (abs(nAngDelta) > 127)
+        if (abs(nAngDelta) >= DAngle22_5)
         {
-            val1 /= abs(nAngDelta >> 7);
-            if (val1 < 256)
-                val1 = 256;
+            threshold /= abs(nAngDelta.Buildang() >> 7);
+            if (threshold < 256)
+                threshold = 256;
         }
 
         if (abs(nAngDelta) > val2)
         {
-            if (nAngDelta < 0)
+            if (nAngDelta < nullAngle)
                 nAngDelta = -val2;
             else
                 nAngDelta = val2;
         }
 
-        nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
+        nAngle = (nAngDelta + pActor->spr.angle).Normalized360();
 
-        pActor->pitch = DAngle::fromBuild((AngleDelta(pActor->pitch.Buildang(), var_14, 24) + pActor->pitch.Buildang()) & kAngleMask);
+        auto nPitchDelta = clamp(deltaangle(pActor->pitch, nPitch), -DAngle22_5 / 5, DAngle22_5 / 5);
+        pActor->pitch = (pActor->pitch + nPitchDelta).Normalized180();
     }
 
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
 
-    int da = pActor->pitch.Buildang();
-    int x = abs(bcos(da));
+    auto cospitch = pActor->pitch.Cos();
 
-    int v26 = x * ((val1 * bcos(nAngle)) >> 14);
-    int v27 = x * ((val1 * bsin(nAngle)) >> 14);
+    auto vec = nAngle.ToVector() * threshold * (1 / 64.) * cospitch;
+    auto veclen = vec.Length();
 
-    uint32_t xDiff = abs((int32_t)(v26 >> 8));
-    uint32_t yDiff = abs((int32_t)(v27 >> 8));
+    double zz = pActor->pitch.Sin() * veclen;
 
-    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
-
-    if (sqrtNum > INT_MAX)
-    {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-        sqrtNum = INT_MAX;
-    }
-
-    int nSqrt = ksqrt(sqrtNum) * bsin(da);
-
-    return movesprite(pActor, v26 >> 2, v27 >> 2, bsin(bobangle, -5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
+    return movesprite(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), zz * 4096 + BobVal(bobangle) * 512, 0, 0, CLIPMASK1);
 }
 
 int DestroyTailPart()
@@ -585,7 +571,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
     case 2:
     case 3:
     {
-        auto nMov = QueenAngleChase(pActor, pTarget, nHeadVel, 64);
+        auto nMov = QueenAngleChase(pActor, pTarget, nHeadVel, DAngle22_5/2);
 
         switch (nMov.type)
         {
@@ -865,7 +851,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
         if (pTarget)
         {
-            auto nMov = QueenAngleChase(pActor, pTarget, nHeadVel, 64);
+            auto nMov = QueenAngleChase(pActor, pTarget, nHeadVel, DAngle22_5/2);
 
             if (nMov.type == kHitSprite)
             {
