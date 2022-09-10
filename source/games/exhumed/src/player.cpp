@@ -713,6 +713,71 @@ void AIPlayer::Damage(RunListEvent* ev)
     }
 }
 
+bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectortype* spr_sect)
+{
+    auto pPlayerActor = PlayerList[nPlayer].pActor;
+    int const z = (pPlayerActor->int_zvel() * 4) >> 2;
+
+    if (nMove.type == kHitSector || nMove.type == kHitWall)
+    {
+        sectortype* sect;
+        int nNormal = 0;
+
+        if (nMove.type == kHitSector)
+        {
+            sect = nMove.hitSector;
+            // Hm... Normal calculation here was broken.
+        }
+        else //if (nMove.type == kHitWall)
+        {
+            sect = nMove.hitWall->nextSector();
+            nNormal = GetWallNormal(nMove.hitWall);
+        }
+
+        // moving blocks - move this to a separate function!
+        if (sect != nullptr)
+        {
+            if ((sect->hitag == 45) && bTouchFloor)
+            {
+                int nDiff = AngleDiff(DAngle::fromBuild(nNormal), DAngle::fromBuild((pPlayerActor->int_ang() + 1024) & kAngleMask));
+
+                if (nDiff < 0) {
+                    nDiff = -nDiff;
+                }
+
+                if (nDiff <= 256)
+                {
+                    PlayerList[nPlayer].pPlayerPushSect = sect;
+
+                    int xvel = sPlayerInput[nPlayer].xVel;
+                    int yvel = sPlayerInput[nPlayer].yVel;
+                    int nMyAngle = getangle(xvel, yvel) & 2047; // note: must be positive!
+
+                    setsectinterpolate(sect);
+                    MoveSector(sect, DAngle::fromBuild(nMyAngle), &xvel, &yvel);
+
+                    if (PlayerList[nPlayer].nPlayerPushSound <= -1)
+                    {
+                        PlayerList[nPlayer].nPlayerPushSound = 1;
+                        int nBlock = PlayerList[nPlayer].pPlayerPushSect->extra;
+                        DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
+
+                        D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
+                    }
+                    else
+                    {
+                        pPlayerActor->spr.pos = spr_pos;
+                        ChangeActorSect(pPlayerActor, spr_sect);
+                    }
+
+                    movesprite(pPlayerActor, xvel, yvel, z, 5120, -5120, CLIPMASK0);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
 
 void AIPlayer::Tick(RunListEvent* ev)
 {
@@ -837,7 +902,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     int x = (sPlayerInput[nPlayer].xVel * 4) >> 2;
     int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
-    int z = (pPlayerActor->int_zvel() * 4) >> 2;
+    int const z = (pPlayerActor->int_zvel() * 4) >> 2;
 
     if (pPlayerActor->vel.Z > 32)
         pPlayerActor->vel.Z = 32;
@@ -975,64 +1040,8 @@ void AIPlayer::Tick(RunListEvent* ev)
             }
         }
 
-        if (nMove.type == kHitSector || nMove.type == kHitWall)
-        {
-            sectortype* sect;
-            int nNormal = 0;
-
-            if (nMove.type == kHitSector)
-            {
-                sect = nMove.hitSector;
-                // Hm... Normal calculation here was broken.
-            }
-            else //if (nMove.type == kHitWall)
-            {
-                sect = nMove.hitWall->nextSector();
-                nNormal = GetWallNormal(nMove.hitWall);
-            }
-
-            // moving blocks - move this to a separate function!
-            if (sect != nullptr)
-            {
-                if ((sect->hitag == 45) && bTouchFloor)
-                {
-                    int nDiff = AngleDiff(DAngle::fromBuild(nNormal), DAngle::fromBuild((pPlayerActor->int_ang() + 1024) & kAngleMask));
-
-                    if (nDiff < 0) {
-                        nDiff = -nDiff;
-                    }
-
-                    if (nDiff <= 256)
-                    {
-                        PlayerList[nPlayer].pPlayerPushSect = sect;
-
-                        int xvel = sPlayerInput[nPlayer].xVel;
-                        int yvel = sPlayerInput[nPlayer].yVel;
-                        int nMyAngle = getangle(xvel, yvel) & 2047; // note: must be positive!
-
-                        setsectinterpolate(sect);
-                        MoveSector(sect, DAngle::fromBuild(nMyAngle), &xvel, &yvel);
-
-                        if (PlayerList[nPlayer].nPlayerPushSound <= -1)
-                        {
-                            PlayerList[nPlayer].nPlayerPushSound = 1;
-                            int nBlock = PlayerList[nPlayer].pPlayerPushSect->extra;
-                            DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
-
-                            D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
-                        }
-                        else
-                        {
-                            pPlayerActor->spr.pos = spr_pos;
-                            ChangeActorSect(pPlayerActor, spr_sect);
-                        }
-
-                        movesprite(pPlayerActor, xvel, yvel, z, 5120, -5120, CLIPMASK0);
-                        goto sectdone;
-                    }
-                }
-            }
-        }
+        if (CheckMovingBlocks(nPlayer, nMove, spr_pos, spr_sect))
+            goto sectdone;
     }
 
     // loc_1AB46:
