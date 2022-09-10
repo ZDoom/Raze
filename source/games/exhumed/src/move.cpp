@@ -382,9 +382,9 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, int clipdi
     return nRet;
 }
 
-int GetActorHeight(DExhumedActor* actor)
+double GetActorHeightF(DExhumedActor* actor)
 {
-    return tileHeight(actor->spr.picnum) * actor->spr.yrepeat * 4;
+    return tileHeight(actor->spr.picnum) * actor->spr.yrepeat * REPEAT_SCALE;
 }
 
 DExhumedActor* insertActor(sectortype* s, int st)
@@ -914,7 +914,6 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
     else
     {
         double nHeight = GetActorHeightF(pActor2) / 2;
-        int nHeight1 = GetActorHeight(pActor2) / 2;
 		auto vect = pActor2->spr.pos.XY() - pActor->spr.pos.XY();
         DAngle nMyAngle = VecToAngle(vect);
         double nSqrt = vect.Length();
