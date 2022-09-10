@@ -32,7 +32,7 @@ public:
 	union { int16_t nIndex2; int16_t nAngle2; }; // index2 is for scorpion, angle2 is for wasp.
 	union { int16_t nChannel; int16_t nVel; };	// channel is for scorpion, vel is for wasp.
 	union { int16_t nDamage; int16_t nAction2; }; // nAction2 is for the queen.
-	DAngle angle2;	// used by AngleChase
+	DAngle pitch;	// used by AngleChase
 
 	// for the grenade.
 	int nTurn;

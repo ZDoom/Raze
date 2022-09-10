@@ -310,7 +310,7 @@ int MoveBullet(int nBullet)
                 BulletList[nBullet].pEnemy = nullptr;
             else
             {
-                coll = AngleChase(pActor, pEnemyActor, pBullet->field_10, 0, 16);
+                coll = AngleChase(pActor, pEnemyActor, pBullet->field_10, 0, DAngle22_5 / 8);
                 goto MOVEEND;
             }
         }

@@ -287,7 +287,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
     if (pActor2 == nullptr)
     {
-        pActor->angle2 = nullAngle;
+        pActor->pitch = nullAngle;
         nAngle = pActor->int_ang();
     }
     else
@@ -322,12 +322,12 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
         nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
 
-        pActor->angle2 = DAngle::fromBuild((AngleDelta(pActor->angle2.Buildang(), var_14, 24) + pActor->angle2.Buildang()) & kAngleMask);
+        pActor->pitch = DAngle::fromBuild((AngleDelta(pActor->pitch.Buildang(), var_14, 24) + pActor->pitch.Buildang()) & kAngleMask);
     }
 
     pActor->set_int_ang(nAngle);
 
-    int da = pActor->angle2.Buildang();
+    int da = pActor->pitch.Buildang();
     int x = abs(bcos(da));
 
     int v26 = x * ((val1 * bcos(nAngle)) >> 14);

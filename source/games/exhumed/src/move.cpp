@@ -908,7 +908,7 @@ void SetQuake(DExhumedActor* pActor, int nVal)
     }
 }
 
-Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int ecx, int push1) 
+Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshold, int zbob, DAngle push1) 
 {
     int nClipType = pActor->spr.statnum != 107;
 
@@ -920,75 +920,50 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
         nClipType = CLIPMASK0;
     }
 
-    int nAngle;
+    DAngle nAngle;
 
     if (pActor2 == nullptr)
     {
-        pActor->angle2 = nullAngle;
-        nAngle = pActor->int_ang();
+        pActor->pitch = nullAngle;
+        nAngle = pActor->spr.angle;
     }
     else
     {
-        int nHeight = tileHeight(pActor2->spr.picnum) * pActor2->spr.yrepeat * 2;
-
+        double nHeight = GetActorHeightF(pActor2) / 2;
+        int nHeight1 = GetActorHeight(pActor2) / 2;
 		auto vect = pActor2->spr.pos.XY() - pActor->spr.pos.XY();
-        int nMyAngle = getangle(vect);
+        DAngle nMyAngle = VecToAngle(vect);
+        double nSqrt = vect.Length();
+        DAngle nPitch = VecToAngle(nSqrt, (pActor2->spr.pos.Z - nHeight - pActor->spr.pos.Z) / 16.);
 
-        int nSqrt = int(vect.Length() * worldtoint);
+        DAngle nAngDelta = deltaangle(pActor->spr.angle, nMyAngle);
 
-        int var_18 = getangle(nSqrt, ((pActor2->int_pos().Z - nHeight) - pActor->int_pos().Z) >> 8);
-
-        int nAngDelta = AngleDelta(pActor->int_ang(), nMyAngle, 1024);
-        int nAngDelta2 = abs(nAngDelta);
-
-        if (nAngDelta2 > 63)
+        if (abs(nAngDelta) >= DAngle22_5 / 2)
         {
-            nAngDelta2 = abs(nAngDelta >> 6);
+            int nAngDelta2 = abs(nAngDelta.Buildang() >> 6);
 
-            ebx /= nAngDelta2;
+            threshold /= nAngDelta2;
 
-            if (ebx < 5) {
-                ebx = 5;
+            if (threshold < 5) {
+                threshold = 5;
             }
         }
 
-        int nAngDeltaC = abs(nAngDelta);
-
-        if (nAngDeltaC > push1)
-        {
-            if (nAngDelta >= 0)
-                nAngDelta = push1;
-            else
-                nAngDelta = -push1;
-        }
-
-        nAngle = (nAngDelta + pActor->int_ang()) & kAngleMask;
-        int nAngDeltaD = AngleDelta(pActor->angle2.Buildang(), var_18, 24);
-
-        pActor->angle2 = DAngle::fromBuild((pActor->angle2.Buildang() + nAngDeltaD) & kAngleMask);
+        nAngDelta = clamp(nAngDelta, -push1, push1);
+        nAngle = (nAngDelta + pActor->spr.angle).Normalized360();
+        auto nPitchDelta = clamp(deltaangle(pActor->pitch, nPitch), -DAngle22_5 / 5, DAngle22_5 / 5);
+        pActor->pitch = (pActor->pitch + nPitchDelta).Normalized180();
     }
 
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
 
-    int eax = abs(bcos(pActor->angle2.Buildang()));
+    auto cospitch = pActor->pitch.Cos();
 
-    int x = ((bcos(nAngle) * ebx) >> 14) * eax;
-    int y = ((bsin(nAngle) * ebx) >> 14) * eax;
+    auto vec = nAngle.ToVector() * threshold * (1/64.) * cospitch;
+    auto veclen = vec.Length();
+    double zz = g_sindeg(pActor->vel.Z * 45) * veclen;
 
-    int xshift = x >> 8;
-    int yshift = y >> 8;
-
-    uint32_t sqrtNum = xshift * xshift + yshift * yshift;
-
-    if (sqrtNum > INT_MAX)
-    {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-        sqrtNum = INT_MAX;
-    }
-
-    int z = bsin(pActor->int_zvel()) * ksqrt(sqrtNum);
-
-    return movesprite(pActor, x >> 2, y >> 2, (z >> 13) + bsin(ecx, -5), 0, 0, nClipType);
+    return movesprite(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), zz * 4096 + BobVal(zbob) * 512, 0, 0, nClipType);
 }
 
 int GetWallNormal(walltype* pWall)
@@ -1000,10 +975,10 @@ int GetWallNormal(walltype* pWall)
 DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
 {
     auto pActor = PlayerList[nPlayer].pActor;
-    double height = GetActorHeight(pActor) * 0.5;
+    double height = GetActorHeightF(pActor) * 0.5;
 
     *sectnum = pActor->sector();
-	auto pos = pActor->spr.pos.plusZ(-height * zinttoworld);
+	auto pos = pActor->spr.pos.plusZ(-height);
 
     Collision scratch;
     clipmove(pos, sectnum,

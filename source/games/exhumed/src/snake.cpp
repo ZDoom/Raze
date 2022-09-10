@@ -324,7 +324,7 @@ void AISnake::Tick(RunListEvent* ev)
 
         zVal = pActor->int_pos().Z;
 
-        nMov = AngleChase(pActor, pEnemySprite, 1200, SnakeList[nSnake].nAngle, 32);
+        nMov = AngleChase(pActor, pEnemySprite, 1200, SnakeList[nSnake].nAngle, DAngle22_5 / 4);
 
         zVal = pActor->int_pos().Z - zVal;
     }

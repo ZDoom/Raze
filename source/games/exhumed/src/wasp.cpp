@@ -241,7 +241,7 @@ void AIWasp::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->angle2 = nullAngle;
+                pActor->pitch = nullAngle;
                 pActor->vel.Z = 0;
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
@@ -270,7 +270,7 @@ void AIWasp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto nChaseVal = AngleChase(pActor, pTarget, pActor->nVel, 0, 16);
+        auto nChaseVal = AngleChase(pActor, pTarget, pActor->nVel, 0, DAngle22_5 / 8);
 
         switch (nChaseVal.type)
         {

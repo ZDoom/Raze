@@ -1312,6 +1312,11 @@ public:
 		return Degrees_ / other;
 	}
 
+	constexpr double operator/ (TAngle other) const
+	{
+		return Degrees_ / other.Degrees_;
+	}
+
 	// Should the comparisons consider an epsilon value?
 	constexpr bool operator< (TAngle other) const
 	{
