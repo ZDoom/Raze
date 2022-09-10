@@ -79,7 +79,7 @@ Player PlayerList[kMaxPlayers];
 
 TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
 
-int nStandHeight;
+double nStandHeight;
 
 
 
@@ -289,12 +289,11 @@ void RestartPlayer(int nPlayer)
 	pActor->spr.yoffset = 0;
 	pActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
 
-	int nHeight = GetActorHeight(pActor);
 	pActor->vel.X = 0;
 	pActor->vel.Y = 0;
 	pActor->vel.Z = 0;
 
-	nStandHeight = nHeight;
+	nStandHeight = GetActorHeightF(pActor);
 
 	pActor->spr.hitag = 0;
 	pActor->spr.extra = -1;
@@ -2229,7 +2228,7 @@ sectdone:
             // loc_1BC57:
 
             // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerActor->spr.sector so we can make this code a bit neater. Don't assume pPlayerActor->spr.sector == nSector here!!
-            if (nStandHeight > (pPlayerActor->sector()->int_floorz() - pPlayerActor->sector()->int_ceilingz())) {
+            if (nStandHeight > (pPlayerActor->sector()->floorz - pPlayerActor->sector()->ceilingz)) {
                 var_48 = 1;
             }
 
