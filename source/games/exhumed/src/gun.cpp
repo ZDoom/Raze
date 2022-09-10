@@ -646,25 +646,25 @@ loc_flag:
                 else
                     ecx = theVal;
 
-                DAngle var_44 = (nAngle + DAngle90).Normalized360();
-                ebp += var_44.Cos() * (1 << 3) * ecx;
-                ebx += var_44.Sin() * (1 << 3) * ecx;
+                DAngle angle = (nAngle + DAngle90).Normalized360();
+                ebp += angle.Cos() * (1 << 3) * ecx;
+                ebx += angle.Sin() * (1 << 3) * ecx;
             }
 
-            int nHeight = (-GetActorHeight(pPlayerActor)) >> 1;
+            double nHeight = GetActorHeightF(pPlayerActor) * -0.5;
 
             if (nAction < 6)
             {
-                nHeight -= 1792;
+                nHeight -= 7;
             }
             else
             {
                 if (!var_38)
                 {
-                    nHeight += 1024;
+                    nHeight += 4;
                 }
                 else {
-                    nHeight -= 2560;
+                    nHeight -= 10;
                 }
             }
 
@@ -675,9 +675,9 @@ loc_flag:
                 // loc_27266:
                 case kWeaponSword:
                 {
-                    nHeight += -PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 10;
+                    nHeight -= PlayerList[nLocalPlayer].horizon.horiz.asbuildf() * 0.25;
 
-                    thePos.Z += nHeight * zinttoworld;
+                    thePos.Z += nHeight;
 
                     int var_28;
 
@@ -759,10 +759,10 @@ loc_flag:
                     else
                     {
                         if (var_38) {
-                            nHeight += 768;
+                            nHeight += 3;
                         }
                         else {
-                            nHeight -= 2560;
+                            nHeight -= 10;
                         }
 
                         // fall through to case 1 (kWeaponPistol)
@@ -780,7 +780,7 @@ loc_flag:
                 }
                 case kWeaponPistol:
                 {
-                    int h = PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 14;
+                    double h = PlayerList[nLocalPlayer].horizon.horiz.asbuildf() / 64.;
                     nHeight -= h;
 
                     DExhumedActor* target = nullptr;
@@ -798,18 +798,18 @@ loc_flag:
                         }
                     }
 
-                    BuildBullet(pPlayerActor, nAmmoType, nHeight * zinttoworld, nAngle, target, var_1C, h);
+                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle, target, var_1C, int(h * zworldtoint));
                     break;
                 }
 
                 case kWeaponGrenade:
                 {
-                    ThrowGrenade(nPlayer, ebp, ebx, nHeight - 2560, FixedToInt(PlayerList[nLocalPlayer].horizon.horiz.asq16()));
+                    ThrowGrenade(nPlayer, ebp, ebx, nHeight * zworldtoint - 2560, FixedToInt(PlayerList[nLocalPlayer].horizon.horiz.asq16()));
                     break;
                 }
                 case kWeaponStaff:
                 {
-                    BuildSnake(nPlayer, nHeight);
+                    BuildSnake(nPlayer, nHeight * zworldtoint);
                     nQuake[nPlayer] = 2.;
 
                     PlayerList[nPlayer].nThrust -= pPlayerActor->spr.angle.ToVector() * 2;
