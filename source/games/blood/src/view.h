@@ -43,7 +43,6 @@ struct VIEW {
 	fixedhoriz horiz; // horiz
 	fixedhoriz horizoff; // horizoff
 	int slope;
-	int weaponZ; // weapon z
 	int zViewVel;
 	int zWeapon;
 	int zWeaponVel;
