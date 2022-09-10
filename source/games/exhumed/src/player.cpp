@@ -896,8 +896,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     auto pSector = pPlayerActor->sector();
     int nSectFlag = PlayerList[nPlayer].pPlayerViewSect->Flag;
 
-    int playerX = pPlayerActor->int_pos().X;
-    int playerY = pPlayerActor->int_pos().Y;
+    auto playerPos = pPlayerActor->spr.pos.XY();
 
     int x = (sPlayerInput[nPlayer].xVel * 4) >> 2;
     int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
@@ -942,7 +941,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // loc_1A6E4
-    if (inside(pPlayerActor->int_pos().X, pPlayerActor->int_pos().Y, pPlayerActor->sector()) != 1)
+    if (inside(pPlayerActor->spr.pos.X, pPlayerActor->spr.pos.Y, pPlayerActor->sector()) != 1)
     {
         ChangeActorSect(pPlayerActor, spr_sect);
 
@@ -1057,22 +1056,14 @@ void AIPlayer::Tick(RunListEvent* ev)
 sectdone:
     if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
     {
-        PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((int(spr_pos.Z * zworldtoint) - pPlayerActor->int_pos().Z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
+        PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((int((spr_pos.Z - pPlayerActor->spr.pos.Z) * zworldtoint)) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
-    playerX -= pPlayerActor->int_pos().X;
-    playerY -= pPlayerActor->int_pos().Y;
+    playerPos -= pPlayerActor->spr.pos.XY();
 
-    uint32_t sqrtNum = playerX * playerX + playerY * playerY;
-
-    if (sqrtNum > INT_MAX)
-    {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-        sqrtNum = INT_MAX;
-    }
 
     PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel;
-    PlayerList[nPlayer].totalvel = ksqrt(sqrtNum);
+    PlayerList[nPlayer].totalvel = playerPos.Length() * worldtoint;
 
     auto pViewSect = pPlayerActor->sector();
 
@@ -1268,7 +1259,7 @@ sectdone:
         HitInfo near;
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-        neartag(pPlayerActor->int_pos(), pPlayerActor->sector(), pPlayerActor->int_ang(), near, 1024, 2);
+        neartag(pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.angle, near, 128., 2);
 
         DExhumedActor* pActorB;
         feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), &pActorB, var_30, 48);
