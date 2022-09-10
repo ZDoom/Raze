@@ -1372,7 +1372,7 @@ void AISpark::Tick(RunListEvent* ev)
 
         pActor->vel.Z += 0.5;
 
-        auto nMov = movesprite___(pActor, pActor->vel, 4096, 2560, -2560, CLIPMASK1);
+        auto nMov = movespritevel(pActor, pActor->vel, 4096, -10, CLIPMASK1);
         if (!nMov.type && !nMov.exbits) {
             return;
         }
@@ -1823,7 +1823,7 @@ void AIObject::Tick(RunListEvent* ev)
     FUNCOBJECT_GOTO:
         if (nStat != kStatExplodeTarget)
         {
-            auto nMov = movesprite___(pActor, pActor->vel, 64., 0, 0, CLIPMASK0);
+            auto nMov = movespritevel(pActor, pActor->vel, 64., 0, CLIPMASK0);
 
             if (pActor->spr.statnum == kStatExplodeTrigger) {
                 pActor->spr.pal = 1;

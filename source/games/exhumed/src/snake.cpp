@@ -364,8 +364,7 @@ void AISnake::Tick(RunListEvent* ev)
             DVector2 vect;
             vect.X = cosang + cosang * i + eax * normalang.Cos();
             vect.Y = cosang + sinang * i + eax * normalang.Sin();
-            movesprite_(pActor2, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y),
-                int(- zVal * (i - 1) * zworldtoint), 0, 0, CLIPMASK1);
+            movesprite(pActor2, vect, - zVal * (i - 1), 0, CLIPMASK1);
 
             snakeang += DAngle22_5;
         }
