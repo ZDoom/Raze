@@ -299,7 +299,7 @@ void AISnake::Tick(RunListEvent* ev)
     DExhumedActor* pEnemySprite = SnakeList[nSnake].pEnemy;
 
     Collision nMov;
-    int zVal;
+    double zVal;
 
     if (pEnemySprite == nullptr)
     {
@@ -322,11 +322,11 @@ void AISnake::Tick(RunListEvent* ev)
             goto SEARCH_ENEMY;
         }
 
-        zVal = pActor->int_pos().Z;
+        zVal = pActor->spr.pos.Z;
 
         nMov = AngleChase(pActor, pEnemySprite, 1200, SnakeList[nSnake].nAngle, DAngle22_5 / 4);
 
-        zVal = pActor->int_pos().Z - zVal;
+        zVal = pActor->spr.pos.Z - zVal;
     }
 
     if (nMov.type || nMov.exbits)
@@ -365,7 +365,7 @@ void AISnake::Tick(RunListEvent* ev)
             int eax = (bsin(var_20) * SnakeList[nSnake].c[i]) >> 9;
 
             movesprite(pActor2, var_30 + var_30 * i + eax * bcos(var_28), var_30 + var_34 * i + eax * bsin(var_28),
-                -zVal * (i - 1), 0, 0, CLIPMASK1);
+                int(- zVal * (i - 1) * zworldtoint), 0, 0, CLIPMASK1);
 
             var_20 = (var_20 + 128) & kAngleMask;
         }
