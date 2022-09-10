@@ -37,12 +37,12 @@ void DestroyGrenade(DExhumedActor* pActor)
     DeleteActor(pActor);
 }
 
-void BounceGrenade(DExhumedActor* pActor, int nAngle)
+void BounceGrenade(DExhumedActor* pActor, DAngle nAngle)
 {
     pActor->nTurn >>= 1;
 
-    pActor->x = bcos(nAngle, -5) * pActor->nTurn;
-    pActor->y = bsin(nAngle, -5) * pActor->nTurn;
+    pActor->x = bcos(nAngle.Buildang(), -5) * pActor->nTurn;
+    pActor->y = bsin(nAngle.Buildang(), -5) * pActor->nTurn;
 
     D3PlayFX(StaticSound[kSound3], pActor);
 }
@@ -55,27 +55,29 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
     DExhumedActor* pActor = PlayerList[nPlayer].pPlayerGrenade;
     auto pPlayerActor = PlayerList[nPlayer].pActor;
 
-    int nAngle = pPlayerActor->int_ang();
+    DAngle nAngle = pPlayerActor->spr.angle;
 
     ChangeActorSect(pActor, PlayerList[nPlayer].pPlayerViewSect);
 
     pActor->spr.pos = pPlayerActor->spr.pos;
 
-    if (nAngle < 0) {
-        nAngle = pPlayerActor->int_ang();
+    if (nAngle < nullAngle) {
+        nAngle = pPlayerActor->spr.angle;
     }
 
     pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-    pActor->set_int_ang(nAngle);
+    pActor->spr.angle = nAngle;
 
     if (push1 >= -3000)
     {
         int nVel = PlayerList[nPlayer].totalvel << 5;
 
         pActor->nTurn = ((90 - pActor->nIndex2) * (90 - pActor->nIndex2)) + nVel;
-        pActor->set_int_zvel((-64 * push1) - 4352);
+        pActor->vel.Z = ((-0.25 * push1) - 17);
 
-        auto nMov = movesprite(pActor, bcos(nAngle) * (pPlayerActor->native_clipdist() << 3), bsin(nAngle) * (pPlayerActor->native_clipdist() << 3), ecx, 0, 0, CLIPMASK1);
+
+        DVector2 vec = nAngle.ToVector() * pPlayerActor->fClipdist() *2; // == << 14 + 3 + 2 - 18
+        auto nMov = movesprite(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), ecx, 0, 0, CLIPMASK1);
         if (nMov.type == kHitWall)
         {
             nAngle = GetWallNormal(nMov.hitWall);
@@ -88,8 +90,8 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 		pActor->vel.Z = pPlayerActor->vel.Z;
     }
 
-    pActor->x = bcos(nAngle, -4) * pActor->nTurn;
-    pActor->y = bsin(nAngle, -4) * pActor->nTurn;
+    pActor->x = bcos(nAngle.Buildang(), -4) * pActor->nTurn;
+    pActor->y = bsin(nAngle.Buildang(), -4) * pActor->nTurn;
 
     PlayerList[nPlayer].pPlayerGrenade = nullptr;
 
@@ -323,7 +325,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         }
         else if (nMov.type == kHitSprite)
         {
-            BounceGrenade(pActor, nMov.actor()->int_ang());
+            BounceGrenade(pActor, nMov.actor()->spr.angle);
         }
 
         pActor->nHealth = 0;

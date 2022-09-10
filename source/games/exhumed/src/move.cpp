@@ -966,10 +966,9 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
     return movesprite(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), zz * 4096 + BobVal(zbob) * 512, 0, 0, nClipType);
 }
 
-int GetWallNormal(walltype* pWall)
+DAngle GetWallNormal(walltype* pWall)
 {
-    int nAngle = getangle(pWall->delta());
-    return (nAngle + 512) & kAngleMask;
+    return (VecToAngle(pWall->delta()) + DAngle90).Normalized360();
 }
 
 DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
@@ -1178,7 +1177,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
             else if (nVal.type == kHitWall)
             {
-                nAngle = DAngle::fromBuild(GetWallNormal(nVal.hitWall));
+                nAngle = GetWallNormal(nVal.hitWall);
             }
             else
             {

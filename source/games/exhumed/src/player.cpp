@@ -720,7 +720,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
     if (nMove.type == kHitSector || nMove.type == kHitWall)
     {
         sectortype* sect;
-        int nNormal = 0;
+        DAngle nNormal = nullAngle;
 
         if (nMove.type == kHitSector)
         {
@@ -738,7 +738,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
         {
             if ((sect->hitag == 45) && bTouchFloor)
             {
-                int nDiff = AngleDiff(DAngle::fromBuild(nNormal), DAngle::fromBuild((pPlayerActor->int_ang() + 1024) & kAngleMask));
+                int nDiff = AngleDiff(nNormal, pPlayerActor->spr.angle + DAngle180);
 
                 if (nDiff < 0) {
                     nDiff = -nDiff;

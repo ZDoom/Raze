@@ -421,7 +421,7 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.type == kHitWall)
         {
             pActor->nAction = 7;
-            pActor->set_int_ang((GetWallNormal(nMov.hitWall) + 1024) & kAngleMask);
+            pActor->spr.angle = (GetWallNormal(nMov.hitWall) + DAngle180).Normalized360();
             pActor->nCount = RandomSize(4);
             return;
         }

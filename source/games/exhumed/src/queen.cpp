@@ -537,7 +537,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         }
         else
         {
-            int nAngle;
+            DAngle nAngle;
 
             switch (nMov.type)
             {
@@ -547,11 +547,11 @@ void AIQueenEgg::Tick(RunListEvent* ev)
                 nAngle = GetWallNormal(nMov.hitWall);
                 break;
             case kHitSprite:
-                nAngle = nMov.actor()->int_ang();
+                nAngle = nMov.actor()->spr.angle;
                 break;
             }
 
-            pActor->set_int_ang(nAngle);
+            pActor->spr.angle = nAngle;
 			pActor->vel.XY() = pActor->spr.angle.ToVector() * 512;
         }
 
@@ -766,11 +766,11 @@ void AIQueenHead::Tick(RunListEvent* ev)
             auto nMov = MoveCreature(pActor);
 
             // original BUG - this line doesn't exist in original code?
-            int nNewAng = pActor->int_ang();
+            DAngle nNewAng = pActor->spr.angle;
 
             if (nMov.exbits == 0)
             {
-                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->int_ang();
+                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->spr.angle;
                 else if (nMov.type == kHitWall) nNewAng = GetWallNormal(nMov.hitWall);
             }
             else if (nMov.exbits == kHitAux2)
@@ -785,7 +785,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
 
             // original BUG - var_18 isn't being set if the check above == 0x20000 ?
-            pActor->set_int_ang(nNewAng);
+            pActor->spr.angle = nNewAng;
             nVelShift++;
 
             if (nVelShift < 5)

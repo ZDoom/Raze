@@ -29,7 +29,7 @@ BEGIN_PS_NS
 // 100% done
 int AngleDiff(DAngle a, DAngle b)
 {
-    int diff = (b - a).Buildang();
+    int diff = (b - a).Normalized360().Buildang();
 
     if (diff > 1024) {
         diff = 2048 - diff;
