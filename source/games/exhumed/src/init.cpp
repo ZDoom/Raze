@@ -439,7 +439,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 116:
             {
-                BuildRat(pActor, nulvec, nullptr, DAngle::fromBam(unsigned(-1)));
+                BuildRat(pActor, nulvec, nullptr, -minAngle);
                 return;
             }
             case 115: // Rat (eating)
