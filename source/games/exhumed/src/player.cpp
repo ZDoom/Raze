@@ -715,7 +715,7 @@ void AIPlayer::Damage(RunListEvent* ev)
 bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectortype* spr_sect)
 {
     auto pPlayerActor = PlayerList[nPlayer].pActor;
-    int const z = (pPlayerActor->int_zvel() * 4) >> 2;
+    double const zz = pPlayerActor->vel.Z;
 
     if (nMove.type == kHitSector || nMove.type == kHitWall)
     {
@@ -768,7 +768,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
                         ChangeActorSect(pPlayerActor, spr_sect);
                     }
 
-                    movesprite_(pPlayerActor, FloatToFixed<18>(vel.X), FloatToFixed<18>(vel.Y), z, 5120, -5120, CLIPMASK0);
+                    movesprite(pPlayerActor, vel, zz, -20, CLIPMASK0);
                     return true;
                 }
             }
@@ -897,17 +897,15 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     auto playerPos = pPlayerActor->spr.pos.XY();
 
-    int x = (sPlayerInput[nPlayer].xVel * 4) >> 2;
-    int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
-    int const z = (pPlayerActor->int_zvel() * 4) >> 2;
+    DVector2 vect(FixedToFloat<18>(sPlayerInput[nPlayer].xVel), FixedToFloat<18>(sPlayerInput[nPlayer].yVel));
+    double zz = pPlayerActor->vel.Z;
 
     if (pPlayerActor->vel.Z > 32)
         pPlayerActor->vel.Z = 32;
 
     if (PlayerList[nPlayer].bIsMummified)
     {
-        x /= 2;
-        y /= 2;
+        vect *= 0.5;
     }
 
 	auto spr_pos = pPlayerActor->spr.pos;
@@ -922,14 +920,14 @@ void AIPlayer::Tick(RunListEvent* ev)
     nMove.setNone();
     if (bSlipMode)
     {
-        pPlayerActor->add_int_pos({ (x >> 14), (y >> 14), 0 });
+        pPlayerActor->spr.pos += vect;
 
         SetActor(pPlayerActor, pPlayerActor->spr.pos);
         pPlayerActor->spr.pos.Z = pPlayerActor->sector()->floorz;
     }
     else
     {
-        nMove = movesprite_(pPlayerActor, x, y, z, 5120, -5120, CLIPMASK0);
+        nMove = movesprite(pPlayerActor, vect, zz, -20, CLIPMASK0);
 
         auto pPlayerSect = pPlayerActor->sector();
 
@@ -1096,7 +1094,7 @@ sectdone:
                 double fz = pViewSect->floorz - 20;
                 pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
 
-                auto coll = movesprite_(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
+                auto coll = movesprite(pPlayerActor, vect, 0, 0, CLIPMASK0);
                 if (coll.type == kHitWall)
                 {
                     ChangeActorSect(pPlayerActor, pPlayerActor->sector());

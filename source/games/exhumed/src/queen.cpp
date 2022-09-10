@@ -332,7 +332,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
 
     double zz = pActor->pitch.Sin() * veclen;
 
-    return movesprite_(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), zz * 4096 + BobVal(bobangle) * 512, 0, 0, CLIPMASK1);
+    return movesprite(pActor, vec, zz * 16 + BobVal(bobangle) * 2, 0, CLIPMASK1);
 }
 
 int DestroyTailPart()
@@ -931,9 +931,9 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
                     // This behavior probably would be needed emulated for demo compatibility
                     auto dv = nAngle.ToVector() * 64;
-                    int dz = (RandomSize(5) - RandomSize(5)) << 7;
+                    double dz = (RandomSize(5) - RandomSize(5)) * 0.5;
 
-                    movesprite_(pActor, FloatToFixed<18>(dv.X), FloatToFixed<18>(dv.Y), dz, 0, 0, CLIPMASK1);
+                    movesprite(pActor, dv, dz, 0, CLIPMASK1);
 
                     BlowChunks(pActor);
                     BuildExplosion(pActor);

@@ -1037,7 +1037,7 @@ void AISlide::Tick(RunListEvent* ev)
         double nSeekB = LongSeek(&y, SlideData[nSlide].pos[4].Y, 1.25, 1.25);
 
         dragpoint(SlideData[nSlide].pWall1, x, y);
-        movesprite_(SlideData[nSlide].pActor, FloatToFixed<18>(nSeekA), FloatToFixed<18>(nSeekB), 0, 0, 0, CLIPMASK1);
+        movesprite(SlideData[nSlide].pActor, DVector2(nSeekA, nSeekB), 0, 0, CLIPMASK1);
 
         if (nSeekA == 0 && nSeekB == 0)
         {

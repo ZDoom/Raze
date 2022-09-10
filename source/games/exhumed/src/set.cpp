@@ -140,7 +140,7 @@ void AISoul::Tick(RunListEvent* ev)
     double nVel = DAngle::fromBuild(pActor->spr.extra).Cos();
 
     auto vect = pActor->spr.angle.ToVector() * nVel * 8;
-	auto coll = movesprite_(pActor, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), pActor->int_zvel(), 5120, 0, CLIPMASK0);
+	auto coll = movesprite(pActor,vect, pActor->vel.Z, 0, CLIPMASK0);
     if (coll.exbits & 0x10000)
     {
 		DExhumedActor* pSet = pActor->pTarget;

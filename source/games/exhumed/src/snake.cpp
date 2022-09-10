@@ -305,11 +305,7 @@ void AISnake::Tick(RunListEvent* ev)
     {
     SEARCH_ENEMY:
         auto vec = pActor->spr.angle.ToVector() * 37.5;
-        nMov = movesprite_(pActor,
-            FixedToFloat<18>(vec.X),
-            FixedToFloat<18>(vec.Y),
-            bsin(SnakeList[nSnake].nAngle, -5),
-            0, 0, CLIPMASK1);
+        nMov = movesprite(pActor, vec, BobVal(SnakeList[nSnake].nAngle) * 2, 0, CLIPMASK1);
 
         FindSnakeEnemy(nSnake);
 
