@@ -32,8 +32,13 @@ enum
 	kAngleMask	= 0x7FF
 };
 
+Collision movesprite(DExhumedActor* spritenum, DVector2 vect, double dz, double flordist, unsigned int clipmask);
 
-Collision movesprite_(DExhumedActor* spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
+
+Collision movesprite_(DExhumedActor* spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
+{
+	return movesprite(spritenum, DVector2(FixedToFloat<18>(dx), FixedToFloat<18>(dy)), dz * zinttoworld, flordist * zinttoworld, clipmask);
+}
 Collision movesprite__(DExhumedActor* spritenum, const DVector3& pos, int ceildist, int flordist, unsigned int clipmask)
 {
 	return movesprite_(spritenum, int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), ceildist, flordist, clipmask);

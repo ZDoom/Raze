@@ -393,10 +393,8 @@ DExhumedActor* insertActor(sectortype* s, int st)
 }
 
 
-Collision movesprite_(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
+Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flordist, unsigned int clipmask)
 {
-    DVector2 vect(FixedToFloat<18>(dx), FixedToFloat<18>(dy));
-
     bTouchFloor = false;
 
 	auto spos = pActor->spr.pos;
@@ -411,7 +409,7 @@ Collision movesprite_(DExhumedActor* pActor, int dx, int dy, int dz, int ceildis
         vect *= 0.5;
     }
 
-    Collision nRet = movespritez(pActor, dz * zinttoworld, nSpriteHeight, pActor->fClipdist());
+    Collision nRet = movespritez(pActor, dz, nSpriteHeight, pActor->fClipdist());
 
     pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 
@@ -434,7 +432,7 @@ Collision movesprite_(DExhumedActor* pActor, int dx, int dy, int dz, int ceildis
     }
 
     Collision coll;
-    clipmove(pActor->spr.pos, &pSector, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), pActor->int_clipdist(), int(nSpriteHeight * zworldtoint), flordist, clipmask, coll);
+    clipmove(pActor->spr.pos, &pSector, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), pActor->int_clipdist(), int(nSpriteHeight * zworldtoint), int(flordist * zworldtoint), clipmask, coll);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
         coll.exbits = nRet.exbits;
@@ -447,7 +445,7 @@ Collision movesprite_(DExhumedActor* pActor, int dx, int dy, int dz, int ceildis
             dz = 0;
         }
 
-        if ((pSector->floorz - spos.Z) < (dz + flordist) * zinttoworld)
+        if ((pSector->floorz - spos.Z) < (dz + flordist))
         {
 			pActor->spr.pos.XY() = spos.XY();
         }
