@@ -380,7 +380,7 @@ void AILion::Tick(RunListEvent* ev)
             {
                 HitInfo hit{};
 
-                hitscan(pActor->spr.pos.plusZ(-GetActorHeightF(pActor) * 0.5), pActor->sector(), DVector3(nScanAngle.ToVector() * 1024, 0), hit, CLIPMASK1);
+                hitscan(pActor->spr.pos.plusZ(-GetActorHeight(pActor) * 0.5), pActor->sector(), DVector3(nScanAngle.ToVector() * 1024, 0), hit, CLIPMASK1);
 
                 if (hit.hitWall)
                 {

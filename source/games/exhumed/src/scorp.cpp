@@ -419,8 +419,8 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         {
             pActor->nCount = 45;
 
-            if (cansee(pActor->spr.pos.plusZ(-GetActorHeightF(pActor)), pActor->sector(),
-                pTarget->spr.pos.plusZ(-GetActorHeightF(pTarget)), pTarget->sector()))
+            if (cansee(pActor->spr.pos.plusZ(-GetActorHeight(pActor)), pActor->sector(),
+                pTarget->spr.pos.plusZ(-GetActorHeight(pTarget)), pTarget->sector()))
             {
                 pActor->vel.X = 0;
                 pActor->vel.Y = 0;

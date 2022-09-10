@@ -214,7 +214,7 @@ DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy);
 Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
 DVector3 WheresMyMouth(int nPlayer, sectortype** sectnum);
-double GetActorHeightF(DExhumedActor* nSprite);
+double GetActorHeight(DExhumedActor* nSprite);
 DExhumedActor* insertActor(sectortype* s, int st);
 DExhumedActor* GrabBody();
 DExhumedActor* GrabBodyGunSprite();

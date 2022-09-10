@@ -382,7 +382,7 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, int clipdi
     return nRet;
 }
 
-double GetActorHeightF(DExhumedActor* actor)
+double GetActorHeight(DExhumedActor* actor)
 {
     return tileHeight(actor->spr.picnum) * actor->spr.yrepeat * REPEAT_SCALE;
 }
@@ -400,7 +400,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     bTouchFloor = false;
 
 	auto spos = pActor->spr.pos;
-    double nSpriteHeight = GetActorHeightF(pActor);
+    double nSpriteHeight = GetActorHeight(pActor);
     int nClipDist = pActor->int_clipdist();
     auto pSector = pActor->sector();
     assert(pSector);
@@ -592,7 +592,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
             {
                 int v10 = abs(pPlayerActor->spr.pos.Y - pActor->spr.pos.Y);
 
-                if (v10 < nDistance && cansee(pPlayerActor->spr.pos.plusZ(-30), pPlayerActor->sector(), pActor->spr.pos.plusZ(-GetActorHeightF(pActor)), pSector))
+                if (v10 < nDistance && cansee(pPlayerActor->spr.pos.plusZ(-30), pPlayerActor->sector(), pActor->spr.pos.plusZ(-GetActorHeight(pActor)), pSector))
                 {
                     break;
                 }
@@ -913,7 +913,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
     }
     else
     {
-        double nHeight = GetActorHeightF(pActor2) / 2;
+        double nHeight = GetActorHeight(pActor2) / 2;
 		auto vect = pActor2->spr.pos.XY() - pActor->spr.pos.XY();
         DAngle nMyAngle = VecToAngle(vect);
         double nSqrt = vect.Length();
@@ -957,7 +957,7 @@ DAngle GetWallNormal(walltype* pWall)
 DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
 {
     auto pActor = PlayerList[nPlayer].pActor;
-    double height = GetActorHeightF(pActor) * 0.5;
+    double height = GetActorHeight(pActor) * 0.5;
 
     *sectnum = pActor->sector();
 	auto pos = pActor->spr.pos.plusZ(-height);

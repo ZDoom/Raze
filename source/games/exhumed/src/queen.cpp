@@ -294,7 +294,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
     {
 		auto vect = pActor2->spr.pos.XY() - pActor->spr.pos.XY();
 
-        double nTileY = GetActorHeightF(pActor2) / 2;
+        double nTileY = GetActorHeight(pActor2) / 2;
         double edx = ((pActor2->spr.pos.Z - nTileY) - pActor->spr.pos.Z);
         double nSqrt = vect.Length();
 
@@ -349,7 +349,7 @@ int DestroyTailPart()
 
     for (int i = 0; i < 5; i++)
     {
-        double nHeight = GetActorHeightF(pActor);
+        double nHeight = GetActorHeight(pActor);
         BuildLavaLimb(pActor, i, nHeight);
     }
 
@@ -945,7 +945,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     if (QueenHead.nIndex2 < 10) {
                         for (int i = (10 - QueenHead.nIndex2) * 2; i > 0; i--)
                         {
-                            BuildLavaLimb(pActor, i, GetActorHeightF(pActor));
+                            BuildLavaLimb(pActor, i, GetActorHeight(pActor));
                         }
                     }
                 }
@@ -963,7 +963,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                 for (i = 0; i < 20; i++)
                 {
-                    BuildLavaLimb(pActor, i, GetActorHeightF(pActor));
+                    BuildLavaLimb(pActor, i, GetActorHeight(pActor));
                 }
 
                 runlist_SubRunRec(pActor->spr.intowner);

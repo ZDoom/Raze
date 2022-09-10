@@ -108,7 +108,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = -1 - RandomSize(10) / 256.;
-    pActor->spr.pos = DVector3(pSet->spr.pos.XY(), RandomSize(8) + 32 + pActor->sector()->ceilingz - GetActorHeightF(pActor));
+    pActor->spr.pos = DVector3(pSet->spr.pos.XY(), RandomSize(8) + 32 + pActor->sector()->ceilingz - GetActorHeight(pActor));
 
     //pActor->spr.hitag = nSet;
 	pActor->pTarget = pSet;
@@ -149,7 +149,7 @@ void AISoul::Tick(RunListEvent* ev)
         pActor->spr.cstat = 0;
         pActor->spr.yrepeat = 1;
         pActor->spr.xrepeat = 1;
-        pActor->spr.pos = pSet->spr.pos.plusZ(-GetActorHeightF(pSet) * 0.5);
+        pActor->spr.pos = pSet->spr.pos.plusZ(-GetActorHeight(pSet) * 0.5);
         ChangeActorSect(pActor, pSet->sector());
         return;
     }
@@ -566,9 +566,9 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            pActor->spr.pos.Z -= GetActorHeightF(pActor);
+            pActor->spr.pos.Z -= GetActorHeight(pActor);
             BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqSet, 76, 0));
-			pActor->spr.pos.Z += GetActorHeightF(pActor);
+			pActor->spr.pos.Z += GetActorHeight(pActor);
         }
 
         if (bVal)

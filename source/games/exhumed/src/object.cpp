@@ -565,7 +565,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
         ExhumedSectIterator it(pSector);
         while (auto pActor= it.Next())
         {
-            if ((pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (nZDiff < GetActorHeightF(pActor)))
+            if ((pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (nZDiff < GetActorHeight(pActor)))
             {
                 if (nVal != 1) {
                     return 1;
@@ -1776,7 +1776,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 // in-game destructable wall mounted screen
 void ExplodeScreen(DExhumedActor* pActor)
 {
-    pActor->spr.pos.Z -= GetActorHeightF(pActor) * 0.5;
+    pActor->spr.pos.Z -= GetActorHeight(pActor) * 0.5;
 
     for (int i = 0; i < 30; i++) {
         BuildSpark(pActor, 0); // shoot out blue orbs

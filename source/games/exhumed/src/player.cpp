@@ -293,7 +293,7 @@ void RestartPlayer(int nPlayer)
 	pActor->vel.Y = 0;
 	pActor->vel.Z = 0;
 
-	nStandHeight = GetActorHeightF(pActor);
+	nStandHeight = GetActorHeight(pActor);
 
 	pActor->spr.hitag = 0;
 	pActor->spr.extra = -1;

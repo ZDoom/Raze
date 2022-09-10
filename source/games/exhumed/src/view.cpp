@@ -151,7 +151,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
     {
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(view, pSector, targ->spr.pos.plusZ(-GetActorHeightF(targ)), targ->sector()))
+        if (!cansee(view, pSector, targ->spr.pos.plusZ(-GetActorHeight(targ)), targ->sector()))
         {
             bestTarget = nullptr;
         }

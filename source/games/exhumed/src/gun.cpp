@@ -651,7 +651,7 @@ loc_flag:
                 ebx += angle.Sin() * (1 << 3) * ecx;
             }
 
-            double nHeight = GetActorHeightF(pPlayerActor) * -0.5;
+            double nHeight = GetActorHeight(pPlayerActor) * -0.5;
 
             if (nAction < 6)
             {

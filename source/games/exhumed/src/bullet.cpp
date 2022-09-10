@@ -398,7 +398,7 @@ MOVEEND:
         if (BulletList[nBullet].pEnemy)
         {
             hitactor = BulletList[nBullet].pEnemy;
-            pos = hitactor->spr.pos.plusZ(-GetActorHeightF(hitactor) * 0.5);
+            pos = hitactor->spr.pos.plusZ(-GetActorHeight(hitactor) * 0.5);
             pHitSect = hitactor->sector();
         }
         else
@@ -535,7 +535,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
                 sBullet.pActor = insertActor(pActor->sector(), 200);
                 sBullet.pActor->spr.angle = nAngle;
 
-                double nHeight = GetActorHeightF(pTarget);
+                double nHeight = GetActorHeight(pTarget);
 
 				assert(pTarget->sector());
 
@@ -567,7 +567,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     }
 
     auto pBulletActor = insertActor(pSector, 200);
-	double fHeight = GetActorHeightF(pActor) * 0.75;
+	double fHeight = GetActorHeight(pActor) * 0.75;
 
     if (fZOffset == INT_MAX) {
         fZOffset = -fHeight;
@@ -674,7 +674,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
         }
         else
         {
-            fHeight = GetActorHeightF(pTarget);
+            fHeight = GetActorHeight(pTarget);
 
             if (pTarget->spr.statnum == 100)
             {
