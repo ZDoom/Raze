@@ -622,8 +622,7 @@ void DExhumedActor::Serialize(FSerializer& arc)
         ("angle2", pitch)
 
         ("turn", nTurn)
-        ("x", x)
-        ("y", y);
+        ("vec", vec);
 }
 
 void SerializeState(FSerializer& arc)

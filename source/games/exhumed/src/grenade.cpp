@@ -41,9 +41,7 @@ void BounceGrenade(DExhumedActor* pActor, DAngle nAngle)
 {
     pActor->nTurn >>= 1;
 
-    pActor->x = bcos(nAngle.Buildang(), -5) * pActor->nTurn;
-    pActor->y = bsin(nAngle.Buildang(), -5) * pActor->nTurn;
-
+    pActor->vec = nAngle.ToVector() * pActor->nTurn * 32;
     D3PlayFX(StaticSound[kSound3], pActor);
 }
 
@@ -90,8 +88,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 		pActor->vel.Z = pPlayerActor->vel.Z;
     }
 
-    pActor->x = bcos(nAngle.Buildang(), -4) * pActor->nTurn;
-    pActor->y = bsin(nAngle.Buildang(), -4) * pActor->nTurn;
+    pActor->vec = nAngle.ToVector() * pActor->nTurn * 64;
 
     PlayerList[nPlayer].pPlayerGrenade = nullptr;
 
@@ -282,7 +279,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         int zVel = pActor->int_zvel();
 
         Gravity(pActor);
-        auto nMov = movesprite(pActor, pActor->x, pActor->y, pActor->int_zvel(), pActor->native_clipdist() >> 1, pActor->native_clipdist() >> 1, CLIPMASK1);
+        auto nMov = movesprite(pActor, int(pActor->vec.X * worldtoint), int(pActor->vec.Y * worldtoint), pActor->int_zvel(), pActor->native_clipdist() >> 1, pActor->native_clipdist() >> 1, CLIPMASK1);
 
         if (!nMov.type && !nMov.exbits)
             return;
@@ -314,8 +311,7 @@ void AIGrenade::Tick(RunListEvent* ev)
             }
 
             pActor->nCount = 255 - (RandomByte() * 2);
-            pActor->x -= (pActor->x >> 4);
-            pActor->y -= (pActor->y >> 4);
+            pActor->vec *= (15./16.);
         }
 
         // loc_2CF60:

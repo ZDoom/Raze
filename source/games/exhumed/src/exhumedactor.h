@@ -36,8 +36,7 @@ public:
 
 	// for the grenade.
 	int nTurn;
-	int x;
-	int y;
+	DVector2 vec;
 
 
 	DExhumedActor() = default;
