@@ -349,7 +349,7 @@ int DestroyTailPart()
 
     for (int i = 0; i < 5; i++)
     {
-        int nHeight = GetActorHeight(pActor);
+        double nHeight = GetActorHeightF(pActor);
         BuildLavaLimb(pActor, i, nHeight);
     }
 
@@ -945,7 +945,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     if (QueenHead.nIndex2 < 10) {
                         for (int i = (10 - QueenHead.nIndex2) * 2; i > 0; i--)
                         {
-                            BuildLavaLimb(pActor, i, GetActorHeight(pActor));
+                            BuildLavaLimb(pActor, i, GetActorHeightF(pActor));
                         }
                     }
                 }
@@ -963,7 +963,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                 for (i = 0; i < 20; i++)
                 {
-                    BuildLavaLimb(pActor, i, GetActorHeight(pActor));
+                    BuildLavaLimb(pActor, i, GetActorHeightF(pActor));
                 }
 
                 runlist_SubRunRec(pActor->spr.intowner);

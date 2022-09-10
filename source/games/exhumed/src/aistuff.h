@@ -166,7 +166,7 @@ void DoRegenerates();
 // lavadude
 
 void BuildLava(DExhumedActor* nSprite, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel);
-DExhumedActor* BuildLavaLimb(DExhumedActor* nSprite, int edx, int ebx);
+DExhumedActor* BuildLavaLimb(DExhumedActor* nSprite, int edx, double ebx);
 void FuncLavaLimb(int, int, int, int);
 void FuncLava(int, int, int, int);
 

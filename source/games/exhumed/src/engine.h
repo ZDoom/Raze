@@ -123,6 +123,7 @@ int RandomLong();
 int RandomSize(int nSize);
 DAngle RandomAngle9();
 DAngle RandomAngle();
+double RandomFloat(double range);
 
 // record
 

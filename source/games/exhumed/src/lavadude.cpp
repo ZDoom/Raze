@@ -37,11 +37,11 @@ static actionSeq LavadudeSeq[] = {
     {42, 1}
 };
 
-DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
+DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, double height)
 {
     auto pLimbActor = insertActor(pActor->sector(), 118);
 
-    pLimbActor->spr.pos = pActor->spr.pos.plusZ((-RandomLong() % ebx) * zmaptoworld);
+    pLimbActor->spr.pos = pActor->spr.pos.plusZ(-RandomFloat(height));
     pLimbActor->spr.cstat = 0;
     pLimbActor->spr.shade = -127;
     pLimbActor->spr.pal = 1;
@@ -205,7 +205,7 @@ void AILavaDude::Damage(RunListEvent* ev)
             }
         }
 
-        BuildLavaLimb(pActor, totalmoves, 64000);
+        BuildLavaLimb(pActor, totalmoves, 250);
     }
 }
 
@@ -371,7 +371,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x40)
         {
-            auto pLimbSprite = BuildLavaLimb(pActor, pActor->nFrame, 64000);
+            auto pLimbSprite = BuildLavaLimb(pActor, pActor->nFrame, 250);
             D3PlayFX(StaticSound[kSound26], pLimbSprite);
         }
 
@@ -382,7 +382,7 @@ void AILavaDude::Tick(RunListEvent* ev)
                 int ecx = 0;
                 do
                 {
-                    BuildLavaLimb(pActor, ecx, 64000);
+                    BuildLavaLimb(pActor, ecx, 250);
                     ecx++;
                 } while (ecx < 20);
                 runlist_ChangeChannel(pActor->nCount, 1);
@@ -394,7 +394,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             do
             {
-                BuildLavaLimb(pActor, ecx, 256);
+                BuildLavaLimb(pActor, ecx, 1);
                 ecx++;
             } while (ecx < 30);
 

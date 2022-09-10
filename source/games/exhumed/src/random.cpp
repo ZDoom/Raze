@@ -79,6 +79,11 @@ int RandomLong()
     return randLong;
 }
 
+double RandomFloat(double range)
+{
+    return RandomWord() * range / 0xffff;
+}
+
 int RandomSize(int nSize)
 {
     int randSize = 0;
