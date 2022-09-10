@@ -66,10 +66,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, BlockInfo& w, Bloc
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at8", w.field_8)
+        arc("mindist", w.mindist)
             ("sprite", w.pActor)
-            ("x", w.x)
-            ("y", w.y)
+            ("pos", w.pos)
             .EndObject();
     }
     return arc;
@@ -651,163 +650,149 @@ int GrabPushBlock()
 void CreatePushBlock(sectortype* pSector)
 {
     int nBlock = GrabPushBlock();
-
-    double xSumm = 0;
-    double ySumm = 0;
+    DVector2 sum(0, 0);
 
     for (auto& wal : wallsofsector(pSector))
     {
-        xSumm += wal.pos.X;
-        ySumm += wal.pos.Y;
+        sum += wal.pos;
     }
 
-    double xAvgg = xSumm / pSector->wallnum;
-    double yAvgg = ySumm / pSector->wallnum;
+    DVector2 avg = sum / pSector->wallnum;
 
-    sBlockInfo[nBlock].x = xAvgg * worldtoint;
-    sBlockInfo[nBlock].y = yAvgg * worldtoint;
+    sBlockInfo[nBlock].pos = avg;
 
     auto pActor = insertActor(pSector, 0);
 
     sBlockInfo[nBlock].pActor = pActor;
 
-    pActor->spr.pos = { xAvgg, yAvgg, pSector->floorz- 1 };
+    pActor->spr.pos = { avg, pSector->floorz- 1 };
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 
     double mindist = 0;
 
 	for (auto& wal : wallsofsector(pSector))
     {
-        double xDiff = abs(xAvgg - wal.pos.X);
-        double yDiff = abs(yAvgg - wal.pos.Y);
+        double length = (avg - wal.pos).Length();
 
-        double nSqrt = g_sqrt(xDiff * xDiff + yDiff * yDiff);
-
-        if (nSqrt > mindist) {
-            mindist = nSqrt;
+        if (length > mindist) {
+            mindist = length;
         }
     }
 
-    sBlockInfo[nBlock].field_8 = mindist * worldtoint;
+    sBlockInfo[nBlock].mindist = mindist;
 
     pActor->set_native_clipdist( (int(mindist * worldtoint) & 0xFF) << 2);
     pSector->extra = nBlock;
 }
 
-void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
+
+void MoveSector(sectortype* pSector, DAngle nAngle, int *nXVel, int *nYVel)
 {
     if (pSector == nullptr) {
         return;
     }
 
-    int nXVect, nYVect;
+    DVector2 nVect;
 
-    if (nAngle < 0)
+    if (nAngle < nullAngle)
     {
-        nXVect = *nXVel;
-        nYVect = *nYVel;
-        nAngle = getangle(nXVect, nYVect);
+        nVect = { FixedToFloat<18>(*nXVel), FixedToFloat<18>(*nYVel) };
+        nAngle = VecToAngle(nVect);
     }
     else
     {
-        nXVect = bcos(nAngle, 6);
-        nYVect = bsin(nAngle, 6);
+        nVect = nAngle.ToVector() * 4;
     }
 
     int nBlock = pSector->extra;
     int nSectFlag = pSector->Flag;
 
-    int nFloorZ = pSector->int_floorz();
+    double nFloorZ = pSector->floorz;
 
     walltype *pStartWall = pSector->firstWall();
     sectortype* pNextSector = pStartWall->nextSector();
 
     BlockInfo *pBlockInfo = &sBlockInfo[nBlock];
 
-    vec3_t pos;
+    DVector3 pos;
 
-    pos.X = sBlockInfo[nBlock].x;
-    int x_b = sBlockInfo[nBlock].x;
+    pos.XY() = sBlockInfo[nBlock].pos;
+    auto b_pos = pos.XY();
 
-    pos.Y = sBlockInfo[nBlock].y;
-    int y_b = sBlockInfo[nBlock].y;
-
-
-    int nZVal;
+    double nZVal;
 
     int bUnderwater = nSectFlag & kSectUnderwater;
 
     if (nSectFlag & kSectUnderwater)
     {
-        nZVal = pSector->int_ceilingz();
-        pos.Z = pNextSector->int_ceilingz() + 256;
+        nZVal = pSector->ceilingz;
+        pos.Z = pNextSector->ceilingz + 1;
 
         pSector->setceilingz(pNextSector->ceilingz);
     }
     else
     {
-        nZVal = pSector->int_floorz();
-        pos.Z = pNextSector->int_floorz() - 256;
+        nZVal = pSector->floorz;
+        pos.Z = pNextSector->floorz - 1;
 
         pSector->setfloorz(pNextSector->floorz);
     }
 
     auto pSectorB = pSector;
     Collision scratch;
-    clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
+    clipmove(pos, &pSectorB, FloatToFixed<18>(nVect.X), FloatToFixed<18>(nVect.Y), pBlockInfo->mindist, 0, 0, CLIPMASK1, scratch);
 
-    int yvect = pos.Y - y_b;
-    int xvect = pos.X - x_b;
+    auto vect = pos.XY() - b_pos;
 
     if (pSectorB != pNextSector && pSectorB != pSector)
     {
-        yvect = 0;
-        xvect = 0;
+        vect.Zero();
     }
     else
     {
         if (!bUnderwater)
         {
-            pos = { x_b, y_b, nZVal };
+            pos.XY() = b_pos;
+            pos.Z = nZVal;
 
-            clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
+            clipmove(pos, &pSectorB, FloatToFixed<18>(nVect.X), FloatToFixed<18>(nVect.Y), pBlockInfo->mindist, 0, 0, CLIPMASK1, scratch);
 
-            int deltax = pos.X - x_b;
-            int deltay = pos.Y - y_b;
+            auto delta = pos.XY() - b_pos;
 
-            if (abs(xvect) > abs(deltax))
+            if (abs(vect.X) > abs(delta.X))
             {
-                xvect = deltax;
+                vect.X = delta.X;
             }
 
-            if (abs(yvect) > abs(deltay)) 
+            if (abs(vect.Y) > abs(delta.Y)) 
             {
-                yvect = deltay;
+                vect.Y = delta.Y;
             }
         }
     }
 
     // GREEN
-    if (yvect || xvect)
+    if (!vect.isZero())
     {
         ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
             if (pActor->spr.statnum < 99)
             {
-                pActor->add_int_pos({ xvect, yvect, 0 });
+                pActor->spr.pos += vect;
             }
             else
             {
-                pos.Z = pActor->int_pos().Z;
+                pos.Z = pActor->spr.pos.Z;
 
                 if ((nSectFlag & kSectUnderwater) || pos.Z != nZVal || pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)
                 {
-                    pos.X = pActor->int_pos().X;
-                    pos.Y = pActor->int_pos().Y;
+                    pos.XY() = pActor->spr.pos.XY();
                     pSectorB = pSector;
 
-                    clipmove(pos, &pSectorB, -xvect, -yvect, 4 * pActor->native_clipdist(), 0, 0, CLIPMASK0, scratch);
+                    // The vector that got passed in here originally was Q28.4, while clipmove expects Q14.18, effectively resulting in actual zero movement
+                    // because the resulting offset would be far below the coordinate's precision.
+                    clipmove(pos, &pSectorB, FloatToFixed<18>(-vect.X / 16384.), FloatToFixed<18>(-vect.Y / 16384), pActor->int_clipdist(), 0, 0, CLIPMASK0, scratch);
 
                     if (pSectorB) {
                         ChangeActorSect(pActor, pSectorB);
@@ -820,18 +805,19 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         {
             if (pActor->spr.statnum >= 99)
             {
-                pos = pActor->int_pos();
+                pos = pActor->spr.pos;
                 pSectorB = pNextSector;
 
-                clipmove(pos, &pSectorB,
-                    -xvect - (bcos(nAngle) * (4 * pActor->native_clipdist())),
-                    -yvect - (bsin(nAngle) * (4 * pActor->native_clipdist())),
-                    4 * pActor->native_clipdist(), 0, 0, CLIPMASK0, scratch);
+                // Original used 14 bits of scale from the sine table and 4 bits from clipdist.
+                // vect was added unscaled, essentially nullifying its effect entirely.
+                auto vect2 = -nAngle.ToVector() * pActor->fClipdist()/* - vect*/;
+
+                clipmove(pos, &pSectorB, FloatToFixed<18>(vect2.X), FloatToFixed<18>(vect2.Y), pActor->int_clipdist(), 0, 0, CLIPMASK0, scratch);
 
 
                 if (pSectorB != pNextSector && (pSectorB == pSector || pNextSector == pSector))
                 {
-                    if (pSectorB != pSector || nFloorZ >= pActor->int_pos().Z)
+                    if (pSectorB != pSector || nFloorZ >= pActor->spr.pos.Z)
                     {
                         if (pSectorB) {
                             ChangeActorSect(pActor, pSectorB);
@@ -839,10 +825,9 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                     }
                     else
                     {
-                        movesprite(pActor,
-                            (xvect << 14) + bcos(nAngle) * pActor->native_clipdist(),
-                            (yvect << 14) + bsin(nAngle) * pActor->native_clipdist(),
-                            0, 0, 0, CLIPMASK0);
+                        // Unlike the above, this one *did* scale vect
+                        vect2 = nAngle.ToVector() * pActor->fClipdist() * 0.25 + vect;
+                        movesprite(pActor, FloatToFixed<18>(vect2.X), FloatToFixed<18>(vect2.Y), 0, 0, 0, CLIPMASK0);
                     }
                 }
             }
@@ -850,39 +835,36 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
 		for(auto& wal : wallsofsector(pSector))
         {
-            dragpoint(&wal, xvect + wal.wall_int_pos().X, yvect + wal.wall_int_pos().Y);
+            dragpoint(&wal, vect + wal.pos);
         }
 
-        pBlockInfo->x += xvect;
-        pBlockInfo->y += yvect;
+        pBlockInfo->pos += vect;
     }
 
     // loc_163DD
-    xvect <<= 14;
-    yvect <<= 14;
 
     if (!(nSectFlag & kSectUnderwater))
     {
         ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
-            if (pActor->spr.statnum >= 99 && nZVal == pActor->int_pos().Z && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
+            if (pActor->spr.statnum >= 99 && nZVal == pActor->spr.pos.Z && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 pSectorB = pSector;
-                clipmove(pActor->spr.pos, &pSectorB, xvect, yvect, 4 * pActor->native_clipdist(), 5120, -5120, CLIPMASK0, scratch);
+                clipmove(pActor->spr.pos, &pSectorB, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), pActor->int_clipdist(), 5120, -5120, CLIPMASK0, scratch);
             }
         }
     }
 
     if (nSectFlag & kSectUnderwater) {
-        pSector->set_int_ceilingz(nZVal);
+        pSector->setceilingz(nZVal);
     }
     else {
-        pSector->set_int_floorz(nZVal);
+        pSector->setfloorz(nZVal);
     }
 
-    *nXVel = xvect;
-    *nYVel = yvect;
+    *nXVel = FloatToFixed<18>(vect.X);
+    *nYVel = FloatToFixed<18>(vect.Y);
 
     /* 
         Update player position variables, in case the player sprite was moved by a sector,

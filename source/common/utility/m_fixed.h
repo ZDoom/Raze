@@ -18,7 +18,7 @@ __forceinline constexpr int64_t DivScaleL(int64_t a, int64_t b, int shift) { ret
 template<int b = 16>
 inline fixed_t FloatToFixed(double f)
 {
-	return xs_Fix<b>::ToFix(f);
+	return int(f * (1 << b));
 }
 
 template<int b = 16>

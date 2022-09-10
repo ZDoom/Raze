@@ -991,6 +991,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 nNormal = GetWallNormal(nMove.hitWall);
             }
 
+            // moving blocks - move this to a separate function!
             if (sect != nullptr)
             {
                 if ((sect->hitag == 45) && bTouchFloor)
@@ -1007,10 +1008,10 @@ void AIPlayer::Tick(RunListEvent* ev)
 
                         int xvel = sPlayerInput[nPlayer].xVel;
                         int yvel = sPlayerInput[nPlayer].yVel;
-                        int nMyAngle = getangle(xvel, yvel);
+                        int nMyAngle = getangle(xvel, yvel) & 2047; // note: must be positive!
 
                         setsectinterpolate(sect);
-                        MoveSector(sect, nMyAngle, &xvel, &yvel);
+                        MoveSector(sect, DAngle::fromBuild(nMyAngle), &xvel, &yvel);
 
                         if (PlayerList[nPlayer].nPlayerPushSound <= -1)
                         {

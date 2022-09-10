@@ -196,9 +196,8 @@ void FuncLion(int, int, int, int);
 struct BlockInfo
 {
     TObjPtr<DExhumedActor*> pActor;
-    int x;
-    int y;
-    int field_8;
+    DVector2 pos;
+    double mindist;
 };
 extern BlockInfo sBlockInfo[];
 
@@ -231,7 +230,7 @@ int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 void CheckSectorFloor(sectortype* pSector, double z, DVector2& xy);
 int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 int GetWallNormal(walltype* nWall);
-void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel);
+void MoveSector(sectortype* pSector, DAngle nAngle, int *nXVel, int *nYVel);
 Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1);
 void SetQuake(DExhumedActor* nSprite, int nVal);
 

@@ -2332,12 +2332,12 @@ void DoMovingSects()
         //		TrailPoint *pTrail = &sTrailPoint[nTrail];
 
                 // loc_23872:
-        int nAngle = getangle(sTrailPoint[nTrail].x - pBlockInfo->x, sTrailPoint[nTrail].y - pBlockInfo->y);
+        int nAngle = getangle(sTrailPoint[nTrail].x - pBlockInfo->pos.X * worldtoint, sTrailPoint[nTrail].y - pBlockInfo->pos.Y * worldtoint);
 
         int nXVel = bcos(nAngle, 4) * sMoveSect[i].field_10;
         int nYVel = bsin(nAngle, 4) * sMoveSect[i].field_10;
 
-        int ebx = (sTrailPoint[nTrail].x - pBlockInfo->x) << 14;
+        int ebx = (sTrailPoint[nTrail].x - int(pBlockInfo->pos.X * worldtoint)) << 14;
 
         int eax = nXVel;
         if (eax < 0) {
@@ -2347,7 +2347,7 @@ void DoMovingSects()
         int edx = eax;
         eax = ebx;
 
-        int ecx = (sTrailPoint[nTrail].y - pBlockInfo->y) << 14;
+        int ecx = (sTrailPoint[nTrail].y - int(pBlockInfo->pos.Y * worldtoint)) << 14;
 
         if (eax < 0) {
             eax = -eax;
@@ -2403,18 +2403,18 @@ void DoMovingSects()
         // loc_2393A:
         if (sMoveSect[i].pCurSector != nullptr)
         {
-            MoveSector(sMoveSect[i].pCurSector, -1, &nXVel, &nYVel);
+            MoveSector(sMoveSect[i].pCurSector, -minAngle, &nXVel, &nYVel);
         }
 
         int var_2C = nXVel;
         int var_30 = nYVel;
 
-        MoveSector(pSector, -1, &nXVel, &nYVel);
+        MoveSector(pSector, -minAngle, &nXVel, &nYVel);
 
         if (nXVel != var_2C || nYVel != var_30)
         {
-            MoveSector(sMoveSect[i].pCurSector, -1, &var_2C, &var_30);
-            MoveSector(sMoveSect[i].pCurSector, -1, &nXVel, &nYVel);
+            MoveSector(sMoveSect[i].pCurSector, -minAngle, &var_2C, &var_30);
+            MoveSector(sMoveSect[i].pCurSector, -minAngle, &nXVel, &nYVel);
         }
     }
 }
