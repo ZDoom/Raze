@@ -53,8 +53,6 @@ struct VIEW {
 	uint8_t isUnderwater; // underwater
 	int16_t sprflags; // sprite flags
 	SPRITEHIT hit;
-	DAngle look_ang;
-	DAngle rotscrnang;
 };
 
 extern VIEW gPrevView[kMaxPlayers];

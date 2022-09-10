@@ -60,15 +60,12 @@ int gViewIndex;
 void viewBackupView(int nPlayer)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
-	VIEW* pView = &gPrevView[nPlayer];
 	pPlayer->ozView = pPlayer->zView;
 	pPlayer->ozWeapon = pPlayer->zWeapon - pPlayer->zView - 0xc00;
 	pPlayer->obobHeight = pPlayer->bobHeight;
 	pPlayer->obobWidth = pPlayer->bobWidth;
 	pPlayer->oswayHeight = pPlayer->swayHeight;
 	pPlayer->oswayWidth = pPlayer->swayWidth;
-	pView->look_ang = pPlayer->angle.look_ang;
-	pView->rotscrnang = pPlayer->angle.rotscrnang;
 	pPlayer->angle.backup();
 	pPlayer->horizon.backup();
 }
