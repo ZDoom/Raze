@@ -174,8 +174,8 @@ void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, doubl
 	}
 
 	int zn = ((gView->zWeapon - gView->zView - (12 << 8)) >> 7) + 220;
-	PLAYER* pPSprite = &gPlayer[gMe->actor->spr.type - kDudePlayer1];
-	if (gMe->actor->IsPlayerActor() && pPSprite->hand == 1)
+	PLAYER* pPSprite = &gPlayer[gView->actor->spr.type - kDudePlayer1];
+	if (gView->actor->IsPlayerActor() && pPSprite->hand == 1)
 	{
 		gChoke.animateChoke(160, zn, interpfrac);
 	}

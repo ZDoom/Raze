@@ -38,10 +38,4 @@ enum MESSAGE_PRIORITY {
 extern bool bPlayerCheated;
 void cheatReset(void);
 
-void SetAmmo(bool stat);
-void SetWeapons(bool stat);
-void SetToys(bool stat);
-void SetArmor(bool stat);
-void SetKeys(bool stat);
-
 END_BLD_NS

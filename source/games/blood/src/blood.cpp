@@ -343,7 +343,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	PreloadCache();
 	InitMirrors();
 	trInit(actorlist);
-	if (!gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
+	if (!gPlayer[myconnectindex].packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
 		sfxSetReverb(0);
 	ambInit();
 	Net_ClearFifo();
@@ -426,6 +426,8 @@ void GameInterface::Ticker()
 			playerProcess(&gPlayer[i]);
 		}
 
+		PLAYER* pPlayer = &gPlayer[myconnectindex];
+
 		trProcessBusy();
 		evProcess(PlayClock);
 		seqProcess(4);
@@ -438,17 +440,17 @@ void GameInterface::Ticker()
 		actortime.Unclock();
 
 		viewCorrectPrediction();
-		ambProcess();
+		ambProcess(pPlayer);
 		viewUpdateDelirium();
 		gi->UpdateSounds();
-		if (gMe->hand == 1)
+		if (pPlayer->hand == 1)
 		{
 			const int CHOKERATE = 8;
 			const int COUNTRATE = 30;
 			gChokeCounter += CHOKERATE;
 			while (gChokeCounter >= COUNTRATE)
 			{
-				gChoke.callback(gMe);
+				gChoke.callback(pPlayer);
 				gChokeCounter -= COUNTRATE;
 			}
 		}
@@ -625,7 +627,7 @@ void GameInterface::app_init()
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;
 
 	gViewIndex = myconnectindex;
-	gMe = gView = &gPlayer[myconnectindex];
+	gView = &gPlayer[myconnectindex];
 }
 
 //---------------------------------------------------------------------------
@@ -637,7 +639,7 @@ void GameInterface::app_init()
 static void gameInit()
 {
 	gViewIndex = myconnectindex;
-	gMe = gView = &gPlayer[myconnectindex];
+	gView = &gPlayer[myconnectindex];
 
 	UpdateNetworkMenus();
 	if (gGameOptions.nGameType > 0)

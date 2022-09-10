@@ -73,9 +73,10 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 {
 	if (pos != nullptr && type != SOURCE_None)
 	{
+		PLAYER* pPlayer = &gPlayer[myconnectindex];
 		FVector3 camera;
 
-		if (gMe && gMe->actor) camera = GetSoundPos(gMe->actor->int_pos());
+		if (pPlayer && pPlayer->actor) camera = GetSoundPos(pPlayer->actor->int_pos());
 		else camera = { 0, 0, 0 }; // don't crash if there is no player.
 
 		if (vel) vel->Zero();
@@ -114,13 +115,14 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 
 void GameInterface::UpdateSounds()
 {
+	PLAYER* pPlayer = &gPlayer[myconnectindex];
 	SoundListener listener;
 
-	if (gMe->actor)
+	if (pPlayer->actor)
 	{
-		listener.angle = -gMe->actor->spr.int_ang() * float(BAngRadian); // Build uses a period of 2048.
+		listener.angle = -pPlayer->actor->spr.int_ang() * float(BAngRadian); // Build uses a period of 2048.
 		listener.velocity.Zero();
-		listener.position = GetSoundPos(gMe->actor->int_pos());
+		listener.position = GetSoundPos(pPlayer->actor->int_pos());
 		listener.valid = true;
 	}
 	else
@@ -134,7 +136,7 @@ void GameInterface::UpdateSounds()
 	//assert(primaryLevel->Zones.Size() > listenactor->Sector->ZoneNumber);
 	listener.Environment = 0;// primaryLevel->Zones[listenactor->Sector->ZoneNumber].Environment;
 
-	listener.ListenerObject = gMe;
+	listener.ListenerObject = pPlayer;
 	soundEngine->SetListener(listener);
 	soundEngine->UpdateSounds(I_GetTime());
 }

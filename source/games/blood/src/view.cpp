@@ -796,7 +796,7 @@ void viewDrawScreen(bool sceneonly)
 		auto text = GStrings("TXTB_PAUSED");
 		viewDrawText(PickBigFont(text), text, 160, 10, 0, 0, 1, 0);
 	}
-	else if (gView != gMe)
+	else if (gView->nPlayer != myconnectindex)
 	{
 		FStringf gTempStr("] %s [", PlayerName(gView->nPlayer));
 		viewDrawText(OriginalSmallFont, gTempStr, 160, 10, 0, 0, 1, 0);
@@ -821,8 +821,9 @@ bool GameInterface::GenerateSavePic()
 
 std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
-	if (!gMe || !gMe->actor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
-	return std::make_pair(gMe->actor->spr.pos, gMe->actor->spr.angle);
+	PLAYER* pPlayer = &gPlayer[myconnectindex];
+	if (!pPlayer->actor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
+	return std::make_pair(pPlayer->actor->spr.pos, pPlayer->actor->spr.angle);
 }
 
 

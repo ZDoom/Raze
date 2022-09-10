@@ -63,7 +63,7 @@ void sfxKillAllSounds(void);
 void sfxSetReverb(bool toggle);
 void sfxSetReverb2(bool toggle);
 
-void ambProcess(void);
+void ambProcess(PLAYER* pPlayer);
 void ambKillAll(void);
 void ambInit(void);
 

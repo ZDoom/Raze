@@ -613,9 +613,11 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kSoundPlayer:
 		if (gGameOptions.nGameType == 0)
 		{
-			if (gMe->actor->xspr.health <= 0)
+			PLAYER* pPlayer = &gPlayer[myconnectindex];
+
+			if (pPlayer->actor->xspr.health <= 0)
 				break;
-			gMe->restTime = 0;
+			pPlayer->restTime = 0;
 		}
 		sndStartSample(actor->xspr.data1, -1, 1, 0, CHANF_FORCE);
 		break;

@@ -760,7 +760,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		InitSectorFX();
 		viewInitializePrediction();
 		PreloadCache();
-		if (!gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
+		if (!gPlayer[myconnectindex].packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
 			sfxSetReverb(0);
 		ambInit();
 		for (int i = 0; i < gNetPlayers; i++)

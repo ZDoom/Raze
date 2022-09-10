@@ -46,11 +46,11 @@ void sub_5A928(void)
 		buttonMap.ClearButton(i);
 }
 
-const char* SetGodMode(bool god)
+const char* SetGodMode(PLAYER* pPlayer, bool god)
 {
-	playerSetGodMode(gMe, god);
+	playerSetGodMode(pPlayer, god);
 	bPlayerCheated = true;
-	return gMe->godMode ? GStrings("TXTB_GODMODE") : GStrings("TXTB_NOTGODMODE");
+	return pPlayer->godMode ? GStrings("TXTB_GODMODE") : GStrings("TXTB_NOTGODMODE");
 }
 
 const char* SetClipMode(bool noclip)
@@ -76,29 +76,29 @@ void packClear(PLAYER* pPlayer)
 	}
 }
 
-void SetAmmo(bool stat)
+void SetAmmo(PLAYER* pPlayer, bool stat)
 {
 	if (stat)
 	{
 		for (int i = 0; i < 12; i++)
-			gMe->ammoCount[i] = gAmmoInfo[i].max;
+			pPlayer->ammoCount[i] = gAmmoInfo[i].max;
 		viewSetMessage(GStrings("TXTB_FULLAMMO"));
 	}
 	else
 	{
 		for (int i = 0; i < 12; i++)
-			gMe->ammoCount[i] = 0;
+			pPlayer->ammoCount[i] = 0;
 		viewSetMessage(GStrings("TXTB_NOAMMO"));
 	}
 }
 
-void SetWeapons(bool stat)
+void SetWeapons(PLAYER* pPlayer, bool stat)
 {
 	for (int i = 0; i < 14; i++)
 	{
-		gMe->hasWeapon[i] = stat;
+		pPlayer->hasWeapon[i] = stat;
 	}
-	SetAmmo(stat);
+	SetAmmo(pPlayer, stat);
 	if (stat)
 		viewSetMessage(GStrings("TXTB_ALLWEAP"));
 	else
@@ -106,29 +106,29 @@ void SetWeapons(bool stat)
 		if (!VanillaMode())
 		{
 			// Keep the pitchfork to avoid freeze
-			gMe->hasWeapon[kWeapPitchFork] = 1;
-			gMe->curWeapon = kWeapNone;
-			gMe->nextWeapon = kWeapPitchFork;
+			pPlayer->hasWeapon[kWeapPitchFork] = 1;
+			pPlayer->curWeapon = kWeapNone;
+			pPlayer->nextWeapon = kWeapPitchFork;
 		}
 		viewSetMessage(GStrings("TXTB_NOWEAP"));
 	}
 }
 
-void SetToys(bool stat)
+void SetToys(PLAYER* pPlayer, bool stat)
 {
 	if (stat)
 	{
-		packStuff(gMe);
+		packStuff(pPlayer);
 		viewSetMessage(GStrings("TXTB_FULLINV"));
 	}
 	else
 	{
-		packClear(gMe);
+		packClear(pPlayer);
 		viewSetMessage(GStrings("TXTB_NOINV"));
 	}
 }
 
-void SetArmor(bool stat)
+void SetArmor(PLAYER* pPlayer, bool stat)
 {
 	int nAmount;
 	if (stat)
@@ -142,13 +142,13 @@ void SetArmor(bool stat)
 		nAmount = 0;
 	}
 	for (int i = 0; i < 3; i++)
-		gMe->armor[i] = nAmount;
+		pPlayer->armor[i] = nAmount;
 }
 
-void SetKeys(bool stat)
+void SetKeys(PLAYER* pPlayer, bool stat)
 {
 	for (int i = 1; i <= 6; i++)
-		gMe->hasKey[i] = stat;
+		pPlayer->hasKey[i] = stat;
 	if (stat)
 		viewSetMessage(GStrings("TXTB_ALLKEYS"));
 	else
@@ -173,95 +173,95 @@ void SetMap(bool stat)
 		viewSetMessage(GStrings("TXTB_NOALLMAP"));
 }
 
-void SetWooMode(bool stat)
+void SetWooMode(PLAYER* pPlayer, bool stat)
 {
 	if (stat)
 	{
-		if (!powerupCheck(gMe, kPwUpTwoGuns))
-			powerupActivate(gMe, kPwUpTwoGuns);
+		if (!powerupCheck(pPlayer, kPwUpTwoGuns))
+			powerupActivate(pPlayer, kPwUpTwoGuns);
 	}
 	else
 	{
-		if (powerupCheck(gMe, kPwUpTwoGuns))
+		if (powerupCheck(pPlayer, kPwUpTwoGuns))
 		{
 			if (!VanillaMode())
-				gMe->pwUpTime[kPwUpTwoGuns] = 0;
-			powerupDeactivate(gMe, kPwUpTwoGuns);
+				pPlayer->pwUpTime[kPwUpTwoGuns] = 0;
+			powerupDeactivate(pPlayer, kPwUpTwoGuns);
 		}
 	}
 }
 
-void ToggleWooMode(void)
+void ToggleWooMode(PLAYER* pPlayer)
 {
-	SetWooMode(!(powerupCheck(gMe, kPwUpTwoGuns) != 0));
+	SetWooMode(pPlayer, !(powerupCheck(pPlayer, kPwUpTwoGuns) != 0));
 }
 
-void ToggleBoots(void)
+void ToggleBoots(PLAYER* pPlayer)
 {
-	if (powerupCheck(gMe, kPwUpJumpBoots))
+	if (powerupCheck(pPlayer, kPwUpJumpBoots))
 	{
 		viewSetMessage(GStrings("TXTB_NOJBOOTS"));
 		if (!VanillaMode())
 		{
-			gMe->pwUpTime[kPwUpJumpBoots] = 0;
-			gMe->packSlots[4].curAmount = 0;
+			pPlayer->pwUpTime[kPwUpJumpBoots] = 0;
+			pPlayer->packSlots[4].curAmount = 0;
 		}
-		powerupDeactivate(gMe, kPwUpJumpBoots);
+		powerupDeactivate(pPlayer, kPwUpJumpBoots);
 	}
 	else
 	{
 		viewSetMessage(GStrings("TXTB_JBOOTS"));
 		if (!VanillaMode())
-			gMe->pwUpTime[kPwUpJumpBoots] = gPowerUpInfo[kPwUpJumpBoots].bonusTime;
-		powerupActivate(gMe, kPwUpJumpBoots);
+			pPlayer->pwUpTime[kPwUpJumpBoots] = gPowerUpInfo[kPwUpJumpBoots].bonusTime;
+		powerupActivate(pPlayer, kPwUpJumpBoots);
 	}
 }
 
-void ToggleInvisibility(void)
+void ToggleInvisibility(PLAYER* pPlayer)
 {
-	if (powerupCheck(gMe, kPwUpShadowCloak))
+	if (powerupCheck(pPlayer, kPwUpShadowCloak))
 	{
 		viewSetMessage(GStrings("TXTB_VISIBLE"));
 		if (!VanillaMode())
-			gMe->pwUpTime[kPwUpShadowCloak] = 0;
-		powerupDeactivate(gMe, kPwUpShadowCloak);
+			pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
+		powerupDeactivate(pPlayer, kPwUpShadowCloak);
 	}
 	else
 	{
 		viewSetMessage(GStrings("TXTB_INVISIBLE"));
-		powerupActivate(gMe, kPwUpShadowCloak);
+		powerupActivate(pPlayer, kPwUpShadowCloak);
 	}
 }
 
-void ToggleInvulnerability(void)
+void ToggleInvulnerability(PLAYER* pPlayer)
 {
-	if (powerupCheck(gMe, kPwUpDeathMask))
+	if (powerupCheck(pPlayer, kPwUpDeathMask))
 	{
 		viewSetMessage(GStrings("TXTB_VULN"));
 		if (!VanillaMode())
-			gMe->pwUpTime[kPwUpDeathMask] = 0;
-		powerupDeactivate(gMe, kPwUpDeathMask);
+			pPlayer->pwUpTime[kPwUpDeathMask] = 0;
+		powerupDeactivate(pPlayer, kPwUpDeathMask);
 	}
 	else
 	{
 		viewSetMessage(GStrings("TXTB_INVULN"));
-		powerupActivate(gMe, kPwUpDeathMask);
+		powerupActivate(pPlayer, kPwUpDeathMask);
 	}
 }
 
-void ToggleDelirium(void)
+void ToggleDelirium(PLAYER* pPlayer)
 {
-	if (powerupCheck(gMe, kPwUpDeliriumShroom))
+	if (powerupCheck(pPlayer, kPwUpDeliriumShroom))
 	{
 		viewSetMessage(GStrings("TXTB_NODELIR"));
 		if (!VanillaMode())
-			gMe->pwUpTime[kPwUpDeliriumShroom] = 0;
-		powerupDeactivate(gMe, kPwUpDeliriumShroom);
+			pPlayer->pwUpTime[kPwUpDeliriumShroom] = 0;
+		powerupDeactivate(pPlayer, kPwUpDeliriumShroom);
 	}
 	else
 	{
 		viewSetMessage(GStrings("TXTB_DELIR"));
-		powerupActivate(gMe, kPwUpDeliriumShroom);
+		powerupActivate(pPlayer, kPwUpDeliriumShroom);
 	}
 }
 
@@ -292,24 +292,25 @@ static int parseArgs(char* pzArgs, int* nArg1, int* nArg2)
 const char* GameInterface::GenericCheat(int player, int cheat)
 {
 	// message processing is not perfect because many cheats output multiple messages.
+	PLAYER* pPlayer = &gPlayer[player];
 
 	if (gGameOptions.nGameType != 0 || numplayers > 1) // sp only for now.
 		return nullptr;
 
-	if (gamestate != GS_LEVEL || gMe->actor->xspr.health == 0) // must be alive and in a level to cheat.
+	if (gamestate != GS_LEVEL || pPlayer->actor->xspr.health == 0) // must be alive and in a level to cheat.
 		return nullptr;
 
 	bPlayerCheated = true;
 	switch (cheat)
 	{
 	case CHT_GOD:
-		return SetGodMode(!gMe->godMode);
+		return SetGodMode(pPlayer, !pPlayer->godMode);
 
 	case CHT_GODOFF:
-		return SetGodMode(false);
+		return SetGodMode(pPlayer, false);
 
 	case CHT_GODON:
-		return SetGodMode(true);
+		return SetGodMode(pPlayer, true);
 
 	case CHT_NOCLIP:
 		return SetClipMode(!gNoClip);
@@ -318,107 +319,107 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		// demo record
 		break;
 	case kCheatSatchel:
-		SetToys(true);
+		SetToys(pPlayer, true);
 		break;
 	case kCheatKevorkian:
-		actDamageSprite(gMe->actor, gMe->actor, kDamageBullet, 8000);
+		actDamageSprite(pPlayer->actor, pPlayer->actor, kDamageBullet, 8000);
 		return GStrings("TXTB_KEVORKIAN");
 
 	case kCheatMcGee:
 	{
-		if (!gMe->actor->xspr.burnTime)
-			evPostActor(gMe->actor, 0, kCallbackFXFlameLick);
-		actBurnSprite(gMe->actor, gMe->actor, 2400);
+		if (!pPlayer->actor->xspr.burnTime)
+			evPostActor(pPlayer->actor, 0, kCallbackFXFlameLick);
+		actBurnSprite(pPlayer->actor, pPlayer->actor, 2400);
 		return GStrings("TXTB_FIRED");
 	}
 	case kCheatEdmark:
-		actDamageSprite(gMe->actor, gMe->actor, kDamageExplode, 8000);
+		actDamageSprite(pPlayer->actor, pPlayer->actor, kDamageExplode, 8000);
 		return GStrings("TXTB_THEDAYS");
 
 	case kCheatKrueger:
 	{
-		actHealDude(gMe->actor, 200, 200);
-		gMe->armor[1] = VanillaMode() ? 200 : 3200;
-		if (!gMe->actor->xspr.burnTime)
-			evPostActor(gMe->actor, 0, kCallbackFXFlameLick);
-		actBurnSprite(gMe->actor, gMe->actor, 2400);
+		actHealDude(pPlayer->actor, 200, 200);
+		pPlayer->armor[1] = VanillaMode() ? 200 : 3200;
+		if (!pPlayer->actor->xspr.burnTime)
+			evPostActor(pPlayer->actor, 0, kCallbackFXFlameLick);
+		actBurnSprite(pPlayer->actor, pPlayer->actor, 2400);
 		return GStrings("TXTB_RETARD");
 	}
 	case kCheatSterno:
-		gMe->blindEffect = 250;
+		pPlayer->blindEffect = 250;
 		break;
 	case kCheat14: // quakeEffect (causing a little flickerEffect), not used by any cheat code (dead code)
-		gMe->flickerEffect = 360;
+		pPlayer->flickerEffect = 360;
 		break;
 	case kCheatSpork:
-		actHealDude(gMe->actor, 200, 200);
+		actHealDude(pPlayer->actor, 200, 200);
 		break;
 	case kCheatClarice:
 		for (int i = 0; i < 3; i++)
-			gMe->armor[i] = 1600;
+			pPlayer->armor[i] = 1600;
 		return GStrings("TXTB_HALFARMOR");
 	case kCheatFrankenstein:
-		gMe->packSlots[0].curAmount = 100;
+		pPlayer->packSlots[0].curAmount = 100;
 		break;
 	case kCheatCheeseHead:
-		gMe->packSlots[1].curAmount = 100;
+		pPlayer->packSlots[1].curAmount = 100;
 		if (!VanillaMode())
-			gMe->pwUpTime[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
+			pPlayer->pwUpTime[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
 		break;
 	case kCheatTequila:
-		ToggleWooMode();
+		ToggleWooMode(pPlayer);
 		break;
 	case kCheatFunkyShoes:
-		ToggleBoots();
+		ToggleBoots(pPlayer);
 		break;
 	case kCheatKeyMaster:
-		SetKeys(true);
+		SetKeys(pPlayer, true);
 		break;
 	case kCheatOneRing:
-		ToggleInvisibility();
+		ToggleInvisibility(pPlayer);
 		break;
 	case kCheatVoorhees:
-		ToggleInvulnerability();
+		ToggleInvulnerability(pPlayer);
 		break;
 	case kCheatJoJo:
-		ToggleDelirium();
+		ToggleDelirium(pPlayer);
 		break;
 	case kCheatLaraCroft:
 		SetInfiniteAmmo(!gInfiniteAmmo);
-		SetWeapons(gInfiniteAmmo);
+		SetWeapons(pPlayer, gInfiniteAmmo);
 		break;
 	case kCheatHongKong:
-		SetWeapons(true);
+		SetWeapons(pPlayer, true);
 		SetInfiniteAmmo(true);
 		break;
 	case kCheatMontana:
-		SetWeapons(true);
-		SetToys(true);
+		SetWeapons(pPlayer, true);
+		SetToys(pPlayer, true);
 		break;
 	case kCheatBunz:
-		SetWeapons(true);
-		SetWooMode(true);
+		SetWeapons(pPlayer, true);
+		SetWooMode(pPlayer, true);
 		break;
 	case kCheatCousteau:
-		actHealDude(gMe->actor, 200, 200);
-		gMe->packSlots[1].curAmount = 100;
+		actHealDude(pPlayer->actor, 200, 200);
+		pPlayer->packSlots[1].curAmount = 100;
 		if (!VanillaMode())
-			gMe->pwUpTime[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
+			pPlayer->pwUpTime[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
 		break;
 	case kCheatForkYou:
 		SetInfiniteAmmo(false);
 		SetMap(false);
-		SetWeapons(false);
-		SetAmmo(false);
-		SetArmor(false);
-		SetToys(false);
-		SetKeys(false);
-		SetWooMode(true);
-		powerupActivate(gMe, kPwUpDeliriumShroom);
-		gMe->actor->xspr.health = 16;
-		gMe->hasWeapon[kWeapPitchFork] = 1;
-		gMe->curWeapon = kWeapNone;
-		gMe->nextWeapon = kWeapPitchFork;
+		SetWeapons(pPlayer, false);
+		SetAmmo(pPlayer, false);
+		SetArmor(pPlayer, false);
+		SetToys(pPlayer, false);
+		SetKeys(pPlayer, false);
+		SetWooMode(pPlayer, true);
+		powerupActivate(pPlayer, kPwUpDeliriumShroom);
+		pPlayer->actor->xspr.health = 16;
+		pPlayer->hasWeapon[kWeapPitchFork] = 1;
+		pPlayer->curWeapon = kWeapNone;
+		pPlayer->nextWeapon = kWeapPitchFork;
 		break;
 
 	default:
@@ -511,10 +512,11 @@ static cheatseq_t s_CheatInfo[] = {
 
 void cheatReset(void)
 {
+	PLAYER* pPlayer = &gPlayer[myconnectindex];
 	bPlayerCheated = 0;
-	playerSetGodMode(gMe, 0);
+	playerSetGodMode(pPlayer, 0);
 	gNoClip = 0;
-	packClear(gMe);
+	packClear(pPlayer);
 	gInfiniteAmmo = 0;
 	gFullMap = 0;
 }
@@ -528,10 +530,11 @@ void cheatReset(void)
 
 static void cmd_Give(int player, uint8_t** stream, bool skip)
 {
+	PLAYER* pPlayer = &gPlayer[player];
 	int type = ReadByte(stream);
 	if (skip) return;
 
-	if (numplayers != 1 || gamestate != GS_LEVEL || gMe->actor->xspr.health == 0)
+	if (numplayers != 1 || gamestate != GS_LEVEL || pPlayer->actor->xspr.health == 0)
 	{
 		Printf("give: Cannot give while dead or not in a single-player game.\n");
 		return;
@@ -540,41 +543,41 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	switch (type)
 	{
 	case GIVE_ALL:
-		SetWeapons(true);
-		SetAmmo(true);
-		SetToys(true);
-		SetArmor(true);
-		SetKeys(true);
+		SetWeapons(pPlayer, true);
+		SetAmmo(pPlayer, true);
+		SetToys(pPlayer, true);
+		SetArmor(pPlayer, true);
+		SetKeys(pPlayer, true);
 		bPlayerCheated = true;
 		break;
 
 	case GIVE_HEALTH:
-		actHealDude(gMe->actor, 200, 200);
+		actHealDude(pPlayer->actor, 200, 200);
 		bPlayerCheated = true;
 		break;
 
 	case GIVE_WEAPONS:
-		SetWeapons(true);
+		SetWeapons(pPlayer, true);
 		bPlayerCheated = true;
 		break;
 
 	case GIVE_AMMO:
-		SetAmmo(true);
+		SetAmmo(pPlayer, true);
 		bPlayerCheated = true;
 		break;
 
 	case GIVE_ARMOR:
-		SetArmor(true);
+		SetArmor(pPlayer, true);
 		bPlayerCheated = true;
 		break;
 
 	case GIVE_KEYS:
-		SetKeys(true);
+		SetKeys(pPlayer, true);
 		bPlayerCheated = true;
 		break;
 
 	case GIVE_INVENTORY:
-		SetToys(true);
+		SetToys(pPlayer, true);
 		bPlayerCheated = true;
 		break;
 

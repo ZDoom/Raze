@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 PLAYER gPlayer[kMaxPlayers];
-PLAYER* gMe, * gView;
+PLAYER* gView;
 
 bool gBlueFlagDropped = false;
 bool gRedFlagDropped = false;
@@ -316,7 +316,7 @@ bool powerupActivate(PLAYER* pPlayer, int nPowerUp)
 		pPlayer->damageControl[0]++;
 		break;
 	case kItemReflectShots: // reflective shots
-		if (pPlayer == gMe && gGameOptions.nGameType == 0)
+		if (pPlayer->nPlayer == myconnectindex && gGameOptions.nGameType == 0)
 			sfxSetReverb2(1);
 		break;
 	case kItemDeathMask:
@@ -325,7 +325,7 @@ bool powerupActivate(PLAYER* pPlayer, int nPowerUp)
 		break;
 	case kItemDivingSuit: // diving suit
 		pPlayer->damageControl[4]++;
-		if (pPlayer == gMe && gGameOptions.nGameType == 0)
+		if (pPlayer->nPlayer == myconnectindex && gGameOptions.nGameType == 0)
 			sfxSetReverb(1);
 		break;
 	case kItemGasMask:
@@ -378,11 +378,11 @@ void powerupDeactivate(PLAYER* pPlayer, int nPowerUp)
 		break;
 	case kItemDivingSuit:
 		pPlayer->damageControl[4]--;
-		if (pPlayer == gMe && VanillaMode() ? true : pPlayer->pwUpTime[24] == 0)
+		if (pPlayer->nPlayer == myconnectindex && VanillaMode() ? true : pPlayer->pwUpTime[24] == 0)
 			sfxSetReverb(0);
 		break;
 	case kItemReflectShots:
-		if (pPlayer == gMe && VanillaMode() ? true : pPlayer->packSlots[1].isActive == 0)
+		if (pPlayer->nPlayer == myconnectindex && VanillaMode() ? true : pPlayer->packSlots[1].isActive == 0)
 			sfxSetReverb(0);
 		break;
 	case kItemGasMask:
@@ -805,7 +805,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	playerSetRace(pPlayer, kModeHuman);
 	playerResetPosture(pPlayer);
 	seqSpawn(pDudeInfo->seqStartID, actor, -1);
-	if (pPlayer == gMe)
+	if (nPlayer == myconnectindex)
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
@@ -901,7 +901,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->nWaterPal = 0;
 	playerResetPowerUps(pPlayer);
 
-	if (pPlayer == gMe)
+	if (nPlayer == myconnectindex)
 	{
 		viewInitializePrediction();
 	}
@@ -1364,7 +1364,7 @@ void PickUp(PLAYER* pPlayer, DBloodActor* actor)
 		actPostSprite(actor, kStatFree);
 
 	pPlayer->pickupEffect = 30;
-	if (pPlayer == gMe) {
+	if (pPlayer->nPlayer == myconnectindex) {
 		if (customMsg > 0) trTextOver(customMsg - 1);
 		else if (msg) viewSetMessage(msg, nullptr, MESSAGE_PRIORITY_PICKUP);
 	}
@@ -1694,7 +1694,7 @@ void ProcessInput(PLAYER* pPlayer)
 			auto pSector = result.hitSector;
 			auto pXSector = &pSector->xs();
 			int key = pXSector->Key;
-			if (pXSector->locked && pPlayer == gMe)
+			if (pXSector->locked && pPlayer->nPlayer == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_LOCKED"));
 				auto snd = 3062;
@@ -1704,7 +1704,7 @@ void ProcessInput(PLAYER* pPlayer)
 			}
 			if (!key || pPlayer->hasKey[key])
 				trTriggerSector(pSector, kCmdSpritePush);
-			else if (pPlayer == gMe)
+			else if (pPlayer->nPlayer == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_KEY"));
 				auto snd = 3063;
@@ -1719,7 +1719,7 @@ void ProcessInput(PLAYER* pPlayer)
 			auto pWall = result.hitWall;
 			auto pXWall = &pWall->xw();
 			int key = pXWall->key;
-			if (pXWall->locked && pPlayer == gMe)
+			if (pXWall->locked && pPlayer->nPlayer == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_LOCKED"));
 				auto snd = 3062;
@@ -1729,7 +1729,7 @@ void ProcessInput(PLAYER* pPlayer)
 			}
 			if (!key || pPlayer->hasKey[key])
 				trTriggerWall(pWall, kCmdWallPush);
-			else if (pPlayer == gMe)
+			else if (pPlayer->nPlayer == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_KEY"));
 				auto snd = 3063;
@@ -1743,11 +1743,11 @@ void ProcessInput(PLAYER* pPlayer)
 		{
 			auto act = result.actor();
 			int key = act->xspr.key;
-			if (actor->xspr.locked && pPlayer == gMe && act->xspr.lockMsg)
+			if (actor->xspr.locked && pPlayer->nPlayer == myconnectindex && act->xspr.lockMsg)
 				trTextOver(act->xspr.lockMsg);
 			if (!key || pPlayer->hasKey[key])
 				trTriggerSprite(act, kCmdSpritePush);
-			else if (pPlayer == gMe)
+			else if (pPlayer->nPlayer == myconnectindex)
 			{
 				viewSetMessage(GStrings("TXTB_KEY"));
 				sndStartSample(3063, 255, 2, 0);
@@ -1920,7 +1920,7 @@ void playerProcess(PLAYER* pPlayer)
 	pPlayer->painEffect = ClipLow(pPlayer->painEffect - 4, 0);
 	pPlayer->blindEffect = ClipLow(pPlayer->blindEffect - 4, 0);
 	pPlayer->pickupEffect = ClipLow(pPlayer->pickupEffect - 4, 0);
-	if (pPlayer == gMe && gMe->actor->xspr.health == 0)
+	if (pPlayer->nPlayer == myconnectindex && pPlayer->actor->xspr.health == 0)
 		pPlayer->hand = 0;
 	if (!actor->xspr.health)
 		return;
@@ -2005,7 +2005,7 @@ void playerFrag(PLAYER* pKiller, PLAYER* pVictim)
 			team_score[pVictim->teamId]--;
 		int nMessage = Random(5);
 		int nSound = gSuicide[nMessage].Kills;
-		if (pVictim == gMe && gMe->handTime <= 0)
+		if (pVictim->nPlayer == myconnectindex && pVictim->handTime <= 0)
 		{
 			strcpy(buffer, GStrings("TXTB_KILLSELF"));
 			if (gGameOptions.nGameType > 0 && nSound >= 0)
@@ -2037,7 +2037,7 @@ void playerFrag(PLAYER* pKiller, PLAYER* pVictim)
 		int nSound = gVictory[nMessage].Kills;
 		const char* pzMessage = gVictory[nMessage].message;
 		sprintf(buffer, pzMessage, PlayerName(nKiller), PlayerName(nVictim));
-		if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller == gMe)
+		if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller->nPlayer == myconnectindex)
 			sndStartSample(nSound, 255, 2, 0);
 	}
 	viewSetMessage(buffer);
@@ -2397,7 +2397,7 @@ void PlayerSurvive(int, DBloodActor* actor)
 		if (actor->IsPlayerActor())
 		{
 			PLAYER* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
-			if (pPlayer == gMe)
+			if (pPlayer->nPlayer == myconnectindex)
 				viewSetMessage(GStrings("TXT_LIVEAGAIM"));
 			else
 			{
