@@ -281,7 +281,7 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 
 	int nSpeed = approxDist(predict.xvel, predict.yvel);
 
-	predict.zViewVel = interpolatedvalue(predict.zViewVel, predict.zvel, 0x7000 * (1. / MaxSmoothRatio));
+	predict.zViewVel = interpolatedvalue(predict.zViewVel, predict.zvel, FixedToFloat(0x7000));
 	int dz = predict.z - pPosture->eyeAboveZ - predict.viewz;
 	if (dz > 0)
 		predict.zViewVel += MulScale(dz << 8, 0xa000, 16);
@@ -289,7 +289,7 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 		predict.zViewVel += MulScale(dz << 8, 0x1800, 16);
 	predict.viewz += predict.zViewVel >> 8;
 
-	predict.zWeaponVel = interpolatedvalue(predict.zWeaponVel, predict.zvel, 0x5000 * (1. / MaxSmoothRatio));
+	predict.zWeaponVel = interpolatedvalue(predict.zWeaponVel, predict.zvel, FixedToFloat(0x5000));
 	dz = predict.z - pPosture->weaponAboveZ - predict.zWeapon;
 	if (dz > 0)
 		predict.azWeaponVelt44 += MulScale(dz << 8, 0x8000, 16);

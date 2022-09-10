@@ -436,7 +436,7 @@ int32_t g_frameRate;
 //
 //---------------------------------------------------------------------------
 
-static void DrawMap(PLAYER* pPlayer, const double smoothratio)
+static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 {
 	int tm = 0;
 	if (viewport3d.Left() > 0)
@@ -444,8 +444,8 @@ static void DrawMap(PLAYER* pPlayer, const double smoothratio)
 		setViewport(Hud_Stbar);
 		tm = 1;
 	}
-	auto ang = !SyncInput() ? pPlayer->angle.sum() : pPlayer->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-	DrawOverheadMap(pPlayer->actor->interpolatedpos(smoothratio * (1. / MaxSmoothRatio)).XY(), ang, smoothratio * (1. / MaxSmoothRatio));
+	auto ang = !SyncInput() ? pPlayer->angle.sum() : pPlayer->angle.interpolatedsum(interpfrac);
+	DrawOverheadMap(pPlayer->actor->interpolatedpos(interpfrac).XY(), ang, interpfrac);
 	if (tm)
 		setViewport(hud_size);
 }
@@ -456,7 +456,7 @@ static void DrawMap(PLAYER* pPlayer, const double smoothratio)
 //
 //---------------------------------------------------------------------------
 
-static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, DAngle& rotscrnang, const double smoothratio)
+static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, DAngle& rotscrnang, const double interpfrac)
 {
 	int bobWidth, bobHeight;
 
@@ -465,14 +465,14 @@ static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fi
 	if (numplayers > 1 && pPlayer == gMe && gPrediction && gMe->actor->xspr.health > 0)
 	{
 		nSectnum = predict.sectnum;
-		cX = interpolatedvalue(predictOld.x, predict.x, smoothratio * (1. / MaxSmoothRatio));
-		cY = interpolatedvalue(predictOld.y, predict.y, smoothratio * (1. / MaxSmoothRatio));
-		cZ = interpolatedvalue(predictOld.viewz, predict.viewz, smoothratio * (1. / MaxSmoothRatio));
-		zDelta = interpolatedvalue(predictOld.weaponZ, predict.weaponZ, smoothratio * (1. / MaxSmoothRatio));
-		bobWidth = interpolatedvalue(predictOld.bobWidth, predict.bobWidth, smoothratio * (1. / MaxSmoothRatio));
-		bobHeight = interpolatedvalue(predictOld.bobHeight, predict.bobHeight, smoothratio * (1. / MaxSmoothRatio));
-		shakeX = interpolatedvalue(predictOld.shakeBobX, predict.shakeBobX, smoothratio * (1. / MaxSmoothRatio));
-		shakeY = interpolatedvalue(predictOld.shakeBobY, predict.shakeBobY, smoothratio * (1. / MaxSmoothRatio));
+		cX = interpolatedvalue(predictOld.x, predict.x, interpfrac);
+		cY = interpolatedvalue(predictOld.y, predict.y, interpfrac);
+		cZ = interpolatedvalue(predictOld.viewz, predict.viewz, interpfrac);
+		zDelta = interpolatedvalue(predictOld.weaponZ, predict.weaponZ, interpfrac);
+		bobWidth = interpolatedvalue(predictOld.bobWidth, predict.bobWidth, interpfrac);
+		bobHeight = interpolatedvalue(predictOld.bobHeight, predict.bobHeight, interpfrac);
+		shakeX = interpolatedvalue(predictOld.shakeBobX, predict.shakeBobX, interpfrac);
+		shakeY = interpolatedvalue(predictOld.shakeBobY, predict.shakeBobY, interpfrac);
 
 		if (!SyncInput())
 		{
@@ -482,22 +482,22 @@ static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fi
 		}
 		else
 		{
-			cA = interpolatedvalue(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, smoothratio * (1. / MaxSmoothRatio));
-			cH = interpolatedvalue(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, smoothratio);
-			rotscrnang = interpolatedvalue(predictOld.rotscrnang, predict.rotscrnang, smoothratio * (1. / MaxSmoothRatio));
+			cA = interpolatedvalue(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, interpfrac);
+			cH = interpolatedvalue(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, interpfrac);
+			rotscrnang = interpolatedvalue(predictOld.rotscrnang, predict.rotscrnang, interpfrac);
 		}
 	}
 	else
 #endif
 	{
-		cX = interpolatedvalue(pPlayer->actor->opos.X, pPlayer->actor->spr.pos.X, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
-		cY = interpolatedvalue(pPlayer->actor->opos.Y, pPlayer->actor->spr.pos.Y, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
-		cZ = interpolatedvalue(pPlayer->ozView, pPlayer->zView, smoothratio * (1. / MaxSmoothRatio));
-		zDelta = interpolatedvalue<double>(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - (12 << 8), smoothratio * (1. / MaxSmoothRatio));
-		bobWidth = interpolatedvalue(pPlayer->obobWidth, pPlayer->bobWidth, smoothratio * (1. / MaxSmoothRatio));
-		bobHeight = interpolatedvalue(pPlayer->obobHeight, pPlayer->bobHeight, smoothratio * (1. / MaxSmoothRatio));
-		shakeX = interpolatedvalue<double>(pPlayer->oswayWidth, pPlayer->swayWidth, smoothratio * (1. / MaxSmoothRatio));
-		shakeY = interpolatedvalue<double>(pPlayer->oswayHeight, pPlayer->swayHeight, smoothratio * (1. / MaxSmoothRatio));
+		cX = interpolatedvalue(pPlayer->actor->opos.X, pPlayer->actor->spr.pos.X, interpfrac) * worldtoint;
+		cY = interpolatedvalue(pPlayer->actor->opos.Y, pPlayer->actor->spr.pos.Y, interpfrac) * worldtoint;
+		cZ = interpolatedvalue(pPlayer->ozView, pPlayer->zView, interpfrac);
+		zDelta = interpolatedvalue<double>(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - (12 << 8), interpfrac);
+		bobWidth = interpolatedvalue(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
+		bobHeight = interpolatedvalue(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
+		shakeX = interpolatedvalue<double>(pPlayer->oswayWidth, pPlayer->swayWidth, interpfrac);
+		shakeY = interpolatedvalue<double>(pPlayer->oswayHeight, pPlayer->swayHeight, interpfrac);
 
 		if (!SyncInput())
 		{
@@ -507,9 +507,9 @@ static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fi
 		}
 		else
 		{
-			cA = pPlayer->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-			cH = pPlayer->horizon.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
-			rotscrnang = pPlayer->angle.interpolatedrotscrn(smoothratio * (1. / MaxSmoothRatio));
+			cA = pPlayer->angle.interpolatedsum(interpfrac);
+			cH = pPlayer->horizon.interpolatedsum(interpfrac);
+			rotscrnang = pPlayer->angle.interpolatedrotscrn(interpfrac);
 		}
 	}
 
@@ -530,7 +530,7 @@ static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fi
 	}
 	else
 	{
-		calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, pPlayer->actor, &pSector, cA, cH, smoothratio);
+		calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, pPlayer->actor, &pSector, cA, cH, interpfrac * MaxSmoothRatio);
 	}
 	if (pSector != nullptr)
 		CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
@@ -617,17 +617,12 @@ void viewDrawScreen(bool sceneonly)
 		FireProcess();
 	}
 
-	double gInterpolate;
-
-	if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
-	{
-		gInterpolate = !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac() * MaxSmoothRatio;
-	}
-	else gInterpolate = MaxSmoothRatio;
+	double interpfrac = !paused && (!M_Active() || gGameOptions.nGameType != 0) || !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac();
+	double gInterpolate = interpfrac * MaxSmoothRatio;
 
 	if (cl_interpolate)
 	{
-		DoInterpolations(gInterpolate * (1. / MaxSmoothRatio));
+		DoInterpolations(interpfrac);
 	}
 
 	if (automapMode != am_full)
@@ -656,9 +651,9 @@ void viewDrawScreen(bool sceneonly)
 		sectortype* pSector;
 		double zDelta;
 		double shakeX, shakeY;
-		SetupView(pPlayer, cX, cY, cZ, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang, gInterpolate);
+		SetupView(pPlayer, cX, cY, cZ, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang, interpfrac);
 
-		DAngle tilt = interpolatedvalue(gScreenTiltO, gScreenTilt, gInterpolate * (1. / MaxSmoothRatio));
+		DAngle tilt = interpolatedvalue(gScreenTiltO, gScreenTilt, interpfrac);
 		bool bDelirium = powerupCheck(pPlayer, kPwUpDeliriumShroom) > 0;
 		static bool bDeliriumOld = false;
 		//int tiltcs, tiltdim;
@@ -675,7 +670,7 @@ void viewDrawScreen(bool sceneonly)
 		}
 		else
 		{
-			othercameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);
+			othercameraclock = PlayClock + int(4 * interpfrac);
 		}
 
 		if (!bDelirium)
@@ -707,7 +702,7 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 		g_relvisibility = (int32_t)(ClipLow(gVisibility - 32 * pPlayer->visibility - brightness, 0)) - g_visibility;
-		cA += interpolatedvalue(deliriumTurnO, deliriumTurn, gInterpolate * (1. / MaxSmoothRatio));
+		cA += interpolatedvalue(deliriumTurnO, deliriumTurn, interpfrac);
 
 		if (pSector != nullptr)
 		{
@@ -737,8 +732,8 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 
-		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate * (1. / MaxSmoothRatio));
-		fixedhoriz deliriumPitchI = interpolatedvalue(q16horiz(deliriumPitchO), q16horiz(deliriumPitch), gInterpolate * (1. / MaxSmoothRatio));
+		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, basepal, interpfrac);
+		fixedhoriz deliriumPitchI = interpolatedvalue(q16horiz(deliriumPitchO), q16horiz(deliriumPitch), interpfrac);
 		auto bakCstat = pPlayer->actor->spr.cstat;
 		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		render_drawrooms(pPlayer->actor, vec3_t( cX, cY, cZ ), sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
@@ -750,7 +745,7 @@ void viewDrawScreen(bool sceneonly)
 		Collision c1, c2;
 		GetZRange(pPlayer->actor, &vf4, &c1, &vec, &c2, nClipDist, 0);
 		if (sceneonly) return;
-		double look_anghalf = pPlayer->angle.look_anghalf(gInterpolate * (1. / MaxSmoothRatio));
+		double look_anghalf = pPlayer->angle.look_anghalf(interpfrac);
 		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, -look_anghalf, 0, 2);
 #if 0 // This currently does not work. May have to be redone as a hardware effect.
 		if (v4 && gNetPlayers > 1)
@@ -788,7 +783,7 @@ void viewDrawScreen(bool sceneonly)
 
 	if (automapMode != am_off)
 	{
-		DrawMap(pPlayer, gInterpolate);
+		DrawMap(pPlayer, interpfrac);
 	}
 	UpdateStatusBar(pPlayer);
 

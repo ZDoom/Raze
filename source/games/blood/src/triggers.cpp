@@ -843,15 +843,18 @@ void PathSound(sectortype* pSector, int nSound)
 
 void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, bool bAllWalls)
 {
+	double a2f = FixedToFloat(a2);
+	double a3f = FixedToFloat(a3);
+
 	XSECTOR* pXSector = &pSector->xs();
-	int v20 = interpolatedvalue(a6, a9, a2 * (1. / MaxSmoothRatio));
-	int vc = interpolatedvalue(a6, a9, a3 * (1. / MaxSmoothRatio));
+	int v20 = interpolatedvalue(a6, a9, a2f);
+	int vc = interpolatedvalue(a6, a9, a3f);
 	int v28 = vc - v20;
-	int v24 = interpolatedvalue(a7, a10, a2 * (1. / MaxSmoothRatio));
-	int v8 = interpolatedvalue(a7, a10, a3 * (1. / MaxSmoothRatio));
+	int v24 = interpolatedvalue(a7, a10, a2f);
+	int v8 = interpolatedvalue(a7, a10, a3f);
 	int v2c = v8 - v24;
-	int v44 = interpolatedvalue(a8, a11, a2 * (1. / MaxSmoothRatio));
-	int ang = interpolatedvalue(a8, a11, a3 * (1. / MaxSmoothRatio));
+	int v44 = interpolatedvalue(a8, a11, a2f);
+	int ang = interpolatedvalue(a8, a11, a3f);
 	int v14 = ang - v44;
 
 	DVector2 pivot = { a4 * inttoworld, a5 * inttoworld };
