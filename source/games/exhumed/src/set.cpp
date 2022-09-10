@@ -104,7 +104,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
-    pActor->set_int_ang(RandomSize(11));
+    pActor->spr.angle = RandomAngle();
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = -1 - RandomSize(10) / 256.;
@@ -137,9 +137,10 @@ void AISoul::Tick(RunListEvent* ev)
     pActor->spr.extra += (pActor->nPhase & 0x0F) + 5;
     pActor->spr.extra &= kAngleMask;
 
-    int nVel = bcos(pActor->spr.extra, -7);
+    double nVel = DAngle::fromBuild(pActor->spr.extra).Cos();
 
-	auto coll = movesprite(pActor, bcos(pActor->int_ang()) * nVel, bsin(pActor->int_ang()) * nVel, pActor->int_zvel(), 5120, 0, CLIPMASK0);
+    auto vect = pActor->spr.angle.ToVector() * nVel * 8;
+	auto coll = movesprite(pActor, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), pActor->int_zvel(), 5120, 0, CLIPMASK0);
     if (coll.exbits & 0x10000)
     {
 		DExhumedActor* pSet = pActor->pTarget;
