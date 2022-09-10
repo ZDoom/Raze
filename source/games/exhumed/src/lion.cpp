@@ -333,7 +333,7 @@ void AILion::Tick(RunListEvent* ev)
         }
         else
         {
-            if (PlotCourseToSprite(pActor, pTarget) >= 768)
+            if (PlotCourseToSprite(pActor, pTarget) >= 48)
             {
                 pActor->nAction = 2;
             }

@@ -222,7 +222,7 @@ void FuncCreatureChunk(int a, int, int nRun);
 DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage = false);
 
 DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false);
-int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
+double PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 void CheckSectorFloor(sectortype* pSector, double z, DVector2& xy);
 DAngle GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 DAngle GetWallNormal(walltype* nWall);

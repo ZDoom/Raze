@@ -251,7 +251,7 @@ void AIRex::Tick(RunListEvent* ev)
             }
             else
             {
-                if (((PlotCourseToSprite(pActor, pTarget) >> 8) >= 60) || pActor->nCount > 0)
+                if ((PlotCourseToSprite(pActor, pTarget) >= 60*16) || pActor->nCount > 0)
                 {
 					pActor->vel.XY() = pActor->spr.angle.ToVector() * 256;
                 }
@@ -374,7 +374,7 @@ void AIRex::Tick(RunListEvent* ev)
     {
         if (pTarget != nullptr)
         {
-            if (PlotCourseToSprite(pActor, pTarget) < 768)
+            if (PlotCourseToSprite(pActor, pTarget) < 48)
             {
                 if (nFlag & 0x80)
                 {

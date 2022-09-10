@@ -380,7 +380,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->vel.Y = 0;
             }
 
-            pActor->set_int_zvel(int((pTargetActor->spr.pos.Z - pActor->spr.pos.Z) * zworldtoint / 8));
+            pActor->vel.Z = (pTargetActor->spr.pos.Z - pActor->spr.pos.Z) / 8.;
         }
         break;
     }

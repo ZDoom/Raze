@@ -343,7 +343,7 @@ void AISet::Tick(RunListEvent* ev)
                 SetQuake(pActor, 100);
             }
 
-            int nCourse = PlotCourseToSprite(pActor, pTarget);
+            double nCourse = PlotCourseToSprite(pActor, pTarget);
 
             if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F))
             {
@@ -374,7 +374,7 @@ void AISet::Tick(RunListEvent* ev)
                 }
                 default:
                 {
-                    if (nCourse <= 100)
+                    if (nCourse <= 100/16.)
                     {
                         pActor->nIndex2 = 0;
                     }
@@ -462,7 +462,7 @@ void AISet::Tick(RunListEvent* ev)
         }
         else
         {
-            if (PlotCourseToSprite(pActor, pTarget) >= 768)
+            if (PlotCourseToSprite(pActor, pTarget) >= 48)
             {
                 pActor->nAction = 3;
             }
@@ -513,7 +513,7 @@ void AISet::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->set_int_zvel(-(PlotCourseToSprite(pActor, pTarget)));
+                pActor->vel.Z = -(PlotCourseToSprite(pActor, pTarget)) / 16.;
             }
 
             pActor->nAction = 8;

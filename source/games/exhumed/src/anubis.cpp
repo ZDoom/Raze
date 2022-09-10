@@ -233,7 +233,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         }
         else
         {
-            if (PlotCourseToSprite(ap, pTarget) >= 768)
+            if (PlotCourseToSprite(ap, pTarget) >= 48)
             {
                 ap->nAction = 1;
             }

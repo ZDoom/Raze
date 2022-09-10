@@ -245,7 +245,7 @@ void AISpider::Tick(RunListEvent* ev)
                     D3PlayFX(StaticSound[kSound38], spp);
                 }
 
-                if (PlotCourseToSprite(spp, pTarget) < 1024) {
+                if (PlotCourseToSprite(spp, pTarget) < 64) {
                     return;
                 }
 

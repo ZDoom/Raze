@@ -224,14 +224,14 @@ void AIMummy::Tick(RunListEvent* ev)
         {
             if (pActor->vel.X > 0)
             {
-                pActor->add_int_xvel(-1024);
+                pActor->vel.X -= 64;
                 if (pActor->vel.X < 0) {
                     pActor->vel.X = 0;
                 }
             }
             else if (pActor->vel.X < 0)
             {
-                pActor->add_int_xvel( 1024);
+                pActor->vel.X += 64;
                 if (pActor->vel.X > 0) {
                     pActor->vel.X = 0;
                 }
@@ -292,7 +292,7 @@ void AIMummy::Tick(RunListEvent* ev)
         }
         else
         {
-            if (PlotCourseToSprite(pActor, pTarget) >= 1024)
+            if (PlotCourseToSprite(pActor, pTarget) >= 64)
             {
                 pActor->nAction = 1;
                 pActor->nFrame = 0;

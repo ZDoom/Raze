@@ -550,14 +550,14 @@ DAngle GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
     return VecToAngle(a2->spr.pos - a1->spr.pos);
 }
 
-int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
+double PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
 {
     if (pActor1 == nullptr || pActor2 == nullptr)
         return -1;
 	
 	auto vect = pActor2->spr.pos.XY() - pActor1->spr.pos.XY();
 	pActor1->spr.angle = VecToAngle(vect);
-	return int(vect.Length() * worldtoint);
+	return vect.Length();
 
 }
 
