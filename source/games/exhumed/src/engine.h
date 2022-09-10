@@ -122,6 +122,7 @@ uint16_t RandomWord();
 int RandomLong();
 int RandomSize(int nSize);
 DAngle RandomAngle9();
+DAngle RandomAngle();
 
 // record
 

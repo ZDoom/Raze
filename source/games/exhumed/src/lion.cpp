@@ -375,14 +375,14 @@ void AILion::Tick(RunListEvent* ev)
 
             double nCheckDist = 0x7FFFFFFF;
 
-            int nAngle = pActor->int_ang();
-            int nScanAngle = (nAngle - 512) & kAngleMask;
+            DAngle nAngle = pActor->spr.angle;
+            DAngle nScanAngle = (nAngle - DAngle90).Normalized360();
 
             for (int i = 0; i < 5; i++)
             {
                 HitInfo hit{};
 
-                hitscan(pActor->spr.pos.plusZ(-GetActorHeightF(pActor) * 0.5), pActor->sector(), DVector3(bcos(nScanAngle), bsin(nScanAngle), 0), hit, CLIPMASK1);
+                hitscan(pActor->spr.pos.plusZ(-GetActorHeightF(pActor) * 0.5), pActor->sector(), DVector3(nScanAngle.ToVector() * 1024, 0), hit, CLIPMASK1);
 
                 if (hit.hitWall)
                 {
@@ -396,11 +396,10 @@ void AILion::Tick(RunListEvent* ev)
                     }
                 }
 
-                nScanAngle += 256;
-                nScanAngle &= kAngleMask;
+                nScanAngle += DAngle45;
             }
 
-            pActor->set_int_ang(nAngle);
+            pActor->spr.angle = nAngle;
 
             pActor->nAction = 6;
 			pActor->vel.XY() = pActor->spr.angle.ToVector() * (1024 - 128);

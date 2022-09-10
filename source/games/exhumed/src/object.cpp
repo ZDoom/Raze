@@ -1647,7 +1647,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 
     pSector->floorshade = 50;
     pSector->extra = -1;
-    pSector->set_int_floorz(pActor->int_pos().Z);
+    pSector->floorz = pActor->spr.pos.Z;
 
     pActor->spr.pos.Z = (pActor->spr.pos.Z + pSector->floorz) * 0.5;
 

@@ -936,7 +936,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 {
 					auto pos = pActor->spr.pos;
                     auto pSector =pActor->sector();
-                    int nAngle = RandomSize(11) & kAngleMask;
+                    auto nAngle = RandomAngle();
 
                     pActor->spr.xrepeat = 127 - QueenHead.nIndex2;
                     pActor->spr.yrepeat = 127 - QueenHead.nIndex2;
@@ -945,11 +945,10 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                     // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
                     // This behavior probably would be needed emulated for demo compatibility
-                    int dx = bcos(nAngle, 10);
-                    int dy = bsin(nAngle, 10);
+                    auto dv = nAngle.ToVector() * 64;
                     int dz = (RandomSize(5) - RandomSize(5)) << 7;
 
-                    movesprite(pActor, dx, dy, dz, 0, 0, CLIPMASK1);
+                    movesprite(pActor, FloatToFixed<18>(dv.X), FloatToFixed<18>(dv.Y), dz, 0, 0, CLIPMASK1);
 
                     BlowChunks(pActor);
                     BuildExplosion(pActor);
