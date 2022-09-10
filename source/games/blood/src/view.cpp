@@ -61,7 +61,6 @@ void viewBackupView(int nPlayer)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
-	pView->angle = pPlayer->angle.ang;
 	pView->pos.XY() = pPlayer->actor->spr.pos.XY();
 	pView->viewz = pPlayer->zView;
 	pView->weaponZ = pPlayer->zWeapon - pPlayer->zView - 0xc00;

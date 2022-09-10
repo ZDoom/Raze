@@ -44,7 +44,6 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int h
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{
 		pPlayer->angle.oang = pPlayer->angle.ang = gView->angle.ang = ang;
-		pView->angle = ang;
 	}
 
 	if (horz != INT_MIN)
