@@ -854,7 +854,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 
                     if (j != 0)
                     {
-                        j = getangle(wal->point2Wall()->wall_int_pos().X-wal->wall_int_pos().X, wal->point2Wall()->wall_int_pos().Y-wal->wall_int_pos().Y);
+                        j = getangle(wal->delta());
                         int32_t dx = -bsin(j, -11);
                         int32_t dy = bcos(j, -11);
                         int bad2 = 16;
