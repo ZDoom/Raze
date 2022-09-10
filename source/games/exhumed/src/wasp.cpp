@@ -225,7 +225,7 @@ void AIWasp::Tick(RunListEvent* ev)
 
     case 0:
     {
-        pActor->set_int_zvel(bsin(pActor->nAngle, -4));
+        pActor->vel.Z = BobVal(pActor->nAngle) * 4;
 
         pActor->nAngle += pActor->nAngle2;
         pActor->nAngle &= kAngleMask;

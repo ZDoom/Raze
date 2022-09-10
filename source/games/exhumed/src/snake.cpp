@@ -124,9 +124,9 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
     StopActorSound(pActor);
 }
 
-void BuildSnake(int nPlayer, int zVal_)
+void BuildSnake(int nPlayer, double zVal)
 {
-    double zVal = zVal_ * zinttoworld - 5;
+    zVal -= 5;
 
     auto pPlayerActor = PlayerList[nPlayer].pActor;
     auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;

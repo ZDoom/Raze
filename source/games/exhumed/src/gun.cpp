@@ -809,7 +809,7 @@ loc_flag:
                 }
                 case kWeaponStaff:
                 {
-                    BuildSnake(nPlayer, nHeight * zworldtoint);
+                    BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 2.;
 
                     PlayerList[nPlayer].nThrust -= pPlayerActor->spr.angle.ToVector() * 2;

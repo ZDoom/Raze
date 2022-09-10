@@ -213,7 +213,7 @@ int BelowNear(DExhumedActor* pActor, double walldist)
     }
 }
 
-Collision movespritez(DExhumedActor* pActor, double z, double height, int clipdist)
+Collision movespritez(DExhumedActor* pActor, double z, double height, double clipdist)
 {
     auto pSector = pActor->sector();
     assert(pSector);
@@ -376,7 +376,7 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, int clipdi
 
     if (pActor->spr.statnum == 100)
     {
-        nRet.exbits |= BelowNear(pActor, clipdist * (inttoworld * 1.5));
+        nRet.exbits |= BelowNear(pActor, clipdist * 1.5);
     }
 
     return nRet;
@@ -401,7 +401,6 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
 	auto spos = pActor->spr.pos;
     double nSpriteHeight = GetActorHeight(pActor);
-    int nClipDist = pActor->int_clipdist();
     auto pSector = pActor->sector();
     assert(pSector);
 
@@ -412,7 +411,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         vect *= 0.5;
     }
 
-    Collision nRet = movespritez(pActor, dz * zinttoworld, nSpriteHeight, nClipDist);
+    Collision nRet = movespritez(pActor, dz * zinttoworld, nSpriteHeight, pActor->fClipdist());
 
     pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 
@@ -435,7 +434,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     }
 
     Collision coll;
-    clipmove(pActor->spr.pos, &pSector, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), nClipDist, int(nSpriteHeight * zworldtoint), flordist, clipmask, coll);
+    clipmove(pActor->spr.pos, &pSector, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), pActor->int_clipdist(), int(nSpriteHeight * zworldtoint), flordist, clipmask, coll);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
         coll.exbits = nRet.exbits;

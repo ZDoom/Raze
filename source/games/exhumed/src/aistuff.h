@@ -726,7 +726,7 @@ extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 void InitSnakes();
 int GrabSnake();
-void BuildSnake(int nPlayer, int zVal);
+void BuildSnake(int nPlayer, double zVal);
 void FuncSnake(int, int, int, int);
 
 // spider
