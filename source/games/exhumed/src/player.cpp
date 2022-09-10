@@ -423,7 +423,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     if (PlayerList[nPlayer].pPlayerGrenade)
     {
-        ThrowGrenade(nPlayer, 0, 0, 0, -10000);
+        ThrowGrenade(nPlayer, 0, -10000);
     }
     else
     {

@@ -45,7 +45,7 @@ void BounceGrenade(DExhumedActor* pActor, DAngle nAngle)
     D3PlayFX(StaticSound[kSound3], pActor);
 }
 
-void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
+void ThrowGrenade(int nPlayer, double dz, int push1)
 {
     if (PlayerList[nPlayer].pPlayerGrenade == nullptr)
         return;
@@ -75,7 +75,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 
 
         DVector2 vec = nAngle.ToVector() * pPlayerActor->fClipdist() *2; // == << 14 + 3 + 2 - 18
-        auto nMov = movesprite_(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), ecx, 0, 0, CLIPMASK1);
+        auto nMov = movesprite(pActor, vec, dz, 0, CLIPMASK1);
         if (nMov.type == kHitWall)
         {
             nAngle = GetWallNormal(nMov.hitWall);
