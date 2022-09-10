@@ -61,7 +61,7 @@ void viewBackupView(int nPlayer)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
-	pView->viewz = pPlayer->zView;
+	pPlayer->ozView = pPlayer->zView;
 	pView->weaponZ = pPlayer->zWeapon - pPlayer->zView - 0xc00;
 	pView->horiz = pPlayer->horizon.horiz;
 	pView->horizoff = pPlayer->horizon.horizoff;
@@ -74,20 +74,6 @@ void viewBackupView(int nPlayer)
 	pView->rotscrnang = pPlayer->angle.rotscrnang;
 	pPlayer->angle.backup();
 	pPlayer->horizon.backup();
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void viewCorrectViewOffsets(int nPlayer, const DVector3& oldpos)
-{
-	PLAYER* pPlayer = &gPlayer[nPlayer];
-	VIEW* pView = &gPrevView[nPlayer];
-	pPlayer->actor->opos.XY() += pPlayer->actor->spr.pos.XY() - oldpos.XY();
-	pView->viewz += (pPlayer->actor->spr.pos.Z - oldpos.Z) * zworldtoint;
 }
 
 //---------------------------------------------------------------------------
@@ -515,7 +501,7 @@ static void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sec
 		VIEW* pView = &gPrevView[gViewIndex];
 		cX = interpolatedvalue(gView->actor->opos.X, gView->actor->spr.pos.X, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
 		cY = interpolatedvalue(gView->actor->opos.Y, gView->actor->spr.pos.Y, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
-		cZ = interpolatedvalue(pView->viewz, gView->zView, smoothratio * (1. / MaxSmoothRatio));
+		cZ = interpolatedvalue(gView->ozView, gView->zView, smoothratio * (1. / MaxSmoothRatio));
 		zDelta = interpolatedvalue<double>(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), smoothratio * (1. / MaxSmoothRatio));
 		bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, smoothratio * (1. / MaxSmoothRatio));
 		bobHeight = interpolatedvalue(pView->bobHeight, gView->bobHeight, smoothratio * (1. / MaxSmoothRatio));

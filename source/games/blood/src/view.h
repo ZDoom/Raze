@@ -44,7 +44,6 @@ struct VIEW {
 	fixedhoriz horizoff; // horizoff
 	int slope;
 	int weaponZ; // weapon z
-	int viewz; // view z
 	int zViewVel;
 	int zWeapon;
 	int zWeaponVel;
@@ -135,7 +134,6 @@ void viewInitializePrediction(void);
 void viewUpdatePrediction(InputPacket* pInput);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
-void viewCorrectViewOffsets(int nPlayer, const DVector3& oldpos);
 void InitStatusBar(void);
 void UpdateStatusBar();
 void viewInit(void);

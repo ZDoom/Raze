@@ -104,6 +104,7 @@ struct PLAYER
 	int                 lifeMode;
 	int                 bloodlust;  // ---> useless
 	int                 zView;
+	int                 ozView;
 	int                 zViewVel;
 	int                 zWeapon;
 	int                 zWeaponVel;

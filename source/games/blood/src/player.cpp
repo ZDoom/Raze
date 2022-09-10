@@ -724,7 +724,8 @@ void playerCorrectInertia(PLAYER* pPlayer, const DVector3& oldpos)
 	auto zAdj = (pPlayer->actor->spr.pos.Z - oldpos.Z) * zworldtoint;
 	pPlayer->zView += zAdj;
 	pPlayer->zWeapon += zAdj;
-	viewCorrectViewOffsets(pPlayer->nPlayer, oldpos);
+	pPlayer->actor->opos.XY() += pPlayer->actor->spr.pos.XY() - oldpos.XY();
+	pPlayer->ozView += (pPlayer->actor->spr.pos.Z - oldpos.Z) * zworldtoint;
 }
 
 void playerResetPowerUps(PLAYER* pPlayer)
