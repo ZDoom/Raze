@@ -81,7 +81,7 @@ struct Elev
     int nSpeed2;
     int16_t nCountZOffsets; // count of items in zOffsets
     int16_t nCurZOffset;
-    int zOffsets[8]; // different Z offsets
+    double zOffsets[8]; // different Z offsets
     int16_t nRunRec;
 };
 
@@ -119,18 +119,7 @@ struct slideData
     walltype* pWall1;
     walltype* pWall2;
     walltype* pWall3;
-    int x1;
-    int y1;
-    int x2;
-    int y2;
-    int x3;
-    int y3;
-    int x4;
-    int y4;
-    int x5;
-    int y5;
-    int x6;
-    int y6;
+    DVector2 pos[6];
 };
 
 struct Point
@@ -287,18 +276,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, slideData& w, slid
             ("at4", w.pWall1)
             ("at8", w.pWall2)
             ("atc", w.pWall3)
-            ("x1", w.x1)
-            ("y1", w.y1)
-            ("x2", w.x2)
-            ("y2", w.y2)
-            ("at20", w.x3)
-            ("at24", w.y3)
-            ("at28", w.x4)
-            ("at2c", w.y4)
-            ("at30", w.x5)
-            ("at34", w.y5)
-            ("at38", w.x6)
-            ("at3c", w.y6)
+            .Array("pos", w.pos, 6)
             ("channel", w.nChannel)
             ("at2a", w.nStart)
             ("at4a", w.nRunRec)
@@ -497,16 +475,16 @@ int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, in
 
         Elevator[ElevCount].nCountZOffsets++;
 
-        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, double) * zworldtoint;
+        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, double);
     }
     va_end(zlist);
 
     return ElevCount;
 }
 
-int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...)
+int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int speed1, int speed2, int nCount, ...)
 {
-    int edi = arg5;
+    int edi = speed1;
 
     auto ElevCount = Elevator.Reserve(1);
 
@@ -514,13 +492,13 @@ int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWall
 
     if (arg1 & 4)
     {
-        edi = arg5 / 2;
+        edi = speed1 / 2;
     }
 
     Elevator[ElevCount].nSpeed1 = edi;
     Elevator[ElevCount].nCountZOffsets = 0;
     Elevator[ElevCount].nCurZOffset = 0;
-    Elevator[ElevCount].nSpeed2 = arg6;
+    Elevator[ElevCount].nSpeed2 = speed2;
     Elevator[ElevCount].nRunRec = -1;
     Elevator[ElevCount].nChannel = nChannel;
     Elevator[ElevCount].pSector = pSector;
@@ -544,7 +522,7 @@ int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWall
 
         Elevator[ElevCount].nCountZOffsets++;
 
-        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, double) * zworldtoint;
+        Elevator[ElevCount].zOffsets[nVal] = va_arg(zlist, double);
     }
     va_end(zlist);
 
@@ -554,18 +532,14 @@ int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWall
 // TODO - tidy me up
 // RENAME param A - not always Z
 // Confirmed 100% correct with original .exe
-int LongSeek(int* pZVal, int a2, int a3, int a4)
+static double LongSeek(double* pZVal, double a2, double a3, double a4)
 {
-    int v4; // edx@1
-    int v5; // ebx@2
-
-    v4 = a2 - *pZVal;
+    double v4 = a2 - *pZVal;
 
     if (v4 < 0)
     {
-        v5 = -a3;
-        if (v5 > v4)
-            v4 = v5;
+        if (-a3 > v4)
+            v4 = -a3;
         (*pZVal) += v4;
     }
 
@@ -752,18 +726,18 @@ void AIElev::Tick(RunListEvent* ev)
     auto pSector =Elevator[nElev].pSector;
     DExhumedActor* pElevSpr = Elevator[nElev].pActor;
 
-    int ebp = 0; // initialise to *something*
+    double move = 0; // initialise to *something*
 
     if (var_18 & 0x2)
     {
         int nZOffset = Elevator[nElev].nCurZOffset;
-        int nZVal = Elevator[nElev].zOffsets[nZOffset];
+        double nZVal = Elevator[nElev].zOffsets[nZOffset];
 
         StartInterpolation(pSector, Interp_Sect_Floorz);
-        int fz = pSector->int_floorz();
-        int nVal = LongSeek(&fz, nZVal, Elevator[nElev].nSpeed1, Elevator[nElev].nSpeed2);
-        pSector->set_int_floorz(fz);
-        ebp = nVal;
+        double fz = pSector->floorz;
+        double nVal = LongSeek(&fz, nZVal, Elevator[nElev].nSpeed1 / 256., Elevator[nElev].nSpeed2 / 256.);
+        pSector->floorz = fz;
+        move = nVal;
 
         if (!nVal)
         {
@@ -784,7 +758,7 @@ void AIElev::Tick(RunListEvent* ev)
         }
         else
         {
-            MoveSectorSprites(pSector, nVal * inttoworld);
+            MoveSectorSprites(pSector, nVal);
 
             if (nVal < 0 && CheckSectorSprites(pSector, 2))
             {
@@ -796,14 +770,14 @@ void AIElev::Tick(RunListEvent* ev)
     else
     {
         // loc_20FC3:
-        int ceilZ = pSector->int_ceilingz();
+        double ceilZ = pSector->ceilingz;
 
         int nZOffset = Elevator[nElev].nCurZOffset;
-        int zVal = Elevator[nElev].zOffsets[nZOffset];
+        double zVal = Elevator[nElev].zOffsets[nZOffset];
 
         StartInterpolation(pSector, Interp_Sect_Ceilingz);
-        int nVal = LongSeek(&ceilZ, zVal, Elevator[nElev].nSpeed1, Elevator[nElev].nSpeed2);
-        ebp = nVal;
+        double nVal = LongSeek(&ceilZ, zVal, Elevator[nElev].nSpeed1 / 256., Elevator[nElev].nSpeed2 / 256.);
+        move = nVal;
 
         if (!nVal)
         {
@@ -852,13 +826,13 @@ void AIElev::Tick(RunListEvent* ev)
         }
 
         StartInterpolation(pSector, Interp_Sect_Ceilingz);
-        pSector->set_int_ceilingz(ceilZ);
+        pSector->ceilingz = ceilZ;
     }
 
     // maybe this doesn't go here?
     while (pElevSpr)
     {
-        pElevSpr->add_int_z(ebp);
+        pElevSpr->spr.pos.Z += move;
         pElevSpr = pElevSpr->pTarget;
     }
 }
@@ -981,23 +955,12 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     SlideData[nSlide].pWall2 = pWall2;
     SlideData[nSlide].pWall3 = pWall3;
 
-    SlideData[nSlide].x1 = pStartWall->wall_int_pos().X;
-    SlideData[nSlide].y1 = pStartWall->wall_int_pos().Y;
-
-    SlideData[nSlide].x2 = pWall2->wall_int_pos().X;
-    SlideData[nSlide].y2 = pWall2->wall_int_pos().Y;
-
-    SlideData[nSlide].x3 = pWall1->wall_int_pos().X;
-    SlideData[nSlide].y3 = pWall1->wall_int_pos().Y;
-
-    SlideData[nSlide].x4 = pWall3->wall_int_pos().X;
-    SlideData[nSlide].y4 = pWall3->wall_int_pos().Y;
-
-    SlideData[nSlide].x5 = p2ndLastWall->wall_int_pos().X;
-    SlideData[nSlide].y5 = p2ndLastWall->wall_int_pos().Y;
-
-    SlideData[nSlide].x6 = pWall4->wall_int_pos().X;
-    SlideData[nSlide].y6 = pWall4->wall_int_pos().Y;
+    SlideData[nSlide].pos[0] = pStartWall->pos;
+    SlideData[nSlide].pos[1] = pWall2->pos;
+    SlideData[nSlide].pos[2] = pWall1->pos;
+    SlideData[nSlide].pos[3] = pWall3->pos;
+    SlideData[nSlide].pos[4] = p2ndLastWall->pos;
+    SlideData[nSlide].pos[5] = pWall4->pos;
 
     StartInterpolation(pStartWall, Interp_Wall_X);
     StartInterpolation(pStartWall, Interp_Wall_Y);
@@ -1058,126 +1021,103 @@ void AISlide::Tick(RunListEvent* ev)
     assert(nSlide >= 0 && nSlide < (int)SlideData.Size());
 
     int nChannel = SlideData[nSlide].nChannel;
-    int ebp = 0;
+    int clipstate = 0;
 
     int cx = sRunChannels[nChannel].c;
 
-    int clipmask = ebp + 1; // RENAME
+    int clipmask = clipstate + 1; // RENAME
 
     if (cx == 1)
     {
         auto pWall = SlideData[nSlide].pWall1;
-        int x = pWall->wall_int_pos().X;
-        int y = pWall->wall_int_pos().Y;
+        double x = pWall->pos.X;
+        double y = pWall->pos.Y;
 
-        int nSeekA = LongSeek(&x, SlideData[nSlide].x5, 20, 20);
-        int var_34 = nSeekA;
-        int var_20 = nSeekA;
-
-        int nSeekB = LongSeek(&y, SlideData[nSlide].y5, 20, 20);
-        int var_2C = nSeekB;
-        int var_24 = nSeekB;
+        double nSeekA = LongSeek(&x, SlideData[nSlide].pos[4].X, 1.25, 1.25);
+        double nSeekB = LongSeek(&y, SlideData[nSlide].pos[4].Y, 1.25, 1.25);
 
         dragpoint(SlideData[nSlide].pWall1, x, y);
-        movesprite(SlideData[nSlide].pActor, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
+        movesprite(SlideData[nSlide].pActor, FloatToFixed<18>(nSeekA), FloatToFixed<18>(nSeekB), 0, 0, 0, CLIPMASK1);
 
-        if (var_34 == 0)
+        if (nSeekA == 0 && nSeekB == 0)
         {
-            if (var_2C == 0)
-            {
-                ebp = clipmask;
-            }
+             clipstate = clipmask;
         }
 
         pWall = SlideData[nSlide].pStartWall;
 
-        y = pWall->wall_int_pos().Y + var_24;
-        x = pWall->wall_int_pos().X + var_20;
+        x = pWall->pos.X + nSeekA;
+        y = pWall->pos.Y + nSeekB;
 
         dragpoint(SlideData[nSlide].pStartWall, x, y);
 
         pWall = SlideData[nSlide].pWall3;
 
-        x = pWall->wall_int_pos().X;
-        y = pWall->wall_int_pos().Y;
+        x = pWall->pos.X;
+        y = pWall->pos.Y;
 
-        int nSeekC = LongSeek(&x, SlideData[nSlide].x6, 20, 20);
-        int var_30 = nSeekC;
-        var_20 = nSeekC;
-
-        int nSeekD = LongSeek(&y, SlideData[nSlide].y6, 20, 20);
-        int edi = nSeekD;
-        var_24 = nSeekD;
+        int nSeekC = LongSeek(&x, SlideData[nSlide].pos[5].X, 1.25, 1.25);
+        int nSeekD = LongSeek(&y, SlideData[nSlide].pos[5].Y, 1.25, 1.25);
 
         dragpoint(SlideData[nSlide].pWall3, x, y);
 
-        if (var_30 == 0 && edi == 0) {
-            ebp++;
+        if (nSeekC == 0 && nSeekD == 0) {
+            clipstate++;
         }
 
         pWall = SlideData[nSlide].pWall2;
 
-        x = pWall->wall_int_pos().X + var_20;
-        y = pWall->wall_int_pos().Y + var_24;
+        x = pWall->pos.X + nSeekC;
+        y = pWall->pos.Y + nSeekD;
 
         dragpoint(SlideData[nSlide].pWall2, x, y);
     }
     else if (cx == 0) // right branch
     {
         auto pWall = SlideData[nSlide].pStartWall;
-        int x = pWall->wall_int_pos().X;
-        int y = pWall->wall_int_pos().Y;
+        double x = pWall->pos.X;
+        double y = pWall->pos.Y;
 
-        int nSeekA = LongSeek(&x, SlideData[nSlide].x1, 20, 20);
-        int edi = nSeekA;
-        int var_1C = nSeekA;
-
-        int nSeekB = LongSeek(&y, SlideData[nSlide].y1, 20, 20);
-        int ecx = nSeekB;
-        int var_28 = nSeekB;
+        int nSeekA = LongSeek(&x, SlideData[nSlide].pos[0].X, 1.25, 1.25);
+        int nSeekB = LongSeek(&y, SlideData[nSlide].pos[0].Y, 1.25, 1.25);
 
         dragpoint(SlideData[nSlide].pStartWall, x, y);
 
-        if (edi == 0 && ecx == 0) {
-            ebp = clipmask;
+        if (nSeekA == 0 && nSeekB == 0) {
+            clipstate = clipmask;
         }
 
         pWall = SlideData[nSlide].pWall1;
 
-        y = pWall->wall_int_pos().Y + var_28;
-        x = pWall->wall_int_pos().X + var_1C;
+        y = pWall->pos.Y + nSeekB;
+        x = pWall->pos.X + nSeekA;
 
         dragpoint(SlideData[nSlide].pWall1, x, y);
 
         pWall = SlideData[nSlide].pWall2;
 
-        x = pWall->wall_int_pos().X;
-        y = pWall->wall_int_pos().Y;
+        x = pWall->pos.X;
+        y = pWall->pos.Y;
 
-        int nSeekC = LongSeek(&x, SlideData[nSlide].x2, 20, 20);
-        edi = nSeekC;
-        var_1C = nSeekC;
-
-        int nSeekD = LongSeek(&y, SlideData[nSlide].y2, 20, 20);
-        ecx = nSeekD;
-        var_28 = nSeekD;
+        int nSeekC = LongSeek(&x, SlideData[nSlide].pos[1].X, 1.25, 1.25);
+        int nSeekD = LongSeek(&y, SlideData[nSlide].pos[1].Y, 1.25, 1.25);
 
         dragpoint(SlideData[nSlide].pWall2, x, y);
 
-        if (edi == 0 && ecx == 0) {
-            ebp++;
+        if (nSeekC == 0 && nSeekD == 0) {
+            clipstate++;
         }
 
         pWall = SlideData[nSlide].pWall3;
 
-        y = pWall->wall_int_pos().Y + var_28;
-        x = pWall->wall_int_pos().X + var_1C;
+        y = pWall->pos.Y + nSeekD;
+        x = pWall->pos.X + nSeekC;
 
         dragpoint(SlideData[nSlide].pWall3, x, y);
     }
 
     // loc_21A51:
-    if (ebp >= 2)
+    if (clipstate >= 2)
     {
         runlist_SubRunRec(SlideData[nSlide].nRunRec);
 
@@ -1762,7 +1702,7 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
     ev->nDamage = runlist_CheckRadialDamage(pActor);
 
     // restore previous values
-    pSector->set_int_floorz(nFloorZ);
+    pSector->floorz = nFloorZ;
 	pActor->spr.pos.Z++;
 
     if (ev->nDamage <= 0) {
