@@ -365,7 +365,7 @@ void AIScorp::Tick(RunListEvent* ev)
         auto pSpiderActor = BuildSpider(nullptr, pActor->spr.pos, pActor->sector(), pActor->spr.angle);
         if (pSpiderActor)
         {
-            pSpiderActor->set_int_ang(RandomSize(11));
+            pSpiderActor->spr.angle = RandomAngle();
 
             int nVel = RandomSize(5) + 1;
 

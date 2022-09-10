@@ -250,7 +250,7 @@ void AILion::Tick(RunListEvent* ev)
             {
                 if (RandomBit())
                 {
-                    pActor->set_int_ang(RandomWord() & kAngleMask);
+                    pActor->spr.angle = RandomAngle();
                     pActor->VelFromAngle(-1);
                 }
                 else

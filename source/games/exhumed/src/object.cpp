@@ -1435,8 +1435,7 @@ void DoFinale()
     {
         if (!(dword_96788 & 2))
         {
-            int nAng = RandomSize(11);
-            pFinaleSpr->set_int_ang(nAng);
+            pFinaleSpr->spr.angle = RandomAngle();
             BuildSpark(pFinaleSpr, 1);
         }
 
@@ -1604,7 +1603,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 
     for (int i = 0; i < 20; i++)
     {
-        pActor->set_int_ang(RandomSize(11));
+        pActor->spr.angle = RandomAngle();
         BuildSpark(pActor, 1); // shoot out blue orbs
     }
 
@@ -1670,7 +1669,7 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
 
         auto pActor2 = insertActor(lasthitsect, 0);
 
-        pActor2->set_int_ang(ev->nParam);
+        pActor2->spr.angle = DAngle::fromBuild(ev->nParam);
         pActor2->spr.pos = lasthit;
 
         BuildSpark(pActor2, 0); // shoot out blue orb when damaged

@@ -322,7 +322,7 @@ void AIRat::Tick(RunListEvent* ev)
                     return;
                 }
 
-                pActor->set_int_ang(RandomSize(11));
+                pActor->spr.angle = RandomAngle();
                 SetRatVel(pActor);
                 return;
             }
