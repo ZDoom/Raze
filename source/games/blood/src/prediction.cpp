@@ -43,8 +43,6 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput);
 void fakeActProcessSprites(void);
 
 bool gPrediction = true;
-VIEW predict, predictOld;
-static VIEW predictFifo[256];
 
 void viewInitializePrediction(void)
 {
@@ -89,14 +87,16 @@ void viewInitializePrediction(void)
 
 void viewUpdatePrediction(InputPacket* pInput)
 {
+#if 0
 	predictOld = predict;
 	auto bakCstat = gMe->actor->spr.cstat;
 	gMe->actor->spr.cstat = 0;
 	fakePlayerProcess(gMe, pInput);
 	fakeActProcessSprites();
 	gMe->actor->spr.cstat = bakCstat;
-	//predictFifo[gPredictTail&255] = predict;
-	//gPredictTail++;
+	predictFifo[gPredictTail&255] = predict;
+	gPredictTail++;
+#endif
 }
 
 static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)

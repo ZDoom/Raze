@@ -47,7 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-VIEW gPrevView[kMaxPlayers];
 VIEWPOS gViewPos;
 int gViewIndex;
 
@@ -445,7 +444,6 @@ static void DrawMap(DBloodActor* view, const double smoothratio)
 		setViewport(Hud_Stbar);
 		tm = 1;
 	}
-	VIEW* pView = &gPrevView[gViewIndex];
 	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(smoothratio * (1. / MaxSmoothRatio));
 	DrawOverheadMap(view->interpolatedpos(smoothratio * (1. / MaxSmoothRatio)).XY(), ang, smoothratio * (1. / MaxSmoothRatio));
 	if (tm)
@@ -492,7 +490,6 @@ static void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sec
 	else
 #endif
 	{
-		VIEW* pView = &gPrevView[gViewIndex];
 		cX = interpolatedvalue(gView->actor->opos.X, gView->actor->spr.pos.X, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
 		cY = interpolatedvalue(gView->actor->opos.Y, gView->actor->spr.pos.Y, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
 		cZ = interpolatedvalue(gView->ozView, gView->zView, smoothratio * (1. / MaxSmoothRatio));

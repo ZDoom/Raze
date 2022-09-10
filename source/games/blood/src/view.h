@@ -31,33 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-struct VIEW {
-	int bobPhase;
-	int Kills;
-	int shakeBobY; // bob sway y
-	int shakeBobX; // bob sway x
-	int zViewVel;
-	int zWeapon;
-	int zWeaponVel;
-	int posture; // posture
-	double spin; // spin
-	int xvel; //xvel
-	int yvel; //yvel
-	int zvel; //zvel
-	int sectnum; // sectnum
-	unsigned int floordist; // floordist
-	uint8_t lookCenter; // look center
-	uint8_t cantJump;
-	uint8_t isRunning; // run
-	uint8_t jump; // jump
-	uint8_t isUnderwater; // underwater
-	int16_t sprflags; // sprite flags
-	SPRITEHIT hit;
-};
-
-extern VIEW gPrevView[kMaxPlayers];
-
-extern VIEW predict, predictOld;
 extern bool gPrediction;
 
 enum VIEW_EFFECT {
