@@ -1511,7 +1511,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     pActor->spr.pos.Z = pSector->firstWall()->nextSector()->floorz;
 
     // CHECKME - name of this variable?
-    int nRepeat = (pActor->int_pos().Z - pSector->int_floorz()) >> 8;
+    int nRepeat = int(pActor->spr.pos.Z - pSector->floorz);
     if (nRepeat > 255) {
         nRepeat = 255;
     }

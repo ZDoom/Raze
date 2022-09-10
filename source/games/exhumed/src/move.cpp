@@ -520,18 +520,15 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 	auto oldv = pActor->spr.pos;
     auto pSectorPre = pActor->sector();
 
-    auto ecx = MoveCreature(pActor);
+    auto result = MoveCreature(pActor);
 
     auto pSector =pActor->sector();
 
     if (pSector != pSectorPre)
     {
-        int zDiff = pSectorPre->int_floorz() - pSector->int_floorz();
-        if (zDiff < 0) {
-            zDiff = -zDiff;
-        }
+        double zDiff = abs(pSectorPre->floorz - pSector->floorz);
 
-        if (zDiff > 15360 || (pSector->Flag & kSectUnderwater) || (pSector->pBelow != nullptr && pSector->pBelow->Flag) || pSector->Damage)
+        if (zDiff > 60 || (pSector->Flag & kSectUnderwater) || (pSector->pBelow != nullptr && pSector->pBelow->Flag) || pSector->Damage)
         {
 			pActor->spr.pos = oldv;
 
@@ -545,7 +542,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
         }
     }
 
-    return ecx;
+    return result;
 }
 
 int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
@@ -882,28 +879,15 @@ void SetQuake(DExhumedActor* pActor, int nVal)
     for (int i = 0; i < nTotalPlayers; i++)
     {
         auto nSqrt = ((PlayerList[i].pActor->spr.pos.XY() - pActor->spr.pos.XY()) * (1. / 16.)).Length();
-        double eax = nVal;
 
         if (nSqrt)
         {
-            eax = eax / nSqrt;
-
-            if (eax >= 1)
-            {
-                if (eax > 15)
-                {
-                    eax = 15;
-                }
-            }
-            else
-            {
-                eax = 0;
-            }
+            nVal = clamp(int(nVal / nSqrt), 0, 15);
         }
 
-        if (eax > nQuake[i])
+        if (nVal > nQuake[i])
         {
-            nQuake[i] = eax;
+            nQuake[i] = nVal;
         }
     }
 }
@@ -979,11 +963,10 @@ DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
     *sectnum = pActor->sector();
 	auto pos = pActor->spr.pos.plusZ(-height);
 
+    auto vect = pActor->spr.angle.ToVector() * 8;
+
     Collision scratch;
-    clipmove(pos, sectnum,
-        bcos(pActor->int_ang(), 7),
-        bsin(pActor->int_ang(), 7),
-        5120, 1280, 1280, CLIPMASK1, scratch);
+    clipmove(pos, sectnum, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), 5120, 1280, 1280, CLIPMASK1, scratch);
 	return pos;
 }
 
