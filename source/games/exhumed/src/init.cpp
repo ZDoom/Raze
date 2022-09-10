@@ -634,7 +634,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 88:
             {
-                AddFlow(pActor->sector(), nSpeed, 0, pActor->int_ang());
+                AddFlow(pActor->sector(), nSpeed, 0, pActor->spr.angle);
 
                 DeleteActor(pActor);
                 return;
@@ -649,7 +649,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 78:
             {
-                AddFlow(pActor->sector(), nSpeed, 1, pActor->int_ang());
+                AddFlow(pActor->sector(), nSpeed, 1, pActor->spr.angle);
 
                 auto pSector = pActor->sector();
                 pSector->Flag |= 0x8000;

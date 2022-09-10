@@ -245,8 +245,6 @@ Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
 {
     auto pActor = PlayerList[nPlayer].pActor;
 
-    int ang = pActor->int_ang();
-
     HitInfo hit{};
     hitscan(pos, *ppSector, DVector3(pActor->spr.angle.ToVector() * 1024, 0 ), hit, CLIPMASK1);
 

@@ -617,7 +617,7 @@ void DoFlickers()
     }
 }
 
-void AddFlow(sectortype* pSector, int nSpeed, int b, int nAngle)
+void AddFlow(sectortype* pSector, int nSpeed, int b, DAngle nAngle)
 {
     if (nFlowCount >= kMaxFlows || b >= 2)
         return;
@@ -627,8 +627,8 @@ void AddFlow(sectortype* pSector, int nSpeed, int b, int nAngle)
 
     int nPic = pSector->floorpicnum;
 
-    sFlowInfo[nFlow].angcos  = float(-cos(nAngle * BAngRadian) * nSpeed);
-    sFlowInfo[nFlow].angsin = float(sin(nAngle * BAngRadian) * nSpeed);
+    sFlowInfo[nFlow].angcos  = float(-nAngle.Cos() * nSpeed);
+    sFlowInfo[nFlow].angsin = float(nAngle.Sin() * nSpeed);
     sFlowInfo[nFlow].pSector = pSector;
 
     StartInterpolation(pSector, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
@@ -638,7 +638,7 @@ void AddFlow(sectortype* pSector, int nSpeed, int b, int nAngle)
 }
 
 
-void AddFlow(walltype* pWall, int nSpeed, int b, int nAngle)
+void AddFlow(walltype* pWall, int nSpeed, int b)
 {
     if (nFlowCount >= kMaxFlows || b < 2)
         return;
