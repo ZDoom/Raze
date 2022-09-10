@@ -48,8 +48,7 @@ struct Trail
 
 struct TrailPoint
 {
-    int x;
-    int y;
+    DVector2 pos;
     uint8_t nTrailPointVal;
     int16_t nTrailPointPrev;
     int16_t nTrailPointNext;
@@ -91,7 +90,7 @@ struct MoveSect
 {
     sectortype* pSector;
     sectortype* pCurSector;
-    int field_10;
+    int nMoveDist;
     int16_t nTrail;
     int16_t nTrailPoint;
     int16_t nFlags;
@@ -202,8 +201,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TrailPoint& w, Tra
 {
     if (arc.BeginObject(keyname))
     {
-        arc("x", w.x)
-            ("y", w.y)
+        arc("pos", w.pos)
             ("val", w.nTrailPointVal)
             ("next", w.nTrailPointNext)
             ("prev", w.nTrailPointPrev)
@@ -259,10 +257,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, MoveSect& w, MoveS
         arc("sector", w.pSector)
             ("trail", w.nTrail)
             ("trailpoint", w.nTrailPoint)
-            ("at6", w.nFlags)
-            ("at8", w.pCurSector)
-            ("at10", w.field_10)
-            ("at14", w.nChannel)
+            ("flags", w.nFlags)
+            ("cursector", w.pCurSector)
+            ("movedist", w.nMoveDist)
+            ("channel", w.nChannel)
             ("movedir", w.sMoveDir)
             .EndObject();
     }
@@ -2196,8 +2194,7 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
 {
     auto nPoint = sTrailPoint.Reserve(1);
 
-    sTrailPoint[nPoint].x = pActor->int_pos().X;
-    sTrailPoint[nPoint].y = pActor->int_pos().Y;
+    sTrailPoint[nPoint].pos = pActor->spr.pos;
 
     int nTrail = FindTrail(nHitag);
 
@@ -2251,12 +2248,12 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
 }
 
 // ok?
-void AddMovingSector(sectortype* pSector, int edx, int ebx, int ecx)
+void AddMovingSector(sectortype* pSector, int lotag, int hitag, int flags)
 {
     CreatePushBlock(pSector);
     setsectinterpolate(pSector);
 
-    int nTrail = FindTrail(ebx);
+    int nTrail = FindTrail(hitag);
 
 
     auto nMoveSects = sMoveSect.Reserve(1);
@@ -2266,13 +2263,13 @@ void AddMovingSector(sectortype* pSector, int edx, int ebx, int ecx)
     pMoveSect->nTrail = nTrail;
     pMoveSect->nTrailPoint = -1;
     pMoveSect->pCurSector = nullptr;
-    pMoveSect->nFlags = ecx;
-    pMoveSect->field_10 = (edx / 1000) + 1;
+    pMoveSect->nFlags = flags;
+    pMoveSect->nMoveDist = (lotag / 1000) + 1;
     pMoveSect->pSector = pSector;
 
-    if (ecx & 8)
+    if (flags & 8)
     {
-        pMoveSect->nChannel = runlist_AllocChannel(ebx % 1000);
+        pMoveSect->nChannel = runlist_AllocChannel(hitag % 1000);
     }
     else
     {
@@ -2331,64 +2328,15 @@ void DoMovingSects()
         int nTrail = sMoveSect[i].nTrailPoint;
         //		TrailPoint *pTrail = &sTrailPoint[nTrail];
 
-                // loc_23872:
-        int nAngle = getangle(sTrailPoint[nTrail].x - pBlockInfo->pos.X * worldtoint, sTrailPoint[nTrail].y - pBlockInfo->pos.Y * worldtoint);
+        auto nAngle = VecToAngle(sTrailPoint[nTrail].pos - pBlockInfo->pos);
 
-        int nXVel = bcos(nAngle, 4) * sMoveSect[i].field_10;
-        int nYVel = bsin(nAngle, 4) * sMoveSect[i].field_10;
+        auto vel = nAngle.ToVector() * sMoveSect[i].nMoveDist;
+        auto delta = sTrailPoint[nTrail].pos - pBlockInfo->pos;
 
-        int ebx = (sTrailPoint[nTrail].x - int(pBlockInfo->pos.X * worldtoint)) << 14;
 
-        int eax = nXVel;
-        if (eax < 0) {
-            eax = -eax;
-        }
-
-        int edx = eax;
-        eax = ebx;
-
-        int ecx = (sTrailPoint[nTrail].y - int(pBlockInfo->pos.Y * worldtoint)) << 14;
-
-        if (eax < 0) {
-            eax = -eax;
-        }
-
-        // loc_238EC:
-        if (edx <= eax)
+        if (abs(vel.X) > abs(delta.X) || abs(vel.Y) > abs(delta.Y))
         {
-            eax = nYVel;
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            edx = eax;
-            eax = ecx;
-
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            if (edx > eax)
-            {
-                // loc_23908:
-                nYVel = ecx;
-                nXVel = ebx;
-
-                if (sMoveSect[i].sMoveDir > 0)
-                {
-                    sMoveSect[i].nTrailPoint = sTrailPoint[sMoveSect[i].nTrailPoint].nTrailPointNext;
-                }
-                else
-                {
-                    sMoveSect[i].nTrailPoint = sTrailPoint[sMoveSect[i].nTrailPoint].nTrailPointPrev;
-                }
-            }
-        }
-        else
-        {
-            // repeat of code from loc_23908
-            nYVel = ecx;
-            nXVel = ebx;
+            vel = delta;
 
             if (sMoveSect[i].sMoveDir > 0)
             {
@@ -2400,18 +2348,20 @@ void DoMovingSects()
             }
         }
 
+        int nXVel = FloatToFixed<18>(vel.X);
+        int nYVel = FloatToFixed<18>(vel.Y);
+
         // loc_2393A:
         if (sMoveSect[i].pCurSector != nullptr)
         {
             MoveSector(sMoveSect[i].pCurSector, -minAngle, &nXVel, &nYVel);
         }
-
         int var_2C = nXVel;
         int var_30 = nYVel;
 
         MoveSector(pSector, -minAngle, &nXVel, &nYVel);
 
-        if (nXVel != var_2C || nYVel != var_30)
+        if (sMoveSect[i].pCurSector != nullptr && (nXVel != var_2C || nYVel != var_30))
         {
             MoveSector(sMoveSect[i].pCurSector, -minAngle, &var_2C, &var_30);
             MoveSector(sMoveSect[i].pCurSector, -minAngle, &nXVel, &nYVel);
