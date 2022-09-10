@@ -304,9 +304,10 @@ void AISnake::Tick(RunListEvent* ev)
     if (pEnemySprite == nullptr)
     {
     SEARCH_ENEMY:
+        auto vec = pActor->spr.angle.ToVector() * 37.5;
         nMov = movesprite(pActor,
-            600 * bcos(pActor->int_ang()),
-            600 * bsin(pActor->int_ang()),
+            FixedToFloat<18>(vec.X),
+            FixedToFloat<18>(vec.Y),
             bsin(SnakeList[nSnake].nAngle, -5),
             0, 0, CLIPMASK1);
 
@@ -341,15 +342,15 @@ void AISnake::Tick(RunListEvent* ev)
     }
     else
     {
-        int nAngle = pActor->int_ang();
-        int var_30 = -bcos(nAngle, 6);
-        int var_34 = -bsin(nAngle, 6);
+        DAngle nAngle = pActor->spr.angle;
+        double cosang = -nAngle.Cos() * 4;
+        double sinang = -nAngle.Sin() * 4;
 
-        int var_20 = SnakeList[nSnake].nAngle;
+        DAngle snakeang = DAngle::fromBuild(SnakeList[nSnake].nAngle);
 
         SnakeList[nSnake].nAngle = (SnakeList[nSnake].nAngle + 64) & 0x7FF;
 
-        int var_28 = (nAngle + 512) & kAngleMask;
+        DAngle normalang = (nAngle + DAngle90);
         auto pSector = pActor->sector();
 
         for (int i = 7; i > 0; i--)
@@ -357,17 +358,20 @@ void AISnake::Tick(RunListEvent* ev)
             DExhumedActor* pActor2 = SnakeList[nSnake].pSprites[i];
             if (!pActor2) continue;
 
-            pActor2->set_int_ang(nAngle);
+            pActor2->spr.angle = nAngle;
 			pActor2->spr.pos = pActor->spr.pos;
 
             ChangeActorSect(pActor2, pSector);
 
-            int eax = (bsin(var_20) * SnakeList[nSnake].c[i]) >> 9;
+            double eax = snakeang.Sin() * 2 * SnakeList[nSnake].c[i];
 
-            movesprite(pActor2, var_30 + var_30 * i + eax * bcos(var_28), var_30 + var_34 * i + eax * bsin(var_28),
+            DVector2 vect;
+            vect.X = cosang + cosang * i + eax * normalang.Cos();
+            vect.Y = cosang + sinang * i + eax * normalang.Sin();
+            movesprite(pActor2, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y),
                 int(- zVal * (i - 1) * zworldtoint), 0, 0, CLIPMASK1);
 
-            var_20 = (var_20 + 128) & kAngleMask;
+            snakeang += DAngle22_5;
         }
     }
 }
