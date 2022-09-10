@@ -479,9 +479,9 @@ int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
-    int nAngle = getangle(nCamerapos.XY() - pTSprite->pos.XY());
+    DAngle nAngle = VecToAngle(nCamerapos.XY() - pTSprite->pos.XY());
 
-    int nSeqOffset = ((((pTSprite->int_ang() + 512) - nAngle) + 128) & kAngleMask) >> 8;
+    int nSeqOffset = (((pTSprite->angle + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
 
     int16_t nFrame = SeqBase[nSeqOffset + nSeq] + nVal;
 
@@ -527,8 +527,6 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
-    int nAngle = getangle(nCamerapos.XY() - pTSprite->pos.XY());
-
 
     int val;
 
@@ -538,7 +536,8 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     }
     else
     {
-        val = (((pTSprite->int_ang() - nAngle) + 128) & kAngleMask) >> 8;
+        DAngle nAngle = VecToAngle(nCamerapos.XY() - pTSprite->pos.XY());
+        val = (((pTSprite->angle + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
     }
 
     int eax = SeqBase[edx] + nFrame;
