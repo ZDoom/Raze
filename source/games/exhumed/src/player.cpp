@@ -1060,7 +1060,7 @@ sectdone:
 
 
     PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel;
-    PlayerList[nPlayer].totalvel = playerPos.Length() * worldtoint;
+    PlayerList[nPlayer].totalvel = playerPos.Length() * 16;
 
     auto pViewSect = pPlayerActor->sector();
 
@@ -1112,8 +1112,7 @@ sectdone:
     // loc_1ADAF
     PlayerList[nPlayer].pPlayerViewSect = pViewSect;
 
-    PlayerList[nPlayer].nPlayerD.X = int((pPlayerActor->spr.pos.X - spr_pos.X) * worldtoint);
-    PlayerList[nPlayer].nPlayerD.Y = int((pPlayerActor->spr.pos.Y - spr_pos.Y) * worldtoint);
+    PlayerList[nPlayer].nPlayerD = (pPlayerActor->spr.pos - spr_pos);
 
     int var_5C = pViewSect->Flag & kSectUnderwater;
 
