@@ -241,7 +241,7 @@ void AIWasp::Tick(RunListEvent* ev)
             }
             else
             {
-                pActor->angle2 = 0;
+                pActor->angle2 = nullAngle;
                 pActor->vel.Z = 0;
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
