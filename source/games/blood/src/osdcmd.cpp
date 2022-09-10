@@ -34,19 +34,18 @@ BEGIN_BLD_NS
 void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int horz)
 {
 	PLAYER* pPlayer = &gPlayer[myconnectindex];
-	VIEW* pView = &gPrevView[myconnectindex];
 
 	pPlayer->actor->opos.XY() = pPlayer->actor->spr.pos.XY() = { x , y };
 	pPlayer->ozView = pPlayer->zView = z;
 
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{
-		pPlayer->angle.oang = pPlayer->angle.ang = gView->angle.ang = ang;
+		pPlayer->angle.oang = pPlayer->angle.ang = ang;
 	}
 
 	if (horz != INT_MIN)
 	{
-		pPlayer->horizon.ohoriz = pPlayer->horizon.horiz = pView->horiz = gView->horizon.horiz = buildhoriz(horz);
+		pPlayer->horizon.ohoriz = pPlayer->horizon.horiz = buildhoriz(horz);
 	}
 }
 

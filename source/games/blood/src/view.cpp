@@ -63,8 +63,6 @@ void viewBackupView(int nPlayer)
 	VIEW* pView = &gPrevView[nPlayer];
 	pPlayer->ozView = pPlayer->zView;
 	pPlayer->ozWeapon = pPlayer->zWeapon - pPlayer->zView - 0xc00;
-	pView->horiz = pPlayer->horizon.horiz;
-	pView->horizoff = pPlayer->horizon.horizoff;
 	pView->slope = pPlayer->slope;
 	pView->bobHeight = pPlayer->bobHeight;
 	pView->bobWidth = pPlayer->bobWidth;
