@@ -719,10 +719,11 @@ void playerResetInertia(PLAYER* pPlayer)
 	viewBackupView(pPlayer->nPlayer);
 }
 
-void playerCorrectInertia(PLAYER* pPlayer, vec3_t const* oldpos)
+void playerCorrectInertia(PLAYER* pPlayer, const DVector3& oldpos)
 {
-	pPlayer->zView += pPlayer->actor->int_pos().Z - oldpos->Z;
-	pPlayer->zWeapon += pPlayer->actor->int_pos().Z - oldpos->Z;
+	auto zAdj = (pPlayer->actor->spr.pos.Z - oldpos.Z) * zworldtoint;
+	pPlayer->zView += zAdj;
+	pPlayer->zWeapon += zAdj;
 	viewCorrectViewOffsets(pPlayer->nPlayer, oldpos);
 }
 

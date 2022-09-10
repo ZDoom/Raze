@@ -137,7 +137,7 @@ void viewInitializePrediction(void);
 void viewUpdatePrediction(InputPacket* pInput);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
-void viewCorrectViewOffsets(int nPlayer, vec3_t const* oldpos);
+void viewCorrectViewOffsets(int nPlayer, const DVector3& oldpos);
 void InitStatusBar(void);
 void UpdateStatusBar();
 void viewInit(void);

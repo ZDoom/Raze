@@ -4917,13 +4917,13 @@ void MoveDude(DBloodActor* actor)
 			sfxPlay3DSound(actor, 719, 0, 0);
 		}
 	}
-	vec3_t const oldpos = actor->int_pos();
+	DVector3 const oldpos = actor->spr.pos;
 	int nLink = CheckLink(actor);
 	if (nLink)
 	{
 		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (pPlayer)
-			playerCorrectInertia(pPlayer, &oldpos);
+			playerCorrectInertia(pPlayer, oldpos);
 		switch (nLink)
 		{
 		case kMarkerLowStack:

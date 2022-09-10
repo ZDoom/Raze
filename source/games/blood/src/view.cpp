@@ -84,12 +84,12 @@ void viewBackupView(int nPlayer)
 //
 //---------------------------------------------------------------------------
 
-void viewCorrectViewOffsets(int nPlayer, vec3_t const* oldpos)
+void viewCorrectViewOffsets(int nPlayer, const DVector3& oldpos)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	VIEW* pView = &gPrevView[nPlayer];
-	pView->pos.XY() += pPlayer->actor->spr.pos.XY() - DVector2(oldpos->X, oldpos->Y) * inttoworld;
-	pView->viewz += pPlayer->actor->int_pos().Z - oldpos->Z;
+	pView->pos.XY() += pPlayer->actor->spr.pos.XY() - oldpos.XY();
+	pView->viewz += (pPlayer->actor->spr.pos.Z - oldpos.Z) * zworldtoint;
 }
 
 //---------------------------------------------------------------------------
