@@ -927,7 +927,7 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
             auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, Find_FloorDown | Find_Safe);
             if (nextSectorP) {
-                zVal = nextSectorP->int_floorz();
+                zVal = nextSectorP->floorz;
             }
 
             int nElev = BuildElevF(nChannel, pSector, FindWallSprites(pSector), 32767, 200, 2, pSector->floorz, zVal);
