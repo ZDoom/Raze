@@ -302,8 +302,8 @@ void AILion::Tick(RunListEvent* ev)
                 }
                 else
                 {
-					auto nAngDiff = AngleDiff(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
-					if (nAngDiff < 64)
+                    auto nAngDiff = absangle(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
+                    if (nAngDiff < DAngle22_5 / 2)
                     {
                         pActor->nAction = 3;
                     }
@@ -427,8 +427,8 @@ void AILion::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-				auto nAngDiff = AngleDiff(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
-				if (nAngDiff < 64)
+                auto nAngDiff = absangle(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
+                if (nAngDiff < DAngle22_5 / 2)
                 {
                     pActor->nAction = 3;
                     pActor->nFrame = 0;

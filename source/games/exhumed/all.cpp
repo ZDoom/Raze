@@ -43,7 +43,6 @@
 #include "src/spider.cpp"
 #include "src/status.cpp"
 #include "src/switch.cpp"
-#include "src/trigdat.cpp"
 #include "src/view.cpp"
 #include "src/wasp.cpp"
 // This includes the VM so it is last

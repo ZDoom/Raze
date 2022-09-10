@@ -738,13 +738,9 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
         {
             if ((sect->hitag == 45) && bTouchFloor)
             {
-                int nDiff = AngleDiff(nNormal, pPlayerActor->spr.angle + DAngle180);
+                auto nDiff = absangle(nNormal, pPlayerActor->spr.angle + DAngle180);
 
-                if (nDiff < 0) {
-                    nDiff = -nDiff;
-                }
-
-                if (nDiff <= 256)
+                if (nDiff <= DAngle45)
                 {
                     PlayerList[nPlayer].pPlayerPushSect = sect;
 

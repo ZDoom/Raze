@@ -121,15 +121,5 @@ DAngle RandomAngle9();
 DAngle RandomAngle();
 double RandomFloat(double range);
 
-// record
-
-// save
-
-// trigdat
-
-
-int AngleDiff(DAngle a, DAngle b);
-int AngleDelta(int a, int b, int c);
-
 END_PS_NS
 

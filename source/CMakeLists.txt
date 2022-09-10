@@ -902,7 +902,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/exhumed/src/spider.cpp
 	games/exhumed/src/status.cpp
 	games/exhumed/src/switch.cpp
-	games/exhumed/src/trigdat.cpp
 	games/exhumed/src/view.cpp
 	games/exhumed/src/wasp.cpp
 
