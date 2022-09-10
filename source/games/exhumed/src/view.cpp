@@ -53,7 +53,7 @@ bool bCamera = false;
 tspriteArray* mytspriteArray;
 
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double const interpfrac)
+static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double const interpfrac)
 {
     mytspriteArray = &tsprites;
 
@@ -71,15 +71,15 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
 
     auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
 
-    int var_38 = 20;
-    int var_2C = 30000;
+    double bestclose = 20;
+    double bestside = 30000;
 
 
     bestTarget = nullptr;
 
     auto pSector =pPlayerActor->sector();
 
-    int nAngle = (2048 - pPlayerActor->int_ang()) & kAngleMask;
+    DAngle nAngle = -pPlayerActor->spr.angle;
 
     for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
     {
@@ -114,35 +114,32 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
 
             if ((pActor->spr.statnum < 150) && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (pActor != pPlayerActor))
             {
-                int xval = pActor->int_pos().X - x;
-                int yval = pActor->int_pos().Y - y;
+                DVector2 delta = pActor->spr.pos.XY() - view.XY();
 
-                int vcos = bcos(nAngle);
-                int vsin = bsin(nAngle);
-
-
-                int edx = ((vcos * yval) + (xval * vsin)) >> 14;
+                double vcos = nAngle.Cos();
+                double vsin = nAngle.Sin();
 
 
-                int ebx = abs(((vcos * xval) - (yval * vsin)) >> 14);
+                double fwd = ((vcos * delta.Y) + (delta.X * vsin));
+                double side = abs((vcos * delta.X) - (delta.Y * vsin));
 
-                if (!ebx)
+                if (!side)
                     continue;
 
-                edx = (abs(edx) * 32) / ebx;
-                if (ebx < 1000 && ebx < var_2C && edx < 10)
+                double close = (abs(fwd) * 32) / side;
+                if (side < 1000 / 16. && side < bestside && close < 10)
                 {
                     bestTarget = pActor;
-                    var_38 = edx;
-                    var_2C = ebx;
+                    bestclose = close;
+                    bestside = side;
                 }
-                else if (ebx < 30000)
+                else if (side < 30000 / 16.)
                 {
-                    int t = var_38 - edx;
-                    if (t > 3 || (ebx < var_2C && abs(t) < 5))
+                    double t = bestclose - close;
+                    if (t > 3 || (side < bestside && abs(t) < 5))
                     {
-                        var_38 = edx;
-                        var_2C = ebx;
+                        bestclose = close;
+                        bestside = side;
                         bestTarget = pActor;
                     }
                 }
@@ -154,7 +151,7 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
     {
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, pSector, targ->int_pos().X, targ->int_pos().Y, targ->int_pos().Z - GetActorHeight(targ), targ->sector()))
+        if (!cansee(view, pSector, targ->spr.pos.plusZ(-GetActorHeightF(targ)), targ->sector()))
         {
             bestTarget = nullptr;
         }
@@ -402,7 +399,7 @@ bool GameInterface::GenerateSavePic()
 
 void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
 {
-    analyzesprites(tsprites, viewx, viewy, viewz, interpfrac);
+    analyzesprites(tsprites, DVector3(viewx * inttoworld, viewy * inttoworld, viewz * zinttoworld), interpfrac);
 }
 
 
