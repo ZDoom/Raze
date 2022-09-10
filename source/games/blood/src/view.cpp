@@ -63,10 +63,10 @@ void viewBackupView(int nPlayer)
 	VIEW* pView = &gPrevView[nPlayer];
 	pPlayer->ozView = pPlayer->zView;
 	pPlayer->ozWeapon = pPlayer->zWeapon - pPlayer->zView - 0xc00;
-	pView->bobHeight = pPlayer->bobHeight;
-	pView->bobWidth = pPlayer->bobWidth;
-	pView->shakeBobY = pPlayer->swayHeight;
-	pView->shakeBobX = pPlayer->swayWidth;
+	pPlayer->obobHeight = pPlayer->bobHeight;
+	pPlayer->obobWidth = pPlayer->bobWidth;
+	pPlayer->oswayHeight = pPlayer->swayHeight;
+	pPlayer->oswayWidth = pPlayer->swayWidth;
 	pView->look_ang = pPlayer->angle.look_ang;
 	pView->rotscrnang = pPlayer->angle.rotscrnang;
 	pPlayer->angle.backup();
@@ -500,10 +500,10 @@ static void SetupView(int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sec
 		cY = interpolatedvalue(gView->actor->opos.Y, gView->actor->spr.pos.Y, smoothratio * (1. / MaxSmoothRatio)) * worldtoint;
 		cZ = interpolatedvalue(gView->ozView, gView->zView, smoothratio * (1. / MaxSmoothRatio));
 		zDelta = interpolatedvalue<double>(gView->ozWeapon, gView->zWeapon - gView->zView - (12 << 8), smoothratio * (1. / MaxSmoothRatio));
-		bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, smoothratio * (1. / MaxSmoothRatio));
-		bobHeight = interpolatedvalue(pView->bobHeight, gView->bobHeight, smoothratio * (1. / MaxSmoothRatio));
-		shakeX = interpolatedvalue<double>(pView->shakeBobX, gView->swayWidth, smoothratio * (1. / MaxSmoothRatio));
-		shakeY = interpolatedvalue<double>(pView->shakeBobY, gView->swayHeight, smoothratio * (1. / MaxSmoothRatio));
+		bobWidth = interpolatedvalue(gView->obobWidth, gView->bobWidth, smoothratio * (1. / MaxSmoothRatio));
+		bobHeight = interpolatedvalue(gView->obobHeight, gView->bobHeight, smoothratio * (1. / MaxSmoothRatio));
+		shakeX = interpolatedvalue<double>(gView->oswayWidth, gView->swayWidth, smoothratio * (1. / MaxSmoothRatio));
+		shakeY = interpolatedvalue<double>(gView->oswayHeight, gView->swayHeight, smoothratio * (1. / MaxSmoothRatio));
 
 		if (!SyncInput())
 		{

@@ -96,10 +96,14 @@ struct PLAYER
 	int                 bobAmp;
 	int                 bobHeight;
 	int                 bobWidth;
+	int                 obobHeight;
+	int                 obobWidth;
 	int                 swayPhase;
 	int                 swayAmp;
 	int                 swayHeight;
 	int                 swayWidth;
+	int                 oswayHeight;
+	int                 oswayWidth;
 	int                 nPlayer;  // Connect id
 	int                 lifeMode;
 	int                 bloodlust;  // ---> useless

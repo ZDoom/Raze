@@ -34,10 +34,6 @@ BEGIN_BLD_NS
 struct VIEW {
 	int bobPhase;
 	int Kills;
-	int bobHeight; // bob height
-	int bobWidth; // bob width
-	int swayPhase;
-	int swayAmp;
 	int shakeBobY; // bob sway y
 	int shakeBobX; // bob sway x
 	int zViewVel;
