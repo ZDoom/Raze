@@ -92,13 +92,13 @@ extern DAngle gScreenTiltO, gScreenTilt;
 extern int gShowFrameRate;
 extern int gLastPal;
 
-void hudDraw(PLAYER* gView, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double interpfrac);
+void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double interpfrac);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(InputPacket* pInput);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
 void InitStatusBar(void);
-void UpdateStatusBar();
+void UpdateStatusBar(PLAYER* pPlayer);
 void viewInit(void);
 void viewprocessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
 void viewSetMessage(const char* pMessage, const char* color = nullptr, const MESSAGE_PRIORITY priority = MESSAGE_PRIORITY_NORMAL);
@@ -108,7 +108,7 @@ void viewSetErrorMessage(const char* pMessage);
 void DoLensEffect(void);
 void UpdateDacs(int nPalette, bool bNoTint = false);
 void viewDrawScreen(bool sceneonly = false);
-void viewUpdateDelirium(void);
+void viewUpdateDelirium(PLAYER* pPlayer);
 void viewSetSystemMessage(const char* pMessage, ...);
 
 inline void viewInterpolateSector(sectortype* pSector)

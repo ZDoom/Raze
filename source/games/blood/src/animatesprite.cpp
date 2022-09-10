@@ -477,13 +477,13 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto& nVoxel = voxelIndex[nTile];
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
-			pNSprite->set_int_ang((gView->actor->int_ang() + 512) & 2047); // always face viewer
+			pNSprite->angle = (pPlayer->actor->spr.angle + DAngle90).Normalized360(); // always face viewer
 			pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			pNSprite->picnum = nVoxel;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->pos.XY() += gView->actor->spr.angle.ToVector() * 8;
+				pNSprite->pos.XY() += pPlayer->actor->spr.angle.ToVector() * 8;
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
 				pNSprite->set_int_ang((pNSprite->int_ang() + 512) & 2047); // offset angle 90 degrees
@@ -524,6 +524,7 @@ static int GetOctant(int x, int y)
 
 void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, DAngle cA, double interpfrac)
 {
+	PLAYER* pPlayer = &gPlayer[myconnectindex];
 	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
 	DAngle myclock = DAngle::fromDeg(((PlayClock << 3) + (4 << 3) * interpfrac) * BAngToDegree);
@@ -813,7 +814,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			case kMissileFlareRegular:
 			case kMissileFlareAlt:
 				if (pTSprite->statnum == kStatFlare) {
-					if (owneractor->GetTarget() == gView->actor)
+					if (owneractor->GetTarget() == pPlayer->actor)
 					{
 						pTSprite->xrepeat = 0;
 						break;
@@ -852,41 +853,41 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			}
 
 			if (pXSector && pXSector->color) copyfloorpal(pTSprite, pSector);
-			if (powerupCheck(gView, kPwUpBeastVision) > 0) pTSprite->shade = -128;
+			if (powerupCheck(pPlayer, kPwUpBeastVision) > 0) pTSprite->shade = -128;
 
 			if (IsPlayerSprite(pTSprite)) {
-				PLAYER* pPlayer = &gPlayer[pTSprite->type - kDudePlayer1];
-				if (powerupCheck(pPlayer, kPwUpShadowCloak) && !powerupCheck(gView, kPwUpBeastVision)) {
+				PLAYER* thisPlayer = &gPlayer[pTSprite->type - kDudePlayer1];
+				if (powerupCheck(thisPlayer, kPwUpShadowCloak) && !powerupCheck(pPlayer, kPwUpBeastVision)) {
 					pTSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 					pTSprite->pal = 5;
 				}
-				else if (powerupCheck(pPlayer, kPwUpDeathMask)) {
+				else if (powerupCheck(thisPlayer, kPwUpDeathMask)) {
 					pTSprite->shade = -128;
 					pTSprite->pal = 5;
 				}
-				else if (powerupCheck(pPlayer, kPwUpDoppleganger)) {
-					pTSprite->pal = 11 + (gView->teamId & 3);
+				else if (powerupCheck(thisPlayer, kPwUpDoppleganger)) {
+					pTSprite->pal = 11 + (pPlayer->teamId & 3);
 				}
 
-				if (powerupCheck(pPlayer, kPwUpReflectShots)) {
+				if (powerupCheck(thisPlayer, kPwUpReflectShots)) {
 					viewAddEffect(tsprites, nTSprite, kViewEffectReflectiveBall);
 				}
 
-				if (cl_showweapon && gGameOptions.nGameType > 0 && gView) {
+				if (cl_showweapon && gGameOptions.nGameType > 0 && pPlayer) {
 					viewAddEffect(tsprites, nTSprite, kViewEffectShowWeapon);
 				}
 
-				if (pPlayer->flashEffect && (gView != pPlayer || gViewPos != VIEWPOS_0)) {
+				if (thisPlayer->flashEffect && (pPlayer != thisPlayer || gViewPos != VIEWPOS_0)) {
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
-						POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
+						POSTURE* pPosture = &thisPlayer->pPosture[thisPlayer->lifeMode][thisPlayer->posture];
 						pNTSprite->pos.XY() += pTSprite->angle.ToVector() * pPosture->zOffset * 0.25;
-						pNTSprite->set_int_z(pPlayer->actor->int_pos().Z - pPosture->xOffset);
+						pNTSprite->set_int_z(thisPlayer->actor->int_pos().Z - pPosture->xOffset);
 					}
 				}
 
-				if (pPlayer->hasFlag > 0 && gGameOptions.nGameType == 3) {
-					if (pPlayer->hasFlag & 1) {
+				if (thisPlayer->hasFlag > 0 && gGameOptions.nGameType == 3) {
+					if (thisPlayer->hasFlag & 1) {
 						auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectFlag);
 						if (pNTSprite)
 						{
@@ -894,7 +895,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 							pNTSprite->cstat |= CSTAT_SPRITE_XFLIP;
 						}
 					}
-					if (pPlayer->hasFlag & 2) {
+					if (thisPlayer->hasFlag & 2) {
 						auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectFlag);
 						if (pNTSprite)
 						{
@@ -905,7 +906,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 				}
 			}
 
-			if (pTSprite->ownerActor != gView->actor || gViewPos != VIEWPOS_0) {
+			if (pTSprite->ownerActor != pPlayer->actor || gViewPos != VIEWPOS_0) {
 				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->int_pos().X, pTSprite->int_pos().Y) >= cZ)
 				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);

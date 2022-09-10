@@ -60,7 +60,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 	if (!SyncInput() && gamestate == GS_LEVEL)
 	{
 		// Perform unsynchronised angle/horizon if not dead.
-		if (gView->actor->xspr.health != 0)
+		if (pPlayer->actor->xspr.health != 0)
 		{
 			pPlayer->angle.applyinput(input.avel, &pPlayer->input.actions, scaleAdjust);
 			pPlayer->horizon.applyinput(input.horz, &pPlayer->input.actions, scaleAdjust);

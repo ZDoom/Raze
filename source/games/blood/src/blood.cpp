@@ -441,7 +441,7 @@ void GameInterface::Ticker()
 
 		viewCorrectPrediction();
 		ambProcess(pPlayer);
-		viewUpdateDelirium();
+		viewUpdateDelirium(pPlayer);
 		gi->UpdateSounds();
 		if (pPlayer->hand == 1)
 		{
@@ -627,7 +627,6 @@ void GameInterface::app_init()
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;
 
 	gViewIndex = myconnectindex;
-	gView = &gPlayer[myconnectindex];
 }
 
 //---------------------------------------------------------------------------
@@ -639,7 +638,6 @@ void GameInterface::app_init()
 static void gameInit()
 {
 	gViewIndex = myconnectindex;
-	gView = &gPlayer[myconnectindex];
 
 	UpdateNetworkMenus();
 	if (gGameOptions.nGameType > 0)
@@ -775,7 +773,7 @@ DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
 DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
 {
 	PARAM_PROLOGUE;
-	ACTION_RETURN_POINTER(gView);
+	ACTION_RETURN_POINTER(&gPlayer[myconnectindex]);
 }
 
 DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)

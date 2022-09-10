@@ -72,7 +72,6 @@ void GameInterface::SwitchCoopView()
 		gViewIndex = connectpoint2[gViewIndex];
 		if (gViewIndex == -1)
 			gViewIndex = connecthead;
-		gView = &gPlayer[gViewIndex];
 	}
 	else if (gGameOptions.nGameType == 3)
 	{
@@ -85,7 +84,6 @@ void GameInterface::SwitchCoopView()
 			if (oldViewIndex == gViewIndex || gPlayer[myconnectindex].teamId == gPlayer[gViewIndex].teamId)
 				break;
 		} while (oldViewIndex != gViewIndex);
-		gView = &gPlayer[gViewIndex];
 	}
 }
 

@@ -201,7 +201,6 @@ struct POWERUPINFO
 void playerResetPosture(PLAYER* pPlayer);
 
 extern PLAYER gPlayer[kMaxPlayers];
-extern PLAYER* gView;
 
 extern bool gBlueFlagDropped;
 extern bool gRedFlagDropped;

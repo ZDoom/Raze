@@ -72,7 +72,7 @@ static void UpdateFrame(void)
 //
 //---------------------------------------------------------------------------
 
-void UpdateStatusBar()
+void UpdateStatusBar(PLAYER* pPlayer)
 {
 	if (automapMode == am_off && hud_size <= Hud_Stbar)
 	{
@@ -81,7 +81,7 @@ void UpdateStatusBar()
 	SummaryInfo sum;
 	if (gGameOptions.nGameType == 3)
 	{
-		sum.kills = gView ? gView->fragCount : 0;
+		sum.kills = pPlayer ? pPlayer->fragCount : 0;
 		sum.maxkills = -3;
 	}
 	else

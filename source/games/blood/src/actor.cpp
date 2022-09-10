@@ -4927,11 +4927,11 @@ void MoveDude(DBloodActor* actor)
 		switch (nLink)
 		{
 		case kMarkerLowStack:
-			if (pPlayer == gView)
+			if (pPlayer->nPlayer == myconnectindex)
 				gotpic.Set(actor->sector()->floorpicnum);
 			break;
 		case kMarkerUpStack:
-			if (pPlayer == gView)
+			if (pPlayer->nPlayer == myconnectindex)
 				gotpic.Set(actor->sector()->ceilingpicnum);
 			break;
 		case kMarkerLowWater:
