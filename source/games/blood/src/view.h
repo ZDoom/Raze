@@ -40,7 +40,6 @@ struct VIEW {
 	int swayAmp;
 	int shakeBobY; // bob sway y
 	int shakeBobX; // bob sway x
-	int slope;
 	int zViewVel;
 	int zWeapon;
 	int zWeaponVel;
