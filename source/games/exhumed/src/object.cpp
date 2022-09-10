@@ -58,7 +58,7 @@ struct TrailPoint
 struct Bob
 {
     sectortype* pSector;
-    int z;
+    double Z;
     uint8_t nPhase;
     uint8_t field_3;
     uint16_t sBobID;
@@ -205,7 +205,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bob& w, Bob* def)
         arc("sector", w.pSector)
             ("at2", w.nPhase)
             ("at3", w.field_3)
-            ("z", w.z)
+            ("z", w.Z)
             ("id", w.sBobID)
             .EndObject();
     }
@@ -560,12 +560,12 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
 
     if (nVal)
     {
-        int nZDiff = pSector->int_floorz() - pSector->int_ceilingz();
+        double nZDiff = pSector->floorz - pSector->ceilingz;
 
         ExhumedSectIterator it(pSector);
         while (auto pActor= it.Next())
         {
-            if ((pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (nZDiff < GetActorHeight(pActor)))
+            if ((pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (nZDiff < GetActorHeightF(pActor)))
             {
                 if (nVal != 1) {
                     return 1;
@@ -2034,17 +2034,17 @@ void DoDrips()
     {
         sBob[i].nPhase += 4;
 
-        int edx = bsin(sBob[i].nPhase << 3, -4);
+        double amount = BobVal(sBob[i].nPhase << 3) * 4.;
         auto pSector =sBob[i].pSector;
 
         if (sBob[i].field_3)
         {
-            pSector->set_int_ceilingz(edx + sBob[i].z);
+            pSector->setceilingz(amount + sBob[i].Z);
         }
         else
         {
             double nFloorZ = pSector->floorz;
-            pSector->set_int_floorz(edx + sBob[i].z);
+            pSector->setfloorz(amount + sBob[i].Z);
             MoveSectorSprites(pSector, pSector->floorz - nFloorZ);
         }
     }
@@ -2095,16 +2095,16 @@ void AddSectorBob(sectortype* pSector, int nHitag, int bx)
     auto nBobs = sBob.Reserve(1);
     sBob[nBobs].field_3 = bx;
 
-    int z;
+    double Z;
 
     if (bx == 0) {
-        z = pSector->int_floorz();
+        Z = pSector->floorz;
     }
     else {
-        z = pSector->int_ceilingz();
+        Z = pSector->ceilingz;
     }
 
-    sBob[nBobs].z = z;
+    sBob[nBobs].Z = Z;
     sBob[nBobs].nPhase = nHitag << 4;
     sBob[nBobs].sBobID = nHitag;
 
@@ -2359,7 +2359,7 @@ void PostProcess()
     {
         for (auto& sect: sector)
         {
-            int var_20 = 30000;
+            double maxval = 300000;
 
             if (sect.Speed && sect.Depth && !(sect.Flag & kSectLava))
             {
@@ -2374,12 +2374,12 @@ void PostProcess()
 
                     if (&sect != &sectj && sectj.Speed && !(sect.Flag & kSectLava))
                     {
-						int xVal = abs(sect.firstWall()->wall_int_pos().X - sectj.firstWall()->wall_int_pos().X);
-						int yVal = abs(sect.firstWall()->wall_int_pos().Y - sectj.firstWall()->wall_int_pos().Y);
+						double xVal = abs(sect.firstWall()->pos.X - sectj.firstWall()->pos.X);
+						double yVal = abs(sect.firstWall()->pos.Y - sectj.firstWall()->pos.Y);
 
-                        if (xVal < 15000 && yVal < 15000 && (xVal + yVal < var_20))
+                        if (xVal < 15000/16. && yVal < 15000/16. && (xVal + yVal < maxval))
                         {
-                            var_20 = xVal + yVal;
+                            maxval = xVal + yVal;
                             sect.pSoundSect = &sectj;
                             sect.Sound = StaticSound[kSound43];
                         }
