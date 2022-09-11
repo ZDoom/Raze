@@ -1319,23 +1319,20 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 
 	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
-		auto q = EGS(actor->sector(),
-			actor->int_pos().X + MulScale(k, bcos(actor->int_ang()), 9),
-			actor->int_pos().Y + MulScale(k, bsin(actor->int_ang()), 9),
-			actor->int_pos().Z + ((k * Sgn(actor->int_zvel())) * abs(actor->int_zvel() / 12)), tongue, -40 + (k << 1),
-			8, 8, 0, 0, 0, actor, 5);
+		auto pos = actor->spr.pos + actor->spr.angle.ToVector() * 2 * k;
+		pos.Z += k * Sgn(actor->vel.Z) * abs(actor->vel.Z / 12);
+
+		auto q = CreateActor(actor->sector(), pos, tongue, -40 + (k << 1), 8, 8, 0, 0, 0, actor, 5);
 		if (q)
 		{
 			q->spr.cstat = CSTAT_SPRITE_YCENTER;
 			q->spr.pal = 8;
-	}
+		}
 	}
 	int k = actor->temp_data[0];	// do not depend on the above loop counter.
-	auto spawned = EGS(actor->sector(),
-		actor->int_pos().X + MulScale(k, bcos(actor->int_ang()), 9),
-		actor->int_pos().Y + MulScale(k, bsin(actor->int_ang()), 9),
-		actor->int_pos().Z + ((k * Sgn(actor->int_zvel())) * abs(actor->int_zvel() / 12)), jaw, -40,
-		32, 32, 0, 0, 0, actor, 5);
+	auto pos = actor->spr.pos + actor->spr.angle.ToVector() * 2 * k;
+	pos.Z += k * Sgn(actor->vel.Z) * abs(actor->vel.Z / 12);
+	auto spawned = CreateActor(actor->sector(), pos, jaw, -40, 32, 32, 0, 0, 0, actor, 5);
 	if (spawned)
 	{
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -4188,18 +4185,18 @@ void handle_se21(DDukeActor* actor)
 
 	if (sc->extra == 0)
 	{
-		lp += actor->int_zvel();
+		lp += actor->vel.Z;
 
-		if (abs(lp - actor->int_pos().Z) < 1024)
+		if (abs(lp - actor->spr.pos.Z) < 4)
 		{
-			lp = actor->int_pos().Z;
+			lp = actor->spr.pos.Z;
 			deletesprite(actor);
 		}
 
-		if (actor->int_ang() == 1536)
-			sc->set_int_ceilingz(lp);
+		if (actor->spr.intangle == 1536)
+			sc->setceilingz(lp);
 		else
-			sc->set_int_floorz(lp);
+			sc->setfloorz(lp);
 
 	}
 	else sc->extra--;
