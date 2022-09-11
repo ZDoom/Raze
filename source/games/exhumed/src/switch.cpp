@@ -53,6 +53,12 @@ struct Switch
 TArray<Link> LinkMap;
 Switch SwitchData[kMaxSwitches];
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Link& w, Link* def)
 {
     arc.Array(keyname, w.v, 8);
@@ -84,6 +90,12 @@ void SerializeSwitch(FSerializer& arc)
         .Array("switch", SwitchData + SwitchCount, kMaxSwitches - SwitchCount)
         ("linkmap", LinkMap);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitLink()
 {
@@ -117,6 +129,12 @@ int BuildLink(int nCount, ...)
     return LinkCount;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitSwitch()
 {
     SwitchCount = kMaxSwitches;
@@ -136,6 +154,12 @@ std::pair<int, int> BuildSwReady(int nChannel, int nLink)
     return { SwitchCount, 0x10000 };
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISWReady::Process(RunListEvent* ev)
 {
     int nSwitch = RunData[ev->nRun].nObjIndex;
@@ -150,6 +174,12 @@ void AISWReady::Process(RunListEvent* ev)
         runlist_ChangeChannel(nChannel, nVal);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx)
 {
@@ -174,6 +204,12 @@ std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx)
     return { SwitchCount, 0x20000 };
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISWPause::ProcessChannel(RunListEvent* ev)
 {
     int nSwitch = RunData[ev->nRun].nObjIndex;
@@ -183,6 +219,12 @@ void AISWPause::ProcessChannel(RunListEvent* ev)
         SwitchData[nSwitch].nRunPtr = -1;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWPause::Tick(RunListEvent* ev)
 {
@@ -202,6 +244,12 @@ void AISWPause::Tick(RunListEvent* ev)
         runlist_ChangeChannel(nChannel, LinkMap[nLink].v[sRunChannels[nChannel].c]);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWPause::Process(RunListEvent* ev)
 {
@@ -234,6 +282,12 @@ void AISWPause::Process(RunListEvent* ev)
     SwitchData[nSwitch].nWaitTimer = eax;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, sectortype* pSector)
 {
     if (SwitchCount <= 0 || nLink < 0 || pSector == nullptr)
@@ -248,6 +302,12 @@ std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, sectortype* pSector)
 
     return { nSwitch , 0x30000 };
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWStepOn::ProcessChannel(RunListEvent* ev)
 {
@@ -274,6 +334,12 @@ void AISWStepOn::ProcessChannel(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISWStepOn::TouchFloor(RunListEvent* ev)
 {
     int nSwitch = RunData[ev->nRun].nObjIndex;
@@ -298,6 +364,12 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, sectortype* pSector, int ecx)
 {
     if (SwitchCount <= 0 || nLink < 0 || pSector == nullptr)
@@ -314,6 +386,12 @@ std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, sectortype* pSect
 
     return { nSwitch, 0x40000 };
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWNotOnPause::ProcessChannel(RunListEvent* ev)
 {
@@ -335,6 +413,12 @@ void AISWNotOnPause::ProcessChannel(RunListEvent* ev)
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISWNotOnPause::Tick(RunListEvent* ev)
 {
     int nSwitch = RunData[ev->nRun].nObjIndex;
@@ -351,6 +435,12 @@ void AISWNotOnPause::Tick(RunListEvent* ev)
         runlist_ChangeChannel(nChannel, LinkMap[nLink].v[sRunChannels[nChannel].c]);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWNotOnPause::Process(RunListEvent* ev)
 {
@@ -376,6 +466,12 @@ void AISWNotOnPause::Process(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISWNotOnPause::TouchFloor(RunListEvent* ev)
 {
     int nSwitch = RunData[ev->nRun].nObjIndex;
@@ -383,6 +479,12 @@ void AISWNotOnPause::TouchFloor(RunListEvent* ev)
     SwitchData[nSwitch].nWaitTimer = SwitchData[nSwitch].nWait;
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, sectortype* pSector, int keyMask)
 {
@@ -399,6 +501,12 @@ std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, sectortype* pSec
 
     return { nSwitch, 0x50000 };
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWPressSector::ProcessChannel(RunListEvent* ev)
 {
@@ -424,6 +532,12 @@ void AISWPressSector::ProcessChannel(RunListEvent* ev)
 
     SwitchData[nSwitch].nRun2 = runlist_AddRunRec(pSector->lotag - 1, &RunData[ev->nRun]);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWPressSector::Use(RunListEvent* ev)
 {
@@ -451,6 +565,12 @@ void AISWPressSector::Use(RunListEvent* ev)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, walltype* pWall)
 {
     if (SwitchCount <= 0 || nLink < 0 || !pWall) {
@@ -467,6 +587,12 @@ std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, walltype* pWall)
 
     return { SwitchCount, 0x60000 };
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWPressWall::Process(RunListEvent* ev)
 {
@@ -488,6 +614,12 @@ void AISWPressWall::Process(RunListEvent* ev)
         SwitchData[nSwitch].nRun3 = runlist_AddRunRec(pWall->lotag - 1, &RunData[ev->nRun]);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISWPressWall::Use(RunListEvent* ev)
 {

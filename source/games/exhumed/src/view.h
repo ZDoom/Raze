@@ -28,8 +28,6 @@ extern bool bCamera;
 void DrawStatusBar();
 void DrawView(double smoothRatio, bool sceneonly = false);
 void ResetView();
-void NoClip();
-void Clip();
 
 extern int16_t dVertPan[];
 extern int16_t nQuake[];

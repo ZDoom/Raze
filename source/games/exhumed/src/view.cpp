@@ -61,7 +61,12 @@ int viewz;
 // We cannot drag these through the entire event system... :(
 tspriteArray* mytspriteArray;
 
-// NOTE - not to be confused with Ken's analyzesprites()
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double const smoothratio)
 {
     mytspriteArray = &tsprites;
@@ -173,15 +178,25 @@ static void analyzesprites(tspriteArray& tsprites, int x, int y, int z, double c
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ResetView()
 {
     EraseScreen(0);
-#ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
-#endif
 }
 
 static TextOverlay subtitleOverlay;
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DrawView(double smoothRatio, bool sceneonly)
 {
@@ -436,6 +451,12 @@ void DrawView(double smoothRatio, bool sceneonly)
     flash = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool GameInterface::GenerateSavePic()
 {
     DrawView(65536, true);
@@ -447,7 +468,6 @@ void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy,
     analyzesprites(tsprites, viewx, viewy, viewz, smoothRatio);
 }
 
-
 void NoClip()
 {
 }
@@ -455,6 +475,12 @@ void NoClip()
 void Clip()
 {
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SerializeView(FSerializer& arc)
 {

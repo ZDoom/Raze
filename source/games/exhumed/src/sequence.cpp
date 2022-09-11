@@ -151,6 +151,12 @@ const char *SeqNames[kMaxSEQFiles] =
 int16_t SeqOffsets[kMaxSEQFiles];
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int seq_ReadSequence(const char *seqName)
 {
     int i;
@@ -295,6 +301,12 @@ int seq_ReadSequence(const char *seqName)
     return nSeqs;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int seq_GetFirstSeqPicnum(int nSeq)
 {
     int i = SeqOffsets[nSeq];
@@ -304,6 +316,12 @@ int seq_GetFirstSeqPicnum(int nSeq)
 
     return i;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void seq_LoadSequences()
 {
@@ -359,10 +377,22 @@ void seq_LoadSequences()
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int16_t seq_GetFrameFlag(int16_t val, int16_t nFrame)
 {
     return FrameFlag[SeqBase[val] + nFrame];
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
@@ -390,12 +420,11 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
     }
 }
 
-/*
-    6 parameters
-
-    arg0 - shade?
-
-*/
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, bool align)
 {
@@ -444,6 +473,12 @@ int seq_GetFrameSound(int val, int edx)
     return FrameSound[SeqBase[val] + edx];
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t bx)
 {
     assert(nSeq >= 0); // TEMP
@@ -461,11 +496,23 @@ void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t bx)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
 {
     int16_t nBase = FrameBase[SeqBase[nSeq] + nFrame];
     return ChunkPict[nBase];
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 {
@@ -475,6 +522,12 @@ int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 
     return ChunkPict[c];
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 {
@@ -523,6 +576,12 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 
     return ChunkPict[nFrameBase];
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 {
@@ -642,6 +701,12 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 
     return nPict;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SerializeSequence(FSerializer& arc)
 {

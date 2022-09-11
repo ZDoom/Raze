@@ -33,6 +33,12 @@ FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 int16_t nPlayerSnake[kMaxPlayers];
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 size_t MarkSnake()
 {
     for (int i = 0; i < kMaxSnakes; i++)
@@ -42,6 +48,12 @@ size_t MarkSnake()
     }
     return kMaxSnakes * (1 + kSnakeSprites);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Snake& w, Snake* def)
 {
@@ -65,6 +77,11 @@ void SerializeSnake(FSerializer& arc)
     arc.Array("playersnake", nPlayerSnake, PlayerCount);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitSnakes()
 {
@@ -76,6 +93,12 @@ int GrabSnake()
 {
     return SnakeList.Get();
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DestroySnake(int nSnake)
 {
@@ -101,6 +124,12 @@ void DestroySnake(int nSnake)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 {
     int nDamage = BulletInfo[kWeaponStaff].nDamage;
@@ -123,6 +152,12 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 
     StopActorSound(pActor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildSnake(int nPlayer, int zVal)
 {
@@ -255,6 +290,12 @@ void BuildSnake(int nPlayer, int zVal)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* FindSnakeEnemy(int nSnake)
 {
     int nPlayer = SnakeList[nSnake].nSnakePlayer;
@@ -304,6 +345,12 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
 
     return pEnemy;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISnake::Tick(RunListEvent* ev)
 {
@@ -396,6 +443,12 @@ void AISnake::Tick(RunListEvent* ev)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISnake::Draw(RunListEvent* ev)
 {

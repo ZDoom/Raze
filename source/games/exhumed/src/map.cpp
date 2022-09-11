@@ -30,6 +30,12 @@ BEGIN_PS_NS
 
 bool bShowTowers = false;
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GrabMap()
 {
     for(auto&sec: sector)
@@ -56,6 +62,12 @@ void DrawMap(double const smoothratio)
         DrawOverheadMap(x, y, ang, smoothratio);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void GetActorExtents(DExhumedActor* actor, int* top, int* bottom)
 {

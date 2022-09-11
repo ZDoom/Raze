@@ -101,6 +101,12 @@ const int16_t nItemMagic[] = { 500, 1000, 100, 500, 400, 200, 700, 0 };
 TArray<DExhumedActor*> Regenerates; // must handle read barriers manually!
 int nMagicCount;
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 size_t MarkItems()
 {
     GC::MarkArray(Regenerates);
@@ -116,6 +122,12 @@ void SerializeItems(FSerializer& arc)
             .EndObject();
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildItemAnim(DExhumedActor* pActor)
 {
@@ -141,6 +153,12 @@ void BuildItemAnim(DExhumedActor* pActor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DestroyItemAnim(DExhumedActor* actor)
 {
     if (actor && actor->spr.intowner >= 0) 
@@ -151,6 +169,12 @@ void ItemFlash()
 {
     TintPalette(16, 16, 16);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void FillItems(int nPlayer)
 {
@@ -170,6 +194,12 @@ void FillItems(int nPlayer)
         PlayerList[nPlayer].nItem = 0;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static bool UseEye(int nPlayer)
 {
@@ -192,6 +222,12 @@ static bool UseEye(int nPlayer)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static bool UseMask(int nPlayer)
 {
     PlayerList[nPlayer].nMaskAmount = 1350;
@@ -204,6 +240,12 @@ static bool UseMask(int nPlayer)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool UseTorch(int nPlayer)
 {
     if (!PlayerList[nPlayer].nTorch) 
@@ -214,6 +256,12 @@ bool UseTorch(int nPlayer)
     PlayerList[nPlayer].nTorch = 900;
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool UseHeart(int nPlayer)
 {
@@ -230,7 +278,12 @@ bool UseHeart(int nPlayer)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
 // invincibility
+//
+//---------------------------------------------------------------------------
+
 bool UseScarab(int nPlayer)
 {
     if (PlayerList[nPlayer].invincibility >= 0 && PlayerList[nPlayer].invincibility < 900)
@@ -256,6 +309,12 @@ static bool UseHand(int nPlayer)
     }
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void UseItem(int nPlayer, int nItem)
 {
@@ -308,7 +367,12 @@ void UseItem(int nPlayer, int nItem)
     PlayerList[nPlayer].nItem = nItem;
 }
 
-// TODO - bool return type?
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int GrabItem(int nPlayer, int nItem)
 {
     if (PlayerList[nPlayer].items[nItem] >= 5) {
@@ -323,6 +387,12 @@ int GrabItem(int nPlayer, int nItem)
 
     return 1;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DropMagic(DExhumedActor* pActor)
 {
@@ -360,6 +430,12 @@ void InitItems()
     nMagicCount = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void StartRegenerate(DExhumedActor* pActor)
 {
     auto pos = Regenerates.Find(pActor);
@@ -389,6 +465,12 @@ void StartRegenerate(DExhumedActor* pActor)
 
     Regenerates.Push(pActor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoRegenerates()
 {

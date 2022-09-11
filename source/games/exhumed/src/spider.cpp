@@ -36,6 +36,12 @@ static actionSeq SpiderSeq[] = {
 };
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* pSector, int nAngle)
 {
     if (spp == nullptr)
@@ -88,6 +94,12 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* 
 
     return spp;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISpider::Tick(RunListEvent* ev)
 {
@@ -336,6 +348,12 @@ void AISpider::Tick(RunListEvent* ev)
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISpider::Draw(RunListEvent* ev)
 {
     auto spp = ev->pObjActor;
@@ -345,6 +363,12 @@ void AISpider::Draw(RunListEvent* ev)
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISpider::RadialDamage(RunListEvent* ev)
 {
@@ -357,6 +381,12 @@ void AISpider::RadialDamage(RunListEvent* ev)
     ev->nDamage = runlist_CheckRadialDamage(spp);
     Damage(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISpider::Damage(RunListEvent* ev)
 {

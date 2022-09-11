@@ -37,6 +37,12 @@ static actionSeq MummySeq[] = {
 };
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
 {
     if (pActor == nullptr)
@@ -89,6 +95,12 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     nCreaturesTotal++;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void CheckMummyRevive(DExhumedActor* pActor)
 {
     ExhumedStatIterator it(102);
@@ -115,6 +127,12 @@ void CheckMummyRevive(DExhumedActor* pActor)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIMummy::Tick(RunListEvent* ev)
 {
@@ -400,6 +418,12 @@ void AIMummy::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIMummy::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -409,6 +433,12 @@ void AIMummy::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, pActor->nFrame, MummySeq[nAction].b);
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIMummy::RadialDamage(RunListEvent* ev)
 {
@@ -422,7 +452,13 @@ void AIMummy::RadialDamage(RunListEvent* ev)
     Damage(ev);
 }
 
-void AIMummy::Damage(RunListEvent* ev) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void AIMummy::Damage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;

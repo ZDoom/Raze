@@ -181,6 +181,12 @@ int runlist_GrabRun()
     return RunData.Get();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int runlist_FreeRun(int nRun)
 {
     assert(nRun >= 0 && nRun < kMaxRuns);
@@ -194,6 +200,12 @@ int runlist_FreeRun(int nRun)
     return 1;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int runlist_HeadRun()
 {
     int nRun = runlist_GrabRun();
@@ -203,6 +215,12 @@ int runlist_HeadRun()
 
     return nRun;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void runlist_InitRun()
 {
@@ -231,6 +249,12 @@ void runlist_InitRun()
     pRadialActor = nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_UnlinkRun(int nRun)
 {
     if (!(nRun >= 0 && nRun < kMaxRuns)) return;
@@ -252,6 +276,12 @@ void runlist_UnlinkRun(int nRun)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_InsertRun(int RunLst, int RunNum)
 {
     if (!(RunLst >= 0 && RunLst < kMaxRuns)) return;
@@ -267,6 +297,12 @@ void runlist_InsertRun(int RunLst, int RunNum)
 
     RunData[RunLst].next = RunNum;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int runlist_AddRunRec(int nIndex, int nObject, int nAIType)
 {
@@ -305,6 +341,12 @@ int runlist_AddRunRec(int nIndex, RunStruct* other)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_DoSubRunRec(int RunPtr)
 {
     if (!(RunPtr >= 0 && RunPtr < kMaxRuns)) return;
@@ -312,6 +354,12 @@ void runlist_DoSubRunRec(int RunPtr)
     runlist_UnlinkRun(RunPtr);
     runlist_FreeRun(RunPtr);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void runlist_CleanRunRecs()
 {
@@ -337,12 +385,24 @@ void runlist_CleanRunRecs()
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_SubRunRec(int RunPtr)
 {
     if (!(RunPtr >= 0 && RunPtr < kMaxRuns)) return;
 
     RunData[RunPtr].nAIType = -totalmoves;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void runlist_SendMessage(int nRun, int nObject, void(ExhumedAI::* func)(RunListEvent*), RunListEvent* ev)
 {
@@ -366,6 +426,12 @@ void runlist_SendMessage(int nRun, int nObject, void(ExhumedAI::* func)(RunListE
 
     (ais[nFunc]->*func)(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void runlist_ExplodeSignalRun()
 {
@@ -397,6 +463,12 @@ void runlist_ExplodeSignalRun()
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_PushMoveRun(int eax)
 {
     if (nStackCount < kMaxRunStack)
@@ -405,6 +477,12 @@ void runlist_PushMoveRun(int eax)
         nStackCount++;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int runlist_PopMoveRun()
 {
@@ -416,6 +494,12 @@ int runlist_PopMoveRun()
     nStackCount--;
     return sRunStack[nStackCount];
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void runlist_SignalRun(int NxtPtr, int edx, void(ExhumedAI::* func)(RunListEvent*), RunListEvent* ev)
 {
@@ -459,6 +543,12 @@ void runlist_SignalRun(int NxtPtr, int edx, void(ExhumedAI::* func)(RunListEvent
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_InitChan()
 {
     ChannelList = -1;
@@ -473,6 +563,12 @@ void runlist_InitChan()
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_ChangeChannel(int eax, int nVal)
 {
     if (sRunChannels[eax].b < 0)
@@ -486,6 +582,12 @@ void runlist_ChangeChannel(int eax, int nVal)
     sRunChannels[eax].d |= 2;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_ReadyChannel(int eax)
 {
     if (sRunChannels[eax].b < 0)
@@ -497,6 +599,12 @@ void runlist_ReadyChannel(int eax)
 
     sRunChannels[eax].d |= 1;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void runlist_ProcessChannels()
 {
@@ -553,6 +661,12 @@ void runlist_ProcessChannels()
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int runlist_FindChannel(int ax)
 {
     for (int i = 0; i < kMaxChannels; i++)
@@ -566,6 +680,12 @@ int runlist_FindChannel(int ax)
 
     return -1;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int runlist_AllocChannel(int a)
 {
@@ -582,11 +702,23 @@ int runlist_AllocChannel(int a)
     return runlist_FindChannel(a);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_ExecObjects()
 {
     runlist_ProcessChannels();
     runlist_SignalRun(RunChain, 0, &ExhumedAI::Tick);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 {
@@ -1466,6 +1598,12 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
 {
 	auto& wal = *pWall;
@@ -1586,6 +1724,12 @@ void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int runlist_CheckRadialDamage(DExhumedActor* pActor)
 {
     if (pActor == pRadialActor) {
@@ -1679,6 +1823,12 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
     return edi;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void runlist_RadialDamageEnemy(DExhumedActor* pActor, int nDamage, int nRadius)
 {
     if (!nRadius) {
@@ -1696,6 +1846,12 @@ void runlist_RadialDamageEnemy(DExhumedActor* pActor, int nDamage, int nRadius)
         pRadialActor = nullptr;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDamage)
 {

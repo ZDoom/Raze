@@ -211,7 +211,6 @@ extern TObjPtr<DExhumedActor*> nBodySprite[];
 
 signed int lsqrt(int a1);
 void MoveThings();
-void ResetMoveFifo();
 void InitChunks();
 void InitPushBlocks();
 void Gravity(DExhumedActor* actor);

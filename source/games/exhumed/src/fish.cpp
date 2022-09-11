@@ -39,6 +39,11 @@ static actionSeq FishSeq[] = {
 };
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildFishLimb(DExhumedActor* pActor, int anim)
 {
@@ -78,6 +83,12 @@ void BuildBlood(int x, int y, int z, sectortype* pSector)
 {
     BuildAnim(nullptr, kSeqFish, 36, x, y, z, pSector, 75, 128);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIFishLimb::Tick(RunListEvent* ev)
 {
@@ -131,6 +142,12 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIFishLimb::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -139,6 +156,11 @@ void AIFishLimb::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, 1);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
 {
@@ -189,6 +211,12 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     nCreaturesTotal++;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void IdleFish(DExhumedActor* pActor, int edx)
 {
     pActor->spr.ang += (256 - RandomSize(9)) + 1024;
@@ -214,6 +242,12 @@ void IdleFish(DExhumedActor* pActor, int edx)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DestroyFish(DExhumedActor* pActor)
 {
     runlist_DoSubRunRec(pActor->spr.intowner);
@@ -222,7 +256,11 @@ void DestroyFish(DExhumedActor* pActor)
     DeleteActor(pActor);
 }
 
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIFish::Draw(RunListEvent* ev)
 {
@@ -234,6 +272,12 @@ void AIFish::Draw(RunListEvent* ev)
     ev->pTSprite->ownerActor = nullptr;
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIFish::RadialDamage(RunListEvent* ev)
 {
@@ -255,6 +299,12 @@ void AIFish::RadialDamage(RunListEvent* ev)
     // fall through
     Damage(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIFish::Damage(RunListEvent* ev)
 {
@@ -303,6 +353,12 @@ void AIFish::Damage(RunListEvent* ev)
         pActor->nCount += 10;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIFish::Tick(RunListEvent* ev)
 {

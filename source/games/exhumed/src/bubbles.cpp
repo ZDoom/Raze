@@ -25,6 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DestroyBubble(DExhumedActor* pActor)
 {
     runlist_DoSubRunRec(pActor->spr.lotag - 1); 
@@ -32,6 +38,12 @@ void DestroyBubble(DExhumedActor* pActor)
     runlist_SubRunRec(pActor->nRun);
     DeleteActor(pActor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* BuildBubble(vec3_t pos, sectortype* pSector)
 {
@@ -72,7 +84,13 @@ DExhumedActor* BuildBubble(vec3_t pos, sectortype* pSector)
     return pActor;
 }
 
-void AIBubble::Tick(RunListEvent* ev) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void AIBubble::Tick(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
@@ -103,6 +121,12 @@ void AIBubble::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIBubble::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -112,6 +136,12 @@ void AIBubble::Draw(RunListEvent* ev)
     ev->pTSprite->ownerActor = nullptr;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoBubbleMachines()
 {
@@ -129,6 +159,12 @@ void DoBubbleMachines()
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildBubbleMachine(DExhumedActor* pActor)
 {
     pActor->nFrame = 75;
@@ -137,6 +173,12 @@ void BuildBubbleMachine(DExhumedActor* pActor)
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     ChangeActorStat(pActor, kStatBubbleMachine);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoBubbles(int nPlayer)
 {

@@ -33,6 +33,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
     Player     *nPlayer = &PlayerList[nLocalPlayer];
@@ -50,6 +56,12 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static int osdcmd_doors(CCmdFuncPtr parm)
 {
     for (int i = 0; i < kMaxChannels; i++)
@@ -64,6 +76,12 @@ static int osdcmd_doors(CCmdFuncPtr parm)
     }
     return CCMD_OK;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static int osdcmd_spawn(CCmdFuncPtr parm)
 {
@@ -88,6 +106,12 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::ToggleThirdPerson()
 {
     if (gamestate != GS_LEVEL) return;
@@ -104,6 +128,12 @@ void GameInterface::ToggleThirdPerson()
     }
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int32_t registerosdcommands(void)
 {

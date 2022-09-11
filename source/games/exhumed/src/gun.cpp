@@ -51,6 +51,12 @@ static const uint8_t nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
 int isRed = 0;
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SerializeGun(FSerializer& arc)
 {
     if (arc.BeginObject("gun"))
@@ -61,6 +67,12 @@ void SerializeGun(FSerializer& arc)
 
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void RestoreMinAmmo(int nPlayer)
 {
@@ -81,6 +93,12 @@ void RestoreMinAmmo(int nPlayer)
     CheckClip(nPlayer);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void FillWeapons(int nPlayer)
 {
     PlayerList[nPlayer].nPlayerWeapons = 0xFFFF; // turn on all bits
@@ -94,6 +112,12 @@ void FillWeapons(int nPlayer)
 
     CheckClip(nPlayer);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ResetPlayerWeapons(int nPlayer)
 {
@@ -114,6 +138,12 @@ void InitWeapons()
 {
     for (auto& p : PlayerList) p.pPlayerGrenade = nullptr;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SetNewWeapon(int nPlayer, int nWeapon)
 {
@@ -156,6 +186,12 @@ void SetNewWeapon(int nPlayer, int nWeapon)
     PlayerList[nPlayer].nNextWeapon = nWeapon;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetNewWeaponImmediate(int nPlayer, int nWeapon)
 {
     SetNewWeapon(nPlayer, nWeapon);
@@ -172,6 +208,12 @@ void SetNewWeaponIfBetter(int nPlayer, int nWeapon)
         SetNewWeapon(nPlayer, nWeapon);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SelectNewWeapon(int nPlayer)
 {
@@ -201,6 +243,12 @@ void SelectNewWeapon(int nPlayer)
     SetNewWeapon(nPlayer, nWeapon);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void StopFiringWeapon(int nPlayer)
 {
     PlayerList[nPlayer].bIsFiring = false;
@@ -216,6 +264,12 @@ void FireWeapon(int nPlayer)
 void SetWeaponStatus(int nPlayer)
 {
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 uint8_t WeaponCanFire(int nPlayer)
 {
@@ -240,6 +294,12 @@ void ResetSwordSeqs()
     WeaponInfo[kWeaponSword].b[2] = 3;
     WeaponInfo[kWeaponSword].b[3] = 7;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSector)
 {
@@ -285,6 +345,12 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
     return c;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void CheckClip(int nPlayer)
 {
     if (PlayerList[nPlayer].nPlayerClip <= 0)
@@ -299,6 +365,12 @@ void CheckClip(int nPlayer)
     // Reset pistol's clip amount.
     PlayerList[nPlayer].nPistolClip = PlayerList[nPlayer].nAmmo[kWeaponPistol] % 6;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void MoveWeapons(int nPlayer)
 {
@@ -885,6 +957,12 @@ loc_flag:
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DrawWeapons(double smooth)
 {
