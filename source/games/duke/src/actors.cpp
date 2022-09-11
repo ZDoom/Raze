@@ -4617,6 +4617,20 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 //
 //---------------------------------------------------------------------------
 
+void handle_se29(DDukeActor* actor)
+{
+	auto sc = actor->sector();
+	actor->spr.hitag += 64;
+	double val = actor->spr.yint * BobVal(actor->spr.hitag) / 64.;
+	sc->setfloorz(actor->spr.pos.Z + val);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void handle_se31(DDukeActor* actor, bool choosedir)
 {
 	auto sec = actor->sector();

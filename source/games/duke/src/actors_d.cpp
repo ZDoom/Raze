@@ -3292,8 +3292,6 @@ static void handle_se28(DDukeActor* actor)
 
 void moveeffectors_d(void)   //STATNUM 3
 {
-	int l;
-
 	clearfriction();
 
 	DukeStatIterator it(STAT_EFFECTOR);
@@ -3423,10 +3421,9 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_29_WAVES:
-			act->spr.hitag += 64;
-			l = MulScale(act->spr.yint, bsin(act->spr.hitag), 12);
-			sc->set_int_floorz(act->int_pos().Z + l);
+			handle_se29(act);
 			break;
+
 		case SE_31_FLOOR_RISE_FALL: // True Drop Floor
 			handle_se31(act, true);
 			break;
