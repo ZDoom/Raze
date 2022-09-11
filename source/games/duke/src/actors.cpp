@@ -3368,7 +3368,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 	int st = actor->spr.lotag;
 	int sh = actor->spr.hitag;
 
-	int x, j = -1;
+	int change, goal = -1;
 
 	if (actor->temp_data[4])
 	{
@@ -3378,18 +3378,18 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 			deletesprite(actor);
 			return;
 		}
-		j = 1;
+		goal = 1;
 	}
-	else j = getanimationgoal(anim_ceilingz, actor->sector());
+	else goal = getanimationgoal(anim_ceilingz, actor->sector());
 
-	if (j >= 0)
+	if (goal >= 0)
 	{
 		if ((sc->lotag & 0x8000) || actor->temp_data[4])
-			x = -actor->temp_data[3];
+			change = -actor->temp_data[3];
 		else
-			x = actor->temp_data[3];
+			change = actor->temp_data[3];
 
-		if (st == 9) x = -x;
+		if (st == 9) change = -change;
 
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto ac = it.Next())
@@ -3397,16 +3397,16 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 			if (((ac->spr.lotag) == st) && (ac->spr.hitag) == sh)
 			{
 				auto sect = ac->sector();
-				int m = ac->spr.shade;
+				int minshade = ac->spr.shade;
 
 				for (auto& wal : wallsofsector(sect))
 				{
 					if (wal.hitag != 1)
 					{
-						wal.shade += x;
+						wal.shade += change;
 
-						if (wal.shade < m)
-							wal.shade = m;
+						if (wal.shade < minshade)
+							wal.shade = minshade;
 						else if (wal.shade > ac->temp_data[2])
 							wal.shade = ac->temp_data[2];
 
@@ -3416,16 +3416,16 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 					}
 				}
 
-				sect->floorshade += x;
-				sect->ceilingshade += x;
+				sect->floorshade += change;
+				sect->ceilingshade += change;
 
-				if (sect->floorshade < m)
-					sect->floorshade = m;
+				if (sect->floorshade < minshade)
+					sect->floorshade = minshade;
 				else if (sect->floorshade > ac->temp_data[0])
 					sect->floorshade = ac->temp_data[0];
 
-				if (sect->ceilingshade < m)
-					sect->ceilingshade = m;
+				if (sect->ceilingshade < minshade)
+					sect->ceilingshade = minshade;
 				else if (sect->ceilingshade > ac->temp_data[1])
 					sect->ceilingshade = ac->temp_data[1];
 
