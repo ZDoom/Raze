@@ -68,8 +68,8 @@ struct POSTURE
 	int bobH;
 	int swayV;
 	int swayH;
-	int eyeAboveZ;
-	int weaponAboveZ;
+	double eyeAboveZ;
+	double weaponAboveZ;
 	int xOffset;
 	int zOffset;
 	int normalJumpZ;

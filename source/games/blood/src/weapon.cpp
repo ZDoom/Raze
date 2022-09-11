@@ -247,7 +247,7 @@ static bool checkAmmo2(const PLAYER* pPlayer, int ammotype, int amount)
 void SpawnBulletEject(PLAYER* pPlayer, int a2, int a3)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ * zinttoworld;
+	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ;
 	double dz = pPlayer->zWeapon - (pPlayer->zWeapon - pPlayer->zView) * 0.5;
 	fxSpawnEjectingBrassf(pPlayer->actor, dz, a2, a3);
 }
@@ -255,7 +255,7 @@ void SpawnBulletEject(PLAYER* pPlayer, int a2, int a3)
 void SpawnShellEject(PLAYER* pPlayer, int a2, int a3)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ * zinttoworld;
+	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ;
 	double t = pPlayer->zWeapon - pPlayer->zView;
 	double dz = pPlayer->zWeapon - t + (t * 0.25);
 	fxSpawnEjectingShellf(pPlayer->actor, dz, a2, a3);
