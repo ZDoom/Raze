@@ -374,10 +374,9 @@ void GameInterface::Ticker()
         for (int i = 0; i < 4; i++)
         {
             // Velocities are stored as Q14.18
-            lPlayerXVel += int((localInput.fvel * inita.Cos() + localInput.svel * inita.Sin()) * 16384);
-            lPlayerYVel += int((localInput.fvel * inita.Sin() - localInput.svel * inita.Cos()) * 16384);
-            lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
-            lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
+            lPlayerVel.X += (localInput.fvel * inita.Cos() + localInput.svel * inita.Sin()) / 16.;
+            lPlayerVel.Y += (localInput.fvel * inita.Sin() - localInput.svel * inita.Cos()) / 16.;
+            lPlayerVel *= 0.953125;
         }
         UpdateInterpolations();
 
@@ -473,8 +472,7 @@ void GameInterface::Ticker()
         sPlayerInput[nLocalPlayer].actions = localInput.actions;
         if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;        
 
-        sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
-        sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+        sPlayerInput[nLocalPlayer].vel = lPlayerVel;
         sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
         sPlayerInput[nLocalPlayer].pTarget = bestTarget;
         sPlayerInput[nLocalPlayer].nAngle = localInput.avel;

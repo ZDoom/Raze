@@ -42,8 +42,7 @@ BEGIN_PS_NS
 
 extern int nStatusSeqOffset;
 
-int lPlayerXVel = 0;
-int lPlayerYVel = 0;
+DVector2 lPlayerVel;
 int obobangle = 0, bobangle  = 0;
 
 static actionSeq PlayerSeq[] = {
@@ -858,7 +857,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
                 {
                     PlayerList[nPlayer].pPlayerPushSect = sect;
 
-                    DVector2 vel(FixedToFloat<18>(sPlayerInput[nPlayer].xVel), FixedToFloat<18>(sPlayerInput[nPlayer].yVel));
+                    DVector2 vel = sPlayerInput[nPlayer].vel;
                     auto nMyAngle = VecToAngle(vel).Normalized360();
 
                     setsectinterpolate(sect);
@@ -915,8 +914,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     PlayerList[nPlayer].horizon.resetadjustment();
     PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel;
 
-    pPlayerActor->vel.X = FixedToFloat<18>(sPlayerInput[nPlayer].xVel);
-    pPlayerActor->vel.Y = FixedToFloat<18>(sPlayerInput[nPlayer].yVel);
+    pPlayerActor->vel.XY() = sPlayerInput[nPlayer].vel;
 
     if (sPlayerInput[nPlayer].nItem > -1)
     {
@@ -1013,7 +1011,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     auto playerPos = pPlayerActor->spr.pos.XY();
 
-    DVector2 vect(FixedToFloat<18>(sPlayerInput[nPlayer].xVel), FixedToFloat<18>(sPlayerInput[nPlayer].yVel));
+    DVector2 vect = sPlayerInput[nPlayer].vel;
     double zz = pPlayerActor->vel.Z;
 
     if (pPlayerActor->vel.Z > 32)
@@ -1084,12 +1082,9 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             PlayerList[nPlayer].horizon.settarget(buildhoriz(0), true);
 
-            lPlayerXVel = 0;
-            lPlayerYVel = 0;
+            lPlayerVel.Zero();
 
-            pPlayerActor->vel.X = 0;
-            pPlayerActor->vel.Y = 0;
-            pPlayerActor->vel.Z = 0;
+            pPlayerActor->vel.Zero();
 
             if (nFreeze < 1)
             {
@@ -2753,8 +2748,7 @@ void SerializePlayer(FSerializer& arc)
 {
     if (arc.BeginObject("player"))
     {
-        arc("lxvel", lPlayerXVel)
-            ("lyvel", lPlayerYVel)
+        arc("lvel", lPlayerVel)
             ("bobangle", bobangle)
             ("standheight", nStandHeight)
             ("playercount", PlayerCount)

@@ -79,8 +79,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     }
     else
     {
-        lPlayerYVel = 0;
-        lPlayerXVel = 0;
+        lPlayerVel.Zero();
     }
 
     if (!SyncInput())

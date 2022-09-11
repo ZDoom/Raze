@@ -191,8 +191,7 @@ void InitLevel(MapRecord* map)
     ResetEngine();
     totalmoves = 0;
     GrabPalette();
-    lPlayerXVel = 0;
-    lPlayerYVel = 0;
+    lPlayerVel.Zero();
 
     if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->music, true);    // Allow non-CD music if defined for the current level
     playCDtrack(map->cdSongId, true);

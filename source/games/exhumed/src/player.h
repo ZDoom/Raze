@@ -40,8 +40,7 @@ enum
 
 extern int nLocalPlayer;
 
-extern int lPlayerXVel;
-extern int lPlayerYVel;
+extern DVector2 lPlayerVel;
 
 struct PlayerSave
 {

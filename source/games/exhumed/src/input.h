@@ -33,8 +33,7 @@ enum {
 struct PlayerInput
 {
     TObjPtr<DExhumedActor*> pTarget;
-    int xVel;
-    int yVel;
+    DVector2 vel;
     uint16_t buttons;
     float nAngle;
     float pan;
