@@ -138,11 +138,6 @@ public:
 		vel.X = v * inttoworld;
 	}
 
-	void add_int_xvel(int v)
-	{
-		vel.X += v * inttoworld;
-	}
-
 	vec3_t int_vel() const
 	{
 		return vec3_t(FloatToFixed(vel.X), FloatToFixed(vel.Y), FloatToFixed(vel.Z));

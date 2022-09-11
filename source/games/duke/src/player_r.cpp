@@ -1239,7 +1239,7 @@ int doincrements_r(player_struct* p)
 		else if ((krand() & 127) == 8)
 		{
 			WindTime = 120 + ((krand() & 63) << 2);
-			WindDir = krand() & 2047;
+			WindDir = randomAngle();
 		}
 
 		if (BellTime > 0)

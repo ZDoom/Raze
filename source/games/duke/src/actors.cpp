@@ -994,13 +994,13 @@ void movemasterswitch(DDukeActor *actor)
 
 void movetrash(DDukeActor *actor)
 {
-	if (actor->int_xvel() == 0) actor->set_int_xvel(1);
+	if (actor->vel.X == 0) actor->vel.X = 1 / 16.;
 	if (ssp(actor, CLIPMASK0))
 	{
 		makeitfall(actor);
 		if (krand() & 1) actor->vel.Z -= 1;
-		if (abs(actor->int_xvel()) < 48)
-			actor->add_int_xvel( (krand() & 3));
+		if (abs(actor->vel.X) < 3)
+			actor->vel.X += (krand() & 3) / 16.;
 	}
 	else deletesprite(actor);
 }
@@ -4980,11 +4980,14 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 	aang = actor->int_ang();
 
-	actor->add_int_xvel( (*moveptr - actor->int_xvel()) / 5);
-	if (actor->vel.Z < (648/256.)) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) / 5);
+	actor->vel.X += (moveptr[0] / 16 - actor->vel.X) / 5;
+	if (actor->vel.Z < (648 / 256.))
+	{
+		actor->vel.Z += (moveptr[1] / 16 - actor->vel.Z) / 5;
+	}
 
 	if (isRRRA() && (ang & windang))
-		actor->set_int_ang(WindDir);
+		actor->spr.angle = WindDir;
 	else if (ang & seekplayer)
 	{
 		DDukeActor* holoduke = !isRR()? ps[playernum].holoduke_on.Get() : nullptr;

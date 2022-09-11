@@ -459,7 +459,7 @@ void resetprestat(int snum,int g)
 	earthquaketime          = 0;
 
 	WindTime = 0;
-	WindDir = 0;
+	WindDir = nullAngle;
 	fakebubba_spawn = 0;
 	RRRA_ExitedLevel = 0;
 	BellTime = 0;
@@ -697,7 +697,7 @@ void prelevel_common(int g)
 	thunderon = 0;
 	chickenplant = 0;
 	WindTime = 0;
-	WindDir = 0;
+	WindDir = nullAngle;
 	fakebubba_spawn = 0;
 	RRRA_ExitedLevel = 0;
 	mamaspawn_count = currentLevel->rr_mamaspawn;

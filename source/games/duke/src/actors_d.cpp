@@ -394,8 +394,8 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 						if (act2->spr.picnum != TANK && act2->spr.picnum != ROTATEGUN && act2->spr.picnum != RECON && !bossguy(act2))
 						{
-							if (act2->int_xvel() < 0) act2->vel.X = 0;
-							act2->add_int_xvel( (actor->spr.extra << 2));
+							if (act2->vel.X < 0) act2->vel.X = 0;
+							act2->vel.X += ( (actor->spr.extra / 4.));
 						}
 
 						if (actorflag(act2, SFLAG_HITRADIUSCHECK))
@@ -3549,8 +3549,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
-	if (a & geth) actor->add_int_xvel( (*moveptr - actor->int_xvel()) >> 1);
-	if (a & getv) actor->add_int_zvel( ((*(moveptr + 1) << 4) - actor->int_zvel()) >> 1);
+	if (a & geth) actor->vel.X += (moveptr[0] / 16 - actor->vel.X) * 0.5;
+	if (a & getv) actor->vel.Z += (moveptr[1] / 16 - actor->vel.Z) * 0.5;
 
 	if (a & dodgebullet)
 		dodge(actor);
@@ -3558,11 +3558,11 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (actor->spr.picnum != APLAYER)
 		alterang(a, actor, playernum);
 
-	if (actor->int_xvel() > -6 && actor->int_xvel() < 6) actor->vel.X = 0;
+	if (abs(actor->vel.X) < 6 / 16.) actor->vel.X = 0;
 
 	a = badguy(actor);
 
-	if (actor->vel.X != 0 || actor->int_zvel())
+	if (actor->vel.X != 0 || actor->vel.X != 0)
 	{
 		if (a && actor->spr.picnum != ROTATEGUN)
 		{
