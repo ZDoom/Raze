@@ -1757,12 +1757,14 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		p->horizon.addadjustment(buildfhoriz(horiz) - p->horizon.horiz);
 	}
 
+	const DAngle adjust = mapangle(-510);
+	DAngle velAdjustment;
+
 	int currSpeed = int(p->MotoSpeed);
-	int velAdjustment;
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
-		velAdjustment = p->vehTurnLeft ? -10 : 10;
-		auto angAdjustment = (velAdjustment < 0 ? 350 : -350) << BAMBITS;
+		velAdjustment = p->vehTurnLeft ? -adjust : adjust;
+		auto angAdjustment = (velAdjustment > nullAngle ? 350 : -350) << BAMBITS;
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
 		{
@@ -1798,17 +1800,15 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			}
 		}
 
-		p->__vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
-		p->__vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
+		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed * VEL_FACTOR;
 		p->angle.addadjustment(deltaangle(p->angle.ang, p->angle.ang - DAngle::fromBam(angAdjustment)));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		rng = krand() & 1;
-		velAdjustment = rng == 0 ? -10 : 10;
+		velAdjustment = rng == 0 ? -adjust : adjust;
 		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
-		p->__vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
-		p->__vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
+		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed * VEL_FACTOR;
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
@@ -2027,9 +2027,11 @@ static void onBoat(int snum, ESyncBits &actions)
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
+		const DAngle adjust = mapangle(-510);
+
 		int currSpeed = int(p->MotoSpeed * 4.);
-		int velAdjustment = p->vehTurnLeft ? -10 : 10;
-		auto angAdjustment = (velAdjustment < 0 ? 350 : -350) << BAMBITS;
+		DAngle velAdjustment = p->vehTurnLeft ? -adjust : adjust;
+		auto angAdjustment = (velAdjustment > nullAngle ? 350 : -350) << BAMBITS;
 
 		if (p->moto_do_bump)
 		{
@@ -2042,8 +2044,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			angAdjustment >>= 6;
 		}
 
-		p->__vel.X += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
-		p->__vel.Y += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.Buildang(), 4);
+		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed * VEL_FACTOR;
 		p->angle.addadjustment(deltaangle(p->angle.ang, p->angle.ang - DAngle::fromBam(angAdjustment)));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
@@ -3758,7 +3759,7 @@ void processinput_r(int snum)
 					}
 			}
 
-		if (abs(p->vel.X) < 1 / 128. * VEL_FACTOR && abs(p->__vel.Y) < 1 / 128. * VEL_FACTOR)
+		if (abs(p->vel.X) < 1 / 128. * VEL_FACTOR && abs(p->vel.Y) < 1 / 128. * VEL_FACTOR)
 			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
@@ -4081,8 +4082,7 @@ void OffMotorcycle(player_struct *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->__vel.X = 0 - p->angle.ang.Cos() * (1 << 7);
-		p->__vel.Y = 0 - p->angle.ang.Sin() * (1 << 7);
+		p->vel.XY() = p->angle.ang.ToVector() / 2048. * VEL_FACTOR;
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
@@ -4144,8 +4144,7 @@ void OffBoat(player_struct *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->__vel.X = 0 - p->angle.ang.Cos() * (1 << 7);
-		p->__vel.Y = 0 - p->angle.ang.Sin() * (1 << 7);
+		p->vel.XY() = p->angle.ang.ToVector() / 2048. * VEL_FACTOR;
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
