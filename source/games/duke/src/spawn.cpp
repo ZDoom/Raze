@@ -694,13 +694,13 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 		case SE_13_EXPLOSIVE:
 		{
-			actor->temp_data[0] = sectp->int_ceilingz();
-			actor->temp_data[1] = sectp->int_floorz();
+			actor->temp_pos.Y = sectp->ceilingz;
+			actor->temp_pos.Z = sectp->floorz;
 
-			bool ceiling = (abs(actor->temp_data[0] - actor->int_pos().Z) < abs(actor->temp_data[1] - actor->int_pos().Z));
+			bool ceiling = (abs(sectp->ceilingz - actor->spr.pos.Z) < abs(sectp->floorz - actor->spr.pos.Z));
 			actor->spriteextra = ceiling;
 
-			if (actor->spr.angle == DAngle90)
+			if (actor->spr.intangle == 512)
 			{
 				if (ceiling)
 					sectp->setceilingz(actor->spr.pos.Z);
@@ -718,7 +718,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				sectp->ceilingstat ^= CSTAT_SECTOR_SKY;
 				actor->temp_data[3] = 1;
 
-				if (!ceiling && actor->spr.angle == DAngle90)
+				if (!ceiling && actor->spr.intangle == 512)
 				{
 					sectp->ceilingstat ^= CSTAT_SECTOR_SKY;
 					actor->temp_data[3] = 0;
@@ -727,7 +727,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				sectp->ceilingshade =
 					sectp->floorshade;
 
-				if (actor->spr.angle == DAngle90)
+				if (actor->spr.intangle == 512)
 				{
 					for (auto& wl : wallsofsector(sectp))
 					{

@@ -3619,7 +3619,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 
 //---------------------------------------------------------------------------
 //
-// 
+// explosive
 //
 //---------------------------------------------------------------------------
 
@@ -3628,31 +3628,32 @@ void handle_se13(DDukeActor* actor)
 	auto sc = actor->sector();
 	if (actor->temp_data[2])
 	{
-		int j = (actor->spr.yint << 5) | 1;
+		double amt = ((actor->spr.yint << 5) | 1) * zmaptoworld;
 
-		if (actor->spr.angle == DAngle90)
+		if (actor->spr.intangle == 512)
 		{
 			if (actor->spriteextra)
 			{
-				if (abs(actor->temp_data[0] - sc->int_ceilingz()) >= j)
-					sc->add_int_ceilingz(Sgn(actor->temp_data[0] - sc->int_ceilingz()) * j);
-				else sc->set_int_ceilingz(actor->temp_data[0]);
+				if (abs(actor->temp_pos.Y - sc->ceilingz) >= amt)
+					sc->addceilingz(Sgn(actor->temp_pos.Y - sc->ceilingz) * amt);
+				else sc->setceilingz(actor->temp_pos.Y);
 			}
 			else
 			{
-				if (abs(actor->temp_data[1] - sc->int_floorz()) >= j)
-					sc->add_int_floorz(Sgn(actor->temp_data[1] - sc->int_floorz()) * j);
-				else sc->set_int_floorz(actor->temp_data[1]);
+				if (abs(actor->temp_pos.Z - sc->floorz) >= amt)
+					sc->addfloorz(Sgn(actor->temp_pos.Z - sc->floorz) * amt);
+				else sc->setfloorz(actor->temp_pos.Z);
 			}
 		}
 		else
 		{
-			if (abs(actor->temp_data[1] - sc->int_floorz()) >= j)
-				sc->add_int_floorz(Sgn(actor->temp_data[1] - sc->int_floorz()) * j);
-			else sc->set_int_floorz(actor->temp_data[1]);
-			if (abs(actor->temp_data[0] - sc->int_ceilingz()) >= j)
-				sc->add_int_ceilingz(Sgn(actor->temp_data[0] - sc->int_ceilingz()) * j);
-			sc->set_int_ceilingz(actor->temp_data[0]);
+			if (abs(actor->temp_pos.Z - sc->floorz) >= amt)
+				sc->addfloorz(Sgn(actor->temp_pos.Z - sc->floorz) * amt);
+			else sc->setfloorz(actor->temp_pos.Z);
+
+			if (abs(actor->temp_pos.Y - sc->ceilingz) >= amt)
+				sc->addceilingz(Sgn(actor->temp_pos.Y - sc->ceilingz) * amt);
+			sc->setceilingz(actor->temp_pos.Y);
 		}
 
 		if (actor->temp_data[3] == 1)
@@ -3685,7 +3686,7 @@ void handle_se13(DDukeActor* actor)
 	}
 
 
-	if (actor->temp_data[2] == 4 && actor->int_ang() != 512)
+	if (actor->temp_data[2] == 4 && actor->spr.angle != DAngle90)
 		for (int x = 0; x < 7; x++) RANDOMSCRAP(actor);
 }
 
