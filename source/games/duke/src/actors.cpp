@@ -3439,7 +3439,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 
 //---------------------------------------------------------------------------
 //
-// 
+// door auto close
 //
 //---------------------------------------------------------------------------
 
@@ -3480,7 +3480,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 
 //---------------------------------------------------------------------------
 //
-// 
+// swinging door
 //
 //---------------------------------------------------------------------------
 
@@ -3506,9 +3506,9 @@ void handle_se11(DDukeActor *actor)
 		}
 
 		int k = (actor->spr.yint >> 3) * actor->temp_data[3];
-		actor->temp_data[2] += k;
+		actor->temp_angle += mapangle(k);
 		actor->temp_data[4] += k;
-		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+		movesector(actor, actor->temp_data[1], actor->temp_angle);
 		//SetActor(actor, actor->spr.pos);
 
 		for(auto& wal : wallsofsector(sc))
@@ -3519,9 +3519,9 @@ void handle_se11(DDukeActor *actor)
 				if (ac->GetOwner() && IsCloseToWall(ac->spr.pos.XY(), &wal, 9) == EClose::InFront)
 				{
 					actor->temp_data[5] = 8; // Delay
-					actor->temp_data[2] -= k;
+					actor->temp_angle -= mapangle(k);
 					actor->temp_data[4] -= k;
-					movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+					movesector(actor, actor->temp_data[1], actor->temp_angle);
 					//SetActor(actor, actor->spr.pos);
 					return;
 				}
@@ -3531,8 +3531,8 @@ void handle_se11(DDukeActor *actor)
 		if (actor->temp_data[4] <= -511 || actor->temp_data[4] >= 512)
 		{
 			actor->temp_data[4] = 0;
-			actor->temp_data[2] &= 0xffffff00;
-			movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+			actor->temp_angle = mapangle(actor->temp_angle.Buildang() & 0xffffff00); // Gross hack! What is this supposed to do?
+			movesector(actor, actor->temp_data[1], actor->temp_angle);
 			//SetActor(actor, actor->spr.pos);
 		}
 	}
