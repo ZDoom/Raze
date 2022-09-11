@@ -40,8 +40,6 @@ enum
 
 extern int nLocalPlayer;
 
-extern DVector2 lPlayerVel;
-
 struct PlayerSave
 {
     sectortype* pSector;

@@ -79,7 +79,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     }
     else
     {
-        lPlayerVel.Zero();
+        sPlayerInput[nLocalPlayer].vel.Zero();
     }
 
     if (!SyncInput())

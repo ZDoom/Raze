@@ -42,7 +42,6 @@ BEGIN_PS_NS
 
 extern int nStatusSeqOffset;
 
-DVector2 lPlayerVel;
 int obobangle = 0, bobangle  = 0;
 
 static actionSeq PlayerSeq[] = {
@@ -1082,8 +1081,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             PlayerList[nPlayer].horizon.settarget(buildhoriz(0), true);
 
-            lPlayerVel.Zero();
-
+            sPlayerInput[nPlayer].vel.Zero();
             pPlayerActor->vel.Zero();
 
             if (nFreeze < 1)
@@ -2748,8 +2746,7 @@ void SerializePlayer(FSerializer& arc)
 {
     if (arc.BeginObject("player"))
     {
-        arc("lvel", lPlayerVel)
-            ("bobangle", bobangle)
+        arc ("bobangle", bobangle)
             ("standheight", nStandHeight)
             ("playercount", PlayerCount)
             ("netstartsprites", nNetStartSprites)

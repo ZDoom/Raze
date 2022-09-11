@@ -371,6 +371,8 @@ void GameInterface::Ticker()
     {
         inita = inita.Normalized360();
 
+        auto& lPlayerVel = sPlayerInput[nLocalPlayer].vel;
+
         for (int i = 0; i < 4; i++)
         {
             // Velocities are stored as Q14.18
@@ -472,7 +474,6 @@ void GameInterface::Ticker()
         sPlayerInput[nLocalPlayer].actions = localInput.actions;
         if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;        
 
-        sPlayerInput[nLocalPlayer].vel = lPlayerVel;
         sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
         sPlayerInput[nLocalPlayer].pTarget = bestTarget;
         sPlayerInput[nLocalPlayer].nAngle = localInput.avel;
