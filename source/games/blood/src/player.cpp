@@ -840,7 +840,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->relAim.dy = 0;
 	pPlayer->relAim.dz = 0;
 	pPlayer->aimTarget = nullptr;
-	pPlayer->zViewVel = pPlayer->zWeaponVel;
+	pPlayer->zViewVel = pPlayer->zWeaponVel * zinttoworld;
 	if (!(gGameOptions.nGameType == 1 && gGameOptions.bKeepKeysOnRespawn && !bNewLevel))
 		for (int i = 0; i < 8; i++)
 			pPlayer->hasKey[i] = gGameOptions.nGameType >= 2;
@@ -1864,13 +1864,13 @@ void playerProcess(PLAYER* pPlayer)
 	}
 	ProcessInput(pPlayer);
 	int nSpeed = approxDist(actor->int_vel().X, actor->int_vel().Y);
-	pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->int_vel().Z, FixedToFloat(0x7000));
+	pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->vel.Z, FixedToFloat(0x7000));
 	int dz = pPlayer->actor->int_pos().Z - pPosture->eyeAboveZ - pPlayer->zView * zworldtoint;
 	if (dz > 0)
-		pPlayer->zViewVel += MulScale(dz << 8, 0xa000, 16);
+		pPlayer->zViewVel += MulScaleF(dz << 8, 0xa000, 16) / 65536;
 	else
-		pPlayer->zViewVel += MulScale(dz << 8, 0x1800, 16);
-	pPlayer->zView += FixedToFloat(pPlayer->zViewVel);
+		pPlayer->zViewVel += MulScaleF(dz << 8, 0x1800, 16) / 65536;
+	pPlayer->zView += pPlayer->zViewVel;
 	pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->int_vel().Z, FixedToFloat(0x5000));
 	dz = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ - pPlayer->zWeapon;
 	if (dz > 0)

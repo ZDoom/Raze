@@ -74,7 +74,7 @@ struct BloodPlayer native
 	//native int        nSprite;
 	native int        lifeMode;
 	native double     zView;
-	native int        zViewVel;
+	native double     zViewVel;
 	native int        zWeapon;
 	native int        zWeaponVel;
 	native int        slope;

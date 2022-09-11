@@ -109,7 +109,7 @@ struct PLAYER
 	int                 bloodlust;  // ---> useless
 	double              zView;
 	double              ozView;
-	int                 zViewVel;
+	double              zViewVel;
 	int                 zWeapon;
 	int                 ozWeapon;
 	int                 zWeaponVel;
