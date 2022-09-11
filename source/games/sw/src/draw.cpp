@@ -703,7 +703,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                 {
 
                     tsp->picnum = DART_PIC;
-                    tsp->angle -= DAngle90 + DAngle::fromBuild(24);
+                    tsp->angle -= DAngle90 + mapangle(24);
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }

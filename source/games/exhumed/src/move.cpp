@@ -674,7 +674,7 @@ void CheckSectorFloor(sectortype* pSector, double z, DVector2& xy)
         return;
     }
 
-    DAngle nAng = DAngle::fromBuild(pSector->Flag & kAngleMask);
+    DAngle nAng = mapangle(pSector->Flag & kAngleMask);
 
     if (z >= pSector->floorz)
     {

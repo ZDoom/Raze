@@ -1959,7 +1959,7 @@ void camera(DDukeActor *actor)
 
 		if (actor->spr.hitag > 0)
 		{
-			auto const angle = DAngle::fromBuild(8);
+			auto const angle = mapangle(8);
 
 			if (actor->temp_data[1] < actor->spr.hitag)
 				actor->spr.angle += angle;

@@ -174,7 +174,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 			zvel = ((ps[j].opos.Z - spos.Z) * vel) / l;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
-			sang = actor->spr.angle + DAngle::fromBuild((krand() & 31) - 16);
+			sang = actor->spr.angle + mapangle((krand() & 31) - 16);
 
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
@@ -199,7 +199,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		spawned->set_int_zvel(zvel * 256);
 	}
 
-	spawned->spr.pos = spos + (sang + DAngle::fromBuild(112)).ToVector() * 7;
+	spawned->spr.pos = spos + (sang + mapangle(112)).ToVector() * 7;
 	spawned->spr.pos.Z--;
 	spawned->setsector(actor->sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;

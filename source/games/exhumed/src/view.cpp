@@ -348,7 +348,7 @@ void DrawView(double interpfrac, bool sceneonly)
                     if (ang2.Degrees() < 0)
                         ang2 = -ang2;
 
-                    if (ang2 > DAngle::fromBuild(10))
+                    if (ang2 > mapangle(10))
                     {
                         inita -= ang2 * (1. / 8.);
                         return;

@@ -1134,7 +1134,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	}
 	else
 	{
-		DAngle maxTurn = DAngle::fromBuild(pDudeInfo->angSpeed * 4 >> 4);
+		DAngle maxTurn = mapangle(pDudeInfo->angSpeed * 4 >> 4);
 
 		DAngle dang = actor->xspr.goalAng - actor->spr.angle;
 		actor->spr.angle += clamp(dang, -maxTurn, maxTurn);

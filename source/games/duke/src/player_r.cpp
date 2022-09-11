@@ -3054,11 +3054,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angle.addadjustment(DAngle::fromBuild(16));
+			p->angle.addadjustment(mapangle(16));
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angle.addadjustment(DAngle::fromBuild(-16));
+			p->angle.addadjustment(mapangle(-16));
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3084,11 +3084,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angle.addadjustment(DAngle::fromBuild(4));
+			p->angle.addadjustment(mapangle(4));
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angle.addadjustment(DAngle::fromBuild(-4));
+			p->angle.addadjustment(mapangle(-4));
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;

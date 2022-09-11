@@ -751,7 +751,7 @@ int DoCoolgCircle(DSWActor* actor)
 {
     double bound;
 
-    actor->spr.angle += DAngle::fromBuild(actor->user.Counter2);
+    actor->spr.angle += mapangle(actor->user.Counter2);
 
     if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
     {

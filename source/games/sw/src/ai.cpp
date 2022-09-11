@@ -1524,7 +1524,7 @@ DAngle FindNewAngle(DSWActor* actor, int dir, double DistToMove)
 
     for (; *adp != -99; adp++)
     {
-        new_ang = oang + DAngle::fromBuild(* adp);
+        new_ang = oang + mapangle(* adp);
 
 #if 1
         // look directly ahead for a ledge

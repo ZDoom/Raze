@@ -123,11 +123,11 @@ int RandomSize(int nSize)
 
 DAngle RandomAngle9()
 {
-	return DAngle::fromBuild(RandomSize(9));
+	return mapangle(RandomSize(9));
 }
 
 DAngle RandomAngle()
 {
-    return DAngle::fromBuild(RandomSize(11));
+    return mapangle(RandomSize(11));
 }
 END_PS_NS

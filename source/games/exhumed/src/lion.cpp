@@ -168,7 +168,7 @@ void AILion::Damage(RunListEvent* ev)
                         PlotCourseToSprite(pActor, pTarget);
                         pActor->nAction = 5;
                         pActor->nCount = RandomSize(3);
-                        pActor->spr.angle += DAngle::fromBuild((- (RandomSize(1) << 8)) + (RandomSize(1) << 8)); // NOTE: no angle mask in original code
+                        pActor->spr.angle += mapangle((- (RandomSize(1) << 8)) + (RandomSize(1) << 8)); // NOTE: no angle mask in original code
                     }
                     else
                     {

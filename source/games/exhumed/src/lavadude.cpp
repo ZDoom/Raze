@@ -286,7 +286,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             ChangeActorSect(pActor, pSector);
 			pActor->spr.pos = pos;
 
-            pActor->spr.angle += DAngle180 +  DAngle::fromBuild(RandomWord() & 0x3FF);
+            pActor->spr.angle += DAngle180 + mapangle(RandomWord() & 0x3FF);
             pActor->VelFromAngle();
             break;
         }
@@ -297,7 +297,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
         if (coll.type == kHitWall)
         {
-            pActor->spr.angle += DAngle180 + DAngle::fromBuild(RandomWord() & 0x3FF);
+            pActor->spr.angle += DAngle180 + mapangle(RandomWord() & 0x3FF);
             pActor->VelFromAngle();
             break;
         }

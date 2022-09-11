@@ -480,7 +480,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
         oscilation_delta -= oscilation_delta % 4;
         oscilationclock += oscilation_delta;
         oscilation_delta *= 2;
-        DAngle oscillation_angle = DAngle::fromBuild(oscilation_delta);
+        DAngle oscillation_angle = mapangle(oscilation_delta);
         for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--) 
         {
             if (!mirror[cnt].ismagic) continue; // these are definitely not camera textures.
@@ -557,7 +557,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
                         return;
                     }
 
-                    auto maxang = DAngle::fromBuild(SP_TAG6(camactor));
+                    auto maxang = mapangle(SP_TAG6(camactor));
                     // BOOL2 = Oscilate camera
                     if (TEST_BOOL2(camactor) && MoveSkip2 == 0)
                     {

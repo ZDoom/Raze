@@ -1953,7 +1953,7 @@ void SpriteSetup(void)
                         actor->vel.X = 0;
                     else
 						actor->vel.X = actor->spr.lotag * maptoworld;
-                    actor->spr.angle = DAngle::fromBuild(SP_TAG6(actor));
+                    actor->spr.angle = mapangle(SP_TAG6(actor));
                     // attach to the sector that contains the wall
                     ChangeActorSect(actor, hit.hitSector);
                     StartInterpolation(hit.hitWall, Interp_Wall_PanX);
@@ -4868,7 +4868,7 @@ int DoGrating(DSWActor* actor)
 
 int DoKey(DSWActor* actor)
 {
-    actor->spr.angle += DAngle::fromBuild(14 * ACTORMOVETICS);
+    actor->spr.angle += mapangle(14 * ACTORMOVETICS);
 
     DoGet(actor);
     return 0;

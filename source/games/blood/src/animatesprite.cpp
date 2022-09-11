@@ -146,7 +146,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			if (!pNSprite)
 				break;
 
-			auto ang = DAngle::fromBuild((PlayClock * 2048) / 120).Normalized360();
+			auto ang = mapangle((PlayClock * 2048) / 120).Normalized360();
 			auto nRand1 = random_angles[i][0];
 			auto nRand2 = random_angles[i][1];
 			auto nRand3 = random_angles[i][2];

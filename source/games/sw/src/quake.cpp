@@ -223,7 +223,7 @@ void QuakeViewChange(PLAYER* pp, DVector3& tpos, DAngle& tang)
     tposdiff.Z = StdRandomRange(QUAKE_Zamt(actor)) - (QUAKE_Zamt(actor)/2);
 
     int ang_amt = QUAKE_AngAmt(actor) * 4L;
-    tangdiff = DAngle::fromBuild(StdRandomRange(ang_amt) - (ang_amt/2));
+    tangdiff = mapangle(StdRandomRange(ang_amt) - (ang_amt/2));
 
     int pos_amt = QUAKE_PosAmt(actor) * 4L;
     tposdiff.XY() = DVector2(StdRandomRange(pos_amt) - (pos_amt/2), StdRandomRange(pos_amt) - (pos_amt/2)) * (1. / 4.);

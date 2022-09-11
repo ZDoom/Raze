@@ -472,7 +472,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ANG:
-		if (bSet) ps[iPlayer].angle.settarget(DAngle::fromBuild(lValue));
+		if (bSet) ps[iPlayer].angle.settarget(mapangle(lValue));
 		else SetGameVarID(lVar2, ps[iPlayer].angle.ang.Buildang(), sActor, sPlayer);
 		break;
 
@@ -490,7 +490,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) ps[iPlayer].angle.look_ang = DAngle::fromBuild(lValue);
+		if (bSet) ps[iPlayer].angle.look_ang = mapangle(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.look_ang.Buildang(), sActor, sPlayer);
 		break;
 
@@ -650,7 +650,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ONE_EIGHTY_COUNT:
-		if (bSet) ps[iPlayer].angle.spin = DAngle::fromBuild(lValue);
+		if (bSet) ps[iPlayer].angle.spin = mapangle(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.spin.Buildang(), sActor, sPlayer);
 		break;
 
@@ -710,7 +710,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].angle.orotscrnang = ps[iPlayer].angle.rotscrnang = DAngle::fromBuild(lValue);
+		if (bSet) ps[iPlayer].angle.orotscrnang = ps[iPlayer].angle.rotscrnang = mapangle(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.rotscrnang.Buildang(), sActor, sPlayer);
 		break;
 
@@ -3150,7 +3150,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		ps[g_p].angle.ang = DAngle::fromBuild(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
+		ps[g_p].angle.ang = mapangle(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
 		break;
 	}
 	case concmd_getactorangle:

@@ -67,7 +67,7 @@ ANIMATOR DoBettyBeginDeath;
 ANIMATOR DoSkullBeginDeath;
 ANIMATOR DoRipperGrow;
 
-constexpr DAngle FacingAngle = DAngle::fromBuild(150);
+constexpr DAngle FacingAngle = mapangle(150);
 
 //
 // Damage Amounts defined in damage.h
@@ -3673,7 +3673,7 @@ AutoShrap:
 
     for (; p->id; p++)
     {
-        auto ang_range = DAngle::fromBuild(p->ang_range);
+        auto ang_range = mapangle(p->ang_range);
         if (!p->random_disperse)
         {
             //dang = (2048 / p->num);
@@ -3688,7 +3688,7 @@ AutoShrap:
 
             if (p->random_disperse)
             {
-                actor->spr.angle = shrap_angl + DAngle::fromBuild(RANDOM_P2(p->ang_range << 5) >> 5) - (ang_range * 0.5);
+                actor->spr.angle = shrap_angl + mapangle(RANDOM_P2(p->ang_range << 5) >> 5) - (ang_range * 0.5);
             }
             else
             {
@@ -3815,7 +3815,7 @@ int DoVomit(DSWActor* actor)
 {
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
     // notreallypos
-    auto v = actor->user.pos + DAngle::fromBuild(actor->user.Counter).ToVector() * 12;
+    auto v = actor->user.pos + mapangle(actor->user.Counter).ToVector() * 12;
     actor->spr.xrepeat = int(v.X);
     actor->spr.yrepeat = int(v.Y);
     if (actor->user.Flags & (SPR_JUMPING))
@@ -4115,7 +4115,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
 
     for (; p->state; p++)
     {
-        auto ang_range = DAngle::fromBuild(p->ang_range);
+        auto ang_range = mapangle(p->ang_range);
         if (!p->random_disperse)
         {
             start_angle = hit_angle - (ang_range * 0.5) + DAngle180;
@@ -4150,7 +4150,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
 
             if (p->random_disperse)
             {
-                actorNew->spr.angle = hit_angle + DAngle::fromBuild((RANDOM_P2(p->ang_range<<5)>>5) - (p->ang_range >> 1));
+                actorNew->spr.angle = hit_angle + mapangle((RANDOM_P2(p->ang_range<<5)>>5) - (p->ang_range >> 1));
             }
             else
             {
@@ -11422,16 +11422,16 @@ int DoMirv(DSWActor* actor)
     if (!actor->user.Counter)
     {
         int i;
-        static short angs[] =
+        static const DAngle angs[] =
         {
-            512,
-            -512
+            DAngle90,
+            -DAngle90
         };
 
         for (i = 0; i < 2; i++)
         {
             auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], actor->sector(),
-									   actor->spr.pos, actor->spr.angle + DAngle::fromBuild(angs[i]), 50);
+									   actor->spr.pos, actor->spr.angle + angs[i], 50);
 
             actorNew->user.RotNum = 5;
             NewStateGroup(actorNew, &sg_MirvMeteor[0]);
@@ -11606,7 +11606,7 @@ int DoRing(DSWActor* actor)
     }
 
     // rotate the ring
-    actor->spr.angle += DAngle::fromBuild(5 * RINGMOVETICS);
+    actor->spr.angle += mapangle(5 * RINGMOVETICS);
 
     // put it out there
     actor->spr.pos += actor->spr.angle.ToVector() * actor->user.Dist;
@@ -11744,9 +11744,9 @@ int DoSerpRing(DSWActor* actor)
 
     // rotate the heads
     if (actor->user.Flags & (SPR_BOUNCE))
-        actor->spr.angle += DAngle::fromBuild(28 * RINGMOVETICS);
+        actor->spr.angle += mapangle(28 * RINGMOVETICS);
     else
-        actor->spr.angle -= DAngle::fromBuild(28 * RINGMOVETICS);
+        actor->spr.angle -= mapangle(28 * RINGMOVETICS);
 
     // put it out there
     actor->spr.pos += actor->user.slide_ang.ToVector() * actor->user.Dist;
@@ -11893,7 +11893,7 @@ void InitVulcanBoulder(DSWActor* actor)
     if (SP_TAG7(actor))
     {
         delta = SP_TAG5(actor);
-        nang = actor->spr.angle + DAngle::fromBuild((RandomRange(delta) - (delta >> 1)));
+        nang = actor->spr.angle + mapangle((RandomRange(delta) - (delta >> 1)));
     }
     else
     {
@@ -12312,7 +12312,7 @@ int InitSwordAttack(PLAYER* pp)
 
             double dist = (pp->pos.XY() - itActor->spr.pos.XY()).Length();
 
-            face = DAngle::fromBuild(200);
+            face = mapangle(200);
 
             if (dist < CloseRangeDist(itActor, plActor, 62.5) && PlayerFacingRange(pp, itActor, face))
             {
@@ -12478,13 +12478,13 @@ int InitFistAttack(PLAYER* pp)
 			bool iactive = pp->InventoryActive[2];
             if (iactive) // Shadow Bombs give you demon fist
             {
-                face = DAngle::fromBuild(190);
+                face = mapangle(190);
                 reach = 143.75;
             }
             else
             {
                 reach = 62.5;
-                face = DAngle::fromBuild(200);
+                face = mapangle(200);
             }
 
             if (dist < CloseRangeDist(itActor, plActor, reach) && PlayerFacingRange(pp, itActor, face))
@@ -13046,7 +13046,7 @@ int InitStar(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
 
-    static DAngle dang[] = { DAngle::fromBuild(-12), DAngle::fromBuild(12) };
+    static DAngle dang[] = { mapangle(-12), mapangle(12) };
     const int STAR_REPEAT = 26;
     const int STAR_HORIZ_ADJ = 100;
 
@@ -13325,12 +13325,12 @@ int InitShotgun(PLAYER* pp)
         if (pp->WpnShotgunType == 0)
         {
             ndaz = daz + RandomRangeF(120) - 45;
-            ndaang = daang + DAngle::fromBuild(RandomRange(30) - 15);
+            ndaang = daang + mapangle(RandomRange(30) - 15);
         }
         else
         {
             ndaz = daz + RandomRangeF(200) - 65;
-            ndaang = daang + DAngle::fromBuild(RandomRange(70) - 30);
+            ndaang = daang + mapangle(RandomRange(70) - 30);
         }
 
         DVector3 vect(ndaang.ToVector() * 1024, ndaz);
@@ -13529,7 +13529,7 @@ int InitLaser(PLAYER* pp)
 
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
-        actorNew->spr.angle -= DAngle::fromBuild(5);
+        actorNew->spr.angle -= mapangle(5);
     }
 
 	UpdateChange(actorNew);
@@ -13610,7 +13610,7 @@ int InitRail(PLAYER* pp)
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
-        actorNew->spr.angle -= DAngle::fromBuild(4);
+        actorNew->spr.angle -= mapangle(4);
     }
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
@@ -13684,7 +13684,7 @@ int InitZillaRail(DSWActor* actor)
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
-        actorNew->spr.angle -= DAngle::fromBuild(4);
+        actorNew->spr.angle -= mapangle(4);
     }
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
@@ -13795,7 +13795,7 @@ int InitRocket(PLAYER* pp)
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
-        actorNew->spr.angle -= DAngle::fromBuild(5);
+        actorNew->spr.angle -= mapangle(5);
     }
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
@@ -13900,7 +13900,7 @@ int InitBunnyRocket(PLAYER* pp)
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
-        actorNew->spr.angle -= DAngle::fromBuild(5);
+        actorNew->spr.angle -= mapangle(5);
     }
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
@@ -13994,7 +13994,7 @@ int InitNuke(PLAYER* pp)
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
-        actorNew->spr.angle -= DAngle::fromBuild(5);
+        actorNew->spr.angle -= mapangle(5);
     }
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
@@ -14070,7 +14070,7 @@ int InitEnemyNuke(DSWActor* actor)
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
-        actorNew->spr.angle -= DAngle::fromBuild(5);
+        actorNew->spr.angle -= mapangle(5);
     }
     else
         zvel = actorNew->vel.Z;  // Let autoaiming set zvel now
@@ -14195,7 +14195,7 @@ int InitMicro(PLAYER* pp)
         }
         else
         {
-            actorNew->spr.angle += DAngle::fromBuild((RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16);
+            actorNew->spr.angle += mapangle((RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16);
         }
 
 		UpdateChange(actorNew);
@@ -14534,7 +14534,7 @@ int InitSerpSpell(DSWActor* actor)
 
     static const DAngle delta_ang[] =
     {
-        DAngle::fromBuild(-10), DAngle::fromBuild(10)
+        mapangle(-10), mapangle(10)
     };
 
     for (i = 0; i < 2; i++)
@@ -14636,7 +14636,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 
     static const DAngle delta_ang[] =
     {
-        DAngle::fromBuild(-10), DAngle::fromBuild(10)
+        mapangle(-10), mapangle(10)
     };
 
     PlaySound(DIGI_MISSLFIRE, actor, v3df_none);
@@ -14796,7 +14796,7 @@ int InitEnemyRail(DSWActor* actor)
 
     // add a bit of randomness
     if (RANDOM_P2(1024) < 512)
-        actor->spr.angle += DAngle::fromBuild(RANDOM_P2(128) - 64);
+        actor->spr.angle += mapangle(RANDOM_P2(128) - 64);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -15368,7 +15368,7 @@ int InitTracerUzi(PLAYER* pp)
     WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false);
 
     // a bit of randomness
-    actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
+    actorNew->spr.angle += mapangle(RandomRange(30) - 15);
 
 	UpdateChange(actorNew);
 
@@ -15413,7 +15413,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixedhoriz horiz)
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false);
 
     // a bit of randomness
-    actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
+    actorNew->spr.angle += mapangle(RandomRange(30) - 15);
 
 	UpdateChange(actorNew);
 
@@ -15623,12 +15623,12 @@ int InitUzi(PLAYER* pp)
     DAngle daang = DAngle22_5 / 4;
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
     {
-        daang += DAngle::fromBuild(RandomRange(24) - 12);
+        daang += mapangle(RandomRange(24) - 12);
         daz += RandomRangeF(10000/256.) - 5000/256.;
     }
     else
     {
-        daang = pp->angle.ang + DAngle::fromBuild(RandomRange(24) - 12);
+        daang = pp->angle.ang + mapangle(RandomRange(24) - 12);
         daz = -pp->horizon.horiz.asbuildf() * (2000/256.) + (RandomRangeF(24000/256.) - 12000/256.);
     }
 
@@ -15808,7 +15808,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
-    actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
+    actorNew->spr.angle += mapangle(RandomRange(30) - 15);
     actorNew->norm_ang();
 
 	UpdateChange(actorNew);
@@ -15907,7 +15907,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         }
         else
         {
-            actorNew->spr.angle += DAngle::fromBuild((RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16);
+            actorNew->spr.angle += mapangle((RandomRange(MICRO_ANG) - (MICRO_ANG / 2)) - 16);
         }
 
 		UpdateChange(actorNew);
@@ -15987,7 +15987,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
-    actorNew->spr.angle += DAngle::fromBuild(RandomRange(30) - 15);
+    actorNew->spr.angle += mapangle(RandomRange(30) - 15);
     actorNew->norm_ang();
 
 	UpdateChange(actorNew);
@@ -16491,7 +16491,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
                         // don't shoot if greater than 128
                         return 0;
                     }
-                    else if (delta > DAngle::fromBuild(24))
+                    else if (delta > mapangle(24))
                     {
                         // always shoot the ground when tracking
                         // and not close
@@ -16641,7 +16641,7 @@ int InitEnemyUzi(DSWActor* actor)
     {
         // set angle to player and also face player when attacking
         actor->spr.angle = daang;
-        daang += DAngle::fromBuild(RandomRange(24) - 12);
+        daang += mapangle(RandomRange(24) - 12);
         daz += RandomRange(40 * 256) / 256. - 20;
     }
     else
@@ -17095,7 +17095,7 @@ int InitFireball(PLAYER* pp)
     actorNew->vel.Z = 0.5;
     if (WeaponAutoAimZvel(pp->actor, actorNew, &zvel, DAngle22_5 / 4, false) == -1)
     {
-        actorNew->spr.angle -= DAngle::fromBuild(9);
+        actorNew->spr.angle -= mapangle(9);
     }
 
 	UpdateChangeXY(actorNew);

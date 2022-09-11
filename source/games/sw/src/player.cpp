@@ -3865,7 +3865,7 @@ bool PlayerOnLadder(PLAYER* pp)
 
     static DAngle angles[] =
     {
-        DAngle::fromBuild(30), -DAngle::fromBuild(30)
+        mapangle(30), -mapangle(30)
     };
 
     if (Prediction)
@@ -6974,7 +6974,7 @@ void PlayerGlobal(PLAYER* pp)
 
     // camera stuff that can't be done in drawscreen
     if (pp->circle_camera_dist > CIRCLE_CAMERA_DIST_MINF)
-        pp->circle_camera_ang += DAngle::fromBuild(14);
+        pp->circle_camera_ang += mapangle(14);
 
     if (pp->camera_check_time_delay > 0)
     {

@@ -387,13 +387,13 @@ void viewUpdateDelirium(PLAYER* pPlayer)
 	gScreenTilt = gScreenTilt.Normalized180();
 	if (gScreenTilt > nullAngle)
 	{
-		gScreenTilt -= DAngle::fromBuild(8);
+		gScreenTilt -= mapangle(8);
 		if (gScreenTilt < nullAngle)
 			gScreenTilt = nullAngle;
 	}
 	else if (gScreenTilt < nullAngle)
 	{
-		gScreenTilt += DAngle::fromBuild(8);
+		gScreenTilt += mapangle(8);
 		if (gScreenTilt >= nullAngle)
 			gScreenTilt = nullAngle;
 	}
@@ -413,7 +413,7 @@ void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& cH
 		{
 			int nValue = ClipHigh(effectType * 8, 2000);
 			cH += buildhoriz(QRandom2(nValue >> 8));
-			cA += DAngle::fromBuild(QRandom2(nValue >> 8));
+			cA += mapangle(QRandom2(nValue >> 8));
 			cPos.X += QRandom2F(nValue * inttoworld) * inttoworld;
 			cPos.Y += QRandom2F(nValue * inttoworld) * inttoworld;
 			cPos.Z += QRandom2F(nValue) * zinttoworld;

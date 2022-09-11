@@ -1789,7 +1789,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
             vel = 105+RandomRange(100);
 
         if (dogib)
-            ang = ang + DAngle90 + DAngle::fromBuild(RandomRange(200));
+            ang = ang + DAngle90 + mapangle(RandomRange(200));
         else
             ang = ang + DAngle180 + DAngle45 - RandomAngle(45);
 
@@ -2212,7 +2212,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
             HelpMissileLateral(actorNew,2500);
             actorNew->spr.angle -= DAngle90;
             HelpMissileLateral(actorNew,1000); // Was 1500
-			actorNew->spr.angle += DAngle::fromBuild(712); // somewhat weird number...
+			actorNew->spr.angle += mapangle(712); // somewhat weird number...
         }
         else
         {

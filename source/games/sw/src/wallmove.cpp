@@ -101,7 +101,7 @@ int DoWallMove(DSWActor* actor)
     int dang = ((int)SP_TAG10(actor)) << 3;
 
     if (dang)
-        ang += DAngle::fromBuild(RandomRange(dang) - dang/2);
+        ang += mapangle(RandomRange(dang) - dang/2);
 
     DVector2 nvec = dist * ang.ToVector();
 

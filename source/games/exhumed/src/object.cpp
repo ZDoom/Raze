@@ -1836,7 +1836,7 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
 
         auto pActor2 = insertActor(lasthitsect, 0);
 
-        pActor2->spr.angle = DAngle::fromBuild(ev->nParam);
+        pActor2->spr.angle = mapangle(ev->nParam);
         pActor2->spr.pos = lasthit;
 
         BuildSpark(pActor2, 0); // shoot out blue orb when damaged

@@ -8147,7 +8147,7 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 
 void aiPatrolTurn(DBloodActor* actor)
 {
-	DAngle nTurnRange = DAngle::fromBuild((getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4);
+	DAngle nTurnRange = mapangle((getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4);
 	DAngle nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 
