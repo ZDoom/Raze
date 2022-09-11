@@ -2784,11 +2784,10 @@ void processinput_d(int snum)
 			p->footprintcount = 0;
 			p->spritebridge = 1;
 		}
-		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->int_pos().Z - clz.actor()->int_pos().Z) < (84 << 8))
+		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			j = getangle(clz.actor()->int_pos().X - p->player_int_pos().X, clz.actor()->int_pos().Y - p->player_int_pos().Y);
-			p->__vel.X -= bcos(j, 4);
-			p->__vel.Y -= bsin(j, 4);
+			auto ang = VecToAngle(clz.actor()->spr.pos - p->pos);
+			p->vel.XY() -= ang.ToVector() * VEL_FACTOR;
 		}
 	}
 
@@ -2989,8 +2988,8 @@ void processinput_d(int snum)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->__vel.X += ((sb_fvel * doubvel) << 6);
-		p->__vel.Y += ((sb_svel * doubvel) << 6);
+		p->vel.X += (sb_fvel * doubvel) / 4096. * VEL_FACTOR;
+		p->vel.Y += (sb_svel * doubvel) / 4096. * VEL_FACTOR;
 
 		bool check;
 
@@ -3012,7 +3011,7 @@ void processinput_d(int snum)
 			}
 		}
 
-		if (abs(p->__vel.X) < 2048 && abs(p->__vel.Y) < 2048)
+		if (abs(p->vel.X) < 1/128. * VEL_FACTOR && abs(p->vel.Y) < 1 / 128. * VEL_FACTOR)
 			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
@@ -3032,7 +3031,7 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->player_add_int_xy({ int(p->__vel.X / 16384), int(p->__vel.Y / 16384) });
+		p->pos.XY() += p->vel.XY() / VEL_FACTOR;
 		updatesector(p->pos, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}

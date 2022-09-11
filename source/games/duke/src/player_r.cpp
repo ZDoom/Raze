@@ -2152,7 +2152,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->pos.Z + p->__vel.Z * zinttoworld >= floorz - i) // hit the ground
+			if (p->pos.Z + p->vel.Z / VELZ_FACTOR >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -2177,7 +2177,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
 					}
-					else if (p->__vel.Z > 2048)
+					else if (p->vel.Z > 8 * VELZ_FACTOR)
 					{
 						if (p->OnMotorcycle)
 						{
@@ -2188,7 +2188,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 						}
 						else S_PlayActorSound(DUKE_LAND, pact);
 					}
-					else if (p->__vel.Z > 1024 && p->OnMotorcycle)
+					else if (p->vel.Z > 4 * VELZ_FACTOR && p->OnMotorcycle)
 					{
 						S_PlayActorSound(DUKE_LAND, pact);
 						p->TurbCount = 12;
@@ -3465,11 +3465,10 @@ void processinput_r(int snum)
 		{
 			doVehicleHit();
 		}
-		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->int_pos().Z - clz.actor()->int_pos().Z) < (84 << 8))
+		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			int j = getangle(clz.actor()->int_pos().X - p->player_int_pos().X, clz.actor()->int_pos().Y - p->player_int_pos().Y);
-			p->__vel.X -= bcos(j, 4);
-			p->__vel.Y -= bsin(j, 4);
+			auto ang = VecToAngle(clz.actor()->spr.pos - p->pos);
+			p->vel.XY() -= ang.ToVector() * VEL_FACTOR;
 		}
 		if (clz.actor()->spr.picnum == LADDER)
 		{
@@ -3552,7 +3551,7 @@ void processinput_r(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->__vel.X = p->vel.Y = 0;
+		p->vel.X = p->vel.Y = 0;
 		pact->vel.X = 0;
 
 		fi.doincrements(p);
@@ -3651,7 +3650,7 @@ void processinput_r(int snum)
 		}
 	}
 
-	if (p->__vel.X || p->__vel.Y || sb_fvel || sb_svel)
+	if (p->vel.X || p->vel.Y || sb_fvel || sb_svel)
 	{
 		p->crack_time = CRACK_TIME;
 
@@ -3700,8 +3699,8 @@ void processinput_r(int snum)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->__vel.X += ((sb_fvel * doubvel) << 6);
-		p->__vel.Y += ((sb_svel * doubvel) << 6);
+		p->vel.X += (sb_fvel * doubvel) / 4096. * VEL_FACTOR;
+		p->vel.Y += (sb_svel * doubvel) / 4096. * VEL_FACTOR;
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
@@ -3759,7 +3758,7 @@ void processinput_r(int snum)
 					}
 			}
 
-		if (abs(p->__vel.X) < 2048 && abs(p->__vel.Y) < 2048)
+		if (abs(p->vel.X) < 1 / 128. * VEL_FACTOR && abs(p->__vel.Y) < 1 / 128. * VEL_FACTOR)
 			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
@@ -3779,7 +3778,7 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->player_add_int_xy({ int(p->__vel.X / 16384), int(p->__vel.Y / 16384) });
+		p->pos.XY() += p->vel.XY() / VEL_FACTOR;
 		updatesector(p->pos, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
