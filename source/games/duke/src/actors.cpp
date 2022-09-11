@@ -998,7 +998,7 @@ void movetrash(DDukeActor *actor)
 	if (ssp(actor, CLIPMASK0))
 	{
 		makeitfall(actor);
-		if (krand() & 1) actor->add_int_zvel(- 256);
+		if (krand() & 1) actor->vel.Z -= 1;
 		if (abs(actor->int_xvel()) < 48)
 			actor->add_int_xvel( (krand() & 3));
 	}
@@ -1023,7 +1023,7 @@ void movewaterdrip(DDukeActor *actor, int drip)
 	{
 		makeitfall(actor);
 		ssp(actor, CLIPMASK0);
-		if(actor->vel.X > 0) actor->add_int_xvel(-2);
+		if(actor->vel.X > 0) actor->vel.X -= 1/8.;
 
 		if (actor->vel.Z == 0)
 		{
@@ -1429,7 +1429,7 @@ bool rat(DDukeActor* actor, bool makesound)
 		else actor->set_int_ang((krand() & 2047));
 	}
 	if (actor->int_xvel() < 128)
-		actor->add_int_xvel( 2);
+		actor->vel.X += 1/8.;
 	actor->add_int_ang((krand() & 3) - 6);
 	return true;
 }
@@ -1474,7 +1474,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 			fi.checkhitsprite(actor, coll.actor());
 		}
 
-		actor->add_int_xvel(-1);
+		actor->vel.X -= 1/16.;
 		if(actor->vel.X < 0) actor->vel.X = 0;
 		if (actor->spr.picnum == stripeball)
 		{
@@ -1562,8 +1562,8 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 	if (actor->temp_data[3] > 0)
 	{
 		if (actor->vel.Z < 24)
-			actor->add_int_zvel( 192);
-		actor->spr.pos.Z += actor->int_zvel() * inttoworld;
+			actor->vel.Z += 0.75;
+		actor->spr.pos.Z += actor->vel.Z;
 		if (actor->spr.pos.Z > sectp->floorz)
 			actor->spr.pos.Z = sectp->floorz;
 		actor->temp_data[3]--;
@@ -1724,7 +1724,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			else
 			{
 				// Control speed here
-				if (l > 1524) { if (actor->int_xvel() < 256) actor->add_int_xvel( 32); }
+				if (l > 1524) { if (actor->int_xvel() < 256) actor->vel.X += 2.; }
 				else
 				{
 					if(actor->vel.X > 0) actor->vel.X -= 1;
@@ -2146,7 +2146,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 {
 	auto sectp = actor->sector();
 
-	if(actor->vel.X > 0) actor->add_int_xvel(-1);
+	if(actor->vel.X > 0) actor->vel.X -= 1/16.;
 	else actor->vel.X = 0;
 
 	if (timeout)
@@ -2207,7 +2207,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			if (sectp->lotag == 2)
 			{
 				if (actor->vel.Z < 4)
-					actor->add_int_zvel( 48);
+					actor->vel.Z += 3 / 16.;
 				else actor->vel.Z = 4;
 			}
 			else actor->add_int_zvel( gs.gravity - 50);
@@ -2375,10 +2375,10 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0]++;
 			actor->temp_data[0] &= 3;
 		}
-		if (actor->vel.Z < 0.5) actor->add_int_zvel( (gs.gravity / 13)); // 8
-		else actor->add_int_zvel(- 64);
-		if(actor->vel.X > 0)
-			actor->add_int_xvel(-4);
+		if (actor->vel.Z < 0.5) actor->add_int_zvel((gs.gravity / 13)); // 8
+		else actor->vel.Z -= 0.25;
+		if (actor->vel.X > 0)
+			actor->vel.X -= 0.25;
 		else actor->vel.X = 0;
 	}
 	else
@@ -2392,7 +2392,7 @@ void shell(DDukeActor* actor, bool morecheck)
 		}
 		if (actor->vel.Z < 2) actor->add_int_zvel( (gs.gravity / 3)); // 52;
 		if(actor->vel.X > 0)
-			actor->add_int_xvel(-1);
+			actor->vel.X -= 1/16.;
 		else
 		{
 			deletesprite(actor);
@@ -2412,7 +2412,7 @@ void glasspieces(DDukeActor* actor)
 
 	makeitfall(actor);
 
-	if (actor->vel.Z > 16) actor->set_int_zvel(4096);
+	if (actor->vel.Z > 16) actor->vel.Z = 16;
 	if (!actor->insector())
 	{
 		deletesprite(actor);
@@ -2438,7 +2438,7 @@ void glasspieces(DDukeActor* actor)
 
 	if(actor->vel.X > 0)
 	{
-		actor->add_int_xvel(-2);
+		actor->vel.X -= 1/8.;
 		static const ESpriteFlags flips[] = { 0, CSTAT_SPRITE_XFLIP, CSTAT_SPRITE_YFLIP, CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP };
 		actor->spr.cstat = flips[int(actor->vel.X * 16) & 3];
 	}
@@ -2458,7 +2458,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 	auto sectp = actor->sector();
 
 	if(actor->vel.X > 0)
-		actor->add_int_xvel(-1);
+		actor->vel.X -= 1/16.;
 	else actor->vel.X = 0;
 
 	if (actor->vel.Z > 4 && actor->vel.Z < 5)
@@ -3346,7 +3346,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 		actor->temp_data[3]++;
 		if (actor->temp_data[3] == 5)
 		{
-			actor->add_int_zvel( 1024);
+			actor->vel.Z += 4;
 			FTA(7, &ps[myconnectindex]);
 		}
 	}
@@ -4842,10 +4842,10 @@ void makeitfall(DDukeActor* actor)
 	if( actor->spr.pos.Z < actor->floorz - FOURSLEIGHT_F)
 	{
 		if( actor->sector()->lotag == 2 && actor->vel.Z > 3122/256.)
-			actor->set_int_zvel(3144);
-		if(actor->vel.Z < 24)
-			actor->add_int_zvel( c);
-		else actor->set_int_zvel(6144);
+			actor->vel.Z = 3144 / 256.;
+		if (actor->vel.Z < 24)
+			actor->add_int_zvel(c);
+		else actor->vel.Z = 24;
 		actor->spr.pos.Z += actor->vel.Z;
 	}
 	if (actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F)
@@ -5076,7 +5076,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 			actor->add_int_zvel( c);
 			actor->spr.pos.Z += actor->vel.Z;
 
-			if (actor->vel.Z > 24) actor->set_int_zvel(6144);
+			if (actor->vel.Z > 24) actor->vel.Z = 24;
 		}
 		else
 		{
