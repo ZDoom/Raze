@@ -631,13 +631,13 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 				if (attackerflag(actor, SFLAG2_DOUBLEDMGTHRUST))
 				{
-						ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 2);
-						ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 2);
+						ps[p].__vel.X += actor->hitextra * bcos(actor->hitang, 2);
+						ps[p].__vel.Y += actor->hitextra * bsin(actor->hitang, 2);
 				}
 				else
 				{
-						ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 1);
-						ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 1);
+						ps[p].__vel.X += actor->hitextra * bcos(actor->hitang, 1);
+						ps[p].__vel.Y += actor->hitextra * bsin(actor->hitang, 1);
 				}
 			}
 			else
@@ -1848,7 +1848,7 @@ void movetransports_d(void)
 
 					int k = 0;
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 2048))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].__vel.Z > 2048))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
@@ -1861,8 +1861,8 @@ void movetransports_d(void)
 						ps[p].pos.Z = Owner->sector()->ceilingz + 7;
 						ps[p].backupz();
 
-						ps[p].vel.X = 4096 - (krand() & 8192);
-						ps[p].vel.Y = 4096 - (krand() & 8192);
+						ps[p].__vel.X = 4096 - (krand() & 8192);
+						ps[p].__vel.Y = 4096 - (krand() & 8192);
 
 					}
 
@@ -3526,8 +3526,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		double newx = ps[playernum].pos.X + (ps[playernum].vel.X / 768) * inttoworld;
-		double newy = ps[playernum].pos.Y + (ps[playernum].vel.Y / 768) * inttoworld;
+		double newx = ps[playernum].pos.X + (ps[playernum].__vel.X / 768) * inttoworld;
+		double newy = ps[playernum].pos.Y + (ps[playernum].__vel.Y / 768) * inttoworld;
 		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
@@ -3637,13 +3637,13 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 				if (xvel < 512)
 				{
-					ps[playernum].vel.X = 0;
-					ps[playernum].vel.Y = 0;
+					ps[playernum].__vel.X = 0;
+					ps[playernum].__vel.Y = 0;
 				}
 				else
 				{
-					ps[playernum].vel.X = MulScale(ps[playernum].vel.X, gs.playerfriction - 0x2000, 16);
-					ps[playernum].vel.Y = MulScale(ps[playernum].vel.Y, gs.playerfriction - 0x2000, 16);
+					ps[playernum].__vel.X = MulScale(ps[playernum].__vel.X, gs.playerfriction - 0x2000, 16);
+					ps[playernum].__vel.Y = MulScale(ps[playernum].__vel.Y, gs.playerfriction - 0x2000, 16);
 				}
 			}
 			else if (actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != COMMANDER)

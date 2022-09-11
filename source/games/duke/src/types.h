@@ -201,7 +201,7 @@ struct CraneDef
 
 struct player_struct 
 {
-	vec3_t vel;
+	vec3_t __vel;
 	DVector3 pos, opos;
 	DVector2 bobpos;
 

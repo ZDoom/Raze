@@ -534,13 +534,13 @@ int ifhitbyweapon_r(DDukeActor *actor)
 
 				if (attackerflag(actor, SFLAG2_DOUBLEDMGTHRUST))
 				{
-					ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 2);
-					ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 2);
+					ps[p].__vel.X += actor->hitextra * bcos(actor->hitang, 2);
+					ps[p].__vel.Y += actor->hitextra * bsin(actor->hitang, 2);
 				}
 				else
 				{
-					ps[p].vel.X += actor->hitextra * bcos(actor->hitang, 1);
-					ps[p].vel.Y += actor->hitextra * bsin(actor->hitang, 1);
+					ps[p].__vel.X += actor->hitextra * bcos(actor->hitang, 1);
+					ps[p].__vel.Y += actor->hitextra * bsin(actor->hitang, 1);
 				}
 			}
 			else
@@ -3564,8 +3564,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		double newx = ps[pnum].pos.X + (ps[pnum].vel.X / 768) * inttoworld;
-		double newy = ps[pnum].pos.Y + (ps[pnum].vel.Y / 768) * inttoworld;
+		double newx = ps[pnum].pos.X + (ps[pnum].__vel.X / 768) * inttoworld;
+		double newy = ps[pnum].pos.Y + (ps[pnum].__vel.Y / 768) * inttoworld;
 		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
@@ -3669,13 +3669,13 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 				if (xvel < 512)
 				{
-					ps[pnum].vel.X = 0;
-					ps[pnum].vel.Y = 0;
+					ps[pnum].__vel.X = 0;
+					ps[pnum].__vel.Y = 0;
 				}
 				else
 				{
-					ps[pnum].vel.X = MulScale(ps[pnum].vel.X, gs.playerfriction - 0x2000, 16);
-					ps[pnum].vel.Y = MulScale(ps[pnum].vel.Y, gs.playerfriction - 0x2000, 16);
+					ps[pnum].__vel.X = MulScale(ps[pnum].__vel.X, gs.playerfriction - 0x2000, 16);
+					ps[pnum].__vel.Y = MulScale(ps[pnum].__vel.Y, gs.playerfriction - 0x2000, 16);
 				}
 			}
 			else if ((isRRRA() && actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != UFO1_RRRA) ||

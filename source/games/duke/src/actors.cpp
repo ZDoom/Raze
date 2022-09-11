@@ -2090,7 +2090,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 {
 	auto sectp = actor->sector();
 
-	actor->set_int_xvel((krand() & 7) + bsin(actor->temp_data[0], -9));
+	actor->set_int_xvel((krand() & 7) + BobVal(actor->temp_data[0]) * 32);
 	actor->temp_data[0] += (krand() & 63);
 	if ((actor->temp_data[0] & 2047) > 512 && (actor->temp_data[0] & 2047) < 1596)
 	{

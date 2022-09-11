@@ -392,7 +392,7 @@ void doanimations(void)
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
 							ps[p].player_add_int_z(v);
-							ps[p].vel.Z = 0;
+							ps[p].__vel.Z = 0;
 						}
 
 			DukeSectIterator it(dasectp);

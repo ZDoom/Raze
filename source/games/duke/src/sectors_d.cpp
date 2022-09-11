@@ -916,8 +916,8 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 		p->hurt_delay = 16;
 		SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 
-		p->vel.X = -p->angle.ang.Cos() * (1 << 22);
-		p->vel.Y = -p->angle.ang.Sin() * (1 << 22);
+		p->__vel.X = -p->angle.ang.Cos() * (1 << 22);
+		p->__vel.Y = -p->angle.ang.Sin() * (1 << 22);
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
 		fi.checkhitwall(p->GetActor(), wal, p->pos + p->angle.ang.ToVector() * 2, -1);

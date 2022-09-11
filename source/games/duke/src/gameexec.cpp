@@ -403,18 +403,18 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSXV:
-		if (bSet) ps[iPlayer].vel.X = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].vel.X, sActor, sPlayer);
+		if (bSet) ps[iPlayer].__vel.X = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].__vel.X, sActor, sPlayer);
 		break;
 
 	case PLAYER_POSYV:
-		if (bSet) ps[iPlayer].vel.Y = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].vel.Y, sActor, sPlayer);
+		if (bSet) ps[iPlayer].__vel.Y = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].__vel.Y, sActor, sPlayer);
 		break;
 
 	case PLAYER_POSZV:
-		if (bSet) ps[iPlayer].vel.Z = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].vel.Z, sActor, sPlayer);
+		if (bSet) ps[iPlayer].__vel.Z = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].__vel.Z, sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_PISSED_TIME:
@@ -2250,7 +2250,7 @@ int ParseState::parse(void)
 			ps[g_p].footprintcount = 0;
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
-			ps[g_p].vel.X = ps[g_p].vel.Y = 0;
+			ps[g_p].__vel.X = ps[g_p].__vel.Y = 0;
 			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = nullAngle;
 
 			ps[g_p].falling_counter = 0;
@@ -2388,7 +2388,7 @@ int ParseState::parse(void)
 			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 			if( (l& pducking) && ps[g_p].on_ground && PlayerInput(g_p, SB_CROUCH))
 					j = 1;
-			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].vel.Z > 2048 )
+			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].__vel.Z > 2048 )
 					j = 1;
 			else if( (l& pjumping) && ps[g_p].jumping_counter > 348 )
 					j = 1;
@@ -2447,8 +2447,8 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);
-		ps[g_p].vel.X -= ps[g_p].angle.ang.Cos() * (1 << 21);
-		ps[g_p].vel.Y -= ps[g_p].angle.ang.Sin() * (1 << 21);
+		ps[g_p].__vel.X -= ps[g_p].angle.ang.Cos() * (1 << 21);
+		ps[g_p].__vel.Y -= ps[g_p].angle.ang.Sin() * (1 << 21);
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2456,8 +2456,8 @@ int ParseState::parse(void)
 			forceplayerangle(g_p);
 		else
 		{
-			ps[g_p].vel.X -= ps[g_p].angle.ang.Cos() * (1 << 24);
-			ps[g_p].vel.Y -= ps[g_p].angle.ang.Sin() * (1 << 24);
+			ps[g_p].__vel.X -= ps[g_p].angle.ang.Cos() * (1 << 24);
+			ps[g_p].__vel.Y -= ps[g_p].angle.ang.Sin() * (1 << 24);
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}

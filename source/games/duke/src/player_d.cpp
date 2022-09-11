@@ -1797,16 +1797,16 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		else
 		{
 			p->on_ground = 0;
-			p->vel.Z += (gs.gravity + 80); // (TICSPERFRAME<<6);
-			if (p->vel.Z >= (4096 + 2048)) p->vel.Z = (4096 + 2048);
-			if (p->vel.Z > 2400 && p->falling_counter < 255)
+			p->__vel.Z += (gs.gravity + 80); // (TICSPERFRAME<<6);
+			if (p->__vel.Z >= (4096 + 2048)) p->__vel.Z = (4096 + 2048);
+			if (p->__vel.Z > 2400 && p->falling_counter < 255)
 			{
 				p->falling_counter++;
 				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->pos.Z + p->vel.Z * zinttoworld >= floorz - i) // hit the ground
+			if (p->pos.Z + p->__vel.Z * zinttoworld >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -1830,7 +1830,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
 					}
-					else if (p->vel.Z > 2048) S_PlayActorSound(DUKE_LAND, pact);
+					else if (p->__vel.Z > 2048) S_PlayActorSound(DUKE_LAND, pact);
 				}
 			}
 		}
@@ -1841,8 +1841,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		p->falling_counter = 0;
 		S_StopSound(-1, pact, CHAN_VOICE);
 
-		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->vel.Z > (6144 >> 1))
-			p->hard_landing = p->vel.Z >> 10;
+		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->__vel.Z > (6144 >> 1))
+			p->hard_landing = p->__vel.Z >> 10;
 
 		p->on_ground = 1;
 
@@ -1853,8 +1853,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			double k = (floorz - i - p->pos.Z) * 0.5;
 			if (abs(k) < 1) k = 0;
 			p->pos.Z += k;
-			p->vel.Z -= 768;
-			if (p->vel.Z < 0) p->vel.Z = 0;
+			p->__vel.Z -= 768;
+			if (p->__vel.Z < 0) p->__vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
@@ -1862,7 +1862,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			if (p->on_warping_sector == 0 && p->pos.Z > floorz - 16)
 			{
 				p->pos.Z = floorz - 16;
-				p->vel.Z >>= 1;
+				p->__vel.Z >>= 1;
 			}
 		}
 
@@ -1896,11 +1896,11 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			if (psectlotag == 1 && p->jumping_counter > 768)
 			{
 				p->jumping_counter = 0;
-				p->vel.Z = -512;
+				p->__vel.Z = -512;
 			}
 			else
 			{
-				p->vel.Z -= bsin(2048 - 128 + p->jumping_counter) / 12;
+				p->__vel.Z -= bsin(2048 - 128 + p->jumping_counter) / 12;
 				p->jumping_counter += 180;
 				p->on_ground = 0;
 			}
@@ -1908,18 +1908,18 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		else
 		{
 			p->jumping_counter = 0;
-			p->vel.Z = 0;
+			p->__vel.Z = 0;
 		}
 	}
 
-	p->pos.Z += p->vel.Z * zinttoworld;
+	p->pos.Z += p->__vel.Z * zinttoworld;
 
 	if (p->pos.Z < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
-		if (p->vel.Z < 0)
-			p->vel.X = p->vel.Y = 0;
-		p->vel.Z = 128;
+		if (p->__vel.Z < 0)
+			p->__vel.X = p->__vel.Y = 0;
+		p->__vel.Z = 128;
 		p->pos.Z = ceilingz + 4;
 	}
 }
@@ -1950,38 +1950,38 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 	if (actions & SB_JUMP)
 	{
 		// jump
-		if (p->vel.Z > 0) p->vel.Z = 0;
-		p->vel.Z -= 348;
-		if (p->vel.Z < -(256 * 6)) p->vel.Z = -(256 * 6);
+		if (p->__vel.Z > 0) p->__vel.Z = 0;
+		p->__vel.Z -= 348;
+		if (p->__vel.Z < -(256 * 6)) p->__vel.Z = -(256 * 6);
 	}
 	else if (actions & SB_CROUCH)
 	{
 		// crouch
-		if (p->vel.Z < 0) p->vel.Z = 0;
-		p->vel.Z += 348;
-		if (p->vel.Z > (256 * 6)) p->vel.Z = (256 * 6);
+		if (p->__vel.Z < 0) p->__vel.Z = 0;
+		p->__vel.Z += 348;
+		if (p->__vel.Z > (256 * 6)) p->__vel.Z = (256 * 6);
 	}
 	else
 	{
 		// normal view
-		if (p->vel.Z < 0)
+		if (p->__vel.Z < 0)
 		{
-			p->vel.Z += 256;
-			if (p->vel.Z > 0)
-				p->vel.Z = 0;
+			p->__vel.Z += 256;
+			if (p->__vel.Z > 0)
+				p->__vel.Z = 0;
 		}
-		if (p->vel.Z > 0)
+		if (p->__vel.Z > 0)
 		{
-			p->vel.Z -= 256;
-			if (p->vel.Z < 0)
-				p->vel.Z = 0;
+			p->__vel.Z -= 256;
+			if (p->__vel.Z < 0)
+				p->__vel.Z = 0;
 		}
 	}
 
-	if (p->vel.Z > 2048)
-		p->vel.Z >>= 1;
+	if (p->__vel.Z > 2048)
+		p->__vel.Z >>= 1;
 
-	p->pos.Z += p->vel.Z * zinttoworld;
+	p->pos.Z += p->__vel.Z * zinttoworld;
 
 	if (p->pos.Z > floorz - 15)
 		p->pos.Z += (((floorz - 15) - p->pos.Z) * 0.5);
@@ -1989,7 +1989,7 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 	if (p->pos.Z < ceilingz + 4)
 	{
 		p->pos.Z = ceilingz + 4;
-		p->vel.Z = 0;
+		p->__vel.Z = 0;
 	}
 
 	if (p->scuba_on && (krand() & 255) < 8)
@@ -2047,7 +2047,7 @@ int operateTripbomb(int snum)
 			if (delta.LengthSquared() < (18.125 * 18.125))
 			{
 				p->pos.Z = p->opos.Z;
-				p->vel.Z = 0;
+				p->__vel.Z = 0;
 				return 1;
 			}
 		}
@@ -2584,7 +2584,7 @@ static void operateweapon(int snum, ESyncBits actions)
 		if (p->kickback_pic < 4)
 		{
 			p->pos.Z = p->opos.Z;
-			p->vel.Z = 0;
+			p->__vel.Z = 0;
 			if (p->kickback_pic == 3)
 				fi.shoot(pact, HANDHOLDINGLASER);
 		}
@@ -2787,8 +2787,8 @@ void processinput_d(int snum)
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->int_pos().Z - clz.actor()->int_pos().Z) < (84 << 8))
 		{
 			j = getangle(clz.actor()->int_pos().X - p->player_int_pos().X, clz.actor()->int_pos().Y - p->player_int_pos().Y);
-			p->vel.X -= bcos(j, 4);
-			p->vel.Y -= bsin(j, 4);
+			p->__vel.X -= bcos(j, 4);
+			p->__vel.Y -= bsin(j, 4);
 		}
 	}
 
@@ -2846,7 +2846,7 @@ void processinput_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->vel.X = p->vel.Y = 0;
+		p->__vel.X = p->__vel.Y = 0;
 		pact->vel.X = 0;
 
 		fi.doincrements(p);
@@ -2895,8 +2895,8 @@ void processinput_d(int snum)
 	if (movementBlocked(p))
 	{
 		doubvel = 0;
-		p->vel.X = 0;
-		p->vel.Y = 0;
+		p->__vel.X = 0;
+		p->__vel.Y = 0;
 	}
 	else if (SyncInput())
 	{
@@ -2947,7 +2947,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	if (p->vel.X || p->vel.Y || sb_fvel || sb_svel)
+	if (p->__vel.X || p->__vel.Y || sb_fvel || sb_svel)
 	{
 		p->crack_time = CRACK_TIME;
 
@@ -2989,8 +2989,8 @@ void processinput_d(int snum)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->vel.X += ((sb_fvel * doubvel) << 6);
-		p->vel.Y += ((sb_svel * doubvel) << 6);
+		p->__vel.X += ((sb_fvel * doubvel) << 6);
+		p->__vel.Y += ((sb_svel * doubvel) << 6);
 
 		bool check;
 
@@ -2998,32 +2998,32 @@ void processinput_d(int snum)
 		else check = ((aplWeaponWorksLike(p->curr_weapon, snum) == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
-			p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x2000, 16);
-			p->vel.Y = MulScale(p->vel.Y, gs.playerfriction - 0x2000, 16);
+			p->__vel.X = MulScale(p->__vel.X, gs.playerfriction - 0x2000, 16);
+			p->__vel.Y = MulScale(p->__vel.Y, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->vel.X = MulScale(p->vel.X, gs.playerfriction - 0x1400, 16);
-				p->vel.Y = MulScale(p->vel.Y, gs.playerfriction - 0x1400, 16);
+				p->__vel.X = MulScale(p->__vel.X, gs.playerfriction - 0x1400, 16);
+				p->__vel.Y = MulScale(p->__vel.Y, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->vel.X = MulScale(p->vel.X, gs.playerfriction, 16);
-				p->vel.Y = MulScale(p->vel.Y, gs.playerfriction, 16);
+				p->__vel.X = MulScale(p->__vel.X, gs.playerfriction, 16);
+				p->__vel.Y = MulScale(p->__vel.Y, gs.playerfriction, 16);
 			}
 		}
 
-		if (abs(p->vel.X) < 2048 && abs(p->vel.Y) < 2048)
-			p->vel.X = p->vel.Y = 0;
+		if (abs(p->__vel.X) < 2048 && abs(p->__vel.Y) < 2048)
+			p->__vel.X = p->__vel.Y = 0;
 
 		if (shrunk)
 		{
-			p->vel.X =
-				MulScale(p->vel.X, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
-			p->vel.Y =
-				MulScale(p->vel.Y, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
+			p->__vel.X =
+				MulScale(p->__vel.X, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
+			p->__vel.Y =
+				MulScale(p->__vel.Y, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 		}
 	}
 
@@ -3038,12 +3038,12 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->player_add_int_xy({ p->vel.X >> 14, p->vel.Y >> 14 });
+		p->player_add_int_xy({ p->__vel.X >> 14, p->__vel.Y >> 14 });
 		updatesector(p->pos, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, p->vel.X, p->vel.Y, 164, (4 << 8), ii, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, p->__vel.X, p->__vel.Y, 164, (4 << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.Z += 32;

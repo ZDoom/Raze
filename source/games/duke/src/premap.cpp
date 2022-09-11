@@ -183,9 +183,9 @@ void resetplayerstats(int snum)
 	p->newOwner          =nullptr;
 	p->jumping_counter   = 0;
 	p->hard_landing      = 0;
-	p->vel.X             = 0;                           //!!
-	p->vel.Y             = 0;
-	p->vel.Z             = 0;
+	p->__vel.X             = 0;                           //!!
+	p->__vel.Y             = 0;
+	p->__vel.Z             = 0;
 	p->fric.X            = 0;
 	p->fric.Y            = 0;
 	p->somethingonplayer = nullptr;
