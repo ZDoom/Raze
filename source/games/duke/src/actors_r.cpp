@@ -3669,13 +3669,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 				if (xvel < 512)
 				{
-					ps[pnum].__vel.X = 0;
-					ps[pnum].__vel.Y = 0;
+					ps[pnum].vel.X = 0;
+					ps[pnum].vel.Y = 0;
 				}
 				else
 				{
-					ps[pnum].__vel.X = MulScaleF(ps[pnum].__vel.X, gs.playerfriction - 0x2000, 16);
-					ps[pnum].__vel.Y = MulScaleF(ps[pnum].__vel.Y, gs.playerfriction - 0x2000, 16);
+					ps[pnum].vel.XY() *= gs.playerfriction - 0.125;
 				}
 			}
 			else if ((isRRRA() && actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != UFO1_RRRA) ||

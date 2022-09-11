@@ -3712,20 +3712,17 @@ void processinput_r(int snum)
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
-			p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction - 0x2000, 16);
-			p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction - 0x2000, 16);
+			p->vel.XY() *= gs.playerfriction - 0.125;
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction - 0x1400, 16);
-				p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction - 0x1400, 16);
+				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
 			}
 			else
 			{
-				p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction, 16);
-				p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction, 16);
+				p->vel.XY() *= gs.playerfriction;
 			}
 		}
 
@@ -3746,8 +3743,7 @@ void processinput_r(int snum)
 				p->boot_amount--;
 			else
 			{
-				p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction, 16);
-				p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction, 16);
+				p->vel.XY() *= gs.playerfriction;
 			}
 		}
 		else
@@ -3758,8 +3754,7 @@ void processinput_r(int snum)
 				{
 					if (p->on_ground)
 					{
-						p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction - 0x1800, 16);
-						p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction - 0x1800, 16);
+						p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
 					}
 				}
 				else
@@ -3767,20 +3762,16 @@ void processinput_r(int snum)
 						p->boot_amount--;
 					else
 					{
-						p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction - 0x1800, 16);
-						p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction - 0x1800, 16);
+						p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
 					}
 			}
 
 		if (abs(p->__vel.X) < 2048 && abs(p->__vel.Y) < 2048)
-			p->__vel.X = p->__vel.Y = 0;
+			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
 		{
-			p->__vel.X =
-				MulScaleF(p->__vel.X, gs.playerfriction * 0.75, 16);
-			p->__vel.Y =
-				MulScaleF(p->__vel.Y, gs.playerfriction * 0.75, 16);
+			p->__vel.XY() *= gs.playerfriction * 0.75;
 		}
 	}
 

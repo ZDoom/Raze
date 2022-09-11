@@ -2998,20 +2998,17 @@ void processinput_d(int snum)
 		else check = ((aplWeaponWorksLike(p->curr_weapon, snum) == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
-			p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction - 0x2000, 16);
-			p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction - 0x2000, 16);
+			p->vel.XY() *= gs.playerfriction - 0.125;
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction - 0x1400, 16);
-				p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction - 0x1400, 16);
+				p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1400);
 			}
 			else
 			{
-				p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction, 16);
-				p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction, 16);
+				p->vel.XY() *= gs.playerfriction;
 			}
 		}
 
@@ -3020,10 +3017,7 @@ void processinput_d(int snum)
 
 		if (shrunk)
 		{
-			p->__vel.X =
-				MulScaleF(p->__vel.X, gs.playerfriction * 0.75, 16);
-			p->__vel.Y =
-				MulScaleF(p->__vel.Y, gs.playerfriction * 0.75, 16);
+			p->__vel.XY() *= gs.playerfriction * 0.75;
 		}
 	}
 

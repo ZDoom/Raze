@@ -1939,7 +1939,7 @@ int ConCompiler::parsecommand()
 		gs.max_armour_amount = parseone();
 		gs.respawnactortime = parseone();
 		gs.respawnitemtime = parseone();
-		gs.playerfriction = parseone();
+		gs.playerfriction = FixedToFloat(parseone());
 		if (isPlutoPak() || isRR()) gs.gravity = parseone();
 		gs.rpgblastradius = parseone();
 		gs.pipebombblastradius = parseone();
@@ -3181,7 +3181,7 @@ void loadcons()
 	gs.morterblastradius = 2500;
 	gs.numfreezebounces = 3;
 	gs.pipebombblastradius = 2500;
-	gs.playerfriction = 0xCFD0;
+	gs.playerfriction = FixedToFloat(0xCFD0);
 	gs.rpgblastradius = 1780;
 	gs.seenineblastradius = 2048;
 	gs.shrinkerblastradius = 650;

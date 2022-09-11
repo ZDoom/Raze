@@ -201,7 +201,11 @@ struct CraneDef
 
 struct player_struct 
 {
-	DVector3 __vel;
+	union
+	{
+		DVector3 vel;	// refactoring aid;
+		DVector3 __vel;
+	};
 	DVector3 pos, opos;
 	DVector2 bobpos;
 
