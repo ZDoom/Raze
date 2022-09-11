@@ -4171,18 +4171,18 @@ void handle_se20(DDukeActor* actor)
 void handle_se21(DDukeActor* actor)
 {
 	auto sc = actor->sector();
-	int lp;
+	double lp;
 
 	if (actor->temp_data[0] == 0) return;
 
-	if (actor->int_ang() == 1536)
-		lp = sc->int_ceilingz();
+	if (actor->spr.intangle == 1536)
+		lp = sc->ceilingz;
 	else
-		lp = sc->int_floorz();
+		lp = sc->floorz;
 
 	if (actor->temp_data[0] == 1) //Decide if the sector should go up or down
 	{
-		actor->set_int_zvel(Sgn(actor->int_pos().Z - lp) * (actor->spr.yint << 4));
+		actor->vel.Z = (Sgn(actor->spr.pos.Z - lp) * (actor->spr.yint << 4) * zmaptoworld);
 		actor->temp_data[0]++;
 	}
 
