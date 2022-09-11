@@ -603,7 +603,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 {
 	auto sectp = actor->sector();
-	int d, clostest = 0;
+	int clostest = 0;
 
 	actor->spr.yint = sectp->extra;
 	actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -776,32 +776,31 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 		case SE_20_STRETCH_BRIDGE:
 		{
-			int q;
 			walltype* closewall = nullptr;
 
 			//find the two most clostest wall x's and y's
-			q = 0x7fffffff;
+			double maxdist = 0x7fffffff;
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->int_pos().vec2 - wal.wall_int_pos());
-				if (d < q)
+				double dist = (actor->spr.pos.XY() - wal.pos).LengthSquared();
+				if (dist < maxdist)
 				{
-					q = d;
+					maxdist = dist;
 					closewall = &wal;
 				}
 			}
 
 			actor->temp_walls[0] = closewall;
 
-			q = 0x7fffffff;
+			maxdist = 0x7fffffff;
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->int_pos().vec2 - wal.wall_int_pos());
-				if (d < q && &wal != actor->temp_walls[0])
+				double dist = (actor->spr.pos.XY() - wal.pos).LengthSquared();
+				if (dist < maxdist && &wal != actor->temp_walls[0])
 				{
-					q = d;
+					maxdist = dist;
 					closewall = &wal;
 				}
 			}

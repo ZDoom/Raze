@@ -4107,21 +4107,18 @@ void handle_se20(DDukeActor* actor)
 	auto sc = actor->sector();
 
 	if (actor->temp_data[0] == 0) return;
-	if (actor->temp_data[0] == 1) actor->set_int_xvel(8);
-	else actor->set_int_xvel(-8);
 
-	if(actor->vel.X != 0) //Moving
+	//if(actor->vel.X != 0) //Moving
 	{
-		int x = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-		int l = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
+		auto vec = actor->spr.angle.ToVector() * (actor->temp_data[0] == 1 ? 0.5 : -0.5);
 
-		actor->temp_data[3] += actor->int_xvel();
+		actor->temp_data[3] += actor->temp_data[0] == 1? 8 :- 8;
 
-		actor->add_int_pos({ x, l, 0 });
+		actor->spr.pos += vec;
 
 		if (actor->temp_data[3] <= 0 || (actor->temp_data[3] >> 6) >= (actor->spr.yint >> 6))
 		{
-			actor->add_int_pos({ -x, -l, 0 });
+			actor->spr.pos -= vec;
 			actor->temp_data[0] = 0;
 			callsound(actor->sector(), actor);
 			return;
@@ -4132,7 +4129,7 @@ void handle_se20(DDukeActor* actor)
 		{
 			if (a2->spr.statnum != 3 && a2->vel.Z == 0)
 			{
-				a2->add_int_pos({ x, l, 0 });
+				actor->spr.pos += vec;
 				if (a2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
 					if (a2->spr.statnum == 2)
 						makeitfall(a2);
@@ -4140,23 +4137,23 @@ void handle_se20(DDukeActor* actor)
 		}
 
 		auto& wal = actor->temp_walls;
-		dragpoint(wal[0], wal[0]->wall_int_pos().X + x, wal[0]->wall_int_pos().Y + l);
-		dragpoint(wal[1], wal[1]->wall_int_pos().X + x, wal[1]->wall_int_pos().Y + l);
+		dragpoint(wal[0], wal[0]->pos + vec);
+		dragpoint(wal[1], wal[1]->pos + vec);
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 			{
-				ps[p].player_add_int_xy({ x, l });
+				ps[p].pos += vec;
 				ps[p].backupxy();
 
 				SetActor(ps[p].GetActor(), ps[p].pos.plusZ(gs.playerheight));
 			}
 
-		sc->addfloorxpan(-x / 8.f);
-		sc->addfloorypan(-l / 8.f);
+		sc->addfloorxpan(-vec.X * 2);
+		sc->addfloorypan(-vec.Y * 2);
 
-		sc->addceilingxpan(-x / 8.f);
-		sc->addceilingypan(-l / 8.f);
+		sc->addceilingxpan(-vec.X * 2);
+		sc->addceilingypan(-vec.Y * 2);
 	}
 }
 
