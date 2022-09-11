@@ -36,7 +36,7 @@ Collision movesprite(DExhumedActor* spritenum, DVector2 vect, double dz, double 
 
 inline Collision movespritevel(DExhumedActor* spritenum, const DVector3& pos, double xyfactor, int flordist, unsigned int clipmask)
 {
-	return movesprite(spritenum, pos.XY() * xyfactor / 16384., pos.Z, flordist, clipmask);
+	return movesprite(spritenum, pos.XY() * xyfactor / 64, pos.Z, flordist, clipmask);
 }
 
 void precache();

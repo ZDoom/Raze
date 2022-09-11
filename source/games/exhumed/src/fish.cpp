@@ -130,7 +130,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
     }
     else
     {
-        auto coll = movespritevel(pActor, pActor->vel, 256., -10, CLIPMASK1);
+        auto coll = movespritevel(pActor, pActor->vel, 1., -10, CLIPMASK1);
         if (coll.type != kHitNone)
         {
             pActor->vel.X = 0;
@@ -469,7 +469,7 @@ void AIFish::Tick(RunListEvent* ev)
     auto pSector =pActor->sector();
 
     // loc_2EF54
-    Collision coll = movespritevel(pActor, pActor->vel * 4, 2048., 0, CLIPMASK0);
+    Collision coll = movespritevel(pActor, pActor->vel * 4, 8., 0, CLIPMASK0);
 
     if (!(pActor->sector()->Flag & kSectUnderwater))
     {

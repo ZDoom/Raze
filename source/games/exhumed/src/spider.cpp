@@ -104,7 +104,7 @@ void AISpider::Tick(RunListEvent* ev)
 
     int nAction = spp->nAction;
 
-    int nVel = 6;
+    double nVel = 0.25;
 
     if (spp->nHealth)
     {
@@ -164,7 +164,7 @@ void AISpider::Tick(RunListEvent* ev)
         case 1:
         {
             if (pTarget) {
-                nVel++;
+                nVel *= 2;
             }
             goto case_3;
             break;
@@ -285,7 +285,7 @@ void AISpider::Tick(RunListEvent* ev)
         spp->vel.Y = 0;
     }
 
-    auto nMov = movespritevel(spp, spp->vel, 1 << nVel, -5, CLIPMASK0);
+    auto nMov = movespritevel(spp, spp->vel, nVel, -5, CLIPMASK0);
 
     if (nMov.type == kHitNone && nMov.exbits == 0)
         return;
