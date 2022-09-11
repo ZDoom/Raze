@@ -774,7 +774,7 @@ void movefallers_d(void)
 				{
 					act->add_int_zvel( x);
 					if (act->vel.Z > 24)
-						act->set_int_zvel(6144);
+						act->vel.Z = 24;
 					act->spr.pos.Z += act->vel.Z;
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
@@ -1337,8 +1337,8 @@ static bool movefireball(DDukeActor* actor)
 		}
 		actor->temp_data[0]++;
 	}
-	if (actor->vel.Z < 15000./256.)
-		actor->add_int_zvel( 200);
+	if (actor->vel.Z < 15000. / 256.)
+		actor->vel.Z += 200 / 256.;
 	return false;
 }
 
@@ -1555,7 +1555,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (proj->spr.pos.Z < proj->ceilingz)
 		{
 			coll.setSector(proj->sector());
-			proj->set_int_zvel(-1);
+			proj->vel.Z -= 1/256.;
 		}
 		else
 			if ((proj->spr.pos.Z > proj->floorz && proj->sector()->lotag != 1) ||
@@ -1563,7 +1563,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			{
 				coll.setSector(proj->sector());
 				if (proj->sector()->lotag != 1)
-					proj->set_int_zvel(1);
+					proj->vel.Z += 1/256.;
 			}
 	}
 
@@ -2367,7 +2367,7 @@ static void greenslime(DDukeActor *actor)
 
 		if (actor->int_xvel() > 96)
 		{
-			actor->add_int_xvel(-2);
+			actor->vel.X -= 1/8.;
 			return;
 		}
 		else
@@ -2398,7 +2398,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->spr.yrepeat < 40) actor->spr.yrepeat += 8;
 		if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
 		if (actor->vel.Z > -12)
-			actor->add_int_zvel(- 348);
+			actor->vel.Z -= 348 / 256.;
 		actor->spr.pos.Z += actor->vel.Z;
 		if (actor->spr.pos.Z < actor->ceilingz + 16)
 		{
@@ -2487,14 +2487,14 @@ static void flamethrowerflame(DDukeActor *actor)
 		if (actor->spr.pos.Z < actor->ceilingz)
 		{
 			coll.setSector(actor->sector());
-			actor->set_int_zvel(-1);
+			actor->vel.Z -= 1/256.;
 		}
 		else if ((actor->spr.pos.Z > actor->floorz && actor->sector()->lotag != 1)
 			|| (actor->spr.pos.Z > actor->floorz + 16 && actor->sector()->lotag == 1))
 		{
 			coll.setSector(actor->sector());
 			if (actor->sector()->lotag != 1)
-				actor->set_int_zvel(1);
+				actor->vel.Z += 1/256.;
 		}
 	}
 
@@ -2626,9 +2626,9 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if(actor->vel.X > 0)
 	{
-		actor->add_int_xvel(-5);
+		actor->vel.X -= 5. / 16;
 		if (sectp->lotag == 2)
-			actor->add_int_xvel(-10);
+			actor->vel.X -= 10. / 16;
 
 		if(actor->vel.X < 0)
 			actor->vel.X = 0;

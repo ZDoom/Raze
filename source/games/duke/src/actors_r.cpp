@@ -674,7 +674,7 @@ void movefallers_r(void)
 			{
 				if (act->int_xvel() > 0)
 				{
-					act->add_int_xvel(-2);
+					act->vel.X -= 1/8.;
 					ssp(act, CLIPMASK0);
 				}
 
@@ -692,7 +692,7 @@ void movefallers_r(void)
 				{
 					act->add_int_zvel( x);
 					if (act->vel.Z > 24)
-						act->set_int_zvel(6144);
+						act->vel.Z = 24;
 					act->spr.pos.Z += act->vel.Z;
 				}
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
@@ -956,7 +956,7 @@ static void chickenarrow(DDukeActor* actor)
 
 		if (actor->spr.hitag > 180)
 			if (actor->vel.Z <= 0)
-				actor->add_int_zvel( 200);
+				actor->vel.Z += 200 / 256;
 	}
 }
 
@@ -1246,14 +1246,14 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (proj->spr.pos.Z < proj->ceilingz)
 		{
 			coll.setSector(proj->sector());
-			proj->set_int_zvel(-1);
+			proj->vel.Z -= 1/256.;
 		}
 		else
 			if (proj->spr.pos.Z > proj->floorz)
 			{
 				coll.setSector(proj->sector());
 				if (proj->sector()->lotag != 1)
-					proj->set_int_zvel(1);
+					proj->vel.Z += 1/256.;
 			}
 	}
 
@@ -2414,9 +2414,9 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if(actor->vel.X > 0)
 	{
-		actor->add_int_xvel(-5);
+		actor->vel.X -= 5. / 16;
 		if (sectp->lotag == 2)
-			actor->add_int_xvel(-10);
+			actor->vel.X -= 10. / 16;
 
 		if(actor->vel.X < 0)
 			actor->vel.X = 0;
@@ -2588,7 +2588,7 @@ static int henstand(DDukeActor *actor)
 				}
 			}
 		}
-		actor->add_int_xvel(-1);
+		actor->vel.X -= 1/16.;
 		if(actor->vel.X < 0) actor->vel.X = 0;
 		actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		if (actor->spr.picnum == BOWLINGPIN)
@@ -3824,7 +3824,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		if (actor->spr.picnum != APLAYER && (badguy(actor) || actor->spr.picnum == HEN || actor->spr.picnum == COW || actor->spr.picnum == PIG || actor->spr.picnum == DOGRUN || actor->spr.picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
 		{
 			actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
-			actor->set_int_zvel(8000);
+			actor->vel.Z = 8000 / 256.;
 			actor->spr.extra = 0;
 			actor->spriteextra++;
 			sphit = 1;
