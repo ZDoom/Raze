@@ -272,21 +272,18 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 //
 //---------------------------------------------------------------------------
 
-void ms(DDukeActor* const actor)
+void movesector(DDukeActor* const actor, int msindex, DAngle rotation)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
 	actor->spr.pos.X += actor->vel.X * actor->spr.angle.Cos();
 	actor->spr.pos.Y += actor->vel.X * actor->spr.angle.Sin();
 
-	int j = actor->temp_data[1];
-	int k = actor->temp_data[2];
-
 	for(auto& wal : wallsofsector(actor->sector()))
 	{
-		auto t = rotatepoint({ 0, 0 }, { msx[j] * inttoworld, msy[j] * inttoworld }, DAngle::fromBuild(k & 2047));
+		auto t = rotatepoint({ 0, 0 }, { msx[msindex] * inttoworld, msy[msindex] * inttoworld }, rotation);
 
 		dragpoint(&wal, actor->spr.pos.XY() + t);
-		j++;
+		msindex++;
 	}
 }
 
@@ -2697,7 +2694,7 @@ void handle_se00(DDukeActor* actor)
 		}
 
 	}
-	ms(actor);
+	movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 }
 
 //---------------------------------------------------------------------------
@@ -2878,7 +2875,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			}
 		}
 
-		ms(actor);
+		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 		// I have no idea why this is here, but the SE's sector must never, *EVER* change, or the map will corrupt.
 		//SetActor(actor, actor->spr.pos);
 
@@ -3039,7 +3036,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			}
 		}
 
-		ms(actor);
+		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 		//SetActor(actor, actor->spr.pos);
 
 		if ((sc->floorz - sc->ceilingz) < 108)
@@ -3153,7 +3150,7 @@ void handle_se02(DDukeActor* actor)
 				SetActor(a2, a2->spr.pos);
 			}
 		}
-		ms(actor);
+		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 		//SetActor(actor, actor->spr.pos);
 	}
 }
@@ -3357,7 +3354,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	actor->spr.pos.Z += actor->vel.Z;
 	sc->setceilingz(actor->vel.Z);
 	sector[actor->temp_data[0]].setceilingz(actor->vel.Z);
-	ms(actor);
+	movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 	//SetActor(actor, actor->spr.pos);
 }
 
@@ -3514,7 +3511,7 @@ void handle_se11(DDukeActor *actor)
 		int k = (actor->spr.yint >> 3) * actor->temp_data[3];
 		actor->temp_data[2] += k;
 		actor->temp_data[4] += k;
-		ms(actor);
+		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 		//SetActor(actor, actor->spr.pos);
 
 		for(auto& wal : wallsofsector(sc))
@@ -3527,7 +3524,7 @@ void handle_se11(DDukeActor *actor)
 					actor->temp_data[5] = 8; // Delay
 					actor->temp_data[2] -= k;
 					actor->temp_data[4] -= k;
-					ms(actor);
+					movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 					//SetActor(actor, actor->spr.pos);
 					return;
 				}
@@ -3538,7 +3535,7 @@ void handle_se11(DDukeActor *actor)
 		{
 			actor->temp_data[4] = 0;
 			actor->temp_data[2] &= 0xffffff00;
-			ms(actor);
+			movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 			//SetActor(actor, actor->spr.pos);
 		}
 	}
@@ -3728,7 +3725,7 @@ void handle_se15(DDukeActor* actor)
 			actor->temp_data[3]--;
 		}
 
-		ms(actor);
+		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 		//SetActor(actor, actor->spr.pos);
 	}
 }
@@ -3772,7 +3769,7 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 	if (actor->spr.shade) sc->addceilingz(4);
 	else sc->addceilingz(-2);
 
-	ms(actor);
+	movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 	//SetActor(actor, actor->spr.pos);
 }
 
@@ -4265,7 +4262,7 @@ void handle_se26(DDukeActor* actor)
 			ps[p].pos.Z += zvel;
 		}
 
-	ms(actor);
+	movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
 	//SetActor(actor, actor->spr.pos);
 }
 
