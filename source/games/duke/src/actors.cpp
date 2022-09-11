@@ -3086,7 +3086,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 //---------------------------------------------------------------------------
 //
-// 
+// Earthquake
 //
 //---------------------------------------------------------------------------
 
@@ -3106,7 +3106,7 @@ void handle_se02(DDukeActor* actor)
 	{
 		actor->temp_data[0]++;
 
-		actor->set_int_xvel(3);
+		actor->vel.X = 3 / 16.;
 
 		if (actor->temp_data[0] > 96)
 		{
@@ -3128,17 +3128,13 @@ void handle_se02(DDukeActor* actor)
 			else sc->setfloorslope(sc->getfloorslope() + (Sgn(actor->temp_data[5] - sc->getfloorslope()) << 4));
 		}
 
-		int m = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-		int x = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-
+		auto vect = actor->spr.angle.ToVector() * actor->vel.X;
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 			{
-				ps[p].player_add_int_xy({ m, x });
-
-				ps[p].bobpos.X += m * inttoworld;
-				ps[p].bobpos.Y += x * inttoworld;
+				ps[p].pos += vect;
+				ps[p].bobpos += vect;
 			}
 
 		DukeSectIterator it(actor->sector());
@@ -3146,11 +3142,11 @@ void handle_se02(DDukeActor* actor)
 		{
 			if (a2->spr.picnum != SECTOREFFECTOR)
 			{
-				a2->add_int_pos({ m, x, 0 });
+				a2->spr.pos += vect;
 				SetActor(a2, a2->spr.pos);
 			}
 		}
-		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+		movesector(actor, actor->temp_data[1], nullAngle);
 		//SetActor(actor, actor->spr.pos);
 	}
 }
