@@ -713,18 +713,18 @@ void playerSetGodMode(PLAYER* pPlayer, bool bGodMode)
 void playerResetInertia(PLAYER* pPlayer)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-	pPlayer->zView = pPlayer->actor->int_pos().Z - pPosture->eyeAboveZ;
+	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ * zinttoworld;
 	pPlayer->zWeapon = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ;
 	viewBackupView(pPlayer->nPlayer);
 }
 
 void playerCorrectInertia(PLAYER* pPlayer, const DVector3& oldpos)
 {
-	auto zAdj = (pPlayer->actor->spr.pos.Z - oldpos.Z) * zworldtoint;
+	auto zAdj = pPlayer->actor->spr.pos.Z - oldpos.Z;
 	pPlayer->zView += zAdj;
-	pPlayer->zWeapon += zAdj;
+	pPlayer->zWeapon += zAdj * zworldtoint;
 	pPlayer->actor->opos.XY() += pPlayer->actor->spr.pos.XY() - oldpos.XY();
-	pPlayer->ozView += (pPlayer->actor->spr.pos.Z - oldpos.Z) * zworldtoint;
+	pPlayer->ozView += zAdj;
 }
 
 void playerResetPowerUps(PLAYER* pPlayer)
@@ -1865,12 +1865,12 @@ void playerProcess(PLAYER* pPlayer)
 	ProcessInput(pPlayer);
 	int nSpeed = approxDist(actor->int_vel().X, actor->int_vel().Y);
 	pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->int_vel().Z, FixedToFloat(0x7000));
-	int dz = pPlayer->actor->int_pos().Z - pPosture->eyeAboveZ - pPlayer->zView;
+	int dz = pPlayer->actor->int_pos().Z - pPosture->eyeAboveZ - pPlayer->zView * zworldtoint;
 	if (dz > 0)
 		pPlayer->zViewVel += MulScale(dz << 8, 0xa000, 16);
 	else
 		pPlayer->zViewVel += MulScale(dz << 8, 0x1800, 16);
-	pPlayer->zView += pPlayer->zViewVel >> 8;
+	pPlayer->zView += FixedToFloat(pPlayer->zViewVel);
 	pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->int_vel().Z, FixedToFloat(0x5000));
 	dz = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ - pPlayer->zWeapon;
 	if (dz > 0)
@@ -1930,7 +1930,7 @@ void playerProcess(PLAYER* pPlayer)
 		auto link = actor->sector()->lowerLink;
 		if (link && (link->spr.type == kMarkerLowGoo || link->spr.type == kMarkerLowWater))
 		{
-			if (getceilzofslopeptr(actor->sector(), actor->spr.pos) > pPlayer->zView)
+			if (getceilzofslopeptrf(actor->sector(), actor->spr.pos) > pPlayer->zView)
 				pPlayer->isUnderwater = 0;
 		}
 	}

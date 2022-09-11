@@ -73,7 +73,7 @@ struct BloodPlayer native
 	native int        nPlayer;  // Connect id
 	//native int        nSprite;
 	native int        lifeMode;
-	native int        zView;
+	native double     zView;
 	native int        zViewVel;
 	native int        zWeapon;
 	native int        zWeaponVel;

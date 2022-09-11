@@ -60,7 +60,7 @@ void viewBackupView(int nPlayer)
 {
 	PLAYER* pPlayer = &gPlayer[nPlayer];
 	pPlayer->ozView = pPlayer->zView;
-	pPlayer->ozWeapon = pPlayer->zWeapon - pPlayer->zView - 0xc00;
+	pPlayer->ozWeapon = pPlayer->zWeapon - pPlayer->zView * zworldtoint - 0xc00;
 	pPlayer->obobHeight = pPlayer->bobHeight;
 	pPlayer->obobWidth = pPlayer->bobWidth;
 	pPlayer->oswayHeight = pPlayer->swayHeight;
@@ -491,8 +491,8 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& c
 #endif
 	{
 		cPos.XY() = pPlayer->actor->interpolatedpos(interpfrac).XY();
-		cPos.Z = interpolatedvalue(pPlayer->ozView, pPlayer->zView, interpfrac) * zinttoworld;
-		zDelta = interpolatedvalue<double>(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - (12 << 8), interpfrac);
+		cPos.Z = interpolatedvalue(pPlayer->ozView, pPlayer->zView, interpfrac);
+		zDelta = interpolatedvalue<double>(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView * zworldtoint - (12 << 8), interpfrac);
 		bobWidth = interpolatedvalue<double>(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
 		bobHeight = interpolatedvalue<double>(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
 		shakeX = interpolatedvalue<double>(pPlayer->oswayWidth, pPlayer->swayWidth, interpfrac);

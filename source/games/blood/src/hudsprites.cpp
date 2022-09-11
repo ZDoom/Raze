@@ -173,7 +173,7 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 		drawElement(320, 237, 2358, 1, 1, 1, 1);
 	}
 
-	int zn = ((pPlayer->zWeapon - pPlayer->zView - (12 << 8)) >> 7) + 220;
+	int zn = (int(pPlayer->zWeapon - pPlayer->zView * zworldtoint - (12 << 8)) >> 7) + 220;
 	PLAYER* pPSprite = &gPlayer[pPlayer->actor->spr.type - kDudePlayer1];
 	if (pPlayer->actor->IsPlayerActor() && pPSprite->hand == 1)
 	{

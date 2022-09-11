@@ -107,8 +107,8 @@ struct PLAYER
 	int                 nPlayer;  // Connect id
 	int                 lifeMode;
 	int                 bloodlust;  // ---> useless
-	int                 zView;
-	int                 ozView;
+	double              zView;
+	double              ozView;
 	int                 zViewVel;
 	int                 zWeapon;
 	int                 ozWeapon;
