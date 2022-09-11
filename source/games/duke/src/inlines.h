@@ -247,4 +247,14 @@ inline ESpriteFlags randomXFlip()
 	return CSTAT_SPRITE_XFLIP;
 }
 
+inline DAngle randomAngle(double span)
+{
+	return DAngle::fromDeg(krandf(span));
+}
+
+inline DAngle randomAngle(DAngle span)
+{
+	return DAngle::fromDeg(krandf(span.Degrees()));
+}
+
 END_DUKE_NS

@@ -2076,31 +2076,31 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case HENSTAND + 1:
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
-			proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
-			proj->add_int_ang(-((targ->int_ang() << 1) + 1024));
-			targ->set_int_ang(getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512);
+			proj->vel.X *= 0.75;
+			proj->spr.angle -= targ->spr.angle * 2 + DAngle180;
+			targ->spr.angle = VecToAngle(targ->spr.pos.XY() - proj->spr.pos.XY()) - DAngle90;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
 		else if (proj->spr.picnum == BOWLINGPIN || proj->spr.picnum == BOWLINGPIN + 1)
 		{
-			proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
-			proj->add_int_ang(-(((targ->int_ang() << 1) + krand()) & 64));
-			targ->set_int_ang((targ->int_ang() + krand()) & 16);
+			proj->vel.X *= 0.75;
+			proj->spr.angle -= targ->spr.angle * 2 + randomAngle(11.25);
+			targ->spr.angle += randomAngle(22.5 / 8);
 			S_PlayActorSound(355, targ);
 		}
 		else if (proj->spr.picnum == HENSTAND || proj->spr.picnum == HENSTAND + 1)
 		{
-			proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
-			proj->add_int_ang(-(((targ->int_ang() << 1) + krand()) & 16));
-			targ->set_int_ang((targ->int_ang() + krand()) & 16);
+			proj->vel.X *= 0.75;
+			proj->spr.angle -= targ->spr.angle * 2 + randomAngle(22.5 / 8);
+			targ->spr.angle += randomAngle(22.5 / 8);
 			S_PlayActorSound(355, targ);
 		}
 		else
 		{
 			if (krand() & 3)
 			{
-				targ->set_int_xvel(164);
+				targ->vel.X = 10.25;
 				targ->spr.angle = proj->spr.angle;
 			}
 		}
