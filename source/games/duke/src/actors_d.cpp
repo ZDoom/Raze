@@ -3162,18 +3162,18 @@ void handle_se06_d(DDukeActor* actor)
 	{
 		actor->temp_data[4]--;
 		if (actor->temp_data[4] >= (k - (k >> 3)))
-			actor->add_int_xvel(-(k >> 5));
+			actor->vel.X -= (k >> 5) / 16.;
 		if (actor->temp_data[4] > ((k >> 1) - 1) && actor->temp_data[4] < (k - (k >> 3)))
 			actor->vel.X = 0;
 		if (actor->temp_data[4] < (k >> 1))
-			actor->add_int_xvel( (k >> 5));
+			actor->vel.X += (k >> 5) / 16.;
 		if (actor->temp_data[4] < ((k >> 1) - (k >> 3)))
 		{
 			actor->temp_data[4] = 0;
-			actor->set_int_xvel(k);
+			actor->vel.X = k / 16.;
 		}
 	}
-	else actor->set_int_xvel(k);
+	else actor->vel.X = k / 16.;
 
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
@@ -3183,9 +3183,9 @@ void handle_se06_d(DDukeActor* actor)
 			act2->vel.X = actor->vel.X;
 			//if( actor->temp_data[4] == 1 )
 			{
-				if (act2->temp_data[5] == 0)
-					act2->temp_data[5] = dist(act2, actor);
-				int x = Sgn(dist(act2, actor) - act2->temp_data[5]);
+				if (act2->temp_pos.X == 0)
+					act2->temp_pos.X = (act2->spr.pos - actor->spr.pos).LengthSquared();
+				int x = Sgn((act2->spr.pos - actor->spr.pos).LengthSquared() - act2->temp_pos.X);
 				if (act2->spr.extra)
 					x = -x;
 				actor->vel.X += x / 16.;
