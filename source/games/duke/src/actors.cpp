@@ -2925,7 +2925,11 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 //---------------------------------------------------------------------------
 //
+// Two way train
 // 
+// temp_data[1]: mspos index
+// temp_angle: rotation angle
+// temp_data[3]: locator tag
 //
 //---------------------------------------------------------------------------
 
@@ -2942,23 +2946,22 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 	}
 	else
 	{
+		auto dist = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Length();
 		if (actor->temp_data[4] == 1) // Starting to go
 		{
-			if (ldist(Owner, actor) < (2048 - 128))
+			if (dist < (128 - 8))
 				actor->temp_data[4] = 2;
 			else
 			{
-				if (actor->int_xvel() == 0)
+				if (actor->vel.X == 0)
 					operateactivators(actor->spr.hitag + (!actor->temp_data[3]), -1);
-				if (actor->int_xvel() < 256)
+				if (actor->vel.X < 16)
 					actor->vel.X += 1;
 			}
 		}
 		if (actor->temp_data[4] == 2)
 		{
-			int l = FindDistance2D(Owner->int_pos().vec2 - actor->int_pos().vec2);
-
-			if (l <= 128)
+			if (dist <= 8)
 				actor->vel.X = 0;
 
 			if(actor->vel.X > 0)
@@ -2977,8 +2980,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 	if(actor->vel.X != 0)
 	{
-		int l = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-		int x = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
+		auto vect = actor->spr.angle.ToVector() * actor->vel.X;
 
 		if ((sc->floorz - sc->ceilingz) < 108)
 			if (ud.clipping == 0)
@@ -3004,21 +3006,19 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			auto psp = ps[p].GetActor();
 			if (psp->sector() == actor->sector())
 			{
-				ps[p].player_add_int_xy({ l, x });
+				ps[p].pos += vect;
 
 				if (numplayers > 1)
 				{
 					ps[p].backupxy();
 				}
 
-				ps[p].bobpos.X += l * inttoworld;
-				ps[p].bobpos.Y += x * inttoworld;
+				ps[p].bobpos += vect;
 			}
 
 			if (po[p].os == actor->sector())
 			{
-				po[p].opos.X += l * inttoworld;
-				po[p].opos.Y += x * inttoworld;
+				po[p].opos += vect;
 			}
 		}
 
@@ -3027,7 +3027,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		{
 			if (a2->spr.picnum != SECTOREFFECTOR && a2->spr.picnum != LOCATORS)
 			{
-				a2->add_int_pos({ l, x, 0 });
+				a2->spr.pos += vect;
 
 				if (numplayers > 1)
 				{
@@ -3036,7 +3036,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			}
 		}
 
-		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+		movesector(actor, actor->temp_data[1], actor->temp_angle);
 		//SetActor(actor, actor->spr.pos);
 
 		if ((sc->floorz - sc->ceilingz) < 108)
@@ -3069,7 +3069,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 						//					if(a2->spr.sector != actor->spr.sector)
 						{
 							auto k = a2->sector();
-							updatesector(a2->int_pos().X, a2->int_pos().Y, &k);
+							updatesector(a2->spr.pos, &k);
 							if (a2->spr.extra >= 0 && k == actor->sector())
 							{
 								gutsdir(a2, JIBS6, 24, myconnectindex);
