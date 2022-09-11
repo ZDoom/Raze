@@ -1040,9 +1040,9 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case STRIPEBALL:
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
-			proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
-			proj->add_int_ang(-((targ->int_ang() << 1) + 1024));
-			targ->set_int_ang(getangle(targ->int_pos().X - proj->int_pos().X, targ->int_pos().Y - proj->int_pos().Y) - 512);
+			proj->vel.X *= 0.75;
+			proj->spr.angle -= targ->spr.angle * 2 + DAngle180;
+			targ->spr.angle = VecToAngle(targ->spr.pos.XY() - proj->spr.pos.XY()) - DAngle90;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
@@ -1050,7 +1050,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		{
 			if (krand() & 3)
 			{
-				targ->set_int_xvel(164);
+				targ->vel.X = 10.25;
 				targ->spr.angle = proj->spr.angle;
 			}
 			else
