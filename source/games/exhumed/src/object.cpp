@@ -77,8 +77,8 @@ struct Elev
     sectortype* pSector;
     int16_t nFlags;
     int16_t nChannel;
-    int nParam1;
-    int nParam2;
+    int nSpeed1;
+    int nSpeed2;
     int16_t nCountZOffsets; // count of items in zOffsets
     int16_t nCurZOffset;
     int zOffsets[8]; // different Z offsets
@@ -239,8 +239,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Elev& w, Elev* def
         arc("at0", w.nFlags)
             ("channel", w.nChannel)
             ("sector", w.pSector)
-            ("at6", w.nParam1)
-            ("ata", w.nParam2)
+            ("at6", w.nSpeed1)
+            ("ata", w.nSpeed2)
             ("countz", w.nCountZOffsets)
             ("curz", w.nCurZOffset)
             .Array("zofs", w.zOffsets, 8)
@@ -470,9 +470,9 @@ int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, in
     auto ElevCount = Elevator.Reserve(1);
 
     Elevator[ElevCount].nFlags = 2;
-    Elevator[ElevCount].nParam1 = arg_4;
+    Elevator[ElevCount].nSpeed1 = arg_4;
     Elevator[ElevCount].nRunRec = -1;
-    Elevator[ElevCount].nParam2 = arg_5;
+    Elevator[ElevCount].nSpeed2 = arg_5;
     Elevator[ElevCount].nChannel = nChannel;
     Elevator[ElevCount].pSector = pSector;
     Elevator[ElevCount].nCountZOffsets = 0;
@@ -517,10 +517,10 @@ int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWall
         edi = arg5 / 2;
     }
 
-    Elevator[ElevCount].nParam1 = edi;
+    Elevator[ElevCount].nSpeed1 = edi;
     Elevator[ElevCount].nCountZOffsets = 0;
     Elevator[ElevCount].nCurZOffset = 0;
-    Elevator[ElevCount].nParam2 = arg6;
+    Elevator[ElevCount].nSpeed2 = arg6;
     Elevator[ElevCount].nRunRec = -1;
     Elevator[ElevCount].nChannel = nChannel;
     Elevator[ElevCount].pSector = pSector;
@@ -761,7 +761,7 @@ void AIElev::Tick(RunListEvent* ev)
 
         StartInterpolation(pSector, Interp_Sect_Floorz);
         int fz = pSector->int_floorz();
-        int nVal = LongSeek(&fz, nZVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
+        int nVal = LongSeek(&fz, nZVal, Elevator[nElev].nSpeed1, Elevator[nElev].nSpeed2);
         pSector->set_int_floorz(fz);
         ebp = nVal;
 
@@ -802,7 +802,7 @@ void AIElev::Tick(RunListEvent* ev)
         int zVal = Elevator[nElev].zOffsets[nZOffset];
 
         StartInterpolation(pSector, Interp_Sect_Ceilingz);
-        int nVal = LongSeek(&ceilZ, zVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
+        int nVal = LongSeek(&ceilZ, zVal, Elevator[nElev].nSpeed1, Elevator[nElev].nSpeed2);
         ebp = nVal;
 
         if (!nVal)
