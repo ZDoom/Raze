@@ -28,6 +28,12 @@ BEGIN_PS_NS
 
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DestroyGrenade(DExhumedActor* pActor)
 {
     runlist_DoSubRunRec(pActor->nPhase);
@@ -37,6 +43,12 @@ void DestroyGrenade(DExhumedActor* pActor)
     DeleteActor(pActor);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BounceGrenade(DExhumedActor* pActor, DAngle nAngle)
 {
     pActor->nTurn >>= 1;
@@ -44,6 +56,12 @@ void BounceGrenade(DExhumedActor* pActor, DAngle nAngle)
     pActor->vec = nAngle.ToVector() * pActor->nTurn / 512.;
     D3PlayFX(StaticSound[kSound3], pActor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ThrowGrenade(int nPlayer, double dz, int push1)
 {
@@ -95,6 +113,12 @@ void ThrowGrenade(int nPlayer, double dz, int push1)
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildGrenade(int nPlayer)
 {
     auto pActor = insertActor(PlayerList[nPlayer].pPlayerViewSect, 201);
@@ -134,6 +158,12 @@ void BuildGrenade(int nPlayer)
 
     PlayerList[nPlayer].pPlayerGrenade = pActor;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ExplodeGrenade(DExhumedActor* pActor)
 {
@@ -196,6 +226,12 @@ void ExplodeGrenade(DExhumedActor* pActor)
     DestroyGrenade(pActor);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIGrenade::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -205,6 +241,12 @@ void AIGrenade::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, nSeq, pActor->nHealth >> 8, 1);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIGrenade::Tick(RunListEvent* ev)
 {
@@ -327,6 +369,12 @@ void AIGrenade::Tick(RunListEvent* ev)
         pActor->nHealth = 0;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIGrenade::RadialDamage(RunListEvent* ev)
 {

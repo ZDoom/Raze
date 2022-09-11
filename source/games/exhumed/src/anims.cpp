@@ -30,6 +30,12 @@ int nPreMagicSeq  = -1;
 int nSavePointSeq = -1;
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SerializeAnim(FSerializer& arc)
 {
     if (arc.BeginObject("anims"))
@@ -59,6 +65,12 @@ void DestroyAnim(DExhumedActor* pActor)
         DeleteActor(pActor);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector3& pos, sectortype* pSector, int nRepeat, int nFlag)
 {
@@ -114,6 +126,12 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector
 
     return pActor;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIAnim::Tick(RunListEvent* ev)
 {
@@ -214,6 +232,12 @@ void AIAnim::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIAnim::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -223,6 +247,12 @@ void AIAnim::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, nIndex2, pActor->nIndex, 0x101);
     ev->pTSprite->ownerActor = nullptr;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildExplosion(DExhumedActor* pActor)
 {
@@ -241,6 +271,12 @@ void BuildExplosion(DExhumedActor* pActor)
 
     BuildAnim(nullptr, edx, 0, pActor->spr.pos, pActor->sector(), pActor->spr.xrepeat, 4);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
 {

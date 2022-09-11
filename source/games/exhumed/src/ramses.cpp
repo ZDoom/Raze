@@ -191,8 +191,13 @@ void CopyHeadToWorkTile(int nTile)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // This is based on BuildGDX's version of this function which was a lot less cryptic than PCExhumed's.
-void DoSpiritHead() 
+//
+//---------------------------------------------------------------------------
+
+void DoSpiritHead()
 {
     static int dimSectCount = 0;
     auto pSpiritSpr = pSpiritSprite;

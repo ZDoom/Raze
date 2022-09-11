@@ -39,6 +39,12 @@ void SetWaspVel(DExhumedActor* pActor)
     pActor->VelFromAngle();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, bool bEggWasp)
 {
     if (pActor == nullptr)
@@ -111,6 +117,12 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
     return pActor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIWasp::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -120,6 +132,12 @@ void AIWasp::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqWasp] + WaspSeq[nAction].a, pActor->nFrame, WaspSeq[nAction].b);
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIWasp::RadialDamage(RunListEvent* ev)
 {
@@ -132,6 +150,12 @@ void AIWasp::RadialDamage(RunListEvent* ev)
     ev->nDamage = runlist_CheckRadialDamage(pActor);
     Damage(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIWasp::Damage(RunListEvent* ev)
 {
@@ -180,6 +204,12 @@ void AIWasp::Damage(RunListEvent* ev)
     }
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIWasp::Tick(RunListEvent* ev)
 {

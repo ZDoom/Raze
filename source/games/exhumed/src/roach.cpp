@@ -34,7 +34,12 @@ static actionSeq RoachSeq[] = {
     {42, 1}
 };
 
-// TODO - make nType a bool?
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle angle)
 {
 	if (pActor == nullptr)
@@ -89,6 +94,12 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     nCreaturesTotal++;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GoRoach(DExhumedActor* pActor)
 {
 	pActor->vel.XY() = pActor->spr.angle.ToVector() * (512 - 128);
@@ -104,6 +115,12 @@ void AIRoach::Draw(RunListEvent* ev)
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIRoach::RadialDamage(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
@@ -112,6 +129,12 @@ void AIRoach::RadialDamage(RunListEvent* ev)
     ev->nDamage = runlist_CheckRadialDamage(pActor);
     Damage(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIRoach::Damage(RunListEvent* ev)
 {
@@ -172,6 +195,12 @@ void AIRoach::Damage(RunListEvent* ev)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIRoach::Tick(RunListEvent* ev)
 {

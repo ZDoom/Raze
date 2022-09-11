@@ -53,6 +53,12 @@ Collision loHit, hiHit;
 // think this belongs in init.c?
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 size_t MarkMove()
 {
     GC::MarkArray(nBodySprite, 50);
@@ -89,6 +95,12 @@ void SerializeMove(FSerializer& arc)
             .EndObject();
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void MoveThings()
 {
@@ -131,17 +143,11 @@ void MoveThings()
     thinktime.Unclock();
 }
 
-void ResetMoveFifo()
-{
-    movefifoend = 0;
-    movefifopos = 0;
-}
-
-// not used
-void clipwall()
-{
-
-}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int BelowNear(DExhumedActor* pActor, double walldist)
 {
@@ -212,6 +218,12 @@ int BelowNear(DExhumedActor* pActor, double walldist)
         return 0;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 Collision movespritez(DExhumedActor* pActor, double z, double height, double clipdist)
 {
@@ -382,6 +394,12 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
     return nRet;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 double GetActorHeight(DExhumedActor* actor)
 {
     return tileHeight(actor->spr.picnum) * actor->spr.yrepeat * REPEAT_SCALE;
@@ -392,6 +410,12 @@ DExhumedActor* insertActor(sectortype* s, int st)
     return static_cast<DExhumedActor*>(::InsertActor(RUNTIME_CLASS(DExhumedActor), s, st));
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flordist, unsigned int clipmask)
 {
@@ -463,6 +487,12 @@ Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flo
     return nRet;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void Gravity(DExhumedActor* pActor)
 {
     if (pActor->sector()->Flag & kSectUnderwater)
@@ -512,6 +542,12 @@ Collision MoveCreature(DExhumedActor* pActor)
     return movespritevel(pActor, pActor->vel, 256., -20, CLIPMASK0);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 {
 	auto oldv = pActor->spr.pos;
@@ -542,6 +578,12 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
     return result;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DAngle GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
 {
     if (!a1 || !a2)
@@ -549,6 +591,12 @@ DAngle GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
 
     return VecToAngle(a2->spr.pos - a1->spr.pos);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 double PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
 {
@@ -560,6 +608,12 @@ double PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
 	return vect.Length();
 
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
 {
@@ -606,6 +660,12 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
     return pPlayerActor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void CheckSectorFloor(sectortype* pSector, double z, DVector2& xy)
 {
     int nSpeed = pSector->Speed;
@@ -626,6 +686,12 @@ void CheckSectorFloor(sectortype* pSector, double z, DVector2& xy)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitPushBlocks()
 {
     nPushBlocks = 0;
@@ -640,6 +706,12 @@ int GrabPushBlock()
 
     return nPushBlocks++;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void CreatePushBlock(sectortype* pSector)
 {
@@ -679,6 +751,12 @@ void CreatePushBlock(sectortype* pSector)
     pSector->extra = nBlock;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 {
@@ -871,6 +949,12 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
     initsectp = pActor->sector();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetQuake(DExhumedActor* pActor, int nVal)
 {
     for (int i = 0; i < nTotalPlayers; i++)
@@ -889,7 +973,13 @@ void SetQuake(DExhumedActor* pActor, int nVal)
     }
 }
 
-Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshold, int zbob, DAngle push1) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshold, int zbob, DAngle push1)
 {
     int nClipType = pActor->spr.statnum != 107;
 
@@ -951,6 +1041,12 @@ DAngle GetWallNormal(walltype* pWall)
     return (VecToAngle(pWall->delta()) + DAngle90).Normalized360();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
 {
     auto pActor = PlayerList[nPlayer].pActor;
@@ -966,6 +1062,12 @@ DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
 	return pos;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitChunks()
 {
     nCurChunkNum = 0;
@@ -977,6 +1079,12 @@ void InitChunks()
     nBodyTotal  = 0;
     nChunkTotal = 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* GrabBodyGunSprite()
 {
@@ -1007,6 +1115,12 @@ DExhumedActor* GrabBodyGunSprite()
     return pActor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* GrabBody()
 {
 	DExhumedActor* pActor = nullptr;
@@ -1036,6 +1150,12 @@ DExhumedActor* GrabBody()
     return pActor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* GrabChunkSprite()
 {
     DExhumedActor* pActor = nChunkSprite[nCurChunkNum];
@@ -1064,6 +1184,12 @@ DExhumedActor* GrabChunkSprite()
 
     return pActor;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 {
@@ -1107,6 +1233,12 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 
     return pActor;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AICreatureChunk::Tick(RunListEvent* ev)
 {
@@ -1180,6 +1312,12 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     pActor->spr.hitag = 0;
     pActor->spr.lotag = 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
 {

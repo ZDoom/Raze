@@ -49,6 +49,12 @@ void SerializeView(FSerializer& arc);
 void SerializeQueen(FSerializer& arc);
 void SerializeRat(FSerializer& arc);
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.BeginObject("exhumed"))

@@ -37,6 +37,12 @@ static actionSeq RatSeq[] = {
     {0, 1}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SerializeRat(FSerializer& arc)
 {
     if (arc.BeginObject("rat"))
@@ -47,6 +53,12 @@ void SerializeRat(FSerializer& arc)
             .EndObject();
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitRats()
 {
@@ -71,6 +83,12 @@ void SetRatVel(DExhumedActor* pActor)
 {
     pActor->VelFromAngle(-2);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
@@ -120,6 +138,12 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x240000);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* FindFood(DExhumedActor* pActor)
 {
     auto pSector = pActor->sector();
@@ -153,6 +177,12 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIRat::RadialDamage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -161,6 +191,12 @@ void AIRat::RadialDamage(RunListEvent* ev)
     ev->nDamage = runlist_CheckRadialDamage(pActor);
     Damage(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIRat::Damage(RunListEvent* ev)
 {
@@ -177,6 +213,12 @@ void AIRat::Damage(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIRat::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -186,6 +228,12 @@ void AIRat::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqRat] + RatSeq[nAction].a, pActor->nFrame, RatSeq[nAction].b);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIRat::Tick(RunListEvent* ev)
 {

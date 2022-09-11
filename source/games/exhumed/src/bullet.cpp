@@ -127,6 +127,12 @@ bulletInfo BulletInfo[] = {
 };
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitBullets()
 {
     BulletList.Clear();
@@ -140,6 +146,12 @@ int GrabBullet()
     BulletList[grabbed].pEnemy = nullptr;
     return grabbed;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DestroyBullet(int nBullet)
 {
@@ -155,6 +167,12 @@ void DestroyBullet(int nBullet)
     BulletList.Release(nBullet);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void IgniteSprite(DExhumedActor* pActor)
 {
     pActor->spr.hitag += 2;
@@ -168,6 +186,12 @@ void IgniteSprite(DExhumedActor* pActor)
         pAnimActor->spr.yrepeat = (uint8_t)max(1, (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActor* pHitActor, const DVector3& pos, sectortype* pSector)
 {
@@ -279,6 +303,11 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int MoveBullet(int nBullet)
 {
@@ -511,12 +540,24 @@ HITSPRITE:
     return nVal;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetBulletEnemy(int nBullet, DExhumedActor* pEnemy)
 {
     if (nBullet >= 0) {
         BulletList[nBullet].pEnemy = pEnemy;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DAngle nAngle, DExhumedActor* pTarget, int nDoubleDamage, int nPitch)
 {
@@ -748,6 +789,12 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     return pBulletActor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIBullet::Tick(RunListEvent* ev)
 {
     int nBullet = RunData[ev->nRun].nObjIndex;
@@ -786,6 +833,12 @@ void AIBullet::Tick(RunListEvent* ev)
         MoveBullet(nBullet);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIBullet::Draw(RunListEvent* ev)
 {

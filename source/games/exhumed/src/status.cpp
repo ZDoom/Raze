@@ -77,6 +77,12 @@ struct ChunkFrame
     }
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DEFINE_ACTION_FUNCTION(_ChunkFrame, GetChunkFrame)
 {
     PARAM_SELF_STRUCT_PROLOGUE(ChunkFrame);
@@ -118,6 +124,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Exhumed, SizeOfStatusSequence, SizeOfStatusSequen
     ACTION_RETURN_INT(SeqSize[nStatusSeqOffset + s1]);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void UpdateFrame()
 {
     auto tex = tileGetTexture(nBackgroundPic);
@@ -133,6 +145,12 @@ void UpdateFrame()
     twod->AddFlatFill(viewport3d.Left() - 3, viewport3d.Bottom(), viewport3d.Right(), viewport3d.Bottom() + 3, tex, 0, 1, 0xff2a2a2a);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void StatusMessage(int messageTime, const char* fmt, ...)
 {
     va_list ap;
@@ -141,6 +159,12 @@ void StatusMessage(int messageTime, const char* fmt, ...)
     Printf(PRINT_NOTIFY, "\n");
     va_end(ap);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DrawStatusBar()
 {

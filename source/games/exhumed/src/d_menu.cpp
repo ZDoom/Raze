@@ -45,6 +45,12 @@ void GameInterface::MenuOpened()
 	StopLocalSound();
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::MenuSound(EMenuSounds snd)
 {
 	switch (snd)
@@ -66,6 +72,12 @@ void GameInterface::MenuSound(EMenuSounds snd)
 		return;
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 FSavegameInfo GameInterface::GetSaveSig()
 {

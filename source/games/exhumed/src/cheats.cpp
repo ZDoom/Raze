@@ -43,6 +43,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static const char* GodCheat(int nPlayer, int state)
 {
 	if (state == -1)
@@ -56,6 +62,12 @@ static const char* GodCheat(int nPlayer, int state)
 
 	return GStrings(PlayerList[nPlayer].invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static const char* SlipCheat()
 {
@@ -72,6 +84,11 @@ static const char* SlipCheat()
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 const char* GameInterface::GenericCheat(int player, int cheat)
 {
@@ -94,6 +111,12 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static bool HollyCheat(cheatseq_t* c)
 {
 	// Do the closest thing to this cheat that's available.
@@ -115,6 +138,12 @@ static bool LiteCheat(cheatseq_t* c)
 	return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static bool SnakeCheat(cheatseq_t* c)
 {
 	if (!nNetPlayerCount)
@@ -132,6 +161,12 @@ static bool SnakeCheat(cheatseq_t* c)
 	return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static bool SphereCheat(cheatseq_t* c)
 {
 	Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FULLMAP"));
@@ -139,6 +174,12 @@ static bool SphereCheat(cheatseq_t* c)
 	bShowTowers = gFullMap;
 	return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static cheatseq_t excheats[] = {
 	{"holly",       nullptr,   HollyCheat, 0},
@@ -154,6 +195,12 @@ static cheatseq_t excheats[] = {
 	{"loboxy",      "stat printcoords",   nullptr, true},
 };
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void cmd_Give(int player, uint8_t** stream, bool skip)
 {
@@ -217,6 +264,11 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitCheats()
 {

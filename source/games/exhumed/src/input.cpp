@@ -27,6 +27,12 @@ BEGIN_PS_NS
 
 PlayerInput sPlayerInput[kMaxPlayers];
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 size_t MarkInput()
 {
     for (auto& p : sPlayerInput)
@@ -42,6 +48,12 @@ void ClearSpaceBar(int nPlayer)
     buttonMap.ClearButton(gamefunc_Open);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
 {

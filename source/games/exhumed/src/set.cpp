@@ -39,6 +39,12 @@ static actionSeq SetSeq[] = {
     {74, 1}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel)
 {
     if (pActor == nullptr)
@@ -91,6 +97,12 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     nCreaturesTotal++;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildSoul(DExhumedActor* pSet)
 {
     auto pActor = insertActor(pSet->sector(), 0);
@@ -120,6 +132,12 @@ void BuildSoul(DExhumedActor* pSet)
 
     pActor->spr.intowner = runlist_AddRunRec(NewRun, pActor, 0x230000);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISoul::Tick(RunListEvent* ev)
 {
@@ -156,6 +174,12 @@ void AISoul::Tick(RunListEvent* ev)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISet::RadialDamage(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
@@ -169,6 +193,12 @@ void AISet::RadialDamage(RunListEvent* ev)
     }
     Damage(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISet::Damage(RunListEvent* ev)
 {
@@ -209,6 +239,12 @@ void AISet::Damage(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISet::Draw(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
@@ -218,6 +254,12 @@ void AISet::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSet] + SetSeq[nAction].a, pActor->nFrame, SetSeq[nAction].b);
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISet::Tick(RunListEvent* ev)
 {

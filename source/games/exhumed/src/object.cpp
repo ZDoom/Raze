@@ -175,6 +175,12 @@ int nFinaleStage;
 int nDronePitch = 0;
 int nSmokeSparks = 0;
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Trail& w, Trail* def)
 {
     if (arc.BeginObject(keyname))
@@ -338,7 +344,12 @@ void SerializeObjects(FSerializer& arc)
     }
 }
 
-// done
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitObjects()
 {
     sTrap.Clear();
@@ -362,7 +373,12 @@ void InitElev()
     Elevator.Clear();
 }
 
-// done
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* BuildWallSprite(sectortype* pSector)
 {
     auto wal = pSector->firstWall();
@@ -375,7 +391,12 @@ DExhumedActor* BuildWallSprite(sectortype* pSector)
     return pActor;
  }
 
-// done
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* FindWallSprites(sectortype* pSector)
 {
     double min_x = DBL_MAX;
@@ -443,6 +464,12 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
     return pAct;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...)
 {
     auto ElevCount = Elevator.Reserve(1);
@@ -481,6 +508,12 @@ int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, in
 
     return ElevCount;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int speed1, int speed2, int nCount, ...)
 {
@@ -529,9 +562,12 @@ int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWall
     return ElevCount;
 }
 
-// TODO - tidy me up
-// RENAME param A - not always Z
-// Confirmed 100% correct with original .exe
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static double LongSeek(double* pZVal, double a2, double a3, double a4)
 {
     double v4 = a2 - *pZVal;
@@ -553,7 +589,12 @@ static double LongSeek(double* pZVal, double a2, double a3, double a4)
     return v4;
 }
 
-// done
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int CheckSectorSprites(sectortype* pSector, int nVal)
 {
     int b = 0;
@@ -599,7 +640,12 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
     return b;
 }
 
-// done
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void MoveSectorSprites(sectortype* pSector, double z)
 {
     double newz = pSector->floorz;
@@ -617,6 +663,12 @@ void MoveSectorSprites(sectortype* pSector, double z)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void StartElevSound(DExhumedActor* pActor, int nVal)
 {
     int nSound;
@@ -630,6 +682,12 @@ void StartElevSound(DExhumedActor* pActor, int nVal)
 
     D3PlayFX(StaticSound[nSound], pActor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIElev::ProcessChannel(RunListEvent* ev)
 {
@@ -711,6 +769,12 @@ void AIElev::ProcessChannel(RunListEvent* ev)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIElev::Tick(RunListEvent* ev)
 {
@@ -838,11 +902,16 @@ void AIElev::Tick(RunListEvent* ev)
 }
 
 
-// done
 void InitWallFace()
 {
     WallFace.Clear();
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...)
 {
@@ -871,6 +940,12 @@ int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...)
     return WallFaceCount;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIWallFace::ProcessChannel(RunListEvent* ev)
 {
     int nWallFace = RunData[ev->nRun].nObjIndex;
@@ -886,23 +961,32 @@ void AIWallFace::ProcessChannel(RunListEvent* ev)
     }
 }
 
-// done
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitPoint()
 {
     PointList.Clear();
 }
 
-// done
 int GrabPoint()
 {
     return PointList.Reserve(1);
 }
 
-// done
 void InitSlide()
 {
     SlideData.Clear();
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p2ndLastWall, walltype* pWall2, walltype* pWall3, walltype* pWall4)
 {
@@ -987,6 +1071,12 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     return nSlide;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISlide::ProcessChannel(RunListEvent* ev)
 {
     int nRun = ev->nRun;
@@ -1013,6 +1103,12 @@ void AISlide::ProcessChannel(RunListEvent* ev)
         SlideData[nSlide].nRunC = sRunChannels[nChannel].c;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AISlide::Tick(RunListEvent* ev)
 {
@@ -1128,6 +1224,12 @@ void AISlide::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 {
     int var_14 = edx;
@@ -1190,6 +1292,12 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
     return nTrap;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AITrap::ProcessChannel(RunListEvent* ev)
 {
     int nChannel = ev->nParam & 0x3FFF;
@@ -1204,6 +1312,12 @@ void AITrap::ProcessChannel(RunListEvent* ev)
         sTrap[nTrap].nState = -1;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AITrap::Tick(RunListEvent* ev)
 {
@@ -1277,6 +1391,12 @@ void AITrap::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int BuildArrow(DExhumedActor* nSprite, int nVal)
 {
     return BuildTrap(nSprite, 0, -1, nVal);
@@ -1286,6 +1406,12 @@ int BuildFireBall(DExhumedActor* nSprite, int a, int b)
 {
     return BuildTrap(nSprite, 1, a, b);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 {
@@ -1348,6 +1474,12 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     return pSpark;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AISpark::Tick(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -1397,6 +1529,12 @@ void AISpark::Tick(RunListEvent* ev)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DimLights()
 {
     static int word_96786 = 0;
@@ -1420,6 +1558,12 @@ void DimLights()
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoFinale()
 {
@@ -1487,6 +1631,12 @@ void DoFinale()
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 {
 	DVector2 apos(0, 0);
@@ -1530,7 +1680,12 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     return pActor;
 }
 
-// TODO - tidy
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void KillCreatures()
 {
     signed int v0;
@@ -1557,6 +1712,12 @@ void KillCreatures()
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ExplodeEnergyBlock(DExhumedActor* pActor)
 {
@@ -1653,6 +1814,12 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
     ChangeActorStat(pActor, 0);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIEnergyBlock::Damage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -1681,6 +1848,12 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
         ExplodeEnergyBlock(pActor);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIEnergyBlock::RadialDamage(RunListEvent* ev)
 {
@@ -1712,6 +1885,12 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
     Damage(ev);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 {
@@ -1773,7 +1952,12 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     return pActor;
 }
 
+//---------------------------------------------------------------------------
+//
 // in-game destructable wall mounted screen
+//
+//---------------------------------------------------------------------------
+
 void ExplodeScreen(DExhumedActor* pActor)
 {
     pActor->spr.pos.Z -= GetActorHeight(pActor) * 0.5;
@@ -1785,6 +1969,12 @@ void ExplodeScreen(DExhumedActor* pActor)
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     PlayFX2(StaticSound[kSound78], pActor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIObject::Tick(RunListEvent* ev)
 {
@@ -1897,6 +2087,12 @@ void AIObject::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIObject::Damage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -1928,6 +2124,12 @@ void AIObject::Damage(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIObject::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -1940,6 +2142,12 @@ void AIObject::Draw(RunListEvent* ev)
     }
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIObject::RadialDamage(RunListEvent* ev)
 {
@@ -2008,6 +2216,12 @@ void BuildDrip(DExhumedActor* pActor)
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DoDrips()
 {
     for (unsigned i = 0; i < sDrip.Size(); i++)
@@ -2049,6 +2263,12 @@ void DoDrips()
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SnapBobs(sectortype* pSectorA, sectortype* pSectorB)
 {
     int select1 = -1;
@@ -2089,6 +2309,12 @@ void SnapBobs(sectortype* pSectorA, sectortype* pSectorB)
     sBob[select1].nPhase = sBob[select2].nPhase;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AddSectorBob(sectortype* pSector, int nHitag, int bx)
 {
     auto nBobs = sBob.Reserve(1);
@@ -2113,6 +2339,12 @@ void AddSectorBob(sectortype* pSector, int nHitag, int bx)
     pSector->Flag |= 0x0010;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int FindTrail(int nVal)
 {
     for (unsigned i = 0; i < sTrail.Size(); i++)
@@ -2128,7 +2360,12 @@ int FindTrail(int nVal)
     return nTrails;
 }
 
-// ok ?
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
 {
     auto nPoint = sTrailPoint.Reserve(1);
@@ -2186,7 +2423,12 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
     DeleteActor(pActor);
 }
 
-// ok?
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AddMovingSector(sectortype* pSector, int lotag, int hitag, int flags)
 {
     CreatePushBlock(pSector);
@@ -2217,6 +2459,12 @@ void AddMovingSector(sectortype* pSector, int lotag, int hitag, int flags)
 
     pSector->floorstat |= CSTAT_SECTOR_ALIGN;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DoMovingSects()
 {
@@ -2304,6 +2552,12 @@ void DoMovingSects()
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void PostProcess()
 {

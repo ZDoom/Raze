@@ -88,6 +88,12 @@ int nNetStartSprites;
 int nCurStartSprite;
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 size_t MarkPlayers()
 {
     for (auto& p : PlayerList)
@@ -101,12 +107,24 @@ size_t MarkPlayers()
     return 5 * kMaxPlayers;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetSavePoint(int nPlayer, const DVector3& pos, sectortype* pSector, DAngle nAngle)
 {
     PlayerList[nPlayer].sPlayerSave.pos = pos;
     PlayerList[nPlayer].sPlayerSave.pSector = pSector;
     PlayerList[nPlayer].sPlayerSave.nAngle = nAngle;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, int nVal2, double deflen)
 {
@@ -155,6 +173,12 @@ void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, 
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitPlayer()
 {
     for (int i = 0; i < kMaxPlayers; i++) {
@@ -168,6 +192,12 @@ void InitPlayerKeys(int nPlayer)
 {
     PlayerList[nPlayer].keys = 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitPlayerInventory(int nPlayer)
 {
@@ -199,10 +229,22 @@ void InitPlayerInventory(int nPlayer)
     PlayerList[nPlayer].nPlayerColor = pixels[tileWidth(nPlayer + kTile3571) * tileHeight(nPlayer + kTile3571) / 2];
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int GetPlayerFromActor(DExhumedActor* pActor)
 {
     return RunData[pActor->spr.intowner].nObjIndex;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void RestartPlayer(int nPlayer)
 {
@@ -399,6 +441,12 @@ void RestartPlayer(int nPlayer)
 	nQuake[nPlayer] = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int GrabPlayer()
 {
     if (PlayerCount >= kMaxPlayers) {
@@ -407,6 +455,12 @@ int GrabPlayer()
 
     return PlayerCount++;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void StartDeathSeq(int nPlayer, int nVal)
 {
@@ -500,6 +554,12 @@ void StartDeathSeq(int nPlayer, int nVal)
     PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 {
     if (!nAmmoAmount) {
@@ -529,6 +589,12 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
     return 1;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
     DExhumedActor* pActor = PlayerList[nPlayer].pActor;
@@ -552,6 +618,12 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
     PlayerList[nPlayer].nSeqSize = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ShootStaff(int nPlayer)
 {
     PlayerList[nPlayer].nAction = 15;
@@ -559,12 +631,24 @@ void ShootStaff(int nPlayer)
     PlayerList[nPlayer].nSeq = kSeqJoe;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void PlayAlert(const char *str)
 {
     StatusMessage(300, str);
     PlayLocalSound(StaticSound[kSound63], 0);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void pickupMessage(int no)
 {
@@ -577,11 +661,23 @@ static void pickupMessage(int no)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
     inita = pPlayer->angle.ang;
     if (pPlayer->pActor) pPlayer->pActor->spr.angle = inita;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIPlayer::Draw(RunListEvent* ev)
 {
@@ -591,6 +687,12 @@ void AIPlayer::Draw(RunListEvent* ev)
 
     seq_PlotSequence(ev->nParam, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].nSeqSize, PlayerSeq[nAction].b);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIPlayer::RadialDamage(RunListEvent* ev)
 {
@@ -607,6 +709,12 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
     ev->nDamage = runlist_CheckRadialDamage(pPlayerActor);
     Damage(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIPlayer::Damage(RunListEvent* ev)
 {
@@ -712,6 +820,12 @@ void AIPlayer::Damage(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectortype* spr_sect)
 {
     auto pPlayerActor = PlayerList[nPlayer].pActor;
@@ -772,6 +886,12 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
     }
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+// this function is pure spaghetti madness... :(
+//
+//---------------------------------------------------------------------------
 
 void AIPlayer::Tick(RunListEvent* ev)
 {
@@ -2551,6 +2671,11 @@ sectdone:
     MoveWeapons(nPlayer);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player* def)
 {
@@ -2643,6 +2768,11 @@ void SerializePlayer(FSerializer& arc)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 DEFINE_FIELD_X(ExhumedPlayer, Player, nHealth);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nLives);

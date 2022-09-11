@@ -43,6 +43,12 @@ static const actionSeq AnubisSeq[] = {
     { 43, 1 },
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DAngle nAngle, uint8_t bIsDrummer)
 {
     if (ap == nullptr)
@@ -103,6 +109,12 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
     runlist_AddRunRec(NewRun, ap, 0x90000);
     nCreaturesTotal++;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIAnubis::Tick(RunListEvent* ev)
 {
@@ -334,6 +346,12 @@ void AIAnubis::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIAnubis::Draw(RunListEvent* ev)
 {
     auto ap = ev->pObjActor;
@@ -352,6 +370,12 @@ void AIAnubis::RadialDamage(RunListEvent* ev)
 	    Damage(ev);
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIAnubis::Damage(RunListEvent* ev)
 {

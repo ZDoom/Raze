@@ -45,9 +45,6 @@ sectortype* initsectp;
 
 int nCurChunkNum = 0;
 
-int movefifoend;
-int movefifopos;
-
 int Counters[kNumCounters];
 
 
@@ -85,6 +82,12 @@ static TArray<DExhumedActor*> spawnactors(SpawnSpriteDef& sprites)
     return spawns;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 uint8_t LoadLevel(MapRecord* map)
 {
@@ -163,6 +166,12 @@ uint8_t LoadLevel(MapRecord* map)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitLevel(MapRecord* map)
 {
     StopCD();
@@ -182,15 +191,19 @@ void InitLevel(MapRecord* map)
     ResetEngine();
     totalmoves = 0;
     GrabPalette();
-    ResetMoveFifo();
     lPlayerXVel = 0;
     lPlayerYVel = 0;
-    movefifopos = movefifoend;
 
     if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->music, true);    // Allow non-CD music if defined for the current level
     playCDtrack(map->cdSongId, true);
 	setLevelStarted(currentLevel);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void InitNewGame()
 {
@@ -207,6 +220,12 @@ void InitNewGame()
         InitPlayerInventory(nPlayer);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b)
 {
@@ -246,6 +265,12 @@ void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b)
         SnapBobs(pSectorA, pSectorB);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
 {
@@ -717,6 +742,12 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
     DeleteActor(pActor);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ExamineSprites(TArray<DExhumedActor*>& actors)
 {
     nNetStartSprites = 0;
@@ -754,6 +785,12 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
         nNetStartSprites++;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void LoadObjects(TArray<DExhumedActor*>& actors)
 {
@@ -813,6 +850,12 @@ void LoadObjects(TArray<DExhumedActor*>& actors)
 
     nCamerapos = initpos;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SerializeInit(FSerializer& arc)
 {

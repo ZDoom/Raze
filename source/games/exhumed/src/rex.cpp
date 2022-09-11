@@ -37,6 +37,12 @@ static actionSeq RexSeq[] = {
     {28, 1}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel)
 {
     if (pActor == nullptr)
@@ -87,6 +93,12 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     nCreaturesTotal++;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIRex::RadialDamage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -100,6 +112,12 @@ void AIRex::RadialDamage(RunListEvent* ev)
     }
     Damage(ev);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIRex::Damage(RunListEvent* ev)
 {
@@ -141,6 +159,12 @@ void AIRex::Damage(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIRex::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
@@ -151,6 +175,12 @@ void AIRex::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqRex] + RexSeq[nAction].a, pActor->nFrame, RexSeq[nAction].b);
     return;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIRex::Tick(RunListEvent* ev)
 {

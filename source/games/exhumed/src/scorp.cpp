@@ -38,6 +38,12 @@ static actionSeq ScorpSeq[] = {
     {53, 1}
 };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel)
 {
 	if (pActor == nullptr)
@@ -87,6 +93,12 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     nCreaturesTotal++;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIScorp::Draw(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
@@ -97,6 +109,12 @@ void AIScorp::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, pActor->nFrame, ScorpSeq[nAction].b);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIScorp::RadialDamage(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
@@ -106,6 +124,12 @@ void AIScorp::RadialDamage(RunListEvent* ev)
     if (ev->nDamage) Damage(ev);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIScorp::Damage(RunListEvent* ev)
 {
@@ -162,6 +186,12 @@ void AIScorp::Damage(RunListEvent* ev)
         Effect(ev, pTarget, 0);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIScorp::Tick(RunListEvent* ev)
 {
@@ -393,6 +423,12 @@ void AIScorp::Tick(RunListEvent* ev)
     }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
 {

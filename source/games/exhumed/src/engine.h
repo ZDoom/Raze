@@ -61,8 +61,6 @@ extern DAngle inita;
 extern sectortype* initsectp;
 
 extern int nCurChunkNum;
-extern int movefifoend;
-extern int movefifopos;
 
 // all static counters combined in an array for easier maintenance.
 enum ECounter

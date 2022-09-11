@@ -123,6 +123,12 @@ sectortype* MoveQS[25];
 DAngle MoveQA[25];
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 size_t MarkQueen()
 {
     GC::Mark(QueenList[0].pActor);
@@ -136,6 +142,12 @@ size_t MarkQueen()
     }
     return 4 + 2 * kMaxEggs;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Queen& w, Queen* def)
 {
@@ -213,6 +225,12 @@ void SerializeQueen(FSerializer& arc)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void InitQueens()
 {
     QueenCount = 1;
@@ -237,6 +255,12 @@ void BlowChunks(DExhumedActor* pActor)
         BuildCreatureChunk(pActor, seq_GetSeqPicnum(16, i + 41, 0));
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DestroyEgg(int nEgg)
 {
@@ -265,6 +289,12 @@ void DestroyEgg(int nEgg)
     QueenEgg.Release(nEgg);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void DestroyAllEggs()
 {
     for (int i = 0; i < kMaxEggs; i++)
@@ -280,6 +310,12 @@ void SetHeadVel(DExhumedActor* pActor)
 {
 	pActor->vel.XY() = pActor->spr.angle.ToVector() * 1024 * (1 << nVelShift);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshold, DAngle val2)
 {
@@ -335,6 +371,12 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
     return movesprite(pActor, vec, zz * 16 + BobVal(bobangle) * 2, 0, CLIPMASK1);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int DestroyTailPart()
 {
     if (!QueenHead.nIndex2) {
@@ -356,6 +398,12 @@ int DestroyTailPart()
     DeleteActor(pActor);
     return 1;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildTail()
 {
@@ -397,6 +445,12 @@ void BuildTail()
     nQHead = 0;
     QueenHead.nIndex2 = 7;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildQueenEgg(int nQueen, int nVal)
 {
@@ -462,6 +516,12 @@ void BuildQueenEgg(int nQueen, int nVal)
     pActor2->spr.intowner = runlist_AddRunRec(pActor2->spr.lotag - 1, nEgg, 0x1D0000);
     QueenEgg[nEgg].nRun = runlist_AddRunRec(NewRun, nEgg, 0x1D0000);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIQueenEgg::Tick(RunListEvent* ev)
 {
@@ -617,6 +677,12 @@ void AIQueenEgg::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIQueenEgg::RadialDamage(RunListEvent* ev)
 {
     int nEgg = RunData[ev->nRun].nObjIndex;
@@ -632,6 +698,12 @@ void AIQueenEgg::RadialDamage(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIQueenEgg::Damage(RunListEvent* ev)
 {
     int nEgg = RunData[ev->nRun].nObjIndex;
@@ -646,12 +718,24 @@ void AIQueenEgg::Damage(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIQueenEgg::Draw(RunListEvent* ev)
 {
     int nEgg = RunData[ev->nRun].nObjIndex;
     Egg* pEgg = &QueenEgg[nEgg];
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqQueenEgg] + EggSeq[pEgg->nAction].a, pEgg->nFrame, EggSeq[pEgg->nAction].b);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildQueenHead(int nQueen)
 {
@@ -698,6 +782,12 @@ void BuildQueenHead(int nQueen)
     QueenHead.nRun = runlist_AddRunRec(NewRun, 0, 0x1B0000);
     QueenHead.nIndex2 = 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIQueenHead::Tick(RunListEvent* ev)
 {
@@ -976,6 +1066,12 @@ void AIQueenHead::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIQueenHead::RadialDamage(RunListEvent* ev)
 {
     if (ev->pRadialActor->spr.statnum != 121 && (QueenHead.pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
@@ -984,6 +1080,12 @@ void AIQueenHead::RadialDamage(RunListEvent* ev)
         if (ev->nDamage) Damage(ev);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIQueenHead::Damage(RunListEvent* ev)
 {
@@ -1020,6 +1122,12 @@ void AIQueenHead::Damage(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIQueenHead::Draw(RunListEvent* ev)
 {
     int nHead = RunData[ev->nRun].nObjIndex;
@@ -1042,6 +1150,12 @@ void AIQueenHead::Draw(RunListEvent* ev)
 
     seq_PlotSequence(ev->nParam, nSeq, QueenHead.nFrame, edx);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, DAngle nAngle, int nChannel)
 {
@@ -1106,6 +1220,12 @@ void SetQueenSpeed(DExhumedActor* pActor, int nSpeed)
 {
     pActor->VelFromAngle(-(2 - nSpeed));
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIQueen::Tick(RunListEvent* ev)
 {
@@ -1365,6 +1485,12 @@ void AIQueen::Tick(RunListEvent* ev)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void AIQueen::RadialDamage(RunListEvent* ev)
 {
     int nQueen = RunData[ev->nRun].nObjIndex;
@@ -1378,6 +1504,12 @@ void AIQueen::RadialDamage(RunListEvent* ev)
         if (ev->nDamage) Damage(ev);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIQueen::Damage(RunListEvent* ev)
 {
@@ -1435,6 +1567,12 @@ void AIQueen::Damage(RunListEvent* ev)
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void AIQueen::Draw(RunListEvent* ev)
 {

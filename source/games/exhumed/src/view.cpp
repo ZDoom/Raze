@@ -52,7 +52,12 @@ bool bCamera = false;
 // We cannot drag these through the entire event system... :(
 tspriteArray* mytspriteArray;
 
-// NOTE - not to be confused with Ken's analyzesprites()
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double const interpfrac)
 {
     mytspriteArray = &tsprites;
@@ -161,15 +166,25 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
 
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void ResetView()
 {
     EraseScreen(0);
-#ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
-#endif
 }
 
 static TextOverlay subtitleOverlay;
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void DrawView(double interpfrac, bool sceneonly)
 {
@@ -391,6 +406,12 @@ void DrawView(double interpfrac, bool sceneonly)
     flash = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool GameInterface::GenerateSavePic()
 {
     DrawView(65536, true);
@@ -403,13 +424,11 @@ void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy,
 }
 
 
-void NoClip()
-{
-}
-
-void Clip()
-{
-}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SerializeView(FSerializer& arc)
 {

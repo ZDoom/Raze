@@ -30,6 +30,12 @@ BEGIN_PS_NS
 
 bool bShowTowers = false;
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GrabMap()
 {
     for(auto&sec: sector)
@@ -53,6 +59,12 @@ void DrawMap(double const interpfrac)
         DrawOverheadMap(pPlayerActor->interpolatedpos(interpfrac).XY(), ang, interpfrac);
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac)
 {

@@ -206,7 +206,6 @@ extern TObjPtr<DExhumedActor*> nChunkSprite[];
 extern TObjPtr<DExhumedActor*> nBodySprite[];
 
 void MoveThings();
-void ResetMoveFifo();
 void InitChunks();
 void InitPushBlocks();
 void Gravity(DExhumedActor* actor);

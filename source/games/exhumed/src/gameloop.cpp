@@ -62,6 +62,12 @@ void DoTitle(CompletionFunc completion);
 
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::Render()
 {
     drawtime.Reset();
@@ -117,6 +123,12 @@ void GameInterface::DrawBackground()
     DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 0);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::NextLevel(MapRecord *map, int skill)
 {
 	InitLevel(map);
@@ -158,6 +170,12 @@ DEFINE_ACTION_FUNCTION(DMapScreen, SetNextLevel)
     selectedlevelnew = v;
     return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
 {
