@@ -259,16 +259,6 @@ void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp =
 
 bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, fixedhoriz horiz, double const interpfrac);
 
-inline bool calcChaseCamPos(int* px, int* py, int* pz, DCoreActor* pspr, sectortype** psectnum, DAngle ang, fixedhoriz horiz, double const smoothratio)
-{
-	auto pos = DVector3((*px) * inttoworld, (*py) * inttoworld, (*pz) * zinttoworld);
-	auto res = calcChaseCamPos(pos, pspr, psectnum, ang, horiz, smoothratio * (1. / MaxSmoothRatio));
-	(*px) = pos.X * worldtoint;
-	(*py) = pos.Y * worldtoint;
-	(*pz) = pos.Z * zworldtoint;
-	return res;
-}
-
 void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz);
 
 int getslopeval(sectortype* sect, int x, int y, int z, int planez);

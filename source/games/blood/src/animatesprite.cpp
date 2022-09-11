@@ -364,20 +364,21 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->set_int_z(getflorzofslopeptr(pTSprite->sectp, pNSprite->int_pos().X, pNSprite->int_pos().Y));
 		if ((pNSprite->sectp->floorpicnum >= 4080) && (pNSprite->sectp->floorpicnum <= 4095) && !VanillaMode()) // if floor has ror, find actual floor
 		{
-			int cX = pNSprite->int_pos().X, cY = pNSprite->int_pos().Y, cZ = pNSprite->int_pos().Z, cZrel = pNSprite->int_pos().Z;
+			DVector3 cPos = pNSprite->pos;
+			double cZrel = cPos.Z;
 			auto cSect = pNSprite->sectp;
 			for (int i = 0; i < 16; i++) // scan through max stacked sectors
 			{
-				if (!CheckLink(&cX, &cY, &cZ, &cSect)) // if no more floors underneath, abort
+				if (!CheckLink(cPos, &cSect)) // if no more floors underneath, abort
 					break;
-				const int newFloorZ = getflorzofslopeptr(cSect, cX, cZ);
-				cZrel += newFloorZ - cZ; // get height difference for next sector's ceiling/floor, and add to relative height for shadow
+				const double newFloorZ = getflorzofslopeptrf(cSect, cPos.X, cPos.Z);
+				cZrel += newFloorZ - cPos.Z; // get height difference for next sector's ceiling/floor, and add to relative height for shadow
 				if ((cSect->floorpicnum < 4080) || (cSect->floorpicnum > 4095)) // if current sector is not open air, use as floor for shadow casting, otherwise continue to next sector
 					break;
-				cZ = newFloorZ;
+				cPos.Z = newFloorZ;
 			}
 			pNSprite->sectp = cSect;
-			pNSprite->set_int_z(cZrel);
+			pNSprite->pos.Z = cZrel;
 		}
 		pNSprite->shade = 127;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;

@@ -405,7 +405,7 @@ void viewUpdateDelirium(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void viewUpdateShake(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, double& pshakeX, double& pshakeY)
+void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& cH, double& pshakeX, double& pshakeY)
 {
 	auto doEffect = [&](const int& effectType)
 	{
@@ -414,9 +414,9 @@ void viewUpdateShake(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fix
 			int nValue = ClipHigh(effectType * 8, 2000);
 			cH += buildhoriz(QRandom2(nValue >> 8));
 			cA += DAngle::fromBuild(QRandom2(nValue >> 8));
-			cX += QRandom2(nValue >> 4);
-			cY += QRandom2(nValue >> 4);
-			cZ += QRandom2(nValue);
+			cPos.X += QRandom2F(nValue * inttoworld) * inttoworld;
+			cPos.Y += QRandom2F(nValue * inttoworld) * inttoworld;
+			cPos.Z += QRandom2F(nValue) * zinttoworld;
 			pshakeX += QRandom2(nValue);
 			pshakeY += QRandom2(nValue);
 		}
@@ -456,9 +456,9 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fixedhoriz& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, DAngle& rotscrnang, const double interpfrac)
+static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, DAngle& rotscrnang, const double interpfrac)
 {
-	int bobWidth, bobHeight;
+	double bobWidth, bobHeight;
 
 	pSector = pPlayer->actor->sector();
 #if 0
@@ -490,12 +490,11 @@ static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fi
 	else
 #endif
 	{
-		cX = interpolatedvalue(pPlayer->actor->opos.X, pPlayer->actor->spr.pos.X, interpfrac) * worldtoint;
-		cY = interpolatedvalue(pPlayer->actor->opos.Y, pPlayer->actor->spr.pos.Y, interpfrac) * worldtoint;
-		cZ = interpolatedvalue(pPlayer->ozView, pPlayer->zView, interpfrac);
+		cPos.XY() = pPlayer->actor->interpolatedpos(interpfrac).XY();
+		cPos.Z = interpolatedvalue(pPlayer->ozView, pPlayer->zView, interpfrac) * zinttoworld;
 		zDelta = interpolatedvalue<double>(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - (12 << 8), interpfrac);
-		bobWidth = interpolatedvalue(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
-		bobHeight = interpolatedvalue(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
+		bobWidth = interpolatedvalue<double>(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
+		bobHeight = interpolatedvalue<double>(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
 		shakeX = interpolatedvalue<double>(pPlayer->oswayWidth, pPlayer->swayWidth, interpfrac);
 		shakeY = interpolatedvalue<double>(pPlayer->oswayHeight, pPlayer->swayHeight, interpfrac);
 
@@ -513,27 +512,27 @@ static void SetupView(PLAYER* pPlayer, int& cX, int& cY, int& cZ, DAngle& cA, fi
 		}
 	}
 
-	viewUpdateShake(pPlayer, cX, cY, cZ, cA, cH, shakeX, shakeY);
+	viewUpdateShake(pPlayer, cPos, cA, cH, shakeX, shakeY);
 	cH += buildhoriz(MulScale(0x40000000 - Cos(pPlayer->tiltEffect << 2), 30, 30));
 	if (gViewPos == 0)
 	{
 		if (cl_viewhbob)
 		{
-			cX -= MulScale(bobWidth, Sin(cA.Buildang()), 30) >> 4;
-			cY += MulScale(bobWidth, Cos(cA.Buildang()), 30) >> 4;
+			cPos.X -= bobWidth * cA.Sin() * (1. / 256.);
+			cPos.Y += bobWidth * cA.Cos() * (1. / 256.);
 		}
 		if (cl_viewvbob)
 		{
-			cZ += bobHeight;
+			cPos.Z += bobHeight * zinttoworld;
 		}
-		cZ += int(cH.asq16() * (1. / 6553.6));
+		cPos.Z += FixedToFloat<24>(cH.asq16() * 10);
 	}
 	else
 	{
-		calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, pPlayer->actor, &pSector, cA, cH, interpfrac * MaxSmoothRatio);
+		calcChaseCamPos(cPos, pPlayer->actor, &pSector, cA, cH, interpfrac);
 	}
 	if (pSector != nullptr)
-		CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
+		CheckLink(cPos, &pSector);
 }
 
 //---------------------------------------------------------------------------
@@ -617,8 +616,13 @@ void viewDrawScreen(bool sceneonly)
 		FireProcess();
 	}
 
-	double interpfrac = !paused && (!M_Active() || gGameOptions.nGameType != 0) || !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac();
-	double gInterpolate = interpfrac * MaxSmoothRatio;
+	double interpfrac;
+
+	if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
+	{
+		interpfrac = !cl_interpolate || cl_capfps ? 1. : I_GetTimeFrac() * 1.;
+	}
+	else interpfrac = 1.;
 
 	if (cl_interpolate)
 	{
@@ -645,13 +649,13 @@ void viewDrawScreen(bool sceneonly)
 		UpdateDacs(basepal);
 		UpdateBlend(pPlayer);
 
-		int cX, cY, cZ;
+		DVector3 cPos;
 		DAngle cA, rotscrnang;
 		fixedhoriz cH;
 		sectortype* pSector;
 		double zDelta;
 		double shakeX, shakeY;
-		SetupView(pPlayer, cX, cY, cZ, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang, interpfrac);
+		SetupView(pPlayer, cPos, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang, interpfrac);
 
 		DAngle tilt = interpolatedvalue(gScreenTiltO, gScreenTilt, interpfrac);
 		bool bDelirium = powerupCheck(pPlayer, kPwUpDeliriumShroom) > 0;
@@ -706,18 +710,17 @@ void viewDrawScreen(bool sceneonly)
 
 		if (pSector != nullptr)
 		{
-			int ceilingZ, floorZ;
-			getzsofslopeptr(pSector, cX, cY, &ceilingZ, &floorZ);
-			if ((cZ > floorZ - (1 << 8)) && (pSector->upperLink == nullptr)) // clamp to floor
+			double ceilingZ, floorZ;
+			getzsofslopeptr(pSector, cPos, &ceilingZ, &floorZ);
+			if ((cPos.Z > floorZ - 1) && (pSector->upperLink == nullptr)) // clamp to floor
 			{
-				cZ = floorZ - (1 << 8);
+				cPos.Z = floorZ - 1;
 			}
-			if ((cZ < ceilingZ + (1 << 8)) && (pSector->lowerLink == nullptr)) // clamp to ceiling
+			if ((cPos.Z < ceilingZ + 1) && (pSector->lowerLink == nullptr)) // clamp to ceiling
 			{
-				cZ = ceilingZ + (1 << 8);
+				cPos.Z = ceilingZ + 1;
 			}
 		}
-
 		cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
 		if ((tilt.Degrees() || bDelirium) && !sceneonly)
@@ -736,7 +739,7 @@ void viewDrawScreen(bool sceneonly)
 		fixedhoriz deliriumPitchI = interpolatedvalue(q16horiz(deliriumPitchO), q16horiz(deliriumPitch), interpfrac);
 		auto bakCstat = pPlayer->actor->spr.cstat;
 		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
-		render_drawrooms(pPlayer->actor, vec3_t( cX, cY, cZ ), sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
+		render_drawrooms(pPlayer->actor, cPos, sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, interpfrac);
 		pPlayer->actor->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 

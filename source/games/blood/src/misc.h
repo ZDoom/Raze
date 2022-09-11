@@ -66,7 +66,7 @@ extern ZONE gStartZone[8];
 
 void warpInit(TArray<DBloodActor*>& actors);
 int CheckLink(DBloodActor* pSprite);
-int CheckLink(int* x, int* y, int* z, sectortype** pSector);
+int CheckLink(DVector3& cPos, sectortype** pSector);
 
 void RotateVector(int* dx, int* dy, int nAngle);
 

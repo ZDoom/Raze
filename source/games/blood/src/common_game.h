@@ -572,6 +572,11 @@ inline int QRandom2(int a1)
 	return MulScale(qrand(), a1, 14) - a1;
 }
 
+inline double QRandom2F(double a1)
+{
+	return MulScaleF(qrand(), a1, 14) - a1;
+}
+
 inline int scale(int a1, int a2, int a3, int a4, int a5)
 {
 	return a4 + (a5 - a4) * (a1 - a2) / (a3 - a2);

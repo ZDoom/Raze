@@ -89,7 +89,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				display_mirror = 1; // should really be 'display external view'.
 				auto cstat = camera->spr.cstat;
 				camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				render_camtex(camera, camera->int_pos(), camera->sector(), camera->interpolatedangle(smoothratio * (1. / MaxSmoothRatio)), buildhoriz(camera->spr.shade), nullAngle, tex, rect, smoothratio);
+				render_camtex(camera, camera->spr.pos, camera->sector(), camera->interpolatedangle(smoothratio), buildhoriz(camera->spr.shade), nullAngle, tex, rect, smoothratio);
 				camera->spr.cstat = cstat;
 				display_mirror = 0;
 			});
@@ -383,7 +383,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 
 bool GameInterface::GenerateSavePic()
 {
-	displayrooms(myconnectindex, MaxSmoothRatio, true);
+	displayrooms(myconnectindex, 1., true);
 	return true;
 }
 

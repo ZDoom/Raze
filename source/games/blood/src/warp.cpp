@@ -261,54 +261,52 @@ int CheckLink(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int CheckLink(int* x, int* y, int* z, sectortype** pSector)
+int CheckLink(DVector3& cPos, sectortype** pSector)
 {
 	auto aUpper = barrier_cast<DBloodActor*>((*pSector)->upperLink);
 	auto aLower = barrier_cast<DBloodActor*>((*pSector)->lowerLink);
 	if (aUpper)
 	{
-		int z1;
+		double z1;
 		if (aUpper->spr.type == kMarkerUpLink)
-			z1 = aUpper->int_pos().Z;
+			z1 = aUpper->spr.pos.Z;
 		else
-			z1 = getflorzofslopeptr(*pSector, *x, *y);
-		if (z1 <= *z)
+			z1 = getflorzofslopeptrf(*pSector, cPos);
+		if (z1 <= cPos.Z)
 		{
 			aLower = aUpper->GetOwner();
 			assert(aLower);
 			assert(aLower->insector());
 			*pSector = aLower->sector();
-			*x += aLower->int_pos().X - aUpper->int_pos().X;
-			*y += aLower->int_pos().Y - aUpper->int_pos().Y;
-			int z2;
+			cPos.XY() += aLower->spr.pos.XY() - aUpper->spr.pos.XY();
+			double z2;
 			if (aUpper->spr.type == kMarkerLowLink)
-				z2 = aLower->int_pos().Z;
+				z2 = aLower->spr.pos.Z;
 			else
-				z2 = getceilzofslopeptr(*pSector, *x, *y);
-			*z += z2 - z1;
+				z2 = getceilzofslopeptrf(*pSector, cPos);
+			cPos.Z += z2 - z1;
 			return aUpper->spr.type;
 		}
 	}
 	if (aLower)
 	{
-		int z1;
+		double z1;
 		if (aLower->spr.type == kMarkerLowLink)
-			z1 = aLower->int_pos().Z;
+			z1 = aLower->spr.pos.Z;
 		else
-			z1 = getceilzofslopeptr(*pSector, *x, *y);
-		if (z1 >= *z)
+			z1 = getceilzofslopeptrf(*pSector, cPos);
+		if (z1 >= cPos.Z)
 		{
 			aUpper = aLower->GetOwner();
 			assert(aUpper);
 			*pSector = aUpper->sector();
-			*x += aUpper->int_pos().X - aLower->int_pos().X;
-			*y += aUpper->int_pos().Y - aLower->int_pos().Y;
-			int z2;
+			cPos.XY() += aUpper->spr.pos.XY() - aLower->spr.pos.XY();
+			double z2;
 			if (aLower->spr.type == kMarkerUpLink)
-				z2 = aUpper->int_pos().Z;
+				z2 = aUpper->spr.pos.Z;
 			else
-				z2 = getflorzofslopeptr(*pSector, *x, *y);
-			*z += z2 - z1;
+				z2 = getflorzofslopeptrf(*pSector, cPos);
+			cPos.Z += z2 - z1;
 			return aLower->spr.type;
 		}
 	}
