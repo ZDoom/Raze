@@ -4509,7 +4509,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 	if (sc->ceilingz > actor->spr.pos.Z)
 		for (int j = 0; j < 8; j++)
 		{
-			actor->add_int_ang(krand() & 511);
+			actor->spr.angle = randomAngle(90);
 			auto spawned = spawn(actor, SMALLSMOKE);
 			if (spawned)
 			{
