@@ -140,6 +140,12 @@ void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
 int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);
 int hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
 int findplayer(const DDukeActor* s, int* dist);
+inline int findplayer(const DDukeActor* s, double* dist)
+{
+	int dd, p = findplayer(s, &dd);
+	*dist = dd * inttoworld;
+	return p;
+}
 void operatejaildoors(int hitag);
 void allignwarpelevators(void);
 bool isablockdoor(int tileNum);

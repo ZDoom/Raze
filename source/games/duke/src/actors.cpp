@@ -3153,7 +3153,7 @@ void handle_se02(DDukeActor* actor)
 
 //---------------------------------------------------------------------------
 //
-// 
+// lights off
 //
 //---------------------------------------------------------------------------
 
@@ -3200,7 +3200,7 @@ void handle_se03(DDukeActor *actor)
 
 //---------------------------------------------------------------------------
 //
-// 
+// lights
 //
 //---------------------------------------------------------------------------
 
@@ -3265,17 +3265,18 @@ void handle_se04(DDukeActor *actor)
 
 //---------------------------------------------------------------------------
 //
-// 
+// boss
 //
 //---------------------------------------------------------------------------
 
 void handle_se05(DDukeActor* actor, int FIRELASER)
 {
 	auto sc = actor->sector();
-	int j, l, m;
+	int j;
 
-	int x, p = findplayer(actor, &x);
-	if (x < 8192)
+	double x;
+	int p = findplayer(actor, &x);
+	if (x < 512)
 	{
 		auto ang = actor->spr.angle;
 		actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos);
@@ -3287,18 +3288,18 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	if (Owner == nullptr) //Start search
 	{
 		actor->temp_data[4] = 0;
-		l = 0x7fffffff;
+		double maxdist = 0x7fffffff;
 		while (1) //Find the shortest dist
 		{
 			auto NewOwner = LocateTheLocator(actor->temp_data[4], nullptr);
 			if (NewOwner == nullptr) break;
 
-			m = ldist(ps[p].GetActor(), NewOwner);
+			double dist = (ps[p].GetActor()->spr.pos.XY() - NewOwner->spr.pos.XY()).LengthSquared();
 
-			if (l > m)
+			if (maxdist > dist)
 			{
 				Owner = NewOwner;
-				l = m;
+				maxdist = dist;
 			}
 
 			actor->temp_data[4]++;
@@ -3306,10 +3307,10 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 		actor->SetOwner(Owner);
 		if (!Owner) return; // Undefined case - was not checked.
-		actor->set_int_zvel(Sgn(Owner->spr.pos.Z - actor->spr.pos.Z) << 4);
+		actor->vel.Z = (Sgn(Owner->spr.pos.Z - actor->spr.pos.Z) / 16);
 	}
 
-	if (ldist(Owner, actor) < 1024)
+	if ((Owner->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared() < 64 * 64)
 	{
 		// Huh?
 		//auto ta = actor->spr.angle;
@@ -3319,21 +3320,21 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 		return;
 
 	}
-	else actor->set_int_xvel(256);
+	else actor->vel.X = 16;
 
-	x = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
-	int q = getincangle(actor->int_ang(), x) >> 3;
-	actor->add_int_ang(q);
+	auto ang = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
+	auto angdiff = deltaangle(actor->spr.angle, ang) / 8;
+	actor->spr.angle += angdiff;
 
 	if (rnd(32))
 	{
-		actor->temp_data[2] += q;
+		actor->temp_angle += angdiff;
 		sc->ceilingshade = 127;
 	}
 	else
 	{
-		actor->temp_data[2] +=
-			getincangle(actor->temp_data[2] + 512, getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 2;
+		actor->temp_angle +=
+			deltaangle(actor->temp_angle + DAngle90, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) * 0.25;
 		sc->ceilingshade = 0;
 	}
 	j = fi.ifhitbyweapon(actor);
@@ -3350,7 +3351,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	actor->spr.pos.Z += actor->vel.Z;
 	sc->setceilingz(actor->vel.Z);
 	sector[actor->temp_data[0]].setceilingz(actor->vel.Z);
-	movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+	movesector(actor, actor->temp_data[1], actor->temp_angle);
 	//SetActor(actor, actor->spr.pos);
 }
 
