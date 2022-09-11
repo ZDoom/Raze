@@ -950,7 +950,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 					actor->spr.cstat2 = CSTAT2_SPRITE_NOFIND;
 					actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 					ChangeActorStat(actor, STAT_REMOVED);
-					Printf("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", actor->int_pos().X, actor->int_pos().Y);
+					Printf("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", int(actor->spr.pos.X), int(actor->spr.pos.Y));
 					return;
 				}
 			}

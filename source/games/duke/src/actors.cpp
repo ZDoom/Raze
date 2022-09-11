@@ -268,7 +268,7 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 
 //---------------------------------------------------------------------------
 //
-// movesector - why is this in actors.cpp?
+// movesector - used by sector effectors
 //
 //---------------------------------------------------------------------------
 
@@ -2691,7 +2691,7 @@ void handle_se00(DDukeActor* actor)
 
 				act2->spr.pos.Z += zchange;
 
-				auto pos = rotatepoint(Owner->spr.pos.XY(), act2->spr.pos.XY(), ang_amount * direction);
+				auto pos = rotatepoint(Owner->spr.pos, act2->spr.pos.XY(), ang_amount * direction);
 				act2->spr.pos.X = pos.X;
 				act2->spr.pos.Y = pos.Y;
 			}
@@ -2717,7 +2717,7 @@ void handle_se01(DDukeActor *actor)
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto ac = it.Next())
 		{
-			if (ac->spr.lotag == 19 && ac->spr.hitag == sh)
+			if (ac->spr.lotag == SE_19_EXPLOSION_LOWERS_CEILING && ac->spr.hitag == sh)
 			{
 				actor->temp_data[0] = 0;
 				break;
@@ -2728,7 +2728,10 @@ void handle_se01(DDukeActor *actor)
 
 //---------------------------------------------------------------------------
 //
+// Subway car
 // 
+// temp_data[1]: mspos index
+// temp_angle: rotation angle
 //
 //---------------------------------------------------------------------------
 
@@ -2769,15 +2772,14 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	Owner = actor->GetOwner();
 	if(actor->vel.X != 0)
 	{
-		int x = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
-		int q = getincangle(actor->int_ang(), x) >> 3;
-		DAngle qAngle = DAngle::fromBuild(q);
+		auto curangle = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
+		auto diffangle = deltaangle(actor->spr.angle, curangle) * 0.125;
 
-		actor->temp_data[2] += q;
-		actor->add_int_ang(q);
+		actor->temp_angle += diffangle;
+		actor->spr.angle += diffangle;
 
 		bool statstate = (!checkstat || ((sc->floorstat & CSTAT_SECTOR_SKY) == 0 && (sc->ceilingstat & CSTAT_SECTOR_SKY) == 0));
-		if (actor->int_xvel() == sc->extra)
+		if (actor->vel.X == sc->extra * maptoworld)
 		{
 			if (statstate)
 			{
@@ -2786,31 +2788,32 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			}
 			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & CSTAT_SECTOR_SKY) && rnd(8)))
 			{
-				int p = findplayer(actor, &x);
-				if (x < 20480)
+				int dist;
+				int p = findplayer(actor, &dist);
+				if (dist < 20480)
 				{
-					j = actor->int_ang();
+					auto saved_angle = actor->spr.angle;
 					actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY());
 					fi.shoot(actor, RPG);
-					actor->set_int_ang(j);
+					actor->spr.angle = saved_angle;
 				}
 			}
 		}
 
-		if (actor->int_xvel() <= 64 && statstate)
+		if (actor->vel.X <= 4 && statstate)
 			S_StopSound(actor->tempsound, actor);
 
 		if ((sc->floorz - sc->ceilingz) < 108)
 		{
-			if (ud.clipping == 0 && actor->int_xvel() >=  192)
+			if (ud.clipping == 0 && actor->vel.X >=  12)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
 				{
 					auto psp = ps[p].GetActor();
 					if (psp->spr.extra > 0)
 					{
-						auto k = ps[p].cursector;
-						updatesector(ps[p].pos, &k);
-						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
+						auto sect = ps[p].cursector;
+						updatesector(ps[p].pos, &sect);
+						if ((sect == nullptr && ud.clipping == 0) || (sect == actor->sector() && ps[p].cursector != actor->sector()))
 						{
 							ps[p].getxyfromactor(actor);
 							ps[p].setCursector(actor->sector());
@@ -2822,10 +2825,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				}
 		}
 
-		int m = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14);
-		x = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14);
-		double mm = m * inttoworld;
-		double xx = x * inttoworld;
+		auto vec = actor->spr.angle.ToVector() * actor->vel.X;
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
@@ -2834,21 +2834,18 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			{
 				if (po[p].os == actor->sector())
 				{
-					po[p].opos.X += mm;
-					po[p].opos.Y += xx;
+					po[p].opos += vec;
 				}
 
 				if (actor->sector() == psp->sector())
 				{
-					auto result = rotatepoint(actor->spr.pos.XY(), ps[p].pos.XY(), qAngle);
+					auto result = rotatepoint(actor->spr.pos.XY(), ps[p].pos.XY(), diffangle);
 
-					ps[p].pos.X = result.X + mm;
-					ps[p].pos.Y = result.Y + xx;
+					ps[p].pos.XY() = result + vec;
 
-					ps[p].bobpos.X += mm;
-					ps[p].bobpos.Y += xx;
+					ps[p].bobpos += vec;
 
-					ps[p].angle.addadjustment(qAngle);
+					ps[p].angle.addadjustment(diffangle);
 
 					if (numplayers > 1)
 					{
@@ -2856,8 +2853,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					}
 					if (psp->spr.extra <= 0)
 					{
-						psp->spr.pos.X = ps[p].pos.X;
-						psp->spr.pos.Y = ps[p].pos.Y;
+						psp->spr.pos.XY() = ps[p].pos.XY();
 					}
 				}
 			}
@@ -2869,8 +2865,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				(a2->spr.picnum != SECTOREFFECTOR || a2->spr.lotag == SE_49_POINT_LIGHT || a2->spr.lotag == SE_50_SPOT_LIGHT) &&
 					a2->spr.picnum != LOCATORS)
 			{
-				a2->spr.pos.XY() = rotatepoint(actor->spr.pos.XY(), a2->spr.pos.XY(), qAngle) + DVector2(mm, xx);
-				a2->spr.angle += qAngle;
+				a2->spr.pos.XY() = rotatepoint(actor->spr.pos.XY(), a2->spr.pos.XY(), diffangle) + vec;
+				a2->spr.angle += diffangle;
 
 				if (numplayers > 1)
 				{
@@ -2879,13 +2875,13 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			}
 		}
 
-		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+		movesector(actor, actor->temp_data[1], actor->temp_angle);
 		// I have no idea why this is here, but the SE's sector must never, *EVER* change, or the map will corrupt.
 		//SetActor(actor, actor->spr.pos);
 
 		if ((sc->floorz - sc->ceilingz) < 108)
 		{
-			if (ud.clipping == 0 && actor->int_xvel() >=  192)
+			if (ud.clipping == 0 && actor->vel.X >=  12)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
 				{
 					if (ps[p].GetActor()->spr.extra > 0)
@@ -2913,7 +2909,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					if (a2->spr.statnum == 1 && badguy(a2) && a2->spr.picnum != SECTOREFFECTOR && a2->spr.picnum != LOCATORS)
 					{
 						auto k = a2->sector();
-						updatesector(a2->int_pos().X, a2->int_pos().Y, &k);
+						updatesector(a2->spr.pos, &k);
 						if (a2->spr.extra >= 0 && k == actor->sector())
 						{
 							gutsdir(a2, JIBS6, 72, myconnectindex);
