@@ -676,19 +676,19 @@ void movefallers_r(void)
 					ssp(act, CLIPMASK0);
 				}
 
-				int x;
-				if (fi.floorspace(act->sector())) x = 0;
+				double grav;
+				if (fi.floorspace(act->sector())) grav = 0;
 				else
 				{
 					if (fi.ceilingspace(act->sector()))
-						x = gs.gravity / 6;
+						grav = gs.gravity / 6;
 					else
-						x = gs.gravity;
+						grav = gs.gravity;
 				}
 
 				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
-					act->add_int_zvel( x);
+					act->vel.Z += grav;
 					if (act->vel.Z > 24)
 						act->vel.Z = 24;
 					act->spr.pos.Z += act->vel.Z;
@@ -696,7 +696,7 @@ void movefallers_r(void)
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
 					int j = 1 + (krand() & 7);
-					for (x = 0; x < j; x++) RANDOMSCRAP(act);
+					for (int x = 0; x < j; x++) RANDOMSCRAP(act);
 					deletesprite(act);
 				}
 			}
@@ -3439,12 +3439,12 @@ void moveeffectors_r(void)   //STATNUM 3
 //
 //---------------------------------------------------------------------------
 
-int adjustfall(DDukeActor *actor, int c)
+double adjustfall(DDukeActor *actor, double c)
 {
 	if ((actor->spr.picnum == BIKERB || actor->spr.picnum == CHEERB) && c == gs.gravity)
-		c = gs.gravity>>2;
+		c = gs.gravity * 0.25;
 	else if (actor->spr.picnum == BIKERBV2 && c == gs.gravity)
-		c = gs.gravity>>3;
+		c = gs.gravity * 0.125;
 	return c;
 }
 

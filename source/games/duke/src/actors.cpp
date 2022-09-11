@@ -48,7 +48,7 @@ This file is a combination of code from the following sources:
 
 BEGIN_DUKE_NS
 
-int adjustfall(DDukeActor* s, int c);
+double adjustfall(DDukeActor* actor, double c);
 
 
 //---------------------------------------------------------------------------
@@ -2097,11 +2097,11 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 		if (sectp->lotag == 2)
 		{
 			if (actor->vel.Z < 0.25)
-				actor->add_int_zvel( (gs.gravity >> 5) + (krand() & 7));
+				actor->vel.Z += gs.gravity / 32. + krandf(1/32.);
 		}
 		else
 			if (actor->vel.Z < 0.5625)
-				actor->add_int_zvel( (gs.gravity >> 5) + (krand() & 7));
+				actor->vel.Z += gs.gravity / 32. + krandf(1 / 32.);
 	}
 
 	ssp(actor, CLIPMASK0);
@@ -2211,10 +2211,10 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 					actor->vel.Z += 3 / 16.;
 				else actor->vel.Z = 4;
 			}
-			else actor->add_int_zvel( gs.gravity - 50);
+			else actor->vel.Z += ( gs.gravity - 50/256.);
 		}
 
-		actor->add_int_pos({ MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14), MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14), 0 });
+		actor->spr.pos += actor->spr.angle.ToVector() * actor->vel.X;
 		actor->spr.pos.Z += actor->vel.Z;
 
 		if (floorcheck && actor->spr.pos.Z >= actor->sector()->floorz)
@@ -2376,7 +2376,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0]++;
 			actor->temp_data[0] &= 3;
 		}
-		if (actor->vel.Z < 0.5) actor->add_int_zvel((gs.gravity / 13)); // 8
+		if (actor->vel.Z < 0.5) actor-> vel.Z += (gs.gravity / 13); // 8
 		else actor->vel.Z -= 0.25;
 		if (actor->vel.X > 0)
 			actor->vel.X -= 0.25;
@@ -2391,7 +2391,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->temp_data[0]++;
 			actor->temp_data[0] &= 3;
 		}
-		if (actor->vel.Z < 2) actor->add_int_zvel( (gs.gravity / 3)); // 52;
+		if (actor->vel.Z < 2) actor->vel.Z += (gs.gravity / 3); // 52;
 		if(actor->vel.X > 0)
 			actor->vel.X -= 1/16.;
 		else
@@ -2488,8 +2488,9 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 				else actor->temp_data[0]++;
 			}
 		}
-		if (actor->vel.Z < 16) actor->add_int_zvel( gs.gravity - 50);
-		actor->add_int_pos({ MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14), MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14), actor->int_zvel()});
+		if (actor->vel.Z < 16) actor->vel.Z += (gs.gravity - 50 / 256.);
+		actor->spr.pos += actor->spr.angle.ToVector() * actor->vel.X;
+		actor->spr.pos.Z += actor->vel.Z;
 	}
 	else
 	{
@@ -4829,20 +4830,20 @@ void getglobalz(DDukeActor* actor)
 
 void makeitfall(DDukeActor* actor)
 {
-	int c;
+	double grav;
 
 	if( fi.floorspace(actor->sector()) )
-		c = 0;
+		grav = 0;
 	else
 	{
 		if( fi.ceilingspace(actor->sector()) || actor->sector()->lotag == ST_2_UNDERWATER)
-			c = gs.gravity/6;
-		else c = gs.gravity;
+			grav = gs.gravity/6;
+		else grav = gs.gravity;
 	}
 
 	if (isRRRA())
 	{
-		c = adjustfall(actor, c); // this accesses sprite indices and cannot be in shared code. Should be done better.
+		grav = adjustfall(actor, grav); // this accesses sprite indices and cannot be in shared code. Should be done better. (todo: turn into actor flags)
 	}
 
 	if ((actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_PLAYER || actor->spr.statnum == STAT_ZOMBIEACTOR || actor->spr.statnum == STAT_STANDABLE))
@@ -4861,7 +4862,7 @@ void makeitfall(DDukeActor* actor)
 		if( actor->sector()->lotag == 2 && actor->vel.Z > 3122/256.)
 			actor->vel.Z = 3144 / 256.;
 		if (actor->vel.Z < 24)
-			actor->add_int_zvel(c);
+			actor->vel.Z += grav;
 		else actor->vel.Z = 24;
 		actor->spr.pos.Z += actor->vel.Z;
 	}
@@ -5072,16 +5073,16 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 	actor->spr.yoffset = 0;
 	//			  if(!gotz)
 	{
-		int c;
+		double grav;
 
 		int sphit = fallspecial? fallspecial(actor, playernum) : 0;
 		if (fi.floorspace(actor->sector()))
-			c = 0;
+			grav = 0;
 		else
 		{
 			if (fi.ceilingspace(actor->sector()) || actor->sector()->lotag == 2)
-				c = gs.gravity / 6;
-			else c = gs.gravity;
+				grav = gs.gravity / 6;
+			else grav = gs.gravity;
 		}
 
 		if (actor->cgg <= 0 || (actor->sector()->floorstat & CSTAT_SECTOR_SLOPE))
@@ -5093,7 +5094,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 
 		if (actor->spr.pos.Z < actor->floorz - FOURSLEIGHT_F)
 		{
-			actor->add_int_zvel( c);
+			actor->vel.Z += grav;
 			actor->spr.pos.Z += actor->vel.Z;
 
 			if (actor->vel.Z > 24) actor->vel.Z = 24;

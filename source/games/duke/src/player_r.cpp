@@ -2129,7 +2129,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 				{
 					p->VBumpTarget = 80;
 					p->moto_bump_fast = 1;
-					p->__vel.Z -= int(gs.gravity * p->MotoSpeed * (1. / 16.));
+					p->vel.Z -= (gs.gravity * p->MotoSpeed * (1. / 16.)) * VELZ_FACTOR;
 					p->MotoOnGround = 0;
 					if (S_CheckActorSoundPlaying(pact, 188))
 						S_StopSound(188, pact);
@@ -2137,13 +2137,13 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 				}
 				else
 				{
-					p->__vel.Z += gs.gravity - 80 + int(120 - p->MotoSpeed);
+					p->vel.Z += (gs.gravity - 5/16. + (int(120 - p->MotoSpeed) / 256.)) * VELZ_FACTOR;
 					if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 190))
 						S_PlayActorSound(190, pact);
 				}
 			}
 			else
-				p->__vel.Z += (gs.gravity + 80); // (TICSPERFRAME<<6);
+				p->vel.Z += (gs.gravity + 5/16.) * VELZ_FACTOR; // (TICSPERFRAME<<6);
 
 			if (p->vel.Z >= (16 + 8) * VELZ_FACTOR) p->vel.Z = (16 + 8) * VELZ_FACTOR;
 			if (p->vel.Z > 2400 / 256 * VELZ_FACTOR && p->falling_counter < 255)

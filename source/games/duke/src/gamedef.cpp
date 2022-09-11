@@ -1940,7 +1940,7 @@ int ConCompiler::parsecommand()
 		gs.respawnactortime = parseone();
 		gs.respawnitemtime = parseone();
 		gs.playerfriction = FixedToFloat(parseone());
-		if (isPlutoPak() || isRR()) gs.gravity = parseone();
+		if (isPlutoPak() || isRR()) gs.gravity = FixedToFloat<8>(parseone());
 		gs.rpgblastradius = parseone();
 		gs.pipebombblastradius = parseone();
 		gs.shrinkerblastradius = parseone();
@@ -3185,7 +3185,7 @@ void loadcons()
 	gs.rpgblastradius = 1780;
 	gs.seenineblastradius = 2048;
 	gs.shrinkerblastradius = 650;
-	gs.gravity = 176;
+	gs.gravity = 0.6875;
 	gs.tripbombblastradius = 3880;
 	gs.int_playerheight = PHEIGHT_DUKE << 8;
 	gs.playerheight = PHEIGHT_DUKE;

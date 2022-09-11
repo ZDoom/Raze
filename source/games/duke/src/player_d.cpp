@@ -1797,7 +1797,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		else
 		{
 			p->on_ground = 0;
-			p->__vel.Z += (gs.gravity + 80); // (TICSPERFRAME<<6);
+			p->vel.Z += (gs.gravity + 5/16.) * VELZ_FACTOR; // (TICSPERFRAME<<6);
 			if (p->vel.Z >= (16 + 8) * VELZ_FACTOR) p->vel.Z = (16 + 8) * VELZ_FACTOR;
 			if (p->vel.Z > 2400 / 256 * VELZ_FACTOR && p->falling_counter < 255)
 			{

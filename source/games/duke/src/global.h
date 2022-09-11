@@ -16,17 +16,18 @@ extern user_defs ud;
 struct DukeGameInfo
 {
 	// Static constant global state
+	double playerfriction;
+	double gravity;
+
 	int respawnactortime;
 	int bouncemineblastradius;
 	int respawnitemtime;
 	int morterblastradius;
 	int numfreezebounces;
 	int pipebombblastradius;
-	double playerfriction;
 	int rpgblastradius;
 	int seenineblastradius;
 	int shrinkerblastradius;
-	int gravity;
 	int tripbombblastradius;
 	int camerashitable;
 	int max_player_health;

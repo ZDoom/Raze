@@ -698,7 +698,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 void movefallers_d(void)
 {
-	int j, x;
+	int j;
 
 	DukeStatIterator iti(STAT_FALLER);
 	while (auto act = iti.Next())
@@ -709,7 +709,7 @@ void movefallers_d(void)
 		{
 			act->spr.pos.Z -= 16;
 			act->temp_data[1] = act->int_ang();
-			x = act->spr.extra;
+			int x = act->spr.extra;
 			j = fi.ifhitbyweapon(act);
 			if (j >= 0)
 			{
@@ -759,18 +759,19 @@ void movefallers_d(void)
 					ssp(act, CLIPMASK0);
 				}
 
-				if (fi.floorspace(act->sector())) x = 0;
+				double grav;
+				if (fi.floorspace(act->sector())) grav = 0;
 				else
 				{
 					if (fi.ceilingspace(act->sector()))
-						x = gs.gravity / 6;
+						grav = gs.gravity / 6;
 					else
-						x = gs.gravity;
+						grav = gs.gravity;
 				}
 
 				if (act->spr.pos.Z < sectp->floorz - 1)
 				{
-					act->add_int_zvel( x);
+					act->vel.Z += grav;
 					if (act->vel.Z > 24)
 						act->vel.Z = 24;
 					act->spr.pos.Z += act->vel.Z;
@@ -778,7 +779,7 @@ void movefallers_d(void)
 				if ((sectp->floorz - act->spr.pos.Z) < 16)
 				{
 					j = 1 + (krand() & 7);
-					for (x = 0; x < j; x++) RANDOMSCRAP(act);
+					for (int x = 0; x < j; x++) RANDOMSCRAP(act);
 					deletesprite(act);
 				}
 			}
