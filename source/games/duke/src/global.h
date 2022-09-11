@@ -22,7 +22,7 @@ struct DukeGameInfo
 	int morterblastradius;
 	int numfreezebounces;
 	int pipebombblastradius;
-	int playerfriction;
+	double playerfriction;
 	int rpgblastradius;
 	int seenineblastradius;
 	int shrinkerblastradius;

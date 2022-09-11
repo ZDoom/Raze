@@ -1842,7 +1842,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		S_StopSound(-1, pact, CHAN_VOICE);
 
 		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->__vel.Z > (6144 >> 1))
-			p->hard_landing = p->__vel.Z >> 10;
+			p->hard_landing = p->__vel.Z / 1024.;
 
 		p->on_ground = 1;
 
@@ -1862,7 +1862,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			if (p->on_warping_sector == 0 && p->pos.Z > floorz - 16)
 			{
 				p->pos.Z = floorz - 16;
-				p->__vel.Z >>= 1;
+				p->__vel.Z *= 0.5;
 			}
 		}
 
@@ -1979,7 +1979,7 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 	}
 
 	if (p->__vel.Z > 2048)
-		p->__vel.Z >>= 1;
+		p->__vel.Z *= 0.5;
 
 	p->pos.Z += p->__vel.Z * zinttoworld;
 
@@ -2998,20 +2998,20 @@ void processinput_d(int snum)
 		else check = ((aplWeaponWorksLike(p->curr_weapon, snum) == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
-			p->__vel.X = MulScale(p->__vel.X, gs.playerfriction - 0x2000, 16);
-			p->__vel.Y = MulScale(p->__vel.Y, gs.playerfriction - 0x2000, 16);
+			p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction - 0x2000, 16);
+			p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->__vel.X = MulScale(p->__vel.X, gs.playerfriction - 0x1400, 16);
-				p->__vel.Y = MulScale(p->__vel.Y, gs.playerfriction - 0x1400, 16);
+				p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction - 0x1400, 16);
+				p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->__vel.X = MulScale(p->__vel.X, gs.playerfriction, 16);
-				p->__vel.Y = MulScale(p->__vel.Y, gs.playerfriction, 16);
+				p->__vel.X = MulScaleF(p->__vel.X, gs.playerfriction, 16);
+				p->__vel.Y = MulScaleF(p->__vel.Y, gs.playerfriction, 16);
 			}
 		}
 
@@ -3021,9 +3021,9 @@ void processinput_d(int snum)
 		if (shrunk)
 		{
 			p->__vel.X =
-				MulScale(p->__vel.X, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
+				MulScaleF(p->__vel.X, gs.playerfriction * 0.75, 16);
 			p->__vel.Y =
-				MulScale(p->__vel.Y, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
+				MulScaleF(p->__vel.Y, gs.playerfriction * 0.75, 16);
 		}
 	}
 
@@ -3038,7 +3038,7 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->player_add_int_xy({ p->__vel.X >> 14, p->__vel.Y >> 14 });
+		p->player_add_int_xy({ int(p->__vel.X / 16384), int(p->__vel.Y / 16384) });
 		updatesector(p->pos, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
