@@ -1319,8 +1319,7 @@ int doincrements_r(player_struct* p)
 		{
 			p->noise_radius = 16384;
 			madenoise(screenpeek);
-			p->__vel.X += p->angle.ang.Cos() * (1 << 18);
-			p->__vel.Y += p->angle.ang.Sin() * (1 << 18);
+			p->vel.XY() += p->angle.ang.ToVector() * VEL_FACTOR;
 		}
 		p->eat -= 4;
 		if (p->eat < 0)

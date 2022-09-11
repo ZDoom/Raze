@@ -433,7 +433,7 @@ void hud_input(int plnum)
 						else
 						{
 							p->hard_landing = 0;
-							p->__vel.Z = 0;
+							p->vel.Z = 0;
 							S_PlayActorSound(DUKE_JETPACK_OFF, pact);
 							S_StopSound(DUKE_JETPACK_IDLE, pact);
 							S_StopSound(DUKE_JETPACK_ON, pact);
