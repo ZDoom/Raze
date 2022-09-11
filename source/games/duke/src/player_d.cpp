@@ -2047,7 +2047,7 @@ int operateTripbomb(int snum)
 			if (delta.LengthSquared() < (18.125 * 18.125))
 			{
 				p->pos.Z = p->opos.Z;
-				p->__vel.Z = 0;
+				p->vel.Z = 0;
 				return 1;
 			}
 		}
@@ -2584,7 +2584,7 @@ static void operateweapon(int snum, ESyncBits actions)
 		if (p->kickback_pic < 4)
 		{
 			p->pos.Z = p->opos.Z;
-			p->__vel.Z = 0;
+			p->vel.Z = 0;
 			if (p->kickback_pic == 3)
 				fi.shoot(pact, HANDHOLDINGLASER);
 		}
@@ -2846,7 +2846,7 @@ void processinput_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->__vel.X = p->__vel.Y = 0;
+		p->vel.X = p->vel.Y = 0;
 		pact->vel.X = 0;
 
 		fi.doincrements(p);
@@ -2895,8 +2895,8 @@ void processinput_d(int snum)
 	if (movementBlocked(p))
 	{
 		doubvel = 0;
-		p->__vel.X = 0;
-		p->__vel.Y = 0;
+		p->vel.X = 0;
+		p->vel.Y = 0;
 	}
 	else if (SyncInput())
 	{
@@ -3013,11 +3013,11 @@ void processinput_d(int snum)
 		}
 
 		if (abs(p->__vel.X) < 2048 && abs(p->__vel.Y) < 2048)
-			p->__vel.X = p->__vel.Y = 0;
+			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
 		{
-			p->__vel.XY() *= gs.playerfriction * 0.75;
+			p->vel.XY() *= gs.playerfriction * 0.75;
 		}
 	}
 

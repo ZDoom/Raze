@@ -2216,7 +2216,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			if (abs(k) < 1) k = 0;
 			p->pos.Z += k;
 			p->__vel.Z -= 768;
-			if (p->__vel.Z < 0) p->__vel.Z = 0;
+			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
@@ -2224,7 +2224,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			if (p->on_warping_sector == 0 && p->pos.Z > floorz - 16)
 			{
 				p->pos.Z = floorz - 16;
-				p->__vel.Z *= 0.5;
+				p->vel.Z *= 0.5;
 			}
 		}
 
@@ -2266,7 +2266,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		else
 		{
 			p->jumping_counter = 0;
-			p->__vel.Z = 0;
+			p->vel.Z = 0;
 		}
 	}
 
@@ -2275,8 +2275,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 	if (p->pos.Z < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
-		if (p->__vel.Z < 0)
-			p->__vel.X = p->__vel.Y = 0;
+		if (p->vel.Z < 0)
+			p->vel.X = p->vel.Y = 0;
 		p->__vel.Z = 128;
 		p->pos.Z = ceilingz + 4;
 	}
@@ -2306,34 +2306,34 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 
 	if ((actions & SB_JUMP) && !p->OnMotorcycle)
 	{
-		if (p->__vel.Z > 0) p->__vel.Z = 0;
+		if (p->vel.Z > 0) p->vel.Z = 0;
 		p->__vel.Z -= 348;
 		if (p->__vel.Z < -(256 * 6)) p->__vel.Z = -(256 * 6);
 	}
 	else if ((actions & SB_CROUCH) || p->OnMotorcycle)
 	{
-		if (p->__vel.Z < 0) p->__vel.Z = 0;
+		if (p->vel.Z < 0) p->vel.Z = 0;
 		p->__vel.Z += 348;
 		if (p->__vel.Z > (256 * 6)) p->__vel.Z = (256 * 6);
 	}
 	else
 	{
-		if (p->__vel.Z < 0)
+		if (p->vel.Z < 0)
 		{
 			p->__vel.Z += 256;
-			if (p->__vel.Z > 0)
-				p->__vel.Z = 0;
+			if (p->vel.Z > 0)
+				p->vel.Z = 0;
 		}
-		if (p->__vel.Z > 0)
+		if (p->vel.Z > 0)
 		{
 			p->__vel.Z -= 256;
-			if (p->__vel.Z < 0)
-				p->__vel.Z = 0;
+			if (p->vel.Z < 0)
+				p->vel.Z = 0;
 		}
 	}
 
 	if (p->__vel.Z > 2048)
-		p->__vel.Z *= 0.5;
+		p->vel.Z *= 0.5;
 
 	p->pos.Z += p->__vel.Z * zinttoworld;
 
@@ -2343,7 +2343,7 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 	if (p->pos.Z < ceilingz + 4)
 	{
 		p->pos.Z = ceilingz + 4;
-		p->__vel.Z = 0;
+		p->vel.Z = 0;
 	}
 
 	if (p->scuba_on && (krand() & 255) < 8)
@@ -3558,7 +3558,7 @@ void processinput_r(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->__vel.X = p->__vel.Y = 0;
+		p->__vel.X = p->vel.Y = 0;
 		pact->vel.X = 0;
 
 		fi.doincrements(p);
@@ -3623,8 +3623,8 @@ void processinput_r(int snum)
 	if (movementBlocked(p))
 	{
 		doubvel = 0;
-		p->__vel.X = 0;
-		p->__vel.Y = 0;
+		p->vel.X = 0;
+		p->vel.Y = 0;
 	}
 	else if (SyncInput())
 	{
@@ -4047,8 +4047,8 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		p->last_full_weapon = p->curr_weapon;
 		p->curr_weapon = MOTORCYCLE_WEAPON;
 		p->gotweapon[MOTORCYCLE_WEAPON] = true;
-		p->__vel.X = 0;
-		p->__vel.Y = 0;
+		p->vel.X = 0;
+		p->vel.Y = 0;
 		p->horizon.horiz = q16horiz(0);
 	}
 	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
@@ -4123,8 +4123,8 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		p->last_full_weapon = p->curr_weapon;
 		p->curr_weapon = BOAT_WEAPON;
 		p->gotweapon[BOAT_WEAPON] = true;
-		p->__vel.X = 0;
-		p->__vel.Y = 0;
+		p->vel.X = 0;
+		p->vel.Y = 0;
 		p->horizon.horiz = q16horiz(0);
 	}
 }
