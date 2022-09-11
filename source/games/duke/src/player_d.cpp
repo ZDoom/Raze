@@ -2947,7 +2947,7 @@ void processinput_d(int snum)
 		}
 	}
 
-	if (p->__vel.X || p->__vel.Y || sb_fvel || sb_svel)
+	if (p->vel.X || p->vel.Y || sb_fvel || sb_svel)
 	{
 		p->crack_time = CRACK_TIME;
 

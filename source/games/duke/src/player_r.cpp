@@ -2799,8 +2799,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			if (psectlotag != 857)
 			{
-				p->__vel.X -= p->angle.ang.Cos() * (1 << 18);
-				p->__vel.Y -= p->angle.ang.Sin() * (1 << 18);
+				p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
 			}
 		}
 		else if (p->kickback_pic == 2)
@@ -2899,14 +2898,12 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->__vel.X -= p->angle.ang.Cos() * (1 << 19);
-					p->__vel.Y -= p->angle.ang.Sin() * (1 << 19);
+					p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR * 2;
 				}
 			}
 			else if (psectlotag != 857)
 			{
-				p->__vel.X -= p->angle.ang.Cos() * (1 << 18);
-				p->__vel.Y -= p->angle.ang.Sin() * (1 << 18);
+				p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
 			}
 		}
 
@@ -2992,8 +2989,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->__vel.X -= p->angle.ang.Cos() * (1 << 18);
-					p->__vel.Y -= p->angle.ang.Sin() * (1 << 18);
+					p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
 				}
 				checkavailweapon(p);
 
@@ -3133,8 +3129,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		else if (p->kickback_pic == 12)
 		{
-			p->__vel.X -= p->angle.ang.Cos() * (1 << 18);
-			p->__vel.Y -= p->angle.ang.Sin() * (1 << 18);
+			p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
 			p->horizon.addadjustment(buildhoriz(20));
 			p->recoil += 20;
 		}
@@ -3183,8 +3178,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic < 30)
 		{
-			p->__vel.X -= p->angle.ang.Cos() * (1 << 18);
-			p->__vel.Y -= p->angle.ang.Sin() * (1 << 18);
+			p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
@@ -3770,7 +3764,7 @@ void processinput_r(int snum)
 
 		if (shrunk)
 		{
-			p->__vel.XY() *= gs.playerfriction * 0.75;
+			p->vel.XY() *= gs.playerfriction * 0.75;
 		}
 	}
 
