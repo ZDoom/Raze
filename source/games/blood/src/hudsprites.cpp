@@ -119,12 +119,12 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 			if (cl_hudinterpolation)
 			{
 				cX += (bobx / 256.);
-				cY += (boby / 256.) + (zDelta / 128.);
+				cY += (boby / 256.) + (zDelta * 2.);
 			}
 			else
 			{
 				cX += (int(bobx) >> 8);
-				cY += (int(boby) >> 8) + (int(zDelta) >> 7);
+				cY += (int(boby) >> 8) + int(zDelta * 2);
 			}
 		}
 		else
@@ -173,7 +173,7 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 		drawElement(320, 237, 2358, 1, 1, 1, 1);
 	}
 
-	int zn = (int(pPlayer->zWeapon - pPlayer->zView * zworldtoint - (12 << 8)) >> 7) + 220;
+	int zn = int(((pPlayer->zWeapon - pPlayer->zView - 12) * 2.) + 220);
 	PLAYER* pPSprite = &gPlayer[pPlayer->actor->spr.type - kDudePlayer1];
 	if (pPlayer->actor->IsPlayerActor() && pPSprite->hand == 1)
 	{

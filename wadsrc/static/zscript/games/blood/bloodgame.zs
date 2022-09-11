@@ -75,7 +75,7 @@ struct BloodPlayer native
 	native int        lifeMode;
 	native double     zView;
 	native double     zViewVel;
-	native int        zWeapon;
+	native double     zWeapon;
 	native int        zWeaponVel;
 	native int        slope;
 	native bool       isUnderwater;

@@ -110,8 +110,8 @@ struct PLAYER
 	double              zView;
 	double              ozView;
 	double              zViewVel;
-	int                 zWeapon;
-	int                 ozWeapon;
+	double              zWeapon;
+	double              ozWeapon;
 	int                 zWeaponVel;
 	int                 slope;
 	bool                isUnderwater;

@@ -248,17 +248,17 @@ void SpawnBulletEject(PLAYER* pPlayer, int a2, int a3)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ * zinttoworld;
-	int dz = pPlayer->zWeapon - (pPlayer->zWeapon - pPlayer->zView * zworldtoint) / 2;
-	fxSpawnEjectingBrass(pPlayer->actor, dz, a2, a3);
+	double dz = pPlayer->zWeapon - (pPlayer->zWeapon - pPlayer->zView) * 0.5;
+	fxSpawnEjectingBrassf(pPlayer->actor, dz, a2, a3);
 }
 
 void SpawnShellEject(PLAYER* pPlayer, int a2, int a3)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ * zinttoworld;
-	int t = pPlayer->zWeapon - pPlayer->zView * zworldtoint;
-	int dz = pPlayer->zWeapon - t + (t >> 2);
-	fxSpawnEjectingShell(pPlayer->actor, dz, a2, a3);
+	double t = pPlayer->zWeapon - pPlayer->zView;
+	double dz = pPlayer->zWeapon - t + (t * 0.25);
+	fxSpawnEjectingShellf(pPlayer->actor, dz, a2, a3);
 }
 
 //---------------------------------------------------------------------------
@@ -425,7 +425,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 	auto plActor = pPlayer->actor;
 	int x = plActor->int_pos().X;
 	int y = plActor->int_pos().Y;
-	int z = pPlayer->zWeapon;
+	int z = pPlayer->zWeapon * zworldtoint;
 	Aim aim;
 	aim.dx = bcos(plActor->int_ang());
 	aim.dy = bsin(plActor->int_ang());
@@ -1163,7 +1163,7 @@ void FirePitchfork(int, PLAYER* pPlayer)
 	int r2 = Random2(2000);
 	int r3 = Random2(2000);
 	for (int i = 0; i < 4; i++)
-		actFireVector(actor, (2 * i - 3) * 40, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, aim->dx + r1, aim->dy + r2, aim->dz + r3, kVectorTine);
+		actFireVectorf(actor, (2 * i - 3) * 40, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, aim->dx + r1, aim->dy + r2, aim->dz + r3, kVectorTine);
 }
 
 //---------------------------------------------------------------------------
@@ -1420,7 +1420,7 @@ void FireShotgun(int nTrigger, PLAYER* pPlayer)
 			r3 = Random3(1500);
 			nType = kVectorShellAP;
 		}
-		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, pPlayer->aim.dx + r1, pPlayer->aim.dy + r2, pPlayer->aim.dz + r3, nType);
+		actFireVectorf(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim.dx + r1, pPlayer->aim.dy + r2, pPlayer->aim.dz + r3, nType);
 	}
 	UseAmmo(pPlayer, pPlayer->weaponAmmo, nTrigger);
 	pPlayer->flashEffect = 1;
@@ -1450,7 +1450,7 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 		int r1 = Random3(400);
 		int r2 = Random3(1200);
 		int r3 = Random3(1200);
-		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, aim->dx + r3, aim->dy + r2, aim->dz + r1, kVectorTommyRegular);
+		actFireVectorf(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, aim->dx + r3, aim->dy + r2, aim->dz + r1, kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, -15, -45);
 		pPlayer->visibility = 20;
 		break;
@@ -1460,12 +1460,12 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 		int r1 = Random3(400);
 		int r2 = Random3(1200);
 		int r3 = Random3(1200);
-		actFireVector(actor, -120, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, aim->dx + r3, aim->dy + r2, aim->dz + r1, kVectorTommyRegular);
+		actFireVectorf(actor, -120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, aim->dx + r3, aim->dy + r2, aim->dz + r1, kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, -140, -45);
 		r1 = Random3(400);
 		r2 = Random3(1200);
 		r3 = Random3(1200);
-		actFireVector(actor, 120, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, aim->dx + r3, aim->dy + r2, aim->dz + r1, kVectorTommyRegular);
+		actFireVectorf(actor, 120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, aim->dx + r3, aim->dy + r2, aim->dz + r1, kVectorTommyRegular);
 		SpawnBulletEject(pPlayer, 140, 45);
 		pPlayer->visibility = 30;
 		break;
@@ -1496,7 +1496,7 @@ void FireSpread(int nTrigger, PLAYER* pPlayer)
 	r1 = Random3(300);
 	r2 = Random3(600);
 	r3 = Random3(600);
-	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+	actFireVectorf(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
 	r1 = Random2(90);
 	r2 = Random2(30);
 	SpawnBulletEject(pPlayer, r2, r1);
@@ -1524,14 +1524,14 @@ void AltFireSpread(int nTrigger, PLAYER* pPlayer)
 	r1 = Random3(300);
 	r2 = Random3(600);
 	r3 = Random3(600);
-	actFireVector(actor, -120, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+	actFireVectorf(actor, -120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
 	r1 = Random2(45);
 	r2 = Random2(120);
 	SpawnBulletEject(pPlayer, r2, r1);
 	r1 = Random3(300);
 	r2 = Random3(600);
 	r3 = Random3(600);
-	actFireVector(actor, 120, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+	actFireVectorf(actor, 120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
 	r1 = Random2(-45);
 	r2 = Random2(-120);
 	SpawnBulletEject(pPlayer, r2, r1);
@@ -1562,14 +1562,14 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 		r1 = Random3(300);
 		r2 = Random3(600);
 		r3 = Random3(600);
-		actFireVector(actor, -120, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+		actFireVectorf(actor, -120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
 		r1 = Random2(45);
 		r2 = Random2(120);
 		SpawnBulletEject(pPlayer, r2, r1);
 		r1 = Random3(300);
 		r2 = Random3(600);
 		r3 = Random3(600);
-		actFireVector(actor, 120, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+		actFireVectorf(actor, 120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
 		r1 = Random2(-45);
 		r2 = Random2(-120);
 		SpawnBulletEject(pPlayer, r2, r1);
@@ -1583,7 +1583,7 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 		r1 = Random3(300);
 		r2 = Random3(600);
 		r3 = Random3(600);
-		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+		actFireVectorf(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
 		r1 = Random2(90);
 		r2 = Random2(30);
 		SpawnBulletEject(pPlayer, r2, r1);
@@ -2030,7 +2030,7 @@ void FireBeast(int, PLAYER* pPlayer)
 	int r1 = Random2(2000);
 	int r2 = Random2(2000);
 	int r3 = Random2(2000);
-	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, pPlayer->aim.dx + r1, pPlayer->aim.dy + r2, pPlayer->aim.dz + r3, kVectorBeastSlash);
+	actFireVectorf(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->aim.dx + r1, pPlayer->aim.dy + r2, pPlayer->aim.dz + r3, kVectorBeastSlash);
 }
 
 //---------------------------------------------------------------------------

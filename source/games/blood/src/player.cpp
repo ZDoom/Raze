@@ -714,7 +714,7 @@ void playerResetInertia(PLAYER* pPlayer)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ * zinttoworld;
-	pPlayer->zWeapon = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ;
+	pPlayer->zWeapon = pPlayer->actor->spr.pos.Z - pPosture->weaponAboveZ * zinttoworld;
 	viewBackupView(pPlayer->nPlayer);
 }
 
@@ -722,7 +722,7 @@ void playerCorrectInertia(PLAYER* pPlayer, const DVector3& oldpos)
 {
 	auto zAdj = pPlayer->actor->spr.pos.Z - oldpos.Z;
 	pPlayer->zView += zAdj;
-	pPlayer->zWeapon += zAdj * zworldtoint;
+	pPlayer->zWeapon += zAdj;
 	pPlayer->actor->opos.XY() += pPlayer->actor->spr.pos.XY() - oldpos.XY();
 	pPlayer->ozView += zAdj;
 }
@@ -840,7 +840,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->relAim.dy = 0;
 	pPlayer->relAim.dz = 0;
 	pPlayer->aimTarget = nullptr;
-	pPlayer->zViewVel = pPlayer->zWeaponVel * zinttoworld;
+	pPlayer->zViewVel = pPlayer->zWeaponVel;
 	if (!(gGameOptions.nGameType == 1 && gGameOptions.bKeepKeysOnRespawn && !bNewLevel))
 		for (int i = 0; i < 8; i++)
 			pPlayer->hasKey[i] = gGameOptions.nGameType >= 2;
@@ -1872,12 +1872,12 @@ void playerProcess(PLAYER* pPlayer)
 		pPlayer->zViewVel += MulScaleF(dz << 8, 0x1800, 16) / 65536;
 	pPlayer->zView += pPlayer->zViewVel;
 	pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->int_vel().Z, FixedToFloat(0x5000));
-	dz = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ - pPlayer->zWeapon;
+	dz = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ - pPlayer->zWeapon * zworldtoint;
 	if (dz > 0)
 		pPlayer->zWeaponVel += MulScale(dz << 8, 0x8000, 16);
 	else
 		pPlayer->zWeaponVel += MulScale(dz << 8, 0xc00, 16);
-	pPlayer->zWeapon += pPlayer->zWeaponVel >> 8;
+	pPlayer->zWeapon += FixedToFloat(pPlayer->zWeaponVel);
 	pPlayer->bobPhase = ClipLow(pPlayer->bobPhase - 4, 0);
 	nSpeed >>= FRACBITS;
 	if (pPlayer->posture == 1)
@@ -1967,13 +1967,13 @@ void playerProcess(PLAYER* pPlayer)
 
 DBloodActor* playerFireMissile(PLAYER* pPlayer, int a2, int a3, int a4, int a5, int a6)
 {
-	return actFireMissile(pPlayer->actor, a2, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, a3, a4, a5, a6);
+	return actFireMissile(pPlayer->actor, a2, pPlayer->zWeapon * zworldtoint - pPlayer->actor->int_pos().Z, a3, a4, a5, a6);
 }
 
 DBloodActor* playerFireThing(PLAYER* pPlayer, int a2, int a3, int thingType, int a5)
 {
 	assert(thingType >= kThingBase && thingType < kThingMax);
-	return actFireThing(pPlayer->actor, a2, pPlayer->zWeapon - pPlayer->actor->int_pos().Z, pPlayer->slope + a3, thingType, a5);
+	return actFireThing(pPlayer->actor, a2, pPlayer->zWeapon * zworldtoint - pPlayer->actor->int_pos().Z, pPlayer->slope + a3, thingType, a5);
 }
 
 //---------------------------------------------------------------------------
@@ -2328,7 +2328,7 @@ void voodooTarget(PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
 	int v4 = pPlayer->aim.dz;
-	int dz = pPlayer->zWeapon - pPlayer->actor->int_pos().Z;
+	double dz = pPlayer->zWeapon - pPlayer->actor->spr.pos.Z;
 	if (UseAmmo(pPlayer, 9, 0) < 8)
 	{
 		pPlayer->voodooTargets = 0;
@@ -2337,9 +2337,9 @@ void voodooTarget(PLAYER* pPlayer)
 	for (int i = 0; i < 4; i++)
 	{
 		int ang1 = (pPlayer->voodooVar1 + pPlayer->vodooVar2) & 2047;
-		actFireVector(actor, 0, dz, bcos(ang1), bsin(ang1), v4, kVectorVoodoo10);
+		actFireVectorf(actor, 0, dz, bcos(ang1), bsin(ang1), v4, kVectorVoodoo10);
 		int ang2 = (pPlayer->voodooVar1 + 2048 - pPlayer->vodooVar2) & 2047;
-		actFireVector(actor, 0, dz, bcos(ang2), bsin(ang2), v4, kVectorVoodoo10);
+		actFireVectorf(actor, 0, dz, bcos(ang2), bsin(ang2), v4, kVectorVoodoo10);
 	}
 	pPlayer->voodooTargets = ClipLow(pPlayer->voodooTargets - 1, 0);
 }
