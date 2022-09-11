@@ -201,7 +201,8 @@ struct CraneDef
 };
 
 constexpr double VEL_FACTOR = FloatToFixed<18>(1);
-struct player_struct 
+constexpr double VELZ_FACTOR = 256;
+struct player_struct
 {
 	union
 	{

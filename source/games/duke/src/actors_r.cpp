@@ -3562,9 +3562,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		double newx = ps[pnum].pos.X + (ps[pnum].__vel.X / 768) * inttoworld;
-		double newy = ps[pnum].pos.Y + (ps[pnum].__vel.Y / 768) * inttoworld;
-		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
+		DVector2 newpos = ps[pnum].pos.XY() + (ps[pnum].vel.XY() * (4. / 3.) / VEL_FACTOR);
+		goalang = getangle(newpos - actor->spr.pos.XY());
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		actor->add_int_ang(angdif);

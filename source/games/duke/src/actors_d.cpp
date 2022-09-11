@@ -1846,7 +1846,7 @@ void movetransports_d(void)
 
 					int k = 0;
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].__vel.Z > 2048))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8 * VELZ_FACTOR))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
@@ -1859,8 +1859,9 @@ void movetransports_d(void)
 						ps[p].pos.Z = Owner->sector()->ceilingz + 7;
 						ps[p].backupz();
 
-						ps[p].__vel.X = 4096 - (krand() & 8192);
-						ps[p].__vel.Y = 4096 - (krand() & 8192);
+						// this is actually below the precision óf the original Build coordinate system...
+						ps[p].vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.) * VEL_FACTOR;
+						ps[p].vel.Y = ((krand() & 8192) ? 1 / 64. : -1 / 64.) * VEL_FACTOR;
 
 					}
 
@@ -3524,9 +3525,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		double newx = ps[playernum].pos.X + (ps[playernum].__vel.X / 768) * inttoworld;
-		double newy = ps[playernum].pos.Y + (ps[playernum].__vel.Y / 768) * inttoworld;
-		goalang = getangle(newx - actor->spr.pos.X, newy - actor->spr.pos.Y);
+		DVector2 newpos = ps[playernum].pos.XY() + (ps[playernum].vel.XY() * (4. / 3.) / VEL_FACTOR);
+		goalang = getangle(newpos - actor->spr.pos.XY());
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		actor->add_int_ang(angdif);
