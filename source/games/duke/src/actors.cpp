@@ -1718,13 +1718,13 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 		if (actor->temp_data[0] == 1 || actor->temp_data[0] == 4) // Found a locator and going with it
 		{
-			l = dist(Owner, actor);
+			double dist = (Owner->spr.pos - actor->spr.pos).Length();
 
-			if (l <= 1524) { if (actor->temp_data[0] == 1) actor->temp_data[0] = 0; else actor->temp_data[0] = 5; }
+			if (dist <= 1524/16.) { if (actor->temp_data[0] == 1) actor->temp_data[0] = 0; else actor->temp_data[0] = 5; }
 			else
 			{
 				// Control speed here
-				if (l > 1524) { if (actor->int_xvel() < 256) actor->vel.X += 2.; }
+				if (dist > 1524 / 16.) { if (actor->vel.X < 16) actor->vel.X += 2.; }
 				else
 				{
 					if(actor->vel.X > 0) actor->vel.X -= 1;

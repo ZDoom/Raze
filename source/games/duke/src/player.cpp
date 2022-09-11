@@ -390,7 +390,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 			p->holster_weapon = 0;
 			if (p->weapon_pos < 0)
 				p->weapon_pos = -p->weapon_pos;
-			if (p->actorsqu != nullptr && dist(p->GetActor(), p->actorsqu) < 1400)
+			if (p->actorsqu != nullptr && (p->GetActor()->spr.pos - p->actorsqu->spr.pos).Length() < 1400/16.)
 			{
 				fi.guts(p->actorsqu, TILE_JIBS6, 7, myconnectindex);
 				spawn(p->actorsqu, TILE_BLOODPOOL);

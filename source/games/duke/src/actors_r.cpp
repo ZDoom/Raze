@@ -1232,7 +1232,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		MulScale(k, bsin(proj->int_ang()), 14), ll, CLIPMASK1, coll);
 
 	if ((proj->spr.picnum == RPG || (isRRRA() && isIn(proj->spr.picnum, RPG2, RRTILE1790))) && proj->temp_actor != nullptr)
-		if (FindDistance2D(proj->int_pos().vec2 - proj->temp_actor->int_pos().vec2) < 256)
+		if ((proj->spr.pos.XY() - proj->temp_actor->spr.pos.XY()).Length() < 16)
 			coll.setSprite(proj->temp_actor);
 
 	if (!proj->insector()) // || (isRR() && proj->sector()->filler == 800))
@@ -3218,16 +3218,16 @@ void handle_se06_r(DDukeActor *actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->spr.lotag == 14) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
+		if ((act2->spr.lotag == SE_14_SUBWAY_CAR) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
 		{
-			act2->set_int_xvel(actor->int_xvel());
-			//						if( actor->temp_data[4] == 1 )
+			act2->vel.X = actor->vel.X;
+			//if( actor->temp_data[4] == 1 )
 			{
 				if (act2->temp_data[5] == 0)
 					act2->temp_data[5] = dist(act2, actor);
 				int x = Sgn(dist(act2, actor) - act2->temp_data[5]);
 				if (act2->spr.extra) x = -x;
-				actor->add_int_xvel( x);
+				actor->vel.X += x / 16.;
 			}
 			act2->temp_data[4] = actor->temp_data[4];
 		}

@@ -67,7 +67,7 @@ BEGIN_DUKE_NS
 
 void GameInterface::UpdateCameras(double smoothratio)
 {
-	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
+	const int VIEWSCREEN_ACTIVE_DISTANCE = 512;
 
 	if (camsprite == nullptr)
 		return;
@@ -75,7 +75,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 	auto p = &ps[screenpeek];
 	if (p->newOwner != nullptr) camsprite->SetOwner(p->newOwner);
 
-	if (camsprite->GetOwner() && dist(p->GetActor(), camsprite) < VIEWSCREEN_ACTIVE_DISTANCE)
+	if (camsprite->GetOwner() && (p->GetActor()->spr.pos - camsprite->spr.pos).Length() < VIEWSCREEN_ACTIVE_DISTANCE)
 	{
 		auto tex = tileGetTexture(camsprite->spr.picnum);
 		TileFiles.MakeCanvas(TILE_VIEWSCR, (int)tex->GetDisplayWidth(), (int)tex->GetDisplayHeight());
