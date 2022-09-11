@@ -955,16 +955,10 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				}
 			}
 
-			actor->temp_data[1] = tempwallptr;
+			actor->temp_data[1] = mspos.Size();
 			for (auto& wal : wallsofsector(sectp))
 			{
-				msx[tempwallptr] = wal.wall_int_pos().X - actor->int_pos().X;
-				msy[tempwallptr] = wal.wall_int_pos().Y - actor->int_pos().Y;
-				tempwallptr++;
-				if (tempwallptr > 2047)
-				{
-					I_Error("Too many moving sectors at (%d,%d).\n", int(wal.pos.X), int(wal.pos.Y));
-				}
+				mspos.Push(wal.pos - actor->spr.pos);
 			}
 			if (actor->spr.lotag == SE_30_TWO_WAY_TRAIN || actor->spr.lotag == SE_6_SUBWAY || actor->spr.lotag == SE_14_SUBWAY_CAR || actor->spr.lotag == SE_5_BOSS)
 			{

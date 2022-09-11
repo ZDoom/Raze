@@ -280,7 +280,7 @@ void movesector(DDukeActor* const actor, int msindex, DAngle rotation)
 
 	for(auto& wal : wallsofsector(actor->sector()))
 	{
-		auto t = rotatepoint({ 0, 0 }, { msx[msindex] * inttoworld, msy[msindex] * inttoworld }, rotation);
+		auto t = rotatepoint({ 0, 0 }, mspos[msindex], rotation);
 
 		dragpoint(&wal, actor->spr.pos.XY() + t);
 		msindex++;

@@ -62,7 +62,6 @@ extern int screenpeek;
 
 // Variables that must be saved
 extern int rtsplaying;
-extern int tempwallptr;
 
 extern bool sound445done;
 extern player_struct ps[MAXPLAYERS];
@@ -123,7 +122,7 @@ extern int geocnt;
 extern short ambientlotag[64];
 extern short ambienthitag[64];
 extern unsigned ambientfx;
-extern int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS]; // todo: unlimit
+extern TArray<DVector2> mspos;
 extern TArray<CraneDef> cranes;
 extern int WindTime, WindDir;
 extern short fakebubba_spawn, mamaspawn_count, banjosound;

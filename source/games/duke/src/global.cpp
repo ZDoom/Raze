@@ -83,8 +83,7 @@ int actor_tog;								// cheat helper
 int playerswhenstarted;						// why is this needed?
 int show_shareware;							// display only.
 int rtsplaying;								// RTS playback state
-int tempwallptr;							// msx/y index.
-int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
+TArray<DVector2> mspos;
 TArray<CraneDef> cranes;
 
 bool sound445done;							// used in checksectors_r. This was local state inside a function, but this must be maintained globally and serialized
