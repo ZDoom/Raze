@@ -59,10 +59,14 @@ int adjustfall(DDukeActor* s, int c);
 
 void RANDOMSCRAP(DDukeActor* origin)
 {
-	int r1 = krand(), r2 = krand(), r3 = krand(), r4 = krand(), r5 = krand(), r6 = krand(), r7 = krand();
+	int r1 = krand(), r2 = krand(), r3 = krand(), r4 = krand();
+	DVector3 offset;
+	offset.X = krandf(16) - 8;
+	offset.Y = krandf(16) - 8;
+	offset.Z = krandf(16) - 8;
+
 	int v = isRR() ? 16 : 48;
-	EGS(origin->sector(),
-		origin->int_pos().X + (r7 & 255) - 128, origin->int_pos().Y + (r6 & 255) - 128, origin->int_pos().Z - (8 << 8) - (r5 & 8191), 
+	CreateActor(origin->sector(), origin->spr.pos + offset, 
 		TILE_SCRAP6 + (r4 & 15), -8, v, v, r3 & 2047, (r2 & 63) + 64, -512 - (r1 & 2047), origin, 5); 
 }
 
