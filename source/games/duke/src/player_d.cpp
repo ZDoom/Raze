@@ -1797,16 +1797,16 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		else
 		{
 			p->on_ground = 0;
-			p->vel.Z += (gs.gravity + 5/16.) * VELZ_FACTOR; // (TICSPERFRAME<<6);
-			if (p->vel.Z >= (16 + 8) * VELZ_FACTOR) p->vel.Z = (16 + 8) * VELZ_FACTOR;
-			if (p->vel.Z > 2400 / 256 * VELZ_FACTOR && p->falling_counter < 255)
+			p->vel.Z += (gs.gravity + 5/16.); // (TICSPERFRAME<<6);
+			if (p->vel.Z >= (16 + 8)) p->vel.Z = (16 + 8);
+			if (p->vel.Z > 2400 / 256 && p->falling_counter < 255)
 			{
 				p->falling_counter++;
 				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->pos.Z + p->vel.Z / VELZ_FACTOR >= floorz - i) // hit the ground
+			if (p->pos.Z + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -1830,7 +1830,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
 					}
-					else if (p->vel.Z > 8 * VELZ_FACTOR) S_PlayActorSound(DUKE_LAND, pact);
+					else if (p->vel.Z > 8) S_PlayActorSound(DUKE_LAND, pact);
 				}
 			}
 		}
@@ -1841,8 +1841,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		p->falling_counter = 0;
 		S_StopSound(-1, pact, CHAN_VOICE);
 
-		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->vel.Z > 12 * VELZ_FACTOR)
-			p->hard_landing = uint8_t(p->vel.Z / 4. / VELZ_FACTOR);
+		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->vel.Z > 12)
+			p->hard_landing = uint8_t(p->vel.Z / 4. );
 
 		p->on_ground = 1;
 
@@ -1853,7 +1853,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			double k = (floorz - i - p->pos.Z) * 0.5;
 			if (abs(k) < 1) k = 0;
 			p->pos.Z += k;
-			p->vel.Z -= 3 * VELZ_FACTOR;
+			p->vel.Z -= 3;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
@@ -1896,11 +1896,11 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			if (psectlotag == 1 && p->jumping_counter > 768)
 			{
 				p->jumping_counter = 0;
-				p->vel.Z = -2 * VELZ_FACTOR;
+				p->vel.Z = -2;
 			}
 			else
 			{
-				p->vel.Z -= BobVal(2048 - 128 + p->jumping_counter) * (64. / 12) * VELZ_FACTOR;
+				p->vel.Z -= BobVal(2048 - 128 + p->jumping_counter) * (64. / 12);
 				p->jumping_counter += 180;
 				p->on_ground = 0;
 			}
@@ -1912,14 +1912,14 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		}
 	}
 
-	p->pos.Z += p->vel.Z / VELZ_FACTOR;
+	p->pos.Z += p->vel.Z ;
 
 	if (p->pos.Z < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
-		p->vel.Z = 0.5 * VELZ_FACTOR;
+		p->vel.Z = 0.5;
 		p->pos.Z = ceilingz + 4;
 	}
 }
@@ -1951,37 +1951,37 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 	{
 		// jump
 		if (p->vel.Z > 0) p->vel.Z = 0;
-		p->vel.Z -= (348 / 256.) * VELZ_FACTOR;
-		if (p->vel.Z < -6 * VELZ_FACTOR) p->vel.Z = -6 * VELZ_FACTOR;
+		p->vel.Z -= (348 / 256.);
+		if (p->vel.Z < -6) p->vel.Z = -6;
 	}
 	else if (actions & SB_CROUCH)
 	{
 		// crouch
 		if (p->vel.Z < 0) p->vel.Z = 0;
-		p->vel.Z += (348 / 256.) * VELZ_FACTOR;
-		if (p->vel.Z > 6 * VELZ_FACTOR) p->vel.Z = 6 * VELZ_FACTOR;
+		p->vel.Z += (348 / 256.);
+		if (p->vel.Z > 6) p->vel.Z = 6;
 	}
 	else
 	{
 		// normal view
 		if (p->vel.Z < 0)
 		{
-			p->vel.Z += 1 * VELZ_FACTOR;
+			p->vel.Z += 1;
 			if (p->vel.Z > 0)
 				p->vel.Z = 0;
 		}
 		if (p->vel.Z > 0)
 		{
-			p->vel.Z -= 1 * VELZ_FACTOR;
+			p->vel.Z -= 1;
 			if (p->vel.Z < 0)
 				p->vel.Z = 0;
 		}
 	}
 
-	if (p->vel.Z > 8 * VELZ_FACTOR)
+	if (p->vel.Z > 8)
 		p->vel.Z *= 0.5;
 
-	p->pos.Z += p->vel.Z / VELZ_FACTOR;
+	p->pos.Z += p->vel.Z ;
 
 	if (p->pos.Z > floorz - 15)
 		p->pos.Z += (((floorz - 15) - p->pos.Z) * 0.5);
@@ -2787,7 +2787,7 @@ void processinput_d(int snum)
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
 			auto ang = VecToAngle(clz.actor()->spr.pos - p->pos);
-			p->vel.XY() -= ang.ToVector() * VEL_FACTOR;
+			p->vel.XY() -= ang.ToVector();
 		}
 	}
 
@@ -2988,8 +2988,8 @@ void processinput_d(int snum)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->vel.X += (sb_fvel * doubvel) / 4096. * VEL_FACTOR;
-		p->vel.Y += (sb_svel * doubvel) / 4096. * VEL_FACTOR;
+		p->vel.X += (sb_fvel * doubvel) / 4096.;
+		p->vel.Y += (sb_svel * doubvel) / 4096.;
 
 		bool check;
 
@@ -3011,7 +3011,7 @@ void processinput_d(int snum)
 			}
 		}
 
-		if (abs(p->vel.X) < 1/128. * VEL_FACTOR && abs(p->vel.Y) < 1 / 128. * VEL_FACTOR)
+		if (abs(p->vel.X) < 1/128. && abs(p->vel.Y) < 1 / 128.)
 			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
@@ -3031,12 +3031,12 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->pos.XY() += p->vel.XY() / VEL_FACTOR;
+		p->pos.XY() += p->vel.XY() ;
 		updatesector(p->pos, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, p->__vel.X, p->__vel.Y, 164, (4 << 8), ii, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, FloatToFixed<18>(p->vel.X), FloatToFixed<18>(p->vel.Y), 164, (4 << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.Z += 32;

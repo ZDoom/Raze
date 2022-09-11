@@ -631,11 +631,11 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 				if (attackerflag(actor, SFLAG2_DOUBLEDMGTHRUST))
 				{
-					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25 * VEL_FACTOR;
+					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
 				}
 				else
 				{
-					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125 * VEL_FACTOR;
+					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125;
 				}
 			}
 			else
@@ -1847,7 +1847,7 @@ void movetransports_d(void)
 
 					int k = 0;
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8 * VELZ_FACTOR))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
@@ -1861,8 +1861,8 @@ void movetransports_d(void)
 						ps[p].backupz();
 
 						// this is actually below the precision óf the original Build coordinate system...
-						ps[p].vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.) * VEL_FACTOR;
-						ps[p].vel.Y = ((krand() & 8192) ? 1 / 64. : -1 / 64.) * VEL_FACTOR;
+						ps[p].vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
+						ps[p].vel.Y = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
 
 					}
 
@@ -3526,7 +3526,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		DVector2 newpos = ps[playernum].pos.XY() + (ps[playernum].vel.XY() * (4. / 3.) / VEL_FACTOR);
+		DVector2 newpos = ps[playernum].pos.XY() + (ps[playernum].vel.XY() * (4. / 3.));
 		goalang = getangle(newpos - actor->spr.pos.XY());
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;

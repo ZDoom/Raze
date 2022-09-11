@@ -204,11 +204,7 @@ constexpr double VEL_FACTOR = FloatToFixed<18>(1);
 constexpr double VELZ_FACTOR = 256;
 struct player_struct
 {
-	union
-	{
-		DVector3 vel;	// refactoring aid;
-		DVector3 __vel;
-	};
+	DVector3 vel;
 	DVector3 pos, opos;
 	DVector2 bobpos;
 

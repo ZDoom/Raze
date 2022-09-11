@@ -2388,7 +2388,7 @@ int ParseState::parse(void)
 			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 			if( (l& pducking) && ps[g_p].on_ground && PlayerInput(g_p, SB_CROUCH))
 					j = 1;
-			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].vel.Z > 8 * VELZ_FACTOR )
+			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].vel.Z > 8 )
 					j = 1;
 			else if( (l& pjumping) && ps[g_p].jumping_counter > 348 )
 					j = 1;
@@ -2447,7 +2447,7 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);
-		ps[g_p].vel.XY() -= ps[g_p].angle.ang.ToVector() * 8 * VEL_FACTOR;
+		ps[g_p].vel.XY() -= ps[g_p].angle.ang.ToVector() * 8;
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2455,7 +2455,7 @@ int ParseState::parse(void)
 			forceplayerangle(g_p);
 		else
 		{
-			ps[g_p].vel.XY() -= ps[g_p].angle.ang.ToVector() * 64 * VEL_FACTOR;
+			ps[g_p].vel.XY() -= ps[g_p].angle.ang.ToVector() * 64;
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}

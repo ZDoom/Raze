@@ -1319,7 +1319,7 @@ int doincrements_r(player_struct* p)
 		{
 			p->noise_radius = 16384;
 			madenoise(screenpeek);
-			p->vel.XY() += p->angle.ang.ToVector() * VEL_FACTOR;
+			p->vel.XY() += p->angle.ang.ToVector();
 		}
 		p->eat -= 4;
 		if (p->eat < 0)
@@ -1800,7 +1800,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			}
 		}
 
-		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed * VEL_FACTOR;
+		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed;
 		p->angle.addadjustment(deltaangle(p->angle.ang, p->angle.ang - DAngle::fromBam(angAdjustment)));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
@@ -1808,7 +1808,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		rng = krand() & 1;
 		velAdjustment = rng == 0 ? -adjust : adjust;
 		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
-		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed * VEL_FACTOR;
+		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed;
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
@@ -2044,7 +2044,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			angAdjustment >>= 6;
 		}
 
-		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed * VEL_FACTOR;
+		p->vel.XY() += (p->angle.ang + velAdjustment).ToVector() * currSpeed;
 		p->angle.addadjustment(deltaangle(p->angle.ang, p->angle.ang - DAngle::fromBam(angAdjustment)));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
@@ -2129,7 +2129,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 				{
 					p->VBumpTarget = 80;
 					p->moto_bump_fast = 1;
-					p->vel.Z -= (gs.gravity * p->MotoSpeed * (1. / 16.)) * VELZ_FACTOR;
+					p->vel.Z -= (gs.gravity * p->MotoSpeed * (1. / 16.));
 					p->MotoOnGround = 0;
 					if (S_CheckActorSoundPlaying(pact, 188))
 						S_StopSound(188, pact);
@@ -2137,23 +2137,23 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 				}
 				else
 				{
-					p->vel.Z += (gs.gravity - 5/16. + (int(120 - p->MotoSpeed) / 256.)) * VELZ_FACTOR;
+					p->vel.Z += (gs.gravity - 5/16. + (int(120 - p->MotoSpeed) / 256.));
 					if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 190))
 						S_PlayActorSound(190, pact);
 				}
 			}
 			else
-				p->vel.Z += (gs.gravity + 5/16.) * VELZ_FACTOR; // (TICSPERFRAME<<6);
+				p->vel.Z += (gs.gravity + 5/16.); // (TICSPERFRAME<<6);
 
-			if (p->vel.Z >= (16 + 8) * VELZ_FACTOR) p->vel.Z = (16 + 8) * VELZ_FACTOR;
-			if (p->vel.Z > 2400 / 256 * VELZ_FACTOR && p->falling_counter < 255)
+			if (p->vel.Z >= (16 + 8)) p->vel.Z = (16 + 8);
+			if (p->vel.Z > 2400 / 256 && p->falling_counter < 255)
 			{
 				p->falling_counter++;
 				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->pos.Z + p->vel.Z / VELZ_FACTOR >= floorz - i) // hit the ground
+			if (p->pos.Z + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -2178,7 +2178,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
 					}
-					else if (p->vel.Z > 8 * VELZ_FACTOR)
+					else if (p->vel.Z > 8)
 					{
 						if (p->OnMotorcycle)
 						{
@@ -2189,7 +2189,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 						}
 						else S_PlayActorSound(DUKE_LAND, pact);
 					}
-					else if (p->vel.Z > 4 * VELZ_FACTOR && p->OnMotorcycle)
+					else if (p->vel.Z > 4 && p->OnMotorcycle)
 					{
 						S_PlayActorSound(DUKE_LAND, pact);
 						p->TurbCount = 12;
@@ -2204,8 +2204,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		p->falling_counter = 0;
 		S_StopSound(-1, pact, CHAN_VOICE);
 
-		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->vel.Z > 12 * VELZ_FACTOR)
-			p->hard_landing = uint8_t(p->vel.Z / 4. / VELZ_FACTOR);
+		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->vel.Z > 12)
+			p->hard_landing = uint8_t(p->vel.Z / 4. );
 
 		p->on_ground = 1;
 
@@ -2216,7 +2216,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			double k = (floorz - i - p->pos.Z) * 0.5;
 			if (abs(k) < 1) k = 0;
 			p->pos.Z += k;
-			p->vel.Z -= 3 * VELZ_FACTOR;
+			p->vel.Z -= 3;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
@@ -2255,11 +2255,11 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 			if (psectlotag == ST_1_ABOVE_WATER && p->jumping_counter > 768)
 			{
 				p->jumping_counter = 0;
-				p->vel.Z = -2 * VELZ_FACTOR;
+				p->vel.Z = -2;
 			}
 			else
 			{
-				p->vel.Z -= BobVal(2048 - 128 + p->jumping_counter) * (64. / 12) * VELZ_FACTOR;
+				p->vel.Z -= BobVal(2048 - 128 + p->jumping_counter) * (64. / 12);
 				p->jumping_counter += 180;
 				p->on_ground = 0;
 			}
@@ -2271,14 +2271,14 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		}
 	}
 
-	p->pos.Z += p->vel.Z / VELZ_FACTOR;
+	p->pos.Z += p->vel.Z ;
 
 	if (p->pos.Z < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
-		p->vel.Z = 0.5 * VELZ_FACTOR;
+		p->vel.Z = 0.5;
 		p->pos.Z = ceilingz + 4;
 	}
 }
@@ -2308,35 +2308,35 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 	if ((actions & SB_JUMP) && !p->OnMotorcycle)
 	{
 		if (p->vel.Z > 0) p->vel.Z = 0;
-		p->vel.Z -= (348 / 256.) * VELZ_FACTOR;
-		if (p->vel.Z < -6 * VELZ_FACTOR) p->vel.Z = -6 * VELZ_FACTOR;
+		p->vel.Z -= (348 / 256.);
+		if (p->vel.Z < -6) p->vel.Z = -6;
 	}
 	else if ((actions & SB_CROUCH) || p->OnMotorcycle)
 	{
 		if (p->vel.Z < 0) p->vel.Z = 0;
-		p->vel.Z += (348 / 256.) * VELZ_FACTOR;
-		if (p->vel.Z > 6 * VELZ_FACTOR) p->vel.Z = 6 * VELZ_FACTOR;
+		p->vel.Z += (348 / 256.);
+		if (p->vel.Z > 6) p->vel.Z = 6;
 	}
 	else
 	{
 		if (p->vel.Z < 0)
 		{
-			p->vel.Z += 1 * VELZ_FACTOR;
+			p->vel.Z += 1;
 			if (p->vel.Z > 0)
 				p->vel.Z = 0;
 		}
 		if (p->vel.Z > 0)
 		{
-			p->vel.Z -= 1 * VELZ_FACTOR;
+			p->vel.Z -= 1;
 			if (p->vel.Z < 0)
 				p->vel.Z = 0;
 		}
 	}
 
-	if (p->vel.Z > 8 * VELZ_FACTOR)
+	if (p->vel.Z > 8)
 		p->vel.Z *= 0.5;
 
-	p->pos.Z += p->vel.Z / VELZ_FACTOR;
+	p->pos.Z += p->vel.Z ;
 
 	if (p->pos.Z > floorz - 15)
 		p->pos.Z += (((floorz - 15) - p->pos.Z) * 0.5);
@@ -2800,7 +2800,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			if (psectlotag != 857)
 			{
-				p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
+				p->vel.XY() -= p->angle.ang.ToVector();
 			}
 		}
 		else if (p->kickback_pic == 2)
@@ -2899,12 +2899,12 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR * 2;
+					p->vel.XY() -= p->angle.ang.ToVector() * 2;
 				}
 			}
 			else if (psectlotag != 857)
 			{
-				p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
+				p->vel.XY() -= p->angle.ang.ToVector();
 			}
 		}
 
@@ -2990,7 +2990,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
+					p->vel.XY() -= p->angle.ang.ToVector();
 				}
 				checkavailweapon(p);
 
@@ -3130,7 +3130,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		else if (p->kickback_pic == 12)
 		{
-			p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
+			p->vel.XY() -= p->angle.ang.ToVector();
 			p->horizon.addadjustment(buildhoriz(20));
 			p->recoil += 20;
 		}
@@ -3179,7 +3179,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic < 30)
 		{
-			p->vel.XY() -= p->angle.ang.ToVector() * VEL_FACTOR;
+			p->vel.XY() -= p->angle.ang.ToVector();
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
@@ -3469,7 +3469,7 @@ void processinput_r(int snum)
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
 			auto ang = VecToAngle(clz.actor()->spr.pos - p->pos);
-			p->vel.XY() -= ang.ToVector() * VEL_FACTOR;
+			p->vel.XY() -= ang.ToVector();
 		}
 		if (clz.actor()->spr.picnum == LADDER)
 		{
@@ -3700,8 +3700,8 @@ void processinput_r(int snum)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->vel.X += (sb_fvel * doubvel) / 4096. * VEL_FACTOR;
-		p->vel.Y += (sb_svel * doubvel) / 4096. * VEL_FACTOR;
+		p->vel.X += (sb_fvel * doubvel) / 4096.;
+		p->vel.Y += (sb_svel * doubvel) / 4096.;
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
@@ -3759,7 +3759,7 @@ void processinput_r(int snum)
 					}
 			}
 
-		if (abs(p->vel.X) < 1 / 128. * VEL_FACTOR && abs(p->vel.Y) < 1 / 128. * VEL_FACTOR)
+		if (abs(p->vel.X) < 1 / 128. && abs(p->vel.Y) < 1 / 128.)
 			p->vel.X = p->vel.Y = 0;
 
 		if (shrunk)
@@ -3779,12 +3779,12 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->pos.XY() += p->vel.XY() / VEL_FACTOR;
+		p->pos.XY() += p->vel.XY() ;
 		updatesector(p->pos, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, p->__vel.X, p->__vel.Y, 164, (4 << 8), i, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, FloatToFixed<18>(p->vel.X), FloatToFixed<18>(p->vel.Y), 164, (4 << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.Z += 32;
@@ -4082,7 +4082,7 @@ void OffMotorcycle(player_struct *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.XY() = p->angle.ang.ToVector() / 2048. * VEL_FACTOR;
+		p->vel.XY() = p->angle.ang.ToVector() / 2048.;
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
@@ -4144,7 +4144,7 @@ void OffBoat(player_struct *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.XY() = p->angle.ang.ToVector() / 2048. * VEL_FACTOR;
+		p->vel.XY() = p->angle.ang.ToVector() / 2048.;
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)

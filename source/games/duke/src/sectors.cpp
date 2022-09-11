@@ -352,12 +352,12 @@ void setanimatevalue(int i, double value)
 
 void doanimations(void)
 {
-	int i, a, p, v;
+	int i, a, p;
 
 	for (i = animatecnt - 1; i >= 0; i--)
 	{
 		a = (int)getanimatevalue(i);
-		v = animatevel[i] * TICSPERFRAME;
+		int const v = animatevel[i] * TICSPERFRAME;
 		auto dasectp = animatesect[i];
 
 		if (a == animategoal[i])

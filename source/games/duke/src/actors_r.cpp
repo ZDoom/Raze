@@ -534,11 +534,11 @@ int ifhitbyweapon_r(DDukeActor *actor)
 
 				if (attackerflag(actor, SFLAG2_DOUBLEDMGTHRUST))
 				{
-					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25 * VEL_FACTOR;
+					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
 				}
 				else
 				{
-					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125 * VEL_FACTOR;
+					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125;
 				}
 			}
 			else
@@ -3562,7 +3562,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		DVector2 newpos = ps[pnum].pos.XY() + (ps[pnum].vel.XY() * (4. / 3.) / VEL_FACTOR);
+		DVector2 newpos = ps[pnum].pos.XY() + (ps[pnum].vel.XY() * (4. / 3.) );
 		goalang = getangle(newpos - actor->spr.pos.XY());
 		angdif = getincangle(actor->int_ang(), goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
