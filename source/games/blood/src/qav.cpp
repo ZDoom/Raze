@@ -417,7 +417,7 @@ QAV* getQAV(int res_id)
 			qavdata->frames[i].tiles[j].stat = fr.ReadInt32();
 			qavdata->frames[i].tiles[j].shade = fr.ReadInt8();
 			qavdata->frames[i].tiles[j].palnum = fr.ReadUInt8();
-			qavdata->frames[i].tiles[j].angle = DAngle::fromBuild(fr.ReadUInt16());
+			qavdata->frames[i].tiles[j].angle = mapangle(fr.ReadUInt16());
 		}
 	}
 

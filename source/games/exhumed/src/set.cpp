@@ -155,7 +155,7 @@ void AISoul::Tick(RunListEvent* ev)
     pActor->spr.extra += (pActor->nPhase & 0x0F) + 5;
     pActor->spr.extra &= kAngleMask;
 
-    double nVel = DAngle::fromBuild(pActor->spr.extra).Cos();
+    double nVel = mapangle(pActor->spr.extra).Cos();
 
     auto vect = pActor->spr.angle.ToVector() * nVel * 8;
 	auto coll = movesprite(pActor,vect, pActor->vel.Z, 0, CLIPMASK0);

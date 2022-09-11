@@ -93,7 +93,7 @@ int DoWallMove(DSWActor* actor)
     bool SOsprite = false;
 
     double dist = SP_TAG13(actor) * maptoworld;
-    DAngle ang = DAngle::fromBuild(SP_TAG4(actor));
+    DAngle ang = mapangle(SP_TAG4(actor));
     picnum1 = SP_TAG5(actor);
     picnum2 = SP_TAG6(actor);
     shade1 = SP_TAG7(actor);

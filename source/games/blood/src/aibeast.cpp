@@ -178,7 +178,7 @@ static void beastThinkGoto(DBloodActor* actor)
 	auto nAngle = VecToAngle(dvec);
 	int nDist = approxDist(dvec);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < DAngle::fromBuild(pDudeInfo->periphery))
+	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < mapangle(pDudeInfo->periphery))
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &beastSwimSearch);
@@ -328,7 +328,7 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 	auto nAngle = VecToAngle(dvec);
 	int nDist = approxDist(dvec);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < DAngle::fromBuild(pDudeInfo->periphery))
+	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < mapangle(pDudeInfo->periphery))
 		aiNewState(actor, &beastSwimSearch);
 	aiThinkTarget(actor);
 }

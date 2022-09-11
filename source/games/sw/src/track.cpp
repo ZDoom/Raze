@@ -1176,7 +1176,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
                 case SO_LIMIT_TURN:
                     sop->limit_ang_center = actor->spr.angle;
-                    sop->limit_ang_delta = DAngle::fromBuild(actor->spr.lotag);
+                    sop->limit_ang_delta = mapangle(actor->spr.lotag);
                     KillActor(actor);
                     break;
                 case SO_MATCH_EVENT:
@@ -1191,7 +1191,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                 case SO_SPIN:
                     if (sop->spin_speed != nullAngle)
                         break;
-                    sop->spin_speed = DAngle::fromBuild(actor->spr.lotag);
+                    sop->spin_speed = mapangle(actor->spr.lotag);
                     sop->last_ang = sop->ang;
                     KillActor(actor);
                     break;
@@ -1203,7 +1203,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
                 case SO_SPIN_REVERSE:
 
-                    sop->spin_speed = DAngle::fromBuild(actor->spr.lotag);
+                    sop->spin_speed = mapangle(actor->spr.lotag);
                     sop->last_ang = sop->ang;
 
                     if (sop->spin_speed >= nullAngle)
@@ -2195,7 +2195,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             if (sop->spin_speed != nullAngle)
                 break;
 
-            sop->spin_speed = DAngle::fromBuild(tpoint->tag_high);
+            sop->spin_speed = mapangle(tpoint->tag_high);
             sop->last_ang = sop->ang;
             break;
 

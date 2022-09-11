@@ -11740,7 +11740,7 @@ int DoSerpRing(DSWActor* actor)
     }
 
     // rotate the ring
-    actor->user.slide_ang += DAngle::fromBuild(actor->spr.yint);
+    actor->user.slide_ang += mapangle(actor->spr.yint);
 
     // rotate the heads
     if (actor->user.Flags & (SPR_BOUNCE))
