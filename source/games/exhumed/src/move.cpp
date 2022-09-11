@@ -393,7 +393,7 @@ DExhumedActor* insertActor(sectortype* s, int st)
 }
 
 
-Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
+Collision movesprite_(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
 {
     DVector2 vect(FixedToFloat<18>(dx), FixedToFloat<18>(dy));
 
@@ -511,7 +511,7 @@ void Gravity(DExhumedActor* pActor)
 
 Collision MoveCreature(DExhumedActor* pActor)
 {
-    return movesprite(pActor, pActor->vel, 256., 15360, -5120, CLIPMASK0);
+    return movesprite___(pActor, pActor->vel, 256., 15360, -5120, CLIPMASK0);
 }
 
 Collision MoveCreatureWithCaution(DExhumedActor* pActor)
@@ -823,7 +823,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
                     {
                         // Unlike the above, this one *did* scale vect
                         vect2 = nAngle.ToVector() * pActor->fClipdist() * 0.25 + vect;
-                        movesprite(pActor, FloatToFixed<18>(vect2.X), FloatToFixed<18>(vect2.Y), 0, 0, 0, CLIPMASK0);
+                        movesprite_(pActor, FloatToFixed<18>(vect2.X), FloatToFixed<18>(vect2.Y), 0, 0, 0, CLIPMASK0);
                     }
                 }
             }
@@ -945,7 +945,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
     auto veclen = vec.Length();
     double zz = g_sindeg(pActor->vel.Z * 45) * veclen;
 
-    return movesprite(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), zz * 4096 + BobVal(zbob) * 512, 0, 0, nClipType);
+    return movesprite_(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), zz * 4096 + BobVal(zbob) * 512, 0, 0, nClipType);
 }
 
 DAngle GetWallNormal(walltype* pWall)
@@ -1120,7 +1120,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     auto pSector = pActor->sector();
     pActor->spr.pal = pSector->ceilingpal;
 
-    auto nVal = movesprite(pActor, pActor->vel, 1024., 2560, -2560, CLIPMASK1);
+    auto nVal = movesprite___(pActor, pActor->vel, 1024., 2560, -2560, CLIPMASK1);
 
     if (pActor->spr.pos.Z >= pSector->floorz)
     {

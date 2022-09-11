@@ -33,14 +33,14 @@ enum
 };
 
 
-Collision movesprite(DExhumedActor* spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
-Collision movesprite(DExhumedActor* spritenum, const DVector3& pos, int ceildist, int flordist, unsigned int clipmask)
+Collision movesprite_(DExhumedActor* spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
+Collision movesprite__(DExhumedActor* spritenum, const DVector3& pos, int ceildist, int flordist, unsigned int clipmask)
 {
-	return movesprite(spritenum, int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), ceildist, flordist, clipmask);
+	return movesprite_(spritenum, int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), ceildist, flordist, clipmask);
 }
-Collision movesprite(DExhumedActor* spritenum, const DVector3& pos, double xyfactor, int ceildist, int flordist, unsigned int clipmask)
+Collision movesprite___(DExhumedActor* spritenum, const DVector3& pos, double xyfactor, int ceildist, int flordist, unsigned int clipmask)
 {
-	return movesprite(spritenum, int(pos.X * xyfactor * worldtoint), int(pos.Y * xyfactor * worldtoint), int(pos.Z * zworldtoint), ceildist, flordist, clipmask);
+	return movesprite_(spritenum, int(pos.X * xyfactor * worldtoint), int(pos.Y * xyfactor * worldtoint), int(pos.Z * zworldtoint), ceildist, flordist, clipmask);
 }
 
 void precache();

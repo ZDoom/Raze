@@ -332,7 +332,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
 
     double zz = pActor->pitch.Sin() * veclen;
 
-    return movesprite(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), zz * 4096 + BobVal(bobangle) * 512, 0, 0, CLIPMASK1);
+    return movesprite_(pActor, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), zz * 4096 + BobVal(bobangle) * 512, 0, 0, CLIPMASK1);
 }
 
 int DestroyTailPart()
@@ -933,7 +933,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     auto dv = nAngle.ToVector() * 64;
                     int dz = (RandomSize(5) - RandomSize(5)) << 7;
 
-                    movesprite(pActor, FloatToFixed<18>(dv.X), FloatToFixed<18>(dv.Y), dz, 0, 0, CLIPMASK1);
+                    movesprite_(pActor, FloatToFixed<18>(dv.X), FloatToFixed<18>(dv.Y), dz, 0, 0, CLIPMASK1);
 
                     BlowChunks(pActor);
                     BuildExplosion(pActor);

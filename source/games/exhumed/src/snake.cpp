@@ -305,7 +305,7 @@ void AISnake::Tick(RunListEvent* ev)
     {
     SEARCH_ENEMY:
         auto vec = pActor->spr.angle.ToVector() * 37.5;
-        nMov = movesprite(pActor,
+        nMov = movesprite_(pActor,
             FixedToFloat<18>(vec.X),
             FixedToFloat<18>(vec.Y),
             bsin(SnakeList[nSnake].nAngle, -5),
@@ -368,7 +368,7 @@ void AISnake::Tick(RunListEvent* ev)
             DVector2 vect;
             vect.X = cosang + cosang * i + eax * normalang.Cos();
             vect.Y = cosang + sinang * i + eax * normalang.Sin();
-            movesprite(pActor2, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y),
+            movesprite_(pActor2, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y),
                 int(- zVal * (i - 1) * zworldtoint), 0, 0, CLIPMASK1);
 
             snakeang += DAngle22_5;

@@ -1037,7 +1037,7 @@ void AISlide::Tick(RunListEvent* ev)
         double nSeekB = LongSeek(&y, SlideData[nSlide].pos[4].Y, 1.25, 1.25);
 
         dragpoint(SlideData[nSlide].pWall1, x, y);
-        movesprite(SlideData[nSlide].pActor, FloatToFixed<18>(nSeekA), FloatToFixed<18>(nSeekB), 0, 0, 0, CLIPMASK1);
+        movesprite_(SlideData[nSlide].pActor, FloatToFixed<18>(nSeekA), FloatToFixed<18>(nSeekB), 0, 0, 0, CLIPMASK1);
 
         if (nSeekA == 0 && nSeekB == 0)
         {
@@ -1372,7 +1372,7 @@ void AISpark::Tick(RunListEvent* ev)
 
         pActor->vel.Z += 0.5;
 
-        auto nMov = movesprite(pActor, pActor->vel, 4096, 2560, -2560, CLIPMASK1);
+        auto nMov = movesprite___(pActor, pActor->vel, 4096, 2560, -2560, CLIPMASK1);
         if (!nMov.type && !nMov.exbits) {
             return;
         }
@@ -1823,7 +1823,7 @@ void AIObject::Tick(RunListEvent* ev)
     FUNCOBJECT_GOTO:
         if (nStat != kStatExplodeTarget)
         {
-            auto nMov = movesprite(pActor, pActor->vel, 64., 0, 0, CLIPMASK0);
+            auto nMov = movesprite___(pActor, pActor->vel, 64., 0, 0, CLIPMASK0);
 
             if (pActor->spr.statnum == kStatExplodeTrigger) {
                 pActor->spr.pal = 1;

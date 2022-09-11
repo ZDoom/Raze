@@ -768,7 +768,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
                         ChangeActorSect(pPlayerActor, spr_sect);
                     }
 
-                    movesprite(pPlayerActor, FloatToFixed<18>(vel.X), FloatToFixed<18>(vel.Y), z, 5120, -5120, CLIPMASK0);
+                    movesprite_(pPlayerActor, FloatToFixed<18>(vel.X), FloatToFixed<18>(vel.Y), z, 5120, -5120, CLIPMASK0);
                     return true;
                 }
             }
@@ -929,7 +929,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
     else
     {
-        nMove = movesprite(pPlayerActor, x, y, z, 5120, -5120, CLIPMASK0);
+        nMove = movesprite_(pPlayerActor, x, y, z, 5120, -5120, CLIPMASK0);
 
         auto pPlayerSect = pPlayerActor->sector();
 
@@ -1096,7 +1096,7 @@ sectdone:
                 double fz = pViewSect->floorz - 20;
                 pPlayerActor->spr.pos = DVector3(spr_pos.XY(), fz);
 
-                auto coll = movesprite(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
+                auto coll = movesprite_(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
                 if (coll.type == kHitWall)
                 {
                     ChangeActorSect(pPlayerActor, pPlayerActor->sector());
