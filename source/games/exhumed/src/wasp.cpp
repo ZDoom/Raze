@@ -34,11 +34,6 @@ static actionSeq WaspSeq[] = {
     {29, 1}
 };
 
-void SetWaspVel(DExhumedActor* pActor)
-{
-    pActor->VelFromAngle();
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -195,7 +190,7 @@ void AIWasp::Damage(RunListEvent* ev)
             pActor->spr.cstat = 0;
             pActor->spr.angle += DAngle180;
 
-            SetWaspVel(pActor);
+            pActor->VelFromAngle();
 
             pActor->vel.Z = 2;
 
