@@ -4034,7 +4034,7 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 		}
 
 		if (sc->ceilingz < sc->floorz)
-			sc->add_int_ceilingz(actor->spr.yint);
+			sc->addceilingz(actor->spr.yint * zmaptoworld);
 		else
 		{
 			sc->setceilingz(sc->floorz);
@@ -4215,7 +4215,7 @@ void handle_se22(DDukeActor* actor)
 	if (actor->temp_data[1])
 	{
 		if (getanimationgoal(anim_ceilingz, &sector[actor->temp_data[0]]) >= 0)
-			sc->add_int_ceilingz(sc->extra * 9);
+			sc->addceilingz(sc->extra * 9 * zmaptoworld);
 		else actor->temp_data[1] = 0;
 	}
 }
@@ -4440,53 +4440,55 @@ void handle_se32(DDukeActor *actor)
 	{
 		// Choose dir
 
+		double targetval = actor->spr.yint * zmaptoworld;
+
 		if (actor->temp_data[2] == 1) // Retract
 		{
 			if (actor->int_ang() != 1536)
 			{
-				if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yint << 1))
+				if (abs(sc->ceilingz - actor->spr.pos.Z) < targetval * 2)
 				{
 					sc->setceilingz(actor->spr.pos.Z);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->add_int_ceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yint);
+				else sc->addceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * targetval);
 			}
 			else
 			{
-				if (abs(sc->int_ceilingz() - actor->temp_data[1]) < (actor->spr.yint << 1))
+				if (abs(sc->ceilingz - actor->temp_data[1] * zinttoworld) < targetval * 2)
 				{
 					sc->set_int_ceilingz(actor->temp_data[1]);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->add_int_ceilingz(Sgn(actor->temp_data[1] - sc->int_ceilingz()) * actor->spr.yint);
+				else sc->addceilingz(Sgn(actor->temp_data[1] * zinttoworld - sc->int_ceilingz()) * targetval);
 			}
 			return;
 		}
 
-		if ((actor->int_ang() & 2047) == 1536)
+		if ((actor->spr.intangle & 2047) == 1536)
 		{
-			if (abs(sc->int_ceilingz() - actor->int_pos().Z) < (actor->spr.yint << 1))
+			if (abs(sc->ceilingz - actor->spr.pos.Z) < targetval * 2)
 			{
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
 				sc->setceilingz(actor->spr.pos.Z);
 			}
-			else sc->add_int_ceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * actor->spr.yint);
+			else sc->addceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * targetval);
 		}
 		else
 		{
-			if (abs(sc->int_ceilingz() - actor->temp_data[1]) < (actor->spr.yint << 1))
+			if (abs(sc->ceilingz - actor->temp_data[1] * zinttoworld) < targetval * 2)
 			{
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
 			}
-			else sc->add_int_ceilingz(-Sgn(actor->int_pos().Z - actor->temp_data[1]) * actor->spr.yint);
+			else sc->addceilingz(-Sgn(actor->int_pos().Z - actor->temp_data[1]) * targetval);
 		}
 	}
 
@@ -4509,7 +4511,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 			auto spawned = spawn(actor, SMALLSMOKE);
 			if (spawned)
 			{
-				spawned->set_int_xvel(96 + (krand() & 127));
+				spawned->vel.X = 6 + krandf(8);
 				ssp(spawned, CLIPMASK0);
 				SetActor(spawned, spawned->spr.pos);
 				if (rnd(16))
@@ -4517,17 +4519,19 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 			}
 		}
 
+
+	double targetval = actor->spr.yint * zmaptoworld;
 	switch (actor->temp_data[0])
 	{
 	case 0:
-		sc->add_int_ceilingz(actor->spr.yint);
+		sc->addceilingz(targetval);
 		if (sc->ceilingz > sc->floorz)
 			sc->setfloorz(sc->ceilingz);
 		if (sc->ceilingz > actor->spr.pos.Z + 32)
 			actor->temp_data[0]++;
 		break;
 	case 1:
-		sc->add_int_ceilingz(-(actor->spr.yint << 2));
+		sc->addceilingz(-targetval * 4);
 		if (sc->int_ceilingz() < actor->temp_data[4])
 		{
 			sc->set_int_ceilingz(actor->temp_data[4]);
