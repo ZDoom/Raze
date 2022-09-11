@@ -112,7 +112,7 @@ struct PLAYER
 	double              zViewVel;
 	double              zWeapon;
 	double              ozWeapon;
-	int                 zWeaponVel;
+	double              zWeaponVel;
 	int                 slope;
 	bool                isUnderwater;
 	bool                hasKey[8];

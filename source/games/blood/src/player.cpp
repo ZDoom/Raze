@@ -1871,13 +1871,13 @@ void playerProcess(PLAYER* pPlayer)
 	else
 		pPlayer->zViewVel += MulScaleF(dz << 8, 0x1800, 16) / 65536;
 	pPlayer->zView += pPlayer->zViewVel;
-	pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->int_vel().Z, FixedToFloat(0x5000));
+	pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->vel.Z, FixedToFloat(0x5000));
 	dz = pPlayer->actor->int_pos().Z - pPosture->weaponAboveZ - pPlayer->zWeapon * zworldtoint;
 	if (dz > 0)
-		pPlayer->zWeaponVel += MulScale(dz << 8, 0x8000, 16);
+		pPlayer->zWeaponVel += MulScaleF(dz << 8, 0x8000, 16) / 65536;
 	else
-		pPlayer->zWeaponVel += MulScale(dz << 8, 0xc00, 16);
-	pPlayer->zWeapon += FixedToFloat(pPlayer->zWeaponVel);
+		pPlayer->zWeaponVel += MulScaleF(dz << 8, 0xc00, 16) / 65536;
+	pPlayer->zWeapon += pPlayer->zWeaponVel;
 	pPlayer->bobPhase = ClipLow(pPlayer->bobPhase - 4, 0);
 	nSpeed >>= FRACBITS;
 	if (pPlayer->posture == 1)
