@@ -349,7 +349,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 				if (d < r && cansee(act2->spr.pos.plusZ(-8), act2->sector(), actor->spr.pos.plusZ(-12), actor->sector()))
 				{
-					act2->hitang = getangle(act2->int_pos().X - actor->int_pos().X, act2->int_pos().Y - actor->int_pos().Y);
+					act2->hitang = getangle(act2->spr.pos - actor->spr.pos);
 
 					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
 						act2->attackertype = RPG;
