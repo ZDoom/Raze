@@ -2540,7 +2540,11 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 
 //---------------------------------------------------------------------------
 //
-// taken out of moveeffectors
+// Rotating sector
+// 
+// temp_data[1]: mspos index
+// temp_angle: current angle
+// temp_data[3]: checkz / acceleration, depending on mode.
 //
 //---------------------------------------------------------------------------
 
@@ -2548,7 +2552,7 @@ void handle_se00(DDukeActor* actor)
 {
 	sectortype *sect = actor->sector();
 
-	int zchange = 0;
+	double zchange = 0;
 
 	auto Owner = actor->GetOwner();
 
@@ -2558,12 +2562,12 @@ void handle_se00(DDukeActor* actor)
 		return;
 	}
 
-	int q = sect->extra >> 3;
-	int l = 0;
+	DAngle ang_amount = mapangle(sect->extra >> 3);
+	double direction = 0;
 
 	if (sect->lotag == 30)
 	{
-		q >>= 2;
+		ang_amount *= 0.25;
 
 		if (actor->spr.extra == 1)
 		{
@@ -2572,15 +2576,15 @@ void handle_se00(DDukeActor* actor)
 				actor->tempang += 4;
 				if (actor->tempang >= 256)
 					callsound(actor->sector(), actor, true);
-				if (actor->native_clipdist()) l = 1;
-				else l = -1;
+				if (actor->native_clipdist()) direction = 1; // notreallyclipdist
+				else direction = -1;
 			}
 			else actor->tempang = 256;
 
 			if (sect->floorz > actor->spr.pos.Z) //z's are touching
 			{
 				sect->addfloorz(-2);
-				zchange = -512;
+				zchange =  2;
 				if (sect->floorz < actor->spr.pos.Z)
 					sect->setfloorz(actor->spr.pos.Z);
 			}
@@ -2588,7 +2592,7 @@ void handle_se00(DDukeActor* actor)
 			else if (sect->floorz < actor->spr.pos.Z) //z's are touching
 			{
 				sect->addfloorz(2);
-				zchange = 512;
+				zchange = 2;
 				if (sect->floorz > actor->spr.pos.Z)
 					sect->setfloorz(actor->spr.pos.Z);
 			}
@@ -2600,16 +2604,16 @@ void handle_se00(DDukeActor* actor)
 				actor->tempang -= 4;
 				if (actor->tempang <= 0)
 					callsound(actor->sector(), actor, true);
-				if (actor->native_clipdist()) l = -1;
-				else l = 1;
+				if (actor->native_clipdist()) direction = -1; // notreallyclipdist
+				else direction = 1;
 			}
 			else actor->tempang = 0;
 
-			double checkz = actor->temp_data[3] * zinttoworld;
+			double checkz = actor->temp_data[3] * zmaptoworld;
 			if (sect->floorz > checkz) //z's are touching
 			{
 				sect->addfloorz(-2);
-				zchange = -512;
+				zchange = -2;
 				if (sect->floorz < checkz)
 					sect->setfloorz(checkz);
 			}
@@ -2617,14 +2621,14 @@ void handle_se00(DDukeActor* actor)
 			else if (sect->floorz < checkz) //z's are touching
 			{
 				sect->addfloorz(2);
-				zchange = 512;
+				zchange = 2;
 				if (sect->floorz > checkz)
 					sect->setfloorz(checkz);
 			}
 		}
 
-		actor->add_int_ang((l * q));
-		actor->temp_data[2] += (l * q);
+		actor->spr.angle += ang_amount * direction;
+		actor->temp_angle += ang_amount * direction;
 	}
 	else
 	{
@@ -2635,29 +2639,29 @@ void handle_se00(DDukeActor* actor)
 			return;
 		}
 
-		if (Owner->int_ang() > 1024)
-			l = -1;
-		else l = 1;
+		if (Owner->spr.angle.Normalized360() > DAngle180)
+			direction = -1;
+		else direction = 1;
 		if (actor->temp_data[3] == 0)
 			actor->temp_data[3] = ldist(actor, Owner);
-		actor->set_int_xvel(actor->temp_data[3]);
+		actor->vel.X = actor->temp_data[3] * maptoworld;
 		actor->spr.pos.XY() = Owner->spr.pos.XY();
-		actor->add_int_ang((l * q));
-		actor->temp_data[2] += (l * q);
+		actor->spr.angle += ang_amount * direction;
+		actor->temp_angle += ang_amount * direction;
 	}
 
-	if (l && (sect->floorstat & CSTAT_SECTOR_ALIGN))
+	if (direction && (sect->floorstat & CSTAT_SECTOR_ALIGN))
 	{
 		int p;
 		for (p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground == 1)
 			{
-				ps[p].angle.addadjustment(DAngle::fromBuild(l * q));
+				ps[p].angle.addadjustment(ang_amount * direction);
 
-				ps[p].player_add_int_z(zchange);
+				ps[p].pos.Z += zchange;
 
-				auto result = rotatepoint(Owner->spr.pos, ps[p].pos.XY(), DAngle::fromBuild(q * l));
+				auto result = rotatepoint(Owner->spr.pos, ps[p].pos.XY(), ang_amount * direction);
 
 				ps[p].bobpos += (result - ps[p].pos.XY());
 
@@ -2682,19 +2686,19 @@ void handle_se00(DDukeActor* actor)
 					continue;
 				}
 
-				act2->add_int_ang((l * q));
+				act2->spr.angle += ang_amount * direction;
 				act2->norm_ang();
 
-				act2->add_int_z(zchange);
+				act2->spr.pos.Z += zchange;
 
-				auto pos = rotatepoint(Owner->spr.pos.XY(), act2->spr.pos.XY(), DAngle::fromBuild(q* l));
+				auto pos = rotatepoint(Owner->spr.pos.XY(), act2->spr.pos.XY(), ang_amount * direction);
 				act2->spr.pos.X = pos.X;
 				act2->spr.pos.Y = pos.Y;
 			}
-		}
+ 		}
 
 	}
-	movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+	movesector(actor, actor->temp_data[1], actor->temp_angle);
 }
 
 //---------------------------------------------------------------------------
