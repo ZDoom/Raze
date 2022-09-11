@@ -677,7 +677,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		if (atwith == RRTILE1790)
 		{
 			spawned->spr.extra = 10;
-			spawned->set_int_zvel(-(10 << 8));
+			spawned->vel.Z = -10;
 		}
 		else if (atwith == RPG2)
 		{
@@ -695,7 +695,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		spawned->spr.yint = gs.numfreezebounces;
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
-		spawned->add_int_zvel(- (2 << 4));
+		spawned->vel.Z -= 0.125;
 	}
 
 	if (p == -1)
@@ -2978,7 +2978,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 					{
 
 						j->set_int_ang((j->int_ang() + 1024) & 2047);
-						j->add_int_xvel( 32);
+						j->vel.X += 2.;
 						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);
 					}

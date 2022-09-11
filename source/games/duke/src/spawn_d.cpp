@@ -517,8 +517,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case HELECOPT:
 		act->spr.cstat = 0;
 		act->spr.extra = 1;
-		act->set_int_xvel(292);
-		act->set_int_zvel(360);
+		act->vel.X = 292 / 16.;
+		act->vel.Z = 360 / 256.;
 		[[fallthrough]];
 	case RESPAWNMARKERRED:
 	case BLIMP:
@@ -1000,7 +1000,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->spr.lotag = 0;
 			act->spr.pos.Z -= 32;
-			act->set_int_zvel(-1024);
+			act->vel.Z = -4;
 			ssp(act, CLIPMASK0);
 			if (krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
 		}

@@ -547,8 +547,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		act->spr.cstat = 0;
 		act->spr.extra = 1;
-		act->set_int_xvel(292);
-		act->set_int_zvel(360);
+		act->vel.X = 292 / 16.;
+		act->vel.Z = 360 / 256.;
 		[[fallthrough]];
 	case RESPAWNMARKERRED:
 		if (act->spr.picnum == RESPAWNMARKERRED)
@@ -1156,7 +1156,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.picnum != BOWLINGBALLSPRITE)
 			{
 				act->spr.pos.Z -= 32;
-				act->set_int_zvel(-(4 << 8));
+				act->vel.Z = -4;
 			}
 			else
 			{

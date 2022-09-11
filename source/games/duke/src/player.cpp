@@ -618,7 +618,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		else
 		{
 			actor->spr.pos.Z -= 2;
-			actor->set_int_zvel(-348);
+			actor->vel.Z = -348 / 256.;
 		}
 
 		Collision coll;

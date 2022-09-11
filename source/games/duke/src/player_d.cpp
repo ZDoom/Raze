@@ -743,7 +743,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		spawned->spr.yint = gs.numfreezebounces;
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
-		spawned->add_int_zvel(- (2 << 4));
+		spawned->vel.Z -= 0.25;
 	}
 
 	if (p == -1)
@@ -2387,7 +2387,7 @@ static void operateweapon(int snum, ESyncBits actions)
 					if (j)
 					{
 						j->spr.angle += DAngle180;
-						j->add_int_xvel( 32);
+						j->vel.X += 2.;
 						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);
 					}
