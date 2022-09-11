@@ -2364,7 +2364,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				targ->attackertype = proj->spr.picnum;
 				targ->hitextra += proj->spr.extra;
 				if (targ->spr.picnum != COW)
-					targ->hitang = proj->int_ang();
+					targ->hitang = proj->spr.angle;
 				targ->SetHitOwner(proj->GetOwner());
 			}
 

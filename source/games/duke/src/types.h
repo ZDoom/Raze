@@ -46,10 +46,11 @@ public:
 
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	short attackertype, hitang, hitextra, movflag;
+	short attackertype, hitextra, movflag;
 	short tempang, dispicnum, basepicnum;
 	short timetosleep;
 	vec2_t ovel;
+	DAngle hitang;
 	double floorz, ceilingz;
 	union
 	{
@@ -199,6 +200,7 @@ struct CraneDef
 	TObjPtr<DDukeActor*> poleactor;
 };
 
+constexpr double VEL_FACTOR = FloatToFixed<18>(1);
 struct player_struct 
 {
 	union

@@ -1270,8 +1270,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->attackertype, sActor, sPlayer);
 		break;
 	case ACTOR_HTANG:
-		if (bSet) act->hitang = lValue;
-		else SetGameVarID(lVar2, act->hitang, sActor, sPlayer);
+		if (bSet) act->hitang = mapangle(lValue);
+		else SetGameVarID(lVar2, act->hitang.Buildang(), sActor, sPlayer);
 		break;
 	case ACTOR_HTEXTRA:
 		if (bSet) act->hitextra = lValue;

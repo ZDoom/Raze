@@ -300,7 +300,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						continue;
 					}
 
-					act2->hitang = getangle(act2->int_pos().X - actor->int_pos().X, act2->int_pos().Y - actor->int_pos().Y);
+					act2->hitang = VecToAngle(act2->spr.pos - actor->spr.pos);
 
 					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
 						act2->attackertype = RPG;
@@ -534,13 +534,11 @@ int ifhitbyweapon_r(DDukeActor *actor)
 
 				if (attackerflag(actor, SFLAG2_DOUBLEDMGTHRUST))
 				{
-					ps[p].__vel.X += actor->hitextra * bcos(actor->hitang, 2);
-					ps[p].__vel.Y += actor->hitextra * bsin(actor->hitang, 2);
+					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25 * VEL_FACTOR;
 				}
 				else
 				{
-					ps[p].__vel.X += actor->hitextra * bcos(actor->hitang, 1);
-					ps[p].__vel.Y += actor->hitextra * bsin(actor->hitang, 1);
+					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.125 * VEL_FACTOR;
 				}
 			}
 			else
