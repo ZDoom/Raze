@@ -717,7 +717,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 6);
 		break;
 	case TOUCHPLATE:
-		act->temp_data[2] = sectp->int_floorz();
+		act->temp_pos.Z = sectp->floorz;
 		if (sectp->lotag != 1 && sectp->lotag != 2)
 			sectp->setfloorz(act->spr.pos.Z);
 		if (!isWorldTour())
@@ -743,11 +743,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case WATERBUBBLEMAKER:
 		if (act->spr.hitag && act->spr.picnum == WATERBUBBLEMAKER)
 		{	// JBF 20030913: Pisses off move(), eg. in bobsp2
-			Printf(TEXTCOLOR_YELLOW "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n", act->GetIndex(), act->int_pos().X, act->int_pos().Y);
+			Printf(TEXTCOLOR_YELLOW "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n", act->GetIndex(), int(act->spr.pos.X), int(act->spr.pos.Y));
 			act->spr.hitag = 0;
 		}
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case BOLT1:
 	case BOLT1 + 1:

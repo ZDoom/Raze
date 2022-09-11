@@ -715,7 +715,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 6);
 		break;
 	case TOUCHPLATE:
-		act->temp_data[2] = sectp->int_floorz();
+		act->temp_pos.Z = sectp->floorz;
 		if (sectp->lotag != 1 && sectp->lotag != 2)
 			sectp->setfloorz(act->spr.pos.Z);
 		if (act->spr.pal && ud.multimode > 1)
@@ -727,7 +727,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case WATERBUBBLEMAKER:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case BOLT1:
 	case BOLT1 + 1:

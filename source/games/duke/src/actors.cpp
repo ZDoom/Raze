@@ -1075,40 +1075,40 @@ void movedoorshock(DDukeActor* actor)
 void movetouchplate(DDukeActor* actor, int plate)
 {
 	auto sectp = actor->sector();
-	int x;
 	int p;
 
 	if (actor->temp_data[1] == 1 && actor->spr.hitag >= 0) //Move the sector floor
 	{
-		x = sectp->int_floorz();
+		double X = sectp->floorz;
+		double add = sectp->extra * zmaptoworld;
 
 		if (actor->temp_data[3] == 1)
 		{
-			if (x >= actor->temp_data[2])
+			if (X >= actor->temp_pos.Z)
 			{
-				sectp->set_int_floorz(x);
+				sectp->setfloorz(X);
 				actor->temp_data[1] = 0;
 			}
 			else
 			{
-				sectp->add_int_floorz(sectp->extra);
+				sectp->addfloorz(add);
 				p = checkcursectnums(actor->sector());
-				if (p >= 0) ps[p].pos.Z += sectp->extra * zmaptoworld;
+				if (p >= 0) ps[p].pos.Z += add;
 			}
 		}
 		else
 		{
-			if (x <= actor->int_pos().Z)
+			if (X <= actor->spr.pos.Z)
 			{
 				sectp->setfloorz(actor->spr.pos.Z);
 				actor->temp_data[1] = 0;
 			}
 			else
 			{
-				sectp->floorz -= sectp->extra * zmaptoworld;
+				sectp->floorz -= add;
 				p = checkcursectnums(actor->sector());
 				if (p >= 0)
-					ps[p].pos.Z -= sectp->extra * zmaptoworld;
+					ps[p].pos.Z -= add;
 			}
 		}
 		return;
@@ -1117,7 +1117,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 	if (actor->temp_data[5] == 1) return;
 
 	p = checkcursectnums(actor->sector());
-	if (p >= 0 && (ps[p].on_ground || actor->spr.angle == DAngle90))
+	if (p >= 0 && (ps[p].on_ground || actor->spr.intangle == 512))
 	{
 		if (actor->temp_data[0] == 0 && !check_activator_motion(actor->spr.lotag))
 		{
