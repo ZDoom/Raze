@@ -2817,7 +2817,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						updatesector(ps[p].pos, &sect);
 						if ((sect == nullptr && ud.clipping == 0) || (sect == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].getxyfromactor(actor);
+							ps[p].pos.XY() = actor->spr.pos.XY();
 							ps[p].setCursector(actor->sector());
 
 							SetActor(ps[p].GetActor(), actor->spr.pos);
@@ -2892,7 +2892,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						updatesector(ps[p].pos, &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].getxyfromactor(actor);
+							ps[p].pos.XY() = actor->spr.pos.XY();
 							ps[p].backupxy();
 							ps[p].setCursector(actor->sector());
 
@@ -2995,7 +2995,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 						updatesector(ps[p].pos, &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].getxyfromactor(actor);
+							ps[p].pos.XY() = actor->spr.pos.XY();
 							ps[p].setCursector(actor->sector());
 
 							SetActor(ps[p].GetActor(), actor->spr.pos);
@@ -3051,7 +3051,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 						updatesector(ps[p].pos, &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].getxyfromactor(actor);
+							ps[p].pos.XY() = actor->spr.pos.XY();
 							ps[p].backupxy();
 
 							ps[p].setCursector(actor->sector());

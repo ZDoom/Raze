@@ -388,12 +388,6 @@ struct player_struct
 		if (addz) pos.Z  += addz;
 	}
 
-	void getxyfromactor(DCoreActor* actor)
-	{
-		pos.X = actor->spr.pos.X;
-		pos.Y = actor->spr.pos.Y;
-	}
-
 	vec3_t player_int_pos() const
 	{
 		return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
