@@ -2609,7 +2609,7 @@ void handle_se00(DDukeActor* actor)
 			}
 			else actor->tempang = 0;
 
-			double checkz = actor->temp_data[3] * zmaptoworld;
+			double checkz = actor->temp_pos.Z;
 			if (sect->floorz > checkz) //z's are touching
 			{
 				sect->addfloorz(-2);
@@ -2642,9 +2642,9 @@ void handle_se00(DDukeActor* actor)
 		if (Owner->spr.angle.Normalized360() > DAngle180)
 			direction = -1;
 		else direction = 1;
-		if (actor->temp_data[3] == 0)
-			actor->temp_data[3] = ldist(actor, Owner);
-		actor->vel.X = actor->temp_data[3] * maptoworld;
+		if (actor->temp_pos.Y == 0)
+			actor->temp_pos.Y = (actor->spr.pos.XY() - Owner->spr.pos.XY()).Length();
+		actor->vel.X = actor->temp_pos.Y;
 		actor->spr.pos.XY() = Owner->spr.pos.XY();
 		actor->spr.angle += ang_amount * direction;
 		actor->temp_angle += ang_amount * direction;

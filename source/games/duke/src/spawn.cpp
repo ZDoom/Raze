@@ -916,13 +916,13 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_26://ESCELATOR
 		case SE_30_TWO_WAY_TRAIN://No rotational subways
 		{
-			if (actor->spr.lotag == 0)
+			if (actor->spr.lotag == SE_0_ROTATING_SECTOR)
 			{
-				if (sectp->lotag == SE_30_TWO_WAY_TRAIN)
+				if (sectp->lotag == 30)
 				{
 					if (actor->spr.pal) actor->set_const_clipdist(1);
 					else actor->set_const_clipdist(0);
-					actor->temp_data[3] = sectp->int_floorz();
+					actor->temp_pos.Z = sectp->floorz;
 					sectp->hitagactor = actor;
 				}
 
