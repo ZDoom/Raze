@@ -91,6 +91,7 @@ enum
 	SE_128_GLASS_BREAKING              = 128,
 	SE_130                             = 130,
 	SE_131                             = 131,
+	SE_156_CONVEYOR_NOSCROLL           = 156,
 };
 
 // sector lotags, also from EDuke32, for the same reason as above.

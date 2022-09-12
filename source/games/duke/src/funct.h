@@ -175,7 +175,7 @@ void clearcamera(player_struct* ps);
 void LoadActor(DDukeActor* i, int p, int x);
 void execute(DDukeActor* s, int p, int d);
 void makeitfall(DDukeActor* s);
-int furthestangle(DDukeActor* snum, int angDiv);
+DAngle furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 

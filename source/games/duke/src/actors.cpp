@@ -4912,7 +4912,7 @@ int dodge(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int furthestangle(DDukeActor *actor, int angs)
+DAngle furthestangle(DDukeActor *actor, int angs)
 {
 	int j, furthest_angle = 0, angincs;
 	int d, greatestd;
@@ -4922,7 +4922,7 @@ int furthestangle(DDukeActor *actor, int angs)
 	angincs = 2048 / angs;
 
 	if (!actor->isPlayer())
-		if ((actor->temp_data[0] & 63) > 2) return(actor->int_ang() + 1024);
+		if ((actor->temp_data[0] & 63) > 2) return(actor->spr.angle + DAngle180);
 
 	for (j = actor->int_ang(); j < (2048 + actor->int_ang()); j += angincs)
 	{
@@ -4936,7 +4936,7 @@ int furthestangle(DDukeActor *actor, int angs)
 			furthest_angle = j;
 		}
 	}
-	return (furthest_angle & 2047);
+	return DAngle::fromBuild(furthest_angle & 2047);
 }
 
 //---------------------------------------------------------------------------
@@ -4982,14 +4982,15 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 
 void alterang(int ang, DDukeActor* actor, int playernum)
 {
-	int aang, angdif, goalang, j;
+	DAngle goalang, aang, angdif;
+	int j;
 	int ticselapsed;
 
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
 	ticselapsed = (actor->temp_data[0]) & 31;
 
-	aang = actor->int_ang();
+	aang = actor->spr.angle;
 
 	actor->vel.X += (moveptr[0] / 16 - actor->vel.X) / 5;
 	if (actor->vel.Z < (648 / 256.))
@@ -5011,31 +5012,31 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 		auto Owner = actor->GetOwner();
 		if (Owner->isPlayer())
-			goalang = getangle(actor->ovel.X - actor->int_pos().X, actor->ovel.Y - actor->int_pos().Y);
+			goalang = VecToAngle(actor->ovel.X - actor->int_pos().X, actor->ovel.Y - actor->int_pos().Y);
 		else
-			goalang = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
+			goalang = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 
 		if (actor->vel.X != 0 && actor->spr.picnum != TILE_DRONE)
 		{
-			angdif = getincangle(aang, goalang);
+			angdif = absangle(aang, goalang);
 
 			if (ticselapsed < 2)
 			{
-				if (abs(angdif) < 256)
+				if (angdif < DAngle45)
 				{
-					j = 128 - (krand() & 256);
-					actor->add_int_ang(j);
+					DAngle add = DAngle22_5 * ((krand() & 256)? 1 : -1);
+					actor->spr.angle += add;
 					if (hits(actor) < 844)
-						actor->add_int_ang(-j);
+						actor->spr.angle -= add;
 				}
 			}
 			else if (ticselapsed > 18 && ticselapsed < 26) // choose
 			{
-				if (abs(angdif >> 2) < 128) actor->set_int_ang(goalang);
-				else actor->add_int_ang(angdif >> 2);
+				if (angdif < DAngle90) actor->spr.angle = goalang;
+				else actor->spr.angle += angdif * 0.25;
 			}
 		}
-		else actor->set_int_ang(goalang);
+		else actor->spr.angle = goalang;
 	}
 
 	if (ticselapsed < 1)
@@ -5044,14 +5045,14 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		if (ang & furthestdir)
 		{
 			goalang = furthestangle(actor, j);
-			actor->set_int_ang(goalang);
+			actor->spr.angle = goalang;
 			actor->SetOwner(ps[playernum].GetActor());
 		}
 
 		if (ang & fleeenemy)
 		{
 			goalang = furthestangle(actor, j);
-			actor->set_int_ang(goalang); // += angdif; //  = getincangle(aang,goalang)>>1;
+			actor->spr.angle = goalang;
 		}
 	}
 }

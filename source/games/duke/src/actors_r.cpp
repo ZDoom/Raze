@@ -3358,7 +3358,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		case SE_24_CONVEYOR:
 		case SE_34:
 		{
-			handle_se24(act, st != 156, 1);
+			handle_se24(act, st != SE_156_CONVEYOR_NOSCROLL, 1);
 			break;
 		}
 
