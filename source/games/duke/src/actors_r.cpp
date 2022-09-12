@@ -444,22 +444,21 @@ void lotsoffeathers_r(DDukeActor *actor, int n)
 
 void guts_r(DDukeActor* actor, int gtype, int n, int p)
 {
-	int gutz, floorz;
 	int j;
 	int sx, sy;
 	uint8_t pal;
 
 	if (badguy(actor) && actor->spr.xrepeat < 16)
-		sx = sy = 8;
-	else sx = sy = 32;
+		sx = sy = 4;
+	else sx = sy = 16;
 
-	gutz = actor->int_pos().Z - (8 << 8);
-	floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
+	double gutz = actor->spr.pos.Z - 8;
+	double floorz = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
 
-	if (gutz > (floorz - (8 << 8)))
-		gutz = floorz - (8 << 8);
+	if (gutz > floorz - 8)
+		gutz = floorz - 8;
 
-	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset * 256;
+	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset;
 
 	if (badguy(actor) && actor->spr.pal == 6)
 		pal = 6;
@@ -478,11 +477,12 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 		int a = krand() & 2047;
 		int r1 = krand();
 		int r2 = krand();
-		int r3 = krand();
-		int r4 = krand();
-		int r5 = krand();
+		DVector3 offs;
+		offs.Z = gutz - krandf(16);
+		offs.Y = krandf(16) - 8;
+		offs.X = krandf(16) - 8;
 		// TRANSITIONAL: owned by a player???
-		auto spawned = EGS(actor->sector(), actor->int_pos().X + (r5 & 255) - 128, actor->int_pos().Y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx >> 1, sy >> 1, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
 		if (spawned && pal != 0)
 			spawned->spr.pal = pal;
 	}
