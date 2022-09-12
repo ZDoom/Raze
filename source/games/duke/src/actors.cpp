@@ -4914,21 +4914,21 @@ int dodge(DDukeActor* actor)
 
 DAngle furthestangle(DDukeActor *actor, int angs)
 {
-	int j, furthest_angle = 0, angincs;
-	int d, greatestd;
+	double d, greatestd;
+	DAngle furthest_angle = DAngle360;
 	HitInfo hit{};
 
 	greatestd = -(1 << 30);
-	angincs = 2048 / angs;
+	DAngle angincs = DAngle360 / angs;
 
 	if (!actor->isPlayer())
 		if ((actor->temp_data[0] & 63) > 2) return(actor->spr.angle + DAngle180);
 
-	for (j = actor->int_ang(); j < (2048 + actor->int_ang()); j += angincs)
+	for (DAngle j = actor->spr.angle; j < DAngle360 + actor->spr.angle; j += angincs)
 	{
-		hitscan(vec3_t( actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8) ), actor->sector(), { bcos(j), bsin(j), 0 }, hit, CLIPMASK1);
+		hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(j.ToVector() * 1024, 0), hit, CLIPMASK1);
 
-		d = abs(hit.int_hitpos().X - actor->int_pos().X) + abs(hit.int_hitpos().Y - actor->int_pos().Y);
+		d = abs(hit.hitpos.X - actor->spr.pos.X) + abs(hit.hitpos.Y - actor->spr.pos.Y);
 
 		if (d > greatestd)
 		{
@@ -4936,7 +4936,7 @@ DAngle furthestangle(DDukeActor *actor, int angs)
 			furthest_angle = j;
 		}
 	}
-	return DAngle::fromBuild(furthest_angle & 2047);
+	return furthest_angle.Normalized360();
 }
 
 //---------------------------------------------------------------------------
