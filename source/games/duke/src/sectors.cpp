@@ -289,13 +289,13 @@ double getanimatevalue(int type, int index)
 	switch (type)
 	{
 	case anim_floorz:
-		return sector[index].int_floorz();
+		return sector[index].floorz;
 	case anim_ceilingz:
-		return sector[index].int_ceilingz();
+		return sector[index].ceilingz;
 	case anim_vertexx:
-		return wall[index].wall_int_pos().X;
+		return wall[index].pos.X;
 	case anim_vertexy:
-		return wall[index].wall_int_pos().Y;
+		return wall[index].pos.Y;
 	default:
 		assert(false);
 		return 0;
@@ -319,19 +319,19 @@ void setanimatevalue(int type, int index, double value)
 	switch (type)
 	{
 	case anim_floorz:
-		sector[index].set_int_floorz((int)value);
+		sector[index].setfloorz(value);
 		break;
 	case anim_ceilingz:
-		sector[index].set_int_ceilingz((int)value);
+		sector[index].setceilingz(value);
 		break;
 	case anim_vertexx:
 
-		wall[index].pos.X = value * inttoworld;
+		wall[index].pos.X = value;
 		wall[index].moved();
 		break;
 	case anim_vertexy:
 
-		wall[index].pos.Y = value * inttoworld;
+		wall[index].pos.Y = value;
 		wall[index].moved();
 		break;
 	default:
@@ -352,12 +352,10 @@ void setanimatevalue(int i, double value)
 
 void doanimations(void)
 {
-	int i, a, p;
-
-	for (i = animatecnt - 1; i >= 0; i--)
+	for (int i = animatecnt - 1; i >= 0; i--)
 	{
-		a = (int)getanimatevalue(i);
-		int const v = animatevel[i] * TICSPERFRAME;
+		double a = getanimatevalue(i);
+		double const v = animatevel[i] * TICSPERFRAME;
 		auto dasectp = animatesect[i];
 
 		if (a == animategoal[i])
@@ -386,12 +384,12 @@ void doanimations(void)
 
 		if (animatetype[i] == anim_floorz)
 		{
-			for (p = connecthead; p >= 0; p = connectpoint2[p])
+			for (auto p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursector == dasectp)
-					if ((dasectp->int_floorz() - ps[p].player_int_pos().Z) < (64 << 8))
+					if ((dasectp->floorz - ps[p].pos.Z) < 64)
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
-							ps[p].player_add_int_z(v);
+							ps[p].pos.Z += v;
 							ps[p].vel.Z = 0;
 						}
 
@@ -401,8 +399,8 @@ void doanimations(void)
 				if (act->spr.statnum != STAT_EFFECTOR)
 				{
 					act->backupz();
-					act->add_int_z(v);
-					act->floorz = dasectp->floorz + v * zinttoworld;
+					act->spr.pos.Z += v;
+					act->floorz = dasectp->floorz + v;
 				}
 			}
 		}
@@ -416,7 +414,7 @@ void doanimations(void)
 //
 //---------------------------------------------------------------------------
 
-int getanimationgoal(int animtype, sectortype* animtargetp)
+int getanimationindex(int animtype, sectortype* animtargetp)
 {
 	int i, j;
 
@@ -437,7 +435,7 @@ int getanimationgoal(int animtype, sectortype* animtargetp)
 //
 //---------------------------------------------------------------------------
 
-static int dosetanimation(sectortype* animsect, int animtype, int animtarget, int thegoal, int thevel)
+static int dosetanimation(sectortype* animsect, int animtype, int animtarget, double thegoal, double thevel)
 {
 	int i, j;
 
@@ -468,13 +466,13 @@ static int dosetanimation(sectortype* animsect, int animtype, int animtarget, in
 	return(j);
 }
 
-int setanimation(sectortype* animsect, int animtype, walltype* animtarget, int thegoal, int thevel)
+int setanimation(sectortype* animsect, int animtype, walltype* animtarget, double thegoal, double thevel)
 {
 	assert(animtype == anim_vertexx || animtype == anim_vertexy);
 	return dosetanimation(animsect, animtype, wallnum(animtarget), thegoal, thevel);
 }
 
-int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, int thegoal, int thevel)
+int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, double thegoal, double thevel)
 {
 	assert(animtype == anim_ceilingz || animtype == anim_floorz);
 	return dosetanimation(animsect, animtype, sectnum(animtarget), thegoal, thevel);
@@ -537,17 +535,17 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 
 static void handle_st09(sectortype* sptr, DDukeActor* actor)
 {
-	int dax, day, dax2, day2, sp;
+	double dax, day, dax2, day2, sp;
 	walltype* wallfind[2];
 
-	sp = sptr->extra >> 4;
+	sp = (sptr->extra >> 4) / 16.;
 
 	//first find center point by averaging all points
-	dax = 0L, day = 0L;
+	dax = 0, day = 0;
 	for (auto& wal : wallsofsector(sptr))
 	{
-		dax += wal.wall_int_pos().X;
-		day += wal.wall_int_pos().Y;
+		dax += wal.pos.X;
+		day += wal.pos.Y;
 	}
 	dax /= sptr->wallnum;
 	day /= sptr->wallnum;
@@ -557,7 +555,8 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 	wallfind[0] = nullptr;
 	wallfind[1] = nullptr;
 	for (auto& wal : wallsofsector(sptr))
-		if ((wal.wall_int_pos().X == dax) || (wal.wall_int_pos().Y == day))
+		// more precise checks won't work here.
+		if (abs(wal.pos.X - dax) <= (1 / 32.) || abs(wal.pos.Y - day) <= (1 / 32.))
 		{
 			if (wallfind[0] == nullptr)
 				wallfind[0] = &wal;
@@ -573,33 +572,33 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 		auto prevwall = wal - 1;
 		if (prevwall < sptr->firstWall()) prevwall += sptr->wallnum;
 
-		if ((wal->wall_int_pos().X == dax) && (wal->wall_int_pos().Y == day))
+		if ((wal->pos.X == dax) && (wal->pos.Y == day))
 		{
-			dax2 = ((prevwall->wall_int_pos().X + wal->point2Wall()->wall_int_pos().X) >> 1) - wal->wall_int_pos().X;
-			day2 = ((prevwall->wall_int_pos().Y + wal->point2Wall()->wall_int_pos().Y) >> 1) - wal->wall_int_pos().Y;
+			dax2 = ((prevwall->pos.X + wal->point2Wall()->pos.X) * 0.5) - wal->pos.X;
+			day2 = ((prevwall->pos.Y + wal->point2Wall()->pos.Y) * 0.5) - wal->pos.Y;
 			if (dax2 != 0)
 			{
-				dax2 = wal->point2Wall()->point2Wall()->wall_int_pos().X;
-				dax2 -= wal->point2Wall()->wall_int_pos().X;
-				setanimation(sptr, anim_vertexx, wal, wal->wall_int_pos().X + dax2, sp);
-				setanimation(sptr, anim_vertexx, prevwall, prevwall->wall_int_pos().X + dax2, sp);
-				setanimation(sptr, anim_vertexx, wal->point2Wall(), wal->point2Wall()->wall_int_pos().X + dax2, sp);
+				dax2 = wal->point2Wall()->point2Wall()->pos.X;
+				dax2 -= wal->point2Wall()->pos.X;
+				setanimation(sptr, anim_vertexx, wal, wal->pos.X + dax2, sp);
+				setanimation(sptr, anim_vertexx, prevwall, prevwall->pos.X + dax2, sp);
+				setanimation(sptr, anim_vertexx, wal->point2Wall(), wal->point2Wall()->pos.X + dax2, sp);
 				callsound(sptr, actor);
 			}
 			else if (day2 != 0)
 			{
-				day2 = wal->point2Wall()->point2Wall()->wall_int_pos().Y;
-				day2 -= wal->point2Wall()->wall_int_pos().Y;
-				setanimation(sptr, anim_vertexy, wal, wal->wall_int_pos().Y + day2, sp);
-				setanimation(sptr, anim_vertexy, prevwall, prevwall->wall_int_pos().Y + day2, sp);
-				setanimation(sptr, anim_vertexy, wal->point2Wall(), wal->point2Wall()->wall_int_pos().Y + day2, sp);
+				day2 = wal->point2Wall()->point2Wall()->pos.Y;
+				day2 -= wal->point2Wall()->pos.Y;
+				setanimation(sptr, anim_vertexy, wal, wal->pos.Y + day2, sp);
+				setanimation(sptr, anim_vertexy, prevwall, prevwall->pos.Y + day2, sp);
+				setanimation(sptr, anim_vertexy, wal->point2Wall(), wal->point2Wall()->pos.Y + day2, sp);
 				callsound(sptr, actor);
 			}
 		}
 		else
 		{
-			dax2 = ((prevwall->wall_int_pos().X + wal->point2Wall()->wall_int_pos().X) >> 1) - wal->wall_int_pos().X;
-			day2 = ((prevwall->wall_int_pos().Y + wal->point2Wall()->wall_int_pos().Y) >> 1) - wal->wall_int_pos().Y;
+			dax2 = ((prevwall->pos.X + wal->point2Wall()->pos.X) * 0.5) - wal->pos.X;
+			day2 = ((prevwall->pos.Y + wal->point2Wall()->pos.Y) * 0.5) - wal->pos.Y;
 			if (dax2 != 0)
 			{
 				setanimation(sptr, anim_vertexx, wal, dax, sp);
@@ -662,7 +661,7 @@ static void handle_st15(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st16(sectortype* sptr, DDukeActor* actor)
 {
-	int i = getanimationgoal(anim_floorz, sptr);
+	int i = getanimationindex(anim_floorz, sptr);
 	sectortype* sectp;
 
 	if (i == -1)
@@ -672,12 +671,8 @@ static void handle_st16(sectortype* sptr, DDukeActor* actor)
 		{
 			sectp = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorUp);
 			if (sectp == nullptr) return;
-			setanimation(sptr, anim_floorz, sptr, sectp->int_floorz(), sptr->extra);
 		}
-		else
-		{
-			setanimation(sptr, anim_floorz, sptr, sectp->int_floorz(), sptr->extra);
-		}
+		setanimation(sptr, anim_floorz, sptr, sectp->floorz, sptr->extra / 256.);
 		callsound(sptr, actor);
 	}
 }
@@ -690,18 +685,16 @@ static void handle_st16(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st18(sectortype* sptr, DDukeActor* actor)
 {
-	int i = getanimationgoal(anim_floorz, sptr);
+	int i = getanimationindex(anim_floorz, sptr);
 
 	if (i == -1)
 	{
 		auto sectp = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorUp);
 		if (sectp == nullptr) sectp = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorDown);
 		if (sectp == nullptr) return;
-		int j = sectp->int_floorz();
-		int q = sptr->extra;
-		int l = sptr->int_ceilingz() - sptr->int_floorz();
-		setanimation(sptr, anim_floorz, sptr, j, q);
-		setanimation(sptr, anim_ceilingz, sptr, j + l, q);
+		double speed = sptr->extra / 256.;
+		setanimation(sptr, anim_floorz, sptr, sectp->floorz, speed);
+		setanimation(sptr, anim_ceilingz, sptr, sectp->ceilingz, speed);
 		callsound(sptr, actor);
 	}
 }
@@ -714,12 +707,12 @@ static void handle_st18(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st29(sectortype* sptr, DDukeActor* actor)
 {
-	int j;
+	double j;
 
 	if (sptr->lotag & 0x8000)
-		j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->int_floorz();
+		j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->floorz;
 	else
-		j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_CeilingUp | Find_Safe)->int_ceilingz();
+		j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_CeilingUp | Find_Safe)->ceilingz;
 
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
@@ -736,7 +729,7 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 
 	sptr->lotag ^= 0x8000;
 
-	setanimation(sptr, anim_ceilingz, sptr, j, sptr->extra);
+	setanimation(sptr, anim_ceilingz, sptr, j, sptr->extra / 256.);
 
 	callsound(sptr, actor);
 }
@@ -749,7 +742,7 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st20(sectortype* sptr, DDukeActor* actor)
 {
-	int j = 0;
+	double j = 0;
 REDODOOR:
 
 	if (sptr->lotag & 0x8000)
@@ -758,20 +751,20 @@ REDODOOR:
 		DukeSectIterator it(sptr);
 		while ((a2 = it.Next()))
 		{
-			if (a2->spr.statnum == 3 && a2->spr.lotag == 9)
+			if (a2->spr.statnum == STAT_EFFECTOR && a2->spr.lotag == SE_9_DOWN_OPEN_DOOR_LIGHTS)
 			{
-				j = a2->int_pos().Z;
+				j = a2->spr.pos.Z;
 				break;
 			}
 		}
 		if (a2 == nullptr)
-			j = sptr->int_floorz();
+			j = sptr->floorz;
 	}
 	else
 	{
 		auto sectp = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_CeilingUp);
 
-		if (sectp) j = sectp->int_ceilingz();
+		if (sectp) j = sectp->ceilingz;
 		else
 		{
 			sptr->lotag |= 32768;
@@ -781,7 +774,7 @@ REDODOOR:
 
 	sptr->lotag ^= 0x8000;
 
-	setanimation(sptr, anim_ceilingz, sptr, j, sptr->extra);
+	setanimation(sptr, anim_ceilingz, sptr, j, sptr->extra / 256.);
 	callsound(sptr, actor);
 }
 
@@ -793,24 +786,24 @@ REDODOOR:
 
 static void handle_st21(sectortype* sptr, DDukeActor* actor)
 {
-	int i = getanimationgoal(anim_floorz, sptr);
-	int j;
+	int i = getanimationindex(anim_floorz, sptr);
+	double j;
 	if (i >= 0)
 	{
-		if (animategoal[i] == sptr->int_ceilingz())
-			animategoal[i] = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->int_floorz();
-		else animategoal[i] = sptr->int_ceilingz();
+		if (animategoal[i] == sptr->ceilingz)
+			animategoal[i] = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->floorz;
+		else animategoal[i] = sptr->ceilingz;
 		j = animategoal[i];
 	}
 	else
 	{
 		if (sptr->ceilingz == sptr->floorz)
-			j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->int_floorz();
-		else j = sptr->int_ceilingz();
+			j = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->floorz;
+		else j = sptr->ceilingz;
 
 		sptr->lotag ^= 0x8000;
 
-		if (setanimation(sptr, anim_floorz, sptr, j, sptr->extra) >= 0)
+		if (setanimation(sptr, anim_floorz, sptr, j, sptr->extra / 256.) >= 0)
 			callsound(sptr, actor);
 	}
 }
@@ -823,19 +816,21 @@ static void handle_st21(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st22(sectortype* sptr, DDukeActor* actor)
 {
-	int j, q;
+	int j;
+	double z;
+	double speed = sptr->extra / 256.;
 	if ((sptr->lotag & 0x8000))
 	{
-		q = (sptr->int_ceilingz() + sptr->int_floorz()) >> 1;
-		j = setanimation(sptr, anim_floorz, sptr, q, sptr->extra);
-		j = setanimation(sptr, anim_ceilingz, sptr, q, sptr->extra);
+		z = (sptr->ceilingz + sptr->floorz) * 0.5;
+		j = setanimation(sptr, anim_floorz, sptr, z, speed);
+		j = setanimation(sptr, anim_ceilingz, sptr, z, speed);
 	}
 	else
 	{
-		q = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorDown | Find_Safe)->int_floorz();
-		j = setanimation(sptr, anim_floorz, sptr, q, sptr->extra);
-		q = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_CeilingUp | Find_Safe)->int_ceilingz();
-		j = setanimation(sptr, anim_ceilingz, sptr, q, sptr->extra);
+		z = nextsectorneighborzptr(sptr, sptr->floorz, Find_FloorDown | Find_Safe)->floorz;
+		j = setanimation(sptr, anim_floorz, sptr, z, speed);
+		z = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_CeilingUp | Find_Safe)->ceilingz;
+		j = setanimation(sptr, anim_ceilingz, sptr, z, speed);
 	}
 
 	sptr->lotag ^= 0x8000;
@@ -1014,8 +1009,8 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 		if (!isRR()) break;
 		for (auto& wal : wallsofsector(sptr))
 		{
-			setanimation(sptr, anim_vertexx, &wal, wal.wall_int_pos().X + 1024, 4);
-			if (wal.twoSided()) setanimation(sptr, anim_vertexx, wal.nextWall(), wal.nextWall()->wall_int_pos().X + 1024, 4);
+			setanimation(sptr, anim_vertexx, &wal, wal.pos.X + 64, 1 / 4.);
+			if (wal.twoSided()) setanimation(sptr, anim_vertexx, wal.nextWall(), wal.nextWall()->pos.X + 64, 1 / 4.);
 		}
 		break;
 
@@ -1040,7 +1035,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 		break;
 	}
 	case ST_26_SPLITTING_ST_DOOR: //The split doors
-		i = getanimationgoal(anim_ceilingz, sptr);
+		i = getanimationindex(anim_ceilingz, sptr);
 		if (i == -1) //if the door has stopped
 		{
 			haltsoundhack = 1;

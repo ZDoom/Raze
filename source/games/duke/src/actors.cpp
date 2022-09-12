@@ -3382,7 +3382,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 		}
 		goal = 1;
 	}
-	else goal = getanimationgoal(anim_ceilingz, actor->sector());
+	else goal = getanimationindex(anim_ceilingz, actor->sector());
 
 	if (goal >= 0)
 	{
@@ -3466,7 +3466,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 			{
 				if (specialtags) for (int i = 0; specialtags[i]; i++)
 				{
-					if (actor->sector()->lotag == specialtags[i] && getanimationgoal(anim_ceilingz, actor->sector()) >= 0)
+					if (actor->sector()->lotag == specialtags[i] && getanimationindex(anim_ceilingz, actor->sector()) >= 0)
 					{
 						return;
 					}
@@ -4211,7 +4211,7 @@ void handle_se22(DDukeActor* actor)
 	auto sc = actor->sector();
 	if (actor->temp_data[1])
 	{
-		if (getanimationgoal(anim_ceilingz, &sector[actor->temp_data[0]]) >= 0)
+		if (getanimationindex(anim_ceilingz, &sector[actor->temp_data[0]]) >= 0)
 			sc->addceilingz(sc->extra * 9 * zmaptoworld);
 		else actor->temp_data[1] = 0;
 	}

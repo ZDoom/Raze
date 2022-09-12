@@ -97,8 +97,8 @@ int animatecnt;								// sector plane movement
 sectortype* animatesect[MAXANIMATES];
 int8_t animatetype[MAXANIMATES];
 int animatetarget[MAXANIMATES];
-int animategoal[MAXANIMATES];
-int animatevel[MAXANIMATES];
+double animategoal[MAXANIMATES];
+double animatevel[MAXANIMATES];
 int numclouds;								// cloudy skies
 sectortype* clouds[256];
 float cloudx;

@@ -59,23 +59,22 @@ void ballreturn(DDukeActor *ball)
 
 void pinsectorresetdown(sectortype* sec)
 {
-	int j = getanimationgoal(anim_ceilingz, sec);
+	int j = getanimationindex(anim_ceilingz, sec);
 
 	if (j == -1)
 	{
-		j = sec->int_floorz();
-		setanimation(sec, anim_ceilingz, sec, j, 64);
+		setanimation(sec, anim_ceilingz, sec, sec->floorz, 0.25);
 	}
 }
 
 int pinsectorresetup(sectortype* sec)
 {
-	int j = getanimationgoal(anim_ceilingz, sec);
+	int j = getanimationindex(anim_ceilingz, sec);
 
 	if (j == -1)
 	{
-		j = nextsectorneighborzptr(sec, sec->ceilingz, Find_CeilingUp | Find_Safe)->int_ceilingz();
-		setanimation(sec, anim_ceilingz, sec, j, 64);
+		double z = nextsectorneighborzptr(sec, sec->ceilingz, Find_CeilingUp | Find_Safe)->ceilingz;
+		setanimation(sec, anim_ceilingz, sec, z, 0.25);
 		return 1;
 	}
 	return 0;

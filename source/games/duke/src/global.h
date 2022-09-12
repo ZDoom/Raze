@@ -91,8 +91,8 @@ enum animtype_t
 extern sectortype* animatesect[MAXANIMATES];
 extern int animatetarget[MAXANIMATES];
 extern int8_t animatetype[MAXANIMATES];
-extern int animategoal[MAXANIMATES];
-extern int animatevel[MAXANIMATES];
+extern double animategoal[MAXANIMATES];
+extern double animatevel[MAXANIMATES];
 
 extern sectortype* clouds[256];
 extern float cloudx;
