@@ -412,13 +412,13 @@ void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& cH
 		if (effectType)
 		{
 			int nValue = ClipHigh(effectType * 8, 2000);
-			cH += buildhoriz(QRandom2(nValue >> 8));
-			cA += mapangle(QRandom2(nValue >> 8));
+			cH += buildfhoriz(QRandom2F(nValue * (1. / 256.)));
+			cA += DAngle::fromBuildf(QRandom2F(nValue * (1. / 256.)));
 			cPos.X += QRandom2F(nValue * inttoworld) * inttoworld;
 			cPos.Y += QRandom2F(nValue * inttoworld) * inttoworld;
 			cPos.Z += QRandom2F(nValue) * zinttoworld;
-			pshakeX += QRandom2(nValue);
-			pshakeY += QRandom2(nValue);
+			pshakeX += QRandom2F(nValue) * (1. / 256.);
+			pshakeY += QRandom2F(nValue) * (1. / 256.);
 		}
 	};
 	doEffect(pPlayer->flickerEffect);
@@ -493,10 +493,10 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& c
 		cPos.XY() = pPlayer->actor->interpolatedpos(interpfrac).XY();
 		cPos.Z = interpolatedvalue(pPlayer->ozView, pPlayer->zView, interpfrac);
 		zDelta = interpolatedvalue(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - 12, interpfrac);
-		bobWidth = interpolatedvalue<double>(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
-		bobHeight = interpolatedvalue<double>(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
-		shakeX = interpolatedvalue<double>(pPlayer->oswayWidth, pPlayer->swayWidth, interpfrac);
-		shakeY = interpolatedvalue<double>(pPlayer->oswayHeight, pPlayer->swayHeight, interpfrac);
+		bobWidth = interpolatedvalue(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
+		bobHeight = interpolatedvalue(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
+		shakeX = interpolatedvalue(pPlayer->oswayWidth, pPlayer->swayWidth, interpfrac);
+		shakeY = interpolatedvalue(pPlayer->oswayHeight, pPlayer->swayHeight, interpfrac);
 
 		if (!SyncInput())
 		{
@@ -518,12 +518,12 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& c
 	{
 		if (cl_viewhbob)
 		{
-			cPos.X -= bobWidth * cA.Sin() * (1. / 256.);
-			cPos.Y += bobWidth * cA.Cos() * (1. / 256.);
+			cPos.X -= bobWidth * cA.Sin();
+			cPos.Y += bobWidth * cA.Cos();
 		}
 		if (cl_viewvbob)
 		{
-			cPos.Z += bobHeight * zinttoworld;
+			cPos.Z += bobHeight;
 		}
 		cPos.Z += FixedToFloat<24>(cH.asq16() * 10);
 	}

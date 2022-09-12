@@ -118,13 +118,13 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 		{
 			if (cl_hudinterpolation)
 			{
-				cX += (bobx / 256.);
-				cY += (boby / 256.) + (zDelta * 2.);
+				cX += bobx;
+				cY += boby + (zDelta * 2.);
 			}
 			else
 			{
-				cX += (int(bobx) >> 8);
-				cY += (int(boby) >> 8) + int(zDelta * 2);
+				cX += int(bobx);
+				cY += int(boby) + int(zDelta * 2);
 			}
 		}
 		else

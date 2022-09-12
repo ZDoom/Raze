@@ -102,30 +102,30 @@ POSTURE gPostureDefaults[kModeMax][kPostureMax] = {
 
 	// normal human
 	{
-		{ 0x4000, 0x4000, 0x4000, 14, 17, 24, 16, 32, 80, 22, 18, 0xc00, 0x90, -0xbaaaa, -0x175555 },
-		{ 0x1200, 0x1200, 0x1200, 14, 17, 24, 16, 32, 80, 20, 16, -0x600, 0xb0, 0x5b05, 0 },
-		{ 0x2000, 0x2000, 0x2000, 22, 28, 24, 16, 16, 40, 8, 6, -0x600, 0xb0, 0, 0 },
+		{ 0x4000, 0x4000, 0x4000, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -0xbaaaa, -0x175555 },
+		{ 0x1200, 0x1200, 0x1200, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, 0x5b05, 0 },
+		{ 0x2000, 0x2000, 0x2000, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
 	},
 
 	// normal beast
 	{
-		{ 0x4000, 0x4000, 0x4000, 14, 17, 24, 16, 32, 80, 22, 18, 0xc00, 0x90, -0xbaaaa, -0x175555 },
-		{ 0x1200, 0x1200, 0x1200, 14, 17, 24, 16, 32, 80, 20, 16, -0x600, 0xb0, 0x5b05, 0 },
-		{ 0x2000, 0x2000, 0x2000, 22, 28, 24, 16, 16, 40, 8, 6, -0x600, 0xb0, 0, 0 },
+		{ 0x4000, 0x4000, 0x4000, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -0xbaaaa, -0x175555 },
+		{ 0x1200, 0x1200, 0x1200, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, 0x5b05, 0 },
+		{ 0x2000, 0x2000, 0x2000, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
 	},
 
 	// shrink human
 	{
-		{ 10384, 10384, 10384, 14, 17, 24, 16, 32, 80, 22, 18, 3072, 144, -564586, -1329173 },
-		{ 2108, 2108, 2108, 14, 17, 24, 16, 32, 80, 20, 16, -1536, 176, 0x5b05, 0 },
-		{ 2192, 2192, 2192, 22, 28, 24, 16, 16, 40, 8, 6, -1536, 176, 0, 0 },
+		{ 10384, 10384, 10384, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -564586, -1329173 },
+		{ 2108, 2108, 2108, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, 0x5b05, 0 },
+		{ 2192, 2192, 2192, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
 	},
 
 	// grown human
 	{
-		{ 19384, 19384, 19384, 14, 17, 24, 16, 32, 80, 22, 18, 3072, 144, -1014586, -1779173 },
-		{ 5608, 5608, 5608, 14, 17, 24, 16, 32, 80, 20, 16, -1536, 176, 0x5b05, 0 },
-		{ 11192, 11192, 11192, 22, 28, 24, 16, 16, 40, 8, 6, -1536, 176, 0, 0 },
+		{ 19384, 19384, 19384, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -1014586, -1779173 },
+		{ 5608, 5608, 5608, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, 0x5b05, 0 },
+		{ 11192, 11192, 11192, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
 	},
 };
 
@@ -1884,10 +1884,10 @@ void playerProcess(PLAYER* pPlayer)
 	{
 		pPlayer->bobAmp = (pPlayer->bobAmp + 17) & 2047;
 		pPlayer->swayAmp = (pPlayer->swayAmp + 17) & 2047;
-		pPlayer->bobHeight = MulScale(pPosture->bobV * 10, Sin(pPlayer->bobAmp * 2), 30);
-		pPlayer->bobWidth = MulScale(pPosture->bobH * pPlayer->bobPhase, Sin(pPlayer->bobAmp - 256), 30);
-		pPlayer->swayHeight = MulScale(pPosture->swayV * pPlayer->bobPhase, Sin(pPlayer->swayAmp * 2), 30);
-		pPlayer->swayWidth = MulScale(pPosture->swayH * pPlayer->bobPhase, Sin(pPlayer->swayAmp - 0x155), 30);
+		pPlayer->bobHeight = pPosture->bobV * 10 * BobVal(pPlayer->bobAmp * 2);
+		pPlayer->bobWidth = pPosture->bobH * pPlayer->bobPhase * BobVal(pPlayer->bobAmp - 256);
+		pPlayer->swayHeight = pPosture->swayV * pPlayer->bobPhase * BobVal(pPlayer->swayAmp * 2);
+		pPlayer->swayWidth = pPosture->swayH * pPlayer->bobPhase * BobVal(pPlayer->swayAmp - 0x155);
 	}
 	else
 	{
@@ -1907,10 +1907,10 @@ void playerProcess(PLAYER* pPlayer)
 					pPlayer->bobPhase = ClipHigh(pPlayer->bobPhase + nSpeed, 30);
 			}
 		}
-		pPlayer->bobHeight = MulScale(pPosture->bobV * pPlayer->bobPhase, Sin(pPlayer->bobAmp * 2), 30);
-		pPlayer->bobWidth = MulScale(pPosture->bobH * pPlayer->bobPhase, Sin(pPlayer->bobAmp - 256), 30);
-		pPlayer->swayHeight = MulScale(pPosture->swayV * pPlayer->bobPhase, Sin(pPlayer->swayAmp * 2), 30);
-		pPlayer->swayWidth = MulScale(pPosture->swayH * pPlayer->bobPhase, Sin(pPlayer->swayAmp - 0x155), 30);
+		pPlayer->bobHeight = pPosture->bobV * pPlayer->bobPhase * BobVal(pPlayer->bobAmp * 2);
+		pPlayer->bobWidth = pPosture->bobH * pPlayer->bobPhase * BobVal(pPlayer->bobAmp - 256);
+		pPlayer->swayHeight = pPosture->swayV * pPlayer->bobPhase * BobVal(pPlayer->swayAmp * 2);
+		pPlayer->swayWidth = pPosture->swayH * pPlayer->bobPhase * BobVal(pPlayer->swayAmp - 0x155);
 	}
 	pPlayer->flickerEffect = 0;
 	pPlayer->quakeEffect = ClipLow(pPlayer->quakeEffect - 4, 0);

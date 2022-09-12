@@ -64,10 +64,10 @@ struct POSTURE
 	int sideAccel;
 	int backAccel;
 	int pace[2];
-	int bobV;
-	int bobH;
-	int swayV;
-	int swayH;
+	double bobV;
+	double bobH;
+	double swayV;
+	double swayH;
 	double eyeAboveZ;
 	double weaponAboveZ;
 	int xOffset;
@@ -94,16 +94,16 @@ struct PLAYER
 	int                 sceneQav;  // by NoOne: used to keep qav id
 	int                 bobPhase;
 	int                 bobAmp;
-	int                 bobHeight;
-	int                 bobWidth;
-	int                 obobHeight;
-	int                 obobWidth;
+	double              bobHeight;
+	double              bobWidth;
+	double              obobHeight;
+	double              obobWidth;
 	int                 swayPhase;
 	int                 swayAmp;
-	int                 swayHeight;
-	int                 swayWidth;
-	int                 oswayHeight;
-	int                 oswayWidth;
+	double              swayHeight;
+	double              swayWidth;
+	double              oswayHeight;
+	double              oswayWidth;
 	int                 nPlayer;  // Connect id
 	int                 lifeMode;
 	int                 bloodlust;  // ---> useless

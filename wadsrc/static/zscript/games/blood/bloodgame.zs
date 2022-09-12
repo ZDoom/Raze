@@ -64,12 +64,12 @@ struct BloodPlayer native
 	native int        sceneQav;  // by NoOne: used to keep qav id
 	native int        bobPhase;
 	native int        bobAmp;
-	native int        bobHeight;
-	native int        bobWidth;
+	native double     bobHeight;
+	native double     bobWidth;
 	native int        swayPhase;
 	native int        swayAmp;
-	native int        swayHeight;
-	native int        swayWidth;
+	native double     swayHeight;
+	native double     swayWidth;
 	native int        nPlayer;  // Connect id
 	//native int        nSprite;
 	native int        lifeMode;
