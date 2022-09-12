@@ -114,18 +114,18 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (effector->sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && effector->GetOwner()
 				&& effector->spr.lotag == SE_7_TELEPORT)
 			{
-				int nx, ny, nz;
-				nx = hit.int_hitpos().X + (effector->GetOwner()->int_pos().X - effector->int_pos().X);
-				ny = hit.int_hitpos().Y + (effector->GetOwner()->int_pos().Y - effector->int_pos().Y);
+				DVector3 npos;
+				npos.XY() = hit.hitpos.XY() + (effector->GetOwner()->spr.pos.XY() - effector->spr.pos.XY());
 				if (hit.hitSector->lotag == 161)
 				{
-					nz = effector->GetOwner()->sector()->int_floorz();
+					npos.Z = effector->GetOwner()->sector()->floorz;
 				}
 				else
 				{
-					nz = effector->GetOwner()->sector()->int_ceilingz();
+					npos.Z = effector->GetOwner()->sector()->ceilingz;
 				}
-				hitscan(vec3_t( nx, ny, nz ), effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+				auto ang = DAngle::fromBuild(sa);
+				hitscan(npos, effector->GetOwner()->sector(), DVector3(ang.ToVector() * 1024, zvel * 0.25), hit, CLIPMASK1);
 				break;
 			}
 		}
@@ -269,18 +269,18 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 			if (effector->sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && effector->GetOwner()
 				&& effector->spr.lotag == SE_7_TELEPORT)
 			{
-				int nx, ny, nz;
-				nx = hit.int_hitpos().X + (effector->GetOwner()->int_pos().X - effector->int_pos().X);
-				ny = hit.int_hitpos().Y + (effector->GetOwner()->int_pos().Y - effector->int_pos().Y);
+				DVector3 npos;
+				npos.XY() = hit.hitpos.XY() + (effector->GetOwner()->spr.pos.XY() - effector->spr.pos.XY());
 				if (hit.hitSector->lotag == 161)
 				{
-					nz = effector->GetOwner()->sector()->int_floorz();
+					npos.Z = effector->GetOwner()->sector()->floorz;
 				}
 				else
 				{
-					nz = effector->GetOwner()->sector()->int_ceilingz();
+					npos.Z = effector->GetOwner()->sector()->ceilingz;
 				}
-				hitscan(vec3_t( nx, ny, nz ), effector->GetOwner()->sector(), { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+				auto ang = DAngle::fromBuild(sa);
+				hitscan(npos, effector->GetOwner()->sector(), DVector3(ang.ToVector() * 1024, zvel * 0.25), hit, CLIPMASK1);
 				break;
 			}
 		}
