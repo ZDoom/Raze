@@ -5141,7 +5141,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 				}
 			}
 			if (actor->sector()->lotag == 1)
-				actor->add_int_z(gs.actorinfo[actor->spr.picnum].falladjustz);
+				actor->spr.pos.Z += gs.actorinfo[actor->spr.picnum].falladjustz;
 			else actor->vel.Z = 0;
 		}
 	}

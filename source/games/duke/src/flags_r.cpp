@@ -112,13 +112,13 @@ void initactorflags_r()
 
 	for (auto& fa : gs.actorinfo)
 	{
-		fa.falladjustz = 24 << 8;
+		fa.falladjustz = 24;
 	}
 	if (isRRRA())
 	{
-		gs.actorinfo[HULKBOAT].falladjustz = 12 << 8;
-		gs.actorinfo[MINIONBOAT].falladjustz = 3 << 8;
-		gs.actorinfo[CHEERBOAT].falladjustz = gs.actorinfo[EMPTYBOAT].falladjustz = 6 << 8;
+		gs.actorinfo[HULKBOAT].falladjustz = 12;
+		gs.actorinfo[MINIONBOAT].falladjustz = 3;
+		gs.actorinfo[CHEERBOAT].falladjustz = gs.actorinfo[EMPTYBOAT].falladjustz = 6;
 	}
 	gs.actorinfo[DRONE].falladjustz = 0;
 

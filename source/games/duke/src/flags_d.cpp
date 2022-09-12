@@ -152,7 +152,7 @@ void initactorflags_d()
 
 	for (auto &fa : gs.actorinfo)
 	{
-		fa.falladjustz = 24 << 8;
+		fa.falladjustz = 24;
 	}
 	gs.actorinfo[OCTABRAIN].falladjustz = gs.actorinfo[COMMANDER].falladjustz = gs.actorinfo[DRONE].falladjustz = 0;
 
