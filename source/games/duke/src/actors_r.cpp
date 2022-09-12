@@ -223,26 +223,27 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	{
 		BFSSectorSearch search(actor->sector());
 
+		double radius = r * inttoworld;
 		while (auto dasectp = search.GetNext())
 		{
-			if (((dasectp->int_ceilingz() - actor->int_pos().Z) >> 8) < r)
+			if ((dasectp->ceilingz- actor->spr.pos.Z) < radius * 16) // what value range is this supposed to be? The check that was here did not multiply correctly
 			{
 				auto wal = dasectp->firstWall();
-				int d = abs(wal->wall_int_pos().X - actor->int_pos().X) + abs(wal->wall_int_pos().Y - actor->int_pos().Y);
-				if (d < r)
+				double d = (wal->pos - actor->spr.pos.XY()).Sum();
+				if (d < radius)
 					fi.checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
-					d = abs(thirdpoint->wall_int_pos().X - actor->int_pos().X) + abs(thirdpoint->wall_int_pos().Y - actor->int_pos().Y);
-					if (d < r)
+					d = (thirdpoint->pos - actor->spr.pos.XY()).Sum();
+					if (d < radius)
 						fi.checkhitceiling(dasectp);
 				}
 			}
 
 			for (auto& wal : wallsofsector(dasectp))
 			{
-				if ((abs(wal.wall_int_pos().X - actor->int_pos().X) + abs(wal.wall_int_pos().Y - actor->int_pos().Y)) < r)
+				if ((wal.pos - actor->spr.pos.XY()).Sum() < radius)
 				{
 					if (wal.twoSided())
 					{
