@@ -296,13 +296,13 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_EXITX:
-		if (bSet) ps[iPlayer].exit.X = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].exit.X, sActor, sPlayer);
+		if (bSet) ps[iPlayer].Exit.X = lValue * maptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].Exit.X / maptoworld, sActor, sPlayer);
 		break;
 
 	case PLAYER_EXITY:
-		if (bSet) ps[iPlayer].exit.Y = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].exit.Y, sActor, sPlayer);
+		if (bSet) ps[iPlayer].Exit.Y = lValue * maptoworld;
+		else SetGameVarID(lVar2, ps[iPlayer].Exit.Y / maptoworld, sActor, sPlayer);
 		break;
 
 	case PLAYER_LOOGIEX:
