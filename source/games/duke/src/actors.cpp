@@ -4879,10 +4879,7 @@ void makeitfall(DDukeActor* actor)
 
 int dodge(DDukeActor* actor)
 {
-	int bx, by, mx, my, bxvect, byvect, d;
-
-	mx = actor->int_pos().X;
-	my = actor->int_pos().Y;
+	auto oldpos = actor->spr.pos.XY();
 
 	DukeStatIterator it(STAT_PROJECTILE);
 	while (auto ac = it.Next())
@@ -4890,21 +4887,21 @@ int dodge(DDukeActor* actor)
 		if (ac->GetOwner() == ac || ac->sector() != actor->sector())
 			continue;
 
-		bx = ac->int_pos().X - mx;
-		by = ac->int_pos().Y - my;
-		bxvect = bcos(ac->int_ang());
-		byvect = bsin(ac->int_ang());
+		auto delta = ac->spr.pos.XY() - oldpos;
+		auto bvect = ac->spr.angle.ToVector() * 1024;
 
-		if (bcos(actor->int_ang()) * bx + bsin(actor->int_ang()) * by >= 0)
-			if (bxvect * bx + byvect * by < 0)
+		if (actor->spr.angle.ToVector().dot(delta) >= 0)
+		{
+			if (bvect.dot(delta) < 0)
 			{
-				d = bxvect * by - byvect * bx;
-				if (abs(d) < 65536 * 64)
+				double d = bvect.X * delta.Y - bvect.Y * delta.X;
+				if (abs(d) < 256 * 64)
 				{
-					actor->add_int_ang(-(512 + (krand() & 1024)));
+					actor->spr.angle -= DAngle90 + randomAngle(180);
 					return 1;
 				}
 			}
+		}
 	}
 	return 0;
 }
