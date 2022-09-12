@@ -35,43 +35,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 inline static double getTicrateScale(const double value)
 {
-	return value * (1. / GameTicRate);
+	return value / GameTicRate;
 }
 
-inline static double getPushBuild(const double scaleAdjust)
+inline static double getCorrectedScale(const double scaleAdjust)
 {
-	return 2. / 9. * (scaleAdjust < 1. ? (1. - scaleAdjust * 0.5) * 1.5 : 1.);
-}
-
-inline static DAngle getPushAngle(const double scaleAdjust)
-{
-	return DAngle::fromDeg(getPushBuild(scaleAdjust) * BAngToDegree);
+	// When using the output of I_GetInputFrac() to scale input adjustments at framerate, deviations of over 100 ms can occur.
+	// Below formula corrects the deviation, with 0.2125 being an average between an ideal value of 0.205 for 40Hz and 0.22 for 30Hz.
+	// We use the average value here as the difference is under 5 ms and is not worth complicating the algorithm for such precision.
+	return scaleAdjust < 1. ? scaleAdjust * (1. + 0.2125 * (1. - scaleAdjust)) : scaleAdjust;
 }
 
 inline static fixedhoriz getscaledhoriz(const double value, const double scaleAdjust, const fixedhoriz object, const double push)
 {
-	return buildfhoriz(scaleAdjust * ((object.asbuildf() * getTicrateScale(value)) + push));
+	return buildfhoriz(getCorrectedScale(scaleAdjust) * ((object.asbuildf() * getTicrateScale(value)) + push));
 }
 
 inline static DAngle getscaledangle(const double value, const double scaleAdjust, const DAngle object, const DAngle push)
 {
-	return ((object.Normalized180() * getTicrateScale(value)) + push) * scaleAdjust;
+	return ((object.Normalized180() * getTicrateScale(value)) + push) * getCorrectedScale(scaleAdjust);
 }
 
 inline static void scaletozero(fixedhoriz& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
 {
 	if (auto sgn = Sgn(object.asq16()))
 	{
-		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? getPushBuild(scaleAdjust) * sgn : push);
+		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? sgn * 2. / 9. : push);
 		if (sgn != Sgn(object.asq16())) object = q16horiz(0);
 	}
 }
 
-inline static void scaletozero(DAngle& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
+inline static void scaletozero(DAngle& object, const double value, const double scaleAdjust, const DAngle push = -minAngle)
 {
 	if (auto sgn = object.Sgn())
 	{
-		object  -= getscaledangle(value, scaleAdjust, object, push == DBL_MAX ? getPushAngle(scaleAdjust) * sgn : DAngle::fromDeg(push));
+		object  -= getscaledangle(value, scaleAdjust, object, push == -minAngle ? DAngle::fromDeg(sgn * 5. / 128.) : push);
 		if (sgn != object.Sgn()) object = nullAngle;
 	}
 }
