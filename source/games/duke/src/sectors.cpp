@@ -128,8 +128,8 @@ int check_activator_motion(int lotag)
 	{
 		if (act->spr.lotag == lotag)
 		{
-			for (int j = animatecnt - 1; j >= 0; j--)
-				if (act->sector() == animatesect[j])
+			for (int j = animates.Size() - 1; j >= 0; j--)
+				if (act->sector() == animates[j].sect)
 					return(1);
 
 			DukeStatIterator it1(STAT_EFFECTOR);
@@ -304,7 +304,7 @@ double getanimatevalue(int type, int index)
 
 double getanimatevalue(int i)
 {
-	return getanimatevalue(animatetype[i], animatetarget[i]);
+	return getanimatevalue(animates[i].type, animates[i].target);
 }
 
 //---------------------------------------------------------------------------
@@ -341,7 +341,7 @@ void setanimatevalue(int type, int index, double value)
 
 void setanimatevalue(int i, double value)
 {
-	return setanimatevalue(animatetype[i], animatetarget[i], value);
+	return setanimatevalue(animates[i].type, animates[i].target, value);
 }
 
 //---------------------------------------------------------------------------
@@ -352,25 +352,21 @@ void setanimatevalue(int i, double value)
 
 void doanimations(void)
 {
-	for (int i = animatecnt - 1; i >= 0; i--)
+	for (int i = animates.Size() - 1; i >= 0; i--)
 	{
 		double a = getanimatevalue(i);
-		double const v = animatevel[i] * TICSPERFRAME;
-		auto dasectp = animatesect[i];
+		double const v = animates[i].vel * TICSPERFRAME;
+		auto dasectp = animates[i].sect;
 
-		if (a == animategoal[i])
+		if (a == animates[i].goal)
 		{
-			StopInterpolation(animatetarget[i], interptype[animatetype[i]]);
+			StopInterpolation(animates[i].target, interptype[animates[i].type]);
 
-			animatecnt--;
-			animatetype[i] = animatetype[animatecnt];
-			animatetarget[i] = animatetarget[animatecnt];
-			animategoal[i] = animategoal[animatecnt];
-			animatevel[i] = animatevel[animatecnt];
-			animatesect[i] = animatesect[animatecnt];
-			dasectp = animatesect[i];
+			animates[i] = animates.Last();
+			animates.Pop();
+			dasectp = animates[i].sect;
 			if (dasectp->lotag == ST_18_ELEVATOR_DOWN || dasectp->lotag == ST_19_ELEVATOR_UP)
-				if (animatetype[i] == anim_ceilingz)
+				if (animates[i].type == anim_ceilingz)
 					continue;
 
 			if ((dasectp->lotag & 0xff) != ST_22_SPLITTING_DOOR)
@@ -379,10 +375,10 @@ void doanimations(void)
 			continue;
 		}
 
-		if (v > 0) { a = min(a + v, animategoal[i]); }
-		else { a = max(a + v, animategoal[i]); }
+		if (v > 0) { a = min(a + v, animates[i].goal); }
+		else { a = max(a + v, animates[i].goal); }
 
-		if (animatetype[i] == anim_floorz)
+		if (animates[i].type == anim_floorz)
 		{
 			for (auto p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursector == dasectp)
@@ -420,8 +416,8 @@ int getanimationindex(int animtype, sectortype* animtargetp)
 
 	j = -1;
 	int animtarget = sectnum(animtargetp);
-	for (i = animatecnt - 1; i >= 0; i--)
-		if (animtype == animatetype[i] && animtarget == animatetarget[i])
+	for (i = animates.Size() - 1; i >= 0; i--)
+		if (animtype == animates[i].type && animtarget == animates[i].target)
 		{
 			j = i;
 			break;
@@ -437,32 +433,28 @@ int getanimationindex(int animtype, sectortype* animtargetp)
 
 static int dosetanimation(sectortype* animsect, int animtype, int animtarget, double thegoal, double thevel)
 {
-	int i, j;
+	int j = -1;
 
-	if (animatecnt >= MAXANIMATES - 1)
-		return(-1);
-
-	j = animatecnt;
-	for (i = 0; i < animatecnt; i++)
-		if (animtype == animatetype[i] && animtarget == animatetarget[i])
+	for (unsigned i = 0; i < animates.Size(); i++)
+		if (animtype == animates[i].type && animtarget == animates[i].target)
 		{
 			j = i;
 			break;
 		}
 
-	auto animval = (int)getanimatevalue(animtype, animtarget);
-	animatesect[j] = animsect;
-	animatetype[j] = animtype;
-	animatetarget[j] = animtarget;
-	animategoal[j] = thegoal;
+	if (j == -1) j = animates.Reserve(1);
+
+	auto animval = getanimatevalue(animtype, animtarget);
+	animates[j].sect = animsect;
+	animates[j].type = animtype;
+	animates[j].target = animtarget;
+	animates[j].goal = thegoal;
 	if (thegoal >= animval)
-		animatevel[j] = thevel;
+		animates[j].vel = thevel;
 	else
-		animatevel[j] = -thevel;
+		animates[j].vel = -thevel;
 
-	if (j == animatecnt) animatecnt++;
-
-	StartInterpolation(animatetarget[i], interptype[animatetype[i]]);
+	StartInterpolation(animates[j].target, interptype[animates[j].type]);
 	return(j);
 }
 
@@ -790,10 +782,10 @@ static void handle_st21(sectortype* sptr, DDukeActor* actor)
 	double j;
 	if (i >= 0)
 	{
-		if (animategoal[i] == sptr->ceilingz)
-			animategoal[i] = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->floorz;
-		else animategoal[i] = sptr->ceilingz;
-		j = animategoal[i];
+		if (animates[i].goal == sptr->ceilingz)
+			animates[i].goal = nextsectorneighborzptr(sptr, sptr->ceilingz, Find_FloorDown | Find_Safe)->floorz;
+		else animates[i].goal = sptr->ceilingz;
+		j = animates[i].goal;
 	}
 	else
 	{

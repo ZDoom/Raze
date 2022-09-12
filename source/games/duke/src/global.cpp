@@ -86,6 +86,7 @@ int show_shareware;							// display only.
 int rtsplaying;								// RTS playback state
 TArray<DVector2> mspos;
 TArray<CraneDef> cranes;
+TArray<animate> animates;
 
 bool sound445done;							// used in checksectors_r. This was local state inside a function, but this must be maintained globally and serialized
 
@@ -94,11 +95,6 @@ int spriteqloc;
 animwalltype animwall[MAXANIMWALLS];		// animated walls
 int numanimwalls;
 int animatecnt;								// sector plane movement
-sectortype* animatesect[MAXANIMATES];
-int8_t animatetype[MAXANIMATES];
-int animatetarget[MAXANIMATES];
-double animategoal[MAXANIMATES];
-double animatevel[MAXANIMATES];
 int numclouds;								// cloudy skies
 sectortype* clouds[256];
 float cloudx;

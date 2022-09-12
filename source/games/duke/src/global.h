@@ -70,7 +70,6 @@ extern int spriteqamount;
 extern int lastvisinc;
 extern animwalltype animwall[MAXANIMWALLS];
 extern int numanimwalls;
-extern int animatecnt;
 extern int numclouds;
 extern int numcyclers;
 extern int earthquaketime;
@@ -88,11 +87,18 @@ enum animtype_t
 	anim_vertexx,
 	anim_vertexy,
 };
-extern sectortype* animatesect[MAXANIMATES];
-extern int animatetarget[MAXANIMATES];
-extern int8_t animatetype[MAXANIMATES];
-extern double animategoal[MAXANIMATES];
-extern double animatevel[MAXANIMATES];
+
+struct animate
+{
+	sectortype* sect;
+	int target;
+	int8_t type;
+	double goal;
+	double vel;
+
+};
+
+extern TArray<animate> animates;
 
 extern sectortype* clouds[256];
 extern float cloudx;

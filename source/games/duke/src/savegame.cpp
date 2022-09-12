@@ -340,6 +340,21 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler*
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, animate& w, animate* def)
+{
+	static animate nul;
+	if (!def) def = &nul;
+	if (arc.BeginObject(keyname))
+	{
+		arc("sector", w.sect, def->sect)
+			("type", w.type, def->type)
+			("target", w.target, def->target)
+			("goal", w.goal, def->goal)
+			("vel", w.vel, def->vel)
+			.EndObject();
+	}
+	return arc;
+}
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
@@ -387,13 +402,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("gs.impact_damage", gs.impact_damage)
 			("numplayersprites", numplayersprites)
 			("spriteqloc", spriteqloc)
-			("animatecnt", animatecnt)
-
-			.Array("animatesect", animatesect, animatecnt)
-			.Array("animatetype", animatetype, animatecnt)
-			.Array("animatetarget", animatetarget, animatecnt)
-			.Array("animategoal", animategoal, animatecnt)
-			.Array("animatevel", animatevel, animatecnt)
+			("animates", animates)
 
 			("numclouds", numclouds)
 			("cloudx", cloudx)
