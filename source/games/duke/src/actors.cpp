@@ -435,7 +435,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->angle.addadjustment(deltaangle(p->angle.ang, VecToAngle(p->actorsqu->spr.pos.X - p->pos.X, p->actorsqu->spr.pos.Y - p->pos.Y)) * (1. / 4.));
+					p->angle.addadjustment(deltaangle(p->angle.ang, (p->actorsqu->spr.pos - p->pos).Angle()) * 0.25);
 				}
 
 				if (act->spr.extra > 0)
@@ -455,7 +455,7 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->angle.addadjustment(deltaangle(p->angle.ang, VecToAngle(p->wackedbyactor->spr.pos.X - p->pos.X, p->wackedbyactor->spr.pos.Y - p->pos.Y)) * (1. / 2.));
+						p->angle.addadjustment(deltaangle(p->angle.ang, (p->wackedbyactor->spr.pos - p->pos).Angle()) * 0.5);
 					}
 				}
 				act->spr.angle = p->angle.ang;
