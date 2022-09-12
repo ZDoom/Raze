@@ -2935,7 +2935,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		case BLOODSPLAT4:
 
 			if (act->temp_data[0] == 7 * 26) continue;
-			act->add_int_z(16 + (krand() & 15));
+			act->spr.pos.Z += 1 / 16. + krandf(1 / 16.);
 			act->temp_data[0]++;
 			if ((act->temp_data[0] % 9) == 0) act->spr.yrepeat++;
 			continue;

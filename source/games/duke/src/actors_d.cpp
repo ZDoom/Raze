@@ -1903,7 +1903,7 @@ void movetransports_d(void)
 							for (int l = 0; l < 9; l++)
 						{
 							auto q = spawn(ps[p].GetActor(), WATERBUBBLE);
-							if (q) q->add_int_z(krand() & 16383);
+							if (q) q->spr.pos.Z += krandf(64);
 						}
 					}
 				}
@@ -3006,7 +3006,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case BLOODSPLAT4:
 
 			if (act->temp_data[0] == 7 * 26) continue;
-			act->add_int_z(16 + (krand() & 15));
+			act->spr.pos.Z += 1 / 16. + krandf(1 / 16.);
 			act->temp_data[0]++;
 			if ((act->temp_data[0] % 9) == 0) act->spr.yrepeat++;
 			continue;
