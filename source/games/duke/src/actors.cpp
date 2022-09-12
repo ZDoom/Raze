@@ -4928,7 +4928,7 @@ DAngle furthestangle(DDukeActor *actor, int angs)
 	{
 		hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(j.ToVector() * 1024, 0), hit, CLIPMASK1);
 
-		d = abs(hit.hitpos.X - actor->spr.pos.X) + abs(hit.hitpos.Y - actor->spr.pos.Y);
+		d = (hit.hitpos.XY() - actor->spr.pos.XY()).Sum();
 
 		if (d > greatestd)
 		{
@@ -4960,8 +4960,8 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, DVector2& pos)
 	{
 		hitscan(tosee->spr.pos.plusZ(-16), tosee->sector(), vec3_t(bcos(j), bsin(j), 16384 - (krand() & 32767)), hit, CLIPMASK1);
 
-		double d = abs(hit.hitpos.X - tosee->spr.pos.X) + abs(hit.hitpos.Y - tosee->spr.pos.Y);
-		double da = abs(hit.hitpos.X - actor->spr.pos.X) + abs(hit.hitpos.Y - actor->spr.pos.Y);
+		double d = (hit.hitpos.XY() - tosee->spr.pos.XY()).Sum();
+		double da = (hit.hitpos.XY() - actor->spr.pos.XY()).Sum();
 
 		if (d < da && hit.hitSector)
 			if (cansee(hit.hitpos, hit.hitSector, actor->spr.pos.plusZ(-16), actor->sector()))
