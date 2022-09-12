@@ -2090,7 +2090,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 {
 	auto sectp = actor->sector();
 
-	actor->set_int_xvel((krand() & 7) + BobVal(actor->temp_data[0]) * 32);
+	actor->vel.X = krandf(0.5) + BobVal(actor->temp_data[0]) * 2;
 	actor->temp_data[0] += (krand() & 63);
 	if ((actor->temp_data[0] & 2047) > 512 && (actor->temp_data[0] & 2047) < 1596)
 	{
@@ -2114,11 +2114,11 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 		deletesprite(actor);
 		return false;
 	}
-	int l = getflorzofslopeptr(actor->sector(), actor->spr.pos);
+	double l = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
 
-	if (actor->int_pos().Z > l)
+	if (actor->spr.pos.Z > l)
 	{
-		actor->set_int_z(l);
+		actor->spr.pos.Z = l;
 
 		insertspriteq(actor);
 		actor->spr.picnum++;
@@ -2176,15 +2176,15 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		return false;
 	}
 
-	int l = getflorzofslopeptr(sectp, actor->spr.pos);
-	int x = getceilzofslopeptr(sectp, actor->spr.pos);
-	if (x == l)
+	double fz = getflorzofslopeptrf(sectp, actor->spr.pos);
+	double cz = getceilzofslopeptrf(sectp, actor->spr.pos);
+	if (cz == fz)
 	{
 		deletesprite(actor);
 		return false;
 	}
 
-	if (actor->int_pos().Z < l - (2 << 8))
+	if (actor->spr.pos.Z < fz - 2)
 	{
 		if (actor->temp_data[1] < 2) actor->temp_data[1]++;
 		else if (sectp->lotag != 2)
@@ -2422,7 +2422,7 @@ void glasspieces(DDukeActor* actor)
 
 	if (actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F && actor->temp_data[0] < 3)
 	{
-		actor->set_int_zvel(-((3 - actor->temp_data[0]) << 8) - (krand() & 511));
+		actor->vel.Z = -(3 - actor->temp_data[0]) - krandf(2);
 		if (sectp->lotag == 2)
 			actor->vel.Z *= 0.5;
 		actor->spr.xrepeat >>= 1;
