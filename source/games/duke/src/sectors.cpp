@@ -219,24 +219,24 @@ bool isanearoperator(int lotag)
 //
 //---------------------------------------------------------------------------
 
-int findplayer(const DDukeActor* actor, int* d)
+int findplayer(const DDukeActor* actor, double* d)
 {
 	int j, closest_player;
-	int x, closest;
-	const auto s = actor->int_pos();
+	int x;
+	const auto s = actor->spr.pos;
 
 	if (ud.multimode < 2)
 	{
-		if (d) *d = abs(ps[myconnectindex].player_int_opos().X - s.X) + abs(ps[myconnectindex].player_int_opos().Y - s.Y) + ((abs(ps[myconnectindex].player_int_opos().Z - s.Z + (28 << 8))) >> 4);
+		if (d) *d = abs(ps[myconnectindex].opos.X - s.X) + abs(ps[myconnectindex].opos.Y - s.Y) + abs(ps[myconnectindex].opos.Z - s.Z + 28);
 		return myconnectindex;
 	}
 
-	closest = 0x7fffffff;
+	double closest = 0x7fffffff;
 	closest_player = 0;
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
-		x = abs(ps[j].player_int_opos().X - s.X) + abs(ps[j].player_int_opos().Y - s.Y) + ((abs(ps[j].player_int_opos().Z - s.Z + (28 << 8))) >> 4);
+		x = abs(ps[j].opos.X - s.X) + abs(ps[j].opos.Y - s.Y) + abs(ps[j].opos.Z - s.Z + 28);
 		if (x < closest && ps[j].GetActor()->spr.extra > 0)
 		{
 			closest_player = j;
@@ -254,18 +254,18 @@ int findplayer(const DDukeActor* actor, int* d)
 //
 //---------------------------------------------------------------------------
 
-int findotherplayer(int p, int* d)
+int findotherplayer(int p, double* d)
 {
 	int j, closest_player;
-	int x, closest;
+	int x;
 
-	closest = 0x7fffffff;
+	double closest = 0x7fffffff;
 	closest_player = p;
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 		if (p != j && ps[j].GetActor()->spr.extra > 0)
 		{
-			x = abs(ps[j].player_int_opos().X - ps[p].player_int_pos().X) + abs(ps[j].player_int_opos().Y - ps[p].player_int_pos().Y) + (abs(ps[j].player_int_opos().Z - ps[p].player_int_pos().Z) >> 4);
+			x = abs(ps[j].opos.X - ps[p].pos.X) + abs(ps[j].opos.Y - ps[p].pos.Y) + abs(ps[j].opos.Z - ps[p].pos.Z);
 
 			if (x < closest)
 			{

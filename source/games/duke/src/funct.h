@@ -130,7 +130,7 @@ void playerAimDown(int snum, ESyncBits actions);
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
 DDukeActor* aim(DDukeActor* s, int aang);
 void checkweapons(player_struct* const p);
-int findotherplayer(int p, int* d);
+int findotherplayer(int p, double* d);
 void quickkill(player_struct* p);
 int setpal(player_struct* p);
 int madenoise(int playerNum);
@@ -140,11 +140,13 @@ void shootbloodsplat(DDukeActor* i, int p, int sx, int sy, int sz, int sa, int a
 void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
 int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);
 int hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
-int findplayer(const DDukeActor* s, int* dist);
-inline int findplayer(const DDukeActor* s, double* dist)
+int findplayer(const DDukeActor* s, double* dist);
+
+inline int findplayer(const DDukeActor* s, int* dist)
 {
-	int dd, p = findplayer(s, &dd);
-	*dist = dd * inttoworld;
+	double dd;
+	int p = findplayer(s, &dd);
+	*dist = dd * worldtoint;
 	return p;
 }
 void operatejaildoors(int hitag);

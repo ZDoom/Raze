@@ -384,7 +384,7 @@ void movedummyplayers(void)
 
 void moveplayers(void)
 {
-	int otherx;
+	double other;
 
 	DukeStatIterator iti(STAT_PLAYER);
 	while (auto act = iti.Next())
@@ -404,14 +404,14 @@ void moveplayers(void)
 			else
 			{
 				if (ud.multimode > 1)
-					otherp = findotherplayer(pn, &otherx);
+					otherp = findotherplayer(pn, &other);
 				else
 				{
 					otherp = pn;
-					otherx = 0;
+					other = 0;
 				}
 
-				execute(act, pn, otherx);
+				execute(act, pn, other * worldtoint);
 
 				if (ud.multimode > 1)
 				{
@@ -420,7 +420,7 @@ void moveplayers(void)
 					{
 						if (act->spr.yrepeat > 32 && psp->spr.yrepeat < 32)
 						{
-							if (otherx < 1400 && p->knee_incs == 0)
+							if (other < 1400/16. && p->knee_incs == 0)
 							{
 								p->knee_incs = 1;
 								p->weapon_pos = -1;
@@ -501,7 +501,7 @@ void moveplayers(void)
 			}
 			else
 			{
-				act->set_int_ang(2047 - (p->angle.ang.Buildang()));
+				act->spr.angle = DAngle360 - minAngle - p->angle.ang;
 				SetActor(act, act->spr.pos);
 			}
 		}
@@ -3066,7 +3066,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				DukeSectIterator it(Owner->sector());
 				while (auto a2 = it.Next())
 				{
-					if (a2->spr.statnum == 1 && badguy(a2) && a2->spr.picnum != SECTOREFFECTOR && a2->spr.picnum != LOCATORS)
+					if (a2->spr.statnum == STAT_ACTOR && badguy(a2) && a2->spr.picnum != SECTOREFFECTOR && a2->spr.picnum != LOCATORS)
 					{
 						//					if(a2->spr.sector != actor->spr.sector)
 						{
@@ -4127,7 +4127,7 @@ void handle_se20(DDukeActor* actor)
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
-			if (a2->spr.statnum != 3 && a2->vel.Z == 0)
+			if (a2->spr.statnum != STAT_EFFECTOR && a2->vel.Z == 0)
 			{
 				actor->spr.pos += vec;
 				if (a2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
