@@ -225,12 +225,11 @@ struct QAV
 	int nFrames; // 8
 	int ticksPerFrame; // C
 	int duration; // 10
-	int x; // 14
-	int y; // 18
+	double x; // 14
+	double y; // 18
 	uint16_t res_id;
 	FRAMEINFO frames[1]; // 24
-	void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac = 1.);
-	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac = 1.) { Draw(x, y, ticks, stat, shade, palnum, to3dview, interpfrac); }
+	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac = 1.);
 	void Play(int, int, int, PLAYER*);
 	void Precache(int palette = 0);
 };

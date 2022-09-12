@@ -322,8 +322,8 @@ void WeaponDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum
 
 	qavProcessTimer(pPlayer, pQAV, &duration, &interpfrac, pPlayer->weaponState == -1, pPlayer->curWeapon == kWeapShotgun && pPlayer->weaponState == 7);
 
-	pQAV->x = int(xpos);
-	pQAV->y = int(ypos);
+	pQAV->x = xpos;
+	pQAV->y = ypos;
 	int flags = 2;
 	int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
 	if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32)))
@@ -331,7 +331,7 @@ void WeaponDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum
 		shade = -128;
 		flags |= 1;
 	}
-	pQAV->Draw(xpos, ypos, duration, flags, shade, palnum, true, interpfrac);
+	pQAV->Draw(duration, flags, shade, palnum, true, interpfrac);
 }
 
 //---------------------------------------------------------------------------

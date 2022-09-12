@@ -163,7 +163,7 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 //
 //---------------------------------------------------------------------------
 
-void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac)
+void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac)
 {
 	assert(ticksPerFrame > 0);
 

@@ -7364,8 +7364,8 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
 		// draw as weapon
 		if (!(actor->spr.flags & kModernTypeFlag1))
 		{
-			pQAV->x = int(a3); pQAV->y = int(a4);
-			pQAV->Draw(a3, a4, v4, flags, a2, a5, true, interpfrac);
+			pQAV->x = a3; pQAV->y = a4;
+			pQAV->Draw(v4, flags, a2, a5, true, interpfrac);
 
 			// draw fullscreen (currently 4:3 only)
 		}
