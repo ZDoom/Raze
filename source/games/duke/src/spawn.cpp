@@ -219,7 +219,7 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 {
 	if (actj)
 	{
-		auto spawned = EGS(actj->sector(), actj->int_pos().X, actj->int_pos().Y, actj->int_pos().Z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
+		auto spawned = CreateActor(actj->sector(), actj->spr.pos, pn, 0, 0, 0, 0, 0, 0, actj, 0);
 		if (spawned)
 		{
 			spawned->attackertype = actj->spr.picnum;
@@ -1118,8 +1118,7 @@ void spriteglass(DDukeActor* actor, int n)
 	for (int j = n; j > 0; j--)
 	{
 		int a = krand() & 2047;
-		int z = actor->int_pos().Z - ((krand() & 16) << 8);
-		auto k = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
+		auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 16)), TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
 		if (k) k->spr.pal = actor->spr.pal;
 	}
 }
@@ -1170,7 +1169,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = krand() & 2047;
-			auto k = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
+			auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 63)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
 			if (k) k->spr.pal = krand() & 15;
 		}
 		return;

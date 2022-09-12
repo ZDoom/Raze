@@ -539,7 +539,7 @@ void resetpspritevars(int g)
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
-	EGS(ps[0].cursector, ps[0].player_int_pos().X, ps[0].player_int_pos().Y, ps[0].player_int_pos().Z,
+	CreateActor(ps[0].cursector, ps[0].pos,
 		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, nullptr, 10);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)

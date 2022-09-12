@@ -2163,9 +2163,12 @@ int ParseState::parse(void)
 				if(weap)
 					s = 0;
 				else s = (krand()%3);
+				DVector3 offs;
+				offs.X = krandf(16) - 8;
+				offs.Y = krandf(16) - 8;
+				offs.Z = -krandf(16) - 8;
 
-				auto spawned = EGS(g_ac->sector(),
-					g_ac->int_pos().X + (krand() & 255) - 128, g_ac->int_pos().Y + (krand() & 255) - 128, g_ac->int_pos().Z - (8 << 8) - (krand() & 8191),
+				auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs,
 					dnum + s, g_ac->spr.shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
 				if (spawned)

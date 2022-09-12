@@ -1004,7 +1004,7 @@ static void movefireext(DDukeActor* actor)
 
 	for (int k = 0; k < 16; k++)
 	{
-		auto spawned = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
+		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
 		if(spawned) spawned->spr.pal = 2;
 	}
 
@@ -2153,7 +2153,7 @@ static void greenslime(DDukeActor *actor)
 			{
 				for (x = 0; x < 8; x++)
 				{
-					auto spawned = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
+					auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
 					spawned->spr.pal = 6;
 				}
 
@@ -2261,7 +2261,7 @@ static void greenslime(DDukeActor *actor)
 
 		for (x = 0; x < 8; x++)
 		{
-			auto spawned = EGS(actor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
+			auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
 			if (spawned) spawned->spr.pal = 6;
 		}
 		actor->temp_data[0] = -3;
