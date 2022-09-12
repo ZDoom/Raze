@@ -85,7 +85,7 @@ void handle_se19(DDukeActor* i, int BIGFORCE);
 void handle_se20(DDukeActor* i);
 void handle_se21(DDukeActor* i);
 void handle_se22(DDukeActor* i);
-void handle_se24(DDukeActor* actor, bool scroll, int shift);
+void handle_se24(DDukeActor* actor, bool scroll, double shift);
 void handle_se25(DDukeActor* a, int snd1, int snd2);
 void handle_se26(DDukeActor* i);
 void handle_se27(DDukeActor* i);

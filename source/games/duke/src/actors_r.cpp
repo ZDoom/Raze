@@ -3332,13 +3332,13 @@ void moveeffectors_r(void)   //STATNUM 3
 			handle_se22(act);
 			break;
 
-		case 156:
+		case SE_156_CONVEYOR_NOSCROLL:
 			if (!isRRRA()) break;
 			[[fallthrough]];
 		case SE_24_CONVEYOR:
 		case SE_34:
 		{
-			handle_se24(act, st != SE_156_CONVEYOR_NOSCROLL, 1);
+			handle_se24(act, st != SE_156_CONVEYOR_NOSCROLL, 0.5);
 			break;
 		}
 

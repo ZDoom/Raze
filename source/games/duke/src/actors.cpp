@@ -4333,12 +4333,11 @@ void handle_se27(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se24(DDukeActor *actor, bool scroll, int shift)
+void handle_se24(DDukeActor *actor, bool scroll, double mult)
 {
 	if (actor->temp_data[4]) return;
 
-	int x = MulScale(actor->spr.yint, bcos(actor->int_ang()), 18);
-	int y = MulScale(actor->spr.yint, bsin(actor->int_ang()), 18);
+	auto vec = actor->spr.angle.ToVector() * actor->spr.yint / 256.;
 
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
@@ -4363,7 +4362,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 
 				if (a2->spr.pos.Z > a2->floorz - 16)
 				{
-					a2->add_int_pos({ x >> shift , y >> shift, 0 });
+					a2->spr.pos += vec * mult;
 
 					SetActor(a2, a2->spr.pos);
 
@@ -4382,8 +4381,7 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 		{
 			if (abs(ps[p].pos.Z - ps[p].truefz) < gs.playerheight + 9)
 			{
-				ps[p].fric.X += x * (1. / 64.);
-				ps[p].fric.Y += y * (1. / 64.);
+				ps[p].fric += vec * (1. / 4.);
 			}
 		}
 	}
