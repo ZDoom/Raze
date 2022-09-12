@@ -4945,7 +4945,7 @@ DAngle furthestangle(DDukeActor *actor, int angs)
 //
 //---------------------------------------------------------------------------
 
-int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day)
+int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, DVector2& pos)
 {
 	int j, angincs;
 	HitInfo hit{};
@@ -4966,8 +4966,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 		if (d < da && hit.hitSector)
 			if (cansee(hit.hitpos, hit.hitSector, actor->spr.pos.plusZ(-16), actor->sector()))
 			{
-				*dax = hit.int_hitpos().X;
-				*day = hit.int_hitpos().Y;
+				pos = hit.hitpos.XY();
 				return 1;
 			}
 	}
@@ -5012,7 +5011,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 		auto Owner = actor->GetOwner();
 		if (Owner->isPlayer())
-			goalang = VecToAngle(actor->ovel.X - actor->int_pos().X, actor->ovel.Y - actor->int_pos().Y);
+			goalang = VecToAngle(actor->ovel - actor->spr.pos.XY());
 		else
 			goalang = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 

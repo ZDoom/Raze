@@ -80,7 +80,7 @@ struct ParseState
 	void parseifelse(int condition);
 };
 
-int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, int* dax, int* day);
+int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, DVector2& pos);
 bool ifsquished(DDukeActor* i, int p);
 void fakebubbaspawn(DDukeActor* actor, int g_p);
 void tearitup(sectortype* sect);
@@ -1307,12 +1307,12 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->ceilingz * (1/zmaptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVX:
-		if (bSet) act->ovel.X = lValue;
-		else SetGameVarID(lVar2, act->ovel.X, sActor, sPlayer);
+		if (bSet) act->ovel.X = lValue * maptoworld;
+		else SetGameVarID(lVar2, act->ovel.X / maptoworld, sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVY:
-		if (bSet) act->ovel.Y = lValue;
-		else SetGameVarID(lVar2, act->ovel.Y, sActor, sPlayer);
+		if (bSet) act->ovel.Y = lValue * maptoworld;
+		else SetGameVarID(lVar2, act->ovel.Y / maptoworld, sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T0:
 		if (bSet) act->temp_data[0] = lValue;
@@ -1475,14 +1475,13 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	{
 		// search around for target player
 		// also modifies 'target' x&y if found.
-		j = furthestcanseepoint(actor, tosee, &actor->ovel.X, &actor->ovel.Y);
+		j = furthestcanseepoint(actor, tosee, actor->ovel);
 	}
 	else
 	{
 		// else, they did see it.
 		// save where we were looking..
-		actor->ovel.X = tosee->int_pos().X;
-		actor->ovel.Y = tosee->int_pos().Y;
+		actor->ovel = tosee->spr.pos;
 	}
 
 	if (j == 1 && (actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_STANDABLE))
@@ -3120,14 +3119,11 @@ int ParseState::parse(void)
 	}
 	case concmd_getangletotarget:
 	{
-		int i;
-		int ang;
-
 		insptr++;
-		i = *(insptr++);	// ID of def
+		int i = *(insptr++);	// ID of def
 
 		// g_ac->lastvx and lastvy are last known location of target.
-		ang = getangle(g_ac->ovel.X - g_ac->int_pos().X, g_ac->ovel.Y - g_ac->int_pos().Y);
+		int ang = VecToAngle(g_ac->ovel - g_ac->spr.pos.XY()).Buildang();
 		SetGameVarID(i, ang, g_ac, g_p);
 		break;
 	}

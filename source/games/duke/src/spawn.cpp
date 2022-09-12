@@ -81,8 +81,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spr.lotag = 0;
 	act->backuploc();
 
-	act->ovel.X = 0;
-	act->ovel.Y = 0;
+	act->ovel.Zero();
 
 	act->timetosleep = 0;
 	act->actorstayput = nullptr;
@@ -154,8 +153,7 @@ bool initspriteforspawn(DDukeActor* act)
 	act->floorz = act->sector()->floorz;
 	act->ceilingz = act->sector()->ceilingz;
 
-	act->ovel.X = 0;
-	act->ovel.Y = 0;
+	act->ovel.Zero();
 	act->actorstayput = nullptr;
 
 	act->temp_data[0] = act->temp_data[1] = act->temp_data[2] = act->temp_data[3] = act->temp_data[4] = act->temp_data[5] = 0;

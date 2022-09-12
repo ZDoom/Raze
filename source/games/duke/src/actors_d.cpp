@@ -802,7 +802,8 @@ void movefallers_d(void)
 
 static void movetripbomb(DDukeActor *actor)
 {
-	int j, x;
+	int j;
+	double x;
 	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1).safeValue();
 	if (lTripBombControl & TRIPBOMB_TIMER)
 	{
@@ -824,14 +825,14 @@ static void movetripbomb(DDukeActor *actor)
 		{
 			S_PlayActorSound(LASERTRIP_EXPLODE, actor);
 			for (j = 0; j < 5; j++) RANDOMSCRAP(actor);
-			x = actor->spr.extra;
-			fi.hitradius(actor, gs.tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			int ex = actor->spr.extra;
+			fi.hitradius(actor, gs.tripbombblastradius, ex >> 2, ex >> 1, ex - (ex >> 2), ex);
 
 			auto spawned = spawn(actor, EXPLOSION2);
 			if (spawned)
 			{
 				spawned->spr.angle = actor->spr.angle;
-				spawned->set_int_xvel(348);
+				spawned->vel.X = 348 / 16.;
 				ssp(spawned, CLIPMASK0);
 			}
 
@@ -849,25 +850,25 @@ static void movetripbomb(DDukeActor *actor)
 	{
 		x = actor->spr.extra;
 		actor->spr.extra = 1;
-		int16_t l = actor->int_ang();
+		auto ang = actor->spr.angle;
 		j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
 		{ 
 			actor->temp_data[2] = 16; 
 		}
 		actor->spr.extra = x;
-		actor->set_int_ang(l);
+		actor->spr.angle = ang;
 	}
 
 	if (actor->temp_data[0] < 32)
 	{
 		findplayer(actor, &x);
-		if (x > 768) actor->temp_data[0]++;
+		if (x > 48) actor->temp_data[0]++;
 		else if (actor->temp_data[0] > 16) actor->temp_data[0]++;
 	}
 	if (actor->temp_data[0] == 32)
 	{
-		int16_t l = actor->int_ang();
+		auto ang = actor->spr.angle;
 		actor->spr.angle = actor->temp_angle;
 
 		actor->temp_pos.XY() = actor->spr.pos.XY();
@@ -882,11 +883,11 @@ static void movetripbomb(DDukeActor *actor)
 		ChangeActorSect(actor, curSect);
 
 		DDukeActor* hit;
-		x = hitasprite(actor, &hit);
+		x = hitasprite(actor, &hit) * inttoworld;
 
 		actor->ovel.X = x;
 
-		actor->set_int_ang(l);
+		actor->spr.angle = ang;
 
 		if (lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -900,12 +901,12 @@ static void movetripbomb(DDukeActor *actor)
 					spawned->spr.hitag = actor->spr.hitag;
 					spawned->temp_data[1] = spawned->int_pos().Z;
 
-					if (x < 1024)
+					if (x < 64)
 					{
-						spawned->spr.xrepeat = x >> 5;
+						spawned->spr.xrepeat = x / 2;
 						break;
 					}
-					x -= 1024;
+					x -= 64;
 
 					actor->spr.pos += actor->temp_angle.ToVector() * 64;
 					updatesectorneighbor(actor->spr.pos, &curSect, 128);
@@ -943,7 +944,7 @@ static void movetripbomb(DDukeActor *actor)
 		actor->spr.pos.Z -= 3;
 		SetActor(actor, actor->spr.pos);
 
-		x = hitasprite(actor, nullptr);
+		x = hitasprite(actor, nullptr) * inttoworld;
 
 		actor->spr.pos.XY() = actor->temp_pos.XY();
 		actor->spr.pos.Z += 3;

@@ -49,7 +49,7 @@ public:
 	short attackertype, hitextra, movflag;
 	short tempang, dispicnum, basepicnum;
 	short timetosleep;
-	vec2_t ovel;
+	DVector2 ovel;
 	DAngle hitang;
 	double floorz, ceilingz;
 	union
