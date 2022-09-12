@@ -3368,7 +3368,7 @@ void moveeffectors_r(void)   //STATNUM 3
 
 		case SE_25_PISTON: //PISTONS
 			if (act->temp_data[4] == 0) break;
-			handle_se25(act, 4, isRRRA() ? 371 : -1, isRRRA() ? 167 : -1);
+			handle_se25(act, isRRRA() ? 371 : -1, isRRRA() ? 167 : -1);
 			break;
 
 		case SE_26:

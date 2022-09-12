@@ -661,14 +661,8 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			actor->SetOwner(nullptr);
 			break;
 		case SE_25_PISTON: // Pistons
-			if (!isRR())
-			{
-				actor->temp_data[3] = sectp->int_ceilingz();
-				actor->temp_data[4] = 1;
-			}
-			else
-				actor->temp_data[4] = sectp->int_ceilingz();
-
+			actor->temp_pos.Z = sectp->ceilingz;
+			actor->temp_data[4] = 1;
 			sectp->setceilingz(actor->spr.pos.Z);
 			StartInterpolation(sectp, Interp_Sect_Ceilingz);
 			break;

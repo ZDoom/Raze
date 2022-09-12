@@ -4392,18 +4392,19 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 //
 //---------------------------------------------------------------------------
 
-void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
+void handle_se25(DDukeActor* actor, int snd1, int snd2)
 {
 	auto sec = actor->sector();
+	auto add = actor->spr.yint * zmaptoworld;
 
 	if (sec->floorz <= sec->ceilingz)
 		actor->spr.shade = 0;
-	else if (sec->int_ceilingz() <= actor->temp_data[t_index])
+	else if (sec->ceilingz <= actor->temp_pos.Z)
 		actor->spr.shade = 1;
 
 	if (actor->spr.shade)
 	{
-		sec->addceilingz(actor->spr.yint * zmaptoworld);
+		sec->addceilingz(add);
 		if (sec->ceilingz > sec->floorz)
 		{
 			sec->setceilingz(sec->floorz);
@@ -4413,10 +4414,10 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 	}
 	else
 	{
-		sec->addceilingz(-actor->spr.yint * zmaptoworld);
-		if (sec->int_ceilingz() < actor->temp_data[t_index])
+		sec->addceilingz(-add);
+		if (sec->ceilingz < actor->temp_pos.Z)
 		{
-			sec->set_int_ceilingz(actor->temp_data[t_index]);
+			sec->setceilingz(actor->temp_pos.Z);
 			if (pistonsound && snd2 >= 0)
 				S_PlayActorSound(snd2, actor);
 		}
