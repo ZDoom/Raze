@@ -4442,7 +4442,7 @@ void handle_se32(DDukeActor *actor)
 
 		if (actor->temp_data[2] == 1) // Retract
 		{
-			if (actor->int_ang() != 1536)
+			if (actor->spr.intangle != 1536)
 			{
 				if (abs(sc->ceilingz - actor->spr.pos.Z) < targetval * 2)
 				{
@@ -4455,14 +4455,14 @@ void handle_se32(DDukeActor *actor)
 			}
 			else
 			{
-				if (abs(sc->ceilingz - actor->temp_data[1] * zinttoworld) < targetval * 2)
+				if (abs(sc->ceilingz - actor->temp_pos.Z) < targetval * 2)
 				{
-					sc->set_int_ceilingz(actor->temp_data[1]);
+					sc->setceilingz(actor->temp_pos.Z);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;
 				}
-				else sc->addceilingz(Sgn(actor->temp_data[1] * zinttoworld - sc->int_ceilingz()) * targetval);
+				else sc->addceilingz(Sgn(actor->temp_pos.Z - sc->ceilingz) * targetval);
 			}
 			return;
 		}
@@ -4480,13 +4480,13 @@ void handle_se32(DDukeActor *actor)
 		}
 		else
 		{
-			if (abs(sc->ceilingz - actor->temp_data[1] * zinttoworld) < targetval * 2)
+			if (abs(sc->ceilingz - actor->temp_pos.Z) < targetval * 2)
 			{
 				actor->temp_data[0] = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
 			}
-			else sc->addceilingz(-Sgn(actor->int_pos().Z - actor->temp_data[1]) * targetval);
+			else sc->addceilingz(-Sgn(actor->spr.pos.Z - actor->temp_pos.Z) * targetval);
 		}
 	}
 
