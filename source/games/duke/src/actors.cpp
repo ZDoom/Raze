@@ -4530,9 +4530,9 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 		break;
 	case 1:
 		sc->addceilingz(-targetval * 4);
-		if (sc->int_ceilingz() < actor->temp_data[4])
+		if (sc->ceilingz < actor->temp_pos.Y)
 		{
-			sc->set_int_ceilingz(actor->temp_data[4]);
+			sc->setceilingz(actor->temp_pos.Y);
 			actor->temp_data[0] = 0;
 		}
 		break;
