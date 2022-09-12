@@ -378,8 +378,8 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	{
 		if (*actions & key)
 		{
-			look_ang += DAngle::fromDeg(getTicrateScale(LOOKINGSPEED) * scaleAdjust * direction * BAngToDegree);
-			rotscrnang -= DAngle::fromDeg(getTicrateScale(ROTATESPEED) * scaleAdjust * direction * BAngToDegree);
+			look_ang += DAngle::fromDeg(getTicrateScale(LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * direction * BAngToDegree);
+			rotscrnang -= DAngle::fromDeg(getTicrateScale(ROTATESPEED) * getCorrectedScale(scaleAdjust) * direction * BAngToDegree);
 		}
 	};
 	doLookKeys(SB_LOOK_LEFT, -1);
