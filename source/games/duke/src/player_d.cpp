@@ -847,25 +847,25 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 //
 //---------------------------------------------------------------------------
 
-static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
+static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 {
 	auto sectp = actor->sector();
-	int zvel;
+	double zvel;
 	int j;
 	HitInfo hit{};
 
 	if (p >= 0)
-		zvel = -ps[p].horizon.sum().asq16() >> 11;
+		zvel = -ps[p].horizon.sum().asbuildf() * 0.125;
 	else zvel = 0;
 
-	hitscan(vec3_t( sx, sy, sz - ps[p].pyoff * zworldtoint ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
 
 	j = 0;
 	if (hit.actor()) return;
 
 	if (hit.hitWall && hit.hitSector)
 	{
-		if (((hit.int_hitpos().X - sx) * (hit.int_hitpos().X - sx) + (hit.int_hitpos().Y - sy) * (hit.int_hitpos().Y - sy)) < (290 * 290))
+		if ((hit.hitpos.XY() - pos.XY()).LengthSquared() < 18.125 * 18.125)
 		{
 			if (hit.hitWall->twoSided())
 			{
@@ -878,7 +878,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 		if (j == 1)
 		{
-			auto bomb = CreateActor(hit.hitSector, hit.hitpos, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, STAT_STANDABLE);
+			auto bomb = CreateActor(hit.hitSector, hit.hitpos, TRIPBOMB, -16, 4, 5, ang.Buildang(), 0, 0, actor, STAT_STANDABLE);
 			if (!bomb) return;
 			if (isWW2GI())
 			{
@@ -1120,7 +1120,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		break;
 
 	case HANDHOLDINGLASER:
-		shootlaser(actor, p, sx, sy, sz, sa);
+		shootlaser(actor, p, spos, sang);
 		return;
 
 	case BOUNCEMINE:
