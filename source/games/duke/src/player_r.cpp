@@ -826,6 +826,34 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 //
 //---------------------------------------------------------------------------
 
+static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
+{
+	auto sect = actor->sector();
+	if (actor->spr.extra >= 0) actor->spr.shade = -96;
+
+	double x;
+	auto plActor = ps[findplayer(actor, &x)].GetActor();
+	x = (plActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
+
+	double zvel = -x * 0.5;
+
+	if (zvel < -8)
+		zvel = -4;
+	double vel = x / 16.;
+
+	ang += DAngle90;
+
+	int size = atwith == CHEERBOMB ? 16 : 32;
+
+	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, size, size, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 1);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void shoot_r(DDukeActor* actor, int atwith)
 {
 	int sa, p;
@@ -944,25 +972,8 @@ void shoot_r(DDukeActor* actor, int atwith)
 	case CHEERBOMB:
 		if (!isRRRA()) break;
 	case MORTER:
-	{
-		if (actor->spr.extra >= 0) actor->spr.shade = -96;
-
-		auto j = ps[findplayer(actor, &x)].GetActor();
-		x = ldist(j, actor);
-
-		zvel = -x >> 1;
-
-		if (zvel < -4096)
-			zvel = -2048;
-		vel = x >> 4;
-
-		sang += DAngle90;
-		if (atwith == CHEERBOMB)
-			CreateActor(sect, spos + DVector3(-sang.Sin() * 4, sang.Cos() * 4, 6), atwith, -64, 16, 16, sa, vel, zvel, actor, 1);
-		else
-			CreateActor(sect, spos + DVector3(-sang.Sin() * 4, sang.Cos() * 4, 6), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
+		shootmortar(actor, p, spos, sang, atwith);
 		break;
-	}
 	}
 	return;
 }
