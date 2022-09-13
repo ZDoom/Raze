@@ -340,10 +340,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto j = EGS(p->cursector,
-				p->player_int_pos().X + p->angle.ang.Cos() * (1 << 8),
-				p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 8),
-				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
+			auto j = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
 
 			if (j)

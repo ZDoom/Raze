@@ -962,7 +962,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
-	auto spark = EGS(sect, hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, GROWSPARK, -16, 28, 28, sa, 0, 0, actor, 1);
+	auto spark = CreateActor(sect, hit.hitpos, GROWSPARK, -16, 28, 28, sa, 0, 0, actor, 1);
 	if (!spark) return;
 
 	spark->spr.pal = 2;
@@ -2211,10 +2211,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto spawned = EGS(p->cursector,
-				p->player_int_pos().X + p->angle.ang.Cos() * (1 << 8),
-				p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 8),
-				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
+			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)), i, pact, 1);
 
 			if (isNam())

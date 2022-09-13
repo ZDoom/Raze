@@ -854,6 +854,9 @@ void shoot_r(DDukeActor* actor, int atwith)
 			sy += bcos(sa, -7);
 		}
 	}
+	
+	DVector3 svec(sx * inttoworld, sy * inttoworld, sz * zinttoworld);
+	DAngle sang = DAngle::fromBuild(sa);
 
 	SetGameVarID(g_iAtWithVarID, atwith, actor, p);
 	SetGameVarID(g_iReturnVarID, 0, actor, p);
@@ -947,16 +950,11 @@ void shoot_r(DDukeActor* actor, int atwith)
 			zvel = -2048;
 		vel = x >> 4;
 
+		sang += DAngle90;
 		if (atwith == CHEERBOMB)
-			EGS(sect,
-				sx - bsin(sa + 512, -8),
-				sy + bcos(sa + 512, -8),
-				sz + (6 << 8), atwith, -64, 16, 16, sa, vel, zvel, actor, 1);
+			CreateActor(sect, svec + DVector3(-sang.Sin() * 4, sang.Cos() * 4, 6), atwith, -64, 16, 16, sa, vel, zvel, actor, 1);
 		else
-			EGS(sect,
-				sx - bsin(sa + 512, -8),
-				sy + bcos(sa + 512, -8),
-				sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
+			CreateActor(sect, svec + DVector3(-sang.Sin() * 4, sang.Cos() * 4, 6), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
 		break;
 	}
 	}
@@ -2745,10 +2743,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto spawned = EGS(p->cursector,
-				p->player_int_pos().X + p->angle.ang.Cos() * (1 << 8),
-				p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 8),
-				p->player_int_pos().Z, HEAVYHBOMB, -16, 9, 9,
+			auto spawned = CreateActor(p->cursector,p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pact, 1);
 
 			if (spawned)
@@ -3154,10 +3149,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			EGS(p->cursector,
-				p->player_int_pos().X + p->angle.ang.Cos() * (1 << 8),
-				p->player_int_pos().Y + p->angle.ang.Sin() * (1 << 8),
-				p->player_int_pos().Z, POWDERKEG, -16, 9, 9,
+			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, 9, 9,
 				p->angle.ang.Buildang(), k * 2, i, pact, 1);
 		}
 		p->kickback_pic++;

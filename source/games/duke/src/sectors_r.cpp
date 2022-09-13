@@ -927,47 +927,36 @@ void activatebysector_r(sectortype* sect, DDukeActor* activator)
 
 static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 {
-	int j, z;
-	int a;
-
 	sectortype* sect = nullptr;
 
 	if (wal == nullptr)
 	{
-		for (j = n - 1; j >= 0; j--)
+		for (int j = n - 1; j >= 0; j--)
 		{
-			a = actor->int_ang() - 256 + (krand() & 511) + 1024;
-			CreateActor(actor->sector(), actor->spr.pos, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			DAngle a = actor->spr.angle - DAngle45 + DAngle180 + randomAngle(90);
+			CreateActor(actor->sector(), actor->spr.pos, POPCORN, -32, 36, 36, a.Buildang(), 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}
 
-	j = n + 1;
+	auto pos = wal->pos;
+	auto delta = wal->delta() / (n + 1);
 
-	int x1 = wal->wall_int_pos().X;
-	int y1 = wal->wall_int_pos().Y;
+	pos.X -= Sgn(delta.X) * maptoworld;
+	pos.Y += Sgn(delta.Y) * maptoworld;
 
-	auto delta = wal->int_delta();
-
-	x1 -= Sgn(delta.X);
-	y1 += Sgn(delta.Y);
-
-	delta.X /= j;
-	delta.Y /= j;
-
-	for (j = n; j > 0; j--)
+	for (int j = n; j > 0; j--)
 	{
-		x1 += delta.X;
-		y1 += delta.Y;
-
-		updatesector(x1, y1, &sect);
+		pos += delta;
+		sect = actor->sector();
+		updatesector(DVector3(pos, sect->floorz), &sect);
 		if (sect)
 		{
-			z = sect->int_floorz() - (krand() & (abs(sect->int_ceilingz() - sect->int_floorz())));
-			if (z < -(32 << 8) || z >(32 << 8))
-				z = actor->int_pos().Z - (32 << 8) + (krand() & ((64 << 8) - 1));
-			a = actor->int_ang() - 1024;
-			EGS(actor->sector(), x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			double z = sect->floorz - krandf(abs(sect->ceilingz - sect->floorz));
+			if (abs(z) > 32)
+				z = actor->spr.pos.Z - 32 + krandf(64);
+			DAngle a = actor->spr.angle - DAngle180;
+			CreateActor(actor->sector(), DVector3(pos, z), POPCORN, -32, 36, 36, a.Buildang(), 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }
