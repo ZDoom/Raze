@@ -378,7 +378,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 		act->spr.angle = actj->spr.angle;
 	}
 
-	act->set_int_z(sect->int_floorz());
+	act->spr.pos.Z = sect->floorz;
 	if (sect->lotag != 1 && sect->lotag != 2)
 		act->spr.xrepeat = act->spr.yrepeat = 32;
 
@@ -506,7 +506,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 	else if (!actj)
 	{
 		actor->spr.pos.Z += 4;
-		actor->temp_data[0] = actor->int_pos().Z;
+		actor->temp_pos.Z = actor->spr.pos.Z;
 		if (!isRR()) actor->temp_data[1] = krand() & 127;
 	}
 	actor->spr.xrepeat = 24;

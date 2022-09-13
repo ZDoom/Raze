@@ -1043,7 +1043,7 @@ void movewaterdrip(DDukeActor *actor, int drip)
 			}
 			else
 			{
-				actor->set_int_z(actor->temp_data[0]);
+				actor->spr.pos.Z = actor->temp_pos.Z;
 				actor->backupz();
 				actor->temp_data[1] = 48 + (krand() & 31);
 			}

@@ -212,11 +212,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->sector()->lotag == 2)
 			{
-				act->set_int_z(getceilzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y) + (16 << 8));
+				act->spr.pos.Z = getceilzofslopeptrf(act->sector(), act->spr.pos) + 16;
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (actj->sector()->lotag == 1)
-				act->set_int_z(getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y));
+				act->spr.pos.Z = getceilzofslopeptrf(act->sector(), act->spr.pos);
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -649,9 +649,9 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 		{
-			int x = getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y);
-			if (act->int_pos().Z > x - (12 << 8))
-				act->set_int_z(x - (12 << 8));
+			double x = getflorzofslopeptrf(act->sector(), act->spr.pos);
+			if (act->spr.pos.Z > x - 12)
+				act->spr.pos.Z = x - 12;
 		}
 
 		ChangeActorStat(act, STAT_MISC);

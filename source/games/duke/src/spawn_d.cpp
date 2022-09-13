@@ -157,11 +157,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->sector()->lotag == 2)
 			{
-				act->set_int_z(getceilzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y) + (16 << 8));
+				act->spr.pos.Z = getceilzofslopeptrf(act->sector(), act->spr.pos) + 16;
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (actj->sector()->lotag == 1)
-				act->set_int_z(getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y));
+				act->spr.pos.Z = getflorzofslopeptrf(act->sector(), act->spr.pos);
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -294,10 +294,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if (act->spr.picnum == LAVAPOOL)  // Twentieth Anniversary World Tour
 		{
-			int fz = getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y);
-			if (fz != act->int_pos().Z)
-				act->set_int_z(fz);
-			act->spr.pos.Z -= 0.78125;
+			act->spr.pos.Z = getflorzofslopeptrf(act->sector(), act->spr.pos) - 0.78125;
 		}
 		[[fallthrough]];
 
@@ -637,9 +634,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 		{
-			int x = getflorzofslopeptr(act->sector(), act->int_pos().X, act->int_pos().Y);
-			if (act->int_pos().Z > x - (12 << 8))
-				act->set_int_z(x - (12 << 8));
+			double x = getflorzofslopeptrf(act->sector(), act->spr.pos);
+			if (act->spr.pos.Z > x - 12)
+				act->spr.pos.Z = x - 12;
 		}
 
 		if (act->spr.picnum == ONFIRE)
