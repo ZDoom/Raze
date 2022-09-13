@@ -72,8 +72,8 @@ struct POSTURE
 	double weaponAboveZ;
 	int xOffset;
 	int zOffset;
-	int normalJumpZ;
-	int pwupJumpZ;
+	double normalJumpZ;
+	double pwupJumpZ;
 };
 
 extern POSTURE gPostureDefaults[kModeMax][kPostureMax];

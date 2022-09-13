@@ -102,29 +102,29 @@ POSTURE gPostureDefaults[kModeMax][kPostureMax] = {
 
 	// normal human
 	{
-		{ 0x4000, 0x4000, 0x4000, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -0xbaaaa, -0x175555 },
-		{ 0x1200, 0x1200, 0x1200, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, 0x5b05, 0 },
+		{ 0x4000, 0x4000, 0x4000, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
+		{ 0x1200, 0x1200, 0x1200, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, FixedToFloat(0x5b05), 0 },
 		{ 0x2000, 0x2000, 0x2000, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
 	},
 
 	// normal beast
 	{
-		{ 0x4000, 0x4000, 0x4000, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -0xbaaaa, -0x175555 },
-		{ 0x1200, 0x1200, 0x1200, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, 0x5b05, 0 },
+		{ 0x4000, 0x4000, 0x4000, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
+		{ 0x1200, 0x1200, 0x1200, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, FixedToFloat(0x5b05), 0 },
 		{ 0x2000, 0x2000, 0x2000, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
 	},
 
 	// shrink human
 	{
-		{ 10384, 10384, 10384, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -564586, -1329173 },
-		{ 2108, 2108, 2108, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, 0x5b05, 0 },
+		{ 10384, 10384, 10384, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -FixedToFloat(564586), -FixedToFloat(1329173) },
+		{ 2108, 2108, 2108, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, FixedToFloat(0x5b05), 0 },
 		{ 2192, 2192, 2192, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
 	},
 
 	// grown human
 	{
-		{ 19384, 19384, 19384, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -1014586, -1779173 },
-		{ 5608, 5608, 5608, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, 0x5b05, 0 },
+		{ 19384, 19384, 19384, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -FixedToFloat(1014586), -FixedToFloat(1779173) },
+		{ 5608, 5608, 5608, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, FixedToFloat(0x5b05), 0 },
 		{ 11192, 11192, 11192, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
 	},
 };
@@ -1657,9 +1657,9 @@ void ProcessInput(PLAYER* pPlayer)
 	switch (pPlayer->posture) {
 	case 1:
 		if (pInput->actions & SB_JUMP)
-			actor->add_int_bvel_z(-pPosture->normalJumpZ);//0x5b05;
+			actor->vel.Z -= pPosture->normalJumpZ;//0x5b05;
 		if (pInput->actions & SB_CROUCH)
-			actor->add_int_bvel_z(pPosture->normalJumpZ);//0x5b05;
+			actor->vel.Z += pPosture->normalJumpZ;//0x5b05;
 		break;
 	case 2:
 		if (!(pInput->actions & SB_CROUCH))
@@ -1672,8 +1672,8 @@ void ProcessInput(PLAYER* pPlayer)
 #endif
 				sfxPlay3DSound(actor, 700, 0, 0);
 
-			if (packItemActive(pPlayer, 4)) actor->set_int_bvel_z(pPosture->pwupJumpZ); //-0x175555;
-			else actor->set_int_bvel_z(pPosture->normalJumpZ); //-0xbaaaa;
+			if (packItemActive(pPlayer, 4)) actor->vel.Z = pPosture->pwupJumpZ; //-0x175555;
+			else actor->vel.Z = pPosture->normalJumpZ; //-0xbaaaa;
 			pPlayer->cantJump = 1;
 		}
 
