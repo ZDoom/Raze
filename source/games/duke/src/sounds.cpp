@@ -538,7 +538,7 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 int S_PlayActorSound(int soundNum, DDukeActor* actor, int channel, EChanFlags flags)
 {
 	return (actor == nullptr ? S_PlaySound(soundNum, channel, flags) :
-		S_PlaySound3D(soundNum, actor, actor->int_pos(), channel, flags));
+		S_PlaySound3D(soundNum, actor, actor->spr.pos, channel, flags));
 }
 
 void S_StopSound(int sndNum, DDukeActor* actor, int channel)

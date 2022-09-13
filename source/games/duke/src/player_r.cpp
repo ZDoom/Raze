@@ -445,7 +445,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 
 	if ((krand() & 255) < 10)
 	{
-		S_PlaySound3D(PISTOL_RICOCHET, spark, hit.int_hitpos());
+		S_PlaySound3D(PISTOL_RICOCHET, spark, hit.hitpos);
 	}
 }
 
