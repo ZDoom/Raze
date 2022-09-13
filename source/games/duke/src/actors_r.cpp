@@ -930,28 +930,23 @@ static void chickenarrow(DDukeActor* actor)
 
 	if (ts->spr.extra <= 0)
 		actor->seek_actor = nullptr;
+
 	if (actor->seek_actor && actor->spr.hitag > 5)
 	{
-		int ang, ang2, ang3;
-		ang = getangle(ts->int_pos().X - actor->int_pos().X, ts->int_pos().Y - actor->int_pos().Y);
-		ang2 = ang - actor->int_ang();
-		ang3 = abs(ang2);
-		if (ang2 < 100)
+		DAngle ang, ang2, ang3;
+		ang = VecToAngle(ts->spr.pos - actor->spr.pos);
+		ang2 = deltaangle(ang, actor->spr.angle);
+		// this was quite broken in the original code. Fixed so that it seeks properly
+		if (abs(ang2) < DAngle1 * 17.5)
 		{
-			if (ang3 > 1023)
-				actor->add_int_ang(51);
-			else
-				actor->add_int_ang(-51);
+			actor->spr.angle = ang;
 		}
-		else if (ang2 > 100)
+		else if (ang2 > nullAngle)
 		{
-			if (ang3 > 1023)
-				actor->add_int_ang(-51);
-			else
-				actor->add_int_ang(51);
+			actor->spr.angle -= DAngle1 * 9;
 		}
 		else
-			actor->set_int_ang(ang);
+			actor->spr.angle += DAngle1 * 9;
 
 		if (actor->spr.hitag > 180)
 			if (actor->vel.Z <= 0)
