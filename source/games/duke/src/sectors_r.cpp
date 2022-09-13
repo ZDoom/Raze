@@ -2204,7 +2204,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		lotsofglass(targ, nullptr, 8);
 		deletesprite(targ);
 		break;

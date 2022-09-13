@@ -1168,7 +1168,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		lotsofglass(targ, nullptr, 8);
 		deletesprite(targ);
 		break;
@@ -1294,21 +1294,21 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	{
 		targ->spr.extra -= proj->spr.extra;
 		if (targ->spr.extra > 0) break;
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		fi.shoot(targ, BLOODSPLAT1);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		fi.shoot(targ, BLOODSPLAT2);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		fi.shoot(targ, BLOODSPLAT3);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		fi.shoot(targ, BLOODSPLAT4);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		fi.shoot(targ, BLOODSPLAT1);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		fi.shoot(targ, BLOODSPLAT2);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		fi.shoot(targ, BLOODSPLAT3);
-		targ->set_int_ang(krand() & 2047);
+		targ->spr.angle = randomAngle();
 		fi.shoot(targ, BLOODSPLAT4);
 		fi.guts(targ, JIBS1, 1, myconnectindex);
 		fi.guts(targ, JIBS2, 2, myconnectindex);

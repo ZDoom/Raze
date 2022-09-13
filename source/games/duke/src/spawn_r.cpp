@@ -583,7 +583,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->temp_data[0] = krand() & 2047;
 			act->spr.cstat = randomFlip();
 			act->spr.xrepeat = act->spr.yrepeat = 8;
-			act->set_int_ang(krand() & 2047);
+			act->spr.angle = randomAngle();
 		}
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -703,7 +703,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case TRASH:
 
-		if (act->spr.picnum != WATERDRIP) act->set_int_ang(krand() & 2047);
+		if (act->spr.picnum != WATERDRIP) act->spr.angle = randomAngle();
 
 		act->spr.xrepeat = 24;
 		act->spr.yrepeat = 24;
@@ -1034,7 +1034,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 			if (act->spr.picnum == RAT)
 			{
-				act->set_int_ang(krand() & 2047);
+				act->spr.angle = randomAngle();
 				act->spr.xrepeat = act->spr.yrepeat = 48;
 				act->spr.cstat = 0;
 			}
