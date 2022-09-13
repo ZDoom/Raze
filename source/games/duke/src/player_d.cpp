@@ -918,10 +918,10 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 //
 //---------------------------------------------------------------------------
 
-static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
+static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 {
 	auto sect = actor->sector();
-	int zvel;
+	double zvel;
 	int k;
 	HitInfo hit{};
 
@@ -930,7 +930,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (5 << 8);
+			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 5;
 			switch (aimed->spr.picnum)
 			{
 			case GREENSLIME:
@@ -942,29 +942,31 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 			case GREENSLIME + 6:
 			case GREENSLIME + 7:
 			case ROTATEGUN:
-				dal -= (8 << 8);
+				dal -= 8;
 				break;
 			}
-			zvel = ((aimed->int_pos().Z - sz - dal) << 8) / (ldist(ps[p].GetActor(), aimed));
-			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
+			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
+			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * 16) / dist;
+			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
 		else
 		{
-			sa += 16 - (krand() & 31);
-			zvel = -ps[p].horizon.sum().asq16() >> 11;
-			zvel += 128 - (krand() & 255);
+			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
+			zvel = -ps[p].horizon.sum().asbuildf() * 0.125;
+			zvel += 0.5 - krandf(1);
 		}
 
-		sz -= (2 << 8);
+		pos.Z -= 2;
 	}
 	else
 	{
-		int x;
+		double x;
 		int j = findplayer(actor, &x);
-		sz -= (4 << 8);
-		zvel = ((ps[j].player_int_pos().Z - sz) << 8) / (ldist(ps[j].GetActor(), actor));
-		zvel += 128 - (krand() & 255);
-		sa += 32 - (krand() & 63);
+		pos.Z -= 4;
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		zvel = ((ps[j].pos.Z - pos.Z) * 16) / dist;
+		zvel += 0.5 - krandf(1);
+		ang += DAngle22_5 / 4 - randomAngle(22.5 / 2);
 	}
 
 	k = 0;
@@ -972,11 +974,11 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	//RESHOOTGROW:
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan(vec3_t( sx, sy, sz ), sect, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(pos, sect, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
 
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
-	auto spark = CreateActor(sect, hit.hitpos, GROWSPARK, -16, 28, 28, sa, 0, 0, actor, 1);
+	auto spark = CreateActor(sect, hit.hitpos, GROWSPARK, -16, 28, 28, ang.Buildang(), 0, 0, actor, 1);
 	if (!spark) return;
 
 	spark->spr.pal = 2;
@@ -1198,7 +1200,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		return;
 
 	case GROWSPARK:
-		shootgrowspark(actor, p, sx, sy, sz, sa);
+		shootgrowspark(actor, p, spos, sang);
 		break;
 
 	case SHRINKER:
