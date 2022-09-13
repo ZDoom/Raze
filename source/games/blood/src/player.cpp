@@ -102,30 +102,30 @@ POSTURE gPostureDefaults[kModeMax][kPostureMax] = {
 
 	// normal human
 	{
-		{ FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
-		{ FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, FixedToFloat(0x5b05), 0 },
-		{ FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
+		{ FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0x90, 0xc00, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
+		{ FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 0xb0, -0x600, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 0xb0, -0x600, 0, 0 },
 	},
 
 	// normal beast
 	{
-		{ FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
-		{ FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, FixedToFloat(0x5b05), 0 },
-		{ FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
+		{ FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0x90, 0xc00, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
+		{ FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 0xb0, -0x600, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 0xb0, -0x600, 0, 0 },
 	},
 
 	// shrink human
 	{
-		{ FixedToFloat<24>(10384), FixedToFloat<24>(10384), FixedToFloat<24>(10384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -FixedToFloat(564586), -FixedToFloat(1329173) },
-		{ FixedToFloat<24>(2108), FixedToFloat<24>(2108), FixedToFloat<24>(2108), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, FixedToFloat(0x5b05), 0 },
-		{ FixedToFloat<24>(2192), FixedToFloat<24>(2192), FixedToFloat<24>(2192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
+		{ FixedToFloat<24>(10384), FixedToFloat<24>(10384), FixedToFloat<24>(10384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 144, 3072, -FixedToFloat(564586), -FixedToFloat(1329173) },
+		{ FixedToFloat<24>(2108), FixedToFloat<24>(2108), FixedToFloat<24>(2108), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 176, -1536, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<24>(2192), FixedToFloat<24>(2192), FixedToFloat<24>(2192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 176, -1536, 0, 0 },
 	},
 
 	// grown human
 	{
-		{ FixedToFloat<24>(19384), FixedToFloat<24>(19384), FixedToFloat<24>(19384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -FixedToFloat(1014586), -FixedToFloat(1779173) },
-		{ FixedToFloat<24>(5608), FixedToFloat<24>(5608), FixedToFloat<24>(5608), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, FixedToFloat(0x5b05), 0 },
-		{ FixedToFloat<24>(11192), FixedToFloat<24>(11192), FixedToFloat<24>(11192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
+		{ FixedToFloat<24>(19384), FixedToFloat<24>(19384), FixedToFloat<24>(19384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 144, 3072, -FixedToFloat(1014586), -FixedToFloat(1779173) },
+		{ FixedToFloat<24>(5608), FixedToFloat<24>(5608), FixedToFloat<24>(5608), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 176, -1536, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<24>(11192), FixedToFloat<24>(11192), FixedToFloat<24>(11192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 176, -1536, 0, 0 },
 	},
 };
 
