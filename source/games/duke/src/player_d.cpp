@@ -114,7 +114,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 	else
 	{
 		zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
-		pos += (ang + DAngle1 * 61).ToVector() * 1024 / 448.;
+		pos += (ang + DAngle1 * 61).ToVector() * (1024 / 448.);
 		pos.Z += 3;
 	}
 
@@ -686,16 +686,16 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 //
 //---------------------------------------------------------------------------
 
-static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sect = actor->sector();
-	int vel, zvel;
+	double vel, zvel;
 	int l, scount;
 
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 	scount = 1;
-	vel = 644;
+	vel = 644 / 16.;
 
 	DDukeActor* aimed = nullptr;
 
@@ -704,49 +704,51 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		aimed = aim(actor, 48);
 		if (aimed)
 		{
-			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (8 << 8);
-			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 8;
+			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
+			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			if (aimed->spr.picnum != RECON)
-				sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
+				ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
-		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
+		else 
+			zvel = -ps[p].horizon.sum().asbuildf() * (81 / 256.);
+
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
 
 	}
 	else
 	{
-		int x;
+		double x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].player_int_opos().X - sx, ps[j].player_int_opos().Y - sy);
+		ang = VecToAngle(ps[j].opos.XY() - pos.XY());
 		if (actor->spr.picnum == BOSS3)
 		{
-			int zoffs = (32 << 8);
+			double zoffs = 32;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
-				zoffs = (int)((actor->spr.yrepeat / 80.0f) * zoffs);
-			sz -= zoffs;
+				zoffs *= (actor->spr.yrepeat / 80.0f);
+			pos.Z -= zoffs;
 		}
 		else if (actor->spr.picnum == BOSS2)
 		{
-			vel += 128;
-			int zoffs = 24 << 8;
+			vel += 8;
+			double zoffs = 24;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
-				zoffs = (int)((actor->spr.yrepeat / 80.0f) * zoffs);
-			sz += zoffs;
+				zoffs *= (actor->spr.yrepeat / 80.0f);
+			pos.Z -= zoffs;
 		}
 
-		l = ldist(ps[j].GetActor(), actor);
-		zvel = ((ps[j].player_int_opos().Z - sz) * vel) / l;
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+
+		zvel = ((ps[j].opos.Z - pos.Z) * vel) / dist;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
-			sa = actor->int_ang() + (krand() & 31) - 16;
+			ang = actor->spr.angle + randomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 	}
 	if (p < 0) aimed = nullptr;
 
-	auto spawned = EGS(sect,
-		sx + (bcos(sa + 348) / 448),
-		sy + (bsin(sa + 348) / 448),
-		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
+	auto offset = (ang + DAngle1 * 61).ToVector() * (1024 / 448);
+	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 4);
 
 	if (!spawned) return;
 
@@ -765,46 +767,41 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 	{
 		if (actor->spr.picnum == BOSS3)
 		{
-			int xoffs = bsin(sa, -6);
-			int yoffs = -bcos(sa, -6);
-			int aoffs = 4;
+			DVector2 offset(ang.Sin() * 4, ang.Cos() * -4);
+			DAngle aoffs = DAngle22_5 / 32.;
 
 			if ((krand() & 1) != 0)
 			{
-				xoffs = -xoffs;
-				yoffs = -yoffs;
-				aoffs = -8;
+				offset = -offset;
+				aoffs = -aoffs;
 			}
 
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 			{
 				float siz = actor->spr.yrepeat / 80.0f;
-				xoffs = int(xoffs * siz);
-				yoffs = int(yoffs * siz);
-				aoffs = int(aoffs * siz);
+				offset *= siz;
+				aoffs *= siz;
 			}
 
-			spawned->add_int_pos({ xoffs, yoffs, 0 });
-			spawned->add_int_ang(aoffs);
+			spawned->spr.pos += offset;
+			spawned->spr.angle += aoffs;
 
 			spawned->spr.xrepeat = 42;
 			spawned->spr.yrepeat = 42;
 		}
 		else if (actor->spr.picnum == BOSS2)
 		{
-			int xoffs = bsin(sa) / 56;
-			int yoffs = -bcos(sa) / 56;
-			int aoffs = 8 + (krand() & 255) - 128;
+			DVector2 offset(ang.Sin() * (1024. / 56.), ang.Cos() * -(1024. / 56.));
+			DAngle aoffs = DAngle22_5 / 16. - DAngle45 + randomAngle(90);
 
 			if (isWorldTour()) { // Twentieth Anniversary World Tour
-				int siz = actor->spr.yrepeat;
-				xoffs = Scale(xoffs, siz, 80);
-				yoffs = Scale(yoffs, siz, 80);
-				aoffs = Scale(aoffs, siz, 80);
+				double siz = actor->spr.yrepeat / 70.;
+				offset *= siz;
+				aoffs *= siz;
 			}
 
-			spawned->add_int_pos({ -xoffs, -yoffs, 0 });
-			spawned->add_int_ang(-aoffs);
+			spawned->spr.pos += offset;
+			spawned->spr.angle += aoffs;
 
 			spawned->spr.xrepeat = 24;
 			spawned->spr.yrepeat = 24;
@@ -819,16 +816,18 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 	else if ((isWW2GI() && aplWeaponWorksLike(ps[p].curr_weapon, p) == DEVISTATOR_WEAPON) || (!isWW2GI() && ps[p].curr_weapon == DEVISTATOR_WEAPON))
 	{
 		spawned->spr.extra >>= 2;
-		spawned->add_int_ang(16 - (krand() & 31));
+		spawned->spr.angle += DAngle22_5 / 8 - randomAngle(22.5 / 4);
 		spawned->vel.Z += 1 - krandf(2);
 
 		if (ps[p].hbomb_hold_delay)
 		{
-			spawned->add_int_pos({ -bsin(sa) / 644, bcos(sa) / 644, 0 });
+			DVector2 offset(-ang.Sin()* (1024. / 644.), ang.Cos() * (1024. / 644.));
+			spawned->spr.pos += offset;
 		}
 		else
 		{
-			spawned->add_int_pos({ bsin(sa, -8), -bcos(sa, -8), 0 });
+			DVector2 offset(ang.Sin()* 4, ang.Cos() * -4);
+			spawned->spr.pos += offset;
 		}
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
@@ -1117,7 +1116,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		[[fallthrough]];
 	case RPG:
 
-		shootrpg(actor, p, sx, sy, sz, sa, atwith);
+		shootrpg(actor, p, spos, sang, atwith);
 		break;
 
 	case HANDHOLDINGLASER:
