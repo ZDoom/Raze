@@ -229,7 +229,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 {
 	uint8_t switchpal;
 	int lotag, hitag, picnum, correctdips, numdips;
-	int sx, sy;
+	DVector2 spos;
 
 	if (wwal == nullptr && act == nullptr) return 0;
 	correctdips = 1;
@@ -240,8 +240,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		lotag = act->spr.lotag;
 		if (lotag == 0) return 0;
 		hitag = act->spr.hitag;
-		sx = act->int_pos().X;
-		sy = act->int_pos().Y;
+		spos = act->spr.pos.XY();
 		picnum = act->spr.picnum;
 		switchpal = act->spr.pal;
 	}
@@ -250,8 +249,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		lotag = wwal->lotag;
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
-		sx = wwal->wall_int_pos().X;
-		sy = wwal->wall_int_pos().Y;
+		spos = wwal->pos;
 		picnum = wwal->picnum;
 		switchpal = wwal->pal;
 	}
@@ -482,7 +480,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		return 1;
 	}
 
-	vec3_t v = { sx, sy, ps[snum].player_int_pos().Z };
+	DVector3 v(spos, ps[snum].pos.Z);
 	switch (picnum)
 	{
 	default:
