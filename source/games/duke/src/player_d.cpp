@@ -1006,26 +1006,22 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 //
 //---------------------------------------------------------------------------
 
-static void shootmortar(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
 {
 	auto sect = actor->sector();
-	int zvel;
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
-	int x;
+	double x;
 	auto plActor = ps[findplayer(actor, &x)].GetActor();
-	x = ldist(plActor, actor);
+	x = (plActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-	zvel = -x >> 1;
+	double zvel = -x * 0.5;
 
-	if (zvel < -4096)
-		zvel = -2048;
-	int vel = x >> 4;
+	if (zvel < -8)
+		zvel = -4;
+	double vel = x / 16.;
 
-	EGS(sect,
-		sx - bsin(sa, -8),
-		sy + bcos(sa, -8),
-		sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
+	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, 32, 32, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 1);
 }
 
 //---------------------------------------------------------------------------
@@ -1196,7 +1192,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 	case BOUNCEMINE:
 	case MORTER:
-		shootmortar(actor, p, sx, sy, sz, sa, atwith);
+		shootmortar(actor, p, spos, sang, atwith);
 		return;
 
 	case GROWSPARK:
