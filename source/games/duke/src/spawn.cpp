@@ -1068,8 +1068,8 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 			z = sect->floorz - krandf(abs(sect->ceilingz - sect->floorz));
 			if (fabs(z) > 32)
 				z = actor->spr.pos.Z - 32 + krandf(64);
-			DAngle a = actor->spr.angle - DAngle180;
-			CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a.Buildang(), 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			DAngle angl = actor->spr.angle - DAngle180;
+			CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, angl.Buildang(), 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }

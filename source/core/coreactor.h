@@ -77,11 +77,6 @@ public:
 		return { int(spr.pos.X * worldtoint), int(spr.pos.Y * worldtoint), int(spr.pos.Z * zworldtoint) };
 	}
 
-	void set_int_z(int z)
-	{
-		spr.pos.Z = z * zinttoworld;
-	}
-
 	void add_int_z(int z)
 	{
 		spr.pos.Z += z * zinttoworld;

@@ -526,10 +526,6 @@ struct tspritetype : public spritetypebase
 	{
 		pos.Z += x * zinttoworld;
 	}
-	void set_int_z(int x)
-	{
-		pos.Z = x * zinttoworld;
-	}
 };
 
 class tspriteArray

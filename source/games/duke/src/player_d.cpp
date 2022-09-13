@@ -690,7 +690,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 {
 	auto sect = actor->sector();
 	double vel, zvel;
-	int l, scount;
+	int scount;
 
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
@@ -767,23 +767,23 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	{
 		if (actor->spr.picnum == BOSS3)
 		{
-			DVector2 offset(ang.Sin() * 4, ang.Cos() * -4);
+			DVector2 spawnofs(ang.Sin() * 4, ang.Cos() * -4);
 			DAngle aoffs = DAngle22_5 / 32.;
 
 			if ((krand() & 1) != 0)
 			{
-				offset = -offset;
+				spawnofs = -spawnofs;
 				aoffs = -aoffs;
 			}
 
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 			{
 				float siz = actor->spr.yrepeat / 80.0f;
-				offset *= siz;
+				spawnofs *= siz;
 				aoffs *= siz;
 			}
 
-			spawned->spr.pos += offset;
+			spawned->spr.pos += spawnofs;
 			spawned->spr.angle += aoffs;
 
 			spawned->spr.xrepeat = 42;
@@ -791,16 +791,16 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 		}
 		else if (actor->spr.picnum == BOSS2)
 		{
-			DVector2 offset(ang.Sin() * (1024. / 56.), ang.Cos() * -(1024. / 56.));
+			DVector2 spawnofs(ang.Sin() * (1024. / 56.), ang.Cos() * -(1024. / 56.));
 			DAngle aoffs = DAngle22_5 / 16. - DAngle45 + randomAngle(90);
 
 			if (isWorldTour()) { // Twentieth Anniversary World Tour
 				double siz = actor->spr.yrepeat / 70.;
-				offset *= siz;
+				spawnofs *= siz;
 				aoffs *= siz;
 			}
 
-			spawned->spr.pos += offset;
+			spawned->spr.pos += spawnofs;
 			spawned->spr.angle += aoffs;
 
 			spawned->spr.xrepeat = 24;
@@ -821,13 +821,13 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 
 		if (ps[p].hbomb_hold_delay)
 		{
-			DVector2 offset(-ang.Sin()* (1024. / 644.), ang.Cos() * (1024. / 644.));
-			spawned->spr.pos += offset;
+			DVector2 spawnofs(-ang.Sin()* (1024. / 644.), ang.Cos() * (1024. / 644.));
+			spawned->spr.pos += spawnofs;
 		}
 		else
 		{
-			DVector2 offset(ang.Sin()* 4, ang.Cos() * -4);
-			spawned->spr.pos += offset;
+			DVector2 spawnofs(ang.Sin()* 4, ang.Cos() * -4);
+			spawned->spr.pos += spawnofs;
 		}
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
@@ -1076,8 +1076,7 @@ static void shootshrinker(DDukeActor* actor, int p, int sx, int sy, int sz, int 
 
 void shoot_d(DDukeActor* actor, int atwith)
 {
-	int l, j;
-	int sx, sy, sz, sa, p, vel, zvel, x, dal;
+	int sx, sy, sz, sa, p, zvel;
 	if (actor->isPlayer())
 	{
 		p = actor->PlayerIndex();
