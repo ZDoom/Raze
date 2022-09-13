@@ -2714,7 +2714,7 @@ static void processweapon(int snum, ESyncBits actions)
 
 void processinput_d(int snum)
 {
-	int j, k, doubvel, fz, cz, truefdist;
+	int k, doubvel, fz, cz, truefdist;
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
@@ -2749,12 +2749,10 @@ void processinput_d(int snum)
 	shrunk = (pact->spr.yrepeat < 32);
 	getzrange(p->player_int_pos(), psectp, &cz, chz, &fz, clz, 163, CLIPMASK0);
 
-	j = getflorzofslopeptr(psectp, p->player_int_pos().X, p->player_int_pos().Y);
+	p->truefz = getflorzofslopeptrf(psectp, p->pos);
+	p->truecz = getceilzofslopeptrf(psectp, p->pos);
 
-	p->truefz = j * zinttoworld;
-	p->truecz = getceilzofslopeptr(psectp, p->player_int_pos().X, p->player_int_pos().Y) * zinttoworld;
-
-	truefdist = abs(p->player_int_pos().Z - j);
+	truefdist = abs(p->pos.Z - p->truefz) * worldtoint;
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.int_playerheight + (16 << 8))
 		psectlotag = 0;
 
@@ -2909,7 +2907,7 @@ void processinput_d(int snum)
 
 	if (p->spritebridge == 0 && pact->insector())
 	{
-		j = pact->sector()->floorpicnum;
+		int j = pact->sector()->floorpicnum;
 
 		if (j == PURPLELAVA || pact->sector()->ceilingpicnum == PURPLELAVA)
 		{
@@ -2956,6 +2954,7 @@ void processinput_d(int snum)
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
+				int j;
 				switch (psectlotag)
 				{
 				case 0:
@@ -3046,7 +3045,7 @@ HORIZONLY:
 
 	if (p->jetpack_on == 0)
 	{
-		if (pact->int_xvel() > 16)
+		if (pact->vel.X > 1)
 		{
 			if (psectlotag != 1 && psectlotag != 2 && p->on_ground)
 			{
