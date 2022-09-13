@@ -2794,9 +2794,9 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			}
 			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & CSTAT_SECTOR_SKY) && rnd(8)))
 			{
-				int dist;
-				int p = findplayer(actor, &dist);
-				if (dist < 20480)
+				double dist2;
+				int p = findplayer(actor, &dist2);
+				if (dist2 < 1280)//20480)
 				{
 					auto saved_angle = actor->spr.angle;
 					actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY());
