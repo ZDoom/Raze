@@ -161,15 +161,15 @@ void tracers(const DVector3& start, const DVector3& dest, int n)
 
 double hits(DDukeActor* actor)
 {
-	int zoff;
+	double zoff;
 	HitInfo hit{};
 
-	if (actor->isPlayer()) zoff = gs.int_playerheight;
+	if (actor->isPlayer()) zoff = gs.playerheight;
 	else zoff = 0;
 
-	auto pos = actor->int_pos();
-	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->int_ang()), bsin(actor->int_ang()), 0 }, hit, CLIPMASK1);
-	return (FindDistance2D(hit.int_hitpos().vec2 - actor->int_pos().vec2)) * inttoworld;
+	auto pos = actor->spr.pos;
+	hitscan(pos.plusZ(-zoff), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK1);
+	return (hit.hitpos.XY() - actor->spr.pos.XY()).Length();
 }
 
 //---------------------------------------------------------------------------
