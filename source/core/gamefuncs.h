@@ -599,4 +599,9 @@ inline double BobVal(int val)
 	return g_sinbam((unsigned)val << 21);
 }
 
+inline double BobVal(double val)
+{
+	return g_sinbam((unsigned)(val * (1 << 21)));
+}
+
 #include "updatesector.h"
