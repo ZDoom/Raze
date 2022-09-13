@@ -3191,9 +3191,9 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		ChangeActorSect(actor, sourceactor->sector());
 
 	actor->spr.pos.XY() =sourceactor->spr.pos.XY();
-	int zTop, zBot;
+	double zTop, zBot;
 	GetActorExtents(sourceactor, &zTop, &zBot);
-	actor->set_int_z(zBot);
+	actor->spr.pos.Z = zBot;
 
 	clampSprite(actor, 0x01);
 
@@ -6689,22 +6689,23 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, w
 
 void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, int rel, bool forcez)
 {
-	int slope = 0, z = 0;
+	int slope = 0;
+	double z = 0;
 	switch (rel) {
 	default:
-		z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
+		z = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
 		if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z--;
 		slope = pSector->floorheinum;
 		break;
 	case 1:
-		z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
+		z = getceilzofslopeptrf(actor->sector(), actor->spr.pos);
 		if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z++;
 		slope = pSector->ceilingheinum;
 		break;
 	}
 
 	spriteSetSlope(actor, slope);
-	if (forcez) actor->set_int_z(z);
+	if (forcez) actor->spr.pos.Z = z;
 }
 
 //---------------------------------------------------------------------------

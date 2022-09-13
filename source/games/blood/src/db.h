@@ -92,6 +92,14 @@ void GetSpriteExtents(spritetypebase const* const pSprite, int* top, int* bottom
 	}
 }
 
+inline void GetSpriteExtents(spritetypebase const* const actor, double* top, double* bottom)
+{
+	int t, b;
+	GetSpriteExtents(actor, &t, &b);
+	*top = t * zinttoworld;
+	*bottom = b * zinttoworld;
+}
+
 struct BloodSpawnSpriteDef : public SpawnSpriteDef
 {
 	TArray<XSPRITE> xspr;

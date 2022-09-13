@@ -120,7 +120,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		int perc = (100 * owneractor->xspr.data3) / kMaxPatrolSpotValue;
 		int width = (94 * owneractor->xspr.data3) / kMaxPatrolSpotValue;
 
-		int top, bottom;
+		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
 
 		auto pNSprite2 = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
@@ -135,7 +135,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (perc >= 75) pNSprite2->pal = 0;
 		else if (perc >= 50) pNSprite2->pal = 6;
 
-		pNSprite2->set_int_z(top - 2048);
+		pNSprite2->pos.Z = (top - 8);
 		pNSprite2->shade = -128;
 		break;
 	}
@@ -168,7 +168,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	case kViewEffectFlag:
 	case kViewEffectBigFlag:
 	{
-		int top, bottom;
+		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
 		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
@@ -176,7 +176,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		pNSprite->shade = -128;
 		pNSprite->pal = 0;
-		pNSprite->set_int_z(top);
+		pNSprite->pos.Z = top;
 		if (nViewEffect == kViewEffectFlag)
 			pNSprite->xrepeat = pNSprite->yrepeat = 24;
 		else
@@ -229,14 +229,14 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		int top, bottom;
+		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
+		pNSprite->pos.Z = top;
 		pNSprite->shade = 26;
 		pNSprite->pal = 0;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->xrepeat = pNSprite->yrepeat = 24;
 		pNSprite->picnum = 626;
-		pNSprite->set_int_z(top);
 		break;
 	}
 	case kViewEffectTrail:
@@ -296,9 +296,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		int top, bottom;
+		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->set_int_z(top);
+		pNSprite->pos.Z = top;
 		if (IsDudeSprite(pTSprite))
 			pNSprite->picnum = 672;
 		else
@@ -315,9 +315,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		int top, bottom;
+		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->set_int_z(bottom);
+		pNSprite->pos.Z = bottom;
 		if (pTSprite->type >= kDudeBase && pTSprite->type < kDudeMax)
 			pNSprite->picnum = 672;
 		else
@@ -334,9 +334,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		int top, bottom;
+		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->set_int_z(top);
+		pNSprite->pos.Z = top;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 32;
@@ -348,9 +348,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 
-		int top, bottom;
+		double top, bottom;
 		GetSpriteExtents(pTSprite, &top, &bottom);
-		pNSprite->set_int_z(bottom);
+		pNSprite->pos.Z = bottom;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
 		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 32;
@@ -361,7 +361,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
-		pNSprite->set_int_z(getflorzofslopeptr(pTSprite->sectp, pNSprite->int_pos().X, pNSprite->int_pos().Y));
+		pNSprite->pos.Z = getflorzofslopeptrf(pTSprite->sectp, pNSprite->pos);
 		if ((pNSprite->sectp->floorpicnum >= 4080) && (pNSprite->sectp->floorpicnum <= 4095) && !VanillaMode()) // if floor has ror, find actual floor
 		{
 			DVector3 cPos = pNSprite->pos;

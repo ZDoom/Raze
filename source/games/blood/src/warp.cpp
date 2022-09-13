@@ -139,7 +139,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 				actor->sector()->upperLink = actor;
 				actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				actor->set_int_z(getflorzofslopeptr(actor->sector(), actor->spr.pos));
+				actor->spr.pos.Z = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
 				break;
 			case kMarkerLowWater:
 			case kMarkerLowStack:
@@ -147,7 +147,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 				actor->sector()->lowerLink = actor;
 				actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				actor->set_int_z(getceilzofslopeptr(actor->sector(), actor->spr.pos));
+				actor->spr.pos.Z = getceilzofslopeptrf(actor->sector(), actor->spr.pos);
 				break;
 			}
 		}
