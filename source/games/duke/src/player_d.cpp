@@ -1030,34 +1030,34 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 //
 //---------------------------------------------------------------------------
 
-static void shootshrinker(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
 {
-	int zvel;
+	double zvel;
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 	if (p >= 0)
 	{
 		auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1);
-			zvel = ((aimed->int_pos().Z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
-			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
+			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5);
+			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
+			zvel = ((aimed->spr.pos.Z - pos.Z - dal - 4) * 48) / dist;
+			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
-		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
+		else
+			zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
 	}
 	else if (actor->spr.statnum != 3)
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		int l = ldist(ps[j].GetActor(), actor);
-		zvel = ((ps[j].player_int_opos().Z - sz) * 512) / l;
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		zvel = ((ps[j].pos.Z - pos.Z) * 32) / dist;
 	}
 	else zvel = 0;
 
-	auto spawned = EGS(actor->sector(),
-		sx - bsin(sa, -12),
-		sy + bcos(sa, -12),
-		sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, actor, 4);
+	auto spawned = CreateActor(actor->sector(),
+		pos.plusZ(2) + ang.ToVector() * 0.25, SHRINKSPARK, -16, 28, 28, ang.Buildang(), 768, zvel * zworldtoint, actor, 4);
 
 	if (spawned)
 	{
@@ -1200,7 +1200,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		break;
 
 	case SHRINKER:
-		shootshrinker(actor, p, sx, sy, sz, sa, atwith);
+		shootshrinker(actor, p, spos, sang, atwith);
 		break;
 	}
 	return;
