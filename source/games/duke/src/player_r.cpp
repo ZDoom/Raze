@@ -596,17 +596,17 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 //
 //---------------------------------------------------------------------------
 
-static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sect = actor->sector();
-	int vel, zvel;
-	int l, scount;
+	double vel, zvel;
+	int scount;
 
 	DDukeActor* act90 = nullptr;
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 	scount = 1;
-	vel = 644;
+	vel = 40.25;
 
 	DDukeActor* aimed = nullptr;
 
@@ -622,12 +622,15 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				else
 					act90 = aimed;
 			}
-			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (8 << 8);
-			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 8;
+			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
+			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			if (aimed->spr.picnum != RECON)
-				sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
+				ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
-		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
+		else
+			zvel = -ps[p].horizon.sum().asbuildf() * (81 / 256.);
+
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
 		else if (isRRRA())
@@ -641,36 +644,34 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	}
 	else
 	{
-		int x;
+		double x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].player_int_opos().X - sx, ps[j].player_int_opos().Y - sy);
+		ang = VecToAngle(ps[j].opos.XY() - pos.XY());
 		if (actor->spr.picnum == BOSS3)
-			sz -= (32 << 8);
+			pos.Z -= 32;
 		else if (actor->spr.picnum == BOSS2)
 		{
-			vel += 128;
-			sz += 24 << 8;
+			vel += 8;
+			pos.Z -= 24;
 		}
 
-		l = ldist(ps[j].GetActor(), actor);
-		zvel = ((ps[j].player_int_opos().Z - sz) * vel) / l;
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		zvel = ((ps[j].opos.Z - pos.Z) * vel) / dist;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
-			sa = actor->int_ang() + (krand() & 31) - 16;
+			ang = actor->spr.angle + randomAngle(22.5 / 4) - DAngle22_5 / 8;
 	}
 
 	if (p < 0) aimed = nullptr;
 
 	if (isRRRA() && atwith == RRTILE1790)
 	{
-		zvel = -(10 << 8);
-		vel <<= 1;
+		zvel = -10;
+		vel *= 2;
 	}
 
-	auto spawned = EGS(sect,
-		sx + (bcos(sa + 348) / 448),
-		sy + (bsin(sa + 348) / 448),
-		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
+	auto offset = (ang + DAngle1 * 61).ToVector() * (1024 / 448.);
+	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 4);
 
 	if (!spawned) return;
 	if (isRRRA())
@@ -716,16 +717,18 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	else if (ps[p].curr_weapon == TIT_WEAPON)
 	{
 		spawned->spr.extra >>= 2;
-		spawned->add_int_ang(16 - (krand() & 31));
+		spawned->spr.angle += DAngle22_5 / 8 - randomAngle(DAngle22_5 / 4);
 		spawned->vel.Z += 1 - krandf(2);
 
 		if (ps[p].hbomb_hold_delay)
 		{
-			spawned->add_int_pos({ -bsin(sa) / 644, bcos(sa) / 644, 0 });
+			DVector2 spawnofs(ang.Sin() * (1024. / 644.), ang.Cos() * -(1024. / 644.));
+			spawned->spr.pos += spawnofs;
 		}
 		else
 		{
-			spawned->add_int_pos({ bsin(sa, -8), -bcos(sa, -8), 0 });
+			DVector2 spawnofs(ang.Sin() * 4, ang.Cos() * -4);
+			spawned->spr.pos += spawnofs;
 		}
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
@@ -933,7 +936,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	case RPG:
 	case SHRINKSPARK:
 	rrra_rpg2:
-		shootrpg(actor, p, sx, sy, sz, sa, atwith);
+		shootrpg(actor, p, spos, sang, atwith);
 		break;
 
 	case CHEERBOMB:
