@@ -167,7 +167,7 @@ int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, dou
 void dofurniture(walltype* wallNum, sectortype* sectnum, int playerNum);
 void dotorch();
 int hitawall(player_struct* pl, walltype** hitWall);
-int hits(DDukeActor* snum);
+double hits(DDukeActor* snum);
 
 DDukeActor* LocateTheLocator(int n, sectortype* sectnum);
 void clearcamera(player_struct* ps);

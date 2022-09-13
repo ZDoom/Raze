@@ -2261,8 +2261,8 @@ static void operateweapon(int snum, ESyncBits actions)
 				spawned->spr.pos.Z += 8;
 			}
 
-			k = hits(pact);
-			if (k < 512)
+			double hd = hits(pact);
+			if (hd < 32)
 			{
 				spawned->spr.angle += DAngle180;
 				spawned->vel *= 1./3.;

@@ -5029,7 +5029,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 				{
 					DAngle add = DAngle22_5 * ((krand() & 256)? 1 : -1);
 					actor->spr.angle += add;
-					if (hits(actor) < 844)
+					if (hits(actor) < 51.25)
 						actor->spr.angle -= add;
 				}
 			}

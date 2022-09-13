@@ -2764,8 +2764,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 					spawned->spr.pos.Z += 8;
 				}
 
-				k = hits(p->GetActor());
-				if (k < 512)
+				int hd = hits(p->GetActor());
+				if (hd < 32)
 				{
 					spawned->spr.angle += DAngle180;
 					spawned->vel *= 1./3.;

@@ -159,7 +159,7 @@ void tracers(const DVector3& start, const DVector3& dest, int n)
 //
 //---------------------------------------------------------------------------
 
-int hits(DDukeActor* actor)
+double hits(DDukeActor* actor)
 {
 	int zoff;
 	HitInfo hit{};
@@ -169,7 +169,7 @@ int hits(DDukeActor* actor)
 
 	auto pos = actor->int_pos();
 	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->int_ang()), bsin(actor->int_ang()), 0 }, hit, CLIPMASK1);
-	return (FindDistance2D(hit.int_hitpos().vec2 - actor->int_pos().vec2));
+	return (FindDistance2D(hit.int_hitpos().vec2 - actor->int_pos().vec2)) * inttoworld;
 }
 
 //---------------------------------------------------------------------------

@@ -360,8 +360,8 @@ void operateweapon_ww(int snum, ESyncBits actions)
 					j->spr.pos.Z += 8;
 				}
 
-				k = hits(p->GetActor());
-				if (k < 512)
+				int hd = hits(p->GetActor());
+				if (hd < 32)
 				{
 					j->spr.angle += DAngle180;
 					j->vel *= 1./3.;

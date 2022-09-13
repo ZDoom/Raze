@@ -1733,7 +1733,7 @@ void checksectors_d(int snum)
 			}
 
 		if (near.hitWall == nullptr && near.hitSector == nullptr && near.actor() == nullptr)
-			if (abs(hits(p->GetActor())) < 512)
+			if (hits(p->GetActor()) < 32)
 			{
 				if ((krand() & 255) < 16)
 					S_PlayActorSound(DUKE_SEARCH2, pact);
