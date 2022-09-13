@@ -436,14 +436,14 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 //---------------------------------------------------------------------------
 
 
-int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision &result)
+int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision &result)
 {
 	int clipdist;
 	int bg = badguy(actor);
 
 	if (actor->spr.statnum == STAT_MISC || (bg && actor->spr.xrepeat < 4))
 	{
-		actor->add_int_pos({ (xchange * TICSPERFRAME) >> 2, (ychange * TICSPERFRAME) >> 2, (zchange * TICSPERFRAME) >> 2 });
+		actor->spr.pos += change;
 		if (bg)
 			SetActor(actor, actor->spr.pos);
 		return result.setNone();
@@ -457,7 +457,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	if (bg)
 	{
 		if (actor->spr.xrepeat > 60)
-			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, FloatToFixed<18>(change.X * 0.5), FloatToFixed<18>(change.Y * 0.5), 1024, (4 << 8), (4 << 8), cliptype, result);
 		else 
 		{
 			if (actor->spr.picnum == LIZMAN)
@@ -467,7 +467,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			else
 				clipdist = 192;
 
-			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, FloatToFixed<18>(change.X * 0.5), FloatToFixed<18>(change.Y * 0.5), clipdist, (4 << 8), (4 << 8), cliptype, result);
 		}
 
 		// conditional code from hell...
@@ -480,28 +480,28 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		 )
 		{
 			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && actor->spr.picnum == LIZMAN)
-				actor->set_int_ang((krand()&2047));
+				actor->spr.angle = randomAngle();
 			else if ((actor->temp_data[0]&3) == 1 && actor->spr.picnum != COMMANDER)
-				actor->set_int_ang((krand()&2047));
+				actor->spr.angle = randomAngle();
 			SetActor(actor,actor->spr.pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
-		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->add_int_ang(768);
+		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->spr.angle += DAngle90 + DAngle45;
 	}
 	else
 	{
 		if (actor->spr.statnum == STAT_PROJECTILE)
-			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, FloatToFixed<18>(change.X * 0.5), FloatToFixed<18>(change.Y * 0.5), 8, (4 << 8), (4 << 8), cliptype, result);
 		else
-			clipmove(ppos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(actor->int_clipdist()), (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, FloatToFixed<18>(change.X * 0.5), FloatToFixed<18>(change.Y * 0.5), (int)(actor->int_clipdist()), (4 << 8), (4 << 8), cliptype, result);
 	}
 	actor->spr.pos.XY() = ppos.XY();
 
 	if (dasectp != nullptr && dasectp != actor->sector())
 		ChangeActorSect(actor, dasectp);
 
-	double daz = actor->spr.pos.Z + ((zchange * TICSPERFRAME) >> 3) * zinttoworld;
+	double daz = actor->spr.pos.Z + change.Z * 0.5;
 	if (daz > actor->ceilingz && daz <= actor->floorz)
 		actor->spr.pos.Z = daz;
 	else if (result.type == kHitNone)
