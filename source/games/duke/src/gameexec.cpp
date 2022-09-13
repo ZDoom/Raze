@@ -1225,8 +1225,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else*/ SetGameVarID(lVar2, act->spr.statnum, sActor, sPlayer);
 		break;
 	case ACTOR_ANG:
-		if (bSet) act->set_int_ang(lValue);
-		else SetGameVarID(lVar2, act->int_ang(), sActor, sPlayer);
+		if (bSet) act->spr.angle = DAngle::fromBuild(lValue);
+		else SetGameVarID(lVar2, act->spr.angle.Buildang(), sActor, sPlayer);
 		break;
 	case ACTOR_OWNER:
 		// there is no way to handle this well because we do not know whether this is an actor or not. Pity.
@@ -1234,16 +1234,16 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spr.intowner, sActor, sPlayer);
 		break;
 	case ACTOR_XVEL:
-		if (bSet) act->set_int_xvel(lValue);
-		else SetGameVarID(lVar2, act->int_xvel(), sActor, sPlayer);
+		if (bSet) act->vel.X = lValue * maptoworld;
+		else SetGameVarID(lVar2, act->vel.X / maptoworld, sActor, sPlayer);
 		break;
 	case ACTOR_YVEL:
 		if (bSet) act->spr.yint = lValue;
 		else SetGameVarID(lVar2, act->spr.yint, sActor, sPlayer);
 		break;
 	case ACTOR_ZVEL:
-		if (bSet) act->set_int_zvel(lValue);
-		else SetGameVarID(lVar2, act->int_zvel(), sActor, sPlayer);
+		if (bSet) act->vel.Z = lValue * zmaptoworld;
+		else SetGameVarID(lVar2, act->vel.Z / zmaptoworld, sActor, sPlayer);
 		break;
 	case ACTOR_LOTAG:
 		if (bSet) act->spr.lotag = lValue;
@@ -1384,17 +1384,18 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 	int j;
 	if (g_x > 1024)
 	{
-		int sclip, angdif;
+		int sclip;
+		DAngle angdif;
 
 		if (badguy(actor) && actor->spr.xrepeat > 56)
 		{
 			sclip = 3084;
-			angdif = 48;
+			angdif = DAngle22_5 * 3 / 8;
 		}
 		else
 		{
 			sclip = 768;
-			angdif = 16;
+			angdif = DAngle22_5 / 8;
 		}
 
 		DDukeActor* hit;
@@ -1409,14 +1410,18 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 				j = 0;
 			else
 			{
-				actor->add_int_ang(angdif); j = hitasprite(actor, &hit); actor->add_int_ang(-angdif);
+				actor->spr.angle += angdif;
+				j = hitasprite(actor, &hit);
+				actor->spr.angle -= angdif;
 				if (j > sclip)
 				{
 					if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
 						j = 0;
 					else
 					{
-						actor->add_int_ang(-angdif); j = hitasprite(actor, &hit); actor->add_int_ang(angdif);
+						actor->spr.angle += angdif;
+						j = hitasprite(actor, &hit);
+						actor->spr.angle -= angdif;
 						if (j > 768)
 						{
 							if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
@@ -1554,7 +1559,7 @@ int ParseState::parse(void)
 		g_ac->spr.hitag = ScriptCode[g_t[5] + 2];	  // Ai
 		g_t[0] = g_t[2] = g_t[3] = 0;
 		if (g_ac->spr.hitag & random_angle)
-			g_ac->set_int_ang(krand() & 2047);
+			g_ac->spr.angle = randomAngle();
 		insptr++;
 		break;
 	case concmd_action:
@@ -1594,10 +1599,10 @@ int ParseState::parse(void)
 		switch (krand() & 1)
 		{
 		case 0:
-			g_ac->set_int_ang((+512 + g_ac->int_ang() + (krand() & 511)) & 2047);
+			g_ac->spr.angle += DAngle90 + randomAngle(90);
 			break;
 		case 1:
-			g_ac->set_int_ang((-512 + g_ac->int_ang() - (krand() & 511)) & 2047);
+			g_ac->spr.angle -= DAngle90 + randomAngle(90);
 			break;
 		}
 		insptr++;
@@ -1608,8 +1613,8 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_rndmove:
-		g_ac->set_int_ang(krand() & 2047);
-		g_ac->set_int_xvel(25);
+		g_ac->spr.angle = randomAngle();
+		g_ac->vel.X = 25/16.;
 		insptr++;
 		break;
 	case concmd_mamatrigger:
@@ -2115,7 +2120,7 @@ int ParseState::parse(void)
 		g_ac->spr.hitag = *insptr;
 		insptr++;
 		if(g_ac->spr.hitag&random_angle)
-			g_ac->set_int_ang(krand()&2047);
+			g_ac->spr.angle = randomAngle();
 		break;
 	case concmd_spawn:
 		insptr++;
@@ -2475,7 +2480,7 @@ int ParseState::parse(void)
 		if( g_ac->sector()->lotag == 0 )
 		{
 			HitInfo hit{};
-			neartag({ g_ac->int_pos().X, g_ac->int_pos().Y, g_ac->int_pos().Z - (32 << 8) }, g_ac->sector(), g_ac->int_ang(), hit, 768, 1);
+			neartag(g_ac->spr.pos.plusZ(-32), g_ac->sector(), g_ac->spr.angle, hit, 48, 1);
 			auto sectp = hit.hitSector;
 			if (sectp)
 			{
@@ -2836,10 +2841,12 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifangdiffl:
+		{
 		insptr++;
-		j = abs(getincangle(ps[g_p].angle.ang.Buildang(),g_ac->int_ang()));
-		parseifelse( j <= *insptr);
+		auto ang = absangle(ps[g_p].angle.ang, g_ac->spr.angle);
+		parseifelse( ang <= mapangle(*insptr));
 		break;
+		}
 
 	case concmd_ifnosounds:
 		parseifelse(!S_CheckAnyActorSoundPlaying(g_ac));
@@ -3153,7 +3160,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, g_ac->int_ang(), g_ac, g_p);
+		SetGameVarID(i, g_ac->spr.angle.Buildang(), g_ac, g_p);
 		break;
 	}
 	case concmd_setactorangle:
@@ -3161,7 +3168,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		g_ac->set_int_ang(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
+		g_ac->spr.angle = DAngle::fromBuild(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
 		break;
 	}
 	case concmd_randvar:
