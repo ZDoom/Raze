@@ -562,10 +562,10 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 //
 //---------------------------------------------------------------------------
 
-static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	sectortype* sect = actor->sector();
-	int vel, zvel;
+	double vel, zvel;
 	int scount;
 
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
@@ -577,13 +577,13 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		if (atwith == COOLEXPLOSION1)
 		{
 			if (actor->spr.picnum == BOSS2) vel = 644;
-			else vel = 348;
-			sz -= (4 << 7);
+			else vel = 348 / 16.;
+			pos.Z -= 2;
 		}
 		else
 		{
-			vel = 840;
-			sz -= (4 << 7);
+			vel = 840 / 16.;
+			pos.Z -= 2;
 		}
 	}
 
@@ -593,33 +593,46 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 
 		if (aimed)
 		{
-			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) - (12 << 8);
-			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
+			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) - 12;
+			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
+
+			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
+			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
 		else
-			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
+			zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
 	}
 	else
 	{
-		int x;
+		double x;
 		int j = findplayer(actor, &x);
-		// sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
-		sa += 16 - (krand() & 31);
-		zvel = (((ps[j].player_int_opos().Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+		ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
+#if 1
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		zvel = ((ps[j].opos.Z - pos.Z + 3) * vel) / dist;
+#else
+		// this is for pitch corrected velocity
+		auto dist = (ps[j].GetActor()->spr.pos - actor->spr.pos).Resized(vel);
+		vel = dist.XY().Length();
+		zvel = dist.Z;
+#endif
 	}
 
-	int oldzvel = zvel;
+	double oldzvel = zvel;
 	int sizx, sizy;
 
-	if (atwith == SPIT) { sizx = 18; sizy = 18, sz -= (10 << 8); }
+	if (atwith == SPIT) 
+	{ 
+		sizx = 18; 
+		sizy = 18;
+		pos.Z -= 10; 
+	}
 	else
 	{
 		if (atwith == FIRELASER)
 		{
 			if (p >= 0)
 			{
-
 				sizx = 34;
 				sizy = 34;
 			}
@@ -640,7 +653,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 
 	while (scount > 0)
 	{
-		auto spawned = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 4);
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 
@@ -660,8 +673,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 		spawned->set_const_clipdist(4);
 
-		sa = actor->int_ang() + 32 - (krand() & 63);
-		zvel = oldzvel + 512 - (krand() & 1023);
+		ang = actor->spr.angle + DAngle22_5 / 4 - randomAngle(22.5 / 2);
+		zvel = oldzvel + 2 - krandf(4);
 
 		scount--;
 	}
@@ -1096,7 +1109,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	case FIRELASER:
 	case SPIT:
 	case COOLEXPLOSION1:
-		shootstuff(actor, p, sx, sy, sz, sa, atwith);
+		shootstuff(actor, p, spos, sang, atwith);
 		return;
 
 	case FREEZEBLAST:
