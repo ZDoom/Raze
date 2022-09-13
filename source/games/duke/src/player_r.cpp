@@ -856,42 +856,33 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 
 void shoot_r(DDukeActor* actor, int atwith)
 {
-	int sa, p;
-	int sx, sy, sz, zvel;
-
+	int p;
+	DVector3 spos;
+	DAngle sang;
 
 	auto const sect = actor->sector();
-	zvel = 0;
 
 	if (actor->isPlayer())
 	{
 		p = actor->PlayerIndex();
-
-		sx = ps[p].player_int_pos().X;
-		sy = ps[p].player_int_pos().Y;
-		sz = ps[p].player_int_pos().Z + ps[p].pyoff * zworldtoint + (4 << 8);
-		sa = ps[p].angle.ang.Buildang();
+		spos = ps[p].pos.plusZ(ps[p].pyoff + 4);
+		sang = ps[p].angle.ang;
 
 		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
 	}
 	else
 	{
 		p = -1;
-		sa = actor->int_ang();
-		sx = actor->int_pos().X;
-		sy = actor->int_pos().Y;
-		sz = actor->int_pos().Z - ((actor->spr.yrepeat * tileHeight(actor->spr.picnum)) << 1) + (4 << 8);
-		sz -= (7 << 8);
+		sang = actor->spr.angle;
+		spos = actor->spr.pos.plusZ(-(actor->spr.yrepeat * tileHeight(actor->spr.picnum) * REPEAT_SCALE * 0.5) - 3);
+
 		if (badguy(actor))
 		{
-			sx -= bsin(sa, -7);
-			sy += bcos(sa, -7);
+			spos.X -= (sang + DAngle22_5 * 0.75).Sin() * 8;
+			spos.Y += (sang + DAngle22_5 * 0.75).Cos() * 8;
 		}
 	}
 	
-	DVector3 spos(sx * inttoworld, sy * inttoworld, sz * zinttoworld);
-	DAngle sang = DAngle::fromBuild(sa);
-
 	SetGameVarID(g_iAtWithVarID, atwith, actor, p);
 	SetGameVarID(g_iReturnVarID, 0, actor, p);
 	OnEvent(EVENT_SHOOT, p, ps[p].GetActor(), -1);
@@ -962,7 +953,9 @@ void shoot_r(DDukeActor* actor, int atwith)
 		else break;
 
 	case FREEZEBLAST:
-		sz += (3 << 8);
+		spos.Z += 3;
+		[[fallthrough]];
+
 	case RPG:
 	case SHRINKSPARK:
 	rrra_rpg2:

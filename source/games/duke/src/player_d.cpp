@@ -1074,7 +1074,12 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 
 void shoot_d(DDukeActor* actor, int atwith)
 {
-	int sx, sy, sz, sa, p, zvel;
+	int p;
+	DVector3 spos;
+	DAngle sang;
+
+	auto const sect = actor->sector();
+
 	if (actor->isPlayer())
 	{
 		p = actor->PlayerIndex();
@@ -1093,37 +1098,29 @@ void shoot_d(DDukeActor* actor, int atwith)
 	}
 
 
-	auto sect = actor->sector();
-	zvel = 0;
-
 	if (actor->isPlayer())
 	{
-		sx = ps[p].player_int_pos().X;
-		sy = ps[p].player_int_pos().Y;
-		sz = ps[p].player_int_pos().Z + ps[p].pyoff * zworldtoint + (4 << 8);
-		sa = ps[p].angle.ang.Buildang();
+		spos = ps[p].pos.plusZ(ps[p].pyoff + 4);
+		sang = ps[p].angle.ang;
 
 		ps[p].crack_time = CRACK_TIME;
 
 	}
 	else
 	{
-		sa = actor->int_ang();
-		sx = actor->int_pos().X;
-		sy = actor->int_pos().Y;
-		sz = actor->int_pos().Z - (actor->spr.yrepeat * tileHeight(actor->spr.picnum) << 1) + (4 << 8);
+		sang = actor->spr.angle;
+		spos = actor->spr.pos.plusZ(-(actor->spr.yrepeat * tileHeight(actor->spr.picnum) * REPEAT_SCALE * 0.5) + 4);
+
 		if (actor->spr.picnum != ROTATEGUN)
 		{
-			sz -= (7 << 8);
+			spos.Z -= 7;
 			if (badguy(actor) && actor->spr.picnum != COMMANDER)
 			{
-				sx -= bsin(sa + 96, -7);
-				sy += bcos(sa + 96, -7);
+				spos.X -= (sang + DAngle22_5 * 0.75).Sin() * 8;
+				spos.Y += (sang + DAngle22_5 * 0.75).Cos() * 8;
 			}
 		}
 	}
-	DVector3 spos(sx * inttoworld, sy * inttoworld, sz * zinttoworld);
-	DAngle sang = DAngle::fromBuild(sa);
 
 	if (isWorldTour()) 
 	{ // Twentieth Anniversary World Tour
@@ -1179,10 +1176,10 @@ void shoot_d(DDukeActor* actor, int atwith)
 		return;
 
 	case FREEZEBLAST:
-		sz += (3 << 8);
+		spos.Z += 3;
 		[[fallthrough]];
-	case RPG:
 
+	case RPG:
 		shootrpg(actor, p, spos, sang, atwith);
 		break;
 
