@@ -1049,28 +1049,27 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		}
 		return;
 	}
+	
 
-	int x1 = wal->wall_int_pos().X;
-	int y1 = wal->wall_int_pos().Y;
-	auto delta = wal->int_delta() / (n + 1);
+	auto pos = wal->pos;
+	auto delta = wal->delta() / (n + 1);
 
-	x1 -= Sgn(delta.Y);
-	y1 += Sgn(delta.X);
+	pos.X -= Sgn(delta.Y) * maptoworld;
+	pos.Y += Sgn(delta.X) * maptoworld;
 
 
 	for (j = n; j > 0; j--)
 	{
-		x1 += delta.X;
-		y1 += delta.Y;
-
-		updatesector(x1, y1, &sect);
+		pos += delta;
+		sect = wal->sectorp();
+		updatesector(DVector3(pos, sect->floorz), &sect);
 		if (sect)
 		{
-			z = sect->int_floorz() - (krand() & (abs(sect->int_ceilingz() - sect->int_floorz())));
-			if (z < -(32 << 8) || z >(32 << 8))
-				z = actor->int_pos().Z - (32 << 8) + (krand() & ((64 << 8) - 1));
-			a = actor->int_ang() - 1024;
-			EGS(actor->sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			z = sect->floorz - krandf(abs(sect->ceilingz - sect->floorz));
+			if (fabs(z) > 32)
+				z = actor->spr.pos.Z - 32 + krandf(64);
+			DAngle a = actor->spr.angle - DAngle180;
+			CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a.Buildang(), 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }
@@ -1099,23 +1098,17 @@ void spriteglass(DDukeActor* actor, int n)
 
 void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 {
-	int j, z;
-	int a;
-
 	for (auto& wal : wallsofsector(sectp))
 	{
-		int x1 = wal.wall_int_pos().X;
-		int y1 = wal.wall_int_pos().Y;
+		auto pos = wal.pos;
+		auto delta = wal.delta() / (n + 1);
 
-		auto delta = wal.int_delta() / (n + 1);
-
-		for (j = n; j > 0; j--)
+		for (int j = n; j > 0; j--)
 		{
-			x1 += delta.X;
-			y1 += delta.Y;
-			a = krand() & 2047;
-			z = sectp->int_ceilingz() + ((krand() & 15) << 8);
-			EGS(sectp, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, actor, 5);
+			pos += delta;
+			DAngle a = randomAngle();
+			double z = sectp->ceilingz + krandf(16);
+			CreateActor(sectp, DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a.Buildang(), (krand() & 31), 0, actor, 5);
 		}
 	}
 }
@@ -1128,37 +1121,36 @@ void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 
 void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 {
-	int j, z;
+	int j;
 	sectortype* sect = nullptr;
-	int a;;
 
 	if (wal == nullptr)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
-			a = krand() & 2047;
-			auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 63)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
+			DAngle a = randomAngle();
+			auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 63)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a.Buildang(), 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
 			if (k) k->spr.pal = krand() & 15;
 		}
 		return;
 	}
 
-	int x1 = wal->wall_int_pos().X;
-	int y1 = wal->wall_int_pos().Y;
-
-	auto delta = wal->int_delta() / (n + 1);
+	auto pos = wal->pos;
+	auto delta = wal->delta() / (n + 1);
 
 	for (j = n; j > 0; j--)
 	{
-		x1 += delta.X;
-		y1 += delta.Y;
+		pos += delta;
 
-		updatesector(x1, y1, &sect);
-		z = sect->int_floorz() - (krand() & (abs(sect->int_ceilingz() - sect->int_floorz())));
-		if (z < -(32 << 8) || z >(32 << 8))
-			z = actor->int_pos().Z - (32 << 8) + (krand() & ((64 << 8) - 1));
-		a = actor->int_ang() - 1024;
-		auto k = EGS(actor->sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
+		sect = wal->sectorp();
+		updatesector(DVector3(pos, sect->floorz), &sect);
+		if (!sect) continue;
+		double z = sect->floorz - krandf(abs(sect->ceilingz - sect->floorz));
+		if (abs(z) > 32)
+			z = actor->spr.pos.Z - 32 + krandf(64);
+
+		DAngle a = actor->spr.angle - DAngle180;
+		auto k = CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a.Buildang(), 32 + (krand() & 63), -(krand() & 2047), actor, 5);
 		if (k) k->spr.pal = krand() & 7;
 	}
 }
