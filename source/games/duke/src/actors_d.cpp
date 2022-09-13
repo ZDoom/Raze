@@ -1503,20 +1503,18 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (!S_CheckActorSoundPlaying(proj, WIERDSHOT_FLY))
 			S_PlayActorSound(WIERDSHOT_FLY, proj);
 
-	int k, ll;
-	auto oldpos = proj->spr.pos;
+	double vel = proj->vel.X;
+	double velz = proj->vel.Z;
+
+	int p = -1;
 
 	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
 	{
-		k = proj->int_xvel() >> 1;
-		ll = proj->int_zvel() >> 1;
-	}
-	else
-	{
-		k = proj->int_xvel();
-		ll = proj->int_zvel();
+		vel *= 0.5;
+		velz *= 0.5;
 	}
 
+	auto oldpos = proj->spr.pos;
 	getglobalz(proj);
 
 	switch (proj->spr.picnum)
@@ -1535,9 +1533,8 @@ static void weaponcommon_d(DDukeActor* proj)
 	}
 
 	Collision coll;
-	movesprite_ex(proj,
-		MulScale(k, bcos(proj->int_ang()), 14),
-		MulScale(k, bsin(proj->int_ang()), 14), ll, CLIPMASK1, coll);
+	movesprite_ex(proj, DVector3(proj->spr.angle.ToVector() * vel, velz), CLIPMASK1, coll);
+
 
 	if (proj->spr.picnum == RPG && proj->temp_actor != nullptr)
 		if ((proj->spr.pos.XY() - proj->temp_actor->spr.pos.XY()).Length() < 16)
@@ -1568,23 +1565,16 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	if (proj->spr.picnum == FIRELASER)
 	{
-		for (k = -3; k < 2; k++)
+		for (int k = -3; k < 2; k++)
 		{
-			vec3_t offset = {
-				MulScale(k, bcos(proj->int_ang()), 9),
-				MulScale(k, bsin(proj->int_ang()), 9),
-				(k * Sgn(proj->int_zvel())) * abs(proj->int_zvel() / 24)
-			};
-
-			auto spawned = EGS(proj->sector(),
-				proj->int_pos().X + offset.X,
-				proj->int_pos().Y + offset.Y,
-				proj->int_pos().Z + offset.Z, FIRELASER, -40 + (k << 2),
+			double zAdd = k * proj->vel.Z / 24;
+			auto spawned = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.angle.ToVector() * k * 2.,
+				FIRELASER, -40 + (k << 2),
 				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
 			if (spawned)
 			{
-				spawned->opos = proj->opos + DVector3(offset.X * inttoworld, offset.Y * inttoworld, offset.Z * zinttoworld);
+				spawned->opos = proj->opos - proj->spr.pos + spawned->spr.pos;
 				spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 				spawned->spr.pal = proj->spr.pal;
 			}
@@ -2473,8 +2463,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	}
 
 	Collision coll;
-	movesprite_ex(actor, MulScale(xvel, bcos(actor->int_ang()), 14),
-		MulScale(xvel, bsin(actor->int_ang()), 14), actor->int_zvel(), CLIPMASK1, coll);
+	movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z), CLIPMASK1, coll);
 
 	if (!actor->insector())
 	{
@@ -2595,10 +2584,7 @@ static void heavyhbomb(DDukeActor *actor)
 	}
 
 	Collision coll;
-	movesprite_ex(actor,
-		MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14),
-		MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14),
-		actor->int_zvel(), CLIPMASK0, coll);
+	movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z), CLIPMASK0, coll);
 
 	if (actor->sector()->lotag == 1 && actor->vel.Z == 0)
 	{
@@ -3663,9 +3649,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		}
 
 		Collision coll;
-		actor->movflag = movesprite_ex(actor,
-			MulScale(daxvel, bcos(angdif), 14),
-			MulScale(daxvel, bsin(angdif), 14), actor->int_zvel(), CLIPMASK0, coll);
+		actor->movflag = movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * daxvel * inttoworld, actor->vel.Z), CLIPMASK0, coll);
 	}
 
 	if (a)

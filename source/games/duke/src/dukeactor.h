@@ -36,11 +36,13 @@ inline int bossguy(DDukeActor* pSprite)
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
 int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
 
+/*
 inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result)
 {
 	auto f = isRR() ? movesprite_ex_r : movesprite_ex_d;
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
+ */
 
 inline int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision& result)
 {

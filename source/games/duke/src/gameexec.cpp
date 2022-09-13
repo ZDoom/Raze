@@ -1970,11 +1970,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		movesprite_ex(g_ac, -bsin(g_ac->int_ang(), -10), bcos(g_ac->int_ang(), -10), g_ac->int_zvel(), CLIPMASK0, coll);
+		movesprite_ex(g_ac, DVector3(-g_ac->spr.angle.Sin(), g_ac->spr.angle.Cos(), g_ac->vel.Z), CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		movesprite_ex(g_ac, bsin(g_ac->int_ang(), -10), -bcos(g_ac->int_ang(), -10), g_ac->int_zvel(), CLIPMASK0, coll);
+		movesprite_ex(g_ac, DVector3(g_ac->spr.angle.Sin(), -g_ac->spr.angle.Cos(), g_ac->vel.Z), CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;
