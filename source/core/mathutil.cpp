@@ -62,22 +62,3 @@ double fFindDistance2D(int x, int y)
 
   return (x - (x * (1. / 32.)) - (x * (1. / 128.))  + (t * (1. / 4.)) + (t * (1. / 64.)));
 }
-
-
-int FindDistance3D(int x, int y, int z)
-{
-   x= abs(x);           /* absolute values */
-   y= abs(y);
-   z= abs(z >> 4);
-
-   if (x<y)
-     std::swap(x,y);
-
-   if (x<z)
-     std::swap(x,z);
-
-   int t = y + z;
-
-   return (x - (x>>4) + (t>>2) + (t>>3));
-}
-

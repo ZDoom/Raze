@@ -403,7 +403,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 							while (auto l = it.Next())
 							{
 								if (l->spr.picnum == BULLETHOLE)
-									if (dist(l, spark) < (12 + (krand() & 7)))
+									if ((l->spr.pos - spark->spr.pos).Length() < 0.75 + krandf(0.5))
 										goto SKIPBULLETHOLE;
 							}
 							auto hole = spawn(spark, BULLETHOLE);

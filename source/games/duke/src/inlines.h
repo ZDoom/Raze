@@ -109,14 +109,6 @@ inline int ldist(const DDukeActor* s1, const tspritetype* s2)
 	vy = s1->int_pos().Y - s2->int_pos().Y;
 	return(FindDistance2D(vx, vy) + 1);
 }
-inline int dist(DDukeActor* s1, DDukeActor* s2)
-{
-	int vx, vy, vz;
-	vx = s1->int_pos().X - s2->int_pos().X;
-	vy = s1->int_pos().Y - s2->int_pos().Y;
-	vz = s1->int_pos().Z - s2->int_pos().Z;
-	return(FindDistance3D(vx, vy, vz));
-}
 
 inline bool isIn(int value, int first)
 {

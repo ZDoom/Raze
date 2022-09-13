@@ -525,7 +525,6 @@ void moveplayers(void)
 void movefx(void)
 {
 	int p;
-	int x, ht;
 
 	DukeStatIterator iti(STAT_FX);
 	while (auto act = iti.Next())
@@ -550,8 +549,8 @@ void movefx(void)
 			break;
 
 		case MUSICANDSFX:
-
-			ht = act->spr.hitag;
+			{
+			double maxdist = act->spr.hitag * inttoworld;
 
 			if (act->temp_data[1] != (int)SoundEnabled())
 			{
@@ -561,13 +560,13 @@ void movefx(void)
 
 			if (act->spr.lotag >= 1000 && act->spr.lotag < 2000)
 			{
-				x = ldist(ps[screenpeek].GetActor(), act);
-				if (x < ht && act->temp_data[0] == 0)
+				double dist = (ps[screenpeek].GetActor()->spr.pos.XY() - act->spr.pos.XY()).Length();
+				if (dist < maxdist && act->temp_data[0] == 0)
 				{
 					FX_SetReverb(act->spr.lotag - 1100);
 					act->temp_data[0] = 1;
 				}
-				if (x >= ht && act->temp_data[0] == 1)
+				if (dist >= maxdist && act->temp_data[0] == 1)
 				{
 					FX_SetReverb(0);
 					FX_SetReverbDelay(0);
@@ -579,15 +578,15 @@ void movefx(void)
 				int flags = S_GetUserFlags(act->spr.lotag);
 				if (flags & SF_MSFX)
 				{
-					int distance = dist(ps[screenpeek].GetActor(), act);
+					double distance = (ps[screenpeek].GetActor()->spr.pos - act->spr.pos).Length();
 
-					if (distance < ht && act->temp_data[0] == 0)
+					if (distance < maxdist && act->temp_data[0] == 0)
 					{
 						// Start playing an ambience sound.
 						S_PlayActorSound(act->spr.lotag, act, CHAN_AUTO, CHANF_LOOP);
 						act->temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
 					}
-					else if (distance >= ht && act->temp_data[0] == 1)
+					else if (distance >= maxdist && act->temp_data[0] == 1)
 					{
 						// Stop playing ambience sound because we're out of its range.
 						S_StopSound(act->spr.lotag, act);
@@ -606,6 +605,7 @@ void movefx(void)
 				}
 			}
 			break;
+			}
 		}
 	}
 }

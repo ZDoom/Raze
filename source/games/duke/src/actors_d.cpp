@@ -259,6 +259,7 @@ bool ifsquished(DDukeActor* actor, int p)
 
 void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 {
+	double radius = r * inttoworld;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
 	if(actor->spr.picnum != SHRINKSPARK && !(actor->spr.picnum == RPG && actor->spr.xrepeat < 11))
@@ -326,7 +327,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			if (x == 0 || x >= 5 || actorflag(act2, SFLAG_HITRADIUS_FLAG1))
 			{
 				if (actor->spr.picnum != SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
-					if (dist(actor, act2) < r)
+					if ((actor->spr.pos - act2->spr.pos).Length() < radius)
 					{
 						if (badguy(act2) && !cansee(act2->spr.pos.plusZ(q), act2->sector(), actor->spr.pos.plusZ(q), actor->sector()))
 							continue;
@@ -345,10 +346,10 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				}
 
 				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z -= gs.playerheight;
-				int d = dist(actor, act2);
+				double dist = (actor->spr.pos - act2->spr.pos).Length();
 				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z += gs.playerheight;
 
-				if (d < r && cansee(act2->spr.pos.plusZ(-8), act2->sector(), actor->spr.pos.plusZ(-12), actor->sector()))
+				if (dist < radius && cansee(act2->spr.pos.plusZ(-8), act2->sector(), actor->spr.pos.plusZ(-12), actor->sector()))
 				{
 					act2->hitang = VecToAngle(act2->spr.pos - actor->spr.pos);
 
@@ -377,17 +378,17 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 					if (actor->spr.picnum != SHRINKSPARK && (!isWorldTour() || actor->spr.picnum != LAVAPOOL))
 					{
-						if (d < r / 3)
+						if (dist < radius / 3)
 						{
 							if (hp4 == hp3) hp4++;
 							act2->hitextra = hp3 + (krand() % (hp4 - hp3));
 						}
-						else if (d < 2 * r / 3)
+						else if (dist < 2 * radius / 3)
 						{
 							if (hp3 == hp2) hp3++;
 							act2->hitextra = hp2 + (krand() % (hp3 - hp2));
 						}
-						else if (d < r)
+						else if (dist < radius)
 						{
 							if (hp2 == hp1) hp2++;
 							act2->hitextra = hp1 + (krand() % (hp2 - hp1));
@@ -1043,14 +1044,14 @@ static void movefireext(DDukeActor* actor)
 
 static void moveviewscreen(DDukeActor* actor)
 {
-	const int VIEWSCR_DIST = 8192;	// was originally 2048, was increased to this by EDuke32 and RedNukem.
+	const double VIEWSCR_DIST = 1024;	// was originally 2048, was increased to 8192 by EDuke32 and RedNukem, but with high resolutions the resulting 512 map units are still too low.
 	if (actor->spr.xrepeat == 0) deletesprite(actor);
 	else
 	{
-		int x;
-		int p = findplayer(actor, &x);
+		double a;
+		int p = findplayer(actor, &a);
 
-		x = dist(actor, ps[p].GetActor()); // the result from findplayer is not really useful.
+		double x = (actor->spr.pos - ps[p].GetActor()->spr.pos).Length(); // the result from findplayer is not really useful.
 		if (x >= VIEWSCR_DIST && camsprite == actor)
 		{
 			camsprite = nullptr;
