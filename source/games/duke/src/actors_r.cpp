@@ -1165,26 +1165,22 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 
 static void weaponcommon_r(DDukeActor *proj)
 {
-	int k, p;
-	int ll;
+	double vel = proj->vel.X;
+	double velz = proj->vel.Z;
 
-	p = -1;
+	int p = -1;
 
 	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
 	{
-		k = proj->int_xvel() >> 1;
-		ll = proj->int_zvel() >> 1;
+		vel *= 0.5;
+		velz *= 0.5;
 	}
 	else if (isRRRA() && proj->spr.picnum == RPG2 && proj->sector()->lotag == 2)
 	{
-		k = proj->int_xvel() >> 1;
-		ll = proj->int_zvel() >> 1;
+		vel *= 0.5;
+		velz *= 0.5;
 	}
-	else
-	{
-		k = proj->int_xvel();
-		ll = proj->int_zvel();
-	}
+
 
 	auto oldpos = proj->spr.pos;
 
@@ -1222,9 +1218,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	}
 
 	Collision coll;
-	movesprite_ex(proj,
-		MulScale(k, bcos(proj->int_ang()), 14),
-		MulScale(k, bsin(proj->int_ang()), 14), ll, CLIPMASK1, coll);
+	movesprite_ex(proj, DVector3(proj->spr.angle.ToVector() * vel, velz), CLIPMASK1, coll);
 
 	if ((proj->spr.picnum == RPG || (isRRRA() && isIn(proj->spr.picnum, RPG2, RRTILE1790))) && proj->temp_actor != nullptr)
 		if ((proj->spr.pos.XY() - proj->temp_actor->spr.pos.XY()).Length() < 16)
@@ -1254,12 +1248,11 @@ static void weaponcommon_r(DDukeActor *proj)
 
 	if (proj->spr.picnum == FIRELASER)
 	{
-		for (k = -3; k < 2; k++)
+		for (int k = -3; k < 2; k++)
 		{
-			auto x = EGS(proj->sector(),
-				proj->int_pos().X + MulScale(k, bcos(proj->int_ang()), 9),
-				proj->int_pos().Y + MulScale(k, bsin(proj->int_ang()), 9),
-				proj->int_pos().Z + ((k * Sgn(proj->int_zvel())) * abs(proj->int_zvel() / 24)), FIRELASER, -40 + (k << 2),
+			double zAdd = k * proj->vel.Z / 24;
+			auto x = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.angle.ToVector() * k * 2.,
+				FIRELASER, -40 + (k << 2),
 				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
 			if (x)
@@ -1786,7 +1779,7 @@ static void rrra_specialstats()
 				deletesprite(act);
 			}
 		}
-		movesprite_ex(act, 0, 0, act->spr.extra * 2, CLIPMASK0, coll);
+		movesprite_ex(act, DVector3(0, 0, act->spr.extra / 128.), CLIPMASK0, coll);
 	}
 
 	it.Reset(118);
@@ -1806,7 +1799,7 @@ static void rrra_specialstats()
 			if (act->spr.extra <= -20)
 				act->spr.hitag = 0;
 		}
-		movesprite_ex(act, 0, 0, act->spr.extra, CLIPMASK0, coll);
+		movesprite_ex(act, DVector3(0, 0, act->spr.extra / 256.), CLIPMASK0, coll);
 	}
 
 	if (ps[screenpeek].MamaEnd > 0)
@@ -1895,8 +1888,8 @@ static void rrra_specialstats()
 					act->spr.picnum = PIG + 7;
 				act->spr.extra = 1;
 			}
-			movesprite_ex(act, 0, 0, -300, CLIPMASK0, coll);
-			if (act->sector()->int_ceilingz() + (4 << 8) > act->int_pos().Z)
+			movesprite_ex(act, DVector3(0, 0, -300/256.), CLIPMASK0, coll);
+			if (act->sector()->ceilingz+ 4 > act->spr.pos.Z)
 			{
 				act->spr.picnum = 0;
 				act->spr.extra = 100;
@@ -1935,10 +1928,7 @@ static void rrra_specialstats()
 			if (act->spr.extra == act->spr.lotag)
 				S_PlaySound(183);
 			act->spr.extra--;
-			int j = movesprite_ex(act,
-				MulScale(act->spr.hitag, bcos(act->int_ang()), 14),
-				MulScale(act->spr.hitag, bsin(act->int_ang()), 14),
-				act->spr.hitag << 1, CLIPMASK0, coll);
+			int j = movesprite_ex(act, DVector3(act->spr.angle.ToVector() * act->spr.hitag / 16., act->spr.hitag / 128.), CLIPMASK0, coll);
 			if (j > 0)
 			{
 				S_PlayActorSound(PIPEBOMB_EXPLODE, act);
@@ -2367,10 +2357,7 @@ static void heavyhbomb(DDukeActor *actor)
 	}
 
 	Collision coll;
-	movesprite_ex(actor,
-		MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14),
-		MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14),
-		actor->int_zvel(), CLIPMASK0, coll);
+	movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z), CLIPMASK0, coll);
 
 	if (actor->sector()->lotag == 1 && actor->vel.Z == 0)
 	{
@@ -2555,10 +2542,7 @@ static int henstand(DDukeActor *actor)
 	{
 		makeitfall(actor);
 		Collision coll;
-		movesprite_ex(actor,
-			MulScale(bcos(actor->int_ang()), actor->int_xvel(), 14),
-			MulScale(bsin(actor->int_ang()), actor->int_xvel(), 14),
-			actor->int_zvel(), CLIPMASK0, coll);
+		movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z), CLIPMASK0, coll);
 		if (coll.type)
 		{
 			if (coll.type == kHitWall)
@@ -3716,10 +3700,9 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			}
 		}
 
+		DAngle angdiff = DAngle::fromBuild(angdif);
 		Collision coll;
-		actor->movflag = movesprite_ex(actor,
-			MulScale(daxvel, bcos(angdif), 14),
-			MulScale(daxvel, bsin(angdif), 14), actor->int_zvel(), CLIPMASK0, coll);
+		actor->movflag = movesprite_ex(actor, DVector3(angdiff.ToVector() * daxvel * inttoworld, actor->vel.Z), CLIPMASK0, coll);
 	}
 
 	if (a)
