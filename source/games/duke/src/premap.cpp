@@ -177,7 +177,7 @@ void resetplayerstats(int snum)
 	p->jetpack_on =         0;
 	p->holoduke_on =       nullptr;
 
-	p->angle.olook_ang = p->angle.look_ang = DAngle::fromBuild(512 - (((~currentLevel->levelNumber) & 1) << 10));
+	p->angle.olook_ang = p->angle.look_ang = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
 	p->angle.orotscrnang = p->angle.rotscrnang = nullAngle;
 
 	p->newOwner          =nullptr;
@@ -1010,7 +1010,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	STAT_NewLevel(mi->fileName);
 	TITLE_InformName(mi->name);
 	
-	p->angle.ang = DAngle::fromBuild(lbang);
+	p->angle.ang = mapangle(lbang);
 
 	gotpic.Zero();
 

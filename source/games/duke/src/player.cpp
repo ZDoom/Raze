@@ -116,13 +116,10 @@ void quickkill(player_struct* p)
 void forceplayerangle(int snum)
 {
 	player_struct* p = &ps[snum];
-	int n;
-
-	n = 128 - (krand() & 255);
 
 	p->horizon.addadjustment(buildhoriz(64));
 	p->sync.actions |= SB_CENTERVIEW;
-	p->angle.rotscrnang = p->angle.look_ang = DAngle::fromBuild(n >> 1);
+	p->angle.rotscrnang = p->angle.look_ang = (DAngle22_5 - randomAngle(45)) / 2.;
 }
 
 //---------------------------------------------------------------------------
