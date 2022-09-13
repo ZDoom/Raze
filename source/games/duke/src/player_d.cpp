@@ -228,36 +228,36 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 //
 //---------------------------------------------------------------------------
 
-static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
+static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 {
 	auto sectp = actor->sector();
-	int zvel;
+	double zvel;
 	HitInfo hit{};
 
 	if (p >= 0)
 	{
-		zvel = -ps[p].horizon.sum().asq16() >> 11;
-		sz += (6 << 8);
-		sa += 15;
+		zvel = -ps[p].horizon.sum().asbuildf() * 0.125;
+		pos.Z += 6;
+		ang += DAngle1 * 2.64;
 	}
 	else
 	{
-		int x;
+		double x;
 		auto pactor = ps[findplayer(actor, &x)].GetActor();
-		zvel = ((pactor->int_pos().Z - sz) << 8) / (x + 1);
-		sa = getangle(pactor->int_pos().X - sx, pactor->int_pos().Y - sy);
+		zvel = ((pactor->spr.pos.Z - pos.Z) * 16) / (x + 1/16.);
+		ang = VecToAngle(pactor->spr.pos.XY() - pos.XY());
 	}
 
-	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
 
 
 	if (hit.hitSector == nullptr) return;
 
-	if ((abs(sx - hit.int_hitpos().X) + abs(sy - hit.int_hitpos().Y)) < 1024)
+	if ((pos.XY() - hit.hitpos.XY()).Sum() < 64)
 	{
 		if (hit.hitWall || hit.actor())
 		{
-			auto knee = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+			auto knee = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, ang.Buildang(), 32, 0, actor, 4);
 			if (knee)
 			{
 				knee->spr.extra += (krand() & 7);
@@ -1083,7 +1083,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		break;
 
 	case KNEE:
-		shootknee(actor, p, sx, sy, sz, sa);
+		shootknee(actor, p, spos, sang);
 		break;
 
 	case SHOTSPARK1:
