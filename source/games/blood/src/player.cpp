@@ -102,30 +102,30 @@ POSTURE gPostureDefaults[kModeMax][kPostureMax] = {
 
 	// normal human
 	{
-		{ 0x4000, 0x4000, 0x4000, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
-		{ 0x1200, 0x1200, 0x1200, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, FixedToFloat(0x5b05), 0 },
-		{ 0x2000, 0x2000, 0x2000, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
+		{ FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
+		{ FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
 	},
 
 	// normal beast
 	{
-		{ 0x4000, 0x4000, 0x4000, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
-		{ 0x1200, 0x1200, 0x1200, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, FixedToFloat(0x5b05), 0 },
-		{ 0x2000, 0x2000, 0x2000, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
+		{ FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 0xc00, 0x90, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
+		{ FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -0x600, 0xb0, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -0x600, 0xb0, 0, 0 },
 	},
 
 	// shrink human
 	{
-		{ 10384, 10384, 10384, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -FixedToFloat(564586), -FixedToFloat(1329173) },
-		{ 2108, 2108, 2108, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, FixedToFloat(0x5b05), 0 },
-		{ 2192, 2192, 2192, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
+		{ FixedToFloat<24>(10384), FixedToFloat<24>(10384), FixedToFloat<24>(10384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -FixedToFloat(564586), -FixedToFloat(1329173) },
+		{ FixedToFloat<24>(2108), FixedToFloat<24>(2108), FixedToFloat<24>(2108), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<24>(2192), FixedToFloat<24>(2192), FixedToFloat<24>(2192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
 	},
 
 	// grown human
 	{
-		{ 19384, 19384, 19384, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -FixedToFloat(1014586), -FixedToFloat(1779173) },
-		{ 5608, 5608, 5608, 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, FixedToFloat(0x5b05), 0 },
-		{ 11192, 11192, 11192, 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
+		{ FixedToFloat<24>(19384), FixedToFloat<24>(19384), FixedToFloat<24>(19384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 3072, 144, -FixedToFloat(1014586), -FixedToFloat(1779173) },
+		{ FixedToFloat<24>(5608), FixedToFloat<24>(5608), FixedToFloat<24>(5608), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, -1536, 176, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<24>(11192), FixedToFloat<24>(11192), FixedToFloat<24>(11192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, -1536, 176, 0, 0 },
 	},
 };
 
@@ -1590,56 +1590,13 @@ void ProcessInput(PLAYER* pPlayer)
 		}
 		return;
 	}
-	if (pPlayer->posture == 1)
+
+	if ((pInput->fvel || pInput->svel) && (pPlayer->posture == 1 || actor->xspr.height < 256))
 	{
-		int x = Cos(actor->int_ang());
-		int y = Sin(actor->int_ang());
-		if (pInput->fvel)
-		{
-			int forward = pInput->fvel;
-			if (forward > 0)
-				forward = MulScale(pPosture->frontAccel, forward, 8);
-			else
-				forward = MulScale(pPosture->backAccel, forward, 8);
-			actor->add_int_bvel_x(MulScale(forward, x, 30));
-			actor->add_int_bvel_y(MulScale(forward, y, 30));
-		}
-		if (pInput->svel)
-		{
-			int strafe = pInput->svel;
-			strafe = MulScale(pPosture->sideAccel, strafe, 8);
-			actor->add_int_bvel_x(MulScale(strafe, y, 30));
-			actor->add_int_bvel_y(-MulScale(strafe, x, 30));
-		}
-	}
-	else if (actor->xspr.height < 256)
-	{
-		int speed = 0x10000;
-		if (actor->xspr.height > 0)
-			speed -= DivScale(actor->xspr.height, 256, 16);
-		int x = Cos(actor->int_ang());
-		int y = Sin(actor->int_ang());
-		if (pInput->fvel)
-		{
-			int forward = pInput->fvel;
-			if (forward > 0)
-				forward = MulScale(pPosture->frontAccel, forward, 8);
-			else
-				forward = MulScale(pPosture->backAccel, forward, 8);
-			if (actor->xspr.height)
-				forward = MulScale(forward, speed, 16);
-			actor->add_int_bvel_x(MulScale(forward, x, 30));
-			actor->add_int_bvel_y(MulScale(forward, y, 30));
-		}
-		if (pInput->svel)
-		{
-			int strafe = pInput->svel;
-			strafe = MulScale(pPosture->sideAccel, strafe, 8);
-			if (actor->xspr.height)
-				strafe = MulScale(strafe, speed, 16);
-			actor->add_int_bvel_x(MulScale(strafe, y, 30));
-			actor->add_int_bvel_y(-MulScale(strafe, x, 30));
-		}
+		const double speed = 1. - (actor->xspr.height < 256 ? actor->xspr.height * (1. / 256.) : 0);
+		const double& fvAccel = pInput->fvel > 0 ? pPosture->frontAccel : pPosture->backAccel;
+		const double& svAccel = pPosture->sideAccel;
+		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, -pInput->svel * svAccel).Rotated(actor->spr.angle) * speed;
 	}
 
 	if (SyncInput())

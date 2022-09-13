@@ -60,9 +60,9 @@ struct PACKINFO
 
 struct POSTURE
 {
-	int frontAccel;
-	int sideAccel;
-	int backAccel;
+	double frontAccel;
+	double sideAccel;
+	double backAccel;
 	int pace[2];
 	double bobV;
 	double bobH;
