@@ -87,34 +87,35 @@ void incur_damage_d(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int sa)
+static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 {
-	int vel, zvel;
+	// World Tour's values for angles and velocities are quite arbitrary...
+	double vel, zvel;
 
 	if (actor->spr.extra >= 0)
 		actor->spr.shade = -96;
 
-	sz -= (4 << 7);
+	pos.Z -= 2;
 	if (actor->spr.picnum != BOSS5)
-		vel = 840;
+		vel = 840/16.;
 	else {
-		vel = 968;
-		sz += 6144;
+		vel = 968/16.;
+		pos.Z += 24;
 	}
 
 	if (p < 0)
 	{
-		sa += 16 - (krand() & 31);
-		int scratch;
+		ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
+		double scratch;
 		int j = findplayer(actor, &scratch);
-		zvel = (((ps[j].player_int_opos().Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		zvel = ((ps[j].opos.Z - pos.Z + 3) * vel) / dist;
 	}
 	else
 	{
-		zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
-		sx += bcos(sa + 348) / 448;
-		sy += bsin(sa + 348) / 448;
-		sz += (3 << 8);
+		zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
+		pos += (ang + DAngle1 * 61).ToVector() * 1024 / 448.;
+		pos.Z += 3;
 	}
 
 	int sizx = 18;
@@ -125,7 +126,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 		sizy = 7;
 	}
 
-	auto spawned = EGS(actor->sector(), sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
+	auto spawned = CreateActor(actor->sector(), pos, FIREBALL, -127, sizx, sizy, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, (short)4);
 	if (spawned)
 	{
 		spawned->spr.extra += (krand() & 7);
@@ -1049,7 +1050,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		switch (atwith) 
 		{
 		case FIREBALL:
-			shootfireball(actor, p, sx, sy, sz, sa);
+			shootfireball(actor, p, spos, sang);
 			return;
 
 		case FLAMETHROWERFLAME:

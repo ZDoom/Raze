@@ -933,7 +933,7 @@ static void chickenarrow(DDukeActor* actor)
 
 	if (actor->seek_actor && actor->spr.hitag > 5)
 	{
-		DAngle ang, ang2, ang3;
+		DAngle ang, ang2;
 		ang = VecToAngle(ts->spr.pos - actor->spr.pos);
 		ang2 = deltaangle(ang, actor->spr.angle);
 		// this was quite broken in the original code. Fixed so that it seeks properly
