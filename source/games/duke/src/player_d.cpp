@@ -158,7 +158,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	DDukeActor* spawned = nullptr;
 	if (p < 0)
 	{
-		int x;
+		double x;
 		int j = findplayer(actor, &x);
 		sang = VecToAngle(ps[j].opos.XY() - spos.XY());
 
@@ -170,9 +170,9 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		else if (actor->spr.picnum == BOSS3)
 			spos.Z -= 32;
 
-		double l = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		if (l != 0)
-			zvel = ((ps[j].opos.Z - spos.Z) * vel) / l;
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		if (dist != 0)
+			zvel = (((ps[j].opos.Z - spos.Z) * vel) / dist);
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
 			sang = actor->spr.angle + mapangle((krand() & 31) - 16);
@@ -182,12 +182,12 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	}
 	else
 	{
-		zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16) * zinttoworld;
+		zvel = -ps[p].horizon.sum().asbuildf() * (81./256.);
 		
 		// WTF???
-		DAngle myang = (DAngle90 - (DAngle180 - fabs(fabs(VecToAngle(spos.XY() - ps[p].pos.XY()) - sang) - DAngle180)));
+		DAngle myang = DAngle90 - (DAngle180 - abs(abs(VecToAngle(spos.XY() - ps[p].pos.XY()) - sang) - DAngle180));
 		if (ps[p].GetActor()->vel.X != 0)
-			vel = (int)((myang.Buildang() * 0.001953125f * ps[p].GetActor()->int_xvel()) + 400);
+			vel = ((myang / DAngle90) * ps[p].GetActor()->vel.X) + 25;
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
@@ -196,8 +196,8 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	{
 		spawned = spawn(actor, FLAMETHROWERFLAME);
 		if (!spawned) return;
-		spawned->set_int_xvel(vel * worldtoint);
-		spawned->set_int_zvel(zvel * 256);
+		spawned->vel.X = vel;
+		spawned->vel.Z = zvel;
 	}
 
 	spawned->spr.pos = spos + (sang + mapangle(112)).ToVector() * 7;
