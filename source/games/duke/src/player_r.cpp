@@ -2472,8 +2472,8 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				int ang = int(p->TiltStatus * 20 + p->angle.ang.Buildang());
-				movesprite_ex(victim, bcos(ang, -8), bsin(ang, -8), victim->int_zvel(), CLIPMASK0, coll);
+				DAngle ang = DAngle::fromBuild(p->TiltStatus * 20) + p->angle.ang;
+				movesprite_ex(victim, DVector3(ang.ToVector() * 4, victim->vel.Z), CLIPMASK0, coll);
 			}
 		}
 		else
@@ -2532,8 +2532,8 @@ void onBoatHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				int ang = int(p->TiltStatus * 20 + p->angle.ang.Buildang());
-				movesprite_ex(victim, bcos(ang, -9), bsin(ang, -9), victim->int_zvel(), CLIPMASK0, coll);
+				DAngle ang = DAngle::fromBuild(p->TiltStatus * 20) + p->angle.ang;
+				movesprite_ex(victim, DVector3(ang.ToVector() * 2, victim->vel.Z), CLIPMASK0, coll);
 			}
 		}
 		else
