@@ -1004,6 +1004,76 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 //
 //---------------------------------------------------------------------------
 
+static void shootmortar(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
+{
+	auto sect = actor->sector();
+	int zvel;
+	if (actor->spr.extra >= 0) actor->spr.shade = -96;
+
+	int x;
+	auto plActor = ps[findplayer(actor, &x)].GetActor();
+	x = ldist(plActor, actor);
+
+	zvel = -x >> 1;
+
+	if (zvel < -4096)
+		zvel = -2048;
+	int vel = x >> 4;
+
+	EGS(sect,
+		sx - bsin(sa, -8),
+		sy + bcos(sa, -8),
+		sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void shootshrinker(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
+{
+	int zvel;
+	if (actor->spr.extra >= 0) actor->spr.shade = -96;
+	if (p >= 0)
+	{
+		auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
+		if (aimed)
+		{
+			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1);
+			zvel = ((aimed->int_pos().Z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
+			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
+		}
+		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
+	}
+	else if (actor->spr.statnum != 3)
+	{
+		double x;
+		int j = findplayer(actor, &x);
+		int l = ldist(ps[j].GetActor(), actor);
+		zvel = ((ps[j].player_int_opos().Z - sz) * 512) / l;
+	}
+	else zvel = 0;
+
+	auto spawned = EGS(actor->sector(),
+		sx - bsin(sa, -12),
+		sy + bcos(sa, -12),
+		sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, actor, 4);
+
+	if (spawned)
+	{
+		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
+		spawned->set_const_clipdist(32);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void shoot_d(DDukeActor* actor, int atwith)
 {
 	int l, j;
@@ -1125,64 +1195,16 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 	case BOUNCEMINE:
 	case MORTER:
-	{
-		if (actor->spr.extra >= 0) actor->spr.shade = -96;
+		shootmortar(actor, p, sx, sy, sz, sa, atwith);
+		return;
 
-		auto plActor = ps[findplayer(actor, &x)].GetActor();
-		x = ldist(plActor, actor);
-
-		zvel = -x >> 1;
-
-		if (zvel < -4096)
-			zvel = -2048;
-		vel = x >> 4;
-
-		EGS(sect,
-			sx - bsin(sa, -8),
-			sy + bcos(sa, -8),
-			sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
-		break;
-	}
 	case GROWSPARK:
 		shootgrowspark(actor, p, sx, sy, sz, sa);
 		break;
 
 	case SHRINKER:
-	{
-		if (actor->spr.extra >= 0) actor->spr.shade = -96;
-		if (p >= 0)
-		{
-			auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
-			if (aimed)
-			{
-				dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1);
-				zvel = ((aimed->int_pos().Z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
-				sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
-			}
-			else zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
-		}
-		else if (actor->spr.statnum != 3)
-		{
-			j = findplayer(actor, &x);
-			l = ldist(ps[j].GetActor(), actor);
-			zvel = ((ps[j].player_int_opos().Z - sz) * 512) / l;
-		}
-		else zvel = 0;
-
-		auto spawned = EGS(sect,
-			sx - bsin(sa, -12),
-			sy + bcos(sa, -12),
-			sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, actor, 4);
-
-		if (spawned)
-		{
-			spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-			spawned->set_const_clipdist(32);
-		}
-
-
-		return;
-	}
+		shootshrinker(actor, p, sx, sy, sz, sa, atwith);
+		break;
 	}
 	return;
 }
