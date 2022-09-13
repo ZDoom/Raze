@@ -611,7 +611,7 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, double interp
 		case LASERLINE:
 			if (!OwnerAc) break;
 			if (t->sectp->lotag == 2) t->pal = 8;
-			t->set_int_z(OwnerAc->int_pos().Z - (3 << 8));
+			t->pos.Z = OwnerAc->spr.pos.Z - 3;
 			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
 				t->yrepeat = 0;
 			t->shade = -127;

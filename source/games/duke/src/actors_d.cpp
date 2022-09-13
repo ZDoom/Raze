@@ -901,7 +901,7 @@ static void movetripbomb(DDukeActor *actor)
 				{
 					SetActor(spawned, spawned->spr.pos);
 					spawned->spr.hitag = actor->spr.hitag;
-					spawned->temp_data[1] = spawned->int_pos().Z;
+					spawned->temp_pos.Z = spawned->spr.pos.Z; // doesn't look to be used anywhere...
 
 					if (x < 64)
 					{
@@ -970,7 +970,7 @@ static void movecrack(DDukeActor* actor)
 	if (actor->spr.hitag > 0)
 	{
 		actor->temp_data[0] = actor->spr.cstat;
-		actor->temp_data[1] = actor->int_ang();
+		actor->temp_angle = actor->spr.angle;
 		int j = fi.ifhitbyweapon(actor);
 		if (gs.actorinfo[j].flags2 & SFLAG2_EXPLOSIVE)
 		{
@@ -986,7 +986,7 @@ static void movecrack(DDukeActor* actor)
 		else
 		{
 			actor->spr.cstat = ESpriteFlags::FromInt(actor->temp_data[0]);
-			actor->set_int_ang(actor->temp_data[1]);
+			actor->spr.angle = actor->temp_angle;
 			actor->spr.extra = 0;
 		}
 	}
