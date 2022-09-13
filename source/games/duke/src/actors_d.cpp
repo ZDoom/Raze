@@ -3053,7 +3053,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:
-			act->set_int_zvel(act->floorz = getflorzofslopeptrf(act->sector(), act->spr.pos.X, act->spr.pos.Y));
+			act->vel.Z = act->floorz = getflorzofslopeptrf(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			break;
 		case MONEY:
 		case MAIL:
