@@ -884,7 +884,7 @@ static void movetripbomb(DDukeActor *actor)
 		ChangeActorSect(actor, curSect);
 
 		DDukeActor* hit;
-		x = hitasprite(actor, &hit) * inttoworld;
+		x = hitasprite(actor, &hit);
 
 		actor->ovel.X = x;
 
@@ -944,7 +944,7 @@ static void movetripbomb(DDukeActor *actor)
 		actor->spr.pos.Z -= 3;
 		SetActor(actor, actor->spr.pos);
 
-		x = hitasprite(actor, nullptr) * inttoworld;
+		x = hitasprite(actor, nullptr);
 
 		actor->spr.pos.XY() = actor->temp_pos.XY();
 		actor->spr.pos.Z += 3;

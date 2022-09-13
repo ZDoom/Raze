@@ -1381,63 +1381,61 @@ void ParseState::parseifelse(int condition)
 
 static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 {
-	int j;
 	if (g_x > 1024)
 	{
-		int sclip;
+		double sclip;
 		DAngle angdif;
 
 		if (badguy(actor) && actor->spr.xrepeat > 56)
 		{
-			sclip = 3084;
+			sclip = 3084 / 16.;
 			angdif = DAngle22_5 * 3 / 8;
 		}
 		else
 		{
-			sclip = 768;
+			sclip = 48;
 			angdif = DAngle22_5 / 8;
 		}
 
 		DDukeActor* hit;
-		j = hitasprite(actor, &hit);
-		if (j == (1 << 30))
+		double hs = hitasprite(actor, &hit);
+		if (hs == INT_MAX)
 		{
 			return 1;
 		}
-		if (j > sclip)
+		if (hs > sclip)
 		{
 			if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
-				j = 0;
+				return 0;
 			else
 			{
 				actor->spr.angle += angdif;
-				j = hitasprite(actor, &hit);
+				hs = hitasprite(actor, &hit);
 				actor->spr.angle -= angdif;
-				if (j > sclip)
+				if (hs > sclip)
 				{
 					if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
-						j = 0;
+						return 0;
 					else
 					{
 						actor->spr.angle += angdif;
-						j = hitasprite(actor, &hit);
+						hs = hitasprite(actor, &hit);
 						actor->spr.angle -= angdif;
-						if (j > 768)
+						if (hs > 48)
 						{
 							if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
-								j = 0;
-							else j = 1;
+								return 0;
+							return 1;
 						}
-						else j = 0;
+						else return 0;
 					}
 				}
-				else j = 0;
+				else return 0;
 			}
 		}
-		else j = 0;
+		return 0;
 	}
-	else j = 1;
-	return j;
+	return 1;
 }
 
 //---------------------------------------------------------------------------

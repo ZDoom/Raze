@@ -1489,7 +1489,7 @@ void clearcameras(int i, player_struct* p)
 
 void checksectors_d(int snum)
 {
-	int i = -1, oldz;
+	int i = -1;
 	player_struct* p;
 	walltype* hitscanwall;
 	HitInfo near;
@@ -1626,9 +1626,9 @@ void checksectors_d(int snum)
 			if (p->cursector->lotag == 2)
 			{
 				DDukeActor* hit;
-				oldz = hitasprite(p->GetActor(), &hit);
+				double dist = hitasprite(p->GetActor(), &hit);
 				if (hit) near.hitActor = hit;
-				if (oldz > 1280) near.hitActor = nullptr;
+				if (dist > 80) near.hitActor = nullptr;
 
 			}
 

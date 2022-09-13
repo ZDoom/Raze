@@ -2390,7 +2390,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 void checksectors_r(int snum)
 {
-	int oldz;
 	player_struct* p;
 	walltype* hitscanwall;
 	HitInfo near;
@@ -2557,10 +2556,9 @@ void checksectors_r(int snum)
 			if (p->cursector->lotag == 2)
 			{
 				DDukeActor* hit;
-				oldz = hitasprite(p->GetActor(), &hit);
+				double dist = hitasprite(p->GetActor(), &hit);
 				if (hit) near.hitActor = hit;
-				if (oldz > 1280) near.hitActor = nullptr;
-
+				if (dist > 80) near.hitActor = nullptr;
 			}
 
 		auto const neartagsprite = near.actor();

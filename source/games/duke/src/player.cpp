@@ -178,7 +178,7 @@ double hits(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
+double hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
 	int zoff;
 	HitInfo hit{};
@@ -193,9 +193,9 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
-		return((1 << 30));
+		return INT_MAX;
 
-	return (FindDistance2D(hit.int_hitpos().vec2 - actor->int_pos().vec2));
+	return (FindDistance2D(hit.int_hitpos().vec2 - actor->int_pos().vec2)) * inttoworld;
 }
 
 //---------------------------------------------------------------------------

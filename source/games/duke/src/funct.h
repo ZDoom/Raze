@@ -139,7 +139,7 @@ void shootbloodsplat(DDukeActor* i, int p, const DVector3& pos, DAngle ang, int 
 
 void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
 int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);
-int hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
+double hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
 int findplayer(const DDukeActor* s, double* dist);
 
 inline int findplayer(const DDukeActor* s, int* dist)
