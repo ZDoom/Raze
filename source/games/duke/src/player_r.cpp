@@ -83,27 +83,27 @@ void incur_damage_r(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sectp = actor->sector();
-	int zvel;
+	double zvel;
 	HitInfo hit{};
 
 	if (p >= 0)
 	{
-		zvel = -ps[p].horizon.sum().asq16() >> 11;
-		sz += (6 << 8);
-		sa += 15;
+		zvel = -ps[p].horizon.sum().asbuildf() * 0.125;
+		pos.Z += 6;
+		ang += DAngle1 * 2.64;
 	}
 	else
 	{
-		int x;
-		auto pspr = ps[findplayer(actor, &x)].GetActor();
-		zvel = ((pspr->int_pos().Z - sz) << 8) / (x + 1);
-		sa = getangle(pspr->int_pos().X - sx, pspr->int_pos().Y - sy);
+		double x;
+		auto pactor = ps[findplayer(actor, &x)].GetActor();
+		zvel = ((pactor->spr.pos.Z - pos.Z) * 16) / (x + 1 / 16.);
+		ang = VecToAngle(pactor->spr.pos.XY() - pos.XY());
 	}
 
-	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
 
 	if (isRRRA() && hit.hitSector != nullptr && ((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr)
@@ -124,7 +124,6 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				{
 					npos.Z = effector->GetOwner()->sector()->ceilingz;
 				}
-				auto ang = DAngle::fromBuild(sa);
 				hitscan(npos, effector->GetOwner()->sector(), DVector3(ang.ToVector() * 1024, zvel * 0.25), hit, CLIPMASK1);
 				break;
 			}
@@ -133,20 +132,20 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 
 	if (hit.hitSector == nullptr) return;
 
-	if ((abs(sx - hit.int_hitpos().X) + abs(sy - hit.int_hitpos().Y)) < 1024)
+	if ((pos.XY() - hit.hitpos.XY()).Sum() < 64)
 	{
 		if (hit.hitWall != nullptr || hit.actor())
 		{
 			DDukeActor* wpn;
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
-				wpn = CreateActor(hit.hitSector, hit.hitpos, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn = CreateActor(hit.hitSector, hit.hitpos, SLINGBLADE, -15, 0, 0, ang.Buildang(), 32, 0, actor, 4);
 				if (!wpn) return;
 				wpn->spr.extra += 50;
 			}
 			else
 			{
-				wpn = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, ang.Buildang(), 32, 0, actor, 4);
 				if (!wpn) return;
 				wpn->spr.extra += (krand() & 7);
 			}
@@ -880,7 +879,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		[[fallthrough]];
 	case KNEE:
 	case GROWSPARK:
-		shootmelee(actor, p, sx, sy, sz, sa, atwith);
+		shootmelee(actor, p, spos, sang, atwith);
 		return;
 
 	case SHOTSPARK1:
