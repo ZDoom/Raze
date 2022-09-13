@@ -31,7 +31,6 @@ EXTERN int sintable[2048];
 #include "buildtiles.h"
 #include "c_cvars.h"
 #include "cmdlib.h"
-#include "mathutil.h"
 
 typedef int64_t coord_t;
 

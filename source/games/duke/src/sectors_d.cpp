@@ -1627,7 +1627,7 @@ void checksectors_d(int snum)
 			if (p->cursector->lotag == 2)
 			{
 				DDukeActor* hit;
-				double dist = hitasprite(p->GetActor(), &hit);
+				dist = hitasprite(p->GetActor(), &hit);
 				if (hit) near.hitActor = hit;
 				if (dist > 80) near.hitActor = nullptr;
 

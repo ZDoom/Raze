@@ -1,6 +1,5 @@
 #pragma once
 
-#include "mathutil.h"
 #include "gamehud.h"
 #include "global.h"
 
