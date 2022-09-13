@@ -267,20 +267,20 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		DukeStatIterator its(STAT_EFFECTOR);
 		while (auto effector = its.Next())
 		{
-			if (effector->sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && effector->GetOwner()
-				&& effector->spr.lotag == SE_7_TELEPORT)
+			auto Owner = effector->GetOwner();
+			if (effector->sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && Owner && effector->spr.lotag == SE_7_TELEPORT)
 			{
 				DVector3 npos;
-				npos.XY() = hit.hitpos.XY() + (effector->GetOwner()->spr.pos.XY() - effector->spr.pos.XY());
+				npos.XY() = hit.hitpos.XY() + (Owner->spr.pos.XY() - effector->spr.pos.XY());
 				if (hit.hitSector->lotag == 161)
 				{
-					npos.Z = effector->GetOwner()->sector()->floorz;
+					npos.Z = Owner->sector()->floorz;
 				}
 				else
 				{
-					npos.Z = effector->GetOwner()->sector()->ceilingz;
+					npos.Z = Owner->sector()->ceilingz;
 				}
-				hitscan(npos, effector->GetOwner()->sector(), DVector3(ang.ToVector() * 1024, zvel * 0.25), hit, CLIPMASK1);
+				hitscan(npos, Owner->sector(), DVector3(ang.ToVector() * 1024, zvel * 0.25), hit, CLIPMASK1);
 				break;
 			}
 		}
