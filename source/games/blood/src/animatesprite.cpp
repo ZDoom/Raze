@@ -883,8 +883,8 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &thisPlayer->pPosture[thisPlayer->lifeMode][thisPlayer->posture];
-						pNTSprite->pos.XY() += pTSprite->angle.ToVector() * pPosture->xOffset * 0.25;
-						pNTSprite->set_int_z(thisPlayer->actor->int_pos().Z - pPosture->zOffset);
+						pNTSprite->pos.XY() += pTSprite->angle.ToVector() * pPosture->xOffset;
+						pNTSprite->pos.Z = thisPlayer->actor->spr.pos.Z - pPosture->zOffset;
 					}
 				}
 
