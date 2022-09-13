@@ -749,10 +749,10 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 //
 //---------------------------------------------------------------------------
 
-static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sect = actor->sector();
-	int vel = 0, zvel;
+	double vel = 0, zvel;
 	int scount;
 
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
@@ -760,14 +760,14 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 	scount = 1;
 	if (atwith == 3471)
 	{
-		vel = 300;
-		sz -= (15 << 8);
+		vel = 300/16.;
+		pos.Z -= 15;
 		scount = 1;
 	}
 	else if (atwith == 3475)
 	{
-		vel = 300;
-		sz += (4 << 8);
+		vel = 300/16;
+		pos.Z += 4;
 		scount = 1;
 	}
 
@@ -777,26 +777,28 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 
 		if (aimed)
 		{
-			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) - (12 << 8);
-			zvel = ((aimed->int_pos().Z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
+			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) -12;
+			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
+			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
+			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
 		else
-			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
+			zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
 	}
 	else
 	{
-		int x;
+		double x;
 		int j = findplayer(actor, &x);
-		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		if (actor->spr.picnum == VIXEN)
-			sa -= (krand() & 16);
+			ang -= randomAngle(22.5 / 8);
 		else
-			sa += 16 - (krand() & 31);
-		zvel = (((ps[j].player_int_opos().Z - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
+			ang += DAngle22_5/8 - randomAngle(22.5 / 4);
+
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		zvel = ((ps[j].opos.Z - pos.Z + 3) * vel) / dist;
 	}
 
-	int oldzvel = zvel;
+	double oldzvel = zvel;
 	int sizx = 18; 
 	int sizy = 18;
 
@@ -805,14 +807,14 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 
 	while (scount > 0)
 	{
-		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
-		if (!j) return;
-		j->spr.extra += (krand() & 7);
-		j->spr.cstat = CSTAT_SPRITE_YCENTER;
-		j->set_const_clipdist(4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang.Buildang(), vel, zvel, actor, 4);
+		if (!spawned) return;
+		spawned->spr.extra += (krand() & 7);
+		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
+		spawned->set_const_clipdist(4);
 
-		sa = actor->int_ang() + 32 - (krand() & 63);
-		zvel = oldzvel + 512 - (krand() & 1023);
+		ang = actor->spr.angle + DAngle22_5/4 - randomAngle(DAngle22_5/2);
+		zvel = oldzvel + 2 - krandf(4);
 
 		scount--;
 	}
@@ -917,7 +919,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	}
 	case OWHIP:
 	case UWHIP:
-		shootwhip(actor, p, sx, sy, sz, sa, atwith);
+		shootwhip(actor, p, spos, sang, atwith);
 		return;
 
 	case FIRELASER:
