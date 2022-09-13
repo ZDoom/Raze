@@ -564,7 +564,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 {
 	sectortype* sect = actor->sector();
 	int vel, zvel;
-	int l, scount;
+	int scount;
 
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 

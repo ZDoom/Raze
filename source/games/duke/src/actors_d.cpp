@@ -266,7 +266,6 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	{
 		BFSSectorSearch search(actor->sector());
 
-		double radius = r * inttoworld;
 		while (auto dasectp = search.GetNext())
 		{
 			if ((dasectp->ceilingz- actor->spr.pos.Z) < radius * 16) // what value range is this supposed to be? The check that was here did not multiply correctly
