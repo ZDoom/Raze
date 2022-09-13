@@ -135,7 +135,7 @@ void quickkill(player_struct* p);
 int setpal(player_struct* p);
 int madenoise(int playerNum);
 int haskey(sectortype* sect, int snum);
-void shootbloodsplat(DDukeActor* i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
+void shootbloodsplat(DDukeActor* i, int p, const DVector3& pos, DAngle ang, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
 
 void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
 int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);

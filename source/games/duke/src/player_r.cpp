@@ -855,7 +855,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		}
 	}
 	
-	DVector3 svec(sx * inttoworld, sy * inttoworld, sz * zinttoworld);
+	DVector3 spos(sx * inttoworld, sy * inttoworld, sz * zinttoworld);
 	DAngle sang = DAngle::fromBuild(sa);
 
 	SetGameVarID(g_iAtWithVarID, atwith, actor, p);
@@ -872,7 +872,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	case BLOODSPLAT2:
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
-		shootbloodsplat(actor, p, sx, sy, sz, sa, atwith, BIGFORCE, OOZFILTER, -1);
+		shootbloodsplat(actor, p, spos, sang, atwith, BIGFORCE, OOZFILTER, -1);
 		return;
 
 	case SLINGBLADE:
@@ -952,9 +952,9 @@ void shoot_r(DDukeActor* actor, int atwith)
 
 		sang += DAngle90;
 		if (atwith == CHEERBOMB)
-			CreateActor(sect, svec + DVector3(-sang.Sin() * 4, sang.Cos() * 4, 6), atwith, -64, 16, 16, sa, vel, zvel, actor, 1);
+			CreateActor(sect, spos + DVector3(-sang.Sin() * 4, sang.Cos() * 4, 6), atwith, -64, 16, 16, sa, vel, zvel, actor, 1);
 		else
-			CreateActor(sect, svec + DVector3(-sang.Sin() * 4, sang.Cos() * 4, 6), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
+			CreateActor(sect, spos + DVector3(-sang.Sin() * 4, sang.Cos() * 4, 6), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
 		break;
 	}
 	}

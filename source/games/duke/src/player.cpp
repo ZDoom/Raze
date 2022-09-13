@@ -1009,22 +1009,23 @@ int haskey(sectortype* sectp, int snum)
 //
 //---------------------------------------------------------------------------
 
-void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST)
+void shootbloodsplat(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST)
 {
 	auto sectp = actor->sector();
-	int zvel;
+	double zvel;
 	HitInfo hit{};
 
 	if (p >= 0)
-		sa += 64 - (krand() & 127);
-	else sa += 1024 + 64 - (krand() & 127);
-	zvel = 1024 - (krand() & 2047);
+		ang += DAngle22_5 / 2 - randomAngle(22.5);
+	else ang += DAngle180 + DAngle22_5/2 - randomAngle(22.5);
+	
+	zvel = 4 - krandf(8);
 
 
-	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
 
 	// oh my...
-	if (FindDistance2D(sx - hit.int_hitpos().X, sy - hit.int_hitpos().Y) < 1024 &&
+	if ( (pos.XY() - hit.hitpos.XY()).Length() < 64 &&
 		(hit.hitWall != nullptr && hit.hitWall->overpicnum != BIGFORCE) &&
 		((hit.hitWall->twoSided() && hit.hitSector != nullptr &&
 			hit.hitWall->nextSector()->lotag == 0 &&
