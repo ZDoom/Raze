@@ -296,7 +296,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				return;
 
 	if ((krand() & 15) == 0 && hit.hitSector->lotag == 2)
-		tracers(hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint, 8 - (ud.multimode >> 1));
+		tracers(hit.hitpos, pos, 8 - (ud.multimode >> 1));
 
 	DDukeActor* spark;
 	if (p >= 0)

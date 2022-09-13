@@ -127,7 +127,7 @@ void playerLookUp(int snum, ESyncBits actions);
 void playerLookDown(int snum, ESyncBits actions);
 void playerAimUp(int snum, ESyncBits actions);
 void playerAimDown(int snum, ESyncBits actions);
-void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
+void tracers(const DVector3& start, const DVector3& dest, int n);
 DDukeActor* aim(DDukeActor* s, int aang);
 void checkweapons(player_struct* const p);
 int findotherplayer(int p, double* d);
