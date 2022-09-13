@@ -204,14 +204,14 @@ double hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 //
 //---------------------------------------------------------------------------
 
-int hitawall(player_struct* p, walltype** hitw)
+double hitawall(player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->player_int_pos(), p->cursector, { int(p->angle.ang.Cos() * (1 << 14)), int(p->angle.ang.Sin() * (1 << 14)), 0 }, hit, CLIPMASK0);
+	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (FindDistance2D(hit.int_hitpos().vec2 - p->player_int_pos().vec2));
+	return (hit.hitpos.XY() - p->pos.XY()).Length();
 }
 
 

@@ -1563,10 +1563,11 @@ void checksectors_d(int snum)
 		p->toggle_key_flag = 1;
 		hitscanwall = nullptr;
 
-		i = hitawall(p, &hitscanwall);
+		double dist = hitawall(p, &hitscanwall);
+
 		if (hitscanwall != nullptr)
 		{
-			if (i < 1280 && hitscanwall->overpicnum == MIRROR)
+			if (dist < 80 && hitscanwall->overpicnum == MIRROR)
 				if (hitscanwall->lotag > 0 && S_CheckSoundPlaying(hitscanwall->lotag) == 0 && snum == screenpeek)
 				{
 					S_PlayActorSound(hitscanwall->lotag, pact);
@@ -1701,6 +1702,7 @@ void checksectors_d(int snum)
 			case VIEWSCREEN:
 			case VIEWSCREEN2:
 			{
+				i = 0;
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto acti = it.Next())
 				{
