@@ -1448,7 +1448,8 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		DukeStatIterator it(STAT_DEFAULT);
 		while (auto aa = it.Next())
 		{
-			if (aa->spr.picnum == pocket && ldist(aa, actor) < 52)
+			double dist = (aa->spr.pos.XY() - actor->spr.pos.XY()).Length();
+			if (aa->spr.picnum == pocket && dist < 3.25)
 			{
 				deletesprite(actor);
 				return false;
@@ -1709,8 +1710,8 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 	if (actor->temp_data[0] != 2 && actor->temp_data[0] != 3 && Owner)
 	{
-		int l = ldist(Owner, actor);
-		if (l <= 1524)
+		double dist = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		if (dist <= 96)
 		{
 			a = actor->int_ang();
 			actor->vel.X *= 0.5;
@@ -1719,13 +1720,13 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 		if (actor->temp_data[0] == 1 || actor->temp_data[0] == 4) // Found a locator and going with it
 		{
-			double dist = (Owner->spr.pos - actor->spr.pos).Length();
+			dist = (Owner->spr.pos - actor->spr.pos).Length();
 
-			if (dist <= 1524/16.) { if (actor->temp_data[0] == 1) actor->temp_data[0] = 0; else actor->temp_data[0] = 5; }
+			if (dist <= 96) { if (actor->temp_data[0] == 1) actor->temp_data[0] = 0; else actor->temp_data[0] = 5; }
 			else
 			{
 				// Control speed here
-				if (dist > 1524 / 16.) { if (actor->vel.X < 16) actor->vel.X += 2.; }
+				if (dist > 96) { if (actor->vel.X < 16) actor->vel.X += 2.; }
 				else
 				{
 					if(actor->vel.X > 0) actor->vel.X -= 1;
@@ -2127,11 +2128,14 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 		while (auto aa = it.Next())
 		{
 			if (aa->spr.picnum == BLOODPOOL)
-				if (ldist(actor, aa) < 348)
+			{
+				double dist = (aa->spr.pos.XY() - actor->spr.pos.XY()).Length();
+				if (dist < 348/16.)
 				{
 					actor->spr.pal = 2;
 					break;
 				}
+			}
 		}
 	}
 	return true;
@@ -2754,9 +2758,9 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	}
 
 	auto Owner = actor->GetOwner();
-	int j = ldist(Owner, actor);
+	double dist = (Owner->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared();
 
-	if (j < 1024)
+	if (dist < 64*64)
 	{
 		if (st == 6)
 			if (Owner->spr.hitag & 1)

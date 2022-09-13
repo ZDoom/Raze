@@ -2909,8 +2909,8 @@ int ParseState::parse(void)
 		int lType;
 		int lMaxDist;
 		int lVarID;
-		int lTemp;
-		int lDist;
+		double lTemp;
+		double lDist;
 
 		insptr++;
 
@@ -2919,14 +2919,14 @@ int ParseState::parse(void)
 		lVarID = *(insptr++);
 
 		DDukeActor* lFound = nullptr;
-		lDist = 32767;	// big number
+		lDist = 1000000;	// big number
 
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto actj = it.Next())
 		{
 			if (actj->spr.picnum == lType)
 			{
-				lTemp = ldist(g_ac, actj);
+				lTemp = (g_ac->spr.pos.XY() - actj->spr.pos.XY()).Length();
 				if (lTemp < lMaxDist)
 				{
 					if (lTemp < lDist)
@@ -2952,8 +2952,8 @@ int ParseState::parse(void)
 		int lMaxDistVar;
 		int lMaxDist;
 		int lVarID;
-		int lTemp;
-		int lDist;
+		double lTemp;
+		double lDist;
 
 		insptr++;
 
@@ -2962,14 +2962,14 @@ int ParseState::parse(void)
 		lVarID = *(insptr++);
 		lMaxDist = GetGameVarID(lMaxDistVar, g_ac, g_p).safeValue();
 		DDukeActor* lFound = nullptr;
-		lDist = 32767;	// big number
+		lDist = 1000000;	// big number
 
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto actj = it.Next())
 		{
 			if (actj->spr.picnum == lType)
 			{
-				lTemp = ldist(g_ac, actj);
+				lTemp = (g_ac->spr.pos.XY() - actj->spr.pos.XY()).Length();
 				if (lTemp < lMaxDist)
 				{
 					if (lTemp < lDist)

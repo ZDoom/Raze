@@ -203,8 +203,12 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 				int sqb = getangle(OwnerAc->spr.pos.XY() - t->pos.XY());
 
 				if (abs(getincangle(sqa, sqb)) > 512)
-					if (ldist(OwnerAc, t) < ldist(ps[screenpeek].GetActor(), OwnerAc))
+				{
+					double dist1 = (OwnerAc->spr.pos.XY() - t->pos.XY()).LengthSquared();
+					double dist2 = (OwnerAc->spr.pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).LengthSquared();
+					if (dist1 < dist2)
 						t->xrepeat = t->yrepeat = 0;
+				}
 			}
 			continue;
 		case BURNING:

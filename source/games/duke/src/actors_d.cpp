@@ -2296,8 +2296,8 @@ static void greenslime(DDukeActor *actor)
 				else
 				{
 					actor->temp_data[0] = -1;
-					x = ldist(actor, s5);
-					if (x < 768) {
+					double dist = (actor->spr.pos.XY() - s5->spr.pos.XY()).LengthSquared();
+					if (dist < 48*48) {
 						s5->spr.xrepeat = 0;
 					}
 				}
@@ -2314,7 +2314,8 @@ static void greenslime(DDukeActor *actor)
 		{
 			if (actorflag(a2, SFLAG_GREENSLIMEFOOD))
 			{
-				if (ldist(actor, a2) < 768 && (abs(actor->int_pos().Z - a2->int_pos().Z) < 8192)) //Gulp them
+				double dist = (actor->spr.pos.XY() - a2->spr.pos.XY()).LengthSquared();
+				if (dist < 48*48 && (abs(actor->spr.pos.Z - a2->spr.pos.Z) < 16)) //Gulp them
 				{
 					actor->temp_actor = a2;
 					actor->temp_data[0] = -2;
@@ -3248,11 +3249,11 @@ static void handle_se28(DDukeActor* actor)
 						act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 						spawn(act2, SMALLSMOKE);
 
-						int x;
+						double x;
 						int p = findplayer(actor, &x);
 						auto psa = ps[p].GetActor();
-						x = ldist(psa, act2);
-						if (x < 768)
+						double dist = (psa->spr.pos.XY() - act2->spr.pos.XY()).LengthSquared();
+						if (dist < 49*48)
 						{
 							if (S_CheckActorSoundPlaying(psa, DUKE_LONGTERM_PAIN) < 1)
 								S_PlayActorSound(DUKE_LONGTERM_PAIN, psa);
