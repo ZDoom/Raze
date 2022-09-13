@@ -512,8 +512,8 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 							auto hole = spawn(spark, BULLETHOLE);
 							if (hole)
 							{
-								hole->set_int_xvel(-1);
-								hole->set_int_ang(getangle(-hit.hitWall->delta()) + 512);
+								hole->vel.X = -1 / 16.;
+								hole->spr.angle = VecToAngle(-hit.hitWall->delta()) + DAngle90;
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}
@@ -647,11 +647,11 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 			spawned->spr.shade = 0;
 			if (actor->spr.picnum == BOSS2)
 			{
-				l = spawned->int_xvel();
-				spawned->set_int_xvel(1024);
+				auto ovel = spawned->vel.X;
+				spawned->vel.X = 64;
 				ssp(spawned, CLIPMASK0);
-				spawned->set_int_xvel(l);
-				spawned->add_int_ang(128 - (krand() & 255));
+				spawned->vel.X = ovel;
+				spawned->spr.angle += DAngle22_5 - randomAngle(45);
 			}
 		}
 
@@ -885,7 +885,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
 			bomb->spr.hitag = ud.bomb_tag;
 			S_PlayActorSound(LASERTRIP_ONWALL, bomb);
-			bomb->set_int_xvel(-20);
+			bomb->vel.X = -1.25;
 			ssp(bomb, CLIPMASK0);
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 			auto delta = hit.hitWall->delta();
@@ -1064,7 +1064,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 				k->setsector(sect);
 				k->spr.pos = spos;
 				k->spr.angle = sang;
-				k->set_int_xvel(500);
+				k->vel.X = 500 / 16.;
 				k->vel.Z = 0;
 			}
 			return;

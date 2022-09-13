@@ -902,7 +902,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		auto j = spawn(actor, atwith);
 		if (j)
 		{
-			j->set_int_xvel(250);
+			j->vel.X = 250 / 16.;
 			j->spr.angle = actor->spr.angle;
 			j->spr.pos.Z -= 15;
 		}
