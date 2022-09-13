@@ -47,20 +47,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, GameVarValue& w, G
 void lava_serialize(FSerializer& arc);
 void SerializeGameVars(FSerializer &arc);
 
-static FSerializer& Serialize(FSerializer& arc, const char* key, FireProj& p, FireProj* def)
-{
-	if (arc.BeginObject(key))
-	{
-		arc
-			("xv", p.vel.X)
-			("yv", p.vel.Y)
-			("zv", p.vel.Z)
-			.EndObject();
-	}
-	return arc;
-}
-
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, CraneDef& w, CraneDef* def)
 {
 	if (arc.BeginObject(keyname))
@@ -314,12 +300,11 @@ void DDukeActor::Serialize(FSerializer& arc)
 		.Array("temo_wall", temp_walls, 2)
 		("temp_angle", temp_angle)
 		("temp_pos", temp_pos)
+		("temp_pos2", temp_pos2)
 		("temp_sect", temp_sect)
 		("uservars", uservars)
 		("flags1", flags1)
-		("flags2", flags2)
-
-		("fireproj", fproj);
+		("flags2", flags2);
 }
 
 

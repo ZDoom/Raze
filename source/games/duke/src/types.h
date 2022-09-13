@@ -21,11 +21,6 @@ struct STATUSBARTYPE
 	bool gotweapon[MAX_WEAPONS];
 };
 
-struct FireProj
-{
-	vec3_t vel;
-};
-
 // Todo - put more state in here
 struct ActorInfo
 {
@@ -64,7 +59,7 @@ public:
 	walltype* temp_walls[2]; // SE20 + SE128
 	sectortype* temp_sect, *actorstayput;
 	DAngle temp_angle; // only used by TRIPBOMB
-	DVector3 temp_pos; // used by TRIPBOMB, SE_26 and FIREBALL.
+	DVector3 temp_pos, temp_pos2; // used by TRIPBOMB, SE_26 and FIREBALL.
 
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 
@@ -72,9 +67,6 @@ public:
 
 	EDukeFlags1 flags1;
 	EDukeFlags2 flags2;
-
-	// Todo: Once we start assigning subclasses to actors, this one needs to be moved to the proper FIREBALL subclass.
-	FireProj fproj;
 
 	DDukeActor() = default;
 	size_t PropagateMark() override;
