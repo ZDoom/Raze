@@ -18124,6 +18124,9 @@ int QueueFootPrint(DSWActor* actor)
 
     if (TestDontStickSector(actor->sector()))
         return -1;   // Not on special sectors you don't
+	
+	if (!isAwayFromWall(actor, 5.25))
+		return -1;	// not if it goes ouzside the sector
 
     // So, are we like, done checking now!?
     if (FloorBloodQueue[FloorBloodQueueHead] != nullptr)

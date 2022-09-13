@@ -2801,23 +2801,7 @@ int ParseState::parse(void)
 	{
 		auto s1 = g_ac->sector();
 
-		j = 0;
-
-		updatesector(g_ac->int_pos().X + 108, g_ac->int_pos().Y + 108, &s1);
-		if (s1 == g_ac->sector())
-		{
-			updatesector(g_ac->int_pos().X - 108, g_ac->int_pos().Y - 108, &s1);
-			if (s1 == g_ac->sector())
-			{
-				updatesector(g_ac->int_pos().X + 108, g_ac->int_pos().Y - 108, &s1);
-				if (s1 == g_ac->sector())
-				{
-					updatesector(g_ac->int_pos().X - 108, g_ac->int_pos().Y + 108, &s1);
-					if (s1 == g_ac->sector())
-						j = 1;
-				}
-			}
-		}
+		j = isAwayFromWall(g_ac, 6.75);
 		parseifelse(j);
 		break;
 	}

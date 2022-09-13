@@ -560,6 +560,35 @@ sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags)
 	return bestsec;
 }
 
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+bool isAwayFromWall(DCoreActor* ac, double delta)
+{
+	sectortype* s1;
+
+	updatesector(ac->spr.pos + DVector2(delta, delta), &s1);
+	if (s1 == ac->sector())
+	{
+		updatesector(ac->spr.pos - DVector2(delta, delta), &s1);
+		if (s1 == ac->sector())
+		{
+			updatesector(ac->spr.pos + DVector2(delta, -delta), &s1);
+			if (s1 == ac->sector())
+			{
+				updatesector(ac->spr.pos + DVector2(-delta, delta), &s1);
+				if (s1 == ac->sector())
+					return true;
+			}
+		}
+	}
+	return false;
+}
+
 //==========================================================================
 //
 // 

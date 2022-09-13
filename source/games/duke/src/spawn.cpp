@@ -340,28 +340,12 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 
 int spawnbloodpoolpart1(DDukeActor* act)
 {
-	auto s1 = act->sector();
-
-	updatesector(act->int_pos().X + 108, act->int_pos().Y + 108, &s1);
-	if (s1 && s1->floorz == act->sector()->floorz)
+	bool away = isAwayFromWall(act, 6.75);
+	
+	if (!away)
 	{
-		updatesector(act->int_pos().X - 108, act->int_pos().Y - 108, &s1);
-		if (s1 && s1->floorz == act->sector()->floorz)
-		{
-			updatesector(act->int_pos().X + 108, act->int_pos().Y - 108, &s1);
-			if (s1 && s1->floorz == act->sector()->floorz)
-			{
-				updatesector(act->int_pos().X - 108, act->int_pos().Y + 108, &s1);
-				if (s1 && s1->floorz != act->sector()->floorz)
-				{
-					act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return true;
-				}
-			}
-			else { act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return true; }
-		}
-		else { act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return true; }
+		act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return true;
 	}
-	else { act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return true; }
 
 	if (act->sector()->lotag == 1)
 	{
@@ -382,28 +366,12 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 	auto sect = act->sector();
 	if (actj)
 	{
-		auto s1 = act->sector();
-
-		updatesector(act->int_pos().X + 84, act->int_pos().Y + 84, &s1);
-		if (s1 && s1->floorz == act->sector()->floorz)
+		bool away = isAwayFromWall(act, 5.25);
+		if (!away)
 		{
-			updatesector(act->int_pos().X - 84, act->int_pos().Y - 84, &s1);
-			if (s1 && s1->floorz == act->sector()->floorz)
-			{
-				updatesector(act->int_pos().X + 84, act->int_pos().Y - 84, &s1);
-				if (s1 && s1->floorz == act->sector()->floorz)
-				{
-					updatesector(act->int_pos().X - 84, act->int_pos().Y + 84, &s1);
-					if (s1 && s1->floorz != act->sector()->floorz)
-					{
-						act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return;
-					}
-				}
-				else { act->spr.xrepeat = act->spr.yrepeat = 0; return; }
-			}
-			else { act->spr.xrepeat = act->spr.yrepeat = 0; return; }
+			act->spr.xrepeat = act->spr.yrepeat = 0;
+			return;
 		}
-		else { act->spr.xrepeat = act->spr.yrepeat = 0; return; }
 
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if ((ps[actj->PlayerIndex()].footprintcount & 1)) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
