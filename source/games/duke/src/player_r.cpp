@@ -857,7 +857,7 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 void shoot_r(DDukeActor* actor, int atwith)
 {
 	int sa, p;
-	int sx, sy, sz, vel, zvel, x;
+	int sx, sy, sz, zvel;
 
 
 	auto const sect = actor->sector();

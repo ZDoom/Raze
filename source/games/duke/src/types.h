@@ -386,16 +386,6 @@ struct player_struct
 	{
 		return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
 	}
-
-	vec3_t player_int_opos() const
-	{
-		return { int(opos.X * worldtoint), int(opos.Y * worldtoint), int(opos.Z * zworldtoint) };
-	}
-
-	void player_add_int_z(int z)
-	{
-		pos.Z  += z * zinttoworld;
-	}
 };
 
 struct Cycler

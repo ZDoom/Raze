@@ -94,22 +94,6 @@ inline int checkcursectnums(sectortype* se)
 	return -1;
 }
 
-inline int ldist(DDukeActor* s1, DDukeActor* s2)
-{
-	int vx, vy;
-	vx = s1->int_pos().X - s2->int_pos().X;
-	vy = s1->int_pos().Y - s2->int_pos().Y;
-	return(FindDistance2D(vx, vy) + 1);
-}
-
-inline int ldist(const DDukeActor* s1, const tspritetype* s2)
-{
-	int vx, vy;
-	vx = s1->int_pos().X - s2->int_pos().X;
-	vy = s1->int_pos().Y - s2->int_pos().Y;
-	return(FindDistance2D(vx, vy) + 1);
-}
-
 inline bool isIn(int value, int first)
 {
 	return value == first;
