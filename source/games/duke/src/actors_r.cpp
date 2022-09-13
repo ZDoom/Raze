@@ -3494,12 +3494,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (actor->spr.picnum == CHEER)
 			{
 				if (actor->temp_data[0] < 16)
-					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 40);
+					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 1.6;
 			}
 			else
 			{
 				if (actor->temp_data[0] < 16)
-					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4, -5));
+					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2;
 			}
 		}
 		if (a & justjump1)
@@ -3507,12 +3507,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (actor->spr.picnum == RABBIT)
 			{
 				if (actor->temp_data[0] < 8)
-					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 30);
+					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2.133;
 			}
 			else if (actor->spr.picnum == MAMA)
 			{
 				if (actor->temp_data[0] < 8)
-					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 35);
+					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 1.83;
 			}
 		}
 		if (a & justjump2)
@@ -3520,24 +3520,24 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (actor->spr.picnum == RABBIT)
 			{
 				if (actor->temp_data[0] < 8)
-					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 24);
+					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2.667;
 			}
 			else if (actor->spr.picnum == MAMA)
 			{
 				if (actor->temp_data[0] < 8)
-					actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 28);
+					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2.286;
 			}
 		}
 		if (a & windang)
 		{
 			if (actor->temp_data[0] < 8)
-				actor->add_int_zvel(- bcos(actor->temp_data[0] << 4) / 24);
+				actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4) * 2.667);
 		}
 	}
 	else if ((a & jumptoplayer) == jumptoplayer)
 	{
 		if (actor->temp_data[0] < 16)
-			actor->add_int_zvel(- bcos(actor->temp_data[0] << 4, -5));
+			actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2;
 	}
 
 
