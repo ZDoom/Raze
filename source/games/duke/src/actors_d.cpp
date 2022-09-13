@@ -748,8 +748,8 @@ void movefallers_d(void)
 				act->spr.lotag-=3;
 				if (act->spr.lotag <= 0)
 				{
-					act->set_int_xvel((32 + (krand() & 63)));
-					act->set_int_zvel(-(1024 + (krand() & 1023)));
+					act->vel.X = 2 + krandf(4);
+					act->vel.Z = -4 + krandf(4);
 				}
 			}
 			else
@@ -1313,8 +1313,8 @@ static bool movefireball(DDukeActor* actor)
 			{
 				actor->temp_actor = ball;
 
-				ball->set_int_xvel(actor->int_xvel());
-				ball->set_int_zvel(actor->int_zvel());
+				ball->vel.X = actor->vel.X;
+				ball->vel.Z = actor->vel.Z;
 				if (actor->temp_data[0] > 1)
 				{
 					if (trail)
@@ -1979,7 +1979,7 @@ void movetransports_d(void)
 								auto k = spawn(act2, WATERSPLASH2);
 								if (k && sectlotag == 1 && act2->spr.statnum == 4)
 								{
-									k->set_int_xvel(act2->int_xvel() >> 1);
+									k->vel.X = act2->vel.X * 0.5;
 									k->spr.angle = act2->spr.angle;
 									ssp(k, CLIPMASK0);
 								}

@@ -1514,8 +1514,8 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 						if (act2 == nullptr)
 						{
 							if (actor->spr.pal == 12)
-								actor->set_int_xvel(164);
-							else actor->set_int_xvel(140);
+								actor->vel.X = 10.25;
+							else actor->vel.Z = 8.75;
 							actor->set_int_ang(ps[p].angle.ang.Buildang());
 							ps[p].toggle_key_flag = 2;
 						}
@@ -4604,7 +4604,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 			k->spr.xrepeat = k->spr.yrepeat = 2 + (krand() & 7);
 			k->spr.pos.Z = sc->floorz + krandf(x);
 			k->add_int_ang(256 - (krand() % 511));
-			k->set_int_xvel(krand() & 127);
+			k->vel.X = krandf(8);
 			ssp(k, CLIPMASK0);
 		}
 	}

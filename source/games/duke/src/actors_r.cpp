@@ -666,8 +666,8 @@ void movefallers_r(void)
 			if (act->spr.lotag > 0)
 			{
 				act->spr.lotag -= 3;
-				act->set_int_xvel(((64 + krand()) & 127));
-				act->set_int_zvel(-(1024 + (krand() & 1023)));
+				act->vel.X = 4 + krandf(8);
+				act->vel.Z = -4 + krandf(4);
 			}
 			else
 			{
@@ -1651,7 +1651,7 @@ void movetransports_r(void)
 								auto spawned = spawn(act2, WATERSPLASH2);
 								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 								{
-									spawned->set_int_xvel(act2->int_xvel() >> 1);
+									spawned->vel.X = act2->vel.X * 0.5;
 									spawned->spr.angle = act2->spr.angle;
 									ssp(spawned, CLIPMASK0);
 								}
