@@ -2061,8 +2061,8 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->int_zvel() >> 2), targ, 5);
 		break;
 	case BOWLINGBALL:
-		proj->set_int_xvel((targ->int_xvel() >> 1) + (targ->int_xvel() >> 2));
-		proj->add_int_ang(-(krand() & 16));
+		proj->vel.X = targ->vel.X * 0.75;
+		if (krand() & 16) proj->spr.angle -= DAngle22_5 / 8;
 		S_PlayActorSound(355, targ);
 		break;
 
