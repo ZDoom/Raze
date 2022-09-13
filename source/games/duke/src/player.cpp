@@ -180,22 +180,22 @@ double hits(DDukeActor* actor)
 
 double hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
-	int zoff;
+	double zoff;
 	HitInfo hit{};
 
 	if (badguy(actor))
-		zoff = (42 << 8);
-	else if (actor->spr.picnum == TILE_APLAYER) zoff = gs.int_playerheight;
+		zoff = 42;
+	else if (actor->spr.picnum == TILE_APLAYER) zoff = gs.playerheight;
 	else zoff = 0;
 
-	auto pos = actor->int_pos();
-	hitscan(pos.withZOffset(-zoff), actor->sector(), { bcos(actor->int_ang()), bsin(actor->int_ang()), 0 }, hit, CLIPMASK1);
+	auto pos = actor->spr.pos;
+	hitscan(pos.plusZ(-zoff), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
 		return INT_MAX;
 
-	return (FindDistance2D(hit.int_hitpos().vec2 - actor->int_pos().vec2)) * inttoworld;
+	return (hit.hitpos.XY() - actor->spr.pos.XY()).Length();
 }
 
 //---------------------------------------------------------------------------

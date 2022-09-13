@@ -166,7 +166,7 @@ int setanimation(sectortype* animsect, int animtype, walltype* animtarget, doubl
 int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, double thegoal, double thevel);
 void dofurniture(walltype* wallNum, sectortype* sectnum, int playerNum);
 void dotorch();
-int hitawall(player_struct* pl, walltype** hitWall);
+double hitawall(player_struct* pl, walltype** hitWall);
 double hits(DDukeActor* snum);
 
 DDukeActor* LocateTheLocator(int n, sectortype* sectnum);
