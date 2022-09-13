@@ -626,7 +626,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
-	updatesector(p->player_int_pos().X, p->player_int_pos().Y, &p->cursector);
+	updatesector(p->pos, &p->cursector);
 
 	pushmove(p->pos, &p->cursector, 128, (4 << 8), (20 << 8), CLIPMASK0);
 

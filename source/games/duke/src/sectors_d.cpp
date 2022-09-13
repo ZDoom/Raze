@@ -1435,7 +1435,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					ps[p].restorexyz();
 					ps[p].angle.restore();
 
-					updatesector(ps[p].player_int_pos().X, ps[p].player_int_pos().Y, &ps[p].cursector);
+					updatesector(ps[p].pos, &ps[p].cursector);
 
 					DukeStatIterator it(STAT_ACTOR);
 					while (auto itActor = it.Next())
@@ -1471,7 +1471,7 @@ void clearcameras(int i, player_struct* p)
 		p->restorexyz();
 		p->newOwner = nullptr;
 
-		updatesector(p->player_int_pos().X, p->player_int_pos().Y, &p->cursector);
+		updatesector(p->pos, &p->cursector);
 
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto act = it.Next())

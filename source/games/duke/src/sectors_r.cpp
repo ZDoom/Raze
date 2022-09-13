@@ -2376,7 +2376,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 					ps[p].newOwner = nullptr;
 					ps[p].restorexyz();
 
-					updatesector(ps[p].player_int_pos().X, ps[p].player_int_pos().Y, &ps[p].cursector);
+					updatesector(ps[p].pos, &ps[p].cursector);
 
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act = it.Next())
