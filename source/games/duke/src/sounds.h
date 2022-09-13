@@ -41,6 +41,12 @@ void S_WorldTourMappingsForOldSounds();
 
 int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0, float vol =0.8f);
 int S_PlaySound3D(int num, DDukeActor* spriteNum, const vec3_t& pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
+inline int S_PlaySound3D(int num, DDukeActor* spriteNum, const DVector3& pos, int channel = CHAN_AUTO, EChanFlags flags = 0)
+{
+	vec3_t v( pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
+	return S_PlaySound3D(num, spriteNum, v, channel, flags);
+}
+
 int S_PlayActorSound(int soundNum, DDukeActor* spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);
 void S_MenuSound(void);
 
