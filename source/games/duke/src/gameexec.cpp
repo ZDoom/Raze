@@ -1168,16 +1168,13 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	switch (lLabelID)
 	{
 	case ACTOR_X:
-		/*if (bSet) act->int_pos().X = lValue;
-		else*/ SetGameVarID(lVar2, act->int_pos().X, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, act->spr.pos.X / maptoworld, sActor, sPlayer);
 		break;
 	case ACTOR_Y:
-		/*if (bSet) act->int_pos().Y = lValue;
-		else*/ SetGameVarID(lVar2, act->int_pos().Y, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, act->spr.pos.Y / maptoworld, sActor, sPlayer);
 		break;
 	case ACTOR_Z:
-		/*if (bSet) act->int_pos().Z = lValue;
-		else*/ SetGameVarID(lVar2, act->int_pos().Z, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, act->spr.pos.Z / zmaptoworld, sActor, sPlayer);
 		break;
 	case ACTOR_CSTAT:
 		if (bSet) act->spr.cstat = ESpriteFlags::FromInt(lValue);
