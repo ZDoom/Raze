@@ -39,6 +39,8 @@ BEGIN_DUKE_NS
 
 void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interpfrac)
 {
+	DAngle kang;
+	DAngle viewang = DAngle::fromBuild(a);
 	DVector2 viewVec(x * inttoworld, y * inttoworld);
 	int k, p;
 	int l, t1, t3, t4;
@@ -63,7 +65,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 			break;
 		case CHAIR3:
 
-			k = (((t->int_ang() + 3072 + 128 - a) & 2047) >> 8) & 7;
+			k = angletorotation1(t->angle, viewang);
 			if (k > 4)
 			{
 				k = 8 - k;
@@ -252,8 +254,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 				}
 				else if (OwnerAc->spr.picnum == MAMA)
 				{
-					k = getangle(h->spr.pos - viewVec);
-					k = (((h->int_ang() + 3072 + 128 - k) & 2047) >> 8) & 7;
+					kang = VecToAngle(h->spr.pos - viewVec);
+					k = angletorotation1(h->spr.angle, kang);
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -270,8 +272,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 			break;
 		case EMPTYBIKE:
 			if (!isRRRA()) goto default_case;
-			k = getangle(h->spr.pos - viewVec);
-			k = (((h->int_ang() + 3072 + 128 - k) & 2047) / 170);
+			kang = VecToAngle(h->spr.pos - viewVec);
+			k = angletorotation2(h->spr.angle, kang);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -282,8 +284,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 			break;
 		case EMPTYBOAT:
 			if (!isRRRA()) goto default_case;
-			k = getangle(h->spr.pos - viewVec);
-			k = (((h->int_ang() + 3072 + 128 - k) & 2047) / 170);
+			kang = VecToAngle(h->spr.pos - viewVec);
+			k = angletorotation2(h->spr.angle, kang);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -293,8 +295,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 			t->picnum = EMPTYBOAT + k;
 			break;
 		case RPG:
-			k = getangle(h->spr.pos - viewVec);
-			k = (((h->int_ang() + 3072 + 128 - k) & 2047) / 170);
+			kang = VecToAngle(h->spr.pos - viewVec);
+			k = angletorotation2(h->spr.angle, kang);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -305,8 +307,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 			break;
 		case RPG2:
 			if (!isRRRA()) goto default_case;
-			k = getangle(h->spr.pos - viewVec);
-			k = (((h->int_ang() + 3072 + 128 - k) & 2047) / 170);
+			kang = VecToAngle(h->spr.pos - viewVec);
+			k = angletorotation2(h->spr.angle, kang);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -318,10 +320,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 
 		case RECON:
 
-			k = getangle(h->spr.pos - viewVec);
-			if (h->temp_data[0] < 4)
-				k = (((h->int_ang() + 3072 + 128 - k) & 2047) / 170);
-			else k = (((h->int_ang() + 3072 + 128 - k) & 2047) / 170);
+			kang = VecToAngle(h->spr.pos - viewVec);
+			k = angletorotation2(h->spr.angle, kang);
 
 			if (k > 6)
 			{
@@ -412,7 +412,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				} else
 				{
-					k = (((h->int_ang() + 3072 + 128 - a) & 2047) >> 8) & 7;
+					k = angletorotation1(h->spr.angle, viewang);
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -475,7 +475,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 			}
 			else if (ps[p].OnMotorcycle)
 			{
-				k = (((h->int_ang() + 3072 + 128 - a) & 2047) / 170);
+				k = angletorotation2(h->spr.angle, viewang);
 				if (k > 6)
 				{
 					k = 12 - k;
@@ -501,7 +501,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 			}
 			else if (ps[p].OnBoat)
 			{
-				k = (((h->int_ang() + 3072 + 128 - a) & 2047) / 170);
+				k = angletorotation2(h->spr.angle, viewang);
+
 				if (k > 6)
 				{
 					k = 12 - k;
@@ -623,12 +624,12 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 				else switch (l) 
 				{
 				case 2:
-					k = (((h->int_ang() + 3072 + 128 - a) & 2047) >> 8) & 1;
+					k = angletorotation1(h->spr.angle, viewang, 8, 1);
 					break;
 
 				case 3:
 				case 4:
-					k = (((h->int_ang() + 3072 + 128 - a) & 2047) >> 7) & 7;
+					k = angletorotation1(h->spr.angle, viewang, 7);
 					if (k > 3)
 					{
 						t->cstat |= CSTAT_SPRITE_XFLIP;
@@ -638,8 +639,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 					break;
 
 				case 5:
-					k = getangle(h->spr.pos - viewVec);
-					k = (((h->int_ang() + 3072 + 128 - k) & 2047) >> 8) & 7;
+					kang = VecToAngle(h->spr.pos - viewVec);
+					k = angletorotation1(h->spr.angle, kang);
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -648,8 +649,8 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 7:
-					k = getangle(h->spr.pos - viewVec);
-					k = (((h->int_ang() + 3072 + 128 - k) & 2047) / 170);
+					kang = VecToAngle(h->spr.pos - viewVec);
+					k = angletorotation2(h->spr.angle, kang);
 					if (k > 6)
 					{
 						k = 12 - k;
@@ -658,15 +659,15 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 8:
-					k = (((h->int_ang() + 3072 + 128 - a) & 2047) >> 8) & 7;
+					k = angletorotation1(h->spr.angle, viewang);
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				default:
 					bg = badguy(h);
 					if (bg && h->spr.statnum == 2 && h->spr.extra > 0)
 					{
-						k = getangle(h->spr.pos - viewVec);
-						k = (((h->int_ang() + 3072 + 128 - k) & 2047) >> 8) & 7;
+						kang = VecToAngle(h->spr.pos - viewVec);
+						k = angletorotation1(h->spr.angle, kang);
 						if (k > 4)
 						{
 							k = 8 - k;
@@ -887,7 +888,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 			break;
 		case PLAYERONWATER:
 
-			k = (((t->int_ang() + 3072 + 128 - a) & 2047) >> 8) & 7;
+			k = angletorotation1(t->angle, viewang);
 			if (k > 4)
 			{
 				k = 8 - k;
@@ -941,7 +942,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interp
 
 		case CAMERA1:
 		case RAT:
-			k = (((t->int_ang() + 3072 + 128 - a) & 2047) >> 8) & 7;
+			k = angletorotation1(t->angle, viewang);
 			if (k > 4)
 			{
 				k = 8 - k;

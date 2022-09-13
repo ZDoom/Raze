@@ -257,4 +257,14 @@ inline DAngle randomAngle(DAngle span)
 	return DAngle::fromDeg(krandf(span.Degrees()));
 }
 
+inline int angletorotation1(DAngle sprang, DAngle viewang, int shiftv = 8, int andv = 7)
+{
+	return (((sprang.Buildang() + 3072 + 128 - viewang.Buildang()) & 2047) >> shiftv) & andv;
+}
+
+inline int angletorotation2(DAngle sprang, DAngle viewang)
+{
+	return ((sprang.Buildang() + 3072 + 128 - viewang.Buildang()) & 2047) / 170;
+}
+
 END_DUKE_NS
