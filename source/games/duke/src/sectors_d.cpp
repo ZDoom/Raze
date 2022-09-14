@@ -669,12 +669,12 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (sptr == nullptr) return;
 					DDukeActor* spawned;
 					if (atwith == -1)
-						spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, 8, 8, 0, 0, 0, spr, 5);
+						spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, 8, 8, nullAngle, 0., 0., spr, 5);
 					else
 					{
 						if (atwith == CHAINGUN)
-							spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, 16 + spr->spr.xrepeat, 16 + spr->spr.yrepeat, 0, 0, 0, spr, 5);
-						else spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, 32, 32, 0, 0, 0, spr, 5);
+							spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, 16 + spr->spr.xrepeat, 16 + spr->spr.yrepeat, nullAngle, 0., 0., spr, 5);
+						else spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, 32, 32, nullAngle, 0., 0., spr, 5);
 					}
 					if (spawned)
 					{
@@ -709,7 +709,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
+					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang, 0., 0., spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -1078,7 +1078,11 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		{
 			for (k = 0; k < 64; k++)
 			{
-				auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-krandf(48)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->int_zvel() >> 2), targ, 5);
+				auto a = randomAngle();
+				auto vel = krandf(4) + 4;
+				auto zvel = -krandf(16) - targ->vel.Z * 0.25;
+
+				auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-48), SCRAP3 + (krand() & 3), -8, 48, 48, a, vel, zvel, targ, 5);
 				spawned->spr.pal = 8;
 			}
 
@@ -1091,7 +1095,12 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case HANGLIGHT:
 	case GENERICPOLE2:
 		for (k = 0; k < 6; k++)
-			CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->int_zvel() >> 2), targ, 5);
+		{
+			auto a = randomAngle();
+			auto vel = krandf(4) + 4;
+			auto zvel = -krandf(16) - targ->vel.Z * 0.25;
+			CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), SCRAP1 + (krand() & 15), -8, 48, 48, a, vel, zvel, targ, 5);
+		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		deletesprite(targ);
 		break;
@@ -1121,8 +1130,14 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
+			{
+				auto a = randomAngle();
+				auto vel = krandf(8) + 4;
+				auto zvel = -krandf(2) - 1;
+
 				CreateActor(targ->sector(), DVector3(targ->spr.pos.XY(), targ->sector()->floorz - 12 - j * 2), SCRAP1 + (krand() & 15), -8, 64, 64,
-					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
+					a, vel, zvel, targ, 5);
+			}
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
 		}

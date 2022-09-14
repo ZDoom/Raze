@@ -139,13 +139,13 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			DDukeActor* wpn;
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
-				wpn = CreateActor(hit.hitSector, hit.hitpos, SLINGBLADE, -15, 0, 0, ang.Buildang(), 32, 0, actor, 4);
+				wpn = CreateActor(hit.hitSector, hit.hitpos, SLINGBLADE, -15, 0, 0, ang, 32., 0., actor, 4);
 				if (!wpn) return;
 				wpn->spr.extra += 50;
 			}
 			else
 			{
-				wpn = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, ang.Buildang(), 32, 0, actor, 4);
+				wpn = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, ang, 32., 0., actor, 4);
 				if (!wpn) return;
 				wpn->spr.extra += (krand() & 7);
 			}
@@ -301,7 +301,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 10, 10, ang.Buildang(), 0, 0, actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 10, 10, ang, 0., 0., actor, 4);
 		if (!spark) return;
 		spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->spr.extra += (krand() % 6);
@@ -428,7 +428,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 	}
 	else
 	{
-		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 24, 24, ang.Buildang(), 0, 0, actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 24, 24, ang, 0., 0., actor, 4);
 		if (!spark) return;
 		spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
@@ -571,7 +571,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 	while (scount > 0)
 	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang.Buildang(), int(vel * worldtoint), int(zvel * zworldtoint), actor, 4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang, vel, zvel, actor, 4);
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -671,7 +671,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	}
 
 	auto offset = (ang + DAngle1 * 61).ToVector() * (1024 / 448.);
-	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang.Buildang(), int(vel * worldtoint), int(zvel * zworldtoint), actor, 4);
+	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang, vel, zvel, actor, 4);
 
 	if (!spawned) return;
 	if (isRRRA())

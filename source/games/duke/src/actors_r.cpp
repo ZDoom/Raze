@@ -474,15 +474,15 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 	for (j = 0; j < n; j++)
 	{
 		// RANDCORRECT version from RR.
-		int a = krand() & 2047;
-		int r1 = krand();
-		int r2 = krand();
+		DAngle a = randomAngle();
+		double zvel = -2 - krandf(8);
+		double vel = 3 + krandf(2);
 		DVector3 offs;
 		offs.Z = gutz - krandf(16);
 		offs.Y = krandf(16) - 8;
 		offs.X = krandf(16) - 8;
 		// TRANSITIONAL: owned by a player???
-		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, sx, sy, a, vel, zvel, ps[p].GetActor(), 5);
 		if (spawned && pal != 0)
 			spawned->spr.pal = pal;
 	}
@@ -1252,7 +1252,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			double zAdd = k * proj->vel.Z / 24;
 			auto x = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.angle.ToVector() * k * 2.,
 				FIRELASER, -40 + (k << 2),
-				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
+				proj->spr.xrepeat, proj->spr.yrepeat, nullAngle, 0., 0., proj->GetOwner(), 5);
 
 			if (x)
 			{
@@ -3135,7 +3135,7 @@ void handle_se06_r(DDukeActor *actor)
 				}
 				if (!hulkspawn)
 				{
-					ns = CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz + 466.5), 3677, -8, 16, 16, 0, 0, 0, actor, 5);
+					ns = CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz + 466.5), 3677, -8, 16, 16, nullAngle, 0., 0., actor, 5);
 					if (ns)
 					{
 						ns->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;

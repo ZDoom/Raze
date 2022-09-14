@@ -934,7 +934,10 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 		for (int j = n - 1; j >= 0; j--)
 		{
 			DAngle a = actor->spr.angle - DAngle45 + DAngle180 + randomAngle(90);
-			CreateActor(actor->sector(), actor->spr.pos, POPCORN, -32, 36, 36, a.Buildang(), 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			auto vel = krandf(4) + 2;
+			auto zvel = 4 - krandf(4);
+
+			CreateActor(actor->sector(), actor->spr.pos, POPCORN, -32, 36, 36, a, vel, zvel, actor, 5);
 		}
 		return;
 	}
@@ -956,7 +959,10 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 			if (abs(z) > 32)
 				z = actor->spr.pos.Z - 32 + krandf(64);
 			DAngle a = actor->spr.angle - DAngle180;
-			CreateActor(actor->sector(), DVector3(pos, z), POPCORN, -32, 36, 36, a.Buildang(), 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			auto vel = krandf(4) + 2;
+			auto zvel = -krandf(4);
+
+			CreateActor(actor->sector(), DVector3(pos, z), POPCORN, -32, 36, 36, a, vel, zvel, actor, 5);
 		}
 	}
 }
@@ -1011,7 +1017,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
+					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang, 0., 0., spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -1032,7 +1038,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.Buildang(), 0, 0, spr, 3);
+					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang, 0., 0., spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -2047,7 +2053,13 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		lotsofglass(targ, nullptr, 10);
 		targ->spr.picnum++;
 		for (k = 0; k < 6; k++)
-			CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->int_zvel() >> 2), targ, 5);
+		{
+			auto a = randomAngle();
+			auto vel = krandf(4) + 4;
+			auto zvel = -krandf(16) - targ->vel.Z * 0.25;
+
+			CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), SCRAP6 + (krand() & 15), -8, 48, 48, a, vel, zvel, targ, 5);
+		}
 		break;
 	case BOWLINGBALL:
 		proj->vel.X = targ->vel.X * 0.75;
@@ -2114,7 +2126,11 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 			for (k = 0; k < 64; k++)
 			{
-				auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-krandf(48)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->int_zvel() >> 2), targ, 5);
+				auto a = randomAngle();
+				auto vel = krandf(4) + 4;
+				auto zvel = -krandf(16) - targ->vel.Z * 0.25;
+
+				auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-krandf(48)), SCRAP6 + (krand() & 3), -8, 48, 48, a, vel, zvel, targ, 5);
 				if (spawned) spawned->spr.pal = 8;
 			}
 
@@ -2146,8 +2162,14 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
+			{
+				auto a = randomAngle();
+				auto vel = krandf(8) + 4;
+				auto zvel = -krandf(2) - 1;
+
 				CreateActor(targ->sector(), DVector3(targ->spr.pos.XY(), targ->sector()->floorz - 12 - j * 2), SCRAP1 + (krand() & 15), -8, 64, 64,
-					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
+					a, vel, zvel, targ, 5);
+			}
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
 		}
