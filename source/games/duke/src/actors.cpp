@@ -1704,7 +1704,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				fi.shoot(actor, firelaser);
 			}
 		}
-		actor->add_int_ang(getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 2);
+		actor->spr.angle += deltaangle(actor->spr.angle, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) * 0.25;
 	}
 
 	if (actor->temp_data[0] != 2 && actor->temp_data[0] != 3 && Owner)
@@ -4300,7 +4300,7 @@ void handle_se27(DDukeActor* actor)
 				{
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
-					actor->add_int_ang(getincangle(actor->int_ang(), getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3);
+					actor->spr.angle += deltaangle(actor->spr.angle, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) * 0.125;
 					actor->spr.yint = 100 + int((actor->spr.pos.Z - ps[p].pos.Z) * (256. / 257.));
 
 				}
@@ -4951,18 +4951,18 @@ DAngle furthestangle(DDukeActor *actor, int angs)
 
 int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, DVector2& pos)
 {
-	int j, angincs;
+	DAngle angincs;
 	HitInfo hit{};
 
 	if ((actor->temp_data[0] & 63)) return -1;
 
 	if (ud.multimode < 2 && ud.player_skill < 3)
-		angincs = 2048 / 2;
-	else angincs = 2048 / (1 + (krand() & 1));
+		angincs = DAngle180;
+	else angincs = DAngle360 / (1 + (krand() & 1));
 
-	for (j = tosee->int_ang(); j < (2048 + tosee->int_ang()); j += (angincs - (krand() & 511)))
+	for (auto j = tosee->spr.angle; j < tosee->spr.angle + DAngle360; j += (angincs - randomAngle(90)))
 	{
-		hitscan(tosee->spr.pos.plusZ(-16), tosee->sector(), vec3_t(bcos(j), bsin(j), 16384 - (krand() & 32767)), hit, CLIPMASK1);
+		hitscan(tosee->spr.pos.plusZ(-16), tosee->sector(), DVector3(j.ToVector() * 1024, 64 - krandf(128)), hit, CLIPMASK1);
 
 		double d = (hit.hitpos.XY() - tosee->spr.pos.XY()).Sum();
 		double da = (hit.hitpos.XY() - actor->spr.pos.XY()).Sum();
@@ -5234,7 +5234,7 @@ void movefta(void)
 						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.
 						if (act->spr.pal == 33 || actorflag(act, SFLAG_MOVEFTA_CHECKSEE) ||
 							(actorflag(act, SFLAG_MOVEFTA_CHECKSEEWITHPAL8) && act->spr.pal == 8) ||
-							(bcos(act->int_ang()) * (px - sx) + bsin(act->int_ang()) * (py - sy) >= 0))
+							(act->spr.angle.Cos() * (px - sx) + act->spr.angle.Sin() * (py - sy) >= 0))
 						{
 							double r1 = zrand(32);
 							double r2 = zrand(52);
