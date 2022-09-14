@@ -142,6 +142,7 @@ int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);
 double hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
 int findplayer(const DDukeActor* s, double* dist);
 
+[[deprecated]]
 inline int findplayer(const DDukeActor* s, int* dist)
 {
 	double dd;
