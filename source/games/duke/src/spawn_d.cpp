@@ -540,8 +540,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case SPOTLITE:
-		act->temp_data[0] = act->int_pos().X;
-		act->temp_data[1] = act->int_pos().Y;
 		break;
 	case BULLETHOLE:
 		act->spr.xrepeat = act->spr.yrepeat = 3;

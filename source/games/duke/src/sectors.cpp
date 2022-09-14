@@ -638,7 +638,7 @@ static void handle_st15(sectortype* sptr, DDukeActor* actor)
 	}
 	else
 	{
-		if (sptr->int_floorz() > a2->int_pos().Z)
+		if (sptr->floorz > a2->spr.pos.Z)
 			activatewarpelevators(a2, -1);
 		else
 			activatewarpelevators(a2, 1);
