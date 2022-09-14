@@ -1255,37 +1255,33 @@ void movecanwithsomething(DDukeActor* actor)
 
 void bounce(DDukeActor* actor)
 {
-	int xvect = MulScale(actor->int_xvel(), bcos(actor->int_ang()), 10);
-	int yvect = MulScale(actor->int_xvel(), bsin(actor->int_ang()), 10);
-	int zvect = actor->int_zvel();
+	DVector3 vect(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z);
 
 	auto sectp = actor->sector();
 
-	int daang = getangle(sectp->firstWall()->delta());
+	DAngle daang = VecToAngle(sectp->firstWall()->delta());
 
-	int k, l;
+	double k;
 	if (actor->spr.pos.Z < (actor->floorz + actor->ceilingz) * 0.5)
-		k = sectp->ceilingheinum;
+		k = sectp->ceilingheinum / 16.;
 	else
-		k = sectp->floorheinum;
+		k = sectp->floorheinum / 16.;
 
-	int dax = MulScale(k, bsin(daang), 14);
-	int day = MulScale(k, -bcos(daang), 14);
-	int daz = 4096;
+	DVector3 davec(daang.Sin() * k, -daang.Cos() * k, 16);
 
-	k = xvect * dax + yvect * day + zvect * daz;
-	l = dax * dax + day * day + daz * daz;
-	if ((abs(k) >> 14) < l)
+	double dot = vect.dot(davec);
+	double l = davec.LengthSquared();
+
+	const double scale = 1;	// still need to figure out.
+	if ((abs(dot) * scale) < l)
 	{
-		k = DivScale(k, l, 17);
-		xvect -= MulScale(dax, k, 16);
-		yvect -= MulScale(day, k, 16);
-		zvect -= MulScale(daz, k, 16);
+		k = k * l / 8.; // Guessed by '<< (17-14)'
+		vect -= davec * k;
 	}
 
-	actor->set_int_zvel(zvect);
-	actor->set_int_xvel(ksqrt(DMulScale(xvect, xvect, yvect, yvect, 8)));
-	actor->spr.angle = VecToAngle(xvect, yvect);
+	actor->vel.Z = vect.Z;
+	actor->vel.X = vect.XY().Length();
+	actor->spr.angle = VecToAngle(vect);
 }
 
 //---------------------------------------------------------------------------

@@ -664,6 +664,11 @@ struct TVector3
 		return X*other.X + Y*other.Y + Z*other.Z;
 	}
 
+	vec_t dot (const TVector3& other) const
+	{
+		return X * other.X + Y * other.Y + Z * other.Z;
+	}
+
 	// Cross product
 	TVector3 operator ^ (const TVector3 &other) const
 	{
