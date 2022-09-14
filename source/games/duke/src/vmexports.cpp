@@ -143,7 +143,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, getglobalz, getglobalz)
 
 player_struct* DukeActor_findplayer(DDukeActor* self)
 {
-	int a;
+	double a;
 	return &ps[findplayer(self, &a)];
 }
 

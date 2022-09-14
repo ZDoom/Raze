@@ -3703,7 +3703,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 //
 //---------------------------------------------------------------------------
 
-void execute(DDukeActor *actor,int p,int x)
+void execute(DDukeActor *actor,int p,double xx)
 {
 	if (gs.actorinfo[actor->spr.picnum].scriptaddress == 0) return;
 
@@ -3711,7 +3711,7 @@ void execute(DDukeActor *actor,int p,int x)
 
 	ParseState s;
 	s.g_p = p;	// Player ID
-	s.g_x = x;	// ??
+	s.g_x = int(xx / maptoworld);	// ??
 	s.g_ac = actor;
 	s.g_t = &actor->temp_data[0];	// Sprite's 'extra' data
 
@@ -3760,7 +3760,7 @@ void execute(DDukeActor *actor,int p,int x)
 	}
 	else
 	{
-		fi.move(actor, p, x);
+		fi.move(actor, p, int(xx / maptoworld));
 
 		if (actor->spr.statnum == STAT_ACTOR)
 		{
