@@ -3729,7 +3729,7 @@ void handle_se15(DDukeActor* actor)
 			actor->temp_data[3]--;
 		}
 
-		movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+		movesector(actor, actor->temp_data[1], nullAngle);
 		//SetActor(actor, actor->spr.pos);
 	}
 }
@@ -4264,7 +4264,7 @@ void handle_se26(DDukeActor* actor)
 			ps[p].pos.Z += zvel;
 		}
 
-	movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+	movesector(actor, actor->temp_data[1], nullAngle);
 	//SetActor(actor, actor->spr.pos);
 }
 

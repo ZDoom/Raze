@@ -2067,12 +2067,10 @@ static void onBoat(int snum, ESyncBits &actions)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, int cz_, int shrunk, double truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, sectortype* psect, double floorz, double ceilingz, int shrunk, double truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	double floorz = fz_ * zinttoworld;
-	double ceilingz = cz_ * zinttoworld;
 
 	if (p->airleft != 15 * 26)
 		p->airleft = 15 * 26; //Aprox twenty seconds.
@@ -2249,7 +2247,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 
 		else if ((actions & SB_JUMP) && !p->OnMotorcycle && p->jumping_toggle == 0)
 		{
-			playerJump(snum, fz_, cz_);
+			playerJump(snum, floorz* zworldtoint, ceilingz* zworldtoint);
 		}
 	}
 
@@ -2297,12 +2295,10 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
+static void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	double floorz = fz_ * zinttoworld;
-	double ceilingz = cz_ * zinttoworld;
 
 	p->jumping_counter = 0;
 
@@ -2360,7 +2356,7 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 		auto j = spawn(pact, WATERBUBBLE);
 		if (j)
 		{
-			j->add_int_pos({ bcos(p->angle.ang.Buildang() + 64 - (global_random & 128) + 128, -6), bsin(p->angle.ang.Buildang() + 64 - (global_random & 128) + 128, -6), 0 });
+			j->spr.pos += (p->angle.ang.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
 			j->spr.xrepeat = 3;
 			j->spr.yrepeat = 2;
 			j->spr.pos.Z = p->pos.Z + 8;
@@ -3606,11 +3602,11 @@ void processinput_r(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, floorz * worldtoint, ceilingz * worldtoint);
+		underwater(snum, actions, floorz, ceilingz);
 	}
 	else
 	{
-		movement(snum, actions, psectp, floorz * worldtoint, ceilingz * worldtoint, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psectp, floorz, ceilingz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
