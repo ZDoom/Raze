@@ -862,7 +862,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			break;
 
 		case SE_11_SWINGING_DOOR://Pivitor rotater
-			if (actor->int_ang() > 1024) actor->temp_data[3] = 2;
+			if (actor->spr.intangle > 1024) actor->temp_data[3] = 2;
 			else actor->temp_data[3] = -2;
 			[[fallthrough]];
 		case SE_0_ROTATING_SECTOR:
