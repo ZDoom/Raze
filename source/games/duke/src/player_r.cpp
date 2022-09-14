@@ -2067,7 +2067,7 @@ static void onBoat(int snum, ESyncBits &actions)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, int cz_, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, int cz_, int shrunk, double truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -2092,7 +2092,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		}
 		else i = 12;
 
-		if (shrunk == 0 && truefdist <= gs.int_playerheight)
+		if (shrunk == 0 && truefdist <= gs.playerheight)
 		{
 			if (p->on_ground == 1)
 			{
@@ -3332,10 +3332,11 @@ static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 void processinput_r(int snum)
 {
-	int i, k, doubvel, fz, cz, truefdist;
+	int i, k, doubvel;
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
+	double floorz = 0, ceilingz = 0;
 
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -3375,7 +3376,7 @@ void processinput_r(int snum)
 		while (auto act2 = it.Next())
 		{
 			if (act2->spr.picnum == RRTILE380)
-				if (act2->int_pos().Z - (8 << 8) < p->player_int_pos().Z)
+				if (act2->spr.pos.Z - 8 < p->pos.Z)
 					psectlotag = 2;
 		}
 	}
@@ -3393,27 +3394,27 @@ void processinput_r(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (pact->spr.yrepeat < 8);
-	int tempfz;
+	double tempfz;
 	if (pact->native_clipdist() == 64)
 	{
-		getzrange(p->player_int_pos(), psectp, &cz, chz, &fz, clz, 163L, CLIPMASK0);
-		tempfz = getflorzofslopeptr(psectp, p->player_int_pos().X, p->player_int_pos().Y);
+		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 163L, CLIPMASK0);
+		tempfz = getflorzofslopeptrf(psectp, p->pos);
 	}
 	else
 	{
-		getzrange(p->player_int_pos(), psectp, &cz, chz, &fz, clz, 4L, CLIPMASK0);
-		tempfz = getflorzofslopeptr(psectp, p->player_int_pos().X, p->player_int_pos().Y);
+		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 4L, CLIPMASK0);
+		tempfz = getflorzofslopeptrf(psectp, p->pos);
 	}
 
-	p->truefz = tempfz * zinttoworld;
-	p->truecz = getceilzofslopeptr(psectp, p->player_int_pos().X, p->player_int_pos().Y) * zinttoworld;
+	p->truefz = tempfz;
+	p->truecz = getceilzofslopeptrf(psectp, p->pos);
 
-	truefdist = abs(p->player_int_pos().Z - tempfz);
-	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.int_playerheight + (16 << 8))
+	double truefdist = abs(p->pos.Z - tempfz);
+	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 
-	pact->floorz = fz * zinttoworld;
-	pact->ceilingz = cz * zinttoworld;
+	pact->floorz = floorz;
+	pact->ceilingz = ceilingz;
 
 	if (SyncInput())
 	{
@@ -3426,7 +3427,7 @@ void processinput_r(int snum)
 		if (chz.actor()->spr.statnum == 1 && chz.actor()->spr.extra >= 0)
 		{
 			chz.setNone();
-			cz = p->truecz * zworldtoint;
+			ceilingz = p->truecz;
 		}
 		else if (chz.actor()->spr.picnum == LADDER)
 		{
@@ -3436,7 +3437,7 @@ void processinput_r(int snum)
 				if ((actions & SB_JUMP) && !p->OnMotorcycle)
 				{
 					chz.setNone();
-					cz = p->truecz * zworldtoint;
+					ceilingz = p->truecz;
 				}
 			}
 			else
@@ -3480,9 +3481,9 @@ void processinput_r(int snum)
 				p->stairs = 10;
 				if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				{
-					cz = clz.actor()->int_pos().Z;
+					ceilingz = clz.actor()->spr.pos.Z;
 					chz.setNone();
-					fz = clz.actor()->int_pos().Z + (4 << 8);
+					floorz = clz.actor()->spr.pos.Z + 4;
 				}
 			}
 			else
@@ -3533,7 +3534,7 @@ void processinput_r(int snum)
 
 	if (pact->spr.extra <= 0 && !ud.god)
 	{
-		playerisdead(snum, psectlotag, fz * inttoworld, cz * inttoworld);
+		playerisdead(snum, psectlotag, floorz, ceilingz);
 		return;
 	}
 
@@ -3576,7 +3577,7 @@ void processinput_r(int snum)
 	p->playerweaponsway(pact->int_xvel());
 
 	pact->vel.X = clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.);
-	if (p->on_ground) p->bobcounter += p->GetActor()->int_xvel() >> 1;
+	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));
 
@@ -3605,11 +3606,11 @@ void processinput_r(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, fz, cz);
+		underwater(snum, actions, floorz * worldtoint, ceilingz * worldtoint);
 	}
 	else
 	{
-		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psectp, floorz * worldtoint, ceilingz * worldtoint, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -3637,7 +3638,7 @@ void processinput_r(int snum)
 		int j = pact->sector()->floorpicnum;
 		k = 0;
 
-		if (p->on_ground && truefdist <= gs.int_playerheight + (16 << 8))
+		if (p->on_ground && truefdist <= gs.playerheight + 16)
 		{
 			int whichsound = (gs.tileinfo[j].flags & TFLAG_ELECTRIC) ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 :
 				(isRRRA() && (j == RRTILE7768 || j == RRTILE7820) ? 3 : -1);
@@ -3674,7 +3675,7 @@ void processinput_r(int snum)
 				p->NotOnWater = 1;
 		}
 
-		if (truefdist < gs.int_playerheight + (8 << 8) && (k == 1 || k == 3))
+		if (truefdist < gs.playerheight + (8 << 8) && (k == 1 || k == 3))
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
@@ -3868,7 +3869,7 @@ HORIZONLY:
 
 	if (p->jetpack_on == 0)
 	{
-		if (pact->int_xvel() > 16)
+		if (pact->vel.X > 1)
 		{
 			if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground && (!isRRRA() || !p->sea_sick_stat))
 			{
@@ -3906,7 +3907,7 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.int_playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector->lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector->hitag != 321))
 				S_PlayActorSound(DUKE_ONWATER, pact);
@@ -3939,7 +3940,7 @@ HORIZONLY:
 				return;
 			}
 		}
-		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(psectp->lotag))
+		else if (abs(floorz - ceilingz) < 32 && isanunderoperator(psectp->lotag))
 			fi.activatebysector(psectp, pact);
 		break;
 	}
