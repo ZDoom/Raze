@@ -71,8 +71,8 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spr.pal = 0;
 
 	act->set_int_ang(s_a);
-	act->set_int_xvel(s_ve);
-	act->set_int_zvel(s_zv);
+	act->vel.X = (s_ve) * inttoworld;
+	act->vel.Z = (s_zv) * zinttoworld;
 	act->spr.xoffset = 0;
 	act->spr.yoffset = 0;
 	act->spr.yint = 0;

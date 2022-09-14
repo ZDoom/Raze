@@ -1203,7 +1203,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (!isRRRA()) break;
 		if (proj->spr.extra)
 		{
-			proj->set_int_zvel(-(proj->spr.extra * 250));
+			proj->vel.Z = -(proj->spr.extra * 250/256.); // 250 looks like a typo...
 			proj->spr.extra--;
 		}
 		else
@@ -2344,7 +2344,7 @@ static void heavyhbomb(DDukeActor *actor)
 				goto DETONATEB;
 			}
 		}
-		actor->set_int_zvel(-((4 - actor->spr.yint) << 8));
+		actor->vel.Z = -(4 - actor->spr.yint);
 		if (actor->sector()->lotag == 2)
 			actor->vel.Z *= 0.25;
 		actor->spr.yint++;

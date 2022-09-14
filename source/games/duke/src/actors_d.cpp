@@ -2569,7 +2569,7 @@ static void heavyhbomb(DDukeActor *actor)
 		{
 			if (actor->spr.yint > 0 || (actor->spr.yint == 0 && actor->floorz == sectp->floorz))
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
-			actor->set_int_zvel(-((4 - actor->spr.yint) << 8));
+			actor->vel.Z = -(4 - actor->spr.yint);
 			if (actor->sector()->lotag == 2)
 				actor->vel.Z *= 0.25;
 			actor->spr.yint++;
