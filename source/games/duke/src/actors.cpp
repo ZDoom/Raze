@@ -1540,17 +1540,17 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 	{
 		actor->spr.yint = 1;
 
-		for (int l = 512; l < (2048 - 512); l += 128)
-			for (int j = 0; j < 2048; j += 128)
+		for (DAngle l = DAngle90; l < DAngle270; l += DAngle22_5)
+			for (DAngle j = nullAngle; j < DAngle360; j += DAngle22_5)
 			{
 				auto k = spawn(actor, forcesphere);
 				if (k)
 				{
 					k->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_YCENTER;
 					k->set_const_clipdist(64);
-					k->set_int_ang(j);
-					k->set_int_zvel(bsin(l, -5));
-					k->set_int_xvel(bcos(l, -9));
+					k->spr.angle = j;
+					k->vel.Z = l.Sin() * 2;
+					k->vel.X = l.Cos() * 2;
 					k->SetOwner(actor);
 				}
 			}
