@@ -66,8 +66,12 @@ void RANDOMSCRAP(DDukeActor* origin)
 	offset.Z = krandf(16) - 8;
 
 	int v = isRR() ? 16 : 48;
-	CreateActor(origin->sector(), origin->spr.pos + offset, 
-		TILE_SCRAP6 + (r4 & 15), -8, v, v, r3 & 2047, (r2 & 63) + 64, -512 - (r1 & 2047), origin, 5); 
+
+	auto a = randomAngle();
+	auto vel = krandf(4) + 4;
+	auto zvel = -krandf(8) - 2;
+
+	CreateActor(origin->sector(), origin->spr.pos + offset, TILE_SCRAP6 + (r4 & 15), -8, v, v, a, vel, zvel, origin, 5); 
 }
 
 //---------------------------------------------------------------------------
@@ -263,9 +267,9 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 {
 	for (int i = n; i > 0; i--)
 	{
-		int r1 = krand();	// using the RANDCORRECT version from RR.
+		DAngle r1 = randomAngle();
 		double r2 = zrand(47);
-		auto j = CreateActor(actor->sector(), actor->spr.pos.plusZ(-r2), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
+		auto j = CreateActor(actor->sector(), actor->spr.pos.plusZ(-r2), spawntype, -32, 8, 8, r1, 0., 0., actor, 5);
 		if (j) j->spr.cstat = randomFlip();
 	}
 }
@@ -1318,7 +1322,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 		auto pos = actor->spr.pos + actor->spr.angle.ToVector() * 2 * k;
 		pos.Z += k * Sgn(actor->vel.Z) * abs(actor->vel.Z / 12);
 
-		auto q = CreateActor(actor->sector(), pos, tongue, -40 + (k << 1), 8, 8, 0, 0, 0, actor, 5);
+		auto q = CreateActor(actor->sector(), pos, tongue, -40 + (k << 1), 8, 8, nullAngle, 0., 0., actor, 5);
 		if (q)
 		{
 			q->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -1328,7 +1332,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	int k = actor->temp_data[0];	// do not depend on the above loop counter.
 	auto pos = actor->spr.pos + actor->spr.angle.ToVector() * 2 * k;
 	pos.Z += k * Sgn(actor->vel.Z) * abs(actor->vel.Z / 12);
-	auto spawned = CreateActor(actor->sector(), pos, jaw, -40, 32, 32, 0, 0, 0, actor, 5);
+	auto spawned = CreateActor(actor->sector(), pos, jaw, -40, 32, 32, nullAngle, 0., 0., actor, 5);
 	if (spawned)
 	{
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -2531,11 +2535,12 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 
 	for (int j = 0; j < n; j++)
 	{
-		int a = krand() & 2047;
-		int r1 = krand();
-		int r2 = krand();
+		auto a = randomAngle();
+		auto vel = krandf(8) + 16;
+		auto zvel = -krandf(8) - 2;
+
 		// TRANSITIONAL: owned by a player???
-		CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), gutz), gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), gutz), gtype, -32, sx, sy, a, vel, zvel, ps[p].GetActor(), 5);
 	}
 }
 

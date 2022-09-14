@@ -2166,9 +2166,13 @@ int ParseState::parse(void)
 				offs.Y = krandf(16) - 8;
 				offs.Z = -krandf(16) - 8;
 
+				auto a = randomAngle();
+				auto vel = krandf(8) + 2;
+				auto zvel = -krandf(8);
+
 				auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs,
 					dnum + s, g_ac->spr.shade, 32 + (krand() & 15), 32 + (krand() & 15),
-					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
+					a, vel, zvel, g_ac, 5);
 				if (spawned)
 				{
 					if (weap)

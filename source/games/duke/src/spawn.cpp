@@ -219,7 +219,7 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 {
 	if (actj)
 	{
-		auto spawned = CreateActor(actj->sector(), actj->spr.pos, pn, 0, 0, 0, 0, 0, 0, actj, 0);
+		auto spawned = CreateActor(actj->sector(), actj->spr.pos, pn, 0, 0, 0, nullAngle, 0., 0., actj, 0);
 		if (spawned)
 		{
 			spawned->attackertype = actj->spr.picnum;
@@ -1037,15 +1037,18 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 {
-	int j, z, a;
+	int j, z;
 	sectortype* sect = nullptr;
 
 	if (wal == nullptr)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
-			a = actor->int_ang() - 256 + (krand() & 511) + 1024;
-			CreateActor(actor->sector(), actor->spr.pos, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			auto a = actor->spr.angle - DAngle45 + DAngle180 + randomAngle(90);
+			auto vel = krandf(4) + 2;
+			auto zvel = 4 - krandf(4);
+
+			CreateActor(actor->sector(), actor->spr.pos, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, vel, zvel, actor, 5);
 		}
 		return;
 	}
@@ -1069,7 +1072,10 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 			if (fabs(z) > 32)
 				z = actor->spr.pos.Z - 32 + krandf(64);
 			DAngle angl = actor->spr.angle - DAngle180;
-			CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, angl.Buildang(), 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			auto vel = krandf(4) + 2;
+			auto zvel = 4 - krandf(4);
+
+			CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, angl, vel, zvel, actor, 5);
 		}
 	}
 }
@@ -1084,8 +1090,11 @@ void spriteglass(DDukeActor* actor, int n)
 {
 	for (int j = n; j > 0; j--)
 	{
-		int a = krand() & 2047;
-		auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 16)), TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
+		auto a = randomAngle();
+		auto vel = krandf(4) + 2;
+		auto zvel = -2 - krandf(8);
+
+		auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 16)), TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, vel, zvel, actor, 5);
 		if (k) k->spr.pal = actor->spr.pal;
 	}
 }
@@ -1107,8 +1116,10 @@ void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 		{
 			pos += delta;
 			DAngle a = randomAngle();
+			auto vel = krandf(2);
+
 			double z = sectp->ceilingz + krandf(16);
-			CreateActor(sectp, DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a.Buildang(), (krand() & 31), 0, actor, 5);
+			CreateActor(sectp, DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, vel, 0, actor, 5);
 		}
 	}
 }
@@ -1129,7 +1140,10 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			DAngle a = randomAngle();
-			auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 63)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a.Buildang(), 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
+			auto vel = krandf(4) + 2;
+			auto zvel = 4 - krandf(4);
+
+			auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 63)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, vel, zvel, actor, 5);
 			if (k) k->spr.pal = krand() & 15;
 		}
 		return;
@@ -1150,7 +1164,10 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 			z = actor->spr.pos.Z - 32 + krandf(64);
 
 		DAngle a = actor->spr.angle - DAngle180;
-		auto k = CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a.Buildang(), 32 + (krand() & 63), -(krand() & 2047), actor, 5);
+		auto vel = krandf(4) + 2;
+		auto zvel = - krandf(8);
+
+		auto k = CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, vel, zvel, actor, 5);
 		if (k) k->spr.pal = krand() & 7;
 	}
 }

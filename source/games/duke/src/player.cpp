@@ -146,9 +146,9 @@ void tracers(const DVector3& start, const DVector3& dest, int n)
 		if (sect)
 		{
 			if (sect->lotag == 2)
-				CreateActor(sect, pos, TILE_WATERBUBBLE, -32, 4 + (krand() & 3), 4 + (krand() & 3), krand() & 2047, 0, 0, ps[0].GetActor(), 5);
+				CreateActor(sect, pos, TILE_WATERBUBBLE, -32, 4 + (krand() & 3), 4 + (krand() & 3), randomAngle(), 0., 0., ps[0].GetActor(), 5);
 			else
-				CreateActor(sect, pos, TILE_SMALLSMOKE, -32, 14, 14, 0, 0, 0, ps[0].GetActor(), 5);
+				CreateActor(sect, pos, TILE_SMALLSMOKE, -32, 14, 14, nullAngle, 0., 0., ps[0].GetActor(), 5);
 		}
 	}
 }
