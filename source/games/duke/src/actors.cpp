@@ -1455,17 +1455,16 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		Collision coll;
 		auto sect = actor->sector();
 		auto pos = actor->spr.pos;
-		int j = clipmove(pos, &sect,
-			(MulScale(actor->int_xvel(), bcos(actor->int_ang()), 14) * TICSPERFRAME) << 11,
-			(MulScale(actor->int_xvel(), bsin(actor->int_ang()), 14) * TICSPERFRAME) << 11,
+		auto move = actor->spr.angle.ToVector() * actor->vel.X * 0.5;
+		int j = clipmove(pos, &sect, FloatToFixed<18>(move.X), FloatToFixed<18>(move.Y),
 			24, (4 << 8), (4 << 8), CLIPMASK1, coll);
 		actor->spr.pos = pos;;
 		actor->setsector(sect);
 
 		if (j == kHitWall)
 		{
-			int k = getangle(coll.hitWall->delta());
-			actor->set_int_ang(((k << 1) - actor->int_ang()) & 2047);
+			auto ang = VecToAngle(coll.hitWall->delta());
+			actor->spr.angle = ang * 2 - actor->spr.angle;
 		}
 		else if (j == kHitSprite)
 		{
@@ -1482,15 +1481,15 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 	}
 	else
 	{
-		int x;
+		double x;
 		int p = findplayer(actor, &x);
 
-		if (x < 1596)
+		if (x < 99.75)
 		{
 			//						if(actor->spr.pal == 12)
 			{
-				int j = getincangle(ps[p].angle.ang.Buildang(), getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
-				if (j > -64 && j < 64 && PlayerInput(p, SB_OPEN))
+				auto delta = absangle(ps[p].angle.ang, VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY()));
+				if (delta < DAngle22_5 / 2 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
 						DukeStatIterator it(STAT_ACTOR);
@@ -1499,10 +1498,10 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 						{
 							if (act2->spr.picnum == queball || act2->spr.picnum == stripeball)
 							{
-								j = getincangle(ps[p].angle.ang.Buildang(), getangle(act2->spr.pos.XY() - ps[p].pos.XY()));
-								if (j > -64 && j < 64)
+								delta = absangle(ps[p].angle.ang, VecToAngle(act2->spr.pos.XY() - ps[p].pos.XY()));
+								if (delta < DAngle22_5 / 2)
 								{
-									int l;
+									double l;
 									findplayer(act2, &l);
 									if (x > l) break;
 								}
@@ -1513,13 +1512,13 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 							if (actor->spr.pal == 12)
 								actor->vel.X = 10.25;
 							else actor->vel.Z = 8.75;
-							actor->set_int_ang(ps[p].angle.ang.Buildang());
+							actor->spr.angle = ps[p].angle.ang;
 							ps[p].toggle_key_flag = 2;
 						}
 					}
 			}
 		}
-		if (x < 512 && actor->sector() == ps[p].cursector)
+		if (x < 32 && actor->sector() == ps[p].cursector)
 		{
 			actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY());
 			actor->vel.X = 3;
