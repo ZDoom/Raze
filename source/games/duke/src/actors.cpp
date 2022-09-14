@@ -4254,8 +4254,8 @@ void handle_se26(DDukeActor* actor)
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		if (ps[p].GetActor()->sector() == actor->sector() && ps[p].on_ground)
 		{
-			ps[p].fric.X += int(vect.X * 512);
-			ps[p].fric.Y += int(vect.Y * 512);
+			ps[p].fric.X += vect.X;
+			ps[p].fric.Y += vect.Y;
 			ps[p].pos.Z += zvel;
 		}
 
@@ -4378,8 +4378,8 @@ void handle_se24(DDukeActor *actor, bool scroll, int shift)
 		{
 			if (abs(ps[p].pos.Z - ps[p].truefz) < gs.playerheight + 9)
 			{
-				ps[p].fric.X += x << 3;
-				ps[p].fric.Y += y << 3;
+				ps[p].fric.X += x * (1. / 64.);
+				ps[p].fric.Y += y * (1. / 64.);
 			}
 		}
 	}

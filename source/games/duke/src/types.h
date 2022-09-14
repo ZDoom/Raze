@@ -205,6 +205,7 @@ struct player_struct
 	DVector3 vel;
 	DVector3 pos, opos;
 	DVector2 bobpos;
+	DVector2 fric;
 
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;
@@ -218,7 +219,7 @@ struct player_struct
 	PalEntry pals;
 
 	// this was a global variable originally.
-	vec2_t fric, exit, loogie[64];
+	vec2_t exit, loogie[64];
 
 	// weapon drawer variables and their interpolation counterparts.
 	int weapon_sway;
