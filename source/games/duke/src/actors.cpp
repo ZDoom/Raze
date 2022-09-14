@@ -1595,7 +1595,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(DDukeActor* i))
 {
 	auto sectp = actor->sector();
-	int a;
+	DAngle a;
 
 	getglobalz(actor);
 
@@ -1632,7 +1632,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->temp_data[2]++;
 		if ((actor->temp_data[2] & 3) == 0) spawn(actor, explosion);
 		getglobalz(actor);
-		actor->add_int_ang(96);
+		actor->spr.angle += DAngle22_5 * 0.75;
 		actor->vel.X = 8;
 		int j = ssp(actor, CLIPMASK0);
 		if (j != 1 || actor->spr.pos.Z > actor->floorz)
@@ -1664,23 +1664,22 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->temp_data[2]++;
 		if ((actor->temp_data[2] & 15) == 0)
 		{
-			a = actor->int_ang();
-			actor->set_int_ang(actor->tempang);
+			a = actor->spr.angle;
+			actor->spr.angle = actor->temp_angle;
 			if (attacksnd >= 0) S_PlayActorSound(attacksnd, actor);
 			fi.shoot(actor, firelaser);
-			actor->set_int_ang(a);
+			actor->spr.angle = a;
 		}
 		if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].pos, ps[p].cursector))
 		{
 			actor->temp_data[0] = 0;
 			actor->temp_data[2] = 0;
 		}
-		else actor->tempang +=
-			getincangle(actor->tempang, getangle(ps[p].pos.XY() - actor->spr.pos.XY())) / 3;
+		else actor->temp_angle +=
+			deltaangle(actor->temp_angle, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) / 3;
 	}
 	else if (actor->temp_data[0] == 2 || actor->temp_data[0] == 3)
 	{
-		actor->temp_data[3] = 0;
 		if(actor->vel.X > 0) actor->vel.X -= 1;
 		else actor->vel.X = 0;
 
@@ -1712,10 +1711,10 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		double dist = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Length();
 		if (dist <= 96)
 		{
-			a = actor->int_ang();
+			a = actor->spr.angle;
 			actor->vel.X *= 0.5;
 		}
-		else a = getangle(Owner->spr.pos.XY() - actor->spr.pos.XY());
+		else a = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
 
 		if (actor->temp_data[0] == 1 || actor->temp_data[0] == 4) // Found a locator and going with it
 		{
@@ -1739,7 +1738,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			{
 				actor->temp_data[0] = 2 + (krand() & 2);
 				actor->temp_data[2] = 0;
-				actor->tempang = actor->int_ang();
+				actor->temp_angle = actor->spr.angle;
 			}
 		}
 
@@ -1763,8 +1762,8 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			actor->SetOwner(NewOwner);
 		}
 
-		actor->temp_data[3] = getincangle(actor->int_ang(), a);
-		actor->add_int_ang(actor->temp_data[3] >> 3);
+		auto ang = deltaangle(actor->spr.angle, a);
+		actor->spr.angle += ang * 0.125;
 
         if (actor->spr.pos.Z < Owner->spr.pos.Z - 2)
             actor->spr.pos.Z += 2;
@@ -4282,7 +4281,7 @@ void handle_se27(DDukeActor* actor)
 
 	if (ud.recstat == 0) return;
 
-	actor->tempang = actor->int_ang();
+	actor->temp_angle = actor->spr.angle;
 
 	p = findplayer(actor, &xx);
 	if (ps[p].GetActor()->spr.extra > 0 && myconnectindex == screenpeek)
