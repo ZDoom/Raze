@@ -871,7 +871,7 @@ static void movetripbomb(DDukeActor *actor)
 		auto ang = actor->spr.angle;
 		actor->spr.angle = actor->temp_angle;
 
-		actor->temp_pos.XY() = actor->spr.pos.XY();
+		actor->temp_pos = actor->spr.pos;
 		actor->spr.pos += actor->temp_angle.ToVector() * 2;
 		actor->spr.pos.Z -= 3;
 
@@ -923,8 +923,7 @@ static void movetripbomb(DDukeActor *actor)
 		}
 
 		actor->temp_data[0]++;
-		actor->spr.pos.XY() = actor->temp_pos.XY();
-		actor->spr.pos.Z += 3;//
+		actor->spr.pos = actor->temp_pos;
 		ChangeActorSect(actor, oldSect);
 		actor->temp_data[3] = 0;
 		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
