@@ -546,7 +546,7 @@ inline void backupplayer(player_struct* p)
 	p->horizon.backup();
 }
 
-void playerisdead(int snum, int psectlotag, int fz, int cz)
+void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 {
 	auto p = &ps[snum];
 	auto actor = p->GetActor();
@@ -604,7 +604,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->pos.Z - fz * inttoworld) > (gs.playerheight * 0.5))
+			if (abs(p->pos.Z - floorz) > (gs.playerheight * 0.5))
 				p->pos.Z += 348/ 256.;
 		}
 		else
@@ -625,8 +625,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	pushmove(p->pos, &p->cursector, 128, (4 << 8), (20 << 8), CLIPMASK0);
 
-	if (fz > cz + (16 << 8) && actor->spr.pal != 1)
-		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((fz + p->player_int_pos().Z) >> 7));
+	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
+		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->pos.Z) * 2));
 
 	p->on_warping_sector = 0;
 

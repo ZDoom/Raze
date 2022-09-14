@@ -2855,7 +2855,7 @@ void processinput_d(int snum)
 
 	if (pact->spr.extra <= 0 && !ud.god)
 	{
-		playerisdead(snum, psectlotag, fz, cz);
+		playerisdead(snum, psectlotag, fz * inttoworld, cz * inttoworld);
 		return;
 	}
 
