@@ -273,9 +273,13 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 			{
 				weap = aplWeaponWorksLike(plr->curr_weapon, actor->spr.yvel);
 			}
-			if (weap > CHAINGUN_WEAPON || weap == KNEE_WEAPON)
+			// The chickens in RRRA are homing and must always autoaim.
+			if (!isRRRA() || plr->curr_weapon != CHICKEN_WEAPON)
 			{
-				return nullptr;
+				if (weap > CHAINGUN_WEAPON || weap == KNEE_WEAPON)
+				{
+					return nullptr;
+				}
 			}
 
 		}
