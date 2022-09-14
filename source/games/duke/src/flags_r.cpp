@@ -323,7 +323,6 @@ void initactorflags_r()
 	TILE_BIGORBIT1 = BIGORBIT1;
 	TILE_EGG = EGG;
 
-	gs.int_playerheight = PHEIGHT_RR << 8;
 	gs.playerheight = PHEIGHT_RR;
 }
 
