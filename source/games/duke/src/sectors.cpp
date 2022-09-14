@@ -488,7 +488,7 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 	{
 		if (act2->spr.lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->spr.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
 			if (act2->spr.hitag == actor->spr.hitag)
-				if ((abs(sect->int_floorz() - actor->temp_data[2]) > act2->spr.yint) ||
+				if ((abs(sect->floorz - actor->temp_pos.X) > act2->spr.yint * maptoworld) ||
 					(act2->sector()->hitag == (sect->hitag - d)))
 					break;
 	}

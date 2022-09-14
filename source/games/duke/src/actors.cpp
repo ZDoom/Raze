@@ -3787,8 +3787,9 @@ void handle_se17(DDukeActor* actor)
 {
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
+	double refheight = actor->spr.yint * zmaptoworld;
 
-	double q = actor->temp_data[0] * actor->spr.yint * (1 / 64.);
+	double q = actor->temp_data[0] * refheight * 4;
 
 	sc->addceilingz(q);
 	sc->addfloorz(q);
@@ -3817,7 +3818,7 @@ void handle_se17(DDukeActor* actor)
 
 	if (actor->temp_data[0]) //If in motion
 	{
-		if (abs(sc->int_floorz() - actor->temp_data[2]) <= actor->spr.yint)
+		if (abs(sc->floorz - actor->temp_pos.X) <= refheight)
 		{
 			activatewarpelevators(actor, 0);
 			return;
@@ -3825,10 +3826,10 @@ void handle_se17(DDukeActor* actor)
 
 		if (actor->temp_data[0] == -1)
 		{
-			if (sc->int_floorz() > actor->temp_data[3])
+			if (sc->floorz > actor->temp_pos.Y)
 				return;
 		}
-		else if (sc->int_ceilingz() < actor->temp_data[4]) return;
+		else if (sc->ceilingz < actor->temp_pos.Z) return;
 
 		if (actor->temp_data[1] == 0) return;
 		actor->temp_data[1] = 0;
