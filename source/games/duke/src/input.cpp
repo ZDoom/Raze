@@ -333,7 +333,7 @@ void hud_input(int plnum)
 				{
 					p->yehaa_timer = 126;
 					S_PlayActorSound(390, pact);
-					p->noise_radius = 16384;
+					p->noise_radius = 1024;
 					madenoise(plnum);
 					if (p->cursector->lotag == 857)
 					{

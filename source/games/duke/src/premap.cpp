@@ -474,8 +474,8 @@ void resetprestat(int snum,int g)
 
 	p->stairs = 0;
 	//if (!isRRRA()) p->fogtype = 0;
-	p->noise.X = 131072;
-	p->noise.Y = 131072;
+	p->noise.X = 8192;
+	p->noise.Y = 8192;
 	p->donoise = 0;
 	p->noise_radius = 0;
 

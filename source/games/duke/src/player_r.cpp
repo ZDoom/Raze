@@ -612,7 +612,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 
 	if (p >= 0)
 	{
-		aimed = aim(actor, 48);
+		aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
 			if (isRRRA() && atwith == RPG2)
@@ -1325,7 +1325,7 @@ int doincrements_r(player_struct* p)
 		}
 		if (numplayers < 2)
 		{
-			p->noise_radius = 16384;
+			p->noise_radius = 1024;
 			madenoise(screenpeek);
 			p->vel.XY() += p->angle.ang.ToVector();
 		}
@@ -2734,7 +2734,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic == 39)
 		{
 			p->hbomb_on = 0;
-			p->noise_radius = 8192;
+			p->noise_radius = 512;
 			madenoise(snum);
 		}
 		if (p->kickback_pic == 12)
@@ -2798,7 +2798,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			fi.shoot(pact, SHOTSPARK1);
 			S_PlayActorSound(PISTOL_FIRE, pact);
-			p->noise_radius = 8192;
+			p->noise_radius = 512;
 			madenoise(snum);
 
 			lastvisinc = PlayClock + 32;
@@ -2876,7 +2876,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 			S_PlayActorSound(SHOTGUN_FIRE, pact);
 
-			p->noise_radius = 8192;
+			p->noise_radius = 512;
 			madenoise(snum);
 
 			lastvisinc = PlayClock + 32;
@@ -2988,7 +2988,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				S_PlayActorSound(CHAINGUN_FIRE, pact);
 				fi.shoot(pact, CHAINGUN);
-				p->noise_radius = 8192;
+				p->noise_radius = 512;
 				madenoise(snum);
 				lastvisinc = PlayClock + 32;
 				p->visibility = 0;
@@ -3020,7 +3020,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			p->okickback_pic = p->kickback_pic = 0;
 			fi.shoot(pact, GROWSPARK);
-			p->noise_radius = 1024;
+			p->noise_radius = 64;
 			madenoise(snum);
 			checkavailweapon(p);
 		}
@@ -3048,7 +3048,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			lastvisinc = PlayClock + 32;
 			S_PlayActorSound(CHAINGUN_FIRE, pact);
 			fi.shoot(pact, SHOTSPARK1);
-			p->noise_radius = 16384;
+			p->noise_radius = 1024;
 			madenoise(snum);
 			p->ammo_amount[TIT_WEAPON]--;
 			checkavailweapon(p);
@@ -3075,7 +3075,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			lastvisinc = PlayClock + 32;
 			S_PlayActorSound(CHAINGUN_FIRE, pact);
 			fi.shoot(pact, CHAINGUN);
-			p->noise_radius = 16384;
+			p->noise_radius = 1024;
 			madenoise(snum);
 			p->ammo_amount[MOTORCYCLE_WEAPON]--;
 			if (p->ammo_amount[MOTORCYCLE_WEAPON] <= 0)
@@ -3123,7 +3123,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic == 5)
 		{
 			S_PlayActorSound(CAT_FIRE, pact);
-			p->noise_radius = 2048;
+			p->noise_radius = 128;
 			madenoise(snum);
 		}
 		else if (p->kickback_pic == 9)
@@ -3176,7 +3176,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->ammo_amount[BOWLING_WEAPON]--;
 			S_PlayActorSound(354, pact);
 			fi.shoot(pact, BOWLINGBALL);
-			p->noise_radius = 1024;
+			p->noise_radius = 64;
 			madenoise(snum);
 		}
 		if (p->kickback_pic < 30)
@@ -3199,7 +3199,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic == 12)
 		{
 			fi.shoot(pact, KNEE);
-			p->noise_radius = 1024;
+			p->noise_radius = 64;
 			madenoise(snum);
 		}
 		else if (p->kickback_pic == 16)
@@ -3217,7 +3217,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic == 8)
 		{
 			fi.shoot(pact, SLINGBLADE);
-			p->noise_radius = 1024;
+			p->noise_radius = 64;
 			madenoise(snum);
 		}
 		else if (p->kickback_pic == 16)
@@ -3237,7 +3237,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 			fi.shoot(pact, RPG);
-			p->noise_radius = 32768;
+			p->noise_radius = 2048;
 			madenoise(snum);
 			checkavailweapon(p);
 		}
@@ -3255,7 +3255,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 			fi.shoot(pact, RPG2);
-			p->noise_radius = 32768;
+			p->noise_radius = 2048;
 			madenoise(snum);
 			checkavailweapon(p);
 		}

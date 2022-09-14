@@ -217,7 +217,7 @@ struct DukePlayer
 	// Items were reordered by size.
 	native int stairs;
 	native int detonate_count; // at57e
-	native int noise_radius; // at286, at28a, at290
+	native double noise_radius; // at286, at28a, at290
 	native int drink_timer; // at58e
 	native int eat_timer; // at592
 	native int SlotWin;

@@ -289,8 +289,8 @@ struct player_struct
 	// Items were reordered by size.
 	int stairs;
 	int detonate_count; // at57e
-	vec2_t noise;
-	int noise_radius; // at286, at28a, at290
+	DVector2 noise;
+	double noise_radius; // at286, at28a, at290
 	int drink_timer; // at58e
 	int eat_timer; // at592
 	int SlotWin;
