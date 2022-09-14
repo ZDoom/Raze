@@ -2118,8 +2118,8 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (xx < 64 && ps[p].quick_kick == 0)
 		{
-			j = getincangle(ps[p].angle.ang.Buildang(), getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
-			if (j > -128 && j < 128)
+			auto ang = absangle(ps[p].angle.ang, VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY()));
+			if (ang < DAngle22_5)
 				ps[p].quick_kick = 14;
 		}
 
@@ -3480,8 +3480,8 @@ void moveeffectors_d(void)   //STATNUM 3
 
 void move_d(DDukeActor *actor, int playernum, int xvel)
 {
-	int goalang, angdif;
-	int daxvel;
+	DAngle goalang, angdif;
+	double daxvel;
 
 	int a = actor->spr.hitag;
 
@@ -3492,11 +3492,11 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[playernum].newOwner != nullptr)
-			goalang = getangle(ps[playernum].opos.XY() - actor->spr.pos.XY());
-		else goalang = getangle(ps[playernum].pos.XY() - actor->spr.pos.XY());
-		angdif = getincangle(actor->int_ang(), goalang) >> 2;
-		if (angdif > -8 && angdif < 0) angdif = 0;
-		actor->add_int_ang(angdif);
+			goalang = VecToAngle(ps[playernum].opos.XY() - actor->spr.pos.XY());
+		else goalang = VecToAngle(ps[playernum].pos.XY() - actor->spr.pos.XY());
+		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
+		if (angdif > -DAngle22_5 / 8 && angdif < nullAngle) angdif = nullAngle;
+		actor->spr.angle += angdif;
 	}
 
 	if (a & spin)
@@ -3505,15 +3505,10 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[playernum].newOwner != nullptr)
-			goalang = getangle(ps[playernum].opos.XY() - actor->spr.pos.XY());
-		else goalang = getangle(ps[playernum].pos.XY() - actor->spr.pos.XY());
-		angdif = Sgn(getincangle(actor->int_ang(), goalang)) << 5;
-		if (angdif > -32 && angdif < 0)
-		{
-			angdif = 0;
-			actor->set_int_ang(goalang);
-		}
-		actor->add_int_ang(angdif);
+			goalang = VecToAngle(ps[playernum].opos.XY() - actor->spr.pos.XY());
+		else goalang = VecToAngle(ps[playernum].pos.XY() - actor->spr.pos.XY());
+		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
+		actor->spr.angle += angdif;
 	}
 
 
@@ -3526,10 +3521,10 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (a & face_player_smart)
 	{
 		DVector2 newpos = ps[playernum].pos.XY() + (ps[playernum].vel.XY() * (4. / 3.));
-		goalang = getangle(newpos - actor->spr.pos.XY());
-		angdif = getincangle(actor->int_ang(), goalang) >> 2;
-		if (angdif > -8 && angdif < 0) angdif = 0;
-		actor->add_int_ang(angdif);
+		goalang = VecToAngle(newpos - actor->spr.pos.XY());
+		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
+		if (angdif > -DAngle22_5/16 && angdif < nullAngle) angdif = nullAngle;
+		actor->spr.angle = angdif;
 	}
 
 	if (actor->temp_data[1] == 0 || a == 0)
@@ -3622,16 +3617,16 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			if ((actor->spr.pos.Z - actor->ceilingz) < 32)
 				actor->spr.pos.Z = actor->ceilingz + 32;
 
-		daxvel = actor->int_xvel();
-		angdif = actor->int_ang();
+		daxvel = actor->vel.X;
+		angdif = actor->spr.angle;
 
 		if (a && actor->spr.picnum != ROTATEGUN)
 		{
 			if (xvel < 960 && actor->spr.xrepeat > 16)
 			{
 
-				daxvel = -(1024 - xvel);
-				angdif = getangle(ps[playernum].pos.XY() - actor->spr.pos.XY());
+				daxvel = -(1024 - xvel) * maptoworld;
+				angdif = VecToAngle(ps[playernum].pos.XY() - actor->spr.pos.XY());
 
 				if (xvel < 512)
 				{
@@ -3650,19 +3645,19 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{
 						if ((actor->temp_data[0] & 1) || ps[playernum].actorsqu == actor) return;
-						else daxvel <<= 1;
+						else daxvel *= 2;
 					}
 					else
 					{
 						if ((actor->temp_data[0] & 3) || ps[playernum].actorsqu == actor) return;
-						else daxvel <<= 2;
+						else daxvel *= 4;
 					}
 				}
 			}
 		}
 
 		Collision coll;
-		actor->movflag = movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * daxvel * inttoworld, actor->vel.Z), CLIPMASK0, coll);
+		actor->movflag = movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * daxvel, actor->vel.Z), CLIPMASK0, coll);
 	}
 
 	if (a)
