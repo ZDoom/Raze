@@ -752,11 +752,11 @@ static void movecrack(DDukeActor* actor)
 
 static void movebolt(DDukeActor* actor)
 {
-	int x;
+	double xx;
 	auto sectp = actor->sector();
 
-	findplayer(actor, &x);
-	if (x > 20480) return;
+	findplayer(actor, &xx);
+	if (xx > 1280) return;
 
 	if (actor->temp_data[3] == 0)
 		actor->temp_data[3] = sectp->floorshade;
@@ -900,7 +900,7 @@ void movestandables_r(void)
 				STEAM,
 				CEILINGSTEAM))
 		{
-			int x;
+			double x;
 			int p = findplayer(act, &x);
 			execute(act, p, x);
 		}
@@ -1366,7 +1366,7 @@ void moveweapons_r(void)
 
 		case SHOTSPARK1:
 		{
-			int x;
+			double x;
 			int p = findplayer(proj, &x);
 			execute(proj, p, x);
 			continue;
@@ -2261,9 +2261,9 @@ void rr_specialstats()
 	{
 		if (act->spr.picnum == RRTILE296)
 		{
-			int x;
-			int p = findplayer(act, &x);
-			if (x < 2047)
+			double xx;
+			int p = findplayer(act, &xx);
+			if (xx < 128)
 			{
 				DukeStatIterator it2(108);
 				while (auto act2 = it2.Next())
@@ -2295,7 +2295,8 @@ void rr_specialstats()
 static void heavyhbomb(DDukeActor *actor)
 {
 	auto sectp = actor->sector();
-	int x, l;
+	int l;
+	double xx;
 	auto Owner = actor->GetOwner();
 
 	if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
@@ -2310,9 +2311,9 @@ static void heavyhbomb(DDukeActor *actor)
 		return;
 	}
 
-	int p = findplayer(actor, &x);
+	int p = findplayer(actor, &xx);
 
-	if (x < 1220) actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+	if (xx < 1220 / 16.) actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	else actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 	if (actor->temp_data[3] == 0)
@@ -2371,7 +2372,7 @@ static void heavyhbomb(DDukeActor *actor)
 	}
 	else actor->temp_data[5] = 0;
 
-	if (actor->temp_data[3] == 0 && actor->spr.picnum == MORTER && (coll.type || x < 844))
+	if (actor->temp_data[3] == 0 && actor->spr.picnum == MORTER && (coll.type || xx < 844 / 16.))
 	{
 		actor->temp_data[3] = 1;
 		actor->temp_data[4] = 0;
@@ -2380,7 +2381,7 @@ static void heavyhbomb(DDukeActor *actor)
 		goto DETONATEB;
 	}
 
-	if (actor->temp_data[3] == 0 && actor->spr.picnum == CHEERBOMB && (coll.type || x < 844))
+	if (actor->temp_data[3] == 0 && actor->spr.picnum == CHEERBOMB && (coll.type || xx < 844 / 16.))
 	{
 		actor->temp_data[3] = 1;
 		actor->temp_data[4] = 0;
@@ -2431,7 +2432,7 @@ DETONATEB:
 
 		if (actor->temp_data[4] == 2)
 		{
-			x = actor->spr.extra;
+			int x = actor->spr.extra;
 			int m = 0;
 			switch (actor->spr.picnum)
 			{
@@ -2472,7 +2473,7 @@ DETONATEB:
 			return;
 		}
 	}
-	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->vel.X == 0)
+	else if (actor->spr.picnum == HEAVYHBOMB && xx < 788 / 16. && actor->temp_data[0] > 7 && actor->vel.X == 0)
 		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].pos, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
@@ -2608,7 +2609,7 @@ static int henstand(DDukeActor *actor)
 
 void moveactors_r(void)
 {
-	int x;
+	double xx;
 	int p;
 	Collision coll;
 
@@ -2856,9 +2857,9 @@ void moveactors_r(void)
 		}
 // #endif
 
-		p = findplayer(act,&x);
+		p = findplayer(act, &xx);
 
-		execute(act,p,x);
+		execute(act,p,xx);
 		if (deleteafterexecute) deletesprite(act);
 	}
 
@@ -2873,7 +2874,8 @@ void moveactors_r(void)
 void moveexplosions_r(void)  // STATNUM 5
 {
 	int p;
-	int x, * t;
+	int * t;
+	double xx;
 
 
 	DukeStatIterator it(STAT_MISC);
@@ -2957,8 +2959,8 @@ void moveexplosions_r(void)  // STATNUM 5
 		case INNERJAW:
 		case INNERJAW + 1:
 
-			p = findplayer(act, &x);
-			if (x < 512)
+			p = findplayer(act, &xx);
+			if (xx < 32)
 			{
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
 				ps[p].GetActor()->spr.extra -= 4;
@@ -3074,8 +3076,8 @@ void moveexplosions_r(void)  // STATNUM 5
 		case FORCERIPPLE:
 		case TRANSPORTERSTAR:
 		case TRANSPORTERBEAM:
-			p = findplayer(act, &x);
-			execute(act, p, x);
+			p = findplayer(act, &xx);
+			execute(act, p, xx);
 			continue;
 
 		case SHELL:

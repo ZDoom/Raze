@@ -1070,11 +1070,11 @@ static void moveviewscreen(DDukeActor* actor)
 
 static void movesidebolt(DDukeActor* actor)
 {
-	int x;
+	double xx;
 	auto sectp = actor->sector();
 
-	findplayer(actor, &x);
-	if (x > 20480) return;
+	findplayer(actor, &xx);
+	if (xx > 1280) return;
 
 CLEAR_THE_BOLT2:
 	if (actor->temp_data[2])
@@ -1111,11 +1111,11 @@ CLEAR_THE_BOLT2:
 
 static void movebolt(DDukeActor *actor)
 {
-	int x;
+	double xx;
 	auto sectp = actor->sector();
 
-	findplayer(actor, &x);
-	if (x > 20480) return;
+	findplayer(actor, &xx);
+	if (xx > 1280) return;
 
 	if (actor->temp_data[3] == 0)
 		actor->temp_data[3] = sectp->floorshade;
@@ -1281,7 +1281,7 @@ void movestandables_d(void)
 				CEILINGSTEAM,
 				WATERBUBBLEMAKER))
 		{
-			int x;
+			double x;
 			int p = findplayer(act, &x);
 			execute(act, p, x);
 		}
@@ -1721,7 +1721,7 @@ void moveweapons_d(void)
 
 		case SHOTSPARK1:
 		{
-			int x;
+			double x;
 			int p = findplayer(act, &x);
 			execute(act, p, x);
 			break;
@@ -2070,10 +2070,10 @@ static void greenslime(DDukeActor *actor)
 		return;
 	}
 
-	int x;
-	int p = findplayer(actor, &x);
+	double xx;
+	int p = findplayer(actor, &xx);
 
-	if (x > 20480)
+	if (xx > 1280)
 	{
 		actor->timetosleep++;
 		if (actor->timetosleep > SLEEPTIME)
@@ -2116,7 +2116,7 @@ static void greenslime(DDukeActor *actor)
 			S_PlayActorSound(GLASS_BREAKING, actor);
 			deletesprite(actor);
 		}
-		else if (x < 1024 && ps[p].quick_kick == 0)
+		else if (xx < 64 && ps[p].quick_kick == 0)
 		{
 			j = getincangle(ps[p].angle.ang.Buildang(), getangle(actor->spr.pos.XY() - ps[p].pos.XY()));
 			if (j > -128 && j < 128)
@@ -2126,7 +2126,7 @@ static void greenslime(DDukeActor *actor)
 		return;
 	}
 
-	if (x < 1596)
+	if (xx < 99.75)
 		actor->spr.cstat = 0;
 	else actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
@@ -2145,7 +2145,7 @@ static void greenslime(DDukeActor *actor)
 		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->spr.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
 			{
-				for (x = 0; x < 8; x++)
+				for (int x = 0; x < 8; x++)
 				{
 					auto a = randomAngle();
 					auto vel = krandf(4) + 4;
@@ -2223,7 +2223,7 @@ static void greenslime(DDukeActor *actor)
 		return;
 	}
 
-	else if (actor->vel.X < 4 && x < 768)
+	else if (actor->vel.X < 4 && xx < 48)
 	{
 		if (ps[p].somethingonplayer == nullptr)
 		{
@@ -2257,7 +2257,7 @@ static void greenslime(DDukeActor *actor)
 			if (spawned) spawned->spr.pal = 0;
 		}
 
-		for (x = 0; x < 8; x++)
+		for (int x = 0; x < 8; x++)
 		{
 			auto a = randomAngle();
 			auto vel = krandf(4) + 4;
@@ -2445,9 +2445,9 @@ static void greenslime(DDukeActor *actor)
 static void flamethrowerflame(DDukeActor *actor)
 {
 	auto sectp = actor->sector();
-	int x;
-	int p = findplayer(actor, &x);
-	execute(actor, p, x);
+	double xx;
+	int p = findplayer(actor, &xx);
+	execute(actor, p, xx);
 	actor->temp_data[0]++;
 	if (sectp->lotag == 2)
 	{
@@ -2522,12 +2522,12 @@ static void flamethrowerflame(DDukeActor *actor)
 
 		if (actor->spr.xrepeat >= 10)
 		{
-			x = actor->spr.extra;
+			int x = actor->spr.extra;
 			fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 		}
 		else
 		{
-			x = actor->spr.extra + (global_random & 3);
+			int x = actor->spr.extra + (global_random & 3);
 			fi.hitradius(actor, (gs.rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 		}
 	}
@@ -2543,7 +2543,8 @@ static void heavyhbomb(DDukeActor *actor)
 {
 	auto Owner = actor->GetOwner();
 	auto sectp = actor->sector();
-	int x, l;
+	int l;
+	double xx;
 
 	if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
 	{
@@ -2557,9 +2558,9 @@ static void heavyhbomb(DDukeActor *actor)
 		return;
 	}
 
-	int p = findplayer(actor, &x);
+	int p = findplayer(actor, &xx);
 
-	if (x < 1220) actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+	if (xx < 1220 / 16.) actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	else actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 	if (actor->temp_data[3] == 0)
@@ -2609,7 +2610,7 @@ static void heavyhbomb(DDukeActor *actor)
 	}
 	else actor->temp_data[5] = 0;
 
-	if (actor->temp_data[3] == 0 && (actor->spr.picnum == BOUNCEMINE || actor->spr.picnum == MORTER) && (coll.type || x < 844))
+	if (actor->temp_data[3] == 0 && (actor->spr.picnum == BOUNCEMINE || actor->spr.picnum == MORTER) && (coll.type || xx < 844/16.))
 	{
 		actor->temp_data[3] = 1;
 		actor->temp_data[4] = 0;
@@ -2661,7 +2662,7 @@ DETONATEB:
 
 		if (actor->temp_data[4] == 2)
 		{
-			x = actor->spr.extra;
+			int x = actor->spr.extra;
 			int m = 0;
 			switch (actor->spr.picnum)
 			{
@@ -2701,7 +2702,7 @@ DETONATEB:
 			}
 		}
 	}
-	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->vel.X == 0)
+	else if (actor->spr.picnum == HEAVYHBOMB && xx < 788 / 16. && actor->temp_data[0] > 7 && actor->vel.X == 0)
 		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].pos, ps[p].cursector))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{
@@ -2753,7 +2754,6 @@ DETONATEB:
 
 void moveactors_d(void)
 {
-	int x;
 	int p;
 	unsigned int k;
 
@@ -2917,9 +2917,10 @@ void moveactors_d(void)
 		}
 		// #endif
 
-		p = findplayer(act, &x);
+		double xx;
+		p = findplayer(act, &xx);
 
-		execute(act, p, x);
+		execute(act, p, xx);
 	}
 
 }
@@ -2932,8 +2933,9 @@ void moveactors_d(void)
 
 static void fireflyflyingeffect(DDukeActor *actor)
 {
-	int x, p = findplayer(actor, &x);
-	execute(actor, p, x);
+	double xx;
+	int p = findplayer(actor, &xx);
+	execute(actor, p, xx);
 
 	auto Owner = actor->GetOwner();
 	if (!Owner || Owner->spr.picnum != FIREFLY) 
@@ -2968,7 +2970,7 @@ static void fireflyflyingeffect(DDukeActor *actor)
 void moveexplosions_d(void)  // STATNUM 5
 {
 	int p;
-	int x;
+	double xx;
 
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
@@ -3042,8 +3044,8 @@ void moveexplosions_d(void)  // STATNUM 5
 		case INNERJAW:
 		case INNERJAW + 1:
 
-			p = findplayer(act, &x);
-			if (x < 512)
+			p = findplayer(act, &xx);
+			if (xx < 32)
 			{
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
 				ps[p].GetActor()->spr.extra -= 4;
@@ -3120,8 +3122,8 @@ void moveexplosions_d(void)  // STATNUM 5
 		case FORCERIPPLE:
 		case TRANSPORTERSTAR:
 		case TRANSPORTERBEAM:
-			p = findplayer(act, &x);
-			execute(act, p, x);
+			p = findplayer(act, &xx);
+			execute(act, p, xx);
 			continue;
 
 		case SHELL:
@@ -3211,9 +3213,9 @@ static void handle_se28(DDukeActor* actor)
 
 	if (actor->temp_data[0] == 0)
 	{
-		int x;
+		double x;
 		findplayer(actor, &x);
-		if (x > 15500)
+		if (x > 15500 / 16.)
 			return;
 		actor->temp_data[0] = 1;
 		actor->temp_data[1] = 64 + (krand() & 511);

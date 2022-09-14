@@ -142,14 +142,6 @@ int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);
 double hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
 int findplayer(const DDukeActor* s, double* dist);
 
-[[deprecated]]
-inline int findplayer(const DDukeActor* s, int* dist)
-{
-	double dd;
-	int p = findplayer(s, &dd);
-	*dist = dd * worldtoint;
-	return p;
-}
 void operatejaildoors(int hitag);
 void allignwarpelevators(void);
 bool isablockdoor(int tileNum);
