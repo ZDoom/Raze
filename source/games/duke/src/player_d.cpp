@@ -1913,7 +1913,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		else if ((actions & SB_JUMP))
 		{
-			playerJump(snum, floorz * zworldtoint, ceilingz * zworldtoint);
+			playerJump(snum, floorz, ceilingz);
 		}
 
 		if (p->jumping_counter && (actions & SB_JUMP) == 0)

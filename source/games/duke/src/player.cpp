@@ -707,12 +707,12 @@ void playerCrouch(int snum)
 	}
 }
 
-void playerJump(int snum, int fz, int cz)
+void playerJump(int snum, double floorz, double ceilingz)
 {
 	auto p = &ps[snum];
 	if (p->jumping_toggle == 0 && p->jumping_counter == 0)
 	{
-		if ((fz - cz) > (56 << 8))
+		if ((floorz - ceilingz) > 56)
 		{
 			SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 			OnEvent(EVENT_JUMP, snum, p->GetActor(), -1);

@@ -119,7 +119,7 @@ void playerisdead(int snum, int psectlotag, double fz, double cz);
 void footprints(int snum);
 int makepainsounds(int snum, int type);
 void playerCrouch(int snum);
-void playerJump(int snum, int fz, int cz);
+void playerJump(int snum, double fz, double cz);
 
 void checklook(int snum, ESyncBits actions);
 void playerCenterView(int snum);
