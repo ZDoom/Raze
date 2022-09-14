@@ -1778,13 +1778,11 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, int cz_, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, sectortype* psect, double floorz, double ceilingz, int shrunk, double truefdist, int psectlotag)
 {
 	int j;
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	double floorz = fz_ * zinttoworld;
-	double ceilingz = cz_ * zinttoworld;
 
 	if (p->airleft != 15 * 26)
 		p->airleft = 15 * 26; //Aprox twenty seconds.
@@ -1804,7 +1802,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 		}
 		else i = 12;
 
-		if (shrunk == 0 && truefdist <= gs.int_playerheight)
+		if (shrunk == 0 && truefdist <= gs.playerheight)
 		{
 			if (p->on_ground == 1)
 			{
@@ -1915,7 +1913,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 
 		else if ((actions & SB_JUMP))
 		{
-			playerJump(snum, fz_, cz_);
+			playerJump(snum, floorz * zworldtoint, ceilingz * zworldtoint);
 		}
 
 		if (p->jumping_counter && (actions & SB_JUMP) == 0)
@@ -1966,12 +1964,10 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz_, in
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
+static void underwater(int snum, ESyncBits actions, double floorz, double ceilingz)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	double floorz = fz_ * zinttoworld;
-	double ceilingz = cz_ * zinttoworld;
 
 	// under water
 	p->jumping_counter = 0;
@@ -2033,7 +2029,7 @@ static void underwater(int snum, ESyncBits actions, int fz_, int cz_)
 		auto j = spawn(pact, WATERBUBBLE);
 		if (j)
 		{
-			j->add_int_pos({ bcos(p->angle.ang.Buildang() + 64 - (global_random & 128), -6), bsin(p->angle.ang.Buildang() + 64 - (global_random & 128), -6), 0 });
+			j->spr.pos += (p->angle.ang.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
 			j->spr.xrepeat = 3;
 			j->spr.yrepeat = 2;
 			j->spr.pos.Z = p->pos.Z + 8;
@@ -2747,7 +2743,8 @@ static void processweapon(int snum, ESyncBits actions)
 
 void processinput_d(int snum)
 {
-	int k, doubvel, fz, cz, truefdist;
+	int k, doubvel;
+	double floorz, ceilingz, truefdist;
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
@@ -2780,17 +2777,17 @@ void processinput_d(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (pact->spr.yrepeat < 32);
-	getzrange(p->player_int_pos(), psectp, &cz, chz, &fz, clz, 163, CLIPMASK0);
+	getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 163, CLIPMASK0);
 
 	p->truefz = getflorzofslopeptrf(psectp, p->pos);
 	p->truecz = getceilzofslopeptrf(psectp, p->pos);
 
-	truefdist = abs(p->pos.Z - p->truefz) * worldtoint;
-	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.int_playerheight + (16 << 8))
+	truefdist = abs(p->pos.Z - p->truefz);
+	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 
-	pact->floorz = fz * zinttoworld;
-	pact->ceilingz = cz * zinttoworld;
+	pact->floorz = floorz;
+	pact->ceilingz = ceilingz;
 
 	if (SyncInput())
 	{
@@ -2803,7 +2800,7 @@ void processinput_d(int snum)
 		if (chz.actor()->spr.statnum == 1 && chz.actor()->spr.extra >= 0)
 		{
 			chz.setNone();
-			cz = p->truecz * zworldtoint;
+			ceilingz = p->truecz;
 		}
 	}
 
@@ -2855,7 +2852,7 @@ void processinput_d(int snum)
 
 	if (pact->spr.extra <= 0 && !ud.god)
 	{
-		playerisdead(snum, psectlotag, fz * inttoworld, cz * inttoworld);
+		playerisdead(snum, psectlotag, floorz, ceilingz);
 		return;
 	}
 
@@ -2898,7 +2895,7 @@ void processinput_d(int snum)
 	p->playerweaponsway(pact->int_xvel());
 
 	pact->vel.X = clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.);
-	if (p->on_ground) p->bobcounter += p->GetActor()->int_xvel() >> 1;
+	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));
 
@@ -2906,16 +2903,16 @@ void processinput_d(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, fz, cz);
+		underwater(snum, actions, floorz, ceilingz);
 	}
 
 	else if (p->jetpack_on)
 	{
-		operateJetpack(snum, actions, psectlotag, fz * inttoworld, cz * inttoworld, shrunk);
+		operateJetpack(snum, actions, psectlotag, floorz, ceilingz, shrunk);
 	}
 	else if (psectlotag != ST_2_UNDERWATER)
 	{
-		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psectp, floorz, ceilingz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -2962,7 +2959,7 @@ void processinput_d(int snum)
 
 		k = 0;
 
-		if (p->on_ground && truefdist <= gs.int_playerheight + (16 << 8))
+		if (p->on_ground && truefdist <= gs.playerheight + 16)
 		{
 			int whichsound = (gs.tileinfo[j].flags & TFLAG_ELECTRIC) ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 : -1;
 			if (j >= 0) k = makepainsounds(snum, whichsound);
@@ -2983,7 +2980,7 @@ void processinput_d(int snum)
 
 		k = bsin(p->bobcounter, -12);
 
-		if (truefdist < gs.int_playerheight + (8 << 8) && (k == 1 || k == 3))
+		if (truefdist < gs.playerheight + 8 && (k == 1 || k == 3))
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
@@ -3109,7 +3106,7 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.int_playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector->lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			S_PlayActorSound(DUKE_ONWATER, pact);
 
@@ -3138,7 +3135,7 @@ HORIZONLY:
 				return;
 			}
 		}
-		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(psectp->lotag))
+		else if (abs(floorz - ceilingz) < 32 && isanunderoperator(psectp->lotag))
 			fi.activatebysector(psectp, pact);
 		break;
 	}
