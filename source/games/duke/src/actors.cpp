@@ -415,7 +415,7 @@ void moveplayers(void)
 					other = 0;
 				}
 
-				execute(act, pn, other * worldtoint);
+				execute(act, pn, other);
 
 				if (ud.multimode > 1)
 				{
@@ -624,7 +624,7 @@ void movecrane(DDukeActor *actor, int crane)
 {
 	const double CRANE_STEP = 16.;
 	auto sectp = actor->sector();
-	int x;
+	double xx;
 	auto& cpt = cranes[actor->temp_data[4]];
 
 	//actor->temp_data[0] = state
@@ -684,7 +684,7 @@ void movecrane(DDukeActor *actor, int crane)
 				{
 					if (actor->IsActiveCrane())
 					{
-						int p = findplayer(actor, &x);
+						int p = findplayer(actor, &xx);
 						S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
 						if (ps[p].on_crane == actor)
 							ps[p].on_crane = nullptr;
@@ -767,7 +767,7 @@ void movecrane(DDukeActor *actor, int crane)
 	auto Owner = actor->GetOwner();
 	if (Owner != nullptr || actor->IsActiveCrane())
 	{
-		int p = findplayer(actor, &x);
+		int p = findplayer(actor, &xx);
 
 		int j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
@@ -808,7 +808,6 @@ void movecrane(DDukeActor *actor, int crane)
 
 void movefountain(DDukeActor *actor, int fountain)
 {
-	int x;
 	if (actor->temp_data[0] > 0)
 	{
 		if (actor->temp_data[0] < 20)
@@ -822,9 +821,10 @@ void movefountain(DDukeActor *actor, int fountain)
 		}
 		else
 		{
+			double x;
 			findplayer(actor, &x);
 
-			if (x > 512)
+			if (x > 32)
 			{
 				actor->temp_data[0] = 0;
 				actor->spr.picnum = fountain;
@@ -1653,8 +1653,8 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			actor->spr.pos.Z = actor->floorz - 48;
 	}
 
-	int x;
-	int p = findplayer(actor, &x);
+	double xx;
+	int p = findplayer(actor, &xx);
 	auto Owner = actor->GetOwner();
 
 	// 3 = findplayerz, 4 = shoot
@@ -1735,7 +1735,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 			if (actor->temp_data[0] < 2) actor->temp_data[2]++;
 
-			if (x < 6144 && actor->temp_data[0] < 2 && actor->temp_data[2] > (26 * 4))
+			if (xx < 384 && actor->temp_data[0] < 2 && actor->temp_data[2] > (26 * 4))
 			{
 				actor->temp_data[0] = 2 + (krand() & 2);
 				actor->temp_data[2] = 0;
@@ -1846,13 +1846,13 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 		return;
 	}
 
-	int x;
-	int p = findplayer(actor, &x);
+	double xx;
+	int p = findplayer(actor, &xx);
 
 	actor->temp_data[2]++;
 	if (actor->temp_data[2] == 4) actor->temp_data[2] = 0;
 
-	if (x < 4096)
+	if (xx < 256)
 	{
 		if ((krand() & 255) < 16)
 		{
@@ -1914,7 +1914,7 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 			break;
 		}
 		}
-		for (x = 0; x < 16; x++)
+		for (int x = 0; x < 16; x++)
 			RANDOMSCRAP(actor);
 
 		actor->spr.pos.Z = FixedToFloat<8>(actor->temp_data[4]);
@@ -1926,7 +1926,7 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 		int j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
 		{
-			for (x = 0; x < 32; x++)
+			for (int x = 0; x < 32; x++)
 				RANDOMSCRAP(actor);
 			if (actor->spr.extra < 0)
 				actor->temp_data[1] = 1;
