@@ -88,7 +88,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->hitextra = -1;
 	act->cgg = 0;
 	act->movflag = 0;
-	act->tempang = 0;
+	act->tempval = 0;
 	act->dispicnum = 0;
 	act->SetHitOwner(s_ow);
 	act->SetOwner(s_ow);
@@ -148,7 +148,7 @@ bool initspriteforspawn(DDukeActor* act)
 	act->SetHitOwner(act);
 	act->cgg = 0;
 	act->movflag = 0;
-	act->tempang = 0;
+	act->tempval = 0;
 	act->dispicnum = 0;
 	act->floorz = act->sector()->floorz;
 	act->ceilingz = act->sector()->ceilingz;
@@ -272,7 +272,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			if (actj)
 			{
 				if (actj->spr.picnum == RESPAWN)
-					act->tempang = act->spr.pal = actj->spr.pal;
+					act->tempval = act->spr.pal = actj->spr.pal;
 				ChangeActorStat(act, STAT_ACTOR);
 			}
 			else ChangeActorStat(act, STAT_ZOMBIEACTOR);

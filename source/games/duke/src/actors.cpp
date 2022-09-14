@@ -2576,15 +2576,15 @@ void handle_se00(DDukeActor* actor)
 
 		if (actor->spr.extra == 1)
 		{
-			if (actor->tempang < 256)
+			if (actor->tempval < 256)
 			{
-				actor->tempang += 4;
-				if (actor->tempang >= 256)
+				actor->tempval += 4;
+				if (actor->tempval >= 256)
 					callsound(actor->sector(), actor, true);
 				if (actor->native_clipdist()) direction = 1; // notreallyclipdist
 				else direction = -1;
 			}
-			else actor->tempang = 256;
+			else actor->tempval = 256;
 
 			if (sect->floorz > actor->spr.pos.Z) //z's are touching
 			{
@@ -2604,15 +2604,15 @@ void handle_se00(DDukeActor* actor)
 		}
 		else if (actor->spr.extra == 3)
 		{
-			if (actor->tempang > 0)
+			if (actor->tempval > 0)
 			{
-				actor->tempang -= 4;
-				if (actor->tempang <= 0)
+				actor->tempval -= 4;
+				if (actor->tempval <= 0)
 					callsound(actor->sector(), actor, true);
 				if (actor->native_clipdist()) direction = -1; // notreallyclipdist
 				else direction = 1;
 			}
-			else actor->tempang = 0;
+			else actor->tempval = 0;
 
 			double checkz = actor->temp_pos.Z;
 			if (sect->floorz > checkz) //z's are touching

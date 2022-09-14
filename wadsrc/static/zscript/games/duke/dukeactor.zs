@@ -29,7 +29,7 @@ class DukeActor : CoreActor native
 	native uint8 cgg;
 	native uint8 spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	native int16 /*attackertype, hitang,*/ hitextra, movflag;
-	native int16 tempang; /*, dispicnum;*/
+	native int16 tempval; /*, dispicnum;*/
 	native int16 timetosleep;
 	native double floorz, ceilingz;
 	native int saved_ammo;

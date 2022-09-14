@@ -1010,7 +1010,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 	{
 		auto act = barrier_cast<DDukeActor*>(sptr->hitagactor);
 		if (!act) break;
-		if (act->tempang == 0 || act->tempang == 256) callsound(sptr, actor);
+		if (act->tempval == 0 || act->tempval == 256) callsound(sptr, actor);
 		if (act->spr.extra == 1) act->spr.extra = 3;
 		else act->spr.extra = 1;
 		break;

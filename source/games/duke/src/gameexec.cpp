@@ -1283,8 +1283,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->movflag, sActor, sPlayer);
 		break;
 	case ACTOR_HTTEMPANG:
-		if (bSet) act->tempang = lValue;
-		else SetGameVarID(lVar2, act->tempang, sActor, sPlayer);
+		if (bSet) act->tempval = lValue;
+		else SetGameVarID(lVar2, act->tempval, sActor, sPlayer);
 		break;
 	case ACTOR_HTACTORSTAYPUT:
 		if (bSet) act->actorstayput = toSect(lValue);
@@ -1693,9 +1693,9 @@ int ParseState::parse(void)
 				ps[connecthead].max_actors_killed++; //revive the egg
 				g_ac->temp_data[5] = 0;
 			}
-			g_ac->spr.pal = (uint8_t)g_ac->tempang;
+			g_ac->spr.pal = (uint8_t)g_ac->tempval;
 		}
-		g_ac->tempang = 0;
+		g_ac->tempval = 0;
 		break;
 	case concmd_tossweapon:
 		insptr++;
@@ -2265,7 +2265,7 @@ int ParseState::parse(void)
 
 			g_ac->cgg = 0;
 			g_ac->movflag = 0;
-			g_ac->tempang = 0;
+			g_ac->tempval = 0;
 			g_ac->actorstayput = nullptr;
 			g_ac->dispicnum = 0;
 			g_ac->SetHitOwner(ps[g_p].GetActor());
@@ -2512,7 +2512,7 @@ int ParseState::parse(void)
 	case concmd_spritepal:
 		insptr++;
 		if(!g_ac->isPlayer())
-			g_ac->tempang = g_ac->spr.pal;
+			g_ac->tempval = g_ac->spr.pal;
 		g_ac->spr.pal = *insptr;
 		insptr++;
 		break;
