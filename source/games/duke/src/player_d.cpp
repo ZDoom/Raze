@@ -3084,10 +3084,8 @@ HORIZONLY:
 			{
 				p->pycount += 52;
 				p->pycount &= 2047;
-				p->pyoff = BobVal(p->pycount) * pact->int_xvel();
-
-				const double factor = 64. / 1596; // What is 1596?
-				p->pyoff = abs(pact->int_xvel() * BobVal(p->pycount)) * factor;
+				const double factor = 1024. / 1596; // What is 1596?
+				p->pyoff = abs(pact->vel.X * BobVal(p->pycount)) * factor;
 			}
 		}
 		else if (psectlotag != 2 && psectlotag != 1)
