@@ -2363,17 +2363,16 @@ static void greenslime(DDukeActor *actor)
 		else
 		{
 			if (actor->vel.X < 2) actor->vel.X += 0.25;
-			actor->set_int_xvel(64 - bcos(actor->temp_data[1], -9));
-
+			actor->vel.X = 4 - BobVal(512 + actor->temp_data[1]) * 2;
 			actor->spr.angle += deltaangle(actor->spr.angle, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) * 0.125;
 			// TJR
 		}
 
-		actor->spr.xrepeat = 36 + bcos(actor->temp_data[1], -11);
-		actor->spr.yrepeat = 16 + bsin(actor->temp_data[1], -13);
+		actor->spr.xrepeat = 36 + BobVal(512 + actor->temp_data[1]) * 8;
+		actor->spr.yrepeat = 16 + BobVal(actor->temp_data[1]) * 2;
 
 		if (rnd(4) && (sectp->ceilingstat & CSTAT_SECTOR_SKY) == 0 &&
-			fabs(actor->floorz - actor->ceilingz) < 192)
+			abs(actor->floorz - actor->ceilingz) < 192)
 		{
 			actor->vel.Z = 0;
 			actor->temp_data[0]++;
