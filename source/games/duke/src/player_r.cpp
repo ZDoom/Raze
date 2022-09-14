@@ -571,7 +571,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 	while (scount > 0)
 	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang.Buildang(), int(vel * worldtoint), int(zvel * zworldtoint), actor, 4);
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -671,7 +671,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	}
 
 	auto offset = (ang + DAngle1 * 61).ToVector() * (1024 / 448.);
-	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 4);
+	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang.Buildang(), int(vel * worldtoint), int(zvel * zworldtoint), actor, 4);
 
 	if (!spawned) return;
 	if (isRRRA())
@@ -807,7 +807,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 
 	while (scount > 0)
 	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang.Buildang(), vel, zvel, actor, 4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang, vel, zvel, actor, 4);
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -845,7 +845,7 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 
 	int size = atwith == CHEERBOMB ? 16 : 32;
 
-	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, size, size, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 1);
+	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, size, size, ang, vel, zvel, actor, 1);
 }
 
 //---------------------------------------------------------------------------

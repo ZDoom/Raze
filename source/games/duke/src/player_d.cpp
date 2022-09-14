@@ -126,7 +126,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 		sizy = 7;
 	}
 
-	auto spawned = CreateActor(actor->sector(), pos, FIREBALL, -127, sizx, sizy, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, (short)4);
+	auto spawned = CreateActor(actor->sector(), pos, FIREBALL, -127, sizx, sizy, ang.Buildang(), int(vel * worldtoint), int(zvel * zworldtoint), actor, (short)4);
 	if (spawned)
 	{
 		spawned->spr.extra += (krand() & 7);
@@ -659,7 +659,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 	while (scount > 0)
 	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang.Buildang(), int(vel * worldtoint), int(zvel * zworldtoint), actor, 4);
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 
@@ -754,7 +754,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	if (p < 0) aimed = nullptr;
 
 	auto offset = (ang + DAngle1 * 61).ToVector() * (1024 / 448);
-	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 4);
+	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang.Buildang(), int(vel * worldtoint), int(zvel * zworldtoint), actor, 4);
 
 	if (!spawned) return;
 
@@ -1027,7 +1027,7 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 		zvel = -4;
 	double vel = x / 16.;
 
-	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, 32, 32, ang.Buildang(), vel * worldtoint, zvel * zworldtoint, actor, 1);
+	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, 32, 32, ang.Buildang(), int(vel * worldtoint), int(zvel * zworldtoint), actor, 1);
 }
 
 //---------------------------------------------------------------------------
@@ -1063,7 +1063,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 	else zvel = 0;
 
 	auto spawned = CreateActor(actor->sector(),
-		pos.plusZ(2) + ang.ToVector() * 0.25, SHRINKSPARK, -16, 28, 28, ang.Buildang(), 768, zvel * zworldtoint, actor, 4);
+		pos.plusZ(2) + ang.ToVector() * 0.25, SHRINKSPARK, -16, 28, 28, ang.Buildang(), 768, int(zvel * zworldtoint), actor, 4);
 
 	if (spawned)
 	{

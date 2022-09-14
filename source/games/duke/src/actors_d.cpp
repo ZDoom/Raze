@@ -537,7 +537,6 @@ void lotsofpaper_d(DDukeActor *actor, int n)
 
 void guts_d(DDukeActor* actor, int gtype, int n, int p)
 {
-	int j;
 	int sx, sy;
 	uint8_t pal;
 
@@ -560,18 +559,18 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 	else
 		pal = actor->spr.pal;
 
-	for (j = 0; j < n; j++)
+	for (int j = 0; j < n; j++)
 	{
 		// RANDCORRECT version from RR.
-		int a = krand() & 2047;
-		int r1 = krand();
-		int r2 = krand();
+		DAngle a = randomAngle();
+		double zvel = -2 -krandf(8);
+		double vel = 3 + krandf(2);
 		DVector3 offs;
 		offs.Z = gutz - krandf(16);
 		offs.Y = krandf(16) - 8;
 		offs.X = krandf(16) - 8;
 		// TRANSITIONAL: owned by a player???
-		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, sx, sy, a, vel, zvel, ps[p].GetActor(), 5);
 		if (spawned)
 		{
 			if (spawned->spr.picnum == JIBS2)
@@ -1004,7 +1003,10 @@ static void movefireext(DDukeActor* actor)
 
 	for (int k = 0; k < 16; k++)
 	{
-		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
+		auto a = randomAngle();
+		auto vel = krandf(4) + 4;
+		auto zvel = -krandf(16) - actor->vel.Z * 0.25;
+		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), SCRAP3 + (krand() & 3), -8, 48, 48, a, vel, zvel, actor, 5);
 		if(spawned) spawned->spr.pal = 2;
 	}
 
@@ -1569,7 +1571,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			double zAdd = k * proj->vel.Z / 24;
 			auto spawned = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.angle.ToVector() * k * 2.,
 				FIRELASER, -40 + (k << 2),
-				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
+				proj->spr.xrepeat, proj->spr.yrepeat, nullAngle, 0., 0., proj->GetOwner(), 5);
 
 			if (spawned)
 			{
@@ -2103,7 +2105,11 @@ static void greenslime(DDukeActor *actor)
 				return;
 			for (j = 16; j >= 0; j--)
 			{
-				auto k = CreateActor(actor->sector(), actor->spr.pos, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+				auto a = randomAngle();
+				auto vel = krandf(2) + 2;
+				auto zvel = 4 - krandf(4);
+
+				auto k = CreateActor(actor->sector(), actor->spr.pos, GLASSPIECES + (j % 3), -32, 36, 36, a, vel, zvel, actor, 5);
 				k->spr.pal = 1;
 			}
 			ps[p].actors_killed++;
@@ -2134,14 +2140,18 @@ static void greenslime(DDukeActor *actor)
 
 		SetActor(actor, actor->spr.pos);
 
-		actor->set_int_ang(ps[p].angle.ang.Buildang());
+		actor->spr.angle = ps[p].angle.ang;
 
 		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->spr.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
 			{
 				for (x = 0; x < 8; x++)
 				{
-					auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
+					auto a = randomAngle();
+					auto vel = krandf(4) + 4;
+					auto zvel = -krandf(16) - actor->vel.Z * 0.25;
+
+					auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, 48, 48, a, vel, zvel, actor, 5);
 					spawned->spr.pal = 6;
 				}
 
@@ -2249,7 +2259,11 @@ static void greenslime(DDukeActor *actor)
 
 		for (x = 0; x < 8; x++)
 		{
-			auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->int_zvel() >> 2), actor, 5);
+			auto a = randomAngle();
+			auto vel = krandf(4) + 4;
+			auto zvel = -krandf(16) - actor->vel.Z * 0.25;
+
+			auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, 48, 48, a, vel, zvel, actor, 5);
 			if (spawned) spawned->spr.pal = 6;
 		}
 		actor->temp_data[0] = -3;

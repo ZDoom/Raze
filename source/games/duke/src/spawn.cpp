@@ -50,13 +50,13 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss)
+DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, int8_t s_xr, int8_t s_yr, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
 {
 	// sector pointer must be strictly validated here or the engine will crash.
 	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
 	// spawning out of range sprites will also crash.
 	if (s_pn < 0 || s_pn >= MAXTILES) return nullptr;
-	auto act = static_cast<DDukeActor*>(::InsertActor(RUNTIME_CLASS(DDukeActor), whatsectp, s_ss));
+	auto act = static_cast<DDukeActor*>(::InsertActor(RUNTIME_CLASS(DDukeActor), whatsectp, s_stat));
 
 	if (act == nullptr) return nullptr;
 	SetupGameVarsForActor(act);
@@ -65,14 +65,14 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spr.pos = pos;
 	act->spr.cstat = 0;
 	act->spr.picnum = s_pn;
-	act->spr.shade = s_s;
+	act->spr.shade = s_shd;
 	act->spr.xrepeat = s_xr;
 	act->spr.yrepeat = s_yr;
 	act->spr.pal = 0;
 
-	act->set_int_ang(s_a);
-	act->vel.X = (s_ve) * inttoworld;
-	act->vel.Z = (s_zv) * zinttoworld;
+	act->spr.angle = s_ang;
+	act->vel.X = s_vel;
+	act->vel.Z = s_zvel;
 	act->spr.xoffset = 0;
 	act->spr.yoffset = 0;
 	act->spr.yint = 0;

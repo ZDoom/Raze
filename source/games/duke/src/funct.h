@@ -179,11 +179,11 @@ DAngle furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
-DDukeActor* CreateActor(sectortype* whatsect, const DVector3& pos, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss);
-
-inline DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss)
+DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, int8_t s_xr, int8_t s_yr, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat);
+[[deprecated]]
+inline DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, int8_t s_xr, int8_t s_yr, int s_ang, int s_vel, int s_zvel, DDukeActor* s_ow, int8_t s_stat)
 {
-	return CreateActor(whatsectp, { s_x * inttoworld, s_y * inttoworld, s_z * zinttoworld }, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, s_ow, s_ss);
+	return CreateActor(whatsectp, pos, s_pn, s_shd, s_xr, s_yr, DAngle::fromBuild(s_ang), s_vel * inttoworld, s_zvel * zinttoworld, s_ow, s_stat);
 }
 
 void ceilingglass(DDukeActor* snum, sectortype* sectnum, int cnt);
