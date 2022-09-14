@@ -2291,8 +2291,8 @@ bool bloodpool(DDukeActor* actor, bool puke)
 
 	makeitfall(actor);
 
-	int x;
-	int p = findplayer(actor, &x);
+	double xx;
+	int p = findplayer(actor, &xx);
 
 	actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
 
@@ -2317,7 +2317,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		}
 	}
 
-	if (x < 844 && actor->spr.xrepeat > 6 && actor->spr.yrepeat > 6)
+	if (xx < 844 / 16. && actor->spr.xrepeat > 6 && actor->spr.yrepeat > 6)
 	{
 		if (actor->spr.pal == 0 && (krand() & 255) < 16 && !puke)
 		{
@@ -3169,9 +3169,9 @@ void handle_se03(DDukeActor *actor)
 	int sh = actor->spr.hitag;
 
 	if (actor->temp_data[4] == 0) return;
-	int x;
+	double xx;
 
-	findplayer(actor, &x);
+	findplayer(actor, &xx);
 
 	int palvals = actor->palvals;
 
@@ -4277,13 +4277,14 @@ void handle_se26(DDukeActor* actor)
 void handle_se27(DDukeActor* actor)
 {
 	int sh = actor->spr.hitag;
-	int x, p;
+	int p;
+	double xx;
 
 	if (ud.recstat == 0) return;
 
 	actor->tempang = actor->int_ang();
 
-	p = findplayer(actor, &x);
+	p = findplayer(actor, &xx);
 	if (ps[p].GetActor()->spr.extra > 0 && myconnectindex == screenpeek)
 	{
 		if (actor->temp_data[0] < 0)
@@ -4295,7 +4296,7 @@ void handle_se27(DDukeActor* actor)
 		{
 			if (cansee(actor->spr.pos, actor->sector(), ps[p].pos, ps[p].cursector))
 			{
-				if (x < sh)
+				if (xx < sh * maptoworld)
 				{
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
@@ -5191,7 +5192,7 @@ void recordoldspritepos()
 
 void movefta(void)
 {
-	int x;
+	double xx;
 	int canseeme, p;
 	sectortype* psect, * ssect;
 
@@ -5204,17 +5205,17 @@ void movefta(void)
 	DukeStatIterator it(STAT_ZOMBIEACTOR);
 	while (auto act = it.Next())
 	{
-		p = findplayer(act, &x);
+		p = findplayer(act, &xx);
 		canseeme = 0;
 
 		ssect = psect = act->sector();
 
 		if (ps[p].GetActor()->spr.extra > 0)
 		{
-			if (x < 30000)
+			if (xx < 30000 / 16.)
 			{
 				act->timetosleep++;
-				if (act->timetosleep >= (x >> 8))
+				if (act->timetosleep >= xx / 16.)
 				{
 					if (badguy(act))
 					{
