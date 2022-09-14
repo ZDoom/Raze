@@ -1704,7 +1704,7 @@ void checkweapons_d(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, int cz, int shrunk)
+static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double floorz, double ceilingz, int shrunk)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -1765,8 +1765,8 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 	if (psectlotag != 2 && p->scuba_on == 1)
 		p->scuba_on = 0;
 
-	if (p->player_int_pos().Z > (fz - (k << 8)))
-		p->pos.Z += (((fz - (k << 8)) - p->player_int_pos().Z) >> 1) * zinttoworld;
+	if (p->pos.Z > floorz - k)
+		p->pos.Z += ((floorz - k) - p->pos.Z) * 0.5;
 	if (p->pos.Z < pact->ceilingz + 18)
 		p->pos.Z = pact->ceilingz + 18;
 
@@ -2911,7 +2911,7 @@ void processinput_d(int snum)
 
 	else if (p->jetpack_on)
 	{
-		operateJetpack(snum, actions, psectlotag, fz, cz, shrunk);
+		operateJetpack(snum, actions, psectlotag, fz * inttoworld, cz * inttoworld, shrunk);
 	}
 	else if (psectlotag != ST_2_UNDERWATER)
 	{
