@@ -649,7 +649,7 @@ void movecrane(DDukeActor *actor, int crane)
 
 	else if (actor->temp_data[0] == 1)
 	{
-		if (actor->int_xvel() < 184)
+		if (actor->vel.X < 11.5)
 		{
 			actor->spr.picnum = crane + 1;
 			actor->vel.X += 0.5;
@@ -746,7 +746,7 @@ void movecrane(DDukeActor *actor, int crane)
 	}
 	else if (actor->temp_data[0] == 6)
 	{
-		if (actor->int_xvel() < 192)
+		if (actor->vel.X < 12)
 			actor->vel.X += 0.5;
 		actor->spr.angle = VecToAngle(cpt.pos.XY() - actor->spr.pos.XY());
 		ssp(actor, CLIPMASK0);
@@ -1423,11 +1423,11 @@ bool rat(DDukeActor* actor, bool makesound)
 			deletesprite(actor);
 			return false;
 		}
-		else actor->set_int_ang((krand() & 2047));
+		else actor->spr.angle = randomAngle();
 	}
-	if (actor->int_xvel() < 128)
+	if (actor->vel.X < 8)
 		actor->vel.X += 1/8.;
-	actor->add_int_ang((krand() & 3) - 6);
+	actor->spr.angle += mapangle((krand() & 3) - 6);
 	return true;
 }
 

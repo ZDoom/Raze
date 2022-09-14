@@ -754,7 +754,7 @@ void movefallers_d(void)
 			}
 			else
 			{
-				if (act->int_xvel() > 0)
+				if (act->vel.X > 0)
 				{
 					act->vel.X -= 0.5;
 					ssp(act, CLIPMASK0);
@@ -2213,7 +2213,7 @@ static void greenslime(DDukeActor *actor)
 		return;
 	}
 
-	else if (actor->int_xvel() < 64 && x < 768)
+	else if (actor->vel.X < 4 && x < 768)
 	{
 		if (ps[p].somethingonplayer == nullptr)
 		{
@@ -2355,18 +2355,17 @@ static void greenslime(DDukeActor *actor)
 
 		if (everyothertime & 1) ssp(actor, CLIPMASK0);
 
-		if (actor->int_xvel() > 96)
+		if (actor->vel.X > 6)
 		{
 			actor->vel.X -= 1/8.;
 			return;
 		}
 		else
 		{
-			if (actor->int_xvel() < 32) actor->vel.X += 0.25;
+			if (actor->vel.X < 2) actor->vel.X += 0.25;
 			actor->set_int_xvel(64 - bcos(actor->temp_data[1], -9));
 
-			actor->add_int_ang(getincangle(actor->int_ang(),
-				getangle(ps[p].pos.XY() - actor->spr.pos.XY())) >> 3);
+			actor->spr.angle += deltaangle(actor->spr.angle, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) * 0.125;
 			// TJR
 		}
 
@@ -2689,7 +2688,7 @@ DETONATEB:
 			}
 		}
 	}
-	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->int_xvel() == 0)
+	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->vel.X == 0)
 		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].pos, ps[p].cursector))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{

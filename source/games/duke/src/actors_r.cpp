@@ -671,7 +671,7 @@ void movefallers_r(void)
 			}
 			else
 			{
-				if (act->int_xvel() > 0)
+				if (act->vel.X > 0)
 				{
 					act->vel.X -= 1/8.;
 					ssp(act, CLIPMASK0);
@@ -1336,7 +1336,7 @@ void moveweapons_r(void)
 			continue;
 
 		case FREEZEBLAST:
-			if (proj->spr.yint < 1 || proj->spr.extra < 2 || (proj->int_xvel() == 0 && proj->int_zvel() == 0))
+			if (proj->spr.yint < 1 || proj->spr.extra < 2 || (proj->vel.X == 0 && proj->vel.Z == 0))
 			{
 				auto star = spawn(proj, TRANSPORTERSTAR);
 				if (star)
@@ -2472,7 +2472,7 @@ DETONATEB:
 			return;
 		}
 	}
-	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->int_xvel() == 0)
+	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->vel.X == 0)
 		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].pos, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
@@ -2582,10 +2582,10 @@ static int henstand(DDukeActor *actor)
 			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
 			if (krand() & 1)
 				actor->spr.picnum = HENSTAND + 1;
-			if (!actor->int_xvel())
+			if (actor->vel.X == 0)
 				return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}
-		if (actor->spr.picnum == BOWLINGPIN || (actor->spr.picnum == BOWLINGPIN + 1 && !actor->int_xvel()))
+		if (actor->spr.picnum == BOWLINGPIN || (actor->spr.picnum == BOWLINGPIN + 1 && actor->vel.X == 0))
 		{
 			return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}

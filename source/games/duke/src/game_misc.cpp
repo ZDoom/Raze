@@ -429,7 +429,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 		{
 			auto& pp = ps[p];
 			auto act = pp.GetActor();
-			int i = TILE_APLAYERTOP + (act->int_xvel() > 16 && pp.on_ground ? (PlayClock >> 4) & 3 : 0);
+			int i = TILE_APLAYERTOP + (act->vel.X > 1 && pp.on_ground ? (PlayClock >> 4) & 3 : 0);
 			double j = clamp(czoom * act->spr.yrepeat + abs(pp.truefz - pp.pos.Z), 21.5, 128.) * REPEAT_SCALE;
 
 			auto const vec = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
