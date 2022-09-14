@@ -953,7 +953,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			}
 
 			else if (actor->spr.lotag == SE_16_REACTOR)
-				actor->temp_data[3] = sectp->int_ceilingz();
+				actor->temp_pos.Z = sectp->ceilingz;
 
 			else if (actor->spr.lotag == SE_26)
 			{

@@ -3744,10 +3744,10 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 {
 	auto sc = actor->sector();
 
-	actor->temp_data[2] += 32;
+	actor->temp_angle += DAngle22_5 / 4;
 	if (sc->floorz < sc->ceilingz) actor->spr.shade = 0;
 
-	else if (sc->int_ceilingz() < actor->temp_data[3])
+	else if (sc->ceilingz < actor->temp_pos.Z)
 	{
 
 		//The following code check to see if
@@ -3773,7 +3773,7 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 	if (actor->spr.shade) sc->addceilingz(4);
 	else sc->addceilingz(-2);
 
-	movesector(actor, actor->temp_data[1], DAngle::fromBuild(actor->temp_data[2]));
+	movesector(actor, actor->temp_data[1], actor->temp_angle);
 	//SetActor(actor, actor->spr.pos);
 }
 
