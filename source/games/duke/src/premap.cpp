@@ -535,7 +535,6 @@ void resetpspritevars(int g)
 {
 	int i, j;
 	int circ;
-	int firstx, firsty;
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
@@ -606,12 +605,6 @@ void resetpspritevars(int g)
 	{
 		if (numplayersprites == MAXPLAYERS)
 			I_Error("Too many player sprites (max 16.)");
-
-		if (numplayersprites == 0)
-		{
-			firstx = ps[0].player_int_pos().X;
-			firsty = ps[0].player_int_pos().Y;
-		}
 
 		po[numplayersprites].opos = act->spr.pos;
 		po[numplayersprites].oa = act->int_ang();

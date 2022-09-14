@@ -2052,7 +2052,7 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 	HitInfo hit{};
 
-	hitscan(p->player_int_pos(), p->cursector, { int(p->angle.ang.Cos() * (1 << 14)), int(p->angle.ang.Sin() * (1 << 14)), -p->horizon.sum().asq16() >> 11 }, hit, CLIPMASK1);
+	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, -p->horizon.sum().asbuildf() * 0.125), hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;
