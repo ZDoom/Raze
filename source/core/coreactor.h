@@ -107,11 +107,6 @@ public:
 		spr.angle = spr.angle.Normalized360();
 	}
 
-	int int_zvel() const
-	{
-		return vel.Z * zworldtoint;
-	}
-
 	// Note: Both Duke and SW use Q12.4 for this, Exhumed doesn't seem to treat horizontal velocity with a fixed factor.
 	int int_xvel() const
 	{

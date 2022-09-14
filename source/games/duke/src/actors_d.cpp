@@ -1923,7 +1923,7 @@ void movetransports_d(void)
 			case STAT_FALLER:
 			case STAT_DUMMYPLAYER:
 
-				ll = abs(act2->int_zvel()) * zinttoworld;
+				ll = abs(act2->vel.Z);
 
 				{
 					warpspriteto = 0;
