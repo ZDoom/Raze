@@ -112,20 +112,10 @@ public:
 		return vel.Z * zworldtoint;
 	}
 
-	void set_int_zvel(int v)
-	{
-		vel.Z = v * zinttoworld;
-	}
-
 	// Note: Both Duke and SW use Q12.4 for this, Exhumed doesn't seem to treat horizontal velocity with a fixed factor.
 	int int_xvel() const
 	{
 		return vel.X * worldtoint;
-	}
-
-	void set_int_xvel(int v)
-	{
-		vel.X = v * inttoworld;
 	}
 
 	vec3_t int_vel() const
