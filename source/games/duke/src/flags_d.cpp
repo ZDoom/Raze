@@ -291,8 +291,8 @@ void initactorflags_d()
 	// The feature guarded by this flag does not exist in Duke, it always acts as if the flag was set.
 	for (auto& ainf : gs.actorinfo) ainf.flags |= SFLAG_MOVEFTA_CHECKSEE;
 
-	gs.actorinfo[ORGANTIC].aimoffset = 32 << 8;
-	gs.actorinfo[ROTATEGUN].aimoffset = 32 << 8;
+	gs.actorinfo[ORGANTIC].aimoffset = 32;
+	gs.actorinfo[ROTATEGUN].aimoffset = 32;
 
 	gs.weaponsandammosprites[0] = RPGSPRITE;
 	gs.weaponsandammosprites[1] = CHAINGUNSPRITE;

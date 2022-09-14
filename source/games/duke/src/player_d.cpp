@@ -707,7 +707,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 
 	if (p >= 0)
 	{
-		aimed = aim(actor, 48);
+		aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
 			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 8;

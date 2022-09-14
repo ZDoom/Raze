@@ -221,15 +221,14 @@ double hitawall(player_struct* p, walltype** hitw)
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* aim(DDukeActor* actor, int aang)
+DDukeActor* aim(DDukeActor* actor, int abase)
 {
-	bool gotshrinker, gotfreezer;
-	int a, k, cans;
-	static const int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
-	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
-	int xv, yv;
+	DAngle aang = DAngle90 * (AUTO_AIM_ANGLE / 512.);
 
-	a = actor->int_ang();
+	bool gotshrinker, gotfreezer;
+	static const int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
+
+	DAngle a = actor->spr.angle;
 
 	// Autoaim from DukeGDX.
 	if (actor->isPlayer())
@@ -242,10 +241,10 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 			// This is a reimplementation of how it was solved in RedNukem.
 			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
 			{
-				int zvel = -plr->horizon.sum().asq16() >> 5;
+				double zvel = -plr->horizon.sum().asbuildf() / 8;
 
 				HitInfo hit{};
-				hitscan(plr->player_int_pos().withZOffset(1024), actor->sector(), { bcos(actor->int_ang()), bsin(actor->int_ang()), zvel }, hit, CLIPMASK1);
+				hitscan(plr->pos.plusZ(4), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, zvel), hit, CLIPMASK1);
 
 				if (hit.actor() != nullptr)
 				{
@@ -298,17 +297,13 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 		gotfreezer = actor->isPlayer() && ps[actor->PlayerIndex()].curr_weapon == FREEZE_WEAPON;
 	}
 
-	smax = 0x7fffffff;
+	double smax = 0x7fffffff;
 
-	dx1 = bcos(a - aang);
-	dy1 = bsin(a - aang);
-	dx2 = bcos(a + aang);
-	dy2 = bsin(a + aang);
+	auto dv1 = (a - aang).ToVector();
+	auto dv2 = (a + aang).ToVector();
+	auto dv3 = a.ToVector();
 
-	dx3 = bcos(a);
-	dy3 = bsin(a);
-
-	for (k = 0; k < 4; k++)
+	for (int k = 0; k < 4; k++)
 	{
 		if (aimed)
 			break;
@@ -332,22 +327,26 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 						if (gotfreezer && act->spr.pal == 1) continue;
 					}
 
-					xv = (act->int_pos().X - actor->int_pos().X);
-					yv = (act->int_pos().Y - actor->int_pos().Y);
+					DVector2 vv = act->spr.pos.XY() - actor->spr.pos.XY();
 
-					if ((dy1 * xv) <= (dx1 * yv))
-						if ((dy2 * xv) >= (dx2 * yv))
+					if ((dv1.Y * vv.X) <= (dv1.X * vv.Y))
+						if ((dv2.Y * vv.X) >= (dv2.X * vv.Y))
 						{
-							sdist = MulScale(dx3, xv, 14) + MulScale(dy3, yv, 14);
-							if (sdist > 512 && sdist < smax)
+							double sdist = dv3.dot(vv);
+							if (sdist > 32 && sdist < smax)
 							{
+								int check;
 								if (actor->isPlayer())
-									a = (abs(Scale(act->int_pos().Z - actor->int_pos().Z, 10, sdist) - ps[actor->PlayerIndex()].horizon.sum().asbuild()) < 100);
-								else a = 1;
+								{
+									double checkval = (act->spr.pos.Z - actor->spr.pos.Z) * 160 / sdist;
+									double horiz = ps[actor->PlayerIndex()].horizon.sum().asbuild();
+									check = abs(checkval - horiz) < 100;
+								}
+								else check = 1;
 
-								cans = cansee(act->spr.pos.plusZ(-32 + gs.actorinfo[act->spr.picnum].aimoffset), act->sector(), actor->spr.pos.plusZ(-32), actor->sector());
+								int cans = cansee(act->spr.pos.plusZ(-32 + gs.actorinfo[act->spr.picnum].aimoffset), act->sector(), actor->spr.pos.plusZ(-32), actor->sector());
 
-								if (a && cans)
+								if (check && cans)
 								{
 									smax = sdist;
 									aimed = act;
