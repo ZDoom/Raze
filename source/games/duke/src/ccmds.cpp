@@ -46,7 +46,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	ESpriteFlags cstat = 0;
 	int picnum = 0;
 	unsigned int pal = 0;
-	int ang = 0;
+	DAngle ang = nullAngle;
 	int set = 0;
 
 #if 0 // fixme - route through the network and this limitation becomes irrelevant
@@ -64,7 +64,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		set |= 8;
 		[[fallthrough]];
 	case 4: // ang
-		ang = atol(parm->parms[3]) & 2047; set |= 4;
+		ang = DAngle::fromDeg(atol(parm->parms[3])); set |= 4;
 		[[fallthrough]];
 	case 3: // cstat
 		cstat = ESpriteFlags::FromInt(atol(parm->parms[2])); set |= 2;

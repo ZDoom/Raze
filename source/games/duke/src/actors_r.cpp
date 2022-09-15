@@ -401,7 +401,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
-		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->add_int_ang(768);
+		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->spr.angle += DAngle45 + DAngle90;
 	}
 	else
 	{

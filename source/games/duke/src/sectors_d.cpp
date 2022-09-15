@@ -679,7 +679,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (spawned)
 					{
 						spawned->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER;
-						spawned->set_int_ang(getangle(-wal->delta()) - 512);
+						spawned->spr.angle = VecToAngle(-wal->delta()) - DAngle90;
 
 						S_PlayActorSound(SOMETHINGHITFORCE, spawned);
 					}
@@ -1194,7 +1194,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		for (j = 0; j < 48; j++)
 		{
 			fi.shoot(targ, BLOODSPLAT1);
-			targ->add_int_ang(333);
+			targ->spr.angle += DAngle1 * 58.5; // Was 333, which really makes no sense.
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		S_PlayActorSound(SQUISHED, targ);
@@ -1381,7 +1381,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 								spawned->spr.pos.Z += 4;
 								spawned->vel.X = 1;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
-								spawned->add_int_ang(32 - (krand() & 63));
+								spawned->spr.angle = DAngle22_5 / 4 - randomAngle(22.5 / 2);
 							}
 						}
 

@@ -2013,7 +2013,7 @@ void forcesphereexplode(DDukeActor *actor)
 		}
 
 	actor->spr.pos = Owner->spr.pos;;
-	actor->add_int_ang(Owner->temp_data[0]);
+	actor->spr.angle += mapangle(Owner->temp_data[0]);
 
 	if (l > 64) l = 64;
 	else if (l < 1) l = 1;
@@ -4607,7 +4607,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 		{
 			k->spr.xrepeat = k->spr.yrepeat = 2 + (krand() & 7);
 			k->spr.pos.Z = sc->floorz + krandf(x);
-			k->add_int_ang(256 - (krand() % 511));
+			k->spr.angle += DAngle45 - randomAngle(90);
 			k->vel.X = krandf(8);
 			ssp(k, CLIPMASK0);
 		}
