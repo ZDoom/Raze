@@ -98,7 +98,7 @@ void pickrandomspot(int snum)
 	p->pos = po[i].opos;
 	p->backupxyz();
 	p->setbobpos();
-	p->angle.oang = p->angle.ang = DAngle::fromBuild(po[i].oa);
+	p->angle.oang = p->angle.ang = po[i].oa;
 	p->setCursector(po[i].os);
 }
 
@@ -607,7 +607,7 @@ void resetpspritevars(int g)
 			I_Error("Too many player sprites (max 16.)");
 
 		po[numplayersprites].opos = act->spr.pos;
-		po[numplayersprites].oa = act->int_ang();
+		po[numplayersprites].oa = act->spr.angle;
 		po[numplayersprites].os = act->sector();
 
 		numplayersprites++;

@@ -181,7 +181,7 @@ struct user_defs
 struct player_orig
 {
 	DVector3 opos;
-	short oa;
+	DAngle oa;
 	sectortype* os;
 };
 
