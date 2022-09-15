@@ -629,7 +629,7 @@ void movefallers_r(void)
 		if (act->temp_data[0] == 0)
 		{
 			act->spr.pos.Z -= 16;
-			act->temp_data[1] = act->int_ang();
+			DAngle saved_angle = act->spr.angle;
 			int x = act->spr.extra;
 			int j = fi.ifhitbyweapon(act);
 			if (j >= 0)
@@ -658,7 +658,7 @@ void movefallers_r(void)
 					act->spr.extra = x;
 				}
 			}
-			act->set_int_ang(act->temp_data[1]);
+			act->spr.angle = saved_angle;
 			act->spr.pos.Z += 16;
 		}
 		else if (act->temp_data[0] == 1)
@@ -1045,8 +1045,8 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 
 	if (proj->spr.picnum != RPG && (!isRRRA() || proj->spr.picnum != RPG2) && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SPIT && proj->spr.picnum != SHRINKSPARK && (wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
-		int k = getangle(wal->delta());
-		proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
+		DAngle walang = VecToAngle(wal->delta());
+		proj->spr.angle = walang * 2 - proj->spr.angle;
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
 		return true;
@@ -1068,8 +1068,8 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 				proj->spr.yint--;
 			}
 
-			int k = getangle(wal->delta());
-			proj->set_int_ang(((k << 1) - proj->int_ang()) & 2047);
+			DAngle walang = VecToAngle(wal->delta());
+			proj->spr.angle = walang * 2 - proj->spr.angle;
 			return true;
 		}
 		if (proj->spr.picnum == SHRINKSPARK)

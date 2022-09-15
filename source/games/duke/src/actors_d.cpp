@@ -708,7 +708,7 @@ void movefallers_d(void)
 		if (act->temp_data[0] == 0)
 		{
 			act->spr.pos.Z -= 16;
-			act->temp_data[1] = act->int_ang();
+			DAngle saved_angle = act->spr.angle;
 			int x = act->spr.extra;
 			j = fi.ifhitbyweapon(act);
 			if (j >= 0)
@@ -737,7 +737,7 @@ void movefallers_d(void)
 					act->spr.extra = x;
 				}
 			}
-			act->set_int_ang(act->temp_data[1]);
+			act->spr.angle = saved_angle;
 			act->spr.pos.Z += 16;
 		}
 		else if (act->temp_data[0] == 1)
