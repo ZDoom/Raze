@@ -3437,8 +3437,8 @@ double adjustfall(DDukeActor *actor, double c)
 
 void move_r(DDukeActor *actor, int pnum, int xvel)
 {
-	int goalang, angdif;
-	int daxvel;
+	DAngle goalang, angdif;
+	double daxvel;
 
 	int a = actor->spr.hitag;
 
@@ -3449,11 +3449,11 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = getangle(ps[pnum].opos.XY() - actor->spr.pos.XY());
-		else goalang = getangle(ps[pnum].pos.XY() - actor->spr.pos.XY());
-		angdif = getincangle(actor->int_ang(), goalang) >> 2;
-		if (angdif > -8 && angdif < 0) angdif = 0;
-		actor->add_int_ang(angdif);
+			goalang = VecToAngle(ps[pnum].opos.XY() - actor->spr.pos.XY());
+		else goalang = VecToAngle(ps[pnum].pos.XY() - actor->spr.pos.XY());
+		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
+		if (angdif > -DAngle22_5 / 8 && angdif < nullAngle) angdif = nullAngle;
+		actor->spr.angle += angdif;
 	}
 
 	if (a & spin)
@@ -3462,15 +3462,10 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = getangle(ps[pnum].opos.XY() - actor->spr.pos.XY());
-		else goalang = getangle(ps[pnum].pos.XY() - actor->spr.pos.XY());
-		angdif = Sgn(getincangle(actor->int_ang(), goalang)) << 5;
-		if (angdif > -32 && angdif < 0)
-		{
-			angdif = 0;
-			actor->set_int_ang(goalang);
-		}
-		actor->add_int_ang(angdif);
+			goalang = VecToAngle(ps[pnum].opos.XY() - actor->spr.pos.XY());
+		else goalang = VecToAngle(ps[pnum].pos.XY() - actor->spr.pos.XY());
+		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
+		actor->spr.angle += angdif;
 	}
 
 	if (isRRRA())
@@ -3478,15 +3473,10 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (a & antifaceplayerslow)
 		{
 			if (ps[pnum].newOwner != nullptr)
-				goalang = (getangle(ps[pnum].opos.XY() - actor->spr.pos.XY()) + 1024) & 2047;
-			else goalang = (getangle(ps[pnum].pos.XY() - actor->spr.pos.XY()) + 1024) & 2047;
-			angdif = Sgn(getincangle(actor->int_ang(), goalang)) << 5;
-			if (angdif > -32 && angdif < 0)
-			{
-				angdif = 0;
-				actor->set_int_ang(goalang);
-			}
-			actor->add_int_ang(angdif);
+				goalang = (VecToAngle(ps[pnum].opos.XY() - actor->spr.pos.XY()) + DAngle180);
+			else goalang = (VecToAngle(ps[pnum].pos.XY() - actor->spr.pos.XY()) + DAngle180);
+			angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
+			actor->spr.angle += angdif;
 		}
 
 		if ((a & jumptoplayer) == jumptoplayer)
@@ -3543,11 +3533,11 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		DVector2 newpos = ps[pnum].pos.XY() + (ps[pnum].vel.XY() * (4. / 3.) );
-		goalang = getangle(newpos - actor->spr.pos.XY());
-		angdif = getincangle(actor->int_ang(), goalang) >> 2;
-		if (angdif > -8 && angdif < 0) angdif = 0;
-		actor->add_int_ang(angdif);
+		DVector2 newpos = ps[pnum].pos.XY() + (ps[pnum].vel.XY() * (4. / 3.));
+		goalang = VecToAngle(newpos - actor->spr.pos.XY());
+		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
+		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
+		actor->spr.angle = angdif;
 	}
 
 	if (actor->temp_data[1] == 0 || a == 0)
@@ -3634,16 +3624,16 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if ((actor->spr.pos.Z - actor->ceilingz) < 32)
 				actor->spr.pos.Z = actor->ceilingz + 32;
 
-		daxvel = actor->int_xvel();
-		angdif = actor->int_ang();
+		daxvel = actor->vel.X;
+		angdif = actor->spr.angle;
 
 		if (a)
 		{
 			if (xvel < 960 && actor->spr.xrepeat > 16)
 			{
 
-				daxvel = -(1024 - xvel);
-				angdif = getangle(ps[pnum].pos.XY() - actor->spr.pos.XY());
+				daxvel = -(1024 - xvel) * maptoworld;
+				angdif = VecToAngle(ps[pnum].pos.XY() - actor->spr.pos.XY());
 
 				if (xvel < 512)
 				{
@@ -3664,12 +3654,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{
 						if ((actor->temp_data[0] & 1) || ps[pnum].actorsqu == actor) return;
-						else daxvel <<= 1;
+						else daxvel *= 2;
 					}
 					else
 					{
 						if ((actor->temp_data[0] & 3) || ps[pnum].actorsqu == actor) return;
-						else daxvel <<= 2;
+						else daxvel *= 4;
 					}
 				}
 			}
@@ -3683,7 +3673,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				case MINIONBOAT:
 				case HULKBOAT:
 				case CHEERBOAT:
-					daxvel >>= 1;
+					daxvel *= 0.5;
 					break;
 				}
 			}
@@ -3694,15 +3684,14 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				case BIKERB:
 				case BIKERBV2:
 				case CHEERB:
-					daxvel >>= 1;
+					daxvel *= 0.5;
 					break;
 				}
 			}
 		}
 
-		DAngle angdiff = DAngle::fromBuild(angdif);
 		Collision coll;
-		actor->movflag = movesprite_ex(actor, DVector3(angdiff.ToVector() * daxvel * inttoworld, actor->vel.Z), CLIPMASK0, coll);
+		actor->movflag = movesprite_ex(actor, DVector3(angdif.ToVector() * daxvel, actor->vel.Z), CLIPMASK0, coll);
 	}
 
 	if (a)
