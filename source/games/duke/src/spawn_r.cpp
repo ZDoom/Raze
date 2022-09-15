@@ -903,7 +903,9 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yrepeat = 64;
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP;
-			act->add_int_pos({ (krand() & 2047) - 1024, (krand() & 2047) - 1024, (krand() & 2047) - 1024 });
+			act->spr.pos.X += krandf(128) - 64;
+			act->spr.pos.Y += krandf(128) - 64;
+			act->spr.pos.Z += krandf(8) - 4;
 			break;
 		case MAMA:
 			if (act->spr.pal == 30)

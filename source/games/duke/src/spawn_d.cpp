@@ -116,13 +116,15 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				return act;
 			act->SetOwner(actj);
 			ChangeActorStat(act, STAT_MISC);
-			act->add_int_pos({ krand() % 512 - 256, krand() % 512 - 256, 0 });
+			act->spr.pos.X += krandf(32) - 16;
+			act->spr.pos.Y += krandf(32) - 16;
 			act->spr.xrepeat = 16;
 			act->spr.yrepeat = 16;
 			return act;
 		case WHISPYSMOKE:
 			ChangeActorStat(act, STAT_MISC);
-			act->add_int_pos({ krand() % 256 - 128, krand() % 256 - 128, 0 });
+			act->spr.pos.X += krandf(16) - 8;
+			act->spr.pos.Y += krandf(16) - 8;
 			act->spr.xrepeat = 20;
 			act->spr.yrepeat = 20;
 			return act;
@@ -639,7 +641,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum == ONFIRE)
 		{
-			act->add_int_pos({ krand() % 256 - 128, krand() % 256 - 128, -(krand() % 10240) });
+			act->spr.pos.X += krandf(32) - 16;
+			act->spr.pos.Y += krandf(32) - 16;
+			act->spr.pos.Z -= krandf(40);
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
 

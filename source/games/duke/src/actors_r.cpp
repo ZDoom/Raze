@@ -1080,7 +1080,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 			}
 			if (proj->spr.extra <= 0)
 			{
-				proj->add_int_pos({ bcos(proj->int_ang(), -7), bsin(proj->int_ang(), -7), 0 });
+				proj->spr.pos += proj->spr.angle.ToVector() * 8;
 				auto Owner = proj->GetOwner();
 				if (!isRRRA() || !Owner || (Owner->spr.picnum != CHEER && Owner->spr.picnum != CHEERSTAYPUT))
 				{
