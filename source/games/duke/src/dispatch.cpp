@@ -98,8 +98,8 @@ void displaymasks_d(int snum, int p, double interpfrac);
 void displaymasks_r(int snum, int p, double interpfrac);
 void think_d();
 void think_r();
-void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, double interpfrac);
-void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interpfrac);
+void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac);
+void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac);
 
 Dispatcher fi;
 

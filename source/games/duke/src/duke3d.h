@@ -107,7 +107,7 @@ struct Dispatcher
 	void (*displayweapon)(int snum, double interpfrac);
 	void (*displaymasks)(int snum, int p, double interpfrac);
 
-	void (*animatesprites)(tspriteArray& tsprites, int x, int y, int a, double interpfrac);
+	void (*animatesprites)(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac);
 
 
 };

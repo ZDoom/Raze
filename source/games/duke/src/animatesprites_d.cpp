@@ -44,11 +44,9 @@ EXTERN_CVAR(Bool, wt_commentary)
 
 BEGIN_DUKE_NS
 
-void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, double interpfrac)
+void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac)
 {
-	DAngle viewang = DAngle::fromBuild(a);
 	DAngle kang;
-	DVector2 viewVec(x * inttoworld, y * inttoworld);
 	int k, p;
 	int l, t1, t3, t4;
 	tspritetype* t;

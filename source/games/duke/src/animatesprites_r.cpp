@@ -37,11 +37,9 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 BEGIN_DUKE_NS
 
 
-void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, double interpfrac)
+void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac)
 {
 	DAngle kang;
-	DAngle viewang = DAngle::fromBuild(a);
-	DVector2 viewVec(x * inttoworld, y * inttoworld);
 	int k, p;
 	int l, t1, t3, t4;
 	tspritetype* t;
