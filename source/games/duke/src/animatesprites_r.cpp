@@ -226,7 +226,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->pos.Z -= 4;
 			break;
 		case CRYSTALAMMO:
-			t->shade = bsin(PlayClock << 4, -10);
+			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;
 		case SHRINKSPARK:
 			if (OwnerAc && (OwnerAc->spr.picnum == CHEER || OwnerAc->spr.picnum == CHEERSTAYPUT) && isRRRA())

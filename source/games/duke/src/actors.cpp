@@ -309,7 +309,7 @@ void movecyclers(void)
 		auto sect = c->sector;
 
 		int shade = c->shade2;
-		int j = shade + bsin(c->lotag, -10);
+		int j = shade + int(BobVal(c->lotag) * 16);
 		int cshade = c->shade1;
 
 		if (j < cshade) j = cshade;
@@ -1296,7 +1296,7 @@ void bounce(DDukeActor* actor)
 
 void movetongue(DDukeActor *actor, int tongue, int jaw)
 {
-	actor->temp_data[0] = bsin(actor->temp_data[1], -9);
+	actor->temp_data[0] = int(BobVal(actor->temp_data[1]) * 32);
 	actor->temp_data[1] += 32;
 	if (actor->temp_data[1] > 2047)
 	{
@@ -4233,7 +4233,7 @@ void handle_se26(DDukeActor* actor)
 	double zvel = actor->vel.Z;
 
 	actor->vel.X = 2;
-	DVector2 vect = 2 * actor->spr.angle.ToVector(); // was: (32 * bsin) >> 14
+	DVector2 vect = 2 * actor->spr.angle.ToVector(); // was: (32 * b sin) >> 14
 
 	actor->spr.shade++;
 	if (actor->spr.shade > 7)

@@ -70,9 +70,9 @@ static void displayloogie(player_struct* p, double const interpfrac)
 
 	for (int i = 0; i < p->numloogs; i++)
 	{
-		const double a = fabs(bsinf((loogi + i) * 32., -5));
+		const double a = fabs(BobVal((loogi + i) * 32.) * 512);
 		const double z = 4096. + ((loogi + i) * 512.);
-		const double x = -getavel(p->GetPlayerNum()) + bsinf((loogi + i) * 64., -10);
+		const double x = -getavel(p->GetPlayerNum()) + BobVal((loogi + i) * 64.) * 16;
 
 		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), z - (i << 8), 256 - a, LOOGIE, 0, 0, 2);
 	}
@@ -91,7 +91,7 @@ static bool animatefist(int gs, player_struct* p, double look_anghalf, double lo
 
 	hud_drawsprite(
 		(-fisti + 222 + plravel),
-		(looking_arc + 194 + bsinf((6 + fisti) * 128., -9)),
+		(looking_arc + 194 + BobVal((6 + fisti) * 128.) * 32),
 		clamp(65536. - bcosf(fisti * 64., 2), 40920., 90612.), 0, FIST, gs, fistpal, 2);
 
 	return true;
@@ -236,7 +236,7 @@ void displayweapon_d(int snum, double interpfrac)
 	looking_arc = p->angle.looking_arc(interpfrac);
 	hard_landing *= 8.;
 
-	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 32 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
+	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 32 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);
 	gun_pos -= hard_landing;
 
 	weapon_xoffset = (160)-90;

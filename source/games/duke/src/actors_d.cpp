@@ -2217,8 +2217,9 @@ static void greenslime(DDukeActor *actor)
 				actor->temp_data[3] = 1;
 		}
 
-		actor->spr.xrepeat = 20 + bsin(actor->temp_data[1], -13);
-		actor->spr.yrepeat = 15 + bsin(actor->temp_data[1], -13);
+		int add = int(BobVal(actor->temp_data[1]) * 2);
+		actor->spr.xrepeat = 20 + add;
+		actor->spr.yrepeat = 15 + add;
 		actor->spr.pos.XY() = ps[p].pos.XY() + ps[p].angle.ang.ToVector() * 8;
 		return;
 	}

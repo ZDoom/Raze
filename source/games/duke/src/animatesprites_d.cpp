@@ -232,7 +232,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->pos.Z -= 4;
 			break;
 		case CRYSTALAMMO:
-			t->shade = bsin(PlayClock << 4, -10);
+			t->shade = int(BobVal(PlayClock << 4) * 16);
 			continue;
 		case VIEWSCREEN:
 		case VIEWSCREEN2:
