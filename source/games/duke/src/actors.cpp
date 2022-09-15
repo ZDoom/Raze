@@ -554,7 +554,7 @@ void movefx(void)
 
 		case MUSICANDSFX:
 			{
-			double maxdist = act->spr.hitag * inttoworld;
+			double maxdist = act->spr.hitag * maptoworld;
 
 			if (act->temp_data[1] != (int)SoundEnabled())
 			{
