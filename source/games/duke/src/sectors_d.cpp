@@ -150,8 +150,8 @@ void animatewalls_d(void)
 
 				if (wal->cstat & CSTAT_WALL_ANY_EXCEPT_BLOCK)
 				{
-					wal->addxpan(-t / 4096.f); // bcos(t, -12);
-					wal->addypan(-t / 4096.f); // bsin(t, -12);
+					wal->addxpan(-t / 4096.f);
+					wal->addypan(-t / 4096.f);
 
 					if (wal->extra == 1)
 					{

@@ -3500,7 +3500,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	}
 
 	if (a & spin)
-		actor->add_int_ang(bsin(actor->temp_data[0] << 3, -6));
+		actor->spr.angle += DAngle45 * BobVal(actor->temp_data[0] << 3);
 
 	if (a & face_player_slow)
 	{

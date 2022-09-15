@@ -64,7 +64,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		set |= 8;
 		[[fallthrough]];
 	case 4: // ang
-		ang = DAngle::fromDeg(atol(parm->parms[3])); set |= 4;
+		ang = DAngle::fromDeg(atoi(parm->parms[3])); set |= 4;
 		[[fallthrough]];
 	case 3: // cstat
 		cstat = ESpriteFlags::FromInt(atol(parm->parms[2])); set |= 2;
@@ -98,7 +98,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	{
 		if (set & 1) spawned->spr.pal = (uint8_t)pal;
 		if (set & 2) spawned->spr.cstat = ESpriteFlags::FromInt(cstat);
-		if (set & 4) spawned->set_int_ang(ang);
+		if (set & 4) spawned->spr.angle = ang;
 		if (set & 8) SetActor(spawned, DVector3( x, y, z ));
 
 		if (spawned->sector() == nullptr)

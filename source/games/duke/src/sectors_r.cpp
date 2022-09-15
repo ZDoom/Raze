@@ -265,8 +265,8 @@ void animatewalls_r(void)
 
 				if (wal->cstat & CSTAT_WALL_ANY_EXCEPT_BLOCK)
 				{
-					wal->addxpan(-t / 4096.f); // bcos(t, -12);
-					wal->addypan(-t / 4096.f); // bsin(t, -12);
+					wal->addxpan(-t / 4096.f);
+					wal->addypan(-t / 4096.f);
 
 					if (wal->extra == 1)
 					{
@@ -2343,7 +2343,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 								spawned->spr.pos.Z += 4;
 								spawned->vel.X = 1;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
-								spawned->add_int_ang(32 - (krand() & 63));
+								spawned->spr.angle = DAngle22_5/4 - randomAngle(22.5/2);
 							}
 						}
 

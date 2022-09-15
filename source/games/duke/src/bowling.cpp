@@ -189,7 +189,7 @@ void resetpins(sectortype* sect)
 				{
 					spawned->set_native_clipdist((1 + (krand() % 1)) * 16 + 32);
 				}
-				spawned->add_int_ang(-(((krand() & 32) - (krand() & 64)) & 2047));
+				spawned->spr.angle -= DAngle22_5 * 0.125 * (((krand() & 32) - (krand() & 64)) >> 5); // weird formula to preserve number of krand calls.
 			}
 		}
 		if (a2->spr.picnum == 280)

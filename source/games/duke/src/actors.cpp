@@ -1417,7 +1417,7 @@ bool rat(DDukeActor* actor, bool makesound)
 	if (ssp(actor, CLIPMASK0))
 	{
 		if (makesound && (krand() & 255) == 0) S_PlayActorSound(RATTY, actor);
-		actor->add_int_ang((krand() & 31) - 15 + bsin(actor->temp_data[0] << 8, -11));
+		actor->spr.angle += mapangle((krand() & 31) - 15 + BobVal(actor->temp_data[0] << 8) * 8);
 	}
 	else
 	{
