@@ -3656,7 +3656,7 @@ void processinput_r(int snum)
 	{
 		p->crack_time = CRACK_TIME;
 
-		k = bsin(p->bobcounter, -12);
+		k = int(BobVal(p->bobcounter) * 4);
 
 		if (isRRRA() && p->spritebridge == 0 && p->on_ground)
 		{

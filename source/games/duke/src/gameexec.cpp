@@ -3398,7 +3398,7 @@ int ParseState::parse(void)
 		int lValue;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		lValue = bsin(GetGameVarID(*insptr, g_ac, g_p).safeValue());
+		lValue = int(16384 * BobVal(GetGameVarID(*insptr, g_ac, g_p).safeValue()));
 		SetGameVarID(i, lValue, g_ac, g_p);
 		insptr++;
 		break;

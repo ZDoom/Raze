@@ -73,7 +73,7 @@ void displaymasks_r(int snum, int p, double interpfrac)
 		// to get the proper clock value with regards to interpolation we have add a interpfrac based offset to the value.
 		double interpclock = PlayClock + TICSPERFRAME * interpfrac;
 		int pin = RS_STRETCH;
-		hud_drawsprite((320 - (tileWidth(SCUBAMASK) >> 1) - 15), (200 - (tileHeight(SCUBAMASK) >> 1) + bsinf(interpclock, -10)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - (tileWidth(SCUBAMASK) >> 1) - 15), (200 - (tileHeight(SCUBAMASK) >> 1) + BobVal(interpclock) * 16), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
 		hud_drawsprite((320 - tileWidth(SCUBAMASK + 4)), (200 - tileHeight(SCUBAMASK + 4)), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
 		hud_drawsprite(tileWidth(SCUBAMASK + 4), (200 - tileHeight(SCUBAMASK + 4)), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
 		hud_drawsprite(35, (-1), 65536, 0, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
@@ -137,11 +137,11 @@ void displayweapon_r(int snum, double interpfrac)
 	looking_arc = p->angle.looking_arc(interpfrac);
 	hard_landing *= 8.;
 
-	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 8 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
+	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 8 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);
 	gun_pos -= hard_landing;
 
 	weapon_xoffset = (160)-90;
-	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
+	weapon_xoffset -= BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.);
 	weapon_xoffset -= 58 + p->weapon_ang;
 
 	if (p->insector() && p->cursector->shadedsector == 1)
@@ -585,7 +585,7 @@ void displayweapon_r(int snum, double interpfrac)
 		auto displayrifle = [&]
 		{
 			if (*kb > 0)
-				gun_pos -= bsinf((*kb) << 7, -12);
+				gun_pos -= BobVal((*kb) << 7) * 4;
 
 			if (*kb > 0 && p->GetActor()->spr.pal != 1) weapon_xoffset += 1 - (rand() & 3);
 

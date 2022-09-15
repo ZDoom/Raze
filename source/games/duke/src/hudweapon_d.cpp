@@ -92,7 +92,7 @@ static bool animatefist(int gs, player_struct* p, double look_anghalf, double lo
 	hud_drawsprite(
 		(-fisti + 222 + plravel),
 		(looking_arc + 194 + BobVal((6 + fisti) * 128.) * 32),
-		clamp(65536. - bcosf(fisti * 64., 2), 40920., 90612.), 0, FIST, gs, fistpal, 2);
+		clamp(65536. - 65536. * BobVal(512 + fisti * 64.), 40920., 90612.), 0, FIST, gs, fistpal, 2);
 
 	return true;
 }
@@ -240,7 +240,7 @@ void displayweapon_d(int snum, double interpfrac)
 	gun_pos -= hard_landing;
 
 	weapon_xoffset = (160)-90;
-	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
+	weapon_xoffset -= BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.);
 	weapon_xoffset -= 58 + p->weapon_ang;
 
 	shade = p->GetActor()->spr.shade;
@@ -362,8 +362,8 @@ void displayweapon_d(int snum, double interpfrac)
 			pin = ((gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 			auto rpgpic = RPGGUN;
 
-			weapon_xoffset -= bsinf(768 + (kickback_pic * 128.), -11);
-			gun_pos += bsinf(768 + (kickback_pic * 128.), -11);
+			weapon_xoffset -= BobVal(768 + (kickback_pic * 128.)) * 8;
+			gun_pos += BobVal(768 + (kickback_pic * 128.)) * 8;
 
 			if (*kb > 0)
 			{
@@ -408,7 +408,7 @@ void displayweapon_d(int snum, double interpfrac)
 		{
 			if (*kb > 0)
 			{
-				gun_pos -= bsinf(kickback_pic * 128., -12);
+				gun_pos -= BobVal(kickback_pic * 128.) * 4;
 			}
 
 			if (*kb > 0 && p->GetActor()->spr.pal != 1)
@@ -528,7 +528,7 @@ void displayweapon_d(int snum, double interpfrac)
 		auto displaychaingun_ww = [&]()
 		{
 			if (*kb > 0)
-				gun_pos -= bsinf(kickback_pic * 128., -12);
+				gun_pos -= BobVal(kickback_pic * 128.) * 4;
 
 			if (*kb > 0 && p->GetActor()->spr.pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
@@ -627,7 +627,7 @@ void displayweapon_d(int snum, double interpfrac)
 		auto displaychaingun = [&]
 		{
 			if (*kb > 0)
-				gun_pos -= bsinf(kickback_pic * 128., -12);
+				gun_pos -= BobVal(kickback_pic * 128.) * 4;
 
 			if (*kb > 0 && p->GetActor()->spr.pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
@@ -930,7 +930,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - int(bsinf(random_club_frame, -10)),
+						16 - int(BobVal(random_club_frame) * 16),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
@@ -1082,7 +1082,7 @@ void displayweapon_d(int snum, double interpfrac)
 				{
 					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - int(bsinf(random_club_frame, -10)),
+						16 - int(BobVal(random_club_frame) * 16),
 						o, 2);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
@@ -1092,7 +1092,7 @@ void displayweapon_d(int snum, double interpfrac)
 				{
 					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - int(bsinf(random_club_frame, -10)),
+						16 - int(BobVal(random_club_frame) * 16),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,

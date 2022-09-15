@@ -146,8 +146,8 @@ void fakedomovethings(void)
 
 		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (psect->floorstat&2) )
 		{
-				x = myx + bcos(myang, -5);
-				y = myy + bsin(myang, -5);
+				x = myx + b cos(myang, -5);
+				y = myy + b sin(myang, -5);
 				tempsect = psect;
 				updatesector(x,y,&tempsect);
 				if (tempsect >= 0)
@@ -181,8 +181,8 @@ void fakedomovethings(void)
 				 if(badguy(chz.actor) && chz.actor()->s.xrepeat > 24 && abs(p->GetActor()->s.z- chz.actor()->s.z) < (84<<8) )
 				 {
 					j = g etangle(chz.actor()->s.x-myx, chz.actor()->s.y-myy);
-					myxvel -= bcos(j, 4);
-					myyvel -= bsin(j, 4);
+					myxvel -= b cos(j, 4);
+					myyvel -= b sin(j, 4);
 				}
 		}
 
@@ -366,7 +366,7 @@ void fakedomovethings(void)
 									 }
 									 else
 									 {
-											 myzvel -= bsin(128 + myjumpingcounter) / 12;
+											 myzvel -= b sin(128 + myjumpingcounter) / 12;
 											 myjumpingcounter += 180;
 
 											 myonground = 0;

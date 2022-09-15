@@ -2979,7 +2979,7 @@ void processinput_d(int snum)
 	{
 		p->crack_time = CRACK_TIME;
 
-		k = bsin(p->bobcounter, -12);
+		k = int(BobVal(p->bobcounter) * 4);
 
 		if (truefdist < gs.playerheight + 8 && (k == 1 || k == 3))
 		{
