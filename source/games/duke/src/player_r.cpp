@@ -519,7 +519,6 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		// sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		if (actor->spr.picnum == HULK)
 			ang -= randomAngle(22.5 / 4);
 		else if (actor->spr.picnum == VIXEN)
@@ -2375,26 +2374,27 @@ void onMotorcycleMove(int snum, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int angleDelta = abs(p->angle.ang.Buildang() - getangle(wal->delta()));
+	double angleDelta = absangle(p->angle.ang, VecToAngle(wal->delta())).Degrees();
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
 	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -2 : 2)));
 
-	if (angleDelta >= 441 && angleDelta <= 581)
+	// That's some very weird angles here...
+	if (angleDelta >= 77.51 && angleDelta <= 102.13)
 	{
 		damageAmount *= (1. / 256.);
 		p->MotoSpeed = 0;
 		if (S_CheckActorSoundPlaying(pact, 238) == 0)
 			S_PlayActorSound(238, pact);
 	}
-	else if (angleDelta >= 311 && angleDelta <= 711)
+	else if (angleDelta >= 54.66 && angleDelta <= 125)
 	{
 		damageAmount *= (1. / 2048.);
 		p->MotoSpeed -= (p->MotoSpeed / 2.) + (p->MotoSpeed / 4.);
 		if (S_CheckActorSoundPlaying(pact, 238) == 0)
 			S_PlayActorSound(238, pact);
 	}
-	else if (angleDelta >= 111 && angleDelta <= 911)
+	else if (angleDelta >= 19.51 && angleDelta <= 160.14)
 	{
 		damageAmount *= (1. / 16384.);
 		p->MotoSpeed -= p->MotoSpeed / 2.;
@@ -2429,23 +2429,23 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int angleDelta = abs(p->angle.ang.Buildang() - getangle(wal->delta()));
+	double angleDelta = absangle(p->angle.ang, VecToAngle(wal->delta())).Degrees();
 
 	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -4 : 4)));
 
-	if (angleDelta >= 441 && angleDelta <= 581)
+	if (angleDelta >= 77.51 && angleDelta <= 102.13)
 	{
 		p->MotoSpeed = ((p->MotoSpeed / 2.) + (p->MotoSpeed / 4.)) / 4.;
 		if (psectlotag == 1 && S_CheckActorSoundPlaying(pact, 178) == 0)
 			S_PlayActorSound(178, pact);
 	}
-	else if (angleDelta >= 311 && angleDelta <= 711)
+	else if (angleDelta >= 54.66 && angleDelta <= 125)
 	{
 		p->MotoSpeed -= ((p->MotoSpeed / 2.) + (p->MotoSpeed / 4.)) / 8.;
 		if (psectlotag == 1 && S_CheckActorSoundPlaying(pact, 179) == 0)
 			S_PlayActorSound(179, pact);
 	}
-	else if (angleDelta >= 111 && angleDelta <= 911)
+	else if (angleDelta >= 19.51 && angleDelta <= 160.14)
 	{
 		p->MotoSpeed -= p->MotoSpeed / 16.;
 		if (psectlotag == 1 && S_CheckActorSoundPlaying(pact, 180) == 0)

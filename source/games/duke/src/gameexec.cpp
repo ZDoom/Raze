@@ -2426,15 +2426,13 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pfacing) )
 			{
+				DAngle ang;
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					j = getincangle(ps[otherp].angle.ang.Buildang(), getangle(ps[g_p].pos.XY() - ps[otherp].pos.XY()));
+					ang = absangle(ps[otherp].angle.ang, VecToAngle(ps[g_p].pos.XY() - ps[otherp].pos.XY()));
 				else
-					j = getincangle(ps[g_p].angle.ang.Buildang(), getangle(g_ac->spr.pos.XY() - ps[g_p].pos.XY()));
+					ang = absangle(ps[g_p].angle.ang, VecToAngle(g_ac->spr.pos.XY() - ps[g_p].pos.XY()));
 
-				if( j > -128 && j < 128 )
-					j = 1;
-				else
-					j = 0;
+				j = ang < DAngle22_5;
 			}
 
 			parseifelse( j);

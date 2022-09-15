@@ -180,7 +180,7 @@ void fakedomovethings(void)
 				 }
 				 if(badguy(chz.actor) && chz.actor()->s.xrepeat > 24 && abs(p->GetActor()->s.z- chz.actor()->s.z) < (84<<8) )
 				 {
-					j = getangle(chz.actor()->s.x-myx, chz.actor()->s.y-myy);
+					j = g etangle(chz.actor()->s.x-myx, chz.actor()->s.y-myy);
 					myxvel -= bcos(j, 4);
 					myyvel -= bsin(j, 4);
 				}

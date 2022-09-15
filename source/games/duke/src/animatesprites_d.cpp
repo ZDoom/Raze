@@ -204,10 +204,10 @@ void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, double interp
 		case FORCESPHERE:
 			if (t->statnum == STAT_MISC && OwnerAc)
 			{
-				int sqa = getangle( OwnerAc->spr.pos.XY() - ps[screenpeek].pos.XY());
-				int sqb = getangle(OwnerAc->spr.pos.XY() - t->pos.XY());
+				auto sqa = VecToAngle( OwnerAc->spr.pos.XY() - ps[screenpeek].pos.XY());
+				auto sqb = VecToAngle(OwnerAc->spr.pos.XY() - t->pos.XY());
 
-				if (abs(getincangle(sqa, sqb)) > 512)
+				if (absangle(sqa, sqb) > DAngle90)
 				{
 					double dist1 = (OwnerAc->spr.pos.XY() - t->pos.XY()).LengthSquared();
 					double dist2 = (OwnerAc->spr.pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).LengthSquared();
