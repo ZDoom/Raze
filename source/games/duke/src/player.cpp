@@ -811,11 +811,11 @@ void player_struct::checkhardlanding()
 	}
 }
 
-void player_struct::playerweaponsway(int xvel)
+void player_struct::playerweaponsway(double xvel)
 {
 	if (cl_weaponsway)
 	{
-		if (xvel < 32 || on_ground == 0 || bobcounter == 1024)
+		if (xvel < 2 || on_ground == 0 || bobcounter == 1024)
 		{
 			if ((weapon_sway & 2047) > (1024 + 96))
 				weapon_sway -= 96;

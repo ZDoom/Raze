@@ -97,20 +97,9 @@ public:
 		spr.angle = DAngle::fromBuild(a);
 	}
 
-	void add_int_ang(int a)
-	{
-		spr.angle += DAngle::fromBuild(a);
-	}
-
 	void norm_ang()
 	{
 		spr.angle = spr.angle.Normalized360();
-	}
-
-	// Note: Both Duke and SW use Q12.4 for this, Exhumed doesn't seem to treat horizontal velocity with a fixed factor.
-	int int_xvel() const
-	{
-		return vel.X * worldtoint;
 	}
 
 	vec3_t int_vel() const

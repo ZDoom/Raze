@@ -2859,7 +2859,7 @@ void processinput_d(int snum)
 	if (p->GetActor()->spr.xrepeat < 40 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
-		p->fistsign += p->GetActor()->int_xvel();
+		p->fistsign += p->GetActor()->vel.X * 16;
 	}
 
 	if (p->transporter_hold > 0)
@@ -2892,7 +2892,7 @@ void processinput_d(int snum)
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
 
-	p->playerweaponsway(pact->int_xvel());
+	p->playerweaponsway(pact->vel.X);
 
 	pact->vel.X = clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.);
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);

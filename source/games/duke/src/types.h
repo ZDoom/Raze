@@ -333,7 +333,7 @@ struct player_struct
 	void backuppos(bool noclipping = false);
 	void backupweapon();
 	void checkhardlanding();
-	void playerweaponsway(int xvel);
+	void playerweaponsway(double xvel);
 
 	float adjustavel(float avel)
 	{

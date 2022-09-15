@@ -497,11 +497,6 @@ struct spritetypebase
 	{
 		angle = DAngle::fromBuild(a);
 	}
-
-	void add_int_ang(int a)
-	{
-		angle += DAngle::fromBuild(a);
-	}
 };
 
 

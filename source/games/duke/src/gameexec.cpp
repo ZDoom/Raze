@@ -2389,7 +2389,7 @@ int ParseState::parse(void)
 			l = *insptr;
 			j = 0;
 
-			s = g_ac->int_xvel();
+			double vel = g_ac->vel.X;
 
 			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 			if( (l& pducking) && ps[g_p].on_ground && PlayerInput(g_p, SB_CROUCH))
@@ -2398,17 +2398,17 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pjumping) && ps[g_p].jumping_counter > 348 )
 					j = 1;
-			else if( (l& pstanding) && s >= 0 && s < 8)
+			else if( (l& pstanding) && vel >= 0 && vel < 0.5)
 					j = 1;
-			else if( (l& pwalking) && s >= 8 && !(PlayerInput(g_p, SB_RUN)) )
+			else if( (l& pwalking) && vel >= 0.5 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
-			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SB_RUN) )
+			else if( (l& prunning) && vel >= 0.5 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
 			else if( (l& phigher) && ps[g_p].pos.Z < g_ac->spr.pos.Z - 48)
 					j = 1;
-			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SB_RUN)) )
+			else if( (l& pwalkingback) && vel <= -0.5 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
-			else if( (l& prunningback) && s <= -8 && (PlayerInput(g_p, SB_RUN)) )
+			else if( (l& prunningback) && vel <= -0.5 && (PlayerInput(g_p, SB_RUN)) )
 					j = 1;
 			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;

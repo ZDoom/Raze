@@ -2457,7 +2457,6 @@ static void flamethrowerflame(DDukeActor *actor)
 	}
 
 	auto dapos = actor->spr.pos;
-	int xvel = actor->int_xvel();
 
 	getglobalz(actor);
 
