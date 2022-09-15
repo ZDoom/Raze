@@ -2215,7 +2215,6 @@ static void operateweapon(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int zvel, vel;
 
 	// already firing...
 
@@ -2230,28 +2229,30 @@ static void operateweapon(int snum, ESyncBits actions)
 		p->kickback_pic++;
 		if (p->kickback_pic == 12)
 		{
+			double zvel, vel;
+
 			p->ammo_amount[HANDBOMB_WEAPON]--;
 
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15/16.;
-				zvel = MulScale(p->horizon.sum().asq16(), 20, 16);
+				zvel = p->horizon.sum().asbuildf() * (20 / 256.);
 			}
 			else
 			{
 				vel = 140/16.;
-				zvel = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
+				zvel = -4 - p->horizon.sum().asbuildf() * (20 / 256.);
 			}
 
 			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
-				p->angle.ang.Buildang(), (vel + (p->hbomb_hold_delay << 5)), zvel, pact, 1);
+				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (isNam())
 			{
 				spawned->spr.extra = MulScale(krand(), NAM_GRENADE_LIFETIME_VAR, 14);
 			}
 
-			if (vel == 15)
+			if (vel == 15 / 16.)
 			{
 				spawned->spr.yint = 3;
 				spawned->spr.pos.Z += 8;

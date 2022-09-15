@@ -2691,7 +2691,6 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int i, k;
 	int psectlotag = psectp ? psectp->lotag : 857;
 
 	if (!isRRRA() && p->curr_weapon >= MOTORCYCLE_WEAPON) return;
@@ -2735,26 +2734,29 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 12)
 		{
+			double vel, zvel;
+
 			p->ammo_amount[DYNAMITE_WEAPON]--;
 			if (p->ammo_amount[CROSSBOW_WEAPON])
 				p->ammo_amount[CROSSBOW_WEAPON]--;
-			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
+
+			if (p->on_ground && (actions & SB_CROUCH))
 			{
-				k = 15;
-				i = -MulScale(p->horizon.sum().asq16(), 20, 16);
+				vel = 15 / 16.;
+				zvel = p->horizon.sum().asbuildf() * (20 / 256.);
 			}
 			else
 			{
-				k = 140;
-				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
+				vel = 140 / 16.;
+				zvel = -4 - p->horizon.sum().asbuildf() * (20 / 256.);
 			}
 
-			auto spawned = CreateActor(p->cursector,p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
-				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pact, 1);
+			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
+				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (spawned)
 			{
-				if (k == 15)
+				if (vel == 15 / 16.)
 				{
 					spawned->spr.yint = 3;
 					spawned->spr.pos.Z += 8;
@@ -3142,21 +3144,21 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case POWDERKEG_WEAPON:
 		if (p->kickback_pic == 3)
 		{
+			double vel, zvel;
 			p->ammo_amount[POWDERKEG_WEAPON]--;
 			p->gotweapon[POWDERKEG_WEAPON] = false;
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
-				k = 15;
-				i = MulScale(p->horizon.sum().asq16(), 20, 16);
+				vel = 15 / 16.;
+				zvel = p->horizon.sum().asbuildf() * (20 / 256.);
 			}
 			else
 			{
-				k = 32;
-				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
+				vel = 2.;
+				zvel = -4 - p->horizon.sum().asbuildf() * (20 / 256.);
 			}
 
-			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, 9, 9,
-				p->angle.ang.Buildang(), k * 2, i, pact, 1);
+			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, 9, 9, p->angle.ang, vel * 2, zvel, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)

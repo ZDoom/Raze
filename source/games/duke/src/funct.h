@@ -173,11 +173,6 @@ void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
 DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, int8_t s_xr, int8_t s_yr, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat);
-[[deprecated]]
-inline DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, int8_t s_xr, int8_t s_yr, int s_ang, int s_vel, int s_zvel, DDukeActor* s_ow, int8_t s_stat)
-{
-	return CreateActor(whatsectp, pos, s_pn, s_shd, s_xr, s_yr, DAngle::fromBuild(s_ang), s_vel * inttoworld, s_zvel * zinttoworld, s_ow, s_stat);
-}
 
 void ceilingglass(DDukeActor* snum, sectortype* sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);

@@ -310,7 +310,6 @@ void operateweapon_ww(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int i, k;
 
 	// already firing...
 	if (aplWeaponWorksLike(p->curr_weapon, snum) == HANDBOMB_WEAPON)
@@ -327,44 +326,46 @@ void operateweapon_ww(int snum, ESyncBits actions)
 		p->kickback_pic++;
 		if (p->kickback_pic == aplWeaponHoldDelay(p->curr_weapon, snum))
 		{
+			double zvel, vel;
+
 			p->ammo_amount[p->curr_weapon]--;
 
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
-				k = 15;
-				i = MulScale(p->horizon.sum().asq16(), 20, 16);
+				vel = 15 / 16.;
+				zvel = p->horizon.sum().asbuildf() * (20 / 256.);
 			}
 			else
 			{
-				k = 140;
-				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
+				vel = 140 / 16.;
+				zvel = -4 - p->horizon.sum().asbuildf() * (20 / 256.);
 			}
 
-			auto j = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
-				p->angle.ang.Buildang(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
+			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
+				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
-			if (j)
+			if (spawned)
 			{
 				{
 					int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, snum).value();
 					int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum).value();
 					// set timer.  blows up when at zero....
-					j->spr.extra = lGrenadeLifetime
+					spawned->spr.extra = lGrenadeLifetime
 						+ MulScale(krand(), lGrenadeLifetimeVar, 14)
 						- lGrenadeLifetimeVar;
 				}
 
-				if (k == 15)
+				if (vel == 15 / 16.)
 				{
-					j->spr.yint = 3;
-					j->spr.pos.Z += 8;
+					spawned->spr.yint = 3;
+					spawned->spr.pos.Z += 8;
 				}
 
 				int hd = hits(p->GetActor());
 				if (hd < 32)
 				{
-					j->spr.angle += DAngle180;
-					j->vel *= 1./3.;
+					spawned->spr.angle += DAngle180;
+					spawned->vel *= 1./3.;
 				}
 
 				p->hbomb_on = 1;
