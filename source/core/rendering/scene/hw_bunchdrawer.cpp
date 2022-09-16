@@ -383,14 +383,14 @@ int BunchDrawer::WallInFront(int line1, int line2)
 	int wall2s = sectionLines[line2].startpoint;
 	int wall2e = sectionLines[line2].endpoint;
 
-	double x1s = WallStartX(wall1s);
-	double y1s = WallStartY(wall1s);
-	double x1e = WallStartX(wall1e);
-	double y1e = WallStartY(wall1e);
-	double x2s = WallStartX(wall2s);
-	double y2s = WallStartY(wall2s);
-	double x2e = WallStartX(wall2e);
-	double y2e = WallStartY(wall2e);
+	double x1s = wall[wall1s].pos.X;
+	double y1s = -wall[wall1s].pos.Y;
+	double x1e = wall[wall1e].pos.X;
+	double y1e = -wall[wall1e].pos.Y;
+	double x2s = wall[wall2s].pos.X;
+	double y2s = -wall[wall2s].pos.Y;
+	double x2e = wall[wall2e].pos.X;
+	double y2e = -wall[wall2e].pos.Y;
 
 retry:
 	double dx1 = x1e - x1s;

@@ -428,15 +428,14 @@ void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 
 inline int P_GetLineSide(const DVector2& pos, const walltype* line)
 {
-	auto delta = WallDelta(line);
-	double v = (pos.Y - WallStartY(line) * delta.X + WallStartX(line) - pos.X) * delta.Y;
+	auto v = PointOnLineSide(pos, line);
 	return v < -1. / 65536. ? -1 : v > 1. / 65536 ? 1 : 0;
 }
 
 bool P_ClipLineToPortal(walltype* line, walltype* portal, DVector2 view)
 {
-	int behind1 = P_GetLineSide(WallStart(line), portal);
-	int behind2 = P_GetLineSide(WallEnd(line), portal);
+	int behind1 = P_GetLineSide(line->pos, portal);
+	int behind2 = P_GetLineSide(line->point2Wall()->pos, portal);
 
 	if (behind1 == 0 && behind2 == 0)
 	{
@@ -461,8 +460,8 @@ bool P_ClipLineToPortal(walltype* line, walltype* portal, DVector2 view)
 	{
 		// The line intersects with the portal straight, so we need to do another check to see how both ends of the portal lie in relation to the viewer.
 		int viewside = P_GetLineSide(view, line);
-		int p1side = P_GetLineSide(WallStart(portal), line);
-		int p2side = P_GetLineSide(WallEnd(portal), line);
+		int p1side = P_GetLineSide(portal->pos, line);
+		int p2side = P_GetLineSide(portal->point2Wall()->pos, line);
 		// Do the same handling of points on the portal straight as above.
 		if (p1side == 0) p1side = p2side;
 		else if (p2side == 0) p2side = p1side;
@@ -481,7 +480,7 @@ int HWLinePortal::ClipSector(sectortype *sub)
 	// this seg is completely behind the mirror
 	for (int i = 0; i<sub->wallnum; i++)
 	{
-		if (PointOnLineSide(WallStart(sub->firstWall()), line) == 0) return PClip_Inside;
+		if (PointOnLineSide(sub->firstWall()->pos, line) == 0) return PClip_Inside;
 	}
 	return PClip_InFront;
 }
@@ -603,8 +602,11 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	auto &vp = di->Viewpoint;
 	di->mClipPortal = this;
 
-	auto srccenter = (WallStart(origin) + WallEnd(origin)) / 2;
-	auto destcenter = (WallStart(line) + WallEnd(line)) / 2;
+	auto srccenter = origin->center();
+	srccenter.Y = -srccenter.Y;
+	auto destcenter = line->center();
+	destcenter.Y = -destcenter.Y;
+
 	DVector2 npos = vp.Pos - srccenter + destcenter;
 
 #if 0 // Blood does not rotate these. Needs map checking to make sure it can be added.
@@ -669,7 +671,8 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	auto& vp = di->Viewpoint;
 	di->mClipPortal = this;
 
-	auto srccenter = (WallStart(origin) + WallEnd(origin)) / 2;
+	auto srccenter = origin->center();
+	srccenter.Y = -srccenter.Y;
 	DVector2 destcenter = { camera->spr.pos.X, -camera->spr.pos.Y };
 	DVector2 npos = vp.Pos - srccenter + destcenter;
 

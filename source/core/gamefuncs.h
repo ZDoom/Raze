@@ -354,61 +354,6 @@ sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags);
 bool isAwayFromWall(DCoreActor* ac, double delta);
 
 
-inline double WallStartX(int wallnum)
-{
-	return wall[wallnum].pos.X;
-}
-
-inline double WallStartY(int wallnum)
-{
-	return -wall[wallnum].pos.Y;
-}
-
-inline double WallEndX(int wallnum)
-{
-	return wall[wallnum].point2Wall()->pos.X;
-}
-
-inline double WallEndY(int wallnum)
-{
-	return -wall[wallnum].point2Wall()->pos.Y;
-}
-
-inline double WallStartX(const walltype* wallnum)
-{
-	return wallnum->pos.X;
-}
-
-inline double WallStartY(const walltype* wallnum)
-{
-	return -wallnum->pos.Y;
-}
-
-inline DVector2 WallStart(const walltype* wallnum)
-{
-	return { WallStartX(wallnum), WallStartY(wallnum) };
-}
-
-inline double WallEndX(const walltype* wallnum)
-{
-	return wallnum->point2Wall()->pos.X;
-}
-
-inline double WallEndY(const walltype* wallnum)
-{
-	return -wallnum->point2Wall()->pos.Y;
-}
-
-inline DVector2 WallEnd(const walltype* wallnum)
-{
-	return { WallEndX(wallnum), WallEndY(wallnum) };
-}
-
-inline DVector2 WallDelta(const walltype* wallnum)
-{
-	return WallEnd(wallnum) - WallStart(wallnum);
-}
-
 inline double PointOnLineSide(double x, double y, double linex, double liney, double deltax, double deltay)
 {
 	return (x - linex) * deltay - (y - liney) * deltax;
@@ -416,7 +361,7 @@ inline double PointOnLineSide(double x, double y, double linex, double liney, do
 
 inline double PointOnLineSide(const DVector2 &pos, const walltype *line)
 {
-	return (pos.X - WallStartX(line)) * WallDelta(line).Y - (pos.Y - WallStartY(line)) * WallDelta(line).X;
+	return (pos.X - line->pos.X) * line->delta().Y - (pos.Y - line->pos.Y) * line->delta().X;
 }
 
 template<class T>

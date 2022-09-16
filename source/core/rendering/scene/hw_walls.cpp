@@ -914,8 +914,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	float fch2;
 	float ffh2;
 
-	FVector2 v1(WallStartX(wal), WallStartY(wal));
-	FVector2 v2(WallEndX(wal), WallEndY(wal));
+	FVector2 v1(wal->pos.X, -wal->pos.Y);
+	FVector2 v2(p2wall->pos.X, -p2wall->pos.Y);
 
 	PlanesAtPoint(frontsector, wal->pos.X, wal->pos.Y, &fch1, &ffh1);
 	PlanesAtPoint(frontsector, p2wall->pos.X, p2wall->pos.Y, &fch2, &ffh2);

@@ -61,8 +61,8 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 	auto wal = sector->firstWall();
 	auto wal2 = wal->point2Wall();
 
-	pt[0] = { (float)WallStartX(wal), 0.f, (float)WallStartY(wal)};
-	pt[1] = { (float)WallStartX(wal2), 0.f, (float)WallStartY(wal2)};
+	pt[0] = { (float)wal->pos.X, 0.f, -(float)wal->pos.Y};
+	pt[1] = { (float)wal2->pos.X, 0.f, -(float)wal2->pos.Y};
 	PlanesAtPoint(sector, wal->pos.X, wal->pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Y);
 	PlanesAtPoint(sector, wal2->pos.X, wal2->pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Y);
 
