@@ -46,7 +46,7 @@ public:
     struct SPRITES
     {
         unsigned int nSector;
-        TArray<TObjPtr<DBloodActor*>> pActors;  // this is a weak reference!
+        TArray<TObjPtr<DBloodActor*>> pActors;
     };
 private:
     TArray<SPRITES> db;
@@ -171,44 +171,35 @@ bool isMovableSector(sectortype* pSect)
 
 TArray<DBloodActor*> getSpritesNearWalls(sectortype* pSrcSect, int nDist)
 {
-    int i, c = 0, nWall, nSect, swal, ewal;
-    int xi, yi, wx, wy, lx, ly, sx, sy, qx, qy, num, den;
-    TArray<DBloodActor*> skip;
+	double dist = nDist * inttoworld;
     TArray<DBloodActor*> out;
 
-    swal = pSrcSect->wallptr;
-    ewal = swal + pSrcSect->wallnum - 1;
-
-    for (i = swal; i <= ewal; i++)
+    for(auto& wal : wallsofsector(pSrcSect))
     {
-        nSect = wall[i].nextsector;
-        if (nSect < 0)
+        if (!wal.twoSided())
             continue;
 
-        nWall = i;
-        wx = wall[nWall].wall_int_pos().X;	
-        wy = wall[nWall].wall_int_pos().Y;
-        lx = wall[wall[nWall].point2].wall_int_pos().X - wx;
-        ly = wall[wall[nWall].point2].wall_int_pos().Y - wy;
-
-        BloodSectIterator it(nSect);
+		auto wpos = wal.pos;
+		auto wlen = wal.delta();
+ 
+        BloodSectIterator it(wal.nextsector);
         while(auto ac = it.Next())
         {
-            if (skip.Find(ac))
+            if (out.Find(ac))
                 continue;
 
-            sx = ac->int_pos().X;	qx = sx - wx;
-            sy = ac->int_pos().Y;	qy = sy - wy;
-            num = DMulScale(qx, lx, qy, ly, 4);
-            den = DMulScale(lx, lx, ly, ly, 4);
+			auto spos = ac->spr.pos.XY();
+			auto qpos = spos - wpos;
+			
+			double num = qpos.dot(wlen);
+			double den = wlen.Length();
 
             if (num > 0 && num < den)
             {
-                xi = wx + Scale(lx, num, den);
-                yi = wy + Scale(ly, num, den);
-                if (approxDist(xi - sx, yi - sy) <= nDist)
+				auto vi = wpos + wlen * num / den;
+
+                if ((vi - spos).LengthSquared() <= nDist * nDist)
                 {
-                    skip.Push(ac);
                     out.Push(ac);
                 }
             }
