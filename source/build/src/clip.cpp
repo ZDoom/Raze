@@ -402,13 +402,13 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         for (int j=startwall; j<endwall; j++, wal++)
         {
             auto const wal2 = wal->point2Wall();
+			vec2_t p1 = wal->wall_int_pos();
+			vec2_t p2 = wal2->wall_int_pos();
 
-            if ((wal->wall_int_pos().X < clipMin.X && wal2->wall_int_pos().X < clipMin.X) || (wal->wall_int_pos().X > clipMax.X && wal2->wall_int_pos().X > clipMax.X) ||
-                (wal->wall_int_pos().Y < clipMin.Y && wal2->wall_int_pos().Y < clipMin.Y) || (wal->wall_int_pos().Y > clipMax.Y && wal2->wall_int_pos().Y > clipMax.Y))
+            if ((p1.X < clipMin.X && p2.X < clipMin.X) || (p1.X > clipMax.X && p2.X > clipMax.X) ||
+                (p1.Y < clipMin.Y && p2.Y < clipMin.Y) || (p1.Y > clipMax.Y && p2.Y > clipMax.Y))
                 continue;
 
-            vec2_t p1 = wal->wall_int_pos();
-            vec2_t p2 = wal2->wall_int_pos();
             vec2_t d  = { p2.X-p1.X, p2.Y-p1.Y };
 
             if (d.X * (pos->Y-p1.Y) < (pos->X-p1.X) * d.Y)
