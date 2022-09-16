@@ -996,9 +996,9 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
+void GameInterface::processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac)
 {
-	viewProcessSprites(tsprites, viewx, viewy, viewz, viewang, interpfrac);
+	viewProcessSprites(tsprites, view.X * worldtoint, view.Y * worldtoint, view.Z * zworldtoint, viewang, interpfrac);
 }
 
 int display_mirror;

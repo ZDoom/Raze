@@ -387,9 +387,9 @@ bool GameInterface::GenerateSavePic()
 	return true;
 }
 
-void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
+void GameInterface::processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac)
 {
-	fi.animatesprites(tsprites, DVector2(viewx * inttoworld, viewy * inttoworld), viewang, interpfrac);
+	fi.animatesprites(tsprites, view.XY(), viewang, interpfrac);
 }
 
 

@@ -1495,9 +1495,9 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac)
+void GameInterface::processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac)
 {
-    analyzesprites(tsprites, DVector3(viewx * inttoworld, viewy * inttoworld, viewz * zinttoworld), interpfrac);
+    analyzesprites(tsprites, view, interpfrac);
     post_analyzesprites(tsprites);
 }
 

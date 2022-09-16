@@ -140,7 +140,7 @@ struct GameInterface : public ::GameInterface
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
 	DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 80., horiz.asbuildf() * 0.625 - 16); }
-	void processSprites(tspriteArray& tsprites, int viewx, int viewy, int viewz, DAngle viewang, double interpfrac) override;
+	void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
 	void EnterPortal(DCoreActor* viewer, int type) override;
 	void LeavePortal(DCoreActor* viewer, int type) override;
 	void LoadGameTextures() override;

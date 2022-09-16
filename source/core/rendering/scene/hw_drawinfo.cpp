@@ -391,7 +391,7 @@ void HWDrawInfo::CreateScene(bool portal)
 
 	SetupSprite.Clock();
 	// vp is in render space, so we must convert back.
-	gi->processSprites(tsprites, vp.Pos.X * 16, vp.Pos.Y * -16, vp.Pos.Z * -256, DAngle::fromBam(vp.RotAngle), vp.TicFrac);
+	gi->processSprites(tsprites, DVector3(vp.Pos.X, -vp.Pos.Y, -vp.Pos.Z), DAngle::fromBam(vp.RotAngle), vp.TicFrac);
 	DispatchSprites();
 	SetupSprite.Unclock();
 
