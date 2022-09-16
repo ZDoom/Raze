@@ -6742,7 +6742,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 				while (auto iactor = it.Next())
 				{
 					if (!(iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-					else if (getflorzofslopeptr(pSect, iactor->int_pos().X, iactor->int_pos().Y) - kSlopeDist <= iactor->int_pos().Z)
+					else if (getflorzofslopeptr(pSect, iactor->spr.pos) - kSlopeDist <= iactor->int_pos().Z)
 					{
 						sprite2sectorSlope(iactor, pSect, 0, true);
 
@@ -6778,7 +6778,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 				while (auto iactor = it.Next())
 				{
 					if (!(iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-					else if (getceilzofslopeptr(pSect, iactor->int_pos().X, iactor->int_pos().Y) + kSlopeDist >= iactor->int_pos().Z)
+					else if (getceilzofslopeptr(pSect, iactor->spr.pos) + kSlopeDist >= iactor->int_pos().Z)
 					{
 						sprite2sectorSlope(iactor, pSect, 1, true);
 
@@ -6833,8 +6833,8 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 			case 1: sprite2sectorSlope(objActor, objActor->sector(), 0, flag2); break;
 			case 2: sprite2sectorSlope(objActor, objActor->sector(), 1, flag2); break;
 			case 3:
-				if (getflorzofslopeptr(objActor->sector(), objActor->int_pos().X, objActor->int_pos().Y) - kSlopeDist <= objActor->int_pos().Z) sprite2sectorSlope(objActor, objActor->sector(), 0, flag2);
-				if (getceilzofslopeptr(objActor->sector(), objActor->int_pos().X, objActor->int_pos().Y) + kSlopeDist >= objActor->int_pos().Z) sprite2sectorSlope(objActor, objActor->sector(), 1, flag2);
+				if (getflorzofslopeptr(objActor->sector(), objActor->spr.pos) - kSlopeDist <= objActor->int_pos().Z) sprite2sectorSlope(objActor, objActor->sector(), 0, flag2);
+				if (getceilzofslopeptr(objActor->sector(), objActor->spr.pos) + kSlopeDist >= objActor->int_pos().Z) sprite2sectorSlope(objActor, objActor->sector(), 1, flag2);
 				break;
 			}
 			break;

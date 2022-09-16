@@ -626,7 +626,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			{
 				int top, bottom;
 				GetSpriteExtents(pTSprite, &top, &bottom);
-				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->int_pos().X, pTSprite->int_pos().Y) > bottom)
+				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) > bottom)
 					nAnim = 1;
 			}
 			break;
@@ -909,7 +909,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			}
 
 			if (pTSprite->ownerActor != pPlayer->actor || gViewPos != VIEWPOS_0) {
-				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->int_pos().X, pTSprite->int_pos().Y) >= cZ)
+				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cZ)
 				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 				}
@@ -941,7 +941,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 			if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
 			{
-				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sectp, pTSprite->int_pos().X, pTSprite->int_pos().Y) >= cZ)
+				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cZ)
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 			}
 		}

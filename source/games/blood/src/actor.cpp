@@ -5231,7 +5231,7 @@ int MoveMissile(DBloodActor* actor)
 
 		if (target->spr.statnum == kStatDude && target->hasX() && target->xspr.health > 0)
 		{
-			int nTargetAngle = getangle(-(target->int_pos().Y - actor->int_pos().Y), target->int_pos().X - actor->int_pos().X); // X and Y are swapped here!
+			int nTargetAngle = getangle(actor->spr.pos - target->spr.pos); // X and Y are swapped here!
 			int vx = missileInfo[actor->spr.type - kMissileBase].velocity;
 			int vy = 0;
 			auto rpt = rotatepoint(DVector2(0,0), DVector2(vx, 0), DAngle::fromBuild(nTargetAngle + 1536));
