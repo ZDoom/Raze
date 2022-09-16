@@ -1174,8 +1174,8 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	if (walldist)
 	{
 		// project the sprite right onto the wall.
-		auto v1 = NearestPointLine(glseg.x1, -glseg.y1, walldist);
-		auto v2 = NearestPointLine(glseg.x2, -glseg.y2, walldist);
+		auto v1 = NearestPointOnWall(glseg.x1, -glseg.y1, walldist, false);
+		auto v2 = NearestPointOnWall(glseg.x2, -glseg.y2, walldist, false);
 		glseg.x1 = v1.X;
 		glseg.y1 = -v1.Y;
 		glseg.x2 = v2.X;
