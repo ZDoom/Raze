@@ -5225,7 +5225,7 @@ int MoveMissile(DBloodActor* actor)
 	gHitInfo.clearObj();
 	if (actor->spr.type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
 
-	if (actor->GetTarget() != nullptr && (actor->vel.X != 0 || actor->vel.Y != 0 || actor->int_vel().Z))
+	if (actor->GetTarget() != nullptr && !actor->vel.isZero())
 	{
 		auto target = actor->GetTarget();
 
@@ -5236,11 +5236,10 @@ int MoveMissile(DBloodActor* actor)
 			auto rpt = rotatepoint(DVector2(0,0), DVector2(vx, 0), DAngle::fromBuild(getangle(target->spr.pos - actor->spr.pos)));
 			actor->set_int_bvel_x(rpt.X); // we were rotating an int vector here so scale matches.
 			actor->set_int_bvel_y(rpt.Y);
-			int dz = target->int_pos().Z - actor->int_pos().Z;
+			double deltaz = (target->spr.pos.Z - actor->spr.pos.Z) / (10 * 256);
 
-			int deltaz = dz / 10;
-			if (target->int_pos().Z < actor->int_pos().Z) deltaz = -deltaz;
-			actor->add_int_bvel_z(deltaz);
+			if (target->spr.pos.Z < actor->spr.pos.Z) deltaz = -deltaz;
+			actor->vel.Z += deltaz;
 		}
 	}
 	auto vel = actor->vel;
