@@ -1417,7 +1417,7 @@ int RDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveB;
 	if (!pXSector->marker0) return 0;
 	auto marker0 = pXSector->marker0;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_ang(), pSector->type == kSectorRotate);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
