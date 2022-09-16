@@ -158,7 +158,8 @@ public:
 			// To calculate the inverse Build performs an integer division with significant loss of precision
 			// that can cause the texture to be shifted by multiple pixels.
 			// The code below calculates the amount of this deviation so that it can be added back to the formula.
-			int len = ksqrt(uhypsq(ix2 - ix1, iy2 - iy1));
+			int x = ix2 - ix1, y = iy2 - iy1;
+			int len = int(sqrt(double(x) * x + double(y) * y));
 			if (len != 0)
 			{
 				int i = 1048576 / len;

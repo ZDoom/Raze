@@ -288,15 +288,6 @@ int32_t md_definehud (int32_t modelid, int32_t tilex, FVector3 add,
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
 
-static vec2_t const zerovec = { 0, 0 };
-
-#define SET_AND_RETURN(Lval, Rval) \
-    do                             \
-    {                              \
-        (Lval) = (Rval);           \
-        return;                    \
-    } while (0)
-
 static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
 {
     return enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? (int32_t)val : val;
