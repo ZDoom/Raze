@@ -2188,16 +2188,14 @@ void AlignSlopes(void)
 		if (sect.slopewallofs)
 		{
 			walltype* pWall = sect.firstWall() + sect.slopewallofs;
-			walltype* pWall2 = pWall->point2Wall();
 			if (pWall->twoSided())
 			{
 				auto pNextSector = pWall->nextSector();
 
-				int x = (pWall->wall_int_pos().X + pWall2->wall_int_pos().X) / 2;
-				int y = (pWall->wall_int_pos().Y + pWall2->wall_int_pos().Y) / 2;
+				auto pos = pWall->center();
 				viewInterpolateSector(&sect);
-				alignflorslope(&sect, x, y, getflorzofslopeptr(pNextSector, x, y));
-				alignceilslope(&sect, x, y, getceilzofslopeptr(pNextSector, x, y));
+				alignflorslope(&sect, DVector3(pos, getflorzofslopeptrf(pNextSector, pos)));
+				alignceilslope(&sect, DVector3(pos, getceilzofslopeptrf(pNextSector, pos)));
 			}
 		}
 	}
