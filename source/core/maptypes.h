@@ -516,11 +516,6 @@ struct tspritetype : public spritetypebase
 {
 	DCoreActor* ownerActor;
 	int time;
-
-	void add_int_z(int x)
-	{
-		pos.Z += x * zinttoworld;
-	}
 };
 
 class tspriteArray
