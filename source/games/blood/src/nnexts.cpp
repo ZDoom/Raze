@@ -1889,11 +1889,10 @@ bool ceilIsTooLow(DBloodActor* actor)
 	if (actor != nullptr)
 	{
 		sectortype* pSector = actor->sector();
-		int a = pSector->int_ceilingz() - pSector->int_floorz();
-		int top, bottom;
+		double a = pSector->ceilingz - pSector->floorz;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		int b = top - bottom;
-		if (a > b) return true;
+		if (a > top - bottom) return true;
 	}
 	return false;
 }
