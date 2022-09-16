@@ -288,45 +288,24 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 //
 // checks if a point is within a given section
 //
-// Completely redone based on outside information.
-// The math in here is based on this article: https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
-// Copyright (c) 1970-2003, Wm. Randolph Franklin , licensed under BSD 3-clause
-// but was transformed to avoid the division it contained and to properly pick the vertices of Build walls.
-//
-// (not used in-game because it is not 100% identical to Build's original check and causing issues in SW.)
-// 
 //==========================================================================
 
+static TArray<DVector2> points;
 static int insideLoop(int vertex, TArray<int>& loop)
 {
-	auto pt = wall[vertex].wall_int_pos();
+	points.Resize(loop.Size() - 1);
+	for (unsigned ii = 0; ii < loop.Size() - 1; ii++)
+	{
+		points[ii] = wall[loop[ii]].pos;
+	}
+	
+	// to reliably detect walls where vertices lie directly on outer walls, we must test the wall's center as well.
+	// SW: Wanton Destrcution's $bath.map, sector 601 is an example for that.
+	DVector2 pts[] = { wall[vertex].pos, wall[vertex].center() };
 	for (int i = 0; i < 2; i++)
 	{
-		// to reliably detect walls where vertices lie directly on outer walls, we must test the wall's center as well.
-		// SW: Wanton Destrcution's $bath.map, sector 601 is an example for that.
-		if (i == 1) pt += wall[vertex].int_delta() / 2; 
-		bool c = false;
-		for (unsigned ii = 0; ii < loop.Size() - 1; ii++)
-		{
-			auto& wal = wall[loop[ii]];
-			const auto pt1 = wal.wall_int_pos();
-			const auto pt2 = wal.point2Wall()->wall_int_pos();
-
-			if ((pt1.Y >pt.Y) != (pt2.Y > pt.Y)) // skip if both are on the same side.
-			{
-				// use 64 bit values to avoid overflows in the multiplications below.
-				int64_t deltatx = int64_t(pt.X) - pt1.X;
-				int64_t deltaty = int64_t(pt.Y) - pt1.Y;
-				int64_t deltax = int64_t(pt2.X) - pt1.X;
-				int64_t deltay = int64_t(pt2.Y) - pt1.Y;
-				//if (x < deltax * (deltaty) / deltay + pt1.x)
-				// reformatted to avoid the division - for nagative deltay the sign needs to be flipped to give the correct result.
-				int64_t result = ((deltay * deltatx - deltax * deltaty) ^ deltay);
-				if (result < 0)
-					c = !c;
-			}
-		}
-		if (i == 1 || c == 1) return int(c);
+		int isinside = insidePoly(pts[i].X, pts[i].Y, points.Data(), points.Size());
+		if (isinside == 1) return 1;
 	}
 	return -1;
 }
@@ -504,7 +483,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 				if (!tossit) // Have we created our dumping section yet? If no, do so now and print a warning.
 				{
 					tossit = true;
-					Printf("Potential problem at sector %d with %d loops\n", i, sectloops.Size());
+					//Printf("Potential problem at sector %d with %d loops\n", i, sectloops.Size());
 					bugged.Insert(i, true);
 					builder.sections.Reserve(1);
 					builder.sections.Last().bugged = ESectionFlag::Dumped;	// this will most likely require use of the node builder to triangulate anyway.

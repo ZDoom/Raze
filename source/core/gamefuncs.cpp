@@ -494,6 +494,33 @@ void dragpoint(walltype* startwall, const DVector2& pos)
 
 //==========================================================================
 //
+//
+//
+//==========================================================================
+
+int64_t checkforinside(double x, double y, const DVector2& pt1, const DVector2& pt2)
+{
+	// Perform the checks here in 48.16 fixed point.
+	// Doing it directly with floats and multiplications does not work reliably due to underflows.
+	// Unfortunately, due to the conversions, this is a bit slower. :(
+	int64_t xs = int64_t(0x10000 * (pt1.X - x));
+	int64_t ys = int64_t(0x10000 * (pt1.Y - y));
+	int64_t xe = int64_t(0x10000 * (pt2.X - x));
+	int64_t ye = int64_t(0x10000 * (pt2.Y - y));
+
+	if ((ys ^ ye) < 0)
+	{
+		int64_t val;
+
+		if ((xs ^ xe) >= 0) val = xs;
+		else val = ((xs * ye) - xe * ys) ^ ye;
+		return val;
+	}
+	return 0;
+}
+
+//==========================================================================
+//
 // 
 //
 //==========================================================================
@@ -505,23 +532,7 @@ int inside(double x, double y, const sectortype* sect)
 		int64_t acc = 1;
 		for (auto& wal : wallsofsector(sect))
 		{
-			// Perform the checks here in 48.16 fixed point.
-			// Doing it directly with floats and multiplications does not work reliably.
-			// Unfortunately, due to the conversions, this is a bit slower. :(
-			int64_t xs = int64_t(0x10000 * (wal.pos.X - x));
-			int64_t ys = int64_t(0x10000 * (wal.pos.Y - y));
-			auto wal2 = wal.point2Wall();
-			int64_t xe = int64_t(0x10000 * (wal2->pos.X - x));
-			int64_t ye = int64_t(0x10000 * (wal2->pos.Y - y));
-
-			if ((ys ^ ye) < 0)
-			{
-				int64_t val;
-
-				if ((xs ^ xe) >= 0) val = xs;
-				else val = ((xs * ye) - xe * ys) ^ ye;
-				acc ^= val;
-			}
+			acc ^= checkforinside(x, y, wal.pos, wal.point2Wall()->pos);
 		}
 		return acc < 0;
 	}
@@ -540,25 +551,9 @@ int insidePoly(double x, double y, const DVector2* points, int count)
 	for (int i = 0; i < count; i++)
 	{
 		int j = (i + 1) % count;
-		// Perform the checks here in 48.16 fixed point.
-		// Doing it directly with floats and multiplications does not work reliably.
-		// Unfortunately, due to the conversions, this is a bit slower. :(
-		int64_t xs = int64_t(0x10000 * (points[i].X - x));
-		int64_t ys = int64_t(0x10000 * (points[i].Y - y));
-		int64_t xe = int64_t(0x10000 * (points[j].X - x));
-		int64_t ye = int64_t(0x10000 * (points[j].Y - y));
-		
-		if ((ys ^ ye) < 0)
-		{
-			int64_t val;
-			
-			if ((xs ^ xe) >= 0) val = xs;
-			else val = ((xs * ye) - xe * ys) ^ ye;
-			acc ^= val;
-		}
+		acc ^= checkforinside(x, y, points[i], points[j]);
 	}
-	return acc < 0;
-	
+	return acc < 0;	
 }
 
 //==========================================================================
