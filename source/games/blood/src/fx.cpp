@@ -282,7 +282,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 	auto bloodactor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, 0);
 	if (bloodactor)
 	{
-		bloodactor->set_int_ang(1024);
+		bloodactor->spr.angle = DAngle180;
 		bloodactor->vel.X = Random2F(0x6aaaa);
 		bloodactor->vel.Y = Random2F(0x6aaaa);
 		bloodactor->vel.Z = -Random2F(0x10aaaa) - FixedToFloat(100);
@@ -312,7 +312,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 		spawnactor = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos, 0);
 	if (spawnactor)
 	{
-		spawnactor->set_int_ang(1024);
+		spawnactor->spr.angle = DAngle180;
 		spawnactor->vel.X = Random2F(0x6aaaa);
 		spawnactor->vel.Y = Random2F(0x6aaaa);
 		spawnactor->vel.Z = -Random2F(0x10aaaa) - FixedToFloat(100);
@@ -336,7 +336,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 	if (pBrass)
 	{
 		if (!VanillaMode())
-			pBrass->set_int_ang(Random(2047));
+			pBrass->spr.angle = RandomAngle();
 		int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
 		int nAngle = actor->int_ang() + Random2(56) + 512;
 		pBrass->set_int_bvel_x(MulScale(nDist, Cos(nAngle), 30));
@@ -361,7 +361,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 	if (pShell)
 	{
 		if (!VanillaMode())
-			pShell->set_int_ang(Random(2047));
+			pShell->spr.angle = RandomAngle();
 		int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
 		int nAngle = actor->int_ang() + Random2(56) + 512;
 		pShell->set_int_bvel_x(MulScale(nDist, Cos(nAngle), 30));

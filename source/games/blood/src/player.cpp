@@ -1503,7 +1503,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer)
 {
-	pPlayer->actor->set_int_ang(pPlayer->angle.ang.Buildang());
+	pPlayer->actor->spr.angle = pPlayer->angle.ang;
 }
 
 //---------------------------------------------------------------------------
@@ -1719,7 +1719,7 @@ void ProcessInput(PLAYER* pPlayer)
 			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->native_clipdist() << 1, 0);
 			if (spawned)
 			{
-				spawned->set_int_ang((pPlayer->actor->int_ang() + 1024) & 2047);
+				spawned->spr.angle += DAngle180;
 				int x = bcos(pPlayer->actor->int_ang());
 				int y = bsin(pPlayer->actor->int_ang());
 				spawned->set_int_bvel_x(pPlayer->actor->int_vel().X + MulScale(0x155555, x, 14));
