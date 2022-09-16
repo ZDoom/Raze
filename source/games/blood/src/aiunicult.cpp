@@ -2470,11 +2470,12 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 			seqSpawn(actor->xspr.data2 + actor->xspr.aiState->seqId, actor, -1);
 
 		// make sure dudes aren't in the floor or ceiling
-		int zTop, zBot; GetActorExtents(actor, &zTop, &zBot);
+		double zTop, zBot;
+		GetActorExtents(actor, &zTop, &zBot);
 		if (!(actor->sector()->ceilingstat & CSTAT_SECTOR_SKY))
-			actor->add_int_z(ClipLow(actor->sector()->int_ceilingz() - zTop, 0));
+			actor->spr.pos.Z += max(actor->sector()->ceilingz - zTop, 0.);
 		if (!(actor->sector()->floorstat & CSTAT_SECTOR_SKY))
-			actor->add_int_z(ClipHigh(actor->sector()->int_floorz() - zBot, 0));
+			actor->spr.pos.Z += min(actor->sector()->floorz - zBot, 0.);
 
 		actor->set_native_clipdist(ClipRange((actor->spr.xrepeat + actor->spr.yrepeat) >> 1, 4, 120));
 		if (propId) break;
