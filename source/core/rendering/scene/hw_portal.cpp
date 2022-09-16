@@ -796,7 +796,7 @@ bool HWSectorStackPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *c
 	auto portal = origin;
 	auto &vp = di->Viewpoint;
 
-	vp.Pos += DVector3(portal->dx / 16., portal->dy / -16., portal->dz / -256.);
+	vp.Pos += DVector3(portal->delta.X, -portal->delta.Y, -portal->delta.Z);
 	vp.SectNums = portal->targets.Data();
 	vp.SectCount = portal->targets.Size();
 	type = origin->type;

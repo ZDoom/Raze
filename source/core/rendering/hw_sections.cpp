@@ -42,6 +42,7 @@
 #include "hw_sections.h"
 #include "memarena.h"
 #include "c_cvars.h"
+#include "gamefuncs.h"
 
 void CreateVertexMap();
 

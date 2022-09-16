@@ -11,7 +11,7 @@ void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortyp
 struct PortalDesc
 {
 	int type;
-	int dx, dy, dz;
+	DVector3 delta;
 	TArray<int> targets;
 };
 
@@ -30,9 +30,7 @@ inline int portalAdd(int type, int target, const DVector3& offset)
 	auto& pt = allPortals[allPortals.Reserve(1)];
 	pt.type = type;
 	if (target >= 0) pt.targets.Push(target);
-	pt.dx = offset.X * worldtoint;
-	pt.dy = offset.Y * worldtoint;
-	pt.dz = offset.Z * zworldtoint;
+	pt.delta = offset;
 	return allPortals.Size() - 1;
 }
 
@@ -52,7 +50,7 @@ inline void mergePortals()
 				for (unsigned j = i + 1; j < allPortals.Size(); j++)
 				{
 					auto& pt2 = allPortals[j];
-					if (pt1.type != pt2.type || pt1.dx != pt2.dx || pt1.dy != pt2.dy || pt1.dz != pt2.dz) continue;
+					if (pt1.type != pt2.type || pt1.delta != pt2.delta) continue;
 					for (unsigned s = 0; s < pt1.targets.Size() && pt2.targets.Size(); s++)
 					{
 						for (unsigned t = 0; t < pt2.targets.Size(); t++)

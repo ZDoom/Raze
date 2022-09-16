@@ -381,9 +381,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, PortalDesc& obj, Porta
 	if (arc.BeginObject(key))
 	{
 		arc("type", obj.type)
-			("dx", obj.dx)
-			("dy", obj.dy)
-			("dz", obj.dz)
+			("d", obj.delta)
 			("targets", obj.targets)
 			.EndObject();
 	}

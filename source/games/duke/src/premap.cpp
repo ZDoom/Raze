@@ -855,12 +855,13 @@ static void SpawnPortals()
 	{
 		if (act->spr.picnum == SECTOREFFECTOR && act->spr.lotag == tag)
 		{
-			if (processedTags.Find(act->spr.hitag) == processedTags.Size())
+			int hitag = act->spr.hitag;
+			if (processedTags.Find(hitag) == processedTags.Size())
 			{
 				DukeStatIterator it2(STAT_RAROR);
 				while (auto act2 = it2.Next())
 				{
-					if (act2->spr.picnum == SECTOREFFECTOR && act2->spr.lotag == tag + 1 && act2->spr.hitag == act->spr.hitag)
+					if (act2->spr.picnum == SECTOREFFECTOR && act2->spr.lotag == tag + 1 && act2->spr.hitag == hitag)
 					{
 						if (processedTags.Find(act->spr.hitag) == processedTags.Size())
 						{
@@ -868,15 +869,15 @@ static void SpawnPortals()
 							s1->portalflags = PORTAL_SECTOR_FLOOR;
 							s2->portalflags = PORTAL_SECTOR_CEILING;
 							DVector2 diff = act->spr.pos.XY() - act2->spr.pos.XY();
-							s1->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), DVector3(-diff, act->spr.hitag * zmaptoworld));
-							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), DVector3(diff, act->spr.hitag * zmaptoworld));
+							s1->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), DVector3(-diff, hitag)); // uses delta.Z as temporary storage, not a real coordinate.
+							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), DVector3(diff, hitag));
 							processedTags.Push(act->spr.hitag);
 						}
 						else
 						{
 							for (auto& p : allPortals)
 							{
-								if (p.type == PORTAL_SECTOR_FLOOR && p.dz == act->spr.hitag)
+								if (p.type == PORTAL_SECTOR_FLOOR && p.delta.Z == hitag)
 								{
 									p.targets.Push(act2->sectno());
 								}
@@ -889,7 +890,7 @@ static void SpawnPortals()
 			{
 				for (auto& p : allPortals)
 				{
-					if (p.type == PORTAL_SECTOR_CEILING && p.dz == act->spr.hitag)
+					if (p.type == PORTAL_SECTOR_CEILING && p.delta.Z == hitag)
 					{
 						p.targets.Push(act->sectno());
 					}
@@ -942,7 +943,8 @@ static void SpawnPortals()
 		}
 	nexti:;
 	}
-	for (auto& p : allPortals) p.dz = 0;
+	// clean out the tags we stored in delta.Z
+	for (auto& p : allPortals) p.delta.Z = 0;
 	mergePortals();
 }
 
