@@ -76,7 +76,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 		PLAYER* pPlayer = &gPlayer[myconnectindex];
 		FVector3 camera;
 
-		if (pPlayer && pPlayer->actor) camera = GetSoundPos(pPlayer->actor->int_pos());
+		if (pPlayer && pPlayer->actor) camera = GetSoundPos(pPlayer->actor->spr.pos);
 		else camera = { 0, 0, 0 }; // don't crash if there is no player.
 
 		if (vel) vel->Zero();
@@ -94,7 +94,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 
 			// Engine expects velocity in units per second, not units per tic.
 			if (vel) *vel = FVector3(actor->vel.X * 30, actor->vel.Z * -30, actor->vel.Y * -30);
-			*pos = GetSoundPos(actor->int_pos());
+			*pos = GetSoundPos(actor->spr.pos);
 		}
 		else if (type == SOURCE_Ambient)
 		{
@@ -122,7 +122,7 @@ void GameInterface::UpdateSounds()
 	{
 		listener.angle = -pPlayer->actor->spr.int_ang() * float(BAngRadian); // Build uses a period of 2048.
 		listener.velocity.Zero();
-		listener.position = GetSoundPos(pPlayer->actor->int_pos());
+		listener.position = GetSoundPos(pPlayer->actor->spr.pos);
 		listener.valid = true;
 	}
 	else
@@ -198,7 +198,7 @@ void sfxPlay3DSoundCP(DBloodActor* pActor, int soundId, int playchannel, int pla
 	auto sid = soundEngine->FindSoundByResID(soundId);
 	if (sid == 0) return;
 
-	auto svec = GetSoundPos(pActor->int_pos());
+	auto svec = GetSoundPos(pActor->spr.pos);
 
 	float attenuation;
 	sid = getSfx(sid, attenuation, pitch, volume);
