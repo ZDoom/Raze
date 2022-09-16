@@ -52,6 +52,22 @@ struct DUDEINFO {
 	int damageVal[7]; // real damage? Hmm?
 	int at8c; // unused ?
 	int at90; // unused ?
+
+	// converters to floating point format
+	inline double Heardist() const
+	{
+		return hearDist * maptoworld;
+	}
+
+	inline double SeeDist() const
+	{
+		return seeDist * maptoworld;
+	}
+
+	inline DAngle Periphery() const
+	{
+		return mapangle(periphery);
+	}
 };
 
 extern DUDEINFO dudeInfo[kDudeMax - kDudeBase];

@@ -139,7 +139,7 @@ static void batThinkGoto(DBloodActor* actor)
 	auto nAngle = VecToAngle(dvec);
 	int nDist = approxDist(dvec);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < mapangle(pDudeInfo->periphery))
+	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &batSearch);
 	batThinkTarget(actor);
 }
