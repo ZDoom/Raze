@@ -648,7 +648,7 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].getposfromactor(act);
+			ps[j].pos = act->spr.pos;
 			ps[j].backupxyz();
 			ps[j].setbobpos();
 			act->backuppos();

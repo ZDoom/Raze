@@ -1443,7 +1443,7 @@ void movetransports_r(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].getposfromactor(Owner, -gs.playerheight + 4);
+							ps[p].pos = Owner->spr.pos.plusZ(-gs.playerheight + 4);
 							ps[p].backupxyz();
 							ps[p].setbobpos();
 
@@ -2271,7 +2271,7 @@ void rr_specialstats()
 					if (act2->spr.picnum == RRTILE297)
 					{
 						ps[p].angle.ang = act2->spr.angle;
-						ps[p].getposfromactor(act2, -36);
+						ps[p].pos = act2->spr.pos.plusZ(-36);
 						ps[p].backupxyz();
 						ps[p].setbobpos();
 						auto pact = ps[p].GetActor();

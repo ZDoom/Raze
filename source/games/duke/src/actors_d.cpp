@@ -1796,7 +1796,7 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].getposfromactor(Owner, -gs.playerheight);
+							ps[p].pos = Owner->spr.pos.plusZ(-gs.playerheight);
 							ps[p].backupxyz();
 							ps[p].setbobpos();
 

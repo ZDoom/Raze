@@ -375,12 +375,6 @@ struct player_struct
 	{
 		bobpos = pos.XY();
 	}
-
-	void getposfromactor(DCoreActor* actor, double addz = 0)
-	{
-		pos = actor->spr.pos;
-		if (addz) pos.Z  += addz;
-	}
 };
 
 struct Cycler
