@@ -3755,19 +3755,19 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 
 			if (sourceactor->xspr.data4 > 0)
 			{
-				int cx, cy, cz;
-				cx = (pWall->wall_int_pos().X + pWall->point2Wall()->wall_int_pos().X) >> 1;
-				cy = (pWall->wall_int_pos().Y + pWall->point2Wall()->wall_int_pos().Y) >> 1;
+				DVector3 cpos;
+				
+				cpos.XY() = pWall->center();
 				auto pMySector = pWall->sectorp();
-				int32_t ceilZ, floorZ;
-				getzsofslopeptr(pSector, cx, cy, &ceilZ, &floorZ);
-				int32_t ceilZ2, floorZ2;
-				getzsofslopeptr(pWall->nextSector(), cx, cy, &ceilZ2, &floorZ2);
-				ceilZ = ClipLow(ceilZ, ceilZ2);
-				floorZ = ClipHigh(floorZ, floorZ2);
-				cz = (ceilZ + floorZ) >> 1;
+				double ceilZ, floorZ;
+				getzsofslopeptr(pSector, cpos, &ceilZ, &floorZ);
+				double ceilZ2, floorZ2;
+				getzsofslopeptr(pWall->nextSector(), cpos, &ceilZ2, &floorZ2);
+				ceilZ = max(ceilZ, ceilZ2);
+				floorZ = min(floorZ, floorZ2);
+				cpos.Z = (ceilZ + floorZ) * 0.5;
 
-				sfxPlay3DSound(cx, cy, cz, sourceactor->xspr.data4, pSector);
+				sfxPlay3DSound(cpos, sourceactor->xspr.data4, pSector);
 			}
 		}
 		return;
