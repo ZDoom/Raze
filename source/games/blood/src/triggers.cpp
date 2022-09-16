@@ -849,10 +849,8 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 	XSECTOR* pXSector = &pSector->xs();
 	int v20 = interpolatedvalue(a6, a9, a2f);
 	int vc = interpolatedvalue(a6, a9, a3f);
-	int v28 = vc - v20;
 	int v24 = interpolatedvalue(a7, a10, a2f);
 	int v8 = interpolatedvalue(a7, a10, a3f);
-	int v2c = v8 - v24;
 	int v44 = interpolatedvalue(a8, a11, a2f);
 	int ang = interpolatedvalue(a8, a11, a3f);
 	int v14 = ang - v44;
@@ -860,6 +858,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 	DVector2 pivot = { a4 * inttoworld, a5 * inttoworld };
 	DVector2 offset = { (vc - a4) * inttoworld, (v8 - a5) * inttoworld };
 	DVector2 aoffset = { (vc) * inttoworld, (v8) * inttoworld };
+	DVector2 position = { (vc - v20) * inttoworld, (v8 - v24) * inttoworld };
 	auto angle = DAngle::fromBuild(ang);
 	auto angleofs = DAngle::fromBuild(v14);
 
@@ -960,7 +959,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 					actor->spr.pos.XY() = rotatepoint(mypivot, actor->spr.pos.XY(), angleofs);
 				}
 				actor->spr.angle += angleofs;
-				actor->add_int_pos({ v28, v2c, 0 });
+				actor->spr.pos += position;
 			}
 		}
 	}
