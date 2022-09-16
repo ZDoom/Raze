@@ -2352,9 +2352,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			{
 				auto marker0 = pXSector->marker0;
 				auto marker1 = pXSector->marker1;
-				TranslateSector(pSector, 0, -65536, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.int_ang(), marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.int_ang(), pSector->type == kSectorSlide);
+				TranslateSector(pSector, 0, -65536, marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
 				UpdateBasePoints(pSector);
-				TranslateSector(pSector, 0, pXSector->busy, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.int_ang(), marker1->int_pos().X, marker1->int_pos().Y, marker1->spr.int_ang(), pSector->type == kSectorSlide);
+				TranslateSector(pSector, 0, pXSector->busy, marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
@@ -2362,9 +2362,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			case kSectorRotate:
 			{
 				auto marker0 = pXSector->marker0;
-				TranslateSector(pSector, 0, -65536, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->spr.int_ang(), pSector->type == kSectorRotate);
+				TranslateSector(pSector, 0, -65536, marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
 				UpdateBasePoints(pSector);
-				TranslateSector(pSector, 0, pXSector->busy, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, 0, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_ang(), pSector->type == kSectorRotate);
+				TranslateSector(pSector, 0, pXSector->busy, marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
