@@ -1386,7 +1386,7 @@ int HDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!pXSector->marker0 || !pXSector->marker1) return 0;
 	auto marker0 = pXSector->marker0;
 	auto marker1 = pXSector->marker1;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_ang(), marker1->int_pos().X, marker1->int_pos().Y, marker1->int_ang(), pSector->type == kSectorSlide);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1510,7 +1510,7 @@ int PathBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!basepath || !marker0 || !marker1) return 0;
 
 	int nWave = marker0->xspr.wave;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->int_pos().X, basepath->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_ang(), marker1->int_pos().X, marker1->int_pos().Y, marker1->int_ang(), true);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos,  marker1->spr.angle, true);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if ((a2 & 0xffff) == 0)
