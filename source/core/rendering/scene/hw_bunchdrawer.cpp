@@ -53,15 +53,15 @@
 //
 //==========================================================================
 
-void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, angle_t a1, angle_t a2)
+void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, const DVector2& view, angle_t a1, angle_t a2)
 {
 	ang1 = a1;
 	ang2 = a2;
 	angrange = ang2 - ang1;
 	di = _di;
 	clipper = c;
-	viewx = view.X * (1/ 16.f);
-	viewy = view.Y * -(1/ 16.f);
+	viewx = view.X;
+	viewy = view.Y;
 	viewz = (float)di->Viewpoint.Pos.Z;
 
 	StartScene();
@@ -72,7 +72,9 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, angle_t a1, an
 	for (auto& w : wall)
 	{
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
-		auto vv = w.wall_int_pos() - view;
+		DVector2 vv;
+		vv.X = w.pos.X - view.X;
+		vv.Y = w.pos.Y + view.Y; // beware of different coordinate systems!
 		w.clipangle = RAD2BAM(atan2(vv.Y, vv.X));
 	}
 	memset(sectionstartang.Data(), -1, sectionstartang.Size() * sizeof(sectionstartang[0]));

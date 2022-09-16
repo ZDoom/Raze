@@ -59,7 +59,7 @@ private:
 	void ProcessSection(int sectnum, bool portal);
 
 public:
-	void Init(HWDrawInfo* _di, Clipper* c, vec2_t& view, angle_t a1, angle_t a2);
+	void Init(HWDrawInfo* _di, Clipper* c, const DVector2& view, angle_t a1, angle_t a2);
 	void RenderScene(const int* viewsectors, unsigned sectcount, bool portal);
 	const BitArray& GotSector() const { return gotsector; }
 };
