@@ -542,6 +542,16 @@ inline unsigned int Random(int a1)
 	return MulScale(wrand(), a1, 15);
 }
 
+inline double RandomX(double a1)
+{
+	return FixedToFloat<4>(Random(FloatToFixed<4>(a1)));
+}
+
+inline double RandomZ(double a1)
+{
+	return FixedToFloat<8>(Random(FloatToFixed<8>(a1)));
+}
+
 inline DAngle RandomAngle(int base = 2048)
 {
 	return DAngle::fromBuild(MulScale(wrand(), base, 15));
@@ -556,6 +566,18 @@ inline double Random2F(int a1)
 {
 	return FixedToFloat(MulScale(wrand(), a1, 14) - a1);
 }
+
+inline double Random2X(double a1)
+{
+	return FixedToFloat<4>(Random2(FloatToFixed<4>(a1)));
+}
+
+inline double Random2Z(double a1)
+{
+	return FixedToFloat<8>(Random2(FloatToFixed<8>(a1)));
+}
+
+
 
 inline int Random3(int a1)
 {

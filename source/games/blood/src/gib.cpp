@@ -447,17 +447,18 @@ void GibSprite(DBloodActor* actor, GIBTYPE nGibType, DVector3* pPos, CGibVelocit
 //
 //---------------------------------------------------------------------------
 
-void GibFX(walltype* pWall, GIBFX* pGFX, int a3, int a4, int a5, int a6, CGibVelocity* pVel)
+void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, CGibVelocity* pVel)
 {
 	assert(pWall);
 	int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
 	auto pSector = pWall->sectorp();
 	for (int i = 0; i < nCount; i++)
 	{
-		int r1 = Random(a6);
-		int r2 = Random(a5);
-		int r3 = Random(a4);
-		auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, pWall->wall_int_pos().X + r3, pWall->wall_int_pos().Y + r2, a3 + r1, 0);
+		DVector3 r;
+		r.Z = RandomZ(spread.Z) + ceilZ;
+		r.Y = RandomX(spread.Y) + pWall->pos.Y;
+		r.X = RandomX(spread.X) + pWall->pos.X;
+		auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, r, 0);
 		if (pGib)
 		{
 			if (pGFX->at1 < 0)
@@ -488,30 +489,30 @@ void GibWall(walltype* pWall, GIBTYPE nGibType, CGibVelocity* pVel)
 {
 	assert(pWall);
 	assert(nGibType >= 0 && nGibType < kGibMax);
-	int cx, cy, cz, wx, wy, wz;
 
-	cx = (pWall->wall_int_pos().X + pWall->point2Wall()->wall_int_pos().X) >> 1;
-	cy = (pWall->wall_int_pos().Y + pWall->point2Wall()->wall_int_pos().Y) >> 1;
+	DVector3 center;
+	center.XY() = pWall->center();
+
 	auto pSector = pWall->sectorp();
-	int32_t ceilZ, floorZ;
-	getzsofslopeptr(pSector, cx, cy, &ceilZ, &floorZ);
-	int32_t ceilZ2, floorZ2;
-	getzsofslopeptr(pWall->nextSector(), cx, cy, &ceilZ2, &floorZ2);
+	double ceilZ, floorZ;
+	getzsofslopeptr(pSector, center, &ceilZ, &floorZ);
+	double ceilZ2, floorZ2;
+	getzsofslopeptr(pWall->nextSector(), center, &ceilZ2, &floorZ2);
 
-	ceilZ = ClipLow(ceilZ, ceilZ2);
-	floorZ = ClipHigh(floorZ, floorZ2);
-	wz = floorZ - ceilZ;
-	wx = pWall->point2Wall()->wall_int_pos().X - pWall->wall_int_pos().X;
-	wy = pWall->point2Wall()->wall_int_pos().Y - pWall->wall_int_pos().Y;
-	cz = (ceilZ + floorZ) >> 1;
+	ceilZ = max(ceilZ, ceilZ2);
+	floorZ = min(floorZ, floorZ2);
+	DVector3 w;
+	w.Z = floorZ - ceilZ;
+	w.XY() = pWall->delta();
+	center.Z = (ceilZ + floorZ) * 0.5;
 
 	GIBLIST* pGib = &gibList[nGibType];
-	sfxPlay3DSound(cx, cy, cz, pGib->at10, pSector);
+	sfxPlay3DSound(center, pGib->at10, pSector);
 	for (int i = 0; i < pGib->Kills; i++)
 	{
 		GIBFX* pGibFX = &pGib->gibFX[i];
 		assert(pGibFX->chance > 0);
-		GibFX(pWall, pGibFX, ceilZ, wx, wy, wz, pVel);
+		GibFX(pWall, pGibFX, ceilZ, w, pVel);
 	}
 }
 
