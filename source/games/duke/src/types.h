@@ -381,11 +381,6 @@ struct player_struct
 		pos = actor->spr.pos;
 		if (addz) pos.Z  += addz;
 	}
-
-	vec3_t player_int_pos() const
-	{
-		return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
-	}
 };
 
 struct Cycler
