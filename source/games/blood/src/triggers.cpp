@@ -1443,18 +1443,20 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	XSECTOR* pXSector = &pSector->xs();
 	if (!pXSector->marker0) return 0;
 	auto marker0 = pXSector->marker0;
-	int vbp;
+
+	auto ang1 = mapangle(pXSector->data);
+	DAngle ang2;
 	if (pXSector->busy < a2)
 	{
-		vbp = pXSector->data + marker0->int_ang();
+		ang2 = ang1 + marker0->spr.angle;
 		int nWave = pXSector->busyWaveA;
-		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, marker0->int_pos().X, marker0->int_pos().Y, vbp, true);
+		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang1, marker0->spr.pos, ang2, true);
 	}
 	else
 	{
-		vbp = pXSector->data - marker0->int_ang();
+		 ang2 = ang1 - marker0->spr.angle;
 		int nWave = pXSector->busyWaveB;
-		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, vbp, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, true);
+		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang2, marker0->spr.pos, ang1, true);
 	}
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1463,7 +1465,7 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	{
 		SetSectorState(pSector, FixedToInt(a2), initiator);
 		SectorEndSound(pSector, FixedToInt(a2));
-		pXSector->data = vbp & 2047;
+		pXSector->data = ang2.Normalized360().Buildang();
 		return 3;
 	}
 	return 0;
