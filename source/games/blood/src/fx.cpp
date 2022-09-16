@@ -214,7 +214,7 @@ void CFX::fxProcess(void)
 		assert(actor->spr.type < kFXMax);
 		FXDATA* pFXData = &gFXData[actor->spr.type];
 		actAirDrag(actor, pFXData->drag);
-		actor->add_int_pos({ actor->int_vel().X >> 12, actor->int_vel().Y >> 12, actor->int_vel().Z >> 8 });
+		actor->spr.pos += actor->vel;
 		// Weird...
 		if (actor->vel.X != 0 || (actor->vel.Y != 0 && actor->spr.pos.Z >= actor->sector()->floorz))
 		{
@@ -240,16 +240,16 @@ void CFX::fxProcess(void)
 				ChangeActorSect(actor, pSector);
 			}
 		}
-		if (actor->vel.X != 0 || actor->vel.Y != 0 || actor->int_vel().Z)
+		if (!actor->vel.isZero())
 		{
-			int32_t floorZ, ceilZ;
+			double floorZ, ceilZ;
 			getzsofslopeptr(pSector, actor->spr.pos, &ceilZ, &floorZ);
-			if (ceilZ > actor->int_pos().Z && !(pSector->ceilingstat & CSTAT_SECTOR_SKY))
+			if (ceilZ > actor->spr.pos.Z && !(pSector->ceilingstat & CSTAT_SECTOR_SKY))
 			{
 				remove(actor);
 				continue;
 			}
-			if (floorZ < actor->int_pos().Z)
+			if (floorZ < actor->spr.pos.Z)
 			{
 				if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
 				{
