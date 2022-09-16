@@ -1000,6 +1000,11 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 
 }
 
+void TranslateSector(sectortype* pSector, int wave1, int wave2, const DVector2& pivot, const DVector2& pt1, DAngle ang1,const DVector2& pt2, DAngle ang2, bool allWalls)
+{
+	TranslateSector(pSector, wave1, wave2, int(pivot.X * worldtoint), int(pivot.Y * worldtoint), int(pt1.X * worldtoint), int(pt1.Y * worldtoint), ang1.Buildang(), int(pt2.X * worldtoint), int(pt2.Y * worldtoint), ang2.Buildang(), allWalls);
+}
+
 //---------------------------------------------------------------------------
 //
 // 
