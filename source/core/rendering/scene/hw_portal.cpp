@@ -621,8 +621,8 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 
 	// Nothing in the entire setup mandates that both lines have the same length.
 	// So we need to calculate the clip range from the origin line, not the destination, because that is what determines the visible part of the scene.
-	int origx = vp.Pos.X * 16;
-	int origy = vp.Pos.Y * -16;
+	auto oldvp = vp.Pos;
+
 
 	vp.SectNums = nullptr;
 	vp.SectCount = line->sector;
@@ -634,8 +634,8 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 
 	ClearClipper(di, clipper);
 
-	auto startan = RAD2BAM(atan2(origin->wall_int_pos().Y - origy, origin->wall_int_pos().X - origx));
-	auto endan = RAD2BAM(atan2(origin->point2Wall()->wall_int_pos().Y - origy, origin->point2Wall()->wall_int_pos().X - origx));
+	auto startan = RAD2BAM(atan2(origin->pos.Y + oldvp.Y, origin->pos.X - oldvp.X));
+	auto endan = RAD2BAM(atan2(origin->point2Wall()->pos.Y + oldvp.Y, origin->point2Wall()->pos.X - oldvp.X));
 	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }
