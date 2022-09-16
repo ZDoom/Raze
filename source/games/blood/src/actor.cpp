@@ -4745,7 +4745,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		if (pPlayer && gNoClip)
 		{
-			actor->add_int_pos({ actor->int_vel().X >> 12, actor->int_vel().Y >> 12, 0 });
+			actor->spr.pos += actor->vel.XY();
 			updatesector(actor->spr.pos, &pSector);
 			if (!pSector) pSector = actor->sector();
 		}
@@ -4753,6 +4753,7 @@ void MoveDude(DBloodActor* actor)
 		{
 			auto bakCstat = actor->spr.cstat;
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+			// Note: vel is Q16.16, ClipMove wants Q28.4, which passes it on to clipmove which wants Q14.18. Anyone confused yet...?
 			ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12, actor->int_vel().Y >> 12, wd, tz, bz, CLIPMASK0, actor->hit.hit);
 			if (pSector == nullptr)
 			{
