@@ -94,10 +94,10 @@ bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, i
 
 bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
 {
-	int x1 = pWall->wall_int_pos().X;
-	int y1 = pWall->wall_int_pos().Y;
-	int x2 = pWall->point2Wall()->wall_int_pos().X;
-	int y2 = pWall->point2Wall()->wall_int_pos().Y;
+	int x1 = pWall->pos.X * (1./maptoworld);
+	int y1 = pWall->pos.Y * (1./maptoworld);
+	int x2 = pWall->point2Wall()->pos.X * (1./maptoworld);
+	int y2 = pWall->point2Wall()->pos.Y * (1./maptoworld);
 	nDist <<= 4;
 	if (x1 < x2)
 	{
