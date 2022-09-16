@@ -73,6 +73,7 @@ IMPLEMENT_POINTERS_END
 //
 //
 //---------------------------------------------------------------------------
+void MarkSprInSect();
 
 size_t DBloodActor::PropagateMark()
 {
@@ -90,6 +91,7 @@ static void markgcroots()
 	GC::MarkArray(gSightSpritesList, gSightSpritesCount);
 	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
 	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
+	MarkSprInSect();
 	for (auto& pl : gPlayer)
 	{
 		GC::Mark(pl.actor);
@@ -598,6 +600,7 @@ void GameInterface::loadPalette(void)
 void GameInterface::app_init()
 {
 	GC::AddMarkerFunc(markgcroots);
+
 	InitCheats();
 	memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;

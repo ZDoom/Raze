@@ -55,6 +55,10 @@ public:
     void Init(int nDist = kWallDist); // used in trInit to collect the sprites before translation
     void Serialize(FSerializer& pSave);
     TArray<TObjPtr<DBloodActor*>>* GetSprPtr(int nSector);
+	void Mark()
+	{
+		for (auto& entry : db) GC::MarkArray(entry.pActors);
+	}
 
 };
 
@@ -64,6 +68,11 @@ public:
 // TranslateSector and/or zTranslateSector similar to Powerslave(Exhumed) way
 // --------------------------------------------------------------------------
 SPRINSECT gSprNSect;
+
+void MarkSprInSect()
+{
+	gSprNSect.Mark();
+}
 
 void SPRINSECT::Init(int nDist)
 {
