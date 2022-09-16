@@ -133,18 +133,16 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		float y = !(Sprite->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 		if (Sprite->clipdist & TSPR_SLOPESPRITE)
 		{
-			int posx = int(di->Viewpoint.Pos.X * 16.f);
-			int posy = int(di->Viewpoint.Pos.Y * -16.f);
-			int posz = int(di->Viewpoint.Pos.Z * -256.f);
+			DVector3 posi = { di->Viewpoint.Pos.X, -di->Viewpoint.Pos.Y, -di->Viewpoint.Pos.Z };
 
 			// Make adjustments for poorly aligned slope sprites on floors or ceilings
 			constexpr float ONPLANE_THRESHOLD = 3.f;
-			if (spriteGetZOfSlope(Sprite, posx, posy, tspriteGetSlope(Sprite)) < posz)
+			if (spriteGetZOfSlopef(Sprite, posi.XY(), tspriteGetSlope(Sprite)) < posi.Z)
 			{
 				float maxofs = -FLT_MAX, minofs = FLT_MAX;
 				for (int i = 0; i < 4; i++)
 				{
-					float vz = -getceilzofslopeptrf(Sprite->sectp, pos[i].X, pos[i].Y);
+					float vz = -getceilzofslopeptrf(Sprite->sectp, posi);
 					float sz = z - ofsz[i];
 					int diff = vz - sz;
 					if (diff > maxofs) maxofs = diff;
@@ -157,7 +155,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 				float maxofs = -FLT_MAX, minofs = FLT_MAX;
 				for (int i = 0; i < 4; i++)
 				{
-					float vz = -getflorzofslopeptrf(Sprite->sectp, pos[i].X, pos[i].Y);
+					float vz = -getflorzofslopeptrf(Sprite->sectp, posi);
 					float sz = z - ofsz[i];
 					int diff = vz - sz;
 					if (diff > maxofs) maxofs = diff;
@@ -435,8 +433,9 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 	// Weird Build logic that really makes no sense.
 	if ((sprite->cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
 	{
-		double myz = !(sprite->clipdist & TSPR_SLOPESPRITE) ? z :
-			spriteGetZOfSlope(sprite, int(di->Viewpoint.Pos.X * 16), int(di->Viewpoint.Pos.Y * -16), tspriteGetSlope(sprite)) * -(1. / 256.);
+		DVector2 pos = { di->Viewpoint.Pos.X, -di->Viewpoint.Pos.Y };
+
+		double myz = !(sprite->clipdist & TSPR_SLOPESPRITE) ? z : -spriteGetZOfSlopef(sprite, pos, tspriteGetSlope(sprite));
 		if ((di->Viewpoint.Pos.Z < myz) == ((sprite->cstat & CSTAT_SPRITE_YFLIP) == 0))
 			return;
 	}

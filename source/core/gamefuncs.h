@@ -461,12 +461,12 @@ inline int tspriteGetSlope(const tspritetype* spr)
 	return !(spr->clipdist & TSPR_SLOPESPRITE) ? 0 : uint8_t(spr->xoffset) + (int8_t(spr->yoffset) << 8);
 }
 
-inline int32_t spriteGetZOfSlope(const spritetypebase* tspr, int dax, int day, int heinum)
+inline double spriteGetZOfSlopef(const spritetypebase* tspr, const DVector2& pos, int heinum)
 {
-	if (heinum == 0) return tspr->int_pos().Z;
-
-	int const j = DMulScale(bsin(tspr->int_ang() + 1024), day - tspr->int_pos().Y, -bsin(tspr->int_ang() + 512), dax - tspr->int_pos().X, 4);
-	return tspr->int_pos().Z + MulScale(heinum, j, 18);
+	if (heinum == 0) return tspr->pos.Z;
+	auto ang = tspr->angle;
+	double factor =  -ang.Sin() * (pos.X - tspr->pos.Y) - ang.Cos() * (pos.X - tspr->pos.X);
+	return tspr->pos.Z + heinum * factor * (1./4096.);
 }
 
 inline int inside(int x, int y, const sectortype* sect)

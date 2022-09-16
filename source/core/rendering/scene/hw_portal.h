@@ -231,14 +231,7 @@ public:
 struct HWLinePortal : public HWScenePortalBase
 {
 protected:
-	// this must be the same as at the start of line_t, so that we can pass in this structure directly to P_ClipLineToPortal.
 	walltype* line;
-	/*
-	vec2_t	*v1, *v2;	// vertices, from v1 to v2
-	DVector2	delta;		// precalculated v2 - v1 for side checking
-
-	angle_t		angv1, angv2;	// for quick comparisons with a line or subsector
-	*/
 
 	HWLinePortal(FPortalSceneState *state, walltype *line) : HWScenePortalBase(state)
 	{

@@ -59,6 +59,15 @@ static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
 
 }
 
+inline int32_t spriteGetZOfSlope(const spritetypebase* tspr, int dax, int day, int heinum)
+{
+	if (heinum == 0) return tspr->int_pos().Z;
+
+	int const j = DMulScale(bsin(tspr->int_ang() + 1024), day - tspr->int_pos().Y, -bsin(tspr->int_ang() + 512), dax - tspr->int_pos().X, 4);
+	return tspr->int_pos().Z + MulScale(heinum, j, 18);
+}
+
+
 //
 // clipinsideboxline
 //
