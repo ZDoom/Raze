@@ -1060,10 +1060,10 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		}
 
 		val = -MulScale(factor * 64, 0x10000, 16);
-		if (actor->int_vel().Z >= 0) actor->add_int_bvel_z(val);
+		if (actor->vel.Z >= 0) actor->add_int_bvel_z(val);
 		else actor->set_int_bvel_z(val);
 
-		actor->add_int_z(actor->int_vel().Z >> 12);
+		actor->spr.pos.Z += actor->vel.Z / 16.;
 
 	}
 
@@ -1713,8 +1713,7 @@ void debrisMove(int listIndex)
 	if (pSector->hasX())
 		uwater = pSector->xs().Underwater;
 
-	if (actor->int_vel().Z)
-		actor->add_int_z(actor->int_vel().Z >> 8);
+	actor->spr.pos.Z += actor->vel.Z;
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -9272,14 +9271,14 @@ void callbackGenDudeUpdate(DBloodActor* actor, sectortype*) // 24
 
 void clampSprite(DBloodActor* actor, int which)
 {
-	int zTop, zBot;
+	double zTop, zBot;
 	if (actor->insector())
 	{
 		GetActorExtents(actor, &zTop, &zBot);
 		if (which & 0x01)
-			actor->add_int_z(ClipHigh(getflorzofslopeptr(actor->sector(), actor->spr.pos) - zBot, 0));
+			actor->spr.pos.Z += min(getflorzofslopeptrf(actor->sector(), actor->spr.pos) - zBot, 0.);
 		if (which & 0x02)
-			actor->add_int_z(ClipLow(getceilzofslopeptr(actor->sector(), actor->spr.pos) - zTop, 0));
+			actor->spr.pos.Z += max(getceilzofslopeptrf(actor->sector(), actor->spr.pos) - zTop, 0.);
 
 	}
 
