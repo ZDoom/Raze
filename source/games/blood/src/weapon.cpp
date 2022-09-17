@@ -2161,14 +2161,15 @@ static int WeaponFindLoaded(PLAYER* pPlayer, int* a2)
 
 int processSprayCan(PLAYER* pPlayer)
 {
+	const char bUseShootAsThrow = !VanillaMode() && pPlayer->input.buttonFlags.shoot;
 	switch (pPlayer->weaponState)
 	{
 	case 5:
-		if (!(pPlayer->input.actions & SB_ALTFIRE))
+		if (!(pPlayer->input.actions & SB_ALTFIRE) || bUseShootAsThrow)
 			pPlayer->weaponState = 6;
 		return 1;
 	case 6:
-		if (pPlayer->input.actions & SB_ALTFIRE)
+		if ((pPlayer->input.actions & SB_ALTFIRE) && !bUseShootAsThrow)
 		{
 			pPlayer->weaponState = 3;
 			pPlayer->fuseTime = pPlayer->weaponTimer;
@@ -2205,14 +2206,15 @@ int processSprayCan(PLAYER* pPlayer)
 
 static bool processTNT(PLAYER* pPlayer)
 {
+	const char bUseShootAsThrow = !VanillaMode() && pPlayer->input.buttonFlags.shoot;
 	switch (pPlayer->weaponState)
 	{
 	case 4:
-		if (!(pPlayer->input.actions & SB_ALTFIRE))
+		if (!(pPlayer->input.actions & SB_ALTFIRE) || bUseShootAsThrow)
 			pPlayer->weaponState = 5;
 		return 1;
 	case 5:
-		if (pPlayer->input.actions & SB_ALTFIRE)
+		if ((pPlayer->input.actions & SB_ALTFIRE) && !bUseShootAsThrow)
 		{
 			pPlayer->weaponState = 1;
 			pPlayer->fuseTime = pPlayer->weaponTimer;
