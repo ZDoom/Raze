@@ -476,7 +476,7 @@ double wall_length(walltype* wal)
 	return wal->Length();
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_walltype, length, wall_point2wall)
+DEFINE_ACTION_FUNCTION_NATIVE(_walltype, length, wall_length)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
 	ACTION_RETURN_FLOAT(self->Length());

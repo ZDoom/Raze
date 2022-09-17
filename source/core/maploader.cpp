@@ -62,8 +62,7 @@ void walltype::calcLength()
 {
 	lengthflags &= ~1;
 	point2Wall()->lengthflags &= ~2;
-	auto d = int_delta();
-	length = (int)sqrt(d.X * d.X + d.Y * d.Y);
+	length = delta().Length(); 
 }
 
 // needed for skipping over to get the map size first.

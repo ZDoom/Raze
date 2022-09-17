@@ -138,90 +138,42 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle
 //
 //==========================================================================
 
-void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, float* pflorz)
+void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, double* pflorz)
 {
 	int bits = 0;
 	if (pceilz)
 	{
 		bits |= sec->ceilingstat;
-		*pceilz = float(sec->int_ceilingz());
+		*pceilz = sec->ceilingz;
 	}
 	if (pflorz)
 	{
 		bits |= sec->floorstat;
-		*pflorz = float(sec->int_floorz());
+		*pflorz = sec->floorz;
 	}
 
 	if ((bits & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
 	{
 		auto wal = sec->firstWall();
-		int len = wal->Length();
+		double len = wal->Length();
 		if (len != 0)
 		{
-			float fac = (wal->int_delta().X * (float(ypos - wal->wall_int_pos().Y)) - wal->int_delta().Y * (float(xpos - wal->wall_int_pos().X))) * (1.f / 256.f) / len;
+			float fac = (wal->delta().X * (ypos - wal->pos.Y) - wal->delta().Y * (xpos - wal->pos.X)) / len * (1 / 4096.);
 			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * fac);
 			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * fac);
 		}
 	}
 }
 
-//==========================================================================
-//
-// for the renderer
-//
-//==========================================================================
-
-void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, float* pflorz)
-{
-	calcSlope(sec, dax * worldtoint, day * worldtoint, pceilz, pflorz);
-	if (pceilz) *pceilz *= -(1 / 256.f);
-	if (pflorz) *pflorz *= -(1 / 256.f);
-}
-
-//==========================================================================
-//
-// for the games (these are not inlined so that they can inline calcSlope)
-//
-//==========================================================================
-
-int getceilzofslopeptr(const sectortype* sec, int dax, int day)
-{
-	float z;
-	calcSlope(sec, dax, day, &z, nullptr);
-	return int(z);
-}
-
-int getflorzofslopeptr(const sectortype* sec, int dax, int day)
-{
-	float z;
-	calcSlope(sec, dax, day, nullptr, &z);
-	return int(z);
-}
-
-void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz)
-{
-	float c, f;
-	calcSlope(sec, dax, day, &c, &f);
-	*ceilz = int(c);
-	*florz = int(f);
-}
-
-void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz)
-{
-	float c, f;
-	calcSlope(sec, dax * worldtoint, day * worldtoint, &c, &f);
-	*ceilz = c * zinttoworld;
-	*florz = f * zinttoworld;
-}
-
+// only used by clipmove et.al.
 void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz)
 {
 	DVector2 closestv;
 	SquareDistToSector(dax * inttoworld, day * inttoworld, &sector[sectnum], &closestv);
-	float ffloorz, fceilz;
-	calcSlope(&sector[sectnum], closestv.X * worldtoint, closestv.Y * worldtoint, &fceilz, &ffloorz);
-	if (ceilz) *ceilz = int(fceilz);
-	if (florz) *florz = int(ffloorz);
+	double ffloorz, fceilz;
+	calcSlope(&sector[sectnum], closestv.X, closestv.Y, &fceilz, &ffloorz);
+	if (ceilz) *ceilz = int(fceilz * zworldtoint);
+	if (florz) *florz = int(ffloorz * zworldtoint);
 }
 
 //==========================================================================
@@ -235,7 +187,7 @@ int getslopeval(sectortype* sect, int x, int y, int z, int basez)
 	auto wal = sect->firstWall();
 	auto delta = wal->int_delta();
 	int i = (y - wal->wall_int_pos().Y) * delta.X - (x - wal->wall_int_pos().X) * delta.Y;
-	return i == 0? 0 : Scale((z - basez) << 8, wal->Length(), i);
+	return i == 0? 0 : Scale((z - basez) << 8, int(wal->Length() * worldtoint), i);
 }
 
 //==========================================================================

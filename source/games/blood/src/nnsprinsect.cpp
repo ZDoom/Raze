@@ -201,7 +201,7 @@ TArray<DBloodActor*> getSpritesNearWalls(sectortype* pSrcSect, int nDist)
 			auto qpos = spos - wpos;
 			
 			double num = qpos.dot(wlen);
-			double den = wlen.Length();
+			double den = wal.Length();
 
             if (num > 0 && num < den)
             {

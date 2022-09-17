@@ -258,9 +258,6 @@ extern double cameradist, cameraclock;
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
 
 bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, fixedhoriz horiz, double const interpfrac);
-
-void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz);
-
 int getslopeval(sectortype* sect, int x, int y, int z, int planez);
 
 
@@ -285,49 +282,128 @@ bool sectorsConnected(int sect1, int sect2);
 void dragpoint(walltype* wal, const DVector2& pos);
 int32_t inside(double x, double y, const sectortype* sect);
 int insidePoly(double x, double y, const DVector2* points, int count);
-void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
-int getceilzofslopeptr(const sectortype* sec, int dax, int day);
-int getflorzofslopeptr(const sectortype* sec, int dax, int day);
-void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz);
-void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz);
+
+//==========================================================================
+//
+// slope stuff (many wrappers, one worker only)
+//
+//==========================================================================
+
+void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, double* pflorz);
+
+//==========================================================================
+//
+// for the renderer
+//
+//==========================================================================
+
+inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, float* pflorz)
+{
+	double f, c;
+	calcSlope(sec, dax, day, &c, &f);
+	if (pceilz) *pceilz = -float(c);
+	if (pflorz) *pflorz = -float(f);
+}
+
+//==========================================================================
+//
+// old deprecated integer versions
+//
+//==========================================================================
+
+[[deprecated]]
+inline int getceilzofslopeptr(const sectortype* sec, int dax, int day)
+{
+	double z;
+	calcSlope(sec, dax * inttoworld, day * inttoworld, &z, nullptr);
+	return int(z * zworldtoint);
+}
+
+[[deprecated]]
+inline int getflorzofslopeptr(const sectortype* sec, int dax, int day)
+{
+	double z;
+	calcSlope(sec, dax * inttoworld, day * inttoworld, nullptr, &z);
+	return int(z * zworldtoint);
+}
+
+[[deprecated]]
+inline void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz)
+{
+	double c, f;
+	calcSlope(sec, dax * inttoworld, day * inttoworld, &c, &f);
+	*ceilz = int(c * zworldtoint);
+	*florz = int(f * zworldtoint);
+}
 
 template<class Vector>
+[[deprecated]]
 inline int getceilzofslopeptr(const sectortype* sec, const Vector& pos)
 {
 	return getceilzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint);
 }
 template<class Vector>
+[[deprecated]]
 inline int getflorzofslopeptr(const sectortype* sec, const Vector& pos)
 {
 	return getflorzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint);
 }
 template<class Vector>
+[[deprecated]]
 inline void getzsofslopeptr(const sectortype* sec, const Vector& pos, int* ceilz, int* florz)
 {
 	getzsofslopeptr(sec, int(pos.X * worldtoint), int(pos.Y * worldtoint), ceilz, florz);
 }
+
+// only used by clipmove et.al.
+void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
+
+//==========================================================================
+//
+// floating point interface
+//
+//==========================================================================
+
+inline void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz)
+{
+	calcSlope(sec, dax, day, ceilz, florz);
+}
+
 template<class Vector>
 inline void getzsofslopeptr(const sectortype* sec, const Vector& pos, double* ceilz, double* florz)
 {
-	getzsofslopeptr(sec, pos.X, pos.Y, ceilz, florz);
+	calcSlope(sec, pos.X, pos.Y, ceilz, florz);
 }
 
 inline double getceilzofslopeptrf(const sectortype* sec, double dax, double day)
 {
-	return getceilzofslopeptr(sec, dax * worldtoint, day * worldtoint) * zinttoworld;
+	double c;
+	calcSlope(sec, dax, day, &c, nullptr);
+	return c;
 }
 inline double getflorzofslopeptrf(const sectortype* sec, double dax, double day)
 {
-	return getflorzofslopeptr(sec, dax * worldtoint, day * worldtoint) * zinttoworld;
+	double f;
+	calcSlope(sec, dax, day, nullptr, &f);
+	return f;
 }
-inline double getceilzofslopeptrf(const sectortype* sec, const DVector2& pos)
+template<class Vector>
+inline double getceilzofslopeptrf(const sectortype* sec, const Vector& pos)
 {
-	return getceilzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint) * zinttoworld;
+	return getceilzofslopeptrf(sec, pos.X, pos.Y);
 }
-inline double getflorzofslopeptrf(const sectortype* sec, const DVector2& pos)
+template<class Vector>
+inline double getflorzofslopeptrf(const sectortype* sec, const Vector& pos)
 {
-	return getflorzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint) * zinttoworld;
+	return getflorzofslopeptrf(sec, pos.X, pos.Y);
 }
+
+//==========================================================================
+//
+// end of slopes
+//
+//==========================================================================
+
 
 inline DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, DAngle angle)
 {

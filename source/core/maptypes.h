@@ -403,7 +403,7 @@ struct walltype
 
 	// extensions not from the binary map format.
 	angle_t clipangle;
-	int length; // cached value to avoid calling sqrt repeatedly.
+	double length; // cached value to avoid calling sqrt repeatedly.
 
 	uint16_t portalnum;
 	uint8_t portalflags;
@@ -427,7 +427,7 @@ struct walltype
 	DVector2 delta() const { return point2Wall()->pos - pos; }
 	DVector2 center() const { return(point2Wall()->pos + pos) / 2; }
 	bool twoSided() const { return nextsector >= 0; }
-	int Length();
+	double Length();
 	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.
 	void movexy(int newx, int newy);
 	void move(const DVector2& vec)
@@ -640,7 +640,7 @@ inline void walltype::movexy(int newx, int newy)
 	sectorp()->dirty = EDirty::AllDirty;
 }
 
-inline int walltype::Length()
+inline double walltype::Length()
 {
 	if ((lengthflags & 1) || (point2Wall()->lengthflags & 2))
 	{
