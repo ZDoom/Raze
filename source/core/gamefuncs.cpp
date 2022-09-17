@@ -291,8 +291,8 @@ void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVect
 		xoffset = tex->GetDisplayLeftOffset() + spr->xoffset;
 	}
 
-	double x = spr->angle.Sin() * spr->xrepeat * (1. / 64.);
-	double y = -spr->angle.Cos() * spr->xrepeat * (1. / 64.);
+	double x = spr->angle.Sin() * spr->xrepeat * REPEAT_SCALE;
+	double y = -spr->angle.Cos() * spr->xrepeat * REPEAT_SCALE;
 
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoffset = -xoffset;
 	double origin = (width * 0.5) + xoffset;
@@ -306,7 +306,7 @@ void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVect
 
 //==========================================================================
 //
-// Calculate the position of a wall sprite in the world
+// Calculate the position of a floor sprite in the world
 //
 //==========================================================================
 
@@ -316,8 +316,8 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 
 	double width, height, leftofs, topofs;
 	double sloperatio = sqrt(heinum * heinum + 4096 * 4096) * (1. / 4096.);
-	double xrepeat = spr->xrepeat * (1. / 64.);
-	double yrepeat = spr->yrepeat * (1. / 64.);
+	double xrepeat = spr->xrepeat * REPEAT_SCALE;
+	double yrepeat = spr->yrepeat * REPEAT_SCALE;
 
 	int xo = heinum ? 0 : spr->xoffset;
 	int yo = heinum ? 0 : spr->yoffset;
