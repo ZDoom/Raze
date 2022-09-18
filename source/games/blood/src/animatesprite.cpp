@@ -517,14 +517,14 @@ static void viewApplyDefaultPal(tspritetype* pTSprite, sectortype const* pSector
 //
 //---------------------------------------------------------------------------
 
-static int GetOctant(int x, int y)
+static int GetOctant(const DVector2& dPos)
 {
 	static const uint8_t OctantTable[8] = { 5, 6, 2, 1, 4, 7, 3, 0 };
-	int vc = abs(x) - abs(y);
-	return OctantTable[7 - (x < 0) - (y < 0) * 2 - (vc < 0) * 4];
+	double vc = fabs(dPos.X) - fabs(dPos.Y);
+	return OctantTable[7 - (dPos.X < 0) - (dPos.Y < 0) * 2 - (vc < 0) * 4];
 }
 
-void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, DAngle cA, double interpfrac)
+void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA, double interpfrac)
 {
 	PLAYER* pPlayer = &gPlayer[gViewIndex];
 	int nViewSprites = tsprites.Size();
@@ -587,10 +587,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
-			int dX = cX - pTSprite->int_pos().X;
-			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->int_ang());
-			nAnim = GetOctant(dX, dY);
+			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->angle));
 			if (nAnim <= 4)
 			{
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -609,10 +606,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
-			int dX = cX - pTSprite->int_pos().X;
-			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->int_ang());
-			nAnim = GetOctant(dX, dY);
+			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->angle));
 			break;
 		}
 		case 3:
@@ -909,7 +903,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 			}
 
 			if (pTSprite->ownerActor != pPlayer->actor || gViewPos != VIEWPOS_0) {
-				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cZ)
+				if (getflorzofslopeptrf(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
 				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 				}
@@ -941,7 +935,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 			if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
 			{
-				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cZ)
+				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptrf(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 			}
 		}
@@ -957,10 +951,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		{
 		case 1:
 		{
-			int dX = cX - pTSprite->int_pos().X;
-			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->int_ang());
-			nAnim = GetOctant(dX, dY);
+			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->angle));
 			if (nAnim <= 4)
 			{
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -974,10 +965,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 		}
 		case 2:
 		{
-			int dX = cX - pTSprite->int_pos().X;
-			int dY = cY - pTSprite->int_pos().Y;
-			RotateVector(&dX, &dY, 128 - pTSprite->int_ang());
-			nAnim = GetOctant(dX, dY);
+			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->angle));
 			break;
 		}
 		}
@@ -998,7 +986,7 @@ void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t 
 
 void GameInterface::processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac)
 {
-	viewProcessSprites(tsprites, view.X * worldtoint, view.Y * worldtoint, view.Z * zworldtoint, viewang, interpfrac);
+	viewProcessSprites(tsprites, view, viewang, interpfrac);
 }
 
 int display_mirror;
