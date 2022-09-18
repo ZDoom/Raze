@@ -141,6 +141,11 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int
 	return fxSpawnActor(nFx, pSector, pos, a6);
 }
 
+DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& pos, DAngle a6)
+{
+	return fxSpawnActor(nFx, pSector, pos, a6.Buildang());
+}
+
 DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& pos, unsigned int a6)
 {
 	if (pSector == nullptr)

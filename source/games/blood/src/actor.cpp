@@ -2946,7 +2946,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		else
 		{
 			seqKill(actor);
-			DBloodActor* pEffect = gFX.fxSpawnActor((FX_ID)52, actor->sector(), actor->spr.pos, actor->int_ang());
+			DBloodActor* pEffect = gFX.fxSpawnActor((FX_ID)52, actor->sector(), actor->spr.pos, actor->spr.angle);
 			if (pEffect != nullptr)
 			{
 				pEffect->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
