@@ -2550,7 +2550,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 
 	if (actor->spr.flags & kPhysMove)
 	{
-		int mass = 0;
+		double mass = 0;
 		if (actor->IsDudeActor())
 		{
 			mass = getDudeInfo(actor->spr.type)->mass;
@@ -2573,14 +2573,11 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 
 		if (mass > 0)
 		{
-			int size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat) >> 1;
-			int t = Scale(damage, size, mass);
-			actor->add_int_bvel_x((int)MulScaleF(t, vect.X, 12));
-			actor->add_int_bvel_y((int)MulScaleF(t, vect.Y, 12));
-			actor->add_int_bvel_z((int)MulScaleF(t, vect.Z, 12));
+			double size = FixedToFloat<29>(tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat);
+			actor->vel += vect * Scale(damage, size, mass);
 		}
 	}
-	actDamageSprite(source, actor, kDamageExplode, damage);
+	actDamageSprite(source, actor, kDamageExplode, int(damage));
 }
 
 //---------------------------------------------------------------------------
