@@ -269,7 +269,7 @@ int ChanceToCount(int a1, int a2)
 //
 //---------------------------------------------------------------------------
 
-void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, CGibVelocity* pVel)
+void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 {
 	auto pSector = actor->sector();
 	if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
@@ -300,9 +300,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, CGibVelocity* pVel)
 				pFX->spr.pal = actor->spr.pal;
 			if (pVel)
 			{
-				pFX->set_int_bvel_x(pVel->vx + Random2(pGFX->atd));
-				pFX->set_int_bvel_y(pVel->vy + Random2(pGFX->atd));
-				pFX->set_int_bvel_z(pVel->vz - Random(pGFX->at11));
+				pFX->vel = *pVel + DVector3(Random2F(pGFX->atd, 4), Random2F(pGFX->atd, 4), -RandomF(pGFX->at11, 8));
 			}
 			else
 			{
@@ -342,7 +340,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, CGibVelocity* pVel)
 //
 //---------------------------------------------------------------------------
 
-void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, CGibVelocity* pVel)
+void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* pVel)
 {
 	if (adult_lockout && gGameOptions.nGameType <= 0)
 		switch (pGThing->type) {
@@ -381,9 +379,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, CGibVelocit
 			gibactor->spr.picnum = pGThing->Kills;
 		if (pVel)
 		{
-			gibactor->set_int_bvel_x(pVel->vx + Random2(pGThing->atc));
-			gibactor->set_int_bvel_y(pVel->vy + Random2(pGThing->atc));
-			gibactor->set_int_bvel_z(pVel->vz - Random(pGThing->at10));
+			gibactor->vel = *pVel + DVector3(Random2F(pGThing->atc, 4), Random2F(pGThing->atc, 4), -RandomF(pGThing->at10, 8));
 		}
 		else
 		{
@@ -419,7 +415,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, CGibVelocit
 //
 //---------------------------------------------------------------------------
 
-void GibSprite(DBloodActor* actor, GIBTYPE nGibType, DVector3* pPos, CGibVelocity* pVel)
+void GibSprite(DBloodActor* actor, GIBTYPE nGibType, DVector3* pPos, DVector3* pVel)
 {
 	assert(actor != NULL);
 	assert(nGibType >= 0 && nGibType < kGibMax);
@@ -447,7 +443,7 @@ void GibSprite(DBloodActor* actor, GIBTYPE nGibType, DVector3* pPos, CGibVelocit
 //
 //---------------------------------------------------------------------------
 
-void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, CGibVelocity* pVel)
+void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, DVector3* pVel)
 {
 	assert(pWall);
 	int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
@@ -455,9 +451,9 @@ void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, C
 	for (int i = 0; i < nCount; i++)
 	{
 		DVector3 r;
-		r.Z = RandomF(spread.Z, 8) + ceilZ;
-		r.Y = RandomF(spread.Y, 4) + pWall->pos.Y;
-		r.X = RandomF(spread.X, 4) + pWall->pos.X;
+		r.Z = RandomD(spread.Z, 8) + ceilZ;
+		r.Y = RandomD(spread.Y, 4) + pWall->pos.Y;
+		r.X = RandomD(spread.X, 4) + pWall->pos.X;
 		auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, r, 0);
 		if (pGib)
 		{
@@ -471,9 +467,9 @@ void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, C
 			}
 			else
 			{
-				pGib->vel.X = Random2F((pVel->vx << 18) / 120);
-				pGib->vel.Y = Random2F((pVel->vy << 18) / 120);
-				pGib->vel.Z = -Random2F((pVel->vz << 18) / 120);
+				pGib->vel.X = Random2F((pVel->X * 17179869184.) / 120);
+				pGib->vel.Y = Random2F((pVel->Y * 17179869184.) / 120);
+				pGib->vel.Z = -Random2F((pVel->Z * 17179869184.) / 120);
 			}
 		}
 	}
@@ -485,7 +481,7 @@ void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, C
 //
 //---------------------------------------------------------------------------
 
-void GibWall(walltype* pWall, GIBTYPE nGibType, CGibVelocity* pVel)
+void GibWall(walltype* pWall, GIBTYPE nGibType, DVector3* pVel)
 {
 	assert(pWall);
 	assert(nGibType >= 0 && nGibType < kGibMax);

@@ -60,12 +60,6 @@ enum GIBTYPE {
 };
 
 
-class CGibVelocity {
-public:
-	int vx, vy, vz;
-	CGibVelocity(int _vx, int _vy, int _vz) : vx(_vx), vy(_vy), vz(_vz) {}
-};
-
-void GibSprite(DBloodActor* pSprite, GIBTYPE nGibType, DVector3* pPos, CGibVelocity* pVel);
-void GibWall(walltype* pWall, GIBTYPE nGibType, CGibVelocity* pVel);
+void GibSprite(DBloodActor* pSprite, GIBTYPE nGibType, DVector3* pPos, DVector3* pVel);
+void GibWall(walltype* pWall, GIBTYPE nGibType, DVector3* pVel);
 END_BLD_NS

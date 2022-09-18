@@ -2131,7 +2131,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER* pPlayer, DAMAGE_TYPE nDamage
 				double top, bottom;
 				GetActorExtents(pActor, &top, &bottom);
 				DVector3 gibPos(pActor->spr.pos.XY(), top);
-				CGibVelocity gibVel(pActor->int_vel().X >> 1, pActor->int_vel().Y >> 1, -0xccccc);
+				DVector3 gibVel(pActor->vel.XY() * 0.5, -FixedToFloat(0xccccc));
 				GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
 				GibSprite(pActor, GIBTYPE_7, NULL, NULL);
 				fxSpawnBlood(pActor, nDamage << 4);

@@ -740,7 +740,7 @@ void OperateWall(walltype* pWall, EVENT event)
 		if (bStatus) {
 			SetupGibWallState(pWall, pXWall);
 			if (pXWall->state) {
-				CGibVelocity vel(100, 100, 250);
+				auto vel = DVector3(100, 100, 250) * (1. / FRACUNIT);
 				int nType = ClipRange(pXWall->data, 0, 31);
 				if (nType > 0)
 					GibWall(pWall, (GIBTYPE)nType, &vel);

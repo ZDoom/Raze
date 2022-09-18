@@ -543,12 +543,12 @@ inline unsigned int Random(int a1)
 	return MulScale(wrand(), a1, 15);
 }
 
-inline double RandomF(int a1)
+inline double RandomF(int a1, int scale = 16)
 {
-	return FixedToFloat(Random(a1));
+	return FixedToFloat(Random(a1), scale);
 }
 
-inline double RandomF(double val, int scale)
+inline double RandomD(double val, int scale)
 {
 	return FixedToFloat(Random(FloatToFixed(val, scale)), scale);
 }
@@ -564,12 +564,12 @@ inline int Random2(int a1)
 	return MulScale(wrand(), a1, 14) - a1;
 }
 
-inline double Random2F(int a1)
+inline double Random2F(int a1, int scale = 16)
 {
-	return FixedToFloat(Random2(a1));
+	return FixedToFloat(Random2(a1), scale);
 }
 
-inline double Random2F(double val, int scale)
+inline double Random2D(double val, int scale)
 {
 	return FixedToFloat(Random2(FloatToFixed(val, scale)), scale);
 }
