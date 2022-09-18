@@ -574,6 +574,11 @@ inline double Random2F(double val, int scale)
 	return FixedToFloat(Random2(FloatToFixed(val, scale)), scale);
 }
 
+inline DAngle Random2A(int a1)
+{
+	return DAngle::fromBuild(MulScale(wrand(), a1, 14) - a1);
+}
+
 // ------------------------------------------------
 inline int Random3(int a1)
 {

@@ -4088,10 +4088,10 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 static void actKickObject(DBloodActor* kicker, DBloodActor* kicked)
 {
-	int nSpeed = ClipLow(approxDist(kicker->int_vel().X, kicker->int_vel().Y) * 2, 0xaaaaa);
-	kicked->set_int_bvel_x(MulScale(nSpeed, Cos(kicker->int_ang() + Random2(85)), 30));
-	kicked->set_int_bvel_y(MulScale(nSpeed, Sin(kicker->int_ang() + Random2(85)), 30));
-	kicked->set_int_bvel_z(MulScale(nSpeed, -0x2000, 14));
+	double nSpeed = max(kicker->vel.XY().Length() * 2, FixedToFloat(0xaaaaa));
+	kicked->vel.X = nSpeed * (kicker->spr.angle + Random2A(85)).Cos();
+	kicked->vel.Y = nSpeed * (kicker->spr.angle + Random2A(85)).Sin();
+	kicked->vel.Z = nSpeed * -0.5;
 	kicked->spr.flags = 7;
 }
 
