@@ -2612,20 +2612,20 @@ DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSect
 	}
 
 	walltype* pWall = pSector->firstWall();
-	auto p = actor->int_vel();
-	int angle = getangle(pWall->delta()) + 512;
-	int t2 = pSector->floorheinum << 4;
-	int t3 = approxDist(-0x10000, t2);
-	int t4 = DivScale(-0x10000, t3, 16);
-	int t5 = DivScale(t2, t3, 16);
-	int t6 = MulScale(t5, Cos(angle), 30);
-	int t7 = MulScale(t5, Sin(angle), 30);
-	int t8 = TMulScale(p.X, t6, p.Y, t7, oldz, t4, 16);
-	int t9 = MulScale(t8, 0x10000 + FloatToFixed(factor), 16);
-	retval.X = FixedToFloat(p.X - MulScale(t6, t9, 16));
-	retval.Y = FixedToFloat(p.Y - MulScale(t7, t9, 16));
-	retval.Z = FixedToFloat(oldz - MulScale(t4, t9, 16));
-	retval.W = FixedToFloat(t8 * t);
+	DVector3 p(actor->vel.XY(), oldz);
+	DAngle angle = pWall->delta().Angle() + DAngle90;
+	auto t2 = pSector->floorheinum * (1. / 4096.);
+	auto t3 = DVector2(-1, t2).Length();
+	auto t4 = -1 / t3;
+	auto t5 = t2 / t3;
+	auto t6 = t5 * angle.Cos();
+	auto t7 = t5 * angle.Sin();
+	auto t8 = p.dot(DVector3(t6, t7, t4));
+	auto t9 = t8 * (1 + factor);
+	retval.X = p.X - (t6 * t9);
+	retval.Y = p.Y - (t7 * t9);
+	retval.Z = p.Z - (t4 * t9);
+	retval.W = t8 * t;
 	return retval;
 }
 
