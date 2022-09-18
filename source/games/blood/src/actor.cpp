@@ -4150,21 +4150,18 @@ static void checkCeilHit(DBloodActor* actor)
 			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && (actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0))
 			{
 				auto adelta = actor2->spr.pos - actor->spr.pos;
+				actor2->vel.XY() += adelta.XY() * (1. / 4096.);
+
 				if (actor2->spr.statnum == kStatThing)
 				{
 					int nType = actor2->spr.type - kThingBase;
 					const THINGINFO* pThingInfo = &thingInfo[nType];
 					if (pThingInfo->flags & 1) actor2->spr.flags |= 1;
 					if (pThingInfo->flags & 2) actor2->spr.flags |= 4;
-					// Inlined ?
-					actor2->add_int_bvel_x(int(adelta.X * 16));
-					actor2->add_int_bvel_y(int(adelta.Y * 16));
 				}
 				else
 				{
 					actor2->spr.flags |= 5;
-					actor2->add_int_bvel_x(int(adelta.X * 16));
-					actor2->add_int_bvel_y(int(adelta.Y * 16));
 #ifdef NOONE_EXTENSIONS
 					// add size shroom abilities
 					if ((actor->IsPlayerActor() && isShrinked(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
