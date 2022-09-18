@@ -4514,7 +4514,7 @@ static Collision MoveThing(DBloodActor* actor)
 	const THINGINFO* pThingInfo = &thingInfo[actor->spr.type - kThingBase];
 	auto pSector = actor->sector();
 	assert(pSector);
-	int top, bottom;
+	double top, bottom;
 	Collision lhit;
 
 	lhit.setNone();
@@ -4526,7 +4526,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12, actor->int_vel().Y >> 12, actor->int_clipdist(), (actor->int_pos().Z - top) / 4, (bottom - actor->int_pos().Z) / 4, CLIPMASK0, lhit);
+		ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), actor->int_clipdist(), (actor->spr.pos.Z - top) * 0.25, (bottom - actor->spr.pos.Z) * 0.25, CLIPMASK0, lhit);
 		actor->hit.hit = lhit;
 		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakCstat;
@@ -4564,32 +4564,24 @@ static Collision MoveThing(DBloodActor* actor)
 
 	actor->spr.pos.Z += actor->vel.Z;
 
-	int ceilZ, floorZ;
+	double ceilZ, floorZ;
 	Collision ceilColl, floorColl;
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0);
 	GetActorExtents(actor, &top, &bottom);
 
 	if ((actor->spr.flags & 2) && bottom < floorZ)
 	{
-		actor->spr.pos.Z += 1.777;
-		actor->add_int_bvel_z(58254);
+		actor->spr.pos.Z += FixedToFloat<8>(455);
+		actor->vel.Z += FixedToFloat(58254);
 		if (actor->spr.type == kThingZombieHead)
 		{
 			auto* fxActor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, 0);
 			if (fxActor)
 			{
-				int v34 = (PlayClock * 3) & 2047;
-				int v30 = (PlayClock * 5) & 2047;
-				int vbx = (PlayClock * 11) & 2047;
-				int v2c = 0x44444;
-				int v28 = 0;
-				int v24 = 0;
-				RotateVector(&v2c, &v28, vbx);
-				RotateVector(&v2c, &v24, v30);
-				RotateVector(&v28, &v24, v34);
-				fxActor->set_int_bvel_x(actor->int_vel().X + v2c);
-				fxActor->set_int_bvel_y(actor->int_vel().Y + v28);
-				fxActor->set_int_bvel_z(actor->int_vel().Z + v24);
+				auto vect1 = DVector2(64./15., 0.).Rotated(DAngle::fromBuild((PlayClock * 11) & 2047));
+				auto vect2 = DVector2(vect1.X, 0.).Rotated(DAngle::fromBuild((PlayClock * 5) & 2047));
+				auto vect3 = DVector2(vect1.Y, vect2.Y).Rotated(DAngle::fromBuild((PlayClock * 3) & 2047));
+				fxActor->vel = actor->vel + DVector3(vect2.X, vect3.X, vect3.Y);
 			}
 		}
 	}
@@ -4600,7 +4592,7 @@ static Collision MoveThing(DBloodActor* actor)
 	{
 		actTouchFloor(actor, actor->sector());
 		actor->hit.florhit = floorColl;
-		actor->add_int_z(floorZ - bottom);
+		actor->spr.pos.Z += floorZ - bottom;
 
 		double veldiff = actor->vel.Z - actor->sector()->velFloor;
 		if (veldiff > 0)
@@ -4614,7 +4606,7 @@ static Collision MoveThing(DBloodActor* actor)
 			int nDamage = MulScale(vax, vax, 30) - pThingInfo->dmgResist;
 			if (nDamage > 0) actDamageSprite(actor, actor, kDamageFall, nDamage);
 
-			actor->set_int_bvel_z(FloatToFixed(vec4.Z));
+			actor->vel.Z = vec4.Z;
 			if (actor->sector()->velFloor == 0 && abs(actor->vel.Z) < 1)
 			{
 				actor->vel.Z = 0;
@@ -4658,7 +4650,7 @@ static Collision MoveThing(DBloodActor* actor)
 	if (top <= ceilZ)
 	{
 		actor->hit.ceilhit = ceilColl;
-		actor->add_int_z(ClipLow(ceilZ - top, 0));
+		actor->spr.pos.Z += max(ceilZ - top, 0.);
 		if (actor->vel.Z < 0)
 		{
 			actor->vel.XY() *= 0.75;

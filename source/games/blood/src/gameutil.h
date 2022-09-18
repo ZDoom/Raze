@@ -43,6 +43,13 @@ inline int HitScan(DBloodActor* pSprite, double z, int dx, int dy, int dz, unsig
 }
 int VectorScan(DBloodActor* pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac);
 void GetZRange(DBloodActor* pSprite, int* ceilZ, Collision* ceilHit, int* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
+void GetZRange(DBloodActor* pSprite, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0)
+{
+	int cz, fz;
+	GetZRange(pSprite, &cz, ceilHit, &fz, floorHit, nDist, nMask, nClipParallax);
+	*ceilZ = cz * zinttoworld;
+	*floorZ = fz * zinttoworld;
+}
 void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int* ceilZ, Collision* ceilHit, int* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0)
 {
