@@ -87,8 +87,8 @@ void Remove(DBloodActor* actor, sectortype*) // 1
 void FlareBurst(DBloodActor* actor, sectortype*) // 2
 {
 	if (!actor) return;
-	int nAngle = getangle(actor->int_vel().X, actor->int_vel().Y);
-	int nRadius = 0x55555;
+	auto nAngVec = actor->vel.XY().Angle().ToVector();
+	double nRadius = FixedToFloat(0x55555);
 	for (int i = 0; i < 8; i++)
 	{
 		auto spawnedactor = actSpawnSprite(actor, 5);
@@ -98,19 +98,9 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 		spawnedactor->spr.type = kMissileFlareAlt;
 		spawnedactor->set_const_clipdist(2);
 		spawnedactor->SetOwner(actor);
-		int nAngle2 = (i << 11) / 8;
-		int dx = 0;
-		int dy = mulscale30r(nRadius, Sin(nAngle2));
-		int dz = mulscale30r(nRadius, -Cos(nAngle2));
-		if (i & 1)
-		{
-			dy >>= 1;
-			dz >>= 1;
-		}
-		RotateVector(&dx, &dy, nAngle);
-		spawnedactor->add_int_bvel_x(dx);
-		spawnedactor->add_int_bvel_y(dy);
-		spawnedactor->add_int_bvel_z(dz);
+		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
+		if (i & 1) spAngVec *= 0.5;
+		spawnedactor->vel += DVector3(DVector2(0, spAngVec.X).Rotated(nAngVec.X, nAngVec.Y), spAngVec.Y);
 		evPostActor(spawnedactor, 960, kCallbackRemove);
 	}
 	evPostActor(actor, 0, kCallbackRemove);
