@@ -153,10 +153,10 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			ang += nRand3;
 			auto vect = DVector3(32 * ang.ToVector(), 0);
 			DVector2 pt(vect.Y, vect.Z);
-			pt = rotatepoint({0,0}, pt, nRand1);
+			pt = pt.Rotated(nRand1);
 			vect.Y = pt.X;
 			pt.X = vect.X;
-			pt = rotatepoint({0,0}, pt, nRand2);
+			pt = pt.Rotated(nRand2);
 			vect.X = pt.X;
 			vect.Z = pt.Y;
 
