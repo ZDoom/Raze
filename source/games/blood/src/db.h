@@ -80,24 +80,16 @@ extern const char* gAmmoText[];
 extern const char* gWeaponText[];
 extern int gSkyCount;
 
-void GetSpriteExtents(spritetypebase const* const pSprite, int* top, int* bottom)
+void GetSpriteExtents(spritetypebase const* const pSprite, double* top, double* bottom)
 {
-	*top = *bottom = pSprite->int_pos().Z;
+	*top = *bottom = pSprite->pos.Z;
 	if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
 	{
 		int height = tileHeight(pSprite->picnum);
 		int center = height / 2 + tileTopOffset(pSprite->picnum);
-		*top -= (pSprite->yrepeat << 2) * center;
-		*bottom += (pSprite->yrepeat << 2) * (height - center);
+		*top -= pSprite->yrepeat * REPEAT_SCALE * center;
+		*bottom += pSprite->yrepeat * REPEAT_SCALE * (height - center);
 	}
-}
-
-inline void GetSpriteExtents(spritetypebase const* const actor, double* top, double* bottom)
-{
-	int t, b;
-	GetSpriteExtents(actor, &t, &b);
-	*top = t * zinttoworld;
-	*bottom = b * zinttoworld;
 }
 
 struct BloodSpawnSpriteDef : public SpawnSpriteDef

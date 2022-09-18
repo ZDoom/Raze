@@ -150,15 +150,15 @@ using BloodSpriteIterator = TSpriteIterator<DBloodActor>;
 
 inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 {
-	GetSpriteExtents(&actor->spr, top, bottom);
+	double t, b;
+	GetSpriteExtents(&actor->spr, &t, &b);
+	*top = t * zworldtoint;
+	*bottom = b * zworldtoint;
 }
 
 inline void GetActorExtents(DBloodActor* actor, double* top, double* bottom)
 {
-	int t, b;
-	GetSpriteExtents(&actor->spr, &t, &b);
-	*top = t * zinttoworld;
-	*bottom = b * zinttoworld;
+	GetSpriteExtents(&actor->spr, top, bottom);
 }
 
 inline bool CheckSector(const BitArray& bits, DBloodActor* act)

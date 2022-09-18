@@ -618,7 +618,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			}
 			else
 			{
-				int top, bottom;
+				double top, bottom;
 				GetSpriteExtents(pTSprite, &top, &bottom);
 				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) > bottom)
 					nAnim = 1;
