@@ -2603,7 +2603,6 @@ void actWallBounceVector(DBloodActor* actor, walltype* pWall, double factor)
 
 DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSector, double factor)
 {
-	DVector4 retval;
 	double t = 1. - factor;
 	if (pSector->floorheinum == 0)
 	{
@@ -2611,22 +2610,13 @@ DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSect
 		return { actor->vel.X, actor->vel.Y, oldz - t2, t2};
 	}
 
-	walltype* pWall = pSector->firstWall();
 	DVector3 p(actor->vel.XY(), oldz);
-	DAngle angle = pWall->delta().Angle() + DAngle90;
+	DAngle angle = pSector->firstWall()->delta().Angle() + DAngle90;
 	auto t2 = pSector->floorheinum * (1. / 4096.);
 	auto t3 = DVector2(-1, t2).Length();
-	auto t4 = -1 / t3;
-	auto t5 = t2 / t3;
-	auto t6 = t5 * angle.Cos();
-	auto t7 = t5 * angle.Sin();
-	auto t8 = p.dot(DVector3(t6, t7, t4));
-	auto t9 = t8 * (1 + factor);
-	retval.X = p.X - (t6 * t9);
-	retval.Y = p.Y - (t7 * t9);
-	retval.Z = p.Z - (t4 * t9);
-	retval.W = t8 * t;
-	return retval;
+	auto t4 = DVector3(angle.ToVector() * (t2 / t3), -1 / t3);
+	auto t8 = actor->vel.dot(t4);
+	return DVector4(p - (t4 * t8 * (1 + factor)), t8 * t);
 }
 
 
