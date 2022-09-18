@@ -9201,8 +9201,8 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 {
 	if (!actor) return;
 	if (actor->spr.statnum != kStatProjectile) return;
-	int nAngle = getangle(actor->int_vel().X, actor->int_vel().Y);
-	int nRadius = 0x55555;
+	auto nAngVec = actor->vel.XY().Angle().ToVector();
+	double nRadius = FixedToFloat(0x55555);
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -9231,19 +9231,9 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 
 		actBuildMissile(burstactor, actor);
 
-		int nAngle2 = (i << 11) / 8;
-		int dx = 0;
-		int dy = mulscale30r(nRadius, Sin(nAngle2));
-		int dz = mulscale30r(nRadius, -Cos(nAngle2));
-		if (i & 1)
-		{
-			dy >>= 1;
-			dz >>= 1;
-		}
-		RotateVector(&dx, &dy, nAngle);
-		burstactor->add_int_bvel_x(dx);
-		burstactor->add_int_bvel_y(dy);
-		burstactor->add_int_bvel_z(dz);
+		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
+		if (i & 1) spAngVec *= 0.5;
+		burstactor->vel += DVector3(DVector2(0, spAngVec.X).Rotated(nAngVec.X, nAngVec.Y), spAngVec.Y);
 		evPostActor(burstactor, 960, kCallbackRemove);
 	}
 	evPostActor(actor, 0, kCallbackRemove);
