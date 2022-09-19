@@ -2013,7 +2013,7 @@ inline DVector3 ActorVectOfMiddle(DSWActor* actor)
 
 inline double ActorSizeZ(DSWActor* actor)
 {
-    return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) / 64.;
+    return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) * REPEAT_SCALE;
 }
 
 inline double ActorUpperZ(DSWActor* actor)
