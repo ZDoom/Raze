@@ -3859,7 +3859,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			if (pWallHit)
 			{
 				auto pFX = gFX.fxSpawnActor(FX_52, missileActor->sector(), missileActor->spr.pos, 0);
-				if (pFX) pFX->set_int_ang((GetWallAngle(pWallHit) + 512) & 2047);
+				if (pFX) pFX->spr.angle = (pWallHit->delta().Angle() + DAngle90).Normalized360();
 			}
 			break;
 		}
@@ -4257,7 +4257,7 @@ static void checkHit(DBloodActor* actor)
 					{
 						actKickObject(actor, actor2);
 						sfxPlay3DSound(actor, 357, -1, 1);
-						int dmg = (mass1 - mass2) + abs(FixedToInt(actor->int_vel().X));
+						int dmg = (mass1 - mass2) + abs(int(actor->vel.X));
 						if (dmg > 0) actDamageSprite(actor, actor2, (Chance(0x2000)) ? kDamageFall : kDamageBullet, dmg);
 					}
 				}
