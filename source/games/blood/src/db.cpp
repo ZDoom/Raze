@@ -329,7 +329,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, int* cursectnum,
 			pXSector->Underwater = bitReader.readUnsigned(1);
 			pXSector->Depth = bitReader.readUnsigned(3);
 			pXSector->panVel = bitReader.readUnsigned(8);
-			pXSector->panAngle = bitReader.readUnsigned(11);
+			pXSector->panAngle = mapangle(bitReader.readUnsigned(11));
 			pXSector->unused1 = bitReader.readUnsigned(1);
 			pXSector->decoupled = bitReader.readUnsigned(1);
 			pXSector->triggerOnce = bitReader.readUnsigned(1);
@@ -363,7 +363,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, int* cursectnum,
 			pSector->floorypan_ += bitReader.readUnsigned(8) / 256.f;
 			pXSector->locked = bitReader.readUnsigned(1);
 			pXSector->windVel = bitReader.readUnsigned(10);
-			pXSector->windAng = bitReader.readUnsigned(11);
+			pXSector->windAng = mapangle(bitReader.readUnsigned(11));
 			pXSector->windAlways = bitReader.readUnsigned(1);
 			pXSector->dudeLockout = bitReader.readUnsigned(1);
 			pXSector->bobTheta = bitReader.readUnsigned(11);

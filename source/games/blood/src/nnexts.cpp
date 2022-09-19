@@ -1303,7 +1303,7 @@ void nnExtProcessSuperSprites()
 				if ((uwater = pXSector->Underwater) != 0) airVel <<= 6;
 				if (pXSector->panVel != 0 && getflorzofslopeptrf(debrisactor->sector(), debrisactor->spr.pos) <= bottom)
 				{
-					int angle = pXSector->panAngle; int speed = 0;
+					int angle = pXSector->panAngle.Buildang(); int speed = 0;
 					if (pXSector->panAlways || pXSector->state || pXSector->busy)
 					{
 						speed = pXSector->panVel << 9;
@@ -3470,7 +3470,7 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 		sourceactor->set_int_ang(ClipLow(ang, -kAng180));
 	}
 
-	pXSector->windAng = sourceactor->int_ang();
+	pXSector->windAng = sourceactor->spr.angle;
 
 	if (sourceactor->xspr.data3 > 0 && sourceactor->xspr.data3 < 4)
 	{

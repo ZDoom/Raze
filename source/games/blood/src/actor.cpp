@@ -4469,10 +4469,9 @@ static void ProcessTouchObjects(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void actAirDrag(DBloodActor* actor, int a2)
+void actAirDrag(DBloodActor* actor, fixed_t drag)
 {
-	int wind_x = 0;
-	int wind_y = 0;
+	DVector2 windvel{};
 	assert(actor->sector());
 	sectortype* pSector = actor->sector();
 	if (pSector->hasX())
@@ -4480,15 +4479,12 @@ void actAirDrag(DBloodActor* actor, int a2)
 		XSECTOR* pXSector = &pSector->xs();
 		if (pXSector->windVel && (pXSector->windAlways || pXSector->busy))
 		{
-			int wind = pXSector->windVel << 12;
-			if (!pXSector->windAlways && pXSector->busy) wind = MulScale(wind, pXSector->busy, 16);
-			wind_x = MulScale(wind, Cos(pXSector->windAng), 30);
-			wind_y = MulScale(wind, Sin(pXSector->windAng), 30);
+			double wind = FixedToFloat<4>(pXSector->windVel);
+			if (!pXSector->windAlways && pXSector->busy) wind *= FixedToFloat(pXSector->busy);
+			windvel = pXSector->windAng.ToVector() * wind;
 		}
 	}
-	actor->add_int_bvel_x(MulScale(wind_x - actor->int_vel().X, a2, 16));
-	actor->add_int_bvel_y(MulScale(wind_y - actor->int_vel().Y, a2, 16));
-	actor->add_int_bvel_z(-MulScale(actor->int_vel().Z, a2, 16));
+	actor->vel += DVector3(windvel - actor->vel.XY(), -actor->vel.Z) * FixedToFloat(drag);
 }
 
 //---------------------------------------------------------------------------
@@ -5640,7 +5636,7 @@ static void actCheckThings()
 				GetActorExtents(actor, &top, &bottom);
 				if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
 				{
-					int angle = pXSector->panAngle;
+					int angle = pXSector->panAngle.Buildang();
 					int speed = 0;
 					if (pXSector->panAlways || pXSector->state || pXSector->busy)
 					{
@@ -6065,7 +6061,7 @@ static void actCheckDudes()
 			GetActorExtents(actor, &top, &bottom);
 			if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
 			{
-				int angle = pXSector->panAngle;
+				int angle = pXSector->panAngle.Buildang();
 				int speed = 0;
 				if (pXSector->panAlways || pXSector->state || pXSector->busy)
 				{

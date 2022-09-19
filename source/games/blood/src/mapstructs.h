@@ -201,10 +201,10 @@ struct XSECTOR {
 	uint16_t rxID;             // RX ID
 	uint16_t busyTimeA;        // OFF->ON busyTime
 	uint16_t waitTimeA;        // OFF->ON waitTime
-	uint16_t panAngle;         // Motion angle
+	DAngle panAngle;         // Motion angle
 	uint16_t busyTimeB;        // ON->OFF busyTime
 	uint16_t waitTimeB;        // ON->OFF waitTime
-	uint16_t windAng;          // Wind ang
+	DAngle windAng;          // Wind ang
 	uint16_t bobTheta;         // Motion Theta
 	int16_t bobSpeed;           // Motion speed
 

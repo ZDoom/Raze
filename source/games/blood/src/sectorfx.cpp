@@ -277,7 +277,7 @@ void DoSectorPanning(void)
 		XSECTOR* pXSector = &pSector->xs();
 		if (pXSector->panAlways || pXSector->busy)
 		{
-			int angle = pXSector->panAngle + 1024;
+			int angle = pXSector->panAngle.Buildang() + 1024;
 			int speed = pXSector->panVel << 10;
 			if (!pXSector->panAlways && (pXSector->busy & 0xffff))
 				speed = MulScale(speed, pXSector->busy, 16);
