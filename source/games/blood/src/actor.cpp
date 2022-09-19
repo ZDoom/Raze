@@ -4703,17 +4703,17 @@ void MoveDude(DBloodActor* actor)
 	}
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	int bz = (bottom - actor->int_pos().Z) / 4;
-	int tz = (actor->int_pos().Z - top) / 4;
+	double bz = (bottom - actor->spr.pos.Z) / 4;
+	double tz = (actor->spr.pos.Z - top) / 4;
 	int wd = actor->int_clipdist();
 	auto pSector = actor->sector();
 	int nAiStateType = (actor->xspr.aiState) ? actor->xspr.aiState->stateType : -1;
 
 	assert(pSector);
 
-	if (actor->vel.X != 0 || actor->int_vel().Y)
+	if (actor->vel.X != 0 || actor->vel.Y != 0)
 	{
 		if (pPlayer && gNoClip)
 		{
@@ -4726,7 +4726,7 @@ void MoveDude(DBloodActor* actor)
 			auto bakCstat = actor->spr.cstat;
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 			// Note: vel is Q16.16, ClipMove wants Q28.4, which passes it on to clipmove which wants Q14.18. Anyone confused yet...?
-			ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12, actor->int_vel().Y >> 12, wd, tz, bz, CLIPMASK0, actor->hit.hit);
+			ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), wd, tz, bz, CLIPMASK0, actor->hit.hit);
 			if (pSector == nullptr)
 			{
 				pSector = actor->sector();
@@ -4789,11 +4789,6 @@ void MoveDude(DBloodActor* actor)
 
 				if (pDudeInfo->lockOut && pHitXSector && pHitXSector->Wallpush && !pHitXSector->Key && !pHitXSector->dudeLockout && !pHitXSector->state && !pHitXSector->busy && !pPlayer)
 					trTriggerSector(pHitSector, kCmdSectorPush, actor);
-
-				if (top < pHitSector->int_ceilingz() || bottom > pHitSector->int_floorz())
-				{
-					// ???
-				}
 			}
 			actWallBounceVector(actor, pHitWall, 0);
 			break;
@@ -4841,31 +4836,31 @@ void MoveDude(DBloodActor* actor)
 	if (pUpperLink && (pUpperLink->spr.type == kMarkerUpWater || pUpperLink->spr.type == kMarkerUpGoo)) bDepth = 1;
 	if (pLowerLink && (pLowerLink->spr.type == kMarkerLowWater || pLowerLink->spr.type == kMarkerLowGoo)) bDepth = 1;
 	if (pPlayer) wd += 16;
-	if (actor->int_vel().Z) actor->add_int_z(actor->int_vel().Z >> 8);
+	if (actor->vel.Z) actor->spr.pos.Z += actor->vel.Z;
 
-	int ceilZ, floorZ;
+	double ceilZ, floorZ;
 	Collision ceilColl, floorColl;
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 	GetActorExtents(actor, &top, &bottom);
 
 	if (actor->spr.flags & 2)
 	{
-		int vc = 58254;
+		double vc = FixedToFloat(58254);
 		if (bDepth)
 		{
 			if (bUnderwater)
 			{
-				int cz = getceilzofslopeptr(pSector, actor->spr.pos);
+				double cz = getceilzofslopeptrf(pSector, actor->spr.pos);
 				if (cz > top)
-					vc += ((bottom - cz) * -80099) / (bottom - top);
+					vc += ((bottom - cz) * -FixedToFloat(80099)) / (bottom - top);
 				else
 					vc = 0;
 			}
 			else
 			{
-				int fz = getflorzofslopeptr(pSector, actor->spr.pos);
+				double fz = getflorzofslopeptrf(pSector, actor->spr.pos);
 				if (fz < bottom)
-					vc += ((bottom - fz) * -80099) / (bottom - top);
+					vc += ((bottom - fz) * -FixedToFloat(80099)) / (bottom - top);
 			}
 		}
 		else
@@ -4877,11 +4872,11 @@ void MoveDude(DBloodActor* actor)
 		}
 		if (vc)
 		{
-			actor->add_int_z(((vc * 4) / 2) >> 8);
-			actor->add_int_bvel_z(vc);
+			actor->spr.pos.Z += (vc * 4) / 2;
+			actor->vel.Z += vc;
 		}
 	}
-	if (pPlayer && actor->vel.Z > 0x155555 && !pPlayer->fallScream && actor->xspr.height > 0)
+	if (pPlayer && actor->vel.Z > FixedToFloat(0x155555) && !pPlayer->fallScream && actor->xspr.height > 0)
 	{
 		const bool playerAlive = (actor->xspr.health > 0) || VanillaMode(); // only trigger falling scream if player is alive or vanilla mode
 		if (playerAlive)
@@ -4969,7 +4964,7 @@ void MoveDude(DBloodActor* actor)
 
 				pPlayer->posture = 1;
 				actor->xspr.burnTime = 0;
-				pPlayer->bubbleTime = abs(actor->int_vel().Z) >> 12;
+				pPlayer->bubbleTime = abs(actor->vel.Z * worldtoint);
 				evPostActor(actor, 0, kCallbackPlayerBubble);
 				sfxPlay3DSound(actor, 720, -1, 0);
 			}
@@ -5056,10 +5051,10 @@ void MoveDude(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 	if (pPlayer && bottom >= floorZ)
 	{
-		int floorZ2 = floorZ;
+		double floorZ2 = floorZ;
 		auto floorColl2 = floorColl;
 		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
-		if (bottom <= floorZ && actor->int_pos().Z - floorZ2 < bz)
+		if (bottom <= floorZ && actor->spr.pos.Z - floorZ2 < bz)
 		{
 			floorZ = floorZ2;
 			floorColl = floorColl2;
@@ -5068,7 +5063,7 @@ void MoveDude(DBloodActor* actor)
 	if (floorZ <= bottom)
 	{
 		actor->hit.florhit = floorColl;
-		actor->add_int_z(floorZ - bottom);
+		actor->spr.pos.Z += floorZ - bottom;
 		double veldiff = actor->vel.Z - actor->sector()->velFloor;
 		if (veldiff > 0)
 		{
@@ -5089,7 +5084,7 @@ void MoveDude(DBloodActor* actor)
 			nDamage -= 100 << 4;
 			if (nDamage > 0)
 				actDamageSprite(actor, actor, kDamageFall, nDamage);
-			actor->set_int_bvel_z(FloatToFixed(vec4.Z));
+			actor->vel.Z = vec4.Z;
 			if (abs(actor->vel.Z) < 1)
 			{
 				actor->vel.Z = actor->sector()->velFloor;
@@ -5138,26 +5133,25 @@ void MoveDude(DBloodActor* actor)
 	if (top <= ceilZ)
 	{
 		actor->hit.ceilhit = ceilColl;
-		actor->add_int_z(ClipLow(ceilZ - top, 0));
+		actor->spr.pos.Z += max(ceilZ - top, 0.);
 
-		if (actor->int_vel().Z <= 0 && (actor->spr.flags & 4))
-			actor->set_int_bvel_z(MulScale(-actor->int_vel().Z, 0x2000, 16));
+		if (actor->vel.Z <= 0 && (actor->spr.flags & 4))
+			actor->vel.Z = -actor->vel.Z * (1. / 8.);
 	}
 	else
 		actor->hit.ceilhit.setNone();
 
 	GetActorExtents(actor, &top, &bottom);
 
-	actor->xspr.height = ClipLow(floorZ - bottom, 0) >> 8;
-	if (actor->vel.X != 0 || actor->int_vel().Y)
+	actor->xspr.height = int(max(floorZ - bottom, 0.));
+	if (actor->vel.X != 0 || actor->vel.Y != 0)
 	{
 		if (floorColl.type == kHitSprite)
 		{
 			auto hitAct = floorColl.actor();
 			if ((hitAct->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - hitAct->int_pos().X, 2));
-				actor->add_int_bvel_y(MulScale(4, actor->int_pos().Y - hitAct->int_pos().Y, 2));
+				actor->vel.XY() += (actor->spr.pos - hitAct->spr.pos).XY() * (1. / 4096.);
 				return;
 			}
 		}
@@ -5165,13 +5159,12 @@ void MoveDude(DBloodActor* actor)
 			return;
 		if (actor->xspr.height >= 0x100)
 			return;
-		int nDrag = gDudeDrag;
+		double nDrag = gDudeDrag;
 		if (actor->xspr.height > 0)
-			nDrag -= Scale(gDudeDrag, actor->xspr.height, 0x100);
-		actor->add_int_bvel_x(-mulscale16r(actor->int_vel().X, nDrag));
-		actor->add_int_bvel_y(-mulscale16r(actor->int_vel().Y, nDrag));
+			nDrag -= Scale(gDudeDrag, (double)actor->xspr.height, 256.);
+		actor->vel.XY() += -actor->vel * nDrag;
 
-		if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
+		if (actor->vel.XY().Length() < 0.0625)
 			actor->ZeroVelocityXY();
 	}
 }
