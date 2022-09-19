@@ -373,7 +373,7 @@ void GameInterface::Ticker()
 
         auto& lPlayerVel = sPlayerInput[nLocalPlayer].vel;
 
-        auto inputvect = DVector2(localInput.fvel, localInput.svel).Rotated(inita) * (1. / 16.);
+        auto inputvect = DVector2(localInput.fvel, localInput.svel).Rotated(inita) * 0.375;
 
         for (int i = 0; i < 4; i++)
         {

@@ -135,7 +135,6 @@ struct GameInterface : public ::GameInterface
 	void SetTileProps(int til, int surf, int vox, int shade) override;
 	fixed_t playerHorizMin() override { return IntToFixed(-180); }
 	fixed_t playerHorizMax() override { return IntToFixed(120); }
-	int playerKeyMove() override { return 1024; }
 	void WarpToCoords(double x, double y, double z, DAngle a, int h) override;
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;

@@ -67,8 +67,10 @@ CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertic
 
 void InputState::GetMouseDelta(ControlInfo * hidInput)
 {
-	hidInput->mouseturnx = g_mousePos.X * m_yaw * backendinputscale();
-	hidInput->mouseturny = g_mousePos.Y * m_pitch * backendinputscale();
+	g_mousePos *= backendinputscale();
+
+	hidInput->mouseturnx = g_mousePos.X * m_yaw;
+	hidInput->mouseturny = g_mousePos.Y * m_pitch;
 	hidInput->mousemovex = g_mousePos.X * m_side;
 	hidInput->mousemovey = g_mousePos.Y * m_forward;
 
@@ -84,7 +86,7 @@ void InputState::GetMouseDelta(ControlInfo * hidInput)
 		hidInput->mousemovey = -hidInput->mousemovey;
 	}
 
-	g_mousePos = {};
+	g_mousePos.Zero();
 }
 
 //==========================================================================

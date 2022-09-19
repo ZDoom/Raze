@@ -111,7 +111,6 @@ struct GameInterface
 	virtual void SetTileProps(int tile, int surf, int vox, int shade) {}
 	virtual fixed_t playerHorizMin() { return IntToFixed(-200); }
 	virtual fixed_t playerHorizMax() { return IntToFixed(200); }
-	virtual int playerKeyMove() { return 0; }
 	virtual void WarpToCoords(double x, double y, double z, DAngle a, int h) {}
 	virtual void ToggleThirdPerson() { }
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }

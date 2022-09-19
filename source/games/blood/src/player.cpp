@@ -102,30 +102,30 @@ POSTURE gPostureDefaults[kModeMax][kPostureMax] = {
 
 	// normal human
 	{
-		{ FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 36, 12, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
-		{ FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 44, -6, FixedToFloat(0x5b05), 0 },
-		{ FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 44, -6, 0, 0 },
+		{ FixedToFloat<14>(0x4000), FixedToFloat<14>(0x4000), FixedToFloat<14>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 36, 12, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
+		{ FixedToFloat<14>(0x1200), FixedToFloat<14>(0x1200), FixedToFloat<14>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 44, -6, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<14>(0x2000), FixedToFloat<14>(0x2000), FixedToFloat<14>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 44, -6, 0, 0 },
 	},
 
 	// normal beast
 	{
-		{ FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), FixedToFloat<24>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 36, 12, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
-		{ FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), FixedToFloat<24>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 44, -6, FixedToFloat(0x5b05), 0 },
-		{ FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), FixedToFloat<24>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 44, -6, 0, 0 },
+		{ FixedToFloat<14>(0x4000), FixedToFloat<14>(0x4000), FixedToFloat<14>(0x4000), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 36, 12, -FixedToFloat(0xbaaaa), -FixedToFloat(0x175555) },
+		{ FixedToFloat<14>(0x1200), FixedToFloat<14>(0x1200), FixedToFloat<14>(0x1200), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 44, -6, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<14>(0x2000), FixedToFloat<14>(0x2000), FixedToFloat<14>(0x2000), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 44, -6, 0, 0 },
 	},
 
 	// shrink human
 	{
-		{ FixedToFloat<24>(10384), FixedToFloat<24>(10384), FixedToFloat<24>(10384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 36, 12, -FixedToFloat(564586), -FixedToFloat(1329173) },
-		{ FixedToFloat<24>(2108), FixedToFloat<24>(2108), FixedToFloat<24>(2108), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 44, -6, FixedToFloat(0x5b05), 0 },
-		{ FixedToFloat<24>(2192), FixedToFloat<24>(2192), FixedToFloat<24>(2192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 44, -6, 0, 0 },
+		{ FixedToFloat<14>(10384), FixedToFloat<14>(10384), FixedToFloat<14>(10384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 36, 12, -FixedToFloat(564586), -FixedToFloat(1329173) },
+		{ FixedToFloat<14>(2108), FixedToFloat<14>(2108), FixedToFloat<14>(2108), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 44, -6, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<14>(2192), FixedToFloat<14>(2192), FixedToFloat<14>(2192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 44, -6, 0, 0 },
 	},
 
 	// grown human
 	{
-		{ FixedToFloat<24>(19384), FixedToFloat<24>(19384), FixedToFloat<24>(19384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 36, 12, -FixedToFloat(1014586), -FixedToFloat(1779173) },
-		{ FixedToFloat<24>(5608), FixedToFloat<24>(5608), FixedToFloat<24>(5608), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 44, -6, FixedToFloat(0x5b05), 0 },
-		{ FixedToFloat<24>(11192), FixedToFloat<24>(11192), FixedToFloat<24>(11192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 44, -6, 0, 0 },
+		{ FixedToFloat<14>(19384), FixedToFloat<14>(19384), FixedToFloat<14>(19384), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 22, 18, 36, 12, -FixedToFloat(1014586), -FixedToFloat(1779173) },
+		{ FixedToFloat<14>(5608), FixedToFloat<14>(5608), FixedToFloat<14>(5608), 14, 17, 0.09375, 0.0625, 0.125, 0.3125, 20, 16, 44, -6, FixedToFloat(0x5b05), 0 },
+		{ FixedToFloat<14>(11192), FixedToFloat<14>(11192), FixedToFloat<14>(11192), 22, 28, 0.09375, 0.0625, 0.0625, 0.15625, 8, 6, 44, -6, 0, 0 },
 	},
 };
 

@@ -2988,8 +2988,8 @@ void processinput_d(int snum)
 		if (p->jetpack_on == 0 && p->steroids_amount > 0 && p->steroids_amount < 400)
 			doubvel <<= 1;
 
-		p->vel.X += (sb_fvel * doubvel) / 4096.;
-		p->vel.Y += (sb_svel * doubvel) / 4096.;
+		p->vel.X += sb_fvel * doubvel * (5. / 16.);
+		p->vel.Y += sb_svel * doubvel * (5. / 16.);
 
 		bool check;
 

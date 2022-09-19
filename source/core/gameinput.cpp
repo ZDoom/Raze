@@ -143,104 +143,48 @@ SW:   3 * 1.40625 * 40 = 168.75; // Precisely, ((((3 * 12) + ((3 * 12) / 4)) * 3
 Average: 234.375;
 */
 
-static constexpr double RUNNINGTURNBASE = 1548.75;
-static constexpr double NORMALTURNBASE = 890.625;
-static constexpr double PREAMBLEBASE = 234.375;
-static constexpr double PREAMBLESCALE = PREAMBLEBASE / NORMALTURNBASE;
+static constexpr double TURNSPEEDS[3] = { 234.375, 890.625, 1548.75 };
+static constexpr double PREAMBLESCALE = TURNSPEEDS[0] / TURNSPEEDS[1];
 
 void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
 {
-	// set up variables
-	int const running = !!(inputBuffer->actions & SB_RUN);
-	int const keymove = gi->playerKeyMove() << running;
-	bool const strafing = buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe;
-	float const mousevelscale = keymove * (1.f / 160.f);
-	double const hidprescale = g_gameType & GAMEFLAG_PSEXHUMED ? 5. : 1.;
-	double const hidspeed = getTicrateScale(RUNNINGTURNBASE) * turnscale * BAngToDegree;
+	// set up variables.
+	int const keymove = 1 << int(!!(inputBuffer->actions & SB_RUN));
+	float const hidspeed = float(getTicrateScale(TURNSPEEDS[2]) * turnscale * BAngToDegree);
+	float const scaleAdjustf = float(scaleAdjust);
 
-	// process mouse and initial controller input.
-	if (!strafing)
-		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed));
+	// determine player input.
+	auto const turning = buttonMap.ButtonDown(gamefunc_Turn_Right) - buttonMap.ButtonDown(gamefunc_Turn_Left);
+	auto const moving = buttonMap.ButtonDown(gamefunc_Move_Forward) - buttonMap.ButtonDown(gamefunc_Move_Backward) + hidInput->dz * scaleAdjustf;
+	auto const strafing = buttonMap.ButtonDown(gamefunc_Strafe_Right) - buttonMap.ButtonDown(gamefunc_Strafe_Left) - hidInput->dx * scaleAdjustf;
+
+	// process player angle input.
+	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
+	{
+		float const turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
+		float const turnspeed = float(getTicrateScale(TURNSPEEDS[keymove]) * turnscale * BAngToDegree * (isTurboTurnTime() ? 1. : PREAMBLESCALE));
+		currInput->avel += hidInput->mouseturnx + (hidInput->dyaw * hidspeed + turndir * turnspeed) * scaleAdjustf;
+		if (turndir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
+	}
 	else
-		currInput->svel += int16_t(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
+	{
+		currInput->svel += hidInput->mousemovex + (hidInput->dyaw + turning) * keymove * scaleAdjustf;
+	}
 
+	// process player pitch input.
 	if (!(inputBuffer->actions & SB_AIMMODE))
-		currInput->horz -= hidInput->mouseturny;
+		currInput->horz -= hidInput->mouseturny + hidInput->dpitch * hidspeed * scaleAdjustf;
 	else
-		currInput->fvel -= int16_t(hidInput->mousemovey * mousevelscale * hidprescale);
+		currInput->fvel -= hidInput->mousemovey + hidInput->dpitch * keymove * scaleAdjustf;
 
-	// process remaining controller input.
-	currInput->horz -= float(scaleAdjust * hidInput->dpitch * hidspeed);
-	currInput->svel -= int16_t(scaleAdjust * hidInput->dx * keymove * hidprescale);
-	currInput->fvel += int16_t(scaleAdjust * hidInput->dz * keymove * hidprescale);
-
-	// process keyboard turning keys.
-	if (!strafing)
-	{
-		bool const turnleft = buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe);
-		bool const turnright = buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe);
-
-		if (turnleft || turnright)
-		{
-			double const turnspeed = getTicrateScale(running ? RUNNINGTURNBASE : NORMALTURNBASE) * turnscale * BAngToDegree;
-			float const turnamount = float(scaleAdjust * turnspeed * (isTurboTurnTime() ? 1. : PREAMBLESCALE));
-
-			if (turnleft)
-				currInput->avel -= turnamount;
-
-			if (turnright)
-				currInput->avel += turnamount;
-
-			updateTurnHeldAmt(scaleAdjust);
-		}
-		else
-		{
-			resetTurnHeldAmt();
-		}
-	}
-	else
-	{
-		if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-			currInput->svel -= keymove;
-
-		if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-			currInput->svel += keymove;
-	}
-
-	// process keyboard side velocity keys.
-	if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && allowstrafe)
-		currInput->svel -= keymove;
-
-	if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && allowstrafe)
-		currInput->svel += keymove;
-
-	// process keyboard forward velocity keys.
-	if (!(isRR() && drink_amt >= 66 && drink_amt <= 87))
-	{
-		if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-			currInput->fvel += keymove;
-
-		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			currInput->fvel -= keymove;
-	}
-	else
-	{
-		if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-		{
-			currInput->fvel += keymove;
-			currInput->svel -= drink_amt & 1 ? keymove : -keymove;
-		}
-
-		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-		{
-			currInput->fvel -= keymove;
-			currInput->svel += drink_amt & 1 ? keymove : -keymove;
-		}
-	}
+	// process movement input.
+	currInput->fvel += moving * keymove;
+	currInput->svel += strafing * keymove * allowstrafe;
+	if (isRR() && drink_amt >= 66 && drink_amt <= 87) currInput->svel += drink_amt & 1 ? -currInput->fvel : currInput->fvel;
 
 	// add collected input to game's local input accumulation packet.
-	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -keymove, keymove);
-	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -keymove, keymove);
+	inputBuffer->fvel = clamp<float>(inputBuffer->fvel + currInput->fvel, -keymove, keymove);
+	inputBuffer->svel = clamp<float>(inputBuffer->svel + currInput->svel, -keymove, keymove);
 	inputBuffer->avel += currInput->avel;
 	inputBuffer->horz += currInput->horz;
 }

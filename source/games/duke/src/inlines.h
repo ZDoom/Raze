@@ -167,12 +167,12 @@ inline bool PlayerUseItem(int pl, int num)
 	return ps[pl].sync.isItemUsed(num - 1);
 }
 
-inline int PlayerInputSideVel(int pl)
+inline float PlayerInputSideVel(int pl)
 {
 	return ps[pl].sync.svel;
 }
 
-inline int PlayerInputForwardVel(int pl)
+inline float PlayerInputForwardVel(int pl)
 {
 	return ps[pl].sync.fvel;
 }

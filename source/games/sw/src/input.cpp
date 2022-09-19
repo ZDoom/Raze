@@ -207,8 +207,9 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     if (packet)
     {
         *packet = loc;
-        packet->fvel = MulScale(loc.fvel, pp->angle.ang.Cos() * (1 << 14), 9) - MulScale(loc.svel, pp->angle.ang.Sin() * (1 << 14), 9);
-        packet->svel = MulScale(loc.fvel, pp->angle.ang.Sin() * (1 << 14), 9) + MulScale(loc.svel, pp->angle.ang.Cos() * (1 << 14), 9);
+        auto velvect = DVector2(loc.fvel, loc.svel).Rotated(pp->angle.ang);
+        packet->fvel = velvect.X;
+        packet->svel = velvect.Y;
         loc = {};
     }
 }

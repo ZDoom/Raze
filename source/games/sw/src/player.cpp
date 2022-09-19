@@ -79,7 +79,7 @@ USERSAVE puser[MAX_SW_PLAYERS_REG];
 bool NightVision = false;
 extern int FinishAnim;
 
-constexpr double INPUT_SCALE = 1. / (1 << 12); // Old code used << 6 to get a Q14.18 value
+constexpr double INPUT_SCALE = (105. / 64.); // Old code used << 6 to get a Q14.18 value
 
 // the smaller the number the slower the going
 #define PLAYER_RUN_FRICTION (50000L)
@@ -2131,8 +2131,8 @@ void DoPlayerMove(PLAYER* pp)
 
     pp->ovect = pp->vect;
 
-    pp->vect.X += (pp->input.fvel*synctics*2) * INPUT_SCALE;
-    pp->vect.Y += (pp->input.svel*synctics*2) * INPUT_SCALE;
+    pp->vect.X += pp->input.fvel * INPUT_SCALE;
+    pp->vect.Y += pp->input.svel * INPUT_SCALE;
 
     friction = pp->friction;
     if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
@@ -2650,9 +2650,9 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
     if (!Prediction)
     {
-        if (abs(pp->input.fvel|pp->input.svel) && !abs(pp->lastinput.fvel| pp->lastinput.svel))
+        if (abs(pp->input.fvel + pp->input.svel) && !abs(pp->lastinput.fvel + pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!abs(pp->input.fvel|pp->input.svel) && abs(pp->lastinput.fvel| pp->lastinput.svel))
+        else if (!abs(pp->input.fvel + pp->input.svel) && abs(pp->lastinput.fvel + pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -2668,16 +2668,16 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
     if (sop->drive_speed)
     {
-        pp->vect.X = MulScaleF(pp->input.fvel, sop->drive_speed, 24);
-        pp->vect.Y = MulScaleF(pp->input.svel, sop->drive_speed, 24);
+        pp->vect.X = pp->input.fvel * sop->drive_speed * (70. / 1048576.);
+        pp->vect.Y = pp->input.svel * sop->drive_speed * (70. / 1048576.);
 
         // does sliding/momentum
         pp->vect = (pp->vect + (pp->ovect * (sop->drive_slide-1)))/sop->drive_slide;
     }
     else
     {
-		pp->vect.X += (pp->input.fvel*synctics*2) * INPUT_SCALE;
-		pp->vect.Y += (pp->input.svel*synctics*2) * INPUT_SCALE;
+		pp->vect.X += pp->input.fvel * INPUT_SCALE;
+		pp->vect.Y += pp->input.svel * INPUT_SCALE;
 		pp->vect *= TANK_FRICTION;
 
         pp->vect = (pp->vect + (pp->ovect*1))/2;
@@ -3330,8 +3330,8 @@ void DoPlayerClimb(PLAYER* pp)
     if (Prediction)
         return;
 
-	pp->vect.X += (pp->input.fvel*synctics*2) * INPUT_SCALE;
-	pp->vect.Y += (pp->input.svel*synctics*2) * INPUT_SCALE;
+	pp->vect.X += pp->input.fvel * INPUT_SCALE;
+	pp->vect.Y += pp->input.svel * INPUT_SCALE;
 	pp->vect *= PLAYER_CLIMB_FRICTION;
     if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
         pp->vect.X = pp->vect.Y = 0;
@@ -5270,7 +5270,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
     switch (sop->track)
     {
     case SO_VEHICLE:
-        if (pp->input.fvel|pp->input.svel)
+        if (pp->input.fvel || pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5288,7 +5288,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
         break;
 #if 0
     case SO_SPEED_BOAT:
-        if (pp->input.fvel|pp->input.svel)
+        if (pp->input.fvel || pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5363,7 +5363,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     switch (sop->track)
     {
     case SO_VEHICLE:
-        if (pp->input.fvel|pp->input.svel)
+        if (pp->input.fvel || pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
