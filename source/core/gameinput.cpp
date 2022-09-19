@@ -162,7 +162,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	if (!strafing)
 		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed));
 	else
-		currInput->svel -= int16_t(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
+		currInput->svel += int16_t(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny;
@@ -171,7 +171,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 	// process remaining controller input.
 	currInput->horz -= float(scaleAdjust * hidInput->dpitch * hidspeed);
-	currInput->svel += int16_t(scaleAdjust * hidInput->dx * keymove * hidprescale);
+	currInput->svel -= int16_t(scaleAdjust * hidInput->dx * keymove * hidprescale);
 	currInput->fvel += int16_t(scaleAdjust * hidInput->dz * keymove * hidprescale);
 
 	// process keyboard turning keys.
@@ -201,18 +201,18 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	else
 	{
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-			currInput->svel += keymove;
+			currInput->svel -= keymove;
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-			currInput->svel -= keymove;
+			currInput->svel += keymove;
 	}
 
 	// process keyboard side velocity keys.
 	if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && allowstrafe)
-		currInput->svel += keymove;
+		currInput->svel -= keymove;
 
 	if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && allowstrafe)
-		currInput->svel -= keymove;
+		currInput->svel += keymove;
 
 	// process keyboard forward velocity keys.
 	if (!(isRR() && drink_amt >= 66 && drink_amt <= 87))
@@ -228,13 +228,13 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 		if (buttonMap.ButtonDown(gamefunc_Move_Forward))
 		{
 			currInput->fvel += keymove;
-			currInput->svel += drink_amt & 1 ? keymove : -keymove;
+			currInput->svel -= drink_amt & 1 ? keymove : -keymove;
 		}
 
 		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
 		{
 			currInput->fvel -= keymove;
-			currInput->svel -= drink_amt & 1 ? keymove : -keymove;
+			currInput->svel += drink_amt & 1 ? keymove : -keymove;
 		}
 	}
 

@@ -373,11 +373,12 @@ void GameInterface::Ticker()
 
         auto& lPlayerVel = sPlayerInput[nLocalPlayer].vel;
 
+        auto inputvect = DVector2(localInput.fvel, localInput.svel).Rotated(inita) * (1. / 16.);
+
         for (int i = 0; i < 4; i++)
         {
             // Velocities are stored as Q14.18
-            lPlayerVel.X += (localInput.fvel * inita.Cos() + localInput.svel * inita.Sin()) / 16.;
-            lPlayerVel.Y += (localInput.fvel * inita.Sin() - localInput.svel * inita.Cos()) / 16.;
+            lPlayerVel += inputvect;
             lPlayerVel *= 0.953125;
         }
         UpdateInterpolations();

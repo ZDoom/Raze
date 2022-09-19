@@ -1596,7 +1596,7 @@ void ProcessInput(PLAYER* pPlayer)
 		const double speed = 1. - (actor->xspr.height < 256 ? actor->xspr.height * (1. / 256.) : 0);
 		const double& fvAccel = pInput->fvel > 0 ? pPosture->frontAccel : pPosture->backAccel;
 		const double& svAccel = pPosture->sideAccel;
-		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, -pInput->svel * svAccel).Rotated(actor->spr.angle) * speed;
+		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, pInput->svel * svAccel).Rotated(actor->spr.angle) * speed;
 	}
 
 	if (SyncInput())
