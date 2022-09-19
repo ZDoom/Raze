@@ -200,54 +200,46 @@ int CheckLink(DBloodActor* actor)
 	auto aLower = barrier_cast<DBloodActor*>(pSector->lowerLink);
 	if (aUpper)
 	{
-		int z;
+		double z;
 		if (aUpper->spr.type == kMarkerUpLink)
-			z = aUpper->int_pos().Z;
+			z = aUpper->spr.pos.Z;
 		else
-			z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
-		if (z <= actor->int_pos().Z)
+			z = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+		if (z <= actor->spr.pos.Z)
 		{
 			aLower = aUpper->GetOwner();
 			assert(aLower);
 			assert(aLower->insector());
 			ChangeActorSect(actor, aLower->sector());
-			vec3_t add;
-			add.X = aLower->int_pos().X - aUpper->int_pos().X;
-			add.Y = aLower->int_pos().Y - aUpper->int_pos().Y;
-			int z2;
+			double z2;
 			if (aLower->spr.type == kMarkerLowLink)
-				z2 = aLower->int_pos().Z;
+				z2 = aLower->spr.pos.Z;
 			else
-				z2 = getceilzofslopeptr(actor->sector(), actor->spr.pos);
-			add.Z = z2 - z;
-			actor->add_int_pos(add);
+				z2 = getceilzofslopeptrf(actor->sector(), actor->spr.pos);
+			actor->spr.pos += DVector3(aLower->spr.pos.XY() - aUpper->spr.pos.XY(), z2 - z);
 			actor->interpolated = false;
 			return aUpper->spr.type;
 		}
 	}
 	if (aLower)
 	{
-		int z;
+		double z;
 		if (aLower->spr.type == kMarkerLowLink)
-			z = aLower->int_pos().Z;
+			z = aLower->spr.pos.Z;
 		else
-			z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
-		if (z >= actor->int_pos().Z)
+			z = getceilzofslopeptrf(actor->sector(), actor->spr.pos);
+		if (z >= actor->spr.pos.Z)
 		{
 			aUpper = aLower->GetOwner();
 			assert(aUpper);
 			assert(aUpper->insector());
 			ChangeActorSect(actor, aUpper->sector());
-			vec3_t add;
-			add.X = aUpper->int_pos().X - aLower->int_pos().X;
-			add.Y = aUpper->int_pos().Y - aLower->int_pos().Y;
-			int z2;
+			double z2;
 			if (aUpper->spr.type == kMarkerUpLink)
-				z2 = aUpper->int_pos().Z;
+				z2 = aUpper->spr.pos.Z;
 			else
-				z2 = getflorzofslopeptr(actor->sector(), actor->spr.pos);
-			add.Z = z2 - z;
-			actor->add_int_pos(add);
+				z2 = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+			actor->spr.pos += DVector3(aUpper->spr.pos.XY() - aLower->spr.pos.XY(), z2 - z);
 			actor->interpolated = false;
 			return aLower->spr.type;
 		}
