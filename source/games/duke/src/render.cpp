@@ -364,13 +364,13 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 
 		else if (p->spritebridge == 0 && p->newOwner == nullptr)
 		{
-			cpos.Z = clamp(cpos.Z, cz + 4, fz - 4);
+			cpos.Z = min(max(cpos.Z, p->truecz + 4), p->truefz - 4);
 		}
 
 		if (sect)
 		{
 			getzsofslopeptr(sect, cpos, &cz, &fz);
-			cpos.Z = clamp(cpos.Z, cz + 4, fz - 4);
+			cpos.Z = min(max(cpos.Z, cz + 4), fz - 4);
 		}
 
 		choriz = clamp(choriz, q16horiz(gi->playerHorizMin()), q16horiz(gi->playerHorizMax()));
