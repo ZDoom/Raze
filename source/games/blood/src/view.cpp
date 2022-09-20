@@ -472,10 +472,9 @@ static void DrawMap(DBloodActor* view)
 		tm = 1;
 	}
 	VIEW* pView = &gPrevView[gViewIndex];
-	int x = interpolatedvalue(pView->x, view->int_pos().X, gInterpolate);
-	int y = interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate);
+	auto xy = DVector2(interpolatedvalue(pView->x, view->int_pos().X, gInterpolate), interpolatedvalue(pView->y, view->int_pos().Y, gInterpolate)) * inttoworld;
 	auto ang = !SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate);
-	DrawOverheadMap(x, y, ang, gInterpolate);
+	DrawOverheadMap(xy, ang, gInterpolate);
 	if (tm)
 		setViewport(hud_size);
 }
@@ -860,18 +859,19 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, const double z, const DAngle a, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
 {
+	auto cangsin = cang.Sin();
+	auto cangcos = cang.Cos();
+
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		if (i == gView->nPlayer || gGameOptions.nGameType == 1)
 		{
-			auto an = -a;
-			auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
 			auto actor = gPlayer[i].actor;
-			auto vect = OutAutomapVector(DVector2(mx, my) - DVector2(x, y), a.Sin(), a.Cos(), z, xydim);
+			auto vect = OutAutomapVector(mxy - cpos, cangsin, cangcos, czoom, xydim);
 
-			DrawTexture(twod, tileGetTexture(actor->spr.picnum, true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
+			DrawTexture(twod, tileGetTexture(actor->spr.picnum, true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, czoom * (2. / 3.), DTA_ScaleY, czoom * (2. / 3.), DTA_CenterOffset, true,
 				DTA_ClipRight, viewport3d.Right(), DTA_ClipBottom, viewport3d.Bottom(), DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
 		}
 	}

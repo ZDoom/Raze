@@ -115,7 +115,6 @@ CCMD(togglerotate)
 	Printf(PRINT_NOTIFY, "%s\n", msg);
 }
 
-
 CCMD(am_zoom)
 {
 	if (argv.argc() >= 2)
@@ -182,7 +181,7 @@ static void CalcMapBounds()
 //
 //---------------------------------------------------------------------------
 
-void AutomapControl(const DAngle ang)
+void AutomapControl()
 {
 	static double nonsharedtimer;
 	double ms = screen->FrameTime;
@@ -225,7 +224,7 @@ void AutomapControl(const DAngle ang)
 
 			if (min_bounds.X == INT_MAX) CalcMapBounds();
 
-			follow = clamp(follow + DVector2(panvert, panhorz).Rotated(ang) * zoomspeed, min_bounds, max_bounds);
+			follow = clamp(follow + DVector2(panvert, panhorz).Rotated(follow_a) * zoomspeed, min_bounds, max_bounds);
 		}
 	}
 }
@@ -309,7 +308,7 @@ void drawlinergb(const double x1, const double y1, const double x2, const double
 //
 //---------------------------------------------------------------------------
 
-PalEntry RedLineColor()
+static inline PalEntry RedLineColor()
 {
 	// todo:
 	// Blood uses palette index 12 (99,99,99)
@@ -318,7 +317,7 @@ PalEntry RedLineColor()
 	return automapMode == am_overlay? *am_ovtwosidedcolor : *am_twosidedcolor;
 }
 
-PalEntry WhiteLineColor()
+static inline PalEntry WhiteLineColor()
 {
 
 	// todo:
@@ -328,7 +327,7 @@ PalEntry WhiteLineColor()
 	return automapMode == am_overlay ? *am_ovonesidedcolor : *am_onesidedcolor;
 }
 
-PalEntry PlayerLineColor()
+static inline PalEntry PlayerLineColor()
 {
 	return automapMode == am_overlay ? *am_ovplayercolor : *am_playercolor;
 }
@@ -341,6 +340,7 @@ CCMD(printpalcol)
 	int i = atoi(argv[1]);
 	Printf("%d, %d, %d\n", GPalette.BaseColors[i].r, GPalette.BaseColors[i].g, GPalette.BaseColors[i].b);
 }
+
 //---------------------------------------------------------------------------
 //
 //
@@ -589,11 +589,11 @@ static void renderDrawMapView(const DVector2& cpos, const double sine, const dou
 //
 //---------------------------------------------------------------------------
 
-void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smoothratio)
+void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const smoothratio)
 {
 	if (am_followplayer || follow.X == INT_MAX)
 	{
-		follow = DVector2(pl_x, pl_y) * inttoworld;
+		follow = plxy;
 	}
 
 	follow_a = -(am_rotate ? pl_angle : DAngle270);
@@ -601,7 +601,7 @@ void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smo
 	const double sine = follow_a.Sin();
 	const double cosine = follow_a.Cos();
 
-	AutomapControl(-follow_a);
+	AutomapControl();
 
 	if (automapMode == am_full)
 	{
@@ -611,7 +611,7 @@ void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smo
 
 	drawredlines(follow, sine, cosine, xydim);
 	drawwhitelines(follow, sine, cosine, xydim);
-	if (!gi->DrawAutomapPlayer(pl_x, pl_y, follow.X * worldtoint, follow.Y * worldtoint, gZoom * 1024, -follow_a, smoothratio))
+	if (!gi->DrawAutomapPlayer(plxy, follow, follow_a, xydim, gZoom, smoothratio))
 		DrawPlayerArrow(follow, follow_a, gZoom, pl_angle);
 
 }

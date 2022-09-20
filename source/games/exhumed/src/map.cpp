@@ -49,11 +49,8 @@ void DrawMap(double const smoothratio)
     if (!nFreeze && automapMode != am_off) 
     {
         auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
-
-        int x = pPlayerActor->__interpolatedx(smoothratio);
-        int y = pPlayerActor->__interpolatedy(smoothratio);
         auto ang = !SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(smoothratio);
-        DrawOverheadMap(x, y, ang, smoothratio);
+        DrawOverheadMap(pPlayerActor->interpolatedvec3(smoothratio / 65536.).XY(), ang, smoothratio);
     }
 }
 
@@ -69,18 +66,19 @@ void GetActorExtents(DExhumedActor* actor, int* top, int* bottom)
     }
 }
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, const double z, const DAngle a, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
 {
+    auto cangsin = cang.Sin();
+    auto cangcos = cang.Cos();
+
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         if (i == nLocalPlayer)// || gGameOptions.nGameType == 1)
         {
             auto pPlayerActor = PlayerList[i].pActor;
-            auto an = -a;
-            auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
-            auto vect = OutAutomapVector(DVector2(mx, my) - DVector2(x, y), a.Sin(), a.Cos(), z, xydim);
+            auto vect = OutAutomapVector(mxy - cpos, cangsin, cangcos, czoom, xydim);
 
-            DrawTexture(twod, tileGetTexture(pPlayerActor->spr.picnum /*+ ((PlayClock >> 4) & 3)*/, true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
+            DrawTexture(twod, tileGetTexture(pPlayerActor->spr.picnum /*+ ((PlayClock >> 4) & 3)*/, true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, czoom * (2. / 3.), DTA_ScaleY, czoom * (2. / 3.), DTA_CenterOffset, true,
                 DTA_ClipRight, viewport3d.Right(), DTA_ClipBottom, viewport3d.Bottom(), DTA_Alpha, (pPlayerActor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
             break;
         }

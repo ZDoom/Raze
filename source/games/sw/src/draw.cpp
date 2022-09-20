@@ -1508,7 +1508,7 @@ void drawscreen(PLAYER* pp, double smoothratio, bool sceneonly)
                 }
             }
         }
-        DrawOverheadMap(tx, ty, tang, smoothratio);
+        DrawOverheadMap(DVector2(tx, ty) * inttoworld, tang, smoothratio);
     }
 
     SWSpriteIterator it;
@@ -1570,28 +1570,15 @@ bool GameInterface::GenerateSavePic()
 
 
 
-bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, const double czoom, const DAngle cang, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
 {
     DVector2 b1, b2, b3, b4, v1, v2, v3, v4;
-    DAngle an;
-    int k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
-    int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
-    int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum;
-    int xvect, yvect;
-    walltype* wal, * wal2;
-    short p;
+    int xoff, yoff, xspan, yspan, tilenum, p;
     static int pspr_ndx[8] = { 0,0,0,0,0,0,0,0 };
     bool sprisplayer = false;
-    short txt_x, txt_y;
 
-    xvect = -cang.Sin() * 16384. * czoom;
-    yvect = -cang.Cos() * 16384. * czoom;
-
-    int xdim = twod->GetWidth() << 11;
-    int ydim = twod->GetHeight() << 11;
-
-    auto xydim = DVector2(twod->GetWidth() * 0.5, twod->GetHeight() * 0.5);
-    auto cp = DVector2(cposx, cposy) * inttoworld;
+    auto cangsin = cang.Sin();
+    auto cangcos = cang.Cos();
 
     // Draw sprites
     auto peekActor = Player[screenpeek].actor;
@@ -1615,34 +1602,21 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
             {
             SHOWSPRITE:
 
-                PalEntry col = GPalette.BaseColors[56]; // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
-                if ((actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0)
-                    col = GPalette.BaseColors[248];
-                if (actor == peekActor)
-                    col = GPalette.BaseColors[31];
+                // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
+                PalEntry col = (actor->spr.cstat & CSTAT_SPRITE_BLOCK) > 0 ? GPalette.BaseColors[248] : actor == peekActor ? GPalette.BaseColors[31] : GPalette.BaseColors[56];
 
-                sprx = actor->int_pos().X;
-                spry = actor->int_pos().Y;
-
-                k = actor->spr.statnum;
-                if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving
-                {
-                    sprx = actor->__interpolatedx(smoothratio);
-                    spry = actor->__interpolatedy(smoothratio);
-                }
-
-                auto sp = DVector2(sprx, spry) * inttoworld;
+                auto statnum = actor->spr.statnum;
+                auto sprxy = ((statnum >= 1) && (statnum <= 8) && (statnum != 2) ? actor->interpolatedvec3(smoothratio / 65536.) : actor->spr.pos).XY();
 
                 switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
                 case CSTAT_SPRITE_ALIGNMENT_FACING:  // Regular sprite
                     if (Player[p].actor == actor)
                     {
-                        if (czoom > 192)
+                        if (czoom > 0.1875)
                         {
-                            an = -cang;
-                            const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio / 65536.)) - cang).Normalized360().Degrees();
-                            auto vect = OutAutomapVector(DVector2(mx, my) * inttoworld - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
+                            const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio / 65536.)) + cang).Normalized360().Degrees();
+                            auto vect = OutAutomapVector(mxy - cpos, cangsin, cangcos, czoom, xydim);
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;
@@ -1655,7 +1629,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
                             }
                             else spnum = actor->spr.picnum;
 
-                            double sc = czoom * (actor->spr.yrepeat) / 32768.;
+                            double sc = czoom * actor->spr.yrepeat * (1. / 32.);
                             if (spnum >= 0)
                             {
                                 DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), vect.X, vect.Y, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang,
@@ -1673,13 +1647,12 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
 
                     xspan = tileWidth(tilenum);
 
-                    an = -cang;
                     b1 = actor->spr.angle.ToVector().Rotated90CW() * actor->spr.xrepeat * (1. / 64.);
-                    b2 = sp - b1 * ((xspan * 0.5) + xoff);
+                    b2 = sprxy - b1 * ((xspan * 0.5) + xoff);
                     b3 = b2 + b1 * xspan;
 
-                    v1 = OutAutomapVector(b2 - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
-                    v2 = OutAutomapVector(b3 - cp, an.Sin(), an.Cos(), czoom / 1024., xydim);
+                    v1 = OutAutomapVector(b2 - cpos, cangsin, cangcos, czoom, xydim);
+                    v2 = OutAutomapVector(b3 - cpos, cangsin, cangcos, czoom, xydim);
 
                     drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
                     break;
@@ -1694,29 +1667,27 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, cons
                         if ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) > 0)
                             yoff = -yoff;
 
-                        an = -cang;
-
-                        auto acos = actor->spr.angle.Cos();
-                        auto asin = actor->spr.angle.Sin();
+                        auto sprcos = actor->spr.angle.Cos();
+                        auto sprsin = actor->spr.angle.Sin();
 
                         xspan = tileWidth(tilenum);
                         auto xrep = actor->spr.xrepeat * (1. / 64.);
                         yspan = tileHeight(tilenum);
                         auto yrep = actor->spr.yrepeat * (1. / 64.);
 
-                        auto xscale = DVector2(-asin * xspan * xrep, +acos * xspan * xrep);
-                        auto yscale = DVector2(-acos * yspan * yrep, -asin * yspan * yrep);
+                        auto xscale = DVector2(-sprsin * xspan * xrep, +sprcos * xspan * xrep);
+                        auto yscale = DVector2(-sprcos * yspan * yrep, -sprsin * yspan * yrep);
 
                         auto b0 = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);
-                        b1 = sp + (b0 * asin) + (b0.Rotated90CW() * acos);
+                        b1 = sprxy + (b0 * sprsin) + (b0.Rotated90CW() * sprcos);
                         b2 = b1 + xscale;
                         b3 = b2 + yscale;
                         b4 = b1 + yscale;
 
-                        v1 = OutAutomapVector(-(b1 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
-                        v2 = OutAutomapVector(-(b2 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
-                        v3 = OutAutomapVector(-(b3 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
-                        v4 = OutAutomapVector(-(b4 - cp), -an.Sin(), -an.Cos(), czoom / 1024., xydim);
+                        v1 = OutAutomapVector(b1 - cpos, cangsin, cangcos, czoom, xydim);
+                        v2 = OutAutomapVector(b2 - cpos, cangsin, cangcos, czoom, xydim);
+                        v3 = OutAutomapVector(b3 - cpos, cangsin, cangcos, czoom, xydim);
+                        v4 = OutAutomapVector(b4 - cpos, cangsin, cangcos, czoom, xydim);
 
                         drawlinergb(v1.X, v1.Y, v2.X, v2.Y, col);
                         drawlinergb(v2.X, v2.Y, v3.X, v3.Y, col);
