@@ -55,16 +55,17 @@ CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
 CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
 CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
 
-int automapMode;
-static float am_zoomdir;
-double follow_x = INT_MAX, follow_y = INT_MAX;
-DAngle follow_a = DAngle::fromDeg(INT_MAX);
+static DVector2 min_bounds = { INT_MAX, 0 };;
+static DVector2 max_bounds = { 0, 0 };
+static DVector2 follow = { INT_MAX, INT_MAX };
+static DAngle follow_a = DAngle::fromDeg(INT_MAX);
 static double gZoom = 0.75;
+static float am_zoomdir;
+int automapMode;
 bool automapping;
 bool gFullMap;
 BitArray show2dsector;
 BitArray show2dwall;
-static double x_min_bound = INT_MAX, y_min_bound, x_max_bound, y_max_bound;
 
 CVAR(Color, am_twosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
 CVAR(Color, am_onesidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
@@ -104,7 +105,7 @@ CCMD(togglefollow)
 	auto msg = quoteMgr.GetQuote(am_followplayer ? 84 : 83);
 	if (!msg || !*msg) msg = am_followplayer ? GStrings("FOLLOW MODE ON") : GStrings("FOLLOW MODE Off");
 	Printf(PRINT_NOTIFY, "%s\n", msg);
-	if (am_followplayer) follow_x = INT_MAX;
+	if (am_followplayer) follow.X = INT_MAX;
 }
 
 CCMD(togglerotate)
@@ -162,19 +163,16 @@ bool AM_Responder(event_t* ev, bool last)
 
 static void CalcMapBounds()
 {
-	x_min_bound = INT_MAX;
-	y_min_bound = INT_MAX;
-	x_max_bound = INT_MIN;
-	y_max_bound = INT_MIN;
-
+	min_bounds = { INT_MAX, INT_MAX };
+	max_bounds = { INT_MIN, INT_MIN };
 
 	for(auto& wal : wall)
 	{
 		// get map min and max coordinates
-		if (wal.pos.X < x_min_bound) x_min_bound = wal.pos.X;
-		if (wal.pos.Y < y_min_bound) y_min_bound = wal.pos.Y;
-		if (wal.pos.X > x_max_bound) x_max_bound = wal.pos.X;
-		if (wal.pos.Y > y_max_bound) y_max_bound = wal.pos.Y;
+		if (wal.pos.X < min_bounds.X) min_bounds.X = wal.pos.X;
+		if (wal.pos.Y < min_bounds.Y) min_bounds.Y = wal.pos.Y;
+		if (wal.pos.X > max_bounds.X) max_bounds.X = wal.pos.X;
+		if (wal.pos.Y > max_bounds.Y) max_bounds.Y = wal.pos.Y;
 	}
 }
 
@@ -184,12 +182,11 @@ static void CalcMapBounds()
 //
 //---------------------------------------------------------------------------
 
-void AutomapControl()
+void AutomapControl(const DAngle ang)
 {
 	static double nonsharedtimer;
 	double ms = screen->FrameTime;
 	double interval;
-	int panvert = 0, panhorz = 0;
 
 	if (nonsharedtimer > 0 || ms < nonsharedtimer)
 	{
@@ -206,7 +203,6 @@ void AutomapControl()
 
 	if (automapMode != am_off)
 	{
-		const int keymove = 4;
 		if (am_zoomdir > 0)
 		{
 			gZoom = gZoom * am_zoomdir;
@@ -217,39 +213,19 @@ void AutomapControl()
 		}
 		am_zoomdir = 0;
 
-		double j = interval * 35. / gZoom;
-
-		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			gZoom += MulScaleF(j, max(gZoom, 0.25), 16);
-		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			gZoom -= MulScaleF(j, max(gZoom, 0.25), 16);
-
+		double j = interval * (35. / 65536.) / gZoom;
+		gZoom += (buttonMap.ButtonDown(gamefunc_Enlarge_Screen) - buttonMap.ButtonDown(gamefunc_Shrink_Screen)) * j * max(gZoom, 0.25);
 		gZoom = clamp(gZoom, 0.05, 2.);
 
 		if (!am_followplayer)
 		{
-			if (buttonMap.ButtonDown(gamefunc_AM_PanLeft))
-				panhorz += keymove;
+			const double zoomspeed = j * 512.;
+			const auto panhorz = buttonMap.ButtonDown(gamefunc_AM_PanRight) - buttonMap.ButtonDown(gamefunc_AM_PanLeft);
+			const auto panvert = buttonMap.ButtonDown(gamefunc_AM_PanUp) - buttonMap.ButtonDown(gamefunc_AM_PanDown);
 
-			if (buttonMap.ButtonDown(gamefunc_AM_PanRight))
-				panhorz -= keymove;
+			if (min_bounds.X == INT_MAX) CalcMapBounds();
 
-			if (buttonMap.ButtonDown(gamefunc_AM_PanUp))
-				panvert += keymove;
-
-			if (buttonMap.ButtonDown(gamefunc_AM_PanDown))
-				panvert -= keymove;
-
-			auto angl = -follow_a;
-			auto momx = (panvert * angl.Cos() * 8) + (panhorz * angl.Sin() * 8);
-			auto momy = (panvert * angl.Sin() * 8) - (panhorz * angl.Cos() * 8);
-
-			follow_x += momx * j / 1024.;
-			follow_y += momy * j / 1024.;
-
-			if (x_min_bound == INT_MAX) CalcMapBounds();
-			follow_x = clamp(follow_x, x_min_bound, x_max_bound);
-			follow_y = clamp(follow_y, y_min_bound, y_max_bound);
+			follow = clamp(follow + DVector2(panvert, panhorz).Rotated(ang) * zoomspeed, min_bounds, max_bounds);
 		}
 	}
 }
@@ -283,7 +259,7 @@ void ClearAutomap()
 {
 	show2dsector.Zero();
 	show2dwall.Zero();
-	x_min_bound = INT_MAX;
+	min_bounds.X = INT_MAX;
 }
 
 //---------------------------------------------------------------------------
@@ -615,19 +591,17 @@ static void renderDrawMapView(const DVector2& cpos, const double sine, const dou
 
 void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smoothratio)
 {
-	if (am_followplayer || follow_x == INT_MAX)
+	if (am_followplayer || follow.X == INT_MAX)
 	{
-		follow_x = pl_x * inttoworld;
-		follow_y = pl_y * inttoworld;
+		follow = DVector2(pl_x, pl_y) * inttoworld;
 	}
 
 	follow_a = -(am_rotate ? pl_angle : DAngle270);
-	const DVector2 follow(follow_x, follow_y);
 	const DVector2 xydim = {screen->GetWidth() * 0.5, screen->GetHeight() * 0.5};
 	const double sine = follow_a.Sin();
 	const double cosine = follow_a.Cos();
 
-	AutomapControl();
+	AutomapControl(-follow_a);
 
 	if (automapMode == am_full)
 	{
@@ -637,7 +611,7 @@ void DrawOverheadMap(int pl_x, int pl_y, const DAngle pl_angle, double const smo
 
 	drawredlines(follow, sine, cosine, xydim);
 	drawwhitelines(follow, sine, cosine, xydim);
-	if (!gi->DrawAutomapPlayer(pl_x, pl_y, follow_x * worldtoint, follow_y * worldtoint, gZoom * 1024, -follow_a, smoothratio))
+	if (!gi->DrawAutomapPlayer(pl_x, pl_y, follow.X * worldtoint, follow.Y * worldtoint, gZoom * 1024, -follow_a, smoothratio))
 		DrawPlayerArrow(follow, follow_a, gZoom, pl_angle);
 
 }

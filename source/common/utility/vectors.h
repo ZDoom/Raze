@@ -1462,6 +1462,12 @@ TAngle<T> TVector3<T>::Pitch() const
 }
 
 template<class T>
+inline TVector2<T> clamp(const TVector2<T> &vec, const TVector2<T> &min, const TVector2<T> &max)
+{
+	return TVector2<T>(clamp(vec.X, min.X, max.X), clamp(vec.Y, min.Y, max.Y));
+}
+
+template<class T>
 inline TVector2<T> interpolatedvec2(const TVector2<T> &ovec, const TVector2<T> &vec, const double scale)
 {
 	return ovec + ((vec - ovec) * scale);
