@@ -20,9 +20,9 @@ void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const s
 bool AM_Responder(event_t* ev, bool last);
 void drawlinergb(const DVector2& v1, const DVector2& v2, PalEntry p);
 
-inline DVector2 OutAutomapVector(const DVector2& pos, const double sine, const double cosine, const double zoom = 1., const DVector2& xydim = { 0, 0 })
+inline DVector2 OutAutomapVector(const DVector2& pos, const DVector2& angvect, const double zoom = 1., const DVector2& xydim = { 0, 0 })
 {
-	return pos.Rotated(cosine, sine).Rotated90CW() * zoom + xydim;
+	return -pos.Rotated(angvect.Y, angvect.X) * zoom + xydim;
 }
 
 enum AM_Mode

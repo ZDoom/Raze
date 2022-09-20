@@ -181,7 +181,7 @@ static void CalcMapBounds()
 //
 //---------------------------------------------------------------------------
 
-void AutomapControl()
+static void AutomapControl(const DVector2& cangvect)
 {
 	static double nonsharedtimer;
 	double ms = screen->FrameTime;
@@ -224,7 +224,7 @@ void AutomapControl()
 
 			if (min_bounds.X == INT_MAX) CalcMapBounds();
 
-			follow = clamp(follow + DVector2(panvert, panhorz).Rotated(follow_a) * zoomspeed, min_bounds, max_bounds);
+			follow = clamp(follow + DVector2(panvert, panhorz).Rotated(cangvect.X, cangvect.Y) * zoomspeed, min_bounds, max_bounds);
 		}
 	}
 }
@@ -386,7 +386,7 @@ bool ShowRedLine(int j, int i)
 //
 //---------------------------------------------------------------------------
 
-static void drawredlines(const DVector2& cpos, const double sine, const double cosine, const DVector2& xydim)
+static void drawredlines(const DVector2& cpos, const DVector2& cangvect, const DVector2& xydim)
 {
 	for (unsigned i = 0; i < sector.Size(); i++)
 	{
@@ -406,8 +406,8 @@ static void drawredlines(const DVector2& cpos, const double sine, const double c
 
 			if (ShowRedLine(wallnum(&wal), i))
 			{
-				auto v1 = OutAutomapVector(wal.pos - cpos, sine, cosine, gZoom, xydim);
-				auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, sine, cosine, gZoom, xydim);
+				auto v1 = OutAutomapVector(wal.pos - cpos, cangvect, gZoom, xydim);
+				auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, cangvect, gZoom, xydim);
 				drawlinergb(v1, v2, RedLineColor());
 			}
 		}
@@ -420,7 +420,7 @@ static void drawredlines(const DVector2& cpos, const double sine, const double c
 //
 //---------------------------------------------------------------------------
 
-static void drawwhitelines(const DVector2& cpos, const double sine, const double cosine, const DVector2& xydim)
+static void drawwhitelines(const DVector2& cpos, const DVector2& cangvect, const DVector2& xydim)
 {
 	for (int i = (int)sector.Size() - 1; i >= 0; i--)
 	{
@@ -434,8 +434,8 @@ static void drawwhitelines(const DVector2& cpos, const double sine, const double
 			if (isSWALL() && !gFullMap && !show2dwall[wallnum(&wal)])
 				continue;
 
-			auto v1 = OutAutomapVector(wal.pos - cpos, sine, cosine, gZoom, xydim);
-			auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, sine, cosine, gZoom, xydim);
+			auto v1 = OutAutomapVector(wal.pos - cpos, cangvect, gZoom, xydim);
+			auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, cangvect, gZoom, xydim);
 			drawlinergb(v1, v2, WhiteLineColor());
 		}
 	}
@@ -495,7 +495,7 @@ static void DrawPlayerArrow(const DVector2& cpos, const DAngle cang, const doubl
 //
 //---------------------------------------------------------------------------
 
-static void renderDrawMapView(const DVector2& cpos, const double sine, const double cosine, const DVector2& xydim)
+static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, const DVector2& xydim)
 {
 	TArray<FVector4> vertices;
 	TArray<DCoreActor*> floorsprites;
@@ -536,7 +536,7 @@ static void renderDrawMapView(const DVector2& cpos, const double sine, const dou
 			vertices.Resize(mesh->vertices.Size());
 			for (unsigned j = 0; j < mesh->vertices.Size(); j++)
 			{
-				auto v = OutAutomapVector(DVector2(mesh->vertices[j].X - cpos.X, -mesh->vertices[j].Y - cpos.Y), sine, cosine, gZoom, xydim);
+				auto v = OutAutomapVector(DVector2(mesh->vertices[j].X - cpos.X, -mesh->vertices[j].Y - cpos.Y), cangvect, gZoom, xydim);
 				vertices[j] = { float(v.X), float(v.Y), mesh->texcoords[j].X, mesh->texcoords[j].Y };
 			}
 
@@ -562,7 +562,7 @@ static void renderDrawMapView(const DVector2& cpos, const double sine, const dou
 
 		for (unsigned j = 0; j < 4; j++)
 		{
-			auto v = OutAutomapVector(pp[j] - cpos, sine, cosine, gZoom, xydim);
+			auto v = OutAutomapVector(pp[j] - cpos, cangvect, gZoom, xydim);
 			vertices[j] = { float(v.X), float(v.Y), j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };
 		}
 		int shade;
@@ -600,21 +600,20 @@ void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const s
 		follow = plxy;
 	}
 
-	follow_a = -(am_rotate ? pl_angle : DAngle270);
-	const DVector2 xydim = {screen->GetWidth() * 0.5, screen->GetHeight() * 0.5};
-	const double sine = follow_a.Sin();
-	const double cosine = follow_a.Cos();
+	follow_a = am_rotate ? pl_angle : DAngle270;
+	const DVector2 xydim = DVector2(screen->GetWidth(), screen->GetHeight()) * 0.5;
+	const DVector2 avect = follow_a.ToVector();
 
-	AutomapControl();
+	AutomapControl(avect);
 
 	if (automapMode == am_full)
 	{
 		twod->ClearScreen();
-		renderDrawMapView(follow, sine, cosine, xydim);
+		renderDrawMapView(follow, avect, xydim);
 	}
 
-	drawredlines(follow, sine, cosine, xydim);
-	drawwhitelines(follow, sine, cosine, xydim);
+	drawredlines(follow, avect, xydim);
+	drawwhitelines(follow, avect, xydim);
 	if (!gi->DrawAutomapPlayer(plxy, follow, follow_a, xydim, gZoom, smoothratio))
 		DrawPlayerArrow(follow, follow_a, gZoom, pl_angle);
 

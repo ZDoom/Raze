@@ -864,15 +864,14 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 
 bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const smoothratio)
 {
-	auto cangsin = cang.Sin();
-	auto cangcos = cang.Cos();
+	auto cangvect = cang.ToVector();
 
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		if (i == gView->nPlayer || gGameOptions.nGameType == 1)
 		{
 			auto actor = gPlayer[i].actor;
-			auto vect = OutAutomapVector(mxy - cpos, cangsin, cangcos, czoom, xydim);
+			auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
 			DrawTexture(twod, tileGetTexture(actor->spr.picnum, true), vect.X, vect.Y, DTA_ClipLeft, viewport3d.Left(), DTA_ClipTop, viewport3d.Top(), DTA_ScaleX, czoom * (2. / 3.), DTA_ScaleY, czoom * (2. / 3.), DTA_CenterOffset, true,
 				DTA_ClipRight, viewport3d.Right(), DTA_ClipBottom, viewport3d.Bottom(), DTA_Alpha, (actor->spr.cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);

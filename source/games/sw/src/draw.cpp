@@ -1578,8 +1578,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
     static int pspr_ndx[8] = { 0,0,0,0,0,0,0,0 };
     bool sprisplayer = false;
 
-    auto cangsin = cang.Sin();
-    auto cangcos = cang.Cos();
+    auto cangvect = cang.ToVector();
 
     // Draw sprites
     auto peekActor = Player[screenpeek].actor;
@@ -1616,8 +1615,8 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                     {
                         if (czoom > 0.1875)
                         {
-                            const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio * (1. / MaxSmoothRatio))) + cang).Normalized360().Degrees();
-                            auto vect = OutAutomapVector(mxy - cpos, cangsin, cangcos, czoom, xydim);
+                            const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(smoothratio * (1. / MaxSmoothRatio))) - cang).Normalized360().Degrees();
+                            auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                             // Special case tiles
                             if (actor->spr.picnum == 3123) break;
@@ -1653,8 +1652,8 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                     b1 = sprxy - b0 * ((xspan * 0.5) + xoff) - cpos;
                     b2 = b1 + b0 * xspan;
 
-                    v1 = OutAutomapVector(b1, cangsin, cangcos, czoom, xydim);
-                    v2 = OutAutomapVector(b2, cangsin, cangcos, czoom, xydim);
+                    v1 = OutAutomapVector(b1, cangvect, czoom, xydim);
+                    v2 = OutAutomapVector(b2, cangvect, czoom, xydim);
 
                     drawlinergb(v1, v2, col);
                     break;
@@ -1684,10 +1683,10 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                         b3 = b2 - yscale;
                         b4 = b1 - yscale;
 
-                        v1 = OutAutomapVector(b1, cangsin, cangcos, czoom, xydim);
-                        v2 = OutAutomapVector(b2, cangsin, cangcos, czoom, xydim);
-                        v3 = OutAutomapVector(b3, cangsin, cangcos, czoom, xydim);
-                        v4 = OutAutomapVector(b4, cangsin, cangcos, czoom, xydim);
+                        v1 = OutAutomapVector(b1, cangvect, czoom, xydim);
+                        v2 = OutAutomapVector(b2, cangvect, czoom, xydim);
+                        v3 = OutAutomapVector(b3, cangvect, czoom, xydim);
+                        v4 = OutAutomapVector(b4, cangvect, czoom, xydim);
 
                         drawlinergb(v1, v2, col);
                         drawlinergb(v2, v3, col);
