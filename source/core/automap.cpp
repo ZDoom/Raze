@@ -619,3 +619,73 @@ void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const s
 
 }
 
+//---------------------------------------------------------------------------
+//
+// Draws lines for alls in Duke/SW when cstat is CSTAT_SPRITE_ALIGNMENT_WALL.
+//
+//---------------------------------------------------------------------------
+
+void DrawAutomapAlignmentWall(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col)
+{
+	auto xrep = spr.xrepeat * REPEAT_SCALE;
+	auto xspan = tileWidth(spr.picnum);
+	auto xoff = tileLeftOffset(spr.picnum) + spr.xoffset;
+
+	if ((spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
+
+	auto sprvec = spr.angle.ToVector().Rotated90CW() * xrep;
+	
+	auto b1 = bpos - sprvec * ((xspan * 0.5) + xoff);
+	auto b2 = b1 + sprvec * xspan;
+
+	auto v1 = OutAutomapVector(b1, cangvect, czoom, xydim);
+	auto v2 = OutAutomapVector(b2, cangvect, czoom, xydim);
+
+	drawlinergb(v1, v2, col);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Draws lines for alls in Duke/SW when cstat is CSTAT_SPRITE_ALIGNMENT_FLOOR.
+//
+//---------------------------------------------------------------------------
+
+void DrawAutomapAlignmentFloor(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col)
+{
+	auto xrep = spr.xrepeat * REPEAT_SCALE;
+	auto yrep = spr.yrepeat * REPEAT_SCALE;
+	auto xspan = tileWidth(spr.picnum);
+	auto yspan = tileHeight(spr.picnum);
+	auto xoff = tileLeftOffset(spr.picnum);
+	auto yoff = tileTopOffset(spr.picnum);
+
+	if (isSWALL() || (spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
+	{
+		xoff += spr.xoffset;
+		yoff += spr.yoffset;
+	}
+
+	if ((spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
+	if ((spr.cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
+
+	auto sprvec = spr.angle.ToVector();
+	auto xscale = sprvec.Rotated90CW() * xspan * xrep;
+	auto yscale = sprvec * yspan * yrep;
+	auto xybase = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);
+
+	auto b1 = bpos + (xybase * sprvec.Y) + (xybase.Rotated90CW() * sprvec.X);
+	auto b2 = b1 - xscale;
+	auto b3 = b2 - yscale;
+	auto b4 = b1 - yscale;
+
+	auto v1 = OutAutomapVector(b1, cangvect, czoom, xydim);
+	auto v2 = OutAutomapVector(b2, cangvect, czoom, xydim);
+	auto v3 = OutAutomapVector(b3, cangvect, czoom, xydim);
+	auto v4 = OutAutomapVector(b4, cangvect, czoom, xydim);
+
+	drawlinergb(v1, v2, col);
+	drawlinergb(v2, v3, col);
+	drawlinergb(v3, v4, col);
+	drawlinergb(v4, v1, col);
+}

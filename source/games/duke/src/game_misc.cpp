@@ -415,63 +415,12 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
-				if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP))
-				{
-					tilenum = act->spr.picnum;
-					xoff = tileLeftOffset(tilenum) + act->spr.xoffset;
-					if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
-
-					xspan = tileWidth(tilenum);
-
-					b0 = act->spr.angle.ToVector().Rotated90CW() * act->spr.xrepeat * (1. / 64.);
-					b1 = act->spr.pos.XY() - b0 * ((xspan * 0.5) + xoff) - cpos;
-					b2 = b1 + b0 * xspan;
-
-					v1 = OutAutomapVector(b1, cangvect, czoom, xydim);
-					v2 = OutAutomapVector(b2, cangvect, czoom, xydim);
-
-					drawlinergb(v1, v2, col);
-				}
+				if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP)) DrawAutomapAlignmentWall(act->spr, act->spr.pos.XY() - cpos, cangvect, czoom, xydim, col);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_FLOOR:
 			case CSTAT_SPRITE_ALIGNMENT_SLOPE:
-				tilenum = act->spr.picnum;
-				xoff = tileLeftOffset(tilenum);
-				yoff = tileTopOffset(tilenum);
-				if ((act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
-				{
-					xoff += act->spr.xoffset;
-					yoff += act->spr.yoffset;
-				}
-
-				if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
-				if ((act->spr.cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
-
-				xspan = tileWidth(tilenum);
-				auto xrep = act->spr.xrepeat * (1. / 64.);
-				yspan = tileHeight(tilenum);
-				auto yrep = act->spr.yrepeat * (1. / 64.);
-
-				auto sprvec = act->spr.angle.ToVector();
-				auto xscale = sprvec.Rotated90CW() * xspan * xrep;
-				auto yscale = sprvec * yspan * yrep;
-
-				b0 = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);
-				b1 = act->spr.pos.XY() + (b0 * sprvec.Y) + (b0.Rotated90CW() * sprvec.X) - cpos;
-				b2 = b1 - xscale;
-				b3 = b2 - yscale;
-				b4 = b1 - yscale;
-
-				v1 = OutAutomapVector(b1, cangvect, czoom, xydim);
-				v2 = OutAutomapVector(b2, cangvect, czoom, xydim);
-				v3 = OutAutomapVector(b3, cangvect, czoom, xydim);
-				v4 = OutAutomapVector(b4, cangvect, czoom, xydim);
-
-				drawlinergb(v1, v2, col);
-				drawlinergb(v2, v3, col);
-				drawlinergb(v3, v4, col);
-				drawlinergb(v4, v1, col);
+				DrawAutomapAlignmentFloor(act->spr, act->spr.pos.XY() - cpos, cangvect, czoom, xydim, col);
 				break;
 			}
 		}
