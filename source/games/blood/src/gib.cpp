@@ -350,27 +350,23 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* p
 	if (pGThing->chance == 65536 || Chance(pGThing->chance))
 	{
 		auto pSector = actor->sector();
-		int top, bottom;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		int x, y, z;
+		DVector3 gPos;
 		if (!pPos)
 		{
-			int nAngle = Random(2048);
-			x = actor->int_pos().X + MulScale(actor->int_clipdist(), Cos(nAngle), 30);
-			y = actor->int_pos().Y + MulScale(actor->int_clipdist(), Sin(nAngle), 30);
-			z = bottom - Random(bottom - top);
+			DAngle nAngle = RandomAngle();
+			gPos = DVector3(actor->spr.pos.XY() + actor->fClipdist() * nAngle.ToVector(), bottom - RandomD(bottom - top, 8));
 		}
 		else
 		{
-			x = pPos->X * worldtoint;
-			y = pPos->Y * worldtoint;
-			z = pPos->Z * zworldtoint;
+			gPos = *pPos;
 		}
-		int32_t ceilZ, floorZ;
-		getzsofslopeptr(pSector, x, y, &ceilZ, &floorZ);
-		int dz1 = floorZ - z;
-		int dz2 = z - ceilZ;
-		auto gibactor = actSpawnThing(pSector, x, y, z, pGThing->type);
+		double ceilZ, floorZ;
+		getzsofslopeptr(pSector, gPos, &ceilZ, &floorZ);
+		double dz1 = floorZ - gPos.Z;
+		double dz2 = gPos.Z - ceilZ;
+		auto gibactor = actSpawnThing(pSector, gPos.X * worldtoint, gPos.Y * worldtoint, gPos.Z * zworldtoint, pGThing->type);
 		if (!gibactor) return;
 
 		if (pGThing->Kills > -1)
@@ -389,11 +385,11 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* p
 				gibactor->vel.Z = Random2F((pGThing->at10 << 18) / 120);
 				break;
 			default:
-				if (dz2 < dz1 && dz2 < 0x4000)
+				if (dz2 < dz1 && dz2 < 0x400)
 				{
-					gibactor->set_int_bvel_z(0);
+					gibactor->vel.Z = 0;
 				}
-				else if (dz2 > dz1 && dz1 < 0x4000)
+				else if (dz2 > dz1 && dz1 < 0x400)
 				{
 					gibactor->vel.Z = -Random2F((pGThing->at10 << 18) / 120);
 				}
