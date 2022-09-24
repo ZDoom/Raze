@@ -304,9 +304,9 @@ static void ghostThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	aiChooseDirection(actor, VecToAngle(dx, dy));
+	DVector2 dxy = target->spr.pos.XY() - actor->spr.pos.XY();
+	DAngle dxyAngle = dxy.Angle();
+	aiChooseDirection(actor, dxyAngle);
 	if (target->xspr.health == 0)
 	{
 		aiNewState(actor, &ghostSearch);
@@ -317,25 +317,28 @@ static void ghostThinkChase(DBloodActor* actor)
 		aiNewState(actor, &ghostSearch);
 		return;
 	}
-	int nDist = approxDist(dx, dy);
-	if (nDist <= pDudeInfo->seeDist)
+	double nDist = dxy.Length();
+	if (nDist <= (pDudeInfo->seeDist * inttoworld))
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), getangle(dx, dy));
-		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
+		DAngle nDeltaAngle = deltaangle(actor->spr.angle, dxyAngle);
+		double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE;
 		// Should be dudeInfo[target->spr.type-kDudeBase]
-		int height2 = (pDudeInfo->eyeHeight * target->spr.yrepeat) << 2;
-		int top, bottom;
+		double height2 = pDudeInfo->eyeHeight * target->spr.yrepeat * REPEAT_SCALE;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height * zinttoworld), actor->sector()))
+		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			if (nDist < (pDudeInfo->seeDist * inttoworld) && abs(nDeltaAngle).Buildang() <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				int floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
+				double floorZ = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+				double floorDelta = floorZ - bottom;
+				double heightDelta = height2 - height;
+				bool angWithinRange = abs(nDeltaAngle) < mapangle(85);
 				switch (actor->spr.type) {
 				case kDudePhantasm:
-					if (nDist < 0x2000 && nDist > 0x1000 && abs(nDeltaAngle) < 85) {
-						int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					if (nDist < 0x200 && nDist > 0x100 && angWithinRange) {
+						int hit = HitScan(actor, actor->spr.pos.Z, dxy.X * worldtoint, dxy.Y * worldtoint, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -353,9 +356,9 @@ static void ghostThinkChase(DBloodActor* actor)
 							break;
 						}
 					}
-					else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
+					else if (nDist < 0x40 && angWithinRange)
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+						int hit = HitScan(actor, actor->spr.pos.Z, dxy.X * worldtoint, dxy.Y * worldtoint, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -373,12 +376,12 @@ static void ghostThinkChase(DBloodActor* actor)
 							break;
 						}
 					}
-					else if ((height2 - height > 0x2000 || floorZ - bottom > 0x2000) && nDist < 0x1400 && nDist > 0x800)
+					else if ((heightDelta > 32 || floorDelta > 32) && nDist < 0x140 && nDist > 0x80)
 					{
 						aiPlay3DSound(actor, 1600, AI_SFX_PRIORITY_1, -1);
 						aiNewState(actor, &ghostSwoop);
 					}
-					else if ((height2 - height < 0x2000 || floorZ - bottom < 0x2000) && abs(nDeltaAngle) < 85)
+					else if ((heightDelta < 32 || floorDelta < 32) &&angWithinRange)
 						aiPlay3DSound(actor, 1600, AI_SFX_PRIORITY_1, -1);
 					break;
 				}
