@@ -261,6 +261,8 @@ static void SetWallPalV5()
 
 void validateSprite(spritetype& spri, int sectnum, int index)
 {
+	sectortype* sectp = &sector[sectnum];
+
 	auto pos = spri.pos;
 	bool bugged = false;
 	if ((unsigned)spri.statnum >= MAXSTATUS)
@@ -275,11 +277,11 @@ void validateSprite(spritetype& spri, int sectnum, int index)
 	}
 	else if (!validSectorIndex(sectnum))
 	{
-		sectnum = -1;
-		updatesector(pos, &sectnum);
-		bugged = sectnum < 0;
+		sectp = nullptr;
+		updatesector(pos.XY(), &sectp);
+		bugged = sectp == nullptr;
 
-		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%.0f,%.0f) with invalid sector %d was corrected to sector %d\n", index, pos.X, pos.Y, sectnum, sectnum))
+		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%.0f,%.0f) with invalid sector %d was corrected to sector %d\n", index, pos.X, pos.Y, sectnum, ::sectnum(sectp)))
 		{
 			if (bugged) Printf("Sprite #%d (%.0f,%.0f) with invalid sector %d\n", index, pos.X, pos.Y, sectnum);
 		}
@@ -288,10 +290,9 @@ void validateSprite(spritetype& spri, int sectnum, int index)
 	{
 		spri = {};
 		spri.statnum = MAXSTATUS;
-		sectnum = -1;
+		sectp = nullptr;
 	}
-	if (sectnum >= 0) spri.sectp = &sector[sectnum];
-	else spri.sectp = nullptr;
+	spri.sectp = sectp;
 }
 
 static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
