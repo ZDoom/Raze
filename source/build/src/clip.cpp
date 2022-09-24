@@ -1092,47 +1092,6 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
 
 }
 
-
-// intp: point of currently best (closest) intersection
-int32_t try_facespr_intersect(DCoreActor* actor, vec3_t const in,
-                              int32_t vx, int32_t vy, int32_t vz,
-                              vec3_t * const intp, int32_t strictly_smaller_than_p)
-{
-    vec3_t const sprpos = actor->int_pos();
-
-    int32_t const topt = vx * (sprpos.X - in.X) + vy * (sprpos.Y - in.Y);
-
-    if (topt <= 0) return 0;
-
-    int32_t const bot = vx * vx + vy * vy;
-
-    if (!bot) return 0;
-
-    vec3_t        newpos = { 0, 0, in.Z + Scale(vz, topt, bot) };
-    int32_t       siz;
-    int32_t const z1 = sprpos.Z + actor->GetOffsetAndHeight(siz);
-
-    if (newpos.Z < z1 - siz || newpos.Z > z1)
-        return 0;
-
-    int32_t const topu = vx * (sprpos.Y - in.Y) - vy * (sprpos.X - in.X);
-    vec2_t  const off  = { Scale(vx, topu, bot), Scale(vy, topu, bot) };
-    int32_t const dist = off.X * off.X + off.Y * off.Y;
-
-    siz = tileWidth(actor->spr.picnum) * actor->spr.xrepeat;
-
-    if (dist > MulScale(siz, siz, 7)) return 0;
-
-    newpos.vec2 = { in.X + Scale(vx, topt, bot), in.Y + Scale(vy, topt, bot) };
-
-    if (abs(newpos.X - in.X) + abs(newpos.Y - in.Y) + strictly_smaller_than_p >
-        abs(intp->X - in.X) + abs(intp->Y - in.Y))
-        return 0;
-
-    *intp = newpos;
-    return 1;
-}
-
 static inline void hit_set(HitInfoBase *hit, sectortype* sect, walltype* wal, DCoreActor* actor, int32_t x, int32_t y, int32_t z)
 {
     hit->hitSector = sect;
@@ -1287,10 +1246,11 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             {
             case 0:
             {
-				auto v = hitinfo.int_hitpos();
-                if (try_facespr_intersect(actor, *sv, vx, vy, vz, &v, 0))
+				auto v = hitinfo.hitpos;
+                if (intersectSprite(actor, DVector3(sv->X * inttoworld, sv->Y * inttoworld, sv->Z * zinttoworld),
+                    DVector3(vx * inttoworld, vy * inttoworld, vz * zinttoworld), v, 0) )
                 {
-                    hit_set(&hitinfo, sec, nullptr, actor, v.X, v.Y, v.Z);
+                    hit_set(&hitinfo, sec, nullptr, actor, v.X * worldtoint, v.Y * worldtoint, v.Z * zworldtoint);
                 }
 
                 break;

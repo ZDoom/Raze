@@ -488,6 +488,13 @@ int DCoreActor::GetOffsetAndHeight(int& height)
 	return zofs - tileTopOffset(spr.picnum) * yrepeat;
 }
 
+double DCoreActor::GetOffsetAndHeight(double& height)
+{
+	double yrepeat = spr.yrepeat * REPEAT_SCALE;
+	height = tileHeight(spr.picnum) * yrepeat;
+	double zofs = (spr.cstat & CSTAT_SPRITE_YCENTER) ? height * 0.5 : 0;
+	return zofs - tileTopOffset(spr.picnum) * yrepeat;
+}
 
 
 DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sector)

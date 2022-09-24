@@ -262,6 +262,7 @@ void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp =
 bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, fixedhoriz horiz, double const interpfrac);
 int getslopeval(sectortype* sect, const DVector3& pos, double bazez);
 bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, sectortype* sect2);
+bool intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& end, DVector3& result, double displacement);
 
 
 
@@ -493,13 +494,8 @@ inline double SquareDist(double lx1, double ly1, double lx2, double ly2)
 	return dx * dx + dy * dy;
 }
 
-inline DVector2 NearestPointOnWall(double px, double py, const walltype* wal, bool clamp = true)
+inline DVector2 NearestPointOnLine(double px, double py, double lx1, double ly1, double lx2, double ly2, bool clamp = true)
 {
-	double lx1 = wal->pos.X;
-	double ly1 = wal->pos.Y;
-	double lx2 = wal->point2Wall()->pos.X;
-	double ly2 = wal->point2Wall()->pos.Y;
-
 	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
 
 	if (wall_length == 0) return { lx1, ly1 };
@@ -513,6 +509,11 @@ inline DVector2 NearestPointOnWall(double px, double py, const walltype* wal, bo
 	double xx = lx1 + t * (lx2 - lx1);
 	double yy = ly1 + t * (ly2 - ly1);
 	return { xx, yy };
+}
+
+inline DVector2 NearestPointOnWall(double px, double py, const walltype* wal, bool clamp = true)
+{
+	return NearestPointOnLine(px, py, wal->pos.X, wal->pos.Y, wal->point2Wall()->pos.X, wal->point2Wall()->pos.Y, clamp);
 }
 
 inline double SquareDistToWall(double px, double py, const walltype* wal, DVector2* point = nullptr) 

@@ -587,6 +587,46 @@ bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, secto
 
 //==========================================================================
 //
+// 
+//
+//==========================================================================
+
+bool intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double displacement)
+{
+	auto end = start + direction;
+	if (direction.isZero()) return false;
+
+	// use dot product to check if the sprite is behind us (or ourselves if the result is 0)
+	auto dotprod = direction.XY().dot(actor->spr.pos.XY() - start.XY());
+	if (dotprod <= 0) return false;
+
+	// get point on trace that is closest to the sprite
+	auto point = NearestPointOnLine(actor->spr.pos.X, actor->spr.pos.Y, start.X, start.Y, end.X, end.Y);
+
+	// This is somewhat smaller than the sprite's actual size, but that's how it was
+	auto sprwidth = tileWidth(actor->spr.picnum) * actor->spr.xrepeat * (REPEAT_SCALE * 0.25) + displacement;
+
+	// Using proper distance here, Build originally used the sum of x- and y-distance
+	if ((point - actor->spr.pos).LengthSquared() > sprwidth * sprwidth) return false; // too far away
+
+	double DVector2::* c = point.X == actor->spr.pos.X ? &DVector2::Y : &DVector2::X;
+	double newz = start.Z + (direction.Z) * (point.*c - start.XY().*c) / direction.XY().*c;
+
+	double siz;
+	double const hitz = actor->spr.pos.Z + actor->GetOffsetAndHeight(siz);
+
+	if (newz < hitz - siz || newz > hitz)
+		return 0;
+
+	result.XY() = point;
+	result.Z = newz;
+	return 1;
+}
+
+
+
+//==========================================================================
+//
 //
 //
 //==========================================================================

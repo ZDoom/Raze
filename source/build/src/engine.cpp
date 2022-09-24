@@ -128,8 +128,11 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
 
             if (((tagsearch&1) && actor->spr.lotag) || ((tagsearch&2) && actor->spr.hitag))
             {
-                if (try_facespr_intersect(actor, sv, vx, vy, 0, &hitv, 1))
+                DVector3 v;
+                if (intersectSprite(actor, DVector3(sv.X * inttoworld, sv.Y * inttoworld, sv.Z * zinttoworld),
+                    DVector3(vx * inttoworld, vy * inttoworld, 0), v, 1 / 256.))
                 {
+                    vec3_t hitv(v.X * worldtoint, v.Y * worldtoint, v.Z * zworldtoint);
                     result.hitActor = actor;
                     result.hitpos.X = DMulScale(hitv.X-sv.X, bcos(ange), hitv.Y-sv.Y, bsin(ange), 14) * inttoworld;
                 }

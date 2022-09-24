@@ -60,6 +60,7 @@ public:
 	void OnDestroy() override;
 	size_t PropagateMark() override;
 	int GetOffsetAndHeight(int& height);
+	double GetOffsetAndHeight(double& height);
 
 	bool exists() const
 	{
