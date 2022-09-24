@@ -338,24 +338,6 @@ inline void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz,
 	*florz = int(f * zworldtoint);
 }
 
-template<class Vector>
-[[deprecated]]
-inline int getceilzofslopeptr(const sectortype* sec, const Vector& pos)
-{
-	return getceilzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint);
-}
-template<class Vector>
-[[deprecated]]
-inline int getflorzofslopeptr(const sectortype* sec, const Vector& pos)
-{
-	return getflorzofslopeptr(sec, pos.X * worldtoint, pos.Y * worldtoint);
-}
-template<class Vector>
-[[deprecated]]
-inline void getzsofslopeptr(const sectortype* sec, const Vector& pos, int* ceilz, int* florz)
-{
-	getzsofslopeptr(sec, int(pos.X * worldtoint), int(pos.Y * worldtoint), ceilz, florz);
-}
 
 // only used by clipmove et.al.
 void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);

@@ -1643,12 +1643,6 @@ Collision move_missile(DSWActor* actor, const DVector3& change, double ceildist,
 
 DSWActor* DoPickTarget(DSWActor*, DAngle max_delta_ang, int skip_targets);
 
-[[deprecated]]
-DSWActor* DoPickTarget(DSWActor* a, uint32_t max_delta_ang, int skip_targets)
-{
-    return DoPickTarget(a, DAngle::fromBuild(max_delta_ang), skip_targets);
-}
-
 void change_actor_stat(DSWActor* actor, int stat, bool quick = false);
 void SetOwner(DSWActor*, DSWActor*, bool flag = true);
 void SetOwner(int a, int b); // we still need this...
