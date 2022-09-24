@@ -158,7 +158,7 @@ void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, 
 		double len = wal->Length();
 		if (len != 0)
 		{
-			float fac = (wal->delta().X * (ypos - wal->pos.Y) - wal->delta().Y * (xpos - wal->pos.X)) / len * (1 / 4096.);
+			float fac = (wal->delta().X * (ypos - wal->pos.Y) - wal->delta().Y * (xpos - wal->pos.X)) / len * (1. / SLOPEVAL_FACTOR);
 			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * fac);
 			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * fac);
 		}
@@ -182,12 +182,12 @@ void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz)
 //
 //==========================================================================
 
-int getslopeval(sectortype* sect, int x, int y, int z, int basez)
+int getslopeval(sectortype* sect, const DVector3& pos, double basez)
 {
 	auto wal = sect->firstWall();
-	auto delta = wal->int_delta();
-	int i = (y - wal->wall_int_pos().Y) * delta.X - (x - wal->wall_int_pos().X) * delta.Y;
-	return i == 0? 0 : Scale((z - basez) << 8, int(wal->Length() * worldtoint), i);
+	auto delta = wal->delta();
+	double i = (pos.Y - wal->pos.Y) * delta.X - (pos.X - wal->pos.X) * delta.Y;
+	return i == 0? 0 : SLOPEVAL_FACTOR * (pos.Z - basez) * wal->Length() / i;
 }
 
 //==========================================================================
@@ -267,7 +267,7 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 	auto tex = tileGetTexture(spr->picnum);
 
 	double width, height, leftofs, topofs;
-	double sloperatio = sqrt(heinum * heinum + 4096 * 4096) * (1. / 4096.);
+	double sloperatio = sqrt(heinum * heinum + SLOPEVAL_FACTOR * SLOPEVAL_FACTOR) * (1. / SLOPEVAL_FACTOR);
 	double xrepeat = spr->xrepeat * REPEAT_SCALE;
 	double yrepeat = spr->yrepeat * REPEAT_SCALE;
 
@@ -316,7 +316,7 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				outz[i] = (sinang * (out[i].Y - pos.Y) + cosang * (out[i].X - pos.X)) * heinum * (1. / 4096);
+				outz[i] = (sinang * (out[i].Y - pos.Y) + cosang * (out[i].X - pos.X)) * heinum * (1. / SLOPEVAL_FACTOR);
 			}
 		}
 	}

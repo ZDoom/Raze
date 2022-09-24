@@ -8359,7 +8359,7 @@ bool SlopeBounce(DSWActor* actor, bool* hit_wall)
         return false;
 
     // if greater than a 45 degree angle
-    if (abs(slope) > 4096)
+    if (abs(slope) > SLOPEVAL_FACTOR)
         *hit_wall = true;
     else
         *hit_wall = false;

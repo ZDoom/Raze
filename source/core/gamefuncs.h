@@ -8,6 +8,8 @@
 
 extern IntRect viewport3d;
 
+constexpr int SLOPEVAL_FACTOR = 4096;
+
 // breadth first search, this gets used multiple times throughout the engine, mainly for iterating over sectors.
 // Only works on indices, this has no knowledge of the actual objects being looked at.
 // All objects of this type operate on the same shared store. Interleaved use is not allowed, nested use is fine.
@@ -258,7 +260,7 @@ extern double cameradist, cameraclock;
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
 
 bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, fixedhoriz horiz, double const interpfrac);
-int getslopeval(sectortype* sect, int x, int y, int z, int planez);
+int getslopeval(sectortype* sect, const DVector3& pos, double bazez);
 
 
 
@@ -487,7 +489,7 @@ inline double spriteGetZOfSlopef(const spritetypebase* tspr, const DVector2& pos
 	if (heinum == 0) return tspr->pos.Z;
 	auto ang = tspr->angle;
 	double factor =  -ang.Sin() * (pos.X - tspr->pos.Y) - ang.Cos() * (pos.X - tspr->pos.X);
-	return tspr->pos.Z + heinum * factor * (1./4096.);
+	return tspr->pos.Z + heinum * factor * (1./SLOPEVAL_FACTOR);
 }
 
 inline int inside(int x, int y, const sectortype* sect)
@@ -582,24 +584,14 @@ inline double SquareDistToLine(double px, double py, double lx1, double ly1, dou
 	return SquareDist(px, py, xx, yy);
 }
 
-inline void alignceilslope(sectortype* sect, int x, int y, int z)
-{
-	sect->setceilingslope(getslopeval(sect, x, y, z, sect->int_ceilingz()));
-}
-
-inline void alignflorslope(sectortype* sect, int x, int y, int z)
-{
-	sect->setfloorslope(getslopeval(sect, x, y, z, sect->int_floorz()));
-}
-
 inline void alignceilslope(sectortype* sect, const DVector3& pos)
 {
-	sect->setceilingslope(getslopeval(sect, pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint, sect->int_ceilingz()));
+	sect->setceilingslope(getslopeval(sect, pos, sect->ceilingz));
 }
 
 inline void alignflorslope(sectortype* sect, const DVector3& pos)
 {
-	sect->setfloorslope(getslopeval(sect, pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint, sect->int_floorz()));
+	sect->setfloorslope(getslopeval(sect, pos, sect->floorz));
 }
 
 inline double BobVal(int val)

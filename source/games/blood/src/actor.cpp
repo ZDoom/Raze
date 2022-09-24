@@ -2612,7 +2612,7 @@ DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSect
 
 	DVector3 p(actor->vel.XY(), oldz);
 	DAngle angle = pSector->firstWall()->delta().Angle() + DAngle90;
-	auto t2 = pSector->floorheinum * (1. / 4096.);
+	auto t2 = pSector->floorheinum * (1. / SLOPEVAL_FACTOR);
 	auto t3 = DVector2(-1, t2).Length();
 	auto t4 = DVector3(angle.ToVector() * (t2 / t3), -1 / t3);
 	auto t8 = actor->vel.dot(t4);
@@ -4140,7 +4140,7 @@ static void checkCeilHit(DBloodActor* actor)
 			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && (actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0))
 			{
 				auto adelta = actor2->spr.pos - actor->spr.pos;
-				actor2->vel.XY() += adelta.XY() * (1. / 4096.);
+				actor2->vel.XY() += adelta.XY() * (1. / SLOPEVAL_FACTOR);
 
 				if (actor2->spr.statnum == kStatThing)
 				{
@@ -4672,7 +4672,7 @@ static Collision MoveThing(DBloodActor* actor)
 			auto hitActor = coll.actor();
 			if ((hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->vel.XY() += (actor->spr.pos.XY() - hitActor->spr.pos.XY()) / 4096.;
+				actor->vel.XY() += (actor->spr.pos.XY() - hitActor->spr.pos.XY()) / SLOPEVAL_FACTOR;
 				lhit = actor->hit.hit;
 			}
 		}
@@ -5150,7 +5150,7 @@ void MoveDude(DBloodActor* actor)
 			auto hitAct = floorColl.actor();
 			if ((hitAct->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->vel.XY() += (actor->spr.pos - hitAct->spr.pos).XY() * (1. / 4096.);
+				actor->vel.XY() += (actor->spr.pos - hitAct->spr.pos).XY() * (1. / SLOPEVAL_FACTOR);
 				return;
 			}
 		}

@@ -625,7 +625,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 int32_t const centery = ((span.Y >> 1) + adjofs.Y) * repeat.Y;
                 int32_t const rspanx = span.X * repeat.X;
                 int32_t const rspany = span.Y * repeat.Y;
-                int32_t const ratio = ksqrt(heinum * heinum + 4096 * 4096);
+                int32_t const ratio = ksqrt(heinum * heinum + SLOPEVAL_FACTOR * SLOPEVAL_FACTOR);
                 int32_t zz[3] = { pos->Z, pos->Z + flordist, pos->Z - ceildist };
                 for (int k = 0; k < 3; k++)
                 {
