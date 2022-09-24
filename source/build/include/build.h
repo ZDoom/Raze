@@ -213,12 +213,6 @@ inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
-                   int32_t destX, int32_t destY, int32_t destZ,
-                   int32_t lineStartX, int32_t lineStartY, int32_t lineEndX, int32_t lineEndY,
-                   int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ);
-
-
 EXTERN_CVAR(Bool, hw_hightile)
 EXTERN_CVAR(Bool, hw_models)
 EXTERN_CVAR(Float, gl_texture_filter_anisotropic)

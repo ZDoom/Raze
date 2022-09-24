@@ -138,21 +138,6 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
     }
 }
 
-
-
-//
-// rotatepoint
-//
-void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2)
-{
-    int const dacos = bcos(daang);
-    int const dasin = bsin(daang);
-    p.X -= pivot.X;
-    p.Y -= pivot.Y;
-    p2->X = DMulScale(p.X, dacos, -p.Y, dasin, 14) + pivot.X;
-    p2->Y = DMulScale(p.Y, dacos, p.X, dasin, 14) + pivot.Y;
-}
-
 int tilehasmodelorvoxel(int const tilenume, int pal)
 {
     return
