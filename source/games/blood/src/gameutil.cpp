@@ -314,9 +314,9 @@ int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMas
 
 		if (!pWall->twoSided())
 			return 0;
-		int nZCeil, nZFloor;
-		getzsofslopeptr(pWall->nextSector(), gHitInfo.int_hitpos().X, gHitInfo.int_hitpos().Y, &nZCeil, &nZFloor);
-		if (gHitInfo.int_hitpos().Z <= nZCeil || gHitInfo.int_hitpos().Z >= nZFloor)
+		double nZCeil, nZFloor;
+		getzsofslopeptr(pWall->nextSector(), gHitInfo.hitpos.X, gHitInfo.hitpos.Y, &nZCeil, &nZFloor);
+		if (gHitInfo.hitpos.Z <= nZCeil || gHitInfo.hitpos.Z >= nZFloor)
 			return 0;
 		return 4;
 	}
@@ -412,11 +412,11 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 				return 0;
 			sectortype* pSector = gHitInfo.hitSector;
 			sectortype* pSectorNext = pWall->nextSector();
-			int nZCeil, nZFloor;
-			getzsofslopeptr(pWall->nextSector(), gHitInfo.int_hitpos().X, gHitInfo.int_hitpos().Y, &nZCeil, &nZFloor);
-			if (gHitInfo.int_hitpos().Z <= nZCeil)
+			double nZCeil, nZFloor;
+			getzsofslopeptr(pWall->nextSector(), gHitInfo.hitpos, &nZCeil, &nZFloor);
+			if (gHitInfo.hitpos.Z <= nZCeil)
 				return 0;
-			if (gHitInfo.int_hitpos().Z >= nZFloor)
+			if (gHitInfo.hitpos.Z >= nZFloor)
 			{
 				if (!(pSector->floorstat & CSTAT_SECTOR_SKY) || !(pSectorNext->floorstat & CSTAT_SECTOR_SKY))
 					return 0;

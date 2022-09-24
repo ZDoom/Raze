@@ -5627,9 +5627,9 @@ static void actCheckThings()
 			viewBackupSpriteLoc(actor);
 			if (pXSector && pXSector->panVel)
 			{
-				int top, bottom;
+				double top, bottom;
 				GetActorExtents(actor, &top, &bottom);
-				if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
+				if (getflorzofslopeptrf(pSector, actor->spr.pos) <= bottom)
 				{
 					int angle = pXSector->panAngle.Buildang();
 					int speed = 0;
@@ -6052,9 +6052,9 @@ static void actCheckDudes()
 
 		if (pXSector)
 		{
-			int top, bottom;
+			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
+			if (getflorzofslopeptrf(pSector, actor->spr.pos) <= bottom)
 			{
 				int angle = pXSector->panAngle.Buildang();
 				int speed = 0;
