@@ -130,7 +130,7 @@ unsigned int dbReadMapCRC(const char* pPath)
 //
 //---------------------------------------------------------------------------
 
-void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, int* cursectnum, unsigned int* pCRC, BloodSpawnSpriteDef& sprites)
+void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cursect, unsigned int* pCRC, BloodSpawnSpriteDef& sprites)
 {
 	const int nXSectorSize = 60;
 	const int nXSpriteSize = 56;
@@ -216,7 +216,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, int* cursectnum,
 	}
 	gMapRev = mapHeader.revision;
 	allocateMapArrays(mapHeader.numwalls, mapHeader.numsectors, mapHeader.numsprites);
-	*cursectnum = mapHeader.sect;
+	*cursect = validSectorIndex(mapHeader.sect)? &sector[mapHeader.sect] : nullptr;
 
 	if (encrypted)
 	{
@@ -664,7 +664,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, int* cursectnum,
 	sectionGeometry.SetSize(sections.Size());
 	wallbackup = wall;
 	sectorbackup = sector;
-	validateStartSector(mapname.GetChars(), pos, cursectnum, mapHeader.numsectors, true);
+	validateStartSector(mapname.GetChars(), pos, cursect, mapHeader.numsectors, true);
 }
 
 
@@ -679,6 +679,6 @@ END_BLD_NS
 void qloadboard(const char* filename, uint8_t flags, DVector3* dapos, int16_t* daang)
 {
 	Blood::BloodSpawnSpriteDef sprites;
-	int sp;
+	sectortype* sp;
 	Blood::dbLoadMap(filename, *dapos, daang, &sp, nullptr, sprites);
 }

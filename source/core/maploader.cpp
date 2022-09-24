@@ -432,29 +432,29 @@ void fixSectors()
 	}
 }
 
-void validateStartSector(const char* filename, const DVector3& pos, int* cursectnum, unsigned numsectors, bool noabort)
+void validateStartSector(const char* filename, const DVector3& pos, sectortype** cursect, unsigned numsectors, bool noabort)
 {
 
-	if ((unsigned)(*cursectnum) >= numsectors)
+	if (*cursect == nullptr)
 	{
 		sectortype* sect = nullptr;
 		updatesectorz(pos, &sect);
 		if (!sect) updatesector(pos, &sect);
 		if (sect || noabort)
 		{
-			Printf(PRINT_HIGH, "Error in map %s: Start sector %d out of range. Max. sector is %d\n", filename, *cursectnum, numsectors);
-			*cursectnum = sect? sectnum(sect) : 0;
+			Printf(PRINT_HIGH, "Error in map %s: Start sector %d out of range. Max. sector is %d\n", filename, sectnum(*cursect), numsectors);
+			*cursect = sect? sect : &sector[0];
 		}
 		else
 		{
-			I_Error("Unable to start map %s: Start sector %d out of range. Max. sector is %d. No valid location at start spot\n", filename, *cursectnum, numsectors);
+			I_Error("Unable to start map %s: Start sector %d out of range. Max. sector is %d. No valid location at start spot\n", filename, sectnum(*cursect), numsectors);
 		}
 	}
 
 
 }
 
-void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
+void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, sectortype** cursect, SpawnSpriteDef& sprites)
 {
 	inputState.ClearAllInput();
 
@@ -470,7 +470,8 @@ void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, int* 
 	pos->Y = fr.ReadInt32() * maptoworld;
 	pos->Z = fr.ReadInt32() * zmaptoworld;
 	*ang = fr.ReadInt16() & 2047;
-	*cursectnum = fr.ReadUInt16();
+
+	int cursectnum = fr.ReadUInt16();
 
 	// Get the basics out before loading the data so that we can set up the global storage.
 	unsigned numsectors = fr.ReadUInt16();
@@ -533,7 +534,8 @@ void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, int* 
 
 	//Must be last.
 	fixSectors();
-	updatesector(*pos, cursectnum);
+	*cursect = validSectorIndex(cursectnum) ? &sector[cursectnum] : nullptr;
+	updatesector(*pos, cursect);
 	guniqhudid = 0;
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();
@@ -547,7 +549,7 @@ void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, int* 
 
 	wallbackup = wall;
 	sectorbackup = sector;
-	validateStartSector(filename, *pos, cursectnum, numsectors);
+	validateStartSector(filename, *pos, cursect, numsectors);
 }
 
 
@@ -725,7 +727,7 @@ void loadMapBackup(const char* filename)
 {
 	DVector3 fpos;
 	int16_t scratch;
-	int scratch2;
+	sectortype* scratch2;
 	SpawnSpriteDef scratch3;
 
 	if (isBlood())

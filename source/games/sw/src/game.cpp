@@ -404,13 +404,13 @@ void InitLevel(MapRecord *maprec)
 
     int16_t ang;
     currentLevel = maprec;
-    int cursect;
+    sectortype* cursect;
     SpawnSpriteDef sprites;
     DVector3 ppos;
     loadMap(maprec->fileName, SW_SHAREWARE ? 1 : 0, &ppos, &ang, &cursect, sprites);
     Player[0].pos = ppos;
     spawnactors(sprites);
-    Player[0].cursector = &sector[cursect];
+    Player[0].cursector = cursect;
 
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);

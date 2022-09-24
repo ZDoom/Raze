@@ -305,12 +305,12 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 void animatecamsprite(double s);
 
 
-void render_drawrooms(DCoreActor* playersprite, const DVector3& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, double interpfrac, float fov)
+void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, double interpfrac, float fov)
 {
 	checkRotatedWalls();
 
-	updatesector(position, &sectnum);
-	if (sectnum < 0) return;
+	updatesector(position.XY(), &sect);
+	if (sectnum == nullptr) return;
 
 	iter_dlightf = iter_dlight = draw_dlight = draw_dlightf = 0;
 	checkBenchActive();
@@ -319,7 +319,7 @@ void render_drawrooms(DCoreActor* playersprite, const DVector3& position, int se
 	ResetProfilingData();
 
 	// Get this before everything else
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang, fov);
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum(sect), angle, horizon, rollang, fov);
 	r_viewpoint.TicFrac = !cl_capfps ? interpfrac : 1.;
 
 	screen->mLights->Clear();

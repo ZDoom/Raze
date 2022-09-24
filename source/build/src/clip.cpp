@@ -295,14 +295,6 @@ static int32_t getwalldist(vec2_t const in, int const wallnum)
 
 static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist)
 {
-#if 0
-    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
-    {
-        updatesector(pos.x, pos.y, sectnum);
-        return;
-    }
-#endif
-
     if (inside_p(pos.X, pos.Y, *sectnum))
         return;
 
@@ -722,7 +714,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 if ((tempint ^ tempint2) < 0)
                 {
                     if (enginecompatibility_mode == ENGINECOMPATIBILITY_19961112)
-                        updatesector(pos->X, pos->Y, sectnum);
+                    {
+                        auto sectp = &sector[*sectnum];
+                        updatesector(DVector2(pos->X * inttoworld, pos->Y * inttoworld), &sectp);
+                        *sectnum = sectp ? ::sectnum(sectp) : -1;
+                    }
                     return clipReturn;
                 }
             }

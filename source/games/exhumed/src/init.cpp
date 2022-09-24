@@ -143,12 +143,12 @@ uint8_t LoadLevel(MapRecord* map)
         nStopSound = 66;
     }
 
-    int initsect;
+    sectortype* initsect;
     SpawnSpriteDef spawned;
     int16_t mapang;
     loadMap(currentLevel->fileName, 0, &initpos, &mapang, &initsect, spawned);
     inita = DAngle::fromBuild(mapang);
-    initsectp = &sector[initsect];
+    initsectp = initsect;
     auto actors = spawnactors(spawned);
 
     int i;

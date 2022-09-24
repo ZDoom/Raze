@@ -739,7 +739,7 @@ void viewDrawScreen(bool sceneonly)
 		fixedhoriz deliriumPitchI = interpolatedvalue(q16horiz(deliriumPitchO), q16horiz(deliriumPitch), interpfrac);
 		auto bakCstat = pPlayer->actor->spr.cstat;
 		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
-		render_drawrooms(pPlayer->actor, cPos, sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, interpfrac);
+		render_drawrooms(pPlayer->actor, cPos, pSector, cA, cH + deliriumPitchI, rotscrnang, interpfrac);
 		pPlayer->actor->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 

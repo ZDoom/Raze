@@ -1324,7 +1324,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         UpdatePanel(interpfrac);
 
     UpdateWallPortalState();
-    render_drawrooms(pp->actor, tpos, sectnum(tsect), tang, thoriz, trotscrnang, interpfrac);
+    render_drawrooms(pp->actor, tpos, tsect, tang, thoriz, trotscrnang, interpfrac);
     RestorePortalState();
 
     if (sceneonly)

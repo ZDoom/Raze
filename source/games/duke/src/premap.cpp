@@ -994,12 +994,12 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	}
 
 	currentLevel = mi;
-	int sect;
+	sectortype* sect;
 	SpawnSpriteDef sprites;
 	DVector3 pos;
 	loadMap(mi->fileName, isShareware(), &pos, &lbang, &sect, sprites);
 	p->pos = pos;
-	p->cursector = &sector[sect];
+	p->cursector = sect;
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);
 	STAT_NewLevel(mi->fileName);

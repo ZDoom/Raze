@@ -364,7 +364,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	auto cstat = viewer->spr.cstat;
 	if (camview) viewer->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 	if (!sceneonly) drawweapon(interpfrac);
-	render_drawrooms(viewer, cpos, sectnum(sect), cang, choriz, rotscrnang, interpfrac, fov);
+	render_drawrooms(viewer, cpos, sect, cang, choriz, rotscrnang, interpfrac, fov);
 	viewer->spr.cstat = cstat;
 
 	//GLInterface.SetMapFog(false);

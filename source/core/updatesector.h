@@ -95,12 +95,6 @@ inline void updatesector(const DVector2& pos, sectortype** const sectp)
 }
 
 
-// This is still needed for map startup.
-inline void updatesector(const DVector3& pos, int* sectno)
-{
-	DoUpdateSector(pos.X, pos.Y, pos.Z, sectno, MAXUPDATESECTORDIST, inside0);
-}
-
 inline void updatesectorz(const DVector3& pos, sectortype** const sectp)
 {
 	int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
