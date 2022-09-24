@@ -256,26 +256,29 @@ static void batThinkChase(DBloodActor* actor)
 		aiNewState(actor, &batSearch);
 		return;
 	}
-	int nDist = approxDist(dvec);
-	if (nDist <= pDudeInfo->seeDist)
+	double nDist = dvec.Length();
+	if (nDist <= (pDudeInfo->seeDist * inttoworld))
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), getangle(dvec));
-		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
+		DAngle nDeltaAngle = deltaangle(actor->spr.angle, dvec.Angle());
+		double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE;
 		// Should be dudeInfo[pTarget->spr.type-kDudeBase]
-		int height2 = (pDudeInfo->eyeHeight * pTarget->spr.yrepeat) << 2;
-		int top, bottom;
+		double height2 = pDudeInfo->eyeHeight * pTarget->spr.yrepeat * REPEAT_SCALE;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height * zinttoworld), actor->sector()))
+		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			if (nDist < (pDudeInfo->seeDist * inttoworld) && abs(nDeltaAngle).Buildang() <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				int floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
-				if (height2 - height < 0x2000 && nDist < 0x200 && abs(nDeltaAngle) < 85)
+				double floorZ = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+				double floorDelta = floorZ - bottom;
+				double heightDelta = height2 - height;
+				bool angWithinRange = abs(nDeltaAngle) < mapangle(85);
+				if (heightDelta < 32 && nDist < 0x20 && angWithinRange)
 					aiNewState(actor, &batBite);
-				else if ((height2 - height > 0x5000 || floorZ - bottom > 0x5000) && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
+				else if ((heightDelta > 80 || floorDelta > 80) && nDist < 0x140 && nDist > 0x80 && angWithinRange)
 					aiNewState(actor, &batSwoop);
-				else if ((height2 - height < 0x3000 || floorZ - bottom < 0x3000) && abs(nDeltaAngle) < 85)
+				else if ((heightDelta < 48 || floorDelta < 48) && angWithinRange)
 					aiNewState(actor, &batFly);
 				return;
 			}
