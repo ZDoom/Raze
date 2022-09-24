@@ -1648,13 +1648,13 @@ void debrisMove(int listIndex)
 		return;
 	}
 
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 
 	Collision moveHit;
 	moveHit.setNone();
-	int floorDist = (bottom - actor->int_pos().Z) >> 2;
-	int ceilDist = (actor->int_pos().Z - top) >> 2;
+	double floorDist = (bottom - actor->spr.pos.Z) * 0.25;
+	double ceilDist = (actor->spr.pos.Z - top) * 0.25;
 	int clipDist = actor->int_clipdist();
 	int mass = actor->spriteMass.mass;
 
@@ -1666,14 +1666,12 @@ void debrisMove(int listIndex)
 		uwater = true;
 	}
 
-	if (actor->vel.X != 0 || actor->int_vel().Y)
+	if (actor->vel.X != 0 || actor->vel.Y != 0)
 	{
-
 		auto oldcstat = actor->spr.cstat;
 		actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-		ClipMove(actor->spr.pos, &pSector, actor->int_vel().X >> 12,
-			actor->int_vel().Y >> 12, clipDist, ceilDist, floorDist, CLIPMASK0, moveHit);
+		ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), clipDist, ceilDist, floorDist, CLIPMASK0, moveHit);
 		actor->hit.hit = moveHit;
 
 		actor->spr.cstat = oldcstat;
@@ -1715,37 +1713,36 @@ void debrisMove(int listIndex)
 
 	actor->spr.pos.Z += actor->vel.Z;
 
-	int ceilZ, floorZ;
+	double ceilZ, floorZ;
 	Collision ceilColl, floorColl;
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 	GetActorExtents(actor, &top, &bottom);
 
 	if ((actor->xspr.physAttr & kPhysDebrisSwim) && uwater)
 	{
-		int vc = 0;
-		int cz = getceilzofslopeptr(pSector, actor->spr.pos);
-		int fz = getflorzofslopeptr(pSector, actor->spr.pos);
-		int div = ClipLow(bottom - top, 1);
+		double vc = 0;
+		double cz = getceilzofslopeptrf(pSector, actor->spr.pos);
+		double fz = getflorzofslopeptrf(pSector, actor->spr.pos);
+		double div = max(bottom - top, 1 / 256.);
 
-		if (pSector->lowerLink) cz += (cz < 0) ? 0x500 : -0x500;
-		if (top > cz && (!(actor->xspr.physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
-			actor->add_int_bvel_z(-DivScale((bottom - ceilZ) >> 6, mass, 8));
+		if (pSector->lowerLink) cz += (cz < 0) ? 5. : -5.;
+		if (top > cz && (!(actor->xspr.physAttr & kPhysDebrisFloat) || fz <= bottom * 4))
+			actor->vel.Z -= (bottom - ceilZ) * mass / 64.;
 
 		if (fz < bottom)
-			vc = 58254 + ((bottom - fz) * -80099) / div;
+			vc = 0.888888 + ((bottom - fz) * -1.222222) / div;
 
 		if (vc)
 		{
-			actor->add_int_z(((vc << 2) >> 1) >> 8);
-			actor->add_int_bvel_z(vc);
+			actor->spr.pos.Z += vc * 2;
+			actor->vel.Z = vc;
 		}
 
 	}
 	else if ((actor->xspr.physAttr & kPhysGravity) && bottom < floorZ)
 	{
 		actor->spr.pos.Z += 1.777;
-		actor->add_int_bvel_z(58254);
-
+		actor->vel.Z += 0.888888;
 	}
 
 	int i;
@@ -1800,11 +1797,10 @@ void debrisMove(int listIndex)
 
 			moveHit = floorColl;
 			DBloodActor* pFX = NULL, * pFX2 = NULL;
-			double ffloorZ = floorZ * zinttoworld;
 			switch (tileGetSurfType(floorColl))
 			{
 			case kSurfLava:
-				if ((pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos.XY(), ffloorZ), 0)) == NULL) break;
+				if ((pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos.XY(), floorZ), 0)) == NULL) break;
 				for (i = 0; i < 7; i++)
 				{
 					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos, 0)) == NULL) continue;
@@ -1814,7 +1810,7 @@ void debrisMove(int listIndex)
 				}
 				break;
 			case kSurfWater:
-				gFX.fxSpawnActor(FX_9, actor->sector(), DVector3(actor->spr.pos.XY(), ffloorZ), 0);
+				gFX.fxSpawnActor(FX_9, actor->sector(), DVector3(actor->spr.pos.XY(), floorZ), 0);
 				break;
 			}
 
@@ -1834,9 +1830,9 @@ void debrisMove(int listIndex)
 	if (top <= ceilZ)
 	{
 		actor->hit.ceilhit = moveHit = ceilColl;
-		actor->add_int_z(ClipLow(ceilZ - top, 0));
-		if (actor->int_vel().Z <= 0 && (actor->xspr.physAttr & kPhysFalling))
-			actor->set_int_bvel_z(MulScale(-actor->int_vel().Z, 0x2000, 16));
+		actor->spr.pos.Z += max(ceilZ - top, 0.);
+		if (actor->vel.Z <= 0 && (actor->xspr.physAttr & kPhysFalling))
+			actor->vel.Z *= 0.875;
 
 	}
 	else
@@ -1858,23 +1854,21 @@ void debrisMove(int listIndex)
 
 		if ((floorColl.actor()->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
-			actor->add_int_bvel_x(MulScale(4, actor->int_pos().X - floorColl.actor()->int_pos().X, 2));
-			actor->add_int_bvel_y(MulScale(4, actor->int_pos().Y - floorColl.actor()->int_pos().Y, 2));
+			actor->vel.XY() += (actor->spr.pos - floorColl.actor()->spr.pos) / 4096.;
 			return;
 		}
 	}
 
-	actor->xspr.height = ClipLow(floorZ - bottom, 0) >> 8;
+	actor->xspr.height = int(max(floorZ - bottom, 0.));
 	if (uwater || actor->xspr.height >= 0x100)
 		return;
 
-	int nDrag = 0x2a00;
+	double nDrag = 0.1640625;
 	if (actor->xspr.height > 0)
-		nDrag -= Scale(nDrag, actor->xspr.height, 0x100);
+		nDrag *= 1 - actor->xspr.height / 256.;
 
-	actor->add_int_bvel_x(-mulscale16r(actor->int_vel().X, nDrag));
-	actor->add_int_bvel_y(-mulscale16r(actor->int_vel().Y, nDrag));
-	if (approxDist(actor->int_vel().X, actor->int_vel().Y) < 0x1000)
+	actor->vel.XY() *= 1 - nDrag;
+	if (actor->vel.XY().LengthSquared() < 1 / 256.)
 		actor->ZeroVelocityXY();
 }
 
