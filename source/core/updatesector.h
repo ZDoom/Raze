@@ -67,32 +67,64 @@ void DoUpdateSector(double x, double y, double z, int* sectnum, double maxDistan
             iter++;
         }
     }
-    *sectnum = -1;
-}
 
-template<class Inside>
-int FindSector(double x, double y, double z, Inside checker)
-{
     for (int i = (int)sector.Size() - 1; i >= 0; i--)
         if (checker(x, y, z, &sector[i]))
         {
-            return i;
+            *sectnum = i;
+            return;
         }
-    return -1;
+    *sectnum = -1;
 }
 
 
 constexpr int MAXUPDATESECTORDIST = 96;
 
+inline void updatesector(const DVector3& pos, sectortype** const sectp)
+{
+    int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
+	DoUpdateSector(pos.X, pos.Y, pos.Z, &sectno, MAXUPDATESECTORDIST, inside0);
+    *sectp = sectno == -1 ? nullptr : &sector[sectno];
+}
+
+inline void updatesector(const DVector2& pos, sectortype** const sectp)
+{
+	int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
+	DoUpdateSector(pos.X, pos.Y, 0, &sectno, MAXUPDATESECTORDIST, inside0);
+    *sectp = sectno == -1 ? nullptr : &sector[sectno];
+}
+
+
+// This is still needed for map startup.
+inline void updatesector(const DVector3& pos, int* sectno)
+{
+	DoUpdateSector(pos.X, pos.Y, pos.Z, sectno, MAXUPDATESECTORDIST, inside0);
+}
+
+inline void updatesectorz(const DVector3& pos, sectortype** const sectp)
+{
+	int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
+	DoUpdateSector(pos.X, pos.Y, pos.Z, &sectno, MAXUPDATESECTORDIST, insideZ);
+    *sectp = sectno == -1 ? nullptr : &sector[sectno];
+}
+
+inline void updatesectorneighbor(const DVector3& pos, sectortype** const sect, double maxDistance = MAXUPDATESECTORDIST)
+{
+	int sectno = *sect? sector.IndexOf(*sect) : -1;
+    DoUpdateSector(pos.X, pos.Y, 0, &sectno, maxDistance, inside0);
+    *sect = sectno < 0? nullptr : &sector[sectno];
+}
+
+[[deprecated]]
 inline void updatesector(int x_, int y_, int* sectnum)
 {
     double x = x_ * inttoworld;
     double y = y_ * inttoworld;
 
     DoUpdateSector(x, y, 0, sectnum, MAXUPDATESECTORDIST, inside0);
-    if (*sectnum == -1) *sectnum = FindSector(x, y, 0, inside0);
 }
 
+[[deprecated]]
 inline void updatesectorz(int x_, int y_, int z_, int* sectnum)
 {
     double x = x_ * inttoworld;
@@ -100,46 +132,28 @@ inline void updatesectorz(int x_, int y_, int z_, int* sectnum)
     double z = z_ * zinttoworld;
 
     DoUpdateSector(x, y, z, sectnum, MAXUPDATESECTORDIST, insideZ);
-    if (*sectnum == -1) *sectnum = FindSector(x, y, z, insideZ);
 }
 
-inline void updatesector(int const x, int const y, sectortype** const sectp)
+[[deprecated]]
+inline void updatesector(int const x_, int const y_, sectortype** const sectp)
 {
-	int sectno = *sectp? sector.IndexOf(*sectp) : -1;
-	updatesector(x, y, &sectno);
-	*sectp = sectno == -1? nullptr : &sector[sectno];
-}
-
-inline void updatesector(const DVector3& pos, sectortype** const sectp)
-{
+    double x = x_ * inttoworld;
+    double y = y_ * inttoworld;
     int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
-    updatesector(int(pos.X * worldtoint), int(pos.Y * worldtoint), &sectno);
+    DoUpdateSector(x, y, 0, &sectno, MAXUPDATESECTORDIST, inside0);
     *sectp = sectno == -1 ? nullptr : &sector[sectno];
 }
 
-// This is still needed for map startup.
-inline void updatesector(const DVector3& pos, int* sectno)
+[[deprecated]]
+inline void updatesectorz(int x_, int y_, int z_, sectortype** const sectp)
 {
-    updatesector(int(pos.X * worldtoint), int(pos.Y * worldtoint), sectno);
-}
+    double x = x_ * inttoworld;
+    double y = y_ * inttoworld;
+    double z = z_ * zinttoworld;
 
-inline void updatesectorz(int x, int y, int z, sectortype** const sectp)
-{
+
     int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
-    updatesectorz(x, y, z, &sectno);
+    DoUpdateSector(x, y, z, &sectno, MAXUPDATESECTORDIST, insideZ);
     *sectp = sectno == -1 ? nullptr : &sector[sectno];
 }
 
-inline void updatesectorz(const DVector3& pos, sectortype** const sectp)
-{
-	int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
-	updatesectorz(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), &sectno);
-	*sectp = sectno == -1 ? nullptr : &sector[sectno];
-}
-
-inline void updatesectorneighbor(const DVector3& pos, sectortype** const sect, double maxDistance = MAXUPDATESECTORDIST)
-{
-	int sectno = *sect? sector.IndexOf(*sect) : -1;
-    DoUpdateSector(pos.X, pos.Y, 0, &sectno, maxDistance, inside0);
-	*sect = sectno < 0? nullptr : &sector[sectno];
-}
