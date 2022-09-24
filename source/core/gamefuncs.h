@@ -584,6 +584,20 @@ inline double SquareDistToLine(double px, double py, double lx1, double ly1, dou
 	return SquareDist(px, py, xx, yy);
 }
 
+// taken from GZDoom with the divline_t parameters removed
+double InterceptVector(double v2x, double v2y, double v2dx, double v2dy, double v1x, double v1y, double v1dx, double v1dy)
+{
+	double den = v1dy * v2dx - v1dx * v2dy;
+
+	if (den == 0)
+		return 0;		// parallel
+
+	double num = (v1x - v2x) * v1dy + (v2y - v1y) * v1dx;
+	return num / den;
+}
+
+
+
 inline void alignceilslope(sectortype* sect, const DVector3& pos)
 {
 	sect->setceilingslope(getslopeval(sect, pos, sect->ceilingz));
