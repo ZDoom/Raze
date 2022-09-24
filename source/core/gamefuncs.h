@@ -307,37 +307,6 @@ inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pc
 	if (pflorz) *pflorz = -float(f);
 }
 
-//==========================================================================
-//
-// old deprecated integer versions
-//
-//==========================================================================
-
-[[deprecated]]
-inline int getceilzofslopeptr(const sectortype* sec, int dax, int day)
-{
-	double z;
-	calcSlope(sec, dax * inttoworld, day * inttoworld, &z, nullptr);
-	return int(z * zworldtoint);
-}
-
-[[deprecated]]
-inline int getflorzofslopeptr(const sectortype* sec, int dax, int day)
-{
-	double z;
-	calcSlope(sec, dax * inttoworld, day * inttoworld, nullptr, &z);
-	return int(z * zworldtoint);
-}
-
-[[deprecated]]
-inline void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz)
-{
-	double c, f;
-	calcSlope(sec, dax * inttoworld, day * inttoworld, &c, &f);
-	*ceilz = int(c * zworldtoint);
-	*florz = int(f * zworldtoint);
-}
-
 
 // only used by clipmove et.al.
 void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
@@ -626,7 +595,37 @@ inline double BobVal(double val)
 	return g_sinbam(xs_CRoundToUInt(val * (1 << 21)));
 }
 
-// deprecated int wrappers
+//==========================================================================
+//
+// old deprecated integer versions
+//
+//==========================================================================
+
+[[deprecated]]
+inline int getceilzofslopeptr(const sectortype* sec, int dax, int day)
+{
+	double z;
+	calcSlope(sec, dax * inttoworld, day * inttoworld, &z, nullptr);
+	return int(z * zworldtoint);
+}
+
+[[deprecated]]
+inline int getflorzofslopeptr(const sectortype* sec, int dax, int day)
+{
+	double z;
+	calcSlope(sec, dax * inttoworld, day * inttoworld, nullptr, &z);
+	return int(z * zworldtoint);
+}
+
+[[deprecated]]
+inline void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz)
+{
+	double c, f;
+	calcSlope(sec, dax * inttoworld, day * inttoworld, &c, &f);
+	*ceilz = int(c * zworldtoint);
+	*florz = int(f * zworldtoint);
+}
+
 [[deprecated]]
 inline int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3, int y3, int x4, int y4, int* intx, int* inty, int* intz)
 {
