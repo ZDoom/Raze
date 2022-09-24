@@ -1102,8 +1102,6 @@ static inline void hit_set(HitInfoBase *hit, sectortype* sect, walltype* wal, DC
     hit->hitpos.Z = z * zinttoworld;
 }
 
-static int32_t hitscan_hitsectcf=-1;
-
 // stat, heinum, z: either ceiling- or floor-
 // how: -1: behave like ceiling, 1: behave like floor
 static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase *hit,
@@ -1152,7 +1150,6 @@ static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase 
         if (inside(x1,y1,sec) == 1)
         {
             hit_set(hit, sec, nullptr, nullptr, x1, y1, z1);
-            hitscan_hitsectcf = (how+1)>>1;
         }
     }
 
