@@ -378,11 +378,11 @@ void powerupDeactivate(PLAYER* pPlayer, int nPowerUp)
 		break;
 	case kItemDivingSuit:
 		pPlayer->damageControl[4]--;
-		if (pPlayer->nPlayer == myconnectindex && VanillaMode() ? true : pPlayer->pwUpTime[24] == 0)
+		if (pPlayer && pPlayer->nPlayer == myconnectindex && VanillaMode() ? true : pPlayer->pwUpTime[24] == 0)
 			sfxSetReverb(0);
 		break;
 	case kItemReflectShots:
-		if (pPlayer->nPlayer == myconnectindex && VanillaMode() ? true : pPlayer->packSlots[1].isActive == 0)
+		if (pPlayer && pPlayer->nPlayer == myconnectindex && VanillaMode() ? true : pPlayer->packSlots[1].isActive == 0)
 			sfxSetReverb(0);
 		break;
 	case kItemGasMask:
