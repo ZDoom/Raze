@@ -277,21 +277,19 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 	
 	auto gPos = pPos? *pPos : actor->spr.pos;
 
-	int32_t ceilZ, floorZ;
+	double ceilZ, floorZ;
 	getzsofslopeptr(pSector, gPos.XY(), &ceilZ, &floorZ);
 	int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
-	int dz1 = floorZ - gPos.Z * worldtoint;
-	int dz2 = gPos.Z * worldtoint - ceilZ;
+	double dz1 = floorZ - gPos.Z;
+	double dz2 = gPos.Z - ceilZ;
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	for (int i = 0; i < nCount; i++)
 	{
 		if (!pPos && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
-			int nAngle = Random(2048);
-			gPos.X = actor->spr.pos.X + MulScale(actor->int_clipdist(), Cos(nAngle), 30) * inttoworld;
-			gPos.Y = actor->spr.pos.Y + MulScale(actor->int_clipdist(), Sin(nAngle), 30) * inttoworld;
-			gPos.Z = bottom - Random(bottom - top);
+			DAngle nAngle = RandomAngle();
+			gPos = DVector3(actor->spr.pos.XY() + actor->fClipdist() * nAngle.ToVector(), bottom - RandomD(bottom - top, 8));
 		}
 		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos, 0);
 		if (pFX)
@@ -312,11 +310,11 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 					pFX->vel.Z = Random2F((pGFX->at11 << 18) / 120);
 					break;
 				default:
-					if (dz2 < dz1 && dz2 < 0x4000)
+					if (dz2 < dz1 && dz2 < 0x400)
 					{
 						pFX->set_int_bvel_z(0);
 					}
-					else if (dz2 > dz1 && dz1 < 0x4000)
+					else if (dz2 > dz1 && dz1 < 0x400)
 					{
 						pFX->vel.Z = -Random2F((abs(pGFX->at11) << 18) / 120);
 					}
