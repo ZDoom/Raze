@@ -585,7 +585,7 @@ inline double SquareDistToLine(double px, double py, double lx1, double ly1, dou
 }
 
 // taken from GZDoom with the divline_t parameters removed
-double InterceptVector(double v2x, double v2y, double v2dx, double v2dy, double v1x, double v1y, double v1dx, double v1dy)
+inline double InterceptVector(double v2x, double v2y, double v2dx, double v2dy, double v1x, double v1y, double v1dx, double v1dy)
 {
 	double den = v1dy * v2dx - v1dx * v2dy;
 
@@ -596,6 +596,32 @@ double InterceptVector(double v2x, double v2y, double v2dx, double v2dy, double 
 	return num / den;
 }
 
+// Essentially two InterceptVector calls. We can reduce the calculations because the denominators for both calculations only differ by their sign.
+inline double InterceptLineSegments(double v2x, double v2y, double v2dx, double v2dy, double v1x, double v1y, double v1dx, double v1dy, double* pfactor1 = nullptr)
+{
+	double den = v1dy * v2dx - v1dx * v2dy;
+
+	if (den == 0)
+		return 0;		// parallel
+
+	// perform the division first for better parallelization.
+	den = 1 / den;
+
+	double factor1 = ((v2x - v1x) * v2dy + (v1y - v2y) * v2dx) * -den;
+	if (factor1 < 0 || factor1 > 1) return -FLT_MAX; // no intersection
+	if (pfactor1) *pfactor1 = factor1;
+
+	return ((v1x - v2x) * v1dy + (v2y - v1y) * v1dx) * den; // this one's for the line segment where we want to get the intercept factor for so it needs to be last.
+}
+
+inline double GetRayIntersect(const DVector3& start1, const DVector3& vect1, const DVector2& start2, const DVector2& vect2, DVector3& retv)
+{
+	double factor2;
+	double factor = InterceptLineSegments(start1.X, start1.Y, vect1.X, vect1.Y, start2.X, start2.Y, vect2.X, vect2.Y, &factor2);
+	if (factor <= 0) return -1;
+	retv = start1 + factor * vect1;
+	return factor2;
+}
 
 
 inline void alignceilslope(sectortype* sect, const DVector3& pos)
@@ -617,5 +643,20 @@ inline double BobVal(double val)
 {
 	return g_sinbam(xs_CRoundToUInt(val * (1 << 21)));
 }
+
+// deprecated int wrappers
+[[deprecated]]
+inline int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3, int y3, int x4, int y4, int* intx, int* inty, int* intz)
+{
+	DVector3 retv;
+	double result = GetRayIntersect(DVector3(x1 * inttoworld, y1 * inttoworld, z1 * zinttoworld), DVector3(vx * inttoworld, vy * inttoworld, vz * zinttoworld),
+		DVector2(x3 * inttoworld, y3 * inttoworld), DVector2((x4 - x3) * inttoworld, (y4 - y3) * inttoworld), retv);
+	if (result < 0) return -1;
+	*intx = retv.X * worldtoint;
+	*inty = retv.Y * worldtoint;
+	*intz = retv.Z * zworldtoint;
+	return FloatToFixed(result);
+}
+
 
 #include "updatesector.h"
