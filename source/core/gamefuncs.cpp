@@ -547,6 +547,50 @@ sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags)
 //
 //==========================================================================
 
+bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, sectortype* sect2)
+{
+	if (!sect1 || !sect2) return false;
+
+	auto delta = end - start;
+
+	if (delta.XY().isZero())
+		return (sect1 == sect2);
+
+	BFSSectorSearch search(sect1);
+
+	while (auto sec = search.GetNext())
+	{
+		for (auto& wal : wallsofsector(sec))
+		{
+			double factor = InterceptLineSegments(start.X, start.Y, delta.X, delta.Y, wal.pos.X, wal.pos.Y, wal.delta().X, wal.delta().Y, nullptr, true);
+			if (factor <= 0 || factor >= 1) continue;
+
+			if (!wal.twoSided() || wal.cstat & CSTAT_WALL_1WAY)
+				return false;
+
+			auto spot = start + delta * factor;
+			double floorz, ceilz;
+
+			for (auto isec : { sec, wal.nextSector() })
+			{
+				getzsofslopeptr(isec, spot, &ceilz, &floorz);
+
+				if (spot.Z <= ceilz || spot.Z >= floorz)
+					return false;
+			}
+			search.Add(wal.nextSector());
+		}
+	}
+	return search.Check(sect2);
+}
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 bool isAwayFromWall(DCoreActor* ac, double delta)
 {
 	sectortype* s1;

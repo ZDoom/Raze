@@ -261,6 +261,8 @@ void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp =
 
 bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, fixedhoriz horiz, double const interpfrac);
 int getslopeval(sectortype* sect, const DVector3& pos, double bazez);
+bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, sectortype* sect2);
+
 
 
 
@@ -548,11 +550,11 @@ inline double InterceptVector(double v2x, double v2y, double v2dx, double v2dy, 
 }
 
 // Essentially two InterceptVector calls. We can reduce the calculations because the denominators for both calculations only differ by their sign.
-inline double InterceptLineSegments(double v2x, double v2y, double v2dx, double v2dy, double v1x, double v1y, double v1dx, double v1dy, double* pfactor1 = nullptr)
+inline double InterceptLineSegments(double v2x, double v2y, double v2dx, double v2dy, double v1x, double v1y, double v1dx, double v1dy, double* pfactor1 = nullptr, bool forcansee = false)
 {
 	double den = v1dy * v2dx - v1dx * v2dy;
 
-	if (den == 0)
+	if (den == 0 || (forcansee && den < 0)) // cansee does this added check here, aside from that its logic is virtually the same.
 		return 0;		// parallel
 
 	// perform the division first for better parallelization.
@@ -664,6 +666,12 @@ inline int32_t lintersect(const int32_t originX, const int32_t originY, const in
 		*intersectionZ = retv.Z * zworldtoint;
 	}
 	return result;
+}
+
+[[deprecated]]
+inline int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2)
+{
+	return cansee(DVector3(x1 * inttoworld, y1 * inttoworld, z1 * zinttoworld), sect1, DVector3(x2 * inttoworld, y2 * inttoworld, z2 * zinttoworld), sect2);
 }
 
 
