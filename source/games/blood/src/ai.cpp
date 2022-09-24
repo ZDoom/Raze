@@ -127,28 +127,27 @@ static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 //
 //---------------------------------------------------------------------------
 
-bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
+bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle_, int nRange)
 {
-	int top, bottom;
+	DAngle nAngle = DAngle::fromBuild(nAngle_);
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	int x = actor->int_pos().X;
-	int y = actor->int_pos().Y;
-	int z = actor->int_pos().Z;
-	HitScan_(actor, z, bcos(nAngle), bsin(nAngle), 0, CLIPMASK0, nRange);
-	int nDist = approxDist(actor->spr.pos.XY() - gHitInfo.hitpos.XY());
-	if (nDist - (actor->int_clipdist()) < nRange)
+	DVector3 pos = actor->spr.pos;
+	DVector2 nAngVect = nAngle.ToVector();
+	HitScan_(actor, pos.Z * zworldtoint, nAngVect.X * (1 << 14), nAngVect.Y * (1 << 14), 0, CLIPMASK0, nRange);
+	double nDist = (actor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
+	if (nDist - (actor->fClipdist()) < nRange)
 	{
 		if (gHitInfo.actor() == nullptr || target == nullptr || target != gHitInfo.actor())
 			return false;
 		return true;
 	}
-	x += MulScale(nRange, Cos(nAngle), 30);
-	y += MulScale(nRange, Sin(nAngle), 30);
+	pos.XY() += nRange * nAngVect;
 	auto pSector = actor->sector();
 	assert(pSector);
-	updatesectorz(x, y, z, &pSector);
+	updatesectorz(pos, &pSector);
 	if (!pSector) return false;
-	int floorZ = int_getflorzofslopeptr(pSector, x, y);
+	double floorZ = getflorzofslopeptr(pSector, pos);
 	auto pXSector = pSector->hasX()? &pSector->xs() : nullptr;
 	bool Underwater = 0; 
 	bool Water = 0; 
@@ -179,7 +178,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	case kDudeGargoyleFlesh:
 	case kDudeGargoyleStone:
 	case kDudeBat:
-		if (actor->native_clipdist() > nDist)
+		if (actor->fClipdist() > nDist * 4)
 			return 0;
 		if (Depth)
 		{
@@ -218,7 +217,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 			return false;
 		if (Depth || Underwater)
 			return false;
-		if (floorZ - bottom > 0x2000)
+		if (floorZ - bottom > 32)
 			return false;
 		break;
 #ifdef NOONE_EXTENSIONS
@@ -234,7 +233,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	default:
 		if (Crusher)
 			return false;
-		if ((pXSector == nullptr || (!pXSector->Underwater && !pXSector->Depth)) && floorZ - bottom > 0x2000)
+		if ((pXSector == nullptr || (!pXSector->Underwater && !pXSector->Depth)) && floorZ - bottom > 32)
 			return false;
 		break;
 	}
