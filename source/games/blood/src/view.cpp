@@ -610,7 +610,7 @@ void renderCrystalBall()
 
 void viewDrawScreen(bool sceneonly)
 {
-	PLAYER* pPlayer = &gPlayer[myconnectindex];
+	PLAYER* pPlayer = &gPlayer[gViewIndex];
 
 	if (testgotpic(2342, true))
 	{
@@ -841,7 +841,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (i == myconnectindex || gGameOptions.nGameType == 1)
+		if (i == gViewIndex || gGameOptions.nGameType == 1)
 		{
 			auto actor = gPlayer[i].actor;
 			auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);

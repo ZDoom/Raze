@@ -477,13 +477,14 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto& nVoxel = voxelIndex[nTile];
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
-			pNSprite->angle = (pPlayer->actor->spr.angle + DAngle90).Normalized360(); // always face viewer
+			auto gView = &gPlayer[gViewIndex];
+			pNSprite->set_int_ang((gView->actor->int_ang() + 512) & 2047); // always face viewer
 			pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			pNSprite->picnum = nVoxel;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->pos.XY() += pPlayer->actor->spr.angle.ToVector() * 8;
+				pNSprite->pos.XY() += gView->actor->spr.angle.ToVector() * 8;
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
 				pNSprite->set_int_ang((pNSprite->int_ang() + 512) & 2047); // offset angle 90 degrees
@@ -524,7 +525,7 @@ static int GetOctant(int x, int y)
 
 void viewProcessSprites(tspriteArray& tsprites, int32_t cX, int32_t cY, int32_t cZ, DAngle cA, double interpfrac)
 {
-	PLAYER* pPlayer = &gPlayer[myconnectindex];
+	PLAYER* pPlayer = &gPlayer[gViewIndex];
 	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
 	DAngle myclock = DAngle::fromDeg(((PlayClock << 3) + (4 << 3) * interpfrac) * BAngToDegree);

@@ -773,7 +773,7 @@ DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
 DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
 {
 	PARAM_PROLOGUE;
-	ACTION_RETURN_POINTER(&gPlayer[myconnectindex]);
+	ACTION_RETURN_POINTER(&gPlayer[gViewIndex]);
 }
 
 DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
