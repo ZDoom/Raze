@@ -583,6 +583,21 @@ inline double GetRayIntersect(const DVector3& start1, const DVector3& vect1, con
 	return factor2;
 }
 
+inline double LinePlaneIntersect(const DVector3& start, const DVector3& trace, const DVector3& ppoint, const DVector3& pvec1, const DVector3& pvec2)
+{
+	auto normal = pvec1 ^ pvec2; // we do not need a unit vector here.
+	double dist = normal.dot(ppoint);
+	double dotStart = normal.dot(start);
+	double dotTrace = normal.dot(trace);
+	if (dotTrace == 0) return -FLT_MAX;
+	return (dist - dotStart) / dotTrace; // we are only interested in the factor
+}
+
+inline double LineHeightIntersect(double startz, double tracez, double dist)
+{
+	return (dist - startz) / tracez; // we are only interested in the factor
+}
+
 inline void alignceilslope(sectortype* sect, const DVector3& pos)
 {
 	sect->setceilingslope(getslopeval(sect, pos, sect->ceilingz));
