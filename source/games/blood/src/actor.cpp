@@ -5902,28 +5902,22 @@ static void actCheckTraps()
 		case kTrapFlame:
 			if (actor->xspr.state && seqGetStatus(actor) < 0)
 			{
-				int x = actor->int_pos().X;
-				int y = actor->int_pos().Y;
-				int z = actor->int_pos().Z;
-				int t = (actor->xspr.data1 << 23) / 120;
-				int dx = MulScale(t, Cos(actor->int_ang()), 30);
-				int dy = MulScale(t, Sin(actor->int_ang()), 30);
+				auto pos = actor->spr.pos;
+				double t = actor->xspr.data1 * (128. / 120.);
+				auto vec = actor->spr.angle.ToVector() * t;
 				for (int i = 0; i < 2; i++)
 				{
-					auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), x, y, z, 0);
+					auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), pos, 0);
 					if (pFX)
 					{
-						pFX->set_int_bvel_x(dx + Random2(0x8888));
-						pFX->set_int_bvel_y(dy + Random2(0x8888));
+						pFX->vel.X = vec.X + Random2F(0x8888);
+						pFX->vel.Y = vec.Y + Random2F(0x8888);
 						pFX->vel.Z = Random2F(0x8888);
 					}
-					x += (dx / 2) >> 12;
-					y += (dy / 2) >> 12;
+					pos += vec / 2;
 				}
-				dy = bsin(actor->int_ang());
-				dx = bcos(actor->int_ang());
 				gVectorData[kVectorTchernobogBurn].maxDist = actor->xspr.data1 << 9;
-				actFireVector(actor, 0, 0, dx, dy, Random2(0x8888), kVectorTchernobogBurn);
+				actFireVector(actor, 0., 0., DVector3(actor->spr.angle.ToVector(), Random2F(0x8888) * 4), kVectorTchernobogBurn);
 			}
 			break;
 		}
