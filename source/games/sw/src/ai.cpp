@@ -432,7 +432,7 @@ int DoActorOperate(DSWActor* actor)
 
     for (i = 0; i < SIZ(z); i++)
     {
-        neartag(actor->spr.pos.plusZ(z[i]), actor->sector(), actor->spr.angle, near, 1024, NTAG_SEARCH_LO_HI);
+        neartag(actor->spr.pos.plusZ(z[i]), actor->sector(), actor->spr.angle, near, 64., NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
     }
 
     if (near.hitSector != nullptr && near.hitpos.X < 64)

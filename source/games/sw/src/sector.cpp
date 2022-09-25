@@ -2138,7 +2138,7 @@ bool NearThings(PLAYER* pp)
         return false;
     }
 
-    neartag(pp->pos, pp->cursector, pp->angle.ang, near, 1024, NTAG_SEARCH_LO_HI);
+    neartag(pp->pos, pp->cursector, pp->angle.ang, near, 64., NT_Lotag | NT_Hitag);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2321,7 +2321,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int typ
 //
 //---------------------------------------------------------------------------
 
-void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, double z, int dist, int type, int count)
+void BuildNearTagList(NEAR_TAG_INFO* ntip, int size, PLAYER* pp, double z, double dist, int type, int count)
 {
     memset(ntip, -1, size);
     nti_cnt = 0;
@@ -2402,7 +2402,7 @@ void PlayerOperateEnv(PLAYER* pp)
                 NearThings(pp); // Check for player sound specified in a level sprite
             }
 
-            BuildNearTagList(nti, sizeof(nti), pp, pp->pos.Z, 128, NTAG_SEARCH_LO_HI, 8);
+            BuildNearTagList(nti, sizeof(nti), pp, pp->pos.Z, 128, NT_Lotag | NT_Hitag, 8);
 
             found = false;
 
@@ -2431,7 +2431,7 @@ void PlayerOperateEnv(PLAYER* pp)
 
                 for (unsigned i = 0; i < SIZ(z); i++)
                 {
-                    BuildNearTagList(nti, sizeof(nti), pp, z[i], 64 + 48, NTAG_SEARCH_LO_HI, 8);
+                    BuildNearTagList(nti, sizeof(nti), pp, z[i], 64 + 48, NT_Lotag | NT_Hitag, 8);
 
                     for (nt_ndx = 0; nti[nt_ndx].Dist >= 0; nt_ndx++)
                     {

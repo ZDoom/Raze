@@ -3510,7 +3510,7 @@ void DoPlayerClimb(PLAYER* pp)
         HitInfo near;
 
         // constantly look for new ladder sector because of warping at any time
-        neartag(pp->pos, pp->cursector, pp->angle.ang, near, 800, NTAG_SEARCH_LO_HI);
+        neartag(pp->pos, pp->cursector, pp->angle.ang, near, 50., NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
 
         if (near.hitWall)
         {
@@ -3871,7 +3871,7 @@ bool PlayerOnLadder(PLAYER* pp)
     if (Prediction)
         return false;
 
-    neartag(pp->pos, pp->cursector, pp->angle.ang, near, 1024 + 768, NTAG_SEARCH_LO_HI);
+    neartag(pp->pos, pp->cursector, pp->angle.ang, near, 64. + 48., NT_Lotag | NT_Hitag);
 
     double dir = pp->vect.dot(pp->angle.ang.ToVector());
 
@@ -3883,7 +3883,7 @@ bool PlayerOnLadder(PLAYER* pp)
 
     for (i = 0; i < SIZ(angles); i++)
     {
-        neartag(pp->pos, pp->cursector, pp->angle.ang + angles[i], near, 600, NTAG_SEARCH_LO_HI);
+        neartag(pp->pos, pp->cursector, pp->angle.ang + angles[i], near, 37.5, NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
 
         if (near.hitWall == nullptr || near.hitpos.X < 6.25 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;

@@ -1720,10 +1720,6 @@ enum
     STAT_DAMAGE_LIST_SIZE = 20,
     COLOR_PAIN  = 128,  // Light red range
 
-    NTAG_SEARCH_LO = 1,
-    NTAG_SEARCH_HI = 2,
-    NTAG_SEARCH_LO_HI = 3,
-
     ANIM_SERP = 1,
     ANIM_SUMO  =2,
     ANIM_ZILLA  =3

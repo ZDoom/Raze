@@ -3039,7 +3039,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         for (auto& zz : z)
         {
-            neartag(DVector3(actor->spr.pos.XY(), zz), actor->sector(), actor->spr.angle, near, 1024, NTAG_SEARCH_LO_HI);
+            neartag(DVector3(actor->spr.pos.XY(), zz), actor->sector(), actor->spr.angle, near, 64., NT_Lotag | NT_Hitag);
 
             if (near.actor() != nullptr && near.hitpos.X < 64)
             {
@@ -3254,7 +3254,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             //
 
 			double z = ActorZOfTop(actor) - (ActorSizeZ(actor) * 0.5);
-            neartag(DVector3(actor->spr.pos.XY(), z), actor->sector(), actor->spr.angle, near, 600, NTAG_SEARCH_LO_HI);
+            neartag(DVector3(actor->spr.pos.XY(), z), actor->sector(), actor->spr.angle, near, 37.5, NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
 
             if (near.hitWall == nullptr)
             {
