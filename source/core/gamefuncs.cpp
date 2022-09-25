@@ -623,7 +623,95 @@ bool intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& d
 	return 1;
 }
 
+//==========================================================================
+//
+// 
+// 
+//==========================================================================
 
+void neartag(const DVector3& pos, sectortype* startsect, DAngle angle, HitInfoBase& result, double range, int flags)
+{
+	auto checkTag = [=](const auto* object)
+	{
+		return (((flags & NT_Lotag) && object->lotag) || ((flags & NT_Hitag) && object->hitag));
+	};
+
+	auto v = DVector3(angle.ToVector() * range * 1.000001, 0); // extend the range a tiny bit so that we really find everything we need.
+
+	result.clearObj();
+	result.hitpos.X = result.hitpos.Y = 0;
+
+	if (!startsect || (flags & (NT_Lotag | NT_Hitag)) == 0)
+		return;
+
+	BFSSectorSearch search(startsect);
+
+	while (auto sect = search.GetNext())
+	{
+		for (auto& wal : wallsofsector(sect))
+		{
+			const auto nextsect = wal.nextSector();
+
+			if (PointOnLineSide(pos.XY(), &wal) > 0) continue;
+
+			double factor = InterceptLineSegments(pos.X, pos.Y, v.X, v.Y, wal.pos.X, wal.pos.Y, wal.delta().X, wal.delta().Y);
+			if (factor > 0 && factor < 1)
+			{
+				bool foundsector = (wal.twoSided() && checkTag(nextsect));
+				bool foundwall = checkTag(&wal);
+#if 0	// does not work if the trace goes right through the vertex between two walls.
+				if (!wal.twoSided() && !foundwall && !foundsector)
+				{
+					// this case was not handled by Build:
+					// If we hit an untagged one-sided wall it should both shorten the scan trace and clear all hits beyond.
+					// Otherwise this may cause problems with some weirdly shaped sectors.
+					result.hitSector = nullptr;
+					result.hitWall = nullptr;
+					result.hitpos.X = 0;
+					v *= factor;
+					continue;
+				}
+#endif
+				if (foundsector) result.hitSector = nextsect;
+				if (foundwall) result.hitWall = &wal;
+
+				if (foundwall || foundsector)
+				{
+					v *= factor;
+					result.hitpos.X = v.XY().Length();
+				}
+
+				if (wal.twoSided())
+				{
+					search.Add(nextsect);
+				}
+			}
+		}
+
+		if (!(flags & NT_NoSpriteCheck))
+		{
+			TSectIterator<DCoreActor> it(sect);
+			while (auto actor = it.Next())
+			{
+				if (actor->spr.cstat2 & CSTAT2_SPRITE_NOFIND)
+					continue;
+
+				if (checkTag(&actor->spr))
+				{
+					DVector3 spot;
+					if (intersectSprite(actor, pos, v, spot, 1 / 256.))
+					{
+						result.hitActor = actor;
+						// return distance to sprite in a separate variable because there is 
+						// no means to determine what is for if both a sprite and wall are found.
+						// Only SW's NearTagList actually uses it.
+						result.hitpos.Y = (spot - pos).XY().Length();
+					}
+				}
+			}
+		}
+	}
+}
 
 //==========================================================================
 //

@@ -263,6 +263,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DA
 int getslopeval(sectortype* sect, const DVector3& pos, double bazez);
 bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, sectortype* sect2);
 bool intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& end, DVector3& result, double displacement);
+void neartag(const DVector3& start, sectortype* sect, DAngle angle, HitInfoBase& result, double neartagrange, int tagsearch);
 
 
 
@@ -584,15 +585,6 @@ inline double GetRayIntersect(const DVector3& start1, const DVector3& vect1, con
 	return factor2;
 }
 
-inline bool GetLineIntersect(const DVector3& start1, const DVector3& vect1, const DVector2& start2, const DVector2& vect2, DVector3& retv)
-{
-	double factor = InterceptLineSegments(start1.X, start1.Y, vect1.X, vect1.Y, start2.X, start2.Y, vect2.X, vect2.Y);
-	if (factor <= 0 || factor > 1) return false;
-	retv = start1 + (factor) * vect1;
-	return true;
-}
-
-
 inline void alignceilslope(sectortype* sect, const DVector3& pos)
 {
 	sect->setceilingslope(getslopeval(sect, pos, sect->ceilingz));
@@ -655,25 +647,6 @@ inline int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3, in
 	*inty = retv.Y * worldtoint;
 	*intz = retv.Z * zworldtoint;
 	return FloatToFixed(result);
-}
-
-[[deprecated]]
-inline int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t originZ,
-	const int32_t destX, const int32_t destY, const int32_t destZ,
-	const int32_t lineStartX, const int32_t lineStartY, const int32_t lineEndX, const int32_t lineEndY,
-	int32_t* intersectionX, int32_t* intersectionY, int32_t* intersectionZ)
-{
-	DVector3 retv;
-	bool result = GetLineIntersect(DVector3(originX * inttoworld, originY * inttoworld, originZ * zinttoworld),
-		DVector3((destX - originX) * inttoworld, (destY - originY) * inttoworld, (destZ - originZ) * zinttoworld),
-		DVector2(lineStartX * inttoworld, lineStartY * inttoworld), DVector2((lineEndX - lineStartX) * inttoworld, (lineEndY - lineStartY) * inttoworld), retv);
-	if (result)
-	{
-		*intersectionX = retv.X * worldtoint;
-		*intersectionY = retv.Y * worldtoint;
-		*intersectionZ = retv.Z * zworldtoint;
-	}
-	return result;
 }
 
 [[deprecated]]

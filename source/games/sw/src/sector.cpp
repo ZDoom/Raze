@@ -2282,7 +2282,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int typ
         save_lotag = actor->spr.lotag;
         save_hitag = actor->spr.hitag;
 
-        ntip->Dist = near.hitpos.X;
+        ntip->Dist = near.hitpos.Y;
         ntip->sectp = nullptr;
         ntip->wallp = nullptr;
         ntip->actor = actor;

@@ -173,22 +173,6 @@ inline int hitscan(const DVector3& start, const sectortype* startsect, const vec
     return hitscan(istart, startsect, direction, hitinfo, cliptype);
 }
 
-void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result, int neartagrange, int tagsearch);
-inline void neartag(const DVector3& start, sectortype* sect, DAngle angle, HitInfoBase& result, int neartagrange, int tagsearch)
-{
-    vec3_t vec(start.X * worldtoint, start.Y * worldtoint, start.Z * zworldtoint);
-    neartag(vec, sect, angle.Buildang(), result, neartagrange, tagsearch);
-}
-inline void neartag(const DVector3& start, sectortype* sect, DAngle angle, HitInfoBase& result, double neartagrange, int tagsearch)
-{
-	vec3_t vec(start.X * worldtoint, start.Y * worldtoint, start.Z * zworldtoint);
-	neartag(vec, sect, angle.Buildang(), result, int(neartagrange * worldtoint), tagsearch);
-}
-
-int32_t try_facespr_intersect(DCoreActor* spr, vec3_t const in,
-                                     int32_t vx, int32_t vy, int32_t vz,
-                                     vec3_t * const intp, int32_t strictly_smaller_than_p);
-
 
 extern const int16_t *chsecptr_onextwall;
 
