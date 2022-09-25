@@ -4417,8 +4417,10 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 {
 	int var = -1;
-	int cond = aCond->xspr.data1 - kCondDudeBase; int arg1 = aCond->xspr.data2;
-	int arg2 = aCond->xspr.data3; int arg3 = aCond->xspr.data4;
+	int cond = aCond->xspr.data1 - kCondDudeBase; 
+	int arg1 = aCond->xspr.data2;
+	int arg2 = aCond->xspr.data3; 
+	int arg3 = aCond->xspr.data4;
 
 	auto eob = condGet(aCond);
 
@@ -4442,6 +4444,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 		else if (!targ->IsDudeActor() && targ->spr.type != kMarkerPath) return false;
 		else if (PUSH) condPush(aCond, targ);
 		return true;
+
 	case 1: return aiFightDudeIsAffected(objActor); // dude affected by ai fight?
 	case 2: // distance to the target in a range?
 	case 3: // is the target visible?
@@ -4454,21 +4457,20 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 		DUDEINFO* pInfo = getDudeInfo(objActor->spr.type);
 		double height = (pInfo->eyeHeight * objActor->spr.yrepeat) * REPEAT_SCALE;
 
-		int dx = targ->int_pos().X - objActor->int_pos().X;
-		int dy = targ->int_pos().Y - objActor->int_pos().Y;
+		auto delta = targ->spr.pos.XY() - objActor->spr.pos.XY();
 
 		switch (cond)
 		{
 		case 2:
-			var = condCmp(approxDist(dx, dy), arg1 * 512, arg2 * 512, cmpOp);
+			var = condCmp(int(delta.Length() * 16), arg1 * 512, arg2 * 512, cmpOp);
 			break;
 		case 3:
 		case 4:
 			var = cansee(objActor->spr.pos, objActor->sector(), targ->spr.pos.plusZ(-height), targ->sector());
 			if (cond == 4 && var > 0)
 			{
-				var = ((1024 + getangle(dx, dy) - objActor->int_ang()) & 2047) - 1024;
-				var = (abs(var) < ((arg1 <= 0) ? pInfo->periphery : ClipHigh(arg1, 2048)));
+				DAngle absang = absangle(VecToAngle(delta), objActor->spr.angle);
+				var = absang < (arg1 <= 0 ? pInfo->Periphery() : min(mapangle(arg1), DAngle360));
 			}
 			break;
 		}
