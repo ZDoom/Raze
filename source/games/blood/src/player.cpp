@@ -1419,11 +1419,9 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 {
 	auto plActor = pPlayer->actor;
 	*out = {};
-	int x = bcos(plActor->int_ang());
-	int y = bsin(plActor->int_ang());
-	int z = pPlayer->slope;
-	int hit = HitScan(pPlayer->actor, pPlayer->zView, x, y, z, 0x10000040, 128);
-	int hitDist = (int)(plActor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
+	auto pos = DVector3(plActor->spr.angle.ToVector() * 1024., pPlayer->slope * inttoworld);
+	int hit = HitScan(pPlayer->actor, pPlayer->zView, pos, 0x10000040, 128);
+	double hitDist = (plActor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
 	if (hitDist < 64)
 	{
 		switch (hit)
@@ -1450,10 +1448,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 				int nMass = getDudeInfo(hitactor->spr.type)->mass;
 				if (nMass)
 				{
-					int t2 = DivScale(0xccccc, nMass, 8);
-					hitactor->add_int_bvel_x(MulScale(x, t2, 16));
-					hitactor->add_int_bvel_y(MulScale(y, t2, 16));
-					hitactor->add_int_bvel_z(MulScale(z, t2, 16));
+					hitactor->spr.pos += pos * (FixedToFloat<8>(0xccccc) / nMass);
 				}
 				if (hitactor->xspr.Push && !hitactor->xspr.state && !hitactor->xspr.isTriggered)
 					trTriggerSprite(hitactor, kCmdSpritePush);
