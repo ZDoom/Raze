@@ -41,9 +41,9 @@ inline static double getTicrateScale(const double value)
 inline static double getCorrectedScale(const double scaleAdjust)
 {
 	// When using the output of I_GetInputFrac() to scale input adjustments at framerate, deviations of over 100 ms can occur.
-	// Below formula corrects the deviation, with 0.2125 being an average between an ideal value of 0.205 for 40Hz and 0.22 for 30Hz.
+	// Below formula corrects the deviation, with 0.2125 being an average between an ideal value of 0.20 for 40Hz and 0.22 for 30Hz.
 	// We use the average value here as the difference is under 5 ms and is not worth complicating the algorithm for such precision.
-	return scaleAdjust < 1. ? scaleAdjust * (1. + 0.2125 * (1. - scaleAdjust)) : scaleAdjust;
+	return scaleAdjust < 1. ? scaleAdjust * (1. + 0.21 * (1. - scaleAdjust)) : scaleAdjust;
 }
 
 inline static fixedhoriz getscaledhoriz(const double value, const double scaleAdjust, const fixedhoriz object, const double push)
@@ -219,7 +219,8 @@ enum
 	CNTRSPEED = 10,
 };
 
-static constexpr double CNTRSPEEDF = CNTRSPEED * (443. / 450.);  // Pitch-adjusted value.
+static constexpr double CNTRSPEEDF = CNTRSPEED * 1.025;  // Pitch-adjusted value.
+static constexpr DAngle CNTRSINEOFFSET = DAngle1 * 101.25;
 
 void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
@@ -262,7 +263,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 
 			if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 			{
-				scaletozero(tmpangle, CNTRSPEEDF, scaleAdjust);
+				scaletozero(tmpangle, CNTRSPEEDF * (CNTRSINEOFFSET - abs(tmpangle)).Sin(), scaleAdjust);
 				if (!tmpangle.Sgn())
 				{
 					tmpangle = nullAngle;
