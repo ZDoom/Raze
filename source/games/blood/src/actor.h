@@ -226,8 +226,8 @@ DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat,
 DBloodActor* actSpawnDude(DBloodActor* pSource, int nType, int a3, int a4);
 DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
 DBloodActor * actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingType);
-DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6);
-DBloodActor* actFireMissile(DBloodActor *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
+DBloodActor* actFireThing(DBloodActor* actor, int xyoff, int zoff, int zvel, int thingType, int nSpeed);
+DBloodActor* actFireMissile(DBloodActor* actor, int xyoff, int zoff, int dx, int dy, int dz, int nType);
 
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
 

@@ -6352,12 +6352,12 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingType, int a6)
+DBloodActor* actFireThing(DBloodActor* actor, int xyoff, int zoff, int zvel, int thingType, int nSpeed)
 {
 	assert(thingType >= kThingBase && thingType < kThingMax);
-	int x = actor->int_pos().X + MulScale(a2, Cos(actor->int_ang() + 512), 30);
-	int y = actor->int_pos().Y + MulScale(a2, Sin(actor->int_ang() + 512), 30);
-	int z = actor->int_pos().Z + a3;
+	int x = actor->int_pos().X + MulScale(xyoff, Cos(actor->int_ang() + 512), 30);
+	int y = actor->int_pos().Y + MulScale(xyoff, Sin(actor->int_ang() + 512), 30);
+	int z = actor->int_pos().Z + zoff;
 	x += MulScale(actor->native_clipdist(), Cos(actor->int_ang()), 28);
 	y += MulScale(actor->native_clipdist(), Sin(actor->int_ang()), 28);
 	if (HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, actor->native_clipdist()) != -1)
@@ -6368,9 +6368,9 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	auto fired = actSpawnThing(actor->sector(), x, y, z, thingType);
 	fired->SetOwner(actor);
 	fired->spr.angle = actor->spr.angle;
-	fired->set_int_bvel_x(MulScale(a6, Cos(fired->int_ang()), 30));
-	fired->set_int_bvel_y(MulScale(a6, Sin(fired->int_ang()), 30));
-	fired->set_int_bvel_z(MulScale(a6, a4, 14));
+	fired->set_int_bvel_x(MulScale(nSpeed, Cos(fired->int_ang()), 30));
+	fired->set_int_bvel_y(MulScale(nSpeed, Sin(fired->int_ang()), 30));
+	fired->set_int_bvel_z(MulScale(nSpeed, zvel, 14));
 	fired->vel += actor->vel * 0.5;
 	return fired;
 }
@@ -6462,15 +6462,15 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, int a6, int nType)
+DBloodActor* actFireMissile(DBloodActor* actor, int xyoff, int zoff, int dx, int dy, int dz, int nType)
 {
 
 	assert(nType >= kMissileBase && nType < kMissileMax);
 	bool impact = false;
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
-	int x = actor->int_pos().X + MulScale(a2, Cos(actor->int_ang() + 512), 30);
-	int y = actor->int_pos().Y + MulScale(a2, Sin(actor->int_ang() + 512), 30);
-	int z = actor->int_pos().Z + a3;
+	int x = actor->int_pos().X + MulScale(xyoff, Cos(actor->int_ang() + 512), 30);
+	int y = actor->int_pos().Y + MulScale(xyoff, Sin(actor->int_ang() + 512), 30);
+	int z = actor->int_pos().Z + zoff;
 	int clipdist = pMissileInfo->clipDist + actor->native_clipdist();
 	x += MulScale(clipdist, Cos(actor->int_ang()), 28);
 	y += MulScale(clipdist, Sin(actor->int_ang()), 28);
@@ -6502,9 +6502,9 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	spawned->spr.yrepeat = pMissileInfo->yrepeat;
 	spawned->spr.picnum = pMissileInfo->picnum;
 	spawned->set_int_ang((actor->int_ang() + pMissileInfo->angleOfs) & 2047);
-	spawned->set_int_bvel_x(MulScale(pMissileInfo->velocity, a4, 14));
-	spawned->set_int_bvel_y(MulScale(pMissileInfo->velocity, a5, 14));
-	spawned->set_int_bvel_z(MulScale(pMissileInfo->velocity, a6, 14));
+	spawned->set_int_bvel_x(MulScale(pMissileInfo->velocity, dx, 14));
+	spawned->set_int_bvel_y(MulScale(pMissileInfo->velocity, dy, 14));
+	spawned->set_int_bvel_z(MulScale(pMissileInfo->velocity, dz, 14));
 	spawned->SetOwner(actor);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
 	spawned->SetTarget(nullptr);

@@ -1912,15 +1912,15 @@ void playerProcess(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* playerFireMissile(PLAYER* pPlayer, int a2, int a3, int a4, int a5, int a6)
+DBloodActor* playerFireMissile(PLAYER* pPlayer, int xyoff, int dx, int dy, int dz, int nType)
 {
-	return actFireMissile(pPlayer->actor, a2, pPlayer->zWeapon * zworldtoint - pPlayer->actor->int_pos().Z, a3, a4, a5, a6);
+	return actFireMissile(pPlayer->actor, xyoff, pPlayer->zWeapon * zworldtoint - pPlayer->actor->int_pos().Z, dx, dy, dz, nType);
 }
 
-DBloodActor* playerFireThing(PLAYER* pPlayer, int a2, int a3, int thingType, int a5)
+DBloodActor* playerFireThing(PLAYER* pPlayer, int xyoff, int zvel, int thingType, int nSpeed)
 {
 	assert(thingType >= kThingBase && thingType < kThingMax);
-	return actFireThing(pPlayer->actor, a2, pPlayer->zWeapon * zworldtoint - pPlayer->actor->int_pos().Z, pPlayer->slope + a3, thingType, a5);
+	return actFireThing(pPlayer->actor, xyoff, pPlayer->zWeapon * zworldtoint - pPlayer->actor->int_pos().Z, pPlayer->slope + zvel, thingType, nSpeed);
 }
 
 //---------------------------------------------------------------------------
