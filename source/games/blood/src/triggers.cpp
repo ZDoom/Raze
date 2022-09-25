@@ -496,7 +496,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 	case kMarkerDudeSpawn:
 		if (gGameOptions.nMonsterSettings && actor->xspr.data1 >= kDudeBase && actor->xspr.data1 < kDudeMax)
 		{
-			auto spawned = actSpawnDude(actor, actor->xspr.data1, -1, 0);
+			auto spawned = actSpawnDude(actor, actor->xspr.data1, -1);
 			if (spawned) {
 				gKillMgr.AddKill(spawned);
 				switch (actor->xspr.data1) {

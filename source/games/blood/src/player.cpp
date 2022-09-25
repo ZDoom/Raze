@@ -1710,7 +1710,7 @@ void ProcessInput(PLAYER* pPlayer)
 		if (pPlayer->handTime <= 0 && pPlayer->hand)
 		{
 			DBloodActor* pactor = pPlayer->actor;
-			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->native_clipdist() << 1, 0);
+			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->fClipdist() * 0.5);
 			if (spawned)
 			{
 				spawned->spr.angle += DAngle180;

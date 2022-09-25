@@ -223,7 +223,7 @@ void actExplodeSprite(DBloodActor *pSprite);
 void actActivateGibObject(DBloodActor *actor);
 void actProcessSprites(void);
 DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat, bool a6);
-DBloodActor* actSpawnDude(DBloodActor* pSource, int nType, int a3, int a4);
+DBloodActor* actSpawnDude(DBloodActor* pSource, int nType, double dist);
 DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
 DBloodActor * actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingType);
 DBloodActor* actFireThing(DBloodActor* actor, int xyoff, int zoff, int zvel, int thingType, int nSpeed);

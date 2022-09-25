@@ -243,10 +243,10 @@ void genDudeAttack1(int, DBloodActor* actor)
 	else if (pExtra->weaponType == kGenDudeWeaponSummon)
 	{
 		DBloodActor* spawned = nullptr;
-		int dist = actor->native_clipdist() << 4;
+		double dist = actor->fClipdist() * 4;
 		if (pExtra->slaveCount <= gGameOptions.nDifficulty)
 		{
-			if ((spawned = actSpawnDude(actor, pExtra->curWeapon, dist + Random(dist), 0)) != NULL)
+			if ((spawned = actSpawnDude(actor, pExtra->curWeapon, dist + RandomD(dist, 4))) != NULL)
 			{
 				spawned->SetOwner(actor);
 

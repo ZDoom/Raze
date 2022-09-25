@@ -6179,25 +6179,23 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
+DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 {
 	auto spawned = actSpawnSprite(source, kStatDude);
 	if (!spawned) return nullptr;
-	int angle = source->int_ang();
+	DAngle angle = source->spr.angle;
 	int nDude = nType - kDudeBase;
 
 	auto pos = source->spr.pos;
-	pos.Z += a4 * zinttoworld;
 
-	if (a3 >= 0)
+	if (dist >= 0)
 	{
-		pos.X += mulscale30r(Cos(angle), a3) * inttoworld;
-		pos.Y += mulscale30r(Sin(angle), a3) * inttoworld;
+		pos.XY() += angle.ToVector() * dist;
 	}
 	spawned->spr.type = nType;
 	if (!VanillaMode())
 		 spawned->spr.inittype = nType;
-	spawned->set_int_ang(angle);
+	spawned->spr.angle = angle;
 	SetActor(spawned, pos);
 
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
