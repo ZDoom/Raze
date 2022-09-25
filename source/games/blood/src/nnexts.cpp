@@ -1018,7 +1018,8 @@ DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int 
 
 static void windGenDoVerticalWind(int factor, sectortype* pSector)
 {
-	int val, maxZ = 0, zdiff; bool maxZfound = false;
+	double maxZ = 0, zdiff;
+	bool maxZfound = false;
 
 	// find maxz marker first
 	BloodSectIterator it(pSector);
@@ -1026,7 +1027,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 	{
 		if (actor->spr.type == kMarkerOn && actor->spr.statnum != kStatMarker)
 		{
-			maxZ = actor->int_pos().Z;
+			maxZ = actor->spr.pos.Z;
 			maxZfound = true;
 			break;
 		}
@@ -1040,7 +1041,7 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 		case kStatFree:
 			continue;
 		case kStatFX:
-			if (actor->int_vel().Z) break;
+			if (actor->vel.Z) break;
 			continue;
 		case kStatThing:
 		case kStatDude:
@@ -1051,22 +1052,19 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 			continue;
 		}
 
-		if (maxZfound && actor->int_pos().Z <= maxZ)
+		if (maxZfound && actor->spr.pos.Z <= maxZ)
 		{
-			zdiff = actor->int_pos().Z - maxZ;
-			if (actor->vel.Z < 0) actor->add_int_bvel_z(MulScale(actor->int_vel().Z >> 4, zdiff, 16));
+			zdiff = actor->spr.pos.Z - maxZ;
+			if (actor->vel.Z < 0) actor->vel.Z += actor->vel.Z * zdiff / 4096;
 			continue;
-
 		}
 
-		val = -MulScale(factor * 64, 0x10000, 16);
-		if (actor->vel.Z >= 0) actor->add_int_bvel_z(val);
-		else actor->set_int_bvel_z(val);
+		double val = -factor / 1024.;
+		if (actor->vel.Z >= 0) actor->vel.Z += val;
+		else actor->vel.Z = val;
 
 		actor->spr.pos.Z += actor->vel.Z / 16.;
-
 	}
-
 }
 
 //---------------------------------------------------------------------------
