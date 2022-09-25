@@ -6790,12 +6790,12 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 			if (iactor->hasX() && iactor->xspr.physAttr > 0)
 			{
 				iactor->xspr.physAttr |= kPhysFalling;
-				iactor->add_int_bvel_z(1);
+				iactor->vel.Z += FixedToFloat(1);
 			}
 			else if ((iactor->spr.statnum == kStatThing || iactor->spr.statnum == kStatDude) && (iactor->spr.flags & kPhysGravity))
 			{
 				iactor->spr.flags |= kPhysFalling;
-				iactor->add_int_bvel_z(1);
+				iactor->vel.Z += FixedToFloat(1);
 			}
 		}
 	}
@@ -8220,9 +8220,7 @@ void aiPatrolMove(DBloodActor* actor)
 		}
 
 		frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
-
-		actor->add_int_bvel_x(MulScale(frontSpeed, Cos(actor->int_ang()), 30));
-		actor->add_int_bvel_y(MulScale(frontSpeed, Sin(actor->int_ang()), 30));
+		actor->vel += actor->spr.angle.ToVector() * FixedToFloat(frontSpeed);
 	}
 
 	double vel = (actor->xspr.unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
@@ -9287,7 +9285,7 @@ void triggerTouchSprite(DBloodActor* actor, DBloodActor* hActor)
 			trTriggerSprite(hActor, kCmdSpriteTouch, actor);
 
 		// enough to reset gSpriteHit values
-		actor->add_int_bvel_x(5);
+		actor->vel.X += FixedToFloat(5);
 	}
 }
 
@@ -9299,7 +9297,7 @@ void triggerTouchWall(DBloodActor* actor, walltype* pHWall)
 			trTriggerWall(pHWall, kCmdWallTouch, actor);
 
 		// enough to reset gSpriteHit values
-		actor->add_int_bvel_x(5);
+		actor->vel.X += FixedToFloat(5);
 	}
 }
 
