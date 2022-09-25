@@ -62,7 +62,6 @@ struct NEAR_TAG_INFO
     walltype* wallp;
     DSWActor* actor;
 };
-extern short nti_cnt;
 
 void DoSpawnSpotsForKill(short match);
 void DoSpawnSpotsForDamage(short match);

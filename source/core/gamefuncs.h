@@ -288,6 +288,13 @@ void dragpoint(walltype* wal, const DVector2& pos);
 int32_t inside(double x, double y, const sectortype* sect);
 int insidePoly(double x, double y, const DVector2* points, int count);
 
+enum {
+	NT_Lotag = 1,
+	NT_Hitag = 2,
+	NT_NoSpriteCheck = 4
+};
+
+
 //==========================================================================
 //
 // slope stuff (many wrappers, one worker only)

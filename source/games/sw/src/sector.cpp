@@ -2211,7 +2211,7 @@ bool NearThings(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-short nti_cnt;
+static int nti_cnt;
 
 void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int type, int count)
 {

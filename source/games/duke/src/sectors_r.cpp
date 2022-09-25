@@ -2533,21 +2533,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->pos, p->GetActor()->sector(), p->angle.oang, near , 80., 3);
+			neartag(p->pos, p->GetActor()->sector(), p->angle.oang, near , 80., NT_Lotag | NT_Hitag);
 		}
 
 		if (p->newOwner != nullptr)
-			neartag(p->opos, p->GetActor()->sector(), p->angle.oang, near, 80., 1);
+			neartag(p->opos, p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 		else
 		{
-			neartag(p->pos, p->GetActor()->sector(), p->angle.oang, near, 80., 1);
+			neartag(p->pos, p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->pos.plusZ(8), p->GetActor()->sector(), p->angle.oang, near, 80., 1);
+				neartag(p->pos.plusZ(8), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->pos.plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., 1);
+				neartag(p->pos.plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag(p->pos.plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., 3);
+				neartag(p->pos.plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)

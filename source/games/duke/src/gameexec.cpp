@@ -2482,7 +2482,7 @@ int ParseState::parse(void)
 		if( g_ac->sector()->lotag == 0 )
 		{
 			HitInfo hit{};
-			neartag(g_ac->spr.pos.plusZ(-32), g_ac->sector(), g_ac->spr.angle, hit, 48, 1);
+			neartag(g_ac->spr.pos.plusZ(-32), g_ac->sector(), g_ac->spr.angle, hit, 48, NT_Lotag | NT_NoSpriteCheck);
 			auto sectp = hit.hitSector;
 			if (sectp)
 			{
