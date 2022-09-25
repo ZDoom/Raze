@@ -1301,19 +1301,17 @@ void nnExtProcessSuperSprites()
 				if ((uwater = pXSector->Underwater) != 0) airVel <<= 6;
 				if (pXSector->panVel != 0 && getflorzofslopeptr(debrisactor->sector(), debrisactor->spr.pos) <= bottom)
 				{
-					int angle = pXSector->panAngle.Buildang(); int speed = 0;
+					DAngle angle = pXSector->panAngle;
+					double speed = 0;
 					if (pXSector->panAlways || pXSector->state || pXSector->busy)
 					{
-						speed = pXSector->panVel << 9;
+						speed = pXSector->panVel / 128.;
 						if (!pXSector->panAlways && pXSector->busy)
-							speed = MulScale(speed, pXSector->busy, 16);
+							speed = MulScaleF(speed, pXSector->busy, 16);
 					}
 					if (debrisactor->sector()->floorstat & CSTAT_SECTOR_ALIGN)
-						angle = (angle + GetWallAngle(debrisactor->sector()->firstWall()) + 512) & 2047;
-					int dx = MulScale(speed, Cos(angle), 30);
-					int dy = MulScale(speed, Sin(angle), 30);
-					debrisactor->add_int_bvel_x(dx);
-					debrisactor->add_int_bvel_y(dy);
+						angle += debrisactor->sector()->firstWall()->normalAngle();
+					debrisactor->vel += angle.ToVector() * speed;
 				}
 			}
 
@@ -1329,22 +1327,20 @@ void nnExtProcessSuperSprites()
 
 					if (pact && pact->hit.hit.type == kHitSprite && pact->hit.hit.actor() == debrisactor)
 					{
-						int nSpeed = approxDist(pact->int_vel().X, pact->int_vel().Y);
-						nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
+						double nSpeed = pact->vel.XY().Length();
+						nSpeed = max<double>(nSpeed - MulScaleF(nSpeed, mass, 6), FixedToFloat(0x9000 - (mass << 3))); // very messy math (TM)...
 
-						debrisactor->add_int_bvel_x(MulScale(nSpeed, Cos(pPlayer->actor->int_ang()), 30));
-						debrisactor->add_int_bvel_y(MulScale(nSpeed, Sin(pPlayer->actor->int_ang()), 30));
-
+						debrisactor->vel += pPlayer->actor->spr.angle.ToVector() * nSpeed;
 						debrisactor->hit.hit.setSprite(pPlayer->actor);
 					}
 				}
 			}
 
 			if (debrisactor->xspr.physAttr & kPhysGravity) debrisactor->xspr.physAttr |= kPhysFalling;
-			if ((debrisactor->xspr.physAttr & kPhysFalling) || debrisactor->vel.X != 0 || debrisactor->vel.Y != 0 || debrisactor->vel.Z != 0 || debrisactor->sector()->velFloor || debrisactor->sector()->velCeil)
+			if ((debrisactor->xspr.physAttr & kPhysFalling) || !debrisactor->vel.isZero() || debrisactor->sector()->velFloor || debrisactor->sector()->velCeil)
 				debrisMove(i);
 
-			if (debrisactor->vel.X != 0 || debrisactor->int_vel().Y)
+			if (!debrisactor->vel.XY().isZero())
 				debrisactor->xspr.goalAng = VecToAngle(debrisactor->vel);
 
 			debrisactor->norm_ang();
