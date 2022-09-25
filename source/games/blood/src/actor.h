@@ -233,7 +233,13 @@ void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
 
 int actGetRespawnTime(DBloodActor *pSprite);
 bool actCheckRespawn(DBloodActor *pSprite);
-void actFireVector(DBloodActor *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType);
+
+void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3 dv, VECTOR_TYPE vectorType);
+inline void actFireVector(DBloodActor* pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType)
+{
+	// Yay, yet another fixed point format... :(
+	actFireVector(pShooter, a2 * inttoworld, a3 * zinttoworld, DVector3(FixedToFloat<14>(a4), FixedToFloat<14>(a5), FixedToFloat<14>(a6)), vectorType);
+}
 inline void actFireVectorf(DBloodActor *pShooter, int a2, double a3, int a4, int a5, int a6, VECTOR_TYPE vectorType)
 {
 	actFireVector(pShooter, a2, a3 * zworldtoint, a4, a5, a6, vectorType);
