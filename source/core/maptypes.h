@@ -691,7 +691,7 @@ struct spriteext_t
 {
 	uint32_t mdanimtims;
 	int16_t mdanimcur;
-	int16_t angoff, pitch, roll;
+	DRotator rot;
 	vec3_t pivot_offset;
 	DVector3 position_offset;
 	uint8_t renderflags;

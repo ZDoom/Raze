@@ -257,7 +257,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 		else if (sc.Compare("angleoff") || sc.Compare("angoff"))
 		{
 			if (sc.CheckNumber() && validateSprite())
-				sprites.sprext[currentsprite].angoff = (int16_t)sc.Number;
+				sprites.sprext[currentsprite].rot.Yaw = mapangle(sc.Number);
 		}
 		else if (sc.Compare("notmd") || sc.Compare("notmd2") || sc.Compare("notmd3"))
 		{
@@ -272,12 +272,12 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 		else if (sc.Compare("pitch"))
 		{
 			if (sc.CheckNumber() && validateSprite())
-				sprites.sprext[currentsprite].pitch = (int16_t)sc.Number;
+				sprites.sprext[currentsprite].rot.Pitch = mapangle(sc.Number);
 		}
 		else if (sc.Compare("roll"))
 		{
 			if (sc.CheckNumber() && validateSprite())
-				sprites.sprext[currentsprite].roll = (int16_t)sc.Number;
+				sprites.sprext[currentsprite].rot.Roll = mapangle(sc.Number);
 		}
 		else if (sc.Compare("mdxoff") || sc.Compare("mdpivxoff") || sc.Compare("mdpivotxoff"))
 		{
@@ -324,10 +324,8 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 			if (validateSprite())
 			{
 				auto& sx = sprites.sprext[currentsprite];
-				sx.angoff = 0;
+				sx.rot = {};
 				sx.renderflags &= ~(SPREXT_NOTMD | SPREXT_NOMDANIM | SPREXT_AWAY1 | SPREXT_AWAY2);
-				sx.pitch = 0;
-				sx.roll = 0;
 				sx.pivot_offset = {};
 				sx.position_offset = {};
 			}

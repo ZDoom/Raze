@@ -797,12 +797,12 @@ bool WeaponOK(PLAYER* pp)
 
 inline double pspSinVel(PANEL_SPRITE* const psp, int const ang = INT_MAX)
 {
-    return psp->vel * synctics * bsinf(ang == INT_MAX ? psp->ang : ang, -22);
+    return psp->vel * synctics * BobVal(ang == INT_MAX ? psp->ang : ang) / 256.;
 }
 
 inline double pspCosVel(PANEL_SPRITE* const psp, int const ang = INT_MAX)
 {
-    return psp->vel * synctics * bcosf(ang == INT_MAX ? psp->ang : ang, -22);
+    return psp->vel * synctics * BobVal((ang == INT_MAX ? psp->ang : ang) + 512) / 256.;
 }
 
 inline double pspPresentRetractScale(int const picnum, double const defaultheight)
@@ -2170,8 +2170,8 @@ void pUziClip(PANEL_SPRITE* oclip)
         // so it will end up the same for all synctic values
         for (oclip->pos.X = oclip->opos.X, oclip->pos.Y = oclip->opos.Y; oclip->pos.Y < UZI_RELOAD_YOFF; )
         {
-            oclip->pos.X += oclip->vel * bcosf(oclip->ang, -22);
-            oclip->pos.Y -= oclip->vel * bsinf(oclip->ang, -22);
+            oclip->pos.X += oclip->vel * BobVal(oclip->ang + 512) / 256.;
+            oclip->pos.Y -= oclip->vel * BobVal(oclip->ang) / 256.;
         }
 
         oclip->opos.X = oclip->pos.X;
@@ -2755,7 +2755,7 @@ void pUziShell(PANEL_SPRITE* psp)
 
     // get height
     psp->opos.Y = psp->pos.Y = psp->bobpos.Y;
-    psp->pos.Y += psp->sin_amt * -bsinf(psp->sin_ndx, -14);
+    psp->pos.Y += psp->sin_amt * -BobVal(psp->sin_ndx);
 
     // if off of the screen kill them
     if (psp->pos.X > 330 || psp->pos.X < -10)
@@ -7386,7 +7386,7 @@ void pWeaponBob(PANEL_SPRITE* psp, short condition)
         psp->sin_ndx = (psp->sin_ndx + (synctics << 3) + (cl_swsmoothsway ? (synctics << 2) : RANDOM_P2(8) * synctics)) & 2047;
 
         // get height
-        xdiff = psp->sin_amt * bsinf(psp->sin_ndx, -14);
+        xdiff = psp->sin_amt * BobVal(psp->sin_ndx);
 
         // //
         // bob_xxx moves the weapon up-down
@@ -7398,7 +7398,7 @@ void pWeaponBob(PANEL_SPRITE* psp, short condition)
 
         // base bob amt on the players velocity - Max of 128
         double bobamt = bobvel / psp->bob_height_divider;
-        ydiff = bobamt * bsinf(bob_ndx, -14);
+        ydiff = bobamt * BobVal(bob_ndx);
     }
 
     // Back up current coordinates for interpolating.

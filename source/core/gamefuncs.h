@@ -186,19 +186,14 @@ inline constexpr double sinscale(const int shift)
 //
 //---------------------------------------------------------------------------
 
-inline double bsinf(const double ang, const int shift = 0)
-{
-	return g_sinbam(ang * BAMUNIT) * sinscale(shift);
-}
-
 inline int bsin(const int ang, int shift = 0)
 {
-	return (int)bsinf(ang, shift);
+	return int(g_sinbam(ang * BAMUNIT) * sinscale(shift));
 }
 
 inline int Sin(int ang)
 {
-	return (int)bsinf(ang, 16);
+	return bsin(ang, 16);
 }
 
 //---------------------------------------------------------------------------
@@ -214,19 +209,14 @@ inline int Sin(int ang)
 //
 //---------------------------------------------------------------------------
 
-inline double bcosf(const double ang, const int shift = 0)
-{
-	return g_cosbam(ang * BAMUNIT) * sinscale(shift);
-}
-
 inline int bcos(const int ang, int shift = 0)
 {
-	return (int)bcosf(ang, shift);
+	return int(g_cosbam(ang * BAMUNIT) * sinscale(shift));
 }
 
 inline int Cos(int ang)
 {
-	return (int)bcosf(ang, 16);
+	return bcos(ang, 16);
 }
 
 //---------------------------------------------------------------------------

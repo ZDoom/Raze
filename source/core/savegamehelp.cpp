@@ -490,9 +490,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, spriteext_t& c, sprite
 	{
 		arc("mdanimtims", c.mdanimtims, def->mdanimtims)
 			("mdanimcur", c.mdanimcur, def->mdanimcur)
-			("angoff", c.angoff, def->angoff)
-			("pitch", c.pitch, def->pitch)
-			("roll", c.roll, def->roll)
+			("rot", c.rot, def->rot)
 			("pivot_offset", c.pivot_offset, def->pivot_offset)
 			("position_offset", c.position_offset, def->position_offset)
 			("flags", c.renderflags, def->renderflags)

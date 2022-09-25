@@ -1629,7 +1629,7 @@ struct TRotator
 	TRotator &operator/= (const Angle &scalar)
 	{
 		Angle mul(1 / scalar.Degrees_);
-		Pitch *= scalar, Yaw *= scalar, Roll *= scalar;
+		Pitch *= mul, Yaw *= mul, Roll *= mul;
 		return *this;
 	}
 

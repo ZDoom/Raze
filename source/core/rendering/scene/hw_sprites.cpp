@@ -460,11 +460,11 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	visibility = sectorVisibility(sector);
 	voxel = vox;
 
-	auto ang = spr->int_ang() + ownerActor->sprext.angoff;
+	auto ang = spr->angle + ownerActor->sprext.rot.Yaw;
 	if ((spr->clipdist & TSPR_MDLROTATE) || rotate)
 	{
 		int myclock = (PlayClock << 3) + MulScale(4 << 3, (int)di->Viewpoint.TicFrac, 16);
-		ang = (ang + myclock) & 2047;
+		ang += DAngle::fromBuild(myclock);
 	}
 
 
@@ -481,8 +481,9 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	if ((spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
 	{
 		sprxscale *= 1.25f;
-		translatevec.Y -= spr->xoffset * bcosf(ownerActor->sprext.angoff, -20);
-		translatevec.X += spr->xoffset * bsinf(ownerActor->sprext.angoff, -20);
+		auto rvec = ownerActor->sprext.rot.Yaw.ToVector();
+		translatevec.Y -= spr->xoffset * rvec.X / 64;
+		translatevec.X += spr->xoffset * rvec.Y / 64;
 	}
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP) 
@@ -525,7 +526,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 
 	rotmat.loadIdentity();
 	rotmat.translate(x + translatevec.X, z - translatevec.Z, y - translatevec.Y);
-	rotmat.rotate(DAngle::fromBuild(ang).Degrees() - 90.f, 0, 1, 0);
+	rotmat.rotate(ang.Degrees() - 90., 0, 1, 0);
 	rotmat.scale(scalevec.X, scalevec.Z, scalevec.Y);
 	// Apply pivot last
 	rotmat.translate(-voxel->piv.X, zoff, voxel->piv.Y);
