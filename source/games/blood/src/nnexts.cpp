@@ -5166,10 +5166,10 @@ bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetact
 
 bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBloodActor* targetactor)
 {
-	int dx = targetactor->int_pos().X - dudeactor->int_pos().X; int dy = targetactor->int_pos().Y - dudeactor->int_pos().Y;
+	auto dv = targetactor->spr.pos.XY() - dudeactor->spr.pos.XY();
 
 	// check target
-	if (approxDist(dx, dy) < pDudeInfo->seeDist)
+	if (dv.Length() < pDudeInfo->SeeDist())
 	{
 		double height = (pDudeInfo->eyeHeight * dudeactor->spr.yrepeat) * REPEAT_SCALE;
 
@@ -7891,21 +7891,20 @@ bool aiPatrolMarkerReached(DBloodActor* actor)
 	auto markeractor = actor->GetTarget();
 	if (markeractor && markeractor->spr.type == kMarkerPath)
 	{
-		int okDist = ClipLow(markeractor->native_clipdist() << 1, 4);
-		int oX = abs(markeractor->int_pos().X - actor->int_pos().X) >> 4;
-		int oY = abs(markeractor->int_pos().Y - actor->int_pos().Y) >> 4;
+		double okDist = max(markeractor->fClipdist() * 8, 4.);
+		auto ov = markeractor->spr.pos.XY() - actor->spr.pos.XY(); // this was already shifted right by 4 in the old code.
 
-		if (approxDist(oX, oY) <= okDist)
+		if (ov.Length() <= okDist)
 		{
 			if (spriteIsUnderwater(actor) || pExtra->flying)
 			{
-				okDist = markeractor->native_clipdist() << 4;
-				int ztop, zbot, ztop2, zbot2;
+				okDist = markeractor->fClipdist() * 16;
+				double ztop, zbot, ztop2, zbot2;
 				GetActorExtents(actor, &ztop, &zbot);
 				GetActorExtents(markeractor, &ztop2, &zbot2);
 
-				int oZ1 = abs(zbot - ztop2) >> 6;
-				int oZ2 = abs(ztop - zbot2) >> 6;
+				double oZ1 = abs(zbot - ztop2);
+				double oZ2 = abs(ztop - zbot2);
 				if (oZ1 > okDist && oZ2 > okDist)
 					return false;
 			}
