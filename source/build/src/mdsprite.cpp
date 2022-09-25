@@ -16,6 +16,8 @@
 #include "printf.h"
 #include "hw_voxels.h"
 
+int32_t mdtims, omdtims;
+
 #ifdef _MSC_VER
 // just make it shut up. Most of this file will go down the drain anyway soon.
 #pragma warning(disable:4244) 

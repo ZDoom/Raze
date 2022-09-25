@@ -883,7 +883,7 @@ set( VM_JIT_SOURCES
 	common/scripting/jit/jit_store.cpp
 )
 
-# Enable fast math for some sources where performance matters (or where the PCH must not be used.) (This would be good for rendering code, but unfortunately that is hopelessly intermingled with the playsim code in engine.cpp.)
+# Enable fast math for some sources where performance matters (or where the PCH must not be used.)
 set( FASTMATH_SOURCES
 
 	common/rendering/gl_load/gl_load.c
@@ -958,7 +958,6 @@ set (PCH_SOURCES
 
 	# Todo: Split out the license-safe code from this.
 	build/src/clip.cpp
-	build/src/engine.cpp
 	build/src/mdsprite.cpp
 
 	core/actorinfo.cpp

@@ -72,16 +72,6 @@ void RotateVector(int* dx, int* dy, int nAngle);
 
 #include "m_fixed.h"
 
-inline int Sin(int ang)
-{
-	return sintable[ang & 2047];
-}
-
-inline int Cos(int ang)
-{
-	return sintable[(ang + 512) & 2047];
-}
-
 enum SurfaceType {
 	kSurfNone = 0,
 	kSurfStone,

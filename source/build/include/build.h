@@ -17,17 +17,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 
 #include "printf.h"
 #include "palette.h"
-
-    //Make all variables in BUILD.H defined in the ENGINE,
-    //and externed in GAME
-#ifdef engine_c_
-#  define EXTERN
-#else
-#  define EXTERN extern
-#endif
-
-EXTERN int sintable[2048];
-
 #include "buildtiles.h"
 #include "c_cvars.h"
 #include "cmdlib.h"
@@ -86,8 +75,6 @@ enum {
 
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out);
 
-EXTERN int32_t guniqhudid;
-
 struct usermaphack_t 
 {
     FString mhkfile;
@@ -95,24 +82,11 @@ struct usermaphack_t
     uint8_t md4[16]{};
 };
 
-EXTERN int leveltimer;
-
-EXTERN int32_t Numsprites;
-EXTERN int32_t display_mirror;
-
-EXTERN int32_t randomseed;
-
-EXTERN uint8_t paletteloaded;
-
 enum {
     PALETTE_MAIN = 1<<0,
     PALETTE_SHADE = 1<<1,
     PALETTE_TRANSLUC = 1<<2,
 };
-
-inline int32_t g_visibility = 512, g_relvisibility = 0;
-
-extern uint8_t globalr, globalg, globalb;
 
 enum {
     ENGINECOMPATIBILITY_NONE = 0,
@@ -121,10 +95,16 @@ enum {
     ENGINECOMPATIBILITY_19961112, // Duke 3d v1.5, Redneck Rampage
 };
 
-EXTERN int32_t enginecompatibility_mode;
+inline int leveltimer;
+inline int32_t Numsprites;
+inline int32_t display_mirror;
+inline int32_t randomseed;
+inline uint8_t paletteloaded;
+inline int32_t g_visibility = 512, g_relvisibility = 0;
+inline int32_t enginecompatibility_mode;
+inline int32_t nextvoxid;
+inline FixedBitArray<MAXVOXELS>voxreserve;
 
-
-void engineInit(void);
 
 void setVideoMode();
 
@@ -173,9 +153,6 @@ inline int hitscan(const DVector3& start, const sectortype* startsect, const vec
     return hitscan(istart, startsect, direction, hitinfo, cliptype);
 }
 
-
-extern const int16_t *chsecptr_onextwall;
-
 inline int32_t krand(void)
 {
     randomseed = (randomseed * 27584621) + 1;
@@ -206,7 +183,6 @@ EXTERN_CVAR(Bool, hw_useindexedcolortextures)
 EXTERN_CVAR(Bool, r_voxels)
 
 extern int32_t mdtims, omdtims;
-
 extern int32_t r_rorphase;
 
 // flags bitset: 1 = don't compress
@@ -215,8 +191,6 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
-EXTERN int32_t nextvoxid;
-EXTERN FixedBitArray<MAXVOXELS>voxreserve;
 
 #ifdef USE_OPENGL
 // TODO: dynamically allocate this
@@ -237,8 +211,8 @@ typedef struct
 
 # define EXTRATILES (MAXTILES/8)
 
-EXTERN int32_t mdinited;
-EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
+inline int32_t mdinited;
+inline tile2model_t tile2model[MAXTILES+EXTRATILES];
 
 inline int32_t md_tilehasmodel(int32_t const tilenume, int32_t const pal)
 {

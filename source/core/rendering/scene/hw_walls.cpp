@@ -158,7 +158,8 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 	// Use sphere mapping for this
 	state.SetEffect(EFF_SPHEREMAP);
 	SetLightAndFog(di, state, fade, palette, min<int>(shade, numshades), visibility, alpha);
-	state.SetColor(PalEntry(25, globalr >> 1, globalg >> 1, globalb >> 1));
+	//state.SetColor(PalEntry(25, globalr >> 1, globalg >> 1, globalb >> 1));
+	state.SetColor(PalEntry(25, 128, 128, 128));
 
 	state.SetRenderStyle(STYLE_Add);
 	state.AlphaFunc(Alpha_Greater, 0);

@@ -536,7 +536,6 @@ void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, secto
 	fixSectors();
 	*cursect = validSectorIndex(cursectnum) ? &sector[cursectnum] : nullptr;
 	updatesector(*pos, cursect);
-	guniqhudid = 0;
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();
 	uint8_t md4[16];

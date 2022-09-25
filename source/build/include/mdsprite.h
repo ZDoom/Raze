@@ -177,16 +177,16 @@ struct md3model_t : public idmodel_t
 	*/
 };
 
-EXTERN mdmodel_t **models;
+inline mdmodel_t **models;
 
 FGameTexture* mdloadskin(idmodel_t* m, int32_t number, int32_t pal, int32_t surf, bool* exact);
 void mdinit(void);
 void freeallmodels(void);
 int32_t polymost_mddraw(tspritetype* tspr);
-EXTERN void md3_vox_calcmat_common(tspritetype* tspr, const FVector3 *a0, float f, float mat[16]);
+void md3_vox_calcmat_common(tspritetype* tspr, const FVector3 *a0, float f, float mat[16]);
 
-EXTERN int32_t mdpause;
-EXTERN int32_t nextmodelid;
+inline int32_t mdpause;
+inline int32_t nextmodelid;
 
 #endif // defined USE_OPENGL
 

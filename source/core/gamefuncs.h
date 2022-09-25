@@ -174,8 +174,6 @@ constexpr double BAngRadian = pi::pi() * (1. / 1024.);
 constexpr double BAngToDegree = 360. / 2048.;
 constexpr DAngle DAngleBuildToDeg = DAngle::fromDeg(BAngToDegree);
 
-extern int sintable[2048];
-
 inline constexpr double sinscale(const int shift)
 {
 	return shift >= -BUILDSINBITS ? uint64_t(1) << (BUILDSINBITS + shift) : 1. / (uint64_t(1) << abs(BUILDSINBITS + shift));
@@ -188,15 +186,20 @@ inline constexpr double sinscale(const int shift)
 //
 //---------------------------------------------------------------------------
 
-inline int bsin(const int ang, int shift = 0)
-{
-	return (shift -= BUILDSINSHIFT) < 0 ? sintable[ang & 2047] >> abs(shift) : sintable[ang & 2047] << shift;
-}
 inline double bsinf(const double ang, const int shift = 0)
 {
 	return g_sinbam(ang * BAMUNIT) * sinscale(shift);
 }
 
+inline int bsin(const int ang, int shift = 0)
+{
+	return (int)bsinf(ang, shift);
+}
+
+inline int Sin(int ang)
+{
+	return (int)bsinf(ang, 16);
+}
 
 //---------------------------------------------------------------------------
 //
@@ -211,15 +214,20 @@ inline double bsinf(const double ang, const int shift = 0)
 //
 //---------------------------------------------------------------------------
 
-inline int bcos(const int ang, int shift = 0)
-{
-	return (shift -= BUILDSINSHIFT) < 0 ? sintable[(ang + 512) & 2047] >> abs(shift) : sintable[(ang + 512) & 2047] << shift;
-}
 inline double bcosf(const double ang, const int shift = 0)
 {
 	return g_cosbam(ang * BAMUNIT) * sinscale(shift);
 }
 
+inline int bcos(const int ang, int shift = 0)
+{
+	return (int)bcosf(ang, shift);
+}
+
+inline int Cos(int ang)
+{
+	return (int)bcosf(ang, 16);
+}
 
 //---------------------------------------------------------------------------
 //

@@ -1111,7 +1111,6 @@ int RunGame()
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	StartWindow->Progress();
 
-	engineInit();
 	GC::AddMarkerFunc(MarkMap);
 	gi->app_init();
 	StartWindow->Progress();

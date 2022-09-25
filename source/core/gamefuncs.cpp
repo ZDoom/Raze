@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "intvec.h"
 #include "coreactor.h"
 #include "interpolate.h"
+#include "hw_voxels.h"
 
 IntRect viewport3d;
 
@@ -785,6 +786,18 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 	return tspr;
 }
 
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+int tilehasmodelorvoxel(int const tilenume, int pal)
+{
+	return
+		(mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
+		(r_voxels && tiletovox[tilenume] != -1);
+}
 
 //==========================================================================
 //

@@ -1327,8 +1327,8 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             {
                 int32_t x3, y3, x4, y4;
                 int32_t const heinum = spriteGetSlope(actor);
-                int32_t const dax = (heinum * sintable[(actor->int_ang() + 1024) & 2047]) << 1;
-                int32_t const day = (heinum * sintable[(actor->int_ang() + 512) & 2047]) << 1;
+                int32_t const dax = (heinum * -bsin(actor->int_ang())) << 1;
+                int32_t const day = (heinum * bcos(actor->int_ang())) << 1;
                 int32_t const j = (vz << 8) - DMulScale(dax, vy, -day, vx, 15);
                 if (j == 0) continue;
                 if ((cstat & 64) != 0)

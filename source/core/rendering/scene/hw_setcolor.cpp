@@ -193,6 +193,7 @@ void SetLightAndFog(HWDrawInfo* di, FRenderState& state, PalEntry fade, int pale
 	}
 
 	// The shade rgb from the tint is ignored here.
-	state.SetColor(globalr * (1 / 255.f), globalg * (1 / 255.f), globalb * (1 / 255.f), alpha);
+	//state.SetColor(globalr * (1 / 255.f), globalg * (1 / 255.f), globalb * (1 / 255.f), alpha);
+	state.SetColor(1., 1., 1., alpha);
 }
 
