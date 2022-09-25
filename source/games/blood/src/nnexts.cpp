@@ -1606,16 +1606,16 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, const DVector3& pos, 
 
 void debrisBubble(DBloodActor* actor)
 {
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	for (unsigned int i = 0; i < 1 + Random(5); i++) {
 
-		int nDist = (actor->spr.xrepeat * (tileWidth(actor->spr.picnum) >> 1)) >> 2;
-		int nAngle = Random(2048);
-		int x = actor->int_pos().X + MulScale(nDist, Cos(nAngle), 30);
-		int y = actor->int_pos().Y + MulScale(nDist, Sin(nAngle), 30);
-		int z = bottom - Random(bottom - top);
-		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
+		double nDist = actor->spr.xrepeat * tileWidth(actor->spr.picnum) * (REPEAT_SCALE * 0.5); // original code ended with * 8 which is 1/2 map unit.
+		DAngle nAngle = RandomAngle();
+		DVector3 pos;
+		pos.XY() = actor->spr.pos.XY() + nAngle.ToVector() * nDist;
+		pos.Z = bottom - RandomD(bottom - top, 8);
+		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), pos, nullAngle);
 		if (pFX) {
 			pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
 			pFX->vel.Y = actor->vel.Y + Random2F(0x1aaaa);
