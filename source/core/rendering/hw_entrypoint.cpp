@@ -310,7 +310,7 @@ void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sector
 	checkRotatedWalls();
 
 	updatesector(position.XY(), &sect);
-	if (sectnum == nullptr) return;
+	if (sect == nullptr) return;
 
 	iter_dlightf = iter_dlight = draw_dlight = draw_dlightf = 0;
 	checkBenchActive();

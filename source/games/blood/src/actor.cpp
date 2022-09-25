@@ -6641,10 +6641,11 @@ bool actCanSplatWall(walltype* pWall)
 
 void actFireVector(DBloodActor* shooter, int offset, int zoffset, int dx, int dy, int dz, VECTOR_TYPE vectorType)
 {
+	DVector3 dv(dx * inttoworld, dy * inttoworld, dz * inttoworld);
 	assert(vectorType >= 0 && vectorType < kVectorMax);
 	const VECTORDATA* pVectorData = &gVectorData[vectorType];
 	int nRange = pVectorData->maxDist;
-	int hit = VectorScan(shooter, offset, zoffset, dx, dy, dz, nRange, 1);
+	int hit = VectorScan(shooter, offset * inttoworld, zoffset * zinttoworld, dv, nRange * inttoworld, 1);
 	if (hit == 3)
 	{
 		auto hitactor = gHitInfo.actor();
@@ -6825,7 +6826,7 @@ void actFireVector(DBloodActor* shooter, int offset, int zoffset, int dx, int dy
 				{
 					if (actor->xspr.physAttr & kPhysDebrisVector) {
 
-						int impulse = DivScale(pVectorData->impulse, ClipLow(actor->spriteMass.mass, 10), 6);
+						int impulse = DivScale(pVectorData->impulse, max(actor->spriteMass.mass, 10), 6);
 						actor->add_int_bvel_x(MulScale(dx, impulse, 16));
 						actor->add_int_bvel_y(MulScale(dy, impulse, 16));
 						actor->add_int_bvel_z(MulScale(dz, impulse, 16));

@@ -45,7 +45,8 @@ inline int HitScan(DBloodActor* pSprite, double z, const DVector3& pos, unsigned
 {
 	return HitScan(pSprite, int(z * zworldtoint), int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * worldtoint), nMask, a8);
 }
-int VectorScan(DBloodActor* pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac);
+int VectorScan(DBloodActor* pSprite, double nOffset, double nZOffset, const DVector3& vel, double nRange, int ac);
+
 void GetZRange(DBloodActor* pSprite, int* ceilZ, Collision* ceilHit, int* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 void GetZRange(DBloodActor* pSprite, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0)
 {

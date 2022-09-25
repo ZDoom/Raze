@@ -858,7 +858,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							else if (weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								if (genDudeAdjustSlope(actor, dist, weaponType)) break;
-								VectorScan(actor, 0, 0, bcos(actor->int_ang()), bsin(actor->int_ang()), actor->dudeSlope, dist, 1);
+								VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 1024, actor->dudeSlope * inttoworld), dist * inttoworld, 1);
 								if (actor == gHitInfo.actor()) break;
 
 								bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
@@ -918,7 +918,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							if (hit == 4 && weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
-								if (masked) VectorScan(actor, 0, 0, bcos(actor->int_ang()), bsin(actor->int_ang()), actor->dudeSlope, dist, 1);
+								if (masked) VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 1024, actor->dudeSlope * inttoworld), dist * inttoworld, 1);
 
 								if ((actor != gHitInfo.actor()) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked))
 								{

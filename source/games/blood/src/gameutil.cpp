@@ -331,77 +331,80 @@ int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMas
 //
 //---------------------------------------------------------------------------
 
-int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
+int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVector3& vel, double nRange, int ac)
 {
 	assert(actor != nullptr);
 
 	int nNum = 256;
 	gHitInfo.clearObj();
-	int x1 = actor->int_pos().X + MulScale(nOffset, Cos(actor->int_ang() + 512), 30);
-	int y1 = actor->int_pos().Y + MulScale(nOffset, Sin(actor->int_ang() + 512), 30);
-	int z1 = actor->int_pos().Z + nZOffset;
+	auto pos = actor->spr.pos.plusZ(nZOffset) + (actor->spr.angle + DAngle90).ToVector() * nOffset;
 	auto bakCstat = actor->spr.cstat;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 	if (nRange)
 	{
-		hitscangoal.X = x1 + MulScale(nRange << 4, Cos(actor->int_ang()), 30);
-		hitscangoal.Y = y1 + MulScale(nRange << 4, Sin(actor->int_ang()), 30);
+		auto goal = pos.XY() + actor->spr.angle.ToVector() * nRange;
+		hitscangoal.X = goal.X * worldtoint;
+		hitscangoal.Y = goal.Y * worldtoint;
 	}
 	else
 	{
 		hitscangoal.X = hitscangoal.Y = 0x1fffffff;
 	}
-	vec3_t pos = { x1, y1, z1 };
-	hitscan(pos, actor->sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
+	hitscan(pos, actor->sector(), vel, gHitInfo, CLIPMASK1);
 
 	hitscangoal.X = hitscangoal.Y = 0x1ffffff;
 	actor->spr.cstat = bakCstat;
 	while (nNum--)
 	{
-		if (nRange && approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY()) > nRange)
+		if (nRange && (gHitInfo.hitpos.XY() - actor->spr.pos.XY()).Length() > nRange)
 			return -1;
 		auto other = gHitInfo.actor();
 		if (other != nullptr)
 		{
 			if ((other->spr.flags & 8) && !(ac & 1))
-				return 3;
+				return SS_SPRITE;
 			if ((other->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0)
-				return 3;
+				return SS_SPRITE;
+
 			int nPicnum = other->spr.picnum;
 			if (tileWidth(nPicnum) == 0 || tileHeight(nPicnum) == 0)
-				return 3;
-			int height = (tileHeight(nPicnum) * other->spr.yrepeat) << 2;
-			int otherZ = other->int_pos().Z;
+				return SS_SPRITE;
+
+			double height = (tileHeight(nPicnum) * other->spr.yrepeat) * REPEAT_SCALE;
+			double otherZ = other->spr.pos.Z;
 			if (other->spr.cstat & CSTAT_SPRITE_YCENTER)
 				otherZ += height / 2;
+
 			int nTopOfs = tileTopOffset(nPicnum);
 			if (nTopOfs)
-				otherZ -= (nTopOfs * other->spr.yrepeat) << 2;
+				otherZ -= (nTopOfs * other->spr.yrepeat) * REPEAT_SCALE;
 			assert(height > 0);
-			int height2 = Scale(otherZ - gHitInfo.int_hitpos().Z, tileHeight(nPicnum), height);
+
+			double height2 = (otherZ - gHitInfo.hitpos.Z) * tileHeight(nPicnum) / height;
 			if (!(other->spr.cstat & CSTAT_SPRITE_YFLIP))
 				height2 = tileHeight(nPicnum) - height2;
+
 			if (height2 >= 0 && height2 < tileHeight(nPicnum))
 			{
-				int width = (tileWidth(nPicnum) * other->spr.xrepeat) >> 2;
-				width = (width * 3) / 4;
-				int check1 = ((y1 - other->int_pos().Y) * dx - (x1 - other->int_pos().X) * dy) / ksqrt(dx * dx + dy * dy);
+				double width = (tileWidth(nPicnum) * other->spr.xrepeat) * REPEAT_SCALE * 0.75; // should actually be 0.8 to match the renderer!
+				double check1 = ((pos.Y - other->spr.pos.Y) * vel.X - (pos.X - other->spr.pos.X) * vel.Y) / vel.XY().Length();
 				assert(width > 0);
-				int width2 = Scale(check1, tileWidth(nPicnum), width);
+
+				double width2 = check1 * tileWidth(nPicnum) / width;
 				int nLeftOfs = tileLeftOffset(nPicnum);
 				width2 += nLeftOfs + tileWidth(nPicnum) / 2;
 				if (width2 >= 0 && width2 < tileWidth(nPicnum))
 				{
 					auto pData = tilePtr(nPicnum);
-					if (pData[width2 * tileHeight(nPicnum) + height2] != TRANSPARENT_INDEX)
-						return 3;
+					if (pData[int(width2) * tileHeight(nPicnum) + int(height2)] != TRANSPARENT_INDEX)
+						return SS_SPRITE;
 				}
 			}
 			bakCstat = other->spr.cstat;
 			other->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 			gHitInfo.clearObj();
-			pos = gHitInfo.int_hitpos(); // must make a copy!
-			hitscan(pos, other->sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
+			pos = gHitInfo.hitpos; // must make a copy!
+			hitscan(pos, other->sector(), vel, gHitInfo, CLIPMASK1);
 			other->spr.cstat = bakCstat;
 			continue;
 		}
@@ -424,12 +427,12 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 			}
 			if (!(pWall->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)))
 				return 0;
-			int nOfs;
+			double nOfs;
 			if (pWall->cstat & CSTAT_WALL_ALIGN_BOTTOM)
-				nOfs = ClipHigh(pSector->int_floorz(), pSectorNext->int_floorz());
+				nOfs = min(pSector->floorz, pSectorNext->floorz);
 			else
-				nOfs = ClipLow(pSector->int_ceilingz(), pSectorNext->int_ceilingz());
-			nOfs = (gHitInfo.int_hitpos().Z - nOfs) >> 8;
+				nOfs = max(pSector->ceilingz, pSectorNext->ceilingz);
+			nOfs = (gHitInfo.hitpos.Z - nOfs);
 			if (pWall->cstat & CSTAT_WALL_YFLIP)
 				nOfs = -nOfs;
 
@@ -439,21 +442,19 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 			if (!nSizX || !nSizY)
 				return 0;
 
-			nOfs = (nOfs * pWall->yrepeat) / 8;
-			nOfs += int((nSizY * pWall->ypan_) / 256);
-			int nLength = approxDist(pWall->pos - pWall->point2Wall()->pos);
-			int nHOffset;
+			int nnOfs = int((nOfs * pWall->yrepeat) / 8);
+			nnOfs += int((nSizY * pWall->ypan_) / 256);
+			double nLength = (pWall->pos - pWall->point2Wall()->pos).Length();
+			double fHOffset;
 			if (pWall->cstat & CSTAT_WALL_XFLIP)
-				nHOffset = approxDist(gHitInfo.hitpos.XY() - pWall->point2Wall()->pos);
+				fHOffset = (gHitInfo.hitpos.XY() - pWall->point2Wall()->pos).Length();
 			else
-				nHOffset = approxDist(gHitInfo.hitpos.XY() - pWall->pos);
+				fHOffset = (gHitInfo.hitpos.XY() - pWall->pos).Length();
 
-			nHOffset = pWall->xpan() + ((nHOffset * pWall->xrepeat) << 3) / nLength;
-			nHOffset %= nSizX;
-			nOfs %= nSizY;
+			int nHOffset = int(pWall->xpan_ + ((fHOffset * pWall->xrepeat) * 8) / nLength) % nSizX;
+			nnOfs %= nSizY;
 			auto pData = tilePtr(nPicnum);
-			int nPixel;
-			nPixel = nHOffset * nSizY + nOfs;
+			int nPixel = nHOffset * nSizY + nnOfs;
 
 			if (pData[nPixel] == TRANSPARENT_INDEX)
 			{
@@ -462,8 +463,8 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 				auto bakCstat2 = pWall->nextWall()->cstat;
 				pWall->nextWall()->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
 				gHitInfo.clearObj();
-				pos = gHitInfo.int_hitpos();
-				hitscan(pos, pWall->nextSector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
+				pos = gHitInfo.hitpos;
+				hitscan(pos, pWall->nextSector(), vel, gHitInfo, CLIPMASK1);
 
 				pWall->cstat = bakCstat1;
 				pWall->nextWall()->cstat = bakCstat2;
@@ -473,31 +474,25 @@ int VectorScan(DBloodActor* actor, int nOffset, int nZOffset, int dx, int dy, in
 		}
 		if (gHitInfo.hitSector != nullptr)
 		{
-			if (dz > 0)
+			if (vel.Z > 0)
 			{
 				auto upper = barrier_cast<DBloodActor*>(gHitInfo.hitSector->upperLink);
-				if (!upper) return 2;
+				if (!upper) return SS_FLOOR;
 				auto link = upper->GetOwner();
 				gHitInfo.clearObj();
-				x1 = gHitInfo.int_hitpos().X + link->int_pos().X - upper->int_pos().X;
-				y1 = gHitInfo.int_hitpos().Y + link->int_pos().Y - upper->int_pos().Y;
-				z1 = gHitInfo.int_hitpos().Z + link->int_pos().Z - upper->int_pos().Z;
-				pos = { x1, y1, z1 };
-				hitscan(pos, link->sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
+				pos = gHitInfo.hitpos + link->spr.pos - upper->spr.pos;
+				hitscan(pos, link->sector(), vel, gHitInfo, CLIPMASK1);
 
 				continue;
 			}
 			else
 			{
 				auto lower = barrier_cast<DBloodActor*>(gHitInfo.hitSector->lowerLink);
-				if (!lower) return 1;
+				if (!lower) return SS_CEILING;
 				auto link = lower->GetOwner();
 				gHitInfo.clearObj();
-				x1 = gHitInfo.int_hitpos().X + link->int_pos().X - lower->int_pos().X;
-				y1 = gHitInfo.int_hitpos().Y + link->int_pos().Y - lower->int_pos().Y;
-				z1 = gHitInfo.int_hitpos().Z + link->int_pos().Z - lower->int_pos().Z;
-				pos = { x1, y1, z1 };
-				hitscan(pos, link->sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
+				pos = gHitInfo.hitpos + link->spr.pos - lower->spr.pos;
+				hitscan(pos, link->sector(), vel, gHitInfo, CLIPMASK1);
 				continue;
 			}
 		}
