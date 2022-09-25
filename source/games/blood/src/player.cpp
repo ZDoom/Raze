@@ -806,12 +806,11 @@ void playerStart(int nPlayer, int bNewLevel)
 	seqSpawn(pDudeInfo->seqStartID, actor, -1);
 	if (nPlayer == myconnectindex)
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	actor->add_int_z(-(bottom - actor->int_pos().Z));
+	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
-	actor->set_int_ang(pStartZone->ang);
-	pPlayer->angle.ang = actor->spr.angle;
+	actor->spr.angle = pPlayer->angle.ang = pStartZone->angle;
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->set_native_clipdist(pDudeInfo->clipdist);
 	actor->spr.flags = 15;

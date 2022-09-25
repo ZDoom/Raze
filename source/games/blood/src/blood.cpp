@@ -294,18 +294,18 @@ void StartLevel(MapRecord* level, bool newgame)
 	for (int i = 0; i < kMaxPlayers; i++) {
 		gStartZone[i].pos = startpos;
 		gStartZone[i].sector = startsector;
-		gStartZone[i].ang = startang;
+		gStartZone[i].angle = DAngle::fromBuild(startang);
 
 #ifdef NOONE_EXTENSIONS
 		// Create spawn zones for players in teams mode.
 		if (gModernMap && i <= kMaxPlayers / 2) {
 			gStartZoneTeam1[i].pos = startpos;
 			gStartZoneTeam1[i].sector = startsector;
-			gStartZoneTeam1[i].ang = startang;
+			gStartZoneTeam1[i].angle = DAngle::fromBuild(startang);
 
 			gStartZoneTeam2[i].pos = startpos;
 			gStartZoneTeam2[i].sector = startsector;
-			gStartZoneTeam2[i].ang = startang;
+			gStartZoneTeam2[i].angle = DAngle::fromBuild(startang);
 		}
 #endif
 	}

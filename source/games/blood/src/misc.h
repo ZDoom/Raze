@@ -60,7 +60,7 @@ void WeaponPrecache();
 struct ZONE {
 	DVector3 pos;
 	sectortype* sector;
-	short ang;
+	DAngle angle;
 };
 extern ZONE gStartZone[8];
 
