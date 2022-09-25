@@ -69,7 +69,7 @@ inline static void scaletozero(DAngle& object, const double value, const double 
 {
 	if (auto sgn = object.Sgn())
 	{
-		object  -= getscaledangle(value, scaleAdjust, object, push == -minAngle ? DAngle::fromDeg(sgn * 5. / 128.) : push);
+		object  -= getscaledangle(value, scaleAdjust, object, push == -minAngle ? DAngle::fromDeg(sgn * (32. / 465.)) : push);
 		if (sgn != object.Sgn()) object = nullAngle;
 	}
 }
@@ -219,13 +219,15 @@ enum
 	CNTRSPEED = 10,
 };
 
+static constexpr double CNTRSPEEDF = CNTRSPEED * (443. / 450.);  // Pitch-adjusted value.
+
 void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process only if movement isn't locked.
 	if (!movementlocked())
 	{
 		// Test if we have input to process.
-		if (horz || *actions & (SB_AIM_UP | SB_AIM_DOWN | SB_LOOK_UP | SB_LOOK_DOWN))
+		if (horz || *actions & (SB_AIM_UP | SB_AIM_DOWN | SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
 		{
 			// Store current horizon as true pitch.
 			double pitch = horiz.Degrees();
@@ -255,15 +257,21 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 			doKbdInput(SB_AIM_UP, SB_AIM_DOWN, AIMSPEED, true);
 			doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, LOOKSPEED, false);
 
-			// clamp before converting back to horizon
-			horiz = pitchhoriz(ClampViewPitch(pitch));
-		}
+			// return to center if conditions met, using a temporary DAngle object.
+			auto tmpangle = DAngle::fromDeg(pitch);
 
-		// return to center if conditions met.
-		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
-		{
-			scaletozero(horiz, CNTRSPEED, scaleAdjust);
-			if (!horiz.asq16()) *actions &= ~SB_CENTERVIEW;
+			if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+			{
+				scaletozero(tmpangle, CNTRSPEEDF, scaleAdjust);
+				if (!tmpangle.Sgn())
+				{
+					tmpangle = nullAngle;
+					*actions &= ~SB_CENTERVIEW;
+				}
+			}
+
+			// clamp before converting back to horizon
+			horiz = pitchhoriz(ClampViewPitch(tmpangle.Degrees()));
 		}
 	}
 	else
