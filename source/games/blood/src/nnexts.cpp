@@ -8163,23 +8163,25 @@ void aiPatrolMove(DBloodActor* actor)
 	int dudeIdx = actor->spr.type - kDudeBase;
 	switch (actor->spr.type)
 	{
-	case kDudeCultistShotgunProne:  dudeIdx = kDudeCultistShotgun - kDudeBase;  break;
-	case kDudeCultistTommyProne:    dudeIdx = kDudeCultistTommy - kDudeBase;    break;
+	case kDudeCultistShotgunProne:  
+		dudeIdx = kDudeCultistShotgun - kDudeBase;  
+		break;
+	case kDudeCultistTommyProne:    
+		dudeIdx = kDudeCultistTommy - kDudeBase;   
+		break;
 	}
 
 	DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
 	const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
 
-	int dx = (targetactor->int_pos().X - actor->int_pos().X);
-	int dy = (targetactor->int_pos().Y - actor->int_pos().Y);
-	int dz = (targetactor->int_pos().Z - (actor->int_pos().Z - pDudeInfo->eyeHeight)) * 6;
-	int vel = (actor->xspr.unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
+	DVector3 dv = targetactor->spr.pos - actor->spr.pos.plusZ(-pDudeInfo->eyeHeight); // eyeHeight is in map units!
+
 	DAngle goalAng = DAngle180 / 3;
 
 	if (pExtra->flying || spriteIsUnderwater(actor))
 	{
 		goalAng *= 0.5;
-		actor->set_int_bvel_z(dz);
+		actor->vel.Z = dv.Z * 6;
 		if (actor->spr.flags & kPhysGravity)
 			actor->spr.flags &= ~kPhysGravity;
 	}
@@ -8208,7 +8210,7 @@ void aiPatrolMove(DBloodActor* actor)
 			if (hitactor->hasX() && hitactor->xspr.health)
 			{
 				hitactor->xspr.dodgeDir = (actor->xspr.dodgeDir > 0) ? -1 : 1;
-				if (hitactor->vel.X != 0 || hitactor->int_vel().Y)
+				if (!hitactor->vel.XY().isZero())
 					aiMoveDodge(hitactor);
 			}
 		}
@@ -8226,13 +8228,16 @@ void aiPatrolMove(DBloodActor* actor)
 		}
 
 		frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, targetactor->xspr.busyTime);
+
 		actor->add_int_bvel_x(MulScale(frontSpeed, Cos(actor->int_ang()), 30));
 		actor->add_int_bvel_y(MulScale(frontSpeed, Sin(actor->int_ang()), 30));
 	}
 
-	vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
-	actor->set_int_bvel_x(ClipRange(actor->int_vel().X, -vel, vel));
-	actor->set_int_bvel_y(ClipRange(actor->int_vel().Y, -vel, vel));
+	double vel = (actor->xspr.unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
+
+	vel *= dv.XY().Length() / 1024; // was: MulScale16 with length << 6, effectively resulting in >> 10.
+	actor->vel.X = clamp(actor->vel.X, -vel, vel);
+	actor->vel.Y = clamp(actor->vel.Y, -vel, vel);
 }
 
 //---------------------------------------------------------------------------

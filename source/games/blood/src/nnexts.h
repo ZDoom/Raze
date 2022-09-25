@@ -76,8 +76,6 @@ enum
 	kPatrolStateSize = 42,
 	kPatrolAlarmSeeDist = 10000,
 	kPatrolAlarmHearDist = 10000,
-	kMaxPatrolVelocity = 500000,
-	kMaxPatrolCrouchVelocity = (kMaxPatrolVelocity >> 1),
 	kMaxPatrolSpotValue = 500,
 	kMinPatrolTurnDelay = 8,
 	kPatrolTurnDelayRange = 20,
@@ -93,6 +91,10 @@ enum
 	kMinAllowedPowerup = kPwUpFeatherFall,
 	kMaxAllowedPowerup = kMaxPowerUps
 };
+
+constexpr double kMaxPatrolVelocity = FixedToFloat(500000); // ~7.63
+constexpr double kMaxPatrolCrouchVelocity = (kMaxPatrolVelocity / 2);
+
 
 // modern statnums
 enum {
