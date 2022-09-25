@@ -118,21 +118,6 @@ public:
 		vel .Z = FixedToFloat(x);
 	}
 
-	void add_int_bvel_x(int x)
-	{
-		vel .X += FixedToFloat(x);
-	}
-
-	void add_int_bvel_y(int x)
-	{
-		vel .Y += FixedToFloat(x);
-	}
-
-	void add_int_bvel_z(int x)
-	{
-		vel .Z += FixedToFloat(x);
-	}
-
 	void ZeroVelocityXY()
 	{
 		vel .X = vel .Y = 0;

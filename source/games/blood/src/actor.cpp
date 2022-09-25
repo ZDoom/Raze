@@ -5631,17 +5631,16 @@ static void actCheckThings()
 				GetActorExtents(actor, &top, &bottom);
 				if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
 				{
-					int angle = pXSector->panAngle.Buildang();
-					int speed = 0;
+					DAngle angle = pXSector->panAngle;
+					double speed = 0;
 					if (pXSector->panAlways || pXSector->state || pXSector->busy)
 					{
-						speed = pXSector->panVel << 9;
-						if (!pXSector->panAlways && pXSector->busy) speed = MulScale(speed, pXSector->busy, 16);
+						speed = pXSector->panVel / 128.;
+						if (!pXSector->panAlways && pXSector->busy) speed = MulScaleF(speed, pXSector->busy, 16);
 					}
-					if (pSector->floorstat & CSTAT_SECTOR_ALIGN) angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
+					if (pSector->floorstat & CSTAT_SECTOR_ALIGN) angle += pSector->firstWall()->normalAngle();
 
-					actor->add_int_bvel_x(MulScale(speed, Cos(angle), 30));
-					actor->add_int_bvel_y(MulScale(speed, Sin(angle), 30));
+					actor->vel += angle.ToVector() * speed;
 				}
 			}
 			actAirDrag(actor, 128);
@@ -6056,20 +6055,17 @@ static void actCheckDudes()
 			GetActorExtents(actor, &top, &bottom);
 			if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
 			{
-				int angle = pXSector->panAngle.Buildang();
-				int speed = 0;
+				DAngle angle = pXSector->panAngle;
+				double speed = 0;
 				if (pXSector->panAlways || pXSector->state || pXSector->busy)
 				{
-					speed = pXSector->panVel << 9;
+					speed = pXSector->panVel / 128.;
 					if (!pXSector->panAlways && pXSector->busy)
-						speed = MulScale(speed, pXSector->busy, 16);
+						speed = MulScaleF(speed, pXSector->busy, 16);
 				}
 				if (pSector->floorstat & CSTAT_SECTOR_ALIGN)
-					angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
-				int dx = MulScale(speed, Cos(angle), 30);
-				int dy = MulScale(speed, Sin(angle), 30);
-				actor->add_int_bvel_x(dx);
-				actor->add_int_bvel_y(dy);
+					angle += pSector->firstWall()->normalAngle();
+				actor->vel += angle.ToVector() * speed;
 			}
 		}
 		if (pXSector && pXSector->Underwater) actAirDrag(actor, 5376);
