@@ -1789,15 +1789,15 @@ void playerProcess(PLAYER* pPlayer)
 	DBloodActor* actor = pPlayer->actor;
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 	powerupProcess(pPlayer);
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	int dzb = (bottom - actor->int_pos().Z) / 4;
-	int dzt = (actor->int_pos().Z - top) / 4;
+	double dzflor = (bottom - actor->spr.pos.Z) / 4;
+	double dzceil = (actor->spr.pos.Z - top) / 4;
 	int dw = actor->int_clipdist();
 	if (!gNoClip)
 	{
 		auto pSector = actor->sector();
-		if (pushmove(actor, &pSector, dw, dzt, dzb, CLIPMASK0) == -1)
+		if (pushmove(actor->spr.pos, &pSector, dw, dzceil, dzflor, CLIPMASK0) == -1)
 			actDamageSprite(actor, actor, kDamageFall, 500 << 4);
 		if (actor->sector() != pSector)
 		{
@@ -1811,7 +1811,6 @@ void playerProcess(PLAYER* pPlayer)
 		}
 	}
 	ProcessInput(pPlayer);
-	int nSpeed = approxDist(actor->int_vel().X, actor->int_vel().Y);
 	pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->vel.Z, FixedToFloat(0x7000));
 	double dz = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ - pPlayer->zView;
 	if (dz > 0)
@@ -1827,7 +1826,7 @@ void playerProcess(PLAYER* pPlayer)
 		pPlayer->zWeaponVel += dz * FixedToFloat(0xc00);
 	pPlayer->zWeapon += pPlayer->zWeaponVel;
 	pPlayer->bobPhase = ClipLow(pPlayer->bobPhase - 4, 0);
-	nSpeed >>= FRACBITS;
+	int nSpeed = int(actor->vel.XY().Length());
 	if (pPlayer->posture == 1)
 	{
 		pPlayer->bobAmp = (pPlayer->bobAmp + 17) & 2047;
