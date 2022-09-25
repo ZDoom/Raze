@@ -1568,24 +1568,23 @@ int debrisGetFreeIndex(void)
 //
 //---------------------------------------------------------------------------
 
-void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, int dmg)
+void debrisConcuss(DBloodActor* owneractor, int listIndex, const DVector3& pos, int dmg)
 {
 	DBloodActor* actor = gPhysSpritesList[listIndex];
 	if (actor != nullptr && actor->hasX())
 	{
-		int dx = actor->int_pos().X - x; int dy = actor->int_pos().Y - y; int dz = (actor->int_pos().Z - z) >> 4;
-		dmg = Scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
+		auto dv = actor->spr.pos - pos;
+
+		dmg = int(dmg * (0x4000 / (0x4000 + dv.LengthSquared())));
 		bool thing = (actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
 		int size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat) >> 1;
 		if (actor->xspr.physAttr & kPhysDebrisExplode)
 		{
 			if (actor->spriteMass.mass > 0)
 			{
-				int t = Scale(dmg, size, actor->spriteMass.mass);
+				double t = double(dmg) * size / actor->spriteMass.mass;
 
-				actor->add_int_bvel_x(MulScale(t, dx, 16));
-				actor->add_int_bvel_y(MulScale(t, dy, 16));
-				actor->add_int_bvel_z(MulScale(t, dz, 16));
+				actor->vel += dv * t / (1 << 24);
 			}
 
 			if (thing)

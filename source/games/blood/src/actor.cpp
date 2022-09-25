@@ -5841,7 +5841,7 @@ static void actCheckExplosion()
 					if (!physactor->insector() || (physactor->spr.flags & kHitagFree) != 0) continue;
 
 					if (!CheckSector(sectorMap, physactor) || !CheckProximity(physactor, apos, pSector, radius)) continue;
-					else debrisConcuss(Owner, i, x, y, z, pExplodeInfo->dmgType);
+					else debrisConcuss(Owner, i, DVector3(x * inttoworld, y * inttoworld, z * zinttoworld), pExplodeInfo->dmgType);
 				}
 			}
 
