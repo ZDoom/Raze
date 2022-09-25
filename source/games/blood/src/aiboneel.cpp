@@ -150,9 +150,9 @@ static void eelThinkGoto(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	auto nAngle = VecToAngle(dvec);
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &eelSearch);
 	eelThinkTarget(actor);
 }

@@ -176,9 +176,9 @@ static void beastThinkGoto(DBloodActor* actor)
 
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	auto nAngle = VecToAngle(dvec);
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &beastSwimSearch);
@@ -326,9 +326,9 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	auto nAngle = VecToAngle(dvec);
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &beastSwimSearch);
 	aiThinkTarget(actor);
 }
@@ -347,7 +347,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
 	DAngle nAngle = VecToAngle(dvec);
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
@@ -361,18 +361,18 @@ static void beastThinkSwimChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->seeDist)
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), nAngle.Buildang());
+		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				if (nDist < 0x400 && abs(nDeltaAngle) < 85)
+				if (nDist < 64 && nDeltaAngle < mapangle(85))
 					aiNewState(actor, &beastSwimSlash);
 				else
 				{

@@ -318,9 +318,9 @@ static void ghostThinkChase(DBloodActor* actor)
 		return;
 	}
 	double nDist = dxy.Length();
-	if (nDist <= (pDudeInfo->seeDist * inttoworld))
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = deltaangle(actor->spr.angle, dxyAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.angle, dxyAngle);
 		double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE;
 		// Should be dudeInfo[target->spr.type-kDudeBase]
 		double height2 = pDudeInfo->eyeHeight * target->spr.yrepeat * REPEAT_SCALE;
@@ -328,13 +328,13 @@ static void ghostThinkChase(DBloodActor* actor)
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < (pDudeInfo->seeDist * inttoworld) && abs(nDeltaAngle).Buildang() <= pDudeInfo->periphery)
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				double floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 				double floorDelta = floorZ - bottom;
 				double heightDelta = height2 - height;
-				bool angWithinRange = abs(nDeltaAngle) < mapangle(85);
+				bool angWithinRange = nDeltaAngle < mapangle(85);
 				switch (actor->spr.type) {
 				case kDudePhantasm:
 					if (nDist < 0x200 && nDist > 0x100 && angWithinRange) {

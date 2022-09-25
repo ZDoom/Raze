@@ -137,9 +137,9 @@ static void batThinkGoto(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
 	auto nAngle = VecToAngle(dvec);
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &batSearch);
 	batThinkTarget(actor);
 }
@@ -257,9 +257,9 @@ static void batThinkChase(DBloodActor* actor)
 		return;
 	}
 	double nDist = dvec.Length();
-	if (nDist <= (pDudeInfo->seeDist * inttoworld))
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = deltaangle(actor->spr.angle, dvec.Angle());
+		DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
 		double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE;
 		// Should be dudeInfo[pTarget->spr.type-kDudeBase]
 		double height2 = pDudeInfo->eyeHeight * pTarget->spr.yrepeat * REPEAT_SCALE;
@@ -267,13 +267,13 @@ static void batThinkChase(DBloodActor* actor)
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < (pDudeInfo->seeDist * inttoworld) && abs(nDeltaAngle).Buildang() <= pDudeInfo->periphery)
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				double floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 				double floorDelta = floorZ - bottom;
 				double heightDelta = height2 - height;
-				bool angWithinRange = abs(nDeltaAngle) < mapangle(85);
+				bool angWithinRange = nDeltaAngle < mapangle(85);
 				if (heightDelta < 32 && nDist < 0x20 && angWithinRange)
 					aiNewState(actor, &batBite);
 				else if ((heightDelta > 80 || floorDelta > 80) && nDist < 0x140 && nDist > 0x80 && angWithinRange)
