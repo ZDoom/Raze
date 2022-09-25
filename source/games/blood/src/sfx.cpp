@@ -120,7 +120,7 @@ void GameInterface::UpdateSounds()
 
 	if (pPlayer->actor)
 	{
-		listener.angle = -pPlayer->actor->spr.int_ang() * float(BAngRadian); // Build uses a period of 2048.
+		listener.angle = -pPlayer->actor->spr.angle.Radians();
 		listener.velocity.Zero();
 		listener.position = GetSoundPos(pPlayer->actor->spr.pos);
 		listener.valid = true;
