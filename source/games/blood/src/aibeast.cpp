@@ -402,8 +402,7 @@ static void beastMoveForward(DBloodActor* actor)
 	int nDist = approxDist(dvec);
 	if (nDist <= 0x400 && Random(64) < 32)
 		return;
-	actor->add_int_bvel_x(MulScale(pDudeInfo->frontSpeed, Cos(actor->int_ang()), 30));
-	actor->add_int_bvel_y(MulScale(pDudeInfo->frontSpeed, Sin(actor->int_ang()), 30));
+	actor->vel.XY() += actor->spr.angle.ToVector() * pDudeInfo->FrontSpeed();
 }
 
 static void sub_628A0(DBloodActor* actor)

@@ -304,8 +304,7 @@ void aiMoveForward(DBloodActor* actor)
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (abs(nAng) > DAngle60)
 		return;
-	actor->add_int_bvel_x(MulScale(pDudeInfo->frontSpeed, Cos(actor->int_ang()), 30));
-	actor->add_int_bvel_y(MulScale(pDudeInfo->frontSpeed, Sin(actor->int_ang()), 30));
+	actor->vel.XY() += actor->spr.angle.ToVector() * pDudeInfo->FrontSpeed();
 }
 
 //---------------------------------------------------------------------------

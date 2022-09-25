@@ -265,7 +265,7 @@ void CFX::fxProcess(void)
 				continue;
 			}
 		}
-		actor->add_int_bvel_z(pFXData->gravity);
+		actor->vel.Z += FixedToFloat(pFXData->gravity);
 	}
 }
 

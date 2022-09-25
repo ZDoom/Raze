@@ -64,14 +64,14 @@ struct DUDEINFO {
 		return seeDist * maptoworld;
 	}
 
-	inline double EyeHeight() const
-	{
-		return eyeHeight * maptoworld;
-	}
-
 	inline DAngle Periphery() const
 	{
 		return mapangle(periphery);
+	}
+
+	inline double FrontSpeed() const
+	{
+		return FixedToFloat(frontSpeed);
 	}
 };
 
