@@ -379,7 +379,7 @@ void seqSpawnerOffSameTx(DBloodActor* actor);
 void triggerTouchSprite(DBloodActor* pSprite, DBloodActor* nHSprite);
 void triggerTouchWall(DBloodActor* pSprite, walltype* nHWall);
 void killEvents(int nRx, int nCmd);
-void changeSpriteAngle(DBloodActor* pSpr, int nAng);
+void changeSpriteAngle(DBloodActor* pSpr, DAngle nAng);
 int getVelocityAngle(DBloodActor* pSpr);
 //  -------------------------------------------------------------------------   //
 void aiPatrolSetMarker(DBloodActor* actor);

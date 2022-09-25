@@ -3005,11 +3005,13 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initiator, DBloodActor* pSprite)
 //void useVelocityChanger(XSPRITE* pXSource, int causerID, short objType, int objIndex)
 {
-#define kVelShift       8
-#define kScaleVal       0x10000
+	const double kVelScale = 1 / 64.; // scaled 8 left, 14 right, i.e. 6 right altogether.
+	const int kVelShift = 8;
+	const int kScaleVal = 0x10000;
 
-	int t, r = 0, nAng = 0, vAng = 0;
-	int xv = 0, yv = 0, zv = 0;
+	int r = 0, t = 0;
+	DAngle nAng = nullAngle;
+	DVector3 vv(0, 0, 0);
 
 	bool relative = (actor->spr.flags & kModernTypeFlag1);
 	bool toDstAng = (actor->spr.flags & kModernTypeFlag2);
@@ -3024,50 +3026,48 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 	{
 		if ((r = MulScale(actor->xspr.data4 << kVelShift, kScaleVal, 14)) != 0)
 			r = nnExtRandom(-r, r);
+		double rr = FixedToFloat(r);
 
 		if (valueIsBetween(actor->xspr.data3, -32767, 32767))
 		{
-			if ((zv = MulScale(actor->xspr.data3 << kVelShift, kScaleVal, 14)) != 0)
-				zv += r;
+			vv.Z = actor->xspr.data3 * kVelScale;
+			if (vv.Z != 0) vv.Z += rr;
 		}
 
 		if (!toAng)
 		{
 			if (valueIsBetween(actor->xspr.data1, -32767, 32767))
 			{
-				if ((xv = MulScale(actor->xspr.data1 << kVelShift, kScaleVal, 14)) != 0)
-					xv += r;
+				vv.X = actor->xspr.data1 * kVelScale;
+				if (vv.X != 0) vv.X += rr;
 			}
 
 			if (valueIsBetween(actor->xspr.data2, -32767, 32767))
 			{
-				if ((yv = MulScale(actor->xspr.data2 << kVelShift, kScaleVal, 14)) != 0)
-					yv += r;
+				vv.Y = actor->xspr.data2 * kVelScale;
+				if (vv.Y != 0) vv.Y += rr;
 			}
 		}
 		else
 		{
-			if (toEvnAng)       nAng = initiator->int_ang();
-			else if (toSrcAng)  nAng = actor->int_ang();
-			else                nAng = pSprite->int_ang();
-
-			nAng = nAng & 2047;
+			if (toEvnAng)       nAng = initiator->spr.angle;
+			else if (toSrcAng)  nAng = actor->spr.angle;
+			else                nAng = pSprite->spr.angle;
 
 			if (!toAng180 && toRndAng)
 			{
-				t = nAng;
-				while (t == nAng)
-					nAng = nnExtRandom(0, kAng360);
+				auto tempang = nAng;
+				while (tempang == nAng)
+					nAng = randomAngle();
 			}
 
 			if (chgDstAng)
 				changeSpriteAngle(pSprite, nAng);
 
-			if ((t = (actor->xspr.data1 << kVelShift)) != 0)
-				t += r;
+			double v = actor->xspr.data1 * kVelScale;
+			if (v != 0) v += rr;
 
-			xv = MulScale(t, Cos(nAng) >> 16, 14);
-			yv = MulScale(t, Sin(nAng) >> 16, 14);
+			vv.XY() += nAng.ToVector() * v;
 		}
 
 		if (actor->xspr.physAttr)
@@ -3108,31 +3108,27 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 
 		if (relative)
 		{
-			pSprite->add_int_bvel_x(xv);
-			pSprite->add_int_bvel_y(yv);
-			pSprite->add_int_bvel_z(zv);
+			pSprite->vel += vv;
 		}
 		else
 		{
-			pSprite->set_int_bvel_x(xv);
-			pSprite->set_int_bvel_y(yv);
-			pSprite->set_int_bvel_z(zv);
+			pSprite->vel == vv;
 		}
 
-		vAng = getVelocityAngle(pSprite);
+		auto vAng = VecToAngle(pSprite->vel);
 
 		if (toAng)
 		{
 			DAngle angl;
 			if (toAng180) angl = DAngle180;
-			else angl = DAngle::fromBuild(nAng - vAng);
+			else angl = nAng - vAng;
 			
 			auto velv = pSprite->vel.XY();
 			auto pt = rotatepoint(pSprite->spr.pos.XY(), velv, angl);
 			pSprite->vel.XY() = pt;
 
 
-			vAng = getVelocityAngle(pSprite);
+			vAng = VecToAngle(pSprite->vel);
 		}
 
 		if (chgDstAng)
@@ -3290,7 +3286,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 	}
 
 	if (sourceactor->xspr.data2 == 1)
-		changeSpriteAngle(actor, sourceactor->int_ang());
+		changeSpriteAngle(actor, sourceactor->spr.angle);
 
 	viewBackupSpriteLoc(actor);
 
@@ -9307,27 +9303,22 @@ void triggerTouchWall(DBloodActor* actor, walltype* pHWall)
 	}
 }
 
-void changeSpriteAngle(DBloodActor* pSpr, int nAng)
+void changeSpriteAngle(DBloodActor* pSpr, DAngle nAng)
 {
 	if (!pSpr->IsDudeActor())
-		pSpr->set_int_ang(nAng);
+		pSpr->spr.angle = nAng;
 	else
 	{
 		PLAYER* pPlayer = getPlayerById(pSpr->spr.type);
 		if (pPlayer)
-			pPlayer->angle.ang = DAngle::fromBuild(nAng);
+			pPlayer->angle.ang = nAng;
 		else
 		{
-			pSpr->set_int_ang(nAng);
+			pSpr->spr.angle = nAng;
 			if (pSpr->hasX())
 				pSpr->xspr.goalAng = pSpr->spr.angle;
 		}
 	}
-}
-
-int getVelocityAngle(DBloodActor* pSpr)
-{
-	return getangle(pSpr->int_vel().X >> 12, pSpr->int_vel().Y >> 12);
 }
 
 #if 0
