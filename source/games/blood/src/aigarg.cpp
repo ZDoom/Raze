@@ -308,7 +308,7 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
 	});
 
-	actor->vel.Z = FixedToFloat(0x44444);
+	actor->vel.Z = 4.26666;
 }
 
 static void gargThinkChase(DBloodActor* actor)
@@ -559,7 +559,7 @@ static void gargMoveSlow(DBloodActor* actor)
 
 	switch (actor->spr.type) {
 	case kDudeGargoyleFlesh:
-		actor->vel.Z = FixedToFloat(0x44444);
+		actor->vel.Z = 4.26666;
 		break;
 	case kDudeGargoyleStone:
 		actor->vel.Z = FixedToFloat(0x35555);

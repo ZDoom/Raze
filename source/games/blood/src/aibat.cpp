@@ -229,7 +229,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
 			t2 -= FixedToFloat(pDudeInfo->sideSpeed);
 	});
 
-	actor->vel.Z = FixedToFloat(0x44444);
+	actor->vel.Z = 4.26666;
 }
 
 static void batThinkChase(DBloodActor* actor)
@@ -340,7 +340,7 @@ static void batMoveSwoop(DBloodActor* actor)
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += FixedToFloat(nAccel) * 0.5;
 	});
-	actor->vel.Z = FixedToFloat(0x44444);
+	actor->vel.Z = 4.26666;
 }
 
 static void batMoveFly(DBloodActor* actor)
