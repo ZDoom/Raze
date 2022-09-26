@@ -5353,21 +5353,22 @@ bool aiFightIsMeleeUnit(DBloodActor* dude)
 int aiFightGetTargetDist(DBloodActor* actor, DUDEINFO* pDudeInfo, DBloodActor* target)
 {
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	int dist = approxDist(dvec);
+	double dist = dvec.Length();
 
-	if (dist <= pDudeInfo->meleeDist) return 0;
-	if (dist >= pDudeInfo->seeDist) return 13;
-	if (dist <= pDudeInfo->seeDist / 12) return 1;
-	if (dist <= pDudeInfo->seeDist / 11) return 2;
-	if (dist <= pDudeInfo->seeDist / 10) return 3;
-	if (dist <= pDudeInfo->seeDist / 9) return 4;
-	if (dist <= pDudeInfo->seeDist / 8) return 5;
-	if (dist <= pDudeInfo->seeDist / 7) return 6;
-	if (dist <= pDudeInfo->seeDist / 6) return 7;
-	if (dist <= pDudeInfo->seeDist / 5) return 8;
-	if (dist <= pDudeInfo->seeDist / 4) return 9;
-	if (dist <= pDudeInfo->seeDist / 3) return 10;
-	if (dist <= pDudeInfo->seeDist / 2) return 11;
+	if (dist <= pDudeInfo->MeleeDist()) return 0;
+	double seeDist = pDudeInfo->SeeDist();
+	if (dist >= seeDist) return 13;
+	if (dist <= seeDist / 12) return 1;
+	if (dist <= seeDist / 11) return 2;
+	if (dist <= seeDist / 10) return 3;
+	if (dist <= seeDist / 9) return 4;
+	if (dist <= seeDist / 8) return 5;
+	if (dist <= seeDist / 7) return 6;
+	if (dist <= seeDist / 6) return 7;
+	if (dist <= seeDist / 5) return 8;
+	if (dist <= seeDist / 4) return 9;
+	if (dist <= seeDist / 3) return 10;
+	if (dist <= seeDist / 2) return 11;
 	return 12;
 }
 

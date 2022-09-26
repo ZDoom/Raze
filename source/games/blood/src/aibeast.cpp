@@ -399,8 +399,8 @@ static void beastMoveForward(DBloodActor* actor)
 	if (abs(nAng) > DAngle60)
 		return;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (nDist <= 0x400 && Random(64) < 32)
+	double nDist = dvec.Length();
+	if (nDist <= 0x40 && Random(64) < 32)
 		return;
 	actor->vel.XY() += actor->spr.angle.ToVector() * pDudeInfo->FrontSpeed();
 }
@@ -418,8 +418,8 @@ static void sub_628A0(DBloodActor* actor)
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (Random(64) < 32 && nDist <= 0x400)
+	double nDist = dvec.Length();
+	if (Random(64) < 32 && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
@@ -447,9 +447,9 @@ static void sub_62AE0(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	int dz = z2 - z;
-	if (Chance(0x600) && nDist <= 0x400)
+	if (Chance(0x600) && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel;
@@ -476,9 +476,9 @@ static void sub_62D7C(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	int dz = (z2 - z) << 3;
-	if (Chance(0x4000) && nDist <= 0x400)
+	if (Chance(0x4000) && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;

@@ -64,6 +64,11 @@ struct DUDEINFO {
 		return seeDist * maptoworld;
 	}
 
+	inline double MeleeDist() const
+	{
+		return meleeDist * maptoworld;
+	}
+
 	inline DAngle Periphery() const
 	{
 		return mapangle(periphery);

@@ -112,20 +112,20 @@ static void eelThinkTarget(DBloodActor* actor)
 			auto ppos = pPlayer->actor->spr.pos;
 			auto dvect = ppos.XY() - actor->spr.pos;
 			auto pSector = pPlayer->actor->sector();
-			int nDist = approxDist(dvect);
-			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
+			double nDist = dvect.Length();
+			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			int nDeltaAngle = getincangle(actor->int_ang(), getangle(dvect));
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvect));
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				pDudeExtraE->thinkTime = 0;
 				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
-			else if (nDist < pDudeInfo->hearDist)
+			else if (nDist < pDudeInfo->Heardist())
 			{
 				pDudeExtraE->thinkTime = 0;
 				aiSetTarget(actor, ppos);
@@ -316,8 +316,8 @@ static void eelMoveForward(DBloodActor* actor)
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (nDist <= 0x399)
+	double nDist = dvec.Length();
+	if (nDist <= 57.5625)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
@@ -339,8 +339,8 @@ static void eelMoveSwoop(DBloodActor* actor)
 	if (abs(nAng) > DAngle60)
 		return;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (Chance(0x8000) && nDist <= 0x399)
+	double nDist = dvec.Length();
+	if (Chance(0x8000) && nDist <= 57.5625)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;
@@ -360,8 +360,8 @@ static void eelMoveAscend(DBloodActor* actor)
 	if (abs(nAng) > DAngle60)
 		return;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (Chance(0x4000) && nDist <= 0x399)
+	double nDist = dvec.Length();
+	if (Chance(0x4000) && nDist <= 57.5625)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;

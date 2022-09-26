@@ -262,9 +262,9 @@ static void gargThinkGoto(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
-	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	if (nDist < 32 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &gargoyleFSearch);
 	aiThinkTarget(actor);
 }
@@ -520,8 +520,8 @@ static void gargMoveForward(DBloodActor* actor)
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
+	double nDist = dvec.Length();
+	if ((unsigned int)Random(64) < 32 && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
@@ -549,8 +549,8 @@ static void gargMoveSlow(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (Chance(0x600) && nDist <= 0x400)
+	double nDist = dvec.Length();
+	if (Chance(0x600) && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;
@@ -584,8 +584,8 @@ static void gargMoveSwoop(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (Chance(0x600) && nDist <= 0x400)
+	double nDist = dvec.Length();
+	if (Chance(0x600) && nDist <= 0x40)
 		return;
 
 	AdjustVelocity(actor, ADJUSTER{
@@ -619,8 +619,8 @@ static void gargMoveFly(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (Chance(0x4000) && nDist <= 0x400)
+	double nDist = dvec.Length();
+	if (Chance(0x4000) && nDist <= 0x40)
 		return;
 	
 	AdjustVelocity(actor, ADJUSTER{

@@ -96,9 +96,9 @@ static void calebThinkGoto(DBloodActor* actor)
 
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
-	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	if (nDist < 32 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &tinycalebSwimSearch);
@@ -216,9 +216,9 @@ static void calebThinkSwimGoto(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
-	if (nDist < 512 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	if (nDist < 32 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &tinycalebSwimSearch);
 	aiThinkTarget(actor);
 }
@@ -287,8 +287,8 @@ static void sub_65D04(DBloodActor* actor)
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
-	if (Random(64) < 32 && nDist <= 0x400)
+	double nDist = dvec.Length();
+	if (Random(64) < 32 && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
@@ -318,9 +318,9 @@ static void sub_65F44(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	int dz = z2 - z;
-	if (Chance(0x600) && nDist <= 0x400)
+	if (Chance(0x600) && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel;
@@ -348,9 +348,9 @@ static void sub_661E0(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nDist = approxDist(dvec);
+	double nDist = dvec.Length();
 	int dz = (z2 - z) << 3;
-	if (Chance(0x4000) && nDist <= 0x400)
+	if (Chance(0x4000) && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;

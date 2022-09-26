@@ -1122,8 +1122,8 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 		if (actor->GetTarget() == nullptr)
 			actor->spr.angle += DAngle45;
 		auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-		int nDist = approxDist(dvec);
-		if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
+		double nDist = dvec.Length();
+		if ((unsigned int)Random(64) < 32 && nDist <= 0x40)
 			return;
 		AdjustVelocity(actor, ADJUSTER{
 			if (actor->GetTarget() == nullptr)

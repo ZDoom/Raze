@@ -307,8 +307,8 @@ static void batMoveForward(DBloodActor* actor)
 	if (actor->GetTarget() == nullptr)
 		actor->spr.angle += DAngle45;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
-	int nDist = approxDist(dvec);
-	if ((unsigned int)Random(64) < 32 && nDist <= 0x200)
+	double nDist = dvec.Length();
+	if ((unsigned int)Random(64) < 32 && nDist <= 0x20)
 		return;
 	
 	AdjustVelocity(actor, ADJUSTER{
@@ -333,8 +333,8 @@ static void batMoveSwoop(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
-	int nDist = approxDist(dvec);
-	if (Chance(0x600) && nDist <= 0x200)
+	double nDist = dvec.Length();
+	if (Chance(0x600) && nDist <= 0x20)
 		return;
 	
 	AdjustVelocity(actor, ADJUSTER{
@@ -357,8 +357,8 @@ static void batMoveFly(DBloodActor* actor)
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
-	int nDist = approxDist(dvec);
-	if (Chance(0x4000) && nDist <= 0x200)
+	double nDist = dvec.Length();
+	if (Chance(0x4000) && nDist <= 0x20)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;
