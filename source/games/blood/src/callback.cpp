@@ -442,17 +442,16 @@ void FinishHim(DBloodActor* actor, sectortype*) // 13
 void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 {
 	if (!actor) return;
-	int ceilZ, floorZ;
+	double ceilZ, floorZ;
 	Collision floorColl, ceilColl;
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->native_clipdist(), CLIPMASK0);
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	actor->add_int_z(floorZ - bottom);
-	int nAngle = Random(2048);
-	int nDist = Random(16) << 4;
-	int x = actor->int_pos().X + MulScale(nDist, Cos(nAngle), 28);
-	int y = actor->int_pos().Y + MulScale(nDist, Sin(nAngle), 28);
-	gFX.fxSpawnActor(FX_48, actor->sector(), x, y, actor->int_pos().Z, 0);
+	actor->spr.pos.Z += floorZ - bottom;
+	DAngle nAngle = randomAngle();
+	int nDist = Random(16);
+	auto pos = nAngle.ToVector() * nDist * 4;
+	gFX.fxSpawnActor(FX_48, actor->sector(), DVector3(pos, actor->spr.pos.Z), 0);
 	if (actor->spr.angle == DAngle180)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);    // this is a little stupid...
@@ -460,9 +459,9 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	}
 	if (Chance(0x5000))
 	{
-		auto pFX = gFX.fxSpawnActor(FX_36, actor->sector(), x, y, floorZ - 64, 0);
+		auto pFX = gFX.fxSpawnActor(FX_36, actor->sector(), DVector3(pos, floorZ - 0.25), 0);
 		if (pFX)
-			pFX->set_int_ang(nAngle);
+			pFX->spr.angle = nAngle;
 	}
 	gFX.remove(actor);
 }
