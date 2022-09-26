@@ -251,11 +251,6 @@ struct HitInfoBase
 		hitActor = actor;
 		hitpos = pos;
 	}
-	
-	const vec3_t int_hitpos() const
-	{
-		return { int(hitpos.X * worldtoint), int(hitpos.Y * worldtoint), int(hitpos.Z * zworldtoint), };
-	}
 };
 
 template<class T>
