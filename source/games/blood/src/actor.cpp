@@ -5739,9 +5739,6 @@ static void actCheckExplosion()
 		assert(nType >= 0 && nType < kExplodeMax);
 		const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
 		const auto apos = actor->spr.pos;
-		const int x = actor->int_pos().X;
-		const int y = actor->int_pos().Y;
-		const int z = actor->int_pos().Z;
 		auto pSector = actor->sector();
 		int radius = pExplodeInfo->radius;
 
@@ -5815,11 +5812,9 @@ static void actCheckExplosion()
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			auto pos = gPlayer[p].actor->int_pos();
-			int dx = (x - pos.X) >> 4;
-			int dy = (y - pos.Y) >> 4;
-			int dz = (z - pos.Z) >> 8;
-			int nDist = dx * dx + dy * dy + dz * dz + 0x40000;
+			auto dv = apos - gPlayer[p].actor->spr.pos;
+			int nDist = int(dv.LengthSquared() + 0x40000);
+
 			int t = DivScale(actor->xspr.data2, nDist, 16);
 			gPlayer[p].flickerEffect += t;
 		}
@@ -5837,7 +5832,7 @@ static void actCheckExplosion()
 					if (!physactor->insector() || (physactor->spr.flags & kHitagFree) != 0) continue;
 
 					if (!CheckSector(sectorMap, physactor) || !CheckProximity(physactor, apos, pSector, radius)) continue;
-					else debrisConcuss(Owner, i, DVector3(x * inttoworld, y * inttoworld, z * zinttoworld), pExplodeInfo->dmgType);
+					else debrisConcuss(Owner, i, apos, pExplodeInfo->dmgType);
 				}
 			}
 
@@ -6062,7 +6057,7 @@ static void actCheckDudes()
 		if (pXSector && pXSector->Underwater) actAirDrag(actor, 5376);
 		else actAirDrag(actor, 128);
 
-		if ((actor->spr.flags & 4) || actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0 || actor->sector()->velFloor || actor->sector()->velCeil)
+		if ((actor->spr.flags & 4) || !actor->vel.isZero() || actor->sector()->velFloor || actor->sector()->velCeil)
 			MoveDude(actor);
 	}
 }
