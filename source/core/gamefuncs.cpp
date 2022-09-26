@@ -39,76 +39,57 @@ double cameradist, cameraclock;
 
 bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle ang, fixedhoriz horiz, double const interpfrac)
 {
-	HitInfoBase hitinfo;
-	DAngle daang;
-	double newdist;
-
 	if (!*psect) return false;
 
 	// Calculate new pos to shoot backwards
 	DVector3 npos = gi->chaseCamPos(ang, horiz);
 
+	HitInfoBase hitinfo;
 	auto bakcstat = act->spr.cstat;
 	act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	updatesectorz(ppos, psect);
 	hitscan(ppos, *psect, npos, hitinfo, CLIPMASK1);
 	act->spr.cstat = bakcstat;
-	auto hpos = hitinfo.hitpos.XY() - ppos.XY();
+	auto hpos = hitinfo.hitpos - ppos;
 
 	if (!*psect) return false;
 
 	// If something is in the way, make cameradist lower if necessary
-	if (fabs(npos.X) + fabs(npos.Y) > fabs(hpos.X) + fabs(hpos.Y))
+	if (npos.XY().Sum() > hpos.XY().Sum())
 	{
+		double DVector3::* c = fabs(npos.X) > fabs(npos.Y) ? &DVector3::X : &DVector3::Y;
+
 		if (hitinfo.hitWall != nullptr)
 		{
 			// Push you a little bit off the wall
 			*psect = hitinfo.hitSector;
-			daang = hitinfo.hitWall->delta().Angle();
-			newdist = (npos.X * daang.Sin() + npos.Y * -daang.Cos()) * (1. / 1024.);
-
-			if (fabs(npos.X) > fabs(npos.Y))
-				hpos.X -= npos.X * newdist;
-			else
-				hpos.Y -= npos.Y * newdist;
+			hpos.*c -= npos.*c * npos.XY().dot(hitinfo.hitWall->delta().Angle().ToVector().Rotated90CW()) * (1. / 1024.);
 		}
 		else if (hitinfo.hitActor == nullptr)		
 		{
 			// Push you off the ceiling/floor
 			*psect = hitinfo.hitSector;
-
-			if (fabs(npos.X) > fabs(npos.Y))
-				hpos.X -= npos.X * (1. / 32.);
-			else
-				hpos.Y -= npos.Y * (1. / 32.);
+			hpos.*c -= npos.*c * (1. / 32.);
 		}
 		else
 		{
 			// If you hit a sprite that's not a wall sprite - try again.
-			auto hit = hitinfo.hitActor;
-
-			if (!(hit->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+			if (!(hitinfo.hitActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 			{
-				bakcstat = hit->spr.cstat;
-				hit->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+				bakcstat = hitinfo.hitActor->spr.cstat;
+				hitinfo.hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 				calcChaseCamPos(ppos, act, psect, ang, horiz, interpfrac);
-				hit->spr.cstat = bakcstat;
+				hitinfo.hitActor->spr.cstat = bakcstat;
 				return false;
 			}
 			else
 			{
 				// same as wall calculation.
-				daang = act->spr.angle - DAngle90;
-				newdist = (npos.X * daang.Sin() + npos.Y * -daang.Cos()) * (1. / 1024.);
-
-				if (fabs(npos.X) > fabs(npos.Y))
-					hpos.X -= npos.X * newdist;
-				else
-					hpos.Y -= npos.Y * newdist;
+				hpos.*c -= npos.*c * npos.XY().dot((act->spr.angle - DAngle90).ToVector().Rotated90CW()) * (1. / 1024.);
 			}
 		}
 
-		newdist = fabs(npos.X) > fabs(npos.Y) ? hpos.X / npos.X : hpos.Y / npos.Y;
+		double newdist = hpos.*c / npos.*c;
 		if (newdist < cameradist) cameradist = newdist;
 	}
 
