@@ -448,7 +448,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	actor->spr.pos.Z += floorZ - bottom;
-	DAngle nAngle = randomAngle();
+	DAngle nAngle = RandomAngle();
 	int nDist = Random(16);
 	auto pos = nAngle.ToVector() * nDist * 4;
 	gFX.fxSpawnActor(FX_48, actor->sector(), DVector3(pos, actor->spr.pos.Z), 0);
@@ -638,7 +638,7 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	actor->spr.pos.Z += floorZ - bottom;
-	DAngle nAngle = randomAngle();
+	DAngle nAngle = RandomAngle();
 	int nDist = Random(16);
 	auto pos = actor->spr.pos.XY() + nAngle.ToVector() * nDist * 4;
 

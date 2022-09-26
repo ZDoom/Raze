@@ -160,9 +160,9 @@ void viewInit(void)
 
 	for (int i = 0; i < 16; i++)
 	{
-		random_angles[i][0] = randomAngle();
-		random_angles[i][1] = randomAngle();
-		random_angles[i][2] = randomAngle();
+		random_angles[i][0] = RandomAngle();
+		random_angles[i][1] = RandomAngle();
+		random_angles[i][2] = RandomAngle();
 	}
 }
 

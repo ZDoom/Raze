@@ -35,7 +35,6 @@ void playlogos();
 unsigned int qrand(void);
 int wrand(void);
 void wsrand(int);
-DAngle randomAngle();
 
 void FireInit(void);
 void FireProcess(void);

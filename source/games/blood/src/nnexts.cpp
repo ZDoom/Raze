@@ -3057,7 +3057,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 			{
 				auto tempang = nAng;
 				while (tempang == nAng)
-					nAng = randomAngle();
+					nAng = RandomAngle();
 			}
 
 			if (chgDstAng)
