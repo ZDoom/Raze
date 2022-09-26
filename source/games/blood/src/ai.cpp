@@ -60,15 +60,15 @@ bool dudeIsPlayingSeq(DBloodActor* actor, int nSeq)
 //
 //---------------------------------------------------------------------------
 
-void aiPlay3DSound(DBloodActor* actor, int a2, AI_SFX_PRIORITY a3, int a4)
+void aiPlay3DSound(DBloodActor* actor, int soundid, AI_SFX_PRIORITY a3, int playchannel)
 {
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 	if (a3 == AI_SFX_PRIORITY_0)
-		sfxPlay3DSound(actor, a2, a4, 2);
+		sfxPlay3DSound(actor, soundid, playchannel, 2);
 	else if (a3 > pDudeExtra->prio || pDudeExtra->time <= PlayClock)
 	{
 		sfxKill3DSound(actor, -1, -1);
-		sfxPlay3DSound(actor, a2, a4, 0);
+		sfxPlay3DSound(actor, soundid, playchannel, 0);
 		pDudeExtra->prio = a3;
 		pDudeExtra->time = PlayClock + 120;
 	}
@@ -1502,21 +1502,21 @@ void aiThinkTarget(DBloodActor* actor)
 			auto dvec = ppos - actor->spr.pos.XY();
 			auto pSector = pPlayer->actor->sector();
 
-			int nDist = approxDist(dvec);
-			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
+			double nDist = dvec.Length();
+			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 
-			int nDeltaAngle = getincangle(actor->int_ang(), getangle(dvec));
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvec));
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 				return;
 			}
-			else if (nDist < pDudeInfo->hearDist)
+			else if (nDist < pDudeInfo->Heardist())
 			{
 				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
