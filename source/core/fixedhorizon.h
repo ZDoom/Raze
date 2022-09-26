@@ -86,6 +86,8 @@ public:
 	constexpr fixed_t asq16() const { return value; }
 	double Degrees() const { return HorizToPitch(value); }
 
+	int Sgn() const { return ::Sgn(value); }
+
 	bool operator< (fixedhoriz other) const
 	{
 		return value < other.value;

@@ -58,10 +58,10 @@ inline static DAngle getscaledangle(const double value, const double scaleAdjust
 
 inline static void scaletozero(fixedhoriz& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
 {
-	if (auto sgn = Sgn(object.asq16()))
+	if (auto sgn = object.Sgn())
 	{
 		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? sgn * 2. / 9. : push);
-		if (sgn != Sgn(object.asq16())) object = q16horiz(0);
+		if (sgn != object.Sgn()) object = q16horiz(0);
 	}
 }
 
@@ -433,7 +433,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(horizoff, HORIZOFFSPEED, scaleAdjust, Sgn(horizoff.asq16()));
+			scaletozero(horizoff, HORIZOFFSPEED, scaleAdjust, horizoff.Sgn());
 		}
 	}
 }
