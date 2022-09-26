@@ -54,8 +54,6 @@ class FSerializer;
 inline double HorizToPitch(double horiz) { return atan2(horiz, 128) * (180. / pi::pi()); }
 inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, IntToFixed(128)) * (180. / pi::pi()); }
 inline fixed_t PitchToHoriz(double pitch) { return xs_CRoundToInt(clamp<double>(IntToFixed(128) * tan(pitch * (pi::pi() / 180.)), INT32_MIN, INT32_MAX)); }
-inline int32_t PitchToBAM(double pitch) { return xs_CRoundToInt(clamp<double>(pitch * (0x80000000u / 90.), INT32_MIN, INT32_MAX)); }
-inline constexpr double BAMToPitch(int32_t bam) { return bam * (90. / 0x80000000u); }
 
 
 //---------------------------------------------------------------------------
@@ -74,7 +72,6 @@ class fixedhoriz
 	friend constexpr fixedhoriz buildhoriz(int v);
 	friend fixedhoriz buildfhoriz(double v);
 	friend fixedhoriz pitchhoriz(double v);
-	friend fixedhoriz bamhoriz(int32_t v);
 
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval);
 
@@ -88,7 +85,6 @@ public:
 	constexpr double asbuildf() const { return FixedToFloat(value); }
 	constexpr fixed_t asq16() const { return value; }
 	double aspitch() const { return HorizToPitch(value); }
-	int32_t asbam() const { return PitchToBAM(aspitch()); }
 
 	bool operator< (fixedhoriz other) const
 	{
@@ -186,7 +182,6 @@ inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
 inline fixedhoriz buildfhoriz(double v) { return fixedhoriz(FloatToFixed(v)); }
 inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
-inline fixedhoriz bamhoriz(int32_t v) { return pitchhoriz(BAMToPitch(v)); }
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval)
 {
