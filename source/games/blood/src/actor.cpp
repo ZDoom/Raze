@@ -6008,7 +6008,7 @@ static void actCheckDudes()
 					else
 						pPlayer->chokeEffect = 0;
 
-					if (actor->vel.X != 0 || actor->int_vel().Y)
+					if (!actor->vel.XY().isZero())
 						sfxPlay3DSound(actor, 709, 100, 2);
 
 					pPlayer->bubbleTime = ClipLow(pPlayer->bubbleTime - 4, 0);
@@ -6239,9 +6239,8 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingType)
+DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType)
 {
-	DVector3 pos(x * inttoworld, y * inttoworld, z * zinttoworld);
 	assert(nThingType >= kThingBase && nThingType < kThingMax);
 	auto actor = actSpawnSprite(pSector, pos, 4, 1);
 	int nType = nThingType - kThingBase;
@@ -6743,13 +6742,13 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 				}
 				if (Chance(pVectorData->fxChance))
 				{
-					int tt = gVectorData[19].maxDist;
+					double tt = gVectorData[19].maxDist * inttoworld;
 					dv.X += FixedToFloat<14>(Random3(4000)); // random messiness...
 					dv.Y += FixedToFloat<14>(Random3(4000));
 					dv.Z += FixedToFloat<14>(Random3(4000));
 					if (HitScan(actor, gHitInfo.hitpos.Z, dv, CLIPMASK1, tt) == 0)
 					{
-						if (approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY()) <= tt)
+						if ((gHitInfo.hitpos.XY() - actor->spr.pos.XY()).LengthSquared() <= tt * tt)
 						{
 							auto pWall = gHitInfo.hitWall;
 							auto pSector1 = gHitInfo.hitSector;

@@ -234,10 +234,11 @@ void actProcessSprites(void);
 DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat, bool a6);
 DBloodActor* actSpawnDude(DBloodActor* pSource, int nType, double dist);
 DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
-DBloodActor * actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingType);
-inline DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType)
+DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType);
+
+inline DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingType)
 {
-	return actSpawnThing(pSector, int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), nThingType);
+	return actSpawnThing(pSector, DVector3(x * inttoworld, y * inttoworld, z * zinttoworld), nThingType);
 }
 
 inline DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double zvel, int thingType, double nSpeed);
