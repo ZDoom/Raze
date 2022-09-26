@@ -6340,26 +6340,20 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actFireThing(DBloodActor* actor, int xyoff, int zoff, int zvel, int thingType, int nSpeed)
+DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double zvel, int thingType, double nSpeed)
 {
 	assert(thingType >= kThingBase && thingType < kThingMax);
-	int x = actor->int_pos().X + MulScale(xyoff, Cos(actor->int_ang() + 512), 30);
-	int y = actor->int_pos().Y + MulScale(xyoff, Sin(actor->int_ang() + 512), 30);
-	int z = actor->int_pos().Z + zoff;
-	x += MulScale(actor->native_clipdist(), Cos(actor->int_ang()), 28);
-	y += MulScale(actor->native_clipdist(), Sin(actor->int_ang()), 28);
-	if (HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, actor->native_clipdist()) != -1)
+
+	DVector3 vect = actor->spr.pos.plusZ(zoff) + (actor->spr.angle + DAngle90).ToVector() * xyoff + actor->spr.angle.ToVector() * actor->fClipdist();
+
+	if (HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, actor->native_clipdist()) != -1)
 	{
-		x = gHitInfo.int_hitpos().X - MulScale(actor->native_clipdist() << 1, Cos(actor->int_ang()), 28);
-		y = gHitInfo.int_hitpos().Y - MulScale(actor->native_clipdist() << 1, Sin(actor->int_ang()), 28);
+		vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * actor->fClipdist() * 2;
 	}
-	auto fired = actSpawnThing(actor->sector(), x, y, z, thingType);
+	auto fired = actSpawnThing(actor->sector(), vect, thingType);
 	fired->SetOwner(actor);
 	fired->spr.angle = actor->spr.angle;
-	fired->set_int_bvel_x(MulScale(nSpeed, Cos(fired->int_ang()), 30));
-	fired->set_int_bvel_y(MulScale(nSpeed, Sin(fired->int_ang()), 30));
-	fired->set_int_bvel_z(MulScale(nSpeed, zvel, 14));
-	fired->vel += actor->vel * 0.5;
+	fired->vel = DVector3(fired->spr.angle.ToVector() * nSpeed, nSpeed * zvel * 4) + actor->vel * 0.5;
 	return fired;
 }
 

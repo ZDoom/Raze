@@ -226,7 +226,21 @@ DBloodActor* actSpawnSprite(sectortype* pSector, const DVector3& pos, int nStat,
 DBloodActor* actSpawnDude(DBloodActor* pSource, int nType, double dist);
 DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
 DBloodActor * actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingType);
-DBloodActor* actFireThing(DBloodActor* actor, int xyoff, int zoff, int zvel, int thingType, int nSpeed);
+inline DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType)
+{
+	return actSpawnThing(pSector, int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), nThingType);
+}
+
+inline DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double zvel, int thingType, double nSpeed);
+inline DBloodActor* actFireThing(DBloodActor* actor, int xyoff_, int zoff_, int zvel_, int thingType, int nSpeed_)
+{
+	double xyoff = xyoff_ * inttoworld;
+	double zoff = zoff_ * zinttoworld;
+	double zvel = FixedToFloat(zvel_);
+	double nSpeed = FixedToFloat(nSpeed_);
+	return actFireThing(actor, xyoff, zoff, zvel, thingType, nSpeed);
+}
+
 DBloodActor* actFireMissile(DBloodActor* actor, int xyoff, int zoff, int dx, int dy, int dz, int nType);
 
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
