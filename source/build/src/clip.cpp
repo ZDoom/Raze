@@ -1167,6 +1167,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
     int const vx = direction.X, vy = direction.Y, vz = direction.Z;
     int32_t x1, y1=0, z1=0, x2, y2, intx, inty, intz;
     int32_t i, k, daz;
+    double hitfactor = DBL_MAX;
 
     const int32_t dawalclipmask = (cliptype&65535);
     const int32_t dasprclipmask = (cliptype >> 16);
@@ -1202,11 +1203,15 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 < compat_maybe_truncate_to_int32((coord_t)(x2-sv->X)*(y1-sv->Y))) continue;
             if (rintersect(sv->X,sv->Y,sv->Z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == -1) continue;
 
-            if (abs(intx-sv->X)+abs(inty-sv->Y) >= abs((hitinfo.int_hitpos().X)-sv->X)+abs((hitinfo.int_hitpos().Y)-sv->Y))
-                continue;
+                // temporary crutch
+            DVector2 vec(vx, vy);
+            DVector2 newvec(intx - sv->X, inty - sv->Y);
+            double newfactor = newvec.Sum() / vec.Sum();
+            if (newfactor >= hitfactor) continue;
 
             if ((!wal->twoSided()) || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
             {
+                hitfactor = newfactor;
                 hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
                 continue;
             }
@@ -1215,6 +1220,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             int_getzsofslopeptr(nextsect,intx,inty,&daz,&daz2);
             if (intz <= daz || intz >= daz2)
             {
+                hitfactor = newfactor;
                 hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
                 continue;
             }
@@ -1227,6 +1233,9 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
         if (dasprclipmask==0)
             continue;
 
+        DVector3 start(sv->X * inttoworld, sv->Y * inttoworld, sv->Z * zinttoworld);
+        DVector3 vect(vx * inttoworld, vy * inttoworld, vz * zinttoworld);
+
         TSectIterator<DCoreActor> it(sec);
         while (auto actor = it.Next())
         {
@@ -1238,121 +1247,31 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             if ((cstat&dasprclipmask) == 0)
                 continue;
 
-            x1 = actor->int_pos().X; y1 = actor->int_pos().Y; z1 = actor->int_pos().Z;
+            DVector3 v;
+            double hit = -1;
+            // we pass hitfactor to the workers because it can shortcut their calculations a lot.
             switch (cstat&CSTAT_SPRITE_ALIGNMENT_MASK)
             {
-            case 0:
-            {
-				auto v = hitinfo.hitpos;
-                DVector3 start(sv->X * inttoworld, sv->Y * inttoworld, sv->Z * zinttoworld);
-                DVector3 direction(vx * inttoworld, vy * inttoworld, vz * zinttoworld);
-                if (intersectSprite(actor, start, direction, v, 0))
-                {
-                    if ((v.XY() - start.XY()).Sum() < (hitinfo.hitpos.XY() - start.XY()).Sum())
-                        hit_set(&hitinfo, sec, nullptr, actor, v.X * worldtoint, v.Y * worldtoint, v.Z * zworldtoint);
-                }
-
+            case CSTAT_SPRITE_ALIGNMENT_FACING:
+                hit = intersectSprite(actor, start, vect, v, hitfactor);
                 break;
-            }
 
             case CSTAT_SPRITE_ALIGNMENT_WALL:
-            {
-                int32_t ucoefup16;
-                int32_t tilenum = actor->spr.picnum;
-
-                get_wallspr_points(actor, &x1, &x2, &y1, &y2);
-
-                if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)   //back side of 1-way sprite
-                    if (compat_maybe_truncate_to_int32((coord_t)(x1-sv->X)*(y2-sv->Y))
-                        < compat_maybe_truncate_to_int32((coord_t)(x2-sv->X)*(y1-sv->Y))) continue;
-
-                ucoefup16 = rintersect(sv->X,sv->Y,sv->Z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
-                if (ucoefup16 == -1) continue;
-
-                if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.int_hitpos().X)-sv->X)+abs((hitinfo.int_hitpos().Y)-sv->Y))
-                    continue;
-
-                daz = actor->int_pos().Z + actor->GetOffsetAndHeight(k);
-                if (intz > daz-k && intz < daz)
-                {
-                    if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
-                    {
-                        tileUpdatePicnum(&tilenum);
-
-                        if (tileLoad(tilenum))
-                        {
-                            // daz-intz > 0 && daz-intz < k
-                            int32_t xtex = MulScale(ucoefup16, tileWidth(tilenum), 16);
-                            int32_t vcoefup16 = 65536-DivScale(daz-intz, k, 16);
-                            int32_t ytex = MulScale(vcoefup16, tileHeight(tilenum), 16);
-
-                            auto texel = (tilePtr(tilenum) + tileHeight(tilenum)*xtex + ytex);
-                            if (*texel == TRANSPARENT_INDEX)
-                                continue;
-                        }
-                    }
-
-                    hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);
-                }
+                hit = intersectWallSprite(actor, start, vect, v, hitfactor, (picanm[actor->spr.picnum].sf & PICANM_TEXHITSCAN_BIT));
                 break;
-            }
 
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
-            {
-                int32_t x3, y3, x4, y4;
-                intz = z1;
-
-                if (vz == 0 || ((intz-sv->Z)^vz) < 0) continue;
-
-                if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
-                    if ((sv->Z > intz) == ((cstat & CSTAT_SPRITE_YFLIP)==0)) continue;
-
-                // avoid overflow errors by using 64 bit math.
-                intx = int(sv->X + (int64_t(intz) - sv->Z) * vx / vz);
-                inty = int(sv->Y + (int64_t(intz) - sv->Z) * vy / vz);
-
-                if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.int_hitpos().X)-sv->X)+abs((hitinfo.int_hitpos().Y)-sv->Y))
-                    continue;
-
-                get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
-                                    &y1, &y2, &y3, &y4);
-
-                if (get_floorspr_clipyou({x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}))
-                    hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);
-
+                hit = intersectFloorSprite(actor, start, vect, v, hitfactor);
                 break;
-            }
 
             case CSTAT_SPRITE_ALIGNMENT_SLOPE:
-            {
-                int32_t x3, y3, x4, y4;
-                int32_t const heinum = spriteGetSlope(actor);
-                int32_t const dax = (heinum * -bsin(actor->int_ang())) << 1;
-                int32_t const day = (heinum * bcos(actor->int_ang())) << 1;
-                int32_t const j = (vz << 8) - DMulScale(dax, vy, -day, vx, 15);
-                if (j == 0) continue;
-                if ((cstat & 64) != 0)
-                    if ((j < 0) == ((cstat & 8) == 0)) continue;
-                int32_t dist2 = ((actor->int_pos().Z - sv->Z) << 8) + DMulScale(dax, sv->Y - actor->int_pos().Y, -day, sv->X - actor->int_pos().X, 15);
-                if ((dist2 ^ j) < 0 || (abs(dist2) >> 1) >= abs(j)) continue;
-
-                dist2 = DivScale(dist2, j, 30);
-                intx = sv->X + MulScale(vx, dist2, 30);
-                inty = sv->Y + MulScale(vy, dist2, 30);
-                intz = sv->Z + MulScale(vz, dist2, 30);
-
-                if (abs(intx - sv->X) + abs(inty - sv->Y) > abs((hitinfo.int_hitpos().X) - sv->X) + abs((hitinfo.int_hitpos().Y) - sv->Y))
-                    continue;
-
-                get_floorspr_points(actor, intx, inty, &x1, &x2, &x3, &x4,
-                    &y1, &y2, &y3, &y4);
-
-                if (get_floorspr_clipyou({ x1, y1 }, { x2, y2 }, { x3, y3 }, { x4, y4 }))
-                    hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);
-
+                hit = intersectSlopeSprite(actor, start, vect, v, hitfactor);
                 break;
             }
-
+            if (hit > 0)
+            {
+                hitfactor = hit;
+                hitinfo.set(sec, nullptr, actor, v);
             }
         }
     }

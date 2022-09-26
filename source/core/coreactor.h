@@ -259,6 +259,14 @@ struct HitInfoBase
 		hitWall = nullptr;
 		hitActor = nullptr;
 	}
+
+	void set(sectortype* sect, walltype* wal, DCoreActor* actor, const DVector3& pos)
+	{
+		hitSector = sect;
+		hitWall = wal;
+		hitActor = actor;
+		hitpos = pos;
+	}
 	
 	const vec3_t int_hitpos() const
 	{

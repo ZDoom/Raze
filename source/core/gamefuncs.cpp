@@ -566,6 +566,21 @@ bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, secto
 	return search.Check(sect2);
 }
 
+//---------------------------------------------------------------------------
+//
+// taken out of SW.
+//
+//---------------------------------------------------------------------------
+
+int testpointinquad(const DVector2& pt, const DVector2* quad)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		double dist = PointOnLineSide(pt.X, pt.Y, quad[i].X, quad[i].Y, quad[(i + 1) & 3].X - quad[i].X, quad[(i + 1) & 3].Y - quad[i].Y);
+		if (dist > 0) return false;
+	}
+	return true;
+}
 
 //==========================================================================
 //
@@ -573,36 +588,131 @@ bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, secto
 //
 //==========================================================================
 
-bool intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double displacement)
+double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
 {
 	auto end = start + direction;
 	if (direction.isZero()) return false;
 
-	// use dot product to check if the sprite is behind us (or ourselves if the result is 0)
-	auto dotprod = direction.XY().dot(actor->spr.pos.XY() - start.XY());
-	if (dotprod <= 0) return false;
-
 	// get point on trace that is closest to the sprite
-	double const length = direction.XY().LengthSquared();
-	DVector3 point = start + direction * (dotprod / length);
+	double factor = NearestPointOnLineFast(actor->spr.pos.X, actor->spr.pos.Y, start.X, start.Y, end.X, end.Y);
+	if (factor < 0 || factor > maxfactor) return -1;
 
-	// This is somewhat smaller than the sprite's actual size, but that's how it was
-	auto sprwidth = tileWidth(actor->spr.picnum) * actor->spr.xrepeat * (REPEAT_SCALE * 0.5) + displacement;
+	auto sprwidth = tileWidth(actor->spr.picnum) * actor->spr.xrepeat * (REPEAT_SCALE * 0.5);
+	auto point = start + direction * factor;
 
 	// Using proper distance here, Build originally used the sum of x- and y-distance
-	if ((point.XY() - actor->spr.pos.XY()).LengthSquared() > sprwidth * sprwidth * 0.5) return false; // too far away
+	if ((point.XY() - actor->spr.pos.XY()).LengthSquared() > sprwidth * sprwidth * 0.5) return -1; // too far away
 
-	double newz = point.Z;
+	double siz, hitz = actor->spr.pos.Z + actor->GetOffsetAndHeight(siz);
 
-	double siz;
-	double const hitz = actor->spr.pos.Z + actor->GetOffsetAndHeight(siz);
+	if (point.Z < hitz - siz || point.Z > hitz)
+		return -1;
 
-	if (newz < hitz - siz || newz > hitz)
-		return 0;
+	result = point;
+	return factor;
+}
 
-	result.XY() = point;
-	result.Z = newz;
-	return 1;
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+double intersectWallSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor, bool checktex)
+{
+	DVector2 points[2];
+
+	GetWallSpritePosition(&actor->spr, actor->spr.pos, points, false);
+
+	points[1] -= points[0];
+	if ((actor->spr.cstat & CSTAT_SPRITE_ONE_SIDE))   //check for back side of one way sprite
+	{
+		if (PointOnLineSide(start.X, start.Y, points[0].X, points[0].Y, points[1].X, points[1].Y) > 0)
+			return -1;
+	}
+
+	double factor2;
+	double factor = InterceptLineSegments(start.X, start.Y, direction.X, direction.Y, points[0].X, points[0].Y, points[1].X, points[1].Y, &factor2);
+	if (factor < 0 || factor > maxfactor || factor2 < 0 || factor2 > 1) return -1;
+
+	result = start + factor * direction;
+
+	double height, position = actor->spr.pos.Z + actor->GetOffsetAndHeight(height);
+	if (result.Z <= position - height || result.Z >= position) return -1;
+
+	if (checktex)
+	{
+		int tilenum = actor->spr.picnum;
+		tileUpdatePicnum(&tilenum);
+
+		if (tileLoad(tilenum))
+		{
+			double zfactor = 1. - (position - result.Z) / height;
+
+			// all other flags have been taken care of already by GetWallSpritePosition and GetOffsetAndHeight
+			// - but we have to handle the flip flags here to fetch the correct texel.
+			if (actor->spr.cstat & CSTAT_SPRITE_XFLIP) factor2 = 1 - factor2;
+			if (actor->spr.cstat & CSTAT_SPRITE_YFLIP) zfactor = 1 - zfactor;
+
+			int xtex = int(factor2 * tileWidth(tilenum));
+			int ytex = int(zfactor * tileHeight(tilenum));
+
+			auto texel = (tilePtr(tilenum) + tileHeight(tilenum) * xtex + ytex);
+			if (*texel == TRANSPARENT_INDEX)
+				return -1;
+		}
+	}
+	return factor;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+double intersectFloorSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
+{
+	if (actor->spr.cstat & CSTAT_SPRITE_ONE_SIDE)
+	{
+		if ((start.Z > actor->spr.pos.Z) == ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) == 0)) return -1;
+	}
+
+	DVector2 points[4];
+	GetFlatSpritePosition(actor, actor->spr.pos, points, nullptr, false);
+	double factor = (actor->spr.pos.Z - start.Z) / direction.Z;
+	if (factor <= 0 || factor > maxfactor) return -1;
+	result = start + factor * direction;
+	if (!testpointinquad(result.XY(), points)) return -1;
+	return factor;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+double intersectSlopeSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
+{
+	DVector2 points[4];
+	double ptz[4];
+	GetFlatSpritePosition(actor, actor->spr.pos, points, ptz, false);
+	DVector3 pt1(points[0], ptz[0]);
+	DVector3 pt2(points[1], ptz[1]);
+	DVector3 pt3(points[2], ptz[2]);
+	double factor = LinePlaneIntersect(start, direction, pt1, pt2 - pt1, pt3 - pt1);
+	if (factor <= 0 || factor > maxfactor) return -1;
+	result = start + factor * direction;
+
+	// we can only do this after calculating the actual intersection spot...
+	if (actor->spr.cstat & CSTAT_SPRITE_ONE_SIDE)
+	{
+		double checkz = spriteGetZOfSlopef(&actor->spr, start.XY(), spriteGetSlope(actor));
+		if ((start.Z > checkz) == ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) == 0)) return -1;
+	}
+	if (!testpointinquad(result.XY(), points)) return -1;
+	return factor;
 }
 
 //==========================================================================
@@ -672,6 +782,7 @@ void neartag(const DVector3& pos, sectortype* startsect, DAngle angle, HitInfoBa
 
 		if (!(flags & NT_NoSpriteCheck))
 		{
+			double factor = 1;
 			TSectIterator<DCoreActor> it(sect);
 			while (auto actor = it.Next())
 			{
@@ -681,8 +792,10 @@ void neartag(const DVector3& pos, sectortype* startsect, DAngle angle, HitInfoBa
 				if (checkTag(&actor->spr))
 				{
 					DVector3 spot;
-					if (intersectSprite(actor, pos, v, spot, 1 / 256.))
+					double newfactor = intersectSprite(actor, pos, v, spot, factor - 1. / 65536.);
+					if (newfactor > 0)
 					{
+						factor = newfactor;
 						result.hitActor = actor;
 						// return distance to sprite in a separate variable because there is 
 						// no means to determine what is for if both a sprite and wall are found.

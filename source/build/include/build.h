@@ -238,13 +238,6 @@ static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
     return enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? (int32_t)val : val;
 }
 
-extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
-    int32_t vx_, int32_t vy_, int32_t vz,
-    int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-    int32_t *intx, int32_t *inty, int32_t *intz);
-
-
-
 void updateModelInterpolation();
 
 #endif // build_h_

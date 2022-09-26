@@ -260,8 +260,12 @@ void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp =
 bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, fixedhoriz horiz, double const interpfrac);
 int getslopeval(sectortype* sect, const DVector3& pos, double bazez);
 bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, sectortype* sect2);
-bool intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& end, DVector3& result, double displacement);
+double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);
+double intersectWallSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor, bool checktex = false);
+double intersectFloorSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);
+double intersectSlopeSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);
 void neartag(const DVector3& start, sectortype* sect, DAngle angle, HitInfoBase& result, double neartagrange, int tagsearch);
+int testpointinquad(const DVector2& pt, const DVector2* quad);
 
 
 
@@ -500,11 +504,24 @@ inline double SquareDist(double lx1, double ly1, double lx2, double ly2)
 	return dx * dx + dy * dy;
 }
 
+// This is for cases where only the factor is needed, e.g. intersectSprite which 
+// needs to validate it before applying and also needs to apply it to a 3D vector.
+inline double NearestPointOnLineFast(double px, double py, double lx1, double ly1, double lx2, double ly2)
+{
+	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
+	assert(wall_length > 0);
+	return ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
+}
+
+
 inline DVector2 NearestPointOnLine(double px, double py, double lx1, double ly1, double lx2, double ly2, bool clamp = true)
 {
 	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
 
-	if (wall_length == 0) return { lx1, ly1 };
+	if (wall_length == 0)
+	{
+		return { lx1, ly1 };
+	}
 
 	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
 	if (clamp)
@@ -591,11 +608,6 @@ inline double LinePlaneIntersect(const DVector3& start, const DVector3& trace, c
 	double dotTrace = normal.dot(trace);
 	if (dotTrace == 0) return -FLT_MAX;
 	return (dist - dotStart) / dotTrace; // we are only interested in the factor
-}
-
-inline double LineHeightIntersect(double startz, double tracez, double dist)
-{
-	return (dist - startz) / tracez; // we are only interested in the factor
 }
 
 inline void alignceilslope(sectortype* sect, const DVector3& pos)

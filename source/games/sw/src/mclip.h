@@ -30,7 +30,6 @@ BEGIN_SW_NS
 Collision MultiClipMove(PLAYER* pp, double z, double floor_dist);
 int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist);
 int RectClipMove(PLAYER* pp, DVector2* qpos);
-int testpointinquad(const DVector2& pt, const DVector2* quad);
 //short RectClipTurn(PLAYER* pp, short new_ang, int z, int floor_dist, int *qx, int *qy);
 short RectClipTurn(PLAYER* pp, short new_ang, int *qx, int *qy, int *ox, int *oy);
 END_SW_NS

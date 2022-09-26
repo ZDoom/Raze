@@ -255,22 +255,6 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
 //
 //---------------------------------------------------------------------------
 
-int testpointinquad(const DVector2& pt, const DVector2* quad)
-{
-    for (int i = 0; i < 4; i++)
-    {
-        double dist = PointOnLineSide(pt.X, pt.Y, quad[i].X, quad[i].Y, quad[(i + 1) & 3].X - quad[i].X, quad[(i + 1) & 3].Y - quad[i].Y);
-        if (dist > 0) return false;
-    }
-    return true;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 short RectClipTurn(PLAYER* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
 {
     int i;
