@@ -751,48 +751,50 @@ double checkSectorPlaneHit(sectortype* sec, const DVector3& start, const DVector
 	auto wal = sec->firstWall();
 	double len = wal->Length();
 
+	DVector3 pt1, pt2, pt3;
 	double startcz, startfz;
+	double p3cz, p3fz;
+
+	pt1.XY() = wal->pos;
+	pt2.XY() = wal->point2Wall()->pos;
+	pt3.X = pt1.X + pt2.Y - pt1.Y;
+	pt3.Y = pt1.Y + pt2.X - pt1.X; // somewhere off the first line.
+
 	calcSlope(sec, start.X, start.Y, &startcz, &startfz);
+	calcSlope(sec, pt3.X, pt3.Y, &p3cz, &p3fz);
+	double factor;
 
 	for (int i = 0; i < 2; i++)
 	{
-		int heinum;
-		double factor = -1, z;
 		bool sloped;
 
 		if (i == 0)
 		{
 			if (start.Z <= startcz) continue;
-			heinum = (sec->ceilingstat & CSTAT_SECTOR_SLOPE) && len > 0 ? sec->ceilingheinum : 0;
-			z = sec->ceilingz;
+			sloped = (sec->ceilingstat & CSTAT_SECTOR_SLOPE) && len > 0;
+			pt1.Z = pt2.Z = sec->ceilingz;
+			pt3.Z = p3cz;
 		}
 		else
 		{
 			if (start.Z >= startfz) continue;
-			heinum = (sec->floorstat & CSTAT_SECTOR_SLOPE) && len > 0 ? sec->floorheinum : 0;
-			z = sec->floorz;
+			sloped = (sec->floorstat & CSTAT_SECTOR_SLOPE && len > 0);
+			pt1.Z = pt2.Z = sec->floorz;
+			pt3.Z = p3fz;
 		}
 
-		if (heinum)
+		if (sloped)
 		{
-			auto delta = wal->delta() * heinum * (1. / SLOPEVAL_FACTOR) / len;
-
-			double den = direction.Z - delta.dot(direction.XY().Rotated90CW());
-			if (den != 0)
-			{
-				auto stdelta = wal->pos - start;
-				factor = (z - start.Z + delta.dot(stdelta.Rotated90CW())) / den;
-			}
-			else continue;
+			factor = LinePlaneIntersect(start, direction, pt1, pt2 - pt1, pt3 - pt1);
 		}
-		else if (direction.Z != 0)
+		else
 		{
-			factor = (z - start.Z) / direction.Z;
+			factor = (pt1.Z - start.Z) / direction.Z;
 		}
 		if (factor > 0 && factor <= maxfactor)
 		{
 			result = start + factor * direction;
-			return inside(result.X, result.Y, sec);
+			return inside(result.X, result.Y, sec) ? factor : -1;
 		}
 	}
 
