@@ -5093,15 +5093,14 @@ void MoveDude(DBloodActor* actor)
 			else
 				actor->spr.flags |= 4;
 
-			double ffloorZ = floorZ * zinttoworld;
 			switch (tileGetSurfType(floorColl))
 			{
 			case kSurfWater:
-				gFX.fxSpawnActor(FX_9, actor->sector(), DVector3(actor->spr.pos, ffloorZ), 0);
+				gFX.fxSpawnActor(FX_9, actor->sector(), DVector3(actor->spr.pos, floorZ), 0);
 				break;
 			case kSurfLava:
 			{
-				auto pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos, ffloorZ), 0);
+				auto pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos, floorZ), 0);
 				if (pFX)
 				{
 					for (int i = 0; i < 7; i++)
