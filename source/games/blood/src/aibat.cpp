@@ -65,14 +65,14 @@ void batBiteSeqCallback(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto pTarget = actor->GetTarget();
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
+
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(pTarget->spr.type);
-	int height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) << 2;
-	int height2 = (pTarget->spr.yrepeat * pDudeInfoT->eyeHeight) << 2;
-	actFireVector(actor, 0, 0, dx, dy, height2 - height, kVectorBatBite);
+
+	double height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) * REPEAT_SCALE;
+	double height2 = (pTarget->spr.yrepeat * pDudeInfoT->eyeHeight) * REPEAT_SCALE;
+	actFireVector(actor, 0., 0., DVector3(actor->spr.angle.ToVector() * 64, height2 - height), kVectorBatBite);
 }
 
 static void batThinkTarget(DBloodActor* actor)
@@ -101,19 +101,19 @@ static void batThinkTarget(DBloodActor* actor)
 			auto dvec = ppos - actor->spr.pos.XY();
 			auto pSector = pPlayer->actor->sector();
 
-			int nDist = approxDist(dvec);
-			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
+			double nDist = dvec.Length();
+			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			int nDeltaAngle = getincangle(actor->int_ang(), getangle(dvec));
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvec));
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
-			else if (nDist < pDudeInfo->hearDist)
+			else if (nDist < pDudeInfo->Heardist())
 			{
 				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
@@ -162,30 +162,30 @@ static void batThinkPonder(DBloodActor* actor)
 		aiNewState(actor, &batSearch);
 		return;
 	}
-	int nDist = approxDist(dvec);
-	if (nDist <= pDudeInfo->seeDist)
+	double nDist = dvec.Length();
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), getangle(dvec));
-		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-		int height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.yrepeat) << 2;
-		int top, bottom;
+		DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvec));
+		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+		double height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.yrepeat) * REPEAT_SCALE;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height * zinttoworld), actor->sector()))
+		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
 			aiSetTarget(actor, actor->GetTarget());
-			if (height2 - height < 0x3000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
+			if (height2 - height < 48 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < mapangle(85))
 				aiNewState(actor, &batDodgeUp);
-			else if (height2 - height > 0x5000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
+			else if (height2 - height > 0x50 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < mapangle(85))
 				aiNewState(actor, &batDodgeDown);
-			else if (height2 - height < 0x2000 && nDist < 0x200 && abs(nDeltaAngle) < 85)
+			else if (height2 - height < 0x20 && nDist < 0x20 && nDeltaAngle < mapangle(85))
 				aiNewState(actor, &batDodgeUp);
-			else if (height2 - height > 0x6000 && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
+			else if (height2 - height > 0x60 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < mapangle(85))
 				aiNewState(actor, &batDodgeDown);
-			else if (height2 - height < 0x2000 && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
+			else if (height2 - height < 0x20 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < mapangle(85))
 				aiNewState(actor, &batDodgeUp);
-			else if (height2 - height < 0x2000 && abs(nDeltaAngle) < 85 && nDist > 0x1400)
+			else if (height2 - height < 0x20 && nDeltaAngle < mapangle(85) && nDist > 0x140)
 				aiNewState(actor, &batDodgeUp);
-			else if (height2 - height > 0x4000)
+			else if (height2 - height > 0x40)
 				aiNewState(actor, &batDodgeDown);
 			else
 				aiNewState(actor, &batDodgeUp);
