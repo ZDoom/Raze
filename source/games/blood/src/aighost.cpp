@@ -256,7 +256,7 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->xspr.dodgeDir > 0)
@@ -276,7 +276,7 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir == 0)
 		return;
@@ -407,7 +407,7 @@ static void ghostMoveForward(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)
@@ -434,7 +434,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)
@@ -465,7 +465,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)
@@ -495,7 +495,7 @@ static void ghostMoveFly(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)

@@ -279,7 +279,7 @@ static void sub_65D04(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)
@@ -309,7 +309,7 @@ static void sub_65F44(DBloodActor* actor)
 	int z = actor->int_pos().Z + getDudeInfo(actor->spr.type)->eyeHeight;
 	int z2 = target->int_pos().Z + getDudeInfo(target->spr.type)->eyeHeight;
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)
@@ -339,7 +339,7 @@ static void sub_661E0(DBloodActor* actor)
 	int z = actor->int_pos().Z + getDudeInfo(actor->spr.type)->eyeHeight;
 	int z2 = target->int_pos().Z + getDudeInfo(target->spr.type)->eyeHeight;
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > DAngle60)

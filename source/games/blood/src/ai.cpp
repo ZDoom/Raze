@@ -300,7 +300,7 @@ void aiMoveForward(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (abs(nAng) > DAngle60)
 		return;
@@ -318,7 +318,7 @@ void aiMoveTurn(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 }
 
@@ -333,7 +333,7 @@ void aiMoveDodge(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
-	auto nTurnRange = DAngle::fromQ16(pDudeInfo->angSpeed << 3);
+	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir)
 	{

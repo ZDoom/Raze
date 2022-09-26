@@ -73,6 +73,11 @@ struct DUDEINFO {
 	{
 		return FixedToFloat(frontSpeed);
 	}
+
+	inline DAngle TurnRange() const
+	{
+		return DAngle::fromQ16(angSpeed << 3);
+	}
 };
 
 extern DUDEINFO dudeInfo[kDudeMax - kDudeBase];
