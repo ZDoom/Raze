@@ -84,7 +84,7 @@ public:
 	constexpr short asbuild() const { return FixedToInt(value); }
 	constexpr double asbuildf() const { return FixedToFloat(value); }
 	constexpr fixed_t asq16() const { return value; }
-	double aspitch() const { return HorizToPitch(value); }
+	double Degrees() const { return HorizToPitch(value); }
 
 	bool operator< (fixedhoriz other) const
 	{

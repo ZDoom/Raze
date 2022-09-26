@@ -228,7 +228,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		if (horz || *actions & (SB_AIM_UP | SB_AIM_DOWN | SB_LOOK_UP | SB_LOOK_DOWN))
 		{
 			// Store current horizon as true pitch.
-			double pitch = horiz.aspitch();
+			double pitch = horiz.Degrees();
 
 			// Process mouse input.
 			if (horz)
