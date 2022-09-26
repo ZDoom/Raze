@@ -78,11 +78,6 @@ public:
 		return { int(spr.pos.X * worldtoint), int(spr.pos.Y * worldtoint), int(spr.pos.Z * zworldtoint) };
 	}
 
-	void add_int_z(int z)
-	{
-		spr.pos.Z += z * zinttoworld;
-	}
-
 	constexpr int int_ang() const
 	{
 		return spr.angle.Buildang();
