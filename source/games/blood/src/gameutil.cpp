@@ -286,6 +286,8 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
 
 int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
 {
+	double zz = z * zinttoworld;
+
 	assert(actor != nullptr);
 	assert(dx != 0 || dy != 0);
 	gHitInfo.clearObj();
@@ -294,7 +296,7 @@ int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMas
 	DVector2 hitscangoal;
 	if (nRange) hitscangoal = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nRange;
 	else hitscangoal.Zero();
-	hitscan(DVector3(actor->spr.pos.XY(), z * zinttoworld), actor->sector(), DVector3(dx, dy, dz) * inttoworld, gHitInfo, nMask, & hitscangoal);
+	hitscan(DVector3(actor->spr.pos.XY(), zz), actor->sector(), DVector3(dx, dy, dz) * inttoworld, gHitInfo, nMask, &hitscangoal);
 
 	actor->spr.cstat = bakCstat;
 	if (gHitInfo.actor() != nullptr)
@@ -312,7 +314,7 @@ int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMas
 		return 4;
 	}
 	if (gHitInfo.hitSector != nullptr)
-		return 1 + (z < gHitInfo.int_hitpos().Z);
+		return 1 + (zz < gHitInfo.hitpos.Z);
 	return -1;
 }
 

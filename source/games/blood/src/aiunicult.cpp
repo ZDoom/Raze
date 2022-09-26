@@ -864,7 +864,8 @@ static void unicultThinkChase(DBloodActor* actor)
 								bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
 								if (!(hitactor->hasX() && (!immune || (immune && hitactor->spr.statnum == kStatThing && hitactor->xspr.Vector)) && !hitactor->xspr.locked))
 								{
-									if ((approxDist(gHitInfo.int_hitpos().X - actor->int_pos().X, gHitInfo.int_hitpos().Y - actor->int_pos().Y) <= 1500 && !blck)
+									auto hdist = (gHitInfo.hitpos.XY() - actor->spr.pos.XY()).Length();
+									if ((hdist <= 93.75 && !blck)
 										|| (dist <= (int)(pExtra->fireDist / ClipLow(Random(4), 1))))
 									{
 										//viewSetSystemMessage("GO CHASE");
