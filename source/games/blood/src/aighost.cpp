@@ -409,7 +409,7 @@ static void ghostMoveForward(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
@@ -420,9 +420,9 @@ static void ghostMoveForward(DBloodActor* actor)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
-			t1 += FixedToFloat(nAccel);
+			t1 += nAccel;
 		else
-			t1 += FixedToFloat(nAccel * 0.5);
+			t1 += nAccel * 0.5;
 	});
 }
 
@@ -436,7 +436,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng += DAngle90;
@@ -447,7 +447,7 @@ static void ghostMoveSlow(DBloodActor* actor)
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 		t2 *= 0.5;
 	});
 	switch (actor->spr.type) {
@@ -467,7 +467,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng += DAngle90;
@@ -478,7 +478,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 		switch (actor->spr.type) {
 		case kDudePhantasm:
 			actor->vel.Z = t1;
@@ -497,7 +497,7 @@ static void ghostMoveFly(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->spr.angle += DAngle90;
@@ -508,7 +508,7 @@ static void ghostMoveFly(DBloodActor* actor)
 	if (Chance(0x4000) && nDist <= 0x400)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 		switch (actor->spr.type) {
 		case kDudePhantasm:
 			actor->vel.Z = -t1;

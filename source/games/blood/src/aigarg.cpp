@@ -514,7 +514,7 @@ static void gargMoveForward(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
@@ -525,9 +525,9 @@ static void gargMoveForward(DBloodActor* actor)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
-			t1 += FixedToFloat(nAccel);
+			t1 += nAccel;
 		else
-			t1 += FixedToFloat(nAccel * 0.5);
+			t1 += nAccel * 0.5;
 	});
 
 }
@@ -542,7 +542,7 @@ static void gargMoveSlow(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng += DAngle90;
@@ -553,7 +553,7 @@ static void gargMoveSlow(DBloodActor* actor)
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 		t2 *= 0.5;
 	});
 
@@ -577,7 +577,7 @@ static void gargMoveSwoop(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng += DAngle90;
@@ -589,7 +589,7 @@ static void gargMoveSwoop(DBloodActor* actor)
 		return;
 
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 		switch (actor->spr.type) {
 		case kDudeGargoyleFlesh:
 			actor->vel.Z = t1;
@@ -612,7 +612,7 @@ static void gargMoveFly(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->spr.angle += DAngle90;
@@ -624,7 +624,7 @@ static void gargMoveFly(DBloodActor* actor)
 		return;
 	
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 		switch (actor->spr.type) {
 		case kDudeGargoyleFlesh:
 			actor->vel.Z = -t1;

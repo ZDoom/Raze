@@ -321,9 +321,9 @@ static void eelMoveForward(DBloodActor* actor)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
-			t1 += FixedToFloat(nAccel);
+			t1 += nAccel;
 		else
-			t1 += FixedToFloat(nAccel * 0.5);
+			t1 += nAccel * 0.5;
 	});
 
 }
@@ -343,7 +343,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 	if (Chance(0x8000) && nDist <= 0x399)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 	});
 
 	actor->vel.Z = FixedToFloat(0x22222);
@@ -364,7 +364,7 @@ static void eelMoveAscend(DBloodActor* actor)
 	if (Chance(0x4000) && nDist <= 0x399)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 	});
 
 	actor->vel.Z = FixedToFloat(-0x8000);

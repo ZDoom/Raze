@@ -281,7 +281,7 @@ static void sub_65D04(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
@@ -292,9 +292,9 @@ static void sub_65D04(DBloodActor* actor)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
-			t1 += FixedToFloat(nAccel);
+			t1 += nAccel;
 		else
-			t1 += FixedToFloat(nAccel * 0.25);
+			t1 += nAccel * 0.25;
 	});
 
 }
@@ -311,7 +311,7 @@ static void sub_65F44(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng += DAngle90;
@@ -323,7 +323,7 @@ static void sub_65F44(DBloodActor* actor)
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel);
+		t1 += nAccel;
 	});
 
 	actor->set_int_bvel_z(-dz);
@@ -341,7 +341,7 @@ static void sub_661E0(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->spr.angle += DAngle90;
@@ -353,7 +353,7 @@ static void sub_661E0(DBloodActor* actor)
 	if (Chance(0x4000) && nDist <= 0x400)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 	});
 
 	actor->set_int_bvel_z(dz);

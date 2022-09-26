@@ -1116,7 +1116,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 		auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 		auto nTurnRange = pDudeInfo->TurnRange();
 		actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-		int nAccel = pDudeInfo->frontSpeed << 2;
+		double nAccel = pDudeInfo->FrontSpeed() * 4;
 		if (abs(nAng) > DAngle60)
 			return;
 		if (actor->GetTarget() == nullptr)
@@ -1127,9 +1127,9 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 			return;
 		AdjustVelocity(actor, ADJUSTER{
 			if (actor->GetTarget() == nullptr)
-				t1 += FixedToFloat(nAccel);
+				t1 += nAccel;
 			else
-				t1 += FixedToFloat(nAccel * 0.5);
+				t1 += nAccel * 0.5;
 		});
 
 	}

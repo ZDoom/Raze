@@ -301,7 +301,7 @@ static void batMoveForward(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
@@ -313,9 +313,9 @@ static void batMoveForward(DBloodActor* actor)
 	
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
-			t1 += FixedToFloat(nAccel);
+			t1 += nAccel;
 		else
-			t1 += FixedToFloat(nAccel * 0.5);
+			t1 += nAccel * 0.5;
 	});
 }
 
@@ -326,7 +326,7 @@ static void batMoveSwoop(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng += DAngle90;
@@ -338,7 +338,7 @@ static void batMoveSwoop(DBloodActor* actor)
 		return;
 	
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel) * 0.5;
+		t1 += nAccel * 0.5;
 	});
 	actor->vel.Z = 4.26666;
 }
@@ -350,7 +350,7 @@ static void batMoveFly(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = pDudeInfo->frontSpeed << 2;
+	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
 		actor->spr.angle += DAngle90;
@@ -361,7 +361,7 @@ static void batMoveFly(DBloodActor* actor)
 	if (Chance(0x4000) && nDist <= 0x200)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel) * 0.5;
+		t1 += nAccel * 0.5;
 	});
 	actor->vel.Z = FixedToFloat(-0x2d555);
 }

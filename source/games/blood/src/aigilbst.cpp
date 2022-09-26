@@ -279,9 +279,9 @@ static void sub_6CB00(DBloodActor* actor)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->GetTarget() == nullptr)
-			t1 += FixedToFloat(nAccel);
+			t1 += nAccel;
 		else
-			t1 += FixedToFloat(nAccel * 0.25);
+			t1 += nAccel * 0.25;
 	});
 
 }
@@ -309,7 +309,7 @@ static void sub_6CD74(DBloodActor* actor)
 	if (Chance(0x600) && nDist <= 0x400)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel);
+		t1 += nAccel;
 	});
 
 	actor->set_int_bvel_z(-dz);
@@ -338,7 +338,7 @@ static void sub_6D03C(DBloodActor* actor)
 	if (Chance(0x4000) && nDist <= 0x400)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
-		t1 += FixedToFloat(nAccel * 0.5);
+		t1 += nAccel * 0.5;
 	});
 
 	actor->set_int_bvel_z(dz);
