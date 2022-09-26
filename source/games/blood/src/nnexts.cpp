@@ -3430,12 +3430,12 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 	if ((sourceactor->spr.flags & kModernTypeFlag1))
 		pXSector->panAlways = pXSector->windAlways = 1;
 
-	int ang = sourceactor->int_ang();
+	DAngle angle = sourceactor->spr.angle;
 	if (sourceactor->xspr.data4 <= 0)
 	{
 		if ((sourceactor->xspr.data1 & 0x0002))
 		{
-			while (sourceactor->int_ang() == ang)
+			while (sourceactor->spr.angle == angle)
 				sourceactor->spr.angle = RandomAngle();
 		}
 	}
@@ -3443,13 +3443,15 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 	else if (sourceactor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE) sourceactor->spr.angle -= mapangle(sourceactor->xspr.data4);
 	else if (sourceactor->xspr.sysData1 == 0)
 	{
-		if ((ang += sourceactor->xspr.data4) >= kAng180) sourceactor->xspr.sysData1 = 1;
-		sourceactor->set_int_ang(ClipHigh(ang, kAng180));
+		angle += mapangle(sourceactor->xspr.data4);
+		if (angle >= DAngle180) sourceactor->xspr.sysData1 = 1;
+		sourceactor->spr.angle = min(angle, DAngle180);
 	}
 	else
 	{
-		if ((ang -= sourceactor->xspr.data4) <= -kAng180) sourceactor->xspr.sysData1 = 0;
-		sourceactor->set_int_ang(ClipLow(ang, -kAng180));
+		angle -= mapangle(sourceactor->xspr.data4);
+		if (angle <= -DAngle180) sourceactor->xspr.sysData1 = 0;
+		sourceactor->spr.angle = max(angle, -DAngle180);
 	}
 
 	pXSector->windAng = sourceactor->spr.angle;

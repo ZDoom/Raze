@@ -6489,7 +6489,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int xyoff, int zoff, int dx, int
 	spawned->spr.xrepeat = pMissileInfo->xrepeat;
 	spawned->spr.yrepeat = pMissileInfo->yrepeat;
 	spawned->spr.picnum = pMissileInfo->picnum;
-	spawned->set_int_ang((actor->int_ang() + pMissileInfo->angleOfs) & 2047);
+	spawned->spr.angle = actor->spr.angle += DAngle::fromBuild(pMissileInfo->angleOfs);
 	spawned->set_int_bvel_x(MulScale(pMissileInfo->velocity, dx, 14));
 	spawned->set_int_bvel_y(MulScale(pMissileInfo->velocity, dy, 14));
 	spawned->set_int_bvel_z(MulScale(pMissileInfo->velocity, dz, 14));
