@@ -548,7 +548,7 @@ inline double RandomF(int a1, int scale = 16)
 	return FixedToFloat(Random(a1), scale);
 }
 
-inline double RandomD(double val, int scale)
+inline double RandomD(double val, int scale = 16)
 {
 	return FixedToFloat(Random(FloatToFixed(val, scale)), scale);
 }

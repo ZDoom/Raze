@@ -2708,10 +2708,10 @@ static void actNapalmMove(DBloodActor* actor)
 		actor->ZeroVelocity();
 		for (int i = 0; i < 2; i++)
 		{
-			int t1 = Random(0x33333) + 0x33333;
+			double t1 = RandomD(3.2) + 3.2;
 			auto rndang = DAngle::fromBuild(Random2(0x71));
 			actor->spr.angle = (ang + rndang).Normalized360();
-			auto spawned = actFireThing(actor, 0, 0, -0x93d0, kThingNapalmBall, t1);
+			auto spawned = actFireThing(actor, 0., 0., -0.5774, kThingNapalmBall, t1);
 			spawned->SetOwner(actor->GetOwner());
 			seqSpawn(61, spawned, nNapalmClient);
 			spawned->xspr.data4 = spawnparam[i];
