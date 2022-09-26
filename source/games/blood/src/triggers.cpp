@@ -2119,7 +2119,8 @@ void ProcessMotion(void)
 				continue;
 			else
 				pXSector->bobTheta += MulScale(pXSector->bobSpeed, pXSector->busy, 16);
-			int vdi = MulScale(Sin(pXSector->bobTheta), pXSector->bobZRange << 8, 30);
+			int zoff_i = MulScale(Sin(pXSector->bobTheta), pXSector->bobZRange << 8, 30);
+			double zoff = zoff_i * zinttoworld;
 
 			BloodSectIterator it(pSector);
 			while (auto actor = it.Next())
@@ -2127,14 +2128,14 @@ void ProcessMotion(void)
 				if (actor->spr.cstat & CSTAT_SPRITE_MOVE_MASK)
 				{
 					viewBackupSpriteLoc(actor);
-					actor->add_int_z(vdi);
+					actor->spr.pos.Z += zoff;
 				}
 			}
 			if (pXSector->bobFloor)
 			{
-				int floorZ = pSector->int_floorz();
+				double floorZ = pSector->floorz;
 				viewInterpolateSector(pSector);
-				pSector->setfloorz(pSector->baseFloor + vdi * zinttoworld);
+				pSector->setfloorz(pSector->baseFloor + zoff);
 
 				BloodSectIterator itr(pSector);
 				while (auto actor = itr.Next())
@@ -2143,31 +2144,31 @@ void ProcessMotion(void)
 						actor->spr.flags |= 4;
 					else
 					{
-						int top, bottom;
+						double top, bottom;
 						GetActorExtents(actor, &top, &bottom);
 						if (bottom >= floorZ && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 						{
 							viewBackupSpriteLoc(actor);
-							actor->add_int_z(vdi);
+							actor->spr.pos.Z += zoff;
 						}
 					}
 				}
 			}
 			if (pXSector->bobCeiling)
 			{
-				int ceilZ = pSector->int_ceilingz();
+				double ceilZ = pSector->ceilingz;
 				viewInterpolateSector(pSector);
-				pSector->setceilingz(pSector->baseCeil + vdi * zinttoworld);
+				pSector->setceilingz(pSector->baseCeil + zoff);
 
 				BloodSectIterator itr(pSector);
 				while (auto actor = itr.Next())
 				{
-					int top, bottom;
+					double top, bottom;
 					GetActorExtents(actor, &top, &bottom);
 					if (top <= ceilZ && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 					{
 						viewBackupSpriteLoc(actor);
-						actor->add_int_z(vdi);
+						actor->spr.pos.Z += zoff;
 					}
 				}
 			}
