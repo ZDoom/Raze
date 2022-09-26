@@ -255,26 +255,25 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
 //
 //---------------------------------------------------------------------------
 
-static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int nType, int a3, int a4)
+static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int nType, double dist, double zadd)
 {
 	DBloodActor* pDudeActor = nullptr;
 
 	if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(origin, kStatDude)) == NULL)
 		return NULL;
 
-	int angle = origin->int_ang();
-	auto pos = origin->spr.pos.plusZ(a4 * zinttoworld);
+	DAngle angle = origin->spr.angle;
+	auto pos = origin->spr.pos.plusZ(zadd);
 
-	if (a3 >= 0)
+	if (dist >= 0)
 	{
-		pos.X += mulscale30r(Cos(angle), a3) * inttoworld;
-		pos.Y += mulscale30r(Sin(angle), a3) * inttoworld;
+		pos += angle.ToVector() * dist;
 	}
 
 	SetActor(pDudeActor, pos);
 
 	pDudeActor->spr.type = nType;
-	pDudeActor->set_int_ang(angle);
+	pDudeActor->spr.angle = angle;
 
 	pDudeActor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 	pDudeActor->set_native_clipdist(getDudeInfo(nType)->clipdist);
@@ -1000,12 +999,12 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int a3, int a4)
+DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, double dist, double zadd)
 {
 	DBloodActor* spawned = NULL; int selected = -1;
 
 	if ((selected = randomGetDataValue(sourceactor, kRandomizeDude)) > 0)
-		spawned = nnExtSpawnDude(sourceactor, origin, selected, a3, 0);
+		spawned = nnExtSpawnDude(sourceactor, origin, selected, dist, zadd);
 
 	return spawned;
 }
@@ -5585,8 +5584,8 @@ void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 
 void useDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 {
-	if (randomSpawnDude(pSource, pActor, pActor->native_clipdist() << 1, 0) == nullptr)
-		nnExtSpawnDude(pSource, pActor, pActor->xspr.data1, pActor->native_clipdist() << 1, 0);
+	if (randomSpawnDude(pSource, pActor, pActor->fClipdist() * 0.5, 0) == nullptr)
+		nnExtSpawnDude(pSource, pActor, pActor->xspr.data1, pActor->fClipdist() * 0.5, 0);
 }
 
 //---------------------------------------------------------------------------
