@@ -2498,9 +2498,9 @@ void ActivateGenerator(DBloodActor* actor)
 	switch (actor->spr.type) {
 	case kGenDripWater:
 	case kGenDripBlood: {
-		int top, bottom;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		actSpawnThing(actor->sector(), actor->int_pos().X, actor->int_pos().Y, bottom, (actor->spr.type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
+		actSpawnThing(actor->sector(), DVector3(actor->spr.pos.XY(), bottom), (actor->spr.type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
 		break;
 	}
 	case kGenSound:

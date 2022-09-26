@@ -366,7 +366,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* p
 		getzsofslopeptr(pSector, gPos, &ceilZ, &floorZ);
 		double dz1 = floorZ - gPos.Z;
 		double dz2 = gPos.Z - ceilZ;
-		auto gibactor = actSpawnThing(pSector, gPos.X * worldtoint, gPos.Y * worldtoint, gPos.Z * zworldtoint, pGThing->type);
+		auto gibactor = actSpawnThing(pSector, gPos, pGThing->type);
 		if (!gibactor) return;
 
 		if (pGThing->Kills > -1)
