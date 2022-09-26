@@ -127,6 +127,15 @@ struct MissileType
 	uint8_t yrepeat;
 	int8_t shade;
 	uint8_t clipDist;
+
+	double fClipDist() const
+	{
+		return clipDist * 0.25;
+	}
+	double fVelocity() const
+	{
+		return FixedToFloat(velocity);
+	}
 };
 
 struct EXPLOSION
@@ -241,7 +250,15 @@ inline DBloodActor* actFireThing(DBloodActor* actor, int xyoff_, int zoff_, int 
 	return actFireThing(actor, xyoff, zoff, zvel, thingType, nSpeed);
 }
 
-DBloodActor* actFireMissile(DBloodActor* actor, int xyoff, int zoff, int dx, int dy, int dz, int nType);
+DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, const DVector3& dc, int nType);
+
+inline DBloodActor* actFireMissile(DBloodActor* actor, int xyoff_, int zoff_, int dx, int dy, int dz, int nType)
+{
+	double xyoff = xyoff_ * inttoworld;
+	double zoff = zoff_ * zinttoworld;
+	DVector3 dv(FixedToFloat<14>(dx), FixedToFloat<14>(dy), FixedToFloat<14>(dz));
+	return actFireMissile(actor, xyoff, zoff, dv, nType);
+}
 
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
 

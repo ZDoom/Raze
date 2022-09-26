@@ -6444,35 +6444,31 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actFireMissile(DBloodActor* actor, int xyoff, int zoff, int dx, int dy, int dz, int nType)
+DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, const DVector3& dv, int nType)
 {
-
 	assert(nType >= kMissileBase && nType < kMissileMax);
 	bool impact = false;
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
-	int x = actor->int_pos().X + MulScale(xyoff, Cos(actor->int_ang() + 512), 30);
-	int y = actor->int_pos().Y + MulScale(xyoff, Sin(actor->int_ang() + 512), 30);
-	int z = actor->int_pos().Z + zoff;
-	int clipdist = pMissileInfo->clipDist + actor->native_clipdist();
-	x += MulScale(clipdist, Cos(actor->int_ang()), 28);
-	y += MulScale(clipdist, Sin(actor->int_ang()), 28);
-	int hit = HitScan(actor, z, x - actor->int_pos().X, y - actor->int_pos().Y, 0, CLIPMASK0, clipdist);
+
+	auto vect = actor->spr.pos.plusZ(zoff) + (actor->spr.angle + DAngle90).ToVector() * xyoff;
+
+	double clipdist = pMissileInfo->fClipDist() + actor->fClipdist();
+	vect += actor->spr.angle.ToVector() * clipdist;
+
+	int hit = HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, int(clipdist * 4)); 
 	if (hit != -1)
 	{
 		if (hit == 3 || hit == 0)
 		{
 			impact = true;
-			x = gHitInfo.int_hitpos().X - MulScale(Cos(actor->int_ang()), 16, 30);
-			y = gHitInfo.int_hitpos().Y - MulScale(Sin(actor->int_ang()), 16, 30);
+			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * 1;
 		}
 		else
 		{
-			x = gHitInfo.int_hitpos().X - MulScale(pMissileInfo->clipDist << 1, Cos(actor->int_ang()), 28);
-			y = gHitInfo.int_hitpos().Y - MulScale(pMissileInfo->clipDist << 1, Sin(actor->int_ang()), 28);
+			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * pMissileInfo->fClipDist() * 2;
 		}
 	}
-	DVector3 pos(x * inttoworld, y * inttoworld, z * zinttoworld);
-	auto spawned = actSpawnSprite(actor->sector(), pos, 5, 1);
+	auto spawned = actSpawnSprite(actor->sector(), vect, 5, 1);
 
 	spawned->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	spawned->spr.type = nType;
@@ -6484,9 +6480,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int xyoff, int zoff, int dx, int
 	spawned->spr.yrepeat = pMissileInfo->yrepeat;
 	spawned->spr.picnum = pMissileInfo->picnum;
 	spawned->spr.angle = actor->spr.angle += DAngle::fromBuild(pMissileInfo->angleOfs);
-	spawned->set_int_bvel_x(MulScale(pMissileInfo->velocity, dx, 14));
-	spawned->set_int_bvel_y(MulScale(pMissileInfo->velocity, dy, 14));
-	spawned->set_int_bvel_z(MulScale(pMissileInfo->velocity, dz, 14));
+	spawned->vel = dv * pMissileInfo->fVelocity();
 	spawned->SetOwner(actor);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
 	spawned->SetTarget(nullptr);
