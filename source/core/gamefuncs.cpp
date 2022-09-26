@@ -140,7 +140,7 @@ void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, 
 		double len = wal->Length();
 		if (len != 0)
 		{
-			float fac = (wal->delta().X * (ypos - wal->pos.Y) - wal->delta().Y * (xpos - wal->pos.X)) / len * (1. / SLOPEVAL_FACTOR);
+			double fac = (wal->delta().X * (ypos - wal->pos.Y) - wal->delta().Y * (xpos - wal->pos.X)) / len * (1. / SLOPEVAL_FACTOR);
 			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * fac);
 			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * fac);
 		}
@@ -631,9 +631,9 @@ double intersectWallSprite(DCoreActor* actor, const DVector3& start, const DVect
 			return -1;
 	}
 
-	double factor2;
-	double factor = InterceptLineSegments(start.X, start.Y, direction.X, direction.Y, points[0].X, points[0].Y, points[1].X, points[1].Y, &factor2);
-	if (factor < 0 || factor > maxfactor || factor2 < 0 || factor2 > 1) return -1;
+	// the wall factor is needed for doing a texture check.
+	double factor2, factor = InterceptLineSegments(start.X, start.Y, direction.X, direction.Y, points[0].X, points[0].Y, points[1].X, points[1].Y, &factor2);
+	if (factor < 0 || factor > maxfactor) return -1;
 
 	result = start + factor * direction;
 
@@ -713,6 +713,182 @@ double intersectSlopeSprite(DCoreActor* actor, const DVector3& start, const DVec
 	}
 	if (!testpointinquad(result.XY(), points)) return -1;
 	return factor;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+double checkWallHit(walltype* wal, EWallFlags flagmask, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
+{
+	if (PointOnLineSide(start.XY(), wal) > 0) return -1;
+
+	double factor = InterceptLineSegments(start.X, start.Y, direction.X, direction.Y, wal->pos.X, wal->pos.Y, wal->delta().X, wal->delta().Y);
+	if (factor <= 0 || factor > maxfactor) return -1;	// did not connect.
+
+	result = start + factor * direction;
+	if (wal->twoSided() && !(wal->cstat & flagmask))
+	{
+		// check if the trace passes this wall or hits the upper or lower tier.
+		double cz, fz;
+		getzsofslopeptr(wal->nextSector(), result, &cz, &fz);
+		if (result.Z > cz && result.Z < fz) return -2; // trace will pass this wall, i.e. no hit. Return -2 to tell the caller to go on.
+	}
+	return factor;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+double checkSectorPlaneHit(sectortype* sec, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
+{
+	if (sec->wallnum < 3) return -1;
+	auto wal = sec->firstWall();
+	double len = wal->Length();
+
+	double startcz, startfz;
+	calcSlope(sec, start.X, start.Y, &startcz, &startfz);
+
+	for (int i = 0; i < 2; i++)
+	{
+		int heinum;
+		double factor = -1, z;
+		bool sloped;
+
+		if (i == 0)
+		{
+			if (start.Z <= startcz) continue;
+			heinum = (sec->ceilingstat & CSTAT_SECTOR_SLOPE) && len > 0 ? sec->ceilingheinum : 0;
+			z = sec->ceilingz;
+		}
+		else
+		{
+			if (start.Z >= startfz) continue;
+			heinum = (sec->floorstat & CSTAT_SECTOR_SLOPE) && len > 0 ? sec->floorheinum : 0;
+			z = sec->floorz;
+		}
+
+		if (heinum)
+		{
+			auto delta = wal->delta() * heinum * (1. / SLOPEVAL_FACTOR) / len;
+
+			double den = direction.Z - delta.dot(direction.XY().Rotated90CW());
+			if (den != 0)
+			{
+				auto stdelta = wal->pos - start;
+				factor = (z - start.Z + delta.dot(stdelta.Rotated90CW())) / den;
+			}
+			else continue;
+		}
+		else if (direction.Z != 0)
+		{
+			factor = (z - start.Z) / direction.Z;
+		}
+		if (factor > 0 && factor <= maxfactor)
+		{
+			result = start + factor * direction;
+			return inside(result.X, result.Y, sec);
+		}
+	}
+
+	return -1;
+}
+
+//==========================================================================
+//
+// 
+// 
+//==========================================================================
+
+int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& vect, HitInfoBase& hitinfo, unsigned cliptype, const DVector2* goal)
+{
+	double hitfactor = DBL_MAX;
+
+	const auto wallflags = EWallFlags::FromInt(cliptype & 65535);
+	const auto spriteflags = ESpriteFlags::FromInt(cliptype >> 16);
+
+	hitinfo.clearObj();
+	if (startsect == nullptr)
+		return -1;
+
+	if (goal)
+	{
+		hitinfo.hitpos.XY() = *goal;
+		hitfactor = (*goal - start.XY()).Sum() / vect.Sum();
+	}
+	else hitinfo.hitpos.X = hitinfo.hitpos.Y = DBL_MAX;
+
+	BFSSectorSearch search(startsect);
+	while (auto sec = search.GetNext())
+	{
+		DVector3 v;
+		double hit = checkSectorPlaneHit(sec, start, vect, v, hitfactor);
+		if (hit > 0)
+		{
+			hitfactor = hit;
+			hitinfo.set(sec, nullptr, nullptr, v);
+		}
+
+		// check all walls in this sector
+		for (auto& w : wallsofsector(sec))
+		{
+			hit = checkWallHit(&w, EWallFlags::FromInt(wallflags), start, vect, v, hitfactor);
+			if (hit > 0)
+			{
+				hitfactor = hit;
+				hitinfo.set(sec, &w, nullptr, v);
+			}
+			else if (hit == -2)
+				search.Add(w.nextSector());
+		}
+
+		if (!spriteflags)
+			continue;
+
+		//Check all sprites in this sector
+		TSectIterator<DCoreActor> it(sec);
+		while (auto actor = it.Next())
+		{
+			if (actor->spr.cstat2 & CSTAT2_SPRITE_NOFIND)
+				continue;
+
+			if (!(actor->spr.cstat & spriteflags))
+				continue;
+
+			hit = -1;
+			// we pass hitfactor to the workers because it can shortcut their calculations a lot.
+			switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+			{
+			case CSTAT_SPRITE_ALIGNMENT_FACING:
+				hit = intersectSprite(actor, start, vect, v, hitfactor);
+				break;
+
+			case CSTAT_SPRITE_ALIGNMENT_WALL:
+				hit = intersectWallSprite(actor, start, vect, v, hitfactor, (picanm[actor->spr.picnum].sf & PICANM_TEXHITSCAN_BIT));
+				break;
+
+			case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+				hit = intersectFloorSprite(actor, start, vect, v, hitfactor);
+				break;
+
+			case CSTAT_SPRITE_ALIGNMENT_SLOPE:
+				hit = intersectSlopeSprite(actor, start, vect, v, hitfactor);
+				break;
+			}
+			if (hit > 0)
+			{
+				hitfactor = hit;
+				hitinfo.set(sec, nullptr, actor, v);
+			}
+		}
+	}
+
+	return 0;
 }
 
 //==========================================================================

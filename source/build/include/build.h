@@ -137,21 +137,7 @@ inline void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, Coll
 }
 
 
-extern vec2_t hitscangoal;
-
 struct HitInfoBase;
-int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype);
-inline int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& direction, HitInfoBase& hitinfo, unsigned cliptype)
-{
-	vec3_t istart(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint) );
-	vec3_t idir( int(direction.X * worldtoint), int(direction.Y * worldtoint), int(direction.Z * zworldtoint) );
-	return hitscan(istart, startsect, idir, hitinfo, cliptype);
-}
-inline int hitscan(const DVector3& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
-{
-    vec3_t istart(int(start.X * worldtoint), int(start.Y * worldtoint), int(start.Z * zworldtoint));
-    return hitscan(istart, startsect, direction, hitinfo, cliptype);
-}
 
 inline int32_t krand(void)
 {

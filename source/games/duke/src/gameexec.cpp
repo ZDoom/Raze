@@ -2815,7 +2815,7 @@ int ParseState::parse(void)
 		parseifelse( fi.floorspace(g_ac->sector()));
 		break;
 	case concmd_ifnotmoving:
-		parseifelse( (g_ac->movflag&kHitTypeMask) > kHitSector );
+		parseifelse( g_ac->movflag > kHitSector );
 		break;
 	case concmd_respawnhitag:
 		insptr++;

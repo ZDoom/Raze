@@ -228,20 +228,14 @@ extern TArray<walltype> wall;
 
 
 // Masking these into the object index to keep it in 16 bit was probably the single most dumbest and pointless thing Build ever did.
-// Gonna be fun to globally replace these to finally lift the limit this imposes on map size.
 // Names taken from DukeGDX
 enum EHitBits
 {
 	kHitNone = 0,
-	kHitTypeMask = 0xC000,
-	kHitTypeMaskSW = 0x1C000, // SW has one more relevant bit
-	kHitIndexMask = 0x3FFF,
 	kHitSector = 0x4000,
 	kHitWall = 0x8000,
 	kHitSprite = 0xC000,
 	kHitVoid = 0x10000,      // SW only
-
-
 };
 
 // This serves as input/output for all functions dealing with collisions, hits, etc.

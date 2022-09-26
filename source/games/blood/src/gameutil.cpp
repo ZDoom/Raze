@@ -289,22 +289,13 @@ int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMas
 	assert(actor != nullptr);
 	assert(dx != 0 || dy != 0);
 	gHitInfo.clearObj();
-	int x = actor->int_pos().X;
-	int y = actor->int_pos().Y;
 	auto bakCstat = actor->spr.cstat;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
-	if (nRange)
-	{
-		hitscangoal.X = x + MulScale(nRange << 4, Cos(actor->int_ang()), 30);
-		hitscangoal.Y = y + MulScale(nRange << 4, Sin(actor->int_ang()), 30);
-	}
-	else
-	{
-		hitscangoal.X = hitscangoal.Y = 0x1fffffff;
-	}
-	hitscan(vec3_t( x, y, z ), actor->sector(), { dx, dy, dz << 4 }, gHitInfo, nMask);
+	DVector2 hitscangoal;
+	if (nRange) hitscangoal = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nRange;
+	else hitscangoal.Zero();
+	hitscan(DVector3(actor->spr.pos.XY(), z * zinttoworld), actor->sector(), DVector3(dx, dy, dz) * inttoworld, gHitInfo, nMask, & hitscangoal);
 
-	hitscangoal.X = hitscangoal.Y = 0x1fffffff;
 	actor->spr.cstat = bakCstat;
 	if (gHitInfo.actor() != nullptr)
 		return 3;
@@ -340,19 +331,13 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 	auto pos = actor->spr.pos.plusZ(nZOffset) + (actor->spr.angle + DAngle90).ToVector() * nOffset;
 	auto bakCstat = actor->spr.cstat;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
-	if (nRange)
-	{
-		auto goal = pos.XY() + actor->spr.angle.ToVector() * nRange;
-		hitscangoal.X = goal.X * worldtoint;
-		hitscangoal.Y = goal.Y * worldtoint;
-	}
-	else
-	{
-		hitscangoal.X = hitscangoal.Y = 0x1fffffff;
-	}
-	hitscan(pos, actor->sector(), vel, gHitInfo, CLIPMASK1);
 
-	hitscangoal.X = hitscangoal.Y = 0x1ffffff;
+	DVector2 hitscangoal;
+	if (nRange) hitscangoal = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nRange;
+	else hitscangoal.Zero();
+
+	hitscan(pos, actor->sector(), vel, gHitInfo, CLIPMASK1, &hitscangoal);
+
 	actor->spr.cstat = bakCstat;
 	while (nNum--)
 	{

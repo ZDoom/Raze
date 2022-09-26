@@ -274,8 +274,11 @@ double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3&
 double intersectWallSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor, bool checktex = false);
 double intersectFloorSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);
 double intersectSlopeSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);
+double checkWallHit(walltype* wal, EWallFlags flagmask, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);
+double checkSectorPlaneHit(sectortype* sec, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);
 void neartag(const DVector3& start, sectortype* sect, DAngle angle, HitInfoBase& result, double neartagrange, int tagsearch);
 int testpointinquad(const DVector2& pt, const DVector2* quad);
+int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& vect, HitInfoBase& hitinfo, unsigned cliptype, const DVector2* goal = nullptr);
 
 
 
