@@ -8076,7 +8076,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 
 		if (mytarget && mytarget->spr.type == kMarkerPath)
 		{
-			if (targetactor == nullptr) actor->set_int_ang(mytarget->int_ang() & 2047);
+			if (targetactor == nullptr) actor->spr.angle = mytarget->spr.angle;
 			actor->SetTarget(nullptr);
 		}
 
@@ -9216,7 +9216,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		burstactor->spr.flags = actor->spr.flags;
 		burstactor->spr.xrepeat = actor->spr.xrepeat / 2;
 		burstactor->spr.yrepeat = actor->spr.yrepeat / 2;
-		burstactor->set_int_ang(((actor->int_ang() + missileInfo[actor->spr.type - kMissileBase].angleOfs) & 2047));
+		burstactor->spr.angle = actor->spr.angle + DAngle::fromBuild(missileInfo[actor->spr.type - kMissileBase].angleOfs);
 		burstactor->SetOwner(actor);
 
 		actBuildMissile(burstactor, actor);
