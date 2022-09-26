@@ -499,12 +499,13 @@ static const int sawedOffSleeveSnd[] = { 610, 612 };
 void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 {
 	if (!actor) return;
-	int ceilZ, floorZ;
+	double ceilZ, floorZ;
 	Collision floorColl, ceilColl;
 
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->native_clipdist(), CLIPMASK0);
-	int top, bottom; GetActorExtents(actor, &top, &bottom);
-	actor->add_int_z(floorZ - bottom);
+	double top, bottom; 
+	GetActorExtents(actor, &top, &bottom);
+	actor->spr.pos.Z += floorZ - bottom;
 
 	double veldiff = actor->vel.Z - actor->sector()->velFloor;
 
@@ -514,7 +515,8 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 		auto vec4 = actFloorBounceVector(actor, veldiff, actor->sector(), FixedToFloat(0x9000));
 		actor->vel = vec4.XYZ();
 
-		if (actor->sector()->velFloor == 0 && abs(actor->vel.Z) < 0x2) {
+		if (actor->sector()->velFloor == 0 && abs(actor->vel.Z) < 2)
+		{
 			sleeveStopBouncing(actor);
 			return;
 		}
@@ -522,13 +524,15 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 		int nChannel = 28 + (actor->GetIndex() & 2);
 
 		// tommy sleeve
-		if (actor->spr.type >= FX_37 && actor->spr.type <= FX_39) {
+		if (actor->spr.type >= FX_37 && actor->spr.type <= FX_39) 
+		{
 			Random(3);
 			sfxPlay3DSound(actor, 608 + Random(2), nChannel, 1);
 
 			// sawed-off sleeve
 		}
-		else {
+		else 
+		{
 			sfxPlay3DSound(actor, sawedOffSleeveSnd[Random(2)], nChannel, 1);
 		}
 	}
@@ -627,17 +631,17 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 {
 	if (!actor) return;
-	int ceilZ, floorZ;
+	double ceilZ, floorZ;
 	Collision floorColl, ceilColl;
 
 	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->native_clipdist(), CLIPMASK0);
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	actor->add_int_z(floorZ - bottom);
-	int nAngle = Random(2048);
-	int nDist = Random(16) << 4;
-	int x = actor->int_pos().X + MulScale(nDist, Cos(nAngle), 28);
-	int y = actor->int_pos().Y + MulScale(nDist, Sin(nAngle), 28);
+	actor->spr.pos.Z += floorZ - bottom;
+	DAngle nAngle = randomAngle();
+	int nDist = Random(16);
+	auto pos = actor->spr.pos.XY() + nAngle.ToVector() * nDist * 4;
+
 	if (actor->spr.angle == DAngle180 && actor->spr.type == 53)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);
@@ -648,15 +652,15 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	if (actor->spr.type == 53 || actor->spr.type == kThingPodGreenBall)
 	{
 		if (Chance(0x500) || actor->spr.type == kThingPodGreenBall)
-			pFX = gFX.fxSpawnActor(FX_55, actor->sector(), x, y, floorZ - 64, 0);
+			pFX = gFX.fxSpawnActor(FX_55, actor->sector(), DVector3(pos, floorZ - 0.25), 0);
 		if (pFX)
-			pFX->set_int_ang(nAngle);
+			pFX->spr.angle = nAngle;
 	}
 	else
 	{
-		pFX = gFX.fxSpawnActor(FX_32, actor->sector(), x, y, floorZ - 64, 0);
+		pFX = gFX.fxSpawnActor(FX_32, actor->sector(), DVector3(pos, floorZ - 0.25), 0);
 		if (pFX)
-			pFX->set_int_ang(nAngle);
+			pFX->spr.angle = nAngle;
 	}
 	gFX.remove(actor);
 }
