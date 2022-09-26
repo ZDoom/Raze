@@ -5,14 +5,20 @@
 #include "coreactor.h"
 #include "fixedhorizon.h"
 #include "intrect.h"
+#include "geometry.h"
 
 extern IntRect viewport3d;
 
 constexpr int SLOPEVAL_FACTOR = 4096;
 
+//==========================================================================
+//
 // breadth first search, this gets used multiple times throughout the engine, mainly for iterating over sectors.
 // Only works on indices, this has no knowledge of the actual objects being looked at.
 // All objects of this type operate on the same shared store. Interleaved use is not allowed, nested use is fine.
+//
+//==========================================================================
+
 class BFSSearch
 {
 	static inline TArray<unsigned> store;
@@ -167,7 +173,6 @@ enum
 	SINTABLEBITS = 30,
 	SINTABLEUNIT = 1 << SINTABLEBITS,
 	BUILDSINBITS = 14,
-	BUILDSINSHIFT = SINTABLEBITS - BUILDSINBITS,
 };
 
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
@@ -240,6 +245,11 @@ inline int getangle(const vec2_t& vec)
 	return getangle(vec.X, vec.Y);
 }
 
+inline int32_t getangle(walltype* wal)
+{
+	return getangle(wal->delta());
+}
+
 
 //---------------------------------------------------------------------------
 //
@@ -300,7 +310,7 @@ enum {
 
 //==========================================================================
 //
-// slope stuff (many wrappers, one worker only)
+// slope getter stuff (many wrappers, one worker only)
 //
 //==========================================================================
 
@@ -326,7 +336,7 @@ void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
 
 //==========================================================================
 //
-// floating point interface
+// for the game engine
 //
 //==========================================================================
 
@@ -366,66 +376,25 @@ inline double getflorzofslopeptr(const sectortype* sec, const Vector& pos)
 
 //==========================================================================
 //
-// end of slopes
+// slope setters
 //
 //==========================================================================
 
-
-inline DVector2 rotatepoint(const DVector2& pivot, const DVector2& point, DAngle angle)
+inline void alignceilslope(sectortype* sect, const DVector3& pos)
 {
-	return (point - pivot).Rotated(angle) + pivot;
+	sect->setceilingslope(getslopeval(sect, pos, sect->ceilingz));
 }
 
-
-enum EFindNextSector
+inline void alignflorslope(sectortype* sect, const DVector3& pos)
 {
-	Find_Floor = 0,
-	Find_Ceiling = 1,
-	
-	Find_Down = 0,
-	Find_Up = 2,
-	
-	Find_Safe = 4,
-	
-	Find_CeilingUp = Find_Ceiling | Find_Up,
-	Find_CeilingDown = Find_Ceiling | Find_Down,
-	Find_FloorUp = Find_Floor | Find_Up,
-	Find_FloorDown = Find_Floor | Find_Down,
-};
-sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags);
-bool isAwayFromWall(DCoreActor* ac, double delta);
-
-
-inline double PointOnLineSide(double x, double y, double linex, double liney, double deltax, double deltay)
-{
-	return (x - linex) * deltay - (y - liney) * deltax;
+	sect->setfloorslope(getslopeval(sect, pos, sect->floorz));
 }
 
-inline double PointOnLineSide(const DVector2 &pos, const walltype *line)
-{
-	return (pos.X - line->pos.X) * line->delta().Y - (pos.Y - line->pos.Y) * line->delta().X;
-}
-
-template<class T>
-inline double PointOnLineSide(const TVector2<T>& pos, const TVector2<T>& linestart, const TVector2<T>& lineend)
-{
-	return (pos.X - linestart.X) * (lineend.Y - linestart.Y) - (pos.Y - linestart.Y) * (lineend.X - linestart.X);
-}
-
-extern int numshades;
-
-// Return type is int because this gets passed to variadic functions where structs may produce undefined behavior.
-inline int shadeToLight(int shade)
-{
-	shade = clamp(shade, 0, numshades - 1);
-	int light = Scale(numshades - 1 - shade, 255, numshades - 1);
-	return PalEntry(255, light, light, light);
-}
-
-inline void copyfloorpal(tspritetype* spr, const sectortype* sect)
-{
-	if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
-}
+//==========================================================================
+//
+// slope sprites
+//
+//==========================================================================
 
 inline void spriteSetSlope(DCoreActor* actor, int heinum)
 {
@@ -452,28 +421,62 @@ inline double spriteGetZOfSlopef(const spritetypebase* tspr, const DVector2& pos
 {
 	if (heinum == 0) return tspr->pos.Z;
 	auto ang = tspr->angle;
-	double factor =  -ang.Sin() * (pos.X - tspr->pos.Y) - ang.Cos() * (pos.X - tspr->pos.X);
-	return tspr->pos.Z + heinum * factor * (1./SLOPEVAL_FACTOR);
+	double factor = -ang.Sin() * (pos.X - tspr->pos.Y) - ang.Cos() * (pos.X - tspr->pos.X);
+	return tspr->pos.Z + heinum * factor * (1. / SLOPEVAL_FACTOR);
 }
 
-inline int inside(int x, int y, const sectortype* sect)
+//==========================================================================
+//
+// end of slopes
+//
+//==========================================================================
+
+
+enum EFindNextSector
 {
-	return inside(x * inttoworld, y * inttoworld, sect);
+	Find_Floor = 0,
+	Find_Ceiling = 1,
+	
+	Find_Down = 0,
+	Find_Up = 2,
+	
+	Find_Safe = 4,
+	
+	Find_CeilingUp = Find_Ceiling | Find_Up,
+	Find_CeilingDown = Find_Ceiling | Find_Down,
+	Find_FloorUp = Find_Floor | Find_Up,
+	Find_FloorDown = Find_Floor | Find_Down,
+};
+sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags);
+bool isAwayFromWall(DCoreActor* ac, double delta);
+
+
+// important note: This returns positive for 'in front' with renderer coordinates.
+// Due to Build's inverted coordinate system it will return negative for 'in front' there.
+inline double PointOnLineSide(const DVector2 &pos, const walltype *line)
+{
+	return (pos.X - line->pos.X) * line->delta().Y - (pos.Y - line->pos.Y) * line->delta().X;
 }
 
-// still needed by some parts in the engine.
-inline int inside_p(int x, int y, int sectnum) { return (sectnum >= 0 && inside(x, y, &sector[sectnum]) == 1); }
 
+extern int numshades;
 
+// Return type is int because this gets passed to variadic functions where structs may produce undefined behavior.
+inline int shadeToLight(int shade)
+{
+	shade = clamp(shade, 0, numshades - 1);
+	int light = Scale(numshades - 1 - shade, 255, numshades - 1);
+	return PalEntry(255, light, light, light);
+}
+
+inline void copyfloorpal(tspritetype* spr, const sectortype* sect)
+{
+	if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
+}
 
 inline int I_GetBuildTime()
 {
 	return I_GetTime(120);
-}
-
-inline int32_t getangle(walltype* wal)
-{
-	return getangle(wal->delta());
 }
 
 inline TArrayView<walltype> wallsofsector(const sectortype* sec)
@@ -497,43 +500,6 @@ inline int sectnum(const sectortype* sect)
 	return sector.IndexOf(sect);
 }
 
-inline double SquareDist(double lx1, double ly1, double lx2, double ly2)
-{
-	double dx = lx2 - lx1;
-	double dy = ly2 - ly1;
-	return dx * dx + dy * dy;
-}
-
-// This is for cases where only the factor is needed, e.g. intersectSprite which 
-// needs to validate it before applying and also needs to apply it to a 3D vector.
-inline double NearestPointOnLineFast(double px, double py, double lx1, double ly1, double lx2, double ly2)
-{
-	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
-	assert(wall_length > 0);
-	return ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
-}
-
-
-inline DVector2 NearestPointOnLine(double px, double py, double lx1, double ly1, double lx2, double ly2, bool clamp = true)
-{
-	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
-
-	if (wall_length == 0)
-	{
-		return { lx1, ly1 };
-	}
-
-	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
-	if (clamp)
-	{
-		if (t <= 0) return { lx1, ly1 };
-		if (t >= 1) return { lx2, ly2 };
-	}
-	double xx = lx1 + t * (lx2 - lx1);
-	double yy = ly1 + t * (ly2 - ly1);
-	return { xx, yy };
-}
-
 inline DVector2 NearestPointOnWall(double px, double py, const walltype* wal, bool clamp = true)
 {
 	return NearestPointOnLine(px, py, wal->pos.X, wal->pos.Y, wal->point2Wall()->pos.X, wal->point2Wall()->pos.Y, clamp);
@@ -548,49 +514,6 @@ inline double SquareDistToWall(double px, double py, const walltype* wal, DVecto
 
 double SquareDistToSector(double px, double py, const sectortype* sect, DVector2* point = nullptr);
 
-inline double SquareDistToLine(double px, double py, double lx1, double ly1, double lx2, double ly2)
-{
-	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
-
-	if (wall_length == 0) return SquareDist(px, py, lx1, ly1);
-
-	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
-	t = clamp(t, 0., 1.);
-	double xx = lx1 + t * (lx2 - lx1);
-	double yy = ly1 + t * (ly2 - ly1);
-	return SquareDist(px, py, xx, yy);
-}
-
-// taken from GZDoom with the divline_t parameters removed
-inline double InterceptVector(double v2x, double v2y, double v2dx, double v2dy, double v1x, double v1y, double v1dx, double v1dy)
-{
-	double den = v1dy * v2dx - v1dx * v2dy;
-
-	if (den == 0)
-		return 0;		// parallel
-
-	double num = (v1x - v2x) * v1dy + (v2y - v1y) * v1dx;
-	return num / den;
-}
-
-// Essentially two InterceptVector calls. We can reduce the calculations because the denominators for both calculations only differ by their sign.
-inline double InterceptLineSegments(double v2x, double v2y, double v2dx, double v2dy, double v1x, double v1y, double v1dx, double v1dy, double* pfactor1 = nullptr, bool forcansee = false)
-{
-	double den = v1dy * v2dx - v1dx * v2dy;
-
-	if (den == 0 || (forcansee && den < 0)) // cansee does this added check here, aside from that its logic is virtually the same.
-		return 0;		// parallel
-
-	// perform the division first for better parallelization.
-	den = 1 / den;
-
-	double factor1 = ((v2x - v1x) * v2dy + (v1y - v2y) * v2dx) * -den;
-	if (factor1 < 0 || factor1 > 1) return -FLT_MAX; // no intersection
-	if (pfactor1) *pfactor1 = factor1;
-
-	return ((v1x - v2x) * v1dy + (v2y - v1y) * v1dx) * den; // this one's for the line segment where we want to get the intercept factor for so it needs to be last.
-}
-
 inline double GetRayIntersect(const DVector3& start1, const DVector3& vect1, const DVector2& start2, const DVector2& vect2, DVector3& retv)
 {
 	double factor2;
@@ -598,26 +521,6 @@ inline double GetRayIntersect(const DVector3& start1, const DVector3& vect1, con
 	if (factor <= 0) return -1;
 	retv = start1 + factor * vect1;
 	return factor2;
-}
-
-inline double LinePlaneIntersect(const DVector3& start, const DVector3& trace, const DVector3& ppoint, const DVector3& pvec1, const DVector3& pvec2)
-{
-	auto normal = pvec1 ^ pvec2; // we do not need a unit vector here.
-	double dist = normal.dot(ppoint);
-	double dotStart = normal.dot(start);
-	double dotTrace = normal.dot(trace);
-	if (dotTrace == 0) return -FLT_MAX;
-	return (dist - dotStart) / dotTrace; // we are only interested in the factor
-}
-
-inline void alignceilslope(sectortype* sect, const DVector3& pos)
-{
-	sect->setceilingslope(getslopeval(sect, pos, sect->ceilingz));
-}
-
-inline void alignflorslope(sectortype* sect, const DVector3& pos)
-{
-	sect->setfloorslope(getslopeval(sect, pos, sect->floorz));
 }
 
 inline double BobVal(int val)
@@ -679,6 +582,18 @@ inline int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int
 {
 	return cansee(DVector3(x1 * inttoworld, y1 * inttoworld, z1 * zinttoworld), sect1, DVector3(x2 * inttoworld, y2 * inttoworld, z2 * zinttoworld), sect2);
 }
+
+[[deprecated]]
+inline int inside(int x, int y, const sectortype* sect)
+{
+	return inside(x * inttoworld, y * inttoworld, sect);
+}
+
+// still needed by some parts in the engine.
+[[deprecated]]
+inline int inside_p(int x, int y, int sectnum) { return (sectnum >= 0 && inside(x * inttoworld, y * inttoworld, &sector[sectnum]) == 1); }
+
+
 
 
 
