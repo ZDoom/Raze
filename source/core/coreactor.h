@@ -83,11 +83,6 @@ public:
 		return spr.angle.Buildang();
 	}
 
-	void set_int_ang(int a)
-	{
-		spr.angle = DAngle::fromBuild(a);
-	}
-
 	void norm_ang()
 	{
 		spr.angle = spr.angle.Normalized360();
