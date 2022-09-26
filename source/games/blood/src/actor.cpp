@@ -2631,7 +2631,6 @@ void actRadiusDamage(DBloodActor* source, const DVector3& pos, sectortype* pSect
 	auto pOwner = source->GetOwner();
 	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
 	auto sectorMap = GetClosestSpriteSectors(pSector, pos.XY(), nDist, nullptr, newSectCheckMethod);
-	nDist <<= 4;
 	if (flags & 2)
 	{
 		BloodStatIterator it(kStatDude);
@@ -2643,13 +2642,13 @@ void actRadiusDamage(DBloodActor* source, const DVector3& pos, sectortype* pSect
 				{
 					if (act2->spr.flags & 0x20) continue;
 					if (!CheckSector(sectorMap, act2)) continue;
-					if (!CheckProximity(act2, pos, pSector, nDist)) continue;
+					if (!CheckProximity(act2, pos, pSector, nDist << 4)) continue;
 
-					int dist = int((pos - act2->spr.pos).Length() * worldtoint);
+					double dist = (pos - act2->spr.pos).Length();
 					if (dist > nDist) continue;
 
 					int totaldmg;
-					if (dist != 0) totaldmg = baseDmg + ((nDist - dist) * distDmg) / nDist;
+					if (dist != 0) totaldmg = int(baseDmg + ((nDist - dist) * distDmg) / nDist);
 					else totaldmg = baseDmg + distDmg;
 
 					actDamageSprite(source, act2, dmgType, totaldmg << 4);
@@ -2665,15 +2664,15 @@ void actRadiusDamage(DBloodActor* source, const DVector3& pos, sectortype* pSect
 		{
 			if (act2->spr.flags & 0x20) continue;
 			if (!CheckSector(sectorMap, act2)) continue;
-			if (!CheckProximity(act2, pos, pSector, nDist)) continue;
+			if (!CheckProximity(act2, pos, pSector, nDist << 4)) continue;
 
 			if (act2->xspr.locked) continue;
 
-			int dist = int((pos.XY() - act2->spr.pos.XY()).Length() * worldtoint);
+			double dist = (pos.XY() - act2->spr.pos.XY()).Length();
 			if (dist > nDist) continue;
 
 			int totaldmg;
-			if (dist != 0) totaldmg = baseDmg + ((nDist - dist) * distDmg) / nDist;
+			if (dist != 0) totaldmg = int(baseDmg + ((nDist - dist) * distDmg) / nDist);
 			else totaldmg = baseDmg + distDmg;
 
 			actDamageSprite(source, act2, dmgType, totaldmg << 4);
@@ -4137,7 +4136,7 @@ static void checkCeilHit(DBloodActor* actor)
 		auto actor2 = coll.actor();
 		if (actor2 && actor2->hasX())
 		{
-			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && (actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0))
+			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && !actor->vel.isZero())
 			{
 				auto adelta = actor2->spr.pos - actor->spr.pos;
 				actor2->vel.XY() += adelta.XY() * (1. / SLOPEVAL_FACTOR);
@@ -5199,11 +5198,9 @@ int MoveMissile(DBloodActor* actor)
 
 		if (target->spr.statnum == kStatDude && target->hasX() && target->xspr.health > 0)
 		{
-			int vx = missileInfo[actor->spr.type - kMissileBase].velocity;
-			int vy = 0;
-			auto rpt = rotatepoint(DVector2(0,0), DVector2(vx, 0), DAngle::fromBuild(getangle(target->spr.pos - actor->spr.pos)));
-			actor->set_int_bvel_x(rpt.X); // we were rotating an int vector here so scale matches.
-			actor->set_int_bvel_y(rpt.Y);
+			double vel = missileInfo[actor->spr.type - kMissileBase].fVelocity();
+			actor->vel.XY() = DVector2(vel, 0).Rotated((target->spr.pos - actor->spr.pos).Angle());
+
 			double deltaz = (target->spr.pos.Z - actor->spr.pos.Z) / (10 * 256);
 
 			if (target->spr.pos.Z < actor->spr.pos.Z) deltaz = -deltaz;
@@ -5646,7 +5643,7 @@ static void actCheckThings()
 			actAirDrag(actor, 128);
 
 			if (((actor->GetIndex() >> 8) & 15) == (gFrameCount & 15) && (actor->spr.flags & 2))	actor->spr.flags |= 4;
-			if ((actor->spr.flags & 4) || actor->vel.X != 0 || actor->vel.Y != 0 || actor->vel.Z != 0 || actor->sector()->velFloor || actor->sector()->velCeil)
+			if ((actor->spr.flags & 4) || !actor->vel.isZero() || actor->sector()->velFloor || actor->sector()->velCeil)
 			{
 				Collision hit = MoveThing(actor);
 				if (hit.type)
