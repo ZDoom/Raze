@@ -81,11 +81,10 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 	double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE * 0.25;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
-	auto pos = actor->spr.pos.plusZ(height);
+	DVector3 pos(actor->spr.pos.XY(), height);
+	//auto pos = actor->spr.pos.plusZ(height); //  what it probably should be
 
-	DVector3 Aim;
-	Aim.XY() = actor->spr.angle.ToVector();
-	Aim.Z = actor->dudeSlope / 16384.;
+	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.);
 	double nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
 	while (auto actor2 = it.Next())
@@ -143,12 +142,12 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE * 0.25;
 
-	auto pos = actor->spr.pos.plusZ(height);
+	DVector3 pos(actor->spr.pos.XY(), height);
+	//auto pos = actor->spr.pos.plusZ(height); //  what it probably should be
 
-	DVector3 Aim, Aim2;
-	Aim2.XY() = Aim.XY() = actor->spr.angle.ToVector();
-	Aim.Z = actor->dudeSlope / 16384.;
-	Aim2.Z = 0;
+	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.);
+	DVector3 Aim2(Aim.XY(), 0);
+
 	double nClosest = 0x7fffffff;
 
 	BloodStatIterator it(kStatDude);
