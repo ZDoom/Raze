@@ -1151,19 +1151,19 @@ DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, double* z)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* GetCrushedSpriteExtents(sectortype* pSector, int* pzTop, int* pzBot)
+DBloodActor* GetCrushedSpriteExtents(sectortype* pSector, double* pzTop, double* pzBot)
 {
 	assert(pzTop != NULL && pzBot != NULL);
 	assert(pSector);
 	DBloodActor* found = nullptr;
-	int foundz = pSector->int_ceilingz();
+	double foundz = pSector->ceilingz;
 
 	BloodSectIterator it(pSector);
 	while (auto actor = it.Next())
 	{
 		if (actor->spr.statnum == kStatDude || actor->spr.statnum == kStatThing)
 		{
-			int top, bottom;
+			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
 			if (foundz > top)
 			{
@@ -1292,12 +1292,13 @@ int VDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		vbp = 65536 / ClipLow((120 * pXSector->busyTimeA) / 10, 1);
 	else
 		vbp = -65536 / ClipLow((120 * pXSector->busyTimeB) / 10, 1);
-	int top, bottom;
+
+	double top, bottom;
 	auto actor = GetCrushedSpriteExtents(pSector, &top, &bottom);
 	if (actor && a2 > pXSector->busy)
 	{
 		assert(actor->hasX());
-		if (pXSector->int_onCeilZ() > pXSector->int_offCeilZ() || pXSector->int_onFloorZ() < pXSector->int_offFloorZ())
+		if (pXSector->onCeilZ > pXSector->offCeilZ || pXSector->onFloorZ < pXSector->offFloorZ)
 		{
 			if (pXSector->interruptable)
 			{
@@ -1329,7 +1330,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	else if (actor && a2 < pXSector->busy)
 	{
 		assert(actor->hasX());
-		if (pXSector->int_offCeilZ() > pXSector->int_onCeilZ() || pXSector->int_offFloorZ() < pXSector->int_onFloorZ())
+		if (pXSector->offCeilZ > pXSector->onCeilZ || pXSector->offFloorZ < pXSector->onFloorZ)
 		{
 			if (pXSector->interruptable)
 			{
