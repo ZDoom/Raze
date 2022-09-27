@@ -353,7 +353,7 @@ static void gargThinkChase(DBloodActor* actor)
 			if (nDist < (pDudeInfo->seeDist * inttoworld) && abs(nDeltaAngle).Buildang() <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				double floorZ = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+				double floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 				double floorDelta = floorZ - bottom;
 				double heightDelta = height2 - height;
 				bool angWithinRange = abs(nDeltaAngle) < mapangle(85);

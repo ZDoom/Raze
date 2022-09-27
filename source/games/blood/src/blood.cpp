@@ -290,7 +290,7 @@ void StartLevel(MapRecord* level, bool newgame)
 		Printf(PRINT_NONOTIFY, "> Modern types erased: %d.\n", modernTypesErased);
 #endif
 
-	startpos.Z = getflorzofslopeptrf(startsector, startpos.X, startpos.Y);
+	startpos.Z = getflorzofslopeptr(startsector, startpos.X, startpos.Y);
 	for (int i = 0; i < kMaxPlayers; i++) {
 		gStartZone[i].pos = startpos;
 		gStartZone[i].sector = startsector;

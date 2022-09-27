@@ -139,7 +139,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 				actor->sector()->upperLink = actor;
 				actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				actor->spr.pos.Z = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+				actor->spr.pos.Z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 				break;
 			case kMarkerLowWater:
 			case kMarkerLowStack:
@@ -147,7 +147,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 				actor->sector()->lowerLink = actor;
 				actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 				actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				actor->spr.pos.Z = getceilzofslopeptrf(actor->sector(), actor->spr.pos);
+				actor->spr.pos.Z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
 				break;
 			}
 		}
@@ -204,7 +204,7 @@ int CheckLink(DBloodActor* actor)
 		if (aUpper->spr.type == kMarkerUpLink)
 			z = aUpper->spr.pos.Z;
 		else
-			z = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+			z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 		if (z <= actor->spr.pos.Z)
 		{
 			aLower = aUpper->GetOwner();
@@ -215,7 +215,7 @@ int CheckLink(DBloodActor* actor)
 			if (aLower->spr.type == kMarkerLowLink)
 				z2 = aLower->spr.pos.Z;
 			else
-				z2 = getceilzofslopeptrf(actor->sector(), actor->spr.pos);
+				z2 = getceilzofslopeptr(actor->sector(), actor->spr.pos);
 			actor->spr.pos += DVector3(aLower->spr.pos.XY() - aUpper->spr.pos.XY(), z2 - z);
 			actor->interpolated = false;
 			return aUpper->spr.type;
@@ -227,7 +227,7 @@ int CheckLink(DBloodActor* actor)
 		if (aLower->spr.type == kMarkerLowLink)
 			z = aLower->spr.pos.Z;
 		else
-			z = getceilzofslopeptrf(actor->sector(), actor->spr.pos);
+			z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
 		if (z >= actor->spr.pos.Z)
 		{
 			aUpper = aLower->GetOwner();
@@ -238,7 +238,7 @@ int CheckLink(DBloodActor* actor)
 			if (aUpper->spr.type == kMarkerUpLink)
 				z2 = aUpper->spr.pos.Z;
 			else
-				z2 = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+				z2 = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 			actor->spr.pos += DVector3(aUpper->spr.pos.XY() - aLower->spr.pos.XY(), z2 - z);
 			actor->interpolated = false;
 			return aLower->spr.type;
@@ -263,7 +263,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 		if (aUpper->spr.type == kMarkerUpLink)
 			z1 = aUpper->spr.pos.Z;
 		else
-			z1 = getflorzofslopeptrf(*pSector, cPos);
+			z1 = getflorzofslopeptr(*pSector, cPos);
 		if (z1 <= cPos.Z)
 		{
 			aLower = aUpper->GetOwner();
@@ -275,7 +275,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 			if (aUpper->spr.type == kMarkerLowLink)
 				z2 = aLower->spr.pos.Z;
 			else
-				z2 = getceilzofslopeptrf(*pSector, cPos);
+				z2 = getceilzofslopeptr(*pSector, cPos);
 			cPos.Z += z2 - z1;
 			return aUpper->spr.type;
 		}
@@ -286,7 +286,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 		if (aLower->spr.type == kMarkerLowLink)
 			z1 = aLower->spr.pos.Z;
 		else
-			z1 = getceilzofslopeptrf(*pSector, cPos);
+			z1 = getceilzofslopeptr(*pSector, cPos);
 		if (z1 >= cPos.Z)
 		{
 			aUpper = aLower->GetOwner();
@@ -297,7 +297,7 @@ int CheckLink(DVector3& cPos, sectortype** pSector)
 			if (aLower->spr.type == kMarkerUpLink)
 				z2 = aUpper->spr.pos.Z;
 			else
-				z2 = getflorzofslopeptrf(*pSector, cPos);
+				z2 = getflorzofslopeptr(*pSector, cPos);
 			cPos.Z += z2 - z1;
 			return aLower->spr.type;
 		}

@@ -229,7 +229,7 @@ void CFX::fxProcess(void)
 				remove(actor);
 				continue;
 			}
-			if (getflorzofslopeptrf(actor->sector(), actor->spr.pos) <= actor->spr.pos.Z)
+			if (getflorzofslopeptr(actor->sector(), actor->spr.pos) <= actor->spr.pos.Z)
 			{
 				if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
 				{

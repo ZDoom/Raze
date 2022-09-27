@@ -188,7 +188,7 @@ int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, se
             y = y1 + MulScale(y21,t, 24);
             z = z1 + MulScale(z21,t, 24);
 
-            getzsofslopeptr(sec, x,y, &cfz[0],&cfz[1]);
+            int_getzsofslopeptr(sec, x,y, &cfz[0],&cfz[1]);
 
             if (z <= cfz[0] || z >= cfz[1])
             {
@@ -196,7 +196,7 @@ int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, se
             }
 
             auto nexts = wal->nextSector();
-            getzsofslopeptr(nexts, x,y, &cfz[0],&cfz[1]);
+            int_getzsofslopeptr(nexts, x,y, &cfz[0],&cfz[1]);
             if (z <= cfz[0] || z >= cfz[1])
                 return 0;
 

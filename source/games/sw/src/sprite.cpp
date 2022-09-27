@@ -6761,7 +6761,7 @@ Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ce
     actor->user.z_tgt = 0;
     if ((dasect != actor->sector()) && (dasect != nullptr))
     {
- 		actor->spr.pos.Z = getflorzofslopeptrf(dasect, actor->spr.pos.X, actor->spr.pos.Y);
+ 		actor->spr.pos.Z = getflorzofslopeptr(dasect, actor->spr.pos.X, actor->spr.pos.Y);
         ChangeActorSect(actor, dasect);
     }
 

@@ -949,7 +949,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 		{
 			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			double floorZ = getflorzofslopeptrf(pSector, actor->spr.pos);
+			double floorZ = getflorzofslopeptr(pSector, actor->spr.pos);
 			if (!(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && floorZ <= bottom)
 			{
 				viewBackupSpriteLoc(actor);
@@ -2194,8 +2194,8 @@ void AlignSlopes(void)
 
 				auto pos = pWall->center();
 				viewInterpolateSector(&sect);
-				alignflorslope(&sect, DVector3(pos, getflorzofslopeptrf(pNextSector, pos)));
-				alignceilslope(&sect, DVector3(pos, getceilzofslopeptrf(pNextSector, pos)));
+				alignflorslope(&sect, DVector3(pos, getflorzofslopeptr(pNextSector, pos)));
+				alignceilslope(&sect, DVector3(pos, getceilzofslopeptr(pNextSector, pos)));
 			}
 		}
 	}

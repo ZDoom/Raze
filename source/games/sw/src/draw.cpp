@@ -675,7 +675,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             // workaround for mines and floor decals beneath the floor
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
-                double const florz = getflorzofslopeptrf(tActor->sector(), tActor->spr.pos);
+                double const florz = getflorzofslopeptr(tActor->sector(), tActor->spr.pos);
                 if (tActor->spr.pos.Z > florz)
                     tsp->pos.Z = florz;
             }

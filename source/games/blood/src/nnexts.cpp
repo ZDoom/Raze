@@ -1301,7 +1301,7 @@ void nnExtProcessSuperSprites()
 			if (pXSector != nullptr)
 			{
 				if ((uwater = pXSector->Underwater) != 0) airVel <<= 6;
-				if (pXSector->panVel != 0 && getflorzofslopeptrf(debrisactor->sector(), debrisactor->spr.pos) <= bottom)
+				if (pXSector->panVel != 0 && getflorzofslopeptr(debrisactor->sector(), debrisactor->spr.pos) <= bottom)
 				{
 					int angle = pXSector->panAngle.Buildang(); int speed = 0;
 					if (pXSector->panAlways || pXSector->state || pXSector->busy)
@@ -1721,8 +1721,8 @@ void debrisMove(int listIndex)
 	if ((actor->xspr.physAttr & kPhysDebrisSwim) && uwater)
 	{
 		double vc = 0;
-		double cz = getceilzofslopeptrf(pSector, actor->spr.pos);
-		double fz = getflorzofslopeptrf(pSector, actor->spr.pos);
+		double cz = getceilzofslopeptr(pSector, actor->spr.pos);
+		double fz = getflorzofslopeptr(pSector, actor->spr.pos);
 		double div = max(bottom - top, 1 / 256.);
 
 		if (pSector->lowerLink) cz += (cz < 0) ? 5. : -5.;
@@ -3357,9 +3357,9 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			if (actor->insector())
 			{
 				if (sourceactor->xspr.data4 == 3)
-					pos = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					pos = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				else
-					pos = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					pos = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				break;
 			}
 			[[fallthrough]];
@@ -3797,8 +3797,8 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 					case 6:
 						if (!iactor->insector()) pos.Z = top;
 						else pos.Z = ((sourceactor->xspr.data3 == 5) ?
-							getflorzofslopeptrf(spawned->sector(), spawned->spr.pos) :
-							getceilzofslopeptrf(spawned->sector(), spawned->spr.pos));
+							getflorzofslopeptr(spawned->sector(), spawned->spr.pos) :
+							getceilzofslopeptr(spawned->sector(), spawned->spr.pos));
 						break;
 					}
 
@@ -6685,12 +6685,12 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, int rel, bool f
 	double z = 0;
 	switch (rel) {
 	default:
-		z = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+		z = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 		if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z--;
 		slope = pSector->floorheinum;
 		break;
 	case 1:
-		z = getceilzofslopeptrf(actor->sector(), actor->spr.pos);
+		z = getceilzofslopeptr(actor->sector(), actor->spr.pos);
 		if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->xspr.Touch) z++;
 		slope = pSector->ceilingheinum;
 		break;
@@ -6734,7 +6734,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 				while (auto iactor = it.Next())
 				{
 					if (!(iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-					else if (getflorzofslopeptrf(pSect, iactor->spr.pos) - kSlopeDist <= iactor->spr.pos.Z)
+					else if (getflorzofslopeptr(pSect, iactor->spr.pos) - kSlopeDist <= iactor->spr.pos.Z)
 					{
 						sprite2sectorSlope(iactor, pSect, 0, true);
 
@@ -6770,7 +6770,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 				while (auto iactor = it.Next())
 				{
 					if (!(iactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-					else if (getceilzofslopeptrf(pSect, iactor->spr.pos) + kSlopeDist >= iactor->spr.pos.Z)
+					else if (getceilzofslopeptr(pSect, iactor->spr.pos) + kSlopeDist >= iactor->spr.pos.Z)
 					{
 						sprite2sectorSlope(iactor, pSect, 1, true);
 
@@ -6825,8 +6825,8 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
 			case 1: sprite2sectorSlope(objActor, objActor->sector(), 0, flag2); break;
 			case 2: sprite2sectorSlope(objActor, objActor->sector(), 1, flag2); break;
 			case 3:
-				if (getflorzofslopeptrf(objActor->sector(), objActor->spr.pos) - kSlopeDist <= objActor->spr.pos.Z) sprite2sectorSlope(objActor, objActor->sector(), 0, flag2);
-				if (getceilzofslopeptrf(objActor->sector(), objActor->spr.pos) + kSlopeDist >= objActor->spr.pos.Z) sprite2sectorSlope(objActor, objActor->sector(), 1, flag2);
+				if (getflorzofslopeptr(objActor->sector(), objActor->spr.pos) - kSlopeDist <= objActor->spr.pos.Z) sprite2sectorSlope(objActor, objActor->sector(), 0, flag2);
+				if (getceilzofslopeptr(objActor->sector(), objActor->spr.pos) + kSlopeDist >= objActor->spr.pos.Z) sprite2sectorSlope(objActor, objActor->sector(), 1, flag2);
 				break;
 			}
 			break;
@@ -9261,9 +9261,9 @@ void clampSprite(DBloodActor* actor, int which)
 	{
 		GetActorExtents(actor, &zTop, &zBot);
 		if (which & 0x01)
-			actor->spr.pos.Z += min(getflorzofslopeptrf(actor->sector(), actor->spr.pos) - zBot, 0.);
+			actor->spr.pos.Z += min(getflorzofslopeptr(actor->sector(), actor->spr.pos) - zBot, 0.);
 		if (which & 0x02)
-			actor->spr.pos.Z += max(getceilzofslopeptrf(actor->sector(), actor->spr.pos) - zTop, 0.);
+			actor->spr.pos.Z += max(getceilzofslopeptr(actor->sector(), actor->spr.pos) - zTop, 0.);
 
 	}
 

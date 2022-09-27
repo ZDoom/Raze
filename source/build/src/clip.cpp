@@ -135,13 +135,13 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
         break;
     default:
     {
-        int32_t daz = getflorzofslopeptr(&sector[dasect], pos.X, pos.Y);
-        int32_t daz2 = getflorzofslopeptr(sec2, pos.X, pos.Y);
+        int32_t daz = int_getflorzofslopeptr(&sector[dasect], pos.X, pos.Y);
+        int32_t daz2 = int_getflorzofslopeptr(sec2, pos.X, pos.Y);
 
         if (daz2 < daz-(1<<8) && (sec2->floorstat & CSTAT_SECTOR_SKY) == 0)
             if (posz >= daz2-(flordist-1)) return 1;
-        daz = getceilzofslopeptr(&sector[dasect], pos.X, pos.Y);
-        daz2 = getceilzofslopeptr(sec2, pos.X, pos.Y);
+        daz = int_getceilzofslopeptr(&sector[dasect], pos.X, pos.Y);
+        daz2 = int_getceilzofslopeptr(sec2, pos.X, pos.Y);
         if (daz2 > daz+(1<<8) && (sec2->ceilingstat & CSTAT_SECTOR_SKY) == 0)
             if (posz <= daz2+(ceildist-1)) return 1;
 
@@ -759,7 +759,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             if (inside(pos->X, pos->Y, sect) == 1)
             {
                 if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
-                    tempint2 = getceilzofslopeptr(sect, pos->X, pos->Y) - pos->Z;
+                    tempint2 = int_getceilzofslopeptr(sect, pos->X, pos->Y) - pos->Z;
                 else
                     tempint2 = sect->int_ceilingz() - pos->Z;
 
@@ -774,7 +774,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 else
                 {
                     if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
-                        tempint2 = pos->Z - getflorzofslopeptr(sect, pos->X, pos->Y);
+                        tempint2 = pos->Z - int_getflorzofslopeptr(sect, pos->X, pos->Y);
                     else
                         tempint2 = pos->Z - sect->int_floorz();
 
@@ -919,7 +919,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
         closest = { int(v.X * worldtoint), int(v.Y * worldtoint) };
     }
 
-    getzsofslopeptr(sect,closest.X,closest.Y,ceilz,florz);
+    int_getzsofslopeptr(sect,closest.X,closest.Y,ceilz,florz);
     ceilhit.setSector(sect);
     florhit.setSector(sect);
 
@@ -985,7 +985,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     closest = { int(v.X * worldtoint), int(v.Y * worldtoint) };
                 }
 
-                getzsofslopeptr(nextsect, closest.X,closest.Y, &daz,&daz2);
+                int_getzsofslopeptr(nextsect, closest.X,closest.Y, &daz,&daz2);
 
                 {
                     if (daz > *ceilz)
@@ -1256,7 +1256,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             }
 
             int32_t daz2;
-            getzsofslopeptr(nextsect,intx,inty,&daz,&daz2);
+            int_getzsofslopeptr(nextsect,intx,inty,&daz,&daz2);
             if (intz <= daz || intz >= daz2)
             {
                 hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);

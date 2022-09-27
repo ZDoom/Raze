@@ -410,15 +410,15 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 			{
 				// Get the floorz as if the new (x,y) point was still in
 				// your sector
-				double const j = getflorzofslopeptrf(cursectnum, pos);
-				double const k = getflorzofslopeptrf(tempsect, rotpt);
+				double const j = getflorzofslopeptr(cursectnum, pos);
+				double const k = getflorzofslopeptr(tempsect, rotpt);
 
 				// If extended point is in same sector as you or the slopes
 				// of the sector of the extended point and your sector match
 				// closely (to avoid accidently looking straight out when
 				// you're at the edge of a sector line) then adjust horizon
 				// accordingly
-				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptrf(tempsect, rotpt) - k) <= 4))
+				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
 					horizoff += q16horiz(fixed_t(scaleAdjust * ((j - k) * 256 * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
 				}

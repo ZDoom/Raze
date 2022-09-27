@@ -545,7 +545,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 	else sx = sy = 32;
 
 	double gutz = actor->spr.pos.Z - 8;
-	double floorz = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+	double floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 
 	if (gutz > floorz - 8)
 		gutz = floorz - 8;
@@ -3066,7 +3066,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:
-			act->vel.Z = act->floorz = getflorzofslopeptrf(act->sector(), act->spr.pos.X, act->spr.pos.Y);
+			act->vel.Z = act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			break;
 		case MONEY:
 		case MAIL:
@@ -3581,14 +3581,14 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				{
 					if (actor->vel.Z > 0)
 					{
-						double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+						double f = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 						actor->floorz = f;
 						if (actor->spr.pos.Z > f - 30)
 							actor->spr.pos.Z = f - 30;
 					}
 					else
 					{
-						double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+						double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 						actor->ceilingz = c;
 						if (actor->spr.pos.Z < c + 50)
 						{
@@ -3604,7 +3604,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 					actor->spr.pos.Z = actor->floorz;
 				if (actor->vel.Z < 0)
 				{
-					double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 					if (actor->spr.pos.Z < c + 66)
 					{
 						actor->spr.pos.Z = c + 66;

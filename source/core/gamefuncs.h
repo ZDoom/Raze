@@ -328,27 +328,27 @@ inline void getzsofslopeptr(const sectortype* sec, const Vector& pos, double* ce
 	calcSlope(sec, pos.X, pos.Y, ceilz, florz);
 }
 
-inline double getceilzofslopeptrf(const sectortype* sec, double dax, double day)
+inline double getceilzofslopeptr(const sectortype* sec, double dax, double day)
 {
 	double c;
 	calcSlope(sec, dax, day, &c, nullptr);
 	return c;
 }
-inline double getflorzofslopeptrf(const sectortype* sec, double dax, double day)
+inline double getflorzofslopeptr(const sectortype* sec, double dax, double day)
 {
 	double f;
 	calcSlope(sec, dax, day, nullptr, &f);
 	return f;
 }
 template<class Vector>
-inline double getceilzofslopeptrf(const sectortype* sec, const Vector& pos)
+inline double getceilzofslopeptr(const sectortype* sec, const Vector& pos)
 {
-	return getceilzofslopeptrf(sec, pos.X, pos.Y);
+	return getceilzofslopeptr(sec, pos.X, pos.Y);
 }
 template<class Vector>
-inline double getflorzofslopeptrf(const sectortype* sec, const Vector& pos)
+inline double getflorzofslopeptr(const sectortype* sec, const Vector& pos)
 {
-	return getflorzofslopeptrf(sec, pos.X, pos.Y);
+	return getflorzofslopeptr(sec, pos.X, pos.Y);
 }
 
 //==========================================================================
@@ -602,7 +602,7 @@ inline double BobVal(double val)
 //==========================================================================
 
 [[deprecated]]
-inline int getceilzofslopeptr(const sectortype* sec, int dax, int day)
+inline int int_getceilzofslopeptr(const sectortype* sec, int dax, int day)
 {
 	double z;
 	calcSlope(sec, dax * inttoworld, day * inttoworld, &z, nullptr);
@@ -610,7 +610,7 @@ inline int getceilzofslopeptr(const sectortype* sec, int dax, int day)
 }
 
 [[deprecated]]
-inline int getflorzofslopeptr(const sectortype* sec, int dax, int day)
+inline int int_getflorzofslopeptr(const sectortype* sec, int dax, int day)
 {
 	double z;
 	calcSlope(sec, dax * inttoworld, day * inttoworld, nullptr, &z);
@@ -618,7 +618,7 @@ inline int getflorzofslopeptr(const sectortype* sec, int dax, int day)
 }
 
 [[deprecated]]
-inline void getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz)
+inline void int_getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz)
 {
 	double c, f;
 	calcSlope(sec, dax * inttoworld, day * inttoworld, &c, &f);

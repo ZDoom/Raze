@@ -453,7 +453,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 	else sx = sy = 16;
 
 	double gutz = actor->spr.pos.Z - 8;
-	double floorz = getflorzofslopeptrf(actor->sector(), actor->spr.pos);
+	double floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 
 	if (gutz > floorz - 8)
 		gutz = floorz - 8;
@@ -2982,7 +2982,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			deletesprite(act);
 			continue;
 		case FEATHER + 1: // feather
-			act->spr.pos.Z = act->floorz = getflorzofslopeptrf(act->sector(), act->spr.pos.X, act->spr.pos.Y);
+			act->spr.pos.Z = act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->sector()->lotag == 800)
 			{
 				deletesprite(act);
@@ -3592,14 +3592,14 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				if (actor->vel.Z > 0)
 				{
 					double dist = isRRRA() ? 28 : 30;
-					double f = getflorzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					double f = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 					actor->floorz = f;
 					if (actor->spr.pos.Z > f - dist)
 						actor->spr.pos.Z = f - dist;
 				}
 				else
 				{
-					double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 					actor->ceilingz = c;
 					if (actor->spr.pos.Z < c + 50)
 					{
@@ -3612,7 +3612,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				actor->spr.pos.Z = actor->floorz;
 			if (actor->vel.Z < 0)
 			{
-				double c = getceilzofslopeptrf(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+				double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
 				if (actor->spr.pos.Z < c + 66)
 				{
 					actor->spr.pos.Z = c + 66;

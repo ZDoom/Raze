@@ -2780,8 +2780,8 @@ void processinput_d(int snum)
 	shrunk = (pact->spr.yrepeat < 32);
 	getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 163, CLIPMASK0);
 
-	p->truefz = getflorzofslopeptrf(psectp, p->pos);
-	p->truecz = getceilzofslopeptrf(psectp, p->pos);
+	p->truefz = getflorzofslopeptr(psectp, p->pos);
+	p->truecz = getceilzofslopeptr(psectp, p->pos);
 
 	truefdist = abs(p->pos.Z - p->truefz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)

@@ -361,7 +361,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		auto pNSprite = viewInsertTSprite(tsprites, pTSprite->sectp, 32767, pTSprite);
 		if (!pNSprite)
 			break;
-		pNSprite->pos.Z = getflorzofslopeptrf(pTSprite->sectp, pNSprite->pos);
+		pNSprite->pos.Z = getflorzofslopeptr(pTSprite->sectp, pNSprite->pos);
 		if ((pNSprite->sectp->floorpicnum >= 4080) && (pNSprite->sectp->floorpicnum <= 4095) && !VanillaMode()) // if floor has ror, find actual floor
 		{
 			DVector3 cPos = pNSprite->pos;
@@ -371,7 +371,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			{
 				if (!CheckLink(cPos, &cSect)) // if no more floors underneath, abort
 					break;
-				const double newFloorZ = getflorzofslopeptrf(cSect, cPos.X, cPos.Z);
+				const double newFloorZ = getflorzofslopeptr(cSect, cPos.X, cPos.Z);
 				cZrel += newFloorZ - cPos.Z; // get height difference for next sector's ceiling/floor, and add to relative height for shadow
 				if ((cSect->floorpicnum < 4080) || (cSect->floorpicnum > 4095)) // if current sector is not open air, use as floor for shadow casting, otherwise continue to next sector
 					break;
@@ -620,7 +620,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			{
 				double top, bottom;
 				GetSpriteExtents(pTSprite, &top, &bottom);
-				if (getflorzofslopeptrf(pTSprite->sectp, pTSprite->pos) > bottom)
+				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) > bottom)
 					nAnim = 1;
 			}
 			break;
@@ -903,7 +903,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			}
 
 			if (pTSprite->ownerActor != pPlayer->actor || gViewPos != VIEWPOS_0) {
-				if (getflorzofslopeptrf(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
+				if (getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
 				{
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 				}
@@ -935,7 +935,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 
 			if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
 			{
-				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptrf(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
+				if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sectp, pTSprite->pos) >= cPos.Z)
 					viewAddEffect(tsprites, nTSprite, kViewEffectShadow);
 			}
 		}

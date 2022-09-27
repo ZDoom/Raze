@@ -148,7 +148,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	assert(pSector);
 	updatesectorz(x, y, z, &pSector);
 	if (!pSector) return false;
-	int floorZ = getflorzofslopeptr(pSector, x, y);
+	int floorZ = int_getflorzofslopeptr(pSector, x, y);
 	auto pXSector = pSector->hasX()? &pSector->xs() : nullptr;
 	bool Underwater = 0; 
 	bool Water = 0; 

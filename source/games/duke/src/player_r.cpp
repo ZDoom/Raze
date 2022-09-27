@@ -3396,16 +3396,16 @@ void processinput_r(int snum)
 	if (pact->native_clipdist() == 64)
 	{
 		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 163L, CLIPMASK0);
-		tempfz = getflorzofslopeptrf(psectp, p->pos);
+		tempfz = getflorzofslopeptr(psectp, p->pos);
 	}
 	else
 	{
 		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 4L, CLIPMASK0);
-		tempfz = getflorzofslopeptrf(psectp, p->pos);
+		tempfz = getflorzofslopeptr(psectp, p->pos);
 	}
 
 	p->truefz = tempfz;
-	p->truecz = getceilzofslopeptrf(psectp, p->pos);
+	p->truecz = getceilzofslopeptr(psectp, p->pos);
 
 	double truefdist = abs(p->pos.Z - tempfz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)

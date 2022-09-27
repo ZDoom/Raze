@@ -142,7 +142,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 				float maxofs = -FLT_MAX, minofs = FLT_MAX;
 				for (int i = 0; i < 4; i++)
 				{
-					float vz = -getceilzofslopeptrf(Sprite->sectp, posi);
+					float vz = -getceilzofslopeptr(Sprite->sectp, posi);
 					float sz = z - ofsz[i];
 					int diff = vz - sz;
 					if (diff > maxofs) maxofs = diff;
@@ -155,7 +155,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 				float maxofs = -FLT_MAX, minofs = FLT_MAX;
 				for (int i = 0; i < 4; i++)
 				{
-					float vz = -getflorzofslopeptrf(Sprite->sectp, posi);
+					float vz = -getflorzofslopeptr(Sprite->sectp, posi);
 					float sz = z - ofsz[i];
 					int diff = vz - sz;
 					if (diff > maxofs) maxofs = diff;

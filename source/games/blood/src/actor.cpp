@@ -2731,7 +2731,7 @@ static DBloodActor* actSpawnFloor(DBloodActor* actor)
 	auto pSector = actor->sector();
 	auto pos = actor->spr.pos;
 	updatesector(pos, &pSector);
-	double zFloor = getflorzofslopeptrf(pSector, pos.X, pos.Y);
+	double zFloor = getflorzofslopeptr(pSector, pos.X, pos.Y);
 	auto spawned = actSpawnSprite(pSector, DVector3(pos.XY(), zFloor), 3, 0);
 	if (spawned) spawned->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	return spawned;
@@ -4850,7 +4850,7 @@ void MoveDude(DBloodActor* actor)
 		{
 			if (bUnderwater)
 			{
-				double cz = getceilzofslopeptrf(pSector, actor->spr.pos);
+				double cz = getceilzofslopeptr(pSector, actor->spr.pos);
 				if (cz > top)
 					vc += ((bottom - cz) * -FixedToFloat(80099)) / (bottom - top);
 				else
@@ -4858,7 +4858,7 @@ void MoveDude(DBloodActor* actor)
 			}
 			else
 			{
-				double fz = getflorzofslopeptrf(pSector, actor->spr.pos);
+				double fz = getflorzofslopeptr(pSector, actor->spr.pos);
 				if (fz < bottom)
 					vc += ((bottom - fz) * -FixedToFloat(80099)) / (bottom - top);
 			}
@@ -5629,7 +5629,7 @@ static void actCheckThings()
 			{
 				double top, bottom;
 				GetActorExtents(actor, &top, &bottom);
-				if (getflorzofslopeptrf(pSector, actor->spr.pos) <= bottom)
+				if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
 				{
 					int angle = pXSector->panAngle.Buildang();
 					int speed = 0;
@@ -6054,7 +6054,7 @@ static void actCheckDudes()
 		{
 			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			if (getflorzofslopeptrf(pSector, actor->spr.pos) <= bottom)
+			if (getflorzofslopeptr(pSector, actor->spr.pos) <= bottom)
 			{
 				int angle = pXSector->panAngle.Buildang();
 				int speed = 0;
