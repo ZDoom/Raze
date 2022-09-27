@@ -111,9 +111,9 @@ static void zombfThinkChase(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	aiChooseDirection(actor, VecToAngle(dx, dy));
+	auto dv = target->spr.pos - actor->spr.pos;
+	auto nAngle = VecToAngle(dv);
+	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
 		aiNewState(actor, &zombieFSearch);
@@ -124,19 +124,19 @@ static void zombfThinkChase(DBloodActor* actor)
 		aiNewState(actor, &zombieFSearch);
 		return;
 	}
-	int nDist = approxDist(dx, dy);
-	if (nDist <= pDudeInfo->seeDist)
+	double nDist = dv.Length();
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), getangle(dx, dy));
+		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (abs(nDeltaAngle) <= pDudeInfo->periphery)
+			if (nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				if (nDist < 0x1400 && nDist > 0xe00 && abs(nDeltaAngle) < 85)
+				if (nDist < 0x100 && nDist > 0xe0 && abs(nDeltaAngle) < DAngle15)
 				{
-					int hit = HitScan_(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -153,9 +153,9 @@ static void zombfThinkChase(DBloodActor* actor)
 						break;
 					}
 				}
-				else if (nDist < 0x1400 && nDist > 0x600 && abs(nDeltaAngle) < 85)
+				else if (nDist < 0x140 && nDist > 0x60 && nDeltaAngle < DAngle15)
 				{
-					int hit = HitScan_(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -172,9 +172,9 @@ static void zombfThinkChase(DBloodActor* actor)
 						break;
 					}
 				}
-				else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
+				else if (nDist < 0x40 && nDeltaAngle < DAngle15)
 				{
-					int hit = HitScan_(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
