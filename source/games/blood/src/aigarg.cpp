@@ -81,18 +81,17 @@ void SlashFSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	int height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) << 2;
-	int height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) << 2;
-	int dz = height - height2;
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
-	actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
-	int r1 = Random(50);
-	int r2 = Random(50);
-	actFireVector(actor, 0, 0, dx + r2, dy - r1, dz, kVectorGargSlash);
-	r1 = Random(50);
-	r2 = Random(50);
-	actFireVector(actor, 0, 0, dx - r2, dy + r1, dz, kVectorGargSlash);
+	double height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) * REPEAT_SCALE;
+	double height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) * REPEAT_SCALE;
+	DVector3 vec(actor->spr.angle.ToVector() * 64, height - height2);
+
+	actFireVector(actor, 0, 0, vec, kVectorGargSlash);
+	double r1 = RandomF(50, 8);
+	double r2 = RandomF(50, 8);
+	actFireVector(actor, 0, 0, vec + DVector2(r1, r2), kVectorGargSlash);
+	r1 = RandomF(50, 8);
+	r2 = RandomF(50, 8);
+	actFireVector(actor, 0, 0, vec + DVector2(r1, r2), kVectorGargSlash);
 }
 
 void ThrowFSeqCallback(int, DBloodActor* actor)
@@ -240,10 +239,10 @@ static void gargThinkGoto(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
+	DAngle nAngle = VecToAngle(dvec);
 	double nDist = dvec.Length();
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
-	if (nDist < 32 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	aiChooseDirection(actor, nAngle);
+	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &gargoyleFSearch);
 	aiThinkTarget(actor);
 }
