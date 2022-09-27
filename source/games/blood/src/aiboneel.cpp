@@ -169,38 +169,38 @@ static void eelThinkPonder(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
+	DAngle nAngle = VecToAngle(dvec);
+	double nDist = dvec.Length();
+	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
 		aiNewState(actor, &eelSearch);
 		return;
 	}
 
-	if (nDist <= pDudeInfo->seeDist)
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), nAngle);
-		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-		int height2 = (getDudeInfo(target->spr.type)->eyeHeight * target->spr.yrepeat) << 2;
-		int top, bottom;
+		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+		double height2 = (getDudeInfo(target->spr.type)->eyeHeight * target->spr.yrepeat) * REPEAT_SCALE;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height * zinttoworld), actor->sector()))
+		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
 			aiSetTarget(actor, actor->GetTarget());
-			if (height2 - height < -0x2000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
+			if (height2 - height < -0x20 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &eelDodgeUp);
-			else if (height2 - height > 0xccc && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
+			else if (height2 - height > 12.8 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &eelDodgeDown);
-			else if (height2 - height < 0xccc && nDist < 0x399 && abs(nDeltaAngle) < 85)
+			else if (height2 - height < 12.8 && nDist < 57.5625 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &eelDodgeUp);
-			else if (height2 - height > 0xccc && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
+			else if (height2 - height > 12.8 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &eelDodgeDown);
-			else if (height2 - height < -0x2000 && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
+			else if (height2 - height < -0x20 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &eelDodgeUp);
-			else if (height2 - height < -0x2000 && abs(nDeltaAngle) < 85 && nDist > 0x1400)
+			else if (height2 - height < -0x20 && nDeltaAngle < DAngle15 && nDist > 0x140)
 				aiNewState(actor, &eelDodgeUp);
-			else if (height2 - height > 0xccc)
+			else if (height2 - height > 12.8)
 				aiNewState(actor, &eelDodgeDown);
 			else
 				aiNewState(actor, &eelDodgeUp);
