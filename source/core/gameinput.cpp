@@ -395,34 +395,32 @@ enum
 	BLOODVIEWPITCH = (0x4000 >> SINSHIFTDELTA) - (DEFVIEWPITCH << (SINSHIFTDELTA - 1)), // 1408.
 };
 
-void PlayerHorizon::calcviewpitch(vec2_t const pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
+void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting && cursectnum != nullptr)
 	{
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
-			int const shift = isBlood() ? BLOODSINSHIFT : DEFSINSHIFT;
-			int const x = pos.X + int(ang.Cos() * (1 << (BUILDSINBITS - shift)));
-			int const y = pos.Y + int(ang.Sin() * (1 << (BUILDSINBITS - shift)));
+			auto rotpt = pos + ang.ToVector() * (isBlood() ? 4 : 32);
 			auto tempsect = cursectnum;
-			updatesector(x, y, &tempsect);
+			updatesector(rotpt, &tempsect);
 
 			if (tempsect != nullptr) // If the new point is inside a valid sector...
 			{
 				// Get the floorz as if the new (x,y) point was still in
 				// your sector
-				int const j = getflorzofslopeptr(cursectnum, pos.X, pos.Y);
-				int const k = getflorzofslopeptr(tempsect, x, y);
+				double const j = getflorzofslopeptrf(cursectnum, pos);
+				double const k = getflorzofslopeptrf(tempsect, rotpt);
 
 				// If extended point is in same sector as you or the slopes
 				// of the sector of the extended point and your sector match
 				// closely (to avoid accidently looking straight out when
 				// you're at the edge of a sector line) then adjust horizon
 				// accordingly
-				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, x, y) - k) <= (4 << 8)))
+				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptrf(tempsect, rotpt) - k) <= 4))
 				{
-					horizoff += q16horiz(fixed_t(scaleAdjust * ((j - k) * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
+					horizoff += q16horiz(fixed_t(scaleAdjust * ((j - k) * 256 * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
 				}
 			}
 		}
