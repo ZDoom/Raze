@@ -36,7 +36,7 @@ struct PlayerHorizon
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = 0; }
-	bool targetset() { return target.asq16(); }
+	bool targetset() { return target.Sgn(); }
 
 	// Input locking helpers.
 	void lockinput() { inputdisabled = true; }
@@ -66,7 +66,7 @@ struct PlayerHorizon
 
 		if (!SyncInput() && !backup)
 		{
-			target = value.asq16() ? value : q16horiz(1);
+			target = value.Sgn() ? value : q16horiz(1);
 		}
 		else
 		{

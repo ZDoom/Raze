@@ -525,7 +525,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& c
 		{
 			cPos.Z += bobHeight;
 		}
-		cPos.Z += FixedToFloat<24>(cH.asq16() * 10);
+		cPos.Z += cH.Tan() * 5.;
 	}
 	else
 	{
@@ -767,7 +767,7 @@ void viewDrawScreen(bool sceneonly)
 		int v8 = byte_1CE5C2 > 0 && (sector[tmpSect].ceilingstat & CSTAT_SECTOR_SKY);
 		if (gWeather.at12d8 > 0 || v8)
 		{
-			gWeather.Draw(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitch, gWeather.at12d8);
+			gWeather.Draw(cX, cY, cZ, cA.Tan() * (1 << 23), cH.Tan() * (1 << 23) + deliriumPitch, gWeather.at12d8);
 			if (v8)
 			{
 				gWeather.at12d8 = ClipRange(delta * 8 + gWeather.at12d8, 0, 4095);

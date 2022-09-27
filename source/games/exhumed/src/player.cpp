@@ -1118,7 +1118,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                     zVelB = -zVelB;
                 }
 
-                if (zVelB > 2 && !PlayerList[nPlayer].horizon.horiz.asq16() && cl_slopetilting) {
+                if (zVelB > 2 && !PlayerList[nPlayer].horizon.horiz.Sgn() && cl_slopetilting) {
                     PlayerList[nPlayer].nDestVertPan = q16horiz(0);
                 }
             }
@@ -2621,7 +2621,7 @@ sectdone:
         }
         else
         {
-            if (PlayerList[nPlayer].horizon.horiz.asq16() < 0)
+            if (PlayerList[nPlayer].horizon.horiz.Sgn() < 0)
             {
                 PlayerList[nPlayer].horizon.settarget(buildhoriz(0));
                 PlayerList[nPlayer].eyelevel -= dVertPan[nPlayer];
@@ -2630,11 +2630,11 @@ sectdone:
             {
                 PlayerList[nPlayer].horizon.addadjustment(buildhoriz(dVertPan[nPlayer]));
 
-                if (PlayerList[nPlayer].horizon.horiz.asq16() >= IntToFixed(100))
+                if (PlayerList[nPlayer].horizon.horiz.Degrees() >= 38)
                 {
                     PlayerList[nPlayer].horizon.settarget(buildhoriz(99));
                 }
-                else if (PlayerList[nPlayer].horizon.horiz.asq16() <= 0)
+                else if (PlayerList[nPlayer].horizon.horiz.Sgn() <= 0)
                 {
                     if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
                     {

@@ -1556,7 +1556,7 @@ void ProcessInput(PLAYER* pPlayer)
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->horizon.addadjustment(q16horiz(MulScale(0x8000 - (Cos(ClipHigh(pPlayer->deathTime << 3, 1024)) >> 15), pitchhoriz(gi->playerPitchMax()).asq16(), 16) - pPlayer->horizon.horiz.asq16()));
+			pPlayer->horizon.addadjustment(pitchhoriz(((1. - BobVal(ClipHigh(pPlayer->deathTime << 3, 1024) + 512)) * gi->playerPitchMax()) - pPlayer->horizon.horiz.Degrees()));
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)
@@ -1731,7 +1731,7 @@ void ProcessInput(PLAYER* pPlayer)
 	pPlayer->angle.unlockinput();
 	pPlayer->horizon.unlockinput();
 
-	pPlayer->slope = -pPlayer->horizon.horiz.asq16() >> 9;
+	pPlayer->slope = -pPlayer->horizon.horiz.Tan() * 16384.;
 	if (pInput->actions & SB_INVPREV)
 	{
 		pInput->actions &= ~SB_INVPREV;

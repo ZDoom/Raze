@@ -63,7 +63,7 @@ void BounceGrenade(DExhumedActor* pActor, DAngle nAngle)
 //
 //---------------------------------------------------------------------------
 
-void ThrowGrenade(int nPlayer, double dz, int push1)
+void ThrowGrenade(int nPlayer, double dz, double push1)
 {
     if (PlayerList[nPlayer].pPlayerGrenade == nullptr)
         return;
@@ -84,12 +84,12 @@ void ThrowGrenade(int nPlayer, double dz, int push1)
     pActor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
     pActor->spr.angle = nAngle;
 
-    if (push1 >= -3000)
+    if (push1 >= -23.4375)
     {
         int nVel = PlayerList[nPlayer].totalvel << 5;
 
         pActor->nTurn = ((90 - pActor->nIndex2) * (90 - pActor->nIndex2)) + nVel;
-        pActor->vel.Z = ((-0.25 * push1) - 17);
+        pActor->vel.Z = ((-32. * push1) - 17);
 
 
         DVector2 vec = nAngle.ToVector() * pPlayerActor->fClipdist() *2; // == << 14 + 3 + 2 - 18

@@ -876,7 +876,7 @@ loc_flag:
 
                 case kWeaponGrenade:
                 {
-                    ThrowGrenade(nPlayer, nHeight - 10, FixedToInt(PlayerList[nLocalPlayer].horizon.horiz.asq16()));
+                    ThrowGrenade(nPlayer, nHeight - 10, PlayerList[nLocalPlayer].horizon.horiz.Tan());
                     break;
                 }
                 case kWeaponStaff:

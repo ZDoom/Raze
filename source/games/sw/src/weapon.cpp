@@ -11610,7 +11610,7 @@ int DoRing(DSWActor* actor)
 
     // put it out there
     actor->spr.pos += actor->spr.angle.ToVector() * actor->user.Dist;
-    if (pp) actor->spr.pos.Z += (actor->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) * (1/ (512.*16.)); // horizon math sucks...
+    if (pp) actor->spr.pos.Z += actor->user.Dist * -pp->horizon.horiz.Tan() * 2.; // horizon math sucks...
 
     SetActor(actor, actor->spr.pos);
 
@@ -11689,7 +11689,7 @@ void InitSpellRing(PLAYER* pp)
 
         // put it out there
         actorNew->spr.pos += actorNew->spr.angle.ToVector() * actorNew->user.Dist;
-        actorNew->spr.pos.Z += pp->pos.Z + 20 + (actorNew->user.Dist * (-pp->horizon.horiz.asq16() >> 9)) * (1 / (512. * 16.)); // horizon math sucks...
+        actorNew->spr.pos.Z += pp->pos.Z + 20 + (actorNew->user.Dist * -pp->horizon.horiz.Tan() * 2.); // horizon math sucks...
 
         actorNew->spr.angle += DAngle90;
 
@@ -15321,7 +15321,7 @@ int InitTracerUzi(PLAYER* pp)
 
     static const short lat_dist[] = {800,-800};
 
-    double nz = 8 - MulScaleF(pp->horizon.horiz.asq16(), 72, 24);
+    double nz = 8 - (pp->horizon.horiz.Tan() * 36.);
 
     // Spawn a shot
     // Inserting and setting up variables

@@ -247,10 +247,10 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 	else
 	{
 		predict.horizoff = interpolatedvalue(predict.horizoff, q16horiz(0), 0x4000);
-		if (abs(predict.horizoff.asq16()) < 4)
+		if (abs(predict.horizoff.Degrees()) < 1.79)
 			predict.horizoff = q16horiz(0);
 	}
-	predict.slope = -predict.horiz.asq16() >> 9;
+	predict.slope = -predict.horiz.Tan() * 16384.;
 #endif
 }
 

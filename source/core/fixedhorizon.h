@@ -81,7 +81,6 @@ public:
 
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return FixedToInt(value); }
-	constexpr fixed_t asq16() const { return value; }
 	constexpr double Tan() const { return FixedToFloat<23>(value); }
 	double Degrees() const { return HorizToPitch(value); }
 
