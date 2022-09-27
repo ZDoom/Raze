@@ -206,9 +206,8 @@ static void beastThinkChase(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	aiChooseDirection(actor, VecToAngle(dx, dy));
+	auto dv = target->spr.pos.XY() - actor->spr.pos.XY();
+	aiChooseDirection(actor, VecToAngle(dv));
 
 	auto pSector = actor->sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
@@ -229,21 +228,21 @@ static void beastThinkChase(DBloodActor* actor)
 			aiNewState(actor, &beastSearch);
 		return;
 	}
-	int nDist = approxDist(dx, dy);
-	if (nDist <= pDudeInfo->seeDist)
+	double nDist = dv.Length();
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), getangle(dx, dy));
+		DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dv));
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->dudeSlope = nDist == 0 ? 0 : DivScale(target->int_pos().Z - actor->int_pos().Z, nDist, 10);
-				if (nDist < 0x1400 && nDist > 0xa00 && abs(nDeltaAngle) < 85 && (target->spr.flags & 2)
+				actor->dudeSlope = nDist == 0 ? 0 : int(target->spr.pos.Z - actor->spr.pos.Z / nDist) * 16384;
+				if (nDist < 0x140 && nDist > 0xa0 && nDeltaAngle < mapangle(85) && (target->spr.flags & 2)
 					&& target->IsPlayerActor() && Chance(0x8000))
 				{
-					int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
 					if (target->xspr.health > (unsigned)gPlayerTemplate[0].startHealth / 2)
 					{
 						switch (hit)
@@ -273,9 +272,9 @@ static void beastThinkChase(DBloodActor* actor)
 						}
 					}
 				}
-				if (nDist < 921 && abs(nDeltaAngle) < 28)
+				if (nDist < 57.5625 && abs(nDeltaAngle) < mapangle(28))
 				{
-					int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
