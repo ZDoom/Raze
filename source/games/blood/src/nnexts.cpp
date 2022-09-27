@@ -36,8 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-inline int mulscale8(int a, int b) { return MulScale(a, b, 8); }
-
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
 
@@ -8388,10 +8386,10 @@ bool readyForCrit(DBloodActor* hunter, DBloodActor* victim)
 		return false;
 
 	auto dvect = victim->spr.pos.XY() - hunter->spr.pos.XY();
-	if (approxDist(dvect) >= (7000 / ClipLow(gGameOptions.nDifficulty >> 1, 1)))
+	if (dvect.Length() >= (437.5 / max(gGameOptions.nDifficulty >> 1, 1)))
 		return false;
 
-	return abs(getincangle(victim->int_ang(), getangle(dvect))) <= kAng45;
+	return absangle(victim->spr.angle, VecToAngle(dvect)) <= DAngle45;
 }
 
 //---------------------------------------------------------------------------
@@ -8414,7 +8412,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
 	}
 
-	int i, j, f, mod, x, y, z, dx, dy, nDist, eyeAboveZ, sndCnt = 0, seeDist, hearDist, feelDist, seeChance, hearChance;
+	int i, j, mod, sndCnt = 0, seeChance, hearChance;
 	bool stealth = (actor->xspr.unused1 & kDudeFlagStealth);
 	bool blind = (actor->xspr.dudeGuard);
 	bool deaf = (actor->xspr.dudeDeaf);
@@ -8432,20 +8430,22 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 		newtarget = nullptr;
 		seeChance = hearChance = 0x0000;
-		x = plActor->int_pos().X, y = plActor->int_pos().Y, z = plActor->int_pos().Z,
-		dx = x - actor->int_pos().X, dy = y - actor->int_pos().Y;
-		nDist = approxDist(dx, dy);
-		seeDist = (stealth) ? pDudeInfo->seeDist / 3 : pDudeInfo->seeDist >> 1;
-		hearDist = pDudeInfo->hearDist; feelDist = hearDist >> 1;
+		auto pos = plActor->spr.pos;
+		auto dv = pos.XY() - actor->spr.pos.XY();
+		double nDistf = dv.Length();
+		double seeDistf = (stealth) ? pDudeInfo->SeeDist() / 3 : pDudeInfo->SeeDist() / 4;
+		double hearDistf = pDudeInfo->Heardist(); 
+		double feelDistf = hearDistf / 2;
 
 		// TO-DO: is there any dudes that sees this patrol dude and sees target?
 
 
-		if (nDist <= seeDist)
+		if (nDistf <= seeDistf)
 		{
-			eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
-			if (nDist < seeDist >> 3) GetActorExtents(pPlayer->actor, &z, &j); //use ztop of the target sprite
-			if (!cansee(x, y, z, plActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z - eyeAboveZ, actor->sector()))
+			double scratch;
+			double eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+			if (nDistf < seeDistf / 8) GetActorExtents(pPlayer->actor, &pos.Z, &scratch); //use ztop of the target sprite
+			if (!cansee(pos, plActor->sector(), actor->spr.pos - eyeAboveZ, actor->sector()))
 				continue;
 		}
 		else
@@ -8465,14 +8465,13 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 			soundEngine->EnumerateChannels([&](FSoundChan* chan)
 				{
-					int sndx = 0, sndy = 0;
+					DVector2 sndv;
 					sectortype* searchsect = nullptr;
 					if (chan->SourceType == SOURCE_Actor)
 					{
 						auto emitterActor = (DBloodActor*)chan->Source;
 						if (emitterActor == nullptr) return false; // not a valid source.
-						sndx = emitterActor->int_pos().X;
-						sndy = emitterActor->int_pos().Y;
+						sndv = emitterActor->spr.pos.XY();
 
 						// sound attached to the sprite
 						if (pPlayer->actor != emitterActor && emitterActor->GetOwner() != actor)
@@ -8485,13 +8484,13 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 					else if (chan->SourceType == SOURCE_Unattached)
 					{
 						if (chan->UserData < 0 || !validSectorIndex(chan->UserData)) return false; // not a vaild sector sound.
-						sndx = int(chan->Point[0] * 16);
-						sndy = int(chan->Point[1] * -16);
+						sndv.X = chan->Point[0];
+						sndv.Y = -chan->Point[1];
 						searchsect = &sector[chan->UserData];
 					}
 					if (searchsect == nullptr) return false;
-					int nDist = approxDist(sndx - actor->int_pos().X, sndy - actor->int_pos().Y);
-					if (nDist > hearDist) return false;
+					double nsDist = (sndv - actor->spr.pos.XY()).Length();
+					if (nsDist > hearDistf) return false;
 
 
 					int sndnum = chan->OrgID;
@@ -8518,9 +8517,9 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 					}
 					if (!found) return false;
 
-					f = ClipLow((hearDist - nDist) / 8, 0);
+					int f = max(int((hearDistf - nsDist) * 16), 0);
 					int sndvol = int(chan->Volume * (80.f / 0.8f));
-					hearChance += mulscale8(sndvol, f) + Random(gGameOptions.nDifficulty);
+					hearChance += sndvol * f + Random(gGameOptions.nDifficulty);
 					return (hearChance >= kMaxPatrolSpotValue);
 				});
 			/*
@@ -8544,58 +8543,56 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 				case kModeHumanShrink:
 					if (pPlayer->lifeMode == kModeHumanShrink)
 					{
-						seeDist -= mulscale8(164, seeDist);
-						feelDist -= mulscale8(164, feelDist);
+						seeDistf *= 92. / 256;
+						feelDistf *= 92. / 256;
 					}
 					if (pPlayer->posture == kPostureCrouch)
 					{
-						seeDist -= mulscale8(64, seeDist);
-						feelDist -= mulscale8(128, feelDist);
+						seeDistf *= 0.75;
+						feelDistf *= 0.5;
 					}
 					break;
 				case kModeHumanGrown:
 					if (pPlayer->posture != kPostureCrouch)
 					{
-						seeDist += mulscale8(72, seeDist);
-						feelDist += mulscale8(64, feelDist);
+						seeDistf *= 328. / 256;
+						feelDistf *= 320. / 256;
 					}
 					else
 					{
-						seeDist += mulscale8(48, seeDist);
+						seeDistf *= 304. / 256;
 					}
 					break;
 				}
 			}
 
-			bool itCanHear = false; bool itCanSee = false;
-			feelDist = ClipLow(feelDist, 0);
-			seeDist = ClipLow(seeDist, 0);
+			bool itCanHear = false; 
+			bool itCanSee = false;
+			feelDistf = max(feelDistf, 0.);
+			seeDistf = max(seeDistf, 0.);
 
-			if (hearDist)
+			if (hearDistf)
 			{
 				DBloodActor* act = pPlayer->actor;
-				itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-				if (act && itCanHear && nDist < feelDist && (act->vel.X != 0 || act->vel.Y != 0 || act->int_vel().Z))
-					hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->int_vel().X) + abs(act->int_vel().Y) + abs(act->int_vel().Z))) >> 6, 0)), 0);
+				itCanHear = (!deaf && (nDistf < hearDistf || hearChance > 0));
+				if (act && itCanHear && nDistf < feelDistf && (!act->vel.isZero()))
+					hearChance += (int)max(((feelDistf - nDistf) + act->vel.Sum() * 64, 0.) / 256, 0.);
+
 			}
 
-			if (seeDist)
+			if (seeDistf)
 			{
-				int periphery = ClipLow(pDudeInfo->periphery, kAng60);
-				int nDeltaAngle = abs(getincangle(actor->int_ang(), getangle(dx, dy)));
-				if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true)
+				DAngle periphery = max(pDudeInfo->Periphery(), DAngle60);
+				DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dv));
+				if ((itCanSee = (!blind && nDistf < seeDistf && nDeltaAngle < periphery)) == true)
 				{
-					int base = 100 + ((20 * gGameOptions.nDifficulty) - (nDeltaAngle / 5));
+					int base = 100 + ((20 * gGameOptions.nDifficulty) - (nDeltaAngle.Buildang() / 5));
 					//seeChance = base - MulScale(ClipRange(5 - gGameOptions.nDifficulty, 1, 4), nDist >> 1, 16);
 					//scale(0x40000, a6, dist2);
-					int d = nDist >> 2;
+					int d = int(nDistf * 4);
 					int m = DivScale(d, 0x2000, 8);
 					int t = MulScale(d, m, 8);
-					//int n = mulscale8(nDeltaAngle >> 2, 64);
 					seeChance = ClipRange(DivScale(base, t, 8), 0, kMaxPatrolSpotValue >> 1);
-					//seeChance = scale(0x1000, base, t);
-					//viewSetSystemMessage("SEE CHANCE: %d, BASE %d, DIST %d, T %d", seeChance, base, nDist, t);
-					//itCanSee = false;
 				}
 			}
 
