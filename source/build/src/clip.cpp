@@ -27,8 +27,6 @@ BitArray clipsectormap;
 
 int32_t quickloadboard=0;
 
-vec2_t hitscangoal = { (1<<29)-1, (1<<29)-1 };
-
 ////////// CLIPMOVE //////////
 inline uint8_t bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 

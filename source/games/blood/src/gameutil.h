@@ -41,15 +41,15 @@ int HitScan(DBloodActor* pSprite, double z, const DVector3& pos, unsigned int nM
 
 inline int HitScan_(DBloodActor* pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8)
 {
-	return HitScan(pSprite, z * zinttoworld, DVector3(dx, dy, dz) * inttoworld, nMask, a8 * inttoworld);
+	return HitScan(pSprite, z * zinttoworld, DVector3(dx, dy, dz) * inttoworld, nMask, a8);
 }
 inline int HitScan_(DBloodActor* pSprite, double z, int dx, int dy, int dz, unsigned int nMask, int a8)
 {
-	return HitScan(pSprite, z, DVector3(dx, dy, dz) * inttoworld, nMask, a8 * inttoworld);
+	return HitScan(pSprite, z, DVector3(dx, dy, dz) * inttoworld, nMask, a8);
 }
 inline int HitScan_(DBloodActor* pSprite, double z, const DVector3& pos, unsigned int nMask, int a8)
 {
-	return HitScan(pSprite, z, pos, nMask, a8 * inttoworld);
+	return HitScan(pSprite, z, pos, nMask, a8);
 }
 int VectorScan(DBloodActor* pSprite, double nOffset, double nZOffset, const DVector3& vel, double nRange, int ac);
 
