@@ -38,7 +38,6 @@ enum
     kGenDudeMaxMeleeDist = 2048,
     kGenDudeMinDispesion = 200,
     kGenDudeMaxDispersion = 3500,
-    kGenDudeKlabsAng = 56
 };
 
 enum {

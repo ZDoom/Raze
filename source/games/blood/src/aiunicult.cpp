@@ -479,9 +479,9 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 
 	// check target
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	int dist = ClipLow((int)approxDist(dx, dy), 1);
+	auto dv = target->spr.pos.XY() - actor->spr.pos.XY();
+	double dist = max(dv.Length(), 1 / 256.);
+	DAngle nAngle = VecToAngle(dv);
 
 	// quick hack to prevent spinning around or changing attacker's sprite angle on high movement speeds
 	// when attacking the target. It happens because vanilla function takes in account x and y velocity, 
@@ -490,8 +490,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	if (inAttack(actor->xspr.aiState))
 		velocity.X = velocity.Y = FixedToFloat(ClipLow(actor->native_clipdist() >> 1, 1));
 
-	//aiChooseDirection(actor,getangle(dx, dy));
-	aiGenDudeChooseDirection(actor, VecToAngle(dx, dy), velocity);
+	aiGenDudeChooseDirection(actor, nAngle, velocity);
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	if (!pExtra->canAttack)
@@ -514,10 +513,10 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int losAngle = getincangle(actor->int_ang(), getangle(dx, dy));
+	DAngle losAngle = absangle(actor->spr.angle, nAngle);
 	double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 
-	if (dist > pDudeInfo->seeDist || !cansee(target->spr.pos, target->sector(),
+	if (dist > pDudeInfo->SeeDist() || !cansee(target->spr.pos, target->sector(),
 		actor->spr.pos.plusZ(-height), actor->sector()))
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
@@ -527,12 +526,12 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 
 	// is the target visible?
-	if (dist < pDudeInfo->seeDist && abs(losAngle) <= pDudeInfo->periphery) {
-
+	if (dist < pDudeInfo->SeeDist() && losAngle <= pDudeInfo->Periphery())
+	{
 		if ((PlayClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(actor, false))
 			playGenDudeSound(actor, kGenDudeSndChasing);
 
-		actor->dudeSlope = dist == 0 ? 0 : DivScale(target->int_pos().Z - actor->int_pos().Z, dist, 10);
+		actor->dudeSlope = dist == 0 ? 0 : target->spr.pos.Z - actor->spr.pos.Z / dist * 16384;
 
 		int curWeapon = actor->genDudeExtra.curWeapon;
 		int weaponType = actor->genDudeExtra.weaponType;
@@ -542,7 +541,7 @@ static void unicultThinkChase(DBloodActor* actor)
 		const VECTORDATA* meleeVector = &gVectorData[22];
 		if (weaponType == kGenDudeWeaponThrow)
 		{
-			if (abs(losAngle) < kAng15)
+			if (losAngle < DAngle15)
 			{
 				if (!gThingInfoExtra[curWeapon - kThingBase].allowThrow)
 				{
@@ -551,9 +550,9 @@ static void unicultThinkChase(DBloodActor* actor)
 					return;
 
 				}
-				else if (dist < 12264 && dist > 7680 && !spriteIsUnderwater(actor, false) && curWeapon != kModernThingEnemyLifeLeech)
+				else if (dist < 766.5 && dist > 480 && !spriteIsUnderwater(actor, false) && curWeapon != kModernThingEnemyLifeLeech)
 				{
-					int pHit = HitScan_(actor, actor->spr.pos.Z, dx, dy, 0, 16777280, 0);
+					int pHit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), 16777280, 0);
 					switch (pHit) {
 					case 0:
 					case 4:
@@ -564,7 +563,7 @@ static void unicultThinkChase(DBloodActor* actor)
 					}
 
 				}
-				else if (dist > 4072 && dist <= 11072 && !spriteIsUnderwater(actor, false) && !actor->GetSpecialOwner())
+				else if (dist > 254.5 && dist <= 692 && !spriteIsUnderwater(actor, false) && !actor->GetSpecialOwner())
 				{
 					switch (curWeapon)
 					{
@@ -587,7 +586,7 @@ static void unicultThinkChase(DBloodActor* actor)
 						else
 						{
 							genDudeThrow2.nextState = &genDudeChaseL;
-							if (dist > 5072 && Chance(0x5000))
+							if (dist > 317 && Chance(0x5000))
 							{
 								if (!canDuck(actor) || Chance(0x4000)) aiGenDudeNewState(actor, &genDudeDodgeShortL);
 								else aiGenDudeNewState(actor, &genDudeDodgeShortD);
@@ -610,7 +609,7 @@ static void unicultThinkChase(DBloodActor* actor)
 					}
 
 				}
-				else if (dist <= meleeVector->maxDist)
+				else if (dist <= meleeVector->maxDist * inttoworld)
 				{
 
 					if (spriteIsUnderwater(actor, false))
@@ -656,9 +655,9 @@ static void unicultThinkChase(DBloodActor* actor)
 					aiSetTarget(actor, actor->spr.pos);
 					return;
 				}
-				else if (actor->genDudeExtra.slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist)
+				else if (actor->genDudeExtra.slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist * inttoworld)
 				{
-					if (dist <= meleeVector->maxDist)
+					if (dist <= meleeVector->maxDist * inttoworld)
 					{
 						aiGenDudeNewState(actor, &genDudePunch);
 						return;
@@ -693,8 +692,8 @@ static void unicultThinkChase(DBloodActor* actor)
 				case kMissileFireballCerberus:
 				case kMissileFireballTchernobog:
 					if (mdist == defDist) mdist = 3000;
-					if (dist > mdist || actor->xspr.locked == 1) break;
-					else if (dist <= meleeVector->maxDist && Chance(0x9000))
+					if (dist > mdist * inttoworld || actor->xspr.locked == 1) break;
+					else if (dist <= meleeVector->maxDist * inttoworld && Chance(0x9000))
 						aiGenDudeNewState(actor, &genDudePunch);
 					else if (state == 1) aiGenDudeNewState(actor, &genDudeChaseW);
 					else if (state == 2) aiGenDudeNewState(actor, &genDudeChaseD);
@@ -705,14 +704,14 @@ static void unicultThinkChase(DBloodActor* actor)
 					//viewSetSystemMessage("%d", target->xspr.burnTime);
 					if (spriteIsUnderwater(actor, false))
 					{
-						if (dist > meleeVector->maxDist) aiGenDudeNewState(actor, &genDudeChaseW);
+						if (dist > meleeVector->maxDist * inttoworld) aiGenDudeNewState(actor, &genDudeChaseW);
 						else if (Chance(0x8000)) aiGenDudeNewState(actor, &genDudePunch);
 						else aiGenDudeNewState(actor, &genDudeDodgeShortW);
 						return;
 					}
-					else if (dist <= 4000 && target->xspr.burnTime >= 2000 && target->GetBurnSource() == actor)
+					else if (dist <= 250 && target->xspr.burnTime >= 2000 && target->GetBurnSource() == actor)
 					{
-						if (dist > meleeVector->maxDist) aiGenDudeNewState(actor, &genDudeChaseL);
+						if (dist > meleeVector->maxDist * inttoworld) aiGenDudeNewState(actor, &genDudeChaseL);
 						else aiGenDudeNewState(actor, &genDudePunch);
 						return;
 					}
@@ -734,22 +733,24 @@ static void unicultThinkChase(DBloodActor* actor)
 			}
 
 			int state = checkAttackState(actor);
-			int kAngle = (dudeIsMelee(actor) || dist <= kGenDudeMaxMeleeDist) ? pDudeInfo->periphery : kGenDudeKlabsAng;
+			DAngle kAngle = (dudeIsMelee(actor) || dist <= 256/* kGenDudeMaxMeleeDist */) ? pDudeInfo->Periphery() : DAngle1 * 10;
 
-			if (dist < vdist && abs(losAngle) < kAngle)
+			if (dist < vdist * inttoworld && losAngle < kAngle)
 			{
 				if (pExtra->canWalk)
 				{
-					int objDist = -1; int targetDist = -1; int hit = -1;
+					double objDist = -1; 
+					double targetDist = -1; 
+					int hit = -1;
 					if (weaponType == kGenDudeWeaponHitscan)
-						hit = HitScan_(actor, actor->spr.pos.Z, bcos(actor->int_ang()), bsin(actor->int_ang()), actor->dudeSlope, CLIPMASK1, dist);
+						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.), CLIPMASK1, dist);
 					else if (weaponType == kGenDudeWeaponMissile)
-						hit = HitScan_(actor, actor->spr.pos.Z, bcos(actor->int_ang()), bsin(actor->int_ang()), actor->dudeSlope, CLIPMASK0, dist);
+						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.), CLIPMASK0, dist);
 
 					if (hit >= 0)
 					{
-						targetDist = dist - (target->int_clipdist());
-						objDist = approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY());
+						targetDist = dist - (target->fClipdist());
+						objDist = (gHitInfo.hitpos.XY() - actor->spr.pos.XY()).Length();
 					}
 
 					if (actor != gHitInfo.actor() && targetDist > objDist)
@@ -782,8 +783,8 @@ static void unicultThinkChase(DBloodActor* actor)
 						case 0:
 						case 1:
 						case 2:
-							if (weaponType != kGenDudeWeaponMissile && genDudeAdjustSlope(actor, dist, weaponType)
-								&& dist < (int)(6000 + Random(2000)) && pExtra->baseDispersion < kGenDudeMaxDispersion >> 1) break;
+							if (weaponType != kGenDudeWeaponMissile && genDudeAdjustSlope(actor, dist * worldtoint, weaponType)
+								&& dist < (375 + RandomF(2000, 4)) && pExtra->baseDispersion < kGenDudeMaxDispersion >> 1) break;
 
 							else if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
 							else aiGenDudeNewState(actor, &genDudeChaseL);
@@ -809,7 +810,7 @@ static void unicultThinkChase(DBloodActor* actor)
 									switch (hitactor->spr.type)
 									{
 									case kDudeModernCustom: // and make dude which could be hit to dodge too
-										if (!dudeIsMelee(hitactor) && Chance(dist << 4))
+										if (!dudeIsMelee(hitactor) && Chance(int(dist * 256)))
 										{
 											if (!inAttack(hitactor->xspr.aiState))
 											{
@@ -856,8 +857,8 @@ static void unicultThinkChase(DBloodActor* actor)
 							}
 							else if (weaponType == kGenDudeWeaponHitscan && hscn)
 							{
-								if (genDudeAdjustSlope(actor, dist, weaponType)) break;
-								VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 1024, actor->dudeSlope * inttoworld), dist * inttoworld, 1);
+								if (genDudeAdjustSlope(actor, dist * worldtoint, weaponType)) break;
+								VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.), dist, 1);
 								if (actor == gHitInfo.actor()) break;
 
 								bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
@@ -865,7 +866,7 @@ static void unicultThinkChase(DBloodActor* actor)
 								{
 									auto hdist = (gHitInfo.hitpos.XY() - actor->spr.pos.XY()).Length();
 									if ((hdist <= 93.75 && !blck)
-										|| (dist <= (int)(pExtra->fireDist / ClipLow(Random(4), 1))))
+										|| (dist <= (pExtra->fireDist / ClipLow(Random(4), 1)) * inttoworld ))
 									{
 										//viewSetSystemMessage("GO CHASE");
 										if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
@@ -918,7 +919,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							if (hit == 4 && weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
-								if (masked) VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 1024, actor->dudeSlope * inttoworld), dist * inttoworld, 1);
+								if (masked) VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.), dist, 1);
 
 								if ((actor != gHitInfo.actor()) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked))
 								{
