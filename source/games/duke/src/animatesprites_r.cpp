@@ -350,7 +350,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
 					t->pos = interpolatedvalue(omypos, mypos, interpfrac).plusZ(gs_playerheight);
-					t->ang = interpolatedvalue(omyang, myang, interpfrac).asbuild();
+					t->angle = interpolatedvalue(omyang, myang, interpfrac);
 					t->sector = mycursectnum;
 				}
 #endif

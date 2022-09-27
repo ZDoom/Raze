@@ -346,20 +346,20 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 			}
 			ps[iPlayer].horizon.settarget(maphoriz(lValue));
 		}
-		else SetGameVarID(lVar2, ps[iPlayer].horizon.horiz.asbuild(), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.horiz.Tan() * 128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZ:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].horizon.ohoriz.asbuild(), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].horizon.ohoriz.Tan() * 128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZOFF:
 		if (bSet) ps[iPlayer].horizon.horizoff = maphoriz(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].horizon.horizoff.asbuild(), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.horizoff.Tan() * 128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZOFF:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].horizon.ohorizoff.asbuild(), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].horizon.ohorizoff.Tan() * 128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_INVDISPTIME:

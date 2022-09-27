@@ -77,7 +77,6 @@ public:
 	fixedhoriz& operator=(const fixedhoriz&) = default;
 
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	constexpr short asbuild() const { return FixedToInt(value); }
 	constexpr double Tan() const { return FixedToFloat<23>(value); }
 	double Degrees() const { return HorizToPitch(value); }
 

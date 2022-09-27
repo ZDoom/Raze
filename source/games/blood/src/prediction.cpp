@@ -108,8 +108,8 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 	predict.jump = !!(gMe->input.actions & SB_JUMP);
 	if (predict.posture == 1)
 	{
-		int x = Cos(predict.angle.asbuild());
-		int y = Sin(predict.angle.asbuild());
+		int x = predict.angle.Cos();
+		int y = predict.angle.Sin();
 		if (pInput->fvel)
 		{
 			int forward = pInput->fvel;
@@ -133,8 +133,8 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 		int speed = 0x10000;
 		if (predict.floordist > 0)
 			speed -= DivScale(predict.floordist, 0x100, 16);
-		int x = Cos(predict.angle.asbuild());
-		int y = Sin(predict.angle.asbuild());
+		int x = predict.angle.Cos();
+		int y = predict.angle.Sin();
 		if (pInput->fvel)
 		{
 			int forward = pInput->fvel;
@@ -234,8 +234,8 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 	if (va && (sector[nSector].floorstat & 2) != 0)
 	{
 		int z1 = getflorzofslope(nSector, predict.x, predict.y);
-		int x2 = predict.x + MulScale(64, Cos(predict.angle.asbuild()), 30);
-		int y2 = predict.y + MulScale(64, Sin(predict.angle.asbuild()), 30);
+		int x2 = predict.x + MulScale(64, predict.angle.Cos(), 30);
+		int y2 = predict.y + MulScale(64, predict.angle.Sin(), 30);
 		int nSector2 = nSector;
 		updatesector(x2, y2, &nSector2);
 		if (nSector2 == nSector)

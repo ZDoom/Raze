@@ -338,9 +338,9 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 								int check;
 								if (actor->isPlayer())
 								{
-									double checkval = (act->spr.pos.Z - actor->spr.pos.Z) * 160 / sdist;
-									double horiz = ps[actor->PlayerIndex()].horizon.sum().asbuild();
-									check = abs(checkval - horiz) < 100;
+									double checkval = (act->spr.pos.Z - actor->spr.pos.Z) * 1.25 / sdist;
+									double horiz = ps[actor->PlayerIndex()].horizon.sum().Tan();
+									check = abs(checkval - horiz) < 0.78125;
 								}
 								else check = 1;
 

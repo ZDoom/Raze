@@ -792,7 +792,7 @@ static void FinalizeInput(player_struct *p, InputPacket& input)
 			loc.avel = input.avel = 0;
 		}
 
-		if (p->newOwner != nullptr || (p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) > 5))
+		if (p->newOwner != nullptr || (p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.Degrees()) > 2.2370))
 		{
 			loc.horz = input.horz = 0;
 		}
