@@ -134,7 +134,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle_, int nRange)
 	GetActorExtents(actor, &top, &bottom);
 	DVector3 pos = actor->spr.pos;
 	DVector2 nAngVect = nAngle.ToVector();
-	HitScan_(actor, pos.Z * zworldtoint, nAngVect.X * (1 << 14), nAngVect.Y * (1 << 14), 0, CLIPMASK0, nRange);
+	HitScan(actor, pos.Z, DVector3(nAngVect, 0) * 1024, CLIPMASK0, nRange);
 	double nDist = (actor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
 	if (nDist - (actor->fClipdist()) < nRange)
 	{
