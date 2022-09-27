@@ -312,7 +312,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 				default:
 					if (dz2 < dz1 && dz2 < 0x400)
 					{
-						pFX->set_int_bvel_z(0);
+						pFX->vel.Z = 0;
 					}
 					else if (dz2 > dz1 && dz1 < 0x400)
 					{

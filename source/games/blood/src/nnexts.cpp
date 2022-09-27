@@ -3507,7 +3507,7 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
 {
 	sectortype* pSector = sourceactor->sector();
 
-	int top, bottom;
+	double top, bottom;
 	bool floor, ceil, wall, enter;
 
 	switch (objType)
@@ -3518,8 +3518,8 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
 	case OBJ_SECTOR:
 	{
 		GetActorExtents(sourceactor, &top, &bottom);
-		floor = (bottom >= pSector->int_floorz());
-		ceil = (top <= pSector->int_ceilingz());
+		floor = (bottom >= pSector->floorz);
+		ceil = (top <= pSector->ceilingz);
 		wall = (sourceactor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL);
 		enter = (!floor && !ceil && !wall);
 		BloodSectIterator it(targSect);

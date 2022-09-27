@@ -418,7 +418,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos = { pTSprite->pos.X, pTSprite->pos.Y, pSector->ceilingz };
 
 		pNSprite->picnum = 624;
-		pNSprite->shade = ((pTSprite->int_pos().Z - pSector->int_ceilingz()) >> 8) - 64;
+		pNSprite->shade = int(pTSprite->pos.Z - pSector->ceilingz) - 64;
 		pNSprite->pal = 2;
 		pNSprite->xrepeat = pNSprite->yrepeat = 64;
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
