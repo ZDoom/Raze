@@ -217,19 +217,19 @@ static void myThinkTarget(DBloodActor* actor)
 		auto ppos = pPlayer->actor->spr.pos;
 		auto dvect = ppos.XY() - actor->spr.pos;
 		auto pSector = pPlayer->actor->sector();
-		int nDist = approxDist(dvect);
-		if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
+		double nDist = dvect.Length();
+		if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
 			continue;
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 			continue;
-		int nDeltaAngle = getincangle(actor->int_ang(), getangle(dvect));
-		if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+		DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvect));
+		if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
 		{
 			aiSetTarget(actor, pPlayer->actor);
 			aiActivateDude(actor);
 		}
-		else if (nDist < pDudeInfo->hearDist)
+		else if (nDist < pDudeInfo->Heardist())
 		{
 			aiSetTarget(actor, ppos);
 			aiActivateDude(actor);
