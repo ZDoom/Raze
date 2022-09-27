@@ -190,10 +190,10 @@ struct XSECTOR {
 	DBloodActor* actordata;
 
 	uint32_t busy;
-	int32_t offCeilZ;
-	int32_t onCeilZ;
-	int32_t offFloorZ;
-	int32_t onFloorZ;
+	int32_t _offCeilZ;
+	int32_t _onCeilZ;
+	int32_t _offFloorZ;
+	int32_t _onFloorZ;
 	uint32_t windVel;          // Wind vel (changed from 10 bit to use higher velocity values)
 
 	uint16_t data;             // Data
