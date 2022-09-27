@@ -284,19 +284,17 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
 //
 //---------------------------------------------------------------------------
 
-int HitScan_(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
+int HitScan(DBloodActor* actor, double z, const DVector3& vect, unsigned int nMask, double nRange)
 {
-	double zz = z * zinttoworld;
-
 	assert(actor != nullptr);
-	assert(dx != 0 || dy != 0);
+	assert(!vect.XY().isZero());
 	gHitInfo.clearObj();
 	auto bakCstat = actor->spr.cstat;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 	DVector2 hitscangoal;
-	if (nRange) hitscangoal = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nRange;
+	if (nRange > 0) hitscangoal = actor->spr.pos.XY() + vect.XY().Resized(nRange);
 	else hitscangoal.Zero();
-	hitscan(DVector3(actor->spr.pos.XY(), zz), actor->sector(), DVector3(dx, dy, dz) * inttoworld, gHitInfo, nMask, &hitscangoal);
+	hitscan(DVector3(actor->spr.pos.XY(), z), actor->sector(), vect, gHitInfo, nMask, &hitscangoal);
 
 	actor->spr.cstat = bakCstat;
 	if (gHitInfo.actor() != nullptr)
@@ -314,7 +312,7 @@ int HitScan_(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMa
 		return 4;
 	}
 	if (gHitInfo.hitSector != nullptr)
-		return 1 + (zz < gHitInfo.hitpos.Z);
+		return 1 + (z < gHitInfo.hitpos.Z);
 	return -1;
 }
 
@@ -335,7 +333,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 
 	DVector2 hitscangoal;
-	if (nRange) hitscangoal = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nRange;
+	if (nRange > 0) hitscangoal = actor->spr.pos.XY() + vel.XY().Resized(nRange);
 	else hitscangoal.Zero();
 
 	hitscan(pos, actor->sector(), vel, gHitInfo, CLIPMASK1, &hitscangoal);
