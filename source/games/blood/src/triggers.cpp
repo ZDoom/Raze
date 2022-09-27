@@ -38,7 +38,8 @@ BEGIN_BLD_NS
 //
 //---------------------------------------------------------------------------
 
-unsigned int GetWaveValue(unsigned int nPhase, int nType)
+[[deprecated]]
+unsigned int GetWaveValueI(unsigned int nPhase, int nType)
 {
 	switch (nType)
 	{
@@ -53,6 +54,23 @@ unsigned int GetWaveValue(unsigned int nPhase, int nType)
 	}
 	return nPhase;
 }
+
+double GetWaveValue(unsigned int nPhase, int nType)
+{
+	switch (nType)
+	{
+	case 0:
+		return 0.5 - 0.5 * BobVal(int((nPhase >> 6) + 512));
+	case 1:
+		return FixedToFloat(nPhase);
+	case 2:
+		return 1.0 - BobVal(int((nPhase >> 7) + 512));
+	case 3:
+		return BobVal(int(nPhase >> 7));
+	}
+	return nPhase;
+}
+
 
 //---------------------------------------------------------------------------
 //
@@ -1001,8 +1019,8 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 {
 	viewInterpolateSector(pSector);
 
-	int dfz = pXSector->int_onFloorZ() - pXSector->int_offFloorZ();
-	int dcz = pXSector->int_onCeilZ() - pXSector->int_offCeilZ();
+	double dfz = pXSector->onFloorZ - pXSector->offFloorZ;
+	double dcz = pXSector->onCeilZ - pXSector->offCeilZ;
 
 #ifdef NOONE_EXTENSIONS
 	// get pointer to sprites near outside walls before translation
@@ -1013,7 +1031,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 	if (dfz != 0)
 	{
 		double old_Z = pSector->floorz;
-		pSector->set_int_floorz((pXSector->int_offFloorZ() + MulScale(dfz, GetWaveValue(a3, a4), 16)));
+		pSector->setfloorz(pXSector->offFloorZ + dfz * GetWaveValue(a3, a4));
 		pSector->baseFloor = pSector->floorz;
 		pSector->velFloor += (pSector->floorz - old_Z);
 
@@ -1061,7 +1079,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 	if (dcz != 0)
 	{
 		double old_Z = pSector->ceilingz;
-		pSector->set_int_ceilingz((pXSector->int_offCeilZ() + MulScale(dcz, GetWaveValue(a3, a4), 16)));
+		pSector->setceilingz(pXSector->offCeilZ + dcz * GetWaveValue(a3, a4));
 		pSector->baseCeil = pSector->ceilingz;
 		pSector->velCeil += pSector->ceilingz - old_Z;
 
@@ -1177,11 +1195,11 @@ int VCrushBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	int dz1 = pXSector->int_onCeilZ() - pXSector->int_offCeilZ();
 	int vc = pXSector->int_offCeilZ();
 	if (dz1 != 0)
-		vc += MulScale(dz1, GetWaveValue(a2, nWave), 16);
+		vc += MulScale(dz1, GetWaveValueI(a2, nWave), 16);
 	int dz2 = pXSector->int_onFloorZ() - pXSector->int_offFloorZ();
 	int v10 = pXSector->int_offFloorZ();
 	if (dz2 != 0)
-		v10 += MulScale(dz2, GetWaveValue(a2, nWave), 16);
+		v10 += MulScale(dz2, GetWaveValueI(a2, nWave), 16);
 	int v18;
 	if (GetHighestSprite(pSector, 6, &v18) && vc >= v18)
 		return 1;
@@ -1226,7 +1244,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += actor->basePoint.Z + MulScale(dz1, GetWaveValue(a2, nWave), 16) * inttoworld;
+				actor->spr.pos.Z += actor->basePoint.Z + MulScale(dz1, GetWaveValueI(a2, nWave), 16) * inttoworld;
 			}
 		}
 	}
@@ -1239,7 +1257,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += actor->basePoint.Z + MulScale(dz2, GetWaveValue(a2, nWave), 16) * inttoworld;
+				actor->spr.pos.Z += actor->basePoint.Z + MulScale(dz2, GetWaveValueI(a2, nWave), 16) * inttoworld;
 			}
 		}
 	}
@@ -1372,7 +1390,7 @@ int HDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!pXSector->marker0 || !pXSector->marker1) return 0;
 	auto marker0 = pXSector->marker0;
 	auto marker1 = pXSector->marker1;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
+	TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1403,7 +1421,7 @@ int RDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveB;
 	if (!pXSector->marker0) return 0;
 	auto marker0 = pXSector->marker0;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
+	TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1436,13 +1454,13 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	{
 		ang2 = ang1 + marker0->spr.angle;
 		int nWave = pXSector->busyWaveA;
-		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang1, marker0->spr.pos, ang2, true);
+		TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang1, marker0->spr.pos, ang2, true);
 	}
 	else
 	{
 		 ang2 = ang1 - marker0->spr.angle;
 		int nWave = pXSector->busyWaveB;
-		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang2, marker0->spr.pos, ang1, true);
+		TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang2, marker0->spr.pos, ang1, true);
 	}
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1496,7 +1514,7 @@ int PathBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!basepath || !marker0 || !marker1) return 0;
 
 	int nWave = marker0->xspr.wave;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos,  marker1->spr.angle, true);
+	TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), basepath->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos,  marker1->spr.angle, true);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if ((a2 & 0xffff) == 0)
