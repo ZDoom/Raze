@@ -38,23 +38,6 @@ BEGIN_BLD_NS
 //
 //---------------------------------------------------------------------------
 
-[[deprecated]]
-unsigned int GetWaveValueI(unsigned int nPhase, int nType)
-{
-	switch (nType)
-	{
-	case 0:
-		return 0x8000 - (Cos(FixedToInt(nPhase << 10)) >> 15);
-	case 1:
-		return nPhase;
-	case 2:
-		return 0x10000 - (Cos(FixedToInt(nPhase << 9)) >> 14);
-	case 3:
-		return Sin(FixedToInt(nPhase << 9)) >> 14;
-	}
-	return nPhase;
-}
-
 double GetWaveValue(unsigned int nPhase, int nType)
 {
 	switch (nType)
@@ -845,18 +828,15 @@ void PathSound(sectortype* pSector, int nSound)
 //
 //---------------------------------------------------------------------------
 
-void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, bool bAllWalls)
+void TranslateSector(sectortype* pSector, double wave1, double wave2, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, bool bAllWalls)
 {
-	double a2f = FixedToFloat(a2);
-	double a3f = FixedToFloat(a3);
-
 	XSECTOR* pXSector = &pSector->xs();
-	int v20 = interpolatedvalue(a6, a9, a2f);
-	int vc = interpolatedvalue(a6, a9, a3f);
-	int v24 = interpolatedvalue(a7, a10, a2f);
-	int v8 = interpolatedvalue(a7, a10, a3f);
-	int v44 = interpolatedvalue(a8, a11, a2f);
-	int ang = interpolatedvalue(a8, a11, a3f);
+	int v20 = interpolatedvalue(a6, a9, wave1);
+	int vc = interpolatedvalue(a6, a9, wave2);
+	int v24 = interpolatedvalue(a7, a10, wave1);
+	int v8 = interpolatedvalue(a7, a10, wave2);
+	int v44 = interpolatedvalue(a8, a11, wave1);
+	int ang = interpolatedvalue(a8, a11, wave2);
 	int v14 = ang - v44;
 
 	DVector2 pivot = { a4 * inttoworld, a5 * inttoworld };
@@ -1004,7 +984,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 
 }
 
-void TranslateSector(sectortype* pSector, int wave1, int wave2, const DVector2& pivot, const DVector2& pt1, DAngle ang1,const DVector2& pt2, DAngle ang2, bool allWalls)
+void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVector2& pivot, const DVector2& pt1, DAngle ang1,const DVector2& pt2, DAngle ang2, bool allWalls)
 {
 	TranslateSector(pSector, wave1, wave2, int(pivot.X * worldtoint), int(pivot.Y * worldtoint), int(pt1.X * worldtoint), int(pt1.Y * worldtoint), ang1.Buildang(), int(pt2.X * worldtoint), int(pt2.Y * worldtoint), ang2.Buildang(), allWalls);
 }
@@ -1395,7 +1375,7 @@ int HDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!pXSector->marker0 || !pXSector->marker1) return 0;
 	auto marker0 = pXSector->marker0;
 	auto marker1 = pXSector->marker1;
-	TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1426,7 +1406,7 @@ int RDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveB;
 	if (!pXSector->marker0) return 0;
 	auto marker0 = pXSector->marker0;
-	TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1459,13 +1439,13 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	{
 		ang2 = ang1 + marker0->spr.angle;
 		int nWave = pXSector->busyWaveA;
-		TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang1, marker0->spr.pos, ang2, true);
+		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang1, marker0->spr.pos, ang2, true);
 	}
 	else
 	{
 		 ang2 = ang1 - marker0->spr.angle;
 		int nWave = pXSector->busyWaveB;
-		TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang2, marker0->spr.pos, ang1, true);
+		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->spr.pos, marker0->spr.pos, ang2, marker0->spr.pos, ang1, true);
 	}
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1519,7 +1499,7 @@ int PathBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!basepath || !marker0 || !marker1) return 0;
 
 	int nWave = marker0->xspr.wave;
-	TranslateSector(pSector, GetWaveValueI(pXSector->busy, nWave), GetWaveValueI(a2, nWave), basepath->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos,  marker1->spr.angle, true);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos,  marker1->spr.angle, true);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if ((a2 & 0xffff) == 0)
@@ -2360,9 +2340,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			{
 				auto marker0 = pXSector->marker0;
 				auto marker1 = pXSector->marker1;
-				TranslateSector(pSector, 0, -65536, marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
+				TranslateSector(pSector, 0, -1, marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
 				UpdateBasePoints(pSector);
-				TranslateSector(pSector, 0, pXSector->busy, marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
+				TranslateSector(pSector, 0, FixedToFloat(pXSector->busy), marker0->spr.pos, marker0->spr.pos, marker0->spr.angle, marker1->spr.pos, marker1->spr.angle, pSector->type == kSectorSlide);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
@@ -2370,9 +2350,9 @@ void trInit(TArray<DBloodActor*>& actors)
 			case kSectorRotate:
 			{
 				auto marker0 = pXSector->marker0;
-				TranslateSector(pSector, 0, -65536, marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
+				TranslateSector(pSector, 0, -1, marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
 				UpdateBasePoints(pSector);
-				TranslateSector(pSector, 0, pXSector->busy, marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
+				TranslateSector(pSector, 0, FixedToFloat(pXSector->busy), marker0->spr.pos, marker0->spr.pos, nullAngle, marker0->spr.pos, marker0->spr.angle, pSector->type == kSectorRotate);
 				ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
 				break;
 			}
