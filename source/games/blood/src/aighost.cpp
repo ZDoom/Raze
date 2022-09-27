@@ -338,7 +338,7 @@ static void ghostThinkChase(DBloodActor* actor)
 				switch (actor->spr.type) {
 				case kDudePhantasm:
 					if (nDist < 0x200 && nDist > 0x100 && angWithinRange) {
-						int hit = HitScan_(actor, actor->spr.pos.Z, dxy.X * worldtoint, dxy.Y * worldtoint, 0, CLIPMASK1, 0);
+						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dxy, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -358,7 +358,7 @@ static void ghostThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x40 && angWithinRange)
 					{
-						int hit = HitScan_(actor, actor->spr.pos.Z, dxy.X * worldtoint, dxy.Y * worldtoint, 0, CLIPMASK1, 0);
+						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dxy, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:

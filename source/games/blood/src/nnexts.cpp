@@ -4649,7 +4649,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 				var = HitScan_(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, (!objActor->hasX()) ? 0 : objActor->dudeSlope * inttoworld), arg1, arg3 << 1);
 			else if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
-				var3 = (objActor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 8192 : -8192; // was 0x20000 - HitScan_ uses Q28.4 for dz!
+				var3 = (objActor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 8192 : -8192; // was 0x20000 - HitScan uses Q28.4 for dz!
 				var = HitScan_(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, var3), arg1, arg3 << 1);
 			}
 			else

@@ -162,9 +162,7 @@ static void calebThinkChase(DBloodActor* actor)
 				actor->dudeSlope = nDist == 0 ? 0 : target->spr.pos.Z - actor->spr.pos.Z / nDist * 16384;
 				if (nDist < 89.5625 && abs(nDeltaAngle) < DAngle1 * 5)
 				{
-					int dx = dvec.X * worldtoint;
-					int dy = dvec.Y * worldtoint;
-					int hit = HitScan_(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
