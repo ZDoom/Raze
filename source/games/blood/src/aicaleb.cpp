@@ -59,18 +59,17 @@ AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &
 
 void SeqAttackCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
-	int dz = actor->dudeSlope;
-	dx += Random2(1500);
-	dy += Random2(1500);
-	dz += Random2(1500);
+	DVector3 vect(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.);
+	vect.X += Random2F(1500, 4);
+	vect.Y += Random2F(1500, 4);
+	vect.Z += Random2F(1500, 8);
+
 	for (int i = 0; i < 2; i++)
 	{
-		int r1 = Random3(500);
-		int r2 = Random3(1000);
-		int r3 = Random3(1000);
-		actFireVector(actor, 0, 0, dx + r3, dy + r2, dz + r1, kVectorShell);
+		double r1 = Random3F(500, 4);
+		double r2 = Random3F(1000, 4);
+		double r3 = Random3F(1000, 8);
+		actFireVector(actor, 0, 0, vect + DVector3(r1, r2, r3), kVectorShell);
 	}
 	if (Chance(0x8000))
 		sfxPlay3DSound(actor, 10000 + Random(5), -1, 0);

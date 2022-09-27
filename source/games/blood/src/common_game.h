@@ -585,6 +585,12 @@ inline int Random3(int a1)
 	return MulScale(wrand() + wrand(), a1, 15) - a1;
 }
 
+inline double Random3F(int a1, int scale = 16)
+{
+	return FixedToFloat(Random3(a1), scale);
+}
+
+
 inline unsigned int QRandom(int a1)
 {
 	return MulScale(qrand(), a1, 15);

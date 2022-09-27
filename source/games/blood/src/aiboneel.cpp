@@ -77,14 +77,14 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 	}
 
 	auto target = actor->GetTarget();
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	int height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) << 2;
-	int height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) << 2;
-	actFireVector(actor, 0, 0, dx, dy, height2 - height, kVectorBoneelBite);
+	double height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) * REPEAT_SCALE;
+	double height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) * REPEAT_SCALE;
+	DVector3 vect(actor->spr.angle.ToVector() * 1024, height2 - height);
+
+	actFireVector(actor, 0., 0., vect, kVectorBoneelBite);
 }
 
 static void eelThinkTarget(DBloodActor* actor)
