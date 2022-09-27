@@ -68,7 +68,6 @@ class fixedhoriz
 	constexpr fixedhoriz(fixed_t v) : value(v) {}
 
 	friend constexpr fixedhoriz buildhoriz(int v);
-	friend constexpr fixedhoriz tanhoriz(double v);
 	friend fixedhoriz pitchhoriz(double v);
 
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval);
@@ -178,7 +177,6 @@ public:
 };
 
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
-inline constexpr fixedhoriz tanhoriz(double v) { return fixedhoriz(FloatToFixed<23>(v)); }
 inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(fixed_t(clamp<double>(IntToFixed(128) * tan(v * (pi::pi() / 180.)), -INT32_MAX, INT32_MAX))); }
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval)

@@ -46,23 +46,9 @@ inline static double getCorrectedScale(const double scaleAdjust)
 	return scaleAdjust < 1. ? scaleAdjust * (1. + 0.21 * (1. - scaleAdjust)) : scaleAdjust;
 }
 
-inline static fixedhoriz getscaledhoriz(const double value, const double scaleAdjust, const fixedhoriz object, const double push)
-{
-	return tanhoriz(getCorrectedScale(scaleAdjust) * ((object.Tan() * getTicrateScale(value)) + push));
-}
-
 inline static DAngle getscaledangle(const double value, const double scaleAdjust, const DAngle object, const DAngle push)
 {
 	return ((object.Normalized180() * getTicrateScale(value)) + push) * getCorrectedScale(scaleAdjust);
-}
-
-inline static void scaletozero(fixedhoriz& object, const double value, const double scaleAdjust, const double push = DBL_MAX)
-{
-	if (auto sgn = object.Sgn())
-	{
-		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? sgn * (1. / 576.) : push);
-		if (sgn != object.Sgn()) object = pitchhoriz(nullAngle.Degrees());
-	}
 }
 
 inline static void scaletozero(DAngle& object, const double value, const double scaleAdjust, const DAngle push = -minAngle)
@@ -391,11 +377,15 @@ Average: 4.375;
 */
 
 static constexpr double HORIZOFFSPEED = (1. / 8.) * 35.;
+static constexpr double HORIZOFFSPEEDF = 1.95835;
 
 void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting && cursectnum != nullptr)
 	{
+		// Temporarily hold horizoff as pitch.
+		auto tmpangle = DAngle::fromDeg(horizoff.Degrees());
+
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
@@ -417,7 +407,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
-					horizoff += maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
+					tmpangle += DAngle::fromDeg(maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5))).Degrees());
 				}
 			}
 		}
@@ -425,13 +415,16 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff.Degrees() < 38) horizoff += getscaledhoriz(HORIZOFFSPEED, scaleAdjust, pitchhoriz(38) - horizoff, 0.0078125);
+			if (tmpangle < DAngle::fromDeg(38)) tmpangle += getscaledangle(HORIZOFFSPEEDF, scaleAdjust, DAngle::fromDeg(38) - tmpangle, DAngle::fromDeg(0.4476));
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(horizoff, HORIZOFFSPEED, scaleAdjust, horizoff.Sgn() * (1. / 128.));
+			scaletozero(tmpangle, HORIZOFFSPEEDF, scaleAdjust, DAngle::fromDeg(tmpangle.Sgn() * 0.4476));
 		}
+
+		// Convert temporary angle back to fixedhoriz.
+		horizoff = pitchhoriz(ClampViewPitch(tmpangle.Degrees()));
 	}
 }
 
