@@ -166,11 +166,13 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 		DVector3 tvec = pos;
 		tvec.XY() += actor->spr.angle.ToVector() * nDist;
 		tvec.Z += actor->dudeSlope / 16384. * nDist;
+
 		double tsr = nDist * 9.23828125;
 		double top, bottom;
 		GetActorExtents(actor2, &top, &bottom);
 		if (tvec.Z - tsr > bottom || tvec.Z + tsr < top)
 			continue;
+
 		double nDist2 = (tvec - pos2).Length();
 		if (nDist2 < nClosest)
 		{

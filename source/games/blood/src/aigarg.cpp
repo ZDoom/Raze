@@ -105,87 +105,66 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 	wrand(); // ???
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	int height = (actor->spr.yrepeat * getDudeInfo(actor->spr.type)->eyeHeight) << 2;
-	int x = actor->int_pos().X;
-	int y = actor->int_pos().Y;
-	int z = height;
-	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
-	Aim aim;
-	aim.dx = bcos(actor->int_ang());
-	aim.dy = bsin(actor->int_ang());
-	aim.dz = actor->dudeSlope;
-	int nClosest = 0x7fffffff;
+	double height = (actor->spr.yrepeat * getDudeInfo(actor->spr.type)->eyeHeight) * REPEAT_SCALE;
+	DVector3 pos(actor->spr.pos.XY(), height);
+
+	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.);
+	double nClosest = 0x7fffffff;
+
 	BloodStatIterator it(kStatDude);
 	while (auto actor2 = it.Next())
 	{
 		if (actor == actor2 || !(actor2->spr.flags & 8))
 			continue;
-		int x2 = actor2->int_pos().X;
-		int y2 = actor2->int_pos().Y;
-		int z2 = actor2->int_pos().Z;
-		int nDist = approxDist(x2 - x, y2 - y);
-		if (nDist == 0 || nDist > 0x2800)
+
+		auto pos2 = actor2->spr.pos;
+		double nDist = (pos2 - pos).Length();
+		if (nDist == 0 || nDist > 0x280)
 			continue;
-		if (tt.at10)
-		{
-			int t = DivScale(nDist, tt.at10, 12);
-			x2 += (actor->int_vel().X * t) >> 12;
-			y2 += (actor->int_vel().Y * t) >> 12;
-			z2 += (actor->int_vel().Z * t) >> 8;
-		}
-		int tx = x + MulScale(Cos(actor->int_ang()), nDist, 30);
-		int ty = y + MulScale(Sin(actor->int_ang()), nDist, 30);
-		int tz = z + MulScale(actor->dudeSlope, nDist, 10);
-		int tsr = MulScale(9460, nDist, 10);
-		int top, bottom;
+
+		pos += actor2->vel * nDist * (65536. / 0x1aaaaa);
+
+		DVector3 tvec = pos;
+		tvec.XY() += actor->spr.angle.ToVector() * nDist;
+		tvec.Z += actor->dudeSlope / 16384. * nDist;
+
+		double tsr = nDist * 9.23828125;
+		double top, bottom;
 		GetActorExtents(actor2, &top, &bottom);
-		if (tz - tsr > bottom || tz + tsr < top)
+		if (tvec.Z - tsr > bottom || tvec.Z + tsr < top)
 			continue;
-		int dx = (tx - x2) >> 4;
-		int dy = (ty - y2) >> 4;
-		int dz = (tz - z2) >> 8;
-		int nDist2 = ksqrt(dx * dx + dy * dy + dz * dz);
+
+		double nDist2 = (tvec - pos2).Length();
 		if (nDist2 < nClosest)
 		{
-			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - actor->int_ang() + 1024) & 2047) - 1024;
-			if (abs(nDeltaAngle) <= tt.at8)
+			DAngle nAngle = VecToAngle(pos2.XY() - pos.XY());
+			DAngle nDeltaAngle = absangle(nAngle, actor->spr.angle);
+			if (nDeltaAngle <= DAngle45)
 			{
-				int tz1 = actor2->int_pos().Z - actor->int_pos().Z;
-				if (cansee(x, y, z, actor->sector(), x2, y2, z2, actor2->sector()))
+				double tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
+
+				if (cansee(pos, actor->sector(), pos2, actor2->sector()))
 				{
 					nClosest = nDist2;
-					aim.dx = bcos(nAngle);
-					aim.dy = bsin(nAngle);
-					aim.dz = DivScale(tz1, nDist, 10);
-					if (tz1 > -0x333)
-						aim.dz = DivScale(tz1, nDist, 10);
-					else if (tz1 < -0x333 && tz1 > -0xb33)
-						aim.dz = DivScale(tz1, nDist, 10) + 9460;
-					else if (tz1 < -0xb33 && tz1 > -0x3000)
-						aim.dz = DivScale(tz1, nDist, 10) + 9460;
-					else if (tz1 < -0x3000)
-						aim.dz = DivScale(tz1, nDist, 10) - 7500;
-					else
-						aim.dz = DivScale(tz1, nDist, 10);
+					Aim.XY() = nAngle.ToVector();
+					Aim.Z = tz1 / nDist;
+
+					// This does not make any sense...
+					if (tz1 < -3.2 && tz1 > -48)
+						Aim.Z += 0.5774;
+					else if (tz1 <= -48)
+						Aim.Z -= 0.45776;
 				}
 				else
-					aim.dz = DivScale(tz1, nDist, 10);
+					Aim.Z = tz1 / nDist;
 			}
 		}
 	}
-#ifdef NOONE_EXTENSIONS
 	// allow to fire missile in non-player targets
 	if (target->IsPlayerActor() || gModernMap) {
-		actFireMissile(actor, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-		actFireMissile(actor, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+		actFireMissile(actor, -7.5, 0, Aim, kMissileArcGargoyle);
+		actFireMissile(actor, 7.5, 0, Aim, kMissileArcGargoyle);
 	}
-#else
-	if (target->IsPlayerActor()) {
-		actFireMissile(actor, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-		actFireMissile(actor, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-	}
-#endif
 
 }
 
