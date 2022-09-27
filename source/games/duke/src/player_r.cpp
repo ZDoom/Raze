@@ -200,10 +200,10 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 //
 //---------------------------------------------------------------------------
 
-static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sectp = actor->sector();
-	int zvel = 0;
+	double zvel = 0;
 	HitInfo hit{};
 
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
@@ -213,51 +213,53 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (5 << 8);
-			zvel = ((aimed->int_pos().Z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->int_pos().X - sx, aimed->int_pos().Y - sy);
+			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 5;
+			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
+			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * 16) / dist;
+			ang = VecToAngle(aimed->spr.pos - pos);
 		}
 
 		if (atwith == SHOTSPARK1)
 		{
 			if (aimed == nullptr)
 			{
-				sa += 16 - (krand() & 31);
-				zvel = -ps[p].horizon.sum().asq16() >> 11;
+				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
+				zvel = -ps[p].horizon.sum().asbuildf() / 8;
 				zvel += 128 - (krand() & 255);
 			}
 		}
 		else
 		{
 			if (atwith == SHOTGUN)
-				sa += 64 - (krand() & 127);
+				ang += DAngle22_5 / 2 - randomAngle(22.5);
 			else
-				sa += 16 - (krand() & 31);
-			if (aimed == nullptr) zvel = -ps[p].horizon.sum().asq16() >> 11;
-			zvel += 128 - (krand() & 255);
+				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
+			if (aimed == nullptr) zvel = -ps[p].horizon.sum().asbuildf() / 8;
+			zvel += 0.5 - krandf(1);
 		}
-		sz -= (2 << 8);
+		pos.Z -= 2;
 	}
 	else
 	{
-		int x;
+		double x;
 		int j = findplayer(actor, &x);
-		sz -= (4 << 8);
-		zvel = ((ps[j].player_int_pos().Z - sz) << 8) / (ldist(ps[j].GetActor(), actor));
+		pos.Z -= 4;
+		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
+		zvel = ((ps[j].pos.Z - pos.Z) * 16) / dist;
 		if (actor->spr.picnum != BOSS1)
 		{
-			zvel += 128 - (krand() & 255);
-			sa += 32 - (krand() & 63);
+			zvel += 0.5 - krandf(1);
+			ang += DAngle22_5 / 4 - randomAngle(22.5 / 2);
 		}
 		else
 		{
-			zvel += 128 - (krand() & 255);
-			sa = getangle(ps[j].player_int_pos().X - sx, ps[j].player_int_pos().Y - sy) + 64 - (krand() & 127);
+			zvel += 0.5 - krandf(1);
+			ang = VecToAngle(ps[j].pos - pos) + DAngle22_5 / 2 - randomAngle(22.5);
 		}
 	}
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan(vec3_t( sx, sy, sz ), sectp, { bcos(sa), bsin(sa),zvel << 6 }, hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
 
 	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr))
@@ -278,7 +280,6 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				{
 					npos.Z = effector->GetOwner()->sector()->ceilingz;
 				}
-				auto ang = DAngle::fromBuild(sa);
 				hitscan(npos, effector->GetOwner()->sector(), DVector3(ang.ToVector() * 1024, zvel * 0.25), hit, CLIPMASK1);
 				break;
 			}
@@ -295,12 +296,12 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				return;
 
 	if ((krand() & 15) == 0 && hit.hitSector->lotag == 2)
-		tracers(hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, sx, sy, sz, 8 - (ud.multimode >> 1));
+		tracers(hit.int_hitpos().X, hit.int_hitpos().Y, hit.int_hitpos().Z, pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint, 8 - (ud.multimode >> 1));
 
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 10, 10, ang.Buildang(), 0, 0, actor, 4);
 		if (!spark) return;
 		spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->spr.extra += (krand() % 6);
@@ -329,14 +330,14 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 			fi.checkhitsprite(hit.actor(), spark);
 			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
 			{
-				auto l = spawn(spark, JIBS6);
+				auto jib = spawn(spark, JIBS6);
 				spark->spr.xrepeat = spark->spr.yrepeat = 0;
-				if (l)
+				if (jib)
 				{
-					l->spr.pos.Z += 4;
-					l->vel.X = 1;
-					l->spr.xrepeat = l->spr.yrepeat = 24;
-					l->add_int_ang(64 - (krand() & 127));
+					jib->spr.pos.Z += 4;
+					jib->vel.X = 1;
+					jib->spr.xrepeat = jib->spr.yrepeat = 24;
+					jib->spr.angle += DAngle22_5 / 2 - randomAngle(22.5);
 				}
 			}
 			else spawn(spark, SMALLSMOKE);
@@ -427,7 +428,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	}
 	else
 	{
-		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 24, 24, ang.Buildang(), 0, 0, actor, 4);
 		if (!spark) return;
 		spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
@@ -885,7 +886,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	case SHOTSPARK1:
 	case SHOTGUN:
 	case CHAINGUN:
-		shootweapon(actor, p, sx, sy, sz, sa, atwith);
+		shootweapon(actor, p, spos, sang, atwith);
 		return;
 
 	case POWDERKEG:
