@@ -1123,9 +1123,9 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, int* z)
+DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, double* z)
 {
-	*z = pSector->int_floorz();
+	*z = pSector->floorz;
 	DBloodActor* found = nullptr;
 
 	BloodSectIterator it(pSector);
@@ -1133,11 +1133,11 @@ DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, int* z)
 	{
 		if (actor->spr.statnum == nStatus || nStatus == kStatFree)
 		{
-			int top, bottom;
+			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			if (actor->int_pos().Z - top > *z)
+			if (actor->spr.pos.Z - top > *z)
 			{
-				*z = actor->int_pos().Z - top;
+				*z = actor->spr.pos.Z - top;
 				found = actor;
 			}
 		}
@@ -1192,22 +1192,26 @@ int VCrushBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveA;
 	else
 		nWave = pXSector->busyWaveB;
-	int dz1 = pXSector->int_onCeilZ() - pXSector->int_offCeilZ();
-	int vc = pXSector->int_offCeilZ();
+	double dz1 = pXSector->onCeilZ - pXSector->offCeilZ;
+	double z1 = pXSector->offCeilZ;
 	if (dz1 != 0)
-		vc += MulScale(dz1, GetWaveValueI(a2, nWave), 16);
-	int dz2 = pXSector->int_onFloorZ() - pXSector->int_offFloorZ();
-	int v10 = pXSector->int_offFloorZ();
+		z1 += dz1 * GetWaveValue(a2, nWave);
+
+	double dz2 = pXSector->onFloorZ - pXSector->offFloorZ;
+	double z2 = pXSector->offFloorZ;
 	if (dz2 != 0)
-		v10 += MulScale(dz2, GetWaveValueI(a2, nWave), 16);
-	int v18;
-	if (GetHighestSprite(pSector, 6, &v18) && vc >= v18)
+		z2 += dz2 * GetWaveValue(a2, nWave);
+
+	double highZ;
+	if (GetHighestSprite(pSector, 6, &highZ) && z1 >= highZ)
 		return 1;
 	viewInterpolateSector(pSector);
+
 	if (dz1 != 0)
-		pSector->set_int_ceilingz(vc);
+		pSector->setceilingz(z1);
 	if (dz2 != 0)
-		pSector->set_int_floorz(v10);
+		pSector->setfloorz(z2);
+
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
 		evSendSector(pSector, pXSector->txID, kCmdLink, initiator);
