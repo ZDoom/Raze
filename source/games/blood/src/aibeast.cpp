@@ -82,16 +82,15 @@ void SlashSeqCallback(int, DBloodActor* actor)
 
 void StompSeqCallback(int, DBloodActor* actor)
 {
-	int angx = bcos(actor->int_ang());
-	int angy = bsin(actor->int_ang());
 	auto pos = actor->spr.pos;
-	const int vc = 400;
+	const int nDist = 400;
 	auto pSector = actor->sector();
-	int v1c = 5 + 2 * gGameOptions.nDifficulty;
-	int v10 = 25 + 30 * gGameOptions.nDifficulty;
+	int nBaseDamage = 5 + 2 * gGameOptions.nDifficulty;
+	int nBaseDamage2 = 25 + 30 * gGameOptions.nDifficulty;
+
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
-	auto sectorMap = GetClosestSpriteSectors(pSector, actor->spr.pos.XY(), vc, nullptr, newSectCheckMethod);
-	int hit = HitScan(actor, actor->spr.pos.Z, angx, angy, 0, CLIPMASK1, 0);
+	auto sectorMap = GetClosestSpriteSectors(pSector, actor->spr.pos.XY(), nDist, nullptr, newSectCheckMethod);
+	int hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector() * 1024, 0), CLIPMASK1, 0);
 	DBloodActor* actorh = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actorh);
 
@@ -106,20 +105,20 @@ void StompSeqCallback(int, DBloodActor* actor)
 					continue;
 				if (actor2->spr.flags & 32)
 					continue;
-				if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, pos, pSector, vc << 4))
+				if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, pos, pSector, nDist << 4))
 				{
 					double top, bottom;
 					GetActorExtents(actor, &top, &bottom);
 					if (abs(bottom - pSector->floorz) == 0)
 					{
 						double nDist2 = (actor->spr.pos.XY() - actor2->spr.pos.XY()).Length();
-						if (nDist2 <= vc)
+						if (nDist2 <= nDist)
 						{
 							int nDamage;
 							if (nDist2 <= 0)
-								nDamage = v1c + v10;
+								nDamage = nBaseDamage + nBaseDamage2;
 							else
-								nDamage = v1c + v10 *  ((vc - nDist2) / vc);
+								nDamage = nBaseDamage + nBaseDamage2 *  ((nDist - nDist2) / nDist);
 							if (actor2->IsPlayerActor())
 								gPlayer[actor2->spr.type - kDudePlayer1].quakeEffect += nDamage * 4;
 							actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
@@ -134,19 +133,19 @@ void StompSeqCallback(int, DBloodActor* actor)
 	{
 		if (actor2->spr.flags & 32)
 			continue;
-		if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, pos, pSector, vc << 4))
+		if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, pos, pSector, nDist << 4))
 		{
 			if (actor2->xspr.locked)
 				continue;
 
 			double nDist2 = (actor->spr.pos.XY() - actor2->spr.pos.XY()).Length();
-			if (nDist2 <= vc)
+			if (nDist2 <= nDist)
 			{
 				int nDamage;
 				if (nDist2 <= 0)
-					nDamage = v1c + v10;
+					nDamage = nBaseDamage + nBaseDamage2;
 				else
-					nDamage = v1c + v10 * ((vc - nDist2) / vc);
+					nDamage = nBaseDamage + nBaseDamage2 * ((nDist - nDist2) / nDist);
 
 				if (actor2->IsPlayerActor())
 					gPlayer[actor2->spr.type - kDudePlayer1].quakeEffect += nDamage * 4;
