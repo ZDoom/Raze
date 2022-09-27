@@ -4224,7 +4224,7 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
 		case 51: return condCmp(pXSect->Depth, arg1, arg2, cmpOp);
 		case 55: // compare floor height (in %)
 		case 56: { // compare ceil height (in %)
-			int h = 0; int curH = 0;
+			double h = 0, curH = 0;
 			switch (pSect->type)
 			{
 			case kSectorZMotion:
@@ -4232,15 +4232,15 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
 			case kSectorSlide:
 				if (cond == 55)// 60)
 				{
-					h = ClipLow(abs(pXSect->int_onFloorZ() - pXSect->int_offFloorZ()), 1);
-					curH = abs(pSect->int_floorz() - pXSect->int_offFloorZ());
+					h = max(abs(pXSect->onFloorZ - pXSect->offFloorZ), 1 / 256.);
+					curH = abs(pSect->floorz - pXSect->offFloorZ);
 				}
 				else
 				{
-					h = ClipLow(abs(pXSect->int_onCeilZ() - pXSect->int_offCeilZ()), 1);
-					curH = abs(pSect->int_ceilingz() - pXSect->int_offCeilZ());
+					h = max(abs(pXSect->onCeilZ - pXSect->offCeilZ), 1 / 256.);
+					curH = abs(pSect->ceilingz - pXSect->offCeilZ);
 				}
-				return condCmp((kPercFull * curH) / h, arg1, arg2, cmpOp);
+				return condCmp(int((kPercFull * curH) / h), arg1, arg2, cmpOp);
 			default:
 				condError(aCond, "Usupported sector type %d", pSect->type);
 				return false;
