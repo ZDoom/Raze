@@ -1317,6 +1317,17 @@ int PlayerInitChemBomb(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
+static inline double RandomZVel()
+{
+    return (-100 - RandomRange(100)) * 0.5;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int InitSpriteChemBomb(DSWActor* actor)
 {
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
@@ -1340,7 +1351,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
-	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
+	actorNew->vel.Z = RandomZVel();
 
     actorNew->set_const_clipdist(80 >> 2);
 
@@ -1381,7 +1392,7 @@ int InitChemBomb(DSWActor* actor)
     if (SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
+	actorNew->vel.Z = RandomZVel();
     actorNew->set_const_clipdist(0);
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
@@ -1701,7 +1712,7 @@ int InitCaltrops(DSWActor* actor)
     actorNew->user.ceiling_dist = 3;
     actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
-	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
+	actorNew->vel.Z = RandomZVel();
 	
 	UpdateChange(actorNew, 0.5);
 
@@ -1744,7 +1755,7 @@ int InitPhosphorus(DSWActor* actor)
     actorNew->user.ceiling_dist = 3;
     actorNew->user.floor_dist = 3;
     actorNew->user.Counter = 0;
-	actorNew->vel.Z = (-100 - RandomRange(100)) * HORIZ_MULTF;
+	actorNew->vel.Z = RandomZVel();
 
 	UpdateChange(actorNew, 0.5);
 
