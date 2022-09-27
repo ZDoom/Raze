@@ -4232,13 +4232,13 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
 			case kSectorSlide:
 				if (cond == 55)// 60)
 				{
-					h = ClipLow(abs(pXSect->_onFloorZ - pXSect->_offFloorZ), 1);
-					curH = abs(pSect->int_floorz() - pXSect->_offFloorZ);
+					h = ClipLow(abs(pXSect->int_onFloorZ() - pXSect->int_offFloorZ()), 1);
+					curH = abs(pSect->int_floorz() - pXSect->int_offFloorZ());
 				}
 				else
 				{
-					h = ClipLow(abs(pXSect->_onCeilZ - pXSect->_offCeilZ), 1);
-					curH = abs(pSect->int_ceilingz() - pXSect->_offCeilZ);
+					h = ClipLow(abs(pXSect->int_onCeilZ() - pXSect->int_offCeilZ()), 1);
+					curH = abs(pSect->int_ceilingz() - pXSect->int_offCeilZ());
 				}
 				return condCmp((kPercFull * curH) / h, arg1, arg2, cmpOp);
 			default:

@@ -194,6 +194,12 @@ struct XSECTOR {
 	int32_t _onCeilZ;
 	int32_t _offFloorZ;
 	int32_t _onFloorZ;
+
+	int int_offCeilZ() const { return _offCeilZ; }
+	int int_onCeilZ() const { return _onCeilZ; }
+	int int_offFloorZ() const { return _offFloorZ; }
+	int int_onFloorZ() const { return _onFloorZ; }
+
 	uint32_t windVel;          // Wind vel (changed from 10 bit to use higher velocity values)
 
 	uint16_t data;             // Data

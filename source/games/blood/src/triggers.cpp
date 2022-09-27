@@ -1001,8 +1001,8 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 {
 	viewInterpolateSector(pSector);
 
-	int dfz = pXSector->_onFloorZ - pXSector->_offFloorZ;
-	int dcz = pXSector->_onCeilZ - pXSector->_offCeilZ;
+	int dfz = pXSector->int_onFloorZ() - pXSector->int_offFloorZ();
+	int dcz = pXSector->int_onCeilZ() - pXSector->int_offCeilZ();
 
 #ifdef NOONE_EXTENSIONS
 	// get pointer to sprites near outside walls before translation
@@ -1013,7 +1013,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 	if (dfz != 0)
 	{
 		double old_Z = pSector->floorz;
-		pSector->set_int_floorz((pXSector->_offFloorZ + MulScale(dfz, GetWaveValue(a3, a4), 16)));
+		pSector->set_int_floorz((pXSector->int_offFloorZ() + MulScale(dfz, GetWaveValue(a3, a4), 16)));
 		pSector->baseFloor = pSector->floorz;
 		pSector->velFloor += (pSector->floorz - old_Z);
 
@@ -1061,7 +1061,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 	if (dcz != 0)
 	{
 		double old_Z = pSector->ceilingz;
-		pSector->set_int_ceilingz((pXSector->_offCeilZ + MulScale(dcz, GetWaveValue(a3, a4), 16)));
+		pSector->set_int_ceilingz((pXSector->int_offCeilZ() + MulScale(dcz, GetWaveValue(a3, a4), 16)));
 		pSector->baseCeil = pSector->ceilingz;
 		pSector->velCeil += pSector->ceilingz - old_Z;
 
@@ -1174,12 +1174,12 @@ int VCrushBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveA;
 	else
 		nWave = pXSector->busyWaveB;
-	int dz1 = pXSector->_onCeilZ - pXSector->_offCeilZ;
-	int vc = pXSector->_offCeilZ;
+	int dz1 = pXSector->int_onCeilZ() - pXSector->int_offCeilZ();
+	int vc = pXSector->int_offCeilZ();
 	if (dz1 != 0)
 		vc += MulScale(dz1, GetWaveValue(a2, nWave), 16);
-	int dz2 = pXSector->_onFloorZ - pXSector->_offFloorZ;
-	int v10 = pXSector->_offFloorZ;
+	int dz2 = pXSector->int_onFloorZ() - pXSector->int_offFloorZ();
+	int v10 = pXSector->int_offFloorZ();
 	if (dz2 != 0)
 		v10 += MulScale(dz2, GetWaveValue(a2, nWave), 16);
 	int v18;
@@ -1217,7 +1217,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveA;
 	else
 		nWave = pXSector->busyWaveB;
-	int dz1 = pXSector->_onFloorZ - pXSector->_offFloorZ;
+	int dz1 = pXSector->int_onFloorZ() - pXSector->int_offFloorZ();
 	if (dz1 != 0)
 	{
 		BloodSectIterator it(pSector);
@@ -1230,7 +1230,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			}
 		}
 	}
-	int dz2 = pXSector->_onCeilZ - pXSector->_offCeilZ;
+	int dz2 = pXSector->int_onCeilZ() - pXSector->int_offCeilZ();
 	if (dz2 != 0)
 	{
 		BloodSectIterator it(pSector);
@@ -1275,7 +1275,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (actor && a2 > pXSector->busy)
 	{
 		assert(actor->hasX());
-		if (pXSector->_onCeilZ > pXSector->_offCeilZ || pXSector->_onFloorZ < pXSector->_offFloorZ)
+		if (pXSector->int_onCeilZ() > pXSector->int_offCeilZ() || pXSector->int_onFloorZ() < pXSector->int_offFloorZ())
 		{
 			if (pXSector->interruptable)
 			{
@@ -1307,7 +1307,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	else if (actor && a2 < pXSector->busy)
 	{
 		assert(actor->hasX());
-		if (pXSector->_offCeilZ > pXSector->_onCeilZ || pXSector->_offFloorZ < pXSector->_onFloorZ)
+		if (pXSector->int_offCeilZ() > pXSector->int_onCeilZ() || pXSector->int_offFloorZ() < pXSector->int_onFloorZ())
 		{
 			if (pXSector->interruptable)
 			{
