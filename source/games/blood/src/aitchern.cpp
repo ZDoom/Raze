@@ -32,12 +32,12 @@ BEGIN_BLD_NS
 static void sub_72580(DBloodActor*);
 static void sub_725A4(DBloodActor*);
 static void sub_72850(DBloodActor*);
-static void sub_72934(DBloodActor*);
+static void tchernobogThinkChase(DBloodActor*);
 
 
 AISTATE tchernobogIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, sub_725A4, NULL };
 AISTATE tchernobogSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, sub_72580, &tchernobogIdle };
-AISTATE tchernobogChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, sub_72934, NULL };
+AISTATE tchernobogChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, tchernobogThinkChase, NULL };
 AISTATE tchernobogRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &tchernobogSearch };
 AISTATE tcherno13A9B8 = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, sub_72850, &tchernobogIdle };
 AISTATE tcherno13A9D4 = { kAiStateMove, 6, dword_279B54, 60, NULL, NULL, NULL, &tchernobogChase };
@@ -270,7 +270,7 @@ static void sub_72850(DBloodActor* actor)
 	aiThinkTarget(actor);
 }
 
-static void sub_72934(DBloodActor* actor)
+static void tchernobogThinkChase(DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr)
 	{
@@ -286,9 +286,9 @@ static void sub_72934(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
+	DAngle nAngle = VecToAngle(dvec);
+	double nDist = dvec.Length();
+	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
 		aiNewState(actor, &tchernobogSearch);
@@ -300,20 +300,20 @@ static void sub_72934(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->seeDist)
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				if (nDist < 0x1f00 && nDist > 0xd00 && abs(nDeltaAngle) < 85)
+				if (nDist < 0x1f0 && nDist > 0xd0 && nDeltaAngle < DAngle15)
 					aiNewState(actor, &tcherno13AA0C);
-				else if (nDist < 0xd00 && nDist > 0xb00 && abs(nDeltaAngle) < 85)
+				else if (nDist < 0xd0 && nDist > 0xb0 && nDeltaAngle < DAngle15)
 					aiNewState(actor, &tcherno13A9D4);
-				else if (nDist < 0xb00 && nDist > 0x500 && abs(nDeltaAngle) < 85)
+				else if (nDist < 0xb0 && nDist > 0x50 && nDeltaAngle < DAngle15)
 					aiNewState(actor, &tcherno13A9F0);
 				return;
 			}
