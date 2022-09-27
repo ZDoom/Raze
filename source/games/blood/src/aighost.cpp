@@ -66,19 +66,18 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	int height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) << 2;
-	int height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) << 2;
-	int dz = height - height2;
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
+	double height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) * REPEAT_SCALE;
+	double height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) * REPEAT_SCALE;
+	DVector3 dv(actor->spr.angle.ToVector() * 64, height - height2);
+
 	sfxPlay3DSound(actor, 1406, 0, 0);
-	actFireVector(actor, 0, 0, dx, dy, dz, kVectorGhost);
-	int r1 = Random(50);
-	int r2 = Random(50);
-	actFireVector(actor, 0, 0, dx + r2, dy - r1, dz, kVectorGhost);
-	r1 = Random(50);
-	r2 = Random(50);
-	actFireVector(actor, 0, 0, dx - r2, dy + r1, dz, kVectorGhost);
+	actFireVector(actor, 0, 0, dv, kVectorGhost);
+	double r1 = RandomF(50, 8);
+	double r2 = RandomF(50, 8);
+	actFireVector(actor, 0, 0, dv + DVector2(r2, -r1), kVectorGhost);
+	r1 = RandomF(50, 8);
+	r2 = RandomF(50, 8);
+	actFireVector(actor, 0, 0, dv + DVector2(-r2, r1), kVectorGhost);
 }
 
 void ghostThrowSeqCallback(int, DBloodActor* actor)
