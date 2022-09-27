@@ -1678,8 +1678,8 @@ void OperatePath(sectortype* pSector, EVENT event)
 	}
 
 	pXSector->marker1 = actor;
-	pXSector->_offFloorZ = marker0->int_pos().Z;
-	pXSector->_onFloorZ = actor->int_pos().Z;
+	pXSector->offFloorZ = marker0->spr.pos.Z;
+	pXSector->onFloorZ = actor->spr.pos.Z;
 	switch (event.cmd) {
 	case kCmdOn:
 		pXSector->state = 0;

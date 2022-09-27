@@ -190,15 +190,15 @@ struct XSECTOR {
 	DBloodActor* actordata;
 
 	uint32_t busy;
-	int32_t _offCeilZ;
-	int32_t _onCeilZ;
-	int32_t _offFloorZ;
-	int32_t _onFloorZ;
+	double offCeilZ;
+	double onCeilZ;
+	double offFloorZ;
+	double onFloorZ;
 
-	int int_offCeilZ() const { return _offCeilZ; }
-	int int_onCeilZ() const { return _onCeilZ; }
-	int int_offFloorZ() const { return _offFloorZ; }
-	int int_onFloorZ() const { return _onFloorZ; }
+	int int_offCeilZ() const { return offCeilZ * zworldtoint; }
+	int int_onCeilZ() const { return onCeilZ * zworldtoint; }
+	int int_offFloorZ() const { return offFloorZ * zworldtoint; }
+	int int_onFloorZ() const { return onFloorZ * zworldtoint; }
 
 	uint32_t windVel;          // Wind vel (changed from 10 bit to use higher velocity values)
 

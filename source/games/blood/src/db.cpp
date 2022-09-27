@@ -348,10 +348,10 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 			pXSector->stopOn = bitReader.readUnsigned(1);
 			pXSector->stopOff = bitReader.readUnsigned(1);
 			pXSector->ceilpal = bitReader.readUnsigned(4);
-			pXSector->_offCeilZ = bitReader.readSigned(32);
-			pXSector->_onCeilZ = bitReader.readSigned(32);
-			pXSector->_offFloorZ = bitReader.readSigned(32);
-			pXSector->_onFloorZ = bitReader.readSigned(32);
+			pXSector->offCeilZ = bitReader.readSigned(32) * zmaptoworld;
+			pXSector->onCeilZ = bitReader.readSigned(32) * zmaptoworld;
+			pXSector->offFloorZ = bitReader.readSigned(32) * zmaptoworld;
+			pXSector->onFloorZ = bitReader.readSigned(32) * zmaptoworld;
 			/*pXSector->marker0 =*/ bitReader.readUnsigned(16);
 			/*pXSector->marker1 =*/ bitReader.readUnsigned(16);
 			pXSector->Crush = bitReader.readUnsigned(1);
