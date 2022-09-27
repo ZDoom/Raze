@@ -91,7 +91,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 
 	if (p >= 0)
 	{
-		zvel = -ps[p].horizon.sum().asbuildf() * 0.125;
+		zvel = -ps[p].horizon.sum().Tan() * 16.;
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -224,7 +224,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-				zvel = -ps[p].horizon.sum().asbuildf() / 8;
+				zvel = -ps[p].horizon.sum().Tan() * 16.;
 				zvel += 0.5 - krandf(1);
 			}
 		}
@@ -234,7 +234,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				ang += DAngle22_5 / 2 - randomAngle(22.5);
 			else
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			if (aimed == nullptr) zvel = -ps[p].horizon.sum().asbuildf() / 8;
+			if (aimed == nullptr) zvel = -ps[p].horizon.sum().Tan() * 16.;
 			zvel += 0.5 - krandf(1);
 		}
 		pos.Z -= 2;
@@ -512,7 +512,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		}
 		else
 		{
-			zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
+			zvel = -ps[p].horizon.sum().Tan() * 49.;
 		}
 	}
 	else
@@ -628,7 +628,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 				ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
 		else
-			zvel = -ps[p].horizon.sum().asbuildf() * (81 / 256.);
+			zvel = -ps[p].horizon.sum().Tan() * 40.5;
 
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
@@ -782,7 +782,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
 		else
-			zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
+			zvel = -ps[p].horizon.sum().Tan() * 49.;
 	}
 	else
 	{
@@ -2743,12 +2743,12 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				zvel = p->horizon.sum().asbuildf() * (20 / 256.);
+				zvel = p->horizon.sum().Tan() * 10.;
 			}
 			else
 			{
 				vel = 140 / 16.;
-				zvel = -4 - p->horizon.sum().asbuildf() * (20 / 256.);
+				zvel = -4 - p->horizon.sum().Tan() * 10.;
 			}
 
 			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
@@ -3150,12 +3150,12 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				vel = 15 / 16.;
-				zvel = p->horizon.sum().asbuildf() * (20 / 256.);
+				zvel = p->horizon.sum().Tan() * 10.;
 			}
 			else
 			{
 				vel = 2.;
-				zvel = -4 - p->horizon.sum().asbuildf() * (20 / 256.);
+				zvel = -4 - p->horizon.sum().Tan() * 10.;
 			}
 
 			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, 9, 9, p->angle.ang, vel * 2, zvel, pact, 1);

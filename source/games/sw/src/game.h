@@ -1883,7 +1883,7 @@ struct GameInterface : public ::GameInterface
     void WarpToCoords(double x, double y, double z, DAngle ang, int horz) override;
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
-    DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 128., horiz.asbuildf()); }
+    DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 128., horiz.Tan() * 128.); }
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(DCoreActor* viewer, int type) override;

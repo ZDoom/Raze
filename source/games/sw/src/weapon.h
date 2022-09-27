@@ -31,7 +31,7 @@ BEGIN_SW_NS
 
 #define NEW_ELECTRO 1
 #define HORIZ_MULT 128
-constexpr double HORIZ_MULTF = 0.5;
+constexpr double HORIZ_MULTF = 64.;
 
 inline DAngle AngToSprite(DSWActor* actor, DSWActor* other)
 {

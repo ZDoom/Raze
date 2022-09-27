@@ -44,14 +44,14 @@ struct PlayerHorizon
 	bool movementlocked() {	return targetset() || inputdisabled; }
 
 	// Draw code helpers.
-	double horizsumfrac(double const interpfrac) { return (!SyncInput() ? sum() : interpolatedsum(interpfrac)).asbuildf() * (1. / 16.); }
+	double horizsumfrac(double const interpfrac) { return (!SyncInput() ? sum() : interpolatedsum(interpfrac)).Tan() * 8.; }
 
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(fixedhoriz const value)
 	{
 		if (!SyncInput())
 		{
-			adjustment += value.asbuildf();
+			adjustment += value.Degrees();
 		}
 		else
 		{
@@ -79,11 +79,11 @@ struct PlayerHorizon
 	{
 		if (targetset())
 		{
-			auto delta = (target - horiz).asbuildf();
+			auto delta = (target - horiz).Degrees();
 
-			if (abs(delta) > 1)
+			if (abs(delta) > 0.45)
 			{
-				horiz += buildfhoriz(scaleAdjust * delta);
+				horiz += pitchhoriz(scaleAdjust * delta);
 			}
 			else
 			{
@@ -93,7 +93,7 @@ struct PlayerHorizon
 		}
 		else if (adjustment)
 		{
-			horiz += buildfhoriz(scaleAdjust * adjustment);
+			horiz += pitchhoriz(scaleAdjust * adjustment);
 		}
 	}
 

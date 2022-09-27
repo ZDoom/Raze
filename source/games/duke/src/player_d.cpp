@@ -113,7 +113,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 	}
 	else
 	{
-		zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
+		zvel = -ps[p].horizon.sum().Tan() * 49.;
 		pos += (ang + DAngle1 * 61).ToVector() * (1024 / 448.);
 		pos.Z += 3;
 	}
@@ -182,7 +182,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	}
 	else
 	{
-		zvel = -ps[p].horizon.sum().asbuildf() * (81./256.);
+		zvel = -ps[p].horizon.sum().Tan() * 40.5;
 		
 		// WTF???
 		DAngle myang = DAngle90 - (DAngle180 - abs(abs(VecToAngle(spos.XY() - ps[p].pos.XY()) - sang) - DAngle180));
@@ -242,7 +242,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 
 	if (p >= 0)
 	{
-		zvel = -ps[p].horizon.sum().asbuildf() * 0.125;
+		zvel = -ps[p].horizon.sum().Tan() * 16.;
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -374,14 +374,14 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				// no target
-				zvel = -ps[p].horizon.sum().asbuildf() / 8;
+				zvel = -ps[p].horizon.sum().Tan() * 16.;
 			}
 			zvel += (zRange / 2) - krandf(zRange);
 		}
 		else if (aimed == nullptr)
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			zvel = -ps[p].horizon.sum().asbuildf() / 8;
+			zvel = -ps[p].horizon.sum().Tan() * 16.;
 			zvel += 0.5 - krandf(1);
 		}
 
@@ -606,7 +606,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
 		else
-			zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
+			zvel = -ps[p].horizon.sum().Tan() * 49.;
 	}
 	else
 	{
@@ -717,7 +717,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 				ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
 		else 
-			zvel = -ps[p].horizon.sum().asbuildf() * (81 / 256.);
+			zvel = -ps[p].horizon.sum().Tan() * 40.5;
 
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
@@ -861,7 +861,7 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	HitInfo hit{};
 
 	if (p >= 0)
-		zvel = -ps[p].horizon.sum().asbuildf() * 0.125;
+		zvel = -ps[p].horizon.sum().Tan() * 16.;
 	else zvel = 0;
 
 	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
@@ -958,7 +958,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		else
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			zvel = -ps[p].horizon.sum().asbuildf() * 0.125;
+			zvel = -ps[p].horizon.sum().Tan() * 16.;
 			zvel += 0.5 - krandf(1);
 		}
 
@@ -1051,7 +1051,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
 		}
 		else
-			zvel = -ps[p].horizon.sum().asbuildf() * (98 / 256.);
+			zvel = -ps[p].horizon.sum().Tan() * 49.;
 	}
 	else if (actor->spr.statnum != 3)
 	{
@@ -2048,7 +2048,7 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 	HitInfo hit{};
 
-	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, -p->horizon.sum().asbuildf() * 0.125), hit, CLIPMASK1);
+	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, -p->horizon.sum().Tan() * 16.), hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;
@@ -2236,12 +2236,12 @@ static void operateweapon(int snum, ESyncBits actions)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15/16.;
-				zvel = p->horizon.sum().asbuildf() * (20 / 256.);
+				zvel = p->horizon.sum().Tan() * 10.;
 			}
 			else
 			{
 				vel = 140/16.;
-				zvel = -4 - p->horizon.sum().asbuildf() * (20 / 256.);
+				zvel = -4 - p->horizon.sum().Tan() * 10.;
 			}
 
 			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,

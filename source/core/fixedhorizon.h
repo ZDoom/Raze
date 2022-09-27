@@ -84,6 +84,7 @@ public:
 	constexpr short asbuild() const { return FixedToInt(value); }
 	constexpr double asbuildf() const { return FixedToFloat(value); }
 	constexpr fixed_t asq16() const { return value; }
+	constexpr double Tan() const { return FixedToFloat<23>(value); }
 	double Degrees() const { return HorizToPitch(value); }
 
 	int Sgn() const { return ::Sgn(value); }

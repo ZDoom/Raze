@@ -2500,7 +2500,7 @@ sectdone:
 
         if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
         {
-            double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asbuildf() * 0.25;
+            double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).Tan() * 32.;
             if (nVertPan != 0)
             {
                 pPlayer->horizon.addadjustment(buildfhoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));

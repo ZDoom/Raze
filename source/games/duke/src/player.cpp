@@ -241,7 +241,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 			// This is a reimplementation of how it was solved in RedNukem.
 			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
 			{
-				double zvel = -plr->horizon.sum().asbuildf() / 8;
+				double zvel = -plr->horizon.sum().Tan() * 16.;
 
 				HitInfo hit{};
 				hitscan(plr->pos.plusZ(4), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, zvel), hit, CLIPMASK1);

@@ -235,7 +235,7 @@ struct GameInterface : public ::GameInterface
     fixed_t playerHorizMax() override { return IntToFixed(150); }
     void WarpToCoords(double x, double y, double z, DAngle ang, int horz) override;
     void ToggleThirdPerson() override;
-    DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 96., horiz.asbuildf() * 0.75); }
+    DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 96., horiz.Tan() * 96.); }
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
     int GetCurrentSkill() override;
     std::pair<DVector3, DAngle> GetCoordinates() override;
