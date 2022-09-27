@@ -253,15 +253,9 @@ inline int32_t getangle(walltype* wal)
 
 //---------------------------------------------------------------------------
 //
-// Returns an angle delta for Build angles.
+//
 //
 //---------------------------------------------------------------------------
-
-inline constexpr int getincangle(unsigned a, unsigned na)
-{
-	return int((na - a) << 21) >> 21;
-}
-
 
 extern double cameradist, cameraclock;
 
