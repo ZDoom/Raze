@@ -233,7 +233,7 @@ struct GameInterface : public ::GameInterface
     bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
     double playerPitchMin() override { return -49.5; }
     double playerPitchMax() override { return 49.5; }
-    void WarpToCoords(double x, double y, double z, DAngle ang, int horz) override;
+    void WarpToCoords(double x, double y, double z, DAngle ang) override;
     void ToggleThirdPerson() override;
     DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 96., horiz.Tan() * 96.); }
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;

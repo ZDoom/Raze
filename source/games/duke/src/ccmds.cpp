@@ -111,7 +111,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	return CCMD_OK;
 }
 
-void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int horz)
+void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
 	player_struct* p = &ps[myconnectindex];
 
@@ -121,11 +121,6 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int h
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{
 		p->angle.oang = p->angle.ang = ang;
-	}
-
-	if (horz != INT_MIN)
-	{
-		p->horizon.ohoriz = p->horizon.horiz = buildhoriz(horz);
 	}
 }
 

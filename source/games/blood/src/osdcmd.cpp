@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int horz)
+void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
 	PLAYER* pPlayer = &gPlayer[myconnectindex];
 
@@ -41,11 +41,6 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int h
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{
 		pPlayer->angle.oang = pPlayer->angle.ang = ang;
-	}
-
-	if (horz != INT_MIN)
-	{
-		pPlayer->horizon.ohoriz = pPlayer->horizon.horiz = buildhoriz(horz);
 	}
 }
 

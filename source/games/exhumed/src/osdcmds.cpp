@@ -39,9 +39,9 @@ BEGIN_PS_NS
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int horz)
+void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
-    Player     *nPlayer = &PlayerList[nLocalPlayer];
+    Player *nPlayer = &PlayerList[nLocalPlayer];
 
     nPlayer->pActor->spr.pos = DVector3(x, y, z);
     nPlayer->pActor->backuppos();
@@ -49,11 +49,6 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int h
     if (ang != DAngle::fromDeg(INT_MIN))
     {
         nPlayer->angle.oang = nPlayer->angle.ang = ang;
-    }
-
-    if (horz != INT_MIN)
-    {
-        nPlayer->horizon.ohoriz = nPlayer->horizon.horiz = buildhoriz(horz);
     }
 }
 

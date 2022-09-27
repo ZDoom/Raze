@@ -389,7 +389,7 @@ CCMD(warptocoords)
 		horiz = atoi(argv[5]);
 	}
 
-	gi->WarpToCoords(x, y, z, DAngle::fromDeg(ang), horiz);
+	gi->WarpToCoords(x, y, z, DAngle::fromDeg(ang));
 }
 
 CCMD(third_person_view)

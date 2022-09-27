@@ -54,7 +54,7 @@ BEGIN_SW_NS
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int horz)
+void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
     Player->pos = DVector3(x,y,z);
 
@@ -63,11 +63,6 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang, int h
     if (ang != DAngle::fromDeg(INT_MIN))
     {
 		Player->angle.oang = Player->angle.ang = ang;
-    }
-
-    if (horz != INT_MIN)
-    {
-    	Player->horizon.ohoriz = Player->horizon.horiz = buildhoriz(horz);
     }
 }
 

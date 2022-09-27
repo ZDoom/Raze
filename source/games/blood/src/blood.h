@@ -135,7 +135,7 @@ struct GameInterface : public ::GameInterface
 	void SetTileProps(int til, int surf, int vox, int shade) override;
 	double playerPitchMin() override { return -54.575; }
 	double playerPitchMax() override { return 43.15; }
-	void WarpToCoords(double x, double y, double z, DAngle a, int h) override;
+	void WarpToCoords(double x, double y, double z, DAngle a) override;
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;

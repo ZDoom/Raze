@@ -111,7 +111,7 @@ struct GameInterface
 	virtual void SetTileProps(int tile, int surf, int vox, int shade) {}
 	virtual double playerPitchMin() { return -57.375; }
 	virtual double playerPitchMax() { return 57.375; }
-	virtual void WarpToCoords(double x, double y, double z, DAngle a, int h) {}
+	virtual void WarpToCoords(double x, double y, double z, DAngle a) {}
 	virtual void ToggleThirdPerson() { }
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
 	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }
