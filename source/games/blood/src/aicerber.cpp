@@ -74,74 +74,61 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 void cerberusBurnSeqCallback(int, DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE * 0.25;
+	double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE * 0.25;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
-	int x = actor->int_pos().X;
-	int y = actor->int_pos().Y;
-	int z = height; // ???
-	TARGETTRACK tt1 = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
-	Aim aim;
-	aim.dx = bcos(actor->int_ang());
-	aim.dy = bsin(actor->int_ang());
-	aim.dz = actor->dudeSlope;
-	int nClosest = 0x7fffffff;
+	auto pos = actor->spr.pos.plusZ(height);
+
+	DVector3 Aim;
+	Aim.XY() = actor->spr.angle.ToVector();
+	Aim.Z = actor->dudeSlope / 16384.;
+	double nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
 	while (auto actor2 = it.Next())
 	{
 		if (actor == actor2 || !(actor2->spr.flags & 8))
 			continue;
-		int x2 = actor2->int_pos().X;
-		int y2 = actor2->int_pos().Y;
-		int z2 = actor2->int_pos().Z;
-		int nDist = approxDist(x2 - x, y2 - y);
-		if (nDist == 0 || nDist > 0x2800)
+		auto pos2 = actor2->spr.pos;
+		double nDist = (pos2 - pos).Length();
+		if (nDist == 0 || nDist > 0x280)
 			continue;
-		if (tt1.at10)
-		{
-			int t = DivScale(nDist, tt1.at10, 12);
-			x2 += (actor2->int_vel().X * t) >> 12;
-			y2 += (actor2->int_vel().Y * t) >> 12;
-			z2 += (actor2->int_vel().Z * t) >> 8;
-		}
-		int tx = x + MulScale(Cos(actor->int_ang()), nDist, 30);
-		int ty = y + MulScale(Sin(actor->int_ang()), nDist, 30);
-		int tz = z + MulScale(actor->dudeSlope, nDist, 10);
-		int tsr = MulScale(9460, nDist, 10);
-		int top, bottom;
+
+		pos += actor2->vel * nDist * (65536. / 0x1aaaaa);
+		
+		DVector3 tvec = pos;
+		tvec.XY() += actor->spr.angle.ToVector() * nDist;
+		tvec.Z += actor->dudeSlope / 16384. * nDist;
+		double tsr = nDist * 9.23828125;
+		double top, bottom;
 		GetActorExtents(actor2, &top, &bottom);
-		if (tz - tsr > bottom || tz + tsr < top)
+		if (tvec.Z - tsr > bottom || tvec.Z + tsr < top)
 			continue;
-		int dx = (tx - x2) >> 4;
-		int dy = (ty - y2) >> 4;
-		int dz = (tz - z2) >> 8;
-		int nDist2 = ksqrt(dx * dx + dy * dy + dz * dz);
+		double nDist2 = (tvec - pos2).Length();
 		if (nDist2 < nClosest)
 		{
-			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - actor->int_ang() + 1024) & 2047) - 1024;
-			if (abs(nDeltaAngle) <= tt1.at8)
+			DAngle nAngle = VecToAngle(pos2.XY() - pos.XY());
+			DAngle nDeltaAngle = absangle(nAngle, actor->spr.angle);
+			if (nDeltaAngle <= DAngle45)
 			{
-				int tz1 = actor2->int_pos().Z - actor->int_pos().Z;
-				if (cansee(x, y, z, actor->sector(), x2, y2, z2, actor2->sector()))
+				double tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
+				if (cansee(pos, actor->sector(), pos2, actor2->sector()))
 				{
 					nClosest = nDist2;
-					aim.dx = bcos(nAngle);
-					aim.dy = bsin(nAngle);
-					aim.dz = DivScale(tz1, nDist, 10);
+					Aim.XY() = nAngle.ToVector();
+					Aim.Z = tz1 / nDist;
 				}
 				else
-					aim.dz = tz1;
+					Aim.Z = tz1 / 64.;
 			}
 		}
 	}
 	switch (actor->spr.type) {
 	case kDudeCerberusTwoHead:
-		actFireMissile(actor, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
-		actFireMissile(actor, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
+		actFireMissile(actor, -350 / 16., 0, Aim, kMissileFireballCerberus);
+		actFireMissile(actor, 350 / 16., -100 / 256., Aim, kMissileFireballCerberus);
 		break;
 	case kDudeCerberusOneHead:
-		actFireMissile(actor, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
+		actFireMissile(actor, 350 / 16., -100 / 256., Aim, kMissileFireballCerberus);
 		break;
 	}
 }
