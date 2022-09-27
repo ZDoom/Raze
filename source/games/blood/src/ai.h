@@ -97,10 +97,12 @@ void aiLookForTarget(DBloodActor* actor);
 void aiProcessDudes(void);
 void aiInit(void);
 void aiInitSprite(DBloodActor* pSprite);
-bool CanMove(DBloodActor* pSprite, DBloodActor* target, int nAngle, int nRange);
-inline bool CanMove(DBloodActor* pSprite, DBloodActor* target, DAngle nAngle, int nRange)
+bool CanMove(DBloodActor* pSprite, DBloodActor* target, DAngle nAngle, double nRange);
+/*
+inline bool CanMove(DBloodActor* pSprite, DBloodActor* target, DAngle nAngle, double nRange)
 {
 	return CanMove(pSprite, target, nAngle.Buildang(), nRange);
 }
+*/
 
 END_BLD_NS

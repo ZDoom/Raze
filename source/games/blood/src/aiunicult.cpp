@@ -1166,8 +1166,7 @@ void aiGenDudeChooseDirection(DBloodActor* actor, DAngle direction, const DVecto
 	// TO-DO: Take in account if sprite is flip-x, so enemy select correct angle
 
 	DAngle vc = deltaangle(actor->spr.angle, direction);
-	double t1 = vel.X * actor->spr.angle.Cos() + vel.Y * actor->spr.angle.Sin();
-	int range = FloatToFixed(t1 * (15 / 8192.));
+	double range = vel.dot(actor->spr.angle.ToVector()) * 120;
 	DAngle v8 = vc > nullAngle ? DAngle180 / 3 : -DAngle180 / 3;
 
 	if (CanMove(actor, actor->GetTarget(), actor->spr.angle + vc, range))

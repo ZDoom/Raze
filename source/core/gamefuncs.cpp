@@ -821,8 +821,9 @@ int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& 
 	if (maxrange > 0)
 	{
 		hitfactor = maxrange / vect.Length();
+		hitinfo.hitpos = start + hitfactor * vect;
 	}
-	hitinfo.hitpos.X = hitinfo.hitpos.Y = DBL_MAX;
+	else hitinfo.hitpos.X = hitinfo.hitpos.Y = DBL_MAX;
 
 	BFSSectorSearch search(startsect);
 	while (auto sec = search.GetNext())

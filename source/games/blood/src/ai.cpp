@@ -127,24 +127,24 @@ static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 //
 //---------------------------------------------------------------------------
 
-bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle_, int nRange)
+bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRange)
 {
-	DAngle nAngle = DAngle::fromBuild(nAngle_);
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	DVector3 pos = actor->spr.pos;
 	DVector2 nAngVect = nAngle.ToVector();
 	HitScan(actor, pos.Z, DVector3(nAngVect, 0) * 1024, CLIPMASK0, nRange);
 	double nDist = (actor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
-	if (nDist - (actor->fClipdist()) < nRange)
+	if (nDist - (actor->fClipdist()) < nRange / 16.) // this was actually comparing a Build unit value with a texel unit value!
 	{
 		if (gHitInfo.actor() == nullptr || target == nullptr || target != gHitInfo.actor())
 			return false;
 		return true;
 	}
-	pos.XY() += nRange * nAngVect;
+	pos.XY() += nRange / 16 * nAngVect; // see above - same weird mixup.
 	auto pSector = actor->sector();
 	assert(pSector);
+	auto ps2 = pSector;
 	updatesectorz(pos, &pSector);
 	if (!pSector) return false;
 	double floorZ = getflorzofslopeptr(pSector, pos);
@@ -250,13 +250,10 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DAngle vc = deltaangle(actor->spr.angle, direction);
-	double nCos = actor->spr.angle.Cos();
-	double nSin = actor->spr.angle.Sin();
-	double t1 = actor->vel.X * nCos + actor->vel.Y * nSin;
 	auto almost60deg = DAngle::fromBuild(341); // 60° does not work correctly - this is a little bit less, actually.
-
-	int range = FloatToFixed(t1 * (15 / 8192.));
 	DAngle v8 = vc.Sgn() == -1 ? -almost60deg : almost60deg;
+
+	double range = actor->vel.XY().dot(actor->spr.angle.ToVector()) * 120;
 
 	if (CanMove(actor, actor->GetTarget(), actor->spr.angle + vc, range))
 		actor->xspr.goalAng = actor->spr.angle + vc;
