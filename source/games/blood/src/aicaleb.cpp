@@ -305,8 +305,6 @@ static void sub_65F44(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	auto target = actor->GetTarget();
-	int z = actor->int_pos().Z + getDudeInfo(actor->spr.type)->eyeHeight;
-	int z2 = target->int_pos().Z + getDudeInfo(target->spr.type)->eyeHeight;
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
@@ -318,14 +316,14 @@ static void sub_65F44(DBloodActor* actor)
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	double nDist = dvec.Length();
-	int dz = z2 - z;
 	if (Chance(0x600) && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel;
 	});
 
-	actor->set_int_bvel_z(-dz);
+	double dz = target->spr.pos.Z - actor->spr.pos.Z;
+	actor->vel.Z -= dz / 256;
 }
 
 static void sub_661E0(DBloodActor* actor)
@@ -335,8 +333,6 @@ static void sub_661E0(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	auto target = actor->GetTarget();
-	int z = actor->int_pos().Z + getDudeInfo(actor->spr.type)->eyeHeight;
-	int z2 = target->int_pos().Z + getDudeInfo(target->spr.type)->eyeHeight;
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
@@ -348,14 +344,14 @@ static void sub_661E0(DBloodActor* actor)
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	double nDist = dvec.Length();
-	int dz = (z2 - z) << 3;
 	if (Chance(0x4000) && nDist <= 0x40)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
 		t1 += nAccel * 0.5;
 	});
 
-	actor->set_int_bvel_z(dz);
+	double dz = target->spr.pos.Z - actor->spr.pos.Z;
+	actor->vel.Z += dz / 32;
 }
 
 END_BLD_NS
