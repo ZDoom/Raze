@@ -126,9 +126,10 @@ static void calebThinkChase(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
+	DAngle nAngle = VecToAngle(dvec);
+	double nDist = dvec.Length();
+	aiChooseDirection(actor, nAngle);
+
 	if (target->xspr.health == 0)
 	{
 		if (pXSector && pXSector->Underwater)
@@ -149,17 +150,17 @@ static void calebThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->seeDist)
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->dudeSlope = nDist == 0 ? 0 : DivScale(target->int_pos().Z - actor->int_pos().Z, nDist, 10);
-				if (nDist < 0x599 && abs(nDeltaAngle) < 28)
+				actor->dudeSlope = nDist == 0 ? 0 : target->spr.pos.Z - actor->spr.pos.Z / nDist * 16384;
+				if (nDist < 89.5625 && abs(nDeltaAngle) < DAngle1 * 5)
 				{
 					int dx = dvec.X * worldtoint;
 					int dy = dvec.Y * worldtoint;
