@@ -259,9 +259,9 @@ static void eelThinkChase(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
+	DAngle nAngle = VecToAngle(dvec);
+	double nDist = dvec.Length();
+	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
 		aiNewState(actor, &eelSearch);
@@ -273,26 +273,27 @@ static void eelThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->seeDist)
+	if (nDist <= pDudeInfo->SeeDist())
 	{
-		int nDeltaAngle = getincangle(actor->int_ang(), nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
-		int top, bottom;
+		double top, bottom;
+		double top2, bottom2;
 		GetActorExtents(actor, &top, &bottom);
-		int top2, bottom2;
 		GetActorExtents(target, &top2, &bottom2);
+
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				if (nDist < 0x399 && top2 > top && abs(nDeltaAngle) < 85)
+				if (nDist < 57.5625 && top2 > top && nDeltaAngle < DAngle15)
 					aiNewState(actor, &eelSwoop);
-				else if (nDist <= 0x399 && abs(nDeltaAngle) < 85)
+				else if (nDist <= 57.5625 && nDeltaAngle < DAngle15)
 					aiNewState(actor, &eelBite);
-				else if (bottom2 > top && abs(nDeltaAngle) < 85)
+				else if (bottom2 > top && nDeltaAngle < DAngle15)
 					aiNewState(actor, &eelSwoop);
-				else if (top2 < top && abs(nDeltaAngle) < 85)
+				else if (top2 < top && nDeltaAngle < DAngle15)
 					aiNewState(actor, &eelFly);
 			}
 		}
