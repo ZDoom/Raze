@@ -262,10 +262,10 @@ static void sub_72850(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
+	DAngle nAngle = VecToAngle(dvec);
 	double nDist = dvec.Length();
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
-	if (nDist < 32 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	aiChooseDirection(actor, nAngle);
+	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &tchernobogSearch);
 	aiThinkTarget(actor);
 }

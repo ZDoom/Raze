@@ -86,10 +86,10 @@ static void gillThinkGoto(DBloodActor* actor)
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
+	DAngle nAngle = VecToAngle(dvec);
 	double nDist = dvec.Length();
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
-	if (nDist < 32 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	aiChooseDirection(actor, nAngle);
+	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &gillBeastSwimSearch);
@@ -199,10 +199,10 @@ static void gillThinkSwimGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
+	DAngle nAngle = VecToAngle(dvec);
 	double nDist = dvec.Length();
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
-	if (nDist < 32 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	aiChooseDirection(actor, nAngle);
+	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &gillBeastSwimSearch);
 	aiThinkTarget(actor);
 }
