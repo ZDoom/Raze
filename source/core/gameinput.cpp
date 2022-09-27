@@ -29,6 +29,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 //---------------------------------------------------------------------------
 //
+// Static constants used throughout functions.
+//
+//---------------------------------------------------------------------------
+
+enum
+{
+	BUILDTICRATE = 120,
+	TURBOTURNBASE = 590,
+};
+
+static constexpr double YAW_TURNSPEEDS[3] = { 41.1987, 156.555, 272.241 };
+static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
+static constexpr double YAW_LOOKINGSPEED = 801.5625;
+static constexpr double YAW_ROTATESPEED = 126.5625;
+static constexpr double YAW_ROTATERETURN  = (1. / 2.) * 30.;
+static constexpr double YAW_LOOKRETURN = (1. / 4.) * 30.;
+static constexpr double YAW_SPINSTAND = 675.;
+static constexpr double YAW_SPINCROUCH = 337.5;
+static constexpr double PITCH_LOOKSPEED = 222.83185;
+static constexpr double PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
+static constexpr double PITCH_CENTRESPEED = 10.25;
+static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle1 * 101.25;
+static constexpr double HORIZOFFSPEEDF = 1.95835;
+
+
+//---------------------------------------------------------------------------
+//
 // Input scale helper functions.
 //
 //---------------------------------------------------------------------------
@@ -67,21 +94,6 @@ inline static void scaletozero(DAngle& object, const double value, const double 
 //
 //---------------------------------------------------------------------------
 
-/*
-// Turbo turn time.
-Blood:     24 * 30 = 720;
-Duke: 120 / 8 * 30 = 450;
-SW:   120 / 8 * 40 = 600;
-Exhumed: N/A;
-Average: 590.;
-*/
-
-enum
-{
-	BUILDTICRATE = 120,
-	TURBOTURNBASE = 590,
-};
-
 static double turnheldtime;
 
 void updateTurnHeldAmt(double const scaleAdjust)
@@ -106,37 +118,11 @@ void resetTurnHeldAmt()
 //
 //---------------------------------------------------------------------------
 
-/*
-// Running speed.
-Blood: 92 / 4 * 2 * 30 = 1380;
-Duke:  15 * 2 * 2 * 30 = 1800;
-SW:  28 * 1.40625 * 40 = 1575;   // Precisely, ((((28 * 12) + ((28 * 12) / 4)) * 3) / 32) * 40
-Exhumed:   12 * 4 * 30 = 1440;
-Average: 1548.75;
-
-// Normal speed.
-Blood:     92 / 4 * 30 = 690;
-Duke:      15 * 2 * 30 = 900;
-SW:  18 * 1.40625 * 40 = 1012.5; // Precisely, (((((12 + 6) * 12) + (((12 + 6) * 12) / 4)) * 3) / 32) * 40
-Exhumed:    8 * 4 * 30 = 960;
-Average: 890.625;
-
-// Preamble.
-Blood:   N/A;
-Exhumed: N/A;
-Duke:       5 * 2 * 30 = 300;
-SW:   3 * 1.40625 * 40 = 168.75; // Precisely, ((((3 * 12) + ((3 * 12) / 4)) * 3) / 32) * 40
-Average: 234.375;
-*/
-
-static constexpr double TURNSPEEDS[3] = { 234.375, 890.625, 1548.75 };
-static constexpr double PREAMBLESCALE = TURNSPEEDS[0] / TURNSPEEDS[1];
-
 void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
 {
 	// set up variables.
 	int const keymove = 1 << int(!!(inputBuffer->actions & SB_RUN));
-	float const hidspeed = float(getTicrateScale(TURNSPEEDS[2]) * turnscale * BAngToDegree);
+	float const hidspeed = float(getTicrateScale(YAW_TURNSPEEDS[2]) * turnscale);
 	float const scaleAdjustf = float(scaleAdjust);
 
 	// determine player input.
@@ -148,7 +134,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	if (!(buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe))
 	{
 		float const turndir = clamp(turning + strafing * !allowstrafe, -1.f, 1.f);
-		float const turnspeed = float(getTicrateScale(TURNSPEEDS[keymove]) * turnscale * BAngToDegree * (isTurboTurnTime() ? 1. : PREAMBLESCALE));
+		float const turnspeed = float(getTicrateScale(YAW_TURNSPEEDS[keymove]) * turnscale * (isTurboTurnTime() ? 1. : YAW_PREAMBLESCALE));
 		currInput->avel += hidInput->mouseturnx + (hidInput->dyaw * hidspeed + turndir * turnspeed) * scaleAdjustf;
 		if (turndir) updateTurnHeldAmt(scaleAdjust); else resetTurnHeldAmt();
 	}
@@ -175,38 +161,12 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	inputBuffer->horz += currInput->horz;
 }
 
+
 //---------------------------------------------------------------------------
 //
 // Player's horizon function, called from game's ticker or from gi->GetInput() as required.
 //
 //---------------------------------------------------------------------------
-
-/*
-// Aim speed.
-Duke:      6 * 30 = 180;
-SW: (16 / 2) * 40 = 320;
-Average: 250.;
-
-// Look speed.
-Duke:     12 * 30 = 360;
-SW:       16 * 40 = 640;
-Average: 500.;
-
-// Return to centre speed.
-Duke: (1 / 3) * 30 = 10;
-SW:   (1 / 4) * 40 = 10;
-Average: 10.;
-*/
-
-enum
-{
-	AIMSPEED = 250,
-	LOOKSPEED = 500,
-	CNTRSPEED = 10,
-};
-
-static constexpr double CNTRSPEEDF = CNTRSPEED * 1.025;  // Pitch-adjusted value.
-static constexpr DAngle CNTRSINEOFFSET = DAngle1 * 101.25;
 
 void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
@@ -232,24 +192,18 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 				if (*actions & (up | down))
 				{
 					if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
-					double const amount = scaleAdjust * HorizToPitch(getTicrateScale(rate));
-
-					if (*actions & down)
-						pitch -= amount;
-
-					if (*actions & up)
-						pitch += amount;
+					pitch += scaleAdjust * getTicrateScale(rate) * (!!(*actions & up) - !!(*actions & down));
 				}
 			};
-			doKbdInput(SB_AIM_UP, SB_AIM_DOWN, AIMSPEED, true);
-			doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, LOOKSPEED, false);
+			doKbdInput(SB_AIM_UP, SB_AIM_DOWN, PITCH_AIMSPEED, true);
+			doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, PITCH_LOOKSPEED, false);
 
 			// return to center if conditions met, using a temporary DAngle object.
 			auto tmpangle = DAngle::fromDeg(pitch);
 
 			if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 			{
-				scaletozero(tmpangle, CNTRSPEEDF * (CNTRSINEOFFSET - abs(tmpangle)).Sin(), scaleAdjust);
+				scaletozero(tmpangle, PITCH_CENTRESPEED * (PITCH_CNTRSINEOFFSET - abs(tmpangle)).Sin(), scaleAdjust);
 				if (!tmpangle.Sgn())
 				{
 					tmpangle = nullAngle;
@@ -274,51 +228,19 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 //
 //---------------------------------------------------------------------------
 
-/*
-// Rotate return speed.
-Duke: (1 / 2) * 30 = 15;
-
-// Look return speed.
-Duke: (1 / 4) * 30 = 7.5;
-
-// Rotating speed.
-Duke:      24 * 30 = 720;
-
-// Looking speed.
-Duke:     152 * 30 = 4560;
-
-// Spin standing speed.
-Duke:     128 * 30 = 3840;
-Blood:    128 * 30 = 3840;
-
-// Looking speed.
-Blood:     64 * 30 = 1920;
-*/
-
-static constexpr double ROTRETURNSPEED  = (1. / 2.) * 30.;
-static constexpr double LOOKRETURNSPEED = (1. / 4.) * 30.;
-
-enum
-{
-	ROTATESPEED = 720,
-	LOOKINGSPEED = 4560,
-	SPINSTAND = 3840,
-	SPINCROUCH = 1920,
-};
-
 void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process angle return to zeros.
-	scaletozero(rotscrnang, ROTRETURNSPEED, scaleAdjust);
-	scaletozero(look_ang, LOOKRETURNSPEED, scaleAdjust);
+	scaletozero(rotscrnang, YAW_ROTATERETURN, scaleAdjust);
+	scaletozero(look_ang, YAW_LOOKRETURN, scaleAdjust);
 
 	// Process keyboard input.
 	auto doLookKeys = [&](ESyncBits_ const key, double const direction)
 	{
 		if (*actions & key)
 		{
-			look_ang += DAngle::fromDeg(getTicrateScale(LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * direction * BAngToDegree);
-			rotscrnang -= DAngle::fromDeg(getTicrateScale(ROTATESPEED) * getCorrectedScale(scaleAdjust) * direction * BAngToDegree);
+			look_ang += DAngle::fromDeg(getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * direction);
+			rotscrnang -= DAngle::fromDeg(getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * direction);
 		}
 	};
 	doLookKeys(SB_LOOK_LEFT, -1);
@@ -345,7 +267,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		if (spin < nullAngle)
 		{
 			// return spin to 0
-			DAngle add = DAngle::fromDeg(getTicrateScale(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH) * scaleAdjust * BAngToDegree);
+			DAngle add = DAngle::fromDeg(getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH) * scaleAdjust);
 			spin += add;
 			if (spin > nullAngle)
 			{
@@ -368,16 +290,6 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 // Player's slope tilt when playing without a mouse and on a slope.
 //
 //---------------------------------------------------------------------------
-
-/*
-// Horizoff centre speed.
-Duke: (1 / 8) * 30 = 3.75;
-SW:   (1 / 8) * 40 = 5;
-Average: 4.375;
-*/
-
-static constexpr double HORIZOFFSPEED = (1. / 8.) * 35.;
-static constexpr double HORIZOFFSPEEDF = 1.95835;
 
 void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
 {
