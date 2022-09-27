@@ -1239,7 +1239,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 		nWave = pXSector->busyWaveA;
 	else
 		nWave = pXSector->busyWaveB;
-	int dz1 = pXSector->int_onFloorZ() - pXSector->int_offFloorZ();
+	double dz1 = pXSector->onFloorZ - pXSector->offFloorZ;
 	if (dz1 != 0)
 	{
 		BloodSectIterator it(pSector);
@@ -1248,11 +1248,11 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += actor->basePoint.Z + MulScale(dz1, GetWaveValueI(a2, nWave), 16) * inttoworld;
+				actor->spr.pos.Z += actor->basePoint.Z + dz1 * GetWaveValue(a2, nWave);
 			}
 		}
 	}
-	int dz2 = pXSector->int_onCeilZ() - pXSector->int_offCeilZ();
+	double dz2 = pXSector->onCeilZ - pXSector->offCeilZ;
 	if (dz2 != 0)
 	{
 		BloodSectIterator it(pSector);
@@ -1261,7 +1261,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += actor->basePoint.Z + MulScale(dz2, GetWaveValueI(a2, nWave), 16) * inttoworld;
+				actor->spr.pos.Z += actor->basePoint.Z + dz2 * GetWaveValue(a2, nWave);
 			}
 		}
 	}
