@@ -239,7 +239,7 @@ static void beastThinkChase(DBloodActor* actor)
 			{
 				aiSetTarget(actor, actor->GetTarget());
 				actor->dudeSlope = nDist == 0 ? 0 : int(target->spr.pos.Z - actor->spr.pos.Z / nDist) * 16384;
-				if (nDist < 0x140 && nDist > 0xa0 && nDeltaAngle < mapangle(85) && (target->spr.flags & 2)
+				if (nDist < 0x140 && nDist > 0xa0 && nDeltaAngle < DAngle15 && (target->spr.flags & 2)
 					&& target->IsPlayerActor() && Chance(0x8000))
 				{
 					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
@@ -371,7 +371,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				if (nDist < 64 && nDeltaAngle < mapangle(85))
+				if (nDist < 64 && nDeltaAngle < DAngle15)
 					aiNewState(actor, &beastSwimSlash);
 				else
 				{

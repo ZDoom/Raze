@@ -1717,6 +1717,7 @@ constexpr DAngle minAngle = DAngle::fromDeg(1. / 65536.);
 constexpr FAngle nullFAngle = FAngle::fromDeg(0.);
 
 constexpr DAngle DAngle1 = DAngle::fromDeg(1);
+constexpr DAngle DAngle15 = DAngle::fromDeg(15);
 constexpr DAngle DAngle22_5 = DAngle::fromDeg(22.5);
 constexpr DAngle DAngle45 = DAngle::fromDeg(45);
 constexpr DAngle DAngle60 = DAngle::fromDeg(60);

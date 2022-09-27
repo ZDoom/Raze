@@ -173,17 +173,17 @@ static void batThinkPonder(DBloodActor* actor)
 		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
 			aiSetTarget(actor, actor->GetTarget());
-			if (height2 - height < 48 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < mapangle(85))
+			if (height2 - height < 48 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &batDodgeUp);
-			else if (height2 - height > 0x50 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < mapangle(85))
+			else if (height2 - height > 0x50 && nDist < 0x180 && nDist > 0xc0 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &batDodgeDown);
-			else if (height2 - height < 0x20 && nDist < 0x20 && nDeltaAngle < mapangle(85))
+			else if (height2 - height < 0x20 && nDist < 0x20 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &batDodgeUp);
-			else if (height2 - height > 0x60 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < mapangle(85))
+			else if (height2 - height > 0x60 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &batDodgeDown);
-			else if (height2 - height < 0x20 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < mapangle(85))
+			else if (height2 - height < 0x20 && nDist < 0x140 && nDist > 0x80 && nDeltaAngle < DAngle15)
 				aiNewState(actor, &batDodgeUp);
-			else if (height2 - height < 0x20 && nDeltaAngle < mapangle(85) && nDist > 0x140)
+			else if (height2 - height < 0x20 && nDeltaAngle < DAngle15 && nDist > 0x140)
 				aiNewState(actor, &batDodgeUp);
 			else if (height2 - height > 0x40)
 				aiNewState(actor, &batDodgeDown);
@@ -273,7 +273,7 @@ static void batThinkChase(DBloodActor* actor)
 				double floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 				double floorDelta = floorZ - bottom;
 				double heightDelta = height2 - height;
-				bool angWithinRange = nDeltaAngle < mapangle(85);
+				bool angWithinRange = nDeltaAngle < DAngle15;
 				if (heightDelta < 32 && nDist < 0x20 && angWithinRange)
 					aiNewState(actor, &batBite);
 				else if ((heightDelta > 80 || floorDelta > 80) && nDist < 0x140 && nDist > 0x80 && angWithinRange)

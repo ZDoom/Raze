@@ -334,7 +334,7 @@ static void ghostThinkChase(DBloodActor* actor)
 				double floorZ = getflorzofslopeptr(actor->sector(), actor->spr.pos);
 				double floorDelta = floorZ - bottom;
 				double heightDelta = height2 - height;
-				bool angWithinRange = nDeltaAngle < mapangle(85);
+				bool angWithinRange = nDeltaAngle < DAngle15;
 				switch (actor->spr.type) {
 				case kDudePhantasm:
 					if (nDist < 0x200 && nDist > 0x100 && angWithinRange) {
