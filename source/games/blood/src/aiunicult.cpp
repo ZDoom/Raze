@@ -420,13 +420,12 @@ static void unicultThinkGoto(DBloodActor* actor)
 	}
 
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
-
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
+	DAngle nAngle = VecToAngle(dvec);
+	double nDist = dvec.Length();
+	aiChooseDirection(actor, nAngle);
 
 	// if reached target, change to search mode
-	if (nDist < 5120 && abs(actor->int_ang() - nAngle) < getDudeInfo(actor->spr.type)->periphery)
+	if (nDist < 320 && absangle(actor->spr.angle, nAngle) < getDudeInfo(actor->spr.type)->Periphery())
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
 		else aiGenDudeNewState(actor, &genDudeSearchL);
