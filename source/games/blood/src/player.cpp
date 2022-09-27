@@ -819,7 +819,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->actor->xspr.health = pDudeInfo->startHealth << 4;
 	pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	pPlayer->bloodlust = 0;
-	pPlayer->horizon.horiz = pPlayer->horizon.horizoff = q16horiz(0);
+	pPlayer->horizon.horiz = pPlayer->horizon.horizoff = pitchhoriz(nullAngle.Degrees());
 	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
 	pPlayer->underwaterTime = 1200;

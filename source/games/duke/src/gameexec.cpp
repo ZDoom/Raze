@@ -2243,10 +2243,10 @@ int ParseState::parse(void)
 
 			ps[g_p].last_extra = g_ac->spr.extra = gs.max_player_health;
 			ps[g_p].wantweaponfire = -1;
-			ps[g_p].horizon.ohoriz = ps[g_p].horizon.horiz = q16horiz(0);
+			ps[g_p].horizon.ohoriz = ps[g_p].horizon.horiz = pitchhoriz(nullAngle.Degrees());
 			ps[g_p].on_crane = nullptr;
 			ps[g_p].frag_ps = g_p;
-			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = q16horiz(0);
+			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = pitchhoriz(nullAngle.Degrees());
 			ps[g_p].opyoff = 0;
 			ps[g_p].wackedbyactor = nullptr;
 			ps[g_p].shield_amount = gs.max_armour_amount;

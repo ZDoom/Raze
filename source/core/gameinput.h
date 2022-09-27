@@ -88,7 +88,7 @@ struct PlayerHorizon
 			else
 			{
 				horiz = target;
-				target = q16horiz(0);
+				target = pitchhoriz(nullAngle.Degrees());
 			}
 		}
 		else if (adjustment)

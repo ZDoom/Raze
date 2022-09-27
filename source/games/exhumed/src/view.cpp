@@ -192,7 +192,7 @@ void DrawView(double interpfrac, bool sceneonly)
     int nEnemyPal = -1;
     sectortype* pSector = nullptr;
     DAngle nCameraang, rotscrnang;
-    fixedhoriz nCamerapan = q16horiz(0);
+    fixedhoriz nCamerapan = pitchhoriz(nullAngle.Degrees());
 
     DoInterpolations(interpfrac);
 
@@ -259,7 +259,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
-        nCamerapan = q16horiz(0);
+        nCamerapan = pitchhoriz(nullAngle.Degrees());
     }
     else
     {

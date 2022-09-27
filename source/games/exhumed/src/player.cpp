@@ -410,7 +410,7 @@ void RestartPlayer(int nPlayer)
 
     plr->nThrust.Zero();
 
-	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = q16horiz(0);
+	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 	plr->nBreathTimer = 90;
 
 	plr->nTauntTimer = RandomSize(3) + 3;
@@ -506,7 +506,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = q16horiz(0);
+    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = pitchhoriz(nullAngle.Degrees());
     PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel = -55;
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
@@ -1091,7 +1091,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 StopLocalSound();
                 InitSpiritHead();
 
-                PlayerList[nPlayer].nDestVertPan = q16horiz(0);
+                PlayerList[nPlayer].nDestVertPan = pitchhoriz(nullAngle.Degrees());
                 PlayerList[nPlayer].horizon.settarget(buildhoriz(currentLevel->ex_ramses_horiz));
             }
         }
@@ -1119,7 +1119,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 }
 
                 if (zVelB > 2 && !PlayerList[nPlayer].horizon.horiz.Sgn() && cl_slopetilting) {
-                    PlayerList[nPlayer].nDestVertPan = q16horiz(0);
+                    PlayerList[nPlayer].nDestVertPan = pitchhoriz(nullAngle.Degrees());
                 }
             }
 

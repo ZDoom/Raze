@@ -1515,7 +1515,7 @@ void checkweapons_r(player_struct* p)
 			}
 			p->OnMotorcycle = 0;
 			p->gotweapon[MOTORCYCLE_WEAPON] = false;
-			p->horizon.horiz = q16horiz(0);
+			p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1534,7 +1534,7 @@ void checkweapons_r(player_struct* p)
 			}
 			p->OnBoat = 0;
 			p->gotweapon[BOAT_WEAPON] = false;
-			p->horizon.horiz = q16horiz(0);
+			p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -4044,7 +4044,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		p->gotweapon[MOTORCYCLE_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->horizon.horiz = q16horiz(0);
+		p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 	}
 	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
 		S_PlayActorSound(186, p->GetActor());
@@ -4075,7 +4075,7 @@ void OffMotorcycle(player_struct *p)
 		p->gotweapon[MOTORCYCLE_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->horizon.horiz = q16horiz(0);
+		p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
@@ -4119,7 +4119,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		p->gotweapon[BOAT_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->horizon.horiz = q16horiz(0);
+		p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 	}
 }
 
@@ -4137,7 +4137,7 @@ void OffBoat(player_struct *p)
 		p->gotweapon[BOAT_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->horizon.horiz = q16horiz(0);
+		p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;

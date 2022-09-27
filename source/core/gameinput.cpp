@@ -61,7 +61,7 @@ inline static void scaletozero(fixedhoriz& object, const double value, const dou
 	if (auto sgn = object.Sgn())
 	{
 		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? sgn * (1. / 576.) : push);
-		if (sgn != object.Sgn()) object = q16horiz(0);
+		if (sgn != object.Sgn()) object = pitchhoriz(nullAngle.Degrees());
 	}
 }
 

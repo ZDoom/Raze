@@ -619,7 +619,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	backupplayer(p);
 
-	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
+	p->horizon.horizoff = p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 
 	updatesector(p->pos, &p->cursector);
 

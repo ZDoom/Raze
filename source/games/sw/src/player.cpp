@@ -6157,7 +6157,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
 
-        pp->horizon.horiz = q16horiz(0);
+        pp->horizon.horiz = pitchhoriz(nullAngle.Degrees());
         DoPlayerResetMovement(pp);
         plActor->user.ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
@@ -7174,7 +7174,7 @@ void InitAllPlayers(void)
     extern bool NewGame;
     //int fz,cz;
 
-    pfirst->horizon.horiz = q16horiz(0);
+    pfirst->horizon.horiz = pitchhoriz(nullAngle.Degrees());
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
@@ -7218,7 +7218,7 @@ void InitAllPlayers(void)
         pp->FadeAmt = 0;
         pp->FadeTics = 0;
         pp->StartColor = 0;
-        pp->horizon.horizoff = q16horiz(0);
+        pp->horizon.horizoff = pitchhoriz(nullAngle.Degrees());
 
         INITLIST(&pp->PanelSpriteList);
     }
