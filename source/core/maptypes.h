@@ -231,8 +231,6 @@ struct sectortype
 	const double floorz, ceilingz;
 	sectortype(double a = 0, double b = 0) : ceilingz(a), floorz(b) {}
 
-	void set_int_ceilingz(int cc, bool temp = false) {}
-	void set_int_floorz(int cc, bool temp = false) {}
 
 #else
 	// Do not change directly!
@@ -242,9 +240,6 @@ struct sectortype
 	void setfloorz(double cc, bool temp = false);
 	void addceilingz(double cc, bool temp = false);
 	void addfloorz(double cc, bool temp = false);
-
-	void set_int_ceilingz(int cc, bool temp = false) { setceilingz(cc * zinttoworld, temp); }
-	void set_int_floorz(int cc, bool temp = false) { setfloorz(cc * zinttoworld, temp); }
 
 	void setzfrommap(int c, int f)
 	{
