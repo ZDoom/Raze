@@ -75,13 +75,11 @@ AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &culti
 
 void TommySeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
-	int dz = actor->dudeSlope;
-	dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
-	dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
-	dz += Random3((5 - gGameOptions.nDifficulty) * 500);
-	actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
+	DVector3 vect(actor->spr.angle.ToVector(), actor->dudeSlope / 16384);
+	vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
+	vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
+	vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
+	actFireVector(actor, 0, 0, vect, kVectorBullet);
 	sfxPlay3DSound(actor, 4001, -1, 0);
 }
 
@@ -89,31 +87,27 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 {
 	if (Chance(gCultTeslaFireChance[gGameOptions.nDifficulty]))
 	{
-		int dx = bcos(actor->int_ang());
-		int dy = bsin(actor->int_ang());
-		int dz = actor->dudeSlope;
-		dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
-		dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
-		dz += Random3((5 - gGameOptions.nDifficulty) * 500);
-		actFireMissile(actor, 0, 0, dx, dy, dz, kMissileTeslaRegular);
+		DVector3 vect(actor->spr.angle.ToVector(), actor->dudeSlope / 16384);
+		vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
+		vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
+		vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
+		actFireMissile(actor, 0, 0, vect, kMissileTeslaRegular);
 		sfxPlay3DSound(actor, 470, -1, 0);
 	}
 }
 
 void ShotSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
-	int dz = actor->dudeSlope;
-	dx += Random2((5 - gGameOptions.nDifficulty) * 1000 - 500);
-	dy += Random2((5 - gGameOptions.nDifficulty) * 1000 - 500);
-	dz += Random2((5 - gGameOptions.nDifficulty) * 500);
+	DVector3 vect(actor->spr.angle.ToVector(), actor->dudeSlope / 16384);
+	vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
+	vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
+	vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
 	for (int i = 0; i < 8; i++)
 	{
-		int r1 = Random3(500);
-		int r2 = Random3(1000);
-		int r3 = Random3(1000);
-		actFireVector(actor, 0, 0, dx + r3, dy + r2, dz + r1, kVectorShell);
+		double r1 = Random3F(500 , 14);
+		double r2 = Random3F(1000, 14);
+		double r3 = Random3F(1000, 14);
+		actFireVector(actor, 0, 0, vect + DVector3(r1, r2, r3), kVectorShell);
 	}
 	if (Chance(0x8000))
 		sfxPlay3DSound(actor, 1001, -1, 0);
@@ -191,10 +185,10 @@ static void cultThinkGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
+	DAngle nAngle = VecToAngle(dvec);
 	double nDist = dvec.Length();
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
-	if (nDist < 320 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+	aiChooseDirection(actor, nAngle);
+	if (nDist < 320 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
 	{
 		switch (actor->xspr.medium)
 		{
