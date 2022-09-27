@@ -5788,6 +5788,10 @@ enum
     PLAYER_DEATH_HORIZ_FALL_VALUE = -50
 };
 
+constexpr double PLAYER_DEATH_HORIZ_UP_VALUEF = 22.922;
+constexpr double PLAYER_DEATH_HORIZ_JUMP_VALUEF = 21.33686;
+constexpr double PLAYER_DEATH_HORIZ_FALL_VALUEF = -PLAYER_DEATH_HORIZ_JUMP_VALUEF;
+
 void DoPlayerBeginDie(PLAYER* pp)
 {
     extern bool ReloadPrompt;
@@ -6000,16 +6004,16 @@ void DoPlayerBeginDie(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerDeathHoriz(PLAYER* pp, short target, short speed)
+static void DoPlayerDeathHoriz(PLAYER* pp, double target, double speed)
 {
-    if ((pp->horizon.horiz.asbuild() - target) > 1)
+    if ((pp->horizon.horiz.Degrees() - target) > 0.4476)
     {   
-        pp->horizon.addadjustment(buildhoriz(-speed));
+        pp->horizon.addadjustment(pitchhoriz(-speed));
     }
 
-    if ((target - pp->horizon.horiz.asbuild()) > 1)
+    if ((target - pp->horizon.horiz.Degrees()) > 0.4476)
     {
-        pp->horizon.addadjustment(buildhoriz(speed));
+        pp->horizon.addadjustment(pitchhoriz(speed));
     }
 }
 
@@ -6076,7 +6080,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
 {
     // if it didn't make it to this angle because of a low ceiling or something
     // continue on to it
-    DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 4);
+    DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUEF, 1.79);
 
     // allow turning
     if (pp->Flags & (PF_DEAD_HEAD|PF_HEAD_CONTROL))
@@ -6345,7 +6349,7 @@ void DoPlayerDeathFlip(PLAYER* pp)
         if ((pp->Flags & PF_JUMPING))
         {
             DoPlayerDeathJump(pp);
-            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 2);
+            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUEF, 0.8952);
             if (MoveSkip2 == 0)
                 DoJump(pp->actor);
         }
@@ -6353,7 +6357,7 @@ void DoPlayerDeathFlip(PLAYER* pp)
         if ((pp->Flags & PF_FALLING))
         {
             DoPlayerDeathFall(pp);
-            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 4);
+            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUEF, 1.79);
             if (MoveSkip2 == 0)
                 DoFall(pp->actor);
         }
@@ -6388,7 +6392,7 @@ void DoPlayerDeathDrown(PLAYER* pp)
         if ((pp->Flags & PF_JUMPING))
         {
             DoPlayerDeathJump(pp);
-            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 2);
+            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUEF, 0.8952);
             if (MoveSkip2 == 0)
                 DoJump(pp->actor);
         }
@@ -6465,13 +6469,13 @@ void DoPlayerDeathCrumble(PLAYER* pp)
         if ((pp->Flags & PF_JUMPING))
         {
             DoPlayerDeathJump(pp);
-            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUE, 4);
+            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUEF, 1.79);
         }
 
         if ((pp->Flags & PF_FALLING))
         {
             DoPlayerDeathFall(pp);
-            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_FALL_VALUE, 3);
+            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_FALL_VALUEF, 1.343);
         }
 
         if (!(pp->Flags & (PF_JUMPING|PF_FALLING)))
@@ -6523,13 +6527,13 @@ void DoPlayerDeathExplode(PLAYER* pp)
         if ((pp->Flags & PF_JUMPING))
         {
             DoPlayerDeathJump(pp);
-            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUE, 4);
+            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUEF, 1.79);
         }
 
         if ((pp->Flags & PF_FALLING))
         {
             DoPlayerDeathFall(pp);
-            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUE, 3);
+            DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_JUMP_VALUEF, 1.343);
         }
 
         if (!(pp->Flags & (PF_JUMPING|PF_FALLING)))
