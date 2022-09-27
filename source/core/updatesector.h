@@ -125,26 +125,6 @@ inline void updatesector(int x_, int y_, int* sectnum)
 }
 
 [[deprecated]]
-inline void updatesectorz(int x_, int y_, int z_, int* sectnum)
-{
-    double x = x_ * inttoworld;
-    double y = y_ * inttoworld;
-    double z = z_ * zinttoworld;
-
-    DoUpdateSector(x, y, z, sectnum, MAXUPDATESECTORDIST, insideZ);
-}
-
-[[deprecated]]
-inline void updatesector(int const x_, int const y_, sectortype** const sectp)
-{
-    double x = x_ * inttoworld;
-    double y = y_ * inttoworld;
-    int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
-    DoUpdateSector(x, y, 0, &sectno, MAXUPDATESECTORDIST, inside0);
-    *sectp = sectno == -1 ? nullptr : &sector[sectno];
-}
-
-[[deprecated]]
 inline void updatesectorz(int x_, int y_, int z_, sectortype** const sectp)
 {
     double x = x_ * inttoworld;

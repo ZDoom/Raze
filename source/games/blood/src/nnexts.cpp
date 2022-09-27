@@ -7691,19 +7691,21 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 //
 //---------------------------------------------------------------------------
 
-bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle_, int nRange)
+bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, int nRange_)
 {
-	int nAngle = nAngle_.Buildang();
-	int x = actor->int_pos().X, y = actor->int_pos().Y, z = actor->int_pos().Z;
+	double nRange = nRange_ * inttoworld;
+	DVector3 pos = actor->spr.pos;
+	DVector2 nAngVect = nAngle.ToVector();
+
 	auto pSector = actor->sector();
-	HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
-	int nDist = approxDist(actor->spr.pos.XY() - gHitInfo.hitpos.XY());
-	if (target != nullptr && nDist - (actor->int_clipdist()) < nRange)
+	HitScan(actor, pos.Z * zworldtoint, nAngVect.X * (1 << 14), nAngVect.Y * (1 << 14), 0, CLIPMASK0, nRange);
+	double nDist = (actor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
+
+	if (target != nullptr && nDist - actor->fClipdist() < nRange)
 		return (target == gHitInfo.actor());
 
-	x += MulScale(nRange, Cos(nAngle), 30);
-	y += MulScale(nRange, Sin(nAngle), 30);
-	updatesectorz(x, y, z, &pSector);
+	pos += nAngVect * nRange;
+	updatesectorz(pos, &pSector);
 	if (!pSector) return false;
 
 	if (pSector->hasX()) {
