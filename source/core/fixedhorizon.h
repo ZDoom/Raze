@@ -70,7 +70,7 @@ class fixedhoriz
 
 	friend constexpr fixedhoriz q16horiz(fixed_t v);
 	friend constexpr fixedhoriz buildhoriz(int v);
-	friend fixedhoriz buildfhoriz(double v);
+	friend constexpr fixedhoriz tanhoriz(double v);
 	friend fixedhoriz pitchhoriz(double v);
 
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval);
@@ -82,7 +82,6 @@ public:
 
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return FixedToInt(value); }
-	constexpr double asbuildf() const { return FixedToFloat(value); }
 	constexpr fixed_t asq16() const { return value; }
 	constexpr double Tan() const { return FixedToFloat<23>(value); }
 	double Degrees() const { return HorizToPitch(value); }
@@ -183,7 +182,7 @@ public:
 
 inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
-inline fixedhoriz buildfhoriz(double v) { return fixedhoriz(FloatToFixed(v)); }
+inline constexpr fixedhoriz tanhoriz(double v) { return fixedhoriz(FloatToFixed<23>(v)); }
 inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval)

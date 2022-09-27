@@ -2214,7 +2214,7 @@ void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 		adjustment = 0;
 	}
 
-	pPlayer->horizon.settarget(buildfhoriz(100. * tan(adjustment * pi::pi() * (1. / 1024.))));
+	pPlayer->horizon.settarget(maphoriz(100. * tan(adjustment * pi::pi() * (1. / 1024.))));
 	pPlayer->horizon.lockinput();
 }
 

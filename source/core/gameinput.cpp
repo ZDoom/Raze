@@ -48,7 +48,7 @@ inline static double getCorrectedScale(const double scaleAdjust)
 
 inline static fixedhoriz getscaledhoriz(const double value, const double scaleAdjust, const fixedhoriz object, const double push)
 {
-	return buildfhoriz(getCorrectedScale(scaleAdjust) * ((object.asbuildf() * getTicrateScale(value)) + push));
+	return tanhoriz(getCorrectedScale(scaleAdjust) * ((object.Tan() * getTicrateScale(value)) + push));
 }
 
 inline static DAngle getscaledangle(const double value, const double scaleAdjust, const DAngle object, const DAngle push)
@@ -60,7 +60,7 @@ inline static void scaletozero(fixedhoriz& object, const double value, const dou
 {
 	if (auto sgn = object.Sgn())
 	{
-		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? sgn * 2. / 9. : push);
+		object  -= getscaledhoriz(value, scaleAdjust, object, push == DBL_MAX ? sgn * (1. / 576.) : push);
 		if (sgn != object.Sgn()) object = q16horiz(0);
 	}
 }
@@ -428,12 +428,12 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff.asq16() < IntToFixed(100)) horizoff += getscaledhoriz(HORIZOFFSPEED, scaleAdjust, buildhoriz(100) - horizoff, 1.);
+			if (horizoff.Degrees() < 38) horizoff += getscaledhoriz(HORIZOFFSPEED, scaleAdjust, pitchhoriz(38) - horizoff, 0.0078125);
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(horizoff, HORIZOFFSPEED, scaleAdjust, horizoff.Sgn());
+			scaletozero(horizoff, HORIZOFFSPEED, scaleAdjust, horizoff.Sgn() * (1. / 128.));
 		}
 	}
 }

@@ -2500,10 +2500,10 @@ sectdone:
 
         if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
         {
-            double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).Tan() * 32.;
+            double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).Degrees();
             if (nVertPan != 0)
             {
-                pPlayer->horizon.addadjustment(buildfhoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
+                pPlayer->horizon.addadjustment(pitchhoriz(abs(nVertPan) >= 1.79 ? clamp(nVertPan, -1.79, 1.79) : nVertPan * 2.));
             }
         }
     }
