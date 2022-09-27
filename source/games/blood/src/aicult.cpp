@@ -131,14 +131,12 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	int dz = target->int_pos().Z - actor->int_pos().Z;
-	int nDist = approxDist(dx, dy);
-	int nDist2 = nDist / 540;
-	if (nDist > 0x1e00)
+	auto dv = target->spr.pos - actor->spr.pos;
+	double nDist = dv.XY().Length();
+	if (nDist > 0x1e0)
 		v4 = 0;
-	auto* pMissile = actFireThing(actor, 0, 0, dz / 128 - 14500, nMissile, (nDist2 << 23) / 120);
+
+	auto* pMissile = actFireThing(actor, 0., 0., dv.Z / 32768 - FixedToFloat(14500), nMissile, nDist * (2048. / 64800));
 	if (v4)
 		pMissile->xspr.Impact = 1;
 	else
