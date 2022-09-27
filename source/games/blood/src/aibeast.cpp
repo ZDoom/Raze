@@ -66,15 +66,17 @@ void SlashSeqCallback(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
+	DVector3 dv;
+	dv.XY() = actor->spr.angle.ToVector();
 	// Correct ?
-	int dz = actor->int_pos().Z - target->int_pos().Z;
-	dx += Random3(4000 - 700 * gGameOptions.nDifficulty);
-	dy += Random3(4000 - 700 * gGameOptions.nDifficulty);
-	actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
-	actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
-	actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
+	dv.Z = (actor->spr.pos.Z - target->spr.pos.Z) / 64;
+
+	dv.X += Random3(4000 - 700 * gGameOptions.nDifficulty) / 16384.;
+	dv.Y += Random3(4000 - 700 * gGameOptions.nDifficulty) / 16384.;
+
+	actFireVector(actor, 0, 0, dv, kVectorGargSlash);
+	actFireVector(actor, 0, 0, dv, kVectorGargSlash);
+	actFireVector(actor, 0, 0, dv, kVectorGargSlash);
 	sfxPlay3DSound(actor, 9012 + Random(2), -1, 0);
 }
 
