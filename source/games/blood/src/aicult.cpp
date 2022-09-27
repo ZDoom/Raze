@@ -143,7 +143,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 		evPostActor(pMissile, 120 * (1 + Random(2)), kCmdOn, actor);
 }
 
-void sub_68170(int, DBloodActor* actor)
+void cultThrowSeqCallback2(int, DBloodActor* actor)
 {
 	int nMissile = kThingArmedTNTStick;
 	if (gGameOptions.nDifficulty > 2)
@@ -153,7 +153,7 @@ void sub_68170(int, DBloodActor* actor)
 	evPostActor(pMissile, 120 * (2 + Random(2)), kCmdOn, actor);
 }
 
-void sub_68230(int, DBloodActor* actor)
+void cultThrowSeqCallback3(int, DBloodActor* actor)
 {
 	int nMissile = kThingArmedTNTStick;
 	if (gGameOptions.nDifficulty > 2)
@@ -162,12 +162,10 @@ void sub_68230(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	int dz = target->int_pos().Z - actor->int_pos().Z;
-	int nDist = approxDist(dx, dy);
-	int nDist2 = nDist / 540;
-	auto pMissile = actFireThing(actor, 0, 0, dz / 128 - 14500, nMissile, (nDist2 << 17) / 120);
+	auto dv = target->spr.pos - actor->spr.pos;
+	double nDist = dv.XY().Length();
+
+	auto* pMissile = actFireThing(actor, 0., 0., dv.Z / 32768 - FixedToFloat(14500), nMissile, nDist * (32. / 64800));
 	pMissile->xspr.Impact = 1;
 }
 
