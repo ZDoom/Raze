@@ -1250,7 +1250,7 @@ void nnExtProcessSuperSprites()
 						if (!vector)
 							pSight->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-						HitScan(pPlayer->actor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
+						HitScan_(pPlayer->actor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
 
 						if (!vector)
 							pSight->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -4644,17 +4644,17 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			}
 
 			if ((pPlayer = getPlayerById(objActor->spr.type)) != NULL)
-				var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
+				var = HitScan_(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
 			else if (objActor->IsDudeActor())
-				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, (!objActor->hasX()) ? 0 : objActor->dudeSlope * inttoworld), arg1, arg3 << 1);
+				var = HitScan_(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, (!objActor->hasX()) ? 0 : objActor->dudeSlope * inttoworld), arg1, arg3 << 1);
 			else if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
-				var3 = (objActor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 8192 : -8192; // was 0x20000 - HitScan uses Q28.4 for dz!
-				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, var3), arg1, arg3 << 1);
+				var3 = (objActor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 8192 : -8192; // was 0x20000 - HitScan_ uses Q28.4 for dz!
+				var = HitScan_(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, var3), arg1, arg3 << 1);
 			}
 			else
 			{
-				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, 0), arg1, arg3 << 1);
+				var = HitScan_(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, 0), arg1, arg3 << 1);
 			}
 
 			if (var < 0)
@@ -7691,7 +7691,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, int nR
 	DVector2 nAngVect = nAngle.ToVector();
 
 	auto pSector = actor->sector();
-	HitScan(actor, pos.Z * zworldtoint, nAngVect.X * (1 << 14), nAngVect.Y * (1 << 14), 0, CLIPMASK0, nRange);
+	HitScan_(actor, pos.Z * zworldtoint, nAngVect.X * (1 << 14), nAngVect.Y * (1 << 14), 0, CLIPMASK0, nRange);
 	double nDist = (actor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
 
 	if (target != nullptr && nDist - actor->fClipdist() < nRange)

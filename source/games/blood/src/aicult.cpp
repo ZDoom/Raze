@@ -284,7 +284,7 @@ static void cultThinkChase(DBloodActor* actor)
 						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -305,7 +305,7 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x460 && nDeltaAngle < DAngle1 * 5)
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -352,7 +352,7 @@ static void cultThinkChase(DBloodActor* actor)
 						&& (target->spr.flags & 2) && gGameOptions.nDifficulty >= 2 && target->IsPlayerActor() && !gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -373,7 +373,7 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x320 && nDeltaAngle < DAngle1 * 5)
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -420,7 +420,7 @@ static void cultThinkChase(DBloodActor* actor)
 						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -442,7 +442,7 @@ static void cultThinkChase(DBloodActor* actor)
 					else if (nDist < 0x320 && nDeltaAngle < DAngle1 * 5)
 					{
 						AISTATE *pCultistTsProneFire = !cl_bloodvanillaenemies && !VanillaMode() ? &cultistTsProneFireFixed : &cultistTsProneFire;
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -487,7 +487,7 @@ static void cultThinkChase(DBloodActor* actor)
 				case kDudeCultistTNT:
 					if (nDist < 0x2c0 && nDist > 0x140 && nDeltaAngle < DAngle15 && (target->spr.flags & 2) && target->IsPlayerActor())
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -507,7 +507,7 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x140 && nDeltaAngle < DAngle15 && (target->spr.flags & 2) && target->IsPlayerActor())
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -531,7 +531,7 @@ static void cultThinkChase(DBloodActor* actor)
 						&& (target->spr.flags & 2) && gGameOptions.nDifficulty > 2 && target->IsPlayerActor() && gPlayer[target->spr.type - kDudePlayer1].isRunning
 						&& Chance(0x8000))
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -552,7 +552,7 @@ static void cultThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x320 && abs(nDeltaAngle) < DAngle1 * 5)
 					{
-						int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
+						int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:

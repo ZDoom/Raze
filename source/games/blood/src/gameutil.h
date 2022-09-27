@@ -36,14 +36,14 @@ bool CheckProximity(DBloodActor* pSprite, const DVector3& pos, sectortype* pSect
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist);
 [[deprecated]] int GetWallAngle(walltype* pWall);
 bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int* ix, int* iy, int* iz);
-int HitScan(DBloodActor* pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8);
-inline int HitScan(DBloodActor* pSprite, double z, int dx, int dy, int dz, unsigned int nMask, int a8)
+int HitScan_(DBloodActor* pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8);
+inline int HitScan_(DBloodActor* pSprite, double z, int dx, int dy, int dz, unsigned int nMask, int a8)
 {
-	return HitScan(pSprite, int(z * zworldtoint), dx, dy, dz, nMask, a8);
+	return HitScan_(pSprite, int(z * zworldtoint), dx, dy, dz, nMask, a8);
 }
-inline int HitScan(DBloodActor* pSprite, double z, const DVector3& pos, unsigned int nMask, int a8)
+inline int HitScan_(DBloodActor* pSprite, double z, const DVector3& pos, unsigned int nMask, int a8)
 {
-	return HitScan(pSprite, int(z * zworldtoint), int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * worldtoint), nMask, a8);
+	return HitScan_(pSprite, int(z * zworldtoint), int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), nMask, a8);
 }
 int VectorScan(DBloodActor* pSprite, double nOffset, double nZOffset, const DVector3& vel, double nRange, int ac);
 

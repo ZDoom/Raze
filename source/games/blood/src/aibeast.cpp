@@ -90,7 +90,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
 	auto sectorMap = GetClosestSpriteSectors(pSector, actor->spr.pos.XY(), nDist, nullptr, newSectCheckMethod);
-	int hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector() * 1024, 0), CLIPMASK1, 0);
+	int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector() * 1024, 0), CLIPMASK1, 0);
 	DBloodActor* actorh = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actorh);
 
@@ -243,7 +243,7 @@ static void beastThinkChase(DBloodActor* actor)
 				if (nDist < 0x140 && nDist > 0xa0 && nDeltaAngle < DAngle15 && (target->spr.flags & 2)
 					&& target->IsPlayerActor() && Chance(0x8000))
 				{
-					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
+					int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
 					if (target->xspr.health > (unsigned)gPlayerTemplate[0].startHealth / 2)
 					{
 						switch (hit)
@@ -275,7 +275,7 @@ static void beastThinkChase(DBloodActor* actor)
 				}
 				if (nDist < 57.5625 && abs(nDeltaAngle) < mapangle(28))
 				{
-					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
+					int hit = HitScan_(actor, actor->spr.pos.Z, DVector3(dv, 0), CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:

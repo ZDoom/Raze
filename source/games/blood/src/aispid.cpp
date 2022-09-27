@@ -70,7 +70,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 	auto const target = actor->GetTarget();
 	if (target->IsPlayerActor())
 	{
-		int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+		int hit = HitScan_(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
 			dz += target->int_pos().Z - actor->int_pos().Z;

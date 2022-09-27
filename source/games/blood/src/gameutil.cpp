@@ -284,7 +284,7 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
 //
 //---------------------------------------------------------------------------
 
-int HitScan(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
+int HitScan_(DBloodActor* actor, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
 {
 	double zz = z * zinttoworld;
 
