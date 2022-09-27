@@ -57,18 +57,19 @@ AISTATE cerberus1398AC = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &c
 
 void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
 	}
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	int dz = target->int_pos().Z - actor->int_pos().Z;
-	actFireVector(actor, 350, -100, dx, dy, dz, kVectorCerberusHack);
-	actFireVector(actor, -350, 0, dx, dy, dz, kVectorCerberusHack);
-	actFireVector(actor, 0, 0, dx, dy, dz, kVectorCerberusHack);
+
+	DVector3 vec;
+	vec.XY() = actor->spr.angle.ToVector() * 64;
+	vec.Z = target->spr.pos.Z - actor->spr.pos.Z;
+	actFireVector(actor, 350 / 16., -100 / 256., vec, kVectorCerberusHack);
+	actFireVector(actor, -350 / 16., 0, vec, kVectorCerberusHack);
+	actFireVector(actor, 0, 0, vec, kVectorCerberusHack);
 }
 
 void cerberusBurnSeqCallback(int, DBloodActor* actor)
