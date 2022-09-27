@@ -191,9 +191,9 @@ static void spidThinkChase(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
-	aiChooseDirection(actor, DAngle::fromBuild(nAngle));
+	DAngle nAngle = VecToAngle(dvec);
+	double nDist = dvec.Length();
+	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{
 		aiNewState(actor, &spidSearch);
@@ -205,28 +205,30 @@ static void spidThinkChase(DBloodActor* actor)
 		return;
 	}
 
-	if (nDist <= pDudeInfo->seeDist) {
-		int nDeltaAngle = getincangle(actor->int_ang(), nAngle);
+	if (nDist <= pDudeInfo->SeeDist()) 
+	{
+		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
+			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
+			{
 				aiSetTarget(actor, actor->GetTarget());
 
 				switch (actor->spr.type) {
 				case kDudeSpiderRed:
-					if (nDist < 0x399 && abs(nDeltaAngle) < 85)
+					if (nDist < 57.5625 && nDeltaAngle < DAngle15)
 						aiNewState(actor, &spidBite);
 					break;
 				case kDudeSpiderBrown:
 				case kDudeSpiderBlack:
-					if (nDist < 0x733 && nDist > 0x399 && abs(nDeltaAngle) < 85)
+					if (nDist < 115.1875 && nDist > 57.5625 && nDeltaAngle < DAngle15)
 						aiNewState(actor, &spidJump);
-					else if (nDist < 0x399 && abs(nDeltaAngle) < 85)
+					else if (nDist < 57.5625 && nDeltaAngle < DAngle15)
 						aiNewState(actor, &spidBite);
 					break;
 				case kDudeSpiderMother:
-					if (nDist < 0x733 && nDist > 0x399 && abs(nDeltaAngle) < 85)
+					if (nDist < 115.1875 && nDist > 57.5625 && nDeltaAngle < DAngle15)
 						aiNewState(actor, &spidJump);
 					else if (Chance(0x8000))
 						aiNewState(actor, &spidBirth);
