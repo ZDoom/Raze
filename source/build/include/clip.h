@@ -13,7 +13,7 @@
 
 #define MAXCLIPSECTORS 512
 #define MAXCLIPNUM 2048
-#define CLIPCURBHEIGHT (1<<8)
+#define CLIPCURBHEIGHT (1)
 typedef struct
 {
     int32_t x1, y1, x2, y2;

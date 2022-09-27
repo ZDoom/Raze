@@ -335,7 +335,7 @@ inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pc
 
 
 // only used by clipmove et.al.
-void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz);
+void getcorrectzsofslope(int sectnum, int dax, int day, double* ceilz, double* florz);
 
 //==========================================================================
 //

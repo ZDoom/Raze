@@ -249,10 +249,6 @@ struct sectortype
 
 #endif
 
-	int int_ceilingz() const { return ceilingz * zworldtoint; }
-	int int_floorz() const { return floorz * zworldtoint; }
-
-
 	// panning byte fields were promoted to full floats to enable panning interpolation.
 	float ceilingxpan_;
 	float ceilingypan_;

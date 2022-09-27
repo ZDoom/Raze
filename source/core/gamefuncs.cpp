@@ -148,14 +148,14 @@ void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, 
 }
 
 // only used by clipmove et.al.
-void getcorrectzsofslope(int sectnum, int dax, int day, int* ceilz, int* florz)
+void getcorrectzsofslope(int sectnum, int dax, int day, double* ceilz, double* florz)
 {
 	DVector2 closestv;
 	SquareDistToSector(dax * inttoworld, day * inttoworld, &sector[sectnum], &closestv);
 	double ffloorz, fceilz;
 	calcSlope(&sector[sectnum], closestv.X, closestv.Y, &fceilz, &ffloorz);
-	if (ceilz) *ceilz = int(fceilz * zworldtoint);
-	if (florz) *florz = int(ffloorz * zworldtoint);
+	if (ceilz) *ceilz = fceilz;
+	if (florz) *florz = ffloorz;
 }
 
 //==========================================================================

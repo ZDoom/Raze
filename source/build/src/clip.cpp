@@ -144,8 +144,8 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     }
     }
 
-    int32_t daz2  = sec2->int_floorz();
-    int32_t dacz2 = sec2->int_ceilingz();
+    double daz2  = sec2->floorz;
+    double dacz2 = sec2->ceilingz;
 
     if ((sec2->floorstat|sec2->ceilingstat) & CSTAT_SECTOR_SLOPE)
         getcorrectzsofslope(nextsect, pos.X, pos.Y, &dacz2, &daz2);
@@ -155,23 +155,26 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
 
     auto const sec = &sector[dasect];
 
-    int32_t daz  = sec->int_floorz();
-    int32_t dacz = sec->int_ceilingz();
+    double daz  = sec->floorz;
+    double dacz = sec->ceilingz;
 
     if ((sec->floorstat|sec->ceilingstat) & CSTAT_SECTOR_SLOPE)
         getcorrectzsofslope(dasect, pos.X, pos.Y, &dacz, &daz);
 
-    int32_t const sec2height = abs(daz2-dacz2);
+    double const sec2height = abs(daz2-dacz2);
+    double fposz = posz * zinttoworld;
+    double fceildist = ceildist * zinttoworld;
+    double fflordist = flordist * zinttoworld;
 
     return ((abs(daz-dacz) > sec2height &&       // clip if the current sector is taller and the next is too small
-            sec2height < (ceildist+(CLIPCURBHEIGHT<<1))) ||
+            sec2height < (fceildist + (CLIPCURBHEIGHT * 2))) ||
 
             ((sec2->floorstat & CSTAT_SECTOR_SKY) == 0 &&    // parallaxed floor curbs don't clip
-            posz >= daz2-(flordist-1) &&    // also account for desired z distance tolerance
+            fposz >= daz2-(fflordist-1) &&    // also account for desired z distance tolerance
             daz2 < daz-CLIPCURBHEIGHT) ||   // curbs less tall than 256 z units don't clip
 
             ((sec2->ceilingstat & CSTAT_SECTOR_SKY) == 0 && 
-            posz <= dacz2+(ceildist-1) &&
+            fposz <= dacz2+(fceildist-1) &&
             dacz2 > dacz+CLIPCURBHEIGHT));  // ceilings check the same conditions ^^^^^
 }
 
@@ -756,7 +759,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
                     tempint2 = int_getceilzofslopeptr(sect, pos->X, pos->Y) - pos->Z;
                 else
-                    tempint2 = sect->int_ceilingz() - pos->Z;
+                    tempint2 = int(sect->ceilingz * zworldtoint) - pos->Z;
 
                 if (tempint2 > 0)
                 {
@@ -771,7 +774,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
                         tempint2 = pos->Z - int_getflorzofslopeptr(sect, pos->X, pos->Y);
                     else
-                        tempint2 = pos->Z - sect->int_floorz();
+                        tempint2 = pos->Z - int(sect->floorz * zworldtoint);
 
                     if (tempint2 <= 0)
                     {
@@ -953,8 +956,8 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
 
                 if (wal.cstat & EWallFlags::FromInt(dawalclipmask)) continue;  // XXX?
 
-                if (((nextsect->ceilingstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z <= nextsect->int_ceilingz()+(3<<8))) continue;
-                if (((nextsect->floorstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z >= nextsect->int_floorz()-(3<<8))) continue;
+                if (((nextsect->ceilingstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z <= int(nextsect->ceilingz * zworldtoint)+(3<<8))) continue;
+                if (((nextsect->floorstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z >= int(nextsect->floorz * zworldtoint)-(3<<8))) continue;
 
                 int nextsectno = ::sectnum(nextsect);
                 if (!clipsectormap[nextsectno])
