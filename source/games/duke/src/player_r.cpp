@@ -1761,7 +1761,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addadjustment(maphoriz(horiz) - p->horizon.horiz);
+		p->horizon.addadjustment(deltaangle(p->horizon.horiz, maphoriz(horiz)));
 	}
 
 	const DAngle adjust = mapangle(-510);
@@ -2029,7 +2029,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addadjustment(maphoriz(horiz) - p->horizon.horiz);
+		p->horizon.addadjustment(deltaangle(p->horizon.horiz, maphoriz(horiz)));
 	}
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
