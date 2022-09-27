@@ -1731,7 +1731,7 @@ void DoPlayerBob(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt)
+void DoPlayerBeginRecoil(PLAYER* pp, double pix_amt)
 {
     pp->Flags |= (PF_RECOIL);
 
@@ -1761,7 +1761,7 @@ void DoPlayerRecoil(PLAYER* pp)
 
     // move pp->q16horiz up and down
     pp->recoil_ohorizoff = pp->recoil_horizoff;
-    pp->recoil_horizoff = pitchhoriz(HorizToPitch(pp->recoil_amt * BobVal(pp->recoil_ndx)));
+    pp->recoil_horizoff = pitchhoriz(pp->recoil_amt * BobVal(pp->recoil_ndx));
 }
 
 //---------------------------------------------------------------------------

@@ -590,7 +590,7 @@ struct PLAYER
     // variables that do not fit into sprite structure
     PlayerHorizon horizon;
     PlayerAngle angle;
-    int16_t recoil_amt;
+    double recoil_amt;
     int16_t recoil_speed;
     int16_t recoil_ndx;
     fixedhoriz recoil_ohorizoff, recoil_horizoff;

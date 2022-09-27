@@ -81,7 +81,7 @@ extern int LoWangsQueueHead;
 extern TObjPtr<DSWActor*> LoWangsQueue[MAX_LOWANGS_QUEUE];
 
 void ChangeState(DSWActor* actor, STATE* statep);
-void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt);
+void DoPlayerBeginRecoil(PLAYER* pp, double pix_amt);
 SECTOR_OBJECT* DetectSectorObject(sectortype*);
 SECTOR_OBJECT* DetectSectorObjectByWall(walltype*);
 void ScaleSpriteVector(DSWActor* actor, int scale);
@@ -137,11 +137,12 @@ constexpr double SKEL_ELECTRO_VELOCITY   = (850 / 16.);
 constexpr double COOLG_FIRE_VELOCITY     = (400 / 16.);
 constexpr int GORO_FIREBALL_VELOCITY = 50;
 
-#define GRENADE_RECOIL_AMT      (12)
-#define ROCKET_RECOIL_AMT       (7)
-#define RAIL_RECOIL_AMT       (7)
-#define SHOTGUN_RECOIL_AMT      (12)
-//#define MICRO_RECOIL_AMT        (15)
+// Recoil speeds in pitch/degrees.
+constexpr double GRENADE_RECOIL_AMT = 5.356;
+constexpr double ROCKET_RECOIL_AMT = 3.13;
+constexpr double RAIL_RECOIL_AMT = 3.13;
+constexpr double SHOTGUN_RECOIL_AMT = 5.356;
+constexpr double NUKE_RECOIL_AMT = 33.275;
 
 // Damage amounts that determine the type of player death
 // The standard flip over death is default

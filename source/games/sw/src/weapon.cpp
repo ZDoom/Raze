@@ -13928,7 +13928,7 @@ int InitNuke(PLAYER* pp)
     else
         return 0;
 
-    DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT*12);
+    DoPlayerBeginRecoil(pp, NUKE_RECOIL_AMT);
 
 
     PlaySound(DIGI_RIOTFIRE, pp, v3df_dontpan|v3df_doppler);
