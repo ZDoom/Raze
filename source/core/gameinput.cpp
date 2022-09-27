@@ -173,37 +173,34 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 	// Process only if movement isn't locked.
 	if (!movementlocked())
 	{
-		// Test if we have input to process.
-		if (horz || *actions & (SB_AIM_UP | SB_AIM_DOWN | SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
+		// Process mouse input.
+		if (horz)
 		{
-			// Process mouse input.
-			if (horz)
-			{
-				*actions &= ~SB_CENTERVIEW;
-				horiz += DAngle::fromDeg(horz);
-			}
-
-			// Process keyboard input.
-			auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, double const rate, bool const lock)
-			{
-				if (*actions & (up | down))
-				{
-					if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
-					horiz += DAngle::fromDeg(scaleAdjust * getTicrateScale(rate) * (!!(*actions & up) - !!(*actions & down)));
-				}
-			};
-			doKbdInput(SB_AIM_UP, SB_AIM_DOWN, PITCH_AIMSPEED, true);
-			doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, PITCH_LOOKSPEED, false);
-
-			if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
-			{
-				scaletozero(horiz, PITCH_CENTRESPEED * (PITCH_CNTRSINEOFFSET - abs(horiz)).Sin(), scaleAdjust);
-				if (!horiz.Sgn()) *actions &= ~SB_CENTERVIEW;
-			}
-
-			// clamp before converting back to horizon
-			horiz = ClampViewPitch(horiz);
+			*actions &= ~SB_CENTERVIEW;
+			horiz += DAngle::fromDeg(horz);
 		}
+
+		// Process keyboard input.
+		auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, double const rate, bool const lock)
+		{
+			if (*actions & (up | down))
+			{
+				if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
+				horiz += DAngle::fromDeg(scaleAdjust * getTicrateScale(rate) * (!!(*actions & up) - !!(*actions & down)));
+			}
+		};
+		doKbdInput(SB_AIM_UP, SB_AIM_DOWN, PITCH_AIMSPEED, true);
+		doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, PITCH_LOOKSPEED, false);
+
+		// Do return to centre.
+		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+		{
+			scaletozero(horiz, PITCH_CENTRESPEED * (PITCH_CNTRSINEOFFSET - abs(horiz)).Sin(), scaleAdjust);
+			if (!horiz.Sgn()) *actions &= ~SB_CENTERVIEW;
+		}
+
+		// clamp before we finish, even if it's clamped in the drawer.
+		horiz = ClampViewPitch(horiz);
 	}
 	else
 	{
