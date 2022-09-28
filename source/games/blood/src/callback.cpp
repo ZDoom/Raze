@@ -161,7 +161,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
 	{
 		pFX->vel.X = actor->vel.X + Random2F(0x11111);
 		pFX->vel.Y = actor->vel.Y + Random2F(0x11111);
-		pFX->set_int_bvel_z(actor->int_vel().Z - 0x6aaaa);
+		pFX->vel.Z = actor->vel.Z - 6.66666;
 	}
 	if (actor->xspr.data1 > 0)
 	{
