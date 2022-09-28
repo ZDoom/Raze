@@ -69,8 +69,6 @@ void warpInit(TArray<DBloodActor*>& actors);
 int CheckLink(DBloodActor* pSprite);
 int CheckLink(DVector3& cPos, sectortype** pSector);
 
-void RotateVector(int* dx, int* dy, int nAngle);
-
 #include "m_fixed.h"
 
 enum SurfaceType {

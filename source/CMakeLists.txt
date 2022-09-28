@@ -706,7 +706,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/sfx.cpp
 	games/blood/src/sound.cpp
 	games/blood/src/tile.cpp
-	games/blood/src/trig.cpp
 	games/blood/src/triggers.cpp
 	games/blood/src/view.cpp
 	games/blood/src/warp.cpp

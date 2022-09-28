@@ -60,7 +60,6 @@
 #include "src/sfx.cpp"
 #include "src/sound.cpp"
 #include "src/tile.cpp"
-#include "src/trig.cpp"
 #include "src/triggers.cpp"
 #include "src/view.cpp"
 #include "src/warp.cpp"

@@ -196,11 +196,6 @@ inline int bsin(const int ang, int shift = 0)
 	return int(g_sinbam(ang * BAMUNIT) * sinscale(shift));
 }
 
-inline int Sin(int ang)
-{
-	return bsin(ang, 16);
-}
-
 //---------------------------------------------------------------------------
 //
 // Build cosine inline functions.
@@ -217,22 +212,6 @@ inline int Sin(int ang)
 inline int bcos(const int ang, int shift = 0)
 {
 	return int(g_cosbam(ang * BAMUNIT) * sinscale(shift));
-}
-
-inline int Cos(int ang)
-{
-	return bcos(ang, 16);
-}
-
-//---------------------------------------------------------------------------
-//
-// High precision vector angle function, mainly for the renderer.
-//
-//---------------------------------------------------------------------------
-
-inline int getangle(double xvect, double yvect)
-{
-	return DVector2(xvect, yvect).Angle().Buildang();
 }
 
 //---------------------------------------------------------------------------
