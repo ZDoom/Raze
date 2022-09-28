@@ -835,9 +835,9 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->vodooVar2 = 0;
 	playerResetInertia(pPlayer);
 	pPlayer->zWeaponVel = 0;
-	pPlayer->relAim.dx = 0x4000;
-	pPlayer->relAim.dy = 0;
-	pPlayer->relAim.dz = 0;
+	pPlayer->_relAim.dx = 0x4000;
+	pPlayer->_relAim.dy = 0;
+	pPlayer->_relAim.dz = 0;
 	pPlayer->aimTarget = nullptr;
 	pPlayer->zViewVel = pPlayer->zWeaponVel;
 	if (!(gGameOptions.nGameType == 1 && gGameOptions.bKeepKeysOnRespawn && !bNewLevel))
@@ -2278,7 +2278,7 @@ int UseAmmo(PLAYER* pPlayer, int nAmmoType, int nDec)
 void voodooTarget(PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
-	double aimz = pPlayer->aim.dz / 16384.;
+	double aimz = pPlayer->flt_aim().Z;
 	double dz = pPlayer->zWeapon - pPlayer->actor->spr.pos.Z;
 	if (UseAmmo(pPlayer, 9, 0) < 8)
 	{
@@ -2483,8 +2483,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("fusetime", w.fuseTime)
 			("throwtime", w.throwTime)
 			("throwpower", w.throwPower)
-			("aim", w.aim)
-			("relaim", w.relAim)
+			("aim", w._aim)
+			("relaim", w._relAim)
 			("aimtarget", w.aimTarget)
 			("aimtargetscount", w.aimTargetsCount)
 			.Array("aimtargets", w.aimTargets, countof(w.aimTargets))
@@ -2635,7 +2635,7 @@ DEFINE_FIELD_X(BloodPlayer, PLAYER, qavLoop)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, fuseTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, throwTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, throwPower)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, aim)  // world
+//DEFINE_FIELD_X(BloodPlayer, PLAYER, aim)  // world
 DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargetsCount)
 //DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargets)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, deathTime)

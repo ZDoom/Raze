@@ -238,6 +238,11 @@ void CheckPickUp(PLAYER* pPlayer);
 void ProcessInput(PLAYER* pPlayer);
 void playerProcess(PLAYER* pPlayer);
 DBloodActor* playerFireMissile(PLAYER* pPlayer, int xyoff, int dx, int dy, int dz, int nType);
+inline DBloodActor* playerFireMissile(PLAYER* pPlayer, double xyoff, const DVector3& vec, int nType)
+{
+	return playerFireMissile(pPlayer, int(xyoff * worldtoint), vec.X * 16384, vec.Y * 16384, vec.Z * 16384, nType);
+}
+
 DBloodActor* playerFireThing(PLAYER* pPlayer, int xyoff, int zvel, int thingType, int nSpeed);
 void playerFrag(PLAYER* pKiller, PLAYER* pVictim);
 int playerDamageArmor(PLAYER* pPlayer, DAMAGE_TYPE nType, int nDamage);
