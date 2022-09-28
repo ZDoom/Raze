@@ -2549,10 +2549,12 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
 			if (actor->xspr.data2 == 0)
 				evPostActor(actor, 1, kCmdOff, actor);
 		}
-		int dx = bcos(actor->int_ang()) + Random2(1000);
-		int dy = bsin(actor->int_ang()) + Random2(1000);
-		int dz = Random2(1000);
-		actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
+		DVector3 dv;
+		dv.XY() = actor->spr.angle.ToVector();
+		dv.X += Random2F(1000, 14);
+		dv.Y += Random2F(1000, 14);
+		dv.Z = Random2F(1000, 14);
+		actFireVector(actor, 0, 0, dv, kVectorBullet);
 		sfxPlay3DSound(actor, 359, -1, 0);
 	}
 }
