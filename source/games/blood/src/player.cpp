@@ -1420,7 +1420,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 	auto plActor = pPlayer->actor;
 	*out = {};
 	auto pos = DVector3(plActor->spr.angle.ToVector() * 1024., pPlayer->slope * inttoworld);
-	int hit = HitScan_(pPlayer->actor, pPlayer->zView, pos, 0x10000040, 128);
+	int hit = HitScan(pPlayer->actor, pPlayer->zView, pos, 0x10000040, 128);
 	double hitDist = (plActor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
 	if (hitDist < 64)
 	{
