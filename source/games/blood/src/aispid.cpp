@@ -137,17 +137,18 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	int nAngle = getangle(dvec);
-	int nDist = approxDist(dvec);
+	DAngle nAngle = VecToAngle(dvec);
+	double nDist = dvec.Length();
 
 	DBloodActor* spawned = nullptr;
 	if (target->IsPlayerActor() && pDudeExtraE->birthCounter < 10)
 	{
-		if (nDist < 0x1a00 && nDist > 0x1400 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		if (nDist < 0x1a0 && nDist > 0x140 && nDeltaAngle < pDudeInfo->Periphery())
 			spawned = actSpawnDude(actor, kDudeSpiderRed, actor->fClipdist() * 0.25);
-		else if (nDist < 0x1400 && nDist > 0xc00 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+		else if (nDist < 0x140 && nDist > 0xc0 && nDeltaAngle < pDudeInfo->Periphery())
 			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->fClipdist() * 0.25);
-		else if (nDist < 0xc00 && abs(actor->int_ang() - nAngle) < pDudeInfo->periphery)
+		else if (nDist < 0xc0 && nDeltaAngle < pDudeInfo->Periphery())
 			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->fClipdist() * 0.25);
 
 		if (spawned)
@@ -211,7 +212,7 @@ static void spidThinkChase(DBloodActor* actor)
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
-			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())
+			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
 
