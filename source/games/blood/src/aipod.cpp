@@ -66,35 +66,32 @@ void podAttack(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int x = target->int_pos().X - actor->int_pos().X;
-	int y = target->int_pos().Y - actor->int_pos().Y;
-	int dz = target->int_pos().Z - actor->int_pos().Z;
-	x += Random2(1000);
-	y += Random2(1000);
-	int nDist = approxDist(x, y);
-	int nDist2 = nDist / 540;
+	auto dv = target->spr.pos - actor->spr.pos;
+	dv.X += Random2F(1000, 4);
+	dv.Y += Random2F(1000, 4);
+	double nDist = dv.XY().Length();
 	DBloodActor* pMissile = nullptr;
 	switch (actor->spr.type)
 	{
 	case kDudePodGreen:
-		dz += 8000;
+		dv.Z += 31.25;
 		if (pDudeInfo->seeDist * 0.1 < nDist)
 		{
 			if (Chance(0x8000))
 				sfxPlay3DSound(actor, 2474, -1, 0);
 			else
 				sfxPlay3DSound(actor, 2475, -1, 0);
-			pMissile = actFireThing(actor, 0, -8000, dz / 128 - 14500, kThingPodGreenBall, (nDist2 << 23) / 120);
+			pMissile = actFireThing(actor, 0., -500., dv.Z / 32768 - 0.22125, kThingPodGreenBall, nDist * (2048. / 64800));
 		}
 		if (pMissile)
 			seqSpawn(68, pMissile, -1);
 		break;
 	case kDudePodFire:
-		dz += 8000;
+		dv.Z += 31.25;
 		if (pDudeInfo->seeDist * 0.1 < nDist)
 		{
 			sfxPlay3DSound(actor, 2454, -1, 0);
-			pMissile = actFireThing(actor, 0, -8000, dz / 128 - 14500, kThingPodFireBall, (nDist2 << 23) / 120);
+			pMissile = actFireThing(actor, 0., -500., dv.Z / 32768 - 0.22125, kThingPodFireBall, nDist * (2048. / 64800));
 		}
 		if (pMissile)
 			seqSpawn(22, pMissile, -1);
