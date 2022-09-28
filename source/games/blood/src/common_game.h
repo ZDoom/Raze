@@ -633,23 +633,6 @@ inline int dmulscale30r(int a, int b, int c, int d)
 	return (int)(acc >> 30);
 }
 
-inline int approxDist(int dx, int dy)
-{
-	dx = abs(dx);
-	dy = abs(dy);
-	if (dx > dy)
-		dy = (3 * dy) >> 3;
-	else
-		dx = (3 * dx) >> 3;
-	return dx + dy;
-}
-
-// this is merely a refactoring aid to allow partial upgrading of certain functions.
-inline int approxDist(const DVector2& vect)
-{
-	return int(vect.Length() * worldtoint);
-}
-
 class Rect {
 public:
 	int x0, y0, x1, y1;
