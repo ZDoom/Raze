@@ -136,12 +136,12 @@ struct PLAYER
 	int                 fuseTime;
 	int                 throwTime;
 	int                 throwPower;
-	Aim                 aim;  // world
-	//int               at1c6;
-	Aim                 relAim;  // relative
-	//int               relAim;
-	//int               at1ce;
-	//int               at1d2;
+	Aim                 _aim;  // world
+	Aim                 _relAim;  // relative
+	Aim int_aim() const { return _aim; }
+	Aim int_relAim() const { return _relAim; }
+	DVector3 flt_aim() const { return { _aim.dx / 16384., _aim.dy / 16384.,_aim.dz / 16384. }; }
+	DVector3 flt_relAim() const { return { _relAim.dx / 16384., _relAim.dy / 16384.,_relAim.dz / 16384. }; }
 	TObjPtr<DBloodActor*>        aimTarget;  // aim target sprite
 	int                 aimTargetsCount;
 	TObjPtr<DBloodActor*>        aimTargets[16];
