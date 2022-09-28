@@ -7677,10 +7677,10 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, int nR
 {
 	double nRange = nRange_ * inttoworld;
 	DVector3 pos = actor->spr.pos;
-	DVector2 nAngVect = nAngle.ToVector();
+	DVector3 nAngVect(nAngle.ToVector(), 0);
 
 	auto pSector = actor->sector();
-	HitScan_(actor, pos.Z * zworldtoint, nAngVect.X * (1 << 14), nAngVect.Y * (1 << 14), 0, CLIPMASK0, nRange);
+	HitScan(actor, pos.Z, nAngVect, CLIPMASK0, nRange);
 	double nDist = (actor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
 
 	if (target != nullptr && nDist - actor->fClipdist() < nRange)
