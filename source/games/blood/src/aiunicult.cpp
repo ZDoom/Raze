@@ -132,18 +132,19 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
 {
 	if (actor->GetTarget() != nullptr)
 	{
-		int fStart = 0;
-		int fEnd = 0;
+		double fStart = 0;
+		double fEnd = 0;
 		GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 		unsigned int clipMask = (weaponType == kGenDudeWeaponMissile) ? CLIPMASK0 : CLIPMASK1;
 
 		for (int i = -8191; i < 8192; i += by)
 		{
-			HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector() * 1024, i / 16.), clipMask, dist);
-			if (!fStart && actor->GetTarget() == gHitInfo.actor()) fStart = i;
+			double ii = i / 16384.;
+			HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), ii), clipMask, dist);
+			if (!fStart && actor->GetTarget() == gHitInfo.actor()) fStart = ii;
 			else if (fStart && actor->GetTarget() != gHitInfo.actor())
 			{
-				fEnd = i;
+				fEnd = ii;
 				break;
 			}
 		}
@@ -152,12 +153,12 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
 		{
 			if (weaponType == kGenDudeWeaponHitscan)
 			{
-				actor->_dudeSlope = fStart - ((fStart - fEnd) >> 2);
+				actor->dudeSlope = fStart - ((fStart - fEnd) * 0.25);
 			}
 			else if (weaponType == kGenDudeWeaponMissile)
 			{
 				const MissileType* pMissile = &missileInfo[pExtra->curWeapon - kMissileBase];
-				actor->_dudeSlope = (fStart - ((fStart - fEnd) >> 2)) - (pMissile->clipDist << 1);
+				actor->dudeSlope = (fStart - ((fStart - fEnd) * 0.25)) - (pMissile->fClipDist()) / 2048;
 			}
 			return true;
 		}
@@ -225,7 +226,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 
 	if (pExtra->weaponType == kGenDudeWeaponHitscan)
 	{
-		dv = DVector3(actor->spr.angle.ToVector(), actor->flt_dudeSlope());
+		dv = DVector3(actor->spr.angle.ToVector(), actor->dudeSlope);
 		// dispersal modifiers here in case if non-melee enemy
 		if (!dudeIsMelee(actor))
 		{
@@ -264,7 +265,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	}
 	else if (pExtra->weaponType == kGenDudeWeaponMissile)
 	{
-		dv = DVector3(actor->spr.angle.ToVector(), actor->flt_dudeSlope());
+		dv = DVector3(actor->spr.angle.ToVector(), actor->dudeSlope);
 
 		// dispersal modifiers here
 		dv.X += Random3F(dispersion, 14);
@@ -529,7 +530,7 @@ static void unicultThinkChase(DBloodActor* actor)
 		if ((PlayClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(actor, false))
 			playGenDudeSound(actor, kGenDudeSndChasing);
 
-		actor->_dudeSlope = dist == 0 ? 0 : target->spr.pos.Z - actor->spr.pos.Z / dist * 16384;
+		actor->dudeSlope = dist == 0 ? 0 : target->spr.pos.Z - actor->spr.pos.Z / dist;
 
 		int curWeapon = actor->genDudeExtra.curWeapon;
 		int weaponType = actor->genDudeExtra.weaponType;
@@ -746,9 +747,9 @@ static void unicultThinkChase(DBloodActor* actor)
 					double targetDist = -1; 
 					int hit = -1;
 					if (weaponType == kGenDudeWeaponHitscan)
-						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), actor->flt_dudeSlope()), CLIPMASK1, dist);
+						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), CLIPMASK1, dist);
 					else if (weaponType == kGenDudeWeaponMissile)
-						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), actor->flt_dudeSlope()), CLIPMASK0, dist);
+						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), CLIPMASK0, dist);
 
 					if (hit >= 0)
 					{
@@ -861,7 +862,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							else if (weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								if (genDudeAdjustSlope(actor, dist * worldtoint, weaponType)) break;
-								VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->flt_dudeSlope()), dist, 1);
+								VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), dist, 1);
 								if (actor == gHitInfo.actor()) break;
 
 								bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
@@ -922,7 +923,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							if (hit == 4 && weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
-								if (masked) VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->flt_dudeSlope()), dist, 1);
+								if (masked) VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), dist, 1);
 
 								if ((actor != gHitInfo.actor()) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked))
 								{

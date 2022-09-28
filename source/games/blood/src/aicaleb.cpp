@@ -59,7 +59,7 @@ AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &
 
 void SeqAttackCallback(int, DBloodActor* actor)
 {
-	DVector3 vect(actor->spr.angle.ToVector(), actor->flt_dudeSlope());
+	DVector3 vect(actor->spr.angle.ToVector(), actor->dudeSlope);
 	vect.X += Random2F(1500, 4);
 	vect.Y += Random2F(1500, 4);
 	vect.Z += Random2F(1500, 8);
@@ -158,7 +158,7 @@ static void calebThinkChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->_dudeSlope = nDist == 0 ? 0 : target->spr.pos.Z - actor->spr.pos.Z / nDist * 16384;
+				actor->dudeSlope = nDist == 0 ? 0 : target->spr.pos.Z - actor->spr.pos.Z / nDist;
 				if (nDist < 89.5625 && abs(nDeltaAngle) < DAngle1 * 5)
 				{
 					int hit = HitScan(actor, actor->spr.pos.Z, DVector3(dvec, 0), CLIPMASK1, 0);

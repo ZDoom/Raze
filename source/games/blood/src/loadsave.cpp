@@ -479,7 +479,7 @@ void DBloodActor::Serialize(FSerializer& arc)
 	if (hasX())
 	{
 		arc("xsprite", xspr)
-			("dudeslope", _dudeSlope)
+			("dudeslope", dudeSlope)
 			("dudeextra", dudeExtra)
 			("explosionflag", explosionhackflag)
 			("spritehit", hit)
