@@ -59,44 +59,44 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 
 void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
-	dx += Random2(2000);
-	dy += Random2(2000);
-	int dz = Random2(2000);
+	DVector3 vec(actor->spr.angle.ToVector(), 0);
+
+	vec.X += Random2F(2000, 14);
+	vec.Y += Random2F(2000, 14);
+	vec.Z = Random2F(2000, 14);
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	auto const target = actor->GetTarget();
 	if (target->IsPlayerActor())
 	{
-		int hit = HitScan_(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
+		int hit = HitScan(actor, actor->spr.pos.Z, DVector3(vec.XY(), 0), CLIPMASK1, 0);
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
-			dz += target->int_pos().Z - actor->int_pos().Z;
+			vec.Z += target->spr.pos.Z - actor->spr.pos.Z;
 			PLAYER* pPlayer = &gPlayer[target->spr.type - kDudePlayer1];
 			switch (actor->spr.type)
 			{
 			case kDudeSpiderBrown:
-				actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
+				actFireVector(actor, 0, 0, vec, kVectorSpiderBite);
 				if (target->IsPlayerActor() && !pPlayer->godMode && powerupCheck(pPlayer, kPwUpDeathMask) <= 0 && Chance(0x4000))
 					powerupActivate(pPlayer, kPwUpDeliriumShroom);
 				break;
 			case kDudeSpiderRed:
-				actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
+				actFireVector(actor, 0, 0, vec, kVectorSpiderBite);
 				if (Chance(0x5000)) spidBlindEffect(target, 4, 16);
 				break;
 			case kDudeSpiderBlack:
-				actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
+				actFireVector(actor, 0, 0, vec, kVectorSpiderBite);
 				spidBlindEffect(target, 8, 16);
 				break;
 			case kDudeSpiderMother:
-				actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
+				actFireVector(actor, 0, 0, vec, kVectorSpiderBite);
 
-				dx += Random2(2000);
-				dy += Random2(2000);
-				dz += Random2(2000);
-				actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
+				vec.X += Random2F(2000, 14);
+				vec.Y += Random2F(2000, 14);
+				vec.Z += Random2F(2000, 14);
+				actFireVector(actor, 0, 0, vec, kVectorSpiderBite);
 				spidBlindEffect(target, 8, 16);
 				break;
 			}
@@ -107,23 +107,23 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 
 void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
-	dx += Random2(200);
-	dy += Random2(200);
-	int dz = Random2(200);
+	DVector3 vec(actor->spr.angle.ToVector(), 0);
+
+	vec.X += Random2F(200, 14);
+	vec.Y += Random2F(200, 14);
+	vec.Z = Random2F(200, 14);
+
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	if (target->IsPlayerActor()) {
-		dz += target->int_pos().Z - actor->int_pos().Z;
+		vec.Z += target->spr.pos.Z - actor->spr.pos.Z;
 		switch (actor->spr.type) {
 		case kDudeSpiderBrown:
 		case kDudeSpiderRed:
 		case kDudeSpiderBlack:
-			actor->set_int_bvel_x(IntToFixed(dx));
-			actor->set_int_bvel_y(IntToFixed(dy));
-			actor->set_int_bvel_z(IntToFixed(dz));
+			// This value seems a bit extreme, but that's how it was...
+			actor->vel = vec * 16384;
 			break;
 		}
 	}
