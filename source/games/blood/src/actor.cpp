@@ -6616,7 +6616,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 	const VECTORDATA* pVectorData = &gVectorData[vectorType];
 	double nRange = pVectorData->maxDist * inttoworld;
 	// The vector for hitscan must be longer than what we got here as long as it works with integers.
-	int hit = VectorScan(shooter, offset, zoffset, dv * 1024, nRange, 1);
+	int hit = VectorScan(shooter, offset, zoffset, dv, nRange, 1);
 	if (hit == 3)
 	{
 		auto hitactor = gHitInfo.actor();
