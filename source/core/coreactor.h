@@ -93,21 +93,6 @@ public:
 		return vec3_t(FloatToFixed(vel.X), FloatToFixed(vel.Y), FloatToFixed(vel.Z));
 	}
 
-	void set_int_bvel_x(int x)
-	{
-		vel .X = FixedToFloat(x);
-	}
-
-	void set_int_bvel_y(int x)
-	{
-		vel .Y = FixedToFloat(x);
-	}
-
-	void set_int_bvel_z(int x)
-	{
-		vel .Z = FixedToFloat(x);
-	}
-
 	void ZeroVelocityXY()
 	{
 		vel .X = vel .Y = 0;
