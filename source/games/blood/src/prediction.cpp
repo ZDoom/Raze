@@ -108,8 +108,8 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 	predict.jump = !!(gMe->input.actions & SB_JUMP);
 	if (predict.posture == 1)
 	{
-		int x = predict.angle.Cos();
-		int y = predict.angle.Sin();
+		int x = predict.angle.Cos_();
+		int y = predict.angle.Sin_();
 		if (pInput->fvel)
 		{
 			int forward = pInput->fvel;
@@ -133,8 +133,8 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 		int speed = 0x10000;
 		if (predict.floordist > 0)
 			speed -= DivScale(predict.floordist, 0x100, 16);
-		int x = predict.angle.Cos();
-		int y = predict.angle.Sin();
+		int x = predict.angle.Cos_();
+		int y = predict.angle.Sin_();
 		if (pInput->fvel)
 		{
 			int forward = pInput->fvel;
@@ -234,8 +234,8 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 	if (va && (sector[nSector].floorstat & 2) != 0)
 	{
 		int z1 = getflorzofslope(nSector, predict.x, predict.y);
-		int x2 = predict.x + MulScale(64, predict.angle.Cos(), 30);
-		int y2 = predict.y + MulScale(64, predict.angle.Sin(), 30);
+		int x2 = predict.x + MulScale(64, predict.angle.Cos_(), 30);
+		int y2 = predict.y + MulScale(64, predict.angle.Sin_(), 30);
 		int nSector2 = nSector;
 		updatesector(x2, y2, &nSector2);
 		if (nSector2 == nSector)
@@ -306,10 +306,10 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 	{
 		predict.Kills = (predict.Kills + 17) & 2047;
 		predict.at14 = (predict.at14 + 17) & 2047;
-		predict.bobHeight = MulScale(10 * pPosture->bobV, Sin(predict.Kills * 2), 30);
-		predict.bobWidth = MulScale(predict.bobPhase * pPosture->bobH, Sin(predict.Kills - 256), 30);
-		predict.shakeBobY = MulScale(predict.bobPhase * pPosture->swayV, Sin(predict.at14 * 2), 30);
-		predict.shakeBobX = MulScale(predict.bobPhase * pPosture->swayH, Sin(predict.at14 - 0x155), 30);
+		predict.bobHeight = MulScale(10 * pPosture->bobV, Sin_(predict.Kills * 2), 30);
+		predict.bobWidth = MulScale(predict.bobPhase * pPosture->bobH, Sin_(predict.Kills - 256), 30);
+		predict.shakeBobY = MulScale(predict.bobPhase * pPosture->swayV, Sin_(predict.at14 * 2), 30);
+		predict.shakeBobX = MulScale(predict.bobPhase * pPosture->swayH, Sin_(predict.at14 - 0x155), 30);
 	}
 	else
 	{
@@ -328,10 +328,10 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 					predict.bobPhase = ClipHigh(predict.bobPhase + nSpeed, 30);
 			}
 		}
-		predict.bobHeight = MulScale(predict.bobPhase * pPosture->bobV, Sin(predict.Kills * 2), 30);
-		predict.bobWidth = MulScale(predict.bobPhase * pPosture->bobH, Sin(predict.Kills - 256), 30);
-		predict.shakeBobY = MulScale(predict.bobPhase * pPosture->swayV, Sin(predict.at14 * 2), 30);
-		predict.shakeBobX = MulScale(predict.bobPhase * pPosture->swayH, Sin(predict.at14 - 0x155), 30);
+		predict.bobHeight = MulScale(predict.bobPhase * pPosture->bobV, Sin_(predict.Kills * 2), 30);
+		predict.bobWidth = MulScale(predict.bobPhase * pPosture->bobH, Sin_(predict.Kills - 256), 30);
+		predict.shakeBobY = MulScale(predict.bobPhase * pPosture->swayV, Sin_(predict.at14 * 2), 30);
+		predict.shakeBobX = MulScale(predict.bobPhase * pPosture->swayH, Sin_(predict.at14 - 0x155), 30);
 	}
 	if (!pXSprite->health)
 		return;
@@ -577,8 +577,8 @@ static void fakeActAirDrag(DBloodActor*, int num)
 			int vel = pXSector->windVel << 12;
 			if (!pXSector->windAlways && pXSector->busy)
 				vel = MulScale(vel, pXSector->busy, 16);
-			xvec = MulScale(vel, Cos(pXSector->windAng), 30);
-			yvec = MulScale(vel, Sin(pXSector->windAng), 30);
+			xvec = MulScale(vel, Cos_(pXSector->windAng), 30);
+			yvec = MulScale(vel, Sin_(pXSector->windAng), 30);
 		}
 	}
 	predict.xvel += MulScale(xvec - predict.xvel, num, 16);
@@ -614,8 +614,8 @@ void fakeActProcessSprites(void)
 				}
 				if (pSector->floorstat & 64)
 					angle = (GetWallAngle(pSector->firstWall()) + 512) & 2047;
-				predict.xvel += MulScale(speed, Cos(angle), 30);
-				predict.yvel += MulScale(speed, Sin(angle), 30);
+				predict.xvel += MulScale(speed, Cos_(angle), 30);
+				predict.yvel += MulScale(speed, Sin_(angle), 30);
 			}
 		}
 		if (pXSector && pXSector->Underwater)

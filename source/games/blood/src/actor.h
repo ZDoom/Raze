@@ -237,6 +237,7 @@ DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
 DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingType);
 
 inline DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double zvel, int thingType, double nSpeed);
+[[deprecated]]
 inline DBloodActor* actFireThing(DBloodActor* actor, int xyoff_, int zoff_, int zvel_, int thingType, int nSpeed_)
 {
 	double xyoff = xyoff_ * inttoworld;
@@ -247,14 +248,6 @@ inline DBloodActor* actFireThing(DBloodActor* actor, int xyoff_, int zoff_, int 
 }
 
 DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dc, int nType);
-
-inline DBloodActor* actFireMissile(DBloodActor* actor, int xyoff_, int zoff_, int dx, int dy, int dz, int nType)
-{
-	double xyoff = xyoff_ * inttoworld;
-	double zoff = zoff_ * zinttoworld;
-	DVector3 dv(FixedToFloat<14>(dx), FixedToFloat<14>(dy), FixedToFloat<14>(dz));
-	return actFireMissile(actor, xyoff, zoff, dv, nType);
-}
 
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
 

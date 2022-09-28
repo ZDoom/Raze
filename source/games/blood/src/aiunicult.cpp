@@ -1867,7 +1867,7 @@ bool doExplosion(DBloodActor* actor, int nType)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
+DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 {
 	auto spawned = actSpawnSprite(actor, kStatDude);
 	int nType = kDudeModernCustom;
@@ -1875,7 +1875,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 	auto pos = actor->spr.pos;
 	if (nDist > 0)
 	{
-		pos.XY() += actor->spr.angle.ToVector() * nDist * inttoworld;
+		pos.XY() += actor->spr.angle.ToVector() * nDist;
 	}
 
 	spawned->spr.type = nType; 

@@ -2527,9 +2527,9 @@ void ActivateGenerator(DBloodActor* actor)
 void FireballTrapSeqCallback(int, DBloodActor* actor)
 {
 	if (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
-		actFireMissile(actor, 0, 0, 0, 0, (actor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 0x4000 : -0x4000, kMissileFireball);
+		actFireMissile(actor, 0, 0, DVector3(0, 0, (actor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 1 : -1), kMissileFireball);
 	else
-		actFireMissile(actor, 0, 0, bcos(actor->int_ang()), bsin(actor->int_ang()), 0, kMissileFireball);
+		actFireMissile(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), 0), kMissileFireball);
 }
 
 

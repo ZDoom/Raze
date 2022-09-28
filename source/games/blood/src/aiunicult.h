@@ -203,7 +203,7 @@ void aiGenDudeChooseDirection(DBloodActor* actor, DAngle a3, const DVector2& vel
 void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState);
 int checkAttackState(DBloodActor* actor);
 bool doExplosion(DBloodActor* pSprite, int nType);
-DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* pSprite, int nDist);
+DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* pSprite, double nDist);
 void genDudeTransform(DBloodActor* pSprite);
 void dudeLeechOperate(DBloodActor* actor, const EVENT& a3);
 int getDodgeChance(DBloodActor* pSprite);
