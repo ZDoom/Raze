@@ -6501,26 +6501,23 @@ void useRandomItemGen(DBloodActor* actor)
 void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 {
 	if (actor == nullptr) actor = sourceactor;
-	int dx = 0, dy = 0, dz = 0;
+	DVector3 dv(0, 0, 0);
 
 	if (sourceactor->xspr.data1 < kMissileBase || sourceactor->xspr.data1 >= kMissileMax)
 		return;
 
 	if (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
 	{
-		if (actor->spr.cstat & CSTAT_SPRITE_YFLIP) dz = 0x4000;
-		else dz = -0x4000;
+		if (actor->spr.cstat & CSTAT_SPRITE_YFLIP) dv.Z = 1;
+		else dv.Z = -1;
 	}
 	else
 	{
-		dx = bcos(actor->int_ang());
-		dy = bsin(actor->int_ang());
-		dz = sourceactor->xspr.data3 << 6; // add slope controlling
-		if (dz > 0x10000) dz = 0x10000;
-		else if (dz < -0x10000) dz = -0x10000;
+		dv.XY() = actor->spr.angle.ToVector();
+		dv.Z = clamp(sourceactor->xspr.data3 / 256., -4., 4.); // add slope controlling
 	}
 
-	auto missileactor = actFireMissile(actor, 0, 0, dx, dy, dz, actor->xspr.data1);
+	auto missileactor = actFireMissile(actor, 0, 0, dv, actor->xspr.data1);
 	if (missileactor)
 	{
 		int from; // inherit some properties of the generator
@@ -6560,10 +6557,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 		// add velocity controlling
 		if (sourceactor->xspr.data2 > 0)
 		{
-			int velocity = sourceactor->xspr.data2 << 12;
-			missileactor->set_int_bvel_x(MulScale(velocity, dx, 14));
-			missileactor->set_int_bvel_y(MulScale(velocity, dy, 14));
-			missileactor->set_int_bvel_z(MulScale(velocity, dz, 14));
+			missileactor->vel = dv * sourceactor->xspr.data2 / 16.;
 		}
 
 		// add bursting for missiles
