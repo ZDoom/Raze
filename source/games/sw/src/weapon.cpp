@@ -15384,7 +15384,7 @@ int InitTracerUzi(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixedhoriz horiz)
+int InitTracerTurret(DSWActor* actor, DSWActor* Operator, DAngle horiz)
 {
     // Spawn a shot
     // Inserting and setting up variables

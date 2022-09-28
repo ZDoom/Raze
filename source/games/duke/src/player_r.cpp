@@ -1515,7 +1515,7 @@ void checkweapons_r(player_struct* p)
 			}
 			p->OnMotorcycle = 0;
 			p->gotweapon[MOTORCYCLE_WEAPON] = false;
-			p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+			p->horizon.horiz = nullAngle;
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1534,7 +1534,7 @@ void checkweapons_r(player_struct* p)
 			}
 			p->OnBoat = 0;
 			p->gotweapon[BOAT_WEAPON] = false;
-			p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+			p->horizon.horiz = nullAngle;
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -2962,7 +2962,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->horizon.addadjustment(pitchhoriz(0.4476));
+		p->horizon.addadjustment(DAngle::fromDeg(0.4476));
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3134,7 +3134,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		else if (p->kickback_pic == 12)
 		{
 			p->vel.XY() -= p->angle.ang.ToVector();
-			p->horizon.addadjustment(pitchhoriz(8.88));
+			p->horizon.addadjustment(DAngle::fromDeg(8.88));
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -4044,7 +4044,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		p->gotweapon[MOTORCYCLE_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+		p->horizon.settarget(nullAngle);
 	}
 	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
 		S_PlayActorSound(186, p->GetActor());
@@ -4075,7 +4075,7 @@ void OffMotorcycle(player_struct *p)
 		p->gotweapon[MOTORCYCLE_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+		p->horizon.settarget(nullAngle);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
@@ -4119,7 +4119,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		p->gotweapon[BOAT_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+		p->horizon.settarget(nullAngle);
 	}
 }
 
@@ -4137,7 +4137,7 @@ void OffBoat(player_struct *p)
 		p->gotweapon[BOAT_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+		p->horizon.settarget(nullAngle);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;

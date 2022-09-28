@@ -37,7 +37,7 @@ IntRect viewport3d;
 
 double cameradist, cameraclock;
 
-bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle ang, fixedhoriz horiz, double const interpfrac)
+bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle ang, DAngle horiz, double const interpfrac)
 {
 	if (!*psect) return false;
 

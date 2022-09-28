@@ -1,7 +1,6 @@
 #pragma once
 
 #include "m_fixed.h"
-#include "fixedhorizon.h"
 #include "gamecvars.h"
 #include "gamestruct.h"
 #include "gamefuncs.h"
@@ -9,7 +8,7 @@
 
 struct PlayerHorizon
 {
-	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;
+	DAngle horiz, ohoriz, horizoff, ohorizoff;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def);
 
@@ -30,12 +29,12 @@ struct PlayerHorizon
 	}
 
 	// Commonly used getters.
-	fixedhoriz osum() { return ohoriz + ohorizoff; }
-	fixedhoriz sum() { return horiz + horizoff; }
-	fixedhoriz interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
+	DAngle osum() { return ohoriz + ohorizoff; }
+	DAngle sum() { return horiz + horizoff; }
+	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
-	void resetadjustment() { adjustment = 0; }
+	void resetadjustment() { adjustment = nullAngle; }
 	bool targetset() { return target.Sgn(); }
 
 	// Input locking helpers.
@@ -47,11 +46,11 @@ struct PlayerHorizon
 	double horizsumfrac(double const interpfrac) { return (!SyncInput() ? sum() : interpolatedsum(interpfrac)).Tan() * 8.; }
 
 	// Ticrate playsim adjustment setters and processor.
-	void addadjustment(fixedhoriz const value)
+	void addadjustment(DAngle const value)
 	{
 		if (!SyncInput())
 		{
-			adjustment += value.Degrees();
+			adjustment += value;
 		}
 		else
 		{
@@ -59,14 +58,14 @@ struct PlayerHorizon
 		}
 	}
 
-	void settarget(fixedhoriz value, bool const backup = false)
+	void settarget(DAngle value, bool const backup = false)
 	{
 		// Clamp incoming variable because sometimes the caller can exceed bounds.
-		value = pitchhoriz(ClampViewPitch(value.Degrees()));
+		value = ClampViewPitch(value);
 
 		if (!SyncInput() && !backup)
 		{
-			target = value.Sgn() ? value : pitchhoriz(minAngle.Degrees());
+			target = value.Sgn() ? value : minAngle;
 		}
 		else
 		{
@@ -79,27 +78,26 @@ struct PlayerHorizon
 	{
 		if (targetset())
 		{
-			auto delta = (target - horiz).Degrees();
+			auto delta = deltaangle(horiz, target);
 
-			if (abs(delta) > 0.45)
+			if (abs(delta).Degrees() > 0.45)
 			{
-				horiz += pitchhoriz(scaleAdjust * delta);
+				horiz += delta * scaleAdjust;
 			}
 			else
 			{
 				horiz = target;
-				target = pitchhoriz(nullAngle.Degrees());
+				target = nullAngle;
 			}
 		}
-		else if (adjustment)
+		else if (adjustment.Sgn())
 		{
-			horiz += pitchhoriz(scaleAdjust * adjustment);
+			horiz += adjustment * scaleAdjust;
 		}
 	}
 
 private:
-	fixedhoriz target;
-	double adjustment;
+	DAngle target, adjustment;
 	bool inputdisabled;
 };
 
@@ -165,7 +163,7 @@ struct PlayerAngle
 	{
 		if (!SyncInput() && !backup)
 		{
-			target = value.Sgn() ? value : DAngle::fromBam(1);
+			target = value.Sgn() ? value : minAngle;
 		}
 		else
 		{

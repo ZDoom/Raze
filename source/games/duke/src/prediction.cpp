@@ -40,7 +40,7 @@ DVector3 omypos, mypos;
 int myxvel, myyvel, myzvel;
 int globalskillsound;
 DAngle myang, omyang;
-fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
+DAngle myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 int mycursectnum, myjumpingcounter;
 uint8_t myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 int fakemovefifoplc;

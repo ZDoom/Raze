@@ -192,7 +192,7 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 //
 //===========================================================================
 
-FRenderViewpoint SetupViewpoint(DCoreActor* cam, const DVector3& position, int sectnum, DAngle angle, fixedhoriz horizon, DAngle rollang, float fov = -1)
+FRenderViewpoint SetupViewpoint(DCoreActor* cam, const DVector3& position, int sectnum, DAngle angle, DAngle horizon, DAngle rollang, float fov = -1)
 {
 	FRenderViewpoint r_viewpoint{};
 	r_viewpoint.CameraActor = cam;
@@ -200,7 +200,7 @@ FRenderViewpoint SetupViewpoint(DCoreActor* cam, const DVector3& position, int s
 	r_viewpoint.SectCount = sectnum;
 	r_viewpoint.Pos = { position.X, -position.Y, -position.Z };
 	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(-90.f + (float)angle.Degrees());
-	r_viewpoint.HWAngles.Pitch = FAngle::fromDeg(-ClampViewPitch(horizon.Degrees()));
+	r_viewpoint.HWAngles.Pitch = FAngle::fromDeg(-ClampViewPitch(horizon).Degrees());
 	r_viewpoint.HWAngles.Roll = FAngle::fromDeg(-(float)rollang.Degrees());
 	r_viewpoint.FieldOfView = FAngle::fromDeg(fov > 0? fov :  (float)r_fov);
 	r_viewpoint.RotAngle = angle.BAMs();
@@ -305,7 +305,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 void animatecamsprite(double s);
 
 
-void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, double interpfrac, float fov)
+void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, DAngle horizon, DAngle rollang, double interpfrac, float fov)
 {
 	checkRotatedWalls();
 
@@ -359,7 +359,7 @@ void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sector
 	All.Unclock();
 }
 
-void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, fixedhoriz horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double interpfrac)
+void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, DAngle horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double interpfrac)
 {
 	updatesector(position, &sect);
 	if (!sect) return;

@@ -1232,8 +1232,7 @@ void RestorePortalState()
 
 void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
 {
-    DAngle tang, trotscrnang;
-    fixedhoriz thoriz;
+    DAngle tang, trotscrnang, thoriz;
     sectortype* tsect;
 
     // prediction player if prediction is on, else regular player

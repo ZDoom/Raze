@@ -925,7 +925,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_RETURN_TO_CENTER:
 		if (bSet) ps[iPlayer].sync.actions |= SB_CENTERVIEW;
-		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? abs(int(ps[iPlayer].horizon.horiz.Tan() * (9. / pitchhoriz(GetMaxPitch()).Tan()))) : 0, sActor, sPlayer);
+		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? int(abs((ps[iPlayer].horizon.horiz * (DAngle::fromDeg(9.) / GetMaxPitch())).Degrees())) : 0, sActor, sPlayer);
 		break;
 
 	default:
@@ -2243,10 +2243,10 @@ int ParseState::parse(void)
 
 			ps[g_p].last_extra = g_ac->spr.extra = gs.max_player_health;
 			ps[g_p].wantweaponfire = -1;
-			ps[g_p].horizon.ohoriz = ps[g_p].horizon.horiz = pitchhoriz(nullAngle.Degrees());
+			ps[g_p].horizon.ohoriz = ps[g_p].horizon.horiz = nullAngle;
 			ps[g_p].on_crane = nullptr;
 			ps[g_p].frag_ps = g_p;
-			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = pitchhoriz(nullAngle.Degrees());
+			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = nullAngle;
 			ps[g_p].opyoff = 0;
 			ps[g_p].wackedbyactor = nullptr;
 			ps[g_p].shield_amount = gs.max_armour_amount;

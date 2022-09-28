@@ -133,13 +133,13 @@ struct GameInterface : public ::GameInterface
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
 	void SetTileProps(int til, int surf, int vox, int shade) override;
-	double playerPitchMin() override { return -54.575; }
-	double playerPitchMax() override { return 43.15; }
+	DAngle playerPitchMin() override { return DAngle::fromDeg(-54.575); }
+	DAngle playerPitchMax() override { return DAngle::fromDeg(43.15); }
 	void WarpToCoords(double x, double y, double z, DAngle a) override;
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
-	DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 80., horiz.Tan() * 80.); }
+	DVector3 chaseCamPos(DAngle ang, DAngle horiz) { return DVector3(-ang.ToVector() * 80., horiz.Tan() * 80.); }
 	void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
 	void EnterPortal(DCoreActor* viewer, int type) override;
 	void LeavePortal(DCoreActor* viewer, int type) override;

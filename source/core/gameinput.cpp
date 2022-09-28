@@ -176,14 +176,11 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		// Test if we have input to process.
 		if (horz || *actions & (SB_AIM_UP | SB_AIM_DOWN | SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
 		{
-			// Store current horizon as true pitch.
-			double pitch = horiz.Degrees();
-
 			// Process mouse input.
 			if (horz)
 			{
 				*actions &= ~SB_CENTERVIEW;
-				pitch += horz;
+				horiz += DAngle::fromDeg(horz);
 			}
 
 			// Process keyboard input.
@@ -192,27 +189,20 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 				if (*actions & (up | down))
 				{
 					if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
-					pitch += scaleAdjust * getTicrateScale(rate) * (!!(*actions & up) - !!(*actions & down));
+					horiz += DAngle::fromDeg(scaleAdjust * getTicrateScale(rate) * (!!(*actions & up) - !!(*actions & down)));
 				}
 			};
 			doKbdInput(SB_AIM_UP, SB_AIM_DOWN, PITCH_AIMSPEED, true);
 			doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, PITCH_LOOKSPEED, false);
 
-			// return to center if conditions met, using a temporary DAngle object.
-			auto tmpangle = DAngle::fromDeg(pitch);
-
 			if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 			{
-				scaletozero(tmpangle, PITCH_CENTRESPEED * (PITCH_CNTRSINEOFFSET - abs(tmpangle)).Sin(), scaleAdjust);
-				if (!tmpangle.Sgn())
-				{
-					tmpangle = nullAngle;
-					*actions &= ~SB_CENTERVIEW;
-				}
+				scaletozero(horiz, PITCH_CENTRESPEED * (PITCH_CNTRSINEOFFSET - abs(horiz)).Sin(), scaleAdjust);
+				if (!horiz.Sgn()) *actions &= ~SB_CENTERVIEW;
 			}
 
 			// clamp before converting back to horizon
-			horiz = pitchhoriz(ClampViewPitch(tmpangle.Degrees()));
+			horiz = ClampViewPitch(horiz);
 		}
 	}
 	else
@@ -295,9 +285,6 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 {
 	if (cl_slopetilting && cursectnum != nullptr)
 	{
-		// Temporarily hold horizoff as pitch.
-		auto tmpangle = DAngle::fromDeg(horizoff.Degrees());
-
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
@@ -319,7 +306,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
-					tmpangle += DAngle::fromDeg(maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5))).Degrees());
+					horizoff += maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
 				}
 			}
 		}
@@ -327,16 +314,16 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (tmpangle < DAngle::fromDeg(38)) tmpangle += getscaledangle(HORIZOFFSPEEDF, scaleAdjust, DAngle::fromDeg(38) - tmpangle, DAngle::fromDeg(0.4476));
+			if (horizoff < DAngle::fromDeg(38)) horizoff += getscaledangle(HORIZOFFSPEEDF, scaleAdjust, deltaangle(horizoff, DAngle::fromDeg(38)), DAngle::fromDeg(0.4476));
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(tmpangle, HORIZOFFSPEEDF, scaleAdjust, DAngle::fromDeg(tmpangle.Sgn() * 0.4476));
+			scaletozero(horizoff, HORIZOFFSPEEDF, scaleAdjust, DAngle::fromDeg(horizoff.Sgn() * 0.4476));
 		}
 
-		// Convert temporary angle back to fixedhoriz.
-		horizoff = pitchhoriz(ClampViewPitch(tmpangle.Degrees()));
+		// Clamp off against the maximum allowed pitch.
+		horizoff = ClampViewPitch(horizoff);
 	}
 }
 

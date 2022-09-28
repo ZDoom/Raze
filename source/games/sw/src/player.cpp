@@ -1738,7 +1738,7 @@ void DoPlayerBeginRecoil(PLAYER* pp, double pix_amt)
     pp->recoil_amt = pix_amt;
     pp->recoil_speed = 80;
     pp->recoil_ndx = 0;
-    pp->recoil_ohorizoff = pp->recoil_horizoff = pitchhoriz(nullAngle.Degrees());
+    pp->recoil_ohorizoff = pp->recoil_horizoff = nullAngle;
 }
 
 //---------------------------------------------------------------------------
@@ -1755,13 +1755,13 @@ void DoPlayerRecoil(PLAYER* pp)
     if (BobVal(pp->recoil_ndx) < 0)
     {
         pp->Flags &= ~(PF_RECOIL);
-        pp->recoil_ohorizoff = pp->recoil_horizoff = pitchhoriz(nullAngle.Degrees());
+        pp->recoil_ohorizoff = pp->recoil_horizoff = nullAngle;
         return;
     }
 
     // move pp->q16horiz up and down
     pp->recoil_ohorizoff = pp->recoil_horizoff;
-    pp->recoil_horizoff = pitchhoriz(pp->recoil_amt * BobVal(pp->recoil_ndx));
+    pp->recoil_horizoff = DAngle::fromDeg(pp->recoil_amt * BobVal(pp->recoil_ndx));
 }
 
 //---------------------------------------------------------------------------
@@ -6008,12 +6008,12 @@ static void DoPlayerDeathHoriz(PLAYER* pp, double target, double speed)
 {
     if ((pp->horizon.horiz.Degrees() - target) > 0.4476)
     {   
-        pp->horizon.addadjustment(pitchhoriz(-speed));
+        pp->horizon.addadjustment(DAngle::fromDeg(-speed));
     }
 
     if ((target - pp->horizon.horiz.Degrees()) > 0.4476)
     {
-        pp->horizon.addadjustment(pitchhoriz(speed));
+        pp->horizon.addadjustment(DAngle::fromDeg(speed));
     }
 }
 
@@ -6161,7 +6161,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
 
-        pp->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+        pp->horizon.horiz = nullAngle;
         DoPlayerResetMovement(pp);
         plActor->user.ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
@@ -7178,7 +7178,7 @@ void InitAllPlayers(void)
     extern bool NewGame;
     //int fz,cz;
 
-    pfirst->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+    pfirst->horizon.horiz = nullAngle;
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
@@ -7222,7 +7222,7 @@ void InitAllPlayers(void)
         pp->FadeAmt = 0;
         pp->FadeTics = 0;
         pp->StartColor = 0;
-        pp->horizon.horizoff = pitchhoriz(nullAngle.Degrees());
+        pp->horizon.horizoff = nullAngle;
 
         INITLIST(&pp->PanelSpriteList);
     }

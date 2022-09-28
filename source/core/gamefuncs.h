@@ -4,7 +4,6 @@
 #include "gamestruct.h"
 #include "build.h"
 #include "coreactor.h"
-#include "fixedhorizon.h"
 #include "intrect.h"
 #include "geometry.h"
 
@@ -268,7 +267,7 @@ extern double cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
 
-bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, fixedhoriz horiz, double const interpfrac);
+bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, DAngle horiz, double const interpfrac);
 int getslopeval(sectortype* sect, const DVector3& pos, double bazez);
 bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, sectortype* sect2);
 double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);
@@ -537,17 +536,17 @@ inline double BobVal(double val)
 	return g_sinbam(xs_CRoundToUInt(val * (1 << 21)));
 }
 
-inline double GetMinPitch()
+inline DAngle GetMinPitch()
 {
 	return gi->playerPitchMin();
 }
 
-inline double GetMaxPitch()
+inline DAngle GetMaxPitch()
 {
 	return gi->playerPitchMax();
 }
 
-inline double ClampViewPitch(const double pitch)
+inline DAngle ClampViewPitch(const DAngle pitch)
 {
 	return clamp(pitch, GetMinPitch(), GetMaxPitch());
 }

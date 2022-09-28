@@ -76,7 +76,7 @@ struct Player
     int16_t nLastWeapon;
     int16_t nRun;
     bool bPlayerPan, bLockPan;
-    fixedhoriz nDestVertPan;
+    DAngle nDestVertPan;
 
     PlayerHorizon horizon;
     PlayerAngle angle;

@@ -405,14 +405,14 @@ void viewUpdateDelirium(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& cH, double& pshakeX, double& pshakeY)
+void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, double& pshakeX, double& pshakeY)
 {
 	auto doEffect = [&](const int& effectType)
 	{
 		if (effectType)
 		{
 			int nValue = ClipHigh(effectType * 8, 2000);
-			cH += pitchhoriz(HorizToPitch(QRandom2F(nValue * (1. / 256.))));
+			cH += maphoriz(QRandom2F(nValue * (1. / 256.)));
 			cA += DAngle::fromBuildf(QRandom2F(nValue * (1. / 256.)));
 			cPos.X += QRandom2F(nValue * inttoworld) * inttoworld;
 			cPos.Y += QRandom2F(nValue * inttoworld) * inttoworld;
@@ -456,7 +456,7 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, DAngle& rotscrnang, const double interpfrac)
+static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, DAngle& rotscrnang, const double interpfrac)
 {
 	double bobWidth, bobHeight;
 
@@ -513,7 +513,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& c
 	}
 
 	viewUpdateShake(pPlayer, cPos, cA, cH, shakeX, shakeY);
-	cH += pitchhoriz((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
+	cH += DAngle::fromDeg((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
 	if (gViewPos == 0)
 	{
 		if (cl_viewhbob)
@@ -650,8 +650,7 @@ void viewDrawScreen(bool sceneonly)
 		UpdateBlend(pPlayer);
 
 		DVector3 cPos;
-		DAngle cA, rotscrnang;
-		fixedhoriz cH;
+		DAngle cA, rotscrnang, cH;
 		sectortype* pSector;
 		double zDelta;
 		double shakeX, shakeY;
@@ -735,7 +734,7 @@ void viewDrawScreen(bool sceneonly)
 		}
 
 		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, basepal, interpfrac);
-		fixedhoriz deliriumPitchI = interpolatedvalue(maphoriz(deliriumPitchO), maphoriz(deliriumPitch), interpfrac);
+		DAngle deliriumPitchI = interpolatedvalue(maphoriz(deliriumPitchO), maphoriz(deliriumPitch), interpfrac);
 		auto bakCstat = pPlayer->actor->spr.cstat;
 		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		render_drawrooms(pPlayer->actor, cPos, pSector, cA, cH + deliriumPitchI, rotscrnang, interpfrac);

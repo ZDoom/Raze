@@ -400,7 +400,7 @@ void JS_InitMirrors(void)
 /////////////////////////////////////////////////////
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
-void drawroomstotile(const DVector3& pos, DAngle ang, fixedhoriz horiz, sectortype* dacursect, short tilenume, double smoothratio)
+void drawroomstotile(const DVector3& pos, DAngle ang, DAngle horiz, sectortype* dacursect, short tilenume, double smoothratio)
 {
     auto canvas = tileGetCanvas(tilenume);
     if (!canvas) return;

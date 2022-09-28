@@ -217,8 +217,7 @@ static int getdrugmode(player_struct *p, int oyrepeat)
 void displayrooms(int snum, double interpfrac, bool sceneonly)
 {
 	DVector3 cpos;
-	DAngle cang, rotscrnang;
-	fixedhoriz choriz;
+	DAngle cang, rotscrnang, choriz;
 
 	player_struct* p = &ps[snum];
 

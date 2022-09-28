@@ -46,7 +46,7 @@ struct PREDICT
 {
     int x,y,z;
     DAngle ang;
-    fixedhoriz horiz;
+    // fixedhoriz horiz;
     short filler;
 };
 

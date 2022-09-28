@@ -593,7 +593,7 @@ struct PLAYER
     double recoil_amt;
     int16_t recoil_speed;
     int16_t recoil_ndx;
-    fixedhoriz recoil_ohorizoff, recoil_horizoff;
+    DAngle recoil_ohorizoff, recoil_horizoff;
 
     DVector3 Revolve;
     DAngle RevolveDeltaAng;
@@ -1883,7 +1883,7 @@ struct GameInterface : public ::GameInterface
     void WarpToCoords(double x, double y, double z, DAngle ang) override;
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
-    DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 128., horiz.Tan() * 128.); }
+    DVector3 chaseCamPos(DAngle ang, DAngle horiz) { return DVector3(-ang.ToVector() * 128., horiz.Tan() * 128.); }
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(DCoreActor* viewer, int type) override;

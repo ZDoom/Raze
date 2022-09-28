@@ -819,7 +819,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->actor->xspr.health = pDudeInfo->startHealth << 4;
 	pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	pPlayer->bloodlust = 0;
-	pPlayer->horizon.horiz = pPlayer->horizon.horizoff = pitchhoriz(nullAngle.Degrees());
+	pPlayer->horizon.horiz = pPlayer->horizon.horizoff = nullAngle;
 	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
 	pPlayer->underwaterTime = 1200;
@@ -1556,7 +1556,7 @@ void ProcessInput(PLAYER* pPlayer)
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->horizon.addadjustment(pitchhoriz(((1. - BobVal(ClipHigh(pPlayer->deathTime << 3, 1024) + 512)) * gi->playerPitchMax()) - pPlayer->horizon.horiz.Degrees()));
+			pPlayer->horizon.addadjustment(deltaangle(pPlayer->horizon.horiz, gi->playerPitchMax() * (1. - BobVal(ClipHigh(pPlayer->deathTime << 3, 1024) + 512))));
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)

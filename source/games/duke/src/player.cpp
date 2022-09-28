@@ -117,7 +117,7 @@ void forceplayerangle(int snum)
 {
 	player_struct* p = &ps[snum];
 
-	p->horizon.addadjustment(pitchhoriz(26.566));
+	p->horizon.addadjustment(DAngle::fromDeg(26.566));
 	p->sync.actions |= SB_CENTERVIEW;
 	p->angle.rotscrnang = p->angle.look_ang = (DAngle22_5 - randomAngle(45)) / 2.;
 }
@@ -374,7 +374,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->horizon.addadjustment(pitchhoriz(-20.556));
+		p->horizon.addadjustment(DAngle::fromDeg(-20.556));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -619,7 +619,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	backupplayer(p);
 
-	p->horizon.horizoff = p->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+	p->horizon.horizoff = p->horizon.horiz = nullAngle;
 
 	updatesector(p->pos, &p->cursector);
 

@@ -7,7 +7,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "engineerrors.h"
 #include "stats.h"
 #include "packet.h"
-#include "fixedhorizon.h"
+#include "serializer.h"
 #include "inputstate.h"
 #include "maptypes.h"
 
@@ -109,13 +109,13 @@ struct GameInterface
 	virtual void LevelCompleted(MapRecord* map, int skill) {}
 	virtual bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) { return false; }
 	virtual void SetTileProps(int tile, int surf, int vox, int shade) {}
-	virtual double playerPitchMin() { return -57.375; }
-	virtual double playerPitchMax() { return 57.375; }
+	virtual DAngle playerPitchMin() { return DAngle::fromDeg(-57.375); }
+	virtual DAngle playerPitchMax() { return DAngle::fromDeg(57.375); }
 	virtual void WarpToCoords(double x, double y, double z, DAngle a) {}
 	virtual void ToggleThirdPerson() { }
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
 	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }
-	virtual DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(0,0,0); }
+	virtual DVector3 chaseCamPos(DAngle ang, DAngle horiz) { return DVector3(0,0,0); }
 	virtual void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) = 0;
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(DCoreActor* viewer, int type) {}

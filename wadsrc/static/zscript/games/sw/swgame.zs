@@ -209,7 +209,7 @@ struct SWPlayer native
     native double recoil_amt;
     native int16 recoil_speed;
     native int16 recoil_ndx;
-    native int recoil_horizoff;
+    native double recoil_horizoff;
 
     native double RevolveDeltaAng;
 

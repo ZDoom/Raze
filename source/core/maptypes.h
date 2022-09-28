@@ -32,7 +32,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "tflags.h"
 #include "intvec.h"
 #include "dobject.h"
-#include "fixedhorizon.h"
 
 void MarkVerticesForSector(int sector);
 
@@ -730,7 +729,7 @@ constexpr DAngle mapangle(int mapang)
 {
 	return DAngle::fromBuild(mapang);
 }
-inline fixedhoriz maphoriz(double maphoriz)
+inline DAngle maphoriz(double maphoriz)
 {
-	return pitchhoriz(atan2(maphoriz, 128.) * (180. / pi::pi()));
+	return DAngle::fromDeg(atan2(maphoriz, 128.) * (180. / pi::pi()));
 }

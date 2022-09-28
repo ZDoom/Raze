@@ -410,7 +410,7 @@ void RestartPlayer(int nPlayer)
 
     plr->nThrust.Zero();
 
-	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = pitchhoriz(nullAngle.Degrees());
+	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = nullAngle;
 	plr->nBreathTimer = 90;
 
 	plr->nTauntTimer = RandomSize(3) + 3;
@@ -506,7 +506,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = pitchhoriz(nullAngle.Degrees());
+    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = nullAngle;
     PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel = -55;
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
@@ -1079,7 +1079,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             PlayerList[nPlayer].angle.settarget(ang, true);
             pPlayerActor->spr.angle = ang;
 
-            PlayerList[nPlayer].horizon.settarget(pitchhoriz(nullAngle.Degrees()), true);
+            PlayerList[nPlayer].horizon.settarget(nullAngle, true);
 
             sPlayerInput[nPlayer].vel.Zero();
             pPlayerActor->vel.Zero();
@@ -1091,7 +1091,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 StopLocalSound();
                 InitSpiritHead();
 
-                PlayerList[nPlayer].nDestVertPan = pitchhoriz(nullAngle.Degrees());
+                PlayerList[nPlayer].nDestVertPan = nullAngle;
                 PlayerList[nPlayer].horizon.settarget(currentLevel->ex_ramses_horiz);
             }
         }
@@ -1119,7 +1119,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 }
 
                 if (zVelB > 2 && !PlayerList[nPlayer].horizon.horiz.Sgn() && cl_slopetilting) {
-                    PlayerList[nPlayer].nDestVertPan = pitchhoriz(nullAngle.Degrees());
+                    PlayerList[nPlayer].nDestVertPan = nullAngle;
                 }
             }
 
@@ -2503,7 +2503,7 @@ sectdone:
             double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).Degrees();
             if (nVertPan != 0)
             {
-                pPlayer->horizon.addadjustment(pitchhoriz(abs(nVertPan) >= 1.79 ? clamp(nVertPan, -1.79, 1.79) : nVertPan * 2.));
+                pPlayer->horizon.addadjustment(DAngle::fromDeg(abs(nVertPan) >= 1.79 ? clamp(nVertPan, -1.79, 1.79) : nVertPan * 2.));
             }
         }
     }
@@ -2623,7 +2623,7 @@ sectdone:
         {
             if (PlayerList[nPlayer].horizon.horiz.Sgn() < 0)
             {
-                PlayerList[nPlayer].horizon.settarget(pitchhoriz(nullAngle.Degrees()));
+                PlayerList[nPlayer].horizon.settarget(nullAngle);
                 PlayerList[nPlayer].eyelevel -= dVertPan[nPlayer];
             }
             else
@@ -2632,7 +2632,7 @@ sectdone:
 
                 if (PlayerList[nPlayer].horizon.horiz.Degrees() >= 38)
                 {
-                    PlayerList[nPlayer].horizon.settarget(pitchhoriz(37.72));
+                    PlayerList[nPlayer].horizon.settarget(DAngle::fromDeg(37.72));
                 }
                 else if (PlayerList[nPlayer].horizon.horiz.Sgn() <= 0)
                 {
