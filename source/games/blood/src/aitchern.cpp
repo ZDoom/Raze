@@ -58,7 +58,7 @@ void sub_71A90(int, DBloodActor* actor)
 		aiNewState(actor, &tcherno13A9D4);
 }
 
-void sub_71BD4(int, DBloodActor* actor)
+void tchernobogBurnSeqCallback(int, DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	double height = actor->spr.yrepeat * pDudeInfo->eyeHeight * REPEAT_SCALE * 0.25;
@@ -115,7 +115,7 @@ void sub_71BD4(int, DBloodActor* actor)
 	actFireMissile(actor, Tchernnobog_XYOff, 0., Aim, kMissileFireballTchernobog);
 }
 
-void sub_720AC(int, DBloodActor* actor)
+void tchernobogBurnSeqCallback2(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
