@@ -221,13 +221,11 @@ void fxArcSpark(DBloodActor* actor, sectortype*) // 7
 void fxDynPuff(DBloodActor* actor, sectortype*) // 8
 {
 	if (!actor) return;
-	if (actor->int_vel().Z)
+	if (actor->vel.Z)
 	{
-		int nDist = (actor->spr.xrepeat * (tileWidth(actor->spr.picnum) / 2)) >> 2;
-		int x = actor->int_pos().X + MulScale(nDist, Cos(actor->int_ang() - 512), 30);
-		int y = actor->int_pos().Y + MulScale(nDist, Sin(actor->int_ang() - 512), 30);
-		int z = actor->int_pos().Z;
-		auto pFX = gFX.fxSpawnActor(FX_7, actor->sector(), x, y, z, 0);
+		double nDist = (actor->spr.xrepeat * tileWidth(actor->spr.picnum)) * (REPEAT_SCALE / 2);
+		DVector3 pos = actor->spr.pos + (actor->spr.angle - DAngle90).ToVector() * nDist;
+		auto pFX = gFX.fxSpawnActor(FX_7, actor->sector(), pos, 0);
 		if (pFX)
 		{
 			pFX->vel = actor->vel;
