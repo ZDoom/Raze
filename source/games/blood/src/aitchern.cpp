@@ -65,7 +65,7 @@ void tchernobogBurnSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	DVector3 pos(actor->spr.pos.XY(), height);
 
-	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.);
+	DVector3 Aim(actor->spr.angle.ToVector(), actor->_dudeSlope / 16384.);
 	double nClosest = 0x7fffffff;
 
 	BloodStatIterator it(kStatDude);
@@ -83,7 +83,7 @@ void tchernobogBurnSeqCallback(int, DBloodActor* actor)
 
 		DVector3 tvec = pos;
 		tvec.XY() += actor->spr.angle.ToVector() * nDist;
-		tvec.Z += actor->dudeSlope / 16384. * nDist;
+		tvec.Z += actor->_dudeSlope / 16384. * nDist;
 
 		double tsr = nDist * 9.23828125;
 		double top, bottom;
@@ -123,7 +123,7 @@ void tchernobogBurnSeqCallback2(int, DBloodActor* actor)
 	double height = actor->spr.yrepeat * pDudeInfo->eyeHeight * REPEAT_SCALE * 0.25;
 	
 	DVector3 pos(actor->spr.pos.XY(), height);
-	DVector3 Aim(actor->spr.angle.ToVector(), -actor->dudeSlope / 16384.);
+	DVector3 Aim(actor->spr.angle.ToVector(), -actor->_dudeSlope / 16384.);
 	DVector3 Aim2(Aim.XY(), 0);
 	double nClosest = 0x7fffffff;
 
@@ -139,7 +139,7 @@ void tchernobogBurnSeqCallback2(int, DBloodActor* actor)
 
 		DVector3 tvec = pos;
 		tvec.XY() += actor->spr.angle.ToVector() * nDist;
-		tvec.Z += actor->dudeSlope / 16384. * nDist;
+		tvec.Z += actor->_dudeSlope / 16384. * nDist;
 
 		double tsr = nDist * 9.23828125;
 		double top, bottom;

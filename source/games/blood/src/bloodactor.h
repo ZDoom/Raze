@@ -18,7 +18,7 @@ class DBloodActor : public DCoreActor
 	HAS_OBJECT_POINTERS
 
 public:
-	int dudeSlope; // Q18.14 format
+	int _dudeSlope; // Q18.14 format
 	bool hasx;
 	XSPRITE xspr;
 	SPRITEHIT hit;

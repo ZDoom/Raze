@@ -96,7 +96,7 @@ void SlashFSeqCallback(int, DBloodActor* actor)
 
 void ThrowFSeqCallback(int, DBloodActor* actor)
 {
-	actFireThing(actor, 0, 0, actor->dudeSlope - 7500, kThingBone, 0xeeeee);
+	actFireThing(actor, 0, 0, actor->_dudeSlope - 7500, kThingBone, 0xeeeee);
 }
 
 void BlastSSeqCallback(int, DBloodActor* actor)
@@ -107,7 +107,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 	double height = (actor->spr.yrepeat * getDudeInfo(actor->spr.type)->eyeHeight) * REPEAT_SCALE;
 	DVector3 pos(actor->spr.pos.XY(), height);
 
-	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.);
+	DVector3 Aim(actor->spr.angle.ToVector(), actor->_dudeSlope / 16384.);
 	double nClosest = 0x7fffffff;
 
 	BloodStatIterator it(kStatDude);
@@ -125,7 +125,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 
 		DVector3 tvec = pos;
 		tvec.XY() += actor->spr.angle.ToVector() * nDist;
-		tvec.Z += actor->dudeSlope / 16384. * nDist;
+		tvec.Z += actor->_dudeSlope / 16384. * nDist;
 
 		double tsr = nDist * 9.23828125;
 		double top, bottom;
@@ -169,7 +169,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 
 void ThrowSSeqCallback(int, DBloodActor* actor)
 {
-	actFireThing(actor, 0., 0., actor->dudeSlope / 16384. * 0.25 - 0.11444, kThingBone, Chance(0x6000) ? 19.2 : 17.066666);
+	actFireThing(actor, 0., 0., actor->_dudeSlope / 16384. * 0.25 - 0.11444, kThingBone, Chance(0x6000) ? 19.2 : 17.066666);
 }
 
 static void gargThinkTarget(DBloodActor* actor)

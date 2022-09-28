@@ -114,7 +114,7 @@ struct PLAYER
 	double              ozWeapon;
 	double              zWeaponVel;
 	double              slope;
-	int int_slope() const { return slope * 16384; }
+	[[deprecated]] int int_slope() const { return slope * 16384; }
 	bool                isUnderwater;
 	bool                hasKey[8];
 	int8_t              hasFlag;
