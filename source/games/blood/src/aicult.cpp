@@ -75,7 +75,7 @@ AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &culti
 
 void TommySeqCallback(int, DBloodActor* actor)
 {
-	DVector3 vect(actor->spr.angle.ToVector(), actor->_dudeSlope / 16384);
+	DVector3 vect(actor->spr.angle.ToVector(), actor->flt_dudeSlope());
 	vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 	vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 	vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
@@ -87,7 +87,7 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 {
 	if (Chance(gCultTeslaFireChance[gGameOptions.nDifficulty]))
 	{
-		DVector3 vect(actor->spr.angle.ToVector(), actor->_dudeSlope / 16384);
+		DVector3 vect(actor->spr.angle.ToVector(), actor->flt_dudeSlope());
 		vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 		vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 		vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
@@ -98,7 +98,7 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 
 void ShotSeqCallback(int, DBloodActor* actor)
 {
-	DVector3 vect(actor->spr.angle.ToVector(), actor->_dudeSlope / 16384);
+	DVector3 vect(actor->spr.angle.ToVector(), actor->flt_dudeSlope());
 	vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 	vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 	vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
@@ -143,7 +143,7 @@ void cultThrowSeqCallback2(int, DBloodActor* actor)
 	if (gGameOptions.nDifficulty > 2)
 		nMissile = kThingArmedTNTBundle;
 	sfxPlay3DSound(actor, 455, -1, 0);
-	auto pMissile = actFireThing(actor, 0, 0, actor->_dudeSlope - 9460, nMissile, 0x133333);
+	auto pMissile = actFireThing(actor, 0, 0, actor->int_dudeSlope() - 9460, nMissile, 0x133333);
 	evPostActor(pMissile, 120 * (2 + Random(2)), kCmdOn, actor);
 }
 

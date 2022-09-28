@@ -59,7 +59,7 @@ AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &
 
 void SeqAttackCallback(int, DBloodActor* actor)
 {
-	DVector3 vect(actor->spr.angle.ToVector(), actor->_dudeSlope / 16384.);
+	DVector3 vect(actor->spr.angle.ToVector(), actor->flt_dudeSlope());
 	vect.X += Random2F(1500, 4);
 	vect.Y += Random2F(1500, 4);
 	vect.Z += Random2F(1500, 8);

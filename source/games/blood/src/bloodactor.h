@@ -19,6 +19,8 @@ class DBloodActor : public DCoreActor
 
 public:
 	int _dudeSlope; // Q18.14 format
+	[[deprecated]] int int_dudeSlope() const { return _dudeSlope; }
+	[[deprecated]] double flt_dudeSlope() const { return _dudeSlope / 16384.; }
 	bool hasx;
 	XSPRITE xspr;
 	SPRITEHIT hit;
