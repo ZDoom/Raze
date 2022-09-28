@@ -113,7 +113,7 @@ struct PLAYER
 	double              zWeapon;
 	double              ozWeapon;
 	double              zWeaponVel;
-	int                 slope;
+	int                 slope; // Q18.14, like dudeslope
 	bool                isUnderwater;
 	bool                hasKey[8];
 	int8_t              hasFlag;

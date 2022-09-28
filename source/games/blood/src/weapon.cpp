@@ -423,20 +423,16 @@ void UpdateAimVector(PLAYER* pPlayer)
 {
 	assert(pPlayer != NULL);
 	auto plActor = pPlayer->actor;
-	int x = plActor->int_pos().X;
-	int y = plActor->int_pos().Y;
-	int z = pPlayer->zWeapon * zworldtoint;
-	Aim aim;
-	aim.dx = bcos(plActor->int_ang());
-	aim.dy = bsin(plActor->int_ang());
-	aim.dz = pPlayer->slope;
+	DVector3 pos(plActor->spr.pos.XY(), pPlayer->zWeapon);
+	DVector3 Aim(plActor->spr.angle.ToVector(), pPlayer->slope / 16384.);
+
 	WEAPONTRACK* pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
 	DBloodActor* targetactor = nullptr;
 	pPlayer->aimTargetsCount = 0;
 	int autoaim = Autoaim(pPlayer->nPlayer);
 	if (autoaim == 1 || (autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == kWeapVoodooDoll || pPlayer->curWeapon == kWeapLifeLeech)
 	{
-		int nClosest = 0x7fffffff;
+		double nClosest = 0x7fffffff;
 		BloodStatIterator it(kStatDude);
 		while (auto actor = it.Next())
 		{
@@ -448,48 +444,45 @@ void UpdateAimVector(PLAYER* pPlayer)
 				continue;
 			if (!(actor->spr.flags & 8))
 				continue;
-			int x2 = actor->int_pos().X;
-			int y2 = actor->int_pos().Y;
-			int z2 = actor->int_pos().Z;
-			int nDist = approxDist(x2 - x, y2 - y);
-			if (nDist == 0 || nDist > 51200)
+
+			auto pos2 = actor->spr.pos;
+			double nDist = (pos2.XY() - pos.XY()).Length();
+			if (nDist == 0 || nDist > 3200)
 				continue;
+
 			if (pWeaponTrack->seeker)
 			{
-				int t = DivScale(nDist, pWeaponTrack->seeker, 12);
-				x2 += (actor->int_vel().X * t) >> 12;
-				y2 += (actor->int_vel().Y * t) >> 12;
-				z2 += (actor->int_vel().Z * t) >> 8;
+				double t = nDist * 4096 / pWeaponTrack->seeker;
+				pos2 += actor->vel * t;
 			}
-			int lx = x + MulScale(Cos(plActor->int_ang()), nDist, 30);
-			int ly = y + MulScale(Sin(plActor->int_ang()), nDist, 30);
-			int lz = z + MulScale(pPlayer->slope, nDist, 10);
-			int zRange = MulScale(9460, nDist, 10);
-			int top, bottom;
+			DVector3 lpos = pos + DVector3(plActor->spr.angle.ToVector(), pPlayer->slope / 16384.) * nDist;
+
+			double zRange = nDist * (9460 / 16384.);
+			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			if (lz - zRange > bottom || lz + zRange < top)
+			if (lpos.Z - zRange > bottom || lpos.Z + zRange < top)
 				continue;
-			int angle = getangle(x2 - x, y2 - y);
-			if (abs(((angle - plActor->int_ang() + 1024) & 2047) - 1024) > pWeaponTrack->angleRange)
+
+			DAngle angle = VecToAngle(pos2 - pos);
+			DAngle deltaangle = absangle(angle, plActor->spr.angle);
+			if (deltaangle > DAngle::fromBuild(pWeaponTrack->angleRange))
 				continue;
-			if (pPlayer->aimTargetsCount < 16 && cansee(x, y, z, plActor->sector(), x2, y2, z2, actor->sector()))
+			if (pPlayer->aimTargetsCount < 16 && cansee(pos, plActor->sector(), pos2, actor->sector()))
 				pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
-			// Inlined?
-			int dz = (lz - z2) >> 8;
-			int dy = (ly - y2) >> 4;
-			int dx = (lx - x2) >> 4;
-			int nDist2 = ksqrt(dx * dx + dy * dy + dz * dz);
+
+			double nDist2 = (lpos - pos2).Length();
 			if (nDist2 >= nClosest)
 				continue;
+
 			DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-			int center = (actor->spr.yrepeat * pDudeInfo->aimHeight) << 2;
-			int dzCenter = (z2 - center) - z;
-			if (cansee(x, y, z, plActor->sector(), x2, y2, z2, actor->sector()))
+			if (cansee(pos, plActor->sector(), pos2, actor->sector()))
 			{
+				double center = (actor->spr.yrepeat * pDudeInfo->aimHeight) * REPEAT_SCALE;
+				double dzCenter = (pos2.Z - center) - pos.Z;
+
 				nClosest = nDist2;
-				aim.dx = bcos(angle);
-				aim.dy = bsin(angle);
-				aim.dz = DivScale(dzCenter, nDist, 10);
+				Aim.XY() = angle.ToVector();
+				Aim.Z = dzCenter / nDist;
 				targetactor = actor;
 			}
 		}
@@ -502,53 +495,49 @@ void UpdateAimVector(PLAYER* pPlayer)
 					continue;
 				if (!(actor->spr.flags & 8))
 					continue;
-				int x2 = actor->int_pos().X;
-				int y2 = actor->int_pos().Y;
-				int z2 = actor->int_pos().Z;
-				int dx = x2 - x;
-				int dy = y2 - y;
-				int dz = z2 - z;
-				int nDist = approxDist(dx, dy);
-				if (nDist == 0 || nDist > 51200)
+				auto pos2 = actor->spr.pos;
+				auto dv = pos2 - pos;
+
+				double nDist = dv.Length();
+				if (nDist == 0 || nDist > 3200)
 					continue;
-				int lx = x + MulScale(Cos(plActor->int_ang()), nDist, 30);
-				int ly = y + MulScale(Sin(plActor->int_ang()), nDist, 30);
-				int lz = z + MulScale(pPlayer->slope, nDist, 10);
-				int zRange = MulScale(9460, nDist, 10);
-				int top, bottom;
+
+				DVector3 lpos = pos + DVector3(plActor->spr.angle.ToVector(), pPlayer->slope / 16384.) * nDist;
+				double zRange = nDist * (9460 / 16384.);
+
+				double top, bottom;
 				GetActorExtents(actor, &top, &bottom);
-				if (lz - zRange > bottom || lz + zRange < top)
+				if (lpos.Z - zRange > bottom || lpos.Z + zRange < top)
 					continue;
-				int angle = getangle(dx, dy);
-				if (abs(((angle - plActor->int_ang() + 1024) & 2047) - 1024) > pWeaponTrack->thingAngle)
+
+				DAngle angle = VecToAngle(dv);
+				DAngle deltaangle = absangle(angle, plActor->spr.angle);
+				if (deltaangle > DAngle::fromBuild(pWeaponTrack->thingAngle))
 					continue;
-				if (pPlayer->aimTargetsCount < 16 && cansee(x, y, z, plActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
+
+				if (pPlayer->aimTargetsCount < 16 && cansee(pos, plActor->sector(), pos2, actor->sector()))
 					pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
-				// Inlined?
-				int dz2 = (lz - z2) >> 8;
-				int dy2 = (ly - y2) >> 4;
-				int dx2 = (lx - x2) >> 4;
-				int nDist2 = ksqrt(dx2 * dx2 + dy2 * dy2 + dz2 * dz2);
+
+				double nDist2 = (lpos - pos2).Length();
 				if (nDist2 >= nClosest)
 					continue;
-				if (cansee(x, y, z, plActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
+				if (cansee(pos, plActor->sector(), pos2, actor->sector()))
 				{
 					nClosest = nDist2;
-					aim.dx = bcos(angle);
-					aim.dy = bsin(angle);
-					aim.dz = DivScale(dz, nDist, 10);
+					Aim.XY() = angle.ToVector();
+					Aim.Z = dv.Z / nDist;
 					targetactor = actor;
 				}
 			}
 		}
 	}
-	Aim aim2;
-	aim2 = aim;
-	RotateVector((int*)&aim2.dx, (int*)&aim2.dy, -plActor->int_ang());
-	aim2.dz -= pPlayer->slope;
-	pPlayer->relAim.dx = interpolatedvalue(pPlayer->relAim.dx, aim2.dx, FixedToFloat(pWeaponTrack->aimSpeedHorz));
-	pPlayer->relAim.dy = interpolatedvalue(pPlayer->relAim.dy, aim2.dy, FixedToFloat(pWeaponTrack->aimSpeedHorz));
-	pPlayer->relAim.dz = interpolatedvalue(pPlayer->relAim.dz, aim2.dz, FixedToFloat(pWeaponTrack->aimSpeedVert));
+	DVector3 Aim2(Aim);
+	Aim2.XY() = Aim2.XY().Rotated(-plActor->spr.angle);
+	Aim2.Z -= pPlayer->slope / 16384.;
+
+	pPlayer->relAim.dx = interpolatedvalue(pPlayer->relAim.dx, int(Aim2.X * 16384), FixedToFloat(pWeaponTrack->aimSpeedHorz));
+	pPlayer->relAim.dy = interpolatedvalue(pPlayer->relAim.dy, int(Aim2.Y * 16384), FixedToFloat(pWeaponTrack->aimSpeedHorz));
+	pPlayer->relAim.dz = interpolatedvalue(pPlayer->relAim.dz, int(Aim2.Z * 16384), FixedToFloat(pWeaponTrack->aimSpeedVert));
 	pPlayer->aim = pPlayer->relAim;
 	RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, plActor->int_ang());
 	pPlayer->aim.dz += pPlayer->slope;
