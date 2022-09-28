@@ -64,15 +64,15 @@ void PukeSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat);
-	int height2 = (pDudeInfoT->eyeHeight * target->spr.yrepeat);
-	int tx = actor->xspr.int_TargetPos().X - actor->int_pos().X;
-	int ty = actor->xspr.int_TargetPos().Y - actor->int_pos().Y;
-	int nAngle = getangle(tx, ty);
-	int dx = bcos(nAngle);
-	int dy = bsin(nAngle);
+
+	DVector2 dv = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
+
+	double height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) * REPEAT_SCALE;
+	double height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) * REPEAT_SCALE;
+	double z = (height - height2) * 0.25;
+
 	sfxPlay3DSound(actor, 1203, 1, 0);
-	actFireMissile(actor, 0, -(height - height2), dx, dy, 0, kMissilePukeGreen);
+	actFireMissile(actor, 0, -z, DVector3(dv, 0), kMissilePukeGreen);
 }
 
 void ThrowSeqCallback(int, DBloodActor* actor)
