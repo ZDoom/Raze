@@ -75,7 +75,7 @@ void podAttack(int, DBloodActor* actor)
 	{
 	case kDudePodGreen:
 		dv.Z += 31.25;
-		if (pDudeInfo->seeDist * 0.1 < nDist)
+		if (pDudeInfo->SeeDist() * 1.6 < nDist)
 		{
 			if (Chance(0x8000))
 				sfxPlay3DSound(actor, 2474, -1, 0);
@@ -88,7 +88,7 @@ void podAttack(int, DBloodActor* actor)
 		break;
 	case kDudePodFire:
 		dv.Z += 31.25;
-		if (pDudeInfo->seeDist * 0.1 < nDist)
+		if (pDudeInfo->SeeDist() * 1.6 < nDist)
 		{
 			sfxPlay3DSound(actor, 2454, -1, 0);
 			pMissile = actFireThing(actor, 0., -500., dv.Z / 32768 - 0.22125, kThingPodFireBall, nDist * (2048. / 64800));
