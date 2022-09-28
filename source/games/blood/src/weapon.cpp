@@ -1727,13 +1727,13 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 					if (!targetactor) continue;
 					if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, targetactor))
 						continue;
-					int nDist = approxDist(targetactor->spr.pos.XY() - pPlayer->actor->spr.pos.XY());
-					if (nDist > 0 && nDist < 51200)
+					double nDist = (targetactor->spr.pos.XY() - pPlayer->actor->spr.pos.XY()).Length();
+					if (nDist > 0 && nDist < 3200)
 					{
 						int vc = pPlayer->ammoCount[9] >> 3;
 						int v8 = pPlayer->ammoCount[9] << 1;
 						int nDamage = (v8 + Random(vc)) << 4;
-						nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
+						nDamage = int((nDamage * ((3200 - nDist) + 1/16.)) / 3200);
 						nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, nDamage);
 
 						if (targetactor->IsPlayerActor())
@@ -1765,13 +1765,13 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 					continue;
 				if (v4 > 0)
 					v4--;
-				int nDist = approxDist(targetactor->spr.pos.XY() - pPlayer->actor->spr.pos.XY());
-				if (nDist > 0 && nDist < 51200)
+				double nDist = (targetactor->spr.pos.XY() - pPlayer->actor->spr.pos.XY()).Length();
+				if (nDist > 0 && nDist < 3200)
 				{
 					int vc = pPlayer->ammoCount[9] >> 3;
 					int v8 = pPlayer->ammoCount[9] << 1;
 					int nDamage = (v8 + Random2(vc)) << 4;
-					nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
+					nDamage = int((nDamage * ((3200 - nDist) + 1/16.)) / 3200);
 					nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, nDamage);
 					UseAmmo(pPlayer, 9, nDamage);
 					if (targetactor->IsPlayerActor())
