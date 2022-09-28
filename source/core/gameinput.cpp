@@ -39,19 +39,22 @@ enum
 	TURBOTURNBASE = 590,
 };
 
-static constexpr double YAW_TURNSPEEDS[3] = { 41.1987, 156.555, 272.241 };
+static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
 static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
-static constexpr double YAW_LOOKINGSPEED = 801.5625;
-static constexpr double YAW_ROTATESPEED = 126.5625;
-static constexpr double YAW_ROTATERETURN  = (1. / 2.) * 30.;
-static constexpr double YAW_LOOKRETURN = (1. / 4.) * 30.;
-static constexpr double YAW_SPINSTAND = 675.;
-static constexpr double YAW_SPINCROUCH = 337.5;
-static constexpr double PITCH_LOOKSPEED = 222.83185;
-static constexpr double PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
-static constexpr double PITCH_CENTRESPEED = 10.25;
-static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle1 * 101.25;
-static constexpr double HORIZOFFSPEEDF = 1.95835;
+static constexpr DAngle YAW_LOOKINGSPEED = DAngle::fromDeg(801.5625);
+static constexpr DAngle YAW_ROTATESPEED = DAngle::fromDeg(126.5625);
+static constexpr DAngle YAW_ROTATERETURN  = DAngle::fromDeg(15.);
+static constexpr DAngle YAW_LOOKRETURN = DAngle::fromDeg(7.5);
+static constexpr DAngle YAW_SPINSTAND = DAngle::fromDeg(675.);
+static constexpr DAngle YAW_SPINCROUCH = YAW_SPINSTAND * 0.5;
+static constexpr DAngle PITCH_LOOKSPEED = DAngle::fromDeg(222.83185);
+static constexpr DAngle PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
+static constexpr DAngle PITCH_CENTERSPEED = DAngle::fromDeg(10.25);
+static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle::fromDeg(90. + 11.25);
+static constexpr DAngle PITCH_HORIZOFFSPEED = DAngle::fromDeg(1.95835);
+static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(38.);
+static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
+static constexpr DAngle ANGLE_PUSHBASE = DAngle::fromDeg(32. / 465.);
 
 
 //---------------------------------------------------------------------------
@@ -60,9 +63,10 @@ static constexpr double HORIZOFFSPEEDF = 1.95835;
 //
 //---------------------------------------------------------------------------
 
-inline static double getTicrateScale(const double value)
+template<class T>
+inline static T getTicrateScale(const T value)
 {
-	return value / GameTicRate;
+	return T(value / GameTicRate);
 }
 
 inline static double getCorrectedScale(const double scaleAdjust)
@@ -73,16 +77,16 @@ inline static double getCorrectedScale(const double scaleAdjust)
 	return scaleAdjust < 1. ? scaleAdjust * (1. + 0.21 * (1. - scaleAdjust)) : scaleAdjust;
 }
 
-inline static DAngle getscaledangle(const double value, const double scaleAdjust, const DAngle object, const DAngle push)
+inline static DAngle getscaledangle(const DAngle value, const double scaleAdjust, const DAngle object, const DAngle push)
 {
 	return ((object.Normalized180() * getTicrateScale(value)) + push) * getCorrectedScale(scaleAdjust);
 }
 
-inline static void scaletozero(DAngle& object, const double value, const double scaleAdjust, const DAngle push = -minAngle)
+inline static void scaletozero(DAngle& object, const DAngle value, const double scaleAdjust, const DAngle push = -minAngle)
 {
 	if (auto sgn = object.Sgn())
 	{
-		object  -= getscaledangle(value, scaleAdjust, object, push == -minAngle ? DAngle::fromDeg(sgn * (32. / 465.)) : push);
+		object  -= getscaledangle(value, scaleAdjust, object, push == -minAngle ? ANGLE_PUSHBASE * sgn : push);
 		if (sgn != object.Sgn()) object = nullAngle;
 	}
 }
@@ -181,12 +185,12 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		}
 
 		// Process keyboard input.
-		auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, double const rate, bool const lock)
+		auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, DAngle const rate, bool const lock)
 		{
 			if (*actions & (up | down))
 			{
 				if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
-				horiz += DAngle::fromDeg(scaleAdjust * getTicrateScale(rate) * (!!(*actions & up) - !!(*actions & down)));
+				horiz += getTicrateScale(rate) * scaleAdjust * (!!(*actions & up) - !!(*actions & down));
 			}
 		};
 		doKbdInput(SB_AIM_UP, SB_AIM_DOWN, PITCH_AIMSPEED, true);
@@ -195,7 +199,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		// Do return to centre.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
-			scaletozero(horiz, PITCH_CENTRESPEED * (PITCH_CNTRSINEOFFSET - abs(horiz)).Sin(), scaleAdjust);
+			scaletozero(horiz, PITCH_CENTERSPEED * (PITCH_CNTRSINEOFFSET - abs(horiz)).Sin(), scaleAdjust);
 			if (!horiz.Sgn()) *actions &= ~SB_CENTERVIEW;
 		}
 
@@ -226,8 +230,8 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	{
 		if (*actions & key)
 		{
-			look_ang += DAngle::fromDeg(getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * direction);
-			rotscrnang -= DAngle::fromDeg(getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * direction);
+			look_ang += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * direction;
+			rotscrnang -= getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * direction;
 		}
 	};
 	doLookKeys(SB_LOOK_LEFT, -1);
@@ -254,7 +258,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		if (spin < nullAngle)
 		{
 			// return spin to 0
-			DAngle add = DAngle::fromDeg(getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH) * scaleAdjust);
+			DAngle add = getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH) * scaleAdjust;
 			spin += add;
 			if (spin > nullAngle)
 			{
@@ -311,12 +315,12 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff < DAngle::fromDeg(38)) horizoff += getscaledangle(HORIZOFFSPEEDF, scaleAdjust, deltaangle(horizoff, DAngle::fromDeg(38)), DAngle::fromDeg(0.4476));
+			if (horizoff < PITCH_HORIZOFFCLIMB) horizoff += getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(horizoff, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(horizoff, HORIZOFFSPEEDF, scaleAdjust, DAngle::fromDeg(horizoff.Sgn() * 0.4476));
+			scaletozero(horizoff, PITCH_HORIZOFFSPEED, scaleAdjust, PITCH_HORIZOFFPUSH * horizoff.Sgn());
 		}
 
 		// Clamp off against the maximum allowed pitch.

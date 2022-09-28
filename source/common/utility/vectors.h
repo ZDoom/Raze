@@ -1343,6 +1343,11 @@ public:
 		return Degrees_ * other;
 	}
 
+	constexpr TAngle operator* (TAngle other) const
+	{
+		return Degrees_ * other.Degrees_;
+	}
+
 	constexpr TAngle operator/ (vec_t other) const
 	{
 		return Degrees_ / other;
