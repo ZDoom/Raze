@@ -90,7 +90,7 @@ int GetWaveValue(int a, int b, int c)
 	case 4:
 		return ((255 - (b >> 3)) * c) >> 8;
 	case 5:
-		return (c + MulScale(c, Sin(b), 30)) >> 1;
+		return (c + int(c * BobVal(b))) >> 1;
 	case 6:
 		return flicker1[b >> 5] * c;
 	case 7:
@@ -104,7 +104,7 @@ int GetWaveValue(int a, int b, int c)
 	case 11:
 		if (b * 4 > 2048)
 			return 0;
-		return (c - MulScale(c, Cos(b * 4), 30)) >> 1;
+		return (c - int(c * BobVal(b * 4 + 512))) >> 1;
 	}
 	return 0;
 }
@@ -277,7 +277,7 @@ void DoSectorPanning(void)
 		XSECTOR* pXSector = &pSector->xs();
 		if (pXSector->panAlways || pXSector->busy)
 		{
-			int angle = pXSector->panAngle.Buildang() + 1024;
+			DAngle angle = pXSector->panAngle + DAngle180;
 			int speed = pXSector->panVel << 10;
 			if (!pXSector->panAlways && (pXSector->busy & 0xffff))
 				speed = MulScale(speed, pXSector->busy, 16);
@@ -286,11 +286,11 @@ void DoSectorPanning(void)
 			{
 				int nTile = pSector->floorpicnum;
 				if (pSector->floorstat & CSTAT_SECTOR_ALIGN)
-					angle -= 512;
+					angle -= DAngle90;
 				int xBits = tileWidth(nTile) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
-				int px = MulScale(speed << 2, Cos(angle), 30) / xBits;
 				int yBits = tileHeight(nTile) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
-				int py = MulScale(speed << 2, Sin(angle), 30) / yBits;
+				double px = angle.Cos() * (speed << 2) / xBits;
+				double py = angle.Sin() * (speed << 2) / xBits;
 				pSector->addfloorxpan(px * (1.f / 256));
 				pSector->addfloorypan(-py * (1.f / 256));
 			}
@@ -298,11 +298,11 @@ void DoSectorPanning(void)
 			{
 				int nTile = pSector->ceilingpicnum;
 				if (pSector->ceilingstat & CSTAT_SECTOR_ALIGN)
-					angle -= 512;
+					angle -= DAngle90;
 				int xBits = tileWidth(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
-				int px = MulScale(speed << 2, Cos(-angle), 30) / xBits;
 				int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
-				int py = MulScale(speed << 2, Sin(-angle), 30) / yBits;
+				double px = angle.Cos() * (speed << 2) / xBits;
+				double py = angle.Sin() * (speed << 2) / xBits;
 				pSector->addceilingxpan(px * (1.f / 256));
 				pSector->addceilingypan(-py * (1.f / 256));
 			}
