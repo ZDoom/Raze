@@ -1777,33 +1777,32 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				PLAYER* pPlayer = &gPlayer[actTarget->spr.type - kDudePlayer1];
 				if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0) return;
 			}
-			int top, bottom;
+			double top, bottom;
 			GetActorExtents(actor, &top, &bottom);
 			int nType = actTarget->spr.type - kDudeBase;
 			DUDEINFO* pDudeInfo = &dudeInfo[nType];
-			int z1 = (top - actor->int_pos().Z) - 256;
+			double z1 = (top - actor->spr.pos.Z) - 1;
 			auto atpos = actTarget->spr.pos;
-			int x = actTarget->int_pos().X; int y = actTarget->int_pos().Y; int z = actTarget->int_pos().Z;
-			int nDist = approxDist(atpos.XY() - actor->spr.pos.XY());
 
-			if (nDist != 0 && cansee(actor->int_pos().X, actor->int_pos().Y, top, actor->sector(), x, y, z, actTarget->sector()))
+			double nDist = (atpos.XY() - actor->spr.pos.XY()).Length();
+
+			if (nDist != 0 && cansee(DVector3(actor->spr.pos.XY(), top), actor->sector(), atpos, actTarget->sector()))
 			{
-				int t = DivScale(nDist, 0x1aaaaa, 12);
-				x += (actTarget->int_vel().X * t) >> 12;
-				y += (actTarget->int_vel().Y * t) >> 12;
+				atpos.XY() += actTarget->vel.XY() * nDist * 0.0375;
+
 				auto angBak = actor->spr.angle;
 				actor->spr.angle = VecToAngle(atpos - actor->spr.pos.XY());
-				int dx = bcos(actor->int_ang());
-				int dy = bsin(actor->int_ang());
-				int tz = actTarget->int_pos().Z - (actTarget->spr.yrepeat * pDudeInfo->aimHeight) * 4;
-				int dz = DivScale(tz - top - 256, nDist, 10);
+				DVector3 dv;
+				dv.XY() = actor->spr.angle.ToVector() * 64;
+				double tz = actTarget->spr.pos.Z - (actTarget->spr.yrepeat * pDudeInfo->aimHeight) * REPEAT_SCALE;
+				double dz = (tz - top - 1) / nDist * 4;
 				int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
 				int t2;
 
 				if (!actor->xspr.data3) t2 = 120 / 10;
 				else t2 = (3 * 120) / 10;
 
-				auto missile = actFireMissile(actor, 0, z1, dx, dy, dz, nMissileType);
+				auto missile = actFireMissile(actor, 0, z1, dv, nMissileType);
 				if (missile)
 				{
 					missile->SetOwner(actor);
