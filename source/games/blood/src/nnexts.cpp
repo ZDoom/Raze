@@ -4634,6 +4634,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		case 36: // hitscan: floor?
 		case 37: // hitscan: wall?
 		case 38: // hitscan: sprite?
+		{
 			switch (arg1)
 			{
 			case  0: arg1 = CLIPMASK0 | CLIPMASK1; break;
@@ -4641,18 +4642,19 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			case  2: arg1 = CLIPMASK1; break;
 			}
 
+			double range = arg3 / 8.;
 			if ((pPlayer = getPlayerById(objActor->spr.type)) != NULL)
 				var = HitScan_(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
 			else if (objActor->IsDudeActor())
-				var = HitScan_(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, (!objActor->hasX()) ? 0 : objActor->dudeSlope * inttoworld), arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, (!objActor->hasX()) ? 0 : objActor->dudeSlope * inttoworld), arg1, range);
 			else if ((objActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
 				var3 = (objActor->spr.cstat & CSTAT_SPRITE_YFLIP) ? 8192 : -8192; // was 0x20000 - HitScan uses Q28.4 for dz!
-				var = HitScan_(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, var3), arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, var3), arg1, range);
 			}
 			else
 			{
-				var = HitScan_(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, 0), arg1, arg3 << 1);
+				var = HitScan(objActor, objActor->spr.pos.Z, DVector3(objActor->spr.angle.ToVector() * 1024, 0), arg1, range);
 			}
 
 			if (var < 0)
@@ -4677,7 +4679,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 				return true;
 			}
 			break;
-
+		}
 		case 45: // this sprite is a target of some dude?
 			BloodStatIterator it(kStatDude);
 			while (auto iactor = it.Next())
