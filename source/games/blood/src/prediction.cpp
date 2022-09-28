@@ -279,7 +279,7 @@ void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput)
 	}
 	fakeProcessInput(pPlayer, pInput);
 
-	int nSpeed = approxDist(predict.xvel, predict.yvel);
+	int nSpeed = a pproxDist(predict.xvel, predict.yvel);
 
 	predict.zViewVel = interpolatedvalue(predict.zViewVel, predict.zvel, FixedToFloat(0x7000));
 	int dz = predict.z - pPosture->eyeAboveZ - predict.viewz;
@@ -556,7 +556,7 @@ static void fakeMoveDude(DBloodActor* actor)
 			nDrag -= scale(gDudeDrag, predict.floordist, 0x100);
 		predict.xvel -= mulscale16r(predict.xvel, nDrag);
 		predict.yvel -= mulscale16r(predict.yvel, nDrag);
-		if (approxDist(predict.xvel, predict.yvel) < 0x1000)
+		if (a pproxDist(predict.xvel, predict.yvel) < 0x1000)
 			predict.xvel = predict.yvel = 0;
 	}
 #endif

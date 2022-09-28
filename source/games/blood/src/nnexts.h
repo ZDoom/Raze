@@ -74,7 +74,7 @@ enum
 enum
 {
 	kPatrolStateSize = 42,
-	kPatrolAlarmSeeDist = 10000,
+	kPatrolAlarmSeeDistSq = 625*625,
 	kPatrolAlarmHearDist = 10000,
 	kMaxPatrolSpotValue = 500,
 	kMinPatrolTurnDelay = 8,
@@ -310,7 +310,7 @@ void aiSetGenIdleState(DBloodActor*);
 // triggers related
 //  -------------------------------------------------------------------------   //
 int aiFightGetTargetDist(DBloodActor* pSprite, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
-int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target);
+double aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target);
 bool aiFightDudeCanSeeTarget(DBloodActor* pXDude, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
 bool aiFightDudeIsAffected(DBloodActor* pXDude);
 bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetactor, int allow);

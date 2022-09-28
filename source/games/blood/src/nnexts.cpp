@@ -7951,13 +7951,13 @@ void aiPatrolSetMarker(DBloodActor* actor)
 	auto targetactor = actor->GetTarget();
 
 	DBloodActor* selected = nullptr;
-	int closest = 200000;
+	double closest = DBL_MAX;
 
 	// select closest marker that dude can see
 	if (targetactor == nullptr)
 	{
 		double zt1, zb1, zt2, zb2;
-		int dist;
+		double dist;
 		GetActorExtents(actor, &zt2, &zb2);
 
 		BloodStatIterator it(kStatPathMarker);
@@ -7965,7 +7965,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
 		{
 			if (!nextactor->hasX()) continue;
 
-			if (nextactor->xspr.locked || nextactor->xspr.isTriggered || nextactor->xspr.DudeLockout || (dist = approxDist(nextactor->spr.pos.XY() - actor->spr.pos.XY())) > closest)
+			if (nextactor->xspr.locked || nextactor->xspr.isTriggered || nextactor->xspr.DudeLockout || (dist = (nextactor->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared()) > closest)
 				continue;
 
 			GetActorExtents(nextactor, &zt1, &zb1);
@@ -8247,11 +8247,11 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 			continue;
 
 		double eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.yrepeat) * REPEAT_SCALE;
-		int nDist = approxDist(dudeactor->spr.pos.XY() - actor->spr.pos.XY());
-		if (nDist >= kPatrolAlarmSeeDist || !cansee(DVector3(actor->spr.pos, zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
+		double nDist = (dudeactor->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared();
+		if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(actor->spr.pos, zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 		{
-			nDist = approxDist(dudeactor->spr.pos.XY() - targetactor->spr.pos.XY());
-			if (nDist >= kPatrolAlarmSeeDist || !cansee(DVector3(targetactor->spr.pos, zt2), targetactor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
+			nDist = (dudeactor->spr.pos.XY() - targetactor->spr.pos.XY()).LengthSquared();
+			if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(targetactor->spr.pos, zt2), targetactor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 				continue;
 		}
 
