@@ -1079,7 +1079,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             PlayerList[nPlayer].angle.settarget(ang, true);
             pPlayerActor->spr.angle = ang;
 
-            PlayerList[nPlayer].horizon.settarget(buildhoriz(0), true);
+            PlayerList[nPlayer].horizon.settarget(pitchhoriz(nullAngle.Degrees()), true);
 
             sPlayerInput[nPlayer].vel.Zero();
             pPlayerActor->vel.Zero();
@@ -1092,7 +1092,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 InitSpiritHead();
 
                 PlayerList[nPlayer].nDestVertPan = pitchhoriz(nullAngle.Degrees());
-                PlayerList[nPlayer].horizon.settarget(buildhoriz(currentLevel->ex_ramses_horiz));
+                PlayerList[nPlayer].horizon.settarget(currentLevel->ex_ramses_horiz);
             }
         }
         else
@@ -2623,16 +2623,16 @@ sectdone:
         {
             if (PlayerList[nPlayer].horizon.horiz.Sgn() < 0)
             {
-                PlayerList[nPlayer].horizon.settarget(buildhoriz(0));
+                PlayerList[nPlayer].horizon.settarget(pitchhoriz(nullAngle.Degrees()));
                 PlayerList[nPlayer].eyelevel -= dVertPan[nPlayer];
             }
             else
             {
-                PlayerList[nPlayer].horizon.addadjustment(buildhoriz(dVertPan[nPlayer]));
+                PlayerList[nPlayer].horizon.addadjustment(maphoriz(dVertPan[nPlayer]));
 
                 if (PlayerList[nPlayer].horizon.horiz.Degrees() >= 38)
                 {
-                    PlayerList[nPlayer].horizon.settarget(buildhoriz(99));
+                    PlayerList[nPlayer].horizon.settarget(pitchhoriz(37.72));
                 }
                 else if (PlayerList[nPlayer].horizon.horiz.Sgn() <= 0)
                 {

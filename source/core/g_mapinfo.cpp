@@ -572,7 +572,7 @@ DEFINE_MAP_OPTION(ex_ramses_horiz, false)
 {
 	parse.ParseAssign();
 	parse.sc.MustGetNumber();
-	info->ex_ramses_horiz = parse.sc.Number;
+	info->ex_ramses_horiz = maphoriz(parse.sc.Number);
 }
 
 DEFINE_MAP_OPTION(ex_ramses_cdtrack, false)

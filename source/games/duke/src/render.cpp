@@ -89,7 +89,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				display_mirror = 1; // should really be 'display external view'.
 				auto cstat = camera->spr.cstat;
 				camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				render_camtex(camera, camera->spr.pos, camera->sector(), camera->interpolatedangle(smoothratio), buildhoriz(camera->spr.shade), nullAngle, tex, rect, smoothratio);
+				render_camtex(camera, camera->spr.pos, camera->sector(), camera->interpolatedangle(smoothratio), maphoriz(camera->spr.shade), nullAngle, tex, rect, smoothratio);
 				camera->spr.cstat = cstat;
 				display_mirror = 0;
 			});
@@ -255,7 +255,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 
 		cpos = viewer->spr.pos.plusZ(-4);
 		cang = viewer->interpolatedangle(interpfrac);
-		choriz = buildhoriz(viewer->spr.yint);
+		choriz = maphoriz(viewer->spr.yint);
 		rotscrnang = nullAngle;
 		sect = viewer->sector();
 	}
@@ -311,7 +311,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		{
 			viewer = p->newOwner;
 			cang = viewer->interpolatedangle(interpfrac);
-			choriz = buildhoriz(viewer->spr.shade);
+			choriz = maphoriz(viewer->spr.shade);
 			cpos = viewer->spr.pos;
 			sect = viewer->sector();
 			rotscrnang = nullAngle;

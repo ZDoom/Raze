@@ -513,7 +513,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, fixedhoriz& c
 	}
 
 	viewUpdateShake(pPlayer, cPos, cA, cH, shakeX, shakeY);
-	cH += buildhoriz(MulScale(0x40000000 - Cos(pPlayer->tiltEffect << 2), 30, 30));
+	cH += pitchhoriz((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
 	if (gViewPos == 0)
 	{
 		if (cl_viewhbob)

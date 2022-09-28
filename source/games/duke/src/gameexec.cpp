@@ -344,7 +344,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 			{
 				ps[iPlayer].sync.actions &= ~SB_CENTERVIEW;
 			}
-			ps[iPlayer].horizon.settarget(buildhoriz(lValue));
+			ps[iPlayer].horizon.settarget(maphoriz(lValue));
 		}
 		else SetGameVarID(lVar2, ps[iPlayer].horizon.horiz.asbuild(), sActor, sPlayer);
 		break;
@@ -354,7 +354,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_HORIZOFF:
-		if (bSet) ps[iPlayer].horizon.horizoff = buildhoriz(lValue);
+		if (bSet) ps[iPlayer].horizon.horizoff = maphoriz(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].horizon.horizoff.asbuild(), sActor, sPlayer);
 		break;
 

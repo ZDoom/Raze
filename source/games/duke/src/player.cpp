@@ -117,7 +117,7 @@ void forceplayerangle(int snum)
 {
 	player_struct* p = &ps[snum];
 
-	p->horizon.addadjustment(buildhoriz(64));
+	p->horizon.addadjustment(pitchhoriz(26.566));
 	p->sync.actions |= SB_CENTERVIEW;
 	p->angle.rotscrnang = p->angle.look_ang = (DAngle22_5 - randomAngle(45)) / 2.;
 }
@@ -374,7 +374,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->horizon.addadjustment(buildhoriz(-48));
+		p->horizon.addadjustment(pitchhoriz(-20.556));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -806,7 +806,7 @@ void player_struct::checkhardlanding()
 {
 	if (hard_landing > 0)
 	{
-		horizon.addadjustment(buildhoriz(-(hard_landing << 4)));
+		horizon.addadjustment(maphoriz(-(hard_landing << 4)));
 		hard_landing--;
 	}
 }

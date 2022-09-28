@@ -2962,7 +2962,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->horizon.addadjustment(buildhoriz(1));
+		p->horizon.addadjustment(pitchhoriz(0.4476));
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3134,7 +3134,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		else if (p->kickback_pic == 12)
 		{
 			p->vel.XY() -= p->angle.ang.ToVector();
-			p->horizon.addadjustment(buildhoriz(20));
+			p->horizon.addadjustment(pitchhoriz(8.88));
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3975,7 +3975,7 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->horizon.addadjustment(buildhoriz(-d));
+		p->horizon.addadjustment(maphoriz(-d));
 	}
 
 	if (SyncInput())
