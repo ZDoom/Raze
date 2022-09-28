@@ -857,9 +857,9 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 
                     if (j != 0)
                     {
-                        j = getangle(wal->delta());
-                        int32_t dx = -bsin(j, -11);
-                        int32_t dy = bcos(j, -11);
+                        DAngle jj = VecToAngle(wal->delta());
+                        int32_t dx = -int(jj.Sin() * 8);
+                        int32_t dy = int(jj.Cos() * 8);
                         int bad2 = 16;
                         do
                         {
