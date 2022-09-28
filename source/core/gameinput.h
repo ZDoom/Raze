@@ -66,7 +66,7 @@ struct PlayerHorizon
 
 		if (!SyncInput() && !backup)
 		{
-			target = value.Sgn() ? value : q16horiz(1);
+			target = value.Sgn() ? value : pitchhoriz(minAngle.Degrees());
 		}
 		else
 		{

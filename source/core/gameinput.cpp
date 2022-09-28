@@ -392,18 +392,6 @@ Average: 4.375;
 
 static constexpr double HORIZOFFSPEED = (1. / 8.) * 35.;
 
-enum
-{
-	// Values used by Duke/SW, where this function originated from.
-	DEFSINSHIFT = 5,
-	DEFVIEWPITCH = 160,
-
-	// Values used by Blood since it calculates differently to Duke/SW.
-	BLOODSINSHIFT = 8,
-	SINSHIFTDELTA = BLOODSINSHIFT - DEFSINSHIFT,
-	BLOODVIEWPITCH = (0x4000 >> SINSHIFTDELTA) - (DEFVIEWPITCH << (SINSHIFTDELTA - 1)), // 1408.
-};
-
 void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting && cursectnum != nullptr)
@@ -429,7 +417,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
-					horizoff += q16horiz(fixed_t(scaleAdjust * ((j - k) * 256 * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
+					horizoff += maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
 				}
 			}
 		}

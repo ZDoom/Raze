@@ -241,7 +241,7 @@ static void fakeProcessInput(PLAYER* pPlayer, InputPacket* pInput)
 		if (nSector2 == nSector)
 		{
 			int z2 = getflorzofslope(nSector2, x2, y2);
-			predict.horizoff = interpolatedvalue(predict.horizoff, q16horiz((z1 - z2) << 13), 0x4000);
+			predict.horizoff = interpolatedvalue(predict.horizoff, maphoriz((z1 - z2) * 8), 0x4000);
 		}
 	}
 	else

@@ -735,7 +735,7 @@ void viewDrawScreen(bool sceneonly)
 		}
 
 		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, basepal, interpfrac);
-		fixedhoriz deliriumPitchI = interpolatedvalue(q16horiz(deliriumPitchO), q16horiz(deliriumPitch), interpfrac);
+		fixedhoriz deliriumPitchI = interpolatedvalue(maphoriz(deliriumPitchO), maphoriz(deliriumPitch), interpfrac);
 		auto bakCstat = pPlayer->actor->spr.cstat;
 		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		render_drawrooms(pPlayer->actor, cPos, pSector, cA, cH + deliriumPitchI, rotscrnang, interpfrac);
