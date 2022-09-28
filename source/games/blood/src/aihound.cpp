@@ -44,8 +44,6 @@ AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, 
 
 void houndBiteSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -53,18 +51,14 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-#ifdef NOONE_EXTENSIONS
+	DVector3 vec(actor->spr.angle.ToVector() * 64, target->spr.pos.Z - actor->spr.pos.Z);
 	if (target->IsPlayerActor() || gModernMap) // allow to hit non-player targets
-		actFireVector(actor, 0, 0, dx, dy, target->int_pos().Z - actor->int_pos().Z, kVectorHoundBite);
-#else
-	if (target->IsPlayerActor())
-		actFireVector(actor, 0, 0, dx, dy, target->spr.z - actor->spr.z, kVectorHoundBite);
-#endif
+		actFireVector(actor, 0, 0, vec, kVectorHoundBite);
 }
 
 void houndBurnSeqCallback(int, DBloodActor* actor)
 {
-	actFireMissile(actor, 0, 0, bcos(actor->int_ang()), bsin(actor->int_ang()), 0, kMissileFlameHound);
+	actFireMissile(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), 0), kMissileFlameHound);
 }
 
 static void houndThinkSearch(DBloodActor* actor)
