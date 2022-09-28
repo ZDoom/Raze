@@ -820,7 +820,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	pPlayer->bloodlust = 0;
 	pPlayer->horizon.horiz = pPlayer->horizon.horizoff = nullAngle;
-	pPlayer->_slope = 0;
+	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
 	pPlayer->underwaterTime = 1200;
 	pPlayer->bubbleTime = 0;
@@ -1419,7 +1419,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 {
 	auto plActor = pPlayer->actor;
 	*out = {};
-	auto pos = DVector3(plActor->spr.angle.ToVector(), pPlayer->flt_slope());
+	auto pos = DVector3(plActor->spr.angle.ToVector(), pPlayer->slope);
 	int hit = HitScan(pPlayer->actor, pPlayer->zView, pos, 0x10000040, 128);
 	double hitDist = (plActor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
 	if (hitDist < 64)
@@ -1731,7 +1731,7 @@ void ProcessInput(PLAYER* pPlayer)
 	pPlayer->angle.unlockinput();
 	pPlayer->horizon.unlockinput();
 
-	pPlayer->_slope = -pPlayer->horizon.horiz.Tan() * 16384.;
+	pPlayer->slope = -pPlayer->horizon.horiz.Tan();
 	if (pInput->actions & SB_INVPREV)
 	{
 		pInput->actions &= ~SB_INVPREV;
@@ -2462,7 +2462,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("zviewvel", w.zViewVel)
 			("zweapon", w.zWeapon)
 			("zweaponvel", w.zWeaponVel)
-			("slope", w._slope)
+			("slope", w.slope)
 			("underwater", w.isUnderwater)
 			.Array("haskey", w.hasKey, 8)
 			("hasflag", w.hasFlag)

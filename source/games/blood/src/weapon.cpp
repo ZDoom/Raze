@@ -424,7 +424,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 	assert(pPlayer != NULL);
 	auto plActor = pPlayer->actor;
 	DVector3 pos(plActor->spr.pos.XY(), pPlayer->zWeapon);
-	DVector3 Aim(plActor->spr.angle.ToVector(), pPlayer->flt_slope());
+	DVector3 Aim(plActor->spr.angle.ToVector(), pPlayer->slope);
 
 	WEAPONTRACK* pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
 	DBloodActor* targetactor = nullptr;
@@ -455,7 +455,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 				double t = nDist * 4096 / pWeaponTrack->seeker;
 				pos2 += actor->vel * t;
 			}
-			DVector3 lpos = pos + DVector3(plActor->spr.angle.ToVector(), pPlayer->flt_slope()) * nDist;
+			DVector3 lpos = pos + DVector3(plActor->spr.angle.ToVector(), pPlayer->slope) * nDist;
 
 			double zRange = nDist * (9460 / 16384.);
 			double top, bottom;
@@ -502,7 +502,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 				if (nDist == 0 || nDist > 3200)
 					continue;
 
-				DVector3 lpos = pos + DVector3(plActor->spr.angle.ToVector(), pPlayer->flt_slope()) * nDist;
+				DVector3 lpos = pos + DVector3(plActor->spr.angle.ToVector(), pPlayer->slope) * nDist;
 				double zRange = nDist * (9460 / 16384.);
 
 				double top, bottom;
@@ -533,7 +533,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 	}
 	DVector3 Aim2(Aim);
 	Aim2.XY() = Aim2.XY().Rotated(-plActor->spr.angle);
-	Aim2.Z -= pPlayer->flt_slope();
+	Aim2.Z -= pPlayer->slope;
 
 	pPlayer->relAim.dx = interpolatedvalue(pPlayer->relAim.dx, int(Aim2.X * 16384), FixedToFloat(pWeaponTrack->aimSpeedHorz));
 	pPlayer->relAim.dy = interpolatedvalue(pPlayer->relAim.dy, int(Aim2.Y * 16384), FixedToFloat(pWeaponTrack->aimSpeedHorz));
