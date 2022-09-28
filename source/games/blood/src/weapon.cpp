@@ -3001,9 +3001,8 @@ void teslaHit(DBloodActor* missileactor, int a2)
 				continue;
 			if (CheckSector(sectorMap, hitactor) && CheckProximity(hitactor, mpos, pSector, nDist))
 			{
-				int dx = missileactor->int_pos().X - hitactor->int_pos().X;
-				int dy = missileactor->int_pos().Y - hitactor->int_pos().Y;
-				int nDamage = ClipLow((nDist - (ksqrt(dx * dx + dy * dy) >> 4) + 20) >> 1, 10);
+				int length = int((missileactor->spr.pos.XY() - hitactor->spr.pos.XY()).Length());
+				int nDamage = ClipLow((nDist - length + 20) >> 1, 10);
 				if (hitactor == owneractor)
 					nDamage /= 2;
 				actDamageSprite(owneractor, hitactor, kDamageTesla, nDamage << 4);
@@ -3019,9 +3018,8 @@ void teslaHit(DBloodActor* missileactor, int a2)
 		{
 			if (!hitactor->xspr.locked)
 			{
-				int dx = missileactor->int_pos().X - hitactor->int_pos().X;
-				int dy = missileactor->int_pos().Y - hitactor->int_pos().Y;
-				int nDamage = ClipLow(nDist - (ksqrt(dx * dx + dy * dy) >> 4) + 20, 20);
+				int length = int((missileactor->spr.pos.XY() - hitactor->spr.pos.XY()).Length());
+				int nDamage = ClipLow(nDist - length + 20, 20);
 				actDamageSprite(owneractor, hitactor, kDamageTesla, nDamage << 4);
 			}
 		}
