@@ -375,13 +375,13 @@ void viewUpdateDelirium(PLAYER* pPlayer)
 			tilt2 = MulScale(tilt2, powerScale, 16);
 			pitch = MulScale(pitch, powerScale, 16);
 		}
-		int sin2 = Sin(2 * timer) >> 1;
-		int sin3 = Sin(3 * timer) >> 1;
-		gScreenTilt = DAngle::fromBuild(MulScale(sin2 + sin3, tilt1, 30));
-		int sin4 = Sin(4 * timer) >> 1;
-		deliriumTurn = DAngle::fromBuild(MulScale(sin3 + sin4, tilt2, 30));
-		int sin5 = Sin(5 * timer) >> 1;
-		deliriumPitch = MulScale(sin4 + sin5, pitch, 30);
+		double sin2 = BobVal(2 * timer);
+		double sin3 = BobVal(3 * timer);
+		double sin4 = BobVal(4 * timer);
+		double sin5 = BobVal(5 * timer);
+		gScreenTilt = DAngle::fromBuild((sin2 + sin3) * tilt1 * 0.5);
+		deliriumTurn = DAngle::fromBuild((sin3 + sin4) * tilt2 * 0.5);
+		deliriumPitch = int((sin4 + sin5) * pitch * 0.5);
 		return;
 	}
 	gScreenTilt = gScreenTilt.Normalized180();
