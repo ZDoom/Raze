@@ -101,8 +101,6 @@ struct XSPRITE {
 	TObjPtr<DBloodActor*> target;           // target sprite
 	TObjPtr<DBloodActor*> burnSource;
 	
-	const vec3_t int_TargetPos() const { return { int(TargetPos.X * worldtoint), int(TargetPos.Y * worldtoint), int(TargetPos.Z * worldtoint)}; }
-
 	DVector3 TargetPos;
 	DAngle goalAng;          // Dude goal ang
 

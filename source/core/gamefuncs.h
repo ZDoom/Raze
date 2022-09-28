@@ -235,22 +235,6 @@ inline int getangle(double xvect, double yvect)
 	return DVector2(xvect, yvect).Angle().Buildang();
 }
 
-inline int getangle(const DVector2& vec)
-{
-	return getangle(vec.X, vec.Y);
-}
-
-inline int getangle(const vec2_t& vec)
-{
-	return getangle(vec.X, vec.Y);
-}
-
-inline int32_t getangle(walltype* wal)
-{
-	return getangle(wal->delta());
-}
-
-
 //---------------------------------------------------------------------------
 //
 //

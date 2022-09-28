@@ -474,16 +474,6 @@ struct spritetypebase
 	{
 		pos = { x * maptoworld, y * maptoworld, z * zmaptoworld };
 	}
-
-	const vec3_t int_pos() const
-	{
-		return { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) };
-	}
-
-	constexpr int int_ang() const
-	{
- 		return angle.Buildang();
-	}
 };
 
 
