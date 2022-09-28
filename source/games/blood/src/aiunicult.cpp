@@ -312,25 +312,23 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	else if (!playGenDudeSound(actor, kGenDudeSndAttackThrow))
 		sfxPlay3DSound(actor, 455, -1, 0);
 
-	int zThrow = 14500;
-	int dx = target->int_pos().X - actor->int_pos().X;
-	int dy = target->int_pos().Y - actor->int_pos().Y;
-	int dz = target->int_pos().Z - actor->int_pos().Z;
-	int dist = approxDist(dx, dy);
+	double zThrow = 14500 / 65536.;
+	auto dv = target->spr.pos - actor->spr.pos;
+	double dist = dv.Length();
 
 	auto actLeech = leechIsDropped(actor);
 
 	switch (curWeapon) {
 	case kModernThingEnemyLifeLeech:
 	case kThingDroppedLifeLeech:
-		zThrow = 5000;
+		zThrow = 5000 / 65536;
 		// pickup life leech before throw it again
 		if (actLeech != NULL) removeLeech(actLeech);
 		break;
 	}
 
 	DBloodActor* spawned = nullptr;
-	if ((spawned = actFireThing(actor, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == nullptr) return;
+	if ((spawned = actFireThing(actor, 0., 0., (dv.Z / 32768.) - zThrow, curWeapon, dist * (2048. / 64800))) == nullptr) return;
 
 	if (pThinkInfo->picnum < 0 && spawned->spr.type != kModernThingThrowableRock) spawned->spr.picnum = 0;
 
