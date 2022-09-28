@@ -5073,8 +5073,8 @@ DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDis
 		{
 			if (actor->GetTarget())
 			{
-				int fineDist1 = aiFightGetFineTargetDist(actor, actor->GetTarget());
-				int fineDist2 = aiFightGetFineTargetDist(actor, targactor);
+				double fineDist1 = aiFightGetFineTargetDist(actor, actor->GetTarget());
+				double fineDist2 = aiFightGetFineTargetDist(actor, targactor);
 				if (fineDist1 < fineDist2)
 					continue;
 			}
@@ -5371,10 +5371,10 @@ int aiFightGetTargetDist(DBloodActor* actor, DUDEINFO* pDudeInfo, DBloodActor* t
 //
 //---------------------------------------------------------------------------
 
-int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target)
+double aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target)
 {
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	return approxDist(dvec);
+	return (dvec).LengthSquared();
 }
 
 //---------------------------------------------------------------------------
