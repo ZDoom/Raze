@@ -8401,7 +8401,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
 	}
 
-	int i, j, mod, sndCnt = 0, seeChance, hearChance;
+	int i, mod, sndCnt = 0, seeChance, hearChance;
 	bool stealth = (actor->xspr.unused1 & kDudeFlagStealth);
 	bool blind = (actor->xspr.dudeGuard);
 	bool deaf = (actor->xspr.dudeDeaf);

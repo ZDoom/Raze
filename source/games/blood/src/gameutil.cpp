@@ -474,46 +474,46 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 //
 //---------------------------------------------------------------------------
 
-void GetZRange(DBloodActor* actor, int* ceilZ, Collision* ceilColl, int* floorZ, Collision* floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRange(DBloodActor* actor, double* ceilZ, Collision* ceilColl, double* floorZ, Collision* floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
 	assert(actor != nullptr);
 	Collision scratch;
 
 	auto bakCstat = actor->spr.cstat;
-	int32_t nTemp1;
+	double nTemp1;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	getzrange(actor->int_pos(), actor->sector(), (int32_t*)ceilZ, *ceilColl, (int32_t*)floorZ, *floorColl, nDist, nMask);
+	getzrange(actor->spr.pos, actor->sector(), ceilZ, *ceilColl, floorZ, *floorColl, nDist, nMask);
 	if (floorColl->type == kHitSector)
 	{
 		auto pSector = floorColl->hitSector;
 		if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & CSTAT_SECTOR_SKY))
-			*floorZ = 0x7fffffff;
+			*floorZ = 0x800000;
 		if (pSector->hasX())
 		{
 			XSECTOR* pXSector = &pSector->xs();
-			*floorZ += pXSector->Depth << 10;
+			*floorZ += pXSector->Depth << 2;
 		}
 		auto linkActor = barrier_cast<DBloodActor*>(pSector->upperLink);
 		if (linkActor)
 		{
 			auto linkOwner = linkActor->GetOwner();
-			vec3_t lpos = actor->int_pos() + linkOwner->int_pos() - linkActor->int_pos();
-			getzrange(lpos, linkOwner->sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
-			*floorZ -= linkOwner->int_pos().Z - linkActor->int_pos().Z;
+			auto lpos = actor->spr.pos + linkOwner->spr.pos - linkActor->spr.pos;
+			getzrange(lpos, linkOwner->sector(), &nTemp1, scratch, floorZ, *floorColl, nDist, nMask);
+			*floorZ -= linkOwner->spr.pos.Z - linkActor->spr.pos.Z;
 		}
 	}
 	if (ceilColl->type == kHitSector)
 	{
 		auto pSector = ceilColl->hitSector;
 		if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & CSTAT_SECTOR_SKY))
-			*ceilZ = 0x80000000;
+			*ceilZ = -(int)0x800000;
 		auto linkActor = barrier_cast<DBloodActor*>(pSector->lowerLink);
 		if (linkActor)
 		{
 			auto linkOwner = linkActor->GetOwner();
-			vec3_t lpos = actor->int_pos() + linkOwner->int_pos() - linkActor->int_pos();
-			getzrange(lpos, linkOwner->sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
-			*ceilZ -= linkOwner->int_pos().Z - linkActor->int_pos().Z;
+			auto lpos = actor->spr.pos + linkOwner->spr.pos - linkActor->spr.pos;
+			getzrange(lpos, linkOwner->sector(), ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
+			*ceilZ -= linkOwner->spr.pos.Z - linkActor->spr.pos.Z;
 		}
 	}
 	actor->spr.cstat = bakCstat;
