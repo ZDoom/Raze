@@ -21,6 +21,11 @@ constexpr fixed_t FloatToFixed(double f)
 	return int(f * (1 << b));
 }
 
+constexpr fixed_t FloatToFixed(double f, int b)
+{
+	return int(f * (1 << b));
+}
+
 template<int b = 16>
 inline constexpr fixed_t IntToFixed(int32_t f)
 {
@@ -29,6 +34,11 @@ inline constexpr fixed_t IntToFixed(int32_t f)
 
 template<int b = 16>
 inline constexpr double FixedToFloat(fixed_t f)
+{
+	return f * (1. / (1 << b));
+}
+
+inline constexpr double FixedToFloat(fixed_t f, int b)
 {
 	return f * (1. / (1 << b));
 }

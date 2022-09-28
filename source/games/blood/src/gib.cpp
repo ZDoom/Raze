@@ -455,9 +455,9 @@ void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, C
 	for (int i = 0; i < nCount; i++)
 	{
 		DVector3 r;
-		r.Z = RandomZ(spread.Z) + ceilZ;
-		r.Y = RandomX(spread.Y) + pWall->pos.Y;
-		r.X = RandomX(spread.X) + pWall->pos.X;
+		r.Z = RandomF(spread.Z, 8) + ceilZ;
+		r.Y = RandomF(spread.Y, 4) + pWall->pos.Y;
+		r.X = RandomF(spread.X, 4) + pWall->pos.X;
 		auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, r, 0);
 		if (pGib)
 		{

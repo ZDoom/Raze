@@ -537,19 +537,20 @@ inline uint8_t Chance(int a1)
 	return wrand() < (a1 >> 1);
 }
 
+// ------------------------------------------------
 inline unsigned int Random(int a1)
 {
 	return MulScale(wrand(), a1, 15);
 }
 
-inline double RandomX(double a1)
+inline double RandomF(int a1)
 {
-	return FixedToFloat<4>(Random(FloatToFixed<4>(a1)));
+	return FixedToFloat(Random(a1));
 }
 
-inline double RandomZ(double a1)
+inline double RandomF(double val, int scale)
 {
-	return FixedToFloat<8>(Random(FloatToFixed<8>(a1)));
+	return FixedToFloat(Random(FloatToFixed(val, scale)), scale);
 }
 
 inline DAngle RandomAngle(int base = 2048)
@@ -557,6 +558,7 @@ inline DAngle RandomAngle(int base = 2048)
 	return DAngle::fromBuild(MulScale(wrand(), base, 15));
 }
 
+// ------------------------------------------------
 inline int Random2(int a1)
 {
 	return MulScale(wrand(), a1, 14) - a1;
@@ -564,21 +566,15 @@ inline int Random2(int a1)
 
 inline double Random2F(int a1)
 {
-	return FixedToFloat(MulScale(wrand(), a1, 14) - a1);
+	return FixedToFloat(Random2(a1));
 }
 
-inline double Random2X(double a1)
+inline double Random2F(double val, int scale)
 {
-	return FixedToFloat<4>(Random2(FloatToFixed<4>(a1)));
+	return FixedToFloat(Random2(FloatToFixed(val, scale)), scale);
 }
 
-inline double Random2Z(double a1)
-{
-	return FixedToFloat<8>(Random2(FloatToFixed<8>(a1)));
-}
-
-
-
+// ------------------------------------------------
 inline int Random3(int a1)
 {
 	return MulScale(wrand() + wrand(), a1, 15) - a1;
