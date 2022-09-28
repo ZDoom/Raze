@@ -547,39 +547,6 @@ void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Col
 //
 //---------------------------------------------------------------------------
 
-int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3)
-{
-	int check = (y1 - y3) * (x3 - x2);
-	int check2 = (x1 - x2) * (y3 - y2);
-	if (check2 > check)
-		return -1;
-	int v8 = DMulScale(x1 - x2, x3 - x2, y1 - y3, y3 - y2, 4);
-	int vv = DMulScale(x3 - x2, x3 - x2, y3 - y2, y3 - y2, 4);
-	int t1, t2;
-	if (v8 <= 0)
-	{
-		t1 = x2;
-		t2 = y2;
-	}
-	else if (vv > v8)
-	{
-		t1 = x2 + Scale(x3 - x2, v8, vv);
-		t2 = y2 + Scale(y3 - y2, v8, vv);
-	}
-	else
-	{
-		t1 = x3;
-		t2 = y3;
-	}
-	return approxDist(t1 - x1, t2 - y1);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, CollisionBase& hit, int tracecount)
 {
 	auto opos = pos;
