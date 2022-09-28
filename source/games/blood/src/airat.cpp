@@ -43,13 +43,14 @@ AISTATE ratBite = { kAiStateChase, 6, nRatBiteClient, 120, NULL, NULL, NULL, &ra
 
 void ratBiteSeqCallback(int, DBloodActor* actor)
 {
-	int dx = bcos(actor->int_ang());
-	int dy = bsin(actor->int_ang());
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	if (target->IsPlayerActor())
-		actFireVector(actor, 0, 0, dx, dy, target->int_pos().Z - actor->int_pos().Z, kVectorRatBite);
+	{
+		DVector3 vec(actor->spr.angle.ToVector() * 64, target->spr.pos.Z - actor->spr.pos.Z);
+		actFireVector(actor, 0, 0, vec, kVectorRatBite);
+	}
 }
 
 static void ratThinkSearch(DBloodActor* actor)
