@@ -413,7 +413,7 @@ void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, do
 		{
 			int nValue = ClipHigh(effectType * 8, 2000);
 			cH += maphoriz(QRandom2F(nValue * (1. / 256.)));
-			cA += DAngle::fromBuildf(QRandom2F(nValue * (1. / 256.)));
+			cA += DAngle::fromDeg(QRandom2F(nValue * (360. / 524288.)));
 			cPos.X += QRandom2F(nValue * inttoworld) * inttoworld;
 			cPos.Y += QRandom2F(nValue * inttoworld) * inttoworld;
 			cPos.Z += QRandom2F(nValue) * zinttoworld;

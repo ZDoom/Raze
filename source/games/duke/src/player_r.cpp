@@ -2377,7 +2377,8 @@ void onMotorcycleMove(int snum, walltype* wal)
 	double angleDelta = absangle(p->angle.ang, VecToAngle(wal->delta())).Degrees();
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
-	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -2 : 2)));
+	const double scale = (180. / 2048.);
+	p->angle.addadjustment(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));
 
 	// That's some very weird angles here...
 	if (angleDelta >= 77.51 && angleDelta <= 102.13)
@@ -2431,7 +2432,8 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 	auto pact = p->GetActor();
 	double angleDelta = absangle(p->angle.ang, VecToAngle(wal->delta())).Degrees();
 
-	p->angle.addadjustment(DAngle::fromBuildf(p->MotoSpeed / (krand() & 1 ? -4 : 4)));
+	const double scale = (90. / 2048.);
+	p->angle.addadjustment(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));
 
 	if (angleDelta >= 77.51 && angleDelta <= 102.13)
 	{

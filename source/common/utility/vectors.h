@@ -1286,11 +1286,6 @@ public:
 		return TAngle(bang * (90. / 512));
 	}
 
-	static constexpr TAngle fromBuildf(double bang)
-	{
-		return TAngle(bang * (90. / 512));
-	}
-
 	static constexpr TAngle fromQ16(int bang)
 	{
 		return TAngle(bang * (90. / 16384));
