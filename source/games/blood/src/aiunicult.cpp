@@ -139,7 +139,7 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
 
 		for (int i = -8191; i < 8192; i += by)
 		{
-			HitScan_(actor, actor->spr.pos.Z, bcos(actor->int_ang()), bsin(actor->int_ang()), i, clipMask, dist);
+			HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector() * 1024, i / 16.), clipMask, dist);
 			if (!fStart && actor->GetTarget() == gHitInfo.actor()) fStart = i;
 			else if (fStart && actor->GetTarget() != gHitInfo.actor())
 			{
@@ -191,21 +191,17 @@ void punchCallback(int, DBloodActor* actor)
 	auto const target = actor->GetTarget();
 	if (target != nullptr)
 	{
-		int nZOffset1 = getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat << 2;
-		int nZOffset2 = 0;
+		double nZOffset1 = getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE;
+		double nZOffset2 = 0;
 
 
 		if (target->IsDudeActor())
-			nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.yrepeat << 2;
-
-		int dx = bcos(actor->int_ang());
-		int dy = bsin(actor->int_ang());
-		int dz = nZOffset1 - nZOffset2;
+			nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.yrepeat * REPEAT_SCALE;
 
 		if (!playGenDudeSound(actor, kGenDudeSndAttackMelee))
 			sfxPlay3DSound(actor, 530, 1, 0);
 
-		actFireVector(actor, 0, 0, dx, dy, dz, kVectorGenDudePunch);
+		actFireVector(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 64, nZOffset1 - nZOffset2), kVectorGenDudePunch);
 	}
 }
 
@@ -219,7 +215,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 {
 	if (actor->GetTarget() == nullptr) return;
 
-	int dx, dy, dz;
+	DVector3 dv;
 	actor->ZeroVelocityXY();
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
@@ -229,14 +225,16 @@ void genDudeAttack1(int, DBloodActor* actor)
 
 	if (pExtra->weaponType == kGenDudeWeaponHitscan)
 	{
-		dx = bcos(actor->int_ang()); dy = bsin(actor->int_ang()); dz = actor->dudeSlope;
+		dv = DVector3(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.);
 		// dispersal modifiers here in case if non-melee enemy
 		if (!dudeIsMelee(actor))
 		{
-			dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion);
+			dv.X += Random3F(dispersion, 14); 
+			dv.Y += Random3F(dispersion, 14); 
+			dv.Z += Random3F(dispersion, 14);
 		}
 
-		actFireVector(actor, 0, 0, dx, dy, dz, (VECTOR_TYPE)pExtra->curWeapon);
+		actFireVector(actor, 0, 0, dv, (VECTOR_TYPE)pExtra->curWeapon);
 		if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
 			sfxPlayVectorSound(actor, pExtra->curWeapon);
 	}
@@ -266,12 +264,14 @@ void genDudeAttack1(int, DBloodActor* actor)
 	}
 	else if (pExtra->weaponType == kGenDudeWeaponMissile)
 	{
-		dx = bcos(actor->int_ang()); dy = bsin(actor->int_ang()); dz = actor->dudeSlope;
+		dv = DVector3(actor->spr.angle.ToVector(), actor->dudeSlope / 16384.);
 
 		// dispersal modifiers here
-		dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion >> 1);
+		dv.X += Random3F(dispersion, 14);
+		dv.Y += Random3F(dispersion, 14);
+		dv.Z += Random3F(dispersion >> 1, 14);
 
-		actFireMissile(actor, 0, 0, dx, dy, dz, pExtra->curWeapon);
+		actFireMissile(actor, 0, 0, dv, pExtra->curWeapon);
 		if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
 			sfxPlayMissileSound(actor, pExtra->curWeapon);
 	}
@@ -1399,7 +1399,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 {
 	if (actLeech != nullptr)
 	{
-		auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->sector(), actLeech->spr.pos, actLeech->int_ang());
+		auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->sector(), actLeech->spr.pos, actLeech->spr.angle);
 		if (effectactor != nullptr)
 		{
 			effectactor->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
@@ -1870,13 +1870,12 @@ bool doExplosion(DBloodActor* actor, int nType)
 DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 {
 	auto spawned = actSpawnSprite(actor, kStatDude);
-	int nAngle = actor->int_ang(), nType = kDudeModernCustom;
+	int nType = kDudeModernCustom;
 
 	auto pos = actor->spr.pos;
 	if (nDist > 0)
 	{
-		pos.X += mulscale30r(Cos(nAngle), nDist) * inttoworld;
-		pos.Y += mulscale30r(Sin(nAngle), nDist) * inttoworld;
+		pos.XY() += actor->spr.angle.ToVector() * nDist * inttoworld;
 	}
 
 	spawned->spr.type = nType; 

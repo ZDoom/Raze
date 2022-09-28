@@ -5575,7 +5575,7 @@ bool modernTypeOperateSector(sectortype* pSector, const EVENT& event)
 
 void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 {
-	genDudeSpawn(pSource, pActor, pActor->native_clipdist() << 1);
+	genDudeSpawn(pSource, pActor, pActor->fClipdist() * 0.5);
 }
 
 void useDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
