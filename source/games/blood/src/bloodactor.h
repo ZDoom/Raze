@@ -148,6 +148,7 @@ using BloodStatIterator = TStatIterator<DBloodActor>;
 using BloodSectIterator = TSectIterator<DBloodActor>;
 using BloodSpriteIterator = TSpriteIterator<DBloodActor>;
 
+[[deprecated]]
 inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 {
 	double t, b;

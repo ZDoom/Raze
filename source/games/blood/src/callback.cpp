@@ -338,16 +338,14 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 		PLAYER* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
 		if (!pPlayer->bubbleTime)
 			return;
-		int top, bottom;
+		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		for (int i = 0; i < (pPlayer->bubbleTime >> 6); i++)
 		{
-			int nDist = (actor->spr.xrepeat * (tileWidth(actor->spr.picnum) / 2)) >> 2;
-			int nAngle = Random(2048);
-			int x = actor->int_pos().X + MulScale(nDist, Cos(nAngle), 30);
-			int y = actor->int_pos().Y + MulScale(nDist, Sin(nAngle), 30);
-			int z = bottom - Random(bottom - top);
-			auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), x, y, z, 0);
+			double nDist = (actor->spr.xrepeat * tileWidth(actor->spr.picnum)) * (REPEAT_SCALE / 2);
+			DVector2 pos = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nDist;
+			double z = bottom - RandomD(bottom - top, 8);
+			auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), DVector3(pos, z), 0);
 			if (pFX)
 			{
 				pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
