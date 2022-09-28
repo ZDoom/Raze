@@ -636,13 +636,16 @@ static void unicultThinkChase(DBloodActor* actor)
 		}
 		else
 		{
-			int vdist; int mdist; int defDist;
-			defDist = vdist = mdist = actor->genDudeExtra.fireDist;
+			double vdist;
+			double mdist;
+			double defDist;
+			
+			vdist = mdist = defDist = actor->genDudeExtra.fireDist * inttoworld;
 
 			if (weaponType == kGenDudeWeaponHitscan)
 			{
-				if ((vdist = gVectorData[curWeapon].maxDist) <= 0)
-					vdist = defDist;
+				if ((vdist = gVectorData[curWeapon].maxDist * inttoworld) <= 0)
+					vdist = mdist;
 
 			}
 			else if (weaponType == kGenDudeWeaponSummon)
@@ -680,23 +683,25 @@ static void unicultThinkChase(DBloodActor* actor)
 				case kMissileLifeLeechRegular:
 					// pickup life leech if it was thrown previously
 					if (actLeech != NULL) removeLeech(actLeech);
-					mdist = 1500;
+					mdist = 1500/16.;
 					break;
+
 				case kMissileFlareAlt:
-					mdist = 2500;
+					mdist = 2500/16.;
 					[[fallthrough]];
 				case kMissileFireball:
 				case kMissileFireballNapalm:
 				case kMissileFireballCerberus:
 				case kMissileFireballTchernobog:
-					if (mdist == defDist) mdist = 3000;
-					if (dist > mdist * inttoworld || actor->xspr.locked == 1) break;
+					if (mdist == defDist) mdist = 3000/16.;
+					if (dist > mdist || actor->xspr.locked == 1) break;
 					else if (dist <= meleeVector->maxDist * inttoworld && Chance(0x9000))
 						aiGenDudeNewState(actor, &genDudePunch);
 					else if (state == 1) aiGenDudeNewState(actor, &genDudeChaseW);
 					else if (state == 2) aiGenDudeNewState(actor, &genDudeChaseD);
 					else aiGenDudeNewState(actor, &genDudeChaseL);
 					return;
+
 				case kMissileFlameSpray:
 				case kMissileFlameHound:
 					//viewSetSystemMessage("%d", target->xspr.burnTime);
@@ -713,7 +718,7 @@ static void unicultThinkChase(DBloodActor* actor)
 						else aiGenDudeNewState(actor, &genDudePunch);
 						return;
 					}
-					vdist = 3500 + (gGameOptions.nDifficulty * 400);
+					vdist = 3500/16. + (gGameOptions.nDifficulty * 25);
 					break;
 				}
 			}
@@ -733,7 +738,7 @@ static void unicultThinkChase(DBloodActor* actor)
 			int state = checkAttackState(actor);
 			DAngle kAngle = (dudeIsMelee(actor) || dist <= 256/* kGenDudeMaxMeleeDist */) ? pDudeInfo->Periphery() : DAngle1 * 10;
 
-			if (dist < vdist * inttoworld && losAngle < kAngle)
+			if (dist < vdist && losAngle < kAngle)
 			{
 				if (pExtra->canWalk)
 				{
@@ -938,8 +943,8 @@ static void unicultThinkChase(DBloodActor* actor)
 								case kMissileFireballTchernobog:
 								{
 									// allow attack if dude is far from object, but target is close to it
-									int dudeDist = approxDist(gHitInfo.hitpos.XY() - actor->spr.pos.XY());
-									int targetDist1 = approxDist(gHitInfo.hitpos.XY() - target->spr.pos.XY());
+									double dudeDist = (gHitInfo.hitpos.XY() - actor->spr.pos.XY()).Length();
+									double targetDist1 = (gHitInfo.hitpos.XY() - target->spr.pos.XY()).Length();
 									if (dudeDist < mdist)
 									{
 										//viewSetSystemMessage("DUDE CLOSE TO OBJ: %d, MDIST: %d", dudeDist, mdist);
@@ -947,7 +952,7 @@ static void unicultThinkChase(DBloodActor* actor)
 										else aiGenDudeNewState(actor, &genDudeChaseL);
 										return;
 									}
-									else if (targetDist1 <= mdist >> 1)
+									else if (targetDist1 <= mdist * 0.5)
 									{
 										//viewSetSystemMessage("TARGET CLOSE TO OBJ: %d, MDIST: %d", targetDist, mdist >> 1);
 										break;
