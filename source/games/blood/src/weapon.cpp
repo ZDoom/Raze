@@ -1469,21 +1469,23 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 //---------------------------------------------------------------------------
 
 enum { kMaxSpread = 14 };
+static constexpr DAngle DAngle10 = DAngle::fromDeg(10);
+static constexpr DAngle DAngle20 = DAngle::fromDeg(20);
 
 void FireSpread(int nTrigger, PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
-	Aim* aim = &pPlayer->_aim;
-	int angle = (getangle(aim->dx, aim->dy) + ((112 * (nTrigger - 1)) / 14 - 56)) & 2047;
-	int dx = bcos(angle);
-	int dy = bsin(angle);
+	DVector3 aim = pPlayer->flt_aim();
+	DAngle angle = (VecToAngle(aim.XY()) + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
+	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
+
 	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
-	int r1, r2, r3;
-	r1 = Random3(300);
-	r2 = Random3(600);
-	r3 = Random3(600);
-	actFireVectorf(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+	double r1, r2, r3;
+	r1 = Random3F(300, 14);
+	r2 = Random3F(600, 14);
+	r3 = Random3F(600, 14);
+	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 	r1 = Random2(90);
 	r2 = Random2(30);
 	SpawnBulletEject(pPlayer, r2, r1);
@@ -1502,23 +1504,23 @@ void AltFireSpread(int nTrigger, PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
-	Aim* aim = &pPlayer->_aim;
-	int angle = (getangle(aim->dx, aim->dy) + ((112 * (nTrigger - 1)) / 14 - 56)) & 2047;
-	int dx = bcos(angle);
-	int dy = bsin(angle);
+	DVector3 aim = pPlayer->flt_aim();
+	DAngle angle = (VecToAngle(aim.XY()) + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
+	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
+
 	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
-	int r1, r2, r3;
-	r1 = Random3(300);
-	r2 = Random3(600);
-	r3 = Random3(600);
-	actFireVectorf(actor, -120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+	double r1, r2, r3;
+	r1 = Random3F(300, 14);
+	r2 = Random3F(600, 14);
+	r3 = Random3F(600, 14);
+	actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 	r1 = Random2(45);
 	r2 = Random2(120);
 	SpawnBulletEject(pPlayer, r2, r1);
-	r1 = Random3(300);
-	r2 = Random3(600);
-	r3 = Random3(600);
-	actFireVectorf(actor, 120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+	r1 = Random3F(300, 14);
+	r2 = Random3F(600, 14);
+	r3 = Random3F(600, 14);
+	actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 	r1 = Random2(-45);
 	r2 = Random2(-120);
 	SpawnBulletEject(pPlayer, r2, r1);
@@ -1538,25 +1540,25 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
-	Aim* aim = &pPlayer->_aim;
-	int angle = (getangle(aim->dx, aim->dy) + ((112 * (nTrigger - 1)) / 14 - 56)) & 2047;
-	int dx = bcos(angle);
-	int dy = bsin(angle);
+	DVector3 aim = pPlayer->flt_aim();
+	DAngle angle = (VecToAngle(aim.XY()) + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
+	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
+
 	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
 	if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
 	{
-		int r1, r2, r3;
-		r1 = Random3(300);
-		r2 = Random3(600);
-		r3 = Random3(600);
-		actFireVectorf(actor, -120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+		double r1, r2, r3;
+		r1 = Random3F(300, 14);
+		r2 = Random3F(600, 14);
+		r3 = Random3F(600, 14);
+		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 		r1 = Random2(45);
 		r2 = Random2(120);
 		SpawnBulletEject(pPlayer, r2, r1);
-		r1 = Random3(300);
-		r2 = Random3(600);
-		r3 = Random3(600);
-		actFireVectorf(actor, 120, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+		r1 = Random3F(300, 14);
+		r2 = Random3F(600, 14);
+		r3 = Random3F(600, 14);
+		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 		r1 = Random2(-45);
 		r2 = Random2(-120);
 		SpawnBulletEject(pPlayer, r2, r1);
@@ -1566,11 +1568,11 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 	}
 	else
 	{
-		int r1, r2, r3;
-		r1 = Random3(300);
-		r2 = Random3(600);
-		r3 = Random3(600);
-		actFireVectorf(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dx + r3, dy + r2, aim->dz + r1, kVectorTommyAP);
+		double r1, r2, r3;
+		r1 = Random3F(300, 14);
+		r2 = Random3F(600, 14);
+		r3 = Random3F(600, 14);
+		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
 		r1 = Random2(90);
 		r2 = Random2(30);
 		SpawnBulletEject(pPlayer, r2, r1);
