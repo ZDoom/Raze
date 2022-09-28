@@ -1912,15 +1912,19 @@ void playerProcess(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* playerFireMissile(PLAYER* pPlayer, int xyoff, int dx, int dy, int dz, int nType)
+DBloodActor* playerFireMissile(PLAYER* pPlayer, int xyoff_, int dx, int dy, int dz, int nType)
 {
-	return actFireMissile(pPlayer->actor, xyoff, int(pPlayer->zWeapon * zworldtoint) - pPlayer->actor->int_pos().Z, dx, dy, dz, nType);
+	double xyoff = xyoff_ * inttoworld;
+	DVector3 dv(FixedToFloat<14>(dx), FixedToFloat<14>(dy), FixedToFloat<14>(dz));
+	return actFireMissile(pPlayer->actor, xyoff, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv, nType);
 }
 
-DBloodActor* playerFireThing(PLAYER* pPlayer, int xyoff, int zvel, int thingType, int nSpeed)
+DBloodActor* playerFireThing(PLAYER* pPlayer, int xyoff_, int zvel_, int thingType, int nSpeed_)
 {
-	assert(thingType >= kThingBase && thingType < kThingMax);
-	return actFireThing(pPlayer->actor, xyoff, int(pPlayer->zWeapon * zworldtoint) - pPlayer->actor->int_pos().Z, pPlayer->slope + zvel, thingType, nSpeed);
+	double xyoff = xyoff_ * inttoworld;
+	double zvel = FixedToFloat(pPlayer->slope + zvel_);
+	double nSpeed = FixedToFloat(nSpeed_);
+	return actFireThing(pPlayer->actor, xyoff, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, zvel, thingType, nSpeed);
 }
 
 //---------------------------------------------------------------------------
