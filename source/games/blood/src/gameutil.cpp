@@ -62,30 +62,6 @@ bool CheckProximity(DBloodActor* actor, const DVector3& pos, sectortype* pSector
 
 //---------------------------------------------------------------------------
 //
-//
-//
-//---------------------------------------------------------------------------
-
-bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist)
-{
-	int oX = abs(nX2 - nX1) >> 4;
-	if (oX >= nDist)
-		return 0;
-	int oY = abs(nY2 - nY1) >> 4;
-	if (oY >= nDist)
-		return 0;
-	if (nZ2 != nZ1)
-	{
-		int oZ = abs(nZ2 - nZ1) >> 8;
-		if (oZ >= nDist)
-			return 0;
-	}
-	if (approxDist(oX, oY) >= nDist) return 0;
-	return 1;
-}
-
-//---------------------------------------------------------------------------
-//
 // Note: This function features some very bad math.
 // It cannot be redone because some game functionality
 // depends on the math being broken.

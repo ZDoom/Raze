@@ -509,12 +509,10 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 		actor->xspr.triggerOn = 0;
 		actor->xspr.isTriggered = 1;
 		SetSpriteState(actor, 1, initiator);
-		for (int p = connecthead; p >= 0; p = connectpoint2[p]) {
-			auto vec = actor->int_pos() - gPlayer[p].actor->int_pos();
-			int dx = (vec.X) >> 4;
-			int dy = (vec.Y) >> 4;
-			int dz = (vec.Z) >> 8;
-			int nDist = dx * dx + dy * dy + dz * dz + 0x40000;
+		for (int p = connecthead; p >= 0; p = connectpoint2[p]) 
+		{
+			auto vec = actor->spr.pos - gPlayer[p].actor->spr.pos;
+			int nDist = int(vec.LengthSquared()) + 0x40000;
 			gPlayer[p].quakeEffect = DivScale(actor->xspr.data1, nDist, 16);
 		}
 		break;
