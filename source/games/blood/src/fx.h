@@ -101,16 +101,8 @@ public:
 
 void fxSpawnBlood(DBloodActor* pSprite, int a2);
 void fxSpawnPodStuff(DBloodActor* pSprite, int a2);
-void fxSpawnEjectingBrass(DBloodActor* pSprite, int z, int a3, int a4);
-inline void fxSpawnEjectingBrassf(DBloodActor* pSprite, double z, int a3, int a4)
-{
-	fxSpawnEjectingBrass(pSprite, z * zworldtoint, a3, a4);
-}
-void fxSpawnEjectingShell(DBloodActor* pSprite, int z, int a3, int a4);
-inline void fxSpawnEjectingShellf(DBloodActor* pSprite, double z, int a3, int a4)
-{
-	fxSpawnEjectingShell(pSprite, z * zworldtoint, a3, a4);
-}
+void fxSpawnEjectingBrass(DBloodActor* pSprite, double z, int a3, int a4);
+void fxSpawnEjectingShell(DBloodActor* pSprite, double z, int a3, int a4);
 
 extern CFX gFX;
 

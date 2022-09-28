@@ -331,22 +331,19 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 //
 //---------------------------------------------------------------------------
 
-void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
+void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int a4)
 {
-	int x = actor->int_pos().X + MulScale(actor->native_clipdist() - 4, Cos(actor->int_ang()), 28);
-	int y = actor->int_pos().Y + MulScale(actor->native_clipdist() - 4, Sin(actor->int_ang()), 28);
-	x += MulScale(a3, Cos(actor->int_ang() + 512), 30);
-	y += MulScale(a3, Sin(actor->int_ang() + 512), 30);
-	auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), actor->sector(), x, y, z, 0);
+	DVector3 pos(actor->spr.pos.XY() + actor->fClipdist() * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z); 
+
+	auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), actor->sector(), pos, 0);
 	if (pBrass)
 	{
 		if (!VanillaMode())
 			pBrass->spr.angle = RandomAngle();
-		int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
-		int nAngle = actor->int_ang() + Random2(56) + 512;
-		pBrass->set_int_bvel_x(MulScale(nDist, Cos(nAngle), 30));
-		pBrass->set_int_bvel_y(MulScale(nDist, Sin(nAngle), 30));
-		pBrass->set_int_bvel_z(actor->int_vel().Z - (0x20000 + (Random2(40) << 18) / 120));
+		double nDist = a4 / 30. + Random2F(((a4 / 4) << 18) / 120, 4);
+		DAngle nAngle = actor->spr.angle + Random2A(56) + DAngle90;
+		pBrass->vel.XY() = nAngle.ToVector() * nDist;
+		pBrass->vel.Z = actor->vel.Z - 2 - Random2(40) / 30.;
 	}
 }
 
@@ -356,22 +353,19 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 //
 //---------------------------------------------------------------------------
 
-void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
+void fxSpawnEjectingShell(DBloodActor* actor, double z, double dist, int a4)
 {
-	int x = actor->int_pos().X + MulScale(actor->native_clipdist() - 4, Cos(actor->int_ang()), 28);
-	int y = actor->int_pos().Y + MulScale(actor->native_clipdist() - 4, Sin(actor->int_ang()), 28);
-	x += MulScale(a3, Cos(actor->int_ang() + 512), 30);
-	y += MulScale(a3, Sin(actor->int_ang() + 512), 30);
-	auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), actor->sector(), x, y, z, 0);
+	DVector3 pos(actor->spr.pos.XY() + actor->fClipdist() * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z);
+
+	auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), actor->sector(), pos, 0);
 	if (pShell)
 	{
 		if (!VanillaMode())
 			pShell->spr.angle = RandomAngle();
-		int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
-		int nAngle = actor->int_ang() + Random2(56) + 512;
-		pShell->set_int_bvel_x(MulScale(nDist, Cos(nAngle), 30));
-		pShell->set_int_bvel_y(MulScale(nDist, Sin(nAngle), 30));
-		pShell->set_int_bvel_z(actor->int_vel().Z - (0x20000 + (Random2(20) << 18) / 120));
+		double nDist = a4 / 30. + Random2F(((a4 / 4) << 18) / 120, 4);
+		DAngle nAngle = actor->spr.angle + Random2A(56) + DAngle90;
+		pShell->vel.XY() = nAngle.ToVector() * nDist;
+		pShell->vel.Z = actor->vel.Z - 2 - Random2(28) / 30.;
 	}
 }
 
