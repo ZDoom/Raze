@@ -525,43 +525,42 @@ void GetZRange(DBloodActor* actor, double* ceilZ, Collision* ceilColl, double* f
 //
 //---------------------------------------------------------------------------
 
-void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int* ceilZ, Collision* ceilColl, int* floorZ, Collision* floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilColl, double* floorZ, Collision* floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
 	Collision scratch;
-	int32_t nTemp1;
-	vec3_t lpos = { x, y, z };
-	getzrange(lpos, pSector, (int32_t*)ceilZ, *ceilColl, (int32_t*)floorZ, *floorColl, nDist, nMask);
+	double nTemp1;
+	getzrange(pos, pSector, ceilZ, *ceilColl, floorZ, *floorColl, nDist, nMask);
 	if (floorColl->type == kHitSector)
 	{
 		auto pHitSect = floorColl->hitSector;
 		if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pHitSect->floorstat & CSTAT_SECTOR_SKY))
-			*floorZ = 0x7fffffff;
+			*floorZ = 0x800000;
 		if (pHitSect->hasX())
 		{
 			XSECTOR* pXSector = &pHitSect->xs();
-			*floorZ += pXSector->Depth << 10;
+			*floorZ += pXSector->Depth << 2;
 		}
 		auto actor = barrier_cast<DBloodActor*>(pHitSect->upperLink);
 		if (actor)
 		{
 			auto link = actor->GetOwner();
-			vec3_t newpos = lpos + link->int_pos() - actor->int_pos();
-			getzrange(newpos, link->sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
-			*floorZ -= link->int_pos().Z - actor->int_pos().Z;
+			auto newpos = pos + link->spr.pos - actor->spr.pos;
+			getzrange(newpos, link->sector(), &nTemp1, scratch, floorZ, *floorColl, nDist, nMask);
+			*floorZ -= link->spr.pos.Z - actor->spr.pos.Z;
 		}
 	}
 	if (ceilColl->type == kHitSector)
 	{
 		auto pHitSect = ceilColl->hitSector;
 		if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pHitSect->ceilingstat & CSTAT_SECTOR_SKY))
-			*ceilZ = 0x80000000;
+			*ceilZ = -0x800000;
 		auto actor = barrier_cast<DBloodActor*>(pHitSect->lowerLink);
 		if (actor)
 		{
 			auto link = actor->GetOwner();
-			vec3_t newpos = lpos + link->int_pos() - actor->int_pos();
-			getzrange(newpos, link->sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
-			*ceilZ -= link->int_pos().Z - actor->int_pos().Z;
+			auto newpos = pos + link->spr.pos - actor->spr.pos;
+			getzrange(newpos, link->sector(), ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
+			*ceilZ -= link->spr.pos.Z - actor->spr.pos.Z;
 		}
 	}
 }

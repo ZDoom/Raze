@@ -54,15 +54,8 @@ int VectorScan(DBloodActor* pSprite, double nOffset, double nZOffset, const DVec
 
 void GetZRange(DBloodActor* pSprite, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 
-void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int* ceilZ, Collision* ceilHit, int* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
-void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0)
-{
-	vec3_t ipos = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint)};
-	int cz, fz;
-	GetZRangeAtXYZ(ipos.X, ipos.Y, ipos.Z, pSector, &cz, ceilHit, &fz, floorHit, nDist, nMask);
-	*ceilZ = cz * zinttoworld;
-	*floorZ = fz * zinttoworld;
-}
+void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
+
 int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3);
 void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3);
 inline void ClipMove(DVector3& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3)
