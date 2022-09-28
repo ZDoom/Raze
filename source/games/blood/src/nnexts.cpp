@@ -8278,14 +8278,14 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 	if (actor->xspr.health <= 0)
 		return;
 
-	int eaz2 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat) << 2;
-	int x2 = actor->int_pos().X, y2 = actor->int_pos().Y, z2 = actor->int_pos().Z - eaz2;
+	double eaz2 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+	auto pos2 = actor->spr.pos.plusZ(-eaz2);
 
 	auto pSect2 = actor->sector();
 
-	int tzt, tzb;
+	double tzt, tzb;
 	GetActorExtents(targetactor, &tzt, &tzb);
-	int x3 = targetactor->int_pos().X, y3 = targetactor->int_pos().Y, z3 = tzt;
+	DVector3 pos3(targetactor->spr.pos.XY(), tzt);
 
 	auto pSect3 = targetactor->sector();
 
@@ -8298,18 +8298,20 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		int eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.yrepeat) << 2;
-		int x1 = dudeactor->int_pos().X, y1 = dudeactor->int_pos().Y, z1 = dudeactor->int_pos().Z - eaz1;
+		double eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.yrepeat) * REPEAT_SCALE;
+		auto pos1 = dudeactor->spr.pos.plusZ(-eaz1);
 
 		auto pSect1 = dudeactor->sector();
 
-		int nDist1 = approxDist(x1 - x2, y1 - y2);
-		int nDist2 = approxDist(x1 - x3, y1 - y3);
-		//int hdist = (dudeactor->xspr.dudeDeaf)  ? 0 : getDudeInfo(dudeactor->spr.type)->hearDist / 4;
-		int sdist = (dudeactor->xspr.dudeGuard) ? 0 : getDudeInfo(dudeactor->spr.type)->seeDist / 2;
+		double nDist1 = (pos1 - pos2).Length();
+		double nDist2 = (pos1 - pos3).Length();
+
+		//double hdist = (dudeactor->xspr.dudeDeaf)  ? 0 : getDudeInfo(dudeactor->spr.type)->HearDist() / 4;
+		double sdist = (dudeactor->xspr.dudeGuard) ? 0 : getDudeInfo(dudeactor->spr.type)->SeeDist() / 2;
 
 		if (//(nDist1 < hdist || nDist2 < hdist) ||
-			((nDist1 < sdist && cansee(x1, y1, z1, pSect1, x2, y2, z2, pSect2)) || (nDist2 < sdist && cansee(x1, y1, z1, pSect1, x3, y3, z3, pSect3)))) {
+			((nDist1 < sdist && cansee(pos1, pSect1, pos2, pSect2)) || (nDist2 < sdist && cansee(pos1, pSect1, pos3, pSect3)))) 
+		{
 
 			if (aiInPatrolState(dudeactor->xspr.aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
 			if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
