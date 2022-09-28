@@ -113,7 +113,9 @@ struct PLAYER
 	double              zWeapon;
 	double              ozWeapon;
 	double              zWeaponVel;
-	int                 slope; // Q18.14, like dudeslope
+	int                 _slope; // Q18.14, like dudeslope
+	int int_slope() const { return _slope; }
+	int flt_slope() const { return _slope / 16384.; }
 	bool                isUnderwater;
 	bool                hasKey[8];
 	int8_t              hasFlag;

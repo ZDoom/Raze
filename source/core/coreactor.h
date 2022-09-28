@@ -88,11 +88,6 @@ public:
 		spr.angle = spr.angle.Normalized360();
 	}
 
-	vec3_t int_vel() const
-	{
-		return vec3_t(FloatToFixed(vel.X), FloatToFixed(vel.Y), FloatToFixed(vel.Z));
-	}
-
 	void ZeroVelocityXY()
 	{
 		vel .X = vel .Y = 0;
