@@ -8423,7 +8423,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		auto dv = pos.XY() - actor->spr.pos.XY();
 		double nDistf = dv.Length();
 		double seeDistf = (stealth) ? pDudeInfo->SeeDist() / 3 : pDudeInfo->SeeDist() / 4;
-		double hearDistf = pDudeInfo->Heardist(); 
+		double hearDistf = pDudeInfo->HearDist(); 
 		double feelDistf = hearDistf / 2;
 
 		// TO-DO: is there any dudes that sees this patrol dude and sees target?

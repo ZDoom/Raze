@@ -54,7 +54,7 @@ struct DUDEINFO {
 	int at90; // unused ?
 
 	// converters to floating point format
-	inline double Heardist() const
+	inline double HearDist() const
 	{
 		return hearDist * maptoworld;
 	}

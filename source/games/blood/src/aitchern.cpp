@@ -207,7 +207,7 @@ static void sub_725A4(DBloodActor* actor)
 			DAngle nAngle = VecToAngle(dvect);
 			double nDist = dvect.Length();
 
-			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
+			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
@@ -219,7 +219,7 @@ static void sub_725A4(DBloodActor* actor)
 				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
-			else if (nDist < pDudeInfo->Heardist())
+			else if (nDist < pDudeInfo->HearDist())
 			{
 				pDudeExtraE->thinkTime = 0;
 				aiSetTarget(actor, ppos);

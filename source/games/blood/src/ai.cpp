@@ -1499,7 +1499,7 @@ void aiThinkTarget(DBloodActor* actor)
 			auto pSector = pPlayer->actor->sector();
 
 			double nDist = dvec.Length();
-			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
+			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
@@ -1512,7 +1512,7 @@ void aiThinkTarget(DBloodActor* actor)
 				aiActivateDude(actor);
 				return;
 			}
-			else if (nDist < pDudeInfo->Heardist())
+			else if (nDist < pDudeInfo->HearDist())
 			{
 				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
@@ -1544,7 +1544,7 @@ void aiLookForTarget(DBloodActor* actor)
 			auto pSector = pPlayer->actor->sector();
 
 			double nDist = dvec.Length();
-			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
+			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
@@ -1556,7 +1556,7 @@ void aiLookForTarget(DBloodActor* actor)
 				aiActivateDude(actor);
 				return;
 			}
-			else if (nDist < pDudeInfo->Heardist())
+			else if (nDist < pDudeInfo->HearDist())
 			{
 				aiSetTarget(actor, ppos);
 				aiActivateDude(actor);
@@ -1575,7 +1575,7 @@ void aiLookForTarget(DBloodActor* actor)
 				if (actor2->spr.type == kDudeInnocent)
 				{
 					pDudeInfo = getDudeInfo(actor2->spr.type);
-					if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
+					if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 						continue;
 					aiSetTarget(actor, actor2);
 					aiActivateDude(actor);

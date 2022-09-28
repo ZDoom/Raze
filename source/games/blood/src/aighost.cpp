@@ -181,7 +181,7 @@ static void ghostThinkTarget(DBloodActor* actor)
 			auto dvect = ppos.XY() - actor->spr.pos;
 			auto pSector = pPlayer->actor->sector();
 			double nDist = dvect.Length();
-			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->Heardist())
+			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
@@ -194,7 +194,7 @@ static void ghostThinkTarget(DBloodActor* actor)
 				aiActivateDude(actor);
 				return;
 			}
-			else if (nDist < pDudeInfo->Heardist())
+			else if (nDist < pDudeInfo->HearDist())
 			{
 				pDudeExtraE->thinkTime = 0;
 				aiSetTarget(actor, ppos);
