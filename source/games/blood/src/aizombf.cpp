@@ -52,10 +52,10 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat);
+	double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE * 0.25;
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	int height2 = (pDudeInfoT->eyeHeight * target->spr.yrepeat);
-	actFireVector(actor, 0, 0, bcos(actor->int_ang()), bsin(actor->int_ang()), height - height2, kVectorCleaver);
+	double height2 = pDudeInfoT->eyeHeight * target->spr.yrepeat * REPEAT_SCALE * 0.25;
+	actFireVector(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 64, height - height2), kVectorCleaver);
 }
 
 void PukeSeqCallback(int, DBloodActor* actor)
@@ -77,7 +77,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 
 void ThrowSeqCallback(int, DBloodActor* actor)
 {
-	actFireMissile(actor, 0, -getDudeInfo(actor->spr.type)->eyeHeight, bcos(actor->int_ang()), bsin(actor->int_ang()), 0, kMissileButcherKnife);
+	actFireMissile(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), 0), kMissileButcherKnife);
 }
 
 static void zombfThinkSearch(DBloodActor* actor)
