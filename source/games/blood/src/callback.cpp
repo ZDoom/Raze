@@ -39,22 +39,21 @@ BEGIN_BLD_NS
 void fxFlameLick(DBloodActor* actor, sectortype*) // 0
 {
 	if (!actor) return;
-	int top, bottom;
+	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	for (int i = 0; i < 3; i++)
 	{
-		int nDist = (actor->spr.xrepeat * (tileWidth(actor->spr.picnum) / 2)) >> 3;
-		int nAngle = Random(2048);
-		int dx = MulScale(nDist, Cos(nAngle), 30);
-		int dy = MulScale(nDist, Sin(nAngle), 30);
-		int x = actor->int_pos().X + dx;
-		int y = actor->int_pos().Y + dy;
-		int z = bottom - Random(bottom - top);
-		auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), x, y, z, 0);
+		double nDist = (actor->spr.xrepeat * tileWidth(actor->spr.picnum)) * (REPEAT_SCALE / 4);
+		DAngle nAngle = RandomAngle();
+		DVector2 dv = nAngle.ToVector() * nDist;
+		DVector2 pos = actor->spr.pos.XY() + dv;
+		double z = bottom - RandomD(bottom - top, 8);
+
+		auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), DVector3(pos, z), 0);
 		if (pFX)
 		{
-			pFX->vel.X = actor->vel.X + Random2F(-dx);
-			pFX->vel.Y = actor->vel.Y + Random2F(-dy);
+			pFX->vel.X = actor->vel.X + Random2F(-int(16 * dv.X));
+			pFX->vel.Y = actor->vel.Y + Random2F(-int(16 * dv.Y));
 			pFX->vel.Z = actor->vel.Z - Random2F(0x1aaaa);
 		}
 	}
