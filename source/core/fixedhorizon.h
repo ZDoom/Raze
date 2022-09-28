@@ -53,7 +53,6 @@ class FSerializer;
 
 inline double HorizToPitch(double horiz) { return atan2(horiz, 128) * (180. / pi::pi()); }
 inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, IntToFixed(128)) * (180. / pi::pi()); }
-inline fixed_t PitchToHoriz(double pitch) { return xs_CRoundToInt(clamp<double>(IntToFixed(128) * tan(pitch * (pi::pi() / 180.)), INT32_MIN, INT32_MAX)); }
 
 
 //---------------------------------------------------------------------------
@@ -183,7 +182,7 @@ public:
 inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
 inline constexpr fixedhoriz tanhoriz(double v) { return fixedhoriz(FloatToFixed<23>(v)); }
-inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
+inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(fixed_t(clamp<double>(IntToFixed(128) * tan(v * (pi::pi() / 180.)), -INT32_MAX, INT32_MAX))); }
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval)
 {

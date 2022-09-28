@@ -357,8 +357,6 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 			getzsofslopeptr(sect, cpos, &cz, &fz);
 			cpos.Z = min(max(cpos.Z, cz + 4), fz - 4);
 		}
-
-		choriz = clamp(choriz, q16horiz(gi->playerHorizMin()), q16horiz(gi->playerHorizMax()));
 	}
 
 	auto cstat = viewer->spr.cstat;

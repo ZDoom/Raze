@@ -256,7 +256,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 			doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, LOOKSPEED, false);
 
 			// clamp before converting back to horizon
-			horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
+			horiz = pitchhoriz(ClampViewPitch(pitch));
 		}
 
 		// return to center if conditions met.

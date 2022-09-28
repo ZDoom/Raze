@@ -721,7 +721,6 @@ void viewDrawScreen(bool sceneonly)
 				cPos.Z = ceilingZ + 1;
 			}
 		}
-		cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
 		if ((tilt.Degrees() || bDelirium) && !sceneonly)
 		{

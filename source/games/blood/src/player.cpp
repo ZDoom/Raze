@@ -1556,7 +1556,7 @@ void ProcessInput(PLAYER* pPlayer)
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->horizon.addadjustment(q16horiz(MulScale(0x8000 - (Cos(ClipHigh(pPlayer->deathTime << 3, 1024)) >> 15), gi->playerHorizMax(), 16) - pPlayer->horizon.horiz.asq16()));
+			pPlayer->horizon.addadjustment(q16horiz(MulScale(0x8000 - (Cos(ClipHigh(pPlayer->deathTime << 3, 1024)) >> 15), pitchhoriz(gi->playerPitchMax()).asq16(), 16) - pPlayer->horizon.horiz.asq16()));
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)

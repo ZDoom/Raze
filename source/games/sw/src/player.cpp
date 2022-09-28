@@ -1738,7 +1738,7 @@ void DoPlayerBeginRecoil(PLAYER* pp, short pix_amt)
     pp->recoil_amt = pix_amt;
     pp->recoil_speed = 80;
     pp->recoil_ndx = 0;
-    pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
+    pp->recoil_ohorizoff = pp->recoil_horizoff = pitchhoriz(nullAngle.Degrees());
 }
 
 //---------------------------------------------------------------------------
@@ -1755,13 +1755,13 @@ void DoPlayerRecoil(PLAYER* pp)
     if (BobVal(pp->recoil_ndx) < 0)
     {
         pp->Flags &= ~(PF_RECOIL);
-        pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
+        pp->recoil_ohorizoff = pp->recoil_horizoff = pitchhoriz(nullAngle.Degrees());
         return;
     }
 
     // move pp->q16horiz up and down
     pp->recoil_ohorizoff = pp->recoil_horizoff;
-    pp->recoil_horizoff = pp->recoil_amt * BobVal(pp->recoil_ndx) * 4;
+    pp->recoil_horizoff = pitchhoriz(HorizToPitch(pp->recoil_amt * BobVal(pp->recoil_ndx)));
 }
 
 //---------------------------------------------------------------------------

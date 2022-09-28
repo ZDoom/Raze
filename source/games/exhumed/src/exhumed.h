@@ -231,8 +231,8 @@ struct GameInterface : public ::GameInterface
 	void LevelCompleted(MapRecord *map, int skill) override;
 	void NextLevel(MapRecord *map, int skill) override;
     bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
-    fixed_t playerHorizMin() override { return IntToFixed(-150); }
-    fixed_t playerHorizMax() override { return IntToFixed(150); }
+    double playerPitchMin() override { return -49.5; }
+    double playerPitchMax() override { return 49.5; }
     void WarpToCoords(double x, double y, double z, DAngle ang, int horz) override;
     void ToggleThirdPerson() override;
     DVector3 chaseCamPos(DAngle ang, fixedhoriz horiz) { return DVector3(-ang.ToVector() * 96., horiz.Tan() * 96.); }

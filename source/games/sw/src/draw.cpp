@@ -1311,7 +1311,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         }
 
         // recoil only when not in camera
-        thoriz = q16horiz(clamp(thoriz.asq16() + interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, interpfrac), gi->playerHorizMin(), gi->playerHorizMax()));
+        thoriz += interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, interpfrac);
     }
 
     if (automapMode != am_full)

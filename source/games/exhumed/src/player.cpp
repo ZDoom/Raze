@@ -1162,7 +1162,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 sectdone:
     if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
     {
-        PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((int((spr_pos.Z - pPlayerActor->spr.pos.Z) * zworldtoint)) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
+        PlayerList[nPlayer].nDestVertPan = maphoriz((spr_pos.Z - pPlayerActor->spr.pos.Z) * 2.);
     }
 
     playerPos -= pPlayerActor->spr.pos.XY();
@@ -2630,9 +2630,9 @@ sectdone:
             {
                 PlayerList[nPlayer].horizon.addadjustment(buildhoriz(dVertPan[nPlayer]));
 
-                if (PlayerList[nPlayer].horizon.horiz.asq16() > gi->playerHorizMax())
+                if (PlayerList[nPlayer].horizon.horiz.asq16() >= IntToFixed(100))
                 {
-                    PlayerList[nPlayer].horizon.settarget(q16horiz(gi->playerHorizMax()));
+                    PlayerList[nPlayer].horizon.settarget(buildhoriz(99));
                 }
                 else if (PlayerList[nPlayer].horizon.horiz.asq16() <= 0)
                 {

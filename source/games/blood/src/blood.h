@@ -133,8 +133,8 @@ struct GameInterface : public ::GameInterface
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
 	void SetTileProps(int til, int surf, int vox, int shade) override;
-	fixed_t playerHorizMin() override { return IntToFixed(-180); }
-	fixed_t playerHorizMax() override { return IntToFixed(120); }
+	double playerPitchMin() override { return -54.575; }
+	double playerPitchMax() override { return 43.15; }
 	void WarpToCoords(double x, double y, double z, DAngle a, int h) override;
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;

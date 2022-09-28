@@ -255,7 +255,6 @@ void DrawView(double interpfrac, bool sceneonly)
             pPlayerActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
             pDop->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
         }
-        nCamerapan = q16horiz(clamp(nCamerapan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
     if (nSnakeCam >= 0 && !sceneonly)

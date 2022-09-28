@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamecontrol.h"
+#include "gamestruct.h"
 #include "build.h"
 #include "coreactor.h"
 #include "fixedhorizon.h"
@@ -534,6 +535,21 @@ inline double BobVal(int val)
 inline double BobVal(double val)
 {
 	return g_sinbam(xs_CRoundToUInt(val * (1 << 21)));
+}
+
+inline double GetMinPitch()
+{
+	return gi->playerPitchMin();
+}
+
+inline double GetMaxPitch()
+{
+	return gi->playerPitchMax();
+}
+
+inline double ClampViewPitch(const double pitch)
+{
+	return clamp(pitch, GetMinPitch(), GetMaxPitch());
 }
 
 //==========================================================================

@@ -109,8 +109,8 @@ struct GameInterface
 	virtual void LevelCompleted(MapRecord* map, int skill) {}
 	virtual bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) { return false; }
 	virtual void SetTileProps(int tile, int surf, int vox, int shade) {}
-	virtual fixed_t playerHorizMin() { return IntToFixed(-200); }
-	virtual fixed_t playerHorizMax() { return IntToFixed(200); }
+	virtual double playerPitchMin() { return -57.375; }
+	virtual double playerPitchMax() { return 57.375; }
 	virtual void WarpToCoords(double x, double y, double z, DAngle a, int h) {}
 	virtual void ToggleThirdPerson() { }
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }

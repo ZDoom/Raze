@@ -62,7 +62,7 @@ struct PlayerHorizon
 	void settarget(fixedhoriz value, bool const backup = false)
 	{
 		// Clamp incoming variable because sometimes the caller can exceed bounds.
-		value = q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
+		value = pitchhoriz(ClampViewPitch(value.Degrees()));
 
 		if (!SyncInput() && !backup)
 		{
