@@ -6337,7 +6337,7 @@ DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double 
 
 	DVector3 vect = actor->spr.pos.plusZ(zoff) + (actor->spr.angle + DAngle90).ToVector() * xyoff + actor->spr.angle.ToVector() * actor->fClipdist();
 
-	if (HitScan_(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, actor->native_clipdist()) != -1)
+	if (HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, actor->fClipdist() * 0.25) != -1)
 	{
 		vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * actor->fClipdist() * 2;
 	}
@@ -6448,7 +6448,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	double clipdist = pMissileInfo->fClipDist() + actor->fClipdist();
 	vect += actor->spr.angle.ToVector() * clipdist;
 
-	int hit = HitScan_(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, int(clipdist * 4)); 
+	int hit = HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, clipdist * 4); 
 	if (hit != -1)
 	{
 		if (hit == 3 || hit == 0)
@@ -6746,7 +6746,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 					dv.X += FixedToFloat<14>(Random3(4000)); // random messiness...
 					dv.Y += FixedToFloat<14>(Random3(4000));
 					dv.Z += FixedToFloat<14>(Random3(4000));
-					if (HitScan_(actor, gHitInfo.hitpos.Z, dv, CLIPMASK1, tt) == 0)
+					if (HitScan(actor, gHitInfo.hitpos.Z, dv, CLIPMASK1, tt) == 0)
 					{
 						if ((gHitInfo.hitpos.XY() - actor->spr.pos.XY()).LengthSquared() <= tt * tt)
 						{
