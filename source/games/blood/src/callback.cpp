@@ -368,7 +368,7 @@ void EnemyBubble(DBloodActor* actor, sectortype*) // 11
 	if (!actor) return;
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	for (int i = 0; i < (abs(actor->int_vel().Z) >> 18); i++)
+	for (int i = 0; i < int(abs(actor->vel.Z) * 0.25); i++)
 	{
 		auto nAngle = RandomAngle();
 		double nDist = (actor->spr.xrepeat * tileWidth(actor->spr.picnum)) * (REPEAT_SCALE / 2);

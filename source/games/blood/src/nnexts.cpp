@@ -4601,18 +4601,18 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 			{
 				if (arg1 == 0)
 				{
-					if ((var = condCmp(objActor->int_vel().X, arg1, arg2, cmpOp)) == true) return var;
-					if ((var = condCmp(objActor->int_vel().Y, arg1, arg2, cmpOp)) == true) return var;
-					if ((var = condCmp(objActor->int_vel().Z, arg1, arg2, cmpOp)) == true) return var;
+					if ((var = condCmp(FloatToFixed(objActor->vel.X), arg1, arg2, cmpOp)) == true) return var;
+					if ((var = condCmp(FloatToFixed(objActor->vel.Y), arg1, arg2, cmpOp)) == true) return var;
+					if ((var = condCmp(FloatToFixed(objActor->vel.Z), arg1, arg2, cmpOp)) == true) return var;
 				}
-				else if (arg1 == 1) return condCmp(objActor->int_vel().X, arg1, arg2, cmpOp);
-				else if (arg1 == 2) return condCmp(objActor->int_vel().Y, arg1, arg2, cmpOp);
-				else if (arg1 == 3) return condCmp(objActor->int_vel().Z, arg1, arg2, cmpOp);
+				else if (arg1 == 1) return condCmp(FloatToFixed(objActor->vel.X), arg1, arg2, cmpOp);
+				else if (arg1 == 2) return condCmp(FloatToFixed(objActor->vel.Y), arg1, arg2, cmpOp);
+				else if (arg1 == 3) return condCmp(FloatToFixed(objActor->vel.Z), arg1, arg2, cmpOp);
 			}
-			else if (arg1 == 0) return (objActor->vel.X != 0 || objActor->vel.Y != 0 || objActor->int_vel().Z);
-			else if (arg1 == 1) return (objActor->int_vel().X);
-			else if (arg1 == 2) return (objActor->int_vel().Y);
-			else if (arg1 == 3) return (objActor->int_vel().Z);
+			else if (arg1 == 0) return (!objActor->vel.isZero());
+			else if (arg1 == 1) return (FloatToFixed(objActor->vel.X));
+			else if (arg1 == 2) return (FloatToFixed(objActor->vel.Y));
+			else if (arg1 == 3) return (FloatToFixed(objActor->vel.Z));
 			break;
 		case 30:
 			if (!spriteIsUnderwater(objActor) && !spriteIsUnderwater(objActor, true)) return false;
