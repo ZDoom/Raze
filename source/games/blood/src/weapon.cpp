@@ -535,12 +535,12 @@ void UpdateAimVector(PLAYER* pPlayer)
 	Aim2.XY() = Aim2.XY().Rotated(-plActor->spr.angle);
 	Aim2.Z -= pPlayer->slope;
 
-	pPlayer->_relAim.dx = interpolatedvalue(pPlayer->_relAim.dx, int(Aim2.X * 16384), FixedToFloat(pWeaponTrack->aimSpeedHorz));
-	pPlayer->_relAim.dy = interpolatedvalue(pPlayer->_relAim.dy, int(Aim2.Y * 16384), FixedToFloat(pWeaponTrack->aimSpeedHorz));
-	pPlayer->_relAim.dz = interpolatedvalue(pPlayer->_relAim.dz, int(Aim2.Z * 16384), FixedToFloat(pWeaponTrack->aimSpeedVert));
-	pPlayer->_aim = pPlayer->_relAim;
-	RotateVector((int*)&pPlayer->_aim.dx, (int*)&pPlayer->_aim.dy, plActor->int_ang());
-	pPlayer->_aim.dz += pPlayer->int_slope();
+	pPlayer->relAim.X = interpolatedvalue(pPlayer->relAim.X, Aim2.X, FixedToFloat(pWeaponTrack->aimSpeedHorz));
+	pPlayer->relAim.Y = interpolatedvalue(pPlayer->relAim.Y, Aim2.Y, FixedToFloat(pWeaponTrack->aimSpeedHorz));
+	pPlayer->relAim.Z = interpolatedvalue(pPlayer->relAim.Z, Aim2.Z, FixedToFloat(pWeaponTrack->aimSpeedVert));
+	pPlayer->aim = pPlayer->relAim;
+	pPlayer->aim.XY() = pPlayer->aim.XY().Rotated(plActor->spr.angle);
+	pPlayer->aim.Z += pPlayer->slope;
 	pPlayer->aimTarget = targetactor;
 }
 

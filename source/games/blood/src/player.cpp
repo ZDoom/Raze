@@ -835,9 +835,9 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->vodooVar2 = 0;
 	playerResetInertia(pPlayer);
 	pPlayer->zWeaponVel = 0;
-	pPlayer->_relAim.dx = 0x4000;
-	pPlayer->_relAim.dy = 0;
-	pPlayer->_relAim.dz = 0;
+	pPlayer->relAim.X = 1;
+	pPlayer->relAim.Y = 0;
+	pPlayer->relAim.Z = 0;
 	pPlayer->aimTarget = nullptr;
 	pPlayer->zViewVel = pPlayer->zWeaponVel;
 	if (!(gGameOptions.nGameType == 1 && gGameOptions.bKeepKeysOnRespawn && !bNewLevel))
@@ -2385,18 +2385,6 @@ void PlayerKneelsOver(int, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Aim& w, Aim* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc("x", w.dx)
-			("y", w.dx)
-			("z", w.dx)
-			.EndObject();
-	}
-	return arc;
-}
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PACKINFO& w, PACKINFO* def)
 {
 	if (arc.BeginObject(keyname))
@@ -2483,8 +2471,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("fusetime", w.fuseTime)
 			("throwtime", w.throwTime)
 			("throwpower", w.throwPower)
-			("aim", w._aim)
-			("relaim", w._relAim)
+			("aim", w.aim)
+			("relaim", w.relAim)
 			("aimtarget", w.aimTarget)
 			("aimtargetscount", w.aimTargetsCount)
 			.Array("aimtargets", w.aimTargets, countof(w.aimTargets))

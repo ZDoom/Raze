@@ -503,10 +503,6 @@ struct VECTOR2D {
 	int dx, dy;
 };
 
-struct Aim {
-	int dx, dy, dz;
-};
-
 #pragma pack(pop)
 
 inline int ClipLow(int a, int b)
