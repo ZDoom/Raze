@@ -5167,11 +5167,6 @@ bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBlood
 		// is there a line of sight to the target?
 		if (cansee(dudeactor->spr.pos, dudeactor->sector(), targetactor->spr.pos.plusZ(-height), targetactor->sector()))
 		{
-			/*int nAngle = getangle(dx, dy);
-			int losAngle = ((1024 + nAngle - dudeactor->spr.angle) & 2047) - 1024;
-
-			// is the target visible?
-			if (abs(losAngle) < 2048) // 360 deg periphery here*/
 			return true;
 		}
 

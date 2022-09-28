@@ -234,17 +234,6 @@ bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
 //
 //---------------------------------------------------------------------------
 
-int GetWallAngle(walltype* pWall)
-{
-	return getangle(pWall->delta());
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int* ix, int* iy, int* iz)
 {
 	int dX = x1 - x2;
