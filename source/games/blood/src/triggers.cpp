@@ -908,8 +908,6 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, int a4, in
 			break;
 		}
 
-		int x = int(actor->basePoint.X * worldtoint);
-		int y = int(actor->basePoint.Y * worldtoint);
 		if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 		{
 			auto spot = rotatepoint(pivot, actor->basePoint, angle);
