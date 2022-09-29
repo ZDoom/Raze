@@ -1917,12 +1917,9 @@ DBloodActor* playerFireMissile(PLAYER* pPlayer, double xyoff, const DVector3& dv
 	return actFireMissile(pPlayer->actor, xyoff, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv, nType);
 }
 
-DBloodActor* playerFireThing(PLAYER* pPlayer, int xyoff_, int zvel_, int thingType, int nSpeed_)
+DBloodActor* playerFireThing(PLAYER* pPlayer, double xyoff, double zvel, int thingType, double nSpeed)
 {
-	double xyoff = xyoff_ * inttoworld;
-	double zvel = FixedToFloat(pPlayer->int_slope() + zvel_);
-	double nSpeed = FixedToFloat(nSpeed_);
-	return actFireThing(pPlayer->actor, xyoff, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, zvel, thingType, nSpeed);
+	return actFireThing(pPlayer->actor, xyoff, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->slope * 0.25 + zvel, thingType, nSpeed);
 }
 
 //---------------------------------------------------------------------------

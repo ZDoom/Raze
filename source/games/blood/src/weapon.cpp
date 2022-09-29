@@ -1179,9 +1179,9 @@ void FireSpray(int, PLAYER* pPlayer)
 void ThrowCan(int, PLAYER* pPlayer)
 {
 	sfxKill3DSound(pPlayer->actor, -1, 441);
-	int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666;
+	double nSpeed = FixedToFloat(MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666); // deal with this later.
 	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
-	auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedSpray, nSpeed);
+	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedSpray, nSpeed);
 	if (spawned)
 	{
 		sfxPlay3DSound(spawned, 441, 0, 0);
@@ -1239,9 +1239,9 @@ void ExplodeCan(int, PLAYER* pPlayer)
 void ThrowBundle(int, PLAYER* pPlayer)
 {
 	sfxKill3DSound(pPlayer->actor, 16, -1);
-	int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666;
+	double nSpeed = FixedToFloat(MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666); // deal with this later.
 	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
-	auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedTNTBundle, nSpeed);
+	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedTNTBundle, nSpeed);
 	if (spawned)
 	{
 		if (pPlayer->fuseTime < 0)
@@ -1298,9 +1298,9 @@ void ExplodeBundle(int, PLAYER* pPlayer)
 
 void ThrowProx(int, PLAYER* pPlayer)
 {
-	int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666;
+	double nSpeed = FixedToFloat(MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666); // deal with this later.
 	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
-	auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedProxBomb, nSpeed);
+	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedProxBomb, nSpeed);
 	if (spawned)
 	{
 		evPostActor(spawned, 240, kCmdOn, pPlayer->actor);
@@ -1333,9 +1333,9 @@ void DropProx(int, PLAYER* pPlayer)
 
 void ThrowRemote(int, PLAYER* pPlayer)
 {
-	int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666;
+	double nSpeed = FixedToFloat(MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666); // deal with this later.
 	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
-	auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedRemoteBomb, nSpeed);
+	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedRemoteBomb, nSpeed);
 	if (spawned)
 	{
 		spawned->xspr.rxID = 90 + (pPlayer->actor->spr.type - kDudePlayer1);
@@ -1799,7 +1799,7 @@ void AltFireVoodoo(int nTrigger, PLAYER* pPlayer)
 void DropVoodoo(int, PLAYER* pPlayer)
 {
 	sfxPlay3DSound(pPlayer->actor, 455, 2, 0);
-	auto spawned = playerFireThing(pPlayer, 0, -4730, kThingVoodooHead, 0xccccc);
+	auto spawned = playerFireThing(pPlayer, 0, -4730 / 65536., kThingVoodooHead, 12.8);
 	if (spawned)
 	{
 		spawned->xspr.data1 = pPlayer->ammoCount[9];
@@ -1926,8 +1926,7 @@ void FireNapalm2(int, PLAYER* pPlayer)
 
 void AltFireNapalm(int, PLAYER* pPlayer)
 {
-	int nSpeed = MulScale(0x8000, 0x177777, 16) + 0x66666;
-	auto missile = playerFireThing(pPlayer, 0, -4730, kThingNapalmBall, nSpeed);
+	auto missile = playerFireThing(pPlayer, 0, -4730 / 65536., kThingNapalmBall, 18.13333);
 	if (missile)
 	{
 		missile->xspr.data4 = ClipHigh(pPlayer->ammoCount[4], 12);
@@ -1978,7 +1977,7 @@ void AltFireLifeLeech(int, PLAYER* pPlayer)
 {
 	DBloodActor* actor = pPlayer->actor;
 	sfxPlay3DSound(pPlayer->actor, 455, 2, 0);
-	auto missile = playerFireThing(pPlayer, 0, -4730, kThingDroppedLifeLeech, 0x19999);
+	auto missile = playerFireThing(pPlayer, 0, -4730 / 65536., kThingDroppedLifeLeech, 1.6);
 	if (missile)
 	{
 		missile->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;

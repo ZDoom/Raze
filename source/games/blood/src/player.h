@@ -236,8 +236,7 @@ void CheckPickUp(PLAYER* pPlayer);
 void ProcessInput(PLAYER* pPlayer);
 void playerProcess(PLAYER* pPlayer);
 DBloodActor* playerFireMissile(PLAYER* pPlayer, double xyoff, const DVector3& vec, int nType);
-
-DBloodActor* playerFireThing(PLAYER* pPlayer, int xyoff, int zvel, int thingType, int nSpeed);
+DBloodActor* playerFireThing(PLAYER* pPlayer, double xyoff, double zvel, int thingType, double nSpeed);
 void playerFrag(PLAYER* pKiller, PLAYER* pVictim);
 int playerDamageArmor(PLAYER* pPlayer, DAMAGE_TYPE nType, int nDamage);
 int playerDamageSprite(DBloodActor* nSource, PLAYER* pPlayer, DAMAGE_TYPE nDamageType, int nDamage);
