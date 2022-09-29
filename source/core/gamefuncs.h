@@ -253,6 +253,12 @@ void neartag(const DVector3& start, sectortype* sect, DAngle angle, HitInfoBase&
 int testpointinquad(const DVector2& pt, const DVector2* quad);
 int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& vect, HitInfoBase& hitinfo, unsigned cliptype, double maxrange = -1);
 
+bool checkRangeOfWall(walltype* wal, EWallFlags flagmask, const DVector3& pos, double maxdist, double* theZs);
+bool checkRangeOfFaceSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double* theZs);
+bool checkRangeOfWallSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double* theZs);
+bool checkRangeOfFloorSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double& theZ);
+void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBase& ceilhit, double* florz, CollisionBase& florhit, double walldist, uint32_t cliptype);
+
 
 
 

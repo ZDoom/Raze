@@ -1242,7 +1242,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 		return; // nothing left to render.
 
 	// If the sprite is backward, flip it around so that we have guaranteed orientation when this is about to be sorted.
-	if (PointOnLineSide(di->Viewpoint.Pos.XY(), DVector2(glseg.x1, glseg.y1), DVector2(glseg.x2, glseg.y2)) < 0)
+	if (PointOnLineSide(di->Viewpoint.Pos.X, di->Viewpoint.Pos.Y, glseg.x1, glseg.y1, glseg.x2 - glseg.x1, glseg.y2 - glseg.y1 ) < 0)
 	{
 		std::swap(glseg.x1, glseg.x2);
 		std::swap(glseg.y1, glseg.y2);

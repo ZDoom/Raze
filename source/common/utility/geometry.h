@@ -51,12 +51,6 @@ inline double PointOnLineSide(double x, double y, double linex, double liney, do
 	return (x - linex) * deltay - (y - liney) * deltax;
 }
 
-template<class T>
-inline double PointOnLineSide(const TVector2<T>& pos, const TVector2<T>& linestart, const TVector2<T>& lineend)
-{
-	return (pos.X - linestart.X) * (lineend.Y - linestart.Y) - (pos.Y - linestart.Y) * (lineend.X - linestart.X);
-}
-
 //==========================================================================
 //
 // 
@@ -175,3 +169,63 @@ inline double LinePlaneIntersect(const DVector3& start, const DVector3& trace, c
 	return (dist - dotStart) / dotTrace; // we are only interested in the factor
 }
 
+//==========================================================================
+//
+// BoxOnLineSide
+//
+// Based on Doom's, but rewritten to be standalone
+// 
+//==========================================================================
+
+inline int BoxOnLineSide(const DVector2& boxtl, const DVector2& boxbr, const DVector2& start, const DVector2& delta)
+{
+	int p1;
+	int p2;
+
+	if (delta.X == 0)
+	{
+		p1 = boxbr.X < start.X;
+		p2 = boxtl.X < start.X;
+		if (delta.Y < 0)
+		{
+			p1 ^= 1;
+			p2 ^= 1;
+		}
+	}
+	else if (delta.Y == 0)
+	{
+		p1 = boxtl.Y > start.Y;
+		p2 = boxbr.Y > start.Y;
+		if (delta.X < 0)
+		{
+			p1 ^= 1;
+			p2 ^= 1;
+		}
+	}
+	else if (delta.X * delta.Y <= 0)
+	{
+		p1 = PointOnLineSide(boxtl.X, boxtl.Y, start.X, start.Y, delta.X, delta.Y) > 0;
+		p2 = PointOnLineSide(boxbr.X, boxbr.Y, start.X, start.Y, delta.X, delta.Y) > 0;
+	}
+	else
+	{
+		p1 = PointOnLineSide(boxbr.X, boxtl.Y, start.X, start.Y, delta.X, delta.Y) > 0;
+		p2 = PointOnLineSide(boxtl.X, boxbr.Y, start.X, start.Y, delta.X, delta.Y) > 0;
+	}
+
+	return (p1 == p2) ? p1 : -1;
+}
+
+//==========================================================================
+//
+// BoxInRange
+//
+//==========================================================================
+
+inline bool BoxInRange(const DVector2& boxtl, const DVector2& boxbr, const DVector2& start, const DVector2& end)
+{
+	return boxtl.X < max(start.X, end.X) &&
+		boxbr.X > min(start.X, end.X) &&
+		boxtl.Y < max(start.Y, end.Y) &&
+		boxbr.Y > min(start.Y, end.Y);
+}

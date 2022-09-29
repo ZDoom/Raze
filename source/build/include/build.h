@@ -111,14 +111,6 @@ void setVideoMode();
 class F2DDrawer;
 
 
-void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBase& ceilhit, double* florz, CollisionBase& florhit, int32_t walldist, uint32_t cliptype);
-inline
-void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBase& ceilhit, double* florz, CollisionBase& florhit, double walldist, uint32_t cliptype)
-{
-    getzrange(pos, sect, ceilz, ceilhit, florz, florhit, int(walldist * worldtoint), cliptype);
-}
-
-
 struct HitInfoBase;
 
 inline int32_t krand(void)

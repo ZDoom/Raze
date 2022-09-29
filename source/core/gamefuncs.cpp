@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "hw_voxels.h"
 
 IntRect viewport3d;
+constexpr double MAXCLIPDISTF = 64;
 
 //---------------------------------------------------------------------------
 //
@@ -868,6 +869,215 @@ int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& 
 
 	return 0;
 }
+
+
+//==========================================================================
+//
+// 
+// 
+//==========================================================================
+
+bool checkRangeOfWall(walltype* wal, EWallFlags flagmask, const DVector3& pos, double maxdist, double* theZs)
+{
+	if (!wal->twoSided()) return false;
+	if (wal->cstat & flagmask) return false;
+	if (PointOnLineSide(pos.XY(), wal) > 0) return false;
+
+	auto nextsect = wal->nextSector();
+
+	// Rather pointless sky check that needs to be kept...
+	if (((nextsect->ceilingstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z <= nextsect->ceilingz + 3)) return false;
+	if (((nextsect->floorstat & CSTAT_SECTOR_SKY) == 0) && (pos.Z >= nextsect->floorz - 3)) return false;
+
+	auto pos1 = wal->pos;
+	auto pos2 = wal->point2Wall()->pos;
+
+	// Checks borrowed from GZDoom.
+	DVector2 boxtl = pos - DVector2(maxdist, maxdist);
+	DVector2 boxbr = pos + DVector2(maxdist, maxdist);
+	if (!BoxInRange(boxtl, boxbr, pos1, pos2)) return false;
+	if (BoxOnLineSide(boxtl, boxbr, pos1, pos2 - pos1) != -1) return false;
+
+	auto closest = pos.XY();
+	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)	// todo: need to check if it makes sense to have this always on.
+		SquareDistToSector(closest.X, closest.Y, nextsect, &closest);
+
+	getzsofslopeptr(nextsect, closest.X, closest.Y, &theZs[0], &theZs[1]);
+	return true;
+}
+
+//==========================================================================
+//
+// 
+// 
+//==========================================================================
+
+bool checkRangeOfFaceSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double* theZs)
+{
+	double dist = maxdist + itActor->fClipdist();
+	if (abs(pos.X - itActor->spr.pos.X) > dist || abs(pos.Y - itActor->spr.pos.Y) > dist) return false; // Just like Doom: actors are square...
+	double h;
+	theZs[0] = itActor->spr.pos.Z + itActor->GetOffsetAndHeight(h);
+	theZs[1] = theZs[0] - h;
+	return true;
+}
+
+//==========================================================================
+//
+// 
+// 
+//==========================================================================
+
+bool checkRangeOfWallSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double* theZs)
+{
+	int t = itActor->time;
+	if ((t >= 485 && t <= 487) || t == 315)
+	{
+		int a = 0;
+	}
+	DVector2 verts[2];
+	GetWallSpritePosition(&itActor->spr, itActor->spr.pos.XY(), verts);
+	if (IsCloseToLine(pos.XY(), verts[0], verts[1], maxdist) == EClose::Outside) return false;
+	double h;
+	theZs[0] = itActor->spr.pos.Z + itActor->GetOffsetAndHeight(h);
+	theZs[1] = theZs[0] - h;
+	return true;
+}
+
+//==========================================================================
+//
+// 
+// 
+//==========================================================================
+
+bool checkRangeOfFloorSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double& theZ)
+{
+	int cstat = itActor->spr.cstat;
+	if ((cstat & (CSTAT_SPRITE_ALIGNMENT_MASK)) < (CSTAT_SPRITE_ALIGNMENT_FLOOR))
+		return false;
+
+	double fdaz = spriteGetZOfSlopef(&itActor->spr, pos.XY(), spriteGetSlope(itActor));
+
+	// Only check if sprite's 2-sided or your on the 1-sided side
+	if (((cstat & CSTAT_SPRITE_ONE_SIDE) != 0) && ((pos.Z > fdaz) == ((cstat & CSTAT_SPRITE_YFLIP) == 0)))
+		return false;
+
+	DVector2 out[4];
+	GetFlatSpritePosition(itActor, itActor->spr.pos.XY(), out);
+
+	// expand the area to cover 'maxdist' units more on each side. (i.e. move the edges out)
+	auto expand = (itActor->spr.angle - DAngle45).ToVector() * (maxdist + 0.25);	// that's surely not accurate but here we must match Build's original value.
+	out[0] += expand; 
+	out[1] += expand.Rotated90CCW();
+	out[2] -= expand;
+	out[3] += expand.Rotated90CW();
+
+	if (!insidePoly(pos.X, pos.Y, out, 4)) return false;
+
+	theZ = fdaz;
+	return true;
+}
+
+//==========================================================================
+//
+// 
+// 
+//==========================================================================
+
+void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBase& ceilhit, double* florz, CollisionBase& florhit, double maxdist, uint32_t cliptype)
+{
+	if (sect == nullptr)
+	{
+		*ceilz = -FLT_MAX; ceilhit.setVoid();
+		*florz = FLT_MAX; florhit.setVoid();
+		return;
+	}
+
+	const EWallFlags dawalclipmask = EWallFlags::FromInt(cliptype & 65535);
+	const ESpriteFlags dasprclipmask = ESpriteFlags::FromInt(cliptype >> 16);
+
+	auto closest = pos.XY();
+	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
+		SquareDistToSector(closest.X, closest.Y, sect, &closest);
+
+	getzsofslopeptr(sect, closest, ceilz, florz);
+	ceilhit.setSector(sect);
+	florhit.setSector(sect);
+
+	double theZs[2];
+
+	BFSSectorSearch search(sect);
+	while (auto sec = search.GetNext())
+	{
+		for (auto& wal : wallsofsector(sec))
+		{
+			if (checkRangeOfWall(&wal, EWallFlags::FromInt(dawalclipmask), pos, maxdist + 1 / 16., theZs))
+			{
+				auto nsec = wal.nextSector();
+				search.Add(nsec);
+				if (/*(pos.Z > theZs[0]) &&*/ (theZs[0] > *ceilz))
+				{
+					*ceilz = theZs[0];
+					ceilhit.setSector(nsec);
+				}
+
+				if (/*(pos.Z < theZs[1]) &&*/ (theZs[1] < *florz))
+				{
+					*florz = theZs[1];
+					florhit.setSector(nsec);
+				}
+			}
+		}
+	}
+
+	if (dasprclipmask)
+	{
+		search.Rewind();
+		while (auto sec = search.GetNext())
+		{
+			TSectIterator<DCoreActor> it(sec);
+			while (auto actor = it.Next())
+			{
+				const int32_t cstat = actor->spr.cstat;
+
+				if (actor->spr.cstat2 & CSTAT2_SPRITE_NOFIND) continue;
+				if (cstat & dasprclipmask)
+				{
+					switch (cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+					{
+					case CSTAT_SPRITE_ALIGNMENT_FACING:
+						if (!checkRangeOfFaceSprite(actor, pos, maxdist + 1 / 16., theZs)) continue;
+						break;
+
+					case CSTAT_SPRITE_ALIGNMENT_WALL:
+						if (!checkRangeOfWallSprite(actor, pos, maxdist + 1 / 16., theZs)) continue;
+						break;
+
+					case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+					case CSTAT_SPRITE_ALIGNMENT_SLOPE:
+						if (!checkRangeOfFloorSprite(actor, pos, maxdist, theZs[0])) continue;
+						theZs[1] = theZs[0];
+						break;
+					}
+
+					// Clipping time!
+					if ((pos.Z > theZs[0]) && (theZs[0] > *ceilz))
+					{
+						*ceilz = theZs[0];
+						ceilhit.setSprite(actor);
+					}
+
+					if ((pos.Z < theZs[1]) && (theZs[1] < *florz))
+					{
+						*florz = theZs[1];
+						florhit.setSprite(actor);
+					}
+				}
+			}
+		}
+	}
+}
+
 
 //==========================================================================
 //
