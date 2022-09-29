@@ -253,6 +253,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	BloodSpawnSpriteDef sprites;
 	DVector3 startpos;
 	dbLoadMap(currentLevel->fileName, startpos, &startang, &startsector, nullptr, sprites);
+	auto startangle = mapangle(startang);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
 	TITLE_InformName(currentLevel->name);
@@ -294,18 +295,18 @@ void StartLevel(MapRecord* level, bool newgame)
 	for (int i = 0; i < kMaxPlayers; i++) {
 		gStartZone[i].pos = startpos;
 		gStartZone[i].sector = startsector;
-		gStartZone[i].angle = DAngle::fromBuild(startang);
+		gStartZone[i].angle = startangle;
 
 #ifdef NOONE_EXTENSIONS
 		// Create spawn zones for players in teams mode.
 		if (gModernMap && i <= kMaxPlayers / 2) {
 			gStartZoneTeam1[i].pos = startpos;
 			gStartZoneTeam1[i].sector = startsector;
-			gStartZoneTeam1[i].angle = DAngle::fromBuild(startang);
+			gStartZoneTeam1[i].angle = startangle;
 
 			gStartZoneTeam2[i].pos = startpos;
 			gStartZoneTeam2[i].sector = startsector;
-			gStartZoneTeam2[i].angle = DAngle::fromBuild(startang);
+			gStartZoneTeam2[i].angle = startangle;
 		}
 #endif
 	}

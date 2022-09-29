@@ -2282,6 +2282,7 @@ void voodooTarget(PLAYER* pPlayer)
 	}
 	for (int i = 0; i < 4; i++)
 	{
+		// both voodooVar's are always 0. This is only kept in case someone implements an extension.
 		DAngle ang1 = DAngle::fromBuild(pPlayer->voodooVar1 + pPlayer->vodooVar2);
 		actFireVector(actor, 0, dz, DVector3(ang1.ToVector(), aimz), kVectorVoodoo10);
 		DAngle ang2 = DAngle::fromBuild(pPlayer->voodooVar1 - pPlayer->vodooVar2);

@@ -6077,7 +6077,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
-				pPlayer->angle.settarget(DAngle::fromBuild(actor->xspr.data2));
+				pPlayer->angle.settarget(mapangle(actor->xspr.data2));
 				pPlayer->angle.lockinput();
 			}
 			break;
@@ -8169,7 +8169,7 @@ void aiPatrolMove(DBloodActor* actor)
 		actor->spr.flags |= kPhysGravity | kPhysFalling;
 	}
 
-	DAngle nTurnRange = DAngle::fromBuild((pDudeInfo->angSpeed << 2) >> 4);
+	DAngle nTurnRange = pDudeInfo->TurnRange() / 64;
 	DAngle nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
 
@@ -9203,7 +9203,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		burstactor->spr.flags = actor->spr.flags;
 		burstactor->spr.xrepeat = actor->spr.xrepeat / 2;
 		burstactor->spr.yrepeat = actor->spr.yrepeat / 2;
-		burstactor->spr.angle = actor->spr.angle + DAngle::fromBuild(missileInfo[actor->spr.type - kMissileBase].angleOfs);
+		burstactor->spr.angle = actor->spr.angle + mapangle(missileInfo[actor->spr.type - kMissileBase].angleOfs);
 		burstactor->SetOwner(actor);
 
 		actBuildMissile(burstactor, actor);

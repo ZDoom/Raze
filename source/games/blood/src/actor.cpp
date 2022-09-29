@@ -6471,7 +6471,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	spawned->spr.xrepeat = pMissileInfo->xrepeat;
 	spawned->spr.yrepeat = pMissileInfo->yrepeat;
 	spawned->spr.picnum = pMissileInfo->picnum;
-	spawned->spr.angle = actor->spr.angle += DAngle::fromBuild(pMissileInfo->angleOfs);
+	spawned->spr.angle = actor->spr.angle += mapangle(pMissileInfo->angleOfs);
 	spawned->vel = dv * pMissileInfo->fVelocity();
 	spawned->SetOwner(actor);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
