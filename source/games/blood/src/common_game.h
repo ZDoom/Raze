@@ -613,22 +613,6 @@ inline int mulscale16r(int a, int b) // do not delete!
 	acc += ((int64_t)a) * b;
 	return (int)(acc >> 16);
 }
-
-inline int mulscale30r(int a, int b)
-{
-	int64_t acc = 1 << (30 - 1);
-	acc += ((int64_t)a) * b;
-	return (int)(acc >> 30);
-}
-
-inline int dmulscale30r(int a, int b, int c, int d)
-{
-	int64_t acc = 1 << (30 - 1);
-	acc += ((int64_t)a) * b;
-	acc += ((int64_t)c) * d;
-	return (int)(acc >> 30);
-}
-
 class Rect {
 public:
 	int x0, y0, x1, y1;
