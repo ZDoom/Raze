@@ -162,8 +162,8 @@ struct GENDUDEEXTRA
     uint16_t initVals[3];             // xrepeat, yrepeat, clipdist
     uint16_t availDeaths[kDamageMax]; // list of seqs with deaths for each damage type
     uint32_t moveSpeed;
-    uint32_t fireDist;          // counts from sprite size
-    uint32_t throwDist;         // counts from sprite size
+    double fireDist;          // counts from sprite size
+    double throwDist;         // counts from sprite size
     uint16_t curWeapon;       // data1 duplicate to avoid potential problems when changing data dynamically
     uint16_t weaponType;
     uint16_t baseDispersion;

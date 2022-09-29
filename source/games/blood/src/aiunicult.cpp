@@ -641,7 +641,7 @@ static void unicultThinkChase(DBloodActor* actor)
 			double mdist;
 			double defDist;
 			
-			vdist = mdist = defDist = actor->genDudeExtra.fireDist * inttoworld;
+			vdist = mdist = defDist = actor->genDudeExtra.fireDist;
 
 			if (weaponType == kGenDudeWeaponHitscan)
 			{
@@ -870,7 +870,7 @@ static void unicultThinkChase(DBloodActor* actor)
 								{
 									auto hdist = (gHitInfo.hitpos.XY() - actor->spr.pos.XY()).Length();
 									if ((hdist <= 93.75 && !blck)
-										|| (dist <= (pExtra->fireDist / ClipLow(Random(4), 1)) * inttoworld ))
+										|| (dist <= (pExtra->fireDist / max(Random(4), 1u))))
 									{
 										//viewSetSystemMessage("GO CHASE");
 										if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
@@ -1699,7 +1699,7 @@ static int getDispersionModifier(DBloodActor* actor, int minDisp, int maxDisp)
 //
 //---------------------------------------------------------------------------
 
-static int getRangeAttackDist(DBloodActor* actor, int minDist, int maxDist)
+static double getRangeAttackDist(DBloodActor* actor, double minDist, double maxDist)
 {
 	int yrepeat = actor->spr.yrepeat;
 	int dist = 0;
@@ -1722,10 +1722,7 @@ static int getRangeAttackDist(DBloodActor* actor, int minDist, int maxDist)
 		if (yrepeat < 64) dist -= (64 - yrepeat) * mul;
 		else if (yrepeat > 64) dist += (yrepeat - 64) * (mul / 3);
 	}
-
-	dist = ClipRange(dist, minDist, maxDist);
-	//viewSetSystemMessage("DIST: %d, SPRHEIGHT: %d: YREPEAT: %d PIC: %d", dist, tileHeight(actor->spr.picnum), yrepeat, picnum);
-	return dist;
+	return clamp(dist / 16., minDist, maxDist);
 }
 
 //---------------------------------------------------------------------------
@@ -2314,7 +2311,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		[[fallthrough]];
 	}
 	case kGenDudePropertyAttack:
-		pExtra->fireDist = getRangeAttackDist(actor, 3000, 45000);
+		pExtra->fireDist = getRangeAttackDist(actor, 187.5, 2812.5);
 		pExtra->throwDist = pExtra->fireDist; // temp
 		pExtra->baseDispersion = getDispersionModifier(actor, 200, 3500);
 		if (propId) break;
