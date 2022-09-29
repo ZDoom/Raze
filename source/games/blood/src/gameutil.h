@@ -33,25 +33,10 @@ enum {
 
 
 bool CheckProximity(DBloodActor* pSprite, const DVector3& pos, sectortype* pSector, int nDist);
-bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int* ix, int* iy, int* iz);
 
 int HitScan(DBloodActor* pSprite, double z, const DVector3& pos, unsigned int nMask, double range = 0);
-
-[[deprecated]]
-inline int HitScan_(DBloodActor* pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8)
-{
-	return HitScan(pSprite, z * zinttoworld, DVector3(dx, dy, dz) * inttoworld, nMask, a8);
-}
-[[deprecated]]
-inline int HitScan_(DBloodActor* pSprite, double z, int dx, int dy, int dz, unsigned int nMask, int a8)
-{
-	return HitScan(pSprite, z, DVector3(dx, dy, dz) * inttoworld, nMask, a8);
-}
-
 int VectorScan(DBloodActor* pSprite, double nOffset, double nZOffset, const DVector3& vel, double nRange, int ac);
-
 void GetZRange(DBloodActor* pSprite, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
-
 void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 
 [[deprecated]] // take care of this together with the engines clipmove.

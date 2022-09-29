@@ -212,45 +212,6 @@ bool CheckProximityWall(walltype* pWall, const DVector2& pos, int nDist)
 //
 //---------------------------------------------------------------------------
 
-bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int* ix, int* iy, int* iz)
-{
-	int dX = x1 - x2;
-	int dY = y1 - y2;
-	int dZ = z1 - z2;
-	int side = wdx * dY - wdy * dX;
-	int dX2 = x1 - wx;
-	int dY2 = y1 - wy;
-	int check1 = dX2 * dY - dY2 * dX;
-	int check2 = wdx * dY2 - wdy * dX2;
-	if (side >= 0)
-	{
-		if (!side)
-			return 0;
-		if (check1 < 0)
-			return 0;
-		if (check2 < 0 || check2 >= side)
-			return 0;
-	}
-	else
-	{
-		if (check1 > 0)
-			return 0;
-		if (check2 > 0 || check2 <= side)
-			return 0;
-	}
-	int nScale = DivScale(check2, side, 16);
-	*ix = x1 + MulScale(dX, nScale, 16);
-	*iy = y1 + MulScale(dY, nScale, 16);
-	*iz = z1 + MulScale(dZ, nScale, 16);
-	return 1;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 int HitScan(DBloodActor* actor, double z, const DVector3& vect, unsigned int nMask, double nRange)
 {
 	assert(actor != nullptr);

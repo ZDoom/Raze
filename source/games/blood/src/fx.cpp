@@ -135,12 +135,6 @@ void CFX::remove(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int z, unsigned int a6)
-{
-	DVector3 pos(x * inttoworld, y * inttoworld, z * zinttoworld);
-	return fxSpawnActor(nFx, pSector, pos, a6);
-}
-
 DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& pos, DAngle a6)
 {
 	return fxSpawnActor(nFx, pSector, pos, a6.Buildang());
