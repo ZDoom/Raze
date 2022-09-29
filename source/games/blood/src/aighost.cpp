@@ -82,7 +82,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 
 void ghostThrowSeqCallback(int, DBloodActor* actor)
 {
-	actFireThing(actor, 0, 0, actor->dudeSlope - 7500, kThingBone, 0xeeeee);
+	actFireThing(actor, 0., 0., actor->dudeSlope / 16384. * 0.25 - 0.11444, kThingBone, 14.93333);
 }
 
 void ghostBlastSeqCallback(int, DBloodActor* actor)
