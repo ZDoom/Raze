@@ -902,10 +902,10 @@ void aiActivateDude(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiSetTarget(DBloodActor* actor, int x, int y, int z)
+void aiSetTarget(DBloodActor* actor, const DVector3& pos)
 {
 	actor->SetTarget(nullptr);
-	actor->xspr.TargetPos = {x * maptoworld, y * maptoworld, z * zmaptoworld };
+	actor->xspr.TargetPos = pos;
 }
 
 void aiSetTarget(DBloodActor* actor, DBloodActor* target)
@@ -1850,7 +1850,7 @@ void aiInitSprite(DBloodActor* actor)
 		aiNewState(actor, &genIdle);
 		break;
 	}
-	aiSetTarget(actor, 0, 0, 0);
+	aiSetTarget(actor, DVector3(0, 0, 0));
 	actor->xspr.stateTimer = 0;
 	switch (actor->spr.type)
 	{
