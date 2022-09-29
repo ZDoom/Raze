@@ -273,7 +273,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 	if (!pSector) return;
 	if (adult_lockout && gGameOptions.nGameType <= 0)
 		return;
-	auto bloodactor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, 0);
+	auto bloodactor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos);
 	if (bloodactor)
 	{
 		bloodactor->spr.angle = DAngle180;
@@ -301,9 +301,9 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 		return;
 	DBloodActor* spawnactor;
 	if (actor->spr.type == kDudePodGreen)
-		spawnactor = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos, 0);
+		spawnactor = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos);
 	else
-		spawnactor = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos, 0);
+		spawnactor = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos);
 	if (spawnactor)
 	{
 		spawnactor->spr.angle = DAngle180;
@@ -324,7 +324,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int rdist)
 {
 	DVector3 pos(actor->spr.pos.XY() + actor->fClipdist() * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z); 
 
-	auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), actor->sector(), pos, 0);
+	auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), actor->sector(), pos);
 	if (pBrass)
 	{
 		if (!VanillaMode())
@@ -346,7 +346,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, double z, double dist, int rdist)
 {
 	DVector3 pos(actor->spr.pos.XY() + actor->fClipdist() * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z);
 
-	auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), actor->sector(), pos, 0);
+	auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), actor->sector(), pos);
 	if (pShell)
 	{
 		if (!VanillaMode())

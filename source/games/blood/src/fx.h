@@ -93,7 +93,7 @@ class CFX {
 public:
 	void destroy(DBloodActor*);
 	void remove(DBloodActor*);
-	DBloodActor* fxSpawnActor(FX_ID a, sectortype* b, const DVector3& pos, DAngle f);
+	DBloodActor* fxSpawnActor(FX_ID a, sectortype* b, const DVector3& pos, DAngle f = nullAngle);
 	void fxProcess(void);
 };
 

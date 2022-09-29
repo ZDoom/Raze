@@ -291,7 +291,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 			DAngle nAngle = RandomAngle();
 			gPos = DVector3(actor->spr.pos.XY() + actor->fClipdist() * nAngle.ToVector(), bottom - RandomD(bottom - top, 8));
 		}
-		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos, 0);
+		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos);
 		if (pFX)
 		{
 			if (pGFX->at1 < 0)
@@ -448,7 +448,7 @@ void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, D
 		r.Z = RandomD(spread.Z, 8) + ceilZ;
 		r.Y = RandomD(spread.Y, 4) + pWall->pos.Y;
 		r.X = RandomD(spread.X, 4) + pWall->pos.X;
-		auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, r, 0);
+		auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, r);
 		if (pGib)
 		{
 			if (pGFX->at1 < 0)

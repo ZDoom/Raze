@@ -887,7 +887,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 // getzrange
 //
 
-void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz, CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
+void getzrange_(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz, CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
 {
     if (sect == nullptr)
     {

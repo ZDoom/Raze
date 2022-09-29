@@ -1790,17 +1790,17 @@ void debrisMove(int listIndex)
 			switch (tileGetSurfType(floorColl))
 			{
 			case kSurfLava:
-				if ((pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos.XY(), floorZ), 0)) == NULL) break;
+				if ((pFX = gFX.fxSpawnActor(FX_10, actor->sector(), DVector3(actor->spr.pos.XY(), floorZ))) == NULL) break;
 				for (i = 0; i < 7; i++)
 				{
-					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos, 0)) == NULL) continue;
+					if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->sector(), pFX->spr.pos)) == NULL) continue;
 					pFX2->vel.X = Random2F(0x6aaaa);
 					pFX2->vel.Y = Random2F(0x6aaaa);
 					pFX2->vel.Z = -Random2F(0xd5555);
 				}
 				break;
 			case kSurfWater:
-				gFX.fxSpawnActor(FX_9, actor->sector(), DVector3(actor->spr.pos.XY(), floorZ), 0);
+				gFX.fxSpawnActor(FX_9, actor->sector(), DVector3(actor->spr.pos.XY(), floorZ));
 				break;
 			}
 
@@ -3354,7 +3354,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			break;
 		}
 
-		if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, actor->sector(), DVector3(actor->spr.pos.XY(), pos), 0)) != nullptr)
+		if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, actor->sector(), DVector3(actor->spr.pos.XY(), pos))) != nullptr)
 		{
 			pEffect->SetOwner(sourceactor);
 
@@ -6456,7 +6456,7 @@ void useRandomItemGen(DBloodActor* actor)
 		{
 			if ((unsigned int)iactor->spr.type == actor->xspr.dropMsg && iactor->spr.pos == actor->spr.pos)
 			{
-				gFX.fxSpawnActor((FX_ID)29, actor->sector(), actor->spr.pos, 0);
+				gFX.fxSpawnActor((FX_ID)29, actor->sector(), actor->spr.pos);
 				iactor->spr.type = kSpriteDecoration;
 				actPostSprite(iactor, kStatFree);
 				break;

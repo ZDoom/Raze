@@ -49,7 +49,7 @@ void fxFlameLick(DBloodActor* actor, sectortype*) // 0
 		DVector2 pos = actor->spr.pos.XY() + dv;
 		double z = bottom - RandomD(bottom - top, 8);
 
-		auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), DVector3(pos, z), 0);
+		auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), DVector3(pos, z));
 		if (pFX)
 		{
 			pFX->vel.X = actor->vel.X + Random2F(-int(16 * dv.X));
@@ -114,7 +114,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 void fxFlareSpark(DBloodActor* actor, sectortype*) // 3
 {
 	if (!actor) return;
-	auto pFX = gFX.fxSpawnActor(FX_28, actor->sector(), actor->spr.pos, 0);
+	auto pFX = gFX.fxSpawnActor(FX_28, actor->sector(), actor->spr.pos);
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
@@ -133,7 +133,7 @@ void fxFlareSpark(DBloodActor* actor, sectortype*) // 3
 void fxFlareSparkLite(DBloodActor* actor, sectortype*) // 4
 {
 	if (!actor) return;
-	auto pFX = gFX.fxSpawnActor(FX_28, actor->sector(), actor->spr.pos, 0);
+	auto pFX = gFX.fxSpawnActor(FX_28, actor->sector(), actor->spr.pos);
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
@@ -155,7 +155,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
 	assert(actor->hasX());
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), DVector3(actor->spr.pos.XY(), top), 0);
+	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), DVector3(actor->spr.pos.XY(), top));
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2F(0x11111);
@@ -184,7 +184,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
 void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 {
 	if (!actor) return;
-	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, 0);
+	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos);
 	if (pFX)
 	{
 		pFX->spr.angle = nullAngle;
@@ -202,7 +202,7 @@ void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 void fxArcSpark(DBloodActor* actor, sectortype*) // 7
 {
 	if (!actor) return;
-	auto pFX = gFX.fxSpawnActor(FX_15, actor->sector(), actor->spr.pos, 0);
+	auto pFX = gFX.fxSpawnActor(FX_15, actor->sector(), actor->spr.pos);
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2F(0x10000);
@@ -225,7 +225,7 @@ void fxDynPuff(DBloodActor* actor, sectortype*) // 8
 	{
 		double nDist = (actor->spr.xrepeat * tileWidth(actor->spr.picnum)) * (REPEAT_SCALE / 2);
 		DVector3 pos = actor->spr.pos + (actor->spr.angle - DAngle90).ToVector() * nDist;
-		auto pFX = gFX.fxSpawnActor(FX_7, actor->sector(), pos, 0);
+		auto pFX = gFX.fxSpawnActor(FX_7, actor->sector(), pos);
 		if (pFX)
 		{
 			pFX->vel = actor->vel;
@@ -317,7 +317,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 			actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 		}
 
-		gFX.fxSpawnActor(FX_29, actor->sector(), actor->spr.pos, 0);
+		gFX.fxSpawnActor(FX_29, actor->sector(), actor->spr.pos);
 		sfxPlay3DSound(actor, 350, -1, 0);
 		break;
 	}
@@ -345,7 +345,7 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 			double nDist = (actor->spr.xrepeat * tileWidth(actor->spr.picnum)) * (REPEAT_SCALE / 2);
 			DVector2 pos = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nDist;
 			double z = bottom - RandomD(bottom - top, 8);
-			auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), DVector3(pos, z), 0);
+			auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), DVector3(pos, z));
 			if (pFX)
 			{
 				pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
@@ -375,7 +375,7 @@ void EnemyBubble(DBloodActor* actor, sectortype*) // 11
 		DVector2 pos = actor->spr.pos.XY() + nAngle.ToVector() * nDist;
 		double z = bottom - RandomD(bottom - top, 8);
 
-		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), DVector3(pos, z), 0);
+		auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), DVector3(pos, z));
 		if (pFX)
 		{
 			pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
@@ -446,7 +446,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	DAngle nAngle = RandomAngle();
 	int nDist = Random(16);
 	auto pos = nAngle.ToVector() * nDist * 4;
-	gFX.fxSpawnActor(FX_48, actor->sector(), DVector3(pos, actor->spr.pos.Z), 0);
+	gFX.fxSpawnActor(FX_48, actor->sector(), DVector3(pos, actor->spr.pos.Z));
 	if (actor->spr.angle == DAngle180)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);    // this is a little stupid...
@@ -454,7 +454,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	}
 	if (Chance(0x5000))
 	{
-		auto pFX = gFX.fxSpawnActor(FX_36, actor->sector(), DVector3(pos, floorZ - 0.25), 0);
+		auto pFX = gFX.fxSpawnActor(FX_36, actor->sector(), DVector3(pos, floorZ - 0.25));
 		if (pFX)
 			pFX->spr.angle = nAngle;
 	}
@@ -471,7 +471,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 void fxTeslaAlt(DBloodActor* actor, sectortype*) // 15
 {
 	if (!actor) return;
-	auto pFX = gFX.fxSpawnActor(FX_49, actor->sector(), actor->spr.pos, 0);
+	auto pFX = gFX.fxSpawnActor(FX_49, actor->sector(), actor->spr.pos);
 	if (pFX)
 	{
 		pFX->vel.X = actor->vel.X + Random2F(0x1aaaa);
@@ -606,9 +606,9 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 	if (!actor) return;
 	DBloodActor* pFX;
 	if (actor->spr.type == 53)
-		pFX = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos, 0);
+		pFX = gFX.fxSpawnActor(FX_53, actor->sector(), actor->spr.pos);
 	else
-		pFX = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos, 0);
+		pFX = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos);
 	if (pFX)
 	{
 		pFX->spr.angle = nullAngle;
@@ -647,13 +647,13 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	if (actor->spr.type == 53 || actor->spr.type == kThingPodGreenBall)
 	{
 		if (Chance(0x500) || actor->spr.type == kThingPodGreenBall)
-			pFX = gFX.fxSpawnActor(FX_55, actor->sector(), DVector3(pos, floorZ - 0.25), 0);
+			pFX = gFX.fxSpawnActor(FX_55, actor->sector(), DVector3(pos, floorZ - 0.25));
 		if (pFX)
 			pFX->spr.angle = nAngle;
 	}
 	else
 	{
-		pFX = gFX.fxSpawnActor(FX_32, actor->sector(), DVector3(pos, floorZ - 0.25), 0);
+		pFX = gFX.fxSpawnActor(FX_32, actor->sector(), DVector3(pos, floorZ - 0.25));
 		if (pFX)
 			pFX->spr.angle = nAngle;
 	}
