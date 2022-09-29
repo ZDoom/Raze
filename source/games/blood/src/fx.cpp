@@ -325,7 +325,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 //
 //---------------------------------------------------------------------------
 
-void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int a4)
+void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int rdist)
 {
 	DVector3 pos(actor->spr.pos.XY() + actor->fClipdist() * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z); 
 
@@ -334,7 +334,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int a4)
 	{
 		if (!VanillaMode())
 			pBrass->spr.angle = RandomAngle();
-		double nDist = a4 / 30. + Random2F(((a4 / 4) << 18) / 120, 4);
+		double nDist = rdist / 30. + Random2F(((rdist / 4) << 18) / 120, 4);
 		DAngle nAngle = actor->spr.angle + Random2A(56) + DAngle90;
 		pBrass->vel.XY() = nAngle.ToVector() * nDist;
 		pBrass->vel.Z = actor->vel.Z - 2 - Random2(40) / 30.;
@@ -347,7 +347,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int a4)
 //
 //---------------------------------------------------------------------------
 
-void fxSpawnEjectingShell(DBloodActor* actor, double z, double dist, int a4)
+void fxSpawnEjectingShell(DBloodActor* actor, double z, double dist, int rdist)
 {
 	DVector3 pos(actor->spr.pos.XY() + actor->fClipdist() * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z);
 
@@ -356,7 +356,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, double z, double dist, int a4)
 	{
 		if (!VanillaMode())
 			pShell->spr.angle = RandomAngle();
-		double nDist = a4 / 30. + Random2F(((a4 / 4) << 18) / 120, 4);
+		double nDist = rdist / 30. + Random2F(((rdist / 4) << 18) / 120, 4);
 		DAngle nAngle = actor->spr.angle + Random2A(56) + DAngle90;
 		pShell->vel.XY() = nAngle.ToVector() * nDist;
 		pShell->vel.Z = actor->vel.Z - 2 - Random2(28) / 30.;

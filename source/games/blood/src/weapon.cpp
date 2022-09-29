@@ -261,21 +261,21 @@ static bool checkAmmo2(const PLAYER* pPlayer, int ammotype, int amount)
 //
 //---------------------------------------------------------------------------
 
-void SpawnBulletEject(PLAYER* pPlayer, int a2, int a3)
+void SpawnBulletEject(PLAYER* pPlayer, double dist, int rdist)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ;
 	double dz = pPlayer->zWeapon - (pPlayer->zWeapon - pPlayer->zView) * 0.5;
-	fxSpawnEjectingBrass(pPlayer->actor, dz, a2 * inttoworld, a3);
+	fxSpawnEjectingBrass(pPlayer->actor, dz, dist, rdist);
 }
 
-void SpawnShellEject(PLAYER* pPlayer, int a2, int a3)
+void SpawnShellEject(PLAYER* pPlayer, double dist, int rdist)
 {
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ;
 	double t = pPlayer->zWeapon - pPlayer->zView;
 	double dz = pPlayer->zWeapon - t + (t * 0.25);
-	fxSpawnEjectingShell(pPlayer->actor, dz, a2 * inttoworld, a3);
+	fxSpawnEjectingShell(pPlayer->actor, dz, dist, rdist);
 }
 
 //---------------------------------------------------------------------------
@@ -1439,8 +1439,8 @@ void FireShotgun(int nTrigger, PLAYER* pPlayer)
 
 void EjectShell(int, PLAYER* pPlayer)
 {
-	SpawnShellEject(pPlayer, 25, 35);
-	SpawnShellEject(pPlayer, 48, 35);
+	SpawnShellEject(pPlayer, 25 / 16., 35);
+	SpawnShellEject(pPlayer, 3, 35);
 }
 
 void FireTommy(int nTrigger, PLAYER* pPlayer)
@@ -1455,7 +1455,7 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 		double r2 = Random3F(1200, 14);
 		double r3 = Random3F(1200, 14);
 		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r3, r2, r1), kVectorTommyRegular);
-		SpawnBulletEject(pPlayer, -15, -45);
+		SpawnBulletEject(pPlayer, -15 / 16., -45);
 		pPlayer->visibility = 20;
 		break;
 	}
@@ -1465,12 +1465,12 @@ void FireTommy(int nTrigger, PLAYER* pPlayer)
 		double r2 = Random3F(1200, 14);
 		double r3 = Random3F(1200, 14);
 		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r3, r2, r1), kVectorTommyRegular);
-		SpawnBulletEject(pPlayer, -140, -45);
+		SpawnBulletEject(pPlayer, -140 / 16., -45);
 		r1 = Random3(400);
 		r2 = Random3(1200);
 		r3 = Random3(1200);
 		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, pPlayer->flt_aim() + DVector3(r3, r2, r1), kVectorTommyRegular);
-		SpawnBulletEject(pPlayer, 140, 45);
+		SpawnBulletEject(pPlayer, 140 / 16., 45);
 		pPlayer->visibility = 30;
 		break;
 	}
@@ -1503,9 +1503,9 @@ void FireSpread(int nTrigger, PLAYER* pPlayer)
 	r2 = Random3F(600, 14);
 	r3 = Random3F(600, 14);
 	actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
-	r1 = Random2(90);
-	r2 = Random2(30);
-	SpawnBulletEject(pPlayer, r2, r1);
+	int ri = Random2(90);
+	r2 = Random2F(30, 4);
+	SpawnBulletEject(pPlayer, r2, ri);
 	pPlayer->visibility = 20;
 	UseAmmo(pPlayer, pPlayer->weaponAmmo, 1);
 	pPlayer->flashEffect = 1;
@@ -1531,16 +1531,16 @@ void AltFireSpread(int nTrigger, PLAYER* pPlayer)
 	r2 = Random3F(600, 14);
 	r3 = Random3F(600, 14);
 	actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
-	r1 = Random2(45);
-	r2 = Random2(120);
-	SpawnBulletEject(pPlayer, r2, r1);
+	int ri = Random2(45);
+	r2 = Random2F(120, 4);
+	SpawnBulletEject(pPlayer, r2, ri);
 	r1 = Random3F(300, 14);
 	r2 = Random3F(600, 14);
 	r3 = Random3F(600, 14);
 	actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
-	r1 = Random2(-45);
-	r2 = Random2(-120);
-	SpawnBulletEject(pPlayer, r2, r1);
+	ri = Random2(-45);
+	r2 = Random2F(-120, 4);
+	SpawnBulletEject(pPlayer, r2, ri);
 	pPlayer->tiltEffect = 20;
 	pPlayer->visibility = 30;
 	UseAmmo(pPlayer, pPlayer->weaponAmmo, 2);
@@ -1569,16 +1569,16 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 		r2 = Random3F(600, 14);
 		r3 = Random3F(600, 14);
 		actFireVector(actor, -7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
-		r1 = Random2(45);
-		r2 = Random2(120);
-		SpawnBulletEject(pPlayer, r2, r1);
+		int ri = Random2(45);
+		r2 = Random2F(120, 4);
+		SpawnBulletEject(pPlayer, r2, ri);
 		r1 = Random3F(300, 14);
 		r2 = Random3F(600, 14);
 		r3 = Random3F(600, 14);
 		actFireVector(actor, 7.5, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
-		r1 = Random2(-45);
-		r2 = Random2(-120);
-		SpawnBulletEject(pPlayer, r2, r1);
+		ri = Random2(-45);
+		r2 = Random2F(-120, 4);
+		SpawnBulletEject(pPlayer, r2, ri);
 		pPlayer->tiltEffect = 30;
 		pPlayer->visibility = 45;
 		UseAmmo(pPlayer, pPlayer->weaponAmmo, 2);
@@ -1590,9 +1590,9 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 		r2 = Random3F(600, 14);
 		r3 = Random3F(600, 14);
 		actFireVector(actor, 0, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv + DVector3(r3, r2, r1), kVectorTommyAP);
-		r1 = Random2(90);
-		r2 = Random2(30);
-		SpawnBulletEject(pPlayer, r2, r1);
+		int ri = Random2(90);
+		r2 = Random2F(30, 4);
+		SpawnBulletEject(pPlayer, r2, ri);
 		pPlayer->tiltEffect = 20;
 		pPlayer->visibility = 30;
 		UseAmmo(pPlayer, pPlayer->weaponAmmo, 1);

@@ -100,8 +100,6 @@ public:
 
 void fxSpawnBlood(DBloodActor* pSprite, int a2);
 void fxSpawnPodStuff(DBloodActor* pSprite, int a2);
-void fxSpawnEjectingBrass(DBloodActor* pSprite, double z, int a3, int a4);
-void fxSpawnEjectingShell(DBloodActor* pSprite, double z, int a3, int a4);
 
 extern CFX gFX;
 
