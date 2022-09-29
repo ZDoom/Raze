@@ -1835,7 +1835,7 @@ void DropVoodoo(int, PLAYER* pPlayer)
 
 struct TeslaMissile
 {
-	int offset; // offset
+	float offset; // offset
 	int id; // id
 	int ammouse; // ammo use
 	int sound; // sound
@@ -1854,11 +1854,11 @@ void FireTesla(int nTrigger, PLAYER* pPlayer)
 	TeslaMissile teslaMissile[6] =
 	{
 		{ 0, 306, 1, 470, 20, 1 },
-		{ -140, 306, 1, 470, 30, 1 },
-		{ 140, 306, 1, 470, 30, 1 },
+		{ -8.75f, 306, 1, 470, 30, 1 },
+		{ 8.75f, 306, 1, 470, 30, 1 },
 		{ 0, 302, 35, 471, 40, 1 },
-		{ -140, 302, 35, 471, 50, 1 },
-		{ 140, 302, 35, 471, 50, 1 },
+		{ -8.75f, 302, 35, 471, 50, 1 },
+		{ 8.75f, 302, 35, 471, 50, 1 },
 	};
 	if (nTrigger > 0 && nTrigger <= 6)
 	{
@@ -1876,7 +1876,7 @@ void FireTesla(int nTrigger, PLAYER* pPlayer)
 				return;
 			}
 		}
-		playerFireMissile(pPlayer, pMissile->offset * inttoworld, pPlayer->flt_aim(), pMissile->id);
+		playerFireMissile(pPlayer, pMissile->offset, pPlayer->flt_aim(), pMissile->id);
 		UseAmmo(pPlayer, pPlayer->weaponAmmo, pMissile->ammouse);
 		sfxPlay3DSound(pPlayer->actor, pMissile->sound, 1, 0);
 		pPlayer->visibility = pMissile->light;
