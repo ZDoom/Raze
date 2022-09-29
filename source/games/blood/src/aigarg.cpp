@@ -170,7 +170,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 
 void ThrowSSeqCallback(int, DBloodActor* actor)
 {
-	actFireThing(actor, 0, 0, actor->dudeSlope - 7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
+	actFireThing(actor, 0., 0., actor->dudeSlope / 16384. * 0.25 - 0.11444, kThingBone, Chance(0x6000) ? 19.2 : 17.066666);
 }
 
 static void gargThinkTarget(DBloodActor* actor)
