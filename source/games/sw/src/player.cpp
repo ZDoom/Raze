@@ -1945,7 +1945,7 @@ void DoPlayerZrange(PLAYER* pp)
     auto bakcstat = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrange(pp->pos.plusZ(8), pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)actor->int_clipdist()) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    FAFgetzrange(pp->pos.plusZ(8), pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, actor->fClipdist() - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     actor->spr.cstat = bakcstat;
 
     Collision ceilColl(ceilhit);

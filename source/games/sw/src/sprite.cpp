@@ -4488,7 +4488,7 @@ void DoActorZrange(DSWActor* actor)
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
     DVector3 pos = actor->spr.pos.plusZ(-ActorSizeZ(actor) * 0.5);
 
-    FAFgetzrange(pos, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, actor->int_clipdist() - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
+    FAFgetzrange(pos, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, actor->fClipdist() - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     actor->spr.cstat |= save_cstat;
 
     actor->user.lo_sectp = actor->user.hi_sectp = nullptr;
@@ -6391,7 +6391,7 @@ Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, 
     auto pos = actor->spr.pos.plusZ(-zH - maptoworld);
     FAFgetzrange(pos, actor->sector(),
                  &globhiz, &globhihit, &globloz, &globlohit,
-                 actor->int_clipdist() - GETZRANGE_CLIP_ADJ, cliptype);
+                 actor->fClipdist() - GETZRANGE_CLIP_ADJ, cliptype);
 
     actor->spr.cstat = tempstat;
 

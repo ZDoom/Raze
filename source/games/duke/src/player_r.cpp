@@ -3397,12 +3397,12 @@ void processinput_r(int snum)
 	double tempfz;
 	if (pact->native_clipdist() == 64)
 	{
-		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 163L, CLIPMASK0);
+		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 		tempfz = getflorzofslopeptr(psectp, p->pos);
 	}
 	else
 	{
-		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 4L, CLIPMASK0);
+		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
 		tempfz = getflorzofslopeptr(psectp, p->pos);
 	}
 

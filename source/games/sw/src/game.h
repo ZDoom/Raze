@@ -1677,7 +1677,7 @@ inline bool FAF_ConnectArea(sectortype* sect)
 
 void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, HitInfo& hit, int32_t clipmask);
 bool FAFcansee(const DVector3& start, sectortype* sects, const DVector3& end, sectortype* secte);
-void FAFgetzrange(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit, int32_t clipdist, int32_t clipmask);
+void FAFgetzrange(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit, double clipdist, int32_t clipmask);
 void FAFgetzrangepoint(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit);
 
 
@@ -1716,7 +1716,6 @@ enum
     TICSPERMOVEMENT = synctics,
     ACTOR_GRAVITY = 8,
     // subtract value from clipdist on getzrange calls
-    GETZRANGE_CLIP_ADJ = 8,
     STAT_DAMAGE_LIST_SIZE = 20,
     COLOR_PAIN  = 128,  // Light red range
 
@@ -1725,6 +1724,9 @@ enum
     ANIM_ZILLA  =3
 
 };
+
+constexpr double GETZRANGE_CLIP_ADJ = 0.5;
+
 
 extern int *lastpacket2clock;
 

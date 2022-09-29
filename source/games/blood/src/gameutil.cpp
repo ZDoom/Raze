@@ -413,7 +413,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 //
 //---------------------------------------------------------------------------
 
-void GetZRange(DBloodActor* actor, double* ceilZ, Collision* ceilColl, double* floorZ, Collision* floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRange(DBloodActor* actor, double* ceilZ, Collision* ceilColl, double* floorZ, Collision* floorColl, double nDist, unsigned int nMask, unsigned int nClipParallax)
 {
 	assert(actor != nullptr);
 	Collision scratch;
@@ -464,7 +464,7 @@ void GetZRange(DBloodActor* actor, double* ceilZ, Collision* ceilColl, double* f
 //
 //---------------------------------------------------------------------------
 
-void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilColl, double* floorZ, Collision* floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilColl, double* floorZ, Collision* floorColl, double nDist, unsigned int nMask, unsigned int nClipParallax)
 {
 	Collision scratch;
 	double nTemp1;

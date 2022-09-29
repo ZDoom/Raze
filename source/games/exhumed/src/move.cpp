@@ -291,7 +291,7 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
     double sprceiling, sprfloor;
 
     auto pos = pActor->spr.pos.plusZ(-1);
-    getzrange(pos, pActor->sector(), &sprceiling, hiHit, &sprfloor, loHit, 128, CLIPMASK0);
+    getzrange(pos, pActor->sector(), &sprceiling, hiHit, &sprfloor, loHit, 8., CLIPMASK0);
 
     double mySprfloor = sprfloor;
 

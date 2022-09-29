@@ -2778,7 +2778,7 @@ void processinput_d(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (pact->spr.yrepeat < 32);
-	getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 163, CLIPMASK0);
+	getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 
 	p->truefz = getflorzofslopeptr(psectp, p->pos);
 	p->truecz = getceilzofslopeptr(psectp, p->pos);

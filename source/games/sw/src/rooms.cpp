@@ -498,7 +498,7 @@ void WaterAdjust(const Collision& florhit, double* loz)
 //
 //---------------------------------------------------------------------------
 
-void FAFgetzrange(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
+void FAFgetzrange(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit, double clipdist, int32_t clipmask)
 {
     double foo1;
     Collision foo2;

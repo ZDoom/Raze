@@ -4777,14 +4777,14 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 
 void getglobalz(DDukeActor* actor)
 {
-	int zr;
+	double zr;
 	Collision hz, lz;
 
 	if( actor->spr.statnum == STAT_PLAYER || actor->spr.statnum == STAT_STANDABLE || actor->spr.statnum == STAT_ZOMBIEACTOR || actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_PROJECTILE)
 	{
 		if(actor->spr.statnum == STAT_PROJECTILE)
-			zr = 4;
-		else zr = 127;
+			zr = 0.25;
+		else zr = 7.9375;
 
 		auto cc = actor->spr.cstat2;
 		actor->spr.cstat2 |= CSTAT2_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
@@ -4850,7 +4850,7 @@ void makeitfall(DDukeActor* actor)
 	if ((actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_PLAYER || actor->spr.statnum == STAT_ZOMBIEACTOR || actor->spr.statnum == STAT_STANDABLE))
 	{
 		Collision coll;
-		getzrange(actor->spr.pos.plusZ(-1), actor->sector(), &actor->ceilingz, coll, &actor->floorz, coll, 127, CLIPMASK0);
+		getzrange(actor->spr.pos.plusZ(-1), actor->sector(), &actor->ceilingz, coll, &actor->floorz, coll, 7.9375, CLIPMASK0);
 	}
 	else
 	{

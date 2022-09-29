@@ -1645,7 +1645,7 @@ void debrisMove(int listIndex)
 	moveHit.setNone();
 	double floorDist = (bottom - actor->spr.pos.Z) * 0.25;
 	double ceilDist = (actor->spr.pos.Z - top) * 0.25;
-	int clipDist = actor->int_clipdist();
+	double clipDistf = actor->fClipdist();
 	int mass = actor->spriteMass.mass;
 
 	bool uwater = false;
@@ -1661,7 +1661,7 @@ void debrisMove(int listIndex)
 		auto oldcstat = actor->spr.cstat;
 		actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-		ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), clipDist, ceilDist, floorDist, CLIPMASK0, moveHit);
+		ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), int(clipDistf * worldtoint), ceilDist, floorDist, CLIPMASK0, moveHit);
 		actor->hit.hit = moveHit;
 
 		actor->spr.cstat = oldcstat;
@@ -1674,7 +1674,7 @@ void debrisMove(int listIndex)
 		if (pSector->type >= kSectorPath && pSector->type <= kSectorRotate)
 		{
 			auto pSector2 = pSector;
-			if (pushmove(actor, &pSector2, clipDist, ceilDist, floorDist, CLIPMASK0) != -1)
+			if (pushmove(actor, &pSector2, int(clipDistf * worldtoint), ceilDist, floorDist, CLIPMASK0) != -1)
 				pSector = pSector2;
 		}
 
@@ -1705,7 +1705,7 @@ void debrisMove(int listIndex)
 
 	double ceilZ, floorZ;
 	Collision ceilColl, floorColl;
-	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDistf, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 	GetActorExtents(actor, &top, &bottom);
 
 	if ((actor->xspr.physAttr & kPhysDebrisSwim) && uwater)
@@ -1738,7 +1738,7 @@ void debrisMove(int listIndex)
 	int i;
 	if ((i = CheckLink(actor)) != 0)
 	{
-		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDistf, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (!(actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
 		{
 			switch (i)

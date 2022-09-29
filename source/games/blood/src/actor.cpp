@@ -4551,7 +4551,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 	double ceilZ, floorZ;
 	Collision ceilColl, floorColl;
-	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->fClipdist(), CLIPMASK0);
 	GetActorExtents(actor, &top, &bottom);
 
 	if ((actor->spr.flags & 2) && bottom < floorZ)
@@ -4570,7 +4570,7 @@ static Collision MoveThing(DBloodActor* actor)
 			}
 		}
 	}
-	if (CheckLink(actor)) GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0);
+	if (CheckLink(actor)) GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->fClipdist(), CLIPMASK0);
 
 	GetActorExtents(actor, &top, &bottom);
 	if (bottom >= floorZ)
@@ -4706,7 +4706,7 @@ void MoveDude(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 	double bz = (bottom - actor->spr.pos.Z) / 4;
 	double tz = (actor->spr.pos.Z - top) / 4;
-	int wd = actor->int_clipdist();
+	double wdf = actor->fClipdist();
 	auto pSector = actor->sector();
 	int nAiStateType = (actor->xspr.aiState) ? actor->xspr.aiState->stateType : -1;
 
@@ -4725,7 +4725,7 @@ void MoveDude(DBloodActor* actor)
 			auto bakCstat = actor->spr.cstat;
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 			// Note: vel is Q16.16, ClipMove wants Q28.4, which passes it on to clipmove which wants Q14.18. Anyone confused yet...?
-			ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), wd, tz, bz, CLIPMASK0, actor->hit.hit);
+			ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), int(wdf * worldtoint), tz, bz, CLIPMASK0, actor->hit.hit);
 			if (pSector == nullptr)
 			{
 				pSector = actor->sector();
@@ -4736,7 +4736,7 @@ void MoveDude(DBloodActor* actor)
 			if (pSector->type >= kSectorPath && pSector->type <= kSectorRotate)
 			{
 				auto pSector2 = pSector;
-				if (pushmove(actor, &pSector2, wd, tz, bz, CLIPMASK0) == -1)
+				if (pushmove(actor, &pSector2, int(wdf * worldtoint), tz, bz, CLIPMASK0) == -1)
 					actDamageSprite(actor, actor, kDamageFall, 1000 << 4);
 				if (pSector2 != nullptr)
 					pSector = pSector2;
@@ -4834,12 +4834,12 @@ void MoveDude(DBloodActor* actor)
 	DCoreActor* pLowerLink = pSector->lowerLink;
 	if (pUpperLink && (pUpperLink->spr.type == kMarkerUpWater || pUpperLink->spr.type == kMarkerUpGoo)) bDepth = 1;
 	if (pLowerLink && (pLowerLink->spr.type == kMarkerLowWater || pLowerLink->spr.type == kMarkerLowGoo)) bDepth = 1;
-	if (pPlayer) wd += 16;
+	if (pPlayer) wdf += 1;
 	if (actor->vel.Z) actor->spr.pos.Z += actor->vel.Z;
 
 	double ceilZ, floorZ;
 	Collision ceilColl, floorColl;
-	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, wdf, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 	GetActorExtents(actor, &top, &bottom);
 
 	if (actor->spr.flags & 2)
@@ -4888,7 +4888,7 @@ void MoveDude(DBloodActor* actor)
 	int nLink = CheckLink(actor);
 	if (nLink)
 	{
-		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, wdf, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (pPlayer)
 			playerCorrectInertia(pPlayer, oldpos);
 		switch (nLink)
@@ -5052,7 +5052,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		double floorZ2 = floorZ;
 		auto floorColl2 = floorColl;
-		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->fClipdist(), CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (bottom <= floorZ && actor->spr.pos.Z - floorZ2 < bz)
 		{
 			floorZ = floorZ2;
@@ -5280,7 +5280,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 		double ceilZ, floorZ;
 		Collision ceilColl, floorColl;
-		GetZRangeAtXYZ(ppos, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->int_clipdist(), CLIPMASK0);
+		GetZRangeAtXYZ(ppos, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->fClipdist(), CLIPMASK0);
 		GetActorExtents(actor, &top, &bottom);
 		top += vel.Z;
 		bottom += vel.Z;
