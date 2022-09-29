@@ -117,7 +117,7 @@ class BloodStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
-	void TileHGauge(String nTile, double x, double y, int nMult, int nDiv, double sc = 1)
+	void TileHGauge(String nTile, double x, double y, double nMult, double nDiv, double sc = 1)
 	{
 		int w = texWidth(nTile);
 		double bx = w * sc * nMult / nDiv + x;
@@ -555,7 +555,7 @@ class BloodStatusBar : RazeStatusBar
 		DrawImage("BlinkIcon", (201.5, 185.5), DI_ITEM_RELCENTER, col:Raze.shadeToLight(pPlayer.isRunning || cl_bloodvanillarun ? 16 : 40));
 		if (pPlayer.throwPower)
 		{
-			TileHGauge("ThrowGauge", 124, 175.5, pPlayer.throwPower, 65536);
+			TileHGauge("ThrowGauge", 124, 175.5, pPlayer.throwPower, 1);
 		}
 		drawInventory(pPlayer, 166, 200 - th);
 		// Depending on the scale we can lower the stats display. This needs some tweaking but this catches the important default case already.
@@ -695,7 +695,7 @@ class BloodStatusBar : RazeStatusBar
 
 		BeginStatusBar(false, 320, 200, 28);
 		if (pPlayer.throwPower)
-			TileHGauge("ThrowGauge", 124, 175, pPlayer.throwPower, 65536);
+			TileHGauge("ThrowGauge", 124, 175, pPlayer.throwPower, 1);
 		else
 			drawInventory(pPlayer, 166, 200 - texHeight("FULLHUD") / 2 - 30);
 		return 28;
@@ -732,7 +732,7 @@ class BloodStatusBar : RazeStatusBar
 		{
 			BeginStatusBar(false, 320, 200, 28);
 			if (pPlayer.throwPower)
-				TileHGauge("ThrowGauge", 124, 175, pPlayer.throwPower, 65536);
+				TileHGauge("ThrowGauge", 124, 175, pPlayer.throwPower, 1);
 			else if (hud_size > Hud_StbarOverlay)
 				drawInventory(pPlayer, 166, 200 - texHeight("FullHUD") / 2);
 		}

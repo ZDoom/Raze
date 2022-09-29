@@ -135,7 +135,7 @@ struct PLAYER
 	int                 qavTimer;
 	int                 fuseTime;
 	int                 throwTime;
-	int                 throwPower;
+	double              throwPower;
 	DVector3            aim;  // world
 	DVector3            relAim;  // relative
 	DVector3 flt_aim() const { return aim; }

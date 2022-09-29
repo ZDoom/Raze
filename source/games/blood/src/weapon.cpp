@@ -139,6 +139,23 @@ enum
 	nClientAltFireNapalm,
 };
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+double getThrowPower(PLAYER* pPlayer)
+{
+	return pPlayer->throwPower * 23.46666 + 6.4;
+}
+
+void setThrowPower(PLAYER* pPlayer)
+{
+	pPlayer->throwPower = min((PlayClock - pPlayer->throwTime) / 240., 1.);
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -1179,7 +1196,7 @@ void FireSpray(int, PLAYER* pPlayer)
 void ThrowCan(int, PLAYER* pPlayer)
 {
 	sfxKill3DSound(pPlayer->actor, -1, 441);
-	double nSpeed = FixedToFloat(MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666); // deal with this later.
+	double nSpeed = getThrowPower(pPlayer);
 	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedSpray, nSpeed);
 	if (spawned)
@@ -1239,7 +1256,7 @@ void ExplodeCan(int, PLAYER* pPlayer)
 void ThrowBundle(int, PLAYER* pPlayer)
 {
 	sfxKill3DSound(pPlayer->actor, 16, -1);
-	double nSpeed = FixedToFloat(MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666); // deal with this later.
+	double nSpeed = getThrowPower(pPlayer);
 	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedTNTBundle, nSpeed);
 	if (spawned)
@@ -1298,7 +1315,7 @@ void ExplodeBundle(int, PLAYER* pPlayer)
 
 void ThrowProx(int, PLAYER* pPlayer)
 {
-	double nSpeed = FixedToFloat(MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666); // deal with this later.
+	double nSpeed = getThrowPower(pPlayer);
 	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedProxBomb, nSpeed);
 	if (spawned)
@@ -1333,7 +1350,7 @@ void DropProx(int, PLAYER* pPlayer)
 
 void ThrowRemote(int, PLAYER* pPlayer)
 {
-	double nSpeed = FixedToFloat(MulScale(pPlayer->throwPower, 0x177777, 16) + 0x66666); // deal with this later.
+	double nSpeed = getThrowPower(pPlayer);
 	sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
 	auto spawned = playerFireThing(pPlayer, 0, -9460 / 65536., kThingArmedRemoteBomb, nSpeed);
 	if (spawned)
@@ -2170,7 +2187,7 @@ int processSprayCan(PLAYER* pPlayer)
 		return 1;
 	case 7:
 	{
-		pPlayer->throwPower = ClipHigh(DivScale(PlayClock - pPlayer->throwTime, 240, 16), 65536);
+		setThrowPower(pPlayer);
 		if (!(pPlayer->input.actions & SB_FIRE))
 		{
 			if (!pPlayer->fuseTime)
@@ -2214,7 +2231,7 @@ static bool processTNT(PLAYER* pPlayer)
 		return 1;
 	case 6:
 	{
-		pPlayer->throwPower = ClipHigh(DivScale(PlayClock - pPlayer->throwTime, 240, 16), 65536);
+		setThrowPower(pPlayer);
 		if (!(pPlayer->input.actions & SB_FIRE))
 		{
 			if (!pPlayer->fuseTime)
@@ -2239,7 +2256,7 @@ static bool processProxy(PLAYER* pPlayer)
 	switch (pPlayer->weaponState)
 	{
 	case 9:
-		pPlayer->throwPower = ClipHigh(DivScale(PlayClock - pPlayer->throwTime, 240, 16), 65536);
+		setThrowPower(pPlayer);
 		pPlayer->weaponTimer = 0;
 		pPlayer->qavTimer = 0;
 		if (!(pPlayer->input.actions & SB_FIRE))
@@ -2263,7 +2280,7 @@ static bool processRemote(PLAYER* pPlayer)
 	switch (pPlayer->weaponState)
 	{
 	case 13:
-		pPlayer->throwPower = ClipHigh(DivScale(PlayClock - pPlayer->throwTime, 240, 16), 65536);
+		setThrowPower(pPlayer);
 		if (!(pPlayer->input.actions & SB_FIRE))
 		{
 			pPlayer->weaponState = 11;

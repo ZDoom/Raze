@@ -94,7 +94,7 @@ struct BloodPlayer native
 	native bool       qavLoop;
 	native int        fuseTime;
 	native int        throwTime;
-	native int        throwPower;
+	native double        throwPower;
 	//native Aim        aim;  // world
 	//native int        aimTarget;  // aim target sprite
 	native int        aimTargetsCount;
