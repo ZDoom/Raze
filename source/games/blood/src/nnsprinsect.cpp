@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-TArray<DBloodActor*> getSpritesNearWalls(sectortype* pSrcSect, int nDist);
+TArray<DBloodActor*> getSpritesNearWalls(sectortype* pSrcSect, double nDist);
 
 // - CLASSES ------------------------------------------------------------------
 
@@ -41,7 +41,6 @@ class SPRINSECT
 {
 public:
     static const int kMaxSprNear = 256;
-    static const int kWallDist = 16;
 
     struct SPRITES
     {
@@ -52,7 +51,7 @@ private:
     TArray<SPRITES> db;
 public:
     void Free() { db.Clear(); }
-    void Init(int nDist = kWallDist); // used in trInit to collect the sprites before translation
+    void Init(double nDist = 1); // used in trInit to collect the sprites before translation
     void Serialize(FSerializer& pSave);
     TArray<TObjPtr<DBloodActor*>>* GetSprPtr(int nSector);
 	void Mark()
@@ -74,7 +73,7 @@ void MarkSprInSect()
 	gSprNSect.Mark();
 }
 
-void SPRINSECT::Init(int nDist)
+void SPRINSECT::Init(double nDist)
 {
     Free();
 
@@ -178,9 +177,8 @@ bool isMovableSector(sectortype* pSect)
     return false;
 }
 
-TArray<DBloodActor*> getSpritesNearWalls(sectortype* pSrcSect, int nDist)
+TArray<DBloodActor*> getSpritesNearWalls(sectortype* pSrcSect, double nDist)
 {
-	double dist = nDist * inttoworld;
     TArray<DBloodActor*> out;
 
     for(auto& wal : wallsofsector(pSrcSect))

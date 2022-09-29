@@ -7673,9 +7673,8 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 //
 //---------------------------------------------------------------------------
 
-bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, int nRange_)
+bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRange)
 {
-	double nRange = nRange_ * inttoworld;
 	DVector3 pos = actor->spr.pos;
 	DVector3 nAngVect(nAngle.ToVector(), 0);
 
@@ -7712,11 +7711,8 @@ void nnExtAiSetDirection(DBloodActor* actor, DAngle direction)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 
 	DAngle vc = deltaangle(actor->spr.angle, direction);
-	double nCos = actor->spr.angle.Cos();
-	double nSin = actor->spr.angle.Sin();
-	double t1 = actor->vel.X * nCos + actor->vel.Y * nSin;
-	int range = FloatToFixed(t1 * (15 / 8192.));
 	DAngle v8 = vc > nullAngle ? DAngle180 / 3 : -DAngle180 / 3;
+	double range = actor->vel.XY().dot(actor->spr.angle.ToVector()) * 120;
 
 	if (nnExtCanMove(actor, actor->GetTarget(), actor->spr.angle + vc, range))
 		actor->xspr.goalAng = actor->spr.angle + vc;

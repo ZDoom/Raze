@@ -2094,8 +2094,7 @@ void ProcessMotion(void)
 				continue;
 			else
 				pXSector->bobTheta += MulScale(pXSector->bobSpeed, pXSector->busy, 16);
-			int zoff_i = int(BobVal(pXSector->bobTheta) * (pXSector->bobZRange << 8));
-			double zoff = zoff_i * zinttoworld;
+			double zoff = BobVal(pXSector->bobTheta) * pXSector->bobZRange;
 
 			BloodSectIterator it(pSector);
 			while (auto actor = it.Next())
