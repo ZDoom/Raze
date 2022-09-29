@@ -54,15 +54,9 @@ void GetZRange(DBloodActor* pSprite, double* ceilZ, Collision* ceilHit, double* 
 
 void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 
+[[deprecated]] // take care of this together with the engines clipmove.
 void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3);
-inline void ClipMove(DVector3& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3)
-{
-	// this uses floats only partially.
-	vec3_t ipos = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint)};
-	ClipMove(ipos, pSector, xv, yv, wd, cd, fd, nMask, hit, tracecount);
-	pos = { ipos.X * inttoworld, ipos.Y * inttoworld, ipos.Z * zinttoworld };
-}
-inline void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, int wd, double cd, double fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3)
+void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, int wd, double cd, double fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3)
 {
 	// this uses floats only partially.
 	vec3_t ipos = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint)};

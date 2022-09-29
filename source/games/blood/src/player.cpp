@@ -1912,10 +1912,8 @@ void playerProcess(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* playerFireMissile(PLAYER* pPlayer, int xyoff_, int dx, int dy, int dz, int nType)
+DBloodActor* playerFireMissile(PLAYER* pPlayer, double xyoff, const DVector3& dv, int nType)
 {
-	double xyoff = xyoff_ * inttoworld;
-	DVector3 dv(FixedToFloat<14>(dx), FixedToFloat<14>(dy), FixedToFloat<14>(dz));
 	return actFireMissile(pPlayer->actor, xyoff, pPlayer->zWeapon - pPlayer->actor->spr.pos.Z, dv, nType);
 }
 
