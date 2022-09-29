@@ -128,7 +128,7 @@ static void forcePunch(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int by = 64)
+static bool genDudeAdjustSlope(DBloodActor* actor, double dist, int weaponType, int by = 64)
 {
 	if (actor->GetTarget() != nullptr)
 	{
@@ -140,7 +140,7 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
 		for (int i = -8191; i < 8192; i += by)
 		{
 			double ii = i / 16384.;
-			HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), ii), clipMask, dist);
+			HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), ii), clipMask, dist * 16); // this originally passed a badly scaled 'dist'.
 			if (!fStart && actor->GetTarget() == gHitInfo.actor()) fStart = ii;
 			else if (fStart && actor->GetTarget() != gHitInfo.actor())
 			{
@@ -787,7 +787,7 @@ static void unicultThinkChase(DBloodActor* actor)
 						case 0:
 						case 1:
 						case 2:
-							if (weaponType != kGenDudeWeaponMissile && genDudeAdjustSlope(actor, dist * worldtoint, weaponType)
+							if (weaponType != kGenDudeWeaponMissile && genDudeAdjustSlope(actor, dist, weaponType)
 								&& dist < (375 + RandomF(2000, 4)) && pExtra->baseDispersion < kGenDudeMaxDispersion >> 1) break;
 
 							else if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
@@ -861,7 +861,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							}
 							else if (weaponType == kGenDudeWeaponHitscan && hscn)
 							{
-								if (genDudeAdjustSlope(actor, dist * worldtoint, weaponType)) break;
+								if (genDudeAdjustSlope(actor, dist, weaponType)) break;
 								VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), dist, 1);
 								if (actor == gHitInfo.actor()) break;
 
