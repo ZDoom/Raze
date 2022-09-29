@@ -148,15 +148,6 @@ using BloodStatIterator = TStatIterator<DBloodActor>;
 using BloodSectIterator = TSectIterator<DBloodActor>;
 using BloodSpriteIterator = TSpriteIterator<DBloodActor>;
 
-[[deprecated]]
-inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
-{
-	double t, b;
-	GetSpriteExtents(&actor->spr, &t, &b);
-	*top = t * zworldtoint;
-	*bottom = b * zworldtoint;
-}
-
 inline void GetActorExtents(DBloodActor* actor, double* top, double* bottom)
 {
 	GetSpriteExtents(&actor->spr, top, bottom);
