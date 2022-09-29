@@ -168,6 +168,8 @@ struct VECTORDATA {
 	int bloodSplats; // blood splats
 	int splatChance; // blood splat chance
 	SURFHIT surfHit[15];
+
+	double fMaxDist() const { return maxDist * maptoworld; }
 };
 
 extern const AMMOITEMDATA gAmmoItemData[];

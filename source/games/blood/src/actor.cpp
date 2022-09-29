@@ -5908,7 +5908,7 @@ static void actCheckTraps()
 					}
 					pos += vec / 2;
 				}
-				gVectorData[kVectorTchernobogBurn].maxDist = actor->xspr.data1 << 9;
+				gVectorData[kVectorTchernobogBurn].maxDist = actor->xspr.data1 << 9;	// hacking static game data should be prohibited...
 				actFireVector(actor, 0., 0., DVector3(actor->spr.angle.ToVector(), Random2F(0x8888) * 4), kVectorTchernobogBurn);
 			}
 			break;
@@ -6614,7 +6614,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 	dv /= dv.XY().Length(); 
 	assert(vectorType >= 0 && vectorType < kVectorMax);
 	const VECTORDATA* pVectorData = &gVectorData[vectorType];
-	double nRange = pVectorData->maxDist * inttoworld;
+	double nRange = pVectorData->fMaxDist();
 	// The vector for hitscan must be longer than what we got here as long as it works with integers.
 	int hit = VectorScan(shooter, offset, zoffset, dv, nRange, 1);
 	if (hit == 3)
@@ -6742,7 +6742,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 				}
 				if (Chance(pVectorData->fxChance))
 				{
-					double tt = gVectorData[19].maxDist * inttoworld;
+					double tt = gVectorData[19].fMaxDist();
 					dv.X += FixedToFloat<14>(Random3(4000)); // random messiness...
 					dv.Y += FixedToFloat<14>(Random3(4000));
 					dv.Z += FixedToFloat<14>(Random3(4000));

@@ -608,7 +608,7 @@ static void unicultThinkChase(DBloodActor* actor)
 					}
 
 				}
-				else if (dist <= meleeVector->maxDist * inttoworld)
+				else if (dist <= meleeVector->fMaxDist())
 				{
 
 					if (spriteIsUnderwater(actor, false))
@@ -645,7 +645,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
 			if (weaponType == kGenDudeWeaponHitscan)
 			{
-				if ((vdist = gVectorData[curWeapon].maxDist * inttoworld) <= 0)
+				if ((vdist = gVectorData[curWeapon].fMaxDist()) <= 0)
 					vdist = mdist;
 
 			}
@@ -657,9 +657,9 @@ static void unicultThinkChase(DBloodActor* actor)
 					aiSetTarget(actor, actor->spr.pos);
 					return;
 				}
-				else if (actor->genDudeExtra.slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist * inttoworld)
+				else if (actor->genDudeExtra.slaveCount > gGameOptions.nDifficulty || dist < meleeVector->fMaxDist())
 				{
-					if (dist <= meleeVector->maxDist * inttoworld)
+					if (dist <= meleeVector->fMaxDist())
 					{
 						aiGenDudeNewState(actor, &genDudePunch);
 						return;
@@ -696,7 +696,7 @@ static void unicultThinkChase(DBloodActor* actor)
 				case kMissileFireballTchernobog:
 					if (mdist == defDist) mdist = 3000/16.;
 					if (dist > mdist || actor->xspr.locked == 1) break;
-					else if (dist <= meleeVector->maxDist * inttoworld && Chance(0x9000))
+					else if (dist <= meleeVector->fMaxDist() && Chance(0x9000))
 						aiGenDudeNewState(actor, &genDudePunch);
 					else if (state == 1) aiGenDudeNewState(actor, &genDudeChaseW);
 					else if (state == 2) aiGenDudeNewState(actor, &genDudeChaseD);
@@ -708,14 +708,14 @@ static void unicultThinkChase(DBloodActor* actor)
 					//viewSetSystemMessage("%d", target->xspr.burnTime);
 					if (spriteIsUnderwater(actor, false))
 					{
-						if (dist > meleeVector->maxDist * inttoworld) aiGenDudeNewState(actor, &genDudeChaseW);
+						if (dist > meleeVector->fMaxDist()) aiGenDudeNewState(actor, &genDudeChaseW);
 						else if (Chance(0x8000)) aiGenDudeNewState(actor, &genDudePunch);
 						else aiGenDudeNewState(actor, &genDudeDodgeShortW);
 						return;
 					}
 					else if (dist <= 250 && target->xspr.burnTime >= 2000 && target->GetBurnSource() == actor)
 					{
-						if (dist > meleeVector->maxDist * inttoworld) aiGenDudeNewState(actor, &genDudeChaseL);
+						if (dist > meleeVector->fMaxDist()) aiGenDudeNewState(actor, &genDudeChaseL);
 						else aiGenDudeNewState(actor, &genDudePunch);
 						return;
 					}
@@ -2291,7 +2291,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		pExtra->isMelee = false;
 		if (pExtra->weaponType == kGenDudeWeaponKamikaze) pExtra->isMelee = true;
 		else if (pExtra->weaponType == kGenDudeWeaponHitscan) {
-			if (gVectorData[pExtra->curWeapon].maxDist > 0 && gVectorData[pExtra->curWeapon].maxDist <= kGenDudeMaxMeleeDist)
+			if (gVectorData[pExtra->curWeapon].fMaxDist() > 0 && gVectorData[pExtra->curWeapon].fMaxDist() <= kGenDudeMaxMeleeDistf)
 				pExtra->isMelee = true;
 		}
 
