@@ -114,24 +114,6 @@ class F2DDrawer;
 void getzrange_(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz,
     CollisionBase& florhit, int32_t walldist, uint32_t cliptype);
 
-[[deprecated]]
-inline void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz,
-    CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
-{
-    getzrange_(pos, sect, ceilz, ceilhit, florz, florhit, walldist, cliptype);
-}
-
-[[deprecated]]
-inline void getzrange(const vec3_t& pos, sectortype* sect, double* ceilz, CollisionBase& ceilhit, double* florz,
-    CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
-{
-    int c = int(*ceilz * zworldtoint);
-    int f = int(*florz * zworldtoint);
-    getzrange_(pos, sect, &c, ceilhit, &f, florhit, walldist, cliptype);
-    *ceilz = c * zinttoworld;
-    *florz = f * zinttoworld;
-}
-
 inline void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBase& ceilhit, double* florz,
 	CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
 {
