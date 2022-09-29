@@ -826,8 +826,17 @@ void PathSound(sectortype* pSector, int nSound)
 //
 //---------------------------------------------------------------------------
 
-void TranslateSector(sectortype* pSector, double wave1, double wave2, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, bool bAllWalls)
+void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVector2& pivot, const DVector2& pt1, DAngle ang1, const DVector2& pt2, DAngle ang2, bool bAllWalls)
 {
+	int a4 = int(pivot.X * worldtoint);
+	int a5 = int(pivot.Y * worldtoint);
+	int a6 = int(pt1.X * worldtoint);
+	int a7 = int(pt1.Y * worldtoint);
+	int a8 = ang1.Buildang();
+	int a9 = int(pt2.X * worldtoint);
+	int a10 = int(pt2.Y * worldtoint);
+	int a11 = ang2.Buildang();
+
 	XSECTOR* pXSector = &pSector->xs();
 	int v20 = interpolatedvalue(a6, a9, wave1);
 	int vc = interpolatedvalue(a6, a9, wave2);
@@ -837,7 +846,6 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, int a4, in
 	int ang = interpolatedvalue(a8, a11, wave2);
 	int v14 = ang - v44;
 
-	DVector2 pivot = { a4 * inttoworld, a5 * inttoworld };
 	DVector2 offset = { (vc - a4) * inttoworld, (v8 - a5) * inttoworld };
 	DVector2 aoffset = { (vc) * inttoworld, (v8) * inttoworld };
 	DVector2 position = { (vc - v20) * inttoworld, (v8 - v24) * inttoworld };
@@ -978,11 +986,6 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, int a4, in
 	/////////////////////
 #endif
 
-}
-
-void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVector2& pivot, const DVector2& pt1, DAngle ang1,const DVector2& pt2, DAngle ang2, bool allWalls)
-{
-	TranslateSector(pSector, wave1, wave2, int(pivot.X * worldtoint), int(pivot.Y * worldtoint), int(pt1.X * worldtoint), int(pt1.Y * worldtoint), ang1.Buildang(), int(pt2.X * worldtoint), int(pt2.Y * worldtoint), ang2.Buildang(), allWalls);
 }
 
 //---------------------------------------------------------------------------
