@@ -4444,7 +4444,7 @@ void getzrangepoint(const DVector3& pos, sectortype* sect,
         if ((cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_BLOCK)) != (CSTAT_SPRITE_ALIGNMENT_FLOOR|CSTAT_SPRITE_BLOCK))
             continue;                   // Only check blocking floor sprites
 
-		double fdaz = itActor->spr.pos.Z; // todo: consider slope sprites here.
+        double fdaz = spriteGetZOfSlopef(&itActor->spr, pos.XY(), spriteGetSlope(itActor));
 
         // Only check if sprite's 2-sided or your on the 1-sided side
         if (((cstat & CSTAT_SPRITE_ONE_SIDE) != 0) && ((pos.Z > fdaz) == ((cstat & CSTAT_SPRITE_YFLIP) == 0)))
