@@ -68,8 +68,10 @@ bool CheckProximity(DBloodActor* actor, const DVector3& pos, sectortype* pSector
 //
 //---------------------------------------------------------------------------
 
-bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
+bool CheckProximityWall(walltype* pWall, const DVector2& pos, int nDist)
 {
+	int x = pos.X * (1. / maptoworld);
+	int y = pos.Y * (1. / maptoworld);
 	int x1 = pWall->pos.X * (1./maptoworld);
 	int y1 = pWall->pos.Y * (1./maptoworld);
 	int x2 = pWall->point2Wall()->pos.X * (1./maptoworld);
@@ -570,8 +572,6 @@ void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd,
 
 BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod)
 {
-	int x = pos.X * worldtoint;
-	int y = pos.Y * worldtoint;
 	// by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
 	// E6M1: throwing TNT on the stone footpath while standing on the brown road will fail due to the start/end points of the span being too far away. it'll only do damage at one end of the road
 	// E1M2: throwing TNT at the double doors while standing on the train platform
@@ -596,7 +596,7 @@ BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int n
 			{
 				if (search.Check(pNextSector)) // if we've already checked this sector, skip. This is bad, therefore only in compat mode.
 					continue;
-				withinRange = CheckProximityWall(wal.point2Wall(), x, y, nDist);
+				withinRange = CheckProximityWall(wal.point2Wall(), pos, nDist);
 			}
 			else // new method using proper math and no bad shortcut.
 			{
