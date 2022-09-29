@@ -828,29 +828,17 @@ void PathSound(sectortype* pSector, int nSound)
 
 void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVector2& pivot, const DVector2& pt1, DAngle ang1, const DVector2& pt2, DAngle ang2, bool bAllWalls)
 {
-	int a4 = int(pivot.X * worldtoint);
-	int a5 = int(pivot.Y * worldtoint);
-	int a6 = int(pt1.X * worldtoint);
-	int a7 = int(pt1.Y * worldtoint);
-	int a8 = ang1.Buildang();
-	int a9 = int(pt2.X * worldtoint);
-	int a10 = int(pt2.Y * worldtoint);
-	int a11 = ang2.Buildang();
+	auto pt_w1 = interpolatedvalue(pt1, pt2, wave1);
+	auto pt_w2 = interpolatedvalue(pt1, pt2, wave2);
+	// the angles here may not be normalized before interpolation. Some setups contain multiple rotations!
+	DAngle ptang_w1 = DAngle::fromDeg(interpolatedvalue(ang1.Degrees(), ang2.Degrees(), wave1));
+	DAngle ptang_w2 = DAngle::fromDeg(interpolatedvalue(ang1.Degrees(), ang2.Degrees(), wave2));
 
 	XSECTOR* pXSector = &pSector->xs();
-	int v20 = interpolatedvalue(a6, a9, wave1);
-	int vc = interpolatedvalue(a6, a9, wave2);
-	int v24 = interpolatedvalue(a7, a10, wave1);
-	int v8 = interpolatedvalue(a7, a10, wave2);
-	int v44 = interpolatedvalue(a8, a11, wave1);
-	int ang = interpolatedvalue(a8, a11, wave2);
-	int v14 = ang - v44;
 
-	DVector2 offset = { (vc - a4) * inttoworld, (v8 - a5) * inttoworld };
-	DVector2 aoffset = { (vc) * inttoworld, (v8) * inttoworld };
-	DVector2 position = { (vc - v20) * inttoworld, (v8 - v24) * inttoworld };
-	auto angle = DAngle::fromBuild(ang);
-	auto angleofs = DAngle::fromBuild(v14);
+	DVector2 offset = pt_w2 - pivot;
+	DVector2 position = pt_w2 - pt_w1;
+	auto angleofs = ptang_w2 - ptang_w1;
 
 	auto rotatewall = [=](walltype* wal, DAngle angle, const DVector2& offset)
 	{
@@ -870,7 +858,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 	{
 		for (auto& wal : wallsofsector(pSector))
 		{
-			rotatewall(&wal, angle, offset);
+			rotatewall(&wal, ptang_w2, offset);
 		}
 	}
 	else
@@ -880,21 +868,21 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 			auto p2Wall = wal.point2Wall();
 			if (wal.cstat & CSTAT_WALL_MOVE_FORWARD)
 			{
-				rotatewall(&wal, angle, offset);
+				rotatewall(&wal, ptang_w2, offset);
 
 				if ((p2Wall->cstat & CSTAT_WALL_MOVE_MASK) == 0)
 				{
-					rotatewall(p2Wall, angle, offset);
+					rotatewall(p2Wall, ptang_w2, offset);
 				}
 				continue;
 			}
 			if (wal.cstat & CSTAT_WALL_MOVE_BACKWARD)
 			{
-				rotatewall(&wal, -angle, -offset);
+				rotatewall(&wal, -ptang_w2, -offset);
 
 				if ((p2Wall->cstat & CSTAT_WALL_MOVE_MASK) == 0)
 				{
-					rotatewall(p2Wall, -angle, -offset);
+					rotatewall(p2Wall, -ptang_w2, -offset);
 				}
 				continue;
 			}
@@ -918,9 +906,9 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 
 		if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 		{
-			auto spot = rotatepoint(pivot, actor->basePoint, angle);
+			auto spot = rotatepoint(pivot, actor->basePoint, ptang_w2);
 			viewBackupSpriteLoc(actor);
-			actor->spr.pos.XY() = spot + aoffset - pivot;
+			actor->spr.pos.XY() = spot + pt_w2 - pivot;
 			actor->spr.angle += angleofs;
 		}
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
@@ -928,9 +916,9 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 			// fix Y arg in RotatePoint for reverse (green) moving sprites. (Original Blood bug?)
 			DVector2 pivotDy(pivot.X, gModernMap ? pivot.Y : pivot.X);
 
-			auto spot = rotatepoint(pivotDy, actor->basePoint, angle);
+			auto spot = rotatepoint(pivotDy, actor->basePoint, ptang_w2);
 			viewBackupSpriteLoc(actor);
-			actor->spr.pos.XY() = spot - aoffset + pivot;
+			actor->spr.pos.XY() = spot - pt_w2 + pivot;
 			actor->spr.angle += angleofs;
 		}
 		else if (pXSector->Drag)
@@ -943,8 +931,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 				viewBackupSpriteLoc(actor);
 				if (angleofs != nullAngle)
 				{
-					DVector2 mypivot(v20 * inttoworld, v24 * inttoworld);
-					actor->spr.pos.XY() = rotatepoint(mypivot, actor->spr.pos.XY(), angleofs);
+					actor->spr.pos.XY() = rotatepoint(pt_w1, actor->spr.pos.XY(), angleofs);
 				}
 				actor->spr.angle += angleofs;
 				actor->spr.pos += position;
@@ -968,16 +955,16 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 
 				if (ac->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 				{
-					auto spot = rotatepoint(pivot, ac->basePoint, angle);
+					auto spot = rotatepoint(pivot, ac->basePoint, ptang_w2);
 					viewBackupSpriteLoc(ac);
-					ac->spr.pos.XY() = spot + aoffset - pivot;
+					ac->spr.pos.XY() = spot + pt_w2 - pivot;
 					ac->spr.angle += angleofs;
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 				{
-					auto spot = rotatepoint(pivot, ac->basePoint, angle);
+					auto spot = rotatepoint(pivot, ac->basePoint, ptang_w2);
 					viewBackupSpriteLoc(ac);
-					ac->spr.pos.XY() = spot - aoffset + pivot;
+					ac->spr.pos.XY() = spot - pt_w2 + pivot;
 					ac->spr.angle += angleofs;
 				}
 			}
