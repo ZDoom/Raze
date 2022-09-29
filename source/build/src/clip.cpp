@@ -887,12 +887,15 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 // getzrange
 //
 
-void getzrange_(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz, CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
+
+void getzrange(const DVector3& pos_, sectortype* sect, double* ceilz_, CollisionBase& ceilhit, double* florz_, CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
 {
+	vec3_t pos(int(pos_.X * worldtoint), int(pos_.Y * worldtoint), int(pos_.Z * zworldtoint) );
+
     if (sect == nullptr)
     {
-        *ceilz = INT32_MIN; ceilhit.setVoid();
-        *florz = INT32_MAX; florhit.setVoid();
+        *ceilz_ = -FLT_MAX; ceilhit.setVoid();
+        *florz_ = FLT_MAX; florhit.setVoid();
         return;
     }
 
@@ -917,7 +920,7 @@ void getzrange_(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBa
         closest = { int(v.X * worldtoint), int(v.Y * worldtoint) };
     }
 
-    int_getzsofslopeptr(sect,closest.X,closest.Y,ceilz,florz);
+    getzsofslopeptr(sect, closest.X * inttoworld, closest.Y * inttoworld, ceilz_, florz_);
     ceilhit.setSector(sect);
     florhit.setSector(sect);
 
@@ -974,7 +977,7 @@ void getzrange_(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBa
                 if (da.X >= da.Y)
                     continue;
                 //It actually got here, through all the continue's!!!
-                int32_t daz = 0, daz2 = 0;
+                double daz = 0, daz2 = 0;
                 closest = pos.vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                 {
@@ -983,14 +986,14 @@ void getzrange_(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBa
                     closest = { int(v.X * worldtoint), int(v.Y * worldtoint) };
                 }
 
-                int_getzsofslopeptr(nextsect, closest.X,closest.Y, &daz,&daz2);
+                getzsofslopeptr(nextsect, closest.X * inttoworld,closest.Y * inttoworld, &daz,&daz2);
 
                 {
-                    if (daz > *ceilz)
-                        *ceilz = daz, ceilhit.setSector(nextsect);
+                    if (daz > *ceilz_)
+                        *ceilz_ = daz, ceilhit.setSector(nextsect);
 
-                    if (daz2 < *florz)
-                        *florz = daz2, florhit.setSector(nextsect);
+                    if (daz2 < *florz_)
+                        *florz_ = daz2, florhit.setSector(nextsect);
                 }
             }
         }
@@ -1072,20 +1075,19 @@ void getzrange_(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBa
 
                 if (clipyou != 0)
                 {
-                    if ((pos.Z > daz) && (daz > *ceilz))
+                    if ((pos.Z > daz) && (daz * zinttoworld > *ceilz_))
                     {
-                        *ceilz = daz;
+                        *ceilz_ = daz * zinttoworld;
                         ceilhit.setSprite(actor);
                     }
 
-                    if ((pos.Z < daz2) && (daz2 < *florz))
+                    if ((pos.Z < daz2) && (daz2 * zinttoworld < *florz_))
                     {
-                        *florz = daz2;
+                        *florz_ = daz2 * zinttoworld;
                         florhit.setSprite(actor);
                     }
                 }
             }
         }
     }
-
 }
