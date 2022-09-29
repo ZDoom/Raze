@@ -6444,8 +6444,10 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, const DVector3& dv, int nType)
+DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dv, int nType)
 {
+	// this function expects a vector with unit length in XY. Let's not depend on all callers doing it.
+	dv /= dv.XY().Length();
 	assert(nType >= kMissileBase && nType < kMissileMax);
 	bool impact = false;
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];

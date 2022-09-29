@@ -250,7 +250,7 @@ inline DBloodActor* actFireThing(DBloodActor* actor, int xyoff_, int zoff_, int 
 	return actFireThing(actor, xyoff, zoff, zvel, thingType, nSpeed);
 }
 
-DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, const DVector3& dc, int nType);
+DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVector3 dc, int nType);
 
 inline DBloodActor* actFireMissile(DBloodActor* actor, int xyoff_, int zoff_, int dx, int dy, int dz, int nType)
 {
