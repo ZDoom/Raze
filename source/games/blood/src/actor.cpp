@@ -2709,7 +2709,7 @@ static void actNapalmMove(DBloodActor* actor)
 		for (int i = 0; i < 2; i++)
 		{
 			double t1 = RandomD(3.2) + 3.2;
-			auto rndang = DAngle::fromBuild(Random2(0x71));
+			auto rndang = Random2A(0x71);
 			actor->spr.angle = (ang + rndang).Normalized360();
 			auto spawned = actFireThing(actor, 0., 0., -0.5774, kThingNapalmBall, t1);
 			spawned->SetOwner(actor->GetOwner());
@@ -4560,7 +4560,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->vel.Z += FixedToFloat(58254);
 		if (actor->spr.type == kThingZombieHead)
 		{
-			auto* fxActor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, 0);
+			auto* fxActor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos, nullAngle);
 			if (fxActor)
 			{
 				auto vect1 = DVector2(64./15., 0.).Rotated(DAngle::fromBuild((PlayClock * 11) & 2047));

@@ -38,7 +38,7 @@ struct FXDATA {
 	int16_t flags; // flags
 	int32_t gravity; // gravity
 	int32_t drag; // air drag
-	int32_t ate;
+	int32_t defangle;
 	int16_t picnum; // picnum
 	uint8_t xrepeat; // xrepeat
 	uint8_t yrepeat; // yrepeat
@@ -135,12 +135,7 @@ void CFX::remove(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& pos, DAngle a6)
-{
-	return fxSpawnActor(nFx, pSector, pos, a6.Buildang());
-}
-
-DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& pos, unsigned int a6)
+DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& pos, DAngle angle)
 {
 	if (pSector == nullptr)
 		return nullptr;
@@ -189,10 +184,10 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 		actor->addX();
 		seqSpawn(pFX->seq, actor, -1);
 	}
-	if (a6 == 0)
-		a6 = pFX->ate;
-	if (a6)
-		evPostActor(actor, a6 + Random2(a6 >> 1), kCallbackRemove);
+	if (angle == nullAngle)
+		angle = mapangle(pFX->defangle);
+	if (angle != nullAngle)
+		evPostActor(actor, angle.Buildang() + Random2(angle.Buildang() >> 1), kCallbackRemove);
 	return actor;
 }
 
