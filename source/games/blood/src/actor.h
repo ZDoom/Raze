@@ -178,7 +178,7 @@ extern const ITEMDATA gItemData[];
 extern const MissileType missileInfo[];
 extern const EXPLOSION explodeInfo[];
 extern const THINGINFO thingInfo[];
-extern VECTORDATA gVectorData[];
+extern const VECTORDATA gVectorData[];
 
 const int gDudeDrag = 0x2a00;
 
@@ -246,7 +246,7 @@ void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
 int actGetRespawnTime(DBloodActor *pSprite);
 bool actCheckRespawn(DBloodActor *pSprite);
 
-void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3 dv, VECTOR_TYPE vectorType);
+void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3 dv, VECTOR_TYPE vectorType, double nRange = -1);
 void actPostSprite(DBloodActor* actor, int status);
 void actPostProcess(void);
 void MakeSplash(DBloodActor *actor);

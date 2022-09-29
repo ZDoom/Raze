@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].maxDist. What were they thinking... 
+const VECTORDATA gVectorData[] = {
 
 	// Tine
 	{
@@ -5908,8 +5908,7 @@ static void actCheckTraps()
 					}
 					pos += vec / 2;
 				}
-				gVectorData[kVectorTchernobogBurn].maxDist = actor->xspr.data1 << 9;	// hacking static game data should be prohibited...
-				actFireVector(actor, 0., 0., DVector3(actor->spr.angle.ToVector(), Random2F(0x8888) * 4), kVectorTchernobogBurn);
+				actFireVector(actor, 0., 0., DVector3(actor->spr.angle.ToVector(), Random2F(0x8888) * 4), kVectorTchernobogBurn, actor->xspr.data1 << 5);
 			}
 			break;
 		}
@@ -6608,13 +6607,13 @@ bool actCanSplatWall(walltype* pWall)
 //
 //---------------------------------------------------------------------------
 
-void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3 dv, VECTOR_TYPE vectorType)
+void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3 dv, VECTOR_TYPE vectorType, double nRange)
 {
 	// this function expects a vector with unit length in XY. Let's not depend on all callers doing it.
 	dv /= dv.XY().Length(); 
 	assert(vectorType >= 0 && vectorType < kVectorMax);
 	const VECTORDATA* pVectorData = &gVectorData[vectorType];
-	double nRange = pVectorData->fMaxDist();
+	if (nRange < 0) nRange = pVectorData->fMaxDist();
 	// The vector for hitscan must be longer than what we got here as long as it works with integers.
 	int hit = VectorScan(shooter, offset, zoffset, dv, nRange, 1);
 	if (hit == 3)
@@ -7035,17 +7034,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRI
 
 void SerializeActor(FSerializer& arc)
 {
-	if (arc.BeginObject("actor"))
+	if (arc.isReading() && gGameOptions.nMonsterSettings != 0)
 	{
-		arc("maxdist20", gVectorData[kVectorTchernobogBurn].maxDist)    // The code messes around with this field so better save it.
-			.EndObject();
-
-		if (arc.isReading() && gGameOptions.nMonsterSettings != 0)
-		{
-			for (int i = 0; i < kDudeMax - kDudeBase; i++)
-				for (int j = 0; j < 7; j++)
-					dudeInfo[i].damageVal[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
-		}
+		for (int i = 0; i < kDudeMax - kDudeBase; i++)
+			for (int j = 0; j < 7; j++)
+				dudeInfo[i].damageVal[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
 	}
 }
 
