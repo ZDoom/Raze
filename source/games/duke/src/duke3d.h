@@ -55,7 +55,6 @@ struct GameInterface : public ::GameInterface
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
-	DVector3 chaseCamPos(DAngle ang, DAngle horiz) { return DVector3(-ang.ToVector() * 64., horiz.Tan() * 64.); }
 	void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
 	void UpdateCameras(double smoothratio) override;
 	void EnterPortal(DCoreActor* viewer, int type) override;

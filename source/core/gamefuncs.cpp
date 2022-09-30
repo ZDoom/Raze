@@ -37,12 +37,12 @@ IntRect viewport3d;
 
 double cameradist, cameraclock;
 
-bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle ang, DAngle horiz, double const interpfrac)
+bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle ang, DAngle horiz, double const interpfrac, double const backamp)
 {
 	if (!*psect) return false;
 
 	// Calculate new pos to shoot backwards
-	DVector3 npos = gi->chaseCamPos(ang, horiz);
+	DVector3 npos = DVector3(-ang.ToVector(), horiz.Tan()) * backamp;
 
 	HitInfoBase hitinfo;
 	auto bakcstat = act->spr.cstat;
@@ -78,7 +78,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle
 			{
 				bakcstat = hitinfo.hitActor->spr.cstat;
 				hitinfo.hitActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-				calcChaseCamPos(ppos, act, psect, ang, horiz, interpfrac);
+				calcChaseCamPos(ppos, act, psect, ang, horiz, interpfrac, backamp);
 				hitinfo.hitActor->spr.cstat = bakcstat;
 				return false;
 			}

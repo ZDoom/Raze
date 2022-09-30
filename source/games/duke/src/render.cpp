@@ -328,10 +328,10 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 			cpos.Z -= adjustment;
 
 			viewer = p->GetActor();
-			if (!calcChaseCamPos(cpos, viewer, &sect, cang, choriz, interpfrac))
+			if (!calcChaseCamPos(cpos, viewer, &sect, cang, choriz, interpfrac, 64.))
 			{
 				cpos.Z += adjustment;
-				calcChaseCamPos(cpos, viewer, &sect, cang, choriz, interpfrac);
+				calcChaseCamPos(cpos, viewer, &sect, cang, choriz, interpfrac, 64.);
 			}
 		}
 

@@ -1295,10 +1295,10 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     {
         tpos.Z -= 33;
 
-        if (!calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac))
+        if (!calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac, 128.))
         {
             tpos.Z += 33;
-            calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac);
+            calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac, 128.);
         }
     }
 

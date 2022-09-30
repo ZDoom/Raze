@@ -529,7 +529,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 	}
 	else
 	{
-		calcChaseCamPos(cPos, pPlayer->actor, &pSector, cA, cH, interpfrac);
+		calcChaseCamPos(cPos, pPlayer->actor, &pSector, cA, cH, interpfrac, 80.);
 	}
 	if (pSector != nullptr)
 		CheckLink(cPos, &pSector);
