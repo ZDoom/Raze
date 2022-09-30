@@ -54,7 +54,6 @@ static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle::fromDeg(90. + 11.25);
 static constexpr DAngle PITCH_HORIZOFFSPEED = DAngle::fromDeg(1.95835);
 static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(38.);
 static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
-static constexpr DAngle ANGLE_PUSHBASE = DAngle::fromDeg(32. / 465.);
 
 
 //---------------------------------------------------------------------------
@@ -82,11 +81,11 @@ inline static DAngle getscaledangle(const DAngle value, const double scaleAdjust
 	return ((object.Normalized180() * getTicrateScale(value)) + push) * getCorrectedScale(scaleAdjust);
 }
 
-inline static void scaletozero(DAngle& object, const DAngle value, const double scaleAdjust, const DAngle push = -minAngle)
+inline static void scaletozero(DAngle& object, const DAngle value, const double scaleAdjust, const DAngle push = DAngle::fromDeg(32. / 465.))
 {
 	if (auto sgn = object.Sgn())
 	{
-		object  -= getscaledangle(value, scaleAdjust, object, push == -minAngle ? ANGLE_PUSHBASE * sgn : push);
+		object  -= getscaledangle(value, scaleAdjust, object, push * sgn);
 		if (sgn != object.Sgn()) object = nullAngle;
 	}
 }
@@ -320,7 +319,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(horizoff, PITCH_HORIZOFFSPEED, scaleAdjust, PITCH_HORIZOFFPUSH * horizoff.Sgn());
+			scaletozero(horizoff, PITCH_HORIZOFFSPEED, scaleAdjust, PITCH_HORIZOFFPUSH);
 		}
 
 		// Clamp off against the maximum allowed pitch.
