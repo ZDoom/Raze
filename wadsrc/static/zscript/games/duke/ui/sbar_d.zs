@@ -325,7 +325,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		/*
 		if (isShareware() && (ind > DukeWpn.HANDBOMB_WEAPON || ind < 0))
 		{
-			minitextshade(x + 1, y - 4, "ORDER", 20, 11, 2 + 8 + 16 + ROTATESPRITE_MAX);
+			minitextshade(x + 1, y - 4, "ORDER", 20, 11, 2 + 8 + 16);
 			return;
 		}
 		*/
