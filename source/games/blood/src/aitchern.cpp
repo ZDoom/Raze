@@ -204,7 +204,7 @@ static void sub_725A4(DBloodActor* actor)
 			auto ppos = pPlayer->actor->spr.pos;
 			auto dvect = ppos.XY() - actor->spr.pos;
 			auto pSector = pPlayer->actor->sector();
-			DAngle nAngle = VecToAngle(dvect);
+			DAngle nAngle = dvect.Angle();
 			double nDist = dvect.Length();
 
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
@@ -240,7 +240,7 @@ static void sub_72850(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
@@ -264,7 +264,7 @@ static void tchernobogThinkChase(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)

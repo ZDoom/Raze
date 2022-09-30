@@ -185,7 +185,7 @@ static void cultThinkGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 320 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
@@ -226,7 +226,7 @@ static void cultThinkChase(DBloodActor* actor)
 
 	auto dvec = target->spr.pos - actor->spr.pos;
 	double nDist = dvec.XY().Length();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	aiChooseDirection(actor, nAngle);
 
 	if (target->xspr.health == 0)

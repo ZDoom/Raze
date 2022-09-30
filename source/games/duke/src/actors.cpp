@@ -1285,7 +1285,7 @@ void bounce(DDukeActor* actor)
 
 	actor->vel.Z = vect.Z;
 	actor->vel.X = vect.XY().Length();
-	actor->spr.angle = VecToAngle(vect);
+	actor->spr.angle = vect.Angle();
 }
 
 //---------------------------------------------------------------------------

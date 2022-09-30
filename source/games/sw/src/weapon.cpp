@@ -12839,7 +12839,7 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, DAngle ang, bool test)
         hitActor->user.Flags |= (SPR_ATTACKED);
 
         auto delta = hitActor->spr.pos.XY() - mislActor->spr.pos.XY();
-        mislActor->spr.angle = VecToAngle(delta);
+        mislActor->spr.angle = delta.Angle();
         double dist = delta.Length();
 
         if (dist != 0)
@@ -12935,7 +12935,7 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, double *z, DAngle *ang, double z_r
     hitActor->user.Flags |= (SPR_ATTACKED);
 
     auto delta = hitActor->spr.pos.XY() - actor->spr.pos.XY();
-    *ang = VecToAngle(delta);
+    *ang = delta.Angle();
 
     // find the distance to the target
     double dist = delta.Length();
@@ -13022,7 +13022,7 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, double *z, DAngle *ang, bool tes
 void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, double *zvect)
 {
     auto delta = hitActor->spr.pos.XY() - actor->spr.pos.XY();
-    DAngle ang = VecToAngle(delta);
+    DAngle ang = delta.Angle();
 
     // find the distance to the target
     double dist = delta.Length();

@@ -1783,7 +1783,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
             }
             else if (edi > 20)
             {
-                auto nAngle = VecToAngle(pos);
+                auto nAngle = pos.Angle();
 				pActor->vel.XY() += nAngle.ToVector() * edi * 128;
 
                 pActor->vel.Z = (- edi * 24) / 256.;

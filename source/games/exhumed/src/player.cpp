@@ -857,7 +857,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
                     PlayerList[nPlayer].pPlayerPushSect = sect;
 
                     DVector2 vel = sPlayerInput[nPlayer].vel;
-                    auto nMyAngle = VecToAngle(vel).Normalized360();
+                    auto nMyAngle = vel.Angle().Normalized360();
 
                     setsectinterpolate(sect);
                     MoveSector(sect, nMyAngle, vel);

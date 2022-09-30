@@ -176,7 +176,7 @@ static void beastThinkGoto(DBloodActor* actor)
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	auto nAngle = VecToAngle(dvec);
+	auto nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
@@ -208,7 +208,7 @@ static void beastThinkChase(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dv = target->spr.pos.XY() - actor->spr.pos.XY();
-	aiChooseDirection(actor, VecToAngle(dv));
+	aiChooseDirection(actor, dv.Angle());
 
 	auto pSector = actor->sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
@@ -232,7 +232,7 @@ static void beastThinkChase(DBloodActor* actor)
 	double nDist = dv.Length();
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dv));
+		DAngle nDeltaAngle = absangle(actor->spr.angle, dv.Angle());
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
@@ -325,7 +325,7 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	auto nAngle = VecToAngle(dvec);
+	auto nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
@@ -346,7 +346,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 
 	aiChooseDirection(actor, nAngle);

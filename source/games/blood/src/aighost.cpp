@@ -186,7 +186,7 @@ static void ghostThinkTarget(DBloodActor* actor)
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvect));
+			DAngle nDeltaAngle = absangle(actor->spr.angle, dvect.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				pDudeExtraE->thinkTime = 0;
@@ -219,7 +219,7 @@ static void ghostThinkGoto(DBloodActor* actor)
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())

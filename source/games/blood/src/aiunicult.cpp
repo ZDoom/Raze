@@ -419,7 +419,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 	}
 
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 
@@ -480,7 +480,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	// check target
 	auto dv = target->spr.pos.XY() - actor->spr.pos.XY();
 	double dist = max(dv.Length(), 1 / 256.);
-	DAngle nAngle = VecToAngle(dv);
+	DAngle nAngle = dv.Angle();
 
 	// quick hack to prevent spinning around or changing attacker's sprite angle on high movement speeds
 	// when attacking the target. It happens because vanilla function takes in account x and y velocity, 

@@ -1079,7 +1079,7 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
     if (coll.type != kHitNone)
 		actor->spr.angle += RandomAngle(DAngle45) + DAngle180 - DAngle22_5;
     else
-		actor->spr.angle = VecToAngle(vec) + RandomAngle(DAngle45) - DAngle22_5;
+		actor->spr.angle = vec.Angle() + RandomAngle(DAngle45) - DAngle22_5;
 
     DoActorSetSpeed(actor, FAST_SPEED);
 

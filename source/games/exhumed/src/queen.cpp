@@ -334,7 +334,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
         double edx = ((pActor2->spr.pos.Z - nTileY) - pActor->spr.pos.Z);
         double nSqrt = vect.Length();
 
-        DAngle nMyAngle = VecToAngle(vect);
+        DAngle nMyAngle = vect.Angle();
         DAngle nPitch = VecToAngle(nSqrt * 16, edx);
         DAngle nAngDelta = deltaangle(pActor->spr.angle, nMyAngle);
 

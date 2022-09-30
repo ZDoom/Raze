@@ -137,7 +137,7 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 
 	DBloodActor* spawned = nullptr;
@@ -172,7 +172,7 @@ static void spidThinkGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
@@ -192,7 +192,7 @@ static void spidThinkChase(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dvec = target->spr.pos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)

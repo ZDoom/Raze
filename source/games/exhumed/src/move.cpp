@@ -604,7 +604,7 @@ double PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
         return -1;
 	
 	auto vect = pActor2->spr.pos.XY() - pActor1->spr.pos.XY();
-	pActor1->spr.angle = VecToAngle(vect);
+	pActor1->spr.angle = vect.Angle();
 	return vect.Length();
 
 }
@@ -769,7 +769,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
     if (nAngle < nullAngle)
     {
         nVect = nVel;
-        nAngle = VecToAngle(nVect);
+        nAngle = nVect.Angle();
     }
     else
     {
@@ -1002,7 +1002,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
     {
         double nHeight = GetActorHeight(pActor2) / 2;
 		auto vect = pActor2->spr.pos.XY() - pActor->spr.pos.XY();
-        DAngle nMyAngle = VecToAngle(vect);
+        DAngle nMyAngle = vect.Angle();
         double nSqrt = vect.Length();
         DAngle nPitch = VecToAngle(nSqrt, (pActor2->spr.pos.Z - nHeight - pActor->spr.pos.Z) / 16.);
 

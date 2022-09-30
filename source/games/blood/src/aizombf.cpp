@@ -91,7 +91,7 @@ static void zombfThinkGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
-	DAngle nAngle = VecToAngle(dvec);
+	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
@@ -112,7 +112,7 @@ static void zombfThinkChase(DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	auto dv = target->spr.pos - actor->spr.pos;
-	auto nAngle = VecToAngle(dv);
+	auto nAngle = dv.Angle();
 	aiChooseDirection(actor, nAngle);
 	if (target->xspr.health == 0)
 	{

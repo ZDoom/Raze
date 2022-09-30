@@ -3261,7 +3261,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 		if (sourceactor->xspr.data3 & kModernTypeFlag2)
 		{
 			auto velv = actor->vel.XY();
-			auto pt = rotatepoint(actor->spr.pos.XY(), velv, sourceactor->spr.angle - VecToAngle(velv));
+			auto pt = rotatepoint(actor->spr.pos.XY(), velv, sourceactor->spr.angle - velv.Angle());
 			actor->vel.XY() = pt;
 
 		}
@@ -4448,7 +4448,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 			var = cansee(objActor->spr.pos, objActor->sector(), targ->spr.pos.plusZ(-height), targ->sector());
 			if (cond == 4 && var > 0)
 			{
-				DAngle absang = absangle(VecToAngle(delta), objActor->spr.angle);
+				DAngle absang = absangle(delta.Angle(), objActor->spr.angle);
 				var = absang < (arg1 <= 0 ? pInfo->Periphery() : min(mapangle(arg1), DAngle360));
 			}
 			break;
@@ -8366,7 +8366,7 @@ bool readyForCrit(DBloodActor* hunter, DBloodActor* victim)
 	if (dvect.Length() >= (437.5 / max(gGameOptions.nDifficulty >> 1, 1)))
 		return false;
 
-	return absangle(victim->spr.angle, VecToAngle(dvect)) <= DAngle45;
+	return absangle(victim->spr.angle, dvect.Angle()) <= DAngle45;
 }
 
 //---------------------------------------------------------------------------
@@ -8560,7 +8560,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 			if (seeDistf)
 			{
 				DAngle periphery = max(pDudeInfo->Periphery(), DAngle60);
-				DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dv));
+				DAngle nDeltaAngle = absangle(actor->spr.angle, dv.Angle());
 				if ((itCanSee = (!blind && nDistf < seeDistf && nDeltaAngle < periphery)) == true)
 				{
 					int base = 100 + ((20 * gGameOptions.nDifficulty) - (nDeltaAngle.Buildang() / 5));

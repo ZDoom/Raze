@@ -1505,7 +1505,7 @@ void aiThinkTarget(DBloodActor* actor)
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 
-			DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvec));
+			DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, pPlayer->actor);
@@ -1549,7 +1549,7 @@ void aiLookForTarget(DBloodActor* actor)
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvec));
+			DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, pPlayer->actor);

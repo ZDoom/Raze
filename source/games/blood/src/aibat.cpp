@@ -107,7 +107,7 @@ static void batThinkTarget(DBloodActor* actor)
 			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvec));
+			DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				aiSetTarget(actor, pPlayer->actor);
@@ -136,7 +136,7 @@ static void batThinkGoto(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.X;
-	auto nAngle = VecToAngle(dvec);
+	auto nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
 	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
@@ -156,7 +156,7 @@ static void batThinkPonder(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto pTarget = actor->GetTarget();
 	auto dvec = pTarget->spr.pos.XY() - actor->spr.pos.XY();
-	aiChooseDirection(actor, VecToAngle(dvec));
+	aiChooseDirection(actor, dvec.Angle());
 	if (pTarget->xspr.health == 0)
 	{
 		aiNewState(actor, &batSearch);
@@ -165,7 +165,7 @@ static void batThinkPonder(DBloodActor* actor)
 	double nDist = dvec.Length();
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, VecToAngle(dvec));
+		DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
 		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
 		double height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.yrepeat) * REPEAT_SCALE;
 		double top, bottom;
@@ -245,7 +245,7 @@ static void batThinkChase(DBloodActor* actor)
 	auto pTarget = actor->GetTarget();
 	auto dvec = pTarget->spr.pos.XY() - actor->spr.pos.XY();
 
-	aiChooseDirection(actor, VecToAngle(dvec));
+	aiChooseDirection(actor, dvec.Angle());
 	if (pTarget->xspr.health == 0)
 	{
 		aiNewState(actor, &batSearch);
