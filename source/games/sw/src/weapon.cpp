@@ -5495,7 +5495,7 @@ int PlayerCheckDeath(PLAYER* pp, DSWActor* weapActor)
         DoPlayerBeginDie(pp);
 
         // for death direction
-        actor->user.slide_ang = VecToAngle(actor->spr.pos - weapActor->spr.pos);
+        actor->user.slide_ang = (actor->spr.pos - weapActor->spr.pos).Angle();
         // for death velocity
         actor->user.slide_vel = actor->user.LastDamage * (5 / 16.);
 
@@ -7890,7 +7890,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range/*, int16
     if (goal != nullptr)
     {
         // move to correct angle
-        auto ang2tgt = VecToAngle(goal->spr.pos - actor->spr.pos);
+        auto ang2tgt = (goal->spr.pos - actor->spr.pos).Angle();
         auto delta_ang = clamp(deltaangle(ang2tgt, actor->spr.angle), -DAngle45 / 8, DAngle45 / 8);
         actor->spr.angle -= delta_ang;
 
@@ -7934,7 +7934,7 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range/*, 
     if (goal != nullptr)
     {
         // move to correct angle
-        auto ang2tgt = VecToAngle(goal->spr.pos - actor->spr.pos);
+        auto ang2tgt = (goal->spr.pos - actor->spr.pos).Angle();
         auto delta_ang = clamp(deltaangle(ang2tgt, actor->spr.angle), -DAngle45 / 8, DAngle45 / 8);
         actor->spr.angle -= delta_ang;
         UpdateChangeXY(actor);
@@ -7949,7 +7949,7 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range/*, 
 
 void SetAngleFromChange(DSWActor* actor)
 {
-	actor->spr.angle = VecToAngle(actor->user.change);
+	actor->spr.angle = actor->user.change.Angle();
 }
 
 //---------------------------------------------------------------------------
@@ -15851,7 +15851,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         {
             picked = ts->actor;
 
-            angle = VecToAngle(picked->spr.pos - npos);
+            angle = (picked->spr.pos - npos).Angle();
 
             ts++;
         }

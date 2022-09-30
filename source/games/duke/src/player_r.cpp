@@ -216,7 +216,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 5;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * 16) / dist;
-			ang = VecToAngle(aimed->spr.pos - pos);
+			ang = (aimed->spr.pos - pos).Angle();
 		}
 
 		if (atwith == SHOTSPARK1)
@@ -254,7 +254,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		else
 		{
 			zvel += 0.5 - krandf(1);
-			ang = VecToAngle(ps[j].pos - pos) + DAngle22_5 / 2 - randomAngle(22.5);
+			ang = (ps[j].pos - pos).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
 		}
 	}
 
@@ -3471,7 +3471,7 @@ void processinput_r(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			auto ang = VecToAngle(clz.actor()->spr.pos - p->pos);
+			auto ang = (clz.actor()->spr.pos - p->pos).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
 		if (clz.actor()->spr.picnum == LADDER)

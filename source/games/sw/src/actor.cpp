@@ -223,7 +223,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         }
         actor->user.ActorActionFunc = nullptr;
         // Get angle to player
-        actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos.Y) + DAngle180;
+        actor->spr.angle = (actor->user.targetActor->spr.pos - actor->spr.pos.Y).Angle() + DAngle180;
         break;
 
     case UZI_SMOKE+1: // Shotgun
@@ -246,7 +246,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         DoActorBeginJump(actor);
         actor->user.ActorActionFunc = nullptr;
         // Get angle to player
-        actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos) + DAngle180;
+        actor->spr.angle = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle() + DAngle180;
         break;
 
     default:

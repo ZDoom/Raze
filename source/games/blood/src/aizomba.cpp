@@ -265,7 +265,7 @@ static void entryAIdle(DBloodActor* actor)
 static void entryEStand(DBloodActor* actor)
 {
 	sfxPlay3DSound(actor, 1100, -1, 0);
-	actor->spr.angle = VecToAngle(actor->xspr.TargetPos - actor->spr.pos);
+	actor->spr.angle = (actor->xspr.TargetPos - actor->spr.pos).Angle();
 }
 
 END_BLD_NS

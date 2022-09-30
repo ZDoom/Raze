@@ -256,7 +256,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				}
 				else if (OwnerAc->spr.picnum == MAMA)
 				{
-					kang = VecToAngle(h->spr.pos - viewVec);
+					kang = (h->spr.pos - viewVec).Angle();
 					k = angletorotation1(h->spr.angle, kang);
 					if (k > 4)
 					{
@@ -274,7 +274,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		case EMPTYBIKE:
 			if (!isRRRA()) goto default_case;
-			kang = VecToAngle(h->spr.pos - viewVec);
+			kang = (h->spr.pos - viewVec).Angle();
 			k = angletorotation2(h->spr.angle, kang);
 			if (k > 6)
 			{
@@ -286,7 +286,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		case EMPTYBOAT:
 			if (!isRRRA()) goto default_case;
-			kang = VecToAngle(h->spr.pos - viewVec);
+			kang = (h->spr.pos - viewVec).Angle();
 			k = angletorotation2(h->spr.angle, kang);
 			if (k > 6)
 			{
@@ -297,7 +297,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->picnum = EMPTYBOAT + k;
 			break;
 		case RPG:
-			kang = VecToAngle(h->spr.pos - viewVec);
+			kang = (h->spr.pos - viewVec).Angle();
 			k = angletorotation2(h->spr.angle, kang);
 			if (k > 6)
 			{
@@ -309,7 +309,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		case RPG2:
 			if (!isRRRA()) goto default_case;
-			kang = VecToAngle(h->spr.pos - viewVec);
+			kang = (h->spr.pos - viewVec).Angle();
 			k = angletorotation2(h->spr.angle, kang);
 			if (k > 6)
 			{
@@ -322,7 +322,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		case RECON:
 
-			kang = VecToAngle(h->spr.pos - viewVec);
+			kang = (h->spr.pos - viewVec).Angle();
 			k = angletorotation2(h->spr.angle, kang);
 
 			if (k > 6)
@@ -641,7 +641,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					break;
 
 				case 5:
-					kang = VecToAngle(h->spr.pos - viewVec);
+					kang = (h->spr.pos - viewVec).Angle();
 					k = angletorotation1(h->spr.angle, kang);
 					if (k > 4)
 					{
@@ -651,7 +651,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 7:
-					kang = VecToAngle(h->spr.pos - viewVec);
+					kang = (h->spr.pos - viewVec).Angle();
 					k = angletorotation2(h->spr.angle, kang);
 					if (k > 6)
 					{
@@ -668,7 +668,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					bg = badguy(h);
 					if (bg && h->spr.statnum == 2 && h->spr.extra > 0)
 					{
-						kang = VecToAngle(h->spr.pos - viewVec);
+						kang = (h->spr.pos - viewVec).Angle();
 						k = angletorotation1(h->spr.angle, kang);
 						if (k > 4)
 						{

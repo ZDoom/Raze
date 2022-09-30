@@ -480,7 +480,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 			if (lpos.Z - zRange > bottom || lpos.Z + zRange < top)
 				continue;
 
-			DAngle angle = VecToAngle(pos2 - pos);
+			DAngle angle = (pos2 - pos).Angle();
 			DAngle deltaangle = absangle(angle, plActor->spr.angle);
 			if (deltaangle > DAngle::fromBuild(pWeaponTrack->angleRange))
 				continue;

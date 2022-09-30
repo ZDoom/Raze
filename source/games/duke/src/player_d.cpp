@@ -357,7 +357,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			}
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * 16) / dist;
-			ang = VecToAngle(aimed->spr.pos - pos);
+			ang = (aimed->spr.pos - pos).Angle();
 		}
 
 		if (isWW2GI())
@@ -401,7 +401,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 		}
 		else
 		{
-			ang = VecToAngle(ps[j].pos - pos) + DAngle22_5 / 2 - randomAngle(22.5);
+			ang = (ps[j].pos - pos).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
 		}
 	}
 
@@ -908,8 +908,8 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			bomb->vel.X = -1.25;
 			ssp(bomb, CLIPMASK0);
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
-			auto delta = hit.hitWall->delta();
-			bomb->spr.angle = VecToAngle(-delta.X, -delta.Y) - DAngle90;
+			auto delta = -hit.hitWall->delta();
+			bomb->spr.angle = delta.Angle() - DAngle90;
 			bomb->temp_angle = bomb->spr.angle;
 
 			if (p >= 0)
@@ -2815,7 +2815,7 @@ void processinput_d(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			auto ang = VecToAngle(clz.actor()->spr.pos - p->pos);
+			auto ang = (clz.actor()->spr.pos - p->pos).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
 	}

@@ -353,7 +353,7 @@ void aiActivateDude(DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->xspr.state)
 	{
-		aiChooseDirection(actor, VecToAngle(actor->xspr.TargetPos - actor->spr.pos));
+		aiChooseDirection(actor, (actor->xspr.TargetPos - actor->spr.pos).Angle());
 		actor->xspr.state = 1;
 	}
 	switch (actor->spr.type)

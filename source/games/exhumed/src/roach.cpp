@@ -301,7 +301,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->vel.X = 0;
                 pActor->vel.Y = 0;
-                pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
+                pActor->spr.angle = (pTarget->spr.pos - pActor->spr.pos).Angle();
 
                 pActor->nFrame = 0;
             }
@@ -330,7 +330,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->vel.X = 0;
                 pActor->vel.Y = 0;
-				pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
+				pActor->spr.angle = (pTarget->spr.pos - pActor->spr.pos).Angle();
 
                 pActor->nFrame = 0;
             }

@@ -189,7 +189,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             if (move.actor() == pTarget)
             {
-                auto nAngDiff = absangle(ap->spr.angle, VecToAngle(pTarget->spr.pos - ap->spr.pos));
+                auto nAngDiff = absangle(ap->spr.angle, (pTarget->spr.pos - ap->spr.pos).Angle());
                 if (nAngDiff < DAngle22_5 / 2)
                 {
                     ap->nAction = 2;
@@ -224,7 +224,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                     {
                         ap->vel.X = 0;
                         ap->vel.Y = 0;
-                        ap->spr.angle = VecToAngle(pTarget->spr.pos - ap->spr.pos);
+                        ap->spr.angle = (pTarget->spr.pos - ap->spr.pos).Angle();
 
                         ap->nAction = 3;
                         ap->nFrame = 0;

@@ -3284,7 +3284,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	if (x < 512)
 	{
 		auto ang = actor->spr.angle;
-		actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos);
+		actor->spr.angle = (actor->spr.pos.XY() - ps[p].pos).Angle();
 		fi.shoot(actor, FIRELASER);
 		actor->spr.angle = ang;
 	}

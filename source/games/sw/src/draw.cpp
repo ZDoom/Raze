@@ -113,7 +113,7 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
 
     // Get which of the 8 angles of the sprite to draw (0-7)
     // rotation ranges from 0-7
-    DAngle angle2 = VecToAngle(tsp->pos.X - view.X, tsp->pos.Y - view.Y);
+    DAngle angle2 = (tsp->pos - view).Angle();
     rotation = (tsp->angle + DAngle180 + DAngle22_5 * 0.5 - angle2).Buildang() & 2047;
     rotation = (rotation >> 8) & 7;
 

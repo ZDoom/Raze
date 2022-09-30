@@ -274,7 +274,7 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    auto nAngDiff = absangle(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
+                    auto nAngDiff = absangle(pActor->spr.angle, (pTarget->spr.pos - pActor->spr.pos).Angle());
                     if (nAngDiff < DAngle22_5 / 2)
                     {
                         pActor->nAction = 2;
@@ -460,7 +460,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
             {
                 pActor->vel.X = 0;
                 pActor->vel.Y = 0;
-				pActor->spr.angle = VecToAngle(pTarget->spr.pos - pActor->spr.pos);
+				pActor->spr.angle = (pTarget->spr.pos - pActor->spr.pos).Angle();
 
                 pActor->nIndex = RandomSize(2) + RandomSize(3);
 

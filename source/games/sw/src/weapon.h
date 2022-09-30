@@ -35,12 +35,12 @@ constexpr double HORIZ_MULTF = 64.;
 
 inline DAngle AngToSprite(DSWActor* actor, DSWActor* other)
 {
-    return VecToAngle(actor->spr.pos - other->spr.pos);
+    return (actor->spr.pos - other->spr.pos).Angle();
 }
 
 inline DAngle AngToPlayer(PLAYER* player, DSWActor* other)
 {
-    return VecToAngle(player->pos - other->spr.pos);
+    return (player->pos - other->spr.pos).Angle();
 }
 
 

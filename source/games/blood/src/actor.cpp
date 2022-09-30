@@ -4681,7 +4681,7 @@ static Collision MoveThing(DBloodActor* actor)
 		}
 	}
 	if (actor->vel.X != 0 || actor->vel.Y != 0)
-		actor->spr.angle = VecToAngle(actor->vel);
+		actor->spr.angle = actor->vel.Angle();
 	return lhit;
 }
 

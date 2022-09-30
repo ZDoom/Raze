@@ -305,7 +305,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         {
             if (coll.actor() == pTarget)
             {
-				auto nAngDiff = absangle(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
+				auto nAngDiff = absangle(pActor->spr.angle, (pTarget->spr.pos - pActor->spr.pos).Angle());
 				if (nAngDiff < DAngle22_5 / 2)
                 {
                     pActor->nAction = 2;

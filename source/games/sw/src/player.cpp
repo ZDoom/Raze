@@ -1196,7 +1196,7 @@ DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
             }
 
             // Get the angle to the player
-            DAngle angle2 = VecToAngle(itActor->spr.pos - actor->spr.pos);
+            DAngle angle2 = (itActor->spr.pos - actor->spr.pos).Angle();
 
             // Get the angle difference
 
@@ -2543,7 +2543,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
 			double const vel = pp->vect.Length() * 8;
             if (vel < 70.3125)
             {
-                DoActorBeginSlide(actor, VecToAngle(pp->vect.X, pp->vect.Y), vel);
+                DoActorBeginSlide(actor, pp->vect.Angle(), vel);
                 if (DoActorSlide(actor))
                     continue;
             }
@@ -6239,7 +6239,7 @@ void DoPlayerDeathCheckKick(PLAYER* pp)
             {
                 pp->KillerActor = itActor;
 
-                plActor->user.slide_ang = VecToAngle(plActor->spr.pos - itActor->spr.pos);
+                plActor->user.slide_ang = (plActor->spr.pos - itActor->spr.pos).Angle();
 				plActor->user.slide_ang += RandomAngle(22.5) - DAngle22_5 / 2;
 
                 plActor->user.slide_vel = itActor->vel.X * 2;
@@ -7108,7 +7108,7 @@ void domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].angle.settarget(VecToAngle(Player[myconnectindex].pos - Player[screenpeek].pos));
+            Player[screenpeek].angle.settarget((Player[myconnectindex].pos - Player[screenpeek].pos).Angle());
         }
 
         if (!(pp->Flags & PF_DEAD))

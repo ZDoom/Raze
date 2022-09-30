@@ -466,7 +466,7 @@ void AISet::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    auto nAngDiff = absangle(pActor->spr.angle, VecToAngle(pTarget->spr.pos - pActor->spr.pos));
+                    auto nAngDiff = absangle(pActor->spr.angle, (pTarget->spr.pos - pActor->spr.pos).Angle());
                     if (nAngDiff < DAngle22_5 / 2)
                     {
                         pActor->nAction = 4;

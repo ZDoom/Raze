@@ -317,7 +317,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                auto nAngDiff = absangle(spp->spr.angle, VecToAngle(pTarget->spr.pos - spp->spr.pos));
+                auto nAngDiff = absangle(spp->spr.angle, (pTarget->spr.pos - spp->spr.pos).Angle());
                 if (nAngDiff < DAngle22_5 / 2)
                 {
                     spp->nAction = 2;

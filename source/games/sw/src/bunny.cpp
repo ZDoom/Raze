@@ -851,7 +851,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
 {
     DSWActor* target = actor->user.targetActor;
 
-    DAngle tang = VecToAngle(target->spr.pos - actor->spr.pos);
+    DAngle tang = (target->spr.pos - actor->spr.pos).Angle();
 
     Collision coll = move_sprite(actor, DVector3(tang.ToVector() * 8, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
@@ -1116,7 +1116,7 @@ int DoBunnyRipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face bunny
-    target->spr.angle = VecToAngle(actor->spr.pos - target->spr.pos);
+    target->spr.angle = (actor->spr.pos - target->spr.pos).Angle();
     return 0;
 }
 

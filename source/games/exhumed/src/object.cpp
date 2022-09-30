@@ -2493,7 +2493,7 @@ void DoMovingSects()
         int nTrail = sMoveSect[i].nTrailPoint;
         //		TrailPoint *pTrail = &sTrailPoint[nTrail];
 
-        auto nAngle = VecToAngle(sTrailPoint[nTrail].pos - pBlockInfo->pos);
+        auto nAngle = (sTrailPoint[nTrail].pos - pBlockInfo->pos).Angle();
 
         auto vel = nAngle.ToVector() * sMoveSect[i].nMoveDist;
         auto delta = sTrailPoint[nTrail].pos - pBlockInfo->pos;

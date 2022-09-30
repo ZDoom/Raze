@@ -837,7 +837,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = VecToAngle(tp->pos - actor->spr.pos);
+        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
 
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
@@ -889,7 +889,7 @@ int DoActorMoveCloser(DSWActor* actor)
         else
         {
             // turn to face player
-            actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
+            actor->spr.angle = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
         }
     }
 
@@ -1086,7 +1086,7 @@ int InitActorRunAway(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = VecToAngle(tp->pos - actor->spr.pos);
+        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
         DoActorSetSpeed(actor, FAST_SPEED);
         actor->user.Flags |= (SPR_RUN_AWAY);
     }
@@ -1173,7 +1173,7 @@ int InitActorAttack(DSWActor* actor)
     //NewStateGroup(actor, actor->user.ActorActionSet->Stand);
 
     // face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
+    actor->spr.angle = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
 
     // If it's your own kind, lay off!
     if (actor->user.ID == actor->user.targetActor->user.ID && !actor->user.targetActor->user.PlayerP)
@@ -1262,7 +1262,7 @@ int InitActorEvade(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = VecToAngle(tp->pos - actor->spr.pos);
+        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
         DoActorSetSpeed(actor, FAST_SPEED);
         // NOT doing a RUN_AWAY
         actor->user.Flags &= ~(SPR_RUN_AWAY);
@@ -1289,7 +1289,7 @@ int InitActorWanderAround(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = VecToAngle(tp->pos - actor->spr.pos);
+        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
         DoActorSetSpeed(actor, NORM_SPEED);
     }
 
@@ -1312,7 +1312,7 @@ int InitActorFindPlayer(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = VecToAngle(tp->pos - actor->spr.pos);
+        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
 
@@ -1497,7 +1497,7 @@ DAngle FindNewAngle(DSWActor* actor, int dir, double DistToMove)
         DistToMove *= .375;
 
     // Find angle to from the player
-    auto oang = VecToAngle(actor->user.targetActor->spr.pos - actor->spr.pos);
+    auto oang = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
 
     // choose a random angle array
     switch (dir)

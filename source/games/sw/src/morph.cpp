@@ -338,7 +338,7 @@ void MorphTornado(SECTOR_OBJECT* sop)
     if ((sop->pmid - mpos).Length() > sop->morph_dist_max + sop->scale_dist)
     {
         // find and reverse angle
-        sop->morph_ang = VecToAngle(mpos - sop->pmid) + DAngle180;
+        sop->morph_ang = (mpos - sop->pmid).Angle() + DAngle180;
 
         // move back some from last point
         mpos = spos + sop->morph_ang.ToVector() * sop->morph_speed * 2;

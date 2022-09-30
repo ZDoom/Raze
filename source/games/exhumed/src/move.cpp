@@ -589,7 +589,7 @@ DAngle GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
     if (!a1 || !a2)
         return -minAngle;
 
-    return VecToAngle(a2->spr.pos - a1->spr.pos);
+    return (a2->spr.pos - a1->spr.pos).Angle();
 }
 
 //---------------------------------------------------------------------------

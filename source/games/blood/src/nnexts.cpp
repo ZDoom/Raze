@@ -1338,7 +1338,7 @@ void nnExtProcessSuperSprites()
 				debrisMove(i);
 
 			if (!debrisactor->vel.XY().isZero())
-				debrisactor->xspr.goalAng = VecToAngle(debrisactor->vel);
+				debrisactor->xspr.goalAng = debrisactor->vel.Angle();
 
 			debrisactor->norm_ang();
 			DAngle ang = debrisactor->spr.angle;
@@ -3100,7 +3100,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 			pSprite->vel == vv;
 		}
 
-		auto vAng = VecToAngle(pSprite->vel);
+		auto vAng = pSprite->vel.Angle();
 
 		if (toAng)
 		{
@@ -3113,7 +3113,7 @@ void useVelocityChanger(DBloodActor* actor, sectortype* sect, DBloodActor* initi
 			pSprite->vel.XY() = pt;
 
 
-			vAng = VecToAngle(pSprite->vel);
+			vAng = pSprite->vel.Angle();
 		}
 
 		if (chgDstAng)
@@ -8949,7 +8949,7 @@ void aiPatrolThink(DBloodActor* actor)
 		}
 	}
 
-	nnExtAiSetDirection(actor, VecToAngle(markeractor->spr.pos - actor->spr.pos));
+	nnExtAiSetDirection(actor, (markeractor->spr.pos - actor->spr.pos).Angle());
 
 	if (aiPatrolMoving(actor->xspr.aiState) && !reached) return;
 	else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);

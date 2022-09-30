@@ -1396,7 +1396,7 @@ void PlaceSectorObjectsOnTracks(void)
 
         NextTrackPoint(sop);
 
-        sop->ang = VecToAngle((tpoint + sop->point)->pos - sop->pmid);
+        sop->ang = ((tpoint + sop->point)->pos - sop->pmid).Angle();
         sop->ang_moving = sop->ang_tgt = sop->ang;
     }
 
@@ -1459,7 +1459,7 @@ void PlaceActorsOnTracks(void)
         }
 
         // check angle in the "forward" direction
-        actor->spr.angle = VecToAngle((tpoint + actor->user.point)->pos - actor->spr.pos);
+        actor->spr.angle = ((tpoint + actor->user.point)->pos - actor->spr.pos).Angle();
     }
 }
 
@@ -1793,7 +1793,7 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
                     {
                         if (!(wal.extra & WALLFX_DONT_SCALE))
                         {
-                            auto ang = VecToAngle(pos - sop->pmid);
+                            auto ang = (pos - sop->pmid).Angle();
 
                             if (sop->scale_type == SO_SCALE_RANDOM_POINT)
                             {
@@ -2190,7 +2190,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
     // calculate an angle to the target
 
     if (sop->vel)
-        sop->ang_moving = sop->ang_tgt = VecToAngle(tpoint->pos - sop->pmid);
+        sop->ang_moving = sop->ang_tgt = (tpoint->pos - sop->pmid).Angle();
 
     // NOTE: Jittery ride - try new value out here
     // NOTE: Put a loop around this (locktics) to make it more acuruate
@@ -2450,7 +2450,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
         sop->target_dist = (sop->pmid.XY() - tpoint->pos.XY()).Length();
 
         // calculate a new angle to the target
-        sop->ang_moving = sop->ang_tgt = VecToAngle(tpoint->pos - sop->pmid);
+        sop->ang_moving = sop->ang_tgt = (tpoint->pos - sop->pmid).Angle();
 
         if ((sop->flags & SOBJ_ZDIFF_MODE))
         {
@@ -2728,7 +2728,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        sop->ang_tgt = VecToAngle(actor->user.targetActor->spr.pos - sop->pmid);
+        sop->ang_tgt = (actor->user.targetActor->spr.pos - sop->pmid).Angle();
 
         // get delta to target angle
         delta_ang = deltaangle(sop->ang, sop->ang_tgt);
@@ -2767,7 +2767,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
         if (actor->user.track >= 0)
         {
             auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-            actor->spr.angle = VecToAngle(tp->pos - actor->spr.pos);
+            actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
         }
         else
         {
@@ -2784,7 +2784,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
         if (actor->user.track >= 0)
         {
             auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-            actor->spr.angle = VecToAngle(tp->pos - actor->spr.pos);
+            actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
         }
         else
         {
@@ -3371,7 +3371,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
     if (!(actor->user.Flags & (SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
     {
-        actor->spr.angle = VecToAngle(tpoint->pos - actor->spr.pos);
+        actor->spr.angle = (tpoint->pos - actor->spr.pos).Angle();
     }
 
     double dist = (actor->spr.pos.XY() - tpoint->pos.XY()).Length();
@@ -3387,7 +3387,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         if (!(actor->user.Flags & (SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
         {
             // calculate a new angle to the target
-            actor->spr.angle = VecToAngle(tpoint->pos - actor->spr.pos);
+            actor->spr.angle = (tpoint->pos - actor->spr.pos).Angle();
         }
 
         if (actor->user.Flags & (SPR_ZDIFF_MODE))
@@ -3433,7 +3433,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 actor->vel.Z = 0;
 
-                actor->spr.angle = VecToAngle(tpoint->pos - actor->spr.pos);
+                actor->spr.angle = (tpoint->pos - actor->spr.pos).Angle();
 
                 ActorLeaveTrack(actor);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);

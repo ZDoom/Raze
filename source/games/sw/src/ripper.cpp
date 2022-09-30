@@ -1200,7 +1200,7 @@ int DoRipperRipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face ripper
-    target->spr.angle = VecToAngle(actor->spr.pos - target->spr.pos);
+    target->spr.angle = (actor->spr.pos - target->spr.pos).Angle();
     return 0;
 }
 
