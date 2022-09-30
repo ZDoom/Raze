@@ -423,6 +423,8 @@ void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, do
 	};
 	doEffect(pPlayer->flickerEffect);
 	doEffect(pPlayer->quakeEffect);
+
+	cH += DAngle::fromDeg((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
 }
 
 
@@ -513,7 +515,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 	}
 
 	viewUpdateShake(pPlayer, cPos, cA, cH, shakeX, shakeY);
-	cH += DAngle::fromDeg((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
+
 	if (gViewPos == 0)
 	{
 		if (cl_viewhbob)
