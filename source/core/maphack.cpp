@@ -39,12 +39,23 @@
 #include "md4.h"
 #include "hw_sections.h"
 #include "mapinfo.h"
+#include "gamefuncs.h"
+
+struct usermaphack_t
+{
+	FString mhkfile;
+	FString title;
+	uint8_t md4[16]{};
+};
 
 static TArray<usermaphack_t> usermaphacks;
 
-void AddUserMapHack(usermaphack_t& mhk)
+void AddUserMapHack(const FString& title, const FString& mhkfile, uint8_t* md4)
 {
-	usermaphacks.Push(mhk);
+	usermaphacks.Reserve(1);
+	usermaphacks.Last().title = title;
+	usermaphacks.Last().mhkfile = mhkfile;
+	memcpy(usermaphacks.Last().md4, md4, 16);
 }
 
 static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)

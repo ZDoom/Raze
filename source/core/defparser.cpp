@@ -44,12 +44,13 @@
 #include "mapinfo.h"
 #include "hw_voxels.h"
 #include "psky.h"
+#include "gamefuncs.h"
 #include "models/modeldata.h"
 
 int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed = false);
 int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed = false);
 void tileRemoveReplacement(int num);
-void AddUserMapHack(usermaphack_t&);
+void AddUserMapHack(const FString& title, const FString& mhkfile, uint8_t* md4);
 
 static void defsparser(FScanner& sc);
 
@@ -826,7 +827,10 @@ void parseMusic(FScanner& sc, FScriptPosition& pos)
 
 void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 {
-	usermaphack_t mhk;
+	FString title;
+	FString mhkfile;
+	uint8_t md4b[16]{};
+
 	FScanner::SavedPos blockend;
 	TArray<FString> md4s;
 
@@ -835,8 +839,8 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 	{
 		sc.MustGetString();
 		if (sc.Compare("mapfile")) sc.GetString();
-		else if (sc.Compare("maptitle")) sc.GetString(mhk.title);
-		else if (sc.Compare("mhkfile")) sc.GetString(mhk.mhkfile);
+		else if (sc.Compare("maptitle")) sc.GetString(title);
+		else if (sc.Compare("mhkfile")) sc.GetString(mhkfile);
 		else if (sc.Compare("mapmd4"))
 		{
 			sc.GetString();
@@ -848,9 +852,9 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 		for (int i = 0; i < 16; i++)
 		{
 			char smallbuf[3] = { md4[2 * i], md4[2 * i + 1], 0 };
-			mhk.md4[i] = (uint8_t)strtol(smallbuf, nullptr, 16);
+			md4b[i] = (uint8_t)strtol(smallbuf, nullptr, 16);
 		}
-		AddUserMapHack(mhk);
+		AddUserMapHack(title, mhkfile, md4b);
 	}
 }
 

@@ -197,4 +197,12 @@ FRenderStyle GetRenderStyle(int blend, int def);
 float GetAlphaFromBlend(uint32_t maskprops, uint32_t blend);
 void DrawFullscreenBlends();
 
+enum {
+    PALETTE_MAIN = 1 << 0,
+    PALETTE_SHADE = 1 << 1,
+    PALETTE_TRANSLUC = 1 << 2,
+};
+
+inline uint8_t paletteloaded;
+
 #endif

@@ -18,8 +18,19 @@ extern bool hw_int_useindexedcolortextures;
 EXTERN_CVAR(Bool, hw_useindexedcolortextures)
 EXTERN_CVAR(Bool, r_voxels)
 
+inline int leveltimer;
+inline int Numsprites;
+inline int display_mirror;
+inline int randomseed;
+inline int g_visibility = 512, g_relvisibility = 0;
 
 constexpr int SLOPEVAL_FACTOR = 4096;
+
+enum
+{
+	CLIPMASK0 = (1 << 16) + 1,
+	CLIPMASK1 = (256 << 16) + 64
+};
 
 //==========================================================================
 //
