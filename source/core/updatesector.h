@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //------------------------------------------------------------------------- 
 //
-// updatesector utilities. Uses a breadth-first algorithm similar 
-// but not identical to EDuke32's updatesectorneighbor.
+// updatesector utilities. Reimplementations of EDuke32's checks with
+// proper C++ classes. (Original Build updatesector is insufficient and broken)
 
 
 // checker functions for updatesector's template parameter.
@@ -50,18 +50,18 @@ void DoUpdateSector(double x, double y, double z, int* sectnum, double maxDistan
         BFSSearch search(sector.Size(), *sectnum);
 
         int iter = 0;
-        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
+        for (unsigned secnum; (secnum = search.GetNext()) != BFSSearch::EOL;)
         {
-            auto lsect = &sector[listsectnum];
+            auto lsect = &sector[secnum];
             if (checker(x, y, z, lsect))
             {
-                *sectnum = listsectnum;
+                *sectnum = secnum;
                 return;
             }
 
             for (auto& wal : wallsofsector(lsect))
             {
-                if (wal.nextsector >= 0 && !search.Check(wal.nextsector) && (iter == 0 || SquareDistToSector(x, y, wal.nextSector()) <= maxDistSq))
+                if (wal.twoSided() && !search.Check(wal.nextsector) && (iter == 0 || SquareDistToSector(x, y, wal.nextSector()) <= maxDistSq))
                     search.Add(wal.nextsector);
             }
             iter++;
@@ -118,3 +118,59 @@ inline void updatesector(int x_, int y_, int* sectnum)
     DoUpdateSector(x, y, 0, sectnum, MAXUPDATESECTORDIST, inside0);
 }
 
+// clipmove uses this. It's really just two loops nearly identical to DoUpdateSector with different checking conditions.
+inline void clipupdatesector(const DVector2& pos, int* const sectnum, double walldist, BitArray& sectormap)
+{
+    assert(*sectnum >= 0);
+    sectortype* sect = &sector[*sectnum];
+    if (inside(pos.X, pos.Y, sect))
+        return;
+
+    double sdist = SquareDistToSector(pos.X, pos.Y, sect);
+
+    double wd = (walldist + 8); 
+    wd *= wd;
+    if (sdist > wd)
+    {
+        wd = 2048 * 2048;
+    }
+
+    {
+        BFSSearch search(sector.Size(), *sectnum);
+
+        for (unsigned secnum; (secnum = search.GetNext()) != BFSSearch::EOL;)
+        {
+            if (inside(pos.X, pos.Y, &sector[secnum]))
+            {
+                *sectnum = secnum;
+                return;
+            }
+
+            for (auto& wal : wallsofsector(secnum))
+            {
+                if (wal.twoSided() && sectormap[wal.nextsector])
+                    search.Add(wal.nextsector);
+            }
+        }
+    }
+
+    {
+        BFSSearch search(sector.Size(), *sectnum);
+
+        for (unsigned secnum; (secnum = search.GetNext()) != BFSSearch::EOL;)
+        {
+            if (inside(pos.X, pos.Y, &sector[secnum]))
+            {
+                *sectnum = secnum;
+                return;
+            }
+            for (auto& wal : wallsofsector(secnum))
+            {
+                if (wal.twoSided() && SquareDistToWall(pos.X, pos.Y, &wal) < wd)
+                    search.Add(wal.nextsector);
+            }
+        }
+    }
+
+    *sectnum = -1;
+}

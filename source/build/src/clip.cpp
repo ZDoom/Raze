@@ -263,58 +263,6 @@ static int32_t getwalldist(vec2_t const in, int const wallnum)
     return abs(closest.X - in.X) + abs(closest.Y - in.Y);
 }
 
-static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist)
-{
-    if (inside_p(pos.X, pos.Y, *sectnum))
-        return;
-
-    double nsecs = SquareDistToSector(pos.X * inttoworld, pos.Y * inttoworld, &sector[*sectnum]);
-
-    double wd = (walldist + 8) * inttoworld; wd *= wd;
-    if (nsecs > wd)
-    {
-        walldist = 0x7fff;
-    }
-
-    {
-        BFSSearch search(sector.Size(), *sectnum);
-
-        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
-        {
-            if (inside_p(pos.X, pos.Y, listsectnum))
-            {
-                *sectnum = listsectnum;
-                return;
-            }
-
-            for (auto& wal : wallsofsector(listsectnum))
-            {
-                if (wal.nextsector >= 0 && clipsectormap[wal.nextsector])
-                    search.Add(wal.nextsector);
-            }
-        }
-    }
-
-    {
-        BFSSearch search(sector.Size(), *sectnum);
-
-        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
-        {
-            if (inside_p(pos.X, pos.Y, listsectnum))
-            {
-                *sectnum = listsectnum;
-                return;
-            }
-            for (auto& wal : wallsofsector(listsectnum))
-            {
-                if (wal.nextsector >= 0 && getwalldist(pos, wallnum(&wal)) <= (walldist + 8))
-                    search.Add(wal.nextsector);
-            }
-        }
-    }
-
-    *sectnum = -1;
-}
 
 //
 // clipmove
@@ -705,7 +653,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
 		{
-			clipupdatesector(vec, sectnum, rad);
+            DVector2 v(vec.X* inttoworld, vec.Y* inttoworld);
+			clipupdatesector(v, sectnum, rad * inttoworld, clipsectormap);
 		}
 
         pos->X = vec.X;
@@ -841,7 +790,10 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                         } while (IsCloseToWall(DVector2(vect->X * inttoworld, vect->Y * inttoworld), &wall[i], (walldist - 4) * inttoworld) != EClose::Outside);
                         bad = -1;
                         k--; if (k <= 0) return bad;
-                        clipupdatesector(vect->vec2, sectnum, walldist);
+
+                        DVector2 v(vect->vec2.X * inttoworld, vect->vec2.Y * inttoworld);
+                        clipupdatesector(v, sectnum, walldist * inttoworld, clipsectormap);
+
                         if (*sectnum < 0) return -1;
                     }
                     else if (!clipsectormap[wal->nextsector])
