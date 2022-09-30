@@ -479,12 +479,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 
 FSerializer& Serialize(FSerializer& arc, const char* key, spriteext_t& c, spriteext_t* def)
 {
-	if (arc.isWriting() && c.mdanimtims)
-	{
-		c.mdanimtims -= mdtims;
-		if (c.mdanimtims == 0) c.mdanimtims++;
-	}
-
 	def = &zspx; // always delta against 0
 	if (arc.BeginObject(key))
 	{
@@ -498,7 +492,6 @@ FSerializer& Serialize(FSerializer& arc, const char* key, spriteext_t& c, sprite
 			.EndObject();
 	}
 
-	if (c.mdanimtims) c.mdanimtims += mdtims;
 	return arc;
 }
 

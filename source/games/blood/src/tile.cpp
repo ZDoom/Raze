@@ -71,7 +71,7 @@ void GameInterface::LoadGameTextures()
     }
     for (int i = 0; i < kMaxTiles; i++)
     {
-        if (voxelIndex[i] >= 0 && voxelIndex[i] < kMaxVoxels)
+        if (voxelIndex[i] >= 0 && voxelIndex[i] < MAXVOXELS)
             voxreserve.Set(voxelIndex[i]);
     }
 }

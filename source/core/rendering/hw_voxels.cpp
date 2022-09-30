@@ -76,7 +76,7 @@ static voxmodel_t* voxload(int lumpnum)
 		voxmodel_t* vm = new voxmodel_t;
 		*vm = {};
 		auto pivot = voxel->Mips[0].Pivot;
-		vm->mdnum = 1; //VOXel model id
+		//vm->mdnum = 1; //VOXel model id
 		vm->scale = vm->bscale = 1.f;
 		vm->piv.X = float(pivot.X);
 		vm->piv.Y = float(pivot.Y);

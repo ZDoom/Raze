@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_font.h"
 #include "hw_voxels.h"
 #include "gamefuncs.h"
+#include "models/modeldata.h"
 
 BEGIN_BLD_NS
 
@@ -628,7 +629,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		case 6:
 		case 7:
 		{
-			if (hw_models && md_tilehasmodel(pTSprite->picnum, pTSprite->pal) >= 0 && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
+			if (hw_models && modelManager.CheckModel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 				break;
 
 			// Can be overridden by def script
@@ -678,9 +679,9 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		{
 			int const nRootTile = pTSprite->picnum;
 			int nAnimTile = pTSprite->picnum + tileAnimateOfs(pTSprite->picnum, (pTSprite->ownerActor->GetIndex() & 16383));
+			auto pt = modelManager.GetModel(nAnimTile, pTSprite->pal);
 
-			if (tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].modelid >= 0 &&
-				tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].framenum >= 0)
+			if (pt && pt->modelid >= 0 && pt->framenum >= 0)
 			{
 				pTSprite->yoffset += tileTopOffset(nAnimTile);
 				pTSprite->xoffset += tileLeftOffset(nAnimTile);

@@ -576,6 +576,7 @@ file( GLOB HEADER_FILES
 	core/input/*.h
 	core/rendering/*.h
 	core/rendering/scene/*.h
+	core/models/*.h
 
 	common/audio/sound/thirdparty/*.h
 	common/audio/sound/*.h
@@ -630,6 +631,7 @@ file( GLOB HEADER_FILES
 	thirdparty/include/*.hpp
 	thirdparty/imgui/*.h
 	core/textures/*.h
+	core/models/*.h
 	core/textures/formats/*.h
 )
 
@@ -1028,6 +1030,7 @@ set (PCH_SOURCES
 	core/rendering/scene/hw_lighting.cpp
 
 	core/r_data/gldefs.cpp
+	core/models/modeldata.cpp
 
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
@@ -1501,6 +1504,7 @@ source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
 source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
+source_group("Core\\Models" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/models/.+")
 source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
 source_group("Core\\Rendering\\Scene" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/scene/.+")
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")

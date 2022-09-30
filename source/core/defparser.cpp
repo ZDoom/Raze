@@ -45,6 +45,7 @@
 #include "mapinfo.h"
 #include "hw_voxels.h"
 #include "psky.h"
+#include "models/modeldata.h"
 
 int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed = false);
 int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed = false);
@@ -1655,14 +1656,14 @@ void parseDefineModel(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetFloat(scale, true)) return;
 	if (!sc.GetNumber(shadeoffs, true)) return;
 
-	mdglobal.lastmodelid = md_loadmodel(modelfn);
+	mdglobal.lastmodelid = modelManager.LoadModel(modelfn);
 	if (mdglobal.lastmodelid < 0)
 	{
 		pos.Message(MSG_WARNING, "definemodel: unable to load model file '%s'", modelfn.GetChars());
 	}
 	else
 	{
-		md_setmisc(mdglobal.lastmodelid, (float)scale, shadeoffs, 0.0, 0.0, 0);
+		modelManager.SetMisc(mdglobal.lastmodelid, (float)scale, shadeoffs, 0.0, 0.0, 0);
 		mdglobal.modelskin = mdglobal.lastmodelskin = 0;
 		mdglobal.seenframe = 0;
 	}
@@ -1693,7 +1694,7 @@ void parseDefineModelFrame(FScanner& sc, FScriptPosition& pos)
 	}
 	for (int i = firsttile; i <= lasttile && ok; i++)
 	{
-		int err = (md_defineframe(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), 0.0f, 0));
+		int err = (modelManager.DefineFrame(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), 0.0f, 0));
 		if (err < 0) ok = false; 
 		if (err == -2) pos.Message(MSG_ERROR, "Invalid tile number %d", i);
 		else if (err == -3) pos.Message(MSG_ERROR, "Invalid frame name '%s'", framename.GetChars());
@@ -1723,7 +1724,7 @@ void parseDefineModelAnim(FScanner& sc, FScriptPosition& pos)
 		pos.Message(MSG_WARNING, "definemodelframe: Ignoring animation definition outside model.");
 		return;
 	}
-	int err = (md_defineanimation(mdglobal.lastmodelid, startframe, endframe, (int32_t)(dfps * (65536.0 * .001)), flags));
+	int err = (modelManager.DefineAnimation(mdglobal.lastmodelid, startframe, endframe, (int32_t)(dfps * (65536.0 * .001)), flags));
 	if (err == -2) pos.Message(MSG_ERROR, "Invalid start frame name %s", startframe.GetChars());
 	else if (err == -3) pos.Message(MSG_ERROR, "Invalid end frame name %s", endframe.GetChars());
 }
@@ -1747,7 +1748,7 @@ void parseDefineModelSkin(FScanner& sc, FScriptPosition& pos)
 
 	if (!fileSystem.FileExists(skinfn)) return;
 
-	int err = (md_defineskin(mdglobal.lastmodelid, skinfn, palnum, max(0, mdglobal.modelskin), 0, 0.0f, 1.0f, 1.0f, 0));
+	int err = (modelManager.DefineSkin(mdglobal.lastmodelid, skinfn, palnum, max(0, mdglobal.modelskin), 0, 0.0f, 1.0f, 1.0f, 0));
 	if (err == -2) pos.Message(MSG_ERROR, "Invalid skin file name %s", skinfn.GetChars());
 	else if (err == -3) pos.Message(MSG_ERROR, "Invalid palette %d", palnum);
 }
@@ -1775,7 +1776,7 @@ void parseUndefModel(FScanner& sc, FScriptPosition& pos)
 	int tile;
 	if (!sc.GetNumber(tile, true)) return;
 	if (!ValidateTilenum("undefmodel", tile, pos)) return;
-	md_undefinetile(tile);
+	modelManager.UndefineTile(tile);
 }
 
 void parseUndefModelRange(FScanner& sc, FScriptPosition& pos)
@@ -1785,7 +1786,7 @@ void parseUndefModelRange(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(start, true)) return;
 	if (!sc.GetNumber(end, true)) return;
 	if (!ValidateTileRange("undefmodel", start, end, pos)) return;
-	for (int i = start; i <= end; i++) md_undefinetile(i);
+	for (int i = start; i <= end; i++) modelManager.UndefineTile(i);
 }
 
 void parseUndefModelOf(FScanner& sc, FScriptPosition& pos)
@@ -1834,7 +1835,7 @@ static bool parseModelFrameBlock(FScanner& sc, FixedBitArray<1024>& usedframes)
 	}
 	for (int i = starttile; i <= endtile && ok; i++)
 	{
-		int res = md_defineframe(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), smoothduration, pal);
+		int res = modelManager.DefineFrame(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), smoothduration, pal);
 		if (res < 0)
 		{
 			ok = false;
@@ -1877,7 +1878,7 @@ static bool parseModelAnimBlock(FScanner& sc)
 		return false;
 	}
 
-	int res = md_defineanimation(mdglobal.lastmodelid, startframe, endframe, (int)(fps * (65536.0 * .001)), flags);
+	int res = modelManager.DefineAnimation(mdglobal.lastmodelid, startframe, endframe, (int)(fps * (65536.0 * .001)), flags);
 	if (res < 0)
 	{
 		if (res == -2) pos.Message(MSG_ERROR, "Invalid start frame name %s", startframe.GetChars());
@@ -1927,7 +1928,7 @@ static bool parseModelSkinBlock(FScanner& sc, int pal)
 	}
 
 	if (pal == DETAILPAL) param = 1.f / param;
-	int res = md_defineskin(mdglobal.lastmodelid, filename, pal, max(0, mdglobal.modelskin), surface, param, specpower, specfactor, flags);
+	int res = modelManager.DefineSkin(mdglobal.lastmodelid, filename, pal, max(0, mdglobal.modelskin), surface, param, specpower, specfactor, flags);
 	if (res < 0)
 	{
 		if (res == -2) pos.Message(MSG_ERROR, "Invalid skin filename %s", filename.GetChars());
@@ -1968,7 +1969,7 @@ static bool parseModelHudBlock(FScanner& sc)
 	for (int i = starttile; i <= endtile; i++)
 	{
 		FVector3 addf = { (float)add.X, (float)add.Y, (float)add.Z };
-		int res = md_definehud(mdglobal.lastmodelid, i, addf, angadd, flags, fov);
+		int res = modelManager.DefineHud(mdglobal.lastmodelid, i, addf, angadd, flags, fov);
 		if (res < 0)
 		{
 			if (res == -2) pos.Message(MSG_ERROR, "Invalid tile number %d", i);
@@ -1995,7 +1996,7 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 
 	if (sc.StartBraces(&blockend)) return;
 
-	mdglobal.lastmodelid = md_loadmodel(modelfn);
+	mdglobal.lastmodelid = modelManager.LoadModel(modelfn);
 	if (mdglobal.lastmodelid < 0)
 	{
 		pos.Message(MSG_WARNING, "Unable to load model file '%s'", modelfn.GetChars());
@@ -2028,13 +2029,12 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 		if (mdglobal.lastmodelid >= 0)
 		{
 			pos.Message(MSG_ERROR, "Removing model %d due to errors.", mdglobal.lastmodelid);
-			md_undefinemodel(mdglobal.lastmodelid);
-			nextmodelid--;
+			modelManager.UndefineModel(mdglobal.lastmodelid);
 		}
 	}
 	else
 	{
-		md_setmisc(mdglobal.lastmodelid, (float)scale, shadeoffs, (float)mzadd, (float)myoffset, flags);
+		modelManager.SetMisc(mdglobal.lastmodelid, (float)scale, shadeoffs, (float)mzadd, (float)myoffset, flags);
 		mdglobal.modelskin = mdglobal.lastmodelskin = 0;
 		mdglobal.seenframe = 0;
 	}

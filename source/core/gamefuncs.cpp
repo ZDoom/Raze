@@ -1253,19 +1253,6 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 
 //==========================================================================
 //
-// 
-//
-//==========================================================================
-
-int tilehasmodelorvoxel(int const tilenume, int pal)
-{
-	return
-		(mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
-		(r_voxels && tiletovox[tilenume] != -1);
-}
-
-//==========================================================================
-//
 // vector serializers
 //
 //==========================================================================

@@ -43,6 +43,7 @@
 #include "hw_models.h"
 #include "hw_voxels.h"
 #include "mapinfo.h"
+#include "models/modeldata.h"
 
 BEGIN_BLD_NS
 extern short voxelIndex[MAXTILES];
@@ -68,9 +69,9 @@ static void doprecache(int picnum, int palette)
 
     if (!hw_models) return;
 
-    int const mid = md_tilehasmodel(picnum, palette);
+    int const mid = modelManager.CheckModel(picnum, palette);
 
-	if (mid < 0 || models[mid]->mdnum < 2)
+	if (mid < 0)
 	{
 		if (r_voxels)
 		{
@@ -86,6 +87,7 @@ static void doprecache(int picnum, int palette)
 		return;
 	}
 
+#if 0
     int const surfaces = (models[mid]->mdnum == 3) ? ((md3model_t *)models[mid])->head.numsurfs : 0;
 
     for (int i = 0; i <= surfaces; i++)
@@ -94,6 +96,7 @@ static void doprecache(int picnum, int palette)
         int paletteid = TRANSLATION(Translation_Remap + curbasepal, palette);
         if (skintex) PrecacheTex(skintex, paletteid);
 	}
+#endif
 }
 
 

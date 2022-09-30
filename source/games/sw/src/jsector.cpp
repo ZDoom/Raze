@@ -45,6 +45,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "parent.h"
 #include "v_video.h"
 #include "render.h"
+#include "models/modeldata.h"
 
 BEGIN_SW_NS
 
@@ -812,7 +813,7 @@ void JAnalyzeSprites(tspritetype* tspr)
     // Take care of autosizing
     DoAutoSize(tspr);
 
-    if (md_tilehasmodel(tspr->picnum, 0) >= 0 && hw_models) return;
+    if (hw_models && modelManager.CheckModel(tspr->picnum, 0)) return;
 
     // Check for voxels
     //if (bVoxelsOn)

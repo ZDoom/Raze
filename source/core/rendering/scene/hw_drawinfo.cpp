@@ -29,7 +29,7 @@
 #include "build.h"
 #include "hw_renderstate.h"
 #include "hw_drawinfo.h"
-//#include "models.h"
+#include "models/modeldata.h"
 #include "hw_clock.h"
 #include "hw_cvars.h"
 #include "hw_viewpointbuffer.h"
@@ -290,8 +290,8 @@ void HWDrawInfo::DispatchSprites()
 
 		if (!(actor->sprext.renderflags & SPREXT_NOTMD))
 		{
-			int pt = Ptile2tile(tilenum, tspr->pal);
-			if (hw_models && tile2model[pt].modelid >= 0 && tile2model[pt].framenum >= 0)
+			auto pt = modelManager.GetModel(tilenum, tspr->pal);
+			if (hw_models && pt && pt->modelid >= 0 && pt->framenum >= 0)
 			{
 				//HWSprite hwsprite;
 				//if (hwsprite.ProcessModel(pt, tspr)) continue;

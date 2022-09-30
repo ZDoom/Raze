@@ -39,6 +39,7 @@ source as it is released.
 #include "names_d.h"
 #include "dukeactor.h"
 #include "gamefuncs.h"
+#include "models/modeldata.h"
 
 EXTERN_CVAR(Bool, wt_commentary)
 
@@ -79,7 +80,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->xrepeat = t->yrepeat = 0;
 			continue;
 		case CHAIR3:
-			if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0) 
+			if (hw_models && modelManager.CheckModel(t->picnum, t->pal)) 
 			{
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
@@ -256,7 +257,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->picnum = GROWSPARK + ((PlayClock >> 4) & 3);
 			break;
 		case RPG:
-			if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
+			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 			{
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
@@ -274,7 +275,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 
 		case RECON:
-			if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
+			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 			{
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
@@ -363,7 +364,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (!h->GetOwner())
 			{
-				if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
+				if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 				{
 					k = 0;
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -485,7 +486,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			{
 				l = ScriptCode[t4 + 2];
 
-				if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
+				if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 				{
 					k = 0;
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -582,7 +583,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 							shadowspr->pos.Z = floorz;
 							shadowspr->pal = 4;
 
-							if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
+							if (hw_models && modelManager.CheckModel(t->picnum, t->pal))
 							{
 								shadowspr->yrepeat = 0;
 								// 512:trans reverse
@@ -652,7 +653,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->picnum += (h->spr.shade >> 1);
 			break;
 		case PLAYERONWATER:
-			if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
+			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 			{
 				k = 0;
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -710,7 +711,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		case CAMERA1:
 		case RAT:
-			if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
+			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 			{
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;

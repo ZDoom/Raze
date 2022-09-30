@@ -631,7 +631,6 @@ int GameMain()
 	TexMan.DeleteAll();
 	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
 	I_ShutdownGraphics();
-	freeallmodels();
 	if (gi)
 	{
 		delete gi;
@@ -940,7 +939,6 @@ static void InitTextures()
 	TexMan.Init();
 	TexMan.AddTextures([]() {}, [](BuildInfo&) {});
 	StartWindow->Progress();
-	mdinit();
 
 	TileFiles.Init();
 	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.

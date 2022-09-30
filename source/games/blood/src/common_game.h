@@ -42,7 +42,6 @@ enum
 	kMaxTiles = MAXTILES,
 	kMaxStatus = MAXSTATUS,
 	kMaxPlayers = 8,
-	kMaxVoxels = MAXVOXELS,
 
 	kTicRate = 120,
 	kTicsPerFrame = 4,

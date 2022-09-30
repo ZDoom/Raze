@@ -49,6 +49,7 @@
 #include "sc_man.h"
 #include "gamestruct.h"
 #include "hw_voxels.h"
+#include "models/modeldata.h"
 
 #include "hw_renderstate.h"
 
@@ -661,7 +662,7 @@ void tileDelete(int tile)
 	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.GameByIndex(0);
 	TileFiles.tiledata[tile].replacement = ReplacementType::Art; // whatever this was, now it isn't anymore. (SW tries to nuke camera textures with this, :( )
 	tiletovox[tile] = -1; // clear the link but don't clear the voxel. It may be in use for another tile.
-	md_undefinetile(tile);
+	modelManager.UndefineTile(tile);
 }
 
 //==========================================================================

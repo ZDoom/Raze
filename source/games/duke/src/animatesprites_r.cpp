@@ -33,6 +33,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "prediction.h"
 #include "dukeactor.h"
 #include "gamefuncs.h"
+#include "models/modeldata.h"
 
 BEGIN_DUKE_NS
 
@@ -408,7 +409,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (!h->GetOwner())
 			{
-				if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
+				if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 				{
 					k = 0;
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -618,7 +619,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			{
 				l = ScriptCode[t4 + 2];
 
-				if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
+				if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 				{
 					k = 0;
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -738,7 +739,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 								shadowspr->pos.Z = floorz;
 								shadowspr->pal = 4;
 
-								if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
+								if (hw_models && modelManager.CheckModel(t->picnum, t->pal))
 								{
 									shadowspr->yrepeat = 0;
 									// 512:trans reverse
