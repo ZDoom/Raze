@@ -29,8 +29,6 @@ typedef int64_t coord_t;
 #include "maptypes.h"
 #include "clip.h"
 
-int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out);
-
 enum {
     ENGINECOMPATIBILITY_NONE = 0,
     ENGINECOMPATIBILITY_19950829, // Powerslave/Exhumed

@@ -255,14 +255,6 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
     while (1);
 }
 
-static int32_t getwalldist(vec2_t const in, int const wallnum)
-{
-    auto dvec = NearestPointOnWall(in.X * maptoworld, in.Y * maptoworld, &wall[wallnum]);
-    vec2_t closest = { int(dvec.X * worldtoint), int(dvec.Y * worldtoint) };
-    return abs(closest.X - in.X) + abs(closest.Y - in.Y);
-}
-
-
 //
 // clipmove
 //
