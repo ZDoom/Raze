@@ -42,9 +42,6 @@ struct PlayerHorizon
 	void unlockinput() { inputdisabled = false; }
 	bool movementlocked() {	return targetset() || inputdisabled; }
 
-	// Draw code helpers.
-	double horizsumfrac(double const interpfrac) { return (!SyncInput() ? sum() : interpolatedsum(interpfrac)).Tan() * 8.; }
-
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(DAngle const value)
 	{
