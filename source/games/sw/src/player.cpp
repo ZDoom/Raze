@@ -1553,7 +1553,7 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = float((MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
+        pp->drive_avel = float((avel * sop->drive_angspeed + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }
@@ -1587,7 +1587,7 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = float((MulScaleF(pp->input.avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
+        pp->drive_avel = float((pp->input.avel * sop->drive_angspeed + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }
@@ -1621,7 +1621,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = float((MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
+        pp->drive_avel = float((avel * sop->drive_angspeed + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }

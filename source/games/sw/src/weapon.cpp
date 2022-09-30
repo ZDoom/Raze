@@ -17081,7 +17081,7 @@ int InitFireball(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScaleF(zvel,44000, 16)))
+    if (TestMissileSetPos(actorNew, DoFireball, 1200, zvel * (1375. / 2048.)))
     {
         RESTORE_CLIP;;
         KillActor(actorNew);

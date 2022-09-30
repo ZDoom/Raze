@@ -1409,8 +1409,8 @@ struct SECTOR_OBJECT
            bob_amt;        // bob amount max in z coord
 
     // variables set by mappers for drivables
-    int    drive_angspeed,
-           drive_angslide,
+    double drive_angspeed;
+    int    drive_angslide,
            drive_speed,
            drive_slide,
            flags;

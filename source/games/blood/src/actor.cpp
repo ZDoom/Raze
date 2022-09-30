@@ -5633,7 +5633,7 @@ static void actCheckThings()
 					if (pXSector->panAlways || pXSector->state || pXSector->busy)
 					{
 						speed = pXSector->panVel / 128.;
-						if (!pXSector->panAlways && pXSector->busy) speed = MulScaleF(speed, pXSector->busy, 16);
+						if (!pXSector->panAlways && pXSector->busy) speed *= FixedToFloat(pXSector->busy);
 					}
 					if (pSector->floorstat & CSTAT_SECTOR_ALIGN) angle += pSector->firstWall()->normalAngle();
 
@@ -6046,7 +6046,7 @@ static void actCheckDudes()
 				{
 					speed = pXSector->panVel / 128.;
 					if (!pXSector->panAlways && pXSector->busy)
-						speed = MulScaleF(speed, pXSector->busy, 16);
+						speed *= FixedToFloat(pXSector->busy);
 				}
 				if (pSector->floorstat & CSTAT_SECTOR_ALIGN)
 					angle += pSector->firstWall()->normalAngle();

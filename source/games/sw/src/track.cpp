@@ -1150,8 +1150,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                 case SO_DRIVABLE_ATTRIB:
 
-                    sop->drive_angspeed = SP_TAG2(actor);
-                    sop->drive_angspeed <<= 5;
+                    sop->drive_angspeed = FixedToFloat<11>(SP_TAG2(actor));
                     sop->drive_angslide = SP_TAG3(actor);
                     if (sop->drive_angslide <= 0 || sop->drive_angslide == 32)
                         sop->drive_angslide = 1;

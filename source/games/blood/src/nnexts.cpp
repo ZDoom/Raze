@@ -1304,7 +1304,7 @@ void nnExtProcessSuperSprites()
 					{
 						speed = pXSector->panVel / 128.;
 						if (!pXSector->panAlways && pXSector->busy)
-							speed = MulScaleF(speed, pXSector->busy, 16);
+							speed *= FixedToFloat(pXSector->busy);
 					}
 					if (debrisactor->sector()->floorstat & CSTAT_SECTOR_ALIGN)
 						angle += debrisactor->sector()->firstWall()->normalAngle();
@@ -1325,7 +1325,7 @@ void nnExtProcessSuperSprites()
 					if (pact && pact->hit.hit.type == kHitSprite && pact->hit.hit.actor() == debrisactor)
 					{
 						double nSpeed = pact->vel.XY().Length();
-						nSpeed = max<double>(nSpeed - MulScaleF(nSpeed, mass, 6), FixedToFloat(0x9000 - (mass << 3))); // very messy math (TM)...
+						nSpeed = max<double>(nSpeed - nSpeed * FixedToFloat<6>(mass), FixedToFloat(0x9000 - (mass << 3))); // very messy math (TM)...
 
 						debrisactor->vel += pPlayer->actor->spr.angle.ToVector() * nSpeed;
 						debrisactor->hit.hit.setSprite(pPlayer->actor);
@@ -2192,28 +2192,16 @@ void trPlayerCtrlSetScreenEffect(int value, int timeval, PLAYER* pPlayer)
 
 void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 {
-	double const upAngle = 289;
-	double const downAngle = -347;
-	double const lookStepUp = 4.0 * upAngle / 60.0;
-	double const lookStepDown = -4.0 * downAngle / 60.0;
-	double const look = value << 5;
-	double adjustment;
+	static constexpr double upAngle = 289;
+	static constexpr double downAngle = -347;
+	static constexpr double lookStepUp = 4.0 * upAngle / 60.0;
+	static constexpr double lookStepDown = -4.0 * downAngle / 60.0;
 
-	if (look > 0)
+	if (const double adjustment = clamp(value * 0.125 * (value > 0 ? lookStepUp : lookStepDown), downAngle, upAngle))
 	{
-		adjustment = min(MulScaleF(lookStepUp, look, 8), upAngle);
+		pPlayer->horizon.settarget(maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.))));
+		pPlayer->horizon.lockinput();
 	}
-	else if (look < 0)
-	{
-		adjustment = -max(MulScaleF(lookStepDown, abs(look), 8), downAngle);
-	}
-	else
-	{
-		adjustment = 0;
-	}
-
-	pPlayer->horizon.settarget(maphoriz(100. * tan(adjustment * pi::pi() * (1. / 1024.))));
-	pPlayer->horizon.lockinput();
 }
 
 //---------------------------------------------------------------------------
