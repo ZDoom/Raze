@@ -478,10 +478,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                     if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                     {
-                        int32_t bsz = (actor->int_clipdist())+walldist;
+                        int cd = actor->fClipdist() * worldtoint;
+                        int32_t bsz = cd + walldist;
                         if (diff.X < 0) bsz = -bsz;
                         addclipline(p1.X-bsz, p1.Y-bsz, p1.X-bsz, p1.Y+bsz, obj, false);
-                        bsz = (actor->int_clipdist())+walldist;
+                        bsz = cd + walldist;
                         if (diff.Y < 0) bsz = -bsz;
                         addclipline(p1.X+bsz, p1.Y-bsz, p1.X-bsz, p1.Y-bsz, obj, false);
                     }

@@ -742,7 +742,6 @@ void viewDrawScreen(bool sceneonly)
 		pPlayer->actor->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
-		int nClipDist = pPlayer->actor->int_clipdist();
 		if (sceneonly) return;
 		double look_anghalf = pPlayer->angle.look_anghalf(interpfrac);
 		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, -look_anghalf, 0, 2);
