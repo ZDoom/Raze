@@ -160,6 +160,22 @@ void vertexscan(walltype* startwall, func mark)
 }
 
 
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+inline void dragpoint(walltype* startwall, const DVector2& pos)
+{
+	vertexscan(startwall, [&](walltype* wal)
+		{
+			wal->move(pos);
+			wal->sectorp()->exflags |= SECTOREX_DRAGGED;
+		});
+}
+
+
 //---------------------------------------------------------------------------
 //
 // Constants used for Build sine/cosine functions.
@@ -256,7 +272,6 @@ EClose IsCloseToWall(const DVector2& vect, walltype* wal, double walldist);
 
 void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
-void dragpoint(walltype* wal, const DVector2& pos);
 int32_t inside(double x, double y, const sectortype* sect);
 int insidePoly(double x, double y, const DVector2* points, int count);
 
