@@ -35,7 +35,6 @@
 
 #include "build.h"
 
-#include "mdsprite.h"  // md3model_t
 #include "buildtiles.h"
 #include "bitmap.h"
 #include "m_argv.h"

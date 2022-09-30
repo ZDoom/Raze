@@ -960,7 +960,6 @@ set (PCH_SOURCES
 
 	# Todo: Split out the license-safe code from this.
 	build/src/clip.cpp
-	build/src/mdsprite.cpp
 
 	core/actorinfo.cpp
 	core/zcc_compile_raze.cpp
