@@ -2500,10 +2500,9 @@ sectdone:
 
         if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
         {
-            double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).Degrees();
-            if (nVertPan != 0)
+            if (double nVertPan = deltaangle(pPlayer->horizon.horiz, pPlayer->nDestVertPan).Tan() * 32.)
             {
-                pPlayer->horizon.addadjustment(DAngle::fromDeg(abs(nVertPan) >= 1.79 ? clamp(nVertPan, -1.79, 1.79) : nVertPan * 2.));
+                pPlayer->horizon.addadjustment(maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
             }
         }
     }
