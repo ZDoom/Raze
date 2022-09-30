@@ -46,9 +46,4 @@ inline int32_t ksqrt(uint64_t num)
     return int(sqrt(double(num)));
 }
 
-inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
-{
-    return (uint32_t)dx*dx + (uint32_t)dy*dy;
-}
-
 #endif // build_h_

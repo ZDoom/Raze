@@ -286,7 +286,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     //Extra walldist for sprites on sector lines
     vec2_t const  diff    = { goal.X - (pos->X), goal.Y - (pos->Y) };
-    int32_t const rad     = ksqrt(uhypsq(diff.X, diff.Y)) + MAXCLIPDIST + walldist + 8;
+    int32_t const rad     = ksqrt((int64_t)diff.X * diff.X + (int64_t)diff.Y * diff.Y) + MAXCLIPDIST + walldist + 8;
     vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
     vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
 
