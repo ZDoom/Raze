@@ -180,7 +180,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		if (horz)
 		{
 			*actions &= ~SB_CENTERVIEW;
-			horiz += DAngle::fromDeg(horz);
+			__horiz += DAngle::fromDeg(horz);
 		}
 
 		// Process keyboard input.
@@ -189,7 +189,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 			if (*actions & (up | down))
 			{
 				if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
-				horiz += getTicrateScale(rate) * scaleAdjust * (!!(*actions & up) - !!(*actions & down));
+				__horiz += getTicrateScale(rate) * scaleAdjust * (!!(*actions & up) - !!(*actions & down));
 			}
 		};
 		doKbdInput(SB_AIM_UP, SB_AIM_DOWN, PITCH_AIMSPEED, true);
@@ -198,12 +198,12 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		// Do return to centre.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
-			scaletozero(horiz, PITCH_CENTERSPEED * (PITCH_CNTRSINEOFFSET - abs(horiz)).Sin(), scaleAdjust);
-			if (!horiz.Sgn()) *actions &= ~SB_CENTERVIEW;
+			scaletozero(__horiz, PITCH_CENTERSPEED * (PITCH_CNTRSINEOFFSET - abs(__horiz)).Sin(), scaleAdjust);
+			if (!__horiz.Sgn()) *actions &= ~SB_CENTERVIEW;
 		}
 
 		// clamp before we finish, even if it's clamped in the drawer.
-		horiz = ClampViewPitch(horiz);
+		__horiz = ClampViewPitch(__horiz);
 	}
 	else
 	{
@@ -361,14 +361,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("horiz", w.horiz)
+		arc("horiz", w.__horiz)
 			("horizoff", w.horizoff)
 			("inputdisabled", w.inputdisabled)
 			.EndObject();
 
 		if (arc.isReading())
 		{
-			w.ohoriz = w.horiz;
+			w.ohoriz = w.__horiz;
 			w.ohorizoff = w.horizoff;
 			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();

@@ -619,7 +619,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	backupplayer(p);
 
-	p->horizon.horizoff = p->horizon.horiz = nullAngle;
+	p->horizon.horizoff = p->horizon.__horiz = nullAngle;
 
 	updatesector(p->pos, &p->cursector);
 

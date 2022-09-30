@@ -2170,7 +2170,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			}
 
-		actor->spr.pos.Z = ps[p].pos.Z + 8 + ps[p].pyoff - (actor->temp_data[2] - (ps[p].horizon.horiz.Tan() * 2048.)) * zinttoworld;
+		actor->spr.pos.Z = ps[p].pos.Z + 8 + ps[p].pyoff - (actor->temp_data[2] - (ps[p].horizon.__horiz.Tan() * 2048.)) * zinttoworld;
 
 		if (actor->temp_data[2] > 512)
 			actor->temp_data[2] -= 128;
