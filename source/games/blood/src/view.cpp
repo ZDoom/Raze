@@ -520,8 +520,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 	{
 		if (cl_viewhbob)
 		{
-			cPos.X -= bobWidth * cA.Sin();
-			cPos.Y += bobWidth * cA.Cos();
+			cPos.XY() -= cA.ToVector().Rotated90CW() * bobWidth;
 		}
 		if (cl_viewvbob)
 		{
