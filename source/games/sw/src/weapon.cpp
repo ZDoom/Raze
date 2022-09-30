@@ -5144,7 +5144,7 @@ int ActorHealth(DSWActor* actor, short amt)
                     PlaySound(DIGI_NINJACHOKE, actor, v3df_follow);
                     InitPlasmaFountain(nullptr, actor);
                     InitBloodSpray(actor,false,105);
-                    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()) + DAngle90;
+                    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle() + DAngle90;
                     actor->spr.cstat &= ~(CSTAT_SPRITE_YFLIP);
                     if (sw_ninjahack)
                         NewStateGroup(actor, sg_NinjaHariKari);
@@ -11789,7 +11789,7 @@ int DoSerpRing(DSWActor* actor)
                 {
                     extern STATE* sg_SkullJump[];
                     actor->user.ID = SKULL_R0;
-                    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+                    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
                     actor->vel.X = dist * (3. / 64) + RandomRangeF(16);
                     actor->user.jump_speed = -800;
                     change_actor_stat(actor, STAT_ENEMY);
@@ -11840,7 +11840,7 @@ int InitLavaThrow(DSWActor* actor)
     short w;
 
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     double nz = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
 
@@ -12890,7 +12890,7 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, double *zvel, DAn
         hitActor->user.Flags |= (SPR_TARGETED);
         hitActor->user.Flags |= (SPR_ATTACKED);
 
-        missileActor->spr.angle = VecToAngle(hitActor->spr.pos.XY() - missileActor->spr.pos.XY());
+        missileActor->spr.angle = (hitActor->spr.pos.XY() - missileActor->spr.pos.XY()).Angle();
         double dist = (missileActor->spr.pos.XY() - hitActor->spr.pos.XY()).Length();
 
         if (dist != 0)
@@ -12990,7 +12990,7 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, double *z, DAngle *ang, bool tes
         picked->user.Flags |= (SPR_TARGETED);
         picked->user.Flags |= (SPR_ATTACKED);
 
-        *ang = VecToAngle(picked->spr.pos.XY() - actor->spr.pos.XY());
+        *ang = (picked->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
         // find the distance to the target
         double dist = (actor->spr.pos.XY() - picked->spr.pos.XY()).Length();
@@ -14112,7 +14112,7 @@ int InitMicro(PLAYER* pp)
         {
             picked = ts->actor;
 
-            angle = VecToAngle(picked->spr.pos.XY() - pp->pos.XY());
+            angle = (picked->spr.pos.XY() - pp->pos.XY()).Angle();
 
             ts++;
         }
@@ -14539,7 +14539,7 @@ int InitSerpSpell(DSWActor* actor)
 
     for (i = 0; i < 2; i++)
     {
-		actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+		actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
         auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 93.75);
 
@@ -14643,7 +14643,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 
     for (i = 0; i < 1; i++)
     {
-		actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+		actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
 		auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, 31.25);
 
@@ -14719,7 +14719,7 @@ int InitEnemyRocket(DSWActor* actor)
     PlaySound(DIGI_NINJARIOTATTACK, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
 
     // Spawn a shot
@@ -14792,7 +14792,7 @@ int InitEnemyRail(DSWActor* actor)
     PlaySound(DIGI_RAILFIRE, actor, v3df_dontpan|v3df_doppler);
 
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     // add a bit of randomness
     if (RANDOM_P2(1024) < 512)
@@ -14865,7 +14865,7 @@ int InitZillaRocket(DSWActor* actor)
     PlaySound(DIGI_NINJARIOTATTACK, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     for (int i = 0; i < (int)SIZ(mp); i++)
     {
@@ -14924,7 +14924,7 @@ int InitEnemyStar(DSWActor* actor)
     int dist;
 
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, actor->sector(),
@@ -14960,7 +14960,7 @@ int InitEnemyCrossbow(DSWActor* actor)
     int dist;
 
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(),
@@ -15003,7 +15003,7 @@ int InitSkelSpell(DSWActor* actor)
     PlaySound(DIGI_SPELEC, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, ELECTRO_ENEMY, s_Electro, actor->sector(),
@@ -15036,7 +15036,7 @@ int InitSkelSpell(DSWActor* actor)
 int InitCoolgFire(DSWActor* actor)
 {
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (actor->user.targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -17121,7 +17121,7 @@ int InitEnemyFireball(DSWActor* actor)
     PlaySound(DIGI_FIREBALL1, actor, v3df_none);
 
     // get angle to player and also face player when attacking
-    actor->spr.angle = VecToAngle(targetActor->spr.pos.XY() - actor->spr.pos.XY());
+    actor->spr.angle = (targetActor->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
     double size_z = ActorSizeZ(actor) * 0.625;
     double nz = actor->spr.pos.Z - size_z + 4;

@@ -1494,7 +1494,7 @@ void FireSpread(int nTrigger, PLAYER* pPlayer)
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
 	DVector3 aim = pPlayer->flt_aim();
-	DAngle angle = (VecToAngle(aim.XY()) + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
+	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
 	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
@@ -1522,7 +1522,7 @@ void AltFireSpread(int nTrigger, PLAYER* pPlayer)
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
 	DVector3 aim = pPlayer->flt_aim();
-	DAngle angle = (VecToAngle(aim.XY()) + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
+	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
 	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
@@ -1558,7 +1558,7 @@ void AltFireSpread2(int nTrigger, PLAYER* pPlayer)
 	DBloodActor* actor = pPlayer->actor;
 	assert(nTrigger > 0 && nTrigger <= kMaxSpread);
 	DVector3 aim = pPlayer->flt_aim();
-	DAngle angle = (VecToAngle(aim.XY()) + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
+	DAngle angle = ((aim.XY()).Angle() + ((DAngle20 * (nTrigger - 1)) / kMaxSpread - DAngle10));
 	DVector3 dv = DVector3(angle.ToVector(), aim.Z);
 
 	sfxPlay3DSound(pPlayer->actor, 431, -1, 0);

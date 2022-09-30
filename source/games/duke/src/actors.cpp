@@ -643,7 +643,7 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
-				actor->spr.angle = VecToAngle(cpt.pole - actor->spr.pos.XY());
+				actor->spr.angle = (cpt.pole - actor->spr.pos.XY()).Angle();
 				SetActor(a2, DVector3( cpt.pole.X, cpt.pole.Y, a2->spr.pos.Z ));
 				actor->temp_data[0]++;
 				return;
@@ -752,7 +752,7 @@ void movecrane(DDukeActor *actor, int crane)
 	{
 		if (actor->vel.X < 12)
 			actor->vel.X += 0.5;
-		actor->spr.angle = VecToAngle(cpt.pos.XY() - actor->spr.pos.XY());
+		actor->spr.angle = (cpt.pos.XY() - actor->spr.pos.XY()).Angle();
 		ssp(actor, CLIPMASK0);
 		if (((actor->spr.pos.X - cpt.pos.X) * (actor->spr.pos.X - cpt.pos.X) + (actor->spr.pos.Y - cpt.pos.Y) * (actor->spr.pos.Y - cpt.pos.Y)) < (8 * 8))
 			actor->temp_data[0]++;
@@ -1492,7 +1492,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		{
 			//						if(actor->spr.pal == 12)
 			{
-				auto delta = absangle(ps[p].angle.ang, VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY()));
+				auto delta = absangle(ps[p].angle.ang, (actor->spr.pos.XY() - ps[p].pos.XY()).Angle());
 				if (delta < DAngle22_5 / 2 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
@@ -1502,7 +1502,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 						{
 							if (act2->spr.picnum == queball || act2->spr.picnum == stripeball)
 							{
-								delta = absangle(ps[p].angle.ang, VecToAngle(act2->spr.pos.XY() - ps[p].pos.XY()));
+								delta = absangle(ps[p].angle.ang, (act2->spr.pos.XY() - ps[p].pos.XY()).Angle());
 								if (delta < DAngle22_5 / 2)
 								{
 									double l;
@@ -1524,7 +1524,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 		if (x < 32 && actor->sector() == ps[p].cursector)
 		{
-			actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY());
+			actor->spr.angle = (actor->spr.pos.XY() - ps[p].pos.XY()).Angle();
 			actor->vel.X = 3;
 		}
 	}
@@ -1676,7 +1676,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			actor->temp_data[2] = 0;
 		}
 		else actor->temp_angle +=
-			deltaangle(actor->temp_angle, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) / 3;
+			deltaangle(actor->temp_angle, (ps[p].pos.XY() - actor->spr.pos.XY()).Angle()) / 3;
 	}
 	else if (actor->temp_data[0] == 2 || actor->temp_data[0] == 3)
 	{
@@ -1703,7 +1703,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				fi.shoot(actor, firelaser);
 			}
 		}
-		actor->spr.angle += deltaangle(actor->spr.angle, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) * 0.25;
+		actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].pos.XY() - actor->spr.pos.XY()).Angle()) * 0.25;
 	}
 
 	if (actor->temp_data[0] != 2 && actor->temp_data[0] != 3 && Owner)
@@ -1714,7 +1714,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			a = actor->spr.angle;
 			actor->vel.X *= 0.5;
 		}
-		else a = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
+		else a = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
 		if (actor->temp_data[0] == 1 || actor->temp_data[0] == 4) // Found a locator and going with it
 		{
@@ -2777,7 +2777,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	Owner = actor->GetOwner();
 	if(actor->vel.X != 0)
 	{
-		auto curangle = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
+		auto curangle = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 		auto diffangle = deltaangle(actor->spr.angle, curangle) * 0.125;
 
 		actor->temp_angle += diffangle;
@@ -2798,7 +2798,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				if (dist2 < 1280)//20480)
 				{
 					auto saved_angle = actor->spr.angle;
-					actor->spr.angle = VecToAngle(actor->spr.pos.XY() - ps[p].pos.XY());
+					actor->spr.angle = (actor->spr.pos.XY() - ps[p].pos.XY()).Angle();
 					fi.shoot(actor, RPG);
 					actor->spr.angle = saved_angle;
 				}
@@ -3319,7 +3319,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	{
 		// Huh?
 		//auto ta = actor->spr.angle;
-		//actor->spr.angle = VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY());
+		//actor->spr.angle = (ps[p].pos.XY() - actor->spr.pos.XY()).Angle();
 		//actor->spr.angle = ta;
 		actor->SetOwner(nullptr);
 		return;
@@ -3327,7 +3327,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	}
 	else actor->vel.X = 16;
 
-	auto ang = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
+	auto ang = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 	auto angdiff = deltaangle(actor->spr.angle, ang) / 8;
 	actor->spr.angle += angdiff;
 
@@ -3339,7 +3339,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	else
 	{
 		actor->temp_angle +=
-			deltaangle(actor->temp_angle + DAngle90, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) * 0.25;
+			deltaangle(actor->temp_angle + DAngle90, (ps[p].pos.XY() - actor->spr.pos.XY()).Angle()) * 0.25;
 		sc->ceilingshade = 0;
 	}
 	j = fi.ifhitbyweapon(actor);
@@ -4299,7 +4299,7 @@ void handle_se27(DDukeActor* actor)
 				{
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
-					actor->spr.angle += deltaangle(actor->spr.angle, VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY())) * 0.125;
+					actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].pos.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
 					actor->spr.yint = 100 + int((actor->spr.pos.Z - ps[p].pos.Z) * (256. / 257.));
 
 				}
@@ -4314,7 +4314,7 @@ void handle_se27(DDukeActor* actor)
 			}
 			else
 			{
-				actor->spr.angle = VecToAngle(ps[p].pos.XY() - actor->spr.pos.XY());
+				actor->spr.angle = (ps[p].pos.XY() - actor->spr.pos.XY()).Angle();
 
 				if (actor->temp_data[0] == 999)
 				{
@@ -5014,9 +5014,9 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 		auto Owner = actor->GetOwner();
 		if (Owner->isPlayer())
-			goalang = VecToAngle(actor->ovel - actor->spr.pos.XY());
+			goalang = (actor->ovel - actor->spr.pos.XY()).Angle();
 		else
-			goalang = VecToAngle(Owner->spr.pos.XY() - actor->spr.pos.XY());
+			goalang = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
 		if (actor->vel.X != 0 && actor->spr.picnum != TILE_DRONE)
 		{

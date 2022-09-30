@@ -599,7 +599,7 @@ void GameInterface::UpdateSounds(void)
         if (TEST_BOOL1(rsp))
             tang = rsp->spr.angle;
         else
-            tang = VecToAngle(pp->sop_remote->pmid.XY() - pp->pos.XY());
+            tang = (pp->sop_remote->pmid.XY() - pp->pos.XY()).Angle();
     }
     else tang = pp->angle.ang;
 

@@ -94,7 +94,7 @@ void tchernobogBurnSeqCallback(int, DBloodActor* actor)
 		double nDist2 = (tvec - pos2).Length();
 		if (nDist2 < nClosest)
 		{
-			DAngle nAngle = VecToAngle(pos2.XY() - pos.XY());
+			DAngle nAngle = (pos2.XY() - pos.XY()).Angle();
 			DAngle nDeltaAngle = absangle(nAngle, actor->spr.angle);
 			if (nDeltaAngle <= DAngle45)
 			{
@@ -150,7 +150,7 @@ void tchernobogBurnSeqCallback2(int, DBloodActor* actor)
 		double nDist2 = (tvec - pos2).Length();
 		if (nDist2 < nClosest)
 		{
-			DAngle nAngle = VecToAngle(pos2.XY() - pos.XY());
+			DAngle nAngle = (pos2.XY() - pos.XY()).Angle();
 			DAngle nDeltaAngle = absangle(nAngle, actor->spr.angle);
 			if (nDeltaAngle <= DAngle45)
 			{

@@ -100,7 +100,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 		double x;
 		auto pactor = ps[findplayer(actor, &x)].GetActor();
 		zvel = ((pactor->spr.pos.Z - pos.Z) * 16) / (x + 1 / 16.);
-		ang = VecToAngle(pactor->spr.pos.XY() - pos.XY());
+		ang = (pactor->spr.pos.XY() - pos.XY()).Angle();
 	}
 
 	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
@@ -508,7 +508,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
-			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
+			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
 		{
@@ -625,7 +625,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			if (aimed->spr.picnum != RECON)
-				ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
+				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
 			zvel = -ps[p].horizon.sum().Tan() * 40.5;
@@ -645,7 +645,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		ang = VecToAngle(ps[j].opos.XY() - pos.XY());
+		ang = (ps[j].opos.XY() - pos.XY()).Angle();
 		if (actor->spr.picnum == BOSS3)
 			pos.Z -= 32;
 		else if (actor->spr.picnum == BOSS2)
@@ -779,7 +779,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) -12;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
-			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
+			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
 			zvel = -ps[p].horizon.sum().Tan() * 49.;

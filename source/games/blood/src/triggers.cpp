@@ -272,7 +272,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 					{
 						pos.XY() += target->vel.XY() * nDist * (65536. / 0x1aaaaa);
 						auto angBak = actor->spr.angle;
-						actor->spr.angle = VecToAngle(pos.XY() - actor->spr.pos.XY());
+						actor->spr.angle = (pos.XY() - actor->spr.pos.XY()).Angle();
 						double tz = target->spr.pos.Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * REPEAT_SCALE;
 						auto dvec = DVector3(actor->spr.angle.ToVector(), ((tz - top - 1) / nDist) * (1. / 16.));
 						int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);

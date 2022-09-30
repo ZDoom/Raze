@@ -365,7 +365,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
     else
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        auto look = VecToAngle(tSpr->pos.XY() - Player[screenpeek].si.XY());
+        auto look = (tSpr->pos.XY() - Player[screenpeek].si.XY()).Angle();
 		tSpr->pos.XY() += look.ToVector() * 2;
     }
 

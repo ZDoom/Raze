@@ -3951,7 +3951,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
 				missileActor->xspr.TargetPos.Z = (missileActor->spr.pos.Z - actorHit->spr.pos.Z);
-				missileActor->xspr.goalAng = VecToAngle(missileActor->spr.pos.XY() - actorHit->spr.pos.XY()) - actorHit->spr.angle;
+				missileActor->xspr.goalAng = (missileActor->spr.pos.XY() - actorHit->spr.pos.XY()).Angle() - actorHit->spr.angle;
 				missileActor->xspr.state = 1;
 				actPostSprite(missileActor, kStatFlare);
 				missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;

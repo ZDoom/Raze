@@ -160,7 +160,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		sang = VecToAngle(ps[j].opos.XY() - spos.XY());
+		sang = (ps[j].opos.XY() - spos.XY()).Angle();
 
 		if (actor->spr.picnum == BOSS5)
 		{
@@ -185,7 +185,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		zvel = -ps[p].horizon.sum().Tan() * 40.5;
 		
 		// WTF???
-		DAngle myang = DAngle90 - (DAngle180 - abs(abs(VecToAngle(spos.XY() - ps[p].pos.XY()) - sang) - DAngle180));
+		DAngle myang = DAngle90 - (DAngle180 - abs(abs((spos.XY() - ps[p].pos.XY()).Angle() - sang) - DAngle180));
 		if (ps[p].GetActor()->vel.X != 0)
 			vel = ((myang / DAngle90) * ps[p].GetActor()->vel.X) + 25;
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
@@ -251,7 +251,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		double x;
 		auto pactor = ps[findplayer(actor, &x)].GetActor();
 		zvel = ((pactor->spr.pos.Z - pos.Z) * 16) / (x + 1/16.);
-		ang = VecToAngle(pactor->spr.pos.XY() - pos.XY());
+		ang = (pactor->spr.pos.XY() - pos.XY()).Angle();
 	}
 
 	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
@@ -603,7 +603,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
-			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
+			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
 			zvel = -ps[p].horizon.sum().Tan() * 49.;
@@ -714,7 +714,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			if (aimed->spr.picnum != RECON)
-				ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
+				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else 
 			zvel = -ps[p].horizon.sum().Tan() * 40.5;
@@ -727,7 +727,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		ang = VecToAngle(ps[j].opos.XY() - pos.XY());
+		ang = (ps[j].opos.XY() - pos.XY()).Angle();
 		if (actor->spr.picnum == BOSS3)
 		{
 			double zoffs = 32;
@@ -953,7 +953,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			}
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * 16) / dist;
-			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
+			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
 		{
@@ -1048,7 +1048,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5);
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal - 4) * 48) / dist;
-			ang = VecToAngle(aimed->spr.pos.XY() - pos.XY());
+			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
 			zvel = -ps[p].horizon.sum().Tan() * 49.;

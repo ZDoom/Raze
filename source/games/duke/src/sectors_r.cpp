@@ -2077,7 +2077,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 			proj->vel.X *= 0.75;
 			proj->spr.angle -= targ->spr.angle * 2 + DAngle180;
-			targ->spr.angle = VecToAngle(targ->spr.pos.XY() - proj->spr.pos.XY()) - DAngle90;
+			targ->spr.angle = (targ->spr.pos.XY() - proj->spr.pos.XY()).Angle() - DAngle90;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}

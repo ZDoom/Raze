@@ -1794,7 +1794,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				atpos.XY() += actTarget->vel.XY() * nDist * 0.0375;
 
 				auto angBak = actor->spr.angle;
-				actor->spr.angle = VecToAngle(atpos - actor->spr.pos.XY());
+				actor->spr.angle = (atpos - actor->spr.pos.XY()).Angle();
 				DVector3 dv;
 				dv.XY() = actor->spr.angle.ToVector() * 64;
 				double tz = actTarget->spr.pos.Z - (actTarget->spr.yrepeat * pDudeInfo->aimHeight) * REPEAT_SCALE;

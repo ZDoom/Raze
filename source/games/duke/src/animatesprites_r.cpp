@@ -197,8 +197,8 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FORCESPHERE:
 			if (t->statnum == STAT_MISC && OwnerAc)
 			{
-				auto sqa = VecToAngle(OwnerAc->spr.pos.XY() - ps[screenpeek].pos.XY());
-				auto sqb = VecToAngle(OwnerAc->spr.pos.XY() - t->pos.XY());
+				auto sqa = (OwnerAc->spr.pos.XY() - ps[screenpeek].pos.XY()).Angle();
+				auto sqb = (OwnerAc->spr.pos.XY() - t->pos.XY()).Angle();
 
 				if (absangle(sqa, sqb) > DAngle90)
 				{
@@ -216,7 +216,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					t->xrepeat = 0;
 				else
 				{
-					t->angle = VecToAngle(viewVec - t->pos.XY());
+					t->angle = (viewVec - t->pos.XY()).Angle();
 					t->pos.XY() = OwnerAc->spr.pos.XY() + t->angle.ToVector();
 				}
 			}
@@ -749,7 +749,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 								else
 								{
 									// Alter the shadow's position so that it appears behind the sprite itself.
-									auto look = VecToAngle(shadowspr->pos.XY() - ps[screenpeek].pos.XY());
+									auto look = (shadowspr->pos.XY() - ps[screenpeek].pos.XY()).Angle();
 									shadowspr->pos.XY() += look.ToVector() * 2;
 								}
 						}

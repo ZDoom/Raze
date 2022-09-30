@@ -3449,8 +3449,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = VecToAngle(ps[pnum].opos.XY() - actor->spr.pos.XY());
-		else goalang = VecToAngle(ps[pnum].pos.XY() - actor->spr.pos.XY());
+			goalang = (ps[pnum].opos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 8 && angdif < nullAngle) angdif = nullAngle;
 		actor->spr.angle += angdif;
@@ -3462,8 +3462,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = VecToAngle(ps[pnum].opos.XY() - actor->spr.pos.XY());
-		else goalang = VecToAngle(ps[pnum].pos.XY() - actor->spr.pos.XY());
+			goalang = (ps[pnum].opos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle();
 		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 		actor->spr.angle += angdif;
 	}
@@ -3473,8 +3473,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (a & antifaceplayerslow)
 		{
 			if (ps[pnum].newOwner != nullptr)
-				goalang = (VecToAngle(ps[pnum].opos.XY() - actor->spr.pos.XY()) + DAngle180);
-			else goalang = (VecToAngle(ps[pnum].pos.XY() - actor->spr.pos.XY()) + DAngle180);
+				goalang = ((ps[pnum].opos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
+			else goalang = ((ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
 			angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 			actor->spr.angle += angdif;
 		}
@@ -3534,7 +3534,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player_smart)
 	{
 		DVector2 newpos = ps[pnum].pos.XY() + (ps[pnum].vel.XY() * (4. / 3.));
-		goalang = VecToAngle(newpos - actor->spr.pos.XY());
+		goalang = (newpos - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
 		actor->spr.angle += angdif;
@@ -3633,7 +3633,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel) * maptoworld;
-				angdif = VecToAngle(ps[pnum].pos.XY() - actor->spr.pos.XY());
+				angdif = (ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle();
 
 				if (xvel < 512)
 				{

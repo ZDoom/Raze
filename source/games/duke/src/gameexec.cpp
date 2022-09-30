@@ -2428,9 +2428,9 @@ int ParseState::parse(void)
 			{
 				DAngle ang;
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					ang = absangle(ps[otherp].angle.ang, VecToAngle(ps[g_p].pos.XY() - ps[otherp].pos.XY()));
+					ang = absangle(ps[otherp].angle.ang, (ps[g_p].pos.XY() - ps[otherp].pos.XY()).Angle());
 				else
-					ang = absangle(ps[g_p].angle.ang, VecToAngle(g_ac->spr.pos.XY() - ps[g_p].pos.XY()));
+					ang = absangle(ps[g_p].angle.ang, (g_ac->spr.pos.XY() - ps[g_p].pos.XY()).Angle());
 
 				j = ang < DAngle22_5;
 			}
@@ -3110,7 +3110,7 @@ int ParseState::parse(void)
 		int i = *(insptr++);	// ID of def
 
 		// g_ac->lastvx and lastvy are last known location of target.
-		int ang = VecToAngle(g_ac->ovel - g_ac->spr.pos.XY()).Buildang();
+		int ang = (g_ac->ovel - g_ac->spr.pos.XY()).Angle().Buildang();
 		SetGameVarID(i, ang, g_ac, g_p);
 		break;
 	}

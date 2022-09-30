@@ -823,7 +823,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
                         sop->clipbox_vdist[sop->clipbox_num] = (sop->pmid.XY() - itActor->spr.pos.XY()).Length();
 
-                        auto ang2 = VecToAngle(itActor->spr.pos.XY() - sop->pmid.XY());
+                        auto ang2 = (itActor->spr.pos.XY() - sop->pmid.XY()).Angle();
                         sop->clipbox_ang[sop->clipbox_num] = deltaangle(ang2, sop->ang);
 
                         sop->clipbox_num++;

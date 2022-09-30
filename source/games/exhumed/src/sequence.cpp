@@ -532,7 +532,7 @@ int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 {
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
-    DAngle nAngle = VecToAngle(nCamerapos.XY() - pTSprite->pos.XY());
+    DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
 
     int nSeqOffset = (((pTSprite->angle + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
 
@@ -595,7 +595,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     }
     else
     {
-        DAngle nAngle = VecToAngle(nCamerapos.XY() - pTSprite->pos.XY());
+        DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
         val = (((pTSprite->angle + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
     }
 
