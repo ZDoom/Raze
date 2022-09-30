@@ -589,6 +589,11 @@ static double LongSeek(double* pZVal, double a2, double a3, double a4)
     return v4;
 }
 
+static inline DVector2 LongSeek(DVector2& pZVals, const DVector2& a2, double a3, double a4)
+{
+    return DVector2(LongSeek(&pZVals.X, a2.X, a3, a4), LongSeek(&pZVals.Y, a2.Y, a3, a4));
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -1126,90 +1131,63 @@ void AISlide::Tick(RunListEvent* ev)
     if (cx == 1)
     {
         auto pWall = SlideData[nSlide].pWall1;
-        double x = pWall->pos.X;
-        double y = pWall->pos.Y;
+        auto wlPos = pWall->pos;
+        auto nSeek = LongSeek(wlPos, SlideData[nSlide].pos[4], 1.25, 1.25);
+        dragpoint(pWall, wlPos);
+        movesprite(SlideData[nSlide].pActor, nSeek, 0, 0, CLIPMASK1);
 
-        double nSeekA = LongSeek(&x, SlideData[nSlide].pos[4].X, 1.25, 1.25);
-        double nSeekB = LongSeek(&y, SlideData[nSlide].pos[4].Y, 1.25, 1.25);
-
-        dragpoint(SlideData[nSlide].pWall1, x, y);
-        movesprite(SlideData[nSlide].pActor, DVector2(nSeekA, nSeekB), 0, 0, CLIPMASK1);
-
-        if (nSeekA == 0 && nSeekB == 0)
+        if (nSeek.isZero())
         {
              clipstate = clipmask;
         }
 
         pWall = SlideData[nSlide].pStartWall;
-
-        x = pWall->pos.X + nSeekA;
-        y = pWall->pos.Y + nSeekB;
-
-        dragpoint(SlideData[nSlide].pStartWall, x, y);
+        wlPos = pWall->pos + nSeek;
+        dragpoint(pWall, wlPos);
 
         pWall = SlideData[nSlide].pWall3;
+        wlPos = pWall->pos;
+        nSeek = LongSeek(wlPos, SlideData[nSlide].pos[5], 1.25, 1.25);
+        dragpoint(pWall, wlPos);
 
-        x = pWall->pos.X;
-        y = pWall->pos.Y;
-
-        int nSeekC = LongSeek(&x, SlideData[nSlide].pos[5].X, 1.25, 1.25);
-        int nSeekD = LongSeek(&y, SlideData[nSlide].pos[5].Y, 1.25, 1.25);
-
-        dragpoint(SlideData[nSlide].pWall3, x, y);
-
-        if (nSeekC == 0 && nSeekD == 0) {
+        if (nSeek.isZero())
+        {
             clipstate++;
         }
 
         pWall = SlideData[nSlide].pWall2;
-
-        x = pWall->pos.X + nSeekC;
-        y = pWall->pos.Y + nSeekD;
-
-        dragpoint(SlideData[nSlide].pWall2, x, y);
+        wlPos = pWall->pos + nSeek;
+        dragpoint(pWall, wlPos);
     }
     else if (cx == 0) // right branch
     {
         auto pWall = SlideData[nSlide].pStartWall;
-        double x = pWall->pos.X;
-        double y = pWall->pos.Y;
+        auto wlPos = pWall->pos;
+        auto nSeek = LongSeek(wlPos, SlideData[nSlide].pos[0], 1.25, 1.25);
+        dragpoint(pWall, wlPos);
 
-        int nSeekA = LongSeek(&x, SlideData[nSlide].pos[0].X, 1.25, 1.25);
-        int nSeekB = LongSeek(&y, SlideData[nSlide].pos[0].Y, 1.25, 1.25);
-
-        dragpoint(SlideData[nSlide].pStartWall, x, y);
-
-        if (nSeekA == 0 && nSeekB == 0) {
+        if (nSeek.isZero())
+        {
             clipstate = clipmask;
         }
 
         pWall = SlideData[nSlide].pWall1;
-
-        y = pWall->pos.Y + nSeekB;
-        x = pWall->pos.X + nSeekA;
-
-        dragpoint(SlideData[nSlide].pWall1, x, y);
+        wlPos = pWall->pos + nSeek;
+        dragpoint(pWall, wlPos);
 
         pWall = SlideData[nSlide].pWall2;
+        wlPos = pWall->pos;
+        nSeek = LongSeek(wlPos, SlideData[nSlide].pos[1], 1.25, 1.25);
+        dragpoint(pWall, wlPos);
 
-        x = pWall->pos.X;
-        y = pWall->pos.Y;
-
-        int nSeekC = LongSeek(&x, SlideData[nSlide].pos[1].X, 1.25, 1.25);
-        int nSeekD = LongSeek(&y, SlideData[nSlide].pos[1].Y, 1.25, 1.25);
-
-        dragpoint(SlideData[nSlide].pWall2, x, y);
-
-        if (nSeekC == 0 && nSeekD == 0) {
+        if (nSeek.isZero())
+        {
             clipstate++;
         }
 
         pWall = SlideData[nSlide].pWall3;
-
-        y = pWall->pos.Y + nSeekD;
-        x = pWall->pos.X + nSeekC;
-
-        dragpoint(SlideData[nSlide].pWall3, x, y);
+        wlPos = pWall->pos + nSeek;
+        dragpoint(pWall, wlPos);
     }
 
     // loc_21A51:

@@ -421,7 +421,6 @@ struct walltype
 	bool twoSided() const { return nextsector >= 0; }
 	double Length();
 	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.
-	void movexy(int newx, int newy);
 	void move(const DVector2& vec)
 	{
 		pos = vec;
@@ -605,14 +604,6 @@ inline walltype* sectortype::lastWall() const
 
 inline void walltype::moved() 
 {
-	lengthflags = 3;
-	sectorp()->dirty = EDirty::AllDirty;
-}
-
-inline void walltype::movexy(int newx, int newy)
-{
-	pos.X = newx * inttoworld;
-	pos.Y = newy * inttoworld;
 	lengthflags = 3;
 	sectorp()->dirty = EDirty::AllDirty;
 }

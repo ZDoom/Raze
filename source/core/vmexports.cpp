@@ -485,7 +485,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, length, wall_length)
 void wall_move(walltype* wal, double x, double y)
 {
 	if (!wal) ThrowAbortException(X_READ_NIL, nullptr);
-	wal->movexy(x, y);
+	wal->move(DVector2(x, y));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_walltype, move, wall_move)
@@ -493,7 +493,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, move, wall_move)
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
 	PARAM_FLOAT(x);
 	PARAM_FLOAT(y);
-	self->movexy(x, y);
+	self->move(DVector2(x, y));
 	return 0;
 }
 

@@ -2625,28 +2625,24 @@ void DoSineWaveFloor(void)
 
 void DoSineWaveWall(void)
 {
-    SINE_WALL *sw;
-    double New;
-    short sw_num;
-
-    for (sw_num = 0; sw_num < MAX_SINE_WALL; sw_num++)
+    for (short sw_num = 0; sw_num < MAX_SINE_WALL; sw_num++)
     {
-        for (sw = &SineWall[sw_num][0]; sw->wallp != nullptr && sw < &SineWall[sw_num][MAX_SINE_WALL_POINTS]; sw++)
+        for (SINE_WALL* sw = &SineWall[sw_num][0]; sw->wallp != nullptr && sw < &SineWall[sw_num][MAX_SINE_WALL_POINTS]; sw++)
         {
             auto wal = sw->wallp;
+            DVector2 newpos = wal->pos;
             // move through the sintable
             sw->sintable_ndx = NORM_ANGLE(sw->sintable_ndx + (synctics << sw->speed_shift));
 
             if (!sw->type)
             {
-                New = sw->origXY + sw->Range * BobVal(sw->sintable_ndx);
-                dragpoint(wal, DVector2(wal->pos.X, New));
+                newpos.Y = sw->origXY + sw->Range * BobVal(sw->sintable_ndx);
             }
             else
             {
-                New = sw->origXY + sw->Range * BobVal(sw->sintable_ndx);
-                dragpoint(wal, DVector2(New, wal->pos.Y));
+                newpos.X = sw->origXY + sw->Range * BobVal(sw->sintable_ndx);
             }
+            dragpoint(wal, newpos);
         }
     }
 }

@@ -256,7 +256,6 @@ EClose IsCloseToWall(const DVector2& vect, walltype* wal, double walldist);
 
 void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
-[[deprecated]] void dragpoint(walltype* wal, int newx, int newy);
 void dragpoint(walltype* wal, const DVector2& pos);
 int32_t inside(double x, double y, const sectortype* sect);
 int insidePoly(double x, double y, const DVector2* points, int count);

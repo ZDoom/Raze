@@ -408,15 +408,6 @@ bool sectorsConnected(int sect1, int sect2)
 //
 //==========================================================================
 
-void dragpoint(walltype* startwall, int newx, int newy)
-{
-	vertexscan(startwall, [&](walltype* wal)
-	{
-		wal->movexy(newx, newy);
-		wal->sectorp()->exflags |= SECTOREX_DRAGGED;
-	});
-}
-
 void dragpoint(walltype* startwall, const DVector2& pos)
 {
 	vertexscan(startwall, [&](walltype* wal)
