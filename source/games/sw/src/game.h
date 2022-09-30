@@ -1429,9 +1429,9 @@ struct SECTOR_OBJECT
             track,          // the track # 0 to 20
             point,          // the point on the track that the sector object is headed toward
             vel_rate,       // rate at which velocity aproaches target
-            dir,            // direction traveling on the track
-            clipdist,       // cliping distance for operational sector objects
-            clipbox_dist[MAX_CLIPBOX]; // mult-clip box variables (clipdist equivalent)
+            dir;            // direction traveling on the track
+    double  clipdist;       // cliping distance for operational sector objects
+    double  clipbox_dist[MAX_CLIPBOX]; // mult-clip box variables (clipdist equivalent)
     double  clipbox_vdist[MAX_CLIPBOX]; // mult-clip box variables
     DAngle  clipbox_ang[MAX_CLIPBOX]; // mult-clip box variables
 

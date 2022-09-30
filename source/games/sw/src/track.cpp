@@ -819,7 +819,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                     case SO_CLIP_BOX:
                     {
                         sop->clipdist = 0;
-                        sop->clipbox_dist[sop->clipbox_num] = itActor->spr.lotag;
+                        sop->clipbox_dist[sop->clipbox_num] = itActor->spr.lotag * maptoworld;
 
                         sop->clipbox_vdist[sop->clipbox_num] = (sop->pmid.XY() - itActor->spr.pos.XY()).Length();
 
@@ -960,7 +960,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->spin_speed = nullAngle;
         sop->spin_ang = nullAngle;
         sop->ang_orig = nullAngle;
-        sop->clipdist = 1024;
+        sop->clipdist = 64;
         sop->target_dist = 0;
         sop->turn_speed = 4;
         sop->floor_loz = -9999999;
@@ -1093,7 +1093,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->PreMoveAnimator = ScaleSectorObject;
                     sop->PostMoveAnimator = MorphTornado;
                     // clip
-                    sop->clipdist = 2500;
+                    sop->clipdist = 156.25;
                     // morph point
                     sop->morph_speed = 1;
                     sop->morph_z_speed = 6;
@@ -1181,7 +1181,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SECT_SO_CLIP_DIST:
-                    sop->clipdist = actor->spr.lotag;
+                    sop->clipdist = actor->spr.lotag * maptoworld;
                     KillActor(actor);
                     break;
                 case SECT_SO_SPRITE_OBJ:
@@ -2650,7 +2650,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     Collision coll;
 
     auto vect = ang.ToVector() * sop->vel * inttoworld; // vel is still in Build coordinates.
-    clipmove(pos, &cursect, vect, sop->clipdist * inttoworld, 0., floor_dist, CLIPMASK_ACTOR, coll);
+    clipmove(pos, &cursect, vect, sop->clipdist, 0., floor_dist, CLIPMASK_ACTOR, coll);
 
     if (coll.type != kHitNone)
     {
