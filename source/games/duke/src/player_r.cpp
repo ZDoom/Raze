@@ -410,7 +410,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 							if (hole)
 							{
 								hole->vel.X = -1 / 16;
-								hole->spr.angle = VecToAngle(-hit.hitWall->delta()) + DAngle90;
+								hole->spr.angle = -hit.hitWall->delta().Angle() + DAngle90;
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}
@@ -2374,7 +2374,7 @@ void onMotorcycleMove(int snum, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	double angleDelta = absangle(p->angle.ang, VecToAngle(wal->delta())).Degrees();
+	double angleDelta = absangle(p->angle.ang, wal->delta().Angle()).Degrees();
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
 	const double scale = (180. / 2048.);
@@ -2430,7 +2430,7 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	double angleDelta = absangle(p->angle.ang, VecToAngle(wal->delta())).Degrees();
+	double angleDelta = absangle(p->angle.ang, wal->delta().Angle()).Degrees();
 
 	const double scale = (90. / 2048.);
 	p->angle.addadjustment(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));

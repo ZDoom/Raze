@@ -1045,7 +1045,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 
 	if (proj->spr.picnum != RPG && (!isRRRA() || proj->spr.picnum != RPG2) && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SPIT && proj->spr.picnum != SHRINKSPARK && (wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
-		DAngle walang = VecToAngle(wal->delta());
+		DAngle walang = wal->delta().Angle();
 		proj->spr.angle = walang * 2 - proj->spr.angle;
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
@@ -1068,7 +1068,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 				proj->spr.yint--;
 			}
 
-			DAngle walang = VecToAngle(wal->delta());
+			DAngle walang = wal->delta().Angle();
 			proj->spr.angle = walang * 2 - proj->spr.angle;
 			return true;
 		}
@@ -1103,7 +1103,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 				proj->spr.yint--;
 			}
 
-			DAngle k = VecToAngle(wal->delta());
+			DAngle k = wal->delta().Angle();
 			proj->spr.angle = k * 2 - proj->spr.angle;
 			return true;
 		}
@@ -2418,7 +2418,7 @@ static void heavyhbomb(DDukeActor *actor)
 			actor->vel.X = 0;
 			goto DETONATEB;
 		}
-		DAngle k = VecToAngle(wal->delta());
+		DAngle k = wal->delta().Angle();
 		actor->spr.angle = k * 2 - actor->spr.angle;
 		actor->vel.X *= 0.5;
 	}
@@ -2546,7 +2546,7 @@ static int henstand(DDukeActor *actor)
 		{
 			if (coll.type == kHitWall)
 			{
-				DAngle k = VecToAngle(coll.hitWall->delta());
+				DAngle k = coll.hitWall->delta().Angle();
 				actor->spr.angle = k * 2 - actor->spr.angle;
 			}
 			else if (coll.type == kHitSprite)

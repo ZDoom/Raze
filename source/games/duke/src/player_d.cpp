@@ -521,7 +521,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 							if (hole)
 							{
 								hole->vel.X = -1 / 16.;
-								hole->spr.angle = VecToAngle(-hit.hitWall->delta()) + DAngle90;
+								hole->spr.angle = -hit.hitWall->delta().Angle() + DAngle90;
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}

@@ -1038,7 +1038,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
 
 DAngle GetWallNormal(walltype* pWall)
 {
-    return (VecToAngle(pWall->delta()) + DAngle90).Normalized360();
+    return (pWall->delta().Angle() + DAngle90).Normalized360();
 }
 
 //---------------------------------------------------------------------------

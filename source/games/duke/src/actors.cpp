@@ -1263,7 +1263,7 @@ void bounce(DDukeActor* actor)
 
 	auto sectp = actor->sector();
 
-	DAngle daang = VecToAngle(sectp->firstWall()->delta());
+	DAngle daang = sectp->firstWall()->delta().Angle();
 
 	double k;
 	if (actor->spr.pos.Z < (actor->floorz + actor->ceilingz) * 0.5)
@@ -1467,7 +1467,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 
 		if (j == kHitWall)
 		{
-			auto ang = VecToAngle(coll.hitWall->delta());
+			auto ang = coll.hitWall->delta().Angle();
 			actor->spr.angle = ang * 2 - actor->spr.angle;
 		}
 		else if (j == kHitSprite)

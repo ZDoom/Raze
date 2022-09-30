@@ -1670,7 +1670,7 @@ void SlipSlope(PLAYER* pp)
     if (!(sectu->flags & SECTFU_SLIDE_SECTOR) || !(pp->cursector->floorstat & CSTAT_SECTOR_SLOPE))
         return;
 
-    DAngle ang = VecToAngle(pp->cursector->firstWall()->delta()) + DAngle90;
+    DAngle ang = pp->cursector->firstWall()->delta().Angle() + DAngle90;
 
 	pp->vect += ang.ToVector() * pp->cursector->floorheinum / (1 << (sectu->speed + 4)); // todo confirm scale
 }
@@ -6301,7 +6301,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
         }
         case kHitWall:
         {
-            DAngle wall_ang = VecToAngle(plActor->user.coll.hitWall->delta()) - DAngle90;
+            DAngle wall_ang = plActor->user.coll.hitWall->delta().Angle() - DAngle90;
             DAngle dang = deltaangle(wall_ang, plActor->user.slide_ang);
             plActor->user.slide_ang = wall_ang + DAngle180 - dang;
 

@@ -8366,7 +8366,7 @@ bool SlopeBounce(DSWActor* actor, bool* hit_wall)
 
     // get angle of the first wall of the sector
     auto wallp = hit_sector->firstWall();
-    DAngle daang = VecToAngle(wallp->delta());
+    DAngle daang = wallp->delta().Angle();
 
     // k is now the slope of the ceiling or floor
 
@@ -15556,7 +15556,7 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 {
     if (hit_wall)
     {
-        actor->spr.angle = VecToAngle(hit_wall->delta()) + DAngle90;
+        actor->spr.angle = hit_wall->delta().Angle() + DAngle90;
     }
     DAngle ang = actor->spr.angle;
 
@@ -17966,7 +17966,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
     spawnedActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    spawnedActor->spr.angle = VecToAngle(hit_wall->delta()) + DAngle90;
+    spawnedActor->spr.angle = hit_wall->delta().Angle() + DAngle90;
 
     // move it back some
     auto vec = spawnedActor->spr.angle.ToVector();
@@ -18308,7 +18308,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     spawnedActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    spawnedActor->spr.angle = VecToAngle(hit.hitWall->delta()) + DAngle90;
+    spawnedActor->spr.angle = hit.hitWall->delta().Angle() + DAngle90;
 
     // move it back some
     auto vec = spawnedActor->spr.angle.ToVector();

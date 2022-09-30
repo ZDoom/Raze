@@ -438,7 +438,7 @@ int DoBloodSpray(DSWActor* actor)
                 break;
             }
 
-            auto wall_ang = VecToAngle(wph->delta()) - DAngle90;
+            auto wall_ang = wph->delta().Angle() - DAngle90;
 
             SpawnMidSplash(actor);
             auto bldActor = QueueWallBlood(actor, wall_ang);

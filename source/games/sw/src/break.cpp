@@ -752,7 +752,7 @@ bool UserBreakWall(walltype* wp)
 int WallBreakPosition(walltype* wp, sectortype** sectp, DVector3& pos, DAngle& ang)
 {
     int nx,ny;
-    DAngle wall_ang = VecToAngle(wp->delta()) + DAngle90;
+    DAngle wall_ang = wp->delta().Angle() + DAngle90;
 
     *sectp = wp->sectorp();
     ASSERT(*sectp);
