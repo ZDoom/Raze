@@ -368,7 +368,7 @@ inline void spriteSetSlope(DCoreActor* actor, int heinum)
 
 inline int spriteGetSlope(DCoreActor* actor)
 {
-	return ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(actor->spr.xoffset) + (uint8_t(actor->spr.yoffset) << 8);
+	return ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(actor->spr.xoffset) + (int8_t(actor->spr.yoffset) << 8);
 }
 
 // same stuff, different flag...
