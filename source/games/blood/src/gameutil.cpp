@@ -510,11 +510,18 @@ void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Col
 //
 //---------------------------------------------------------------------------
 
-void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, CollisionBase& hit, int tracecount)
+void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, int wd, double cd, double fd, unsigned int nMask, CollisionBase& hit, int tracecount)
 {
 	auto opos = pos;
 	sectortype* bakSect = *pSector;
-	clipmove(pos, &bakSect, xv << 14, yv << 14, wd, cd, fd, nMask, hit, tracecount);
+	
+	// Due to the low precision of original Build coordinates this code is susceptible to shifts from negative values being off by one, 
+	// so we have to replicate the imprecision here. Gross...
+	DVector2 vel;
+	vel.X = (FloatToFixed(vect.X) >> 12) / 16.;
+	vel.Y = (FloatToFixed(vect.Y) >> 12) / 16.;
+	
+	clipmove(pos, &bakSect, vel, wd * inttoworld, cd, fd, nMask, hit, tracecount);
 	if (bakSect == nullptr)
 	{
 		pos = opos;

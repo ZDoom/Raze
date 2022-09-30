@@ -6362,11 +6362,7 @@ Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, 
     }
 
 
-//    ASSERT(inside(actor->spr.x,actor->spr.y,dasectnum));
-	int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
-    clipmove(clip_pos, &dasect,
-                      ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      actor->int_clipdist(), ceildist, flordist, cliptype, retval, 1);
+    clipmove(clip_pos, &dasect, change * numtics * 0.125, actor->fClipdist(), ceildist, flordist, cliptype, retval, 1);
 
 
     actor->spr.pos.XY() = clip_pos.XY();
@@ -6586,9 +6582,7 @@ Collision move_missile(DSWActor* actor, const DVector3& change, double ceil_dist
 
 
 	int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
-    clipmove(clip_pos, &dasect,
-                      ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      actor->int_clipdist(), ceil_dist, flor_dist, cliptype, retval, 1);
+    clipmove(clip_pos, &dasect, change * numtics * 0.125, actor->fClipdist(), ceil_dist, flor_dist, cliptype, retval, 1);
     actor->spr.pos.XY() = clip_pos.XY();
 
     if (dasect == nullptr)
@@ -6737,10 +6731,7 @@ Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ce
         lastsect = dasect;
         opos = actor->spr.pos;
         opos.Z = daz;
-        int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
-        clipmove(opos, &dasect,
-                          ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                          actor->int_clipdist(), ceildist, flordist, cliptype, retval, 1);
+        clipmove(opos, &dasect, change * numtics * 0.125, actor->fClipdist(), ceildist, flordist, cliptype, retval, 1);
 		actor->spr.pos.XY() = opos.XY();
     }
 

@@ -3332,7 +3332,7 @@ static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 void processinput_r(int snum)
 {
-	int i, k, doubvel;
+	int k, doubvel;
 	Collision chz, clz;
 	bool shrunk;
 	int psectlotag;
@@ -3583,8 +3583,6 @@ void processinput_r(int snum)
 
 	// Shrinking code
 
-	i = 40;
-
 	if (psectlotag == ST_17_PLATFORM_UP || (isRRRA() && psectlotag == ST_18_ELEVATOR_DOWN))
 	{
 		int tmp;
@@ -3772,9 +3770,10 @@ void processinput_r(int snum)
 	}
 
 HORIZONLY:
+	double iif = 40;
 
-	if (psectlotag == 1 || p->spritebridge == 1) i = (4L << 8);
-	else i = (20L << 8);
+	if (psectlotag == 1 || p->spritebridge == 1) iif = 4;
+	else iif = 20;
 
 	if (p->insector() && p->cursector->lotag == 2) k = 0;
 	else k = 1;
@@ -3787,7 +3786,7 @@ HORIZONLY:
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, FloatToFixed<18>(p->vel.X), FloatToFixed<18>(p->vel.Y), 164, (4 << 8), i, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.Z += 32;

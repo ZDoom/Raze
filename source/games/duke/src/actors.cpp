@@ -1460,8 +1460,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		auto sect = actor->sector();
 		auto pos = actor->spr.pos;
 		auto move = actor->spr.angle.ToVector() * actor->vel.X * 0.5;
-		int j = clipmove(pos, &sect, FloatToFixed<18>(move.X), FloatToFixed<18>(move.Y),
-			24, (4 << 8), (4 << 8), CLIPMASK1, coll);
+		int j = clipmove(pos, &sect, move, 1.5, 4., 4., CLIPMASK1, coll);
 		actor->spr.pos = pos;;
 		actor->setsector(sect);
 

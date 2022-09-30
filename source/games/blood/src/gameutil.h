@@ -39,21 +39,7 @@ int VectorScan(DBloodActor* pSprite, double nOffset, double nZOffset, const DVec
 void GetZRange(DBloodActor* pSprite, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, double nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Collision* ceilHit, double* floorZ, Collision* floorHit, double nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 
-[[deprecated]] // take care of this together with the engines clipmove.
-void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3);
-void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, int wd, double cd, double fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3)
-{
-	// this uses floats only partially.
-	vec3_t ipos = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint)};
-	// Due to the low precision of original Build coordinates this code is susceptible to shifts from negative values being off by one, 
-	// so we have to replicate the imprecision here. Gross...
-	DVector2 vel;
-	vel.X = (FloatToFixed(vect.X) >> 12) / 16.;
-	vel.Y = (FloatToFixed(vect.Y) >> 12) / 16.;
-
-	ClipMove(ipos, pSector, int(vel.X * worldtoint), int(vel.Y * worldtoint), wd, int(cd * zworldtoint), int(fd * zworldtoint), nMask, hit, tracecount);
-	pos = { ipos.X * inttoworld, ipos.Y * inttoworld, ipos.Z * zinttoworld };
-}
+void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, int wd, double cd, double fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3);
 BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod = false);
 int picWidth(int nPic, int repeat);
 int picHeight(int nPic, int repeat);

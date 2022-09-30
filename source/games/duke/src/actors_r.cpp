@@ -365,7 +365,6 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision &result)
 {
-	int clipdist;
 	int bg = badguy(actor);
 
 	if (actor->spr.statnum == 5 || (bg && actor->spr.xrepeat < 4))
@@ -384,11 +383,10 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 	if (bg)
 	{
 		if (actor->spr.xrepeat > 60)
-			clipmove(ppos, &dasectp, FloatToFixed<18>(change.X * 0.5), FloatToFixed<18>(change.Y * 0.5), 1024, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, change * 0.5, 64., 4., 4., cliptype, result);
 		else
 		{
-			clipdist = 192;
-			clipmove(ppos, &dasectp, FloatToFixed<18>(change.X * 0.5), FloatToFixed<18>(change.Y * 0.5), clipdist, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, change * 0.5, 12., 4., 4., cliptype, result);
 		}
 
 		if (dasectp == nullptr || (dasectp != nullptr && actor->actorstayput != nullptr && actor->actorstayput != dasectp))
@@ -406,9 +404,9 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 	else
 	{
 		if (actor->spr.statnum == STAT_PROJECTILE)
-			clipmove(ppos, &dasectp, FloatToFixed<18>(change.X * 0.5), FloatToFixed<18>(change.Y * 0.5), 8, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, change * 0.5, 0.5, 4., 4., cliptype, result);
 		else
-			clipmove(ppos, &dasectp, FloatToFixed<18>(change.X * 0.5), FloatToFixed<18>(change.Y * 0.5), (int)(actor->int_clipdist()), (4 << 8), (4 << 8), cliptype, result);
+			clipmove(ppos, &dasectp, change * 0.5, actor->fClipdist(), 4., 4., cliptype, result);
 	}
 	actor->spr.pos.XY() = ppos.XY();
 

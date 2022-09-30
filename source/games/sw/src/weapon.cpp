@@ -15566,7 +15566,7 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
     auto sect = actor->sector();
 
     Collision coll;
-    clipmove(actor->spr.pos, &sect, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), 4, 4., 4., CLIPMASK_MISSILE, coll);
+    clipmove(actor->spr.pos, &sect, vect, 4, 4., 4., CLIPMASK_MISSILE, coll);
 
     if (actor->sector() != sect)
         ChangeActorSect(actor, sect);
@@ -17974,7 +17974,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
     auto sect = spawnedActor->sector();
 
     Collision coll;
-    clipmove(spawnedActor->spr.pos, &sect, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    clipmove(spawnedActor->spr.pos, &sect, vec, 0., 0., 0., CLIPMASK_MISSILE, coll, 1);
 
     if (spawnedActor->sector() != sect)
         ChangeActorSect(spawnedActor, sect);
@@ -18316,7 +18316,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
     auto sect = spawnedActor->sector();
 
     Collision coll;
-    clipmove(spawnedActor->spr.pos, &sect, FloatToFixed<18>(vec.X), FloatToFixed<18>(vec.Y), 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
+    clipmove(spawnedActor->spr.pos, &sect, vec, 0., 0., 0., CLIPMASK_MISSILE, coll, 1);
 
     if (spawnedActor->sector() != sect)
         ChangeActorSect(spawnedActor, sect);

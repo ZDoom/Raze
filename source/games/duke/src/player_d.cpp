@@ -2887,7 +2887,7 @@ void processinput_d(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum,actions);
-	int ii = 40;
+	double iif = 2.5;
 	auto oldpos = p->opos;
 
 	if (p->on_crane != nullptr)
@@ -3052,8 +3052,8 @@ void processinput_d(int snum)
 
 HORIZONLY:
 
-	if (psectlotag == 1 || p->spritebridge == 1) ii = (4L << 8);
-	else ii = (20L << 8);
+	if (psectlotag == 1 || p->spritebridge == 1) iif = 4;
+	else iif = 20;
 
 	if (p->insector() && p->cursector->lotag == 2) k = 0;
 	else k = 1;
@@ -3066,7 +3066,7 @@ HORIZONLY:
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, FloatToFixed<18>(p->vel.X), FloatToFixed<18>(p->vel.Y), 164, (4 << 8), ii, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.Z += 32;

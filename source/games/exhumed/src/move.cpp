@@ -456,7 +456,7 @@ Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flo
     }
 
     Collision coll;
-    clipmove(pActor->spr.pos, &pSector, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), pActor->int_clipdist(), int(nSpriteHeight * zworldtoint), int(flordist * zworldtoint), clipmask, coll);
+    clipmove(pActor->spr.pos, &pSector, vect, pActor->fClipdist(), nSpriteHeight, flordist, clipmask, coll);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
         coll.exbits = nRet.exbits;
@@ -812,7 +812,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 
     auto pSectorB = pSector;
     Collision scratch;
-    clipmove(pos, &pSectorB, FloatToFixed<18>(nVect.X), FloatToFixed<18>(nVect.Y), pBlockInfo->mindist, 0, 0, CLIPMASK1, scratch);
+    clipmove(pos, &pSectorB, nVect, pBlockInfo->mindist, 0., 0., CLIPMASK1, scratch);
 
     auto vect = pos.XY() - b_pos;
 
@@ -827,7 +827,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
             pos.XY() = b_pos;
             pos.Z = nZVal;
 
-            clipmove(pos, &pSectorB, FloatToFixed<18>(nVect.X), FloatToFixed<18>(nVect.Y), pBlockInfo->mindist, 0, 0, CLIPMASK1, scratch);
+            clipmove(pos, &pSectorB, nVect, pBlockInfo->mindist, 0., 0., CLIPMASK1, scratch);
 
             auto delta = pos.XY() - b_pos;
 
@@ -864,7 +864,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 
                     // The vector that got passed in here originally was Q28.4, while clipmove expects Q14.18, effectively resulting in actual zero movement
                     // because the resulting offset would be far below the coordinate's precision.
-                    clipmove(pos, &pSectorB, FloatToFixed<18>(-vect.X / 16384.), FloatToFixed<18>(-vect.Y / 16384), pActor->int_clipdist(), 0, 0, CLIPMASK0, scratch);
+                    clipmove(pos, &pSectorB, -vect / 16384., pActor->fClipdist(), 0., 0., CLIPMASK0, scratch);
 
                     if (pSectorB) {
                         ChangeActorSect(pActor, pSectorB);
@@ -884,8 +884,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
                 // vect was added unscaled, essentially nullifying its effect entirely.
                 auto vect2 = -nAngle.ToVector() * pActor->fClipdist()/* - vect*/;
 
-                clipmove(pos, &pSectorB, FloatToFixed<18>(vect2.X), FloatToFixed<18>(vect2.Y), pActor->int_clipdist(), 0, 0, CLIPMASK0, scratch);
-
+                clipmove(pos, &pSectorB, -vect / 16384., pActor->fClipdist(), 0., 0., CLIPMASK0, scratch);
 
                 if (pSectorB != pNextSector && (pSectorB == pSector || pNextSector == pSector))
                 {
@@ -923,7 +922,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
             if (pActor->spr.statnum >= 99 && nZVal == pActor->spr.pos.Z && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 pSectorB = pSector;
-                clipmove(pActor->spr.pos, &pSectorB, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), pActor->int_clipdist(), 5120, -5120, CLIPMASK0, scratch);
+                clipmove(pActor->spr.pos, &pSectorB, vect, pActor->fClipdist(), 20, -20, CLIPMASK0, scratch);
             }
         }
     }
@@ -1058,7 +1057,7 @@ DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
     auto vect = pActor->spr.angle.ToVector() * 8;
 
     Collision scratch;
-    clipmove(pos, sectnum, FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y), 5120, 1280, 1280, CLIPMASK1, scratch);
+    clipmove(pos, sectnum, vect, 320, 5., 5., CLIPMASK1, scratch);
 	return pos;
 }
 

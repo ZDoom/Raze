@@ -65,9 +65,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
         DVector2 vect = ang.ToVector() * 1024 * sop->clipbox_vdist[i];
         Collision coll;
 
-        int xvect = vect.X * 16 * worldtoint; // note: this means clipmove input is Q18.14!
-        int yvect = vect.Y * 16 * worldtoint;
-        clipmove(spos, &pp->cursector, xvect, yvect, (int)sop->clipbox_dist[i], 4., floordist, CLIPMASK_PLAYER, coll, 1);
+        clipmove(spos, &pp->cursector, vect, sop->clipbox_dist[i] * inttoworld, 4., floordist, CLIPMASK_PLAYER, coll, 1);
 
         if (coll.type != kHitNone)
         {
@@ -98,7 +96,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
             pos[i].Z = zz;
 
             // move the box
-            clipmove(pos[i], &pp->cursector, FloatToFixed<18>(pp->vect.X), FloatToFixed<18>(pp->vect.Y), (int)sop->clipbox_dist[i], 4., floordist, CLIPMASK_PLAYER, coll);
+            clipmove(pos[i], &pp->cursector, pp->vect, sop->clipbox_dist[i] * inttoworld, 4., floordist, CLIPMASK_PLAYER, coll);
 
             // save the dist moved
             dist = (pos[i].XY() - opos[i].XY()).Length();
@@ -140,7 +138,7 @@ int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
         DVector2 vect = ang.ToVector() * 1024 * sop->clipbox_vdist[i];
         Collision coll;
 
-        clipmove(spos, &cursect, FloatToFixed<18>(vect.X), FixedToFloat<18>(vect.Y), (int)sop->clipbox_dist[i], 4., floordist, CLIPMASK_PLAYER, coll);
+        clipmove(spos, &cursect, vect, sop->clipbox_dist[i] * inttoworld, 4., floordist, CLIPMASK_PLAYER, coll);
 
         ASSERT(cursect);
 

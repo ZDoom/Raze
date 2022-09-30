@@ -2023,7 +2023,7 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->slide_vect.X), FloatToFixed<18>(pp->slide_vect.Y), ((int)actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->slide_vect, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
@@ -2195,7 +2195,7 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->pos, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->vect.X), FloatToFixed<18>(pp->vect.Y), ((int)actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->vect, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
@@ -2784,7 +2784,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->vect.X), FloatToFixed<18>(pp->vect.Y), (int)pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
+            clipmove(pp->pos, &pp->cursector, pp->vect, pp->sop->clipdist * inttoworld, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
@@ -4828,9 +4828,7 @@ void DoPlayerCurrent(PLAYER* pp)
     if (!sectu)
         return;
 
-	auto vect = sectu->angle.ToVector() * 1024; // 16384 >> 4 - Beware of clipmove's odd format for vect!
-    xvect = sectu->speed * synctics * vect.X;
-    yvect = sectu->speed * synctics * vect.Y;
+	auto vect = sectu->angle.ToVector() / 256. * sectu->speed * synctics; // 16384 >> 4 - Beware of clipmove's odd format for vect!
 
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
@@ -4848,7 +4846,7 @@ void DoPlayerCurrent(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, vect, pp->actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
     pushmove(pp->pos, &pp->cursector, ((int)pp->actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);

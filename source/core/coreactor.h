@@ -450,41 +450,16 @@ void InitSpriteLists();
 void SetActorZ(DCoreActor* actor, const DVector3& newpos);
 void SetActor(DCoreActor* actor, const DVector3& newpos);
 
-inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
-	int const walldist, int const ceildist, int const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
-{
-	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	result = clipmove_(&pos, &sectno, xvect, yvect, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum);
-	*sect = sectno == -1 ? nullptr : &sector[sectno];
-	return result.type;
-}
-
-inline int clipmove(DVector3& pos, sectortype** const sect, int xvect, int yvect,
-	int const walldist, int const ceildist, int const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
-{
-	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
-	int res = clipmove(vect, sect, xvect, yvect, walldist, ceildist, flordist, cliptype, result, clipmoveboxtracenum);
-	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
-	return res;
-}
-
-inline int clipmove(DVector3& pos, sectortype** const sect, int xvect, int yvect,
-	int const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
-{
-	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
-	int res = clipmove(vect, sect, xvect, yvect, walldist, int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, result, clipmoveboxtracenum);
-	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
-	return res;
-}
-
 // this one should be the final version everything needs to migrate to
 inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec,
 	double const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {
 	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
-	int res = clipmove(vect, sect, FloatToFixed<18>(mvec.X), FloatToFixed<18>(mvec.Y), int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, result, clipmoveboxtracenum);
+	int sectno = *sect ? sector.IndexOf(*sect) : -1;
+	result = clipmove_(&vect, &sectno, FloatToFixed<18>(mvec.X), FloatToFixed<18>(mvec.Y), int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, clipmoveboxtracenum);
 	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
-	return res;
+	*sect = sectno == -1 ? nullptr : &sector[sectno];
+	return result.type;
 }
 
 

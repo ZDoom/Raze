@@ -2649,10 +2649,8 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     PlaceSectorObject(sop, {MAXSO, MAXSO});
     Collision coll;
 
-    auto vect = ang.ToVector() * sop->vel; // vel is still in Build coordinates.
-    int xvect = vect.X * 16384;
-    int yvect = vect.Y * 16384;
-    clipmove(pos, &cursect, xvect, yvect, (int)sop->clipdist, 0., floor_dist, CLIPMASK_ACTOR, coll);
+    auto vect = ang.ToVector() * sop->vel * inttoworld; // vel is still in Build coordinates.
+    clipmove(pos, &cursect, vect, sop->clipdist * inttoworld, 0., floor_dist, CLIPMASK_ACTOR, coll);
 
     if (coll.type != kHitNone)
     {
