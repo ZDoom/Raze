@@ -380,9 +380,7 @@ inline int tspriteGetSlope(const tspritetype* spr)
 inline double spriteGetZOfSlopef(const spritetypebase* tspr, const DVector2& pos, int heinum)
 {
 	if (heinum == 0) return tspr->pos.Z;
-	auto ang = tspr->angle;
-	double factor = -ang.Sin() * (pos.X - tspr->pos.Y) - ang.Cos() * (pos.X - tspr->pos.X);
-	return tspr->pos.Z + heinum * factor * (1. / SLOPEVAL_FACTOR);
+	return tspr->pos.Z + heinum * -tspr->angle.ToVector().dot(pos - tspr->pos.XY()) * (1. / SLOPEVAL_FACTOR);
 }
 
 //==========================================================================
