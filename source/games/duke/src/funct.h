@@ -241,6 +241,17 @@ void loadcons();
 void recordoldspritepos();
 void DrawStatusBar();
 
+inline int32_t krand(void)
+{
+	randomseed = (randomseed * 27584621) + 1;
+	return ((uint32_t)randomseed) >> 16;
+}
+
+inline double krandf(double span)
+{
+	return (krand() & 0x7fff) * span / 32767;
+}
+
 [[deprecated]]
 inline double zrand(int spread, int ofs)
 {

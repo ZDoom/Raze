@@ -8,7 +8,7 @@
 #include "v_video.h"
 #include "hw_drawlist.h"
 #include "hw_bunchdrawer.h"
-//#include "r_viewpoint.h"
+#include "gamefuncs.h"
 
 EXTERN_CVAR(Int, hw_lightmode)
 

@@ -6,8 +6,18 @@
 #include "coreactor.h"
 #include "intrect.h"
 #include "geometry.h"
+#include "c_cvars.h"
 
 extern IntRect viewport3d;
+
+EXTERN_CVAR(Bool, hw_hightile)
+EXTERN_CVAR(Bool, hw_models)
+EXTERN_CVAR(Float, gl_texture_filter_anisotropic)
+EXTERN_CVAR(Int, gl_texture_filter)
+extern bool hw_int_useindexedcolortextures;
+EXTERN_CVAR(Bool, hw_useindexedcolortextures)
+EXTERN_CVAR(Bool, r_voxels)
+
 
 constexpr int SLOPEVAL_FACTOR = 4096;
 

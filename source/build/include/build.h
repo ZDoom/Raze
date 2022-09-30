@@ -108,17 +108,6 @@ class F2DDrawer;
 
 struct HitInfoBase;
 
-inline int32_t krand(void)
-{
-    randomseed = (randomseed * 27584621) + 1;
-    return ((uint32_t) randomseed)>>16;
-}
-
-inline double krandf(double span)
-{
-    return (krand() & 0x7fff) * span / 32767;
-}
-
 inline int32_t ksqrt(uint64_t num)
 {
     return int(sqrt(double(num)));
@@ -128,14 +117,6 @@ inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
-
-EXTERN_CVAR(Bool, hw_hightile)
-EXTERN_CVAR(Bool, hw_models)
-EXTERN_CVAR(Float, gl_texture_filter_anisotropic)
-EXTERN_CVAR(Int, gl_texture_filter)
-extern bool hw_int_useindexedcolortextures;
-EXTERN_CVAR(Bool, hw_useindexedcolortextures)
-EXTERN_CVAR(Bool, r_voxels)
 
 static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
 {

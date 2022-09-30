@@ -49,6 +49,7 @@
 #include "gamestruct.h"
 #include "hw_renderstate.h"
 #include "skyboxtexture.h"
+#include "gamefuncs.h"
 
 CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
 
