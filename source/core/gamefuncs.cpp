@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 IntRect viewport3d;
 constexpr double MAXCLIPDISTF = 64;
+CVARD(Bool, strict_compatibility, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "Enables stricter compatibility checks in the backend code")
 
 //---------------------------------------------------------------------------
 //
@@ -899,7 +900,7 @@ bool checkRangeOfWall(walltype* wal, EWallFlags flagmask, const DVector3& pos, d
 	if (BoxOnLineSide(boxtl, boxbr, pos1, pos2 - pos1) != -1) return false;
 
 	auto closest = pos.XY();
-	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)	// todo: need to check if it makes sense to have this always on.
+	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE || !strict_compatibility)
 		SquareDistToSector(closest.X, closest.Y, nextsect, &closest);
 
 	getzsofslopeptr(nextsect, closest.X, closest.Y, &theZs[0], &theZs[1]);
@@ -997,7 +998,7 @@ void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBa
 	const ESpriteFlags dasprclipmask = ESpriteFlags::FromInt(cliptype >> 16);
 
 	auto closest = pos.XY();
-	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
+	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE || !strict_compatibility)
 		SquareDistToSector(closest.X, closest.Y, sect, &closest);
 
 	getzsofslopeptr(sect, closest, ceilz, florz);
