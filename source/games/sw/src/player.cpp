@@ -2009,7 +2009,7 @@ void DoPlayerSlide(PLAYER* pp)
     if (abs(pp->slide_vect.X) < 0.05 && abs(pp->slide_vect.Y) < 0.05)
         pp->slide_vect.Zero();
 
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2026,7 +2026,7 @@ void DoPlayerSlide(PLAYER* pp)
     clipmove(pp->pos, &pp->cursector, pp->slide_vect, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2172,7 +2172,7 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2200,7 +2200,7 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -4830,7 +4830,7 @@ void DoPlayerCurrent(PLAYER* pp)
 
 	auto vect = sectu->angle.ToVector() / 256. * sectu->speed * synctics; // 16384 >> 4 - Beware of clipmove's odd format for vect!
 
-    push_ret = pushmove(pp->pos, &pp->cursector, ((int)pp->actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, pp->actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4849,7 +4849,7 @@ void DoPlayerCurrent(PLAYER* pp)
     clipmove(pp->pos, &pp->cursector, vect, pp->actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(pp->pos, &pp->cursector, ((int)pp->actor->int_clipdist()), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    pushmove(pp->pos, &pp->cursector, pp->actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))

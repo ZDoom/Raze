@@ -450,7 +450,6 @@ void InitSpriteLists();
 void SetActorZ(DCoreActor* actor, const DVector3& newpos);
 void SetActor(DCoreActor* actor, const DVector3& newpos);
 
-// this one should be the final version everything needs to migrate to
 inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec,
 	double const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {
@@ -462,56 +461,17 @@ inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec
 	return result.type;
 }
 
-
-inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
-	uint32_t const cliptype, bool clear = true)
-{
-	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	int res = pushmove_(vect, &sectno, walldist, ceildist, flordist, cliptype, clear);
-	*sect = sectno == -1 ? nullptr : &sector[sectno];
-	return res;
-}
-
-inline int pushmove(DVector3& pos, sectortype** const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
-	uint32_t const cliptype, bool clear = true)
-{
-	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
-	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	int res = pushmove_(&vect, &sectno, walldist, ceildist, flordist, cliptype, clear);
-	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
-	*sect = sectno == -1 ? nullptr : &sector[sectno];
-	return res;
-}
-
-inline int pushmove(DVector3& pos, sectortype** const sect, int32_t const walldist, double const ceildist, double const flordist,
-	uint32_t const cliptype, bool clear = true)
-{
-	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
-	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	int res = pushmove_(&vect, &sectno, walldist, int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, clear);
-	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
-	*sect = sectno == -1 ? nullptr : &sector[sectno];
-	return res;
-}
-
-#if 0
 inline int pushmove(DVector3& pos, sectortype** const sect, double const walldist, double const ceildist, double const flordist,
 	uint32_t const cliptype, bool clear = true)
 {
 	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
 	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	int res = pushmove_(&vect, &sectno, walldist * worldtoint, ceildist * worldtoint, flordist * worldtoint, cliptype, clear);
+	int res = pushmove_(&vect, &sectno, walldist * worldtoint, ceildist * zworldtoint, flordist * zworldtoint, cliptype, clear);
 	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
 	*sect = sectno == -1 ? nullptr : &sector[sectno];
 	return res;
 }
-#endif
 
-inline int pushmove(DCoreActor* actor, sectortype** const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
-	uint32_t const cliptype, bool clear = true)
-{
-	return pushmove(actor->spr.pos, sect, walldist, ceildist, flordist, cliptype, clear);
-}
 
 tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor);
 

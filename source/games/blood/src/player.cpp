@@ -1793,11 +1793,11 @@ void playerProcess(PLAYER* pPlayer)
 	GetActorExtents(actor, &top, &bottom);
 	double dzflor = (bottom - actor->spr.pos.Z) / 4;
 	double dzceil = (actor->spr.pos.Z - top) / 4;
-	int dw = actor->int_clipdist();
+
 	if (!gNoClip)
 	{
 		auto pSector = actor->sector();
-		if (pushmove(actor->spr.pos, &pSector, dw, dzceil, dzflor, CLIPMASK0) == -1)
+		if (pushmove(actor->spr.pos, &pSector, actor->fClipdist(), dzceil, dzflor, CLIPMASK0) == -1)
 			actDamageSprite(actor, actor, kDamageFall, 500 << 4);
 		if (actor->sector() != pSector)
 		{

@@ -5132,7 +5132,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 				{
 
 					auto sect = actor->sector();
-					pushmove(actor, &sect, 128, (4 << 8), (4 << 8), CLIPMASK0);
+					pushmove(actor->spr.pos, &sect, 16., 4., 4., CLIPMASK0);
 					if (sect != actor->sector() && sect != nullptr)
 						ChangeActorSect(actor, sect);
 

@@ -1674,7 +1674,7 @@ void debrisMove(int listIndex)
 		if (pSector->type >= kSectorPath && pSector->type <= kSectorRotate)
 		{
 			auto pSector2 = pSector;
-			if (pushmove(actor, &pSector2, int(clipDistf * worldtoint), ceilDist, floorDist, CLIPMASK0) != -1)
+			if (pushmove(actor->spr.pos, &pSector2, clipDistf, ceilDist, floorDist, CLIPMASK0) != -1)
 				pSector = pSector2;
 		}
 

@@ -3118,7 +3118,7 @@ HORIZONLY:
 	while (ud.clipping == 0)
 	{
 		int blocked;
-		blocked = (pushmove(p->pos, &p->cursector, 164, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+		blocked = (pushmove(p->pos, &p->cursector, 10.25, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{

@@ -3815,10 +3815,10 @@ HORIZONLY:
 				if (wal->lotag < 44)
 				{
 					dofurniture(clip.hitWall, p->cursector, snum);
-					pushmove(p->pos, &p->cursector, 172, (4 << 8), (4 << 8), CLIPMASK0);
+					pushmove(p->pos, &p->cursector, 10.75, 4, 4, CLIPMASK0);
 				}
 				else
-					pushmove(p->pos, &p->cursector, 172, (4 << 8), (4 << 8), CLIPMASK0);
+					pushmove(p->pos, &p->cursector, 10.75, 4, 4, CLIPMASK0);
 			}
 		}
 	}
@@ -3919,9 +3919,9 @@ HORIZONLY:
 	{
 		int blocked;
 		if (pact->native_clipdist() == 64)
-			blocked = (pushmove(p->pos, &p->cursector, 128, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->pos, &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 		else
-			blocked = (pushmove(p->pos, &p->cursector, 16, (4 << 8), (4 << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->pos, &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{
