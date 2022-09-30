@@ -574,7 +574,7 @@ void GameInterface::app_init()
     resettiming();
     GrabPalette();
 
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
 }
 
 //---------------------------------------------------------------------------

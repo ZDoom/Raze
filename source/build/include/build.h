@@ -51,9 +51,4 @@ inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
-{
-    return enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? (int32_t)val : val;
-}
-
 #endif // build_h_

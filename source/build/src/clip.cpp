@@ -109,8 +109,7 @@ inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_
 {
     int32_t daz;
 
-    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 ||
-        rintersect(pos->X, pos->Y, 0, gx, gy, 0, x1, y1, x2, y2, daxptr, dayptr, &daz) == -1)
+    if (rintersect(pos->X, pos->Y, 0, gx, gy, 0, x1, y1, x2, y2, daxptr, dayptr, &daz) == -1)
     {
         *daxptr = pos->X;
         *dayptr = pos->Y;
@@ -287,7 +286,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     //Extra walldist for sprites on sector lines
     vec2_t const  diff    = { goal.X - (pos->X), goal.Y - (pos->Y) };
-    int32_t const rad     = ksqrt(compat_maybe_truncate_to_int32(uhypsq(diff.X, diff.Y))) + MAXCLIPDIST + walldist + 8;
+    int32_t const rad     = ksqrt(uhypsq(diff.X, diff.Y)) + MAXCLIPDIST + walldist + 8;
     vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
     vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
 
@@ -601,34 +600,27 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
             // clamp to the max value we can utilize without reworking the scaling below
             // this works around the overflow issue that affects dukedc2.map
-            int32_t const templl = (int32_t)clamp<int64_t>(compat_maybe_truncate_to_int32((int64_t)clipr.X * clipr.X + (int64_t)clipr.Y * clipr.Y), INT32_MIN, INT32_MAX);
+            int32_t const templl = (int32_t)clamp<int64_t>(((int64_t)clipr.X * clipr.X + (int64_t)clipr.Y * clipr.Y), INT32_MIN, INT32_MAX);
 
             if (templl > 0)
             {
                 // I don't know if this one actually overflows or not, but I highly doubt it hurts to check
                 int32_t const templl2
-                = (int32_t)clamp<int64_t>(compat_maybe_truncate_to_int32((int64_t)(goal.X - vec.X) * clipr.X + (int64_t)(goal.Y - vec.Y) * clipr.Y), INT32_MIN, INT32_MAX);
-                int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (abs(templl2)>>11) < templl) ?
-                    (int)DivScaleL(templl2, templl, 20) : 0;
+                = (int32_t)clamp<int64_t>(((int64_t)(goal.X - vec.X) * clipr.X + (int64_t)(goal.Y - vec.Y) * clipr.Y), INT32_MIN, INT32_MAX);
+                int32_t const i = ((abs(templl2)>>11) < templl) ? (int)DivScaleL(templl2, templl, 20) : 0;
 
                 goal = { MulScale(clipr.X, i, 20)+vec.X, MulScale(clipr.Y, i, 20)+vec.Y };
             }
 
             int32_t tempint;
-            if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-                tempint = clipr.X*(move.X>>6)+clipr.Y*(move.Y>>6);
-            else
-                tempint = DMulScale(clipr.X, move.X, clipr.Y, move.Y, 6);
+            tempint = DMulScale(clipr.X, move.X, clipr.Y, move.Y, 6);
 
             for (int i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
                 j = hitwalls[i];
 
                 int32_t tempint2;
-                if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-                    tempint2 = (clipit[j].x2-clipit[j].x1)*(move.X>>6)+(clipit[j].y2-clipit[j].y1)*(move.Y>>6);
-                else
-                    tempint2 = DMulScale(clipit[j].x2-clipit[j].x1, move.X, clipit[j].y2-clipit[j].y1, move.Y, 6);
+                tempint2 = DMulScale(clipit[j].x2-clipit[j].x1, move.X, clipit[j].y2-clipit[j].y1, move.Y, 6);
 
                 if ((tempint ^ tempint2) < 0)
                 {
@@ -678,10 +670,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             auto sect = &sector[j];
             if (inside(pos->X, pos->Y, sect) == 1)
             {
-                if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
-                    tempint2 = int_getceilzofslopeptr(sect, pos->X, pos->Y) - pos->Z;
-                else
-                    tempint2 = int(sect->ceilingz * zworldtoint) - pos->Z;
+                tempint2 = int_getceilzofslopeptr(sect, pos->X, pos->Y) - pos->Z;
 
                 if (tempint2 > 0)
                 {
@@ -693,10 +682,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 }
                 else
                 {
-                    if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
-                        tempint2 = pos->Z - int_getflorzofslopeptr(sect, pos->X, pos->Y);
-                    else
-                        tempint2 = pos->Z - int(sect->floorz * zworldtoint);
+                    tempint2 = pos->Z - int_getflorzofslopeptr(sect, pos->X, pos->Y);
 
                     if (tempint2 <= 0)
                     {
