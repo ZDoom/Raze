@@ -47,7 +47,7 @@
 #include "mapinfo.h"
 #include "statistics.h"
 
-CVAR(Bool, sv_cheats, true, CVAR_ARCHIVE|CVAR_SERVERINFO)
+CVAR(Bool, sv_cheats, false, CVAR_ARCHIVE|CVAR_SERVERINFO)
 CVAR(Bool, cl_blockcheats, false, 0)
 
 //---------------------------------------------------------------------------
