@@ -1,0 +1,5 @@
+
+map { 9 }
+{
+	sw_spawnmines
+}

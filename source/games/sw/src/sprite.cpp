@@ -970,7 +970,7 @@ bool ActorTestSpawn(DSWActor* actor)
             actor->spr.picnum == SAILORGIRL_R0) && (g_gameType & GAMEFLAG_ADDON)) return true;
 
         // spawn Bouncing Betty (mine) in TD map 09 Warehouse 
-        if (actor->spr.picnum == 817 && (currentLevel->flags & LEVEL_SW_SPAWNMINES))
+        if (actor->spr.picnum == 817 && (currentLevel->gameflags & LEVEL_SW_SPAWNMINES))
             return true;
 
         return false;
