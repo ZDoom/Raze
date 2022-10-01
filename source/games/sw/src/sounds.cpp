@@ -571,7 +571,6 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             *pos = npos;
         }
 
-        // Thanks to excessi
         if (pancheck && chanflags & CHANEXF_DONTPAN)
         {
             // For unpanned sounds the volume must be set directly and the position taken from the listener.
@@ -646,7 +645,7 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* ppos, int flags, in
     void* source = nullptr;
 	
     // If the sound is not supposed to be positioned, it may not be linked to the launching actor.
-    //if (!(flags & v3df_follow)) // use if this is so intermittent that using the flag would break 3D sound.
+    if (!(flags & v3df_follow)) // use if this is so intermittent that using the flag would break 3D sound.
     {
         if (actor && !ppos)
         {
