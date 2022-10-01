@@ -54,6 +54,8 @@ CVAR(Bool, wt_commentary, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 BEGIN_DUKE_NS
 
+int32_t g_cdTrack = -1;
+
 static FSoundID currentCommentarySound;
 
 void UnmuteSounds()
@@ -704,8 +706,6 @@ void S_PlaySpecialMusic(unsigned int m)
 
 void S_PlayRRMusic(int newTrack)
 {
-	static int32_t g_cdTrack = -1;
-
 	if (!isRR() || !mus_redbook || cd_disabled || currentLevel->music.IsNotEmpty())
 		return;
 	Mus_Stop();

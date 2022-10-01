@@ -444,6 +444,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("fogactive", fogactive)
 			("thunder_brightness", thunder_brightness)
 			.Array("po", po, ud.multimode)
+			("rrcdtrack", g_cdTrack)
 			.EndObject();
 
 		lava_serialize(arc);
