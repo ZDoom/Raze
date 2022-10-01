@@ -2603,7 +2603,7 @@ void handle_se00(DDukeActor* actor)
 			{
 				actor->tempang += 4;
 				if (actor->tempang >= 256)
-					callsound(actor->sector(), actor);
+					callsound(actor->sector(), actor, true);
 				if (actor->spr.clipdist) l = 1;
 				else l = -1;
 			}
@@ -2631,7 +2631,7 @@ void handle_se00(DDukeActor* actor)
 			{
 				actor->tempang -= 4;
 				if (actor->tempang <= 0)
-					callsound(actor->sector(), actor);
+					callsound(actor->sector(), actor, true);
 				if (actor->spr.clipdist) l = -1;
 				else l = 1;
 			}
