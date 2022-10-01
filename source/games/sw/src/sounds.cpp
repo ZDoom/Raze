@@ -538,10 +538,10 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             FVector3 npos = GetSoundPos(vpos);
 
             *pos = npos;
-            if (!(chanflags & CHANEXF_NODOPPLER) && vel)
+#if 0
+            if (vel)
             {
-                // Hack alert. Velocity may only be set if a) the sound is already running and b) an actual sound channel is modified.
-                // It remains to be seen if this is actually workable. I have my doubts. The velocity should be taken from a stable source.
+                // We do not do doppler effects because none of these old games are set up for it.
                 if (chan && !(chanflags & (CHANF_JUSTSTARTED | CHANF_EVICTED)))
                 {
                     *vel = (npos - FVector3(pt[0], pt[1], pt[2])) * 40; // SW ticks 40 times a second.
@@ -550,6 +550,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
                     chan->Point[2] = npos.Z;
                 }
             }
+#endif
         }
         else if (type == SOURCE_Ambient)
         {
@@ -570,6 +571,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             *pos = npos;
         }
 
+        // Thanks to excessi
         if (pancheck && chanflags & CHANEXF_DONTPAN)
         {
             // For unpanned sounds the volume must be set directly and the position taken from the listener.
@@ -642,8 +644,9 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* ppos, int flags, in
     int sourcetype = SOURCE_None;
     cflags |= channel == 8 ? CHANF_OVERLAP : CHANF_NONE;  // for the default channel we do not want to have sounds stopping each other.
     void* source = nullptr;
-    // If the sound is not supposd to be positioned, it may not be linked to the launching actor.
-    if (!(flags & v3df_follow))
+	
+    // If the sound is not supposed to be positioned, it may not be linked to the launching actor.
+    //if (!(flags & v3df_follow)) // use if this is so intermittent that using the flag would break 3D sound.
     {
         if (actor && !ppos)
         {
@@ -673,8 +676,8 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* ppos, int flags, in
     }
     // Otherwise it's an unpositioned sound.
 
-    if (flags & v3df_doppler) cflags |= EChanFlags::FromInt(CHANEXF_NODOPPLER);    // this must ensure that CalcPosVel always zeros the velocity.
-    if (flags & v3df_dontpan) cflags |= EChanFlags::FromInt(CHANEXF_DONTPAN);      // beware of hackery to emulate this. 
+    //if (flags & v3df_doppler) cflags |= EChanFlags::FromInt(CHANEXF_NODOPPLER);    // intentionally not implemented
+    //if (flags & v3df_dontpan) cflags |= EChanFlags::FromInt(CHANEXF_DONTPAN);      // disabled due to poor use
     if (vp->voc_flags & vf_loop) cflags |= CHANF_LOOP;                               // with the new sound engine these can just be started and don't have to be stopped ever.
 
     int pitch = 0;
