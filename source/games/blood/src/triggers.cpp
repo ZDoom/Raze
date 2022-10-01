@@ -910,6 +910,8 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 			viewBackupSpriteLoc(actor);
 			actor->spr.pos.XY() = spot + pt_w2 - pivot;
 			actor->spr.angle += angleofs;
+			if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].angle.addadjustment(angleofs);
+
 		}
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 		{
@@ -920,6 +922,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 			viewBackupSpriteLoc(actor);
 			actor->spr.pos.XY() = spot - pt_w2 + pivot;
 			actor->spr.angle += angleofs;
+			if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].angle.addadjustment(angleofs);
 		}
 		else if (pXSector->Drag)
 		{
@@ -935,6 +938,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 				}
 				actor->spr.angle += angleofs;
 				actor->spr.pos += position;
+				if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].angle.addadjustment(angleofs);
 			}
 		}
 	}
@@ -959,6 +963,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot + pt_w2 - pivot;
 					ac->spr.angle += angleofs;
+					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].angle.addadjustment(angleofs);
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 				{
@@ -966,6 +971,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot - pt_w2 + pivot;
 					ac->spr.angle += angleofs;
+					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].angle.addadjustment(angleofs);
 				}
 			}
 		}
