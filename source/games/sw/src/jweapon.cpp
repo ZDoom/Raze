@@ -1575,7 +1575,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, actor->sector(),
                       actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.ang, 0);
 
-    if (actor->user.flameActor != nullptr)
+    if (actor != nullptr)
         actor->user.flameActor = actorNew;
 
     actorNew->spr.xrepeat = 16;
