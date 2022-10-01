@@ -62,7 +62,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
         DAngle ang = (pp->angle.ang + sop->clipbox_ang[i]);
         DVector3 spos(pp->pos, zz);
 
-        DVector2 vect = ang.ToVector() * 1024 * sop->clipbox_vdist[i];
+        DVector2 vect = ang.ToVector() * sop->clipbox_vdist[i];
         Collision coll;
 
         clipmove(spos, &pp->cursector, vect, sop->clipbox_dist[i] * inttoworld, 4., floordist, CLIPMASK_PLAYER, coll, 1);
@@ -135,7 +135,7 @@ int MultiClipTurn(PLAYER* pp, DAngle new_ang, double zz, double floordist)
 
         DVector3 spos(pp->pos, zz);
 
-        DVector2 vect = ang.ToVector() * 1024 * sop->clipbox_vdist[i];
+        DVector2 vect = ang.ToVector() * sop->clipbox_vdist[i];
         Collision coll;
 
         clipmove(spos, &cursect, vect, sop->clipbox_dist[i] * inttoworld, 4., floordist, CLIPMASK_PLAYER, coll);
