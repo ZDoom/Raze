@@ -130,6 +130,7 @@ extern short BellTime;
 extern uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
 extern uint32_t everyothertime;
 extern player_orig po[MAXPLAYERS];
+extern int32_t g_cdTrack;
 
 END_DUKE_NS
 
