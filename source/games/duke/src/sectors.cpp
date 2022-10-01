@@ -95,9 +95,16 @@ int callsound(sectortype* sn, DDukeActor* whatsprite, bool endstate)
 			}
 			else if (act->spr.hitag < 1000)
 			{
+				// The original code performed these two actions in reverse order which in case of a looped sound being stopped
+				// being the same as the sound about to be started, the newly started sound would fall through some cracks in the sound system and be rejected.
+				// Here this case needs to be simulated.
+				bool stopped = false;
 				if ((flags & SF_LOOP) || (act->spr.hitag && act->spr.hitag != act->spr.lotag))
+				{
 					S_StopSound(act->spr.lotag, act->temp_actor);
-				if (act->spr.hitag) S_PlayActorSound(act->spr.hitag, whatsprite);
+					if (act->spr.hitag == act->spr.lotag) stopped = true;
+				}
+				if (act->spr.hitag && !stopped) S_PlayActorSound(act->spr.hitag, whatsprite);
 				act->temp_data[0] = 0;
 				act->temp_actor = whatsprite;
 			}
