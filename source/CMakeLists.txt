@@ -931,10 +931,6 @@ set( FASTMATH_SOURCES
 	common/textures/hires/xbr/xbrz.cpp
 	common/textures/hires/xbr/xbrz_old.cpp
 	common/utility/matrix.cpp
-
-	# The rest is only here because it is C, not C++
-
-	gitinfo.cpp
 )
 
 #Vulkan stuff must go into a separate list because it needs to be disabled for some platforms
@@ -1164,6 +1160,7 @@ set (PCH_SOURCES
 	common/cutscenes/screenjob.cpp
 	common/utility/engineerrors.cpp
 	common/utility/i_module.cpp
+	common/utility/gitinfo.cpp
 	common/utility/m_alloc.cpp
 	common/utility/utf8.cpp
 	common/utility/palette.cpp

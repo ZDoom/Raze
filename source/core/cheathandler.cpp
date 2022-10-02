@@ -42,6 +42,7 @@
 #include "utf8.h"
 #include "d_protocol.h"
 #include "d_net.h"
+#include "gamecontrol.h"
 
 static cheatseq_t *cheatlist;
 static int numcheats;

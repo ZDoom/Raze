@@ -6,9 +6,6 @@
 
 extern bool help_disabled;
 
-void M_StartControlPanel (bool makeSound, bool scaleoverride = false);
-
-
 extern FNewGameStartup NewGameStartupInfo;
 void M_StartupEpisodeMenu(FNewGameStartup *gs);
 void M_StartupSkillMenu(FNewGameStartup *gs);

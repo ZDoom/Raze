@@ -163,7 +163,7 @@ void InputState::ClearAllInput()
 //==========================================================================
 
 void I_StartTic();
-bool ToggleFullscreen;
+extern bool ToggleFullscreen;
 
 int32_t handleevents(void)
 {
