@@ -88,6 +88,7 @@
 #include "v_draw.h"
 #include "gamehud.h"
 #include "wipe.h"
+#include "i_interface.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -99,7 +100,6 @@ ticcmd_t playercmds[MAXPLAYERS];
 static uint64_t stabilityticduration = 0;
 static uint64_t stabilitystarttime = 0;
 
-bool pauseext;
 bool r_NoInterpolate;
 int entertic;
 int oldentertics;

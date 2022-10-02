@@ -87,7 +87,7 @@ void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int d
 // Draws the fps counter, dot ticker, and palette debug.
 //
 //==========================================================================
-CVAR(Bool, vid_fps, false, 0)
+EXTERN_CVAR(Bool, vid_fps)
 
 
 static FString statFPS()

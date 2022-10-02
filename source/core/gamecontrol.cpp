@@ -88,19 +88,12 @@ void LoadHexFont(const char* filename);
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadwidescreen, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-CVAR (Bool, i_soundinbackground, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
-CVAR (Bool, i_pauseinbackground, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 // Note: For the automap label there is a separate option "am_textfont".
 CVARD(Bool, hud_textfont, false, CVAR_ARCHIVE, "Use the regular text font as replacement for the tiny 3x5 font for HUD messages whenever possible")
 
 EXTERN_CVAR(Bool, ui_generic)
-
-CUSTOM_CVAR(String, language, "auto", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
-{
-	GStrings.UpdateLanguage(self);
-	UpdateGenericUI(ui_generic);
-}
+EXTERN_CVAR(String, language)
 
 CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 {
@@ -136,7 +129,6 @@ extern bool pauseext;
 
 cycle_t thinktime, actortime, gameupdatetime, drawtime;
 
-gamestate_t gamestate = GS_STARTUP;
 gameaction_t gameaction = ga_nothing;
 // gameaction state
 MapRecord* g_nextmap;
@@ -145,8 +137,6 @@ int g_bossexit;
 
 
 FILE* hashfile;
-
-FStartupInfo GameStartupInfo;
 
 InputState inputState;
 int ShowStartupWindow(TArray<GrpEntry> &);
@@ -166,22 +156,22 @@ void MarkMap();
 void BuildFogTable();
 void ParseGLDefs();
 void I_UpdateDiscordPresence(bool SendPresence, const char* curstatus, const char* appid, const char* steamappid);
+bool G_Responder(event_t* ev);
+void HudScaleChanged();
+bool M_SetSpecialMenu(FName& menu, int param);
+void OnMenuOpen(bool makeSound);
 
 DStatusBarCore* StatusBar;
-
-
-bool AppActive = true;
 
 FString currentGame;
 FString LumpFilter;
 
-CVAR(Bool, queryiwad, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
-CVAR(String, defaultiwad, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+EXTERN_CVAR(Bool, queryiwad);
+EXTERN_CVAR(String, defaultiwad);
 CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 
 extern int hud_size_max;
 
-int paused;
 bool pausedWithKey;
 
 bool gamesetinput = false;
@@ -553,6 +543,8 @@ static void System_SetTransition(int type)
 	nextwipe = type;
 }
 
+
+
 void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
@@ -566,6 +558,7 @@ int GameMain()
 	SetConsoleNotifyBuffer();
 	sysCallbacks =
 	{
+		G_Responder,
 		System_WantGuiCapture,
 		System_WantLeftButton,
 		System_NetGame,
@@ -591,6 +584,13 @@ int GameMain()
 		System_ToggleFullConsole,
 		System_StartCutscene,
 		System_SetTransition,
+		CheckCheatmode,
+		HudScaleChanged,
+		M_SetSpecialMenu,
+		OnMenuOpen,
+		nullptr,
+		nullptr,
+		[]() ->FConfigFile* { return GameConfig; }
 	};
 
 	try
@@ -773,9 +773,20 @@ static TArray<GrpEntry> SetupGame()
 					stuff.Path = ExtractFileBase(found.FileName);
 					wads.Push(stuff);
 				}
-				pick = I_PickIWad(&wads[0], (int)wads.Size(), queryiwad, pick);
+
+				int flags = 0;
+				if (disableautoload) flags |= 1;
+				if (autoloadlights) flags |= 2;
+				if (autoloadbrightmaps) flags |= 4;
+				if (autoloadwidescreen) flags |= 8;
+
+				pick = I_PickIWad(&wads[0], (int)wads.Size(), queryiwad, pick, flags);
 				if (pick >= 0)
 				{
+					disableautoload = !!(flags & 1);
+					autoloadlights = !!(flags & 2);
+					autoloadbrightmaps = !!(flags & 4);
+					autoloadwidescreen = !!(flags & 8);
 					// The newly selected IWAD becomes the new default
 					defaultiwad = groups[pick].FileName;
 				}
@@ -1240,92 +1251,6 @@ CCMD(snd_reset)
 	Mus_Stop();
 	if (soundEngine) soundEngine->Reset();
 	Mus_ResumeSaved();
-}
-
-//==========================================================================
-//
-// S_PauseSound
-//
-// Stop music and sound effects, during game PAUSE.
-//
-//==========================================================================
-
-void S_PauseSound (bool notmusic, bool notsfx)
-{
-	if (!notmusic)
-	{
-		S_PauseMusic();
-	}
-	if (!notsfx)
-	{
-		soundEngine->SetPaused(true);
-		GSnd->SetSfxPaused (true, 0);
-		S_PauseAllCustomStreams(true);
-	}
-}
-
-//==========================================================================
-//
-// S_ResumeSound
-//
-// Resume music and sound effects, after game PAUSE.
-//
-//==========================================================================
-
-void S_ResumeSound (bool notsfx)
-{
-	S_ResumeMusic();
-	if (!notsfx)
-	{
-		soundEngine->SetPaused(false);
-		GSnd->SetSfxPaused (false, 0);
-		S_PauseAllCustomStreams(false);
-	}
-}
-
-//==========================================================================
-//
-// S_SetSoundPaused
-//
-// Called with state non-zero when the app is active, zero when it isn't.
-//
-//==========================================================================
-
-void S_SetSoundPaused(int state)
-{
-	if (!netgame && (i_pauseinbackground)
-#if 0 //ifdef _DEBUG
-		&& !demoplayback
-#endif
-		)
-	{
-		pauseext = !state;
-	}
-
-	if ((state || i_soundinbackground) && !pauseext)
-	{
-		if (paused == 0)
-		{
-			S_ResumeSound(true);
-			if (GSnd != nullptr)
-			{
-				GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
-			}
-		}
-	}
-	else
-	{
-		if (paused == 0)
-		{
-			S_PauseSound(false, true);
-			if (GSnd != nullptr)
-			{
-				GSnd->SetInactive(gamestate == GS_LEVEL || gamestate == GS_TITLELEVEL ?
-					SoundRenderer::INACTIVE_Complete :
-					SoundRenderer::INACTIVE_Mute);
-			}
-		}
-	}
 }
 
 

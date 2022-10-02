@@ -132,18 +132,10 @@ CUSTOM_CVARD(Int, hud_size, Hud_Stbar, CVAR_ARCHIVE, "Defines the HUD size and s
 	else setViewport(self);
 }
 
-CUSTOM_CVARD(Float, hud_scalefactor, 1, CVAR_ARCHIVE, "changes the hud scale")
-{
-	if (self < 0.36f) self = 0.36f;
-	else if (self > 1) self = 1;
-	else setViewport(hud_size);
-}
-
-CUSTOM_CVAR(Bool, hud_aspectscale, true, CVAR_ARCHIVE)
+void HudScaleChanged()
 {
 	setViewport(hud_size);
 }
-
 
 // Note: The shift detection here should be part of the key event data, but that requires a lot more work. Ideally use a ShiftBinds mapping. For control through bound keys this should be fine, bunt not for use from the console.
 CCMD(sizeup)
