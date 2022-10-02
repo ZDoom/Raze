@@ -565,7 +565,8 @@ void SetupView(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
 	{
 		calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->actor, &pSector, cA, cH, gInterpolate);
 	}
-	CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
+	if (pSector != nullptr)
+		CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
 }
 
 //---------------------------------------------------------------------------
@@ -739,16 +740,20 @@ void viewDrawScreen(bool sceneonly)
 		g_relvisibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - brightness, 0)) - g_visibility;
 		cA += interpolatedangle(buildang(deliriumTurnO), buildang(deliriumTurn), gInterpolate);
 
-		int ceilingZ, floorZ;
-		getzsofslopeptr(pSector, cX, cY, &ceilingZ, &floorZ);
-		if ((cZ > floorZ - (1 << 8)) && (pSector->upperLink == nullptr)) // clamp to floor
+		if (pSector != nullptr)
 		{
-			cZ = floorZ - (1 << 8);
+			int ceilingZ, floorZ;
+			getzsofslopeptr(pSector, cX, cY, &ceilingZ, &floorZ);
+			if ((cZ > floorZ - (1 << 8)) && (pSector->upperLink == nullptr)) // clamp to floor
+			{
+				cZ = floorZ - (1 << 8);
+			}
+			if ((cZ < ceilingZ + (1 << 8)) && (pSector->lowerLink == nullptr)) // clamp to ceiling
+			{
+				cZ = ceilingZ + (1 << 8);
+			}
 		}
-		if ((cZ < ceilingZ + (1 << 8)) && (pSector->lowerLink == nullptr)) // clamp to ceiling
-		{
-			cZ = ceilingZ + (1 << 8);
-		}
+
 		cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
 		if ((tilt.asbam() || bDelirium) && !sceneonly)
