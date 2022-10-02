@@ -2860,7 +2860,7 @@ short AnimSetVelAdj(short anim_ndx, double vel_adj)
 
 void DoPanning(void)
 {
-    double nx, ny;
+    int nx, ny;
     int i;
     sectortype* sectp;
     walltype* wallp;
@@ -2870,8 +2870,8 @@ void DoPanning(void)
     {
         sectp = actor->sector();
 
-		nx = actor->vel.X * actor->spr.angle.Cos();
-		ny = actor->vel.X * actor->spr.angle.Sin();
+		nx = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Cos() * 0.25);
+		ny = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Sin() * 0.25);
 
         sectp->addfloorxpan((float)nx);
         sectp->addfloorypan((float)ny);
@@ -2882,8 +2882,8 @@ void DoPanning(void)
     {
         sectp = actor->sector();
 
-		nx = actor->vel.X * actor->spr.angle.Cos();
-		ny = actor->vel.X * actor->spr.angle.Sin();
+        nx = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Cos() * 0.25);
+        ny = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Sin() * 0.25);
 
         sectp->addceilingxpan((float)nx);
         sectp->addceilingypan((float)ny);
@@ -2894,8 +2894,8 @@ void DoPanning(void)
     {
         wallp = actor->tempwall;
 
-		nx = actor->vel.X * actor->spr.angle.Cos();
-		ny = actor->vel.X * actor->spr.angle.Sin();
+        nx = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Cos() * 0.25);
+        ny = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Sin() * 0.25);
 
         wallp->addxpan((float)nx);
         wallp->addypan((float)ny);
