@@ -1071,7 +1071,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->flags |= (SOBJ_DYNAMIC);
                     sop->scale_type = SO_SCALE_CYCLE;
                     // spin stuff
-                    sop->set_int_i_spin_speed(16);
+                    sop->spin_speed = DAngle22_5 * (1. / 16);
                     sop->last_ang = sop->ang;
                     // animators
                     sop->Animator = DoTornadoObject;
@@ -1382,10 +1382,8 @@ void PlaceSectorObjectsOnTracks(void)
 
         NextTrackPoint(sop);
 
-        sop->set_int_i_ang(getangle((tpoint + sop->point)->pos - sop->pmid));
-
-        sop->set_int_i_ang_tgt(sop->int_i_ang());
-        sop->set_int_i_ang_moving(sop->int_i_ang_tgt());
+        sop->ang = VecToAngle((tpoint + sop->point)->pos - sop->pmid);
+        sop->ang_moving = sop->ang_tgt = sop->ang;
     }
 
 }
@@ -2505,7 +2503,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
 }
 
 
-void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2& pos, short locktics)
+void OperateSectorObjectForTics(SECTOR_OBJECT* sop, DAngle newang, const DVector2& pos, int locktics)
 {
     int i;
     sectortype* *sectp;
@@ -2535,17 +2533,18 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2
 
     GlobSpeedSO = nullAngle;
 
-    sop->ang_moving = DAngle::fromBuild(newang);
+    //sop->ang_tgt = newang;
+    sop->ang_moving = newang;
 
     sop->spin_ang = nullAngle;
-    sop->ang = sop->ang_moving;
+    sop->ang = newang;
 
     RefreshPoints(sop, pos - sop->pmid.XY(), false);
 }
 
 void OperateSectorObject(SECTOR_OBJECT* sop, DAngle newang, const DVector2& pos)
 {
-    OperateSectorObjectForTics(sop, newang.Buildang(), pos, synctics);
+    OperateSectorObjectForTics(sop, newang, pos, synctics);
 }
 
 void PlaceSectorObject(SECTOR_OBJECT* sop, const DVector2& pos)
@@ -2736,7 +2735,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        OperateSectorObjectForTics(sop, sop->ang.Buildang(), sop->pmid, 2 * synctics);
+        OperateSectorObjectForTics(sop, sop->ang, sop->pmid, 2*synctics);
     }
 }
 
