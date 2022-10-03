@@ -1384,7 +1384,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				if (targ->spr.picnum != TANK && !bossguy(targ) && targ->spr.picnum != RECON && targ->spr.picnum != ROTATEGUN)
 				{
 					if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
-						targ->spr.angle = proj->spr.angle + DAngle90;
+						targ->spr.angle = proj->spr.angle + DAngle180;
 
 					targ->vel.X = -proj->spr.extra * 0.25;
 					auto sp = targ->sector();
