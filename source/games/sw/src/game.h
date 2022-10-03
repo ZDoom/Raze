@@ -1509,6 +1509,7 @@ struct SECTOR_OBJECT
     int int_i_last_ang() const { return __i_last_ang; }
     int int_i_spin_ang() const { return __i_spin_ang; }
     int int_i_spin_speed() const { return __i_spin_speed; }
+    void set_int_i_spin_speed(int i) { __i_spin_speed = i; }
 
 
     int16_t clipbox_num,

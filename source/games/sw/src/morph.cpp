@@ -129,7 +129,7 @@ short DoSOevent(short match, short state)
                 {
                     sop->flags &= ~(SOBJ_WAIT_FOR_EVENT);
                     sop->vel = sop->save_vel;
-                    sop->__i_spin_speed = sop->save_spin_speed;
+                    sop->set_int_i_spin_speed(sop->save_spin_speed);
                 }
             }
 

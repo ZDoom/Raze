@@ -942,7 +942,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->z_tgt = 0;
         sop->zdelta = 0;
         sop->wait_tics = 0;
-        sop->__i_spin_speed = 0;
+        sop->set_int_i_spin_speed(0);
         sop->__i_spin_ang = 0;
         sop->__i_ang_orig = 0;
         sop->clipdist = 1024;
@@ -1071,7 +1071,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->flags |= (SOBJ_DYNAMIC);
                     sop->scale_type = SO_SCALE_CYCLE;
                     // spin stuff
-                    sop->__i_spin_speed = 16;
+                    sop->set_int_i_spin_speed(16);
                     sop->__i_last_ang = sop->int_i_ang();
                     // animators
                     sop->Animator = DoTornadoObject;
@@ -1193,9 +1193,9 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_SPIN:
-                    if (sop->__i_spin_speed)
+                    if (sop->int_i_spin_speed())
                         break;
-                    sop->__i_spin_speed = actor->spr.lotag;
+                    sop->set_int_i_spin_speed(actor->spr.lotag);
                     sop->__i_last_ang = sop->int_i_ang();
                     KillActor(actor);
                     break;
@@ -1207,11 +1207,11 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
                 case SO_SPIN_REVERSE:
 
-                    sop->__i_spin_speed = actor->spr.lotag;
+                    sop->set_int_i_spin_speed(actor->spr.lotag);
                     sop->__i_last_ang = sop->int_i_ang();
 
-                    if (sop->__i_spin_speed >= 0)
-                        sop->__i_spin_speed = -sop->__i_spin_speed;
+                    if (sop->int_i_spin_speed() >= 0)
+                        sop->set_int_i_spin_speed(-sop->int_i_spin_speed());
 
                     KillActor(actor);
                     break;
@@ -2201,27 +2201,27 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             if (sop->__i_spin_speed)
                 break;
 
-            sop->__i_spin_speed = tpoint->tag_high;
+            sop->set_int_i_spin_speed(tpoint->tag_high);
             sop->__i_last_ang = sop->int_i_ang();
             break;
 
         case TRACK_SPIN_REVERSE:
         {
-            if (!sop->__i_spin_speed)
+            if (!sop->int_i_spin_speed())
                 break;
 
-            if (sop->__i_spin_speed >= 0)
+            if (sop->int_i_spin_speed() >= 0)
             {
-                sop->__i_spin_speed = -sop->__i_spin_speed;
+                sop->set_int_i_spin_speed(-sop->int_i_spin_speed());
             }
         }
         break;
 
         case TRACK_SPIN_STOP:
-            if (!sop->__i_spin_speed)
+            if (!sop->int_i_spin_speed())
                 break;
 
-            sop->__i_spin_speed = 0;
+            sop->set_int_i_spin_speed(0);
             break;
 
         case TRACK_BOB_START:
@@ -2384,9 +2384,10 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
 
             sop->flags |= (SOBJ_WAIT_FOR_EVENT);
             sop->save_vel = sop->vel;
-            sop->save_spin_speed = sop->__i_spin_speed;
+            sop->save_spin_speed = sop->int_i_spin_speed();
 
-            sop->vel = sop->__i_spin_speed = 0;
+            sop->vel = 0;
+            sop->set_int_i_spin_speed(0);
             // only set event if non-zero
             if (tpoint->tag_high)
                 sop->match_event = tpoint->tag_high;
