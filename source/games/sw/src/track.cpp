@@ -950,7 +950,9 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->turn_speed = 4;
         sop->floor_loz = -9999999;
         sop->floor_hiz = 9999999;
-        sop->__i_ang_tgt = sop->__i_ang = sop->__i_ang_moving = 0;
+        sop->__i_ang_tgt = 0;
+        sop->set_int_i_ang(0);
+        sop->__i_ang_moving = 0;
         sop->op_main_sector = nullptr;
         sop->ram_damage = 0;
         sop->max_damage = -9999;
@@ -1200,7 +1202,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_ANGLE:
-                    sop->__i_ang = sop->__i_ang_moving = actor->int_ang();
+                    sop->set_int_i_ang(actor->int_ang());
+                    sop->__i_ang_moving = actor->int_ang();
                     sop->__i_ang_orig = sop->int_i_ang();
                     sop->set_int_i_last_ang(sop->int_i_ang());
                     sop->set_int_i_spin_ang(0);
@@ -1383,7 +1386,7 @@ void PlaceSectorObjectsOnTracks(void)
 
         NextTrackPoint(sop);
 
-        sop->__i_ang = getangle((tpoint + sop->point)->pos - sop->pmid);
+        sop->set_int_i_ang(getangle((tpoint + sop->point)->pos - sop->pmid));
 
         sop->__i_ang_moving = sop->__i_ang_tgt = sop->int_i_ang();
     }
@@ -2129,7 +2132,7 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
     // get delta to target angle
     delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
 
-    sop->__i_ang = NORM_ANGLE(sop->int_i_ang() + (delta_ang >> sop->turn_speed));
+    sop->set_int_i_ang(NORM_ANGLE(sop->int_i_ang() + (delta_ang >> sop->turn_speed)));
     delta_ang = delta_ang >> sop->turn_speed;
 
     // move z values
@@ -2539,7 +2542,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2
     sop->__i_ang_moving = newang;
 
     sop->set_int_i_spin_ang(0);
-    sop->__i_ang = newang;
+    sop->set_int_i_ang(newang);
 
     RefreshPoints(sop, pos - sop->pmid.XY(), false);
 }
@@ -2602,7 +2605,7 @@ void TornadoSpin(SECTOR_OBJECT* sop)
     // get delta to target angle
     delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
 
-    sop->__i_ang = NORM_ANGLE(sop->int_i_ang() + (delta_ang >> sop->turn_speed));
+    sop->set_int_i_ang(NORM_ANGLE(sop->int_i_ang() + (delta_ang >> sop->turn_speed)));
     delta_ang = delta_ang >> sop->turn_speed;
 
     // move z values
@@ -2724,9 +2727,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
         // get delta to target angle
         delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
 
-        //sop->__i_ang += delta_ang >> 4;
-        sop->__i_ang = NORM_ANGLE(sop->int_i_ang() + (delta_ang >> 3));
-        //sop->__i_ang += delta_ang >> 2;
+        sop->set_int_i_ang(NORM_ANGLE(sop->int_i_ang() + (delta_ang >> 3)));
 
         if (sop->limit_ang_center >= nullAngle)
         {
@@ -2735,9 +2736,9 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             if (abs(diff) >= sop->limit_ang_delta)
             {
                 if (diff < nullAngle)
-                    sop->__i_ang = (sop->limit_ang_center - sop->limit_ang_delta).Buildang();
+                    sop->set_int_i_ang((sop->limit_ang_center - sop->limit_ang_delta).Buildang());
                 else
-                    sop->__i_ang = (sop->limit_ang_center + sop->limit_ang_delta).Buildang();
+                    sop->set_int_i_ang((sop->limit_ang_center + sop->limit_ang_delta).Buildang());
 
             }
         }
