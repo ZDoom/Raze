@@ -1774,7 +1774,6 @@ void DoPlayerRecoil(PLAYER* pp)
 void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bobamt, short bob_speed)
 {
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
-    pp->opbob_amt = pp->pbob_amt;
     pp->pbob_amt = bobamt * BobVal(pp->bob_ndx);
     pp->actor->spr.pos.Z = pp->pos.Z + player_height + pp->pbob_amt;
 }
@@ -6829,6 +6828,7 @@ void MoveSkipSavePos(void)
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
         pp->horizon.backup();
+        pp->opbob_amt = pp->pbob_amt;
     }
 
     // save off stats for skip4
