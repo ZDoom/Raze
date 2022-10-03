@@ -250,7 +250,7 @@ short RectClipTurn(PLAYER* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
     DAngle rot_angl;
     int point_num;
 
-    rot_angl = new_angl + DAngle::fromBuild(sop->int_i_spin_ang() - sop->int_i_ang_orig());
+    rot_angl = new_angl + sop->spin_ang - sop->ang_orig;
     for (i = 0; i < 4; i++)
     {
         xy[i] = rotatepoint(pp->pos.XY(), opos[i], rot_angl);
