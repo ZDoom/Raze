@@ -2094,9 +2094,6 @@ void CallbackSOsink(ANIM* ap, void *data)
 
 void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
 {
-    short speed;
-    short delta_ang;
-
     so_setinterpolationtics(sop, locktics);
 
     if (sop->track >= SO_OPERATE_TRACK_START)
@@ -2120,35 +2117,37 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
         return;
     }
 
-    delta_ang = 0;
+    auto delta_ang = nullAngle;
 
     DVector2 npos(0, 0);
     if (sop->track > -1)
         npos = DoTrack(sop, locktics);
 
     // get delta to target angle
-    delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
+    delta_ang = deltaangle(sop->ang, sop->ang_tgt);
+    // If we do not truncate precision here, some SOs will misbehave, most notably the boat in MAP 5.
+    delta_ang = DAngle::fromBuild((delta_ang.Buildang() >> sop->turn_speed));
 
-    sop->set_int_i_ang(NORM_ANGLE(sop->int_i_ang() + (delta_ang >> sop->turn_speed)));
-    delta_ang = delta_ang >> sop->turn_speed;
+    sop->ang = (sop->ang + delta_ang).Normalized360();
+
 
     // move z values
     MoveZ(sop);
 
     // calculate the spin speed
-    speed = sop->int_i_spin_speed() * locktics;
+    auto speed = sop->spin_speed * locktics;
     // spin_ang is incremented by the spin_speed
-    sop->set_int_i_spin_ang(NORM_ANGLE(sop->int_i_spin_ang() + speed));
+    sop->spin_ang = (sop->spin_ang + speed).Normalized360();
 
-    if (sop->int_i_spin_speed())
+    if (sop->spin_speed != nullAngle)
     {
         // ignore delta angle if spinning
-        GlobSpeedSO = DAngle::fromBuild(speed);
+        GlobSpeedSO = speed;
     }
     else
     {
         // The actual delta from the last frame
-        GlobSpeedSO = DAngle::fromBuild(speed + delta_ang);
+        GlobSpeedSO = speed + delta_ang;
     }
 
     if ((sop->flags & SOBJ_DYNAMIC))
@@ -2161,7 +2160,7 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
         // Update the points so there will be no warping
         if ((sop->flags & (SOBJ_UPDATE|SOBJ_UPDATE_ONCE)) ||
             sop->vel ||
-            (sop->int_i_ang() != sop->int_i_ang_tgt()) ||
+            (sop->ang != sop->ang_tgt) ||
             GlobSpeedSO.Degrees())
         {
             sop->flags &= ~(SOBJ_UPDATE_ONCE);
@@ -2388,7 +2387,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             sop->save_spin_speed = sop->spin_speed;
 
             sop->vel = 0;
-            sop->set_int_i_spin_speed(0);
+            sop->spin_speed = nullAngle;
             // only set event if non-zero
             if (tpoint->tag_high)
                 sop->match_event = tpoint->tag_high;
@@ -2439,8 +2438,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
         sop->target_dist = (sop->pmid.XY() - tpoint->pos.XY()).Length();
 
         // calculate a new angle to the target
-        sop->set_int_i_ang_tgt(getangle(tpoint->pos - sop->pmid));
-        sop->set_int_i_ang_moving(sop->int_i_ang_tgt());
+        sop->ang_moving = sop->ang_tgt = VecToAngle(tpoint->pos - sop->pmid);
 
         if ((sop->flags & SOBJ_ZDIFF_MODE))
         {
@@ -2496,8 +2494,9 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
     if (sop->vel && !(sop->flags & SOBJ_MOVE_VERTICAL))
     {
         DVector2 n;
-        n.X = (((sop->vel) >> 8) * locktics * bcos(sop->int_i_ang_moving()) >> 14) * inttoworld;
-        n.Y = (((sop->vel) >> 8) * locktics * bsin(sop->int_i_ang_moving()) >> 14) * inttoworld;
+		// The truncation here is needed. There still seems to be code that depends on integers for these
+        n.X = int(((sop->vel) >> 8) * locktics * sop->ang_moving.Cos()) * inttoworld;
+        n.Y = int(((sop->vel) >> 8) * locktics * sop->ang_moving.Sin()) * inttoworld;
 
         sop->target_dist -= n.Length();
         return n;
@@ -2536,11 +2535,10 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2
 
     GlobSpeedSO = nullAngle;
 
-    //sop->ang_tgt = newang;
-    sop->set_int_i_ang_moving(newang);
+    sop->ang_moving = DAngle::fromBuild(newang);
 
-    sop->set_int_i_spin_ang(0);
-    sop->set_int_i_ang(newang);
+    sop->spin_ang = nullAngle;
+    sop->ang = sop->ang_moving;
 
     RefreshPoints(sop, pos - sop->pmid.XY(), false);
 }
