@@ -1501,6 +1501,17 @@ struct SECTOR_OBJECT
             clipbox_dist[MAX_CLIPBOX]; // mult-clip box variables (clipdist equivalent)
     double  clipbox_vdist[MAX_CLIPBOX]; // mult-clip box variables
     DAngle  clipbox_ang[MAX_CLIPBOX]; // mult-clip box variables
+
+    int int_i_ang() const { return __i_ang; }
+    int int_i_ang_moving() const { return __i_ang_moving; }
+    int int_i_ang_tgt() const { return __i_ang_tgt; }
+    int int_i_ang_orig() const { return __i_ang_orig; }
+    int int_i_last_ang() const { return __i_last_ang; }
+    int int_i_old_ang() const { return __i_old_ang; }
+    int int_i_spin_ang() const { return __i_spin_ang; }
+    int int_i_spin_speed() const { return __i_spin_speed; }
+
+
     int16_t clipbox_num,
             __i_ang,            // angle facing
             __i_ang_moving,     // angle the SO is facing
