@@ -10456,7 +10456,7 @@ int DoFindGround(DSWActor* actor)
 
     auto save_cstat = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrange(actor->int_pos(), actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    FAFgetzrange(actor->spr.pos, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit, (((int) actor->spr.clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     actor->spr.cstat = save_cstat;
 
     switch (florhit.type)
@@ -10508,7 +10508,7 @@ int DoFindGroundPoint(DSWActor* actor)
 
     auto save_cstat = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrangepoint(actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit);
+    FAFgetzrangepoint(actor->spr.pos, actor->sector(), &actor->user.hiz, &ceilhit, &actor->user.loz, &florhit);
     actor->spr.cstat = save_cstat;
 
     switch (florhit.type)
