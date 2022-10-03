@@ -163,7 +163,7 @@ short DoSOevent(short match, short state)
                 vel_adj = -SP_TAG7(me_act);
             }
 
-            sop->__i_spin_speed += spin_adj;
+            sop->set_int_i_spin_speed(sop->int_i_spin_speed() + spin_adj);
 
             if (TEST_BOOL1(me_act))
                 sop->vel_tgt += vel_adj;

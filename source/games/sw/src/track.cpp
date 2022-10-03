@@ -950,9 +950,9 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->turn_speed = 4;
         sop->floor_loz = -9999999;
         sop->floor_hiz = 9999999;
-        sop->__i_ang_tgt = 0;
+        sop->set_int_i_ang_tgt(0);
         sop->set_int_i_ang(0);
-        sop->__i_ang_moving = 0;
+        sop->set_int_i_ang_moving(0);
         sop->op_main_sector = nullptr;
         sop->ram_damage = 0;
         sop->max_damage = -9999;
@@ -1203,7 +1203,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
                 case SO_ANGLE:
                     sop->set_int_i_ang(actor->int_ang());
-                    sop->__i_ang_moving = actor->int_ang();
+                    sop->set_int_i_ang_moving(actor->int_ang());
                     sop->__i_ang_orig = sop->int_i_ang();
                     sop->set_int_i_last_ang(sop->int_i_ang());
                     sop->set_int_i_spin_ang(0);
@@ -1388,7 +1388,8 @@ void PlaceSectorObjectsOnTracks(void)
 
         sop->set_int_i_ang(getangle((tpoint + sop->point)->pos - sop->pmid));
 
-        sop->__i_ang_moving = sop->__i_ang_tgt = sop->int_i_ang();
+        sop->set_int_i_ang_tgt(sop->int_i_ang());
+        sop->set_int_i_ang_moving(sop->int_i_ang_tgt());
     }
 
 }
@@ -1817,7 +1818,7 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
         }
     }
 
-    if (sop->__i_spin_speed)
+    if (sop->int_i_spin_speed())
     {
         // same as below - ignore the objects angle
         // last_ang is the last true angle before SO started spinning
@@ -2182,7 +2183,10 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
     // calculate an angle to the target
 
     if (sop->vel)
-        sop->__i_ang_moving = sop->__i_ang_tgt = getangle(tpoint->pos - sop->pmid);
+    {
+        sop->set_int_i_ang_tgt(getangle(tpoint->pos - sop->pmid));
+        sop->set_int_i_ang_moving(sop->int_i_ang_tgt());
+    }
 
     // NOTE: Jittery ride - try new value out here
     // NOTE: Put a loop around this (locktics) to make it more acuruate
@@ -2202,7 +2206,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             break;
 
         case TRACK_SPIN:
-            if (sop->__i_spin_speed)
+            if (sop->int_i_spin_speed())
                 break;
 
             sop->set_int_i_spin_speed(tpoint->tag_high);
@@ -2442,7 +2446,8 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
         sop->target_dist = (sop->pmid.XY() - tpoint->pos.XY()).Length();
 
         // calculate a new angle to the target
-        sop->__i_ang_moving = sop->__i_ang_tgt = getangle(tpoint->pos - sop->pmid);
+        sop->set_int_i_ang_tgt(getangle(tpoint->pos - sop->pmid));
+        sop->set_int_i_ang_moving(sop->int_i_ang_tgt());
 
         if ((sop->flags & SOBJ_ZDIFF_MODE))
         {
@@ -2539,7 +2544,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2
     GlobSpeedSO = nullAngle;
 
     //sop->ang_tgt = newang;
-    sop->__i_ang_moving = newang;
+    sop->set_int_i_ang_moving(newang);
 
     sop->set_int_i_spin_ang(0);
     sop->set_int_i_ang(newang);
@@ -2722,7 +2727,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        sop->__i_ang_tgt = getangle(actor->user.targetActor->spr.pos - sop->pmid);
+        sop->set_int_i_ang_tgt(getangle(actor->user.targetActor->spr.pos - sop->pmid));
 
         // get delta to target angle
         delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());

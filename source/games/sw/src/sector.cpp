@@ -1663,7 +1663,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
         sop = &SectorObject[so_num];
 
-        sop->__i_ang_tgt = NORM_ANGLE(sop->int_i_ang_tgt() + 512);
+        sop->set_int_i_ang_tgt(NORM_ANGLE(sop->int_i_ang_tgt() + 512));
 
         PlaySound(DIGI_BIGSWITCH, actor, v3df_none);
 
