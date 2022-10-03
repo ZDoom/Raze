@@ -1507,7 +1507,6 @@ struct SECTOR_OBJECT
     int int_i_ang_tgt() const { return __i_ang_tgt; }
     int int_i_ang_orig() const { return __i_ang_orig; }
     int int_i_last_ang() const { return __i_last_ang; }
-    int int_i_old_ang() const { return __i_old_ang; }
     int int_i_spin_ang() const { return __i_spin_ang; }
     int int_i_spin_speed() const { return __i_spin_speed; }
 
@@ -1518,7 +1517,6 @@ struct SECTOR_OBJECT
             __i_ang_tgt,        // target angle
             __i_ang_orig,       // original angle
             __i_last_ang,       // last angle before started spinning
-            __i_old_ang,        // holding variable for the old angle
             __i_spin_speed,     // spin_speed
             __i_spin_ang,       // spin angle
             turn_speed,     // shift value determines how fast SO turns to match new angle

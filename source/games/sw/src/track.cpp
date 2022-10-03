@@ -1817,13 +1817,13 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
     {
         // same as below - ignore the objects angle
         // last_ang is the last true angle before SO started spinning
-        delta_ang_from_orig = NORM_ANGLE(sop->__i_last_ang + sop->__i_spin_ang - sop->int_i_ang_orig());
+        delta_ang_from_orig = NORM_ANGLE(sop->int_i_last_ang() + sop->int_i_spin_ang() - sop->int_i_ang_orig());
     }
     else
     {
         // angle traveling + the new spin angle all offset from the original
         // angle
-        delta_ang_from_orig = NORM_ANGLE(sop->int_i_ang() + sop->__i_spin_ang - sop->int_i_ang_orig());
+        delta_ang_from_orig = NORM_ANGLE(sop->int_i_ang() + sop->int_i_spin_ang() - sop->int_i_ang_orig());
     }
 
     // Note that this delta angle is from the original angle
@@ -2126,7 +2126,7 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
         npos = DoTrack(sop, locktics);
 
     // get delta to target angle
-    delta_ang = getincangle(sop->int_i_ang(), sop->__i_ang_tgt);
+    delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
 
     sop->__i_ang = NORM_ANGLE(sop->int_i_ang() + (delta_ang >> sop->turn_speed));
     delta_ang = delta_ang >> sop->turn_speed;
@@ -2135,11 +2135,11 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
     MoveZ(sop);
 
     // calculate the spin speed
-    speed = sop->__i_spin_speed * locktics;
+    speed = sop->int_i_spin_speed() * locktics;
     // spin_ang is incremented by the spin_speed
-    sop->__i_spin_ang = NORM_ANGLE(sop->__i_spin_ang + speed);
+    sop->__i_spin_ang = NORM_ANGLE(sop->int_i_spin_ang() + speed);
 
-    if (sop->__i_spin_speed)
+    if (sop->int_i_spin_speed())
     {
         // ignore delta angle if spinning
         GlobSpeedSO = DAngle::fromBuild(speed);
@@ -2160,7 +2160,7 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
         // Update the points so there will be no warping
         if ((sop->flags & (SOBJ_UPDATE|SOBJ_UPDATE_ONCE)) ||
             sop->vel ||
-            (sop->int_i_ang() != sop->__i_ang_tgt) ||
+            (sop->int_i_ang() != sop->int_i_ang_tgt()) ||
             GlobSpeedSO.Degrees())
         {
             sop->flags &= ~(SOBJ_UPDATE_ONCE);
@@ -2493,8 +2493,8 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
     if (sop->vel && !(sop->flags & SOBJ_MOVE_VERTICAL))
     {
         DVector2 n;
-        n.X = (((sop->vel) >> 8) * locktics * bcos(sop->__i_ang_moving) >> 14) * inttoworld;
-        n.Y = (((sop->vel) >> 8) * locktics * bsin(sop->__i_ang_moving) >> 14) * inttoworld;
+        n.X = (((sop->vel) >> 8) * locktics * bcos(sop->int_i_ang_moving()) >> 14) * inttoworld;
+        n.Y = (((sop->vel) >> 8) * locktics * bsin(sop->int_i_ang_moving()) >> 14) * inttoworld;
 
         sop->target_dist -= n.Length();
         return n;
@@ -2598,7 +2598,7 @@ void TornadoSpin(SECTOR_OBJECT* sop)
     short locktics = synctics;
 
     // get delta to target angle
-    delta_ang = getincangle(sop->int_i_ang(), sop->__i_ang_tgt);
+    delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
 
     sop->__i_ang = NORM_ANGLE(sop->int_i_ang() + (delta_ang >> sop->turn_speed));
     delta_ang = delta_ang >> sop->turn_speed;
@@ -2607,11 +2607,11 @@ void TornadoSpin(SECTOR_OBJECT* sop)
     MoveZ(sop);
 
     // calculate the spin speed
-    speed = sop->__i_spin_speed * locktics;
+    speed = sop->int_i_spin_speed() * locktics;
     // spin_ang is incremented by the spin_speed
-    sop->__i_spin_ang = NORM_ANGLE(sop->__i_spin_ang + speed);
+    sop->__i_spin_ang = NORM_ANGLE(sop->int_i_spin_ang() + speed);
 
-    if (sop->__i_spin_speed)
+    if (sop->int_i_spin_speed())
     {
         // ignore delta angle if spinning
         GlobSpeedSO = DAngle::fromBuild(speed);
@@ -2720,7 +2720,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
         sop->__i_ang_tgt = getangle(actor->user.targetActor->spr.pos - sop->pmid);
 
         // get delta to target angle
-        delta_ang = getincangle(sop->int_i_ang(), sop->__i_ang_tgt);
+        delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
 
         //sop->__i_ang += delta_ang >> 4;
         sop->__i_ang = NORM_ANGLE(sop->int_i_ang() + (delta_ang >> 3));

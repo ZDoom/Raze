@@ -665,7 +665,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECT& w, 
 			("ang_tgt", w.__i_ang_tgt, def->__i_ang_tgt)
 			("ang_orig", w.__i_ang_orig, def->__i_ang_orig)
 			("last_ang", w.__i_last_ang, def->__i_last_ang)
-			("old_ang", w.__i_old_ang, def->__i_old_ang)
 			("spin_speed", w.__i_spin_speed, def->__i_spin_speed)
 			("spin_ang", w.__i_spin_ang, def->__i_spin_ang)
 			("turn_speed", w.turn_speed, def->turn_speed)
