@@ -2179,10 +2179,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
     // calculate an angle to the target
 
     if (sop->vel)
-    {
-        sop->set_int_i_ang_tgt(getangle(tpoint->pos - sop->pmid));
-        sop->set_int_i_ang_moving(sop->int_i_ang_tgt());
-    }
+        sop->ang_moving = sop->ang_tgt = VecToAngle(tpoint->pos - sop->pmid);
 
     // NOTE: Jittery ride - try new value out here
     // NOTE: Put a loop around this (locktics) to make it more acuruate
@@ -2202,30 +2199,30 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
             break;
 
         case TRACK_SPIN:
-            if (sop->int_i_spin_speed())
+            if (sop->spin_speed != nullAngle)
                 break;
 
-            sop->set_int_i_spin_speed(tpoint->tag_high);
-            sop->set_int_i_last_ang(sop->int_i_ang());
+            sop->spin_speed = DAngle::fromBuild(tpoint->tag_high);
+            sop->last_ang = sop->ang;
             break;
 
         case TRACK_SPIN_REVERSE:
         {
-            if (!sop->int_i_spin_speed())
+            if (sop->spin_speed == nullAngle)
                 break;
 
-            if (sop->int_i_spin_speed() >= 0)
+            if (sop->spin_speed >= nullAngle)
             {
-                sop->set_int_i_spin_speed(-sop->int_i_spin_speed());
+                sop->spin_speed = -sop->spin_speed;
             }
         }
         break;
 
         case TRACK_SPIN_STOP:
-            if (!sop->int_i_spin_speed())
+            if (sop->spin_speed == nullAngle)
                 break;
 
-            sop->set_int_i_spin_speed(0);
+            sop->spin_speed = nullAngle;
             break;
 
         case TRACK_BOB_START:
@@ -2660,9 +2657,8 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
     DSWActor* actor = sop->sp_child;
     if (!actor) return;
 
-    short delta_ang;
+    DAngle delta_ang;
     DAngle diff;
-    short i;
 
     if ((sop->max_damage != -9999 && sop->max_damage <= 0) || !actor->hasU())
         return;
@@ -2680,7 +2676,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
 
     if (MoveSkip2 == 0)
     {
-		for (i = 0; sop->so_actors[i] != nullptr; i++)
+		for (int i = 0; sop->so_actors[i] != nullptr; i++)
         {
             DSWActor* sActor = sop->so_actors[i];
             if (!sActor) continue;
@@ -2705,7 +2701,7 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
 
         if (actor->user.Counter == 0)
         {
-			for (i = 0; sop->so_actors[i] != nullptr; i++)
+			for (int i = 0; sop->so_actors[i] != nullptr; i++)
 			{
                 DSWActor* sActor = sop->so_actors[i];
                 if (!sActor) continue;
@@ -2721,28 +2717,28 @@ void DoAutoTurretObject(SECTOR_OBJECT* sop)
             }
         }
 
-        sop->set_int_i_ang_tgt(getangle(actor->user.targetActor->spr.pos - sop->pmid));
+        sop->ang_tgt = VecToAngle(actor->user.targetActor->spr.pos - sop->pmid);
 
         // get delta to target angle
-        delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
+        delta_ang = deltaangle(sop->ang, sop->ang_tgt);
 
-        sop->set_int_i_ang(NORM_ANGLE(sop->int_i_ang() + (delta_ang >> 3)));
+        sop->ang += delta_ang * 0.125;
 
         if (sop->limit_ang_center >= nullAngle)
         {
-            diff = deltaangle(sop->limit_ang_center, DAngle::fromBuild(sop->int_i_ang()));
+            diff = deltaangle(sop->limit_ang_center, sop->ang);
 
             if (abs(diff) >= sop->limit_ang_delta)
             {
                 if (diff < nullAngle)
-                    sop->set_int_i_ang((sop->limit_ang_center - sop->limit_ang_delta).Buildang());
+                    sop->ang = (sop->limit_ang_center - sop->limit_ang_delta);
                 else
-                    sop->set_int_i_ang((sop->limit_ang_center + sop->limit_ang_delta).Buildang());
+                    sop->ang = (sop->limit_ang_center + sop->limit_ang_delta);
 
             }
         }
 
-        OperateSectorObjectForTics(sop, sop->int_i_ang(), sop->pmid, 2*synctics);
+        OperateSectorObjectForTics(sop, sop->ang.Buildang(), sop->pmid, 2 * synctics);
     }
 }
 
