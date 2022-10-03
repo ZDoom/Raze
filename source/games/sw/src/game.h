@@ -1435,21 +1435,6 @@ struct SECTOR_OBJECT
     double  clipbox_vdist[MAX_CLIPBOX]; // mult-clip box variables
     DAngle  clipbox_ang[MAX_CLIPBOX]; // mult-clip box variables
 
-    int int_i_ang() const { return ang.Buildang(); }
-    int int_i_ang_moving() const { return ang_moving.Buildang(); }
-    int int_i_ang_tgt() const { return ang_tgt.Buildang(); }
-    int int_i_ang_orig() const { return ang_orig.Buildang(); }
-    int int_i_last_ang() const { return last_ang.Buildang(); }
-    int int_i_spin_ang() const { return spin_ang.Buildang(); }
-    int int_i_spin_speed() const { return spin_speed.Buildang(); }
-    void set_int_i_spin_speed(int i) { spin_speed = DAngle::fromBuild(i); }
-    void set_int_i_last_ang(int i) { last_ang = DAngle::fromBuild(i); }
-    void set_int_i_spin_ang(int i) { spin_ang = DAngle::fromBuild(i); }
-    void set_int_i_ang(int i) { ang = DAngle::fromBuild(i); }
-    void set_int_i_ang_tgt(int i) { ang_tgt = DAngle::fromBuild(i); }
-    void set_int_i_ang_moving(int i) { ang_moving = DAngle::fromBuild(i); }
-    void set_int_i_ang_orig(int i) { ang_orig = DAngle::fromBuild(i); }
-
 
     int16_t clipbox_num;
    DAngle   ang;            // angle facing
