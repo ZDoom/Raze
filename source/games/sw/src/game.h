@@ -1502,35 +1502,36 @@ struct SECTOR_OBJECT
     double  clipbox_vdist[MAX_CLIPBOX]; // mult-clip box variables
     DAngle  clipbox_ang[MAX_CLIPBOX]; // mult-clip box variables
 
-    int int_i_ang() const { return __i_ang; }
-    int int_i_ang_moving() const { return __i_ang_moving; }
-    int int_i_ang_tgt() const { return __i_ang_tgt; }
-    int int_i_ang_orig() const { return __i_ang_orig; }
-    int int_i_last_ang() const { return __i_last_ang; }
-    int int_i_spin_ang() const { return __i_spin_ang; }
-    int int_i_spin_speed() const { return __i_spin_speed; }
-    void set_int_i_spin_speed(int i) { __i_spin_speed = i; }
-    void set_int_i_last_ang(int i) { __i_last_ang = i; }
-    void set_int_i_spin_ang(int i) { __i_spin_ang = i; }
-    void set_int_i_ang(int i) { __i_ang = i; }
-    void set_int_i_ang_tgt(int i) { __i_ang_tgt = i; }
-    void set_int_i_ang_moving(int i) { __i_ang_moving = i; }
-    void set_int_i_ang_orig(int i) { __i_ang_orig = i; }
+    int int_i_ang() const { return ang.Buildang(); }
+    int int_i_ang_moving() const { return ang_moving.Buildang(); }
+    int int_i_ang_tgt() const { return ang_tgt.Buildang(); }
+    int int_i_ang_orig() const { return ang_orig.Buildang(); }
+    int int_i_last_ang() const { return last_ang.Buildang(); }
+    int int_i_spin_ang() const { return spin_ang.Buildang(); }
+    int int_i_spin_speed() const { return spin_speed.Buildang(); }
+    void set_int_i_spin_speed(int i) { spin_speed = DAngle::fromBuild(i); }
+    void set_int_i_last_ang(int i) { last_ang = DAngle::fromBuild(i); }
+    void set_int_i_spin_ang(int i) { spin_ang = DAngle::fromBuild(i); }
+    void set_int_i_ang(int i) { ang = DAngle::fromBuild(i); }
+    void set_int_i_ang_tgt(int i) { ang_tgt = DAngle::fromBuild(i); }
+    void set_int_i_ang_moving(int i) { ang_moving = DAngle::fromBuild(i); }
+    void set_int_i_ang_orig(int i) { ang_orig = DAngle::fromBuild(i); }
 
 
-    int16_t clipbox_num,
-            __i_ang,            // angle facing
-            __i_ang_moving,     // angle the SO is facing
-            __i_ang_tgt,        // target angle
-            __i_ang_orig,       // original angle
-            __i_last_ang,       // last angle before started spinning
-            __i_spin_speed,     // spin_speed
-            __i_spin_ang,       // spin angle
-            turn_speed,     // shift value determines how fast SO turns to match new angle
+    int16_t clipbox_num;
+   DAngle   ang;            // angle facing
+   DAngle   ang_moving;     // angle the SO is facing
+   DAngle   ang_tgt;        // target angle
+   DAngle   ang_orig;       // original angle
+   DAngle   last_ang,       // last angle before started spinning
+            old_ang;        // holding variable for the old angle
+   DAngle   spin_speed,     // spin_speed
+            save_spin_speed, // save spin speed
+            spin_ang;       // spin angle
+   int16_t         turn_speed,     // shift value determines how fast SO turns to match new angle
             bob_sine_ndx,   // index into sine table
             bob_speed,      // shift value for speed
             save_vel,       // save velocity
-            save_spin_speed, // save spin speed
             match_event,    // match number
     // SO Scaling Vector Info
             scale_type,         // type of scaling - enum controled

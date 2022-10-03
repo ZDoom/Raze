@@ -125,11 +125,11 @@ short DoSOevent(short match, short state)
         {
             if ((sop->flags & SOBJ_WAIT_FOR_EVENT))
             {
-                if (sop->save_vel > 0 || sop->save_spin_speed > 0)
+                if (sop->save_vel > 0 || sop->save_spin_speed > nullAngle)
                 {
                     sop->flags &= ~(SOBJ_WAIT_FOR_EVENT);
                     sop->vel = sop->save_vel;
-                    sop->set_int_i_spin_speed(sop->save_spin_speed);
+                    sop->spin_speed = sop->save_spin_speed;
                 }
             }
 

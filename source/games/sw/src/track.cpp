@@ -2392,7 +2392,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
 
             sop->flags |= (SOBJ_WAIT_FOR_EVENT);
             sop->save_vel = sop->vel;
-            sop->save_spin_speed = sop->int_i_spin_speed();
+            sop->save_spin_speed = sop->spin_speed;
 
             sop->vel = 0;
             sop->set_int_i_spin_speed(0);
@@ -2639,7 +2639,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     // this made them move together more or less - cool!
     //static short ang = 1024;
     int ret;
-    short ang = sop->__i_ang_moving;
+    short ang = sop->int_i_ang_moving();
 
     xvect = sop->vel * bcos(ang);
     yvect = sop->vel * bcos(ang);
