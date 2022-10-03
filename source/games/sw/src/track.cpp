@@ -2600,45 +2600,39 @@ void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
 
 void TornadoSpin(SECTOR_OBJECT* sop)
 {
-    short delta_ang, speed;
+    DAngle delta_ang, speed;
     short locktics = synctics;
 
     // get delta to target angle
-    delta_ang = getincangle(sop->int_i_ang(), sop->int_i_ang_tgt());
+    delta_ang = deltaangle(sop->ang, sop->ang_tgt);
 
-    sop->set_int_i_ang(NORM_ANGLE(sop->int_i_ang() + (delta_ang >> sop->turn_speed)));
-    delta_ang = delta_ang >> sop->turn_speed;
+    sop->ang = (sop->ang + (delta_ang / (1 << sop->turn_speed))).Normalized360();
+    delta_ang /= 1 << sop->turn_speed;
 
     // move z values
     MoveZ(sop);
 
     // calculate the spin speed
-    speed = sop->int_i_spin_speed() * locktics;
+    speed = sop->spin_speed * locktics;
     // spin_ang is incremented by the spin_speed
-    sop->set_int_i_spin_ang(NORM_ANGLE(sop->int_i_spin_ang() + speed));
+    sop->spin_ang = sop->spin_ang + speed;
 
-    if (sop->int_i_spin_speed())
+    if (sop->spin_speed != nullAngle)
     {
         // ignore delta angle if spinning
-        GlobSpeedSO = DAngle::fromBuild(speed);
+        GlobSpeedSO = speed;
     }
     else
     {
         // The actual delta from the last frame
-        GlobSpeedSO = DAngle::fromBuild(speed + delta_ang);
+        GlobSpeedSO = speed + delta_ang;
     }
 }
 
 void DoTornadoObject(SECTOR_OBJECT* sop)
 {
-    int xvect,yvect;
-    // this made them move together more or less - cool!
-    //static short ang = 1024;
     int ret;
-    short ang = sop->int_i_ang_moving();
-
-    xvect = sop->vel * bcos(ang);
-    yvect = sop->vel * bcos(ang);
+    DAngle &ang = sop->ang_moving;
 
     auto cursect = sop->op_main_sector; // for sop->vel
     double floor_dist = (abs(cursect->ceilingz - cursect->floorz)) * 0.25;
@@ -2646,11 +2640,15 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
 
     PlaceSectorObject(sop, {MAXSO, MAXSO});
     Collision coll;
+
+    auto vect = ang.ToVector() * sop->vel; // vel is still in Build coordinates.
+    int xvect = vect.X * 16384;
+    int yvect = vect.Y * 16384;
     clipmove(pos, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), int(floor_dist * zworldtoint), CLIPMASK_ACTOR, coll);
 
     if (coll.type != kHitNone)
     {
-        sop->set_int_i_ang_moving(NORM_ANGLE(ang + 1024 + RANDOM_P2(512) - 256));
+        ang = ang + DAngle180 - DAngle45 + DAngle::fromBuild(RANDOM_P2(512));
     }
 
     TornadoSpin(sop);
