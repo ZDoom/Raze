@@ -145,6 +145,19 @@ inline void getzrange(const vec3_t& pos, sectortype* sect, double* ceilz, Collis
     *florz = f * zinttoworld;
 }
 
+inline void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBase& ceilhit, double* florz,
+	CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
+{
+	vec3_t ipos(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint) );
+
+	int c = int(*ceilz * zworldtoint);
+	int f = int(*florz * zworldtoint);
+	getzrange(ipos, sect, &c, ceilhit, &f, florhit, walldist, cliptype);
+	*ceilz = c * zinttoworld;
+	*florz = f * zinttoworld;
+}
+
+
 extern vec2_t hitscangoal;
 
 struct HitInfoBase;

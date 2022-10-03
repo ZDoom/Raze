@@ -1712,6 +1712,15 @@ short AnimSetVelAdj(short anim_ndx, double vel_adj);
 void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SET* action, PERSONALITY* person);
 
 void getzrangepoint(int x, int y, int z, sectortype* sect, int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit);
+
+inline void getzrangepoint(const DVector3& pos, sectortype* sect, double* hiz, Collision* ceilhit, double* loz, Collision* florhit)
+{
+	int32_t hi, lo;
+	getzrangepoint(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint), sect, &hi, ceilhit, &lo, florhit);
+	*hiz = hi * zinttoworld;
+	*loz = lo * zinttoworld;
+}
+
 Collision move_sprite(DSWActor* , int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 inline Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, double flordist, uint32_t cliptype, int numtics)
 {
@@ -1915,7 +1924,7 @@ void computergetinput(int snum,InputPacket *syn); // jplayer.c
 
 void SetupMirrorTiles(void);    // rooms.c
 bool FAF_Sector(sectortype* sect); // rooms.c
-int GetZadjustment(sectortype* sect,short hitag);  // rooms.c
+double GetZadjustment(sectortype* sect,short hitag);  // rooms.c
 
 void InitSetup(void);   // setup.c
 
@@ -1977,7 +1986,7 @@ extern int OrigCommPlayers;
 extern uint8_t PlayerGravity;
 extern short wait_active_check_offset;
 //extern short Zombies;
-extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
+extern double PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 extern bool left_foot;
 extern bool bosswasseen[3];
 extern DSWActor* BossSpriteNum[3];

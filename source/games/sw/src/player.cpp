@@ -3139,7 +3139,7 @@ void StackedWaterSplash(PLAYER* pp)
 void DoPlayerFall(PLAYER* pp)
 {
     short i;
-    int depth;
+    double depth;
 
     // reset flag key for double jumps
     if (!(pp->input.actions & SB_JUMP))
@@ -3178,7 +3178,7 @@ void DoPlayerFall(PLAYER* pp)
 
 
 
-        depth = GetZadjustment(pp->cursector, FLOOR_Z_ADJUST)>>8;
+        depth = GetZadjustment(pp->cursector, FLOOR_Z_ADJUST);
         if (depth == 0)
             depth = pp->WadeDepth;
 

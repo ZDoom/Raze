@@ -310,7 +310,7 @@ void InitLevelGlobals(void)
     automapMode = am_off;
     PlayerGravity = 24;
     wait_active_check_offset = 0;
-    PlaxCeilGlobZadjust = PlaxFloorGlobZadjust = Z(500);
+    PlaxCeilGlobZadjust = PlaxFloorGlobZadjust = 500;
     FinishedLevel = false;
     AnimCnt = 0;
     left_foot = false;

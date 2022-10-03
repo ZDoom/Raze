@@ -106,7 +106,7 @@ static double globhiz, globloz;
 static Collision globhihit, globlohit;
 
 short wait_active_check_offset;
-int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
+double PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool set_nextwall);
 int DoActorDebris(DSWActor* actor);
 void ActorWarpUpdatePos(DSWActor*,sectortype* sect);
@@ -2596,8 +2596,8 @@ void SpriteSetup(void)
                 case PLAX_GLOB_Z_ADJUST:
                 {
                     actor->sector()->extra |= (SECTFX_Z_ADJUST);
-                    PlaxCeilGlobZadjust = SP_TAG2(actor);
-                    PlaxFloorGlobZadjust = SP_TAG3(actor);
+                    PlaxCeilGlobZadjust = SP_TAG2(actor) * zmaptoworld;
+                    PlaxFloorGlobZadjust = SP_TAG3(actor) * zmaptoworld;
                     KillActor(actor);
                     break;
                 }
