@@ -809,7 +809,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
                         sop->clipbox_vdist[sop->clipbox_num] = (sop->pmid.XY() - itActor->spr.pos.XY()).Length();
 
                         auto ang2 = VecToAngle(itActor->spr.pos.XY() - sop->pmid.XY());
-                        sop->clipbox_ang[sop->clipbox_num] = deltaangle(ang2, DAngle::fromBuild(sop->int_i_ang()));
+                        sop->clipbox_ang[sop->clipbox_num] = deltaangle(ang2, sop->ang);
 
                         sop->clipbox_num++;
                         KillActor(itActor);
@@ -942,17 +942,15 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->z_tgt = 0;
         sop->zdelta = 0;
         sop->wait_tics = 0;
-        sop->set_int_i_spin_speed(0);
-        sop->set_int_i_spin_ang(0);
-        sop->set_int_i_ang_orig(0);
+        sop->spin_speed = nullAngle;
+        sop->spin_ang = nullAngle;
+        sop->ang_orig = nullAngle;
         sop->clipdist = 1024;
         sop->target_dist = 0;
         sop->turn_speed = 4;
         sop->floor_loz = -9999999;
         sop->floor_hiz = 9999999;
-        sop->set_int_i_ang_tgt(0);
-        sop->set_int_i_ang(0);
-        sop->set_int_i_ang_moving(0);
+        sop->ang_tgt = sop->ang = sop->ang_moving = nullAngle;
         sop->op_main_sector = nullptr;
         sop->ram_damage = 0;
         sop->max_damage = -9999;
@@ -1074,7 +1072,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->scale_type = SO_SCALE_CYCLE;
                     // spin stuff
                     sop->set_int_i_spin_speed(16);
-                    sop->set_int_i_last_ang(sop->int_i_ang());
+                    sop->last_ang = sop->ang;
                     // animators
                     sop->Animator = DoTornadoObject;
                     sop->PreMoveAnimator = ScaleSectorObject;
@@ -1195,27 +1193,25 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_SPIN:
-                    if (sop->int_i_spin_speed())
+                    if (sop->spin_speed != nullAngle)
                         break;
-                    sop->set_int_i_spin_speed(actor->spr.lotag);
-                    sop->set_int_i_last_ang(sop->int_i_ang());
+                    sop->spin_speed = DAngle::fromBuild(actor->spr.lotag);
+                    sop->last_ang = sop->ang;
                     KillActor(actor);
                     break;
                 case SO_ANGLE:
-                    sop->set_int_i_ang(actor->int_ang());
-                    sop->set_int_i_ang_moving(actor->int_ang());
-                    sop->set_int_i_ang_orig(sop->int_i_ang());
-                    sop->set_int_i_last_ang(sop->int_i_ang());
-                    sop->set_int_i_spin_ang(0);
+                    sop->ang = sop->ang_moving = actor->spr.angle;
+                    sop->last_ang = sop->ang_orig = sop->ang;
+                    sop->spin_ang = nullAngle;
                     KillActor(actor);
                     break;
                 case SO_SPIN_REVERSE:
 
-                    sop->set_int_i_spin_speed(actor->spr.lotag);
-                    sop->set_int_i_last_ang(sop->int_i_ang());
+                    sop->spin_speed = DAngle::fromBuild(actor->spr.lotag);
+                    sop->last_ang = sop->ang;
 
-                    if (sop->int_i_spin_speed() >= 0)
-                        sop->set_int_i_spin_speed(-sop->int_i_spin_speed());
+                    if (sop->spin_speed >= nullAngle)
+                        sop->spin_speed = -sop->spin_speed;
 
                     KillActor(actor);
                     break;
