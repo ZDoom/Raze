@@ -5215,7 +5215,7 @@ void movefta(void)
 			if (xx < 30000 / 16.)
 			{
 				act->timetosleep++;
-				if (act->timetosleep >= xx / 16.)
+				if (act->timetosleep >= int(xx / 16.))
 				{
 					if (badguy(act))
 					{
