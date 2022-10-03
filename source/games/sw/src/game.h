@@ -1515,6 +1515,7 @@ struct SECTOR_OBJECT
     void set_int_i_ang(int i) { __i_ang = i; }
     void set_int_i_ang_tgt(int i) { __i_ang_tgt = i; }
     void set_int_i_ang_moving(int i) { __i_ang_moving = i; }
+    void set_int_i_ang_orig(int i) { __i_ang_orig = i; }
 
 
     int16_t clipbox_num,

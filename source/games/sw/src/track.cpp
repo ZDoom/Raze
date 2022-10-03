@@ -944,7 +944,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->wait_tics = 0;
         sop->set_int_i_spin_speed(0);
         sop->set_int_i_spin_ang(0);
-        sop->__i_ang_orig = 0;
+        sop->set_int_i_ang_orig(0);
         sop->clipdist = 1024;
         sop->target_dist = 0;
         sop->turn_speed = 4;
@@ -1204,7 +1204,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                 case SO_ANGLE:
                     sop->set_int_i_ang(actor->int_ang());
                     sop->set_int_i_ang_moving(actor->int_ang());
-                    sop->__i_ang_orig = sop->int_i_ang();
+                    sop->set_int_i_ang_orig(sop->int_i_ang());
                     sop->set_int_i_last_ang(sop->int_i_ang());
                     sop->set_int_i_spin_ang(0);
                     KillActor(actor);
@@ -2639,10 +2639,10 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
     // this made them move together more or less - cool!
     //static short ang = 1024;
     int ret;
-    short *ang = &sop->__i_ang_moving;
+    short ang = sop->__i_ang_moving;
 
-    xvect = sop->vel * bcos(*ang);
-    yvect = sop->vel * bcos(*ang);
+    xvect = sop->vel * bcos(ang);
+    yvect = sop->vel * bcos(ang);
 
     auto cursect = sop->op_main_sector; // for sop->vel
     double floor_dist = (abs(cursect->ceilingz - cursect->floorz)) * 0.25;
@@ -2654,7 +2654,7 @@ void DoTornadoObject(SECTOR_OBJECT* sop)
 
     if (coll.type != kHitNone)
     {
-        *ang = NORM_ANGLE(*ang + 1024 + RANDOM_P2(512) - 256);
+        sop->set_int_i_ang_moving(NORM_ANGLE(ang + 1024 + RANDOM_P2(512) - 256));
     }
 
     TornadoSpin(sop);
