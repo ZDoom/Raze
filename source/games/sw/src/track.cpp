@@ -943,7 +943,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->zdelta = 0;
         sop->wait_tics = 0;
         sop->set_int_i_spin_speed(0);
-        sop->__i_spin_ang = 0;
+        sop->set_int_i_spin_ang(0);
         sop->__i_ang_orig = 0;
         sop->clipdist = 1024;
         sop->target_dist = 0;
@@ -1072,7 +1072,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     sop->scale_type = SO_SCALE_CYCLE;
                     // spin stuff
                     sop->set_int_i_spin_speed(16);
-                    sop->__i_last_ang = sop->int_i_ang();
+                    sop->set_int_i_last_ang(sop->int_i_ang());
                     // animators
                     sop->Animator = DoTornadoObject;
                     sop->PreMoveAnimator = ScaleSectorObject;
@@ -1196,19 +1196,20 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     if (sop->int_i_spin_speed())
                         break;
                     sop->set_int_i_spin_speed(actor->spr.lotag);
-                    sop->__i_last_ang = sop->int_i_ang();
+                    sop->set_int_i_last_ang(sop->int_i_ang());
                     KillActor(actor);
                     break;
                 case SO_ANGLE:
                     sop->__i_ang = sop->__i_ang_moving = actor->int_ang();
-                    sop->__i_last_ang = sop->__i_ang_orig = sop->int_i_ang();
-                    sop->__i_spin_ang = 0;
+                    sop->__i_ang_orig = sop->int_i_ang();
+                    sop->set_int_i_last_ang(sop->int_i_ang());
+                    sop->set_int_i_spin_ang(0);
                     KillActor(actor);
                     break;
                 case SO_SPIN_REVERSE:
 
                     sop->set_int_i_spin_speed(actor->spr.lotag);
-                    sop->__i_last_ang = sop->int_i_ang();
+                    sop->set_int_i_last_ang(sop->int_i_ang());
 
                     if (sop->int_i_spin_speed() >= 0)
                         sop->set_int_i_spin_speed(-sop->int_i_spin_speed());
@@ -2137,7 +2138,7 @@ void MoveSectorObjects(SECTOR_OBJECT* sop, short locktics)
     // calculate the spin speed
     speed = sop->int_i_spin_speed() * locktics;
     // spin_ang is incremented by the spin_speed
-    sop->__i_spin_ang = NORM_ANGLE(sop->int_i_spin_ang() + speed);
+    sop->set_int_i_spin_ang(NORM_ANGLE(sop->int_i_spin_ang() + speed));
 
     if (sop->int_i_spin_speed())
     {
@@ -2202,7 +2203,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
                 break;
 
             sop->set_int_i_spin_speed(tpoint->tag_high);
-            sop->__i_last_ang = sop->int_i_ang();
+            sop->set_int_i_last_ang(sop->int_i_ang());
             break;
 
         case TRACK_SPIN_REVERSE:
@@ -2537,7 +2538,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECT* sop, short newang, const DVector2
     //sop->ang_tgt = newang;
     sop->__i_ang_moving = newang;
 
-    sop->__i_spin_ang = 0;
+    sop->set_int_i_spin_ang(0);
     sop->__i_ang = newang;
 
     RefreshPoints(sop, pos - sop->pmid.XY(), false);
@@ -2610,7 +2611,7 @@ void TornadoSpin(SECTOR_OBJECT* sop)
     // calculate the spin speed
     speed = sop->int_i_spin_speed() * locktics;
     // spin_ang is incremented by the spin_speed
-    sop->__i_spin_ang = NORM_ANGLE(sop->int_i_spin_ang() + speed);
+    sop->set_int_i_spin_ang(NORM_ANGLE(sop->int_i_spin_ang() + speed));
 
     if (sop->int_i_spin_speed())
     {
