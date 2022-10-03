@@ -1754,7 +1754,8 @@ PlayerPart:
 
 void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
 {
-    short wallcount = 0, delta_ang_from_orig;
+    short wallcount = 0;
+    DAngle delta_ang_from_orig;
 
     // do scaling
     if (dynamic && sop->PreMoveAnimator)
@@ -1811,23 +1812,23 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
         }
     }
 
-    if (sop->int_i_spin_speed())
+    if (sop->spin_speed != nullAngle)
     {
         // same as below - ignore the objects angle
         // last_ang is the last true angle before SO started spinning
-        delta_ang_from_orig = NORM_ANGLE(sop->int_i_last_ang() + sop->int_i_spin_ang() - sop->int_i_ang_orig());
+        delta_ang_from_orig = (sop->last_ang + sop->spin_ang - sop->ang_orig).Normalized360();
     }
     else
     {
         // angle traveling + the new spin angle all offset from the original
         // angle
-        delta_ang_from_orig = NORM_ANGLE(sop->int_i_ang() + sop->int_i_spin_ang() - sop->int_i_ang_orig());
+        delta_ang_from_orig = (sop->ang + sop->spin_ang - sop->ang_orig).Normalized360();
     }
 
     // Note that this delta angle is from the original angle
     // nx,ny are 0 so the points are not moved, just rotated
 
-    MovePoints(sop, DAngle::fromBuild(delta_ang_from_orig), move);
+    MovePoints(sop, delta_ang_from_orig, move);
 
     // do morphing - angle independent
     if (dynamic && sop->PostMoveAnimator)

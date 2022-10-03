@@ -380,6 +380,10 @@ void SectorSetup(void)
         SectorObject[ndx].op_main_sector = nullptr;
         SectorObject[ndx].morph_wall_point = nullptr;
         SectorObject[ndx].pmid.X = MAXSO;
+        SectorObject[ndx].ang = SectorObject[ndx].ang_moving = SectorObject[ndx].ang_tgt = 
+            SectorObject[ndx].ang_orig = SectorObject[ndx].last_ang = SectorObject[ndx].old_ang =
+            SectorObject[ndx].spin_speed = SectorObject[ndx].save_spin_speed = SectorObject[ndx].spin_ang = nullAngle;
+
     }
 
     memset(SineWaveFloor, 0, sizeof(SineWaveFloor));
