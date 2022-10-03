@@ -1520,15 +1520,14 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
     UpdatePlayerSprite(pp);
 }
 
-void MovePoints(SECTOR_OBJECT* sop, short delta_ang, const DVector2& move)
+void MovePoints(SECTOR_OBJECT* sop, DAngle deltaangle, const DVector2& move)
 {
-    auto deltaangle = DAngle::fromBuild(delta_ang);
     int j;
-    vec2_t rxy;
     int pnum;
     PLAYER* pp;
     sectortype** sectp;
-    int i, rot_ang;
+    int i;
+    DAngle rot_ang;
     bool PlayerMove = true;
 
     if (SO_EMPTY(sop))
@@ -1568,18 +1567,18 @@ void MovePoints(SECTOR_OBJECT* sop, short delta_ang, const DVector2& move)
                 wal.move(wal.pos + move);
             }
 
-            rot_ang = delta_ang;
+            rot_ang = deltaangle;
 
             if ((wal.extra & WALLFX_LOOP_REVERSE_SPIN))
-                rot_ang = -delta_ang;
+                rot_ang = -deltaangle;
 
             if ((wal.extra & WALLFX_LOOP_SPIN_2X))
-                rot_ang = NORM_ANGLE(rot_ang * 2);
+                rot_ang = (rot_ang * 2).Normalized360();
 
             if ((wal.extra & WALLFX_LOOP_SPIN_4X))
-                rot_ang = NORM_ANGLE(rot_ang * 4);
+                rot_ang = (rot_ang * 4).Normalized360();
 
-            auto vec = rotatepoint(pivot, wal.pos, DAngle::fromBuild(rot_ang));
+            auto vec = rotatepoint(pivot, wal.pos, rot_ang);
 
             if (wal.extra && (wal.extra & WALLFX_LOOP_OUTER))
             {
@@ -1828,7 +1827,7 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
     // Note that this delta angle is from the original angle
     // nx,ny are 0 so the points are not moved, just rotated
 
-    MovePoints(sop, delta_ang_from_orig, move);
+    MovePoints(sop, DAngle::fromBuild(delta_ang_from_orig), move);
 
     // do morphing - angle independent
     if (dynamic && sop->PostMoveAnimator)
