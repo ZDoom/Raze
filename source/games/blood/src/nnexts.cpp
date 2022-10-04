@@ -1170,7 +1170,7 @@ void nnExtProcessSuperSprites()
 			if (!pProx->xspr.Proximity || (!pProx->xspr.Interrutable && pProx->xspr.state != pProx->xspr.restState) || pProx->xspr.locked == 1
 				|| pProx->xspr.isTriggered) continue;  // don't process locked or triggered sprites
 
-			int okDist = (pProx->IsDudeActor()) ? 96 : ClipLow(pProx->native_clipdist() * 3, 32);
+			int okDist = (pProx->IsDudeActor()) ? 96 : max(int(pProx->clipdist * 12), 32);
 			auto pos = pProx->spr.pos;
 			auto pSect = pProx->sector();
 
@@ -4575,7 +4575,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 		case 5: return condCmp(objActor->spr.statnum, arg1, arg2, cmpOp);
 		case 6: return ((objActor->spr.flags & kHitagRespawn) || objActor->spr.statnum == kStatRespawn);
 		case 7: return condCmp(spriteGetSlope(objActor), arg1, arg2, cmpOp);
-		case 10: return condCmp(objActor->native_clipdist(), arg1, arg2, cmpOp);
+		case 10: return condCmp(int(objActor->clipdist * 4), arg1, arg2, cmpOp);
 		case 15:
 			if (!objActor->GetOwner()) return false;
 			else if (PUSH) condPush(aCond, objActor->GetOwner());

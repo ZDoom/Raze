@@ -1744,7 +1744,7 @@ int InitPhosphorus(DSWActor* actor)
     actorNew->spr.xrepeat = 64;
     actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
-    if (actor->native_clipdist() > 0)
+    if (actor->clipdist > 0)
 		actorNew->clipdist -= 0.25;
     else
         actorNew->copy_clipdist(actor);

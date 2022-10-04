@@ -705,24 +705,6 @@ loc_flag:
             DAngle nAngle = pPlayerActor->spr.angle;
 			auto thePos = pPlayerActor->spr.pos;
 
-            int ebp = nAngle.Cos() * (1 << 14) * (pPlayerActor->native_clipdist() << 3);
-            int ebx = nAngle.Sin() * (1 << 14) * (pPlayerActor->native_clipdist() << 3);
-
-            if (WeaponInfo[nWeapon].c)
-            {
-                int ecx;
-
-                int theVal = (totalmoves + 101) & (WeaponInfo[nWeapon].c - 1);
-                if (theVal & 1)
-                    ecx = -theVal;
-                else
-                    ecx = theVal;
-
-                DAngle angle = (nAngle + DAngle90).Normalized360();
-                ebp += angle.Cos() * (1 << 3) * ecx;
-                ebx += angle.Sin() * (1 << 3) * ecx;
-            }
-
             double nHeight = GetActorHeight(pPlayerActor) * -0.5;
 
             if (nAction < 6)

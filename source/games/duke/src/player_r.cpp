@@ -3395,7 +3395,7 @@ void processinput_r(int snum)
 
 	shrunk = (pact->spr.yrepeat < 8);
 	double tempfz;
-	if (pact->native_clipdist() == 64)
+	if (pact->clipdist == 16)
 	{
 		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 		tempfz = getflorzofslopeptr(psectp, p->pos);
@@ -3918,7 +3918,7 @@ HORIZONLY:
 	while (ud.clipping == 0)
 	{
 		int blocked;
-		if (pact->native_clipdist() == 64)
+		if (pact->clipdist == 16)
 			blocked = (pushmove(p->pos, &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 		else
 			blocked = (pushmove(p->pos, &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);

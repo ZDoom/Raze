@@ -4166,7 +4166,7 @@ static void checkCeilHit(DBloodActor* actor)
 						}
 						if (mass1 > mass2)
 						{
-							int dmg = abs((mass1 - mass2) * (actor2->native_clipdist()) - actor->native_clipdist());
+							int dmg = 4 * (abs((mass1 - mass2) * actor2->clipdist) - actor->clipdist);
 							if (actor2->IsDudeActor())
 							{
 								if (dmg > 0) actDamageSprite(actor2, actor, (Chance(0x2000)) ? kDamageFall : (Chance(0x4000)) ? kDamageExplode : kDamageBullet, dmg);
@@ -4330,7 +4330,7 @@ static void checkFloorHit(DBloodActor* actor)
 					if ((actor2->IsPlayerActor() && Chance(0x500)) || !actor2->IsPlayerActor())
 						actKickObject(actor, actor2);
 
-					int dmg = (mass1 - mass2) + actor->native_clipdist();
+					int dmg = (mass1 - mass2) + actor->clipdist * 4;
 					if (dmg > 0) actDamageSprite(actor, actor2, (Chance(0x2000)) ? kDamageFall : kDamageBullet, dmg);
 				}
 			}

@@ -487,7 +487,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	// so i use fake velocity with fixed value and pass it as argument.
 	auto velocity = actor->vel;
 	if (inAttack(actor->xspr.aiState))
-		velocity.X = velocity.Y = FixedToFloat(ClipLow(actor->native_clipdist() >> 1, 1));
+		velocity.X = velocity.Y = max(actor->clipdist, 0.5) / 32768;
 
 	aiGenDudeChooseDirection(actor, nAngle, velocity);
 
@@ -1895,7 +1895,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 	spawned->xspr.busyTime = source->xspr.busyTime;
 
 	// inherit clipdist?
-	if (source->native_clipdist() > 0)
+	if (source->clipdist > 0)
 		spawned->copy_clipdist(source);
 
 	// inherit custom hp settings
@@ -2261,7 +2261,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		pExtra->moveSpeed = getGenDudeMoveSpeed(actor, 0, true, false);
 		pExtra->initVals[0] = actor->spr.xrepeat;
 		pExtra->initVals[1] = actor->spr.yrepeat;
-		pExtra->initVals[2] = actor->native_clipdist();
+		pExtra->initVals[2] = actor->spr.clipdist;
 		if (propId) break;
 		[[fallthrough]];
 

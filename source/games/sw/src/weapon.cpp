@@ -5409,7 +5409,7 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 
         // take off the box around the player or else you'll never get
         // the max_damage;
-        dist -= (((int)actor->native_clipdist())<(2));
+		dist -= int(actor->clipdist * worldtoint);
 
         if (dist < 0) dist = 0;
 
