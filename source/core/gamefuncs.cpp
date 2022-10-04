@@ -227,16 +227,13 @@ void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVect
 		xoffset = tex->GetDisplayLeftOffset() + spr->xoffset;
 	}
 
-	double x = spr->angle.Sin() * spr->xrepeat * REPEAT_SCALE;
-	double y = -spr->angle.Cos() * spr->xrepeat * REPEAT_SCALE;
+	auto p = spr->angle.ToVector().Rotated90CW() * spr->xrepeat * REPEAT_SCALE;
 
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoffset = -xoffset;
 	double origin = (width * 0.5) + xoffset;
 
-	out[0].X = pos.X - x * origin;
-	out[0].Y = pos.Y - y * origin;
-	out[1].X = out[0].X + x * width;
-	out[1].Y = out[0].Y + y * width;
+	out[0] = pos - p * origin;
+	out[1] = out[0] + p * width;
 }
 
 
