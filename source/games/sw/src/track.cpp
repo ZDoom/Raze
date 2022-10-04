@@ -1067,7 +1067,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     break;
 
                 case SPAWN_SPOT:
-                    if (actor->native_clipdist() == 3)
+					if (actor->spr.clipdist == 3) // notreallyclipdist
                     {
                         change_actor_stat(actor, STAT_NO_STATE);
                         SpawnUser(actor, 0, nullptr);
@@ -2580,7 +2580,7 @@ void VehicleSetSmoke(SECTOR_OBJECT* sop, ANIMATOR* animator)
             {
 
             case SPAWN_SPOT:
-                if (actor->native_clipdist() == 3)
+                if (actor->spr.clipdist == 3) // notreallyclipdist
                 {
                     if (animator)
                     {

@@ -1269,7 +1269,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         // test to see if explosion is close to crack sprite
         double dist = (wActor->spr.pos - actor->spr.pos).Length();
 
-        if (actor->native_clipdist() == 0)
+        if (actor->clipdist == 0)
             continue;
 
         double radius = actor->clipdist * 8;
