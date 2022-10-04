@@ -91,7 +91,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector
         pActor->spr.shade = -12;
     }
 
-    pActor->set_const_clipdist(10);
+    pActor->clipdist = 2.5;
     pActor->spr.xrepeat = nRepeat;
     pActor->spr.yrepeat = nRepeat;
     pActor->spr.picnum = 1;

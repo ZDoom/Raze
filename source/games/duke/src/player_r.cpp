@@ -3387,7 +3387,7 @@ void processinput_r(int snum)
 		psectlotag = 1;
 
 	if (psectlotag == 857)
-		pact->set_const_clipdist(1);
+		pact->clipdist = 0.25;
 	else
 		pact->clipdist = 16;
 

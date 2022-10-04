@@ -59,7 +59,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 	}
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-    pActor->set_const_clipdist(70);
+	pActor->clipdist = 17.5;
     pActor->spr.shade = -12;
     pActor->spr.xrepeat = 80;
     pActor->spr.yrepeat = 80;

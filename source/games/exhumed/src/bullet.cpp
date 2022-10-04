@@ -630,7 +630,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
         pBulletActor->spr.pal = 0;
     }
 
-    pBulletActor->set_const_clipdist(25);
+	pBulletActor->clipdist = 6.25;
 
     int nRepeat = pBulletInfo->xyRepeat;
     if (nRepeat < 0) {

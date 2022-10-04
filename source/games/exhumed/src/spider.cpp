@@ -59,7 +59,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
 
     spp->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     spp->spr.shade = -12;
-    spp->set_const_clipdist(15);
+	spp->clipdist = 3.75;
     spp->vel.X = 0;
     spp->vel.Y = 0;
     spp->vel.Z = 0;

@@ -95,7 +95,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 		spawnedactor->spr.shade = -128;
 		spawnedactor->spr.xrepeat = spawnedactor->spr.yrepeat = 32;
 		spawnedactor->spr.type = kMissileFlareAlt;
-		spawnedactor->set_const_clipdist(2);
+		spawnedactor->clipdist = 0.5;
 		spawnedactor->SetOwner(actor);
 		auto spAngVec = DAngle::fromBam(i << 29).ToVector().Rotated90CW() * nRadius;
 		if (i & 1) spAngVec *= 0.5;

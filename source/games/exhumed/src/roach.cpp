@@ -60,7 +60,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
-    pActor->set_const_clipdist(60);
+	pActor->clipdist = 15;
     pActor->spr.angle = angle;
     pActor->spr.xrepeat = 40;
     pActor->spr.yrepeat = 40;

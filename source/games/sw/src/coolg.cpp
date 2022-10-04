@@ -507,7 +507,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor);
 
 void CoolgCommon(DSWActor* actor)
 {
-    actor->set_const_clipdist((200) >> 2);
+    actor->clipdist = 12.5;
     actor->user.floor_dist = (16);
     actor->user.ceiling_dist = (20);
 

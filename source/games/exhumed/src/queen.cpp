@@ -468,7 +468,7 @@ void BuildQueenEgg(int nQueen, int nVal)
 
 	pActor2->spr.pos = DVector3(pActor->spr.pos.XY(), pSector->floorz);
     pActor2->spr.pal = 0;
-    pActor2->set_const_clipdist(50);
+	pActor2->clipdist = 12.5;
     pActor2->spr.xoffset = 0;
     pActor2->spr.yoffset = 0;
     pActor2->spr.shade = -12;
@@ -748,7 +748,7 @@ void BuildQueenHead(int nQueen)
 
 	pActor2->spr.pos.XY() = pActor->spr.pos.XY();
 	pActor2->spr.pos.Z = pSector->floorz;
-    pActor2->set_const_clipdist(70);
+	pActor2->clipdist = 17.5;
     pActor2->spr.xrepeat = 80;
     pActor2->spr.yrepeat = 80;
     pActor2->spr.cstat = 0;

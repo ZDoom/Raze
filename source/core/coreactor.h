@@ -177,11 +177,6 @@ public:
 		return clipdist * 4;
 	}
 	
-	void set_const_clipdist(int val) // only for searching purposes
-	{
-		clipdist = val * 0.25;
-	}
-	
 	void copy_clipdist(DCoreActor* other)
 	{
 		clipdist = other->clipdist;

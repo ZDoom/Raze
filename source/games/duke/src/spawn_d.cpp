@@ -70,7 +70,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				{
 					act->spr.xrepeat = 80;
 					act->spr.yrepeat = 80;
-					act->set_const_clipdist(164);
+					act->clipdist = 41;
 				}
 			}
 			else
@@ -841,7 +841,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				act->spr.xrepeat = 80;
 				act->spr.yrepeat = 80;
-				act->set_const_clipdist(164);
+				act->clipdist = 41;
 			}
 		}
 		else
@@ -1206,7 +1206,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (act->spr.picnum == EGG)
 			{
-				act->set_const_clipdist(24);
+				act->clipdist = 6;
 				ps[connecthead].max_actors_killed++;
 			}
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();

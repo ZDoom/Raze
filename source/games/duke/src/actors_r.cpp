@@ -575,7 +575,7 @@ void respawn_rrra(DDukeActor* oldact, DDukeActor* newact)
 		{
 			newact->spr.xrepeat = 26;
 			newact->spr.yrepeat = 26;
-			newact->set_const_clipdist(75);
+			newact->clipdist = 18.75;
 		}
 		else if (newact->spr.pal == 31)
 		{

@@ -8111,7 +8111,7 @@ int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
         SetOwner(GetOwner(wActor), actorNew);
     SetAttach(sActor, actorNew);
     actorNew->spr.yrepeat = 0;
-    actorNew->set_const_clipdist(8>>2);
+	actorNew->clipdist = 0.5;
 
     actorNew->user.WaitTics = 120+60;
     actorNew->user.Radius = 50;
@@ -12070,7 +12070,7 @@ void InitSpellNapalm(PLAYER* pp)
         actor->user.Dist = 12.5;
 
         auto oclipdist = plActor->native_clipdist();
-        plActor->set_const_clipdist(1);
+		plActor->clipdist = 0.25;
 
         if (mp[i].dist_over != 0)
         {
@@ -12146,7 +12146,7 @@ int InitEnemyNapalm(DSWActor* actor)
         actorNew->user.Dist = 12.5;
 
         auto oclipdist = actor->clipdist;
-        actor->set_const_clipdist(1);
+		actor->clipdist = 0.25;
 
         if (mp[i].dist_over != 0)
         {
@@ -12660,7 +12660,7 @@ int InitSumoNapalm(DSWActor* actor)
             actorNew->user.Dist = 12.5;
 
             auto oclipdist = actor->clipdist;
-            actor->set_const_clipdist(1);
+			actor->clipdist = 0.25;
 
             if (mp[i].dist_over != 0)
             {
@@ -13177,7 +13177,7 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->user.Dist = 12.5;
 
     auto oclipdist = plActor->native_clipdist();
-    plActor->set_const_clipdist(1);
+	plActor->clipdist = 0.25;
 
 	UpdateChange(actorNew);
 
@@ -14561,7 +14561,7 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->user.Dist = 12.5;
 
         auto oclipdist = actor->clipdist;
-        actor->set_const_clipdist(1);
+		actor->clipdist = 0.25;
 
         actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 4200);
@@ -14665,7 +14665,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         actorNew->user.Dist = 12.5;
 
         auto oclipdist = actor->clipdist;
-        actor->set_const_clipdist(1);
+		actor->clipdist = 0.25;
 
         actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 4200);
@@ -17138,7 +17138,7 @@ int InitEnemyFireball(DSWActor* actor)
 
         SetOwner(actor, actorNew);
         actorNew->vel.Z = 0;
-        actorNew->set_const_clipdist(16>>2);
+		actorNew->clipdist = 1;
 
         actorNew->spr.angle += lat_ang[i];
         HelpMissileLateral(actorNew, 500);
@@ -17614,7 +17614,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
     actorNew->spr.shade = actor->sector()->floorshade - 10;
     actorNew->user.WaitTics = 120 * 120;
     actorNew->vel.Z = 2;
-    actorNew->set_const_clipdist(12 >> 2);
+	actorNew->clipdist = 0.75;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->user.Flags |= (SPR_UNDERWATER);
     actorNew->spr.shade = -60; // Make em brighter

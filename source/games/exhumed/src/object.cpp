@@ -1348,7 +1348,7 @@ void AITrap::Tick(RunListEvent* ev)
                 }
                 else
                 {
-                    pBullet->set_const_clipdist(50);
+					pBullet->clipdist = 12.5;
 
                     auto pWall = sTrap[nTrap].pWall1;
                     if (pWall)
@@ -1439,7 +1439,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
     pSpark->spr.pos.Z = pActor->spr.pos.Z;
     pSpark->spr.lotag = runlist_HeadRun() + 1;
-    pSpark->set_const_clipdist(1);
+	pSpark->clipdist = 0.25;
     pSpark->spr.hitag = 0;
     pSpark->backuppos();
 

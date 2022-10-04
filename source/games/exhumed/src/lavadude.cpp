@@ -118,7 +118,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.yrepeat = 200;
     pActor->spr.shade = -12;
     pActor->spr.pal = 0;
-    pActor->set_const_clipdist(127);
+	pActor->clipdist = 31.75;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);

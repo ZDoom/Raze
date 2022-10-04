@@ -314,7 +314,7 @@ int SetupHornet(DSWActor* actor)
     actor->user.Flags |= (SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actor->set_const_clipdist((100) >> 2);
+    actor->clipdist = 6.25;
     actor->user.floor_dist = (16);
     actor->user.ceiling_dist = (16);
 

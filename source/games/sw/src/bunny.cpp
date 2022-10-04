@@ -746,7 +746,7 @@ int SetupBunny(DSWActor* actor)
     actor->user.ShellNum = 0; // Not Pregnant right now
     actor->user.FlagOwner = 0;
 
-    actor->set_const_clipdist((150) >> 2);
+	actor->clipdist = 9.25;
 
     if (actor->spr.pal == PALETTE_PLAYER1)
     {
@@ -755,7 +755,7 @@ int SetupBunny(DSWActor* actor)
         actor->spr.xrepeat = 96;
         actor->spr.yrepeat = 90;
 
-        actor->set_const_clipdist(200>>2);
+        actor->clipdist = 12.5;
 
         if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = 60;

@@ -464,7 +464,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case HENSTAND:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(48);
+		act->clipdist = 12;
 		act->spr.xrepeat = 21;
 		act->spr.yrepeat = 15;
 		ChangeActorStat(act, 2);
@@ -500,7 +500,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE3122:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(2);
+		act->clipdist = 0.5;
 		act->spr.xrepeat = 8;
 		act->spr.yrepeat = 6;
 		act->vel.X = 1;
@@ -532,7 +532,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case BOWLINGPIN:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(48);
+		act->clipdist = 12;
 		act->spr.xrepeat = 23;
 		act->spr.yrepeat = 23;
 		ChangeActorStat(act, 2);
@@ -912,7 +912,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				act->spr.xrepeat = 26;
 				act->spr.yrepeat = 26;
-				act->set_const_clipdist(75);
+				act->clipdist = 18.75;
 			}
 			else if (act->spr.pal == 31)
 			{
@@ -1476,7 +1476,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else
 		{
 			if (act->spr.picnum == EGG)
-				act->set_const_clipdist(24);
+				act->clipdist = 6;
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
@@ -1489,7 +1489,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		act->spr.xrepeat = 1;
 		act->spr.yrepeat = 1;
-		act->set_const_clipdist(1);
+		act->clipdist = 0.25;
 		ChangeActorStat(act, 100);
 		break;
 	}

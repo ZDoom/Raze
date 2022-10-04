@@ -61,7 +61,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
-    pActor->set_const_clipdist(110);
+	pActor->clipdist = 27.5;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -112,7 +112,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xrepeat = 1;
     pActor->spr.yrepeat = 1;
     pActor->spr.pal = 0;
-    pActor->set_const_clipdist(5);
+	pActor->clipdist = 1.25;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
