@@ -289,7 +289,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 
 			switch (actor->spr.type) {
 			default:
-				actor->set_native_clipdist(getDudeInfo(nType + kDudeBase)->clipdist);
+				actor->clipdist = getDudeInfo(nType + kDudeBase)->fClipdist();
 				if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
 					seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
 				break;
@@ -304,7 +304,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
 				actor->SetTarget(nullptr);
 			}
 #else
-			actor->set_native_clipdist(getDudeInfo(nType + kDudeBase)->clipdist);
+			actor->clipdist = getDudeInfo(nType + kDudeBase)->fClipdist();
 			actor->xspr.health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
 			if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
 				seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);

@@ -2383,7 +2383,7 @@ static void actInitThings()
 		// but what if it have voxel model...?
 		if (!gModernMap)
 #endif
-			act->set_native_clipdist(thingInfo[nType].clipdist);
+			act->clipdist = thingInfo[nType].fClipdist();
 
 		act->spr.flags = thingInfo[nType].flags;
 		if (act->spr.flags & kPhysGravity) act->spr.flags |= kPhysFalling;
@@ -2480,12 +2480,12 @@ static void actInitDudes()
 					if (gModernMap) break;
 					[[fallthrough]];
 				default:
-					act->set_native_clipdist(dudeInfo[nType].clipdist);
+					act->clipdist = dudeInfo[nType].fClipdist();
 					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 					break;
 				}
 #else
-				act->set_native_clipdist(dudeInfo[nType].clipdist);
+				act->clipdist = dudeInfo[nType].fClipdist();
 				act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 #endif
 
@@ -6190,7 +6190,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	SetActor(spawned, pos);
 
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
-	spawned->set_native_clipdist(getDudeInfo(nDude + kDudeBase)->clipdist);
+	spawned->clipdist = getDudeInfo(nDude + kDudeBase)->fClipdist();
 	spawned->xspr.health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
 	spawned->xspr.respawn = 1;
 	if (getSequence(getDudeInfo(nDude + kDudeBase)->seqStartID))
@@ -6247,7 +6247,7 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 	assert(actor->hasX());
 	const THINGINFO* pThingInfo = &thingInfo[nType];
 	actor->xspr.health = pThingInfo->startHealth << 4;
-	actor->set_native_clipdist(pThingInfo->clipdist);
+	actor->clipdist = pThingInfo->fClipdist();
 	actor->spr.flags = pThingInfo->flags;
 	if (actor->spr.flags & 2) actor->spr.flags |= 4;
 	actor->spr.cstat |= pThingInfo->cstat;
@@ -6466,7 +6466,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	spawned->spr.type = nType;
 	spawned->spr.shade = pMissileInfo->shade;
 	spawned->spr.pal = 0;
-	spawned->set_native_clipdist(pMissileInfo->clipDist);
+	spawned->clipdist = pMissileInfo->fClipDist();
 	spawned->spr.flags = 1;
 	spawned->spr.xrepeat = pMissileInfo->xrepeat;
 	spawned->spr.yrepeat = pMissileInfo->yrepeat;

@@ -693,7 +693,7 @@ void playerSetRace(PLAYER* pPlayer, int nLifeMode)
 	pPlayer->lifeMode = nLifeMode;
 
 	// By NoOne: don't forget to change clipdist for grow and shrink modes
-	pPlayer->actor->set_native_clipdist(pDudeInfo->clipdist);
+	pPlayer->actor->clipdist = pDudeInfo->fClipdist();
 
 	for (int i = 0; i < 7; i++)
 		pDudeInfo->damageVal[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
@@ -812,7 +812,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
 	actor->spr.angle = pPlayer->angle.ang = pStartZone->angle;
 	actor->spr.type = kDudePlayer1 + nPlayer;
-	actor->set_native_clipdist(pDudeInfo->clipdist);
+	actor->clipdist = pDudeInfo->fClipdist();
 	actor->spr.flags = 15;
 	actor->xspr.burnTime = 0;
 	actor->SetBurnSource(nullptr);

@@ -83,6 +83,9 @@ struct DUDEINFO {
 	{
 		return DAngle::fromQ16(angSpeed << 3);
 	}
+	
+	double fClipdist() const { return clipdist * 0.25; }
+
 };
 
 extern DUDEINFO dudeInfo[kDudeMax - kDudeBase];

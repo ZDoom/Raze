@@ -79,6 +79,8 @@ struct THINGINFO
 	uint8_t xrepeat; // xrepeat
 	uint8_t yrepeat; // yrepeat
 	int dmgControl[kDamageMax]; // damage
+	
+	double fClipdist() const { return clipdist * 0.25; }
 };
 
 struct AMMOITEMDATA

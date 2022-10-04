@@ -274,7 +274,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceactor, DBloodActor* origin
 	pDudeActor->spr.angle = angle;
 
 	pDudeActor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
-	pDudeActor->set_native_clipdist(getDudeInfo(nType)->clipdist);
+	pDudeActor->clipdist = getDudeInfo(nType)->fClipdist();
 
 	pDudeActor->xspr.respawn = 1;
 	pDudeActor->xspr.health = getDudeInfo(nType)->startHealth << 4;
@@ -9187,7 +9187,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		}
 
 		burstactor->spr.pal = actor->spr.pal;
-		burstactor->set_native_clipdist(actor->native_clipdist() / 4);
+		burstactor->clipdist = actor->clipdist * 0.25;
 		burstactor->spr.flags = actor->spr.flags;
 		burstactor->spr.xrepeat = actor->spr.xrepeat / 2;
 		burstactor->spr.yrepeat = actor->spr.yrepeat / 2;

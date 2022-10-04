@@ -1880,7 +1880,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 	spawned->spr.angle = actor->spr.angle;
 	SetActor(spawned, pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
-	spawned->set_native_clipdist(dudeInfo[nType - kDudeBase].clipdist);
+	spawned->clipdist = dudeInfo[nType - kDudeBase].fClipdist();
 
 	// inherit weapon, seq and sound settings.
 	spawned->xspr.data1 = source->xspr.data1;
@@ -2476,7 +2476,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		if (!(actor->sector()->floorstat & CSTAT_SECTOR_SKY))
 			actor->spr.pos.Z += min(actor->sector()->floorz - zBot, 0.);
 
-		actor->set_native_clipdist(ClipRange((actor->spr.xrepeat + actor->spr.yrepeat) >> 1, 4, 120));
+		actor->clipdist = clamp((actor->spr.xrepeat + actor->spr.yrepeat) * 0.125, 1., 30.);
 		if (propId) break;
 	}
 	}
