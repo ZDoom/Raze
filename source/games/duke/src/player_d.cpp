@@ -137,7 +137,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 		}
 		spawned->spr.yint = p;
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->set_const_clipdist(4);
+		spawned->clipdist = 1;
 	}
 }
 
@@ -213,7 +213,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	spawned->spr.angle = sang;
 	spawned->spr.xrepeat = 2;
 	spawned->spr.yrepeat = 2;
-	spawned->set_const_clipdist(40);
+	spawned->clipdist = 10;
 	spawned->spr.yint = p;
 	spawned->SetOwner(actor);
 
@@ -677,7 +677,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		}
 
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->set_const_clipdist(4);
+		spawned->clipdist = 1;
 
 		ang = actor->spr.angle + DAngle22_5 / 4 - randomAngle(22.5 / 2);
 		zvel = oldzvel + 2 - krandf(4);
@@ -841,9 +841,9 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 	if (atwith == RPG)
-		spawned->set_const_clipdist(4);
+		spawned->clipdist = 1;
 	else
-		spawned->set_const_clipdist(40);
+		spawned->clipdist = 10;
 
 }
 
@@ -1068,7 +1068,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 	if (spawned)
 	{
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->set_const_clipdist(32);
+		spawned->clipdist = 8;
 	}
 }
 

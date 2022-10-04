@@ -252,7 +252,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			if (!isRR() || actorflag(act, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
 				ps[myconnectindex].max_actors_killed++;
 
-			act->set_const_clipdist(80);
+			act->clipdist = 20;
 			if (actj)
 			{
 				if (actj->spr.picnum == RESPAWN)
@@ -263,7 +263,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		}
 		else
 		{
-			act->set_const_clipdist(40);
+			act->clipdist = 10;
 			act->SetOwner(act);
 			ChangeActorStat(act, STAT_ACTOR);
 		}

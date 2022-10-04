@@ -574,7 +574,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->set_const_clipdist(4);
+		spawned->clipdist = 1;
 
 		ang = actor->spr.angle + DAngle22_5 / 4 + randomAngle(22.5 / 2);
 		zvel = oldzvel + 2 - krandf(4);
@@ -735,9 +735,9 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 	if (atwith == RPG || (atwith == RPG2 && isRRRA()))
-		spawned->set_const_clipdist(4);
+		spawned->clipdist = 1;
 	else
-		spawned->set_const_clipdist(40);
+		spawned->clipdist = 10;
 
 
 }
@@ -810,7 +810,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->set_const_clipdist(4);
+		spawned->clipdist = 1;
 
 		ang = actor->spr.angle + DAngle22_5/4 - randomAngle(DAngle22_5/2);
 		zvel = oldzvel + 2 - krandf(4);
@@ -3389,7 +3389,7 @@ void processinput_r(int snum)
 	if (psectlotag == 857)
 		pact->set_const_clipdist(1);
 	else
-		pact->set_const_clipdist(64);
+		pact->clipdist = 16;
 
 	p->spritebridge = 0;
 

@@ -1550,7 +1550,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 				if (k)
 				{
 					k->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_YCENTER;
-					k->set_const_clipdist(64);
+					k->clipdist = 16;
 					k->spr.angle = j;
 					k->vel.Z = l.Sin() * 2;
 					k->vel.X = l.Cos() * 2;

@@ -62,7 +62,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 					act->spr.pal = actj->spr.pal;
 				if (act->spr.pal != 0)
 				{
-					act->set_const_clipdist(80);
+					act->clipdist = 20;
 					act->spr.xrepeat = 40;
 					act->spr.yrepeat = 40;
 				}
@@ -77,7 +77,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				act->spr.xrepeat = 40;
 				act->spr.yrepeat = 40;
-				act->set_const_clipdist(80);
+				act->clipdist = 20;
 			}
 
 			if (actj)
@@ -416,7 +416,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case PIPE4:
 	case PIPE5:
 	case PIPE6:
-		act->set_const_clipdist(32);
+		act->clipdist = 8;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		[[fallthrough]];
 	case OCEANSPRITE4:
@@ -492,12 +492,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == QUEBALL || act->spr.picnum == STRIPEBALL)
 		{
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
-			act->set_const_clipdist(8);
+			act->clipdist = 2;
 		}
 		else
 		{
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-			act->set_const_clipdist(32);
+			act->clipdist = 8;
 		}
 
 		ChangeActorStat(act, 2);
@@ -530,7 +530,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else
 		{
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-			act->set_const_clipdist(128);
+			act->clipdist = 32;
 		}
 		[[fallthrough]];
 	case MIKE:
@@ -833,7 +833,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				act->spr.pal = actj->spr.pal;
 			if (act->spr.pal && (!isWorldTour() || !(currentLevel->flags & LEVEL_WT_BOSSSPAWN) || act->spr.pal != 22))
 			{
-				act->set_const_clipdist(80);
+				act->clipdist = 20;
 				act->spr.xrepeat = 40;
 				act->spr.yrepeat = 40;
 			}
@@ -850,13 +850,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				act->spr.xrepeat = 40;
 				act->spr.yrepeat = 40;
-				act->set_const_clipdist(80);
+				act->clipdist = 20;
 			}
 			else
 			{
 				act->spr.xrepeat = 60;
 				act->spr.yrepeat = 60;
-				act->set_const_clipdist(40);
+				act->clipdist = 10;
 			}
 		}
 
@@ -1169,7 +1169,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case STALL:
 		act->spr.lotag = 1;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(8);
+		act->clipdist = 2;
 		act->SetOwner(act);
 		break;
 	case CANWITHSOMETHING:
@@ -1190,7 +1190,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 			act->spr.xrepeat = act->spr.yrepeat = 32;
-		act->set_const_clipdist(72);
+		act->clipdist = 18;
 		makeitfall(act);
 		if (actj) act->SetOwner(actj);
 		else act->SetOwner(act);

@@ -58,7 +58,7 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-    pActor->set_const_clipdist(80);
+    pActor->clipdist = 20;
     pActor->spr.shade = -12;
     pActor->spr.xrepeat = 64;
     pActor->spr.yrepeat = 64;

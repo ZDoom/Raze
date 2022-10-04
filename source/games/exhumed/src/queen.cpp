@@ -424,7 +424,7 @@ void BuildTail()
         pTailActor->spr.shade = -12;
         pTailActor->spr.hitag = 0;
         pTailActor->spr.cstat = 0;
-        pTailActor->set_const_clipdist(100);
+        pTailActor->clipdist = 25;
         pTailActor->spr.xrepeat = 80;
         pTailActor->spr.yrepeat = 80;
         pTailActor->spr.picnum = 1;
@@ -1181,7 +1181,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.pal = 0;
     pActor->spr.shade = -12;
-    pActor->set_const_clipdist(100);
+    pActor->clipdist = 25;
     pActor->spr.xrepeat = 80;
     pActor->spr.yrepeat = 80;
     pActor->spr.xoffset = 0;

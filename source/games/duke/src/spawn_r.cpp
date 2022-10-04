@@ -411,7 +411,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case PIPE4:
 	case PIPE5:
 	case PIPE6:
-		act->set_const_clipdist(32);
+		act->clipdist = 8;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 0);
 		break;
@@ -446,18 +446,18 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == QUEBALL || act->spr.picnum == STRIPEBALL)
 		{
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
-			act->set_const_clipdist(8);
+			act->clipdist = 2;
 		}
 		else
 		{
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-			act->set_const_clipdist(32);
+			act->clipdist = 8;
 		}
 		ChangeActorStat(act, 2);
 		break;
 	case BOWLINGBALL:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
-		act->set_const_clipdist(64);
+		act->clipdist = 16;
 		act->spr.xrepeat = 11;
 		act->spr.yrepeat = 9;
 		ChangeActorStat(act, 2);
@@ -477,14 +477,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE297:
 		act->spr.xrepeat = 64;
 		act->spr.yrepeat = 64;
-		act->set_const_clipdist(64);
+		act->clipdist = 16;
 		ChangeActorStat(act, 108);
 		break;
 	case RRTILE3190:
 	case RRTILE3191:
 	case RRTILE3192:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(8);
+		act->clipdist = 2;
 		act->spr.xrepeat = 32;
 		act->spr.yrepeat = 26;
 		act->vel.X = 2;
@@ -492,7 +492,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE3120:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(8);
+		act->clipdist = 2;
 		act->spr.xrepeat = 12;
 		act->spr.yrepeat = 10;
 		act->vel.X = 2;
@@ -508,7 +508,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE3123:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(8);
+		act->clipdist = 2;
 		act->spr.xrepeat = 13;
 		act->spr.yrepeat = 13;
 		act->vel.X = 1;
@@ -516,7 +516,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE3124:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(8);
+		act->clipdist = 2;
 		act->spr.xrepeat = 17;
 		act->spr.yrepeat = 12;
 		act->vel.X = 2;
@@ -524,7 +524,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE3132:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(8);
+		act->clipdist = 2;
 		act->spr.xrepeat = 13;
 		act->spr.yrepeat = 10;
 		act->vel.X = 0;
@@ -559,7 +559,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else
 		{
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-			act->set_const_clipdist(128);
+			act->clipdist = 32;
 		}
 		[[fallthrough]];
 	case MIKE:
@@ -845,7 +845,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case DRONE:
 			act->spr.xrepeat = 14;
 			act->spr.yrepeat = 7;
-			act->set_const_clipdist(128);
+			act->clipdist = 32;
 			break;
 		case SBSWIPE:
 		case BILLYPLAY:
@@ -876,7 +876,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				act->spr.xrepeat = 21;
 				act->spr.yrepeat = 15;
-				act->set_const_clipdist(64);
+				act->clipdist = 16;
 			}
 			break;
 		case MINION:
@@ -918,30 +918,30 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				act->spr.xrepeat = 36;
 				act->spr.yrepeat = 36;
-				act->set_const_clipdist(100);
+				act->clipdist = 25;
 			}
 			else if (act->spr.pal == 32)
 			{
 				act->spr.xrepeat = 50;
 				act->spr.yrepeat = 50;
-				act->set_const_clipdist(100);
+				act->clipdist = 25;
 			}
 			else
 			{
 				act->spr.xrepeat = 50;
 				act->spr.yrepeat = 50;
-				act->set_const_clipdist(100);
+				act->clipdist = 25;
 			}
 			break;
 		case BIKERB:
 			act->spr.xrepeat = 28;
 			act->spr.yrepeat = 22;
-			act->set_const_clipdist(72);
+			act->clipdist = 18;
 			break;
 		case BIKERBV2:
 			act->spr.xrepeat = 28;
 			act->spr.yrepeat = 22;
-			act->set_const_clipdist(72);
+			act->clipdist = 18;
 			break;
 		case BIKER:
 			act->spr.xrepeat = 28;
@@ -951,7 +951,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case CHEERB:
 			act->spr.xrepeat = 28;
 			act->spr.yrepeat = 22;
-			act->set_const_clipdist(72);
+			act->clipdist = 18;
 			break;
 		case CHEER:
 		case CHEERSTAYPUT:
@@ -1443,7 +1443,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE2122:
 		act->spr.lotag = 1;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		act->set_const_clipdist(8);
+		act->clipdist = 2;
 		act->SetOwner(act);
 		break;
 	case CANWITHSOMETHING:
@@ -1461,7 +1461,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 			act->spr.xrepeat = act->spr.yrepeat = 32;
-		act->set_const_clipdist(72);
+		act->clipdist = 18;
 		makeitfall(act);
 		if (actj) act->SetOwner(actj);
 		else act->SetOwner(act);
