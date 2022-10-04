@@ -11556,7 +11556,7 @@ int DoRing(DSWActor* actor)
 {
     auto own = GetOwner(actor);
     if (!own) return 0; // this would crash.
-    PLAYER* pp = own->user.PlayerP;;
+    PLAYER* pp = own->user.PlayerP;
     double cz,fz;
 
     if (actor->user.Flags & (SPR_UNDERWATER))
@@ -11985,7 +11985,7 @@ int InitSerpRing(DSWActor* actor)
         // ang around the serp is now slide_ang
         actorNew->user.slide_ang = actorNew->spr.angle;
         // randomize the head turning angle
-        actorNew->spr.angle = RandomAngle();;
+        actorNew->spr.angle = RandomAngle();
 
         // control direction of spinning
         actor->user.Flags ^= SPR_BOUNCE;
@@ -12162,7 +12162,7 @@ int InitEnemyNapalm(DSWActor* actor)
 
         MissileSetPos(actorNew, DoNapalm, mp[i].dist_out);
 
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
 
         actor->user.Counter = 0;
 
@@ -12674,7 +12674,7 @@ int InitSumoNapalm(DSWActor* actor)
 
             MissileSetPos(actorNew, DoNapalm, mp[i].dist_out);
 
-            actor->clipdist = oclipdist;;
+            actor->clipdist = oclipdist;
 
             actor->user.Counter = 0;
 
@@ -13471,7 +13471,7 @@ int InitLaser(PLAYER* pp)
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
-    actorNew->clipdist = 4;;
+    actorNew->clipdist = 4;
 
     // the slower the missile travels the less of a zvel it needs
     actorNew->vel.Z = pp->horizon.horiz.Tan() * 16.;
@@ -13499,30 +13499,30 @@ int InitLaser(PLAYER* pp)
     // move it 1200 dist in increments - works better
     if (MissileSetPos(actorNew, DoLaserStart, 300))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
     if (MissileSetPos(actorNew, DoLaserStart, 300))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
     if (MissileSetPos(actorNew, DoLaserStart, 300))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
     if (MissileSetPos(actorNew, DoLaserStart, 300))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
 
-    actor->clipdist = oclipdist;;
+    actor->clipdist = oclipdist;
 
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
     {
@@ -13597,12 +13597,12 @@ int InitRail(PLAYER* pp)
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
 
-    actor->clipdist = oclipdist;;
+    actor->clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -13671,12 +13671,12 @@ int InitZillaRail(DSWActor* actor)
 
     if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
 
-    actor->clipdist = oclipdist;;
+    actor->clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -13780,14 +13780,14 @@ int InitRocket(PLAYER* pp)
     actorNew->user.Counter = 1;
     if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     actorNew->user.Counter = 0;
 
-    actor->clipdist = oclipdist;;
+    actor->clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -13885,14 +13885,14 @@ int InitBunnyRocket(PLAYER* pp)
     actorNew->user.Counter = 1;
     if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     actorNew->user.Counter = 0;
 
-    actor->clipdist = oclipdist;;
+    actor->clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -13979,14 +13979,14 @@ int InitNuke(PLAYER* pp)
     actorNew->user.Counter = 1;
     if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     actorNew->user.Counter = 0;
 
-    actor->clipdist = oclipdist;;
+    actor->clipdist = oclipdist;
 
     actorNew->vel.Z = zvel * 0.5;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) == -1)
@@ -14166,14 +14166,14 @@ int InitMicro(PLAYER* pp)
         actorNew->user.Counter = 1;
         if (MissileSetPos(actorNew, DoMicro, 700))
         {
-            actor->clipdist = oclipdist;;
+            actor->clipdist = oclipdist;
             KillActor(actorNew);
             continue;
         }
         // inable smoke trail
         actorNew->user.Counter = 0;
 
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
 
         const int MICRO_ANG = 400;
 
@@ -14575,7 +14575,7 @@ int InitSerpSpell(DSWActor* actor)
 		UpdateChange(actorNew);
 
         MissileSetPos(actorNew, DoMirvMissile, 400);
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
 
         if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -14679,7 +14679,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 		UpdateChange(actorNew);
 
         MissileSetPos(actorNew, DoMirvMissile, 400);
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
 
         if (actor->user.Flags & (SPR_UNDERWATER))
             actorNew->user.Flags |= (SPR_UNDERWATER);
@@ -15272,7 +15272,7 @@ void InitSpearTrap(DSWActor* actor)
     actorNew->spr.xrepeat = 16;
     actorNew->spr.yrepeat = 26;
     actorNew->spr.shade = -25;
-    actorNew->clipdist = 4;;
+    actorNew->clipdist = 4;
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_CrossBolt[0]);
@@ -16505,7 +16505,7 @@ int InitTurretMgun(SECTOR_OBJECT* sop)
             }
             else
             {
-                daang = DAngle22_5 / 2;;
+                daang = DAngle22_5 / 2;
                 if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
                 {
                     daz += RandomRangeF(30) - 15;
@@ -16825,14 +16825,14 @@ int InitGrenade(PLAYER* pp)
     MissileSetPos(actorNew, DoGrenade, 1000);
     actorNew->user.Flags &= ~(SPR_BOUNCE);
 
-    actor->clipdist = oclipdist;;
+    actor->clipdist = oclipdist;
 
     zvel = actorNew->vel.Z;
     if (WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false) >= 0)
     {
         auto_aim = true;
     }
-    actorNew->vel.Z = zvel;;
+    actorNew->vel.Z = zvel;
 
 	UpdateChange(actorNew);
 
@@ -17080,12 +17080,12 @@ int InitFireball(PLAYER* pp)
 
     if (TestMissileSetPos(actorNew, DoFireball, 1200, zvel * (1375. / 2048.)))
     {
-        actor->clipdist = oclipdist;;
+        actor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
 
-    actor->clipdist = oclipdist;;
+    actor->clipdist = oclipdist;
 
     actorNew->vel.Z = 0.5;
     if (WeaponAutoAimZvel(pp->actor, actorNew, &zvel, DAngle22_5 / 4, false) == -1)
@@ -17123,7 +17123,7 @@ int InitEnemyFireball(DSWActor* actor)
     double size_z = ActorSizeZ(actor) * 0.625;
     double nz = actor->spr.pos.Z - size_z + 4;
 
-    auto change = actor->spr.angle.ToVector() * GORO_FIREBALL_VELOCITY;;
+    auto change = actor->spr.angle.ToVector() * GORO_FIREBALL_VELOCITY;
 
     double lastvel = 0;
     for (int i = 0; i < 2; i++)
