@@ -170,8 +170,7 @@ void getcorrectzsofslope(int sectnum, int dax, int day, double* ceilz, double* f
 int getslopeval(sectortype* sect, const DVector3& pos, double basez)
 {
 	auto wal = sect->firstWall();
-	auto delta = wal->delta();
-	double i = (pos.Y - wal->pos.Y) * delta.X - (pos.X - wal->pos.X) * delta.Y;
+	double i = (pos.XY() - wal->pos).dot(wal->delta().Rotated90CCW());
 	return i == 0? 0 : SLOPEVAL_FACTOR * (pos.Z - basez) * wal->Length() / i;
 }
 
