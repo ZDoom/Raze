@@ -207,20 +207,11 @@ enum
 {
 	BAMBITS = 21,
 	BAMUNIT = 1 << BAMBITS,
-	SINTABLEBITS = 30,
-	SINTABLEUNIT = 1 << SINTABLEBITS,
-	BUILDSINBITS = 14,
 };
 
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
 constexpr double BAngToDegree = 360. / 2048.;
 constexpr DAngle DAngleBuildToDeg = DAngle::fromDeg(BAngToDegree);
-
-inline constexpr double sinscale(const int shift)
-{
-	return shift >= -BUILDSINBITS ? uint64_t(1) << (BUILDSINBITS + shift) : 1. / (uint64_t(1) << abs(BUILDSINBITS + shift));
-}
-
 
 //---------------------------------------------------------------------------
 //
@@ -228,27 +219,20 @@ inline constexpr double sinscale(const int shift)
 //
 //---------------------------------------------------------------------------
 
-inline int bsin(const int ang, int shift = 0)
+inline int bsin(const int ang)
 {
-	return int(g_sinbam(ang * BAMUNIT) * sinscale(shift));
+	return int(g_sinbam(ang * BAMUNIT) * 16384);
 }
 
 //---------------------------------------------------------------------------
 //
 // Build cosine inline functions.
-// 
-// About shifts:
-// -6 -> * 16
-// -7 -> * 8
-// -8 -> * 4
-// -9 -> * 2
-// -10 -> * 1
 //
 //---------------------------------------------------------------------------
 
-inline int bcos(const int ang, int shift = 0)
+inline int bcos(const int ang)
 {
-	return int(g_cosbam(ang * BAMUNIT) * sinscale(shift));
+	return int(g_cosbam(ang * BAMUNIT) * 16384);
 }
 
 //---------------------------------------------------------------------------
