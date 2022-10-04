@@ -1193,8 +1193,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spr.pal, sActor, sPlayer);
 		break;
 	case ACTOR_CLIPDIST:
-		if (bSet) act->set_native_clipdist(lValue);
-		else SetGameVarID(lVar2, act->native_clipdist(), sActor, sPlayer);
+		if (bSet) act->clipdist = lValue * 0.25;
+		else SetGameVarID(lVar2, int(act->clipdist * 4), sActor, sPlayer);
 		break;
 	case ACTOR_DETAIL:
 		if (bSet) act->spriteextra = lValue;
@@ -2196,7 +2196,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_clipdist:
 		insptr++;
-		g_ac->set_native_clipdist( (uint8_t) *insptr);
+		g_ac->clipdist = ((uint8_t) *insptr) * 0.25;
 		insptr++;
 		break;
 	case concmd_cstat:

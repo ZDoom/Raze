@@ -747,7 +747,7 @@ void CreatePushBlock(sectortype* pSector)
 
     sBlockInfo[nBlock].mindist = mindist;
 
-    pActor->set_native_clipdist( (int(mindist * worldtoint) & 0xFF) << 2);
+    pActor->clipdist = int(mindist * 16); // looks weird, but that's what the old code did.
     pSector->extra = nBlock;
 }
 

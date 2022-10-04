@@ -2020,7 +2020,7 @@ inline double ActorSizeToTop(DSWActor* a)
 
 inline void SetActorSizeX(DSWActor* sp)
 {
-    sp->set_native_clipdist(MulScale(tileWidth(sp->spr.picnum), sp->spr.xrepeat, 6));
+    sp->clipdist = MulScale(tileWidth(sp->spr.picnum), sp->spr.xrepeat, 6) * 0.25; // ensure proper truncation for this.
 }
 
 inline bool Facing(DSWActor* actor1, DSWActor* actor2)

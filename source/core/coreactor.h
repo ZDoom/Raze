@@ -167,11 +167,6 @@ public:
 		return static_cast<PClassActor*>(GetClass())->ActorInfo()->SpriteSet;
 	}
 	
-	void set_native_clipdist(int val)
-	{
-		clipdist = val * 0.25;
-	}
-	
 	int native_clipdist()
 	{
 		return clipdist * 4;
