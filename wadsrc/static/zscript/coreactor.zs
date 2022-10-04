@@ -18,7 +18,7 @@ class CoreActor native
 
 	native int8 shade;
 	native uint8 pal;
-	native uint8 clipdist;
+	native uint8 intclipdist;
 	native uint8 blend;
 	native uint8 xrepeat;
 	native uint8 yrepeat;
@@ -31,6 +31,7 @@ class CoreActor native
 	native int16 mdanimcur;
 	native uint8 renderflags;
 	native float alpha;
+	native double clipdist;
 
 	native readonly sectortype sector;
 	native readonly int16 spritesetpic;

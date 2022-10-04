@@ -57,7 +57,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		act->spr.xrepeat = 0;
 		act->spr.yrepeat = 0;
-		act->set_const_clipdist(0);
+		act->clipdist = 0;
 		act->spr.extra = 0;
 		ChangeActorStat(act, STAT_BOWLING);
 		break;
@@ -77,7 +77,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isRRRA()) goto default_case;
 		act->spr.xrepeat = 16;
 		act->spr.yrepeat = 16;
-		act->set_const_clipdist(0);
+		act->clipdist = 0;
 		act->spr.extra = 0;
 		act->spr.cstat = 0;
 		ChangeActorStat(act, 121);
@@ -114,18 +114,18 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE8448:
 		if (!isRRRA()) goto default_case;
 		act->spr.lotag = 1;
-		act->set_const_clipdist(0);
+		act->clipdist = 0;
 		break;
 	case RRTILE8099:
 		if (!isRRRA()) goto default_case;
 		act->spr.lotag = 5;
-		act->set_const_clipdist(0);
+		act->clipdist = 0;
 		ChangeActorStat(act, 123);
 		break;
 	case RRTILE8704:
 		if (!isRRRA()) goto default_case;
 		act->spr.lotag = 1;
-		act->set_const_clipdist(0);
+		act->clipdist = 0;
 		break;
 	case RRTILE8192:
 		if (!isRRRA()) goto default_case;
@@ -142,7 +142,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE8165:
 		if (!isRRRA()) goto default_case;
 		act->spr.lotag = 1;
-		act->set_const_clipdist(0);
+		act->clipdist = 0;
 		act->SetOwner(act);
 		act->spr.extra = 0;
 		ChangeActorStat(act, 115);
@@ -150,7 +150,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE8593:
 		if (!isRRRA()) goto default_case;
 		act->spr.lotag = 1;
-		act->set_const_clipdist(0);
+		act->clipdist = 0;
 		act->SetOwner(act);
 		act->spr.extra = 0;
 		ChangeActorStat(act, 122);
@@ -168,7 +168,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		act->spr.xrepeat = 0;
 		act->spr.yrepeat = 0;
-		act->set_const_clipdist(0);
+		act->clipdist = 0;
 		act->spr.lotag = 0;
 		ChangeActorStat(act, 106);
 		break;
@@ -840,7 +840,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = 24;
 			act->spr.yrepeat = 18;
 			act->setClipDistFromTile();
-			act->spr.clipdist <<= 2;
+			act->clipdist *= 4;
 			break;
 		case DRONE:
 			act->spr.xrepeat = 14;
@@ -984,7 +984,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = 64;
 			act->spr.yrepeat = 128;
 			act->setClipDistFromTile();
-			act->spr.clipdist >>= 2;
+			act->clipdist *= 0.25;
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			break;
 		case LTH:

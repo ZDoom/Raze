@@ -63,6 +63,7 @@ void CopyQuakeSpotToOn(DSWActor* actor)
     auto actorNew = insertActor(actor->sector(), STAT_QUAKE_SPOT);
 
     actorNew->spr = actor->spr;
+	actorNew->clipdist = actor->clipdist;
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
 

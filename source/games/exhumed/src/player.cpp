@@ -1044,7 +1044,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
         auto pPlayerSect = pPlayerActor->sector();
 
-        pushmove(pPlayerActor->spr.pos, &pPlayerSect, pPlayerActor->fClipdist(), 20, -20, CLIPMASK0);
+        pushmove(pPlayerActor->spr.pos, &pPlayerSect, pPlayerActor->clipdist, 20, -20, CLIPMASK0);
         if (pPlayerSect != pPlayerActor->sector()) {
             ChangeActorSect(pPlayerActor, pPlayerSect);
         }

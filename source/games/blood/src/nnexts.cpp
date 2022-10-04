@@ -1645,7 +1645,7 @@ void debrisMove(int listIndex)
 	moveHit.setNone();
 	double floorDist = (bottom - actor->spr.pos.Z) * 0.25;
 	double ceilDist = (actor->spr.pos.Z - top) * 0.25;
-	double clipDistf = actor->fClipdist();
+	double clipDistf = actor->clipdist;
 	int mass = actor->spriteMass.mass;
 
 	bool uwater = false;
@@ -5565,13 +5565,13 @@ bool modernTypeOperateSector(sectortype* pSector, const EVENT& event)
 
 void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 {
-	genDudeSpawn(pSource, pActor, pActor->fClipdist() * 0.5);
+	genDudeSpawn(pSource, pActor, pActor->clipdist * 0.5);
 }
 
 void useDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 {
-	if (randomSpawnDude(pSource, pActor, pActor->fClipdist() * 0.5, 0) == nullptr)
-		nnExtSpawnDude(pSource, pActor, pActor->xspr.data1, pActor->fClipdist() * 0.5, 0);
+	if (randomSpawnDude(pSource, pActor, pActor->clipdist * 0.5, 0) == nullptr)
+		nnExtSpawnDude(pSource, pActor, pActor->xspr.data1, pActor->clipdist * 0.5, 0);
 }
 
 //---------------------------------------------------------------------------
@@ -7670,7 +7670,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double
 	HitScan(actor, pos.Z, nAngVect, CLIPMASK0, nRange);
 	double nDist = (actor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
 
-	if (target != nullptr && nDist - actor->fClipdist() < nRange)
+	if (target != nullptr && nDist - actor->clipdist < nRange)
 		return (target == gHitInfo.actor());
 
 	pos += nAngVect * nRange;
@@ -7858,14 +7858,14 @@ bool aiPatrolMarkerReached(DBloodActor* actor)
 	auto markeractor = actor->GetTarget();
 	if (markeractor && markeractor->spr.type == kMarkerPath)
 	{
-		double okDist = max(markeractor->fClipdist() * 8, 4.);
+		double okDist = max(markeractor->clipdist * 8, 4.);
 		auto ov = markeractor->spr.pos.XY() - actor->spr.pos.XY(); // this was already shifted right by 4 in the old code.
 
 		if (ov.Length() <= okDist)
 		{
 			if (spriteIsUnderwater(actor) || pExtra->flying)
 			{
-				okDist = markeractor->fClipdist() * 16;
+				okDist = markeractor->clipdist * 16;
 				double ztop, zbot, ztop2, zbot2;
 				GetActorExtents(actor, &ztop, &zbot);
 				GetActorExtents(markeractor, &ztop2, &zbot2);

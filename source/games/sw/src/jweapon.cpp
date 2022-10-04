@@ -1292,8 +1292,8 @@ int PlayerInitChemBomb(PLAYER* pp)
     actorNew->vel.Z += pp->horizon.horiz.Tan() * HORIZ_MULTF;
 
     oclipdist = plActor->native_clipdist();
-    plActor->set_const_clipdist(0);
-    actorNew->set_const_clipdist(0);
+    plActor->clipdist = 0;
+    actorNew->clipdist = 0;
 
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
@@ -1393,7 +1393,7 @@ int InitChemBomb(DSWActor* actor)
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
 	actorNew->vel.Z = RandomZVel();
-    actorNew->set_const_clipdist(0);
+    actorNew->clipdist = 0;
 
     if (actor->user.ID == MUSHROOM_CLOUD || actor->user.ID == 3121 || actor->user.ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
     {
@@ -1667,8 +1667,8 @@ int PlayerInitCaltrops(PLAYER* pp)
     actorNew->vel.Z += pp->horizon.horiz.Tan() * HORIZ_MULTF;
 
     oclipdist = plActor->native_clipdist();
-    plActor->set_const_clipdist(0);
-    actorNew->set_const_clipdist(0);
+    plActor->clipdist = 0;
+    actorNew->clipdist = 0;
 
     MissileSetPos(actorNew, DoCaltrops, 1000);
 

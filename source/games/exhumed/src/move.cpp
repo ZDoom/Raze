@@ -433,7 +433,7 @@ Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flo
         vect *= 0.5;
     }
 
-    Collision nRet = movespritez(pActor, dz, nSpriteHeight, pActor->fClipdist());
+    Collision nRet = movespritez(pActor, dz, nSpriteHeight, pActor->clipdist);
 
     pSector = pActor->sector(); // modified in movespritez so re-grab this variable
 
@@ -456,7 +456,7 @@ Collision movesprite(DExhumedActor* pActor, DVector2 vect, double dz, double flo
     }
 
     Collision coll;
-    clipmove(pActor->spr.pos, &pSector, vect, pActor->fClipdist(), nSpriteHeight, flordist, clipmask, coll);
+    clipmove(pActor->spr.pos, &pSector, vect, pActor->clipdist, nSpriteHeight, flordist, clipmask, coll);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
         coll.exbits = nRet.exbits;
@@ -864,7 +864,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 
                     // The vector that got passed in here originally was Q28.4, while clipmove expects Q14.18, effectively resulting in actual zero movement
                     // because the resulting offset would be far below the coordinate's precision.
-                    clipmove(pos, &pSectorB, -vect / 16384., pActor->fClipdist(), 0., 0., CLIPMASK0, scratch);
+                    clipmove(pos, &pSectorB, -vect / 16384., pActor->clipdist, 0., 0., CLIPMASK0, scratch);
 
                     if (pSectorB) {
                         ChangeActorSect(pActor, pSectorB);
@@ -882,9 +882,9 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 
                 // Original used 14 bits of scale from the sine table and 4 bits from clipdist.
                 // vect was added unscaled, essentially nullifying its effect entirely.
-                auto vect2 = -nAngle.ToVector() * pActor->fClipdist()/* - vect*/;
+                auto vect2 = -nAngle.ToVector() * pActor->clipdist/* - vect*/;
 
-                clipmove(pos, &pSectorB, -vect / 16384., pActor->fClipdist(), 0., 0., CLIPMASK0, scratch);
+                clipmove(pos, &pSectorB, -vect / 16384., pActor->clipdist, 0., 0., CLIPMASK0, scratch);
 
                 if (pSectorB != pNextSector && (pSectorB == pSector || pNextSector == pSector))
                 {
@@ -897,7 +897,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
                     else
                     {
                         // Unlike the above, this one *did* scale vect
-                        vect2 = nAngle.ToVector() * pActor->fClipdist() * 0.25 + vect;
+                        vect2 = nAngle.ToVector() * pActor->clipdist * 0.25 + vect;
                         movesprite(pActor, vect2, 0, 0, CLIPMASK0);
                     }
                 }
@@ -922,7 +922,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
             if (pActor->spr.statnum >= 99 && nZVal == pActor->spr.pos.Z && !(pActor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 pSectorB = pSector;
-                clipmove(pActor->spr.pos, &pSectorB, vect, pActor->fClipdist(), 20, -20, CLIPMASK0, scratch);
+                clipmove(pActor->spr.pos, &pSectorB, vect, pActor->clipdist, 20, -20, CLIPMASK0, scratch);
             }
         }
     }

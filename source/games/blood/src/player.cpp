@@ -1710,7 +1710,7 @@ void ProcessInput(PLAYER* pPlayer)
 		if (pPlayer->handTime <= 0 && pPlayer->hand)
 		{
 			DBloodActor* pactor = pPlayer->actor;
-			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->fClipdist() * 0.5);
+			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->clipdist * 0.5);
 			if (spawned)
 			{
 				spawned->spr.angle += DAngle180;
@@ -1797,7 +1797,7 @@ void playerProcess(PLAYER* pPlayer)
 	if (!gNoClip)
 	{
 		auto pSector = actor->sector();
-		if (pushmove(actor->spr.pos, &pSector, actor->fClipdist(), dzceil, dzflor, CLIPMASK0) == -1)
+		if (pushmove(actor->spr.pos, &pSector, actor->clipdist, dzceil, dzflor, CLIPMASK0) == -1)
 			actDamageSprite(actor, actor, kDamageFall, 500 << 4);
 		if (actor->sector() != pSector)
 		{

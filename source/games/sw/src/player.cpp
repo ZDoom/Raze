@@ -1945,7 +1945,7 @@ void DoPlayerZrange(PLAYER* pp)
     auto bakcstat = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrange(pp->pos.plusZ(8), pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, actor->fClipdist() - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    FAFgetzrange(pp->pos.plusZ(8), pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, actor->clipdist - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     actor->spr.cstat = bakcstat;
 
     Collision ceilColl(ceilhit);
@@ -2009,7 +2009,7 @@ void DoPlayerSlide(PLAYER* pp)
     if (abs(pp->slide_vect.X) < 0.05 && abs(pp->slide_vect.Y) < 0.05)
         pp->slide_vect.Zero();
 
-    push_ret = pushmove(pp->pos, &pp->cursector, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2023,10 +2023,10 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->slide_vect, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->slide_vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(pp->pos, &pp->cursector, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2172,7 +2172,7 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        push_ret = pushmove(pp->pos, &pp->cursector, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2195,12 +2195,12 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->pos, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->vect, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(pp->pos, &pp->cursector, actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->pos, &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -3559,7 +3559,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
             if (hit.hitSector != nullptr && abs(hit.hitSector->floorz - pp->pos.Z) < 50)
             {
 				double dist = (pp->pos.XY() - hit.hitpos.XY()).Length();
-				double comp = (pp->actor->fClipdist() + 16);
+				double comp = (pp->actor->clipdist + 16);
                 if (dist < comp)
                     return true;
             }
@@ -4830,7 +4830,7 @@ void DoPlayerCurrent(PLAYER* pp)
 
 	auto vect = sectu->angle.ToVector() / 256. * sectu->speed * synctics; // 16384 >> 4 - Beware of clipmove's odd format for vect!
 
-    push_ret = pushmove(pp->pos, &pp->cursector, pp->actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->pos, &pp->cursector, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4846,10 +4846,10 @@ void DoPlayerCurrent(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, vect, pp->actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, vect, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(pp->pos, &pp->cursector, pp->actor->fClipdist(), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    pushmove(pp->pos, &pp->cursector, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))

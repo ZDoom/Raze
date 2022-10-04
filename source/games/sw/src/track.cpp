@@ -1137,7 +1137,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     else
                         sop->max_damage = actorNew->user.MaxHealth;
 
-                    switch (actor->native_clipdist()) // notreallyclipdist
+                    switch (actor->spr.clipdist) // notreallyclipdist
                     {
                     case 0:
                         break;

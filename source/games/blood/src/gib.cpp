@@ -289,7 +289,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 		if (!pPos && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 		{
 			DAngle nAngle = RandomAngle();
-			gPos = DVector3(actor->spr.pos.XY() + actor->fClipdist() * nAngle.ToVector(), bottom - RandomD(bottom - top, 8));
+			gPos = DVector3(actor->spr.pos.XY() + actor->clipdist * nAngle.ToVector(), bottom - RandomD(bottom - top, 8));
 		}
 		auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos);
 		if (pFX)
@@ -356,7 +356,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* p
 		if (!pPos)
 		{
 			DAngle nAngle = RandomAngle();
-			gPos = DVector3(actor->spr.pos.XY() + actor->fClipdist() * nAngle.ToVector(), bottom - RandomD(bottom - top, 8));
+			gPos = DVector3(actor->spr.pos.XY() + actor->clipdist * nAngle.ToVector(), bottom - RandomD(bottom - top, 8));
 		}
 		else
 		{

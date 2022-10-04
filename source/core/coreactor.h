@@ -42,10 +42,11 @@ public:
 	spritesmooth_t spsmooth;
 
 	DVector3 opos;
-	int time;
 	DAngle oang;
 	DVector3 vel;
+	double clipdist;
 
+	int time;
 	int16_t spritesetindex;
 
 
@@ -61,6 +62,12 @@ public:
 	size_t PropagateMark() override;
 	int GetOffsetAndHeight(int& height);
 	double GetOffsetAndHeight(double& height);
+	
+	void initFromSprite(spritetype* pspr)
+	{
+		spr = *pspr;
+		clipdist = pspr->clipdist * 0.25;
+	}
 
 	bool exists() const
 	{
@@ -160,29 +167,24 @@ public:
 		return static_cast<PClassActor*>(GetClass())->ActorInfo()->SpriteSet;
 	}
 	
-	double fClipdist() const
-	{
-		return spr. clipdist * 0.25;
-	}
-	
 	void set_native_clipdist(int val)
 	{
-		spr. clipdist = val;
+		clipdist = val * 0.25;
 	}
 	
 	int native_clipdist()
 	{
-		return spr. clipdist;
+		return clipdist * 4;
 	}
 	
 	void set_const_clipdist(int val) // only for searching purposes
 	{
-		spr. clipdist = val;
+		clipdist = val * 0.25;
 	}
 	
 	void copy_clipdist(DCoreActor* other)
 	{
-		spr. clipdist = other->spr. clipdist;
+		clipdist = other->clipdist;
 	}
 
 };

@@ -912,7 +912,7 @@ bool checkRangeOfWall(walltype* wal, EWallFlags flagmask, const DVector3& pos, d
 
 bool checkRangeOfFaceSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double* theZs)
 {
-	double dist = maxdist + itActor->fClipdist();
+	double dist = maxdist + itActor->clipdist;
 	if (abs(pos.X - itActor->spr.pos.X) > dist || abs(pos.Y - itActor->spr.pos.Y) > dist) return false; // Just like Doom: actors are square...
 	double h;
 	theZs[0] = itActor->spr.pos.Z + itActor->GetOffsetAndHeight(h);

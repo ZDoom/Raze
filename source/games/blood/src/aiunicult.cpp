@@ -242,7 +242,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	else if (pExtra->weaponType == kGenDudeWeaponSummon)
 	{
 		DBloodActor* spawned = nullptr;
-		double dist = actor->fClipdist() * 4;
+		double dist = actor->clipdist * 4;
 		if (pExtra->slaveCount <= gGameOptions.nDifficulty)
 		{
 			if ((spawned = actSpawnDude(actor, pExtra->curWeapon, dist + RandomD(dist, 4))) != NULL)
@@ -373,7 +373,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 		spawned->xspr.data3 = 512 / (gGameOptions.nDifficulty + 1);
 		spawned->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 		spawned->spr.pal = 6;
-		spawned->set_const_clipdist(0);
+		spawned->clipdist = 0;
 		spawned->SetTarget(actor->GetTarget());
 		spawned->xspr.Proximity = true;
 		spawned->xspr.stateTimer = 1;
@@ -753,7 +753,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
 					if (hit >= 0)
 					{
-						targetDist = dist - (target->fClipdist());
+						targetDist = dist - (target->clipdist);
 						objDist = (gHitInfo.hitpos.XY() - actor->spr.pos.XY()).Length();
 					}
 

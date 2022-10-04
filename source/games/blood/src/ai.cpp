@@ -135,7 +135,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 	DVector2 nAngVect = nAngle.ToVector();
 	HitScan(actor, pos.Z, DVector3(nAngVect, 0) * 1024, CLIPMASK0, nRange);
 	double nDist = (actor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
-	if (nDist - (actor->fClipdist()) < nRange / 16.) // this was actually comparing a Build unit value with a texel unit value!
+	if (nDist - (actor->clipdist) < nRange / 16.) // this was actually comparing a Build unit value with a texel unit value!
 	{
 		if (gHitInfo.actor() == nullptr || target == nullptr || target != gHitInfo.actor())
 			return false;
@@ -178,7 +178,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, DAngle nAngle, double nRan
 	case kDudeGargoyleFlesh:
 	case kDudeGargoyleStone:
 	case kDudeBat:
-		if (actor->fClipdist() > nDist * 4)
+		if (actor->clipdist > nDist * 4)
 			return 0;
 		if (Depth)
 		{

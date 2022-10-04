@@ -1272,7 +1272,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         if (actor->native_clipdist() == 0)
             continue;
 
-        double radius = actor->fClipdist() * 8;
+        double radius = actor->clipdist * 8;
 
 		if (dist > (wActor->user.fRadius()/2) + radius)
             continue;

@@ -4511,7 +4511,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), actor->fClipdist(), (actor->spr.pos.Z - top) * 0.25, (bottom - actor->spr.pos.Z) * 0.25, CLIPMASK0, lhit);
+		ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), actor->clipdist, (actor->spr.pos.Z - top) * 0.25, (bottom - actor->spr.pos.Z) * 0.25, CLIPMASK0, lhit);
 		actor->hit.hit = lhit;
 		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakCstat;
@@ -4551,7 +4551,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 	double ceilZ, floorZ;
 	Collision ceilColl, floorColl;
-	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->fClipdist(), CLIPMASK0);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->clipdist, CLIPMASK0);
 	GetActorExtents(actor, &top, &bottom);
 
 	if ((actor->spr.flags & 2) && bottom < floorZ)
@@ -4570,7 +4570,7 @@ static Collision MoveThing(DBloodActor* actor)
 			}
 		}
 	}
-	if (CheckLink(actor)) GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->fClipdist(), CLIPMASK0);
+	if (CheckLink(actor)) GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->clipdist, CLIPMASK0);
 
 	GetActorExtents(actor, &top, &bottom);
 	if (bottom >= floorZ)
@@ -4706,7 +4706,7 @@ void MoveDude(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 	double bz = (bottom - actor->spr.pos.Z) / 4;
 	double tz = (actor->spr.pos.Z - top) / 4;
-	double wdf = actor->fClipdist();
+	double wdf = actor->clipdist;
 	auto pSector = actor->sector();
 	int nAiStateType = (actor->xspr.aiState) ? actor->xspr.aiState->stateType : -1;
 
@@ -5052,7 +5052,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		double floorZ2 = floorZ;
 		auto floorColl2 = floorColl;
-		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->fClipdist(), CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->clipdist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (bottom <= floorZ && actor->spr.pos.Z - floorZ2 < bz)
 		{
 			floorZ = floorZ2;
@@ -5224,7 +5224,7 @@ int MoveMissile(DBloodActor* actor)
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL; // remove self collisions for accurate clipmove
 		}
 		Collision clipmoveresult;
-		ClipMove(ppos, &pSector2, vel.XY(), actor->fClipdist(), (ppos.Z - top) / 4, (bottom - ppos.Z) / 4, CLIPMASK0, clipmoveresult, 1);
+		ClipMove(ppos, &pSector2, vel.XY(), actor->clipdist, (ppos.Z - top) / 4, (bottom - ppos.Z) / 4, CLIPMASK0, clipmoveresult, 1);
 		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakSpriteCstat;
 		auto pSector = pSector2;
@@ -5280,7 +5280,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 		double ceilZ, floorZ;
 		Collision ceilColl, floorColl;
-		GetZRangeAtXYZ(ppos, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->fClipdist(), CLIPMASK0);
+		GetZRangeAtXYZ(ppos, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, actor->clipdist, CLIPMASK0);
 		GetActorExtents(actor, &top, &bottom);
 		top += vel.Z;
 		bottom += vel.Z;
@@ -6086,7 +6086,7 @@ void actCheckFlares()
 		if (target->hasX() && target->xspr.health > 0)
 		{
 			DVector3 pos = target->spr.pos;
-			pos.XY() += (actor->xspr.goalAng + target->spr.angle).ToVector() * target->fClipdist() * 0.5;
+			pos.XY() += (actor->xspr.goalAng + target->spr.angle).ToVector() * target->clipdist * 0.5;
 			pos.Z += actor->xspr.TargetPos.Z;
 			SetActor(actor, pos);
 			actor->vel = target->vel;
@@ -6334,11 +6334,11 @@ DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double 
 {
 	assert(thingType >= kThingBase && thingType < kThingMax);
 
-	DVector3 vect = actor->spr.pos.plusZ(zoff) + (actor->spr.angle + DAngle90).ToVector() * xyoff + actor->spr.angle.ToVector() * actor->fClipdist();
+	DVector3 vect = actor->spr.pos.plusZ(zoff) + (actor->spr.angle + DAngle90).ToVector() * xyoff + actor->spr.angle.ToVector() * actor->clipdist;
 
-	if (HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, actor->fClipdist() * 0.25) != -1)
+	if (HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, actor->clipdist * 0.25) != -1)
 	{
-		vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * actor->fClipdist() * 2;
+		vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * actor->clipdist * 2;
 	}
 	auto fired = actSpawnThing(actor->sector(), vect, thingType);
 	fired->SetOwner(actor);
@@ -6444,7 +6444,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 
 	auto vect = actor->spr.pos.plusZ(zoff) + (actor->spr.angle + DAngle90).ToVector() * xyoff;
 
-	double clipdist = pMissileInfo->fClipDist() + actor->fClipdist();
+	double clipdist = pMissileInfo->fClipDist() + actor->clipdist;
 	vect += actor->spr.angle.ToVector() * clipdist;
 
 	int hit = HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, clipdist * 4); 

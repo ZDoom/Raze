@@ -68,7 +68,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 
     pChunkActor->spr.picnum = anim;
     pChunkActor->spr.lotag = runlist_HeadRun() + 1;
-    pChunkActor->set_const_clipdist(0);
+    pChunkActor->clipdist = 0;
 
 //	GrabTimeSlot(3);
 

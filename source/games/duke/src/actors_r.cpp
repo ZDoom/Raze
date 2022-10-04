@@ -406,7 +406,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 		if (actor->spr.statnum == STAT_PROJECTILE)
 			clipmove(ppos, &dasectp, change * 0.5, 0.5, 4., 4., cliptype, result);
 		else
-			clipmove(ppos, &dasectp, change * 0.5, actor->fClipdist(), 4., 4., cliptype, result);
+			clipmove(ppos, &dasectp, change * 0.5, actor->clipdist, 4., 4., cliptype, result);
 	}
 	actor->spr.pos.XY() = ppos.XY();
 

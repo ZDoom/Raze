@@ -462,7 +462,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 			if (actor->spr.picnum == LIZMAN)
 				clipdist = 18.25;
 			else if (actorflag(actor, SFLAG_BADGUY))
-				clipdist = actor->fClipdist();
+				clipdist = actor->clipdist;
 			else
 				clipdist = 12;
 
@@ -493,7 +493,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 		if (actor->spr.statnum == STAT_PROJECTILE)
 			clipmove(ppos, &dasectp, change * 0.5, 0.5, 4., 4., cliptype, result);
 		else
-			clipmove(ppos, &dasectp, change * 0.5, actor->fClipdist(), 4., 4., cliptype, result);
+			clipmove(ppos, &dasectp, change * 0.5, actor->clipdist, 4., 4., cliptype, result);
 	}
 	actor->spr.pos.XY() = ppos.XY();
 
@@ -2464,7 +2464,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	int ds = actor->temp_data[0] / 6;
 	if (actor->spr.xrepeat < 80)
 		actor->spr.yrepeat = actor->spr.xrepeat += ds;
-	actor->spr.clipdist += ds;
+	actor->clipdist += ds * 0.25;
 	if (actor->temp_data[0] <= 2)
 		actor->temp_data[3] = krand() % 10;
 	if (actor->temp_data[0] > 30) 

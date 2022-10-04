@@ -158,7 +158,7 @@ extern int WeaponIsAmmo;
 
 inline double CloseRangeDist(DSWActor* a1, DSWActor* a2, double fudge = 25)
 {
-	return a1->fClipdist() + a2->fClipdist() + fudge;
+	return a1->clipdist + a2->clipdist + fudge;
 }
 
 extern short target_ang;

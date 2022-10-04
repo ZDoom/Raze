@@ -92,7 +92,7 @@ void ThrowGrenade(int nPlayer, double dz, double push1)
         pActor->vel.Z = ((32. * push1) - 17);
 
 
-        DVector2 vec = nAngle.ToVector() * pPlayerActor->fClipdist() *2; // == << 14 + 3 + 2 - 18
+        DVector2 vec = nAngle.ToVector() * pPlayerActor->clipdist *2; // == << 14 + 3 + 2 - 18
         auto nMov = movesprite(pActor, vec, dz, 0, CLIPMASK1);
         if (nMov.type == kHitWall)
         {
@@ -321,7 +321,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         double zVel = pActor->vel.Z;
 
         Gravity(pActor);
-        auto nMov = movesprite(pActor, pActor->vec, pActor->vel.Z, pActor->fClipdist() / 128., CLIPMASK1);
+        auto nMov = movesprite(pActor, pActor->vec, pActor->vel.Z, pActor->clipdist / 128., CLIPMASK1);
 
         if (!nMov.type && !nMov.exbits)
             return;

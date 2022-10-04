@@ -322,7 +322,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 
 void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int rdist)
 {
-	DVector3 pos(actor->spr.pos.XY() + actor->fClipdist() * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z); 
+	DVector3 pos(actor->spr.pos.XY() + actor->clipdist * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z); 
 
 	auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), actor->sector(), pos);
 	if (pBrass)
@@ -344,7 +344,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int rdist)
 
 void fxSpawnEjectingShell(DBloodActor* actor, double z, double dist, int rdist)
 {
-	DVector3 pos(actor->spr.pos.XY() + actor->fClipdist() * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z);
+	DVector3 pos(actor->spr.pos.XY() + actor->clipdist * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z);
 
 	auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), actor->sector(), pos);
 	if (pShell)

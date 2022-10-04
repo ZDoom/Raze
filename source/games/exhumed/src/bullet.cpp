@@ -373,7 +373,7 @@ int MoveBullet(int nBullet)
             }
         }
 
-        coll = movesprite(pActor, pBullet->vect.XY(), pBullet->vect.Z, pActor->fClipdist() / 128., CLIPMASK1);
+        coll = movesprite(pActor, pBullet->vect.XY(), pBullet->vect.Z, pActor->clipdist / 128., CLIPMASK1);
 
 MOVEEND:
         if (coll.type || coll.exbits)
@@ -771,7 +771,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     }
 
     pBullet->vect.Z = 0;
-    pBullet->vect.XY() = nAngle.ToVector() * pActor->fClipdist();
+    pBullet->vect.XY() = nAngle.ToVector() * pActor->clipdist;
     BulletList[nBullet].pEnemy = nullptr;
 
 

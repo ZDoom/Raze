@@ -307,7 +307,7 @@ void AISet::Tick(RunListEvent* ev)
     auto nMov = MoveCreature(pActor);
 
 	auto sect = pActor->sector();
-    pushmove(pActor->spr.pos, &sect, pActor->fClipdist(), 20, -20, CLIPMASK0);
+    pushmove(pActor->spr.pos, &sect, pActor->clipdist, 20, -20, CLIPMASK0);
     pActor->setsector(sect);
 
     if (pActor->vel.Z > 4000/256.)

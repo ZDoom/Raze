@@ -55,7 +55,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, double height)
     pLimbActor->spr.picnum = (move & 3) % 3;
     pLimbActor->spr.hitag = 0;
     pLimbActor->spr.lotag = runlist_HeadRun() + 1;
-    pLimbActor->set_const_clipdist(0);
+    pLimbActor->clipdist = 0;
 
 //	GrabTimeSlot(3);
 

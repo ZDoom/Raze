@@ -63,33 +63,17 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 
 
 	act->spr.pos = pos;
-	act->spr.cstat = 0;
 	act->spr.picnum = s_pn;
 	act->spr.shade = s_shd;
 	act->spr.xrepeat = s_xr;
 	act->spr.yrepeat = s_yr;
-	act->spr.pal = 0;
 
 	act->spr.angle = s_ang;
 	act->vel.X = s_vel;
 	act->vel.Z = s_zvel;
-	act->spr.xoffset = 0;
-	act->spr.yoffset = 0;
-	act->spr.yint = 0;
-	act->set_const_clipdist(0);
-	act->spr.pal = 0;
-	act->spr.lotag = 0;
 	act->backuploc();
 
-	act->ovel.Zero();
-
-	act->timetosleep = 0;
-	act->actorstayput = nullptr;
 	act->hitextra = -1;
-	act->cgg = 0;
-	act->movflag = 0;
-	act->tempval = 0;
-	act->dispicnum = 0;
 	act->SetHitOwner(s_ow);
 	act->SetOwner(s_ow);
 
@@ -879,8 +863,8 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			{
 				if (sectp->lotag == 30)
 				{
-					if (actor->spr.pal) actor->set_const_clipdist(1);
-					else actor->set_const_clipdist(0);
+					if (actor->spr.pal) actor->spr.clipdist = 1; // notreallyclipdist
+					else actor->spr.clipdist = 0;
 					actor->temp_pos.Z = sectp->floorz;
 					sectp->hitagactor = actor;
 				}
