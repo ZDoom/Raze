@@ -142,7 +142,8 @@ void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, 
 		double len = wal->Length();
 		if (len != 0)
 		{
-			double fac = (wal->delta().X * (ypos - wal->pos.Y) - wal->delta().Y * (xpos - wal->pos.X)) / len * (1. / SLOPEVAL_FACTOR);
+			DVector2 wd = DVector2(xpos, ypos) - wal->pos;
+			double fac = wal->delta().dot(wd.Rotated90CW()) / len * (1. / SLOPEVAL_FACTOR);
 			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * fac);
 			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * fac);
 		}
