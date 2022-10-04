@@ -177,8 +177,8 @@ void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, H
                 ResetWallWarpHitscan(hit.hitSector);
 
                 // NOTE: This could be recursive I think if need be
-                auto start = hit.hitpos;
-                hitscan(start, hit.hitSector, vect, hit, startclipmask);
+                auto nstart = hit.hitpos;
+                hitscan(nstart, hit.hitSector, vect, hit, startclipmask);
 
                 // reset hitscan block for dest sect
                 SetWallWarpHitscan(hit.hitSector);
@@ -204,8 +204,8 @@ void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, H
                 sectortype* newsect = nullptr;
                 if (Warp(hit.hitpos, &newsect))
                 {
-                    auto start = hit.hitpos;
-                    hitscan(start, newsect, vect, hit, clipmask);
+                    auto nstart = hit.hitpos;
+                    hitscan(nstart, newsect, vect, hit, clipmask);
                     return;
                 }
             }
@@ -214,8 +214,8 @@ void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, H
                 sectortype* newsect = nullptr;
                 if (WarpPlane(hit.hitpos, &newsect))
                 {
-                    auto start = hit.hitpos;
-                    hitscan(start, newsect, vect, hit, clipmask);
+                    auto nstart = hit.hitpos;
+                    hitscan(nstart, newsect, vect, hit, clipmask);
                     return;
                 }
             }
@@ -243,8 +243,8 @@ void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, H
 
     if (plax_found)
     {
-        auto start = hit.hitpos;
-        hitscan(start, newsector, vect, hit, clipmask);
+        auto nstart = hit.hitpos;
+        hitscan(nstart, newsector, vect, hit, clipmask);
     }
 }
 
