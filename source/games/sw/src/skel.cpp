@@ -525,7 +525,7 @@ int SetupSkel(DSWActor* actor)
     EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
 
     // 256 is default
-    //actor->set_const_clipdist(256 >> 2);
+    //actor->clipdist = 16;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     return 0;

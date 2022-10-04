@@ -903,7 +903,7 @@ int SetupRipper2(DSWActor* actor)
     DoActorSetSpeed(actor, NORM_SPEED);
     actor->user.StateEnd = s_Ripper2Die;
     actor->user.Rot = sg_Ripper2Run;
-    actor->set_const_clipdist(512 >> 2);  // This actor is bigger, needs bigger box.
+    actor->clipdist = 32;  // This actor is bigger, needs bigger box.
     actor->spr.xrepeat = actor->spr.yrepeat = 55;
 
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)

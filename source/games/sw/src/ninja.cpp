@@ -2417,7 +2417,7 @@ void InitPlayerSprite(PLAYER* pp)
 
     actor->spr.picnum = actor->user.State->Pic;
     actor->spr.shade = -60; // was 15
-    actor->set_const_clipdist(256 >> 2);
+    actor->clipdist = 16;
 
     actor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
     actor->spr.yrepeat = PLAYER_NINJA_YREPEAT;

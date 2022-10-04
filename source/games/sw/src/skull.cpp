@@ -232,7 +232,7 @@ int SetupSkull(DSWActor* actor)
     actor->user.ID = SKULL_R0;
 
     EnemyDefaults(actor, nullptr, nullptr);
-    actor->set_const_clipdist((128+64) >> 2);
+    actor->clipdist = 12;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -650,7 +650,7 @@ int SetupBetty(DSWActor* actor)
     actor->user.ID = BETTY_R0;
 
     EnemyDefaults(actor, nullptr, nullptr);
-    actor->set_const_clipdist((128+64) >> 2);
+    actor->clipdist = 12;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
     actor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 

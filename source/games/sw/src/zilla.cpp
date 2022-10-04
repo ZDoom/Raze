@@ -630,7 +630,7 @@ int SetupZilla(DSWActor* actor)
 
     EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
 
-    actor->set_const_clipdist((512) >> 2);
+    actor->clipdist = 32;
     actor->spr.xrepeat = 97;
     actor->spr.yrepeat = 79;
 

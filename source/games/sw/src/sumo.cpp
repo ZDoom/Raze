@@ -624,7 +624,7 @@ int SetupSumo(DSWActor* actor)
 
     EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
 
-    actor->set_const_clipdist((512) >> 2);
+    actor->clipdist = 32;
     if (actor->spr.pal == 16)
     {
         // Mini Sumo

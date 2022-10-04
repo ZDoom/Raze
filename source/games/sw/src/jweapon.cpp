@@ -1298,7 +1298,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
     plActor->set_native_clipdist(oclipdist);
-    actorNew->set_const_clipdist(80 >> 2);
+    actorNew->clipdist = 5;
 
 	UpdateChange(actorNew, 0.5);
 
@@ -1353,7 +1353,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
 	actorNew->vel.Z = RandomZVel();
 
-    actorNew->set_const_clipdist(80 >> 2);
+    actorNew->clipdist = 5;
 
 	UpdateChange(actorNew, 0.5);
 
@@ -1673,7 +1673,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     MissileSetPos(actorNew, DoCaltrops, 1000);
 
     plActor->set_native_clipdist(oclipdist);
-    actorNew->set_const_clipdist(80 >> 2);
+    actorNew->clipdist = 5;
 
 	UpdateChange(actorNew, 0.5);
 
