@@ -12069,7 +12069,7 @@ void InitSpellNapalm(PLAYER* pp)
         actor->user.ceiling_dist = (1);
         actor->user.Dist = 12.5;
 
-        auto oclipdist = plActor->native_clipdist();
+		auto oclipdist = plActor->clipdist;
 		plActor->clipdist = 0.25;
 
         if (mp[i].dist_over != 0)
@@ -12083,7 +12083,7 @@ void InitSpellNapalm(PLAYER* pp)
 
         if (MissileSetPos(actor, DoNapalm, mp[i].dist_out))
         {
-            plActor->set_native_clipdist(oclipdist);
+            plActor->clipdist = oclipdist;
             KillActor(actor);
             continue;
         }
@@ -12091,7 +12091,7 @@ void InitSpellNapalm(PLAYER* pp)
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actor))
             actor->user.Flags |= (SPR_UNDERWATER);
 
-        plActor->set_native_clipdist(oclipdist);
+        plActor->clipdist = oclipdist;
 
         actor->user.Counter = 0;
 
@@ -12201,13 +12201,13 @@ int InitSpellMirv(PLAYER* pp)
     actorNew->user.Dist = 12.5;
 
     DSWActor* plActor = pp->actor;
-    auto oclipdist = plActor->native_clipdist();
+	auto oclipdist = plActor->clipdist;
     plActor->clipdist = 0;
 
 	UpdateChange(actorNew);
 
     MissileSetPos(actorNew, DoMirv, 600);
-    plActor->set_native_clipdist(oclipdist);
+    plActor->clipdist = oclipdist;
 
     actorNew->user.Counter = 0;
     return 0;
@@ -13176,14 +13176,14 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->user.ceiling_dist = (1);
     actorNew->user.Dist = 12.5;
 
-    auto oclipdist = plActor->native_clipdist();
+    auto oclipdist = plActor->clipdist;
 	plActor->clipdist = 0.25;
 
 	UpdateChange(actorNew);
 
     MissileSetPos(actorNew, DoBloodWorm, mp[i].dist_out);
 
-    plActor->set_native_clipdist(oclipdist);
+    plActor->clipdist = oclipdist;
     actorNew->user.Counter = 0;
     actorNew->user.Counter2 = 0;
     actorNew->user.Counter3 = 0;
@@ -15341,7 +15341,7 @@ int InitTracerUzi(PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
     DSWActor* plActor = pp->actor;
-    auto oclipdist = plActor->native_clipdist();
+    auto oclipdist = plActor->clipdist;
     plActor->clipdist = 0;
 
     actorNew->spr.angle += DAngle90;
@@ -15353,14 +15353,14 @@ int InitTracerUzi(PLAYER* pp)
 
     if (MissileSetPos(actorNew, DoTracerStart, 800))
     {
-        plActor->set_native_clipdist(oclipdist);
+        plActor->clipdist = oclipdist;
         KillActor(actorNew);
         return 0;
     }
 
     actorNew->vel.Z = pp->horizon.horiz.Tan() * actorNew->vel.X;
 
-    plActor->set_native_clipdist(oclipdist);
+    plActor->clipdist = oclipdist;
 
     WeaponAutoAim(pp->actor, actorNew, DAngle22_5 / 4, false);
 

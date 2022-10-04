@@ -1251,7 +1251,6 @@ int DoRadiationCloud(DSWActor* actor)
 int PlayerInitChemBomb(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    short oclipdist;
 
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
@@ -1291,13 +1290,13 @@ int PlayerInitChemBomb(PLAYER* pp)
 
     actorNew->vel.Z += pp->horizon.horiz.Tan() * HORIZ_MULTF;
 
-    oclipdist = plActor->native_clipdist();
+    double oclipdist = plActor->clipdist;
     plActor->clipdist = 0;
     actorNew->clipdist = 0;
 
     MissileSetPos(actorNew, DoChemBomb, 1000);
 
-    plActor->set_native_clipdist(oclipdist);
+    plActor->clipdist = oclipdist;
     actorNew->clipdist = 5;
 
 	UpdateChange(actorNew, 0.5);
@@ -1631,7 +1630,6 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 int PlayerInitCaltrops(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    short oclipdist;
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
 
@@ -1666,13 +1664,13 @@ int PlayerInitCaltrops(PLAYER* pp)
 
     actorNew->vel.Z += pp->horizon.horiz.Tan() * HORIZ_MULTF;
 
-    oclipdist = plActor->native_clipdist();
+    double oclipdist = plActor->clipdist;
     plActor->clipdist = 0;
     actorNew->clipdist = 0;
 
     MissileSetPos(actorNew, DoCaltrops, 1000);
 
-    plActor->set_native_clipdist(oclipdist);
+    plActor->clipdist = oclipdist;
     actorNew->clipdist = 5;
 
 	UpdateChange(actorNew, 0.5);
