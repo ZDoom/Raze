@@ -1403,7 +1403,9 @@ void sfxPlayVectorSound(DBloodActor* actor, int vectorId)
 
 int getSpriteMassBySize(DBloodActor* actor)
 {
-	int mass = 0; int seqId = -1; int clipDist = actor->native_clipdist();
+	int mass = 0;
+	int seqId = -1;
+	double clipDist = actor->clipdist;
 	if (!actor->hasX())
 	{
 		I_Error("getSpriteMassBySize: actor->spr.hasX == false");
@@ -1431,7 +1433,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 
 	SPRITEMASS* cached = &actor->spriteMass;
 	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.picnum == cached->picnum) && actor->spr.xrepeat == cached->xrepeat &&
-		actor->spr.yrepeat == cached->yrepeat && clipDist == cached->clipdist)
+		actor->spr.yrepeat == cached->yrepeat && clipDist == cached->clipDist)
 	{
 		return cached->mass;
 	}
@@ -1452,7 +1454,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 			picnum = actor->spr.picnum;
 	}
 
-	clipDist = ClipLow(actor->native_clipdist(), 1);
+	clipDist = max(actor->clipdist, 0.25);
 	int x = tileWidth(picnum);
 	int y = tileHeight(picnum);
 	int xrepeat = actor->spr.xrepeat;
@@ -1477,7 +1479,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 	case 14: massDiv = 23; break; // lava
 	}
 
-	mass = ((x + y) * (clipDist / 2)) / massDiv;
+	mass = ((x + y) * int(clipDist * 2)) / massDiv;
 
 	if (xrepeat > 64) mass += ((xrepeat - 64) * addMul);
 	else if (xrepeat < 64 && mass > 0)
@@ -1515,7 +1517,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 	cached->yrepeat = actor->spr.yrepeat;
 	cached->picnum = actor->spr.picnum;
 	cached->seqId = seqId;
-	cached->clipdist = actor->native_clipdist();
+	cached->clipDist = actor->clipdist;
 
 	return cached->mass;
 }
@@ -9349,7 +9351,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPR
 			("picnum", w.picnum, &nul.picnum)
 			("xrepeat", w.xrepeat, &nul.xrepeat)
 			("yrepeat", w.yrepeat, &nul.yrepeat)
-			("clipdist", w.clipdist)
+			("clipdist", w.clipDist)
 			("mass", w.mass)
 			("airvel", w.airVel)
 			("fraction", w.fraction)

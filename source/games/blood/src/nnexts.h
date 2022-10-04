@@ -196,9 +196,9 @@ struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
 	int16_t picnum; // mainly needs for moving debris
 	int16_t xrepeat;
 	int16_t yrepeat;
-	int16_t clipdist; // mass multiplier
-	int mass;
 	int16_t airVel; // mainly needs for moving debris
+	double clipDist; // mass multiplier
+	int mass;
 	int fraction; // mainly needs for moving debris
 };
 
