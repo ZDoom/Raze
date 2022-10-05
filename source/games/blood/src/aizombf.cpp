@@ -67,8 +67,8 @@ void PukeSeqCallback(int, DBloodActor* actor)
 
 	DVector2 dv = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
 
-	double height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) * REPEAT_SCALE;
-	double height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) * REPEAT_SCALE;
+	double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+	double height2 = (pDudeInfoT->eyeHeight * target->spr.ScaleY());
 	double z = (height - height2) * 0.25;
 
 	sfxPlay3DSound(actor, 1203, 1, 0);
@@ -128,7 +128,7 @@ static void zombfThinkChase(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+		double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
 			if (nDeltaAngle <= pDudeInfo->Periphery())

@@ -402,7 +402,7 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
 
 double GetActorHeight(DExhumedActor* actor)
 {
-    return tileHeight(actor->spr.picnum) * actor->spr.yrepeat * REPEAT_SCALE;
+    return tileHeight(actor->spr.picnum) * actor->spr.ScaleY();
 }
 
 DExhumedActor* insertActor(sectortype* s, int st)

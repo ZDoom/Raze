@@ -1501,7 +1501,7 @@ void aiThinkTarget(DBloodActor* actor)
 			double nDist = dvec.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+			double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 
@@ -1546,7 +1546,7 @@ void aiLookForTarget(DBloodActor* actor)
 			double nDist = dvec.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+			double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());

@@ -192,12 +192,12 @@ void punchCallback(int, DBloodActor* actor)
 	auto const target = actor->GetTarget();
 	if (target != nullptr)
 	{
-		double nZOffset1 = getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE;
+		double nZOffset1 = getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.ScaleY();
 		double nZOffset2 = 0;
 
 
 		if (target->IsDudeActor())
-			nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.yrepeat * REPEAT_SCALE;
+			nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.ScaleY();
 
 		if (!playGenDudeSound(actor, kGenDudeSndAttackMelee))
 			sfxPlay3DSound(actor, 530, 1, 0);
@@ -513,7 +513,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DAngle losAngle = absangle(actor->spr.angle, nAngle);
-	double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+	double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
 
 	if (dist > pDudeInfo->SeeDist() || !cansee(target->spr.pos, target->sector(),
 		actor->spr.pos.plusZ(-height), actor->sector()))

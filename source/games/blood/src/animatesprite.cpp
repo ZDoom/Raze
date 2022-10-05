@@ -390,7 +390,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 5;
 		int height = tileHeight(pNSprite->picnum);
 		int center = height / 2 + tileTopOffset(pNSprite->picnum);
-		pNSprite->pos.Z -= (pNSprite->yrepeat * REPEAT_SCALE) * (height - center);
+		pNSprite->pos.Z -= (pNSprite->ScaleY()) * (height - center);
 		break;
 	}
 	case kViewEffectFlareHalo:

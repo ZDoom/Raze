@@ -87,8 +87,8 @@ void GetSpriteExtents(spritetypebase const* const pSprite, double* top, double* 
 	{
 		int height = tileHeight(pSprite->picnum);
 		int center = height / 2 + tileTopOffset(pSprite->picnum);
-		*top -= pSprite->yrepeat * REPEAT_SCALE * center;
-		*bottom += pSprite->yrepeat * REPEAT_SCALE * (height - center);
+		*top -= pSprite->ScaleY() * center;
+		*bottom += pSprite->ScaleY() * (height - center);
 	}
 }
 

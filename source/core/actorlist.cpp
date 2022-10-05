@@ -490,7 +490,7 @@ int DCoreActor::GetOffsetAndHeight(int& height)
 
 double DCoreActor::GetOffsetAndHeight(double& height)
 {
-	double yrepeat = spr.yrepeat * REPEAT_SCALE;
+	double yrepeat = spr.ScaleY();
 	height = tileHeight(spr.picnum) * yrepeat;
 	double zofs = (spr.cstat & CSTAT_SPRITE_YCENTER) ? height * 0.5 : 0;
 	return zofs - tileTopOffset(spr.picnum) * yrepeat;

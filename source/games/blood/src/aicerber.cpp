@@ -78,7 +78,7 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 void cerberusBurnSeqCallback(int, DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE * 0.25;
+	double height = pDudeInfo->eyeHeight * actor->spr.ScaleY() * 0.25;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	DVector3 pos(actor->spr.pos.XY(), height);
@@ -140,7 +140,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE * 0.25;
+	double height = pDudeInfo->eyeHeight * actor->spr.ScaleY() * 0.25;
 
 	DVector3 pos(actor->spr.pos.XY(), height);
 	//auto pos = actor->spr.pos.plusZ(height); //  what it probably should be
@@ -246,7 +246,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 			double nDist = dvect.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+			double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			DAngle nDeltaAngle = absangle(actor->spr.angle, dvect.Angle());
@@ -352,7 +352,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+		double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())

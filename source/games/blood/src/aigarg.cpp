@@ -81,8 +81,8 @@ void SlashFSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	double height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) * REPEAT_SCALE;
-	double height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) * REPEAT_SCALE;
+	double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+	double height2 = (pDudeInfoT->eyeHeight * target->spr.ScaleY());
 	DVector3 vec(actor->spr.angle.ToVector() * 64, height - height2);
 
 	actFireVector(actor, 0, 0, vec, kVectorGargSlash);
@@ -202,7 +202,7 @@ static void gargThinkTarget(DBloodActor* actor)
 			double nDist = dvect.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+			double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			DAngle nDeltaAngle = absangle(actor->spr.angle, dvect.Angle());
@@ -321,9 +321,9 @@ static void gargThinkChase(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, dxyAngle);
-		double height = pDudeInfo->eyeHeight * actor->spr.yrepeat * REPEAT_SCALE;
+		double height = pDudeInfo->eyeHeight * actor->spr.ScaleY();
 		// Should be dudeInfo[target->spr.type-kDudeBase]
-		double height2 = pDudeInfo->eyeHeight * target->spr.yrepeat * REPEAT_SCALE;
+		double height2 = pDudeInfo->eyeHeight * target->spr.ScaleY();
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))

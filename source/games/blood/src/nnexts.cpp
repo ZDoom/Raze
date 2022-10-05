@@ -3326,7 +3326,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			pos = bottom;
 			break;
 		case 2: // middle
-			pos = actor->spr.pos.Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum)) * actor->spr.yrepeat * REPEAT_SCALE;
+			pos = actor->spr.pos.Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum)) * actor->spr.ScaleY();
 			break;
 		case 3:
 		case 4:
@@ -3769,7 +3769,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 						break;
 					case 4:
 						// this had no value shift and no yrepeat handling, which looks like a bug.
-						pos.Z += (tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum)) * iactor->spr.yrepeat * REPEAT_SCALE;
+						pos.Z += (tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum)) * iactor->spr.ScaleY();
 						break;
 					case 5:
 					case 6:
@@ -8422,7 +8422,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		if (nDistf <= seeDistf)
 		{
 			double scratch;
-			double eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+			double eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
 			if (nDistf < seeDistf / 8) GetActorExtents(pPlayer->actor, &pos.Z, &scratch); //use ztop of the target sprite
 			if (!cansee(pos, plActor->sector(), actor->spr.pos - eyeAboveZ, actor->sector()))
 				continue;

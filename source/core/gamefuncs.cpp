@@ -250,7 +250,7 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 	double width, height, leftofs, topofs;
 	double sloperatio = sqrt(heinum * heinum + SLOPEVAL_FACTOR * SLOPEVAL_FACTOR) * (1. / SLOPEVAL_FACTOR);
 	double xrepeat = spr->xrepeat * REPEAT_SCALE;
-	double yrepeat = spr->yrepeat * REPEAT_SCALE;
+	double yrepeat = spr->ScaleY();
 
 	int xo = heinum ? 0 : spr->xoffset;
 	int yo = heinum ? 0 : spr->yoffset;

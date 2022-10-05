@@ -2573,7 +2573,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 
 		if (mass > 0)
 		{
-			double size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * REPEAT_SCALE * tileHeight(actor->spr.picnum) * actor->spr.yrepeat * REPEAT_SCALE) / 0x20000;
+			double size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * REPEAT_SCALE * tileHeight(actor->spr.picnum) * actor->spr.ScaleY()) / 0x20000;
 			actor->vel += vect * Scale(damage, size, mass);
 		}
 	}
