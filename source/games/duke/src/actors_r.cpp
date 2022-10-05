@@ -980,8 +980,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 			if (star)
 			{
 				star->spr.pal = 1;
-				star->spr.xrepeat = 32;
-				star->spr.yrepeat = 32;
+				star->spr.SetScale(0.5, 0.5);
 			}
 
 			deletesprite(proj);
@@ -1340,8 +1339,7 @@ void moveweapons_r(void)
 				if (star)
 				{
 					star->spr.pal = 1;
-					star->spr.xrepeat = 32;
-					star->spr.yrepeat = 32;
+					star->spr.SetScale(0.5, 0.5);
 				}
 				deletesprite(proj);
 				continue;

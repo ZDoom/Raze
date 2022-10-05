@@ -496,8 +496,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			else if (ps[p].OnBoat && p == screenpeek)
 			{
 				t->picnum = RRTILE7190;
-				t->xrepeat = 32;
-				t->yrepeat = 32;
+				t->SetScale(0.5, 0.5);
 				t4 = 0;
 				t3 = 0;
 				t1 = 0;

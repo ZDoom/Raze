@@ -135,8 +135,7 @@ int  SetupToiletGirl(DSWActor* actor)
     actor->user.Rot = 0;
     actor->user.RotNum = 0;
 
-    actor->spr.xrepeat = 38;
-    actor->spr.yrepeat = 32;
+    actor->spr.SetScale(0.5, 0.5);
     actor->vel.X = 0;
     actor->vel.Z = 0;
     actor->spr.lotag = TOILETGIRL_R0;

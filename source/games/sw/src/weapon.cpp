@@ -10161,8 +10161,7 @@ void SpawnBreakStaticFlames(DSWActor* actor)
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
-    actorNew->spr.xrepeat = 32;
-    actorNew->spr.yrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
 
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
@@ -10513,8 +10512,7 @@ void SpawnMicroExp(DSWActor* actor)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 32;
-    expActor->spr.yrepeat = 32;
+    expActor->spr.SetScale(0.5, 0.5);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
@@ -10644,8 +10642,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, DAngle ang)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 32;
-    expActor->spr.yrepeat = 32;
+    expActor->spr.SetScale(0.5, 0.5);
     expActor->copy_clipdist(actor);
     expActor->user.ceiling_dist = (16);
     expActor->user.floor_dist = (16);
@@ -11673,8 +11670,7 @@ void InitSpellRing(PLAYER* pp)
         actorNew->vel.X = 31.25;
         SetOwner(pp->actor, actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.xrepeat = 32;
-        actorNew->spr.yrepeat = 32;
+        actorNew->spr.SetScale(0.5, 0.5);
         actorNew->vel.Z = 0;
 
         actorNew->user.pos.Z = 20;
@@ -12057,8 +12053,7 @@ void InitSpellNapalm(PLAYER* pp)
 
         SetOwner(pp->actor, actor);
         actor->spr.shade = -40;
-        actor->spr.xrepeat = 32;
-        actor->spr.yrepeat = 32;
+        actor->spr.SetScale(0.5, 0.5);
         actor->clipdist = 0;
         actor->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
         actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
@@ -12134,8 +12129,7 @@ int InitEnemyNapalm(DSWActor* actor)
             SetOwner(actor, actorNew);
 
         actorNew->spr.shade = -40;
-        actorNew->spr.xrepeat = 32;
-        actorNew->spr.yrepeat = 32;
+        actorNew->spr.SetScale(0.5, 0.5);
         actorNew->clipdist = 0;
         actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -12648,8 +12642,7 @@ int InitSumoNapalm(DSWActor* actor)
 
             SetOwner(actor, actorNew);
             actorNew->spr.shade = -40;
-            actorNew->spr.xrepeat = 32;
-            actorNew->spr.yrepeat = 32;
+            actorNew->spr.SetScale(0.5, 0.5);
             actorNew->clipdist = 0;
             actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -14599,8 +14592,7 @@ int SpawnDemonFist(DSWActor* actor)
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 32;
-    expActor->spr.yrepeat = 32;
+    expActor->spr.SetScale(0.5, 0.5);
     expActor->user.spal = expActor->spr.pal = 25;
 
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -15243,8 +15235,7 @@ void InitBoltTrap(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->spr.angle, BOLT_TRAP_VELOCITY);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.yrepeat = 32;
-    actorNew->spr.xrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->vel.Z = 0;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -16795,8 +16786,7 @@ int InitGrenade(PLAYER* pp)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 32;
-    actorNew->spr.xrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->spr.shade = -15;
     //actorNew->clipdist = 5;
     actorNew->clipdist = 2;
@@ -16870,8 +16860,7 @@ int InitSpriteGrenade(DSWActor* actor)
         SetOwner(GetOwner(actor), actorNew);
     else
         SetOwner(actor, actorNew);
-    actorNew->spr.yrepeat = 32;
-    actorNew->spr.xrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->spr.shade = -15;
     //actorNew->clipdist = 5;
     actorNew->clipdist = 2;
@@ -16925,8 +16914,7 @@ int InitMine(PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector, pos, pp->angle.ang, MINE_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 32;
-    actorNew->spr.xrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->clipdist = 8;
     actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
@@ -16974,8 +16962,8 @@ int InitEnemyMine(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, actor->sector(), actor->spr.pos.plusZ(-40), actor->spr.angle, MINE_VELOCITY);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.yrepeat = 32;
-    actorNew->spr.xrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->clipdist = 8;
 

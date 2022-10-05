@@ -263,7 +263,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case BLOOD:
-		act->spr.xrepeat = act->spr.yrepeat = 16;
+		act->spr.SetScale(0.25, 0.25);
 		act->spr.pos.Z -= 26;
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
@@ -617,8 +617,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else if (act->spr.picnum == SHRINKEREXPLOSION)
 		{
-			act->spr.xrepeat = 32;
-			act->spr.yrepeat = 32;
+			act->spr.SetScale(0.5, 0.5);
 		}
 		else if (act->spr.picnum == SMALLSMOKE || act->spr.picnum == ONFIRE)
 		{
@@ -684,7 +683,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				act->spr.angle = actj->spr.angle;
 			act->spr.xrepeat = act->spr.yrepeat = 4;
 		}
-		else act->spr.xrepeat = act->spr.yrepeat = 32;
+		else act->spr.SetScale(0.5, 0.5);
 
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -1033,8 +1032,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else
 		{
 			if (act->spr.picnum == AMMO)
-				act->spr.xrepeat = act->spr.yrepeat = 16;
-			else act->spr.xrepeat = act->spr.yrepeat = 32;
+				act->spr.SetScale(0.25, 0.25);
+			else act->spr.SetScale(0.5, 0.5);
 		}
 
 		act->spr.shade = -17;
@@ -1189,7 +1188,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case WOODENHORSE:
 
 		if (actj)
-			act->spr.xrepeat = act->spr.yrepeat = 32;
+			act->spr.SetScale(0.5, 0.5);
 		act->clipdist = 18;
 		makeitfall(act);
 		if (actj) act->SetOwner(actj);

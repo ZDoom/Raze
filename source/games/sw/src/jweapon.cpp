@@ -1188,8 +1188,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     SetOwner(GetOwner(actor), actorNew);
     actorNew->user.WaitTics = 1 * 120;
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = 32;
-    actorNew->spr.yrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->copy_clipdist(actor);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -1274,8 +1273,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 32;
-    actorNew->spr.xrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -1339,8 +1337,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.yrepeat = 32;
-    actorNew->spr.xrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -1377,8 +1374,7 @@ int InitChemBomb(DSWActor* actor)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(GetOwner(actor), actorNew);
-    actorNew->spr.yrepeat = 32;
-    actorNew->spr.xrepeat = 32;
+    actorNew->spr.SetScale(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = 3;

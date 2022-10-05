@@ -474,8 +474,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos = pTSprite->pos.plusZ(-32 - weaponIcon.zOffset);
 		pNSprite->picnum = nTile;
 		pNSprite->shade = pTSprite->shade;
-		pNSprite->xrepeat = 32;
-		pNSprite->yrepeat = 32;
+		pNSprite->SetScale(0.5, 0.5);
 		auto& nVoxel = voxelIndex[nTile];
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{

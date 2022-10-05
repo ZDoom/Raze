@@ -366,7 +366,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 
 	act->spr.pos.Z = sect->floorz;
 	if (sect->lotag != 1 && sect->lotag != 2)
-		act->spr.xrepeat = act->spr.yrepeat = 32;
+		act->spr.SetScale(0.5, 0.5);
 
 	insertspriteq(act);
 	ChangeActorStat(act, STAT_MISC);

@@ -93,7 +93,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 		auto spawnedactor = actSpawnSprite(actor, 5);
 		spawnedactor->spr.picnum = 2424;
 		spawnedactor->spr.shade = -128;
-		spawnedactor->spr.xrepeat = spawnedactor->spr.yrepeat = 32;
+		spawnedactor->spr.SetScale(0.5, 0.5);
 		spawnedactor->spr.type = kMissileFlareAlt;
 		spawnedactor->clipdist = 0.5;
 		spawnedactor->SetOwner(actor);

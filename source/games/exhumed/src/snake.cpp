@@ -214,8 +214,7 @@ void BuildSnake(int nPlayer, double zVal)
             if (i == 0)
             {
                 pActor->spr.pos = pPlayerActor->spr.pos.plusZ(zVal);
-                pActor->spr.xrepeat = 32;
-                pActor->spr.yrepeat = 32;
+                pActor->spr.SetScale(0.5, 0.5);
                 pViewSect = pActor->sector();
                 sprt = pActor;
             }

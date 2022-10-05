@@ -5661,8 +5661,7 @@ static void actCheckThings()
 						seqSpawn(24, actor, -1);
 						if (hit.type == kHitSprite)
 						{
-							actor->spr.xrepeat = 32;
-							actor->spr.yrepeat = 32;
+							actor->spr.SetScale(0.5, 0.5);
 							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, actor->xspr.data1);
 						}
 						break;

@@ -1357,8 +1357,7 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 			if (spawned)
 			{
 				spawned->spr.pal = 1;
-				spawned->spr.xrepeat = 32;
-				spawned->spr.yrepeat = 32;
+				spawned->spr.SetScale(0.5, 0.5);
 			}
 
 			deletesprite(proj);
@@ -1700,8 +1699,7 @@ void moveweapons_d(void)
 				if (spawned)
 				{
 					spawned->spr.pal = 1;
-					spawned->spr.xrepeat = 32;
-					spawned->spr.yrepeat = 32;
+					spawned->spr.SetScale(0.5, 0.5);
 				}
 				deletesprite(act);
 				continue;

@@ -85,8 +85,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE8487:
 	case RRTILE8489:
 		if (!isRRRA()) goto default_case;
-		act->spr.xrepeat = 32;
-		act->spr.yrepeat = 32;
+		act->spr.SetScale(0.5, 0.5);
 		act->spr.extra = 0;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.hitag = 0;
@@ -690,7 +689,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = act->spr.yrepeat = 1 + (krand() & 7);
 		}
 		else
-			act->spr.xrepeat = act->spr.yrepeat = 32;
+			act->spr.SetScale(0.5, 0.5);
 		ChangeActorStat(act, STAT_MISC);
 		break;
 	case CRANE:
@@ -830,8 +829,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case HULKJUMP:
 		case HULK:
 		case HULKSTAYPUT:
-			act->spr.xrepeat = 32;
-			act->spr.yrepeat = 32;
+			act->spr.SetScale(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
 		case COOTPLAY:
@@ -859,8 +857,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->setClipDistFromTile();
 			break;
 		case COW:
-			act->spr.xrepeat = 32;
-			act->spr.yrepeat = 32;
+			act->spr.SetScale(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
 		case HEN:
@@ -975,8 +972,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->setClipDistFromTile();
 			break;
 		case CHEERBOAT:
-			act->spr.xrepeat = 32;
-			act->spr.yrepeat = 32;
+			act->spr.SetScale(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
 
@@ -1005,8 +1001,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case UFO3:
 		case UFO4:
 		case UFO5:
-			act->spr.xrepeat = 32;
-			act->spr.yrepeat = 32;
+			act->spr.SetScale(0.5, 0.5);
 			act->setClipDistFromTile();
 			act->spr.extra = 50;
 			break;
@@ -1195,8 +1190,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else
 		{
 			if (act->spr.picnum == AMMO)
-				act->spr.xrepeat = act->spr.yrepeat = 16;
-			else act->spr.xrepeat = act->spr.yrepeat = 32;
+				act->spr.SetScale(0.25, 0.25);
+			else act->spr.SetScale(0.5, 0.5);
 		}
 
 		act->spr.shade = -17;
@@ -1428,8 +1423,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		}
 		act->spr.pal = 0;
-		act->spr.xrepeat = 32;
-		act->spr.yrepeat = 32;
+		act->spr.SetScale(0.5, 0.5);
 		act->setClipDistFromTile();
 		act->saved_ammo = 20;
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -1460,7 +1454,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case WOODENHORSE:
 
 		if (actj)
-			act->spr.xrepeat = act->spr.yrepeat = 32;
+			act->spr.SetScale(0.5, 0.5);
 		act->clipdist = 18;
 		makeitfall(act);
 		if (actj) act->SetOwner(actj);
