@@ -3133,9 +3133,6 @@ void handle_se06_r(DDukeActor *actor)
 						ns->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 						ns->spr.pal = 7;
 						ns->spr.SetScale(1.25, 3.984375);
-
-						ns->spr.xrepeat = 80;
-						ns->spr.yrepeat = 255;
 					}
 					ns = spawn(actor, 296);
 					if (ns)
