@@ -132,8 +132,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 		spawned->spr.extra += (krand() & 7);
 		if (actor->spr.picnum == BOSS5 || p >= 0)
 		{
-			spawned->spr.xrepeat = 40;
-			spawned->spr.yrepeat = 40;
+			spawned->spr.SetScale(0.625, 0.625);
 		}
 		spawned->spr.yint = p;
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -430,8 +429,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			{
 				if (hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY)
 				{
-					spark->spr.xrepeat = 0;
-					spark->spr.yrepeat = 0;
+					spark->spr.SetScale(0, 0);
 					return;
 				}
 				else

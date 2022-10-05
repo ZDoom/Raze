@@ -233,7 +233,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 
 		//  Init the size
 		if (act->spr.xrepeat == 0 || act->spr.yrepeat == 0)
-			act->spr.xrepeat = act->spr.yrepeat = 1;
+			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 
 		if (actorflag(act, SFLAG_BADGUY))
 		{
@@ -294,8 +294,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	{
 		if (actj->spr.statnum == 4)
 		{
-			act->spr.xrepeat = 8;
-			act->spr.yrepeat = 8;
+			act->spr.SetScale(0.125, 0.125);
 		}
 		else
 		{
@@ -415,7 +414,8 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 			act->vel.X = 1.25;
 		}
 
-		act->spr.xrepeat = act->spr.yrepeat = isRR() && isshell? 2 : 4;
+		double scale = isRR() && isshell ? 0.03125 : 0.0625;
+		act->spr.SetScale(scale, scale);
 
 		ChangeActorStat(act, STAT_MISC);
 	}
@@ -449,8 +449,7 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 
 			act->temp_sect = actk->sector();
 
-			actk->spr.xrepeat = 48;
-			actk->spr.yrepeat = 128;
+			actk->spr.SetScale(0.75, 2);
 
 			apt.pole = actk->spr.pos.XY();
 
@@ -494,8 +493,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 		actor->temp_pos.Z = actor->spr.pos.Z;
 		if (!isRR()) actor->temp_data[1] = krand() & 127;
 	}
-	actor->spr.xrepeat = 24;
-	actor->spr.yrepeat = 24;
+	actor->spr.SetScale(0.375, 0.375);
 	ChangeActorStat(actor, STAT_STANDABLE);
 }
 

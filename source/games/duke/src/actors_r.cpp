@@ -573,26 +573,22 @@ void respawn_rrra(DDukeActor* oldact, DDukeActor* newact)
 	{
 		if (newact->spr.pal == 30)
 		{
-			newact->spr.xrepeat = 26;
-			newact->spr.yrepeat = 26;
+			newact->spr.SetScale(0.40625, 0.40625);
 			newact->clipdist = 18.75;
 		}
 		else if (newact->spr.pal == 31)
 		{
-			newact->spr.xrepeat = 36;
-			newact->spr.yrepeat = 36;
+			newact->spr.SetScale(0.5625, 0.5625);
 			newact->clipdist = 25;
 		}
 		else if (newact->spr.pal == 32)
 		{
-			newact->spr.xrepeat = 50;
-			newact->spr.yrepeat = 50;
+			newact->spr.SetScale(0.78125, 0.78125);
 			newact->clipdist = 25;
 		}
 		else
 		{
-			newact->spr.xrepeat = 50;
-			newact->spr.yrepeat = 50;
+			newact->spr.SetScale(0.78125, 0.78125);
 			newact->clipdist = 25;
 		}
 	}
@@ -1084,8 +1080,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 					auto j = spawn(proj, CIRCLESTUCK);
 					if (j)
 					{
-						j->spr.xrepeat = 8;
-						j->spr.yrepeat = 8;
+						j->spr.SetScale(0.125, 0.125);
 						j->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 						j->spr.angle += DAngle90;
 						j->clipdist = MulScale(proj->spr.xrepeat, tileWidth(proj->spr.picnum), 7) * 0.25;
@@ -3137,6 +3132,8 @@ void handle_se06_r(DDukeActor *actor)
 					{
 						ns->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 						ns->spr.pal = 7;
+						ns->spr.SetScale(1.25, 3.984375);
+
 						ns->spr.xrepeat = 80;
 						ns->spr.yrepeat = 255;
 					}

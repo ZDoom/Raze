@@ -149,8 +149,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && pp->newOwner == nullptr && h->GetOwner())
 		{
 			t->pos = interpolatedvalue(pp->opos, pp->pos, interpfrac).plusZ(gs.playerheight);
-			h->spr.xrepeat = 24;
-			h->spr.yrepeat = 17;
+			h->spr.SetScale(0.375, 0.265625);
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
@@ -178,8 +177,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->SetScale(0, 0);
 			break;
 		case DUKELYINGDEAD:
-			h->spr.xrepeat = 24;
-			h->spr.yrepeat = 17;
+			h->spr.SetScale(0.375, 0.265625);
 			if (h->spr.extra > 0)
 				t->pos.Z += 6;
 			break;
@@ -391,8 +389,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else newtspr->pos.Z = h->spr.pos.Z - 51;
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
-					newtspr->xrepeat = 10;
-					newtspr->yrepeat = 10;
+					newtspr->SetScale(0.15625, 0.15625);
 				}
 				else if (ps[p].OnMotorcycle || ps[p].OnBoat)
 				{
@@ -468,8 +465,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (ps[p].OnMotorcycle && p == screenpeek)
 			{
 				t->picnum = RRTILE7219;
-				t->xrepeat = 18;
-				t->yrepeat = 18;
+				t->SetScale(0.28125, 0.28125);
 				t4 = 0;
 				t3 = 0;
 				t1 = 0;
@@ -485,8 +481,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 
 				t->picnum = RRTILE7213 + k;
-				t->xrepeat = 18;
-				t->yrepeat = 18;
+				t->SetScale(0.28125, 0.28125);
 				t4 = 0;
 				t3 = 0;
 				t1 = 0;
@@ -511,8 +506,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 
 				t->picnum = RRTILE7184 + k;
-				t->xrepeat = 32;
-				t->yrepeat = 32;
+				t->SetScale(0.5, 0.5);
 				t4 = 0;
 				t3 = 0;
 				t1 = 0;
@@ -738,7 +732,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 								if (hw_models && modelManager.CheckModel(t->picnum, t->pal))
 								{
-									shadowspr->yrepeat = 0;
+									shadowspr->SetScale(0, 0);
 									// 512:trans reverse
 									//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
 									shadowspr->clipdist |= TSPR_FLAGS_MDHACK;

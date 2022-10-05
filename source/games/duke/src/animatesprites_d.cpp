@@ -351,8 +351,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else newtspr->pos.Z = h->spr.pos.Z - 51;
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
-					newtspr->xrepeat = 10;
-					newtspr->yrepeat = 10;
+					newtspr->SetScale(0.15625, 0.15625);
 				}
 				else
 				{

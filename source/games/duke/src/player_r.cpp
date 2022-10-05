@@ -703,13 +703,12 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	{
 		if (actor->spr.picnum == HULK)
 		{
-			spawned->spr.xrepeat = 8;
+			spawned->spr.SetScale(0.125, 0.125);
 			spawned->spr.yrepeat = 8;
 		}
 		else if (atwith != FREEZEBLAST)
 		{
-			spawned->spr.xrepeat = 30;
-			spawned->spr.yrepeat = 30;
+			spawned->spr.SetScale(0.46875, 0.46875);
 			spawned->spr.extra >>= 2;
 		}
 	}
@@ -2504,8 +2503,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 					{
 						if (victim->spr.lotag == act2->spr.lotag)
 						{
-							act2->spr.xrepeat = 0;
-							act2->spr.yrepeat = 0;
+							act2->spr.SetScale(0, 0);
 						}
 					}
 				}
@@ -2516,8 +2514,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		else
 			fi.guts(victim, RRTILE2465, 3, myconnectindex);
 		fi.guts(victim, RRTILE2465, 3, myconnectindex);
-		victim->spr.xrepeat = 0;
-		victim->spr.yrepeat = 0;
+		victim->spr.SetScale(0, 0);
 	}
 }
 
