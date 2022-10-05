@@ -33,8 +33,8 @@ struct SEQFRAME
 	unsigned int transparent2 : 1;
 	unsigned int blockable : 1;
 	unsigned int hittable : 1;
-	unsigned int xrepeat : 8;
-	unsigned int yrepeat : 8;
+	unsigned int scalex : 8;
+	unsigned int scaley : 8;
 	signed int shade : 8;
 	unsigned int palette : 5;
 	unsigned int trigger : 1;

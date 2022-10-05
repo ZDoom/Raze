@@ -1432,8 +1432,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	}
 
 	SPRITEMASS* cached = &actor->spriteMass;
-	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.picnum == cached->picnum) && actor->spr.xrepeat == cached->xrepeat &&
-		actor->spr.yrepeat == cached->yrepeat && clipDist == cached->clipDist)
+	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.picnum == cached->picnum) && actor->spr.xrepeat == cached->scalex &&
+		actor->spr.yrepeat == cached->scaley && clipDist == cached->clipDist)
 	{
 		return cached->mass;
 	}
@@ -1513,8 +1513,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	cached->airVel = ClipRange(400 - cached->mass, 32, 400);
 	cached->fraction = ClipRange(60000 - (cached->mass << 7), 8192, 60000);
 
-	cached->xrepeat = actor->spr.xrepeat;
-	cached->yrepeat = actor->spr.yrepeat;
+	cached->scalex = actor->spr.xrepeat;
+	cached->scaley = actor->spr.yrepeat;
 	cached->picnum = actor->spr.picnum;
 	cached->seqId = seqId;
 	cached->clipDist = actor->clipdist;
@@ -6520,8 +6520,8 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 				for (int i = 0; i < pSeq->nFrames; i++)
 				{
 					if ((canInherit & 0x4) && pSeq->frames[i].palette != 0) canInherit &= ~0x4;
-					if ((canInherit & 0x2) && pSeq->frames[i].xrepeat != 0) canInherit &= ~0x2;
-					if ((canInherit & 0x1) && pSeq->frames[i].yrepeat != 0) canInherit &= ~0x1;
+					if ((canInherit & 0x2) && pSeq->frames[i].scalex != 0) canInherit &= ~0x2;
+					if ((canInherit & 0x1) && pSeq->frames[i].scaley != 0) canInherit &= ~0x1;
 				}
 			}
 
@@ -9349,8 +9349,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPR
 	{
 		arc("seq", w.seqId, &nul.seqId)
 			("picnum", w.picnum, &nul.picnum)
-			("xrepeat", w.xrepeat, &nul.xrepeat)
-			("yrepeat", w.yrepeat, &nul.yrepeat)
+			("scalex", w.scalex, &nul.scalex)
+			("scaley", w.scaley, &nul.scaley)
 			("clipdist", w.clipDist)
 			("mass", w.mass)
 			("airvel", w.airVel)

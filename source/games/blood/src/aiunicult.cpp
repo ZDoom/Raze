@@ -2304,7 +2304,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		// to ensure mass gets updated, let's clear all cache
 		SPRITEMASS* pMass = &actor->spriteMass;
 		pMass->seqId = pMass->picnum = 0;
-		pMass->xrepeat = pMass->yrepeat = 0;
+		pMass->scalex = pMass->scaley = 0;
 		pMass->clipDist = 0;
 		pMass->mass = pMass->airVel = pMass->fraction = 0;
 		getSpriteMassBySize(actor);

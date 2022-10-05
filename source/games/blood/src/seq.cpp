@@ -245,7 +245,7 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	if (actor->spr.flags & 2)
 	{
 		if (tileHeight(actor->spr.picnum) != tileHeight(seqGetTile(pFrame)) || tileTopOffset(actor->spr.picnum) != tileTopOffset(seqGetTile(pFrame))
-			|| (pFrame->yrepeat && pFrame->yrepeat != actor->spr.yrepeat))
+			|| (pFrame->scaley && pFrame->scaley != actor->spr.yrepeat))
 			actor->spr.flags |= 4;
 	}
 	actor->spr.picnum = seqGetTile(pFrame);
@@ -254,14 +254,14 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	actor->spr.shade = pFrame->shade;
 
 	int scale = actor->xspr.scale; // SEQ size scaling
-	if (pFrame->xrepeat) {
-		if (scale) actor->spr.xrepeat = ClipRange(MulScale(pFrame->xrepeat, scale, 8), 0, 255);
-		else actor->spr.xrepeat = pFrame->xrepeat;
+	if (pFrame->scalex) {
+		if (scale) actor->spr.xrepeat = ClipRange(MulScale(pFrame->scalex, scale, 8), 0, 255);
+		else actor->spr.xrepeat = pFrame->scalex;
 	}
 
-	if (pFrame->yrepeat) {
-		if (scale) actor->spr.yrepeat = ClipRange(MulScale(pFrame->yrepeat, scale, 8), 0, 255);
-		else actor->spr.yrepeat = pFrame->yrepeat;
+	if (pFrame->scaley) {
+		if (scale) actor->spr.yrepeat = ClipRange(MulScale(pFrame->scaley, scale, 8), 0, 255);
+		else actor->spr.yrepeat = pFrame->scaley;
 	}
 
 	if (pFrame->transparent)
@@ -528,8 +528,8 @@ static void ByteSwapSEQ(Seq* pSeq)
 		swapFrame.transparent2 = bitReader.readBit();
 		swapFrame.blockable = bitReader.readBit();
 		swapFrame.hittable = bitReader.readBit();
-		swapFrame.xrepeat = bitReader.readUnsigned(8);
-		swapFrame.yrepeat = bitReader.readUnsigned(8);
+		swapFrame.scalex = bitReader.readUnsigned(8);
+		swapFrame.scaley = bitReader.readUnsigned(8);
 		swapFrame.shade = bitReader.readSigned(8);
 		swapFrame.palette = bitReader.readUnsigned(5);
 		swapFrame.trigger = bitReader.readBit();
