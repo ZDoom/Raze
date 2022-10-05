@@ -248,7 +248,6 @@ void insertspriteq(DDukeActor* const actor)
 		if (spriteq[spriteqloc] != nullptr)
 		{
 			// todo: Make list size a CVAR.
-			spriteq[spriteqloc]->spr.xrepeat = 0;
 			deletesprite(spriteq[spriteqloc]);
 		}
 		spriteq[spriteqloc] = actor;
@@ -1064,9 +1063,8 @@ void movewaterdrip(DDukeActor *actor, int drip)
 void movedoorshock(DDukeActor* actor)
 {
 	auto sectp = actor->sector();
-	int j = int(abs(sectp->ceilingz - sectp->floorz) * 0.5);
-	actor->spr.yrepeat = j + 4;
-	actor->spr.xrepeat = 16;
+	double j = abs(sectp->ceilingz - sectp->floorz) / 128.;
+	actor->spr.SetScale(0.25, 0.0625 + j);
 	actor->spr.pos.Z = sectp->floorz;
 }
 
@@ -1355,8 +1353,7 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 
 	if (actor->spr.xrepeat < 10)
 	{
-		explosion->spr.xrepeat = 6;
-		explosion->spr.yrepeat = 6;
+		explosion->spr.SetScale(0.09375, 0.09375);
 	}
 	else if (hit == kHitSector)
 	{
@@ -1787,15 +1784,10 @@ void ooz(DDukeActor *actor)
 {
 	getglobalz(actor);
 
-	int j = int(actor->floorz - actor->ceilingz) >> 1;
-	if (j > 255) j = 255;
+	double y = min((actor->floorz - actor->ceilingz) / 128, 4.);
+	double x = clamp(0.390625 - y * 0.5, 0.125, 0.75);
 
-	int x = 25 - (j >> 1);
-	if (x < 8) x = 8;
-	else if (x > 48) x = 48;
-
-	actor->spr.yrepeat = j;
-	actor->spr.xrepeat = x;
+	actor->spr.SetScale(x, y);
 	actor->spr.pos.Z = actor->floorz;
 }
 
@@ -2013,11 +2005,9 @@ void forcesphereexplode(DDukeActor *actor)
 	actor->spr.pos = Owner->spr.pos;;
 	actor->spr.angle += mapangle(Owner->temp_data[0]);
 
-	if (l > 64) l = 64;
-	else if (l < 1) l = 1;
+	double s = clamp(l, 1, 64) * REPEAT_SCALE;
 
-	actor->spr.xrepeat = l;
-	actor->spr.yrepeat = l;
+	actor->spr.SetScale(s, s);
 	actor->spr.shade = (l >> 1) - 48;
 
 	for (int j = actor->temp_data[0]; j > 0; j--)
@@ -4603,7 +4593,8 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 		auto k = spawn(actor, EXPLOSION2);
 		if (k)
 		{
-			k->spr.xrepeat = k->spr.yrepeat = 2 + (krand() & 7);
+			double s = 0.03125 + (krand() & 7) * REPEAT_SCALE;
+			k->spr.SetScale(s, s);
 			k->spr.pos.Z = sc->floorz + krandf(x);
 			k->spr.angle += DAngle45 - randomAngle(90);
 			k->vel.X = krandf(8);

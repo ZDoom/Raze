@@ -144,9 +144,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 		{
 			SetActor(act, actj->spr.pos);
-			act->spr.xrepeat = act->spr.yrepeat = 8 + (krand() & 7);
+			double s = 0.125 + (krand() & 7) * REPEAT_SCALE;
+			act->spr.SetScale(s, s);
 		}
-		else act->spr.xrepeat = act->spr.yrepeat = 16 + (krand() & 15);
+		else
+		{
+			double s = 0.25 + (krand() & 15) * REPEAT_SCALE;
+			act->spr.SetScale(s, s);
+		}
 
 		act->spr.shade = -16;
 		act->spr.cstat |= CSTAT_SPRITE_YCENTER;

@@ -2024,8 +2024,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		if (j)
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
-			j->spr.xrepeat = 3;
-			j->spr.yrepeat = 2;
+			j->spr.SetScale(0.046875, 0.3125);
 			j->spr.pos.Z = p->pos.Z + 8;
 		}
 	}
