@@ -1187,13 +1187,13 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	if (spr->cstat & CSTAT_SPRITE_YFLIP)
 		topofs = -topofs;
 	
-	float yrepeat = spr->yrepeat * (1.f / 64.f);
-	float sprz = spr->pos.Z - topofs * yrepeat;
+	float yscale = spr->ScaleY();
+	float sprz = spr->pos.Z - topofs * yscale;
 
 	if (spr->cstat & CSTAT_SPRITE_YCENTER)
 	{
-		sprz += height * yrepeat * 0.5f;
-		if (height & 1) sprz += yrepeat * 0.5f;  // Odd yspans
+		sprz += height * yscale * 0.5f;
+		if (height & 1) sprz += yscale * 0.5f;  // Odd yspans
 	}
 
 	glseg.fracleft = 0;
@@ -1204,7 +1204,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	tcs[LOLFT].v = tcs[LORGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 
 	zbottom[0] = zbottom[1] = -sprz;
-	ztop[0] = ztop[1] = -sprz + height * yrepeat;
+	ztop[0] = ztop[1] = -sprz + height * yscale;
 	if (zbottom[0] > ztop[0])
 	{
 		// reorder coordinates to make the clipping code below behave.
