@@ -2746,8 +2746,7 @@ static DBloodActor* actDropAmmo(DBloodActor* actor, int nType)
 		act2->spr.type = nType;
 		act2->spr.picnum = pAmmo->picnum;
 		act2->spr.shade = pAmmo->shade;
-		act2->spr.xrepeat = pAmmo->xrepeat;
-		act2->spr.yrepeat = pAmmo->yrepeat;
+		act2->spr.SetScale(pAmmo->xrepeat * REPEAT_SCALE, pAmmo->yrepeat * REPEAT_SCALE);
 		return act2;
 	}
 	return nullptr;
@@ -2763,8 +2762,7 @@ static DBloodActor* actDropWeapon(DBloodActor* actor, int nType)
 		act2->spr.type = nType;
 		act2->spr.picnum = pWeapon->picnum;
 		act2->spr.shade = pWeapon->shade;
-		act2->spr.xrepeat = pWeapon->xrepeat;
-		act2->spr.yrepeat = pWeapon->yrepeat;
+		act2->spr.SetScale(pWeapon->xrepeat * REPEAT_SCALE, pWeapon->yrepeat * REPEAT_SCALE);
 		return act2;
 	}
 	return nullptr;
@@ -2780,8 +2778,7 @@ static DBloodActor* actDropItem(DBloodActor* actor, int nType)
 		act2->spr.type = nType;
 		act2->spr.picnum = pItem->picnum;
 		act2->spr.shade = pItem->shade;
-		act2->spr.xrepeat = pItem->xrepeat;
-		act2->spr.yrepeat = pItem->yrepeat;
+		act2->spr.SetScale(pItem->xrepeat * REPEAT_SCALE, pItem->yrepeat * REPEAT_SCALE);
 		return act2;
 	}
 	return nullptr;
@@ -5454,7 +5451,7 @@ void actExplodeSprite(DBloodActor* actor)
 	}
 	actor->ZeroVelocity();
 	actPostSprite(actor, kStatExplosion);
-	actor->spr.xrepeat = actor->spr.yrepeat = explodeInfo[nType].repeat;
+	actor->spr.SetScale(explodeInfo[nType].repeat * REPEAT_SCALE, explodeInfo[nType].repeat* REPEAT_SCALE);
 
 	actor->spr.flags &= ~3;
 	actor->spr.type = nType;
@@ -6467,8 +6464,8 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	spawned->spr.pal = 0;
 	spawned->clipdist = pMissileInfo->fClipDist();
 	spawned->spr.flags = 1;
-	spawned->spr.xrepeat = pMissileInfo->xrepeat;
-	spawned->spr.yrepeat = pMissileInfo->yrepeat;
+
+	spawned->spr.SetScale(pMissileInfo->xrepeat * REPEAT_SCALE, pMissileInfo->yrepeat * REPEAT_SCALE);
 	spawned->spr.picnum = pMissileInfo->picnum;
 	spawned->spr.angle = actor->spr.angle += mapangle(pMissileInfo->angleOfs);
 	spawned->vel = dv * pMissileInfo->fVelocity();

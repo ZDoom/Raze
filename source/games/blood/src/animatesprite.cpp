@@ -45,6 +45,9 @@ BEGIN_BLD_NS
 static DAngle gCameraAng;
 DAngle random_angles[16][3];
 
+// to allow quick replacement later
+#define COPY_SCALE pNSprite->xrepeat = pTSprite->xrepeat; pNSprite->yrepeat = pTSprite->yrepeat;
+
 //---------------------------------------------------------------------------
 //
 //
@@ -194,8 +197,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = pTSprite->pos.Z;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = -128;
-		pNSprite->xrepeat = pTSprite->xrepeat;
-		pNSprite->yrepeat = pTSprite->yrepeat;
+		COPY_SCALE;
 		pNSprite->picnum = 2135;
 		break;
 	}
@@ -272,8 +274,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			if (i < 2)
 				pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 			pNSprite->shade = ClipLow(pTSprite->shade - 16, -128);
-			pNSprite->xrepeat = pTSprite->xrepeat;
-			pNSprite->yrepeat = pTSprite->yrepeat;
+			COPY_SCALE;
 			pNSprite->picnum = pTSprite->picnum;
 		}
 		break;
@@ -307,8 +308,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			pNSprite->picnum = 754;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = 8;
-		pNSprite->xrepeat = pTSprite->xrepeat;
-		pNSprite->yrepeat = pTSprite->yrepeat;
+		COPY_SCALE;
 		break;
 	}
 	case kViewEffectSmokeLow:
@@ -326,8 +326,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			pNSprite->picnum = 754;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->shade = 8;
-		pNSprite->xrepeat = pTSprite->xrepeat;
-		pNSprite->yrepeat = pTSprite->yrepeat;
+		COPY_SCALE;
 		break;
 	}
 	case kViewEffectTorchHigh:
@@ -407,8 +406,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->pos.Z = pTSprite->pos.Z;
-		pNSprite->xrepeat = pTSprite->xrepeat;
-		pNSprite->yrepeat = pTSprite->yrepeat;
+		COPY_SCALE;
 		pNSprite->picnum = 2427;
 		break;
 	}

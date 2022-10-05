@@ -485,8 +485,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		pSprite->extra = LittleShort(load.extra);
 		pSprite->pal = load.pal;
 		pSprite->clipdist = load.clipdist;
-		pSprite->xrepeat = load.xrepeat;
-		pSprite->yrepeat = load.yrepeat;
+		pSprite->SetScale(load.xrepeat * REPEAT_SCALE, load.yrepeat * REPEAT_SCALE);
 		pSprite->xoffset = load.xoffset;
 		pSprite->yoffset = load.yoffset;
 		pSprite->detail = load.detail;

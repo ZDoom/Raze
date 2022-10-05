@@ -1838,7 +1838,7 @@ bool doExplosion(DBloodActor* actor, int nType)
 	actExplosion->SetOwner(actor);
 	actExplosion->spr.shade = -127;
 
-	actExplosion->spr.yrepeat = actExplosion->spr.xrepeat = pExpl->repeat;
+	actExplosion->spr.SetScale(pExpl->repeat * REPEAT_SCALE, pExpl->repeat * REPEAT_SCALE);
 
 	actExplosion->xspr.data1 = pExpl->ticks;
 	actExplosion->xspr.data2 = pExpl->quakeEffect;
