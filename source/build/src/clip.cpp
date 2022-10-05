@@ -413,7 +413,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             case CSTAT_SPRITE_ALIGNMENT_FACING:
                 if (p1.X >= clipMin.X && p1.X <= clipMax.X && p1.Y >= clipMin.Y && p1.Y <= clipMax.Y)
                 {
-                    int32_t height, daz = actor->int_pos().Z + actor->GetOffsetAndHeight(height);
+                    double height_, daz_ = actor->spr.pos.Z + actor->GetOffsetAndHeight(height_);
+                    int height = height_ * zworldtoint, daz = daz_ * zworldtoint;
 
                     if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                     {
@@ -430,7 +431,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
             case CSTAT_SPRITE_ALIGNMENT_WALL:
             {
-                int32_t height, daz = actor->int_pos().Z + actor->GetOffsetAndHeight(height);
+                double height_, daz_ = actor->spr.pos.Z + actor->GetOffsetAndHeight(height_);
+                int height = height_ * zworldtoint, daz = daz_ * zworldtoint;
 
                 if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                 {
