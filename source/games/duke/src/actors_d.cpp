@@ -840,7 +840,7 @@ static void movetripbomb(DDukeActor *actor)
 			while (auto a1 = it.Next())
 			{
 				if (a1->spr.picnum == LASERLINE && actor->spr.hitag == a1->spr.hitag)
-					a1->spr.xrepeat = a1->spr.yrepeat = 0;
+					a1->spr.SetScale(0, 0);
 			}
 			deletesprite(actor);
 		}
@@ -1092,7 +1092,7 @@ CLEAR_THE_BOLT2:
 		actor->temp_data[0] = actor->spr.xrepeat;
 		actor->temp_data[1] = actor->spr.yrepeat;
 		actor->temp_data[2] = global_random & 4;
-		actor->spr.xrepeat = actor->spr.yrepeat = 0;
+		actor->spr.SetScale(0, 0);
 		goto CLEAR_THE_BOLT2;
 	}
 	actor->spr.picnum++;
@@ -1138,7 +1138,7 @@ CLEAR_THE_BOLT:
 		actor->temp_data[0] = actor->spr.xrepeat;
 		actor->temp_data[1] = actor->spr.yrepeat;
 		actor->temp_data[2] = global_random & 4;
-		actor->spr.xrepeat = actor->spr.yrepeat = 0;
+		actor->spr.SetScale(0, 0);
 		goto CLEAR_THE_BOLT;
 	}
 	actor->spr.picnum++;

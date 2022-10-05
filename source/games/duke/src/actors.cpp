@@ -254,7 +254,7 @@ void insertspriteq(DDukeActor* const actor)
 		spriteq[spriteqloc] = actor;
 		spriteqloc = (spriteqloc + 1) % spriteqamount;
 	}
-	else actor->spr.xrepeat = actor->spr.yrepeat = 0;
+	else actor->spr.SetScale(0, 0);
 }
 
 //---------------------------------------------------------------------------
@@ -4352,7 +4352,7 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 			case STAT_DEFAULT:
 				if (actorflag(a2, SFLAG_SE24_REMOVE))
 				{
-					a2->spr.xrepeat = a2->spr.yrepeat = 0;
+					a2->spr.SetScale(0, 0);
 					continue;
 				}
 

@@ -63,7 +63,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case DEVELOPERCOMMENTARY:
 		case DEVELOPERCOMMENTARY + 1:
 			if (isWorldTour() && !wt_commentary)
-				t->xrepeat = t->yrepeat = 0;
+				t->SetScale(0, 0);
 			break;
 		case BLOODPOOL:
 		case PUKE:
@@ -77,7 +77,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case RESPAWNMARKERYELLOW:
 		case RESPAWNMARKERGREEN:
 			if (ud.marker == 0)
-				t->xrepeat = t->yrepeat = 0;
+				t->SetScale(0, 0);
 			continue;
 		case CHAIR3:
 			if (hw_models && modelManager.CheckModel(t->picnum, t->pal)) 
@@ -154,7 +154,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->cstat |= CSTAT_SPRITE_YCENTER;
 			}
 			else
-				t->xrepeat = t->yrepeat = 0;
+				t->SetScale(0, 0);
 			break;
 		case NATURALLIGHTNING:
 			t->shade = -127;
@@ -211,7 +211,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					double dist1 = (OwnerAc->spr.pos.XY() - t->pos.XY()).LengthSquared();
 					double dist2 = (OwnerAc->spr.pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).LengthSquared();
 					if (dist1 < dist2)
-						t->xrepeat = t->yrepeat = 0;
+						t->SetScale(0, 0);
 				}
 			}
 			continue;
@@ -409,7 +409,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
 					{
 						t->ownerActor = nullptr;
-						t->xrepeat = t->yrepeat = 0;
+						t->SetScale(0, 0);
 						continue;
 					}
 
@@ -730,7 +730,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		h->dispicnum = t->picnum;
 		if (t->sectp->floorpicnum == MIRROR)
-			t->xrepeat = t->yrepeat = 0;
+			t->SetScale(0, 0);
 	}
 }
 

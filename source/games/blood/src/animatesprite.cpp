@@ -719,7 +719,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			}
 			else
 			{
-				pTSprite->xrepeat = pTSprite->yrepeat = 0;
+				pTSprite->SetScale(0, 0);
 			}
 		}
 		if (owneractor->hasX() && owneractor->xspr.burnTime > 0)

@@ -304,7 +304,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			else
 				act->temp_data[1] = actj->spr.picnum;
 		}
-		else act->spr.xrepeat = act->spr.yrepeat = 0;
+		else act->spr.SetScale(0, 0);
 
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -596,7 +596,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MUSICANDSFX:
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -670,7 +670,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case APLAYER:
 	{
-		act->spr.xrepeat = act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		int j = ud.coop;
 		if (j == 2) j = 0;
 
@@ -718,7 +718,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sectp->setfloorz(act->spr.pos.Z);
 		if (act->spr.pal && ud.multimode > 1)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1024,7 +1024,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if ((act->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1173,7 +1173,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if ((ud.multimode < 2 && act->spr.pal != 0) || (act->spr.lotag > ud.player_skill))
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1188,7 +1188,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == ACCESSCARD)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1343,7 +1343,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1376,7 +1376,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.xrepeat <= 8)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 		}
 		else act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.extra = gs.impact_damage << 2;
@@ -1392,7 +1392,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.extra = 1;
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1408,7 +1408,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isRRRA()) goto default_case;
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			break;
 		}
 		act->spr.pal = 0;
@@ -1424,7 +1424,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isRRRA()) goto default_case;
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			break;
 		}
 		act->spr.pal = 0;
@@ -1470,7 +1470,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case EGG:
 		if (ud.monsters_off == 1 && act->spr.picnum == EGG)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		else

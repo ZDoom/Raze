@@ -151,7 +151,7 @@ bool initspriteforspawn(DDukeActor* act)
 		{
 			if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
 			{
-				act->spr.xrepeat = act->spr.yrepeat = 0;
+				act->spr.SetScale(0, 0);
 				act->spr.cstat = 0;
 				act->spr.lotag = act->spr.hitag = 0;
 				return false;
@@ -226,7 +226,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		if (actj == nullptr && act->spr.lotag > ud.player_skill)
 		{
 			// make it go away...
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			return;
 		}
@@ -239,7 +239,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		{
 			if (ud.monsters_off == 1)
 			{
-				act->spr.xrepeat = act->spr.yrepeat = 0;
+				act->spr.SetScale(0, 0);
 				ChangeActorStat(act, STAT_MISC);
 				return;
 			}
@@ -328,7 +328,9 @@ int spawnbloodpoolpart1(DDukeActor* act)
 	
 	if (!away)
 	{
-		act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return true;
+		act->spr.SetScale(0, 0); 
+		ChangeActorStat(act, STAT_MISC); 
+		return true;
 	}
 
 	if (act->sector()->lotag == 1)
@@ -353,7 +355,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 		bool away = isAwayFromWall(act, 5.25);
 		if (!away)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			return;
 		}
 
@@ -511,7 +513,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 	{
 		if (actor->spr.lotag > ud.player_skill)
 		{
-			actor->spr.xrepeat = actor->spr.yrepeat = 0;
+			actor->spr.SetScale(0, 0);
 			ChangeActorStat(actor, STAT_MISC);
 			return true;
 		}
@@ -520,7 +522,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 		actor->temp_data[5] = 0;
 		if (ud.monsters_off == 1)
 		{
-			actor->spr.xrepeat = actor->spr.yrepeat = 0;
+			actor->spr.SetScale(0, 0);
 			ChangeActorStat(actor, STAT_MISC);
 			return false;
 		}
@@ -533,7 +535,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 
 	if (ud.multimode < 2 && actor->spr.pal != 0)
 	{
-		actor->spr.xrepeat = actor->spr.yrepeat = 0;
+		actor->spr.SetScale(0, 0);
 		ChangeActorStat(actor, STAT_MISC);
 		return false;
 	}
@@ -557,7 +559,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 	actor->spr.yint = sectp->extra;
 	actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-	actor->spr.xrepeat = actor->spr.yrepeat = 0;
+	actor->spr.SetScale(0, 0);
 
 	switch (actor->spr.lotag)
 	{

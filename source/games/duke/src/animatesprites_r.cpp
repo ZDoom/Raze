@@ -138,7 +138,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->cstat |= CSTAT_SPRITE_YCENTER;
 			}
 			else
-				t->xrepeat = t->yrepeat = 0;
+				t->SetScale(0, 0);
 			break;
 		default:
 			break;
@@ -175,7 +175,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			else
 				t->pal = 2;
 			if (ud.marker == 0)
-				t->xrepeat = t->yrepeat = 0;
+				t->SetScale(0, 0);
 			break;
 		case DUKELYINGDEAD:
 			h->spr.xrepeat = 24;
@@ -206,7 +206,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					double dist1 = (OwnerAc->spr.pos.XY() - t->pos.XY()).LengthSquared();
 					double dist2 = (OwnerAc->spr.pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).LengthSquared();
 					if (dist1 < dist2)
-						t->xrepeat = t->yrepeat = 0;
+						t->SetScale(0, 0);
 				}
 			}
 			continue;
@@ -453,7 +453,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
 					{
 						t->ownerActor = nullptr;
-						t->xrepeat = t->yrepeat = 0;
+						t->SetScale(0, 0);
 						continue;
 					}
 
@@ -695,7 +695,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				if (t->picnum < 0 || t->picnum >= MAXTILES)
 				{
 					t->picnum = 0;
-					t->xrepeat = t->yrepeat = 0;
+					t->SetScale(0, 0);
 				}
 
 				if (h->dispicnum >= 0)
@@ -958,7 +958,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		h->dispicnum = t->picnum;
 		if (t->sectp->floorpicnum == MIRROR)
-			t->xrepeat = t->yrepeat = 0;
+			t->SetScale(0, 0);
 	}
 }
 END_DUKE_NS

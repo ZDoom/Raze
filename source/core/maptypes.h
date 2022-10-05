@@ -473,6 +473,12 @@ struct spritetypebase
 	{
 		pos = { x * maptoworld, y * maptoworld, z * zmaptoworld };
 	}
+
+	void SetScale(double x, double y)
+	{
+		xrepeat = uint8_t(x * (1 / REPEAT_SCALE));
+		yrepeat = uint8_t(y * (1 / REPEAT_SCALE));
+	}
 };
 
 

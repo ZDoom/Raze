@@ -85,7 +85,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 			if ((act->spr.lotag > ud.player_skill) || ud.monsters_off)
 			{
-				act->spr.xrepeat = act->spr.yrepeat = 0;
+				act->spr.SetScale(0, 0);
 				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
@@ -142,7 +142,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		spawninitdefault(actj, act);
 		break;
 	case FOF:
-		act->spr.xrepeat = act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		ChangeActorStat(act, STAT_MISC);
 		break;
 	case WATERSPLASH2:
@@ -225,7 +225,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yrepeat = actj->spr.yrepeat;
 			act->temp_data[1] = actj->spr.picnum;
 		}
-		else act->spr.xrepeat = act->spr.yrepeat = 0;
+		else act->spr.SetScale(0, 0);
 
 		ChangeActorStat(act, STAT_MISC);
 
@@ -323,7 +323,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TRIPBOMB:
 		if (act->spr.lotag > ud.player_skill)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -432,7 +432,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SIGN2:
 		if (ud.multimode < 2 && act->spr.pal)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		else act->spr.pal = 0;
@@ -580,7 +580,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MUSICANDSFX:
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -665,7 +665,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case APLAYER:
 	{
-		act->spr.xrepeat = act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		int j = ud.coop;
 		if (j == 2) j = 0;
 
@@ -723,7 +723,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (act->spr.pal && ud.multimode > 1)
 			{
-				act->spr.xrepeat = act->spr.yrepeat = 0;
+				act->spr.SetScale(0, 0);
 				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
@@ -733,7 +733,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				|| (act->spr.pal == 2 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop != 1))) // Co-op Only
 				|| (act->spr.pal == 3 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop == 1)))) // Dukematch Only
 			{
-				act->spr.xrepeat = act->spr.yrepeat = 0;
+				act->spr.SetScale(0, 0);
 				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
@@ -864,7 +864,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if ((act->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1011,7 +1011,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if ((ud.multimode < 2 && act->spr.pal != 0) || (act->spr.lotag > ud.player_skill))
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1026,7 +1026,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == ACCESSCARD)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1091,7 +1091,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1127,7 +1127,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.xrepeat <= 8)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 		}
 		else act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.extra = gs.impact_damage << 2;
@@ -1153,7 +1153,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1199,7 +1199,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case EGG:
 		if (ud.monsters_off == 1 && act->spr.picnum == EGG)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		else

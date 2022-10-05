@@ -4134,7 +4134,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
                 // Don't do central blood splats for every hitscan
                 if (RANDOM_P2(1024) < 950)
                 {
-                    actorNew->spr.xrepeat = actorNew->spr.yrepeat = 0;
+                    actorNew->spr.SetScale(0, 0);
                 }
                 if (RANDOM_P2(1024) < 512)
                     actorNew->spr.cstat |= (CSTAT_SPRITE_XFLIP);

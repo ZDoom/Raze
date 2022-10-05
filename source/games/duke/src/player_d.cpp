@@ -445,7 +445,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			fi.checkhitsprite(hit.actor(), spark);
 			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
 			{
-				spark->spr.xrepeat = spark->spr.yrepeat = 0;
+				spark->spr.SetScale(0, 0);
 				auto jib = spawn(spark, JIBS6);
 				if (jib)
 				{
@@ -549,7 +549,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 				fi.checkhitsprite(hit.actor(), spark);
 				if (!hit.actor()->isPlayer())
 					spawn(spark, SMALLSMOKE);
-				else spark->spr.xrepeat = spark->spr.yrepeat = 0;
+				else spark->spr.SetScale(0, 0);
 			}
 			else if (hit.hitWall)
 				fi.checkhitwall(spark, hit.hitWall, hit.hitpos, SHOTSPARK1);
