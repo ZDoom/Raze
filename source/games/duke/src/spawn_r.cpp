@@ -192,9 +192,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 		{
 			SetActor(act, actj->spr.pos);
-			act->spr.xrepeat = act->spr.yrepeat = 8 + (krand() & 7);
+			double s = 0.125 + (krand() & 7) * REPEAT_SCALE;
+			act->spr.SetScale(s, s);
 		}
-		else act->spr.xrepeat = act->spr.yrepeat = 16 + (krand() & 15);
+		else
+		{
+			double s = 0.25 + (krand() & 15) * REPEAT_SCALE;
+			act->spr.SetScale(s, s);
+		}
 
 		act->spr.shade = -16;
 		act->spr.cstat |= CSTAT_SPRITE_YCENTER;
@@ -255,18 +260,15 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (act->spr.picnum == RABBITJIBA)
 			{
-				act->spr.xrepeat = 18;
-				act->spr.yrepeat = 18;
+				act->spr.SetScale(0.28125, 0.28125);
 			}
 			else if (act->spr.picnum == RABBITJIBB)
 			{
-				act->spr.xrepeat = 36;
-				act->spr.yrepeat = 36;
+				act->spr.SetScale(0.5625, 0.5625);
 			}
 			else if (act->spr.picnum == RABBITJIBC)
 			{
-				act->spr.xrepeat = 54;
-				act->spr.yrepeat = 54;
+				act->spr.SetScale(0.84375, 0.84375);
 			}
 		}
 		ChangeActorStat(act, STAT_MISC);
@@ -448,15 +450,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BOWLINGBALL:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 		act->clipdist = 16;
-		act->spr.xrepeat = 11;
-		act->spr.yrepeat = 9;
+		act->spr.SetScale(0.171875, 0.140625);
 		ChangeActorStat(act, 2);
 		break;
 	case HENSTAND:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 12;
-		act->spr.xrepeat = 21;
-		act->spr.yrepeat = 15;
+		act->spr.SetScale(0.328125, 0.234375);
 		ChangeActorStat(act, 2);
 		break;
 	case RRTILE295:
@@ -474,56 +474,49 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE3192:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.xrepeat = 32;
-		act->spr.yrepeat = 26;
+		act->spr.SetScale(0.5, 0.40625);
 		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3120:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.xrepeat = 12;
-		act->spr.yrepeat = 10;
+		act->spr.SetScale(0.1875, 0.15625);
 		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3122:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 0.5;
-		act->spr.xrepeat = 8;
-		act->spr.yrepeat = 6;
+		act->spr.SetScale(0.125, 0.09375);
 		act->vel.X = 1;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3123:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.xrepeat = 13;
-		act->spr.yrepeat = 13;
+		act->spr.SetScale(0.203125, 0.203125);
 		act->vel.X = 1;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3124:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.xrepeat = 17;
-		act->spr.yrepeat = 12;
+		act->spr.SetScale(0.265625, 0.1875);
 		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3132:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.xrepeat = 13;
-		act->spr.yrepeat = 10;
+		act->spr.SetScale(0.203125, 0.15625);
 		act->vel.X = 0;
 		ChangeActorStat(act, 1);
 		break;
 	case BOWLINGPIN:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 12;
-		act->spr.xrepeat = 23;
-		act->spr.yrepeat = 23;
+		act->spr.SetScale(0.359375, 0.359375);
 		ChangeActorStat(act, 2);
 		break;
 	case DUKELYINGDEAD:
@@ -560,7 +553,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SPOTLITE:
 		break;
 	case BULLETHOLE:
-		act->spr.xrepeat = act->spr.yrepeat = 3;
+		act->spr.SetScale(0.046875, 0.046875);
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
 		[[fallthrough]];
@@ -569,7 +562,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->temp_data[0] = krand() & 2047;
 			act->spr.cstat = randomFlip();
-			act->spr.xrepeat = act->spr.yrepeat = 8;
+			act->spr.SetScale(0.125, 0.125);
 			act->spr.angle = randomAngle();
 		}
 		ChangeActorStat(act, STAT_MISC);
@@ -623,13 +616,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else if (act->spr.picnum == SMALLSMOKE)
 		{
-			act->spr.xrepeat = 12;
-			act->spr.yrepeat = 12;
+			act->spr.SetScale(0.1875, 0.1875);
 		}
 		else if (act->spr.picnum == BURNING)
 		{
-			act->spr.xrepeat = 4;
-			act->spr.yrepeat = 4;
+			act->spr.SetScale(0.0625, 0.0625);
 		}
 
 		if (actj)
@@ -674,7 +665,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj)
 				act->spr.angle = actj->spr.angle;
-			act->spr.xrepeat = act->spr.yrepeat = 1 + (krand() & 7);
+			double s = REPEAT_SCALE + (krand() & 7) * REPEAT_SCALE;
+			act->spr.SetScale(s, s);
 		}
 		else
 			act->spr.SetScale(0.5, 0.5);
@@ -690,8 +682,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum != WATERDRIP) act->spr.angle = randomAngle();
 
-		act->spr.xrepeat = 24;
-		act->spr.yrepeat = 24;
+		act->spr.SetScale(0.375, 0.375);
 		ChangeActorStat(act, 6);
 		break;
 
@@ -801,8 +792,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case VIXEN:
 			if (act->spr.pal == 34)
 			{
-				act->spr.xrepeat = 22;
-				act->spr.yrepeat = 21;
+				act->spr.SetScale(0.34375, 0.328125);
 			}
 			else
 			{
@@ -821,14 +811,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case COOTPLAY:
 		case COOT:
 		case COOTSTAYPUT:
-			act->spr.xrepeat = 24;
-			act->spr.yrepeat = 18;
+			act->spr.SetScale(0.375, 0.28125);
 			act->setClipDistFromTile();
 			act->clipdist *= 4;
 			break;
 		case DRONE:
-			act->spr.xrepeat = 14;
-			act->spr.yrepeat = 7;
+			act->spr.SetScale(0.21875, 0.109375);
 			act->clipdist = 32;
 			break;
 		case SBSWIPE:
@@ -838,8 +826,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case BILLYRAYSTAYPUT:
 		case BRAYSNIPER:
 		case BUBBASTAND:
-			act->spr.xrepeat = 25;
-			act->spr.yrepeat = 21;
+			act->spr.SetScale(0.390625, 0.328125);
 			act->setClipDistFromTile();
 			break;
 		case COW:
