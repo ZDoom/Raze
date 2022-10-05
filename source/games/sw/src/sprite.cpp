@@ -3518,7 +3518,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
+        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
         actorNew->set_int_ang(0);
         actorNew->spr.extra = 0;
 
@@ -3557,7 +3557,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
+        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
         actorNew->set_int_ang(0);
         actorNew->spr.extra = 0;
 
@@ -3583,7 +3583,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
+        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
         actorNew->set_int_ang(0);
         actorNew->spr.extra = 0;
 
@@ -3612,7 +3612,7 @@ int ActorCoughItem(DSWActor* actor)
             actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
             actorNew->spr.cstat = 0;
             actorNew->spr.extra = 0;
-            actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
+            actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
             actorNew->set_int_ang(0);
             actorNew->spr.extra = 0;
 
@@ -3672,7 +3672,7 @@ int ActorCoughItem(DSWActor* actor)
         actorNew = insertActor(actor->sector(), STAT_SPAWN_ITEMS);
         actorNew->spr.cstat = 0;
         actorNew->spr.extra = 0;
-        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor) });
+        actorNew->set_int_pos({ actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor) });
         actorNew->set_int_ang(0);
         actorNew->spr.extra = 0;
 
@@ -5840,7 +5840,7 @@ KeyMain:
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             actorNew->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->actor, actorNew);
-            actorNew->user.pos.Z = ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
+            actorNew->user.pos.Z = int_ActorZOfMiddle(pp->actor);  // Set mid way up who it hit
             actorNew->user.spal = actorNew->spr.pal = actor->spr.pal;   // Set the palette of the flag
 
             SetOwner(pp->actor, actorNew);  // Player now owns the flag

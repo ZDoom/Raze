@@ -293,7 +293,7 @@ int DoWallBloodDrip(DSWActor* actor)
 void SpawnMidSplash(DSWActor* actor)
 {
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->sector(),
-                      actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor), actor->int_ang(), 0);
+                      actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->int_ang(), 0);
 
     actorNew->spr.shade = -12;
     actorNew->spr.xrepeat = 70-RandomRange(20);
@@ -1918,7 +1918,7 @@ int DoCarryFlag(DSWActor* actor)
     // if no Owner then die
     if (attached != nullptr)
     {
-        vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, ActorZOfMiddle(attached) };
+        vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, int_ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
         actor->set_int_ang(NORM_ANGLE(attached->int_ang() + 1536));
     }
@@ -2067,7 +2067,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
     // if no Owner then die
     if (attached != nullptr)
     {
-        vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, ActorZOfMiddle(attached) };
+        vec3_t pos = { attached->int_pos().X, attached->int_pos().Y, int_ActorZOfMiddle(attached) };
         SetActorZ(actor, &pos);
         actor->set_int_ang(NORM_ANGLE(attached->int_ang() + 1536));
         actor->set_int_z(attached->int_pos().Z - (ActorSizeZ(attached) >> 1));
@@ -2162,7 +2162,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     nx = actor->int_pos().X;
     ny = actor->int_pos().Y;
-    nz = ActorZOfMiddle(actor);
+    nz = int_ActorZOfMiddle(actor);
 
     switch (ShellNum)
     {

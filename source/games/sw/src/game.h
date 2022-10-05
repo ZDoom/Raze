@@ -2021,7 +2021,7 @@ inline int ActorZOfBottom(DSWActor* actor)
     return GetSpriteZOfBottom(&actor->spr);
 }
 
-inline int ActorZOfMiddle(DSWActor* actor)
+inline int int_ActorZOfMiddle(DSWActor* actor)
 {
     return (ActorZOfTop(actor) + ActorZOfBottom(actor)) >> 1;
 }

@@ -615,7 +615,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 
     // actor does a sine wave about sz - this is the z mid point
 
-    zdiff = (ActorZOfMiddle(actor->user.targetActor)) - actor->user.pos.Z;
+    zdiff = (int_ActorZOfMiddle(actor->user.targetActor)) - actor->user.pos.Z;
 
     // check z diff of the player and the sprite
     zdist = Z(20 + RandomRange(100)); // put a random amount

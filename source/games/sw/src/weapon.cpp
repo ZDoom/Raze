@@ -4469,7 +4469,7 @@ int DoFireballFlames(DSWActor* actor)
     DSWActor* attach = actor->user.attachActor;
     if (attach != nullptr)
     {
-        actor->set_int_pos({ attach->int_pos().X, attach->int_pos().Y, ActorZOfMiddle(attach) });
+        actor->set_int_pos({ attach->int_pos().X, attach->int_pos().Y, int_ActorZOfMiddle(attach) });
 
         if ((attach->spr.extra & SPRX_BURNABLE))
         {
@@ -7092,7 +7092,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
             if (actor->user.Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
             {
-                if (FAFcansee(itActor->int_pos().X,itActor->int_pos().Y,ActorZOfMiddle(actor),itActor->sector(),actor->int_pos().X,actor->int_pos().Y,ActorZOfMiddle(actor),actor->sector()))
+                if (FAFcansee(itActor->int_pos().X,itActor->int_pos().Y,int_ActorZOfMiddle(actor),itActor->sector(),actor->int_pos().X,actor->int_pos().Y,int_ActorZOfMiddle(actor),actor->sector()))
                 {
                     DoDamage(itActor, actor);
                 }
@@ -7262,11 +7262,11 @@ int DoExpDamageTest(DSWActor* actor)
             if ((unsigned)dist > actor->user.Radius)
                 continue;
 
-            dist = FindDistance3D(itActor->int_pos().X - actor->int_pos().X, itActor->int_pos().Y - actor->int_pos().Y, ActorZOfMiddle(itActor) - actor->int_pos().Z);
+            dist = FindDistance3D(itActor->int_pos().X - actor->int_pos().X, itActor->int_pos().Y - actor->int_pos().Y, int_ActorZOfMiddle(itActor) - actor->int_pos().Z);
             if ((unsigned)dist > actor->user.Radius)
                 continue;
 
-            if (!FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, ActorZOfMiddle(itActor), itActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
+            if (!FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, int_ActorZOfMiddle(itActor), itActor->sector(), actor->int_pos().X, actor->int_pos().Y, actor->int_pos().Z, actor->sector()))
                 continue;
 
             if ((itActor->spr.extra & SPRX_BREAKABLE))
@@ -10335,7 +10335,7 @@ void SpawnGrenadeExp(DSWActor* actor)
     {
         dx += RandomRange(1000)-RandomRange(1000);
         dy += RandomRange(1000)-RandomRange(1000);
-        dz = ActorZOfMiddle(actor) + RandomRange(1000)-RandomRange(1000);
+        dz = int_ActorZOfMiddle(actor) + RandomRange(1000)-RandomRange(1000);
     }
 
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, actor->sector(),
@@ -11147,7 +11147,7 @@ int DoRing(DSWActor* actor)
     if (pp)
         z = pp->pos.Z + Z(20);
     else
-        z = ActorZOfMiddle(own) + Z(30);
+        z = int_ActorZOfMiddle(own) + Z(30);
 
     actor->set_int_pos({ own->int_pos().X, own->int_pos().Y, z });
 
@@ -11845,7 +11845,7 @@ int InitSwordAttack(PLAYER* pp)
             {
                 if (SpriteOverlapZ(pp->actor, itActor, Z(20)))
                 {
-                    if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, ActorZOfMiddle(itActor), itActor->sector(), plActor->int_pos().X, plActor->int_pos().Y, ActorZOfMiddle(plActor), plActor->sector()))
+                    if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, int_ActorZOfMiddle(itActor), itActor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorZOfMiddle(plActor), plActor->sector()))
                         DoDamage(itActor, pp->actor);
                 }
             }
@@ -12021,7 +12021,7 @@ int InitFistAttack(PLAYER* pp)
             {
                 if (SpriteOverlapZ(pp->actor, itActor, Z(20)) || face == 190)
                 {
-                    if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, ActorZOfMiddle(itActor), itActor->sector(), plActor->int_pos().X, plActor->int_pos().Y, ActorZOfMiddle(plActor), plActor->sector()))
+                    if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, int_ActorZOfMiddle(itActor), itActor->sector(), plActor->int_pos().X, plActor->int_pos().Y, int_ActorZOfMiddle(plActor), plActor->sector()))
                         DoDamage(itActor, plActor);
                     if (face == 190)
                     {
@@ -12236,7 +12236,7 @@ int InitSumoSkull(DSWActor* actor)
 
     PlaySound(DIGI_SERPSUMMONHEADS, actor, v3df_none);
 
-    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor), actor->int_ang(), 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->int_ang(), 0);
 
     actorNew->spr.xvel = 500;
     SetOwner(actor, actorNew);
@@ -12299,7 +12299,7 @@ int InitSumoStompAttack(DSWActor* actor)
 
             if (dist < CloseRangeDist(itActor, actor, reach))
             {
-                if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, ActorZOfMiddle(itActor), itActor->sector(), actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor), actor->sector()))
+                if (FAFcansee(itActor->int_pos().X, itActor->int_pos().Y, int_ActorZOfMiddle(itActor), itActor->sector(), actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->sector()))
                     DoDamage(itActor, actor);
             }
         }
@@ -12325,7 +12325,7 @@ int InitMiniSumoClap(DSWActor* actor)
     {
         if (SpriteOverlapZ(actor, targetActor, Z(20)))
         {
-            if (FAFcansee(targetActor->int_pos().X, targetActor->int_pos().Y, ActorZOfMiddle(targetActor), targetActor->sector(), actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor), actor->sector()))
+            if (FAFcansee(targetActor->int_pos().X, targetActor->int_pos().Y, int_ActorZOfMiddle(targetActor), targetActor->sector(), actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->sector()))
             {
                 PlaySound(DIGI_CGTHIGHBONE, actor, v3df_follow | v3df_dontpan);
                 DoDamage(targetActor, actor);
@@ -12334,7 +12334,7 @@ int InitMiniSumoClap(DSWActor* actor)
     }
     else if (dist < CloseRangeDist(targetActor, actor, reach))
     {
-        if (FAFcansee(targetActor->int_pos().X, targetActor->int_pos().Y, ActorZOfMiddle(targetActor), targetActor->sector(), actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor), actor->sector()))
+        if (FAFcansee(targetActor->int_pos().X, targetActor->int_pos().Y, int_ActorZOfMiddle(targetActor), targetActor->sector(), actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->sector()))
         {
             PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
             SpawnFireballFlames(actor, targetActor);
@@ -13936,7 +13936,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
                 DoDamage(itActor, actor);
             else if (actor->user.Radius > 200)
             {
-                if (FAFcansee(actor->int_pos().X,actor->int_pos().Y,ActorZOfMiddle(actor),actor->sector(),itActor->int_pos().X,itActor->int_pos().Y,ActorZOfMiddle(itActor),itActor->sector()))
+                if (FAFcansee(actor->int_pos().X,actor->int_pos().Y,int_ActorZOfMiddle(actor),actor->sector(),itActor->int_pos().X,itActor->int_pos().Y,int_ActorZOfMiddle(itActor),itActor->sector()))
                     DoDamage(itActor, actor);
             }
         }
@@ -14117,7 +14117,7 @@ int SpawnDemonFist(DSWActor* actor)
         return -1;
 
     auto expActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                            actor->int_pos().X, actor->int_pos().Y, ActorZOfMiddle(actor), actor->int_ang(), 0);
+                            actor->int_pos().X, actor->int_pos().Y, int_ActorZOfMiddle(actor), actor->int_ang(), 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
@@ -14442,7 +14442,7 @@ int InitEnemyStar(DSWActor* actor)
 
     nx = actor->int_pos().X;
     ny = actor->int_pos().Y;
-    nz = ActorZOfMiddle(actor);
+    nz = int_ActorZOfMiddle(actor);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, actor->sector(),
@@ -14481,7 +14481,7 @@ int InitEnemyCrossbow(DSWActor* actor)
 
     nx = actor->int_pos().X;
     ny = actor->int_pos().Y;
-    nz = ActorZOfMiddle(actor)-Z(14);
+    nz = int_ActorZOfMiddle(actor)-Z(14);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(),
@@ -14802,7 +14802,7 @@ void InitSpearTrap(DSWActor* actor)
 
     nx = actor->int_pos().X;
     ny = actor->int_pos().Y;
-    nz = ActorZOfMiddle(actor);
+    nz = int_ActorZOfMiddle(actor);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(), nx, ny, nz, actor->int_ang(), 750);
