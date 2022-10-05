@@ -1104,10 +1104,10 @@ int HWWall::CheckWallSprite(tspritetype* spr, tspritetype* last)
 	if (spr->pos.XY() != last->pos.XY() || spr->sectp != last->sectp || spr->angle != last->angle) return 3;
 	
 	// if the horizontal orientation changes we need to recalculate the walls this attaches to, but not the positioning.
-	if (spr->xrepeat != last->xrepeat || spr->xoffset != last->xoffset || spr->picnum != last->picnum || ((spr->cstat ^ last->cstat) & CSTAT_SPRITE_XFLIP)) return 2;
+	if (spr->ScaleX() != last->ScaleX() || spr->xoffset != last->xoffset || spr->picnum != last->picnum || ((spr->cstat ^ last->cstat) & CSTAT_SPRITE_XFLIP)) return 2;
 	
 	// only y-positioning changed - we need to re-check the wall tiers this sprite attaches to
-	if(spr->yrepeat != last->yrepeat || spr->yoffset != last->yoffset || ((spr->cstat ^ last->cstat) & (CSTAT_SPRITE_YFLIP|CSTAT_SPRITE_YCENTER))) return 1;
+	if(spr->ScaleY() != last->ScaleY() || spr->yoffset != last->yoffset || ((spr->cstat ^ last->cstat) & (CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_YCENTER))) return 1;
 
 	// all remaining properties only affect the render style which is not relevant for positioning a wall sprite
 	return 0;

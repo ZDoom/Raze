@@ -278,7 +278,7 @@ void HWDrawInfo::DispatchSprites()
 		int tilenum = tspr->picnum;
 		auto actor = tspr->ownerActor;
 
-		if (actor == nullptr || tspr->xrepeat == 0 || tspr->yrepeat == 0 || (unsigned)tilenum >= MAXTILES)
+		if (actor == nullptr || tspr->ScaleX() == 0 || tspr->ScaleY() == 0 || (unsigned)tilenum >= MAXTILES)
 			continue;
 
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;

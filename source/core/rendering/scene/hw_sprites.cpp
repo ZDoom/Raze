@@ -371,12 +371,14 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 		}
 
 		// convert to render space.
-		float width = (xsize * spr->xrepeat) * (0.2f / 16.f); // weird Build fuckery. Face sprites are rendered at 80% width only.
-		float height = (ysize * spr->yrepeat) * (0.25f / 16.f);
-		float xoff = (tilexoff * spr->xrepeat) * (0.2f / 16.f);
-		float yoff = (tileyoff * spr->yrepeat) * (0.25f / 16.f);
+		float sx = (float)spr->ScaleX() * 0.8f; // weird Build fuckery. Face sprites are rendered at 80% width only.
+		float sy = (float)spr->ScaleY();
+		float width = xsize * sx;
+		float height = ysize * sy;
+		float xoff = tilexoff * sx;
+		float yoff = tileyoff * sy;
 
-		if (xsize & 1) xoff -= spr->xrepeat * (0.1f / 16.f);  // Odd xspans (taken from polymost as-is)
+		if (xsize & 1) xoff -= sx * 0.5;  // Odd xspans (taken from polymost as-is)
 
 		if (spr->cstat & CSTAT_SPRITE_YCENTER)
 		{
@@ -477,7 +479,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	FVector3 translatevec = { 0, 0, voxel->zadd * voxel->scale };
 
 	float basescale = voxel->bscale / 64.f;
-	float sprxscale = (float)spr->xrepeat * (256.f / 320.f) * basescale;
+	float sprxscale = (float)spr->ScaleX() * (256.f / 5) * basescale;
 	if ((spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
 	{
 		sprxscale *= 1.25f;

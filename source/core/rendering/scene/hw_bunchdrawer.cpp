@@ -675,7 +675,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 		CoreSectIterator it(sectnum);
 		while (auto actor = it.Next())
 		{
-			if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE) || actor->spr.xrepeat == 0 || actor->spr.yrepeat == 0) // skip invisible sprites
+			if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE) || actor->spr.ScaleX() == 0 || actor->spr.ScaleY() == 0) // skip invisible sprites
 				continue;
 
 			auto viewvec = actor->spr.pos.XY() - DVector2(viewx, -viewy); // note that viewy is in render coordinates
