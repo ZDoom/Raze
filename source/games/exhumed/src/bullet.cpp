@@ -360,8 +360,7 @@ int MoveBullet(int nBullet)
                 {
                     pBullet->nSeq = 45;
                     pBullet->nFrame = 0;
-                    pActor->spr.xrepeat = 40;
-                    pActor->spr.yrepeat = 40;
+                    pActor->spr.SetScale(0.625, 0.625);
                     pActor->spr.shade = 0;
 					pActor->spr.pos.Z += 2;
                 }

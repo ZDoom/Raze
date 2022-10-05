@@ -61,13 +61,11 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
 
     if (bEggWasp)
     {
-        pActor->spr.xrepeat = 20;
-        pActor->spr.yrepeat = 20;
+        pActor->spr.SetScale(0.34375, 0.3125);
     }
     else
     {
-        pActor->spr.xrepeat = 50;
-        pActor->spr.yrepeat = 50;
+        pActor->spr.SetScale(0.78125, 0.78125);
     }
 
     pActor->spr.xoffset = 0;

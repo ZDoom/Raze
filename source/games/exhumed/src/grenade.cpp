@@ -127,8 +127,7 @@ void BuildGrenade(int nPlayer)
 
 	pActor->spr.pos = pPlayerActor->spr.pos.plusZ(-15);
     pActor->spr.shade = -64;
-    pActor->spr.xrepeat = 20;
-    pActor->spr.yrepeat = 20;
+    pActor->spr.SetScale(0.34375, 0.3125);
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.picnum = 1;
     pActor->spr.pal = 0;

@@ -8600,8 +8600,7 @@ int DoGrenade(DSWActor* actor)
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.xrepeat = 40;
-        actorNew->spr.yrepeat = 40;
+        actorNew->spr.SetScale(0.625, 0.625);
         actorNew->opos = actor->opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -9603,8 +9602,7 @@ int DoRocket(DSWActor* actor)
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.xrepeat = 40;
-        actorNew->spr.yrepeat = 40;
+        actorNew->spr.SetScale(0.625, 0.625);
         actorNew->opos = actor->opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -9704,8 +9702,7 @@ int DoMicro(DSWActor* actor)
 
         SetOwner(GetOwner(actor), actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.xrepeat = 20;
-        actorNew->spr.yrepeat = 20;
+        actorNew->spr.SetScale(0.34375, 0.3125);
         actorNew->opos = actor->opos;
         actorNew->vel.Z = -actor->vel.Z;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -11426,8 +11423,7 @@ int DoMirv(DSWActor* actor)
 
             SetOwner(actor, actorNew);
             actorNew->spr.shade = -40;
-            actorNew->spr.xrepeat = 40;
-            actorNew->spr.yrepeat = 40;
+            actorNew->spr.SetScale(0.625, 0.625);
             actorNew->clipdist = 2;
             actorNew->vel.Z = 0;
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -15906,8 +15902,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 40;
-    actorNew->spr.xrepeat = 40;
+    actorNew->spr.SetScale(0.625, 0.625);
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->clipdist = 2;
@@ -15946,8 +15941,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, actor->sector(), actor->spr.pos, actor->spr.angle, FIREBALL_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 40;
-    actorNew->spr.xrepeat = 40;
+    actorNew->spr.SetScale(0.625, 0.625);
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->clipdist = 2;
@@ -16320,7 +16314,7 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
+    actorNew->spr.SetScale(0.34375, 0.3125);
     SetOwner(pp->actor, actorNew);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
@@ -16335,7 +16329,7 @@ int SpawnSwordSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = actorNew->spr.yrepeat = 20;
+    actorNew->spr.SetScale(0.34375, 0.3125);
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -17030,8 +17024,7 @@ int InitFireball(PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, pos, pp->angle.ang, FIREBALL_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
-    actorNew->spr.xrepeat = 40;
-    actorNew->spr.yrepeat = 40;
+    actorNew->spr.SetScale(0.625, 0.625);
     actorNew->spr.shade = -40;
     actorNew->clipdist = 2;
     SetOwner(pp->actor, actorNew);
@@ -17108,8 +17101,7 @@ int InitEnemyFireball(DSWActor* actor)
                         DVector3(actor->spr.pos, nz), actor->spr.angle, GORO_FIREBALL_VELOCITY);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
-        actorNew->spr.xrepeat = 20;
-        actorNew->spr.yrepeat = 20;
+        actorNew->spr.SetScale(0.34375, 0.3125);
         actorNew->spr.shade = -40;
 
         SetOwner(actor, actorNew);

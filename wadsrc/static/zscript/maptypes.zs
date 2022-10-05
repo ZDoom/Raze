@@ -239,8 +239,8 @@ struct walltype native
 
 	native int8 shade;
 	native uint8 pal;
-	native uint8 xrepeat;
-	native uint8 yrepeat;
+	//native uint8 xrepeat;
+	//native uint8 yrepeat;
 
 
 	native void setxpan(double add);
@@ -291,8 +291,8 @@ struct tspritetype native
 	native uint8 pal;
 	native uint8 clipdist;
 	native uint8 blend;
-	native uint8 xrepeat;
-	native uint8 yrepeat;
+	//native uint8 xrepeat;
+	//native uint8 yrepeat;
 	native int8 xoffset;
 	native int8 yoffset;
 	native CoreActor ownerActor;

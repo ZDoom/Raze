@@ -952,8 +952,7 @@ int DoChemBomb(DSWActor* actor)
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.xrepeat = 40;
-        actorNew->spr.yrepeat = 40;
+        actorNew->spr.SetScale(0.625, 0.625);
         actorNew->opos = actor->opos;
         // !Frank - dont do translucent
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);

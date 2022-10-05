@@ -63,8 +63,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				if (act->spr.pal != 0)
 				{
 					act->clipdist = 20;
-					act->spr.xrepeat = 40;
-					act->spr.yrepeat = 40;
+					act->spr.SetScale(0.625, 0.625);
 				}
 				else
 				{
@@ -75,8 +74,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				act->spr.xrepeat = 40;
-				act->spr.yrepeat = 40;
+				act->spr.SetScale(0.625, 0.625);
 				act->clipdist = 20;
 			}
 
@@ -123,7 +121,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krandf(16) - 8;
 			act->spr.pos.Y += krandf(16) - 8;
-			act->spr.xrepeat = 20;
+			act->spr.SetScale(0.3125, 0.3125);
 			act->spr.yrepeat = 20;
 			return act;
 		case SERIOUSSAM:
@@ -830,8 +828,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.pal && (!isWorldTour() || !(currentLevel->flags & LEVEL_WT_BOSSSPAWN) || act->spr.pal != 22))
 			{
 				act->clipdist = 20;
-				act->spr.xrepeat = 40;
-				act->spr.yrepeat = 40;
+				act->spr.SetScale(0.625, 0.625);
 			}
 			else
 			{
@@ -844,8 +841,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (act->spr.picnum != SHARK)
 			{
-				act->spr.xrepeat = 40;
-				act->spr.yrepeat = 40;
+				act->spr.SetScale(0.625, 0.625);
 				act->clipdist = 20;
 			}
 			else

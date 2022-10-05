@@ -801,8 +801,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SHARK:
 	case VIXEN:
 	rrra_badguy2:
-		act->spr.xrepeat = 40;
-		act->spr.yrepeat = 40;
+		act->spr.SetScale(0.625, 0.625);
 		// Note: All inappropriate tiles have already been weeded out by the outer switch block so this does not need game type checks anymore.
 		switch (act->spr.picnum)
 		{
@@ -814,8 +813,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				act->spr.xrepeat = 22;
-				act->spr.yrepeat = 20;
+				act->spr.SetScale(0.34375, 0.3125);
 			}
 			act->setClipDistFromTile();
 			break;
@@ -911,14 +909,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else if (act->spr.pal == 32)
 			{
-				act->spr.xrepeat = 50;
-				act->spr.yrepeat = 50;
+				act->spr.SetScale(0.78125, 0.78125);
 				act->clipdist = 25;
 			}
 			else
 			{
-				act->spr.xrepeat = 50;
-				act->spr.yrepeat = 50;
+				act->spr.SetScale(0.78125, 0.78125);
 				act->clipdist = 25;
 			}
 			break;
@@ -944,8 +940,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case CHEER:
 		case CHEERSTAYPUT:
-			act->spr.xrepeat = 20;
-			act->spr.yrepeat = 20;
+			act->spr.SetScale(0.34375, 0.3125);
 			act->setClipDistFromTile();
 			break;
 		case MAKEOUT:
@@ -1266,8 +1261,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case RPG2SPRITE:
 			if (!isRRRA()) goto default_case;
-			act->spr.xrepeat = 20;
-			act->spr.yrepeat = 20;
+			act->spr.SetScale(0.34375, 0.3125);
 			break;
 		case SHRINKERSPRITE:
 			act->spr.xrepeat = 22;

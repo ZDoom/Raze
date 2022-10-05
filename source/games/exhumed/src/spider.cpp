@@ -63,8 +63,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
     spp->vel.X = 0;
     spp->vel.Y = 0;
     spp->vel.Z = 0;
-    spp->spr.xrepeat = 40;
-    spp->spr.yrepeat = 40;
+    spp->spr.SetScale(0.625, 0.625);
     spp->spr.pal = spp->sector()->ceilingpal;
     spp->spr.xoffset = 0;
     spp->spr.yoffset = 0;

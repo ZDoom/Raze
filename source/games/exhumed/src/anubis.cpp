@@ -72,8 +72,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
     ap->spr.pal = ap->sector()->ceilingpal;
 	ap->clipdist = 15;
     ap->spr.angle = nAngle;
-    ap->spr.xrepeat = 40;
-    ap->spr.yrepeat = 40;
+    ap->spr.SetScale(0.625, 0.625);
     ap->vel.X = 0;
     ap->vel.Y = 0;
     ap->vel.Z = 0;
@@ -413,8 +412,7 @@ void AIAnubis::Damage(RunListEvent* ev)
                     auto pDrumActor = insertActor(ap->sector(), kStatAnubisDrum);
 
                     pDrumActor->spr.pos = { ap->spr.pos.X, ap->spr.pos.Y, pDrumActor->sector()->floorz };
-                    pDrumActor->spr.xrepeat = 40;
-                    pDrumActor->spr.yrepeat = 40;
+                    pDrumActor->spr.SetScale(0.625, 0.625);
                     pDrumActor->spr.shade = -64;
 
                     BuildObject(pDrumActor, 2, 0);

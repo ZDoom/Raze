@@ -322,8 +322,7 @@ void RestartPlayer(int nPlayer)
 	pActor->spr.shade = -12;
 	pActor->clipdist = 14.5;
 	pActor->spr.pal = 0;
-	pActor->spr.xrepeat = 40;
-	pActor->spr.yrepeat = 40;
+	pActor->spr.SetScale(0.625, 0.625);
 	pActor->spr.xoffset = 0;
 	pActor->spr.yoffset = 0;
 	pActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
