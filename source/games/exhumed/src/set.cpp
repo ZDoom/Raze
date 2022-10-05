@@ -110,7 +110,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xvel = 0;
     pActor->spr.yvel = 0;
     pActor->spr.zvel = (-256) - RandomSize(10);
-    pActor->set_int_pos({ pSet->int_pos().X, pSet->int_pos().Y, (RandomSize(8) << 8) + 8192 + pActor->sector()->int_ceilingz() - GetActorHeight(pActor) });
+    pActor->spr.pos = DVector3(pSet->spr.pos.X, pSet->spr.pos.Y, RandomSize(8) + 32 + pActor->sector()->ceilingz - GetActorHeight(pActor) * zinttoworld);
 
     //pActor->spr.hitag = nSet;
 	pActor->pTarget = pSet;
@@ -150,7 +150,7 @@ void AISoul::Tick(RunListEvent* ev)
         pActor->spr.cstat = 0;
         pActor->spr.yrepeat = 1;
         pActor->spr.xrepeat = 1;
-        pActor->set_int_pos({ pSet->int_pos().X, pSet->int_pos().Y, pSet->int_pos().Z - (GetActorHeight(pSet) >> 1) });
+        pActor->spr.pos = pSet->spr.pos.plusZ(-((GetActorHeight(pSet) >> 1) * zinttoworld));
         ChangeActorSect(pActor, pSet->sector());
         return;
     }

@@ -100,7 +100,7 @@ void BuildRa(int nPlayer)
     pActor->spr.pal = 1;
     pActor->spr.xrepeat = 64;
     pActor->spr.yrepeat = 64;
-    pActor->set_int_pos(pPlayerActor->int_pos());
+    pActor->spr.pos = pPlayerActor->spr.pos;
 
 //	GrabTimeSlot(3);
 
@@ -163,7 +163,7 @@ void MoveRaToEnemy(int nPlayer)
         pTarget = PlayerList[nPlayer].pActor;
     }
 
-    pActor->set_int_pos({ pTarget->int_pos().X, pTarget->int_pos().Y, pTarget->int_pos().Z - GetActorHeight(pTarget) });
+    pActor->spr.pos = pTarget->spr.pos.plusZ(-GetActorHeight(pTarget) * zinttoworld);
 
     if (pActor->sector() != pTarget->sector()) {
         ChangeActorSect(pActor, pTarget->sector());

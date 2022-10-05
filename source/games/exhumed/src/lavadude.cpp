@@ -41,7 +41,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 {
     auto pLimbActor = insertActor(pActor->sector(), 118);
 
-    pLimbActor->set_int_pos({ pActor->int_pos().X, pActor->int_pos().Y, pActor->int_pos().Z - RandomLong() % ebx });
+    pLimbActor->spr.pos = pActor->spr.pos.plusZ((-RandomLong() % ebx) * zmaptoworld);
     pLimbActor->spr.cstat = 0;
     pLimbActor->spr.shade = -127;
     pLimbActor->spr.pal = 1;

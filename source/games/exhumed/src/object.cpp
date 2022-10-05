@@ -393,7 +393,7 @@ DExhumedActor* BuildWallSprite(sectortype* pSector)
 
     auto pActor = insertActor(pSector, 401);
 
-    pActor->set_int_pos({ wal->center().X, wal->center().Y, (pSector->int_floorz() + pSector->int_ceilingz()) / 2 });
+	pActor->spr.pos = DVector3(wal->fcenter(), (pSector->floorz + pSector->ceilingz) * 0.5);
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 
     return pActor;
@@ -1020,7 +1020,7 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
 
     SlideData[nSlide].pActor = pActor;
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->set_int_pos({ pStartWall->wall_int_pos().X, pStartWall->wall_int_pos().Y, pSector->int_floorz() });
+    pActor->spr.pos = DVector3(pStartWall->pos, pSector->floorz);
     pActor->backuppos();
 
     SlideData[nSlide].nRunC = 0;
@@ -1826,8 +1826,8 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
         pActor->nIndex2 = -1;
 
         pActor2->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-        pActor2->set_int_pos(pActor->int_pos());
-    }
+		pActor2->spr.pos = pActor->spr.pos;
+	}
     else
     {
         pActor->nFrame = 0;
@@ -1963,7 +1963,7 @@ void AIObject::Tick(RunListEvent* ev)
             StartRegenerate(pActor);
             pActor->nHealth = 120;
 
-            pActor->set_int_pos(pActor->pTarget->int_pos());
+            pActor->spr.pos = pActor->pTarget->spr.pos;
             ChangeActorSect(pActor, pActor->pTarget->sector());
             return;
         }

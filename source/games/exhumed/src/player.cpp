@@ -263,14 +263,14 @@ void RestartPlayer(int nPlayer)
 			nCurStartSprite = 0;
 		}
 
-		pActor->set_int_pos(nNStartSprite->int_pos());
+		pActor->spr.pos = nNStartSprite->spr.pos;
 		ChangeActorSect(pActor, nNStartSprite->sector());
 		plr->angle.ang = nNStartSprite->spr.angle.Normalized360();
 		pActor->spr.angle = plr->angle.ang;
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
-		floorsprt->set_int_pos(pActor->int_pos());
+		floorsprt->spr.pos = pActor->spr.pos;
 		floorsprt->spr.yrepeat = 64;
 		floorsprt->spr.xrepeat = 64;
 		floorsprt->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
@@ -311,7 +311,7 @@ void RestartPlayer(int nPlayer)
 	pActor->spr.extra = -1;
 	pActor->spr.lotag = runlist_HeadRun() + 1;
 
-    pDActor->set_int_pos(pActor->int_pos());
+    pDActor->spr.pos = pActor->spr.pos;
 	pDActor->spr.xrepeat = pActor->spr.xrepeat;
 	pDActor->spr.yrepeat = pActor->spr.yrepeat;
 	pDActor->spr.xoffset = 0;
@@ -454,7 +454,7 @@ void StartDeathSeq(int nPlayer, int nVal)
                 auto pGunActor = GrabBodyGunSprite();
                 ChangeActorSect(pGunActor, pSector);
 
-                pGunActor->set_int_pos({ pActor->int_pos().X, pActor->int_pos().Y, pSector->int_floorz() - 512 });
+                pGunActor->spr.pos = { pActor->spr.pos.X, pActor->spr.pos.Y, pSector->floorz - 2 };
 
                 ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
 
@@ -2572,7 +2572,7 @@ sectdone:
     }
 
     // loc_1C4E1
-    pDopple->set_int_pos(pPlayerActor->int_pos());
+    pDopple->spr.pos = pPlayerActor->spr.pos;
 
     if (pPlayerActor->sector()->pAbove != nullptr)
     {
