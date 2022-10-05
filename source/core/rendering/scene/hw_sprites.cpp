@@ -378,12 +378,12 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 		float xoff = tilexoff * sx;
 		float yoff = tileyoff * sy;
 
-		if (xsize & 1) xoff -= sx * 0.5;  // Odd xspans (taken from polymost as-is)
+		if (xsize & 1) xoff -= sx * 0.5f;  // Odd xspans (taken from polymost as-is)
 
 		if (spr->cstat & CSTAT_SPRITE_YCENTER)
 		{
-			yoff -= height * 0.5;
-			if (ysize & 1) yoff -= spr->yrepeat * (0.125f / 16.f);  // Odd yspans (taken from polymost as-is)
+			yoff -= height * 0.5f;
+			if (ysize & 1) yoff -= sy * 0.5f;  // Odd yspans (taken from polymost as-is)
 		}
 
 		if (flags & CSTAT_SPRITE_XFLIP) xoff = -xoff;
@@ -478,14 +478,14 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	FVector3 scalevec = { voxel->scale, voxel->scale, voxel->scale };
 	FVector3 translatevec = { 0, 0, voxel->zadd * voxel->scale };
 
-	float basescale = voxel->bscale / 64.f;
-	float sprxscale = (float)spr->ScaleX() * (256.f / 5) * basescale;
+	float basescale = voxel->bscale;
+	float sprxscale = (float)spr->ScaleX() * 0.8f * basescale;
 	if ((spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
 	{
 		sprxscale *= 1.25f;
 		auto rvec = ownerActor->sprext.rot.Yaw.ToVector();
-		translatevec.Y -= spr->xoffset * rvec.X / 64;
-		translatevec.X += spr->xoffset * rvec.Y / 64;
+		translatevec.Y -= spr->xoffset * rvec.X;
+		translatevec.X += spr->xoffset * rvec.Y;
 	}
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP) 
@@ -504,13 +504,13 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	translatevec.X *= sprxscale; 
 	scalevec.Y *= sprxscale; 
 	translatevec.Y *= sprxscale;
-	float sprzscale = (float)spr->yrepeat * basescale;
+	float sprzscale = (float)spr->ScaleY() * basescale;
 	scalevec.Z *= sprzscale; 
 	translatevec.Z *= sprzscale;
 
 	float zpos = (float)(spr->pos.Z + ownerActor->sprext.position_offset.Z);
-	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -1.f/64.f : 1.f/64.f;
-	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
+	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -1.f : 1.f;
+	zpos -= (spr->yoffset * spr->ScaleY()) * zscale * basescale;
 
 	x = (spr->pos.X + ownerActor->sprext.position_offset.X);
 	z = -zpos;
