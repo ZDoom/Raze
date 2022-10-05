@@ -1591,7 +1591,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		}
 	}
 	else if (proj->spr.picnum == SPIT) if (proj->vel.Z < 24)
-		proj->add_int_zvel( gs.gravity - 112);
+		proj->vel.Z += gs.gravity - 112 / 256.;
 
 	if (coll.type != 0)
 	{

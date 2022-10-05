@@ -200,8 +200,6 @@ struct CraneDef
 	TObjPtr<DDukeActor*> poleactor;
 };
 
-constexpr double VEL_FACTOR = FloatToFixed<18>(1);
-constexpr double VELZ_FACTOR = 256;
 struct player_struct
 {
 	DVector3 vel;
