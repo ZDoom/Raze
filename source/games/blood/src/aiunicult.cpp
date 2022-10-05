@@ -1576,7 +1576,7 @@ static void scaleDamage(DBloodActor* actor)
 		}
 	}
 
-	// take in account yrepeat of sprite
+	// take in account scale of sprite
 	int yscale = int(actor->spr.ScaleY() * 64);
 	if (yscale < 64)
 	{

@@ -70,14 +70,14 @@ struct THINGINFO
 	int16_t mass;
 	uint8_t clipdist;
 	int16_t flags;
-	int32_t elastic; // elasticity
-	int32_t dmgResist; // damage resistance
+	int32_t elastic;
+	int32_t dmgResist;
 	ESpriteFlags cstat;
 	int16_t picnum;
 	int8_t shade;
 	uint8_t pal;
-	uint8_t _xrepeat; // xrepeat
-	uint8_t _yrepeat; // yrepeat
+	uint8_t _xrepeat;
+	uint8_t _yrepeat;
 	int dmgControl[kDamageMax]; // damage
 	
 	double fClipdist() const { return clipdist * 0.25; }

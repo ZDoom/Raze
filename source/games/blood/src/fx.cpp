@@ -32,19 +32,19 @@ BEGIN_BLD_NS
 CFX gFX;
 
 struct FXDATA {
-	CALLBACK_ID funcID; // callback
-	uint8_t detail; // detail
-	int16_t seq; // seq
-	int16_t flags; // flags
-	int32_t gravity; // gravity
+	CALLBACK_ID funcID;
+	uint8_t detail;
+	int16_t seq;
+	int16_t flags;
+	int32_t gravity;
 	int32_t drag; // air drag
 	int32_t defangle;
-	int16_t picnum; // picnum
-	uint8_t xrepeat; // xrepeat
-	uint8_t yrepeat; // yrepeat
-	ESpriteFlags cstat; // cstat
-	int8_t shade; // shade
-	uint8_t pal; // pal
+	int16_t picnum;
+	uint8_t xrepeat;
+	uint8_t yrepeat;
+	ESpriteFlags cstat;
+	int8_t shade;
+	uint8_t pal;
 };
 
 FXDATA gFXData[] = {
