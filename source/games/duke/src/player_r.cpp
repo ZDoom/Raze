@@ -3274,7 +3274,7 @@ static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int shrunk = (pact->spr.yrepeat < 8);
+	int shrunk = (pact->spr.ScaleY() < 0.125);
 
 	if (p->detonate_count > 0)
 	{
@@ -3388,7 +3388,7 @@ void processinput_r(int snum)
 
 	p->spritebridge = 0;
 
-	shrunk = (pact->spr.yrepeat < 8);
+	shrunk = (pact->spr.ScaleY() < 0.125);
 	double tempfz;
 	if (pact->clipdist == 16)
 	{
@@ -3533,7 +3533,7 @@ void processinput_r(int snum)
 		return;
 	}
 
-	if (p->GetActor()->spr.xrepeat < 8 && p->jetpack_on == 0)
+	if (p->GetActor()->spr.ScaleX() < 0.125 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
 		p->fistsign += p->GetActor()->vel.X * 16;

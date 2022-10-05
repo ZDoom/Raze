@@ -439,7 +439,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 {
 	int bg = badguy(actor);
 
-	if (actor->spr.statnum == STAT_MISC || (bg && actor->spr.xrepeat < 4))
+	if (actor->spr.statnum == STAT_MISC || (bg && actor->spr.ScaleX() < 0.0625))
 	{
 		actor->spr.pos += change;
 		if (bg)
@@ -540,7 +540,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 	int sx, sy;
 	uint8_t pal;
 
-	if (badguy(actor) && actor->spr.xrepeat < 16)
+	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
 		sx = sy = 8;
 	else sx = sy = 32;
 
@@ -2300,10 +2300,10 @@ static void greenslime(DDukeActor *actor)
 			actor->spr.pos = s5->spr.pos + s5->spr.angle.ToVector() * 0.5;
 			actor->spr.picnum = GREENSLIME + 2 + (global_random & 1);
 
-			if (actor->spr.yrepeat < 64) actor->spr.yrepeat += 2;
+			if (actor->spr.ScaleY() < 1) actor->spr.yrepeat += 2;
 			else
 			{
-				if (actor->spr.xrepeat < 32) actor->spr.xrepeat += 4;
+				if (actor->spr.ScaleX() < 0.5) actor->spr.xrepeat += 4;
 				else
 				{
 					actor->temp_data[0] = -1;
@@ -2458,7 +2458,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	getglobalz(actor);
 
 	int ds = actor->temp_data[0] / 6;
-	if (actor->spr.xrepeat < 80)
+	if (actor->spr.ScaleX() < 0.1250)
 		actor->spr.yrepeat = actor->spr.xrepeat += ds;
 	actor->clipdist += ds * 0.25;
 	if (actor->temp_data[0] <= 2)

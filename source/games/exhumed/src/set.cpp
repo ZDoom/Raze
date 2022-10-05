@@ -146,7 +146,7 @@ void AISoul::Tick(RunListEvent* ev)
 
     seq_MoveSequence(pActor, SeqOffsets[kSeqSet] + 75, 0);
 
-    if (pActor->spr.xrepeat < 32)
+    if (pActor->spr.ScaleX() < 0.5)
     {
         pActor->spr.xrepeat++;
         pActor->spr.yrepeat++;

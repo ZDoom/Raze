@@ -421,7 +421,7 @@ void moveplayers(void)
 					auto psp = ps[otherp].GetActor();
 					if (psp->spr.extra > 0)
 					{
-						if (act->spr.yrepeat > 32 && psp->spr.yrepeat < 32)
+						if (act->spr.yrepeat > 32 && psp->spr.ScaleY() < 0.5)
 						{
 							if (other < 1400/16. && p->knee_incs == 0)
 							{
@@ -2289,7 +2289,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		actor->temp_data[2]++;
 		if (attackerflag(actor, SFLAG_FLAMMABLEPOOLEFFECT))
 		{
-			if (actor->spr.xrepeat < 64 && actor->spr.yrepeat < 64)
+			if (actor->spr.ScaleX() < 1 && actor->spr.ScaleY() < 1)
 			{
 				actor->spr.xrepeat += krand() & 3;
 				actor->spr.yrepeat += krand() & 3;
@@ -2297,7 +2297,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		}
 		else
 		{
-			if (actor->spr.xrepeat < 32 && actor->spr.yrepeat < 32)
+			if (actor->spr.ScaleX() < 0.5 && actor->spr.ScaleY() < 0.5)
 			{
 				actor->spr.xrepeat += krand() & 3;
 				actor->spr.yrepeat += krand() & 3;
@@ -2509,7 +2509,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 {
 	int sx, sy;
 
-	if (badguy(actor) && actor->spr.xrepeat < 16)
+	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
 		sx = sy = 8;
 	else sx = sy = 32;
 

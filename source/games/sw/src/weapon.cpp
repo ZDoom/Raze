@@ -10919,7 +10919,7 @@ void SpawnMeteorExp(DSWActor* actor)
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
-    if (actor->spr.yrepeat < 64)
+    if (actor->spr.ScaleY() < 1)
     {
         // small
         expActor->spr.SetScale(1, 1);
@@ -18364,7 +18364,7 @@ int DoFloorBlood(DSWActor* actor)
 int DoWallBlood(DSWActor* actor)
 {
     // Make blood drip down the wall
-    if (actor->spr.yrepeat < 80)
+    if (actor->spr.ScaleY() < 1.25)
     {
         actor->spr.yrepeat++;
         actor->spr.pos.Z += 0.5;

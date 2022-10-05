@@ -2562,7 +2562,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				fi.shoot(pact, FREEZEBLAST);
 				checkavailweapon(p);
 			}
-			if (pact->spr.xrepeat < 32)
+			if (pact->spr.ScaleX() < 0.5)
 			{
 				p->okickback_pic = p->kickback_pic = 0; break;
 			}
@@ -2660,7 +2660,7 @@ static void processweapon(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int shrunk = (pact->spr.yrepeat < 32);
+	int shrunk = (pact->spr.ScaleY() < 0.5);
 
 	if (isNamWW2GI() && (actions & SB_HOLSTER)) // 'Holster Weapon
 	{
@@ -2770,7 +2770,7 @@ void processinput_d(int snum)
 	psectlotag = psectp->lotag;
 	p->spritebridge = 0;
 
-	shrunk = (pact->spr.yrepeat < 32);
+	shrunk = (pact->spr.ScaleY() < 0.5);
 	getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 
 	p->truefz = getflorzofslopeptr(psectp, p->pos);

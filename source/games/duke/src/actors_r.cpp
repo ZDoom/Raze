@@ -367,7 +367,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 {
 	int bg = badguy(actor);
 
-	if (actor->spr.statnum == 5 || (bg && actor->spr.xrepeat < 4))
+	if (actor->spr.statnum == 5 || (bg && actor->spr.ScaleX() < 0.0625))
 	{
 		actor->spr.pos += change;
 		if (bg)
@@ -446,7 +446,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 	int sx, sy;
 	uint8_t pal;
 
-	if (badguy(actor) && actor->spr.xrepeat < 16)
+	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
 		sx = sy = 4;
 	else sx = sy = 16;
 

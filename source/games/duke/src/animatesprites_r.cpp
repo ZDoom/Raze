@@ -363,7 +363,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				newtspr->statnum = 99;
 
 				newtspr->yrepeat = (t->yrepeat >> 3);
-				if (t->yrepeat < 4) t->yrepeat = 4;
+				if (t->ScaleY() < 0.0625) t->yrepeat = 4;
 
 				newtspr->shade = t->shade;
 				newtspr->cstat = 0;
@@ -459,7 +459,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (!h->GetOwner()) continue;
 
-			if (t->pos.Z > h->floorz && t->xrepeat < 32)
+			if (t->pos.Z > h->floorz && t->ScaleX() < 0.5)
 				t->pos.Z = h->floorz;
 
 			if (ps[p].OnMotorcycle && p == screenpeek)
@@ -723,7 +723,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 								shadowspr->statnum = 99;
 
 								shadowspr->yrepeat = (t->yrepeat >> 3);
-								if (t->yrepeat < 4) t->yrepeat = 4;
+								if (t->ScaleY() < 0.0625) t->yrepeat = 4;
 								shadowspr->shade = 127;
 								shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 

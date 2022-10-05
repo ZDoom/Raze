@@ -873,7 +873,7 @@ int DoCoolgMove(DSWActor* actor)
     {
         actor->spr.xrepeat--;
         actor->spr.shade++;
-        if (actor->spr.xrepeat < 4) actor->spr.xrepeat = 4;
+        if (actor->spr.ScaleX() < 0.0625) actor->spr.xrepeat = 4;
         if (actor->spr.shade > 126)
         {
             actor->spr.shade = 127;
