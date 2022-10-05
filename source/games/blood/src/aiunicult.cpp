@@ -1797,7 +1797,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				actor->spr.angle = (atpos - actor->spr.pos.XY()).Angle();
 				DVector3 dv;
 				dv.XY() = actor->spr.angle.ToVector() * 64;
-				double tz = actTarget->spr.pos.Z - (actTarget->spr.yrepeat * pDudeInfo->aimHeight) * REPEAT_SCALE;
+				double tz = actTarget->spr.pos.Z - (actTarget->spr.ScaleY() * pDudeInfo->aimHeight);
 				double dz = (tz - top - 1) / nDist * 4;
 				int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
 				int t2;

@@ -61,7 +61,7 @@ void sub_71A90(int, DBloodActor* actor)
 void tchernobogBurnSeqCallback(int, DBloodActor* actor)
 {
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	double height = actor->spr.yrepeat * pDudeInfo->eyeHeight * REPEAT_SCALE * 0.25;
+	double height = actor->spr.ScaleY() * pDudeInfo->eyeHeight * 0.25;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	DVector3 pos(actor->spr.pos.XY(), height);
 
@@ -120,7 +120,7 @@ void tchernobogBurnSeqCallback2(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	double height = actor->spr.yrepeat * pDudeInfo->eyeHeight * REPEAT_SCALE * 0.25;
+	double height = actor->spr.ScaleY() * pDudeInfo->eyeHeight * 0.25;
 	
 	DVector3 pos(actor->spr.pos.XY(), height);
 	DVector3 Aim(actor->spr.angle.ToVector(), -actor->dudeSlope);

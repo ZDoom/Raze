@@ -167,7 +167,7 @@ static void batThinkPonder(DBloodActor* actor)
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
 		double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
-		double height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.yrepeat) * REPEAT_SCALE;
+		double height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.ScaleY());
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height), actor->sector()))

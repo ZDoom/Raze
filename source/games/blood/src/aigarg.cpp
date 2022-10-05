@@ -104,7 +104,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 	wrand(); // ???
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	double height = (actor->spr.yrepeat * getDudeInfo(actor->spr.type)->eyeHeight) * REPEAT_SCALE;
+	double height = (actor->spr.ScaleY() * getDudeInfo(actor->spr.type)->eyeHeight);
 	DVector3 pos(actor->spr.pos.XY(), height);
 
 	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope);

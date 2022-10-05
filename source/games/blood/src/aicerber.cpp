@@ -181,7 +181,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 			if (nDeltaAngle <= DAngle45)
 			{
 				DUDEINFO* pDudeInfo2 = getDudeInfo(actor2->spr.type);
-				double height1 = (pDudeInfo2->aimHeight * actor2->spr.yrepeat) * REPEAT_SCALE;
+				double height1 = (pDudeInfo2->aimHeight * actor2->spr.ScaleY());
 				double tz1 = actor2->spr.pos.Z - height - actor->spr.pos.Z;
 
 				if (cansee(pos, actor->sector(), pos2, actor2->sector()))

@@ -1605,7 +1605,7 @@ void debrisBubble(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 	for (unsigned int i = 0; i < 1 + Random(5); i++) {
 
-		double nDist = actor->spr.xrepeat * tileWidth(actor->spr.picnum) * (REPEAT_SCALE * 0.5); // original code ended with * 8 which is 1/2 map unit.
+		double nDist = actor->spr.ScaleX() * tileWidth(actor->spr.picnum) * 0.5; // original code ended with * 8 which is 1/2 map unit.
 		DAngle nAngle = RandomAngle();
 		DVector3 pos;
 		pos.XY() = actor->spr.pos.XY() + nAngle.ToVector() * nDist;
@@ -4436,7 +4436,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 			condError(aCond, "Dude #%d has no target!", objActor->GetIndex());
 
 		DUDEINFO* pInfo = getDudeInfo(objActor->spr.type);
-		double height = (pInfo->eyeHeight * objActor->spr.yrepeat) * REPEAT_SCALE;
+		double height = (pInfo->eyeHeight * objActor->spr.ScaleY());
 
 		auto delta = targ->spr.pos.XY() - objActor->spr.pos.XY();
 
@@ -5154,7 +5154,7 @@ bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBlood
 	// check target
 	if (dv.Length() < pDudeInfo->SeeDist())
 	{
-		double height = (pDudeInfo->eyeHeight * dudeactor->spr.yrepeat) * REPEAT_SCALE;
+		double height = (pDudeInfo->eyeHeight * dudeactor->spr.ScaleY());
 
 		// is there a line of sight to the target?
 		if (cansee(dudeactor->spr.pos, dudeactor->sector(), targetactor->spr.pos.plusZ(-height), targetactor->sector()))
@@ -8234,7 +8234,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		double eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.yrepeat) * REPEAT_SCALE;
+		double eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.ScaleY());
 		double nDist = (dudeactor->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared();
 		if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(actor->spr.pos, zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 		{
@@ -8266,7 +8266,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 	if (actor->xspr.health <= 0)
 		return;
 
-	double eaz2 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat) * REPEAT_SCALE;
+	double eaz2 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.ScaleY());
 	auto pos2 = actor->spr.pos.plusZ(-eaz2);
 
 	auto pSect2 = actor->sector();
@@ -8286,7 +8286,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		double eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.yrepeat) * REPEAT_SCALE;
+		double eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.ScaleY());
 		auto pos1 = dudeactor->spr.pos.plusZ(-eaz1);
 
 		auto pSect1 = dudeactor->sector();

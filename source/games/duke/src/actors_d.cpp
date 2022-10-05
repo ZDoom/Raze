@@ -450,7 +450,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 	auto dasectp = actor->sector();
 
 	auto ppos = actor->spr.pos;
-	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) * REPEAT_SCALE * 0.5;
+	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.ScaleY()) * 0.5;
 
 	if (bg)
 	{

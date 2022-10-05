@@ -276,14 +276,14 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 			if (tileWidth(nPicnum) == 0 || tileHeight(nPicnum) == 0)
 				return SS_SPRITE;
 
-			double height = (tileHeight(nPicnum) * other->spr.yrepeat) * REPEAT_SCALE;
+			double height = (tileHeight(nPicnum) * other->spr.ScaleY());
 			double otherZ = other->spr.pos.Z;
 			if (other->spr.cstat & CSTAT_SPRITE_YCENTER)
 				otherZ += height / 2;
 
 			int nTopOfs = tileTopOffset(nPicnum);
 			if (nTopOfs)
-				otherZ -= (nTopOfs * other->spr.yrepeat) * REPEAT_SCALE;
+				otherZ -= (nTopOfs * other->spr.ScaleY());
 			assert(height > 0);
 
 			double height2 = (otherZ - gHitInfo.hitpos.Z) * tileHeight(nPicnum) / height;
@@ -292,7 +292,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 
 			if (height2 >= 0 && height2 < tileHeight(nPicnum))
 			{
-				double width = (tileWidth(nPicnum) * other->spr.xrepeat) * REPEAT_SCALE * 0.75; // should actually be 0.8 to match the renderer!
+				double width = (tileWidth(nPicnum) * other->spr.ScaleX()) * 0.75; // should actually be 0.8 to match the renderer!
 				double check1 = ((pos.Y - other->spr.pos.Y) * vel.X - (pos.X - other->spr.pos.X) * vel.Y) / vel.XY().Length();
 				assert(width > 0);
 

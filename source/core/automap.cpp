@@ -645,7 +645,7 @@ void DrawAutomapAlignmentFacing(const spritetype& spr, const DVector2& bpos, con
 
 void DrawAutomapAlignmentWall(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col)
 {
-	auto xrep = spr.xrepeat * REPEAT_SCALE;
+	auto xrep = spr.ScaleX();
 	auto xspan = tileWidth(spr.picnum);
 	auto xoff = tileLeftOffset(spr.picnum) + spr.xoffset;
 
@@ -671,7 +671,7 @@ void DrawAutomapAlignmentWall(const spritetype& spr, const DVector2& bpos, const
 
 void DrawAutomapAlignmentFloor(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col)
 {
-	auto xrep = spr.xrepeat * REPEAT_SCALE;
+	auto xrep = spr.ScaleX();
 	auto yrep = spr.ScaleY();
 	auto xspan = tileWidth(spr.picnum);
 	auto yspan = tileHeight(spr.picnum);

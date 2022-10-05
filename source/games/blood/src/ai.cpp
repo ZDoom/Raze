@@ -921,7 +921,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		{
 			actor->SetTarget(target);
 			DUDEINFO* pDudeInfo = getDudeInfo(target->spr.type);
-			double eyeHeight = (pDudeInfo->eyeHeight * target->spr.yrepeat) * REPEAT_SCALE;
+			double eyeHeight = (pDudeInfo->eyeHeight * target->spr.ScaleY());
 			actor->xspr.TargetPos = target->spr.pos.plusZ(-eyeHeight);
 		}
 	}

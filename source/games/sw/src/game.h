@@ -204,7 +204,7 @@ int StdRandomRange(int range);
 
 inline double GetSpriteSizeZ(const spritetypebase* sp)
 {
-	return (tileHeight(sp->picnum) * sp->yrepeat) * REPEAT_SCALE;
+	return (tileHeight(sp->picnum) * sp->ScaleY());
 }
 
 
@@ -1989,7 +1989,7 @@ inline DVector3 ActorVectOfMiddle(DSWActor* actor)
 
 inline double ActorSizeZ(DSWActor* actor)
 {
-    return (tileHeight(actor->spr.picnum) * actor->spr.yrepeat) * REPEAT_SCALE;
+    return (tileHeight(actor->spr.picnum) * actor->spr.ScaleY());
 }
 
 inline double ActorUpperZ(DSWActor* actor)

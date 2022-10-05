@@ -480,6 +480,11 @@ struct spritetypebase
 		yrepeat = uint8_t(y * (1 / REPEAT_SCALE));
 	}
 
+	double ScaleX() const
+	{
+		return xrepeat  * REPEAT_SCALE;
+	}
+
 	double ScaleY() const
 	{
 		return yrepeat * REPEAT_SCALE;

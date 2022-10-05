@@ -339,7 +339,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 
 		if (aimed)
 		{
-			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 5;
+			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
 			switch (aimed->spr.picnum)
 			{
 			case GREENSLIME:
@@ -597,7 +597,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 		if (aimed)
 		{
-			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) - 12;
+			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) - 12;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
@@ -708,7 +708,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 		aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 8;
+			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) + 8;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			if (aimed->spr.picnum != RECON)
@@ -934,7 +934,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5) + 5;
+			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
 			switch (aimed->spr.picnum)
 			{
 			case GREENSLIME:
@@ -1043,7 +1043,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 		auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) * REPEAT_SCALE * 0.5);
+			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5);
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal - 4) * 48) / dist;
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
@@ -1113,7 +1113,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	else
 	{
 		sang = actor->spr.angle;
-		spos = actor->spr.pos.plusZ(-(actor->spr.yrepeat * tileHeight(actor->spr.picnum) * REPEAT_SCALE * 0.5) + 4);
+		spos = actor->spr.pos.plusZ(-(actor->spr.ScaleY() * tileHeight(actor->spr.picnum) * 0.5) + 4);
 
 		if (actor->spr.picnum != ROTATEGUN)
 		{
