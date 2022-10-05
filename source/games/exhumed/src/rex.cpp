@@ -60,8 +60,7 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->clipdist = 20;
     pActor->spr.shade = -12;
-    pActor->spr.xrepeat = 64;
-    pActor->spr.yrepeat = 64;
+    pActor->spr.SetScale(1, 1);
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;

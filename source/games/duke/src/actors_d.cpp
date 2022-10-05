@@ -2281,8 +2281,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->spr.yrepeat > 16) actor->spr.yrepeat -= krand() & 7;
 		else
 		{
-			actor->spr.xrepeat = 40;
-			actor->spr.yrepeat = 16;
+			actor->spr.SetScale(0.625, 0.25);
 			actor->temp_actor = nullptr;
 			actor->temp_data[0] = 0;
 		}

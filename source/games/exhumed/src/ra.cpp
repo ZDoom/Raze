@@ -122,8 +122,7 @@ void BuildRa(int nPlayer)
     pActor->spr.hitag = 0;
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, nPlayer, 0x210000);
     pActor->spr.pal = 1;
-    pActor->spr.xrepeat = 64;
-    pActor->spr.yrepeat = 64;
+    pActor->spr.SetScale(1, 1);
     pActor->spr.pos = pPlayerActor->spr.pos;
 
 //	GrabTimeSlot(3);

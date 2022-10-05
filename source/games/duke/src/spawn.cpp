@@ -299,8 +299,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 		}
 		else
 		{
-			act->spr.xrepeat = 48;
-			act->spr.yrepeat = 64;
+			act->spr.SetScale(0.75, 1);
 			if (actj->spr.statnum == 10 || badguy(actj))
 				act->spr.pos.Z -= 32;
 		}
@@ -624,7 +623,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_27_DEMO_CAM:
 			if (ud.recstat == 1)
 			{
-				actor->spr.xrepeat = actor->spr.yrepeat = 64;
+				actor->spr.SetScale(1, 1);
 				actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 			}
 			break;

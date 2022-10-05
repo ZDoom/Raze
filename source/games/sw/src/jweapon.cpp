@@ -1593,8 +1593,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     if (actor != nullptr)
         actor->user.flameActor = actorNew;
 
-    actorNew->spr.xrepeat = 16;
-    actorNew->spr.yrepeat = 16;
+    actorNew->spr.SetScale(0.25, 0.25);
 
     if (actor->user.flameActor != nullptr)
     {
@@ -1645,8 +1644,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 64;
-    actorNew->spr.xrepeat = 64;
+    actorNew->spr.SetScale(1, 1);
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -1696,8 +1694,7 @@ int InitCaltrops(DSWActor* actor)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.yrepeat = 64;
-    actorNew->spr.xrepeat = 64;
+    actorNew->spr.SetScale(1, 1);
     actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
     actorNew->copy_clipdist(actor);
@@ -1736,8 +1733,7 @@ int InitPhosphorus(DSWActor* actor)
     // actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_YCENTER);
     actorNew->spr.shade = -128;
 
-    actorNew->spr.yrepeat = 64;
-    actorNew->spr.xrepeat = 64;
+    actorNew->spr.SetScale(1, 1);
     actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
     if (actor->clipdist > 0)

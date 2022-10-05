@@ -604,7 +604,7 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
         breakActor->spr.extra = 0;
         breakActor->spr.angle = ang;
         breakActor->spr.picnum = ST1;
-        breakActor->spr.xrepeat = breakActor->spr.yrepeat = 64;
+        breakActor->spr.SetScale(1, 1);
         SetActorZ(breakActor, hit_pos);
         SpawnShrap(breakActor, nullptr, -1, break_info);
         KillActor(breakActor);

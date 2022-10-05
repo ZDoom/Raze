@@ -56,8 +56,7 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	tspritetype* pTSprite = tsprites.newTSprite();
 	memset(pTSprite, 0, sizeof(tspritetype));
 	pTSprite->cstat = CSTAT_SPRITE_YCENTER;
-	pTSprite->xrepeat = 64;
-	pTSprite->yrepeat = 64;
+	pTSprite->SetScale(1, 1);
 	pTSprite->ownerActor = nullptr;
 	pTSprite->type = -int(tsprites.Size() - 1);
 	pTSprite->statnum = nStatnum;
@@ -181,7 +180,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (nViewEffect == kViewEffectFlag)
 			pNSprite->xrepeat = pNSprite->yrepeat = 24;
 		else
-			pNSprite->xrepeat = pNSprite->yrepeat = 64;
+			pNSprite->SetScale(1, 1);
 		pNSprite->picnum = 3558;
 		return pNSprite;
 	}
@@ -207,7 +206,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		pNSprite->shade = -128;
 		pNSprite->pal = 0;
-		pNSprite->xrepeat = pNSprite->yrepeat = 64;
+		pNSprite->SetScale(1, 1);
 		pNSprite->picnum = 2605;
 		return pNSprite;
 	}
@@ -220,7 +219,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->shade = 26;
 		pNSprite->pal = 0;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->xrepeat = pNSprite->yrepeat = 64;
+		pNSprite->SetScale(1, 1);
 		pNSprite->picnum = 2089;
 		break;
 	}
@@ -421,7 +420,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->picnum = 624;
 		pNSprite->shade = int(pTSprite->pos.Z - pSector->ceilingz) - 64;
 		pNSprite->pal = 2;
-		pNSprite->xrepeat = pNSprite->yrepeat = 64;
+		pNSprite->SetScale(1, 1);
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->angle = pTSprite->angle;
 		pNSprite->ownerActor = pTSprite->ownerActor;
@@ -706,15 +705,14 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		pTSprite->shade = ClipRange(nShade, -128, 127);
 		if ((pTSprite->flags & kHitagRespawn) && pTSprite->ownerActor->spr.intowner == 3 && owneractor->hasX())    // Where does this 3 come from? Nothing sets it.
 		{
-			pTSprite->xrepeat = 48;
-			pTSprite->yrepeat = 48;
+			pTSprite->SetScale(0.75, 0.75);
 			pTSprite->shade = -128;
 			pTSprite->picnum = 2272 + 2 * owneractor->xspr.respawnPending;
 			pTSprite->cstat &= ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP);
 			if (((IsItemSprite(pTSprite) || IsAmmoSprite(pTSprite)) && gGameOptions.nItemSettings == 2)
 				|| (IsWeaponSprite(pTSprite) && gGameOptions.nWeaponSettings == 3))
 			{
-				pTSprite->xrepeat = pTSprite->yrepeat = 48;
+				pTSprite->SetScale(0.75, 0.75);
 			}
 			else
 			{

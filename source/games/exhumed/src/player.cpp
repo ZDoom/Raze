@@ -299,8 +299,7 @@ void RestartPlayer(int nPlayer)
 		floorsprt = insertActor(pActor->sector(), 0);
 
 		floorsprt->spr.pos = pActor->spr.pos;
-		floorsprt->spr.yrepeat = 64;
-		floorsprt->spr.xrepeat = 64;
+		floorsprt->spr.SetScale(1, 1);
 		floorsprt->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		floorsprt->spr.picnum = nPlayer + kTile3571;
 	}

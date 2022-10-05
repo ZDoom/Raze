@@ -356,8 +356,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				}
 				else
 				{
-					newtspr->xrepeat = 16;
-					newtspr->yrepeat = 16;
+					newtspr->SetScale(0.25, 0.25);
 				}
 				newtspr->pal = 0;
 			}

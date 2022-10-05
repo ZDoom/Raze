@@ -396,13 +396,11 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				}
 				else if (ps[p].OnMotorcycle || ps[p].OnBoat)
 				{
-					newtspr->xrepeat = 0;
-					newtspr->yrepeat = 0;
+					newtspr->SetScale(0, 0);
 				}
 				else
 				{
-					newtspr->xrepeat = 16;
-					newtspr->yrepeat = 16;
+					newtspr->SetScale(0.25, 0.25);
 				}
 				newtspr->pal = 0;
 			}

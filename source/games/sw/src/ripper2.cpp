@@ -1242,7 +1242,7 @@ void Ripper2Hatch(DSWActor* actor)
         ClearOwner(actorNew);
         actorNew->spr.pos = actor->spr.pos;
 
-        actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
+        actorNew->spr.SetScale(1, 1);
         actorNew->spr.angle = RandomAngle();
         actorNew->spr.pal = 0;
         actorNew->spr.shade = -10;

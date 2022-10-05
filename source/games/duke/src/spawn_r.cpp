@@ -67,16 +67,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE8450:
 		if (!isRRRA()) goto default_case;
-		act->spr.xrepeat = 64;
-		act->spr.yrepeat = 64;
+		act->spr.SetScale(1, 1);
 		act->spr.extra = act->spr.lotag;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 116);
 		break;
 	case PIG + 11:
 		if (!isRRRA()) goto default_case;
-		act->spr.xrepeat = 16;
-		act->spr.yrepeat = 16;
+		act->spr.SetScale(0.25, 0.25);
 		act->clipdist = 0;
 		act->spr.extra = 0;
 		act->spr.cstat = 0;
@@ -474,8 +472,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE296:
 	case RRTILE297:
-		act->spr.xrepeat = 64;
-		act->spr.yrepeat = 64;
+		act->spr.SetScale(1, 1);
 		act->clipdist = 16;
 		ChangeActorStat(act, 108);
 		break;
@@ -621,15 +618,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum == EXPLOSION2)
 		{
-			act->spr.xrepeat = 48;
-			act->spr.yrepeat = 48;
+			act->spr.SetScale(0.75, 0.75);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
 		else if (act->spr.picnum == EXPLOSION3)
 		{
-			act->spr.xrepeat = 128;
-			act->spr.yrepeat = 128;
+			act->spr.SetScale(2, 2);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
@@ -878,16 +873,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case MINION:
 		case MINIONSTAYPUT:
-			act->spr.xrepeat = 16;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.25, 0.25);
 			act->setClipDistFromTile();
 			if (isRRRA() && ufospawnsminion)
 				act->spr.pal = 8;
 			break;
 		case DOGRUN:
 		case PIG:
-			act->spr.xrepeat = 16;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.25, 0.25);
 			act->setClipDistFromTile();
 			break;
 		case RABBIT:
@@ -896,8 +889,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->setClipDistFromTile();
 			break;
 		case MAMACLOUD:
-			act->spr.xrepeat = 64;
-			act->spr.yrepeat = 64;
+			act->spr.SetScale(1, 1);
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP;
 			act->spr.pos.X += krandf(128) - 64;
@@ -962,13 +954,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->setClipDistFromTile();
 			break;
 		case MINIONBOAT:
-			act->spr.xrepeat = 16;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.25, 0.25);
 			act->setClipDistFromTile();
 			break;
 		case HULKBOAT:
-			act->spr.xrepeat = 48;
-			act->spr.yrepeat = 48;
+			act->spr.SetScale(0.75, 0.75);
 			act->setClipDistFromTile();
 			break;
 		case CHEERBOAT:
@@ -990,8 +980,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case ROCK:
 		case ROCK2:
-			act->spr.xrepeat = 64;
-			act->spr.yrepeat = 64;
+			act->spr.SetScale(1, 1);
 			act->setClipDistFromTile();
 			break;
 
@@ -1006,8 +995,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.extra = 50;
 			break;
 		case SBMOVE:
-			act->spr.xrepeat = 48;
-			act->spr.yrepeat = 48;
+			act->spr.SetScale(0.75, 0.75);
 			act->setClipDistFromTile();
 			break;
 
@@ -1030,7 +1018,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.picnum == RAT)
 			{
 				act->spr.angle = randomAngle();
-				act->spr.xrepeat = act->spr.yrepeat = 48;
+				act->spr.SetScale(0.75, 0.75);
 				act->spr.cstat = 0;
 			}
 			else
@@ -1205,8 +1193,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		switch (act->spr.picnum)
 		{
 		case FIRSTGUNSPRITE:
-			act->spr.xrepeat = 16;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.25, 0.25);
 			break;
 		case SHOTGUNAMMO:
 			act->spr.xrepeat = 18;
@@ -1237,8 +1224,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case BOATAMMO:
 			if (!isRRRA()) goto default_case;
-			act->spr.xrepeat = 16;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.25, 0.25);
 			break;
 		case COWPIE:
 			act->spr.xrepeat = 8;

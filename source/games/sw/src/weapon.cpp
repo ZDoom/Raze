@@ -9402,8 +9402,7 @@ int DoLaser(DSWActor* actor)
             auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_LaserPuff, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
             actorNew->spr.shade = -40;
-            actorNew->spr.xrepeat = 16;
-            actorNew->spr.yrepeat = 16;
+            actorNew->spr.SetScale(0.25, 0.25);
             actorNew->spr.pal = actorNew->user.spal = PALETTE_RED_LIGHTING;
 
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -10056,8 +10055,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     if (enemyActor != nullptr)
         enemyActor->user.flameActor = actorNew;
 
-    actorNew->spr.xrepeat = 16;
-    actorNew->spr.yrepeat = 16;
+    actorNew->spr.SetScale(0.25, 0.25);
     if (enemyActor != nullptr)
     {
         // large flame for trees and such
@@ -10120,8 +10118,7 @@ int SpawnBreakFlames(DSWActor* actor)
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
-    actorNew->spr.xrepeat = 16;
-    actorNew->spr.yrepeat = 16;
+    actorNew->spr.SetScale(0.25, 0.25);
     actorNew->user.Counter = 48; // max flame size
 
     actorNew->spr.shade = -40;
@@ -10230,8 +10227,7 @@ void SpawnGoroFireballExp(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_FireballExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
-    actorNew->spr.xrepeat = 16;
-    actorNew->spr.yrepeat = 16;
+    actorNew->spr.SetScale(0.25, 0.25);
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
@@ -10929,14 +10925,12 @@ void SpawnMeteorExp(DSWActor* actor)
     if (actor->spr.yrepeat < 64)
     {
         // small
-        expActor->spr.xrepeat = 64;
-        expActor->spr.yrepeat = 64;
+        expActor->spr.SetScale(1, 1);
     }
     else
     {
         // large - boss
-        expActor->spr.xrepeat = 80;
-        expActor->spr.yrepeat = 80;
+        expActor->spr.SetScale(1.25, 1.25);
     }
 
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -11209,8 +11203,7 @@ int DoNapalm(DSWActor* actor)
         SetOwner(actor, expActor);
         expActor->spr.shade = -40;
         expActor->spr.cstat = actor->spr.cstat;
-        expActor->spr.xrepeat = 48;
-        expActor->spr.yrepeat = 64;
+        expActor->spr.SetScale(0.75, 1);
         expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         if (RANDOM_P2(1024) < 512)
             expActor->spr.cstat |= (CSTAT_SPRITE_XFLIP);
@@ -11969,8 +11962,7 @@ int InitSerpRing(DSWActor* actor)
         actorNew->vel.X = 31.25;
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -20;
-        actorNew->spr.xrepeat = 64;
-        actorNew->spr.yrepeat = 64;
+        actorNew->spr.SetScale(1, 1);
         actorNew->spr.yint = 2*RINGMOVETICS;
         actorNew->vel.Z = 3;
         actorNew->spr.pal = 0;
@@ -12698,8 +12690,7 @@ int InitSumoSkull(DSWActor* actor)
     actorNew->vel.X = 31.25;
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -20;
-    actorNew->spr.xrepeat = 64;
-    actorNew->spr.yrepeat = 64;
+    actorNew->spr.SetScale(1, 1);
     actorNew->spr.pal = 0;
 
     // randomize the head turning angle
@@ -13834,8 +13825,7 @@ int InitBunnyRocket(PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector, pos, pp->angle.ang, ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 64;
-    actorNew->spr.xrepeat = 64;
+    actorNew->spr.SetScale(1, 1);
     actorNew->spr.shade = -15;
     zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + 35) * 0.5);
 
@@ -14543,8 +14533,7 @@ int InitSerpSpell(DSWActor* actor)
         actorNew->spr.shade = -40;
         PlaySound(DIGI_SERPMAGICLAUNCH, actor, v3df_none);
         actorNew->user.spal = actorNew->spr.pal = 27; // Bright Green
-        actorNew->spr.xrepeat = 64;
-        actorNew->spr.yrepeat = 64;
+        actorNew->spr.SetScale(1, 1);
         actorNew->clipdist = 2;
         actorNew->vel.Z = 0;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -14920,8 +14909,7 @@ int InitEnemyStar(DSWActor* actor)
                                  ActorVectOfMiddle(actor), actor->user.targetActor->spr.angle, NINJA_STAR_VELOCITY);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.yrepeat = 16;
-    actorNew->spr.xrepeat = 16;
+    actorNew->spr.SetScale(0.25, 0.25);
     actorNew->spr.shade = -25;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
@@ -17644,8 +17632,7 @@ int SpawnVehicleSmoke(DSWActor* actor)
 
     actorNew->user.WaitTics = 1*120;
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = 64;
-    actorNew->spr.yrepeat = 64;
+    actorNew->spr.SetScale(1, 1);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -17674,8 +17661,7 @@ int SpawnSmokePuff(DSWActor* actor)
 
     actorNew->user.WaitTics = 1*120;
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = 64;
-    actorNew->spr.yrepeat = 64;
+    actorNew->spr.SetScale(1, 1);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -17934,7 +17920,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
 
     HoleQueueHead = (HoleQueueHead+1) & (MAX_HOLE_QUEUE-1);
 
-    spawnedActor->spr.xrepeat = spawnedActor->spr.yrepeat = 16;
+    spawnedActor->spr.SetScale(0.25, 0.25);
     spawnedActor->spr.cstat = 0;
     spawnedActor->spr.pal = 0;
     spawnedActor->spr.shade = 0;

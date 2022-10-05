@@ -835,8 +835,7 @@ int SetupRipper(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
     actor->user.StateEnd = s_RipperDie;
     actor->user.Rot = sg_RipperRun;
-    actor->spr.xrepeat = 64;
-    actor->spr.yrepeat = 64;
+    actor->spr.SetScale(1, 1);
 
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)
     {
@@ -1235,7 +1234,7 @@ void RipperHatch(DSWActor* actor)
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
         ClearOwner(actorNew);
         actorNew->spr.pos = actor->spr.pos;
-        actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
+        actorNew->spr.SetScale(1, 1);
         actorNew->spr.angle = RandomAngle();
         actorNew->spr.pal = 0;
         SetupRipper(actorNew);

@@ -108,8 +108,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case FIREFLYFLYINGEFFECT:
 			act->SetOwner(actj);
 			ChangeActorStat(act, STAT_MISC);
-			act->spr.xrepeat = 16;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.25, 0.25);
 			return act;
 		case LAVAPOOLBUBBLE:
 			if (actj->spr.xrepeat < 30)
@@ -118,8 +117,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krandf(32) - 16;
 			act->spr.pos.Y += krandf(32) - 16;
-			act->spr.xrepeat = 16;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.25, 0.25);
 			return act;
 		case WHISPYSMOKE:
 			ChangeActorStat(act, STAT_MISC);
@@ -610,8 +608,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum == EXPLOSION2 || act->spr.picnum == EXPLOSION2BOT)
 		{
-			act->spr.xrepeat = 48;
-			act->spr.yrepeat = 48;
+			act->spr.SetScale(0.75, 0.75);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
@@ -874,7 +871,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.picnum == RAT)
 			{
 				act->spr.angle = randomAngle();
-				act->spr.xrepeat = act->spr.yrepeat = 48;
+				act->spr.SetScale(0.75, 0.75);
 				act->spr.cstat = 0;
 			}
 			else

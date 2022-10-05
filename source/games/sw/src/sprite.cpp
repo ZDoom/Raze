@@ -927,8 +927,7 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVe
         PicAnimOff(spawnedActor->spr.picnum);
     }
 
-    spawnedActor->spr.xrepeat = 64;
-    spawnedActor->spr.yrepeat = 64;
+    spawnedActor->spr.SetScale(1, 1);
     spawnedActor->spr.angle = init_ang;
     spawnedActor->vel.X = vel;
 

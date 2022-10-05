@@ -5950,8 +5950,7 @@ void DoPlayerBeginDie(PLAYER* pp)
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
-        plActor->spr.xrepeat = 48;
-        plActor->spr.yrepeat = 48;
+        plActor->spr.SetScale(0.75, 0.75);
         // Blood fountains
         InitBloodSpray(pp->actor,true,105);
         break;
@@ -5965,8 +5964,7 @@ void DoPlayerBeginDie(PLAYER* pp)
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
-        plActor->spr.xrepeat = 48;
-        plActor->spr.yrepeat = 48;
+        plActor->spr.SetScale(0.75, 0.75);
         // Blood fountains
         InitBloodSpray(pp->actor,true,-1);
         InitBloodSpray(pp->actor,true,-1);
@@ -5983,8 +5981,7 @@ void DoPlayerBeginDie(PLAYER* pp)
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
-        plActor->spr.xrepeat = 48;
-        plActor->spr.yrepeat = 48;
+        plActor->spr.SetScale(0.75, 0.75);
         // Blood fountains
         InitBloodSpray(pp->actor,true,105);
         break;

@@ -1237,7 +1237,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     if (TEST_BOOL3(actor))
     {
         PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
-        actorNew->spr.xrepeat = actorNew->spr.yrepeat = 64;
+        actorNew->spr.SetScale(1, 1);
         actorNew->vel.X = 9.375 + RandomRangeF(62.5);
         actorNew->user.Health = 1; // Easy to pop. Like shootn' skeet.
 		actorNew->spr.angle += RandomAngle(22.5) - RandomAngle(22.5);
