@@ -988,12 +988,12 @@ void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, i
 		else SetGameVarID(lVar2, wallp->pal, sActor, sPlayer);
 		break;
 	case WALL_XREPEAT:
-		if (bSet) wallp->xrepeat = lValue;
-		else SetGameVarID(lVar2, wallp->xrepeat, sActor, sPlayer);
+		if (bSet) wallp->_xrepeat = lValue;
+		else SetGameVarID(lVar2, wallp->_xrepeat, sActor, sPlayer);
 		break;
 	case WALL_YREPEAT:
-		if (bSet) wallp->yrepeat = lValue;
-		else SetGameVarID(lVar2, wallp->yrepeat, sActor, sPlayer);
+		if (bSet) wallp->_yrepeat = lValue;
+		else SetGameVarID(lVar2, wallp->_yrepeat, sActor, sPlayer);
 		break;
 	case WALL_XPANNING:
 		if (bSet) wallp->xpan_ = (float)(lValue & 255);

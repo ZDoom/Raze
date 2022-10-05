@@ -2746,7 +2746,7 @@ static DBloodActor* actDropAmmo(DBloodActor* actor, int nType)
 		act2->spr.type = nType;
 		act2->spr.picnum = pAmmo->picnum;
 		act2->spr.shade = pAmmo->shade;
-		act2->spr.SetScale(pAmmo->xrepeat * REPEAT_SCALE, pAmmo->yrepeat * REPEAT_SCALE);
+		act2->spr.SetScale(pAmmo->_xrepeat * REPEAT_SCALE, pAmmo->_yrepeat * REPEAT_SCALE);
 		return act2;
 	}
 	return nullptr;
@@ -2762,7 +2762,7 @@ static DBloodActor* actDropWeapon(DBloodActor* actor, int nType)
 		act2->spr.type = nType;
 		act2->spr.picnum = pWeapon->picnum;
 		act2->spr.shade = pWeapon->shade;
-		act2->spr.SetScale(pWeapon->xrepeat * REPEAT_SCALE, pWeapon->yrepeat * REPEAT_SCALE);
+		act2->spr.SetScale(pWeapon->_xrepeat * REPEAT_SCALE, pWeapon->_yrepeat * REPEAT_SCALE);
 		return act2;
 	}
 	return nullptr;
@@ -2778,7 +2778,7 @@ static DBloodActor* actDropItem(DBloodActor* actor, int nType)
 		act2->spr.type = nType;
 		act2->spr.picnum = pItem->picnum;
 		act2->spr.shade = pItem->shade;
-		act2->spr.SetScale(pItem->xrepeat * REPEAT_SCALE, pItem->yrepeat * REPEAT_SCALE);
+		act2->spr.SetScale(pItem->_xrepeat * REPEAT_SCALE, pItem->_yrepeat * REPEAT_SCALE);
 		return act2;
 	}
 	return nullptr;
@@ -6250,8 +6250,8 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 	actor->spr.picnum = pThingInfo->picnum;
 	actor->spr.shade = pThingInfo->shade;
 	actor->spr.pal = pThingInfo->pal;
-	if (pThingInfo->xrepeat) actor->spr.xrepeat = pThingInfo->xrepeat;
-	if (pThingInfo->yrepeat) actor->spr.yrepeat = pThingInfo->yrepeat;
+	if (pThingInfo->_xrepeat) actor->spr.xrepeat = pThingInfo->_xrepeat;
+	if (pThingInfo->_yrepeat) actor->spr.yrepeat = pThingInfo->_yrepeat;
 	actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	switch (nThingType)
 	{
@@ -6465,7 +6465,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	spawned->clipdist = pMissileInfo->fClipDist();
 	spawned->spr.flags = 1;
 
-	spawned->spr.SetScale(pMissileInfo->xrepeat * REPEAT_SCALE, pMissileInfo->yrepeat * REPEAT_SCALE);
+	spawned->spr.SetScale(pMissileInfo->_xrepeat * REPEAT_SCALE, pMissileInfo->_yrepeat * REPEAT_SCALE);
 	spawned->spr.picnum = pMissileInfo->picnum;
 	spawned->spr.angle = actor->spr.angle += mapangle(pMissileInfo->angleOfs);
 	spawned->vel = dv * pMissileInfo->fVelocity();

@@ -482,18 +482,18 @@ size_t DCoreActor::PropagateMark()
 
 int DCoreActor::GetOffsetAndHeight(int& height)
 {
-	int yrepeat = spr.yrepeat << 2;
-	height = tileHeight(spr.picnum) * yrepeat;
+	int _yrepeat = spr.yrepeat << 2;
+	height = tileHeight(spr.picnum) * _yrepeat;
 	int zofs = (spr.cstat & CSTAT_SPRITE_YCENTER)? height >> 1 : 0;
-	return zofs - tileTopOffset(spr.picnum) * yrepeat;
+	return zofs - tileTopOffset(spr.picnum) * _yrepeat;
 }
 
 double DCoreActor::GetOffsetAndHeight(double& height)
 {
-	double yrepeat = spr.ScaleY();
-	height = tileHeight(spr.picnum) * yrepeat;
+	double _yrepeat = spr.ScaleY();
+	height = tileHeight(spr.picnum) * _yrepeat;
 	double zofs = (spr.cstat & CSTAT_SPRITE_YCENTER) ? height * 0.5 : 0;
-	return zofs - tileTopOffset(spr.picnum) * yrepeat;
+	return zofs - tileTopOffset(spr.picnum) * _yrepeat;
 }
 
 

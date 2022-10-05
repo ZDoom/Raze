@@ -1457,8 +1457,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	clipDist = max(actor->clipdist, 0.25);
 	int x = tileWidth(picnum);
 	int y = tileHeight(picnum);
-	int xrepeat = actor->spr.xrepeat;
-	int yrepeat = actor->spr.yrepeat;
+	int xscale = actor->spr.xrepeat * 64;
+	int yscale = actor->spr.yrepeat * 64;
 
 	// take surface type into account
 	switch (tileGetSurfType(actor->spr.picnum))
@@ -1481,10 +1481,10 @@ int getSpriteMassBySize(DBloodActor* actor)
 
 	mass = ((x + y) * int(clipDist * 2)) / massDiv;
 
-	if (xrepeat > 64) mass += ((xrepeat - 64) * addMul);
-	else if (xrepeat < 64 && mass > 0)
+	if (xscale > 64) mass += ((xscale - 64) * addMul);
+	else if (xscale < 64 && mass > 0)
 	{
-		for (int i = 64 - xrepeat; i > 0; i--)
+		for (int i = 64 - xscale; i > 0; i--)
 		{
 			if ((mass -= subMul) <= 100 && subMul-- <= 1)
 			{
@@ -1494,10 +1494,10 @@ int getSpriteMassBySize(DBloodActor* actor)
 		}
 	}
 
-	if (yrepeat > 64) mass += ((yrepeat - 64) * addMul);
-	else if (yrepeat < 64 && mass > 0)
+	if (yscale > 64) mass += ((yscale - 64) * addMul);
+	else if (yscale < 64 && mass > 0)
 	{
-		for (int i = 64 - yrepeat; i > 0; i--)
+		for (int i = 64 - yscale; i > 0; i--)
 		{
 			if ((mass -= subMul) <= 100 && subMul-- <= 1)
 			{
@@ -2483,10 +2483,10 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 	case OBJ_WALL:
 		if (!targWall) return;
 		if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
-			targWall->xrepeat = ClipRange(sourceactor->xspr.data1, 0, 255);
+			targWall->_xrepeat = ClipRange(sourceactor->xspr.data1, 0, 255);
 
 		if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
-			targWall->yrepeat = ClipRange(sourceactor->xspr.data2, 0, 255);
+			targWall->_yrepeat = ClipRange(sourceactor->xspr.data2, 0, 255);
 
 		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
 			targWall->xpan_ = (float)ClipRange(sourceactor->xspr.data3, 0, 255);
@@ -3968,9 +3968,9 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((pObj->cstat & EWallFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (pObj->cstat & EWallFlags::FromInt(arg1));
 			case 29: return (arg3) ? condCmp((pObj->hitag & arg3), arg1, arg2, cmpOp) : (pObj->hitag & arg1);
-			case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
+			case 30: return condCmp(pObj->_xrepeat, arg1, arg2, cmpOp);
 			case 31: return condCmp(pObj->xpan(), arg1, arg2, cmpOp);
-			case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
+			case 32: return condCmp(pObj->_yrepeat, arg1, arg2, cmpOp);
 			case 33: return condCmp(pObj->ypan(), arg1, arg2, cmpOp);
 			}
 		}

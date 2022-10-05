@@ -400,9 +400,9 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		pWall->extra = LittleShort(load.extra);
 		pWall->shade = load.shade;
 		pWall->pal = load.pal;
-		pWall->xrepeat = load.xrepeat;
+		pWall->_xrepeat = load._xrepeat;
 		pWall->xpan_ = load.xpanning;
-		pWall->yrepeat = load.yrepeat;
+		pWall->_yrepeat = load._yrepeat;
 		pWall->ypan_ = load.ypanning;
 
 		if (pWall->extra > 0)
@@ -485,7 +485,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		pSprite->extra = LittleShort(load.extra);
 		pSprite->pal = load.pal;
 		pSprite->clipdist = load.clipdist;
-		pSprite->SetScale(load.xrepeat * REPEAT_SCALE, load.yrepeat * REPEAT_SCALE);
+		pSprite->SetScale(load._xrepeat * REPEAT_SCALE, load._yrepeat * REPEAT_SCALE);
 		pSprite->xoffset = load.xoffset;
 		pSprite->yoffset = load.yoffset;
 		pSprite->detail = load.detail;

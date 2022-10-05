@@ -76,8 +76,8 @@ struct THINGINFO
 	int16_t picnum;
 	int8_t shade;
 	uint8_t pal;
-	uint8_t xrepeat; // xrepeat
-	uint8_t yrepeat; // yrepeat
+	uint8_t _xrepeat; // xrepeat
+	uint8_t _yrepeat; // yrepeat
 	int dmgControl[kDamageMax]; // damage
 	
 	double fClipdist() const { return clipdist * 0.25; }
@@ -89,8 +89,8 @@ struct AMMOITEMDATA
 	int16_t picnum;
 	int8_t shade;
 	uint8_t pal;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
+	uint8_t _xrepeat;
+	uint8_t _yrepeat;
 	int16_t count;
 	uint8_t type;
 	uint8_t weaponType;
@@ -102,8 +102,8 @@ struct WEAPONITEMDATA
 	int16_t picnum;
 	int8_t shade;
 	uint8_t pal;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
+	uint8_t _xrepeat;
+	uint8_t _yrepeat;
 	int16_t type;
 	int16_t ammoType;
 	int16_t count;
@@ -115,8 +115,8 @@ struct ITEMDATA
 	int16_t picnum;
 	int8_t shade;
 	uint8_t pal;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
+	uint8_t _xrepeat;
+	uint8_t _yrepeat;
 	int16_t packSlot;
 };
 
@@ -125,8 +125,8 @@ struct MissileType
 	int16_t picnum;
 	int velocity;
 	int angleOfs;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
+	uint8_t _xrepeat;
+	uint8_t _yrepeat;
 	int8_t shade;
 	uint8_t clipDist;
 

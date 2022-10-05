@@ -1577,14 +1577,14 @@ static void scaleDamage(DBloodActor* actor)
 	}
 
 	// take in account yrepeat of sprite
-	int yrepeat = actor->spr.yrepeat;
-	if (yrepeat < 64)
+	int yscale = int(actor->spr.ScaleY() * 64);
+	if (yscale < 64)
 	{
-		for (int i = 0; i < kDmgMax; i++) curScale[i] += (64 - yrepeat);
+		for (int i = 0; i < kDmgMax; i++) curScale[i] += (64 - yscale);
 	}
-	else if (yrepeat > 64)
+	else if (yscale > 64)
 	{
-		for (int i = 0; i < kDmgMax; i++) curScale[i] -= ((yrepeat - 64) >> 2);
+		for (int i = 0; i < kDmgMax; i++) curScale[i] -= ((yscale - 64) >> 2);
 	}
 
 	// take surface type into account
@@ -1700,13 +1700,13 @@ static int getDispersionModifier(DBloodActor* actor, int minDisp, int maxDisp)
 
 static double getRangeAttackDist(DBloodActor* actor, double minDist, double maxDist)
 {
-	int yrepeat = actor->spr.yrepeat;
+	int yscale = int(actor->spr.ScaleY() * 64);
 	int dist = 0;
 	int seqId = actor->xspr.data2;
 	int mul = 550;
 	int picnum = actor->spr.picnum;
 
-	if (yrepeat > 0)
+	if (yscale > 0)
 	{
 		if (seqId >= 0)
 		{
@@ -1718,8 +1718,8 @@ static double getRangeAttackDist(DBloodActor* actor, double minDist, double maxD
 		}
 
 		dist = tileHeight(picnum) << 8;
-		if (yrepeat < 64) dist -= (64 - yrepeat) * mul;
-		else if (yrepeat > 64) dist += (yrepeat - 64) * (mul / 3);
+		if (yscale < 64) dist -= (64 - yscale) * mul;
+		else if (yscale > 64) dist += (yscale - 64) * (mul / 3);
 	}
 	return clamp(dist / 16., minDist, maxDist);
 }
