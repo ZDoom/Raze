@@ -337,7 +337,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 
 	switch (curWeapon) {
 	case kThingNapalmBall:
-		spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
+		spawned->spr.SetScale(0.375, 0.375);
 		spawned->xspr.data4 = 3 + gGameOptions.nDifficulty;
 		impact = true;
 		break;
@@ -1405,9 +1405,8 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 		{
 			effectactor->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
 			effectactor->spr.pal = 6;
-			int repeat = 64 + Random(50);
-			effectactor->spr.xrepeat = repeat;
-			effectactor->spr.yrepeat = repeat;
+			double repeat = 1 + Random(50) * REPEAT_SCALE;
+			effectactor->spr.SetScale(repeat, repeat);
 		}
 
 		sfxPlay3DSoundCP(actLeech, 490, -1, 0, 60000);

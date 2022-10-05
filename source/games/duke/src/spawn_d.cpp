@@ -321,8 +321,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		}
 
-		act->spr.xrepeat = 4;
-		act->spr.yrepeat = 5;
+		act->spr.SetScale(0.0625, 0.078125);
 
 		act->SetOwner(act);
 		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
@@ -517,7 +516,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum == RESPAWNMARKERRED)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 24;
+			act->spr.SetScale(0.375, 0.375);
 			if (actj) act->spr.pos.Z = actj->floorz; // -(1<<4);
 		}
 		else
@@ -537,7 +536,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SPOTLITE:
 		break;
 	case BULLETHOLE:
-		act->spr.xrepeat = act->spr.yrepeat = 3;
+		act->spr.SetScale(0.046875, 0.046875);
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
 		[[fallthrough]];
@@ -548,7 +547,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->temp_data[0] = krand() & 2047;
 			act->spr.cstat = randomFlip();
-			act->spr.xrepeat = act->spr.yrepeat = 8;
+			act->spr.SetScale(0.125, 0.125);
 			act->spr.angle = randomAngle();
 		}
 		ChangeActorStat(act, STAT_MISC);
@@ -614,13 +613,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else if (act->spr.picnum == SMALLSMOKE || act->spr.picnum == ONFIRE)
 		{
 			// 64 "money"
-			act->spr.xrepeat = 24;
-			act->spr.yrepeat = 24;
+			act->spr.SetScale(0.375, 0.375);
 		}
 		else if (act->spr.picnum == BURNING || act->spr.picnum == BURNING2)
 		{
-			act->spr.xrepeat = 4;
-			act->spr.yrepeat = 4;
+			act->spr.SetScale(0.0625, 0.0625);
 		}
 
 		if (actj)
@@ -673,7 +670,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj)
 				act->spr.angle = actj->spr.angle;
-			act->spr.xrepeat = act->spr.yrepeat = 4;
+			act->spr.SetScale(0.0625, 0.0625);
 		}
 		else act->spr.SetScale(0.5, 0.5);
 
@@ -695,16 +692,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case WATERDRIPSPLASH:
 
-		act->spr.xrepeat = 24;
-		act->spr.yrepeat = 24;
-
-
-		ChangeActorStat(act, 6);
+		act->spr.SetScale(0.375, 0.375);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case PLUG:
 		act->spr.lotag = 9999;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case TOUCHPLATE:
 		act->temp_pos.Z = sectp->floorz;
@@ -829,8 +823,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				act->spr.xrepeat = 80;
-				act->spr.yrepeat = 80;
+				act->spr.SetScale(1.25, 1.25);
 				act->clipdist = 41;
 			}
 		}
@@ -843,8 +836,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				act->spr.xrepeat = 60;
-				act->spr.yrepeat = 60;
+				act->spr.SetScale(0.9375, 0.9375);
 				act->clipdist = 10;
 			}
 		}
@@ -926,10 +918,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		getglobalz(act);
 
-		int j = int((act->floorz - act->ceilingz) * 0.5);
+		double j = ((act->floorz - act->ceilingz) / 128.);
 
-		act->spr.yrepeat = j;
-		act->spr.xrepeat = 25 - (j >> 1);
+		act->spr.SetScale(max(0., 0.390625 - j * 0.5), j);
 		if (krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
 
 		break;
@@ -938,7 +929,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj) act->SetOwner(actj);
 		else act->SetOwner(act);
 
-		act->spr.xrepeat = act->spr.yrepeat = 9;
+		act->spr.SetScale(0.140625, 0.140625);
 		act->spr.yint = 4;
 		[[fallthrough]];
 	case REACTOR2:
@@ -1058,7 +1049,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BOUNCEMINE:
 		act->SetOwner(act);
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL; //Make it hitable
-		act->spr.xrepeat = act->spr.yrepeat = 24;
+		act->spr.SetScale(0.375, 0.375);
 		act->spr.shade = -127;
 		act->spr.extra = gs.impact_damage << 2;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
@@ -1094,7 +1085,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->spr.angle = actj->spr.angle;
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-			act->spr.xrepeat = act->spr.yrepeat = 1;
+			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 			act->vel.X = -0.5;
 			ssp(act, CLIPMASK0);
 		}

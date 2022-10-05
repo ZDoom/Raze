@@ -110,6 +110,7 @@ static const WEAPONICON gWeaponIcon[] = {
 
 static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFFECT nViewEffect)
 {
+	double s;
 	assert(nViewEffect >= 0 && nViewEffect < kViewEffectMax);
 	auto pTSprite = tsprites.get(nTSprite);
 	auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
@@ -178,7 +179,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 0;
 		pNSprite->pos.Z = top;
 		if (nViewEffect == kViewEffectFlag)
-			pNSprite->xrepeat = pNSprite->yrepeat = 24;
+			pNSprite->SetScale(0.375, 0.375);
 		else
 			pNSprite->SetScale(1, 1);
 		pNSprite->picnum = 3558;
@@ -235,7 +236,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->shade = 26;
 		pNSprite->pal = 0;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->xrepeat = pNSprite->yrepeat = 24;
+		pNSprite->SetScale(0.375, 0.375);
 		pNSprite->picnum = 626;
 		break;
 	}
@@ -287,7 +288,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = pTSprite->pos.Z;
 		pNSprite->picnum = 908;
 		pNSprite->statnum = kStatDecoration;
-		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 64;
+		s = (tileWidth(pTSprite->picnum) * pTSprite->ScaleX()) / 64.;
+		pNSprite->SetScale(s, s);
 		break;
 	}
 	case kViewEffectSmokeHigh:
@@ -339,7 +341,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = top;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
-		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 32;
+		s = (tileWidth(pTSprite->picnum) * pTSprite->ScaleX()) / 32.;
+		pNSprite->SetScale(s, s);
 		break;
 	}
 	case kViewEffectTorchLow:
@@ -353,7 +356,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = bottom;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
-		pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum) * pTSprite->xrepeat) / 32;
+		s = (tileWidth(pTSprite->picnum) * pTSprite->ScaleX()) / 32.;
+		pNSprite->SetScale(s, s);
 		break;
 	}
 	case kViewEffectShadow:
@@ -438,7 +442,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		uint8_t nShade = (uint8_t)clamp(pSector->floorz - pTSprite->pos.Z, 0., 255.);
 		pNSprite->shade = nShade - 32;
 		pNSprite->pal = 2;
-		pNSprite->xrepeat = pNSprite->yrepeat = nShade;
+		pNSprite->SetScale(nShade * REPEAT_SCALE, nShade * REPEAT_SCALE);
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->angle = pTSprite->angle;
 		pNSprite->ownerActor = pTSprite->ownerActor;
