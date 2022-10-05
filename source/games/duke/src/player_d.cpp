@@ -210,8 +210,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	spawned->setsector(actor->sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 	spawned->spr.angle = sang;
-	spawned->spr.xrepeat = 2;
-	spawned->spr.yrepeat = 2;
+	spawned->spr.SetScale(0.03125, 0.03125);
 	spawned->clipdist = 10;
 	spawned->spr.yint = p;
 	spawned->SetOwner(actor);
@@ -221,8 +220,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		if (actor->spr.picnum == BOSS5)
 		{
 			spawned->spr.pos += sang.ToVector() * (128. / 7);
-			spawned->spr.xrepeat = 10;
-			spawned->spr.yrepeat = 10;
+			spawned->spr.SetScale(0.15625, 0.15625);
 		}
 	}
 }
@@ -449,7 +447,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 				{
 					jib->spr.pos.Z += 4;
 					jib->vel.X = 1;
-					jib->spr.xrepeat = jib->spr.yrepeat = 24;
+					jib->spr.SetScale(0.375, 0.375);
 					jib->spr.angle += DAngle22_5 / 2 - randomAngle(22.5);
 				}
 			}
@@ -790,7 +788,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			spawned->spr.pos += spawnofs;
 			spawned->spr.angle += aoffs;
 
-			spawned->spr.xrepeat = 42;
+			spawned->spr.SetScale(0.65625, 0.65625);
 			spawned->spr.yrepeat = 42;
 		}
 		else if (actor->spr.picnum == BOSS2)
@@ -807,13 +805,11 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			spawned->spr.pos += spawnofs;
 			spawned->spr.angle += aoffs;
 
-			spawned->spr.xrepeat = 24;
-			spawned->spr.yrepeat = 24;
+			spawned->spr.SetScale(0.375, 0.375);
 		}
 		else if (atwith != FREEZEBLAST)
 		{
-			spawned->spr.xrepeat = 30;
-			spawned->spr.yrepeat = 30;
+			spawned->spr.SetScale(0.46875, 0.46875);
 			spawned->spr.extra >>= 2;
 		}
 	}
@@ -987,7 +983,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 
 	spark->spr.pal = 2;
 	spark->spr.cstat |= CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-	spark->spr.xrepeat = spark->spr.yrepeat = 1;
+	spark->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 
 	if (hit.hitWall == nullptr && hit.actor() == nullptr && hit.hitSector != nullptr)
 	{

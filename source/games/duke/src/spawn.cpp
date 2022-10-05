@@ -286,8 +286,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	if (actj == nullptr) return;
 	if (beam)
 	{
-		act->spr.xrepeat = 31;
-		act->spr.yrepeat = 1;
+		act->spr.SetScale(0.484375, REPEAT_SCALE);
 		act->spr.pos.Z = actj->sector()->floorz - gs.playerheight;
 	}
 	else

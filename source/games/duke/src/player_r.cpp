@@ -312,8 +312,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			{
 				if (hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY)
 				{
-					spark->spr.xrepeat = 0;
-					spark->spr.yrepeat = 0;
+					spark->spr.SetScale(0, 0);
 					return;
 				}
 				else
@@ -336,7 +335,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				{
 					jib->spr.pos.Z += 4;
 					jib->vel.X = 1;
-					jib->spr.xrepeat = jib->spr.yrepeat = 24;
+					jib->spr.SetScale(0.375, 0.375);
 					jib->spr.angle += DAngle22_5 / 2 - randomAngle(22.5);
 				}
 			}
@@ -581,8 +580,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 		if (atwith == FIRELASER)
 		{
-			spawned->spr.xrepeat = 8;
-			spawned->spr.yrepeat = 8;
+			spawned->spr.SetScale(0.125, 0.125);
 		}
 
 		scount--;
@@ -2355,7 +2353,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		if (j)
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
-			j->spr.xrepeat = 3;
+			j->spr.SetScale(0.046875, 0.03125);
 			j->spr.yrepeat = 2;
 			j->spr.pos.Z = p->pos.Z + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;

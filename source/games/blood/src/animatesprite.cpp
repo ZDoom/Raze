@@ -536,13 +536,13 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
 		if (owneractor->spr.detail > gDetail)
 		{
-			pTSprite->xrepeat = 0;
+			pTSprite->SetScale(0, 0);
 			continue;
 		}
 		int nTile = pTSprite->picnum;
 		if (nTile < 0 || nTile >= kMaxTiles)
 		{
-			pTSprite->xrepeat = 0;
+			pTSprite->SetScale(0, 0);
 			continue;
 		}
 		// skip picnum 0 on face sprites. picnum 0 is a simple wall texture in Blood, 
@@ -550,7 +550,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		// Since the wall texture is perfectly fine for wall and floor sprites, these will be allowed to pass.
 		if (nTile == 0 && (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 		{
-			pTSprite->xrepeat = 0;
+			pTSprite->SetScale(0, 0);
 			continue;
 		}
 
@@ -810,7 +810,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				if (pTSprite->statnum == kStatFlare) {
 					if (owneractor->GetTarget() == pPlayer->actor)
 					{
-						pTSprite->xrepeat = 0;
+						pTSprite->SetScale(0, 0);
 						break;
 					}
 				}
@@ -841,7 +841,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				auto target = owneractor->GetTarget();
 				if (target && target->IsPlayerActor())
 				{
-					pTSprite->xrepeat = 0;
+					pTSprite->SetScale(0, 0);
 					break;
 				}
 			}

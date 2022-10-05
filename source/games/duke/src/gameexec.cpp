@@ -2235,8 +2235,7 @@ int ParseState::parse(void)
 
 			g_ac->spr.shade = -12;
 			g_ac->clipdist = 16;
-			g_ac->spr.xrepeat = 42;
-			g_ac->spr.yrepeat = 36;
+			g_ac->spr.SetScale(0.65625, 0.5625);
 			g_ac->SetOwner(g_ac);
 			g_ac->spr.xoffset = 0;
 			g_ac->spr.pal = ps[g_p].palookup;

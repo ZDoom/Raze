@@ -1082,7 +1082,7 @@ CLEAR_THE_BOLT2:
 		actor->temp_data[2]--;
 		return;
 	}
-	if ((actor->spr.xrepeat | actor->spr.yrepeat) == 0)
+	if ((actor->spr.xrepeat == 0 && actor->spr.yrepeat) == 0)
 	{
 		actor->spr.xrepeat = actor->temp_data[0];
 		actor->spr.yrepeat = actor->temp_data[1];

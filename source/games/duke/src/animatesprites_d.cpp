@@ -220,7 +220,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
 			{
 				if (display_mirror == 0 && OwnerAc->PlayerIndex() == screenpeek && ps[screenpeek].over_shoulder_on == 0)
-					t->xrepeat = 0;
+					t->SetScale(0, 0);
 				else
 				{
 					t->angle = (viewVec - t->pos.XY()).Angle();

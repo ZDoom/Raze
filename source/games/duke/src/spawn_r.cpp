@@ -55,8 +55,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE2028:
 		act->spr.cstat = 0;
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.xrepeat = 0;
-		act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		act->clipdist = 0;
 		act->spr.extra = 0;
 		ChangeActorStat(act, STAT_BOWLING);
@@ -92,20 +91,17 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE7424:
 		if (!isRRRA()) goto default_case;
 		act->spr.extra = 0;
-		act->spr.xrepeat = 0;
-		act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		ChangeActorStat(act, 11);
 		break;
 	case RRTILE7936:
 		if (!isRRRA()) goto default_case;
-		act->spr.xrepeat = 0;
-		act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		fogactive = 1;
 		break;
 	case RRTILE6144:
 		if (!isRRRA()) goto default_case;
-		act->spr.xrepeat = 0;
-		act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		ps[screenpeek].sea_sick_stat = 1;
 		break;
 	case RRTILE8448:
@@ -126,14 +122,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE8192:
 		if (!isRRRA()) goto default_case;
-		act->spr.xrepeat = 0;
-		act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		ufospawnsminion = 1;
 		break;
 	case RRTILE8193:
 		if (!isRRRA()) goto default_case;
-		act->spr.xrepeat = 0;
-		act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		pistonsound = 1;
 		break;
 	case RRTILE8165:
@@ -163,8 +157,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE293:
 		act->spr.cstat = 0;
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.xrepeat = 0;
-		act->spr.yrepeat = 0;
+		act->spr.SetScale(0, 0);
 		act->clipdist = 0;
 		act->spr.lotag = 0;
 		ChangeActorStat(act, 106);

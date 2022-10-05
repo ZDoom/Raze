@@ -67,8 +67,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				}
 				else
 				{
-					act->spr.xrepeat = 80;
-					act->spr.yrepeat = 80;
+					act->spr.SetScale(1.25, 1.25);
 					act->clipdist = 41;
 				}
 			}
@@ -228,8 +227,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case LASERLINE:
-		act->spr.yrepeat = 6;
-		act->spr.xrepeat = 32;
+		act->spr.SetScale(0.5, 0.09375);
 
 		if (gs.lasermode == 1)
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_TRANSLUCENT;
@@ -237,8 +235,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 		else
 		{
-			act->spr.xrepeat = 0;
-			act->spr.yrepeat = 0;
+			act->spr.SetScale(0, 0);
 		}
 
 		if (actj) act->spr.angle = actj->temp_angle + DAngle90;
@@ -253,7 +250,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 1;
+			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		break;
@@ -298,7 +295,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case FECES:
 		if (actj)
-			act->spr.xrepeat = act->spr.yrepeat = 1;
+			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 		ChangeActorStat(act, STAT_MISC);
 		break;
 

@@ -560,7 +560,7 @@ void sleeveStopBouncing(DBloodActor* actor)
 	}
 
 	actor->spr.type = FX_51;
-	actor->spr.xrepeat = actor->spr.yrepeat = 10;
+	actor->spr.SetScale(0.15625, 0.15625);
 }
 
 
