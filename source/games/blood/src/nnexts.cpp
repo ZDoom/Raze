@@ -1419,7 +1419,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 		case kDudeModernCustom:
 		case kDudeModernCustomBurning:
 			seqId = actor->xspr.data2;
-			clipDist = actor->genDudeExtra.initVals[2];
+			clipDist = actor->genDudeExtra.clipdist;
 			break;
 		default:
 			seqId = getDudeInfo(actor->spr.type)->seqStartID;
@@ -9322,7 +9322,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, GENDUDEEXTRA& w, G
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc.Array("initvals", w.initVals, 3)
+		arc ("clipdist", w.clipdist)
 			.Array("availdeaths", w.availDeaths, kDamageMax)
 			("movespeed", w.moveSpeed)
 			("firedist", w.fireDist)

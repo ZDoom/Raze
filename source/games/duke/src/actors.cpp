@@ -2305,7 +2305,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		}
 	}
 
-	if (xx < 844 / 16. && actor->spr.ScaleX() > 0.09375 && actor->spr.yrepeat > 6)
+	if (xx < 844 / 16. && actor->spr.ScaleX() > 0.09375 && actor->spr.ScaleY() > 0.09375)
 	{
 		if (actor->spr.pal == 0 && (krand() & 255) < 16 && !puke)
 		{

@@ -41,7 +41,5 @@ void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Col
 
 void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, double wd, double cd, double fd, unsigned int nMask, CollisionBase& hit, int tracecount = 3);
 BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod = false);
-int picWidth(int nPic, int repeat);
-int picHeight(int nPic, int repeat);
 
 END_BLD_NS

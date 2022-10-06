@@ -2947,8 +2947,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			{
 				pEffect->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
 				pEffect->spr.pal = 6;
-				pEffect->spr.xrepeat = actor->spr.xrepeat;
-				pEffect->spr.yrepeat = actor->spr.yrepeat;
+				pEffect->spr.CopyScale(&actor->spr);
 			}
 
 			GIBTYPE nGibType;
@@ -6250,8 +6249,8 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 	actor->spr.picnum = pThingInfo->picnum;
 	actor->spr.shade = pThingInfo->shade;
 	actor->spr.pal = pThingInfo->pal;
-	if (pThingInfo->_xrepeat) actor->spr.xrepeat = pThingInfo->_xrepeat;
-	if (pThingInfo->_yrepeat) actor->spr.yrepeat = pThingInfo->_yrepeat;
+	if (pThingInfo->_xrepeat) actor->spr.SetScaleX(pThingInfo->_xrepeat * REPEAT_SCALE);
+	if (pThingInfo->_yrepeat) actor->spr.SetScaleY(pThingInfo->_yrepeat * REPEAT_SCALE);
 	actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	switch (nThingType)
 	{

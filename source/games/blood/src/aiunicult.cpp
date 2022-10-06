@@ -342,8 +342,10 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 		impact = true;
 		break;
 	case kModernThingThrowableRock:
+	{
+		double s = 0.375 + Random(42) * REPEAT_SCALE;
 		spawned->spr.picnum = gCustomDudeDebrisPics[Random(5)];
-		spawned->spr.xrepeat = spawned->spr.yrepeat = 24 + Random(42);
+		spawned->spr.SetScale(s, s);
 		spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
 		spawned->spr.pal = 5;
 
@@ -355,6 +357,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 		else if (spawned->spr.ScaleX() > 0.46875) spawned->xspr.data1 = 23;
 		else spawned->xspr.data1 = 12;
 		return;
+		}
 	case kThingTNTBarrel:
 	case kThingArmedProxBomb:
 	case kThingArmedSpray:
@@ -879,9 +882,9 @@ static void unicultThinkChase(DBloodActor* actor)
 
 									}
 
-									int wd1 = picWidth(hitactor->spr.picnum, hitactor->spr.xrepeat);
-									int wd2 = picWidth(actor->spr.picnum, actor->spr.xrepeat);
-									if (wd1 < (wd2 << 3))
+									double wd1 = tileWidth(hitactor->spr.picnum) * hitactor->spr.ScaleX();
+									double wd2 = tileWidth(actor->spr.picnum) * actor->spr.ScaleX();
+									if (wd1 < (wd2 * 8))
 									{
 										//viewSetSystemMessage("OBJ SIZE: %d   DUDE SIZE: %d", wd1, wd2);
 										if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeDodgeShorterW);
@@ -1934,8 +1937,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 	// inherit sprite size (useful for seqs with zero repeats)
 	if (source->spr.flags & kModernTypeFlag2)
 	{
-		spawned->spr.xrepeat = source->spr.xrepeat;
-		spawned->spr.yrepeat = source->spr.yrepeat;
+		spawned->spr.CopyScale(&source->spr);
 	}
 
 	gKillMgr.AddKill(spawned);
@@ -1979,8 +1981,7 @@ void genDudeTransform(DBloodActor* actor)
 	actor->spr.pal = actIncarnation->spr.pal;
 	actor->spr.shade = actIncarnation->spr.shade;
 	actor->copy_clipdist(actIncarnation);
-	actor->spr.xrepeat = actIncarnation->spr.xrepeat;
-	actor->spr.yrepeat = actIncarnation->spr.yrepeat;
+	actor->spr.CopyScale(&actIncarnation->spr);
 
 	actor->xspr.txID = actIncarnation->xspr.txID;
 	actor->xspr.command = actIncarnation->xspr.command;
@@ -2258,9 +2259,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 	case kGenDudePropertyAll:
 	case kGenDudePropertyInitVals:
 		pExtra->moveSpeed = getGenDudeMoveSpeed(actor, 0, true, false);
-		pExtra->initVals[0] = actor->spr.xrepeat;
-		pExtra->initVals[1] = actor->spr.yrepeat;
-		pExtra->initVals[2] = actor->spr.clipdist;
+		pExtra->clipdist = actor->spr.clipdist;
 		if (propId) break;
 		[[fallthrough]];
 
@@ -2477,7 +2476,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		if (!(actor->sector()->floorstat & CSTAT_SECTOR_SKY))
 			actor->spr.pos.Z += min(actor->sector()->floorz - zBot, 0.);
 
-		actor->clipdist = clamp((actor->spr.xrepeat + actor->spr.yrepeat) * 0.125, 1., 30.);
+		actor->clipdist = clamp((actor->spr.ScaleX() + actor->spr.ScaleY()) * 8, 1., 30.);
 		if (propId) break;
 	}
 	}

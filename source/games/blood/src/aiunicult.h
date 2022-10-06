@@ -159,7 +159,7 @@ extern const GENDUDESND gCustomDudeSnd[];
 // temporary, until normal DUDEEXTRA gets refactored
 struct GENDUDEEXTRA 
 {
-    uint16_t initVals[3];             // xrepeat, yrepeat, clipdist
+    double clipdist;
     uint16_t availDeaths[kDamageMax]; // list of seqs with deaths for each damage type
     uint32_t moveSpeed;
     double fireDist;          // counts from sprite size

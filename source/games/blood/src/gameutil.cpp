@@ -587,20 +587,5 @@ BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int n
 	return sectorMap;
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-int picWidth(int nPic, int repeat) {
-	return ClipLow((tileWidth(nPic) * repeat) << 2, 0);
-}
-
-int picHeight(int nPic, int repeat) {
-	return ClipLow((tileHeight(nPic) * repeat) << 2, 0);
-}
-
-
 
 END_BLD_NS
