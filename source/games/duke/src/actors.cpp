@@ -5230,15 +5230,16 @@ void movefta(void)
 				{
 					if (badguy(act))
 					{
-						double px = ps[p].opos.X - xyrand(64);
-						double py = ps[p].opos.Y - xyrand(64);
+						auto xyrand = []() -> double { return (64 - (krand() & 127)) * maptoworld; };
+						double px = ps[p].opos.X - xyrand();
+						double py = ps[p].opos.Y - xyrand();
 						updatesector(DVector3(px, py, 0), &psect);
 						if (psect == nullptr)
 						{
 							continue;
 						}
-						double sx = act->spr.pos.X - xyrand(64);
-						double sy = act->spr.pos.Y - xyrand(64);
+						double sx = act->spr.pos.X - xyrand();
+						double sy = act->spr.pos.Y - xyrand();
 						// The second updatesector call here used px and py again and was redundant as coded.
 
 						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.

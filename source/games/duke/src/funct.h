@@ -251,9 +251,4 @@ inline double zrand(int spread)
 	return r * zmaptoworld;
 }
 
-inline double xyrand(int mask)
-{
-	return ((krand() % mask) - (mask << 1) - 1) * maptoworld;
-}
-
 END_DUKE_NS
