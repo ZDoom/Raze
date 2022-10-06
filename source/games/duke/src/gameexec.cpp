@@ -1386,7 +1386,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 		double sclip;
 		DAngle angdif;
 
-		if (badguy(actor) && actor->spr.xrepeat > 56)
+		if (badguy(actor) && actor->spr.ScaleX() > 0.875)
 		{
 			sclip = 3084 / 16.;
 			angdif = DAngle22_5 * 3 / 8;
@@ -2419,7 +2419,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& ponground) && ps[g_p].on_ground)
 					j = 1;
-			else if( (l& palive) && ps[g_p].GetActor()->spr.xrepeat > (isRR() ? 8 : 32) && ps[g_p].GetActor()->spr.extra > 0 && ps[g_p].timebeforeexit == 0 )
+			else if( (l& palive) && ps[g_p].GetActor()->spr.ScaleX() > (isRR() ? 0.125 : 0.5) && ps[g_p].GetActor()->spr.extra > 0 && ps[g_p].timebeforeexit == 0)
 					j = 1;
 			else if( (l& pdead) && ps[g_p].GetActor()->spr.extra <= 0)
 					j = 1;
@@ -3680,7 +3680,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 		{
 			if (badguy(actor))
 			{
-				if (actor->spr.xrepeat > 60) return;
+				if (actor->spr.ScaleX() > 0.9375 ) return;
 				if (ud.respawn_monsters == 1 && actor->spr.extra <= 0) return;
 			}
 			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) return;
@@ -3763,7 +3763,7 @@ void execute(DDukeActor *actor,int p,double xx)
 		{
 			if (badguy(actor))
 			{
-				if (actor->spr.xrepeat > 60) goto quit;
+				if (actor->spr.ScaleX() > 0.9375 ) goto quit;
 				if (ud.respawn_monsters == 1 && actor->spr.extra <= 0) goto quit;
 			}
 			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) goto quit;

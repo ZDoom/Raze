@@ -885,7 +885,7 @@ int DoCoolgMove(DSWActor* actor)
         actor->spr.hitag = 0;
         actor->spr.xrepeat++;
         actor->spr.shade--;
-        if (actor->spr.xrepeat > 42) actor->spr.xrepeat = 42;
+        if (actor->spr.ScaleX() > 0.65625) actor->spr.xrepeat = 42;
         if (actor->spr.shade < -10) actor->spr.shade = -10;
     }
     else if (actor->user.FlagOwner == 0)

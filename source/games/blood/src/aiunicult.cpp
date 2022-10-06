@@ -350,9 +350,9 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 		if (Chance(0x5000)) spawned->spr.cstat |= CSTAT_SPRITE_XFLIP;
 		if (Chance(0x5000)) spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
 
-		if (spawned->spr.xrepeat > 60) spawned->xspr.data1 = 43;
-		else if (spawned->spr.xrepeat > 40) spawned->xspr.data1 = 33;
-		else if (spawned->spr.xrepeat > 30) spawned->xspr.data1 = 23;
+		if (spawned->spr.ScaleX() > 0.9375 ) spawned->xspr.data1 = 43;
+		else if (spawned->spr.ScaleX() > 0.625) spawned->xspr.data1 = 33;
+		else if (spawned->spr.ScaleX() > 0.46875) spawned->xspr.data1 = 23;
 		else spawned->xspr.data1 = 12;
 		return;
 	case kThingTNTBarrel:

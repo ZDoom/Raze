@@ -454,7 +454,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 
 	if (bg)
 	{
-		if (actor->spr.xrepeat > 60)
+		if (actor->spr.ScaleX() > 0.9375 )
 			clipmove(ppos, &dasectp, change * 0.5, 64., 4., 4., cliptype, result);
 		else 
 		{
@@ -1481,9 +1481,9 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 		bounce(proj);
 		ssp(proj, CLIPMASK1);
 		proj->spr.extra >>= 1;
-		if (proj->spr.xrepeat > 8)
+		if (proj->spr.ScaleX() > 0.125 )
 			proj->spr.xrepeat -= 2;
-		if (proj->spr.yrepeat > 8)
+		if (proj->spr.ScaleY() > 0.125 )
 			proj->spr.yrepeat -= 2;
 		proj->spr.yint--;
 		return true;
@@ -2276,8 +2276,8 @@ static void greenslime(DDukeActor *actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 		actor->spr.picnum = GREENSLIME + 4;
 
-		if (actor->spr.xrepeat > 32) actor->spr.xrepeat -= krand() & 7;
-		if (actor->spr.yrepeat > 16) actor->spr.yrepeat -= krand() & 7;
+		if (actor->spr.ScaleX() > 0.5 ) actor->spr.xrepeat -= krand() & 7;
+		if (actor->spr.ScaleY() > 0.25 ) actor->spr.yrepeat -= krand() & 7;
 		else
 		{
 			actor->spr.SetScale(0.625, 0.25);
@@ -2395,7 +2395,7 @@ static void greenslime(DDukeActor *actor)
 	{
 		actor->spr.picnum = GREENSLIME;
 		if (actor->spr.yrepeat < 40) actor->spr.yrepeat += 8;
-		if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
+		if (actor->spr.ScaleX() > 0.125 ) actor->spr.xrepeat -= 4;
 		if (actor->vel.Z > -12)
 			actor->vel.Z -= 348 / 256.;
 		actor->spr.pos.Z += actor->vel.Z;
@@ -2421,7 +2421,7 @@ static void greenslime(DDukeActor *actor)
 		else
 		{
 			if (actor->spr.yrepeat < (40 - 4)) actor->spr.yrepeat += 8;
-			if (actor->spr.xrepeat > 8) actor->spr.xrepeat -= 4;
+			if (actor->spr.ScaleX() > 0.125 ) actor->spr.xrepeat -= 4;
 		}
 
 		if (actor->spr.pos.Z > actor->floorz - 8)
@@ -3618,7 +3618,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 		if (a && actor->spr.picnum != ROTATEGUN)
 		{
-			if (xvel < 960 && actor->spr.xrepeat > 16)
+			if (xvel < 960 && actor->spr.ScaleX() > 0.25 )
 			{
 
 				daxvel = -(1024 - xvel) * maptoworld;

@@ -11319,7 +11319,7 @@ int DoSerpMeteor(DSWActor* actor)
 	auto oldv = actor->spr.pos;
 
     actor->spr.xrepeat += MISSILEMOVETICS * 2;
-    if (actor->spr.xrepeat > 80)
+    if (actor->spr.ScaleX() > 1.25)
         actor->spr.xrepeat = 80;
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -11364,7 +11364,7 @@ int DoSerpMeteor(DSWActor* actor)
 int DoMirvMissile(DSWActor* actor)
 {
     actor->spr.xrepeat += MISSILEMOVETICS * 2;
-    if (actor->spr.xrepeat > 80)
+    if (actor->spr.ScaleX() > 1.25)
         actor->spr.xrepeat = 80;
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -18325,7 +18325,7 @@ int DoFloorBlood(DSWActor* actor)
     }
 
     // See if any players stepped in blood
-    if (actor->spr.xrepeat != 4 && actor->spr.yrepeat > 4)
+    if (actor->spr.xrepeat != 4 && actor->spr.ScaleY() > 0.0625)
     {
         TRAVERSE_CONNECT(pnum)
         {
@@ -18342,7 +18342,7 @@ int DoFloorBlood(DSWActor* actor)
                 }
 
                 // If blood has already grown to max size, we can shrink it
-                if (actor->spr.xrepeat == 40 && actor->spr.yrepeat > 10)
+                if (actor->spr.xrepeat == 40 && actor->spr.ScaleY() > 0.15625)
                 {
                     actor->spr.yrepeat -= 10;
                     if (actor->spr.yrepeat <= 10)  // Shrink it down and don't use it anymore

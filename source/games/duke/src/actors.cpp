@@ -421,7 +421,7 @@ void moveplayers(void)
 					auto psp = ps[otherp].GetActor();
 					if (psp->spr.extra > 0)
 					{
-						if (act->spr.yrepeat > 32 && psp->spr.ScaleY() < 0.5)
+						if (act->spr.ScaleY() > 0.5 && psp->spr.ScaleY() < 0.5)
 						{
 							if (other < 1400/16. && p->knee_incs == 0)
 							{
@@ -1195,7 +1195,7 @@ void moveooz(DDukeActor* actor, int seenine, int seeninedead, int ooz, int explo
 		}
 		else
 		{
-			if (actor->spr.xrepeat > 0)
+			if (actor->spr.ScaleX() > 0)
 			{
 				actor->temp_data[2]++;
 				if (actor->temp_data[2] == 3)
@@ -2305,7 +2305,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		}
 	}
 
-	if (xx < 844 / 16. && actor->spr.xrepeat > 6 && actor->spr.yrepeat > 6)
+	if (xx < 844 / 16. && actor->spr.ScaleX() > 0.09375 && actor->spr.yrepeat > 6)
 	{
 		if (actor->spr.pal == 0 && (krand() & 255) < 16 && !puke)
 		{

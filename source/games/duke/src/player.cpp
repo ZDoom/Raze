@@ -311,7 +311,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 		DukeStatIterator it(aimstats[k]);
 		while (auto act = it.Next())
 		{
-			if (act->spr.xrepeat > 0 && act->spr.extra >= 0 && (act->spr.cstat & (CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_INVISIBLE)) == CSTAT_SPRITE_BLOCK_ALL)
+			if (act->spr.ScaleX() > 0 && act->spr.extra >= 0 && (act->spr.cstat & (CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_INVISIBLE)) == CSTAT_SPRITE_BLOCK_ALL)
 				if (badguy(act) || k < 2)
 				{
 					if (badguy(act) || act->isPlayer())

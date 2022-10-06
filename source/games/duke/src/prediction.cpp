@@ -121,7 +121,7 @@ void fakedomovethings(void)
 		psectlotag = psect->lotag;
 		spritebridge = 0;
 
-		shrunk = (p->GetActor()->s.yrepeat < (isRR()? 8 : 32));
+		shrunk = (p->GetActor()->s.y_repeat < (isRR()? 8 : 32));
 
 		if( ud.clipping == 0 && ( psect->floorpicnum == MIRROR || psect == nullptr) )
 		{
@@ -178,7 +178,7 @@ void fakedomovethings(void)
 						psectlotag = 0;
 						spritebridge = 1;
 				 }
-				 if(badguy(chz.actor) && chz.actor()->s.xrepeat > 24 && abs(p->GetActor()->s.z- chz.actor()->s.z) < (84<<8) )
+				 if(badguy(chz.actor) && chz.actor()->s.ScaleX() > 0.375 && abs(p->GetActor()->s.z- chz.actor()->s.z) < (84<<8) )
 				 {
 					j = g etangle(chz.actor()->s.x-myx, chz.actor()->s.y-myy);
 					myxvel -= b cos(j, 4);

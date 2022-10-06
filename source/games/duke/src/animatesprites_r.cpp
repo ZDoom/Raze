@@ -431,7 +431,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
 				double v = h->spr.pos.Z - ps[p].GetActor()->floorz + 3;
-				if (v > 4 && h->spr.yrepeat > 32 && h->spr.extra > 0)
+				if (v > 4 && h->spr.ScaleY() > 0.5 && h->spr.extra > 0)
 					h->spr.yoffset = (int8_t)(v / h->spr.ScaleY());
 				else h->spr.yoffset = 0;
 			}

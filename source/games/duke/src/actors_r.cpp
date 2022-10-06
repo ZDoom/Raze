@@ -382,7 +382,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 
 	if (bg)
 	{
-		if (actor->spr.xrepeat > 60)
+		if (actor->spr.ScaleX() > 0.9375 )
 			clipmove(ppos, &dasectp, change * 0.5, 64., 4., 4., cliptype, result);
 		else
 		{
@@ -1054,9 +1054,9 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
 			{
 				proj->spr.extra >>= 1;
-				if (proj->spr.xrepeat > 8)
+				if (proj->spr.ScaleX() > 0.125 )
 					proj->spr.xrepeat -= 2;
-				if (proj->spr.yrepeat > 8)
+				if (proj->spr.ScaleY() > 0.125 )
 					proj->spr.yrepeat -= 2;
 				proj->spr.yint--;
 			}
@@ -1138,9 +1138,9 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		bounce(proj);
 		ssp(proj, CLIPMASK1);
 		proj->spr.extra >>= 1;
-		if (proj->spr.xrepeat > 8)
+		if (proj->spr.ScaleX() > 0.125 )
 			proj->spr.xrepeat -= 2;
-		if (proj->spr.yrepeat > 8)
+		if (proj->spr.ScaleY() > 0.125 )
 			proj->spr.yrepeat -= 2;
 		proj->spr.yint--;
 		return true;
@@ -3619,7 +3619,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 		if (a)
 		{
-			if (xvel < 960 && actor->spr.xrepeat > 16)
+			if (xvel < 960 && actor->spr.ScaleX() > 0.25 )
 			{
 
 				daxvel = -(1024 - xvel) * maptoworld;
