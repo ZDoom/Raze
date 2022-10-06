@@ -44,7 +44,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle
 	if (!*psect) return false;
 
 	// Calculate new pos to shoot backwards
-	DVector3 npos = -DVector3(ang.ToVector(), horiz.Tan()) * backamp;
+	DVector3 npos = -DVector3(ang.ToVector() * horiz.Cos(), horiz.Sin()) * backamp;
 
 	HitInfoBase hitinfo;
 	auto bakcstat = act->spr.cstat;
