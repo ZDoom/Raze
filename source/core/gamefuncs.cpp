@@ -1222,8 +1222,7 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 	tspr->pal = actor->spr.pal;
 	tspr->clipdist = 0;
 	tspr->blend = actor->spr.blend;
-	tspr->xrepeat = actor->spr.xrepeat;
-	tspr->yrepeat = actor->spr.yrepeat;
+	tspr->CopyScale(&actor->spr);
 	tspr->xoffset = actor->spr.xoffset;
 	tspr->yoffset = actor->spr.yoffset;
 	tspr->sectp = actor->spr.sectp;

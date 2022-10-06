@@ -447,7 +447,7 @@ DEFINE_PROPERTY(clipdist, I, CoreActor)
 DEFINE_PROPERTY(scalex, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.xrepeat = i / REPEAT_SCALE;
+	bag.Info->ActorInfo()->defsprite.SetScaleX(i);
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_XREPEAT;
 }
 
@@ -457,7 +457,7 @@ DEFINE_PROPERTY(scalex, I, CoreActor)
 DEFINE_PROPERTY(scaley, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.yrepeat = i / REPEAT_SCALE;
+	bag.Info->ActorInfo()->defsprite.SetScaleY(i);
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_YREPEAT;
 }
 

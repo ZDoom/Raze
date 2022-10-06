@@ -478,17 +478,18 @@ void moveplayers(void)
 
 			act->spr.cstat = 0;
 
-			if (act->spr.xrepeat < 42)
+			if (act->spr.ScaleX() < 0.65625)
 			{
-				act->spr.xrepeat += 4;
+				act->spr.AddScaleX(0.0625);
 				act->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
 			}
-			else act->spr.xrepeat = 42;
-			if (act->spr.yrepeat < 36)
-				act->spr.yrepeat += 4;
+			else act->spr.SetScaleX(0.65625);
+
+			if (act->spr.ScaleY() < 0.5625)
+				act->spr.AddScaleY(4);
 			else
 			{
-				act->spr.yrepeat = 36;
+				act->spr.SetScaleY(0.5625);
 				if (act->sector()->lotag != ST_2_UNDERWATER)
 					makeitfall(act);
 				if (act->vel.Z == 0 && act->sector()->lotag == ST_1_ABOVE_WATER)
@@ -840,7 +841,7 @@ void movefountain(DDukeActor *actor, int fountain)
 
 void moveflammable(DDukeActor* actor, int pool)
 {
-	int j;
+	double scale;
 	if (actor->temp_data[0] == 1)
 	{
 		actor->temp_data[1]++;
@@ -866,22 +867,22 @@ void moveflammable(DDukeActor* actor, int pool)
 			}
 		}
 
-		j = actor->spr.xrepeat - (krand() & 7);
-		if (j < 10)
+		scale = actor->spr.ScaleX() - (krand() & 7) * REPEAT_SCALE;
+		if (scale < 0.15625)
 		{
 			deletesprite(actor);
 			return;
 		}
 
-		actor->spr.xrepeat = j;
+		actor->spr.SetScaleX(scale);
 
-		j = actor->spr.yrepeat - (krand() & 7);
-		if (j < 4)
+		scale = actor->spr.ScaleY() - (krand() & 7) * REPEAT_SCALE;
+		if (scale < 0.0625)
 		{
 			deletesprite(actor);
 			return;
 		}
-		actor->spr.yrepeat = j;
+		actor->spr.SetScaleY(scale);
 	}
 	if (actorflag(actor, SFLAG_FALLINGFLAMMABLE))
 	{
@@ -2291,16 +2292,16 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		{
 			if (actor->spr.ScaleX() < 1 && actor->spr.ScaleY() < 1)
 			{
-				actor->spr.xrepeat += krand() & 3;
-				actor->spr.yrepeat += krand() & 3;
+				actor->spr.AddScaleX((krand() & 3) * REPEAT_SCALE);
+				actor->spr.AddScaleY((krand() & 3) * REPEAT_SCALE);
 			}
 		}
 		else
 		{
 			if (actor->spr.ScaleX() < 0.5 && actor->spr.ScaleY() < 0.5)
 			{
-				actor->spr.xrepeat += krand() & 3;
-				actor->spr.yrepeat += krand() & 3;
+				actor->spr.AddScaleX((krand() & 3) * REPEAT_SCALE);
+				actor->spr.AddScaleY((krand() & 3) * REPEAT_SCALE);
 			}
 		}
 	}
@@ -2332,8 +2333,8 @@ bool bloodpool(DDukeActor* actor, bool puke)
 
 		if (actor->temp_data[2] == 32)
 		{
-			actor->spr.xrepeat -= 6;
-			actor->spr.yrepeat -= 6;
+			actor->spr.AddScaleX(-6);
+			actor->spr.AddScaleY(-6);
 		}
 	}
 	else actor->temp_data[1] = 0;
@@ -2416,8 +2417,9 @@ void glasspieces(DDukeActor* actor)
 		actor->vel.Z = -(3 - actor->temp_data[0]) - krandf(2);
 		if (sectp->lotag == 2)
 			actor->vel.Z *= 0.5;
-		actor->spr.xrepeat >>= 1;
-		actor->spr.yrepeat >>= 1;
+
+		actor->spr.MultScaleX(0.5);
+		actor->spr.MultScaleY(0.5);
 		if (rnd(96))
 			SetActor(actor, actor->spr.pos);
 		actor->temp_data[0]++;//Number of bounces
