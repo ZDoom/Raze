@@ -1432,8 +1432,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	}
 
 	SPRITEMASS* cached = &actor->spriteMass;
-	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.picnum == cached->picnum) && actor->spr.xrepeat == cached->scalex &&
-		actor->spr.yrepeat == cached->scaley && clipDist == cached->clipDist)
+	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.picnum == cached->picnum) && actor->spr.ScaleX() == cached->scale.X &&
+		actor->spr.ScaleY() == cached->scale.Y && clipDist == cached->clipDist)
 	{
 		return cached->mass;
 	}
@@ -1457,8 +1457,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	clipDist = max(actor->clipdist, 0.25);
 	int x = tileWidth(picnum);
 	int y = tileHeight(picnum);
-	int xscale = actor->spr.xrepeat * 64;
-	int yscale = actor->spr.yrepeat * 64;
+	int xscale = int(actor->spr.ScaleX() * 64);
+	int yscale = int(actor->spr.ScaleY() * 64);
 
 	// take surface type into account
 	switch (tileGetSurfType(actor->spr.picnum))
@@ -1513,8 +1513,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	cached->airVel = ClipRange(400 - cached->mass, 32, 400);
 	cached->fraction = ClipRange(60000 - (cached->mass << 7), 8192, 60000);
 
-	cached->scalex = actor->spr.xrepeat;
-	cached->scaley = actor->spr.yrepeat;
+	cached->scale.X = actor->spr.ScaleX();
+	cached->scale.Y = actor->spr.ScaleY();
 	cached->picnum = actor->spr.picnum;
 	cached->seqId = seqId;
 	cached->clipDist = actor->clipdist;
@@ -1572,7 +1572,7 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, const DVector3& pos, 
 
 		dmg = int(dmg * (0x4000 / (0x4000 + dv.LengthSquared())));
 		bool thing = (actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
-		int size = (tileWidth(actor->spr.picnum) * actor->spr.xrepeat * tileHeight(actor->spr.picnum) * actor->spr.yrepeat) >> 1;
+		int size = (tileWidth(actor->spr.picnum) * actor->spr.ScaleX() * tileHeight(actor->spr.picnum) * actor->spr.ScaleY()) * 2048;
 		if (actor->xspr.physAttr & kPhysDebrisExplode)
 		{
 			if (actor->spriteMass.mass > 0)
@@ -2450,13 +2450,13 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 		{
 			if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
 			{
-				targetactor->spr.xrepeat = ClipRange(sourceactor->xspr.data1, 0, 255);
+				targetactor->spr.SetScaleX(ClipRange(sourceactor->xspr.data1, 0, 255) * REPEAT_SCALE);
 				fit = true;
 			}
 
 			if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
 			{
-				targetactor->spr.yrepeat = ClipRange(sourceactor->xspr.data2, 0, 255);
+				targetactor->spr.SetScaleY(ClipRange(sourceactor->xspr.data2, 0, 255) * REPEAT_SCALE);
 				fit = true;
 			}
 		}
@@ -3353,8 +3353,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 				pEffect->spr.pal = sourceactor->spr.pal;
 				pEffect->spr.xoffset = sourceactor->spr.xoffset;
 				pEffect->spr.yoffset = sourceactor->spr.yoffset;
-				pEffect->spr.xrepeat = sourceactor->spr.xrepeat;
-				pEffect->spr.yrepeat = sourceactor->spr.yrepeat;
+				pEffect->spr.CopyScale(&sourceactor->spr);
 				pEffect->spr.shade = sourceactor->spr.shade;
 			}
 
@@ -3768,7 +3767,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 						pos.Z = top;
 						break;
 					case 4:
-						// this had no value shift and no yrepeat handling, which looks like a bug.
+						// this had no value shift and no repeat handling, which looks like a bug.
 						pos.Z += (tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum)) * iactor->spr.ScaleY();
 						break;
 					case 5:
@@ -3788,8 +3787,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 					{
 						spawned->spr.pal = sourceactor->spr.pal;
 						spawned->spr.shade = sourceactor->spr.shade;
-						spawned->spr.xrepeat = sourceactor->spr.xrepeat;
-						spawned->spr.yrepeat = sourceactor->spr.yrepeat;
+						spawned->spr.CopyScale(&sourceactor->spr);
 						spawned->spr.xoffset = sourceactor->spr.xoffset;
 						spawned->spr.yoffset = sourceactor->spr.yoffset;
 					}
@@ -3986,9 +3984,9 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 27: return condCmp(actor->spr.shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((actor->spr.cstat & ESpriteFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (actor->spr.cstat & ESpriteFlags::FromInt(arg1));
 			case 29: return (arg3) ? condCmp((actor->spr.hitag & arg3), arg1, arg2, cmpOp) : (actor->spr.hitag & arg1);
-			case 30: return condCmp(actor->spr.xrepeat, arg1, arg2, cmpOp);
+			case 30: return condCmp(int(actor->spr.ScaleX() / REPEAT_SCALE), arg1, arg2, cmpOp);
 			case 31: return condCmp(actor->spr.xoffset, arg1, arg2, cmpOp);
-			case 32: return condCmp(actor->spr.yrepeat, arg1, arg2, cmpOp);
+			case 32: return condCmp(int(actor->spr.ScaleY() / REPEAT_SCALE), arg1, arg2, cmpOp);
 			case 33: return condCmp(actor->spr.yoffset, arg1, arg2, cmpOp);
 			}
 		}
@@ -6528,10 +6526,10 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 			if (canInherit != 0)
 			{
 				if (canInherit & 0x2)
-					missileactor->spr.xrepeat = (from == kModernTypeFlag1) ? sourceactor->spr.xrepeat : actor->spr.xrepeat;
+					missileactor->spr.SetScaleX((from == kModernTypeFlag1) ? sourceactor->spr.ScaleX() : actor->spr.ScaleX());
 
 				if (canInherit & 0x1)
-					missileactor->spr.yrepeat = (from == kModernTypeFlag1) ? sourceactor->spr.yrepeat : actor->spr.yrepeat;
+					missileactor->spr.SetScaleY((from == kModernTypeFlag1) ? sourceactor->spr.ScaleY() : actor->spr.ScaleY());
 
 				if (canInherit & 0x4)
 					missileactor->spr.pal = (from == kModernTypeFlag1) ? sourceactor->spr.pal : actor->spr.pal;
@@ -8221,7 +8219,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 	if (actor->xspr.health <= 0)
 		return;
 
-	double zt1, zb1, zt2, zb2; //int eaz1 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.yrepeat) << 2;
+	double zt1, zb1, zt2, zb2;
 	GetActorExtents(actor, &zt1, &zb1);
 	GetActorExtents(targetactor, &zt2, &zb2);
 
@@ -9191,8 +9189,10 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		burstactor->spr.pal = actor->spr.pal;
 		burstactor->clipdist = actor->clipdist * 0.25;
 		burstactor->spr.flags = actor->spr.flags;
-		burstactor->spr.xrepeat = actor->spr.xrepeat / 2;
-		burstactor->spr.yrepeat = actor->spr.yrepeat / 2;
+		burstactor->spr.CopyScale(&actor->spr);
+		burstactor->spr.MultScaleX(0.5);
+		burstactor->spr.MultScaleY(0.5);
+
 		burstactor->spr.angle = actor->spr.angle + mapangle(missileInfo[actor->spr.type - kMissileBase].angleOfs);
 		burstactor->SetOwner(actor);
 
@@ -9349,8 +9349,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPR
 	{
 		arc("seq", w.seqId, &nul.seqId)
 			("picnum", w.picnum, &nul.picnum)
-			("scalex", w.scalex, &nul.scalex)
-			("scaley", w.scaley, &nul.scaley)
+			("scale", w.scale, &nul.scale)
 			("clipdist", w.clipDist)
 			("mass", w.mass)
 			("airvel", w.airVel)

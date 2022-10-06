@@ -172,9 +172,9 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 	actor->spr.pal = pFX->pal;
 	actor->spr.detail = pFX->detail;
 	if (pFX->_xrepeat > 0)
-		actor->spr.xrepeat = pFX->_xrepeat;
+		actor->spr.SetScaleX(pFX->_xrepeat * REPEAT_SCALE);
 	if (pFX->_yrepeat > 0)
-		actor->spr.yrepeat = pFX->_yrepeat;
+		actor->spr.SetScaleY(pFX->_yrepeat * REPEAT_SCALE);
 	if ((pFX->flags & 1) && Chance(0x8000))
 		actor->spr.cstat |= CSTAT_SPRITE_XFLIP;
 	if ((pFX->flags & 2) && Chance(0x8000))

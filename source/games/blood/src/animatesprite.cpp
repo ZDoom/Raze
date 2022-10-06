@@ -46,7 +46,7 @@ static DAngle gCameraAng;
 DAngle random_angles[16][3];
 
 // to allow quick replacement later
-#define COPY_SCALE pNSprite->xrepeat = pTSprite->xrepeat; pNSprite->yrepeat = pTSprite->yrepeat;
+#define COPY_SCALE pNSprite->CopyScale(pTSprite);
 
 //---------------------------------------------------------------------------
 //
@@ -132,9 +132,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		pNSprite2->picnum = 2203;
+		pNSprite2->SetScale(width * REPEAT_SCALE, 0.3125);
 
-		pNSprite2->xrepeat = width;
-		pNSprite2->yrepeat = 20;
 		pNSprite2->pal = 10;
 		if (perc >= 75) pNSprite2->pal = 0;
 		else if (perc >= 50) pNSprite2->pal = 6;
@@ -456,8 +455,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (gDetail > 1)
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		pNSprite->shade = ClipLow(pTSprite->shade - 32, -128);
-		pNSprite->xrepeat = pTSprite->xrepeat;
-		pNSprite->yrepeat = 64;
+		pNSprite->SetScale(pTSprite->ScaleX(), 1);
 		pNSprite->picnum = 775;
 		break;
 	}
@@ -798,7 +796,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		case kStatProjectile: {
 			switch (pTSprite->type) {
 			case kMissileTeslaAlt:
-				pTSprite->yrepeat = 128;
+				pTSprite->SetScaleY(2);
 				pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 				break;
 			case kMissileTeslaRegular:

@@ -194,8 +194,7 @@ enum {
 struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
 	int seqId;
 	int16_t picnum; // mainly needs for moving debris
-	int16_t scalex;
-	int16_t scaley;
+	DVector2 scale;
 	int16_t airVel; // mainly needs for moving debris
 	double clipDist; // mass multiplier
 	int mass;
