@@ -18319,7 +18319,7 @@ int DoFloorBlood(DSWActor* actor)
         actor->spr.xrepeat++;
     }
 
-    if (actor->spr.yrepeat < ysiz && actor->spr.xrepeat != xsiz && actor->spr.xrepeat != 4)
+    if (actor->spr.yrepeat < ysiz && actor->spr.xrepeat < xsiz && actor->spr.xrepeat != 4)
     {
         actor->spr.yrepeat++;
     }

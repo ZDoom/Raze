@@ -480,6 +480,42 @@ struct spritetypebase
 		yrepeat = uint8_t(y * (1 / REPEAT_SCALE));
 	}
 
+	void SetScaleX(double x)
+	{
+		xrepeat = uint8_t(x * (1 / REPEAT_SCALE));
+	}
+
+	void SetScaleY(double y)
+	{
+		yrepeat = uint8_t(y * (1 / REPEAT_SCALE));
+	}
+
+	void AddScaleX(double x)
+	{
+		xrepeat += uint8_t(x * (1 / REPEAT_SCALE));
+	}
+
+	void AddScaleY(double y)
+	{
+		yrepeat += uint8_t(y * (1 / REPEAT_SCALE));
+	}
+
+	void MultScaleX(double x)
+	{
+		xrepeat = uint8_t(xrepeat * x);
+	}
+
+	void MultScaleY(double y)
+	{
+		yrepeat = uint8_t(yrepeat * y);
+	}
+
+	void CopyScale(spritetypebase* other)
+	{
+		xrepeat = other->xrepeat;
+		yrepeat = other->yrepeat;
+	}
+
 	double ScaleX() const
 	{
 		return xrepeat  * REPEAT_SCALE;
