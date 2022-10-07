@@ -526,7 +526,7 @@ struct spritetypebase
 		yrepeat = uint8_t(yrepeat * y);
 	}
 
-	void CopyScale(spritetypebase* other)
+	void CopyScale(const spritetypebase* other)
 	{
 		xrepeat = other->xrepeat;
 		yrepeat = other->yrepeat;

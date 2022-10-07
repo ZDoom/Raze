@@ -283,8 +283,8 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
     int ground_dist = 0;
     int view_dist = 0;
     double loz;
-    int xrepeat;
-    int yrepeat;
+	DVector2 scale;
+
 
     if (!ownerActor->hasU()) return;
 
@@ -300,16 +300,15 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 
     tsp->sectp = sect;
 
-    if ((tsp->yrepeat >> 2) > 4)
+    if (tsp->ScaleY() > 0.25)
     {
-		int sizey = MulScale(tileHeight(tsp->picnum), tsp->yrepeat, 6);
-        yrepeat = (tsp->yrepeat >> 2) - (sizey / 64) * 2;
-        xrepeat = tsp->xrepeat;
+		double sizey = tileHeight(tsp->picnum) * tsp->ScaleY();
+        scale.Y = (tsp->ScaleY() * 0.25) - (sizey / 2048.);
+        scale.X = tsp->ScaleX();
     }
     else
     {
-        yrepeat = tsp->yrepeat;
-        xrepeat = tsp->xrepeat;
+		scale = tsp->Scale();
     }
 
     loz = ownerActor->user.loz;
@@ -346,14 +345,11 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 
     // make shadow smaller depending on height from ground
     ground_dist = int(abs(loz - GetSpriteZOfBottom(tsp)) * (1./16));
-
-    xrepeat = max(xrepeat - ground_dist - view_dist, 4);
-    yrepeat = max(yrepeat - ground_dist - view_dist, 4);
-    xrepeat = min(xrepeat, 255);
-    yrepeat = min(yrepeat, 255);
-
-    tSpr->xrepeat = uint8_t(xrepeat);
-    tSpr->yrepeat = uint8_t(yrepeat);
+	
+	double scaleofs = (ground_dist - view_dist) * REPEAT_SCALE;
+	scale.X = clamp(scale.X + scaleofs, 0.0625, 4.);
+	scale.Y = clamp(scale.Y + scaleofs, 0.0625, 4.);
+	tSpr->SetScale(scale);
 
     if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
@@ -385,7 +381,8 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
     auto ownerActor = static_cast<DSWActor*>(tsp->ownerActor);
     DVector3 npos(0, 0, 0), dpos(0, 0, 0);
     int i;
-    int xrepeat, yrepeat, repeat_adj = 0;
+    double repeat_adj = 0;
+	DVector2 scale;
     double z_amt_per_pixel;
 
     auto angle = tsp->angle + DAngle180;
@@ -407,8 +404,7 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
     dpos.XY() = npos.XY() = angle.ToVector() * ownerActor->user.motion_blur_dist;
     dpos.Z = npos.Z = z_amt_per_pixel * ownerActor->user.motion_blur_dist * (1./16);
 
-    xrepeat = tsp->xrepeat;
-    yrepeat = tsp->yrepeat;
+	scale = tsp->Scale();
 
     switch ((ownerActor->user.Flags2 & SPR2_BLUR_TAPER))
     {
@@ -416,10 +412,10 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
         repeat_adj = 0;
         break;
     case SPR2_BLUR_TAPER_SLOW:
-        repeat_adj = xrepeat / (ownerActor->user.motion_blur_num*2);
+        repeat_adj = scale.X / (ownerActor->user.motion_blur_num*2);
         break;
     case SPR2_BLUR_TAPER_FAST:
-        repeat_adj = xrepeat / ownerActor->user.motion_blur_num;
+        repeat_adj = scale.X / ownerActor->user.motion_blur_num;
         break;
     }
 
@@ -432,11 +428,10 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
         tSpr->pos += dpos;
         dpos += npos;
 
-        tSpr->xrepeat = uint8_t(xrepeat);
-        tSpr->yrepeat = uint8_t(yrepeat);
+        tSpr->SetScale(scale);
 
-        xrepeat -= repeat_adj;
-        yrepeat -= repeat_adj;
+        scale.X -= repeat_adj;
+        scale.Y -= repeat_adj;
     }
 
 }
@@ -546,8 +541,7 @@ DSWActor* CopySprite(spritetypebase const* tsp, sectortype* newsector)
     actorNew->spr.cstat = tsp->cstat;
     actorNew->spr.picnum = tsp->picnum;
     actorNew->spr.pal = tsp->pal;
-    actorNew->spr.xrepeat = tsp->xrepeat;
-    actorNew->spr.yrepeat = tsp->yrepeat;
+    actorNew->spr.CopyScale(tsp);
     actorNew->spr.xoffset = tsp->xoffset;
     actorNew->spr.yoffset = tsp->yoffset;
     actorNew->spr.angle = tsp->angle;
@@ -618,7 +612,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
     int newshade=0;
 
     const int DART_PIC = 2526;
-    const int DART_REPEAT = 16;
+    const double DART_REPEAT = 0.25;
 
     ang = NORM_ANGLE(ang + 12);
 
@@ -686,16 +680,11 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                 DoShadows(tsprites, tsp, viewpos.Z);
             }
 
-            //#define UK_VERSION 1
-
-            //#define DART_REPEAT 6
-            //#define DART_PIC 2233
             if (sw_darts)
                 if (tActor->user.ID == 1793 || tsp->picnum == 1793)
                 {
                     tsp->picnum = 2519;
-                    tsp->xrepeat = 27;
-                    tsp->yrepeat = 29;
+					tsp->SetScale(0.421875, 0.453125);
                 }
 
             if (tActor->user.ID == STAR1)
@@ -705,7 +694,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
 
                     tsp->picnum = DART_PIC;
                     tsp->angle -= DAngle90 + mapangle(24);
-                    tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
+					tsp->SetScale(DART_REPEAT, DART_REPEAT);
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
                 else
@@ -769,7 +758,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             {
                 tsp->picnum = DART_PIC;
                 tsp->angle -= DAngle90;
-                tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
+				tsp->SetScale(DART_REPEAT, DART_REPEAT);
                 tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             }
 
