@@ -114,10 +114,8 @@ constexpr double PLAYER_FALL_HEIGHTF = 28;
 constexpr double PLAYER_DEATH_HEIGHTF = 16;
 constexpr double PLAYER_DEAD_HEAD_FLOORZ_OFFSET = 7;
 
-//#define PLAYER_NINJA_XREPEAT (56)
-//#define PLAYER_NINJA_YREPEAT (56)
-#define PLAYER_NINJA_XREPEAT (47)
-#define PLAYER_NINJA_YREPEAT (33)
+constexpr double PLAYER_NINJA_XREPEAT = 0.734375;
+constexpr double PLAYER_NINJA_YREPEAT = 0.515625;
 
 BEGIN_SW_NS
 

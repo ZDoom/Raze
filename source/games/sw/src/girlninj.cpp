@@ -728,8 +728,7 @@ int SetupGirlNinja(DSWActor* actor)
 
     actor->user.StateEnd = s_GirlNinjaDie;
     actor->user.Rot = sg_GirlNinjaRun;
-    actor->spr.xrepeat = 51;
-    actor->spr.yrepeat = 43;
+	actor->spr.SetScale(0.796875, 0.0671875);
 
     actor->user.Attrib = &GirlNinjaAttrib;
     actor->spr.pal = actor->user.spal = 26;

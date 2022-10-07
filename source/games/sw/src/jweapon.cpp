@@ -2227,7 +2227,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;
-        actorNew->spr.yrepeat = actorNew->spr.xrepeat = 13;
+		actorNew->spr.SetScale(0.203125, 0.203125);
         break;
     case SHOT_SHELL:
 		actorNew->spr.pos.Z -= 13;
@@ -2241,7 +2241,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;
-        actorNew->spr.yrepeat = actorNew->spr.xrepeat = 18;
+		actorNew->spr.SetScale(0.28125, 0.28125);
         break;
     }
 

@@ -6130,7 +6130,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         NewStateGroup(plActor, plActor->user.ActorActionSet->Stand);
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
-        plActor->spr.xrepeat = plActor->spr.yrepeat = PLAYER_NINJA_XREPEAT;
+        plActor->spr.SetScale(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_XREPEAT);
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.pos = pp->pos.plusZ(PLAYER_HEIGHTF);
         plActor->spr.angle = pp->angle.ang;
@@ -6150,8 +6150,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         pp->input.actions |= SB_CENTERVIEW;
-        plActor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
-        plActor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
+		plActor->spr.SetScale(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
         pp->horizon.horiz = nullAngle;
         DoPlayerResetMovement(pp);

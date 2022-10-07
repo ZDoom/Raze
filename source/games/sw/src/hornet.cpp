@@ -320,8 +320,7 @@ int SetupHornet(DSWActor* actor)
 
     actor->user.pos.Z = actor->spr.pos.Z;
 
-    actor->spr.xrepeat = 37;
-    actor->spr.yrepeat = 32;
+	actor->spr.SetScale(0.578125, 0.5);
 
     // Special looping buzz sound attached to each hornet spawned
     PlaySound(DIGI_HORNETBUZZ, actor, v3df_follow|v3df_init);
