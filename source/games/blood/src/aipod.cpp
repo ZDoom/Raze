@@ -199,7 +199,7 @@ static void aiPodChase(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
 			if (nDist < pDudeInfo->SeeDist() && abs(nDeltaAngle) <= pDudeInfo->Periphery())

@@ -371,8 +371,8 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 		}
 
 		// convert to render space.
-		float sx = (float)spr->ScaleX() * 0.8f; // weird Build fuckery. Face sprites are rendered at 80% width only.
-		float sy = (float)spr->ScaleY();
+		float sx = (float)spr->scale.X * 0.8f; // weird Build fuckery. Face sprites are rendered at 80% width only.
+		float sy = (float)spr->scale.Y;
 		float width = xsize * sx;
 		float height = ysize * sy;
 		float xoff = tilexoff * sx;
@@ -479,7 +479,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	FVector3 translatevec = { 0, 0, voxel->zadd * voxel->scale };
 
 	float basescale = voxel->bscale;
-	float sprxscale = (float)spr->ScaleX() * 0.8f * basescale;
+	float sprxscale = (float)spr->scale.X * 0.8f * basescale;
 	if ((spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
 	{
 		sprxscale *= 1.25f;
@@ -504,13 +504,13 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	translatevec.X *= sprxscale; 
 	scalevec.Y *= sprxscale; 
 	translatevec.Y *= sprxscale;
-	float sprzscale = (float)spr->ScaleY() * basescale;
+	float sprzscale = (float)spr->scale.Y * basescale;
 	scalevec.Z *= sprzscale; 
 	translatevec.Z *= sprzscale;
 
 	float zpos = (float)(spr->pos.Z + ownerActor->sprext.position_offset.Z);
 	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -1.f : 1.f;
-	zpos -= (spr->yoffset * spr->ScaleY()) * zscale * basescale;
+	zpos -= (spr->yoffset * spr->scale.Y) * zscale * basescale;
 
 	x = (spr->pos.X + ownerActor->sprext.position_offset.X);
 	z = -zpos;

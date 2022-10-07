@@ -807,7 +807,7 @@ void AIBullet::Tick(RunListEvent* ev)
 
     if (nFlag & 0x80)
     {
-        BuildAnim(nullptr, 45, 0, pActor->spr.pos, pActor->sector(), pActor->spr.ScaleX(), 0);
+        BuildAnim(nullptr, 45, 0, pActor->spr.pos, pActor->sector(), pActor->spr.scale.X, 0);
     }
 
     BulletList[nBullet].nFrame++;

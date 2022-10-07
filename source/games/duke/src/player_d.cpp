@@ -331,7 +331,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 
 		if (aimed)
 		{
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
 			switch (aimed->spr.picnum)
 			{
 			case GREENSLIME:
@@ -589,7 +589,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 		if (aimed)
 		{
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) - 12;
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) - 12;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
@@ -676,7 +676,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 		aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) + 8;
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 8;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			if (aimed->spr.picnum != RECON)
@@ -698,7 +698,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 		{
 			double zoffs = 32;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
-				zoffs *= (actor->spr.ScaleY() * 0.8);
+				zoffs *= (actor->spr.scale.Y * 0.8);
 			pos.Z += zoffs;
 		}
 		else if (actor->spr.picnum == BOSS2)
@@ -706,7 +706,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			vel += 8;
 			double zoffs = 24;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
-				zoffs *= (actor->spr.ScaleY() * 0.8);
+				zoffs *= (actor->spr.scale.Y * 0.8);
 			pos.Z -= zoffs;
 		}
 
@@ -749,7 +749,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 			{
-				float siz = actor->spr.ScaleY() * 0.8;
+				float siz = actor->spr.scale.Y * 0.8;
 				spawnofs *= siz;
 				aoffs *= siz;
 			}
@@ -765,7 +765,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			DAngle aoffs = DAngle22_5 / 16. - DAngle45 + randomAngle(90);
 
 			if (isWorldTour()) { // Twentieth Anniversary World Tour
-				double siz = actor->spr.ScaleY() * 0.9143;
+				double siz = actor->spr.scale.Y * 0.9143;
 				spawnofs *= siz;
 				aoffs *= siz;
 			}
@@ -897,7 +897,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
 			switch (aimed->spr.picnum)
 			{
 			case GREENSLIME:
@@ -1006,7 +1006,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 		auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5);
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5);
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal - 4) * 48) / dist;
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
@@ -1076,7 +1076,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	else
 	{
 		sang = actor->spr.angle;
-		spos = actor->spr.pos.plusZ(-(actor->spr.ScaleY() * tileHeight(actor->spr.picnum) * 0.5) + 4);
+		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tileHeight(actor->spr.picnum) * 0.5) + 4);
 
 		if (actor->spr.picnum != ROTATEGUN)
 		{
@@ -1180,7 +1180,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 {
 	int i, j, k;
 	auto p = &ps[snum];
-	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.ScaleX() > 0.5  && p->access_incs == 0 && p->knee_incs == 0)
+	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.scale.X > 0.5  && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
@@ -2529,7 +2529,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				fi.shoot(pact, FREEZEBLAST);
 				checkavailweapon(p);
 			}
-			if (pact->spr.ScaleX() < 0.5)
+			if (pact->spr.scale.X < 0.5)
 			{
 				p->okickback_pic = p->kickback_pic = 0; break;
 			}
@@ -2627,7 +2627,7 @@ static void processweapon(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int shrunk = (pact->spr.ScaleY() < 0.5);
+	int shrunk = (pact->spr.scale.Y < 0.5);
 
 	if (isNamWW2GI() && (actions & SB_HOLSTER)) // 'Holster Weapon
 	{
@@ -2737,7 +2737,7 @@ void processinput_d(int snum)
 	psectlotag = psectp->lotag;
 	p->spritebridge = 0;
 
-	shrunk = (pact->spr.ScaleY() < 0.5);
+	shrunk = (pact->spr.scale.Y < 0.5);
 	getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 
 	p->truefz = getflorzofslopeptr(psectp, p->pos);
@@ -2773,7 +2773,7 @@ void processinput_d(int snum)
 			p->footprintcount = 0;
 			p->spritebridge = 1;
 		}
-		else if (badguy(clz.actor()) && clz.actor()->spr.ScaleX() > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
+		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
 			auto ang = (clz.actor()->spr.pos - p->pos).Angle();
 			p->vel.XY() -= ang.ToVector();
@@ -2817,7 +2817,7 @@ void processinput_d(int snum)
 		return;
 	}
 
-	if (p->GetActor()->spr.ScaleX() < 0.625 && p->jetpack_on == 0)
+	if (p->GetActor()->spr.scale.X < 0.625 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
 		p->fistsign += p->GetActor()->vel.X * 16;

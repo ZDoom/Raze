@@ -1432,8 +1432,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	}
 
 	SPRITEMASS* cached = &actor->spriteMass;
-	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.picnum == cached->picnum) && actor->spr.ScaleX() == cached->scale.X &&
-		actor->spr.ScaleY() == cached->scale.Y && clipDist == cached->clipDist)
+	if (((seqId >= 0 && seqId == cached->seqId) || actor->spr.picnum == cached->picnum) && actor->spr.scale.X == cached->scale.X &&
+		actor->spr.scale.Y == cached->scale.Y && clipDist == cached->clipDist)
 	{
 		return cached->mass;
 	}
@@ -1457,8 +1457,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	clipDist = max(actor->clipdist, 0.25);
 	int x = tileWidth(picnum);
 	int y = tileHeight(picnum);
-	int xscale = int(actor->spr.ScaleX() * 64);
-	int yscale = int(actor->spr.ScaleY() * 64);
+	int xscale = int(actor->spr.scale.X * 64);
+	int yscale = int(actor->spr.scale.Y * 64);
 
 	// take surface type into account
 	switch (tileGetSurfType(actor->spr.picnum))
@@ -1513,8 +1513,8 @@ int getSpriteMassBySize(DBloodActor* actor)
 	cached->airVel = ClipRange(400 - cached->mass, 32, 400);
 	cached->fraction = ClipRange(60000 - (cached->mass << 7), 8192, 60000);
 
-	cached->scale.X = actor->spr.ScaleX();
-	cached->scale.Y = actor->spr.ScaleY();
+	cached->scale.X = actor->spr.scale.X;
+	cached->scale.Y = actor->spr.scale.Y;
 	cached->picnum = actor->spr.picnum;
 	cached->seqId = seqId;
 	cached->clipDist = actor->clipdist;
@@ -1572,7 +1572,7 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, const DVector3& pos, 
 
 		dmg = int(dmg * (0x4000 / (0x4000 + dv.LengthSquared())));
 		bool thing = (actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
-		int size = (tileWidth(actor->spr.picnum) * actor->spr.ScaleX() * tileHeight(actor->spr.picnum) * actor->spr.ScaleY()) * 2048;
+		int size = (tileWidth(actor->spr.picnum) * actor->spr.scale.X * tileHeight(actor->spr.picnum) * actor->spr.scale.Y) * 2048;
 		if (actor->xspr.physAttr & kPhysDebrisExplode)
 		{
 			if (actor->spriteMass.mass > 0)
@@ -1605,7 +1605,7 @@ void debrisBubble(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 	for (unsigned int i = 0; i < 1 + Random(5); i++) {
 
-		double nDist = actor->spr.ScaleX() * tileWidth(actor->spr.picnum) * 0.5; // original code ended with * 8 which is 1/2 map unit.
+		double nDist = actor->spr.scale.X * tileWidth(actor->spr.picnum) * 0.5; // original code ended with * 8 which is 1/2 map unit.
 		DAngle nAngle = RandomAngle();
 		DVector3 pos;
 		pos.XY() = actor->spr.pos.XY() + nAngle.ToVector() * nDist;
@@ -3326,7 +3326,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			pos = bottom;
 			break;
 		case 2: // middle
-			pos = actor->spr.pos.Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum)) * actor->spr.ScaleY();
+			pos = actor->spr.pos.Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum)) * actor->spr.scale.Y;
 			break;
 		case 3:
 		case 4:
@@ -3768,7 +3768,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 						break;
 					case 4:
 						// this had no value shift and no repeat handling, which looks like a bug.
-						pos.Z += (tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum)) * iactor->spr.ScaleY();
+						pos.Z += (tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum)) * iactor->spr.scale.Y;
 						break;
 					case 5:
 					case 6:
@@ -3984,9 +3984,9 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 27: return condCmp(actor->spr.shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((actor->spr.cstat & ESpriteFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (actor->spr.cstat & ESpriteFlags::FromInt(arg1));
 			case 29: return (arg3) ? condCmp((actor->spr.hitag & arg3), arg1, arg2, cmpOp) : (actor->spr.hitag & arg1);
-			case 30: return condCmp(int(actor->spr.ScaleX() * INV_REPEAT_SCALE), arg1, arg2, cmpOp);
+			case 30: return condCmp(int(actor->spr.scale.X * INV_REPEAT_SCALE), arg1, arg2, cmpOp);
 			case 31: return condCmp(actor->spr.xoffset, arg1, arg2, cmpOp);
-			case 32: return condCmp(int(actor->spr.ScaleY() * INV_REPEAT_SCALE), arg1, arg2, cmpOp);
+			case 32: return condCmp(int(actor->spr.scale.Y * INV_REPEAT_SCALE), arg1, arg2, cmpOp);
 			case 33: return condCmp(actor->spr.yoffset, arg1, arg2, cmpOp);
 			}
 		}
@@ -4434,7 +4434,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 			condError(aCond, "Dude #%d has no target!", objActor->GetIndex());
 
 		DUDEINFO* pInfo = getDudeInfo(objActor->spr.type);
-		double height = (pInfo->eyeHeight * objActor->spr.ScaleY());
+		double height = (pInfo->eyeHeight * objActor->spr.scale.Y);
 
 		auto delta = targ->spr.pos.XY() - objActor->spr.pos.XY();
 
@@ -5152,7 +5152,7 @@ bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBlood
 	// check target
 	if (dv.Length() < pDudeInfo->SeeDist())
 	{
-		double height = (pDudeInfo->eyeHeight * dudeactor->spr.ScaleY());
+		double height = (pDudeInfo->eyeHeight * dudeactor->spr.scale.Y);
 
 		// is there a line of sight to the target?
 		if (cansee(dudeactor->spr.pos, dudeactor->sector(), targetactor->spr.pos.plusZ(-height), targetactor->sector()))
@@ -6526,10 +6526,10 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 			if (canInherit != 0)
 			{
 				if (canInherit & 0x2)
-					missileactor->spr.SetScaleX((from == kModernTypeFlag1) ? sourceactor->spr.ScaleX() : actor->spr.ScaleX());
+					missileactor->spr.SetScaleX((from == kModernTypeFlag1) ? sourceactor->spr.scale.X : actor->spr.scale.X);
 
 				if (canInherit & 0x1)
-					missileactor->spr.SetScaleY((from == kModernTypeFlag1) ? sourceactor->spr.ScaleY() : actor->spr.ScaleY());
+					missileactor->spr.SetScaleY((from == kModernTypeFlag1) ? sourceactor->spr.scale.Y : actor->spr.scale.Y);
 
 				if (canInherit & 0x4)
 					missileactor->spr.pal = (from == kModernTypeFlag1) ? sourceactor->spr.pal : actor->spr.pal;
@@ -8232,7 +8232,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		double eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.ScaleY());
+		double eaz2 = (getDudeInfo(targetactor->spr.type)->eyeHeight * targetactor->spr.scale.Y);
 		double nDist = (dudeactor->spr.pos.XY() - actor->spr.pos.XY()).LengthSquared();
 		if (nDist >= kPatrolAlarmSeeDistSq || !cansee(DVector3(actor->spr.pos, zt1), actor->sector(), dudeactor->spr.pos.plusZ(-eaz2), dudeactor->sector()))
 		{
@@ -8264,7 +8264,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 	if (actor->xspr.health <= 0)
 		return;
 
-	double eaz2 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.ScaleY());
+	double eaz2 = (getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.scale.Y);
 	auto pos2 = actor->spr.pos.plusZ(-eaz2);
 
 	auto pSect2 = actor->sector();
@@ -8284,7 +8284,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 		if (dudeactor->xspr.health <= 0)
 			continue;
 
-		double eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.ScaleY());
+		double eaz1 = (getDudeInfo(dudeactor->spr.type)->eyeHeight * dudeactor->spr.scale.Y);
 		auto pos1 = dudeactor->spr.pos.plusZ(-eaz1);
 
 		auto pSect1 = dudeactor->sector();
@@ -8420,7 +8420,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 		if (nDistf <= seeDistf)
 		{
 			double scratch;
-			double eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+			double eyeAboveZ = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 			if (nDistf < seeDistf / 8) GetActorExtents(pPlayer->actor, &pos.Z, &scratch); //use ztop of the target sprite
 			if (!cansee(pos, plActor->sector(), actor->spr.pos - eyeAboveZ, actor->sector()))
 				continue;

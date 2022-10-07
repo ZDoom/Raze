@@ -108,7 +108,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.SetScale(0.25, 0.25);
 			return act;
 		case LAVAPOOLBUBBLE:
-			if (actj->spr.ScaleX() < 0.46875)
+			if (actj->spr.scale.X < 0.46875)
 				return act;
 			act->SetOwner(actj);
 			ChangeActorStat(act, STAT_MISC);
@@ -742,8 +742,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SIDEBOLT1 + 1:
 	case SIDEBOLT1 + 2:
 	case SIDEBOLT1 + 3:
-		act->temp_pos.X = act->spr.ScaleX();
-		act->temp_pos.Y = act->spr.ScaleY();
+		act->temp_pos.X = act->spr.scale.X;
+		act->temp_pos.Y = act->spr.scale.Y;
 		[[fallthrough]];
 	case MASTERSWITCH:
 		if (act->spr.picnum == MASTERSWITCH)
@@ -1105,7 +1105,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case OOZFILTER:
 
 		act->spr.shade = -16;
-		if (act->spr.ScaleX() <= 0.125)
+		if (act->spr.scale.X <= 0.125)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 			act->spr.SetScale(0, 0);

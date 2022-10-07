@@ -227,7 +227,7 @@ void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVect
 		xoffset = tex->GetDisplayLeftOffset() + spr->xoffset;
 	}
 
-	auto p = spr->angle.ToVector().Rotated90CW() * spr->ScaleX();
+	auto p = spr->angle.ToVector().Rotated90CW() * spr->scale.X;
 
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoffset = -xoffset;
 	double origin = (width * 0.5) + xoffset;
@@ -249,8 +249,8 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 
 	double width, height, leftofs, topofs;
 	double sloperatio = sqrt(heinum * heinum + SLOPEVAL_FACTOR * SLOPEVAL_FACTOR) * (1. / SLOPEVAL_FACTOR);
-	double _xrepeat = spr->ScaleX();
-	double _yrepeat = spr->ScaleY();
+	double _xrepeat = spr->scale.X;
+	double _yrepeat = spr->scale.Y;
 
 	int xo = heinum ? 0 : spr->xoffset;
 	int yo = heinum ? 0 : spr->yoffset;
@@ -573,7 +573,7 @@ double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3&
 	if (factor < 0 || factor > maxfactor) return -1;
 
 
-	auto sprwidth = tileWidth(actor->spr.picnum) * actor->spr.ScaleX() * 0.5;
+	auto sprwidth = tileWidth(actor->spr.picnum) * actor->spr.scale.X * 0.5;
 	auto point = start + direction * factor;
 
 	// Using proper distance here, Build originally used the sum of x- and y-distance

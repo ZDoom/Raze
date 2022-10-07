@@ -2638,7 +2638,7 @@ void SpriteSetup(void)
                     if (!actor->hasU())
                         SpawnUser(actor, ST1, nullptr);
 
-                    if (actor->spr.ScaleX() == 1 && actor->spr.ScaleY() == 1) // clear default scale.
+                    if (actor->spr.scale.X == 1 && actor->spr.scale.Y == 1) // clear default scale.
                         actor->spr.SetScale(0, 0);
 
                     change_actor_stat(actor, STAT_SPAWN_SPOT);

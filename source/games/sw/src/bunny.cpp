@@ -955,8 +955,8 @@ int DoBunnyQuickJump(DSWActor* actor)
 
 
         // Not mature enough yet
-        if (actor->spr.ScaleX() != 1 || actor->spr.ScaleY() != 1) return false;
-        if (hitActor->spr.ScaleX() != 1 || hitActor->spr.ScaleY() != 1) return false;
+        if (actor->spr.scale.X != 1 || actor->spr.scale.Y != 1) return false;
+        if (hitActor->spr.scale.X != 1 || hitActor->spr.scale.Y != 1) return false;
 
         // Kill a rival
         // Only males fight
@@ -993,8 +993,8 @@ int DoBunnyQuickJump(DSWActor* actor)
         if (!hitActor->hasU() || hitActor->user.ID != BUNNY_RUN_R0) return false;
 
         // Not mature enough to mate yet
-		if (actor->spr.ScaleX() != 1 || actor->spr.ScaleY() != 1) return false;
-		if (hitActor->spr.ScaleX() != 1 || hitActor->spr.ScaleY() != 1) return false;
+		if (actor->spr.scale.X != 1 || actor->spr.scale.Y != 1) return false;
+		if (hitActor->spr.scale.X != 1 || hitActor->spr.scale.Y != 1) return false;
 
         if (hitActor->user.ShellNum <= 0 && hitActor->user.WaitTics <= 0 && actor->user.WaitTics <= 0)
         {
@@ -1462,8 +1462,8 @@ int DoBunnyGrowUp(DSWActor* actor)
     {
 		actor->spr.AddScaleX(REPEAT_SCALE);
 		actor->spr.AddScaleY(REPEAT_SCALE);
-        if ((actor->spr.ScaleX()) > 1) actor->spr.SetScaleX(1);
-		if ((actor->spr.ScaleY()) > 1) actor->spr.SetScaleY(1);
+        if ((actor->spr.scale.X) > 1) actor->spr.SetScaleX(1);
+		if ((actor->spr.scale.Y) > 1) actor->spr.SetScaleY(1);
         actor->user.Counter = 60;
     }
 

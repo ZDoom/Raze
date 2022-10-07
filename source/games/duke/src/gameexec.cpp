@@ -1202,11 +1202,11 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_XREPEAT:
 		if (bSet) act->spr.SetScaleX(lValue * REPEAT_SCALE);
-		else SetGameVarID(lVar2, int(act->spr.ScaleX() * INV_REPEAT_SCALE), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(act->spr.scale.X * INV_REPEAT_SCALE), sActor, sPlayer);
 		break;
 	case ACTOR_YREPEAT:
 		if (bSet) act->spr.SetScaleY(lValue * REPEAT_SCALE);
-		else SetGameVarID(lVar2, int(act->spr.ScaleY() * INV_REPEAT_SCALE), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(act->spr.scale.Y * INV_REPEAT_SCALE), sActor, sPlayer);
 		break;
 	case ACTOR_XOFFSET:
 		if (bSet) act->spr.xoffset = lValue;
@@ -1386,7 +1386,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 		double sclip;
 		DAngle angdif;
 
-		if (badguy(actor) && actor->spr.ScaleX() > 0.875)
+		if (badguy(actor) && actor->spr.scale.X > 0.875)
 		{
 			sclip = 3084 / 16.;
 			angdif = DAngle22_5 * 3 / 8;
@@ -1729,16 +1729,16 @@ int ParseState::parse(void)
 		// 1.4, so instead of patching the CONs I'll surruptitiously patch the code here
 		//if (!isPlutoPak() && *insptr == 0) *insptr = 4;
 
-		double siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.ScaleX());
-		g_ac->spr.SetScaleX(clamp(g_ac->spr.ScaleX() + Sgn(siz) * REPEAT_SCALE, 0., 4.));
+		double siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.scale.X);
+		g_ac->spr.SetScaleX(clamp(g_ac->spr.scale.X + Sgn(siz) * REPEAT_SCALE, 0., 4.));
 
 		insptr++;
 
-		auto scale = g_ac->spr.ScaleY();
+		auto scale = g_ac->spr.scale.Y;
 		if ((g_ac->isPlayer() && scale < 0.5626) || *insptr * REPEAT_SCALE < scale || (scale * (tileHeight(g_ac->spr.picnum) + 8)) < g_ac->floorz - g_ac->ceilingz)
 		{
-			siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.ScaleY());
-			g_ac->spr.SetScaleY(clamp(g_ac->spr.ScaleY() + Sgn(siz) * REPEAT_SCALE, 0., 4.));
+			siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.scale.Y);
+			g_ac->spr.SetScaleY(clamp(g_ac->spr.scale.Y + Sgn(siz) * REPEAT_SCALE, 0., 4.));
 		}
 
 		insptr++;
@@ -2298,7 +2298,7 @@ int ParseState::parse(void)
 	case concmd_ifsizedown:
 		g_ac->spr.AddScaleX(-REPEAT_SCALE);
 		g_ac->spr.AddScaleY(-REPEAT_SCALE);
-		parseifelse(g_ac->spr.ScaleX() <= 5 * REPEAT_SCALE);
+		parseifelse(g_ac->spr.scale.X <= 5 * REPEAT_SCALE);
 		break;
 	case concmd_ifwind:
 		parseifelse(WindTime > 0);
@@ -2414,7 +2414,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;
-			else if( (l& pshrunk) && ps[g_p].GetActor()->spr.ScaleX() < (isRR() ? 0.125 : 0.5))
+			else if( (l& pshrunk) && ps[g_p].GetActor()->spr.scale.X < (isRR() ? 0.125 : 0.5))
 					j = 1;
 			else if( (l& pjetpack) && ps[g_p].jetpack_on )
 					j = 1;
@@ -2422,7 +2422,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& ponground) && ps[g_p].on_ground)
 					j = 1;
-			else if( (l& palive) && ps[g_p].GetActor()->spr.ScaleX() > (isRR() ? 0.125 : 0.5) && ps[g_p].GetActor()->spr.extra > 0 && ps[g_p].timebeforeexit == 0)
+			else if( (l& palive) && ps[g_p].GetActor()->spr.scale.X > (isRR() ? 0.125 : 0.5) && ps[g_p].GetActor()->spr.extra > 0 && ps[g_p].timebeforeexit == 0)
 					j = 1;
 			else if( (l& pdead) && ps[g_p].GetActor()->spr.extra <= 0)
 					j = 1;
@@ -2790,7 +2790,7 @@ int ParseState::parse(void)
 		}
 	case concmd_pstomp:
 		insptr++;
-		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.ScaleX() >= (isRR()? 0.140625 : 0.625) )
+		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.scale.X >= (isRR()? 0.140625 : 0.625) )
 			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), ps[g_p].pos.plusZ(16), ps[g_p].GetActor()->sector()))
 		{
 			ps[g_p].knee_incs = 1;
@@ -3683,7 +3683,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 		{
 			if (badguy(actor))
 			{
-				if (actor->spr.ScaleX() > 0.9375 ) return;
+				if (actor->spr.scale.X > 0.9375 ) return;
 				if (ud.respawn_monsters == 1 && actor->spr.extra <= 0) return;
 			}
 			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) return;
@@ -3766,7 +3766,7 @@ void execute(DDukeActor *actor,int p,double xx)
 		{
 			if (badguy(actor))
 			{
-				if (actor->spr.ScaleX() > 0.9375 ) goto quit;
+				if (actor->spr.scale.X > 0.9375 ) goto quit;
 				if (ud.respawn_monsters == 1 && actor->spr.extra <= 0) goto quit;
 			}
 			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) goto quit;

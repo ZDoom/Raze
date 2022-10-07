@@ -80,8 +80,8 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
-	double height2 = (pDudeInfoT->eyeHeight * target->spr.ScaleY());
+	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
 	DVector3 vect(actor->spr.angle.ToVector() * 1024, height2 - height);
 
 	actFireVector(actor, 0., 0., vect, kVectorBoneelBite);
@@ -115,7 +115,7 @@ static void eelThinkTarget(DBloodActor* actor)
 			double nDist = dvect.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+			double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			DAngle nDeltaAngle = absangle(actor->spr.angle, dvect.Angle());
@@ -181,8 +181,8 @@ static void eelThinkPonder(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
-		double height2 = (getDudeInfo(target->spr.type)->eyeHeight * target->spr.ScaleY());
+		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height2 = (getDudeInfo(target->spr.type)->eyeHeight * target->spr.scale.Y);
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
@@ -276,7 +276,7 @@ static void eelThinkChase(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		double top, bottom;
 		double top2, bottom2;
 		GetActorExtents(actor, &top, &bottom);

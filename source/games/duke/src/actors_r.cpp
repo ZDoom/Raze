@@ -220,7 +220,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	double radius = r * inttoworld;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
-	if (actor->spr.ScaleX() >= 0.17675 || !(actor->spr.picnum == RPG || ((isRRRA()) && actor->spr.picnum == RPG2)))
+	if (actor->spr.scale.X >= 0.17675 || !(actor->spr.picnum == RPG || ((isRRRA()) && actor->spr.picnum == RPG2)))
 	{
 		BFSSectorSearch search(actor->sector());
 
@@ -367,7 +367,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 {
 	int bg = badguy(actor);
 
-	if (actor->spr.statnum == 5 || (bg && actor->spr.ScaleX() < 0.0625))
+	if (actor->spr.statnum == 5 || (bg && actor->spr.scale.X < 0.0625))
 	{
 		actor->spr.pos += change;
 		if (bg)
@@ -378,11 +378,11 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 	auto dasectp = actor->sector();
 
 	auto ppos = actor->spr.pos;
-	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.ScaleY()) * 0.5;
+	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.scale.Y) * 0.5;
 
 	if (bg)
 	{
-		if (actor->spr.ScaleX() > 0.9375 )
+		if (actor->spr.scale.X > 0.9375 )
 			clipmove(ppos, &dasectp, change * 0.5, 64., 4., 4., cliptype, result);
 		else
 		{
@@ -446,7 +446,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 	double scale;
 	uint8_t pal;
 
-	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
+	if (badguy(actor) && actor->spr.scale.X < 0.25)
 		scale = 0.0625;
 	else scale = 0.25;
 
@@ -543,7 +543,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 			else
 			{
 				if (actor->hitextra == 0)
-					if (actor->spr.ScaleX() < 0.375)
+					if (actor->spr.scale.X < 0.375)
 						return -1;
 
 				actor->spr.extra -= actor->hitextra;
@@ -763,14 +763,14 @@ CLEAR_THE_BOLT:
 		sectp->ceilingshade = 20;
 		return;
 	}
-	if (actor->spr.ScaleX() == 0 && actor->spr.ScaleY() == 0)
+	if (actor->spr.scale.X == 0 && actor->spr.scale.Y == 0)
 	{
 		actor->spr.SetScale(actor->temp_pos.X, actor->temp_pos.Y);
 	}
 	else if ((krand() & 8) == 0)
 	{
-		actor->temp_pos.X = actor->spr.ScaleX();
-		actor->temp_pos.Y = actor->spr.ScaleY();
+		actor->temp_pos.X = actor->spr.scale.X;
+		actor->temp_pos.Y = actor->spr.scale.Y;
 		actor->temp_data[2] = global_random & 4;
 		actor->spr.SetScale(0, 0);
 		goto CLEAR_THE_BOLT;
@@ -909,7 +909,7 @@ void movestandables_r(void)
 static void chickenarrow(DDukeActor* actor)
 {
 	actor->spr.hitag++;
-	if (actor->attackertype != BOSS2 && actor->spr.ScaleX() >= 0.15625 && actor->sector()->lotag != 2)
+	if (actor->attackertype != BOSS2 && actor->spr.scale.X >= 0.15625 && actor->sector()->lotag != 2)
 	{
 		auto spawned = spawn(actor, SMALLSMOKE);
 		if (spawned) spawned->spr.pos.Z += 1;
@@ -1053,9 +1053,9 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
 			{
 				proj->spr.extra >>= 1;
-				if (proj->spr.ScaleX() > 0.125 )
+				if (proj->spr.scale.X > 0.125 )
 					proj->spr.AddScaleX(-0.03125);
-				if (proj->spr.ScaleY() > 0.125 )
+				if (proj->spr.scale.Y > 0.125 )
 					proj->spr.AddScaleY(-0.03125);
 				proj->spr.yint--;
 			}
@@ -1082,7 +1082,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 						j->spr.SetScale(0.125, 0.125);
 						j->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 						j->spr.angle += DAngle90;
-						j->clipdist = proj->spr.ScaleX() * tileWidth(proj->spr.picnum) * 0.125;
+						j->clipdist = proj->spr.scale.X * tileWidth(proj->spr.picnum) * 0.125;
 					}
 				}
 				deletesprite(proj);
@@ -1137,9 +1137,9 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		bounce(proj);
 		ssp(proj, CLIPMASK1);
 		proj->spr.extra >>= 1;
-		if (proj->spr.ScaleX() > 0.125 )
+		if (proj->spr.scale.X > 0.125 )
 			proj->spr.AddScaleX(-0.03125);
-		if (proj->spr.ScaleY() > 0.125 )
+		if (proj->spr.scale.Y > 0.125 )
 			proj->spr.AddScaleY(-0.03125);
 		proj->spr.yint--;
 		return true;
@@ -1179,7 +1179,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	switch (proj->spr.picnum)
 	{
 	case RPG:
-		if (proj->attackertype != BOSS2 && proj->spr.ScaleX() >= 0.15625 && proj->sector()->lotag != 2)
+		if (proj->attackertype != BOSS2 && proj->spr.scale.X >= 0.15625 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			if (spawned) spawned->spr.pos.Z += 1;
@@ -1199,7 +1199,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		}
 		else
 			makeitfall(proj);
-		if (proj->spr.ScaleX() >= 0.15625 && proj->sector()->lotag != 2)
+		if (proj->spr.scale.X >= 0.15625 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			if (spawned) spawned->spr.pos.Z += 1;
@@ -1280,7 +1280,7 @@ static void weaponcommon_r(DDukeActor *proj)
 				auto spawned = spawn(proj, 1441);
 				if (spawned)
 				{
-					auto scale = proj->spr.ScaleX() * 0.5;
+					auto scale = proj->spr.scale.X * 0.5;
 					spawned->spr.SetScale(scale, scale);
 					if (coll.type == kHitSector)
 					{
@@ -1296,7 +1296,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		deletesprite(proj);
 		return;
 	}
-	if ((proj->spr.picnum == RPG || (isRRRA() && proj->spr.picnum == RPG2)) && proj->sector()->lotag == 2 && proj->spr.ScaleX() >= 0.15625 && rnd(184))
+	if ((proj->spr.picnum == RPG || (isRRRA() && proj->spr.picnum == RPG2)) && proj->sector()->lotag == 2 && proj->spr.scale.X >= 0.15625 && rnd(184))
 		spawn(proj, WATERBUBBLE);
 
 }
@@ -1854,7 +1854,7 @@ static void rrra_specialstats()
 				else if (enemysizecheat == 2)
 				{
 					act->spr.MultScale(0.5);
-					act->clipdist = act->spr.ScaleX(), tileHeight(act->spr.picnum) * 0.125;
+					act->clipdist = act->spr.scale.X, tileHeight(act->spr.picnum) * 0.125;
 				}
 				break;
 			}
@@ -2443,7 +2443,7 @@ DETONATEB:
 			}
 		}
 
-		if (actor->spr.ScaleY())
+		if (actor->spr.scale.Y)
 		{
 			actor->spr.SetScaleY(0);
 			return;
@@ -2615,7 +2615,7 @@ void moveactors_r(void)
 	{
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
 
-		if( act->spr.ScaleX() == 0 || !act->insector())
+		if( act->spr.scale.X == 0 || !act->insector())
 		{
 			deletesprite(act);
 			continue;
@@ -2872,7 +2872,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		t = &act->temp_data[0];
 		auto sectp = act->sector();
 
-		if (!act->insector() || act->spr.ScaleX() == 0) 
+		if (!act->insector() || act->spr.scale.X == 0) 
 		{
 			deletesprite(act);
 			continue;
@@ -3617,7 +3617,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 		if (a)
 		{
-			if (xvel < 960 && actor->spr.ScaleX() > 0.25 )
+			if (xvel < 960 && actor->spr.scale.X > 0.25 )
 			{
 
 				daxvel = -(1024 - xvel) * maptoworld;

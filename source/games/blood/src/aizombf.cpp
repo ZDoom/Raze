@@ -52,9 +52,9 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	double height = pDudeInfo->eyeHeight * actor->spr.ScaleY() * 0.25;
+	double height = pDudeInfo->eyeHeight * actor->spr.scale.Y * 0.25;
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	double height2 = pDudeInfoT->eyeHeight * target->spr.ScaleY() * 0.25;
+	double height2 = pDudeInfoT->eyeHeight * target->spr.scale.Y * 0.25;
 	actFireVector(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 64, height - height2), kVectorCleaver);
 }
 
@@ -67,8 +67,8 @@ void PukeSeqCallback(int, DBloodActor* actor)
 
 	DVector2 dv = (actor->xspr.TargetPos.XY() - actor->spr.pos.XY()).Resized(64);
 
-	double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
-	double height2 = (pDudeInfoT->eyeHeight * target->spr.ScaleY());
+	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
 	double z = (height - height2) * 0.25;
 
 	sfxPlay3DSound(actor, 1203, 1, 0);
@@ -128,7 +128,7 @@ static void zombfThinkChase(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
-		double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
 			if (nDeltaAngle <= pDudeInfo->Periphery())

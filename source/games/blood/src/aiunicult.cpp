@@ -192,12 +192,12 @@ void punchCallback(int, DBloodActor* actor)
 	auto const target = actor->GetTarget();
 	if (target != nullptr)
 	{
-		double nZOffset1 = getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.ScaleY();
+		double nZOffset1 = getDudeInfo(actor->spr.type)->eyeHeight * actor->spr.scale.Y;
 		double nZOffset2 = 0;
 
 
 		if (target->IsDudeActor())
-			nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.ScaleY();
+			nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.scale.Y;
 
 		if (!playGenDudeSound(actor, kGenDudeSndAttackMelee))
 			sfxPlay3DSound(actor, 530, 1, 0);
@@ -352,9 +352,9 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 		if (Chance(0x5000)) spawned->spr.cstat |= CSTAT_SPRITE_XFLIP;
 		if (Chance(0x5000)) spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
 
-		if (spawned->spr.ScaleX() > 0.9375 ) spawned->xspr.data1 = 43;
-		else if (spawned->spr.ScaleX() > 0.625) spawned->xspr.data1 = 33;
-		else if (spawned->spr.ScaleX() > 0.46875) spawned->xspr.data1 = 23;
+		if (spawned->spr.scale.X > 0.9375 ) spawned->xspr.data1 = 43;
+		else if (spawned->spr.scale.X > 0.625) spawned->xspr.data1 = 33;
+		else if (spawned->spr.scale.X > 0.46875) spawned->xspr.data1 = 23;
 		else spawned->xspr.data1 = 12;
 		return;
 		}
@@ -516,7 +516,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DAngle losAngle = absangle(actor->spr.angle, nAngle);
-	double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 
 	if (dist > pDudeInfo->SeeDist() || !cansee(target->spr.pos, target->sector(),
 		actor->spr.pos.plusZ(-height), actor->sector()))
@@ -882,8 +882,8 @@ static void unicultThinkChase(DBloodActor* actor)
 
 									}
 
-									double wd1 = tileWidth(hitactor->spr.picnum) * hitactor->spr.ScaleX();
-									double wd2 = tileWidth(actor->spr.picnum) * actor->spr.ScaleX();
+									double wd1 = tileWidth(hitactor->spr.picnum) * hitactor->spr.scale.X;
+									double wd2 = tileWidth(actor->spr.picnum) * actor->spr.scale.X;
 									if (wd1 < (wd2 * 8))
 									{
 										//viewSetSystemMessage("OBJ SIZE: %d   DUDE SIZE: %d", wd1, wd2);
@@ -1580,7 +1580,7 @@ static void scaleDamage(DBloodActor* actor)
 	}
 
 	// take in account scale of sprite
-	int yscale = int(actor->spr.ScaleY() * 64);
+	int yscale = int(actor->spr.scale.Y * 64);
 	if (yscale < 64)
 	{
 		for (int i = 0; i < kDmgMax; i++) curScale[i] += (64 - yscale);
@@ -1703,7 +1703,7 @@ static int getDispersionModifier(DBloodActor* actor, int minDisp, int maxDisp)
 
 static double getRangeAttackDist(DBloodActor* actor, double minDist, double maxDist)
 {
-	int yscale = int(actor->spr.ScaleY() * 64);
+	int yscale = int(actor->spr.scale.Y * 64);
 	int dist = 0;
 	int seqId = actor->xspr.data2;
 	int mul = 550;
@@ -1799,7 +1799,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 				actor->spr.angle = (atpos - actor->spr.pos.XY()).Angle();
 				DVector3 dv;
 				dv.XY() = actor->spr.angle.ToVector() * 64;
-				double tz = actTarget->spr.pos.Z - (actTarget->spr.ScaleY() * pDudeInfo->aimHeight);
+				double tz = actTarget->spr.pos.Z - (actTarget->spr.scale.Y * pDudeInfo->aimHeight);
 				double dz = (tz - top - 1) / nDist * 4;
 				int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
 				int t2;
@@ -2476,7 +2476,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 		if (!(actor->sector()->floorstat & CSTAT_SECTOR_SKY))
 			actor->spr.pos.Z += min(actor->sector()->floorz - zBot, 0.);
 
-		actor->clipdist = clamp((actor->spr.ScaleX() + actor->spr.ScaleY()) * 8, 1., 30.);
+		actor->clipdist = clamp((actor->spr.scale.X + actor->spr.scale.Y) * 8, 1., 30.);
 		if (propId) break;
 	}
 	}

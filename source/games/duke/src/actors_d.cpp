@@ -262,7 +262,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	double radius = r * inttoworld;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
-	if(actor->spr.picnum != SHRINKSPARK && !(actor->spr.picnum == RPG && actor->spr.ScaleX() < 0.171875))
+	if(actor->spr.picnum != SHRINKSPARK && !(actor->spr.picnum == RPG && actor->spr.scale.X < 0.171875))
 	{
 		BFSSectorSearch search(actor->sector());
 
@@ -335,7 +335,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			}
 			else if (act2->spr.extra >= 0 && act2 != actor && (actorflag(act2, SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
-				if (actor->spr.picnum == SHRINKSPARK && act2->spr.picnum != SHARK && (act2 == Owner || act2->spr.ScaleX() < 0.375))
+				if (actor->spr.picnum == SHRINKSPARK && act2->spr.picnum != SHARK && (act2 == Owner || act2->spr.scale.X < 0.375))
 				{
 					continue;
 				}
@@ -439,7 +439,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 {
 	int bg = badguy(actor);
 
-	if (actor->spr.statnum == STAT_MISC || (bg && actor->spr.ScaleX() < 0.0625))
+	if (actor->spr.statnum == STAT_MISC || (bg && actor->spr.scale.X < 0.0625))
 	{
 		actor->spr.pos += change;
 		if (bg)
@@ -450,11 +450,11 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 	auto dasectp = actor->sector();
 
 	auto ppos = actor->spr.pos;
-	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.ScaleY()) * 0.5;
+	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.scale.Y) * 0.5;
 
 	if (bg)
 	{
-		if (actor->spr.ScaleX() > 0.9375 )
+		if (actor->spr.scale.X > 0.9375 )
 			clipmove(ppos, &dasectp, change * 0.5, 64., 4., 4., cliptype, result);
 		else 
 		{
@@ -540,7 +540,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 	double scale;
 	uint8_t pal;
 
-	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
+	if (badguy(actor) && actor->spr.scale.X < 0.25)
 		scale = 0.125;
 	else scale = 0.5;
 
@@ -640,10 +640,10 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			else
 			{
 				if (actor->hitextra == 0)
-					if (actor->attackertype == SHRINKSPARK && actor->spr.ScaleX() < 0.375)
+					if (actor->attackertype == SHRINKSPARK && actor->spr.scale.X < 0.375)
 						return -1;
 
-				if (isWorldTour() && actor->attackertype == FIREFLY && actor->spr.ScaleX() < 0.75)
+				if (isWorldTour() && actor->attackertype == FIREFLY && actor->spr.scale.X < 0.75)
 				{
 					if (actor->attackertype != RADIUSEXPLOSION && actor->attackertype != RPG)
 						return -1;
@@ -1045,7 +1045,7 @@ static void movefireext(DDukeActor* actor)
 static void moveviewscreen(DDukeActor* actor)
 {
 	const double VIEWSCR_DIST = 1024;	// was originally 2048, was increased to 8192 by EDuke32 and RedNukem, but with high resolutions the resulting 512 map units are still too low.
-	if (actor->spr.ScaleX() == 0) deletesprite(actor);
+	if (actor->spr.scale.X == 0) deletesprite(actor);
 	else
 	{
 		double a;
@@ -1081,14 +1081,14 @@ CLEAR_THE_BOLT2:
 		actor->temp_data[2]--;
 		return;
 	}
-	if ((actor->spr.ScaleX() == 0 && actor->spr.ScaleY()) == 0)
+	if ((actor->spr.scale.X == 0 && actor->spr.scale.Y) == 0)
 	{
 		actor->spr.SetScale(actor->temp_pos.X, actor->temp_pos.Y);
 	}
 	if ((krand() & 8) == 0)
 	{
-		actor->temp_pos.X = actor->spr.ScaleX();
-		actor->temp_pos.Y = actor->spr.ScaleY();
+		actor->temp_pos.X = actor->spr.scale.X;
+		actor->temp_pos.Y = actor->spr.scale.Y;
 		actor->temp_data[2] = global_random & 4;
 		actor->spr.SetScale(0, 0);
 		goto CLEAR_THE_BOLT2;
@@ -1126,14 +1126,14 @@ CLEAR_THE_BOLT:
 		sectp->ceilingshade = 20;
 		return;
 	}
-	if (actor->spr.ScaleX() == 0 && actor->spr.ScaleY() == 0)
+	if (actor->spr.scale.X == 0 && actor->spr.scale.Y == 0)
 	{
 		actor->spr.SetScale(actor->temp_pos.X, actor->temp_pos.Y);
 	}
 	else if ((krand() & 8) == 0)
 	{
-		actor->temp_pos.X = actor->spr.ScaleX();
-		actor->temp_pos.Y = actor->spr.ScaleY();
+		actor->temp_pos.X = actor->spr.scale.X;
+		actor->temp_pos.Y = actor->spr.scale.Y;
 		actor->temp_data[2] = global_random & 4;
 		actor->spr.SetScale(0, 0);
 		goto CLEAR_THE_BOLT;
@@ -1322,7 +1322,7 @@ static bool movefireball(DDukeActor* actor)
 						ball->vel = trail->temp_pos2;
 					}
 				}
-				double scale = actor->spr.ScaleX() * siz;
+				double scale = actor->spr.scale.X * siz;
 				ball->spr.SetScale(scale, scale);
 				ball->spr.cstat = actor->spr.cstat;
 				ball->spr.extra = 0;
@@ -1479,9 +1479,9 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 		bounce(proj);
 		ssp(proj, CLIPMASK1);
 		proj->spr.extra >>= 1;
-		if (proj->spr.ScaleX() > 0.125 )
+		if (proj->spr.scale.X > 0.125 )
 			proj->spr.AddScaleX(-0.03125);
-		if (proj->spr.ScaleY() > 0.125 )
+		if (proj->spr.scale.Y > 0.125 )
 			proj->spr.AddScaleY(-0.03125);
 		proj->spr.yint--;
 		return true;
@@ -1518,7 +1518,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	switch (proj->spr.picnum)
 	{
 	case RPG:
-		if (proj->attackertype != BOSS2 && proj->spr.ScaleX() >= 0.15625 && proj->sector()->lotag != 2)
+		if (proj->attackertype != BOSS2 && proj->spr.scale.X >= 0.15625 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			if (spawned) spawned->spr.pos.Z += 1;
@@ -1626,7 +1626,7 @@ static void weaponcommon_d(DDukeActor* proj)
 				auto spawned = spawn(proj, EXPLOSION2);
 				if (spawned)
 				{
-					auto scale = proj->spr.ScaleX() * 0.5;
+					auto scale = proj->spr.scale.X * 0.5;
 					spawned->spr.SetScale(scale,scale);
 					if (coll.type == kHitSector)
 					{
@@ -1643,7 +1643,7 @@ static void weaponcommon_d(DDukeActor* proj)
 				auto spawned = spawn(proj, EXPLOSION2);
 				if (spawned)
 				{
-					auto scale = proj->spr.ScaleX() * 0.5;
+					auto scale = proj->spr.scale.X * 0.5;
 					spawned->spr.SetScale(scale,scale);
 				}
 			}
@@ -1663,7 +1663,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			return;
 		}
 	}
-	else if (proj->spr.picnum == RPG && proj->sector()->lotag == 2 && proj->spr.ScaleX() >= 0.15625 && rnd(140))
+	else if (proj->spr.picnum == RPG && proj->sector()->lotag == 2 && proj->spr.scale.X >= 0.15625 && rnd(140))
 		spawn(proj, WATERBUBBLE);
 
 }
@@ -2275,8 +2275,8 @@ static void greenslime(DDukeActor *actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 		actor->spr.picnum = GREENSLIME + 4;
 
-		if (actor->spr.ScaleX() > 0.5 ) actor->spr.AddScaleX(-(krand() & 7) * REPEAT_SCALE);
-		if (actor->spr.ScaleY() > 0.25 ) actor->spr.AddScaleY(-(krand() & 7) * REPEAT_SCALE);
+		if (actor->spr.scale.X > 0.5 ) actor->spr.AddScaleX(-(krand() & 7) * REPEAT_SCALE);
+		if (actor->spr.scale.Y > 0.25 ) actor->spr.AddScaleY(-(krand() & 7) * REPEAT_SCALE);
 		else
 		{
 			actor->spr.SetScale(0.625, 0.25);
@@ -2299,10 +2299,10 @@ static void greenslime(DDukeActor *actor)
 			actor->spr.pos = s5->spr.pos + s5->spr.angle.ToVector() * 0.5;
 			actor->spr.picnum = GREENSLIME + 2 + (global_random & 1);
 
-			if (actor->spr.ScaleY() < 1) actor->spr.AddScaleY(0.03125);
+			if (actor->spr.scale.Y < 1) actor->spr.AddScaleY(0.03125);
 			else
 			{
-				if (actor->spr.ScaleX() < 0.5) actor->spr.AddScaleY(0.0625);
+				if (actor->spr.scale.X < 0.5) actor->spr.AddScaleY(0.0625);
 				else
 				{
 					actor->temp_data[0] = -1;
@@ -2393,8 +2393,8 @@ static void greenslime(DDukeActor *actor)
 	if (actor->temp_data[0] == 1)
 	{
 		actor->spr.picnum = GREENSLIME;
-		if (actor->spr.ScaleY() < 0.625) actor->spr.AddScaleY(0.125);
-		if (actor->spr.ScaleX() > 0.125 ) actor->spr.AddScaleX(-0.0625);
+		if (actor->spr.scale.Y < 0.625) actor->spr.AddScaleY(0.125);
+		if (actor->spr.scale.X > 0.125 ) actor->spr.AddScaleX(-0.0625);
 		if (actor->vel.Z > -12)
 			actor->vel.Z -= 348 / 256.;
 		actor->spr.pos.Z += actor->vel.Z;
@@ -2419,8 +2419,8 @@ static void greenslime(DDukeActor *actor)
 		}
 		else
 		{
-			if (actor->spr.ScaleY() < 0.5625) actor->spr.AddScaleY(0.125);
-			if (actor->spr.ScaleX() > 0.125 ) actor->spr.AddScaleX(-0.0625);
+			if (actor->spr.scale.Y < 0.5625) actor->spr.AddScaleY(0.125);
+			if (actor->spr.scale.X > 0.125 ) actor->spr.AddScaleX(-0.0625);
 		}
 
 		if (actor->spr.pos.Z > actor->floorz - 8)
@@ -2457,10 +2457,10 @@ static void flamethrowerflame(DDukeActor *actor)
 	getglobalz(actor);
 
 	int ds = actor->temp_data[0] / 6;
-	if (actor->spr.ScaleX() < 0.1250)
+	if (actor->spr.scale.X < 0.1250)
 	{
 		actor->spr.AddScaleX(ds * REPEAT_SCALE);
-		actor->spr.SetScaleY(actor->spr.ScaleX());
+		actor->spr.SetScaleY(actor->spr.scale.X);
 	}
 	actor->clipdist += ds * 0.25;
 	if (actor->temp_data[0] <= 2)
@@ -2518,7 +2518,7 @@ static void flamethrowerflame(DDukeActor *actor)
 				fi.checkhitceiling(actor->sector());
 		}
 
-		if (actor->spr.ScaleX() >= 0.15625)
+		if (actor->spr.scale.X >= 0.15625)
 		{
 			int x = actor->spr.extra;
 			fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
@@ -2676,7 +2676,7 @@ DETONATEB:
 				RANDOMSCRAP(actor);
 		}
 
-		if (actor->spr.ScaleY())
+		if (actor->spr.scale.Y)
 		{
 			actor->spr.SetScaleY(0);
 			return;
@@ -2759,7 +2759,7 @@ void moveactors_d(void)
 	{
 		auto sectp = act->sector();
 
-		if (act->spr.ScaleX() == 0 || sectp == nullptr)
+		if (act->spr.scale.X == 0 || sectp == nullptr)
 		{ 
 			deletesprite(act);
 			continue;
@@ -2941,7 +2941,7 @@ static void fireflyflyingeffect(DDukeActor *actor)
 		return;
 	}
 
-	if (Owner->spr.ScaleX() >= 0.375 || Owner->spr.pal == 1)
+	if (Owner->spr.scale.X >= 0.375 || Owner->spr.pal == 1)
 		actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 	else
 		actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
@@ -2972,7 +2972,7 @@ void moveexplosions_d(void)  // STATNUM 5
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
-		if (!act->insector() || act->spr.ScaleX() == 0) 
+		if (!act->insector() || act->spr.scale.X == 0) 
 		{
 			deletesprite(act);
 			continue;
@@ -3620,7 +3620,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 		if (a && actor->spr.picnum != ROTATEGUN)
 		{
-			if (xvel < 960 && actor->spr.ScaleX() > 0.25 )
+			if (xvel < 960 && actor->spr.scale.X > 0.25 )
 			{
 
 				daxvel = -(1024 - xvel) * maptoworld;

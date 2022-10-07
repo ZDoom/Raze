@@ -300,11 +300,11 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 
     tsp->sectp = sect;
 
-    if (tsp->ScaleY() > 0.25)
+    if (tsp->scale.Y > 0.25)
     {
-		double sizey = tileHeight(tsp->picnum) * tsp->ScaleY();
-        scale.Y = (tsp->ScaleY() * 0.25) - (sizey / 2048.);
-        scale.X = tsp->ScaleX();
+		double sizey = tileHeight(tsp->picnum) * tsp->scale.Y;
+        scale.Y = (tsp->scale.Y * 0.25) - (sizey / 2048.);
+        scale.X = tsp->scale.X;
     }
     else
     {
@@ -1466,7 +1466,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                     // This repeat scale is correct.
-                    double sc = czoom * actor->spr.ScaleY() * 2;
+                    double sc = czoom * actor->spr.scale.Y * 2;
 
                     DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), vect.X, vect.Y, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang,
                         DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, actor->spr.pal), DTA_Color, shadeToLight(actor->spr.shade),

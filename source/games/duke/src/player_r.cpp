@@ -213,7 +213,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * 16) / dist;
 			ang = (aimed->spr.pos - pos).Angle();
@@ -503,7 +503,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 		if (aimed)
 		{
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) - 12;
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) - 12;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
@@ -589,7 +589,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 				else
 					act90 = aimed;
 			}
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) + 8;
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 8;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			if (aimed->spr.picnum != RECON)
@@ -740,7 +740,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 
 		if (aimed)
 		{
-			double dal = ((aimed->spr.ScaleX() * tileHeight(aimed->spr.picnum)) * 0.5) -12;
+			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) -12;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
@@ -833,7 +833,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	{
 		p = -1;
 		sang = actor->spr.angle;
-		spos = actor->spr.pos.plusZ(-(actor->spr.ScaleY() * tileHeight(actor->spr.picnum) * 0.5) - 3);
+		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tileHeight(actor->spr.picnum) * 0.5) - 3);
 
 		if (badguy(actor))
 		{
@@ -940,7 +940,7 @@ void selectweapon_r(int snum, int weap)
 {
 	int i, j, k;
 	auto p = &ps[snum];
-	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.ScaleX() > 0.125  && p->access_incs == 0 && p->knee_incs == 0)
+	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->spr.scale.X > 0.125  && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
@@ -3236,7 +3236,7 @@ static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int shrunk = (pact->spr.ScaleY() < 0.125);
+	int shrunk = (pact->spr.scale.Y < 0.125);
 
 	if (p->detonate_count > 0)
 	{
@@ -3350,7 +3350,7 @@ void processinput_r(int snum)
 
 	p->spritebridge = 0;
 
-	shrunk = (pact->spr.ScaleY() < 0.125);
+	shrunk = (pact->spr.scale.Y < 0.125);
 	double tempfz;
 	if (pact->clipdist == 16)
 	{
@@ -3426,7 +3426,7 @@ void processinput_r(int snum)
 		{
 			doVehicleHit();
 		}
-		else if (badguy(clz.actor()) && clz.actor()->spr.ScaleX() > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
+		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
 			auto ang = (clz.actor()->spr.pos - p->pos).Angle();
 			p->vel.XY() -= ang.ToVector();
@@ -3495,7 +3495,7 @@ void processinput_r(int snum)
 		return;
 	}
 
-	if (p->GetActor()->spr.ScaleX() < 0.125 && p->jetpack_on == 0)
+	if (p->GetActor()->spr.scale.X < 0.125 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
 		p->fistsign += p->GetActor()->vel.X * 16;

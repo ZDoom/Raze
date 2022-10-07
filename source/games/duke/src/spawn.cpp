@@ -231,7 +231,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		}
 
 		//  Init the size
-		if (act->spr.ScaleX() == 0 || act->spr.ScaleY() == 0)
+		if (act->spr.scale.X == 0 || act->spr.scale.Y == 0)
 			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 
 		if (actorflag(act, SFLAG_BADGUY))

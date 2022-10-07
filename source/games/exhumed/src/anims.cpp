@@ -268,7 +268,7 @@ void BuildExplosion(DExhumedActor* pActor)
         edx = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pActor->spr.pos, pActor->sector(), pActor->spr.ScaleX(), 4);
+    BuildAnim(nullptr, edx, 0, pActor->spr.pos, pActor->sector(), pActor->spr.scale.X, 4);
 }
 
 //---------------------------------------------------------------------------
@@ -284,7 +284,7 @@ void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
 
     if (pActor->spr.statnum != 200)
     {
-		double rep = pActor->spr.ScaleX();
+		double rep = pActor->spr.scale.X;
         nScale = rep + RandomFloat(rep);
         nSound = kSound0;
     }

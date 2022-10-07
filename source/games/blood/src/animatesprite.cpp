@@ -288,7 +288,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = pTSprite->pos.Z;
 		pNSprite->picnum = 908;
 		pNSprite->statnum = kStatDecoration;
-		s = (tileWidth(pTSprite->picnum) * pTSprite->ScaleX()) / 64.;
+		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 64.;
 		pNSprite->SetScale(s, s);
 		break;
 	}
@@ -339,7 +339,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = top;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
-		s = (tileWidth(pTSprite->picnum) * pTSprite->ScaleX()) / 32.;
+		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 32.;
 		pNSprite->SetScale(s, s);
 		break;
 	}
@@ -354,7 +354,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = bottom;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
-		s = (tileWidth(pTSprite->picnum) * pTSprite->ScaleX()) / 32.;
+		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 32.;
 		pNSprite->SetScale(s, s);
 		break;
 	}
@@ -392,7 +392,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 5;
 		int height = tileHeight(pNSprite->picnum);
 		int center = height / 2 + tileTopOffset(pNSprite->picnum);
-		pNSprite->pos.Z -= (pNSprite->ScaleY()) * (height - center);
+		pNSprite->pos.Z -= (pNSprite->scale.Y) * (height - center);
 		break;
 	}
 	case kViewEffectFlareHalo:
@@ -455,7 +455,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (gDetail > 1)
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		pNSprite->shade = ClipLow(pTSprite->shade - 32, -128);
-		pNSprite->SetScale(pTSprite->ScaleX(), 1);
+		pNSprite->SetScale(pTSprite->scale.X, 1);
 		pNSprite->picnum = 775;
 		break;
 	}

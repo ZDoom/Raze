@@ -236,7 +236,7 @@ void displayweapon_d(int snum, double interpfrac)
 	looking_arc = p->angle.looking_arc(interpfrac);
 	hard_landing *= 8.;
 
-	gun_pos -= fabs(p->GetActor()->spr.ScaleX() < 0.5 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);
+	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.5 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);
 	gun_pos -= hard_landing;
 
 	weapon_xoffset = (160)-90;
@@ -295,7 +295,7 @@ void displayweapon_d(int snum, double interpfrac)
 		}
 	}
 
-	if (p->GetActor()->spr.ScaleX() < 0.625)
+	if (p->GetActor()->spr.scale.X < 0.625)
 	{
 		//shrunken..
 		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, FIST, shade, o, interpfrac);

@@ -522,16 +522,6 @@ struct spritetypebase
 	{
 		return scale;
 	}
-
-	double ScaleX() const
-	{
-		return scale.X;
-	}
-
-	double ScaleY() const
-	{
-		return scale.Y;
-	}
 };
 
 

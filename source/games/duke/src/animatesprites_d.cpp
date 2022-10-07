@@ -322,7 +322,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 				newtspr->statnum = 99;
 
-				newtspr->SetScaleY(max(t->ScaleY() * 0.125, 0.0625));
+				newtspr->SetScaleY(max(t->scale.Y * 0.125, 0.0625));
 
 				newtspr->shade = t->shade;
 				newtspr->cstat = 0;
@@ -389,8 +389,8 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
 				double v = h->spr.pos.Z - ps[p].GetActor()->floorz + 3;
-				if (v > 4 && h->spr.ScaleY() > 0.5 && h->spr.extra > 0)
-					h->spr.yoffset = (int8_t)(v / h->spr.ScaleY());
+				if (v > 4 && h->spr.scale.Y > 0.5 && h->spr.extra > 0)
+					h->spr.yoffset = (int8_t)(v / h->spr.scale.Y);
 				else h->spr.yoffset = 0;
 			}
 
@@ -417,7 +417,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (!h->GetOwner()) continue;
 
-			if (t->pos.Z > h->floorz && t->ScaleX() < 0.5)
+			if (t->pos.Z > h->floorz && t->scale.X < 0.5)
 				t->pos.Z = h->floorz;
 
 			break;
@@ -572,7 +572,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 							shadowspr->statnum = 99;
 
-							shadowspr->SetScaleY(max(t->ScaleY() * 0.125, 0.0625));
+							shadowspr->SetScaleY(max(t->scale.Y * 0.125, 0.0625));
 							shadowspr->shade = 127;
 							shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 

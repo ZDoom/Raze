@@ -105,7 +105,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
         if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & CSTAT_SPRITE_YCENTER) == 0)
         {
             pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
-            double nTileY = (tileHeight(pTSprite->picnum) * pTSprite->ScaleY()) * 0.5;
+            double nTileY = (tileHeight(pTSprite->picnum) * pTSprite->scale.Y) * 0.5;
             pTSprite->pos.Z -= nTileY;
         }
 

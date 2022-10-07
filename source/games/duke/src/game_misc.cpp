@@ -396,7 +396,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			DukeSectIterator it(ii);
 			while (auto act = it.Next())
 			{
-				if (act == ps[screenpeek].actor || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.ScaleX() == 0) continue;
+				if (act == ps[screenpeek].actor || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.scale.X == 0) continue;
 
 				if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
 				{
@@ -430,7 +430,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			auto& pp = ps[p];
 			auto act = pp.GetActor();
 			int i = TILE_APLAYERTOP + (act->vel.X > 1 && pp.on_ground ? (PlayClock >> 4) & 3 : 0);
-			double j = clamp(czoom * act->spr.ScaleY() + abs(pp.truefz - pp.pos.Z) * REPEAT_SCALE, 0.333, 2.);
+			double j = clamp(czoom * act->spr.scale.Y + abs(pp.truefz - pp.pos.Z) * REPEAT_SCALE, 0.333, 2.);
 
 			auto const vec = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 			auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();

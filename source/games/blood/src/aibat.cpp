@@ -70,8 +70,8 @@ void batBiteSeqCallback(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(pTarget->spr.type);
 
-	double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
-	double height2 = (pDudeInfoT->eyeHeight * pTarget->spr.ScaleY());
+	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+	double height2 = (pDudeInfoT->eyeHeight * pTarget->spr.scale.Y);
 	actFireVector(actor, 0., 0., DVector3(actor->spr.angle.ToVector() * 64, height2 - height), kVectorBatBite);
 }
 
@@ -104,7 +104,7 @@ static void batThinkTarget(DBloodActor* actor)
 			double nDist = dvec.Length();
 			if (nDist > pDudeInfo->SeeDist() && nDist > pDudeInfo->HearDist())
 				continue;
-			double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
+			double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
 			DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
@@ -166,8 +166,8 @@ static void batThinkPonder(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
-		double height = (pDudeInfo->eyeHeight * actor->spr.ScaleY());
-		double height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.ScaleY());
+		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
+		double height2 = (getDudeInfo(pTarget->spr.type)->eyeHeight * pTarget->spr.scale.Y);
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
@@ -260,9 +260,9 @@ static void batThinkChase(DBloodActor* actor)
 	if (nDist <= pDudeInfo->SeeDist())
 	{
 		DAngle nDeltaAngle = absangle(actor->spr.angle, dvec.Angle());
-		double height = pDudeInfo->eyeHeight * actor->spr.ScaleY();
+		double height = pDudeInfo->eyeHeight * actor->spr.scale.Y;
 		// Should be dudeInfo[pTarget->spr.type-kDudeBase]
-		double height2 = pDudeInfo->eyeHeight * pTarget->spr.ScaleY();
+		double height2 = pDudeInfo->eyeHeight * pTarget->spr.scale.Y;
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
 		if (cansee(pTarget->spr.pos, pTarget->sector(), actor->spr.pos.plusZ(-height), actor->sector()))

@@ -3418,7 +3418,7 @@ AutoShrap:
             case SHRAP_EXPLOSION:
             {
                 auto spnum = SpawnLargeExp(parentActor);
-                double size = spnum->spr.ScaleX() + shrap_delta_size * REPEAT_SCALE;
+                double size = spnum->spr.scale.X + shrap_delta_size * REPEAT_SCALE;
                 spnum->spr.SetScale(size, size);
 
                 return false;
@@ -3427,7 +3427,7 @@ AutoShrap:
             case SHRAP_LARGE_EXPLOSION:
             {
                 auto spnum = SpawnLargeExp(parentActor);
-                double size = spnum->spr.ScaleX() + shrap_delta_size * REPEAT_SCALE;
+                double size = spnum->spr.scale.X + shrap_delta_size * REPEAT_SCALE;
                 spnum->spr.SetScale(size, size);
 
                 InitPhosphorus(spnum);
@@ -4586,7 +4586,7 @@ int DoFireballFlames(DSWActor* actor)
             actor->spr.AddScaleX(-REPEAT_SCALE);
             actor->spr.AddScaleY(-REPEAT_SCALE);
 
-            if (actor->spr.ScaleX() <= 0)
+            if (actor->spr.scale.X <= 0)
             {
                 if (actor->user.attachActor != nullptr)
                 {
@@ -4600,7 +4600,7 @@ int DoFireballFlames(DSWActor* actor)
         else
         {
             // grow until the right size
-            if (actor->spr.ScaleX() <= actor->user.Counter * REPEAT_SCALE)
+            if (actor->spr.scale.X <= actor->user.Counter * REPEAT_SCALE)
             {
                 actor->spr.AddScaleX(3 * REPEAT_SCALE);
                 actor->spr.AddScaleY(3 * REPEAT_SCALE);
@@ -4664,7 +4664,7 @@ int DoBreakFlames(DSWActor* actor)
             actor->spr.AddScaleX(-REPEAT_SCALE);
             actor->spr.AddScaleY(-REPEAT_SCALE);
 
-            if (actor->spr.ScaleX() <= 0)
+            if (actor->spr.scale.X <= 0)
             {
                 if (actor->user.attachActor != nullptr)
                 {
@@ -4678,7 +4678,7 @@ int DoBreakFlames(DSWActor* actor)
         else
         {
             // grow until the right size
-            if (actor->spr.ScaleX() <= actor->user.Counter * REPEAT_SCALE)
+            if (actor->spr.scale.X <= actor->user.Counter * REPEAT_SCALE)
             {
                 actor->spr.AddScaleX(3 * REPEAT_SCALE);
                 actor->spr.AddScaleY(3 * REPEAT_SCALE);
@@ -4721,8 +4721,8 @@ int SetSuicide(DSWActor* actor)
 int DoActorScale(DSWActor* actor)
 {
     actor->user.scale_speed = 70;
-    actor->user.scale_value = int(actor->spr.ScaleX() * INV_REPEAT_SCALE) << 8;
-    actor->user.scale_tgt = int(actor->spr.ScaleX() * INV_REPEAT_SCALE) + 25;
+    actor->user.scale_value = int(actor->spr.scale.X * INV_REPEAT_SCALE) << 8;
+    actor->user.scale_tgt = int(actor->spr.scale.X * INV_REPEAT_SCALE) + 25;
 
     if (actor->user.scale_tgt > 256)
     {
@@ -4736,8 +4736,8 @@ int DoActorScale(DSWActor* actor)
 int DoRipperGrow(DSWActor* actor)
 {
     actor->user.scale_speed = 70;
-    actor->user.scale_value = int(actor->spr.ScaleX() * INV_REPEAT_SCALE) << 8;
-    actor->user.scale_tgt = int(actor->spr.ScaleX() * INV_REPEAT_SCALE) + 20;
+    actor->user.scale_value = int(actor->spr.scale.X * INV_REPEAT_SCALE) << 8;
+    actor->user.scale_tgt = int(actor->spr.scale.X * INV_REPEAT_SCALE) + 20;
 
     if (actor->user.scale_tgt > 128)
     {
@@ -7808,7 +7808,7 @@ int DoPlasmaDone(DSWActor* actor)
     actor->spr.AddScaleY(-0.0625);
     actor->user.Counter += 2;
 
-    if (actor->spr.ScaleY() < 0.09375)
+    if (actor->spr.scale.Y < 0.09375)
     {
         KillActor(actor);
         return 0;
@@ -9648,7 +9648,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, actor->vel.X);
 
     SetOwner(GetOwner(actor), actorNew);
-    actorNew->spr.SetScale(actor->spr.ScaleX(), actor->spr.ScaleX());
+    actorNew->spr.SetScale(actor->spr.scale.X, actor->spr.scale.X);
     actorNew->spr.shade = actor->spr.shade;
     actorNew->copy_clipdist(actor);
 
@@ -10894,7 +10894,7 @@ void SpawnMeteorExp(DSWActor* actor)
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
-    if (actor->spr.ScaleY() < 1)
+    if (actor->spr.scale.Y < 1)
     {
         // small
         expActor->spr.SetScale(1, 1);
@@ -10945,7 +10945,7 @@ int DoFireball(DSWActor* actor)
     {
         actor->spr.AddScaleX(-REPEAT_SCALE);
         actor->spr.AddScaleY(-REPEAT_SCALE);
-        if (actor->spr.ScaleX() <= 0.578125)
+        if (actor->spr.scale.X <= 0.578125)
         {
             SpawnSmokePuff(actor);
             KillActor(actor);
@@ -11126,7 +11126,7 @@ int DoNapalm(DSWActor* actor)
     {
         actor->spr.AddScaleX(-REPEAT_SCALE);
         actor->spr.AddScaleY(-REPEAT_SCALE);
-        if (actor->spr.ScaleX() <= 0.46875)
+        if (actor->spr.scale.X <= 0.46875)
         {
             SpawnSmokePuff(actor);
             KillActor(actor);
@@ -11296,7 +11296,7 @@ int DoSerpMeteor(DSWActor* actor)
 	auto oldv = actor->spr.pos;
 
     actor->spr.AddScaleX(MISSILEMOVETICS * 2 * REPEAT_SCALE);
-    if (actor->spr.ScaleX() > 1.25)
+    if (actor->spr.scale.X > 1.25)
         actor->spr.SetScaleX(1.25);
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -11341,7 +11341,7 @@ int DoSerpMeteor(DSWActor* actor)
 int DoMirvMissile(DSWActor* actor)
 {
     actor->spr.AddScaleX(MISSILEMOVETICS * 2 * REPEAT_SCALE);
-    if (actor->spr.ScaleX() > 1.25)
+    if (actor->spr.scale.X > 1.25)
         actor->spr.SetScaleX(1.25);
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -11527,7 +11527,7 @@ int DoRing(DSWActor* actor)
 
         actor->spr.AddScaleX(-REPEAT_SCALE);
         actor->spr.AddScaleY(-REPEAT_SCALE);
-        if (actor->spr.ScaleX() <= 0.46875)
+        if (actor->spr.scale.X <= 0.46875)
         {
             SpawnSmokePuff(actor);
             KillActor(actor);
@@ -18247,18 +18247,18 @@ int DoFloorBlood(DSWActor* actor)
         scale = 0.625;
 
     // Make pool of blood seem to grow
-    if (actor->spr.ScaleX() < scale && actor->spr.ScaleX() > 0.0625)
+    if (actor->spr.scale.X < scale && actor->spr.scale.X > 0.0625)
     {
         actor->spr.AddScaleX(REPEAT_SCALE);
     }
 
-    if (actor->spr.ScaleY() < scale && actor->spr.ScaleX() < scale && actor->spr.ScaleX() > 0.0625)
+    if (actor->spr.scale.Y < scale && actor->spr.scale.X < scale && actor->spr.scale.X > 0.0625)
     {
         actor->spr.AddScaleY(REPEAT_SCALE);
     }
 
     // See if any players stepped in blood
-    if (actor->spr.ScaleX() > 0.0625 && actor->spr.ScaleY() > 0.0625)
+    if (actor->spr.scale.X > 0.0625 && actor->spr.scale.Y > 0.0625)
     {
         TRAVERSE_CONNECT(pnum)
         {
@@ -18275,10 +18275,10 @@ int DoFloorBlood(DSWActor* actor)
                 }
 
                 // If blood has already grown to max size, we can shrink it
-                if (actor->spr.ScaleX() == 0.625 && actor->spr.ScaleY() > 0.15625)
+                if (actor->spr.scale.X == 0.625 && actor->spr.scale.Y > 0.15625)
                 {
                     actor->spr.AddScaleY(-0.15625);
-                    if (actor->spr.ScaleY() <= 0.15625)  // Shrink it down and don't use it anymore
+                    if (actor->spr.scale.Y <= 0.15625)  // Shrink it down and don't use it anymore
 						actor->spr.SetScale(0.0625, 0.0625);
                 }
             }
@@ -18297,7 +18297,7 @@ int DoFloorBlood(DSWActor* actor)
 int DoWallBlood(DSWActor* actor)
 {
     // Make blood drip down the wall
-    if (actor->spr.ScaleY() < 1.25)
+    if (actor->spr.scale.Y < 1.25)
     {
         actor->spr.AddScaleY(REPEAT_SCALE);
         actor->spr.pos.Z += 0.5;

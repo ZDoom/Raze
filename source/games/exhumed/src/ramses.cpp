@@ -381,16 +381,16 @@ void DoSpiritHead()
 
         if (nHeadStage == 1) 
         {
-            if (pSpiritSpr->spr.ScaleX() > nSpiritScale.X)
+            if (pSpiritSpr->spr.scale.X > nSpiritScale.X)
             {
                 pSpiritSpr->spr.AddScaleX(-0.03125);
-                if (pSpiritSpr->spr.ScaleX() < nSpiritScale.X)
+                if (pSpiritSpr->spr.scale.X < nSpiritScale.X)
                     pSpiritSpr->spr.SetScaleX(nSpiritScale.X);
             }
-			if (pSpiritSpr->spr.ScaleY() > nSpiritScale.Y)
+			if (pSpiritSpr->spr.scale.Y > nSpiritScale.Y)
 			{
 				pSpiritSpr->spr.AddScaleY(-0.03125);
-				if (pSpiritSpr->spr.ScaleY() < nSpiritScale.Y)
+				if (pSpiritSpr->spr.scale.Y < nSpiritScale.Y)
 					pSpiritSpr->spr.SetScaleY(nSpiritScale.Y);
 			}
 

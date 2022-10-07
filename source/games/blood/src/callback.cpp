@@ -43,7 +43,7 @@ void fxFlameLick(DBloodActor* actor, sectortype*) // 0
 	GetActorExtents(actor, &top, &bottom);
 	for (int i = 0; i < 3; i++)
 	{
-		double nDist = (actor->spr.ScaleX() * tileWidth(actor->spr.picnum)) * (1. / 4);
+		double nDist = (actor->spr.scale.X * tileWidth(actor->spr.picnum)) * (1. / 4);
 		DAngle nAngle = RandomAngle();
 		DVector2 dv = nAngle.ToVector() * nDist;
 		DVector2 pos = actor->spr.pos.XY() + dv;
@@ -223,7 +223,7 @@ void fxDynPuff(DBloodActor* actor, sectortype*) // 8
 	if (!actor) return;
 	if (actor->vel.Z)
 	{
-		double nDist = (actor->spr.ScaleX() * tileWidth(actor->spr.picnum)) * (1. / 2);
+		double nDist = (actor->spr.scale.X * tileWidth(actor->spr.picnum)) * (1. / 2);
 		DVector3 pos = actor->spr.pos + (actor->spr.angle - DAngle90).ToVector() * nDist;
 		auto pFX = gFX.fxSpawnActor(FX_7, actor->sector(), pos);
 		if (pFX)
@@ -342,7 +342,7 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 		GetActorExtents(actor, &top, &bottom);
 		for (int i = 0; i < (pPlayer->bubbleTime >> 6); i++)
 		{
-			double nDist = (actor->spr.ScaleX() * tileWidth(actor->spr.picnum)) * (1. / 2);
+			double nDist = (actor->spr.scale.X * tileWidth(actor->spr.picnum)) * (1. / 2);
 			DVector2 pos = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nDist;
 			double z = bottom - RandomD(bottom - top, 8);
 			auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), DVector3(pos, z));
@@ -371,7 +371,7 @@ void EnemyBubble(DBloodActor* actor, sectortype*) // 11
 	for (int i = 0; i < int(abs(actor->vel.Z) * 0.25); i++)
 	{
 		auto nAngle = RandomAngle();
-		double nDist = (actor->spr.ScaleX() * tileWidth(actor->spr.picnum)) * (1. / 2);
+		double nDist = (actor->spr.scale.X * tileWidth(actor->spr.picnum)) * (1. / 2);
 		DVector2 pos = actor->spr.pos.XY() + nAngle.ToVector() * nDist;
 		double z = bottom - RandomD(bottom - top, 8);
 

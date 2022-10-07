@@ -421,7 +421,7 @@ void moveplayers(void)
 					auto psp = ps[otherp].GetActor();
 					if (psp->spr.extra > 0)
 					{
-						if (act->spr.ScaleY() > 0.5 && psp->spr.ScaleY() < 0.5)
+						if (act->spr.scale.Y > 0.5 && psp->spr.scale.Y < 0.5)
 						{
 							if (other < 1400/16. && p->knee_incs == 0)
 							{
@@ -478,14 +478,14 @@ void moveplayers(void)
 
 			act->spr.cstat = 0;
 
-			if (act->spr.ScaleX() < 0.65625)
+			if (act->spr.scale.X < 0.65625)
 			{
 				act->spr.AddScaleX(0.0625);
 				act->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
 			}
 			else act->spr.SetScaleX(0.65625);
 
-			if (act->spr.ScaleY() < 0.5625)
+			if (act->spr.scale.Y < 0.5625)
 				act->spr.AddScaleY(4);
 			else
 			{
@@ -867,7 +867,7 @@ void moveflammable(DDukeActor* actor, int pool)
 			}
 		}
 
-		scale = actor->spr.ScaleX() - (krand() & 7) * REPEAT_SCALE;
+		scale = actor->spr.scale.X - (krand() & 7) * REPEAT_SCALE;
 		if (scale < 0.15625)
 		{
 			deletesprite(actor);
@@ -876,7 +876,7 @@ void moveflammable(DDukeActor* actor, int pool)
 
 		actor->spr.SetScaleX(scale);
 
-		scale = actor->spr.ScaleY() - (krand() & 7) * REPEAT_SCALE;
+		scale = actor->spr.scale.Y - (krand() & 7) * REPEAT_SCALE;
 		if (scale < 0.0625)
 		{
 			deletesprite(actor);
@@ -926,7 +926,7 @@ void detonate(DDukeActor *actor, int explosion)
 
 	actor->spr.pos.Z -= 32;
 
-	if ((actor->temp_data[3] == 1 && actor->spr.ScaleX() != 0) || actor->spr.lotag == -99)
+	if ((actor->temp_data[3] == 1 && actor->spr.scale.X != 0) || actor->spr.lotag == -99)
 	{
 		int x = actor->spr.extra;
 		spawn(actor, explosion);
@@ -934,7 +934,7 @@ void detonate(DDukeActor *actor, int explosion)
 		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 	}
 
-	if (actor->spr.ScaleX() != 0)
+	if (actor->spr.scale.X != 0)
 		for (int x = 0; x < 8; x++) RANDOMSCRAP(actor);
 
 	deletesprite(actor);
@@ -1163,7 +1163,7 @@ void moveooz(DDukeActor* actor, int seenine, int seeninedead, int ooz, int explo
 	int j;
 	if (actor->spr.shade != -32 && actor->spr.shade != -33)
 	{
-		if (actor->spr.ScaleX() != 0)
+		if (actor->spr.scale.X != 0)
 			j = (fi.ifhitbyweapon(actor) >= 0);
 		else
 			j = 0;
@@ -1196,7 +1196,7 @@ void moveooz(DDukeActor* actor, int seenine, int seeninedead, int ooz, int explo
 		}
 		else
 		{
-			if (actor->spr.ScaleX() > 0)
+			if (actor->spr.scale.X > 0)
 			{
 				actor->temp_data[2]++;
 				if (actor->temp_data[2] == 3)
@@ -1352,7 +1352,7 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 	if (!explosion) return;
 	explosion->spr.pos = pos;
 
-	if (actor->spr.ScaleX() < 0.15625)
+	if (actor->spr.scale.X < 0.15625)
 	{
 		explosion->spr.SetScale(0.09375, 0.09375);
 	}
@@ -1369,7 +1369,7 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 	if (newextra > 0) actor->spr.extra = newextra;
 	S_PlayActorSound(playsound, actor);
 
-	if (actor->spr.ScaleX() >= 0.15625)
+	if (actor->spr.scale.X >= 0.15625)
 	{
 		int x = actor->spr.extra;
 		fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
@@ -1976,7 +1976,7 @@ void camera(DDukeActor *actor)
 
 void forcesphereexplode(DDukeActor *actor)
 {
-	double size = actor->spr.ScaleX();
+	double size = actor->spr.scale.X;
 	if (actor->temp_data[1] > 0)
 	{
 		actor->temp_data[1]--;
@@ -2290,7 +2290,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		actor->temp_data[2]++;
 		if (attackerflag(actor, SFLAG_FLAMMABLEPOOLEFFECT))
 		{
-			if (actor->spr.ScaleX() < 1 && actor->spr.ScaleY() < 1)
+			if (actor->spr.scale.X < 1 && actor->spr.scale.Y < 1)
 			{
 				actor->spr.AddScaleX((krand() & 3) * REPEAT_SCALE);
 				actor->spr.AddScaleY((krand() & 3) * REPEAT_SCALE);
@@ -2298,7 +2298,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		}
 		else
 		{
-			if (actor->spr.ScaleX() < 0.5 && actor->spr.ScaleY() < 0.5)
+			if (actor->spr.scale.X < 0.5 && actor->spr.scale.Y < 0.5)
 			{
 				actor->spr.AddScaleX((krand() & 3) * REPEAT_SCALE);
 				actor->spr.AddScaleY((krand() & 3) * REPEAT_SCALE);
@@ -2306,7 +2306,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		}
 	}
 
-	if (xx < 844 / 16. && actor->spr.ScaleX() > 0.09375 && actor->spr.ScaleY() > 0.09375)
+	if (xx < 844 / 16. && actor->spr.scale.X > 0.09375 && actor->spr.scale.Y > 0.09375)
 	{
 		if (actor->spr.pal == 0 && (krand() & 255) < 16 && !puke)
 		{
@@ -2510,7 +2510,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 {
 	double scale;
 
-	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
+	if (badguy(actor) && actor->spr.scale.X < 0.25)
 		scale = 0.125;
 	else scale = 0.5;
 

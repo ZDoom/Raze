@@ -129,7 +129,7 @@ public:
 	
 	void setClipDistFromTile()
 	{
-		clipdist = spr.ScaleX() * tileWidth(spr.picnum) * 0.125;
+		clipdist = spr.scale.X * tileWidth(spr.picnum) * 0.125;
 	}
 
 };

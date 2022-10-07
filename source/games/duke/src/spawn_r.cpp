@@ -705,8 +705,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BOLT1 + 1:
 	case BOLT1 + 2:
 	case BOLT1 + 3:
-		act->temp_pos.X = act->spr.ScaleX();
-		act->temp_pos.Y = act->spr.ScaleY();
+		act->temp_pos.X = act->spr.scale.X;
+		act->temp_pos.Y = act->spr.scale.Y;
 		[[fallthrough]];
 	case MASTERSWITCH:
 		if (act->spr.picnum == MASTERSWITCH)
@@ -1287,7 +1287,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case OOZFILTER:
 
 		act->spr.shade = -16;
-		if (act->spr.ScaleX() <= 0.125)
+		if (act->spr.scale.X <= 0.125)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 			act->spr.SetScale(0, 0);

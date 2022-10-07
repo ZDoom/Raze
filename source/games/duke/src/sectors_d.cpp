@@ -1364,7 +1364,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		{
 			if (badguy(targ) == 1)
 			{
-				if (isWorldTour() && targ->spr.picnum == FIREFLY && targ->spr.ScaleX() < 0.75)
+				if (isWorldTour() && targ->spr.picnum == FIREFLY && targ->spr.scale.X < 0.75)
 					break;
 
 				if (proj->spr.picnum == RPG) proj->spr.extra <<= 1;
@@ -1413,7 +1413,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					ChangeActorStat(targ, 1);
 					targ->timetosleep = SLEEPTIME;
 				}
-				if ((targ->spr.ScaleX() < 0.375 || targ->spr.picnum == SHARK) && proj->spr.picnum == SHRINKSPARK) return;
+				if ((targ->spr.scale.X < 0.375 || targ->spr.picnum == SHARK) && proj->spr.picnum == SHRINKSPARK) return;
 			}
 
 			if (targ->spr.statnum != 2)
@@ -1458,7 +1458,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					}
 				}
 
-				if (targ->spr.ScaleX() < 0.375 && proj->spr.picnum == SHRINKSPARK)
+				if (targ->spr.scale.X < 0.375 && proj->spr.picnum == SHRINKSPARK)
 					return;
 
 				auto hitowner = targ->GetHitOwner();

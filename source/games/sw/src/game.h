@@ -204,7 +204,7 @@ int StdRandomRange(int range);
 
 inline double GetSpriteSizeZ(const spritetypebase* sp)
 {
-	return (tileHeight(sp->picnum) * sp->ScaleY());
+	return (tileHeight(sp->picnum) * sp->scale.Y);
 }
 
 
@@ -1989,7 +1989,7 @@ inline DVector3 ActorVectOfMiddle(DSWActor* actor)
 
 inline double ActorSizeZ(DSWActor* actor)
 {
-    return (tileHeight(actor->spr.picnum) * actor->spr.ScaleY());
+    return (tileHeight(actor->spr.picnum) * actor->spr.scale.Y);
 }
 
 inline double ActorUpperZ(DSWActor* actor)
@@ -2020,7 +2020,7 @@ inline double ActorSizeToTop(DSWActor* a)
 
 inline void SetActorSizeX(DSWActor* sp)
 {
-    sp->clipdist = tileWidth(sp->spr.picnum) * sp->spr.ScaleX() * 0.25;
+    sp->clipdist = tileWidth(sp->spr.picnum) * sp->spr.scale.X * 0.25;
 }
 
 inline bool Facing(DSWActor* actor1, DSWActor* actor2)
