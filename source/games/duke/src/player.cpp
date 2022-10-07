@@ -326,7 +326,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 							actor != act)
 							continue;
 
-						if (gotshrinker && act->spr.xrepeat < 30 && !actorflag(act, SFLAG_SHRINKAUTOAIM)) continue;
+						if (gotshrinker && act->spr.ScaleX() < 0.46875 && !actorflag(act, SFLAG_SHRINKAUTOAIM)) continue;
 						if (gotfreezer && act->spr.pal == 1) continue;
 					}
 

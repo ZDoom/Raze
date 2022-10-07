@@ -430,7 +430,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			auto& pp = ps[p];
 			auto act = pp.GetActor();
 			int i = TILE_APLAYERTOP + (act->vel.X > 1 && pp.on_ground ? (PlayClock >> 4) & 3 : 0);
-			double j = clamp(czoom * act->spr.yrepeat + abs(pp.truefz - pp.pos.Z), 21.5, 128.) * REPEAT_SCALE;
+			double j = clamp(czoom * act->spr.ScaleY() + abs(pp.truefz - pp.pos.Z) * REPEAT_SCALE, 0.333, 2.);
 
 			auto const vec = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 			auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();

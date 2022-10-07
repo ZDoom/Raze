@@ -698,7 +698,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 		{
 			double zoffs = 32;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
-				zoffs *= (actor->spr.yrepeat / 80.0f);
+				zoffs *= (actor->spr.ScaleY() * 0.8);
 			pos.Z += zoffs;
 		}
 		else if (actor->spr.picnum == BOSS2)
@@ -706,7 +706,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			vel += 8;
 			double zoffs = 24;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
-				zoffs *= (actor->spr.yrepeat / 80.0f);
+				zoffs *= (actor->spr.ScaleY() * 0.8);
 			pos.Z -= zoffs;
 		}
 
@@ -749,7 +749,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 			{
-				float siz = actor->spr.yrepeat / 80.0f;
+				float siz = actor->spr.ScaleY() * 0.8;
 				spawnofs *= siz;
 				aoffs *= siz;
 			}
@@ -758,7 +758,6 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			spawned->spr.angle += aoffs;
 
 			spawned->spr.SetScale(0.65625, 0.65625);
-			spawned->spr.yrepeat = 42;
 		}
 		else if (actor->spr.picnum == BOSS2)
 		{
@@ -766,7 +765,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			DAngle aoffs = DAngle22_5 / 16. - DAngle45 + randomAngle(90);
 
 			if (isWorldTour()) { // Twentieth Anniversary World Tour
-				double siz = actor->spr.yrepeat / 70.;
+				double siz = actor->spr.ScaleY() * 0.9143;
 				spawnofs *= siz;
 				aoffs *= siz;
 			}
@@ -2818,7 +2817,7 @@ void processinput_d(int snum)
 		return;
 	}
 
-	if (p->GetActor()->spr.xrepeat < 40 && p->jetpack_on == 0)
+	if (p->GetActor()->spr.ScaleX() < 0.625 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
 		p->fistsign += p->GetActor()->vel.X * 16;

@@ -671,7 +671,6 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 		if (actor->spr.picnum == HULK)
 		{
 			spawned->spr.SetScale(0.125, 0.125);
-			spawned->spr.yrepeat = 8;
 		}
 		else if (atwith != FREEZEBLAST)
 		{
@@ -2318,7 +2317,6 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
 			j->spr.SetScale(0.046875, 0.03125);
-			j->spr.yrepeat = 2;
 			j->spr.pos.Z = p->pos.Z + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}

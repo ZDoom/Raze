@@ -1211,7 +1211,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		break;
 
 	case FORCESPHERE:
-		targ->spr.xrepeat = 0;
+		targ->spr.SetScaleX(0);
 		if (targ->GetOwner())
 		{
 			targ->GetOwner()->temp_data[0] = 32;
@@ -1364,7 +1364,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		{
 			if (badguy(targ) == 1)
 			{
-				if (isWorldTour() && targ->spr.picnum == FIREFLY && targ->spr.xrepeat < 48)
+				if (isWorldTour() && targ->spr.picnum == FIREFLY && targ->spr.ScaleX() < 0.75)
 					break;
 
 				if (proj->spr.picnum == RPG) proj->spr.extra <<= 1;
@@ -1413,7 +1413,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					ChangeActorStat(targ, 1);
 					targ->timetosleep = SLEEPTIME;
 				}
-				if ((targ->spr.xrepeat < 24 || targ->spr.picnum == SHARK) && proj->spr.picnum == SHRINKSPARK) return;
+				if ((targ->spr.ScaleX() < 0.375 || targ->spr.picnum == SHARK) && proj->spr.picnum == SHRINKSPARK) return;
 			}
 
 			if (targ->spr.statnum != 2)
@@ -1458,7 +1458,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					}
 				}
 
-				if (targ->spr.xrepeat < 24 && proj->spr.picnum == SHRINKSPARK)
+				if (targ->spr.ScaleX() < 0.375 && proj->spr.picnum == SHRINKSPARK)
 					return;
 
 				auto hitowner = targ->GetHitOwner();

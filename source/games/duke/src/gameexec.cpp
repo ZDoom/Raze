@@ -1201,12 +1201,12 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spriteextra, sActor, sPlayer);
 		break;
 	case ACTOR_XREPEAT:
-		if (bSet) act->spr.xrepeat = lValue;
-		else SetGameVarID(lVar2, act->spr.xrepeat, sActor, sPlayer);
+		if (bSet) act->spr.SetScaleX(lValue * REPEAT_SCALE);
+		else SetGameVarID(lVar2, int(act->spr.ScaleX() * INV_REPEAT_SCALE), sActor, sPlayer);
 		break;
 	case ACTOR_YREPEAT:
-		if (bSet) act->spr.yrepeat = lValue;
-		else SetGameVarID(lVar2, act->spr.yrepeat, sActor, sPlayer);
+		if (bSet) act->spr.SetScaleY(lValue * REPEAT_SCALE);
+		else SetGameVarID(lVar2, int(act->spr.ScaleY() * INV_REPEAT_SCALE), sActor, sPlayer);
 		break;
 	case ACTOR_XOFFSET:
 		if (bSet) act->spr.xoffset = lValue;
@@ -1724,21 +1724,21 @@ int ParseState::parse(void)
 	{
 		insptr++;
 
-		// JBF 20030805: As I understand it, if xrepeat becomes 0 it basically kills the
+		// JBF 20030805: As I understand it, if repeat becomes 0 it basically kills the
 		// sprite, which is why the "sizeto 0 41" calls in 1.3d became "sizeto 4 41" in
 		// 1.4, so instead of patching the CONs I'll surruptitiously patch the code here
 		//if (!isPlutoPak() && *insptr == 0) *insptr = 4;
 
-		j = ((*insptr) - g_ac->spr.xrepeat) << 1;
-		g_ac->spr.xrepeat += Sgn(j);
+		double s = ((*insptr) * REPEAT_SCALE - g_ac->spr.ScaleX());
+		g_ac->spr.SetScaleX(clamp(g_ac->spr.ScaleX() + Sgn(s) * REPEAT_SCALE, 0., 4.));
 
 		insptr++;
 
 		auto scale = g_ac->spr.ScaleY();
 		if ((g_ac->isPlayer() && scale < 0.5626) || *insptr * REPEAT_SCALE < scale || (scale * (tileHeight(g_ac->spr.picnum) + 8)) < g_ac->floorz - g_ac->ceilingz)
 		{
-			j = ((*insptr) - g_ac->spr.yrepeat) << 1;
-			if (abs(j)) g_ac->spr.yrepeat += Sgn(j);
+			s = ((*insptr) * REPEAT_SCALE - g_ac->spr.ScaleY());
+			g_ac->spr.SetScaleY(clamp(g_ac->spr.ScaleY() + Sgn(s) * REPEAT_SCALE, 0., 4.));
 		}
 
 		insptr++;
@@ -1748,9 +1748,9 @@ int ParseState::parse(void)
 	}
 	case concmd_sizeat:
 		insptr++;
-		g_ac->spr.xrepeat = (uint8_t)*insptr;
+		g_ac->spr.SetScaleX((uint8_t)*insptr * REPEAT_SCALE);
 		insptr++;
-		g_ac->spr.yrepeat = (uint8_t)*insptr;
+		g_ac->spr.SetScaleY((uint8_t)*insptr * REPEAT_SCALE);
 		insptr++;
 		break;
 	case concmd_shoot:
@@ -2296,9 +2296,9 @@ int ParseState::parse(void)
 		parseifelse(ps[g_p].OnBoat == 1);
 		break;
 	case concmd_ifsizedown:
-		g_ac->spr.xrepeat--;
-		g_ac->spr.yrepeat--;
-		parseifelse(g_ac->spr.xrepeat <= 5);
+		g_ac->spr.AddScaleX(-REPEAT_SCALE);
+		g_ac->spr.AddScaleY(-REPEAT_SCALE);
+		parseifelse(g_ac->spr.ScaleX() <= 5 * REPEAT_SCALE);
 		break;
 	case concmd_ifwind:
 		parseifelse(WindTime > 0);
@@ -2414,7 +2414,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;
-			else if( (l& pshrunk) && ps[g_p].GetActor()->spr.xrepeat < (isRR() ? 8 : 32))
+			else if( (l& pshrunk) && ps[g_p].GetActor()->spr.ScaleX() < (isRR() ? 0.125 : 0.5))
 					j = 1;
 			else if( (l& pjetpack) && ps[g_p].jetpack_on )
 					j = 1;

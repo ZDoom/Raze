@@ -295,7 +295,7 @@ void displayweapon_d(int snum, double interpfrac)
 		}
 	}
 
-	if (p->GetActor()->spr.xrepeat < 40)
+	if (p->GetActor()->spr.ScaleX() < 0.625)
 	{
 		//shrunken..
 		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, FIST, shade, o, interpfrac);
