@@ -543,7 +543,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 			else
 			{
 				if (actor->hitextra == 0)
-					if (actor->spr.xrepeat < 24)
+					if (actor->spr.ScaleX() < 0.375)
 						return -1;
 
 				actor->spr.extra -= actor->hitextra;
@@ -1054,9 +1054,9 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 			{
 				proj->spr.extra >>= 1;
 				if (proj->spr.ScaleX() > 0.125 )
-					proj->spr.xrepeat -= 2;
+					proj->spr.AddScaleX(-0.03125);
 				if (proj->spr.ScaleY() > 0.125 )
-					proj->spr.yrepeat -= 2;
+					proj->spr.AddScaleY(-0.03125);
 				proj->spr.yint--;
 			}
 
@@ -1082,7 +1082,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 						j->spr.SetScale(0.125, 0.125);
 						j->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 						j->spr.angle += DAngle90;
-						j->clipdist = MulScale(proj->spr.xrepeat, tileWidth(proj->spr.picnum), 7) * 0.25;
+						j->clipdist = proj->spr.ScaleX() * tileWidth(proj->spr.picnum) * 0.125;
 					}
 				}
 				deletesprite(proj);
@@ -1138,9 +1138,9 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		ssp(proj, CLIPMASK1);
 		proj->spr.extra >>= 1;
 		if (proj->spr.ScaleX() > 0.125 )
-			proj->spr.xrepeat -= 2;
+			proj->spr.AddScaleX(-0.03125);
 		if (proj->spr.ScaleY() > 0.125 )
-			proj->spr.yrepeat -= 2;
+			proj->spr.AddScaleY(-0.03125);
 		proj->spr.yint--;
 		return true;
 	}
@@ -1280,7 +1280,8 @@ static void weaponcommon_r(DDukeActor *proj)
 				auto spawned = spawn(proj, 1441);
 				if (spawned)
 				{
-					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
+					auto scale = proj->spr.ScaleX() * 0.5;
+					spawned->spr.SetScale(scale, scale);
 					if (coll.type == kHitSector)
 					{
 						if (proj->vel.Z < 0)
@@ -1853,7 +1854,7 @@ static void rrra_specialstats()
 				else if (enemysizecheat == 2)
 				{
 					act->spr.MultScale(0.5);
-					act->clipdist = MulScale(act->spr.xrepeat, tileHeight(act->spr.picnum), 7) * 0.25;
+					act->clipdist = act->spr.ScaleX(), tileHeight(act->spr.picnum) * 0.125;
 				}
 				break;
 			}
@@ -2442,9 +2443,9 @@ DETONATEB:
 			}
 		}
 
-		if (actor->spr.yrepeat)
+		if (actor->spr.ScaleY())
 		{
-			actor->spr.yrepeat = 0;
+			actor->spr.SetScaleY(0);
 			return;
 		}
 
@@ -2906,7 +2907,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (act->temp_data[0] == 7 * 26) continue;
 			act->spr.pos.Z += 1 / 16. + krandf(1 / 16.);
 			act->temp_data[0]++;
-			if ((act->temp_data[0] % 9) == 0) act->spr.yrepeat++;
+			if ((act->temp_data[0] % 9) == 0) act->spr.AddScaleY(REPEAT_SCALE);
 			continue;
 
 

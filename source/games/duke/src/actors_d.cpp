@@ -1626,7 +1626,8 @@ static void weaponcommon_d(DDukeActor* proj)
 				auto spawned = spawn(proj, EXPLOSION2);
 				if (spawned)
 				{
-					spawned->spr.xrepeat = spawned->spr.yrepeat = proj->spr.xrepeat >> 1;
+					auto scale = proj->spr.ScaleX() * 0.5;
+					spawned->spr.SetScale(scale,scale);
 					if (coll.type == kHitSector)
 					{
 						if (proj->vel.Z < 0)
@@ -1640,7 +1641,11 @@ static void weaponcommon_d(DDukeActor* proj)
 			if (fireball)
 			{
 				auto spawned = spawn(proj, EXPLOSION2);
-				if (spawned) spawned->spr.xrepeat = spawned->spr.yrepeat = (short)(proj->spr.xrepeat >> 1);
+				if (spawned)
+				{
+					auto scale = proj->spr.ScaleX() * 0.5;
+					spawned->spr.SetScale(scale,scale);
+				}
 			}
 		}
 		if (proj->spr.picnum != COOLEXPLOSION1)
@@ -2270,8 +2275,8 @@ static void greenslime(DDukeActor *actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 		actor->spr.picnum = GREENSLIME + 4;
 
-		if (actor->spr.ScaleX() > 0.5 ) actor->spr.xrepeat -= krand() & 7;
-		if (actor->spr.ScaleY() > 0.25 ) actor->spr.yrepeat -= krand() & 7;
+		if (actor->spr.ScaleX() > 0.5 ) actor->spr.AddScaleX(-(krand() & 7) * REPEAT_SCALE);
+		if (actor->spr.ScaleY() > 0.25 ) actor->spr.AddScaleY(-(krand() & 7) * REPEAT_SCALE);
 		else
 		{
 			actor->spr.SetScale(0.625, 0.25);
@@ -2294,16 +2299,16 @@ static void greenslime(DDukeActor *actor)
 			actor->spr.pos = s5->spr.pos + s5->spr.angle.ToVector() * 0.5;
 			actor->spr.picnum = GREENSLIME + 2 + (global_random & 1);
 
-			if (actor->spr.ScaleY() < 1) actor->spr.yrepeat += 2;
+			if (actor->spr.ScaleY() < 1) actor->spr.AddScaleY(0.03125);
 			else
 			{
-				if (actor->spr.ScaleX() < 0.5) actor->spr.xrepeat += 4;
+				if (actor->spr.ScaleX() < 0.5) actor->spr.AddScaleY(0.0625);
 				else
 				{
 					actor->temp_data[0] = -1;
 					double dist = (actor->spr.pos.XY() - s5->spr.pos.XY()).LengthSquared();
 					if (dist < 48*48) {
-						s5->spr.xrepeat = 0;
+						s5->spr.SetScaleX(0);
 					}
 				}
 			}
@@ -2373,8 +2378,8 @@ static void greenslime(DDukeActor *actor)
 			// TJR
 		}
 
-		actor->spr.xrepeat = 36 + BobVal(512 + actor->temp_data[1]) * 8;
-		actor->spr.yrepeat = 16 + BobVal(actor->temp_data[1]) * 2;
+		actor->spr.SetScaleX(0.5625 + BobVal(512 + actor->temp_data[1]) * 0.125);
+		actor->spr.SetScaleY(0.25 + BobVal(actor->temp_data[1]) * 0.03125);
 
 		if (rnd(4) && (sectp->ceilingstat & CSTAT_SECTOR_SKY) == 0 &&
 			abs(actor->floorz - actor->ceilingz) < 192)
@@ -2409,8 +2414,8 @@ static void greenslime(DDukeActor *actor)
 
 		if (actor->spr.pos.Z > actor->floorz - 8)
 		{
-			actor->spr.yrepeat -= 4;
-			actor->spr.xrepeat += 2;
+			actor->spr.AddScaleY(-0.0625);
+			actor->spr.AddScaleX(0.03125);
 		}
 		else
 		{
@@ -2453,7 +2458,10 @@ static void flamethrowerflame(DDukeActor *actor)
 
 	int ds = actor->temp_data[0] / 6;
 	if (actor->spr.ScaleX() < 0.1250)
-		actor->spr.yrepeat = actor->spr.xrepeat += ds;
+	{
+		actor->spr.AddScaleX(ds * REPEAT_SCALE);
+		actor->spr.SetScaleY(actor->spr.ScaleX());
+	}
 	actor->clipdist += ds * 0.25;
 	if (actor->temp_data[0] <= 2)
 		actor->temp_data[3] = krand() % 10;
@@ -2668,9 +2676,9 @@ DETONATEB:
 				RANDOMSCRAP(actor);
 		}
 
-		if (actor->spr.yrepeat)
+		if (actor->spr.ScaleY())
 		{
-			actor->spr.yrepeat = 0;
+			actor->spr.SetScaleY(0);
 			return;
 		}
 
@@ -2686,7 +2694,7 @@ DETONATEB:
 				actor->temp_data[2] = gs.respawnitemtime;
 				spawn(actor, RESPAWNMARKERRED);
 				actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				actor->spr.yrepeat = 9;
+				actor->spr.SetScaleY(0.140625);
 				return;
 			}
 		}
@@ -2997,7 +3005,7 @@ void moveexplosions_d(void)  // STATNUM 5
 			if (act->temp_data[0] == 7 * 26) continue;
 			act->spr.pos.Z += 1 / 16. + krandf(1 / 16.);
 			act->temp_data[0]++;
-			if ((act->temp_data[0] % 9) == 0) act->spr.yrepeat++;
+			if ((act->temp_data[0] % 9) == 0) act->spr.AddScaleY(REPEAT_SCALE);
 			continue;
 
 		case NUKEBUTTON:
