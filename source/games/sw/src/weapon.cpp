@@ -414,8 +414,8 @@ STATE s_WaterSmoke[] =
     {PUFF + 5, 100, DoSuicide, &s_WaterSmoke[6]}
 };
 
-#define UZI_SPARK_REPEAT 24
-#define UZI_SMOKE_REPEAT 24 // Was 32
+constexpr double UZI_SPARK_REPEAT = 0.375;
+constexpr double UZI_SMOKE_REPEAT = 0.375;
 #define UZI_SMOKE_RATE 16 // Was 9
 STATE s_UziSmoke[] =
 {
@@ -7639,12 +7639,12 @@ int DoStar(DSWActor* actor)
             {
                 actor->user.motion_blur_num = 0;
                 ChangeState(actor, s_StarStuck);
-                actor->spr.xrepeat -= 16;
-                actor->spr.yrepeat -= 16;
+                actor->spr.AddScaleX(-0.25);
+                actor->spr.AddScaleY(-0.25);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                 actor->clipdist = 1;
-                actor->user.ceiling_dist = (2);
-                actor->user.floor_dist = (2);
+                actor->user.ceiling_dist = 2;
+                actor->user.floor_dist = 2;
                 // treat this just like a KillSprite but don't kill
                 QueueStar(actor);
                 return 0;
@@ -9146,8 +9146,8 @@ int DoPuff(DSWActor* actor)
 
 int DoRailPuff(DSWActor* actor)
 {
-    actor->spr.xrepeat += 4;
-    actor->spr.yrepeat += 4;
+    actor->spr.AddScaleX(0.0625);
+    actor->spr.AddScaleY(0.0625);
 
     return 0;
 }
@@ -9234,13 +9234,11 @@ int DoEMP(DSWActor* actor)
 
         if (RandomRange(1000) > 500)
         {
-            actor->spr.xrepeat = 52;
-            actor->spr.yrepeat = 10;
+            actor->spr.SetScale(0.8125, 0.15626);
         }
         else
         {
-            actor->spr.xrepeat = 8;
-            actor->spr.yrepeat = 38;
+            actor->spr.SetScale(0.125, 0.59375);
         }
 
         if (actor->user.coll.type != kHitNone)
@@ -9283,13 +9281,11 @@ int DoEMPBurst(DSWActor* actor)
 
     if (RandomRange(1000) > 500)
     {
-        actor->spr.xrepeat = 52;
-        actor->spr.yrepeat = 10;
+        actor->spr.SetScale(0.8125, 0.15626);
     }
     else
     {
-        actor->spr.xrepeat = 8;
-        actor->spr.yrepeat = 38;
+        actor->spr.SetScale(0.125, 0.59375);
     }
 
     if ((RANDOM_P2(1024<<6)>>6) < 700)
@@ -9500,8 +9496,7 @@ int DoRail(DSWActor* actor)
             NewStateGroup(actorNew, sg_RailPuff);
 
             actorNew->spr.shade = -40;
-            actorNew->spr.xrepeat = 10;
-            actorNew->spr.yrepeat = 10;
+            actorNew->spr.SetScale(0.15625, 0.15625);
             actorNew->opos = actor->opos;
             actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
             actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -9654,7 +9649,7 @@ int SpawnExtraMicroMini(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], actor->sector(), actor->spr.pos, actor->spr.angle, actor->vel.X);
 
     SetOwner(GetOwner(actor), actorNew);
-    actorNew->spr.yrepeat = actorNew->spr.xrepeat = actor->spr.xrepeat;
+    actorNew->spr.SetScale(actor->spr.ScaleX(), actor->spr.ScaleX());
     actorNew->spr.shade = actor->spr.shade;
     actorNew->copy_clipdist(actor);
 
@@ -9716,7 +9711,7 @@ int DoMicro(DSWActor* actor)
         {
             SetActorZ(actorNew, actorNew->spr.pos);
             NewStateGroup(actor, &sg_MicroMini[0]);
-            actor->spr.xrepeat = actor->spr.yrepeat = 10;
+            actor->spr.SetScale(0.15625, 0.15625);
             actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
             SpawnExtraMicroMini(actor);
             return true;
@@ -9768,8 +9763,7 @@ int DoUziBullet(DSWActor* actor)
 
             auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
             actorNew->spr.shade = -40;
-            actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
-            actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
+            actorNew->spr.SetScale(UZI_SMOKE_REPEAT, UZI_SMOKE_REPEAT);
             SetOwner(GetOwner(actor), actorNew);
             actorNew->spr.angle = actor->spr.angle;
             actorNew->clipdist = 8;
@@ -9779,8 +9773,7 @@ int DoUziBullet(DSWActor* actor)
             {
                 actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, actorNew->sector(), actorNew->spr.pos, nullAngle, 0);
                 actorNew->spr.shade = -40;
-                actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
-                actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
+                actorNew->spr.SetScale(UZI_SPARK_REPEAT, UZI_SPARK_REPEAT);
                 SetOwner(GetOwner(actor), actorNew);
                 actorNew->spr.angle = actor->spr.angle;
                 actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -15466,14 +15459,12 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, const DVector3& hit_pos
         case PACHINKO4:
         case 623:
         case ZILLA_RUN_R0:
-            actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
-            actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
+            actorNew->spr.SetScale(UZI_SMOKE_REPEAT, UZI_SMOKE_REPEAT);
             if (RANDOM_P2(1024) > 800)
                 SpawnShrapX(hitActor);
             break;
         default:
-            actorNew->spr.xrepeat = UZI_SMOKE_REPEAT/3;
-            actorNew->spr.yrepeat = UZI_SMOKE_REPEAT/3;
+            actorNew->spr.SetScale(UZI_SMOKE_REPEAT / 3, UZI_SMOKE_REPEAT / 3);
             actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
             //actorNew->user.spal = actorNew->spr.pal = PALETTE_RED_LIGHTING;
             break;
@@ -15712,8 +15703,7 @@ int InitUzi(PLAYER* pp)
 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos, daang, 0);
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
-    actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
+    actorNew->spr.SetScale(UZI_SMOKE_REPEAT, UZI_SMOKE_REPEAT);
     SetOwner(pp->actor, actorNew);
     actorNew->spr.cstat |= (cstat | CSTAT_SPRITE_YCENTER);
     actorNew->clipdist = 0.5;
@@ -15724,8 +15714,7 @@ int InitUzi(PLAYER* pp)
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos, daang, 0);
 
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
-    actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
+    actorNew->spr.SetScale(UZI_SPARK_REPEAT, UZI_SPARK_REPEAT);
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = pal;
     actorNew->spr.cstat |= (cstat | CSTAT_SPRITE_YCENTER);
@@ -16266,7 +16255,7 @@ DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, 
 {
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
+    actorNew->spr.SetScale(UZI_SMOKE_REPEAT + 0.1875, UZI_SMOKE_REPEAT + 0.1875);
     actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
     SetOwner(pp->actor, actorNew);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
@@ -16282,8 +16271,7 @@ DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
 
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SPARK_REPEAT + 10;
-    actorNew->spr.yrepeat = UZI_SPARK_REPEAT + 10;
+    actorNew->spr.SetScale(UZI_SPARK_REPEAT + 0.15626, UZI_SPARK_REPEAT + 0.15625);
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -16350,8 +16338,7 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVec
 {
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SMOKE_REPEAT + 12;
-    actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
+    actorNew->spr.SetScale(UZI_SMOKE_REPEAT + 0.1875, UZI_SMOKE_REPEAT + 0.1875);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -16364,8 +16351,7 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVec
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
 
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SPARK_REPEAT + 10;
-    actorNew->spr.yrepeat = UZI_SPARK_REPEAT + 10;
+    actorNew->spr.SetScale(UZI_SPARK_REPEAT + 0.15626, UZI_SPARK_REPEAT + 0.15625);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
@@ -16389,8 +16375,7 @@ DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wal
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
 
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
-    actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
+    actorNew->spr.SetScale(UZI_SPARK_REPEAT, UZI_SPARK_REPEAT);
     SetOwner(pp->actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal = PALETTE_DEFAULT;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -16675,8 +16660,7 @@ int InitEnemyUzi(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hit.hitSector, hit.hitpos, daang, 0);
 
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
-    actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
+    actorNew->spr.SetScale(UZI_SMOKE_REPEAT, UZI_SMOKE_REPEAT);
 
     if (actor->user.ID == ZOMBIE_RUN_R0)
         SetOwner(GetOwner(actor), actorNew);
@@ -16690,8 +16674,7 @@ int InitEnemyUzi(DSWActor* actor)
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos, daang, 0);
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SMOKE_REPEAT;
-    actorNew->spr.yrepeat = UZI_SMOKE_REPEAT;
+    actorNew->spr.SetScale(UZI_SMOKE_REPEAT, UZI_SMOKE_REPEAT);
     SetOwner(actor, actorNew);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->clipdist = 0.5;
@@ -16702,8 +16685,7 @@ int InitEnemyUzi(DSWActor* actor)
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos, daang, 0);
 
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = UZI_SPARK_REPEAT;
-    actorNew->spr.yrepeat = UZI_SPARK_REPEAT;
+    actorNew->spr.SetScale(UZI_SPARK_REPEAT, UZI_SPARK_REPEAT);
     SetOwner(actor, actorNew);
     actorNew->user.spal = actorNew->spr.pal;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
