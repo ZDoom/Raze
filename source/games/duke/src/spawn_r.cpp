@@ -253,8 +253,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	rrra_badguy:
 		if (act->spr.picnum == JIBS6)
 		{
-			act->spr.MultScaleX(0.5);
-			act->spr.MultScaleY(0.5);
+			act->spr.MultScale(0.5);
 		}
 		else if (isRRRA())
 		{

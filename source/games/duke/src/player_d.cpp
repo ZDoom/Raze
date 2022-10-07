@@ -760,8 +760,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	else
 	{
 		spawned->spr.yint = gs.numfreezebounces;
-		spawned->spr.MultScaleX(0.5);
-		spawned->spr.MultScaleY(0.5);
+		spawned->spr.MultScale(0.5);
 		spawned->vel.Z -= 0.25;
 	}
 
@@ -829,8 +828,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			DVector2 spawnofs(ang.Sin()* 4, ang.Cos() * -4);
 			spawned->spr.pos += spawnofs;
 		}
-		spawned->spr.MultScaleX(0.5);
-		spawned->spr.MultScaleY(0.5);
+		spawned->spr.MultScale(0.5);
 	}
 
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;

@@ -9190,8 +9190,7 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		burstactor->clipdist = actor->clipdist * 0.25;
 		burstactor->spr.flags = actor->spr.flags;
 		burstactor->spr.CopyScale(&actor->spr);
-		burstactor->spr.MultScaleX(0.5);
-		burstactor->spr.MultScaleY(0.5);
+		burstactor->spr.MultScale(0.5);
 
 		burstactor->spr.angle = actor->spr.angle + mapangle(missileInfo[actor->spr.type - kMissileBase].angleOfs);
 		burstactor->SetOwner(actor);

@@ -1848,14 +1848,12 @@ static void rrra_specialstats()
 			case MAMA:
 				if (enemysizecheat == 3)
 				{
-					act->spr.MultScaleX(2);
-					act->spr.MultScaleY(2);
+					act->spr.MultScale(2);
 					act->setClipDistFromTile();
 				}
 				else if (enemysizecheat == 2)
 				{
-					act->spr.MultScaleX(0.5);
-					act->spr.MultScaleY(0.5);
+					act->spr.MultScale(0.5);
 					act->clipdist = MulScale(act->spr.xrepeat, tileHeight(act->spr.picnum), 7) * 0.25;
 				}
 				break;
