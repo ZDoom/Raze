@@ -1461,14 +1461,14 @@ void AISpark::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     pActor->spr.shade += 3;
-    pActor->spr.xrepeat -= 2;
+	pActor->spr.AddScaleX(-0.03125);
 
     if (pActor->spr.ScaleX() >= 0.0625 && pActor->spr.shade <= 100)
     {
 		pActor->spr.AddScaleY(-0.03125);
 
         // calling BuildSpark() with 2nd parameter as '1' will set kTile986
-        if (pActor->spr.picnum == kTile986 && (pActor->spr.xrepeat & 2))
+        if (pActor->spr.picnum == kTile986 && int((pActor->spr.ScaleX() * INV_REPEAT_SCALE)) & 2) // hack alert
         {
             BuildSpark(pActor, 2);
         }
@@ -1641,7 +1641,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
         nRepeat = 255;
     }
 
-    pActor->spr.xrepeat = nRepeat;
+    pActor->spr.intangle = nRepeat;
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
@@ -1729,11 +1729,11 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
     BuildSpark(pActor, 3);
 
     pActor->spr.cstat = 0;
-    pActor->spr.xrepeat = 100;
+    pActor->spr.intangle = 100;
 
     PlayFX2(StaticSound[kSound78], pActor);
 
-    pActor->spr.xrepeat = 0;
+    pActor->spr.intangle = 0;
 
     nEnergyTowers--;
 
@@ -1805,9 +1805,9 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
         return;
     }
 
-    if (ev->nDamage < pActor->spr.xrepeat)
+    if (ev->nDamage < pActor->spr.intangle)
     {
-        pActor->spr.xrepeat -= ev->nDamage;
+        pActor->spr.intangle -= ev->nDamage;
 
         auto pActor2 = insertActor(lasthitsect, 0);
 
@@ -1819,7 +1819,7 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
     }
     else
     {
-        pActor->spr.xrepeat = 0; // using xrepeat to store health
+        pActor->spr.intangle = 0; // using intangle to store health
         ExplodeEnergyBlock(pActor);
     }
 }
