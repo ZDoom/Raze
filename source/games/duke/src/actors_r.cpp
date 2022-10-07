@@ -220,7 +220,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	double radius = r * inttoworld;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
-	if (actor->spr.xrepeat >= 11 || !(actor->spr.picnum == RPG || ((isRRRA()) && actor->spr.picnum == RPG2)))
+	if (actor->spr.ScaleX() >= 0.17675 || !(actor->spr.picnum == RPG || ((isRRRA()) && actor->spr.picnum == RPG2)))
 	{
 		BFSSectorSearch search(actor->sector());
 
@@ -910,7 +910,7 @@ void movestandables_r(void)
 static void chickenarrow(DDukeActor* actor)
 {
 	actor->spr.hitag++;
-	if (actor->attackertype != BOSS2 && actor->spr.xrepeat >= 10 && actor->sector()->lotag != 2)
+	if (actor->attackertype != BOSS2 && actor->spr.ScaleX() >= 0.15625 && actor->sector()->lotag != 2)
 	{
 		auto spawned = spawn(actor, SMALLSMOKE);
 		if (spawned) spawned->spr.pos.Z += 1;
@@ -1180,7 +1180,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	switch (proj->spr.picnum)
 	{
 	case RPG:
-		if (proj->attackertype != BOSS2 && proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
+		if (proj->attackertype != BOSS2 && proj->spr.ScaleX() >= 0.15625 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			if (spawned) spawned->spr.pos.Z += 1;
@@ -1200,7 +1200,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		}
 		else
 			makeitfall(proj);
-		if (proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
+		if (proj->spr.ScaleX() >= 0.15625 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			if (spawned) spawned->spr.pos.Z += 1;
@@ -1296,7 +1296,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		deletesprite(proj);
 		return;
 	}
-	if ((proj->spr.picnum == RPG || (isRRRA() && proj->spr.picnum == RPG2)) && proj->sector()->lotag == 2 && proj->spr.xrepeat >= 10 && rnd(184))
+	if ((proj->spr.picnum == RPG || (isRRRA() && proj->spr.picnum == RPG2)) && proj->sector()->lotag == 2 && proj->spr.ScaleX() >= 0.15625 && rnd(184))
 		spawn(proj, WATERBUBBLE);
 
 }
@@ -2615,7 +2615,7 @@ void moveactors_r(void)
 	{
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
 
-		if( act->spr.xrepeat == 0 || !act->insector())
+		if( act->spr.ScaleX() == 0 || !act->insector())
 		{
 			deletesprite(act);
 			continue;
@@ -2872,7 +2872,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		t = &act->temp_data[0];
 		auto sectp = act->sector();
 
-		if (!act->insector() || act->spr.xrepeat == 0) 
+		if (!act->insector() || act->spr.ScaleX() == 0) 
 		{
 			deletesprite(act);
 			continue;

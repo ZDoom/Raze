@@ -1660,7 +1660,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			return;
 		}
 	}
-	else if (proj->spr.picnum == RPG && proj->sector()->lotag == 2 && proj->spr.xrepeat >= 10 && rnd(140))
+	else if (proj->spr.picnum == RPG && proj->sector()->lotag == 2 && proj->spr.ScaleX() >= 0.15625 && rnd(140))
 		spawn(proj, WATERBUBBLE);
 
 }
@@ -2390,8 +2390,8 @@ static void greenslime(DDukeActor *actor)
 	if (actor->temp_data[0] == 1)
 	{
 		actor->spr.picnum = GREENSLIME;
-		if (actor->spr.yrepeat < 40) actor->spr.yrepeat += 8;
-		if (actor->spr.ScaleX() > 0.125 ) actor->spr.xrepeat -= 4;
+		if (actor->spr.ScaleY() < 0.625) actor->spr.AddScaleY(0.125);
+		if (actor->spr.ScaleX() > 0.125 ) actor->spr.AddScaleX(-0.0625);
 		if (actor->vel.Z > -12)
 			actor->vel.Z -= 348 / 256.;
 		actor->spr.pos.Z += actor->vel.Z;
@@ -2416,8 +2416,8 @@ static void greenslime(DDukeActor *actor)
 		}
 		else
 		{
-			if (actor->spr.yrepeat < (40 - 4)) actor->spr.yrepeat += 8;
-			if (actor->spr.ScaleX() > 0.125 ) actor->spr.xrepeat -= 4;
+			if (actor->spr.ScaleY() < 0.5625) actor->spr.AddScaleY(0.125);
+			if (actor->spr.ScaleX() > 0.125 ) actor->spr.AddScaleX(-0.0625);
 		}
 
 		if (actor->spr.pos.Z > actor->floorz - 8)
@@ -2512,7 +2512,7 @@ static void flamethrowerflame(DDukeActor *actor)
 				fi.checkhitceiling(actor->sector());
 		}
 
-		if (actor->spr.xrepeat >= 10)
+		if (actor->spr.ScaleX() >= 0.15625)
 		{
 			int x = actor->spr.extra;
 			fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
@@ -2753,7 +2753,7 @@ void moveactors_d(void)
 	{
 		auto sectp = act->sector();
 
-		if (act->spr.xrepeat == 0 || sectp == nullptr)
+		if (act->spr.ScaleX() == 0 || sectp == nullptr)
 		{ 
 			deletesprite(act);
 			continue;
@@ -2935,7 +2935,7 @@ static void fireflyflyingeffect(DDukeActor *actor)
 		return;
 	}
 
-	if (Owner->spr.xrepeat >= 24 || Owner->spr.pal == 1)
+	if (Owner->spr.ScaleX() >= 0.375 || Owner->spr.pal == 1)
 		actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 	else
 		actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
@@ -2966,7 +2966,7 @@ void moveexplosions_d(void)  // STATNUM 5
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
-		if (!act->insector() || act->spr.xrepeat == 0) 
+		if (!act->insector() || act->spr.ScaleX() == 0) 
 		{
 			deletesprite(act);
 			continue;

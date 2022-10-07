@@ -2791,7 +2791,7 @@ int ParseState::parse(void)
 		}
 	case concmd_pstomp:
 		insptr++;
-		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.xrepeat >= (isRR()? 9: 40) )
+		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.ScaleX() >= (isRR()? 0.140625 : 0.625) )
 			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), ps[g_p].pos.plusZ(16), ps[g_p].GetActor()->sector()))
 		{
 			ps[g_p].knee_incs = 1;

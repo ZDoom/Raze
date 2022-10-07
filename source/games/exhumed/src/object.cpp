@@ -1465,7 +1465,7 @@ void AISpark::Tick(RunListEvent* ev)
     pActor->spr.shade += 3;
     pActor->spr.xrepeat -= 2;
 
-    if (pActor->spr.xrepeat >= 4 && pActor->spr.shade <= 100)
+    if (pActor->spr.ScaleX() >= 0.0625 && pActor->spr.shade <= 100)
     {
         pActor->spr.yrepeat -= 2;
 

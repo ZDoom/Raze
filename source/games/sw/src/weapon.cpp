@@ -7813,7 +7813,7 @@ int DoPlasmaDone(DSWActor* actor)
     actor->spr.yrepeat -= 4;
     actor->user.Counter += 2;
 
-    if (actor->spr.yrepeat < 6)
+    if (actor->spr.ScaleY() < 0.09375)
     {
         KillActor(actor);
         return 0;
@@ -18325,7 +18325,7 @@ int DoFloorBlood(DSWActor* actor)
     }
 
     // See if any players stepped in blood
-    if (actor->spr.xrepeat != 4 && actor->spr.ScaleY() > 0.0625)
+    if (actor->spr.ScaleX() > 0.0625 && actor->spr.ScaleY() > 0.0625)
     {
         TRAVERSE_CONNECT(pnum)
         {
@@ -18342,11 +18342,11 @@ int DoFloorBlood(DSWActor* actor)
                 }
 
                 // If blood has already grown to max size, we can shrink it
-                if (actor->spr.xrepeat == 40 && actor->spr.ScaleY() > 0.15625)
+                if (actor->spr.ScaleX() == 0.625 && actor->spr.ScaleY() > 0.15625)
                 {
-                    actor->spr.yrepeat -= 10;
-                    if (actor->spr.yrepeat <= 10)  // Shrink it down and don't use it anymore
-                        actor->spr.xrepeat = actor->spr.yrepeat = 4;
+                    actor->spr.AddScaleY(-0.15625);
+                    if (actor->spr.ScaleY() <= 0.15625)  // Shrink it down and don't use it anymore
+						actor->spr.SetScale(0.0625, 0.0625);
                 }
             }
         }

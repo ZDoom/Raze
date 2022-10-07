@@ -2638,7 +2638,7 @@ void SpriteSetup(void)
                     if (!actor->hasU())
                         SpawnUser(actor, ST1, nullptr);
 
-                    if (actor->spr.xrepeat == 64 && actor->spr.yrepeat == 64) // clear default xrepeat.
+                    if (actor->spr.ScaleX() == 1 && actor->spr.ScaleY() == 1) // clear default scale.
                         actor->spr.SetScale(0, 0);
 
                     change_actor_stat(actor, STAT_SPAWN_SPOT);
