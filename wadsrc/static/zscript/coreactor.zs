@@ -20,8 +20,7 @@ class CoreActor native
 	native uint8 pal;
 	native uint8 intclipdist;
 	native uint8 blend;
-	//native uint8 xrepeat;
-	//native uint8 yrepeat;
+	native Vector2 scale;
 	native int8 xoffset;
 	native int8 yoffset;
 	native int16 owner;

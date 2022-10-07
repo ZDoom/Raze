@@ -384,8 +384,8 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		}
 		pNSprite->shade = 127;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->xrepeat = pTSprite->xrepeat;
-		pNSprite->yrepeat = pTSprite->yrepeat>>2;
+		pNSprite->scale.X = pTSprite->scale.X;
+		pNSprite->scale.Y = pTSprite->scale.Y * 0.25;
 		pNSprite->picnum = pTSprite->picnum;
 		if (!VanillaMode() && (pTSprite->type == kThingDroppedLifeLeech)) // fix shadow for thrown lifeleech
 			pNSprite->picnum = 800;

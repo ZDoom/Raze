@@ -450,6 +450,7 @@ struct spritetypebase
 
 	sectortype* sectp;
 	DAngle angle;
+	DVector2 scale;
 
 	ESpriteFlags cstat;
 	int16_t picnum;
@@ -468,8 +469,6 @@ struct spritetypebase
 	uint8_t pal;
 	uint8_t clipdist;
 	uint8_t blend;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
 	int8_t xoffset;
 	int8_t yoffset;
 
@@ -480,71 +479,58 @@ struct spritetypebase
 
 	void SetScale(double x, double y)
 	{
-		xrepeat = uint8_t(x * scaletoint);
-		yrepeat = uint8_t(y * scaletoint);
+		scale = { x, y };
 	}
 
 	void SetScale(const DVector2& p)
 	{
-		xrepeat = uint8_t(p.X * scaletoint);
-		yrepeat = uint8_t(p.Y * scaletoint);
+		scale = p;
 	}
 
 	void SetScaleX(double x)
 	{
-		xrepeat = uint8_t(x * scaletoint);
+		scale.X = x;
 	}
 
 	void SetScaleY(double y)
 	{
-		yrepeat = uint8_t(y * scaletoint);
+		scale.Y = y;
 	}
 
 	void AddScaleX(double x)
 	{
-		xrepeat += uint8_t(x * scaletoint);
+		scale.X += x;
 	}
 
 	void AddScaleY(double y)
 	{
-		yrepeat += uint8_t(y * scaletoint);
+		scale.Y += y;
 	}
 
 	void MultScale(double x)
 	{
-		xrepeat = uint8_t(xrepeat * x);
-		yrepeat = uint8_t(yrepeat * x);
+		scale *= x;
 	}
 
-	void MultScaleX(double x)
-	{
-		xrepeat = uint8_t(xrepeat * x);
-	}
-
-	void MultScaleY(double y)
-	{
-		yrepeat = uint8_t(yrepeat * y);
-	}
 
 	void CopyScale(const spritetypebase* other)
 	{
-		xrepeat = other->xrepeat;
-		yrepeat = other->yrepeat;
+		scale = other->scale;
 	}
 	
 	DVector2 Scale() const
 	{
-		return DVector2(ScaleX(), ScaleY());
+		return scale;
 	}
 
 	double ScaleX() const
 	{
-		return xrepeat  * inttoscale;
+		return scale.X;
 	}
 
 	double ScaleY() const
 	{
-		return yrepeat * inttoscale;
+		return scale.Y;
 	}
 };
 
