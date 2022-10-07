@@ -3730,10 +3730,10 @@ AutoShrap:
             case Vomit1:
                 shrap_bounce = false;
 				actor->spr.pos.Z -= 4;
-                shrap_xsize = 12 + (RANDOM_P2(32<<8)>>8);
-                shrap_ysize = 12 + (RANDOM_P2(32<<8)>>8);
-                actor->user.pos.X = shrap_xsize; // notreallypos
-                actor->user.pos.Y = shrap_ysize;
+                shrap_xsize = (12 + (RANDOM_P2(32<<8)>>8));
+                shrap_ysize = (12 + (RANDOM_P2(32<<8)>>8));
+                actor->user.pos.X = shrap_xsize * REPEAT_SCALE; // notreallypos
+                actor->user.pos.Y = shrap_ysize * REPEAT_SCALE;
                 actor->user.Counter = (RANDOM_P2(2048<<5)>>5);
 
                 move_missile(actor, DVector3(actor->spr.angle.ToVector() * 16, 0), 8, 8, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -3747,8 +3747,8 @@ AutoShrap:
 				actor->spr.pos.Z -= 4;
                 shrap_xsize = 5 + (RANDOM_P2(4<<8)>>8);
                 shrap_ysize = 5 + (RANDOM_P2(4<<8)>>8);
-                actor->user.pos.X = shrap_xsize; // notreallypos
-                actor->user.pos.Y = shrap_ysize;
+                actor->user.pos.X = shrap_xsize * REPEAT_SCALE; // notreallypos
+                actor->user.pos.Y = shrap_ysize * REPEAT_SCALE;
                 break;
             }
 
@@ -3811,8 +3811,8 @@ int DoVomit(DSWActor* actor)
 {
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
     // notreallypos
-    auto v = actor->user.pos + mapangle(actor->user.Counter).ToVector() * 12;
-    actor->spr.SetScale(v * REPEAT_SCALE);
+    auto v = actor->user.pos + mapangle(actor->user.Counter).ToVector() * 12 * REPEAT_SCALE;
+    actor->spr.SetScale(v);
     if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
@@ -3833,8 +3833,7 @@ int DoVomit(DSWActor* actor)
         actor->spr.pos.Z = actor->user.loz;
         actor->user.WaitTics = 60;
         // notreallypos
-        actor->user.pos.X = actor->spr.xrepeat;
-        actor->user.pos.Y = actor->spr.yrepeat;
+        actor->user.pos.XY() = actor->spr.Scale();
         return 0;
     }
 
@@ -17573,8 +17572,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
     double scale = (8 + (RANDOM_P2(8 << 8) >> 8)) * REPEAT_SCALE;
     actorNew->spr.SetScale(scale, scale);
     // notreallypos
-    actorNew->user.pos.X = actorNew->spr.xrepeat;
-    actorNew->user.pos.Y = actorNew->spr.yrepeat;
+    actorNew->user.pos.XY() = actorNew->spr.Scale();
     actorNew->user.ceiling_dist = 1;
     actorNew->user.floor_dist = 1;
     actorNew->spr.shade = actor->sector()->floorshade - 10;
@@ -17684,17 +17682,17 @@ int DoBubble(DSWActor* actor)
         actor->vel.Z = 3;
 
     // notreallypos
-    actor->user.pos.X += 1;
-    actor->user.pos.Y += 1;
+    actor->user.pos.X += REPEAT_SCALE;
+    actor->user.pos.Y += REPEAT_SCALE;
 
-    if (actor->user.pos.X > 32)
+    if (actor->user.pos.X > 0.5)
     {
-        actor->user.pos.X = 32;
-        actor->user.pos.Y = 32;
+        actor->user.pos.X = 0.5;
+        actor->user.pos.Y = 0.5;
     }
 
-    actor->spr.xrepeat = int(actor->user.pos.X) + (RANDOM_P2(8 << 8) >> 8) - 4;
-    actor->spr.yrepeat = int(actor->user.pos.Y) + (RANDOM_P2(8 << 8) >> 8) - 4;
+    actor->spr.SetScaleX(actor->user.pos.X + ((RANDOM_P2(8 << 8) >> 8) - 4) * REPEAT_SCALE);
+    actor->spr.SetScaleY(actor->user.pos.Y + ((RANDOM_P2(8 << 8) >> 8) - 4) * REPEAT_SCALE);
 
     if (actor->spr.pos.Z < actor->sector()->ceilingz)
     {
