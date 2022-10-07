@@ -747,13 +747,13 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	if (pow2size < th) pow2size *= 2;
 	float ypanning = refwall->ypan_ ? pow2size * refwall->ypan_ / (256.0f * th) : 0;
 
-	tcs[LOLFT].u = tcs[UPLFT].u = ((leftdist * 8.f * wal->_xrepeat) + refwall->xpan_) / tw;
-	tcs[LORGT].u = tcs[UPRGT].u = ((rightdist * 8.f * wal->_xrepeat) + refwall->xpan_) / tw;
+	tcs[LOLFT].u = tcs[UPLFT].u = ((leftdist * 8.f * wal->xrepeat) + refwall->xpan_) / tw;
+	tcs[LORGT].u = tcs[UPRGT].u = ((rightdist * 8.f * wal->xrepeat) + refwall->xpan_) / tw;
 
 	auto setv = [=](float hl, float hr, float frac) -> float
 	{
 		float h = hl + (hr - hl) * frac;
-		h = (-(float)((refheight + h) * 256) / ((th * 2048.0f) / (float)(wal->_yrepeat))) + ypanning;
+		h = (-(float)((refheight + h) * 256) / ((th * 2048.0f) / (float)(wal->yrepeat))) + ypanning;
 		if (refwall->cstat & CSTAT_WALL_YFLIP) h = -h;
 		return h;
 	};

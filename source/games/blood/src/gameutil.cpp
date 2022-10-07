@@ -348,7 +348,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 			if (!nSizX || !nSizY)
 				return 0;
 
-			int nnOfs = int((nOfs * pWall->_yrepeat) / 8);
+			int nnOfs = int((nOfs * pWall->yrepeat) / 8);
 			nnOfs += int((nSizY * pWall->ypan_) / 256);
 			double nLength = (pWall->pos - pWall->point2Wall()->pos).Length();
 			double fHOffset;
@@ -357,7 +357,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 			else
 				fHOffset = (gHitInfo.hitpos.XY() - pWall->pos).Length();
 
-			int nHOffset = int(pWall->xpan_ + ((fHOffset * pWall->_xrepeat) * 8) / nLength) % nSizX;
+			int nHOffset = int(pWall->xpan_ + ((fHOffset * pWall->xrepeat) * 8) / nLength) % nSizX;
 			nnOfs %= nSizY;
 			auto pData = tilePtr(nPicnum);
 			int nPixel = nHOffset * nSizY + nnOfs;

@@ -191,8 +191,8 @@ static void ReadWallV7(FileReader& fr, walltype& wall)
 	wall.overpicnum = fr.ReadInt16();
 	wall.shade = fr.ReadInt8();
 	wall.pal = fr.ReadUInt8();
-	wall._xrepeat = fr.ReadUInt8();
-	wall._yrepeat = fr.ReadUInt8();
+	wall.xrepeat = fr.ReadUInt8();
+	wall.yrepeat = fr.ReadUInt8();
 	wall.xpan_ = fr.ReadUInt8();
 	wall.ypan_ = fr.ReadUInt8();
 	wall.lotag = fr.ReadInt16();
@@ -213,8 +213,8 @@ static void ReadWallV6(FileReader& fr, walltype& wall)
 	wall.shade = fr.ReadInt8();
 	wall.pal = fr.ReadUInt8();
 	wall.cstat = EWallFlags::FromInt(fr.ReadUInt16());
-	wall._xrepeat = fr.ReadUInt8();
-	wall._yrepeat = fr.ReadUInt8();
+	wall.xrepeat = fr.ReadUInt8();
+	wall.yrepeat = fr.ReadUInt8();
 	wall.xpan_ = fr.ReadUInt8();
 	wall.ypan_ = fr.ReadUInt8();
 	wall.lotag = fr.ReadInt16();
@@ -232,8 +232,8 @@ static void ReadWallV5(FileReader& fr, walltype& wall)
 	wall.overpicnum = fr.ReadInt16();
 	wall.shade = fr.ReadInt8();
 	wall.cstat = EWallFlags::FromInt(fr.ReadUInt16());
-	wall._xrepeat = fr.ReadUInt8();
-	wall._yrepeat = fr.ReadUInt8();
+	wall.xrepeat = fr.ReadUInt8();
+	wall.yrepeat = fr.ReadUInt8();
 	wall.xpan_ = fr.ReadUInt8();
 	wall.ypan_ = fr.ReadUInt8();
 

@@ -2483,10 +2483,10 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 	case OBJ_WALL:
 		if (!targWall) return;
 		if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
-			targWall->_xrepeat = ClipRange(sourceactor->xspr.data1, 0, 255);
+			targWall->xrepeat = ClipRange(sourceactor->xspr.data1, 0, 255);
 
 		if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
-			targWall->_yrepeat = ClipRange(sourceactor->xspr.data2, 0, 255);
+			targWall->yrepeat = ClipRange(sourceactor->xspr.data2, 0, 255);
 
 		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
 			targWall->xpan_ = (float)ClipRange(sourceactor->xspr.data3, 0, 255);
@@ -3966,9 +3966,9 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((pObj->cstat & EWallFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (pObj->cstat & EWallFlags::FromInt(arg1));
 			case 29: return (arg3) ? condCmp((pObj->hitag & arg3), arg1, arg2, cmpOp) : (pObj->hitag & arg1);
-			case 30: return condCmp(pObj->_xrepeat, arg1, arg2, cmpOp);
+			case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
 			case 31: return condCmp(pObj->xpan(), arg1, arg2, cmpOp);
-			case 32: return condCmp(pObj->_yrepeat, arg1, arg2, cmpOp);
+			case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
 			case 33: return condCmp(pObj->ypan(), arg1, arg2, cmpOp);
 			}
 		}

@@ -3865,8 +3865,8 @@ void destroyit(DDukeActor *actor)
 					destwal->picnum = srcwal->picnum;
 					destwal->overpicnum = srcwal->overpicnum;
 					destwal->shade = srcwal->shade;
-					destwal->_xrepeat = srcwal->_xrepeat;
-					destwal->_yrepeat = srcwal->_yrepeat;
+					destwal->xrepeat = srcwal->xrepeat;
+					destwal->yrepeat = srcwal->yrepeat;
 					destwal->xpan_ = srcwal->xpan_;
 					destwal->ypan_ = srcwal->ypan_;
 					if (isRRRA() && destwal->twoSided())

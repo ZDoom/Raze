@@ -40,8 +40,8 @@ struct FXDATA {
 	int32_t drag; // air drag
 	int32_t defangle;
 	int16_t picnum;
-	uint8_t _xrepeat;
-	uint8_t _yrepeat;
+	uint8_t xrepeat;
+	uint8_t yrepeat;
 	ESpriteFlags cstat;
 	int8_t shade;
 	uint8_t pal;
@@ -171,10 +171,10 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, const DVector3& p
 	actor->spr.shade = pFX->shade;
 	actor->spr.pal = pFX->pal;
 	actor->spr.detail = pFX->detail;
-	if (pFX->_xrepeat > 0)
-		actor->spr.scale.X = (pFX->_xrepeat * REPEAT_SCALE);
-	if (pFX->_yrepeat > 0)
-		actor->spr.scale.Y = (pFX->_yrepeat * REPEAT_SCALE);
+	if (pFX->xrepeat > 0)
+		actor->spr.scale.X = (pFX->xrepeat * REPEAT_SCALE);
+	if (pFX->yrepeat > 0)
+		actor->spr.scale.Y = (pFX->yrepeat * REPEAT_SCALE);
 	if ((pFX->flags & 1) && Chance(0x8000))
 		actor->spr.cstat |= CSTAT_SPRITE_XFLIP;
 	if ((pFX->flags & 2) && Chance(0x8000))

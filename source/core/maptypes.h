@@ -393,8 +393,8 @@ struct walltype
 
 	int8_t shade;
 	uint8_t pal;
-	uint8_t _xrepeat;
-	uint8_t _yrepeat;
+	uint8_t xrepeat;
+	uint8_t yrepeat;
 
 	// extensions not from the binary map format.
 	angle_t clipangle;
