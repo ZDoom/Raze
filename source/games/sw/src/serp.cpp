@@ -718,13 +718,11 @@ int SetupSerp(DSWActor* actor)
     if (actor->spr.pal == 16)
     {
         actor->user.Health = 1000;
-        actor->spr.yrepeat = 74;
-        actor->spr.xrepeat = 74;
+        actor->spr.SetScale(1.15625, 1.15625);
     }
     else
     {
-        actor->spr.yrepeat = 100;
-        actor->spr.xrepeat = 128;
+        actor->spr.SetScale(1.5625, 2);
     }
 
     actor->clipdist = 32;

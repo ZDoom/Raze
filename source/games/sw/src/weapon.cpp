@@ -3419,7 +3419,7 @@ AutoShrap:
             case SHRAP_EXPLOSION:
             {
                 auto spnum = SpawnLargeExp(parentActor);
-                double size = spnum->spr.xrepeat + shrap_delta_size * REPEAT_SCALE;
+                double size = spnum->spr.ScaleX() + shrap_delta_size * REPEAT_SCALE;
                 spnum->spr.SetScale(size, size);
 
                 return false;
@@ -3428,7 +3428,7 @@ AutoShrap:
             case SHRAP_LARGE_EXPLOSION:
             {
                 auto spnum = SpawnLargeExp(parentActor);
-                double size = spnum->spr.xrepeat + shrap_delta_size * REPEAT_SCALE;
+                double size = spnum->spr.ScaleX() + shrap_delta_size * REPEAT_SCALE;
                 spnum->spr.SetScale(size, size);
 
                 InitPhosphorus(spnum);
@@ -4589,7 +4589,7 @@ int DoFireballFlames(DSWActor* actor)
             actor->spr.xrepeat--;
             actor->spr.yrepeat--;
 
-            if (((int8_t)actor->spr.xrepeat) == 0)
+            if (actor->spr.ScaleX() <= 0)
             {
                 if (actor->user.attachActor != nullptr)
                 {
@@ -4667,7 +4667,7 @@ int DoBreakFlames(DSWActor* actor)
             actor->spr.xrepeat--;
             actor->spr.yrepeat--;
 
-            if (((int8_t)actor->spr.xrepeat) == 0)
+            if (actor->spr.ScaleX() <= 0)
             {
                 if (actor->user.attachActor != nullptr)
                 {
@@ -15059,7 +15059,7 @@ int DoCoolgDrip(DSWActor* actor)
     if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
     {
         actor->spr.pos.Z = actor->user.loz - actor->user.floor_dist;
-        actor->spr.yrepeat = actor->spr.xrepeat = 32;
+        actor->spr.SetScale(0.5, 0.5);
         ChangeState(actor, s_GoreFloorSplash);
         if (actor->user.spal == PALETTE_BLUE_LIGHTING)
             PlaySound(DIGI_DRIP, actor, v3df_none);
@@ -15080,7 +15080,7 @@ int InitCoolgDrip(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, COOLG_DRIP, s_CoolgDrip, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.yrepeat = actorNew->spr.xrepeat = 20;
+    actorNew->spr.SetScale(0.3125, 0.3125);
     actorNew->spr.shade = -5;
     actorNew->vel.Z = 0;
     actorNew->clipdist = 1;
@@ -15119,7 +15119,7 @@ int GenerateDrips(DSWActor* actor)
         auto actorNew = SpawnActor(STAT_SHRAP, COOLG_DRIP, s_CoolgDrip, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
         SetOwner(actor, actorNew);
-        actorNew->spr.yrepeat = actorNew->spr.xrepeat = 20;
+        actorNew->spr.SetScale(0.3125, 0.3125);
         actorNew->spr.shade = -10;
         actorNew->vel.Z = 0;
         actorNew->clipdist = 1;
@@ -17570,8 +17570,8 @@ DSWActor* SpawnBubble(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, BUBBLE, s_Bubble, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
 
-    actorNew->spr.xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
-    actorNew->spr.yrepeat = actorNew->spr.xrepeat;
+    double scale = (8 + (RANDOM_P2(8 << 8) >> 8)) * REPEAT_SCALE;
+    actorNew->spr.SetScale(scale, scale);
     // notreallypos
     actorNew->user.pos.X = actorNew->spr.xrepeat;
     actorNew->user.pos.Y = actorNew->spr.yrepeat;

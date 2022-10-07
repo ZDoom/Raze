@@ -840,8 +840,7 @@ int SetupRipper(DSWActor* actor)
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)
     {
         EnemyDefaults(actor, &RipperBrownActionSet, &RipperPersonality);
-        actor->spr.xrepeat = 106;
-        actor->spr.yrepeat = 90;
+        actor->spr.SetScale(1.65625, 1.40625);
 
         if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = HEALTH_MOMMA_RIPPER;

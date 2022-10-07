@@ -5004,7 +5004,7 @@ int DoSpawnItemTeleporterEffect(DSWActor* actor)
     auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), actor->spr.pos.plusZ(-12), actor->spr.angle);
 
     effect->spr.shade = -40;
-    effect->spr.xrepeat = effect->spr.yrepeat = 36;
+    effect->spr.SetScale(0.5625, 0.5625);
     effect->spr.cstat |= CSTAT_SPRITE_YCENTER;
     effect->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     return 0;

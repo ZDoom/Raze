@@ -1350,7 +1350,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     SetActorZ(effectActor, effectActor->spr.pos);
 
     effectActor->spr.shade = -40;
-    effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
+    effectActor->spr.SetScale(0.65625, 0.65625);
     effectActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     effectActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -1372,7 +1372,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     SetActorZ(effectActor, effectActor->spr.pos);
 
     effectActor->spr.shade = -40;
-    effectActor->spr.xrepeat = effectActor->spr.yrepeat = 42;
+    effectActor->spr.SetScale(0.65625, 0.65625);
     effectActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     effectActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 

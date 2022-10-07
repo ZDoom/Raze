@@ -904,13 +904,13 @@ int SetupRipper2(DSWActor* actor)
     actor->user.StateEnd = s_Ripper2Die;
     actor->user.Rot = sg_Ripper2Run;
     actor->clipdist = 32;  // This actor is bigger, needs bigger box.
-    actor->spr.xrepeat = actor->spr.yrepeat = 55;
+    actor->spr.SetScale(0.859375, 0.859375);
 
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)
     {
         EnemyDefaults(actor, &Ripper2BrownActionSet, &Ripper2Personality);
-        actor->spr.xrepeat += 40;
-        actor->spr.yrepeat += 40;
+        actor->spr.AddScaleX(0.625);
+        actor->spr.AddScaleY(0.625);
 
         if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = HEALTH_MOMMA_RIPPER;
