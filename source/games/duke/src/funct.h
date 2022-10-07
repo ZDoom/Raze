@@ -172,7 +172,13 @@ DAngle furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
-DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, int8_t s_xr, int8_t s_yr, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat);
+DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat);
+
+[[deprecated]]
+inline DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, int8_t s_xr, int8_t s_yr, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
+{
+	return CreateActor(whatsectp, pos, s_pn, s_shd, DVector2(s_xr * inttoscale, s_yr * inttoscale), s_ang, s_vel, s_zvel, s_ow, s_stat);
+}
 
 void ceilingglass(DDukeActor* snum, sectortype* sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);

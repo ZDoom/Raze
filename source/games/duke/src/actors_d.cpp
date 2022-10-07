@@ -537,12 +537,12 @@ void lotsofpaper_d(DDukeActor *actor, int n)
 
 void guts_d(DDukeActor* actor, int gtype, int n, int p)
 {
-	int sx, sy;
+	double scale;
 	uint8_t pal;
 
 	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
-		sx = sy = 8;
-	else sx = sy = 32;
+		scale = 0.125;
+	else scale = 0.5;
 
 	double gutz = actor->spr.pos.Z - 8;
 	double floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
@@ -570,7 +570,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 		offs.Y = krandf(16) - 8;
 		offs.X = krandf(16) - 8;
 		// TRANSITIONAL: owned by a player???
-		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, sx, sy, a, vel, zvel, ps[p].GetActor(), 5);
+		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, DVector2(scale, scale), a, vel, zvel, ps[p].GetActor(), 5);
 		if (spawned)
 		{
 			if (spawned->spr.picnum == JIBS2)
@@ -1005,7 +1005,7 @@ static void movefireext(DDukeActor* actor)
 		auto a = randomAngle();
 		auto vel = krandf(4) + 4;
 		auto zvel = -krandf(16) - actor->vel.Z * 0.25;
-		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), SCRAP3 + (krand() & 3), -8, 48, 48, a, vel, zvel, actor, 5);
+		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), SCRAP3 + (krand() & 3), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, 5);
 		if(spawned) spawned->spr.pal = 2;
 	}
 
@@ -1568,7 +1568,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			double zAdd = k * proj->vel.Z / 24;
 			auto spawned = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.angle.ToVector() * k * 2.,
 				FIRELASER, -40 + (k << 2),
-				proj->spr.xrepeat, proj->spr.yrepeat, nullAngle, 0., 0., proj->GetOwner(), 5);
+				proj->spr.Scale(), nullAngle, 0., 0., proj->GetOwner(), 5);
 
 			if (spawned)
 			{
@@ -2101,7 +2101,7 @@ static void greenslime(DDukeActor *actor)
 				auto vel = krandf(2) + 2;
 				auto zvel = 4 - krandf(4);
 
-				auto k = CreateActor(actor->sector(), actor->spr.pos, GLASSPIECES + (j % 3), -32, 36, 36, a, vel, zvel, actor, 5);
+				auto k = CreateActor(actor->sector(), actor->spr.pos, GLASSPIECES + (j % 3), -32, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
 				k->spr.pal = 1;
 			}
 			ps[p].actors_killed++;
@@ -2143,7 +2143,7 @@ static void greenslime(DDukeActor *actor)
 					auto vel = krandf(4) + 4;
 					auto zvel = -krandf(16) - actor->vel.Z * 0.25;
 
-					auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, 48, 48, a, vel, zvel, actor, 5);
+					auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, 5);
 					spawned->spr.pal = 6;
 				}
 
@@ -2255,7 +2255,7 @@ static void greenslime(DDukeActor *actor)
 			auto vel = krandf(4) + 4;
 			auto zvel = -krandf(16) - actor->vel.Z * 0.25;
 
-			auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, 48, 48, a, vel, zvel, actor, 5);
+			auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, 5);
 			if (spawned) spawned->spr.pal = 6;
 		}
 		actor->temp_data[0] = -3;

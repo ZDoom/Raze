@@ -2173,10 +2173,9 @@ int ParseState::parse(void)
 				auto a = randomAngle();
 				auto vel = krandf(8) + 2;
 				auto zvel = -krandf(8);
+				DVector2 scale(0.5 + (krand() & 15) * REPEAT_SCALE, 0.5 + (krand() & 15) * REPEAT_SCALE);
 
-				auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs,
-					dnum + s, g_ac->spr.shade, 32 + (krand() & 15), 32 + (krand() & 15),
-					a, vel, zvel, g_ac, 5);
+				auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs, dnum + s, g_ac->spr.shade, scale, a, vel, zvel, g_ac, 5);
 				if (spawned)
 				{
 					if (weap)

@@ -139,13 +139,13 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			DDukeActor* wpn;
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
-				wpn = CreateActor(hit.hitSector, hit.hitpos, SLINGBLADE, -15, 0, 0, ang, 32., 0., actor, 4);
+				wpn = CreateActor(hit.hitSector, hit.hitpos, SLINGBLADE, -15, DVector2(0, 0), ang, 32., 0., actor, 4);
 				if (!wpn) return;
 				wpn->spr.extra += 50;
 			}
 			else
 			{
-				wpn = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, ang, 32., 0., actor, 4);
+				wpn = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, DVector2(0, 0), ang, 32., 0., actor, 4);
 				if (!wpn) return;
 				wpn->spr.extra += (krand() & 7);
 			}
@@ -301,7 +301,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 10, 10, ang, 0., 0., actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, DVector2(0.15625, 0.15625), ang, 0., 0., actor, 4);
 		if (!spark) return;
 		spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->spr.extra += (krand() % 6);
@@ -427,7 +427,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 	}
 	else
 	{
-		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 24, 24, ang, 0., 0., actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, DVector2(0.375, 0.375), ang, 0., 0., actor, 4);
 		if (!spark) return;
 		spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
@@ -530,46 +530,16 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	}
 
 	double oldzvel = zvel;
-	int sizx, sizy;
+	double scale = p >= 0? 0.109375 : atwith == COOLEXPLOSION1? 0.125 : 0.28125;
 
 	if (atwith == SPIT)
 	{
-		sizx = 18; sizy = 18;
 		if (!isRRRA() || actor->spr.picnum != MAMA) pos.Z -= 10; else pos.Z -= (20 << 8);
 	}
-	else
-	{
-		if (atwith == COOLEXPLOSION1)
-		{
-			sizx = 8;
-			sizy = 8;
-		}
-		else if (atwith == FIRELASER)
-		{
-			if (p >= 0)
-			{
-
-				sizx = 34;
-				sizy = 34;
-			}
-			else
-			{
-				sizx = 18;
-				sizy = 18;
-			}
-		}
-		else
-		{
-			sizx = 18;
-			sizy = 18;
-		}
-	}
-
-	if (p >= 0) sizx = 7, sizy = 7;
 
 	while (scount > 0)
 	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang, vel, zvel, actor, 4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, DVector2(scale, scale), ang, vel, zvel, actor, 4);
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -668,7 +638,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	}
 
 	auto offset = (ang + DAngle1 * 61).ToVector() * (1024 / 448.);
-	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang, vel, zvel, actor, 4);
+	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, DVector2(0.21875, 0.21875), ang, vel, zvel, actor, 4);
 
 	if (!spawned) return;
 	if (isRRRA())
@@ -793,15 +763,11 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 	}
 
 	double oldzvel = zvel;
-	int sizx = 18; 
-	int sizy = 18;
-
-	if (p >= 0) sizx = 7, sizy = 7;
-	else sizx = 8, sizy = 8;
+	double scale = p >= 0? 0.109375 : 0.125;
 
 	while (scount > 0)
 	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang, vel, zvel, actor, 4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, DVector2(scale,scale), ang, vel, zvel, actor, 4);
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -837,9 +803,9 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 
 	ang += DAngle90;
 
-	int size = atwith == CHEERBOMB ? 16 : 32;
+	double size = atwith == CHEERBOMB ? 0.25 : 0.5;
 
-	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, size, size, ang, vel, zvel, actor, 1);
+	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, DVector2(size, size), ang, vel, zvel, actor, 1);
 }
 
 //---------------------------------------------------------------------------
@@ -2746,7 +2712,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel = -4 + p->horizon.sum().Tan() * 10.;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
+			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
 				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (spawned)
@@ -3153,7 +3119,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel = -4 + p->horizon.sum().Tan() * 10.;
 			}
 
-			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, 9, 9, p->angle.ang, vel * 2, zvel, pact, 1);
+			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, DVector2(0.140625, 0.140625), p->angle.ang, vel * 2, zvel, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)

@@ -443,12 +443,12 @@ void lotsoffeathers_r(DDukeActor *actor, int n)
 void guts_r(DDukeActor* actor, int gtype, int n, int p)
 {
 	int j;
-	int sx, sy;
+	double scale;
 	uint8_t pal;
 
 	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
-		sx = sy = 4;
-	else sx = sy = 16;
+		scale = 0.0625;
+	else scale = 0.25;
 
 	double gutz = actor->spr.pos.Z - 8;
 	double floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
@@ -480,7 +480,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 		offs.Y = krandf(16) - 8;
 		offs.X = krandf(16) - 8;
 		// TRANSITIONAL: owned by a player???
-		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, sx, sy, a, vel, zvel, ps[p].GetActor(), 5);
+		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, DVector2(scale, scale), a, vel, zvel, ps[p].GetActor(), 5);
 		if (spawned && pal != 0)
 			spawned->spr.pal = pal;
 	}
@@ -1243,7 +1243,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			double zAdd = k * proj->vel.Z / 24;
 			auto x = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.angle.ToVector() * k * 2.,
 				FIRELASER, -40 + (k << 2),
-				proj->spr.xrepeat, proj->spr.yrepeat, nullAngle, 0., 0., proj->GetOwner(), 5);
+				proj->spr.Scale(), nullAngle, 0., 0., proj->GetOwner(), 5);
 
 			if (x)
 			{
@@ -3124,7 +3124,7 @@ void handle_se06_r(DDukeActor *actor)
 				}
 				if (!hulkspawn)
 				{
-					ns = CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz + 466.5), 3677, -8, 16, 16, nullAngle, 0., 0., actor, 5);
+					ns = CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz + 466.5), 3677, -8, DVector2(0.25, 0.25), nullAngle, 0., 0., actor, 5);
 					if (ns)
 					{
 						ns->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;

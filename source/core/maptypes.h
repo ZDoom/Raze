@@ -525,6 +525,11 @@ struct spritetypebase
 		xrepeat = other->xrepeat;
 		yrepeat = other->yrepeat;
 	}
+	
+	DVector2 Scale() const
+	{
+		return DVector2(ScaleX(), ScaleY());
+	}
 
 	double ScaleX() const
 	{

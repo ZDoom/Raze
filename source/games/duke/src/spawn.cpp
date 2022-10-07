@@ -50,7 +50,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, int8_t s_xr, int8_t s_yr, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
+DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
 {
 	// sector pointer must be strictly validated here or the engine will crash.
 	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
@@ -65,8 +65,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spr.pos = pos;
 	act->spr.picnum = s_pn;
 	act->spr.shade = s_shd;
-	act->spr.xrepeat = s_xr;
-	act->spr.yrepeat = s_yr;
+	act->spr.SetScale(scale.X, scale.Y);
 
 	act->spr.angle = s_ang;
 	act->vel.X = s_vel;

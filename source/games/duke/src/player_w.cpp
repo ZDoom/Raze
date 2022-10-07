@@ -341,7 +341,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				zvel = -4 + p->horizon.sum().Tan() * 10.;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
+			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
 				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (spawned)

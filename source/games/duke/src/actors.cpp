@@ -65,13 +65,13 @@ void RANDOMSCRAP(DDukeActor* origin)
 	offset.Y = krandf(16) - 8;
 	offset.Z = krandf(16) - 8;
 
-	int v = isRR() ? 16 : 48;
+	double v = isRR() ? 0.125 : 0.375;
 
 	auto a = randomAngle();
 	auto vel = krandf(4) + 4;
 	auto zvel = -krandf(8) - 2;
 
-	CreateActor(origin->sector(), origin->spr.pos + offset, TILE_SCRAP6 + (r4 & 15), -8, v, v, a, vel, zvel, origin, 5); 
+	CreateActor(origin->sector(), origin->spr.pos + offset, TILE_SCRAP6 + (r4 & 15), -8, DVector2(v, v), a, vel, zvel, origin, 5);
 }
 
 //---------------------------------------------------------------------------
@@ -268,7 +268,7 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 	{
 		DAngle r1 = randomAngle();
 		double r2 = zrand(47);
-		auto j = CreateActor(actor->sector(), actor->spr.pos.plusZ(-r2), spawntype, -32, 8, 8, r1, 0., 0., actor, 5);
+		auto j = CreateActor(actor->sector(), actor->spr.pos.plusZ(-r2), spawntype, -32, DVector2(0.125, 0.125), r1, 0., 0., actor, 5);
 		if (j) j->spr.cstat = randomFlip();
 	}
 }
@@ -1321,7 +1321,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 		auto pos = actor->spr.pos + actor->spr.angle.ToVector() * 2 * k;
 		pos.Z += k * Sgn(actor->vel.Z) * abs(actor->vel.Z / 12);
 
-		auto q = CreateActor(actor->sector(), pos, tongue, -40 + (k << 1), 8, 8, nullAngle, 0., 0., actor, 5);
+		auto q = CreateActor(actor->sector(), pos, tongue, -40 + (k << 1), DVector2(0.125, 0.125), nullAngle, 0., 0., actor, 5);
 		if (q)
 		{
 			q->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -1331,7 +1331,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	int k = actor->temp_data[0];	// do not depend on the above loop counter.
 	auto pos = actor->spr.pos + actor->spr.angle.ToVector() * 2 * k;
 	pos.Z += k * Sgn(actor->vel.Z) * abs(actor->vel.Z / 12);
-	auto spawned = CreateActor(actor->sector(), pos, jaw, -40, 32, 32, nullAngle, 0., 0., actor, 5);
+	auto spawned = CreateActor(actor->sector(), pos, jaw, -40, DVector2(0.5, 0.5), nullAngle, 0., 0., actor, 5);
 	if (spawned)
 	{
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -2508,11 +2508,11 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 
 void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 {
-	int sx, sy;
+	double scale;
 
 	if (badguy(actor) && actor->spr.ScaleX() < 0.25)
-		sx = sy = 8;
-	else sx = sy = 32;
+		scale = 0.125;
+	else scale = 0.5;
 
 	double gutz = actor->spr.pos.Z - 8;
 	double floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
@@ -2529,7 +2529,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 		auto zvel = -krandf(8) - 2;
 
 		// TRANSITIONAL: owned by a player???
-		CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), gutz), gtype, -32, sx, sy, a, vel, zvel, ps[p].GetActor(), 5);
+		CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), gutz), gtype, -32, DVector2(scale, scale), a, vel, zvel, ps[p].GetActor(), 5);
 	}
 }
 

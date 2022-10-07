@@ -118,15 +118,9 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 		pos.Z += 3;
 	}
 
-	int sizx = 18;
-	int sizy = 18;
-	if (p >= 0)
-	{
-		sizx = 7;
-		sizy = 7;
-	}
+	double scale = p >= 0? 0.109375 : 0.28125;
 
-	auto spawned = CreateActor(actor->sector(), pos, FIREBALL, -127, sizx, sizy, ang, vel, zvel, actor, (short)4);
+	auto spawned = CreateActor(actor->sector(), pos, FIREBALL, -127, DVector2(scale, scale), ang, vel, zvel, actor, (short)4);
 	if (spawned)
 	{
 		spawned->spr.extra += (krand() & 7);
@@ -260,7 +254,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	{
 		if (hit.hitWall || hit.actor())
 		{
-			auto knee = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, 0, 0, ang, 2., 0., actor, 4);
+			auto knee = CreateActor(hit.hitSector, hit.hitpos, KNEE, -15, DVector2(0, 0), ang, 2., 0., actor, 4);
 			if (knee)
 			{
 				knee->spr.extra += (krand() & 7);
@@ -415,7 +409,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 10, 10, ang, 0., 0., actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, DVector2(0.15625, 0.15625), ang, 0., 0., actor, 4);
 		if (!spark) return;
 
 		spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
@@ -535,7 +529,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 	}
 	else
 	{
-		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, 24, 24, ang, 0., 0., actor, 4);
+		spark = CreateActor(hit.hitSector, hit.hitpos, SHOTSPARK1, -15, DVector2(0.375, 0.375), ang, 0., 0., actor, 4);
 		if (spark)
 		{
 			spark->spr.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
@@ -621,41 +615,17 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	}
 
 	double oldzvel = zvel;
-	int sizx, sizy;
-
-	if (atwith == SPIT) 
-	{ 
-		sizx = 18; 
-		sizy = 18;
-		pos.Z -= 10; 
-	}
-	else
+	double scale = p >= 0? 0.109375 : 0.28125;
+	if (atwith == SPIT)
 	{
-		if (atwith == FIRELASER)
-		{
-			if (p >= 0)
-			{
-				sizx = 34;
-				sizy = 34;
-			}
-			else
-			{
-				sizx = 18;
-				sizy = 18;
-			}
-		}
-		else
-		{
-			sizx = 18;
-			sizy = 18;
-		}
+		pos.Z -= 10;
 	}
+	// Whatever else was here always got overridden by the final 'p>=0' check.
 
-	if (p >= 0) sizx = 7, sizy = 7;
 
 	while (scount > 0)
 	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, sizx, sizy, ang, vel, zvel, actor, 4);
+		auto spawned = CreateActor(sect, pos, atwith, -127, DVector2(scale, scale), ang, vel, zvel, actor, 4);
 		if (!spawned) return;
 		spawned->spr.extra += (krand() & 7);
 
@@ -750,7 +720,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	if (p < 0) aimed = nullptr;
 
 	auto offset = (ang + DAngle1 * 61.171875).ToVector() * (1024. / 448.);
-	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang, vel, zvel, actor, 4);
+	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, DVector2(0.21875, 0.21875), ang, vel, zvel, actor, 4);
 
 	if (!spawned) return;
 
@@ -876,7 +846,7 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 
 		if (j == 1)
 		{
-			auto bomb = CreateActor(hit.hitSector, hit.hitpos, TRIPBOMB, -16, 4, 5, ang, 0., 0., actor, STAT_STANDABLE);
+			auto bomb = CreateActor(hit.hitSector, hit.hitpos, TRIPBOMB, -16, DVector2(0.0625, 0.078125), ang, 0., 0., actor, STAT_STANDABLE);
 			if (!bomb) return;
 			if (isWW2GI())
 			{
@@ -976,7 +946,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
-	auto spark = CreateActor(sect, hit.hitpos, GROWSPARK, -16, 28, 28, ang, 0., 0., actor, 1);
+	auto spark = CreateActor(sect, hit.hitpos, GROWSPARK, -16, DVector2(0.4375, 0.4375), ang, 0., 0., actor, 1);
 	if (!spark) return;
 
 	spark->spr.pal = 2;
@@ -1019,7 +989,7 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 		zvel = -4;
 	double vel = x / 16.;
 
-	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, 32, 32, ang, vel, zvel, actor, 1);
+	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, DVector2(0.5, 0.5), ang, vel, zvel, actor, 1);
 }
 
 //---------------------------------------------------------------------------
@@ -1055,7 +1025,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 	else zvel = 0;
 
 	auto spawned = CreateActor(actor->sector(),
-		pos.plusZ(2) + ang.ToVector() * 0.25, SHRINKSPARK, -16, 28, 28, ang, 48., zvel, actor, 4);
+		pos.plusZ(2) + ang.ToVector() * 0.25, SHRINKSPARK, -16, DVector2(0.4375, 0.4375), ang, 48., zvel, actor, 4);
 
 	if (spawned)
 	{
@@ -2235,7 +2205,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				zvel = -4 + p->horizon.sum().Tan() * 10.;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
+			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
 				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (isNam())
