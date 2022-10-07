@@ -631,7 +631,7 @@ int SetupZilla(DSWActor* actor)
     EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
 
     actor->clipdist = 32;
-    actor->spr.SetScale(1.515625, 1.23475);
+    actor->spr.scale = DVector2(1.515625, 1.23475);
 
     return 0;
 }

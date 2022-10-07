@@ -573,22 +573,22 @@ void respawn_rrra(DDukeActor* oldact, DDukeActor* newact)
 	{
 		if (newact->spr.pal == 30)
 		{
-			newact->spr.SetScale(0.40625, 0.40625);
+			newact->spr.scale = DVector2(0.40625, 0.40625);
 			newact->clipdist = 18.75;
 		}
 		else if (newact->spr.pal == 31)
 		{
-			newact->spr.SetScale(0.5625, 0.5625);
+			newact->spr.scale = DVector2(0.5625, 0.5625);
 			newact->clipdist = 25;
 		}
 		else if (newact->spr.pal == 32)
 		{
-			newact->spr.SetScale(0.78125, 0.78125);
+			newact->spr.scale = DVector2(0.78125, 0.78125);
 			newact->clipdist = 25;
 		}
 		else
 		{
-			newact->spr.SetScale(0.78125, 0.78125);
+			newact->spr.scale = DVector2(0.78125, 0.78125);
 			newact->clipdist = 25;
 		}
 	}
@@ -765,14 +765,14 @@ CLEAR_THE_BOLT:
 	}
 	if (actor->spr.scale.X == 0 && actor->spr.scale.Y == 0)
 	{
-		actor->spr.SetScale(actor->temp_pos.X, actor->temp_pos.Y);
+		actor->spr.scale = DVector2(actor->temp_pos.X, actor->temp_pos.Y);
 	}
 	else if ((krand() & 8) == 0)
 	{
 		actor->temp_pos.X = actor->spr.scale.X;
 		actor->temp_pos.Y = actor->spr.scale.Y;
 		actor->temp_data[2] = global_random & 4;
-		actor->spr.SetScale(0, 0);
+		actor->spr.scale = DVector2(0, 0);
 		goto CLEAR_THE_BOLT;
 	}
 	actor->spr.picnum++;
@@ -975,7 +975,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 			if (star)
 			{
 				star->spr.pal = 1;
-				star->spr.SetScale(0.5, 0.5);
+				star->spr.scale = DVector2(0.5, 0.5);
 			}
 
 			deletesprite(proj);
@@ -1079,7 +1079,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 					auto j = spawn(proj, CIRCLESTUCK);
 					if (j)
 					{
-						j->spr.SetScale(0.125, 0.125);
+						j->spr.scale = DVector2(0.125, 0.125);
 						j->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 						j->spr.angle += DAngle90;
 						j->clipdist = proj->spr.scale.X * tileWidth(proj->spr.picnum) * 0.125;
@@ -1281,7 +1281,7 @@ static void weaponcommon_r(DDukeActor *proj)
 				if (spawned)
 				{
 					auto scale = proj->spr.scale.X * 0.5;
-					spawned->spr.SetScale(scale, scale);
+					spawned->spr.scale = DVector2(scale, scale);
 					if (coll.type == kHitSector)
 					{
 						if (proj->vel.Z < 0)
@@ -1334,7 +1334,7 @@ void moveweapons_r(void)
 				if (star)
 				{
 					star->spr.pal = 1;
-					star->spr.SetScale(0.5, 0.5);
+					star->spr.scale = DVector2(0.5, 0.5);
 				}
 				deletesprite(proj);
 				continue;
@@ -3130,7 +3130,7 @@ void handle_se06_r(DDukeActor *actor)
 					{
 						ns->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 						ns->spr.pal = 7;
-						ns->spr.SetScale(1.25, 3.984375);
+						ns->spr.scale = DVector2(1.25, 3.984375);
 					}
 					ns = spawn(actor, 296);
 					if (ns)

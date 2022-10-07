@@ -93,7 +93,7 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
 		auto spawnedactor = actSpawnSprite(actor, 5);
 		spawnedactor->spr.picnum = 2424;
 		spawnedactor->spr.shade = -128;
-		spawnedactor->spr.SetScale(0.5, 0.5);
+		spawnedactor->spr.scale = DVector2(0.5, 0.5);
 		spawnedactor->spr.type = kMissileFlareAlt;
 		spawnedactor->clipdist = 0.5;
 		spawnedactor->SetOwner(actor);
@@ -560,7 +560,7 @@ void sleeveStopBouncing(DBloodActor* actor)
 	}
 
 	actor->spr.type = FX_51;
-	actor->spr.SetScale(0.15625, 0.15625);
+	actor->spr.scale = DVector2(0.15625, 0.15625);
 }
 
 

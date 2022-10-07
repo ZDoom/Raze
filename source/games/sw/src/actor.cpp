@@ -76,14 +76,14 @@ int DoScaleSprite(DSWActor* actor)
             if (scale_value > actor->user.scale_tgt)
                 actor->user.scale_speed = 0;
             else
-				actor->spr.SetScale(scale_value * REPEAT_SCALE, scale_value * REPEAT_SCALE);
+				actor->spr.scale = DVector2(scale_value * REPEAT_SCALE, scale_value * REPEAT_SCALE);
         }
         else
         {
             if (scale_value < actor->user.scale_tgt)
                 actor->user.scale_speed = 0;
             else
-				actor->spr.SetScale(scale_value * REPEAT_SCALE, scale_value * REPEAT_SCALE);
+				actor->spr.scale = DVector2(scale_value * REPEAT_SCALE, scale_value * REPEAT_SCALE);
         }
 
     }

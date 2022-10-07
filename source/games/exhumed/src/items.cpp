@@ -149,7 +149,7 @@ void BuildItemAnim(DExhumedActor* pActor)
     {
         pActor->spr.intowner = -1;
 		double s = nItemAnimInfo[nItem].repeat * REPEAT_SCALE;
-        pActor->spr.SetScale(s, s);
+        pActor->spr.scale = DVector2(s, s);
 	}
 }
 
@@ -457,7 +457,7 @@ void StartRegenerate(DExhumedActor* pActor)
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+    pActor->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
     pActor->spr.pal = 1;
 
     Regenerates.Push(pActor);
@@ -498,7 +498,7 @@ void DoRegenerates()
             }
         }
 
-		pActor->spr.SetScale(s, s);
+		pActor->spr.scale = DVector2(s, s);
         pActor->spr.pal  = (uint8_t)pActor->spr.yint;
         pActor->spr.yint = 0;
         pActor->spr.xint = 0;

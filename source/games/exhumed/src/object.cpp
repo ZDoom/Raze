@@ -1401,7 +1401,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
     pSpark->spr.pal = 1;
     pSpark->spr.xoffset = 0;
     pSpark->spr.yoffset = 0;
-    pSpark->spr.SetScale(0.78125, 0.78125);
+    pSpark->spr.scale = DVector2(0.78125, 0.78125);
 
     if (nVal >= 2)
     {
@@ -1410,7 +1410,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
         if (nVal == 3)
         {
-			pSpark->spr.SetScale(1.875, 1.875);
+			pSpark->spr.scale = DVector2(1.875, 1.875);
         }
         else
         {

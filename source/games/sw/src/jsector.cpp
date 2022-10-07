@@ -664,10 +664,10 @@ void DoAutoSize(tspritetype* tspr)
     case ICON_STAR:                     // 1793
         break;
     case ICON_UZI:                      // 1797
-		tspr->SetScale(0.671875, 0.625);
+		tspr->scale = DVector2(0.671875, 0.625);
         break;
     case ICON_UZIFLOOR:         // 1807
-		tspr->SetScale(0.671875, 0.625);
+		tspr->scale = DVector2(0.671875, 0.625);
         break;
     case ICON_LG_UZI_AMMO:              // 1799
         break;
@@ -682,7 +682,7 @@ void DoAutoSize(tspritetype* tspr)
     case ICON_ROCKET:                   // 1843
         break;
     case ICON_SHOTGUN:                  // 1794
-		tspr->SetScale(0.890625, 0.90625);
+		tspr->scale = DVector2(0.890625, 0.90625);
         break;
     case ICON_LG_ROCKET:                // 1796
         break;
@@ -693,14 +693,14 @@ void DoAutoSize(tspritetype* tspr)
     case ICON_MICRO_BATTERY:            // 1800
         break;
     case ICON_GRENADE_LAUNCHER: // 1817
-		tspr->SetScale(0.84375, 0.8125);
+		tspr->scale = DVector2(0.84375, 0.8125);
         break;
     case ICON_LG_GRENADE:               // 1831
         break;
     case ICON_LG_MINE:                  // 1842
         break;
     case ICON_RAIL_GUN:         // 1811
-		tspr->SetScale(0.78125, 0.84375);
+		tspr->scale = DVector2(0.78125, 0.84375);
         break;
     case ICON_RAIL_AMMO:                // 1812
         break;
@@ -709,21 +709,21 @@ void DoAutoSize(tspritetype* tspr)
     case ICON_MEDKIT:                   // 1803
         break;
     case ICON_CHEMBOMB:
-		tspr->SetScale(1, 0.734375);
+		tspr->scale = DVector2(1, 0.734375);
         break;
     case ICON_FLASHBOMB:
-		tspr->SetScale(0.5, 0.53125);
+		tspr->scale = DVector2(0.5, 0.53125);
         break;
     case ICON_NUKE:
         break;
     case ICON_CALTROPS:
-		tspr->SetScale(0.578125, 0.46875);
+		tspr->scale = DVector2(0.578125, 0.46875);
         break;
     case ICON_BOOSTER:                  // 1810
-		tspr->SetScale(0.46875, 0.59375);
+		tspr->scale = DVector2(0.46875, 0.59375);
         break;
     case ICON_HEAT_CARD:                // 1819
-		tspr->SetScale(0.71875, 0.734375);
+		tspr->scale = DVector2(0.71875, 0.734375);
         break;
     case ICON_REPAIR_KIT:               // 1813
         break;
@@ -736,7 +736,7 @@ void DoAutoSize(tspritetype* tspr)
     case ICON_CLOAK:                    // 1826
         break;
     case ICON_NIGHT_VISION:             // 3031
-		tspr->SetScale(0.921875, 1.109375);
+		tspr->scale = DVector2(0.921875, 1.109375);
         break;
     case ICON_NAPALM:                   // 3046
         break;
@@ -749,7 +749,7 @@ void DoAutoSize(tspritetype* tspr)
     case ICON_GRENADE:                  // 3059
         break;
     case ICON_ARMOR:                    // 3030
-		tspr->SetScale(1.28125, 1.3125);
+		tspr->scale = DVector2(1.28125, 1.3125);
         break;
     case BLUE_KEY:                      // 1766
         break;
@@ -763,17 +763,17 @@ void DoAutoSize(tspritetype* tspr)
     case RED_CARD:
     case GREEN_CARD:
     case YELLOW_CARD:
-		tspr->SetScale(0.5625, 0.5155625);
+		tspr->scale = DVector2(0.5625, 0.5155625);
         break;
     case GOLD_SKELKEY:
     case SILVER_SKELKEY:
     case BRONZE_SKELKEY:
     case RED_SKELKEY:
-		tspr->SetScale(0.609375, 0.703125);
+		tspr->scale = DVector2(0.609375, 0.703125);
         break;
     case SKEL_LOCKED:
     case SKEL_UNLOCKED:
-		tspr->SetScale(0.734375, 0.625);
+		tspr->scale = DVector2(0.734375, 0.625);
         break;
     case RAMCARD_LOCKED:
     case RAMCARD_UNLOCKED:

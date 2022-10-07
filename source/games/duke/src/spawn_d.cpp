@@ -63,17 +63,17 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				if (act->spr.pal != 0)
 				{
 					act->clipdist = 20;
-					act->spr.SetScale(0.625, 0.625);
+					act->spr.scale = DVector2(0.625, 0.625);
 				}
 				else
 				{
-					act->spr.SetScale(1.25, 1.25);
+					act->spr.scale = DVector2(1.25, 1.25);
 					act->clipdist = 41;
 				}
 			}
 			else
 			{
-				act->spr.SetScale(0.625, 0.625);
+				act->spr.scale = DVector2(0.625, 0.625);
 				act->clipdist = 20;
 			}
 
@@ -82,7 +82,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 			if ((act->spr.lotag > ud.player_skill) || ud.monsters_off)
 			{
-				act->spr.SetScale(0, 0);
+				act->spr.scale = DVector2(0, 0);
 				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
@@ -105,7 +105,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case FIREFLYFLYINGEFFECT:
 			act->SetOwner(actj);
 			ChangeActorStat(act, STAT_MISC);
-			act->spr.SetScale(0.25, 0.25);
+			act->spr.scale = DVector2(0.25, 0.25);
 			return act;
 		case LAVAPOOLBUBBLE:
 			if (actj->spr.scale.X < 0.46875)
@@ -114,13 +114,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krandf(32) - 16;
 			act->spr.pos.Y += krandf(32) - 16;
-			act->spr.SetScale(0.25, 0.25);
+			act->spr.scale = DVector2(0.25, 0.25);
 			return act;
 		case WHISPYSMOKE:
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krandf(16) - 8;
 			act->spr.pos.Y += krandf(16) - 8;
-			act->spr.SetScale(0.3125, 0.3125);
+			act->spr.scale = DVector2(0.3125, 0.3125);
 			return act;
 		case SERIOUSSAM:
 			ChangeActorStat(act, 2);
@@ -136,7 +136,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		spawninitdefault(actj, act);
 		break;
 	case FOF:
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		ChangeActorStat(act, STAT_MISC);
 		break;
 	case WATERSPLASH2:
@@ -144,12 +144,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			SetActor(act, actj->spr.pos);
 			double s = 0.125 + (krand() & 7) * REPEAT_SCALE;
-			act->spr.SetScale(s, s);
+			act->spr.scale = DVector2(s, s);
 		}
 		else
 		{
 			double s = 0.25 + (krand() & 15) * REPEAT_SCALE;
-			act->spr.SetScale(s, s);
+			act->spr.scale = DVector2(s, s);
 		}
 
 		act->spr.shade = -16;
@@ -223,14 +223,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.scale = actj->spr.scale;
 			act->temp_data[1] = actj->spr.picnum;
 		}
-		else act->spr.SetScale(0, 0);
+		else act->spr.scale = DVector2(0, 0);
 
 		ChangeActorStat(act, STAT_MISC);
 
 		break;
 
 	case LASERLINE:
-		act->spr.SetScale(0.5, 0.09375);
+		act->spr.scale = DVector2(0.5, 0.09375);
 
 		if (gs.lasermode == 1)
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_TRANSLUCENT;
@@ -238,7 +238,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 		else
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 		}
 
 		if (actj) act->spr.angle = actj->temp_angle + DAngle90;
@@ -253,13 +253,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		break;
 
 	case BLOOD:
-		act->spr.SetScale(0.25, 0.25);
+		act->spr.scale = DVector2(0.25, 0.25);
 		act->spr.pos.Z -= 26;
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
@@ -298,7 +298,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case FECES:
 		if (actj)
-			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
@@ -319,12 +319,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TRIPBOMB:
 		if (act->spr.lotag > ud.player_skill)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 
-		act->spr.SetScale(0.0625, 0.078125);
+		act->spr.scale = DVector2(0.0625, 0.078125);
 
 		act->SetOwner(act);
 		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
@@ -427,7 +427,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SIGN2:
 		if (ud.multimode < 2 && act->spr.pal)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		else act->spr.pal = 0;
@@ -518,7 +518,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum == RESPAWNMARKERRED)
 		{
-			act->spr.SetScale(0.375, 0.375);
+			act->spr.scale = DVector2(0.375, 0.375);
 			if (actj) act->spr.pos.Z = actj->floorz; // -(1<<4);
 		}
 		else
@@ -538,7 +538,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SPOTLITE:
 		break;
 	case BULLETHOLE:
-		act->spr.SetScale(0.046875, 0.046875);
+		act->spr.scale = DVector2(0.046875, 0.046875);
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
 		[[fallthrough]];
@@ -549,7 +549,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->temp_data[0] = krand() & 2047;
 			act->spr.cstat = randomFlip();
-			act->spr.SetScale(0.125, 0.125);
+			act->spr.scale = DVector2(0.125, 0.125);
 			act->spr.angle = randomAngle();
 		}
 		ChangeActorStat(act, STAT_MISC);
@@ -574,7 +574,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MUSICANDSFX:
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -604,22 +604,22 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum == EXPLOSION2 || act->spr.picnum == EXPLOSION2BOT)
 		{
-			act->spr.SetScale(0.75, 0.75);
+			act->spr.scale = DVector2(0.75, 0.75);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
 		else if (act->spr.picnum == SHRINKEREXPLOSION)
 		{
-			act->spr.SetScale(0.5, 0.5);
+			act->spr.scale = DVector2(0.5, 0.5);
 		}
 		else if (act->spr.picnum == SMALLSMOKE || act->spr.picnum == ONFIRE)
 		{
 			// 64 "money"
-			act->spr.SetScale(0.375, 0.375);
+			act->spr.scale = DVector2(0.375, 0.375);
 		}
 		else if (act->spr.picnum == BURNING || act->spr.picnum == BURNING2)
 		{
-			act->spr.SetScale(0.0625, 0.0625);
+			act->spr.scale = DVector2(0.0625, 0.0625);
 		}
 
 		if (actj)
@@ -654,7 +654,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case APLAYER:
 	{
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		int j = ud.coop;
 		if (j == 2) j = 0;
 
@@ -671,9 +671,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj)
 				act->spr.angle = actj->spr.angle;
-			act->spr.SetScale(0.0625, 0.0625);
+			act->spr.scale = DVector2(0.0625, 0.0625);
 		}
-		else act->spr.SetScale(0.5, 0.5);
+		else act->spr.scale = DVector2(0.5, 0.5);
 
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -693,7 +693,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case WATERDRIPSPLASH:
 
-		act->spr.SetScale(0.375, 0.375);
+		act->spr.scale = DVector2(0.375, 0.375);
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
@@ -709,7 +709,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (act->spr.pal && ud.multimode > 1)
 			{
-				act->spr.SetScale(0, 0);
+				act->spr.scale = DVector2(0, 0);
 				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
@@ -719,7 +719,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				|| (act->spr.pal == 2 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop != 1))) // Co-op Only
 				|| (act->spr.pal == 3 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop == 1)))) // Dukematch Only
 			{
-				act->spr.SetScale(0, 0);
+				act->spr.scale = DVector2(0, 0);
 				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
@@ -820,11 +820,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.pal && (!isWorldTour() || !(currentLevel->flags & LEVEL_WT_BOSSSPAWN) || act->spr.pal != 22))
 			{
 				act->clipdist = 20;
-				act->spr.SetScale(0.625, 0.625);
+				act->spr.scale = DVector2(0.625, 0.625);
 			}
 			else
 			{
-				act->spr.SetScale(1.25, 1.25);
+				act->spr.scale = DVector2(1.25, 1.25);
 				act->clipdist = 41;
 			}
 		}
@@ -832,12 +832,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (act->spr.picnum != SHARK)
 			{
-				act->spr.SetScale(0.625, 0.625);
+				act->spr.scale = DVector2(0.625, 0.625);
 				act->clipdist = 20;
 			}
 			else
 			{
-				act->spr.SetScale(0.9375, 0.9375);
+				act->spr.scale = DVector2(0.9375, 0.9375);
 				act->clipdist = 10;
 			}
 		}
@@ -846,7 +846,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if ((act->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -857,7 +857,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.picnum == RAT)
 			{
 				act->spr.angle = randomAngle();
-				act->spr.SetScale(0.75, 0.75);
+				act->spr.scale = DVector2(0.75, 0.75);
 				act->spr.cstat = 0;
 			}
 			else
@@ -921,7 +921,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		double j = ((act->floorz - act->ceilingz) / 128.);
 
-		act->spr.SetScale(max(0., 0.390625 - j * 0.5), j);
+		act->spr.scale = DVector2(max(0., 0.390625 - j * 0.5), j);
 		if (krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
 
 		break;
@@ -930,7 +930,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj) act->SetOwner(actj);
 		else act->SetOwner(act);
 
-		act->spr.SetScale(0.140625, 0.140625);
+		act->spr.scale = DVector2(0.140625, 0.140625);
 		act->spr.yint = 4;
 		[[fallthrough]];
 	case REACTOR2:
@@ -992,7 +992,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if ((ud.multimode < 2 && act->spr.pal != 0) || (act->spr.lotag > ud.player_skill))
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1007,15 +1007,15 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == ACCESSCARD)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 		else
 		{
 			if (act->spr.picnum == AMMO)
-				act->spr.SetScale(0.25, 0.25);
-			else act->spr.SetScale(0.5, 0.5);
+				act->spr.scale = DVector2(0.25, 0.25);
+			else act->spr.scale = DVector2(0.5, 0.5);
 		}
 
 		act->spr.shade = -17;
@@ -1050,7 +1050,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BOUNCEMINE:
 		act->SetOwner(act);
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL; //Make it hitable
-		act->spr.SetScale(0.375, 0.375);
+		act->spr.scale = DVector2(0.375, 0.375);
 		act->spr.shade = -127;
 		act->spr.extra = gs.impact_damage << 2;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
@@ -1072,7 +1072,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1086,7 +1086,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->spr.angle = actj->spr.angle;
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 			act->vel.X = -0.5;
 			ssp(act, CLIPMASK0);
 		}
@@ -1108,7 +1108,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.scale.X <= 0.125)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 		}
 		else act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.extra = gs.impact_damage << 2;
@@ -1134,7 +1134,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1170,7 +1170,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case WOODENHORSE:
 
 		if (actj)
-			act->spr.SetScale(0.5, 0.5);
+			act->spr.scale = DVector2(0.5, 0.5);
 		act->clipdist = 18;
 		makeitfall(act);
 		if (actj) act->SetOwner(actj);
@@ -1180,7 +1180,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case EGG:
 		if (ud.monsters_off == 1 && act->spr.picnum == EGG)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		else

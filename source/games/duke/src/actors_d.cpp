@@ -839,7 +839,7 @@ static void movetripbomb(DDukeActor *actor)
 			while (auto a1 = it.Next())
 			{
 				if (a1->spr.picnum == LASERLINE && actor->spr.hitag == a1->spr.hitag)
-					a1->spr.SetScale(0, 0);
+					a1->spr.scale = DVector2(0, 0);
 			}
 			deletesprite(actor);
 		}
@@ -1083,14 +1083,14 @@ CLEAR_THE_BOLT2:
 	}
 	if ((actor->spr.scale.X == 0 && actor->spr.scale.Y) == 0)
 	{
-		actor->spr.SetScale(actor->temp_pos.X, actor->temp_pos.Y);
+		actor->spr.scale = DVector2(actor->temp_pos.X, actor->temp_pos.Y);
 	}
 	if ((krand() & 8) == 0)
 	{
 		actor->temp_pos.X = actor->spr.scale.X;
 		actor->temp_pos.Y = actor->spr.scale.Y;
 		actor->temp_data[2] = global_random & 4;
-		actor->spr.SetScale(0, 0);
+		actor->spr.scale = DVector2(0, 0);
 		goto CLEAR_THE_BOLT2;
 	}
 	actor->spr.picnum++;
@@ -1128,14 +1128,14 @@ CLEAR_THE_BOLT:
 	}
 	if (actor->spr.scale.X == 0 && actor->spr.scale.Y == 0)
 	{
-		actor->spr.SetScale(actor->temp_pos.X, actor->temp_pos.Y);
+		actor->spr.scale = DVector2(actor->temp_pos.X, actor->temp_pos.Y);
 	}
 	else if ((krand() & 8) == 0)
 	{
 		actor->temp_pos.X = actor->spr.scale.X;
 		actor->temp_pos.Y = actor->spr.scale.Y;
 		actor->temp_data[2] = global_random & 4;
-		actor->spr.SetScale(0, 0);
+		actor->spr.scale = DVector2(0, 0);
 		goto CLEAR_THE_BOLT;
 	}
 	actor->spr.picnum++;
@@ -1323,7 +1323,7 @@ static bool movefireball(DDukeActor* actor)
 					}
 				}
 				double scale = actor->spr.scale.X * siz;
-				ball->spr.SetScale(scale, scale);
+				ball->spr.scale = DVector2(scale, scale);
 				ball->spr.cstat = actor->spr.cstat;
 				ball->spr.extra = 0;
 
@@ -1355,7 +1355,7 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 			if (spawned)
 			{
 				spawned->spr.pal = 1;
-				spawned->spr.SetScale(0.5, 0.5);
+				spawned->spr.scale = DVector2(0.5, 0.5);
 			}
 
 			deletesprite(proj);
@@ -1627,7 +1627,7 @@ static void weaponcommon_d(DDukeActor* proj)
 				if (spawned)
 				{
 					auto scale = proj->spr.scale.X * 0.5;
-					spawned->spr.SetScale(scale,scale);
+					spawned->spr.scale = DVector2(scale,scale);
 					if (coll.type == kHitSector)
 					{
 						if (proj->vel.Z < 0)
@@ -1644,7 +1644,7 @@ static void weaponcommon_d(DDukeActor* proj)
 				if (spawned)
 				{
 					auto scale = proj->spr.scale.X * 0.5;
-					spawned->spr.SetScale(scale,scale);
+					spawned->spr.scale = DVector2(scale,scale);
 				}
 			}
 		}
@@ -1702,7 +1702,7 @@ void moveweapons_d(void)
 				if (spawned)
 				{
 					spawned->spr.pal = 1;
-					spawned->spr.SetScale(0.5, 0.5);
+					spawned->spr.scale = DVector2(0.5, 0.5);
 				}
 				deletesprite(act);
 				continue;
@@ -2215,7 +2215,7 @@ static void greenslime(DDukeActor *actor)
 		}
 
 		double add = (BobVal(actor->temp_data[1]) * 2) * REPEAT_SCALE;
-		actor->spr.SetScale(0.3125 + add, 0.234375 + add);
+		actor->spr.scale = DVector2(0.3125 + add, 0.234375 + add);
 		actor->spr.pos.XY() = ps[p].pos.XY() + ps[p].angle.ang.ToVector() * 8;
 		return;
 	}
@@ -2279,7 +2279,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->spr.scale.Y > 0.25 ) actor->spr.scale.Y += (-(krand() & 7) * REPEAT_SCALE);
 		else
 		{
-			actor->spr.SetScale(0.625, 0.25);
+			actor->spr.scale = DVector2(0.625, 0.25);
 			actor->temp_actor = nullptr;
 			actor->temp_data[0] = 0;
 		}

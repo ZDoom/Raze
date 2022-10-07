@@ -718,11 +718,11 @@ int SetupSerp(DSWActor* actor)
     if (actor->spr.pal == 16)
     {
         actor->user.Health = 1000;
-        actor->spr.SetScale(1.15625, 1.15625);
+        actor->spr.scale = DVector2(1.15625, 1.15625);
     }
     else
     {
-        actor->spr.SetScale(1.5625, 2);
+        actor->spr.scale = DVector2(1.5625, 2);
     }
 
     actor->clipdist = 32;

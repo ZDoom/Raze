@@ -112,7 +112,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.pal = pActor->sector()->ceilingpal;
 	pActor->clipdist = 7.5;
     pActor->spr.angle = nAngle;
-    pActor->spr.SetScale(0.78125, 0.78125);
+    pActor->spr.scale = DVector2(0.78125, 0.78125);
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;

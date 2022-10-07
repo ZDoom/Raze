@@ -513,7 +513,7 @@ void CoolgCommon(DSWActor* actor)
 
     actor->user.pos.Z = actor->spr.pos.Z;
 
-	actor->spr.SetScale(0.65625, 0.65625);
+	actor->spr.scale = DVector2(0.65625, 0.65625);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 }
 

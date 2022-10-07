@@ -63,7 +63,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case DEVELOPERCOMMENTARY:
 		case DEVELOPERCOMMENTARY + 1:
 			if (isWorldTour() && !wt_commentary)
-				t->SetScale(0, 0);
+				t->scale = DVector2(0, 0);
 			break;
 		case BLOODPOOL:
 		case PUKE:
@@ -77,7 +77,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case RESPAWNMARKERYELLOW:
 		case RESPAWNMARKERGREEN:
 			if (ud.marker == 0)
-				t->SetScale(0, 0);
+				t->scale = DVector2(0, 0);
 			continue;
 		case CHAIR3:
 			if (hw_models && modelManager.CheckModel(t->picnum, t->pal)) 
@@ -154,7 +154,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->cstat |= CSTAT_SPRITE_YCENTER;
 			}
 			else
-				t->SetScale(0, 0);
+				t->scale = DVector2(0, 0);
 			break;
 		case NATURALLIGHTNING:
 			t->shade = -127;
@@ -211,7 +211,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					double dist1 = (OwnerAc->spr.pos.XY() - t->pos.XY()).LengthSquared();
 					double dist2 = (OwnerAc->spr.pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).LengthSquared();
 					if (dist1 < dist2)
-						t->SetScale(0, 0);
+						t->scale = DVector2(0, 0);
 				}
 			}
 			continue;
@@ -220,7 +220,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
 			{
 				if (display_mirror == 0 && OwnerAc->PlayerIndex() == screenpeek && ps[screenpeek].over_shoulder_on == 0)
-					t->SetScale(0, 0);
+					t->scale = DVector2(0, 0);
 				else
 				{
 					t->angle = (viewVec - t->pos.XY()).Angle();
@@ -350,11 +350,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else newtspr->pos.Z = h->spr.pos.Z - 51;
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
-					newtspr->SetScale(0.15625, 0.15625);
+					newtspr->scale = DVector2(0.15625, 0.15625);
 				}
 				else
 				{
-					newtspr->SetScale(0.25, 0.25);
+					newtspr->scale = DVector2(0.25, 0.25);
 				}
 				newtspr->pal = 0;
 			}
@@ -406,7 +406,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
 					{
 						t->ownerActor = nullptr;
-						t->SetScale(0, 0);
+						t->scale = DVector2(0, 0);
 						continue;
 					}
 
@@ -726,7 +726,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		h->dispicnum = t->picnum;
 		if (t->sectp->floorpicnum == MIRROR)
-			t->SetScale(0, 0);
+			t->scale = DVector2(0, 0);
 	}
 }
 

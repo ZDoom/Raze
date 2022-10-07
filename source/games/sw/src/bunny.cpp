@@ -752,7 +752,7 @@ int SetupBunny(DSWActor* actor)
     {
         EnemyDefaults(actor, &BunnyWhiteActionSet, &WhiteBunnyPersonality);
         actor->user.Attrib = &WhiteBunnyAttrib;
-        actor->spr.SetScale(1.5, 1.40625);
+        actor->spr.scale = DVector2(1.5, 1.40625);
 
         actor->clipdist = 12.5;
 
@@ -1144,7 +1144,7 @@ void BunnyHatch(DSWActor* actor)
     {
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
         actorNew->spr.pos = actor->spr.pos;
-		actorNew->spr.SetScale(0.46875, 0.375);  // Baby size
+		actorNew->spr.scale = DVector2(0.46875, 0.375);  // Baby size
         actorNew->spr.angle = RandomAngle();
         actorNew->spr.pal = 0;
         SetupBunny(actorNew);
@@ -1204,7 +1204,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 {
     auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
     actorNew->spr.pos = actor->spr.pos;
-	actorNew->spr.SetScale(0.46875, 0.375);  // Baby size
+	actorNew->spr.scale = DVector2(0.46875, 0.375);  // Baby size
     actorNew->spr.angle = RandomAngle();
     actorNew->spr.pal = 0;
     SetupBunny(actorNew);
@@ -1231,7 +1231,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     if (TEST_BOOL3(actor))
     {
         PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
-        actorNew->spr.SetScale(1, 1);
+        actorNew->spr.scale = DVector2(1, 1);
         actorNew->vel.X = 9.375 + RandomRangeF(62.5);
         actorNew->user.Health = 1; // Easy to pop. Like shootn' skeet.
 		actorNew->spr.angle += RandomAngle(22.5) - RandomAngle(22.5);

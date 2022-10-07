@@ -1380,7 +1380,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 									spawned->spr.pal = 6;
 								spawned->spr.pos.Z += 4;
 								spawned->vel.X = 1;
-								spawned->spr.SetScale(0.375, 0.375);
+								spawned->spr.scale = DVector2(0.375, 0.375);
 								spawned->spr.angle = DAngle22_5 / 4 - randomAngle(22.5 / 2);
 							}
 						}

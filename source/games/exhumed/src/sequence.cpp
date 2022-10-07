@@ -690,7 +690,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
             pTSprite->pos.Z = pSector->floorz;
-			pTSprite->SetScale(edx * REPEAT_SCALE, edx * REPEAT_SCALE);
+			pTSprite->scale = DVector2(edx * REPEAT_SCALE, edx * REPEAT_SCALE);
             pTSprite->statnum = -3;
             pTSprite->pal = 0;
         }

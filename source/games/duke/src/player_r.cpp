@@ -312,7 +312,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			{
 				if (hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY)
 				{
-					spark->spr.SetScale(0, 0);
+					spark->spr.scale = DVector2(0, 0);
 					return;
 				}
 				else
@@ -330,12 +330,12 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
 			{
 				auto jib = spawn(spark, JIBS6);
-				spark->spr.SetScale(0, 0);
+				spark->spr.scale = DVector2(0, 0);
 				if (jib)
 				{
 					jib->spr.pos.Z += 4;
 					jib->vel.X = 1;
-					jib->spr.SetScale(0.375, 0.375);
+					jib->spr.scale = DVector2(0.375, 0.375);
 					jib->spr.angle += DAngle22_5 / 2 - randomAngle(22.5);
 				}
 			}
@@ -436,7 +436,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			fi.checkhitsprite(hit.actor(), spark);
 			if (!hit.actor()->isPlayer())
 				spawn(spark, SMALLSMOKE);
-			else spark->spr.SetScale(0, 0);
+			else spark->spr.scale = DVector2(0, 0);
 		}
 		else if (hit.hitWall != nullptr)
 			fi.checkhitwall(spark, hit.hitWall, hit.hitpos, SHOTSPARK1);
@@ -550,7 +550,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 		if (atwith == FIRELASER)
 		{
-			spawned->spr.SetScale(0.125, 0.125);
+			spawned->spr.scale = DVector2(0.125, 0.125);
 		}
 
 		scount--;
@@ -670,11 +670,11 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	{
 		if (actor->spr.picnum == HULK)
 		{
-			spawned->spr.SetScale(0.125, 0.125);
+			spawned->spr.scale = DVector2(0.125, 0.125);
 		}
 		else if (atwith != FREEZEBLAST)
 		{
-			spawned->spr.SetScale(0.46875, 0.46875);
+			spawned->spr.scale = DVector2(0.46875, 0.46875);
 			spawned->spr.extra >>= 2;
 		}
 	}
@@ -2316,7 +2316,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		if (j)
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
-			j->spr.SetScale(0.046875, 0.03125);
+			j->spr.scale = DVector2(0.046875, 0.03125);
 			j->spr.pos.Z = p->pos.Z + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}
@@ -2463,7 +2463,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 					{
 						if (victim->spr.lotag == act2->spr.lotag)
 						{
-							act2->spr.SetScale(0, 0);
+							act2->spr.scale = DVector2(0, 0);
 						}
 					}
 				}
@@ -2474,7 +2474,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		else
 			fi.guts(victim, RRTILE2465, 3, myconnectindex);
 		fi.guts(victim, RRTILE2465, 3, myconnectindex);
-		victim->spr.SetScale(0, 0);
+		victim->spr.scale = DVector2(0, 0);
 	}
 }
 

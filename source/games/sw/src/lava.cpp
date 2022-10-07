@@ -474,7 +474,7 @@ int SetupLava(DSWActor* actor)
     actor->user.Rot = sg_LavaRun;
 
     EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
-	actor->spr.SetScale(1.71875, 1.71875);
+	actor->spr.scale = DVector2(1.71875, 1.71875);
     actor->clipdist = 32;
     actor->user.Flags |= (SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 

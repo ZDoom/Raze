@@ -504,7 +504,7 @@ int SetupCoolie(DSWActor* actor)
 
     EnemyDefaults(actor, &CoolieActionSet, &CooliePersonality);
 
-    actor->spr.SetScale(0.65625, 0.65625);
+    actor->spr.scale = DVector2(0.65625, 0.65625);
 
     actor->user.Flags |= (SPR_XFLIP_TOGGLE);
 

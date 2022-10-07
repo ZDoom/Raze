@@ -299,7 +299,7 @@ void RestartPlayer(int nPlayer)
 		floorsprt = insertActor(pActor->sector(), 0);
 
 		floorsprt->spr.pos = pActor->spr.pos;
-		floorsprt->spr.SetScale(1, 1);
+		floorsprt->spr.scale = DVector2(1, 1);
 		floorsprt->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		floorsprt->spr.picnum = nPlayer + kTile3571;
 	}
@@ -322,7 +322,7 @@ void RestartPlayer(int nPlayer)
 	pActor->spr.shade = -12;
 	pActor->clipdist = 14.5;
 	pActor->spr.pal = 0;
-	pActor->spr.SetScale(0.625, 0.625);
+	pActor->spr.scale = DVector2(0.625, 0.625);
 	pActor->spr.xoffset = 0;
 	pActor->spr.yoffset = 0;
 	pActor->spr.picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);

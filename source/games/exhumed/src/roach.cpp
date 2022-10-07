@@ -62,7 +62,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     pActor->spr.pal = pActor->sector()->ceilingpal;
 	pActor->clipdist = 15;
     pActor->spr.angle = angle;
-    pActor->spr.SetScale(0.625, 0.625);
+    pActor->spr.scale = DVector2(0.625, 0.625);
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;

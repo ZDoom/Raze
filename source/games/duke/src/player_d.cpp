@@ -126,7 +126,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 		spawned->spr.extra += (krand() & 7);
 		if (actor->spr.picnum == BOSS5 || p >= 0)
 		{
-			spawned->spr.SetScale(0.625, 0.625);
+			spawned->spr.scale = DVector2(0.625, 0.625);
 		}
 		spawned->spr.yint = p;
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -204,7 +204,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	spawned->setsector(actor->sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 	spawned->spr.angle = sang;
-	spawned->spr.SetScale(0.03125, 0.03125);
+	spawned->spr.scale = DVector2(0.03125, 0.03125);
 	spawned->clipdist = 10;
 	spawned->spr.yint = p;
 	spawned->SetOwner(actor);
@@ -214,7 +214,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		if (actor->spr.picnum == BOSS5)
 		{
 			spawned->spr.pos += sang.ToVector() * (128. / 7);
-			spawned->spr.SetScale(0.15625, 0.15625);
+			spawned->spr.scale = DVector2(0.15625, 0.15625);
 		}
 	}
 }
@@ -421,7 +421,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			{
 				if (hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY)
 				{
-					spark->spr.SetScale(0, 0);
+					spark->spr.scale = DVector2(0, 0);
 					return;
 				}
 				else
@@ -435,13 +435,13 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			fi.checkhitsprite(hit.actor(), spark);
 			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
 			{
-				spark->spr.SetScale(0, 0);
+				spark->spr.scale = DVector2(0, 0);
 				auto jib = spawn(spark, JIBS6);
 				if (jib)
 				{
 					jib->spr.pos.Z += 4;
 					jib->vel.X = 1;
-					jib->spr.SetScale(0.375, 0.375);
+					jib->spr.scale = DVector2(0.375, 0.375);
 					jib->spr.angle += DAngle22_5 / 2 - randomAngle(22.5);
 				}
 			}
@@ -539,7 +539,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 				fi.checkhitsprite(hit.actor(), spark);
 				if (!hit.actor()->isPlayer())
 					spawn(spark, SMALLSMOKE);
-				else spark->spr.SetScale(0, 0);
+				else spark->spr.scale = DVector2(0, 0);
 			}
 			else if (hit.hitWall)
 				fi.checkhitwall(spark, hit.hitWall, hit.hitpos, SHOTSPARK1);
@@ -757,7 +757,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			spawned->spr.pos += spawnofs;
 			spawned->spr.angle += aoffs;
 
-			spawned->spr.SetScale(0.65625, 0.65625);
+			spawned->spr.scale = DVector2(0.65625, 0.65625);
 		}
 		else if (actor->spr.picnum == BOSS2)
 		{
@@ -773,11 +773,11 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			spawned->spr.pos += spawnofs;
 			spawned->spr.angle += aoffs;
 
-			spawned->spr.SetScale(0.375, 0.375);
+			spawned->spr.scale = DVector2(0.375, 0.375);
 		}
 		else if (atwith != FREEZEBLAST)
 		{
-			spawned->spr.SetScale(0.46875, 0.46875);
+			spawned->spr.scale = DVector2(0.46875, 0.46875);
 			spawned->spr.extra >>= 2;
 		}
 	}
@@ -950,7 +950,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 
 	spark->spr.pal = 2;
 	spark->spr.cstat |= CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-	spark->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+	spark->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 
 	if (hit.hitWall == nullptr && hit.actor() == nullptr && hit.hitSector != nullptr)
 	{
@@ -1991,7 +1991,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		if (j)
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
-			j->spr.SetScale(0.046875, 0.3125);
+			j->spr.scale = DVector2(0.046875, 0.3125);
 			j->spr.pos.Z = p->pos.Z + 8;
 		}
 	}

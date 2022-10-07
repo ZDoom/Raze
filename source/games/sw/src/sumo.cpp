@@ -628,13 +628,13 @@ int SetupSumo(DSWActor* actor)
     if (actor->spr.pal == 16)
     {
         // Mini Sumo
-        actor->spr.SetScale(0.671875, 0.453125);
+        actor->spr.scale = DVector2(0.671875, 0.453125);
         actor->user.ActorActionSet = &MiniSumoActionSet;
         actor->user.Health = 500;
     }
     else
     {
-        actor->spr.SetScale(1.796875, 1.171875);
+        actor->spr.scale = DVector2(1.796875, 1.171875);
     }
 
     //actor->user.Flags |= (SPR_XFLIP_TOGGLE);

@@ -61,7 +61,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 	pActor->clipdist = 17.5;
     pActor->spr.shade = -12;
-	pActor->spr.SetScale(1.25, 1.25);
+	pActor->spr.scale = DVector2(1.25, 1.25);
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;

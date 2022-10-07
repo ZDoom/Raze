@@ -58,7 +58,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->spr.pal = 0;
     pChunkActor->vel.X = ((RandomSize(5) - 16) << 4);
     pChunkActor->vel.Y = ((RandomSize(5) - 16) << 4);
-    pChunkActor->spr.SetScale(1, 1);
+    pChunkActor->spr.scale = DVector2(1, 1);
     pChunkActor->spr.xoffset = 0;
     pChunkActor->spr.yoffset = 0;
     pChunkActor->vel.Z = ((-(RandomByte() + 512)) * 2) / 256.;
@@ -175,7 +175,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     pActor->spr.shade = -12;
     pActor->clipdist = 20;
-    pActor->spr.SetScale(0.625, 0.625);
+    pActor->spr.scale = DVector2(0.625, 0.625);
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;

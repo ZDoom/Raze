@@ -65,7 +65,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
-	pActor->spr.SetScale(1.359375, 1.5);
+	pActor->spr.scale = DVector2(1.359375, 1.5);
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
@@ -108,7 +108,7 @@ void BuildSoul(DExhumedActor* pSet)
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     pActor->spr.shade = -127;
-    pActor->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+    pActor->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
     pActor->spr.pal = 0;
 	pActor->clipdist = 1.25;
     pActor->spr.xoffset = 0;
@@ -163,7 +163,7 @@ void AISoul::Tick(RunListEvent* ev)
 		if (!pSet) return;
 
         pActor->spr.cstat = 0;
-		pActor->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+		pActor->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
         pActor->spr.pos = pSet->spr.pos.plusZ(-GetActorHeight(pSet) * 0.5);
         ChangeActorSect(pActor, pSet->sector());
         return;

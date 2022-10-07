@@ -138,7 +138,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->cstat |= CSTAT_SPRITE_YCENTER;
 			}
 			else
-				t->SetScale(0, 0);
+				t->scale = DVector2(0, 0);
 			break;
 		default:
 			break;
@@ -149,7 +149,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && pp->newOwner == nullptr && h->GetOwner())
 		{
 			t->pos = interpolatedvalue(pp->opos, pp->pos, interpfrac).plusZ(gs.playerheight);
-			h->spr.SetScale(0.375, 0.265625);
+			h->spr.scale = DVector2(0.375, 0.265625);
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
@@ -174,10 +174,10 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			else
 				t->pal = 2;
 			if (ud.marker == 0)
-				t->SetScale(0, 0);
+				t->scale = DVector2(0, 0);
 			break;
 		case DUKELYINGDEAD:
-			h->spr.SetScale(0.375, 0.265625);
+			h->spr.scale = DVector2(0.375, 0.265625);
 			if (h->spr.extra > 0)
 				t->pos.Z += 6;
 			break;
@@ -204,7 +204,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					double dist1 = (OwnerAc->spr.pos.XY() - t->pos.XY()).LengthSquared();
 					double dist2 = (OwnerAc->spr.pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).LengthSquared();
 					if (dist1 < dist2)
-						t->SetScale(0, 0);
+						t->scale = DVector2(0, 0);
 				}
 			}
 			continue;
@@ -212,7 +212,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
 			{
 				if (display_mirror == 0 && OwnerAc->PlayerIndex() == screenpeek && ps[OwnerAc->PlayerIndex()].over_shoulder_on == 0)
-					t->SetScale(0, 0);
+					t->scale = DVector2(0, 0);
 				else
 				{
 					t->angle = (viewVec - t->pos.XY()).Angle();
@@ -388,15 +388,15 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else newtspr->pos.Z = h->spr.pos.Z - 51;
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
-					newtspr->SetScale(0.15625, 0.15625);
+					newtspr->scale = DVector2(0.15625, 0.15625);
 				}
 				else if (ps[p].OnMotorcycle || ps[p].OnBoat)
 				{
-					newtspr->SetScale(0, 0);
+					newtspr->scale = DVector2(0, 0);
 				}
 				else
 				{
-					newtspr->SetScale(0.25, 0.25);
+					newtspr->scale = DVector2(0.25, 0.25);
 				}
 				newtspr->pal = 0;
 			}
@@ -447,7 +447,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
 					{
 						t->ownerActor = nullptr;
-						t->SetScale(0, 0);
+						t->scale = DVector2(0, 0);
 						continue;
 					}
 
@@ -464,7 +464,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (ps[p].OnMotorcycle && p == screenpeek)
 			{
 				t->picnum = RRTILE7219;
-				t->SetScale(0.28125, 0.28125);
+				t->scale = DVector2(0.28125, 0.28125);
 				t4 = 0;
 				t3 = 0;
 				t1 = 0;
@@ -480,7 +480,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 
 				t->picnum = RRTILE7213 + k;
-				t->SetScale(0.28125, 0.28125);
+				t->scale = DVector2(0.28125, 0.28125);
 				t4 = 0;
 				t3 = 0;
 				t1 = 0;
@@ -488,7 +488,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			else if (ps[p].OnBoat && p == screenpeek)
 			{
 				t->picnum = RRTILE7190;
-				t->SetScale(0.5, 0.5);
+				t->scale = DVector2(0.5, 0.5);
 				t4 = 0;
 				t3 = 0;
 				t1 = 0;
@@ -505,7 +505,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 
 				t->picnum = RRTILE7184 + k;
-				t->SetScale(0.5, 0.5);
+				t->scale = DVector2(0.5, 0.5);
 				t4 = 0;
 				t3 = 0;
 				t1 = 0;
@@ -685,7 +685,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				if (t->picnum < 0 || t->picnum >= MAXTILES)
 				{
 					t->picnum = 0;
-					t->SetScale(0, 0);
+					t->scale = DVector2(0, 0);
 				}
 
 				if (h->dispicnum >= 0)
@@ -730,7 +730,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 								if (hw_models && modelManager.CheckModel(t->picnum, t->pal))
 								{
-									shadowspr->SetScale(0, 0);
+									shadowspr->scale = DVector2(0, 0);
 									// 512:trans reverse
 									//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
 									shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
@@ -947,7 +947,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		h->dispicnum = t->picnum;
 		if (t->sectp->floorpicnum == MIRROR)
-			t->SetScale(0, 0);
+			t->scale = DVector2(0, 0);
 	}
 }
 END_DUKE_NS

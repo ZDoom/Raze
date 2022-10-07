@@ -904,7 +904,7 @@ int SetupRipper2(DSWActor* actor)
     actor->user.StateEnd = s_Ripper2Die;
     actor->user.Rot = sg_Ripper2Run;
     actor->clipdist = 32;  // This actor is bigger, needs bigger box.
-    actor->spr.SetScale(0.859375, 0.859375);
+    actor->spr.scale = DVector2(0.859375, 0.859375);
 
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)
     {
@@ -1242,7 +1242,7 @@ void Ripper2Hatch(DSWActor* actor)
         ClearOwner(actorNew);
         actorNew->spr.pos = actor->spr.pos;
 
-        actorNew->spr.SetScale(1, 1);
+        actorNew->spr.scale = DVector2(1, 1);
         actorNew->spr.angle = RandomAngle();
         actorNew->spr.pal = 0;
         actorNew->spr.shade = -10;

@@ -50,7 +50,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, double height)
     pLimbActor->vel.Z = 10 - RandomSize(5);
     pLimbActor->spr.xoffset = 0;
     pLimbActor->spr.yoffset = 0;
-	pLimbActor->spr.SetScale(1.40625, 1.40625);
+	pLimbActor->spr.scale = DVector2(1.40625, 1.40625);
     pLimbActor->spr.picnum = (move & 3) % 3;
     pLimbActor->spr.hitag = 0;
     pLimbActor->spr.lotag = runlist_HeadRun() + 1;
@@ -113,7 +113,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-	pActor->spr.SetScale(3.125, 3.125);
+	pActor->spr.scale = DVector2(3.125, 3.125);
     pActor->spr.shade = -12;
     pActor->spr.pal = 0;
 	pActor->clipdist = 31.75;

@@ -59,7 +59,7 @@ DExhumedActor* BuildBubble(const DVector3& pos, sectortype* pSector)
     pActor->spr.shade = -32;
     pActor->spr.pal = 0;
 	pActor->clipdist = 1.25;
-    pActor->spr.SetScale(0.625, 0.625);
+    pActor->spr.scale = DVector2(0.625, 0.625);
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;

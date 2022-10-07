@@ -135,7 +135,7 @@ int  SetupToiletGirl(DSWActor* actor)
     actor->user.Rot = 0;
     actor->user.RotNum = 0;
 
-    actor->spr.SetScale(0.5, 0.5);
+    actor->spr.scale = DVector2(0.5, 0.5);
     actor->vel.X = 0;
     actor->vel.Z = 0;
     actor->spr.lotag = TOILETGIRL_R0;
@@ -390,7 +390,7 @@ int SetupWashGirl(DSWActor* actor)
     actor->user.Rot = 0;
     actor->user.RotNum = 0;
 
-	actor->spr.SetScale(0.4374, 0.375);
+	actor->spr.scale = DVector2(0.4374, 0.375);
     actor->vel.X = 0;
     actor->vel.Z = 0;
     actor->spr.lotag = WASHGIRL_R0;
@@ -620,7 +620,7 @@ int SetupTrashCan(DSWActor* actor)
     actor->user.RotNum = 0;
 
 
-	actor->spr.SetScale(0.71875, 0.65625);
+	actor->spr.scale = DVector2(0.71875, 0.65625);
     actor->vel.X = 0;
     actor->vel.Z = 0;
     actor->user.ID = TRASHCAN;
@@ -1295,7 +1295,7 @@ int SetupCarGirl(DSWActor* actor)
     actor->user.Rot = 0;
     actor->user.RotNum = 0;
 
-	actor->spr.SetScale(0.453125, 0.390625);
+	actor->spr.scale = DVector2(0.453125, 0.390625);
     actor->vel.X = 0;
     actor->vel.Z = 0;
     actor->spr.lotag = CARGIRL_R0;
@@ -1530,7 +1530,7 @@ int SetupMechanicGirl(DSWActor* actor)
     actor->user.Rot = 0;
     actor->user.RotNum = 0;
 
-	actor->spr.SetScale(0.421875, 0.40625);
+	actor->spr.scale = DVector2(0.421875, 0.40625);
     actor->vel.X = 0;
     actor->vel.Z = 0;
     actor->spr.lotag = MECHANICGIRL_R0;
@@ -1764,7 +1764,7 @@ int SetupSailorGirl(DSWActor* actor)
     actor->user.Rot = 0;
     actor->user.RotNum = 0;
 
-	actor->spr.SetScale(0.4375, 0.40625);
+	actor->spr.scale = DVector2(0.4375, 0.40625);
     actor->vel.X = 0;
     actor->vel.Z = 0;
     actor->spr.lotag = SAILORGIRL_R0;
@@ -1993,7 +1993,7 @@ int SetupPruneGirl(DSWActor* actor)
     actor->user.Rot = 0;
     actor->user.RotNum = 0;
 
-	actor->spr.SetScale(0.515625, 0.4375);
+	actor->spr.scale = DVector2(0.515625, 0.4375);
     actor->vel.X = 0;
     actor->vel.Z = 0;
     actor->spr.lotag = PRUNEGIRL_R0;

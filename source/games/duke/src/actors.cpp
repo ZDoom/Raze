@@ -253,7 +253,7 @@ void insertspriteq(DDukeActor* const actor)
 		spriteq[spriteqloc] = actor;
 		spriteqloc = (spriteqloc + 1) % spriteqamount;
 	}
-	else actor->spr.SetScale(0, 0);
+	else actor->spr.scale = DVector2(0, 0);
 }
 
 //---------------------------------------------------------------------------
@@ -1065,7 +1065,7 @@ void movedoorshock(DDukeActor* actor)
 {
 	auto sectp = actor->sector();
 	double j = abs(sectp->ceilingz - sectp->floorz) / 128.;
-	actor->spr.SetScale(0.25, 0.0625 + j);
+	actor->spr.scale = DVector2(0.25, 0.0625 + j);
 	actor->spr.pos.Z = sectp->floorz;
 }
 
@@ -1354,7 +1354,7 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 
 	if (actor->spr.scale.X < 0.15625)
 	{
-		explosion->spr.SetScale(0.09375, 0.09375);
+		explosion->spr.scale = DVector2(0.09375, 0.09375);
 	}
 	else if (hit == kHitSector)
 	{
@@ -1788,7 +1788,7 @@ void ooz(DDukeActor *actor)
 	double y = min((actor->floorz - actor->ceilingz) / 128, 4.);
 	double x = clamp(0.390625 - y * 0.5, 0.125, 0.75);
 
-	actor->spr.SetScale(x, y);
+	actor->spr.scale = DVector2(x, y);
 	actor->spr.pos.Z = actor->floorz;
 }
 
@@ -2008,7 +2008,7 @@ void forcesphereexplode(DDukeActor *actor)
 
 	size = clamp(size, REPEAT_SCALE, 1.);
 
-	actor->spr.SetScale(size, size);
+	actor->spr.scale = DVector2(size, size);
 	actor->spr.shade = int8_t((size * 32) - 48);
 
 	for (int j = actor->temp_data[0]; j > 0; j--)
@@ -4344,7 +4344,7 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 			case STAT_DEFAULT:
 				if (actorflag(a2, SFLAG_SE24_REMOVE))
 				{
-					a2->spr.SetScale(0, 0);
+					a2->spr.scale = DVector2(0, 0);
 					continue;
 				}
 
@@ -4596,7 +4596,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 		if (k)
 		{
 			double s = 0.03125 + (krand() & 7) * REPEAT_SCALE;
-			k->spr.SetScale(s, s);
+			k->spr.scale = DVector2(s, s);
 			k->spr.pos.Z = sc->floorz + krandf(x);
 			k->spr.angle += DAngle45 - randomAngle(90);
 			k->vel.X = krandf(8);

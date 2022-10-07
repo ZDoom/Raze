@@ -55,7 +55,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE2028:
 		act->spr.cstat = 0;
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		act->clipdist = 0;
 		act->spr.extra = 0;
 		ChangeActorStat(act, STAT_BOWLING);
@@ -66,14 +66,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE8450:
 		if (!isRRRA()) goto default_case;
-		act->spr.SetScale(1, 1);
+		act->spr.scale = DVector2(1, 1);
 		act->spr.extra = act->spr.lotag;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 116);
 		break;
 	case PIG + 11:
 		if (!isRRRA()) goto default_case;
-		act->spr.SetScale(0.25, 0.25);
+		act->spr.scale = DVector2(0.25, 0.25);
 		act->clipdist = 0;
 		act->spr.extra = 0;
 		act->spr.cstat = 0;
@@ -82,7 +82,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE8487:
 	case RRTILE8489:
 		if (!isRRRA()) goto default_case;
-		act->spr.SetScale(0.5, 0.5);
+		act->spr.scale = DVector2(0.5, 0.5);
 		act->spr.extra = 0;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.hitag = 0;
@@ -91,17 +91,17 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE7424:
 		if (!isRRRA()) goto default_case;
 		act->spr.extra = 0;
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		ChangeActorStat(act, 11);
 		break;
 	case RRTILE7936:
 		if (!isRRRA()) goto default_case;
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		fogactive = 1;
 		break;
 	case RRTILE6144:
 		if (!isRRRA()) goto default_case;
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		ps[screenpeek].sea_sick_stat = 1;
 		break;
 	case RRTILE8448:
@@ -122,12 +122,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE8192:
 		if (!isRRRA()) goto default_case;
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		ufospawnsminion = 1;
 		break;
 	case RRTILE8193:
 		if (!isRRRA()) goto default_case;
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		pistonsound = 1;
 		break;
 	case RRTILE8165:
@@ -157,7 +157,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE293:
 		act->spr.cstat = 0;
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		act->clipdist = 0;
 		act->spr.lotag = 0;
 		ChangeActorStat(act, 106);
@@ -193,12 +193,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			SetActor(act, actj->spr.pos);
 			double s = 0.125 + (krand() & 7) * REPEAT_SCALE;
-			act->spr.SetScale(s, s);
+			act->spr.scale = DVector2(s, s);
 		}
 		else
 		{
 			double s = 0.25 + (krand() & 15) * REPEAT_SCALE;
-			act->spr.SetScale(s, s);
+			act->spr.scale = DVector2(s, s);
 		}
 
 		act->spr.shade = -16;
@@ -259,15 +259,15 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (act->spr.picnum == RABBITJIBA)
 			{
-				act->spr.SetScale(0.28125, 0.28125);
+				act->spr.scale = DVector2(0.28125, 0.28125);
 			}
 			else if (act->spr.picnum == RABBITJIBB)
 			{
-				act->spr.SetScale(0.5625, 0.5625);
+				act->spr.scale = DVector2(0.5625, 0.5625);
 			}
 			else if (act->spr.picnum == RABBITJIBC)
 			{
-				act->spr.SetScale(0.84375, 0.84375);
+				act->spr.scale = DVector2(0.84375, 0.84375);
 			}
 		}
 		ChangeActorStat(act, STAT_MISC);
@@ -294,7 +294,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			else
 				act->temp_data[1] = actj->spr.picnum;
 		}
-		else act->spr.SetScale(0, 0);
+		else act->spr.scale = DVector2(0, 0);
 
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -307,13 +307,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		break;
 
 	case BLOOD:
-		act->spr.SetScale(0.0625, 0.0625);
+		act->spr.scale = DVector2(0.0625, 0.0625);
 		act->spr.pos.Z -= 26;
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -448,13 +448,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BOWLINGBALL:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 		act->clipdist = 16;
-		act->spr.SetScale(0.171875, 0.140625);
+		act->spr.scale = DVector2(0.171875, 0.140625);
 		ChangeActorStat(act, 2);
 		break;
 	case HENSTAND:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 12;
-		act->spr.SetScale(0.328125, 0.234375);
+		act->spr.scale = DVector2(0.328125, 0.234375);
 		ChangeActorStat(act, 2);
 		break;
 	case RRTILE295:
@@ -463,7 +463,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE296:
 	case RRTILE297:
-		act->spr.SetScale(1, 1);
+		act->spr.scale = DVector2(1, 1);
 		act->clipdist = 16;
 		ChangeActorStat(act, 108);
 		break;
@@ -472,49 +472,49 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE3192:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.SetScale(0.5, 0.40625);
+		act->spr.scale = DVector2(0.5, 0.40625);
 		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3120:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.SetScale(0.1875, 0.15625);
+		act->spr.scale = DVector2(0.1875, 0.15625);
 		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3122:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 0.5;
-		act->spr.SetScale(0.125, 0.09375);
+		act->spr.scale = DVector2(0.125, 0.09375);
 		act->vel.X = 1;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3123:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.SetScale(0.203125, 0.203125);
+		act->spr.scale = DVector2(0.203125, 0.203125);
 		act->vel.X = 1;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3124:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.SetScale(0.265625, 0.1875);
+		act->spr.scale = DVector2(0.265625, 0.1875);
 		act->vel.X = 2;
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3132:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
-		act->spr.SetScale(0.203125, 0.15625);
+		act->spr.scale = DVector2(0.203125, 0.15625);
 		act->vel.X = 0;
 		ChangeActorStat(act, 1);
 		break;
 	case BOWLINGPIN:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 12;
-		act->spr.SetScale(0.359375, 0.359375);
+		act->spr.scale = DVector2(0.359375, 0.359375);
 		ChangeActorStat(act, 2);
 		break;
 	case DUKELYINGDEAD:
@@ -532,7 +532,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RESPAWNMARKERRED:
 		if (act->spr.picnum == RESPAWNMARKERRED)
 		{
-			act->spr.SetScale(0.125, 0.125);
+			act->spr.scale = DVector2(0.125, 0.125);
 			if (actj) act->spr.pos.Z = actj->floorz;
 		}
 		else
@@ -550,7 +550,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SPOTLITE:
 		break;
 	case BULLETHOLE:
-		act->spr.SetScale(0.046875, 0.046875);
+		act->spr.scale = DVector2(0.046875, 0.046875);
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
 		[[fallthrough]];
@@ -559,7 +559,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->temp_data[0] = krand() & 2047;
 			act->spr.cstat = randomFlip();
-			act->spr.SetScale(0.125, 0.125);
+			act->spr.scale = DVector2(0.125, 0.125);
 			act->spr.angle = randomAngle();
 		}
 		ChangeActorStat(act, STAT_MISC);
@@ -575,7 +575,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MUSICANDSFX:
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -601,23 +601,23 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum == EXPLOSION2)
 		{
-			act->spr.SetScale(0.75, 0.75);
+			act->spr.scale = DVector2(0.75, 0.75);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
 		else if (act->spr.picnum == EXPLOSION3)
 		{
-			act->spr.SetScale(2, 2);
+			act->spr.scale = DVector2(2, 2);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
 		else if (act->spr.picnum == SMALLSMOKE)
 		{
-			act->spr.SetScale(0.1875, 0.1875);
+			act->spr.scale = DVector2(0.1875, 0.1875);
 		}
 		else if (act->spr.picnum == BURNING)
 		{
-			act->spr.SetScale(0.0625, 0.0625);
+			act->spr.scale = DVector2(0.0625, 0.0625);
 		}
 
 		if (actj)
@@ -644,7 +644,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case APLAYER:
 	{
-		act->spr.SetScale(0, 0);
+		act->spr.scale = DVector2(0, 0);
 		int j = ud.coop;
 		if (j == 2) j = 0;
 
@@ -662,10 +662,10 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (actj)
 				act->spr.angle = actj->spr.angle;
 			double s = REPEAT_SCALE + (krand() & 7) * REPEAT_SCALE;
-			act->spr.SetScale(s, s);
+			act->spr.scale = DVector2(s, s);
 		}
 		else
-			act->spr.SetScale(0.5, 0.5);
+			act->spr.scale = DVector2(0.5, 0.5);
 		ChangeActorStat(act, STAT_MISC);
 		break;
 	case CRANE:
@@ -678,7 +678,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (act->spr.picnum != WATERDRIP) act->spr.angle = randomAngle();
 
-		act->spr.SetScale(0.375, 0.375);
+		act->spr.scale = DVector2(0.375, 0.375);
 		ChangeActorStat(act, 6);
 		break;
 
@@ -692,7 +692,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sectp->setfloorz(act->spr.pos.Z);
 		if (act->spr.pal && ud.multimode > 1)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -781,18 +781,18 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SHARK:
 	case VIXEN:
 	rrra_badguy2:
-		act->spr.SetScale(0.625, 0.625);
+		act->spr.scale = DVector2(0.625, 0.625);
 		// Note: All inappropriate tiles have already been weeded out by the outer switch block so this does not need game type checks anymore.
 		switch (act->spr.picnum)
 		{
 		case VIXEN:
 			if (act->spr.pal == 34)
 			{
-				act->spr.SetScale(0.34375, 0.328125);
+				act->spr.scale = DVector2(0.34375, 0.328125);
 			}
 			else
 			{
-				act->spr.SetScale(0.34375, 0.3125);
+				act->spr.scale = DVector2(0.34375, 0.3125);
 			}
 			act->setClipDistFromTile();
 			break;
@@ -801,18 +801,18 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case HULKJUMP:
 		case HULK:
 		case HULKSTAYPUT:
-			act->spr.SetScale(0.5, 0.5);
+			act->spr.scale = DVector2(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
 		case COOTPLAY:
 		case COOT:
 		case COOTSTAYPUT:
-			act->spr.SetScale(0.375, 0.28125);
+			act->spr.scale = DVector2(0.375, 0.28125);
 			act->setClipDistFromTile();
 			act->clipdist *= 4;
 			break;
 		case DRONE:
-			act->spr.SetScale(0.21875, 0.109375);
+			act->spr.scale = DVector2(0.21875, 0.109375);
 			act->clipdist = 32;
 			break;
 		case SBSWIPE:
@@ -822,11 +822,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case BILLYRAYSTAYPUT:
 		case BRAYSNIPER:
 		case BUBBASTAND:
-			act->spr.SetScale(0.390625, 0.328125);
+			act->spr.scale = DVector2(0.390625, 0.328125);
 			act->setClipDistFromTile();
 			break;
 		case COW:
-			act->spr.SetScale(0.5, 0.5);
+			act->spr.scale = DVector2(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
 		case HEN:
@@ -834,33 +834,33 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case HENSTAND:
 			if (act->spr.pal == 35)
 			{
-				act->spr.SetScale(0.65625, 0.46875);
+				act->spr.scale = DVector2(0.65625, 0.46875);
 				act->setClipDistFromTile();
 			}
 			else
 			{
-				act->spr.SetScale(0.328125, 0.234375);
+				act->spr.scale = DVector2(0.328125, 0.234375);
 				act->clipdist = 16;
 			}
 			break;
 		case MINION:
 		case MINIONSTAYPUT:
-			act->spr.SetScale(0.25, 0.25);
+			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
 			if (isRRRA() && ufospawnsminion)
 				act->spr.pal = 8;
 			break;
 		case DOGRUN:
 		case PIG:
-			act->spr.SetScale(0.25, 0.25);
+			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
 			break;
 		case RABBIT:
-			act->spr.SetScale(0.28125, 0.28125);
+			act->spr.scale = DVector2(0.28125, 0.28125);
 			act->setClipDistFromTile();
 			break;
 		case MAMACLOUD:
-			act->spr.SetScale(1, 1);
+			act->spr.scale = DVector2(1, 1);
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP;
 			act->spr.pos.X += krandf(128) - 64;
@@ -870,76 +870,76 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case MAMA:
 			if (act->spr.pal == 30)
 			{
-				act->spr.SetScale(0.40625, 0.40625);
+				act->spr.scale = DVector2(0.40625, 0.40625);
 				act->clipdist = 18.75;
 			}
 			else if (act->spr.pal == 31)
 			{
-				act->spr.SetScale(0.5625, 0.5625);
+				act->spr.scale = DVector2(0.5625, 0.5625);
 				act->clipdist = 25;
 			}
 			else if (act->spr.pal == 32)
 			{
-				act->spr.SetScale(0.78125, 0.78125);
+				act->spr.scale = DVector2(0.78125, 0.78125);
 				act->clipdist = 25;
 			}
 			else
 			{
-				act->spr.SetScale(0.78125, 0.78125);
+				act->spr.scale = DVector2(0.78125, 0.78125);
 				act->clipdist = 25;
 			}
 			break;
 		case BIKERB:
-			act->spr.SetScale(0.4375, 0.34375);
+			act->spr.scale = DVector2(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
 		case BIKERBV2:
-			act->spr.SetScale(0.4375, 0.34375);
+			act->spr.scale = DVector2(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
 		case BIKER:
-			act->spr.SetScale(0.4375, 0.34375);
+			act->spr.scale = DVector2(0.4375, 0.34375);
 			act->setClipDistFromTile();
 			break;
 		case CHEERB:
-			act->spr.SetScale(0.4375, 0.34375);
+			act->spr.scale = DVector2(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
 		case CHEER:
 		case CHEERSTAYPUT:
-			act->spr.SetScale(0.34375, 0.3125);
+			act->spr.scale = DVector2(0.34375, 0.3125);
 			act->setClipDistFromTile();
 			break;
 		case MAKEOUT:
-			act->spr.SetScale(0.40625, 0.40625);
+			act->spr.scale = DVector2(0.40625, 0.40625);
 			act->setClipDistFromTile();
 			break;
 		case MINIONBOAT:
-			act->spr.SetScale(0.25, 0.25);
+			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
 			break;
 		case HULKBOAT:
-			act->spr.SetScale(0.75, 0.75);
+			act->spr.scale = DVector2(0.75, 0.75);
 			act->setClipDistFromTile();
 			break;
 		case CHEERBOAT:
-			act->spr.SetScale(0.5, 0.5);
+			act->spr.scale = DVector2(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
 
 		case TORNADO:
-			act->spr.SetScale(1, 2);
+			act->spr.scale = DVector2(1, 2);
 			act->setClipDistFromTile();
 			act->clipdist *= 0.25;
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			break;
 		case LTH:
-			act->spr.SetScale(0.375, 0.34375);
+			act->spr.scale = DVector2(0.375, 0.34375);
 			act->setClipDistFromTile();
 			break;
 		case ROCK:
 		case ROCK2:
-			act->spr.SetScale(1, 1);
+			act->spr.scale = DVector2(1, 1);
 			act->setClipDistFromTile();
 			break;
 
@@ -949,12 +949,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case UFO3:
 		case UFO4:
 		case UFO5:
-			act->spr.SetScale(0.5, 0.5);
+			act->spr.scale = DVector2(0.5, 0.5);
 			act->setClipDistFromTile();
 			act->spr.extra = 50;
 			break;
 		case SBMOVE:
-			act->spr.SetScale(0.75, 0.75);
+			act->spr.scale = DVector2(0.75, 0.75);
 			act->setClipDistFromTile();
 			break;
 
@@ -966,7 +966,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if ((act->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -977,7 +977,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->spr.picnum == RAT)
 			{
 				act->spr.angle = randomAngle();
-				act->spr.SetScale(0.75, 0.75);
+				act->spr.scale = DVector2(0.75, 0.75);
 				act->spr.cstat = 0;
 			}
 			else
@@ -1034,13 +1034,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		double j = ((act->floorz - act->ceilingz) / 128.);
 
-		act->spr.SetScale(max(0., 0.390625 - j * 0.5), j);
+		act->spr.scale = DVector2(max(0., 0.390625 - j * 0.5), j);
 		if(krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
 		break;
 	}
 	case HEAVYHBOMB:
 		act->SetOwner(act);
-		act->spr.SetScale(0.140625, 0.140625);
+		act->spr.scale = DVector2(0.140625, 0.140625);
 		act->spr.yint = 4;
 		[[fallthrough]];
 	case REACTOR2:
@@ -1112,7 +1112,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if ((ud.multimode < 2 && act->spr.pal != 0) || (act->spr.lotag > ud.player_skill))
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1127,15 +1127,15 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == ACCESSCARD)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 		else
 		{
 			if (act->spr.picnum == AMMO)
-				act->spr.SetScale(0.25, 0.25);
-			else act->spr.SetScale(0.5, 0.5);
+				act->spr.scale = DVector2(0.25, 0.25);
+			else act->spr.scale = DVector2(0.5, 0.5);
 		}
 
 		act->spr.shade = -17;
@@ -1149,86 +1149,86 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		switch (act->spr.picnum)
 		{
 		case FIRSTGUNSPRITE:
-			act->spr.SetScale(0.25, 0.25);
+			act->spr.scale = DVector2(0.25, 0.25);
 			break;
 		case SHOTGUNAMMO:
-			act->spr.SetScale(0.28125, 0.265625);
+			act->spr.scale = DVector2(0.28125, 0.265625);
 			if (isRRRA()) act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
 		case SIXPAK:
-			act->spr.SetScale(0.203125, 0.140625);
+			act->spr.scale = DVector2(0.203125, 0.140625);
 			if (isRRRA()) act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
 		case FIRSTAID:
-			act->spr.SetScale(0.125, 0.125);
+			act->spr.scale = DVector2(0.125, 0.125);
 			break;
 		case BEER:
-			act->spr.SetScale(0.078125, 0.0625);
+			act->spr.scale = DVector2(0.078125, 0.0625);
 			break;
 		case AMMO:
-			act->spr.SetScale(0.140625, 0.140625);
+			act->spr.scale = DVector2(0.140625, 0.140625);
 			break;
 		case MOTOAMMO:
 			if (!isRRRA()) goto default_case;
-			act->spr.SetScale(0.359375, 0.359375);
+			act->spr.scale = DVector2(0.359375, 0.359375);
 			break;
 		case BOATAMMO:
 			if (!isRRRA()) goto default_case;
-			act->spr.SetScale(0.25, 0.25);
+			act->spr.scale = DVector2(0.25, 0.25);
 			break;
 		case COWPIE:
-			act->spr.SetScale(0.125, 0.09375);
+			act->spr.scale = DVector2(0.125, 0.09375);
 			break;
 		case STEROIDS:
-			act->spr.SetScale(0.203125, 0.140625);
+			act->spr.scale = DVector2(0.203125, 0.140625);
 			break;
 		case ACCESSCARD:
-			act->spr.SetScale(0.171875, 0.1875);
+			act->spr.scale = DVector2(0.171875, 0.1875);
 			break;
 		case HEATSENSOR:
-			act->spr.SetScale(0.09375, 0.0625);
+			act->spr.scale = DVector2(0.09375, 0.0625);
 			break;
 		case AIRTANK:
-			act->spr.SetScale(0.296875, 0.25);
+			act->spr.scale = DVector2(0.296875, 0.25);
 			break;
 		case BATTERYAMMO:
-			act->spr.SetScale(0.234375, 0.234375);
+			act->spr.scale = DVector2(0.234375, 0.234375);
 			break;
 		case BOWLINGBALLSPRITE:
-			act->spr.SetScale(0.171875, 0.171875);
+			act->spr.scale = DVector2(0.171875, 0.171875);
 			break;
 		case POWDERKEG:
-			act->spr.SetScale(0.171875, 0.171875);
+			act->spr.scale = DVector2(0.171875, 0.171875);
 			act->spr.yint = 4;
 			act->vel.X = 2;
 			break;
 		case RPGSPRITE:
-			act->spr.SetScale(0.25, 0.21875);
+			act->spr.scale = DVector2(0.25, 0.21875);
 			break;
 		case RPG2SPRITE:
 			if (!isRRRA()) goto default_case;
-			act->spr.SetScale(0.34375, 0.3125);
+			act->spr.scale = DVector2(0.34375, 0.3125);
 			break;
 		case SHRINKERSPRITE:
-			act->spr.SetScale(0.34375, 0.203125);
+			act->spr.scale = DVector2(0.34375, 0.203125);
 			break;
 		case DEVISTATORSPRITE:
-			act->spr.SetScale(0.28125, 0.265625);
+			act->spr.scale = DVector2(0.28125, 0.265625);
 			break;
 		case SAWAMMO:
-			act->spr.SetScale(0.1875, 0.109375);
+			act->spr.scale = DVector2(0.1875, 0.109375);
 			break;
 		case GROWSPRITEICON:
-			act->spr.SetScale(0.15625, 0.140625);
+			act->spr.scale = DVector2(0.15625, 0.140625);
 			break;
 		case DEVISTATORAMMO:
-			act->spr.SetScale(0.15625, 0.140625);
+			act->spr.scale = DVector2(0.15625, 0.140625);
 			break;
 		case ATOMICHEALTH:
-			act->spr.SetScale(0.125, 0.125);
+			act->spr.scale = DVector2(0.125, 0.125);
 			break;
 		case FREEZESPRITE:
-			act->spr.SetScale(0.265625, 0.25);
+			act->spr.scale = DVector2(0.265625, 0.25);
 			break;
 		}
 		act->spr.shade = act->sector()->floorshade;
@@ -1257,7 +1257,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1271,7 +1271,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->spr.angle = actj->spr.angle;
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 			act->vel.X = -0.5;
 			ssp(act, CLIPMASK0);
 		}
@@ -1290,7 +1290,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.scale.X <= 0.125)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 		}
 		else act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.extra = gs.impact_damage << 2;
@@ -1306,7 +1306,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.extra = 1;
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
@@ -1322,11 +1322,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isRRRA()) goto default_case;
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			break;
 		}
 		act->spr.pal = 0;
-		act->spr.SetScale(0.28125, 0.28125);
+		act->spr.scale = DVector2(0.28125, 0.28125);
 		act->setClipDistFromTile();
 		act->saved_ammo = 100;
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -1337,11 +1337,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isRRRA()) goto default_case;
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			break;
 		}
 		act->spr.pal = 0;
-		act->spr.SetScale(0.5, 0.5);
+		act->spr.scale = DVector2(0.5, 0.5);
 		act->setClipDistFromTile();
 		act->saved_ammo = 20;
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -1372,7 +1372,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case WOODENHORSE:
 
 		if (actj)
-			act->spr.SetScale(0.5, 0.5);
+			act->spr.scale = DVector2(0.5, 0.5);
 		act->clipdist = 18;
 		makeitfall(act);
 		if (actj) act->SetOwner(actj);
@@ -1382,7 +1382,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case EGG:
 		if (ud.monsters_off == 1 && act->spr.picnum == EGG)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		else
@@ -1399,7 +1399,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE63:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+		act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 		act->clipdist = 0.25;
 		ChangeActorStat(act, 100);
 		break;

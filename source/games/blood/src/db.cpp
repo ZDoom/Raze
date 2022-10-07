@@ -51,7 +51,7 @@ DBloodActor* InsertSprite(sectortype* pSector, int nStat)
 	auto act = static_cast<DBloodActor*>(::InsertActor(RUNTIME_CLASS(DBloodActor), pSector, nStat));
 	act->spr.cstat = CSTAT_SPRITE_YCENTER;
 	act->clipdist = 8;
-	act->spr.SetScale(1, 1);
+	act->spr.scale = DVector2(1, 1);
 	return act;
 }
 
@@ -485,7 +485,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		pSprite->extra = LittleShort(load.extra);
 		pSprite->pal = load.pal;
 		pSprite->clipdist = load.clipdist;
-		pSprite->SetScale(load._xrepeat * REPEAT_SCALE, load._yrepeat * REPEAT_SCALE);
+		pSprite->scale = DVector2(load._xrepeat * REPEAT_SCALE, load._yrepeat * REPEAT_SCALE);
 		pSprite->xoffset = load.xoffset;
 		pSprite->yoffset = load.yoffset;
 		pSprite->detail = load.detail;

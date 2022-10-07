@@ -337,7 +337,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 
 	switch (curWeapon) {
 	case kThingNapalmBall:
-		spawned->spr.SetScale(0.375, 0.375);
+		spawned->spr.scale = DVector2(0.375, 0.375);
 		spawned->xspr.data4 = 3 + gGameOptions.nDifficulty;
 		impact = true;
 		break;
@@ -345,7 +345,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 	{
 		double s = 0.375 + Random(42) * REPEAT_SCALE;
 		spawned->spr.picnum = gCustomDudeDebrisPics[Random(5)];
-		spawned->spr.SetScale(s, s);
+		spawned->spr.scale = DVector2(s, s);
 		spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
 		spawned->spr.pal = 5;
 
@@ -1409,7 +1409,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 			effectactor->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
 			effectactor->spr.pal = 6;
 			double repeat = 1 + Random(50) * REPEAT_SCALE;
-			effectactor->spr.SetScale(repeat, repeat);
+			effectactor->spr.scale = DVector2(repeat, repeat);
 		}
 
 		sfxPlay3DSoundCP(actLeech, 490, -1, 0, 60000);
@@ -1841,7 +1841,7 @@ bool doExplosion(DBloodActor* actor, int nType)
 	actExplosion->SetOwner(actor);
 	actExplosion->spr.shade = -127;
 
-	actExplosion->spr.SetScale(pExpl->repeat * REPEAT_SCALE, pExpl->repeat * REPEAT_SCALE);
+	actExplosion->spr.scale = DVector2(pExpl->repeat * REPEAT_SCALE, pExpl->repeat * REPEAT_SCALE);
 
 	actExplosion->xspr.data1 = pExpl->ticks;
 	actExplosion->xspr.data2 = pExpl->quakeEffect;

@@ -214,7 +214,7 @@ void BuildSnake(int nPlayer, double zVal)
             if (i == 0)
             {
                 pActor->spr.pos = pPlayerActor->spr.pos.plusZ(zVal);
-                pActor->spr.SetScale(0.5, 0.5);
+                pActor->spr.scale = DVector2(0.5, 0.5);
                 pViewSect = pActor->sector();
                 sprt = pActor;
             }
@@ -222,7 +222,7 @@ void BuildSnake(int nPlayer, double zVal)
             {
 				pActor->spr.pos = sprt->spr.pos;
 				double s = 0.625 + 0.046875 * i;
-				pActor->spr.SetScale(s, s);
+				pActor->spr.scale = DVector2(s, s);
             }
 
 			pActor->clipdist = 2.5;

@@ -835,12 +835,12 @@ int SetupRipper(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
     actor->user.StateEnd = s_RipperDie;
     actor->user.Rot = sg_RipperRun;
-    actor->spr.SetScale(1, 1);
+    actor->spr.scale = DVector2(1, 1);
 
     if (actor->spr.pal == PALETTE_BROWN_RIPPER)
     {
         EnemyDefaults(actor, &RipperBrownActionSet, &RipperPersonality);
-        actor->spr.SetScale(1.65625, 1.40625);
+        actor->spr.scale = DVector2(1.65625, 1.40625);
 
         if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = HEALTH_MOMMA_RIPPER;
@@ -1233,7 +1233,7 @@ void RipperHatch(DSWActor* actor)
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
         ClearOwner(actorNew);
         actorNew->spr.pos = actor->spr.pos;
-        actorNew->spr.SetScale(1, 1);
+        actorNew->spr.scale = DVector2(1, 1);
         actorNew->spr.angle = RandomAngle();
         actorNew->spr.pal = 0;
         SetupRipper(actorNew);

@@ -1216,7 +1216,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
         pActor->vel.Z *= 2;
     }
 
-    pActor->spr.SetScale(1, 1);
+    pActor->spr.scale = DVector2(1, 1);
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = nPic;

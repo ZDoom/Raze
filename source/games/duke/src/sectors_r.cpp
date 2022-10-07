@@ -1975,8 +1975,8 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 						{
 							fi.guts(targ, RRTILE2460, 12, myconnectindex);
 							fi.guts(targ, RRTILE2465, 3, myconnectindex);
-							act->spr.SetScale(0, 0);
-							targ->spr.SetScale(0, 0);
+							act->spr.scale = DVector2(0, 0);
+							targ->spr.scale = DVector2(0, 0);
 						}
 					}
 				}
@@ -1985,7 +1985,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			{
 				fi.guts(targ, RRTILE2460, 12, myconnectindex);
 				fi.guts(targ, RRTILE2465, 3, myconnectindex);
-				targ->spr.SetScale(0, 0);
+				targ->spr.scale = DVector2(0, 0);
 			}
 		}
 		break;
@@ -2339,7 +2339,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 									spawned->spr.pal = 6;
 								spawned->spr.pos.Z += 4;
 								spawned->vel.X = 1;
-								spawned->spr.SetScale(0.375, 0.375);
+								spawned->spr.scale = DVector2(0.375, 0.375);
 								spawned->spr.angle = DAngle22_5/4 - randomAngle(22.5/2);
 							}
 						}

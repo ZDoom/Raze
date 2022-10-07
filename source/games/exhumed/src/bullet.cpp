@@ -360,7 +360,7 @@ int MoveBullet(int nBullet)
                 {
                     pBullet->nSeq = 45;
                     pBullet->nFrame = 0;
-                    pActor->spr.SetScale(0.625, 0.625);
+                    pActor->spr.scale = DVector2(0.625, 0.625);
                     pActor->spr.shade = 0;
 					pActor->spr.pos.Z += 2;
                 }
@@ -636,7 +636,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
         nRepeat = 30;
     }
 
-    pBulletActor->spr.SetScale(nRepeat * REPEAT_SCALE, nRepeat * REPEAT_SCALE);
+    pBulletActor->spr.scale = DVector2(nRepeat * REPEAT_SCALE, nRepeat * REPEAT_SCALE);
     pBulletActor->spr.xoffset = 0;
     pBulletActor->spr.yoffset = 0;
     pBulletActor->spr.angle = nAngle;

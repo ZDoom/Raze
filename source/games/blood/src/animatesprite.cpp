@@ -58,7 +58,7 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	tspritetype* pTSprite = tsprites.newTSprite();
 	memset(pTSprite, 0, sizeof(tspritetype));
 	pTSprite->cstat = CSTAT_SPRITE_YCENTER;
-	pTSprite->SetScale(1, 1);
+	pTSprite->scale = DVector2(1, 1);
 	pTSprite->ownerActor = nullptr;
 	pTSprite->type = -int(tsprites.Size() - 1);
 	pTSprite->statnum = nStatnum;
@@ -131,7 +131,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 			break;
 
 		pNSprite2->picnum = 2203;
-		pNSprite2->SetScale(width * REPEAT_SCALE, 0.3125);
+		pNSprite2->scale = DVector2(width * REPEAT_SCALE, 0.3125);
 
 		pNSprite2->pal = 10;
 		if (perc >= 75) pNSprite2->pal = 0;
@@ -180,9 +180,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 0;
 		pNSprite->pos.Z = top;
 		if (nViewEffect == kViewEffectFlag)
-			pNSprite->SetScale(0.375, 0.375);
+			pNSprite->scale = DVector2(0.375, 0.375);
 		else
-			pNSprite->SetScale(1, 1);
+			pNSprite->scale = DVector2(1, 1);
 		pNSprite->picnum = 3558;
 		return pNSprite;
 	}
@@ -207,7 +207,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 
 		pNSprite->shade = -128;
 		pNSprite->pal = 0;
-		pNSprite->SetScale(1, 1);
+		pNSprite->scale = DVector2(1, 1);
 		pNSprite->picnum = 2605;
 		return pNSprite;
 	}
@@ -220,7 +220,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->shade = 26;
 		pNSprite->pal = 0;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->SetScale(1, 1);
+		pNSprite->scale = DVector2(1, 1);
 		pNSprite->picnum = 2089;
 		break;
 	}
@@ -236,7 +236,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->shade = 26;
 		pNSprite->pal = 0;
 		pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->SetScale(0.375, 0.375);
+		pNSprite->scale = DVector2(0.375, 0.375);
 		pNSprite->picnum = 626;
 		break;
 	}
@@ -288,7 +288,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->picnum = 908;
 		pNSprite->statnum = kStatDecoration;
 		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 64.;
-		pNSprite->SetScale(s, s);
+		pNSprite->scale = DVector2(s, s);
 		break;
 	}
 	case kViewEffectSmokeHigh:
@@ -339,7 +339,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
 		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 32.;
-		pNSprite->SetScale(s, s);
+		pNSprite->scale = DVector2(s, s);
 		break;
 	}
 	case kViewEffectTorchLow:
@@ -354,7 +354,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
 		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 32.;
-		pNSprite->SetScale(s, s);
+		pNSprite->scale = DVector2(s, s);
 		break;
 	}
 	case kViewEffectShadow:
@@ -420,7 +420,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->picnum = 624;
 		pNSprite->shade = int(pTSprite->pos.Z - pSector->ceilingz) - 64;
 		pNSprite->pal = 2;
-		pNSprite->SetScale(1, 1);
+		pNSprite->scale = DVector2(1, 1);
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->angle = pTSprite->angle;
 		pNSprite->ownerActor = pTSprite->ownerActor;
@@ -438,7 +438,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		uint8_t nShade = (uint8_t)clamp(pSector->floorz - pTSprite->pos.Z, 0., 255.);
 		pNSprite->shade = nShade - 32;
 		pNSprite->pal = 2;
-		pNSprite->SetScale(nShade * REPEAT_SCALE, nShade * REPEAT_SCALE);
+		pNSprite->scale = DVector2(nShade * REPEAT_SCALE, nShade * REPEAT_SCALE);
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
 		pNSprite->angle = pTSprite->angle;
 		pNSprite->ownerActor = pTSprite->ownerActor;
@@ -454,7 +454,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (gDetail > 1)
 			pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
 		pNSprite->shade = ClipLow(pTSprite->shade - 32, -128);
-		pNSprite->SetScale(pTSprite->scale.X, 1);
+		pNSprite->scale = DVector2(pTSprite->scale.X, 1);
 		pNSprite->picnum = 775;
 		break;
 	}
@@ -472,7 +472,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos = pTSprite->pos.plusZ(-32 - weaponIcon.zOffset);
 		pNSprite->picnum = nTile;
 		pNSprite->shade = pTSprite->shade;
-		pNSprite->SetScale(0.5, 0.5);
+		pNSprite->scale = DVector2(0.5, 0.5);
 		auto& nVoxel = voxelIndex[nTile];
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
@@ -535,13 +535,13 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
 		if (owneractor->spr.detail > gDetail)
 		{
-			pTSprite->SetScale(0, 0);
+			pTSprite->scale = DVector2(0, 0);
 			continue;
 		}
 		int nTile = pTSprite->picnum;
 		if (nTile < 0 || nTile >= kMaxTiles)
 		{
-			pTSprite->SetScale(0, 0);
+			pTSprite->scale = DVector2(0, 0);
 			continue;
 		}
 		// skip picnum 0 on face sprites. picnum 0 is a simple wall texture in Blood, 
@@ -549,7 +549,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		// Since the wall texture is perfectly fine for wall and floor sprites, these will be allowed to pass.
 		if (nTile == 0 && (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 		{
-			pTSprite->SetScale(0, 0);
+			pTSprite->scale = DVector2(0, 0);
 			continue;
 		}
 
@@ -704,18 +704,18 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		pTSprite->shade = ClipRange(nShade, -128, 127);
 		if ((pTSprite->flags & kHitagRespawn) && pTSprite->ownerActor->spr.intowner == 3 && owneractor->hasX())    // Where does this 3 come from? Nothing sets it.
 		{
-			pTSprite->SetScale(0.75, 0.75);
+			pTSprite->scale = DVector2(0.75, 0.75);
 			pTSprite->shade = -128;
 			pTSprite->picnum = 2272 + 2 * owneractor->xspr.respawnPending;
 			pTSprite->cstat &= ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP);
 			if (((IsItemSprite(pTSprite) || IsAmmoSprite(pTSprite)) && gGameOptions.nItemSettings == 2)
 				|| (IsWeaponSprite(pTSprite) && gGameOptions.nWeaponSettings == 3))
 			{
-				pTSprite->SetScale(0.75, 0.75);
+				pTSprite->scale = DVector2(0.75, 0.75);
 			}
 			else
 			{
-				pTSprite->SetScale(0, 0);
+				pTSprite->scale = DVector2(0, 0);
 			}
 		}
 		if (owneractor->hasX() && owneractor->xspr.burnTime > 0)
@@ -809,7 +809,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				if (pTSprite->statnum == kStatFlare) {
 					if (owneractor->GetTarget() == pPlayer->actor)
 					{
-						pTSprite->SetScale(0, 0);
+						pTSprite->scale = DVector2(0, 0);
 						break;
 					}
 				}
@@ -840,7 +840,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				auto target = owneractor->GetTarget();
 				if (target && target->IsPlayerActor())
 				{
-					pTSprite->SetScale(0, 0);
+					pTSprite->scale = DVector2(0, 0);
 					break;
 				}
 			}

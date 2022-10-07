@@ -684,7 +684,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                 if (tActor->user.ID == 1793 || tsp->picnum == 1793)
                 {
                     tsp->picnum = 2519;
-					tsp->SetScale(0.421875, 0.453125);
+					tsp->scale = DVector2(0.421875, 0.453125);
                 }
 
             if (tActor->user.ID == STAR1)
@@ -694,7 +694,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
 
                     tsp->picnum = DART_PIC;
                     tsp->angle -= DAngle90 + mapangle(24);
-					tsp->SetScale(DART_REPEAT, DART_REPEAT);
+					tsp->scale = DVector2(DART_REPEAT, DART_REPEAT);
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
                 else
@@ -758,7 +758,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             {
                 tsp->picnum = DART_PIC;
                 tsp->angle -= DAngle90;
-				tsp->SetScale(DART_REPEAT, DART_REPEAT);
+				tsp->scale = DVector2(DART_REPEAT, DART_REPEAT);
                 tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             }
 

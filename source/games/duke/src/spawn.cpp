@@ -65,7 +65,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spr.pos = pos;
 	act->spr.picnum = s_pn;
 	act->spr.shade = s_shd;
-	act->spr.SetScale(scale.X, scale.Y);
+	act->spr.scale = DVector2(scale.X, scale.Y);
 
 	act->spr.angle = s_ang;
 	act->vel.X = s_vel;
@@ -150,7 +150,7 @@ bool initspriteforspawn(DDukeActor* act)
 		{
 			if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
 			{
-				act->spr.SetScale(0, 0);
+				act->spr.scale = DVector2(0, 0);
 				act->spr.cstat = 0;
 				act->spr.lotag = act->spr.hitag = 0;
 				return false;
@@ -225,20 +225,20 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		if (actj == nullptr && act->spr.lotag > ud.player_skill)
 		{
 			// make it go away...
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 			return;
 		}
 
 		//  Init the size
 		if (act->spr.scale.X == 0 || act->spr.scale.Y == 0)
-			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
+			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 
 		if (actorflag(act, SFLAG_BADGUY))
 		{
 			if (ud.monsters_off == 1)
 			{
-				act->spr.SetScale(0, 0);
+				act->spr.scale = DVector2(0, 0);
 				ChangeActorStat(act, STAT_MISC);
 				return;
 			}
@@ -285,18 +285,18 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	if (actj == nullptr) return;
 	if (beam)
 	{
-		act->spr.SetScale(0.484375, REPEAT_SCALE);
+		act->spr.scale = DVector2(0.484375, REPEAT_SCALE);
 		act->spr.pos.Z = actj->sector()->floorz - gs.playerheight;
 	}
 	else
 	{
 		if (actj->spr.statnum == 4)
 		{
-			act->spr.SetScale(0.125, 0.125);
+			act->spr.scale = DVector2(0.125, 0.125);
 		}
 		else
 		{
-			act->spr.SetScale(0.75, 1);
+			act->spr.scale = DVector2(0.75, 1);
 			if (actj->spr.statnum == 10 || badguy(actj))
 				act->spr.pos.Z -= 32;
 		}
@@ -324,7 +324,7 @@ int spawnbloodpoolpart1(DDukeActor* act)
 	
 	if (!away)
 	{
-		act->spr.SetScale(0, 0); 
+		act->spr.scale = DVector2(0, 0); 
 		ChangeActorStat(act, STAT_MISC); 
 		return true;
 	}
@@ -351,7 +351,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 		bool away = isAwayFromWall(act, 5.25);
 		if (!away)
 		{
-			act->spr.SetScale(0, 0);
+			act->spr.scale = DVector2(0, 0);
 			return;
 		}
 
@@ -362,7 +362,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 
 	act->spr.pos.Z = sect->floorz;
 	if (sect->lotag != 1 && sect->lotag != 2)
-		act->spr.SetScale(0.5, 0.5);
+		act->spr.scale = DVector2(0.5, 0.5);
 
 	insertspriteq(act);
 	ChangeActorStat(act, STAT_MISC);
@@ -413,7 +413,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 		}
 
 		double scale = isRR() && isshell ? 0.03125 : 0.0625;
-		act->spr.SetScale(scale, scale);
+		act->spr.scale = DVector2(scale, scale);
 
 		ChangeActorStat(act, STAT_MISC);
 	}
@@ -447,7 +447,7 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 
 			act->temp_sect = actk->sector();
 
-			actk->spr.SetScale(0.75, 2);
+			actk->spr.scale = DVector2(0.75, 2);
 
 			apt.pole = actk->spr.pos.XY();
 
@@ -491,7 +491,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 		actor->temp_pos.Z = actor->spr.pos.Z;
 		if (!isRR()) actor->temp_data[1] = krand() & 127;
 	}
-	actor->spr.SetScale(0.375, 0.375);
+	actor->spr.scale = DVector2(0.375, 0.375);
 	ChangeActorStat(actor, STAT_STANDABLE);
 }
 
@@ -508,7 +508,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 	{
 		if (actor->spr.lotag > ud.player_skill)
 		{
-			actor->spr.SetScale(0, 0);
+			actor->spr.scale = DVector2(0, 0);
 			ChangeActorStat(actor, STAT_MISC);
 			return true;
 		}
@@ -517,7 +517,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 		actor->temp_data[5] = 0;
 		if (ud.monsters_off == 1)
 		{
-			actor->spr.SetScale(0, 0);
+			actor->spr.scale = DVector2(0, 0);
 			ChangeActorStat(actor, STAT_MISC);
 			return false;
 		}
@@ -530,7 +530,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 
 	if (ud.multimode < 2 && actor->spr.pal != 0)
 	{
-		actor->spr.SetScale(0, 0);
+		actor->spr.scale = DVector2(0, 0);
 		ChangeActorStat(actor, STAT_MISC);
 		return false;
 	}
@@ -554,7 +554,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 	actor->spr.yint = sectp->extra;
 	actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-	actor->spr.SetScale(0, 0);
+	actor->spr.scale = DVector2(0, 0);
 
 	switch (actor->spr.lotag)
 	{
@@ -619,7 +619,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_27_DEMO_CAM:
 			if (ud.recstat == 1)
 			{
-				actor->spr.SetScale(1, 1);
+				actor->spr.scale = DVector2(1, 1);
 				actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 			}
 			break;

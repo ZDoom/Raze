@@ -927,7 +927,7 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVe
         PicAnimOff(spawnedActor->spr.picnum);
     }
 
-    spawnedActor->spr.SetScale(1, 1);
+    spawnedActor->spr.scale = DVector2(1, 1);
     spawnedActor->spr.angle = init_ang;
     spawnedActor->vel.X = vel;
 
@@ -2639,7 +2639,7 @@ void SpriteSetup(void)
                         SpawnUser(actor, ST1, nullptr);
 
                     if (actor->spr.scale.X == 1 && actor->spr.scale.Y == 1) // clear default scale.
-                        actor->spr.SetScale(0, 0);
+                        actor->spr.scale = DVector2(0, 0);
 
                     change_actor_stat(actor, STAT_SPAWN_SPOT);
                     break;
@@ -5004,7 +5004,7 @@ int DoSpawnItemTeleporterEffect(DSWActor* actor)
     auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), actor->spr.pos.plusZ(-12), actor->spr.angle);
 
     effect->spr.shade = -40;
-    effect->spr.SetScale(0.5625, 0.5625);
+    effect->spr.scale = DVector2(0.5625, 0.5625);
     effect->spr.cstat |= CSTAT_SPRITE_YCENTER;
     effect->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     return 0;

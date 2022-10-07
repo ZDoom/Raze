@@ -1350,7 +1350,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     SetActorZ(effectActor, effectActor->spr.pos);
 
     effectActor->spr.shade = -40;
-    effectActor->spr.SetScale(0.65625, 0.65625);
+    effectActor->spr.scale = DVector2(0.65625, 0.65625);
     effectActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     effectActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -1372,7 +1372,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     SetActorZ(effectActor, effectActor->spr.pos);
 
     effectActor->spr.shade = -40;
-    effectActor->spr.SetScale(0.65625, 0.65625);
+    effectActor->spr.scale = DVector2(0.65625, 0.65625);
     effectActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     effectActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -5950,7 +5950,7 @@ void DoPlayerBeginDie(PLAYER* pp)
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
-        plActor->spr.SetScale(0.75, 0.75);
+        plActor->spr.scale = DVector2(0.75, 0.75);
         // Blood fountains
         InitBloodSpray(pp->actor,true,105);
         break;
@@ -5964,7 +5964,7 @@ void DoPlayerBeginDie(PLAYER* pp)
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
-        plActor->spr.SetScale(0.75, 0.75);
+        plActor->spr.scale = DVector2(0.75, 0.75);
         // Blood fountains
         InitBloodSpray(pp->actor,true,-1);
         InitBloodSpray(pp->actor,true,-1);
@@ -5981,7 +5981,7 @@ void DoPlayerBeginDie(PLAYER* pp)
         plActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->actor, sg_PlayerHeadFly);
         plActor->user.ID = NINJA_Head_R0;
-        plActor->spr.SetScale(0.75, 0.75);
+        plActor->spr.scale = DVector2(0.75, 0.75);
         // Blood fountains
         InitBloodSpray(pp->actor,true,105);
         break;
@@ -6130,7 +6130,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         NewStateGroup(plActor, plActor->user.ActorActionSet->Stand);
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
-        plActor->spr.SetScale(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_XREPEAT);
+        plActor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_XREPEAT);
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.pos = pp->pos.plusZ(PLAYER_HEIGHTF);
         plActor->spr.angle = pp->angle.ang;
@@ -6150,7 +6150,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         pp->input.actions |= SB_CENTERVIEW;
-		plActor->spr.SetScale(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
+		plActor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
         pp->horizon.horiz = nullAngle;
         DoPlayerResetMovement(pp);

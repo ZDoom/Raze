@@ -476,11 +476,6 @@ struct spritetypebase
 	{
 		pos = { x * maptoworld, y * maptoworld, z * zmaptoworld };
 	}
-
-	void SetScale(double x, double y)
-	{
-		scale = { x, y };
-	}
 };
 
 

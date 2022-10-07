@@ -1838,7 +1838,7 @@ int SetupNinja(DSWActor* actor)
 
     actor->user.StateEnd = s_NinjaDie;
     actor->user.Rot = sg_NinjaRun;
-	actor->spr.SetScale(0.71875, 0.71875);
+	actor->spr.scale = DVector2(0.71875, 0.71875);
 
     if (actor->spr.pal == PALETTE_PLAYER5)
     {
@@ -2418,7 +2418,7 @@ void InitPlayerSprite(PLAYER* pp)
     actor->spr.shade = -60; // was 15
     actor->clipdist = 16;
 
-    actor->spr.SetScale(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
+    actor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
     actor->spr.pal = PALETTE_PLAYER0 + pp->pnum;
     actor->user.spal = actor->spr.pal;
 

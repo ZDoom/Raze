@@ -115,7 +115,7 @@ void InitSpiritHead()
     }
 
 
-	pSpiritSpr->spr.SetScale(2.1875, 2.1875);
+	pSpiritSpr->spr.scale = DVector2(2.1875, 2.1875);
     pSpiritSpr->spr.picnum = kTileRamsesWorkTile;
 
     nHeadStage = 0;

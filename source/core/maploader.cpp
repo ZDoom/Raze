@@ -309,7 +309,7 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
 	spr.blend = fr.ReadUInt8();
 	x = fr.ReadUInt8();
 	y = fr.ReadUInt8();
-	spr.SetScale(x * REPEAT_SCALE, y * REPEAT_SCALE);
+	spr.scale = DVector2(x * REPEAT_SCALE, y * REPEAT_SCALE);
 	spr.xoffset = fr.ReadInt8();
 	spr.yoffset = fr.ReadInt8();
 	secno = fr.ReadInt16();
@@ -338,7 +338,7 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr, int& secno)
 	spr.clipdist = fr.ReadUInt8();
 	x = fr.ReadUInt8();
 	y = fr.ReadUInt8();
-	spr.SetScale(x * REPEAT_SCALE, y * REPEAT_SCALE);
+	spr.scale = DVector2(x * REPEAT_SCALE, y * REPEAT_SCALE);
 	spr.xoffset = fr.ReadInt8();
 	spr.yoffset = fr.ReadInt8();
 	spr.picnum = fr.ReadInt16();
@@ -369,7 +369,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 	spr.shade = fr.ReadInt8();
 	x = fr.ReadUInt8();
 	y = fr.ReadUInt8();
-	spr.SetScale(x * REPEAT_SCALE, y * REPEAT_SCALE);
+	spr.scale = DVector2(x * REPEAT_SCALE, y * REPEAT_SCALE);
 	spr.picnum = fr.ReadInt16();
 	spr.intangle = fr.ReadInt16();
 	spr.angle = mapangle(spr.intangle);

@@ -459,7 +459,7 @@ int DoBloodSpray(DSWActor* actor)
                 actor->vel.X = 0;
                 actor->user.change.X = actor->user.change.Y = 0;
                 double scale = (70 - RandomRange(25)) * REPEAT_SCALE;
-                actor->spr.SetScale(scale, scale);
+                actor->spr.scale = DVector2(scale, scale);
                 actor->spr.pos.XY() = bldActor->spr.pos.XY();
 
                 // !FRANK! bit of a hack
@@ -953,7 +953,7 @@ int DoChemBomb(DSWActor* actor)
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.SetScale(0.625, 0.625);
+        actorNew->spr.scale = DVector2(0.625, 0.625);
         actorNew->opos = actor->opos;
         // !Frank - dont do translucent
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -1188,7 +1188,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     SetOwner(GetOwner(actor), actorNew);
     actorNew->user.WaitTics = 1 * 120;
     actorNew->spr.shade = -40;
-    actorNew->spr.SetScale(0.5, 0.5);
+    actorNew->spr.scale = DVector2(0.5, 0.5);
     actorNew->copy_clipdist(actor);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -1273,7 +1273,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.SetScale(0.5, 0.5);
+    actorNew->spr.scale = DVector2(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -1337,7 +1337,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.SetScale(0.5, 0.5);
+    actorNew->spr.scale = DVector2(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -1374,7 +1374,7 @@ int InitChemBomb(DSWActor* actor)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(GetOwner(actor), actorNew);
-    actorNew->spr.SetScale(0.5, 0.5);
+    actorNew->spr.scale = DVector2(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = 3;
@@ -1593,7 +1593,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     if (actor != nullptr)
         actor->user.flameActor = actorNew;
 
-    actorNew->spr.SetScale(0.25, 0.25);
+    actorNew->spr.scale = DVector2(0.25, 0.25);
 
     if (actor->user.flameActor != nullptr)
     {
@@ -1644,7 +1644,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.SetScale(1, 1);
+    actorNew->spr.scale = DVector2(1, 1);
     actorNew->spr.shade = -15;
     actorNew->user.WeaponNum = plActor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -1694,7 +1694,7 @@ int InitCaltrops(DSWActor* actor)
     actorNew->user.Flags |= (SPR_XFLIP_TOGGLE);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.SetScale(1, 1);
+    actorNew->spr.scale = DVector2(1, 1);
     actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
     actorNew->copy_clipdist(actor);
@@ -1733,7 +1733,7 @@ int InitPhosphorus(DSWActor* actor)
     // actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_YCENTER);
     actorNew->spr.shade = -128;
 
-    actorNew->spr.SetScale(1, 1);
+    actorNew->spr.scale = DVector2(1, 1);
     actorNew->spr.shade = -15;
     // !FRANK - clipbox must be <= weapon otherwise can clip thru walls
     if (actor->clipdist > 0)
@@ -2228,7 +2228,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;
-		actorNew->spr.SetScale(0.203125, 0.203125);
+		actorNew->spr.scale = DVector2(0.203125, 0.203125);
         break;
     case SHOT_SHELL:
 		actorNew->spr.pos.Z -= 13;
@@ -2242,7 +2242,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
         // Set the shell number
         actorNew->user.ShellNum = ShellCount;
-		actorNew->spr.SetScale(0.28125, 0.28125);
+		actorNew->spr.scale = DVector2(0.28125, 0.28125);
         break;
     }
 

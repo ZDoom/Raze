@@ -615,8 +615,8 @@ void resetpspritevars(int g)
 		{
 			act->SetOwner(act);
 			act->spr.shade = 0;
-			if (isRR()) act->spr.SetScale(0.375, 0.265625);
-			else act->spr.SetScale(0.65625, 0.5625);
+			if (isRR()) act->spr.scale = DVector2(0.375, 0.265625);
+			else act->spr.scale = DVector2(0.65625, 0.5625);
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 			act->spr.xoffset = 0;
 			act->clipdist = 16;
