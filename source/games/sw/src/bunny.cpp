@@ -1460,8 +1460,8 @@ int DoBunnyGrowUp(DSWActor* actor)
 
     if ((actor->user.Counter -= ACTORMOVETICS) <= 0)
     {
-		actor->spr.AddScaleX(REPEAT_SCALE);
-		actor->spr.AddScaleY(REPEAT_SCALE);
+		actor->spr.scale.X += (REPEAT_SCALE);
+		actor->spr.scale.Y += (REPEAT_SCALE);
         if ((actor->spr.scale.X) > 1) actor->spr.SetScaleX(1);
 		if ((actor->spr.scale.Y) > 1) actor->spr.SetScaleY(1);
         actor->user.Counter = 60;

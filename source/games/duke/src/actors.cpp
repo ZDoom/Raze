@@ -480,13 +480,13 @@ void moveplayers(void)
 
 			if (act->spr.scale.X < 0.65625)
 			{
-				act->spr.AddScaleX(0.0625);
+				act->spr.scale.X += (0.0625);
 				act->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
 			}
 			else act->spr.SetScaleX(0.65625);
 
 			if (act->spr.scale.Y < 0.5625)
-				act->spr.AddScaleY(4);
+				act->spr.scale.Y += (4);
 			else
 			{
 				act->spr.SetScaleY(0.5625);
@@ -2292,16 +2292,16 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		{
 			if (actor->spr.scale.X < 1 && actor->spr.scale.Y < 1)
 			{
-				actor->spr.AddScaleX((krand() & 3) * REPEAT_SCALE);
-				actor->spr.AddScaleY((krand() & 3) * REPEAT_SCALE);
+				actor->spr.scale.X += ((krand() & 3) * REPEAT_SCALE);
+				actor->spr.scale.Y += ((krand() & 3) * REPEAT_SCALE);
 			}
 		}
 		else
 		{
 			if (actor->spr.scale.X < 0.5 && actor->spr.scale.Y < 0.5)
 			{
-				actor->spr.AddScaleX((krand() & 3) * REPEAT_SCALE);
-				actor->spr.AddScaleY((krand() & 3) * REPEAT_SCALE);
+				actor->spr.scale.X += ((krand() & 3) * REPEAT_SCALE);
+				actor->spr.scale.Y += ((krand() & 3) * REPEAT_SCALE);
 			}
 		}
 	}
@@ -2333,8 +2333,8 @@ bool bloodpool(DDukeActor* actor, bool puke)
 
 		if (actor->temp_data[2] == 32)
 		{
-			actor->spr.AddScaleX(-6);
-			actor->spr.AddScaleY(-6);
+			actor->spr.scale.X += (-6);
+			actor->spr.scale.Y += (-6);
 		}
 	}
 	else actor->temp_data[1] = 0;

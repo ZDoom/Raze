@@ -492,8 +492,8 @@ void DoRegenerates()
         {
             if (pActor->spr.scale.X < s)
             {
-				pActor->spr.AddScaleX(0.03125);
-				pActor->spr.AddScaleY(0.03125);
+				pActor->spr.scale.X += (0.03125);
+				pActor->spr.scale.Y += (0.03125);
                 continue;
             }
         }

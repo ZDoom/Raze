@@ -347,8 +347,8 @@ int MoveBullet(int nBullet)
         {
             if (pBullet->field_E < 8)
             {
-                pActor->spr.AddScaleX(-REPEAT_SCALE);
-				pActor->spr.AddScaleY(0.125);
+                pActor->spr.scale.X -= REPEAT_SCALE;
+				pActor->spr.scale.Y += (0.125);
 
                 pBullet->vect.Z -= 200/256.;
 
@@ -367,8 +367,8 @@ int MoveBullet(int nBullet)
             }
             else
             {
-				pActor->spr.AddScaleX(0.0625);
-				pActor->spr.AddScaleY(0.0625);
+				pActor->spr.scale.X += (0.0625);
+				pActor->spr.scale.Y += (0.0625);
             }
         }
 

@@ -2296,8 +2296,8 @@ int ParseState::parse(void)
 		parseifelse(ps[g_p].OnBoat == 1);
 		break;
 	case concmd_ifsizedown:
-		g_ac->spr.AddScaleX(-REPEAT_SCALE);
-		g_ac->spr.AddScaleY(-REPEAT_SCALE);
+		g_ac->spr.scale.X -= REPEAT_SCALE;
+		g_ac->spr.scale.Y -= REPEAT_SCALE;
 		parseifelse(g_ac->spr.scale.X <= 5 * REPEAT_SCALE);
 		break;
 	case concmd_ifwind:

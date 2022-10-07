@@ -241,8 +241,8 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			{
 				t->picnum = STATIC;
 				t->cstat |= randomFlip();
-				t->AddScaleX(0.125);
-				t->AddScaleY(0.125);
+				t->scale.X += (0.125);
+				t->scale.Y += (0.125);
 			}
 			else if (camsprite && camsprite == h->GetHitOwner())
 			{

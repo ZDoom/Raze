@@ -1480,9 +1480,9 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 		ssp(proj, CLIPMASK1);
 		proj->spr.extra >>= 1;
 		if (proj->spr.scale.X > 0.125 )
-			proj->spr.AddScaleX(-0.03125);
+			proj->spr.scale.X += (-0.03125);
 		if (proj->spr.scale.Y > 0.125 )
-			proj->spr.AddScaleY(-0.03125);
+			proj->spr.scale.Y += (-0.03125);
 		proj->spr.yint--;
 		return true;
 	}
@@ -2275,8 +2275,8 @@ static void greenslime(DDukeActor *actor)
 		actor->spr.cstat &= ~CSTAT_SPRITE_YFLIP;
 		actor->spr.picnum = GREENSLIME + 4;
 
-		if (actor->spr.scale.X > 0.5 ) actor->spr.AddScaleX(-(krand() & 7) * REPEAT_SCALE);
-		if (actor->spr.scale.Y > 0.25 ) actor->spr.AddScaleY(-(krand() & 7) * REPEAT_SCALE);
+		if (actor->spr.scale.X > 0.5 ) actor->spr.scale.X += (-(krand() & 7) * REPEAT_SCALE);
+		if (actor->spr.scale.Y > 0.25 ) actor->spr.scale.Y += (-(krand() & 7) * REPEAT_SCALE);
 		else
 		{
 			actor->spr.SetScale(0.625, 0.25);
@@ -2299,10 +2299,10 @@ static void greenslime(DDukeActor *actor)
 			actor->spr.pos = s5->spr.pos + s5->spr.angle.ToVector() * 0.5;
 			actor->spr.picnum = GREENSLIME + 2 + (global_random & 1);
 
-			if (actor->spr.scale.Y < 1) actor->spr.AddScaleY(0.03125);
+			if (actor->spr.scale.Y < 1) actor->spr.scale.Y += (0.03125);
 			else
 			{
-				if (actor->spr.scale.X < 0.5) actor->spr.AddScaleY(0.0625);
+				if (actor->spr.scale.X < 0.5) actor->spr.scale.Y += (0.0625);
 				else
 				{
 					actor->temp_data[0] = -1;
@@ -2393,8 +2393,8 @@ static void greenslime(DDukeActor *actor)
 	if (actor->temp_data[0] == 1)
 	{
 		actor->spr.picnum = GREENSLIME;
-		if (actor->spr.scale.Y < 0.625) actor->spr.AddScaleY(0.125);
-		if (actor->spr.scale.X > 0.125 ) actor->spr.AddScaleX(-0.0625);
+		if (actor->spr.scale.Y < 0.625) actor->spr.scale.Y += (0.125);
+		if (actor->spr.scale.X > 0.125 ) actor->spr.scale.X += (-0.0625);
 		if (actor->vel.Z > -12)
 			actor->vel.Z -= 348 / 256.;
 		actor->spr.pos.Z += actor->vel.Z;
@@ -2414,13 +2414,13 @@ static void greenslime(DDukeActor *actor)
 
 		if (actor->spr.pos.Z > actor->floorz - 8)
 		{
-			actor->spr.AddScaleY(-0.0625);
-			actor->spr.AddScaleX(0.03125);
+			actor->spr.scale.Y += (-0.0625);
+			actor->spr.scale.X += (0.03125);
 		}
 		else
 		{
-			if (actor->spr.scale.Y < 0.5625) actor->spr.AddScaleY(0.125);
-			if (actor->spr.scale.X > 0.125 ) actor->spr.AddScaleX(-0.0625);
+			if (actor->spr.scale.Y < 0.5625) actor->spr.scale.Y += (0.125);
+			if (actor->spr.scale.X > 0.125 ) actor->spr.scale.X += (-0.0625);
 		}
 
 		if (actor->spr.pos.Z > actor->floorz - 8)
@@ -2459,7 +2459,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	int ds = actor->temp_data[0] / 6;
 	if (actor->spr.scale.X < 0.1250)
 	{
-		actor->spr.AddScaleX(ds * REPEAT_SCALE);
+		actor->spr.scale.X += (ds * REPEAT_SCALE);
 		actor->spr.SetScaleY(actor->spr.scale.X);
 	}
 	actor->clipdist += ds * 0.25;
@@ -3005,7 +3005,7 @@ void moveexplosions_d(void)  // STATNUM 5
 			if (act->temp_data[0] == 7 * 26) continue;
 			act->spr.pos.Z += 1 / 16. + krandf(1 / 16.);
 			act->temp_data[0]++;
-			if ((act->temp_data[0] % 9) == 0) act->spr.AddScaleY(REPEAT_SCALE);
+			if ((act->temp_data[0] % 9) == 0) act->spr.scale.Y += (REPEAT_SCALE);
 			continue;
 
 		case NUKEBUTTON:

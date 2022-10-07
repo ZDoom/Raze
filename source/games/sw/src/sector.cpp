@@ -923,8 +923,8 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
     auto exp = SpawnSectorExp(actor);
     if (!exp) return;
 
-    exp->spr.AddScaleX(((RANDOM_P2(32 << 8) >> 8) - 16) * REPEAT_SCALE);
-    exp->spr.AddScaleY(((RANDOM_P2(32 << 8) >> 8) - 16) * REPEAT_SCALE);
+    exp->spr.scale.X += (((RANDOM_P2(32 << 8) >> 8) - 16) * REPEAT_SCALE);
+    exp->spr.scale.Y += (((RANDOM_P2(32 << 8) >> 8) - 16) * REPEAT_SCALE);
     exp->user.change.XY() = exp->spr.angle.ToVector(5.75);
 }
 

@@ -1054,9 +1054,9 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 			{
 				proj->spr.extra >>= 1;
 				if (proj->spr.scale.X > 0.125 )
-					proj->spr.AddScaleX(-0.03125);
+					proj->spr.scale.X += (-0.03125);
 				if (proj->spr.scale.Y > 0.125 )
-					proj->spr.AddScaleY(-0.03125);
+					proj->spr.scale.Y += (-0.03125);
 				proj->spr.yint--;
 			}
 
@@ -1138,9 +1138,9 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		ssp(proj, CLIPMASK1);
 		proj->spr.extra >>= 1;
 		if (proj->spr.scale.X > 0.125 )
-			proj->spr.AddScaleX(-0.03125);
+			proj->spr.scale.X += (-0.03125);
 		if (proj->spr.scale.Y > 0.125 )
-			proj->spr.AddScaleY(-0.03125);
+			proj->spr.scale.Y += (-0.03125);
 		proj->spr.yint--;
 		return true;
 	}
@@ -2907,7 +2907,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (act->temp_data[0] == 7 * 26) continue;
 			act->spr.pos.Z += 1 / 16. + krandf(1 / 16.);
 			act->temp_data[0]++;
-			if ((act->temp_data[0] % 9) == 0) act->spr.AddScaleY(REPEAT_SCALE);
+			if ((act->temp_data[0] % 9) == 0) act->spr.scale.Y += (REPEAT_SCALE);
 			continue;
 
 

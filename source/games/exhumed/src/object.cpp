@@ -1461,11 +1461,11 @@ void AISpark::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     pActor->spr.shade += 3;
-	pActor->spr.AddScaleX(-0.03125);
+	pActor->spr.scale.X += (-0.03125);
 
     if (pActor->spr.scale.X >= 0.0625 && pActor->spr.shade <= 100)
     {
-		pActor->spr.AddScaleY(-0.03125);
+		pActor->spr.scale.Y += (-0.03125);
 
         // calling BuildSpark() with 2nd parameter as '1' will set kTile986
         if (pActor->spr.picnum == kTile986 && int((pActor->spr.scale.X * INV_REPEAT_SCALE)) & 2) // hack alert

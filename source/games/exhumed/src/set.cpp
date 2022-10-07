@@ -146,8 +146,8 @@ void AISoul::Tick(RunListEvent* ev)
 
     if (pActor->spr.scale.X < 0.5)
     {
-        pActor->spr.AddScaleX(REPEAT_SCALE);
-		pActor->spr.AddScaleY(REPEAT_SCALE);
+        pActor->spr.scale.X += (REPEAT_SCALE);
+		pActor->spr.scale.Y += (REPEAT_SCALE);
     }
 
     pActor->spr.extra += (pActor->nPhase & 0x0F) + 5;
