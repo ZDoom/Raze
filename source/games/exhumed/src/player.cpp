@@ -2585,7 +2585,7 @@ sectdone:
                 sectortype* mouthSect;
                 auto pos = WheresMyMouth(nPlayer, &mouthSect);
 
-                BuildAnimI(nullptr, 71, 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 75, 128);
+                BuildAnim(nullptr, 71, 0, DVector3(pos.XY(), pPlayerActor->spr.pos.Z + 15), mouthSect, 1.171875, 128);
             }
             break;
         case 17:

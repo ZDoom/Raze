@@ -177,7 +177,7 @@ void IgniteSprite(DExhumedActor* pActor)
 {
     pActor->spr.hitag += 2;
 
-    auto pAnimActor = BuildAnimI(nullptr, 38, 0, pActor->spr.pos, pActor->sector(), 40, 20);
+    auto pAnimActor = BuildAnim(nullptr, 38, 0, pActor->spr.pos, pActor->sector(), 0.625, 20);
 
     if (pAnimActor)
     {
@@ -216,7 +216,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
             }
 
             if (!RandomSize(2)) {
-                BuildAnimI(nullptr, pBulletInfo->field_C, 0, pos, pSector, 40, pBulletInfo->nFlags);
+                BuildAnim(nullptr, pBulletInfo->field_C, 0, pos, pSector, 0.625, pBulletInfo->nFlags);
             }
 
             return;
@@ -279,7 +279,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 
     if (nStat <= 90 || nStat >= 199)
     {
-        BuildAnimI(nullptr, pBulletInfo->field_C, 0, pos, pSector, 40, pBulletInfo->nFlags);
+        BuildAnim(nullptr, pBulletInfo->field_C, 0, pos, pSector, 0.625, pBulletInfo->nFlags);
         return;
     }
 
@@ -291,13 +291,13 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
         case 102:
         case kStatExplodeTrigger:
         case kStatExplodeTarget:
-            BuildAnimI(nullptr, 12, 0, pos, pSector, 40, 0);
+            BuildAnim(nullptr, 12, 0, pos, pSector, 0.625, 0);
             break;
         default:
-            BuildAnimI(nullptr, 39, 0, pos, pSector, 40, 0);
+            BuildAnim(nullptr, 39, 0, pos, pSector, 0.625, 0);
             if (pBullet->nType > 2)
             {
-                BuildAnimI(nullptr, pBulletInfo->field_C, 0, pos, pSector, 40, pBulletInfo->nFlags);
+                BuildAnim(nullptr, pBulletInfo->field_C, 0, pos, pSector, 0.625, pBulletInfo->nFlags);
             }
             break;
     }
@@ -491,7 +491,7 @@ HITSPRITE:
                 }
                 else
                 {
-                    BuildAnimI(nullptr, pBulletInfo->field_C, 0, pos, pHitSect, 40, pBulletInfo->nFlags);
+                    BuildAnim(nullptr, pBulletInfo->field_C, 0, pos, pHitSect, 0.625, pBulletInfo->nFlags);
                 }
             }
             else
@@ -510,7 +510,7 @@ HITSPRITE:
                         }
 
                         // draws bullet puff on walls when they're shot
-                        BuildAnimI(nullptr, pBulletInfo->field_C, 0, pos.plusZ(zOffset - 16), pHitSect, 40, pBulletInfo->nFlags);
+                        BuildAnim(nullptr, pBulletInfo->field_C, 0, pos.plusZ(zOffset - 16), pHitSect, 0.625, pBulletInfo->nFlags);
                     }
                 }
                 else
@@ -807,7 +807,7 @@ void AIBullet::Tick(RunListEvent* ev)
 
     if (nFlag & 0x80)
     {
-        BuildAnimI(nullptr, 45, 0, pActor->spr.pos, pActor->sector(), pActor->spr.ScaleX() * REPEAT_SCALE, 0);
+        BuildAnim(nullptr, 45, 0, pActor->spr.pos, pActor->sector(), pActor->spr.ScaleX(), 0);
     }
 
     BulletList[nBullet].nFrame++;

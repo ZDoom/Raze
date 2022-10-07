@@ -166,7 +166,8 @@ void BuildGrenade(int nPlayer)
 
 void ExplodeGrenade(DExhumedActor* pActor)
 {
-    int var_28, var_20;
+    int var_28;
+	double scale;
 
     int nPlayer = pActor->spr.intowner;
     auto pGrenadeSect = pActor->sector();
@@ -176,13 +177,13 @@ void ExplodeGrenade(DExhumedActor* pActor)
     if (pGrenadeSect->Flag & kSectUnderwater)
     {
         var_28 = 75;
-        var_20 = 60;
+        scale = 0.9375;
     }
     else
     {
         if (pActor->spr.pos.Z < pGrenadeSect->floorz)
         {
-            var_20 = 200;
+            scale = 3.125;
             var_28 = 36;
 
 // TODO		MonoOut("GRENPOW\n");
@@ -190,7 +191,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
         else
         {
             var_28 = 34;
-            var_20 = 150;
+            scale = 2.3475;
 
 // TODO		MonoOut("GRENBOOM\n");
         }
@@ -219,7 +220,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponGrenade].nRadius);
 
-    BuildAnimI(nullptr, var_28, 0, pActor->spr.pos, pActor->sector(), var_20, 4);
+    BuildAnim(nullptr, var_28, 0, pActor->spr.pos, pActor->sector(), scale, 4);
     AddFlash(pActor->sector(), pActor->spr.pos, 128);
 
     DestroyGrenade(pActor);

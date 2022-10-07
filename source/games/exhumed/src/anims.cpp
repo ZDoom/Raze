@@ -268,7 +268,7 @@ void BuildExplosion(DExhumedActor* pActor)
         edx = 34;
     }
 
-    BuildAnimI(nullptr, edx, 0, pActor->spr.pos, pActor->sector(), pActor->spr.ScaleX() * INV_REPEAT_SCALE, 4);
+    BuildAnim(nullptr, edx, 0, pActor->spr.pos, pActor->sector(), pActor->spr.ScaleX(), 4);
 }
 
 //---------------------------------------------------------------------------
@@ -279,17 +279,18 @@ void BuildExplosion(DExhumedActor* pActor)
 
 void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
 {
-    int nRepeat, nSound;
+    int nSound;
+	double nScale;
 
     if (pActor->spr.statnum != 200)
     {
-		int rep = int(pActor->spr.ScaleX() * INV_REPEAT_SCALE);
-        nRepeat = rep + (RandomWord() % rep);
+		double rep = pActor->spr.ScaleX();
+        nScale = rep + RandomFloat(rep);
         nSound = kSound0;
     }
     else
     {
-        nRepeat = 20;
+        nScale = 0.3125;
         nSound = kSound1;
     }
 
@@ -308,7 +309,7 @@ void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
         nFlag = 0;
     }
 
-	auto pSpawned = BuildAnimI(nullptr, edx, 0, DVector3(pActor->spr.pos.XY(), pSector->floorz), pSector, nRepeat, nFlag);
+	auto pSpawned = BuildAnim(nullptr, edx, 0, DVector3(pActor->spr.pos.XY(), pSector->floorz), pSector, nScale, nFlag);
 
     if (!bIsLava)
     {
