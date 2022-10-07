@@ -718,38 +718,47 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 		case SE_20_STRETCH_BRIDGE:
 		{
-			walltype* closewall = nullptr;
-
 			//find the two most clostest wall x's and y's
-			double maxdist = 0x7fffffff;
-
-			for (auto& wal : wallsofsector(sectp))
+			for (unsigned i = 0; i < 2; i++)
 			{
-				double dist = (actor->spr.pos.XY() - wal.pos).LengthSquared();
-				if (dist < maxdist)
+				walltype* closewall = nullptr;
+				double maxdist = 0x7fffffff;
+
+				for (auto& wal : wallsofsector(sectp))
 				{
-					maxdist = dist;
-					closewall = &wal;
+					double dist = (actor->spr.pos.XY() - wal.pos).LengthSquared();
+					if (dist < maxdist && &wal != actor->temp_walls[0])
+					{
+						maxdist = dist;
+						closewall = &wal;
+					}
+				}
+
+				actor->temp_walls[i] = closewall;
+
+				StartInterpolation(actor->temp_walls[i], Interp_Wall_X);
+				StartInterpolation(actor->temp_walls[i], Interp_Wall_Y);
+
+				if (actor->temp_walls[i]->twoSided())
+				{
+					auto nwal = actor->temp_walls[i]->nextWall();
+					StartInterpolation(nwal, Interp_Wall_X);
+					StartInterpolation(nwal, Interp_Wall_Y);
+					nwal = nwal->point2Wall();
+					StartInterpolation(nwal, Interp_Wall_X);
+					StartInterpolation(nwal, Interp_Wall_Y);
+
+					if (nwal->twoSided())
+					{
+						nwal = nwal->nextWall();
+						StartInterpolation(nwal, Interp_Wall_X);
+						StartInterpolation(nwal, Interp_Wall_Y);
+						nwal = nwal->point2Wall();
+						StartInterpolation(nwal, Interp_Wall_X);
+						StartInterpolation(nwal, Interp_Wall_Y);
+					}
 				}
 			}
-
-			actor->temp_walls[0] = closewall;
-
-			maxdist = 0x7fffffff;
-
-			for (auto& wal : wallsofsector(sectp))
-			{
-				double dist = (actor->spr.pos.XY() - wal.pos).LengthSquared();
-				if (dist < maxdist && &wal != actor->temp_walls[0])
-				{
-					maxdist = dist;
-					closewall = &wal;
-				}
-			}
-
-			actor->temp_walls[1] = closewall;
-			StartInterpolation(sectp, Interp_Sect_FloorPanX);
-			StartInterpolation(sectp, Interp_Sect_FloorPanY);
 			break;
 		}
 
