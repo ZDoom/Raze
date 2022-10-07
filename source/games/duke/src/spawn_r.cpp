@@ -708,14 +708,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BOLT1 + 1:
 	case BOLT1 + 2:
 	case BOLT1 + 3:
-		act->temp_data[0] = act->spr.xrepeat;
-		act->temp_data[1] = act->spr.yrepeat;
+		act->temp_pos.X = act->spr.ScaleX();
+		act->temp_pos.Y = act->spr.ScaleY();
 		[[fallthrough]];
 	case MASTERSWITCH:
 		if (act->spr.picnum == MASTERSWITCH)
 			act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		act->spr.yint = 0;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 		// this is not really nice...

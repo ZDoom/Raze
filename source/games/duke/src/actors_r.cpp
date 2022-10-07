@@ -763,15 +763,14 @@ CLEAR_THE_BOLT:
 		sectp->ceilingshade = 20;
 		return;
 	}
-	if ((actor->spr.xrepeat | actor->spr.yrepeat) == 0)
+	if (actor->spr.ScaleX() == 0 && actor->spr.ScaleY() == 0)
 	{
-		actor->spr.xrepeat = actor->temp_data[0];
-		actor->spr.yrepeat = actor->temp_data[1];
+		actor->spr.SetScale(actor->temp_pos.X, actor->temp_pos.Y);
 	}
 	else if ((krand() & 8) == 0)
 	{
-		actor->temp_data[0] = actor->spr.xrepeat;
-		actor->temp_data[1] = actor->spr.yrepeat;
+		actor->temp_pos.X = actor->spr.ScaleX();
+		actor->temp_pos.Y = actor->spr.ScaleY();
 		actor->temp_data[2] = global_random & 4;
 		actor->spr.SetScale(0, 0);
 		goto CLEAR_THE_BOLT;
@@ -779,7 +778,7 @@ CLEAR_THE_BOLT:
 	actor->spr.picnum++;
 
 	int l = global_random & 7;
-	actor->spr.xrepeat = l + 8;
+	actor->spr.SetScaleX(0.125 + l * REPEAT_SCALE);
 
 	if (l & 1) actor->spr.cstat ^= CSTAT_SPRITE_TRANSLUCENT;
 

@@ -746,21 +746,21 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SIDEBOLT1 + 1:
 	case SIDEBOLT1 + 2:
 	case SIDEBOLT1 + 3:
-		act->temp_data[0] = act->spr.xrepeat;
-		act->temp_data[1] = act->spr.yrepeat;
+		act->temp_pos.X = act->spr.ScaleX();
+		act->temp_pos.Y = act->spr.ScaleY();
 		[[fallthrough]];
 	case MASTERSWITCH:
 		if (act->spr.picnum == MASTERSWITCH)
 			act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		act->spr.yint = 0;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case TARGET:
 	case DUCK:
 	case LETTER:
 		act->spr.extra = 1;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case OCTABRAINSTAYPUT:
 	case LIZTROOPSTAYPUT:
