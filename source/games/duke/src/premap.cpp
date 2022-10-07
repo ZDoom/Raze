@@ -539,7 +539,7 @@ void resetpspritevars(int g)
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
 	CreateActor(ps[0].cursector, ps[0].pos,
-		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang, 0., 0., nullptr, 10);
+		TILE_APLAYER, 0, DVector2(0, 0), ps[0].angle.ang, 0., 0., nullptr, 10);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{
