@@ -753,7 +753,6 @@ int SetupBunny(DSWActor* actor)
         EnemyDefaults(actor, &BunnyWhiteActionSet, &WhiteBunnyPersonality);
         actor->user.Attrib = &WhiteBunnyAttrib;
         actor->spr.SetScale(1.5, 1.40625);
-        actor->spr.yrepeat = 90;
 
         actor->clipdist = 12.5;
 

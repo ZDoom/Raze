@@ -353,7 +353,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 
     if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
-        tSpr->yrepeat = 0;
+        tSpr->SetScaleY(0);
         // cstat:    trans reverse
         // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
         tSpr->clipdist |= TSPR_FLAGS_MDHACK;
@@ -1465,8 +1465,8 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
                     const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
-                    // This yrepeat scale is correct.
-                    double sc = czoom * actor->spr.yrepeat * (1. / 32.);
+                    // This repeat scale is correct.
+                    double sc = czoom * actor->spr.ScaleY() * 2;
 
                     DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), vect.X, vect.Y, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang,
                         DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, actor->spr.pal), DTA_Color, shadeToLight(actor->spr.shade),

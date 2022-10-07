@@ -8106,7 +8106,7 @@ int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
     if (wActor)
         SetOwner(GetOwner(wActor), actorNew);
     SetAttach(sActor, actorNew);
-    actorNew->spr.yrepeat = 0;
+    actorNew->spr.SetScaleY(0);
 	actorNew->clipdist = 0.5;
 
     actorNew->user.WaitTics = 120+60;
@@ -10175,8 +10175,7 @@ void SpawnFireballExp(DSWActor* actor)
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, actor->sector(), actor->spr.pos, actor->spr.angle, 0);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
-    actorNew->spr.xrepeat = 52;
-    actorNew->spr.yrepeat = 52;
+    actorNew->spr.SetScale(0.8125, 0.8125);
     SetOwner(GetOwner(actor), actorNew);
     actorNew->spr.shade = -40;
     actorNew->spr.pal = actorNew->user.spal = actor->user.spal;
@@ -10248,8 +10247,7 @@ void SpawnBoltExp(DSWActor* actor)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 76;
-    expActor->spr.yrepeat = 76;
+    expActor->spr.SetScale(1.1825, 1.1825);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
@@ -10308,8 +10306,7 @@ void SpawnTankShellExp(DSWActor* actor)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 64+32;
-    expActor->spr.yrepeat = 64+32;
+    expActor->spr.SetScale(1.5, 1.5);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
@@ -10331,8 +10328,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, DAngle ang)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
     expActor->spr.shade = -128;
-    expActor->spr.xrepeat = 218;
-    expActor->spr.yrepeat = 152;
+    expActor->spr.SetScale(3.40625, 2.375);
     expActor->copy_clipdist(actor);
     expActor->user.ceiling_dist = (16);
     expActor->user.floor_dist = (16);
@@ -10394,8 +10390,7 @@ void SpawnNuclearExp(DSWActor* actor)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(own, expActor);
     expActor->spr.shade = -128;
-    expActor->spr.xrepeat = 255;
-    expActor->spr.yrepeat = 255;
+    expActor->spr.SetScale(4, 4);
     expActor->copy_clipdist(actor);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -10409,8 +10404,7 @@ void SpawnNuclearExp(DSWActor* actor)
 
     SetOwner(own, expActor);
     expActor->spr.shade = -128;
-    expActor->spr.xrepeat = 218;
-    expActor->spr.yrepeat = 152;
+    expActor->spr.SetScale(3.40625, 2.375);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     if (RANDOM_P2(1024) > 512)
@@ -10460,8 +10454,7 @@ void SpawnTracerExp(DSWActor* actor)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 4;
-    expActor->spr.yrepeat = 4;
+    expActor->spr.SetScale(0.0625, 0.0625);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -10564,13 +10557,11 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECT* sop, 
     expActor->spr.shade = -40;
     if (smallflames)
     {
-        expActor->spr.xrepeat = 12;
-        expActor->spr.yrepeat = 12;
+        expActor->spr.SetScale(0.1875, 0.1875);
     }
     else
     {
-        expActor->spr.xrepeat = 34;
-        expActor->spr.yrepeat = 34;
+        expActor->spr.SetScale(0.53125, 0.53125);
     }
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -10698,8 +10689,7 @@ void SpawnGrenadeExp(DSWActor* actor)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 64 + 32;
-    expActor->spr.yrepeat = 64 + 32;
+    expActor->spr.SetScale(1.5, 1.5);
     expActor->copy_clipdist(actor);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -10789,8 +10779,7 @@ void SpawnMineExp(DSWActor* actor)
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(GetOwner(actor), expActor);
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 64 + 44;
-    expActor->spr.yrepeat = 64 + 44;
+    expActor->spr.SetScale(1.6875, 1.6875);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_MINE_EXP].radius;
@@ -10844,8 +10833,7 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 90; // was 40,40
-    expActor->spr.yrepeat = 90;
+    expActor->spr.SetScale(1.40625, 1.40625);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_SECTOR_EXP].radius;
@@ -10866,8 +10854,7 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;
-    expActor->spr.xrepeat = 90; // was 40,40
-    expActor->spr.yrepeat = 90;
+    expActor->spr.SetScale(1.40625, 1.40625);
     expActor->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     expActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     expActor->user.Radius = DamageData[DMG_SECTOR_EXP].radius;
@@ -10957,8 +10944,9 @@ int DoFireball(DSWActor* actor)
 {
     if (actor->user.Flags & (SPR_UNDERWATER))
     {
-        actor->spr.xrepeat = actor->spr.yrepeat -= 1;
-        if (actor->spr.xrepeat <= 37)
+        actor->spr.AddScaleX(-REPEAT_SCALE);
+        actor->spr.AddScaleY(-REPEAT_SCALE);
+        if (actor->spr.ScaleX() <= 0.578125)
         {
             SpawnSmokePuff(actor);
             KillActor(actor);
@@ -11137,8 +11125,9 @@ int DoNapalm(DSWActor* actor)
 
     if (actor->user.Flags & (SPR_UNDERWATER))
     {
-        actor->spr.xrepeat = actor->spr.yrepeat -= 1;
-        if (actor->spr.xrepeat <= 30)
+        actor->spr.AddScaleX(-REPEAT_SCALE);
+        actor->spr.AddScaleY(-REPEAT_SCALE);
+        if (actor->spr.ScaleX() <= 0.46875)
         {
             SpawnSmokePuff(actor);
             KillActor(actor);
@@ -11307,9 +11296,9 @@ int DoSerpMeteor(DSWActor* actor)
 {
 	auto oldv = actor->spr.pos;
 
-    actor->spr.xrepeat += MISSILEMOVETICS * 2;
+    actor->spr.AddScaleX(MISSILEMOVETICS * 2 * REPEAT_SCALE);
     if (actor->spr.ScaleX() > 1.25)
-        actor->spr.xrepeat = 80;
+        actor->spr.SetScaleX(1.25);
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -11352,9 +11341,9 @@ int DoSerpMeteor(DSWActor* actor)
 
 int DoMirvMissile(DSWActor* actor)
 {
-    actor->spr.xrepeat += MISSILEMOVETICS * 2;
+    actor->spr.AddScaleX(MISSILEMOVETICS * 2 * REPEAT_SCALE);
     if (actor->spr.ScaleX() > 1.25)
-        actor->spr.xrepeat = 80;
+        actor->spr.SetScaleX(1.25);
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -11536,8 +11525,10 @@ int DoRing(DSWActor* actor)
 
     if (actor->user.Flags & (SPR_UNDERWATER))
     {
-        actor->spr.xrepeat = actor->spr.yrepeat -= 1;
-        if (actor->spr.xrepeat <= 30)
+
+        actor->spr.AddScaleX(-REPEAT_SCALE);
+        actor->spr.AddScaleY(-REPEAT_SCALE);
+        if (actor->spr.ScaleX() <= 0.46875)
         {
             SpawnSmokePuff(actor);
             KillActor(actor);
@@ -11821,8 +11812,7 @@ int InitLavaThrow(DSWActor* actor)
 
     SetOwner(actor, actorNew);
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
-    actorNew->spr.yrepeat = 72;
-    actorNew->spr.xrepeat = 72;
+    actorNew->spr.SetScale(1.125, 1.125);
     actorNew->spr.shade = -15;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
@@ -11880,7 +11870,8 @@ void InitVulcanBoulder(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_VulcanBoulder, actor->sector(), actor->spr.pos.plusZ(-40), nang, ((vel/2 + vel/4) + RandomRange(vel/4)) / 16.);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.xrepeat = actorNew->spr.yrepeat = 8 + RandomRange(72);
+    double scale = 0.125 + RandomRange(72) * REPEAT_SCALE;
+    actorNew->spr.SetScale(scale, scale);
     actorNew->spr.shade = -40;
     actorNew->spr.angle = nang;
     actorNew->user.Counter = 0;
@@ -12160,8 +12151,7 @@ int InitSpellMirv(PLAYER* pp)
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = 72;
-    actorNew->spr.yrepeat = 72;
+    actorNew->spr.SetScale(1.125, 1.125);
     actorNew->clipdist = 2;
     actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
@@ -12201,8 +12191,7 @@ int InitEnemyMirv(DSWActor* actor)
 
     SetOwner(actor, actorNew);
     actorNew->spr.shade = -40;
-    actorNew->spr.xrepeat = 72;
-    actorNew->spr.yrepeat = 72;
+    actorNew->spr.SetScale(1.125, 1.125);
     actorNew->clipdist = 2;
 
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
@@ -13133,8 +13122,7 @@ void InitHeartAttack(PLAYER* pp)
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.shade = -10;
-    actorNew->spr.xrepeat = 52;
-    actorNew->spr.yrepeat = 52;
+    actorNew->spr.SetScale(0.8125, 0.8125);
     actorNew->clipdist = 0;
     actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -13437,8 +13425,7 @@ int InitLaser(PLAYER* pp)
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 52;
-    actorNew->spr.xrepeat = 52;
+    actorNew->spr.SetScale(0.8125, 0.8125);
     actorNew->spr.shade = -15;
     actorNew->clipdist = 4;
 
@@ -13536,8 +13523,7 @@ int InitRail(PLAYER* pp)
 
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 52;
-    actorNew->spr.xrepeat = 52;
+    actorNew->spr.SetScale(0.8125, 0.8125);
     actorNew->spr.shade = -15;
     zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + 17) * 0.5);
 
@@ -13610,8 +13596,7 @@ int InitZillaRail(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], actor->sector(), pos, actor->spr.angle, 75);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.yrepeat = 52;
-    actorNew->spr.xrepeat = 52;
+    actorNew->spr.SetScale(0.8125, 0.8125);
     actorNew->spr.shade = -15;
     double zvel = (100 * (HORIZ_MULT+17)) / 256.;
 
@@ -14772,8 +14757,7 @@ int InitEnemyRail(DSWActor* actor)
     else
         SetOwner(actor, actorNew);
 
-    actorNew->spr.yrepeat = 52;
-    actorNew->spr.xrepeat = 52;
+    actorNew->spr.SetScale(0.8125, 0.8125);
     actorNew->spr.shade = -15;
     actorNew->vel.Z = 0;
 
@@ -15973,8 +15957,7 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector, actor->spr.pos, actor->spr.angle, 75);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 52;
-    actorNew->spr.xrepeat = 52;
+    actorNew->spr.SetScale(0.8125, 0.8125);
     actorNew->spr.shade = -15;
     actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
 
@@ -16019,8 +16002,7 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector, actor->spr.pos, actor->spr.angle, 18.75);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 52;
-    actorNew->spr.xrepeat = 52;
+    actorNew->spr.SetScale(0.8125, 0.8125);
     actorNew->spr.shade = -15;
 
     // the slower the missile travels the less of a zvel it needs
