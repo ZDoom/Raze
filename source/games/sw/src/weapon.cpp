@@ -4154,8 +4154,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle, const DVe
             actorNew->user.Flags |= (SPR_BOUNCE);
 
             actorNew->spr.shade = int8_t(shrap_shade);
-            actorNew->spr.xrepeat = uint8_t(shrap_xsize);
-            actorNew->spr.yrepeat = uint8_t(shrap_ysize);
+            actorNew->spr.SetScale(shrap_xsize* REPEAT_SCALE, shrap_xsize* REPEAT_SCALE);
             actorNew->clipdist = 1;
 
             actorNew->spr.pal = actorNew->user.spal = uint8_t(shrap_pal);
@@ -4585,8 +4584,8 @@ int DoFireballFlames(DSWActor* actor)
         if ((actor->user.WaitTics += MISSILEMOVETICS) > 4 * 120)
         {
             // shrink and go away
-            actor->spr.xrepeat--;
-            actor->spr.yrepeat--;
+            actor->spr.AddScaleX(-REPEAT_SCALE);
+            actor->spr.AddScaleY(-REPEAT_SCALE);
 
             if (actor->spr.ScaleX() <= 0)
             {
@@ -4602,10 +4601,10 @@ int DoFireballFlames(DSWActor* actor)
         else
         {
             // grow until the right size
-            if (actor->spr.xrepeat <= actor->user.Counter)
+            if (actor->spr.ScaleX() <= actor->user.Counter * REPEAT_SCALE)
             {
-                actor->spr.xrepeat += 3;
-                actor->spr.yrepeat += 3;
+                actor->spr.AddScaleX(3 * REPEAT_SCALE);
+                actor->spr.AddScaleY(3 * REPEAT_SCALE);
             }
         }
     }
@@ -4663,8 +4662,8 @@ int DoBreakFlames(DSWActor* actor)
         if ((actor->user.WaitTics += MISSILEMOVETICS) > 4 * 120)
         {
             // shrink and go away
-            actor->spr.xrepeat--;
-            actor->spr.yrepeat--;
+            actor->spr.AddScaleX(-REPEAT_SCALE);
+            actor->spr.AddScaleY(-REPEAT_SCALE);
 
             if (actor->spr.ScaleX() <= 0)
             {
@@ -4680,10 +4679,10 @@ int DoBreakFlames(DSWActor* actor)
         else
         {
             // grow until the right size
-            if (actor->spr.xrepeat <= actor->user.Counter)
+            if (actor->spr.ScaleX() <= actor->user.Counter * REPEAT_SCALE)
             {
-                actor->spr.xrepeat += 3;
-                actor->spr.yrepeat += 3;
+                actor->spr.AddScaleX(3 * REPEAT_SCALE);
+                actor->spr.AddScaleY(3 * REPEAT_SCALE);
             }
 
             if (actor->user.WaitTics + MISSILEMOVETICS > 4 * 120)
@@ -4723,8 +4722,8 @@ int SetSuicide(DSWActor* actor)
 int DoActorScale(DSWActor* actor)
 {
     actor->user.scale_speed = 70;
-    actor->user.scale_value = actor->spr.xrepeat << 8;
-    actor->user.scale_tgt = actor->spr.xrepeat + 25;
+    actor->user.scale_value = int(actor->spr.ScaleX() * INV_REPEAT_SCALE) << 8;
+    actor->user.scale_tgt = int(actor->spr.ScaleX() * INV_REPEAT_SCALE) + 25;
 
     if (actor->user.scale_tgt > 256)
     {
@@ -4738,8 +4737,8 @@ int DoActorScale(DSWActor* actor)
 int DoRipperGrow(DSWActor* actor)
 {
     actor->user.scale_speed = 70;
-    actor->user.scale_value = actor->spr.xrepeat << 8;
-    actor->user.scale_tgt = actor->spr.xrepeat + 20;
+    actor->user.scale_value = int(actor->spr.ScaleX() * INV_REPEAT_SCALE) << 8;
+    actor->user.scale_tgt = int(actor->spr.ScaleX() * INV_REPEAT_SCALE) + 20;
 
     if (actor->user.scale_tgt > 128)
     {
@@ -7806,8 +7805,8 @@ int DoCrossBolt(DSWActor* actor)
 
 int DoPlasmaDone(DSWActor* actor)
 {
-    actor->spr.xrepeat += actor->user.Counter;
-    actor->spr.yrepeat -= 4;
+    actor->spr.AddScaleX(actor->user.Counter * REPEAT_SCALE);
+    actor->spr.AddScaleY(-0.0625);
     actor->user.Counter += 2;
 
     if (actor->spr.ScaleY() < 0.09375)
