@@ -2485,8 +2485,7 @@ void SpawnPlayerUnderSprite(PLAYER* pp)
 
     actor->spr.picnum = plActor->spr.picnum;
     actor->copy_clipdist(plActor);
-    actor->spr.xrepeat = plActor->spr.xrepeat;
-    actor->spr.yrepeat = plActor->spr.yrepeat;
+    actor->spr.CopyScale(&plActor->spr);
 }
 
 //---------------------------------------------------------------------------

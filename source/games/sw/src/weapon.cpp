@@ -3419,8 +3419,8 @@ AutoShrap:
             case SHRAP_EXPLOSION:
             {
                 auto spnum = SpawnLargeExp(parentActor);
-                short size = spnum->spr.xrepeat;
-                spnum->spr.xrepeat = spnum->spr.yrepeat = size + shrap_delta_size;
+                double size = spnum->spr.xrepeat + shrap_delta_size * REPEAT_SCALE;
+                spnum->spr.SetScale(size, size);
 
                 return false;
             }
@@ -3428,8 +3428,8 @@ AutoShrap:
             case SHRAP_LARGE_EXPLOSION:
             {
                 auto spnum = SpawnLargeExp(parentActor);
-                short size = spnum->spr.xrepeat;
-                spnum->spr.xrepeat = spnum->spr.yrepeat = size + shrap_delta_size;
+                double size = spnum->spr.xrepeat + shrap_delta_size * REPEAT_SCALE;
+                spnum->spr.SetScale(size, size);
 
                 InitPhosphorus(spnum);
 
@@ -3753,8 +3753,7 @@ AutoShrap:
             }
 
             actor->spr.shade = int8_t(shrap_shade);
-            actor->spr.xrepeat = uint8_t(shrap_xsize);
-            actor->spr.yrepeat = uint8_t(shrap_ysize);
+            actor->spr.SetScale(shrap_xsize * REPEAT_SCALE, shrap_xsize* REPEAT_SCALE);
             actor->clipdist = 1;
 
             if (ShrapOwner != nullptr)
@@ -3813,8 +3812,7 @@ int DoVomit(DSWActor* actor)
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
     // notreallypos
     auto v = actor->user.pos + mapangle(actor->user.Counter).ToVector() * 12;
-    actor->spr.xrepeat = int(v.X);
-    actor->spr.yrepeat = int(v.Y);
+    actor->spr.SetScale(v * REPEAT_SCALE);
     if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
