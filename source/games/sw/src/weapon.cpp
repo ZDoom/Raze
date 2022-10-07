@@ -427,7 +427,6 @@ STATE s_UziSmoke[] =
 };
 
 #define SHOTGUN_SMOKE_RATE 16
-#define SHOTGUN_SMOKE_REPEAT 18 // Was 32
 #define SHOTGUN_SMOKE UZI_SMOKE+1
 ANIMATOR DoShotgunSmoke;
 STATE s_ShotgunSmoke[] =
@@ -13002,7 +13001,7 @@ int InitStar(PLAYER* pp)
     DSWActor* plActor = pp->actor;
 
     static DAngle dang[] = { mapangle(-12), mapangle(12) };
-    const int STAR_REPEAT = 26;
+    const double STAR_REPEAT = 0.40625;
     const int STAR_HORIZ_ADJ = 100;
 
     PlayerUpdateAmmo(pp, plActor->user.WeaponNum, -3);
@@ -13020,7 +13019,7 @@ int InitStar(PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, pos, pp->angle.ang, STAR_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = actorNew->spr.xrepeat = STAR_REPEAT;
+    actorNew->spr.SetScale(STAR_REPEAT, STAR_REPEAT);
     actorNew->spr.shade = -25;
     actorNew->clipdist = 2;
     // zvel was overflowing with this calculation - had to move to a local long var
@@ -13061,7 +13060,7 @@ int InitStar(PLAYER* pp)
         auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector,pos, actorNew->spr.angle + dang[i], actorNew->vel.X);
 
         SetOwner(GetOwner(actorNew), actorNew2);
-        actorNew2->spr.yrepeat = actorNew2->spr.xrepeat = STAR_REPEAT;
+        actorNew2->spr.SetScale(STAR_REPEAT, STAR_REPEAT);
         actorNew2->spr.shade = actorNew->spr.shade;
 
         actorNew2->spr.extra = actorNew->spr.extra;
@@ -13687,8 +13686,7 @@ int InitRocket(PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->angle.ang, ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 90;
-    actorNew->spr.xrepeat = 90;
+    actorNew->spr.SetScale(1.40626, 1.40625);
     actorNew->spr.shade = -15;
     zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + 35) * 0.5);
 
@@ -13897,8 +13895,7 @@ int InitNuke(PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->angle.ang, 700/16.);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 128;
-    actorNew->spr.xrepeat = 128;
+    actorNew->spr.SetScale(2, 2);
     actorNew->spr.shade = -15;
     zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + 36) * 0.5);
     actorNew->clipdist = 4;
@@ -13980,8 +13977,7 @@ int InitEnemyNuke(DSWActor* actor)
     else
         SetOwner(actor, actorNew);
 
-    actorNew->spr.yrepeat = 128;
-    actorNew->spr.xrepeat = 128;
+    actorNew->spr.SetScale(2, 2);
     actorNew->spr.shade = -15;
     double zvel = (100 * (HORIZ_MULT-36)) / 256.; // Ugh...
     actorNew->clipdist = 4;
@@ -14080,8 +14076,7 @@ int InitMicro(PLAYER* pp)
         auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector, pos, angle, 75);
 
         SetOwner(pp->actor, actorNew);
-        actorNew->spr.yrepeat = 24;
-        actorNew->spr.xrepeat = 24;
+        actorNew->spr.SetScale(0.375, 0.375);
         actorNew->spr.shade = -15;
         actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
         actorNew->clipdist = 4;
@@ -14604,8 +14599,7 @@ int InitSerpMonstSpell(DSWActor* actor)
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.xrepeat = 122;
-        actorNew->spr.yrepeat = 116;
+        actorNew->spr.SetScale(1.90625, 1.8125);
         actorNew->clipdist = 2;
         actorNew->vel.Z = 0;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
@@ -14682,8 +14676,7 @@ int InitEnemyRocket(DSWActor* actor)
     else
         SetOwner(actor, actorNew);
 
-    actorNew->spr.yrepeat = 28;
-    actorNew->spr.xrepeat = 28;
+    actorNew->spr.SetScale(0.4375, 0.4375);
     actorNew->spr.shade = -15;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
@@ -14821,8 +14814,7 @@ int InitZillaRocket(DSWActor* actor)
                         actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5) - 16), actor->user.targetActor->spr.angle, NINJA_BOLT_VELOCITY);
 
         SetOwner(actor, actorNew);
-        actorNew->spr.yrepeat = 28;
-        actorNew->spr.xrepeat = 28;
+        actorNew->spr.SetScale(0.4375, 0.4375);
         actorNew->spr.shade = -15;
         actorNew->vel.Z = 0;
         actorNew->spr.angle = actor->spr.angle;
@@ -14913,8 +14905,7 @@ int InitEnemyCrossbow(DSWActor* actor)
                                  ActorVectOfMiddle(actor).plusZ(-14), actor->user.targetActor->spr.angle, 50);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.xrepeat = 16;
-    actorNew->spr.yrepeat = 26;
+    actorNew->spr.SetScale(0.25, 0.40625);
     actorNew->spr.shade = -25;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
@@ -14956,8 +14947,8 @@ int InitSkelSpell(DSWActor* actor)
         actor->spr.pos.plusZ(-(ActorSizeZ(actor) * 0.5)), actor->user.targetActor->spr.angle, SKEL_ELECTRO_VELOCITY);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.xrepeat -= 20;
-    actorNew->spr.yrepeat -= 20;
+    actorNew->spr.AddScaleX(-0.3125);
+    actorNew->spr.AddScaleY(-0.3125);
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
@@ -14994,8 +14985,7 @@ int InitCoolgFire(DSWActor* actor)
 
     SetOwner(actor, actorNew);
     actorNew->spr.hitag = LUMINOUS;
-    actorNew->spr.yrepeat = 18;
-    actorNew->spr.xrepeat = 18;
+    actorNew->spr.SetScale(0.28125, 0.28125);
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->spr.angle = actor->spr.angle;
@@ -15165,8 +15155,8 @@ void InitFireballTrap(DSWActor* actor)
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(actor, actorNew);
-    actorNew->spr.xrepeat -= 20;
-    actorNew->spr.yrepeat -= 20;
+    actorNew->spr.AddScaleX(-0.3125);
+    actorNew->spr.AddScaleY(-0.3125);
     actorNew->spr.shade = -40;
     actorNew->clipdist = 2;
     actorNew->vel.Z = 0;
@@ -15217,8 +15207,7 @@ void InitSpearTrap(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 750/16.);
 
     SetOwner(actor, actorNew);
-    actorNew->spr.xrepeat = 16;
-    actorNew->spr.yrepeat = 26;
+    actorNew->spr.SetScale(0.25, 0.40625);
     actorNew->spr.shade = -25;
     actorNew->clipdist = 4;
 
@@ -15275,8 +15264,7 @@ int InitTracerUzi(PLAYER* pp)
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 10;
-    actorNew->spr.xrepeat = 10;
+    actorNew->spr.SetScale(0.15625, 0.15625);
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->clipdist = 2;
@@ -15340,8 +15328,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, DAngle horiz)
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     if (Operator!= nullptr)
         SetOwner(Operator, actorNew);
-    actorNew->spr.yrepeat = 10;
-    actorNew->spr.xrepeat = 10;
+    actorNew->spr.SetScale(0.15625, 0.15625);
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->clipdist = 0.5;
@@ -15382,8 +15369,7 @@ int InitTracerAutoTurret(DSWActor* actor, const DVector3& change)
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, actor->sector(), actor->spr.pos, actor->spr.angle, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
-    actorNew->spr.yrepeat = 10;
-    actorNew->spr.xrepeat = 10;
+    actorNew->spr.SetScale(0.15625, 0.15625);
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->clipdist = 0.5;
@@ -15731,8 +15717,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_TankShell, actor->sector(), actor->spr.pos, actor->spr.angle, TANK_SHELL_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
-    actorNew->spr.yrepeat = 8;
-    actorNew->spr.xrepeat = 8;
+    actorNew->spr.SetScale(0.125, 0.125);
     actorNew->spr.shade = -40;
     actorNew->vel.Z = 0;
     actorNew->clipdist = 2;
@@ -15811,8 +15796,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
                         actor->spr.pos.plusZ(10 + RandomRangeF(20)), angle, 75);
 
         SetOwner(plActor, actorNew);
-        actorNew->spr.yrepeat = 24;
-        actorNew->spr.xrepeat = 24;
+        actorNew->spr.SetScale(0.375, 0.375);
         actorNew->spr.shade = -15;
         actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF - RandomRangeF(8) + 5;
         actorNew->clipdist = 4;
@@ -16238,7 +16222,6 @@ DSWActor* SpawnBoatSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, 
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hitpos, hit_ang, 0);
     actorNew->spr.shade = -40;
     actorNew->spr.SetScale(UZI_SMOKE_REPEAT + 0.1875, UZI_SMOKE_REPEAT + 0.1875);
-    actorNew->spr.yrepeat = UZI_SMOKE_REPEAT + 12;
     SetOwner(pp->actor, actorNew);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
@@ -16354,6 +16337,8 @@ DSWActor* SpawnTurretSparks(sectortype* hit_sect, walltype* hit_wall, const DVec
 
 DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wall, const DVector3& hitpos, DAngle hit_ang)
 {
+    const double SHOTGUN_SMOKE_REPEAT = 0.28125;
+
     auto actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hitpos, hit_ang, 0);
 
     actorNew->spr.shade = -40;
@@ -16367,8 +16352,7 @@ DSWActor* SpawnShotgunSparks(PLAYER* pp, sectortype* hit_sect, walltype* hit_wal
     HitscanSpriteAdjust(actorNew, hit_wall);
 
     actorNew = SpawnActor(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hitpos, hit_ang, 0);
-    actorNew->spr.xrepeat = SHOTGUN_SMOKE_REPEAT;
-    actorNew->spr.yrepeat = SHOTGUN_SMOKE_REPEAT;
+    actorNew->spr.SetScale(SHOTGUN_SMOKE_REPEAT, SHOTGUN_SMOKE_REPEAT);
     SetOwner(pp->actor, actorNew);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
@@ -17425,8 +17409,7 @@ int SpawnSplash(DSWActor* actor)
     if (sectu && (sectp->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         actorNew->user.spal = actorNew->spr.pal = PALETTE_RED_LIGHTING;
 
-    actorNew->spr.xrepeat = 45;
-    actorNew->spr.yrepeat = 42;
+    actorNew->spr.SetScale(0.703125, 0.65625);
     actorNew->spr.shade = actor->sector()->floorshade - 10;
 
     return 0;
@@ -17454,8 +17437,7 @@ int SpawnSplashXY(const DVector3& pos, sectortype* sectp)
     if (sectp->hasU() && (sectp->extra & SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         actorNew->user.spal = actorNew->spr.pal = PALETTE_RED_LIGHTING;
 
-    actorNew->spr.xrepeat = 45;
-    actorNew->spr.yrepeat = 42;
+    actorNew->spr.SetScale(0.703125, 0.65625);
     actorNew->spr.shade = actorNew->sector()->floorshade - 10;
 
     return 0;
@@ -18072,8 +18054,7 @@ int QueueFootPrint(DSWActor* actor)
 
 
     spawnedActor->spr.hitag = 0;
-    spawnedActor->spr.xrepeat = 48;
-    spawnedActor->spr.yrepeat = 54;
+    spawnedActor->spr.SetScale(0.75, 0.84375);
     spawnedActor->spr.cstat = 0;
     spawnedActor->spr.pal = 0;
     spawnedActor->spr.shade = 0;
@@ -18213,8 +18194,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, DAngle bang)
 
     WallBloodQueueHead = (WallBloodQueueHead+1) & (MAX_WALLBLOOD_QUEUE-1);
 
-    spawnedActor->spr.xrepeat = 30;
-    spawnedActor->spr.yrepeat = 40;   // yrepeat will grow towards 64, it's default size
+    spawnedActor->spr.SetScale(0.46875, 0.625);
     spawnedActor->spr.cstat = 0;
     spawnedActor->spr.pal = 0;
     spawnedActor->spr.shade = 0;
