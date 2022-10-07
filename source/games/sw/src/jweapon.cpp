@@ -306,8 +306,8 @@ void SpawnMidSplash(DSWActor* actor)
                       DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor)), actor->spr.angle);
 
     actorNew->spr.shade = -12;
-    actorNew->spr.xrepeat = 70-RandomRange(20);
-    actorNew->spr.yrepeat = 70-RandomRange(20);
+    actorNew->spr.SetScaleX((70 - RandomRange(20)) * REPEAT_SCALE);
+    actorNew->spr.SetScaleY((70 - RandomRange(20)) * REPEAT_SCALE);
     actorNew->opos = actor->opos;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -332,8 +332,8 @@ void SpawnFloorSplash(DSWActor* actor)
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, actor->sector(), actor->spr.pos, actor->spr.angle);
 
     actorNew->spr.shade = -12;
-    actorNew->spr.xrepeat = 70-RandomRange(20);
-    actorNew->spr.yrepeat = 70-RandomRange(20);
+    actorNew->spr.SetScaleX((70 - RandomRange(20)) * REPEAT_SCALE);
+    actorNew->spr.SetScaleY((70 - RandomRange(20)) * REPEAT_SCALE);
     actorNew->opos = actor->opos;
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -458,7 +458,8 @@ int DoBloodSpray(DSWActor* actor)
 
                 actor->vel.X = 0;
                 actor->user.change.X = actor->user.change.Y = 0;
-                actor->spr.xrepeat = actor->spr.yrepeat = 70 - RandomRange(25);
+                double scale = (70 - RandomRange(25)) * REPEAT_SCALE;
+                actor->spr.SetScale(scale, scale);
                 actor->spr.pos.XY() = bldActor->spr.pos.XY();
 
                 // !FRANK! bit of a hack
@@ -533,8 +534,8 @@ int DoBloodSpray(DSWActor* actor)
 
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -12;
-        actorNew->spr.xrepeat = 40-RandomRange(30);
-        actorNew->spr.yrepeat = 40-RandomRange(30);
+        actorNew->spr.SetScaleX((40 - RandomRange(30))* REPEAT_SCALE);
+        actorNew->spr.SetScaleY((40 - RandomRange(30))* REPEAT_SCALE);
         actorNew->opos = actor->opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -731,8 +732,8 @@ int DoPhosphorus(DSWActor* actor)
         actorNew->spr.hitag = LUMINOUS;           // Always full brightness
         SetOwner(actor, actorNew);
         actorNew->spr.shade = -40;
-        actorNew->spr.xrepeat = 12 + RandomRange(10);
-        actorNew->spr.yrepeat = 12 + RandomRange(10);
+        actorNew->spr.SetScaleX((12 + RandomRange(10))* REPEAT_SCALE);
+        actorNew->spr.SetScaleY((12 + RandomRange(10))* REPEAT_SCALE);
         actorNew->opos = actor->opos;
         actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
         actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -1805,8 +1806,8 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         actorNew->spr.shade = -12;
 
         SetOwner(actor, actorNew);
-        actorNew->spr.yrepeat = 64-RandomRange(35);
-        actorNew->spr.xrepeat = 64-RandomRange(35);
+        actorNew->spr.SetScaleX((64 - RandomRange(35)) * REPEAT_SCALE);
+        actorNew->spr.SetScaleY((64 - RandomRange(35)) * REPEAT_SCALE);
         actorNew->spr.shade = -15;
         actorNew->copy_clipdist(actor);
         actorNew->user.WeaponNum = actor->user.WeaponNum;
