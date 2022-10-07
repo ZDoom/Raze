@@ -3790,15 +3790,12 @@ void handle_se17(DDukeActor* actor)
 		if (act1->spr.statnum == STAT_PLAYER && act1->GetOwner())
 		{
 			int p = act1->spr.yint;
-			if (numplayers < 2) ps[p].backupz();
 			ps[p].pos.Z += q;
 			ps[p].truefz += q;
 			ps[p].truecz += q;
-			if (numplayers > 1)	ps[p].backupz();
 		}
 		if (act1->spr.statnum != STAT_EFFECTOR)
 		{
-			act1->backupz();
 			act1->spr.pos.Z += q;
 		}
 
@@ -3842,14 +3839,16 @@ void handle_se17(DDukeActor* actor)
 			{
 				int p = act3->PlayerIndex();
 
-				ps[p].pos.X += act2->spr.pos.X - actor->spr.pos.X;
-				ps[p].pos.Y += act2->spr.pos.Y - actor->spr.pos.Y;
-				ps[p].pos.Z = act2->sector()->floorz - (sc->floorz - ps[p].pos.Z);
+				ps[p].opos -= ps[p].pos;
+				ps[p].pos.XY() += act2->spr.pos.XY() - actor->spr.pos.XY();
+				ps[p].pos.Z += act2->sector()->floorz - sc->floorz;
+				ps[p].opos += ps[p].pos;
+
+				if (q > 0) ps[p].backupz();
 
 				act3->floorz = act2->sector()->floorz;
 				act3->ceilingz = act2->sector()->ceilingz;
 
-				ps[p].backupxyz();
 				ps[p].setbobpos();
 
 				ps[p].truefz = act3->floorz;
@@ -3861,10 +3860,12 @@ void handle_se17(DDukeActor* actor)
 			}
 			else if (act3->spr.statnum != STAT_EFFECTOR)
 			{
-				act3->spr.pos += act2->spr.pos.XY() - actor->spr.pos.XY();
-				act3->spr.pos.Z = act2->sector()->floorz - (sc->floorz - act3->spr.pos.Z);
+				act3->opos -= act3->spr.pos;
+				act3->spr.pos.XY() += act2->spr.pos.XY() - actor->spr.pos.XY();
+				act3->spr.pos.Z += act2->sector()->floorz - sc->floorz;
+				act3->opos += act3->spr.pos;
 
-				act3->backupz();
+				if (q > 0) act3->backupz();
 
 				ChangeActorSect(act3, act2->sector());
 				SetActor(act3, act3->spr.pos);
