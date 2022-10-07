@@ -259,14 +259,14 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 		int s;
 		if (scale) s = ClipRange(MulScale(pFrame->scalex, scale, 8), 0, 255);
 		else s = pFrame->scalex;
-		actor->spr.SetScaleX(s * REPEAT_SCALE);
+		actor->spr.scale.X = (s * REPEAT_SCALE);
 	}
 
 	if (pFrame->scaley) {
 		int s;
 		if (scale) s = ClipRange(MulScale(pFrame->scaley, scale, 8), 0, 255);
 		else s = pFrame->scaley;
-		actor->spr.SetScaleY(s * REPEAT_SCALE);
+		actor->spr.scale.Y = (s * REPEAT_SCALE);
 	}
 
 	if (pFrame->transparent)

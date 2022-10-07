@@ -353,7 +353,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 
     if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
-        tSpr->SetScaleY(0);
+        tSpr->scale.Y = (0);
         // cstat:    trans reverse
         // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
         tSpr->clipdist |= TSPR_FLAGS_MDHACK;

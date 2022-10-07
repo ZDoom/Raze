@@ -1201,11 +1201,11 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spriteextra, sActor, sPlayer);
 		break;
 	case ACTOR_XREPEAT:
-		if (bSet) act->spr.SetScaleX(lValue * REPEAT_SCALE);
+		if (bSet) act->spr.scale.X = (lValue * REPEAT_SCALE);
 		else SetGameVarID(lVar2, int(act->spr.scale.X * INV_REPEAT_SCALE), sActor, sPlayer);
 		break;
 	case ACTOR_YREPEAT:
-		if (bSet) act->spr.SetScaleY(lValue * REPEAT_SCALE);
+		if (bSet) act->spr.scale.Y = (lValue * REPEAT_SCALE);
 		else SetGameVarID(lVar2, int(act->spr.scale.Y * INV_REPEAT_SCALE), sActor, sPlayer);
 		break;
 	case ACTOR_XOFFSET:
@@ -1730,7 +1730,7 @@ int ParseState::parse(void)
 		//if (!isPlutoPak() && *insptr == 0) *insptr = 4;
 
 		double siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.scale.X);
-		g_ac->spr.SetScaleX(clamp(g_ac->spr.scale.X + Sgn(siz) * REPEAT_SCALE, 0., 4.));
+		g_ac->spr.scale.X = (clamp(g_ac->spr.scale.X + Sgn(siz) * REPEAT_SCALE, 0., 4.));
 
 		insptr++;
 
@@ -1738,7 +1738,7 @@ int ParseState::parse(void)
 		if ((g_ac->isPlayer() && scale < 0.5626) || *insptr * REPEAT_SCALE < scale || (scale * (tileHeight(g_ac->spr.picnum) + 8)) < g_ac->floorz - g_ac->ceilingz)
 		{
 			siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.scale.Y);
-			g_ac->spr.SetScaleY(clamp(g_ac->spr.scale.Y + Sgn(siz) * REPEAT_SCALE, 0., 4.));
+			g_ac->spr.scale.Y = (clamp(g_ac->spr.scale.Y + Sgn(siz) * REPEAT_SCALE, 0., 4.));
 		}
 
 		insptr++;
@@ -1748,9 +1748,9 @@ int ParseState::parse(void)
 	}
 	case concmd_sizeat:
 		insptr++;
-		g_ac->spr.SetScaleX((uint8_t)*insptr * REPEAT_SCALE);
+		g_ac->spr.scale.X = ((uint8_t)*insptr * REPEAT_SCALE);
 		insptr++;
-		g_ac->spr.SetScaleY((uint8_t)*insptr * REPEAT_SCALE);
+		g_ac->spr.scale.Y = ((uint8_t)*insptr * REPEAT_SCALE);
 		insptr++;
 		break;
 	case concmd_shoot:

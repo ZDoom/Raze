@@ -322,7 +322,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 				newtspr->statnum = 99;
 
-				newtspr->SetScaleY(max(t->scale.Y * 0.125, 0.0625));
+				newtspr->scale.Y = (max(t->scale.Y * 0.125, 0.0625));
 
 				newtspr->shade = t->shade;
 				newtspr->cstat = 0;
@@ -572,7 +572,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 							shadowspr->statnum = 99;
 
-							shadowspr->SetScaleY(max(t->scale.Y * 0.125, 0.0625));
+							shadowspr->scale.Y = (max(t->scale.Y * 0.125, 0.0625));
 							shadowspr->shade = 127;
 							shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
@@ -581,7 +581,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 							if (hw_models && modelManager.CheckModel(t->picnum, t->pal))
 							{
-								shadowspr->SetScaleY(0);
+								shadowspr->scale.Y = (0);
 								// 512:trans reverse
 								//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
 								shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
@@ -612,7 +612,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (t->sectp->lotag == 2) t->pal = 8;
 			t->pos.Z = OwnerAc->spr.pos.Z - 3;
 			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
-				t->SetScaleY(0);
+				t->scale.Y = (0);
 			t->shade = -127;
 			break;
 		case EXPLOSION2:

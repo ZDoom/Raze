@@ -795,7 +795,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		case kStatProjectile: {
 			switch (pTSprite->type) {
 			case kMissileTeslaAlt:
-				pTSprite->SetScaleY(2);
+				pTSprite->scale.Y = (2);
 				pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 				break;
 			case kMissileTeslaRegular:

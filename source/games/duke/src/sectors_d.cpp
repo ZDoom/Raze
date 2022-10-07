@@ -1211,7 +1211,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		break;
 
 	case FORCESPHERE:
-		targ->spr.SetScaleX(0);
+		targ->spr.scale.X = (0);
 		if (targ->GetOwner())
 		{
 			targ->GetOwner()->temp_data[0] = 32;

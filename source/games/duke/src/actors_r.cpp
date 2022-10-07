@@ -778,7 +778,7 @@ CLEAR_THE_BOLT:
 	actor->spr.picnum++;
 
 	int l = global_random & 7;
-	actor->spr.SetScaleX(0.125 + l * REPEAT_SCALE);
+	actor->spr.scale.X = (0.125 + l * REPEAT_SCALE);
 
 	if (l & 1) actor->spr.cstat ^= CSTAT_SPRITE_TRANSLUCENT;
 
@@ -2445,7 +2445,7 @@ DETONATEB:
 
 		if (actor->spr.scale.Y)
 		{
-			actor->spr.SetScaleY(0);
+			actor->spr.scale.Y = (0);
 			return;
 		}
 

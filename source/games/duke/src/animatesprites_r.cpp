@@ -362,7 +362,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 				newtspr->statnum = 99;
 
-				newtspr->SetScaleY(max(t->scale.Y * 0.125, 0.0625));
+				newtspr->scale.Y = (max(t->scale.Y * 0.125, 0.0625));
 
 				newtspr->shade = t->shade;
 				newtspr->cstat = 0;
@@ -721,7 +721,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 								shadowspr->statnum = 99;
 
-								shadowspr->SetScaleY(max(t->scale.Y * 0.125, 0.0625));
+								shadowspr->scale.Y = (max(t->scale.Y * 0.125, 0.0625));
 								shadowspr->shade = 127;
 								shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 

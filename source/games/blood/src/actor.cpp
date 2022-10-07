@@ -6249,8 +6249,8 @@ DBloodActor* actSpawnThing(sectortype* pSector, const DVector3& pos, int nThingT
 	actor->spr.picnum = pThingInfo->picnum;
 	actor->spr.shade = pThingInfo->shade;
 	actor->spr.pal = pThingInfo->pal;
-	if (pThingInfo->_xrepeat) actor->spr.SetScaleX(pThingInfo->_xrepeat * REPEAT_SCALE);
-	if (pThingInfo->_yrepeat) actor->spr.SetScaleY(pThingInfo->_yrepeat * REPEAT_SCALE);
+	if (pThingInfo->_xrepeat) actor->spr.scale.X = (pThingInfo->_xrepeat * REPEAT_SCALE);
+	if (pThingInfo->_yrepeat) actor->spr.scale.Y = (pThingInfo->_yrepeat * REPEAT_SCALE);
 	actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	switch (nThingType)
 	{

@@ -2450,13 +2450,13 @@ void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect,
 		{
 			if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
 			{
-				targetactor->spr.SetScaleX(ClipRange(sourceactor->xspr.data1, 0, 255) * REPEAT_SCALE);
+				targetactor->spr.scale.X = (ClipRange(sourceactor->xspr.data1, 0, 255) * REPEAT_SCALE);
 				fit = true;
 			}
 
 			if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
 			{
-				targetactor->spr.SetScaleY(ClipRange(sourceactor->xspr.data2, 0, 255) * REPEAT_SCALE);
+				targetactor->spr.scale.Y = (ClipRange(sourceactor->xspr.data2, 0, 255) * REPEAT_SCALE);
 				fit = true;
 			}
 		}
@@ -6526,10 +6526,10 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 			if (canInherit != 0)
 			{
 				if (canInherit & 0x2)
-					missileactor->spr.SetScaleX((from == kModernTypeFlag1) ? sourceactor->spr.scale.X : actor->spr.scale.X);
+					missileactor->spr.scale.X = ((from == kModernTypeFlag1) ? sourceactor->spr.scale.X : actor->spr.scale.X);
 
 				if (canInherit & 0x1)
-					missileactor->spr.SetScaleY((from == kModernTypeFlag1) ? sourceactor->spr.scale.Y : actor->spr.scale.Y);
+					missileactor->spr.scale.Y = ((from == kModernTypeFlag1) ? sourceactor->spr.scale.Y : actor->spr.scale.Y);
 
 				if (canInherit & 0x4)
 					missileactor->spr.pal = (from == kModernTypeFlag1) ? sourceactor->spr.pal : actor->spr.pal;

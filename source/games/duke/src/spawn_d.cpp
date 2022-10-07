@@ -307,8 +307,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
-		act->spr.SetScaleX(0.109375 + (krand() & 7) * REPEAT_SCALE);
-		act->spr.SetScaleY(0.109375 + (krand() & 7) * REPEAT_SCALE);
+		act->spr.scale.X = (0.109375 + (krand() & 7) * REPEAT_SCALE);
+		act->spr.scale.Y = (0.109375 + (krand() & 7) * REPEAT_SCALE);
 		act->spr.pos.Z -= 16;
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;

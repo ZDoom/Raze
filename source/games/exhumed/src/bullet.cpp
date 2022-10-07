@@ -183,7 +183,7 @@ void IgniteSprite(DExhumedActor* pActor)
     {
         pAnimActor->pTarget = pActor;
         ChangeActorStat(pAnimActor, kStatIgnited);
-        pAnimActor->spr.SetScaleY(max(1, (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight) * REPEAT_SCALE);
+        pAnimActor->spr.scale.Y = (max(1, (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight) * REPEAT_SCALE);
     }
 }
 

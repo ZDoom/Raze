@@ -8105,7 +8105,7 @@ int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
     if (wActor)
         SetOwner(GetOwner(wActor), actorNew);
     SetAttach(sActor, actorNew);
-    actorNew->spr.SetScaleY(0);
+    actorNew->spr.scale.Y = (0);
 	actorNew->clipdist = 0.5;
 
     actorNew->user.WaitTics = 120+60;
@@ -11297,7 +11297,7 @@ int DoSerpMeteor(DSWActor* actor)
 
     actor->spr.scale.X += (MISSILEMOVETICS * 2 * REPEAT_SCALE);
     if (actor->spr.scale.X > 1.25)
-        actor->spr.SetScaleX(1.25);
+        actor->spr.scale.X = (1.25);
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -11342,7 +11342,7 @@ int DoMirvMissile(DSWActor* actor)
 {
     actor->spr.scale.X += (MISSILEMOVETICS * 2 * REPEAT_SCALE);
     if (actor->spr.scale.X > 1.25)
-        actor->spr.SetScaleX(1.25);
+        actor->spr.scale.X = (1.25);
 
     actor->user.coll = move_missile(actor, actor->user.change, actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -17636,8 +17636,8 @@ int DoBubble(DSWActor* actor)
         actor->user.pos.Y = 0.5;
     }
 
-    actor->spr.SetScaleX(actor->user.pos.X + ((RANDOM_P2(8 << 8) >> 8) - 4) * REPEAT_SCALE);
-    actor->spr.SetScaleY(actor->user.pos.Y + ((RANDOM_P2(8 << 8) >> 8) - 4) * REPEAT_SCALE);
+    actor->spr.scale.X = (actor->user.pos.X + ((RANDOM_P2(8 << 8) >> 8) - 4) * REPEAT_SCALE);
+    actor->spr.scale.Y = (actor->user.pos.Y + ((RANDOM_P2(8 << 8) >> 8) - 4) * REPEAT_SCALE);
 
     if (actor->spr.pos.Z < actor->sector()->ceilingz)
     {

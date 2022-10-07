@@ -385,13 +385,13 @@ void DoSpiritHead()
             {
                 pSpiritSpr->spr.scale.X += (-0.03125);
                 if (pSpiritSpr->spr.scale.X < nSpiritScale.X)
-                    pSpiritSpr->spr.SetScaleX(nSpiritScale.X);
+                    pSpiritSpr->spr.scale.X = (nSpiritScale.X);
             }
 			if (pSpiritSpr->spr.scale.Y > nSpiritScale.Y)
 			{
 				pSpiritSpr->spr.scale.Y += (-0.03125);
 				if (pSpiritSpr->spr.scale.Y < nSpiritScale.Y)
-					pSpiritSpr->spr.SetScaleY(nSpiritScale.Y);
+					pSpiritSpr->spr.scale.Y = (nSpiritScale.Y);
 			}
 
             int nCount = 0;

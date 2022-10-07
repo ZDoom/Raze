@@ -486,16 +486,6 @@ struct spritetypebase
 	{
 		scale = p;
 	}
-
-	void SetScaleX(double x)
-	{
-		scale.X = x;
-	}
-
-	void SetScaleY(double y)
-	{
-		scale.Y = y;
-	}
 };
 
 

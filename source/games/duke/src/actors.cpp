@@ -483,13 +483,13 @@ void moveplayers(void)
 				act->spr.scale.X += (0.0625);
 				act->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
 			}
-			else act->spr.SetScaleX(0.65625);
+			else act->spr.scale.X = (0.65625);
 
 			if (act->spr.scale.Y < 0.5625)
 				act->spr.scale.Y += (4);
 			else
 			{
-				act->spr.SetScaleY(0.5625);
+				act->spr.scale.Y = (0.5625);
 				if (act->sector()->lotag != ST_2_UNDERWATER)
 					makeitfall(act);
 				if (act->vel.Z == 0 && act->sector()->lotag == ST_1_ABOVE_WATER)
@@ -874,7 +874,7 @@ void moveflammable(DDukeActor* actor, int pool)
 			return;
 		}
 
-		actor->spr.SetScaleX(scale);
+		actor->spr.scale.X = (scale);
 
 		scale = actor->spr.scale.Y - (krand() & 7) * REPEAT_SCALE;
 		if (scale < 0.0625)
@@ -882,7 +882,7 @@ void moveflammable(DDukeActor* actor, int pool)
 			deletesprite(actor);
 			return;
 		}
-		actor->spr.SetScaleY(scale);
+		actor->spr.scale.Y = (scale);
 	}
 	if (actorflag(actor, SFLAG_FALLINGFLAMMABLE))
 	{

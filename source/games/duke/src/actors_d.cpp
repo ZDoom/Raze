@@ -902,7 +902,7 @@ static void movetripbomb(DDukeActor *actor)
 
 					if (x < 64)
 					{
-						spawned->spr.SetScaleX(x * (REPEAT_SCALE / 2));
+						spawned->spr.scale.X = (x * (REPEAT_SCALE / 2));
 						break;
 					}
 					x -= 64;
@@ -1141,7 +1141,7 @@ CLEAR_THE_BOLT:
 	actor->spr.picnum++;
 
 	int l = global_random & 7;
-	actor->spr.SetScaleX(0.125 + l * REPEAT_SCALE);
+	actor->spr.scale.X = (0.125 + l * REPEAT_SCALE);
 
 	if (l & 1) actor->spr.cstat ^= CSTAT_SPRITE_TRANSLUCENT;
 
@@ -2308,7 +2308,7 @@ static void greenslime(DDukeActor *actor)
 					actor->temp_data[0] = -1;
 					double dist = (actor->spr.pos.XY() - s5->spr.pos.XY()).LengthSquared();
 					if (dist < 48*48) {
-						s5->spr.SetScaleX(0);
+						s5->spr.scale.X = (0);
 					}
 				}
 			}
@@ -2378,8 +2378,8 @@ static void greenslime(DDukeActor *actor)
 			// TJR
 		}
 
-		actor->spr.SetScaleX(0.5625 + BobVal(512 + actor->temp_data[1]) * 0.125);
-		actor->spr.SetScaleY(0.25 + BobVal(actor->temp_data[1]) * 0.03125);
+		actor->spr.scale.X = (0.5625 + BobVal(512 + actor->temp_data[1]) * 0.125);
+		actor->spr.scale.Y = (0.25 + BobVal(actor->temp_data[1]) * 0.03125);
 
 		if (rnd(4) && (sectp->ceilingstat & CSTAT_SECTOR_SKY) == 0 &&
 			abs(actor->floorz - actor->ceilingz) < 192)
@@ -2460,7 +2460,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	if (actor->spr.scale.X < 0.1250)
 	{
 		actor->spr.scale.X += (ds * REPEAT_SCALE);
-		actor->spr.SetScaleY(actor->spr.scale.X);
+		actor->spr.scale.Y = (actor->spr.scale.X);
 	}
 	actor->clipdist += ds * 0.25;
 	if (actor->temp_data[0] <= 2)
@@ -2678,7 +2678,7 @@ DETONATEB:
 
 		if (actor->spr.scale.Y)
 		{
-			actor->spr.SetScaleY(0);
+			actor->spr.scale.Y = (0);
 			return;
 		}
 
@@ -2694,7 +2694,7 @@ DETONATEB:
 				actor->temp_data[2] = gs.respawnitemtime;
 				spawn(actor, RESPAWNMARKERRED);
 				actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				actor->spr.SetScaleY(0.140625);
+				actor->spr.scale.Y = (0.140625);
 				return;
 			}
 		}
