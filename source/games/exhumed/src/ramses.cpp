@@ -117,8 +117,7 @@ void InitSpiritHead()
     }
 
 
-    pSpiritSpr->spr.yrepeat = 140;
-    pSpiritSpr->spr.xrepeat = 140;
+	pSpiritSpr->spr.SetScale(2.1875, 2.1875);
     pSpiritSpr->spr.picnum = kTileRamsesWorkTile;
 
     nHeadStage = 0;

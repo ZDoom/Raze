@@ -457,8 +457,7 @@ void StartRegenerate(DExhumedActor* pActor)
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-    pActor->spr.xrepeat = 1;
-    pActor->spr.yrepeat = 1;
+    pActor->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
     pActor->spr.pal = 1;
 
     Regenerates.Push(pActor);
@@ -492,8 +491,8 @@ void DoRegenerates()
         {
             if (pActor->spr.xrepeat < pActor->spr.xint)
             {
-                pActor->spr.xrepeat += 2;
-                pActor->spr.yrepeat += 2;
+				pActor->spr.AddScaleX(0.03125);
+				pActor->spr.AddScaleY(0.03125);
                 continue;
             }
         }

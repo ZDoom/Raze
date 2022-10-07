@@ -643,8 +643,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 
         tsp->shade = shade;
         tsp->pal = pTSprite->pal;
-        tsp->xrepeat = pTSprite->xrepeat;
-        tsp->yrepeat = pTSprite->yrepeat;
+        tsp->CopyScale(pTSprite);
         tsp->angle = pTSprite->angle;
         tsp->ownerActor = pTSprite->ownerActor;
         tsp->sectp = pTSprite->sectp;
@@ -691,8 +690,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
             pTSprite->pos.Z = pSector->floorz;
-            pTSprite->yrepeat = (uint8_t)edx;
-            pTSprite->xrepeat = (uint8_t)edx;
+			pTSprite->SetScale(edx * REPEAT_SCALE, edx * REPEAT_SCALE);
             pTSprite->statnum = -3;
             pTSprite->pal = 0;
         }

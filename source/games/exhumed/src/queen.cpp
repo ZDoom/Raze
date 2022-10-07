@@ -425,8 +425,7 @@ void BuildTail()
         pTailActor->spr.hitag = 0;
         pTailActor->spr.cstat = 0;
         pTailActor->clipdist = 25;
-        pTailActor->spr.xrepeat = 80;
-        pTailActor->spr.yrepeat = 80;
+		pTailActor->spr.SetScale(1.25, 1.25);
         pTailActor->spr.picnum = 1;
         pTailActor->spr.pal = pTailActor->sector()->ceilingpal;
         pTailActor->spr.xoffset = 0;
@@ -478,16 +477,14 @@ void BuildQueenEgg(int nQueen, int nVal)
 
     if (!nVal)
     {
-        pActor2->spr.xrepeat = 30;
-        pActor2->spr.yrepeat = 30;
+		pActor2->spr.SetScale(0.46875, 0.46875);
 		pActor2->vel.XY() = pActor2->spr.angle.ToVector() * 1024;
         pActor2->vel.Z = -6000 / 256.;
         pActor2->spr.cstat = 0;
     }
     else
     {
-        pActor2->spr.xrepeat = 60;
-        pActor2->spr.yrepeat = 60;
+		pActor2->spr.SetScale(0.9375, 0.9375);
         pActor2->vel.X = 0;
         pActor2->vel.Y = 0;
         pActor2->vel.Z = -2000 / 256.;
@@ -749,8 +746,7 @@ void BuildQueenHead(int nQueen)
 	pActor2->spr.pos.XY() = pActor->spr.pos.XY();
 	pActor2->spr.pos.Z = pSector->floorz;
 	pActor2->clipdist = 17.5;
-    pActor2->spr.xrepeat = 80;
-    pActor2->spr.yrepeat = 80;
+	pActor2->spr.SetScale(1.25, 1.25);
     pActor2->spr.cstat = 0;
     pActor2->spr.picnum = 1;
     pActor2->spr.shade = -12;
@@ -1182,8 +1178,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.pal = 0;
     pActor->spr.shade = -12;
     pActor->clipdist = 25;
-    pActor->spr.xrepeat = 80;
-    pActor->spr.yrepeat = 80;
+	pActor->spr.SetScale(1.25, 1.25);
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
@@ -1451,15 +1446,13 @@ void AIQueen::Tick(RunListEvent* ev)
                         auto pChunkActor = BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueen, 57, 0));
 
                         pChunkActor->spr.picnum = kQueenChunk + (i % 3);
-                        pChunkActor->spr.xrepeat = 100;
-                        pChunkActor->spr.yrepeat = 100;
+						pChunkActor->spr.SetScale(1.5625, 1.5625);
                     }
 
                     auto pChunkActor = BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueen, 57, 0));
 
                     pChunkActor->spr.picnum = kTile3126;
-                    pChunkActor->spr.yrepeat = 100;
-                    pChunkActor->spr.xrepeat = 100;
+					pChunkActor->spr.SetScale(1.5625, 1.5625);
 
                     PlayFXAtXYZ(
                         StaticSound[kSound40],

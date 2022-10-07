@@ -1410,13 +1410,11 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
         if (nVal == 3)
         {
-            pSpark->spr.xrepeat = 120;
-            pSpark->spr.yrepeat = 120;
+			pSpark->spr.SetScale(1.875, 1.875);
         }
         else
         {
-            pSpark->spr.xrepeat = pActor->spr.xrepeat + 15;
-            pSpark->spr.yrepeat = pActor->spr.xrepeat + 15;
+			pSpark->spr.SetScale(pActor->spr.Scale() + DVector2(0.234375, 0.234375));
         }
     }
     else
@@ -1467,7 +1465,7 @@ void AISpark::Tick(RunListEvent* ev)
 
     if (pActor->spr.ScaleX() >= 0.0625 && pActor->spr.shade <= 100)
     {
-        pActor->spr.yrepeat -= 2;
+		pActor->spr.AddScaleY(-0.03125);
 
         // calling BuildSpark() with 2nd parameter as '1' will set kTile986
         if (pActor->spr.picnum == kTile986 && (pActor->spr.xrepeat & 2))

@@ -484,6 +484,12 @@ struct spritetypebase
 		yrepeat = uint8_t(y * scaletoint);
 	}
 
+	void SetScale(const DVector2& p)
+	{
+		xrepeat = uint8_t(p.X * scaletoint);
+		yrepeat = uint8_t(p.Y * scaletoint);
+	}
+
 	void SetScaleX(double x)
 	{
 		xrepeat = uint8_t(x * scaletoint);
