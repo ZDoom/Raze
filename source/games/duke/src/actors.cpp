@@ -926,7 +926,7 @@ void detonate(DDukeActor *actor, int explosion)
 
 	actor->spr.pos.Z -= 32;
 
-	if ((actor->temp_data[3] == 1 && actor->spr.xrepeat) || actor->spr.lotag == -99)
+	if ((actor->temp_data[3] == 1 && actor->spr.ScaleX() != 0) || actor->spr.lotag == -99)
 	{
 		int x = actor->spr.extra;
 		spawn(actor, explosion);
@@ -934,7 +934,7 @@ void detonate(DDukeActor *actor, int explosion)
 		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 	}
 
-	if (actor->spr.xrepeat)
+	if (actor->spr.ScaleX() != 0)
 		for (int x = 0; x < 8; x++) RANDOMSCRAP(actor);
 
 	deletesprite(actor);
@@ -1163,7 +1163,7 @@ void moveooz(DDukeActor* actor, int seenine, int seeninedead, int ooz, int explo
 	int j;
 	if (actor->spr.shade != -32 && actor->spr.shade != -33)
 	{
-		if (actor->spr.xrepeat)
+		if (actor->spr.ScaleX() != 0)
 			j = (fi.ifhitbyweapon(actor) >= 0);
 		else
 			j = 0;
@@ -1352,7 +1352,7 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 	if (!explosion) return;
 	explosion->spr.pos = pos;
 
-	if (actor->spr.xrepeat < 10)
+	if (actor->spr.ScaleX() < 0.15625)
 	{
 		explosion->spr.SetScale(0.09375, 0.09375);
 	}
@@ -1369,7 +1369,7 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 	if (newextra > 0) actor->spr.extra = newextra;
 	S_PlayActorSound(playsound, actor);
 
-	if (actor->spr.xrepeat >= 10)
+	if (actor->spr.ScaleX() >= 0.15625)
 	{
 		int x = actor->spr.extra;
 		fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
@@ -1976,7 +1976,7 @@ void camera(DDukeActor *actor)
 
 void forcesphereexplode(DDukeActor *actor)
 {
-	int l = actor->spr.xrepeat;
+	double size = actor->spr.ScaleX();
 	if (actor->temp_data[1] > 0)
 	{
 		actor->temp_data[1]--;
@@ -1993,23 +1993,23 @@ void forcesphereexplode(DDukeActor *actor)
 		if (actor->temp_data[0] < 64)
 		{
 			actor->temp_data[0]++;
-			l += 3;
+			size += 0.046875;
 		}
 	}
 	else
 		if (actor->temp_data[0] > 64)
 		{
 			actor->temp_data[0]--;
-			l -= 3;
+			size -= 0.046875;
 		}
 
 	actor->spr.pos = Owner->spr.pos;;
 	actor->spr.angle += mapangle(Owner->temp_data[0]);
 
-	double s = clamp(l, 1, 64) * REPEAT_SCALE;
+	size = clamp(size, REPEAT_SCALE, 1.);
 
-	actor->spr.SetScale(s, s);
-	actor->spr.shade = (l >> 1) - 48;
+	actor->spr.SetScale(size, size);
+	actor->spr.shade = int8_t((size * 32) - 48);
 
 	for (int j = actor->temp_data[0]; j > 0; j--)
 		ssp(actor, CLIPMASK0);
