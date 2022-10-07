@@ -372,8 +372,7 @@ void EelCommon(DSWActor* actor)
 
     actor->user.pos.Z = actor->spr.pos.Z;
 
-    actor->spr.xrepeat = 35;
-    actor->spr.yrepeat = 27;
+	actor->spr.SetScale(0.546875, 0.421875);
     actor->user.Radius = 400;
 }
 

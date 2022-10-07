@@ -513,8 +513,7 @@ void CoolgCommon(DSWActor* actor)
 
     actor->user.pos.Z = actor->spr.pos.Z;
 
-    actor->spr.xrepeat = 42;
-    actor->spr.yrepeat = 42;
+	actor->spr.SetScale(0.65625, 0.65625);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
 }
 
@@ -793,7 +792,7 @@ int DoCoolgDeath(DSWActor* actor)
 {
     actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
     actor->spr.cstat &= ~(CSTAT_SPRITE_INVISIBLE);
-    actor->spr.xrepeat = 42;
+    actor->spr.SetScaleX(0.65625);
     actor->spr.shade = -10;
 
     if (actor->user.Flags & (SPR_FALLING))
@@ -871,9 +870,9 @@ int DoCoolgMove(DSWActor* actor)
 
     if (actor->user.FlagOwner-1 == 0)
     {
-        actor->spr.xrepeat--;
+		actor->spr.AddScaleX(-REPEAT_SCALE);
         actor->spr.shade++;
-        if (actor->spr.ScaleX() < 0.0625) actor->spr.xrepeat = 4;
+		if (actor->spr.ScaleX() < 0.0625) actor->spr.SetScaleX(0.0625);
         if (actor->spr.shade > 126)
         {
             actor->spr.shade = 127;
@@ -883,14 +882,14 @@ int DoCoolgMove(DSWActor* actor)
     else if (actor->user.FlagOwner-1 == 2)
     {
         actor->spr.hitag = 0;
-        actor->spr.xrepeat++;
+        actor->spr.AddScaleX(REPEAT_SCALE);
         actor->spr.shade--;
-        if (actor->spr.ScaleX() > 0.65625) actor->spr.xrepeat = 42;
+        if (actor->spr.ScaleX() > 0.65625) actor->spr.SetScaleX(0.65625);
         if (actor->spr.shade < -10) actor->spr.shade = -10;
     }
     else if (actor->user.FlagOwner == 0)
     {
-        actor->spr.xrepeat = 42;
+        actor->spr.SetScaleX(0.65625);
         actor->spr.shade = -10;
         actor->spr.hitag = 0;
     }
