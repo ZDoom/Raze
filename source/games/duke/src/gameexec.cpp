@@ -1729,16 +1729,16 @@ int ParseState::parse(void)
 		// 1.4, so instead of patching the CONs I'll surruptitiously patch the code here
 		//if (!isPlutoPak() && *insptr == 0) *insptr = 4;
 
-		double s = ((*insptr) * REPEAT_SCALE - g_ac->spr.ScaleX());
-		g_ac->spr.SetScaleX(clamp(g_ac->spr.ScaleX() + Sgn(s) * REPEAT_SCALE, 0., 4.));
+		double siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.ScaleX());
+		g_ac->spr.SetScaleX(clamp(g_ac->spr.ScaleX() + Sgn(siz) * REPEAT_SCALE, 0., 4.));
 
 		insptr++;
 
 		auto scale = g_ac->spr.ScaleY();
 		if ((g_ac->isPlayer() && scale < 0.5626) || *insptr * REPEAT_SCALE < scale || (scale * (tileHeight(g_ac->spr.picnum) + 8)) < g_ac->floorz - g_ac->ceilingz)
 		{
-			s = ((*insptr) * REPEAT_SCALE - g_ac->spr.ScaleY());
-			g_ac->spr.SetScaleY(clamp(g_ac->spr.ScaleY() + Sgn(s) * REPEAT_SCALE, 0., 4.));
+			siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.ScaleY());
+			g_ac->spr.SetScaleY(clamp(g_ac->spr.ScaleY() + Sgn(siz) * REPEAT_SCALE, 0., 4.));
 		}
 
 		insptr++;
