@@ -504,6 +504,12 @@ struct spritetypebase
 		yrepeat += uint8_t(y * scaletoint);
 	}
 
+	void MultScale(double x)
+	{
+		xrepeat = uint8_t(xrepeat * x);
+		yrepeat = uint8_t(yrepeat * x);
+	}
+
 	void MultScaleX(double x)
 	{
 		xrepeat = uint8_t(xrepeat * x);

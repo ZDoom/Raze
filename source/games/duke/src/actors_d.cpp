@@ -262,7 +262,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	double radius = r * inttoworld;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
-	if(actor->spr.picnum != SHRINKSPARK && !(actor->spr.picnum == RPG && actor->spr.xrepeat < 11))
+	if(actor->spr.picnum != SHRINKSPARK && !(actor->spr.picnum == RPG && actor->spr.ScaleX() < 0.171875))
 	{
 		BFSSectorSearch search(actor->sector());
 
@@ -335,7 +335,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			}
 			else if (act2->spr.extra >= 0 && act2 != actor && (actorflag(act2, SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
-				if (actor->spr.picnum == SHRINKSPARK && act2->spr.picnum != SHARK && (act2 == Owner || act2->spr.xrepeat < 24))
+				if (actor->spr.picnum == SHRINKSPARK && act2->spr.picnum != SHARK && (act2 == Owner || act2->spr.ScaleX() < 0.375))
 				{
 					continue;
 				}
@@ -575,8 +575,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 		{
 			if (spawned->spr.picnum == JIBS2)
 			{
-				spawned->spr.xrepeat >>= 2;
-				spawned->spr.yrepeat >>= 2;
+				spawned->spr.MultScale(0.25);
 			}
 			if (pal != 0)
 				spawned->spr.pal = pal;
@@ -641,10 +640,10 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			else
 			{
 				if (actor->hitextra == 0)
-					if (actor->attackertype == SHRINKSPARK && actor->spr.xrepeat < 24)
+					if (actor->attackertype == SHRINKSPARK && actor->spr.ScaleX() < 0.375)
 						return -1;
 
-				if (isWorldTour() && actor->attackertype == FIREFLY && actor->spr.xrepeat < 48)
+				if (isWorldTour() && actor->attackertype == FIREFLY && actor->spr.ScaleX() < 0.75)
 				{
 					if (actor->attackertype != RADIUSEXPLOSION && actor->attackertype != RPG)
 						return -1;
@@ -903,7 +902,7 @@ static void movetripbomb(DDukeActor *actor)
 
 					if (x < 64)
 					{
-						spawned->spr.xrepeat = x / 2;
+						spawned->spr.SetScaleX(x * (REPEAT_SCALE / 2));
 						break;
 					}
 					x -= 64;
@@ -1046,7 +1045,7 @@ static void movefireext(DDukeActor* actor)
 static void moveviewscreen(DDukeActor* actor)
 {
 	const double VIEWSCR_DIST = 1024;	// was originally 2048, was increased to 8192 by EDuke32 and RedNukem, but with high resolutions the resulting 512 map units are still too low.
-	if (actor->spr.xrepeat == 0) deletesprite(actor);
+	if (actor->spr.ScaleX() == 0) deletesprite(actor);
 	else
 	{
 		double a;
@@ -1082,7 +1081,7 @@ CLEAR_THE_BOLT2:
 		actor->temp_data[2]--;
 		return;
 	}
-	if ((actor->spr.xrepeat == 0 && actor->spr.yrepeat) == 0)
+	if ((actor->spr.ScaleX() == 0 && actor->spr.ScaleY()) == 0)
 	{
 		actor->spr.xrepeat = actor->temp_data[0];
 		actor->spr.yrepeat = actor->temp_data[1];
@@ -1128,7 +1127,7 @@ CLEAR_THE_BOLT:
 		sectp->ceilingshade = 20;
 		return;
 	}
-	if ((actor->spr.xrepeat | actor->spr.yrepeat) == 0)
+	if (actor->spr.ScaleX() == 0 && actor->spr.ScaleY() == 0)
 	{
 		actor->spr.xrepeat = actor->temp_data[0];
 		actor->spr.yrepeat = actor->temp_data[1];
@@ -1325,7 +1324,8 @@ static bool movefireball(DDukeActor* actor)
 						ball->vel = trail->temp_pos2;
 					}
 				}
-				ball->spr.yrepeat = ball->spr.xrepeat = (uint8_t)(actor->spr.xrepeat * siz);
+				double scale = actor->spr.ScaleX() * siz;
+				ball->spr.SetScale(scale, scale);
 				ball->spr.cstat = actor->spr.cstat;
 				ball->spr.extra = 0;
 
@@ -1482,9 +1482,9 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 		ssp(proj, CLIPMASK1);
 		proj->spr.extra >>= 1;
 		if (proj->spr.ScaleX() > 0.125 )
-			proj->spr.xrepeat -= 2;
+			proj->spr.AddScaleX(-0.03125);
 		if (proj->spr.ScaleY() > 0.125 )
-			proj->spr.yrepeat -= 2;
+			proj->spr.AddScaleY(-0.03125);
 		proj->spr.yint--;
 		return true;
 	}
@@ -1520,7 +1520,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	switch (proj->spr.picnum)
 	{
 	case RPG:
-		if (proj->attackertype != BOSS2 && proj->spr.xrepeat >= 10 && proj->sector()->lotag != 2)
+		if (proj->attackertype != BOSS2 && proj->spr.ScaleX() >= 0.15625 && proj->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			if (spawned) spawned->spr.pos.Z += 1;
