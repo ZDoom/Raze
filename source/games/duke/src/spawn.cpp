@@ -736,28 +736,11 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 				actor->temp_walls[i] = closewall;
 
-				StartInterpolation(actor->temp_walls[i], Interp_Wall_X);
-				StartInterpolation(actor->temp_walls[i], Interp_Wall_Y);
-
-				if (actor->temp_walls[i]->twoSided())
-				{
-					auto nwal = actor->temp_walls[i]->nextWall();
-					StartInterpolation(nwal, Interp_Wall_X);
-					StartInterpolation(nwal, Interp_Wall_Y);
-					nwal = nwal->point2Wall();
-					StartInterpolation(nwal, Interp_Wall_X);
-					StartInterpolation(nwal, Interp_Wall_Y);
-
-					if (nwal->twoSided())
+				vertexscan(actor->temp_walls[i], [=](walltype* w)
 					{
-						nwal = nwal->nextWall();
-						StartInterpolation(nwal, Interp_Wall_X);
-						StartInterpolation(nwal, Interp_Wall_Y);
-						nwal = nwal->point2Wall();
-						StartInterpolation(nwal, Interp_Wall_X);
-						StartInterpolation(nwal, Interp_Wall_Y);
-					}
-				}
+						StartInterpolation(w, Interp_Wall_X);
+						StartInterpolation(w, Interp_Wall_Y);
+					});
 			}
 			break;
 		}
