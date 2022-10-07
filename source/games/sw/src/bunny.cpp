@@ -752,7 +752,7 @@ int SetupBunny(DSWActor* actor)
     {
         EnemyDefaults(actor, &BunnyWhiteActionSet, &WhiteBunnyPersonality);
         actor->user.Attrib = &WhiteBunnyAttrib;
-        actor->spr.xrepeat = 96;
+        actor->spr.SetScale(1.5, 1.40625);
         actor->spr.yrepeat = 90;
 
         actor->clipdist = 12.5;
@@ -764,11 +764,8 @@ int SetupBunny(DSWActor* actor)
     {
         EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
         actor->user.Attrib = &BunnyAttrib;
-        //actor->spr.xrepeat = 76;
-        //actor->spr.yrepeat = 70;
 
-        //actor->spr.shade = 0; // darker
-        if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
+		if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = 20;
         actor->user.Flag1 = 0;
     }
@@ -959,8 +956,8 @@ int DoBunnyQuickJump(DSWActor* actor)
 
 
         // Not mature enough yet
-        if (actor->spr.xrepeat != 64 || actor->spr.yrepeat != 64) return false;
-        if (hitActor->spr.xrepeat != 64 || hitActor->spr.yrepeat != 64) return false;
+        if (actor->spr.ScaleX() != 1 || actor->spr.ScaleY() != 1) return false;
+        if (hitActor->spr.ScaleX() != 1 || hitActor->spr.ScaleY() != 1) return false;
 
         // Kill a rival
         // Only males fight
@@ -997,8 +994,8 @@ int DoBunnyQuickJump(DSWActor* actor)
         if (!hitActor->hasU() || hitActor->user.ID != BUNNY_RUN_R0) return false;
 
         // Not mature enough to mate yet
-        if (actor->spr.xrepeat != 64 || actor->spr.yrepeat != 64) return false;
-        if (hitActor->spr.xrepeat != 64 || hitActor->spr.yrepeat != 64) return false;
+		if (actor->spr.ScaleX() != 1 || actor->spr.ScaleY() != 1) return false;
+		if (hitActor->spr.ScaleX() != 1 || hitActor->spr.ScaleY() != 1) return false;
 
         if (hitActor->user.ShellNum <= 0 && hitActor->user.WaitTics <= 0 && actor->user.WaitTics <= 0)
         {
@@ -1148,8 +1145,7 @@ void BunnyHatch(DSWActor* actor)
     {
         auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
         actorNew->spr.pos = actor->spr.pos;
-        actorNew->spr.xrepeat = 30;  // Baby size
-        actorNew->spr.yrepeat = 24;
+		actorNew->spr.SetScale(0.46875, 0.375);  // Baby size
         actorNew->spr.angle = RandomAngle();
         actorNew->spr.pal = 0;
         SetupBunny(actorNew);
@@ -1209,8 +1205,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
 {
     auto actorNew = insertActor(actor->sector(), STAT_DEFAULT);
     actorNew->spr.pos = actor->spr.pos;
-    actorNew->spr.xrepeat = 30;  // Baby size
-    actorNew->spr.yrepeat = 24;
+	actorNew->spr.SetScale(0.46875, 0.375);  // Baby size
     actorNew->spr.angle = RandomAngle();
     actorNew->spr.pal = 0;
     SetupBunny(actorNew);
@@ -1466,8 +1461,10 @@ int DoBunnyGrowUp(DSWActor* actor)
 
     if ((actor->user.Counter -= ACTORMOVETICS) <= 0)
     {
-        if ((++actor->spr.xrepeat) > 64) actor->spr.xrepeat = 64;
-        if ((++actor->spr.yrepeat) > 64) actor->spr.yrepeat = 64;
+		actor->spr.AddScaleX(REPEAT_SCALE);
+		actor->spr.AddScaleY(REPEAT_SCALE);
+        if ((actor->spr.ScaleX()) > 1) actor->spr.SetScaleX(1);
+		if ((actor->spr.ScaleY()) > 1) actor->spr.SetScaleY(1);
         actor->user.Counter = 60;
     }
 
