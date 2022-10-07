@@ -749,7 +749,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	}
 	if (p < 0) aimed = nullptr;
 
-	auto offset = (ang + DAngle1 * 61).ToVector() * (1024 / 448);
+	auto offset = (ang + DAngle1 * 61.171875).ToVector() * (1024. / 448.);
 	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, 14, 14, ang, vel, zvel, actor, 4);
 
 	if (!spawned) return;
