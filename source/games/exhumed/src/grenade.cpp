@@ -219,7 +219,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponGrenade].nRadius);
 
-    BuildAnim(nullptr, var_28, 0, pActor->spr.pos, pActor->sector(), var_20, 4);
+    BuildAnimI(nullptr, var_28, 0, pActor->spr.pos, pActor->sector(), var_20, 4);
     AddFlash(pActor->sector(), pActor->spr.pos, 128);
 
     DestroyGrenade(pActor);

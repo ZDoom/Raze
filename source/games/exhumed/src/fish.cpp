@@ -78,7 +78,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 
 void BuildBlood(const DVector3& pos, sectortype* pSector)
 {
-    BuildAnim(nullptr, kSeqFish, 36, pos, pSector, 75, 128);
+    BuildAnimI(nullptr, kSeqFish, 36, pos, pSector, 75, 128);
 }
 
 //---------------------------------------------------------------------------

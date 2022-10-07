@@ -29,7 +29,11 @@ BEGIN_PS_NS
 
 void InitAnims();
 void DestroyAnim(DExhumedActor* nAnim);
-DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, const DVector3& pos, sectortype* pSector, int nRepeat, int nFlag);
+DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, const DVector3& pos, sectortype* pSector, double nScale, int nFlag);
+DExhumedActor* BuildAnimI(DExhumedActor* actor, int val, int val2, const DVector3& pos, sectortype* pSector, int nRepeat, int nFlag)
+{
+	return BuildAnim(actor, val, val2, pos, pSector, nRepeat * REPEAT_SCALE, nFlag);
+}
 
 void FuncAnim(int, int, int, int);
 void BuildExplosion(DExhumedActor* actor);
