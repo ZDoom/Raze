@@ -288,8 +288,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case FRAMEEFFECT1:
 		if (actj)
 		{
-			act->spr.xrepeat = actj->spr.xrepeat;
-			act->spr.yrepeat = actj->spr.yrepeat;
+			act->spr.CopyScale(&actj->spr);
 			if (actj->spr.picnum == APLAYER)
 				act->temp_data[1] = SMALLSMOKE;
 			else
@@ -308,13 +307,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 1;
+			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		break;
 
 	case BLOOD:
-		act->spr.xrepeat = act->spr.yrepeat = 4;
+		act->spr.SetScale(0.0625, 0.0625);
 		act->spr.pos.Z -= 26;
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -342,8 +341,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
-		act->spr.xrepeat = 7 + (krand() & 7);
-		act->spr.yrepeat = 7 + (krand() & 7);
+		act->spr.SetScaleX(0.109375 + (krand() & 7) * REPEAT_SCALE);
+		act->spr.SetScaleY(0.109375 + (krand() & 7) * REPEAT_SCALE);
 		act->spr.pos.Z -= 16;
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
@@ -521,8 +520,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DUKELYINGDEAD:
 		if (actj && actj->spr.picnum == APLAYER)
 		{
-			act->spr.xrepeat = actj->spr.xrepeat;
-			act->spr.yrepeat = actj->spr.yrepeat;
+			act->spr.CopyScale(&actj->spr);
 			act->spr.shade = actj->spr.shade;
 			act->spr.pal = ps[actj->PlayerIndex()].palookup;
 		}
@@ -534,7 +532,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RESPAWNMARKERRED:
 		if (act->spr.picnum == RESPAWNMARKERRED)
 		{
-			act->spr.xrepeat = act->spr.yrepeat = 8;
+			act->spr.SetScale(0.125, 0.125);
 			if (actj) act->spr.pos.Z = actj->floorz;
 		}
 		else
@@ -636,8 +634,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case PLAYERONWATER:
 		if (actj)
 		{
-			act->spr.xrepeat = actj->spr.xrepeat;
-			act->spr.yrepeat = actj->spr.yrepeat;
+			act->spr.CopyScale(&actj->spr);
 			act->vel.Z = 0.5;
 			if (act->sector()->lotag != 2)
 				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -837,14 +834,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case HENSTAND:
 			if (act->spr.pal == 35)
 			{
-				act->spr.xrepeat = 42;
-				act->spr.yrepeat = 30;
+				act->spr.SetScale(0.65625, 0.46875);
 				act->setClipDistFromTile();
 			}
 			else
 			{
-				act->spr.xrepeat = 21;
-				act->spr.yrepeat = 15;
+				act->spr.SetScale(0.328125, 0.234375);
 				act->clipdist = 16;
 			}
 			break;
@@ -861,8 +856,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->setClipDistFromTile();
 			break;
 		case RABBIT:
-			act->spr.xrepeat = 18;
-			act->spr.yrepeat = 18;
+			act->spr.SetScale(0.28125, 0.28125);
 			act->setClipDistFromTile();
 			break;
 		case MAMACLOUD:
@@ -876,14 +870,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case MAMA:
 			if (act->spr.pal == 30)
 			{
-				act->spr.xrepeat = 26;
-				act->spr.yrepeat = 26;
+				act->spr.SetScale(0.40625, 0.40625);
 				act->clipdist = 18.75;
 			}
 			else if (act->spr.pal == 31)
 			{
-				act->spr.xrepeat = 36;
-				act->spr.yrepeat = 36;
+				act->spr.SetScale(0.5625, 0.5625);
 				act->clipdist = 25;
 			}
 			else if (act->spr.pal == 32)
@@ -898,23 +890,19 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			break;
 		case BIKERB:
-			act->spr.xrepeat = 28;
-			act->spr.yrepeat = 22;
+			act->spr.SetScale(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
 		case BIKERBV2:
-			act->spr.xrepeat = 28;
-			act->spr.yrepeat = 22;
+			act->spr.SetScale(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
 		case BIKER:
-			act->spr.xrepeat = 28;
-			act->spr.yrepeat = 22;
+			act->spr.SetScale(0.4375, 0.34375);
 			act->setClipDistFromTile();
 			break;
 		case CHEERB:
-			act->spr.xrepeat = 28;
-			act->spr.yrepeat = 22;
+			act->spr.SetScale(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
 		case CHEER:
@@ -923,8 +911,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->setClipDistFromTile();
 			break;
 		case MAKEOUT:
-			act->spr.xrepeat = 26;
-			act->spr.yrepeat = 26;
+			act->spr.SetScale(0.40625, 0.40625);
 			act->setClipDistFromTile();
 			break;
 		case MINIONBOAT:
@@ -941,15 +928,13 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 
 		case TORNADO:
-			act->spr.xrepeat = 64;
-			act->spr.yrepeat = 128;
+			act->spr.SetScale(1, 2);
 			act->setClipDistFromTile();
 			act->clipdist *= 0.25;
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			break;
 		case LTH:
-			act->spr.xrepeat = 24;
-			act->spr.yrepeat = 22;
+			act->spr.SetScale(0.375, 0.34375);
 			act->setClipDistFromTile();
 			break;
 		case ROCK:
@@ -1017,14 +1002,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 	case LOCATORS:
-		//                act->spr.xrepeat=act->spr.yrepeat=0;
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_LOCATOR);
 		break;
 
 	case ACTIVATORLOCKED:
 	case ACTIVATOR:
-		//                act->spr.xrepeat=act->spr.yrepeat=0;
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		if (act->spr.picnum == ACTIVATORLOCKED)
 			sectp->lotag ^= 16384;
@@ -1049,16 +1032,15 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		getglobalz(act);
 
-		int j = int((act->floorz - act->ceilingz) * 0.5);
+		double j = ((act->floorz - act->ceilingz) / 128.);
 
-		act->spr.yrepeat = j;
-		act->spr.xrepeat = 25 - (j >> 1);
+		act->spr.SetScale(max(0., 0.390625 - j * 0.5), j);
 		if(krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
 		break;
 	}
 	case HEAVYHBOMB:
 		act->SetOwner(act);
-		act->spr.xrepeat = act->spr.yrepeat = 9;
+		act->spr.SetScale(0.140625, 0.140625);
 		act->spr.yint = 4;
 		[[fallthrough]];
 	case REACTOR2:
@@ -1170,105 +1152,83 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.SetScale(0.25, 0.25);
 			break;
 		case SHOTGUNAMMO:
-			act->spr.xrepeat = 18;
-			act->spr.yrepeat = 17;
+			act->spr.SetScale(0.28125, 0.265625);
 			if (isRRRA()) act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
 		case SIXPAK:
-			act->spr.xrepeat = 13;
-			act->spr.yrepeat = 9;
+			act->spr.SetScale(0.203125, 0.140625);
 			if (isRRRA()) act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
 		case FIRSTAID:
-			act->spr.xrepeat = 8;
-			act->spr.yrepeat = 8;
+			act->spr.SetScale(0.125, 0.125);
 			break;
 		case BEER:
-			act->spr.xrepeat = 5;
-			act->spr.yrepeat = 4;
+			act->spr.SetScale(0.078125, 0.0625);
 			break;
 		case AMMO:
-			act->spr.xrepeat = 9;
-			act->spr.yrepeat = 9;
+			act->spr.SetScale(0.140625, 0.140625);
 			break;
 		case MOTOAMMO:
 			if (!isRRRA()) goto default_case;
-			act->spr.xrepeat = 23;
-			act->spr.yrepeat = 23;
+			act->spr.SetScale(0.359375, 0.359375);
 			break;
 		case BOATAMMO:
 			if (!isRRRA()) goto default_case;
 			act->spr.SetScale(0.25, 0.25);
 			break;
 		case COWPIE:
-			act->spr.xrepeat = 8;
-			act->spr.yrepeat = 6;
+			act->spr.SetScale(0.125, 0.09375);
 			break;
 		case STEROIDS:
-			act->spr.xrepeat = 13;
-			act->spr.yrepeat = 9;
+			act->spr.SetScale(0.203125, 0.140625);
 			break;
 		case ACCESSCARD:
-			act->spr.xrepeat = 11;
-			act->spr.yrepeat = 12;
+			act->spr.SetScale(0.171875, 0.1875);
 			break;
 		case HEATSENSOR:
-			act->spr.xrepeat = 6;
-			act->spr.yrepeat = 4;
+			act->spr.SetScale(0.09375, 0.0625);
 			break;
 		case AIRTANK:
-			act->spr.xrepeat = 19;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.296875, 0.25);
 			break;
 		case BATTERYAMMO:
-			act->spr.xrepeat = 15;
-			act->spr.yrepeat = 15;
+			act->spr.SetScale(0.234375, 0.234375);
 			break;
 		case BOWLINGBALLSPRITE:
-			act->spr.xrepeat = 11;
-			act->spr.yrepeat = 11;
+			act->spr.SetScale(0.171875, 0.171875);
 			break;
 		case POWDERKEG:
-			act->spr.xrepeat = 11;
-			act->spr.yrepeat = 11;
+			act->spr.SetScale(0.171875, 0.171875);
 			act->spr.yint = 4;
 			act->vel.X = 2;
 			break;
 		case RPGSPRITE:
-			act->spr.xrepeat = 16;
-			act->spr.yrepeat = 14;
+			act->spr.SetScale(0.25, 0.21875);
 			break;
 		case RPG2SPRITE:
 			if (!isRRRA()) goto default_case;
 			act->spr.SetScale(0.34375, 0.3125);
 			break;
 		case SHRINKERSPRITE:
-			act->spr.xrepeat = 22;
-			act->spr.yrepeat = 13;
+			act->spr.SetScale(0.34375, 0.203125);
 			break;
 		case DEVISTATORSPRITE:
-			act->spr.xrepeat = 18;
-			act->spr.yrepeat = 17;
+			act->spr.SetScale(0.28125, 0.265625);
 			break;
 		case SAWAMMO:
-			act->spr.xrepeat = 12;
-			act->spr.yrepeat = 7;
+			act->spr.SetScale(0.1875, 0.109375);
 			break;
 		case GROWSPRITEICON:
-			act->spr.xrepeat = 10;
-			act->spr.yrepeat = 9;
+			act->spr.SetScale(0.15625, 0.140625);
 			break;
 		case DEVISTATORAMMO:
-			act->spr.xrepeat = 10;
-			act->spr.yrepeat = 9;
+			act->spr.SetScale(0.15625, 0.140625);
 			break;
 		case ATOMICHEALTH:
-			act->spr.xrepeat = 8;
-			act->spr.yrepeat = 8;
+			act->spr.SetScale(0.125, 0.125);
 			break;
 		case FREEZESPRITE:
-			act->spr.xrepeat = 17;
-			act->spr.yrepeat = 16;
+			act->spr.SetScale(0.265625, 0.25);
 			break;
 		}
 		act->spr.shade = act->sector()->floorshade;
@@ -1311,7 +1271,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			act->spr.angle = actj->spr.angle;
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-			act->spr.xrepeat = act->spr.yrepeat = 1;
+			act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 			act->vel.X = -0.5;
 			ssp(act, CLIPMASK0);
 		}
@@ -1327,7 +1287,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case OOZFILTER:
 
 		act->spr.shade = -16;
-		if (act->spr.xrepeat <= 8)
+		if (act->spr.ScaleX() <= 0.125)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 			act->spr.SetScale(0, 0);
@@ -1366,8 +1326,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		}
 		act->spr.pal = 0;
-		act->spr.xrepeat = 18;
-		act->spr.yrepeat = 18;
+		act->spr.SetScale(0.28125, 0.28125);
 		act->setClipDistFromTile();
 		act->saved_ammo = 100;
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -1440,8 +1399,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE63:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.xrepeat = 1;
-		act->spr.yrepeat = 1;
+		act->spr.SetScale(REPEAT_SCALE, REPEAT_SCALE);
 		act->clipdist = 0.25;
 		ChangeActorStat(act, 100);
 		break;

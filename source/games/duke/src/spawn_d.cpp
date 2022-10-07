@@ -108,7 +108,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.SetScale(0.25, 0.25);
 			return act;
 		case LAVAPOOLBUBBLE:
-			if (actj->spr.xrepeat < 30)
+			if (actj->spr.ScaleX() < 0.46875)
 				return act;
 			act->SetOwner(actj);
 			ChangeActorStat(act, STAT_MISC);
@@ -121,7 +121,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.pos.X += krandf(16) - 8;
 			act->spr.pos.Y += krandf(16) - 8;
 			act->spr.SetScale(0.3125, 0.3125);
-			act->spr.yrepeat = 20;
 			return act;
 		case SERIOUSSAM:
 			ChangeActorStat(act, 2);
@@ -221,8 +220,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case FRAMEEFFECT1:
 		if (actj)
 		{
-			act->spr.xrepeat = actj->spr.xrepeat;
-			act->spr.yrepeat = actj->spr.yrepeat;
+			act->spr.CopyScale(&actj->spr);
 			act->temp_data[1] = actj->spr.picnum;
 		}
 		else act->spr.SetScale(0, 0);
@@ -309,8 +307,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
-		act->spr.xrepeat = 7 + (krand() & 7);
-		act->spr.yrepeat = 7 + (krand() & 7);
+		act->spr.SetScaleX(0.109375 + (krand() & 7) * REPEAT_SCALE);
+		act->spr.SetScaleY(0.109375 + (krand() & 7) * REPEAT_SCALE);
 		act->spr.pos.Z -= 16;
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
@@ -503,8 +501,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DUKELYINGDEAD:
 		if (actj && actj->spr.picnum == APLAYER)
 		{
-			act->spr.xrepeat = actj->spr.xrepeat;
-			act->spr.yrepeat = actj->spr.yrepeat;
+			act->spr.CopyScale(&actj->spr);
 			act->spr.shade = actj->spr.shade;
 			act->spr.pal = ps[actj->PlayerIndex()].palookup;
 		}
@@ -647,8 +644,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case PLAYERONWATER:
 		if (actj)
 		{
-			act->spr.xrepeat = actj->spr.xrepeat;
-			act->spr.yrepeat = actj->spr.yrepeat;
+			act->spr.CopyScale(&actj->spr);
 			act->vel.Z = 0.5;
 			if (act->sector()->lotag != 2)
 				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -1109,7 +1105,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case OOZFILTER:
 
 		act->spr.shade = -16;
-		if (act->spr.xrepeat <= 8)
+		if (act->spr.ScaleX() <= 0.125)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 			act->spr.SetScale(0, 0);
