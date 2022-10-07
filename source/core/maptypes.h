@@ -506,22 +506,6 @@ struct spritetypebase
 	{
 		scale.Y += y;
 	}
-
-	void MultScale(double x)
-	{
-		scale *= x;
-	}
-
-
-	void CopyScale(const spritetypebase* other)
-	{
-		scale = other->scale;
-	}
-	
-	DVector2 Scale() const
-	{
-		return scale;
-	}
 };
 
 

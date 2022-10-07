@@ -1243,7 +1243,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			double zAdd = k * proj->vel.Z / 24;
 			auto x = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.angle.ToVector() * k * 2.,
 				FIRELASER, -40 + (k << 2),
-				proj->spr.Scale(), nullAngle, 0., 0., proj->GetOwner(), 5);
+				proj->spr.scale, nullAngle, 0., 0., proj->GetOwner(), 5);
 
 			if (x)
 			{
@@ -1848,12 +1848,12 @@ static void rrra_specialstats()
 			case MAMA:
 				if (enemysizecheat == 3)
 				{
-					act->spr.MultScale(2);
+					act->spr.scale *= 2;
 					act->setClipDistFromTile();
 				}
 				else if (enemysizecheat == 2)
 				{
-					act->spr.MultScale(0.5);
+					act->spr.scale *= 0.5;
 					act->clipdist = act->spr.scale.X, tileHeight(act->spr.picnum) * 0.125;
 				}
 				break;

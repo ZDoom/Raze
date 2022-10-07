@@ -66,7 +66,7 @@ void InitSpiritHead()
     nPixels = 0;
     auto pSpiritSpr = pSpiritSprite;
 
-	nSpiritScale = pSpiritSpr->spr.Scale();
+	nSpiritScale = pSpiritSpr->spr.scale;
 
     tileLoad(kTileRamsesNormal); // Ramses Normal Head
 

@@ -3832,7 +3832,7 @@ int DoVomit(DSWActor* actor)
         actor->spr.pos.Z = actor->user.loz;
         actor->user.WaitTics = 60;
         // notreallypos
-        actor->user.pos.XY() = actor->spr.Scale();
+        actor->user.pos.XY() = actor->spr.scale;
         return 0;
     }
 
@@ -17517,7 +17517,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
     double scale = (8 + (RANDOM_P2(8 << 8) >> 8)) * REPEAT_SCALE;
     actorNew->spr.SetScale(scale, scale);
     // notreallypos
-    actorNew->user.pos.XY() = actorNew->spr.Scale();
+    actorNew->user.pos.XY() = actorNew->spr.scale;
     actorNew->user.ceiling_dist = 1;
     actorNew->user.floor_dist = 1;
     actorNew->spr.shade = actor->sector()->floorshade - 10;
@@ -18332,7 +18332,7 @@ void QueueGeneric(DSWActor* actor, short pic)
         return;
     }
 
-    auto scale = actor->spr.Scale();
+    auto scale = actor->spr.scale;
 
     // can and should kill the user portion
     if (GenericQueue[GenericQueueHead] == nullptr)
@@ -18817,7 +18817,7 @@ void QueueLoWangs(DSWActor* actor)
 
     // Point passed in sprite to ps
     spawnedActor->spr.cstat = 0;
-    spawnedActor->spr.CopyScale(&actor->spr);
+    spawnedActor->spr.scale = actor->spr.scale;
     spawnedActor->spr.shade = actor->spr.shade;
     spawnedActor->user.spal = spawnedActor->spr.pal = actor->spr.pal;
     change_actor_stat(spawnedActor, STAT_DEFAULT); // Breakable

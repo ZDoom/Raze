@@ -3353,7 +3353,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 				pEffect->spr.pal = sourceactor->spr.pal;
 				pEffect->spr.xoffset = sourceactor->spr.xoffset;
 				pEffect->spr.yoffset = sourceactor->spr.yoffset;
-				pEffect->spr.CopyScale(&sourceactor->spr);
+				pEffect->spr.scale = sourceactor->spr.scale;
 				pEffect->spr.shade = sourceactor->spr.shade;
 			}
 
@@ -3787,7 +3787,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 					{
 						spawned->spr.pal = sourceactor->spr.pal;
 						spawned->spr.shade = sourceactor->spr.shade;
-						spawned->spr.CopyScale(&sourceactor->spr);
+						spawned->spr.scale = sourceactor->spr.scale;
 						spawned->spr.xoffset = sourceactor->spr.xoffset;
 						spawned->spr.yoffset = sourceactor->spr.yoffset;
 					}
@@ -9189,8 +9189,8 @@ void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 		burstactor->spr.pal = actor->spr.pal;
 		burstactor->clipdist = actor->clipdist * 0.25;
 		burstactor->spr.flags = actor->spr.flags;
-		burstactor->spr.CopyScale(&actor->spr);
-		burstactor->spr.MultScale(0.5);
+		burstactor->spr.scale = actor->spr.scale;
+		burstactor->spr.scale *= 0.5;
 
 		burstactor->spr.angle = actor->spr.angle + mapangle(missileInfo[actor->spr.type - kMissileBase].angleOfs);
 		burstactor->SetOwner(actor);

@@ -2947,7 +2947,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			{
 				pEffect->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
 				pEffect->spr.pal = 6;
-				pEffect->spr.CopyScale(&actor->spr);
+				pEffect->spr.scale = actor->spr.scale;
 			}
 
 			GIBTYPE nGibType;

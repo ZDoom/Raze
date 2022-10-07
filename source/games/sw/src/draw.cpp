@@ -308,7 +308,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
     }
     else
     {
-		scale = tsp->Scale();
+		scale = tsp->scale;
     }
 
     loz = ownerActor->user.loz;
@@ -404,7 +404,7 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
     dpos.XY() = npos.XY() = angle.ToVector() * ownerActor->user.motion_blur_dist;
     dpos.Z = npos.Z = z_amt_per_pixel * ownerActor->user.motion_blur_dist * (1./16);
 
-	scale = tsp->Scale();
+	scale = tsp->scale;
 
     switch ((ownerActor->user.Flags2 & SPR2_BLUR_TAPER))
     {
@@ -541,7 +541,7 @@ DSWActor* CopySprite(spritetypebase const* tsp, sectortype* newsector)
     actorNew->spr.cstat = tsp->cstat;
     actorNew->spr.picnum = tsp->picnum;
     actorNew->spr.pal = tsp->pal;
-    actorNew->spr.CopyScale(tsp);
+    actorNew->spr.scale = tsp->scale;
     actorNew->spr.xoffset = tsp->xoffset;
     actorNew->spr.yoffset = tsp->yoffset;
     actorNew->spr.angle = tsp->angle;

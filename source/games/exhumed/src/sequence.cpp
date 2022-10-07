@@ -643,7 +643,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 
         tsp->shade = shade;
         tsp->pal = pTSprite->pal;
-        tsp->CopyScale(pTSprite);
+        tsp->scale = pTSprite->scale;
         tsp->angle = pTSprite->angle;
         tsp->ownerActor = pTSprite->ownerActor;
         tsp->sectp = pTSprite->sectp;

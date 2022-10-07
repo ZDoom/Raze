@@ -673,7 +673,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					else
 					{
 						if (atwith == CHAINGUN)
-							spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, DVector2(0.25, 0.25) + spr->spr.Scale(), nullAngle, 0., 0., spr, 5);
+							spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, DVector2(0.25, 0.25) + spr->spr.scale, nullAngle, 0., 0., spr, 5);
 						else spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, DVector2(0.5, 0.5), nullAngle, 0., 0., spr, 5);
 					}
 					if (spawned)

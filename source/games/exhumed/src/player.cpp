@@ -338,7 +338,7 @@ void RestartPlayer(int nPlayer)
 	pActor->spr.lotag = runlist_HeadRun() + 1;
 
     pDActor->spr.pos = pActor->spr.pos;
-	pDActor->spr.CopyScale(&pActor->spr);
+	pDActor->spr.scale = pActor->spr.scale;
 	pDActor->spr.xoffset = 0;
 	pDActor->spr.yoffset = 0;
 	pDActor->spr.shade = pActor->spr.shade;

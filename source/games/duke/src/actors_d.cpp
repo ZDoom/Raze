@@ -575,7 +575,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 		{
 			if (spawned->spr.picnum == JIBS2)
 			{
-				spawned->spr.MultScale(0.25);
+				spawned->spr.scale *= 0.25;
 			}
 			if (pal != 0)
 				spawned->spr.pal = pal;
@@ -1568,7 +1568,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			double zAdd = k * proj->vel.Z / 24;
 			auto spawned = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.angle.ToVector() * k * 2.,
 				FIRELASER, -40 + (k << 2),
-				proj->spr.Scale(), nullAngle, 0., 0., proj->GetOwner(), 5);
+				proj->spr.scale, nullAngle, 0., 0., proj->GetOwner(), 5);
 
 			if (spawned)
 			{

@@ -124,7 +124,7 @@ static const char *cheatKfc(int player)
 		if (spr)
 		{
 			spr->spr.pal = 1;
-			spr->spr.MultScale(4);
+			spr->spr.scale *= 4;
 		}
 	}
 	return quoteMgr.GetQuote(QUOTE_CHEAT_KFC);

@@ -2418,7 +2418,7 @@ void glasspieces(DDukeActor* actor)
 		if (sectp->lotag == 2)
 			actor->vel.Z *= 0.5;
 
-		actor->spr.MultScale(0.5);
+		actor->spr.scale *= 0.5;
 		if (rnd(96))
 			SetActor(actor, actor->spr.pos);
 		actor->temp_data[0]++;//Number of bounces

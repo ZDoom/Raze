@@ -1937,7 +1937,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 	// inherit sprite size (useful for seqs with zero repeats)
 	if (source->spr.flags & kModernTypeFlag2)
 	{
-		spawned->spr.CopyScale(&source->spr);
+		spawned->spr.scale = source->spr.scale;
 	}
 
 	gKillMgr.AddKill(spawned);
@@ -1981,7 +1981,7 @@ void genDudeTransform(DBloodActor* actor)
 	actor->spr.pal = actIncarnation->spr.pal;
 	actor->spr.shade = actIncarnation->spr.shade;
 	actor->copy_clipdist(actIncarnation);
-	actor->spr.CopyScale(&actIncarnation->spr);
+	actor->spr.scale = actIncarnation->spr.scale;
 
 	actor->xspr.txID = actIncarnation->xspr.txID;
 	actor->xspr.command = actIncarnation->xspr.command;

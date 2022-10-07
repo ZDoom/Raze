@@ -220,7 +220,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case FRAMEEFFECT1:
 		if (actj)
 		{
-			act->spr.CopyScale(&actj->spr);
+			act->spr.scale = actj->spr.scale;
 			act->temp_data[1] = actj->spr.picnum;
 		}
 		else act->spr.SetScale(0, 0);
@@ -501,7 +501,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DUKELYINGDEAD:
 		if (actj && actj->spr.picnum == APLAYER)
 		{
-			act->spr.CopyScale(&actj->spr);
+			act->spr.scale = actj->spr.scale;
 			act->spr.shade = actj->spr.shade;
 			act->spr.pal = ps[actj->PlayerIndex()].palookup;
 		}
@@ -644,7 +644,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case PLAYERONWATER:
 		if (actj)
 		{
-			act->spr.CopyScale(&actj->spr);
+			act->spr.scale = actj->spr.scale;
 			act->vel.Z = 0.5;
 			if (act->sector()->lotag != 2)
 				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
