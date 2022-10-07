@@ -183,7 +183,7 @@ void IgniteSprite(DExhumedActor* pActor)
     {
         pAnimActor->pTarget = pActor;
         ChangeActorStat(pAnimActor, kStatIgnited);
-        pAnimActor->spr.yrepeat = (uint8_t)max(1, (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight);
+        pAnimActor->spr.SetScaleY(max(1, (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight) * REPEAT_SCALE);
     }
 }
 
@@ -636,8 +636,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
         nRepeat = 30;
     }
 
-    pBulletActor->spr.xrepeat = (uint8_t)nRepeat;
-    pBulletActor->spr.yrepeat = (uint8_t)nRepeat;
+    pBulletActor->spr.SetScale(nRepeat * REPEAT_SCALE, nRepeat * REPEAT_SCALE);
     pBulletActor->spr.xoffset = 0;
     pBulletActor->spr.yoffset = 0;
     pBulletActor->spr.angle = nAngle;
@@ -808,7 +807,7 @@ void AIBullet::Tick(RunListEvent* ev)
 
     if (nFlag & 0x80)
     {
-        BuildAnim(nullptr, 45, 0, pActor->spr.pos, pActor->sector(), pActor->spr.xrepeat, 0);
+        BuildAnim(nullptr, 45, 0, pActor->spr.pos, pActor->sector(), pActor->spr.ScaleX() * REPEAT_SCALE, 0);
     }
 
     BulletList[nBullet].nFrame++;

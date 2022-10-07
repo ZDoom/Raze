@@ -148,9 +148,9 @@ void BuildItemAnim(DExhumedActor* pActor)
     else
     {
         pActor->spr.intowner = -1;
-        pActor->spr.yrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
-        pActor->spr.xrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
-    }
+		double s = nItemAnimInfo[nItem].repeat * REPEAT_SCALE;
+        pActor->spr.SetScale(s, s);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -440,7 +440,7 @@ void StartRegenerate(DExhumedActor* pActor)
     if (pos >= Regenerates.Size())
     {
        // ?? CHECKME
-        pActor->spr.xint = pActor->spr.xrepeat;
+        pActor->spr.xint = pActor->spr.ScaleX() * INV_REPEAT_SCALE;
         pActor->spr.inittype = pActor->spr.shade;
         pActor->spr.yint = pActor->spr.pal;
     }
@@ -474,6 +474,7 @@ void DoRegenerates()
     for(unsigned i = 0; i < Regenerates.Size(); i++)
     {
         DExhumedActor* pActor = GC::ReadBarrier(Regenerates[i]);
+		double s = pActor->spr.xint * REPEAT_SCALE;
         if (pActor->spr.extra > 0)
         {
             pActor->spr.extra--;
@@ -489,7 +490,7 @@ void DoRegenerates()
         }
         else
         {
-            if (pActor->spr.xrepeat < pActor->spr.xint)
+            if (pActor->spr.ScaleX() < s)
             {
 				pActor->spr.AddScaleX(0.03125);
 				pActor->spr.AddScaleY(0.03125);
@@ -497,8 +498,7 @@ void DoRegenerates()
             }
         }
 
-        pActor->spr.yrepeat = (uint8_t)pActor->spr.xint;
-        pActor->spr.xrepeat = (uint8_t)pActor->spr.xint;
+		pActor->spr.SetScale(s, s);
         pActor->spr.pal  = (uint8_t)pActor->spr.yint;
         pActor->spr.yint = 0;
         pActor->spr.xint = 0;

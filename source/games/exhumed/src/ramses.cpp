@@ -55,8 +55,7 @@ int word_964E8 = 0;
 int word_964EA = 0;
 int word_964EC = 10;
 
-int nSpiritRepeatX;
-int nSpiritRepeatY;
+DVector2 nSpiritScale;
 TObjPtr<DExhumedActor*> pSpiritSprite;
 int nPixelsToShow;
 int nTalkTime = 0;
@@ -67,8 +66,7 @@ void InitSpiritHead()
     nPixels = 0;
     auto pSpiritSpr = pSpiritSprite;
 
-    nSpiritRepeatX = pSpiritSpr->spr.xrepeat;
-    nSpiritRepeatY = pSpiritSpr->spr.yrepeat;
+	nSpiritScale = pSpiritSpr->spr.Scale();
 
     tileLoad(kTileRamsesNormal); // Ramses Normal Head
 
@@ -383,18 +381,18 @@ void DoSpiritHead()
 
         if (nHeadStage == 1) 
         {
-            if (pSpiritSpr->spr.xrepeat > nSpiritRepeatX) 
+            if (pSpiritSpr->spr.ScaleX() > nSpiritScale.X)
             {
-                pSpiritSpr->spr.xrepeat -= 2;
-                if (pSpiritSpr->spr.xrepeat < nSpiritRepeatX)
-                    pSpiritSpr->spr.xrepeat = (uint8_t)nSpiritRepeatX;
+                pSpiritSpr->spr.AddScaleX(-0.03125);
+                if (pSpiritSpr->spr.ScaleX() < nSpiritScale.X)
+                    pSpiritSpr->spr.SetScaleX(nSpiritScale.X);
             }
-            if (pSpiritSpr->spr.yrepeat > nSpiritRepeatY) 
-            {
-                pSpiritSpr->spr.yrepeat -= 2;
-                if (pSpiritSpr->spr.yrepeat < nSpiritRepeatY)
-                    pSpiritSpr->spr.yrepeat = (uint8_t)nSpiritRepeatY;
-            }
+			if (pSpiritSpr->spr.ScaleY() > nSpiritScale.Y)
+			{
+				pSpiritSpr->spr.AddScaleY(-0.03125);
+				if (pSpiritSpr->spr.ScaleY() < nSpiritScale.Y)
+					pSpiritSpr->spr.SetScaleY(nSpiritScale.Y);
+			}
 
             int nCount = 0;
             for (int i = 0; i < nPixels; i++) 

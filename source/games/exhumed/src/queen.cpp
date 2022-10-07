@@ -1009,8 +1009,8 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     auto pSector =pActor->sector();
                     auto nAngle = RandomAngle();
 
-                    pActor->spr.xrepeat = 127 - QueenHead.nIndex2;
-                    pActor->spr.yrepeat = 127 - QueenHead.nIndex2;
+					double s = (127 - QueenHead.nIndex2) * REPEAT_SCALE;
+					pActor->spr.SetScale(s, s);
 
                     pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 

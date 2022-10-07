@@ -92,8 +92,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector
     }
 
     pActor->clipdist = 2.5;
-    pActor->spr.xrepeat = nRepeat;
-    pActor->spr.yrepeat = nRepeat;
+    pActor->spr.SetScale(nRepeat * REPEAT_SCALE, nRepeat * REPEAT_SCALE);
     pActor->spr.picnum = 1;
     pActor->spr.angle = nullAngle;
     pActor->spr.xoffset = 0;
@@ -269,7 +268,7 @@ void BuildExplosion(DExhumedActor* pActor)
         edx = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pActor->spr.pos, pActor->sector(), pActor->spr.xrepeat, 4);
+    BuildAnim(nullptr, edx, 0, pActor->spr.pos, pActor->sector(), pActor->spr.ScaleX() * INV_REPEAT_SCALE, 4);
 }
 
 //---------------------------------------------------------------------------
@@ -284,7 +283,8 @@ void BuildSplash(DExhumedActor* pActor, sectortype* pSector)
 
     if (pActor->spr.statnum != 200)
     {
-        nRepeat = pActor->spr.xrepeat + (RandomWord() % pActor->spr.xrepeat);
+		int rep = int(pActor->spr.ScaleX() * INV_REPEAT_SCALE);
+        nRepeat = rep + (RandomWord() % rep);
         nSound = kSound0;
     }
     else

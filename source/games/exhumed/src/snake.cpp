@@ -221,8 +221,8 @@ void BuildSnake(int nPlayer, double zVal)
             else
             {
 				pActor->spr.pos = sprt->spr.pos;
-                pActor->spr.xrepeat = 40 - 3 * i;
-                pActor->spr.yrepeat = 40 - 3 * i;
+				double s = 0.625 + 0.046875 * i;
+				pActor->spr.SetScale(s, s);
             }
 
 			pActor->clipdist = 2.5;
