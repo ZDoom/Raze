@@ -35,15 +35,19 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 void MarkVerticesForSector(int sector);
 
-static constexpr double maptoworld = (1 / 16.);	// this for necessary conversions to convert map data to floating point representation.
-static constexpr double inttoworld = (1 / 16.); // this is for conversions needed to make floats coexist with existing code.
-static constexpr double worldtoint = 16.;
-
+// Build conversion factors
 static constexpr double zmaptoworld = (1 / 256.);	// this for necessary conversions to convert map data to floating point representation.
-static constexpr double zinttoworld = (1 / 256.); // this is for conversions needed to make floats coexist with existing code.
-static constexpr double zworldtoint = 256.;
-
+static constexpr double maptoworld = (1 / 16.);	// this for necessary conversions to convert map data to floating point representation.
 static constexpr double REPEAT_SCALE = (1 / 64.);	// map's 'repeat' values use 2.6 fixed point.
+static constexpr double INV_REPEAT_SCALE = 64;
+
+// These are refactoring markers that should be eliminated.
+static constexpr double zinttoworld = (1 / 256.); // this is for conversions needed to make floats coexist with existing code.
+static constexpr double inttoworld = (1 / 16.); // this is for conversions needed to make floats coexist with existing code.
+static constexpr double zworldtoint = 256.;
+static constexpr double worldtoint = 16.;
+static constexpr double scaletoint = 64;		// refactoring marker of the stuff above
+static constexpr double inttoscale = (1/64.);	// map's 'repeat' values use 2.6 fixed point.
 
 //=============================================================================
 //
@@ -476,28 +480,28 @@ struct spritetypebase
 
 	void SetScale(double x, double y)
 	{
-		xrepeat = uint8_t(x * (1 / REPEAT_SCALE));
-		yrepeat = uint8_t(y * (1 / REPEAT_SCALE));
+		xrepeat = uint8_t(x * scaletoint);
+		yrepeat = uint8_t(y * scaletoint);
 	}
 
 	void SetScaleX(double x)
 	{
-		xrepeat = uint8_t(x * (1 / REPEAT_SCALE));
+		xrepeat = uint8_t(x * scaletoint);
 	}
 
 	void SetScaleY(double y)
 	{
-		yrepeat = uint8_t(y * (1 / REPEAT_SCALE));
+		yrepeat = uint8_t(y * scaletoint);
 	}
 
 	void AddScaleX(double x)
 	{
-		xrepeat += uint8_t(x * (1 / REPEAT_SCALE));
+		xrepeat += uint8_t(x * scaletoint);
 	}
 
 	void AddScaleY(double y)
 	{
-		yrepeat += uint8_t(y * (1 / REPEAT_SCALE));
+		yrepeat += uint8_t(y * scaletoint);
 	}
 
 	void MultScaleX(double x)
@@ -518,12 +522,12 @@ struct spritetypebase
 
 	double ScaleX() const
 	{
-		return xrepeat  * REPEAT_SCALE;
+		return xrepeat  * inttoscale;
 	}
 
 	double ScaleY() const
 	{
-		return yrepeat * REPEAT_SCALE;
+		return yrepeat * inttoscale;
 	}
 };
 

@@ -1721,6 +1721,7 @@ int ParseState::parse(void)
 			ps[g_p].quick_kick = 14;
 		break;
 	case concmd_sizeto:
+	{
 		insptr++;
 
 		// JBF 20030805: As I understand it, if xrepeat becomes 0 it basically kills the
@@ -1733,7 +1734,8 @@ int ParseState::parse(void)
 
 		insptr++;
 
-		if ((g_ac->isPlayer() && g_ac->spr.yrepeat < 36) || *insptr < g_ac->spr.yrepeat || (g_ac->spr.yrepeat * (tileHeight(g_ac->spr.picnum) + 8) * REPEAT_SCALE) < g_ac->floorz - g_ac->ceilingz)
+		auto scale = g_ac->spr.ScaleY();
+		if ((g_ac->isPlayer() && scale < 0.5626) || *insptr * REPEAT_SCALE < scale || (scale * (tileHeight(g_ac->spr.picnum) + 8)) < g_ac->floorz - g_ac->ceilingz)
 		{
 			j = ((*insptr) - g_ac->spr.yrepeat) << 1;
 			if (abs(j)) g_ac->spr.yrepeat += Sgn(j);
@@ -1742,6 +1744,8 @@ int ParseState::parse(void)
 		insptr++;
 
 		break;
+
+	}
 	case concmd_sizeat:
 		insptr++;
 		g_ac->spr.xrepeat = (uint8_t)*insptr;

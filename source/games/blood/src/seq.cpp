@@ -245,7 +245,7 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	if (actor->spr.flags & 2)
 	{
 		if (tileHeight(actor->spr.picnum) != tileHeight(seqGetTile(pFrame)) || tileTopOffset(actor->spr.picnum) != tileTopOffset(seqGetTile(pFrame))
-			|| (pFrame->scaley && pFrame->scaley != int(actor->spr.ScaleY() / REPEAT_SCALE)))
+			|| (pFrame->scaley && pFrame->scaley != int(actor->spr.ScaleY() * INV_REPEAT_SCALE)))
 			actor->spr.flags |= 4;
 	}
 	actor->spr.picnum = seqGetTile(pFrame);

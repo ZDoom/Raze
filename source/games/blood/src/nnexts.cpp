@@ -3984,9 +3984,9 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 27: return condCmp(actor->spr.shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((actor->spr.cstat & ESpriteFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (actor->spr.cstat & ESpriteFlags::FromInt(arg1));
 			case 29: return (arg3) ? condCmp((actor->spr.hitag & arg3), arg1, arg2, cmpOp) : (actor->spr.hitag & arg1);
-			case 30: return condCmp(int(actor->spr.ScaleX() / REPEAT_SCALE), arg1, arg2, cmpOp);
+			case 30: return condCmp(int(actor->spr.ScaleX() * INV_REPEAT_SCALE), arg1, arg2, cmpOp);
 			case 31: return condCmp(actor->spr.xoffset, arg1, arg2, cmpOp);
-			case 32: return condCmp(int(actor->spr.ScaleY() / REPEAT_SCALE), arg1, arg2, cmpOp);
+			case 32: return condCmp(int(actor->spr.ScaleY() * INV_REPEAT_SCALE), arg1, arg2, cmpOp);
 			case 33: return condCmp(actor->spr.yoffset, arg1, arg2, cmpOp);
 			}
 		}
