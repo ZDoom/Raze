@@ -481,11 +481,6 @@ struct spritetypebase
 	{
 		scale = { x, y };
 	}
-
-	void SetScale(const DVector2& p)
-	{
-		scale = p;
-	}
 };
 
 

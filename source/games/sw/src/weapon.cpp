@@ -3811,7 +3811,7 @@ int DoVomit(DSWActor* actor)
     actor->user.Counter = NORM_ANGLE(actor->user.Counter + (30*MISSILEMOVETICS));
     // notreallypos
     auto v = actor->user.pos + mapangle(actor->user.Counter).ToVector() * 12 * REPEAT_SCALE;
-    actor->spr.SetScale(v);
+    actor->spr.scale = v;
     if (actor->user.Flags & (SPR_JUMPING))
     {
         DoJump(actor);
@@ -18353,7 +18353,7 @@ void QueueGeneric(DSWActor* actor, short pic)
     }
 
     actor->spr.picnum = pic;
-    actor->spr.SetScale(scale);
+    actor->spr.scale = scale;
     actor->spr.cstat = 0;
     switch (actor->spr.picnum)
     {

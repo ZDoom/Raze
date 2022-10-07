@@ -349,7 +349,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 	double scaleofs = (ground_dist - view_dist) * REPEAT_SCALE;
 	scale.X = clamp(scale.X + scaleofs, 0.0625, 4.);
 	scale.Y = clamp(scale.Y + scaleofs, 0.0625, 4.);
-	tSpr->SetScale(scale);
+	tSpr->scale = scale;
 
     if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
@@ -428,7 +428,7 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
         tSpr->pos += dpos;
         dpos += npos;
 
-        tSpr->SetScale(scale);
+        tSpr->scale = scale;
 
         scale.X -= repeat_adj;
         scale.Y -= repeat_adj;

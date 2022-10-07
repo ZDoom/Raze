@@ -1414,7 +1414,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
         }
         else
         {
-			pSpark->spr.SetScale(pActor->spr.scale + DVector2(0.234375, 0.234375));
+			pSpark->spr.scale = pActor->spr.scale + DVector2(0.234375, 0.234375);
         }
     }
     else
