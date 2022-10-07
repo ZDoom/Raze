@@ -17940,7 +17940,7 @@ int QueueFloorBlood(DSWActor* actor)
         spawnedActor->spr.hitag = 9995;
     else
         spawnedActor->spr.hitag = 0;
-    spawnedActor->spr.xrepeat = spawnedActor->spr.yrepeat = 8;
+    spawnedActor->spr.SetScale(0.125, 0.125);
     spawnedActor->spr.cstat = 0;
     spawnedActor->spr.pal = 0;
     spawnedActor->spr.shade = 0;
@@ -18238,29 +18238,23 @@ int DoFloorBlood(DSWActor* actor)
 
     short pnum;
     PLAYER* pp;
-    short xsiz,ysiz;
+    double scale;
 
 
     if (actor->spr.hitag == 9995)
-    {
-        xsiz = 12;
-        ysiz = 12;
-    }
+        scale = 0.1875;
     else
-    {
-        xsiz = 40;
-        ysiz = 40;
-    }
+        scale = 0.625;
 
     // Make pool of blood seem to grow
-    if (actor->spr.xrepeat < xsiz && actor->spr.xrepeat != 4)
+    if (actor->spr.ScaleX() < scale && actor->spr.ScaleX() > 0.0625)
     {
-        actor->spr.xrepeat++;
+        actor->spr.AddScaleX(REPEAT_SCALE);
     }
 
-    if (actor->spr.yrepeat < ysiz && actor->spr.xrepeat < xsiz && actor->spr.xrepeat != 4)
+    if (actor->spr.ScaleY() < scale && actor->spr.ScaleX() < scale && actor->spr.ScaleX() > 0.0625)
     {
-        actor->spr.yrepeat++;
+        actor->spr.AddScaleY(REPEAT_SCALE);
     }
 
     // See if any players stepped in blood
@@ -18305,7 +18299,7 @@ int DoWallBlood(DSWActor* actor)
     // Make blood drip down the wall
     if (actor->spr.ScaleY() < 1.25)
     {
-        actor->spr.yrepeat++;
+        actor->spr.AddScaleY(REPEAT_SCALE);
         actor->spr.pos.Z += 0.5;
     }
 
@@ -18338,8 +18332,7 @@ void QueueGeneric(DSWActor* actor, short pic)
         return;
     }
 
-    auto xrepeat = actor->spr.xrepeat;
-    auto yrepeat = actor->spr.yrepeat;
+    auto scale = actor->spr.Scale();
 
     // can and should kill the user portion
     if (GenericQueue[GenericQueueHead] == nullptr)
@@ -18360,8 +18353,7 @@ void QueueGeneric(DSWActor* actor, short pic)
     }
 
     actor->spr.picnum = pic;
-    actor->spr.xrepeat = xrepeat;
-    actor->spr.yrepeat = yrepeat;
+    actor->spr.SetScale(scale);
     actor->spr.cstat = 0;
     switch (actor->spr.picnum)
     {
@@ -18825,8 +18817,7 @@ void QueueLoWangs(DSWActor* actor)
 
     // Point passed in sprite to ps
     spawnedActor->spr.cstat = 0;
-    spawnedActor->spr.xrepeat = actor->spr.xrepeat;
-    spawnedActor->spr.yrepeat = actor->spr.yrepeat;
+    spawnedActor->spr.CopyScale(&actor->spr);
     spawnedActor->spr.shade = actor->spr.shade;
     spawnedActor->user.spal = spawnedActor->spr.pal = actor->spr.pal;
     change_actor_stat(spawnedActor, STAT_DEFAULT); // Breakable
