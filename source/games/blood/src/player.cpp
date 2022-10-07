@@ -1825,8 +1825,8 @@ void playerProcess(PLAYER* pPlayer)
 	else
 		pPlayer->zWeaponVel += dz * FixedToFloat(0xc00);
 	pPlayer->zWeapon += pPlayer->zWeaponVel;
-	pPlayer->bobPhase = ClipLow(pPlayer->bobPhase - 4, 0);
-	int nSpeed = int(actor->vel.XY().Length());
+	pPlayer->bobPhase = max(pPlayer->bobPhase - 4, 0.);
+	double nSpeed = actor->vel.XY().Length();
 	if (pPlayer->posture == 1)
 	{
 		pPlayer->bobAmp = (pPlayer->bobAmp + 17) & 2047;
@@ -1846,12 +1846,12 @@ void playerProcess(PLAYER* pPlayer)
 			if (running)
 			{
 				if (pPlayer->bobPhase < 60)
-					pPlayer->bobPhase = ClipHigh(pPlayer->bobPhase + nSpeed, 60);
+					pPlayer->bobPhase = min(pPlayer->bobPhase + nSpeed, 60.);
 			}
 			else
 			{
 				if (pPlayer->bobPhase < 30)
-					pPlayer->bobPhase = ClipHigh(pPlayer->bobPhase + nSpeed, 30);
+					pPlayer->bobPhase = min(pPlayer->bobPhase + nSpeed, 30.);
 			}
 		}
 		pPlayer->bobHeight = pPosture->bobV * pPlayer->bobPhase * BobVal(pPlayer->bobAmp * 2);

@@ -92,7 +92,7 @@ struct PLAYER
 	bool                isRunning;
 	int                 posture;   // stand, crouch, swim
 	int                 sceneQav;  // by NoOne: used to keep qav id
-	int                 bobPhase;
+	double              bobPhase;
 	int                 bobAmp;
 	double              bobHeight;
 	double              bobWidth;

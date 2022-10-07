@@ -62,7 +62,7 @@ struct BloodPlayer native
 	native bool       isRunning;
 	native int        posture;   // stand, crouch, swim
 	native int        sceneQav;  // by NoOne: used to keep qav id
-	native int        bobPhase;
+	native double     bobPhase;
 	native int        bobAmp;
 	native double     bobHeight;
 	native double     bobWidth;
