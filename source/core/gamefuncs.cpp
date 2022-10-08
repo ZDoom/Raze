@@ -1027,6 +1027,12 @@ void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBa
 					florhit.setSector(nsec);
 				}
 			}
+			else if (checkRangeOfWall(&wal, EWallFlags::FromInt(dawalclipmask), pos, maxdist + 64., theZs))
+			{
+				// extend the search distance for neighboring sectors a bit further so that we can find sprites outside the search range extending to our position.
+				auto nsec = wal.nextSector();
+				search.Add(nsec);
+			}
 		}
 	}
 
