@@ -486,7 +486,7 @@ void moveplayers(void)
 			else act->spr.scale.X = (0.65625);
 
 			if (act->spr.scale.Y < 0.5625)
-				act->spr.scale.Y += (4);
+				act->spr.scale.Y += (0.0625);
 			else
 			{
 				act->spr.scale.Y = (0.5625);
@@ -2333,8 +2333,8 @@ bool bloodpool(DDukeActor* actor, bool puke)
 
 		if (actor->temp_data[2] == 32)
 		{
-			actor->spr.scale.X += (-6);
-			actor->spr.scale.Y += (-6);
+			actor->spr.scale.X += (-0.09375);
+			actor->spr.scale.Y += (-0.09375);
 		}
 	}
 	else actor->temp_data[1] = 0;
