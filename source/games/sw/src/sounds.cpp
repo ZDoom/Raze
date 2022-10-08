@@ -645,11 +645,13 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, vec3_t* pos, int flags, int
         {
             pos = &actor->spr.pos;
             actor = nullptr;
+            sourcetype = SOURCE_Unattached;
         }
         else if (pp && !pos)
         {
             pos = &pp->pos;
             pp = nullptr;
+            sourcetype = SOURCE_Unattached;
         }
     }
 
