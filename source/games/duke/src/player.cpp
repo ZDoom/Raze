@@ -623,7 +623,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	updatesector(p->pos, &p->cursector);
 
-	pushmove(p->pos, &p->cursector, 16, 4, 20, CLIPMASK0);
+	pushmove(p->pos, &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
 		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->pos.Z) * 2));

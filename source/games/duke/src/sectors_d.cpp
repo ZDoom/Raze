@@ -1403,7 +1403,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 					targ->vel.X = -proj->spr.extra * 0.25;
 					auto sp = targ->sector();
-					pushmove(targ->spr.pos, &sp, 16, 4, 4, CLIPMASK0);
+					pushmove(targ->spr.pos, &sp, 8, 4, 4, CLIPMASK0);
 					if (sp != targ->sector() && sp != nullptr)
 						ChangeActorSect(targ, sp);
 				}
