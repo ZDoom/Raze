@@ -1050,7 +1050,7 @@ void shootbloodsplat(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, 
 				if (spawned)
 				{
 					spawned->vel.X = -0.75;
-					spawned->spr.angle = -hit.hitWall->delta().Angle() + DAngle90; // note the '-' sign here!
+					spawned->spr.angle = hit.hitWall->delta().Angle() - DAngle90;
 					spawned->spr.pos = hit.hitpos;
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
