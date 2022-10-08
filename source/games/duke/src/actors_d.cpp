@@ -1367,10 +1367,14 @@ void movetransports_d(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].opos -= ps[p].pos;
-							ps[p].pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-							ps[p].pos.Z = Owner->spr.pos.Z - (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11) ? 24 : -24);
-							ps[p].opos += ps[p].pos;
+							ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
+							ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+							ps[p].backupxy();
+
+							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
+								ps[p].pos.Z = Owner->spr.pos.Z - 24;
+							else ps[p].pos.Z = Owner->spr.pos.Z + 24;
+							ps[p].backupz();
 
 							auto pa = ps[p].GetActor();
 							pa->opos = ps[p].pos;
