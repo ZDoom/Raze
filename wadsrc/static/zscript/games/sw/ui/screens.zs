@@ -381,7 +381,7 @@ class SWCutscenes ui
 				5, SWSnd.DIGI_INTRO_SLASH,
 				15, SWSnd.DIGI_INTRO_WHIRL);
 			runner.Append(new("SWDRealmsScreen").Init());
-			runner.Append(MoviePlayerJob.CreateWithSoundinfo("sw.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 8, 360, 128)); 
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("sw.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF | MoviePlayer.NOMUSICCUTOFF, 8, 360, 128)); 
 		}
 	}
 
