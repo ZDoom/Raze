@@ -7902,43 +7902,6 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range/*, int16
 //
 //---------------------------------------------------------------------------
 
-int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
-{
-    if (actor->user.WaitTics <= delay_tics)
-        actor->user.WaitTics += MISSILEMOVETICS;
-
-    if (actor->user.WpnGoalActor == nullptr)
-    {
-        if (actor->user.WaitTics > delay_tics)
-        {
-            DSWActor* hitActor;
-
-            if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
-            {
-                actor->user.WpnGoalActor = hitActor;
-                hitActor->user.Flags |= (SPR_TARGETED);
-                hitActor->user.Flags |= (SPR_ATTACKED);
-            }
-        }
-    }
-
-    DSWActor* goal = actor->user.WpnGoalActor;
-    if (goal != nullptr)
-    {
-        // move to correct angle
-        auto ang2tgt = (goal->spr.pos - actor->spr.pos).Angle();
-        auto delta_ang = clamp(deltaangle(ang2tgt, actor->spr.angle), -DAngle45 / 8, DAngle45 / 8);
-        actor->spr.angle -= delta_ang;
-        UpdateChangeXY(actor);
-
-        double zdiff = actor->spr.pos.Z - ActorZOfTop(goal) - (ActorSizeZ(goal) * 0.25);
-        double dist = g_sqrt((actor->spr.pos.XY() - goal->spr.pos.XY()).LengthSquared() + zdiff * zdiff);
-
-        actor->user.change.Z = (actor->vel.X) * zdiff / dist + actor->user.change.Z * (15 / 16.);
-    }
-    return 0;
-}
-
 void SetAngleFromChange(DSWActor* actor)
 {
 	actor->spr.angle = actor->user.change.Angle();
@@ -8003,8 +7966,8 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, D
 
 		auto oc = actor->user.change;
 
-        auto vel = actor->vel.X / dist;
-        actor->user.change = DVector3(delta, -zdiff) * vel;
+        auto vel = actor->vel.X / (16 * dist);
+        actor->user.change = DVector3(delta, zdiff) * vel;
 
         // the large turn_speed is the slower the turn
 
@@ -8056,7 +8019,7 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, DAngle aware_range1, DAn
 
         auto oc = actor->user.change;
 
-        auto vel = actor->vel.X / dist;
+        auto vel = actor->vel.X / (16 * dist);
         actor->user.change = DVector3(delta, zdiff) * vel + oc * (7. / 8);
 
         SetAngleFromChange(actor);
