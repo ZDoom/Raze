@@ -15485,7 +15485,7 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
 {
     if (hit_wall)
     {
-        actor->spr.angle = hit_wall->delta().Angle() + DAngle90;
+        actor->spr.angle = hit_wall->normalAngle();
     }
     DAngle ang = actor->spr.angle;
 
@@ -17869,8 +17869,9 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, const DVector3& pos)
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
     spawnedActor->spr.cstat |= (CSTAT_SPRITE_ONE_SIDE);
     spawnedActor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    spawnedActor->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 
-    spawnedActor->spr.angle = hit_wall->delta().Angle() + DAngle90;
+    spawnedActor->spr.angle = hit_wall->normalAngle();
 
     // move it back some
     auto vec = spawnedActor->spr.angle.ToVector();
