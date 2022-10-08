@@ -256,10 +256,17 @@ bool FAFcansee(const DVector3& start, sectortype* sects, const DVector3& end, se
     bool plax_found = false;
     // ASSERT(sects >= 0 && secte >= 0);
 
+    // luckily we do not have portal setups with otherwise connected sectors, so let's go to the original routine for all cases.
+    // The hack job below won't always cut it.
+    if (cansee(start, sects, end, secte))
+    {
+        return true;
+    }
+
     // early out to regular routine
     if ((!sects || !FAF_Sector(sects)) && (!secte || !FAF_Sector(secte)))
     {
-        return !!cansee(start, sects, end, secte);
+        return false;
     }
 
     // get angle
