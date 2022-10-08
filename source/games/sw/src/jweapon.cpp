@@ -2253,7 +2253,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     actorNew->user.jump_speed += RandomRange(400);
     actorNew->user.jump_speed = -actorNew->user.jump_speed;
 
-    DoBeginJump(actor);
+    DoBeginJump(actorNew);
     actorNew->user.jump_grav = ACTOR_GRAVITY;
 
     return 0;
