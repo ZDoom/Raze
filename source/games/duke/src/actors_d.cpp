@@ -301,7 +301,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 		}
 	}
 
-	int q = -(16 << 8) + (krand() & ((32 << 8) - 1));
+	double q = zrand(32) - 16;
 
 	auto Owner = actor->GetOwner();
 	for (int x = 0; x < 7; x++)
@@ -327,7 +327,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				if (actor->spr.picnum != SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if (dist(actor, act2) < r)
 					{
-						if (badguy(act2) && !cansee(act2->spr.pos.plusZ(q * maptoworld), act2->sector(), actor->spr.pos.plusZ(q * maptoworld), actor->sector()))
+						if (badguy(act2) && !cansee(act2->spr.pos.plusZ(q), act2->sector(), actor->spr.pos.plusZ(q), actor->sector()))
 							continue;
 						fi.checkhitsprite(act2, actor);
 					}
