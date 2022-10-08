@@ -63,7 +63,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 		// Intentionally include two sided walls. Even on them the sprite should be projected onto the wall for better results.
 		auto d = wal.delta();
 		auto deltaang = absangle(VecToAngle(d), tspr->angle);
-		const DAngle maxangdelta = DAngle360 / 2048;
+		const DAngle maxangdelta = DAngle360 / 1024;
 
 		// angle of the sprite must either be the wall's normal or the negative wall's normal to be aligned.
 		if (deltaang >= DAngle90 - maxangdelta && deltaang <= DAngle90 + maxangdelta)
