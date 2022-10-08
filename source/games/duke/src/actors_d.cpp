@@ -3507,7 +3507,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if ((a & jumptoplayer) == jumptoplayer)
 	{
 		if (actor->temp_data[0] < 16)
-			actor->vel.Z += BobVal(512 + (actor->temp_data[0] << 4)) * 2;
+			actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2;
 	}
 
 	if (a & face_player_smart)
