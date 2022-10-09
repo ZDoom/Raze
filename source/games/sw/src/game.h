@@ -622,7 +622,7 @@ struct PLAYER
     }
     int int_bob_amt() const
     {
-        return p_bob_amt * zworldtoint;
+        return bob_amt * zworldtoint;
     }
 
     DSWActor* actor;    // this may not be a TObjPtr!
@@ -641,7 +641,7 @@ struct PLAYER
     SECTOR_OBJECT* sop;  // will either be sop_remote or sop_control
 
     double hiz, loz;
-    double p_bob_amt;
+    double bob_amt;
 
     int jump_count, jump_speed;     // jumping
     int16_t down_speed, up_speed; // diving
