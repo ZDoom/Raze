@@ -6139,7 +6139,7 @@ void actCheckFlares()
 		if (target->hasX() && target->xspr.health > 0)
 		{
 			DVector3 pos = target->spr.pos;
-			pos.XY() += actor->xspr.goalAng.ToVector() * target->spr.clipdist * 2 * inttoworld;
+			pos.XY() += (actor->xspr.goalAng + target->spr.angle).ToVector() * target->spr.clipdist * 2 * inttoworld;
 			pos.Z += actor->xspr.TargetPos.Z;
 			SetActor(actor, pos);
 			actor->vel = target->vel;
