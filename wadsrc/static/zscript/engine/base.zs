@@ -650,6 +650,7 @@ struct Font native
 
 	native static int FindFontColor(Name color);
 	native double GetBottomAlignOffset(int code);
+	native double GetDisplayTopOffset(int code);
 	native static Font FindFont(Name fontname);
 	native static Font GetFont(Name fontname);
 	native BrokenLines BreakLines(String text, int maxlen);
@@ -722,7 +723,7 @@ class Object native
 	private native static Class<Object> BuiltinNameToClass(Name nm, Class<Object> filter);
 	private native static Object BuiltinClassCast(Object inptr, Class<Object> test);
 	
-	deprecated("4.8", "Use MSTimeF instead") native static uint MSTime();
+	native static uint MSTime();
 	native static double MSTimeF();
 	native vararg static void ThrowAbortException(String fmt, ...);
 
