@@ -554,7 +554,7 @@ void System_MenuDim();
 int GameMain()
 {
 	int r;
-
+	I_InitTime();
 	SetConsoleNotifyBuffer();
 	sysCallbacks =
 	{
