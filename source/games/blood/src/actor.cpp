@@ -4693,7 +4693,7 @@ static Collision MoveThing(DBloodActor* actor)
 	if (bottom >= floorZ)
 	{
 		double nVel = actor->vel.XY().Length();
-		int nVelClipped = min(nVel, FixedToFloat(0x11111));
+		double nVelClipped = min(nVel, (16. / 15.));
 		Collision& coll = floorColl;
 
 		if (coll.type == kHitSprite)
@@ -4707,7 +4707,7 @@ static Collision MoveThing(DBloodActor* actor)
 		}
 		if (nVel > 0)
 		{
-			actor->vel.XY() *= nVelClipped / nVel;
+			actor->vel.XY() -= actor->vel.XY() * nVelClipped / nVel;
 		}
 	}
 	if (actor->vel.X != 0 || actor->vel.Y != 0)
