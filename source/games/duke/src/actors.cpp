@@ -4674,7 +4674,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			{
 				if (abs(sec->floorz - actor->temp_pos.Y) < actor->temp_pos.Z)
 				{
-					sec->floorz = actor->temp_pos.Y;
+					sec->setfloorz(actor->temp_pos.Y);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
 					actor->temp_data[0] = 0;

@@ -1270,8 +1270,8 @@ void allignwarpelevators(void)
 			{
 				if ((act2->spr.lotag) == SE_17_WARP_ELEVATOR && act != act2 && act->spr.hitag == act2->spr.hitag)
 				{
-					act2->sector()->floorz = act->sector()->floorz;
-					act2->sector()->ceilingz = act->sector()->ceilingz;
+					act2->sector()->setfloorz(act->sector()->floorz);
+					act2->sector()->setceilingz(act->sector()->ceilingz);
 				}
 			}
 		}
