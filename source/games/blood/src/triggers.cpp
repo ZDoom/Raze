@@ -262,38 +262,24 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 			{
 				if (target->spr.statnum == kStatDude && !(target->spr.flags & 32) && target->hasX())
 				{
-					int top, bottom;
+					double top, bottom;
 					GetActorExtents(actor, &top, &bottom);
-					int nType = target->spr.type - kDudeBase;
-					DUDEINFO* pDudeInfo = getDudeInfo(nType + kDudeBase);
-					int z1 = (top - actor->int_pos().Z) - 256;
-					int x = target->int_pos().X;
-					int y = target->int_pos().Y;
-					int z = target->int_pos().Z;
-					int nDist = approxDist(x - actor->int_pos().X, y - actor->int_pos().Y);
-					if (nDist != 0 && cansee(actor->int_pos().X, actor->int_pos().Y, top, actor->sector(), x, y, z, target->sector()))
+					DUDEINFO* pDudeInfo = getDudeInfo(target->spr.type);
+					auto pos = target->spr.pos;
+					auto nDist = (pos.XY() - actor->spr.pos.XY()).Length();
+					if (nDist != 0 && cansee(DVector3(actor->spr.pos.XY(), top), actor->sector(), pos, target->sector()))
 					{
-						int t = DivScale(nDist, 0x1aaaaa, 12);
-						x += (target->int_vel().X * t) >> 12;
-						y += (target->int_vel().Y * t) >> 12;
+						pos.XY() += target->spr.pos.XY() * nDist * (65536. / 0x1aaaaa);
 						auto angBak = actor->spr.angle;
-						actor->spr.angle = VecToAngle(x - actor->int_pos().X, y - actor->int_pos().Y);
-						int dx = bcos(actor->int_ang());
-						int dy = bsin(actor->int_ang());
-						int tz = target->int_pos().Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * 4;
-						int dz = DivScale(tz - top - 256, nDist, 10);
+						actor->spr.angle = VecToAngle(pos.XY() - actor->spr.pos.XY());
+						double tz = target->spr.pos.Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * REPEAT_SCALE;
+						auto dvec = DVector3(actor->spr.angle.ToVector(), ((tz - top - 1) / nDist) * (1. / 16.));
 						int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
-						int t2;
-						if (!actor->xspr.data3)
-							t2 = 120 / 10;
-						else
-							t2 = (3 * 120) / 10;
-						auto missile = actFireMissile(actor, 0, z1, dx, dy, dz, nMissileType);
-						if (missile)
+						if (auto missile = actFireMissile(actor, 0, (top - actor->spr.pos.Z) - 1, dvec, nMissileType))
 						{
 							missile->SetOwner(actor);
 							actor->xspr.stateTimer = 1;
-							evPostActor(actor, t2, kCallbackLeechStateTimer);
+							evPostActor(actor, (!actor->xspr.data3 ? 120 : 3 * 120) / 10, kCallbackLeechStateTimer);
 							actor->xspr.data3 = ClipLow(actor->xspr.data3 - 1, 0);
 							if (!VanillaMode()) // disable collisions so lifeleech doesn't do that weird bobbing
 								missile->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
