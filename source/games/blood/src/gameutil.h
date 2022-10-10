@@ -72,7 +72,13 @@ inline void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, 
 {
 	// this uses floats only partially.
 	vec3_t ipos = { int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint)};
-	ClipMove(ipos, pSector, int(vect.X * worldtoint), int(vect.Y * worldtoint), wd, int(cd * zworldtoint), int(fd * zworldtoint), nMask, hit, tracecount);
+	// Due to the low precision of original Build coordinates this code is susceptible to shifts from negative values being off by one, 
+	// so we have to replicate the imprecision here. Gross...
+	DVector2 vel;
+	vel.X = (FloatToFixed(vect.X) >> 12) / 16.;
+	vel.Y = (FloatToFixed(vect.Y) >> 12) / 16.;
+
+	ClipMove(ipos, pSector, int(vel.X * worldtoint), int(vel.Y * worldtoint), wd, int(cd * zworldtoint), int(fd * zworldtoint), nMask, hit, tracecount);
 	pos = { ipos.X * inttoworld, ipos.Y * inttoworld, ipos.Z * zinttoworld };
 }
 BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod = false);
