@@ -1247,10 +1247,12 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             case 0:
             {
 				auto v = hitinfo.hitpos;
-                if (intersectSprite(actor, DVector3(sv->X * inttoworld, sv->Y * inttoworld, sv->Z * zinttoworld),
-                    DVector3(vx * inttoworld, vy * inttoworld, vz * zinttoworld), v, 0) )
+                DVector3 start(sv->X * inttoworld, sv->Y * inttoworld, sv->Z * zinttoworld);
+                DVector3 direction(vx * inttoworld, vy * inttoworld, vz * zinttoworld);
+                if (intersectSprite(actor, start, direction, v, 0))
                 {
-                    hit_set(&hitinfo, sec, nullptr, actor, v.X * worldtoint, v.Y * worldtoint, v.Z * zworldtoint);
+                    if ((v.XY() - start.XY()).Sum() < (hitinfo.hitpos.XY() - start.XY()).Sum())
+                        hit_set(&hitinfo, sec, nullptr, actor, v.X * worldtoint, v.Y * worldtoint, v.Z * zworldtoint);
                 }
 
                 break;
