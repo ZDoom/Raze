@@ -269,7 +269,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
 					auto nDist = (pos.XY() - actor->spr.pos.XY()).Length();
 					if (nDist != 0 && cansee(DVector3(actor->spr.pos.XY(), top), actor->sector(), pos, target->sector()))
 					{
-						pos.XY() += target->spr.pos.XY() * nDist * (65536. / 0x1aaaaa);
+						pos.XY() += target->vel.XY() * nDist * (65536. / 0x1aaaaa);
 						auto angBak = actor->spr.angle;
 						actor->spr.angle = VecToAngle(pos.XY() - actor->spr.pos.XY());
 						double tz = target->spr.pos.Z - (target->spr.yrepeat * pDudeInfo->aimHeight) * REPEAT_SCALE;
