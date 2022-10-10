@@ -1556,7 +1556,7 @@ void ProcessInput(PLAYER* pPlayer)
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->horizon.addadjustment(deltaangle(pPlayer->horizon.horiz, gi->playerPitchMax() * (1. - BobVal(ClipHigh(pPlayer->deathTime << 3, 1024) + 512))));
+			pPlayer->horizon.addadjustment(deltaangle(pPlayer->horizon.horiz, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5));
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)
