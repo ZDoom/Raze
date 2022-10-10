@@ -4535,7 +4535,7 @@ int DoFireballFlames(DSWActor* actor)
     DSWActor* attach = actor->user.attachActor;
     if (attach != nullptr)
     {
-        actor->spr.pos = DVector3(attach->spr.pos.XY(), ActorZOfMiddle(attach));
+        actor->spr.pos = ActorVectOfMiddle(attach);
 
         if ((attach->spr.extra & SPRX_BURNABLE))
         {
@@ -8061,8 +8061,7 @@ int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num)
 
 int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sActor->sector(),
-                            DVector3(sActor->spr.pos.XY(), ActorZOfBottom(sActor)), sActor->spr.angle, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sActor->sector(), ActorVectOfBottom(sActor), sActor->spr.angle, 0);
 
     actorNew->spr.shade = -40;
     if (wActor)
@@ -12621,7 +12620,7 @@ int InitSumoSkull(DSWActor* actor)
 
     PlaySound(DIGI_SERPSUMMONHEADS, actor, v3df_none);
 
-    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), DVector3(actor->spr.pos, ActorZOfMiddle(actor)), actor->spr.angle, 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 0);
 		
     actorNew->vel.X = 31.25;
     SetOwner(actor, actorNew);
@@ -14505,7 +14504,7 @@ int SpawnDemonFist(DSWActor* actor)
     if (actor->user.Flags & (SPR_SUICIDE))
         return -1;
 
-    auto expActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor)), actor->spr.angle, 0);
+    auto expActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle, 0);
 
     expActor->spr.hitag = LUMINOUS; //Always full brightness
     expActor->spr.shade = -40;

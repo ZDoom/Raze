@@ -1977,6 +1977,11 @@ inline double ActorZOfBottom(DSWActor* actor)
     return GetSpriteZOfBottom(&actor->spr);
 }
 
+inline DVector3 ActorVectOfBottom(DSWActor* actor)
+{
+	return DVector3(actor->spr.pos.XY(), ActorZOfBottom(actor));
+}
+
 inline double ActorZOfMiddle(DSWActor* actor)
 {
 	return (ActorZOfTop(actor) + ActorZOfBottom(actor)) * 0.5;

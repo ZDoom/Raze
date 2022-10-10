@@ -3120,7 +3120,7 @@ void StackedWaterSplash(PLAYER* pp)
     {
         auto sect = pp->cursector;
 
-        updatesectorz(DVector3(pp->pos.XY(), ActorZOfBottom(pp->actor)), &sect);
+        updatesectorz(ActorVectOfBottom(pp->actor), &sect);
 
         if (SectorIsUnderwaterArea(sect))
         {
@@ -4024,7 +4024,7 @@ int PlayerCanDiveNoWarp(PLAYER* pp)
         {
             auto sect = pp->cursector;
 
-            updatesectorz(DVector3(pp->pos.XY(), ActorZOfBottom(pp->actor)), &sect);
+            updatesectorz(ActorVectOfBottom(pp->actor), &sect);
 
             if (SectorIsUnderwaterArea(sect))
             {

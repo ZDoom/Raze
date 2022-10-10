@@ -302,8 +302,7 @@ int DoWallBloodDrip(DSWActor* actor)
 
 void SpawnMidSplash(DSWActor* actor)
 {
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->sector(),
-                      DVector3(actor->spr.pos.XY(), ActorZOfMiddle(actor)), actor->spr.angle);
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, actor->sector(), ActorVectOfMiddle(actor), actor->spr.angle);
 
     actorNew->spr.shade = -12;
     actorNew->spr.scale.X = ((70 - RandomRange(20)) * REPEAT_SCALE);
@@ -1915,7 +1914,7 @@ int DoCarryFlag(DSWActor* actor)
     // if no Owner then die
     if (attached != nullptr)
     {
-        DVector3 pos(attached->spr.pos.XY(), ActorZOfMiddle(attached));
+        DVector3 pos = ActorVectOfMiddle(attached);
         SetActorZ(actor, pos);
 		actor->spr.angle = attached->spr.angle + DAngle270;
     }
@@ -2070,7 +2069,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
     // if no Owner then die
     if (attached != nullptr)
     {
-        SetActorZ(actor, DVector3(attached->spr.pos.XY(), ActorZOfMiddle(attached)));
+        SetActorZ(actor, ActorVectOfMiddle(attached));
 		actor->spr.angle = attached->spr.angle + DAngle270;
         actor->spr.pos.Z = attached->spr.pos.Z - (ActorSizeZ(attached) * 0.5);
     }

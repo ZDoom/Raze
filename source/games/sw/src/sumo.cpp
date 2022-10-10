@@ -797,7 +797,7 @@ void BossHealthMeter(void)
         DSWActor* actor = BossSpriteNum[i];
         if (actor != nullptr && !bosswasseen[i])
         {
-            if (cansee(DVector3(actor->spr.pos.XY(), ActorZOfTop(actor)), actor->sector(), pp->pos.plusZ(-40), pp->cursector))
+            if (cansee(ActorVectOfTop(actor), actor->sector(), pp->pos.plusZ(-40), pp->cursector))
             {
                 if (i == 0 && !bosswasseen[0])
                 {
