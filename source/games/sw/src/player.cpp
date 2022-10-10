@@ -6098,7 +6098,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     {
         if (FAFcansee(ActorVectOfTop(killer), killer->sector(), pp->pos, pp->cursector))
         {
-            pp->angle.addadjustment(deltaangle(pp->angle.ang, VecToAngle(killer->spr.pos.XY() - pp->pos.Y)) * (1. / 16.));
+            pp->angle.addadjustment(deltaangle(pp->angle.ang, (killer->spr.pos.XY() - pp->pos.XY()).Angle()) * (1. / 16.));
         }
     }
 }
