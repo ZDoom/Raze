@@ -601,16 +601,16 @@ bool intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& d
 	if (dotprod <= 0) return false;
 
 	// get point on trace that is closest to the sprite
-	auto point = NearestPointOnLine(actor->spr.pos.X, actor->spr.pos.Y, start.X, start.Y, end.X, end.Y);
+	double const length = direction.XY().LengthSquared();
+	DVector3 point = start + direction * (dotprod / length);
 
 	// This is somewhat smaller than the sprite's actual size, but that's how it was
-	auto sprwidth = tileWidth(actor->spr.picnum) * actor->spr.xrepeat * (REPEAT_SCALE * 0.25) + displacement;
+	auto sprwidth = tileWidth(actor->spr.picnum) * actor->spr.xrepeat * (REPEAT_SCALE * 0.5) + displacement;
 
 	// Using proper distance here, Build originally used the sum of x- and y-distance
-	if ((point - actor->spr.pos).LengthSquared() > sprwidth * sprwidth) return false; // too far away
+	if ((point.XY() - actor->spr.pos.XY()).LengthSquared() > sprwidth * sprwidth * 0.5) return false; // too far away
 
-	double DVector2::* c = point.X == actor->spr.pos.X ? &DVector2::Y : &DVector2::X;
-	double newz = start.Z + (direction.Z) * (point.*c - start.XY().*c) / direction.XY().*c;
+	double newz = point.Z;
 
 	double siz;
 	double const hitz = actor->spr.pos.Z + actor->GetOffsetAndHeight(siz);
