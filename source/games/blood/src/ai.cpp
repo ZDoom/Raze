@@ -256,7 +256,7 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 	double t1 = actor->vel.X * nCos + actor->vel.Y * nSin;
 
 	int range = FloatToFixed(t1 * (15 / 8192.));
-	DAngle v8 = vc > nullAngle ? DAngle180 / 3 : -DAngle180 / 3;
+	DAngle v8 = vc.Sgn() == -1 ? -DAngle60 : DAngle60;
 
 	if (CanMove(actor, actor->GetTarget(), actor->spr.angle + vc, range))
 		actor->xspr.goalAng = actor->spr.angle + vc;
