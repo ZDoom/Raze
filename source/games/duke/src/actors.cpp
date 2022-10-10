@@ -282,14 +282,11 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 void movesector(DDukeActor* const actor, int msindex, DAngle rotation)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
-	actor->spr.pos.X += actor->vel.X * actor->spr.angle.Cos();
-	actor->spr.pos.Y += actor->vel.X * actor->spr.angle.Sin();
+	actor->spr.pos.XY() += actor->spr.angle.ToVector() * actor->vel.X;
 
 	for(auto& wal : wallsofsector(actor->sector()))
 	{
-		auto t = rotatepoint({ 0, 0 }, mspos[msindex], rotation);
-
-		dragpoint(&wal, actor->spr.pos.XY() + t);
+		dragpoint(&wal, actor->spr.pos.XY() + mspos[msindex].Rotated(rotation));
 		msindex++;
 	}
 }
