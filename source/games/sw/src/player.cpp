@@ -5786,9 +5786,9 @@ enum
     PLAYER_DEATH_HORIZ_FALL_VALUE = -50
 };
 
-constexpr double PLAYER_DEATH_HORIZ_UP_VALUEF = 22.922;
-constexpr double PLAYER_DEATH_HORIZ_JUMP_VALUEF = 21.33686;
-constexpr double PLAYER_DEATH_HORIZ_FALL_VALUEF = -PLAYER_DEATH_HORIZ_JUMP_VALUEF;
+constexpr DAngle PLAYER_DEATH_HORIZ_UP_VALUEF = DAngle::fromDeg(-22.922);
+constexpr DAngle PLAYER_DEATH_HORIZ_JUMP_VALUEF = DAngle::fromDeg(-21.33686);
+constexpr DAngle PLAYER_DEATH_HORIZ_FALL_VALUEF = -PLAYER_DEATH_HORIZ_JUMP_VALUEF;
 
 void DoPlayerBeginDie(PLAYER* pp)
 {
@@ -6002,16 +6002,13 @@ void DoPlayerBeginDie(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-static void DoPlayerDeathHoriz(PLAYER* pp, double target, double speed)
+static inline void DoPlayerDeathHoriz(PLAYER* pp, const DAngle target, const double speed)
 {
-    if ((pp->horizon.horiz.Degrees() - target) > 0.4476)
-    {   
-        pp->horizon.addadjustment(DAngle::fromDeg(speed));
-    }
+    auto targetdelta = deltaangle(pp->horizon.horiz, target);
 
-    if ((target - pp->horizon.horiz.Degrees()) > 0.4476)
+    if (abs(targetdelta.Degrees()) > 0.4476)
     {
-        pp->horizon.addadjustment(DAngle::fromDeg(-speed));
+        pp->horizon.addadjustment(DAngle::fromDeg(speed * targetdelta.Sgn()));
     }
 }
 
