@@ -254,9 +254,10 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 	double nCos = actor->spr.angle.Cos();
 	double nSin = actor->spr.angle.Sin();
 	double t1 = actor->vel.X * nCos + actor->vel.Y * nSin;
+	auto almost60deg = DAngle::fromBuild(341); // 60° does not work correctly - this is a little bit less, actually.
 
 	int range = FloatToFixed(t1 * (15 / 8192.));
-	DAngle v8 = vc.Sgn() == -1 ? -DAngle60 : DAngle60;
+	DAngle v8 = vc.Sgn() == -1 ? -almost60deg : almost60deg;
 
 	if (CanMove(actor, actor->GetTarget(), actor->spr.angle + vc, range))
 		actor->xspr.goalAng = actor->spr.angle + vc;
@@ -273,7 +274,7 @@ void aiChooseDirection(DBloodActor* actor, DAngle direction)
 	//else if (actor->spr.flags&2)
 		//actor->xspr.goalAng = actor->spr.angle+341;
 	else // Weird..
-		actor->xspr.goalAng = actor->spr.angle + DAngle180/3;
+		actor->xspr.goalAng = actor->spr.angle + almost60deg;
 	if (Chance(0x8000))
 		actor->xspr.dodgeDir = 1;
 	else
