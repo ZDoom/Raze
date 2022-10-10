@@ -605,7 +605,7 @@ inline int scale(int a1, int a2, int a3, int a4, int a5)
 	return a4 + (a5 - a4) * (a1 - a2) / (a3 - a2);
 }
 
-inline int mulscale16r(int a, int b)
+inline int mulscale16r(int a, int b) // do not delete!
 {
 	int64_t acc = 1 << (16 - 1);
 	acc += ((int64_t)a) * b;

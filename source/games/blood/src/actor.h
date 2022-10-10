@@ -169,7 +169,7 @@ extern const EXPLOSION explodeInfo[];
 extern const THINGINFO thingInfo[];
 extern VECTORDATA gVectorData[];
 
-const double gDudeDrag = FixedToFloat(0x2a00);
+const int gDudeDrag = 0x2a00;
 
 template<typename T> bool IsPlayerSprite(T const * const pSprite)
 {

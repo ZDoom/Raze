@@ -5159,10 +5159,13 @@ void MoveDude(DBloodActor* actor)
 			return;
 		if (actor->xspr.height >= 0x100)
 			return;
-		double nDrag = gDudeDrag;
+		int nDrag = gDudeDrag;
 		if (actor->xspr.height > 0)
-			nDrag -= Scale(gDudeDrag, (double)actor->xspr.height, 256.);
-		actor->vel.XY() += -actor->vel * nDrag;
+			nDrag -= Scale(gDudeDrag, actor->xspr.height, 256);
+
+		// this cannot be floatified due to the effect of mulscale16r on the value.
+		actor->vel.X += FixedToFloat(-mulscale16r(FloatToFixed(actor->vel.X), nDrag));
+		actor->vel.Y += FixedToFloat(-mulscale16r(FloatToFixed(actor->vel.Y), nDrag));
 
 		if (actor->vel.XY().Length() < 0.0625)
 			actor->ZeroVelocityXY();
