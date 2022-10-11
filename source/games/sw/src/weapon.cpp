@@ -11984,7 +11984,7 @@ void InitSpellNapalm(PLAYER* pp)
         actor->spr.shade = -40;
         actor->spr.scale = DVector2(0.5, 0.5);
         actor->clipdist = 0;
-        actor->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
+        setFreeAimVelocity(actor->vel.X, actor->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
         actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         actor->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
