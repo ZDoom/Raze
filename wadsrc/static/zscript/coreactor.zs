@@ -1,13 +1,13 @@
 
 class CoreActor native
 {
-	//native readonly sectortype sectp;
-
+	native readonly sectortype sectp;
+	
 	native int16 cstat;
 	//native int16 picnum; // access is disabled to allow later refactoring.
 	native readonly Vector3 pos;
 	native readonly int16 statnum;
-	//native int16 ang;
+	native int16 intangle;
 	native int16 xint;
 	native int16 yint;
 	native int16 inittype; // inittype, type and flags are for Blood.
@@ -23,7 +23,7 @@ class CoreActor native
 	native Vector2 scale;
 	native int8 xoffset;
 	native int8 yoffset;
-	native int16 owner;
+	native int16 intowner;
 	native uint16 cstat2;
 
 	native uint mdanimtims;
@@ -31,8 +31,8 @@ class CoreActor native
 	native uint8 renderflags;
 	native float alpha;
 	native double clipdist;
+	native double angle;
 
-	native readonly sectortype sector;
 	native readonly int16 spritesetpic;
 	native readonly int spawnindex;
 

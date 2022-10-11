@@ -488,13 +488,12 @@ double DCoreActor::GetOffsetAndHeight(double& height)
 	return zofs - tileTopOffset(spr.picnum) * yscale;
 }
 
-
-DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sector)
+DEFINE_FIELD_NAMED(DCoreActor, spr.sectp, sectp)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat, cstat)
 DEFINE_FIELD_NAMED(DCoreActor, spr.cstat2, cstat2)
 DEFINE_FIELD_NAMED(DCoreActor, spr.picnum, picnum)
 DEFINE_FIELD_NAMED(DCoreActor, spr.statnum, statnum)
-//DEFINE_FIELD_NAMED(DCoreActor, spr.angle, angle)
+DEFINE_FIELD_NAMED(DCoreActor, spr.intangle, intangle)
 DEFINE_FIELD_NAMED(DCoreActor, spr.pos, pos)
 DEFINE_FIELD_NAMED(DCoreActor, spr.xint, xint)
 DEFINE_FIELD_NAMED(DCoreActor, spr.yint, yint)
@@ -513,13 +512,14 @@ DEFINE_FIELD_NAMED(DCoreActor, spr.blend, blend)
 DEFINE_FIELD_NAMED(DCoreActor, spr.scale, scale)
 DEFINE_FIELD_NAMED(DCoreActor, spr.xoffset, xoffset)
 DEFINE_FIELD_NAMED(DCoreActor, spr.yoffset, yoffset)
-DEFINE_FIELD_NAMED(DCoreActor, spr.intowner, owner)
+DEFINE_FIELD_NAMED(DCoreActor, spr.intowner, intowner)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.mdanimtims, mdanimtims)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.mdanimcur, mdanimcur)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.renderflags, renderflags)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.alpha, alpha)
 DEFINE_FIELD_NAMED(DCoreActor, time, spawnindex)
 DEFINE_FIELD_NAMED(DCoreActor, spritesetindex, spritesetpic)
+DEFINE_FIELD_NAMED(DCoreActor, spr.angle, angle)
 
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
 {
