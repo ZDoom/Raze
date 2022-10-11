@@ -13758,7 +13758,7 @@ int InitBunnyRocket(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(1, 1);
     actorNew->spr.shade = -15;
-    zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + 35) * 0.5);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + 35) * 0.5);
 
     actorNew->clipdist = 4;
 
