@@ -70,6 +70,7 @@ void GameInterface::Ticker()
 		everyothertime++;
 
 		global_random = krand();
+		fi.movetransports();//ST 9
 		movedummyplayers();//ST 13
 
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])

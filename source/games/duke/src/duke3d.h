@@ -70,6 +70,7 @@ struct Dispatcher
 {
 	// sectors_?.cpp
 	void (*think)();
+	void (*movetransports)();
 	void (*initactorflags)();
 	bool (*isadoorwall)(int dapic);
 	void (*animatewalls)();

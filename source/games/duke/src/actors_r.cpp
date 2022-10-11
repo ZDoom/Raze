@@ -3741,7 +3741,6 @@ void think_r(void)
 
 	movefta();			//ST 2
 	moveweapons_r();		//ST 4
-	movetransports_r();		//ST 9
 	moveplayers();			//ST 10
 	movefallers_r();		//ST 12
 	moveexplosions_r();		//ST 5
