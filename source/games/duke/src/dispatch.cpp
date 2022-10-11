@@ -98,6 +98,8 @@ void displaymasks_d(int snum, int p, double smoothratio);
 void displaymasks_r(int snum, int p, double smoothratio);
 void think_d();
 void think_r();
+void movetransports_d();
+void movetransports_r();
 void animatesprites_d(tspriteArray& tsprites, int x, int y, int a, int smoothratio);
 void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothratio);
 
@@ -109,6 +111,7 @@ void SetDispatcher()
 	{
 		fi = {
 		think_d,
+		movetransports_d,
 		initactorflags_d,
 		isadoorwall_d,
 		animatewalls_d,
@@ -151,6 +154,7 @@ void SetDispatcher()
 	{
 		fi = {
 		think_r,
+		movetransports_r,
 		initactorflags_r,
 		isadoorwall_r,
 		animatewalls_r,
