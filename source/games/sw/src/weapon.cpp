@@ -16811,7 +16811,7 @@ int InitMine(PLAYER* pp)
     actorNew->spr.scale = DVector2(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->clipdist = 8;
-    actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (5);
