@@ -2750,7 +2750,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			else
 			{
 				vel = 140 / 16.;
-				zvel = 4 + p->horizon.sum().Tan() * 10.;
+				zvel = -4 + p->horizon.sum().Tan() * 10.;
 			}
 
 			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
@@ -3157,7 +3157,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			else
 			{
 				vel = 2.;
-				zvel = 4 + p->horizon.sum().Tan() * 10.;
+				zvel = -4 + p->horizon.sum().Tan() * 10.;
 			}
 
 			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, 9, 9, p->angle.ang, vel * 2, zvel, pact, 1);
