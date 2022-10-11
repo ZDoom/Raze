@@ -113,8 +113,8 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 	}
 	else
 	{
-		zvel = ps[p].horizon.sum().Tan() * 49.;
-		pos += (ang + DAngle1 * 61).ToVector() * (1024 / 448.);
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 49.);
+		pos += (ang + DAngle1 * 61.171875).ToVector() * (1024. / 448.);
 		pos.Z += 3;
 	}
 
