@@ -117,7 +117,7 @@ void forceplayerangle(int snum)
 {
 	player_struct* p = &ps[snum];
 
-	p->horizon.addadjustment(DAngle::fromDeg(26.566));
+	p->horizon.addadjustment(DAngle::fromDeg(-26.566));
 	p->sync.actions |= SB_CENTERVIEW;
 	p->angle.rotscrnang = p->angle.look_ang = (DAngle22_5 - randomAngle(45)) / 2.;
 }
@@ -241,7 +241,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 			// This is a reimplementation of how it was solved in RedNukem.
 			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
 			{
-				double zvel = -plr->horizon.sum().Tan() * 16.;
+				double zvel = plr->horizon.sum().Tan() * 16.;
 
 				HitInfo hit{};
 				hitscan(plr->pos.plusZ(4), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, zvel), hit, CLIPMASK1);
@@ -374,7 +374,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->horizon.addadjustment(DAngle::fromDeg(-20.556));
+		p->horizon.addadjustment(DAngle::fromDeg(20.556));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -806,7 +806,7 @@ void player_struct::checkhardlanding()
 {
 	if (hard_landing > 0)
 	{
-		horizon.addadjustment(maphoriz(-(hard_landing << 4)));
+		horizon.addadjustment(maphoriz(hard_landing << 4));
 		hard_landing--;
 	}
 }

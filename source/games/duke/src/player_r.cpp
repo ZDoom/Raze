@@ -91,7 +91,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 
 	if (p >= 0)
 	{
-		zvel = -ps[p].horizon.sum().Tan() * 16.;
+		zvel = ps[p].horizon.sum().Tan() * 16.;
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -224,7 +224,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-				zvel = -ps[p].horizon.sum().Tan() * 16.;
+				zvel = ps[p].horizon.sum().Tan() * 16.;
 				zvel += 0.5 - krandf(1);
 			}
 		}
@@ -234,7 +234,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				ang += DAngle22_5 / 2 - randomAngle(22.5);
 			else
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			if (aimed == nullptr) zvel = -ps[p].horizon.sum().Tan() * 16.;
+			if (aimed == nullptr) zvel = ps[p].horizon.sum().Tan() * 16.;
 			zvel += 0.5 - krandf(1);
 		}
 		pos.Z -= 2;
@@ -512,7 +512,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		}
 		else
 		{
-			zvel = -ps[p].horizon.sum().Tan() * 49.;
+			zvel = ps[p].horizon.sum().Tan() * 49.;
 		}
 	}
 	else
@@ -628,7 +628,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			zvel = -ps[p].horizon.sum().Tan() * 40.5;
+			zvel = ps[p].horizon.sum().Tan() * 40.5;
 
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
@@ -782,7 +782,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			zvel = -ps[p].horizon.sum().Tan() * 49.;
+			zvel = ps[p].horizon.sum().Tan() * 49.;
 	}
 	else
 	{
@@ -1761,7 +1761,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addadjustment(deltaangle(p->horizon.__horiz, maphoriz(horiz)));
+		p->horizon.addadjustment(deltaangle(p->horizon.__horiz, maphoriz(-horiz)));
 	}
 
 	const DAngle adjust = mapangle(-510);
@@ -2029,7 +2029,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addadjustment(deltaangle(p->horizon.__horiz, maphoriz(horiz)));
+		p->horizon.addadjustment(deltaangle(p->horizon.__horiz, maphoriz(-horiz)));
 	}
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
@@ -2750,7 +2750,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			else
 			{
 				vel = 140 / 16.;
-				zvel = -4 - p->horizon.sum().Tan() * 10.;
+				zvel = 4 + p->horizon.sum().Tan() * 10.;
 			}
 
 			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, 9, 9,
@@ -2964,7 +2964,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->horizon.addadjustment(DAngle::fromDeg(0.4476));
+		p->horizon.addadjustment(DAngle::fromDeg(-0.4476));
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3136,7 +3136,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		else if (p->kickback_pic == 12)
 		{
 			p->vel.XY() -= p->angle.ang.ToVector();
-			p->horizon.addadjustment(DAngle::fromDeg(8.88));
+			p->horizon.addadjustment(DAngle::fromDeg(-8.88));
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3157,7 +3157,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			else
 			{
 				vel = 2.;
-				zvel = -4 - p->horizon.sum().Tan() * 10.;
+				zvel = 4 + p->horizon.sum().Tan() * 10.;
 			}
 
 			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, 9, 9, p->angle.ang, vel * 2, zvel, pact, 1);
@@ -3976,7 +3976,7 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->horizon.addadjustment(maphoriz(-d));
+		p->horizon.addadjustment(maphoriz(d));
 	}
 
 	if (SyncInput())

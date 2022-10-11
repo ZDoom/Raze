@@ -1289,7 +1289,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->vel.Z -= pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+    actorNew->vel.Z += pp->horizon.__horiz.Tan() * HORIZ_MULTF;
 
     oclipdist = plActor->native_clipdist();
     plActor->set_const_clipdist(0);
@@ -1664,7 +1664,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->vel.Z -= pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+    actorNew->vel.Z += pp->horizon.__horiz.Tan() * HORIZ_MULTF;
 
     oclipdist = plActor->native_clipdist();
     plActor->set_const_clipdist(0);
@@ -2209,7 +2209,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     if (actor->user.PlayerP)
     {
-		actorNew->vel.Z = -actor->user.PlayerP->horizon.__horiz.Tan() * (HORIZ_MULTF / 3.);
+		actorNew->vel.Z = actor->user.PlayerP->horizon.__horiz.Tan() * (HORIZ_MULTF / 3.);
     }
 
     switch (actorNew->user.ID)

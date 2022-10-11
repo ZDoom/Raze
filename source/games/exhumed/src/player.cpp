@@ -1162,7 +1162,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 sectdone:
     if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
     {
-        PlayerList[nPlayer].nDestVertPan = maphoriz((spr_pos.Z - pPlayerActor->spr.pos.Z) * 2.);
+        PlayerList[nPlayer].nDestVertPan = maphoriz((pPlayerActor->spr.pos.Z - spr_pos.Z) * 2.);
     }
 
     playerPos -= pPlayerActor->spr.pos.XY();
@@ -2620,20 +2620,20 @@ sectdone:
         }
         else
         {
-            if (PlayerList[nPlayer].horizon.__horiz.Sgn() < 0)
+            if (PlayerList[nPlayer].horizon.__horiz.Sgn() > 0)
             {
                 PlayerList[nPlayer].horizon.settarget(nullAngle);
                 PlayerList[nPlayer].eyelevel -= dVertPan[nPlayer];
             }
             else
             {
-                PlayerList[nPlayer].horizon.addadjustment(maphoriz(dVertPan[nPlayer]));
+                PlayerList[nPlayer].horizon.addadjustment(maphoriz(-dVertPan[nPlayer]));
 
-                if (PlayerList[nPlayer].horizon.__horiz.Degrees() >= 38)
+                if (PlayerList[nPlayer].horizon.__horiz.Degrees() <= 38)
                 {
-                    PlayerList[nPlayer].horizon.settarget(DAngle::fromDeg(37.72));
+                    PlayerList[nPlayer].horizon.settarget(DAngle::fromDeg(-37.72));
                 }
-                else if (PlayerList[nPlayer].horizon.__horiz.Sgn() <= 0)
+                else if (PlayerList[nPlayer].horizon.__horiz.Sgn() >= 0)
                 {
                     if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
                     {

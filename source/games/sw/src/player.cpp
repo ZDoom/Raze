@@ -6006,12 +6006,12 @@ static void DoPlayerDeathHoriz(PLAYER* pp, double target, double speed)
 {
     if ((pp->horizon.__horiz.Degrees() - target) > 0.4476)
     {   
-        pp->horizon.addadjustment(DAngle::fromDeg(-speed));
+        pp->horizon.addadjustment(DAngle::fromDeg(speed));
     }
 
     if ((target - pp->horizon.__horiz.Degrees()) > 0.4476)
     {
-        pp->horizon.addadjustment(DAngle::fromDeg(speed));
+        pp->horizon.addadjustment(DAngle::fromDeg(-speed));
     }
 }
 

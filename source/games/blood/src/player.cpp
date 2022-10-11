@@ -1731,7 +1731,7 @@ void ProcessInput(PLAYER* pPlayer)
 	pPlayer->angle.unlockinput();
 	pPlayer->horizon.unlockinput();
 
-	pPlayer->slope = -pPlayer->horizon.__horiz.Tan();
+	pPlayer->slope = pPlayer->horizon.__horiz.Tan();
 	if (pInput->actions & SB_INVPREV)
 	{
 		pInput->actions &= ~SB_INVPREV;

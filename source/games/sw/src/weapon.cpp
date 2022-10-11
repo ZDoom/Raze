@@ -11610,7 +11610,7 @@ int DoRing(DSWActor* actor)
 
     // put it out there
     actor->spr.pos += actor->spr.angle.ToVector() * actor->user.Dist;
-    if (pp) actor->spr.pos.Z += actor->user.Dist * -pp->horizon.__horiz.Tan() * 2.; // horizon math sucks...
+    if (pp) actor->spr.pos.Z -= actor->user.Dist * pp->horizon.__horiz.Tan() * 2.; // horizon math sucks...
 
     SetActor(actor, actor->spr.pos);
 
@@ -11689,7 +11689,7 @@ void InitSpellRing(PLAYER* pp)
 
         // put it out there
         actorNew->spr.pos += actorNew->spr.angle.ToVector() * actorNew->user.Dist;
-        actorNew->spr.pos.Z += pp->pos.Z + 20 + (actorNew->user.Dist * -pp->horizon.__horiz.Tan() * 2.); // horizon math sucks...
+        actorNew->spr.pos.Z += pp->pos.Z + 20 - (actorNew->user.Dist * pp->horizon.__horiz.Tan() * 2.); // horizon math sucks...
 
         actorNew->spr.angle += DAngle90;
 
@@ -12063,7 +12063,7 @@ void InitSpellNapalm(PLAYER* pp)
         actor->spr.xrepeat = 32;
         actor->spr.yrepeat = 32;
         actor->set_const_clipdist(0);
-        actor->vel.Z = -pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+        actor->vel.Z = pp->horizon.__horiz.Tan() * HORIZ_MULTF;
         actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         actor->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
@@ -12195,7 +12195,7 @@ int InitSpellMirv(PLAYER* pp)
     actorNew->spr.xrepeat = 72;
     actorNew->spr.yrepeat = 72;
     actorNew->set_const_clipdist(32 >> 2);
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * HORIZ_MULTF;
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -12329,7 +12329,7 @@ int InitSwordAttack(PLAYER* pp)
     {
         HitInfo hit{};
 
-        double daz = -pp->horizon.__horiz.Tan() * 1000. + (RandomRangeF(24000 / 256.) - 12000 / 256.);
+        double daz = pp->horizon.__horiz.Tan() * 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.);
         DAngle daang = pp->angle.ang;
         FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
@@ -12506,7 +12506,7 @@ int InitFistAttack(PLAYER* pp)
     // all this is to break glass
     {
         HitInfo hit{};
-        double daz = -pp->horizon.__horiz.Tan() * 1000. + (RandomRangeF(24000 / 256.) - 12000 / 256.);
+        double daz = pp->horizon.__horiz.Tan() * 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.);
         auto daang = pp->angle.ang;
         FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
 
@@ -13069,7 +13069,7 @@ int InitStar(PLAYER* pp)
     actorNew->spr.shade = -25;
     actorNew->set_const_clipdist(32 >> 2);
     // zvel was overflowing with this calculation - had to move to a local long var
-    double zvel = -pp->horizon.__horiz.Tan() * ((HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
+    double zvel = pp->horizon.__horiz.Tan() * ((HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
 
     actorNew->user.ceiling_dist = (1);
     actorNew->user.floor_dist = (1);
@@ -13120,7 +13120,7 @@ int InitStar(PLAYER* pp)
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
             actorNew2->user.Flags |= SPR_UNDERWATER;
 
-        zvel = -pp->horizon.__horiz.Tan() * ((HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
+        zvel = pp->horizon.__horiz.Tan() * ((HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
         actorNew2->vel.Z = zvel * 0.5;
 
         if (MissileSetPos(actorNew2, DoStar, 1000))
@@ -13170,7 +13170,7 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->spr.xrepeat = 52;
     actorNew->spr.yrepeat = 52;
     actorNew->set_const_clipdist(0);
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * HORIZ_MULTF;
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
@@ -13314,7 +13314,7 @@ int InitShotgun(PLAYER* pp)
     }
     else
     {
-        daz = -pp->horizon.__horiz.Tan() * 1000.;
+        daz = pp->horizon.__horiz.Tan() * 1000.;
         daang = pp->angle.ang;
     }
 
@@ -13477,7 +13477,7 @@ int InitLaser(PLAYER* pp)
     actorNew->set_const_clipdist(64 >> 2);;
 
     // the slower the missile travels the less of a zvel it needs
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * 16.;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * 16.;
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -13573,7 +13573,7 @@ int InitRail(PLAYER* pp)
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
-    zvel = -pp->horizon.__horiz.Tan() * ((HORIZ_MULT + 17) * 0.5);
+    zvel = pp->horizon.__horiz.Tan() * ((HORIZ_MULT + 17) * 0.5);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
@@ -13739,7 +13739,7 @@ int InitRocket(PLAYER* pp)
     actorNew->spr.yrepeat = 90;
     actorNew->spr.xrepeat = 90;
     actorNew->spr.shade = -15;
-    zvel = -pp->horizon.__horiz.Tan() * ((HORIZ_MULT + 35) * 0.5);
+    zvel = pp->horizon.__horiz.Tan() * ((HORIZ_MULT + 35) * 0.5);
 
     actorNew->set_const_clipdist(64 >> 2);
 
@@ -13847,7 +13847,7 @@ int InitBunnyRocket(PLAYER* pp)
     actorNew->spr.yrepeat = 64;
     actorNew->spr.xrepeat = 64;
     actorNew->spr.shade = -15;
-    zvel = -pp->horizon.__horiz.Tan() * ((HORIZ_MULT + 35) * 0.5);
+    zvel = pp->horizon.__horiz.Tan() * ((HORIZ_MULT + 35) * 0.5);
 
     actorNew->set_const_clipdist(64 >> 2);
 
@@ -13950,7 +13950,7 @@ int InitNuke(PLAYER* pp)
     actorNew->spr.yrepeat = 128;
     actorNew->spr.xrepeat = 128;
     actorNew->spr.shade = -15;
-    zvel = -pp->horizon.__horiz.Tan() * ((HORIZ_MULT + 36) * 0.5);
+    zvel = pp->horizon.__horiz.Tan() * ((HORIZ_MULT + 36) * 0.5);
     actorNew->set_const_clipdist(64 >> 2);
 
     // Set to red palette
@@ -14133,7 +14133,7 @@ int InitMicro(PLAYER* pp)
         actorNew->spr.yrepeat = 24;
         actorNew->spr.xrepeat = 24;
         actorNew->spr.shade = -15;
-        actorNew->vel.Z = -pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+        actorNew->vel.Z = pp->horizon.__horiz.Tan() * HORIZ_MULTF;
         actorNew->set_const_clipdist(64 >> 2);
 
         // randomize zvelocity
@@ -15321,7 +15321,7 @@ int InitTracerUzi(PLAYER* pp)
 
     static const short lat_dist[] = {800,-800};
 
-    double nz = 8 - (pp->horizon.__horiz.Tan() * 36.);
+    double nz = 8 + (pp->horizon.__horiz.Tan() * 36.);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -15361,7 +15361,7 @@ int InitTracerUzi(PLAYER* pp)
         return 0;
     }
 
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * actorNew->vel.X;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * actorNew->vel.X;
 
     plActor->set_native_clipdist(oclipdist);
 
@@ -15408,7 +15408,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, DAngle horiz)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->vel.Z = -horiz.Tan() * actorNew->vel.X;
+    actorNew->vel.Z = horiz.Tan() * actorNew->vel.X;
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false);
 
@@ -15629,7 +15629,7 @@ int InitUzi(PLAYER* pp)
     else
     {
         daang = pp->angle.ang + mapangle(RandomRange(24) - 12);
-        daz = -pp->horizon.__horiz.Tan() * 1000. + (RandomRangeF(24000/256.) - 12000/256.);
+        daz = pp->horizon.__horiz.Tan() * 1000. - (RandomRangeF(24000/256.) - 12000/256.);
     }
 
     DVector3 vect(daang.ToVector() * 1024, daz);
@@ -15804,7 +15804,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * actorNew->vel.X;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * actorNew->vel.X;
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
@@ -15873,7 +15873,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         actorNew->spr.yrepeat = 24;
         actorNew->spr.xrepeat = 24;
         actorNew->spr.shade = -15;
-        actorNew->vel.Z = -pp->horizon.__horiz.Tan() * HORIZ_MULTF + RandomRangeF(8) - 5;
+        actorNew->vel.Z = pp->horizon.__horiz.Tan() * HORIZ_MULTF - RandomRangeF(8) + 5;
         actorNew->set_const_clipdist(64 >> 2);
 
 
@@ -15943,7 +15943,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * actorNew->vel.X;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * actorNew->vel.X;
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
@@ -15983,7 +15983,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * actorNew->vel.X;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * actorNew->vel.X;
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
@@ -16021,7 +16021,7 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
     actorNew->spr.yrepeat = 52;
     actorNew->spr.xrepeat = 52;
     actorNew->spr.shade = -15;
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * HORIZ_MULTF;
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
@@ -16069,7 +16069,7 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
     actorNew->spr.shade = -15;
 
     // the slower the missile travels the less of a zvel it needs
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * 16.;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * 16.;
 
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (1);
@@ -16116,7 +16116,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
     }
     else
     {
-        daz = -1000 * max(pp->horizon.__horiz.Tan(), -0.1953125) + RandomRangeF(80) - 40;
+        daz = min(pp->horizon.__horiz.Tan(), 0.1953125) * 1000 - RandomRangeF(80) + 40;
         daang = actor->spr.angle;
     }
 
@@ -16814,7 +16814,7 @@ int InitGrenade(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * HORIZ_MULTF;
 
     SAVE_CLIP;
     actor->set_const_clipdist(0);
@@ -16932,7 +16932,7 @@ int InitMine(PLAYER* pp)
     actorNew->spr.xrepeat = 32;
     actorNew->spr.shade = -15;
     actorNew->set_const_clipdist(128 >> 2);
-    actorNew->vel.Z = -pp->horizon.__horiz.Tan() * HORIZ_MULTF;
+    actorNew->vel.Z = pp->horizon.__horiz.Tan() * HORIZ_MULTF;
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (5);
@@ -17067,7 +17067,7 @@ int InitFireball(PLAYER* pp)
 
     actorNew->user.ceiling_dist = (6);
     actorNew->user.floor_dist = (6);
-    double zvel = -pp->horizon.__horiz.Tan() * 120.;
+    double zvel = pp->horizon.__horiz.Tan() * 120.;
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.

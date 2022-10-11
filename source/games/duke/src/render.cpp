@@ -254,7 +254,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 
 		cpos = viewer->spr.pos.plusZ(-4);
 		cang = viewer->interpolatedangle(interpfrac);
-		choriz = maphoriz(viewer->spr.yint);
+		choriz = maphoriz(-viewer->spr.yint);
 		rotscrnang = nullAngle;
 		sect = viewer->sector();
 	}
@@ -310,7 +310,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		{
 			viewer = p->newOwner;
 			cang = viewer->interpolatedangle(interpfrac);
-			choriz = maphoriz(viewer->spr.shade);
+			choriz = maphoriz(-viewer->spr.shade);
 			cpos = viewer->spr.pos;
 			sect = viewer->sector();
 			rotscrnang = nullAngle;

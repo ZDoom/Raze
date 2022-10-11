@@ -412,7 +412,7 @@ void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, do
 		if (effectType)
 		{
 			int nValue = ClipHigh(effectType * 8, 2000);
-			cH += maphoriz(QRandom2F(nValue * (1. / 256.)));
+			cH -= maphoriz(QRandom2F(nValue * (1. / 256.)));
 			cA += DAngle::fromDeg(QRandom2F(nValue * (360. / 524288.)));
 			cPos.X += QRandom2F(nValue * maptoworld) * maptoworld;
 			cPos.Y += QRandom2F(nValue * maptoworld) * maptoworld;
@@ -424,7 +424,7 @@ void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, do
 	doEffect(pPlayer->flickerEffect);
 	doEffect(pPlayer->quakeEffect);
 
-	cH += DAngle::fromDeg((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
+	cH -= DAngle::fromDeg((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
 }
 
 
@@ -526,7 +526,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 		{
 			cPos.Z += bobHeight;
 		}
-		cPos.Z += clamp(cH.Tan(), -1.171875, 1.171875) * 5.;
+		cPos.Z -= clamp(cH.Tan(), -1.171875, 1.171875) * 5.;
 	}
 	else
 	{
@@ -738,7 +738,7 @@ void viewDrawScreen(bool sceneonly)
 		DAngle deliriumPitchI = interpolatedvalue(maphoriz(deliriumPitchO), maphoriz(deliriumPitch), interpfrac);
 		auto bakCstat = pPlayer->actor->spr.cstat;
 		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
-		render_drawrooms(pPlayer->actor, cPos, pSector, cA, cH + deliriumPitchI, rotscrnang, interpfrac);
+		render_drawrooms(pPlayer->actor, cPos, pSector, cA, cH - deliriumPitchI, rotscrnang, interpfrac);
 		pPlayer->actor->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 

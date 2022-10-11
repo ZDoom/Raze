@@ -111,7 +111,7 @@ static bool animateknee(int gs, player_struct* p, double look_anghalf, double lo
 	const double kneei = interpolatedvalue<double>(knee_y[p->oknee_incs], knee_y[p->knee_incs], interpfrac);
 	looking_arc += kneei;
 
-	hud_drawpal(105 + plravel - look_anghalf + (kneei * 0.25), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
+	hud_drawpal(105 + plravel - look_anghalf + (kneei * 0.25), looking_arc + 280 + horiz16th, KNEE, gs, 4, pal);
 
 	return true;
 }
@@ -128,7 +128,7 @@ static bool animateknuckles(int gs, player_struct* p, double look_anghalf, doubl
 
 	static const uint8_t knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
 
-	hud_drawpal(160 + plravel - look_anghalf, looking_arc + 180 - horiz16th, CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal);
+	hud_drawpal(160 + plravel - look_anghalf, looking_arc + 180 + horiz16th, CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal);
 
 	return true;
 }
@@ -163,7 +163,7 @@ static bool animatetip(int gs, player_struct* p, double look_anghalf, double loo
 	static const int8_t tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
 	const double tipi = interpolatedvalue<double>(tip_y[p->otipincs], tip_y[p->tipincs], interpfrac) * 0.5;
 
-	hud_drawpal(170 + plravel - look_anghalf, tipi + looking_arc + 240 - horiz16th, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal);
+	hud_drawpal(170 + plravel - look_anghalf, tipi + looking_arc + 240 + horiz16th, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal);
 
 	return true;
 }
@@ -185,9 +185,9 @@ static bool animateaccess(int gs, player_struct* p, double look_anghalf, double 
 	const int pal = p->access_spritenum != nullptr ? p->access_spritenum->spr.pal : 0;
 
 	if ((p->access_incs-3) > 0 && (p->access_incs-3)>>3)
-		hud_drawpal(170 + plravel - look_anghalf + (accessi * 0.25), looking_arc + 266 - horiz16th, HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal);
+		hud_drawpal(170 + plravel - look_anghalf + (accessi * 0.25), looking_arc + 266 + horiz16th, HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal);
 	else
-		hud_drawpal(170 + plravel - look_anghalf + (accessi * 0.25), looking_arc + 266 - horiz16th, HANDHOLDINGACCESS, gs, 4, pal);
+		hud_drawpal(170 + plravel - look_anghalf + (accessi * 0.25), looking_arc + 266 + horiz16th, HANDHOLDINGACCESS, gs, 4, pal);
 
 	return true;
 }

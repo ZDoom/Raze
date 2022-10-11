@@ -148,7 +148,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 	// process player pitch input.
 	if (!(inputBuffer->actions & SB_AIMMODE))
-		currInput->horz -= hidInput->mouseturny + hidInput->dpitch * hidspeed * scaleAdjustf;
+		currInput->horz += hidInput->mouseturny - hidInput->dpitch * hidspeed * scaleAdjustf;
 	else
 		currInput->fvel -= hidInput->mousemovey + hidInput->dpitch * keymove * scaleAdjustf;
 
@@ -189,7 +189,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 			if (*actions & (up | down))
 			{
 				if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
-				__horiz += getTicrateScale(rate) * scaleAdjust * (!!(*actions & up) - !!(*actions & down));
+				__horiz += getTicrateScale(rate) * scaleAdjust * (!!(*actions & down) - !!(*actions & up));
 			}
 		};
 		doKbdInput(SB_AIM_UP, SB_AIM_DOWN, PITCH_AIMSPEED, true);
@@ -306,7 +306,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
-					horizoff += maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
+					horizoff -= maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
 				}
 			}
 		}
@@ -314,7 +314,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff < PITCH_HORIZOFFCLIMB) horizoff += getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(horizoff, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
+			if (horizoff > PITCH_HORIZOFFCLIMB) horizoff -= getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(horizoff, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
 		}
 		else
 		{

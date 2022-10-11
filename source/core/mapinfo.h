@@ -149,7 +149,7 @@ struct MapRecord
 	// game specific stuff
 	int rr_startsound = 0;
 	int rr_mamaspawn = 15;
-	DAngle ex_ramses_horiz = DAngle::fromDeg(4.912);
+	DAngle ex_ramses_horiz = DAngle::fromDeg(-4.912);
 	int ex_ramses_cdtrack = -1; // this is not music, it is the actual dialogue!
 	FString ex_ramses_pup;
 	FString ex_ramses_text;

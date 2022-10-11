@@ -120,7 +120,7 @@ map lev11 "$TXT_EX_MAP11"
 	ex_ramses_cdtrack = 7
 	ex_ramses_pup = "lev11.pup"
 	ex_ramses_text = "$TXT_EX_CINEMA5"
-	ex_ramses_horiz = 46
+	ex_ramses_horiz = -46
 	intro
 	{
 		function = ExhumedCutscenes.BuildCinemaBefore11

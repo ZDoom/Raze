@@ -594,7 +594,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
                     }
 
                     // Set the horizon value.
-                    auto camhoriz = maphoriz(SP_TAG7(camactor) - 100);
+                    auto camhoriz = maphoriz(100 - SP_TAG7(camactor));
 
                     // If player is dead still then update at MoveSkip4
                     // rate.

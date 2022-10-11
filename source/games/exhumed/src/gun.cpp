@@ -747,7 +747,7 @@ loc_flag:
                 // loc_27266:
                 case kWeaponSword:
                 {
-                    nHeight -= PlayerList[nLocalPlayer].horizon.__horiz.Tan() * 32.;
+                    nHeight += PlayerList[nLocalPlayer].horizon.__horiz.Tan() * 32.;
 
                     thePos.Z += nHeight;
 
@@ -853,7 +853,7 @@ loc_flag:
                 case kWeaponPistol:
                 {
                     double h = PlayerList[nLocalPlayer].horizon.__horiz.Tan() * 2.;
-                    nHeight -= h;
+                    nHeight += h;
 
                     DExhumedActor* target = nullptr;
                     if (sPlayerInput[nPlayer].pTarget != nullptr && Autoaim(nPlayer))
