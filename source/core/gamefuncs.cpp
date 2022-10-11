@@ -567,7 +567,7 @@ sectortype* nextsectorneighborzptr(sectortype* sectp, int startz_, int flags)
 {
 	double startz = startz_ * zinttoworld;
 	double factor = (flags & Find_Up)? -1 : 1;
-	int bestz = INT_MAX;
+	double bestz = INT_MAX;
 	sectortype* bestsec = (flags & Find_Safe)? sectp : nullptr;
 	const auto planez = (flags & Find_Ceiling)? &sectortype::ceilingz : &sectortype::floorz;
 

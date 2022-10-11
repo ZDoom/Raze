@@ -89,7 +89,7 @@ static int sgn(double v)
 	return (v > 0)? 1: (v < 0)? -1 : 0;
 }
 
-static int dist(const DVector2& a, const DVector2& b)
+static double dist(const DVector2& a, const DVector2& b)
 {
 	// We only need to know if it's 1 or higher, so this is enough.
 	return fabs(a.X - b.X) + fabs(a.Y - b.Y);
@@ -162,7 +162,7 @@ int GetWindingOrder(TArray<DVector2>& poly, cmp comp1 = cmpLess, cmp comp2 = cmp
 		}
 	}
 
-	int64_t a[2], b[2], c[2];
+	double a[2], b[2], c[2];
 
 	int m1 = (m + n - 1) % n;
 	int m2 = (m + 1) % n;

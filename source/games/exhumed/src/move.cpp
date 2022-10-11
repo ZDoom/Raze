@@ -1205,7 +1205,7 @@ int GetWallNormal(walltype* pWall)
 DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
 {
     auto pActor = PlayerList[nPlayer].pActor;
-    int height = GetActorHeight(pActor) >> 1;
+    double height = GetActorHeight(pActor) * 0.5;
 
     *sectnum = pActor->sector();
 	auto pos = pActor->spr.pos.plusZ(-height * zinttoworld);

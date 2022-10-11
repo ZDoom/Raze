@@ -62,7 +62,7 @@ double Get(int index, DCoreActor* actor, int type)
 
 void Set(int index, DCoreActor* actor, int type, double val)
 {
-	int old;
+	double old;
 	switch(type)
 	{
 	case Interp_Sect_Floorz:			sector[index].setfloorz(val); break;

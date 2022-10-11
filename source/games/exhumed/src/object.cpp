@@ -637,7 +637,7 @@ void MoveSectorSprites(sectortype* pSector, double z)
     ExhumedSectIterator it(pSector);
     while (auto pActor = it.Next())
     {
-        int actz = pActor->spr.pos.Z;
+        double actz = pActor->spr.pos.Z;
         if ((pActor->spr.statnum != 200 && actz >= minz && actz <= maxz) || pActor->spr.statnum >= 900)
         {
 			pActor->spr.pos.Z = newz;

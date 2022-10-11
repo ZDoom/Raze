@@ -701,7 +701,8 @@ int InitCoolgCircle(DSWActor* actor)
 
 int DoCoolgCircle(DSWActor* actor)
 {
-    int nx,ny,bound;
+    double bound;
+    int nx,ny;
 
     actor->set_int_ang(NORM_ANGLE(actor->int_ang() + actor->user.Counter2));
 

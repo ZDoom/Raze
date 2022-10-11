@@ -434,7 +434,8 @@ int InitHornetCircle(DSWActor* actor)
 
 int DoHornetCircle(DSWActor* actor)
 {
-    int nx,ny,bound;
+    int nx,ny;
+    double bound;
 
     actor->set_int_ang(NORM_ANGLE(actor->int_ang() + actor->user.Counter2));
 
