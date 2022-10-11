@@ -333,12 +333,13 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				zvel = p->horizon.sum().Tan() * 10.;
+				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
 			}
 			else
 			{
 				vel = 140 / 16.;
-				zvel = -4 + p->horizon.sum().Tan() * 10.;
+				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
+				zvel -= 4;
 			}
 
 			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
