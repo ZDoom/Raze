@@ -410,7 +410,7 @@ void RestartPlayer(int nPlayer)
 
     plr->nThrust.Zero();
 
-	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.__horiz = nullAngle;
+	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = nullAngle;
 	plr->nBreathTimer = 90;
 
 	plr->nTauntTimer = RandomSize(3) + 3;
@@ -506,7 +506,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.__horiz = nullAngle;
+    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = nullAngle;
     PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel = -55;
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
@@ -1118,7 +1118,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                     zVelB = -zVelB;
                 }
 
-                if (zVelB > 2 && !PlayerList[nPlayer].horizon.__horiz.Sgn() && cl_slopetilting) {
+                if (zVelB > 2 && !PlayerList[nPlayer].horizon.horiz.Sgn() && cl_slopetilting) {
                     PlayerList[nPlayer].nDestVertPan = nullAngle;
                 }
             }
@@ -2484,12 +2484,12 @@ sectdone:
 
         if (actions & (SB_AIM_UP | SB_AIM_DOWN) || sPlayerInput[nPlayer].pan)
         {
-            pPlayer->nDestVertPan = pPlayer->horizon.__horiz;
+            pPlayer->nDestVertPan = pPlayer->horizon.horiz;
             pPlayer->bPlayerPan = pPlayer->bLockPan = true;
         }
         else if (actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
         {
-            pPlayer->nDestVertPan = pPlayer->horizon.__horiz;
+            pPlayer->nDestVertPan = pPlayer->horizon.horiz;
             pPlayer->bPlayerPan = pPlayer->bLockPan = false;
         }
 
@@ -2500,7 +2500,7 @@ sectdone:
 
         if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
         {
-            if (double nVertPan = deltaangle(pPlayer->horizon.__horiz, pPlayer->nDestVertPan).Tan() * 32.)
+            if (double nVertPan = deltaangle(pPlayer->horizon.horiz, pPlayer->nDestVertPan).Tan() * 32.)
             {
                 pPlayer->horizon.addadjustment(maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
             }
@@ -2620,7 +2620,7 @@ sectdone:
         }
         else
         {
-            if (PlayerList[nPlayer].horizon.__horiz.Sgn() > 0)
+            if (PlayerList[nPlayer].horizon.horiz.Sgn() > 0)
             {
                 PlayerList[nPlayer].horizon.settarget(nullAngle);
                 PlayerList[nPlayer].eyelevel -= dVertPan[nPlayer];
@@ -2629,11 +2629,11 @@ sectdone:
             {
                 PlayerList[nPlayer].horizon.addadjustment(maphoriz(-dVertPan[nPlayer]));
 
-                if (PlayerList[nPlayer].horizon.__horiz.Degrees() <= 38)
+                if (PlayerList[nPlayer].horizon.horiz.Degrees() <= 38)
                 {
                     PlayerList[nPlayer].horizon.settarget(DAngle::fromDeg(-37.72));
                 }
-                else if (PlayerList[nPlayer].horizon.__horiz.Sgn() >= 0)
+                else if (PlayerList[nPlayer].horizon.horiz.Sgn() >= 0)
                 {
                     if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
                     {

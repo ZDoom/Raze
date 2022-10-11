@@ -346,7 +346,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 			}
 			ps[iPlayer].horizon.settarget(maphoriz(-lValue));
 		}
-		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.__horiz.Tan() * -128.), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.horiz.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZ:
@@ -925,7 +925,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_RETURN_TO_CENTER:
 		if (bSet) ps[iPlayer].sync.actions |= SB_CENTERVIEW;
-		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? int(abs((ps[iPlayer].horizon.__horiz * (DAngle::fromDeg(9.) / GetMaxPitch())).Degrees())) : 0, sActor, sPlayer);
+		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? int(abs((ps[iPlayer].horizon.horiz * (DAngle::fromDeg(9.) / GetMaxPitch())).Degrees())) : 0, sActor, sPlayer);
 		break;
 
 	default:
@@ -2243,7 +2243,7 @@ int ParseState::parse(void)
 
 			ps[g_p].last_extra = g_ac->spr.extra = gs.max_player_health;
 			ps[g_p].wantweaponfire = -1;
-			ps[g_p].horizon.ohoriz = ps[g_p].horizon.__horiz = nullAngle;
+			ps[g_p].horizon.ohoriz = ps[g_p].horizon.horiz = nullAngle;
 			ps[g_p].on_crane = nullptr;
 			ps[g_p].frag_ps = g_p;
 			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = nullAngle;

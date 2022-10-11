@@ -6004,12 +6004,12 @@ void DoPlayerBeginDie(PLAYER* pp)
 
 static void DoPlayerDeathHoriz(PLAYER* pp, double target, double speed)
 {
-    if ((pp->horizon.__horiz.Degrees() - target) > 0.4476)
+    if ((pp->horizon.horiz.Degrees() - target) > 0.4476)
     {   
         pp->horizon.addadjustment(DAngle::fromDeg(speed));
     }
 
-    if ((target - pp->horizon.__horiz.Degrees()) > 0.4476)
+    if ((target - pp->horizon.horiz.Degrees()) > 0.4476)
     {
         pp->horizon.addadjustment(DAngle::fromDeg(-speed));
     }
@@ -6159,7 +6159,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.xrepeat = PLAYER_NINJA_XREPEAT;
         plActor->spr.yrepeat = PLAYER_NINJA_YREPEAT;
 
-        pp->horizon.__horiz = nullAngle;
+        pp->horizon.horiz = nullAngle;
         DoPlayerResetMovement(pp);
         plActor->user.ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
@@ -7176,14 +7176,14 @@ void InitAllPlayers(void)
     extern bool NewGame;
     //int fz,cz;
 
-    pfirst->horizon.__horiz = nullAngle;
+    pfirst->horizon.horiz = nullAngle;
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
         pp->pos = pp->opos = pfirst->pos;
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
-        pp->horizon.__horiz = pp->horizon.ohoriz = pfirst->horizon.__horiz;
+        pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursector = pfirst->cursector;
         // set like this so that player can trigger something on start of the level
         pp->lastcursector = pfirst->cursector+1;

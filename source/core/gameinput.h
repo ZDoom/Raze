@@ -8,7 +8,7 @@
 
 struct PlayerHorizon
 {
-	DAngle __horiz, ohoriz, horizoff, ohorizoff;
+	DAngle horiz, ohoriz, horizoff, ohorizoff;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def);
 
@@ -19,18 +19,18 @@ struct PlayerHorizon
 	// Interpolation helpers.
 	void backup()
 	{
-		ohoriz = __horiz;
+		ohoriz = horiz;
 		ohorizoff = horizoff;
 	}
 	void restore()
 	{
-		__horiz = ohoriz;
+		horiz = ohoriz;
 		horizoff = ohorizoff;
 	}
 
 	// Commonly used getters.
 	DAngle osum() { return ohoriz + ohorizoff; }
-	DAngle sum() { return __horiz + horizoff; }
+	DAngle sum() { return horiz + horizoff; }
 	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
@@ -51,7 +51,7 @@ struct PlayerHorizon
 		}
 		else
 		{
-			__horiz += value;
+			horiz += value;
 		}
 	}
 
@@ -66,8 +66,8 @@ struct PlayerHorizon
 		}
 		else
 		{
-			__horiz = value;
-			if (backup) ohoriz = __horiz;
+			horiz = value;
+			if (backup) ohoriz = horiz;
 		}
 	}
 
@@ -75,21 +75,21 @@ struct PlayerHorizon
 	{
 		if (targetset())
 		{
-			auto delta = deltaangle(__horiz, target);
+			auto delta = deltaangle(horiz, target);
 
 			if (abs(delta).Degrees() > 0.45)
 			{
-				__horiz += delta * scaleAdjust;
+				horiz += delta * scaleAdjust;
 			}
 			else
 			{
-				__horiz = target;
+				horiz = target;
 				target = nullAngle;
 			}
 		}
 		else if (adjustment.Sgn())
 		{
-			__horiz += adjustment * scaleAdjust;
+			horiz += adjustment * scaleAdjust;
 		}
 	}
 
