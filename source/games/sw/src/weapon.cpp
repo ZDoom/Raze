@@ -15260,7 +15260,7 @@ int InitTracerUzi(PLAYER* pp)
         return 0;
     }
 
-    actorNew->vel.Z = pp->horizon.horiz.Tan() * actorNew->vel.X;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, actorNew->vel.X);
 
     plActor->clipdist = oclipdist;
 
