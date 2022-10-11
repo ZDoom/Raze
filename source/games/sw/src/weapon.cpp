@@ -15957,7 +15957,7 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
     actorNew->spr.shade = -15;
 
     // the slower the missile travels the less of a zvel it needs
-    actorNew->vel.Z = pp->horizon.horiz.Tan() * 16.;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, 16.);
 
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (1);
