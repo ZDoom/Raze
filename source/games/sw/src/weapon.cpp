@@ -16945,7 +16945,8 @@ int InitFireball(PLAYER* pp)
 
     actorNew->user.ceiling_dist = (6);
     actorNew->user.floor_dist = (6);
-    double zvel = pp->horizon.horiz.Tan() * 120.;
+    double zvel = 0.;
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, 120.);
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
