@@ -228,12 +228,12 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 {
 	auto sectp = actor->sector();
-	double zvel;
+	double vel = 1024., zvel;
 	HitInfo hit{};
 
 	if (p >= 0)
 	{
-		zvel = ps[p].horizon.sum().Tan() * 16.;
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -245,7 +245,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		ang = (pactor->spr.pos.XY() - pos.XY()).Angle();
 	}
 
-	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
 
 	if (hit.hitSector == nullptr) return;
