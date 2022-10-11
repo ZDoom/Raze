@@ -13860,7 +13860,7 @@ int InitNuke(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(2, 2);
     actorNew->spr.shade = -15;
-    zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + 36) * 0.5);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + 36) * 0.5);
     actorNew->clipdist = 4;
 
     // Set to red palette
