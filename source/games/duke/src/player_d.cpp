@@ -817,15 +817,15 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 {
 	auto sectp = actor->sector();
-	double zvel;
+	double vel = 1024., zvel;
 	int j;
 	HitInfo hit{};
 
 	if (p >= 0)
-		zvel = ps[p].horizon.sum().Tan() * 16.;
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
 	else zvel = 0;
 
-	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
 	j = 0;
 	if (hit.actor()) return;
