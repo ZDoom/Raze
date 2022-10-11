@@ -12114,7 +12114,7 @@ int InitSpellMirv(PLAYER* pp)
     actorNew->spr.shade = -40;
     actorNew->spr.scale = DVector2(1.125, 1.125);
     actorNew->clipdist = 2;
-    actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
