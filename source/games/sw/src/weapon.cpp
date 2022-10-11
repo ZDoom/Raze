@@ -15992,6 +15992,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
     PlaySound(DIGI_BOATFIRE, pp, v3df_dontpan|v3df_doppler);
 
     auto npos = actor->spr.pos;
+    double dax = 1024.;
     double daz = npos.Z;
 
     if (RANDOM_P2(1024) < 200)
@@ -16004,11 +16005,11 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
     }
     else
     {
-        daz = min(pp->horizon.horiz.Tan(), 0.1953125) * 1000 - RandomRangeF(80) + 40;
+        setFreeAimVelocity(dax, daz, DAngle::fromDeg(min(pp->horizon.horiz.Degrees(), 11.0515)), 1000 - RandomRangeF(80) + 40);
         daang = actor->spr.angle;
     }
 
-    FAFhitscan(npos, actor->sector(), DVector3(daang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
+    FAFhitscan(npos, actor->sector(), DVector3(daang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
     {
