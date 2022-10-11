@@ -313,7 +313,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sectp = actor->sector();
-	double zvel = 0;
+	double vel = 1024, zvel = 0;
 	HitInfo hit{};
 
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
@@ -365,14 +365,14 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				// no target
-				zvel = ps[p].horizon.sum().Tan() * 16.;
+				setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
 			}
 			zvel += (zRange / 2) - krandf(zRange);
 		}
 		else if (aimed == nullptr)
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			zvel = ps[p].horizon.sum().Tan() * 16.;
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 
@@ -397,7 +397,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 	}
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 
