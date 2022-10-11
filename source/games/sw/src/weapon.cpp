@@ -15514,6 +15514,7 @@ int InitUzi(PLAYER* pp)
         InitTracerUzi(pp);
 
     double nz = (pp->pos.Z + pp->bob_z);
+    double dax = 1024.;
     double daz = nz;
     DAngle daang = DAngle22_5 / 4;
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
@@ -15524,10 +15525,10 @@ int InitUzi(PLAYER* pp)
     else
     {
         daang = pp->angle.ang + mapangle(RandomRange(24) - 12);
-        daz = pp->horizon.horiz.Tan() * 1000. - (RandomRangeF(24000/256.) - 12000/256.);
+        setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000/256.) - 12000/256.));
     }
 
-    DVector3 vect(daang.ToVector() * 1024, daz);
+    DVector3 vect(daang.ToVector() * dax, daz);
 
     FAFhitscan(DVector3(pp->pos.XY(), nz), pp->cursector, vect, hit, CLIPMASK_MISSILE);
 
