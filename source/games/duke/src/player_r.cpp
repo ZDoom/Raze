@@ -2699,12 +2699,13 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				zvel = p->horizon.sum().Tan() * 10.;
+				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
 			}
 			else
 			{
 				vel = 140 / 16.;
-				zvel = -4 + p->horizon.sum().Tan() * 10.;
+				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
+				zvel -= 4;
 			}
 
 			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, DYNAMITE, -16, DVector2(0.140625, 0.140625),
@@ -3106,12 +3107,13 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				vel = 15 / 16.;
-				zvel = p->horizon.sum().Tan() * 10.;
+				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
 			}
 			else
 			{
 				vel = 2.;
-				zvel = -4 + p->horizon.sum().Tan() * 10.;
+				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
+				zvel -= 4;
 			}
 
 			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, DVector2(0.140625, 0.140625), p->angle.ang, vel * 2, zvel, pact, 1);
