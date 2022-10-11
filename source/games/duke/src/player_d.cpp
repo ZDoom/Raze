@@ -175,7 +175,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	}
 	else
 	{
-		zvel = ps[p].horizon.sum().Tan() * 40.5;
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 40.5);
 		
 		// WTF???
 		DAngle myang = DAngle90 - (DAngle180 - abs(abs((spos.XY() - ps[p].pos.XY()).Angle() - sang) - DAngle180));
