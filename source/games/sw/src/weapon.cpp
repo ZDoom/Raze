@@ -15765,7 +15765,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         SetOwner(plActor, actorNew);
         actorNew->spr.scale = DVector2(0.375, 0.375);
         actorNew->spr.shade = -15;
-        actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF - RandomRangeF(8) + 5;
+        setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF - RandomRangeF(8) + 5);
         actorNew->clipdist = 4;
 
 
