@@ -13088,7 +13088,7 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->spr.shade = -10;
     actorNew->spr.scale = DVector2(0.8125, 0.8125);
     actorNew->clipdist = 0;
-    actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
