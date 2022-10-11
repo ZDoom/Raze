@@ -888,7 +888,7 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 {
 	auto sect = actor->sector();
-	double zvel;
+	double vel = 1024., zvel;
 	int k;
 	HitInfo hit{};
 
@@ -919,7 +919,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		else
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			zvel = ps[p].horizon.sum().Tan() * 16.;
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 
@@ -941,7 +941,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	//RESHOOTGROW:
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan(pos, sect, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
+	hitscan(pos, sect, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
