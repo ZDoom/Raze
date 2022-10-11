@@ -14015,6 +14015,9 @@ int InitMicro(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
+    double vel = 75., zvel = 0;
+    setFreeAimVelocity(vel, zvel, pp->horizon.horiz, HORIZ_MULTF);
+
     for (i = 0; i < MAX_MICRO; i++)
     {
         if (ts < &TargetSort[TargetSortCount] && ts->actor != nullptr)
@@ -14036,12 +14039,12 @@ int InitMicro(PLAYER* pp)
         // Spawn a shot
         // Inserting and setting up variables
 
-        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector, pos, angle, 75);
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector, pos, angle, vel);
 
         SetOwner(pp->actor, actorNew);
         actorNew->spr.scale = DVector2(0.375, 0.375);
         actorNew->spr.shade = -15;
-        actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
+        actorNew->vel.Z = zvel;
         actorNew->clipdist = 4;
 
         // randomize zvelocity
