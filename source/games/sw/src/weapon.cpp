@@ -15306,7 +15306,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, DAngle horiz)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    actorNew->vel.Z = horiz.Tan() * actorNew->vel.X;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, horiz, actorNew->vel.X);
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 4, false);
 
