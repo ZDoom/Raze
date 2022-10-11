@@ -13487,7 +13487,7 @@ int InitRail(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(0.8125, 0.8125);
     actorNew->spr.shade = -15;
-    zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + 17) * 0.5);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + 17) * 0.5);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
