@@ -12247,9 +12247,10 @@ int InitSwordAttack(PLAYER* pp)
     {
         HitInfo hit{};
 
-        double daz = pp->horizon.horiz.Tan() * 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.);
+        double dax = 1024., daz = 0;
         DAngle daang = pp->angle.ang;
-        FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, daz), hit, CLIPMASK_MISSILE);
+        setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
+        FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
