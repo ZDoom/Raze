@@ -4162,7 +4162,7 @@ static void checkCeilHit(DBloodActor* actor)
 						}
 						if (mass1 > mass2)
 						{
-							int dmg = 4 * (abs((mass1 - mass2) * actor2->clipdist) - actor->clipdist);
+							int dmg = int(4 * (abs((mass1 - mass2) * actor2->clipdist) - actor->clipdist));
 							if (actor2->IsDudeActor())
 							{
 								if (dmg > 0) actDamageSprite(actor2, actor, (Chance(0x2000)) ? kDamageFall : (Chance(0x4000)) ? kDamageExplode : kDamageBullet, dmg);
@@ -4326,7 +4326,7 @@ static void checkFloorHit(DBloodActor* actor)
 					if ((actor2->IsPlayerActor() && Chance(0x500)) || !actor2->IsPlayerActor())
 						actKickObject(actor, actor2);
 
-					int dmg = (mass1 - mass2) + actor->clipdist * 4;
+					int dmg = int((mass1 - mass2) + actor->clipdist * 4);
 					if (dmg > 0) actDamageSprite(actor, actor2, (Chance(0x2000)) ? kDamageFall : kDamageBullet, dmg);
 				}
 			}
@@ -4959,7 +4959,7 @@ void MoveDude(DBloodActor* actor)
 
 				pPlayer->posture = 1;
 				actor->xspr.burnTime = 0;
-				pPlayer->bubbleTime = abs(actor->vel.Z * 16);
+				pPlayer->bubbleTime = int(abs(actor->vel.Z * 16));
 				evPostActor(actor, 0, kCallbackPlayerBubble);
 				sfxPlay3DSound(actor, 720, -1, 0);
 			}
