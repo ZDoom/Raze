@@ -2008,8 +2008,10 @@ int operateTripbomb(int snum)
 {
 	auto p = &ps[snum];
 	HitInfo hit{};
+	double vel = 1024, zvel = 0;
+	setFreeAimVelocity(vel, zvel, p->horizon.sum(), 16.);
 
-	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, p->horizon.sum().Tan() * 16.), hit, CLIPMASK1);
+	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * vel, zvel), hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;
