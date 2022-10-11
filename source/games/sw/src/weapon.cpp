@@ -13392,7 +13392,7 @@ int InitLaser(PLAYER* pp)
     actorNew->clipdist = 4;
 
     // the slower the missile travels the less of a zvel it needs
-    actorNew->vel.Z = pp->horizon.horiz.Tan() * 16.;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, 16.);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
