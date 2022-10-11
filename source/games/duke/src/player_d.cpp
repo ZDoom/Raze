@@ -2048,7 +2048,7 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 	HitInfo hit{};
 
-	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, -p->horizon.sum().Tan() * 16.), hit, CLIPMASK1);
+	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, p->horizon.sum().Tan() * 16.), hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;

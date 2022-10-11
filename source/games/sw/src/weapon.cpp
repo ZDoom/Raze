@@ -15390,7 +15390,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, DAngle horiz)
     // Inserting and setting up variables
 
     auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, actor->sector(),
-                    actor->spr.pos.plusZ(-horiz.Tan() * 36.), actor->spr.angle, TRACER_VELOCITY);
+                    actor->spr.pos.plusZ(horiz.Tan() * 36.), actor->spr.angle, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     if (Operator!= nullptr)
