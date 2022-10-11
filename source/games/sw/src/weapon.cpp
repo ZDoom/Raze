@@ -15834,7 +15834,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    actorNew->vel.Z = pp->horizon.horiz.Tan() * actorNew->vel.X;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, actorNew->vel.X);
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
