@@ -746,7 +746,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			zvel = ps[p].horizon.sum().Tan() * 49.;
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 49.);
 	}
 	else
 	{
