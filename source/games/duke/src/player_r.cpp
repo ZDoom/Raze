@@ -86,12 +86,12 @@ void incur_damage_r(player_struct* p)
 static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sectp = actor->sector();
-	double zvel;
+	double vel = 1024., zvel;
 	HitInfo hit{};
 
 	if (p >= 0)
 	{
-		zvel = ps[p].horizon.sum().Tan() * 16.;
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -103,7 +103,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 		ang = (pactor->spr.pos.XY() - pos.XY()).Angle();
 	}
 
-	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
 	if (isRRRA() && hit.hitSector != nullptr && ((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr)
