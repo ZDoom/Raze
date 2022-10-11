@@ -13224,15 +13224,13 @@ int InitShotgun(PLAYER* pp)
     }
 
     auto pos = pp->pos.plusZ(pp->bob_z);
+    double dax = 1024.;
     double daz = pos.Z;
 
     DAngle daang = DAngle22_5 * 0.5;
-    if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) != nullptr)
+    if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) == nullptr)
     {
-    }
-    else
-    {
-        daz = pp->horizon.horiz.Tan() * 1000.;
+        setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000.);
         daang = pp->angle.ang;
     }
 
@@ -13251,7 +13249,7 @@ int InitShotgun(PLAYER* pp)
             ndaang = daang + mapangle(RandomRange(70) - 30);
         }
 
-        DVector3 vect(ndaang.ToVector() * 1024, ndaz);
+        DVector3 vect(ndaang.ToVector() * dax, ndaz);
 
         FAFhitscan(pos, pp->cursector, vect, hit, CLIPMASK_MISSILE);
 
