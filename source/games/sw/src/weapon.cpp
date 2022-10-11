@@ -16695,7 +16695,7 @@ int InitGrenade(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    actorNew->vel.Z = pp->horizon.horiz.Tan() * HORIZ_MULTF;
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
 
     auto oclipdist = actor->clipdist;
     actor->clipdist = 0;
