@@ -203,7 +203,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sectp = actor->sector();
-	double zvel = 0;
+	double vel = 1024., zvel = 0;
 	HitInfo hit{};
 
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
@@ -224,7 +224,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-				zvel = ps[p].horizon.sum().Tan() * 16.;
+				setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
 				zvel += 0.5 - krandf(1);
 			}
 		}
@@ -234,7 +234,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				ang += DAngle22_5 / 2 - randomAngle(22.5);
 			else
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			if (aimed == nullptr) zvel = ps[p].horizon.sum().Tan() * 16.;
+			if (aimed == nullptr) setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 		pos.Z -= 2;
@@ -259,7 +259,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 	}
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan(pos, sectp, DVector3(ang.ToVector() * 1024, zvel * 64), hit, CLIPMASK1);
+	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
 	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr))
