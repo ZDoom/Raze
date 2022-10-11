@@ -12987,7 +12987,8 @@ int InitStar(PLAYER* pp)
     actorNew->spr.shade = -25;
     actorNew->clipdist = 2;
     // zvel was overflowing with this calculation - had to move to a local long var
-    double zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
+    double zvel = 0;
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
 
     actorNew->user.ceiling_dist = (1);
     actorNew->user.floor_dist = (1);
@@ -13000,6 +13001,7 @@ int InitStar(PLAYER* pp)
     // MissileSetPos seemed to be pushing the sprite too far up or down when
     // the horizon was tilted.  Never figured out why.
     actorNew->vel.Z = zvel * 0.5;
+    double act2zvel = actorNew->vel.Z;
     if (MissileSetPos(actorNew, DoStar, 1000))
     {
         KillActor(actorNew);
@@ -13038,8 +13040,7 @@ int InitStar(PLAYER* pp)
         if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew2))
             actorNew2->user.Flags |= SPR_UNDERWATER;
 
-        zvel = pp->horizon.horiz.Tan() * ((HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
-        actorNew2->vel.Z = zvel * 0.5;
+        actorNew2->vel.Z = act2zvel;
 
         if (MissileSetPos(actorNew2, DoStar, 1000))
         {
