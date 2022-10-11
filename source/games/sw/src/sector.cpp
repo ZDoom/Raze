@@ -844,7 +844,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
     auto mid = SectorMidPoint(sectp);
     // randomize the explosions
     actor->spr.angle = DAngle::fromBuild(RANDOM_P2(256) - 128);
-    actor->spr.pos = { mid.X + RANDOM_P2F(256) - 16, mid.Y + RANDOM_P2F(1024) - 64, zh };
+    actor->spr.pos = { mid.X + RANDOM_P2F(16, 4) - 16, mid.Y + RANDOM_P2F(64, 4) - 64, zh };
     
     // setup vars needed by SectorExp
     ChangeActorSect(actor, sectp);
