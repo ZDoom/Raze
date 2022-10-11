@@ -252,13 +252,6 @@ inline double krandf(double span)
 	return (krand() & 0x7fff) * span / 32767;
 }
 
-[[deprecated]]
-inline double zrand(int spread, int ofs)
-{
-	int r = krand() % (spread << 8);
-	return r * zmaptoworld;
-}
-
 inline double zrand(double spread)
 {
 	int r = krand() % FloatToFixed<8>(spread);
