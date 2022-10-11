@@ -999,6 +999,7 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 
 static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
 {
+	double vel = 48.;
 	double zvel;
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 	if (p >= 0)
@@ -1012,7 +1013,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			zvel = ps[p].horizon.sum().Tan() * 49.;
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 49.);
 	}
 	else if (actor->spr.statnum != 3)
 	{
@@ -1024,7 +1025,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 	else zvel = 0;
 
 	auto spawned = CreateActor(actor->sector(),
-		pos.plusZ(2) + ang.ToVector() * 0.25, SHRINKSPARK, -16, DVector2(0.4375, 0.4375), ang, 48., zvel, actor, 4);
+		pos.plusZ(2) + ang.ToVector() * 0.25, SHRINKSPARK, -16, DVector2(0.4375, 0.4375), ang, vel, zvel, actor, 4);
 
 	if (spawned)
 	{
