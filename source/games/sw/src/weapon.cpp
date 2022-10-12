@@ -15877,8 +15877,7 @@ int InitGrenade(PLAYER* pp)
     if (!auto_aim)
     {
         // adjust xvel according to player velocity
-		actorNew->user.change.X += FixedToFloat<18>(pp->int_vect().X);
-		actorNew->user.change.Y += FixedToFloat<18>(pp->int_vect().Y);
+		actorNew->user.change += pp->vect;
     }
 
     actorNew->user.Counter2 = true;  // Phosphorus Grenade
@@ -15980,8 +15979,7 @@ int InitMine(PLAYER* pp)
     if (abs(dot) > 10000)
     {
         // adjust xvel according to player velocity
-		actorNew->user.change.X += FixedToFloat<18>(2 * pp->int_vect().X);
-		actorNew->user.change.Y += FixedToFloat<18>(2 * pp->int_vect().Y);
+		actorNew->user.change += 2 * pp->vect;
     }
 
     return 0;

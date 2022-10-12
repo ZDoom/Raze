@@ -1872,7 +1872,7 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->int_slide_vect().X, pp->int_slide_vect().Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->slide_vect.X), FloatToFixed<18>(pp->slide_vect.Y), ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
@@ -1999,7 +1999,7 @@ void DoPlayerMove(PLAYER* pp)
         {
             pp->opos.XY() = pp->pos.XY();
         }
-        pp->add_int_ppos_XY({ pp->int_vect().X >> 14, pp->int_vect().Y >> 14 });
+		pp->pos += pp->vect;
         updatesector(pp->pos, &sect);
         if (sect != nullptr)
             pp->cursector = sect;
@@ -2029,7 +2029,7 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->int_vect().X, pp->int_vect().Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->vect.X), FloatToFixed<18>(pp->vect.Y), ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
@@ -2310,7 +2310,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
         return;
 
     // not moving - don't crush
-    if ((pp->int_vect().X|pp->int_vect().Y) == 0 && pp->input.avel == 0)
+    if ((pp->vect.isZero()) == 0 && pp->input.avel == 0)
         return;
 
     // main sector
@@ -2603,7 +2603,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(pp->pos, &pp->cursector, pp->int_vect().X, pp->int_vect().Y, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
+            clipmove(pp->pos, &pp->cursector, FloatToFixed<18>(pp->vect.X), FloatToFixed<18>(pp->vect.Y), (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
