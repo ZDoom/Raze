@@ -81,6 +81,7 @@ class fixedhoriz
 public:
 	fixedhoriz() = default;
 	fixedhoriz(const fixedhoriz &other) = default;
+	fixedhoriz& operator=(const fixedhoriz&) = default;
 
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return FixedToInt(value); }

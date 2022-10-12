@@ -13,6 +13,8 @@ struct vec2_t
 
 	vec2_t() = default;
 	vec2_t(const vec2_t&) = default;
+	vec2_t& operator=(const vec2_t&) = default;
+
 	vec2_t(int x, int y) : X(x), Y(y) {}
 	vec2_t operator+(const vec2_t& other) const { return { X + other.X, Y + other.Y }; }
 	vec2_t operator-(const vec2_t& other) const { return { X - other.X, Y - other.Y }; }
@@ -36,6 +38,8 @@ struct vec3_t
 
 	vec3_t() = default;
 	vec3_t(const vec3_t&) = default;
+	vec3_t& operator=(const vec3_t&) = default;
+
 	vec3_t(int x, int y, int z) : X(x), Y(y), Z(z) {}
 	vec3_t operator+(const vec3_t& other) const { return { X + other.X, Y + other.Y, Z + other.Z }; }
 	vec3_t operator-(const vec3_t& other) const { return { X - other.X, Y - other.Y, Z - other.Z }; }
