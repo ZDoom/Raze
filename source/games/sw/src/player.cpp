@@ -2179,17 +2179,15 @@ void StopSOsound(sectortype* sect)
 void DoTankTreads(PLAYER* pp)
 {
     int i;
-    int vel;
     sectortype* *sectp;
     int j;
-    int dot;
     bool reverse = false;
 
     if (Prediction)
         return;
 
-    vel = FindDistance2D(pp->int_vect().X>>8, pp->int_vect().Y>>8);
-    dot = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    int vel = int(pp->vect.Length() * 1024);
+	double dot =  pp->vect.dot(pp->angle.ang.ToVector());
     if (dot < 0)
         reverse = true;
 
@@ -2470,27 +2468,23 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
     if (sop->drive_speed)
     {
-        pp->set_int_vect_x(MulScale(pp->input.fvel, sop->drive_speed, 6));
-        pp->set_int_vect_y(MulScale(pp->input.svel, sop->drive_speed, 6));
+        pp->vect.X = MulScaleF(pp->input.fvel, sop->drive_speed, 24);
+        pp->vect.Y = MulScaleF(pp->input.svel, sop->drive_speed, 24);
 
         // does sliding/momentum
-        pp->set_int_vect_x((pp->int_vect().X + (pp->int_ovect().X*(sop->drive_slide-1)))/sop->drive_slide);
-        pp->set_int_vect_y((pp->int_vect().Y + (pp->int_ovect().Y*(sop->drive_slide-1)))/sop->drive_slide);
+        pp->vect = (pp->vect + (pp->ovect * (sop->drive_slide-1)))/sop->drive_slide;
     }
     else
     {
-        pp->add_int_vect_x(((pp->input.fvel*synctics*2)<<6));
-        pp->add_int_vect_y(((pp->input.svel*synctics*2)<<6));
+		pp->vect.X += (pp->input.fvel*synctics*2) * INPUT_SCALE;
+		pp->vect.Y += (pp->input.svel*synctics*2) * INPUT_SCALE;
+		pp->vect *= TANK_FRICTION;
 
-        pp->set_int_vect_x(MulScale(pp->int_vect().X, TANK_FRICTION, 16));
-        pp->set_int_vect_y(MulScale(pp->int_vect().Y, TANK_FRICTION, 16));
-
-        pp->set_int_vect_x((pp->int_vect().X + (pp->int_ovect().X*1))/2);
-        pp->set_int_vect_y((pp->int_vect().Y + (pp->int_ovect().Y*1))/2);
+        pp->vect = (pp->vect + (pp->ovect*1))/2;
     }
 
-    if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
-        pp->vect.Zero();
+    if (abs(pp->vect.X) < 0.5 && abs(pp->vect.Y) < 0.5)
+        pp->vect.X = pp->vect.Y = 0;
 
     pp->lastcursector = pp->cursector;
     z = pp->int_ppos().Z + Z(10);
