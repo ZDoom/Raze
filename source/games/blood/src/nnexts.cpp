@@ -6692,7 +6692,7 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, w
 //
 //---------------------------------------------------------------------------
 
-void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool forcez)
+void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, int rel, bool forcez)
 {
 	int slope = 0, z = 0;
 	switch (rel) {

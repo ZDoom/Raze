@@ -15172,7 +15172,6 @@ int InitUzi(PLAYER* pp)
     int xvect,yvect,zvect;
     ESpriteFlags cstat = 0;
     uint8_t pal = 0;
-    //static char alternate=0;
     static int uziclock=0;
     int clockdiff=0;
     bool FireSnd = false;

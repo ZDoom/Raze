@@ -4335,7 +4335,7 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
     int j, k, l, dax, day, daz, xspan, yspan, xoff, yoff;
     int x1, y1, x2, y2, x3, y3, x4, y4, cosang, sinang, tilenum;
     short cstat;
-    char clipyou;
+    uint8_t clipyou;
 
     if (sect == nullptr)
     {

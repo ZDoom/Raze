@@ -156,7 +156,7 @@ static FString cleanPath(const char* pth)
 	FString path = pth;
 	FixPathSeperator(path);
 	if (fileSystem.FileExists(path)) return path;
-	if (path.Len() > 3 && path[1] == ':' && isalpha(path[0]) && path[2] == '/')
+	if (path.Len() > 3 && path[1] == ':' && isalpha((uint8_t)path[0]) && path[2] == '/')
 	{
 		path = path.Mid(3);
 		if (fileSystem.FileExists(path)) return path;

@@ -407,7 +407,7 @@ bool ConCompiler::ispecial(char c)
 static bool isaltok(char c)
 {
 	// isalnum pukes on negative input.
-	return c > 0 && (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
+	return c > 0 && (isalnum((uint8_t)c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
 //---------------------------------------------------------------------------
@@ -532,7 +532,7 @@ void ConCompiler::getlabel(void)
 
 	skipcomments();
 
-	while (isalnum(*textptr & 0xff) == 0)
+	while (isalnum((uint8_t) * textptr & 0xff) == 0)
 	{
 		if (*textptr == 0x0a) line_number++;
 		textptr++;
@@ -719,7 +719,7 @@ int ConCompiler::transnum(int type)
 		}
 	}
 
-	if (isdigit(*textptr) == 0 && *textptr != '-')
+	if (isdigit((uint8_t) *textptr) == 0 && *textptr != '-')
 	{
 		ReportError(ERROR_PARMUNDEFINED);
 		errorcount++;
@@ -2935,7 +2935,7 @@ int ConCompiler::parsecommand()
 #if 0
 		voxel_map[j].name[i] = 0;
 		voxel_map[j].voxnum = -2;	// flag to load later
-		while ((i < 12) && (isalnum(*textptr) || *textptr == '.'))
+		while ((i < 12) && (isalnum((uint8_t) * textptr) || *textptr == '.'))
 		{
 			voxel_map[j].name[i++] = *textptr++;
 		}

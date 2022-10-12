@@ -73,7 +73,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		pal = (uint8_t)atol(parm->parms[1]); set |= 1;
 		[[fallthrough]];
 	case 1: // tile number
-		if (isdigit(parm->parms[0][0])) {
+		if (isdigit((uint8_t)parm->parms[0][0])) {
 			picnum = (unsigned short)atol(parm->parms[0]);
 		}
 		else {

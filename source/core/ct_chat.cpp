@@ -379,7 +379,7 @@ static bool DoSubstitution (FString &out, const char *in)
 		out.AppendCStrPart(a, b - a);
 
 		a = ++b;
-		while (*b && isalpha(*b))
+		while (*b && isalpha((uint8_t) * b))
 		{
 			++b;
 		}
