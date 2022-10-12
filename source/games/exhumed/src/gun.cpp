@@ -870,7 +870,7 @@ loc_flag:
                         }
                     }
 
-                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle, target, var_1C, int(h * zworldtoint));
+                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle, target, var_1C, -int(h * zworldtoint));
                     break;
                 }
 
