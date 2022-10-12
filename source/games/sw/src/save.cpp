@@ -394,10 +394,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 		arc("cursectnum", w.cursectp)
 			("lastcursectnum", w.lastcursectp)
 			("pang", w.pang)
-			("xvect", w._vect.X)
-			("yvect", w._vect.Y)
-			("slide_xvect", w._slide_vect.X)
-			("slide_yvect", w._slide_vect.Y)
+			("xvect", w.vect.X)
+			("yvect", w.vect.Y)
+			("slide_xvect", w.slide_vect.X)
+			("slide_yvect", w.slide_vect.Y)
 			("x", w.pos.X)
 			("y", w.pos.Y)
 			("z", w.pos.Z)
@@ -406,7 +406,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 	}
 	if (arc.isReading())
 	{
-		w._ovect = w.int_vect();
+		w.ovect = w.vect;
 	}
 	return arc;
 }
@@ -464,11 +464,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 			("siy", w.si.Y)
 			("siz", w.si.Z)
 			("siang", w.siang)
-			("xvect", w._vect.X)
-			("yvect", w._vect.Y)
+			("xvect", w.vect.X)
+			("yvect", w.vect.Y)
 			("friction", w.friction)
-			("slide_xvect", w._slide_vect.X)
-			("slide_yvect", w._slide_vect.Y)
+			("slide_xvect", w.slide_vect.X)
+			("slide_yvect", w.slide_vect.Y)
 			("slide_ang", w.slide_ang)
 			("slide_dec", w.slide_dec)
 			("drive_avel", w.drive_avel)
@@ -575,7 +575,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	if (arc.isReading())
 	{
 		w.opos = w.pos;
-		w._ovect = w.int_vect();
+		w.ovect = w.vect;
 		w.obob_z = w.bob_z;
 		w.input = {};
 		w.lastinput = {};

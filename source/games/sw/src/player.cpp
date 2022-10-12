@@ -1243,8 +1243,9 @@ DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
 
 void DoPlayerResetMovement(PLAYER* pp)
 {
-    pp->_vect = pp->_ovect = { 0, 0 };
-    pp->_slide_vect = { 0, 0 };
+    pp->vect.Zero();
+    pp->ovect.Zero();
+    pp->slide_vect.Zero();
     pp->drive_avel = 0;
     pp->Flags &= ~(PF_PLAYER_MOVED);
 }
@@ -1855,7 +1856,7 @@ void DoPlayerSlide(PLAYER* pp)
     pp->set_int_slide_vect_y(MulScale(pp->int_slide_vect().Y, PLAYER_SLIDE_FRICTION, 16));
 
     if (abs(pp->int_slide_vect().X) < 12800 && abs(pp->int_slide_vect().Y) < 12800)
-        pp->_slide_vect = { 0, 0 };
+        pp->slide_vect.Zero();
 
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
@@ -1959,7 +1960,7 @@ void DoPlayerMove(PLAYER* pp)
 
     DoPlayerSlide(pp);
 
-    pp->_ovect = pp->_vect;
+    pp->ovect = pp->vect;
 
     pp->add_int_vect_x(((pp->input.fvel*synctics*2)<<6));
     pp->add_int_vect_y(((pp->input.svel*synctics*2)<<6));
@@ -1987,7 +1988,7 @@ void DoPlayerMove(PLAYER* pp)
     }
 
     if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
-        pp->_vect = { 0,0 };
+        pp->vect.Zero();
 
     actor->set_int_xvel(FindDistance2D(pp->int_vect().X,pp->int_vect().Y)>>14);
 
@@ -2477,7 +2478,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
-    pp->_ovect = pp->_vect;
+    pp->ovect = pp->vect;
 
     if (sop->drive_speed)
     {
@@ -2501,7 +2502,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     }
 
     if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
-        pp->_vect = { 0, 0 };
+        pp->vect.Zero();
 
     pp->lastcursector = pp->cursector;
     z = pp->int_ppos().Z + Z(10);
@@ -2581,7 +2582,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
             if (vel > 12000)
             {
-                pp->_vect = pp->_ovect = { 0, 0 };
+                pp->vect.Zero();
+                pp->ovect.Zero();
             }
         }
     }
@@ -2626,7 +2628,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
             if (vel > 12000)
             {
-                pp->_vect = pp->_ovect = { 0, 0 };
+                pp->vect.Zero();
+                pp->ovect.Zero();
             }
         }
     }
@@ -3090,7 +3093,7 @@ void DoPlayerClimb(PLAYER* pp)
     pp->set_int_vect_x(MulScale(pp->int_vect().X, PLAYER_CLIMB_FRICTION, 16));
     pp->set_int_vect_y(MulScale(pp->int_vect().Y, PLAYER_CLIMB_FRICTION, 16));
     if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
-        pp->_vect = { 0, 0 };
+        pp->vect.Zero();
 
     climbVel = DVector2(pp->int_vect().X, pp->int_vect().Y).Length() * (1. / 512) * zinttoworld;
     dot = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
@@ -4955,9 +4958,9 @@ void PlayerToRemote(PLAYER* pp)
 
     pp->remote.pos = pp->pos;
 
-    pp->remote._vect = pp->_vect;
-    pp->remote._ovect = pp->_ovect;
-    pp->remote._slide_vect = pp->_slide_vect;
+    pp->remote.vect = pp->vect;
+    pp->remote.ovect = pp->ovect;
+    pp->remote.slide_vect = pp->slide_vect;
 }
 
 void RemoteToPlayer(PLAYER* pp)
@@ -4967,9 +4970,9 @@ void RemoteToPlayer(PLAYER* pp)
 
     pp->pos = pp->remote.pos;
 
-    pp->_vect = pp->remote._vect;
-    pp->_ovect = pp->remote._ovect;
-    pp->_slide_vect = pp->remote._slide_vect;
+    pp->vect = pp->remote.vect;
+    pp->ovect = pp->remote.ovect;
+    pp->slide_vect = pp->remote.slide_vect;
 }
 
 void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
@@ -4981,16 +4984,18 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
     pp->pos.XY() = rsp->spr.pos.XY();
     pp->pos.Z = sect->floorz - PLAYER_HEIGHTF;
 
-    pp->_vect = pp->_ovect = pp->_slide_vect = { 0,0 };
+    pp->vect.Zero();
+    pp->ovect.Zero();
+    pp->slide_vect.Zero();
 
     UpdatePlayerSprite(pp);
 }
 
 void PlayerRemoteInit(PLAYER* pp)
 {
-    pp->remote._vect = { 0,0 };
-    pp->remote._ovect = { 0,0 };
-    pp->remote._slide_vect = { 0,0 };
+    pp->remote.vect.Zero();
+    pp->remote.ovect.Zero();
+    pp->remote.slide_vect.Zero();
 }
 
 void DoPlayerStopOperate(PLAYER* pp)
@@ -5397,7 +5402,7 @@ void DoPlayerBeginDie(PLAYER* pp)
     pp->input.actions &= ~SB_CENTERVIEW;
 
     pp->friction = PLAYER_RUN_FRICTION;
-    pp->_slide_vect = { 0,0 };
+    pp->slide_vect.Zero();
     pp->p_floor_dist = PLAYER_WADE_FLOOR_DIST;
     pp->p_ceiling_dist = PLAYER_WADE_CEILING_DIST;
     ASSERT(pp->DeathType < SIZ(PlayerDeathFunc));

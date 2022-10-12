@@ -581,13 +581,9 @@ struct REMOTE_CONTROL
 {
     sectortype* cursectp, * lastcursectp;
     int pang;
-    vec2_t _vect, _ovect, _slide_vect;
+    DVector2 vect, ovect, slide_vect;
     DVector3 pos;
     SECTOR_OBJECT* sop_control;
-
-    vec2_t int_vect() const { return _vect; }
-    vec2_t int_ovect() const { return _ovect; }
-    vec2_t int_slide_vect() const { return _slide_vect; }
 };
 
 struct PLAYER
@@ -633,17 +629,17 @@ struct PLAYER
     DVector3 si; // save player interp position for PlayerSprite
     DAngle siang;
 
-    vec2_t _vect, _ovect, _slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
-    vec2_t int_vect() const { return _vect; }
-    vec2_t int_ovect() const { return _ovect; }
-    vec2_t int_slide_vect() const { return _slide_vect; }
+    DVector2 vect, ovect, slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
+    vec2_t int_vect() const { return vec2_t(FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y)); }
+    vec2_t int_ovect() const { return vec2_t(FloatToFixed<18>(ovect.X), FloatToFixed<18>(ovect.Y)); }
+    vec2_t int_slide_vect() const { return vec2_t(FloatToFixed<18>(slide_vect.X), FloatToFixed<18>(slide_vect.Y)); }
 
-    void set_int_vect_x(int v) { _vect.X = v; }
-    void set_int_vect_y(int v) { _vect.Y = v; }
-    void add_int_vect_x(int v) { _vect.X += v; }
-    void add_int_vect_y(int v) { _vect.Y += v; }
-    void set_int_slide_vect_x(int v) { _slide_vect.X = v; }
-    void set_int_slide_vect_y(int v) { _slide_vect.Y = v; }
+    void set_int_vect_x(int v) { vect.X = FixedToFloat<18>(v); }
+    void set_int_vect_y(int v) { vect.Y = FixedToFloat<18>(v); }
+    void add_int_vect_x(int v) { vect.X += FixedToFloat<18>(v); }
+    void add_int_vect_y(int v) { vect.Y += FixedToFloat<18>(v); }
+    void set_int_slide_vect_x(int v) { slide_vect.X = FixedToFloat<18>(v); }
+    void set_int_slide_vect_y(int v) { slide_vect.Y = FixedToFloat<18>(v); }
 
     int friction;
     int16_t slide_ang; // todo: floatify
