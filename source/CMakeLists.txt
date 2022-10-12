@@ -23,11 +23,9 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	endif()
 endif()
 
-# Build does not work with signed chars! Also set a stricter warning level, but silence the pointless and annoying parts of level 4 (Intentionally only for C++! The C code we use is too old and would warn too much)
+# Build does not work with signed chars! 
 if (MSVC)
-	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /J /W3 /wd4100 /wd4127 /wd4131 /wd4201 /wd4210 /wd4245 /wd4324 /wd4389 /wd4505 /wd4706 /wd4458 /wd4459" )
-	#set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244" )
-	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4189" ) # "unused initialized local variable" - useful warning that creates too much noise in external or macro based code. Can be enabled for cleanup passes on the code.
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /J /W3" )
 else()
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts -Wno-unused-variable" )
 endif()
