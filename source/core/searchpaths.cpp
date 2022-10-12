@@ -233,7 +233,7 @@ TArray<FString> CollectSearchPaths()
 				if (nice.Len() > 0)
 				{
 #ifdef _WIN32
-					if (isalpha(nice[0] && nice[1] == ':' && nice[2] != '/')) continue;	// ignore drive relative paths because they are meaningless.
+					if (isalpha((uint8_t)nice[0] && nice[1] == ':' && nice[2] != '/')) continue;	// ignore drive relative paths because they are meaningless.
 #endif
 					// A path ending with "/*" means to add all subdirectories.
 					if (nice[nice.Len()-2] == '/' && nice[nice.Len()-1] == '*')

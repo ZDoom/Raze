@@ -687,7 +687,7 @@ MoviePlayer* OpenMovie(const char* filename, TArray<int>& ans, const int* framet
 	{
 		size_t nLen = strlen(filename);
 		// Strip the drive letter and retry.
-		if (nLen >= 3 && isalpha(filename[0]) && filename[1] == ':' && filename[2] == '/')
+		if (nLen >= 3 && isalpha((uint8_t)filename[0]) && filename[1] == ':' && filename[2] == '/')
 		{
 			filename += 3;
 			fr = fileSystem.OpenFileReader(filename);

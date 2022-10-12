@@ -59,7 +59,7 @@ struct define_t
 
 define_t gCmdDefines[kMaxCmdLineDefines];
 
-void addMemoryResource(char* fileName, char flags, int ID);
+void addMemoryResource(const char* fileName, int flags, int ID);
 
 struct tag_t {
 	const char* _value;
@@ -320,7 +320,7 @@ void RFS::ScriptError(const char* message)
 	char* p = _pStartLine;
 	while (*p != '\n')
 	{
-		if (isprint(*p))
+		if (isprint((uint8_t) *p))
 			msg.Push(*p);
 		else
 			msg.Push(' ');
@@ -354,7 +354,7 @@ uint8_t RFS::GetNextTag()
 	// skip any space characters
 	do {
 		Increment();
-	} while (isspace(_curChar));
+	} while (isspace((uint8_t)_curChar));
 
 	if (_curChar == '\0') {
 		return kTagEnd;
@@ -409,12 +409,12 @@ uint8_t RFS::GetNextTag()
 
 			isNegative = true;
 
-			if (!isdigit(_curChar)) {
+			if (!isdigit((uint8_t)_curChar)) {
 				UnsetMark();
 			}
 		}
 
-		if (isdigit(_curChar))
+		if (isdigit((uint8_t)_curChar))
 		{
 			// left path
 			if (_curChar == '0')
@@ -428,14 +428,14 @@ uint8_t RFS::GetNextTag()
 					while (1)
 					{
 						Increment();
-						if (!isxdigit(_curChar)) { // isxdigit() checks for a hex value
+						if (!isxdigit((uint8_t)_curChar)) { // isxdigit() checks for a hex value
 							break;
 						}
 
 						// hex version of atoi?
 						scriptValue *= 16;
-						if (!isdigit(_curChar)) {
-							scriptValue += toupper(_curChar) - 55;
+						if (!isdigit((uint8_t)_curChar)) {
+							scriptValue += toupper((uint8_t)_curChar) - 55;
 						}
 						else {
 							scriptValue += _curChar - '0';
@@ -518,7 +518,7 @@ uint8_t RFS::GetNextTag()
 
 			i = 0;
 
-			while (isalnum(_curChar))
+			while (isalnum((uint8_t)_curChar))
 			{
 				scriptBuffer[i] = _curChar;
 				SetMark();
@@ -987,7 +987,7 @@ void ParseScript(int lumpnum)
 //
 //---------------------------------------------------------------------------
 
-void addMemoryResource(char* filePath, char flags, int ID)
+void addMemoryResource(const char* filePath, int flags, int ID)
 {
 	char zDirectory[BMAX_PATH];
 	char zFilename[BMAX_PATH];

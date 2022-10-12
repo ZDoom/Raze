@@ -116,7 +116,7 @@ void IniFile::LoadRes(void *res)
         char *pBuffer = buffer;
 
         // remove whitespace from buffer
-        while (isspace(*pBuffer)) {
+        while (isspace((uint8_t)*pBuffer)) {
             pBuffer++;
         }
 
@@ -239,7 +239,7 @@ bool IniFile::FindKey(const char *key)
         assert(pEqual != NULL);
 
         // remove whitespace
-        while (isspace(*(pEqual - 1))) {
+        while (isspace((uint8_t) *(pEqual - 1))) {
             pEqual--;
         }
 
@@ -251,7 +251,7 @@ bool IniFile::FindKey(const char *key)
             // strings match
             *pEqual = c;
             _13 = ++pEqualStart;
-            while (isspace(*_13)) {
+            while (isspace((uint8_t)*_13)) {
                 _13++;
             }
 

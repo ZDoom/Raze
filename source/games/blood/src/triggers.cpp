@@ -839,7 +839,7 @@ void PathSound(sectortype* pSector, int nSound)
 //
 //---------------------------------------------------------------------------
 
-void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char bAllWalls)
+void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, bool bAllWalls)
 {
 	int x, y;
 	XSECTOR* pXSector = &pSector->xs();
@@ -1450,13 +1450,13 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	{
 		vbp = pXSector->data + marker0->int_ang();
 		int nWave = pXSector->busyWaveA;
-		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, marker0->int_pos().X, marker0->int_pos().Y, vbp, 1);
+		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, marker0->int_pos().X, marker0->int_pos().Y, vbp, true);
 	}
 	else
 	{
 		vbp = pXSector->data - marker0->int_ang();
 		int nWave = pXSector->busyWaveB;
-		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, vbp, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, 1);
+		TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), marker0->int_pos().X, marker0->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, vbp, marker0->int_pos().X, marker0->int_pos().Y, pXSector->data, true);
 	}
 	pXSector->busy = a2;
 	if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1510,7 +1510,7 @@ int PathBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 	if (!basepath || !marker0 || !marker1) return 0;
 
 	int nWave = marker0->xspr.wave;
-	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->int_pos().X, basepath->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_ang(), marker1->int_pos().X, marker1->int_pos().Y, marker1->int_ang(), 1);
+	TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->int_pos().X, basepath->int_pos().Y, marker0->int_pos().X, marker0->int_pos().Y, marker0->int_ang(), marker1->int_pos().X, marker1->int_pos().Y, marker1->int_ang(), true);
 	ZTranslateSector(pSector, pXSector, a2, nWave);
 	pXSector->busy = a2;
 	if ((a2 & 0xffff) == 0)
@@ -1555,9 +1555,9 @@ void OperateDoor(sectortype* pSector, EVENT event, BUSYID busyWave)
 			}
 		}
 		else {
-			char t = !pXSector->state; int nDelta;
+			int nDelta;
 
-			if (t) nDelta = 65536 / ClipLow((pXSector->busyTimeA * 120) / 10, 1);
+			if (!pXSector->state) nDelta = 65536 / ClipLow((pXSector->busyTimeA * 120) / 10, 1);
 			else nDelta = -65536 / ClipLow((pXSector->busyTimeB * 120) / 10, 1);
 
 			AddBusy(pSector, busyWave, nDelta);
@@ -1623,7 +1623,7 @@ void OperateTeleport(sectortype* pSector)
 		if (actor->spr.statnum == kStatDude)
 		{
 			PLAYER* pPlayer;
-			char bPlayer = actor->IsPlayerActor();
+			bool bPlayer = actor->IsPlayerActor();
 			if (bPlayer)
 				pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
 			else
