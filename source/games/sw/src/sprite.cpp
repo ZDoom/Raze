@@ -6581,7 +6581,6 @@ Collision move_missile(DSWActor* actor, const DVector3& change, double ceil_dist
     }
 
 
-	int xchange = change.X * worldtoint, ychange = change.Y * worldtoint;
     clipmove(clip_pos, &dasect, change * numtics * 0.125, actor->clipdist, ceil_dist, flor_dist, cliptype, retval, 1);
     actor->spr.pos.XY() = clip_pos.XY();
 
