@@ -1609,8 +1609,8 @@ void RefreshInfoLine(PLAYER* pp);
 void DoAnim(int numtics);
 void AnimDelete(int animtype, int animindex, DSWActor*);
 short AnimGetGoal(int animtype, int animindex, DSWActor*);
-int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, int thevel);
-int AnimSet(int animtype, sectortype* animindex, double thegoal, int thevel)
+int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, double thevel);
+int AnimSet(int animtype, sectortype* animindex, double thegoal, double thevel)
 {
     return AnimSet(animtype, sectnum(animindex), nullptr, thegoal, thevel);
 }

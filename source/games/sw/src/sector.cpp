@@ -2776,7 +2776,7 @@ void AnimDelete(int animtype, int animindex, DSWActor* animactor)
 //
 //---------------------------------------------------------------------------
 
-int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, int thevel)
+int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, double thevel)
 {
     int i, j;
 
