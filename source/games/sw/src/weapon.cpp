@@ -5232,7 +5232,7 @@ int ActorDamageSlide(DSWActor* actor, int damage, int ang)
 
 int PlayerDamageSlide(PLAYER* pp, int damage, short ang)
 {
-    int slide_vel;
+	DAngle angle = DAngle::fromBuild(ang);
 
     damage = abs(damage);
 
@@ -5242,32 +5242,25 @@ int PlayerDamageSlide(PLAYER* pp, int damage, short ang)
     if (damage <= 5)
     {
         //nudge
-        //pp->slide_xvect = MOVEx(4, ang)<<15;
-        //pp->slide_yvect = MOVEy(4, ang)<<15;
+        //pp->slide_xvect = angle.ToVector() * 0.5;
         //return(true);
         return false;
     }
     else if (damage <= 10)
     {
         //nudge
-        pp->set_int_slide_vect_x(MOVEx(16, ang)<<15);
-        pp->set_int_slide_vect_y(MOVEy(16, ang)<<15);
+        pp->slide_vect = angle.ToVector() * 2;
         return true;
     }
     else if (damage <= 20)
     {
         //bigger nudge
-        pp->set_int_slide_vect_x(MOVEx(64, ang)<<15);
-        pp->set_int_slide_vect_y(MOVEy(64, ang)<<15);
+		pp->slide_vect = angle.ToVector() * 8;
         return true;
     }
     else
     {
-        slide_vel = (damage * 6);
-
-        pp->set_int_slide_vect_x(MOVEx(slide_vel, ang)<<15);
-        pp->set_int_slide_vect_y(MOVEy(slide_vel, ang)<<15);
-
+		pp->slide_vect = angle.ToVector() * damage * 0.75;
         return true;
     }
 }

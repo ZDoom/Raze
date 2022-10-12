@@ -630,16 +630,6 @@ struct PLAYER
     DAngle siang;
 
     DVector2 vect, ovect, slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
-    vec2_t int_vect() const { return vec2_t(FloatToFixed<18>(vect.X), FloatToFixed<18>(vect.Y)); }
-    vec2_t int_ovect() const { return vec2_t(FloatToFixed<18>(ovect.X), FloatToFixed<18>(ovect.Y)); }
-    vec2_t int_slide_vect() const { return vec2_t(FloatToFixed<18>(slide_vect.X), FloatToFixed<18>(slide_vect.Y)); }
-
-    void set_int_vect_x(int v) { vect.X = FixedToFloat<18>(v); }
-    void set_int_vect_y(int v) { vect.Y = FixedToFloat<18>(v); }
-    void add_int_vect_x(int v) { vect.X += FixedToFloat<18>(v); }
-    void add_int_vect_y(int v) { vect.Y += FixedToFloat<18>(v); }
-    void set_int_slide_vect_x(int v) { slide_vect.X = FixedToFloat<18>(v); }
-    void set_int_slide_vect_y(int v) { slide_vect.Y = FixedToFloat<18>(v); }
 
     int friction;
     int16_t slide_ang; // todo: floatify
@@ -2251,7 +2241,7 @@ inline bool SpriteInUnderwaterArea(DSWActor* a)
 // just determine if the player is moving
 inline bool PLAYER_MOVING(PLAYER* pp)
 {
-	return (pp->int_vect().X | pp->int_vect().Y);
+    return !pp->vect.isZero();
 }
 
 inline void PlaySound(int num, DSWActor* actor, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
