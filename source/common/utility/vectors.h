@@ -270,6 +270,11 @@ struct TVector2
 		return X*other.X + Y*other.Y;
 	}
 
+	vec_t dot(const TVector2 &other) const
+	{
+		return X*other.X + Y*other.Y;
+	}
+
 	// Returns the angle that the ray (0,0)-(X,Y) faces
 	TAngle<vec_t> Angle() const;
 
