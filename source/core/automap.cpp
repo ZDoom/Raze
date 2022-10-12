@@ -184,7 +184,7 @@ static void CalcMapBounds()
 static void AutomapControl(const DVector2& cangvect)
 {
 	static double nonsharedtimer;
-	double ms = screen->FrameTime;
+	double ms = (double)screen->FrameTime;
 	double interval;
 
 	if (nonsharedtimer > 0 || ms < nonsharedtimer)

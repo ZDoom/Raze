@@ -168,7 +168,7 @@ public:
 	
 	int native_clipdist()
 	{
-		return clipdist * 4;
+		return int(clipdist * 4);
 	}
 	
 	void copy_clipdist(DCoreActor* other)
@@ -439,7 +439,7 @@ void SetActor(DCoreActor* actor, const DVector3& newpos);
 inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec,
 	double const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {
-	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
+	auto vect = vec3_t(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint));
 	int sectno = *sect ? sector.IndexOf(*sect) : -1;
 	result = clipmove_(&vect, &sectno, FloatToFixed<18>(mvec.X), FloatToFixed<18>(mvec.Y), int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, clipmoveboxtracenum);
 	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
@@ -450,9 +450,9 @@ inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec
 inline int pushmove(DVector3& pos, sectortype** const sect, double const walldist, double const ceildist, double const flordist,
 	uint32_t const cliptype, bool clear = true)
 {
-	auto vect = vec3_t(pos.X * worldtoint, pos.Y * worldtoint, pos.Z * zworldtoint);
+	auto vect = vec3_t(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint));
 	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	int res = pushmove_(&vect, &sectno, walldist * worldtoint, ceildist * zworldtoint, flordist * zworldtoint, cliptype, clear);
+	int res = pushmove_(&vect, &sectno, int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, clear);
 	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
 	*sect = sectno == -1 ? nullptr : &sector[sectno];
 	return res;

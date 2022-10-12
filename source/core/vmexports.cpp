@@ -171,7 +171,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setfloorxpan, sector_setfloorxpan)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(xpan);
-	self->setfloorxpan(xpan);
+	sector_setfloorxpan(self, xpan);
 	return 0;
 }
 
@@ -185,7 +185,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setceilingxpan, sector_setceilingxpan
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(xpan);
-	self->setceilingxpan(xpan);
+	sector_setceilingxpan(self, xpan);
 	return 0;
 }
 
@@ -199,7 +199,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addfloorxpan, sector_addfloorxpan)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(xpan);
-	self->addfloorxpan(xpan);
+	sector_addfloorxpan(self, xpan);
 	return 0;
 }
 
@@ -213,7 +213,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addceilingxpan, sector_addceilingxpan
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(xpan);
-	self->addceilingxpan(xpan);
+	sector_addceilingxpan(self, xpan);
 	return 0;
 }
 
@@ -227,7 +227,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setfloorypan, sector_setfloorypan)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(ypan);
-	self->setfloorypan(ypan);
+	sector_setfloorypan(self, ypan);
 	return 0;
 }
 
@@ -241,7 +241,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, setceilingypan, sector_setceilingypan
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(ypan);
-	self->setceilingypan(ypan);
+	sector_setceilingypan(self, ypan);
 	return 0;
 }
 
@@ -255,7 +255,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addfloorypan, sector_addfloorypan)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(ypan);
-	self->addfloorypan(ypan);
+	sector_addfloorypan(self, ypan);
 	return 0;
 }
 
@@ -269,7 +269,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, addceilingypan, sector_addceilingypan
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
 	PARAM_FLOAT(ypan);
-	self->addceilingypan(ypan);
+	sector_addceilingypan(self, ypan);
 	return 0;
 }
 
@@ -339,7 +339,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, setxpan, wall_setxpan)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
 	PARAM_FLOAT(xpan);
-	self->setxpan(xpan);
+	wall_setxpan(self, xpan);
 	return 0;
 }
 
@@ -353,7 +353,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, addxpan, wall_addxpan)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
 	PARAM_FLOAT(xpan);
-	self->addxpan(xpan);
+	wall_addxpan(self, xpan);
 	return 0;
 }
 
@@ -367,7 +367,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, setypan, wall_setypan)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
 	PARAM_FLOAT(ypan);
-	self->setypan(ypan);
+	wall_setypan(self, ypan);
 	return 0;
 }
 
@@ -381,7 +381,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, addypan, wall_addypan)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
 	PARAM_FLOAT(ypan);
-	self->addypan(ypan);
+	wall_addypan(self, ypan);
 	return 0;
 }
 

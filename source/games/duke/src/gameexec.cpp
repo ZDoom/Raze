@@ -297,12 +297,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_EXITX:
 		if (bSet) ps[iPlayer].Exit.X = lValue * maptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].Exit.X / maptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].Exit.X / maptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_EXITY:
 		if (bSet) ps[iPlayer].Exit.Y = lValue * maptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].Exit.Y / maptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].Exit.Y / maptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_LOOGIEX:
@@ -326,15 +326,15 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSX: // oh, my... :( Writing to these has been disabled until I know how to do it without the engine shitting all over itself.
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.X * (1/maptoworld), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].pos.X * (1/maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSY:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.Y * (1 / maptoworld), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].pos.Y * (1 / maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSZ:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.Z * (1 / zmaptoworld), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].pos.Z * (1 / zmaptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZ:
@@ -369,37 +369,37 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_BOBPOSX:
 		if (bSet) ps[iPlayer].bobpos.X = lValue * maptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].bobpos.X * (1/maptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].bobpos.X * (1/maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_BOBPOSY:
 		if (bSet) ps[iPlayer].bobpos.Y = lValue * maptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].bobpos.Y * (1/maptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].bobpos.Y * (1/maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSX:
 		if (bSet) ps[iPlayer].opos.X = lValue * maptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].opos.X * (1/maptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].opos.X * (1/maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSY:
 		if (bSet) ps[iPlayer].opos.Y = lValue * maptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].opos.Y * (1 / maptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].opos.Y * (1 / maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSZ:
 		if (bSet) ps[iPlayer].opos.Z = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].opos.Z * (1 / zmaptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].opos.Z * (1 / zmaptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_PYOFF:
 		if (bSet) ps[iPlayer].pyoff = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].pyoff / zmaptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].pyoff / zmaptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPYOFF:
 		if (bSet) ps[iPlayer].opyoff = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].opyoff / zmaptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].opyoff / zmaptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSXV:
@@ -414,7 +414,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_POSZV:
 		if (bSet) ps[iPlayer].vel.Z = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].vel.Z / zmaptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].vel.Z / zmaptoworld), sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_PISSED_TIME:
@@ -424,12 +424,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_TRUEFZ:
 		if (bSet) ps[iPlayer].truefz = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].truefz * (1/zmaptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].truefz * (1/zmaptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_TRUECZ:
 		if (bSet) ps[iPlayer].truecz = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, ps[iPlayer].truecz * (1 / zmaptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].truecz * (1 / zmaptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_PLAYER_PAR:
@@ -953,10 +953,10 @@ void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, i
 	switch (lLabelID)
 	{
 	case WALL_X:
-		if (!bSet) SetGameVarID(lVar2, wallp->pos.X / maptoworld, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(wallp->pos.X / maptoworld), sActor, sPlayer);
 		break;
 	case WALL_Y:
-		if (!bSet) SetGameVarID(lVar2, wallp->pos.Y / maptoworld, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(wallp->pos.Y / maptoworld), sActor, sPlayer);
 		break;
 	case WALL_POINT2:
 		if (!bSet) SetGameVarID(lVar2, wallp->point2, sActor, sPlayer);
@@ -1168,13 +1168,13 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	switch (lLabelID)
 	{
 	case ACTOR_X:
-		if (!bSet) SetGameVarID(lVar2, act->spr.pos.X / maptoworld, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(act->spr.pos.X / maptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_Y:
-		if (!bSet) SetGameVarID(lVar2, act->spr.pos.Y / maptoworld, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(act->spr.pos.Y / maptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_Z:
-		if (!bSet) SetGameVarID(lVar2, act->spr.pos.Z / zmaptoworld, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(act->spr.pos.Z / zmaptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_CSTAT:
 		if (bSet) act->spr.cstat = ESpriteFlags::FromInt(lValue);
@@ -1235,7 +1235,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_XVEL:
 		if (bSet) act->vel.X = lValue * maptoworld;
-		else SetGameVarID(lVar2, act->vel.X / maptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(act->vel.X / maptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_YVEL:
 		if (bSet) act->spr.yint = lValue;
@@ -1243,7 +1243,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_ZVEL:
 		if (bSet) act->vel.Z = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, act->vel.Z / zmaptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(act->vel.Z / zmaptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_LOTAG:
 		if (bSet) act->spr.lotag = lValue;
@@ -1300,19 +1300,19 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		break;
 	case ACTOR_HTFLOORZ:
 		if (bSet) act->floorz = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, act->floorz * (1/zmaptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(act->floorz * (1/zmaptoworld)), sActor, sPlayer);
 		break;
 	case ACTOR_HTCEILINGZ:
 		if (bSet) act->ceilingz = lValue * zmaptoworld;
-		else SetGameVarID(lVar2, act->ceilingz * (1/zmaptoworld), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(act->ceilingz * (1/zmaptoworld)), sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVX:
 		if (bSet) act->ovel.X = lValue * maptoworld;
-		else SetGameVarID(lVar2, act->ovel.X / maptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(act->ovel.X / maptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVY:
 		if (bSet) act->ovel.Y = lValue * maptoworld;
-		else SetGameVarID(lVar2, act->ovel.Y / maptoworld, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(act->ovel.Y / maptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T0:
 		if (bSet) act->temp_data[0] = lValue;

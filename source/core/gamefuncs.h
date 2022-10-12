@@ -569,9 +569,9 @@ inline int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3, in
 	double result = GetRayIntersect(DVector3(x1 * inttoworld, y1 * inttoworld, z1 * zinttoworld), DVector3(vx * inttoworld, vy * inttoworld, vz * zinttoworld),
 		DVector2(x3 * inttoworld, y3 * inttoworld), DVector2((x4 - x3) * inttoworld, (y4 - y3) * inttoworld), retv);
 	if (result < 0) return -1;
-	*intx = retv.X * worldtoint;
-	*inty = retv.Y * worldtoint;
-	*intz = retv.Z * zworldtoint;
+	*intx = int(retv.X * worldtoint);
+	*inty = int(retv.Y * worldtoint);
+	*intz = int(retv.Z * zworldtoint);
 	return FloatToFixed(result);
 }
 

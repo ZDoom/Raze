@@ -101,7 +101,7 @@ void CGameMenuItemQAV::Draw(void)
 		{
 			int xdim43 = Scale(twod->GetHeight(), 4, 3);
 			int nCount = (twod->GetWidth() + xdim43 - 1) / xdim43;
-			int backX = data->x;
+			double backX = data->x;
 			for (int i = 0; i < nCount; i++)
 			{
 				data->Draw(currentDuration, 10 + kQavOrientationLeft, 0, 0, false, interpfrac);

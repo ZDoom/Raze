@@ -847,7 +847,7 @@ static void movetripbomb(DDukeActor *actor)
 	}
 	else
 	{
-		x = actor->spr.extra;
+		auto ex = actor->spr.extra;
 		actor->spr.extra = 1;
 		auto ang = actor->spr.angle;
 		j = fi.ifhitbyweapon(actor);
@@ -855,7 +855,7 @@ static void movetripbomb(DDukeActor *actor)
 		{ 
 			actor->temp_data[2] = 16; 
 		}
-		actor->spr.extra = x;
+		actor->spr.extra = ex;
 		actor->spr.angle = ang;
 	}
 

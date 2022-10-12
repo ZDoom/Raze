@@ -59,7 +59,7 @@ static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
 
 inline int32_t spriteGetZOfSlope(const spritetypebase* tspr, int dax, int day, int heinum)
 {
-    return spriteGetZOfSlopef(tspr, DVector2(dax * inttoworld, day * inttoworld), heinum) * zworldtoint;
+    return int(spriteGetZOfSlopef(tspr, DVector2(dax * inttoworld, day * inttoworld), heinum) * zworldtoint);
 }
 
 
@@ -414,11 +414,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 if (p1.X >= clipMin.X && p1.X <= clipMax.X && p1.Y >= clipMin.Y && p1.Y <= clipMax.Y)
                 {
                     double height_, daz_ = actor->spr.pos.Z + actor->GetOffsetAndHeight(height_);
-                    int height = height_ * zworldtoint, daz = daz_ * zworldtoint;
+                    int height = int(height_ * zworldtoint), daz = int(daz_ * zworldtoint);
 
                     if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                     {
-                        int cd = actor->clipdist * worldtoint;
+                        int cd = int(actor->clipdist * worldtoint);
                         int32_t bsz = cd + walldist;
                         if (diff.X < 0) bsz = -bsz;
                         addclipline(p1.X-bsz, p1.Y-bsz, p1.X-bsz, p1.Y+bsz, obj, false);
@@ -432,7 +432,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             case CSTAT_SPRITE_ALIGNMENT_WALL:
             {
                 double height_, daz_ = actor->spr.pos.Z + actor->GetOffsetAndHeight(height_);
-                int height = height_ * zworldtoint, daz = daz_ * zworldtoint;
+                int height = int(height_ * zworldtoint), daz = int(daz_ * zworldtoint);
 
                 if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                 {

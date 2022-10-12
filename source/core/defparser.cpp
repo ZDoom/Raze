@@ -906,7 +906,7 @@ void parseMultiPsky(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare("yoffset")) sc.GetNumber(sky.pmoffset, true);
 		else if (sc.Compare("baseline")) sc.GetNumber(sky.baselineofs, true);
 		else if (sc.Compare("lognumtiles")) sc.GetNumber(sky.lognumtiles, true);
-		else if (sc.Compare("yscale")) { int intscale; sc.GetNumber(intscale, true); sky.scale = intscale * (1. / 65536.); }
+		else if (sc.Compare("yscale")) { int intscale; sc.GetNumber(intscale, true); sky.scale = intscale * (1.f / 65536.f); }
 		else if (sc.Compare({ "tile", "panel" }))
 		{
 			if (!sc.CheckString("}"))

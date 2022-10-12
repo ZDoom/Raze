@@ -70,12 +70,12 @@ bool CheckProximity(DBloodActor* actor, const DVector3& pos, sectortype* pSector
 
 bool CheckProximityWall(walltype* pWall, const DVector2& pos, int nDist)
 {
-	int x = pos.X * (1. / maptoworld);
-	int y = pos.Y * (1. / maptoworld);
-	int x1 = pWall->pos.X * (1./maptoworld);
-	int y1 = pWall->pos.Y * (1./maptoworld);
-	int x2 = pWall->point2Wall()->pos.X * (1./maptoworld);
-	int y2 = pWall->point2Wall()->pos.Y * (1./maptoworld);
+	int x = int(pos.X * (1. / maptoworld));
+	int y = int(pos.Y * (1. / maptoworld));
+	int x1 = int(pWall->pos.X * (1./maptoworld));
+	int y1 = int(pWall->pos.Y * (1./maptoworld));
+	int x2 = int(pWall->point2Wall()->pos.X * (1./maptoworld));
+	int y2 = int(pWall->point2Wall()->pos.Y * (1./maptoworld));
 	nDist <<= 4;
 	if (x1 < x2)
 	{

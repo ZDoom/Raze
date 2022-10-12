@@ -1032,8 +1032,8 @@ void NetUpdate (void)
 				int mod = maketic - ticdup;
 				int modp, tic;
 
-				int svel = 0;
-				int fvel = 0;
+				float svel = 0;
+				float fvel = 0;
 				float avel = 0;
 				float horz = 0;
 

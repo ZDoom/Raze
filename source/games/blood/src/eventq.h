@@ -54,7 +54,7 @@ public:
 	DBloodActor* actor() { assert(isActor()); return GC::ReadBarrier(ActorP); }
 	sectortype* sector() { assert(isSector()); return &::sector[index >> 8]; }
 	walltype* wall() { assert(isWall()); return &::wall[index >> 8]; }
-	int rawindex() { return index >> 8; }
+	int rawindex() { return int(index >> 8); }
 
 	bool operator==(const EventObject& other) const { return index == other.index; }
 	bool operator!=(const EventObject& other) const { return index != other.index; }

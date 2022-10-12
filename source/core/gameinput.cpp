@@ -158,8 +158,8 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	if (isRR() && drink_amt >= 66 && drink_amt <= 87) currInput->svel += drink_amt & 1 ? -currInput->fvel : currInput->fvel;
 
 	// add collected input to game's local input accumulation packet.
-	inputBuffer->fvel = clamp<float>(inputBuffer->fvel + currInput->fvel, -keymove, keymove);
-	inputBuffer->svel = clamp<float>(inputBuffer->svel + currInput->svel, -keymove, keymove);
+	inputBuffer->fvel = clamp<float>(inputBuffer->fvel + currInput->fvel, -(float)keymove, (float)keymove);
+	inputBuffer->svel = clamp<float>(inputBuffer->svel + currInput->svel, -(float)keymove, (float)keymove);
 	inputBuffer->avel += currInput->avel;
 	inputBuffer->horz += currInput->horz;
 }

@@ -93,7 +93,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 			auto actor = (DBloodActor*)source;
 
 			// Engine expects velocity in units per second, not units per tic.
-			if (vel) *vel = FVector3(actor->vel.X * 30, actor->vel.Z * -30, actor->vel.Y * -30);
+			if (vel) *vel = FVector3(float(actor->vel.X * 30), float(actor->vel.Z * -30), float(actor->vel.Y * -30));
 			*pos = GetSoundPos(actor->spr.pos);
 		}
 		else if (type == SOURCE_Ambient)
@@ -120,7 +120,7 @@ void GameInterface::UpdateSounds()
 
 	if (pPlayer->actor)
 	{
-		listener.angle = -pPlayer->actor->spr.angle.Radians();
+		listener.angle = float(-pPlayer->actor->spr.angle.Radians());
 		listener.velocity.Zero();
 		listener.position = GetSoundPos(pPlayer->actor->spr.pos);
 		listener.valid = true;

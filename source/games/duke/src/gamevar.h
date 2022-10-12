@@ -25,13 +25,13 @@ class GameVarValue
 public:
 	GameVarValue() = default;
 	explicit GameVarValue(DDukeActor* actor_) { ActorP = actor_; assert(isActor()); }
-	explicit GameVarValue(int val) { index = (val << 8) | Value; }
+	explicit GameVarValue(intptr_t val) { index = (val << 8) | Value; }
 
 	bool isActor() const { return (index & 7) == Actor; }
 	bool isValue() const { return (index & 7) == Value; }
 
 	DDukeActor* actor() { assert(isActor()); return GC::ReadBarrier(ActorP); }
-	int value() { assert(isValue()); return index >> 8; }
+	int value() { assert(isValue()); return int(index >> 8); }
 	int safeValue() { return isValue() ? value() : actor() == nullptr ? 0 : -1; }	// return -1 for valid actors and 0 for null. This allows most comparisons to work.
 	DDukeActor* safeActor() { return isActor() ? actor() : nullptr; }
 

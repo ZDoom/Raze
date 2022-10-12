@@ -759,7 +759,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		input.avel = (float)boatApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
 	}
 
-	loc.fvel = clamp<float>(p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
+	loc.fvel = clamp<float>((float)p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
 	input.avel *= BAngToDegree;
 	loc.avel += input.avel;
 }
@@ -850,8 +850,8 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 	{
 		*packet = loc;
 		auto velvect = DVector2(loc.fvel, loc.svel).Rotated(p->angle.ang) + p->fric;
-		packet->fvel = velvect.X;
-		packet->svel = velvect.Y;
+		packet->fvel = (float)velvect.X;
+		packet->svel = (float)velvect.Y;
 		loc = {};
 	}
 }

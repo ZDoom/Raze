@@ -42,6 +42,11 @@
 #include "hw_sections.h"
 #include "tesselator.h"
 
+// this is too noisy in this file.
+#ifdef _MSC_VER
+#pragma warning(disable:4244)
+#endif
+
 SectionGeometry sectionGeometry;
 
 //==========================================================================
@@ -158,7 +163,7 @@ public:
 			// To calculate the inverse Build performs an integer division with significant loss of precision
 			// that can cause the texture to be shifted by multiple pixels.
 			// The code below calculates the amount of this deviation so that it can be added back to the formula.
-			int x = ix2 - ix1, y = iy2 - iy1;
+			int x = int(ix2 - ix1), y = int(iy2 - iy1);
 			int len = int(sqrt(double(x) * x + double(y) * y));
 			if (len != 0)
 			{

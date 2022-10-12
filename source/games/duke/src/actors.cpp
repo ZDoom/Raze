@@ -1412,7 +1412,7 @@ bool rat(DDukeActor* actor, bool makesound)
 	if (ssp(actor, CLIPMASK0))
 	{
 		if (makesound && (krand() & 255) == 0) S_PlayActorSound(RATTY, actor);
-		actor->spr.angle += mapangle((krand() & 31) - 15 + BobVal(actor->temp_data[0] << 8) * 8);
+		actor->spr.angle += mapangle((krand() & 31) - 15 + int(BobVal(actor->temp_data[0] << 8) * 8));
 	}
 	else
 	{
@@ -4141,11 +4141,11 @@ void handle_se20(DDukeActor* actor)
 				SetActor(ps[p].GetActor(), ps[p].pos.plusZ(gs.playerheight));
 			}
 
-		sc->addfloorxpan(-vec.X * 2);
-		sc->addfloorypan(-vec.Y * 2);
+		sc->addfloorxpan(-(float)vec.X * 2);
+		sc->addfloorypan(-(float)vec.Y * 2);
 
-		sc->addceilingxpan(-vec.X * 2);
-		sc->addceilingypan(-vec.Y * 2);
+		sc->addceilingxpan(-(float)vec.X * 2);
+		sc->addceilingypan(-(float)vec.Y * 2);
 	}
 }
 

@@ -45,9 +45,9 @@ static short torchtype[64];
 struct jaildoor
 {
 	sectortype* sect;
+	double dist;
+	double drag;
 	int speed;
-	float dist;
-	float drag;
 	int16_t direction;
 	int16_t sound;
 	int16_t open;
@@ -58,9 +58,9 @@ struct minecart
 {
 	sectortype* sect;
 	sectortype* childsect;
+	double dist;
+	double drag;
 	int speed;
-	float dist;
-	float drag;
 	int16_t direction;
 	int16_t sound;
 	int16_t open;

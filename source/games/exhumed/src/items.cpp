@@ -440,7 +440,7 @@ void StartRegenerate(DExhumedActor* pActor)
     if (pos >= Regenerates.Size())
     {
        // ?? CHECKME
-        pActor->spr.xint = pActor->spr.scale.X * INV_REPEAT_SCALE;
+        pActor->spr.xint = int16_t(pActor->spr.scale.X * INV_REPEAT_SCALE);
         pActor->spr.inittype = pActor->spr.shade;
         pActor->spr.yint = pActor->spr.pal;
     }

@@ -163,7 +163,7 @@ void vertex_t::RecalcVertexHeights()
 		float heights[2];
 
 		auto point = wall[masterwall].pos;
-		PlanesAtPoint(&sector[sect], point.X, point.Y, &heights[0], &heights[1]);
+		PlanesAtPoint(&sector[sect], (float)point.X, (float)point.Y, &heights[0], &heights[1]);
 		for(auto height : heights)
 		{
 			int k;

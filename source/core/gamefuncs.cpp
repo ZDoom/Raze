@@ -171,7 +171,7 @@ int getslopeval(sectortype* sect, const DVector3& pos, double basez)
 {
 	auto wal = sect->firstWall();
 	double i = (pos.XY() - wal->pos).dot(wal->delta().Rotated90CCW());
-	return i == 0? 0 : SLOPEVAL_FACTOR * (pos.Z - basez) * wal->Length() / i;
+	return i == 0? 0 : int(SLOPEVAL_FACTOR * (pos.Z - basez) * wal->Length() / i);
 }
 
 //==========================================================================

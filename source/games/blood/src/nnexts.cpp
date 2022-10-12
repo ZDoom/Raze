@@ -1572,7 +1572,7 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, const DVector3& pos, 
 
 		dmg = int(dmg * (0x4000 / (0x4000 + dv.LengthSquared())));
 		bool thing = (actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
-		int size = (tileWidth(actor->spr.picnum) * actor->spr.scale.X * tileHeight(actor->spr.picnum) * actor->spr.scale.Y) * 2048;
+		double size = (tileWidth(actor->spr.picnum) * actor->spr.scale.X * tileHeight(actor->spr.picnum) * actor->spr.scale.Y) * 2048;
 		if (actor->xspr.physAttr & kPhysDebrisExplode)
 		{
 			if (actor->spriteMass.mass > 0)

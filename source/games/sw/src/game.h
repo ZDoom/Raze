@@ -2110,7 +2110,7 @@ struct ANIM
             animactor->user.pos.Z = value;
 			break;
         case ANIM_SUdepth:
-            sector[animindex].depth_fixed = value;
+            sector[animindex].depth_fixed = (int)value;
         default:
             return;
         }
