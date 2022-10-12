@@ -642,6 +642,8 @@ struct PLAYER
     void set_int_vect_y(int v) { _vect.Y = v; }
     void add_int_vect_x(int v) { _vect.X += v; }
     void add_int_vect_y(int v) { _vect.Y += v; }
+    void set_int_slide_vect_x(int v) { _slide_vect.X = v; }
+    void set_int_slide_vect_y(int v) { _slide_vect.Y = v; }
 
     int friction;
     int16_t slide_ang; // todo: floatify

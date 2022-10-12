@@ -1845,17 +1845,17 @@ void DoPlayerSlide(PLAYER* pp)
 
     int push_ret;
 
-    if ((pp->_slide_vect.X|pp->_slide_vect.Y) == 0)
+    if ((pp->int_slide_vect().X|pp->int_slide_vect().Y) == 0)
         return;
 
     if (pp->sop)
         return;
 
-    pp->_slide_vect.X  = MulScale(pp->_slide_vect.X, PLAYER_SLIDE_FRICTION, 16);
-    pp->_slide_vect.Y  = MulScale(pp->_slide_vect.Y, PLAYER_SLIDE_FRICTION, 16);
+    pp->set_int_slide_vect_x(MulScale(pp->int_slide_vect().X, PLAYER_SLIDE_FRICTION, 16));
+    pp->set_int_slide_vect_y(MulScale(pp->int_slide_vect().Y, PLAYER_SLIDE_FRICTION, 16));
 
-    if (abs(pp->_slide_vect.X) < 12800 && abs(pp->_slide_vect.Y) < 12800)
-        pp->_slide_vect.X = pp->_slide_vect.Y = 0;
+    if (abs(pp->int_slide_vect().X) < 12800 && abs(pp->int_slide_vect().Y) < 12800)
+        pp->_slide_vect = { 0, 0 };
 
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
@@ -1871,7 +1871,7 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, pp->_slide_vect.X, pp->_slide_vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, pp->int_slide_vect().X, pp->int_slide_vect().Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
@@ -2618,8 +2618,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
             if (vel > 13000)
             {
                 VehicleMoveHit(actor);
-                pp->_slide_vect.X = -pp->int_vect().X<<1;
-                pp->_slide_vect.Y = -pp->int_vect().Y<<1;
+                pp->set_int_slide_vect_x(-pp->int_vect().X<<1);
+                pp->set_int_slide_vect_y(-pp->int_vect().Y<<1);
                 if (!(sop->flags & SOBJ_NO_QUAKE))
                     SetPlayerQuake(pp);
             }

@@ -5250,23 +5250,23 @@ int PlayerDamageSlide(PLAYER* pp, int damage, short ang)
     else if (damage <= 10)
     {
         //nudge
-        pp->_slide_vect.X = MOVEx(16, ang)<<15;
-        pp->_slide_vect.Y = MOVEy(16, ang)<<15;
+        pp->set_int_slide_vect_x(MOVEx(16, ang)<<15);
+        pp->set_int_slide_vect_y(MOVEy(16, ang)<<15);
         return true;
     }
     else if (damage <= 20)
     {
         //bigger nudge
-        pp->_slide_vect.X = MOVEx(64, ang)<<15;
-        pp->_slide_vect.Y = MOVEy(64, ang)<<15;
+        pp->set_int_slide_vect_x(MOVEx(64, ang)<<15);
+        pp->set_int_slide_vect_y(MOVEy(64, ang)<<15);
         return true;
     }
     else
     {
         slide_vel = (damage * 6);
 
-        pp->_slide_vect.X = MOVEx(slide_vel, ang)<<15;
-        pp->_slide_vect.Y = MOVEy(slide_vel, ang)<<15;
+        pp->set_int_slide_vect_x(MOVEx(slide_vel, ang)<<15);
+        pp->set_int_slide_vect_y(MOVEy(slide_vel, ang)<<15);
 
         return true;
     }
