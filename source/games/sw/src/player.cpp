@@ -1959,8 +1959,7 @@ void DoPlayerMove(PLAYER* pp)
 
     DoPlayerSlide(pp);
 
-    pp->_ovect.X = pp->int_vect().X;
-    pp->_ovect.Y = pp->int_vect().Y;
+    pp->_ovect = pp->_vect;
 
     pp->add_int_vect_x(((pp->input.fvel*synctics*2)<<6));
     pp->add_int_vect_y(((pp->input.svel*synctics*2)<<6));
@@ -1977,14 +1976,14 @@ void DoPlayerMove(PLAYER* pp)
     if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
-        pp->set_int_vect_x((pp->int_vect().X + (pp->_ovect.X*1))/2);
-        pp->set_int_vect_y((pp->int_vect().Y + (pp->_ovect.Y*1))/2);
+        pp->set_int_vect_x((pp->int_vect().X + (pp->int_ovect().X*1))/2);
+        pp->set_int_vect_y((pp->int_vect().Y + (pp->int_ovect().Y*1))/2);
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
-        pp->set_int_vect_x((pp->int_vect().X + (pp->_ovect.X*2))/3);
-        pp->set_int_vect_y((pp->int_vect().Y + (pp->_ovect.Y*2))/3);
+        pp->set_int_vect_x((pp->int_vect().X + (pp->int_ovect().X*2))/3);
+        pp->set_int_vect_y((pp->int_vect().Y + (pp->int_ovect().Y*2))/3);
     }
 
     if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
@@ -2478,8 +2477,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
-    pp->_ovect.X = pp->int_vect().X;
-    pp->_ovect.Y = pp->int_vect().Y;
+    pp->_ovect = pp->_vect;
 
     if (sop->drive_speed)
     {
@@ -2487,8 +2485,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->set_int_vect_y(MulScale(pp->input.svel, sop->drive_speed, 6));
 
         // does sliding/momentum
-        pp->set_int_vect_x((pp->int_vect().X + (pp->_ovect.X*(sop->drive_slide-1)))/sop->drive_slide);
-        pp->set_int_vect_y((pp->int_vect().Y + (pp->_ovect.Y*(sop->drive_slide-1)))/sop->drive_slide);
+        pp->set_int_vect_x((pp->int_vect().X + (pp->int_ovect().X*(sop->drive_slide-1)))/sop->drive_slide);
+        pp->set_int_vect_y((pp->int_vect().Y + (pp->int_ovect().Y*(sop->drive_slide-1)))/sop->drive_slide);
     }
     else
     {
@@ -2498,8 +2496,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->set_int_vect_x(MulScale(pp->int_vect().X, TANK_FRICTION, 16));
         pp->set_int_vect_y(MulScale(pp->int_vect().Y, TANK_FRICTION, 16));
 
-        pp->set_int_vect_x((pp->int_vect().X + (pp->_ovect.X*1))/2);
-        pp->set_int_vect_y((pp->int_vect().Y + (pp->_ovect.Y*1))/2);
+        pp->set_int_vect_x((pp->int_vect().X + (pp->int_ovect().X*1))/2);
+        pp->set_int_vect_y((pp->int_vect().Y + (pp->int_ovect().Y*1))/2);
     }
 
     if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)

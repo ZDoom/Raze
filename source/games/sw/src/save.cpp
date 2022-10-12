@@ -406,8 +406,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 	}
 	if (arc.isReading())
 	{
-		w._ovect.Y = w.int_vect().X;
-		w._ovect.Y = w.int_vect().Y;
+		w._ovect = w.int_vect();
 	}
 	return arc;
 }
@@ -576,8 +575,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	if (arc.isReading())
 	{
 		w.opos = w.pos;
-		w._ovect.X = w.int_vect().X;
-		w._ovect.Y = w.int_vect().Y;
+		w._ovect = w.int_vect();
 		w.obob_z = w.bob_z;
 		w.input = {};
 		w.lastinput = {};
