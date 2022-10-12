@@ -749,7 +749,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 			{
-				float siz = actor->spr.scale.Y * 0.8;
+				double siz = actor->spr.scale.Y * 0.8;
 				spawnofs *= siz;
 				aoffs *= siz;
 			}
@@ -2820,7 +2820,7 @@ void processinput_d(int snum)
 	if (p->GetActor()->spr.scale.X < 0.625 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
-		p->fistsign += p->GetActor()->vel.X * 16;
+		p->fistsign += int(p->GetActor()->vel.X * 16);
 	}
 
 	if (p->transporter_hold > 0)

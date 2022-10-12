@@ -700,7 +700,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
     KillActor(BoundActor);
 
     // set radius for explosion checking - based on bounding box
-    child->user.Radius = ((vhigh.X - vlow.X) + (vhigh.Y - vlow.Y)) * (0.75 * 0.25) * worldtoint; // trying to get it a good size
+    child->user.Radius = int(((vhigh.X - vlow.X) + (vhigh.Y - vlow.Y)) * (0.75 * 0.25) * worldtoint); // trying to get it a good size
 
     // search for center sprite if it exists
 

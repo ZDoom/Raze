@@ -1281,7 +1281,7 @@ public:
 		return TAngle(f * (90. / 0x40000000));
 	}
 
-	static constexpr TAngle fromBuild(int bang)
+	static constexpr TAngle fromBuild(double bang)
 	{
 		return TAngle(bang * (90. / 512));
 	}

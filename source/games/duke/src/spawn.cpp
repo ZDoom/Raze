@@ -1010,7 +1010,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 {
-	int j, z;
+	int j;
 	sectortype* sect = nullptr;
 
 	if (wal == nullptr)
@@ -1041,7 +1041,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		updatesector(DVector3(pos, sect->floorz), &sect);
 		if (sect)
 		{
-			z = sect->floorz - krandf(abs(sect->ceilingz - sect->floorz));
+			double z = sect->floorz - krandf(abs(sect->ceilingz - sect->floorz));
 			if (fabs(z) > 32)
 				z = actor->spr.pos.Z - 32 + krandf(64);
 			DAngle angl = actor->spr.angle - DAngle180;

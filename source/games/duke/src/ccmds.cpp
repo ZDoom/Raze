@@ -67,7 +67,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		ang = DAngle::fromDeg(atoi(parm->parms[3])); set |= 4;
 		[[fallthrough]];
 	case 3: // cstat
-		cstat = ESpriteFlags::FromInt(atol(parm->parms[2])); set |= 2;
+		cstat = ESpriteFlags::FromInt(atoi(parm->parms[2])); set |= 2;
 		[[fallthrough]];
 	case 2: // pal
 		pal = (uint8_t)atol(parm->parms[1]); set |= 1;

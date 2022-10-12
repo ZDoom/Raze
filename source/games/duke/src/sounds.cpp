@@ -371,7 +371,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 		}
 		if ((chanflags & CHANF_LISTENERZ) && type != SOURCE_None)
 		{
-			pos->Y = campos.Z / 256.f;
+			pos->Y = (float)campos.Z / 256.f;
 		}
 	}
 }

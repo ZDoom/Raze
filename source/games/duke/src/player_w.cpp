@@ -361,7 +361,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 					spawned->spr.pos.Z += 8;
 				}
 
-				int hd = hits(p->GetActor());
+				double hd = hits(p->GetActor());
 				if (hd < 32)
 				{
 					spawned->spr.angle += DAngle180;

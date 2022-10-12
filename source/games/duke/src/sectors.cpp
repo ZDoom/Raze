@@ -222,7 +222,6 @@ bool isanearoperator(int lotag)
 int findplayer(const DDukeActor* actor, double* d)
 {
 	int j, closest_player;
-	int x;
 	const auto s = actor->spr.pos;
 
 	if (ud.multimode < 2)
@@ -236,7 +235,7 @@ int findplayer(const DDukeActor* actor, double* d)
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
-		x = (ps[j].opos - s).plusZ(28).Sum();
+		double x = (ps[j].opos - s).plusZ(28).Sum();
 		if (x < closest && ps[j].GetActor()->spr.extra > 0)
 		{
 			closest_player = j;
@@ -257,7 +256,6 @@ int findplayer(const DDukeActor* actor, double* d)
 int findotherplayer(int p, double* d)
 {
 	int j, closest_player;
-	int x;
 
 	double closest = 0x7fffffff;
 	closest_player = p;
@@ -265,7 +263,7 @@ int findotherplayer(int p, double* d)
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 		if (p != j && ps[j].GetActor()->spr.extra > 0)
 		{
-			x = (ps[j].opos - ps[p].pos).Sum();
+			double x = (ps[j].opos - ps[p].pos).Sum();
 
 			if (x < closest)
 			{

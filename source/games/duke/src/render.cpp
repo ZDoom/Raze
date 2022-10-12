@@ -238,7 +238,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 
 	setgamepalette(BASEPAL);
 
-	float fov = r_fov;
+	float fov = (float)r_fov;
 	auto sect = p->cursector;
 
 	DDukeActor* viewer;

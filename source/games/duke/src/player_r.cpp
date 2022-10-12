@@ -2721,7 +2721,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 					spawned->spr.pos.Z += 8;
 				}
 
-				int hd = hits(p->GetActor());
+				double hd = hits(p->GetActor());
 				if (hd < 32)
 				{
 					spawned->spr.angle += DAngle180;
@@ -3498,7 +3498,7 @@ void processinput_r(int snum)
 	if (p->GetActor()->spr.scale.X < 0.125 && p->jetpack_on == 0)
 	{
 		p->ofistsign = p->fistsign;
-		p->fistsign += p->GetActor()->vel.X * 16;
+		p->fistsign += int(p->GetActor()->vel.X * 16);
 	}
 
 	if (p->transporter_hold > 0)

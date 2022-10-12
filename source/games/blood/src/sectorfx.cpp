@@ -291,8 +291,8 @@ void DoSectorPanning(void)
 				int yBits = tileHeight(nTile) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
 				double px = angle.Cos() * (speed << 2) / xBits;
 				double py = angle.Sin() * (speed << 2) / xBits;
-				pSector->addfloorxpan(px * (1.f / 256));
-				pSector->addfloorypan(-py * (1.f / 256));
+				pSector->addfloorxpan((float)px * (1.f / 256));
+				pSector->addfloorypan(-(float)py * (1.f / 256));
 			}
 			if (pXSector->panCeiling) // Ceiling
 			{
@@ -303,8 +303,8 @@ void DoSectorPanning(void)
 				int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
 				double px = angle.Cos() * (speed << 2) / xBits;
 				double py = angle.Sin() * (speed << 2) / xBits;
-				pSector->addceilingxpan(px * (1.f / 256));
-				pSector->addceilingypan(-py * (1.f / 256));
+				pSector->addceilingxpan((float)px * (1.f / 256));
+				pSector->addceilingypan(-(float)py * (1.f / 256));
 			}
 		}
 	}

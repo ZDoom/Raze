@@ -723,7 +723,7 @@ void AddFlow(walltype* pWall, int nSpeed, int b)
     int nPic = pWall->picnum;
 
     sFlowInfo[nFlow].angcos = 0;
-    sFlowInfo[nFlow].angsin = b == 2 ? 1 : -1;
+    sFlowInfo[nFlow].angsin = b == 2 ? 1.f : -1.f;
     sFlowInfo[nFlow].pWall = pWall;
 
     sFlowInfo[nFlow].type = b;

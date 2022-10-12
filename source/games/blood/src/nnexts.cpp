@@ -2530,7 +2530,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						pWall->allocX();
 						break;
 					case 2:
-						pWall->sectorp()->slopewallofs = max<int>(pWall - pWall->sectorp()->firstWall(), 0);
+						pWall->sectorp()->slopewallofs = max<int>(int(pWall - pWall->sectorp()->firstWall()), 0);
 						break;
 				}
 			}
@@ -6857,7 +6857,7 @@ void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector)
 		if (relative)
 			pXSector->amplitude = ClipRange(pXSector->amplitude + sourceactor->xspr.data2, -127, 127);
 		else
-			pXSector->amplitude = sourceactor->xspr.data2;
+			pXSector->amplitude = (int8_t)sourceactor->xspr.data2;
 	}
 
 	if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))

@@ -637,11 +637,11 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
 
         if ((pPlayerActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) && (!(pPlayerActor->spr.cstat & CSTAT_SPRITE_INVISIBLE)))
         {
-            int v9 = abs(pPlayerActor->spr.pos.X - pActor->spr.pos.X);
+            double v9 = abs(pPlayerActor->spr.pos.X - pActor->spr.pos.X);
 
             if (v9 < nDistance)
             {
-                int v10 = abs(pPlayerActor->spr.pos.Y - pActor->spr.pos.Y);
+                double v10 = abs(pPlayerActor->spr.pos.Y - pActor->spr.pos.Y);
 
                 if (v10 < nDistance && cansee(pPlayerActor->spr.pos.plusZ(-30), pPlayerActor->sector(), pActor->spr.pos.plusZ(-GetActorHeight(pActor)), pSector))
                 {

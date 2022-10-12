@@ -461,9 +461,9 @@ void GibFX(walltype* pWall, GIBFX* pGFX, double ceilZ, const DVector3& spread, D
 			}
 			else
 			{
-				pGib->vel.X = Random2F((pVel->X * 17179869184.) / 120);
-				pGib->vel.Y = Random2F((pVel->Y * 17179869184.) / 120);
-				pGib->vel.Z = -Random2F((pVel->Z * 17179869184.) / 120);
+				pGib->vel.X = Random2F(int((pVel->X * 17179869184.) / 120));
+				pGib->vel.Y = Random2F(int((pVel->Y * 17179869184.) / 120));
+				pGib->vel.Z = -Random2F(int((pVel->Z * 17179869184.) / 120));
 			}
 		}
 	}

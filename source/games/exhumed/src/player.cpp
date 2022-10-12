@@ -1166,7 +1166,7 @@ sectdone:
 
 
     PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel;
-    PlayerList[nPlayer].totalvel = playerPos.Length() * 16;
+    PlayerList[nPlayer].totalvel = int(playerPos.Length() * worldtoint);
 
     auto pViewSect = pPlayerActor->sector();
 
