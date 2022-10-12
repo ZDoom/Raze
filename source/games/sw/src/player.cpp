@@ -1561,8 +1561,8 @@ void SlipSlope(PLAYER* pp)
 
     ang = NORM_ANGLE(ang + 512);
 
-    pp->_vect .X += MulScale(bcos(ang), pp->cursector->floorheinum, sectu->speed);
-    pp->_vect .Y += MulScale(bsin(ang), pp->cursector->floorheinum, sectu->speed);
+    pp->add_int_vect_x(MulScale(bcos(ang), pp->cursector->floorheinum, sectu->speed));
+    pp->add_int_vect_y(MulScale(bsin(ang), pp->cursector->floorheinum, sectu->speed));
 }
 
 void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
@@ -1962,8 +1962,8 @@ void DoPlayerMove(PLAYER* pp)
     pp->_ovect.X = pp->int_vect().X;
     pp->_ovect.Y = pp->int_vect().Y;
 
-    pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
-    pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
+    pp->add_int_vect_x(((pp->input.fvel*synctics*2)<<6));
+    pp->add_int_vect_y(((pp->input.svel*synctics*2)<<6));
 
     friction = pp->friction;
     if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
@@ -1971,24 +1971,24 @@ void DoPlayerMove(PLAYER* pp)
         friction -= pp->WadeDepth * 100;
     }
 
-    pp->_vect.X  = MulScale(pp->int_vect().X, friction, 16);
-    pp->_vect.Y = MulScale(pp->int_vect().Y, friction, 16);
+    pp->set_int_vect_x(MulScale(pp->int_vect().X, friction, 16));
+    pp->set_int_vect_y(MulScale(pp->int_vect().Y, friction, 16));
 
     if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
-        pp->_vect .X = (pp->int_vect().X + (pp->_ovect.X*1))/2;
-        pp->_vect .Y = (pp->int_vect().Y + (pp->_ovect.Y*1))/2;
+        pp->set_int_vect_x((pp->int_vect().X + (pp->_ovect.X*1))/2);
+        pp->set_int_vect_y((pp->int_vect().Y + (pp->_ovect.Y*1))/2);
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
-        pp->_vect .X = (pp->int_vect().X + (pp->_ovect.X*2))/3;
-        pp->_vect .Y = (pp->int_vect().Y + (pp->_ovect.Y*2))/3;
+        pp->set_int_vect_x((pp->int_vect().X + (pp->_ovect.X*2))/3);
+        pp->set_int_vect_y((pp->int_vect().Y + (pp->_ovect.Y*2))/3);
     }
 
     if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
-        pp->_vect .X = pp->_vect .Y = 0;
+        pp->_vect = { 0,0 };
 
     actor->set_int_xvel(FindDistance2D(pp->int_vect().X,pp->int_vect().Y)>>14);
 
@@ -2483,27 +2483,27 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
     if (sop->drive_speed)
     {
-        pp->_vect .X = MulScale(pp->input.fvel, sop->drive_speed, 6);
-        pp->_vect .Y = MulScale(pp->input.svel, sop->drive_speed, 6);
+        pp->set_int_vect_x(MulScale(pp->input.fvel, sop->drive_speed, 6));
+        pp->set_int_vect_y(MulScale(pp->input.svel, sop->drive_speed, 6));
 
         // does sliding/momentum
-        pp->_vect .X = (pp->int_vect().X + (pp->_ovect.X*(sop->drive_slide-1)))/sop->drive_slide;
-        pp->_vect .Y = (pp->int_vect().Y + (pp->_ovect.Y*(sop->drive_slide-1)))/sop->drive_slide;
+        pp->set_int_vect_x((pp->int_vect().X + (pp->_ovect.X*(sop->drive_slide-1)))/sop->drive_slide);
+        pp->set_int_vect_y((pp->int_vect().Y + (pp->_ovect.Y*(sop->drive_slide-1)))/sop->drive_slide);
     }
     else
     {
-        pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
-        pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
+        pp->add_int_vect_x(((pp->input.fvel*synctics*2)<<6));
+        pp->add_int_vect_y(((pp->input.svel*synctics*2)<<6));
 
-        pp->_vect.X = MulScale(pp->int_vect().X, TANK_FRICTION, 16);
-        pp->_vect.Y = MulScale(pp->int_vect().Y, TANK_FRICTION, 16);
+        pp->set_int_vect_x(MulScale(pp->int_vect().X, TANK_FRICTION, 16));
+        pp->set_int_vect_y(MulScale(pp->int_vect().Y, TANK_FRICTION, 16));
 
-        pp->_vect .X = (pp->int_vect().X + (pp->_ovect.X*1))/2;
-        pp->_vect .Y = (pp->int_vect().Y + (pp->_ovect.Y*1))/2;
+        pp->set_int_vect_x((pp->int_vect().X + (pp->_ovect.X*1))/2);
+        pp->set_int_vect_y((pp->int_vect().Y + (pp->_ovect.Y*1))/2);
     }
 
     if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
-        pp->_vect .X = pp->_vect .Y = 0;
+        pp->_vect = { 0, 0 };
 
     pp->lastcursector = pp->cursector;
     z = pp->int_ppos().Z + Z(10);
@@ -2583,7 +2583,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
             if (vel > 12000)
             {
-                pp->_vect .X = pp->_vect .Y = pp->_ovect.X = pp->_ovect.Y = 0;
+                pp->_vect = pp->_ovect = { 0, 0 };
             }
         }
     }
@@ -2628,7 +2628,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
             if (vel > 12000)
             {
-                pp->_vect .X = pp->_vect .Y = pp->_ovect.X = pp->_ovect.Y = 0;
+                pp->_vect = pp->_ovect = { 0, 0 };
             }
         }
     }
@@ -3087,12 +3087,12 @@ void DoPlayerClimb(PLAYER* pp)
     if (Prediction)
         return;
 
-    pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
-    pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
-    pp->_vect.X = MulScale(pp->int_vect().X, PLAYER_CLIMB_FRICTION, 16);
-    pp->_vect.Y = MulScale(pp->int_vect().Y, PLAYER_CLIMB_FRICTION, 16);
+    pp->add_int_vect_x(((pp->input.fvel*synctics*2)<<6));
+    pp->add_int_vect_y(((pp->input.svel*synctics*2)<<6));
+    pp->set_int_vect_x(MulScale(pp->int_vect().X, PLAYER_CLIMB_FRICTION, 16));
+    pp->set_int_vect_y(MulScale(pp->int_vect().Y, PLAYER_CLIMB_FRICTION, 16));
     if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
-        pp->_vect .X = pp->_vect .Y = 0;
+        pp->_vect = { 0, 0 };
 
     climbVel = DVector2(pp->int_vect().X, pp->int_vect().Y).Length() * (1. / 512) * zinttoworld;
     dot = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
