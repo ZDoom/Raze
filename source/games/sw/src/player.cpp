@@ -1561,8 +1561,8 @@ void SlipSlope(PLAYER* pp)
 
     ang = NORM_ANGLE(ang + 512);
 
-    pp->_vect.X += MulScale(bcos(ang), pp->cursector->floorheinum, sectu->speed);
-    pp->_vect.Y += MulScale(bsin(ang), pp->cursector->floorheinum, sectu->speed);
+    pp->_vect .X += MulScale(bcos(ang), pp->cursector->floorheinum, sectu->speed);
+    pp->_vect .Y += MulScale(bsin(ang), pp->cursector->floorheinum, sectu->speed);
 }
 
 void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
@@ -1959,8 +1959,8 @@ void DoPlayerMove(PLAYER* pp)
 
     DoPlayerSlide(pp);
 
-    pp->_ovect.X = pp->_vect.X;
-    pp->_ovect.Y = pp->_vect.Y;
+    pp->_ovect.X = pp->int_vect().X;
+    pp->_ovect.Y = pp->int_vect().Y;
 
     pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
     pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
@@ -1971,26 +1971,26 @@ void DoPlayerMove(PLAYER* pp)
         friction -= pp->WadeDepth * 100;
     }
 
-    pp->_vect.X  = MulScale(pp->_vect.X, friction, 16);
-    pp->_vect.Y  = MulScale(pp->_vect.Y, friction, 16);
+    pp->_vect.X  = MulScale(pp->int_vect().X, friction, 16);
+    pp->_vect.Y = MulScale(pp->int_vect().Y, friction, 16);
 
     if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
-        pp->_vect.X = (pp->_vect.X + (pp->_ovect.X*1))/2;
-        pp->_vect.Y = (pp->_vect.Y + (pp->_ovect.Y*1))/2;
+        pp->_vect .X = (pp->int_vect().X + (pp->_ovect.X*1))/2;
+        pp->_vect .Y = (pp->int_vect().Y + (pp->_ovect.Y*1))/2;
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
-        pp->_vect.X = (pp->_vect.X + (pp->_ovect.X*2))/3;
-        pp->_vect.Y = (pp->_vect.Y + (pp->_ovect.Y*2))/3;
+        pp->_vect .X = (pp->int_vect().X + (pp->_ovect.X*2))/3;
+        pp->_vect .Y = (pp->int_vect().Y + (pp->_ovect.Y*2))/3;
     }
 
-    if (abs(pp->_vect.X) < 12800 && abs(pp->_vect.Y) < 12800)
-        pp->_vect.X = pp->_vect.Y = 0;
+    if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
+        pp->_vect .X = pp->_vect .Y = 0;
 
-    actor->set_int_xvel(FindDistance2D(pp->_vect.X,pp->_vect.Y)>>14);
+    actor->set_int_xvel(FindDistance2D(pp->int_vect().X,pp->int_vect().Y)>>14);
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {
@@ -1999,7 +1999,7 @@ void DoPlayerMove(PLAYER* pp)
         {
             pp->opos.XY() = pp->pos.XY();
         }
-        pp->add_int_ppos_XY({ pp->_vect.X >> 14, pp->_vect.Y >> 14 });
+        pp->add_int_ppos_XY({ pp->int_vect().X >> 14, pp->int_vect().Y >> 14 });
         updatesector(pp->pos, &sect);
         if (sect != nullptr)
             pp->cursector = sect;
@@ -2029,7 +2029,7 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->int_ppos().X, pp->int_ppos().Y, &pp->cursector);
-        clipmove(pp->pos, &pp->cursector, pp->_vect.X, pp->_vect.Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->pos, &pp->cursector, pp->int_vect().X, pp->int_vect().Y, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
@@ -2200,8 +2200,8 @@ void DoTankTreads(PLAYER* pp)
     if (Prediction)
         return;
 
-    vel = FindDistance2D(pp->_vect.X>>8, pp->_vect.Y>>8);
-    dot = DOT_PRODUCT_2D(pp->_vect.X, pp->_vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    vel = FindDistance2D(pp->int_vect().X>>8, pp->int_vect().Y>>8);
+    dot = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
     if (dot < 0)
         reverse = true;
 
@@ -2310,7 +2310,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
         return;
 
     // not moving - don't crush
-    if ((pp->_vect.X|pp->_vect.Y) == 0 && pp->input.avel == 0)
+    if ((pp->int_vect().X|pp->int_vect().Y) == 0 && pp->input.avel == 0)
         return;
 
     // main sector
@@ -2358,10 +2358,10 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
             if (actor->int_pos().Z < sop->crush_z)
                 continue;
 
-            int32_t const vel = FindDistance2D(pp->_vect.X>>8, pp->_vect.Y>>8);
+            int32_t const vel = FindDistance2D(pp->int_vect().X>>8, pp->int_vect().Y>>8);
             if (vel < 9000)
             {
-                DoActorBeginSlide(actor, VecToAngle(pp->_vect.X, pp->_vect.Y), vel/8 * inttoworld);
+                DoActorBeginSlide(actor, VecToAngle(pp->int_vect().X, pp->int_vect().Y), vel/8 * inttoworld);
                 if (DoActorSlide(actor))
                     continue;
             }
@@ -2478,32 +2478,32 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     else
         pp->Flags |= (PF_PLAYER_MOVED);
 
-    pp->_ovect.X = pp->_vect.X;
-    pp->_ovect.Y = pp->_vect.Y;
+    pp->_ovect.X = pp->int_vect().X;
+    pp->_ovect.Y = pp->int_vect().Y;
 
     if (sop->drive_speed)
     {
-        pp->_vect.X = MulScale(pp->input.fvel, sop->drive_speed, 6);
-        pp->_vect.Y = MulScale(pp->input.svel, sop->drive_speed, 6);
+        pp->_vect .X = MulScale(pp->input.fvel, sop->drive_speed, 6);
+        pp->_vect .Y = MulScale(pp->input.svel, sop->drive_speed, 6);
 
         // does sliding/momentum
-        pp->_vect.X = (pp->_vect.X + (pp->_ovect.X*(sop->drive_slide-1)))/sop->drive_slide;
-        pp->_vect.Y = (pp->_vect.Y + (pp->_ovect.Y*(sop->drive_slide-1)))/sop->drive_slide;
+        pp->_vect .X = (pp->int_vect().X + (pp->_ovect.X*(sop->drive_slide-1)))/sop->drive_slide;
+        pp->_vect .Y = (pp->int_vect().Y + (pp->_ovect.Y*(sop->drive_slide-1)))/sop->drive_slide;
     }
     else
     {
         pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
         pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
 
-        pp->_vect.X  = MulScale(pp->_vect.X, TANK_FRICTION, 16);
-        pp->_vect.Y  = MulScale(pp->_vect.Y, TANK_FRICTION, 16);
+        pp->_vect.X = MulScale(pp->int_vect().X, TANK_FRICTION, 16);
+        pp->_vect.Y = MulScale(pp->int_vect().Y, TANK_FRICTION, 16);
 
-        pp->_vect.X = (pp->_vect.X + (pp->_ovect.X*1))/2;
-        pp->_vect.Y = (pp->_vect.Y + (pp->_ovect.Y*1))/2;
+        pp->_vect .X = (pp->int_vect().X + (pp->_ovect.X*1))/2;
+        pp->_vect .Y = (pp->int_vect().Y + (pp->_ovect.Y*1))/2;
     }
 
-    if (abs(pp->_vect.X) < 12800 && abs(pp->_vect.Y) < 12800)
-        pp->_vect.X = pp->_vect.Y = 0;
+    if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
+        pp->_vect .X = pp->_vect .Y = 0;
 
     pp->lastcursector = pp->cursector;
     z = pp->int_ppos().Z + Z(10);
@@ -2553,7 +2553,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
         if (!ret)
         {
-            vel = FindDistance2D(pp->_vect.X>>8, pp->_vect.Y>>8);
+            vel = FindDistance2D(pp->int_vect().X>>8, pp->int_vect().Y>>8);
 
             if (vel > 13000)
             {
@@ -2583,7 +2583,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
             if (vel > 12000)
             {
-                pp->_vect.X = pp->_vect.Y = pp->_ovect.X = pp->_ovect.Y = 0;
+                pp->_vect .X = pp->_vect .Y = pp->_ovect.X = pp->_ovect.Y = 0;
             }
         }
     }
@@ -2603,7 +2603,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(pp->pos, &pp->cursector, pp->_vect.X, pp->_vect.Y, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
+            clipmove(pp->pos, &pp->cursector, pp->int_vect().X, pp->int_vect().Y, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
@@ -2615,20 +2615,20 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         {
             int vel;
 
-            vel = FindDistance2D(pp->_vect.X>>8, pp->_vect.Y>>8);
+            vel = FindDistance2D(pp->int_vect().X>>8, pp->int_vect().Y>>8);
 
             if (vel > 13000)
             {
                 VehicleMoveHit(actor);
-                pp->_slide_vect.X = -pp->_vect.X<<1;
-                pp->_slide_vect.Y = -pp->_vect.Y<<1;
+                pp->_slide_vect.X = -pp->int_vect().X<<1;
+                pp->_slide_vect.Y = -pp->int_vect().Y<<1;
                 if (!(sop->flags & SOBJ_NO_QUAKE))
                     SetPlayerQuake(pp);
             }
 
             if (vel > 12000)
             {
-                pp->_vect.X = pp->_vect.Y = pp->_ovect.X = pp->_ovect.Y = 0;
+                pp->_vect .X = pp->_vect .Y = pp->_ovect.X = pp->_ovect.Y = 0;
             }
         }
     }
@@ -3089,13 +3089,13 @@ void DoPlayerClimb(PLAYER* pp)
 
     pp->_vect.X += ((pp->input.fvel*synctics*2)<<6);
     pp->_vect.Y += ((pp->input.svel*synctics*2)<<6);
-    pp->_vect.X  = MulScale(pp->_vect.X, PLAYER_CLIMB_FRICTION, 16);
-    pp->_vect.Y  = MulScale(pp->_vect.Y, PLAYER_CLIMB_FRICTION, 16);
-    if (abs(pp->_vect.X) < 12800 && abs(pp->_vect.Y) < 12800)
-        pp->_vect.X = pp->_vect.Y = 0;
+    pp->_vect.X = MulScale(pp->int_vect().X, PLAYER_CLIMB_FRICTION, 16);
+    pp->_vect.Y = MulScale(pp->int_vect().Y, PLAYER_CLIMB_FRICTION, 16);
+    if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
+        pp->_vect .X = pp->_vect .Y = 0;
 
-    climbVel = DVector2(pp->_vect.X, pp->_vect.Y).Length() * (1. / 512) * zinttoworld;
-    dot = DOT_PRODUCT_2D(pp->_vect.X, pp->_vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    climbVel = DVector2(pp->int_vect().X, pp->int_vect().Y).Length() * (1. / 512) * zinttoworld;
+    dot = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
     if (dot < 0)
         climbVel = -climbVel;
 
@@ -3588,7 +3588,7 @@ bool PlayerOnLadder(PLAYER* pp)
 
     neartag(pp->int_ppos(), pp->cursector, pp->angle.ang.Buildang(), near, 1024 + 768, NTAG_SEARCH_LO_HI);
 
-    dir = DOT_PRODUCT_2D(pp->_vect.X, pp->_vect.Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    dir = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
 
     if (dir < 0)
         return false;

@@ -584,6 +584,10 @@ struct REMOTE_CONTROL
     vec2_t _vect, _ovect, _slide_vect;
     DVector3 pos;
     SECTOR_OBJECT* sop_control;
+
+    vec2_t int_vect() const { return _vect; }
+    vec2_t int_ovect() const { return _ovect; }
+    vec2_t int_slide_vect() const { return _slide_vect; }
 };
 
 struct PLAYER
@@ -630,6 +634,10 @@ struct PLAYER
     DAngle siang;
 
     vec2_t _vect, _ovect, _slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
+    vec2_t int_vect() const { return _vect; }
+    vec2_t int_ovect() const { return _ovect; }
+    vec2_t int_slide_vect() const { return _slide_vect; }
+
     int friction;
     int16_t slide_ang; // todo: floatify
     int slide_dec;
@@ -2240,7 +2248,7 @@ inline bool SpriteInUnderwaterArea(DSWActor* a)
 // just determine if the player is moving
 inline bool PLAYER_MOVING(PLAYER* pp)
 {
-	return (pp->_vect.X | pp->_vect.Y);
+	return (pp->int_vect().X | pp->int_vect().Y);
 }
 
 inline void PlaySound(int num, DSWActor* actor, int flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)

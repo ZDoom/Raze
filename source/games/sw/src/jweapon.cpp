@@ -1303,8 +1303,8 @@ int PlayerInitChemBomb(PLAYER* pp)
 	UpdateChange(actorNew, 0.5);
 
     // adjust xvel according to player velocity
-	actorNew->user.change.X += FixedToFloat<18>(pp->_vect.X);
-	actorNew->user.change.Y += FixedToFloat<18>(pp->_vect.Y);
+	actorNew->user.change.X += FixedToFloat<18>(pp->int_vect().X);
+	actorNew->user.change.Y += FixedToFloat<18>(pp->int_vect().Y);
 
     // Smoke will come out for this many seconds
     actorNew->user.WaitTics = CHEMTICS;
@@ -1659,8 +1659,8 @@ int PlayerInitCaltrops(PLAYER* pp)
 	UpdateChange(actorNew, 0.5);
 
     // adjust xvel according to player velocity
-    actorNew->user.change.X += FixedToFloat<18>(pp->_vect.X);
-	actorNew->user.change.Y += FixedToFloat<18>(pp->_vect.Y);
+    actorNew->user.change.X += FixedToFloat<18>(pp->int_vect().X);
+	actorNew->user.change.Y += FixedToFloat<18>(pp->int_vect().Y);
 
     SetupSpriteForBreak(actorNew);            // Put Caltrops in the break queue
     return 0;

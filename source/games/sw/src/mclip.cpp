@@ -98,7 +98,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
             pos[i].Z = zz;
 
             // move the box
-            clipmove(pos[i], &pp->cursector, pp->_vect.X, pp->_vect.Y, (int)sop->clipbox_dist[i], Z(4), int(floordist * zworldtoint), CLIPMASK_PLAYER, coll);
+            clipmove(pos[i], &pp->cursector, pp->int_vect().X, pp->int_vect().Y, (int)sop->clipbox_dist[i], Z(4), int(floordist * zworldtoint), CLIPMASK_PLAYER, coll);
 
             // save the dist moved
             dist = (pos[i].XY() - opos[i].XY()).Length();
@@ -205,7 +205,7 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
     int i;
     DVector2 xy[4];
     int point_num;
-    DVector2 pvect((pp->_vect.X >> 14) * inttoworld, (pp->_vect.Y >> 14) * inttoworld);
+    DVector2 pvect((pp->int_vect().X >> 14) * inttoworld, (pp->int_vect().Y >> 14) * inttoworld);
 
     for (i = 0; i < 4; i++)
     {
