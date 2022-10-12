@@ -95,7 +95,7 @@ constexpr double INPUT_SCALE = 1. / (1 << 12); // Old code used << 6 to get a Q1
 #define PLAYER_DIVE_FRICTION (49152L)
 
 // only for z direction climbing
-#define PLAYER_CLIMB_FRICTION (45056L)
+constexpr double PLAYER_CLIMB_FRICTION = FixedToFloat(45056);
 constexpr double TANK_FRICTION = FixedToFloat(53248);
 constexpr double PLAYER_SLIDE_FRICTION = FixedToFloat(53248);
 
@@ -3059,23 +3059,20 @@ void DoPlayerBeginClimb(PLAYER* pp)
 void DoPlayerClimb(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
-    double climbVel;
     int i;
-    int dot;
     bool LadderUpdate = false;
 
     if (Prediction)
         return;
 
-    pp->add_int_vect_x(((pp->input.fvel*synctics*2)<<6));
-    pp->add_int_vect_y(((pp->input.svel*synctics*2)<<6));
-    pp->set_int_vect_x(MulScale(pp->int_vect().X, PLAYER_CLIMB_FRICTION, 16));
-    pp->set_int_vect_y(MulScale(pp->int_vect().Y, PLAYER_CLIMB_FRICTION, 16));
-    if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
-        pp->vect.Zero();
+	pp->vect.X += (pp->input.fvel*synctics*2) * INPUT_SCALE;
+	pp->vect.Y += (pp->input.svel*synctics*2) * INPUT_SCALE;
+	pp->vect *= PLAYER_CLIMB_FRICTION;
+    if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
+        pp->vect.X = pp->vect.Y = 0;
 
-    climbVel = DVector2(pp->int_vect().X, pp->int_vect().Y).Length() * (1. / 512) * zinttoworld;
-    dot = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    double climbVel = pp->vect.Length() * 2;
+    double dot = pp->vect.dot(pp->angle.ang.ToVector());
     if (dot < 0)
         climbVel = -climbVel;
 
