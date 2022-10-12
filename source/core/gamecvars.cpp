@@ -268,47 +268,10 @@ CVARD(Bool, r_precache, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable th
 CVARD(Bool, r_voxels, true, CVAR_ARCHIVE, "enable/disable automatic sprite->voxel rendering")
 
 
-// color code format is as follows:
-// ^## sets a color, where ## is the palette number
-// ^S# sets a shade, range is 0-7 equiv to shades 0-14
-// ^O resets formatting to defaults
-
-static const char* OSD_StripColors(char* outBuf, const char* inBuf)
-{
-	const char* ptr = outBuf;
-
-	while (*inBuf)
-	{
-		if (*inBuf == '^')
-		{
-			if (isdigit(*(inBuf + 1)))
-			{
-				inBuf += 2 + !!isdigit(*(inBuf + 2));
-				continue;
-			}
-			else if ((toupper(*(inBuf + 1)) == 'O'))
-			{
-				inBuf += 2;
-				continue;
-			}
-			else if ((toupper(*(inBuf + 1)) == 'S') && isdigit(*(inBuf + 2)))
-			{
-				inBuf += 3;
-				continue;
-			}
-		}
-		*(outBuf++) = *(inBuf++);
-	}
-
-	*outBuf = '\0';
-	return ptr;
-}
-
 CVAR(Bool, adult_lockout, false, CVAR_ARCHIVE)
 CUSTOM_CVAR(String, playername, "Player", CVAR_ARCHIVE | CVAR_USERINFO)
 {
 	TArray<char> buffer(strlen(self)+1, 1);
-	OSD_StripColors(buffer.Data(), self);
 	if (buffer.Size() < strlen(self))
 	{
 		self = buffer.Data();
