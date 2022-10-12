@@ -15935,7 +15935,6 @@ int InitSpriteGrenade(DSWActor* actor)
 int InitMine(PLAYER* pp)
 {
     DSWActor* actor = pp->actor;
-    int dot;
 
     PlayerUpdateAmmo(pp, actor->user.WeaponNum, -1);
 
@@ -15973,10 +15972,11 @@ int InitMine(PLAYER* pp)
 
 	UpdateChange(actorNew, 0.5);
 
-    dot = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+	double dot = pp->vect.dot(pp->angle.ang.ToVector());
 
     // don't adjust for strafing
-    if (abs(dot) > 10000)
+	// not really sure what to do here as the original formula was very likely to overflow, creating a Q0.32 value.
+    if (abs(dot) > 10000./0xffffffff) 
     {
         // adjust xvel according to player velocity
 		actorNew->user.change += 2 * pp->vect;

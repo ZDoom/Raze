@@ -79,6 +79,7 @@ USERSAVE puser[MAX_SW_PLAYERS_REG];
 bool NightVision = false;
 extern int FinishAnim;
 
+constexpr double INPUT_SCALE = 1. / (1 << 12); // Old code used << 6 to get a Q14.18 value
 
 // the smaller the number the slower the going
 #define PLAYER_RUN_FRICTION (50000L)
@@ -95,12 +96,8 @@ extern int FinishAnim;
 
 // only for z direction climbing
 #define PLAYER_CLIMB_FRICTION (45056L)
-
-//#define BOAT_FRICTION 0xd000
-#define BOAT_FRICTION 0xcb00
-//#define TANK_FRICTION 0xcb00
-#define TANK_FRICTION (53248L)
-#define PLAYER_SLIDE_FRICTION (53248L)
+constexpr double TANK_FRICTION = FixedToFloat(53248);
+constexpr double PLAYER_SLIDE_FRICTION = FixedToFloat(53248);
 
 #define JUMP_STUFF 4
 
@@ -1847,10 +1844,9 @@ void DoPlayerSlide(PLAYER* pp)
     if (pp->sop)
         return;
 
-    pp->set_int_slide_vect_x(MulScale(pp->int_slide_vect().X, PLAYER_SLIDE_FRICTION, 16));
-    pp->set_int_slide_vect_y(MulScale(pp->int_slide_vect().Y, PLAYER_SLIDE_FRICTION, 16));
+	pp->slide_vect *= PLAYER_SLIDE_FRICTION;
 
-    if (abs(pp->int_slide_vect().X) < 12800 && abs(pp->int_slide_vect().Y) < 12800)
+    if (abs(pp->slide_vect.X) < 0.05 && abs(pp->slide_vect.Y) < 0.05)
         pp->slide_vect.Zero();
 
     push_ret = pushmove(pp->pos, &pp->cursector, ((int)actor->spr.clipdist<<2), pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
@@ -1957,8 +1953,8 @@ void DoPlayerMove(PLAYER* pp)
 
     pp->ovect = pp->vect;
 
-    pp->add_int_vect_x(((pp->input.fvel*synctics*2)<<6));
-    pp->add_int_vect_y(((pp->input.svel*synctics*2)<<6));
+    pp->vect.X += (pp->input.fvel*synctics*2) * INPUT_SCALE;
+    pp->vect.Y += (pp->input.svel*synctics*2) * INPUT_SCALE;
 
     friction = pp->friction;
     if (!(pp->Flags & PF_SWIMMING) && pp->WadeDepth)
@@ -1966,26 +1962,23 @@ void DoPlayerMove(PLAYER* pp)
         friction -= pp->WadeDepth * 100;
     }
 
-    pp->set_int_vect_x(MulScale(pp->int_vect().X, friction, 16));
-    pp->set_int_vect_y(MulScale(pp->int_vect().Y, friction, 16));
+	pp->vect *= FixedToFloat(friction);
 
     if (pp->Flags & (PF_FLYING))
     {
         // do a bit of weighted averaging
-        pp->set_int_vect_x((pp->int_vect().X + (pp->int_ovect().X*1))/2);
-        pp->set_int_vect_y((pp->int_vect().Y + (pp->int_ovect().Y*1))/2);
+        pp->vect = (pp->vect + (pp->ovect*1))/2;
     }
     else if (pp->Flags & (PF_DIVING))
     {
         // do a bit of weighted averaging
-        pp->set_int_vect_x((pp->int_vect().X + (pp->int_ovect().X*2))/3);
-        pp->set_int_vect_y((pp->int_vect().Y + (pp->int_ovect().Y*2))/3);
+        pp->vect = (pp->vect + (pp->ovect*2))/3;
     }
 
-    if (abs(pp->int_vect().X) < 12800 && abs(pp->int_vect().Y) < 12800)
+    if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
         pp->vect.Zero();
 
-    actor->set_int_xvel(FindDistance2D(pp->int_vect().X,pp->int_vect().Y)>>14);
+	actor->vel.X = pp->vect.Length();
 
     if (pp->Flags & (PF_CLIP_CHEAT))
     {
