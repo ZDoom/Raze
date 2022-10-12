@@ -1548,8 +1548,6 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
 
 void SlipSlope(PLAYER* pp)
 {
-    short ang;
-
     if (!pp->insector() || !pp->cursector->hasU())
         return;
 
@@ -1558,12 +1556,9 @@ void SlipSlope(PLAYER* pp)
     if (!(sectu->flags & SECTFU_SLIDE_SECTOR) || !(pp->cursector->floorstat & CSTAT_SECTOR_SLOPE))
         return;
 
-    ang = getangle(pp->cursector->firstWall()->delta());
+    DAngle ang = VecToAngle(pp->cursector->firstWall()->delta()) + DAngle90;
 
-    ang = NORM_ANGLE(ang + 512);
-
-    pp->add_int_vect_x(MulScale(bcos(ang), pp->cursector->floorheinum, sectu->speed));
-    pp->add_int_vect_y(MulScale(bsin(ang), pp->cursector->floorheinum, sectu->speed));
+	pp->vect += ang.ToVector() * pp->cursector->floorheinum / (1 << (sectu->speed + 4)); // todo confirm scale
 }
 
 void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
@@ -1846,7 +1841,7 @@ void DoPlayerSlide(PLAYER* pp)
 
     int push_ret;
 
-    if ((pp->int_slide_vect().X|pp->int_slide_vect().Y) == 0)
+    if (pp->slide_vect.isZero())
         return;
 
     if (pp->sop)
@@ -2358,10 +2353,10 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
             if (actor->int_pos().Z < sop->crush_z)
                 continue;
 
-            int32_t const vel = FindDistance2D(pp->int_vect().X>>8, pp->int_vect().Y>>8);
-            if (vel < 9000)
+			double const vel = pp->vect.Length() * 8;
+            if (vel < 70.3125)
             {
-                DoActorBeginSlide(actor, VecToAngle(pp->int_vect().X, pp->int_vect().Y), vel/8 * inttoworld);
+                DoActorBeginSlide(actor, VecToAngle(pp->vect.X, pp->vect.Y), vel);
                 if (DoActorSlide(actor))
                     continue;
             }
@@ -2539,7 +2534,6 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     if (RectClip)
     {
         HitInfo hit{};
-        int vel;
         int ret;
 
         auto save_cstat = plActor->spr.cstat;
@@ -2552,7 +2546,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
         if (!ret)
         {
-            vel = FindDistance2D(pp->int_vect().X>>8, pp->int_vect().Y>>8);
+			double vel = pp->vect.Length() * 1024;
 
             if (vel > 13000)
             {
@@ -2613,15 +2607,13 @@ void DoPlayerMoveVehicle(PLAYER* pp)
 
         if (actor->user.coll.type != kHitNone)
         {
-            int vel;
-
-            vel = FindDistance2D(pp->int_vect().X>>8, pp->int_vect().Y>>8);
+			double vel = pp->vect.Length() * 1024;
 
             if (vel > 13000)
             {
                 VehicleMoveHit(actor);
-                pp->set_int_slide_vect_x(-pp->int_vect().X<<1);
-                pp->set_int_slide_vect_y(-pp->int_vect().Y<<1);
+                pp->slide_vect.X = -2 * pp->vect.X;
+                pp->slide_vect.Y = -2 * pp->vect.Y;
                 if (!(sop->flags & SOBJ_NO_QUAKE))
                     SetPlayerQuake(pp);
             }
@@ -3576,7 +3568,7 @@ bool PlayerOnLadder(PLAYER* pp)
     int nx, ny;
     unsigned i;
     HitInfo hit, near;
-    int dir, dist;
+    int dist;
 
 
     static short angles[] =
@@ -3589,7 +3581,7 @@ bool PlayerOnLadder(PLAYER* pp)
 
     neartag(pp->int_ppos(), pp->cursector, pp->angle.ang.Buildang(), near, 1024 + 768, NTAG_SEARCH_LO_HI);
 
-    dir = DOT_PRODUCT_2D(pp->int_vect().X, pp->int_vect().Y, pp->angle.ang.Cos() * (1 << 14), pp->angle.ang.Sin() * (1 << 14));
+    double dir = pp->vect.dot(pp->angle.ang.ToVector());
 
     if (dir < 0)
         return false;
