@@ -360,42 +360,35 @@ void displayweapon_d(int snum, double interpfrac)
 		auto displayrpg = [&]()
 		{
 			pin = ((gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
-			auto rpgpic = RPGGUN;
 
-			weapon_xoffset -= BobVal(768 + (kickback_pic * 128.)) * 8;
-			gun_pos += BobVal(768 + (kickback_pic * 128.)) * 8;
+			const auto xyoffset = BobVal(768 + (kickback_pic * 128.)) * 8;
+			offsets.X = weapon_xoffset - xyoffset;
+			offsets.Y *= 2.;
+			offsets.Y -= gun_pos + xyoffset;
 
 			if (*kb > 0)
 			{
 				if (*kb < (isWW2GI() ? aplWeaponTotalTime(RPG_WEAPON, snum) : 8))
 				{
-					hud_drawpal(weapon_xoffset + 164, (looking_arc * 2.) + 176 - gun_pos,
-						RPGGUN + (*kb >> 1), shade, o | pin, pal);
+					hud_drawpal(164 + offsets.X, 176 + offsets.Y, RPGGUN + (*kb >> 1), shade, o | pin, pal, angle);
 				}
 				else if (isWW2GI())
 				{
 					// else we are in 'reload time'
-					if (*kb <
-						(
-							(aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum)) / 2
-							+ aplWeaponTotalTime(p->curr_weapon, snum)
-							)
-						)
+					if (*kb < ((aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum)) / 2 + aplWeaponTotalTime(p->curr_weapon, snum)))
 					{
 						// down 
-						gun_pos -= 10 * (kickback_pic - aplWeaponTotalTime(p->curr_weapon, snum)); //D
+						offsets.Y += 10 * (kickback_pic - aplWeaponTotalTime(p->curr_weapon, snum)); //D
 					}
 					else
 					{
-						// move back down
-
 						// up and left
-						gun_pos -= 10 * (aplWeaponReload(p->curr_weapon, snum) - kickback_pic); //U
+						offsets.Y += 10 * (aplWeaponReload(p->curr_weapon, snum) - kickback_pic); //U
 					}
 				}
 			}
 
-			hud_drawpal(weapon_xoffset + 164, (looking_arc * 2.) + 176 - gun_pos, rpgpic, shade, o | pin, pal);
+			hud_drawpal(164 + offsets.X, 176 + offsets.Y, RPGGUN, shade, o | pin, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
