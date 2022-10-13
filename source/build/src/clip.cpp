@@ -120,61 +120,8 @@ inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_
 static int cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const pos, int32_t const posz)
 {
 	assert(validSectorIndex(dasect) && validSectorIndex(nextsect));
-
-    auto const sec2 = &sector[nextsect];
-
-    switch (enginecompatibility_mode)
-    {
-    case ENGINECOMPATIBILITY_NONE:
-        break;
-    default:
-    {
-        int32_t daz = int_getflorzofslopeptr(&sector[dasect], pos.X, pos.Y);
-        int32_t daz2 = int_getflorzofslopeptr(sec2, pos.X, pos.Y);
-
-        if (daz2 < daz-(1<<8) && (sec2->floorstat & CSTAT_SECTOR_SKY) == 0)
-            if (posz >= daz2-(flordist-1)) return 1;
-        daz = int_getceilzofslopeptr(&sector[dasect], pos.X, pos.Y);
-        daz2 = int_getceilzofslopeptr(sec2, pos.X, pos.Y);
-        if (daz2 > daz+(1<<8) && (sec2->ceilingstat & CSTAT_SECTOR_SKY) == 0)
-            if (posz <= daz2+(ceildist-1)) return 1;
-
-        return 0;
-    }
-    }
-
-    double daz2  = sec2->floorz;
-    double dacz2 = sec2->ceilingz;
-
-    if ((sec2->floorstat|sec2->ceilingstat) & CSTAT_SECTOR_SLOPE)
-        getcorrectzsofslope(nextsect, pos.X, pos.Y, &dacz2, &daz2);
-
-    if (daz2 <= dacz2)
-        return 1;
-
-    auto const sec = &sector[dasect];
-
-    double daz  = sec->floorz;
-    double dacz = sec->ceilingz;
-
-    if ((sec->floorstat|sec->ceilingstat) & CSTAT_SECTOR_SLOPE)
-        getcorrectzsofslope(dasect, pos.X, pos.Y, &dacz, &daz);
-
-    double const sec2height = abs(daz2-dacz2);
-    double fposz = posz * zinttoworld;
-    double fceildist = ceildist * zinttoworld;
-    double fflordist = flordist * zinttoworld;
-
-    return ((abs(daz-dacz) > sec2height &&       // clip if the current sector is taller and the next is too small
-            sec2height < (fceildist + (CLIPCURBHEIGHT * 2))) ||
-
-            ((sec2->floorstat & CSTAT_SECTOR_SKY) == 0 &&    // parallaxed floor curbs don't clip
-            fposz >= daz2-(fflordist-1) &&    // also account for desired z distance tolerance
-            daz2 < daz-CLIPCURBHEIGHT) ||   // curbs less tall than 256 z units don't clip
-
-            ((sec2->ceilingstat & CSTAT_SECTOR_SKY) == 0 && 
-            fposz <= dacz2+(fceildist-1) &&
-            dacz2 > dacz+CLIPCURBHEIGHT));  // ceilings check the same conditions ^^^^^
+    return checkOpening(DVector2(pos.X * inttoworld, pos.Y * inttoworld), posz * zinttoworld, &sector[dasect], &sector[nextsect], 
+        ceildist * zinttoworld, flordist * zinttoworld, enginecompatibility_mode == ENGINECOMPATIBILITY_NONE);
 }
 
 //

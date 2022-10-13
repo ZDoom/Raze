@@ -150,17 +150,6 @@ void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, 
 	}
 }
 
-// only used by clipmove et.al.
-void getcorrectzsofslope(int sectnum, int dax, int day, double* ceilz, double* florz)
-{
-	DVector2 closestv;
-	SquareDistToSector(dax * inttoworld, day * inttoworld, &sector[sectnum], &closestv);
-	double ffloorz, fceilz;
-	calcSlope(&sector[sectnum], closestv.X, closestv.Y, &fceilz, &ffloorz);
-	if (ceilz) *ceilz = fceilz;
-	if (florz) *florz = ffloorz;
-}
-
 //==========================================================================
 //
 // 
@@ -1192,6 +1181,13 @@ bool checkOpening(const DVector2& inpos, double z, const sectortype* sec, const 
 	double c1, c2, f1, f2;
 	calcSlope(sec, pos.X, pos.Y, &c1, &f1);
 	calcSlope(nextsec, pos.X, pos.Y, &c2, &f2);
+
+	if (precise)
+	{
+		double sech = abs(f1 - c1);
+		double nextsech = abs(f2 - c2);
+		if (sech > nextsech && nextsech < ceilingdist + 2) return 1;
+	}
 
 	return ((f2 < f1 - 1 && (nextsec->floorstat & CSTAT_SECTOR_SKY) == 0 && z >= f2 - (floordist - zmaptoworld)) ||
 		(c2 > c1 + 1 && (nextsec->ceilingstat & CSTAT_SECTOR_SKY) == 0 && z <= c2 + (ceilingdist - zmaptoworld)));
