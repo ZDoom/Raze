@@ -527,7 +527,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 {
                     vec2_t const vec = pos->vec2;
                     keepaway(&pos->X, &pos->Y, i);
-                    if (inside_p(pos->X,pos->Y, *sectnum) != 1)
+                    if (inside(pos->X,pos->Y, &sector[*sectnum]) != 1)
                         pos->vec2 = vec;
                     break;
                 }
@@ -599,42 +599,44 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
+        DVector3 fpos(pos->X* inttoworld, pos->Y* inttoworld, pos->Z* inttoworld);
+
         for (int j=0; j<clipsectnum; j++)
-            if (inside_p(pos->X, pos->Y, clipsectorlist[j]) == 1)
+            if (inside(fpos.X, fpos.Y, &sector[clipsectorlist[j]]) == 1)
             {
                 *sectnum = clipsectorlist[j];
                 return clipReturn;
             }
 
-        int32_t tempint2, tempint1 = INT32_MAX;
+        double tempint2, tempint1 = INT32_MAX;
         *sectnum = -1;
         for (int j = (int)sector.Size() - 1; j >= 0; j--)
         {
             auto sect = &sector[j];
-            if (inside(pos->X, pos->Y, sect) == 1)
+            if (inside(fpos.X, fpos.Y, sect) == 1)
             {
-                tempint2 = int_getceilzofslopeptr(sect, pos->X, pos->Y) - pos->Z;
+                tempint2 = getceilzofslopeptr(sect, fpos.X, fpos.Y) - fpos.Z;
 
                 if (tempint2 > 0)
                 {
                     if (tempint2 < tempint1)
                     {
-                        *sectnum = (int16_t)j;
+                        *sectnum = j;
                         tempint1 = tempint2;
                     }
                 }
                 else
                 {
-                    tempint2 = pos->Z - int_getflorzofslopeptr(sect, pos->X, pos->Y);
+                    tempint2 = fpos.Z - getflorzofslopeptr(sect, fpos.X, fpos.Y);
 
                     if (tempint2 <= 0)
                     {
-                        *sectnum = (int16_t)j;
+                        *sectnum = j;
                         return clipReturn;
                     }
                     if (tempint2 < tempint1)
                     {
-                        *sectnum = (int16_t)j;
+                        *sectnum = j;
                         tempint1 = tempint2;
                     }
                 }

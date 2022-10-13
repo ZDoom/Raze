@@ -320,9 +320,6 @@ inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pc
 }
 
 
-// only used by clipmove et.al.
-void getcorrectzsofslope(int sectnum, int dax, int day, double* ceilz, double* florz);
-
 //==========================================================================
 //
 // for the game engine
@@ -542,31 +539,6 @@ inline DAngle ClampViewPitch(const DAngle pitch)
 //==========================================================================
 
 [[deprecated]]
-inline int int_getceilzofslopeptr(const sectortype* sec, int dax, int day)
-{
-	double z;
-	calcSlope(sec, dax * inttoworld, day * inttoworld, &z, nullptr);
-	return int(z * zworldtoint);
-}
-
-[[deprecated]]
-inline int int_getflorzofslopeptr(const sectortype* sec, int dax, int day)
-{
-	double z;
-	calcSlope(sec, dax * inttoworld, day * inttoworld, nullptr, &z);
-	return int(z * zworldtoint);
-}
-
-[[deprecated]]
-inline void int_getzsofslopeptr(const sectortype* sec, int dax, int day, int* ceilz, int* florz)
-{
-	double c, f;
-	calcSlope(sec, dax * inttoworld, day * inttoworld, &c, &f);
-	*ceilz = int(c * zworldtoint);
-	*florz = int(f * zworldtoint);
-}
-
-[[deprecated]]
 inline int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3, int y3, int x4, int y4, int* intx, int* inty, int* intz)
 {
 	DVector3 retv;
@@ -580,21 +552,10 @@ inline int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3, in
 }
 
 [[deprecated]]
-inline int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2)
-{
-	return cansee(DVector3(x1 * inttoworld, y1 * inttoworld, z1 * zinttoworld), sect1, DVector3(x2 * inttoworld, y2 * inttoworld, z2 * zinttoworld), sect2);
-}
-
-[[deprecated]]
 inline int inside(int x, int y, const sectortype* sect)
 {
 	return inside(x * inttoworld, y * inttoworld, sect);
 }
-
-// still needed by some parts in the engine.
-[[deprecated]]
-inline int inside_p(int x, int y, int sectnum) { return (sectnum >= 0 && inside(x * inttoworld, y * inttoworld, &sector[sectnum]) == 1); }
-
 
 
 
