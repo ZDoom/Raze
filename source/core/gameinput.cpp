@@ -42,8 +42,7 @@ enum
 static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
 static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
 static constexpr DAngle YAW_LOOKINGSPEED = DAngle::fromDeg(801.5625);
-static constexpr DAngle YAW_ROTATESPEED = DAngle::fromDeg(126.5625);
-static constexpr DAngle YAW_ROTATERETURN  = DAngle::fromDeg(15.);
+static constexpr DAngle YAW_ROTATESPEED = DAngle::fromDeg(63.28125);
 static constexpr DAngle YAW_LOOKRETURN = DAngle::fromDeg(7.5);
 static constexpr DAngle YAW_SPINSTAND = DAngle::fromDeg(675.);
 static constexpr DAngle YAW_SPINCROUCH = YAW_SPINSTAND * 0.5;
@@ -221,7 +220,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process angle return to zeros.
-	scaletozero(rotscrnang, YAW_ROTATERETURN, scaleAdjust);
+	scaletozero(rotscrnang, YAW_LOOKRETURN, scaleAdjust);
 	scaletozero(look_ang, YAW_LOOKRETURN, scaleAdjust);
 
 	// Process keyboard input.
