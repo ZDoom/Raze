@@ -805,27 +805,30 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaydevastator = [&]
 		{
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
 			if (*kb)
 			{
-				static const uint8_t cycloidy[] = { 0,4,12,24,12,4,0 };
+				static constexpr uint8_t cycloidy[] = { 0,4,12,24,12,4,0 };
 
 				i = Sgn(*kb >> 2);
 
 				if (p->hbomb_hold_delay)
 				{
-					hud_drawpal((cycloidy[*kb] >> 1) + weapon_xoffset + 268 - look_anghalf, cycloidy[*kb] + looking_arc + 238 - gun_pos, DEVISTATOR + i, -32, o, pal);
-					hud_drawpal(weapon_xoffset + 30 - look_anghalf, looking_arc + 240 - gun_pos, DEVISTATOR, shade, o | 4, pal);
+					hud_drawpal(268 + offsets.X + (cycloidy[*kb] >> 1), 238 + offsets.Y + cycloidy[*kb], DEVISTATOR + i, -32, o, pal, angle);
+					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
 				}
 				else
 				{
-					hud_drawpal(-(cycloidy[*kb] >> 1) + weapon_xoffset + 30 - look_anghalf, cycloidy[*kb] + looking_arc + 240 - gun_pos, DEVISTATOR + i, -32, o | 4, pal);
-					hud_drawpal(weapon_xoffset + 268 - look_anghalf, looking_arc + 238 - gun_pos, DEVISTATOR, shade, o, pal);
+					hud_drawpal(30 + offsets.X - (cycloidy[*kb] >> 1), 240 + offsets.Y + cycloidy[*kb], DEVISTATOR + i, -32, o | 4, pal, angle);
+					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR, shade, o, pal, angle);
 				}
 			}
 			else
 			{
-				hud_drawpal(weapon_xoffset + 268 - look_anghalf, looking_arc + 238 - gun_pos, DEVISTATOR, shade, o, pal);
-				hud_drawpal(weapon_xoffset + 30 - look_anghalf, looking_arc + 240 - gun_pos, DEVISTATOR, shade, o | 4, pal);
+				hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR, shade, o, pal, angle);
+				hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
 			}
 		};
 
