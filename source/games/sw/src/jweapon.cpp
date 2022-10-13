@@ -2198,7 +2198,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     if (actor->user.PlayerP)
     {
-		actorNew->vel.Z = actor->user.PlayerP->horizon.horiz.Tan() * (HORIZ_MULTF / 3.);
+        setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, actor->user.PlayerP->horizon.horiz, HORIZ_MULTF * (1. / 3.));
     }
 
     switch (actorNew->user.ID)
