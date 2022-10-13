@@ -741,14 +741,8 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayhandremote = [&]()
 		{
-			int8_t remote_frames[] = { 0,1,1,2,1,1,0,0,0,0,0 };
-
-			weapon_xoffset = -48;
-
-			if (*kb)
-				hud_drawpal(weapon_xoffset + 150 - look_anghalf, looking_arc + 258 - gun_pos, HANDREMOTE + remote_frames[*kb], shade, o, pal);
-			else
-				hud_drawpal(weapon_xoffset + 150 - look_anghalf, looking_arc + 258 - gun_pos, HANDREMOTE, shade, o, pal);
+			static constexpr uint8_t remote_frames[] = { 0,1,1,2,1,1,0,0,0,0,0 };
+			hud_drawpal(102 + offsets.X, 258 + offsets.Y, HANDREMOTE + (*kb ? remote_frames[*kb] : 0), shade, o, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
