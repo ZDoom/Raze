@@ -985,58 +985,39 @@ void displayweapon_d(int snum, double interpfrac)
 		auto displayshrinker = [&]
 		{
 			auto shrinker = /*isWorldTour() ? SHRINKERWIDE :*/ SHRINKER;
-			weapon_xoffset += 28;
-			looking_arc += 18;
+			offsets.X += weapon_xoffset + 28;
+			offsets.Y -= gun_pos - 18;
 
 			if (*kb == 0)
 			{
 				if (cw == GROW_WEAPON)
 				{
-					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - int(BobVal(random_club_frame) * 16),
-						o, 2);
-
-					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, shrinker - 2, shade, o, pal);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 2, angle);
+					hud_drawpal(188 + offsets.X, 240 + offsets.Y, shrinker - 2, shade, o, pal, angle);
 				}
 				else
 				{
-					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - int(BobVal(random_club_frame) * 16),
-						o, 0);
-
-					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, shrinker, shade, o, pal);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 0, angle);
+					hud_drawpal(188 + offsets.X, 240 + offsets.Y, shrinker, shade, o, pal, angle);
 				}
 			}
 			else
 			{
 				if (p->GetActor()->spr.pal != 1)
 				{
-					weapon_xoffset += rand() & 3;
-					gun_pos += (rand() & 3);
+					offsets.X += rand() & 3;
+					offsets.Y -= rand() & 3;
 				}
 
 				if (cw == GROW_WEAPON)
 				{
-					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 3 + (*kb & 3), -32,
-						o, 2);
-
-					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, shrinker - 1, shade, o, pal);
-
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 2, angle);
+					hud_drawpal(188 + offsets.X, 240 + offsets.Y, shrinker - 1, shade, o, pal, angle);
 				}
 				else
 				{
-					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 3 + (*kb & 3), -32,
-						o, 0);
-
-					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, shrinker + 1, shade, o, pal);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
+					hud_drawpal(188 + offsets.X, 240 + offsets.Y, shrinker + 1, shade, o, pal, angle);
 				}
 			}
 		};
