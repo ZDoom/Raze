@@ -50,9 +50,9 @@ inline static double getavel(int snum)
 //
 //---------------------------------------------------------------------------
 
-inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p)
+inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle)
 {
-	hud_drawsprite(x, y, 65536, 0, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 65536, angle.Buildfang(), tilenum, shade, p, 2 | orientation);
 }
 
 //---------------------------------------------------------------------------
@@ -213,6 +213,10 @@ void displayweapon_d(int snum, double interpfrac)
 
 	o = 0;
 
+	auto horiz = !SyncInput() ? p->horizon.sum() : p->horizon.interpolatedsum(interpfrac);
+	auto offsets = p->angle.weaponoffsets(interpfrac);
+	auto angle = p->angle.renderrotscrn(interpfrac);
+
 	if (cl_hudinterpolation)
 	{
 		weapon_sway = interpolatedvalue<double>(p->oweapon_sway, p->weapon_sway, interpfrac);
@@ -231,7 +235,6 @@ void displayweapon_d(int snum, double interpfrac)
 	}
 
 	plravel = getavel(snum) * (1. / 16.);
-	auto horiz = !SyncInput() ? p->horizon.sum() : p->horizon.interpolatedsum(interpfrac);
 	horiz16th = interpolatedvalue(0., 16., horiz / DAngle90);
 	look_anghalf = p->angle.look_anghalf(interpfrac);
 	looking_arc = p->angle.looking_arc(interpfrac);
@@ -666,53 +669,50 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaypistol = [&]()
 		{
+			offsets.Y -= gun_pos;
+
 			if (*kb < 5)
 			{
-				static const uint8_t kb_frames[] = { 0,1,2,0,0 };
+				static constexpr uint8_t kb_frames[] = { 0,1,2,0,0 };
+				const double l = 195 - 12 + weapon_xoffset - (*kb == 2) * 3;
 
-				double l = 195 - 12 + weapon_xoffset;
-
-				if (*kb == 2)
-					l -= 3;
-				{
-					hud_drawpal(
-						(l - look_anghalf),
-						(looking_arc + 244 - gun_pos),
-						FIRSTGUN + kb_frames[*kb],
-						shade, 2, pal);
-				}
+				hud_drawpal(l + offsets.X, 244 + offsets.Y, FIRSTGUN + kb_frames[*kb], shade, 2, pal, angle);
 			}
 			else
 			{
 				pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
-				auto pic_5 = FIRSTGUN+5;
-
+				const int pic_5 = FIRSTGUN+5;
 				const int WEAPON2_RELOAD_TIME = 50;
-				auto reload_time = isWW2GI() ? aplWeaponReload(PISTOL_WEAPON, snum) : WEAPON2_RELOAD_TIME;
+				const int reload_time = isWW2GI() ? aplWeaponReload(PISTOL_WEAPON, snum) : WEAPON2_RELOAD_TIME;
+
 				if (*kb < 10)
-					hud_drawpal(194 - look_anghalf, looking_arc + 230 - gun_pos, FIRSTGUN + 4, shade, o|pin, pal);
+				{
+					hud_drawpal(194 + offsets.X, 230 + offsets.Y, FIRSTGUN + 4, shade, o | pin, pal, angle);
+				}
 				else if (*kb < 15)
 				{
-					hud_drawpal(244 - (kickback_pic * 8.) - look_anghalf, looking_arc + 130 - gun_pos + (kickback_pic * 16.), FIRSTGUN + 6, shade, o | pin, pal);
-					hud_drawpal(224 - look_anghalf, looking_arc + 220 - gun_pos, pic_5, shade, o | pin, pal);
+					hud_drawpal(244 + offsets.X - (kickback_pic * 8.), 130 + offsets.Y + (kickback_pic * 16.), FIRSTGUN + 6, shade, o | pin, pal, angle);
+					hud_drawpal(224 + offsets.X, 220 + offsets.Y, pic_5, shade, o | pin, pal, angle);
 				}
 				else if (*kb < 20)
 				{
-					hud_drawpal(124 + (kickback_pic * 2.) - look_anghalf, looking_arc + 430 - gun_pos - (kickback_pic * 8.), FIRSTGUN + 6, shade, o | pin, pal);
-					hud_drawpal(224 - look_anghalf, looking_arc + 220 - gun_pos, pic_5, shade, o | pin, pal);
+					hud_drawpal(124 + offsets.X + (kickback_pic * 2.), 430 + offsets.Y - (kickback_pic * 8.), FIRSTGUN + 6, shade, o | pin, pal, angle);
+					hud_drawpal(224 + offsets.X, 220 + offsets.Y, pic_5, shade, o | pin, pal, angle);
 				}
 				else if (*kb < (isNamWW2GI()? (reload_time - 12) : 23))
 				{
-					hud_drawpal(184 - look_anghalf, looking_arc + 235 - gun_pos, FIRSTGUN + 8, shade, o | pin, pal);
-					hud_drawpal(224 - look_anghalf, looking_arc + 210 - gun_pos, pic_5, shade, o | pin, pal);
+					hud_drawpal(184 + offsets.X, 235 + offsets.Y, FIRSTGUN + 8, shade, o | pin, pal, angle);
+					hud_drawpal(224 + offsets.X, 210 + offsets.Y, pic_5, shade, o | pin, pal, angle);
 				}
 				else if (*kb < (isNamWW2GI()? (reload_time - 6) : 25))
 				{
-					hud_drawpal(164 - look_anghalf, looking_arc + 245 - gun_pos, FIRSTGUN + 8, shade, o | pin, pal);
-					hud_drawpal(224 - look_anghalf, looking_arc + 220 - gun_pos, pic_5, shade, o | pin, pal);
+					hud_drawpal(164 + offsets.X, 245 + offsets.Y, FIRSTGUN + 8, shade, o | pin, pal, angle);
+					hud_drawpal(224 + offsets.X, 220 + offsets.Y, pic_5, shade, o | pin, pal, angle);
 				}
 				else if (*kb < (isNamWW2GI()? reload_time : 27))
-					hud_drawpal(194 - look_anghalf, looking_arc + 235 - gun_pos, pic_5, shade, o, pal);
+				{
+					hud_drawpal(194 + offsets.X, 235 + offsets.Y, pic_5, shade, o, pal, angle);
+				}
 			}
 		};
 

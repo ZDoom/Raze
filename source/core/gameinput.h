@@ -150,6 +150,13 @@ struct PlayerAngle
 		return DVector2(159.72, 145.5 * renderrotscrn(interpfrac).Sin()) * -renderlookang(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
 	}
 
+	// Weapon x/y offsets based on the above.
+	DVector2 weaponoffsets(const double interpfrac)
+	{
+		auto offsets = crosshairoffsets(interpfrac); offsets.Y = abs(offsets.Y) * 4.;
+		return offsets;
+	}
+
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(const DAngle value)
 	{
