@@ -362,8 +362,7 @@ void displayweapon_d(int snum, double interpfrac)
 			pin = ((gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 
 			const auto xyoffset = BobVal(768 + (kickback_pic * 128.)) * 8;
-			offsets.X = weapon_xoffset - xyoffset;
-			offsets.Y *= 2.;
+			offsets.X += weapon_xoffset - xyoffset;
 			offsets.Y -= gun_pos + xyoffset;
 
 			if (*kb > 0)
