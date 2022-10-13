@@ -874,31 +874,21 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayshrinker_ww = [&]
 		{
-			weapon_xoffset += 28;
-			looking_arc += 18;
+			offsets.X += weapon_xoffset + 28;
+			offsets.Y -= gun_pos - 18;
 
 			if (*kb == 0)
 			{
 				// the 'at rest' display
 				if (p->ammo_amount[cw] <= 0) //p->last_weapon >= 0)
 				{
-					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 3 + (*kb & 3), -32,
-						o, 0);
-
-					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 1, shade, o, pal);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
+					hud_drawpal(188 + offsets.X, 240 + offsets.Y, SHRINKER + 1, shade, o, pal, angle);
 				}
 				else
 				{
-
-					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - int(BobVal(random_club_frame) * 16),
-						o, 0);
-
-					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER, shade, o, pal);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 0, angle);
+					hud_drawpal(188 + offsets.X, 240 + offsets.Y, SHRINKER, shade, o, pal, angle);
 				}
 			}
 			else
@@ -906,53 +896,34 @@ void displayweapon_d(int snum, double interpfrac)
 				// the 'active' display.
 				if (p->GetActor()->spr.pal != 1)
 				{
-					weapon_xoffset += rand() & 3;
-					gun_pos += (rand() & 3);
+					offsets.X += rand() & 3;
+					offsets.Y -= rand() & 3;
 				}
 
 
 				if (*kb < aplWeaponTotalTime(p->curr_weapon, snum))
 				{
-					if (*kb < aplWeaponFireDelay(p->curr_weapon, snum))
+					if (!(*kb < aplWeaponFireDelay(p->curr_weapon, snum)))
 					{
-						// before fire time.
-						// nothing to modify
-
-					}
-					else
-					{
-						// after fire time.
-
 						// lower weapon to reload cartridge (not clip)
-						gun_pos -= 10 * (aplWeaponTotalTime(p->curr_weapon, snum) - kickback_pic);
+						offsets.Y += 10 * (aplWeaponTotalTime(p->curr_weapon, snum) - kickback_pic);
 					}
 				}
 				// else we are in 'reload time'
-				else if (*kb <
-					(
-						(aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum)) / 2
-						+ aplWeaponTotalTime(p->curr_weapon, snum)
-						)
-					)
+				else if (*kb < ((aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum)) / 2 + aplWeaponTotalTime(p->curr_weapon, snum)))
 				{
 					// down 
-					gun_pos -= 10 * (kickback_pic - aplWeaponTotalTime(p->curr_weapon, snum)); //D
+					offsets.Y += 10 * (kickback_pic - aplWeaponTotalTime(p->curr_weapon, snum)); //D
 				}
 				else
 				{
 					// up
-					gun_pos -= 10 * (aplWeaponReload(p->curr_weapon, snum) - kickback_pic); //U
+					offsets.Y += 10 * (aplWeaponReload(p->curr_weapon, snum) - kickback_pic); //U
 				}
 
 				// draw weapon
-				{
-					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 3 + (*kb & 3), -32,
-						o, 0);
-
-					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 1, shade, o, pal);
-				}
+				hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
+				hud_drawpal(188 + offsets.X, 240 + offsets.Y, SHRINKER + 1, shade, o, pal, angle);
 			}
 		};
 
