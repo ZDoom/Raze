@@ -339,21 +339,16 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaytripbomb = [&]()
 		{
-			weapon_xoffset += 8;
-			gun_pos -= 10;
+			offsets.X += weapon_xoffset + 8;
+			offsets.Y -= gun_pos + 10;
 
 			if (*kb > 6)
-				looking_arc += kickback_pic * 8.;
+				offsets.Y += kickback_pic * 8.;
 			else if (*kb < 4)
-				hud_drawpal(weapon_xoffset + 142 - look_anghalf,
-					looking_arc + 234 - gun_pos, HANDHOLDINGLASER + 3, shade, o, pal);
+				hud_drawpal(142 + offsets.X, 234 + offsets.Y, HANDHOLDINGLASER + 3, shade, o, pal, angle);
 
-			hud_drawpal(weapon_xoffset + 130 - look_anghalf,
-				looking_arc + 249 - gun_pos,
-				HANDHOLDINGLASER + (*kb >> 2), shade, o, pal);
-			hud_drawpal(weapon_xoffset + 152 - look_anghalf,
-				looking_arc + 249 - gun_pos,
-				HANDHOLDINGLASER + (*kb >> 2), shade, o | 4, pal);
+			hud_drawpal(130 + offsets.X, 249 + offsets.Y, HANDHOLDINGLASER + (*kb >> 2), shade, o, pal, angle);
+			hud_drawpal(152 + offsets.X, 249 + offsets.Y, HANDHOLDINGLASER + (*kb >> 2), shade, o | 4, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
