@@ -584,33 +584,42 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaychaingun = [&]
 		{
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
 			if (*kb > 0)
-				gun_pos -= BobVal(kickback_pic * 128.) * 4;
+				offsets.Y += BobVal(kickback_pic * 128.) * 4;
 
-			if (*kb > 0 && p->GetActor()->spr.pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0 && p->GetActor()->spr.pal != 1)
+				offsets.X += 1 - (rand() & 3);
 
-			hud_drawpal(weapon_xoffset + 168 - look_anghalf, looking_arc + 260 - gun_pos, CHAINGUN, shade, o, pal);
+			hud_drawpal(168 + offsets.X, 260 + offsets.Y, CHAINGUN, shade, o, pal, angle);
+
 			switch(*kb)
 			{
 				case 0:
-					hud_drawpal(weapon_xoffset + 178 - look_anghalf,looking_arc + 233 - gun_pos, CHAINGUN + 1,shade,o,pal);
+					hud_drawpal(178 + offsets.X, 233 + offsets.Y, CHAINGUN + 1, shade, o, pal, angle);
 					break;
 				default:
 					if (*kb > 4 && *kb < 12)
 					{
-						i = 0;
-						if (p->GetActor()->spr.pal != 1) i = rand() & 7;
-						hud_drawpal(i + weapon_xoffset - 4 + 140 - look_anghalf,i + looking_arc - (kickback_pic / 2.) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 4) / 5),shade,o,pal);
-						if (p->GetActor()->spr.pal != 1) i = rand() & 7;
-						hud_drawpal(i + weapon_xoffset - 4 + 184 - look_anghalf,i + looking_arc - (kickback_pic / 2.) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 4) / 5),shade,o,pal);
+						auto rnd = p->GetActor()->spr.pal != 1 ? rand() & 7 : 0;
+						hud_drawpal(136 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), CHAINGUN + 5 + ((*kb - 4) / 5), shade, o, pal, angle);
+
+						if (p->GetActor()->spr.pal != 1) rnd = rand() & 7;
+						hud_drawpal(180 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), CHAINGUN + 5 + ((*kb - 4) / 5), shade, o, pal, angle);
 					}
+
 					if (*kb < 8)
 					{
-						i = rand() & 7;
-						hud_drawpal(i + weapon_xoffset - 4 + 162 - look_anghalf,i + looking_arc - (kickback_pic / 2.) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 2) / 5),shade,o,pal);
-						hud_drawpal(weapon_xoffset + 178 - look_anghalf,looking_arc + 233 - gun_pos, CHAINGUN + 1 + (*kb >> 1),shade,o,pal);
+						auto rnd = rand() & 7;
+						hud_drawpal(158 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), CHAINGUN + 5 + ((*kb - 2) / 5), shade, o, pal, angle);
+						hud_drawpal(178 + offsets.X, 233 + offsets.Y, CHAINGUN + 1 + (*kb >> 1), shade, o, pal, angle);
 					}
-					else hud_drawpal(weapon_xoffset + 178 - look_anghalf,looking_arc + 233 - gun_pos, CHAINGUN + 1,shade,o,pal);
+					else
+					{
+						hud_drawpal(178 + offsets.X, 233 + offsets.Y, CHAINGUN + 1, shade, o, pal, angle);
+					}
 					break;
 			}
 		};
