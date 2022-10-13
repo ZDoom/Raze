@@ -447,19 +447,6 @@ inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec
 	return result.type;
 }
 
-inline int pushmove(DVector3& pos, sectortype** const sect, double const walldist, double const ceildist, double const flordist,
-	uint32_t const cliptype, bool clear = true)
-{
-	auto vect = vec3_t(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint));
-	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	int res = pushmove_(&vect, &sectno, int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, clear);
-	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
-	*sect = sectno == -1 ? nullptr : &sector[sectno];
-	return res;
-}
-
-
-tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor);
 
 inline PClassActor* PClass::FindActor(FName name)
 {

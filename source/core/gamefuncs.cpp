@@ -1179,6 +1179,84 @@ void neartag(const DVector3& pos, sectortype* startsect, DAngle angle, HitInfoBa
 
 //==========================================================================
 //
+// 
+// 
+//==========================================================================
+
+bool checkOpening(const DVector3& pos, const sectortype* sec, const sectortype* nextsec, double ceilingdist, double floordist)
+{
+	double c1, c2, f1, f2;
+	calcSlope(sec, pos.X, pos.Y, &c1, &f1);
+	calcSlope(nextsec, pos.X, pos.Y, &c2, &f2);
+
+	return ((f2 < f1 - 1 && (nextsec->floorstat & CSTAT_SECTOR_SKY) == 0 && pos.Z >= f2 - (floordist - zmaptoworld)) ||
+		(c2 > c1 + 1 && (nextsec->ceilingstat & CSTAT_SECTOR_SKY) == 0 && pos.Z <= c2 + (ceilingdist - zmaptoworld)));
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist, double floordist, unsigned cliptype)
+{
+	auto wallflags = EWallFlags::FromInt(cliptype & 65535);
+	int maxhitwalls = 0;
+	bool pushed = true;
+
+	for(int direction = 1; pushed; direction = -direction)
+	{
+		pushed = false;
+
+		if (*pSect == nullptr)
+			return -1;
+
+		BFSSectorSearch search(*pSect);
+
+		while (auto sec = search.GetNext())
+		{
+			// this must go both forward and backward so we cannot use wallsofsector. Pity
+			for (int i = 0; i < sec->wallnum; i++)
+			{
+				auto wal = direction > 0 ? sec->firstWall() + i : sec->lastWall() - i;
+
+				if (IsCloseToWall(pos.XY(), wal, walldist - 0.25) == EClose::InFront)
+				{
+					bool blocked = false;
+					if (!wal->twoSided() || wal->cstat & wallflags) blocked = true;
+					else
+					{
+						auto pvect = NearestPointOnWall(pos.X, pos.Y, wal);
+						blocked = checkOpening(DVector3(pvect, pos.Z), sec, wal->nextSector(), ceildist, floordist);
+					}
+
+					if (blocked)
+					{
+						auto dv = wal->delta().Rotated90CCW().Unit() * 0.5;
+						for (int t = 0; t < 16; t++)
+						{
+							pos += dv;
+							if (IsCloseToWall(pos, wal, (walldist - 0.25)) == EClose::Outside) break;
+						}
+						pushed = true;
+
+						updatesector(pos, pSect);
+						if (++maxhitwalls >= 32) return -1;
+						if (*pSect == nullptr) return -1;
+					}
+					else
+						search.Add(wal->nextSector());
+				}
+			}
+		}
+		if (!pushed) return 0;
+	}
+	return -1;
+}
+
+//==========================================================================
+//
 //
 //
 //==========================================================================

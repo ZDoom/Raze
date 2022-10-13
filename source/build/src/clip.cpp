@@ -639,8 +639,10 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
 		{
-            DVector2 v(vec.X* inttoworld, vec.Y* inttoworld);
-			clipupdatesector(v, sectnum, rad * inttoworld, clipsectormap);
+            DVector3 v(vec.X* inttoworld, vec.Y* inttoworld, 0);
+            sectortype* sect = &sector[*sectnum];
+			updatesectorneighbor(v, &sect, rad * inttoworld);
+            *sectnum = ::sectnum(sect);
 		}
 
         pos->X = vec.X;
@@ -697,93 +699,3 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 }
 
 
-//
-// pushmove
-//
-int pushmove_(vec3_t *const vect, int *const sectnum,
-    int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, bool clear /*= true*/)
-{
-    int bad;
-
-    const int32_t dawalclipmask = (cliptype&65535);
-    //    const int32_t dasprclipmask = (cliptype >> 16);
-
-    if (*sectnum < 0)
-        return -1;
-
-    int32_t k = 32;
-
-    int dir = 1;
-    do
-    {
-        int32_t clipsectcnt = 0;
-
-        bad = 0;
-
-        if (clear)
-        {
-            if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE && *sectnum < 0)
-                return 0;
-            clipsectorlist[0] = *sectnum;
-            clipsectnum = 1;
-
-            clipsectormap.Zero();
-            clipsectormap.Set(*sectnum);
-        }
-
-        do
-        {
-            const walltype* wal;
-            int32_t startwall, endwall;
-
-            auto sec = &sector[clipsectorlist[clipsectcnt]];
-            if (dir > 0)
-                startwall = sec->wallptr, endwall = startwall + sec->wallnum;
-            else
-                endwall = sec->wallptr, startwall = endwall + sec->wallnum - 1;
-
-            int i;
-
-            for (i=startwall, wal=&wall[startwall]; i!=endwall; i+=dir, wal+=dir)
-                if (IsCloseToWall(DVector2(vect->X * inttoworld, vect->Y * inttoworld), &wall[i], (walldist-4) * inttoworld) == EClose::InFront)
-                {
-                    int j = 0;
-                    if (wal->nextsector < 0 || wal->cstat & EWallFlags::FromInt(dawalclipmask)) j = 1;
-                    else
-                    {
-                        auto pvect = NearestPointOnWall(vect->X * inttoworld, vect->Y * inttoworld, wal);
-                        vec2_t closest = { int(pvect.X * worldtoint), int(pvect.Y * worldtoint) };
-
-                        j = cliptestsector(clipsectorlist[clipsectcnt], wal->nextsector, flordist, ceildist, closest, vect->Z);
-                    }
-
-                    if (j != 0)
-                    {
-                        DAngle jj = wal->delta().Angle();
-                        int32_t dx = -int(jj.Sin() * 8);
-                        int32_t dy = int(jj.Cos() * 8);
-                        int bad2 = 16;
-                        do
-                        {
-                            vect->X = (vect->X) + dx; vect->Y = (vect->Y) + dy;
-                            bad2--; if (bad2 == 0) break;
-                        } while (IsCloseToWall(DVector2(vect->X * inttoworld, vect->Y * inttoworld), &wall[i], (walldist - 4) * inttoworld) != EClose::Outside);
-                        bad = -1;
-                        k--; if (k <= 0) return bad;
-
-                        DVector2 v(vect->vec2.X * inttoworld, vect->vec2.Y * inttoworld);
-                        clipupdatesector(v, sectnum, walldist * inttoworld, clipsectormap);
-
-                        if (*sectnum < 0) return -1;
-                    }
-                    else if (!clipsectormap[wal->nextsector])
-                        addclipsect(wal->nextsector);
-                }
-
-            clipsectcnt++;
-        } while (clipsectcnt < clipsectnum);
-        dir = -dir;
-    } while (bad != 0);
-
-    return bad;
-}
