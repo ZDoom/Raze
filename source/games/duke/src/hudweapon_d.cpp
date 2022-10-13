@@ -687,50 +687,50 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayhandbomb = [&]()
 		{
+			int pic = HANDTHROW;
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
 			if (*kb)
 			{
-				static const uint8_t throw_frames[]
-					= { 0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2 };
+				static constexpr uint8_t throw_frames[] = { 0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2 };
 
 				if (isWW2GI())
 				{
 					if (*kb <= aplWeaponFireDelay(HANDBOMB_WEAPON, snum))
 					{
 						// it holds here
-						gun_pos -= 5 * kickback_pic; //D
+						offsets.Y += 5 * kickback_pic; //D
 					}
-					else if (*kb <
-						(
-							(aplWeaponTotalTime(HANDBOMB_WEAPON, snum) - aplWeaponFireDelay(HANDBOMB_WEAPON, snum)) / 2
-							+ aplWeaponFireDelay(HANDBOMB_WEAPON, snum)
-							)
-						)
+					else if (*kb < ((aplWeaponTotalTime(HANDBOMB_WEAPON, snum) - aplWeaponFireDelay(HANDBOMB_WEAPON, snum)) / 2 + aplWeaponFireDelay(HANDBOMB_WEAPON, snum)))
 					{
 						// up and left
-						gun_pos += 10 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum)); //U
-						weapon_xoffset += 80 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum));
+						offsets.Y -= 10 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum)); //U
+						offsets.X += 80 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum));
 					}
 					else if (*kb < aplWeaponTotalTime(HANDBOMB_WEAPON, snum))
 					{
-						gun_pos += 240;	// start high
-						gun_pos -= 12 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum));  //D
 						// move left
+						offsets.Y -= 240; // start high
+						offsets.Y += 12 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum)); //D
 						weapon_xoffset += 90 - (5 * (aplWeaponTotalTime(HANDBOMB_WEAPON, snum) - kickback_pic));
 					}
 				}
 				else
 				{
 					if (*kb < 7)
-						gun_pos -= 10 * kickback_pic;        //D
+						offsets.Y += 10 * kickback_pic;        //D
 					else if (*kb < 12)
-						gun_pos += 20 * (kickback_pic - 10); //U
+						offsets.Y -= 20 * (kickback_pic - 10); //U
 					else if (*kb < 20)
-						gun_pos -= 9 * (kickback_pic - 14);  //D
+						offsets.Y += 9 * (kickback_pic - 14);  //D
 				}
-				hud_drawpal(weapon_xoffset + 190 - look_anghalf, looking_arc + 250 - gun_pos, HANDTHROW + throw_frames[*kb], shade, o, pal);
+
+				pic += throw_frames[*kb];
+				offsets.Y -= 10;
 			}
-			else
-				hud_drawpal(weapon_xoffset + 190 - look_anghalf, looking_arc + 260 - gun_pos, HANDTHROW, shade, o, pal);
+
+			hud_drawpal(190 + offsets.X, 260 + offsets.Y, pic, shade, o, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
