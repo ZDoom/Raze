@@ -398,46 +398,38 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayshotgun_ww = [&]()
 		{
+			offsets.X += weapon_xoffset - 8;
+			offsets.Y -= gun_pos;
+
 			if (*kb > 0)
-			{
-				gun_pos -= BobVal(kickback_pic * 128.) * 4;
-			}
+				offsets.Y += BobVal(kickback_pic * 128.) * 4;
 
 			if (*kb > 0 && p->GetActor()->spr.pal != 1)
-			{
-				weapon_xoffset += 1 - (rand() & 3);
-			}
+				offsets.X += 1 - (rand() & 3);
 
-			weapon_xoffset -= 8;
+			int pic = SHOTGUN;
 
 			if (*kb == 0)
 			{
-				hud_drawpal(weapon_xoffset + 146 - look_anghalf, looking_arc + 202 - gun_pos, SHOTGUN, shade, o, pal);
+				// Just fall through here.
 			}
 			else if (*kb <= aplWeaponTotalTime(SHOTGUN_WEAPON, snum))
 			{
-				hud_drawpal(weapon_xoffset + 146 - look_anghalf, looking_arc + 202 - gun_pos, SHOTGUN + 1, shade, o, pal);
+				pic += 1;
 			}
 			// else we are in 'reload time'
-			else if (*kb <
-				(
-					(aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum)) / 2
-					+ aplWeaponTotalTime(p->curr_weapon, snum)
-					)
-				)
+			else if (*kb < ((aplWeaponReload(p->curr_weapon, snum) - aplWeaponTotalTime(p->curr_weapon, snum)) / 2 + aplWeaponTotalTime(p->curr_weapon, snum)))
 			{
 				// down 
-				gun_pos -= 10 * (kickback_pic - aplWeaponTotalTime(p->curr_weapon, snum)); //D
-				hud_drawpal(weapon_xoffset + 146 - look_anghalf, looking_arc + 202 - gun_pos, SHOTGUN, shade, o, pal);
+				offsets.Y += 10 * (kickback_pic - aplWeaponTotalTime(p->curr_weapon, snum)); //D
 			}
 			else
 			{
-				// move back down
-
 				// up and left
-				gun_pos -= 10 * (aplWeaponReload(p->curr_weapon, snum) - kickback_pic); //U
-				hud_drawpal(weapon_xoffset + 146 - look_anghalf, looking_arc + 202 - gun_pos, SHOTGUN, shade, o, pal);
+				offsets.Y += 10 * (aplWeaponReload(p->curr_weapon, snum) - kickback_pic); //U
 			}
+
+			hud_drawpal(146 + offsets.X, 202 + offsets.Y, pic, shade, o, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
