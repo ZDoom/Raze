@@ -315,17 +315,18 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayknee = [&]()
 		{
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
 			if (*kb > 0)
 			{
 				if (*kb < 5 || *kb > 9)
 				{
-					hud_drawpal(weapon_xoffset + 220 - look_anghalf,
-						looking_arc + 250 - gun_pos, KNEE, shade, o, pal2);
+					hud_drawpal(220 + offsets.X, 250 + offsets.Y, KNEE, shade, o, pal2, angle);
 				}
 				else
 				{
-					hud_drawpal(weapon_xoffset + 160 - look_anghalf,
-						looking_arc + 214 - gun_pos, KNEE + 1, shade, o, pal2);
+					hud_drawpal(160 + offsets.X, 214 + offsets.Y, KNEE + 1, shade, o, pal2, angle);
 				}
 			}
 		};
