@@ -1183,14 +1183,18 @@ void neartag(const DVector3& pos, sectortype* startsect, DAngle angle, HitInfoBa
 // 
 //==========================================================================
 
-bool checkOpening(const DVector3& pos, const sectortype* sec, const sectortype* nextsec, double ceilingdist, double floordist)
+bool checkOpening(const DVector2& inpos, double z, const sectortype* sec, const sectortype* nextsec, double ceilingdist, double floordist, bool precise)
 {
+	DVector2 pos;
+	if (precise) SquareDistToSector(inpos.X, inpos.Y, nextsec, &pos);
+	else pos = inpos;
+
 	double c1, c2, f1, f2;
 	calcSlope(sec, pos.X, pos.Y, &c1, &f1);
 	calcSlope(nextsec, pos.X, pos.Y, &c2, &f2);
 
-	return ((f2 < f1 - 1 && (nextsec->floorstat & CSTAT_SECTOR_SKY) == 0 && pos.Z >= f2 - (floordist - zmaptoworld)) ||
-		(c2 > c1 + 1 && (nextsec->ceilingstat & CSTAT_SECTOR_SKY) == 0 && pos.Z <= c2 + (ceilingdist - zmaptoworld)));
+	return ((f2 < f1 - 1 && (nextsec->floorstat & CSTAT_SECTOR_SKY) == 0 && z >= f2 - (floordist - zmaptoworld)) ||
+		(c2 > c1 + 1 && (nextsec->ceilingstat & CSTAT_SECTOR_SKY) == 0 && z <= c2 + (ceilingdist - zmaptoworld)));
 }
 
 //==========================================================================
@@ -1228,7 +1232,7 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 					else
 					{
 						auto pvect = NearestPointOnWall(pos.X, pos.Y, wal);
-						blocked = checkOpening(DVector3(pvect, pos.Z), sec, wal->nextSector(), ceildist, floordist);
+						blocked = checkOpening(pvect, pos.Z, sec, wal->nextSector(), ceildist, floordist);
 					}
 
 					if (blocked)

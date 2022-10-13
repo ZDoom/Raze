@@ -264,6 +264,7 @@ bool checkRangeOfWallSprite(DCoreActor* itActor, const DVector3& pos, double max
 bool checkRangeOfFloorSprite(DCoreActor* itActor, const DVector3& pos, double maxdist, double& theZ);
 void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBase& ceilhit, double* florz, CollisionBase& florhit, double walldist, uint32_t cliptype);
 
+bool checkOpening(const DVector2& inpos, double z, const sectortype* sec, const sectortype* nextsec, double ceilingdist, double floordist, bool precise = false);
 int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist, double flordist, unsigned cliptype);
 tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor);
 
