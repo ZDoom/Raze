@@ -440,19 +440,20 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayshotgun = [&]()
 		{
-			weapon_xoffset -= 8;
+			offsets.X += weapon_xoffset - 8;
+			offsets.Y -= gun_pos;
 
 			switch(*kb)
 			{
 				case 1:
 				case 2:
-					hud_drawpal(weapon_xoffset + 168 - look_anghalf,looking_arc + 201 - gun_pos, SHOTGUN + 2,-128,o,pal);
+					hud_drawpal(168 + offsets.X, 201 + offsets.Y, SHOTGUN + 2, -128, o, pal, angle);
 					[[fallthrough]];
 				case 0:
 				case 6:
 				case 7:
 				case 8:
-					hud_drawpal(weapon_xoffset + 146 - look_anghalf,looking_arc + 202 - gun_pos, SHOTGUN,shade,o,pal);
+					hud_drawpal(146 + offsets.X, 202 + offsets.Y, SHOTGUN, shade, o, pal, angle);
 					break;
 				case 3:
 				case 4:
@@ -463,42 +464,40 @@ void displayweapon_d(int snum, double interpfrac)
 				case 12:
 					if (*kb > 1 && *kb < 5)
 					{
-						gun_pos -= 40;
-						weapon_xoffset += 20;
+						offsets.Y += 40;
+						offsets.X += 20;
 
-						hud_drawpal(weapon_xoffset + 178 - look_anghalf,looking_arc + 194 - gun_pos, SHOTGUN + 1 + ((*(kb)-1) >> 1),-128,o,pal);
+						hud_drawpal(178 + offsets.X, 194 + offsets.Y, SHOTGUN + 1 + ((*(kb)-1) >> 1), -128, o, pal, angle);
 					}
-
-					hud_drawpal(weapon_xoffset + 158 - look_anghalf,looking_arc + 220 - gun_pos, SHOTGUN + 3,shade,o,pal);
-
+					hud_drawpal(158 + offsets.X, 220 + offsets.Y, SHOTGUN + 3, shade, o, pal, angle);
 					break;
 				case 13:
 				case 14:
 				case 15:
-					hud_drawpal(32 + weapon_xoffset + 166 - look_anghalf,looking_arc + 210 - gun_pos, SHOTGUN + 4,shade,o,pal);
+					hud_drawpal(198 + offsets.X, 210 + offsets.Y, SHOTGUN + 4, shade, o, pal, angle);
 					break;
 				case 16:
 				case 17:
 				case 18:
 				case 19:
-					hud_drawpal(64 + weapon_xoffset + 170 - look_anghalf,looking_arc + 196 - gun_pos, SHOTGUN + 5,shade,o,pal);
+					hud_drawpal(234 + offsets.X, 196 + offsets.Y, SHOTGUN + 5, shade, o, pal, angle);
 					break;
 				case 20:
 				case 21:
 				case 22:
 				case 23:
-					hud_drawpal(64 + weapon_xoffset + 176 - look_anghalf,looking_arc + 196 - gun_pos, SHOTGUN + 6,shade,o,pal);
+					hud_drawpal(240 + offsets.X, 196 + offsets.Y, SHOTGUN + 6, shade, o, pal, angle);
 					break;
 				case 24:
 				case 25:
 				case 26:
 				case 27:
-					hud_drawpal(64 + weapon_xoffset + 170 - look_anghalf,looking_arc + 196 - gun_pos, SHOTGUN + 5,shade,o,pal);
+					hud_drawpal(234 + offsets.X, 196 + offsets.Y, SHOTGUN + 5, shade, o, pal, angle);
 					break;
 				case 28:
 				case 29:
 				case 30:
-					hud_drawpal(32 + weapon_xoffset + 156 - look_anghalf,looking_arc + 206 - gun_pos, SHOTGUN + 4,shade,o,pal);
+					hud_drawpal(188 + offsets.X, 206 + offsets.Y, SHOTGUN + 4, shade, o, pal, angle);
 					break;
 			}
 		};
