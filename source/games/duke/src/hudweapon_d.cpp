@@ -841,22 +841,29 @@ void displayweapon_d(int snum, double interpfrac)
 		auto displayfreezer = [&]
 		{
 			pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
-			auto pic = FREEZE;
+
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
 
 			if (*kb)
 			{
-				static const uint8_t cat_frames[] = { 0,0,1,1,2,2 };
+				static constexpr uint8_t cat_frames[] = { 0,0,1,1,2,2 };
 
 				if (p->GetActor()->spr.pal != 1)
 				{
-					weapon_xoffset += rand() & 3;
-					looking_arc += rand() & 3;
+					offsets.X += rand() & 3;
+					offsets.Y += rand() & 3;
 				}
-				gun_pos -= 16;
-				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, pic + 2, -32, o|pin, pal);
-				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 235 - gun_pos, pic + 3 + cat_frames[*kb % 6], -32, o | pin, pal);
+
+				offsets.Y += 16;
+
+				hud_drawpal(210 + offsets.X, 261 + offsets.Y, FREEZE + 2, -32, o | pin, pal, angle);
+				hud_drawpal(210 + offsets.X, 235 + offsets.Y, FREEZE + 3 + cat_frames[*kb % 6], -32, o | pin, pal, angle);
 			}
-			else hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, pic, shade, o | pin, pal);
+			else
+			{
+				hud_drawpal(210 + offsets.X, 261 + offsets.Y, FREEZE, shade, o | pin, pal, angle);
+			}
 		};
 
 		//---------------------------------------------------------------------------
