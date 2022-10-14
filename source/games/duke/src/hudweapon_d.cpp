@@ -156,14 +156,14 @@ void displaymasks_d(int snum, int p, double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-static bool animatetip(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal, double const interpfrac)
+static bool animatetip(int gs, player_struct* p, double xoffset, double yoffset, int pal, double const interpfrac, DAngle angle)
 {
 	if (p->tipincs == 0) return false;
 
 	static const int8_t tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
 	const double tipi = interpolatedvalue<double>(tip_y[p->otipincs], tip_y[p->tipincs], interpfrac) * 0.5;
 
-	hud_drawpal(170 + plravel - look_anghalf, tipi + looking_arc + 240 + horiz16th, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal);
+	hud_drawpal(170 + xoffset, 240 + tipi + yoffset, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal, angle);
 
 	return true;
 }
@@ -257,7 +257,7 @@ void displayweapon_d(int snum, double interpfrac)
 	auto adjusted_arc = looking_arc - hard_landing;
 	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
 	bool playerAnims = animatefist(shade, p, plravel, offsets.Y, pal, interpfrac) || animateknuckles(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal, angle) ||
-					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, interpfrac) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, interpfrac);
+					   animatetip(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal, interpfrac, angle) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, interpfrac);
 
 	if(playerVars || playerAnims)
 		return;
