@@ -205,7 +205,7 @@ public:
         audio.nWrite = 5; // play 5 blocks (i.e. half a second) of silence to get ahead of the stream. For this video it isn't necessary to sync it perfectly.
 
         // start audio playback
-        stream = S_CreateCustomStream(kSampleSize * 2, kSampleRate, 1, StreamCallbackFunc, this); // size must be doubled here or dropouts can be heard.
+        stream = S_CreateCustomStream(kSampleSize * 2, kSampleRate, 1, MusicSamples16bit, StreamCallbackFunc, this); // size must be doubled here or dropouts can be heard.
         animtex.SetSize(AnimTexture::Paletted, 200, 320);
     }
 

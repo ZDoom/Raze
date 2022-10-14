@@ -618,7 +618,7 @@ public:
 				if (adata.inf.bitsPerSample == 8) copy8bitSamples(read);
 				else copy16bitSamples(read);
 				if (!stream && read) // the sound may not start in the first frame, but the stream cannot start without any sound data present.
-					stream = S_CreateCustomStream(6000, adata.inf.sampleRate, adata.inf.nChannels, StreamCallbackFunc, this);
+					stream = S_CreateCustomStream(6000, adata.inf.sampleRate, adata.inf.nChannels, MusicSamples16bit, StreamCallbackFunc, this);
 
 			}
 
