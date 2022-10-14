@@ -122,13 +122,13 @@ static bool animateknee(int gs, player_struct* p, double look_anghalf, double lo
 //
 //---------------------------------------------------------------------------
 
-static bool animateknuckles(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal)
+static bool animateknuckles(int gs, player_struct* p, double xoffset, double yoffset, int pal, DAngle angle)
 {
 	if (isWW2GI() || p->over_shoulder_on != 0 || p->knuckle_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
 	static const uint8_t knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
 
-	hud_drawpal(160 + plravel - look_anghalf, looking_arc + 180 + horiz16th, CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal);
+	hud_drawpal(160 + xoffset, 180 + yoffset, CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal, angle);
 
 	return true;
 }
@@ -256,7 +256,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 	auto adjusted_arc = looking_arc - hard_landing;
 	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
-	bool playerAnims = animatefist(shade, p, plravel, offsets.Y, pal, interpfrac) || animateknuckles(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) ||
+	bool playerAnims = animatefist(shade, p, plravel, offsets.Y, pal, interpfrac) || animateknuckles(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal, angle) ||
 					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, interpfrac) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, interpfrac);
 
 	if(playerVars || playerAnims)
