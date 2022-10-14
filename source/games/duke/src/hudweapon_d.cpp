@@ -103,15 +103,14 @@ static bool animatefist(int gs, player_struct* p, double xoffset, double yoffset
 //
 //---------------------------------------------------------------------------
 
-static bool animateknee(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal, double const interpfrac)
+static bool animateknee(int gs, player_struct* p, double xoffset, double yoffset, int pal, double const interpfrac, DAngle angle)
 {
 	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
 	static const int8_t knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
 	const double kneei = interpolatedvalue<double>(knee_y[p->oknee_incs], knee_y[p->knee_incs], interpfrac);
-	looking_arc += kneei;
 
-	hud_drawpal(105 + plravel - look_anghalf + (kneei * 0.25), looking_arc + 280 + horiz16th, KNEE, gs, 4, pal);
+	hud_drawpal(105 + (kneei * 0.25) + xoffset, 280 + kneei + yoffset, KNEE, gs, 4, pal, angle);
 
 	return true;
 }
@@ -261,7 +260,7 @@ void displayweapon_d(int snum, double interpfrac)
 	if(playerVars || playerAnims)
 		return;
 
-	animateknee(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal2, interpfrac);
+	animateknee(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal2, interpfrac, angle);
 
 	if (isWW2GI())
 	{
