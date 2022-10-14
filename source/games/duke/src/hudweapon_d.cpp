@@ -174,20 +174,19 @@ static bool animatetip(int gs, player_struct* p, double xoffset, double yoffset,
 //
 //---------------------------------------------------------------------------
 
-static bool animateaccess(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, double const interpfrac)
+static bool animateaccess(int gs, player_struct* p, double xoffset, double yoffset, double const interpfrac, DAngle angle)
 {
 	if (p->access_incs == 0 || p->GetActor()->spr.extra <= 0) return false;
 
 	static const int8_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 	const double accessi = interpolatedvalue<double>(access_y[p->oaccess_incs], access_y[p->access_incs], interpfrac);
-	looking_arc += accessi;
 
 	const int pal = p->access_spritenum != nullptr ? p->access_spritenum->spr.pal : 0;
 
 	if ((p->access_incs-3) > 0 && (p->access_incs-3)>>3)
-		hud_drawpal(170 + plravel - look_anghalf + (accessi * 0.25), looking_arc + 266 + horiz16th, HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal);
+		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal, angle);
 	else
-		hud_drawpal(170 + plravel - look_anghalf + (accessi * 0.25), looking_arc + 266 + horiz16th, HANDHOLDINGACCESS, gs, 4, pal);
+		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, HANDHOLDINGACCESS, gs, 4, pal, angle);
 
 	return true;
 }
@@ -257,7 +256,7 @@ void displayweapon_d(int snum, double interpfrac)
 	auto adjusted_arc = looking_arc - hard_landing;
 	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
 	bool playerAnims = animatefist(shade, p, plravel, offsets.Y, pal, interpfrac) || animateknuckles(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal, angle) ||
-					   animatetip(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal, interpfrac, angle) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, interpfrac);
+					   animatetip(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal, interpfrac, angle) || animateaccess(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, interpfrac, angle);
 
 	if(playerVars || playerAnims)
 		return;
