@@ -340,7 +340,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 			if (*kb > 0)
 			{
-				if (*kb < (isWW2GI() ? aplWeaponTotalTime(RPG_WEAPON, snum) : 8))
+				if (*kb < (isWW2GI() ? weapTotalTime : 8))
 				{
 					hud_drawpal(164 + offsets.X, 176 + offsets.Y, RPGGUN + (*kb >> 1), shade, o | pin, pal, angle);
 				}
@@ -385,7 +385,7 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				// Just fall through here.
 			}
-			else if (*kb <= aplWeaponTotalTime(SHOTGUN_WEAPON, snum))
+			else if (*kb <= weapTotalTime)
 			{
 				pic += 1;
 			}
@@ -491,7 +491,7 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				hud_drawpal(178 + offsets.X, 233 + offsets.Y, CHAINGUN + 1, shade, o, pal, angle);
 			}
-			else if (*kb <= aplWeaponTotalTime(CHAINGUN_WEAPON, snum))
+			else if (*kb <= weapTotalTime)
 			{
 				hud_drawpal(188 + offsets.X, 243 + offsets.Y, CHAINGUN + 2, shade, o, pal, angle);
 			}
