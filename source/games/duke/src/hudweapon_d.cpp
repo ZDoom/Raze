@@ -658,23 +658,23 @@ void displayweapon_d(int snum, double interpfrac)
 
 				if (isWW2GI())
 				{
-					if (*kb <= aplWeaponFireDelay(HANDBOMB_WEAPON, snum))
+					if (*kb <= weapFireDelay)
 					{
 						// it holds here
 						offsets.Y += 5 * kickback_pic; //D
 					}
-					else if (*kb < ((aplWeaponTotalTime(HANDBOMB_WEAPON, snum) - aplWeaponFireDelay(HANDBOMB_WEAPON, snum)) / 2 + aplWeaponFireDelay(HANDBOMB_WEAPON, snum)))
+					else if (*kb < ((weapTotalTime - weapFireDelay) / 2 + weapFireDelay))
 					{
 						// up and left
-						offsets.Y -= 10 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum)); //U
-						offsets.X += 80 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum));
+						offsets.Y -= 10 * (kickback_pic - weapFireDelay); //U
+						offsets.X += 80 * (kickback_pic - weapFireDelay);
 					}
-					else if (*kb < aplWeaponTotalTime(HANDBOMB_WEAPON, snum))
+					else if (*kb < weapTotalTime)
 					{
 						// move left
 						offsets.Y -= 240; // start high
-						offsets.Y += 12 * (kickback_pic - aplWeaponFireDelay(HANDBOMB_WEAPON, snum)); //D
-						weapon_xoffset += 90 - (5 * (aplWeaponTotalTime(HANDBOMB_WEAPON, snum) - kickback_pic));
+						offsets.Y += 12 * (kickback_pic - weapFireDelay); //D
+						weapon_xoffset += 90 - (5 * (weapTotalTime - kickback_pic));
 					}
 				}
 				else
