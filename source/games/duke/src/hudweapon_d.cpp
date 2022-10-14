@@ -607,7 +607,7 @@ void displayweapon_d(int snum, double interpfrac)
 				const int pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 				const int pic_5 = FIRSTGUN+5;
 				const int WEAPON2_RELOAD_TIME = 50;
-				const int reload_time = isWW2GI() ? aplWeaponReload(PISTOL_WEAPON, snum) : WEAPON2_RELOAD_TIME;
+				const int reload_time = isWW2GI() ? weapReload : WEAPON2_RELOAD_TIME;
 
 				offsets.X -= weapon_xoffset;
 
