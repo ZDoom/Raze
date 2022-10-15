@@ -455,19 +455,22 @@ class ExhumedStatusBar : RazeStatusBar
 		stats.fontscale = 1.;
 		stats.altspacing = stats.spacing = SmallFont.GetHeight();
 		stats.screenbottomspace = bottomy;
-		stats.statfont = SmallFont;
 		stats.letterColor = TEXTCOLOR_RED;
 		stats.standardColor = TEXTCOLOR_UNTRANSLATED; 
 
+		int y = -1;
+		int mask = 1;
 		if (automapMode == am_full)
 		{
 			stats.statfont = Raze.PickSmallFont();
-			PrintAutomapInfo(stats, true);
+			y = PrintAutomapInfo(stats, summary, true);
+			mask = 2;
 		}
-		else if (automapMode == am_off && hud_stats) 
+		if (hud_stats & mask)
 		{
+			stats.statfont = SmallFont;
 			stats.completeColor = TEXTCOLOR_DARKGREEN;
-			PrintLevelStats(stats, summary);
+			PrintLevelStats(stats, summary, y);
 		}
 	}
 

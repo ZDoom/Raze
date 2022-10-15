@@ -43,24 +43,26 @@ class RazeStatusBar : StatusBarCore
 	//
 	//============================================================================
 
-	void PrintLevelStats(StatsPrintInfo info, SummaryInfo stats)
+	void PrintLevelStats(StatsPrintInfo info, SummaryInfo stats, double y = -1)
 	{
-
-		double y;
 		double scale = info.fontscale * hud_statscale;
 		if (info.spacing <= 0) info.spacing = info.statfont.GetHeight() * info.fontscale;
 		double spacing = info.spacing * hud_statscale;
-		if (hud_size == Hud_Nothing)
+		
+		if (y < 0)
 		{
-			y = 198 - spacing;
-		}
-		else if (info.screenbottomspace < 0)
-		{
-			y = 200 - (RelTop - info.screenbottomspace) * hud_scalefactor - spacing;
-		}
-		else
-		{
-			y = 200 - info.screenbottomspace * hud_scalefactor - spacing;
+			if (hud_size == Hud_Nothing)
+			{
+				y = 198 - spacing;
+			}
+			else if (info.screenbottomspace < 0)
+			{
+				y = 200 - (RelTop - info.screenbottomspace) * hud_scalefactor - spacing;
+			}
+			else
+			{
+				y = 200 - info.screenbottomspace * hud_scalefactor - spacing;
+			}
 		}
 
 		double y1, y2, y3;
@@ -109,7 +111,7 @@ class RazeStatusBar : StatusBarCore
 	//
 	//============================================================================
 
-	void PrintAutomapInfo(StatsPrintInfo info, bool forcetextfont = false)
+	int PrintAutomapInfo(StatsPrintInfo info, SummaryInfo stats, bool forcetextfont = false)
 	{
 		let TEXTCOLOR_ESCAPESTR = "\034";
 		let lev = currentLevel;
@@ -145,9 +147,19 @@ class RazeStatusBar : StatusBarCore
 
 
 		double y;
+		double st_y = -1;
 		if (am_nameontop)
 		{
 			y = spacing + 1;
+			if (info.screenbottomspace < 0)
+			{
+				st_y = (200 - RelTop) * hud_scalefactor - spacing;
+			}
+			else
+			{
+				st_y = 200 - info.screenbottomspace * hud_scalefactor - spacing;
+			}
+			
 		}
 		else if (info.screenbottomspace < 0)
 		{
@@ -163,8 +175,16 @@ class RazeStatusBar : StatusBarCore
 			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true);
 		y -= spacing;
 		if (volname.length() > 0)
+		{
 			Screen.DrawText(myfont, Font.CR_UNTRANSLATED, 2 * hud_statscale, y, volname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 				DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true);
+			y -= spacing;
+		}
+		if (!am_nameontop)
+		{
+			st_y = y;
+		}
+		return st_y;
 	}
 
 	//============================================================================

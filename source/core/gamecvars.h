@@ -59,7 +59,6 @@ EXTERN_CVAR(Int, hud_size)
 EXTERN_CVAR(Float, hud_statscale)
 
 EXTERN_CVAR(Int, hud_custom)
-EXTERN_CVAR(Bool, hud_stats)
 EXTERN_CVAR(Bool, hud_showmapname)
 EXTERN_CVAR(Bool, hud_position)
 EXTERN_CVAR(Bool, hud_bgstretch)

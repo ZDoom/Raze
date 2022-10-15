@@ -139,24 +139,28 @@ class BloodStatusBar : RazeStatusBar
 
 		stats.fontscale = 1.;
 		stats.screenbottomspace = bottomy;
-		stats.statfont = SmallFont;
 		stats.letterColor = TEXTCOLOR_DARKRED;
 		stats.standardColor = TEXTCOLOR_DARKGRAY;
 
+		int y = -1;
+		int mask = 1;
 		if (automapMode == am_full)
 		{
 			stats.statfont = SmallFont2;
 			stats.spacing = 6;
 			stats.altspacing = SmallFont.GetHeight() + 2;
 			if (hud_size <= Hud_StbarOverlay) stats.screenbottomspace = 56;
-			PrintAutomapInfo(stats, false);
+			y = PrintAutomapInfo(stats, summary, false);
+			mask = 2;
 		}
-		if (automapMode == am_off && hud_stats)
+		// Blood does not use am_overlay.
+		if (hud_stats & mask)
 		{
+			stats.statfont = SmallFont;
 			stats.completeColor = TEXTCOLOR_DARKGREEN;
 			stats.spacing = SmallFont.GetHeight() + 2;
 
-			PrintLevelStats(stats, summary);
+			PrintLevelStats(stats, summary, y);
 		}
 	}
 

@@ -1227,6 +1227,7 @@ OptionMenu "AutomapOptions"
 	Option "$AUTOMAPMNU_FOLLOW",				"am_followplayer",				"OnOff"
 	Slider "$AUTOMAPMNU_LINEALPHA",				"am_linealpha", 0.1, 1.0, 0.1, 1
 	Slider "$AUTOMAPMNU_LINETHICKNESS",			"am_linethickness", 1, 8, 1, 0
+	StaticText ""
 
 	// todo:
 	//CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
@@ -1293,6 +1294,14 @@ OptionValue CrosshairHealthTypes
 	2.0, "$OPTVAL_YES_ENHANCED"
 }
 
+OptionValue HudStats
+{
+	0.0, "$OPTVAL_OFF"
+	1.0, "$OPTVAL_HUD"
+	2.0, "$OPTVAL_AUTOMAP"
+	3.0, "$OPTVAL_HUDANDMAP"
+}
+
 OptionMenu "HUDOptions" protected
 {
 	Title "$OPTMNU_HUD"
@@ -1300,7 +1309,7 @@ OptionMenu "HUDOptions" protected
 	Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
 	Slider "$DSPLYMNU_SBSCALE",					"hud_scalefactor",			0.36, 1.0, 0.04, 2
 	StaticText ""
-	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
+	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"HudStats"
 	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			0.36, 1.0, 0.04, 2
 
 	StaticText ""

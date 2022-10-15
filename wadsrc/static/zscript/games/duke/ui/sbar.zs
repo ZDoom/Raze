@@ -164,14 +164,9 @@ class DukeCommonStatusBar : RazeStatusBar
 		StatsPrintInfo stats;
 		stats.fontscale = Raze.isRR() ? 0.5 : 1.;
 		stats.screenbottomspace = bottomy;
-		stats.statfont = SmallFont;
-		if (Raze.isNamWW2GI())
-		{
-			// The stock font of these games is totally unusable for this.
-			stats.statfont = ConFont;
-			stats.spacing = ConFont.GetHeight() + 1;
-		}
 
+		int y = -1;
+		int mask = 1;
 		if (automapMode == am_full)
 		{
 			stats.statfont = SmallFont2;
@@ -182,13 +177,16 @@ class DukeCommonStatusBar : RazeStatusBar
 
 			stats.standardColor = Font.TEXTCOLOR_UNTRANSLATED;
 			stats.letterColor = Font.TEXTCOLOR_GOLD;
-			PrintAutomapInfo(stats, false);
+			y = PrintAutomapInfo(stats, info, false);
+			mask = 2;
 		}
-		else if (hud_stats)
+		if (hud_stats & mask)
 		{
+			stats.statfont = SmallFont;
 			stats.letterColor = Font.TEXTCOLOR_ORANGE;
 			if (Raze.isNamWW2GI())
 			{
+				stats.statfont = ConFont;
 				stats.spacing = 8;
 				stats.standardColor = Font.TEXTCOLOR_YELLOW;
 				stats.completeColor = Font.TEXTCOLOR_FIRE;
@@ -205,7 +203,7 @@ class DukeCommonStatusBar : RazeStatusBar
 				stats.standardColor =
 					stats.completeColor = Font.TEXTCOLOR_UNTRANSLATED;
 			}
-			PrintLevelStats(stats, info);
+			PrintLevelStats(stats, info, y);
 		}
 	}
 

@@ -892,10 +892,10 @@ class SWStatusBar : RazeStatusBar
 	{
 		StatsPrintInfo stats; 
 		stats.fontscale = 1;
-		stats.spacing = 7;
 		stats.screenbottomspace = bottomy;
-		stats.statfont = SmallFont;
 
+		int y = -1;
+		int mask = 1;
 		if (automapMode == am_full)
 		{
 			stats.letterColor = Font.TEXTCOLOR_SAPPHIRE;
@@ -904,15 +904,17 @@ class SWStatusBar : RazeStatusBar
 			stats.statfont = SmallFont2;
 			stats.spacing = 6;
 			stats.altspacing = SmallFont.GetHeight() + 1;
-			PrintAutomapInfo(stats, false);
+			y = PrintAutomapInfo(stats, info, false);
+			mask = 2;
 		}
-		// JBF 20040124: display level stats in screen corner
-		else if (hud_stats && !(netgame /*|| numplayers > 1*/))
+		if (hud_stats & mask)
 		{
+			stats.statfont = SmallFont;
+			stats.spacing = 7;
 			stats.letterColor = Font.TEXTCOLOR_RED;
 			stats.standardColor = Font.TEXTCOLOR_TAN;
 			stats.completeColor = Font.TEXTCOLOR_FIRE;
-			PrintLevelStats(stats, info);
+			PrintLevelStats(stats, info, y);
 		}
 	}
 
