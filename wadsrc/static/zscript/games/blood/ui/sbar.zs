@@ -24,11 +24,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class BloodStatusBar : RazeStatusBar
 {
+	static const String gAmmoIcons[] = { "", "AmmoIcon1", "AmmoIcon2", "AmmoIcon3", "AmmoIcon4", "AmmoIcon5", "AmmoIcon6", "AmmoIcon7", "AmmoIcon8", "AmmoIcon9", "AmmoIcon10", "AmmoIcon11" };
 	static const String gPackIcons[] = { "PackIcon1", "PackIcon2", "PackIcon3", "PackIcon4", "PackIcon5" };
+	static const String packIcons2[] = { "Pack2Icon1", "Pack2Icon2", "Pack2Icon3", "Pack2Icon4", "Pack2Icon5" };
 
 	HUDFont smallf, tinyf;
 	int team_score[2], team_ticker[2]; // placeholders for MP display
 	bool gBlueFlagDropped, gRedFlagDropped; // also placeholders until we know where MP will go.
+
 
 	override void Init()
 	{
@@ -278,7 +281,6 @@ class BloodStatusBar : RazeStatusBar
 
 	void DrawPackItemInStatusBar2(BloodPlayer pPlayer, int x, int y, int x2, int y2, double nScale)
 	{
-		static const String packIcons2[] = { "Pack2Icon1", "Pack2Icon2", "Pack2Icon3", "Pack2Icon4", "Pack2Icon5" };
 		static const float packScale[] = { 0.5f, 0.3f, 0.6f, 0.5f, 0.4f };
 		static const int packYoffs[] = { 0, 0, 0, -4, 0 };
 
@@ -626,9 +628,6 @@ class BloodStatusBar : RazeStatusBar
 
 	int DrawHUD2(BloodPlayer pPlayer)
 	{
-		static const String ammoIcons[] = { "", "AmmoIcon1", "AmmoIcon2", "AmmoIcon3", "AmmoIcon4", "AmmoIcon5", "AmmoIcon6",
-						"AmmoIcon7", "AmmoIcon8", "AmmoIcon9", "AmmoIcon10", "AmmoIcon11" };
-
 		static const float ammoScale[] = { 0, 0.5f, 0.8f, 0.7f, 0.5f, 0.7f, 0.5f, 0.3f, 0.3f, 0.6f, 0.5f, 0.45f };
 		static const int ammoYoffs[] = { 0, 0, 0, 3, -6, 2, 4, -6, -6, -6, 2, 2 };
 
@@ -659,10 +658,10 @@ class BloodStatusBar : RazeStatusBar
 			int num = pPlayer.ammoCount[pPlayer.weaponAmmo];
 			if (pPlayer.weaponAmmo == 6)
 				num /= 10;
-			if (ammoIcons[pPlayer.weaponAmmo])
+			if (gAmmoIcons[pPlayer.weaponAmmo])
 			{
 				let scale = ammoScale[pPlayer.weaponAmmo];
-				DrawImage(ammoIcons[pPlayer.weaponAmmo], (304 - 320, -8 + ammoYoffs[pPlayer.weaponAmmo]), DI_ITEM_RELCENTER, scale:(scale, scale));
+				DrawImage(gAmmoIcons[pPlayer.weaponAmmo], (304 - 320, -8 + ammoYoffs[pPlayer.weaponAmmo]), DI_ITEM_RELCENTER, scale:(scale, scale));
 			}
 
 			bool reloadableWeapon = pPlayer.curWeapon == 3 && !pPlayer.powerupCheck(Blood.kPwUpTwoGuns);
@@ -680,12 +679,14 @@ class BloodStatusBar : RazeStatusBar
 			}
 		}
 
-		for (int i = 0; i < 6; i++)
+		int k7 = pPlayer.hasKey[7]? -10 : 0;
+
+		for (int i = 0; i < 7; i++)
 		{
 			if (pPlayer.hasKey[i + 1])
 			{
 				let tile = String.Format("HUDKEYICON%d", i + 1);
-				DrawImage(tile, (-60 + 10 * i, 170 - 200), DI_ITEM_RELCENTER, scale:(0.25, 0.25));
+				DrawImage(tile, (-60 + 10 * i + k7, 170 - 200), DI_ITEM_RELCENTER, scale:(0.25, 0.25));
 			}
 		}
 
@@ -748,5 +749,94 @@ class BloodStatusBar : RazeStatusBar
 
 		drawMultiHUD(pPlayer, nGameType);
 	}
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	override void GetAllStats(HudStats stats)
+	{
+		stats.Clear();
+		stats.info.fontscale = 1.;
+		stats.info.screenbottomspace = 200;
+		stats.info.letterColor = TEXTCOLOR_DARKRED;
+		stats.info.standardColor = TEXTCOLOR_DARKGRAY;
+		stats.info.statfont = SmallFont;
+		stats.info.completeColor = TEXTCOLOR_DARKGREEN;
+		stats.info.spacing = SmallFont.GetHeight() + 2;
+
+		let pPlayer = Blood.GetViewPlayer();
+		stats.healthicon = "HealthIcon";
+		stats.healthvalue = pPlayer.GetHealth() >> 4;
+		
+		if (pPlayer.armor[1])
+		{
+			stats.armoricons.Push("Armor1Icon");
+			stats.armorvalues.Push(pPlayer.armor[1] >> 4);
+		}
+		if (pPlayer.armor[0])
+		{
+			stats.armoricons.Push("Armor3Icon");
+			stats.armorvalues.Push(pPlayer.armor[0] >> 4);
+		}
+		if (pPlayer.armor[2])
+		{
+			stats.armoricons.Push("Armor2Icon");
+			stats.armorvalues.Push(pPlayer.armor[2] >> 4);
+		}
+		
+		for (int i = 0; i < 7; i++)
+		{
+			if (pPlayer.hasKey[i + 1])
+			{
+				stats.keyicons.Push(String.Format("HUDKEYICON%d", i + 1));
+			}
+		}
+
+		for (int i = 0; i < 5; i++)
+		{
+			if (i == pPlayer.packItemId) stats.inventoryselect = stats.inventoryicons.Size();
+			stats.inventoryicons.Push(packIcons2[i]);
+			stats.inventoryamounts.Push(pPlayer.packSlots[i].curAmount);
+		}
+
+		// only show those weapons which are not their same ammo.
+		static const String weaponIcons[] = { "", "" /* pitchfork */,  "#00524", "#00559", "#00558", "", "", "#00539", "#00800", "", "", "" };
+		
+		for(int i = 0; i < 11; i++)
+		{
+			int weaponnum = i + 1;
+			if (pPlayer.hasweapon[weaponnum] && weaponIcons[weaponnum] != "") 
+			{
+				if (pPlayer.curweapon == weaponnum) 
+				{
+					stats.weaponselect = stats.weaponicons.Size();
+				}
+				stats.weaponicons.Push(weaponIcons[weaponnum]);
+			}
+		}
+		
+		static const int ammoOrder[] = { 1, 2, 3, 4, 5, 10, 11, 6, 7, 8, 9 };
+		static const int maxammocount[] = { 0, 100, 100, 500, 100, 50, 288, 250, 100, 100, 50, 50 };
+		
+		for(int i = 0; i < 11; i++)
+		{
+			int ammonum = ammoorder[i];
+			if (pPlayer.weaponammo == ammonum) 
+			{
+				stats.ammoselect = stats.ammoicons.Size();
+			}
+			stats.ammoicons.Push(gAmmoIcons[ammonum]);
+			int num = pPlayer.ammoCount[ammonum];
+			if (ammonum == 6)
+				num /= 10;
+			stats.ammovalues.Push(num);
+			stats.ammomaxvalues.Push(maxammocount[ammonum]);
+		}
+	}
+
+
 }
 

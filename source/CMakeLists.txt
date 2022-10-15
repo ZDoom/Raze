@@ -986,6 +986,7 @@ set (PCH_SOURCES
 	core/palette.cpp
 	core/zcompile.cpp
 	core/statusbar2.cpp
+	core/shared_hud.cpp
 	core/gi.cpp
 	core/defparser.cpp
 

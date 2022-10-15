@@ -209,4 +209,5 @@ class DukeCommonStatusBar : RazeStatusBar
 		}
 	}
 
+
 }

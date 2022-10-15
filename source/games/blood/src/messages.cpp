@@ -147,7 +147,7 @@ void SetArmor(bool stat)
 
 void SetKeys(bool stat)
 {
-	for (int i = 1; i <= 6; i++)
+	for (int i = 1; i <= 7; i++)
 		gMe->hasKey[i] = stat;
 	if (stat)
 		viewSetMessage(GStrings("TXTB_ALLKEYS"));
