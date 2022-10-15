@@ -147,7 +147,7 @@ void SetArmor(PLAYER* pPlayer, bool stat)
 
 void SetKeys(PLAYER* pPlayer, bool stat)
 {
-	for (int i = 1; i <= 6; i++)
+	for (int i = 1; i <= 7; i++)
 		pPlayer->hasKey[i] = stat;
 	if (stat)
 		viewSetMessage(GStrings("TXTB_ALLKEYS"));

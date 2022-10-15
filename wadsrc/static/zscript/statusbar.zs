@@ -220,4 +220,15 @@ class RazeStatusBar : StatusBarCore
 		int left = (screen.GetWidth() - width) / 2;
 		screen.SetClipRect(left, 0, width, screen.GetHeight());
 	}
+
+	//============================================================================
+	//
+	//
+	//
+	//============================================================================
+
+	virtual void GetAllStats(HudStats stats)
+	{
+		stats.Clear();
+	}
 }

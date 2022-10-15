@@ -306,7 +306,7 @@ class DukeStatusBar : DukeCommonStatusBar
 			FullscreenHUD2(p);
 			DoLevelStats(tileHeight("HEALTHBOX") + 4, info);
 		}
-		else
+		else 
 		{
 			DrawInventory(p, 0, -28, DI_SCREEN_CENTER_BOTTOM);
 			DoLevelStats(2, info);

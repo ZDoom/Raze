@@ -23,6 +23,26 @@ struct Blood native
 		kMaxPowerUps = 51,
 	};
 
+	enum EWeapon
+	{
+		kWeapNone = 0,
+		kWeapPitchFork = 1,
+		kWeapFlareGun = 2,
+		kWeapShotgun = 3,
+		kWeapTommyGun = 4,
+		kWeapNapalm = 5,
+		kWeapDynamite = 6,
+		kWeapSpraycan = 7,
+		kWeapTeslaCannon = 8,
+		kWeapLifeLeech = 9,
+		kWeapVoodooDoll = 10,
+		kWeapProximity = 11,
+		kWeapRemote = 12,
+		kWeapBeast = 13,
+		kWeapMax = 14,
+	};
+
+
 	native static void PlayIntroMusic();
 	native static bool OriginalLoadScreen(); // doing it generically would necessitate exporting the tile manage which we do not want.
 	native static void sndStartSample(int resid, int volume, int channel, bool loop = false, int chanflags = 0);
