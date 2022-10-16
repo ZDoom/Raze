@@ -99,10 +99,10 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				if (actj) {
 					act->timetosleep = 0;
 					check_fta_sounds_d(act);
-					ChangeActorStat(act, 1);
+					ChangeActorStat(act, STAT_ACTOR);
 				}
 				else
-					ChangeActorStat(act, 2);
+					ChangeActorStat(act, STAT_ZOMBIEACTOR);
 			}
 			return act;
 		case FIREFLYFLYINGEFFECT:
@@ -129,7 +129,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yrepeat = 20;
 			return act;
 		case SERIOUSSAM:
-			ChangeActorStat(act, 2);
+			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 			act->spr.extra = 150;
 			return act;
@@ -207,7 +207,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pos.Z -= PHEIGHT_DUKE;
 		act->spr.zvel = 256 - (krand() & 511);
 		act->spr.xvel = 64 - (krand() & 127);
-		ChangeActorStat(act, 4);
+		ChangeActorStat(act, STAT_PROJECTILE);
 		break;
 	case NATURALLIGHTNING:
 		act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -253,7 +253,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!actj)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			ChangeActorStat(act, 2);
+			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		else
 		{
@@ -351,7 +351,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.extra = 20;
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		}
-		ChangeActorStat(act, 2);
+		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 
 	case HYDRENT:
@@ -503,7 +503,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.clipdist = 32;
 		}
 
-		ChangeActorStat(act, 2);
+		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 
 	case DUKELYINGDEAD:
@@ -542,7 +542,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yvel = act->spr.hitag;
 		[[fallthrough]];
 	case WEATHERWARN:
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 
 	case SPOTLITE:
@@ -572,7 +572,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->SetOwner(act);
 		act->spr.lotag = 1;
 		act->spr.extra = 1;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case SHELL: //From the player
@@ -591,7 +591,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		}
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, 11);
+		ChangeActorStat(act, STAT_FX);
 		break;
 
 	case ONFIRE:
@@ -898,9 +898,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				act->timetosleep = 0;
 				check_fta_sounds_d(act);
-				ChangeActorStat(act, 1);
+				ChangeActorStat(act, STAT_ACTOR);
 			}
-			else ChangeActorStat(act, 2);
+			else ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 
 		if (act->spr.picnum == ROTATEGUN)
@@ -910,7 +910,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case LOCATORS:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, 7);
+		ChangeActorStat(act, STAT_LOCATOR);
 		break;
 
 	case ACTIVATORLOCKED:
@@ -918,13 +918,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 		if (act->spr.picnum == ACTIVATORLOCKED)
 			act->sector()->lotag |= 16384;
-		ChangeActorStat(act, 8);
+		ChangeActorStat(act, STAT_ACTIVATOR);
 		break;
 
 	case DOORSHOCK:
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.shade = -12;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case OOZ:
@@ -939,7 +939,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			insertspriteq(act);
 		}
 
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 
 		getglobalz(act);
 
@@ -1104,7 +1104,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else act->spr.pal = 0;
 		if (act->spr.picnum == CAMERAPOLE || act->spr.picnum == GENERICPOLE) break;
 		act->spr.picnum = CAMERA1;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case STEAM:
 		if (actj)
