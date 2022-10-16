@@ -129,6 +129,7 @@ struct PlayerAngle
 	DAngle interpolatedlookang(double const interpfrac) { return interpolatedvalue(olook_ang, look_ang, interpfrac); }
 	DAngle interpolatedrotscrn(double const interpfrac) { return interpolatedvalue(orotscrnang, rotscrnang, interpfrac); }
 	DAngle renderlookang(double const interpfrac) { return !SyncInput() ? look_ang : interpolatedlookang(interpfrac); }
+	DAngle renderrotscrn(double const interpfrac) { return !SyncInput() ? rotscrnang : interpolatedrotscrn(interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = nullAngle; }
@@ -142,6 +143,12 @@ struct PlayerAngle
 	// Draw code helpers. The logic where these are used rely heavily on Build's angle period.
 	double look_anghalf(double const interpfrac) { return renderlookang(interpfrac).Normalized180().Degrees() * (128. / 45.); }
 	double looking_arc(double const interpfrac) { return fabs(renderlookang(interpfrac).Normalized180().Degrees() * (1024. / 1620.)); }
+
+	// Crosshair x/y offsets based on look_ang's tangent.
+	DVector2 crosshairoffsets(const double interpfrac)
+	{
+		return DVector2(159.72, 145.5 * renderrotscrn(interpfrac).Sin()) * -renderlookang(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
+	}
 
 	// Ticrate playsim adjustment setters and processor.
 	void addadjustment(const DAngle value)

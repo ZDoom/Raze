@@ -1374,7 +1374,7 @@ void ST_LoadCrosshair(int num, bool alwaysload);
 CVAR(Int, crosshair, 0, CVAR_ARCHIVE)
 
 
-void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double scale, PalEntry color)
+void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double scale, DAngle angle, PalEntry color)
 {
 	if (automapMode == am_off && cl_crosshair)
 	{
@@ -1384,7 +1384,7 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 			if (tile)
 			{
 				double crosshair_scale = crosshairscale * scale;
-				DrawTexture(twod, tile, 160 + xdelta, 100 + ydelta, DTA_Color, color,
+				DrawTexture(twod, tile, 160 + xdelta, 100 + ydelta, DTA_Color, color, DTA_Rotate, angle.Degrees(),
 					DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
 					DTA_ViewportX, viewport3d.Left(), DTA_ViewportY, viewport3d.Top(), DTA_ViewportWidth, viewport3d.Width(), DTA_ViewportHeight, viewport3d.Height(), TAG_DONE);
 
