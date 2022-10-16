@@ -140,8 +140,11 @@ inline double InterceptLineSegments(double v2x, double v2y, double v2dx, double 
 {
 	double den = v1dy * v2dx - v1dx * v2dy;
 
-	if (den == 0 || (forcansee && den < 0)) // cansee does this added check here, aside from that its logic is virtually the same.
+	if (den == 0)
 		return 0;		// parallel
+
+	if (forcansee && den < 0)  // cansee does this added check here, aside from that its logic is virtually the same.
+		return -1;		// hitting the backside
 
 	// perform the division first for better parallelization.
 	den = 1 / den;

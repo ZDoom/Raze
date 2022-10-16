@@ -509,7 +509,7 @@ bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, secto
 		for (auto& wal : wallsofsector(sec))
 		{
 			double factor = InterceptLineSegments(start.X, start.Y, delta.X, delta.Y, wal.pos.X, wal.pos.Y, wal.delta().X, wal.delta().Y, nullptr, true);
-			if (factor <= 0 || factor >= 1) continue;
+			if (factor < 0 || factor >= 1) continue;
 
 			if (!wal.twoSided() || wal.cstat & CSTAT_WALL_1WAY)
 				return false;
@@ -691,7 +691,7 @@ double checkWallHit(walltype* wal, EWallFlags flagmask, const DVector3& start, c
 	if (PointOnLineSide(start.XY(), wal) > 0) return -1;
 
 	double factor = InterceptLineSegments(start.X, start.Y, direction.X, direction.Y, wal->pos.X, wal->pos.Y, wal->delta().X, wal->delta().Y);
-	if (factor <= 0 || factor > maxfactor) return -1;	// did not connect.
+	if (factor < 0 || factor > maxfactor) return -1;	// did not connect.
 
 	result = start + factor * direction;
 	if (wal->twoSided() && !(wal->cstat & flagmask))
