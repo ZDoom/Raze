@@ -252,6 +252,9 @@ void displayweapon_d(int snum, double interpfrac)
 
 	animateknee(shade, p, animoffs.X, animoffs.Y, pal2, interpfrac, angle);
 
+	offsets.X += weapon_xoffset;
+	offsets.Y -= gun_pos;
+
 	int cw = p->last_weapon >= 0 ? p->last_weapon : p->curr_weapon;
 	if (isWW2GI()) cw = aplWeaponWorksLike(cw, snum);
 
@@ -263,18 +266,18 @@ void displayweapon_d(int snum, double interpfrac)
 	{
 		if (quick_kick < 5 || quick_kick > 9)
 		{
-			hud_drawpal(weapon_xoffset + 80 + offsets.X, 250 - gun_pos + offsets.Y, KNEE, shade, o | 4, pal2, angle);
+			hud_drawpal(80 + offsets.X, 250 + offsets.Y, KNEE, shade, o | 4, pal2, angle);
 		}
 		else
 		{
-			hud_drawpal(weapon_xoffset + 160 - 16 + offsets.X, 214 - gun_pos + offsets.Y, KNEE + 1, shade, o | 4, pal2, angle);
+			hud_drawpal(160 - 16 + offsets.X, 214 + offsets.Y, KNEE + 1, shade, o | 4, pal2, angle);
 		}
 	}
 
 	if (p->GetActor()->spr.scale.X < 0.625)
 	{
 		//shrunken..
-		animateshrunken(p, weapon_xoffset, offsets.Y, -offsets.X, FIST, shade, o, interpfrac);
+		animateshrunken(p, 0, offsets.Y + gun_pos, -offsets.X, FIST, shade, o, interpfrac);
 	}
 	else
 	{
@@ -286,9 +289,6 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayknee = [&]()
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if (*kb > 0)
 			{
 				if (*kb < 5 || *kb > 9)
@@ -310,8 +310,8 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaytripbomb = [&]()
 		{
-			offsets.X += weapon_xoffset + 8;
-			offsets.Y -= gun_pos + 10;
+			offsets.X += 8;
+			offsets.Y -= 10;
 
 			if (*kb > 6)
 				offsets.Y += kickback_pic * 8.;
@@ -332,9 +332,7 @@ void displayweapon_d(int snum, double interpfrac)
 		{
 			const int pin = ((gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 
-			const auto xyoffset = BobVal(768 + (kickback_pic * 128.)) * 8;
-			offsets.X += weapon_xoffset - xyoffset;
-			offsets.Y -= gun_pos + xyoffset;
+			offsets -= BobVal(768 + (kickback_pic * 128.)) * 8;
 
 			if (*kb > 0)
 			{
@@ -369,8 +367,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayshotgun_ww = [&]()
 		{
-			offsets.X += weapon_xoffset - 8;
-			offsets.Y -= gun_pos;
+			offsets.X -= 8;
 
 			if (*kb > 0)
 				offsets.Y += BobVal(kickback_pic * 128.) * 4;
@@ -411,8 +408,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayshotgun = [&]()
 		{
-			offsets.X += weapon_xoffset - 8;
-			offsets.Y -= gun_pos;
+			offsets.X -= 8;
 
 			switch(*kb)
 			{
@@ -481,9 +477,6 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaychaingun_ww = [&]()
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if (*kb > 0)
 				offsets.Y += BobVal(kickback_pic * 128.) * 4;
 
@@ -555,9 +548,6 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaychaingun = [&]
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if (*kb > 0)
 				offsets.Y += BobVal(kickback_pic * 128.) * 4;
 
@@ -603,14 +593,10 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaypistol = [&]()
 		{
-			offsets.Y -= gun_pos;
-
 			if (*kb < 5)
 			{
 				static constexpr uint8_t kb_frames[] = { 0,1,2,0,0 };
-				const double l = 195 - 12 + weapon_xoffset - (*kb == 2) * 3;
-
-				hud_drawpal(l + offsets.X, 244 + offsets.Y, FIRSTGUN + kb_frames[*kb], shade, 2, pal, angle);
+				hud_drawpal((195 - 12 - (*kb == 2) * 3) + offsets.X, 244 + offsets.Y, FIRSTGUN + kb_frames[*kb], shade, 2, pal, angle);
 			}
 			else
 			{
@@ -618,6 +604,8 @@ void displayweapon_d(int snum, double interpfrac)
 				const int pic_5 = FIRSTGUN+5;
 				const int WEAPON2_RELOAD_TIME = 50;
 				const int reload_time = isWW2GI() ? aplWeaponReload(PISTOL_WEAPON, snum) : WEAPON2_RELOAD_TIME;
+
+				offsets.X -= weapon_xoffset;
 
 				if (*kb < 10)
 				{
@@ -659,8 +647,6 @@ void displayweapon_d(int snum, double interpfrac)
 		auto displayhandbomb = [&]()
 		{
 			int pic = HANDTHROW;
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
 
 			if (*kb)
 			{
@@ -724,9 +710,6 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaydevastator_ww = [&]
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if (*kb)
 			{
 				if (*kb < aplWeaponTotalTime(p->curr_weapon, snum))
@@ -777,9 +760,6 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaydevastator = [&]
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if (*kb)
 			{
 				static constexpr uint8_t cycloidy[] = { 0,4,12,24,12,4,0 };
@@ -813,9 +793,6 @@ void displayweapon_d(int snum, double interpfrac)
 		{
 			const int pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if (*kb)
 			{
 				static constexpr uint8_t cat_frames[] = { 0,0,1,1,2,2 };
@@ -845,8 +822,8 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayshrinker_ww = [&]
 		{
-			offsets.X += weapon_xoffset + 28;
-			offsets.Y -= gun_pos - 18;
+			offsets.X += 28;
+			offsets.Y += 18;
 
 			if (*kb == 0)
 			{
@@ -906,8 +883,8 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displaygrower_ww = [&]
 		{
-			offsets.X += weapon_xoffset + 28;
-			offsets.Y -= gun_pos - 18;
+			offsets.X += 28;
+			offsets.Y += 18;
 
 			if (*kb == 0)
 			{
@@ -956,8 +933,8 @@ void displayweapon_d(int snum, double interpfrac)
 		auto displayshrinker = [&]
 		{
 			auto shrinker = /*isWorldTour() ? SHRINKERWIDE :*/ SHRINKER;
-			offsets.X += weapon_xoffset + 28;
-			offsets.Y -= gun_pos - 18;
+			offsets.X += 28;
+			offsets.Y += 18;
 
 			if (*kb == 0)
 			{
@@ -1001,9 +978,6 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayflamethrower = [&]()
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if (*kb < 1 || p->cursector->lotag == 2)
 			{
 				hud_drawpal(210 + offsets.X, 261 + offsets.Y, FLAMETHROWER, shade, o, pal, angle);
