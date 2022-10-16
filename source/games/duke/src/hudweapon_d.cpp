@@ -336,7 +336,7 @@ void displayweapon_d(int snum, double interpfrac)
 		{
 			const int pin = ((gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 
-			offsets -= BobVal(768 + (kickback_pic * 128.)) * 8;
+			offsets -= BobVal(512 + (min(kickback_pic, 16.) * 128.)) * 8;
 
 			if (*kb > 0)
 			{
