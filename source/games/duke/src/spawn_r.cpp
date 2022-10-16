@@ -92,7 +92,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isRRRA()) goto default_case;
 		act->spr.extra = 0;
 		act->spr.scale = DVector2(0, 0);
-		ChangeActorStat(act, 11);
+		ChangeActorStat(act, STAT_FX);
 		break;
 	case RRTILE7936:
 		if (!isRRRA()) goto default_case;
@@ -278,7 +278,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pos.Z -= gs.playerheight;
 		act->vel.Z = 1 - krandf(2);
 		act->vel.X = 4 - krandf(8);
-		ChangeActorStat(act, 4);
+		ChangeActorStat(act, STAT_PROJECTILE);
 		break;
 	case TRANSPORTERSTAR:
 	case TRANSPORTERBEAM:
@@ -303,7 +303,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!actj)
 		{
 			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			ChangeActorStat(act, 2);
+			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		else
 		{
@@ -443,19 +443,19 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 			act->clipdist = 8;
 		}
-		ChangeActorStat(act, 2);
+		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 	case BOWLINGBALL:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 		act->clipdist = 16;
 		act->spr.scale = DVector2(0.171875, 0.140625);
-		ChangeActorStat(act, 2);
+		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 	case HENSTAND:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 12;
 		act->spr.scale = DVector2(0.328125, 0.234375);
-		ChangeActorStat(act, 2);
+		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 	case RRTILE295:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -474,48 +474,48 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->clipdist = 2;
 		act->spr.scale = DVector2(0.5, 0.40625);
 		act->vel.X = 2;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case RRTILE3120:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
 		act->spr.scale = DVector2(0.1875, 0.15625);
 		act->vel.X = 2;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case RRTILE3122:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 0.5;
 		act->spr.scale = DVector2(0.125, 0.09375);
 		act->vel.X = 1;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case RRTILE3123:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
 		act->spr.scale = DVector2(0.203125, 0.203125);
 		act->vel.X = 1;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case RRTILE3124:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
 		act->spr.scale = DVector2(0.265625, 0.1875);
 		act->vel.X = 2;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case RRTILE3132:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;
 		act->spr.scale = DVector2(0.203125, 0.15625);
 		act->vel.X = 0;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case BOWLINGPIN:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 12;
 		act->spr.scale = DVector2(0.359375, 0.359375);
-		ChangeActorStat(act, 2);
+		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 	case DUKELYINGDEAD:
 		if (actj && actj->spr.picnum == APLAYER)
@@ -544,7 +544,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MIKE:
 		if (act->spr.picnum == MIKE)
 			act->spr.yint = act->spr.hitag;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 
 	case SPOTLITE:
@@ -639,7 +639,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (act->sector()->lotag != 2)
 				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
-		ChangeActorStat(act, 13);
+		ChangeActorStat(act, STAT_DUMMYPLAYER);
 		break;
 
 	case APLAYER:
@@ -651,7 +651,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (ud.multimode < 2 || (ud.multimode > 1 && j != act->spr.lotag))
 			ChangeActorStat(act, STAT_MISC);
 		else
-			ChangeActorStat(act, 10);
+			ChangeActorStat(act, STAT_PLAYER);
 		break;
 	}
 	case WATERBUBBLE:
@@ -679,12 +679,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum != WATERDRIP) act->spr.angle = randomAngle();
 
 		act->spr.scale = DVector2(0.375, 0.375);
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case PLUG:
 		act->spr.lotag = 9999;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case TOUCHPLATE:
 		act->temp_pos.Z = sectp->floorz;
@@ -1241,7 +1241,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TIRE:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
 		act->spr.extra = 1;
-		ChangeActorStat(act, 6);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case CAMERA1:
@@ -1264,7 +1264,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else act->spr.pal = 0;
 		if (act->spr.picnum == CAMERAPOLE) break;
 		act->spr.picnum = CAMERA1;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 	case STEAM:
 		if (actj)
@@ -1346,7 +1346,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->saved_ammo = 20;
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.lotag = 1;
-		ChangeActorStat(act, 1);
+		ChangeActorStat(act, STAT_ACTOR);
 		break;
 
 	case TOILET:
