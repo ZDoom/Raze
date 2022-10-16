@@ -216,8 +216,6 @@ inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2) ATTRIBUTE((nonnull(4)));
-
 int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
                    int32_t destX, int32_t destY, int32_t destZ,
                    int32_t lineStartX, int32_t lineStartY, int32_t lineEndX, int32_t lineEndY,
