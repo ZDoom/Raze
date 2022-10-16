@@ -49,7 +49,7 @@ public:
 	uint16_t movflag;
 	short attackertype, hitang, hitextra;
 	short tempang, dispicnum, basepicnum;
-	short timetosleep;
+	unsigned short timetosleep;
 	vec2_t ovel;
 	int floorz, ceilingz;
 	union
