@@ -149,6 +149,12 @@ struct Raze
 	native static Font PickSmallFont(String cmptext = "");
 
 	// game check shortcuts
+
+	static bool isDuke()
+	{
+		return gameinfo.gametype & GAMEFLAG_DUKE;
+	}
+
 	static bool isNam()
 	{
 		return gameinfo.gametype & (GAMEFLAG_NAM | GAMEFLAG_NAPALM);

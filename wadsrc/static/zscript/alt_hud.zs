@@ -96,6 +96,7 @@ class AltHud ui
 	Font HudFont;					// The font for the health and armor display
 	Font IndexFont;					// The font for the inventory indices
 	Font StatFont;
+	int HudFontOffset;
 	const POWERUPICONSIZE = 32;
 	HudStats currentStats;			// must be filled in by the status bar.
 
@@ -104,7 +105,8 @@ class AltHud ui
 	{
 		HudFont = BigFont;	// Strife doesn't have anything nice so use the standard font
 		if (Raze.isBlood()) HudFont = Font.GetFont("HUDFONT_BLOOD");
-		IndexFont = Font.GetFont("INDEXFONT");
+		else if (Raze.isDuke()) HudFontOffset = 6;
+		IndexFont = Font.GetFont("HUDINDEXFONT");
 		if (IndexFont == NULL) IndexFont = ConFont;	// Emergency fallback
 		if (!Raze.isNamWW2GI())
 			StatFont = SmallFont;
@@ -123,7 +125,7 @@ class AltHud ui
 	//
 	//---------------------------------------------------------------------------
 
-	void DrawImageToBox(TextureID tex, int x, int y, int w, int h, double trans = 0.75, bool animate = false)
+	void DrawImageToBox(TextureID tex, int x, int y, int w, int h, double trans = 0.75, bool animate = false, int translation = 0)
 	{
 		double scale1, scale2;
 
@@ -146,7 +148,7 @@ class AltHud ui
 
 			screen.DrawTexture(tex, animate, x, y,
 				DTA_KeepRatio, true,
-				DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight, DTA_Alpha, trans, 
+				DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight, DTA_Alpha, trans,  DTA_TranslationIndex, translation,
 				DTA_DestWidth, w, DTA_DestHeight, h, DTA_CenterBottomOffset, 1);
 
 		}
@@ -161,6 +163,7 @@ class AltHud ui
 
 	void DrawHudText(Font fnt, int color, String text, int x, int y, double trans = 0.75)
 	{
+		if (fnt == HudFont) y += HudFontOffset;
 		int zerowidth = fnt.GetCharWidth("0");
 		screen.DrawText(fnt, color, x, y-fnt.GetHeight(), text, DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight,
 			 DTA_KeepRatio, true, DTA_Alpha, trans, DTA_Monospace, MONO_CellCenter, DTA_Spacing, zerowidth);
@@ -323,7 +326,9 @@ class AltHud ui
 
 		if (icon.isValid())
 		{
-			DrawImageToBox(icon, x, y, 8, 10);
+			int trans = 0;
+			if (currentStats.keytranslations.Size()) trans = currentStats.keytranslations[keyindex];
+			DrawImageToBox(icon, x, y, 8, 10, 0.75, false, trans);
 			return true;
 		}
 		return false;
