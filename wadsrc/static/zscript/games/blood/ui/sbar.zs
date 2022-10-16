@@ -759,7 +759,7 @@ class BloodStatusBar : RazeStatusBar
 	override void GetAllStats(HudStats stats)
 	{
 		stats.Clear();
-		stats.info.fontscale = 1.;
+		stats.info.fontscale = 1.0;
 		stats.info.screenbottomspace = 200;
 		stats.info.letterColor = TEXTCOLOR_DARKRED;
 		stats.info.standardColor = TEXTCOLOR_DARKGRAY;
