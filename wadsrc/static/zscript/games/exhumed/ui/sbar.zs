@@ -170,6 +170,12 @@ class ExhumedStatusBar : RazeStatusBar
         return chunk.tex;
     }
 
+    String GetStatusSequenceName(int nSequence, int frameindex)
+    {
+		let texid = GetStatusSequencePic(nSequence, frameindex);
+		return TexMan.GetName(texid);
+    }
+
 	//---------------------------------------------------------------------------
 	//
 	// Frag display - very ugly and may have to be redone if multiplayer support gets added.
@@ -799,5 +805,69 @@ class ExhumedStatusBar : RazeStatusBar
 			DrawStatus(Exhumed.GetViewPlayer());
 		}
 		DoLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 20 : 45, info);
+	}
+	
+	
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	override void GetAllStats(HudStats stats)
+	{
+		stats.Clear();
+		stats.info.fontscale = 1;
+
+		stats.info.spacing = 8;
+		stats.info.letterColor = Font.TEXTCOLOR_RED;
+		stats.info.standardColor = Font.TEXTCOLOR_UNTRANSLATED;
+		stats.info.completeColor = Font.TEXTCOLOR_DARKGREEN;
+		stats.info.statfont = SmallFont;
+
+		let pp = Exhumed.GetViewPlayer();
+		stats.healthicon = GetStatusSequenceName(125, 0);
+		stats.healthvalue = pp.nHealth >> 3;
+		
+		SetMagicFrame(pp);
+		
+		stats.armoricons.Push(GetStatusSequenceName(nItemSeq, nItemFrame));
+		stats.armorvalues.Push(pp.nMagic / 10);
+
+		if (pp.isUnderwater())
+		{
+			let img = GetStatusSequenceName(133, airframe);
+			stats.armoricons.Push(img);
+			stats.armorvalues.Push(-1);
+		}
+
+		int nKeys = pp.keys;
+		for (int i = 0; i < 4; i++)
+		{
+			if (nKeys & (0x1000 << i))
+			{
+				stats.keyicons.Push(String.Format("KeyIcon%d", i+1));
+			}
+		}
+
+		static const string weaponicons[] = { "", "WeaponSpriteMagnum", "WeaponSpriteM60", "WeaponSpriteFlamethrower", "", "WeaponSpriteCobra", "" /* sprite for ring?*/};
+		for (int i = 0; i < weaponicons.Size(); i++)
+		{
+			if (pp.nPlayerWeapons & (1 << i) && weaponicons[i] != "")
+			{
+				if (pp.nCurrentWeapon == i) stats.weaponselect = stats.weaponicons.Size();
+				stats.weaponicons.Push(weaponicons[i]);
+			}
+		}
+
+		static const string ammoicons[] = { "", "AmmoSpriteMagnum", "AmmoSpriteM60_1", "AmmoSpriteFuel", "AmmoSpriteGrenade", "AmmoSpriteCobra", "-" /* sprite for ring?*/};
+		for (int i = 0; i < ammoicons.Size(); i++)
+		{
+			if (pp.nCurrentWeapon == i) stats.ammoselect = stats.ammoicons.Size();
+			stats.ammoicons.Push(ammoicons[i]);
+			stats.ammovalues.Push(pp.nAmmo[i]);
+			stats.ammomaxvalues.Push(300);
+		}
+
 	}
 }

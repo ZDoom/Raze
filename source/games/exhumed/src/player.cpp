@@ -2721,7 +2721,8 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, keys);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nMagic);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nItem);
 DEFINE_FIELD_X(ExhumedPlayer, Player, items);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons?
+DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons? 
+DEFINE_FIELD_X(ExhumedPlayer, Player, nPlayerWeapons);
 
 DEFINE_FIELD_X(ExhumedPlayer, Player, nCurrentWeapon);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nSeqSize2);
