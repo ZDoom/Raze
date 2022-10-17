@@ -11782,7 +11782,7 @@ int DoSerpRing(DSWActor* actor)
             double dist = (actor->spr.pos.XY() - actor->user.targetActor->spr.pos.XY()).Length();
 
             // if ((dist ok and random ok) OR very few skulls left)
-            if ((dist < 625 && (RANDOM_P2(2048<<5)>>5) < 16) || own->user.Counter < 4)
+            if ((dist < 1125 && (RANDOM_P2(2048<<5)>>5) < 16) || own->user.Counter < 4)
             {
                 auto sect = actor->sector();
                 updatesector(actor->spr.pos, &sect);
