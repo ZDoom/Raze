@@ -141,7 +141,7 @@ inline double InterceptLineSegments(double v2x, double v2y, double v2dx, double 
 	double den = v1dy * v2dx - v1dx * v2dy;
 
 	if (den == 0)
-		return 0;		// parallel
+		return -2 * (double)FLT_MAX;		// parallel (return a magic value different from everything else, just in case it needs to be handled)
 
 	if (forcansee && den < 0)  // cansee does this added check here, aside from that its logic is virtually the same.
 		return -1;		// hitting the backside
