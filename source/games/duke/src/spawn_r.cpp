@@ -1101,7 +1101,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if(krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
 		break;
 	}
-	case HEAVYHBOMB:
+	case DYNAMITE:
 		act->SetOwner(act);
 		act->spr.xrepeat = act->spr.yrepeat = 9;
 		act->spr.yvel = 4;
@@ -1128,12 +1128,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case HOLODUKE:
 
 	case FIRSTGUNSPRITE:
-	case CHAINGUNSPRITE:
+	case RIFLEGUNSPRITE:
 	case SHOTGUNSPRITE:
-	case RPGSPRITE:
-	case SHRINKERSPRITE:
-	case FREEZESPRITE:
-	case DEVISTATORSPRITE:
+	case CROSSBOWSPRITE:
+	case RIPSAWSPRITE:
+	case TITSPRITE:
+	case ALIENBLASTERSPRITE:
 
 	case SHOTGUNAMMO:
 	case FREEZEAMMO:
@@ -1281,7 +1281,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yvel = 4;
 			act->spr.xvel = 32;
 			break;
-		case RPGSPRITE:
+		case CROSSBOWSPRITE:
 			act->spr.xrepeat = 16;
 			act->spr.yrepeat = 14;
 			break;
@@ -1290,11 +1290,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = 20;
 			act->spr.yrepeat = 20;
 			break;
-		case SHRINKERSPRITE:
+		case RIPSAWSPRITE:
 			act->spr.xrepeat = 22;
 			act->spr.yrepeat = 13;
 			break;
-		case DEVISTATORSPRITE:
+		case ALIENBLASTERSPRITE:
 			act->spr.xrepeat = 18;
 			act->spr.yrepeat = 17;
 			break;
@@ -1314,7 +1314,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.xrepeat = 8;
 			act->spr.yrepeat = 8;
 			break;
-		case FREEZESPRITE:
+		case TITSPRITE:
 			act->spr.xrepeat = 17;
 			act->spr.yrepeat = 16;
 			break;

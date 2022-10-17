@@ -2010,7 +2010,7 @@ static void rrra_specialstats()
 					else
 					{
 						act->spr.picnum = RRTILE8162 + 6;
-						spawn(act, HEAVYHBOMB);
+						spawn(act, DYNAMITE);
 						ps[screenpeek].SlotWin |= 2;
 						S_PlayActorSound(52, act);
 					}
@@ -2086,7 +2086,7 @@ static void rrra_specialstats()
 					else
 					{
 						act->spr.picnum = RRTILE8589 + 6;
-						spawn(act, HEAVYHBOMB);
+						spawn(act, DYNAMITE);
 						ps[screenpeek].SlotWin |= 2;
 						S_PlayActorSound(342, act);
 					}
@@ -2467,7 +2467,7 @@ DETONATEB:
 			switch (actor->spr.picnum)
 			{
 			case POWDERKEG: m = gs.tripbombblastradius; break;	// powder keg
-			case HEAVYHBOMB: m = gs.pipebombblastradius; break;
+			case DYNAMITE: m = gs.pipebombblastradius; break;
 			case HBOMBAMMO: m = gs.pipebombblastradius; break;
 			case MORTER: m = gs.morterblastradius; break;
 			case CHEERBOMB: m = gs.morterblastradius; break;
@@ -2503,7 +2503,7 @@ DETONATEB:
 			return;
 		}
 	}
-	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && actor->temp_data[0] > 7 && actor->spr.xvel == 0)
+	else if (actor->spr.picnum == DYNAMITE && x < 788 && actor->temp_data[0] > 7 && actor->spr.xvel == 0)
 		if (cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (8 << 8), actor->sector(), ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
@@ -2530,9 +2530,9 @@ DETONATEB:
 						SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
 					}
 
-					if (Owner && (Owner->attackertype != HEAVYHBOMB || ud.respawn_items == 0 || Owner->spr.picnum == APLAYER))
+					if (Owner && (Owner->attackertype != DYNAMITE || ud.respawn_items == 0 || Owner->spr.picnum == APLAYER))
 					{
-						if (actor->spr.picnum == HEAVYHBOMB && Owner->spr.picnum != APLAYER && ud.coop)
+						if (actor->spr.picnum == DYNAMITE && Owner->spr.picnum != APLAYER && ud.coop)
 							return;
 						deletesprite(actor);
 						return;
@@ -2873,7 +2873,7 @@ void moveactors_r(void)
 				if (!isRRRA()) break;
 				[[fallthrough]];
 			case MORTER:
-			case HEAVYHBOMB:
+			case DYNAMITE:
 				heavyhbomb(act);
 				continue;
 

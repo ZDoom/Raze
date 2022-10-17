@@ -1085,7 +1085,7 @@ void selectweapon_r(int snum, int weap)
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto act = it.Next())
 				{
-					if (act->spr.picnum == HEAVYHBOMB && act->GetOwner() == p->GetActor())
+					if (act->spr.picnum == DYNAMITE && act->GetOwner() == p->GetActor())
 					{
 						p->gotweapon[DYNAMITE_WEAPON] = true;
 						j = THROWINGDYNAMITE_WEAPON;
@@ -1499,8 +1499,8 @@ int doincrements_r(struct player_struct* p)
 void checkweapons_r(struct player_struct* p)
 {
 	static const uint16_t weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
-			CHAINGUNSPRITE, RPGSPRITE, HEAVYHBOMB, SHRINKERSPRITE, DEVISTATORSPRITE,
-			POWDERKEG, BOWLINGBALLSPRITE, FREEZEBLAST, HEAVYHBOMB };
+		RIFLEGUNSPRITE, DYNAMITE, CROSSBOWSPRITE, RIPSAWSPRITE, ALIENBLASTERSPRITE,
+			POWDERKEG, BOWLINGBALLSPRITE, TITSPRITE, DYNAMITE };
 
 	if (isRRRA())
 	{
@@ -2751,7 +2751,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			auto spawned = EGS(p->cursector,
 				p->pos.X + p->angle.ang.bcos(-6),
 				p->pos.Y + p->angle.ang.bsin(-6),
-				p->pos.Z, HEAVYHBOMB, -16, 9, 9,
+				p->pos.Z, DYNAMITE, -16, 9, 9,
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pact, 1);
 
 			if (spawned)

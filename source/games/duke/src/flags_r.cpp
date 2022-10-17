@@ -233,7 +233,7 @@ void initactorflags_r()
 
 	setflag(SFLAG_NOINTERPOLATE, { CRANEPOLE });
 	setflag(SFLAG_FALLINGFLAMMABLE, { BOX });
-	setflag(SFLAG_INFLAME, { RADIUSEXPLOSION, RPG, FIRELASER, HYDRENT, HEAVYHBOMB, POWDERKEG, COOLEXPLOSION1, OWHIP, UWHIP });
+	setflag(SFLAG_INFLAME, { RADIUSEXPLOSION, RPG, FIRELASER, HYDRENT, DYNAMITE, POWDERKEG, COOLEXPLOSION1, OWHIP, UWHIP });
 	if (isRRRA()) setflag(SFLAG_INFLAME, { RPG2 });
 	setflag(SFLAG_NOFLOORFIRE, { TREE1, TREE2 });
 	setflag(SFLAG_HITRADIUS_FLAG1, { BOX, TREE1, TREE2, TIRE });
@@ -246,9 +246,9 @@ void initactorflags_r()
 	setflag(SFLAG2_EXPLOSIVE, {RPG, RADIUSEXPLOSION, SEENINE, OOZFILTER });
 	if (isRRRA()) setflag(SFLAG2_EXPLOSIVE, { RPG2 });
 	setflag(SFLAG2_BRIGHTEXPLODE, { SEENINE, OOZFILTER });
-	setflag(SFLAG2_DOUBLEDMGTHRUST, { RADIUSEXPLOSION, RPG, HYDRENT, HEAVYHBOMB, SEENINE, OOZFILTER, EXPLODINGBARREL, POWDERKEG });
+	setflag(SFLAG2_DOUBLEDMGTHRUST, { RADIUSEXPLOSION, RPG, HYDRENT, DYNAMITE, SEENINE, OOZFILTER, EXPLODINGBARREL, POWDERKEG });
 	if (isRRRA()) setflag(SFLAG2_DOUBLEDMGTHRUST, { RPG2 });
-	setflag(SFLAG2_BREAKMIRRORS, { RADIUSEXPLOSION, RPG, HYDRENT, HEAVYHBOMB, SEENINE, OOZFILTER, EXPLODINGBARREL, POWDERKEG });
+	setflag(SFLAG2_BREAKMIRRORS, { RADIUSEXPLOSION, RPG, HYDRENT, DYNAMITE, SEENINE, OOZFILTER, EXPLODINGBARREL, POWDERKEG });
 	if (isRRRA()) setflag(SFLAG2_BREAKMIRRORS, { RPG2 });
 	setflag(SFLAG2_CAMERA, { CAMERA1 });
 
@@ -265,8 +265,8 @@ void initactorflags_r()
 
 	gs.actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;
 
-	gs.weaponsandammosprites[0] = RPGSPRITE;
-	gs.weaponsandammosprites[1] = CHAINGUNSPRITE;
+	gs.weaponsandammosprites[0] = CROSSBOWSPRITE;
+	gs.weaponsandammosprites[1] = RIFLEGUNSPRITE;
 	gs.weaponsandammosprites[2] = DEVISTATORAMMO;
 	gs.weaponsandammosprites[3] = RPGAMMO;
 	gs.weaponsandammosprites[4] = RPGAMMO;
@@ -276,9 +276,9 @@ void initactorflags_r()
 	gs.weaponsandammosprites[8] = STEROIDS;
 	gs.weaponsandammosprites[9] = RPGAMMO;
 	gs.weaponsandammosprites[10] = RPGAMMO;
-	gs.weaponsandammosprites[11] = RPGSPRITE;
+	gs.weaponsandammosprites[11] = CROSSBOWSPRITE;
 	gs.weaponsandammosprites[12] = RPGAMMO;
-	gs.weaponsandammosprites[13] = FREEZESPRITE;
+	gs.weaponsandammosprites[13] = TITSPRITE;
 	gs.weaponsandammosprites[14] = FREEZEAMMO;
 
 	TILE_BOX = BOX;
