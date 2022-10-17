@@ -545,7 +545,7 @@ class DukeStatusBar : DukeCommonStatusBar
 			if (p.gotweapon[i] && weaponIcons[i] != "") 
 			{
 				if (p.curr_weapon == i || 
-					(p.curr_weapon == DukeWpn.HANDREMOTE_WEAPON && i == DukeWpn.HANDREMOTE_WEAPON) ||
+					(p.curr_weapon == DukeWpn.HANDREMOTE_WEAPON && i == DukeWpn.HANDBOMB_WEAPON) ||
 					(p.curr_weapon == DukeWpn.GROW_WEAPON && i == DukeWpn.SHRINKER_WEAPON))
 				{
 					stats.weaponselect = stats.weaponicons.Size();
@@ -562,7 +562,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		{
 			int ammonum = ammoorder[i];
 			if (ammonum == DukeWpn.GROW_WEAPON && !Raze.isPlutoPak()) continue;
-			if (p.curr_weapon == ammonum) 
+			if (p.curr_weapon == ammonum || (p.curr_weapon == DukeWpn.HANDREMOTE_WEAPON && ammonum == DukeWpn.HANDBOMB_WEAPON)) 
 			{
 				stats.ammoselect = stats.ammoicons.Size();
 			}
