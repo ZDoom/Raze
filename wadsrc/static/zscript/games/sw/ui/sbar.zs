@@ -36,6 +36,23 @@ class SWStatusBar : RazeStatusBar
 		"PanelFlashBomb",
 		"PanelCaltrops"
 	};
+	
+	static const String StatusKeyPics[] =
+	{
+		"PANEL_KEY_RED",
+		"PANEL_KEY_BLUE",
+		"PANEL_KEY_GREEN",
+		"PANEL_KEY_YELLOW",
+		"PANEL_SKELKEY_GOLD",
+		"PANEL_SKELKEY_SILVER",
+		"PANEL_SKELKEY_BRONZE",
+		"PANEL_SKELKEY_RED"
+	};
+
+	static const String ammo_sprites[] = { "", "ICON_STAR", "ICON_LG_SHOTSHELL", "ICON_LG_UZI_AMMO", "ICON_MICRO_BATTERY", "ICON_LG_GRENADE", "ICON_LG_MINE", "ICON_RAIL_AMMO",
+		//"ICON_FIREBALL_LG_AMMO", "ICON_HEART_LG_AMMO", "ICON_FIREBALL_LG_AMMO", "ICON_FIREBALL_LG_AMMO", "ICON_MICRO_BATTERY", "" }; fireball and heart ammo are empty.
+		"ICON_GUARD_HEAD", "ICON_HEART", "ICON_GUARD_HEAD", "ICON_GUARD_HEAD",  "ICON_MICRO_BATTERY", "" };
+
 
 	enum EConstants
 	{
@@ -364,17 +381,6 @@ class SWStatusBar : RazeStatusBar
 		int row, col;
 		int i;
 
-		static const String StatusKeyPics[] =
-		{
-			"PANEL_KEY_RED",
-			"PANEL_KEY_BLUE",
-			"PANEL_KEY_GREEN",
-			"PANEL_KEY_YELLOW",
-			"PANEL_SKELKEY_GOLD",
-			"PANEL_SKELKEY_SILVER",
-			"PANEL_SKELKEY_BRONZE",
-			"PANEL_SKELKEY_RED"
-		};
 		let tex = TexMan.CheckForTexture("PANEL_KEY_RED", TexMan.Type_Any);
 		let size = TexMan.GetScaledSize(tex) + (1, 2);
 
@@ -421,17 +427,6 @@ class SWStatusBar : RazeStatusBar
 		double x, y;
 		int i;
 
-		static const String StatusKeyPics[] =
-		{
-			"PANEL_KEY_RED",
-			"PANEL_KEY_BLUE",
-			"PANEL_KEY_GREEN",
-			"PANEL_KEY_YELLOW",
-			"PANEL_SKELKEY_GOLD",
-			"PANEL_SKELKEY_SILVER",
-			"PANEL_SKELKEY_BRONZE",
-			"PANEL_SKELKEY_RED"
-		};
 		let tex = TexMan.CheckForTexture("PANEL_KEY_RED", TexMan.Type_Any);
 		let size = TexMan.GetScaledSize(tex) + (1, 2);
 
@@ -772,9 +767,6 @@ class SWStatusBar : RazeStatusBar
 		//
 		// Weapon
 		//
-		static const String ammo_sprites[] = { "", "ICON_STAR", "ICON_LG_SHOTSHELL", "ICON_LG_UZI_AMMO", "ICON_MICRO_BATTERY", "ICON_LG_GRENADE", "ICON_LG_MINE", "ICON_RAIL_AMMO",
-			"ICON_FIREBALL_LG_AMMO", "ICON_HEART_LG_AMMO", "ICON_FIREBALL_LG_AMMO", "ICON_FIREBALL_LG_AMMO", "ICON_MICRO_BATTERY", "" };
-
 		int weapon = pp.WeaponNum();
 		String wicon = ammo_sprites[weapon];
 		if (wicon.length() > 0)
@@ -961,6 +953,97 @@ class SWStatusBar : RazeStatusBar
 			DoLevelStats(-3, info);
 		}
 		DrawInventory(pp, inv_x, inv_y, align);
+	}
+	
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	override void GetAllStats(HudStats stats)
+	{
+		stats.Clear();
+		stats.info.fontscale = 1;
+
+		stats.info.spacing = 7;
+		stats.info.letterColor = Font.TEXTCOLOR_RED;
+		stats.info.standardColor = Font.TEXTCOLOR_TAN;
+		stats.info.completeColor = Font.TEXTCOLOR_FIRE;
+		stats.info.statfont = SmallFont;
+
+
+		let pp = SW.GetViewPlayer();
+		stats.healthicon = "ICON_SM_MEDKIT";
+		stats.healthvalue = pp.Health();
+		
+		if (pp.Armor > 0)
+		{
+			stats.armoricons.Push("ICON_ARMOR");
+			stats.armorvalues.Push(pp.Armor);
+		}
+
+		for (int i = 0; i < 8; i++)
+		{
+			if (pp.hasKey[i])
+			{
+				stats.keyicons.Push(StatusKeyPics[i]);
+			}
+		}
+
+		// omits all weapons where ammo == weapon or secondary fire mode.
+		static const String weaponIcons[] = { "", "" /* shuriken*/, "ICON_SHOTGUN", "ICON_UZI", "ICON_MICRO_GUN", "ICON_GRENADE_LAUNCHER", "" /* mine */, "ICON_RAIL_GUN", "ICON_GUARD_HEAD", "ICON_HEART" };
+
+		let weap = pp.WeaponNum();
+		for(int i = 0; i < weaponIcons.Size(); i++)
+		{
+			if ((pp.WpnFlags & (1 << i)) && weaponIcons[i] != "")
+			{
+				if (weap == i ||
+					((weap == SW.WPN_NAPALM || weap == SW.WPN_RING) && i == SW.WPN_HOTHEAD) ||
+					(weap == SW.WPN_ROCKET && i == SW.WPN_MICRO))
+				{
+					stats.weaponselect = stats.weaponicons.Size();
+				}
+				stats.weaponicons.Push(weaponIcons[i]);
+			}
+		}
+		
+		static const int ammoOrder[] = { SW.WPN_STAR, SW.WPN_SHOTGUN, SW.WPN_UZI, SW.WPN_MICRO, SW.WPN_GRENADE, SW.WPN_MINE, SW.WPN_RAIL, SW.WPN_HOTHEAD, SW.WPN_HEART };
+		
+		for(int i = 0; i < ammoOrder.Size(); i++)
+		{
+			int ammonum = ammoorder[i];
+			
+			if (weap == ammonum ||
+				((weap == SW.WPN_NAPALM || weap == SW.WPN_RING) && ammonum == SW.WPN_HOTHEAD) ||
+				(weap == SW.WPN_ROCKET && ammonum == SW.WPN_MICRO))
+			{
+				stats.ammoselect = stats.ammoicons.Size();
+			}
+			stats.ammoicons.Push(ammo_sprites[ammonum]);
+			int num = pp.WpnAmmo[ammonum];
+			stats.ammovalues.Push(num);
+			stats.ammomaxvalues.Push(SW.WeaponMaxAmmo(ammonum));
+		}
+		
+		for (int i = 0; i < pp.InventoryAmount.size(); i++)
+		{
+			if (pp.InventoryAmount[i] > 0)
+			{
+				if (i == pp.InventoryNum) stats.inventoryselect = stats.inventoryicons.Size();
+				stats.inventoryicons.Push(icons[i]);
+				if (SW.InventoryFlags(i) & SW.INVF_COUNT)
+				{
+					stats.inventoryamounts.Push(pp.InventoryAmount[i]);
+				}
+				else
+				{
+					stats.inventoryamounts.Push(pp.InventoryPercent[i]);
+				}
+
+			}
+		}
 	}
 }
 

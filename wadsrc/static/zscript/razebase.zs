@@ -202,6 +202,11 @@ struct Raze
 		return gameinfo.gametype & GAMEFLAG_BLOOD;
 	}
 
+	static bool isSW()
+	{
+		return gameinfo.gametype & GAMEFLAG_SW;
+	}
+
 	// Dont know yet how to best export this, so for now these are just placeholders as MP is not operational anyway.
 	static int playerPalette(int i)
 	{

@@ -70,18 +70,21 @@ struct HudStats
 		armortranslations.Clear();
 		armorvalues.Clear();
 
+		ammoselect = -1;
 		ammoicons.Clear();
 		ammotranslations.Clear();
 		ammovalues.Clear();
 		ammomaxvalues.Clear();
 		ammoaltvalues.Clear();
 
+		weaponselect = -1;
 		weaponicons.Clear();
 		weapontranslations.Clear();
 		
 		keyicons.Clear();
 		keytranslations.Clear();
 		
+		inventoryselect = -1;
 		inventoryicons.Clear();
 		inventoryamounts.Clear();
 	}
@@ -274,6 +277,7 @@ class AltHud ui
 			Font.CR_BLUE;
 
 		DrawImageToBox(TexMan.CheckForTexture(currentStats.healthicon), x, y, 31, 17, 0.75, true);
+		if (Raze.isSW()) y -= 4; // still need to figure out why the font is misaligned this much.
 		DrawHudNumber(HudFont, fontcolor, health, x + 33, y + 17, fontscale:fontscale);
 	}
 
@@ -286,8 +290,6 @@ class AltHud ui
 
 	virtual void DrawArmor(int xx, int y, double fontscale)
 	{
-		// Todo: need to figure out how to display Blood's 3 armors without blowing the layout
-		
 		int x = xx;
 		int spacing = HudFont.StringWidth("000") * fontscale;
 		for(int i = 0; i < currentStats.armoricons.Size(); i++)
@@ -302,6 +304,7 @@ class AltHud ui
 				Font.CR_BLUE;
 
 			DrawImageToBox(TexMan.CheckForTexture(currentStats.armoricons[i]), x, y, 31, 17, 0.75, true);
+			if (Raze.isSW()) y -= 4; // still need to figure out why the font is misaligned.
 			if (ap >= 0) DrawHudNumber(HudFont, fontcolor, ap, x + 33, y + 17, fontscale:fontscale);
 			x += 35 + spacing;
 		}
