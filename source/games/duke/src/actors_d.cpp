@@ -1936,10 +1936,10 @@ void movetransports_d(void)
 
 				{
 					warpspriteto = 0;
-					if (ll && sectlotag == 2 && act2->spr.pos.Z < (sectp->ceilingz + ll))
+					if (ll && sectlotag == 2 && act2->spr.pos.Z < (sectp->ceilingz + ll) && act2->vel.Z < 0)
 						warpspriteto = 1;
 
-					if (ll && sectlotag == 1 && act2->spr.pos.Z > (sectp->floorz - ll))
+					if (ll && sectlotag == 1 && act2->spr.pos.Z > (sectp->floorz - ll) && act2->vel.Z > 0)
 						warpspriteto = 1;
 
 					if (sectlotag == 0 && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
