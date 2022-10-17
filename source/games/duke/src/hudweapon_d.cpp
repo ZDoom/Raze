@@ -50,7 +50,7 @@ inline static double getavel(int snum)
 //
 //---------------------------------------------------------------------------
 
-inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle)
+inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
 {
 	hud_drawsprite(x, y, 65536, angle.Buildfang(), tilenum, shade, p, 2 | orientation);
 }
@@ -198,22 +198,15 @@ static bool animateaccess(int gs, player_struct* p, double xoffset, double yoffs
 
 void displayweapon_d(int snum, double interpfrac)
 {
-	int cw;
-	int i, j;
-	int o, pal, pal2;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th, plravel;
-	int8_t shade;
-	player_struct* p;
+	int pal, pal2;
+	player_struct* p = &ps[snum];
 
-	p = &ps[snum];
+	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
+		return;
+
+	double weapon_sway, gun_pos, kickback_pic, random_club_frame, hard_landing;
 	auto kb = &p->kickback_pic;
-	int pin = 0;
-
-	o = 0;
-
-	auto horiz = !SyncInput() ? p->horizon.sum() : p->horizon.interpolatedsum(interpfrac);
-	auto offsets = p->angle.weaponoffsets(interpfrac);
-	auto angle = p->angle.renderrotscrn(interpfrac);
+	int o = 0;
 
 	if (cl_hudinterpolation)
 	{
@@ -232,79 +225,59 @@ void displayweapon_d(int snum, double interpfrac)
 		gun_pos = 80 - (p->weapon_pos * p->weapon_pos);
 	}
 
-	plravel = getavel(snum) * (1. / 16.);
-	horiz16th = interpolatedvalue(0., 16., horiz / DAngle90);
-	look_anghalf = p->angle.look_anghalf(interpfrac);
-	looking_arc = p->angle.looking_arc(interpfrac);
 	hard_landing *= 8.;
+	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.5 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16) + hard_landing;
 
-	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.5 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);
-	gun_pos -= hard_landing;
-
-	weapon_xoffset = (160)-90;
-	weapon_xoffset -= BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.);
-	weapon_xoffset -= 58 + p->weapon_ang;
-
-	shade = p->GetActor()->spr.shade;
-	if(shade > 24) shade = 24;
+	auto offsets = p->angle.weaponoffsets(interpfrac);
+	auto horiz = !SyncInput() ? p->horizon.sum() : p->horizon.interpolatedsum(interpfrac);
+	auto pitchoffset = interpolatedvalue(0., 16., horiz / DAngle90);
+	auto yawinput = getavel(snum) * (1. / 16.);
+	auto angle = p->angle.renderrotscrn(interpfrac);
+	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;
+	auto shade = min(p->GetActor()->spr.shade, (int8_t)24);
 
 	pal2 = pal = !p->insector() ? 0 : p->GetActor()->spr.pal == 1 ? 1 : p->cursector->floorpal;
-	if (pal2 == 0)
-		pal2 = p->palookup;
+	if (pal2 == 0) pal2 = p->palookup;
 
-	auto adjusted_arc = looking_arc - hard_landing;
-	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
-	bool playerAnims = animatefist(shade, p, plravel, offsets.Y, pal, interpfrac) || animateknuckles(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal, angle) ||
-					   animatetip(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal, interpfrac, angle) || animateaccess(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, interpfrac, angle);
+	auto animoffs = offsets + DVector2(yawinput, -hard_landing + pitchoffset);
 
-	if(playerVars || playerAnims)
+	if (animatefist(shade, p, yawinput, offsets.Y, pal, interpfrac))
+		return;
+	if (animateknuckles(shade, p, animoffs.X, animoffs.Y, pal, angle))
+		return;
+	if (animatetip(shade, p, animoffs.X, animoffs.Y, pal, interpfrac, angle))
+		return;
+	if (animateaccess(shade, p, animoffs.X, animoffs.Y, interpfrac, angle))
 		return;
 
-	animateknee(shade, p, offsets.X + plravel, offsets.Y - hard_landing + horiz16th, pal2, interpfrac, angle);
+	animateknee(shade, p, animoffs.X, animoffs.Y, pal2, interpfrac, angle);
 
-	if (isWW2GI())
-	{
-		if (p->last_weapon >= 0)
-		{
-			cw = aplWeaponWorksLike(p->last_weapon, snum);
-		}
-		else
-		{
-			cw = aplWeaponWorksLike(p->curr_weapon, snum);
-		}
-	}
-	else
-	{
-		if (p->last_weapon >= 0)
-			cw = p->last_weapon;
-		else cw = p->curr_weapon;
-	}
+	int cw = p->last_weapon >= 0 ? p->last_weapon : p->curr_weapon;
+	if (isWW2GI()) cw = aplWeaponWorksLike(cw, snum);
 
 	// onevent should go here..
-
 	// rest of code should be moved to CON..
+	int quick_kick = 14 - p->quick_kick;
 
-	j = 14-p->quick_kick;
-	if (j != 14 || p->last_quick_kick)
+	if (quick_kick != 14 || p->last_quick_kick)
 	{
-		if (j < 5 || j > 9)
+		if (quick_kick < 5 || quick_kick > 9)
 		{
-			hud_drawpal(weapon_xoffset + 80 - look_anghalf, looking_arc + 250 - gun_pos, KNEE, shade, o | 4, pal2);
+			hud_drawpal(weapon_xoffset + 80 + offsets.X, 250 - gun_pos + offsets.Y, KNEE, shade, o | 4, pal2, angle);
 		}
 		else
 		{
-			hud_drawpal(weapon_xoffset + 160 - 16 - look_anghalf, looking_arc + 214 - gun_pos, KNEE + 1, shade, o | 4, pal2);
+			hud_drawpal(weapon_xoffset + 160 - 16 + offsets.X, 214 - gun_pos + offsets.Y, KNEE + 1, shade, o | 4, pal2, angle);
 		}
 	}
 
 	if (p->GetActor()->spr.scale.X < 0.625)
 	{
 		//shrunken..
-		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, FIST, shade, o, interpfrac);
+		animateshrunken(p, weapon_xoffset, offsets.Y, -offsets.X, FIST, shade, o, interpfrac);
 	}
 	else
 	{
-
 		//---------------------------------------------------------------------------
 		//
 		//
@@ -357,7 +330,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayrpg = [&]()
 		{
-			pin = ((gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
+			const int pin = ((gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 
 			const auto xyoffset = BobVal(768 + (kickback_pic * 128.)) * 8;
 			offsets.X += weapon_xoffset - xyoffset;
@@ -641,7 +614,7 @@ void displayweapon_d(int snum, double interpfrac)
 			}
 			else
 			{
-				pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
+				const int pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 				const int pic_5 = FIRSTGUN+5;
 				const int WEAPON2_RELOAD_TIME = 50;
 				const int reload_time = isWW2GI() ? aplWeaponReload(PISTOL_WEAPON, snum) : WEAPON2_RELOAD_TIME;
@@ -758,7 +731,8 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				if (*kb < aplWeaponTotalTime(p->curr_weapon, snum))
 				{
-					i = Sgn(*kb >> 2);
+					const int i = Sgn(*kb >> 2);
+
 					if (p->ammo_amount[p->curr_weapon] & 1)
 					{
 						hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
@@ -809,8 +783,7 @@ void displayweapon_d(int snum, double interpfrac)
 			if (*kb)
 			{
 				static constexpr uint8_t cycloidy[] = { 0,4,12,24,12,4,0 };
-
-				i = Sgn(*kb >> 2);
+				const int i = Sgn(*kb >> 2);
 
 				if (p->hbomb_hold_delay)
 				{
@@ -838,7 +811,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayfreezer = [&]
 		{
-			pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
+			const int pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 
 			offsets.X += weapon_xoffset;
 			offsets.Y -= gun_pos;
@@ -1059,7 +1032,6 @@ void displayweapon_d(int snum, double interpfrac)
 		//
 		//---------------------------------------------------------------------------
 
-
 		switch (cw)
 		{
 		case KNEE_WEAPON:
@@ -1122,7 +1094,6 @@ void displayweapon_d(int snum, double interpfrac)
 	}
 
 	displayloogie(p, interpfrac);
-
 }
 
 END_DUKE_NS
