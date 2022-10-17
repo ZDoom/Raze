@@ -1038,7 +1038,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if(krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
 		break;
 	}
-	case HEAVYHBOMB:
+	case DYNAMITE:
 		act->SetOwner(act);
 		act->spr.scale = DVector2(0.140625, 0.140625);
 		act->spr.yint = 4;
@@ -1065,12 +1065,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case HOLODUKE:
 
 	case FIRSTGUNSPRITE:
-	case CHAINGUNSPRITE:
+	case RIFLEGUNSPRITE:
 	case SHOTGUNSPRITE:
-	case RPGSPRITE:
-	case SHRINKERSPRITE:
-	case FREEZESPRITE:
-	case DEVISTATORSPRITE:
+	case CROSSBOWSPRITE:
+	case RIPSAWSPRITE:
+	case TITSPRITE:
+	case ALIENBLASTERSPRITE:
 
 	case SHOTGUNAMMO:
 	case FREEZEAMMO:
@@ -1202,17 +1202,17 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yint = 4;
 			act->vel.X = 2;
 			break;
-		case RPGSPRITE:
+		case CROSSBOWSPRITE:
 			act->spr.scale = DVector2(0.25, 0.21875);
 			break;
 		case RPG2SPRITE:
 			if (!isRRRA()) goto default_case;
 			act->spr.scale = DVector2(0.34375, 0.3125);
 			break;
-		case SHRINKERSPRITE:
+		case RIPSAWSPRITE:
 			act->spr.scale = DVector2(0.34375, 0.203125);
 			break;
-		case DEVISTATORSPRITE:
+		case ALIENBLASTERSPRITE:
 			act->spr.scale = DVector2(0.28125, 0.265625);
 			break;
 		case SAWAMMO:
@@ -1227,7 +1227,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case ATOMICHEALTH:
 			act->spr.scale = DVector2(0.125, 0.125);
 			break;
-		case FREEZESPRITE:
+		case TITSPRITE:
 			act->spr.scale = DVector2(0.265625, 0.25);
 			break;
 		}

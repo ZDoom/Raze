@@ -371,17 +371,17 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				{
 				case PISTOL_WEAPON:      newtspr->picnum = FIRSTGUNSPRITE;       break;
 				case SHOTGUN_WEAPON:     newtspr->picnum = SHOTGUNSPRITE;        break;
-				case RIFLEGUN_WEAPON:    newtspr->picnum = CHAINGUNSPRITE;       break;
-				case CROSSBOW_WEAPON:         newtspr->picnum = RPGSPRITE;            break;
-				case CHICKEN_WEAPON:        newtspr->picnum = RPGSPRITE; break;
+				case RIFLEGUN_WEAPON:    newtspr->picnum = RIFLEGUNSPRITE;       break;
+				case CROSSBOW_WEAPON:         newtspr->picnum = CROSSBOWSPRITE;            break;
+				case CHICKEN_WEAPON:        newtspr->picnum = CROSSBOWSPRITE; break;
 				case THROWINGDYNAMITE_WEAPON:
-				case DYNAMITE_WEAPON:    newtspr->picnum = HEAVYHBOMB;           break;
+				case DYNAMITE_WEAPON:    newtspr->picnum = DYNAMITE;           break;
 				case POWDERKEG_WEAPON:    newtspr->picnum = POWDERKEG;       break;
-				case BOWLING_WEAPON:     newtspr->picnum = 3437;                 break;
-				case THROWSAW_WEAPON:    newtspr->picnum = SHRINKSPARK;          break;
-				case BUZZSAW_WEAPON:        newtspr->picnum = SHRINKSPARK;          break;
-				case ALIENBLASTER_WEAPON:      newtspr->picnum = DEVISTATORSPRITE;     break;
-				case TIT_WEAPON:  newtspr->picnum = FREEZESPRITE;         break;
+				case BOWLING_WEAPON:     newtspr->picnum = BOWLINGBALLSPRITE;                 break;
+				case THROWSAW_WEAPON:    newtspr->picnum = RIPSAWSPRITE;          break;
+				case BUZZSAW_WEAPON:        newtspr->picnum = RIPSAWSPRITE;          break;
+				case ALIENBLASTER_WEAPON:      newtspr->picnum = ALIENBLASTERSPRITE;     break;
+				case TIT_WEAPON:  newtspr->picnum = TITSPRITE;         break;
 				}
 
 				if (h->GetOwner()) newtspr->pos.Z = ps[p].pos.Z - 12;
