@@ -161,12 +161,12 @@ class AltHud ui
 	//
 	//---------------------------------------------------------------------------
 
-	void DrawHudText(Font fnt, int color, String text, int x, int y, double trans = 0.75)
+	void DrawHudText(Font fnt, int color, String text, int x, int y, double trans = 0.75, double fontscale = 1.0)
 	{
-		if (fnt == HudFont) y += HudFontOffset;
+		//if (fnt == HudFont) y += HudFontOffset;
 		int zerowidth = fnt.GetCharWidth("0");
-		screen.DrawText(fnt, color, x, y-fnt.GetHeight(), text, DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight,
-			 DTA_KeepRatio, true, DTA_Alpha, trans, DTA_Monospace, MONO_CellCenter, DTA_Spacing, zerowidth);
+		screen.DrawText(fnt, color, x, y - (fnt.GetHeight() - fnt.Getdisplacement()) * fontscale, text, DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight,
+			 DTA_KeepRatio, true, DTA_Alpha, trans, DTA_Monospace, MONO_CellCenter, DTA_Spacing, zerowidth, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale);
 	}
 
 
@@ -176,9 +176,9 @@ class AltHud ui
 	//
 	//---------------------------------------------------------------------------
 
-	void DrawHudNumber(Font fnt, int color, int num, int x, int y, double trans = 0.75)
+	void DrawHudNumber(Font fnt, int color, int num, int x, int y, double trans = 0.75, double fontscale = 1.0)
 	{
-		DrawHudText(fnt, color, String.Format("%d", num), x, y, trans);
+		DrawHudText(fnt, color, String.Format("%d", num), x, y, trans, fontscale);
 	}
 
 	//---------------------------------------------------------------------------
@@ -187,11 +187,11 @@ class AltHud ui
 	//
 	//---------------------------------------------------------------------------
 
-	virtual void DrawTimeString(Font fnt, int color, int seconds, int x, int y, double trans = 0.75)
+	virtual void DrawTimeString(Font fnt, int color, int seconds, int x, int y, double trans = 0.75, double fontscale = 1.0)
 	{
 		String s = String.Format("%02i:%02i:%02i", seconds / 3600, (seconds % 3600) / 60, seconds % 60);
 		int length = 8 * fnt.GetCharWidth("0");
-		DrawHudText(fnt, color, s, x-length, y, trans);
+		DrawHudText(fnt, color, s, x-length, y, trans, fontscale);
 	}
 	
 	//===========================================================================
@@ -200,19 +200,20 @@ class AltHud ui
 	//
 	//===========================================================================
 
-	virtual void DrawStatLine(int x, in out int y, String prefix, String text)
+	virtual void DrawStatLine(int x, in out int y, String prefix, String text, double fontscale)
 	{
-		y -= StatFont.GetHeight()-1;
+
+		y -= (StatFont.GetHeight()-1) * fontscale;
 		screen.DrawText(StatFont, Font.CR_UNTRANSLATED, x, y, prefix, 
 			DTA_KeepRatio, true,
-			DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight, DTA_Alpha, 0.75);
+			DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight, DTA_Alpha, 0.75, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale);
 
 		screen.DrawText(StatFont, Font.CR_UNTRANSLATED, x+statspace, y, text,
 			DTA_KeepRatio, true,
-			DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight, DTA_Alpha, 0.75);
+			DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight, DTA_Alpha, 0.75, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale);
 	}
 
-	virtual void DrawStatus(SummaryInfo stats, int x, int y)
+	virtual void DrawStatus(SummaryInfo stats, int x, int y, double fontscale)
 	{
 		//if (!deathmatch)
 		{
@@ -222,7 +223,7 @@ class AltHud ui
 				String text = String.Format("%s%d/%d", stats.secrets >= stats.maxsecrets ? currentStats.info.completeColor : currentStats.info.standardColor, stats.secrets, stats.maxsecrets);
 				if (stats.supersecrets > 0) text.AppendFormat("+%d", stats.supersecrets);
 				
-				DrawStatLine(x, y, prefix, text);
+				DrawStatLine(x, y, prefix, text, fontscale);
 			}
 			
 			if (hud_showkills && stats.maxkills != -1)
@@ -237,7 +238,7 @@ class AltHud ui
 				else if (stats.maxkills == -2) text = String.Format("%s%d", currentStats.info.standardColor, stats.kills);
 				else text = String.Format("%s%d/%d", stats.kills == stats.maxkills ? currentStats.info.completeColor : currentStats.info.standardColor, stats.kills, stats.maxkills);
 				
-				DrawStatLine(x, y, prefix, text);
+				DrawStatLine(x, y, prefix, text, fontscale);
 			}
 
 			if (hud_showtimestat)
@@ -250,7 +251,7 @@ class AltHud ui
 					text = String.Format("%s%02i:%02i:%02i", currentStats.info.standardColor, seconds / 3600, (seconds % 3600) / 60, seconds % 60);
 				else
 					text = String.Format("%s%02i:%02i", currentStats.info.standardColor, seconds / 60, seconds % 60);
-				DrawStatLine(x, y, prefix, text);
+				DrawStatLine(x, y, prefix, text, fontscale);
 			}
 		}
 	}
@@ -261,7 +262,7 @@ class AltHud ui
 	//
 	//===========================================================================
 
-	virtual void DrawHealth(int x, int y)
+	virtual void DrawHealth(int x, int y, double fontscale)
 	{
 		int health = currentStats.healthvalue;
 
@@ -273,7 +274,7 @@ class AltHud ui
 			Font.CR_BLUE;
 
 		DrawImageToBox(TexMan.CheckForTexture(currentStats.healthicon), x, y, 31, 17, 0.75, true);
-		DrawHudNumber(HudFont, fontcolor, health, x + 33, y + 17);
+		DrawHudNumber(HudFont, fontcolor, health, x + 33, y + 17, fontscale:fontscale);
 	}
 
 	//===========================================================================
@@ -283,28 +284,26 @@ class AltHud ui
 	//
 	//===========================================================================
 
-	virtual void DrawArmor(int xx, int y)
+	virtual void DrawArmor(int xx, int y, double fontscale)
 	{
 		// Todo: need to figure out how to display Blood's 3 armors without blowing the layout
 		
 		int x = xx;
+		int spacing = HudFont.StringWidth("000") * fontscale;
 		for(int i = 0; i < currentStats.armoricons.Size(); i++)
 		{
 			int ap = currentStats.armorvalues[i];
 
-			if (ap)
-			{
-				// decide on color
-				int fontcolor =
-					ap < hud_armor_red ? Font.CR_RED :
-					ap < hud_armor_yellow ? Font.CR_GOLD :
-					ap <= hud_armor_green ? Font.CR_GREEN :
-					Font.CR_BLUE;
+			// decide on color
+			int fontcolor =
+				ap < hud_armor_red ? Font.CR_RED :
+				ap < hud_armor_yellow ? Font.CR_GOLD :
+				ap <= hud_armor_green ? Font.CR_GREEN :
+				Font.CR_BLUE;
 
-				DrawImageToBox(TexMan.CheckForTexture(currentStats.armoricons[i]), x, y, 31, 17, 0.75, true);
-				DrawHudNumber(HudFont, fontcolor, ap, x + 33, y + 17);
-				x += 60;
-			}
+			DrawImageToBox(TexMan.CheckForTexture(currentStats.armoricons[i]), x, y, 31, 17, 0.75, true);
+			if (ap >= 0) DrawHudNumber(HudFont, fontcolor, ap, x + 33, y + 17, fontscale:fontscale);
+			x += 35 + spacing;
 		}
 	}
 
@@ -544,14 +543,14 @@ class AltHud ui
 	//
 	//---------------------------------------------------------------------------
 	
-	void DrawCoordinateEntry(int xpos, int ypos, String coordstr)
+	void DrawCoordinateEntry(int xpos, int ypos, String coordstr, double fontscale)
 	{
 		screen.DrawText(StatFont, hudcolor_xyco, xpos, ypos, coordstr,
-						 DTA_KeepRatio, true,
+						 DTA_KeepRatio, true, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale,
 						 DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight);
 	}
 
-	virtual void DrawCoordinates(bool withmapname)
+	virtual void DrawCoordinates(bool withmapname, double fontscale)
 	{
 		/* todo when everything else works.
 		Vector3 pos = (0, 0, 0);
@@ -568,28 +567,28 @@ class AltHud ui
 			int hh = font.GetHeight();
 
 			screen.DrawText(font, hudcolor_titl, hudwidth - 6 - font.StringWidth(Level.MapName), ypos, Level.MapName,
-				DTA_KeepRatio, true,
+				DTA_KeepRatio, true, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale,
 				DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight);
 
 			screen.DrawText(font, hudcolor_titl, hudwidth - 6 - font.StringWidth(Level.LevelName), ypos + hh, Level.LevelName,
-				DTA_KeepRatio, true,
+				DTA_KeepRatio, true, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale,
 				DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight);
 	
 			ypos += 2 * hh + h;
 		}
 		
-		DrawCoordinateEntry(xpos, ypos, String.Format("X: %.0f", pos.X));
+		DrawCoordinateEntry(xpos, ypos, String.Format("X: %.0f", pos.X), fontscale);
 		ypos += h;
-		DrawCoordinateEntry(xpos, ypos, String.Format("Y: %.0f", pos.Y));
+		DrawCoordinateEntry(xpos, ypos, String.Format("Y: %.0f", pos.Y), fontscale);
 		ypos += h;
-		DrawCoordinateEntry(xpos, ypos, String.Format("Z: %.0f", pos.Z));
+		DrawCoordinateEntry(xpos, ypos, String.Format("Z: %.0f", pos.Z), fontscale);
 		ypos += h;
 
 		if (hud_showangles)
 		{
-			DrawCoordinateEntry(xpos, ypos, String.Format("Y: %.0f", Actor.Normalize180(mo.Angle)));
+			DrawCoordinateEntry(xpos, ypos, String.Format("Y: %.0f", Actor.Normalize180(mo.Angle)), fontscale);
 			ypos += h;
-			DrawCoordinateEntry(xpos, ypos, String.Format("P: %.0f", Actor.Normalize180(mo.Pitch)));
+			DrawCoordinateEntry(xpos, ypos, String.Format("P: %.0f", Actor.Normalize180(mo.Pitch)), fontscale);
 			ypos += h;
 			DrawCoordinateEntry(xpos, ypos, String.Format("R: %.0f", Actor.Normalize180(mo.Roll)));
 		}
@@ -606,10 +605,11 @@ class AltHud ui
 	{
 		// No HUD in the title level!
 		if (gamestate == GS_TITLELEVEL) return;
+		let fontscale = currentStats.info.fontscale;
 
-		DrawStatus(summary, 5, hudheight-50);
-		DrawHealth(5, hudheight - 45);
-		DrawArmor(5, hudheight-20);
+		DrawStatus(summary, 5, hudheight-50, fontscale);
+		DrawHealth(5, hudheight - 45, fontscale);
+		DrawArmor(5, hudheight-20, fontscale);
 		
 		int y = DrawKeys(hudwidth-4, hudheight-10);
 		y = DrawAmmo(hudwidth-5, y);
@@ -626,6 +626,7 @@ class AltHud ui
 	virtual void DrawAutomap(SummaryInfo summary)
 	{
 		let font = generic_ui? NewSmallFont : StatFont;
+		double fontscale = generic_ui? 1. : currentStats.info.fontscale;
 
 		int fonth = font.GetHeight() + 1;
 		int bottom = hudheight - 1;
@@ -633,7 +634,7 @@ class AltHud ui
 /*
 		if (am_showtotaltime)
 		{
-			DrawTimeString(font, hudcolor_ttim, curentstats.totaltime / 1000, hudwidth-2, bottom, 1);
+			DrawTimeString(font, hudcolor_ttim, curentstats.totaltime / 1000, hudwidth-2, bottom, 1, currentStats.info.fontscale);
 			bottom -= fonth;
 		}
 */
@@ -641,7 +642,7 @@ class AltHud ui
 		if (am_showtime)
 		{
 			let seconds = summary.time / 1000;
-			DrawTimeString(font, hudcolor_ltim, seconds, hudwidth-2, bottom, 1);
+			DrawTimeString(font, hudcolor_ltim, seconds, hudwidth-2, bottom, 1, fontscale);
 		}
 		let lev = currentlevel;
 		let amstr = String.Format("%s: \034%c%s", lev.GetLabelName(), hudcolor_titl + 65, lev.DisplayName());
@@ -649,7 +650,7 @@ class AltHud ui
 		font = generic_ui? NewSmallFont : StatFont.CanPrint(amstr)? StatFont : OriginalSmallFont;
 
 		screen.DrawText(font, Font.CR_BRICK, 2, hudheight - fonth - 1, amstr,
-			DTA_KeepRatio, true,
+			DTA_KeepRatio, true, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale,
 			DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight);
 	}
 
