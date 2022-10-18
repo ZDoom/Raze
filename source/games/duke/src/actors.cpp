@@ -4409,7 +4409,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 
 	if (actor->spr.shade)
 	{
-		sec->addceilingz(actor->spr.yint);
+		sec->addceilingz(actor->spr.yint * zmaptoworld);
 		if (sec->ceilingz > sec->floorz)
 		{
 			sec->setceilingz(sec->floorz);
@@ -4419,7 +4419,7 @@ void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 	}
 	else
 	{
-		sec->addceilingz(-actor->spr.yint);
+		sec->addceilingz(-actor->spr.yint * zmaptoworld);
 		if (sec->int_ceilingz() < actor->temp_data[t_index])
 		{
 			sec->set_int_ceilingz(actor->temp_data[t_index]);
