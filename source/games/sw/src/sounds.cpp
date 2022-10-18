@@ -733,6 +733,17 @@ void DeleteNoSoundOwner(DSWActor* actor)
             }
             return false;
         });
+
+    // also delete all ambients attached to this actor.
+    for (int i = ambients.Size() - 1; i >= 0; i--)
+    {
+        auto amb = ambients[i];
+        if (amb->spot == actor)
+        {
+            soundEngine->StopSound(SOURCE_Ambient, amb, -1);
+            ambients.Delete(i);
+        }
+    }
 }
 
 //==========================================================================
