@@ -1328,7 +1328,10 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     RestorePortalState();
 
     if (sceneonly)
+    {
+        PostDraw();
         return;
+    }
 
     MarkSectorSeen(pp->cursector);
 
