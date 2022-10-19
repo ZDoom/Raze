@@ -3663,7 +3663,7 @@ void handle_se13(DDukeActor* actor)
 			actor->temp_data[3]++;
 			sc->ceilingstat ^= CSTAT_SECTOR_SKY;
 
-			if (actor->spr.angle == DAngle90)
+			if (actor->spr.intangle == 512)
 			{
 				for (auto& wal : wallsofsector(sc))
 					wal.shade = actor->spr.shade;
