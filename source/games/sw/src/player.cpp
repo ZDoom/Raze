@@ -6737,7 +6737,7 @@ void DoPlayerRun(PLAYER* pp)
         return;
     }
 
-    if ((pp->cursector->extra & SECTFX_DYNAMIC_AREA))
+    if ((pp->cursector && pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
         pp->pos.Z = pp->loz - PLAYER_HEIGHTF;
     }
