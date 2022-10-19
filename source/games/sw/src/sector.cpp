@@ -2803,6 +2803,7 @@ int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, in
 	Anim[j].animactor = animactor;
     Anim[j].goal = thegoal;
     Anim[j].vel = thevel;
+    if (animtype != ANIM_SUdepth) Anim[j].vel /= 256.;
     Anim[j].vel_adj = 0;
     Anim[j].callback = nullptr;
     Anim[j].callbackdata = nullptr;

@@ -51,6 +51,25 @@ ANIMATOR NinjaJumpActionFunc;
 #define ACTOR_STD_JUMP (-384)
 DAngle GlobSpeedSO;
 
+double Distance(DVector2 p1, DVector2 p2)
+{
+    double min;
+
+    if ((p2.X = p2.X - p1.X) < 0)
+        p2.X = -p2.X;
+
+    if ((p2.Y = p2.Y - p1.Y) < 0)
+        p2.Y = -p2.Y;
+
+    if (p2.X > p2.Y)
+        min = p2.Y;
+    else
+        min = p2.X;
+
+    return p2.X + p2.Y - (min * 0.5);
+}
+
+
 // determine if moving down the track will get you closer to the player
 short TrackTowardPlayer(DSWActor* actor, TRACK* t, TRACK_POINT* start_point)
 {
@@ -66,8 +85,8 @@ short TrackTowardPlayer(DSWActor* actor, TRACK* t, TRACK_POINT* start_point)
         end_point = t->TrackPoint;
     }
 
-    auto end_dist = (end_point->pos.XY() - actor->spr.pos.XY()).Length();
-    auto start_dist = (start_point->pos.XY() - actor->spr.pos.XY()).Length();
+    auto end_dist = Distance(end_point->pos.XY(), actor->spr.pos.XY());
+    auto start_dist = Distance(start_point->pos.XY(), actor->spr.pos.XY());
 
     return (end_dist < start_dist);
 }
@@ -86,8 +105,8 @@ short TrackStartCloserThanEnd(DSWActor* actor, TRACK* t, TRACK_POINT* start_poin
         end_point = t->TrackPoint;
     }
 
-    auto end_dist = (end_point->pos.XY() - actor->spr.pos.XY()).Length();
-    auto start_dist = (start_point->pos.XY() - actor->spr.pos.XY()).Length();
+    auto end_dist = Distance(end_point->pos.XY(), actor->spr.pos.XY());
+    auto start_dist = Distance(start_point->pos.XY(), actor->spr.pos.XY());
 
     return (start_dist < end_dist);
 }
@@ -183,7 +202,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         {
             tp = t->TrackPoint + end_point[i];
 
-            double dist = (tp->pos.XY() - actor->spr.pos.XY()).Length();
+            double dist = Distance(tp->pos.XY(), actor->spr.pos.XY());
 
             if (dist < threshold && dist < near_dist)
             {
@@ -583,7 +602,7 @@ void TrackSetup(void)
             it.Reset(STAT_TRACK + ndx);
             while (auto actor = it.Next())
             {
-                dist = ((tp + t->NumPoints - 1)->pos -  actor->spr.pos).Length();
+                dist = Distance((tp + t->NumPoints - 1)->pos, actor->spr.pos);
 
                 if (dist < low_dist)
                 {
@@ -1360,7 +1379,7 @@ void PlaceSectorObjectsOnTracks(void)
         {
             tpoint = Track[sop->track].TrackPoint;
 
-            dist = ((tpoint + j)->pos - sop->pmid).Length();
+            dist = Distance((tpoint + j)->pos, sop->pmid);
 
             if (dist < low_dist)
             {
@@ -1423,7 +1442,7 @@ void PlaceActorsOnTracks(void)
         {
             tpoint = Track[actor->user.track].TrackPoint;
 
-            dist = ((tpoint + j)->pos - actor->spr.pos).Length();
+            dist = Distance((tpoint + j)->pos, actor->spr.pos);
 
             if (dist < low_dist)
             {
@@ -2445,7 +2464,7 @@ DVector2 DoTrack(SECTOR_OBJECT* sop, short locktics)
 
             // (velocity * difference between the target and the object)
             // take absolute value
-            sop->z_rate = (int)abs((sop->vel * zmaptoworld * (sop->pmid.Z - pos.Z)) / dist);
+            sop->z_rate = (int)abs((sop->vel * maptoworld * (sop->pmid.Z - pos.Z)) / dist);
 
             if ((sop->flags & SOBJ_SPRITE_OBJ))
             {
