@@ -393,10 +393,14 @@ DEFINE_ACTION_FUNCTION(FCanvas, DrawShapeFill)
 
 void F2DDrawer::SetClipRect(int x, int y, int w, int h)
 {
-	clipleft = clamp(x, 0, GetWidth());
-	clipwidth = clamp(w, -1, GetWidth() - x);
-	cliptop = clamp(y, 0, GetHeight());
-	clipheight = clamp(h, -1, GetHeight() - y);
+	if (x < 0) { w += x; x = 0; }
+	if (y < 0) { h += y; y = 0; }
+	if (x >= GetWidth()) { x = GetWidth(); w = 0; }
+	if (y >= GetHeight()) { x = GetHeight(); h = 0; }
+	clipleft = x;
+	clipwidth = w;
+	cliptop = y;
+	clipheight = h;
 }
 
 DEFINE_ACTION_FUNCTION(_Screen, SetClipRect)
@@ -1564,10 +1568,10 @@ static void DrawLine(int x0, int y0, int x1, int y1, uint32_t realcolor, int alp
 DEFINE_ACTION_FUNCTION_NATIVE(_Screen, DrawLine, DrawLine)
 {
 	PARAM_PROLOGUE;
-	PARAM_INT(x0);
-	PARAM_INT(y0);
-	PARAM_INT(x1);
-	PARAM_INT(y1);
+	PARAM_FLOAT(x0);
+	PARAM_FLOAT(y0);
+	PARAM_FLOAT(x1);
+	PARAM_FLOAT(y1);
 	PARAM_INT(color);
 	PARAM_INT(alpha);
 	DrawLine(x0, y0, x1, y1, color, alpha);
@@ -1577,10 +1581,10 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Screen, DrawLine, DrawLine)
 DEFINE_ACTION_FUNCTION(FCanvas, DrawLine)
 {
 	PARAM_SELF_PROLOGUE(FCanvas);
-	PARAM_INT(x0);
-	PARAM_INT(y0);
-	PARAM_INT(x1);
-	PARAM_INT(y1);
+	PARAM_FLOAT(x0);
+	PARAM_FLOAT(y0);
+	PARAM_FLOAT(x1);
+	PARAM_FLOAT(y1);
 	PARAM_INT(color);
 	PARAM_INT(alpha);
 	self->Drawer.AddLine((float)x0, (float)y0, (float)x1, (float)y1, nullptr, color | MAKEARGB(255, 0, 0, 0), alpha);
@@ -1597,10 +1601,10 @@ static void DrawThickLine(int x0, int y0, int x1, int y1, double thickness, uint
 DEFINE_ACTION_FUNCTION_NATIVE(_Screen, DrawThickLine, DrawThickLine)
 {
 	PARAM_PROLOGUE;
-	PARAM_INT(x0);
-	PARAM_INT(y0);
-	PARAM_INT(x1);
-	PARAM_INT(y1);
+	PARAM_FLOAT(x0);
+	PARAM_FLOAT(y0);
+	PARAM_FLOAT(x1);
+	PARAM_FLOAT(y1);
 	PARAM_FLOAT(thickness);
 	PARAM_INT(color);
 	PARAM_INT(alpha);
@@ -1611,10 +1615,10 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Screen, DrawThickLine, DrawThickLine)
 DEFINE_ACTION_FUNCTION(FCanvas, DrawThickLine)
 {
 	PARAM_SELF_PROLOGUE(FCanvas);
-	PARAM_INT(x0);
-	PARAM_INT(y0);
-	PARAM_INT(x1);
-	PARAM_INT(y1);
+	PARAM_FLOAT(x0);
+	PARAM_FLOAT(y0);
+	PARAM_FLOAT(x1);
+	PARAM_FLOAT(y1);
 	PARAM_FLOAT(thickness);
 	PARAM_INT(color);
 	PARAM_INT(alpha);

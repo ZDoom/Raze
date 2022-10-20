@@ -378,9 +378,9 @@ bool FVoxelModel::Load(const char * fn, int lumpnum, const char * buffer, int le
 //
 //===========================================================================
 
-int FVoxelModel::FindFrame(const char * name, bool nodefault)
+int FVoxelModel::FindFrame(const char* name, bool nodefault)
 {
-	return nodefault? FErr_Voxel : 0; // -2, not -1 because voxels are special.
+	return nodefault ? FErr_Voxel : 0; // -2, not -1 because voxels are special.
 }
 
 //===========================================================================
@@ -400,10 +400,9 @@ float FVoxelModel::getAspectFactor(float stretch)
 //
 //===========================================================================
 
-void FVoxelModel::RenderFrame(FModelRenderer *renderer, FGameTexture * skin, int frame, int frame2, double inter, int translation, const FTextureID*)
+void FVoxelModel::RenderFrame(FModelRenderer *renderer, FGameTexture * skin, int frame, int frame2, double inter, int translation, const FTextureID*, const TArray<VSMatrix>& boneData, int boneStartPosition)
 {
 	renderer->SetMaterial(skin, true, translation);
-	renderer->SetupFrame(this, 0, 0, 0);
+	renderer->SetupFrame(this, 0, 0, 0, {}, -1);
 	renderer->DrawElements(mNumIndices, 0);
 }
-
