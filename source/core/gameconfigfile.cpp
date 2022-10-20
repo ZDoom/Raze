@@ -102,18 +102,24 @@ FGameConfigFile::FGameConfigFile ()
 		// Arch Linux likes them in /usr/share/raze
 		// Debian likes them in /usr/share/games/raze
 		// I assume other distributions don't do anything radically different
-		SetValueForKey ("Path", "/opt/raze", true);
-		SetValueForKey ("Path", "/usr/share/games/raze", true);
-		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
+		SetValueForKey ("Path", "/opt/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/share/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/share/" GAMENAMELOWERCASE "/*", true);
+		SetValueForKey ("Path", "/usr/share/games/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/share/games/" GAMENAMELOWERCASE "/*", true);
+		SetValueForKey ("Path", "/usr/local/share/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/local/share/" GAMENAMELOWERCASE "/*", true);
+		SetValueForKey ("Path", "/usr/local/share/games/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/local/share/games/" GAMENAMELOWERCASE "/*", true);
 		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
-		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
-		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
 		SetValueForKey ("Path", "/usr/share/games/nblood", true);
-		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
 		SetValueForKey("Path", "/usr/share/games/jfsw", true);
-		SetValueForKey("Path", "/usr/local/share/games/jfsw", true);
 		SetValueForKey("Path", "/usr/share/games/voidsw", true);
+		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
+		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
+		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
+		SetValueForKey("Path", "/usr/local/share/games/jfsw", true);
 		SetValueForKey("Path", "/usr/local/share/games/voidsw", true);
 
 #endif
@@ -134,13 +140,19 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "$GAMEDIR", true);
 #else
 		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
-		SetValueForKey ("Path", "/usr/share/games/raze", true);
-		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
+		SetValueForKey ("Path", "/usr/share/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/share/" GAMENAMELOWERCASE "/*", true);
+		SetValueForKey ("Path", "/usr/share/games/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/share/games/" GAMENAMELOWERCASE "/*", true);
+		SetValueForKey ("Path", "/usr/local/share/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/local/share/" GAMENAMELOWERCASE "/*", true);
+		SetValueForKey ("Path", "/usr/local/share/games/" GAMENAMELOWERCASE, true);
+		SetValueForKey ("Path", "/usr/local/share/games/" GAMENAMELOWERCASE "/*", true);
 		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
-		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
-		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
 		SetValueForKey ("Path", "/usr/share/games/nblood", true);
+		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
+		SetValueForKey ("Path", "/usr/local/share/games/eduke32", true);
 		SetValueForKey ("Path", "/usr/local/share/games/nblood", true);
 #endif
 	}
@@ -158,8 +170,10 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey("Path", "$PROGDIR/soundfonts", true);
 #else
 		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
-		SetValueForKey("Path", "/usr/share/games/raze/soundfonts", true);
-		SetValueForKey("Path", "/usr/local/share/games/raze/soundfonts", true);
+		SetValueForKey("Path", "/usr/share/" GAMENAMELOWERCASE "/soundfonts", true);
+		SetValueForKey("Path", "/usr/share/games/" GAMENAMELOWERCASE "/soundfonts", true);
+		SetValueForKey("Path", "/usr/local/share/" GAMENAMELOWERCASE "/soundfonts", true);
+		SetValueForKey("Path", "/usr/local/share/games/" GAMENAMELOWERCASE "/soundfonts", true);
 #endif
 	}
 
