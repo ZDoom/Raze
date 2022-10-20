@@ -104,7 +104,13 @@ FGameConfigFile::FGameConfigFile ()
 		// I assume other distributions don't do anything radically different
 		SetValueForKey ("Path", "/opt/raze", true);
 		SetValueForKey ("Path", "/usr/share/games/raze", true);
+		SetValueForKey ("Path", "/usr/share/games/raze/*", true);
 		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
+		SetValueForKey ("Path", "/usr/local/share/games/raze/*", true);
+		SetValueForKey ("Path", "/usr/share/raze", true);
+		SetValueForKey ("Path", "/usr/share/raze/*", true);
+		SetValueForKey ("Path", "/usr/local/share/raze", true);
+		SetValueForKey ("Path", "/usr/local/share/raze/*", true);
 		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
@@ -136,6 +142,8 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
 		SetValueForKey ("Path", "/usr/share/games/raze", true);
 		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
+		SetValueForKey ("Path", "/usr/share/raze", true);
+		SetValueForKey ("Path", "/usr/local/share/raze", true);
 		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/share/games/eduke32", true);
@@ -159,7 +167,9 @@ FGameConfigFile::FGameConfigFile ()
 #else
 		SetValueForKey("Path", "$HOME/" GAME_DIR "/soundfonts", true);
 		SetValueForKey("Path", "/usr/share/games/raze/soundfonts", true);
+		SetValueForKey("Path", "/usr/share/raze/soundfonts", true);
 		SetValueForKey("Path", "/usr/local/share/games/raze/soundfonts", true);
+		SetValueForKey("Path", "/usr/local/share/raze/soundfonts", true);
 #endif
 	}
 
