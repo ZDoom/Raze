@@ -83,15 +83,15 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", user_app_support + "/EDuke32", true);
 		SetValueForKey ("Path", user_app_support + "/JFDuke32", true);
 		SetValueForKey ("Path", user_app_support + "/NBlood", true);
-		SetValueForKey("Path", user_app_support + "/Raze/*", true);
+		SetValueForKey ("Path", user_app_support + "/Raze/*", true);
 		SetValueForKey ("Path", "$PROGDIR", true);
 		SetValueForKey ("Path", "$PROGDIR/*", true);
 		SetValueForKey ("Path", local_app_support + "/EDuke32", true);
 		SetValueForKey ("Path", local_app_support + "/JFDuke32", true);
 		SetValueForKey ("Path", local_app_support + "/NBlood", true);
-		SetValueForKey("Path", local_app_support + "/JFSW", true);
-		SetValueForKey("Path", local_app_support + "/VoidSW", true);
-		SetValueForKey("Path", local_app_support + "/Raze/*", true);
+		SetValueForKey ("Path", local_app_support + "/JFSW", true);
+		SetValueForKey ("Path", local_app_support + "/VoidSW", true);
+		SetValueForKey ("Path", local_app_support + "/Raze/*", true);
 
 #elif !defined(__unix__)
 		SetValueForKey ("Path", "$PROGDIR", true);
