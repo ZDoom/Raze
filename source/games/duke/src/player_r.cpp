@@ -652,7 +652,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 		else if (actor->spr.picnum == BOSS2)
 		{
 			vel += 8;
-			pos.Z -= 24;
+			pos.Z += 24;
 		}
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();

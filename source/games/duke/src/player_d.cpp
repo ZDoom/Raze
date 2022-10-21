@@ -576,7 +576,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	{
 		if (atwith == COOLEXPLOSION1)
 		{
-			if (actor->spr.picnum == BOSS2) vel = 644;
+			if (actor->spr.picnum == BOSS2) vel = 644 / 16.;
 			else vel = 348 / 16.;
 			pos.Z -= 2;
 		}
@@ -727,7 +727,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			double zoffs = 32;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 				zoffs *= (actor->spr.yrepeat / 80.0f);
-			pos.Z -= zoffs;
+			pos.Z += zoffs;
 		}
 		else if (actor->spr.picnum == BOSS2)
 		{
