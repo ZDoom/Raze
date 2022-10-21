@@ -705,7 +705,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
 
     if (pTarget == nullptr)
     {
-        nVertVel = (-DAngle::fromBuild(nPitch).Sin() * 8 * pBulletInfo->field_4);
+        nVertVel = (-DAngle::fromBuild(nPitch).Sin() * (1. / 32) * pBulletInfo->field_4);
     }
     else
     {
@@ -761,7 +761,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
             double nSqrt = xy.Length();
             if (nSqrt > 0)
             {
-                nVertVel = ((fTop - pBulletActor->spr.pos.Z) * pBulletInfo->field_4) / nSqrt;
+                nVertVel = ((fTop - pBulletActor->spr.pos.Z) * pBulletInfo->field_4) / (nSqrt * 16);
             }
             else
             {
@@ -783,7 +783,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     {
         pBullet->field_10 = pBulletInfo->field_4;
 		pBullet->vect.XY() = nAngle.ToVector() * pBulletInfo->field_4 / 128.;
-        pBullet->vect.Z = nVertVel * 0.125 * zmaptoworld;
+        pBullet->vect.Z = nVertVel * 0.125;
     }
 
     return pBulletActor;
