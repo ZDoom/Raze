@@ -594,7 +594,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
                     }
 
                     // Set the horizon value.
-                    auto camhoriz = maphoriz(100 - SP_TAG7(camactor));
+                    auto camhoriz = SP_TAG7(camactor);
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
@@ -603,7 +603,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 
 
                     // Set up the tile for drawing
-                    TileFiles.MakeCanvas(mirror[cnt].campic, 128, 128);
+                    TileFiles.MakeCanvas(mirror[cnt].campic, 128, 114);
 
                     {
                         if (dist < MAXCAMDIST)
@@ -616,7 +616,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
                             }
                             else
                             {
-                                drawroomstotile(camactor->spr.pos, camactor->user.sang, camhoriz, camactor->sector(), mirror[cnt].campic, smoothratio);
+                                drawroomstotile(camactor->spr.pos, camactor->user.sang, maphoriz(150 - (camhoriz == 0 ? 100 : camhoriz)), camactor->sector(), mirror[cnt].campic, smoothratio);
                             }
                         }
                     }
