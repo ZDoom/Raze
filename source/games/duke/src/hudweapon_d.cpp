@@ -230,7 +230,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 	auto offsets = p->angle.weaponoffsets(interpfrac);
 	auto horiz = !SyncInput() ? p->horizon.sum() : p->horizon.interpolatedsum(interpfrac);
-	auto pitchoffset = interpolatedvalue(0., 16., horiz / DAngle90);
+	auto pitchoffset = -interpolatedvalue(0., 16., horiz / DAngle90);
 	auto yawinput = getavel(snum) * (1. / 16.);
 	auto angle = p->angle.renderrotscrn(interpfrac);
 	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;
