@@ -1031,7 +1031,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
 
     auto vec = nAngle.ToVector() * threshold * (1/64.) * cospitch;
     auto veclen = vec.Length();
-    double zz = g_sindeg(pActor->vel.Z * 45) * veclen;
+    double zz = pActor->pitch.Sin() * veclen;
 
     return movesprite(pActor, vec, zz * 16 + BobVal(zbob) * 2, 0, nClipType);
 }
