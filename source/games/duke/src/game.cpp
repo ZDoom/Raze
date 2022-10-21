@@ -370,7 +370,7 @@ void GameInterface::app_init()
 
 	loadcons();
 	fi.initactorflags();
-	duke_menufont.Callback(); // depends on the .CON files so it must be after loadcons
+	duke_menufont->Callback(); // depends on the .CON files so it must be after loadcons
 
 	OnEvent(EVENT_INIT);
 
