@@ -200,7 +200,13 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		spawned->vel.Z = zvel;
 	}
 
-	spawned->spr.pos = spos + (sang + mapangle(112)).ToVector() * 7;
+
+	DVector3 offset;
+	offset.X = (sang + DAngle::fromBuild(118)).Cos() * (1024 / 448.); // Yes, these angles are really different!
+	offset.Y = (sang + DAngle::fromBuild(112)).Sin() * (1024 / 448.);
+	offset.Z = -1;
+
+	spawned->spr.pos = spos + offset;
 	spawned->spr.pos.Z--;
 	spawned->setsector(actor->sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
