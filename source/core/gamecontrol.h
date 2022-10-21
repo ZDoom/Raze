@@ -34,7 +34,7 @@ extern MapRecord* g_nextmap;
 extern int g_nextskill;	
 extern int g_bossexit;
 
-extern FStringCVar* const CombatMacros[];
+extern FStringCVarRef* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
 
 int GameMain();

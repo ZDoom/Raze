@@ -879,7 +879,7 @@ static int nextquicksave = -1;
 	}
 
 	num.Int = nextautosave;
-	autosavenum.ForceSet(num, CVAR_Int);
+	autosavenum->ForceSet(num, CVAR_Int);
 
 	auto Filename = G_BuildSaveName(FStringf("auto%04d", nextautosave));
 	readableTime = myasctime();
@@ -909,7 +909,7 @@ CCMD(rotatingquicksave)
 	}
 
 	num.Int = nextquicksave;
-	quicksavenum.ForceSet(num, CVAR_Int);
+	quicksavenum->ForceSet(num, CVAR_Int);
 
 	FSaveGameNode sg;
 	auto Filename = G_BuildSaveName(FStringf("quick%04d", nextquicksave));

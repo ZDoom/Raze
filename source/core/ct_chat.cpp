@@ -84,7 +84,7 @@ static bool DoSubstitution (FString &out, const char *in);
 
 static TArray<uint8_t> ChatQueue;
 
-extern FStringCVar* const CombatMacros[];
+extern FStringCVarRef* const CombatMacros[];
 
 
 CVAR (Bool, chat_substitution, false, CVAR_ARCHIVE)

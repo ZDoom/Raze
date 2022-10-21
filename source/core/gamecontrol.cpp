@@ -555,6 +555,7 @@ int GameMain()
 {
 	int r;
 	I_InitTime();
+	C_InitCVars(0);
 	SetConsoleNotifyBuffer();
 	sysCallbacks =
 	{
@@ -638,6 +639,7 @@ int GameMain()
 	}
 	DeleteStartupScreen();
 	PClass::StaticShutdown();
+	C_UninitCVars();
 	if (Args) delete Args;
 	return r;
 }
@@ -1025,17 +1027,17 @@ int RunGame()
 	// Handle CVARs with game specific defaults here.
 	if (isBlood())
 	{
-		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
-		am_showlabel.SetGenericRepDefault(true, CVAR_Bool);
+		mus_redbook->SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
+		am_showlabel->SetGenericRepDefault(true, CVAR_Bool);
 	}
 	if (isSWALL())
 	{
-		cl_weaponswitch.SetGenericRepDefault(1, CVAR_Int);
+		cl_weaponswitch->SetGenericRepDefault(1, CVAR_Int);
 		if (cl_weaponswitch > 1) cl_weaponswitch = 1;
 	}
 	if (g_gameType & (GAMEFLAG_BLOOD|GAMEFLAG_RR))
 	{
-		am_nameontop.SetGenericRepDefault(true, CVAR_Bool);	// Blood and RR show the map name on the top of the screen by default.
+		am_nameontop->SetGenericRepDefault(true, CVAR_Bool);	// Blood and RR show the map name on the top of the screen by default.
 	}
 
 	G_ReadConfig(currentGame);
@@ -1217,7 +1219,7 @@ CVAR(String, combatmacro6, "", CVAR_ARCHIVE | CVAR_USERINFO)
 CVAR(String, combatmacro7, "", CVAR_ARCHIVE | CVAR_USERINFO)
 CVAR(String, combatmacro8, "", CVAR_ARCHIVE | CVAR_USERINFO)
 CVAR(String, combatmacro9, "", CVAR_ARCHIVE | CVAR_USERINFO)
-FStringCVar* const CombatMacros[] = { &combatmacro0, &combatmacro1, &combatmacro2, &combatmacro3, &combatmacro4, &combatmacro5, &combatmacro6, &combatmacro7, &combatmacro8, &combatmacro9};
+FStringCVarRef* const CombatMacros[] = { &combatmacro0, &combatmacro1, &combatmacro2, &combatmacro3, &combatmacro4, &combatmacro5, &combatmacro6, &combatmacro7, &combatmacro8, &combatmacro9};
 
 void CONFIG_ReadCombatMacros()
 {
@@ -1230,7 +1232,7 @@ void CONFIG_ReadCombatMacros()
 			sc.MustGetToken(TK_StringConst);
 			UCVarValue val;
 			val.String = sc.String;
-			s->SetGenericRepDefault(val, CVAR_String);
+			s->get()->SetGenericRepDefault(val, CVAR_String);
 		}
 	}
 	catch (const CRecoverableError &)

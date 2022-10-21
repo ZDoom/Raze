@@ -3108,7 +3108,7 @@ void ConCompiler::compilecon(const char *filenam)
 
 
 	// Install the crosshair toggle messages in the CVAR.
-	cl_crosshair.SetToggleMessages(quoteMgr.GetRawQuote(QUOTE_CROSSHAIR_OFF), quoteMgr.GetRawQuote(QUOTE_CROSSHAIR_OFF-1));
+	cl_crosshair->SetToggleMessages(quoteMgr.GetRawQuote(QUOTE_CROSSHAIR_OFF), quoteMgr.GetRawQuote(QUOTE_CROSSHAIR_OFF-1));
 }
 
 //==========================================================================
