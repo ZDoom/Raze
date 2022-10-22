@@ -31,6 +31,7 @@ else()
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts -Wno-unused-variable" )
 endif()
 
+option( DYN_OPENAL "Dynamically load OpenAL" ON )
 
 if( APPLE )
     option( OSX_COCOA_BACKEND "Use native Cocoa backend instead of SDL" ON )
