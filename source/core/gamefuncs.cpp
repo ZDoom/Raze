@@ -1235,6 +1235,38 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 //
 //==========================================================================
 
+int checkClipWall(const MoveClipper& clip, walltype* wal)
+{
+	auto wal2 = wal->point2Wall();
+	auto waldelta = wal->delta();
+	
+	// out of reach?
+	if (!BoxInRange2(clip.rect.min, clip.rect.max, wal->pos, wal2->pos)) return -1;
+	
+	// facing back side?
+	if (PointOnLineSide(clip.pos.XY(), wal) > 0) return -1;
+	
+	// do we touch it?
+	if (BoxOnLineSide(clip.rect.min, clip.rect.max, wal->pos, waldelta) != -1) return -1;
+	
+	if (!wal->twoSided() || (wal->cstat & clip.wallflags))
+		return 1;
+	else
+	{
+		DVector2 intersect;
+		double factor = InterceptLineSegments(clip.pos.X, clip.pos.Y, clip.moveDelta.X, clip.moveDelta.Y, wal->pos.X, wal->pos.Y, waldelta.X, waldelta.Y);
+		if (factor < 0) intersect = clip.pos.XY();
+		else intersect = clip.pos.XY() + clip.moveDelta * factor;
+		return checkOpening(intersect, clip.pos.Z, wal->sectorp(), wal->nextSector(), clip.ceilingdist, clip.floordist);
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 int FindBestSector(const DVector3& pos)
 {
 	int bestnum = -1;

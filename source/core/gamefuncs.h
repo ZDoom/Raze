@@ -234,8 +234,25 @@ inline int pushmove(DVector2& pos, double z, sectortype** pSect, double walldist
 	pos = vect.XY();
 	return result;
 }
+struct ClipRect
+{
+	DVector2 min;
+	DVector2 max;
+};
 
+struct MoveClipper
+{
+	DVector3 pos;
+	DVector2 pest;
+	DVector2 moveDelta;
+	ClipRect rect;
+	EWallFlags wallflags;
+	double ceilingdist;
+	double floordist;
+	double walldist;
+};
 
+int checkClipWall(const MoveClipper& clip, walltype* wal);
 
 
 int FindBestSector(const DVector3& pos);
