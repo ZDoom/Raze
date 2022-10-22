@@ -747,10 +747,10 @@ class SWStatusBar : RazeStatusBar
 
 		let Health = pp.Health();
 		let MaxHealth = pp.MaxUserHealth();
-		if (!hud_flashing || Health > (MaxHealth >> 2) || (PlayClock & 32))
+		if (!althud_flashing || Health > (MaxHealth >> 2) || (PlayClock & 32))
 		{
 			int s = -8;
-			if (hud_flashing && Health > MaxHealth)
+			if (althud_flashing && Health > MaxHealth)
 				s += Raze.bsin(PlayClock << 5, -10);
 			int intens = clamp(255 - 4 * s, 0, 255);
 			let pe = Color(255, intens, intens, intens);
@@ -813,7 +813,7 @@ class SWStatusBar : RazeStatusBar
 				imgX += (imgX * 0.855) * (strlen - 1);
 			}
 
-			if ((!hud_flashing || PlayClock & 32 || ammo > (SW.WeaponMaxAmmo(weapon) / 10)))
+			if ((!althud_flashing || PlayClock & 32 || ammo > (SW.WeaponMaxAmmo(weapon) / 10)))
 			{
 				DrawString(numberFont, format, (-1.5, -numberFont.mFont.GetHeight() - 0.5), DI_TEXT_ALIGN_RIGHT);
 			}

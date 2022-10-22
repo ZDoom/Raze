@@ -200,7 +200,7 @@ CCMD (togglemessages)
 	}
 }
 
-CVARD_NAMED(Int, hud_flashing, althud_flashing, true, CVAR_ARCHIVE, "enable/disable althud flashing")
+CVARD(Bool, althud_flashing, true, CVAR_ARCHIVE, "enable/disable althud flashing")
 CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field of view")
 {
 	if (self < 60) self = 60;

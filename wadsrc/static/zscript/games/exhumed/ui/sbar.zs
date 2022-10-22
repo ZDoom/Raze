@@ -255,10 +255,10 @@ class ExhumedStatusBar : RazeStatusBar
 		imgScale = baseScale / size.Y;
 		DrawTexture(img, (1.5, -1), DI_ITEM_LEFT_BOTTOM, scale:(imgScale, imgScale));
 
-		if (!hud_flashing || pp.nHealth > 150 || (PlayClock & 32))
+		if (!althud_flashing || pp.nHealth > 150 || (PlayClock & 32))
 		{
 			int s = -8;
-			if (hud_flashing && pp.nHealth > 800)
+			if (althud_flashing && pp.nHealth > 800)
 				s += Raze.bsin(PlayClock << 5, -10);
 			int intens = clamp(255 - 4 * s, 0, 255);
 			format = String.Format("%d", pp.nHealth >> 3);
@@ -334,7 +334,7 @@ class ExhumedStatusBar : RazeStatusBar
 			}
 			*/
 
-			if ((!hud_flashing || PlayClock & 32 || ammo > 10))// (DamageData[weapon].max_ammo / 10)))
+			if ((!althud_flashing || PlayClock & 32 || ammo > 10))// (DamageData[weapon].max_ammo / 10)))
 			{
 				DrawString(numberFont, format, (-3, -numberFont.mFont.GetHeight() + 3), DI_TEXT_ALIGN_RIGHT);
 			}

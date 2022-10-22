@@ -143,10 +143,10 @@ class DukeStatusBar : DukeCommonStatusBar
 		imgScale = baseScale / siz.Y;
 		DrawTexture(img, (2, -1.5), DI_ITEM_LEFT_BOTTOM, scale:(imgScale, imgScale));
 
-		if (!hud_flashing || p.last_extra > (Duke.MaxPlayerHealth() >> 2) || (PlayClock & 32) || (p.IsFrozen() && p.last_extra < 2))
+		if (!althud_flashing || p.last_extra > (Duke.MaxPlayerHealth() >> 2) || (PlayClock & 32) || (p.IsFrozen() && p.last_extra < 2))
 		{
 			int s = -8;
-			if (hud_flashing && p.last_extra > Duke.MaxPlayerHealth())
+			if (althud_flashing && p.last_extra > Duke.MaxPlayerHealth())
 				s += Raze.bsin(Raze.GetBuildTime() << 5, -10);
 			int intens = clamp(255 - 6 * s, 0, 255);
 			format = String.Format("%d", p.last_extra);
@@ -194,7 +194,7 @@ class DukeStatusBar : DukeCommonStatusBar
 				imgX += (imgX * 0.6) * (strlen - 1);
 			}
 
-			if (weapon != DukeWpn.KNEE_WEAPON && (!hud_flashing || PlayClock & 32 || ammo > (Duke.MaxAmmoAmount(weapon) / 10)))
+			if (weapon != DukeWpn.KNEE_WEAPON && (!althud_flashing || PlayClock & 32 || ammo > (Duke.MaxAmmoAmount(weapon) / 10)))
 			{
 				DrawString(numberFont, format, (-3, texty), DI_TEXT_ALIGN_RIGHT, Font.CR_UNTRANSLATED);
 			}

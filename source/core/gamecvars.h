@@ -69,7 +69,7 @@ EXTERN_CVAR(Bool, hud_messages)
 EXTERN_CVAR(Int, althud_numbertile)
 EXTERN_CVAR(Int, althud_numberpal)
 EXTERN_CVAR(Int, althud_shadows)
-EXTERN_CVAR(Int, althud_flashing)
+EXTERN_CVAR(Bool, althud_flashing)
 
 EXTERN_CVAR(Bool, am_textfont)
 EXTERN_CVAR(Bool, am_showlabel)
