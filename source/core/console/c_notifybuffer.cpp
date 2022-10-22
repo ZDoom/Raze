@@ -72,7 +72,7 @@ CUSTOM_CVAR(Int, con_notifylines, 4, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 	NotifyStrings.Shift(self);
 }
 
-CUSTOM_CVAR(Float, con_notifyscale, 1, CVAR_ARCHIVE)
+CUSTOM_CVAR(Float, con_notifyscale, 1.f, CVAR_ARCHIVE)
 {
 	if (self < 0.36f) self = 0.36f;
 	if (self > 1) self = 1;

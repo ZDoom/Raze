@@ -183,7 +183,7 @@ CVARD(Bool, hud_stats, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable le
 CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable map name display on load")
 CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")
 CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE, "enable/disable background image stretching in wide resolutions")
-CVARD(Bool, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing messages")
+CVARD(Bool, hud_messages, true, CVAR_ARCHIVE, "enable/disable showing messages")
 
 // This cannot be done with the 'toggle' CCMD because it needs to control itself when to output the message
 CCMD (togglemessages)
