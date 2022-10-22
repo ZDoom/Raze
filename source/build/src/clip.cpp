@@ -104,23 +104,6 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
     clipnum++;
 }
 
-inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
-                                      int32_t y2, double *daxptr, double *dayptr)
-{
-    double x = pos->X * inttoworld, y = pos->Y * inttoworld;
-    double result = InterceptLineSegments(x, y, gx * inttoworld, gy * inttoworld, x1 * inttoworld, y1 * inttoworld, (x2 - x1) * inttoworld, (y2 - y1) * inttoworld);
-    if (result > 0)
-    {
-        *daxptr = x + result * gx * inttoworld;
-        *dayptr = y + result * gy * inttoworld;
-    }
-    else
-    {
-        *daxptr = x;
-        *dayptr = y;
-    }
-}
-
 //
 // raytrace (internal)
 //
@@ -262,58 +245,16 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         for (int j=startwall; j<endwall; j++, wal++)
         {
 			clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld};
-			DVector2 intersect;
 			
-			int clipyou2 = checkClipWall(clip, wal);
+			int clipyou = checkClipWall(clip, wal);
+            if (clipyou == -1) continue;
 		
-            auto const wal2 = wal->point2Wall();
-			vec2_t p1 = wal->wall_int_pos();
-			vec2_t p2 = wal2->wall_int_pos();
-
-            if ((p1.X < clipMin.X && p2.X < clipMin.X) || (p1.X > clipMax.X && p2.X > clipMax.X) ||
-                (p1.Y < clipMin.Y && p2.Y < clipMin.Y) || (p1.Y > clipMax.Y && p2.Y > clipMax.Y))
-            {
-                assert(clipyou2 != 1);
-                continue;
-            }
-
-            vec2_t d  = { p2.X-p1.X, p2.Y-p1.Y };
-
-            if (d.X * (pos->Y-p1.Y) < (pos->X-p1.X) * d.Y)
-            {
-                assert(clipyou2 != 1);
-                continue;
-            }
-
-            vec2_t const r = { (d.Y > 0) ? clipMax.X : clipMin.X, (d.X > 0) ? clipMin.Y : clipMax.Y };
-            vec2_t       v = { d.X * (r.Y - p1.Y), d.Y * (r.X - p1.X) };
-
-            if (v.X >= v.Y)
-            {
-                assert(clipyou2 != 1);
-                continue;
-            }
-
-            int clipyou = 0;
-
-            if (wal->nextsector < 0 || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
-            {
-                clipyou = 1;
-            }
-            else
-            {
-                DVector2 ipos;
-                clipmove_tweak_pos(pos, diff.X, diff.Y, p1.X, p1.Y, p2.X, p2.Y, &ipos.X, &ipos.Y);
-                clipyou = checkOpening(ipos, pos->Z * zinttoworld, &sector[dasect], wal->nextSector(),
-                    ceildist * zinttoworld, flordist * zinttoworld, enginecompatibility_mode == ENGINECOMPATIBILITY_NONE);
-                v.X = int(ipos.X * worldtoint);
-                v.Y = int(ipos.Y * worldtoint);
-            }
-
-
-            assert(clipyou == clipyou2);
             if (clipyou)
             {
+                vec2_t p1 = wal->wall_int_pos();
+                vec2_t p2 = wal->point2Wall()->wall_int_pos();
+                vec2_t d = { p2.X - p1.X, p2.Y - p1.Y };
+
                 CollisionBase objtype;
                 objtype.setWall(j);
 
