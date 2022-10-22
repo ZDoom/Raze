@@ -209,8 +209,6 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     if ((xvect|yvect) == 0 || *sectnum < 0)
         return b;
 
-    DCoreActor* curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
-
     int const initialsectnum = *sectnum;
 
     int32_t const dawalclipmask = (cliptype & 65535);  // CLIPMASK0 = 0x00010001 (in desperate need of getting fixed!)
@@ -225,6 +223,16 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     int32_t const rad     = ksqrt((int64_t)diff.X * diff.X + (int64_t)diff.Y * diff.Y) + MAXCLIPDIST + walldist + 8;
     vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
     vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
+	
+	MoveClipper clip;
+	
+	clip.moveDelta = { (xvect >> 14) * inttoworld, (yvect >> 14) * inttoworld }; // beware of excess precision here!
+	clip.rect.min = { clipMin.X * inttoworld, clipMin.Y * inttoworld };
+	clip.rect.max = { clipMax.X * inttoworld, clipMax.Y * inttoworld };
+	clip.wallflags = EWallFlags::FromInt(dawalclipmask);
+	clip.ceilingdist = ceildist * zinttoworld;
+	clip.floordist = flordist * zinttoworld;
+	clip.walldist = walldist * inttoworld;
 
     int clipsectcnt   = 0;
     int clipspritecnt = 0;
@@ -243,9 +251,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     do
     {
         int const dasect = clipsectorlist[clipsectcnt++];
-        //if (curspr)
-        //    Printf("sprite %d/%d: sect %d/%d (%d)\n", clipspritecnt,clipspritenum, clipsectcnt,clipsectnum,dasect);
-
+ 
         ////////// Walls //////////
 
         auto const sec       = &sector[dasect];
@@ -255,24 +261,38 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         for (int j=startwall; j<endwall; j++, wal++)
         {
+			clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld};
+			DVector2 intersect;
+			
+			int clipyou2 = checkClipWall(clip, wal);
+		
             auto const wal2 = wal->point2Wall();
 			vec2_t p1 = wal->wall_int_pos();
 			vec2_t p2 = wal2->wall_int_pos();
 
             if ((p1.X < clipMin.X && p2.X < clipMin.X) || (p1.X > clipMax.X && p2.X > clipMax.X) ||
                 (p1.Y < clipMin.Y && p2.Y < clipMin.Y) || (p1.Y > clipMax.Y && p2.Y > clipMax.Y))
+            {
+                assert(clipyou2 != 1);
                 continue;
+            }
 
             vec2_t d  = { p2.X-p1.X, p2.Y-p1.Y };
 
             if (d.X * (pos->Y-p1.Y) < (pos->X-p1.X) * d.Y)
-                continue;  //If wall's not facing you
+            {
+                assert(clipyou2 != 1);
+                continue;
+            }
 
             vec2_t const r = { (d.Y > 0) ? clipMax.X : clipMin.X, (d.X > 0) ? clipMin.Y : clipMax.Y };
             vec2_t       v = { d.X * (r.Y - p1.Y), d.Y * (r.X - p1.X) };
 
             if (v.X >= v.Y)
+            {
+                assert(clipyou2 != 1);
                 continue;
+            }
 
             int clipyou = 0;
 
@@ -288,26 +308,14 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     ceildist * zinttoworld, flordist * zinttoworld, enginecompatibility_mode == ENGINECOMPATIBILITY_NONE);
                 v.X = int(ipos.X * worldtoint);
                 v.Y = int(ipos.Y * worldtoint);
-
             }
 
-           // We're not interested in any sector reached by portal traversal that we're "inside" of.
-            if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && !curspr && dasect != initialsectnum
-                && inside(pos->X * inttoworld, pos->Y * inttoworld, sec) == 1)
-            {
-                int k;
-                for (k=startwall; k<endwall; k++)
-                    if (wall[k].nextsector == initialsectnum)
-                        break;
-                if (k == endwall)
-                    break;
-            }
 
+            assert(clipyou == clipyou2);
             if (clipyou)
             {
                 CollisionBase objtype;
-                if (curspr) objtype.setSprite(curspr);
-                else objtype.setWall(j);
+                objtype.setWall(j);
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.X < 0) bsz = -bsz;
@@ -317,6 +325,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 addclipline(p1.X+bsz, p1.Y-bsz, p1.X-bsz, p1.Y-bsz, objtype, false);
                 addclipline(p2.X+bsz, p2.Y-bsz, p2.X-bsz, p2.Y-bsz, objtype, false);
 
+				vec2_t v;
                 v.X = walldist; if (d.Y > 0) v.X = -v.X;
                 v.Y = walldist; if (d.X < 0) v.Y = -v.Y;
 

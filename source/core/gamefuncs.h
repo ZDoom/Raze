@@ -266,10 +266,26 @@ void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBa
 
 bool checkOpening(const DVector2& inpos, double z, const sectortype* sec, const sectortype* nextsec, double ceilingdist, double floordist, bool precise = false);
 int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist, double flordist, unsigned cliptype);
-tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor);
 
+struct ClipRect
+{
+	DVector2 min;
+	DVector2 max;
+};
 
+struct MoveClipper
+{
+	DVector3 pos;
+	DVector2 pest;
+	DVector2 moveDelta;
+	ClipRect rect;
+	EWallFlags wallflags;
+	double ceilingdist;
+	double floordist;
+	double walldist;
+};
 
+int checkClipWall(const MoveClipper& clip, walltype* wal);
 
 int FindBestSector(const DVector3& pos);
 
