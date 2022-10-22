@@ -601,7 +601,7 @@ inline double BobVal(int val)
 
 inline double BobVal(double val)
 {
-	return g_sinbam((unsigned)(val * (1 << 21)));
+	return g_sinbam(xs_CRoundToUInt(val * (1 << 21)));
 }
 
 #include "updatesector.h"
