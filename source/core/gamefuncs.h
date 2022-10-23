@@ -255,9 +255,9 @@ struct MoveClipper
 void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix = false);
 void addClipSect(MoveClipper& clip, int sec);
 
-void addWallsToClipList(MoveClipper& clip, sectortype* sec);
+void processClipWalls(MoveClipper& clip, sectortype* sec);
 
-
+void processClipFaceSprites(MoveClipper& clip, DCoreActor* actor);
 int FindBestSector(const DVector3& pos);
 
 
