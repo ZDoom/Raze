@@ -32,7 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #pragma warning(disable:4101) // there's too many of these... :(
 #endif
 
-#include "build.h"
+#include "buildtiles.h"
 #include "d_net.h"
 #include "gamefuncs.h"
 #include "coreactor.h"

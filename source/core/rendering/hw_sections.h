@@ -1,6 +1,7 @@
 #pragma once
 
-#include "build.h"
+#include "vectors.h"
+#include "maptypes.h"
 
 enum ESectionFlag
 {

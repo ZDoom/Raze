@@ -2369,7 +2369,7 @@ int ParseState::parse(void)
 		lInVarID = *(insptr++);
 		lOutVarID = *(insptr++);
 		lIn = GetGameVarID(lInVarID, g_ac, g_p).safeValue();
-		SetGameVarID(lOutVarID, ksqrt(lIn), g_ac, g_p);
+		SetGameVarID(lOutVarID, (int)g_sqrt(lIn), g_ac, g_p);
 		break;
 	}
 	case concmd_findnearactor:

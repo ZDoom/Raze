@@ -2,6 +2,7 @@
 #define __RES_VOXEL_H
 
 #include <stdint.h>
+#include "vectors.h"
 // [RH] Voxels from Build
 
 enum

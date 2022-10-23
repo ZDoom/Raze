@@ -7,8 +7,6 @@
 #include "tiletexture.h"
 #include "buildtiles.h"
 
-#include "build.h"
-
 
 int ModelManager::LoadModel(const char* fn)
 {

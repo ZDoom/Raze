@@ -458,7 +458,6 @@ void GameInterface::app_init()
 	}
 
 	ud.last_level = -1;
-	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;//bVanilla;
 	S_ParseDeveloperCommentary();
 }
 

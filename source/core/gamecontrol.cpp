@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_cvars.h"
 #include "gameconfigfile.h"
 #include "gamecvars.h"
-#include "build.h"
+#include "buildtiles.h"
 #include "inputstate.h"
 #include "m_argv.h"
 #include "rts.h"

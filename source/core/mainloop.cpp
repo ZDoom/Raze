@@ -78,7 +78,7 @@
 #include "uiinput.h"
 #include "v_video.h"
 #include "palette.h"
-#include "build.h"
+#include "buildtiles.h"
 #include "mapinfo.h"
 #include "automap.h"
 #include "statusbar.h"
