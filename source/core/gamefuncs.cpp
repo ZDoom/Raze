@@ -1339,7 +1339,6 @@ static void addWallToClipSet(MoveClipper& clip, walltype* wal)
 #endif
 
 	addClipLine(clip, startpt + distv1, endpt + distv1, objtype);
-
 }
 
 //==========================================================================
@@ -1435,6 +1434,60 @@ void processClipWallSprite(MoveClipper& clip, DCoreActor* actor)
 		addClipLine(clip, points[1] + offset.Rotated90CW(), points[1] - offset, objtype, true);
 	}
 
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor)
+{
+	int heinum = spriteGetSlope(actor);
+	double sprz = spriteGetZOfSlopef(&actor->spr, actor->spr.pos, heinum);
+
+	if (clip.pos.Z > sprz - clip.floordist && clip.pos.Z < sprz + clip.ceilingdist)
+	{
+		if (actor->spr.cstat & CSTAT_SPRITE_ONE_SIDE)
+		{
+			if ((clip.pos.Z > sprz) == ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) == 0)) return false;
+		}
+		
+		DVector2 points[4];
+		GetFlatSpritePosition(actor, actor->spr.pos, points, nullptr);
+
+		auto offset = (actor->spr.angle - DAngle45).ToVector() * clip.walldist;
+
+		CollisionBase objtype;
+		objtype.setSprite(actor);
+
+		DVector2 d[4];
+		for (int i = 0; i < 4; i++) d[i] = points[i] - clip.pos.XY();
+
+		if (d[0].dot(d[1].Rotated90CW()) < 0)
+		{
+			if (IsCloseToLine(clip.center, points[1], points[0], clip.movedist) != EClose::Outside)
+				addClipLine(clip, points[1] + offset.Rotated90CCW(), points[0] + offset, objtype);
+		}
+		else if (d[2].dot(d[3].Rotated90CW()) < 0)
+		{
+			if (IsCloseToLine(clip.center, points[3], points[2], clip.movedist) != EClose::Outside)
+				addClipLine(clip, points[3] + offset.Rotated90CW(), points[2] - offset, objtype);
+		}
+
+		if (d[1].dot(d[2].Rotated90CW()) < 0)
+		{
+			if (IsCloseToLine(clip.center, points[2], points[1], clip.movedist) != EClose::Outside)
+				addClipLine(clip, points[2] - offset, points[1] + offset.Rotated90CCW(), objtype);
+		}
+		else if (d[3].dot(d[0].Rotated90CW()) < 0)
+		{
+			if (IsCloseToLine(clip.center, points[0], points[3], clip.movedist) != EClose::Outside)
+				addClipLine(clip, points[0] + offset, points[3] + offset.Rotated90CW(), objtype);
+		}
+	}
+	return true;
 }
 
 //==========================================================================

@@ -294,6 +294,7 @@ void processClipWalls(MoveClipper& clip, sectortype* sec);
 
 void processClipFaceSprite(MoveClipper& clip, DCoreActor* actor);
 void processClipWallSprite(MoveClipper& clip, DCoreActor* actor);
+bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor);
 int FindBestSector(const DVector3& pos);
 
 

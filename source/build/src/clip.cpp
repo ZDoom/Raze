@@ -30,29 +30,6 @@ int32_t quickloadboard=0;
 ////////// CLIPMOVE //////////
 inline uint8_t bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 
-
-// x1, y1: in/out
-// rest x/y: out
-static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
-                                       int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
-                                       int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
-{
-    DVector2 out[4];
-    // very messed up interface... :(
-    GetFlatSpritePosition(spr, DVector2((*x1 - px) * inttoworld, (*y1 - py) * inttoworld), out);
-    *x1 = int(out[0].X * worldtoint); *y1 = int(out[0].Y * worldtoint);
-    *x2 = int(out[1].X * worldtoint); *y2 = int(out[1].Y * worldtoint);
-    *x3 = int(out[2].X * worldtoint); *y3 = int(out[2].Y * worldtoint);
-    *x4 = int(out[3].X * worldtoint); *y4 = int(out[3].Y * worldtoint);
-
-}
-
-inline int32_t spriteGetZOfSlope(const spritetypebase* tspr, int dax, int day, int heinum)
-{
-    return int(spriteGetZOfSlopef(tspr, DVector2(dax * inttoworld, day * inttoworld), heinum) * zworldtoint);
-}
-
-
 //
 // clipinsideboxline
 //
@@ -278,53 +255,19 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
             case CSTAT_SPRITE_ALIGNMENT_WALL:
                 processClipWallSprite(clip, actor);
+                break;
 
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+                processClipFloorSprite(clip, actor);
+                break;
+
             case CSTAT_SPRITE_ALIGNMENT_SLOPE:
             {
+
+                if (!processClipFloorSprite(clip, actor)) continue;
                 int heinum = spriteGetSlope(actor);
-                int sz = spriteGetZOfSlope(&actor->spr, pos->X, pos->Y, heinum);
 
-                if (pos->Z > sz - flordist && pos->Z < sz + ceildist)
-                {
-                    if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
-                        if ((pos->Z > sz) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
-                            continue;
-
-                    rxi[0] = p1.X;
-                    ryi[0] = p1.Y;
-
-                    get_floorspr_points(actor, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
-                        &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
-
-                    vec2_t v = { MulScale(bcos(actor->int_ang() - 256), walldist, 14),
-                                 MulScale(bsin(actor->int_ang() - 256), walldist, 14) };
-
-                    if ((rxi[0]-pos->X) * (ryi[1]-pos->Y) < (rxi[1]-pos->X) * (ryi[0]-pos->Y))
-                    {
-                        if (clipinsideboxline(cent.X, cent.Y, rxi[1], ryi[1], rxi[0], ryi[0], rad) != 0)
-                            addclipline(rxi[1]-v.Y, ryi[1]+v.X, rxi[0]+v.X, ryi[0]+v.Y, obj, false);
-                    }
-                    else if ((rxi[2]-pos->X) * (ryi[3]-pos->Y) < (rxi[3]-pos->X) * (ryi[2]-pos->Y))
-                    {
-                        if (clipinsideboxline(cent.X, cent.Y, rxi[3], ryi[3], rxi[2], ryi[2], rad) != 0)
-                            addclipline(rxi[3]+v.Y, ryi[3]-v.X, rxi[2]-v.X, ryi[2]-v.Y, obj, false);
-                    }
-
-                    if ((rxi[1]-pos->X) * (ryi[2]-pos->Y) < (rxi[2]-pos->X) * (ryi[1]-pos->Y))
-                    {
-                        if (clipinsideboxline(cent.X, cent.Y, rxi[2], ryi[2], rxi[1], ryi[1], rad) != 0)
-                            addclipline(rxi[2]-v.X, ryi[2]-v.Y, rxi[1]-v.Y, ryi[1]+v.X, obj, false);
-                    }
-                    else if ((rxi[3]-pos->X) * (ryi[0]-pos->Y) < (rxi[0]-pos->X) * (ryi[3]-pos->Y))
-                    {
-                        if (clipinsideboxline(cent.X, cent.Y, rxi[0], ryi[0], rxi[3], ryi[3], rad) != 0)
-                            addclipline(rxi[0]+v.X, ryi[0]+v.Y, rxi[3]+v.Y, ryi[3]-v.X, obj, false);
-                    }
-                }
-
-                if (heinum == 0)
-                    continue;
+                if (heinum == 0) continue;
 
                 // the rest is for slope sprites only.
                 const int32_t tilenum = actor->spr.picnum;
