@@ -26,10 +26,11 @@
 **
 **/ 
 
-#include "build.h"
 #include "voxels.h"
 #include "hw_voxels.h"
+#include "buildtiles.h"
 #include "gamecontrol.h"
+#include "filesystem.h"
 
 int16_t tiletovox[MAXTILES];
 static int voxlumps[MAXVOXELS];

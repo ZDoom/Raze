@@ -7,7 +7,7 @@
 #include "renderstyle.h"
 #include "textures.h"
 #include "fcolormap.h"
-#include "build.h"
+#include "buildtiles.h"
 #include "gamefuncs.h"
 #include "render.h"
 #include "matrix.h"

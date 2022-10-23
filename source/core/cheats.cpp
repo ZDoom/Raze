@@ -33,7 +33,6 @@
 **
 */
 
-#include "build.h"
 #include "gamestruct.h"
 #include "printf.h"
 #include "c_cvars.h"
@@ -46,6 +45,7 @@
 #include "screenjob.h"
 #include "mapinfo.h"
 #include "statistics.h"
+#include "filesystem.h"
 
 CVAR(Bool, sv_cheats, false, CVAR_ARCHIVE|CVAR_SERVERINFO)
 CVAR(Bool, cl_blockcheats, false, 0)

@@ -41,7 +41,7 @@
 #include "imagehelpers.h"
 #include "v_font.h"
 #include "palette.h"
-#include "build.h"
+#include "printf.h"
 #include "v_video.h"
 
 static PaletteManager* palmanager;

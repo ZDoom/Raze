@@ -4500,16 +4500,13 @@ static Collision MoveThing(DBloodActor* actor)
 
 	lhit.setNone();
 	GetActorExtents(actor, &top, &bottom);
-	const int bakCompat = enginecompatibility_mode;
 	if (actor->vel.X != 0 || actor->vel.Y != 0)
 	{
 		auto bakCstat = actor->spr.cstat;
 		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
-			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), actor->clipdist, (actor->spr.pos.Z - top) * 0.25, (bottom - actor->spr.pos.Z) * 0.25, CLIPMASK0, lhit);
+		bool precise = ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode());
+		ClipMove(actor->spr.pos, &pSector, actor->vel.XY(), actor->clipdist, (actor->spr.pos.Z - top) * 0.25, (bottom - actor->spr.pos.Z) * 0.25, CLIPMASK0, lhit, 3, precise);
 		actor->hit.hit = lhit;
-		enginecompatibility_mode = bakCompat; // restore
 		actor->spr.cstat = bakCstat;
 		assert(pSector);
 		if (actor->sector() != pSector)
@@ -5207,21 +5204,20 @@ int MoveMissile(DBloodActor* actor)
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	int i = 1;
-	const int bakCompat = enginecompatibility_mode;
 	const bool isFlameSprite = (actor->spr.type == kMissileFlameSpray || actor->spr.type == kMissileFlameHound); // do not use accurate clipmove for flame based sprites (changes damage too much)
 	while (1)
 	{
 		auto ppos = actor->spr.pos;
 		auto pSector2 = actor->sector();
 		const auto bakSpriteCstat = actor->spr.cstat;
+		bool precise = false;
 		if (Owner && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
 		{
-			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
+			precise = true;
 			actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL; // remove self collisions for accurate clipmove
 		}
 		Collision clipmoveresult;
-		ClipMove(ppos, &pSector2, vel.XY(), actor->clipdist, (ppos.Z - top) / 4, (bottom - ppos.Z) / 4, CLIPMASK0, clipmoveresult, 1);
-		enginecompatibility_mode = bakCompat; // restore
+		ClipMove(ppos, &pSector2, vel.XY(), actor->clipdist, (ppos.Z - top) / 4, (bottom - ppos.Z) / 4, CLIPMASK0, clipmoveresult, 1, precise);
 		actor->spr.cstat = bakSpriteCstat;
 		auto pSector = pSector2;
 		if (pSector2 == nullptr)

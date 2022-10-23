@@ -510,7 +510,7 @@ void GetZRangeAtXYZ(const DVector3& pos, sectortype* pSector, double* ceilZ, Col
 //
 //---------------------------------------------------------------------------
 
-void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, double wd, double cd, double fd, unsigned int nMask, CollisionBase& hit, int tracecount)
+void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, double wd, double cd, double fd, unsigned int nMask, CollisionBase& hit, int tracecount, bool precise)
 {
 	auto opos = pos;
 	sectortype* bakSect = *pSector;
@@ -521,7 +521,7 @@ void ClipMove(DVector3& pos, sectortype** pSector, const DVector2& vect, double 
 	vel.X = (FloatToFixed(vect.X) >> 12) / 16.;
 	vel.Y = (FloatToFixed(vect.Y) >> 12) / 16.;
 	
-	clipmove(pos, &bakSect, vel, wd, cd, fd, nMask, hit, tracecount);
+	clipmove(pos, &bakSect, vel, wd, cd, fd, nMask, hit, tracecount, precise);
 	if (bakSect == nullptr)
 	{
 		pos = opos;

@@ -104,7 +104,7 @@ static inline void keepaway(MoveClipper& clip, int32_t *x, int32_t *y, int32_t w
 // clipmove
 //
 CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t yvect,
-                 int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum)
+                 int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum, bool precise)
 {
     if ((xvect|yvect) == 0 || *sectnum < 0)
         return {};
@@ -117,7 +117,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     //Extra walldist for sprites on sector lines
     vec2_t const  diff    = { goal.X - (pos->X), goal.Y - (pos->Y) };
-    int32_t const rad     = ksqrt((int64_t)diff.X * diff.X + (int64_t)diff.Y * diff.Y) + MAXCLIPDIST + walldist + 8;
+    int32_t const rad     = (int)g_sqrt((int64_t)diff.X * diff.X + (int64_t)diff.Y * diff.Y) + MAXCLIPDIST + walldist + 8;
     vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
     vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
 	
@@ -134,6 +134,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     clip.dest = { goal.X * inttoworld, goal.Y * inttoworld };
     clip.center = (clip.pos.XY() + clip.dest) * 0.5;
     clip.movedist = clip.moveDelta.Length() + clip.walldist + 0.5 + MAXCLIPDIST * inttoworld;
+    clip.precise = precise;
 
     collectClipObjects(clip, (cliptype >> 16));
 
@@ -144,7 +145,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     do
     {
-        if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && (xvect|yvect)) 
+        if (clip.precise && (xvect|yvect)) 
         {
             for (int i=clip.clipobjects.Size() - 1; i >= 0; --i)
             {
@@ -190,7 +191,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                 if ((tempint ^ tempint2) < 0)
                 {
-                    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19961112)
+                    if (!clip.precise)
                     {
                         auto sectp = &sector[*sectnum];
                         updatesector(DVector2(pos->X * inttoworld, pos->Y * inttoworld), &sectp);
@@ -209,7 +210,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             hitwalls[cnt] = hitwall;
         }
 
-        if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
+        if (clip.precise)
 		{
             DVector2 v(vec.X* inttoworld, vec.Y* inttoworld);
             sectortype* sect = &sector[*sectnum];
@@ -222,7 +223,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         cnt--;
     } while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
 
-    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
+    if (!clip.precise)
     {
         DVector3 fpos(pos->X* inttoworld, pos->Y* inttoworld, pos->Z* inttoworld);
 

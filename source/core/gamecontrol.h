@@ -11,7 +11,7 @@
 #include "stats.h"
 #include "i_time.h"
 #include "palentry.h"
-#include "build.h"
+#include "dobject.h"
 
 EXTERN_CVAR(Bool, hud_textfont)
 

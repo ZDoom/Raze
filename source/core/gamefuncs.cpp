@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "coreactor.h"
 #include "interpolate.h"
 #include "hw_voxels.h"
+#include "buildtiles.h"
 
 IntRect viewport3d;
 constexpr double MAXCLIPDISTF = 64;
@@ -887,7 +888,7 @@ bool checkRangeOfWall(walltype* wal, EWallFlags flagmask, const DVector3& pos, d
 	if (BoxOnLineSide(boxtl, boxbr, pos1, pos2 - pos1) != -1) return false;
 
 	auto closest = pos.XY();
-	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE || !strict_compatibility)
+	if (!strict_compatibility)
 		SquareDistToSector(closest.X, closest.Y, nextsect, &closest);
 
 	calcSlope(nextsect, closest.X, closest.Y, &theZs[0], &theZs[1]);
@@ -985,7 +986,7 @@ void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBa
 	const ESpriteFlags dasprclipmask = ESpriteFlags::FromInt(cliptype >> 16);
 
 	auto closest = pos.XY();
-	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE || !strict_compatibility)
+	if (!strict_compatibility)
 		SquareDistToSector(closest.X, closest.Y, sect, &closest);
 
 	calcSlope(sect, closest, ceilz, florz);
@@ -1346,7 +1347,7 @@ static void addWallToClipSet(MoveClipper& clip, walltype* wal)
 #if 0
 	// What EDuke32 added here, this doesn't seem to make much sense
 	// because it leaves gaps in the path from the 5 line segments being added here
-	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
+	if (!strict_compatibility)
 	{
 		if (wal->delta().RotatedCCW().dot(pos - startpt - distv1) < 0)
 			v *= 0.5;

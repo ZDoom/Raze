@@ -2,11 +2,13 @@
 
 #include "gamecontrol.h"
 #include "gamestruct.h"
-#include "build.h"
+#include "palette.h"
 #include "coreactor.h"
 #include "intrect.h"
 #include "geometry.h"
 #include "c_cvars.h"
+
+static_assert('\xff' == 255, "Char must be unsigned!");
 
 extern IntRect viewport3d;
 
@@ -304,6 +306,7 @@ struct MoveClipper
 	double movedist;
 	TArray<ClipObject> clipobjects;
 	BFSSectorSearch search;
+	bool precise;
 
 	MoveClipper(sectortype* start) : search(start) {}
 };

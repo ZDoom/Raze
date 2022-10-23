@@ -34,7 +34,6 @@
 */
 
 #include <stdint.h>
-#include "build.h"
 #include "files.h"
 #include "automap.h"
 #include "printf.h"
@@ -48,6 +47,7 @@
 #include "hw_sections.h"
 #include "interpolate.h"
 #include "games/blood/src/mapstructs.h"
+#include "buildtiles.h"
 
 TArray<sectortype> sector;
 TArray<walltype> wall;

@@ -63,6 +63,7 @@
 #include "ns.h"
 #include "serialize_obj.h"
 #include "games/blood/src/mapstructs.h"
+#include "buildtiles.h"
 #include <zlib.h>
 
 

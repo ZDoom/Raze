@@ -2,7 +2,7 @@
 
 #include "tarray.h"
 #include "vectors.h"
-#include "build.h"
+#include "maptypes.h"
 
 struct Section;
 

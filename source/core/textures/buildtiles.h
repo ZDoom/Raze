@@ -7,6 +7,8 @@
 #include "intvec.h"
 #include "name.h"
 
+constexpr int TRANSPARENT_INDEX = 0;
+
 // picanm[].sf:
 // |bit(1<<7)
 // |animtype|animtype|texhitscan|nofullbright|speed|speed|speed|speed|

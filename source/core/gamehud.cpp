@@ -41,7 +41,7 @@
 #include "gamecontrol.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
-#include "build.h"
+#include "buildtiles.h"
 #include "v_draw.h"
 #include "v_font.h"
 #include "gamestruct.h"

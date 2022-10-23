@@ -4,6 +4,7 @@
 #include "build.h"
 #include "c_cvars.h"
 #include "palentry.h"
+#include "maptypes.h"
 
 class FSerializer;
 struct event_t;

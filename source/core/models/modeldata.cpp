@@ -4,8 +4,7 @@
 #include "texturemanager.h"
 #include "hw_voxels.h"
 #include "gamefuncs.h"
-
-#include "build.h"
+#include "buildtiles.h"
 
 
 int ModelManager::LoadModel(const char* fn)

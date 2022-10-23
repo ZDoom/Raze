@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "m_fixed.h"
 #include "filesystem.h"
+#include "buildtiles.h"
 
 BEGIN_BLD_NS
 
