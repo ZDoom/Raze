@@ -275,14 +275,9 @@ struct MoveClipper
 	MoveClipper(sectortype* start) : search(start) {}
 };
 
-void processClipWalls(MoveClipper& clip, sectortype* sec);
+void collectClipObjects(MoveClipper& clip, int spritemask);
 
-void processClipFaceSprite(MoveClipper& clip, DCoreActor* actor);
-void processClipWallSprite(MoveClipper& clip, DCoreActor* actor);
-bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor, DVector2* points = nullptr, double* heights = nullptr);
-void processClipSlopeSprite(MoveClipper& clip, DCoreActor* actor);
 int FindBestSector(const DVector3& pos);
-
 
 void setWallSectors();
 void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVector2* out, bool render = false);
