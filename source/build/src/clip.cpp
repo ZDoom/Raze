@@ -7,7 +7,6 @@
 // by the EDuke32 team (development@voidpoint.com)
 
 #include "build.h"
-#include "clip.h"
 #include "printf.h"
 #include "gamefuncs.h"
 #include "coreactor.h"
@@ -16,27 +15,6 @@
 
 enum { MAXCLIPDIST = 1024 };
 
-static int32_t clipsectnum, origclipsectnum, clipspritenum;
-int clipsectorlist[MAXCLIPSECTORS];
-static int origclipsectorlist[MAXCLIPSECTORS];
-
-BitArray clipsectormap;
-
-int32_t quickloadboard=0;
-
-static inline int bsin(const int ang)
-{
-    return int(g_sinbam(ang * (1 << 21)) * 16384);
-}
-
-static inline int bcos(const int ang)
-{
-    return int(g_cosbam(ang * (1 << 21)) * 16384);
-}
-
-////////// CLIPMOVE //////////
-inline uint8_t bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
-
 //
 // clipinsideboxline
 //
@@ -44,24 +22,6 @@ static int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int w
 {
     return (int)IsCloseToLine(DVector2(x * inttoworld, y * inttoworld), DVector2(x1 * inttoworld, y1 * inttoworld), DVector2(x2 * inttoworld, y2 * inttoworld), walldist * inttoworld);
 }
-
-
-static inline void addclipsect(int const sectnum)
-{
-    if (clipsectnum < MAXCLIPSECTORS)
-    {
-        clipsectormap.Set(sectnum);
-        clipsectorlist[clipsectnum++] = sectnum;
-    }
-}
-
-
-void addClipSect(MoveClipper& clip, int sec)
-{
-    if (!clipsectormap[sec])
-        addclipsect(sec);
-}
-
 
 
 //
@@ -153,7 +113,6 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     int const initialsectnum = *sectnum;
 
-    int32_t const dawalclipmask = (cliptype & 65535);  // CLIPMASK0 = 0x00010001 (in desperate need of getting fixed!)
     int32_t const dasprclipmask = (cliptype >> 16);    // CLIPMASK1 = 0x01000040
 
     vec2_t const move = { xvect, yvect };
@@ -166,12 +125,12 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
     vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
 	
-	MoveClipper clip;
+	MoveClipper clip(&sector[initialsectnum]);
 	
 	clip.moveDelta = { (xvect >> 14) * inttoworld, (yvect >> 14) * inttoworld }; // beware of excess precision here!
 	clip.rect.min = { clipMin.X * inttoworld, clipMin.Y * inttoworld };
 	clip.rect.max = { clipMax.X * inttoworld, clipMax.Y * inttoworld };
-	clip.wallflags = EWallFlags::FromInt(dawalclipmask);
+	clip.wallflags = EWallFlags::FromInt(cliptype & 65535);
 	clip.ceilingdist = ceildist * zinttoworld;
 	clip.floordist = flordist * zinttoworld;
 	clip.walldist = walldist * inttoworld;
@@ -180,30 +139,14 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     clip.center = (clip.pos.XY() + clip.dest) * 0.5;
     clip.movedist = clip.moveDelta.Length() + clip.walldist + 0.5 + MAXCLIPDIST * inttoworld;
 
-    int clipsectcnt   = 0;
-    int clipspritecnt = 0;
-
-    clipsectorlist[0] = *sectnum;
-
-    clipsectnum   = 1;
-    clipspritenum = 0;
-
-    clipsectormap.Zero();
-    clipsectormap.Set(*sectnum);
-
-    do
+    while (auto sect = clip.search.GetNext())
     {
-        int const dasect = clipsectorlist[clipsectcnt++];
-
-        ////////// Walls //////////
-        processClipWalls(clip, &sector[dasect]);
-
-        ////////// Sprites //////////
+        processClipWalls(clip, sect);
 
         if (dasprclipmask==0)
             continue;
 
-        TSectIterator<DCoreActor> it(dasect);
+        TSectIterator<DCoreActor> it(sect);
         while (auto actor = it.Next())
         {
             int cstat = actor->spr.cstat;
@@ -230,7 +173,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 processClipSlopeSprite(clip, actor);
             }
         }
-    } while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
+    }
 
     int32_t hitwalls[4], hitwall;
     CollisionBase clipReturn{};
@@ -321,10 +264,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     {
         DVector3 fpos(pos->X* inttoworld, pos->Y* inttoworld, pos->Z* zinttoworld);
 
-        for (int j=0; j<clipsectnum; j++)
-            if (inside(fpos.X, fpos.Y, &sector[clipsectorlist[j]]) == 1)
+        clip.search.Rewind();
+        while (auto sect = clip.search.GetNext())
+            if (inside(fpos.X, fpos.Y, sect) == 1)
             {
-                *sectnum = clipsectorlist[j];
+                *sectnum = sectindex(sect);
                 return clipReturn;
             }
 

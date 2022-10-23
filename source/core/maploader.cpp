@@ -52,8 +52,6 @@
 #include "buildtiles.h"
 #include "m_swap.h"
 
-extern BitArray clipsectormap;
-
 TArray<sectortype> sector;
 TArray<walltype> wall;
 
@@ -418,7 +416,6 @@ void allocateMapArrays(int numwall, int numsector, int numsprites)
 	show2dsector.Resize(numsector);
 	show2dwall.Resize(numwall);
 	gotsector.Resize(numsector);
-	clipsectormap.Resize(numsector);
 
 	mapDataArena.FreeAll();
 	sector.Resize(numsector);
