@@ -248,16 +248,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         TSectIterator<DCoreActor> it(dasect);
         while (auto actor = it.Next())
         {
-            const int32_t cstat = actor->spr.cstat;
+            int cstat = actor->spr.cstat;
 
             if (actor->spr.cstat2 & CSTAT2_SPRITE_NOFIND) continue;
-            if ((cstat&dasprclipmask) == 0)
+            if ((cstat & dasprclipmask) == 0)
                 continue;
-
-            auto p1 = actor->int_pos().vec2;
-
-            CollisionBase obj;
-            obj.setSprite(actor);
 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_MASK))
             {
@@ -274,63 +269,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 break;
 
             case CSTAT_SPRITE_ALIGNMENT_SLOPE:
-            {
-
-                if (!processClipFloorSprite(clip, actor)) continue;
-                int heinum = spriteGetSlope(actor);
-
-                if (heinum == 0) continue;
-
-                // the rest is for slope sprites only.
-                auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
-                const int32_t cosang = bcos(actor->int_ang());
-                const int32_t sinang = bsin(actor->int_ang());
-                vec2_t const span = { (int)tex->GetDisplayWidth(), (int)tex->GetDisplayHeight() };
-                vec2_t const repeat = { int(actor->spr.scale.X * scaletoint), int(actor->spr.scale.Y * scaletoint) };
-                vec2_t adjofs = { (int)tex->GetDisplayLeftOffset(), (int)tex->GetDisplayTopOffset() };
-
-                if (actor->spr.cstat & CSTAT_SPRITE_XFLIP)
-                    adjofs.X = -adjofs.X;
-
-                if (actor->spr.cstat & CSTAT_SPRITE_YFLIP)
-                    adjofs.Y = -adjofs.Y;
-
-                int32_t const centerx = ((span.X >> 1) + adjofs.X) * repeat.X;
-                int32_t const centery = ((span.Y >> 1) + adjofs.Y) * repeat.Y;
-                int32_t const rspanx = span.X * repeat.X;
-                int32_t const rspany = span.Y * repeat.Y;
-                int32_t const ratio = ksqrt(heinum * heinum + SLOPEVAL_FACTOR * SLOPEVAL_FACTOR);
-                int32_t zz[3] = { pos->Z, pos->Z + flordist, pos->Z - ceildist };
-                for (int k = 0; k < 3; k++)
-                {
-                    int32_t jj = DivScale(actor->int_pos().Z - zz[k], heinum, 18);
-                    int32_t jj2 = MulScale(jj, ratio, 12);
-                    if (jj2 > (centery << 8) || jj2 < ((centery - rspany) << 8))
-                        continue;
-                    int32_t x1 = actor->int_pos().X + MulScale(sinang, centerx, 16) + MulScale(jj, cosang, 24);
-                    int32_t y1 = actor->int_pos().Y - MulScale(cosang, centerx, 16) + MulScale(jj, sinang, 24);
-                    int32_t x2 = x1 - MulScale(sinang, rspanx, 16);
-                    int32_t y2 = y1 + MulScale(cosang, rspanx, 16);
-
-                    vec2_t const v = { MulScale(bcos(actor->int_ang() - 256), walldist, 14),
-                                       MulScale(bsin(actor->int_ang() - 256), walldist, 14) };
-
-                    if (clipinsideboxline(cent.X, cent.Y, x1, y1, x2, y2, rad) != 0)
-                    {
-                        if ((x1 - pos->X) * (y2 - pos->Y) >= (x2 - pos->X) * (y1 - pos->Y))
-                        {
-                            addclipline(x1 + v.X, y1 + v.Y, x2 + v.Y, y2 - v.X, obj, false);
-                        }
-                        else
-                        {
-		                    if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
-                                continue;
-                            addclipline(x2 - v.X, y2 - v.Y, x1 - v.Y, y1 + v.X, obj, false);
-                        }
-                    }
-                }
-                break;
-            }
+                processClipSlopeSprite(clip, actor);
             }
         }
     } while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
