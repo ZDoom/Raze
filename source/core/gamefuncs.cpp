@@ -1230,6 +1230,21 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 //
 //==========================================================================
 
+void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix)
+{
+	clip.clipobjects.Reserve(1);
+	auto& c = clip.clipobjects.Last();
+	c.obj = daoval;
+	c.obj.exbits = nofix; // hijack this unused field instead of creating an additional bit array.
+	c.line = { start, end };
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 static int checkClipWall(const MoveClipper& clip, walltype* wal)
 {
 	auto wal2 = wal->point2Wall();
@@ -1491,7 +1506,7 @@ void processClipSlopeSprite(MoveClipper& clip, DCoreActor* actor)
 		// The rest is just the same as the main part of the wall sprite collector.
 		if (IsCloseToLine(clip.center, lpoints[0], lpoints[1], clip.movedist) == EClose::Outside) continue;	// out of reach
 
-		auto offset = (actor->spr.angle - DAngle45).ToVector() * clip.walldist;
+		auto offset = (actor->spr.Angles.Yaw - DAngle45).ToVector() * clip.walldist;
 		auto d = lpoints[1] - lpoints[0];
 
 		if (PointOnLineSide(clip.center.X, clip.center.Y, lpoints[0].X, lpoints[0].Y, d.X, d.Y) <= 0)

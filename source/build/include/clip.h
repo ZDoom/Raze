@@ -12,21 +12,11 @@
 #define clip_h_
 
 #define MAXCLIPSECTORS 512
-#define MAXCLIPNUM 2048
 #define CLIPCURBHEIGHT (1)
-typedef struct
-{
-    int32_t x1, y1, x2, y2;
-} linetype;
-
-extern int clipsectorlist[MAXCLIPSECTORS];
-
 struct CollisionBase;
 
 CollisionBase clipmove_(vec3_t *const pos, int *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
                  int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum = 3) ATTRIBUTE((nonnull(1, 2)));
 
-int pushmove_(vec3_t *const vect, int *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
-                 uint32_t const cliptype, bool clear = true) ATTRIBUTE((nonnull(1, 2)));
 
 #endif
