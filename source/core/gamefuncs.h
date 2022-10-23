@@ -285,7 +285,10 @@ struct MoveClipper
 	double walldist;
 };
 
-int checkClipWall(const MoveClipper& clip, walltype* wal);
+void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix = false);
+void addClipSect(MoveClipper& clip, int sec);
+
+void addWallsToClipList(MoveClipper& clip, sectortype* sec);
 
 int FindBestSector(const DVector3& pos);
 
