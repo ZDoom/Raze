@@ -116,6 +116,19 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
     clipnum++;
 }
 
+void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix)
+{
+    addclipline(int(start.X * worldtoint), int(start.Y * worldtoint), int(end.X * worldtoint), int(end.Y * worldtoint), daoval, nofix);
+}
+
+void addClipSect(MoveClipper& clip, int sec)
+{
+    if (!clipsectormap[sec])
+        addclipsect(sec);
+}
+
+
+
 //
 // raytrace (internal)
 //
@@ -246,50 +259,10 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     do
     {
         int const dasect = clipsectorlist[clipsectcnt++];
- 
+        clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld };
+
         ////////// Walls //////////
-
-        auto const sec       = &sector[dasect];
-
-        for (auto& wal : sec->walls)
-        {
-			clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld};
-			
-			int clipyou = checkClipWall(clip, &wal);
-            if (clipyou == -1) continue;
-		
-            if (clipyou)
-            {
-                vec2_t p1 = wal.wall_int_pos();
-                vec2_t p2 = wal.point2Wall()->wall_int_pos();
-                vec2_t d = { p2.X - p1.X, p2.Y - p1.Y };
-
-                CollisionBase objtype;
-                objtype.setWall(&wal);
-
-                //Add 2 boxes at endpoints
-                int32_t bsz = walldist; if (diff.X < 0) bsz = -bsz;
-                addclipline(p1.X-bsz, p1.Y-bsz, p1.X-bsz, p1.Y+bsz, objtype, false);
-                addclipline(p2.X-bsz, p2.Y-bsz, p2.X-bsz, p2.Y+bsz, objtype, false);
-                bsz = walldist; if (diff.Y < 0) bsz = -bsz;
-                addclipline(p1.X+bsz, p1.Y-bsz, p1.X-bsz, p1.Y-bsz, objtype, false);
-                addclipline(p2.X+bsz, p2.Y-bsz, p2.X-bsz, p2.Y-bsz, objtype, false);
-
-				vec2_t v;
-                v.X = walldist; if (d.Y > 0) v.X = -v.X;
-                v.Y = walldist; if (d.X < 0) v.Y = -v.Y;
-
-                if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && d.X * (pos->Y-p1.Y-v.Y) < (pos->X-p1.X-v.X) * d.Y)
-                    v.X >>= 1, v.Y >>= 1;
-
-                addclipline(p1.X+v.X, p1.Y+v.Y, p2.X+v.X, p2.Y+v.Y, objtype, false);
-            }
-            else if (wal.nextsector>=0)
-            {
-                if (!clipsectormap[wal.nextsector])
-                    addclipsect(wal.nextsector);
-            }
-        }
+        addWallsToClipList(clip, &sector[dasect]);
 
         if (clipmove_warned & 1)
             Printf("clipsectnum >= MAXCLIPSECTORS!\n");
