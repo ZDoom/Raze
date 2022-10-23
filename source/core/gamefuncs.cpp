@@ -1235,7 +1235,7 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 //
 //==========================================================================
 
-void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix)
+void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix = false)
 {
 	clip.clipobjects.Reserve(1);
 	auto& c = clip.clipobjects.Last();
@@ -1347,7 +1347,7 @@ void processClipWalls(MoveClipper& clip, sectortype* sec)
 		}
 		else if (result == 0)
 		{
-			addClipSect(clip, wal.nextsector);
+			clip.search.Add(wal.nextSector());
 		}
 	}
 }

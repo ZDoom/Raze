@@ -270,10 +270,10 @@ struct MoveClipper
 	double walldist;
 	double movedist;
 	TArray<ClipObject> clipobjects;
-};
+	BFSSectorSearch search;
 
-void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix = false);
-void addClipSect(MoveClipper& clip, int sec);
+	MoveClipper(sectortype* start) : search(start) {}
+};
 
 void processClipWalls(MoveClipper& clip, sectortype* sec);
 
