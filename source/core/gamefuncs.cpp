@@ -1230,7 +1230,7 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 //
 //==========================================================================
 
-int checkClipWall(const MoveClipper& clip, walltype* wal)
+static int checkClipWall(const MoveClipper& clip, walltype* wal)
 {
 	auto wal2 = wal->point2Wall();
 	auto waldelta = wal->delta();
@@ -1253,6 +1253,81 @@ int checkClipWall(const MoveClipper& clip, walltype* wal)
 		if (factor < 0) intersect = clip.pos.XY();
 		else intersect = clip.pos.XY() + clip.moveDelta * factor;
 		return checkOpening(intersect, clip.pos.Z, wal->sectorp(), wal->nextSector(), clip.ceilingdist, clip.floordist);
+	}
+}
+
+//==========================================================================
+//
+// To produce reproducable results, this of course needs to add the exact same
+// segments to the clipper as Build originally did, 
+// even though this looks ripe for optimization.
+//
+//==========================================================================
+
+static void addWallToClipSet(MoveClipper& clip, walltype* wal)
+{
+	CollisionBase objtype;
+	objtype.setWall(wal);
+
+	auto startpt = wal->pos;
+	auto endpt = wal->point2Wall()->pos;
+
+	//Add caps around the wall's end points. Results may be a bit weird when moving in cardinal directions!
+	double waldist = clip.walldist;
+	if (clip.moveDelta.X < 0) waldist = -waldist;
+
+	DVector2 distv1(-waldist, -waldist);
+	DVector2 distv2(-waldist, waldist);
+	addClipLine(clip, startpt + distv1, startpt + distv2, objtype);
+	addClipLine(clip, endpt + distv1, endpt + distv2, objtype);
+
+	waldist = clip.walldist;
+	if (clip.moveDelta.Y < 0) waldist = -waldist;
+
+	distv1 = { waldist, -waldist };
+	distv2 = { -waldist, -waldist };
+	addClipLine(clip, startpt + distv1, startpt + distv2, objtype);
+	addClipLine(clip, endpt + distv1, endpt + distv2, objtype);
+
+	// this is actually a very poor concept of 'distance' being used...
+	distv1 = { clip.walldist, clip.walldist };
+	if (wal->delta().Y > 0) distv1.X = -distv1.X;
+	if (wal->delta().X < 0) distv1.Y = -distv1.Y;
+
+#if 0
+	// What EDuke32 added here, this doesn't seem to make much sense
+	// because it leaves gaps in the path from the 5 line segments being added here
+	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
+	{
+		if (wal->delta().RotatedCCW().dot(pos - startpt - distv1) < 0)
+			v *= 0.5;
+	}
+#endif
+
+	addClipLine(clip, startpt + distv1, endpt + distv1, objtype);
+
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void addWallsToClipList(MoveClipper& clip, sectortype* sec)
+{
+	for(auto& wal : sec->walls)
+	{
+		int result = checkClipWall(clip, &wal);
+
+		if (result == 1)
+		{
+			addWallToClipSet(clip, &wal);
+		}
+		else if (result == 0)
+		{
+			addClipSect(clip, wal.nextsector);
+		}
 	}
 }
 
