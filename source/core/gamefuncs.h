@@ -243,13 +243,15 @@ struct ClipRect
 struct MoveClipper
 {
 	DVector3 pos;
-	DVector2 pest;
+	DVector2 dest;
+	DVector2 center;
 	DVector2 moveDelta;
 	ClipRect rect;
 	EWallFlags wallflags;
 	double ceilingdist;
 	double floordist;
 	double walldist;
+	double movedist;
 };
 
 void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix = false);
@@ -257,7 +259,8 @@ void addClipSect(MoveClipper& clip, int sec);
 
 void processClipWalls(MoveClipper& clip, sectortype* sec);
 
-void processClipFaceSprites(MoveClipper& clip, DCoreActor* actor);
+void processClipFaceSprite(MoveClipper& clip, DCoreActor* actor);
+void processClipWallSprite(MoveClipper& clip, DCoreActor* actor);
 int FindBestSector(const DVector3& pos);
 
 
