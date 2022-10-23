@@ -45,16 +45,6 @@ inline uint8_t bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n
 
 // x1, y1: in/out
 // rest x/y: out
-static inline void get_wallspr_points(DCoreActor* actor, int32_t *x1, int32_t *x2, int32_t *y1, int32_t *y2)
-{
-    DVector2 out[2];
-    GetWallSpritePosition(&actor->spr, DVector2(*x1 * inttoworld, *y1 * inttoworld), out);
-    *x1 = int(out[0].X * worldtoint); *y1 = int(out[0].Y * worldtoint);
-    *x2 = int(out[1].X * worldtoint); *y2 = int(out[1].Y * worldtoint);
-}
-
-// x1, y1: in/out
-// rest x/y: out
 static inline void get_floorspr_points(DCoreActor *spr, int32_t px, int32_t py,
                                        int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
                                        int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
@@ -241,6 +231,10 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 	clip.ceilingdist = ceildist * zinttoworld;
 	clip.floordist = flordist * zinttoworld;
 	clip.walldist = walldist * inttoworld;
+    clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld };
+    clip.dest = { goal.X * inttoworld, goal.Y * inttoworld };
+    clip.center = (clip.pos.XY() + clip.dest) * 0.5;
+    clip.movedist = clip.moveDelta.Length() + clip.walldist + 0.5 + MAXCLIPDIST * inttoworld;
 
     int clipsectcnt   = 0;
     int clipspritecnt = 0;
@@ -259,7 +253,6 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     do
     {
         int const dasect = clipsectorlist[clipsectcnt++];
-        clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld };
 
         ////////// Walls //////////
         processClipWalls(clip, &sector[dasect]);
@@ -292,43 +285,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_MASK))
             {
             case CSTAT_SPRITE_ALIGNMENT_FACING:
-                processClipFaceSprites(clip, actor);
+                processClipFaceSprite(clip, actor);
                 break;
 
             case CSTAT_SPRITE_ALIGNMENT_WALL:
-            {
-                double height_, daz_ = actor->spr.pos.Z + actor->GetOffsetAndHeight(height_);
-                int height = int(height_ * zworldtoint), daz = int(daz_ * zworldtoint);
-
-                if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
-                {
-                    vec2_t p2;
-
-                    get_wallspr_points(actor, &p1.X, &p2.X, &p1.Y, &p2.Y);
-
-                    if (clipinsideboxline(cent.X, cent.Y, p1.X, p1.Y, p2.X, p2.Y, rad) != 0)
-                    {
-                        vec2_t v = { MulScale(bcos(actor->int_ang() + 256), walldist, 14),
-                                     MulScale(bsin(actor->int_ang() + 256), walldist, 14) };
-
-                        if ((p1.X-pos->X) * (p2.Y-pos->Y) >= (p2.X-pos->X) * (p1.Y-pos->Y))  // Front
-                            addclipline(p1.X+v.X, p1.Y+v.Y, p2.X+v.Y, p2.Y-v.X, obj, false);
-                        else
-                        {
-                            if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
-                                continue;
-                            addclipline(p2.X-v.X, p2.Y-v.Y, p1.X-v.Y, p1.Y+v.X, obj, false);
-                        }
-
-                        //Side blocker
-                        if ((p2.X-p1.X) * (pos->X-p1.X)+(p2.Y-p1.Y) * (pos->Y-p1.Y) < 0)
-                            addclipline(p1.X-v.Y, p1.Y+v.X, p1.X+v.X, p1.Y+v.Y, obj, true);
-                        else if ((p1.X-p2.X) * (pos->X-p2.X)+(p1.Y-p2.Y) * (pos->Y-p2.Y) < 0)
-                            addclipline(p2.X+v.Y, p2.Y-v.X, p2.X-v.X, p2.Y-v.Y, obj, true);
-                    }
-                }
-                break;
-            }
+                processClipWallSprite(clip, actor);
 
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
             case CSTAT_SPRITE_ALIGNMENT_SLOPE:
