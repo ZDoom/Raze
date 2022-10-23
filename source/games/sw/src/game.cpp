@@ -308,7 +308,6 @@ void GameInterface::app_init()
         INITLIST(getPlayer(i)->PanelSpriteList);
 
     DebugOperate = true;
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
 
     if (SW_SHAREWARE)
         Printf("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");

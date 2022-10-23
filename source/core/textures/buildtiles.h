@@ -11,9 +11,9 @@
 #include "texinfo.h"
 #include "texturemanager.h"
 
+constexpr int TRANSPARENT_INDEX = 0;
+
 // all that's left here is the wrappers that need to go away.
-
-
 inline const FTextureID spritetypebase::spritetexture() const
 {
 	return tileGetTextureID(picnum);

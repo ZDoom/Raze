@@ -34,7 +34,6 @@
 */
 
 #include <stdint.h>
-#include "build.h"
 #include "files.h"
 #include "automap.h"
 #include "printf.h"

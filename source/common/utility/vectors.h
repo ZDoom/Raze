@@ -1538,7 +1538,7 @@ TAngle<T> TVector3<T>::Pitch() const
 template<class T>
 constexpr inline TVector2<T> clamp(const TVector2<T> &vec, const TVector2<T> &min, const TVector2<T> &max)
 {
-	return TVector2<T>(clamp(vec.X, min.X, max.X), clamp(vec.Y, min.Y, max.Y));
+	return TVector2<T>(std::clamp<T>(vec.X, min.X, max.X), std::clamp<T>(vec.Y, min.Y, max.Y));
 }
 
 template<class T>

@@ -2,6 +2,7 @@
 
 #include "tarray.h"
 #include "basics.h"
+#include "maptypes.h"
 
 struct HWDrawInfo;
 class Clipper;

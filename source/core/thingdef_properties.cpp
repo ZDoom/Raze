@@ -45,6 +45,7 @@
 #include "texturemanager.h"
 #include "coreactor.h"
 #include "thingdef.h"
+#include "buildtiles.h"
 
 //==========================================================================
 //

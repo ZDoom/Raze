@@ -46,6 +46,7 @@
 #include <zmusic.h>
 
 #include "raze_music.h"
+#include "ns.h"
 #include "games/duke/src/sounds.h"
 
 // MACROS ------------------------------------------------------------------

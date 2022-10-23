@@ -32,7 +32,6 @@
 **
 */
 
-#include "build.h"
 #include "coreactor.h"
 #include "gamefuncs.h"
 #include "raze_sound.h"

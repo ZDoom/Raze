@@ -26,11 +26,11 @@
 **
 **/ 
 
-#include "build.h"
 #include "voxels.h"
 #include "hw_voxels.h"
 #include "tiletexture.h"
 #include "gamecontrol.h"
+#include "filesystem.h"
 
 static int voxlumps[MAXVOXELS];
 float voxscale[MAXVOXELS];

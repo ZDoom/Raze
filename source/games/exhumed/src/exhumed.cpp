@@ -453,8 +453,6 @@ void GameInterface::app_init()
 
     GrabPalette();
 
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
-
     myconnectindex = connecthead = 0;
     numplayers = 1;
     connectpoint2[0] = -1;
