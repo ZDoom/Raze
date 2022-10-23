@@ -1296,11 +1296,11 @@ static int checkClipWall(const MoveClipper& clip, walltype* wal)
 
 static void addPointToClipList(MoveClipper& clip, const DVector2& pos, double radius, CollisionBase& objtype)
 {
-	double waldist = (clip.moveDelta.X < 0)? radius : -radius;
-	addClipLine(clip, pos + DVector2(waldist, waldist), pos + DVector2(waldist, -waldist), objtype);
+	double waldistx = (clip.moveDelta.X < 0)? radius : -radius;
+	addClipLine(clip, pos + DVector2(waldistx, waldistx), pos + DVector2(waldistx, -waldistx), objtype);
 
-	waldist = (clip.moveDelta.Y < 0) ? radius : -radius;
-	addClipLine(clip, pos + DVector2(-waldist, waldist), pos + DVector2(waldist, waldist), objtype);
+	double waldisty = (clip.moveDelta.Y < 0) ? radius : -radius;
+	addClipLine(clip, pos + DVector2(-waldisty, waldisty), pos + DVector2(waldisty, waldisty), objtype);
 }
 
 //==========================================================================
@@ -1371,7 +1371,7 @@ void processClipWalls(MoveClipper& clip, sectortype* sec)
 //
 //==========================================================================
 
-void processClipFaceSprites(MoveClipper& clip, DCoreActor* actor)
+void processClipFaceSprite(MoveClipper& clip, DCoreActor* actor)
 {
 	auto spos = actor->spr.pos;
 	if (!PointInRect(spos.XY(), clip.rect.min, clip.rect.max)) return; // are we outside this sprite's bounding box?
@@ -1395,46 +1395,46 @@ void processClipFaceSprites(MoveClipper& clip, DCoreActor* actor)
 //
 //==========================================================================
 
-int FindBestSector(const DVector3& pos)
+void processClipWallSprite(MoveClipper& clip, DCoreActor* actor)
 {
-	int bestnum = 1;
-	double bestdist = FLT_MAX;
-	for (int secnum = (int)sector.Size() - 1; secnum >= 0; secnum--)
-	{
-		auto sect = &sector[secnum];
-		if (inside(pos.X, pos.Y, sect))
-		{
-			double ceilz, floorz;
-			calcSlope(sect, pos.X, pos.Y, &ceilz, &floorz);
+	auto spos = actor->spr.pos;
+	double height, z = spos.Z + actor->GetOffsetAndHeight(height);
 
-			if (pos.Z < ceilz)
-			{
-				// above ceiling
-				double dist = ceilz - pos.Z;
-				if (dist < bestdist)
-				{
-					bestnum = secnum;
-					bestdist = dist;
-				}
-			}
-			else if (pos.Z > floorz)
-			{
-				// below floor
-				double dist = pos.Z - floorz;
-				if (dist < bestdist)
-				{
-					bestnum = secnum;
-					bestdist = dist;
-				}
-			}
-			else
-			{
-				// inside sector
-				return secnum;
-			}
-		}
+	if (clip.pos.Z <= z - height - clip.floordist) return;	// are we above the sprite?
+	if (clip.pos.Z >= z + clip.ceilingdist) return;			// are we below the sprite?
+
+	DVector2 points[2];
+	GetWallSpritePosition(&actor->spr, actor->spr.pos, points, false);
+
+	if (IsCloseToLine(clip.center, points[0], points[1], clip.movedist) == EClose::Outside) return;	// out of reach
+
+	CollisionBase objtype;
+	objtype.setSprite(actor);
+
+	auto offset = (actor->spr.angle + DAngle45).ToVector() * clip.walldist; // Ok, why 45°?
+
+	auto d = points[1] - points[0];
+	if (PointOnLineSide(clip.pos.X, clip.pos.Y, points[0].X, points[0].Y, d.X, d.Y) <= 0)
+	{
+		// in front
+		addClipLine(clip, points[0] + offset, points[1] + offset.Rotated90CW(), objtype);
 	}
-	return bestnum;
+	else if (!(actor->spr.cstat & CSTAT_SPRITE_ONE_SIDE)) 
+	{
+		// behind
+		addClipLine(clip, points[0] - offset, points[1] + offset.Rotated90CCW(), objtype);
+	}
+	else return; // one-sided wall sprite from the back side does not count.
+
+	if (d.dot(clip.pos - points[0]) < 0)
+	{
+		addClipLine(clip, points[0] + offset.Rotated90CCW(), points[0] + offset, objtype, true);
+	}
+	else if (d.dot(clip.pos - points[1]) > 0)
+	{
+		addClipLine(clip, points[1] + offset.Rotated90CW(), points[1] - offset, objtype, true);
+	}
+
 }
 
 //==========================================================================
