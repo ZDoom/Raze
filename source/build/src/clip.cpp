@@ -250,7 +250,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld };
 
         ////////// Walls //////////
-        addWallsToClipList(clip, &sector[dasect]);
+        processClipWalls(clip, &sector[dasect]);
 
         if (clipmove_warned & 1)
             Printf("clipsectnum >= MAXCLIPSECTORS!\n");
@@ -280,22 +280,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_MASK))
             {
             case CSTAT_SPRITE_ALIGNMENT_FACING:
-                if (p1.X >= clipMin.X && p1.X <= clipMax.X && p1.Y >= clipMin.Y && p1.Y <= clipMax.Y)
-                {
-                    double height_, daz_ = actor->spr.pos.Z + actor->GetOffsetAndHeight(height_);
-                    int height = int(height_ * zworldtoint), daz = int(daz_ * zworldtoint);
-
-                    if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
-                    {
-                        int cd = int(actor->clipdist * worldtoint);
-                        int32_t bsz = cd + walldist;
-                        if (diff.X < 0) bsz = -bsz;
-                        addclipline(p1.X-bsz, p1.Y-bsz, p1.X-bsz, p1.Y+bsz, obj, false);
-                        bsz = cd + walldist;
-                        if (diff.Y < 0) bsz = -bsz;
-                        addclipline(p1.X+bsz, p1.Y-bsz, p1.X-bsz, p1.Y-bsz, obj, false);
-                    }
-                }
+                processClipFaceSprites(clip, actor);
                 break;
 
             case CSTAT_SPRITE_ALIGNMENT_WALL:

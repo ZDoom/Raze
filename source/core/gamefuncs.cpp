@@ -1290,6 +1290,21 @@ static int checkClipWall(const MoveClipper& clip, walltype* wal)
 
 //==========================================================================
 //
+//
+//
+//==========================================================================
+
+static void addPointToClipList(MoveClipper& clip, const DVector2& pos, double radius, CollisionBase& objtype)
+{
+	double waldist = (clip.moveDelta.X < 0)? radius : -radius;
+	addClipLine(clip, pos + DVector2(waldist, waldist), pos + DVector2(waldist, -waldist), objtype);
+
+	waldist = (clip.moveDelta.Y < 0) ? radius : -radius;
+	addClipLine(clip, pos + DVector2(-waldist, waldist), pos + DVector2(waldist, waldist), objtype);
+}
+
+//==========================================================================
+//
 // To produce reproducable results, this of course needs to add the exact same
 // segments to the clipper as Build originally did, 
 // even though this looks ripe for optimization.
@@ -1305,24 +1320,11 @@ static void addWallToClipSet(MoveClipper& clip, walltype* wal)
 	auto endpt = wal->point2Wall()->pos;
 
 	//Add caps around the wall's end points. Results may be a bit weird when moving in cardinal directions!
-	double waldist = clip.walldist;
-	if (clip.moveDelta.X < 0) waldist = -waldist;
-
-	DVector2 distv1(-waldist, -waldist);
-	DVector2 distv2(-waldist, waldist);
-	addClipLine(clip, startpt + distv1, startpt + distv2, objtype);
-	addClipLine(clip, endpt + distv1, endpt + distv2, objtype);
-
-	waldist = clip.walldist;
-	if (clip.moveDelta.Y < 0) waldist = -waldist;
-
-	distv1 = { waldist, -waldist };
-	distv2 = { -waldist, -waldist };
-	addClipLine(clip, startpt + distv1, startpt + distv2, objtype);
-	addClipLine(clip, endpt + distv1, endpt + distv2, objtype);
+	addPointToClipList(clip, startpt, clip.walldist, objtype);
+	addPointToClipList(clip, endpt, clip.walldist, objtype);
 
 	// this is actually a very poor concept of 'distance' being used...
-	distv1 = { clip.walldist, clip.walldist };
+	DVector2 distv1(clip.walldist, clip.walldist);
 	if (wal->delta().Y > 0) distv1.X = -distv1.X;
 	if (wal->delta().X < 0) distv1.Y = -distv1.Y;
 
@@ -1346,7 +1348,7 @@ static void addWallToClipSet(MoveClipper& clip, walltype* wal)
 //
 //==========================================================================
 
-void addWallsToClipList(MoveClipper& clip, sectortype* sec)
+void processClipWalls(MoveClipper& clip, sectortype* sec)
 {
 	for(auto& wal : wallsofsector(sec))
 	{
@@ -1361,6 +1363,30 @@ void addWallsToClipList(MoveClipper& clip, sectortype* sec)
 			addClipSect(clip, wal.nextsector);
 		}
 	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void processClipFaceSprites(MoveClipper& clip, DCoreActor* actor)
+{
+	auto spos = actor->spr.pos;
+	if (!PointInRect(spos.XY(), clip.rect.min, clip.rect.max)) return; // are we outside this sprite's bounding box?
+
+	double height, z = spos.Z + actor->GetOffsetAndHeight(height);
+
+	if (clip.pos.Z <= z - height - clip.floordist) return;	// are we above the sprite?
+	if (clip.pos.Z >= z + clip.ceilingdist) return;			// are we below the sprite?
+
+	// if we get here we have hit this sprite so add its box to the clip list.
+
+	CollisionBase objtype;
+	objtype.setSprite(actor);
+
+	addPointToClipList(clip, spos.XY(), actor->clipdist + clip.walldist, objtype);
 }
 
 //==========================================================================

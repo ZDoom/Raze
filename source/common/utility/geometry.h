@@ -221,7 +221,7 @@ inline int BoxOnLineSide(const DVector2& boxtl, const DVector2& boxbr, const DVe
 
 //==========================================================================
 //
-// BoxInRange
+// BoxInRange. Two variants becaise they cannot be that easily merged.
 //
 //==========================================================================
 
@@ -239,4 +239,15 @@ inline bool BoxInRange2(const DVector2& boxtl, const DVector2& boxbr, const DVec
 		boxbr.X >= min(start.X, end.X) &&
 		boxtl.Y <= max(start.Y, end.Y) &&
 		boxbr.Y >= min(start.Y, end.Y);
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+inline bool PointInRect(const DVector2& pt, const DVector2& min, const DVector2& max)
+{
+	return pt.X >= min.X && pt.X <= max.X && pt.Y >= min.Y && pt.Y <= max.Y;
 }
