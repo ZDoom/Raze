@@ -1435,14 +1435,13 @@ void processClipWallSprite(MoveClipper& clip, DCoreActor* actor)
 	}
 
 }
-
 //==========================================================================
 //
 //
 //
 //==========================================================================
 
-bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor)
+bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor, DVector2* points, double* heights)
 {
 	int heinum = spriteGetSlope(actor);
 	double sprz = spriteGetZOfSlopef(&actor->spr, actor->spr.pos, heinum);
@@ -1454,8 +1453,9 @@ bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor)
 			if ((clip.pos.Z > sprz) == ((actor->spr.cstat & CSTAT_SPRITE_YFLIP) == 0)) return false;
 		}
 		
-		DVector2 points[4];
-		GetFlatSpritePosition(actor, actor->spr.pos, points, nullptr);
+		DVector2 opoints[4];
+		if (!points) points = opoints;
+		GetFlatSpritePosition(actor, actor->spr.pos, points, heights);
 
 		auto offset = (actor->spr.angle - DAngle45).ToVector() * clip.walldist;
 
@@ -1488,6 +1488,54 @@ bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor)
 		}
 	}
 	return true;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void processClipSlopeSprite(MoveClipper& clip, DCoreActor* actor)
+{
+	auto spos = actor->spr.pos;
+	DVector2 points[4];
+	double heights[4];
+	DVector2 lpoints[2];
+
+	if (!processClipFloorSprite(clip, actor, points, heights)) return;
+	int heinum = spriteGetSlope(actor);
+	if (heinum == 0) return;
+
+	double zz[3] = { clip.pos.Z, clip.pos.Z + clip.floordist, clip.pos.Z - clip.ceilingdist };
+
+	CollisionBase objtype;
+	objtype.setSprite(actor);
+
+	for (int k = 0; k < 3; k++)
+	{
+		double factor = (zz[k] - heights[0]) / (heights[2] - heights[0]);
+		if (factor < 0 || factor > 1) continue;	// sprite never hits the desired height.
+		lpoints[0] = points[0] + (points[2] - points[0]) * factor;
+		lpoints[1] = lpoints[0] + (points[1] - points[0]);
+
+		// The rest is just the same as the main part of the wall sprite collector.
+		if (IsCloseToLine(clip.center, lpoints[0], lpoints[1], clip.movedist) == EClose::Outside) continue;	// out of reach
+
+		auto offset = (actor->spr.angle - DAngle45).ToVector() * clip.walldist;
+		auto d = lpoints[1] - lpoints[0];
+
+		if (PointOnLineSide(clip.center.X, clip.center.Y, lpoints[0].X, lpoints[0].Y, d.X, d.Y) <= 0)
+		{
+			// in front
+			addClipLine(clip, lpoints[0] + offset, lpoints[1] + offset.Rotated90CW(), objtype);
+		}
+		else if (!(actor->spr.cstat & CSTAT_SPRITE_ONE_SIDE))
+		{
+			// behind
+			addClipLine(clip, lpoints[0] - offset, lpoints[1] + offset.Rotated90CCW(), objtype);
+		}
+	}
 }
 
 //==========================================================================
