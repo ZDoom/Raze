@@ -11,12 +11,6 @@
 #ifndef clip_h_
 #define clip_h_
 
-#define MAXCLIPSECTORS 512
-#define CLIPCURBHEIGHT (1)
-struct CollisionBase;
-
-CollisionBase clipmove_(vec3_t *const pos, int *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
-                 int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum = 3) ATTRIBUTE((nonnull(1, 2)));
 
 
 #endif

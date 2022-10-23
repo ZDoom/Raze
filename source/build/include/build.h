@@ -27,7 +27,6 @@ typedef int64_t coord_t;
 
 
 #include "maptypes.h"
-#include "clip.h"
 
 enum {
     ENGINECOMPATIBILITY_NONE = 0,

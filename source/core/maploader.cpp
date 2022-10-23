@@ -49,8 +49,6 @@
 #include "interpolate.h"
 #include "games/blood/src/mapstructs.h"
 
-extern BitArray clipsectormap;
-
 TArray<sectortype> sector;
 TArray<walltype> wall;
 
@@ -408,7 +406,6 @@ void allocateMapArrays(int numwall, int numsector, int numsprites)
 	show2dsector.Resize(numsector);
 	show2dwall.Resize(numwall);
 	gotsector.Resize(numsector);
-	clipsectormap.Resize(numsector);
 
 	mapDataArena.FreeAll();
 	sector.Resize(numsector);
