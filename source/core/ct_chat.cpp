@@ -52,6 +52,7 @@
 #include "gamestruct.h"
 #include "gamecvars.h"
 #include "menustate.h"
+#include "cheathandler.h"
 
 enum
 {
@@ -326,10 +327,11 @@ static void ShoveChatStr (const char *str, uint8_t who)
 
 	if (*str == '#')
 	{
-		C_DoCommand(FStringf("activatecheat \"%s\"", str + 1));
+		PlaybackCheat(str + 1);
 	}
 	else
 	{
+		if (PlaybackCheat(str)) return;
 #if 0
 		FString substBuff;
 

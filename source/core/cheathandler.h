@@ -14,8 +14,8 @@ struct cheatseq_t
 }; 
 struct event_t;
 
-bool Cheat_Responder(event_t* ev);
+int Cheat_Responder(event_t* ev);
 void SetCheats(cheatseq_t *cht, int count);
-void PlaybackCheat(const char* p);
+bool PlaybackCheat(const char* p);
 bool SendGenericCheat(cheatseq_t* cheat);
 
