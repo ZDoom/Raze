@@ -28,7 +28,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // This is all Jim's programming having to do with sectors.
 #include "ns.h"
 
-#include "build.h"
+
 
 #include "names.h"
 #include "names2.h"

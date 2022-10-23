@@ -2,7 +2,7 @@
 #include "s_soundinternal.h"
 #include "m_fixed.h"
 #include "vectors.h"
-#include "build.h"
+
 
 inline FVector3 GetSoundPos(const DVector3& pos)
 {

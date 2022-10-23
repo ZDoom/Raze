@@ -32,7 +32,7 @@
 **---------------------------------------------------------------------------
 **
 */  
-#include "build.h"
+
 #include "sc_man.h"
 #include "printf.h"
 #include "c_dispatch.h"

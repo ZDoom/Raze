@@ -31,7 +31,7 @@
 **
 */ 
 
-#include "build.h"
+
 #include "imagehelpers.h"
 
 #include "palette.h"

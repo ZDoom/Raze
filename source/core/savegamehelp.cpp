@@ -393,7 +393,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 }
 
 
-#include "build.h"
+
 
 #define V(x) x
 static spritetype zsp;

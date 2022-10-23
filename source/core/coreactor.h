@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include "maptypes.h"
-#include "build.h"
+
 #include "actorinfo.h"
 
 enum

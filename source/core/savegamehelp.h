@@ -1,7 +1,7 @@
 #pragma once
 
 #include "resourcefile.h"
-#include "build.h"
+
 #include "gamefuncs.h"
 #include "coreactor.h"
 

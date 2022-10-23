@@ -1,6 +1,6 @@
 #pragma once
 
-#include "build.h"
+
 
 #include "gamecvars.h"
 #include "razemenu.h"

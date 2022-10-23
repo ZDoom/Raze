@@ -43,7 +43,7 @@
 #include "name.h"
 #include "cmdlib.h"
 #include "gamecontrol.h"
-#include "build.h"
+
 #include "coreactor.h"
 
 extern ReverbContainer* ForcedEnvironment;

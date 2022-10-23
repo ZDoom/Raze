@@ -1,7 +1,6 @@
 #pragma once
 
 #include "tarray.h"
-#include "build.h"
 #include "c_cvars.h"
 #include "palentry.h"
 #include "maptypes.h"

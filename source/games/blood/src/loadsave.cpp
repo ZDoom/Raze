@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include <stdio.h>
-#include "build.h"
+
 
 #include "blood.h"
 #include "i_specialpaths.h"

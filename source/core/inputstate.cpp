@@ -34,7 +34,7 @@
 #include "inputstate.h"
 #include "i_system.h"
 #include "v_draw.h"
-#include "build.h"
+
 #include "gamecvars.h"
 #include "v_video.h"
 #include "statusbar.h"

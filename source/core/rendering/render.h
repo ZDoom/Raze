@@ -1,5 +1,5 @@
 #pragma once
-#include "build.h"
+
 #include "gamefuncs.h"
 
 class FSerializer;
