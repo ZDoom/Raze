@@ -1362,7 +1362,7 @@ static void addWallToClipSet(MoveClipper& clip, walltype* wal)
 //
 //==========================================================================
 
-void processClipWalls(MoveClipper& clip, sectortype* sec)
+static void processClipWalls(MoveClipper& clip, sectortype* sec)
 {
 	for(auto& wal : wallsofsector(sec))
 	{
@@ -1385,7 +1385,7 @@ void processClipWalls(MoveClipper& clip, sectortype* sec)
 //
 //==========================================================================
 
-void processClipFaceSprite(MoveClipper& clip, DCoreActor* actor)
+static void processClipFaceSprite(MoveClipper& clip, DCoreActor* actor)
 {
 	auto spos = actor->spr.pos;
 	if (!PointInRect(spos.XY(), clip.rect.min, clip.rect.max)) return; // are we outside this sprite's bounding box?
@@ -1409,7 +1409,7 @@ void processClipFaceSprite(MoveClipper& clip, DCoreActor* actor)
 //
 //==========================================================================
 
-void processClipWallSprite(MoveClipper& clip, DCoreActor* actor)
+static void processClipWallSprite(MoveClipper& clip, DCoreActor* actor)
 {
 	auto spos = actor->spr.pos;
 	double height, z = spos.Z + actor->GetOffsetAndHeight(height);
@@ -1456,7 +1456,7 @@ void processClipWallSprite(MoveClipper& clip, DCoreActor* actor)
 //
 //==========================================================================
 
-bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor, DVector2* points, double* heights)
+static bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor, DVector2* points, double* heights)
 {
 	int heinum = spriteGetSlope(actor);
 	double sprz = spriteGetZOfSlopef(&actor->spr, actor->spr.pos, heinum);
@@ -1511,7 +1511,7 @@ bool processClipFloorSprite(MoveClipper& clip, DCoreActor* actor, DVector2* poin
 //
 //==========================================================================
 
-void processClipSlopeSprite(MoveClipper& clip, DCoreActor* actor)
+static void processClipSlopeSprite(MoveClipper& clip, DCoreActor* actor)
 {
 	auto spos = actor->spr.pos;
 	DVector2 points[4];
@@ -1549,6 +1549,51 @@ void processClipSlopeSprite(MoveClipper& clip, DCoreActor* actor)
 		{
 			// behind
 			addClipLine(clip, lpoints[0] - offset, lpoints[1] + offset.Rotated90CCW(), objtype);
+		}
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void collectClipObjects(MoveClipper& clip, int spritemask)
+{
+	while (auto sect = clip.search.GetNext())
+	{
+		processClipWalls(clip, sect);
+
+		if (spritemask == 0)
+			continue;
+
+		TSectIterator<DCoreActor> it(sect);
+		while (auto actor = it.Next())
+		{
+			int cstat = actor->spr.cstat;
+
+			if (actor->spr.cstat2 & CSTAT2_SPRITE_NOFIND) continue;
+			if ((cstat & spritemask) == 0)
+				continue;
+
+			switch (cstat & (CSTAT_SPRITE_ALIGNMENT_MASK))
+			{
+			case CSTAT_SPRITE_ALIGNMENT_FACING:
+				processClipFaceSprite(clip, actor);
+				break;
+
+			case CSTAT_SPRITE_ALIGNMENT_WALL:
+				processClipWallSprite(clip, actor);
+				break;
+
+			case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+				processClipFloorSprite(clip, actor, nullptr, nullptr);
+				break;
+
+			case CSTAT_SPRITE_ALIGNMENT_SLOPE:
+				processClipSlopeSprite(clip, actor);
+			}
 		}
 	}
 }
