@@ -16,14 +16,9 @@
 
 enum { MAXCLIPDIST = 1024 };
 
-static int clipnum;
-static linetype clipit[MAXCLIPNUM];
 static int32_t clipsectnum, origclipsectnum, clipspritenum;
 int clipsectorlist[MAXCLIPSECTORS];
 static int origclipsectorlist[MAXCLIPSECTORS];
-static CollisionBase clipobjectval[MAXCLIPNUM];
-static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
-static int32_t rxi[8], ryi[8];
 
 BitArray clipsectormap;
 
@@ -50,7 +45,6 @@ static int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int w
     return (int)IsCloseToLine(DVector2(x * inttoworld, y * inttoworld), DVector2(x1 * inttoworld, y1 * inttoworld), DVector2(x2 * inttoworld, y2 * inttoworld), walldist * inttoworld);
 }
 
-static int32_t clipmove_warned;
 
 static inline void addclipsect(int const sectnum)
 {
@@ -59,34 +53,8 @@ static inline void addclipsect(int const sectnum)
         clipsectormap.Set(sectnum);
         clipsectorlist[clipsectnum++] = sectnum;
     }
-    else
-        clipmove_warned |= 1;
 }
 
-
-static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, const CollisionBase& daoval, int nofix)
-{
-    if (clipnum >= MAXCLIPNUM)
-    {
-        clipmove_warned |= 2;
-        return;
-    }
-
-    clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1;
-    clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
-    clipobjectval[clipnum] = daoval;
-
-    uint32_t const mask = (1 << (clipnum&7));
-    uint8_t &value = clipignore[clipnum>>3];
-    value = (value & ~mask) | (-nofix & mask);
-
-    clipnum++;
-}
-
-void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix)
-{
-    addclipline(int(start.X * worldtoint), int(start.Y * worldtoint), int(end.X * worldtoint), int(end.Y * worldtoint), daoval, nofix);
-}
 
 void addClipSect(MoveClipper& clip, int sec)
 {
@@ -99,14 +67,14 @@ void addClipSect(MoveClipper& clip, int sec)
 //
 // raytrace (internal)
 //
-static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
+static inline int32_t cliptrace(MoveClipper& clip, vec2_t const pos, vec2_t * const goal)
 {
     int32_t hitwall = -1;
 
-    for (int z=clipnum-1; z>=0; z--)
+    for (int z=clip.clipobjects.Size() - 1; z >= 0; z--)
     {
-        vec2_t const p1   = { clipit[z].x1, clipit[z].y1 };
-        vec2_t const p2   = { clipit[z].x2, clipit[z].y2 };
+        vec2_t const p1   = { clip.clipobjects[z].x1(), clip.clipobjects[z].y1()};
+        vec2_t const p2   = { clip.clipobjects[z].x2(), clip.clipobjects[z].y2()};
         vec2_t const area = { p2.X-p1.X, p2.Y-p1.Y };
 
         int32_t topu = area.X*(pos.Y-p1.Y) - (pos.X-p1.X)*area.Y;
@@ -152,10 +120,10 @@ static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
 //
 // keepaway (internal)
 //
-static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
+static inline void keepaway(MoveClipper& clip, int32_t *x, int32_t *y, int32_t w)
 {
-    const int32_t x1 = clipit[w].x1, dx = clipit[w].x2-x1;
-    const int32_t y1 = clipit[w].y1, dy = clipit[w].y2-y1;
+    const int32_t x1 = clip.clipobjects[w].x1(), dx = clip.clipobjects[w].x2() - x1;
+    const int32_t y1 = clip.clipobjects[w].y1(), dy = clip.clipobjects[w].y2() - y1;
     const int32_t ox = Sgn(-dy), oy = Sgn(dx);
     uint8_t first = (abs(dx) <= abs(dy));
 
@@ -180,9 +148,8 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
 CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t yvect,
                  int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum)
 {
-    CollisionBase b{};
     if ((xvect|yvect) == 0 || *sectnum < 0)
-        return b;
+        return {};
 
     int const initialsectnum = *sectnum;
 
@@ -219,10 +186,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     clipsectorlist[0] = *sectnum;
 
     clipsectnum   = 1;
-    clipnum       = 0;
     clipspritenum = 0;
-
-    clipmove_warned = 0;
 
     clipsectormap.Zero();
     clipsectormap.Set(*sectnum);
@@ -233,12 +197,6 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         ////////// Walls //////////
         processClipWalls(clip, &sector[dasect]);
-
-        if (clipmove_warned & 1)
-            Printf("clipsectnum >= MAXCLIPSECTORS!\n");
-
-        if (clipmove_warned & 2)
-            Printf("clipnum >= MAXCLIPNUM!\n");
 
         ////////// Sprites //////////
 
@@ -283,12 +241,12 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     {
         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && (xvect|yvect)) 
         {
-            for (int i=clipnum-1;i>=0;--i)
+            for (int i=clip.clipobjects.Size() - 1; i >= 0; --i)
             {
-                if (!bitmap_test(clipignore, i) && clipinsideboxline(pos->X, pos->Y, clipit[i].x1, clipit[i].y1, clipit[i].x2, clipit[i].y2, walldist))
+                if (!clip.clipobjects[i].obj.exbits && clipinsideboxline(pos->X, pos->Y, clip.clipobjects[i].x1(), clip.clipobjects[i].y1(), clip.clipobjects[i].x2(), clip.clipobjects[i].y2(), walldist))
                 {
                     vec2_t const vec = pos->vec2;
-                    keepaway(&pos->X, &pos->Y, i);
+                    keepaway(clip, &pos->X, &pos->Y, i);
                     if (inside(pos->X * inttoworld, pos->Y * inttoworld, &sector[*sectnum]) != 1)
                         pos->vec2 = vec;
                     break;
@@ -298,9 +256,9 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         vec2_t vec = goal;
 
-        if ((hitwall = cliptrace(pos->vec2, &vec)) >= 0)
+        if ((hitwall = cliptrace(clip, pos->vec2, &vec)) >= 0)
         {
-            vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
+            vec2_t const  clipr  = { clip.clipobjects[hitwall].x2() - clip.clipobjects[hitwall].x1(), clip.clipobjects[hitwall].y2() - clip.clipobjects[hitwall].y1()};
             // clamp to the max value we can utilize without reworking the scaling below
             // this works around the overflow issue that affects dukedc2.map
             int32_t const templl = (int32_t)clamp<int64_t>(((int64_t)clipr.X * clipr.X + (int64_t)clipr.Y * clipr.Y), INT32_MIN, INT32_MAX);
@@ -323,7 +281,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 j = hitwalls[i];
 
                 int32_t tempint2;
-                tempint2 = DMulScale(clipit[j].x2-clipit[j].x1, move.X, clipit[j].y2-clipit[j].y1, move.Y, 6);
+                tempint2 = DMulScale(clip.clipobjects[j].x2() - clip.clipobjects[j].x1(), move.X, clip.clipobjects[j].y2() - clip.clipobjects[j].y1(), move.Y, 6);
 
                 if ((tempint ^ tempint2) < 0)
                 {
@@ -337,12 +295,12 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 }
             }
 
-            keepaway(&goal.X, &goal.Y, hitwall);
+            keepaway(clip, &goal.X, &goal.Y, hitwall);
             xvect = (goal.X-vec.X)<<14;
             yvect = (goal.Y-vec.Y)<<14;
 
             if (cnt == clipmoveboxtracenum)
-                clipReturn = clipobjectval[hitwall];
+                clipReturn = clip.clipobjects[hitwall].obj;
             hitwalls[cnt] = hitwall;
         }
 
