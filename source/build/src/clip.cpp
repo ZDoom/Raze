@@ -113,8 +113,6 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     int const initialsectnum = *sectnum;
 
-    int32_t const dasprclipmask = (cliptype >> 16);    // CLIPMASK1 = 0x01000040
-
     vec2_t const move = { xvect, yvect };
     vec2_t       goal = { pos->X + (xvect >> 14), pos->Y + (yvect >> 14) };
     vec2_t const cent = { (pos->X + goal.X) >> 1, (pos->Y + goal.Y) >> 1 };
@@ -139,41 +137,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     clip.center = (clip.pos.XY() + clip.dest) * 0.5;
     clip.movedist = clip.moveDelta.Length() + clip.walldist + 0.5 + MAXCLIPDIST * inttoworld;
 
-    while (auto sect = clip.search.GetNext())
-    {
-        processClipWalls(clip, sect);
-
-        if (dasprclipmask==0)
-            continue;
-
-        TSectIterator<DCoreActor> it(sect);
-        while (auto actor = it.Next())
-        {
-            int cstat = actor->spr.cstat;
-
-            if (actor->spr.cstat2 & CSTAT2_SPRITE_NOFIND) continue;
-            if ((cstat & dasprclipmask) == 0)
-                continue;
-
-            switch (cstat & (CSTAT_SPRITE_ALIGNMENT_MASK))
-            {
-            case CSTAT_SPRITE_ALIGNMENT_FACING:
-                processClipFaceSprite(clip, actor);
-                break;
-
-            case CSTAT_SPRITE_ALIGNMENT_WALL:
-                processClipWallSprite(clip, actor);
-                break;
-
-            case CSTAT_SPRITE_ALIGNMENT_FLOOR:
-                processClipFloorSprite(clip, actor);
-                break;
-
-            case CSTAT_SPRITE_ALIGNMENT_SLOPE:
-                processClipSlopeSprite(clip, actor);
-            }
-        }
-    }
+    collectClipObjects(clip, (cliptype >> 16));
 
     int32_t hitwalls[4], hitwall;
     CollisionBase clipReturn{};
