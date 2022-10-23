@@ -38,7 +38,7 @@
 **
 */
 
-#include "build.h"
+
 #include "hw_sections.h"
 #include "memarena.h"
 #include "c_cvars.h"

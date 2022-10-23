@@ -30,7 +30,7 @@ not load" error messages.
 ****************************************/
 #include "ns.h"
 
-#include "build.h"
+
 
 #include "names2.h"
 #include "game.h"

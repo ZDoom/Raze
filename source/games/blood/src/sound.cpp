@@ -19,7 +19,7 @@ See the GNU General Public License for more details.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "build.h"
+
 #include "blood.h"
 #include "raze_music.h"
 #include "raze_sound.h"

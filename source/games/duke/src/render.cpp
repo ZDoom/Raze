@@ -27,7 +27,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #include "ns.h"
 #include "duke3d.h"
-#include "build.h"
+
 #include "v_video.h"
 #include "prediction.h"
 #include "automap.h"

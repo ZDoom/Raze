@@ -27,7 +27,7 @@
 //#include "hw_lighting.h"
 #include "hw_material.h"
 #include "gamefuncs.h"
-#include "build.h"
+
 #include "cmdlib.h"
 #include "psky.h"
 

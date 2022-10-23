@@ -35,9 +35,10 @@
 **
 */
 
+#include "limits.h"
 #include "hw_clipper.h"
 #include "basics.h"
-#include "build.h"
+
 #include "printf.h"
 
 

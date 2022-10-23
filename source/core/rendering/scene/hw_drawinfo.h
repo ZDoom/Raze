@@ -2,7 +2,7 @@
 
 #include <atomic>
 #include <functional>
-#include "build.h"
+
 #include "vectors.h"
 #include "hw_viewpointuniforms.h"
 #include "v_video.h"

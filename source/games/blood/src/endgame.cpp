@@ -17,7 +17,7 @@
 
 #include "ns.h"	// Must come before everything else!
 
-#include "build.h"
+
 #include "v_draw.h"
 #include "statistics.h"
 #include "gstrings.h"

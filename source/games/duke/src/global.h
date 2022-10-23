@@ -1,6 +1,6 @@
 #pragma once
 
-#include "build.h"
+
 #include "duke3d.h"
 #include "quotemgr.h"
 #include "sounds.h"

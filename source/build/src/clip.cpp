@@ -6,7 +6,6 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 // by the EDuke32 team (development@voidpoint.com)
 
-#include "build.h"
 #include "printf.h"
 #include "gamefuncs.h"
 #include "coreactor.h"
