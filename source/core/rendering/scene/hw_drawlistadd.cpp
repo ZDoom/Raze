@@ -26,7 +26,7 @@
 #include "hw_drawstructs.h"
 #include "hw_drawinfo.h"
 #include "hw_material.h"
-#include "build.h"
+
 #include "gamefuncs.h"
 
 EXTERN_CVAR(Bool, gl_seamless)

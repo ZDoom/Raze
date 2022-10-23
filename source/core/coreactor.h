@@ -2,9 +2,8 @@
 
 #include <stdint.h>
 #include "maptypes.h"
-#include "build.h"
+
 #include "actorinfo.h"
-#include "clip.h"
 
 enum
 {

@@ -40,7 +40,7 @@
 
 #include "palette.h"
 #include "m_crc32.h"
-#include "build.h"
+
 #include "gamecontrol.h"
 #include "palettecontainer.h"
 #include "texturemanager.h"

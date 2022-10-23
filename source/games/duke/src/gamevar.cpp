@@ -36,7 +36,7 @@ source as it is released.
 #include "global.h"
 #include "serializer.h"
 #include "names.h"
-#include "build.h"
+
 #include "gamevar.h"
 #include "mapinfo.h"
 

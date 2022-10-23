@@ -26,7 +26,7 @@
 */
 
 #include "gi.h"
-#include "build.h"
+
 #include "v_draw.h"
 //#include "a_dynlight.h"
 #include "v_video.h"

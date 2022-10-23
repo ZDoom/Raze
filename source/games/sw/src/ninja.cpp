@@ -31,7 +31,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // Added GrabThroat Hack
 //
 
-#include "build.h"
+
 
 #include "names2.h"
 #include "panel.h"

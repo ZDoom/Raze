@@ -16,7 +16,7 @@
  */
 //-------------------------------------------------------------------------
 #pragma once
-#include "build.h"
+
 #include "common_game.h"
 
 BEGIN_BLD_NS

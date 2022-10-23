@@ -19,7 +19,7 @@ See the GNU General Public License for more details.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "build.h"
+
 #include "c_bind.h"
 #include "razemenu.h"
 #include "gamestate.h"

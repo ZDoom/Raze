@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "build.h"
+
 
 #include "blood.h"
 #include "bloodactor.h"

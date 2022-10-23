@@ -26,7 +26,7 @@
 */
 
 #include "hw_portal.h"
-#include "build.h"
+
 #include "hw_renderstate.h"
 #include "hw_drawinfo.h"
 #include "models/modeldata.h"
