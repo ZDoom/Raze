@@ -273,6 +273,23 @@ struct ClipRect
 	DVector2 max;
 };
 
+struct ClipLine
+{
+	DVector2 start, end;
+};
+
+struct ClipObject
+{
+	CollisionBase obj;
+	ClipLine line;
+
+	// we still need these...
+	int x1() const { return int(line.start.X * worldtoint); }
+	int y1() const { return int(line.start.Y * worldtoint); }
+	int x2() const { return int(line.end.X * worldtoint); }
+	int y2() const { return int(line.end.Y * worldtoint); }
+};
+
 struct MoveClipper
 {
 	DVector3 pos;
@@ -285,6 +302,7 @@ struct MoveClipper
 	double floordist;
 	double walldist;
 	double movedist;
+	TArray<ClipObject> clipobjects;
 };
 
 void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix = false);

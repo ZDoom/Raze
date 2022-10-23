@@ -1262,6 +1262,21 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 //
 //==========================================================================
 
+void addClipLine(MoveClipper& clip, const DVector2& start, const DVector2& end, const CollisionBase& daoval, int nofix)
+{
+	clip.clipobjects.Reserve(1);
+	auto& c = clip.clipobjects.Last();
+	c.obj = daoval;
+	c.obj.exbits = nofix; // hijack this unused field instead of creating an additional bit array.
+	c.line = { start, end };
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 static int checkClipWall(const MoveClipper& clip, walltype* wal)
 {
 	auto wal2 = wal->point2Wall();
