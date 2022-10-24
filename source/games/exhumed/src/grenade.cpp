@@ -321,7 +321,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         double zVel = pActor->vel.Z;
 
         Gravity(pActor);
-        auto nMov = movesprite(pActor, pActor->vec, zVel, pActor->fClipdist() / 128., CLIPMASK1);
+        auto nMov = movesprite(pActor, pActor->vec, pActor->vel.Z, pActor->fClipdist() / 128., CLIPMASK1);
 
         if (!nMov.type && !nMov.exbits)
             return;
