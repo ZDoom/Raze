@@ -3524,7 +3524,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		goalang = VecToAngle(newpos - actor->spr.pos.XY());
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5/16 && angdif < nullAngle) angdif = nullAngle;
-		actor->spr.angle = angdif;
+		actor->spr.angle += angdif;
 	}
 
 	if (actor->temp_data[1] == 0 || a == 0)
