@@ -202,7 +202,7 @@ void displayweapon_d(int snum, double smoothratio)
 {
 	int cw;
 	int i, j;
-	int o, pal;
+	int o, pal, pal2;
 	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th, plravel;
 	int8_t shade;
 	struct player_struct *p;
@@ -246,9 +246,9 @@ void displayweapon_d(int snum, double smoothratio)
 	shade = p->GetActor()->spr.shade;
 	if(shade > 24) shade = 24;
 
-	pal = !p->insector() ? 0 : p->GetActor()->spr.pal == 1 ? 1 : p->cursector->floorpal;
-	if (pal == 0)
-		pal = p->palookup;
+	pal2 = pal = !p->insector() ? 0 : p->GetActor()->spr.pal == 1 ? 1 : p->cursector->floorpal;
+	if (pal2 == 0)
+		pal2 = p->palookup;
 
 	auto adjusted_arc = looking_arc - hard_landing;
 	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
@@ -258,7 +258,7 @@ void displayweapon_d(int snum, double smoothratio)
 	if(playerVars || playerAnims)
 		return;
 
-	animateknee(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal, smoothratio);
+	animateknee(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal2, smoothratio);
 
 	if (isWW2GI())
 	{
@@ -287,11 +287,11 @@ void displayweapon_d(int snum, double smoothratio)
 	{
 		if (j < 5 || j > 9)
 		{
-			hud_drawpal(weapon_xoffset + 80 - look_anghalf, looking_arc + 250 - gun_pos, KNEE, shade, o | 4, pal);
+			hud_drawpal(weapon_xoffset + 80 - look_anghalf, looking_arc + 250 - gun_pos, KNEE, shade, o | 4, pal2);
 		}
 		else
 		{
-			hud_drawpal(weapon_xoffset + 160 - 16 - look_anghalf, looking_arc + 214 - gun_pos, KNEE + 1, shade, o | 4, pal);
+			hud_drawpal(weapon_xoffset + 160 - 16 - look_anghalf, looking_arc + 214 - gun_pos, KNEE + 1, shade, o | 4, pal2);
 		}
 	}
 
@@ -316,12 +316,12 @@ void displayweapon_d(int snum, double smoothratio)
 				if (*kb < 5 || *kb > 9)
 				{
 					hud_drawpal(weapon_xoffset + 220 - look_anghalf,
-						looking_arc + 250 - gun_pos, KNEE, shade, o, pal);
+						looking_arc + 250 - gun_pos, KNEE, shade, o, pal2);
 				}
 				else
 				{
 					hud_drawpal(weapon_xoffset + 160 - look_anghalf,
-						looking_arc + 214 - gun_pos, KNEE + 1, shade, o, pal);
+						looking_arc + 214 - gun_pos, KNEE + 1, shade, o, pal2);
 				}
 			}
 		};
