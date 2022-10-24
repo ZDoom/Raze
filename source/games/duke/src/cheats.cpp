@@ -359,7 +359,30 @@ static bool cheatGary(cheatseq_t *)
 }
 
 static cheatseq_t dukecheats[] = {
+	{ "dncornholio",  nullptr,			SendGenericCheat, 0, CHT_GOD },
+	{ "dnstuff",      "give all", },
 	{ "dnscotty###",  nullptr,          cheatLevel }, // -> levelwarp
+	{ "dncoords",     "stat coord",		nullptr, 1 },
+	{ "dnview",       "third_person_view",nullptr, 1 },
+	{ "dntime",       "stat fps",       nullptr, 1 },
+	{ "dnunlock",     nullptr,          SendGenericCheat, 0, CHT_UNLOCK },
+	{ "dncashman",    nullptr,          SendGenericCheat, 0, CHT_CASHMAN },
+	{ "dnitems",      "give items", },
+	{ "dnrate",       "toggle vid_fps", nullptr, 1 },
+	{ "dnskill#",     nullptr,          cheatSkill }, // restartmap <skill>
+	{ "dnbeta",       nullptr,          cheatBeta },
+	{ "dnhyper",      nullptr,          SendGenericCheat, 0, CHT_HYPER },
+	{ "dnmonsters",   nullptr,          SendGenericCheat, 0, CHT_MONSTERS },
+	{ "dntodd",       nullptr,          cheatTodd },
+	{ "dnshowmap",    nullptr,          cheatMap },
+	{ "dnkroz",       nullptr,			SendGenericCheat, 0, CHT_GOD },
+	{ "dnallen",      nullptr,          cheatAllen },
+	{ "dnclip",       nullptr,			SendGenericCheat, 0, CHT_NOCLIP },
+	{ "dnweapons",    "give weapons" },
+	{ "dninventory",  "give inventory" },
+	{ "dnkeys",       "give keys" },
+	{ "dndebug",      nullptr,          cheatDebug, 1 },
+	{ "dncgs",        nullptr,          SendGenericCheat, 0, CHT_KILL },
 };
 
 static cheatseq_t ww2cheats[] = 
