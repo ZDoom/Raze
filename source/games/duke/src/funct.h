@@ -54,6 +54,7 @@ void recon(DDukeActor* i, int explosion, int firelaser, int attacksnd, int pains
 void ooz(DDukeActor* i);
 void reactor(DDukeActor* i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK);
 void camera(DDukeActor* i);
+void bloodsplats(DDukeActor* actor);
 void forcesphereexplode(DDukeActor* i);
 void watersplash2(DDukeActor* i);
 void frameeffect1(DDukeActor* i);

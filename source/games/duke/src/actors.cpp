@@ -1967,6 +1967,25 @@ void camera(DDukeActor *actor)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+void bloodsplats(DDukeActor *actor)
+{
+	if (actor->temp_data[0] < 7 * 26)
+	{
+		auto offset = krandf(1);
+		auto zadj = (1. / 16.);
+		auto sadj = (1. / 12.) * REPEAT_SCALE;
+		actor->spr.pos.Z += zadj + offset * zadj;
+		actor->spr.scale.Y += sadj + offset * sadj;
+		actor->temp_data[0]++;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // taken out of moveexplosion
 //
 //---------------------------------------------------------------------------

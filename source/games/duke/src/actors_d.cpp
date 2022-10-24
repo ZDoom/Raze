@@ -3002,15 +3002,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case BLOODSPLAT3:
 		case BLOODSPLAT4:
 
-			if (act->temp_data[0] < 7 * 26)
-			{
-				auto offset = krandf(1);
-				auto zadj = (1. / 16.);
-				auto sadj = (1. / 12.) * REPEAT_SCALE;
-				act->spr.pos.Z += zadj + offset * zadj;
-				act->spr.scale.Y += sadj + offset * sadj;
-				act->temp_data[0]++;
-			}
+			bloodsplats(act);
 			continue;
 
 		case NUKEBUTTON:
