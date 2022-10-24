@@ -153,6 +153,16 @@ bool PlaybackCheat(const char *p)
 	{
 		event_t ev = { EV_KeyDown, 0, 0, -1 };
 		Cheat_Responder(&ev);   // Reset the parser by passing a non-existent key.
+
+		// little hack to allow 'sw...' cheats from the chat display in SW.
+		if ((g_gameType & GAMEFLAG_SW) && tolower(*p) == 's')
+		{
+			ev.data2 = 'l';
+			int result = Cheat_Responder(&ev);
+			p++;
+		}
+
+
 		for (; *p; p++)
 		{
 			// just play the cheat command through the event parser
