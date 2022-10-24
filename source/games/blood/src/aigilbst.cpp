@@ -268,7 +268,7 @@ static void sub_6CB00(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2;
+	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
@@ -297,7 +297,7 @@ static void sub_6CD74(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2;
+	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 	{
 		actor->xspr.goalAng += DAngle90;
@@ -326,7 +326,7 @@ static void sub_6D03C(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2;
+	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 	{
 		actor->spr.angle += DAngle90;

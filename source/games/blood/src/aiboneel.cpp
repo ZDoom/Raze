@@ -310,7 +310,7 @@ static void eelMoveForward(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
+	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
@@ -335,7 +335,7 @@ static void eelMoveSwoop(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
+	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 		return;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
@@ -356,7 +356,7 @@ static void eelMoveAscend(DBloodActor* actor)
 	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
 	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
-	int nAccel = (pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2;
+	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 26) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 		return;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
