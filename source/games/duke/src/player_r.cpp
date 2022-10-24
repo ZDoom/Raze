@@ -225,7 +225,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			{
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
 				zvel = -ps[p].horizon.sum().asbuildf() / 8;
-				zvel += 128 - (krand() & 255);
+				zvel += 0.5 - krandf(1);
 			}
 		}
 		else
