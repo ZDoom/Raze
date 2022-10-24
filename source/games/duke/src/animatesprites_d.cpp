@@ -175,6 +175,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->pos = h->interpolatedpos(interpfrac);
 		}
 
+		if (actorflag(h, SFLAG2_INTERPOLATEANGLE))
+		{
+			t->angle = h->interpolatedangle(interpfrac);
+		}
+
 		auto sectp = h->sector();
 		t1 = h->temp_data[1];
 		t3 = h->temp_data[3];
