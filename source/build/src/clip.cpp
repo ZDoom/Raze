@@ -221,16 +221,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     if (!clip.precise)
     {
         DVector3 fpos(pos->X* inttoworld, pos->Y* inttoworld, pos->Z* inttoworld);
-
-        clip.search.Rewind();
-        while (auto sect = clip.search.GetNext())
-            if (inside(fpos.X, fpos.Y, sect) == 1)
-            {
-                *sectnum = ::sectnum(sect);
-                return clipReturn;
-            }
-
-        *sectnum = FindBestSector(fpos);
+        *sectnum = FindSectorInSearchList(fpos, clip.search);
+        if (*sectnum == -1) *sectnum = FindBestSector(fpos);
     }
 
     return clipReturn;

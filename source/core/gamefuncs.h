@@ -313,6 +313,7 @@ struct MoveClipper
 
 void collectClipObjects(MoveClipper& clip, int spritemask);
 int FindBestSector(const DVector3& pos);
+int FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search);
 
 int FindBestSector(const DVector3& pos);
 

@@ -1606,6 +1606,23 @@ void collectClipObjects(MoveClipper& clip, int spritemask)
 //
 //==========================================================================
 
+int FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search)
+{
+	search.Rewind();
+	while (auto sect = search.GetNext())
+		if (inside(pos.X, pos.Y, sect) == 1)
+		{
+			return ::sectnum(sect);
+		}
+	return -1;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 int FindBestSector(const DVector3& pos)
 {
 	int bestnum = 1;
