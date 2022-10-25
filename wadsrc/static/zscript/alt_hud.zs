@@ -628,12 +628,16 @@ class AltHud ui
 
 	virtual void DrawAutomap(SummaryInfo summary)
 	{
-		let font = generic_ui? NewSmallFont : StatFont;
-		double fontscale = generic_ui? 1. : currentStats.info.fontscale;
+		let lev = currentlevel;
+		let amstr = String.Format("%s: \034%c%s", lev.GetLabelName(), hudcolor_titl + 65, lev.DisplayName());
+		
+		let cluster = lev.GetCluster();
+		String volname;
+		if (cluster) volname = cluster.name;
 
-		int fonth = font.GetHeight() + 1;
-		int bottom = hudheight - 1;
-
+		let allname = levname .. volname;
+		font = generic_ui? NewSmallFont : StatFont.CanPrint(allname)? StatFont : OriginalSmallFont;
+	
 /*
 		if (am_showtotaltime)
 		{
@@ -647,14 +651,17 @@ class AltHud ui
 			let seconds = summary.time / 1000;
 			DrawTimeString(font, hudcolor_ltim, seconds, hudwidth-2, bottom, 1, fontscale);
 		}
-		let lev = currentlevel;
-		let amstr = String.Format("%s: \034%c%s", lev.GetLabelName(), hudcolor_titl + 65, lev.DisplayName());
-
-		font = generic_ui? NewSmallFont : StatFont.CanPrint(amstr)? StatFont : OriginalSmallFont;
 
 		screen.DrawText(font, Font.CR_BRICK, 2, hudheight - fonth - 1, amstr,
 			DTA_KeepRatio, true, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale,
 			DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight);
+			
+		if (volname.length() > 0)
+		{
+			Screen.DrawText(myfont, Font.CR_ORANGE, 2, hudheight - fonth * 2 - 1, volname,
+				DTA_KeepRatio, true, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale,
+				DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight);
+		}
 	}
 
 	//---------------------------------------------------------------------------
