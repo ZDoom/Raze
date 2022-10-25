@@ -111,11 +111,10 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     int const initialsectnum = *sectnum;
 
     vec2_t const move = { xvect, yvect };
-    vec2_t       goal = { pos->X + (xvect >> 14), pos->Y + (yvect >> 14) };
-    vec2_t const cent = { (pos->X + goal.X) >> 1, (pos->Y + goal.Y) >> 1 };
+    vec2_t const cent = { pos->X + (move.X >> 15), pos->Y + (move.Y >> 15) };
 
     //Extra walldist for sprites on sector lines
-    vec2_t const  diff    = { goal.X - (pos->X), goal.Y - (pos->Y) };
+    vec2_t const  diff = { xvect >> 14, yvect >> 14 };
     int32_t const rad     = (int)g_sqrt((double)diff.X * diff.X + (double)diff.Y * diff.Y) + MAXCLIPDIST + walldist + 8;
     vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
     vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
@@ -130,7 +129,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 	clip.floordist = flordist * zinttoworld;
 	clip.walldist = walldist * inttoworld;
     clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld };
-    clip.dest = { goal.X * inttoworld, goal.Y * inttoworld };
+    clip.dest = clip.pos + clip.moveDelta;
     clip.center = (clip.pos.XY() + clip.dest) * 0.5;
     clip.movedist = clip.moveDelta.Length() + clip.walldist + 0.5 + MAXCLIPDIST * inttoworld;
     clip.precise = precise;
@@ -142,6 +141,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     int cnt = clipmoveboxtracenum;
 
+    DVector2 fgoal = clip.dest;
     do
     {
         if (clip.precise && (xvect|yvect)) 
@@ -152,12 +152,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 			pos->Y = int(fpos.Y * worldtoint);
         }
 
-        vec2_t vec = goal;
+        vec2_t vec(fgoal.X * worldtoint, fgoal.Y * worldtoint);
 
         if ((hitwall = cliptrace(clip, pos->vec2, &vec)) >= 0)
         {
 			auto clipdelta = clip.clipobjects[hitwall].line.end - clip.clipobjects[hitwall].line.start;
-			DVector2 fgoal(goal.X * inttoworld, goal.Y * inttoworld);
 			DVector2 fvec(vec.X * inttoworld, vec.Y * inttoworld);
 		
 			fgoal = NearestPointOnLine(fgoal.X, fgoal.Y, fvec.X, fvec.Y, fvec.X + clipdelta.X, fvec.Y + clipdelta.Y, false);
@@ -186,8 +185,6 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             }
 
 			keepaway(clip, fgoal, clip.clipobjects[hitwall]);
-			goal.X = int(fgoal.X * worldtoint);
-			goal.Y = int(fgoal.Y * worldtoint);
             
 			//keepaway(clip, &goal.X, &goal.Y, hitwall);
             //xvect = (goal.X-vec.X)<<14;
