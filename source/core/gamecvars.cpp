@@ -184,7 +184,7 @@ CUSTOM_CVARD(Int, hud_stats, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disabl
 {
 	if (self < 0 || self > 3) self = 0;
 }
-CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable map name display on load")
+CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE, "enable/disable map name display on load")
 CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")
 CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE, "enable/disable background image stretching in wide resolutions")
 CVARD(Bool, hud_messages, true, CVAR_ARCHIVE, "enable/disable showing messages")

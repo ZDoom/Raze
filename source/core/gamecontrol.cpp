@@ -1030,6 +1030,7 @@ int RunGame()
 	}
 	if (isSWALL())
 	{
+		hud_showmapname->SetGenericRepDefault(false, CVAR_Bool);	// SW never had this feature, make it optional.
 		cl_weaponswitch->SetGenericRepDefault(1, CVAR_Int);
 		if (cl_weaponswitch > 1) cl_weaponswitch = 1;
 	}
