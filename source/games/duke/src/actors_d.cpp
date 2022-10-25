@@ -2302,13 +2302,13 @@ static void greenslime(DDukeActor *actor)
 			if (actor->spr.scale.Y < 1) actor->spr.scale.Y += (0.03125);
 			else
 			{
-				if (actor->spr.scale.X < 0.5) actor->spr.scale.Y += (0.0625);
+				if (actor->spr.scale.X < 0.5) actor->spr.scale.X += (0.0625);
 				else
 				{
 					actor->temp_data[0] = -1;
 					double dist = (actor->spr.pos.XY() - s5->spr.pos.XY()).LengthSquared();
 					if (dist < 48*48) {
-						s5->spr.scale.X = (0);
+						s5->spr.scale.X = 0;
 					}
 				}
 			}
