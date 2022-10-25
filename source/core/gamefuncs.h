@@ -519,12 +519,12 @@ inline double BobVal(double val)
 
 inline DAngle GetMinPitch()
 {
-	return !cl_clampedpitch ? DAngle90 : gi->playerPitchMin();
+	return !cl_clampedpitch ? (DAngle90 - minAngle) : gi->playerPitchMin();
 }
 
 inline DAngle GetMaxPitch()
 {
-	return !cl_clampedpitch ? -DAngle90 : gi->playerPitchMax();
+	return !cl_clampedpitch ? (minAngle - DAngle90) : gi->playerPitchMax();
 }
 
 inline DAngle ClampViewPitch(const DAngle pitch)
