@@ -80,41 +80,25 @@ void DoUpdateSector(double x, double y, double z, int* sectnum, double maxDistan
 
 constexpr int MAXUPDATESECTORDIST = 96;
 
-inline void updatesector(const DVector3& pos, sectortype** const sectp)
+inline void updatesector(const DVector3& pos, sectortype** const sectp, double maxDistance = MAXUPDATESECTORDIST)
 {
     int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
-	DoUpdateSector(pos.X, pos.Y, pos.Z, &sectno, MAXUPDATESECTORDIST, inside0);
+	DoUpdateSector(pos.X, pos.Y, pos.Z, &sectno, maxDistance, inside0);
     *sectp = sectno == -1 ? nullptr : &sector[sectno];
 }
 
-inline void updatesector(const DVector2& pos, sectortype** const sectp)
+inline void updatesector(const DVector2& pos, sectortype** const sectp, double maxDistance = MAXUPDATESECTORDIST)
 {
 	int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
-	DoUpdateSector(pos.X, pos.Y, 0, &sectno, MAXUPDATESECTORDIST, inside0);
+	DoUpdateSector(pos.X, pos.Y, 0, &sectno, maxDistance, inside0);
     *sectp = sectno == -1 ? nullptr : &sector[sectno];
 }
 
 
-inline void updatesectorz(const DVector3& pos, sectortype** const sectp)
+inline void updatesectorz(const DVector3& pos, sectortype** const sectp, double maxDistance = MAXUPDATESECTORDIST)
 {
 	int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
-	DoUpdateSector(pos.X, pos.Y, pos.Z, &sectno, MAXUPDATESECTORDIST, insideZ);
+	DoUpdateSector(pos.X, pos.Y, pos.Z, &sectno, maxDistance, insideZ);
     *sectp = sectno == -1 ? nullptr : &sector[sectno];
-}
-
-inline void updatesectorneighbor(const DVector3& pos, sectortype** const sect, double maxDistance = MAXUPDATESECTORDIST)
-{
-	int sectno = *sect? sector.IndexOf(*sect) : -1;
-    DoUpdateSector(pos.X, pos.Y, 0, &sectno, maxDistance, inside0);
-    *sect = sectno < 0? nullptr : &sector[sectno];
-}
-
-[[deprecated]]
-inline void updatesector(int x_, int y_, int* sectnum)
-{
-    double x = x_ * inttoworld;
-    double y = y_ * inttoworld;
-
-    DoUpdateSector(x, y, 0, sectnum, MAXUPDATESECTORDIST, inside0);
 }
 

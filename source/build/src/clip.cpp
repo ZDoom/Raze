@@ -586,9 +586,9 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
 		{
-            DVector3 v(vec.X* inttoworld, vec.Y* inttoworld, 0);
+            DVector2 v(vec.X* inttoworld, vec.Y* inttoworld);
             sectortype* sect = &sector[*sectnum];
-			updatesectorneighbor(v, &sect, rad * inttoworld);
+			updatesector(v, &sect, rad * inttoworld);
             *sectnum = ::sectnum(sect);
 		}
 

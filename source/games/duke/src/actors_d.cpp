@@ -878,7 +878,7 @@ static void movetripbomb(DDukeActor *actor)
 		auto const oldSect = actor->sector();
 		auto       curSect = actor->sector();
 
-		updatesectorneighbor(actor->spr.pos, &curSect, 128);
+		updatesector(actor->spr.pos, &curSect, 128);
 		ChangeActorSect(actor, curSect);
 
 		DDukeActor* hit;
@@ -908,7 +908,7 @@ static void movetripbomb(DDukeActor *actor)
 					x -= 64;
 
 					actor->spr.pos += actor->temp_angle.ToVector() * 64;
-					updatesectorneighbor(actor->spr.pos, &curSect, 128);
+					updatesector(actor->spr.pos, &curSect, 128);
 
 					if (curSect == nullptr)
 						break;
