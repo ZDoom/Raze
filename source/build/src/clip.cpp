@@ -162,10 +162,6 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 		
 			fgoal = NearestPointOnLine(fgoal.X, fgoal.Y, fvec.X, fvec.Y, fvec.X + clipdelta.X, fvec.Y + clipdelta.Y, false);
 			
-			goal.X = int(fgoal.X * worldtoint);
-			goal.Y = int(fgoal.Y * worldtoint);
-
-
 			vec2_t const  clipr  = { clip.clipobjects[hitwall].x2() - clip.clipobjects[hitwall].x1(), clip.clipobjects[hitwall].y2() - clip.clipobjects[hitwall].y1()};
             int32_t tempint;
             tempint = DMulScale(clipr.X, move.X, clipr.Y, move.Y, 6);
@@ -189,9 +185,15 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 }
             }
 
-            keepaway(clip, &goal.X, &goal.Y, hitwall);
-            xvect = (goal.X-vec.X)<<14;
-            yvect = (goal.Y-vec.Y)<<14;
+			keepaway(clip, fgoal, clip.clipobjects[hitwall]);
+			goal.X = int(fgoal.X * worldtoint);
+			goal.Y = int(fgoal.Y * worldtoint);
+            
+			//keepaway(clip, &goal.X, &goal.Y, hitwall);
+            //xvect = (goal.X-vec.X)<<14;
+            //yvect = (goal.Y-vec.Y)<<14;
+			xvect = FloatToFixed<4>(fgoal.X - fvec.X) << 14;
+			yvect = FloatToFixed<4>(fgoal.Y - fvec.Y) << 14;
 
             if (cnt == clipmoveboxtracenum)
                 clipReturn = clip.clipobjects[hitwall].obj;

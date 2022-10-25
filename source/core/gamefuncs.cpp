@@ -1672,7 +1672,7 @@ int FindBestSector(const DVector3& pos)
 //==========================================================================
 
 #if 0
-static inline void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo)
+void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo)
 {
 	// later, once we are using floats throughout we should be able to do this
 	auto start = clipo.line.start, normal = clipo.line.delta().Rotated90CCW().Unit();
@@ -1683,7 +1683,7 @@ static inline void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo)
 	}
 }
 #else
-static inline void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo)
+void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo)
 {
 	// for now this has to be retained...
 	auto start = clipo.line.start, normal = clipo.line.delta().Rotated90CCW();
