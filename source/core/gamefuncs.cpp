@@ -1530,10 +1530,11 @@ static void processClipSlopeSprite(MoveClipper& clip, DCoreActor* actor)
 
 	for (int k = 0; k < 3; k++)
 	{
-		double factor = (zz[k] - heights[0]) / (heights[2] - heights[0]);
+		double factor = (zz[k] - heights[0]) / (heights[1] - heights[0]);
 		if (factor < 0 || factor > 1) continue;	// sprite never hits the desired height.
-		lpoints[0] = points[0] + (points[2] - points[0]) * factor;
-		lpoints[1] = lpoints[0] + (points[1] - points[0]);
+		auto dist = (points[1] - points[0]) * factor;
+		lpoints[0] = points[0] + dist;
+		lpoints[1] = points[3] + dist;
 
 		// The rest is just the same as the main part of the wall sprite collector.
 		if (IsCloseToLine(clip.center, lpoints[0], lpoints[1], clip.movedist) == EClose::Outside) continue;	// out of reach
