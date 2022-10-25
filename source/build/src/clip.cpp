@@ -116,7 +116,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     //Extra walldist for sprites on sector lines
     vec2_t const  diff    = { goal.X - (pos->X), goal.Y - (pos->Y) };
-    int32_t const rad     = (int)g_sqrt((int64_t)diff.X * diff.X + (int64_t)diff.Y * diff.Y) + MAXCLIPDIST + walldist + 8;
+    int32_t const rad     = (int)g_sqrt((double)diff.X * diff.X + (double)diff.Y * diff.Y) + MAXCLIPDIST + walldist + 8;
     vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
     vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
 	
@@ -163,21 +163,17 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         if ((hitwall = cliptrace(clip, pos->vec2, &vec)) >= 0)
         {
-            vec2_t const  clipr  = { clip.clipobjects[hitwall].x2() - clip.clipobjects[hitwall].x1(), clip.clipobjects[hitwall].y2() - clip.clipobjects[hitwall].y1()};
-            // clamp to the max value we can utilize without reworking the scaling below
-            // this works around the overflow issue that affects dukedc2.map
-            int32_t const templl = (int32_t)clamp<int64_t>(((int64_t)clipr.X * clipr.X + (int64_t)clipr.Y * clipr.Y), INT32_MIN, INT32_MAX);
+			auto clipdelta = clip.clipobjects[hitwall].line.end - clip.clipobjects[hitwall].line.start;
+			DVector2 fgoal(goal.X * inttoworld, goal.Y * inttoworld);
+			DVector2 fvec(vec.X * inttoworld, vec.Y * inttoworld);
+		
+			fgoal = NearestPointOnLine(fgoal.X, fgoal.Y, fvec.X, fvec.Y, fvec.X + clipdelta.X, fvec.Y + clipdelta.Y, false);
+			
+			goal.X = int(fgoal.X * worldtoint);
+			goal.Y = int(fgoal.Y * worldtoint);
 
-            if (templl > 0)
-            {
-                // I don't know if this one actually overflows or not, but I highly doubt it hurts to check
-                int32_t const templl2
-                = (int32_t)clamp<int64_t>(((int64_t)(goal.X - vec.X) * clipr.X + (int64_t)(goal.Y - vec.Y) * clipr.Y), INT32_MIN, INT32_MAX);
-                int32_t const i = ((abs(templl2)>>11) < templl) ? (int)DivScaleL(templl2, templl, 20) : 0;
 
-                goal = { MulScale(clipr.X, i, 20)+vec.X, MulScale(clipr.Y, i, 20)+vec.Y };
-            }
-
+			vec2_t const  clipr  = { clip.clipobjects[hitwall].x2() - clip.clipobjects[hitwall].x1(), clip.clipobjects[hitwall].y2() - clip.clipobjects[hitwall].y1()};
             int32_t tempint;
             tempint = DMulScale(clipr.X, move.X, clipr.Y, move.Y, 6);
 
