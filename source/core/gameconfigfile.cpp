@@ -45,7 +45,7 @@
 #include "gamecontrol.h"
 #include "version.h"
 
-#define LASTRUNVERSION "2"
+#define LASTRUNVERSION "3"
 
 #if !defined _MSC_VER && !defined __APPLE__
 #include "i_system.h"  // for SHARE_DIR
@@ -297,6 +297,17 @@ void FGameConfigFile::DoGlobalSetup ()
 					UCVarValue v = var->GetGenericRep(CVAR_Float);
 					v.Float /= 4.f;
 					if (v.Float < 1.f) v.Float = 1.f;
+					var->SetGenericRep(v, CVAR_Float);
+				}
+			}
+			if (last < 3)
+			{
+				auto var = FindCVar("hud_size", NULL);
+				if (var != NULL)
+				{
+					UCVarValue v = var->GetGenericRep(CVAR_Int);
+					if(v.Int == Hud_Althud) v.Int = Hud_Nothing;
+					var->SetGenericRep(v, CVAR_Int);
 				}
 			}
 		}

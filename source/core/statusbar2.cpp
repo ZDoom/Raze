@@ -73,7 +73,6 @@ EXTERN_CVAR (Bool, am_showtotaltime)
 EXTERN_CVAR (Bool, noisedebug)
 EXTERN_CVAR(Bool, vid_fps)
 EXTERN_CVAR(Bool, inter_subtitles)
-EXTERN_CVAR(Bool, hud_althud)
 
 extern int setblocks;
 
@@ -186,7 +185,7 @@ void DrawAltHUD(SummaryInfo* info);
 
 void UpdateStatusBar(SummaryInfo* info)
 {
-	if (hud_althud)
+	if (hud_size == Hud_Althud)
 	{
 		DrawAltHUD(info);
 		return;

@@ -48,7 +48,7 @@
 
 
 CVAR(Int,hud_althudscale, 0, CVAR_ARCHIVE)				// Scale the hud to 640x400?
-CVAR(Bool,hud_althud, false, CVAR_ARCHIVE)				// Enable/Disable the alternate HUD
+//CVAR(Bool,hud_althud, false, CVAR_ARCHIVE)				// Enable/Disable the alternate HUD
 
 CVAR(Int, am_showtotaltime, 0, CVAR_ARCHIVE);	// Show time on automap
 CVAR(Int, am_showtime, 0, CVAR_ARCHIVE);	// Show time on automap

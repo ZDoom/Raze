@@ -389,7 +389,7 @@ class ExhumedStatusBar : RazeStatusBar
 			DrawImage("hud_l", (0, 0), DI_ITEM_LEFT_BOTTOM | DI_SCREEN_LEFT_BOTTOM);
 			DrawImage("hud_r", (0, 0), DI_ITEM_RIGHT_BOTTOM | DI_SCREEN_RIGHT_BOTTOM);
 		}
-		else if (hud_size == Hud_full)
+		else if (hud_size == Hud_Full)
 		{
 			DrawHUD2(pp);
 			return;
@@ -436,7 +436,7 @@ class ExhumedStatusBar : RazeStatusBar
 			// draw compass
 			if (hud_size <= Hud_StbarOverlay) DrawStatusSequence(35, ((pp.GetAngle() + 128) & Raze.kAngleMask) >> 8, 0, 0.5, true);
 
-			//if (hud_size < Hud_full)
+			//if (hud_size < Hud_Full)
 			{
 				// draw ammo count
 				DrawStatusSequence(44, nDigit[2], 0, 0.5, true);
@@ -803,11 +803,11 @@ class ExhumedStatusBar : RazeStatusBar
 
 	override void UpdateStatusBar(SummaryInfo info)
 	{
-		if (hud_size <= Hud_full)
+		if (hud_size <= Hud_Full)
 		{
 			DrawStatus(Exhumed.GetViewPlayer());
 		}
-		DoLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 20 : 45, info);
+		DoLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_Full ? 20 : 45, info);
 	}
 	
 	

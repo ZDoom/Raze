@@ -52,7 +52,8 @@ enum EHudSize
 	Hud_Stbar,
 	Hud_StbarOverlay,
 	Hud_Mini,
-	Hud_full,
+	Hud_Full,
+	Hud_Althud,
 	Hud_Nothing,
 	Hud_MAX
 }
