@@ -283,6 +283,7 @@ void FGameConfigFile::DoGlobalSetup ()
 					UCVarValue v = var->GetGenericRep(CVAR_Float);
 					v.Float /= 4.f;
 					if (v.Float < 1.f) v.Float = 1.f;
+					var->SetGenericRep(v, CVAR_Float);
 				}
 			}
 			if (last < 3)

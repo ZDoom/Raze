@@ -929,7 +929,7 @@ class SWStatusBar : RazeStatusBar
 			inv_y = -28;
 			DoLevelStats(2, info);
 		}
-		else if (hud_size == Hud_full)
+		else if (hud_size == Hud_Full)
 		{
 			align = DI_SCREEN_CENTER_BOTTOM;
 			inv_x = -80;

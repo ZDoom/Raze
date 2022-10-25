@@ -721,7 +721,7 @@ class BloodStatusBar : RazeStatusBar
 			nPalette = Translation.MakeID(Translation_Remap, nPalette);
 		}
 
-		if (hud_size == Hud_full)
+		if (hud_size == Hud_Full)
 		{
 			y = DrawHUD2(pPlayer);
 		}

@@ -439,7 +439,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 		let p = Duke.GetViewPlayer();
 		if (hud_size >= Hud_Mini)
 		{
-			DrawHud(p, hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 1 : 2, info);
+			DrawHud(p, hud_size == Hud_Nothing ? 0 : hud_size == Hud_Full ? 1 : 2, info);
 		}
 		else
 		{
