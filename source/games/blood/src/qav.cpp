@@ -163,7 +163,7 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 //
 //---------------------------------------------------------------------------
 
-void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac)
+void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac, DAngle angle)
 {
 	assert(ticksPerFrame > 0);
 
@@ -201,7 +201,7 @@ void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double
 				tileY = interpolatedvalue<double>(prevTile->y, thisTile->y, interpfrac);
 				tileZ = interpolatedvalue<double>(prevTile->z, thisTile->z, interpfrac);
 				tileA = interpolatedvalue(prevTile->angle, thisTile->angle, interpfrac);
-				tileShade = (int)interpolatedvalue<double>(prevTile->shade, thisTile->shade, interpfrac) + shade;
+				tileShade = (int)interpolatedvalue<double>(prevTile->shade, thisTile->shade, interpfrac);
 				tileAlpha = interpolatedvalue(prevAlpha, thisAlpha, interpfrac);
 			}
 			else
@@ -210,11 +210,11 @@ void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double
 				tileY = thisTile->y;
 				tileZ = thisTile->z;
 				tileA = thisTile->angle;
-				tileShade = thisTile->shade + shade;
+				tileShade = thisTile->shade;
 				tileAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.f;
 			}
 
-			DrawFrame(tileX + x, tileY + y, tileZ, tileA.Buildfang(), tileAlpha, thisTile->picnum, tileStat, tileShade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
+			DrawFrame(tileX + x, tileY + y, tileZ, (tileA + angle).Buildfang(), tileAlpha, thisTile->picnum, tileStat, tileShade + shade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
 		}
 	}
 }

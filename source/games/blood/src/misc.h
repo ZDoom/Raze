@@ -49,7 +49,7 @@ struct PLAYER;
 
 bool checkLitSprayOrTNT(PLAYER* pPlayer);
 void WeaponInit(void);
-void WeaponDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5);
+void WeaponDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum, DAngle angle);
 void WeaponRaise(PLAYER* pPlayer);
 void WeaponLower(PLAYER* pPlayer);
 int WeaponUpgrade(PLAYER* pPlayer, int newWeapon);

@@ -72,7 +72,7 @@ void CChoke::animateChoke(int x, int y, double interpfrac)
 	qav->Play(vdi - vd, vdi, -1, nullptr);
 	// This originally overlaid the HUD but that simply doesn't work right with the HUD being a genuine overlay.
 	// It also never adjusted for a reduced 3D view
-	qav->Draw(vdi, 10, 0, 0, true);
+	qav->Draw(vdi, 10, 0, 0, true, interpfrac);
 }
 
 

@@ -7293,7 +7293,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
 //
 //---------------------------------------------------------------------------
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
+void playerQavSceneDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum, DAngle angle)
 {
 	if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
@@ -7303,22 +7303,22 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
 	if (pQavScene->qavResrc != NULL)
 	{
 		QAV* pQAV = pQavScene->qavResrc;
-		int v4;
+		int duration;
 		double interpfrac;
 
-		qavProcessTimer(pPlayer, pQAV, &v4, &interpfrac);
+		qavProcessTimer(pPlayer, pQAV, &duration, &interpfrac);
 
 		int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
 		if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32)))
 		{
-			a2 = -128; flags |= 1;
+			shade = -128; flags |= 1;
 		}
 
 		// draw as weapon
 		if (!(actor->spr.flags & kModernTypeFlag1))
 		{
-			pQAV->x = a3; pQAV->y = a4;
-			pQAV->Draw(v4, flags, a2, a5, true, interpfrac);
+			pQAV->x = xpos; pQAV->y = ypos;
+			pQAV->Draw(duration, flags, shade, palnum, true, interpfrac, angle);
 
 			// draw fullscreen (currently 4:3 only)
 		}
@@ -7326,7 +7326,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
 		{
 			// What an awful hack. This throws proper ordering out of the window, but there is no way to reproduce this better with strict layering of elements.
 			// From the above commit it seems to be incomplete anyway...
-			pQAV->Draw(v4, flags, a2, a5, false, interpfrac);
+			pQAV->Draw(duration, flags, shade, palnum, false, interpfrac, angle);
 		}
 	}
 }

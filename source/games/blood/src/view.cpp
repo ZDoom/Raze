@@ -734,7 +734,7 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 
-		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, basepal, interpfrac);
+		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, rotscrnang, basepal, interpfrac);
 		DAngle deliriumPitchI = interpolatedvalue(maphoriz(deliriumPitchO), maphoriz(deliriumPitch), interpfrac);
 		auto bakCstat = pPlayer->actor->spr.cstat;
 		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;

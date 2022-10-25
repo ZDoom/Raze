@@ -347,7 +347,7 @@ void playerDeactivateShrooms(PLAYER* pPlayer);
 QAV* playerQavSceneLoad(int qavId);
 void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene);
 void playerQavScenePlay(PLAYER* pPlayer);
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5);
+void playerQavSceneDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum, DAngle angle);
 void playerQavSceneReset(PLAYER* pPlayer);
 //  -------------------------------------------------------------------------   //
 void callbackUniMissileBurst(DBloodActor* actor, sectortype* nSprite);

@@ -328,7 +328,7 @@ void WeaponPrecache()
 //
 //---------------------------------------------------------------------------
 
-void WeaponDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum)
+void WeaponDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum, DAngle angle)
 {
 	assert(pPlayer != NULL);
 	if (pPlayer->weaponQav == kQAVNone)
@@ -348,7 +348,7 @@ void WeaponDraw(PLAYER* pPlayer, int shade, double xpos, double ypos, int palnum
 		shade = -128;
 		flags |= 1;
 	}
-	pQAV->Draw(duration, flags, shade, palnum, true, interpfrac);
+	pQAV->Draw(duration, flags, shade, palnum, true, interpfrac, angle);
 }
 
 //---------------------------------------------------------------------------

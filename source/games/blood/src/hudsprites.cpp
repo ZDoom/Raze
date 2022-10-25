@@ -104,32 +104,28 @@ static void viewBurnTime(int gScale)
 //
 //---------------------------------------------------------------------------
 
-void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double interpfrac)
+void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, DAngle angle, int basepal, double interpfrac)
 {
-	double look_anghalf = pPlayer->angle.look_anghalf(interpfrac);
-
 	if (gViewPos == 0)
 	{
-		double looking_arc = pPlayer->angle.looking_arc(interpfrac);
+		auto cXY = DVector2(160, 220) + pPlayer->angle.weaponoffsets(interpfrac);
 
-		double cX = 160 - look_anghalf;
-		double cY = 220 + looking_arc;
 		if (cl_weaponsway)
 		{
 			if (cl_hudinterpolation)
 			{
-				cX += bobx;
-				cY += boby + (zDelta * 2.);
+				cXY.X += bobx;
+				cXY.Y += boby + (zDelta * 2.);
 			}
 			else
 			{
-				cX += int(bobx);
-				cY += int(boby) + int(zDelta * 2);
+				cXY.X += int(bobx);
+				cXY.Y += int(boby) + int(zDelta * 2);
 			}
 		}
 		else
 		{
-			cY += (-2048. / 128.);
+			cXY.Y += (-2048. / 128.);
 		}
 		int nShade = pSector? pSector->floorshade : 0;
 		int nPalette = 0;
@@ -141,8 +137,8 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 		}
 
 		#ifdef NOONE_EXTENSIONS
-		if (pPlayer->sceneQav < 0) WeaponDraw(pPlayer, nShade, cX, cY, nPalette);
-			else if (pPlayer->actor->xspr.health > 0) playerQavSceneDraw(pPlayer, nShade, cX, cY, nPalette);
+		if (pPlayer->sceneQav < 0) WeaponDraw(pPlayer, nShade, cXY.X, cXY.Y, nPalette, angle);
+			else if (pPlayer->actor->xspr.health > 0) playerQavSceneDraw(pPlayer, nShade, cXY.X, cXY.Y, nPalette, angle);
 		else {
 			pPlayer->sceneQav = pPlayer->weaponQav = kQAVNone;
 			pPlayer->qavTimer = pPlayer->weaponTimer = pPlayer->curWeapon = 0;

@@ -229,7 +229,7 @@ struct QAV
 	double y; // 18
 	uint16_t res_id;
 	FRAMEINFO frames[1]; // 24
-	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac = 1.);
+	void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const interpfrac, DAngle angle = nullAngle);
 	void Play(int, int, int, PLAYER*);
 	void Precache(int palette = 0);
 };

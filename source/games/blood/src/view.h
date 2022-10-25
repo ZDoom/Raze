@@ -92,7 +92,7 @@ extern DAngle gScreenTiltO, gScreenTilt;
 extern int gShowFrameRate;
 extern int gLastPal;
 
-void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double interpfrac);
+void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, double zDelta, DAngle angle, int basepal, double interpfrac);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(InputPacket* pInput);
 void viewCorrectPrediction(void);
