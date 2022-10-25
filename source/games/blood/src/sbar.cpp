@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "v_draw.h"
 #include "gamecvars.h"
+#include "statistics.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE/*|CVAR_FRONTEND_BLOOD*/, "enable/disable displaying the remaining seconds for power-ups")
 CVAR(Bool, hud_ctf_vanilla, false, CVAR_ARCHIVE)
@@ -93,6 +94,7 @@ void UpdateStatusBar()
 	sum.supersecrets = gSecretMgr.Super;
 	sum.maxsecrets = max(gSecretMgr.Founds, gSecretMgr.Total); // If we found more than there are, increase the total. Some levels have a bugged counter.
 	sum.time = Scale(PlayClock, 1000, 120);
+	sum.totaltime = STAT_GetTotalTime();
 	UpdateStatusBar(&sum);
 }
 

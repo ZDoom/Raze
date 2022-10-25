@@ -1635,6 +1635,7 @@ DEFINE_FIELD_X(SummaryInfo, SummaryInfo, maxsecrets)
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, supersecrets)
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, playercount)
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, time)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, totaltime)
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, cheated)
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, endofgame)
 

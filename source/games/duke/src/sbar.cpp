@@ -97,6 +97,7 @@ void DrawStatusBar()
 	info.secrets = ps[0].secret_rooms;
 	info.maxsecrets = ps[0].max_secret_rooms;
 	info.time = Scale(PlayClock, 1000, 120);
+	info.totaltime = STAT_GetTotalTime();
 	UpdateStatusBar(&info);
 }
 

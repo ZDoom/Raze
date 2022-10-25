@@ -635,24 +635,26 @@ class AltHud ui
 		String volname;
 		if (cluster) volname = cluster.name;
 
-		let allname = levname .. volname;
-		font = generic_ui? NewSmallFont : StatFont.CanPrint(allname)? StatFont : OriginalSmallFont;
+		let allname = amstr .. volname;
+		let myfont = generic_ui? NewSmallFont : StatFont.CanPrint(allname)? StatFont : OriginalSmallFont;
+		int bottom = hudheight - 1;
+		int fonth = myfont.GetHeight() + 1;
+		double fontscale = generic_ui? 1. : currentStats.info.fontscale;
 	
-/*
 		if (am_showtotaltime)
 		{
-			DrawTimeString(font, hudcolor_ttim, curentstats.totaltime / 1000, hudwidth-2, bottom, 1, currentStats.info.fontscale);
+			let seconds = summary.totaltime / 1000;
+			DrawTimeString(myfont, hudcolor_ttim, seconds, hudwidth-2, bottom, 1, fontscale);
 			bottom -= fonth;
 		}
-*/
 
 		if (am_showtime)
 		{
 			let seconds = summary.time / 1000;
-			DrawTimeString(font, hudcolor_ltim, seconds, hudwidth-2, bottom, 1, fontscale);
+			DrawTimeString(myfont, hudcolor_ltim, seconds, hudwidth-2, bottom, 1, fontscale);
 		}
 
-		screen.DrawText(font, Font.CR_BRICK, 2, hudheight - fonth - 1, amstr,
+		screen.DrawText(myfont, Font.CR_BRICK, 2, hudheight - fonth - 1, amstr,
 			DTA_KeepRatio, true, DTA_ScaleX, fontscale, DTA_ScaleY, fontscale,
 			DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight);
 			
