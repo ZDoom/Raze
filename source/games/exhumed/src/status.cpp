@@ -177,6 +177,8 @@ void DrawStatusBar()
     info.maxkills = nCreaturesTotal;
     // got no secrets in the game
     info.time = Scale(PlayClock, 1000, 120);
+	info.totaltime = STAT_GetTotalTime();
+
     UpdateStatusBar(&info);
 
     if (nSnakeCam >= 0)

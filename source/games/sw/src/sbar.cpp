@@ -89,6 +89,7 @@ void UpdateStatusBar()
     info.secrets = Player[screenpeek].SecretsFound;
     info.maxsecrets = LevelSecrets;
     info.time = Scale(PlayClock, 1000, 120);
+	info.totaltime = STAT_GetTotalTime();
 
     ::UpdateStatusBar(&info);
 

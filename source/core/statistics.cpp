@@ -457,10 +457,27 @@ void STAT_Update(bool endofgame)
 	}
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void STAT_Cancel()
 {
 	LevelData.Clear();
 	StartEpisode = LevelName = "";
+}
+
+int STAT_GetTotalTime()
+{
+	int statval = 0;
+	StoreLevelStats();
+	for (unsigned i = 0; i < LevelData.Size(); i++)
+	{
+		statval += LevelData[i].leveltime;
+	}
+	return statval * 1000;
 }
 
 //==========================================================================

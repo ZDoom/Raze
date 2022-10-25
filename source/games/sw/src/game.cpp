@@ -627,6 +627,7 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
     info.maxsecrets = LevelSecrets;
     info.time = PlayClock / 120;
 
+
     ShowIntermission(currentLevel, map, &info, [=](bool)
         {
             if (map == nullptr)
