@@ -7425,16 +7425,16 @@ void pDisplaySprites(PLAYER* pp, double interpfrac)
     unsigned i;
 
     uint8_t pal = 0;
-    short ang;
+    double ang;
     int flags;
 
-    double const look_anghalf = pp->angle.look_anghalf(interpfrac);
-    double const looking_arc = pp->angle.looking_arc(interpfrac);
+    const auto offsets = pp->angle.weaponoffsets(interpfrac);
+    const auto angle = pp->angle.renderrotscrn(interpfrac).Buildfang();
 
     auto list = pp->GetPanelSpriteList();
     for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
-        ang = psp->rotate_ang;
+        ang = angle + psp->rotate_ang;
         shade = 0;
         flags = 0;
         if (cl_hudinterpolation)
@@ -7449,8 +7449,8 @@ void pDisplaySprites(PLAYER* pp, double interpfrac)
             y = psp->pos.Y;
         }
 
-        x -= look_anghalf;
-        y += looking_arc;
+        x += offsets.X;
+        y += offsets.Y;
 
         // initilize pal here - jack with it below
         pal = uint8_t(psp->pal);
