@@ -231,7 +231,7 @@ int HitScan(DBloodActor* actor, double z, const DVector3& vect, unsigned int nMa
 		if (!pWall->twoSided())
 			return 0;
 		double nZCeil, nZFloor;
-		getzsofslopeptr(pWall->nextSector(), gHitInfo.hitpos.X, gHitInfo.hitpos.Y, &nZCeil, &nZFloor);
+		calcSlope(pWall->nextSector(), gHitInfo.hitpos.X, gHitInfo.hitpos.Y, &nZCeil, &nZFloor);
 		if (gHitInfo.hitpos.Z <= nZCeil || gHitInfo.hitpos.Z >= nZFloor)
 			return 0;
 		return 4;
@@ -322,7 +322,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 			sectortype* pSector = gHitInfo.hitSector;
 			sectortype* pSectorNext = pWall->nextSector();
 			double nZCeil, nZFloor;
-			getzsofslopeptr(pWall->nextSector(), gHitInfo.hitpos, &nZCeil, &nZFloor);
+			calcSlope(pWall->nextSector(), gHitInfo.hitpos, &nZCeil, &nZFloor);
 			if (gHitInfo.hitpos.Z <= nZCeil)
 				return 0;
 			if (gHitInfo.hitpos.Z >= nZFloor)

@@ -8291,7 +8291,7 @@ bool SlopeBounce(DSWActor* actor, bool* hit_wall)
 
     auto hit_sector = actor->user.coll.hitSector;
 
-    getzsofslopeptr(hit_sector, actor->spr.pos, &hiz, &loz);
+    calcSlope(hit_sector, actor->spr.pos, &hiz, &loz);
 
     // detect the ceiling and the hit_wall
     if (actor->spr.pos.Z < ((hiz + loz) * 0.5))
@@ -10700,7 +10700,7 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, double upper_zsize, do
     {
         double cz,fz;
 
-        getzsofslopeptr(expActor->sector(), expActor->spr.pos, &cz, &fz);
+        calcSlope(expActor->sector(), expActor->spr.pos, &cz, &fz);
 
 		tos_z = expActor->spr.pos.Z - upper_zsize;
 		bos_z = expActor->spr.pos.Z + lower_zsize;
@@ -11540,7 +11540,7 @@ int DoRing(DSWActor* actor)
 
     ASSERT(actor->insector());
 
-    getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
+    calcSlope(actor->sector(), actor->spr.pos, &cz, &fz);
 
     // bound the sprite by the sectors ceiling and floor
     if (actor->spr.pos.Z > fz)
@@ -11678,7 +11678,7 @@ int DoSerpRing(DSWActor* actor)
 
     ASSERT(actor->insector());
 
-    getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
+    calcSlope(actor->sector(), actor->spr.pos, &cz, &fz);
 
     // bound the sprite by the sectors ceiling and floor
     if (actor->spr.pos.Z > fz)

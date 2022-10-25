@@ -2078,7 +2078,7 @@ void PlayerSectorBound(PLAYER* pp, double amt)
     // called from DoPlayerMove() but can be called
     // from anywhere it is needed
 
-    getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
+    calcSlope(pp->cursector, pp->pos, &cz, &fz);
 
     if (pp->pos.Z > fz - amt)
         pp->pos.Z = fz - amt;
@@ -2322,7 +2322,7 @@ void DoPlayerSectorUpdatePostMove(PLAYER* pp)
             pp->setcursector(sect);
 
             // adjust the posz to be in a sector
-            getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
+            calcSlope(pp->cursector, pp->pos, &cz, &fz);
             if (pp->pos.Z > fz)
                 pp->pos.Z = fz;
 
@@ -5246,7 +5246,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
     pp->angle.oang = pp->angle.ang = sop->ang;
     pp->pos.XY() = sop->pmid.XY();
     updatesector(pp->pos, &pp->cursector);
-    getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
+    calcSlope(pp->cursector, pp->pos, &cz, &fz);
     pp->pos.Z = fz - PLAYER_HEIGHTF;
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
@@ -5336,7 +5336,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     pp->angle.oang = pp->angle.ang = sop->ang;
     pp->pos.XY() = sop->pmid.XY();
     updatesector(pp->pos, &pp->cursector);
-    getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
+    calcSlope(pp->cursector, pp->pos, &cz, &fz);
 	pp->pos.Z = fz - PLAYER_HEIGHTF;
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
@@ -7339,7 +7339,7 @@ void PlayerSpawnPosition(PLAYER* pp)
     pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());
 
-    getzsofslopeptr(pp->cursector, pp->pos, &cz, &fz);
+    calcSlope(pp->cursector, pp->pos, &cz, &fz);
     // if too close to the floor - stand up
     if (pp->pos.Z > fz - PLAYER_HEIGHTF)
     {

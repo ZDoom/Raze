@@ -1362,7 +1362,7 @@ void nnExtProcessSuperSprites()
 
 			auto pSector = debrisactor->sector();
 			double fz, cz;
-			getzsofslopeptr(pSector, debrisactor->spr.pos, &cz, &fz);
+			calcSlope(pSector, debrisactor->spr.pos, &cz, &fz);
 			GetActorExtents(debrisactor, &top, &bottom);
 
 			if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & CSTAT_SECTOR_SKY)) debrisactor->spr.pos.Z += max(cz - top, 0.);
@@ -3731,9 +3731,9 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 				cpos.XY() = pWall->center();
 				auto pMySector = pWall->sectorp();
 				double ceilZ, floorZ;
-				getzsofslopeptr(pSector, cpos, &ceilZ, &floorZ);
+				calcSlope(pSector, cpos, &ceilZ, &floorZ);
 				double ceilZ2, floorZ2;
-				getzsofslopeptr(pWall->nextSector(), cpos, &ceilZ2, &floorZ2);
+				calcSlope(pWall->nextSector(), cpos, &ceilZ2, &floorZ2);
 				ceilZ = max(ceilZ, ceilZ2);
 				floorZ = min(floorZ, floorZ2);
 				cpos.Z = (ceilZ + floorZ) * 0.5;

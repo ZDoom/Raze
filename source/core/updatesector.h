@@ -33,7 +33,7 @@ inline int inside0(double x, double y, double z, const sectortype* sect)
 inline int insideZ(double x, double y, double z, const sectortype* sect)
 {
     double cz, fz;
-    getzsofslopeptr(sect, x, y, &cz, &fz);
+    calcSlope(sect, x, y, &cz, &fz);
     return (z >= cz && z <= fz && inside(x, y, sect) != 0);
 }
 

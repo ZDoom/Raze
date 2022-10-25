@@ -3556,7 +3556,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				if (actor->spr.picnum == COMMANDER)
 				{
 					double c, f;
-					getzsofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &c, &f);
+					calcSlope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &c, &f);
 					actor->floorz = f;
 					actor->ceilingz = c;
 

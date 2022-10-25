@@ -222,7 +222,7 @@ void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, H
         }
 
         double loz, hiz;
-        getzsofslopeptr(hit.hitSector, hit.hitpos, &hiz, &loz);
+        calcSlope(hit.hitSector, hit.hitpos, &hiz, &loz);
         if (abs(hit.hitpos.Z - loz) < 4)
         {
             if (FAF_ConnectFloor(hit.hitSector) && !(hit.hitSector->floorstat & CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
@@ -303,7 +303,7 @@ bool FAFcansee(const DVector3& start, sectortype* sects, const DVector3& end, se
     if (hit.hitWall == nullptr && hit.actor() == nullptr)
     {
         double loz, hiz;
-        getzsofslopeptr(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, &hiz, &loz);
+        calcSlope(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, &hiz, &loz);
         if (abs(hit.hitpos.Z - loz) < 4)
         {
             if (FAF_ConnectFloor(hit.hitSector))

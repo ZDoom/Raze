@@ -353,7 +353,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 
 		if (sect)
 		{
-			getzsofslopeptr(sect, cpos, &cz, &fz);
+			calcSlope(sect, cpos, &cz, &fz);
 			cpos.Z = min(max(cpos.Z, cz + 4), fz - 4);
 		}
 	}

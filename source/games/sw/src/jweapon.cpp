@@ -374,7 +374,7 @@ int DoBloodSpray(DSWActor* actor)
         // special stuff for blood worm
         actor->spr.pos.Z += actor->user.change.Z * 0.5;
 
-        getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
+        calcSlope(actor->sector(), actor->spr.pos, &cz, &fz);
         // pretend like we hit a sector
         if (actor->spr.pos.Z >= fz)
         {
@@ -467,7 +467,7 @@ int DoBloodSpray(DSWActor* actor)
                 {
                     // sy & sz are the ceiling and floor of the sector you are sliding down
                     if (bldActor->tempwall->twoSided())
-                        getzsofslopeptr(bldActor->tempwall->nextSector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.pos.Y, &actor->user.pos.Z);
+                        calcSlope(bldActor->tempwall->nextSector(), actor->spr.pos.X, actor->spr.pos.Y, &actor->user.pos.Y, &actor->user.pos.Z);
                     else
                         actor->user.pos.Y = actor->user.pos.Z; // ceiling and floor are equal - white wall
                 }

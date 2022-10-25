@@ -331,13 +331,8 @@ inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pc
 //
 //==========================================================================
 
-inline void getzsofslopeptr(const sectortype* sec, double dax, double day, double* ceilz, double* florz)
-{
-	calcSlope(sec, dax, day, ceilz, florz);
-}
-
 template<class Vector>
-inline void getzsofslopeptr(const sectortype* sec, const Vector& pos, double* ceilz, double* florz)
+inline void calcSlope(const sectortype* sec, const Vector& pos, double* ceilz, double* florz)
 {
 	calcSlope(sec, pos.X, pos.Y, ceilz, florz);
 }

@@ -5241,7 +5241,7 @@ int MoveMissile(DBloodActor* actor)
 			else
 			{
 				double fz, cz;
-				getzsofslopeptr(clipmoveresult.hitWall->nextSector(), ppos, &cz, &fz);
+				calcSlope(clipmoveresult.hitWall->nextSector(), ppos, &cz, &fz);
 				if (ppos.Z <= cz || ppos.Z >= fz) cliptype = 0;
 				else cliptype = 4;
 			}

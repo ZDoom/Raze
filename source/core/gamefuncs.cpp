@@ -519,7 +519,7 @@ bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, secto
 
 			for (auto isec : { sec, wal.nextSector() })
 			{
-				getzsofslopeptr(isec, spot, &ceilz, &floorz);
+				calcSlope(isec, spot, &ceilz, &floorz);
 
 				if (spot.Z <= ceilz || spot.Z >= floorz)
 					return false;
@@ -698,7 +698,7 @@ double checkWallHit(walltype* wal, EWallFlags flagmask, const DVector3& start, c
 	{
 		// check if the trace passes this wall or hits the upper or lower tier.
 		double cz, fz;
-		getzsofslopeptr(wal->nextSector(), result, &cz, &fz);
+		calcSlope(wal->nextSector(), result, &cz, &fz);
 		if (result.Z > cz && result.Z < fz) return -2; // trace will pass this wall, i.e. no hit. Return -2 to tell the caller to go on.
 	}
 	return factor;
@@ -890,7 +890,7 @@ bool checkRangeOfWall(walltype* wal, EWallFlags flagmask, const DVector3& pos, d
 	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE || !strict_compatibility)
 		SquareDistToSector(closest.X, closest.Y, nextsect, &closest);
 
-	getzsofslopeptr(nextsect, closest.X, closest.Y, &theZs[0], &theZs[1]);
+	calcSlope(nextsect, closest.X, closest.Y, &theZs[0], &theZs[1]);
 	return true;
 }
 
@@ -988,7 +988,7 @@ void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBa
 	if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE || !strict_compatibility)
 		SquareDistToSector(closest.X, closest.Y, sect, &closest);
 
-	getzsofslopeptr(sect, closest, ceilz, florz);
+	calcSlope(sect, closest, ceilz, florz);
 	ceilhit.setSector(sect);
 	florhit.setSector(sect);
 

@@ -711,7 +711,7 @@ void viewDrawScreen(bool sceneonly)
 		if (pSector != nullptr)
 		{
 			double ceilingZ, floorZ;
-			getzsofslopeptr(pSector, cPos, &ceilingZ, &floorZ);
+			calcSlope(pSector, cPos, &ceilingZ, &floorZ);
 			if ((cPos.Z > floorZ - 1) && (pSector->upperLink == nullptr)) // clamp to floor
 			{
 				cPos.Z = floorZ - 1;

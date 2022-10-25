@@ -1588,7 +1588,7 @@ void SpriteSetupPost(void)
             if (jActor->hasU())
                 continue;
 
-            getzsofslopeptr(jActor->sector(), jActor->spr.pos, &cz, &fz);
+            calcSlope(jActor->sector(), jActor->spr.pos, &cz, &fz);
             if (abs(jActor->spr.pos.Z - fz) > 4)
                 continue;
 
@@ -1642,7 +1642,7 @@ void SpriteSetup(void)
     while (auto actor = it.Next())
     {
         // not used yetv
-        getzsofslopeptr(actor->sector(), actor->spr.pos, &cz, &fz);
+        calcSlope(actor->sector(), actor->spr.pos, &cz, &fz);
         if (actor->spr.pos.Z > ((cz + fz) * 0.5))
         {
             // closer to a floor
@@ -4432,7 +4432,7 @@ void getzrangepoint(const DVector3& pos, sectortype* sect,
     }
 
     // Initialize z's and hits to the current sector's top&bottom
-    getzsofslopeptr(sect, pos, ceil_z, flor_z);
+    calcSlope(sect, pos, ceil_z, flor_z);
     ceilhit->setSector(sect);
     florhit->setSector(sect);
 
@@ -6755,7 +6755,7 @@ Collision move_ground_missile(DSWActor* actor, const DVector2& change, double ce
         ChangeActorSect(actor, dasect);
     }
 
-    getzsofslopeptr(actor->sector(), actor->spr.pos, &actor->user.hiz, &actor->user.loz);
+    calcSlope(actor->sector(), actor->spr.pos, &actor->user.hiz, &actor->user.loz);
 
     actor->user.hi_sectp = actor->user.lo_sectp = actor->sector();
     actor->user.highActor = nullptr; actor->user.lowActor = nullptr;

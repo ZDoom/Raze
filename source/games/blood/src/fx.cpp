@@ -237,7 +237,7 @@ void CFX::fxProcess(void)
 		if (!actor->vel.isZero())
 		{
 			double floorZ, ceilZ;
-			getzsofslopeptr(pSector, actor->spr.pos, &ceilZ, &floorZ);
+			calcSlope(pSector, actor->spr.pos, &ceilZ, &floorZ);
 			if (ceilZ > actor->spr.pos.Z && !(pSector->ceilingstat & CSTAT_SECTOR_SKY))
 			{
 				remove(actor);

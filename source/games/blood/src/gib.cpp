@@ -278,7 +278,7 @@ void GibFX(DBloodActor* actor, GIBFX* pGFX, DVector3* pPos, DVector3* pVel)
 	auto gPos = pPos? *pPos : actor->spr.pos;
 
 	double ceilZ, floorZ;
-	getzsofslopeptr(pSector, gPos.XY(), &ceilZ, &floorZ);
+	calcSlope(pSector, gPos.XY(), &ceilZ, &floorZ);
 	int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
 	double dz1 = floorZ - gPos.Z;
 	double dz2 = gPos.Z - ceilZ;
@@ -363,7 +363,7 @@ void GibThing(DBloodActor* actor, GIBTHING* pGThing, DVector3* pPos, DVector3* p
 			gPos = *pPos;
 		}
 		double ceilZ, floorZ;
-		getzsofslopeptr(pSector, gPos, &ceilZ, &floorZ);
+		calcSlope(pSector, gPos, &ceilZ, &floorZ);
 		double dz1 = floorZ - gPos.Z;
 		double dz2 = gPos.Z - ceilZ;
 		auto gibactor = actSpawnThing(pSector, gPos, pGThing->type);
@@ -485,9 +485,9 @@ void GibWall(walltype* pWall, GIBTYPE nGibType, DVector3* pVel)
 
 	auto pSector = pWall->sectorp();
 	double ceilZ, floorZ;
-	getzsofslopeptr(pSector, center, &ceilZ, &floorZ);
+	calcSlope(pSector, center, &ceilZ, &floorZ);
 	double ceilZ2, floorZ2;
-	getzsofslopeptr(pWall->nextSector(), center, &ceilZ2, &floorZ2);
+	calcSlope(pWall->nextSector(), center, &ceilZ2, &floorZ2);
 
 	ceilZ = max(ceilZ, ceilZ2);
 	floorZ = min(floorZ, floorZ2);
