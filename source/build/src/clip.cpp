@@ -24,22 +24,22 @@ static int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int w
 //
 // raytrace (internal)
 //
-static inline int32_t cliptrace(MoveClipper& clip, vec2_t const pos, vec2_t * const goal)
+static inline int32_t cliptrace(MoveClipper& clip, const DVector2& pos, DVector2* goal)
 {
     int32_t hitwall = -1;
 
     for (int z=clip.clipobjects.Size() - 1; z >= 0; z--)
     {
-        vec2_t const p1   = { clip.clipobjects[z].x1(), clip.clipobjects[z].y1()};
-        vec2_t const p2   = { clip.clipobjects[z].x2(), clip.clipobjects[z].y2()};
-        vec2_t const area = { p2.X-p1.X, p2.Y-p1.Y };
+        DVector2 const p1 = clip.clipobjects[z].line.start;
+        DVector2 const p2 = clip.clipobjects[z].line.end;
+        DVector2 const area = { p2.X-p1.X, p2.Y-p1.Y };
 
         int32_t topu = area.X*(pos.Y-p1.Y) - (pos.X-p1.X)*area.Y;
 
         if (topu <= 0 || area.X*(goal->Y-p1.Y) > (goal->X-p1.X)*area.Y)
             continue;
 
-        vec2_t const diff = { goal->X-pos.X, goal->Y-pos.Y };
+        DVector2 const diff = { goal->X-pos.X, goal->Y-pos.Y };
 
         if (diff.X*(p1.Y-pos.Y) > (p1.X-pos.X)*diff.Y || diff.X*(p2.Y-pos.Y) <= (p2.X-pos.X)*diff.Y)
             continue;
@@ -50,7 +50,7 @@ static inline int32_t cliptrace(MoveClipper& clip, vec2_t const pos, vec2_t * co
         if (!bot)
             continue;
 
-        vec2_t n;
+        DVector2 n;
 
         do
         {
@@ -60,7 +60,7 @@ static inline int32_t cliptrace(MoveClipper& clip, vec2_t const pos, vec2_t * co
                 return z;
             }
 
-            n = { pos.X+Scale(diff.X, topu, bot), pos.Y+Scale(diff.Y, topu, bot) };
+            n = { pos.X+ (diff.X * (topu / bot)), pos.Y + diff.Y *(topu / bot) };
             topu--;
         } while (area.X*(n.Y-p1.Y) <= (n.X-p1.X)*area.Y);
 
@@ -154,13 +154,11 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect,
 			PushAway(clip, fpos, &sector[*sectnum]);
         }
 
-        vec2_t vec(fgoal.X * worldtoint, fgoal.Y * worldtoint);
+        auto fvec = fgoal;
 
-        copypos();
-        if ((hitwall = cliptrace(clip, ipos->vec2, &vec)) >= 0)
+        if ((hitwall = cliptrace(clip, fpos, &fvec)) >= 0)
         {
 			auto clipdelta = clip.clipobjects[hitwall].line.end - clip.clipobjects[hitwall].line.start;
-			DVector2 fvec(vec.X * inttoworld, vec.Y * inttoworld);
 		
 			fgoal = NearestPointOnLine(fgoal.X, fgoal.Y, fvec.X, fvec.Y, fvec.X + clipdelta.X, fvec.Y + clipdelta.Y, false);
 			
@@ -200,13 +198,13 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect,
 
         if (clip.precise)
 		{
-            DVector2 v(vec.X* inttoworld, vec.Y* inttoworld);
+            DVector3 v(fvec, 0);
             sectortype* sect = &sector[*sectnum];
 			updatesector(v, &sect, clip.movedist);
             *sectnum = ::sectnum(sect);
 		}
 
-        fpos = DVector2 (vec.X * inttoworld, vec.Y * inttoworld);
+        fpos = fvec;
         cnt--;
     } while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
 
