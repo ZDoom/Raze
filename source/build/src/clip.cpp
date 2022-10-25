@@ -77,27 +77,25 @@ static inline int32_t cliptrace(MoveClipper& clip, const DVector2& pos, DVector2
 //
 // clipmove
 //
-CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t ixvect, int32_t iyvect,
-                 int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum, bool precise)
+CollisionBase clipmove_(DVector3& inpos, sectortype** const sect, const DVector2& invect,
+                 double const walldist, double const ceildist, double const flordist, uint32_t const cliptype, int clipmoveboxtracenum, bool precise)
 {
-    if ((ixvect|iyvect) == 0 || *sectnum < 0)
+    if (invect.isZero() || *sect == nullptr)
         return {};
-
-    int const initialsectnum = *sectnum;
 
     //Extra walldist for sprites on sector lines
 	
-	MoveClipper clip(&sector[initialsectnum]);
+	MoveClipper clip(*sect);
 	
-	clip.moveDelta = { (ixvect >> 14) * inttoworld, (iyvect >> 14) * inttoworld }; // beware of excess precision here!
+    clip.moveDelta = invect;
 	clip.wallflags = EWallFlags::FromInt(cliptype & 65535);
-	clip.ceilingdist = ceildist * zinttoworld;
-	clip.floordist = flordist * zinttoworld;
-	clip.walldist = walldist * inttoworld;
-    clip.pos = { ipos->X * inttoworld, ipos->Y * inttoworld, ipos->Z * zinttoworld };
+	clip.ceilingdist = ceildist;
+	clip.floordist = flordist;
+	clip.walldist = walldist;
+    clip.pos = inpos;
     clip.dest = clip.pos + clip.moveDelta;
     clip.center = (clip.pos.XY() + clip.dest) * 0.5;
-    clip.movedist = clip.moveDelta.Length() + clip.walldist + 0.5 + MAXCLIPDIST * inttoworld;
+    clip.movedist = clip.moveDelta.Length() + walldist + 0.5 + MAXCLIPDIST * inttoworld;
     clip.precise = precise;
     clip.rect.min = { clip.center.X - clip.movedist, clip.center.Y - clip.movedist };
     clip.rect.max = { clip.center.X + clip.movedist, clip.center.Y + clip.movedist };
@@ -111,12 +109,11 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t ixvect
 
     DVector2 fgoal = clip.dest;
     DVector2 fpos = clip.pos;
-    DVector2 fvect = clip.moveDelta;
+    DVector2 fvect = invect;
 
     auto copypos = [&]()
     {
-        ipos->X = fpos.X * worldtoint;
-        ipos->Y = fpos.Y * worldtoint;
+        inpos.XY() = fpos;
     };
 
 
@@ -124,7 +121,7 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t ixvect
     {
         if (clip.precise && !fvect.isZero())
         {
-			PushAway(clip, fpos, &sector[*sectnum]);
+			PushAway(clip, fpos, *sect);
         }
 
         auto fvec = fgoal;
@@ -143,13 +140,11 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t ixvect
 
                 double dot2 = clip.clipobjects[i].line.delta().dot(clip.moveDelta);
 
-                if ((dot1 < -inttoworld * 0.5) != (dot2 < -inttoworld * 0.5))
+                if ((dot1 < 0) != (dot2 < 0))
                 {
                     if (!clip.precise)
                     {
-                        auto sectp = &sector[*sectnum];
-                        updatesector(fpos, &sectp);
-                        *sectnum = sectp ? ::sectnum(sectp) : -1;
+                        updatesector(fpos, sect);
                     }
                     copypos();
                     return clipReturn;
@@ -171,9 +166,7 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t ixvect
         if (clip.precise)
 		{
             DVector3 v(fvec, 0);
-            sectortype* sect = &sector[*sectnum];
-			updatesector(v, &sect, clip.movedist);
-            *sectnum = ::sectnum(sect);
+			updatesector(v, sect, clip.movedist);
 		}
 
         fpos = fvec;

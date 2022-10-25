@@ -435,17 +435,13 @@ void InitSpriteLists();
 void SetActorZ(DCoreActor* actor, const DVector3& newpos);
 void SetActor(DCoreActor* actor, const DVector3& newpos);
 
-CollisionBase clipmove_(vec3_t* const pos, int* const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
-	int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum, bool precise);
+CollisionBase clipmove_(DVector3& inpos, sectortype** const sect, const DVector2& vect, double const walldist, double const ceildist,
+	double const flordist, uint32_t const cliptype, int clipmoveboxtracenum, bool precise);
 
 inline int clipmove(DVector3& pos, sectortype** const sect, const DVector2& mvec,
 	double const walldist, double const ceildist, double const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3, bool precise = false)
 {
-	auto vect = vec3_t(int(pos.X * worldtoint), int(pos.Y * worldtoint), int(pos.Z * zworldtoint));
-	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	result = clipmove_(&vect, &sectno, FloatToFixed<18>(mvec.X), FloatToFixed<18>(mvec.Y), int(walldist * worldtoint), int(ceildist * zworldtoint), int(flordist * zworldtoint), cliptype, clipmoveboxtracenum, precise);
-	pos = { vect.X * inttoworld, vect.Y * inttoworld, vect.Z * zinttoworld };
-	*sect = sectno == -1 ? nullptr : &sector[sectno];
+	result = clipmove_(pos, sect, mvec, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum, precise);
 	return result.type;
 }
 

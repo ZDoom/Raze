@@ -1690,8 +1690,8 @@ void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo)
 	const double ox = Sgn(normal.X) * inttoworld, oy = Sgn(normal.Y) * inttoworld;
 	bool first = (abs(normal.Y) <= abs(normal.X));
 
-	pos.X = int(pos.X * worldtoint) * inttoworld;
-	pos.Y = int(pos.Y * worldtoint) * inttoworld;
+	//pos.X = int(pos.X * worldtoint) * inttoworld;
+	//pos.Y = int(pos.Y * worldtoint) * inttoworld;
 
 	do
 	{
