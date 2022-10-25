@@ -1037,8 +1037,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case STRIPEBALL:
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
-			proj->vel.X *= 0.75;
-			proj->spr.angle -= targ->spr.angle * 2 + DAngle180;
+			proj->vel.X = targ->vel.X * 0.75;
+			proj->spr.angle -= targ->spr.angle.Normalized180() * 2 + DAngle180;
 			targ->spr.angle = (targ->spr.pos.XY() - proj->spr.pos.XY()).Angle() - DAngle90;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);

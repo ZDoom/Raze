@@ -1474,7 +1474,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		if (actor->spr.picnum == stripeball)
 		{
 			actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-			actor->spr.cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP) & ESpriteFlags::FromInt(int(actor->vel.X / 16.)); // special hack edition...
+			actor->spr.cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP) & ESpriteFlags::FromInt(int(actor->vel.X * 16.)); // special hack edition...
 		}
 	}
 	else
@@ -1509,7 +1509,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 						{
 							if (actor->spr.pal == 12)
 								actor->vel.X = 10.25;
-							else actor->vel.Z = 8.75;
+							else actor->vel.X = 8.75;
 							actor->spr.angle = ps[p].angle.ang;
 							ps[p].toggle_key_flag = 2;
 						}
