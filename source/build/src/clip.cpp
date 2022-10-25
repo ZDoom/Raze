@@ -34,7 +34,7 @@ static inline int32_t cliptrace(MoveClipper& clip, const DVector2& pos, DVector2
         DVector2 const p2 = clip.clipobjects[z].line.end;
         DVector2 const area = { p2.X-p1.X, p2.Y-p1.Y };
 
-        int32_t topu = area.X*(pos.Y-p1.Y) - (pos.X-p1.X)*area.Y;
+        double topu = area.X*(pos.Y-p1.Y) - (pos.X-p1.X)*area.Y;
 
         if (topu <= 0 || area.X*(goal->Y-p1.Y) > (goal->X-p1.X)*area.Y)
             continue;
@@ -44,7 +44,7 @@ static inline int32_t cliptrace(MoveClipper& clip, const DVector2& pos, DVector2
         if (diff.X*(p1.Y-pos.Y) > (p1.X-pos.X)*diff.Y || diff.X*(p2.Y-pos.Y) <= (p2.X-pos.X)*diff.Y)
             continue;
 
-        int32_t const bot = diff.X*area.Y - area.X*diff.Y;
+        double const bot = diff.X*area.Y - area.X*diff.Y;
         int cnt = 256;
 
         if (!bot)
@@ -75,49 +75,21 @@ static inline int32_t cliptrace(MoveClipper& clip, const DVector2& pos, DVector2
 }
 
 //
-// keepaway (internal)
-//
-static inline void keepaway(MoveClipper& clip, int32_t *x, int32_t *y, int32_t w)
-{
-    const int32_t x1 = clip.clipobjects[w].x1(), dx = clip.clipobjects[w].x2() - x1;
-    const int32_t y1 = clip.clipobjects[w].y1(), dy = clip.clipobjects[w].y2() - y1;
-    const int32_t ox = Sgn(-dy), oy = Sgn(dx);
-    uint8_t first = (abs(dx) <= abs(dy));
-
-    do
-    {
-        if (dx*(*y-y1) > (*x-x1)*dy)
-            return;
-
-        if (first == 0)
-            *x += ox;
-        else
-            *y += oy;
-
-        first ^= 1;
-    }
-    while (1);
-}
-
-//
 // clipmove
 //
-CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect, int32_t yvect,
+CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t ixvect, int32_t iyvect,
                  int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum, bool precise)
 {
-    if ((xvect|yvect) == 0 || *sectnum < 0)
+    if ((ixvect|iyvect) == 0 || *sectnum < 0)
         return {};
 
     int const initialsectnum = *sectnum;
 
-    vec2_t const move = { xvect, yvect };
-
     //Extra walldist for sprites on sector lines
-    vec2_t const  diff = { xvect >> 14, yvect >> 14 };
 	
 	MoveClipper clip(&sector[initialsectnum]);
 	
-	clip.moveDelta = { (xvect >> 14) * inttoworld, (yvect >> 14) * inttoworld }; // beware of excess precision here!
+	clip.moveDelta = { (ixvect >> 14) * inttoworld, (iyvect >> 14) * inttoworld }; // beware of excess precision here!
 	clip.wallflags = EWallFlags::FromInt(cliptype & 65535);
 	clip.ceilingdist = ceildist * zinttoworld;
 	clip.floordist = flordist * zinttoworld;
@@ -139,6 +111,7 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect,
 
     DVector2 fgoal = clip.dest;
     DVector2 fpos = clip.pos;
+    DVector2 fvect = clip.moveDelta;
 
     auto copypos = [&]()
     {
@@ -149,7 +122,7 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect,
 
     do
     {
-        if (clip.precise && (xvect|yvect)) 
+        if (clip.precise && !fvect.isZero())
         {
 			PushAway(clip, fpos, &sector[*sectnum]);
         }
@@ -170,7 +143,7 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect,
 
                 double dot2 = clip.clipobjects[i].line.delta().dot(clip.moveDelta);
 
-                if ((dot1 < 0) != (dot2 < 0))
+                if ((dot1 < -inttoworld * 0.5) != (dot2 < -inttoworld * 0.5))
                 {
                     if (!clip.precise)
                     {
@@ -188,8 +161,7 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect,
 			//keepaway(clip, &goal.X, &goal.Y, hitwall);
             //xvect = (goal.X-vec.X)<<14;
             //yvect = (goal.Y-vec.Y)<<14;
-			xvect = FloatToFixed<4>(fgoal.X - fvec.X) << 14;
-			yvect = FloatToFixed<4>(fgoal.Y - fvec.Y) << 14;
+            fvect = fgoal - fvec;
 
             if (cnt == clipmoveboxtracenum)
                 clipReturn = clip.clipobjects[hitwall].obj;
@@ -206,7 +178,7 @@ CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect,
 
         fpos = fvec;
         cnt--;
-    } while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
+    } while (!fvect.isZero() && hitwall >= 0 && cnt > 0);
 
     if (!clip.precise)
     {
