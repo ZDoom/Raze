@@ -1671,6 +1671,70 @@ int FindBestSector(const DVector3& pos)
 //
 //==========================================================================
 
+#if 0
+static inline void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo)
+{
+	// later, once we are using floats throughout we should be able to do this
+	auto start = clipo.line.start, normal = clipo.line.delta().Rotated90CCW().Unit();
+
+	while (normal.dot(pos - start) <= 0)
+	{
+		pos += normal;
+	}
+}
+#else
+static inline void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo)
+{
+	// for now this has to be retained...
+	auto start = clipo.line.start, normal = clipo.line.delta().Rotated90CCW();
+	const double ox = Sgn(normal.X) * inttoworld, oy = Sgn(normal.Y) * inttoworld;
+	bool first = (abs(normal.Y) <= abs(normal.X));
+
+	do
+	{
+		if (normal.dot(pos - start) > 0)
+			return;
+
+		if (!first)
+			pos.X += ox;
+		else
+			pos.Y += oy;
+
+		first = !first;
+	}
+	while (1);
+}
+#endif
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void PushAway(MoveClipper &clip, DVector2& pos, sectortype* sect)
+{
+	for (int i = clip.clipobjects.Size() - 1; i >= 0; --i)
+	{
+		auto& clipo = clip.clipobjects[i];
+		
+		if (!clipo.obj.exbits && IsCloseToLine(pos, clipo.line.start, clipo.line.end, clip.walldist) != EClose::Outside)
+		{
+			auto opos = pos;
+			keepaway(clip, pos, clipo);
+			if (!inside(pos.X, pos.Y, sect))
+				pos = opos;
+			break;
+		}
+	}
+
+}
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 bool isAwayFromWall(DCoreActor* ac, double delta)
 {
 	sectortype* s1;

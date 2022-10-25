@@ -146,17 +146,10 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     {
         if (clip.precise && (xvect|yvect)) 
         {
-            for (int i=clip.clipobjects.Size() - 1; i >= 0; --i)
-            {
-                if (!clip.clipobjects[i].obj.exbits && clipinsideboxline(pos->X, pos->Y, clip.clipobjects[i].x1(), clip.clipobjects[i].y1(), clip.clipobjects[i].x2(), clip.clipobjects[i].y2(), walldist))
-                {
-                    vec2_t const vec = pos->vec2;
-                    keepaway(clip, &pos->X, &pos->Y, i);
-                    if (inside(pos->X * inttoworld, pos->Y * inttoworld, &sector[*sectnum]) != 1)
-                        pos->vec2 = vec;
-                    break;
-                }
-            }
+			DVector2 fpos(pos->X * inttoworld, pos->Y * inttoworld);
+			PushAway(clip, fpos, &sector[*sectnum]);
+			pos->X = int(fpos.X * worldtoint);
+			pos->Y = int(fpos.Y * worldtoint);
         }
 
         vec2_t vec = goal;

@@ -278,6 +278,8 @@ struct ClipRect
 struct ClipLine
 {
 	DVector2 start, end;
+	
+	DVector2 delta() const { return end - start; }
 };
 
 struct ClipObject
@@ -314,6 +316,7 @@ struct MoveClipper
 void collectClipObjects(MoveClipper& clip, int spritemask);
 int FindBestSector(const DVector3& pos);
 int FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search);
+void PushAway(MoveClipper &clip, DVector2& pos, sectortype* sect);
 
 int FindBestSector(const DVector3& pos);
 
