@@ -102,7 +102,7 @@ static inline void keepaway(MoveClipper& clip, int32_t *x, int32_t *y, int32_t w
 //
 // clipmove
 //
-CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t yvect,
+CollisionBase clipmove_(vec3_t * const ipos, int * const sectnum, int32_t xvect, int32_t yvect,
                  int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum, bool precise)
 {
     if ((xvect|yvect) == 0 || *sectnum < 0)
@@ -111,28 +111,24 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     int const initialsectnum = *sectnum;
 
     vec2_t const move = { xvect, yvect };
-    vec2_t const cent = { pos->X + (move.X >> 15), pos->Y + (move.Y >> 15) };
 
     //Extra walldist for sprites on sector lines
     vec2_t const  diff = { xvect >> 14, yvect >> 14 };
-    int32_t const rad     = (int)g_sqrt((double)diff.X * diff.X + (double)diff.Y * diff.Y) + MAXCLIPDIST + walldist + 8;
-    vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
-    vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
 	
 	MoveClipper clip(&sector[initialsectnum]);
 	
 	clip.moveDelta = { (xvect >> 14) * inttoworld, (yvect >> 14) * inttoworld }; // beware of excess precision here!
-	clip.rect.min = { clipMin.X * inttoworld, clipMin.Y * inttoworld };
-	clip.rect.max = { clipMax.X * inttoworld, clipMax.Y * inttoworld };
 	clip.wallflags = EWallFlags::FromInt(cliptype & 65535);
 	clip.ceilingdist = ceildist * zinttoworld;
 	clip.floordist = flordist * zinttoworld;
 	clip.walldist = walldist * inttoworld;
-    clip.pos = { pos->X * inttoworld, pos->Y * inttoworld, pos->Z * zinttoworld };
+    clip.pos = { ipos->X * inttoworld, ipos->Y * inttoworld, ipos->Z * zinttoworld };
     clip.dest = clip.pos + clip.moveDelta;
     clip.center = (clip.pos.XY() + clip.dest) * 0.5;
     clip.movedist = clip.moveDelta.Length() + clip.walldist + 0.5 + MAXCLIPDIST * inttoworld;
     clip.precise = precise;
+    clip.rect.min = { clip.center.X - clip.movedist, clip.center.Y - clip.movedist };
+    clip.rect.max = { clip.center.X + clip.movedist, clip.center.Y + clip.movedist };
 
     collectClipObjects(clip, (cliptype >> 16));
 
@@ -142,44 +138,49 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     int cnt = clipmoveboxtracenum;
 
     DVector2 fgoal = clip.dest;
+    DVector2 fpos = clip.pos;
+
+    auto copypos = [&]()
+    {
+        ipos->X = fpos.X * worldtoint;
+        ipos->Y = fpos.Y * worldtoint;
+    };
+
+
     do
     {
         if (clip.precise && (xvect|yvect)) 
         {
-			DVector2 fpos(pos->X * inttoworld, pos->Y * inttoworld);
 			PushAway(clip, fpos, &sector[*sectnum]);
-			pos->X = int(fpos.X * worldtoint);
-			pos->Y = int(fpos.Y * worldtoint);
         }
 
         vec2_t vec(fgoal.X * worldtoint, fgoal.Y * worldtoint);
 
-        if ((hitwall = cliptrace(clip, pos->vec2, &vec)) >= 0)
+        copypos();
+        if ((hitwall = cliptrace(clip, ipos->vec2, &vec)) >= 0)
         {
 			auto clipdelta = clip.clipobjects[hitwall].line.end - clip.clipobjects[hitwall].line.start;
 			DVector2 fvec(vec.X * inttoworld, vec.Y * inttoworld);
 		
 			fgoal = NearestPointOnLine(fgoal.X, fgoal.Y, fvec.X, fvec.Y, fvec.X + clipdelta.X, fvec.Y + clipdelta.Y, false);
 			
-			vec2_t const  clipr  = { clip.clipobjects[hitwall].x2() - clip.clipobjects[hitwall].x1(), clip.clipobjects[hitwall].y2() - clip.clipobjects[hitwall].y1()};
-            int32_t tempint;
-            tempint = DMulScale(clipr.X, move.X, clipr.Y, move.Y, 6);
+            double dot1 = clipdelta.dot(clip.moveDelta);
 
             for (int i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
                 j = hitwalls[i];
 
-                int32_t tempint2;
-                tempint2 = DMulScale(clip.clipobjects[j].x2() - clip.clipobjects[j].x1(), move.X, clip.clipobjects[j].y2() - clip.clipobjects[j].y1(), move.Y, 6);
+                double dot2 = clip.clipobjects[i].line.delta().dot(clip.moveDelta);
 
-                if ((tempint ^ tempint2) < 0)
+                if ((dot1 < 0) != (dot2 < 0))
                 {
                     if (!clip.precise)
                     {
                         auto sectp = &sector[*sectnum];
-                        updatesector(DVector2(pos->X * inttoworld, pos->Y * inttoworld), &sectp);
+                        updatesector(fpos, &sectp);
                         *sectnum = sectp ? ::sectnum(sectp) : -1;
                     }
+                    copypos();
                     return clipReturn;
                 }
             }
@@ -201,22 +202,22 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 		{
             DVector2 v(vec.X* inttoworld, vec.Y* inttoworld);
             sectortype* sect = &sector[*sectnum];
-			updatesector(v, &sect, rad * inttoworld);
+			updatesector(v, &sect, clip.movedist);
             *sectnum = ::sectnum(sect);
 		}
 
-        pos->X = vec.X;
-        pos->Y = vec.Y;
+        fpos = DVector2 (vec.X * inttoworld, vec.Y * inttoworld);
         cnt--;
     } while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
 
     if (!clip.precise)
     {
-        DVector3 fpos(pos->X* inttoworld, pos->Y* inttoworld, pos->Z* inttoworld);
+
         *sectnum = FindSectorInSearchList(fpos, clip.search);
         if (*sectnum == -1) *sectnum = FindBestSector(fpos);
     }
 
+    copypos();
     return clipReturn;
 }
 
