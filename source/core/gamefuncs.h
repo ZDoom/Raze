@@ -312,6 +312,7 @@ struct MoveClipper
 };
 
 void collectClipObjects(MoveClipper& clip, int spritemask);
+int FindBestSector(const DVector3& pos);
 
 int FindBestSector(const DVector3& pos);
 
