@@ -1261,6 +1261,54 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 //
 //==========================================================================
 
+int FindBestSector(const DVector3& pos)
+{
+	int bestnum = 1;
+	double bestdist = FLT_MAX;
+	for (int secnum = (int)sector.Size() - 1; secnum >= 0; secnum--)
+	{
+		auto sect = &sector[secnum];
+		if (inside(pos.X, pos.Y, sect))
+		{
+			double ceilz, floorz;
+			calcSlope(sect, pos.X, pos.Y, &ceilz, &floorz);
+
+			if (pos.Z < ceilz)
+			{
+				// above ceiling
+				double dist = ceilz - pos.Z;
+				if (dist < bestdist)
+				{
+					bestnum = secnum;
+					bestdist = dist;
+				}
+			}
+			else if (pos.Z > floorz)
+			{
+				// below floor
+				double dist = pos.Z - floorz;
+				if (dist < bestdist)
+				{
+					bestnum = secnum;
+					bestdist = dist;
+				}
+			}
+			else
+			{
+				// inside sector
+				return secnum;
+			}
+		}
+	}
+	return bestnum;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 bool isAwayFromWall(DCoreActor* ac, double delta)
 {
 	sectortype* s1;

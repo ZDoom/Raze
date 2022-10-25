@@ -608,40 +608,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 return clipReturn;
             }
 
-        double tempint2, tempint1 = INT32_MAX;
-        *sectnum = -1;
-        for (int j = (int)sector.Size() - 1; j >= 0; j--)
-        {
-            auto sect = &sector[j];
-            if (inside(fpos.X, fpos.Y, sect) == 1)
-            {
-                tempint2 = getceilzofslopeptr(sect, fpos.X, fpos.Y) - fpos.Z;
-
-                if (tempint2 > 0)
-                {
-                    if (tempint2 < tempint1)
-                    {
-                        *sectnum = j;
-                        tempint1 = tempint2;
-                    }
-                }
-                else
-                {
-                    tempint2 = fpos.Z - getflorzofslopeptr(sect, fpos.X, fpos.Y);
-
-                    if (tempint2 <= 0)
-                    {
-                        *sectnum = j;
-                        return clipReturn;
-                    }
-                    if (tempint2 < tempint1)
-                    {
-                        *sectnum = j;
-                        tempint1 = tempint2;
-                    }
-                }
-            }
-        }
+        *sectnum = FindBestSector(fpos);
     }
 
     return clipReturn;
