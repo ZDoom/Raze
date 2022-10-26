@@ -175,9 +175,9 @@ CollisionBase clipmove_(DVector3& inpos, sectortype** const sect, const DVector2
 
     if (!clip.precise)
     {
-
-        *sectnum = FindSectorInSearchList(fpos, clip.search);
-        if (*sectnum == -1) *sectnum = FindBestSector(fpos);
+        DVector3 pos3(fpos, clip.pos.Z);
+        *sect = FindSectorInSearchList(pos3, clip.search);
+        if (*sect == nullptr) *sect = FindBestSector(pos3);
     }
 
     copypos();

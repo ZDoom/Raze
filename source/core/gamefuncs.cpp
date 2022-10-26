@@ -1606,15 +1606,15 @@ void collectClipObjects(MoveClipper& clip, int spritemask)
 //
 //==========================================================================
 
-int FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search)
+sectortype* FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search)
 {
 	search.Rewind();
 	while (auto sect = search.GetNext())
 		if (inside(pos.X, pos.Y, sect) == 1)
 		{
-			return ::sectnum(sect);
+			return sect;
 		}
-	return -1;
+	return nullptr;
 }
 
 //==========================================================================
@@ -1623,9 +1623,9 @@ int FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search)
 //
 //==========================================================================
 
-int FindBestSector(const DVector3& pos)
+sectortype* FindBestSector(const DVector3& pos)
 {
-	int bestnum = 1;
+	sectortype* bestsect = nullptr;
 	double bestdist = FLT_MAX;
 	for (int secnum = (int)sector.Size() - 1; secnum >= 0; secnum--)
 	{
@@ -1641,7 +1641,7 @@ int FindBestSector(const DVector3& pos)
 				double dist = ceilz - pos.Z;
 				if (dist < bestdist)
 				{
-					bestnum = secnum;
+					bestsect = sect;
 					bestdist = dist;
 				}
 			}
@@ -1651,18 +1651,18 @@ int FindBestSector(const DVector3& pos)
 				double dist = pos.Z - floorz;
 				if (dist < bestdist)
 				{
-					bestnum = secnum;
+					bestsect = sect;
 					bestdist = dist;
 				}
 			}
 			else
 			{
 				// inside sector
-				return secnum;
+				return sect;
 			}
 		}
 	}
-	return bestnum;
+	return bestsect;
 }
 
 //==========================================================================

@@ -314,8 +314,8 @@ struct MoveClipper
 };
 
 void collectClipObjects(MoveClipper& clip, int spritemask);
-int FindBestSector(const DVector3& pos);
-int FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search);
+sectortype* FindBestSector(const DVector3& pos);
+sectortype* FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search);
 void PushAway(MoveClipper &clip, DVector2& pos, sectortype* sect);
 void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo);
 
