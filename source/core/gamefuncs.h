@@ -319,7 +319,8 @@ sectortype* FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search)
 void PushAway(MoveClipper &clip, DVector2& pos, sectortype* sect);
 void keepaway(MoveClipper& clip, DVector2& pos, ClipObject& clipo);
 
-int FindBestSector(const DVector3& pos);
+
+
 
 tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor);
 

@@ -1606,6 +1606,66 @@ void collectClipObjects(MoveClipper& clip, int spritemask)
 //
 //==========================================================================
 
+int cliptrace(MoveClipper& clip, const DVector2& fpos, DVector2& fgoal)
+{
+	int32_t hitwall = -1;
+
+	DVector2 move = fgoal - fpos;
+	double bestfactor = 1.;
+	ClipObject* bestclip = nullptr;
+
+	for (auto& clipo : clip.clipobjects)
+	{
+		auto p1 = clipo.line.start;
+		auto delta = clipo.line.end - p1;
+
+		double factor = InterceptLineSegments(fpos.X, fpos.Y, move.X, move.Y, p1.X, p1.Y, delta.X, delta.Y);
+		if (factor > 0 && factor < bestfactor)
+		{
+			bestfactor = factor;
+			bestclip = &clipo;
+		}
+	}
+
+	DVector2 hit = fpos;
+	if (bestfactor < 1)
+	{
+		// account for math imprecisions and ensure that the resulting hit point is always at the front side of the line.
+
+		auto p1 = bestclip->line.start;
+		auto delta = bestclip->line.end - p1;
+		double len = move.Length();
+		move /= len;
+		bestfactor *= len;
+
+		for (int i = 0; i < 256; i++)
+		{
+			hit = fpos + move * bestfactor;
+			// Do this on the original Build coordinate grid to avoid problems with expectations on the game side.
+			hit.X = xs_CRoundToInt(hit.X * worldtoint) * inttoworld;
+			hit.Y = xs_CRoundToInt(hit.Y * worldtoint) * inttoworld;
+			if (PointOnLineSide(hit.X, hit.Y, p1.X, p1.Y, delta.X, delta.Y) < 0)
+			{
+				hitwall = bestclip - clip.clipobjects.Data();
+				break;
+			}
+			bestfactor -= maptoworld * 0.5;
+			if (bestfactor <= 0) break;
+		}
+	}
+	if (hitwall != -1)
+	{
+		fgoal = hit;
+	}
+	return hitwall;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 sectortype* FindSectorInSearchList(const DVector3& pos, BFSSectorSearch& search)
 {
 	search.Rewind();
