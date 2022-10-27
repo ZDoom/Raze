@@ -154,7 +154,10 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	// process movement input.
 	currInput->fvel += moving * keymove;
 	currInput->svel += strafing * keymove * allowstrafe;
-	if (isRR() && drink_amt >= 66 && drink_amt <= 87) currInput->svel += drink_amt & 1 ? -currInput->fvel : currInput->fvel;
+
+	// process RR's drunk state.
+	if (isRR() && drink_amt >= 66 && drink_amt <= 87)
+		currInput->svel += drink_amt & 1 ? -currInput->fvel : currInput->fvel;
 
 	// add collected input to game's local input accumulation packet.
 	inputBuffer->fvel = clamp<float>(inputBuffer->fvel + currInput->fvel, -(float)keymove, (float)keymove);
@@ -178,21 +181,21 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		// Process mouse input.
 		if (horz)
 		{
-			*actions &= ~SB_CENTERVIEW;
 			horiz += DAngle::fromDeg(horz);
+			*actions &= ~SB_CENTERVIEW;
 		}
 
 		// Process keyboard input.
-		auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, DAngle const rate, bool const lock)
+		if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
 		{
-			if (*actions & (up | down))
-			{
-				if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
-				horiz += getTicrateScale(rate) * scaleAdjust * (!!(*actions & down) - !!(*actions & up));
-			}
-		};
-		doKbdInput(SB_AIM_UP, SB_AIM_DOWN, PITCH_AIMSPEED, true);
-		doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, PITCH_LOOKSPEED, false);
+			horiz += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
+			*actions &= ~SB_CENTERVIEW;
+		}
+		if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
+		{
+			horiz += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
+			*actions |= SB_CENTERVIEW;
+		}
 
 		// Do return to centre.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
@@ -224,19 +227,17 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	scaletozero(look_ang, YAW_LOOKRETURN, scaleAdjust);
 
 	// Process keyboard input.
-	auto doLookKeys = [&](ESyncBits_ const key, double const direction)
+	if (auto looking = !!(*actions & SB_LOOK_RIGHT) - !!(*actions & SB_LOOK_LEFT))
 	{
-		if (*actions & key)
-		{
-			look_ang += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * direction;
-			rotscrnang -= getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * direction;
-		}
-	};
-	doLookKeys(SB_LOOK_LEFT, -1);
-	doLookKeys(SB_LOOK_RIGHT, 1);
+		look_ang += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * looking;
+		rotscrnang -= getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * looking;
+	}
 
 	if (!movementlocked())
 	{
+		// add player's input
+		ang += DAngle::fromDeg(avel);
+
 		if (*actions & SB_TURNAROUND)
 		{
 			if (spin == nullAngle)
@@ -245,12 +246,6 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 				spin = -DAngle180;
 			}
 			*actions &= ~SB_TURNAROUND;
-		}
-
-		if (avel)
-		{
-			// add player's input
-			ang += DAngle::fromDeg(avel);
 		}
 
 		if (spin < nullAngle)
