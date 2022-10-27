@@ -986,6 +986,7 @@ set (PCH_SOURCES
 	core/maphack.cpp
 	core/mapinfo.cpp
 	core/maploader.cpp
+	core/postprocessor.cpp
 	core/searchpaths.cpp
 	core/screenjob.cpp
 	core/initfs.cpp
