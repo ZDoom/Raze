@@ -143,7 +143,6 @@ enum EHudSize
 	Hud_Mini,
 	Hud_Full,
 	Hud_Althud,
-	Hud_Althud,
 	Hud_Nothing,
 	Hud_MAX
 };

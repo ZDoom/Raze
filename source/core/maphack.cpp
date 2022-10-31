@@ -152,107 +152,6 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 				}
 			}
 		}
-		else if (sc.Compare("picnum"))
-		{
-			if (sc.CheckNumber())
-			{
-				if (currentwall != -1 && validateWall())
-				{
-					wall[currentwall].picnum = sc.Number;
-				}
-				else if (currentsprite != -1 && validateSprite())
-				{
-					sprites.sprites[currentsprite].picnum = sc.Number;
-				}
-			}
-		}
-		else if (sc.Compare("overpicnum"))
-		{
-			if (sc.CheckNumber() && validateWall())
-			{
-				wall[currentwall].overpicnum = sc.Number;
-			}
-		}
-		else if (sc.Compare("overpicnum"))
-		{
-			if (sc.CheckNumber() && validateWall())
-			{
-				wall[currentwall].overpicnum = sc.Number;
-			}
-		}
-		else if (sc.Compare("split"))
-		{
-			int start = -1, end = -1;
-			if (sc.CheckNumber()) start = sc.Number;
-			if (sc.CheckNumber()) end = sc.Number;
-			if (end >= 0 && validateSector())
-			{
-				hw_SetSplitSector(currentsector, start, end);
-			}
-		}
-		else if (sc.Compare("dontclip"))
-		{
-			sector[currentsector].exflags |= SECTOREX_DONTCLIP;
-		}
-		else if (sc.Compare("clearflags"))
-		{
-			if (currentsector != -1 && validateSector())
-			{
-				sc.GetString();
-				if (sc.Compare("floor") && sc.CheckNumber())
-				{
-					sector[currentsector].floorstat &= ESectorFlags::FromInt(~sc.Number);
-				}
-				else if (sc.Compare("ceiling") && sc.CheckNumber())
-				{
-					sector[currentsector].ceilingstat &= ESectorFlags::FromInt(~sc.Number);
-				}
-				else sc.ScriptError("Bad token %s", sc.String);
-			}
-			else if (sc.CheckNumber())
-			{
-				if (currentwall != -1 && validateWall())
-				{
-					wall[currentwall].cstat &= EWallFlags::FromInt(~sc.Number);
-				}
-				else if (currentsprite != -1 && validateSprite())
-				{
-					sprites.sprites[currentsprite].cstat &= ESpriteFlags::FromInt(~sc.Number);
-				}
-			}
-		}
-		else if (sc.Compare("setflags"))
-		{
-			if (sc.CheckNumber())
-			{
-				if (currentwall != -1 && validateWall())
-				{
-					wall[currentwall].cstat |= EWallFlags::FromInt(sc.Number);
-				}
-				else if (currentsprite != -1 && validateSprite())
-				{
-					sprites.sprites[currentsprite].cstat |= ESpriteFlags::FromInt(sc.Number);
-				}
-			}
-		}
-		else if (sc.Compare("lotag"))
-		{
-			if (sc.CheckNumber())
-			{
-				if (currentwall != -1 && validateWall())
-				{
-					wall[currentwall].lotag = sc.Number;
-				}
-				else if (currentsprite != -1 && validateSprite())
-				{
-					sprites.sprites[currentsprite].lotag = sc.Number;
-				}
-			}
-		}
-		else if (sc.Compare("sw_serp_continue")) // This is a hack for SW's Last Warrior mod to continue from L4 to L5.
-		{
-			if (currentLevel) currentLevel->gameflags |= LEVEL_SW_DEATHEXIT_SERPENT_NEXT;
-		}
 
 		else if (sc.Compare("angleoff") || sc.Compare("angoff"))
 		{
@@ -374,8 +273,6 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 
 void loadMapHack(const char* filename, const uint8_t* md4, SpawnSpriteDef& sprites)
 {
-	hw_ClearSplitSector();
-
 	FString internal = "engine/compatibility/";
 	for (int j = 0; j < 16; ++j)
 	{

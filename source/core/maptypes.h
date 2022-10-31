@@ -709,3 +709,14 @@ TArray<walltype> loadMapWalls(const char* filename);
 void loadMapBackup(const char* filename);
 void loadMapHack(const char* filename, const uint8_t*, SpawnSpriteDef& sprites);
 void validateStartSector(const char* filename, const vec3_t& pos, int* cursectnum, unsigned numsectors, bool noabort = false);
+void PostProcessLevel(const uint8_t* checksum, const FString& mapname, SpawnSpriteDef& sprites);
+
+// should only be used to read angles from map-loaded data (for proper documentation)
+constexpr DAngle mapangle(int mapang)
+{
+	return DAngle::fromBuild(mapang);
+}
+inline DAngle maphoriz(double maphoriz)
+{
+	return DAngle::fromDeg(g_atan2(maphoriz, 128.) * (180. / pi::pi()));
+}
