@@ -593,6 +593,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 	auto buffer = fr.Read();
 	uint8_t md4[16];
 	md4once(buffer.Data(), buffer.Size(), md4);
+	PostProcessLevel(md4, mapname, sprites);
 	loadMapHack(mapname, md4, sprites);
 
 	if (CalcCRC32(buffer.Data(), buffer.Size() - 4) != nCRC)

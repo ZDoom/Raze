@@ -35,6 +35,7 @@
 
 #include "maptypes.h"
 #include "vm.h"
+#include "gamefuncs.h"
 
 //=============================================================================
 //
@@ -493,6 +494,21 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, move, wall_move)
 	PARAM_FLOAT(x);
 	PARAM_FLOAT(y);
 	self->move(DVector2(x, y));
+	return 0;
+}
+
+void wall_dragpoint(walltype* wal, double x, double y)
+{
+	if (!wal) ThrowAbortException(X_READ_NIL, nullptr);
+	dragpoint(wal, DVector2(x, y));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_walltype, dragpoint, wall_dragpoint)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(walltype);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	wall_dragpoint(self, x, y);
 	return 0;
 }
 

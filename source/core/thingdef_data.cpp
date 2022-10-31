@@ -293,7 +293,7 @@ void InitThingdef()
 	//secplanestruct->Size = sizeof(secplane_t);
 	//secplanestruct->Align = alignof(secplane_t);
 
-	auto sectorstruct = NewStruct("Sector", nullptr, true);
+	auto sectorstruct = NewStruct("sectortype", nullptr, true);
 	sectorstruct->Size = sizeof(sectortype);
 	sectorstruct->Align = alignof(sectortype);
 	NewPointer(sectorstruct, false)->InstallHandlers(
@@ -308,7 +308,7 @@ void InitThingdef()
 		}
 	);
 
-	auto linestruct = NewStruct("Wall", nullptr, true);
+	auto linestruct = NewStruct("walltype", nullptr, true);
 	linestruct->Size = sizeof(walltype);
 	linestruct->Align = alignof(walltype);
 	NewPointer(linestruct, false)->InstallHandlers(

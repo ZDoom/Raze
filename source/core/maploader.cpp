@@ -543,6 +543,7 @@ void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, secto
 	auto buffer = fr.Read();
 	uint8_t md4[16];
 	md4once(buffer.Data(), buffer.Size(), md4);
+	PostProcessLevel(md4, filename, sprites);
 	loadMapHack(filename, md4, sprites);
 	setWallSectors();
 	hw_CreateSections();

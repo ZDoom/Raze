@@ -421,11 +421,6 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	prelevel_common(g);
 	p = &ps[screenpeek];
 
-	if (currentLevel->levelNumber == 1001 && wall.Size() > 4687 && wall[4592].pos.X == 1612 && wall[4592].pos.Y == -2714) // fix sector overlap in E1L1 Taylor Town
-	{
-		dragpoint(&wall[4592], { 1615., -2715. });
-	}
-
 	if (currentLevel->gameflags & LEVEL_RR_CLEARMOONSHINE)
 		ps[myconnectindex].steroids_amount = 0;
 

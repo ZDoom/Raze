@@ -37,6 +37,9 @@
 #include "vm.h"
 #include "printf.h"
 #include "types.h"
+#include "maptypes.h"
+#include "hw_sections.h"
+#include "mapinfo.h"
 
 //==========================================================================
 //
@@ -48,13 +51,21 @@ class DLevelPostProcessor : public DObject
 {
 	DECLARE_ABSTRACT_CLASS(DLevelPostProcessor, DObject)
 public:
+	SpawnSpriteDef* sprites;
 };
 
 IMPLEMENT_CLASS(DLevelPostProcessor, true, false);
 
-void PostProcessLevel(FName checksum, const FString& mapname)
+void PostProcessLevel(const uint8_t* md4, const FString& mapname, SpawnSpriteDef& sprites)
 {
+	hw_ClearSplitSector();
 	auto lc = Create<DLevelPostProcessor>();
+	lc->sprites = &sprites;
+
+	char md4string[33];
+	for (int i = 0; i < 16; i++) mysnprintf(md4string + 2 * i, 3, "%02x", md4[i]);
+	FName checksum(md4string, true);
+	if (checksum == NAME_None) return;	// we do not have anything so save the work.
 
 	for(auto cls : PClass::AllClasses)
 	{
@@ -83,21 +94,47 @@ void PostProcessLevel(FName checksum, const FString& mapname)
 DEFINE_ACTION_FUNCTION(DLevelPostProcessor, SetSpriteLotag)
 {
 	PARAM_SELF_PROLOGUE(DLevelPostProcessor);
-	PARAM_INT(sprite);
+	PARAM_UINT(sprite);
 	PARAM_INT(lotag);
-	
-	// todo
+	if (sprite < self->sprites->sprites.Size())
+		self->sprites->sprites[sprite].lotag = lotag;
+
 	return 0;
 }
 
 DEFINE_ACTION_FUNCTION(DLevelPostProcessor, ChangeSpriteFlags)
 {
 	PARAM_SELF_PROLOGUE(DLevelPostProcessor);
-	PARAM_INT(sprite);
+	PARAM_UINT(sprite);
 	PARAM_INT(clearmask);
-	PARAM_INT(setflag);
+	PARAM_INT(setmask);
 
-	// todo
+	if (sprite < self->sprites->sprites.Size())
+		self->sprites->sprites[sprite].cstat = (self->sprites->sprites[sprite].cstat & ~ESpriteFlags::FromInt(clearmask)) | ESpriteFlags::FromInt(setmask);
+
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(DLevelPostProcessor, SplitSector)
+{
+	PARAM_SELF_PROLOGUE(DLevelPostProcessor);
+	PARAM_UINT(sectornum);
+	PARAM_INT(firstwall);
+	PARAM_INT(secondwall);
+
+	if (sectornum < sector.Size())
+	{
+		if (firstwall >= sector[sectornum].wallptr && firstwall < sector[sectornum].wallptr + sector[sectornum].wallnum &&
+			secondwall >= sector[sectornum].wallptr && secondwall < sector[sectornum].wallptr + sector[sectornum].wallnum)
+
+			hw_SetSplitSector(sectornum, firstwall, secondwall);
+	}
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DLevelPostProcessor, sw_serp_continue)
+{
+	PARAM_SELF_PROLOGUE(DLevelPostProcessor);
+	currentLevel->gameflags |= LEVEL_SW_DEATHEXIT_SERPENT_NEXT;
+	return 0;
+}

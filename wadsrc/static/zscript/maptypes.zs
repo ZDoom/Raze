@@ -99,6 +99,13 @@ enum ETSprFlags
 	TSPR_SLOPESPRITE = 8,       // render as sloped sprite
 }
 
+enum ESectorExBits
+{
+	SECTOREX_CLOUDSCROLL			= 1,
+	SECTOREX_DRAGGED				= 2,
+	SECTOREX_DONTCLIP				= 4,
+};
+
 
 
 //=============================================================================
@@ -262,6 +269,7 @@ struct walltype native
 
 	native double Length();
 	native void move(Vector2 vec);
+	native void dragpoint(Vector2 vec);
 }
 
 //=============================================================================

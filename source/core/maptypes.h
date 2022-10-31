@@ -698,6 +698,7 @@ TArray<walltype> loadMapWalls(const char* filename);
 void loadMapBackup(const char* filename);
 void loadMapHack(const char* filename, const uint8_t*, SpawnSpriteDef& sprites);
 void validateStartSector(const char* filename, const DVector3& pos, sectortype** cursectnum, unsigned numsectors, bool noabort = false);
+void PostProcessLevel(const uint8_t* checksum, const FString& mapname, SpawnSpriteDef& sprites);
 
 // should only be used to read angles from map-loaded data (for proper documentation)
 constexpr DAngle mapangle(int mapang)
