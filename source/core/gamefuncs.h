@@ -498,15 +498,6 @@ inline double SquareDistToWall(double px, double py, const walltype* wal, DVecto
 
 double SquareDistToSector(double px, double py, const sectortype* sect, DVector2* point = nullptr);
 
-inline double GetRayIntersect(const DVector3& start1, const DVector3& vect1, const DVector2& start2, const DVector2& vect2, DVector3& retv)
-{
-	double factor2;
-	double factor = InterceptLineSegments(start1.X, start1.Y, vect1.X, vect1.Y, start2.X, start2.Y, vect2.X, vect2.Y, &factor2);
-	if (factor <= 0) return -1;
-	retv = start1 + factor * vect1;
-	return factor2;
-}
-
 inline double BobVal(int val)
 {
 	return g_sinbam((unsigned)val << 21);
@@ -531,25 +522,5 @@ inline DAngle ClampViewPitch(const DAngle pitch)
 {
 	return clamp(pitch, GetMaxPitch(), GetMinPitch());
 }
-
-//==========================================================================
-//
-// old deprecated integer versions
-//
-//==========================================================================
-
-[[deprecated]]
-inline int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3, int y3, int x4, int y4, int* intx, int* inty, int* intz)
-{
-	DVector3 retv;
-	double result = GetRayIntersect(DVector3(x1 * inttoworld, y1 * inttoworld, z1 * zinttoworld), DVector3(vx * inttoworld, vy * inttoworld, vz * zinttoworld),
-		DVector2(x3 * inttoworld, y3 * inttoworld), DVector2((x4 - x3) * inttoworld, (y4 - y3) * inttoworld), retv);
-	if (result < 0) return -1;
-	*intx = int(retv.X * worldtoint);
-	*inty = int(retv.Y * worldtoint);
-	*intz = int(retv.Z * zworldtoint);
-	return FloatToFixed(result);
-}
-
 
 #include "updatesector.h"

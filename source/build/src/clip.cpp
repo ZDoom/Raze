@@ -107,9 +107,14 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
 inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
                                       int32_t y2, int32_t *daxptr, int32_t *dayptr)
 {
-    int32_t daz;
-
-    if (rintersect(pos->X, pos->Y, 0, gx, gy, 0, x1, y1, x2, y2, daxptr, dayptr, &daz) == -1)
+    double result = InterceptLineSegments(pos->X * inttoworld, pos->Y * inttoworld, gx * inttoworld, gy * inttoworld,
+        x1 * inttoworld, y1 * inttoworld, (x2 - x1) * inttoworld, (y2 - y1) * inttoworld);
+    if (result >= 0)
+    {
+        *daxptr = int(pos->X + result * gx);
+        *dayptr = int(pos->Y + result * gy);
+    }
+    else
     {
         *daxptr = pos->X;
         *dayptr = pos->Y;
