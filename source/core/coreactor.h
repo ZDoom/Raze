@@ -360,7 +360,7 @@ class TSectIterator
 {
 	DCoreActor* next;
 public:
-	//[[deprecated]]
+
 	TSectIterator(int stat)
 	{
 		next = sector[stat].firstEntry;
@@ -371,7 +371,6 @@ public:
 		next = stat->firstEntry;
 	}
 
-	//[[deprecated]]
 	void Reset(int stat)
 	{
 		next = sector[stat].firstEntry;

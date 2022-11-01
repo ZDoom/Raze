@@ -291,7 +291,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
            // We're not interested in any sector reached by portal traversal that we're "inside" of.
             if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && !curspr && dasect != initialsectnum
-                && inside(pos->X, pos->Y, sec) == 1)
+                && inside(pos->X * inttoworld, pos->Y * inttoworld, sec) == 1)
             {
                 int k;
                 for (k=startwall; k<endwall; k++)
@@ -527,7 +527,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 {
                     vec2_t const vec = pos->vec2;
                     keepaway(&pos->X, &pos->Y, i);
-                    if (inside(pos->X,pos->Y, &sector[*sectnum]) != 1)
+                    if (inside(pos->X * inttoworld, pos->Y * inttoworld, &sector[*sectnum]) != 1)
                         pos->vec2 = vec;
                     break;
                 }

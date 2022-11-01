@@ -551,13 +551,5 @@ inline int rintersect(int x1, int y1, int z1, int vx, int vy, int vz, int x3, in
 	return FloatToFixed(result);
 }
 
-[[deprecated]]
-inline int inside(int x, int y, const sectortype* sect)
-{
-	return inside(x * inttoworld, y * inttoworld, sect);
-}
-
-
-
 
 #include "updatesector.h"
