@@ -105,28 +105,20 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
 }
 
 inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
-                                      int32_t y2, int32_t *daxptr, int32_t *dayptr)
+                                      int32_t y2, double *daxptr, double *dayptr)
 {
-    double result = InterceptLineSegments(pos->X * inttoworld, pos->Y * inttoworld, gx * inttoworld, gy * inttoworld,
-        x1 * inttoworld, y1 * inttoworld, (x2 - x1) * inttoworld, (y2 - y1) * inttoworld);
-    if (result >= 0)
+    double x = pos->X * inttoworld, y = pos->Y * inttoworld;
+    double result = InterceptLineSegments(x, y, gx * inttoworld, gy * inttoworld, x1 * inttoworld, y1 * inttoworld, (x2 - x1) * inttoworld, (y2 - y1) * inttoworld);
+    if (result > 0)
     {
-        *daxptr = int(pos->X + result * gx);
-        *dayptr = int(pos->Y + result * gy);
+        *daxptr = x + result * gx * inttoworld;
+        *dayptr = y + result * gy * inttoworld;
     }
     else
     {
-        *daxptr = pos->X;
-        *dayptr = pos->Y;
+        *daxptr = x;
+        *dayptr = y;
     }
-}
-
-// Returns: should clip?
-static int cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const pos, int32_t const posz)
-{
-	assert(validSectorIndex(dasect) && validSectorIndex(nextsect));
-    return checkOpening(DVector2(pos.X * inttoworld, pos.Y * inttoworld), posz * zinttoworld, &sector[dasect], &sector[nextsect], 
-        ceildist * zinttoworld, flordist * zinttoworld, enginecompatibility_mode == ENGINECOMPATIBILITY_NONE);
 }
 
 //
@@ -284,15 +276,20 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
             int clipyou = 0;
 
-                if (wal->nextsector < 0 || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
-                {
-                    clipyou = 1;
-                }
-                else
-                {
-                    clipmove_tweak_pos(pos, diff.X, diff.Y, p1.X, p1.Y, p2.X, p2.Y, &v.X, &v.Y);
-                    clipyou = cliptestsector(dasect, wal->nextsector, flordist, ceildist, v, pos->Z);
-                }
+            if (wal->nextsector < 0 || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
+            {
+                clipyou = 1;
+            }
+            else
+            {
+                DVector2 ipos;
+                clipmove_tweak_pos(pos, diff.X, diff.Y, p1.X, p1.Y, p2.X, p2.Y, &ipos.X, &ipos.Y);
+                clipyou = checkOpening(ipos, pos->Z * zinttoworld, &sector[dasect], wal->nextSector(),
+                    ceildist * zinttoworld, flordist * zinttoworld, enginecompatibility_mode == ENGINECOMPATIBILITY_NONE);
+                v.X = int(ipos.X * worldtoint);
+                v.Y = int(ipos.Y * worldtoint);
+
+            }
 
            // We're not interested in any sector reached by portal traversal that we're "inside" of.
             if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && !curspr && dasect != initialsectnum
