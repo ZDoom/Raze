@@ -799,9 +799,6 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 	if (zvel < -8)
 		zvel = -4;
 	double vel = x / 16.;
-
-	ang += DAngle90;
-
 	double size = atwith == CHEERBOMB ? 0.25 : 0.5;
 
 	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, DVector2(size, size), ang, vel, zvel, actor, 1);
