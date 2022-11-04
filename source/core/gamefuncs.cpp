@@ -1155,10 +1155,11 @@ void neartag(const DVector3& pos, sectortype* startsect, DAngle angle, HitInfoBa
 					{
 						factor = newfactor;
 						result.hitActor = actor;
+						v = spot - pos;
 						// return distance to sprite in a separate variable because there is 
-						// no means to determine what is for if both a sprite and wall are found.
+						// no means to determine what it is for if both a sprite and wall are found.
 						// Only SW's NearTagList actually uses it.
-						result.hitpos.Y = (spot - pos).XY().Length();
+						result.hitpos.Y = v.XY().Length();
 					}
 				}
 			}
