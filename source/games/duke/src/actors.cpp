@@ -4405,7 +4405,7 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 void handle_se25(DDukeActor* actor, int snd1, int snd2)
 {
 	auto sec = actor->sector();
-	auto add = actor->spr.yint * zmaptoworld;
+	auto add = actor->spr.yint * (1 / 16.);
 
 	if (sec->floorz <= sec->ceilingz)
 		actor->spr.shade = 0;
