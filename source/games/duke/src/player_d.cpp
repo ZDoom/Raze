@@ -683,7 +683,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else 
-			zvel = ps[p].horizon.sum().Tan() * 40.5;
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 40.5);
 
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);

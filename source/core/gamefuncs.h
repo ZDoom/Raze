@@ -523,4 +523,10 @@ inline DAngle ClampViewPitch(const DAngle pitch)
 	return clamp(pitch, GetMaxPitch(), GetMinPitch());
 }
 
+inline void setFreeAimVelocity(double& vel, double& zvel, const DAngle pitch, const double zvspeed)
+{
+	vel *= pitch.Cos();
+	zvel = pitch.Sin() * zvspeed;
+}
+
 #include "updatesector.h"
