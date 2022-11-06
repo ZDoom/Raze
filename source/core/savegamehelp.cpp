@@ -393,47 +393,6 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 	return 0;
 }
 
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
-FString G_BuildSaveName (const char *prefix)
-{
-	FString name;
-	bool usefilter;
-
-	if (const char *const dir = Args->CheckValue("-savedir"))
-	{
-		name = dir;
-		usefilter = false;
-	}
-	else
-	{
-		name = **cl_savedir ? cl_savedir : M_GetSavegamesPath();
-		usefilter = true;
-	}
-
-	const size_t len = name.Len();
-	if (len > 0)
-	{
-		name.Substitute("\\", "/");
-		if (name[len - 1] != '/')
-			name << '/';
-	}
-
-	if (usefilter)
-		name << LumpFilter << '/';
-
-	CreatePath(name);
-
-	name << prefix;
-	if (!strchr(prefix, '.')) name << SAVEGAME_EXT; // only add an extension if the prefix doesn't have one already.
-	name = NicePath(name);
-	name.Substitute("\\", "/");
-	return name;
-}
 
 #include "build.h"
 
