@@ -231,7 +231,8 @@ void displayweapon_d(int snum, double interpfrac)
 	}
 
 	plravel = getavel(snum) * (1. / 16.);
-	horiz16th = clamp((!SyncInput() ? p->horizon.sum() : p->horizon.interpolatedsum(interpfrac)).Tan(), -2., 2.) * 8.;
+	auto horiz = !SyncInput() ? p->horizon.sum() : p->horizon.interpolatedsum(interpfrac);
+	horiz16th = lerp(-16., 16., ((horiz.Normalized180() + DAngle90) / DAngle180).Degrees());
 	look_anghalf = p->angle.look_anghalf(interpfrac);
 	looking_arc = p->angle.looking_arc(interpfrac);
 	hard_landing *= 8.;

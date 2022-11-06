@@ -526,7 +526,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 		{
 			cPos.Z += bobHeight;
 		}
-		cPos.Z -= clamp(cH.Tan(), -1.171875, 1.171875) * 5.;
+		cPos.Z -= lerp(-10., 10., ((cH.Normalized180() + DAngle90) / DAngle180).Degrees());
 	}
 	else
 	{
