@@ -849,7 +849,7 @@ static TArray<GrpEntry> SetupGame()
 		LumpFilter = usedgroups.Last().FileInfo.name;
 		LumpFilter.StripChars(".:/\\<>?\"*| \t\r\n");
 	}
-
+	SavegameFolder = LumpFilter;
 	currentGame = LumpFilter;
 	currentGame.Truncate(currentGame.IndexOf("."));
 	PClass::StaticInit();

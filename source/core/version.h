@@ -69,6 +69,8 @@ const char *GetVersionString();
 #define SAVESIG_SW GAMENAME ".ShadowWarrior"
 #define SAVESIG_PS GAMENAME ".Exhumed"
 
+#define SAVEGAME_EXT "dsave"
+
 #define MINSAVEVER_DN3D 16
 #define MINSAVEVER_BLD 16
 #define MINSAVEVER_SW 17

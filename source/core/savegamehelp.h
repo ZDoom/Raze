@@ -9,7 +9,6 @@
 class FileReader;
 extern int SaveVersion;
 
-FString G_BuildSaveName (const char *prefix);
 int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
 
 void G_LoadGame(const char* filename, bool hidecon = false);
@@ -18,9 +17,6 @@ void G_DoSaveGame(bool okForQuicksave, bool forceQuicksave, const char* filename
 void G_DoLoadGame();
 
 void M_Autosave();
-
-#define SAVEGAME_EXT ".dsave"
-
 
 template<> inline FSerializer& Serialize(FSerializer& arc, const char* keyname, sectortype*& w, sectortype** def)
 {
