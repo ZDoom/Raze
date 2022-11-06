@@ -74,8 +74,6 @@ int SaveVersion;
 
 void SerializeMap(FSerializer &arc);
 
-CVAR(String, cl_savedir, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-
 BEGIN_BLD_NS
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def);
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTOR* def);

@@ -45,7 +45,7 @@
 #include "gamecontrol.h"
 #include "version.h"
 
-#define LASTRUNVERSION "2"
+#define LASTRUNVERSION "4"
 
 #if !defined _MSC_VER && !defined __APPLE__
 #include "i_system.h"  // for SHARE_DIR
@@ -277,12 +277,36 @@ void FGameConfigFile::DoGlobalSetup ()
 			double last = atof (lastver);
 			if (last < 2)
 			{
-				auto var = FindCVar("mod_dumb_mastervolume", NULL);
-				if (var != NULL)
+				auto var = FindCVar("mod_dumb_mastervolume", nullptr);
+				if (var != nullptr)
 				{
 					UCVarValue v = var->GetGenericRep(CVAR_Float);
 					v.Float /= 4.f;
 					if (v.Float < 1.f) v.Float = 1.f;
+				}
+			}
+			if (last < 3)
+			{
+				auto var = FindCVar("hud_size", nullptr);
+				if (var != nullptr)
+				{
+					UCVarValue v = var->GetGenericRep(CVAR_Int);
+					if(v.Int == Hud_Althud) v.Int = Hud_Nothing;
+					var->SetGenericRep(v, CVAR_Int);
+				}
+			}
+			if (last < 4)
+			{
+				auto var = FindCVar("cl_savedir", nullptr);
+				auto var2 = FindCVar("save_dir", nullptr);
+				if (var != nullptr && var2 != nullptr)
+				{
+					UCVarValue v = var->GetGenericRep(CVAR_String);
+					UCVarValue v2 = var2->GetGenericRep(CVAR_String);
+					if (*v.String != 0 && *v2.String == 0)
+					{
+						var2->SetGenericRep(v, CVAR_String);
+					}
 				}
 			}
 		}
