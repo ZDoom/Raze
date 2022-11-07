@@ -160,10 +160,10 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 		currInput->svel += drink_amt & 1 ? -currInput->fvel : currInput->fvel;
 
 	// add collected input to game's local input accumulation packet.
-	inputBuffer->fvel = clamp<float>(inputBuffer->fvel + currInput->fvel, -(float)keymove, (float)keymove);
-	inputBuffer->svel = clamp<float>(inputBuffer->svel + currInput->svel, -(float)keymove, (float)keymove);
-	inputBuffer->avel += currInput->avel;
-	inputBuffer->horz += currInput->horz;
+	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -(float)keymove, (float)keymove);
+	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -(float)keymove, (float)keymove);
+	inputBuffer->avel = clamp(inputBuffer->avel + currInput->avel, -179.f, 179.f);
+	inputBuffer->horz = clamp(inputBuffer->horz + currInput->horz, -179.f, 179.f);
 }
 
 
