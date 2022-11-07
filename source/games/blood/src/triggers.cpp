@@ -1220,7 +1220,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_FORWARD)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += actor->basePoint.Z + dz1 * GetWaveValue(a2, nWave);
+				actor->spr.pos.Z = actor->basePoint.Z + dz1 * GetWaveValue(a2, nWave);
 			}
 		}
 	}
@@ -1233,7 +1233,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2, DBloodActor* initiator)
 			if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 			{
 				viewBackupSpriteLoc(actor);
-				actor->spr.pos.Z += actor->basePoint.Z + dz2 * GetWaveValue(a2, nWave);
+				actor->spr.pos.Z = actor->basePoint.Z + dz2 * GetWaveValue(a2, nWave);
 			}
 		}
 	}
