@@ -3336,7 +3336,7 @@ void DoPlayerClimb(PLAYER* pp)
     if (abs(pp->vect.X) < 0.05 && abs(pp->vect.Y) < 0.05)
         pp->vect.X = pp->vect.Y = 0;
 
-    double climbVel = pp->vect.Length() * 2;
+    double climbVel = pp->vect.Length();
     double dot = pp->vect.dot(pp->angle.ang.ToVector());
     if (dot < 0)
         climbVel = -climbVel;
