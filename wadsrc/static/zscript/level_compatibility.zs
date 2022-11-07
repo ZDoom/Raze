@@ -7,6 +7,11 @@ class LevelCompatibility : LevelPostProcessor
 		{			
 			case 'none':
 				return;
+
+			case '91003239cfe780bf4c1de08e0a2b7cc2':	// Duke E2L1
+			case 'b522da99f32a71ab31fc27aaba9b7f43':	// Duke E2L1 World Tour
+				SplitSector(37, 269, 274);				// sector bleeds into another area.
+				break;
 				
 			case 'c3bfb6a6e7cded2e5fe16cea86632d79':	// CP07
 				SplitSector(33, 192, 196);				// sector bleeds into another area.
