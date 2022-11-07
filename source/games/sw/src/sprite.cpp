@@ -1577,7 +1577,7 @@ void SpriteSetupPost(void)
     while (auto iActor = it.Next())
     {
         SWSectIterator it2(iActor->sector());
-        while (auto jActor = it.Next())
+        while (auto jActor = it2.Next())
         {
             if (jActor->spr.picnum == ST1)
                 continue;
