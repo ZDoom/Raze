@@ -90,18 +90,6 @@ inline constexpr double Scale(double a, double b, double c)
 	return (a * b) / c;
 }
 
-template<typename T>
-inline constexpr int Sgn(const T& val)
-{
-	return (val > 0) - (val < 0);
-}
-
-template<typename T>
-inline constexpr T lerp(const T min, const T max, const T input)
-{
-	return (T(1) - input) * min + input * max;
-}
-
 class FileReader;
 struct MD5Context;
 
@@ -116,6 +104,9 @@ inline void fillshort(void* buff, size_t count, uint16_t clear)
 		b2[i] = clear;
 	}
 }
+
+template<typename T> inline constexpr int Sgn(const T& val) { return (val > 0) - (val < 0); }
+
 
 inline int sizeToBits(int w)
 {
