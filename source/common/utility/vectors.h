@@ -1364,7 +1364,7 @@ public:
 		return Degrees_ / other;
 	}
 
-	constexpr TAngle operator/ (TAngle other) const
+	constexpr double operator/ (TAngle other) const
 	{
 		return Degrees_ / other.Degrees_;
 	}

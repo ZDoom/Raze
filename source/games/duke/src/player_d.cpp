@@ -180,7 +180,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		// WTF???
 		DAngle myang = DAngle90 - (DAngle180 - abs(abs((spos.XY() - ps[p].pos.XY()).Angle() - sang) - DAngle180));
 		if (ps[p].GetActor()->vel.X != 0)
-			vel = ((myang / DAngle90).Degrees() * ps[p].GetActor()->vel.X) + 25;
+			vel = ((myang / DAngle90) * ps[p].GetActor()->vel.X) + 25;
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
