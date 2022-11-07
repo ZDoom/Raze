@@ -684,7 +684,7 @@ static void handle_st18(sectortype* sptr, DDukeActor* actor)
 		if (sectp == nullptr) return;
 		double speed = sptr->extra / 256.;
 		setanimation(sptr, anim_floorz, sptr, sectp->floorz, speed);
-		setanimation(sptr, anim_ceilingz, sptr, sectp->ceilingz, speed);
+		setanimation(sptr, anim_ceilingz, sptr, sectp->floorz + sptr->ceilingz - sptr->floorz, speed);
 		callsound(sptr, actor);
 	}
 }
