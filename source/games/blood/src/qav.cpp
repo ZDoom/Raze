@@ -194,13 +194,14 @@ void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double
 
 			if (prevTile)
 			{
+				double prevAlpha = ((stat | prevTile->stat) & RS_TRANS1) ? glblend[0].def[!!((stat | prevTile->stat) & RS_TRANS2)].alpha : 1.f;
+				double thisAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.f;
+
 				tileX = interpolatedvalue<double>(prevTile->x, thisTile->x, interpfrac);
 				tileY = interpolatedvalue<double>(prevTile->y, thisTile->y, interpfrac);
 				tileZ = interpolatedvalue<double>(prevTile->z, thisTile->z, interpfrac);
 				tileA = interpolatedvalue(prevTile->angle, thisTile->angle, interpfrac);
-				tileShade = interpolatedvalue(prevTile->shade, thisTile->shade, interpfrac) + shade;
-				auto prevAlpha = ((stat | prevTile->stat) & RS_TRANS1) ? glblend[0].def[!!((stat | prevTile->stat) & RS_TRANS2)].alpha : 1.f;
-				auto thisAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.f;
+				tileShade = (int)interpolatedvalue<double>(prevTile->shade, thisTile->shade, interpfrac) + shade;
 				tileAlpha = interpolatedvalue(prevAlpha, thisAlpha, interpfrac);
 			}
 			else

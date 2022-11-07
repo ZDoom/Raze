@@ -41,7 +41,7 @@
 #define VECTORS_H
 
 #include <cstddef>
-#include <math.h>
+#include <cmath>
 #include <float.h>
 #include <string.h>
 #include "xs_Float.h"
@@ -1548,15 +1548,27 @@ inline TVector2<T> clamp(const TVector2<T> &vec, const TVector2<T> &min, const T
 }
 
 template<class T>
-inline TAngle<T> interpolatedvalue(const TAngle<T> &oang, const TAngle<T> &ang, const double interpfrac)
+inline T interpolatedvalue(const T oval, const T val, const double interpfrac)
 {
-	return oang + (deltaangle(oang, ang) * interpfrac);
+	return std::fma(interpfrac, val, std::fma(-interpfrac, oval, oval));
 }
 
-template <class T>
-inline T interpolatedvalue(const T& oval, const T& val, const double interpfrac)
+template<class T>
+inline TVector2<T> interpolatedvalue(const TVector2<T>& oval, const TVector2<T>& val, const double interpfrac)
 {
-	return T(oval + (val - oval) * interpfrac);
+	return { interpolatedvalue(oval.X, val.X, interpfrac), interpolatedvalue(oval.Y, val.Y, interpfrac) };
+}
+
+template<class T>
+inline TVector3<T> interpolatedvalue(const TVector3<T>& oval, const TVector3<T>& val, const double interpfrac)
+{
+	return { interpolatedvalue(oval.X, val.X, interpfrac), interpolatedvalue(oval.Y, val.Y, interpfrac), interpolatedvalue(oval.Z, val.Z, interpfrac) };
+}
+
+template<class T>
+inline TAngle<T> interpolatedvalue(const TAngle<T> oang, const TAngle<T> ang, const double interpfrac)
+{
+	return TAngle<T>::fromDeg(interpolatedvalue(oang.Degrees(), (oang + deltaangle(oang, ang)).Degrees(), interpfrac));
 }
 
 // Much of this is copied from TVector3. Is all that functionality really appropriate?
