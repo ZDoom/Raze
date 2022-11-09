@@ -2709,7 +2709,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			}
 
 			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, DYNAMITE, -16, DVector2(0.140625, 0.140625),
-				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
+				p->angle.ang, (vel + p->hbomb_hold_delay * 2) * 2, zvel, pact, 1);
 
 			if (spawned)
 			{
