@@ -5133,7 +5133,7 @@ int DoGet(DSWActor* actor)
             continue;
 
         double dist = (pp->pos.XY() - actor->spr.pos).Length();
-        if ((unsigned)dist > (plActor->user.fRadius() * 2))
+        if ((unsigned)dist > (plActor->user.fRadius() + actor->user.fRadius()))
         {
             continue;
         }
