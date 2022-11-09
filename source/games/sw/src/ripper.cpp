@@ -845,7 +845,7 @@ int SetupRipper(DSWActor* actor)
         if (!(actor->spr.cstat & CSTAT_SPRITE_RESTORE))
             actor->user.Health = HEALTH_MOMMA_RIPPER;
 
-		actor->clipdist += 128;
+		actor->clipdist += 8;
     }
     else
     {
