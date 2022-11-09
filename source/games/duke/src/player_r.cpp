@@ -3137,7 +3137,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic < 30)
 		{
-			p->vel.XY() -= p->angle.ang.ToVector();
+			p->vel.XY() += p->angle.ang.ToVector();
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
