@@ -417,7 +417,9 @@ void SectorSetup(void)
         SectorObject[ndx].pmid.X = MAXSO;
         SectorObject[ndx].ang = SectorObject[ndx].ang_moving = SectorObject[ndx].ang_tgt = 
             SectorObject[ndx].ang_orig = SectorObject[ndx].last_ang = SectorObject[ndx].old_ang =
-            SectorObject[ndx].spin_speed = SectorObject[ndx].save_spin_speed = SectorObject[ndx].spin_ang = nullAngle;
+            SectorObject[ndx].spin_speed = SectorObject[ndx].save_spin_speed = SectorObject[ndx].spin_ang = SectorObject[ndx].morph_ang = nullAngle;
+
+        SectorObject[ndx].limit_ang_delta = SectorObject[ndx].limit_ang_center = DAngle360 - minAngle;
 
     }
 
