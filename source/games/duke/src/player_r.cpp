@@ -2699,7 +2699,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
+				zvel = p->horizon.sum().Tan() * 10.;
 			}
 			else
 			{
