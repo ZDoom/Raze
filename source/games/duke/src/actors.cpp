@@ -4389,7 +4389,7 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 		{
 			if (abs(ps[p].pos.Z - ps[p].truefz) < gs.playerheight + 9)
 			{
-				ps[p].fric += vec * (1. / 4.);
+				ps[p].fric += vec * (1. / 8.); // keeping the original velocity. to match the animation it should be ~1/24.
 			}
 		}
 	}
