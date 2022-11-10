@@ -280,6 +280,7 @@ CCMD(slot)
 	if (argv.argc() != 2)
 	{
 		Printf("slot <weaponslot>: select a weapon from the given slot (1-%d)", max);
+		return;
 	}
 
 	auto slot = atoi(argv[1]);
@@ -310,6 +311,7 @@ CCMD(useitem)
 	if (argv.argc() != 2)
 	{
 		Printf("useitem <itemnum>: activates an inventory item (1-%d)", max);
+		return;
 	}
 
 	auto slot = atoi(argv[1]);
