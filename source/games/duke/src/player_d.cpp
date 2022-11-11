@@ -567,7 +567,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 	scount = 1;
-	if (atwith == SPIT) vel = 292;
+	if (atwith == SPIT) vel = 292 / 16.;
 	else
 	{
 		if (atwith == COOLEXPLOSION1)
