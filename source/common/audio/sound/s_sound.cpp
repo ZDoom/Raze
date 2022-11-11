@@ -1823,26 +1823,20 @@ void S_SetSoundPaused(int state)
 
 	if ((state || i_soundinbackground) && !pauseext)
 	{
-		if (paused == 0)
+		S_ResumeSound(true);
+		if (GSnd != nullptr)
 		{
-			S_ResumeSound(true);
-			if (GSnd != nullptr)
-			{
-				GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
-			}
+			GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
 		}
 	}
 	else
 	{
-		if (paused == 0)
+		S_PauseSound(false, true);
+		if (GSnd != nullptr)
 		{
-			S_PauseSound(false, true);
-			if (GSnd != nullptr)
-			{
-				GSnd->SetInactive(gamestate == GS_LEVEL || gamestate == GS_TITLELEVEL ?
-					SoundRenderer::INACTIVE_Complete :
-					SoundRenderer::INACTIVE_Mute);
-			}
+			GSnd->SetInactive(gamestate == GS_LEVEL || gamestate == GS_TITLELEVEL ?
+				SoundRenderer::INACTIVE_Complete :
+				SoundRenderer::INACTIVE_Mute);
 		}
 	}
 }
