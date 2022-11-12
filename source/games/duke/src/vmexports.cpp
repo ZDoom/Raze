@@ -411,4 +411,77 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)
 }
 
 
+static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)
+{
+	it->Reset(statnum);
+	return it->Next();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeStatIterator, First, duke_firstStat)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DukeStatIterator);
+	PARAM_INT(Sect);
+	ACTION_RETURN_POINTER(duke_firstStat(self, Sect));
+}
+
+static DDukeActor* duke_nextStat(DukeStatIterator* it)
+{
+	return it->Next();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeStatIterator, Next, duke_nextStat)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DukeStatIterator);
+	ACTION_RETURN_POINTER(duke_nextStat(self));
+}
+
+static DDukeActor* duke_firstSect(DukeSectIterator* it, sectortype* sect)
+{
+	if (sect == nullptr) return nullptr;
+	it->Reset(sect);
+	return it->Next();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeSectIterator, First, duke_firstSect)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DukeSectIterator);
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_POINTER(duke_firstSect(self, sect));
+}
+
+static DDukeActor* duke_nextSect(DukeSectIterator* it)
+{
+	return it->Next();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeSectIterator, Next, duke_nextSect)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DukeSectIterator);
+	ACTION_RETURN_POINTER(duke_nextSect(self));
+}
+
+static DDukeActor* duke_firstSprite(DukeSpriteIterator* it)
+{
+	it->Reset();
+	return it->Next();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeSpriteIterator, First, duke_firstSprite)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DukeSpriteIterator);
+	ACTION_RETURN_POINTER(duke_firstSprite(self));
+}
+
+static DDukeActor* duke_nextSprite(DukeSpriteIterator* it)
+{
+	return it->Next();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeSpriteIterator, Next, duke_nextSprite)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DukeSpriteIterator);
+	ACTION_RETURN_POINTER(duke_nextSprite(self));
+}
+
+
 END_DUKE_NS

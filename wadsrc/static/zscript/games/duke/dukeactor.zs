@@ -86,25 +86,26 @@ extend struct _
 // On the script side we do not really want scattered global data that is publicly accessible.
 struct DukeLevel
 {
-	native static DukeStatIterator CreateStatIterator(int stat);
-	native static DukeSectIterator CreateSectorIterator(sectortype sect);
-	native static DukeSpriteIterator CreateSpriteIterator();
 }
 
-class DukeStatIterator native
+struct DukeStatIterator
 {
+	private DukeActor nextp;
 	native DukeActor Next();
-	native void Reset(int stat);
+	native DukeActor First(int stat);
 }
 
-class DukeSectIterator native
+struct DukeSectIterator
 {
+	private DukeActor nextp;
 	native DukeActor Next();
-	native void Reset(int sect);
+	native DukeActor First(sectortype sect);
 }
 
-class DukeSpriteIterator native
+struct DukeSpriteIterator
 {
+	private DukeActor nextp;
+	private int stat;
 	native DukeActor Next();
-	native void Reset();
+	native DukeActor First();
 }
