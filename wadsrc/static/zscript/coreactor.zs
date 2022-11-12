@@ -1,4 +1,10 @@
 
+enum EClipMask
+{
+	CLIPMASK0 = (1 << 16) + 1,
+	CLIPMASK1 = (256 << 16) + 64
+};
+
 class CoreActor native
 {
 	native readonly sectortype sectp;
@@ -32,6 +38,7 @@ class CoreActor native
 	native float alpha;
 	native double clipdist;
 	native double angle;
+	native Vector3 vel;
 
 	native readonly int16 spritesetpic;
 	native readonly int spawnindex;
@@ -41,5 +48,7 @@ class CoreActor native
 	native void move(Vector3 newpos, bool relink = true);
 	native void setSpritePic(int index);	// index into actor's spriteset.
 	native void backuppos();
+	native void setPosition(Vector3 pos);
+	native void setPositionZ(Vector3 pos);
 }
 

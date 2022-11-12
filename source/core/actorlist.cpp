@@ -549,6 +549,7 @@ DEFINE_FIELD_NAMED(DCoreActor, sprext.alpha, alpha)
 DEFINE_FIELD_NAMED(DCoreActor, time, spawnindex)
 DEFINE_FIELD_NAMED(DCoreActor, spritesetindex, spritesetpic)
 DEFINE_FIELD_NAMED(DCoreActor, spr.angle, angle)
+DEFINE_FIELD(DCoreActor, vel)
 
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
 {
@@ -632,4 +633,35 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, backuppos, coreactor_backuppos)
 	coreactor_backuppos(self);
 	return 0;
 }
+
+void coreactor_setposition(DCoreActor* self, double x, double y, double z)
+{
+	SetActor(self, DVector3(x, y, z));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setposition, coreactor_setposition)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	coreactor_setposition(self, x, y, z);
+	return 0;
+}
+
+void coreactor_setpositionz(DCoreActor* self, double x, double y, double z)
+{
+	SetActorZ(self, DVector3(x, y, z));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpositionz, coreactor_setpositionz)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	coreactor_setpositionz(self, x, y, z);
+	return 0;
+}
+
 
