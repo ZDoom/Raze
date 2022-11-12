@@ -102,8 +102,7 @@ CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disabl
 {
 	if (self < 0) self = 0;
 	if (self > 1 && isSWALL()) self = 1;
-	if (self > 3 && isBlood()) self = 3;
-	if (self > 7) self = 7;
+	if (self > 3) self = 3;
 }
 
 // Sound

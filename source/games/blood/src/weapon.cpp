@@ -2062,8 +2062,9 @@ static const uint8_t gWeaponUpgrade[][13] = {
 
 int WeaponUpgrade(PLAYER* pPlayer, int newWeapon)
 {
+	int weaponswitch = WeaponSwitch(pPlayer - gPlayer);
 	int weapon = pPlayer->curWeapon;
-	if (!checkLitSprayOrTNT(pPlayer) && (cl_weaponswitch & 1) && (gWeaponUpgrade[pPlayer->curWeapon][newWeapon] || (cl_weaponswitch & 2)))
+	if (!checkLitSprayOrTNT(pPlayer) && (weaponswitch & 1) && (gWeaponUpgrade[pPlayer->curWeapon][newWeapon] || (weaponswitch & 2)))
 		weapon = newWeapon;
 	return weapon;
 }

@@ -1030,7 +1030,7 @@ void selectweapon_r(int snum, int weap)
 					i++;
 					if (i == 10)
 					{
-						fi.addweapon(p, KNEE_WEAPON);
+						fi.addweapon(p, KNEE_WEAPON, true);
 						break;
 					}
 				}
@@ -1116,13 +1116,13 @@ void selectweapon_r(int snum, int weap)
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && p->curr_weapon != j) switch (j)
 			{
 			case KNEE_WEAPON:
-				fi.addweapon(p, j);
+				fi.addweapon(p, j, true);
 				break;
 			case SLINGBLADE_WEAPON:
 				if (isRRRA())
 				{
 					S_PlayActorSound(496, ps[screenpeek].GetActor());
-					fi.addweapon(p, j);
+					fi.addweapon(p, j, true);
 				}
 				break;
 
@@ -1133,7 +1133,7 @@ void selectweapon_r(int snum, int weap)
 						p->last_full_weapon = p->curr_weapon;
 						p->show_empty_weapon = 32;
 					}
-				fi.addweapon(p, PISTOL_WEAPON);
+				fi.addweapon(p, PISTOL_WEAPON, true);
 				break;
 
 			case CHICKEN_WEAPON:
@@ -1153,7 +1153,7 @@ void selectweapon_r(int snum, int weap)
 					p->last_full_weapon = p->curr_weapon;
 					p->show_empty_weapon = 32;
 				}
-				fi.addweapon(p, j);
+				fi.addweapon(p, j, true);
 				break;
 
 			case MOTORCYCLE_WEAPON:
@@ -1164,7 +1164,7 @@ void selectweapon_r(int snum, int weap)
 					{
 						p->show_empty_weapon = 32;
 					}
-					fi.addweapon(p, j);
+					fi.addweapon(p, j, true);
 				}
 				break;
 
@@ -1178,7 +1178,7 @@ void selectweapon_r(int snum, int weap)
 				break;
 			case DYNAMITE_WEAPON:
 				if (p->ammo_amount[DYNAMITE_WEAPON] > 0 && p->gotweapon[DYNAMITE_WEAPON])
-					fi.addweapon(p, DYNAMITE_WEAPON);
+					fi.addweapon(p, DYNAMITE_WEAPON, true);
 				break;
 			}
 		}
@@ -2741,7 +2741,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->detonate_time = 45;
 			if (p->ammo_amount[DYNAMITE_WEAPON] > 0)
 			{
-				fi.addweapon(p, DYNAMITE_WEAPON);
+				fi.addweapon(p, DYNAMITE_WEAPON, true);
 				p->oweapon_pos = p->weapon_pos = -9;
 			}
 			else checkavailweapon(p);
@@ -3947,9 +3947,9 @@ HORIZONLY:
 	if (p->show_empty_weapon > 0)
 		p->show_empty_weapon--;
 
-	if (p->show_empty_weapon == 1)
+	if (p->show_empty_weapon == 0 && (WeaponSwitch(p - ps) & 2))
 	{
-		fi.addweapon(p, p->last_full_weapon);
+		fi.addweapon(p, p->last_full_weapon, true);
 		return;
 	}
 	dokneeattack(snum, { FEM10, NAKED1, STATUE });

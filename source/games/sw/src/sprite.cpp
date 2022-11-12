@@ -5097,6 +5097,7 @@ int DoGet(DSWActor* actor)
     short pnum, key_num;
     bool can_see;
 
+
     // For flag stuff
 
     // Invisiblility is only used for DeathMatch type games
@@ -5128,6 +5129,7 @@ int DoGet(DSWActor* actor)
     {
         pp = &Player[pnum];
         DSWActor* plActor = pp->actor;
+        int weaponswitch = WeaponSwitch(pnum);
 
         if (pp->Flags & (PF_DEAD))
             continue;
@@ -5462,7 +5464,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_STAR));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
             if (plActor->user.WeaponNum <= WPN_STAR && plActor->user.WeaponNum != WPN_SWORD)
                 break;
@@ -5490,7 +5492,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_MINE));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
             if (plActor->user.WeaponNum > WPN_MINE && plActor->user.WeaponNum != WPN_SWORD)
                 break;
@@ -5533,7 +5535,7 @@ KeyMain:
                 ChoosePlayerGetSound(pp);
             }
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
 
             if (plActor->user.WeaponNum > WPN_UZI && plActor->user.WeaponNum != WPN_SWORD)
@@ -5576,7 +5578,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_MICRO));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
             if (plActor->user.WeaponNum > WPN_MICRO && plActor->user.WeaponNum != WPN_SWORD)
                 break;
@@ -5645,7 +5647,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_GRENADE));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
             if (plActor->user.WeaponNum > WPN_GRENADE && plActor->user.WeaponNum != WPN_SWORD)
                 break;
@@ -5674,7 +5676,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_ROCKET));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
             InitWeaponRocket(pp);
             break;
@@ -5719,7 +5721,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_RAIL));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
             if (plActor->user.WeaponNum > WPN_RAIL && plActor->user.WeaponNum != WPN_SWORD)
                 break;
@@ -5761,7 +5763,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_SHOTGUN));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
             if (plActor->user.WeaponNum > WPN_SHOTGUN && plActor->user.WeaponNum != WPN_SWORD)
                 break;
@@ -5829,7 +5831,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_NAPALM) | BIT(WPN_RING) | BIT(WPN_HOTHEAD));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
             if (plActor->user.WeaponNum > WPN_HOTHEAD && plActor->user.WeaponNum != WPN_SWORD)
                 break;
@@ -5874,7 +5876,7 @@ KeyMain:
                 break;
             pp->WpnFlags |= (BIT(WPN_HEART));
 
-            if (!cl_weaponswitch)
+            if (!weaponswitch)
                 break;
 
             if (plActor->user.WeaponNum > WPN_HEART && plActor->user.WeaponNum != WPN_SWORD)
