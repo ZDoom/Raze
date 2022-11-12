@@ -106,16 +106,22 @@ EXTERN_CVAR(Int, m_ffire)
 EXTERN_CVAR(Int, m_noexits)
 EXTERN_CVAR(Int, playercolor)
 
-inline const char* PlayerName(int pindex)
+inline const char* PlayerName(size_t pindex)
 {
 	// Todo: proper implementation of user CVARs.
 	return playername;
 }
 
-inline int Autoaim(int player)
+inline int Autoaim(size_t player)
 {
 	// Todo: proper implementation of user CVARs.
 	return cl_autoaim;
+}
+
+inline int WeaponSwitch(size_t player)
+{
+	// Todo: proper implementation of user CVARs.
+	return cl_weaponswitch;
 }
 
 extern bool gNoAutoLoad;

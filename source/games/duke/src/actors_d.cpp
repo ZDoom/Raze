@@ -161,7 +161,7 @@ void check_fta_sounds_d(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void addweapon_d(struct player_struct *p, int weapon)
+void addweapon_d(player_struct *p, int weapon, bool wswitch)
 {
 	if ( p->gotweapon[weapon] == 0 )
 	{
@@ -169,6 +169,7 @@ void addweapon_d(struct player_struct *p, int weapon)
 		if (weapon == SHRINKER_WEAPON)
 			p->gotweapon[GROW_WEAPON] = true;
 	}
+	if (!wswitch) return;
 
 	p->random_club_frame = 0;
 
@@ -2752,7 +2753,7 @@ DETONATEB:
 				S_PlayActorSound(DUKE_GET, ps[p].GetActor());
 
 				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || Owner == ps[p].GetActor())
-					fi.addweapon(&ps[p], HANDBOMB_WEAPON);
+					fi.addweapon(&ps[p], HANDBOMB_WEAPON, true);
 
 				if (!Owner || Owner->spr.picnum != APLAYER)
 				{

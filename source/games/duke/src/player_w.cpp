@@ -417,7 +417,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			p->okickback_pic = p->kickback_pic = 0;
 			/// WHAT THE HELL DOES THIS DO....?????????????
 			if (p->ammo_amount[TRIPBOMB_WEAPON] > 0)
-				fi.addweapon(p, TRIPBOMB_WEAPON);
+				fi.addweapon(p, TRIPBOMB_WEAPON, true);
 			else
 				checkavailweapon(p);
 		}

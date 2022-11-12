@@ -1875,8 +1875,8 @@ int ParseState::parse(void)
 		}
 		addammo( *insptr, &ps[g_p], *(insptr+1) );
 		if(ps[g_p].curr_weapon == KNEE_WEAPON)
-			if( ps[g_p].gotweapon[*insptr] )
-				fi.addweapon( &ps[g_p], *insptr );
+			if( ps[g_p].gotweapon[*insptr] && (WeaponSwitch(g_p) & 1))
+				fi.addweapon(&ps[g_p], *insptr, true);
 		insptr += 2;
 		break;
 	case concmd_money:
@@ -1924,7 +1924,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_addweapon:
 		insptr++;
-		if( ps[g_p].gotweapon[*insptr] == 0 ) fi.addweapon( &ps[g_p], *insptr );
+		if( ps[g_p].gotweapon[*insptr] == 0 ) fi.addweapon( &ps[g_p], *insptr, !!(WeaponSwitch(g_p) & 1));
 		else if( ps[g_p].ammo_amount[*insptr] >= gs.max_ammo_amount[*insptr] )
 		{
 				killit_flag = 2;
@@ -1932,8 +1932,8 @@ int ParseState::parse(void)
 		}
 		addammo( *insptr, &ps[g_p], *(insptr+1) );
 		if(ps[g_p].curr_weapon == KNEE_WEAPON)
-			if( ps[g_p].gotweapon[*insptr] )
-				fi.addweapon( &ps[g_p], *insptr );
+			if( ps[g_p].gotweapon[*insptr] && (WeaponSwitch(g_p) & 1))
+				fi.addweapon(&ps[g_p], *insptr, true);
 		insptr+=2;
 		break;
 	case concmd_debug:

@@ -114,7 +114,7 @@ void check_fta_sounds_r(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void addweapon_r(struct player_struct* p, int weapon)
+void addweapon_r(player_struct* p, int weapon, bool wswitch)
 {
 	int cw = p->curr_weapon;
 	if (p->OnMotorcycle || p->OnBoat)
@@ -166,6 +166,8 @@ void addweapon_r(struct player_struct* p, int weapon)
 	}
 	else
 		cw = weapon;
+
+	if (!wswitch) return;
 
 	if (weapon == DYNAMITE_WEAPON)
 		p->last_weapon = -1;
@@ -2521,7 +2523,7 @@ DETONATEB:
 					S_PlayActorSound(DUKE_GET, ps[p].GetActor());
 
 					if (ps[p].gotweapon[DYNAMITE_WEAPON] == 0 || Owner == ps[p].GetActor())
-						fi.addweapon(&ps[p], DYNAMITE_WEAPON);
+						fi.addweapon(&ps[p], DYNAMITE_WEAPON, true);
 
 					if (!Owner || Owner->spr.picnum != APLAYER)
 					{

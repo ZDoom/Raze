@@ -139,14 +139,17 @@ void checkavailweapon(struct player_struct* player)
 		if (weap == player->curr_weapon) return;
 		else if (player->gotweapon[weap] && player->ammo_amount[weap] > 0)
 		{
-			fi.addweapon(player, weap);
+			fi.addweapon(player, weap, true);
 			return;
 		}
 	}
 
 	weap = player->curr_weapon;
-	if (player->gotweapon[weap] && player->ammo_amount[weap] > 0)
-		return;
+	if (player->gotweapon[weap])
+	{
+		if (player->ammo_amount[weap] > 0 || (WeaponSwitch(player - ps) & 2) == 0)
+			return;
+	}
 
 	snum = player->GetPlayerNum();
 
