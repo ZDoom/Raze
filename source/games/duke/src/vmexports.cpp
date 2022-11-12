@@ -212,9 +212,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, loogcnt)
 DEFINE_FIELD_X(DukePlayer, player_struct, invdisptime)
 //DEFINE_FIELD_X(DukePlayer, player_struct, bobposx)
 //DEFINE_FIELD_X(DukePlayer, player_struct, bobposy)
-//DEFINE_FIELD_X(DukePlayer, player_struct, oposx)
-//DEFINE_FIELD_X(DukePlayer, player_struct, oposy)
-//DEFINE_FIELD_X(DukePlayer, player_struct, oposz)
+DEFINE_FIELD_X(DukePlayer, player_struct, pos)
 DEFINE_FIELD_X(DukePlayer, player_struct, pyoff)
 DEFINE_FIELD_X(DukePlayer, player_struct, opyoff)
 //DEFINE_FIELD_X(DukePlayer, player_struct, posxv)
@@ -362,6 +360,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, somethingonplayer)
 DEFINE_FIELD_X(DukePlayer, player_struct, access_spritenum)
 DEFINE_FIELD_X(DukePlayer, player_struct, dummyplayersprite)
 DEFINE_FIELD_X(DukePlayer, player_struct, newOwner)
+DEFINE_FIELD_X(DukePlayer, player_struct, fric)
 
 DEFINE_ACTION_FUNCTION(_DukePlayer, IsFrozen)
 {
@@ -377,12 +376,6 @@ DEFINE_ACTION_FUNCTION(_DukePlayer, GetGameVar)
 	ACTION_RETURN_INT(GetGameVar(name, def, self->GetActor(), self->GetPlayerNum()).safeValue());
 }
 
-DEFINE_ACTION_FUNCTION(_DukePlayer, angleAsBuild)
-{
-	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
-	ACTION_RETURN_INT(self->angle.ang.Buildang());
-}
-
 void dukeplayer_backuppos(player_struct* self)
 {
 	self->backuppos();
@@ -392,6 +385,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backuppos, dukeplayer_backuppos)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
 	dukeplayer_backuppos(self);
+	return 0;
+}
+
+void dukeplayer_backupxyz(player_struct* self)
+{
+	self->backupxyz();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backupxyz, dukeplayer_backupxyz)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	dukeplayer_backupxyz(self);
 	return 0;
 }
 
@@ -410,6 +415,30 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)
 	return 0;
 }
 
+void dukeplayer_settargetangle(player_struct* self, double a, int backup)
+{
+	self->angle.settarget(DAngle::fromDeg(a), backup);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, settargetangle, dukeplayer_settargetangle)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_FLOAT(a);
+	PARAM_BOOL(bak);
+	dukeplayer_settargetangle(self, a, bak);
+	return 0;
+}
+
+double dukeplayer_angle(player_struct* self)
+{
+	return self->angle.ang.Degrees();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, angle, dukeplayer_angle)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	ACTION_RETURN_FLOAT(dukeplayer_angle(self));
+}
 
 static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)
 {

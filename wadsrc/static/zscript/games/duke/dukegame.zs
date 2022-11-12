@@ -122,14 +122,9 @@ struct Duke native
 
 struct DukePlayer 
 {
-	// The sound code wants to read a vector out of this so we need to define one for the main coordinate.
-	/*
-	union
-	{
-		vec3_t pos;
-		struct { int32_t posx, posy, posz; };
-	};
+	native Vector3 pos;
 
+	/*
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;
 	PlayerAngle angle;
@@ -143,7 +138,7 @@ struct DukePlayer
 	native color pals;
 
 	// this was a global variable originally.
-	//vec2_t fric;
+	native Vector2 fric;
 
 	// weapon drawer variables and their interpolation counterparts.
 	native int weapon_sway;
@@ -268,9 +263,11 @@ struct DukePlayer
 
 	native bool IsFrozen();
 	native int GetGameVar(String varname, int defval);
-	native int angleAsBuild();
 	native void backuppos();
+	native void backupxyz();
 	native void setpos(Vector3 pos);
+	native void settargetangle(double angle, bool backup = false);
+	native double angle();
 
 
 }
