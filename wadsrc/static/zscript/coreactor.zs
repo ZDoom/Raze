@@ -7,7 +7,7 @@ enum EClipMask
 
 class CoreActor native
 {
-	//native readonly sectortype sectp;
+	native readonly sectortype sector;
 	
 	native int16 cstat;
 	//native int16 picnum; // access is disabled to allow later refactoring.
