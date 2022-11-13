@@ -1455,7 +1455,8 @@ public:
 
 	double Tan() const
 	{
-		return vec_t(g_tan(Radians()));
+		auto bam = BAMs();
+		return g_sinbam(bam) / g_cosbam(bam);
 	}
 
 	// This is for calculating vertical velocity. For high pitches the tangent will become too large to be useful.
