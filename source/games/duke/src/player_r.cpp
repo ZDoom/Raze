@@ -3945,12 +3945,14 @@ HORIZONLY:
 	//Shooting code/changes
 
 	if (p->show_empty_weapon > 0)
+	{
 		p->show_empty_weapon--;
 
-	if (p->show_empty_weapon == 0 && (WeaponSwitch(p - ps) & 2))
-	{
-		fi.addweapon(p, p->last_full_weapon, true);
-		return;
+		if (p->show_empty_weapon == 0 && (WeaponSwitch(p - ps) & 2))
+		{
+			fi.addweapon(p, p->last_full_weapon, true);
+			return;
+		}
 	}
 	dokneeattack(snum, { FEM10, NAKED1, STATUE });
 
