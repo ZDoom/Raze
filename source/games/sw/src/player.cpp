@@ -1312,7 +1312,7 @@ void DoPlayerTeleportPause(PLAYER* pp)
 void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
     pp->angle.ang = pp->angle.oang = ang;
-	pp->opos = pp->PlayerNowPosition= pos.plusZ(-PLAYER_HEIGHTF);
+	pp->PlayerPrevPosition = pp->PlayerNowPosition= pos.plusZ(-PLAYER_HEIGHTF);
 	pp->oldpos.XY() = pp->PlayerNowPosition.XY();
 
     updatesector(pp->PlayerNowPosition, &pp->cursector);
@@ -1327,7 +1327,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 
 void DoPlayerTeleportToOffset(PLAYER* pp)
 {
-    pp->oldpos.XY() = pp->opos.XY() = pp->PlayerNowPosition.XY();
+    pp->oldpos.XY() = pp->PlayerPrevPosition.XY() = pp->PlayerNowPosition.XY();
 
     updatesector(pp->PlayerNowPosition, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
@@ -2163,7 +2163,7 @@ void DoPlayerMove(PLAYER* pp)
         auto sect = pp->cursector;
         if (interpolate_ride)
         {
-            pp->opos.XY() = pp->PlayerNowPosition.XY();
+            pp->PlayerPrevPosition.XY() = pp->PlayerNowPosition.XY();
         }
 		pp->PlayerNowPosition += pp->vect;
         updatesector(pp->PlayerNowPosition, &sect);
@@ -2188,7 +2188,7 @@ void DoPlayerMove(PLAYER* pp)
 
         if (interpolate_ride)
         {
-            pp->opos.XY() = pp->PlayerNowPosition.XY();
+            pp->PlayerPrevPosition.XY() = pp->PlayerNowPosition.XY();
         }
 
         auto save_cstat = actor->spr.cstat;
@@ -2217,7 +2217,7 @@ void DoPlayerMove(PLAYER* pp)
 
     if (interpolate_ride)
     {
-        pp->opos.Z = pp->PlayerNowPosition.Z;
+        pp->PlayerPrevPosition.Z = pp->PlayerNowPosition.Z;
         pp->angle.backup();
     }
 
@@ -3753,7 +3753,7 @@ void PlayerWarpUpdatePos(PLAYER* pp)
     if (Prediction)
         return;
 
-    pp->opos = pp->PlayerNowPosition;
+    pp->PlayerPrevPosition = pp->PlayerNowPosition;
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
 }
@@ -4283,7 +4283,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
 
     pp->PlayerNowPosition.Z = under_act->sector()->ceilingz + 6;
 
-    pp->opos = pp->PlayerNowPosition;
+    pp->PlayerPrevPosition = pp->PlayerNowPosition;
 
     DoPlayerZrange(pp);
     return;
@@ -4359,7 +4359,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
 
     pp->PlayerNowPosition.Z -= pp->WadeDepth;
 
-    pp->opos = pp->PlayerNowPosition;
+    pp->PlayerPrevPosition = pp->PlayerNowPosition;
 
     return;
 }
@@ -6818,7 +6818,7 @@ void MoveSkipSavePos(void)
     {
         pp = Player + pnum;
 
-        pp->opos = pp->PlayerNowPosition;
+        pp->PlayerPrevPosition = pp->PlayerNowPosition;
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
         pp->horizon.backup();
@@ -7174,7 +7174,7 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->PlayerNowPosition = pp->opos = pfirst->PlayerNowPosition;
+        pp->PlayerNowPosition = pp->PlayerPrevPosition = pfirst->PlayerNowPosition;
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
         pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursector = pfirst->cursector;
@@ -7335,7 +7335,7 @@ void PlayerSpawnPosition(PLAYER* pp)
     ASSERT(spawn_sprite != nullptr);
 
     pp->PlayerNowPosition = spawn_sprite->spr.pos;
-    pp->opos = pp->PlayerNowPosition;
+    pp->PlayerPrevPosition = pp->PlayerNowPosition;
     pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());
 
@@ -7344,7 +7344,7 @@ void PlayerSpawnPosition(PLAYER* pp)
     if (pp->PlayerNowPosition.Z > fz - PLAYER_HEIGHTF)
     {
 		pp->PlayerNowPosition.Z = fz - PLAYER_HEIGHTF;
-        pp->opos.Z = pp->PlayerNowPosition.Z;
+        pp->PlayerPrevPosition.Z = pp->PlayerNowPosition.Z;
     }
 }
 

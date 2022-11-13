@@ -58,7 +58,7 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
     Player->PlayerNowPosition = DVector3(x,y,z);
 
-    Player->opos = Player->PlayerNowPosition;
+    Player->PlayerPrevPosition = Player->PlayerNowPosition;
 
     if (ang != DAngle::fromDeg(INT_MIN))
     {

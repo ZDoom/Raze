@@ -538,7 +538,7 @@ struct PLAYER
 {
     // variable that fit in the sprite or user structure
 
-    DVector3 PlayerNowPosition, opos, oldpos;
+    DVector3 PlayerNowPosition, PlayerPrevPosition, oldpos;
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;

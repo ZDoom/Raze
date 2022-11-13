@@ -811,7 +811,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             else // Otherwise just interpolate the player sprite
             {
                 pp = tActor->user.PlayerP;
-                tsp->pos = interpolatedvalue(pp->opos, pp->PlayerNowPosition, interpfrac);
+                tsp->pos = interpolatedvalue(pp->PlayerPrevPosition, pp->PlayerNowPosition, interpfrac);
                 tsp->angle = pp->angle.interpolatedang(interpfrac);
             }
         }
@@ -1240,7 +1240,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     }
 
     // Get initial player position, interpolating if required.
-    DVector3 tpos = interpolatedvalue(camerapp->opos, camerapp->PlayerNowPosition, interpfrac);
+    DVector3 tpos = interpolatedvalue(camerapp->PlayerPrevPosition, camerapp->PlayerNowPosition, interpfrac);
     if (SyncInput() || pp != Player+myconnectindex)
     {
         tang = camerapp->angle.interpolatedsum(interpfrac);
