@@ -248,6 +248,7 @@ enum EFxType
 	EFX_Conditional,
 	EFX_Abs,
 	EFX_ATan2,
+	EFX_ATan2Vec,
 	EFX_New,
 	EFX_MinMax,
 	EFX_Random,
@@ -284,6 +285,7 @@ enum EFxType
 	EFX_SwitchStatement,
 	EFX_CaseStatement,
 	EFX_VectorValue,
+	EFX_VectorPlusZ,
 	EFX_VectorBuiltin,
 	EFX_TypeCheck,
 	EFX_DynamicCast,
@@ -305,6 +307,7 @@ enum EFxType
 	EFX_FontCast,
 	EFX_LocalArrayDeclaration,
 	EFX_OutVarDereference,
+	EFX_ToVector,
 	EFX_COUNT
 };
 
@@ -1201,6 +1204,18 @@ private:
 	ExpEmit ToReg(VMFunctionBuilder *build, FxExpression *val);
 };
 
+class FxATan2Vec : public FxExpression
+{
+	FxExpression* vval;
+
+public:
+
+	FxATan2Vec(FxExpression* y, const FScriptPosition& pos);
+	~FxATan2Vec();
+	FxExpression* Resolve(FCompileContext&);
+	ExpEmit Emit(VMFunctionBuilder* build);
+};
+
 //==========================================================================
 //
 //
@@ -1596,6 +1611,44 @@ public:
 	~FxVectorBuiltin();
 	FxExpression *Resolve(FCompileContext&);
 	ExpEmit Emit(VMFunctionBuilder *build);
+};
+
+//==========================================================================
+//
+//	FxPlusZ
+//
+//==========================================================================
+
+class FxVectorPlusZ : public FxExpression
+{
+	FName Function;
+	FxExpression* Self;
+	FxExpression* Z;
+
+public:
+
+	FxVectorPlusZ(FxExpression* self, FName name, FxExpression*);
+	~FxVectorPlusZ();
+	FxExpression* Resolve(FCompileContext&);
+	ExpEmit Emit(VMFunctionBuilder* build);
+};
+
+//==========================================================================
+//
+//	FxPlusZ
+//
+//==========================================================================
+
+class FxToVector : public FxExpression
+{
+	FxExpression* Self;
+
+public:
+
+	FxToVector(FxExpression* self);
+	~FxToVector();
+	FxExpression* Resolve(FCompileContext&);
+	ExpEmit Emit(VMFunctionBuilder* build);
 };
 
 //==========================================================================
