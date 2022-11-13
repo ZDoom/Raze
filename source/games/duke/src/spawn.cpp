@@ -111,6 +111,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, in
 	act->spsmooth = {};
 
 	return act;
+
 }
 
 DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
@@ -119,7 +120,6 @@ DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int
 	if (actor) fi.spawninit(s_ow, actor, nullptr);
 	return actor;
 }
-
 
 //---------------------------------------------------------------------------
 //
@@ -444,51 +444,6 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 
 		ChangeActorStat(act, STAT_MISC);
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
-{
-	auto sect = act->sector();
-	act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ONE_SIDE;
-
-	act->spr.picnum += 2;
-	act->spr.pos.Z = sect->ceilingz + 48;
-	act->temp_data[4] = cranes.Reserve(1);
-
-	auto& apt = cranes[act->temp_data[4]];
-	apt.pos = act->spr.pos;
-	apt.poleactor = nullptr;
-
-	DukeStatIterator it(STAT_DEFAULT);
-	while (auto actk = it.Next())
-	{
-		if (actk->spr.picnum == CRANEPOLE && act->spr.hitag == actk->spr.hitag)
-		{
-			apt.poleactor = actk;
-
-			act->temp_sect = actk->sector();
-
-			actk->spr.scale = DVector2(0.75, 2);
-
-			apt.pole = actk->spr.pos.XY();
-
-			actk->spr.pos = act->spr.pos;
-			actk->spr.shade = act->spr.shade;
-
-			SetActor(actk, actk->spr.pos);
-			break;
-		}
-	}
-
-	act->SetOwner(nullptr);
-	act->spr.extra = 8;
-	ChangeActorStat(act, STAT_STANDABLE);
 }
 
 //---------------------------------------------------------------------------

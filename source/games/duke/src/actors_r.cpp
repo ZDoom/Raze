@@ -825,10 +825,6 @@ void movestandables_r(void)
 			CallTick(act);
 			continue;
 		}
-		if (picnum >= CRANE && picnum <= CRANE +3)
-		{
-			movecrane(act, CRANE);
-		}
 
 		else if (picnum >= WATERFOUNTAIN && picnum <= WATERFOUNTAIN + 3)
 		{
@@ -3900,6 +3896,7 @@ void destroyit(DDukeActor *actor)
 				destsect->lotag = srcsect->lotag;
 				destsect->hitag = srcsect->hitag;
 				destsect->extra = srcsect->extra;
+				destsect->dirty = EDirty::AllDirty;
 			}
 	}
 	it1.Reset(actor->sector());

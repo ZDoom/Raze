@@ -1,5 +1,5 @@
 spawnclasses
 {
-	//1221 = DukeCranePole
-	//1222 = DukeCrane
+	1221 = DukeCranePole
+	1222 = DukeCrane
 }

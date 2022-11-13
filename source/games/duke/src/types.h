@@ -93,17 +93,6 @@ public:
 		hitOwnerActor = a;
 	}
 
-	inline bool IsActiveCrane()
-	{
-		return spr.intowner == -2;
-	}
-
-	inline void SetActiveCrane(bool yes)
-	{
-		ownerActor = nullptr;
-		spr.intowner = yes ? -2 : -1;
-	}
-
 	int PlayerIndex() const
 	{
 		// only valid for real players - just here to abstract yvel.
@@ -183,13 +172,6 @@ struct player_orig
 	DVector3 opos;
 	DAngle oa;
 	sectortype* os;
-};
-
-struct CraneDef
-{
-	DVector3 pos;
-	DVector2 pole;
-	TObjPtr<DDukeActor*> poleactor;
 };
 
 struct player_struct

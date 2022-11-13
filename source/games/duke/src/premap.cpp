@@ -452,7 +452,6 @@ void resetprestat(int snum,int g)
 	paused             = 0;
 	ud.cameraactor =nullptr;
 	mspos.Clear();
-	cranes.Clear();
 	camsprite               =nullptr;
 	earthquaketime          = 0;
 

@@ -11,7 +11,7 @@ class CoreActor native
 	
 	native int16 cstat;
 	//native int16 picnum; // access is disabled to allow later refactoring.
-	native readonly Vector3 pos;
+	native Vector3 pos;
 	native readonly int16 statnum;
 	native int16 intangle;
 	native int16 xint;

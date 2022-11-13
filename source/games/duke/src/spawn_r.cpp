@@ -39,6 +39,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 {
 	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
+		auto sset = act->spriteset();
+		if (sset.Size() > 0) act->spr.picnum = sset[0];
 		CallInitialize(act);
 		return act;
 	}
@@ -672,9 +674,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else
 			act->spr.scale = DVector2(0.5, 0.5);
 		ChangeActorStat(act, STAT_MISC);
-		break;
-	case CRANE:
-		initcrane(actj, act, CRANEPOLE);
 		break;
 	case WATERDRIP:
 		initwaterdrip(actj, act);

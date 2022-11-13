@@ -129,7 +129,6 @@ extern short ambientlotag[64];
 extern short ambienthitag[64];
 extern unsigned ambientfx;
 extern TArray<DVector2> mspos;
-extern TArray<CraneDef> cranes;
 extern int WindTime;
 extern DAngle WindDir;
 extern short fakebubba_spawn, mamaspawn_count, banjosound;

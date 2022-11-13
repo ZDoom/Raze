@@ -80,7 +80,6 @@ static void markgcroots()
 	GC::MarkArray(spriteq, countof(spriteq));
 	GC::Mark(currentCommentarySprite);
 	GC::Mark(ud.cameraactor);
-	for (auto& crn : cranes) GC::Mark(crn.poleactor);
 	for (auto& pl : ps)
 	{
 		GC::Mark(pl.actor);
