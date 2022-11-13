@@ -40,7 +40,7 @@ class CoreActor native
 	native double angle;
 	native Vector3 vel;
 
-	native readonly int16 spritesetpic;
+	native readonly int16 spritesetindex;
 	native readonly int spawnindex;
 
 	native void setpos(Vector3 newpos, bool relink = true);

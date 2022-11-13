@@ -73,7 +73,7 @@ player_struct* duke_checkcursectnums(sectortype* sector)
 {
 	if (!sector) return nullptr;
 	int pp = checkcursectnums(sector);
-	return pp ? &ps[pp] : nullptr;
+	return pp >= 0 ? &ps[pp] : nullptr;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Duke, checkcursectnums, duke_checkcursectnums)

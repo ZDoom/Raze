@@ -36,7 +36,6 @@ class DukeActor : CoreActor native
 	native int palvals;
 	native int temp_data[6];
 	native private int flags1, flags2;
-	native readonly int16 spritesetindex;
 	native walltype temp_walls[2];
 	native sectortype temp_sect, actorstayput;
 

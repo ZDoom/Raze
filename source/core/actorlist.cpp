@@ -547,7 +547,7 @@ DEFINE_FIELD_NAMED(DCoreActor, sprext.mdanimcur, mdanimcur)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.renderflags, renderflags)
 DEFINE_FIELD_NAMED(DCoreActor, sprext.alpha, alpha)
 DEFINE_FIELD_NAMED(DCoreActor, time, spawnindex)
-DEFINE_FIELD_NAMED(DCoreActor, spritesetindex, spritesetpic)
+DEFINE_FIELD(DCoreActor, spritesetindex)
 DEFINE_FIELD_NAMED(DCoreActor, spr.angle, angle)
 DEFINE_FIELD(DCoreActor, vel)
 
