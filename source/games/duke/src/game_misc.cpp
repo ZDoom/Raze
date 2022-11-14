@@ -271,13 +271,13 @@ void drawoverlays(double interpfrac)
 				}
 				else
 				{
-					cposxy = interpolatedvalue(pp->opos, pp->PlayerNowPosition, interpfrac).XY();
+					cposxy = interpolatedvalue(pp->PlayerOldPosition, pp->PlayerNowPosition, interpfrac).XY();
 					cang = !SyncInput() ? pp->angle.ang : interpolatedvalue(pp->angle.oang, pp->angle.ang, interpfrac);
 				}
 			}
 			else
 			{
-				cposxy = pp->opos.XY();
+				cposxy = pp->PlayerOldPosition.XY();
 				cang = pp->angle.oang;
 			}
 			DrawOverheadMap(cposxy, cang, interpfrac);

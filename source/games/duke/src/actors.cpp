@@ -374,8 +374,8 @@ void movedummyplayers(void)
 			}
 		}
 
-		act->spr.pos.X += (ps[p].PlayerNowPosition.X - ps[p].opos.X);
-		act->spr.pos.Y += (ps[p].PlayerNowPosition.Y - ps[p].opos.Y);
+		act->spr.pos.X += (ps[p].PlayerNowPosition.X - ps[p].PlayerOldPosition.X);
+		act->spr.pos.Y += (ps[p].PlayerNowPosition.Y - ps[p].PlayerOldPosition.Y);
 		SetActor(act, act->spr.pos);
 	}
 }
@@ -400,7 +400,7 @@ void moveplayers(void)
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				act->spr.pos = p->opos.plusZ(gs.playerheight);
+				act->spr.pos = p->PlayerOldPosition.plusZ(gs.playerheight);
 				act->backupz();
 				act->spr.angle = p->angle.oang;
 				SetActor(act, act->spr.pos);
@@ -3046,10 +3046,10 @@ void handle_se17(DDukeActor* actor)
 			{
 				int p = act3->PlayerIndex();
 
-				ps[p].opos -= ps[p].PlayerNowPosition;
+				ps[p].PlayerOldPosition -= ps[p].PlayerNowPosition;
 				ps[p].PlayerNowPosition.XY() += act2->spr.pos.XY() - actor->spr.pos.XY();
 				ps[p].PlayerNowPosition.Z += act2->sector()->floorz - sc->floorz;
-				ps[p].opos += ps[p].PlayerNowPosition;
+				ps[p].PlayerOldPosition += ps[p].PlayerNowPosition;
 
 				if (q > 0) ps[p].backupz();
 
@@ -4419,8 +4419,8 @@ void movefta(void)
 					if (badguy(act))
 					{
 						auto xyrand = []() -> double { return (64 - (krand() & 127)) * maptoworld; };
-						double px = ps[p].opos.X - xyrand();
-						double py = ps[p].opos.Y - xyrand();
+						double px = ps[p].PlayerOldPosition.X - xyrand();
+						double py = ps[p].PlayerOldPosition.Y - xyrand();
 						updatesector(DVector3(px, py, 0), &psect);
 						if (psect == nullptr)
 						{
@@ -4437,14 +4437,14 @@ void movefta(void)
 						{
 							double r1 = zrand(32);
 							double r2 = zrand(52);
-							canseeme = cansee({ sx, sy, act->spr.pos.Z - r2 }, act->sector(), { px, py, ps[p].opos.Z - r1 }, ps[p].cursector);
+							canseeme = cansee({ sx, sy, act->spr.pos.Z - r2 }, act->sector(), { px, py, ps[p].PlayerOldPosition.Z - r1 }, ps[p].cursector);
 						}
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), ps[p].opos.plusZ(-(r1 & 31)), ps[p].cursector);
+						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), ps[p].PlayerOldPosition.plusZ(-(r1 & 31)), ps[p].cursector);
 					}
 
 

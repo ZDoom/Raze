@@ -176,7 +176,7 @@ struct player_orig
 struct player_struct
 {
 	DVector3 vel;
-	DVector3 PlayerNowPosition, opos;
+	DVector3 PlayerNowPosition, PlayerOldPosition;
 	DVector2 bobpos;
 	DVector2 fric;
 	DVector2 Exit;
@@ -333,23 +333,23 @@ struct player_struct
 
 	void backupxyz()
 	{
-		opos = PlayerNowPosition;
+		PlayerOldPosition = PlayerNowPosition;
 	}
 
 	void restorexyz()
 	{
-		PlayerNowPosition = opos;
+		PlayerNowPosition = PlayerOldPosition;
 	}
 
 	void backupxy()
 	{
-		opos.X = PlayerNowPosition.X;
-		opos.Y = PlayerNowPosition.Y;
+		PlayerOldPosition.X = PlayerNowPosition.X;
+		PlayerOldPosition.Y = PlayerNowPosition.Y;
 	}
 
 	void backupz()
 	{
-		opos.Z = PlayerNowPosition.Z;
+		PlayerOldPosition.Z = PlayerNowPosition.Z;
 	}
 
 	void setbobpos()

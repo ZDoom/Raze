@@ -526,7 +526,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 			ang += DAngle22_5 / 8. - randomAngle(22.5 / 4);
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].opos.Z - pos.Z + 3) * vel) / dist;
+		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z + 3) * vel) / dist;
 	}
 
 	double oldzvel = zvel;
@@ -613,7 +613,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		ang = (ps[j].opos.XY() - pos.XY()).Angle();
+		ang = (ps[j].PlayerOldPosition.XY() - pos.XY()).Angle();
 		if (actor->spr.picnum == BOSS3)
 			pos.Z -= 32;
 		else if (actor->spr.picnum == BOSS2)
@@ -623,7 +623,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 		}
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].opos.Z - pos.Z) * vel) / dist;
+		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z) * vel) / dist;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
 			ang = actor->spr.angle + randomAngle(22.5 / 4) - DAngle22_5 / 8;
@@ -758,7 +758,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 			ang += DAngle22_5/8 - randomAngle(22.5 / 4);
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].opos.Z - pos.Z + 3) * vel) / dist;
+		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z + 3) * vel) / dist;
 	}
 
 	double oldzvel = zvel;
@@ -3525,7 +3525,7 @@ void processinput_r(int snum)
 	checklook(snum, actions);
 	p->apply_seasick(1);
 
-	auto oldpos = p->opos;
+	auto oldpos = p->PlayerOldPosition;
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -3888,7 +3888,7 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->PlayerNowPosition = p->opos = oldpos;
+					p->PlayerNowPosition = p->PlayerOldPosition = oldpos;
 					continue;
 				}
 				quickkill(p);

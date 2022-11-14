@@ -290,7 +290,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		}
 		else
 		{
-			cpos = interpolatedvalue(p->opos, p->PlayerNowPosition, interpfrac);
+			cpos = interpolatedvalue(p->PlayerOldPosition, p->PlayerNowPosition, interpfrac);
 
 			if (SyncInput())
 			{

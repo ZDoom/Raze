@@ -765,16 +765,16 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		opos.X = PlayerNowPosition.X;
-		opos.Y = PlayerNowPosition.Y;
+		PlayerOldPosition.X = PlayerNowPosition.X;
+		PlayerOldPosition.Y = PlayerNowPosition.Y;
 	}
 	else
 	{
-		PlayerNowPosition.X = opos.X;
-		PlayerNowPosition.Y = opos.Y;
+		PlayerNowPosition.X = PlayerOldPosition.X;
+		PlayerNowPosition.Y = PlayerOldPosition.Y;
 	}
 
-	opos.Z = PlayerNowPosition.Z;
+	PlayerOldPosition.Z = PlayerNowPosition.Z;
 	bobpos = PlayerNowPosition.XY();
 	opyoff = pyoff;
 }
