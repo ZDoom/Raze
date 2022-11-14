@@ -3523,10 +3523,15 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		return;
 	}
 
+	if (actor->spr.picnum == WATERBUBBLE)
+	{
+		int a = 0;
+	}
+
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
-	if (a & geth) actor->vel.X += (moveptr[0] / 16 - actor->vel.X) * 0.5;
-	if (a & getv) actor->vel.Z += (moveptr[1] / 16 - actor->vel.Z) * 0.5;
+	if (a & geth) actor->vel.X += (moveptr[0] / 16. - actor->vel.X) * 0.5;
+	if (a & getv) actor->vel.Z += (moveptr[1] / 16. - actor->vel.Z) * 0.5;
 
 	if (a & dodgebullet)
 		dodge(actor);
@@ -3538,7 +3543,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	a = badguy(actor);
 
-	if (actor->vel.X != 0 || actor->vel.X != 0)
+	if (actor->vel.X != 0 || actor->vel.Z != 0)
 	{
 		if (a && actor->spr.picnum != ROTATEGUN)
 		{

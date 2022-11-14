@@ -3547,8 +3547,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
-	if (a & geth) actor->vel.X += (moveptr[0] / 16 - actor->vel.X) * 0.5;
-	if (a & getv) actor->vel.Z += (moveptr[1] / 16 - actor->vel.Z) * 0.5;
+	if (a & geth) actor->vel.X += (moveptr[0] / 16. - actor->vel.X) * 0.5;
+	if (a & getv) actor->vel.Z += (moveptr[1] / 16. - actor->vel.Z) * 0.5;
 
 	if (a & dodgebullet)
 		dodge(actor);
