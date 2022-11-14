@@ -1187,10 +1187,6 @@ void movestandables_d(void)
 			CallTick(act);
 			continue;
 		}
-		else if (picnum >= WATERFOUNTAIN && picnum <= WATERFOUNTAIN + 3)
-		{
-			movefountain(act, WATERFOUNTAIN);
-		}
 
 		else if (AFLAMABLE(picnum))
 		{

@@ -2,4 +2,9 @@ spawnclasses
 {
 	1298 = DukeCranePole
 	1299 = DukeCrane
+	1092 = DukeWaterFountain
+	1093 = DukeWaterFountain
+	1094 = DukeWaterFountain
+	1095 = DukeWaterFountain
+	1096 = DukeWaterFountainBroke
 }

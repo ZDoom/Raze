@@ -2,4 +2,10 @@ spawnclasses
 {
 	1221 = DukeCranePole
 	1222 = DukeCrane
+	563 = DukeWaterFountain
+	564 = DukeWaterFountain
+	565 = DukeWaterFountain
+	566 = DukeWaterFountain
+	567 = DukeWaterFountainBroke
+	
 }

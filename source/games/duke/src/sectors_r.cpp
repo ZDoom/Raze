@@ -2152,12 +2152,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
 
 		break;
-	case WATERFOUNTAIN:
-	case WATERFOUNTAIN + 1:
-	case WATERFOUNTAIN + 2:
-	case WATERFOUNTAIN + 3:
-		spawn(targ, TOILETWATER);
-		break;
 	case SATELITE:
 	case FUELPOD:
 	case SOLARPANNEL:
@@ -2674,19 +2668,6 @@ void checksectors_r(int snum)
 				}
 				else if (S_CheckActorSoundPlaying(pact, DUKE_GRUNT) == 0)
 					S_PlayActorSound(DUKE_GRUNT, pact);
-				return;
-			case WATERFOUNTAIN:
-				if (neartagsprite->temp_data[0] != 1)
-				{
-					neartagsprite->temp_data[0] = 1;
-					neartagsprite->SetOwner(p->GetActor());
-
-					if (p->GetActor()->spr.extra < gs.max_player_health)
-					{
-						p->GetActor()->spr.extra++;
-						S_PlayActorSound(DUKE_DRINKING, pact);
-					}
-				}
 				return;
 			case PLUG:
 				S_PlayActorSound(SHORT_CIRCUIT, pact);

@@ -1031,10 +1031,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		break;
 
-	case WATERFOUNTAIN:
-		act->spr.lotag = 1;
-		[[fallthrough]];
-
 	case TREE1:
 	case TREE2:
 	case TIRE:

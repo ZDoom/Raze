@@ -1237,9 +1237,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		act->spr.shade = act->sector()->floorshade;
 		break;
-	case WATERFOUNTAIN:
-		act->spr.lotag = 1;
-		[[fallthrough]];
 	case TREE1:
 	case TREE2:
 	case TIRE:

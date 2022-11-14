@@ -620,39 +620,6 @@ void movefx(void)
 //
 //---------------------------------------------------------------------------
 
-void movefountain(DDukeActor *actor, int fountain)
-{
-	if (actor->temp_data[0] > 0)
-	{
-		if (actor->temp_data[0] < 20)
-		{
-			actor->temp_data[0]++;
-
-			actor->spr.picnum++;
-
-			if (actor->spr.picnum == fountain + 3)
-				actor->spr.picnum = fountain + 1;
-		}
-		else
-		{
-			double x;
-			findplayer(actor, &x);
-
-			if (x > 32)
-			{
-				actor->temp_data[0] = 0;
-				actor->spr.picnum = fountain;
-			}
-			else actor->temp_data[0] = 1;
-		}
-	}
-}
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void moveflammable(DDukeActor* actor, int pool)
 {
 	double scale;

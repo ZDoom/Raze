@@ -826,11 +826,6 @@ void movestandables_r(void)
 			continue;
 		}
 
-		else if (picnum >= WATERFOUNTAIN && picnum <= WATERFOUNTAIN + 3)
-		{
-			movefountain(act, WATERFOUNTAIN);
-		}
-
 		else if (AFLAMABLE(picnum))
 		{
 			moveflammable(act, BLOODPOOL);

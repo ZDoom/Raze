@@ -83,7 +83,7 @@ class DukeActor : CoreActor native
 
 extend struct _
 {
-	native DukeGameInfo gs;
+	native @DukeGameInfo gs;
 	native DukeLevel dlevel;
 }
 
