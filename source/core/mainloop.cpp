@@ -396,6 +396,7 @@ void DrawOverlays()
 // Display
 //
 //==========================================================================
+CVAR(Int, drawtile, -1, 0)	// debug stuff. Draws the tile with the given number on top of thze HUD
 
 void Display()
 {
@@ -452,12 +453,19 @@ void Display()
 	}
 	
 	if (nextwipe == wipe_None)
+	{
 		DrawOverlays();
+		if (drawtile >= 0)
+		{
+			DrawTexture(twod, tileGetTexture(drawtile), false, 0, 0, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
+		}
+	}
 	else
 	{
 		PerformWipe(wipestart, screen->WipeEndScreen(), nextwipe, true, DrawOverlays);
 		nextwipe = wipe_None;
 	}
+
 	screen->Update();
 }
 
