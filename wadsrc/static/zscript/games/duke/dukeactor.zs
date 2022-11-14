@@ -69,6 +69,8 @@ class DukeActor : CoreActor native
 	native int ifhitbyweapon();
 	native int domove(int clipmask);
 	native void PlayActorSound(int snd);
+	native DukeActor spawn(Name type);
+	native void lotsofglass(int count);
 	
 	virtual void BeginPlay() {}
 	virtual void Initialize() {}

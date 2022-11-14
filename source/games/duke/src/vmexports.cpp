@@ -183,6 +183,46 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, PlayActorSound, DukeActor_PlayActorSou
 	ACTION_RETURN_INT(DukeActor_PlayActorSound(self, snd));
 }
 
+DDukeActor* DukeActor_Spawn(DDukeActor* origin, int intname)
+{
+	int picnum = -1;
+	// this is still a hack so it can spawn actors which haven't been scriptified yet. This will go away later.
+	if (FName(ENamedName(intname)) == FName("DukeToiletWater"))
+	{
+		picnum = TileFiles.tileForName("TOILETWATER");
+	}
+
+	if (picnum == -1)
+	{
+		auto cls = PClass::FindActor(FName(ENamedName(intname)));
+		if (cls) return spawn(origin, cls);
+	}
+	else
+	{
+		return spawn(origin, picnum);
+	}
+	return nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawn, DukeActor_Spawn)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(type);
+	ACTION_RETURN_POINTER(DukeActor_Spawn(self, type));
+}
+
+void DukeActor_Lotsofglass(DDukeActor* origin, int count)
+{
+	lotsofglass(origin, nullptr, count);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofglass, DukeActor_Lotsofglass)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(count);
+	DukeActor_Lotsofglass(self, count);
+	return 0;
+}
 
 //---------------------------------------------------------------------------
 //
