@@ -41,7 +41,8 @@ public:
 
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	short attackertype, hitextra, movflag;
+	uint16_t movflag;
+	short attackertype, hitextra;
 	short tempval, dispicnum, basepicnum;
 	unsigned short timetosleep;
 	DVector2 ovel;
