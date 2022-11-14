@@ -9280,6 +9280,7 @@ FxExpression *FxVectorBuiltin::Resolve(FCompileContext &ctx)
 	{
 	case NAME_Length:
 	case NAME_LengthSquared:
+	case NAME_Sum:
 	case NAME_Angle:
 		ValueType = TypeFloat64;
 		break;
@@ -9311,6 +9312,23 @@ ExpEmit FxVectorBuiltin::Emit(VMFunctionBuilder *build)
 	else if (Function == NAME_LengthSquared)
 	{
 		build->Emit(vecSize == 2 ? OP_DOTV2_RR : vecSize == 3 ? OP_DOTV3_RR : OP_DOTV4_RR, to.RegNum, op.RegNum, op.RegNum);
+	}
+	else if (Function == NAME_Sum)
+	{
+		ExpEmit temp(build, ValueType->GetRegType(), 1);
+		build->Emit(OP_FLOP, to.RegNum, op.RegNum, FLOP_ABS);
+		build->Emit(OP_FLOP, temp.RegNum, op.RegNum + 1, FLOP_ABS);
+		build->Emit(OP_ADDF_RR, to.RegNum, to.RegNum, temp.RegNum);
+		if (vecSize > 2)
+		{
+			build->Emit(OP_FLOP, temp.RegNum, op.RegNum + 2, FLOP_ABS);
+			build->Emit(OP_ADDF_RR, to.RegNum, to.RegNum, temp.RegNum);
+		}
+		if (vecSize > 3)
+		{
+			build->Emit(OP_FLOP, temp.RegNum, op.RegNum + 3, FLOP_ABS);
+			build->Emit(OP_ADDF_RR, to.RegNum, to.RegNum, temp.RegNum);
+		}
 	}
 	else if (Function == NAME_Unit)
 	{
