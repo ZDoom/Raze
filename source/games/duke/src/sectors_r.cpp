@@ -2591,6 +2591,11 @@ void checksectors_r(int snum)
 		{
 			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
 
+			if (neartagsprite->GetClass() != RUNTIME_CLASS(DDukeActor))
+			{
+				CallOnUse(neartagsprite, p);
+			}
+			else
 			switch (neartagsprite->spr.picnum)
 			{
 			case RRTILE8448:

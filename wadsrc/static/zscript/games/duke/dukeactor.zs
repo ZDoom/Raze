@@ -74,6 +74,7 @@ class DukeActor : CoreActor native
 	virtual void Initialize() {}
 	virtual void Tick() {}
 	virtual void onHit(DukeActor hitter) {}
+	virtual void onUse(DukePlayer user) {}
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
 }
