@@ -8338,7 +8338,7 @@ FxExpression *FxMemberFunctionCall::Resolve(FCompileContext& ctx)
 	else if (Self->IsVector())
 	{
 		// handle builtins: Vectors got 5.
-		if (MethodName == NAME_Length || MethodName == NAME_LengthSquared || MethodName == NAME_Unit || MethodName == NAME_Angle)
+		if (MethodName == NAME_Length || MethodName == NAME_LengthSquared || MethodName == NAME_Sum || MethodName == NAME_Unit || MethodName == NAME_Angle)
 		{
 			if (ArgList.Size() > 0)
 			{
