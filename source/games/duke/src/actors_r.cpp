@@ -4048,7 +4048,6 @@ void think_r(void)
 {
 	thinktime.Reset();
 	thinktime.Clock();
-	recordoldspritepos();
 
 	movefta();			//ST 2
 	moveweapons_r();		//ST 4

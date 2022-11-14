@@ -237,7 +237,6 @@ int playercolor2lookup(int color);
 void PlayerColorChanged(void);
 bool movementBlocked(player_struct *p);
 void loadcons();
-void recordoldspritepos();
 void DrawStatusBar();
 
 END_DUKE_NS

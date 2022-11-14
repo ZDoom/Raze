@@ -5209,24 +5209,6 @@ DDukeActor *LocateTheLocator(int n, sectortype* sect)
 //
 //---------------------------------------------------------------------------
 
-void recordoldspritepos()
-{
-	for (int statNum = 0; statNum < MAXSTATUS; statNum++)
-	{
-		DukeStatIterator it(statNum);
-		while (auto ac = it.Next())
-		{
-			ac->backuploc();
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 
 void movefta(void)
 {

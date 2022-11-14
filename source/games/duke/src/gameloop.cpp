@@ -69,6 +69,12 @@ void GameInterface::Ticker()
 		ud.cameraactor = nullptr;
 		everyothertime++;
 
+		DukeSpriteIterator it;
+		while (auto ac = it.Next())
+		{
+			ac->backuploc();
+		}
+
 		global_random = krand();
 		fi.movetransports();//ST 9
 		movedummyplayers();//ST 13

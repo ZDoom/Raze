@@ -3773,7 +3773,6 @@ void think_d(void)
 {
 	thinktime.Reset();
 	thinktime.Clock();
-	recordoldspritepos();
 
 	movefta();			//ST 2
 	moveweapons_d();		//ST 4
