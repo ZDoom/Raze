@@ -211,10 +211,10 @@ double hitawall(player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->pos, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK0);
+	hitscan(p->PlayerNowPosition, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (hit.hitpos.XY() - p->pos.XY()).Length();
+	return (hit.hitpos.XY() - p->PlayerNowPosition.XY()).Length();
 }
 
 
@@ -248,7 +248,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 				setFreeAimVelocity(vel, zvel, plr->horizon.sum(), 16.);
 
 				HitInfo hit{};
-				hitscan(plr->pos.plusZ(4), actor->sector(), DVector3(actor->spr.angle.ToVector() * vel, zvel), hit, CLIPMASK1);
+				hitscan(plr->PlayerNowPosition.plusZ(4), actor->sector(), DVector3(actor->spr.angle.ToVector() * vel, zvel), hit, CLIPMASK1);
 
 				if (hit.actor() != nullptr)
 				{
@@ -378,7 +378,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->horizon.addadjustment(deltaangle(p->horizon.horiz, (p->pos - p->actorsqu->spr.pos).Pitch() * 1.1875));
+		p->horizon.addadjustment(deltaangle(p->horizon.horiz, (p->PlayerNowPosition - p->actorsqu->spr.pos).Pitch() * 1.1875));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -507,8 +507,8 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->spr.pos.X - p->pos.X) < 24)
-						if (abs(act->spr.pos.Y - p->pos.Y) < 24)
+					if (abs(act->spr.pos.X - p->PlayerNowPosition.X) < 24)
+						if (abs(act->spr.pos.Y - p->PlayerNowPosition.Y) < 24)
 						{
 							j = 1;
 							break;
@@ -560,7 +560,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		if (actor->spr.pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
-			p->pos.Z -= 16;
+			p->PlayerNowPosition.Z -= 16;
 			actor->spr.pos.Z -= 16;
 		}
 #if 0
@@ -608,8 +608,8 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->pos.Z - floorz) > (gs.playerheight * 0.5))
-				p->pos.Z += 348/ 256.;
+			if (abs(p->PlayerNowPosition.Z - floorz) > (gs.playerheight * 0.5))
+				p->PlayerNowPosition.Z += 348/ 256.;
 		}
 		else
 		{
@@ -618,19 +618,19 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		}
 
 		Collision coll;
-		clipmove(p->pos, &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
+		clipmove(p->PlayerNowPosition, &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
 
 	p->horizon.horizoff = p->horizon.horiz = nullAngle;
 
-	updatesector(p->pos, &p->cursector);
+	updatesector(p->PlayerNowPosition, &p->cursector);
 
-	pushmove(p->pos, &p->cursector, 8, 4, 20, CLIPMASK0);
+	pushmove(p->PlayerNowPosition, &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
-		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->pos.Z) * 2));
+		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->PlayerNowPosition.Z) * 2));
 
 	p->on_warping_sector = 0;
 
@@ -706,7 +706,7 @@ void playerCrouch(int snum)
 	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->pos.Z += 8 + 3;
+		p->PlayerNowPosition.Z += 8 + 3;
 		p->crack_time = CRACK_TIME;
 	}
 }
@@ -765,17 +765,17 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		opos.X = pos.X;
-		opos.Y = pos.Y;
+		opos.X = PlayerNowPosition.X;
+		opos.Y = PlayerNowPosition.Y;
 	}
 	else
 	{
-		pos.X = opos.X;
-		pos.Y = opos.Y;
+		PlayerNowPosition.X = opos.X;
+		PlayerNowPosition.Y = opos.Y;
 	}
 
-	opos.Z = pos.Z;
-	bobpos = pos.XY();
+	opos.Z = PlayerNowPosition.Z;
+	bobpos = PlayerNowPosition.XY();
 	opyoff = pyoff;
 }
 

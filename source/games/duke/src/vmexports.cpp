@@ -513,7 +513,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, loogcnt)
 DEFINE_FIELD_X(DukePlayer, player_struct, invdisptime)
 //DEFINE_FIELD_X(DukePlayer, player_struct, bobposx)
 //DEFINE_FIELD_X(DukePlayer, player_struct, bobposy)
-DEFINE_FIELD_X(DukePlayer, player_struct, pos)
+DEFINE_FIELD_X(DukePlayer, player_struct, PlayerNowPosition)
 DEFINE_FIELD_X(DukePlayer, player_struct, pyoff)
 DEFINE_FIELD_X(DukePlayer, player_struct, opyoff)
 //DEFINE_FIELD_X(DukePlayer, player_struct, posxv)
@@ -703,7 +703,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backupxyz, dukeplayer_backupxyz)
 
 void dukeplayer_setpos(player_struct* self, double x, double y, double z)
 {
-	self->pos = { x, y, z };
+	self->PlayerNowPosition = { x, y, z };
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)

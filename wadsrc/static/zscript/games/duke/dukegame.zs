@@ -146,7 +146,7 @@ struct Duke native
 
 struct DukePlayer native
 {
-	native Vector3 pos;
+	native Vector3 PlayerNowPosition;
 
 	/*
 	// player's horizon and angle structs.

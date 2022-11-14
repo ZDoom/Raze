@@ -236,9 +236,9 @@ class DukeCrane : DukeActor
 			{
 				let ang = p.angle();
 				p.backupxyz();
-				p.pos.XY = self.pos.XY - CRANE_STEP * ang.ToVector();
-				p.pos.Z = self.pos.Z + 2;
-				p.actor.SetPosition(p.pos);
+				p.PlayerNowPosition.XY = self.pos.XY - CRANE_STEP * ang.ToVector();
+				p.PlayerNowPosition.Z = self.pos.Z + 2;
+				p.actor.SetPosition(p.PlayerNowPosition);
 				p.cursector = p.actor.sector;
 			}
 		}

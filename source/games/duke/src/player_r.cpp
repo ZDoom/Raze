@@ -245,7 +245,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		int j = findplayer(actor, &x);
 		pos.Z -= 4;
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].pos.Z - pos.Z) * 16) / dist;
+		zvel = ((ps[j].PlayerNowPosition.Z - pos.Z) * 16) / dist;
 		if (actor->spr.picnum != BOSS1)
 		{
 			zvel += 0.5 - krandf(1);
@@ -254,7 +254,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		else
 		{
 			zvel += 0.5 - krandf(1);
-			ang = (ps[j].pos - pos).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
+			ang = (ps[j].PlayerNowPosition - pos).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
 		}
 	}
 
@@ -821,7 +821,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	if (actor->isPlayer())
 	{
 		p = actor->PlayerIndex();
-		spos = ps[p].pos.plusZ(ps[p].pyoff + 4);
+		spos = ps[p].PlayerNowPosition.plusZ(ps[p].pyoff + 4);
 		sang = ps[p].angle.ang;
 
 		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
@@ -2077,15 +2077,15 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		footprints(snum);
 	}
 
-	if (p->pos.Z < floorz - i) //falling
+	if (p->PlayerNowPosition.Z < floorz - i) //falling
 	{
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->pos.Z >= (floorz - i - 16))
-			p->pos.Z = floorz - i;
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->PlayerNowPosition.Z >= (floorz - i - 16))
+			p->PlayerNowPosition.Z = floorz - i;
 		else
 		{
 			p->on_ground = 0;
 
-			if ((p->OnMotorcycle || p->OnBoat) && floorz - i * 2 > p->pos.Z)
+			if ((p->OnMotorcycle || p->OnBoat) && floorz - i * 2 > p->PlayerNowPosition.Z)
 			{
 				if (p->MotoOnGround)
 				{
@@ -2115,7 +2115,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->pos.Z + p->vel.Z  >= floorz - i) // hit the ground
+			if (p->PlayerNowPosition.Z + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -2175,18 +2175,18 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		{
 			//Smooth on the ground
 
-			double k = (floorz - i - p->pos.Z) * 0.5;
+			double k = (floorz - i - p->PlayerNowPosition.Z) * 0.5;
 			if (abs(k) < 1) k = 0;
-			p->pos.Z += k;
+			p->PlayerNowPosition.Z += k;
 			p->vel.Z -= 3;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->pos.Z += ((floorz - i * 0.5) - p->pos.Z) * 0.5; //Smooth on the water
-			if (p->on_warping_sector == 0 && p->pos.Z > floorz - 16)
+			p->PlayerNowPosition.Z += ((floorz - i * 0.5) - p->PlayerNowPosition.Z) * 0.5; //Smooth on the water
+			if (p->on_warping_sector == 0 && p->PlayerNowPosition.Z > floorz - 16)
 			{
-				p->pos.Z = floorz - 16;
+				p->PlayerNowPosition.Z = floorz - 16;
 				p->vel.Z *= 0.5;
 			}
 		}
@@ -2233,15 +2233,15 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		}
 	}
 
-	p->pos.Z += p->vel.Z ;
+	p->PlayerNowPosition.Z += p->vel.Z ;
 
-	if (p->pos.Z < ceilingz + 4)
+	if (p->PlayerNowPosition.Z < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
 		p->vel.Z = 0.5;
-		p->pos.Z = ceilingz + 4;
+		p->PlayerNowPosition.Z = ceilingz + 4;
 	}
 }
 
@@ -2296,14 +2296,14 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 	if (p->vel.Z > 8)
 		p->vel.Z *= 0.5;
 
-	p->pos.Z += p->vel.Z ;
+	p->PlayerNowPosition.Z += p->vel.Z ;
 
-	if (p->pos.Z > floorz - 15)
-		p->pos.Z += (((floorz - 15) - p->pos.Z) * 0.5);
+	if (p->PlayerNowPosition.Z > floorz - 15)
+		p->PlayerNowPosition.Z += (((floorz - 15) - p->PlayerNowPosition.Z) * 0.5);
 
-	if (p->pos.Z < ceilingz + 4)
+	if (p->PlayerNowPosition.Z < ceilingz + 4)
 	{
-		p->pos.Z = ceilingz + 4;
+		p->PlayerNowPosition.Z = ceilingz + 4;
 		p->vel.Z = 0;
 	}
 
@@ -2314,7 +2314,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.03125);
-			j->spr.pos.Z = p->pos.Z + 8;
+			j->spr.pos.Z = p->PlayerNowPosition.Z + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}
 	}
@@ -2708,7 +2708,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, DYNAMITE, -16, DVector2(0.140625, 0.140625),
+			auto spawned = CreateActor(p->cursector, p->PlayerNowPosition + p->angle.ang.ToVector() * 16, DYNAMITE, -16, DVector2(0.140625, 0.140625),
 				p->angle.ang, (vel + p->hbomb_hold_delay * 2) * 2, zvel, pact, 1);
 
 			if (spawned)
@@ -3116,7 +3116,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel -= 4;
 			}
 
-			CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, POWDERKEG, -16, DVector2(0.140625, 0.140625), p->angle.ang, vel * 2, zvel, pact, 1);
+			CreateActor(p->cursector, p->PlayerNowPosition + p->angle.ang.ToVector() * 16, POWDERKEG, -16, DVector2(0.140625, 0.140625), p->angle.ang, vel * 2, zvel, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
@@ -3332,7 +3332,7 @@ void processinput_r(int snum)
 		while (auto act2 = it.Next())
 		{
 			if (act2->spr.picnum == RRTILE380)
-				if (act2->spr.pos.Z - 8 < p->pos.Z)
+				if (act2->spr.pos.Z - 8 < p->PlayerNowPosition.Z)
 					psectlotag = 2;
 		}
 	}
@@ -3353,19 +3353,19 @@ void processinput_r(int snum)
 	double tempfz;
 	if (pact->clipdist == 16)
 	{
-		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
-		tempfz = getflorzofslopeptr(psectp, p->pos);
+		getzrange(p->PlayerNowPosition, psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
+		tempfz = getflorzofslopeptr(psectp, p->PlayerNowPosition);
 	}
 	else
 	{
-		getzrange(p->pos, psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
-		tempfz = getflorzofslopeptr(psectp, p->pos);
+		getzrange(p->PlayerNowPosition, psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
+		tempfz = getflorzofslopeptr(psectp, p->PlayerNowPosition);
 	}
 
 	p->truefz = tempfz;
-	p->truecz = getceilzofslopeptr(psectp, p->pos);
+	p->truecz = getceilzofslopeptr(psectp, p->PlayerNowPosition);
 
-	double truefdist = abs(p->pos.Z - tempfz);
+	double truefdist = abs(p->PlayerNowPosition.Z - tempfz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 
@@ -3427,7 +3427,7 @@ void processinput_r(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			auto ang = (clz.actor()->spr.pos - p->pos).Angle();
+			auto ang = (clz.actor()->spr.pos - p->PlayerNowPosition).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
 		if (clz.actor()->spr.picnum == LADDER)
@@ -3532,7 +3532,7 @@ void processinput_r(int snum)
 
 	p->playerweaponsway(pact->vel.X);
 
-	pact->vel.X = clamp((p->pos.XY() - p->bobpos).Length(), 0., 32.);
+	pact->vel.X = clamp((p->PlayerNowPosition.XY() - p->bobpos).Length(), 0., 32.);
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));
@@ -3737,15 +3737,15 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->pos.XY() += p->vel.XY() ;
-		updatesector(p->pos, &p->cursector);
+		p->PlayerNowPosition.XY() += p->vel.XY() ;
+		updatesector(p->PlayerNowPosition, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->pos, &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
+		clipmove(p->PlayerNowPosition, &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->pos.Z += 32;
+		p->PlayerNowPosition.Z += 32;
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_r(p, clip);
@@ -3771,10 +3771,10 @@ HORIZONLY:
 				if (wal->lotag < 44)
 				{
 					dofurniture(clip.hitWall, p->cursector, snum);
-					pushmove(p->pos, &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(p->PlayerNowPosition, &p->cursector, 10.75, 4, 4, CLIPMASK0);
 				}
 				else
-					pushmove(p->pos, &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(p->PlayerNowPosition, &p->cursector, 10.75, 4, 4, CLIPMASK0);
 			}
 		}
 	}
@@ -3839,7 +3839,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	SetActor(pact, p->pos.plusZ(gs.playerheight));
+	SetActor(pact, p->PlayerNowPosition.plusZ(gs.playerheight));
 
 	if (psectlotag == 800 && (!isRRRA() || !p->lotag800kill))
 	{
@@ -3875,9 +3875,9 @@ HORIZONLY:
 	{
 		int blocked;
 		if (pact->clipdist == 16)
-			blocked = (pushmove(p->pos, &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->PlayerNowPosition, &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 		else
-			blocked = (pushmove(p->pos, &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->PlayerNowPosition, &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{
@@ -3888,7 +3888,7 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->pos = p->opos = oldpos;
+					p->PlayerNowPosition = p->opos = oldpos;
 					continue;
 				}
 				quickkill(p);
@@ -3990,8 +3990,8 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 	{
 		if (motosprite)
 		{
-			p->pos.X = motosprite->spr.pos.X;
-			p->pos.Y = motosprite->spr.pos.Y;
+			p->PlayerNowPosition.X = motosprite->spr.pos.X;
+			p->PlayerNowPosition.Y = motosprite->spr.pos.Y;
 			p->angle.ang = motosprite->spr.angle;
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			motosprite->Destroy();
@@ -4065,8 +4065,8 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 	{
 		if (boat)
 		{
-			p->pos.X = boat->spr.pos.X;
-			p->pos.Y = boat->spr.pos.Y;
+			p->PlayerNowPosition.X = boat->spr.pos.X;
+			p->PlayerNowPosition.Y = boat->spr.pos.Y;
 			p->angle.ang = boat->spr.angle;
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			boat->Destroy();

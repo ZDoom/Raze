@@ -35,7 +35,7 @@ int madenoise(int snum)
 	player_struct *p;
 	p = &ps[snum];
 	p->donoise = 1;
-	p->noise = p->pos.XY();
+	p->noise = p->PlayerNowPosition.XY();
 	return 1;
 }
 

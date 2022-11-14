@@ -165,7 +165,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		auto pp = &ps[h->PlayerIndex()];
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && pp->newOwner == nullptr && h->GetOwner())
 		{
-			t->pos = interpolatedvalue(pp->opos, pp->pos, interpfrac).plusZ(gs.playerheight);
+			t->pos = interpolatedvalue(pp->opos, pp->PlayerNowPosition, interpfrac).plusZ(gs.playerheight);
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
@@ -217,7 +217,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FORCESPHERE:
 			if (t->statnum == STAT_MISC && OwnerAc)
 			{
-				auto sqa = ( OwnerAc->spr.pos.XY() - ps[screenpeek].pos.XY()).Angle();
+				auto sqa = ( OwnerAc->spr.pos.XY() - ps[screenpeek].PlayerNowPosition.XY()).Angle();
 				auto sqb = (OwnerAc->spr.pos.XY() - t->pos.XY()).Angle();
 
 				if (absangle(sqa, sqb) > DAngle90)
@@ -345,7 +345,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				case DEVISTATOR_WEAPON:  newtspr->picnum = DEVISTATORSPRITE;     break;
 				}
 
-				if (h->GetOwner()) newtspr->pos.Z = ps[p].pos.Z - 12;
+				if (h->GetOwner()) newtspr->pos.Z = ps[p].PlayerNowPosition.Z - 12;
 				else newtspr->pos.Z = h->spr.pos.Z - 51;
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
@@ -541,7 +541,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 							floorz = h->floorz;
 
 
-						if (h->spr.pos.Z - floorz < 8 && ps[screenpeek].pos.Z < floorz)
+						if (h->spr.pos.Z - floorz < 8 && ps[screenpeek].PlayerNowPosition.Z < floorz)
 						{
 							auto shadowspr = tsprites.newTSprite();
 							*shadowspr = *t;
@@ -566,7 +566,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 							else
 							{
 								// Alter the shadow's position so that it appears behind the sprite itself.
-								auto look = (shadowspr->pos.XY() - ps[screenpeek].pos.XY()).Angle();
+								auto look = (shadowspr->pos.XY() - ps[screenpeek].PlayerNowPosition.XY()).Angle();
 								shadowspr->pos.XY() += look.ToVector() * 2;
 							}
 						}

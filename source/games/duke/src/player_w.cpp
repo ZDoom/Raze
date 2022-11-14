@@ -342,7 +342,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->pos + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
+			auto spawned = CreateActor(p->cursector, p->PlayerNowPosition + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
 				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (spawned)
@@ -436,7 +436,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 		if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_STANDSTILL
 			&& p->kickback_pic < (aplWeaponFireDelay(p->curr_weapon, snum) + 1))
 		{
-			p->pos.Z = p->opos.Z;
+			p->PlayerNowPosition.Z = p->opos.Z;
 			p->vel.Z = 0;
 		}
 		if (p->kickback_pic == aplWeaponSound2Time(p->curr_weapon, snum))

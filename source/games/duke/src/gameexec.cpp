@@ -326,15 +326,15 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSX: // oh, my... :( Writing to these has been disabled until I know how to do it without the engine shitting all over itself.
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].pos.X * (1/maptoworld)), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].PlayerNowPosition.X * (1/maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSY:
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].pos.Y * (1 / maptoworld)), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].PlayerNowPosition.Y * (1 / maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSZ:
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].pos.Z * (1 / zmaptoworld)), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].PlayerNowPosition.Z * (1 / zmaptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZ:
@@ -1517,12 +1517,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->spr.pos.plusZ(krand() & 41), g_ac->sector(), ps[g_p].pos, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos.plusZ(krand() & 41), g_ac->sector(), ps[g_p].PlayerNowPosition, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->spr.pos, g_ac->sector(), ps[g_p].pos, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos, g_ac->sector(), ps[g_p].PlayerNowPosition, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -1980,7 +1980,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].GetActor()->spr.pos.Z = ps[g_p].pos.Z = ps[g_p].GetActor()->sector()->ceilingz;
+		ps[g_p].GetActor()->spr.pos.Z = ps[g_p].PlayerNowPosition.Z = ps[g_p].GetActor()->sector()->ceilingz;
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -2047,7 +2047,7 @@ int ParseState::parse(void)
 			ps[g_p].newOwner = nullptr;
 			ps[g_p].restorexyz();
 			ps[g_p].angle.restore();
-			updatesector(ps[g_p].pos, &ps[g_p].cursector);
+			updatesector(ps[g_p].PlayerNowPosition, &ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto actj = it.Next())
@@ -2230,12 +2230,12 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_ac->spr.pos = ps[g_p].pos;
+			g_ac->spr.pos = ps[g_p].PlayerNowPosition;
 			ps[g_p].backupxyz();
 			ps[g_p].setbobpos();
 			g_ac->backuppos();
-			updatesector(ps[g_p].pos, &ps[g_p].cursector);
-			SetActor(ps[g_p].GetActor(), ps[g_p].pos.plusZ(gs.playerheight ));
+			updatesector(ps[g_p].PlayerNowPosition, &ps[g_p].cursector);
+			SetActor(ps[g_p].GetActor(), ps[g_p].PlayerNowPosition.plusZ(gs.playerheight ));
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 			g_ac->spr.shade = -12;
@@ -2408,7 +2408,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& prunning) && vel >= 0.5 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
-			else if( (l& phigher) && ps[g_p].pos.Z < g_ac->spr.pos.Z - 48)
+			else if( (l& phigher) && ps[g_p].PlayerNowPosition.Z < g_ac->spr.pos.Z - 48)
 					j = 1;
 			else if( (l& pwalkingback) && vel <= -0.5 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
@@ -2432,9 +2432,9 @@ int ParseState::parse(void)
 			{
 				DAngle ang;
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					ang = absangle(ps[otherp].angle.ang, (ps[g_p].pos.XY() - ps[otherp].pos.XY()).Angle());
+					ang = absangle(ps[otherp].angle.ang, (ps[g_p].PlayerNowPosition.XY() - ps[otherp].PlayerNowPosition.XY()).Angle());
 				else
-					ang = absangle(ps[g_p].angle.ang, (g_ac->spr.pos.XY() - ps[g_p].pos.XY()).Angle());
+					ang = absangle(ps[g_p].angle.ang, (g_ac->spr.pos.XY() - ps[g_p].PlayerNowPosition.XY()).Angle());
 
 				j = ang < DAngle22_5;
 			}
@@ -2793,7 +2793,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.scale.X >= (isRR()? 0.140625 : 0.625) )
-			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), ps[g_p].pos.plusZ(16), ps[g_p].GetActor()->sector()))
+			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), ps[g_p].PlayerNowPosition.plusZ(16), ps[g_p].GetActor()->sector()))
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)

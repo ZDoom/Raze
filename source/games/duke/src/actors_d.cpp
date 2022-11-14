@@ -1345,7 +1345,7 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].pos = Owner->spr.pos.plusZ(-gs.playerheight);
+							ps[p].PlayerNowPosition = Owner->spr.pos.plusZ(-gs.playerheight);
 							ps[p].backupxyz();
 							ps[p].setbobpos();
 
@@ -1363,21 +1363,21 @@ void movetransports_d(void)
 					}
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 
-					if (onfloorz == 0 && abs(act->spr.pos.Z - ps[p].pos.Z) < 24)
+					if (onfloorz == 0 && abs(act->spr.pos.Z - ps[p].PlayerNowPosition.Z) < 24)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-							ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+							ps[p].PlayerNowPosition.X += Owner->spr.pos.X - act->spr.pos.X;
+							ps[p].PlayerNowPosition.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].pos.Z = Owner->spr.pos.Z - 24;
-							else ps[p].pos.Z = Owner->spr.pos.Z + 24;
+								ps[p].PlayerNowPosition.Z = Owner->spr.pos.Z - 24;
+							else ps[p].PlayerNowPosition.Z = Owner->spr.pos.Z + 24;
 							ps[p].backupz();
 
 							auto pa = ps[p].GetActor();
-							pa->opos = ps[p].pos;
+							pa->opos = ps[p].PlayerNowPosition;
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -1387,7 +1387,7 @@ void movetransports_d(void)
 
 					int k = 0;
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].PlayerNowPosition.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
@@ -1397,7 +1397,7 @@ void movetransports_d(void)
 						}
 						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						ps[p].pos.Z = Owner->sector()->ceilingz + 7;
+						ps[p].PlayerNowPosition.Z = Owner->sector()->ceilingz + 7;
 						ps[p].backupz();
 
 						// this is actually below the precision óf the original Build coordinate system...
@@ -1406,7 +1406,7 @@ void movetransports_d(void)
 
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.Z < (sectp->ceilingz + 6))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].PlayerNowPosition.Z < (sectp->ceilingz + 6))
 					{
 						k = 1;
 						//     if( act2->spr.extra <= 0) break;
@@ -1416,7 +1416,7 @@ void movetransports_d(void)
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 
-						ps[p].pos.Z = Owner->sector()->floorz - 7;
+						ps[p].PlayerNowPosition.Z = Owner->sector()->floorz - 7;
 						ps[p].backupz();
 
 						ps[p].jumping_toggle = 1;
@@ -1425,8 +1425,8 @@ void movetransports_d(void)
 
 					if (k == 1)
 					{
-						ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].PlayerNowPosition.X += Owner->spr.pos.X - act->spr.pos.X;
+						ps[p].PlayerNowPosition.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 						ps[p].backupxy();
 
 						if (!Owner || Owner->GetOwner() != Owner)
@@ -1434,7 +1434,7 @@ void movetransports_d(void)
 						ps[p].setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
-						SetActor(ps[p].GetActor(), ps[p].pos.plusZ(gs.playerheight));
+						SetActor(ps[p].GetActor(), ps[p].PlayerNowPosition.plusZ(gs.playerheight));
 
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
@@ -1667,7 +1667,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (xx < 64 && ps[p].quick_kick == 0)
 		{
-			auto ang = absangle(ps[p].angle.ang, (actor->spr.pos.XY() - ps[p].pos.XY()).Angle());
+			auto ang = absangle(ps[p].angle.ang, (actor->spr.pos.XY() - ps[p].PlayerNowPosition.XY()).Angle());
 			if (ang < DAngle22_5)
 				ps[p].quick_kick = 14;
 		}
@@ -1723,7 +1723,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			}
 
-		actor->spr.pos.Z = ps[p].pos.Z + 8 + ps[p].pyoff - (actor->temp_data[2] + (ps[p].horizon.horiz.Tan() * 2048.)) * zinttoworld;
+		actor->spr.pos.Z = ps[p].PlayerNowPosition.Z + 8 + ps[p].pyoff - (actor->temp_data[2] + (ps[p].horizon.horiz.Tan() * 2048.)) * zinttoworld;
 
 		if (actor->temp_data[2] > 512)
 			actor->temp_data[2] -= 128;
@@ -1737,7 +1737,7 @@ static void greenslime(DDukeActor *actor)
 			ps[p].restorexyz();
 			ps[p].angle.restore();
 
-			updatesector(ps[p].pos, &ps[p].cursector);
+			updatesector(ps[p].PlayerNowPosition, &ps[p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
@@ -1772,7 +1772,7 @@ static void greenslime(DDukeActor *actor)
 
 		double add = (BobVal(actor->temp_data[1]) * 2) * REPEAT_SCALE;
 		actor->spr.scale = DVector2(0.3125 + add, 0.234375 + add);
-		actor->spr.pos.XY() = ps[p].pos.XY() + ps[p].angle.ang.ToVector() * 8;
+		actor->spr.pos.XY() = ps[p].PlayerNowPosition.XY() + ps[p].angle.ang.ToVector() * 8;
 		return;
 	}
 
@@ -1934,7 +1934,7 @@ static void greenslime(DDukeActor *actor)
 		{
 			if (actor->vel.X < 2) actor->vel.X += 0.25;
 			actor->vel.X = 4 - BobVal(512 + actor->temp_data[1]) * 2;
-			actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].pos.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
+			actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
 			// TJR
 		}
 
@@ -2260,7 +2260,7 @@ DETONATEB:
 		}
 	}
 	else if (actor->spr.picnum == HEAVYHBOMB && xx < 788 / 16. && actor->temp_data[0] > 7 && actor->vel.X == 0)
-		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].pos, ps[p].cursector))
+		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].PlayerNowPosition, ps[p].cursector))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{
 				if (ud.coop >= 1 && Owner == actor)
@@ -2786,7 +2786,7 @@ static void handle_se28(DDukeActor* actor)
 		}
 		else if (actor->temp_data[2] > (actor->temp_data[1] >> 3) && actor->temp_data[2] < (actor->temp_data[1] >> 2))
 		{
-			int j = !!cansee(actor->spr.pos, actor->sector(), ps[screenpeek].pos, ps[screenpeek].cursector);
+			int j = !!cansee(actor->spr.pos, actor->sector(), ps[screenpeek].PlayerNowPosition, ps[screenpeek].cursector);
 
 			if (rnd(192) && (actor->temp_data[2] & 1))
 			{
@@ -3035,7 +3035,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if (ps[playernum].newOwner != nullptr)
 			goalang = (ps[playernum].opos.XY() - actor->spr.pos.XY()).Angle();
-		else goalang = (ps[playernum].pos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[playernum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
 		actor->spr.angle += angdif;
@@ -3048,7 +3048,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if (ps[playernum].newOwner != nullptr)
 			goalang = (ps[playernum].opos.XY() - actor->spr.pos.XY()).Angle();
-		else goalang = (ps[playernum].pos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[playernum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
 		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 		actor->spr.angle += angdif;
 	}
@@ -3062,7 +3062,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		DVector2 newpos = ps[playernum].pos.XY() + (ps[playernum].vel.XY() * (4. / 3.));
+		DVector2 newpos = ps[playernum].PlayerNowPosition.XY() + (ps[playernum].vel.XY() * (4. / 3.));
 		goalang = (newpos - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5/16 && angdif < nullAngle) angdif = nullAngle;
@@ -3173,7 +3173,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel) * maptoworld;
-				angdif = (ps[playernum].pos.XY() - actor->spr.pos.XY()).Angle();
+				angdif = (ps[playernum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
 
 				if (xvel < 512)
 				{

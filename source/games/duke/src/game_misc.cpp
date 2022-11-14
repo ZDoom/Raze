@@ -57,7 +57,7 @@ BEGIN_DUKE_NS
 
 std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
-	return std::make_pair(ps[screenpeek].pos, ps[screenpeek].angle.ang);
+	return std::make_pair(ps[screenpeek].PlayerNowPosition, ps[screenpeek].angle.ang);
 }
 
 GameStats GameInterface::getStats()
@@ -271,7 +271,7 @@ void drawoverlays(double interpfrac)
 				}
 				else
 				{
-					cposxy = interpolatedvalue(pp->opos, pp->pos, interpfrac).XY();
+					cposxy = interpolatedvalue(pp->opos, pp->PlayerNowPosition, interpfrac).XY();
 					cang = !SyncInput() ? pp->angle.ang : interpolatedvalue(pp->angle.oang, pp->angle.ang, interpfrac);
 				}
 			}
@@ -431,7 +431,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			auto& pp = ps[p];
 			auto act = pp.GetActor();
 			int i = TILE_APLAYERTOP + (act->vel.X > 1 && pp.on_ground ? (PlayClock >> 4) & 3 : 0);
-			double j = clamp(czoom * act->spr.scale.Y + abs(pp.truefz - pp.pos.Z) * REPEAT_SCALE, 0.333, 2.);
+			double j = clamp(czoom * act->spr.scale.Y + abs(pp.truefz - pp.PlayerNowPosition.Z) * REPEAT_SCALE, 0.333, 2.);
 
 			auto const vec = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 			auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();

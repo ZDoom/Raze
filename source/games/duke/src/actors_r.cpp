@@ -1233,7 +1233,7 @@ void movetransports_r(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].pos = Owner->spr.pos.plusZ(-gs.playerheight + 4);
+							ps[p].PlayerNowPosition = Owner->spr.pos.plusZ(-gs.playerheight + 4);
 							ps[p].backupxyz();
 							ps[p].setbobpos();
 
@@ -1248,17 +1248,17 @@ void movetransports_r(void)
 					}
 					else break;
 
-					if (onfloorz == 0 && fabs(act->spr.pos.Z - ps[p].pos.Z) < 24)
+					if (onfloorz == 0 && fabs(act->spr.pos.Z - ps[p].PlayerNowPosition.Z) < 24)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-							ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+							ps[p].PlayerNowPosition.X += Owner->spr.pos.X - act->spr.pos.X;
+							ps[p].PlayerNowPosition.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].pos.Z = Owner->spr.pos.Z - 24;
-							else ps[p].pos.Z = Owner->spr.pos.Z + 24;
+								ps[p].PlayerNowPosition.Z = Owner->spr.pos.Z - 24;
+							else ps[p].PlayerNowPosition.Z = Owner->spr.pos.Z + 24;
 							ps[p].backupz();
 
 							ChangeActorSect(act2, Owner->sector());
@@ -1271,23 +1271,23 @@ void movetransports_r(void)
 
 					if (isRRRA())
 					{
-						if (onfloorz && sectlotag == 160 && ps[p].pos.Z > sectp->floorz - 48)
+						if (onfloorz && sectlotag == 160 && ps[p].PlayerNowPosition.Z > sectp->floorz - 48)
 						{
 							k = 2;
-							ps[p].pos.Z = Owner->sector()->ceilingz + 7;
+							ps[p].PlayerNowPosition.Z = Owner->sector()->ceilingz + 7;
 							ps[p].backupz();
 						}
 
-						if (onfloorz && sectlotag == 161 && ps[p].pos.Z < sectp->ceilingz + 6)
+						if (onfloorz && sectlotag == 161 && ps[p].PlayerNowPosition.Z < sectp->ceilingz + 6)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].pos.Z = Owner->sector()->floorz - 49;
+							ps[p].PlayerNowPosition.Z = Owner->sector()->floorz - 49;
 							ps[p].backupz();
 						}
 					}
 
-					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].pos.Z > sectp->floorz - 6) ||
+					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].PlayerNowPosition.Z > sectp->floorz - 6) ||
 						(onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].OnMotorcycle))
 					{
 						if (ps[p].OnBoat) break;
@@ -1297,13 +1297,13 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].pos.Z = Owner->sector()->ceilingz + 7;
+						ps[p].PlayerNowPosition.Z = Owner->sector()->ceilingz + 7;
 						ps[p].backupz();
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.Z < sectp->ceilingz + 6)
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].PlayerNowPosition.Z < sectp->ceilingz + 6)
 					{
 						k = 1;
 						if (ps[p].GetActor()->spr.extra <= 0) break;
@@ -1313,14 +1313,14 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].pos.Z = Owner->sector()->floorz - 7;
+						ps[p].PlayerNowPosition.Z = Owner->sector()->floorz - 7;
 						ps[p].backupz();
 					}
 
 					if (k == 1)
 					{
-						ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].PlayerNowPosition.X += Owner->spr.pos.X - act->spr.pos.X;
+						ps[p].PlayerNowPosition.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 						ps[p].backupxy();
 
 						if (Owner->GetOwner() != Owner)
@@ -1334,8 +1334,8 @@ void movetransports_r(void)
 					}
 					else if (isRRRA() && k == 2)
 					{
-						ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].opos.X = ps[p].PlayerNowPosition.X += Owner->spr.pos.X - act->spr.pos.X;
+						ps[p].opos.Y = ps[p].PlayerNowPosition.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 						ps[p].backupxy();
 
 						if (Owner->GetOwner() != Owner)
@@ -2049,7 +2049,7 @@ void rr_specialstats()
 					if (act2->spr.picnum == RRTELEPORTDEST)
 					{
 						ps[p].angle.ang = act2->spr.angle;
-						ps[p].pos = act2->spr.pos.plusZ(-36);
+						ps[p].PlayerNowPosition = act2->spr.pos.plusZ(-36);
 						ps[p].backupxyz();
 						ps[p].setbobpos();
 						auto pact = ps[p].GetActor();
@@ -2251,7 +2251,7 @@ DETONATEB:
 		}
 	}
 	else if (actor->spr.picnum == DYNAMITE && xx < 788 / 16. && actor->temp_data[0] > 7 && actor->vel.X == 0)
-		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].pos, ps[p].cursector))
+		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].PlayerNowPosition, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
 				{
@@ -3213,7 +3213,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (ps[pnum].newOwner != nullptr)
 			goalang = (ps[pnum].opos.XY() - actor->spr.pos.XY()).Angle();
-		else goalang = (ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[pnum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
 		actor->spr.angle += angdif;
@@ -3226,7 +3226,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (ps[pnum].newOwner != nullptr)
 			goalang = (ps[pnum].opos.XY() - actor->spr.pos.XY()).Angle();
-		else goalang = (ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[pnum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
 		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 		actor->spr.angle += angdif;
 	}
@@ -3237,7 +3237,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		{
 			if (ps[pnum].newOwner != nullptr)
 				goalang = ((ps[pnum].opos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
-			else goalang = ((ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
+			else goalang = ((ps[pnum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
 			angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 			actor->spr.angle += angdif;
 		}
@@ -3296,7 +3296,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		DVector2 newpos = ps[pnum].pos.XY() + (ps[pnum].vel.XY() * (4. / 3.));
+		DVector2 newpos = ps[pnum].PlayerNowPosition.XY() + (ps[pnum].vel.XY() * (4. / 3.));
 		goalang = (newpos - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
@@ -3396,7 +3396,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel) * maptoworld;
-				angdif = (ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle();
+				angdif = (ps[pnum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
 
 				if (xvel < 512)
 				{

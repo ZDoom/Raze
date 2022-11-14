@@ -76,9 +76,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("posx", w.pos.X)
-			("posy", w.pos.Y)
-			("posz", w.pos.Z)
+		arc("posx", w.PlayerNowPosition.X)
+			("posy", w.PlayerNowPosition.Y)
+			("posz", w.PlayerNowPosition.Z)
 			("angle", w.angle)
 			("horizon", w.horizon)
 			.Array("gotweapon", w.gotweapon, MAX_WEAPONS)
