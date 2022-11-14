@@ -512,5 +512,26 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeSpriteIterator, Next, duke_nextSprite)
 	ACTION_RETURN_POINTER(duke_nextSprite(self));
 }
 
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerfriction);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, gravity);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, respawnactortime);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, bouncemineblastradius);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, respawnitemtime);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, morterblastradius);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, numfreezebounces);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, pipebombblastradius);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, rpgblastradius);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, seenineblastradius);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, shrinkerblastradius);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, tripbombblastradius);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, camerashitable);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, max_player_health);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, max_armour_amount);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, lasermode);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, freezerhurtowner);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, impact_damage);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerheight);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, displayflags);
+DEFINE_GLOBAL_UNSIZED(gs)
 
 END_DUKE_NS

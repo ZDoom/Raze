@@ -1243,3 +1243,30 @@ struct RRSnd native
 		BUB_HEY2     = 499,
 	}
 }
+
+
+struct DukeGameInfo native
+{
+	// Static constant global state
+	readonly native double playerfriction;
+	readonly native double gravity;
+
+	readonly native int respawnactortime;
+	readonly native int bouncemineblastradius;
+	readonly native int respawnitemtime;
+	readonly native int morterblastradius;
+	readonly native int numfreezebounces;
+	readonly native int pipebombblastradius;
+	readonly native int rpgblastradius;
+	readonly native int seenineblastradius;
+	readonly native int shrinkerblastradius;
+	readonly native int tripbombblastradius;
+	readonly native int camerashitable;
+	readonly native int max_player_health;
+	readonly native int max_armour_amount;
+	readonly native int lasermode;
+	readonly native int freezerhurtowner;
+	readonly native int impact_damage;
+	readonly native double playerheight;
+	readonly native int displayflags;
+}
