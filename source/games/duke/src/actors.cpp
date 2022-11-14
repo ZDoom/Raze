@@ -620,65 +620,6 @@ void movefx(void)
 //
 //---------------------------------------------------------------------------
 
-void moveflammable(DDukeActor* actor, int pool)
-{
-	double scale;
-	if (actor->temp_data[0] == 1)
-	{
-		actor->temp_data[1]++;
-		if ((actor->temp_data[1] & 3) > 0) return;
-
-		if (actorflag(actor, SFLAG_FLAMMABLEPOOLEFFECT) && actor->temp_data[1] == 32)
-		{
-			actor->spr.cstat = 0;
-			auto spawned = spawn(actor, pool);
-			if (spawned) 
-			{
-				spawned->spr.pal = 2;
-				spawned->spr.shade = 127;
-			}
-		}
-		else
-		{
-			if (actor->spr.shade < 64) actor->spr.shade++;
-			else
-			{
-				deletesprite(actor);
-				return;
-			}
-		}
-
-		scale = actor->spr.scale.X - (krand() & 7) * REPEAT_SCALE;
-		if (scale < 0.15625)
-		{
-			deletesprite(actor);
-			return;
-		}
-
-		actor->spr.scale.X = (scale);
-
-		scale = actor->spr.scale.Y - (krand() & 7) * REPEAT_SCALE;
-		if (scale < 0.0625)
-		{
-			deletesprite(actor);
-			return;
-		}
-		actor->spr.scale.Y = (scale);
-	}
-	if (actorflag(actor, SFLAG_FALLINGFLAMMABLE))
-	{
-		makeitfall(actor);
-		actor->ceilingz = actor->sector()->ceilingz;
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void detonate(DDukeActor *actor, int explosion)
 {
 	earthquaketime = 16;

@@ -7,4 +7,9 @@ spawnclasses
 	1094 = DukeWaterFountain
 	1095 = DukeWaterFountain
 	1096 = DukeWaterFountainBroke
+	1211 = DukeBox
+	1191 = DukeTree1
+	1193 = DukeTree2
+	1230 = DukeTire
 }
+

@@ -3,11 +3,6 @@
 BEGIN_DUKE_NS
 
 // These are all globally accessed tiles.
-extern int TILE_BOX;
-extern int TILE_TREE1;
-extern int TILE_TREE2;
-extern int TILE_TIRE;
-extern int TILE_CONE;
 extern int TILE_W_FORCEFIELD;
 extern int TILE_SCRAP6;
 extern int TILE_APLAYER;

@@ -7,5 +7,9 @@ spawnclasses
 	565 = DukeWaterFountain
 	566 = DukeWaterFountain
 	567 = DukeWaterFountainBroke
-	
+	951 = DukeBox
+	978 = DukeCone
+	908 = DukeTree1
+	910 = DukeTree2
+	990 = DukeTire
 }

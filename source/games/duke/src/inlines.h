@@ -11,11 +11,6 @@ inline int rnd(int X)
 	return ((krand() >> 8) >= (255 - (X)));
 }
 
-inline bool AFLAMABLE(int X)
-{
-	return (X == TILE_BOX || X == TILE_TREE1 || X == TILE_TREE2 || X == TILE_TIRE || X == TILE_CONE);
-}
-
 inline int badguypic(int const tileNum)
 {
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);

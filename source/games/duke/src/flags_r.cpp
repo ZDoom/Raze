@@ -281,11 +281,6 @@ void initactorflags_r()
 	gs.weaponsandammosprites[13] = TITSPRITE;
 	gs.weaponsandammosprites[14] = FREEZEAMMO;
 
-	TILE_BOX = BOX;
-	TILE_TREE1 = TREE1;
-	TILE_TREE2 = TREE2;
-	TILE_TIRE = TIRE;
-	TILE_CONE = CONE;
 	TILE_W_FORCEFIELD = W_FORCEFIELD;
 	TILE_SCRAP6 = SCRAP6;
 	TILE_APLAYER = APLAYER;

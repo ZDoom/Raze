@@ -331,14 +331,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->spr.pal == 1)
 				act->spr.pal = 1;
-			else if (actj->spr.pal != 6 && actj->spr.picnum != NUKEBARREL && actj->spr.picnum != TIRE)
+			else if (actj->spr.pal != 6 && actj->spr.picnum != NUKEBARREL)
 			{
 				act->spr.pal = 2; // Red
 			}
 			else act->spr.pal = 0;  // green
-
-			if (actj->spr.picnum == TIRE)
-				act->spr.shade = 127;
 		}
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		[[fallthrough]];
@@ -1237,14 +1234,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		act->spr.shade = act->sector()->floorshade;
 		break;
-	case TREE1:
-	case TREE2:
-	case TIRE:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
-		act->spr.extra = 1;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-
 	case CAMERA1:
 	case CAMERA1 + 1:
 	case CAMERA1 + 2:

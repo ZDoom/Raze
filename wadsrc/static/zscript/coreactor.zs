@@ -7,6 +7,7 @@ enum EClipMask
 
 class CoreActor native
 {
+	const REPEAT_SCALE = 1. / 64.;
 	native readonly sectortype sector;
 	
 	native int16 cstat;

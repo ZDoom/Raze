@@ -1188,11 +1188,6 @@ void movestandables_d(void)
 			continue;
 		}
 
-		else if (AFLAMABLE(picnum))
-		{
-			moveflammable(act, BLOODPOOL);
-		}
-
 		else if (picnum == TRIPBOMB)
 		{
 			movetripbomb(act);

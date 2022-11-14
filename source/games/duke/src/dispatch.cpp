@@ -192,11 +192,6 @@ void SetDispatcher()
 }
 
 
-int TILE_BOX;
-int TILE_TREE1;
-int TILE_TREE2;
-int TILE_TIRE;
-int TILE_CONE;
 int TILE_W_FORCEFIELD;
 int TILE_SCRAP6;
 int TILE_APLAYER;

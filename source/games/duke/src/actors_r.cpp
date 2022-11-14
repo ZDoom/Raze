@@ -826,12 +826,6 @@ void movestandables_r(void)
 			continue;
 		}
 
-		else if (AFLAMABLE(picnum))
-		{
-			moveflammable(act, BLOODPOOL);
-		}
-
-
 		else if (picnum >= CRACK1 && picnum <= CRACK1 + 3)
 		{
 			movecrack(act);

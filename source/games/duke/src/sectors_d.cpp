@@ -1064,21 +1064,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			}
 		}
 		break;
-	case TREE1:
-	case TREE2:
-	case TIRE:
-	case CONE:
-	case BOX:
-		if (actorflag(proj, SFLAG_INFLAME))
-		{
-			if (targ->temp_data[0] == 0)
-			{
-				targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				targ->temp_data[0] = 1;
-				spawn(targ, BURNING);
-			}
-		}
-		break;
 	case CACTUS:
 		//		case CACTUSBROKE:
 		if (actorflag(proj, SFLAG_INFLAME))

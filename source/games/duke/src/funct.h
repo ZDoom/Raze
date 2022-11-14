@@ -32,7 +32,6 @@ void movefta();
 void clearcameras(int i, player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void movecrane(DDukeActor* i, int crane);
-void moveflammable(DDukeActor* i, int pool);
 void detonate(DDukeActor* i, int explosion);
 void movemasterswitch(DDukeActor* i);
 void movetrash(DDukeActor* i);

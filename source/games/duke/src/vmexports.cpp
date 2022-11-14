@@ -191,6 +191,14 @@ DDukeActor* DukeActor_Spawn(DDukeActor* origin, int intname)
 	{
 		picnum = TileFiles.tileForName("TOILETWATER");
 	}
+	else if (FName(ENamedName(intname)) == FName("DukeBurning"))
+	{
+		picnum = TileFiles.tileForName("BURNIMG");
+	}
+	if (FName(ENamedName(intname)) == FName("DukeBloodPool"))
+	{
+		picnum = TileFiles.tileForName("BLOODPOOL");
+	}
 
 	if (picnum == -1)
 	{
@@ -224,6 +232,44 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofglass, DukeActor_Lotsofglass)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, makeitfall, makeitfall)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	makeitfall(self);
+	return 0;
+}
+
+// temporary helpers.
+DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(mask);
+	ACTION_RETURN_BOOL(!!actorflag(self, EDukeFlags1::FromInt(mask)));
+}
+
+DEFINE_ACTION_FUNCTION(DDukeActor, actorflag2)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(mask);
+	ACTION_RETURN_BOOL(!!actorflag(self, EDukeFlags2::FromInt(mask)));
+}
+
+DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag1)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(mask);
+	ACTION_RETURN_BOOL(!!attackerflag(self, EDukeFlags1::FromInt(mask)));
+}
+
+DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag2)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(mask);
+	ACTION_RETURN_BOOL(!!attackerflag(self, EDukeFlags2::FromInt(mask)));
+}
+
+
+ 
 //---------------------------------------------------------------------------
 //
 // DukePlayer
