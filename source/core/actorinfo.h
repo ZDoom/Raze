@@ -50,7 +50,17 @@ struct FActorInfo
 	TArray<FString> SpriteSetNames;
 
 	FActorInfo() = default;
-	FActorInfo(const FActorInfo & other) = delete;
+	FActorInfo(const FActorInfo& other)
+	{
+		// only copy the fields that get inherited
+		TypeNum = other.TypeNum;
+		DefaultFlags = other.DefaultFlags;
+		DefaultCstat = other.DefaultCstat;
+		defsprite = other.defsprite;
+		PicName = other.PicName;
+		SpriteSetNames = other.SpriteSetNames;
+	}
+
 	void ResolveTextures(const char* clsname);
 };
 

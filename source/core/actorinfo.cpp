@@ -77,7 +77,14 @@ public:
 
 	void InitializeValue(void *addr, const void *def) const override
 	{
-		new(addr) FActorInfo;
+		if (def == nullptr)
+		{
+			new(addr) FActorInfo;
+		}
+		else
+		{
+			new(addr) FActorInfo(*(const FActorInfo*)def);
+		}
 	}
 
 	void DestroyValue(void *addr) const override
