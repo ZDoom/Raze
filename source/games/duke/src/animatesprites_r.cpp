@@ -580,28 +580,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->shade = 16;
 			[[fallthrough]];
 
-		case SCRAP1:
-		case SCRAP2:
-		case SCRAP3:
-		case SCRAP4:
-		case SCRAP5:
-		case SCRAP6:
-		case SCRAP6 + 1:
-		case SCRAP6 + 2:
-		case SCRAP6 + 3:
-		case SCRAP6 + 4:
-		case SCRAP6 + 5:
-		case SCRAP6 + 6:
-		case SCRAP6 + 7:
-
-			if (t->picnum == SCRAP1 && h->spr.yint >= 0)
-				t->picnum = h->spr.yint;
-			else t->picnum += h->temp_data[0];
-
-			if (sectp->floorpal)
-				copyfloorpal(t, sectp);
-			break;
-
 		case WATERBUBBLE:
 			if (t->sectp->floorpicnum == FLOORSLIME)
 			{

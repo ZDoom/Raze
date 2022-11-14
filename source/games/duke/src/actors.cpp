@@ -71,7 +71,11 @@ void RANDOMSCRAP(DDukeActor* origin)
 	auto vel = krandf(4) + 4;
 	auto zvel = -krandf(8) - 2;
 
-	CreateActor(origin->sector(), origin->spr.pos + offset, TILE_SCRAP6 + (r4 & 15), -8, DVector2(v, v), a, vel, zvel, origin, 5);
+	auto spawned = CreateActor(origin->sector(), origin->spr.pos + offset, PClass::FindActor("DukeScrap"), -8, DVector2(v, v), a, vel, zvel, origin, STAT_MISC);
+	if (spawned)
+	{
+		spawned->spriteextra = (r4 & 15);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -2179,66 +2183,6 @@ void glasspieces(DDukeActor* actor)
 	else actor->vel.X = 0;
 
 	ssp(actor, CLIPMASK0);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
-{
-	auto sectp = actor->sector();
-
-	if(actor->vel.X > 0)
-		actor->vel.X -= 1/16.;
-	else actor->vel.X = 0;
-
-	if (actor->vel.Z > 4 && actor->vel.Z < 5)
-	{
-		SetActor(actor, actor->spr.pos);
-		sectp = actor->sector();
-	}
-
-	if (actor->spr.pos.Z < sectp->floorz - 2)
-	{
-		if (actor->temp_data[1] < 1) actor->temp_data[1]++;
-		else
-		{
-			actor->temp_data[1] = 0;
-
-			if (actor->spr.picnum < SCRAP6 + 8)
-			{
-				if (actor->temp_data[0] > 6)
-					actor->temp_data[0] = 0;
-				else actor->temp_data[0]++;
-			}
-			else
-			{
-				if (actor->temp_data[0] > 2)
-					actor->temp_data[0] = 0;
-				else actor->temp_data[0]++;
-			}
-		}
-		if (actor->vel.Z < 16) actor->vel.Z += (gs.gravity - 50 / 256.);
-		actor->spr.pos += actor->spr.angle.ToVector() * actor->vel.X;
-		actor->spr.pos.Z += actor->vel.Z;
-	}
-	else
-	{
-		if (actor->spr.picnum == SCRAP1 && actor->spr.yint > 0)
-		{
-			auto spawned = spawn(actor, actor->spr.yint);
-			if (spawned)
-			{
-				SetActor(spawned, actor->spr.pos);
-				getglobalz(spawned);
-				spawned->spr.hitag = spawned->spr.lotag = 0;
-			}
-		}
-		deletesprite(actor);
-	}
 }
 
 //---------------------------------------------------------------------------

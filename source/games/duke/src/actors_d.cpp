@@ -1006,8 +1006,12 @@ static void movefireext(DDukeActor* actor)
 		auto a = randomAngle();
 		auto vel = krandf(4) + 4;
 		auto zvel = -krandf(16) - actor->vel.Z * 0.25;
-		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), SCRAP3 + (krand() & 3), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, 5);
-		if(spawned) spawned->spr.pal = 2;
+		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, STAT_MISC);
+		if (spawned)
+		{
+			if (spawned) spawned->spriteextra = SCRAP3 - gs.firstdebris + krand() & 3;
+			spawned->spr.pal = 2;
+		}
 	}
 
 	spawn(actor, EXPLOSION2);
@@ -2139,8 +2143,12 @@ static void greenslime(DDukeActor *actor)
 					auto vel = krandf(4) + 4;
 					auto zvel = -krandf(16) - actor->vel.Z * 0.25;
 
-					auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, 5);
-					spawned->spr.pal = 6;
+					auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, STAT_MISC);
+					if (spawned)
+					{
+						if (spawned) spawned->spriteextra = SCRAP3 - gs.firstdebris + krand() & 3;
+						spawned->spr.pal = 6;
+					}
 				}
 
 				S_PlayActorSound(SLIM_DYING, actor);
@@ -2251,8 +2259,12 @@ static void greenslime(DDukeActor *actor)
 			auto vel = krandf(4) + 4;
 			auto zvel = -krandf(16) - actor->vel.Z * 0.25;
 
-			auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), SCRAP3 + (krand() & 3), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, 5);
-			if (spawned) spawned->spr.pal = 6;
+			auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, STAT_MISC);
+			if (spawned)
+			{
+				if (spawned) spawned->spriteextra = SCRAP3 - gs.firstdebris + krand() & 3;
+				spawned->spr.pal = 6;
+			}
 		}
 		actor->temp_data[0] = -3;
 		deletesprite(actor);
@@ -2969,6 +2981,13 @@ void moveexplosions_d(void)  // STATNUM 5
 			continue;
 		}
 
+		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			CallTick(act);
+			continue;
+		}
+
+
 		auto sectp = act->sector();
 
 		switch (act->spr.picnum)
@@ -3121,11 +3140,6 @@ void moveexplosions_d(void)  // STATNUM 5
 		case GLASSPIECES + 2:
 			glasspieces(act);
 			continue;
-		}
-
-		if (act->spr.picnum >= SCRAP6 && act->spr.picnum <= SCRAP5 + 3)
-		{
-			scrap(act, SCRAP1, SCRAP6);
 		}
 	}
 }
@@ -3674,9 +3688,9 @@ void fall_d(DDukeActor *actor, int g_p)
 	fall_common(actor, g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, SQUISHED, THUD, nullptr);
 }
 
-bool spawnweapondebris_d(int picnum, int dnum)
+bool spawnweapondebris_d(int picnum)
 {
-	return picnum == BLIMP && dnum == SCRAP1;
+	return picnum == BLIMP;
 }
 
 void respawnhitag_d(DDukeActor* actor)

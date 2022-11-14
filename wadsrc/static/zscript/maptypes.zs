@@ -305,6 +305,9 @@ struct tspritetype native
 	native CoreActor ownerActor;
 	native int time;
 
+	native void setSpritePic(CoreActor actor, int index); // index into actor's spriteset.
+	native void setWeaponOrAmmoSprite(int num);
+
 }
 
 enum ESprextFlags

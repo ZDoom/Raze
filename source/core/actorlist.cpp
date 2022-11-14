@@ -665,3 +665,21 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpositionz, coreactor_setpositionz)
 }
 
 
+void tspritetype_setSpritePic(tspritetype* targ, DCoreActor* self, unsigned z)
+{
+	auto& spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;
+	if (z < spriteset.Size())
+	{
+		targ->picnum = spriteset[z];
+	}
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setSpritePic, tspritetype_setSpritePic)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(tspritetype);
+	PARAM_OBJECT(owner, DCoreActor);
+	PARAM_INT(z);
+	tspritetype_setSpritePic(self, owner, z);
+	return 0;
+}
+

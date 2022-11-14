@@ -35,6 +35,7 @@ struct DukeGameInfo
 	int lasermode;
 	int freezerhurtowner;
 	int impact_damage;
+	int firstdebris;
 
 	TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
 	ActorInfo actorinfo[MAXTILES];

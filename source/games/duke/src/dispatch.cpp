@@ -74,8 +74,8 @@ int ifhitbyweapon_r(DDukeActor* sn);
 int ifhitbyweapon_d(DDukeActor* sn);
 void fall_d(DDukeActor* i, int g_p);
 void fall_r(DDukeActor* i, int g_p);
-bool spawnweapondebris_d(int picnum, int dnum);
-bool spawnweapondebris_r(int picnum, int dnum);
+bool spawnweapondebris_d(int picnum);
+bool spawnweapondebris_r(int picnum);
 void respawnhitag_d(DDukeActor* g_sp);
 void respawnhitag_r(DDukeActor* g_sp);
 void move_d(DDukeActor* i, int g_p, int g_x);
@@ -193,7 +193,6 @@ void SetDispatcher()
 
 
 int TILE_W_FORCEFIELD;
-int TILE_SCRAP6;
 int TILE_APLAYER;
 int TILE_DRONE;
 int TILE_MENUSCREEN;

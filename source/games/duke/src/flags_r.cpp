@@ -282,7 +282,6 @@ void initactorflags_r()
 	gs.weaponsandammosprites[14] = FREEZEAMMO;
 
 	TILE_W_FORCEFIELD = W_FORCEFIELD;
-	TILE_SCRAP6 = SCRAP6;
 	TILE_APLAYER = APLAYER;
 	TILE_DRONE = DRONE;
 	TILE_MENUSCREEN = MENUSCREEN;
@@ -319,6 +318,7 @@ void initactorflags_r()
 	TILE_EGG = EGG;
 
 	gs.playerheight = PHEIGHT_RR;
+	gs.firstdebris = SCRAP6;
 }
 
 END_DUKE_NS

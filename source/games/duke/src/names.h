@@ -4,7 +4,6 @@ BEGIN_DUKE_NS
 
 // These are all globally accessed tiles.
 extern int TILE_W_FORCEFIELD;
-extern int TILE_SCRAP6;
 extern int TILE_APLAYER;
 extern int TILE_DRONE;
 extern int TILE_MENUSCREEN;

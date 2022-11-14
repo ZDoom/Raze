@@ -2152,41 +2152,42 @@ int ParseState::parse(void)
 		break;
 	case concmd_debris:
 	{
-			int dnum;
+		insptr++;
+		int dnum = *insptr - gs.firstdebris;
+		insptr++;
+		int count = *insptr;
+		bool weap = fi.spawnweapondebris(g_ac->spr.picnum);
 
-			insptr++;
-			dnum = *insptr;
-			insptr++;
-			bool weap = fi.spawnweapondebris(g_ac->spr.picnum, dnum);
 
-			if(g_ac->insector())
-				for(j=(*insptr)-1;j>=0;j--)
+		if(g_ac->insector())
+			for(j = count; j >= 0; j--)
+		{
+			if(weap)
+				s = 0;
+			else s = (krand()%3);
+			DVector3 offs;
+			offs.X = krandf(16) - 8;
+			offs.Y = krandf(16) - 8;
+			offs.Z = -krandf(16) - 8;
+
+			auto a = randomAngle();
+			auto vel = krandf(8) + 2;
+			auto zvel = -krandf(8);
+			DVector2 scale(0.5 + (krand() & 15) * REPEAT_SCALE, 0.5 + (krand() & 15) * REPEAT_SCALE);
+
+			auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs, PClass::FindActor("DukeScrap"), g_ac->spr.shade, scale, a, vel, zvel, g_ac, STAT_MISC);
+			if (spawned)
 			{
-				if(weap)
-					s = 0;
-				else s = (krand()%3);
-				DVector3 offs;
-				offs.X = krandf(16) - 8;
-				offs.Y = krandf(16) - 8;
-				offs.Z = -krandf(16) - 8;
-
-				auto a = randomAngle();
-				auto vel = krandf(8) + 2;
-				auto zvel = -krandf(8);
-				DVector2 scale(0.5 + (krand() & 15) * REPEAT_SCALE, 0.5 + (krand() & 15) * REPEAT_SCALE);
-
-				auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs, dnum + s, g_ac->spr.shade, scale, a, vel, zvel, g_ac, 5);
-				if (spawned)
-				{
-					if (weap)
-						spawned->spr.yint = gs.weaponsandammosprites[j % 14];
-					else spawned->spr.yint = -1;
-					spawned->spr.pal = g_ac->spr.pal;
-				}
+				spawned->spriteextra = dnum + s;
+				if (weap)
+					spawned->spr.yint = (j % 15) + 1;
+				else spawned->spr.yint = -1;
+				spawned->spr.pal = g_ac->spr.pal;
 			}
-			insptr++;
 		}
-		break;
+		insptr++;
+	}
+	break;
 	case concmd_count:
 		insptr++;
 		g_t[0] = (short) *insptr;

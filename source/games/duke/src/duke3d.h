@@ -92,7 +92,7 @@ struct Dispatcher
 	void (*guts)(DDukeActor* s, int gtype, int n, int p);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
 	void (*fall)(DDukeActor* actor, int g_p);
-	bool (*spawnweapondebris)(int picnum, int dnum);
+	bool (*spawnweapondebris)(int picnum);
 	void (*respawnhitag)(DDukeActor* g_sp);
 	void (*move)(DDukeActor* i, int g_p, int g_x);
 

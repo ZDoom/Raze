@@ -2870,6 +2870,12 @@ void moveexplosions_r(void)  // STATNUM 5
 			continue;
 		}
 
+		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			CallTick(act);
+			continue;
+		}
+
 		switch (act->spr.picnum)
 		{
 		case SHOTGUNSPRITE:
@@ -3068,11 +3074,6 @@ void moveexplosions_r(void)  // STATNUM 5
 		case POPCORN:
 			glasspieces(act);
 			continue;
-		}
-
-		if (act->spr.picnum >= SCRAP6 && act->spr.picnum <= SCRAP5 + 3)
-		{
-			scrap(act, SCRAP1, SCRAP6);
 		}
 	}
 }
@@ -3921,9 +3922,9 @@ void mamaspawn(DDukeActor *actor)
 	}
 }
 
-bool spawnweapondebris_r(int picnum, int dnum)
+bool spawnweapondebris_r(int picnum)
 {
-	return dnum == SCRAP1;
+	return true;
 }
 
 void respawnhitag_r(DDukeActor *actor)

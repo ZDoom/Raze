@@ -490,7 +490,7 @@ DEFINE_PROPERTY(owner, I, CoreActor)
 //==========================================================================
 //
 //==========================================================================
-DEFINE_PROPERTY(spriteset, Ssssssssssssssssssss, CoreActor)
+DEFINE_PROPERTY(spriteset, Sssssssssssssssssssssssssssssss, CoreActor)
 {
 	info->ActorInfo()->SpriteSet.Clear();
 	for (int i = 0; i < PROP_PARM_COUNT; ++i)

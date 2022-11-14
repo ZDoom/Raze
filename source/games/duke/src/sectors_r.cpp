@@ -2149,8 +2149,9 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				auto vel = krandf(8) + 4;
 				auto zvel = -krandf(2) - 1;
 
-				CreateActor(targ->sector(), DVector3(targ->spr.pos.XY(), targ->sector()->floorz - 12 - j * 2), SCRAP1 + (krand() & 15), -8, DVector2(1, 1),
+				auto spawned = CreateActor(targ->sector(), DVector3(targ->spr.pos.XY(), targ->sector()->floorz - 12 - j * 2), PClass::FindActor("DukeScrap"), -8, DVector2(1, 1),
 					a, vel, zvel, targ, 5);
+				if (spawned) spawned->spriteextra = SCRAP1 - gs.firstdebris + krand() & 15;
 			}
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);

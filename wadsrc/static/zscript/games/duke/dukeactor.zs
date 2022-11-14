@@ -70,6 +70,7 @@ class DukeActor : CoreActor native
 	native int domove(int clipmask);
 	native void PlayActorSound(int snd);
 	native DukeActor spawn(Name type);
+	native DukeActor spawnweaponorammo(int type);
 	native void lotsofglass(int count);
 	native void makeitfall();
 	

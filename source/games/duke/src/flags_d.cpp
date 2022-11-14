@@ -310,9 +310,9 @@ void initactorflags_d()
 	gs.weaponsandammosprites[12] = RPGAMMO;
 	gs.weaponsandammosprites[13] = FREEZESPRITE;
 	gs.weaponsandammosprites[14] = FREEZEAMMO;
+	gs.firstdebris = SCRAP6;
 
 	TILE_W_FORCEFIELD = W_FORCEFIELD;
-	TILE_SCRAP6 = SCRAP6;
 	TILE_APLAYER = APLAYER;
 	TILE_DRONE = DRONE;
 	TILE_MENUSCREEN = MENUSCREEN;

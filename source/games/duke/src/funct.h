@@ -61,7 +61,6 @@ bool jibs(DDukeActor* i, int JIBS6, bool timeout, bool callsetsprite, bool floor
 bool bloodpool(DDukeActor* i, bool puke);
 void shell(DDukeActor* i, bool morecheck);
 void glasspieces(DDukeActor* i);
-void scrap(DDukeActor* i, int SCRAP1, int SCRAP6);
 
 void handle_se00(DDukeActor* i);
 void handle_se01(DDukeActor* i);
@@ -172,6 +171,7 @@ void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
 DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat);
+DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor* cls, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat);
 
 void ceilingglass(DDukeActor* snum, sectortype* sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);

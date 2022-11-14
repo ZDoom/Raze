@@ -219,6 +219,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawn, DukeActor_Spawn)
 	ACTION_RETURN_POINTER(DukeActor_Spawn(self, type));
 }
 
+DDukeActor* DukeActor_spawnweaponorammo(DDukeActor* origin, unsigned intname)
+{
+	if (intname > 14) return nullptr;
+	return spawn(origin, gs.weaponsandammosprites[intname]);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnweaponorammo, DukeActor_spawnweaponorammo)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(type);
+	ACTION_RETURN_POINTER(DukeActor_spawnweaponorammo(self, type));
+}
+
 void DukeActor_Lotsofglass(DDukeActor* origin, int count)
 {
 	lotsofglass(origin, nullptr, count);
@@ -618,6 +631,26 @@ DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, freezerhurtowner);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, impact_damage);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerheight);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, displayflags);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, firstdebris);
 DEFINE_GLOBAL_UNSIZED(gs)
+
+
+// this is only a temporary helper until weaponsandammosprites can be migrated to real class types. We absolutely do not want any access to tile numbers in the scripts - even now.
+void tspritetype_setWeaponOrAmmoSprite(tspritetype* targ, unsigned z)
+{
+	if (z < 15)
+	{
+		targ->picnum = gs.weaponsandammosprites[z];
+	}
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setWeaponOrAmmoSprite, tspritetype_setWeaponOrAmmoSprite)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(tspritetype);
+	PARAM_INT(z);
+	tspritetype_setWeaponOrAmmoSprite(self, z);
+	return 0;
+}
+
 
 END_DUKE_NS

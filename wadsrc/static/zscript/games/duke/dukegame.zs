@@ -1268,5 +1268,6 @@ struct DukeGameInfo native
 	readonly native int freezerhurtowner;
 	readonly native int impact_damage;
 	readonly native double playerheight;
+	readonly native int firstdebris;
 	readonly native int displayflags;
 }
