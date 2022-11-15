@@ -250,11 +250,9 @@ static void SetWallPalV5()
 {
 	for (unsigned i = 0; i < sector.Size(); i++)
 	{
-		int startwall = sector[i].wallptr;
-		int endwall = startwall + sector[i].wallnum;
-		for (int w = startwall; w < endwall; w++)
+		for(auto& wal : wallsofsector(i))
 		{
-			wall[w].pal = sector[i].floorpal;
+			wal.pal = sector[i].floorpal;
 		}
 	}
 }
@@ -757,11 +755,11 @@ void setWallSectors()
 		auto sect = &sector[i];
 		auto nextsect = &sector[i + 1];
 
-		if (sect->wallptr < nextsect->wallptr && sect->wallptr + sect->wallnum > nextsect->wallptr)
+		if (sect->wallptr < nextsect->wallptr && sect->wallptr + sect->wall_count() > nextsect->wallptr)
 		{
 			// We have overlapping wall ranges for two sectors. Do some analysis to see where these walls belong
 			int checkstart = nextsect->wallptr;
-			int checkend = sect->wallptr + sect->wallnum;
+			int checkend = sect->wallptr + sect->wall_count();
 
 			// for now assign the walls to the first sector. Final decisions are made below.
 			nextsect->wallnum -= checkend - checkstart;
@@ -783,16 +781,16 @@ void setWallSectors()
 
 			sect->wallnum = checkstart - sect->wallptr;
 
-			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsect->wallptr + nextsect->wallnum, checkstart))
+			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsect->wallptr + nextsect->wall_count(), checkstart))
 				checkend--;
 
 			nextsect->wallnum += nextsect->wallptr - checkend;
 			nextsect->wallptr = checkend;
 
-			if (nextsect->wallptr > sect->wallptr + sect->wallnum)
+			if (nextsect->wallptr > sect->wallptr + sect->wall_count())
 			{
 				// If there's a gap, assign to the first sector. In this case we may only guess.
-				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sect->wallptr + sect->wallnum, nextsect->wallptr - 1, i, i + 1);
+				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sect->wallptr + sect->wall_count(), nextsect->wallptr - 1, i, i + 1);
 				sect->wallnum = nextsect->wallptr - sect->wallptr;
 			}
 		}

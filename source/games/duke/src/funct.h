@@ -177,7 +177,7 @@ DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, PClassActor* 
 void ceilingglass(DDukeActor* snum, sectortype* sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);
 void lotsofcolourglass(DDukeActor* snum, walltype* wallNum, int cnt);
-void lotsofglass(DDukeActor* snum, walltype* wallnum, int cnt);
+void lotsofglass(DDukeActor* snum, walltype* wal, int cnt);
 void checkplayerhurt_d(player_struct* p, const Collision& coll);
 void checkplayerhurt_r(player_struct* p, const Collision& coll);
 DDukeActor* dospawnsprite(DDukeActor* actj, int pn);

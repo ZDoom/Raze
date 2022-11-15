@@ -63,7 +63,7 @@ void InitMirrors(void)
 			{
 				pWalli->overpicnum = nTile;
 
-				mirror[mirrorcnt].wallnum = i;
+				mirror[mirrorcnt].mynum = i;
 				mirror[mirrorcnt].type = 0;
 				pWalli->cstat |= CSTAT_WALL_1WAY;
 				int tmp = pWalli->xw().data;
@@ -99,7 +99,7 @@ void InitMirrors(void)
 		if (pWalli->picnum == 504)
 		{
 			mirror[mirrorcnt].link = i;
-			mirror[mirrorcnt].wallnum = i;
+			mirror[mirrorcnt].mynum = i;
 			pWalli->picnum = nTile;
 			mirror[mirrorcnt].type = 0;
 			pWalli->cstat |= CSTAT_WALL_1WAY;
@@ -129,7 +129,7 @@ void InitMirrors(void)
 				I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
 			mirror[mirrorcnt].type = 2;
 			mirror[mirrorcnt].diff = link2->spr.pos - link->spr.pos;
-			mirror[mirrorcnt].wallnum = i;
+			mirror[mirrorcnt].mynum = i;
 			mirror[mirrorcnt].link = j;
 			secti->floorpicnum = 4080 + mirrorcnt;
 			secti->portalflags = PORTAL_SECTOR_FLOOR;
@@ -137,7 +137,7 @@ void InitMirrors(void)
 			mirrorcnt++;
 			mirror[mirrorcnt].type = 1;
 			mirror[mirrorcnt].diff = link->spr.pos - link2->spr.pos;
-			mirror[mirrorcnt].wallnum = j;
+			mirror[mirrorcnt].mynum = j;
 			mirror[mirrorcnt].link = i;
 			sectj->ceilingpicnum = 4080 + mirrorcnt;
 			sectj->portalflags = PORTAL_SECTOR_CEILING;
@@ -162,7 +162,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRROR& w, MIRROR*
 		arc("type", w.type)
 			("link", w.link)
 			("diff", w.diff)
-			("wallnum", w.wallnum)
+			("wallnum", w.mynum)
 			.EndObject();
 	}
 	return arc;

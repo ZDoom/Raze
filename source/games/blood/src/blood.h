@@ -88,7 +88,7 @@ struct MIRROR
 	int type;
 	int link;
 	DVector3 diff;
-	int wallnum;
+	int mynum;
 };
 
 extern MIRROR mirror[16];

@@ -124,8 +124,8 @@ DEFINE_ACTION_FUNCTION(DLevelPostProcessor, SplitSector)
 
 	if (sectornum < sector.Size())
 	{
-		if (firstwall >= sector[sectornum].wallptr && firstwall < sector[sectornum].wallptr + sector[sectornum].wallnum &&
-			secondwall >= sector[sectornum].wallptr && secondwall < sector[sectornum].wallptr + sector[sectornum].wallnum)
+		if (firstwall >= sector[sectornum].wallptr && firstwall < sector[sectornum].wallptr + sector[sectornum].wall_count() &&
+			secondwall >= sector[sectornum].wallptr && secondwall < sector[sectornum].wallptr + sector[sectornum].wall_count())
 
 			hw_SetSplitSector(sectornum, firstwall, secondwall);
 	}

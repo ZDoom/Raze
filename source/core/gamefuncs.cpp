@@ -712,7 +712,7 @@ double checkWallHit(walltype* wal, EWallFlags flagmask, const DVector3& start, c
 
 double checkSectorPlaneHit(sectortype* sec, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
 {
-	if (sec->wallnum < 3) return -1;
+	if (sec->wall_count() < 3) return -1;
 	auto wal = sec->firstWall();
 	double len = wal->Length();
 
@@ -1218,7 +1218,7 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 		while (auto sec = search.GetNext())
 		{
 			// this must go both forward and backward so we cannot use wallsofsector. Pity
-			for (int i = 0; i < sec->wallnum; i++)
+			for (int i = 0; i < sec->wall_count(); i++)
 			{
 				auto wal = direction > 0 ? sec->firstWall() + i : sec->lastWall() - i;
 

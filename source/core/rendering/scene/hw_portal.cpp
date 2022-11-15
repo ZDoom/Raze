@@ -478,7 +478,7 @@ int HWLinePortal::ClipSeg(walltype *seg, const DVector3 &viewpos)
 int HWLinePortal::ClipSector(sectortype *sub)
 {
 	// this seg is completely behind the mirror
-	for (int i = 0; i<sub->wallnum; i++)
+	for (int i = 0; i<sub->wall_count(); i++)
 	{
 		if (PointOnLineSide(sub->firstWall()->pos, line) == 0) return PClip_Inside;
 	}

@@ -1055,7 +1055,7 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		if (!bSet) SetGameVarID(lVar2, sectp->wallptr, sActor, sPlayer);
 		break;
 	case SECTOR_WALLNUM:
-		if (!bSet) SetGameVarID(lVar2, sectp->wallnum, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, sectp->wall_count(), sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGZ:
 		if (bSet) sectp->setceilingz(lValue * zmaptoworld);

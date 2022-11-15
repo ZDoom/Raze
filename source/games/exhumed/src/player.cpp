@@ -130,7 +130,7 @@ void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, 
 
     int startwall = pSector->wallptr;
 
-    int nWalls = pSector->wallnum;
+    int nWalls = pSector->wall_count();
 
     int var_20 = nVal2 & 2;
     int var_14 = nVal2 & 1;

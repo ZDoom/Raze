@@ -643,7 +643,7 @@ DVector3 SectorMidPoint(sectortype* sectp)
     {
         sum += wal.pos;
     }
-    sum /= sectp->wallnum;
+    sum /= sectp->wall_count();
     sum.Z = (sectp->floorz + sectp->ceilingz) * 0.5;
     return sum;
 }
@@ -2606,7 +2606,7 @@ void DoSineWaveFloor(void)
             if ((flags & SINE_SLOPED))
             {
                 walltype* wal;
-                if (sect->wallnum == 4)
+                if (sect->wall_count() == 4)
                 {
                     //Set wal to the wall on the opposite side of the sector
                     wal = sect->firstWall() + 2;

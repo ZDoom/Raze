@@ -350,6 +350,7 @@ struct sectortype
 	int getceilingslope() const { return ceilingstat & CSTAT_SECTOR_SLOPE ? ceilingheinum : 0; }
 	walltype* firstWall() const;
 	walltype* lastWall() const;
+	int wall_count() const { return wallnum; }
 
 
 	Blood::XSECTOR& xs() const { return *_xs;  }
@@ -555,9 +556,9 @@ inline bool validSectorIndex(int sectnum)
 	return (unsigned)sectnum < sector.Size();
 }
 
-inline bool validWallIndex(int wallnum)
+inline bool validWallIndex(int wallno)
 {
-	return (unsigned)wallnum < wall.Size();
+	return (unsigned)wallno < wall.Size();
 }
 
 inline sectortype* walltype::nextSector() const

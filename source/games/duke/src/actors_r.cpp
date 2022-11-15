@@ -3385,7 +3385,7 @@ void moveeffectors_r(void)   //STATNUM 3
 	{
 		if (act->spr.lotag != SE_29_WAVES) continue;
 		auto sc = act->sector();
-		if (sc->wallnum != 4) continue;
+		if (sc->wall_count() != 4) continue;
 		auto wal = sc->firstWall() + 2;
 		if (wal->nextSector()) alignflorslope(act->sector(), DVector3(wal->pos, wal->nextSector()->floorz));
 	}
@@ -3850,7 +3850,7 @@ void destroyit(DDukeActor *actor)
 
 				auto destwal = destsect->firstWall();
 				auto srcwal = srcsect->firstWall();
-				for (int i = 0; i < destsect->wallnum; i++, srcwal++, destwal++)
+				for (int i = 0; i < destsect->wall_count(); i++, srcwal++, destwal++)
 				{
 					destwal->picnum = srcwal->picnum;
 					destwal->overpicnum = srcwal->overpicnum;

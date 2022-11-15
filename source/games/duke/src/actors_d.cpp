@@ -3466,7 +3466,7 @@ void moveeffectors_d(void)   //STATNUM 3
 	{
 		if (act->spr.lotag != SE_29_WAVES) continue;
 		auto sc = act->sector();
-		if (sc->wallnum != 4) continue;
+		if (sc->wall_count() != 4) continue;
 		auto wal = sc->firstWall() + 2;
 		if (wal->nextSector()) alignflorslope(act->sector(), DVector3(wal->pos, wal->nextSector()->floorz));
 	}

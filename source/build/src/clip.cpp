@@ -250,7 +250,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         auto const sec       = &sector[dasect];
         int const  startwall = sec->wallptr;
-        int const  endwall   = startwall + sec->wallnum;
+        int const  endwall   = startwall + sec->wall_count();
         auto       wal       = &wall[startwall];
 
         for (int j=startwall; j<endwall; j++, wal++)
