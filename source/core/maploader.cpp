@@ -95,8 +95,9 @@ void sectortype::allocX()
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
 {
-	sect.wallptr = fr.ReadInt16();
-	sect.wallnum = fr.ReadInt16();
+	int wallptr = fr.ReadInt16();
+	int wallnum = fr.ReadInt16();
+	sect.walls.Set(&wall[wallptr], wallnum);
 	int c = fr.ReadInt32();
 	int f = fr.ReadInt32();
 	sect.setzfrommap(c, f);
@@ -123,8 +124,9 @@ static void ReadSectorV7(FileReader& fr, sectortype& sect)
 
 static void ReadSectorV6(FileReader& fr, sectortype& sect)
 {
-	sect.wallptr = fr.ReadUInt16();
-	sect.wallnum = fr.ReadUInt16();
+	int wallptr = fr.ReadInt16();
+	int wallnum = fr.ReadInt16();
+	sect.walls.Set(&wall[wallptr], wallnum);
 	sect.ceilingpicnum = fr.ReadUInt16();
 	sect.floorpicnum = fr.ReadUInt16();
 	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
@@ -151,8 +153,9 @@ static void ReadSectorV6(FileReader& fr, sectortype& sect)
 
 static void ReadSectorV5(FileReader& fr, sectortype& sect)
 {
-	sect.wallptr = fr.ReadInt16();
-	sect.wallnum = fr.ReadInt16();
+	int wallptr = fr.ReadInt16();
+	int wallnum = fr.ReadInt16();
+	sect.walls.Set(&wall[wallptr], wallnum);
 	sect.ceilingpicnum = fr.ReadUInt16();
 	sect.floorpicnum = fr.ReadUInt16();
 	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
@@ -426,8 +429,7 @@ void fixSectors()
 		// Note: we do not have the 'sector' index initialized here, it would not be helpful anyway for this fix.
 		while (wp != wall.Data() && wp[-1].twoSided() && wp[-1].nextWall()->nextWall() == &wp[-1] && wp[-1].nextWall()->nextSector() == &sect)
 		{
-			sect.wallptr--;
-			sect.wallnum++;
+			sect.walls.Set(sect.walls.Data() - 1, sect.walls.Size() + 1);
 			wp--;
 		}
 	}
@@ -755,8 +757,8 @@ void setWallSectors()
 		auto sect = &sector[i];
 		auto nextsect = &sector[i + 1];
 
-		int sectstart = sect->wall_index();
-		int nextsectstart = nextsect->wall_index();
+		int sectstart = wallindex(sect->firstWall());
+		int nextsectstart = wallindex(sect->firstWall());
 
 		if (sectstart < nextsectstart && sectstart + sect->wall_count() > nextsectstart)
 		{
@@ -765,8 +767,8 @@ void setWallSectors()
 			int checkend = sectstart + sect->wall_count();
 
 			// for now assign the walls to the first sector. Final decisions are made below.
-			nextsect->wallnum -= checkend - checkstart;
-			nextsect->wallptr = checkend;
+			nextsectstart = checkend;
+			nextsect->walls.Set(&wall[nextsectstart], nextsect->walls.Size() - (checkend - checkstart));
 
 			auto belongs = [](int wal, int first, int last, int firstwal)
 			{
@@ -782,19 +784,20 @@ void setWallSectors()
 			while (checkstart < checkend && belongs(checkstart, sectstart, checkstart, checkstart))
 				checkstart++;
 
-			sect->wallnum = checkstart - sectstart;
+			sect->walls.Set(sect->firstWall(), checkstart - sectstart);
 
 			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsectstart + nextsect->wall_count(), checkstart))
 				checkend--;
 
-			nextsect->wallnum += nextsectstart - checkend;
-			nextsect->wallptr = nextsectstart = checkend;
+			int cnt = nextsect->walls.Size() - (nextsectstart - checkend);
+			nextsectstart = checkend;
+			nextsect->walls.Set(&wall[nextsectstart], cnt);
 
 			if (nextsectstart > sectstart + sect->wall_count())
 			{
 				// If there's a gap, assign to the first sector. In this case we may only guess.
 				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sectstart + sect->wall_count(), nextsectstart - 1, i, i + 1);
-				sect->wallnum = nextsectstart - sectstart;
+				sect->walls.Set(sect->firstWall(), nextsectstart - sectstart);
 			}
 		}
 	}

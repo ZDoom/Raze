@@ -253,8 +253,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		{
 			dbCrypt((char*)&load, sizeof(sectortypedisk), gMapRev * sizeof(sectortypedisk));
 		}
-		pSector->wallptr = LittleShort(load.wallptr);
-		pSector->wallnum = LittleShort(load.wallnum);
+		pSector->walls.Set(&wall[LittleShort(load.wallptr)], LittleShort(load.wallnum));
 		pSector->setzfrommap(LittleLong(load.ceilingz), LittleLong(load.floorz));
 		pSector->ceilingstat = ESectorFlags::FromInt(LittleShort(load.ceilingstat));
 		pSector->floorstat = ESectorFlags::FromInt(LittleShort(load.floorstat));

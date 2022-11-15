@@ -40,6 +40,7 @@
 #include "maptypes.h"
 #include "hw_sections.h"
 #include "mapinfo.h"
+#include "gamefuncs.h"
 
 //==========================================================================
 //
@@ -124,7 +125,7 @@ DEFINE_ACTION_FUNCTION(DLevelPostProcessor, SplitSector)
 
 	if (sectornum < sector.Size())
 	{
-		int sectstart = sector[sectornum].wall_index();
+		int sectstart = wallindex(sector[sectornum].firstWall());
 		if (firstwall >= sectstart && firstwall < sectstart + sector[sectornum].wall_count() &&
 			secondwall >= sectstart && secondwall < sectstart + sector[sectornum].wall_count())
 

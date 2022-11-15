@@ -458,8 +458,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 	{
 		arc("firstentry", c.firstEntry)
 			("lastentry", c.lastEntry)
-			("wallptr", c.wallptr, def->wallptr)
-			("wallnum", c.wallnum, def->wallnum)
 #ifndef SECTOR_HACKJOB // can't save these in test mode...
 			("ceilingz", c.ceilingz, def->ceilingz)
 			("floorz", c.floorz, def->floorz)

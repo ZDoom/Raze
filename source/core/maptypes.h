@@ -210,7 +210,86 @@ BEGIN_BLD_NS
 END_BLD_NS
 
 class DCoreActor;
-struct walltype;
+struct sectortype;
+
+
+//=============================================================================
+//
+// internal wall struct - no longer identical with on-disk format
+//
+//=============================================================================
+
+struct walltype
+{
+	DVector2 pos;
+
+	vec2_t wall_int_pos() const { return vec2_t(int(pos.X * worldtoint), int(pos.Y * worldtoint)); };
+	vec2_t int_delta() const { return point2Wall()->wall_int_pos() - wall_int_pos(); }
+
+	void setPosFromMap(int x, int y) { pos = { x * maptoworld, y * maptoworld }; }
+
+	int32_t point2;
+	int32_t nextwall;
+	int32_t sector;	// Build never had this...
+	int32_t nextsector;
+
+	// Again, panning fields extended for interpolation.
+	float xpan_;
+	float ypan_;
+
+	EWallFlags cstat;
+	int16_t picnum;
+	int16_t overpicnum;
+	union { int16_t lotag, type; }; // type is for Blood
+	int16_t hitag;
+	int16_t extra;
+
+	int8_t shade;
+	uint8_t pal;
+	uint8_t xrepeat;
+	uint8_t yrepeat;
+
+	// extensions not from the binary map format.
+	angle_t clipangle;
+	double length; // cached value to avoid calling sqrt repeatedly.
+
+	uint16_t portalnum;
+	uint8_t portalflags;
+	uint8_t lengthflags;
+
+	// Blood is the only game which extends the wall struct.
+	Blood::XWALL* _xw;
+	DVector2 baseWall;
+
+	int xpan() const { return int(xpan_); }
+	int ypan() const { return int(ypan_); }
+	void setxpan(float add) { xpan_ = fmodf(add + 512, 256); } // +512 is for handling negative offsets
+	void setypan(float add) { ypan_ = fmodf(add + 512, 256); } // +512 is for handling negative offsets
+	void addxpan(float add) { xpan_ = fmodf(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
+	void addypan(float add) { ypan_ = fmodf(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
+	sectortype* nextSector() const;
+	sectortype* sectorp() const;
+	walltype* nextWall() const;
+	walltype* lastWall(bool fast = true) const;
+	walltype* point2Wall() const;
+	DVector2 delta() const { return point2Wall()->pos - pos; }
+	DVector2 center() const { return(point2Wall()->pos + pos) / 2; }
+	DAngle normalAngle() const { return delta().Angle() + DAngle90; }
+	bool twoSided() const { return nextsector >= 0; }
+	double Length();
+	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.
+	void move(const DVector2& vec)
+	{
+		pos = vec;
+		moved();
+	}
+
+	void moved();
+
+	Blood::XWALL& xw() const { return *_xw; }
+	bool hasX() const { return _xw != nullptr; }
+	void allocX();
+};
 
 // enable for running a compile-check to ensure that renderer-critical variables are not being written to directly.
 //#define SECTOR_HACKJOB
@@ -227,7 +306,8 @@ struct sectortype
 	// Fields were reordered by size, some also enlarged.
 	DCoreActor* firstEntry, * lastEntry;
 
-	int32_t wallptr;
+	TArrayView<walltype> walls;
+
 #ifdef SECTOR_HACKJOB
 	// Debug hack job for finding all places where ceilingz and floorz get written to.
 	// If the engine does not compile with this block on, we got a problem.
@@ -259,7 +339,6 @@ struct sectortype
 	float floorxpan_;
 	float floorypan_;
 
-	int16_t wallnum;
 	ESectorFlags ceilingstat;
 	ESectorFlags floorstat;
 	int16_t ceilingpicnum;
@@ -348,10 +427,9 @@ struct sectortype
 	void setfloorslope(int heinum) { floorheinum = heinum; if (heinum) floorstat |= CSTAT_SECTOR_SLOPE; else floorstat &= ~CSTAT_SECTOR_SLOPE; }
 	int getfloorslope() const { return floorstat & CSTAT_SECTOR_SLOPE ? floorheinum : 0; }
 	int getceilingslope() const { return ceilingstat & CSTAT_SECTOR_SLOPE ? ceilingheinum : 0; }
-	walltype* firstWall() const;
-	walltype* lastWall() const;
-	int wall_index() const { return wallptr; }
-	int wall_count() const { return wallnum; }
+	walltype* firstWall() const { return walls.Data(); }
+	walltype* lastWall() const { return &walls.Last(); }
+	int wall_count() const { return walls.Size(); }
 
 
 	Blood::XSECTOR& xs() const { return *_xs;  }
@@ -360,84 +438,6 @@ struct sectortype
 
 	// same for SW
 	bool hasU() const { return u_defined; }
-};
-
-//=============================================================================
-//
-// internal wall struct - no longer identical with on-disk format
-//
-//=============================================================================
-
-struct walltype
-{
-	DVector2 pos;
-
-	vec2_t wall_int_pos() const { return vec2_t(int(pos.X * worldtoint), int(pos.Y * worldtoint)); };
-	vec2_t int_delta() const { return point2Wall()->wall_int_pos() - wall_int_pos(); }
-
-	void setPosFromMap(int x, int y) { pos = { x * maptoworld, y * maptoworld }; }
-
-	int32_t point2;
-	int32_t nextwall;
-	int32_t sector;	// Build never had this...
-	int32_t nextsector;
-
-	// Again, panning fields extended for interpolation.
-	float xpan_;
-	float ypan_;
-
-	EWallFlags cstat;
-	int16_t picnum;
-	int16_t overpicnum;
-	union { int16_t lotag, type; }; // type is for Blood
-	int16_t hitag;
-	int16_t extra;
-
-	int8_t shade;
-	uint8_t pal;
-	uint8_t xrepeat;
-	uint8_t yrepeat;
-
-	// extensions not from the binary map format.
-	angle_t clipangle;
-	double length; // cached value to avoid calling sqrt repeatedly.
-
-	uint16_t portalnum;
-	uint8_t portalflags;
-	uint8_t lengthflags;
-
-	// Blood is the only game which extends the wall struct.
-	Blood::XWALL* _xw;
-	DVector2 baseWall;
-
-	int xpan() const { return int(xpan_); }
-	int ypan() const { return int(ypan_); }
-	void setxpan(float add) { xpan_ = fmodf(add + 512, 256); } // +512 is for handling negative offsets
-	void setypan(float add) { ypan_ = fmodf(add + 512, 256); } // +512 is for handling negative offsets
-	void addxpan(float add) { xpan_ = fmodf(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
-	void addypan(float add) { ypan_ = fmodf(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
-	sectortype* nextSector() const;
-	sectortype* sectorp() const;
-	walltype* nextWall() const;
-	walltype* lastWall(bool fast  = true) const;
-	walltype* point2Wall() const;
-	DVector2 delta() const { return point2Wall()->pos - pos; }
-	DVector2 center() const { return(point2Wall()->pos + pos) / 2; }
-	DAngle normalAngle() const { return delta().Angle() + DAngle90; }
-	bool twoSided() const { return nextsector >= 0; }
-	double Length();
-	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.
-	void move(const DVector2& vec)
-	{
-		pos = vec;
-		moved();
-	}
-
-	void moved();
-
-	Blood::XWALL& xw() const { return *_xw; }
-	bool hasX() const { return _xw != nullptr; }
-	void allocX();
 };
 
 //=============================================================================
@@ -595,16 +595,6 @@ inline walltype* walltype::lastWall(bool fast) const
 inline walltype* walltype::point2Wall() const
 {
 	return &::wall[point2]; // cannot be -1 in a proper map.
-}
-
-inline walltype* sectortype::firstWall() const
-{
-	return &wall[wallptr]; // cannot be -1 in a proper map
-}
-
-inline walltype* sectortype::lastWall() const
-{
-	return &wall[wallptr + wallnum - 1]; // cannot be -1 in a proper map
 }
 
 inline void walltype::moved() 

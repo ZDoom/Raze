@@ -123,8 +123,7 @@ struct sectortype native
 	native readonly float floorypan;
 	native readonly double ceilingz, floorz;
 
-	native readonly int wallptr;
-	native readonly int16 wallnum;
+	native Array<@walltype> walls;
 	native int16 ceilingstat;
 	native int16 floorstat;
 	//int16 ceilingpicnum;

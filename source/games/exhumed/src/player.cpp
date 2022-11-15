@@ -128,7 +128,7 @@ void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, 
 {
     *nSprite = nullptr;
 
-    int startwall = pSector->wall_index();
+    auto startwall = pSector->firstWall();
 
     int nWalls = pSector->wall_count();
 
@@ -166,7 +166,7 @@ void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, 
         if (nWalls < -1)
             return;
 
-        pSector = wall[startwall].nextSector();
+        pSector = startwall->nextSector();
         startwall++;
     }
 }
