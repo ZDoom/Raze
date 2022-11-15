@@ -611,6 +611,30 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeSpriteIterator, Next, duke_nextSprite)
 	ACTION_RETURN_POINTER(duke_nextSprite(self));
 }
 
+DDukeActor* DukeLevel_SpawnActor(DukeLevel* self, sectortype* sect, double x, double y, double z, PClassActor* type, int shade, double scalex, double scaley, double angle, double vel, double zvel, DDukeActor* owner, int stat)
+{
+	return SpawnActor(sect, DVector3(x, y, z), type, shade, DVector2(scalex, scaley), DAngle::fromDeg(angle), vel, zvel, owner, stat);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, SpawnActor, DukeLevel_SpawnActor)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DukeLevel);
+	PARAM_POINTER(sect, sectortype);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	PARAM_CLASS(type, DDukeActor);
+	PARAM_INT(shade);
+	PARAM_FLOAT(scalex);
+	PARAM_FLOAT(scaley);
+	PARAM_FLOAT(angle);
+	PARAM_FLOAT(vel);
+	PARAM_FLOAT(zvel);
+	PARAM_OBJECT(owner, DDukeActor);
+	PARAM_INT(stat);
+	ACTION_RETURN_POINTER(DukeLevel_SpawnActor(self, sect, x, y, z, static_cast<PClassActor*>(type), shade, scalex, scaley, angle, vel, zvel, owner, stat));
+}
+
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerfriction);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, gravity);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, respawnactortime);

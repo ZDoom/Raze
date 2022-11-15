@@ -172,6 +172,7 @@ void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
 DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat);
 DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor* cls, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat);
+DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, PClassActor* cls, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat = -1);
 
 void ceilingglass(DDukeActor* snum, sectortype* sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);

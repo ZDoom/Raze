@@ -12,4 +12,6 @@ spawnclasses
 	908 = DukeTree1
 	910 = DukeTree2
 	990 = DukeTire
+	911 = DukeCactus
+	939 = DukeCactusBroke
 }

@@ -77,7 +77,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	act->spr.pos = pos;
 	if (s_pn != -1) act->spr.picnum = s_pn;	// if -1 use the class default.
 	act->spr.shade = s_shd;
-	act->spr.scale = DVector2(scale.X, scale.Y);
+	if (!scale.isZero()) act->spr.scale = DVector2(scale.X, scale.Y);
 
 	act->spr.angle = s_ang;
 	act->vel.X = s_vel;
@@ -134,9 +134,9 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	return CreateActor(whatsectp, pos, cls, -1, s_shd, scale, s_ang, s_vel, s_zvel, s_ow, s_stat);
 }
 
-DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
+DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, PClassActor* cls, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
 {
-	auto actor = CreateActor(whatsectp, pos, s_pn, s_shd, scale, s_ang, s_vel, s_zvel, s_ow, s_stat);
+	auto actor = CreateActor(whatsectp, pos, cls, s_shd, scale, s_ang, s_vel, s_zvel, s_ow, s_stat);
 	if (actor) fi.spawninit(s_ow, actor, nullptr);
 	return actor;
 }

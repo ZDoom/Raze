@@ -78,6 +78,7 @@ class DukeActor : CoreActor native
 	virtual void Initialize() {}
 	virtual void Tick() {}
 	virtual void onHit(DukeActor hitter) {}
+	virtual void onHurt(DukePlayer p) {}
 	virtual void onUse(DukePlayer user) {}
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
@@ -101,6 +102,7 @@ extend struct _
 // On the script side we do not really want scattered global data that is publicly accessible.
 struct DukeLevel
 {
+	native DukeActor SpawnActor(sectortype sect, Vector3 pos, class<DukeActor> type, int shade, Vector2 scale, double angle, double vel, double zvel, DukeActor owner, int stat = -1);
 }
 
 struct DukeStatIterator

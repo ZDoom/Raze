@@ -1383,18 +1383,13 @@ void checkplayerhurt_r(player_struct* p, const Collision &coll)
 				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 			}
-			break;
-		case CACTUS:
-			if (!isRRRA() && p->hurt_delay < 8)
-			{
-				p->GetActor()->spr.extra -= 5;
-				p->hurt_delay = 16;
-				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
-				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
-			}
-			break;
+			return;
+
+		default:
+			CallOnHurt(coll.actor(), p);
+			return;
 		}
-		return;
+
 	}
 
 	if (coll.type != kHitWall) return;
@@ -2061,7 +2056,8 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			auto vel = krandf(4) + 4;
 			auto zvel = -krandf(16) - targ->vel.Z * 0.25;
 
-			CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), SCRAP6 + (krand() & 15), -8, DVector2(0.75, 0.75), a, vel, zvel, targ, 5);
+			auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, targ, 5);
+			if (spawned) spawned->spriteextra = Scrap6 + (krand() & 15);
 		}
 		break;
 	case BOWLINGBALL:
@@ -2107,28 +2103,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			}
 		}
 		break;
-
-	case CACTUS:
-		//		case CACTUSBROKE:
-		if (actorflag(proj, SFLAG_INFLAME))
-		{
-			for (k = 0; k < 64; k++)
-			{
-				auto a = randomAngle();
-				auto vel = krandf(4) + 4;
-				auto zvel = -krandf(16) - targ->vel.Z * 0.25;
-
-				auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-krandf(48)), SCRAP6 + (krand() & 3), -8, DVector2(0.75, 0.75), a, vel, zvel, targ, 5);
-				if (spawned) spawned->spr.pal = 8;
-			}
-
-			if (targ->spr.picnum == CACTUS)
-				targ->spr.picnum = CACTUSBROKE;
-			targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-			//	   else deletesprite(i);
-		}
-		break;
-
 
 	case FANSPRITE:
 		targ->spr.picnum = FANSPRITEBROKE;

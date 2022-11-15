@@ -435,6 +435,17 @@ void CallOnHit(DDukeActor* actor, DDukeActor* hitter)
 	}
 }
 
+void CallOnHurt(DDukeActor* actor, player_struct* hitter)
+{
+	IFVIRTUALPTR(actor, DDukeActor, onHurt)
+	{
+		VMValue val[2] = { actor, hitter };
+		VMCall(func, val, 2, nullptr, 0);
+	}
+}
+
+
+
 void CallOnUse(DDukeActor* actor, player_struct* user)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onUse)

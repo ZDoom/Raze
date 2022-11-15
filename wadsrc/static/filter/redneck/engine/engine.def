@@ -11,5 +11,7 @@ spawnclasses
 	1191 = DukeTree1
 	1193 = DukeTree2
 	1230 = DukeTire
+	1194 = DukeCactus
+	1203 = DukeCactusBroke
 }
 

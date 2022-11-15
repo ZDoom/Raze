@@ -885,18 +885,7 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 {
 	if (coll.type == kHitSprite)
 	{
-		switch (coll.actor()->spr.picnum)
-		{
-		case CACTUS:
-			if (p->hurt_delay < 8)
-			{
-				p->GetActor()->spr.extra -= 5;
-				p->hurt_delay = 16;
-				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
-				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
-			}
-			break;
-		}
+		CallOnHurt(coll.actor(), p);
 		return;
 	}
 
@@ -1064,30 +1053,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			}
 		}
 		break;
-	case CACTUS:
-		//		case CACTUSBROKE:
-		if (actorflag(proj, SFLAG_INFLAME))
-		{
-			for (k = 0; k < 64; k++)
-			{
-				auto a = randomAngle();
-				auto vel = krandf(4) + 4;
-				auto zvel = -krandf(16) - targ->vel.Z * 0.25;
-
-				auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-48), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, targ, STAT_MISC);
-				if (spawned)
-				{
-					if (spawned) spawned->spriteextra = Scrap3 + krand() & 3;
-					spawned->spr.pal = 6;
-				}
-			}
-
-			if (targ->spr.picnum == CACTUS)
-				targ->spr.picnum = CACTUSBROKE;
-			targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		}
-		break;
-
 	case HANGLIGHT:
 	case GENERICPOLE2:
 		for (k = 0; k < 6; k++)

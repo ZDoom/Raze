@@ -384,8 +384,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SCALE:
 	case VACUUM:
 	case FANSPRITE:
-	case CACTUS:
-	case CACTUSBROKE:
 	case CAMERALIGHT:
 	case MOVIECAMERA:
 	case IVUNIT:
