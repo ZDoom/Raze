@@ -102,8 +102,8 @@ DEFINE_FIELD_X(tspritetype, tspritetype, yoffset)
 DEFINE_FIELD_X(tspritetype, tspritetype, ownerActor)
 DEFINE_FIELD_X(tspritetype, tspritetype, time)
 
-DEFINE_GLOBAL(wall)
-DEFINE_GLOBAL(sector)
+DEFINE_GLOBAL_NAMED(wall, walls)
+DEFINE_GLOBAL_NAMED(sector, sectors)
 
 void sector_setfloorz(sectortype* sect, double val)
 {

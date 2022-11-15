@@ -72,8 +72,8 @@ extend struct _
 	native readonly int automapMode;
 	native readonly int PlayClock;
 	
-	native Array<@sectortype> Sector;
-	native Array<@walltype> Wall;
+	native Array<@sectortype> Sectors;
+	native Array<@walltype> Walls;
 	
 }
 
