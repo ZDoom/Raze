@@ -180,7 +180,7 @@ double SquareDistToSector(double px, double py, const sectortype* sect, DVector2
 
 	double bestdist = DBL_MAX;
 	DVector2 bestpt = { px, py };
-	for (auto& wal : wallsofsector(sect))
+	for (auto& wal : sect->walls)
 	{
 		DVector2 pt;
 		auto dist = SquareDistToWall(px, py, &wal, &pt);
@@ -383,7 +383,7 @@ void checkRotatedWalls()
 
 bool sectorsConnected(int sect1, int sect2)
 {
-	for (auto& wal : wallsofsector(sect1))
+	for (auto& wal : sector[sect1].walls)
 	{
 		if (wal.nextsector == sect2) return true;
 	}
@@ -428,7 +428,7 @@ int inside(double x, double y, const sectortype* sect)
 	if (sect)
 	{
 		int64_t acc = 1;
-		for (auto& wal : wallsofsector(sect))
+		for (auto& wal : sect->walls)
 		{
 			acc ^= checkforinside(x, y, wal.pos, wal.point2Wall()->pos);
 		}
@@ -469,7 +469,7 @@ sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags)
 	const auto planez = (flags & Find_Ceiling)? &sectortype::ceilingz : &sectortype::floorz;
 
 	startz *= factor;
-	for(auto& wal : wallsofsector(sectp))
+	for(auto& wal : sectp->walls)
 	{
 		if (wal.twoSided())
 		{
@@ -506,7 +506,7 @@ bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, secto
 
 	while (auto sec = search.GetNext())
 	{
-		for (auto& wal : wallsofsector(sec))
+		for (auto& wal : sec->walls)
 		{
 			double factor = InterceptLineSegments(start.X, start.Y, delta.X, delta.Y, wal.pos.X, wal.pos.Y, wal.delta().X, wal.delta().Y, nullptr, true);
 			if (factor < 0 || factor >= 1) continue;
@@ -802,7 +802,7 @@ int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& 
 		}
 
 		// check all walls in this sector
-		for (auto& w : wallsofsector(sec))
+		for (auto& w : sec->walls)
 		{
 			hit = checkWallHit(&w, EWallFlags::FromInt(wallflags), start, vect, v, hitfactor);
 			if (hit > 0)
@@ -997,7 +997,7 @@ void getzrange(const DVector3& pos, sectortype* sect, double* ceilz, CollisionBa
 	BFSSectorSearch search(sect);
 	while (auto sec = search.GetNext())
 	{
-		for (auto& wal : wallsofsector(sec))
+		for (auto& wal : sec->walls)
 		{
 			if (checkRangeOfWall(&wal, EWallFlags::FromInt(dawalclipmask), pos, maxdist + 1 / 16., theZs))
 			{
@@ -1098,7 +1098,7 @@ void neartag(const DVector3& pos, sectortype* startsect, DAngle angle, HitInfoBa
 
 	while (auto sect = search.GetNext())
 	{
-		for (auto& wal : wallsofsector(sect))
+		for (auto& wal : sect->walls)
 		{
 			const auto nextsect = wal.nextSector();
 
@@ -1217,10 +1217,10 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 
 		while (auto sec = search.GetNext())
 		{
-			// this must go both forward and backward so we cannot use wallsofsector. Pity
+			// this must go both forward and backward so we cannot use iterators. Pity
 			for (unsigned i = 0; i < sec->walls.Size(); i++)
 			{
-				auto wal = direction > 0 ? sec->firstWall() + i : sec->lastWall() - i;
+				auto wal = direction > 0 ? &sec->walls[i] : &sec->walls[sec->walls.Size() - i];
 
 				if (IsCloseToWall(pos.XY(), wal, walldist - 0.25) == EClose::InFront)
 				{

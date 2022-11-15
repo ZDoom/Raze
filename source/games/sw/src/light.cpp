@@ -69,7 +69,7 @@ void SectorLightShade(DSWActor* actor, short intensity)
         wall_shade = actor->user.WallShade.Data();
         int wallcount = 0;
 
-        for(auto &wal : wallsofsector(actor->sector()))
+        for(auto &wal : actor->sector()->walls)
         {
             base_shade = wall_shade[wallcount];
             wal.shade = base_shade + intensity;

@@ -389,7 +389,7 @@ void JS_InitMirrors(void)
     // Invalidate textures in sector behind mirror
     for (i = 0; i < mirrorcnt; i++)
     {
-        for (auto& wal : wallsofsector(mirror[i].mirrorSector))
+        for (auto& wal : mirror[i].mirrorSector->walls)
         {
             wal.picnum = MIRROR;
             wal.overpicnum = MIRROR;

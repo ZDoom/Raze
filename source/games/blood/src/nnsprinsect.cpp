@@ -181,7 +181,7 @@ TArray<DBloodActor*> getSpritesNearWalls(sectortype* pSrcSect, double nDist)
 {
     TArray<DBloodActor*> out;
 
-    for(auto& wal : wallsofsector(pSrcSect))
+    for(auto& wal : pSrcSect->walls)
     {
         if (!wal.twoSided())
             continue;

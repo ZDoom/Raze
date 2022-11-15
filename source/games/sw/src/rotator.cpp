@@ -253,7 +253,7 @@ bool TestRotatorMatchActive(short match)
 
 void DoRotatorSetInterp(DSWActor* actor)
 {
-    for(auto& wal : wallsofsector(actor->sector()))
+    for(auto& wal : actor->sector()->walls)
     {
         StartInterpolation(&wal, Interp_Wall_X);
         StartInterpolation(&wal, Interp_Wall_Y);
@@ -275,7 +275,7 @@ void DoRotatorSetInterp(DSWActor* actor)
 
 void DoRotatorStopInterp(DSWActor* actor)
 {
-    for (auto& wal : wallsofsector(actor->sector()))
+    for (auto& wal : actor->sector()->walls)
     {
         StopInterpolation(&wal, Interp_Wall_X);
         StopInterpolation(&wal, Interp_Wall_Y);
@@ -394,7 +394,7 @@ int DoRotator(DSWActor* actor)
 
     // move points
     ndx = 0;
-    for(auto& wal : wallsofsector(actor->sector()))
+    for(auto& wal : actor->sector()->walls)
     {
         auto nxy = rotatepoint(pivot->spr.pos, r->orig[ndx], DAngle::fromBuild(r->pos));
 

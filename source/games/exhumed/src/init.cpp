@@ -227,14 +227,14 @@ void InitNewGame()
 
 void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b)
 {
-	for(auto& wal1 : wallsofsector(pSectorA))
+	for(auto& wal1 : pSectorA->walls)
     {
         DVector2 bestxy = { 0x7FFFFFF, 0x7FFFFFF };
         DVector2 w1pos = wal1.pos;
 
         walltype* bestwall = nullptr;
 
-        for(auto& wal2 : wallsofsector(pSectorB))
+        for(auto& wal2 : pSectorB->walls)
         {
             DVector2 thisxy = w1pos - wal2.pos;
 

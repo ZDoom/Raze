@@ -2695,7 +2695,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     {
         for (sectp = sop->sectp, wallcount = 0, j = 0; *sectp; sectp++, j++)
         {
-            for(auto& wal : wallsofsector(*sectp))
+            for(auto& wal : (*sectp)->walls)
             {
                 if (wal.extra && (wal.extra & (WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY)) == WALLFX_LOOP_OUTER)
                 {

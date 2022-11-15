@@ -59,7 +59,7 @@ void DoUpdateSector(double x, double y, double z, int* sectnum, double maxDistan
                 return;
             }
 
-            for (auto& wal : wallsofsector(lsect))
+            for (auto& wal : lsect->walls)
             {
                 if (wal.twoSided() && !search.Check(wal.nextsector) && (iter == 0 || SquareDistToWall(x, y, &wal) <= maxDistSq))
                     search.Add(wal.nextsector);

@@ -7296,7 +7296,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
 walltype* PrevWall(walltype* wall_num)
 {
-    for(auto&wal : wallsofsector(wall_num->sectorp()))
+    for(auto&wal : wall_num->sectorp()->walls)
     {
         if (wal.point2Wall() == wall_num) return &wal;
     }
@@ -7333,7 +7333,7 @@ void TraverseBreakableWalls(sectortype* start_sect, const DVector3& pos, DAngle 
     BFSSectorSearch search(start_sect);
     while (auto sect = search.GetNext())
     {
-        for(auto& wal : wallsofsector(sect))
+        for(auto& wal : sect->walls)
         {
             // see if this wall should be broken
             if (wal.lotag == TAG_WALL_BREAK)

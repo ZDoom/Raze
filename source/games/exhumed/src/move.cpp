@@ -169,7 +169,7 @@ int BelowNear(DExhumedActor* pActor, double walldist)
         sectortype* pTempSect = nullptr;
         while (auto pCurSector = search.GetNext())
         {
-            for (auto& wal : wallsofsector(pCurSector))
+            for (auto& wal : pCurSector->walls)
             {
                 if (wal.twoSided())
                 {
@@ -718,7 +718,7 @@ void CreatePushBlock(sectortype* pSector)
     int nBlock = GrabPushBlock();
     DVector2 sum(0, 0);
 
-    for (auto& wal : wallsofsector(pSector))
+    for (auto& wal : pSector->walls)
     {
         sum += wal.pos;
     }
@@ -736,7 +736,7 @@ void CreatePushBlock(sectortype* pSector)
 
     double mindist = 0;
 
-	for (auto& wal : wallsofsector(pSector))
+	for (auto& wal : pSector->walls)
     {
         double length = (avg - wal.pos).Length();
 
@@ -904,7 +904,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
             }
         }
 
-		for(auto& wal : wallsofsector(pSector))
+		for(auto& wal : pSector->walls)
         {
             dragpoint(&wal, vect + wal.pos);
         }

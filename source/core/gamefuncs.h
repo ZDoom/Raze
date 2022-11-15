@@ -463,16 +463,6 @@ inline int I_GetBuildTime()
 	return I_GetTime(120);
 }
 
-inline TArrayView<walltype> wallsofsector(const sectortype* sec)
-{
-	return TArrayView<walltype>(sec->firstWall(), sec->walls.Size());
-}
-
-inline TArrayView<walltype> wallsofsector(int sec)
-{
-	return wallsofsector(&sector[sec]);
-}
-
 // these are mainly meant as refactoring aids to mark function calls to work on.
 inline int wallindex(const walltype* wal)
 {

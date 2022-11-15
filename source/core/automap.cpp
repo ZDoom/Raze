@@ -272,7 +272,7 @@ void MarkSectorSeen(sectortype* sec)
 	if (sec) 
 	{
 		show2dsector.Set(sectindex(sec));
-		for (auto& wal : wallsofsector(sec))
+		for (auto& wal : sec->walls)
 		{
 			if (!wal.twoSided()) continue;
 			const auto bits = (CSTAT_WALL_BLOCK | CSTAT_WALL_MASKED | CSTAT_WALL_1WAY | CSTAT_WALL_BLOCK_HITSCAN);
@@ -395,7 +395,7 @@ static void drawredlines(const DVector2& cpos, const DVector2& cangvect, const D
 		double z1 = sector[i].ceilingz;
 		double z2 = sector[i].floorz;
 
-		for (auto& wal : wallsofsector(i))
+		for (auto& wal : sector[i].walls)
 		{
 			if (!wal.twoSided()) continue;
 
@@ -426,7 +426,7 @@ static void drawwhitelines(const DVector2& cpos, const DVector2& cangvect, const
 	{
 		if (!gFullMap && !show2dsector[i] && !isSWALL()) continue;
 
-		for (auto& wal : wallsofsector(i))
+		for (auto& wal : sector[i].walls)
 		{
 			if (wal.nextwall >= 0) continue;
 			if (!gFullMap && !tileGetTexture(wal.picnum)->isValid()) continue;

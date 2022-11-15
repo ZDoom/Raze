@@ -291,7 +291,7 @@ void movesector(DDukeActor* const actor, int msindex, DAngle rotation)
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
 	actor->spr.pos.XY() += actor->spr.angle.ToVector() * actor->vel.X;
 
-	for(auto& wal : wallsofsector(actor->sector()))
+	for(auto& wal : actor->sector()->walls)
 	{
 		dragpoint(&wal, actor->spr.pos.XY() + mspos[msindex].Rotated(rotation));
 		msindex++;
@@ -321,7 +321,7 @@ void movecyclers(void)
 		c->lotag += sect->extra;
 		if (c->state)
 		{
-			for (auto& wal : wallsofsector(sect))
+			for (auto& wal : sect->walls)
 			{
 				if (wal.hitag != 1)
 				{
@@ -2865,7 +2865,7 @@ void handle_se03(DDukeActor *actor)
 	sc->ceilingshade = actor->temp_data[0];
 	sc->floorshade = actor->temp_data[0];
 
-	for(auto& wal : wallsofsector(sc))
+	for(auto& wal : sc->walls)
 	{
 		if (wal.hitag != 1)
 		{
@@ -2914,7 +2914,7 @@ void handle_se04(DDukeActor *actor)
 	sc->floorshade = actor->temp_data[1];
 	sc->ceilingshade = actor->temp_data[1];
 
-	for (auto& wal : wallsofsector(sc))
+	for (auto& wal : sc->walls)
 	{
 		if (j) wal.pal = (palvals & 0xff);
 		else wal.pal = actor->spr.pal;
@@ -3079,7 +3079,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 				auto sect = ac->sector();
 				int minshade = ac->spr.shade;
 
-				for (auto& wal : wallsofsector(sect))
+				for (auto& wal : sect->walls)
 				{
 					if (wal.hitag != 1)
 					{
@@ -3175,7 +3175,7 @@ void handle_se11(DDukeActor *actor)
 
 	if (actor->temp_data[4])
 	{
-		for(auto& wal : wallsofsector(sc))
+		for(auto& wal : sc->walls)
 		{
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
@@ -3191,7 +3191,7 @@ void handle_se11(DDukeActor *actor)
 		movesector(actor, actor->temp_data[1], actor->temp_angle);
 		//SetActor(actor, actor->spr.pos);
 
-		for(auto& wal : wallsofsector(sc))
+		for(auto& wal : sc->walls)
 		{
 			DukeStatIterator it(STAT_PLAYER);
 			while (auto ac = it.Next())
@@ -3232,7 +3232,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 		sc->floorpal = 0;
 		sc->ceilingpal = 0;
 
-		for (auto& wal : wallsofsector(sc))
+		for (auto& wal : sc->walls)
 		{
 			if (wal.hitag != 1)
 			{
@@ -3273,7 +3273,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 			if (planeonly != 2) sc->floorshade -= 2;
 			if (planeonly != 1) sc->ceilingshade -= 2;
 
-			for (auto& wal : wallsofsector(sc))
+			for (auto& wal : sc->walls)
 			{
 				if (wal.hitag != 1)
 				{
@@ -3345,7 +3345,7 @@ void handle_se13(DDukeActor* actor)
 
 			if (actor->spr.intangle == 512)
 			{
-				for (auto& wal : wallsofsector(sc))
+				for (auto& wal : sc->walls)
 					wal.shade = actor->spr.shade;
 
 				sc->floorshade = actor->spr.shade;
@@ -3697,7 +3697,7 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 		if (actor->temp_data[0] == 1)
 		{
 			actor->temp_data[0]++;
-			for (auto& wal : wallsofsector(sc))
+			for (auto& wal : sc->walls)
 			{
 				if (wal.overpicnum == BIGFORCE)
 				{

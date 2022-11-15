@@ -158,7 +158,7 @@ void InitSpiritHead()
 
 void DimSector(sectortype* pSector)
 {
-	for(auto& wal : wallsofsector(pSector))
+	for(auto& wal : pSector->walls)
     {
         if (wal.shade < 40) {
             wal.shade++;

@@ -58,7 +58,7 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 	double tx = tspr->pos.X;
 	double ty = tspr->pos.Y;
 
-	for(auto& wal : wallsofsector(sect))
+	for(auto& wal : sect->walls)
 	{
 		// Intentionally include two sided walls. Even on them the sprite should be projected onto the wall for better results.
 		auto d = wal.delta();

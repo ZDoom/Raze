@@ -753,7 +753,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	//Invalidate textures in sector behind mirror
 	for (i = 0; i < mirrorcnt; i++)
 	{
-		for (auto& mwal : wallsofsector(mirrorsector[i]))
+		for (auto& mwal : mirrorsector[i]->walls)
 		{
 			mwal.picnum = MIRROR;
 			mwal.overpicnum = MIRROR;

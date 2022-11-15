@@ -1082,7 +1082,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 				act->spriteextra++;
 				if (act->spriteextra == 25)
 				{
-					for(auto& wl : wallsofsector(act->sector()))
+					for(auto& wl : act->sector()->walls)
 					{
 						if (wl.twoSided()) wl.nextSector()->lotag = 0;
 					}
@@ -1338,7 +1338,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 		if (!wal->twoSided()) return;
 		darkestwall = 0;
 
-		for (auto& wl : wallsofsector(wal->nextSector()))
+		for (auto& wl : wal->nextSector()->walls)
 			if (wl.shade > darkestwall)
 				darkestwall = wl.shade;
 
@@ -2718,7 +2718,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	if (movestep == 0) movestep = 4 * maptoworld;
 
 	double max_x = INT32_MIN, max_y = INT32_MIN, min_x = INT32_MAX, min_y = INT32_MAX;
-	for (auto& wal : wallsofsector(nextsect))
+	for (auto& wal : nextsect->walls)
 	{
 		double x = wal.pos.X;
 		double y = wal.pos.Y;
@@ -2744,7 +2744,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 		!inside(min_x, max_y, sectp))
 		pos_ok = 0;
 
-	for (auto& wal : wallsofsector(nextsect))
+	for (auto& wal : nextsect->walls)
 	{
 		switch (wlwal->lotag)
 		{
@@ -2764,7 +2764,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	{
 		if (S_CheckActorSoundPlaying(ps[snum].GetActor(), 389) == 0)
 			S_PlayActorSound(389, ps[snum].GetActor());
-		for(auto& wal : wallsofsector(nextsect))
+		for(auto& wal : nextsect->walls)
 		{
 			auto vec = wal.pos;
 			switch (wlwal->lotag)
@@ -2791,7 +2791,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	else
 	{
 		movestep -= 2 * maptoworld;
-		for(auto& wal : wallsofsector(nextsect))
+		for(auto& wal : nextsect->walls)
 		{
 			auto vec = wal.pos;
 			switch (wlwal->lotag)

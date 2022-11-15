@@ -1525,7 +1525,7 @@ void PreMapCombineFloors(void)
                 jActor->spr.pos += dv;
             }
 
-            for (auto& wal : wallsofsector(dasect))
+            for (auto& wal : dasect->walls)
             {
                 wal.move(wal.pos + dv);
 
@@ -2198,7 +2198,7 @@ void SpriteSetup(void)
                     actor->user.rotator->orig_speed = actor->user.rotator->speed;
 
                     wallcount = 0;
-                    for(auto& wal : wallsofsector(actor->sector()))
+                    for(auto& wal : actor->sector()->walls)
                     {
                         actor->user.rotator->orig[wallcount] = wal.pos;
                         wallcount++;
@@ -2378,7 +2378,7 @@ void SpriteSetup(void)
                     LIGHT_CeilingShade(actor) = actor->sector()->ceilingshade;
 
                     // count walls of sector
-                    for(auto& wal : wallsofsector(actor->sector()))
+                    for(auto& wal : actor->sector()->walls)
                     {
                         wallcount++;
                         if (TEST_BOOL5(actor))
@@ -2394,7 +2394,7 @@ void SpriteSetup(void)
                     wall_shade = actor->user.WallShade.Data();
 
                     // save off original wall shades
-                    for(auto& wal : wallsofsector(actor->sector()))
+                    for(auto& wal : actor->sector()->walls)
                     {
                         wall_shade[wallcount] =  wal.shade;
                         wallcount++;
@@ -2427,7 +2427,7 @@ void SpriteSetup(void)
                     LIGHT_CeilingShade(actor) = actor->sector()->ceilingshade;
 
                     // count walls of sector
-                    for (auto& wal : wallsofsector(actor->sector()))
+                    for (auto& wal : actor->sector()->walls)
                     {
                         wallcount++;
                         if (TEST_BOOL5(actor))
@@ -2445,7 +2445,7 @@ void SpriteSetup(void)
                     wall_shade = actor->user.WallShade.Data();
 
                     // save off original wall shades
-                    for (auto& wal : wallsofsector(actor->sector()))
+                    for (auto& wal : actor->sector()->walls)
                     {
                         wall_shade[wallcount] = wal.shade;
                         wallcount++;

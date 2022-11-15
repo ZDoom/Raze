@@ -554,7 +554,7 @@ BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int n
 
 	while (auto pCurSector = search.GetNext())
 	{
-		for (auto& wal : wallsofsector(pCurSector))
+		for (auto& wal : pCurSector->walls)
 		{
 			if (!wal.twoSided()) continue;
 			const auto pNextSector = wal.nextSector();

@@ -856,14 +856,14 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 	
 	if (bAllWalls)
 	{
-		for (auto& wal : wallsofsector(pSector))
+		for (auto& wal : pSector->walls)
 		{
 			rotatewall(&wal, ptang_w2, offset);
 		}
 	}
 	else
 	{
-		for (auto& wal : wallsofsector(pSector))
+		for (auto& wal : pSector->walls)
 		{
 			auto p2Wall = wal.point2Wall();
 			if (wal.cstat & CSTAT_WALL_MOVE_FORWARD)
@@ -2256,7 +2256,7 @@ static void UpdateBasePoints(sectortype* pSector)
 	}
 #endif
 
-	for (auto& wal : wallsofsector(pSector))
+	for (auto& wal : pSector->walls)
 	{
 		wal.baseWall = wal.pos;
 	}

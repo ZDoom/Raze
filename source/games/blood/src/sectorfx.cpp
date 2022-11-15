@@ -155,7 +155,7 @@ void DoSectorLighting(void)
 			}
 			if (pXSector->shadeWalls)
 			{
-				for (auto& wal : wallsofsector(pSector))
+				for (auto& wal : pSector->walls)
 				{
 					wal.shade -= v4;
 					if (pXSector->color)
@@ -197,7 +197,7 @@ void DoSectorLighting(void)
 			}
 			if (pXSector->shadeWalls)
 			{
-				for (auto& wal : wallsofsector(pSector))
+				for (auto& wal : pSector->walls)
 				{
 					wal.shade = ClipRange(wal.shade + v4, -128, 127);
 					if (pXSector->color && v4 != 0)
@@ -249,7 +249,7 @@ void UndoSectorLighting(void)
 				}
 				if (pXSector->shadeWalls)
 				{
-					for (auto& wal : wallsofsector(&sect))
+					for (auto& wal : sect.walls)
 					{
 						wal.shade -= v4;
 						if (pXSector->color)

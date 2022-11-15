@@ -271,7 +271,7 @@ void AddFlash(sectortype* pSector, const DVector3& pos, int val)
 
     int var_14 = 0;
 
-	for (auto& wal : wallsofsector(pSector))
+	for (auto& wal : pSector->walls)
     {
         sectortype *pNextSector = NULL;
         if (wal.twoSided())
@@ -618,7 +618,7 @@ void DoGlows()
         pSector->ceilingshade += nShade;
         pSector->floorshade   += nShade;
 
-		for(auto& wal : wallsofsector(pSector))
+		for(auto& wal : pSector->walls)
         {
             wal.shade += nShade;
         }
@@ -667,7 +667,7 @@ void DoFlickers()
             pSector->ceilingshade += shade;
             pSector->floorshade += shade;
 
-			for(auto& wal : wallsofsector(pSector))
+			for(auto& wal : pSector->walls)
             {
                 wal.shade += shade;
             }

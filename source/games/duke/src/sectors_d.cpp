@@ -856,7 +856,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 		if (!wal->twoSided()) return;
 		darkestwall = 0;
 
-		for (auto& wl : wallsofsector(wal->nextSector()))
+		for (auto& wl : wal->nextSector()->walls)
 			if (wl.shade > darkestwall)
 				darkestwall = wl.shade;
 

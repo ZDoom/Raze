@@ -279,7 +279,7 @@ void so_addinterpolation(SECTOR_OBJECT* sop)
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        for (auto& wal : wallsofsector(*sectp))
+        for (auto& wal : (*sectp)->walls)
         {
             so_setpointinterpolation(interp, wallindex(&wal) | soi_wallx);
             so_setpointinterpolation(interp, wallindex(&wal) | soi_wally);

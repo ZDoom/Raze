@@ -243,7 +243,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				}
 			}
 
-			for (auto& wal : wallsofsector(dasectp))
+			for (auto& wal : dasectp->walls)
 			{
 				if ((wal.pos - actor->spr.pos.XY()).Sum() < radius)
 				{

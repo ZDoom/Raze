@@ -212,7 +212,7 @@ void ClearMovementInterpolations()
 
 void setsectinterpolate(sectortype* sect)
 {
-	for (auto&wal : wallsofsector(sect))
+	for (auto&wal : sect->walls)
 	{
 		StartInterpolation(&wal, Interp_Wall_X);
 		StartInterpolation(&wal, Interp_Wall_Y);
@@ -230,7 +230,7 @@ void setsectinterpolate(sectortype* sect)
 
 void clearsectinterpolate(sectortype* sect)
 {
-	for (auto& wal : wallsofsector(sect))
+	for (auto& wal : sect->walls)
 	{
 		StopInterpolation(&wal, Interp_Wall_X);
 		StopInterpolation(&wal, Interp_Wall_Y);

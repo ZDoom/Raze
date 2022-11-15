@@ -59,7 +59,7 @@ void SOwallmove(SECTOR_OBJECT* sop, DSWActor* actor, walltype* find_wallp, doubl
     {
 
         // move all walls in sectors back to the original position
-        for (auto& wal : wallsofsector(*sectp))
+        for (auto& wal : (*sectp)->walls)
         {
             // find the one wall we want to adjust
             if (&wal == find_wallp)

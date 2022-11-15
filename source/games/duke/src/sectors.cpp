@@ -532,7 +532,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 
 	//first find center point by averaging all points
 	dax = 0, day = 0;
-	for (auto& wal : wallsofsector(sptr))
+	for (auto& wal : sptr->walls)
 	{
 		dax += wal.pos.X;
 		day += wal.pos.Y;
@@ -544,7 +544,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 	//  as center (dax, day) - should be 2 points found.
 	wallfind[0] = nullptr;
 	wallfind[1] = nullptr;
-	for (auto& wal : wallsofsector(sptr))
+	for (auto& wal : sptr->walls)
 		// more precise checks won't work here.
 		if (abs(wal.pos.X - dax) <= (1 / 32.) || abs(wal.pos.Y - day) <= (1 / 32.))
 		{
@@ -997,7 +997,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 
 	case 7:
 		if (!isRR()) break;
-		for (auto& wal : wallsofsector(sptr))
+		for (auto& wal : sptr->walls)
 		{
 			setanimation(sptr, anim_vertexx, &wal, wal.pos.X + 64, 1 / 4.);
 			if (wal.twoSided()) setanimation(sptr, anim_vertexx, wal.nextWall(), wal.nextWall()->pos.X + 64, 1 / 4.);

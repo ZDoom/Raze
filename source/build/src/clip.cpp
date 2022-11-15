@@ -250,7 +250,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         auto const sec       = &sector[dasect];
 
-        for (auto& wal : wallsofsector(sec))
+        for (auto& wal : sec->walls)
         {
             auto const wal2 = wal.point2Wall();
 			vec2_t p1 = wal.wall_int_pos();
@@ -293,7 +293,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 && inside(pos->X * inttoworld, pos->Y * inttoworld, sec) == 1)
             {
                 bool found = false;
-                for (auto& wwal : wallsofsector(sec))
+                for (auto& wwal : sec->walls)
                 {
                     if (wwal.nextsector == initialsectnum)
                     {

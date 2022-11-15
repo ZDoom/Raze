@@ -639,7 +639,7 @@ DVector3 SectorMidPoint(sectortype* sectp)
 {
     DVector3 sum(0,0,0);
 
-    for (auto& wal : wallsofsector(sectp))
+    for (auto& wal : sectp->walls)
     {
         sum += wal.pos;
     }
@@ -704,7 +704,7 @@ void DoSpringBoardDown(void)
 
 sectortype* FindNextSectorByTag(sectortype* sect, int tag)
 {
-    for(auto& wal : wallsofsector(sect))
+    for(auto& wal : sect->walls)
     {
         if (wal.twoSided())
         {

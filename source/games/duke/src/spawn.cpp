@@ -668,7 +668,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 				if (actor->spr.intangle == 512)
 				{
-					for (auto& wl : wallsofsector(sectp))
+					for (auto& wl : sectp->walls)
 					{
 						if (wl.twoSided())
 						{
@@ -721,7 +721,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				walltype* closewall = nullptr;
 				double maxdist = 0x7fffffff;
 
-				for (auto& wal : wallsofsector(sectp))
+				for (auto& wal : sectp->walls)
 				{
 					double dist = (actor->spr.pos.XY() - wal.pos).LengthSquared();
 					if (dist < maxdist && &wal != actor->temp_walls[0])
@@ -754,7 +754,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			//fix all the walls;
 
-			for (auto& wal : wallsofsector(sectp))
+			for (auto& wal : sectp->walls)
 			{
 				if (!(wal.hitag & 1))
 					wal.shade = actor->spr.shade;
@@ -769,7 +769,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			//	actor->temp_data[2] = actor->spr.hitag;
 			if (actor->spr.intangle != 1536) sectp->setfloorz(actor->spr.pos.Z);
 
-			for (auto& wal : wallsofsector(sectp))
+			for (auto& wal : sectp->walls)
 				if (wal.hitag == 0) wal.hitag = 9999;
 
 			StartInterpolation(sectp, Interp_Sect_Floorz);
@@ -780,7 +780,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			actor->temp_data[2] = actor->spr.hitag;
 			if (actor->spr.intangle != 1536) sectp->setceilingz(actor->spr.pos.Z);
 
-			for (auto& wal : wallsofsector(sectp))
+			for (auto& wal : sectp->walls)
 				if (wal.hitag == 0) wal.hitag = 9999;
 
 			StartInterpolation(sectp, Interp_Sect_Ceilingz);
@@ -793,7 +793,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			actor->palvals = (sectp->ceilingpal << 8) | sectp->floorpal;
 
-			for (auto& wal : wallsofsector(sectp))
+			for (auto& wal : sectp->walls)
 				if (wal.shade > actor->temp_data[3])
 					actor->temp_data[3] = wal.shade;
 
@@ -810,7 +810,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			actor->temp_data[0] = sectp->floorshade;
 			actor->temp_data[1] = sectp->ceilingshade;
 
-			for (auto& wal : wallsofsector(sectp))
+			for (auto& wal : sectp->walls)
 				if (wal.shade > actor->temp_data[2])
 					actor->temp_data[2] = wal.shade;
 
@@ -825,7 +825,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			actor->temp_data[0] = sectp->floorshade;
 			actor->temp_data[1] = sectp->ceilingshade;
 
-			for (auto& wal : wallsofsector(sectp))
+			for (auto& wal : sectp->walls)
 				if (wal.shade > actor->temp_data[2])
 					actor->temp_data[2] = wal.shade;
 
@@ -886,7 +886,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			}
 
 			actor->temp_data[1] = mspos.Size();
-			for (auto& wal : wallsofsector(sectp))
+			for (auto& wal : sectp->walls)
 			{
 				mspos.Push(wal.pos - actor->spr.pos);
 			}
@@ -900,7 +900,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				sectp->hitagactor = actor;
 
 				sectortype* s = nullptr;
-				for (auto& wal : wallsofsector(sectp))
+				for (auto& wal : sectp->walls)
 				{
 					if (wal.twoSided() &&
 						wal.nextSector()->hitag == 0 &&
@@ -1078,7 +1078,7 @@ void spriteglass(DDukeActor* actor, int n)
 
 void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 {
-	for (auto& wal : wallsofsector(sectp))
+	for (auto& wal : sectp->walls)
 	{
 		auto pos = wal.pos;
 		auto delta = wal.delta() / (n + 1);

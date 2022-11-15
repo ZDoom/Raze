@@ -405,7 +405,7 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
     double max_x = -DBL_MAX;
     double max_y = -DBL_MAX;
 
-	for (auto& wal : wallsofsector(pSector))
+	for (auto& wal : pSector->walls)
     {
         if (wal.pos.X < min_x) {
             min_x = wal.pos.X;
@@ -1010,7 +1010,7 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     PointList[nPoint].nNext = -1;
     PointList[nPoint].pSector = pSector;
 
-    for(auto& wal : wallsofsector(pSector))
+    for(auto& wal : pSector->walls)
     {
         int ax = SlideData[nSlide].nStart;
 
@@ -1249,7 +1249,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 
     auto pSector = pActor->sector();
 
-    for(auto& wal : wallsofsector(pSector))
+    for(auto& wal : pSector->walls)
     {
         if (var_18 == wal.hitag)
         {
@@ -1526,7 +1526,7 @@ void DimLights()
         if (sect.floorshade < 100)
             sect.floorshade++;
 
-        for (auto& wal : wallsofsector(&sect))
+        for (auto& wal : sect.walls)
         {
             if (wal.shade < 100)
                 wal.shade++;
@@ -1616,7 +1616,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 {
 	DVector2 apos(0, 0);
 
-	for(auto& wal : wallsofsector(pSector))
+	for(auto& wal : pSector->walls)
     {
 		apos += wal.pos;
 		
@@ -1698,7 +1698,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 {
 	auto pSector = pActor->sector();
 
-	for(auto& wal : wallsofsector(pSector))
+	for(auto& wal : pSector->walls)
     {
 		if (!wal.twoSided()) continue;
 		auto nextwal = wal.nextWall();
@@ -1775,7 +1775,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
                 sect.floorpal = 0;
             }
 
-			for (auto& wal : wallsofsector(&sect))
+			for (auto& wal : sect.walls)
              {
                 if (wal.pal == 1) {
                     wal.pal = 0;
@@ -2623,7 +2623,7 @@ void PostProcess()
             sect.pSoundSect = &sect;
             sect.Sound = StaticSound[kSound62];
 
-            for(auto& wal : wallsofsector(&sect))
+            for(auto& wal : sect.walls)
             {
                 if (wal.picnum == kTile3603)
                 {

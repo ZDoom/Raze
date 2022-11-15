@@ -238,7 +238,7 @@ void dotorch(void)
 				sect->floorshade = shade;
 				break;
 		}
-		for (auto& wal : wallsofsector(sect))
+		for (auto& wal : sect->walls)
 		{
 			if (wal.lotag != 1)
 			{
@@ -301,7 +301,7 @@ void dojaildoor(void)
 			}
 			else
 			{
-				for (auto& wal : wallsofsector(sectp))
+				for (auto& wal : sectp->walls)
 				{
 					DVector2 vec = wal.pos;
 					switch (jd.direction)
@@ -388,7 +388,7 @@ void moveminecart(void)
 			}
 			else
 			{
-				for (auto& wal : wallsofsector(sectp))
+				for (auto& wal : sectp->walls)
 				{
 					auto pos = wal.pos;
 					switch (mc.direction)
@@ -415,7 +415,7 @@ void moveminecart(void)
 
 		auto csect = mc.childsect;
 		double max_x = INT32_MIN, max_y = INT32_MIN, min_x = INT32_MAX, min_y = INT32_MAX;
-		for (auto& wal : wallsofsector(csect))
+		for (auto& wal : csect->walls)
 		{
 			double x = wal.pos.X;
 			double y = wal.pos.Y;
@@ -498,7 +498,7 @@ void thunder(void)
 				auto sectp = lightninsector[i];
 				sectp->floorshade = (int8_t)lightninsectorshade[i];
 				sectp->ceilingshade = (int8_t)lightninsectorshade[i];
-				for (auto& wal : wallsofsector(sectp))
+				for (auto& wal : sectp->walls)
 					wal.shade = (int8_t)lightninsectorshade[i];
 			}
 		}
@@ -520,7 +520,7 @@ void thunder(void)
 			auto sectp = lightninsector[i];
 			sectp->floorshade = lightninsectorshade[i] - shade;
 			sectp->ceilingshade = lightninsectorshade[i] - shade;
-			for (auto& wal : wallsofsector(sectp))
+			for (auto& wal : sectp->walls)
 				wal.shade = lightninsectorshade[i] - shade;
 		}
 	}

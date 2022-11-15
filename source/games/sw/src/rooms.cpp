@@ -915,7 +915,7 @@ void CollectPortals()
             floordone.Set(i);
             for (unsigned ii = 0; ii < fp.sectors.Size(); ii++)
             {
-                for (auto& wal : wallsofsector(fp.sectors[ii]))
+                for (auto& wal : sector[fp.sectors[ii]].walls)
                 {
                     if (!wal.twoSided()) continue;
                     auto nsec = wal.nextSector();
@@ -933,7 +933,7 @@ void CollectPortals()
             ceilingdone.Set(i);
             for (unsigned ii = 0; ii < fp.sectors.Size(); ii++)
             {
-                for (auto& wal : wallsofsector(fp.sectors[ii]))
+                for (auto& wal : sector[fp.sectors[ii]].walls)
                 {
                     if (!wal.twoSided()) continue;
                     auto nsec = wal.nextSector();

@@ -718,7 +718,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
         SectorInBounds = true;
 
-        for(auto& wal : wallsofsector(sect))
+        for(auto& wal : sect->walls)
         {
             // all walls have to be in bounds to be in sector object
             if (!(wal.pos.X > vlow.X && wal.pos.X < vhigh.X && wal.pos.Y > vlow.Y && wal.pos.Y < vhigh.Y))
@@ -764,7 +764,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         // move all walls in sectors
-        for(auto& wal : wallsofsector(*sectp))
+        for(auto& wal : (*sectp)->walls)
         {
             // for morph point - tornado style
             if (wal.lotag == TAG_WALL_ALIGN_SLOPE_TO_POINT)
@@ -1357,7 +1357,7 @@ void PlaceSectorObjectsOnTracks(void)
         {
 
             // move all walls in sectors
-            for (auto& wal : wallsofsector(sop->sectp[j]))
+            for (auto& wal : sop->sectp[j]->walls)
             {
                 sop->orig[sop->num_walls] = sop->pmid - wal.pos;
                 sop->num_walls++;
@@ -1567,7 +1567,7 @@ void MovePoints(SECTOR_OBJECT* sop, DAngle deltaangle, const DVector2& move)
             goto PlayerPart;
 
         // move all walls in sectors
-        for(auto& wal : wallsofsector(*sectp))
+        for(auto& wal : (*sectp)->walls)
         {
             if ((wal.extra & (WALLFX_LOOP_DONT_SPIN | WALLFX_DONT_MOVE)))
                 continue;
@@ -1782,7 +1782,7 @@ void RefreshPoints(SECTOR_OBJECT* sop, const DVector2& move, bool dynamic)
         if (!(sop->flags & SOBJ_SPRITE_OBJ))
         {
             // move all walls in sectors back to the original position
-            for (auto& wal : wallsofsector(*sectp))
+            for (auto& wal : (*sectp)->walls)
             {
                 if (!(wal.extra && (wal.extra & WALLFX_DONT_MOVE)))
                 {
@@ -1924,7 +1924,7 @@ SECTOR_OBJECT* DetectSectorObjectByWall(walltype* wph)
         int j;
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
         {
-            for (auto& wal : wallsofsector(*sectp))
+            for (auto& wal : (*sectp)->walls)
             {
                 // if outer wall check the NEXTWALL also
                 if ((wal.extra & WALLFX_LOOP_OUTER))
@@ -1955,7 +1955,7 @@ void CollapseSectorObject(SECTOR_OBJECT* sop, const DVector2& pos)
         if (!(sop->flags & SOBJ_SPRITE_OBJ))
         {
             // move all walls in sectors back to the original position
-            for (auto& wal : wallsofsector(*sectp))
+            for (auto& wal : (*sectp)->walls)
             {
                 if ((wal.extra & WALLFX_DONT_MOVE))
                     continue;
@@ -2095,7 +2095,7 @@ void CallbackSOsink(ANIM* ap, void *data)
 
 
     // Take out any blocking walls
-    for(auto& wal : wallsofsector(destsect))
+    for(auto& wal : destsect->walls)
     {
         wal.cstat &= ~(CSTAT_WALL_BLOCK);
     }

@@ -251,11 +251,11 @@ static void ReadWallV5(FileReader& fr, walltype& wall)
 
 static void SetWallPalV5()
 {
-	for (unsigned i = 0; i < sector.Size(); i++)
+	for (auto& sect : sector)
 	{
-		for(auto& wal : wallsofsector(i))
+		for(auto& wal : sect.walls)
 		{
-			wal.pal = sector[i].floorpal;
+			wal.pal = sect.floorpal;
 		}
 	}
 }
@@ -806,7 +806,7 @@ void setWallSectors()
 	for(auto& sect: sector)
 	{
 		sect.dirty = EDirty::AllDirty;
-		for (auto& wal : wallsofsector(&sect))
+		for (auto& wal : sect.walls)
 		{
 			if (wal.sector == -1)
 				wal.sector = i;
