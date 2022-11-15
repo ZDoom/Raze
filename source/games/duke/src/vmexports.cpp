@@ -631,7 +631,6 @@ DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, freezerhurtowner);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, impact_damage);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerheight);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, displayflags);
-DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, firstdebris);
 DEFINE_GLOBAL_UNSIZED(gs)
 
 

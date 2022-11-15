@@ -2154,6 +2154,7 @@ int ParseState::parse(void)
 	{
 		insptr++;
 		int dnum = *insptr - gs.firstdebris;
+		if (dnum < 0 || dnum >= ScrapMax) break;	// this code only works with scrap and nothing else.
 		insptr++;
 		int count = *insptr;
 		bool weap = fi.spawnweapondebris(g_ac->spr.picnum);

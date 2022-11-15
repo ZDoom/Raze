@@ -30,6 +30,18 @@ enum
 
 };	
 
+enum EScrap
+{
+	Scrap6 = 0,
+	Scrap1 = 10,
+	Scrap2 = 14,
+	Scrap3 = 18,
+	Scrap4 = 22,
+	Scrap5 = 26,
+	ScrapMax = 30
+};
+
+
 // the available palettes. These are indices into the global table of translations.
 enum basepal_t {
 	BASEPAL = 0,

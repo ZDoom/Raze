@@ -1009,7 +1009,7 @@ static void movefireext(DDukeActor* actor)
 		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, STAT_MISC);
 		if (spawned)
 		{
-			if (spawned) spawned->spriteextra = SCRAP3 - gs.firstdebris + krand() & 3;
+			if (spawned) spawned->spriteextra = Scrap3 + krand() & 3;
 			spawned->spr.pal = 2;
 		}
 	}
@@ -2146,7 +2146,7 @@ static void greenslime(DDukeActor *actor)
 					auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, STAT_MISC);
 					if (spawned)
 					{
-						if (spawned) spawned->spriteextra = SCRAP3 - gs.firstdebris + krand() & 3;
+						if (spawned) spawned->spriteextra = Scrap3 + krand() & 3;
 						spawned->spr.pal = 6;
 					}
 				}
@@ -2262,7 +2262,7 @@ static void greenslime(DDukeActor *actor)
 			auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(-8), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, STAT_MISC);
 			if (spawned)
 			{
-				if (spawned) spawned->spriteextra = SCRAP3 - gs.firstdebris + krand() & 3;
+			if (spawned) spawned->spriteextra = Scrap3 + krand() & 3;
 				spawned->spr.pal = 6;
 			}
 		}
