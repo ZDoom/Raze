@@ -400,6 +400,11 @@ struct player_struct
 	{
 		return PlayerNowPosition;
 	}
+
+	DVector2& posoldXY()
+	{
+		return PlayerOldPosition.XY();
+	}
 };
 
 struct Cycler

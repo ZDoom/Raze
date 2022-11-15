@@ -277,7 +277,7 @@ void drawoverlays(double interpfrac)
 			}
 			else
 			{
-				cposxy = pp->PlayerOldPosition.XY();
+				cposxy = pp->posoldXY();
 				cang = pp->angle.oang;
 			}
 			DrawOverheadMap(cposxy, cang, interpfrac);

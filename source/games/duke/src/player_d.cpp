@@ -153,7 +153,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		sang = (ps[j].PlayerOldPosition.XY() - spos.XY()).Angle();
+		sang = (ps[j].posoldXY() - spos.XY()).Angle();
 
 		if (actor->spr.picnum == BOSS5)
 		{
@@ -693,7 +693,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		ang = (ps[j].PlayerOldPosition.XY() - pos.XY()).Angle();
+		ang = (ps[j].posoldXY() - pos.XY()).Angle();
 		if (actor->spr.picnum == BOSS3)
 		{
 			double zoffs = 32;

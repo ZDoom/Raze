@@ -3034,7 +3034,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[playernum].newOwner != nullptr)
-			goalang = (ps[playernum].PlayerOldPosition.XY() - actor->spr.pos.XY()).Angle();
+			goalang = (ps[playernum].posoldXY() - actor->spr.pos.XY()).Angle();
 		else goalang = (ps[playernum].posXY() - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
@@ -3047,7 +3047,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[playernum].newOwner != nullptr)
-			goalang = (ps[playernum].PlayerOldPosition.XY() - actor->spr.pos.XY()).Angle();
+			goalang = (ps[playernum].posoldXY() - actor->spr.pos.XY()).Angle();
 		else goalang = (ps[playernum].posXY() - actor->spr.pos.XY()).Angle();
 		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 		actor->spr.angle += angdif;
