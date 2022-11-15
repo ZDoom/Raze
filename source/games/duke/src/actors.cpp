@@ -375,7 +375,7 @@ void movedummyplayers(void)
 		}
 
 		act->spr.pos.X += (ps[p].posX() - ps[p].posoldX());
-		act->spr.pos.Y += (ps[p].posY() - ps[p].PlayerOldPosition.Y);
+		act->spr.pos.Y += (ps[p].posY() - ps[p].posoldY());
 		SetActor(act, act->spr.pos);
 	}
 }
@@ -4420,7 +4420,7 @@ void movefta(void)
 					{
 						auto xyrand = []() -> double { return (64 - (krand() & 127)) * maptoworld; };
 						double px = ps[p].posoldX() - xyrand();
-						double py = ps[p].PlayerOldPosition.Y - xyrand();
+						double py = ps[p].posoldY() - xyrand();
 						updatesector(DVector3(px, py, 0), &psect);
 						if (psect == nullptr)
 						{

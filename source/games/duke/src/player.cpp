@@ -766,12 +766,12 @@ void player_struct::backuppos(bool noclipping)
 	if (!noclipping)
 	{
 		posoldX() = posX();
-		PlayerOldPosition.Y = posY();
+		posoldY() = posY();
 	}
 	else
 	{
 		posX() = posoldX();
-		posY() = PlayerOldPosition.Y;
+		posY() = posoldY();
 	}
 
 	PlayerOldPosition.Z = posZget();

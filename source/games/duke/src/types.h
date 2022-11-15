@@ -405,6 +405,10 @@ struct player_struct
 	{
 		return PlayerOldPosition.X;
 	}
+	double& posoldY()
+	{
+		return PlayerOldPosition.Y;
+	}
 	DVector2& posoldXY()
 	{
 		return PlayerOldPosition.XY();

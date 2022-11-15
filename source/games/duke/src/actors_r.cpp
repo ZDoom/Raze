@@ -1335,7 +1335,7 @@ void movetransports_r(void)
 					else if (isRRRA() && k == 2)
 					{
 						ps[p].posoldX() = ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].PlayerOldPosition.Y = ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].posoldY() = ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
 						ps[p].backupxy();
 
 						if (Owner->GetOwner() != Owner)
