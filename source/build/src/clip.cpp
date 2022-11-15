@@ -249,14 +249,11 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         ////////// Walls //////////
 
         auto const sec       = &sector[dasect];
-        int const  startwall = sec->wallptr;
-        int const  endwall   = startwall + sec->wall_count();
-        auto       wal       = &wall[startwall];
 
-        for (int j=startwall; j<endwall; j++, wal++)
+        for (auto& wal : wallsofsector(sec))
         {
-            auto const wal2 = wal->point2Wall();
-			vec2_t p1 = wal->wall_int_pos();
+            auto const wal2 = wal.point2Wall();
+			vec2_t p1 = wal.wall_int_pos();
 			vec2_t p2 = wal2->wall_int_pos();
 
             if ((p1.X < clipMin.X && p2.X < clipMin.X) || (p1.X > clipMax.X && p2.X > clipMax.X) ||
@@ -276,7 +273,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
             int clipyou = 0;
 
-            if (wal->nextsector < 0 || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
+            if (wal.nextsector < 0 || (wal.cstat & EWallFlags::FromInt(dawalclipmask)))
             {
                 clipyou = 1;
             }
@@ -284,7 +281,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             {
                 DVector2 ipos;
                 clipmove_tweak_pos(pos, diff.X, diff.Y, p1.X, p1.Y, p2.X, p2.Y, &ipos.X, &ipos.Y);
-                clipyou = checkOpening(ipos, pos->Z * zinttoworld, &sector[dasect], wal->nextSector(),
+                clipyou = checkOpening(ipos, pos->Z * zinttoworld, &sector[dasect], wal.nextSector(),
                     ceildist * zinttoworld, flordist * zinttoworld, enginecompatibility_mode == ENGINECOMPATIBILITY_NONE);
                 v.X = int(ipos.X * worldtoint);
                 v.Y = int(ipos.Y * worldtoint);
@@ -295,11 +292,16 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && !curspr && dasect != initialsectnum
                 && inside(pos->X * inttoworld, pos->Y * inttoworld, sec) == 1)
             {
-                int k;
-                for (k=startwall; k<endwall; k++)
-                    if (wall[k].nextsector == initialsectnum)
+                bool found = false;
+                for (auto& wwal : wallsofsector(sec))
+                {
+                    if (wwal.nextsector == initialsectnum)
+                    {
+                        found = true;
                         break;
-                if (k == endwall)
+                    }
+                }
+                if (!found)
                     break;
             }
 
@@ -307,7 +309,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             {
                 CollisionBase objtype;
                 if (curspr) objtype.setSprite(curspr);
-                else objtype.setWall(j);
+                else objtype.setWall(&wal);
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.X < 0) bsz = -bsz;
@@ -325,10 +327,10 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                 addclipline(p1.X+v.X, p1.Y+v.Y, p2.X+v.X, p2.Y+v.Y, objtype, false);
             }
-            else if (wal->nextsector>=0)
+            else if (wal.nextsector>=0)
             {
-                if (!clipsectormap[wal->nextsector])
-                    addclipsect(wal->nextsector);
+                if (!clipsectormap[wal.nextsector])
+                    addclipsect(wal.nextsector);
             }
         }
 
