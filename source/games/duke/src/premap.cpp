@@ -69,7 +69,7 @@ void pickrandomspot(int snum)
 		i = krand()%numplayersprites;
 	else i = snum;
 
-	p->PlayerNowPosition = po[i].opos;
+	p->posSet(po[i].opos);
 	p->backupxyz();
 	p->setbobpos();
 	p->angle.oang = p->angle.ang = po[i].oa;
@@ -622,7 +622,7 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].PlayerNowPosition = act->spr.pos;
+			ps[j].posSet(act->spr.pos);
 			ps[j].backupxyz();
 			ps[j].setbobpos();
 			act->backuppos();
@@ -976,7 +976,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	SpawnSpriteDef sprites;
 	DVector3 pos;
 	loadMap(mi->fileName, isShareware(), &pos, &lbang, &sect, sprites);
-	p->PlayerNowPosition = pos;
+	p->posSet(pos);
 	p->cursector = sect;
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);

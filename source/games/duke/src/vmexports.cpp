@@ -703,7 +703,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backupxyz, dukeplayer_backupxyz)
 
 void dukeplayer_setpos(player_struct* self, double x, double y, double z)
 {
-	self->PlayerNowPosition = { x, y, z };
+	self->posSet({ x, y, z });
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)

@@ -383,6 +383,11 @@ struct player_struct
 	{
 		return PlayerNowPosition.Z;
 	}
+
+	void posSet(const DVector3& val)
+	{
+		PlayerNowPosition = val;
+	}
 };
 
 struct Cycler

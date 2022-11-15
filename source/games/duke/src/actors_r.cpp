@@ -1233,7 +1233,7 @@ void movetransports_r(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].PlayerNowPosition = Owner->spr.pos.plusZ(-gs.playerheight + 4);
+							ps[p].posSet(Owner->spr.pos.plusZ(-gs.playerheight + 4));
 							ps[p].backupxyz();
 							ps[p].setbobpos();
 
@@ -2049,7 +2049,7 @@ void rr_specialstats()
 					if (act2->spr.picnum == RRTELEPORTDEST)
 					{
 						ps[p].angle.ang = act2->spr.angle;
-						ps[p].PlayerNowPosition = act2->spr.pos.plusZ(-36);
+						ps[p].posSet(act2->spr.pos.plusZ(-36));
 						ps[p].backupxyz();
 						ps[p].setbobpos();
 						auto pact = ps[p].GetActor();

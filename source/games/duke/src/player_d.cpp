@@ -3101,7 +3101,8 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->PlayerNowPosition = p->PlayerOldPosition = oldpos;
+					p->posSet(oldpos);
+					p->backupxyz();
 					continue;
 				}
 				quickkill(p);

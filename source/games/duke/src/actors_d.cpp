@@ -1345,7 +1345,7 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].PlayerNowPosition = Owner->spr.pos.plusZ(-gs.playerheight);
+							ps[p].posSet(Owner->spr.pos.plusZ(-gs.playerheight));
 							ps[p].backupxyz();
 							ps[p].setbobpos();
 
