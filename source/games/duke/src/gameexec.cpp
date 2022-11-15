@@ -389,7 +389,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_OPOSZ:
 		if (bSet) ps[iPlayer].posoldZset(lValue * zmaptoworld);
-		else SetGameVarID(lVar2, int(ps[iPlayer].PlayerOldPosition.Z * (1 / zmaptoworld)), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].posoldZget() * (1 / zmaptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_PYOFF:

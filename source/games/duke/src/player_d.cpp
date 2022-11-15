@@ -109,7 +109,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 		double scratch;
 		int j = findplayer(actor, &scratch);
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z + 3) * vel) / dist;
+		zvel = ((ps[j].posoldZget() - pos.Z + 3) * vel) / dist;
 	}
 	else
 	{
@@ -165,7 +165,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
 		if (dist != 0)
-			zvel = (((ps[j].PlayerOldPosition.Z - spos.Z) * vel) / dist);
+			zvel = (((ps[j].posoldZget() - spos.Z) * vel) / dist);
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
 			sang = actor->spr.angle + mapangle((krand() & 31) - 16);
@@ -605,7 +605,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
 #if 1
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z + 3) * vel) / dist;
+		zvel = ((ps[j].posoldZget() - pos.Z + 3) * vel) / dist;
 #else
 		// this is for pitch corrected velocity
 		auto dist = (ps[j].GetActor()->spr.pos - actor->spr.pos).Resized(vel);
@@ -712,7 +712,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
 
-		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z) * vel) / dist;
+		zvel = ((ps[j].posoldZget() - pos.Z) * vel) / dist;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
 			ang = actor->spr.angle + randomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
@@ -2043,7 +2043,7 @@ int operateTripbomb(int snum)
 			auto delta = hit.hitpos.XY() - p->posXY();
 			if (delta.LengthSquared() < (18.125 * 18.125))
 			{
-				p->posZset(p->PlayerOldPosition.Z);
+				p->posZset(p->posoldZget());
 				p->vel.Z = 0;
 				return 1;
 			}
@@ -2585,7 +2585,7 @@ static void operateweapon(int snum, ESyncBits actions)
 	case TRIPBOMB_WEAPON:	// Claymore in NAM
 		if (p->kickback_pic < 4)
 		{
-			p->posZset(p->PlayerOldPosition.Z);
+			p->posZset(p->posoldZget());
 			p->vel.Z = 0;
 			if (p->kickback_pic == 3)
 				fi.shoot(pact, HANDHOLDINGLASER);

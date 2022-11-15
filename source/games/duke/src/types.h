@@ -418,6 +418,10 @@ struct player_struct
 	{
 		PlayerOldPosition.Z = val;
 	}
+	double posoldZget()
+	{
+		return PlayerOldPosition.Z;
+	}
 };
 
 struct Cycler

@@ -526,7 +526,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 			ang += DAngle22_5 / 8. - randomAngle(22.5 / 4);
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z + 3) * vel) / dist;
+		zvel = ((ps[j].posoldZget() - pos.Z + 3) * vel) / dist;
 	}
 
 	double oldzvel = zvel;
@@ -623,7 +623,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 		}
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z) * vel) / dist;
+		zvel = ((ps[j].posoldZget() - pos.Z) * vel) / dist;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
 			ang = actor->spr.angle + randomAngle(22.5 / 4) - DAngle22_5 / 8;
@@ -758,7 +758,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 			ang += DAngle22_5/8 - randomAngle(22.5 / 4);
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerOldPosition.Z - pos.Z + 3) * vel) / dist;
+		zvel = ((ps[j].posoldZget() - pos.Z + 3) * vel) / dist;
 	}
 
 	double oldzvel = zvel;

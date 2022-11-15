@@ -4437,7 +4437,7 @@ void movefta(void)
 						{
 							double r1 = zrand(32);
 							double r2 = zrand(52);
-							canseeme = cansee({ sx, sy, act->spr.pos.Z - r2 }, act->sector(), { px, py, ps[p].PlayerOldPosition.Z - r1 }, ps[p].cursector);
+							canseeme = cansee({ sx, sy, act->spr.pos.Z - r2 }, act->sector(), { px, py, ps[p].posoldZget() - r1 }, ps[p].cursector);
 						}
 					}
 					else
