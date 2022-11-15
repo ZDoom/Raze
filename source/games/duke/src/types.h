@@ -413,6 +413,11 @@ struct player_struct
 	{
 		return PlayerOldPosition.XY();
 	}
+
+	void posoldZset(const double val)
+	{
+		PlayerOldPosition.Z = val;
+	}
 };
 
 struct Cycler

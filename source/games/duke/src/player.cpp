@@ -774,7 +774,7 @@ void player_struct::backuppos(bool noclipping)
 		posY() = posoldY();
 	}
 
-	PlayerOldPosition.Z = posZget();
+	posoldZset(posZget());
 	bobpos = posXY();
 	opyoff = pyoff;
 }
