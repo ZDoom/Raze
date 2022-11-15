@@ -738,7 +738,7 @@ void prelevel_common(int g)
 
 		if (sectp->lotag == -1)
 		{
-			ps[0].Exit = sectp->firstWall()->pos;
+			ps[0].Exit = sectp->walls[0].pos;
 			continue;
 		}
 	}

@@ -3467,7 +3467,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		if (act->spr.lotag != SE_29_WAVES) continue;
 		auto sc = act->sector();
 		if (sc->walls.Size() != 4) continue;
-		auto wal = sc->firstWall() + 2;
+		auto wal = &sc->walls[2];
 		if (wal->nextSector()) alignflorslope(act->sector(), DVector3(wal->pos, wal->nextSector()->floorz));
 	}
 }

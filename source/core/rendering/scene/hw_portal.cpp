@@ -480,7 +480,7 @@ int HWLinePortal::ClipSector(sectortype *sub)
 	// this seg is completely behind the mirror
 	for (unsigned i = 0; i<sub->walls.Size(); i++)
 	{
-		if (PointOnLineSide(sub->firstWall()->pos, line) == 0) return PClip_Inside;
+		if (PointOnLineSide(sub->walls[0].pos, line) == 0) return PClip_Inside;
 	}
 	return PClip_InFront;
 }

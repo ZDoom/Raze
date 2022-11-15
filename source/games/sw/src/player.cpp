@@ -1670,7 +1670,7 @@ void SlipSlope(PLAYER* pp)
     if (!(sectu->flags & SECTFU_SLIDE_SECTOR) || !(pp->cursector->floorstat & CSTAT_SECTOR_SLOPE))
         return;
 
-    DAngle ang = pp->cursector->firstWall()->delta().Angle() + DAngle90;
+    DAngle ang = pp->cursector->walls[0].delta().Angle() + DAngle90;
 
 	pp->vect += ang.ToVector() * pp->cursector->floorheinum / (1 << (sectu->speed + 4)); // todo confirm scale
 }

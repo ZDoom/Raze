@@ -1307,7 +1307,7 @@ void nnExtProcessSuperSprites()
 							speed *= FixedToFloat(pXSector->busy);
 					}
 					if (debrisactor->sector()->floorstat & CSTAT_SECTOR_ALIGN)
-						angle += debrisactor->sector()->firstWall()->normalAngle();
+						angle += debrisactor->sector()->walls[0].normalAngle();
 					debrisactor->vel += angle.ToVector() * speed;
 				}
 			}

@@ -2611,7 +2611,7 @@ DVector4 actFloorBounceVector(DBloodActor* actor, double oldz, sectortype* pSect
 	}
 
 	DVector3 p(actor->vel.XY(), oldz);
-	DAngle angle = pSector->firstWall()->delta().Angle() + DAngle90;
+	DAngle angle = pSector->walls[0].delta().Angle() + DAngle90;
 	auto t2 = pSector->floorheinum * (1. / SLOPEVAL_FACTOR);
 	auto t3 = DVector2(-1, t2).Length();
 	auto t4 = DVector3(angle.ToVector() * (t2 / t3), -1 / t3);
@@ -5631,7 +5631,7 @@ static void actCheckThings()
 						speed = pXSector->panVel / 128.;
 						if (!pXSector->panAlways && pXSector->busy) speed *= FixedToFloat(pXSector->busy);
 					}
-					if (pSector->floorstat & CSTAT_SECTOR_ALIGN) angle += pSector->firstWall()->normalAngle();
+					if (pSector->floorstat & CSTAT_SECTOR_ALIGN) angle += pSector->walls[0].normalAngle();
 
 					actor->vel += angle.ToVector() * speed;
 				}
@@ -6044,7 +6044,7 @@ static void actCheckDudes()
 						speed *= FixedToFloat(pXSector->busy);
 				}
 				if (pSector->floorstat & CSTAT_SECTOR_ALIGN)
-					angle += pSector->firstWall()->normalAngle();
+					angle += pSector->walls[0].normalAngle();
 				actor->vel += angle.ToVector() * speed;
 			}
 		}

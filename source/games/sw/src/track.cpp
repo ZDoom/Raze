@@ -1685,10 +1685,10 @@ PlayerPart:
 
             // IS part of a sector, sprite can do things based on the
             // current sector it is in
-            if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_DONT_SPIN))
+            if ((actor->sector()->walls[0].extra & WALLFX_LOOP_DONT_SPIN))
                 continue;
 
-            if ((actor->sector()->firstWall()->extra & WALLFX_LOOP_REVERSE_SPIN))
+            if ((actor->sector()->walls[0].extra & WALLFX_LOOP_REVERSE_SPIN))
             {
                 actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), -deltaangle);
                 actor->spr.angle -= deltaangle;

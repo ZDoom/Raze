@@ -198,7 +198,7 @@ void FAFhitscan(const DVector3& start, sectortype* sect, const DVector3& vect, H
     {
         if ((hit.hitSector->extra & SECTFX_WARP_SECTOR))
         {
-            if ((hit.hitSector->firstWall()->cstat & CSTAT_WALL_WARP_HITSCAN))
+            if ((hit.hitSector->walls[0].cstat & CSTAT_WALL_WARP_HITSCAN))
             {
                 // hit the floor of a sector that is a warping sector
                 sectortype* newsect = nullptr;

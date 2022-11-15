@@ -988,7 +988,7 @@ void bounce(DDukeActor* actor)
 
 	auto sectp = actor->sector();
 
-	DAngle daang = sectp->firstWall()->delta().Angle();
+	DAngle daang = sectp->walls[0].delta().Angle();
 
 	double k;
 	if (actor->spr.pos.Z < (actor->floorz + actor->ceilingz) * 0.5)

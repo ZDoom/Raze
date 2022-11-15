@@ -1633,7 +1633,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 
     //	GrabTimeSlot(3);
 
-    pActor->spr.pos.Z = pSector->firstWall()->nextSector()->floorz;
+    pActor->spr.pos.Z = pSector->walls[0].nextSector()->floorz;
 
     // CHECKME - name of this variable?
     int nRepeat = int(pActor->spr.pos.Z - pSector->floorz);
@@ -2602,8 +2602,8 @@ void PostProcess()
 
                     if (&sect != &sectj && sectj.Speed && !(sect.Flag & kSectLava))
                     {
-						double xVal = abs(sect.firstWall()->pos.X - sectj.firstWall()->pos.X);
-						double yVal = abs(sect.firstWall()->pos.Y - sectj.firstWall()->pos.Y);
+						double xVal = abs(sect.walls[0].pos.X - sectj.walls[0].pos.X);
+						double yVal = abs(sect.walls[0].pos.Y - sectj.walls[0].pos.Y);
 
                         if (xVal < 15000/16. && yVal < 15000/16. && (xVal + yVal < maxval))
                         {
