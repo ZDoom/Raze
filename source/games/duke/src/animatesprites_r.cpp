@@ -397,7 +397,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				case TIT_WEAPON:  newtspr->picnum = TITSPRITE;         break;
 				}
 
-				if (h->GetOwner()) newtspr->pos.Z = ps[p].PlayerNowPosition.Z - 12;
+				if (h->GetOwner()) newtspr->pos.Z = ps[p].posZget() - 12;
 				else newtspr->pos.Z = h->spr.pos.Z - 51;
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
@@ -705,7 +705,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 						else
 							floorz = h->floorz;
 
-						if (h->spr.pos.Z - floorz < 8 && ps[screenpeek].PlayerNowPosition.Z < floorz)
+						if (h->spr.pos.Z - floorz < 8 && ps[screenpeek].posZget() < floorz)
 						{
 								auto shadowspr = tsprites.newTSprite();
 								*shadowspr = *t;

@@ -384,7 +384,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 		int j = findplayer(actor, &x);
 		pos.Z -= 4;
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerNowPosition.Z - pos.Z) * 16) / dist;
+		zvel = ((ps[j].posZget() - pos.Z) * 16) / dist;
 		zvel += 0.5 - krandf(1);
 		if (actor->spr.picnum != BOSS1)
 		{
@@ -933,7 +933,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		int j = findplayer(actor, &x);
 		pos.Z -= 4;
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerNowPosition.Z - pos.Z) * 16) / dist;
+		zvel = ((ps[j].posZget() - pos.Z) * 16) / dist;
 		zvel += 0.5 - krandf(1);
 		ang += DAngle22_5 / 4 - randomAngle(22.5 / 2);
 	}
@@ -1022,7 +1022,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 		double x;
 		int j = findplayer(actor, &x);
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerNowPosition.Z - pos.Z) * 32) / dist;
+		zvel = ((ps[j].posZget() - pos.Z) * 32) / dist;
 	}
 	else zvel = 0;
 
@@ -1729,9 +1729,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	if (psectlotag != 2 && p->scuba_on == 1)
 		p->scuba_on = 0;
 
-	if (p->PlayerNowPosition.Z > floorz - k)
-		p->posZadd(((floorz - k) - p->PlayerNowPosition.Z) * 0.5);
-	if (p->PlayerNowPosition.Z < pact->ceilingz + 18)
+	if (p->posZget() > floorz - k)
+		p->posZadd(((floorz - k) - p->posZget()) * 0.5);
+	if (p->posZget() < pact->ceilingz + 18)
 		p->posZset(pact->ceilingz + 18);
 
 }
@@ -1786,11 +1786,11 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		footprints(snum);
 	}
 
-	if (p->PlayerNowPosition.Z < floorz - i) //falling
+	if (p->posZget() < floorz - i) //falling
 	{
 
 		// not jumping or crouching
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->PlayerNowPosition.Z >= (floorz - i - 16))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->posZget() >= (floorz - i - 16))
 			p->posZset(floorz - i);
 		else
 		{
@@ -1804,7 +1804,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->PlayerNowPosition.Z + p->vel.Z  >= floorz - i) // hit the ground
+			if (p->posZget() + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -1848,7 +1848,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		{
 			//Smooth on the ground
 
-			double k = (floorz - i - p->PlayerNowPosition.Z) * 0.5;
+			double k = (floorz - i - p->posZget()) * 0.5;
 			if (abs(k) < 1) k = 0;
 			p->posZadd(k);
 			p->vel.Z -= 3;
@@ -1856,8 +1856,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->posZadd(((floorz - i * 0.5) - p->PlayerNowPosition.Z) * 0.5); //Smooth on the water
-			if (p->on_warping_sector == 0 && p->PlayerNowPosition.Z > floorz - 16)
+			p->posZadd(((floorz - i * 0.5) - p->posZget()) * 0.5); //Smooth on the water
+			if (p->on_warping_sector == 0 && p->posZget() > floorz - 16)
 			{
 				p->posZset(floorz - 16);
 				p->vel.Z *= 0.5;
@@ -1912,7 +1912,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 	p->posZadd(p->vel.Z );
 
-	if (p->PlayerNowPosition.Z < ceilingz + 4)
+	if (p->posZget() < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
@@ -1979,10 +1979,10 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	p->posZadd(p->vel.Z );
 
-	if (p->PlayerNowPosition.Z > floorz - 15)
-		p->posZadd((((floorz - 15) - p->PlayerNowPosition.Z) * 0.5));
+	if (p->posZget() > floorz - 15)
+		p->posZadd((((floorz - 15) - p->posZget()) * 0.5));
 
-	if (p->PlayerNowPosition.Z < ceilingz + 4)
+	if (p->posZget() < ceilingz + 4)
 	{
 		p->posZset(ceilingz + 4);
 		p->vel.Z = 0;
@@ -1995,7 +1995,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.3125);
-			j->spr.pos.Z = p->PlayerNowPosition.Z + 8;
+			j->spr.pos.Z = p->posZget() + 8;
 		}
 	}
 }
@@ -2755,7 +2755,7 @@ void processinput_d(int snum)
 	p->truefz = getflorzofslopeptr(psectp, p->PlayerNowPosition);
 	p->truecz = getceilzofslopeptr(psectp, p->PlayerNowPosition);
 
-	truefdist = abs(p->PlayerNowPosition.Z - p->truefz);
+	truefdist = abs(p->posZget() - p->truefz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 

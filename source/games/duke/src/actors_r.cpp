@@ -1248,7 +1248,7 @@ void movetransports_r(void)
 					}
 					else break;
 
-					if (onfloorz == 0 && fabs(act->spr.pos.Z - ps[p].PlayerNowPosition.Z) < 24)
+					if (onfloorz == 0 && fabs(act->spr.pos.Z - ps[p].posZget()) < 24)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
@@ -1271,14 +1271,14 @@ void movetransports_r(void)
 
 					if (isRRRA())
 					{
-						if (onfloorz && sectlotag == 160 && ps[p].PlayerNowPosition.Z > sectp->floorz - 48)
+						if (onfloorz && sectlotag == 160 && ps[p].posZget() > sectp->floorz - 48)
 						{
 							k = 2;
 							ps[p].posZset(Owner->sector()->ceilingz + 7);
 							ps[p].backupz();
 						}
 
-						if (onfloorz && sectlotag == 161 && ps[p].PlayerNowPosition.Z < sectp->ceilingz + 6)
+						if (onfloorz && sectlotag == 161 && ps[p].posZget() < sectp->ceilingz + 6)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
@@ -1287,7 +1287,7 @@ void movetransports_r(void)
 						}
 					}
 
-					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].PlayerNowPosition.Z > sectp->floorz - 6) ||
+					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].posZget() > sectp->floorz - 6) ||
 						(onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].OnMotorcycle))
 					{
 						if (ps[p].OnBoat) break;
@@ -1303,7 +1303,7 @@ void movetransports_r(void)
 							ps[p].moto_underwater = 1;
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].PlayerNowPosition.Z < sectp->ceilingz + 6)
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].posZget() < sectp->ceilingz + 6)
 					{
 						k = 1;
 						if (ps[p].GetActor()->spr.extra <= 0) break;

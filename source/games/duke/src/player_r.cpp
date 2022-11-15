@@ -245,7 +245,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		int j = findplayer(actor, &x);
 		pos.Z -= 4;
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].PlayerNowPosition.Z - pos.Z) * 16) / dist;
+		zvel = ((ps[j].posZget() - pos.Z) * 16) / dist;
 		if (actor->spr.picnum != BOSS1)
 		{
 			zvel += 0.5 - krandf(1);
@@ -2077,15 +2077,15 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		footprints(snum);
 	}
 
-	if (p->PlayerNowPosition.Z < floorz - i) //falling
+	if (p->posZget() < floorz - i) //falling
 	{
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->PlayerNowPosition.Z >= (floorz - i - 16))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->posZget() >= (floorz - i - 16))
 			p->posZset(floorz - i);
 		else
 		{
 			p->on_ground = 0;
 
-			if ((p->OnMotorcycle || p->OnBoat) && floorz - i * 2 > p->PlayerNowPosition.Z)
+			if ((p->OnMotorcycle || p->OnBoat) && floorz - i * 2 > p->posZget())
 			{
 				if (p->MotoOnGround)
 				{
@@ -2115,7 +2115,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->PlayerNowPosition.Z + p->vel.Z  >= floorz - i) // hit the ground
+			if (p->posZget() + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -2175,7 +2175,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		{
 			//Smooth on the ground
 
-			double k = (floorz - i - p->PlayerNowPosition.Z) * 0.5;
+			double k = (floorz - i - p->posZget()) * 0.5;
 			if (abs(k) < 1) k = 0;
 			p->posZadd(k);
 			p->vel.Z -= 3;
@@ -2183,8 +2183,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->posZadd(((floorz - i * 0.5) - p->PlayerNowPosition.Z) * 0.5); //Smooth on the water
-			if (p->on_warping_sector == 0 && p->PlayerNowPosition.Z > floorz - 16)
+			p->posZadd(((floorz - i * 0.5) - p->posZget()) * 0.5); //Smooth on the water
+			if (p->on_warping_sector == 0 && p->posZget() > floorz - 16)
 			{
 				p->posZset(floorz - 16);
 				p->vel.Z *= 0.5;
@@ -2235,7 +2235,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 	p->posZadd(p->vel.Z );
 
-	if (p->PlayerNowPosition.Z < ceilingz + 4)
+	if (p->posZget() < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
@@ -2298,10 +2298,10 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	p->posZadd(p->vel.Z );
 
-	if (p->PlayerNowPosition.Z > floorz - 15)
-		p->posZadd((((floorz - 15) - p->PlayerNowPosition.Z) * 0.5));
+	if (p->posZget() > floorz - 15)
+		p->posZadd((((floorz - 15) - p->posZget()) * 0.5));
 
-	if (p->PlayerNowPosition.Z < ceilingz + 4)
+	if (p->posZget() < ceilingz + 4)
 	{
 		p->posZset(ceilingz + 4);
 		p->vel.Z = 0;
@@ -2314,7 +2314,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.03125);
-			j->spr.pos.Z = p->PlayerNowPosition.Z + 8;
+			j->spr.pos.Z = p->posZget() + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}
 	}
@@ -3332,7 +3332,7 @@ void processinput_r(int snum)
 		while (auto act2 = it.Next())
 		{
 			if (act2->spr.picnum == RRTILE380)
-				if (act2->spr.pos.Z - 8 < p->PlayerNowPosition.Z)
+				if (act2->spr.pos.Z - 8 < p->posZget())
 					psectlotag = 2;
 		}
 	}
@@ -3365,7 +3365,7 @@ void processinput_r(int snum)
 	p->truefz = tempfz;
 	p->truecz = getceilzofslopeptr(psectp, p->PlayerNowPosition);
 
-	double truefdist = abs(p->PlayerNowPosition.Z - tempfz);
+	double truefdist = abs(p->posZget() - tempfz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 

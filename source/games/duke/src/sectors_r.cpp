@@ -646,7 +646,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		setnextmap(false);
 	}
 
-	DVector3 v(pos, ps[snum].PlayerNowPosition.Z);
+	DVector3 v(pos, ps[snum].posZget());
 	switch (picnum)
 	{
 	default:

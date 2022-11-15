@@ -1363,7 +1363,7 @@ void movetransports_d(void)
 					}
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 
-					if (onfloorz == 0 && abs(act->spr.pos.Z - ps[p].PlayerNowPosition.Z) < 24)
+					if (onfloorz == 0 && abs(act->spr.pos.Z - ps[p].posZget()) < 24)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
@@ -1387,7 +1387,7 @@ void movetransports_d(void)
 
 					int k = 0;
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].PlayerNowPosition.Z > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].posZget() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
@@ -1406,7 +1406,7 @@ void movetransports_d(void)
 
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].PlayerNowPosition.Z < (sectp->ceilingz + 6))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].posZget() < (sectp->ceilingz + 6))
 					{
 						k = 1;
 						//     if( act2->spr.extra <= 0) break;
@@ -1723,7 +1723,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			}
 
-		actor->spr.pos.Z = ps[p].PlayerNowPosition.Z + 8 + ps[p].pyoff - (actor->temp_data[2] + (ps[p].horizon.horiz.Tan() * 2048.)) * zinttoworld;
+		actor->spr.pos.Z = ps[p].posZget() + 8 + ps[p].pyoff - (actor->temp_data[2] + (ps[p].horizon.horiz.Tan() * 2048.)) * zinttoworld;
 
 		if (actor->temp_data[2] > 512)
 			actor->temp_data[2] -= 128;

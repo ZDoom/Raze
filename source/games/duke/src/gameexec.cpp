@@ -334,7 +334,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSZ:
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].PlayerNowPosition.Z * (1 / zmaptoworld)), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].posZget() * (1 / zmaptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZ:
@@ -2408,7 +2408,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& prunning) && vel >= 0.5 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
-			else if( (l& phigher) && ps[g_p].PlayerNowPosition.Z < g_ac->spr.pos.Z - 48)
+			else if( (l& phigher) && ps[g_p].posZget() < g_ac->spr.pos.Z - 48)
 					j = 1;
 			else if( (l& pwalkingback) && vel <= -0.5 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;

@@ -608,7 +608,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->PlayerNowPosition.Z - floorz) > (gs.playerheight * 0.5))
+			if (abs(p->posZget() - floorz) > (gs.playerheight * 0.5))
 				p->posZadd(348/ 256.);
 		}
 		else
@@ -630,7 +630,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 	pushmove(p->PlayerNowPosition, &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
-		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->PlayerNowPosition.Z) * 2));
+		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->posZget()) * 2));
 
 	p->on_warping_sector = 0;
 
@@ -774,7 +774,7 @@ void player_struct::backuppos(bool noclipping)
 		posY() = PlayerOldPosition.Y;
 	}
 
-	PlayerOldPosition.Z = PlayerNowPosition.Z;
+	PlayerOldPosition.Z = posZget();
 	bobpos = posXY();
 	opyoff = pyoff;
 }
