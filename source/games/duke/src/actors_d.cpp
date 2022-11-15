@@ -3583,7 +3583,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
-			actor->backupvec2();
+			if (actor->spr.picnum != APLAYER) actor->backupvec2();
 			SetActor(actor, actor->spr.pos);
 		}
 		return;
