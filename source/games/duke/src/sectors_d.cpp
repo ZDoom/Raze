@@ -1516,7 +1516,7 @@ void checksectors_d(int snum)
 					return;
 		}
 		if (p->newOwner != nullptr)
-			neartag(p->PlayerOldPosition, p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
+			neartag(p->posoldGet(), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 		else
 		{
 			neartag(p->posGet(), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);

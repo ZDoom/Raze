@@ -400,7 +400,7 @@ void moveplayers(void)
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				act->spr.pos = p->PlayerOldPosition.plusZ(gs.playerheight);
+				act->spr.pos = p->posoldGet().plusZ(gs.playerheight);
 				act->backupz();
 				act->spr.angle = p->angle.oang;
 				SetActor(act, act->spr.pos);
@@ -4444,7 +4444,7 @@ void movefta(void)
 					{
 						int r1 = krand();
 						int r2 = krand();
-						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), ps[p].PlayerOldPosition.plusZ(-(r1 & 31)), ps[p].cursector);
+						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), ps[p].posoldGet().plusZ(-(r1 & 31)), ps[p].cursector);
 					}
 
 

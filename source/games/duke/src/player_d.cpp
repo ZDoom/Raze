@@ -2860,7 +2860,7 @@ void processinput_d(int snum)
 
 	checklook(snum,actions);
 	double iif = 2.5;
-	auto oldpos = p->PlayerOldPosition;
+	auto oldpos = p->posoldGet();
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;

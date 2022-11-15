@@ -427,6 +427,10 @@ struct player_struct
 	{
 		PlayerOldPosition += val;
 	}
+	DVector3 posoldGet()
+	{
+		return PlayerOldPosition;
+	}
 };
 
 struct Cycler

@@ -226,7 +226,7 @@ int findplayer(const DDukeActor* actor, double* d)
 
 	if (ud.multimode < 2)
 	{
-		if (d) *d = (ps[myconnectindex].PlayerOldPosition - s).plusZ(28).Sum();
+		if (d) *d = (ps[myconnectindex].posoldGet() - s).plusZ(28).Sum();
 		return myconnectindex;
 	}
 
@@ -235,7 +235,7 @@ int findplayer(const DDukeActor* actor, double* d)
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
-		double x = (ps[j].PlayerOldPosition - s).plusZ(28).Sum();
+		double x = (ps[j].posoldGet() - s).plusZ(28).Sum();
 		if (x < closest && ps[j].GetActor()->spr.extra > 0)
 		{
 			closest_player = j;
@@ -263,7 +263,7 @@ int findotherplayer(int p, double* d)
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 		if (p != j && ps[j].GetActor()->spr.extra > 0)
 		{
-			double x = (ps[j].PlayerOldPosition - ps[p].posGet()).Sum();
+			double x = (ps[j].posoldGet() - ps[p].posGet()).Sum();
 
 			if (x < closest)
 			{

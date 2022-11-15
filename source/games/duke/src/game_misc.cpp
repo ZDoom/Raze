@@ -271,7 +271,7 @@ void drawoverlays(double interpfrac)
 				}
 				else
 				{
-					cposxy = interpolatedvalue(pp->PlayerOldPosition, pp->posGet(), interpfrac).XY();
+					cposxy = interpolatedvalue(pp->posoldGet(), pp->posGet(), interpfrac).XY();
 					cang = !SyncInput() ? pp->angle.ang : interpolatedvalue(pp->angle.oang, pp->angle.ang, interpfrac);
 				}
 			}

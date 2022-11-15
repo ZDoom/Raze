@@ -3525,7 +3525,7 @@ void processinput_r(int snum)
 	checklook(snum, actions);
 	p->apply_seasick(1);
 
-	auto oldpos = p->PlayerOldPosition;
+	auto oldpos = p->posoldGet();
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
