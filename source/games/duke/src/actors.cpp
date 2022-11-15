@@ -3046,7 +3046,7 @@ void handle_se17(DDukeActor* actor)
 			{
 				int p = act3->PlayerIndex();
 
-				ps[p].PlayerOldPosition -= ps[p].posGet();
+				ps[p].posoldAdd(-ps[p].posGet());
 				ps[p].posXY() += act2->spr.pos.XY() - actor->spr.pos.XY();
 				ps[p].posZadd(act2->sector()->floorz - sc->floorz);
 				ps[p].posoldAdd(ps[p].posGet());
