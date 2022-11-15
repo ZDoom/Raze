@@ -2609,7 +2609,7 @@ void DoSineWaveFloor(void)
                 if (sect->walls.Size() == 4)
                 {
                     //Set wal to the wall on the opposite side of the sector
-                    wal = sect->firstWall() + 2;
+                    wal = &sect->walls[2];
 
                     //Pass (Sector, x, y, z)
                     alignflorslope(sect,DVector3(wal->pos, wal->nextSector()->floorz));

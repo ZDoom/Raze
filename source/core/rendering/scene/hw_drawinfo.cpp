@@ -410,7 +410,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			auto sect = eff.geosectorwarp[i];
 			for (unsigned w = 0; w < sect->walls.Size(); w++)
 			{
-				auto wal = sect->firstWall() + w;
+				auto wal = &sect->walls[w];
 				wal->pos.X += eff.geox[i];
 				wal->pos.Y += eff.geoy[i];
 			}
@@ -429,7 +429,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			auto sect = eff.geosectorwarp[i];
 			for (unsigned w = 0; w < sect->walls.Size(); w++)
 			{
-				auto wal = sect->firstWall() + w;
+				auto wal = &sect->walls[w];
 				wal->pos.X -= eff.geox[i];
 				wal->pos.Y -= eff.geoy[i];
 			}
@@ -442,7 +442,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			auto sect = eff.geosectorwarp2[i];
 			for (unsigned w = 0; w < sect->walls.Size(); w++)
 			{
-				auto wal = sect->firstWall() + w;
+				auto wal = &sect->walls[w];
 				wal->pos.X += eff.geox2[i];
 				wal->pos.Y += eff.geoy2[i];
 			}
@@ -460,7 +460,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			auto sect = eff.geosectorwarp2[i];
 			for (unsigned w = 0; w < sect->walls.Size(); w++)
 			{
-				auto wal = sect->firstWall() + w;
+				auto wal = &sect->walls[w];
 				wal->pos.X -= eff.geox2[i];
 				wal->pos.Y -= eff.geoy2[i];
 			}

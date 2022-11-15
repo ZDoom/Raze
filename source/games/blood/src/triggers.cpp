@@ -2168,7 +2168,7 @@ void AlignSlopes(void)
 	{
 		if (sect.slopewallofs)
 		{
-			walltype* pWall = sect.firstWall() + sect.slopewallofs;
+			walltype* pWall = &sect.walls[sect.slopewallofs];
 			if (pWall->twoSided())
 			{
 				auto pNextSector = pWall->nextSector();

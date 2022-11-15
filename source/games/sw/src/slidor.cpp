@@ -248,8 +248,8 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
     auto sect = actor->sector();
 
     // this code is just weird.
-    auto startWall = sect->firstWall();
-    auto endWall = sect->lastWall();
+    auto startWall = &sect->walls[0];
+    auto endWall = &sect->walls.Last();
     auto wal = startWall;
     do
     {
@@ -306,8 +306,8 @@ int DoSlidorMoveWalls(DSWActor* actor, double amt)
     auto sect = actor->sector();
 
     // this code is just weird.
-    auto startWall = sect->firstWall();
-    auto endWall = sect->lastWall();
+    auto startWall = &sect->walls[0];
+    auto endWall = &sect->walls.Last();
     auto wal = startWall;
     walltype* pwal;
 
