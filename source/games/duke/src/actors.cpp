@@ -3160,7 +3160,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 						{
-							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].PlayerNowPosition.Z -= extra;
+							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].posZadd(-extra);
 						}
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
@@ -3957,7 +3957,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				{
 					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
-							ps[a2->PlayerIndex()].PlayerNowPosition.Z -= l;
+							ps[a2->PlayerIndex()].posZadd(-l);
 					if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->spr.pos.Z -= l;

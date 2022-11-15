@@ -560,7 +560,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		if (actor->spr.pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
-			p->PlayerNowPosition.Z -= 16;
+			p->posZadd(-16);
 			actor->spr.pos.Z -= 16;
 		}
 #if 0

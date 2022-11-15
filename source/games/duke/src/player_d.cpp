@@ -1689,7 +1689,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	if (p->jetpack_on < 11)
 	{
 		p->jetpack_on++;
-		p->PlayerNowPosition.Z -= (p->jetpack_on * 0.5); //Goin up
+		p->posZadd(-(p->jetpack_on * 0.5)); //Goin up
 	}
 	else if (p->jetpack_on == 11 && !S_CheckActorSoundPlaying(pact, DUKE_JETPACK_IDLE))
 		S_PlayActorSound(DUKE_JETPACK_IDLE, pact);
@@ -1705,7 +1705,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 		OnEvent(EVENT_SOARUP, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 		{
-			p->PlayerNowPosition.Z -= dist;
+			p->posZadd(-dist);
 			p->crack_time = CRACK_TIME;
 		}
 	}
