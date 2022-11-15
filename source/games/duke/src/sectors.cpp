@@ -383,7 +383,7 @@ void doanimations(void)
 					if ((dasectp->floorz - ps[p].PlayerNowPosition.Z) < 64)
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
-							ps[p].PlayerNowPosition.Z += v;
+							ps[p].posZadd(v);
 							ps[p].vel.Z = 0;
 						}
 

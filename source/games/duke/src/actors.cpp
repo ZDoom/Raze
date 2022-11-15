@@ -1862,7 +1862,7 @@ void handle_se00(DDukeActor* actor)
 			{
 				ps[p].angle.addadjustment(ang_amount * direction);
 
-				ps[p].PlayerNowPosition.Z += zchange;
+				ps[p].posZadd(zchange);
 
 				auto result = rotatepoint(Owner->spr.pos, ps[p].posXY(), ang_amount * direction);
 
@@ -2997,7 +2997,7 @@ void handle_se17(DDukeActor* actor)
 		if (act1->spr.statnum == STAT_PLAYER && act1->GetOwner())
 		{
 			int p = act1->spr.yint;
-			ps[p].PlayerNowPosition.Z += q;
+			ps[p].posZadd(q);
 			ps[p].truefz += q;
 			ps[p].truecz += q;
 		}
@@ -3048,7 +3048,7 @@ void handle_se17(DDukeActor* actor)
 
 				ps[p].PlayerOldPosition -= ps[p].PlayerNowPosition;
 				ps[p].posXY() += act2->spr.pos.XY() - actor->spr.pos.XY();
-				ps[p].PlayerNowPosition.Z += act2->sector()->floorz - sc->floorz;
+				ps[p].posZadd(act2->sector()->floorz - sc->floorz);
 				ps[p].PlayerOldPosition += ps[p].PlayerNowPosition;
 
 				if (q > 0) ps[p].backupz();
@@ -3121,7 +3121,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 						{
-							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].PlayerNowPosition.Z += extra;
+							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].posZadd(extra);
 						}
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
@@ -3459,7 +3459,7 @@ void handle_se26(DDukeActor* actor)
 		{
 			ps[p].fric.X += vect.X;
 			ps[p].fric.Y += vect.Y;
-			ps[p].PlayerNowPosition.Z += zvel;
+			ps[p].posZadd(zvel);
 		}
 
 	movesector(actor, actor->temp_data[1], nullAngle);
@@ -3869,7 +3869,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
-								ps[a2->PlayerIndex()].PlayerNowPosition.Z +=l;
+								ps[a2->PlayerIndex()].posZadd(l);
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->spr.pos.Z += l;
@@ -3898,7 +3898,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					{
 						if (a2->isPlayer() && a2->GetOwner())
 							if (ps[a2->PlayerIndex()].on_ground == 1)
-								ps[a2->PlayerIndex()].PlayerNowPosition.Z += l;
+								ps[a2->PlayerIndex()].posZadd(l);
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
 							a2->spr.pos.Z += l;
@@ -3929,7 +3929,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				{
 					if (a2->isPlayer() && a2->GetOwner())
 						if (ps[a2->PlayerIndex()].on_ground == 1)
-							ps[a2->PlayerIndex()].PlayerNowPosition.Z += l;
+							ps[a2->PlayerIndex()].posZadd(l);
 					if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
 						a2->spr.pos.Z += l;

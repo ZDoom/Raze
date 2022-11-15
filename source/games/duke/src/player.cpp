@@ -609,7 +609,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		if (p->on_warping_sector == 0)
 		{
 			if (abs(p->PlayerNowPosition.Z - floorz) > (gs.playerheight * 0.5))
-				p->PlayerNowPosition.Z += 348/ 256.;
+				p->posZadd(348/ 256.);
 		}
 		else
 		{
@@ -706,7 +706,7 @@ void playerCrouch(int snum)
 	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->PlayerNowPosition.Z += 8 + 3;
+		p->posZadd(8 + 3);
 		p->crack_time = CRACK_TIME;
 	}
 }

@@ -2177,13 +2177,13 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 			double k = (floorz - i - p->PlayerNowPosition.Z) * 0.5;
 			if (abs(k) < 1) k = 0;
-			p->PlayerNowPosition.Z += k;
+			p->posZadd(k);
 			p->vel.Z -= 3;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->PlayerNowPosition.Z += ((floorz - i * 0.5) - p->PlayerNowPosition.Z) * 0.5; //Smooth on the water
+			p->posZadd(((floorz - i * 0.5) - p->PlayerNowPosition.Z) * 0.5); //Smooth on the water
 			if (p->on_warping_sector == 0 && p->PlayerNowPosition.Z > floorz - 16)
 			{
 				p->posZset(floorz - 16);
@@ -2233,7 +2233,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		}
 	}
 
-	p->PlayerNowPosition.Z += p->vel.Z ;
+	p->posZadd(p->vel.Z );
 
 	if (p->PlayerNowPosition.Z < ceilingz + 4)
 	{
@@ -2296,10 +2296,10 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 	if (p->vel.Z > 8)
 		p->vel.Z *= 0.5;
 
-	p->PlayerNowPosition.Z += p->vel.Z ;
+	p->posZadd(p->vel.Z );
 
 	if (p->PlayerNowPosition.Z > floorz - 15)
-		p->PlayerNowPosition.Z += (((floorz - 15) - p->PlayerNowPosition.Z) * 0.5);
+		p->posZadd((((floorz - 15) - p->PlayerNowPosition.Z) * 0.5));
 
 	if (p->PlayerNowPosition.Z < ceilingz + 4)
 	{
@@ -3745,7 +3745,7 @@ HORIZONLY:
 		clipmove(p->PlayerNowPosition, &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->PlayerNowPosition.Z += 32;
+		p->posZadd(32);
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_r(p, clip);
