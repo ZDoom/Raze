@@ -780,7 +780,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		{
 			//						if(actor->spr.pal == 12)
 			{
-				auto delta = absangle(ps[p].angle.ang, (actor->spr.pos.XY() - ps[p].PlayerNowPosition.XY()).Angle());
+				auto delta = absangle(ps[p].angle.ang, (actor->spr.pos.XY() - ps[p].posXY()).Angle());
 				if (delta < DAngle22_5 / 2 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
@@ -790,7 +790,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 						{
 							if (act2->spr.picnum == queball || act2->spr.picnum == stripeball)
 							{
-								delta = absangle(ps[p].angle.ang, (act2->spr.pos.XY() - ps[p].PlayerNowPosition.XY()).Angle());
+								delta = absangle(ps[p].angle.ang, (act2->spr.pos.XY() - ps[p].posXY()).Angle());
 								if (delta < DAngle22_5 / 2)
 								{
 									double l;
@@ -812,7 +812,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 		if (x < 32 && actor->sector() == ps[p].cursector)
 		{
-			actor->spr.angle = (actor->spr.pos.XY() - ps[p].PlayerNowPosition.XY()).Angle();
+			actor->spr.angle = (actor->spr.pos.XY() - ps[p].posXY()).Angle();
 			actor->vel.X = 3;
 		}
 	}
@@ -964,7 +964,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			actor->temp_data[2] = 0;
 		}
 		else actor->temp_angle +=
-			deltaangle(actor->temp_angle, (ps[p].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle()) / 3;
+			deltaangle(actor->temp_angle, (ps[p].posXY() - actor->spr.pos.XY()).Angle()) / 3;
 	}
 	else if (actor->temp_data[0] == 2 || actor->temp_data[0] == 3)
 	{
@@ -991,7 +991,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				fi.shoot(actor, firelaser);
 			}
 		}
-		actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle()) * 0.25;
+		actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].posXY() - actor->spr.pos.XY()).Angle()) * 0.25;
 	}
 
 	if (actor->temp_data[0] != 2 && actor->temp_data[0] != 3 && Owner)
@@ -1864,9 +1864,9 @@ void handle_se00(DDukeActor* actor)
 
 				ps[p].PlayerNowPosition.Z += zchange;
 
-				auto result = rotatepoint(Owner->spr.pos, ps[p].PlayerNowPosition.XY(), ang_amount * direction);
+				auto result = rotatepoint(Owner->spr.pos, ps[p].posXY(), ang_amount * direction);
 
-				ps[p].bobpos += (result - ps[p].PlayerNowPosition.XY());
+				ps[p].bobpos += (result - ps[p].posXY());
 
 				ps[p].PlayerNowPosition.X = result.X;
 				ps[p].PlayerNowPosition.Y = result.Y;
@@ -1996,7 +1996,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				if (dist2 < 1280)//20480)
 				{
 					auto saved_angle = actor->spr.angle;
-					actor->spr.angle = (actor->spr.pos.XY() - ps[p].PlayerNowPosition.XY()).Angle();
+					actor->spr.angle = (actor->spr.pos.XY() - ps[p].posXY()).Angle();
 					fi.shoot(actor, RPG);
 					actor->spr.angle = saved_angle;
 				}
@@ -2018,7 +2018,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						updatesector(ps[p].PlayerNowPosition, &sect);
 						if ((sect == nullptr && ud.clipping == 0) || (sect == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].PlayerNowPosition.XY() = actor->spr.pos.XY();
+							ps[p].posXY() = actor->spr.pos.XY();
 							ps[p].setCursector(actor->sector());
 
 							SetActor(ps[p].GetActor(), actor->spr.pos);
@@ -2042,9 +2042,9 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 				if (actor->sector() == psp->sector())
 				{
-					auto result = rotatepoint(actor->spr.pos.XY(), ps[p].PlayerNowPosition.XY(), diffangle);
+					auto result = rotatepoint(actor->spr.pos.XY(), ps[p].posXY(), diffangle);
 
-					ps[p].PlayerNowPosition.XY() = result + vec;
+					ps[p].posXY() = result + vec;
 
 					ps[p].bobpos += vec;
 
@@ -2056,7 +2056,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					}
 					if (psp->spr.extra <= 0)
 					{
-						psp->spr.pos.XY() = ps[p].PlayerNowPosition.XY();
+						psp->spr.pos.XY() = ps[p].posXY();
 					}
 				}
 			}
@@ -2093,7 +2093,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						updatesector(ps[p].PlayerNowPosition, &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].PlayerNowPosition.XY() = actor->spr.pos.XY();
+							ps[p].posXY() = actor->spr.pos.XY();
 							ps[p].backupxy();
 							ps[p].setCursector(actor->sector());
 
@@ -2196,7 +2196,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 						updatesector(ps[p].PlayerNowPosition, &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].PlayerNowPosition.XY() = actor->spr.pos.XY();
+							ps[p].posXY() = actor->spr.pos.XY();
 							ps[p].setCursector(actor->sector());
 
 							SetActor(ps[p].GetActor(), actor->spr.pos);
@@ -2252,7 +2252,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 						updatesector(ps[p].PlayerNowPosition, &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
-							ps[p].PlayerNowPosition.XY() = actor->spr.pos.XY();
+							ps[p].posXY() = actor->spr.pos.XY();
 							ps[p].backupxy();
 
 							ps[p].setCursector(actor->sector());
@@ -2537,7 +2537,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	else
 	{
 		actor->temp_angle +=
-			deltaangle(actor->temp_angle + DAngle90, (ps[p].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle()) * 0.25;
+			deltaangle(actor->temp_angle + DAngle90, (ps[p].posXY() - actor->spr.pos.XY()).Angle()) * 0.25;
 		sc->ceilingshade = 0;
 	}
 	j = fi.ifhitbyweapon(actor);
@@ -3047,7 +3047,7 @@ void handle_se17(DDukeActor* actor)
 				int p = act3->PlayerIndex();
 
 				ps[p].PlayerOldPosition -= ps[p].PlayerNowPosition;
-				ps[p].PlayerNowPosition.XY() += act2->spr.pos.XY() - actor->spr.pos.XY();
+				ps[p].posXY() += act2->spr.pos.XY() - actor->spr.pos.XY();
 				ps[p].PlayerNowPosition.Z += act2->sector()->floorz - sc->floorz;
 				ps[p].PlayerOldPosition += ps[p].PlayerNowPosition;
 
@@ -3498,7 +3498,7 @@ void handle_se27(DDukeActor* actor)
 				{
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
-					actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
+					actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].posXY() - actor->spr.pos.XY()).Angle()) * 0.125;
 					actor->spr.yint = 100 + int((actor->spr.pos.Z - ps[p].PlayerNowPosition.Z) * (256. / 257.));
 
 				}
@@ -3513,7 +3513,7 @@ void handle_se27(DDukeActor* actor)
 			}
 			else
 			{
-				actor->spr.angle = (ps[p].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
+				actor->spr.angle = (ps[p].posXY() - actor->spr.pos.XY()).Angle();
 
 				if (actor->temp_data[0] == 999)
 				{

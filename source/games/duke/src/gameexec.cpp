@@ -2432,9 +2432,9 @@ int ParseState::parse(void)
 			{
 				DAngle ang;
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					ang = absangle(ps[otherp].angle.ang, (ps[g_p].PlayerNowPosition.XY() - ps[otherp].PlayerNowPosition.XY()).Angle());
+					ang = absangle(ps[otherp].angle.ang, (ps[g_p].posXY() - ps[otherp].posXY()).Angle());
 				else
-					ang = absangle(ps[g_p].angle.ang, (g_ac->spr.pos.XY() - ps[g_p].PlayerNowPosition.XY()).Angle());
+					ang = absangle(ps[g_p].angle.ang, (g_ac->spr.pos.XY() - ps[g_p].posXY()).Angle());
 
 				j = ang < DAngle22_5;
 			}

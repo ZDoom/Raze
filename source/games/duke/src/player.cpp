@@ -214,7 +214,7 @@ double hitawall(player_struct* p, walltype** hitw)
 	hitscan(p->PlayerNowPosition, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (hit.hitpos.XY() - p->PlayerNowPosition.XY()).Length();
+	return (hit.hitpos.XY() - p->posXY()).Length();
 }
 
 
@@ -775,7 +775,7 @@ void player_struct::backuppos(bool noclipping)
 	}
 
 	PlayerOldPosition.Z = PlayerNowPosition.Z;
-	bobpos = PlayerNowPosition.XY();
+	bobpos = posXY();
 	opyoff = pyoff;
 }
 

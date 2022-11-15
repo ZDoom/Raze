@@ -3532,7 +3532,7 @@ void processinput_r(int snum)
 
 	p->playerweaponsway(pact->vel.X);
 
-	pact->vel.X = clamp((p->PlayerNowPosition.XY() - p->bobpos).Length(), 0., 32.);
+	pact->vel.X = clamp((p->posXY() - p->bobpos).Length(), 0., 32.);
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));
@@ -3737,7 +3737,7 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->PlayerNowPosition.XY() += p->vel.XY() ;
+		p->posXY() += p->vel.XY() ;
 		updatesector(p->PlayerNowPosition, &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}

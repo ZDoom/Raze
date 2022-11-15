@@ -1667,7 +1667,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (xx < 64 && ps[p].quick_kick == 0)
 		{
-			auto ang = absangle(ps[p].angle.ang, (actor->spr.pos.XY() - ps[p].PlayerNowPosition.XY()).Angle());
+			auto ang = absangle(ps[p].angle.ang, (actor->spr.pos.XY() - ps[p].posXY()).Angle());
 			if (ang < DAngle22_5)
 				ps[p].quick_kick = 14;
 		}
@@ -1772,7 +1772,7 @@ static void greenslime(DDukeActor *actor)
 
 		double add = (BobVal(actor->temp_data[1]) * 2) * REPEAT_SCALE;
 		actor->spr.scale = DVector2(0.3125 + add, 0.234375 + add);
-		actor->spr.pos.XY() = ps[p].PlayerNowPosition.XY() + ps[p].angle.ang.ToVector() * 8;
+		actor->spr.pos.XY() = ps[p].posXY() + ps[p].angle.ang.ToVector() * 8;
 		return;
 	}
 
@@ -1934,7 +1934,7 @@ static void greenslime(DDukeActor *actor)
 		{
 			if (actor->vel.X < 2) actor->vel.X += 0.25;
 			actor->vel.X = 4 - BobVal(512 + actor->temp_data[1]) * 2;
-			actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
+			actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].posXY() - actor->spr.pos.XY()).Angle()) * 0.125;
 			// TJR
 		}
 
@@ -3035,7 +3035,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if (ps[playernum].newOwner != nullptr)
 			goalang = (ps[playernum].PlayerOldPosition.XY() - actor->spr.pos.XY()).Angle();
-		else goalang = (ps[playernum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[playernum].posXY() - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
 		actor->spr.angle += angdif;
@@ -3048,7 +3048,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if (ps[playernum].newOwner != nullptr)
 			goalang = (ps[playernum].PlayerOldPosition.XY() - actor->spr.pos.XY()).Angle();
-		else goalang = (ps[playernum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[playernum].posXY() - actor->spr.pos.XY()).Angle();
 		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 		actor->spr.angle += angdif;
 	}
@@ -3062,7 +3062,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a & face_player_smart)
 	{
-		DVector2 newpos = ps[playernum].PlayerNowPosition.XY() + (ps[playernum].vel.XY() * (4. / 3.));
+		DVector2 newpos = ps[playernum].posXY() + (ps[playernum].vel.XY() * (4. / 3.));
 		goalang = (newpos - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5/16 && angdif < nullAngle) angdif = nullAngle;
@@ -3173,7 +3173,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel) * maptoworld;
-				angdif = (ps[playernum].PlayerNowPosition.XY() - actor->spr.pos.XY()).Angle();
+				angdif = (ps[playernum].posXY() - actor->spr.pos.XY()).Angle();
 
 				if (xvel < 512)
 				{

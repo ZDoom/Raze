@@ -356,6 +356,12 @@ struct player_struct
 	{
 		bobpos = PlayerNowPosition.XY();
 	}
+
+
+	DVector2& posXY()
+	{
+		return PlayerNowPosition.XY();
+	}
 };
 
 struct Cycler
