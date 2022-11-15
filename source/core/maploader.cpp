@@ -755,11 +755,14 @@ void setWallSectors()
 		auto sect = &sector[i];
 		auto nextsect = &sector[i + 1];
 
-		if (sect->wall_index() < nextsect->wall_index() && sect->wall_index() + sect->wall_count() > nextsect->wall_index())
+		int sectstart = sect->wall_index();
+		int nextsectstart = nextsect->wall_index();
+
+		if (sectstart < nextsectstart && sectstart + sect->wall_count() > nextsectstart)
 		{
 			// We have overlapping wall ranges for two sectors. Do some analysis to see where these walls belong
-			int checkstart = nextsect->wall_index();
-			int checkend = sect->wall_index() + sect->wall_count();
+			int checkstart = nextsectstart;
+			int checkend = sectstart + sect->wall_count();
 
 			// for now assign the walls to the first sector. Final decisions are made below.
 			nextsect->wallnum -= checkend - checkstart;
@@ -776,22 +779,22 @@ void setWallSectors()
 					}
 				return refok && point2ok;
 			};
-			while (checkstart < checkend && belongs(checkstart, sect->wall_index(), checkstart, checkstart))
+			while (checkstart < checkend && belongs(checkstart, sectstart, checkstart, checkstart))
 				checkstart++;
 
-			sect->wallnum = checkstart - sect->wall_index();
+			sect->wallnum = checkstart - sectstart;
 
-			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsect->wall_index() + nextsect->wall_count(), checkstart))
+			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsectstart + nextsect->wall_count(), checkstart))
 				checkend--;
 
-			nextsect->wallnum += nextsect->wall_index() - checkend;
-			nextsect->wallptr = checkend;
+			nextsect->wallnum += nextsectstart - checkend;
+			nextsect->wallptr = nextsectstart = checkend;
 
-			if (nextsect->wall_index() > sect->wall_index() + sect->wall_count())
+			if (nextsectstart > sectstart + sect->wall_count())
 			{
 				// If there's a gap, assign to the first sector. In this case we may only guess.
-				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sect->wall_index() + sect->wall_count(), nextsect->wall_index() - 1, i, i + 1);
-				sect->wallnum = nextsect->wall_index() - sect->wall_index();
+				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sectstart + sect->wall_count(), nextsectstart - 1, i, i + 1);
+				sect->wallnum = nextsectstart - sectstart;
 			}
 		}
 	}
