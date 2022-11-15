@@ -138,7 +138,7 @@ void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, 
 
 	if ((bits & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
 	{
-		auto wal = sec->firstWall();
+		auto wal = sec->walls.Data();
 		double len = wal->Length();
 		if (len != 0)
 		{
@@ -158,7 +158,7 @@ void calcSlope(const sectortype* sec, double xpos, double ypos, double* pceilz, 
 
 int getslopeval(sectortype* sect, const DVector3& pos, double basez)
 {
-	auto wal = sect->firstWall();
+	auto wal = sect->walls.Data();
 	double i = (pos.XY() - wal->pos).dot(wal->delta().Rotated90CCW());
 	return i == 0? 0 : int(SLOPEVAL_FACTOR * (pos.Z - basez) * wal->Length() / i);
 }
@@ -713,7 +713,7 @@ double checkWallHit(walltype* wal, EWallFlags flagmask, const DVector3& start, c
 double checkSectorPlaneHit(sectortype* sec, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
 {
 	if (sec->walls.Size() < 3) return -1;
-	auto wal = sec->firstWall();
+	auto wal = sec->walls.Data();
 	double len = wal->Length();
 
 	DVector3 pt1, pt2, pt3;

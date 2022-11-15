@@ -109,7 +109,7 @@ void SetWallWarpHitscan(sectortype* sect)
     if (!sp_warp)
         return;
 
-    auto start_wall = sect->firstWall();
+    auto start_wall = sect->walls.Data();
     auto wall_num = start_wall;
 
     // Travel all the way around loop setting wall bits
@@ -130,7 +130,7 @@ void SetWallWarpHitscan(sectortype* sect)
 
 void ResetWallWarpHitscan(sectortype* sect)
 {
-    auto start_wall = sect->firstWall();
+    auto start_wall = sect->walls.Data();
     auto wall_num = start_wall;
 
     // Travel all the way around loop setting wall bits

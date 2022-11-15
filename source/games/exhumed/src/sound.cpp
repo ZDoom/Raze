@@ -664,7 +664,7 @@ void CheckAmbience(sectortype* sect)
     if (sect->Sound != -1)
     {
         auto pSector2 = sect->pSoundSect;
-        walltype* pWall = pSector2->firstWall();
+        walltype* pWall = pSector2->walls.Data();
         if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, 0))
         {
             DVector3 v = { pWall->pos.X, pWall->pos.Y, pSector2->floorz };

@@ -2706,7 +2706,7 @@ void SpriteSetup(void)
                         break;
 
                     // move the the next wall
-                    auto start_wall = actor->sector()->firstWall();
+                    auto start_wall = actor->sector()->walls.Data();
                     auto wall_num = start_wall;
 
                     // Travel all the way around loop setting wall bits
@@ -2819,7 +2819,7 @@ void SpriteSetup(void)
                 case SECT_ACTOR_BLOCK:
                 {
                     // move the the next wall
-                    auto start_wall = actor->sector()->firstWall();
+                    auto start_wall = actor->sector()->walls.Data();
                     auto wall_num = start_wall;
 
                     // Travel all the way around loop setting wall bits

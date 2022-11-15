@@ -125,7 +125,7 @@ DEFINE_ACTION_FUNCTION(DLevelPostProcessor, SplitSector)
 
 	if (sectornum < sector.Size())
 	{
-		unsigned sectstart = wallindex(sector[sectornum].firstWall());
+		unsigned sectstart = wallindex(sector[sectornum].walls.Data());
 		if (firstwall >= sectstart && firstwall < sectstart + sector[sectornum].walls.Size() &&
 			secondwall >= sectstart && secondwall < sectstart + sector[sectornum].walls.Size())
 

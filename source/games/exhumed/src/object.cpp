@@ -381,7 +381,7 @@ void InitElev()
 
 DExhumedActor* BuildWallSprite(sectortype* pSector)
 {
-    auto wal = pSector->firstWall();
+    auto wal = pSector->walls.Data();
 
     auto pActor = insertActor(pSector, 401);
 

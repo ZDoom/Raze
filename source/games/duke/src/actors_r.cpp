@@ -230,7 +230,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 		{
 			if ((dasectp->ceilingz- actor->spr.pos.Z) < radius * 16) // what value range is this supposed to be? The check that was here did not multiply correctly
 			{
-				auto wal = dasectp->firstWall();
+				auto wal = dasectp->walls.Data();
 				double d = (wal->pos - actor->spr.pos.XY()).Sum();
 				if (d < radius)
 					fi.checkhitceiling(dasectp);
@@ -3848,8 +3848,8 @@ void destroyit(DDukeActor *actor)
 				auto destsect = spr->sector();
 				auto srcsect = it_sect;
 
-				auto destwal = destsect->firstWall();
-				auto srcwal = srcsect->firstWall();
+				auto destwal = destsect->walls.Data();
+				auto srcwal = srcsect->walls.Data();
 				for (unsigned i = 0; i < destsect->walls.Size(); i++, srcwal++, destwal++)
 				{
 					destwal->picnum = srcwal->picnum;

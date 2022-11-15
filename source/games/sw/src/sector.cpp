@@ -96,7 +96,7 @@ SPRING_BOARD SpringBoard[20];
 
 void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool set_nextwall)
 {
-    auto start_wall = sect->firstWall();
+    auto start_wall = sect->walls.Data();
     auto wall_num = start_wall;
 
     do

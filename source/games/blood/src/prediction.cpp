@@ -613,7 +613,7 @@ void fakeActProcessSprites(void)
 						speed = MulScale(speed, pXSector->busy, 16);
 				}
 				if (pSector->floorstat & 64)
-					angle = (GetWallAngle(pSector->firstWall()) + 512) & 2047;
+					angle = (GetWallAngle(pSector->walls.Data()) + 512) & 2047;
 				predict.xvel += MulScale(speed, Cos_(angle), 30);
 				predict.yvel += MulScale(speed, Sin_(angle), 30);
 			}

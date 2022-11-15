@@ -2530,7 +2530,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						pWall->allocX();
 						break;
 					case 2:
-						pWall->sectorp()->slopewallofs = max<int>(int(pWall - pWall->sectorp()->firstWall()), 0);
+						pWall->sectorp()->slopewallofs = max<int>(int(pWall - pWall->sectorp()->walls.Data()), 0);
 						break;
 				}
 			}

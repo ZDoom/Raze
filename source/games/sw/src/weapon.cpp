@@ -8319,7 +8319,7 @@ bool SlopeBounce(DSWActor* actor, bool* hit_wall)
         *hit_wall = false;
 
     // get angle of the first wall of the sector
-    auto wallp = hit_sector->firstWall();
+    auto wallp = hit_sector->walls.Data();
     DAngle daang = wallp->delta().Angle();
 
     // k is now the slope of the ceiling or floor

@@ -425,7 +425,7 @@ void fixSectors()
 	for(auto& sect: sector)
 	{
 		// Fix maps which do not set their wall index to the first wall of the sector. Lo Wang In Time's map 11 is such a case.
-		auto wp = sect.firstWall();
+		auto wp = sect.walls.Data();
 		// Note: we do not have the 'sector' index initialized here, it would not be helpful anyway for this fix.
 		while (wp != wall.Data() && wp[-1].twoSided() && wp[-1].nextWall()->nextWall() == &wp[-1] && wp[-1].nextWall()->nextSector() == &sect)
 		{
@@ -757,8 +757,8 @@ void setWallSectors()
 		auto sect = &sector[i];
 		auto nextsect = &sector[i + 1];
 
-		unsigned int sectstart = wallindex(sect->firstWall());
-		unsigned int nextsectstart = wallindex(sect->firstWall());
+		unsigned int sectstart = wallindex(sect->walls.Data());
+		unsigned int nextsectstart = wallindex(sect->walls.Data());
 
 		if (sectstart < nextsectstart && sectstart + sect->walls.Size() > nextsectstart)
 		{
@@ -784,7 +784,7 @@ void setWallSectors()
 			while (checkstart < checkend && belongs(checkstart, sectstart, checkstart, checkstart))
 				checkstart++;
 
-			sect->walls.Set(sect->firstWall(), checkstart - sectstart);
+			sect->walls.Set(sect->walls.Data(), checkstart - sectstart);
 
 			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsectstart + nextsect->walls.Size(), checkstart))
 				checkend--;
@@ -797,7 +797,7 @@ void setWallSectors()
 			{
 				// If there's a gap, assign to the first sector. In this case we may only guess.
 				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sectstart + sect->walls.Size(), nextsectstart - 1, i, i + 1);
-				sect->walls.Set(sect->firstWall(), nextsectstart - sectstart);
+				sect->walls.Set(sect->walls.Data(), nextsectstart - sectstart);
 			}
 		}
 	}

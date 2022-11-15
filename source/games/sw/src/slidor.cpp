@@ -431,7 +431,7 @@ int DoSlidorInstantClose(DSWActor* actor)
 {
     double diff;
 
-    auto startwall = actor->sector()->firstWall();
+    auto startwall = actor->sector()->walls.Data();
     auto wal = startwall;
 
     do

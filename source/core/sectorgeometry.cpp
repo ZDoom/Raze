@@ -63,7 +63,7 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 	if (plane == 1 && !(sector->ceilingstat & CSTAT_SECTOR_SLOPE)) return { 0.f, -1.f, 0.f };
 
 
-	auto wal = sector->firstWall();
+	auto wal = sector->walls.Data();
 	auto wal2 = wal->point2Wall();
 
 	pt[0] = { (float)wal->pos.X, 0.f, -(float)wal->pos.Y};
@@ -122,7 +122,7 @@ public:
 		myplane = plane;
 		offset = off;
 
-		auto firstwall = sec->firstWall();
+		auto firstwall = sec->walls.Data();
 		ix1 = firstwall->pos.X;
 		iy1 = firstwall->pos.Y;
 		ix2 = firstwall->point2Wall()->pos.X;

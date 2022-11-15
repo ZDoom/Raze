@@ -51,8 +51,8 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
     SECTOR_OBJECT* sop;
     sectortype* *sectp;
 
-    auto dwall = dest_sect->firstWall();
-    auto swall = src_sect->firstWall();
+    auto dwall = dest_sect->walls.Data();
+    auto swall = src_sect->walls.Data();
     auto firstwall = dwall;
 
     // this looks broken.

@@ -128,7 +128,7 @@ void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, 
 {
     *nSprite = nullptr;
 
-    auto startwall = pSector->firstWall();
+    auto startwall = pSector->walls.Data();
 
     int nWalls = pSector->walls.Size();
 

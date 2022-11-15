@@ -781,7 +781,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
 
     double nFloorZ = pSector->floorz;
 
-    walltype *pStartWall = pSector->firstWall();
+    walltype *pStartWall = pSector->walls.Data();
     sectortype* pNextSector = pStartWall->nextSector();
 
     BlockInfo *pBlockInfo = &sBlockInfo[nBlock];

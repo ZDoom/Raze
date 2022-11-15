@@ -1052,7 +1052,7 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 	switch (lLabelID)
 	{
 	case SECTOR_WALLPTR:
-		if (!bSet) SetGameVarID(lVar2, wallindex(sectp->firstWall()), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, wallindex(sectp->walls.Data()), sActor, sPlayer);
 		break;
 	case SECTOR_WALLNUM:
 		if (!bSet) SetGameVarID(lVar2, sectp->walls.Size(), sActor, sPlayer);
