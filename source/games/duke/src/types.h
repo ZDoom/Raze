@@ -370,6 +370,11 @@ struct player_struct
 	{
 		return PlayerNowPosition.XY();
 	}
+
+	void posZset(const double val)
+	{
+		PlayerNowPosition.Z = val;
+	}
 };
 
 struct Cycler

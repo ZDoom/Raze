@@ -2080,7 +2080,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 	if (p->PlayerNowPosition.Z < floorz - i) //falling
 	{
 		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->PlayerNowPosition.Z >= (floorz - i - 16))
-			p->PlayerNowPosition.Z = floorz - i;
+			p->posZset(floorz - i);
 		else
 		{
 			p->on_ground = 0;
@@ -2186,7 +2186,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 			p->PlayerNowPosition.Z += ((floorz - i * 0.5) - p->PlayerNowPosition.Z) * 0.5; //Smooth on the water
 			if (p->on_warping_sector == 0 && p->PlayerNowPosition.Z > floorz - 16)
 			{
-				p->PlayerNowPosition.Z = floorz - 16;
+				p->posZset(floorz - 16);
 				p->vel.Z *= 0.5;
 			}
 		}
@@ -2241,7 +2241,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
 		p->vel.Z = 0.5;
-		p->PlayerNowPosition.Z = ceilingz + 4;
+		p->posZset(ceilingz + 4);
 	}
 }
 
@@ -2303,7 +2303,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	if (p->PlayerNowPosition.Z < ceilingz + 4)
 	{
-		p->PlayerNowPosition.Z = ceilingz + 4;
+		p->posZset(ceilingz + 4);
 		p->vel.Z = 0;
 	}
 

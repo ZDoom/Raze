@@ -1257,8 +1257,8 @@ void movetransports_r(void)
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].PlayerNowPosition.Z = Owner->spr.pos.Z - 24;
-							else ps[p].PlayerNowPosition.Z = Owner->spr.pos.Z + 24;
+								ps[p].posZset(Owner->spr.pos.Z - 24);
+							else ps[p].posZset(Owner->spr.pos.Z + 24);
 							ps[p].backupz();
 
 							ChangeActorSect(act2, Owner->sector());
@@ -1274,7 +1274,7 @@ void movetransports_r(void)
 						if (onfloorz && sectlotag == 160 && ps[p].PlayerNowPosition.Z > sectp->floorz - 48)
 						{
 							k = 2;
-							ps[p].PlayerNowPosition.Z = Owner->sector()->ceilingz + 7;
+							ps[p].posZset(Owner->sector()->ceilingz + 7);
 							ps[p].backupz();
 						}
 
@@ -1282,7 +1282,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].PlayerNowPosition.Z = Owner->sector()->floorz - 49;
+							ps[p].posZset(Owner->sector()->floorz - 49);
 							ps[p].backupz();
 						}
 					}
@@ -1297,7 +1297,7 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].PlayerNowPosition.Z = Owner->sector()->ceilingz + 7;
+						ps[p].posZset(Owner->sector()->ceilingz + 7);
 						ps[p].backupz();
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
@@ -1313,7 +1313,7 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].PlayerNowPosition.Z = Owner->sector()->floorz - 7;
+						ps[p].posZset(Owner->sector()->floorz - 7);
 						ps[p].backupz();
 					}
 
