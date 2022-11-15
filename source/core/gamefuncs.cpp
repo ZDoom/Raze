@@ -1220,7 +1220,7 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 			// this must go both forward and backward so we cannot use iterators. Pity
 			for (unsigned i = 0; i < sec->walls.Size(); i++)
 			{
-				auto wal = direction > 0 ? &sec->walls[i] : &sec->walls[sec->walls.Size() - i];
+				auto wal = direction > 0 ? &sec->walls[i] : &sec->walls[sec->walls.Size() - 1 - i];
 
 				if (IsCloseToWall(pos.XY(), wal, walldist - 0.25) == EClose::InFront)
 				{
