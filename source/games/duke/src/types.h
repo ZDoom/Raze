@@ -422,6 +422,11 @@ struct player_struct
 	{
 		return PlayerOldPosition.Z;
 	}
+
+	void posoldAdd(const DVector3& val)
+	{
+		PlayerOldPosition += val;
+	}
 };
 
 struct Cycler
