@@ -949,7 +949,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 
 	if (gModernMap)
 	{
-		auto ptr = gSprNSect.GetSprPtr(sectnum(pSector));
+		auto ptr = gSprNSect.GetSprPtr(sectindex(pSector));
 		if (ptr)
 		{
 			for (auto& ac : *ptr)
@@ -997,7 +997,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR* pXSector, int a3, int a4)
 #ifdef NOONE_EXTENSIONS
 	// get pointer to sprites near outside walls before translation
 	///////////////////////////////////////////////////////////////
-	auto ptr1 = (gModernMap && (dfz || dcz))? gSprNSect.GetSprPtr(sectnum(pSector)) : nullptr;
+	auto ptr1 = (gModernMap && (dfz || dcz))? gSprNSect.GetSprPtr(sectindex(pSector)) : nullptr;
 #endif
 
 	if (dfz != 0)
@@ -2247,7 +2247,7 @@ static void UpdateBasePoints(sectortype* pSector)
 	if (gModernMap)
 	{
 		// must set basepoint for outside sprites as well
-		auto ptr1 = gSprNSect.GetSprPtr(sectnum(pSector));
+		auto ptr1 = gSprNSect.GetSprPtr(sectindex(pSector));
 		if (ptr1)
 		{
 			for (auto& ac : *ptr1)

@@ -324,7 +324,7 @@ Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
         c.setSprite(hit.actor());
     }
     if (hit.hitWall) {
-        c.setWall(wallnum(hit.hitWall));
+        c.setWall(wallindex(hit.hitWall));
     }
 
     return c;

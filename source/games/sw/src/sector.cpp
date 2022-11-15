@@ -224,7 +224,7 @@ void WallSetup(void)
             }
             else
             {
-                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallnum(&wal));
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallindex(&wal));
             }
             break;
         }
@@ -238,7 +238,7 @@ void WallSetup(void)
             }
             else
             {
-                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallnum(&wal));
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallindex(&wal));
             }
             wal.lotag = 0;
             break;
@@ -1939,7 +1939,7 @@ void TriggerSecret(sectortype* sectp, PLAYER* pp)
     if (pp == Player + myconnectindex)
         PlayerSound(DIGI_ANCIENTSECRET, v3df_dontpan | v3df_doppler | v3df_follow, pp);
 
-    SECRET_Trigger(sectnum(pp->cursector));
+    SECRET_Trigger(sectindex(pp->cursector));
 
     PutStringInfo(pp, GStrings("TXTS_SECRET"));
     // always give to the first player

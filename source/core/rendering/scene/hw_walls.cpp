@@ -923,7 +923,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 
 #ifdef _DEBUG
-	if (wallnum(wal) == 34)
+	if (wallindex(wal) == 34)
 	{
 		int a = 0;
 	}
@@ -955,7 +955,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 	if (gl_seamless)
 	{
-		auto v = &vertices[vertexMap[wallnum(wal)]];
+		auto v = &vertices[vertexMap[wallindex(wal)]];
 		if (v->dirty) v->RecalcVertexHeights();
 		v = &vertices[vertexMap[wal->point2]];
 		if (v->dirty) v->RecalcVertexHeights();

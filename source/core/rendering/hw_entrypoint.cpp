@@ -319,7 +319,7 @@ void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sector
 	ResetProfilingData();
 
 	// Get this before everything else
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum(sect), angle, horizon, rollang, fov);
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectindex(sect), angle, horizon, rollang, fov);
 	r_viewpoint.TicFrac = !cl_capfps ? interpfrac : 1.;
 
 	screen->mLights->Clear();
@@ -369,7 +369,7 @@ void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortyp
 	// now render the main view
 	float ratio = camtex->GetDisplayWidth() / camtex->GetDisplayHeight();
 
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum(sect), angle, horizon, rollang);
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectindex(sect), angle, horizon, rollang);
 	r_viewpoint.TicFrac = !cl_capfps ? interpfrac : 1.;
 
 	RenderViewpoint(r_viewpoint, &rect, r_viewpoint.FieldOfView.Degrees(), ratio, ratio, false, false);

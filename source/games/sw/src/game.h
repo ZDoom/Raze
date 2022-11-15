@@ -1612,7 +1612,7 @@ short AnimGetGoal(int animtype, int animindex, DSWActor*);
 int AnimSet(int animtype, int animindex, DSWActor* animactor, double thegoal, double thevel);
 int AnimSet(int animtype, sectortype* animindex, double thegoal, double thevel)
 {
-    return AnimSet(animtype, sectnum(animindex), nullptr, thegoal, thevel);
+    return AnimSet(animtype, sectindex(animindex), nullptr, thegoal, thevel);
 }
 
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECT* data);

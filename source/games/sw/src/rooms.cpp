@@ -919,7 +919,7 @@ void CollectPortals()
                 {
                     if (!wal.twoSided()) continue;
                     auto nsec = wal.nextSector();
-                    auto ns = sectnum(nsec);
+                    auto ns = sectindex(nsec);
                     if (floordone[ns] || nsec->floorpicnum != FAF_MIRROR_PIC) continue;
                     fp.sectors.Push(ns);
                     floordone.Set(ns);
@@ -937,7 +937,7 @@ void CollectPortals()
                 {
                     if (!wal.twoSided()) continue;
                     auto nsec = wal.nextSector();
-                    auto ns = sectnum(nsec);
+                    auto ns = sectindex(nsec);
                     if (ceilingdone[ns] || nsec->ceilingpicnum != FAF_MIRROR_PIC) continue;
                     fp.sectors.Push(ns);
                     ceilingdone.Set(ns);
@@ -964,7 +964,7 @@ void CollectPortals()
                     if (tsect != nullptr &&tsect->floorpicnum == FAF_MIRROR_PIC)
                     {
                         // got something!
-                        fp.othersector = sectnum(tsect);
+                        fp.othersector = sectindex(tsect);
                         fp.offset = tpos - actor->spr.pos;
                         goto nextfg;
                     }
@@ -991,7 +991,7 @@ void CollectPortals()
                     if (tsect != nullptr && tsect->ceilingpicnum == FAF_MIRROR_PIC)
                     {
                         // got something!
-                        fp.othersector = sectnum(tsect);
+                        fp.othersector = sectindex(tsect);
 						fp.offset = tpos - actor->spr.pos;
                         goto nextcg;
                     }

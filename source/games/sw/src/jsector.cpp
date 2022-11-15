@@ -359,7 +359,7 @@ void JS_InitMirrors(void)
                         if (!Found_Cam)
                         {
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
-                            Printf("wall(%d).hitag == %d\n", wallnum(&wal), wal.hitag);
+                            Printf("wall(%d).hitag == %d\n", wallindex(&wal), wal.hitag);
                             Printf("Map Coordinates: x = %d, y = %d\n", int(wal.pos.X), int(wal.pos.Y));
                             RESET_BOOL1(mirror[mirrorcnt].cameraActor);
                         }

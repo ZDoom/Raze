@@ -183,7 +183,7 @@ void sfxPlay3DSound(const DVector3& pos, int soundId, sectortype* pSector)
 	if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
 
 	auto chan = soundEngine->StartSound(SOURCE_Unattached, nullptr, &svec, -1, flags, sid, (0.8f / 80.f) * relvol, attenuation, nullptr, pitch / 65536.f);
-	if (chan) chan->UserData = sectnum(pSector);
+	if (chan) chan->UserData = sectindex(pSector);
 }
 
 //---------------------------------------------------------------------------

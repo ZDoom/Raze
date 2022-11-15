@@ -281,14 +281,14 @@ void so_addinterpolation(SECTOR_OBJECT* sop)
     {
         for (auto& wal : wallsofsector(*sectp))
         {
-            so_setpointinterpolation(interp, wallnum(&wal) | soi_wallx);
-            so_setpointinterpolation(interp, wallnum(&wal) | soi_wally);
+            so_setpointinterpolation(interp, wallindex(&wal) | soi_wallx);
+            so_setpointinterpolation(interp, wallindex(&wal) | soi_wally);
 
             if (wal.twoSided())
             {
                 auto nextWall = wal.nextWall()->point2Wall();
-                so_setpointinterpolation(interp, wallnum(nextWall) | soi_wallx);
-                so_setpointinterpolation(interp, wallnum(nextWall) | soi_wally);
+                so_setpointinterpolation(interp, wallindex(nextWall) | soi_wallx);
+                so_setpointinterpolation(interp, wallindex(nextWall) | soi_wally);
             }
         }
 
@@ -305,8 +305,8 @@ void so_addinterpolation(SECTOR_OBJECT* sop)
     if (!interp->hasvator)
         for (sectp = sop->sectp; *sectp; sectp++)
         {
-            so_setpointinterpolation(interp, sectnum(*sectp) | soi_floor);
-            so_setpointinterpolation(interp, sectnum(*sectp) | soi_ceil);
+            so_setpointinterpolation(interp, sectindex(*sectp) | soi_floor);
+            so_setpointinterpolation(interp, sectindex(*sectp) | soi_ceil);
         }
 
     // interpolate midpoint, for aiming at a remote controlled SO

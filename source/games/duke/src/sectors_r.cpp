@@ -2385,7 +2385,7 @@ void checksectors_r(int snum)
 		p->cursector->lotag = 0;
 		FTA(9, p);
 		p->secret_rooms++;
-		SECRET_Trigger(sectnum(p->cursector));
+		SECRET_Trigger(sectindex(p->cursector));
 		return;
 	case -1:
 		p->cursector->lotag = 0;

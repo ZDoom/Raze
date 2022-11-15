@@ -868,8 +868,8 @@ static void SpawnPortals()
 							s1->portalflags = PORTAL_SECTOR_FLOOR;
 							s2->portalflags = PORTAL_SECTOR_CEILING;
 							DVector2 diff = act->spr.pos.XY() - act2->spr.pos.XY();
-							s1->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), DVector3(-diff, hitag)); // uses delta.Z as temporary storage, not a real coordinate.
-							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), DVector3(diff, hitag));
+							s1->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectindex(s2), DVector3(-diff, hitag)); // uses delta.Z as temporary storage, not a real coordinate.
+							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectindex(s1), DVector3(diff, hitag));
 							processedTags.Push(act->spr.hitag);
 						}
 						else

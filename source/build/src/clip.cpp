@@ -571,7 +571,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     {
                         auto sectp = &sector[*sectnum];
                         updatesector(DVector2(pos->X * inttoworld, pos->Y * inttoworld), &sectp);
-                        *sectnum = sectp ? ::sectnum(sectp) : -1;
+                        *sectnum = sectp ? ::sectindex(sectp) : -1;
                     }
                     return clipReturn;
                 }
@@ -591,7 +591,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             DVector2 v(vec.X* inttoworld, vec.Y* inttoworld);
             sectortype* sect = &sector[*sectnum];
 			updatesector(v, &sect, rad * inttoworld);
-            *sectnum = ::sectnum(sect);
+            *sectnum = ::sectindex(sect);
 		}
 
         pos->X = vec.X;

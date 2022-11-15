@@ -421,7 +421,7 @@ void HWDrawInfo::CreateScene(bool portal)
 		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, vp.Pos, vp.RotAngle - a1, vp.RotAngle + a1);
 		else mDrawer.Init(this, mClipper, vp.Pos, 0, 0);
 
-		int drawsect = sectnum(drawsectp);
+		int drawsect = sectindex(drawsectp);
 		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
@@ -452,7 +452,7 @@ void HWDrawInfo::CreateScene(bool portal)
 
 		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, vp.Pos, vp.RotAngle - a1, vp.RotAngle + a1);
 		else mDrawer.Init(this, mClipper, vp.Pos, 0, 0);
-		drawsect = sectnum(drawsectp);
+		drawsect = sectindex(drawsectp);
 		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)

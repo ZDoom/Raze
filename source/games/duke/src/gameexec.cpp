@@ -102,7 +102,7 @@ sectortype* toSect(int index)
 
 int fromSect(sectortype* sect)
 {
-	return sect ? sectnum(sect) : -1;
+	return sect ? sectindex(sect) : -1;
 }
 
 walltype* toWall(int index)
@@ -112,7 +112,7 @@ walltype* toWall(int index)
 
 int fromWall(walltype* sect)
 {
-	return sect ? wallnum(sect) : -1;
+	return sect ? wallindex(sect) : -1;
 }
 
 static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)

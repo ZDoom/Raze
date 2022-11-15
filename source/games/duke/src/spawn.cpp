@@ -53,7 +53,7 @@ BEGIN_DUKE_NS
 DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor* clstype, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
 {
 	// sector pointer must be strictly validated here or the engine will crash.
-	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
+	if (whatsectp == nullptr || !validSectorIndex(sectindex(whatsectp))) return nullptr;
 	// spawning out of range sprites will also crash.
 	if (clstype == nullptr && (s_pn < 0 || s_pn >= MAXTILES)) return nullptr;
 
@@ -917,7 +917,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				}
 
 				actor->SetOwner(nullptr);
-				actor->temp_data[0] = sectnum(s);
+				actor->temp_data[0] = sectindex(s);
 
 				if (actor->spr.lotag != SE_30_TWO_WAY_TRAIN)
 					actor->temp_data[3] = actor->spr.hitag;

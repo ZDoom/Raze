@@ -129,7 +129,7 @@ void SPRINSECT::Init(double nDist)
             pEntry.pActors.Resize(collected.Size());
             for (unsigned ii = 0; ii < collected.Size(); ii++)
                 pEntry.pActors[ii] = collected[ii];
-            pEntry.nSector = sectnum(&sect);
+            pEntry.nSector = sectindex(&sect);
         }
     }
 }

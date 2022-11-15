@@ -44,8 +44,8 @@ public:
 	EventObject() = default;
 	explicit EventObject(std::nullptr_t) { index = -1; }
 	explicit EventObject(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); }
-	explicit EventObject(sectortype* sect) { index = (sectnum(sect) << 8) | Sector; }
-	explicit EventObject(walltype* wall) { index = (wallnum(wall) << 8) | Wall; }
+	explicit EventObject(sectortype* sect) { index = (sectindex(sect) << 8) | Sector; }
+	explicit EventObject(walltype* wall) { index = (wallindex(wall) << 8) | Wall; }
 
 	bool isActor() const { return (index & 7) == Actor; }
 	bool isSector() const { return (index & 7) == Sector; }

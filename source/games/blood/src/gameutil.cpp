@@ -547,7 +547,7 @@ BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int n
 
 	BitArray sectorMap(sector.Size()); // this gets returned to the caller.
 	sectorMap.Zero();
-	sectorMap.Set(sectnum(pSector));
+	sectorMap.Set(sectindex(pSector));
 	double nDist4sq = nDist * nDist;    // (nDist * 16)^2 - * 16 to account for Build's 28.4 fixed point format.
 
 	BFSSectorSearch search(pSector);
@@ -573,7 +573,7 @@ BitArray GetClosestSpriteSectors(sectortype* pSector, const DVector2& pos, int n
 			}
 			if (withinRange) // if new sector is within range, add it to the processing queue
 			{
-				sectorMap.Set(sectnum(pNextSector));
+				sectorMap.Set(sectindex(pNextSector));
 				search.Add(pNextSector);
 				if (pWalls && wal.hasX())
 				{

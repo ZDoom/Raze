@@ -41,7 +41,7 @@ EXTERN_CVAR(Bool, gl_seamless)
 void HWWall::SplitLeftEdge(FFlatVertex *&ptr)
 {
 	if (seg == nullptr) return;
-	vertex_t* vi = &vertices[vertexMap[wallnum(seg)]];
+	vertex_t* vi = &vertices[vertexMap[wallindex(seg)]];
 
 	if (vi->numheights)
 	{
@@ -129,7 +129,7 @@ int HWWall::CreateVertices(FFlatVertex *&ptr, bool split)
 
 void HWWall::CountLeftEdge(unsigned &ptr)
 {
-	vertex_t* vi = &vertices[vertexMap[wallnum(seg)]];
+	vertex_t* vi = &vertices[vertexMap[wallindex(seg)]];
 
 	if (vi->numheights)
 	{

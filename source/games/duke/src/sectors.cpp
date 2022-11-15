@@ -413,7 +413,7 @@ int getanimationindex(int animtype, sectortype* animtargetp)
 	int i, j;
 
 	j = -1;
-	int animtarget = sectnum(animtargetp);
+	int animtarget = sectindex(animtargetp);
 	for (i = animates.Size() - 1; i >= 0; i--)
 		if (animtype == animates[i].type && animtarget == animates[i].target)
 		{
@@ -459,13 +459,13 @@ static int dosetanimation(sectortype* animsect, int animtype, int animtarget, do
 int setanimation(sectortype* animsect, int animtype, walltype* animtarget, double thegoal, double thevel)
 {
 	assert(animtype == anim_vertexx || animtype == anim_vertexy);
-	return dosetanimation(animsect, animtype, wallnum(animtarget), thegoal, thevel);
+	return dosetanimation(animsect, animtype, wallindex(animtarget), thegoal, thevel);
 }
 
 int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, double thegoal, double thevel)
 {
 	assert(animtype == anim_ceilingz || animtype == anim_floorz);
-	return dosetanimation(animsect, animtype, sectnum(animtarget), thegoal, thevel);
+	return dosetanimation(animsect, animtype, sectindex(animtarget), thegoal, thevel);
 }
 
 //---------------------------------------------------------------------------
@@ -712,7 +712,7 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 		{
 			act2->sector()->extra = -act2->sector()->extra;
 
-			act2->temp_data[0] = sectnum(sptr);
+			act2->temp_data[0] = sectindex(sptr);
 			act2->temp_data[1] = 1;
 		}
 	}

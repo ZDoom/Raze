@@ -2746,7 +2746,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
                 if ((hit.hitpos.XY() - hitpos.XY()).LengthSquared() < 50 * 50)
                 {
                     if (hit.hitWall)
-                        actor->user.coll.setWall(wallnum(hit.hitWall));
+                        actor->user.coll.setWall(wallindex(hit.hitWall));
                     else if (hit.actor())
                         actor->user.coll.setSprite(hit.actor());
                     else

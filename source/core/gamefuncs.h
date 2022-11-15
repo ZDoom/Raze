@@ -474,12 +474,12 @@ inline TArrayView<walltype> wallsofsector(int sec)
 }
 
 // these are mainly meant as refactoring aids to mark function calls to work on.
-inline int wallnum(const walltype* wal)
+inline int wallindex(const walltype* wal)
 {
 	return wall.IndexOf(wal);
 }
 
-inline int sectnum(const sectortype* sect)
+inline int sectindex(const sectortype* sect)
 {
 	return sector.IndexOf(sect);
 }

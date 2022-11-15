@@ -271,7 +271,7 @@ void MarkSectorSeen(sectortype* sec)
 {
 	if (sec) 
 	{
-		show2dsector.Set(sectnum(sec));
+		show2dsector.Set(sectindex(sec));
 		for (auto& wal : wallsofsector(sec))
 		{
 			if (!wal.twoSided()) continue;
@@ -281,7 +281,7 @@ void MarkSectorSeen(sectortype* sec)
 			auto osec = wal.nextSector();
 			if (osec->lotag == 32767) continue;
 			if (osec->ceilingz >= osec->floorz) continue;
-			show2dsector.Set(sectnum(osec));
+			show2dsector.Set(sectindex(osec));
 		}
 	}
 }
@@ -404,7 +404,7 @@ static void drawredlines(const DVector2& cpos, const DVector2& cangvect, const D
 			if (osec->ceilingz == z1 && osec->floorz == z2)
 				if (((wal.cstat | wal.nextWall()->cstat) & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == 0) continue;
 
-			if (ShowRedLine(wallnum(&wal), i))
+			if (ShowRedLine(wallindex(&wal), i))
 			{
 				auto v1 = OutAutomapVector(wal.pos - cpos, cangvect, gZoom, xydim);
 				auto v2 = OutAutomapVector(wal.point2Wall()->pos - cpos, cangvect, gZoom, xydim);
@@ -431,7 +431,7 @@ static void drawwhitelines(const DVector2& cpos, const DVector2& cangvect, const
 			if (wal.nextwall >= 0) continue;
 			if (!gFullMap && !tileGetTexture(wal.picnum)->isValid()) continue;
 
-			if (isSWALL() && !gFullMap && !show2dwall[wallnum(&wal)])
+			if (isSWALL() && !gFullMap && !show2dwall[wallindex(&wal)])
 				continue;
 
 			auto v1 = OutAutomapVector(wal.pos - cpos, cangvect, gZoom, xydim);

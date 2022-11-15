@@ -2051,7 +2051,7 @@ void CallbackSOsink(ANIM* ap, void *data)
 
     for (i = 0; sop->sectp[i] != nullptr; i++)
     {
-        if (ap->animtype == ANIM_Floorz && ap->animindex == sectnum(sop->sectp[i]))
+        if (ap->animtype == ANIM_Floorz && ap->animindex == sectindex(sop->sectp[i]))
         {
             destsect = sop->sectp[i];
             break;

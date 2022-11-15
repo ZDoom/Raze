@@ -281,7 +281,7 @@ void validateSprite(spritetype& spri, int sectnum, int index)
 		updatesector(pos.XY(), &sectp);
 		bugged = sectp == nullptr;
 
-		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%.0f,%.0f) with invalid sector %d was corrected to sector %d\n", index, pos.X, pos.Y, sectnum, ::sectnum(sectp)))
+		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%.0f,%.0f) with invalid sector %d was corrected to sector %d\n", index, pos.X, pos.Y, sectnum, ::sectindex(sectp)))
 		{
 			if (bugged) Printf("Sprite #%d (%.0f,%.0f) with invalid sector %d\n", index, pos.X, pos.Y, sectnum);
 		}
@@ -445,12 +445,12 @@ void validateStartSector(const char* filename, const DVector3& pos, sectortype**
 		if (!sect) updatesector(pos, &sect);
 		if (sect || noabort)
 		{
-			Printf(PRINT_HIGH, "Error in map %s: Start sector %d out of range. Max. sector is %d\n", filename, sectnum(*cursect), numsectors);
+			Printf(PRINT_HIGH, "Error in map %s: Start sector %d out of range. Max. sector is %d\n", filename, sectindex(*cursect), numsectors);
 			*cursect = sect? sect : &sector[0];
 		}
 		else
 		{
-			I_Error("Unable to start map %s: Start sector %d out of range. Max. sector is %d. No valid location at start spot\n", filename, sectnum(*cursect), numsectors);
+			I_Error("Unable to start map %s: Start sector %d out of range. Max. sector is %d. No valid location at start spot\n", filename, sectindex(*cursect), numsectors);
 		}
 	}
 

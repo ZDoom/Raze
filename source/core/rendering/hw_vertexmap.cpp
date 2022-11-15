@@ -67,7 +67,7 @@ void CreateVertexMap()
 
 		vertexscan(&wall[i], [&](walltype* wal)
 			{
-				int w = wallnum(wal);
+				int w = wallindex(wal);
 				if (processed[w]) return;	// broken wall setups can trigger this.
 				walls.Push(w);
 				processed.Set(w);

@@ -475,7 +475,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			if (dist == 0)
 			{
 				// Oh no, we got an incomplete definition.
-				if (sectnum(sectp) == 534 && currentLevel->levelNumber == 2007) // fix for bug in RR E2L7 Beaudry Mansion.
+				if (sectindex(sectp) == 534 && currentLevel->levelNumber == 2007) // fix for bug in RR E2L7 Beaudry Mansion.
 				{
 					dist = 48;
 					speed = 32;
