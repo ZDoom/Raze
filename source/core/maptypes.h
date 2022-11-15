@@ -251,7 +251,6 @@ struct walltype
 
 	// extensions not from the binary map format.
 	angle_t clipangle;
-	double length; // cached value to avoid calling sqrt repeatedly.
 
 	uint16_t portalnum;
 	uint8_t portalflags;
@@ -260,6 +259,7 @@ struct walltype
 	// Blood is the only game which extends the wall struct.
 	Blood::XWALL* _xw;
 	DVector2 baseWall;
+	double length; // cached value to avoid calling sqrt repeatedly.
 
 	int xpan() const { return int(xpan_); }
 	int ypan() const { return int(ypan_); }
