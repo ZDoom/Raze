@@ -211,7 +211,7 @@ double hitawall(player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->PlayerNowPosition, p->cursector, DVector3(p->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK0);
+	hitscan(p->posGet(), p->cursector, DVector3(p->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
 	return (hit.hitpos.XY() - p->posXY()).Length();
@@ -248,7 +248,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 				setFreeAimVelocity(vel, zvel, plr->horizon.sum(), 16.);
 
 				HitInfo hit{};
-				hitscan(plr->PlayerNowPosition.plusZ(4), actor->sector(), DVector3(actor->spr.angle.ToVector() * vel, zvel), hit, CLIPMASK1);
+				hitscan(plr->posGet().plusZ(4), actor->sector(), DVector3(actor->spr.angle.ToVector() * vel, zvel), hit, CLIPMASK1);
 
 				if (hit.actor() != nullptr)
 				{
@@ -378,7 +378,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->horizon.addadjustment(deltaangle(p->horizon.horiz, (p->PlayerNowPosition - p->actorsqu->spr.pos).Pitch() * 1.1875));
+		p->horizon.addadjustment(deltaangle(p->horizon.horiz, (p->posGet() - p->actorsqu->spr.pos).Pitch() * 1.1875));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -625,7 +625,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	p->horizon.horizoff = p->horizon.horiz = nullAngle;
 
-	updatesector(p->PlayerNowPosition, &p->cursector);
+	updatesector(p->posGet(), &p->cursector);
 
 	pushmove(p->posXY(), p->posZget(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	

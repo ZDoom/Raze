@@ -57,7 +57,7 @@ BEGIN_DUKE_NS
 
 std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
-	return std::make_pair(ps[screenpeek].PlayerNowPosition, ps[screenpeek].angle.ang);
+	return std::make_pair(ps[screenpeek].posGet(), ps[screenpeek].angle.ang);
 }
 
 GameStats GameInterface::getStats()
@@ -271,7 +271,7 @@ void drawoverlays(double interpfrac)
 				}
 				else
 				{
-					cposxy = interpolatedvalue(pp->PlayerOldPosition, pp->PlayerNowPosition, interpfrac).XY();
+					cposxy = interpolatedvalue(pp->PlayerOldPosition, pp->posGet(), interpfrac).XY();
 					cang = !SyncInput() ? pp->angle.ang : interpolatedvalue(pp->angle.oang, pp->angle.ang, interpfrac);
 				}
 			}

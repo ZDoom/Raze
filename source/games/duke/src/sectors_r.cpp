@@ -1367,7 +1367,7 @@ void checkplayerhurt_r(player_struct* p, const Collision &coll)
 	{
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), wal, p->PlayerNowPosition + p->angle.ang.ToVector() * 2, -1);
+		fi.checkhitwall(p->GetActor(), wal, p->posGet() + p->angle.ang.ToVector() * 2, -1);
 		break;
 
 	}
@@ -1546,7 +1546,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 				ps[p].newOwner = nullptr;
 				ps[p].restorexyz();
 
-				updatesector(ps[p].PlayerNowPosition, &ps[p].cursector);
+				updatesector(ps[p].posGet(), &ps[p].cursector);
 
 				DukeStatIterator it(STAT_EFFECTOR);
 				while (auto act = it.Next())
@@ -2462,21 +2462,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->PlayerNowPosition, p->GetActor()->sector(), p->angle.oang, near , 80., NT_Lotag | NT_Hitag);
+			neartag(p->posGet(), p->GetActor()->sector(), p->angle.oang, near , 80., NT_Lotag | NT_Hitag);
 		}
 
 		if (p->newOwner != nullptr)
 			neartag(p->PlayerOldPosition, p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 		else
 		{
-			neartag(p->PlayerNowPosition, p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
+			neartag(p->posGet(), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->PlayerNowPosition.plusZ(8), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
+				neartag(p->posGet().plusZ(8), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->PlayerNowPosition.plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
+				neartag(p->posGet().plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag(p->PlayerNowPosition.plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag | NT_Hitag);
+				neartag(p->posGet().plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)

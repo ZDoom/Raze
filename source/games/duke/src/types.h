@@ -396,6 +396,10 @@ struct player_struct
 	{
 		PlayerNowPosition.XY() += val;
 	}
+	DVector3 posGet()
+	{
+		return PlayerNowPosition;
+	}
 };
 
 struct Cycler

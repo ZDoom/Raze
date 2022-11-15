@@ -144,7 +144,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		auto pp = &ps[h->PlayerIndex()];
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && pp->newOwner == nullptr && h->GetOwner())
 		{
-			t->pos = interpolatedvalue(pp->PlayerOldPosition, pp->PlayerNowPosition, interpfrac).plusZ(gs.playerheight);
+			t->pos = interpolatedvalue(pp->PlayerOldPosition, pp->posGet(), interpfrac).plusZ(gs.playerheight);
 			h->spr.scale = DVector2(0.375, 0.265625);
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
