@@ -350,6 +350,7 @@ struct sectortype
 	int getceilingslope() const { return ceilingstat & CSTAT_SECTOR_SLOPE ? ceilingheinum : 0; }
 	walltype* firstWall() const;
 	walltype* lastWall() const;
+	int wall_index() const { return wallptr; }
 	int wall_count() const { return wallnum; }
 
 

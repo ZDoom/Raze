@@ -223,7 +223,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 	int count = 0;
 	for (unsigned i = 0; i < sector.Size(); i++)
 	{
-		int first = sector[i].wallptr;
+		int first = sector[i].wall_index();
 		int last = first + sector[i].wall_count();
 		sectors.Reserve(1);
 		sectors.Last().bugged = 0;

@@ -421,7 +421,7 @@ void fixSectors()
 {
 	for(auto& sect: sector)
 	{
-		// Fix maps which do not set their wallptr to the first wall of the sector. Lo Wang In Time's map 11 is such a case.
+		// Fix maps which do not set their wall index to the first wall of the sector. Lo Wang In Time's map 11 is such a case.
 		auto wp = sect.firstWall();
 		// Note: we do not have the 'sector' index initialized here, it would not be helpful anyway for this fix.
 		while (wp != wall.Data() && wp[-1].twoSided() && wp[-1].nextWall()->nextWall() == &wp[-1] && wp[-1].nextWall()->nextSector() == &sect)
@@ -755,11 +755,11 @@ void setWallSectors()
 		auto sect = &sector[i];
 		auto nextsect = &sector[i + 1];
 
-		if (sect->wallptr < nextsect->wallptr && sect->wallptr + sect->wall_count() > nextsect->wallptr)
+		if (sect->wall_index() < nextsect->wall_index() && sect->wall_index() + sect->wall_count() > nextsect->wall_index())
 		{
 			// We have overlapping wall ranges for two sectors. Do some analysis to see where these walls belong
-			int checkstart = nextsect->wallptr;
-			int checkend = sect->wallptr + sect->wall_count();
+			int checkstart = nextsect->wall_index();
+			int checkend = sect->wall_index() + sect->wall_count();
 
 			// for now assign the walls to the first sector. Final decisions are made below.
 			nextsect->wallnum -= checkend - checkstart;
@@ -776,22 +776,22 @@ void setWallSectors()
 					}
 				return refok && point2ok;
 			};
-			while (checkstart < checkend && belongs(checkstart, sect->wallptr, checkstart, checkstart))
+			while (checkstart < checkend && belongs(checkstart, sect->wall_index(), checkstart, checkstart))
 				checkstart++;
 
-			sect->wallnum = checkstart - sect->wallptr;
+			sect->wallnum = checkstart - sect->wall_index();
 
-			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsect->wallptr + nextsect->wall_count(), checkstart))
+			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsect->wall_index() + nextsect->wall_count(), checkstart))
 				checkend--;
 
-			nextsect->wallnum += nextsect->wallptr - checkend;
+			nextsect->wallnum += nextsect->wall_index() - checkend;
 			nextsect->wallptr = checkend;
 
-			if (nextsect->wallptr > sect->wallptr + sect->wall_count())
+			if (nextsect->wall_index() > sect->wall_index() + sect->wall_count())
 			{
 				// If there's a gap, assign to the first sector. In this case we may only guess.
-				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sect->wallptr + sect->wall_count(), nextsect->wallptr - 1, i, i + 1);
-				sect->wallnum = nextsect->wallptr - sect->wallptr;
+				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sect->wall_index() + sect->wall_count(), nextsect->wall_index() - 1, i, i + 1);
+				sect->wallnum = nextsect->wall_index() - sect->wall_index();
 			}
 		}
 	}
