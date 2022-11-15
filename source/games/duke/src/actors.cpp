@@ -3001,7 +3001,7 @@ void handle_se17(DDukeActor* actor)
 			ps[p].truefz += q;
 			ps[p].truecz += q;
 		}
-		if (act1->spr.statnum != STAT_EFFECTOR)
+		if (act1->spr.statnum != STAT_EFFECTOR && act1->spr.statnum != STAT_PLAYER)
 		{
 			act1->spr.pos.Z += q;
 		}
