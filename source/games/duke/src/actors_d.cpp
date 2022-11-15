@@ -1346,7 +1346,7 @@ void movetransports_d(void)
 							}
 
 							ps[p].posSet(Owner->spr.pos.plusZ(-gs.playerheight));
-							ps[p].backupxyz();
+							ps[p].GetActor()->backuppos();
 							ps[p].setbobpos();
 
 							ChangeActorSect(act2, Owner->sector());

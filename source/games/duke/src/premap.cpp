@@ -70,7 +70,7 @@ void pickrandomspot(int snum)
 	else i = snum;
 
 	p->GetActor()->spr.pos = po[i].opos;
-	p->backupxyz();
+	p->GetActor()->backuppos();
 	p->setbobpos();
 	p->angle.oang = p->angle.ang = po[i].oa;
 	p->setCursector(po[i].os);

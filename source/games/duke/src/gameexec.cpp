@@ -2231,7 +2231,7 @@ int ParseState::parse(void)
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
 			g_ac->spr.pos = ps[g_p].posGet();
-			ps[g_p].backupxyz();
+			ps[g_p].GetActor()->backuppos();
 			ps[g_p].setbobpos();
 			g_ac->backuppos();
 			updatesector(ps[g_p].posGet(), &ps[g_p].cursector);

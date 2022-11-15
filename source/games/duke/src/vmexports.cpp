@@ -690,7 +690,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backuppos, dukeplayer_backuppos)
 
 void dukeplayer_backupxyz(player_struct* self)
 {
-	self->backupxyz();
+	self->GetActor()->backuppos();
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backupxyz, dukeplayer_backupxyz)

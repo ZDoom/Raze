@@ -1234,7 +1234,7 @@ void movetransports_r(void)
 							}
 
 							ps[p].posSet(Owner->spr.pos.plusZ(-gs.playerheight + 4));
-							ps[p].backupxyz();
+							ps[p].GetActor()->backuppos();
 							ps[p].setbobpos();
 
 							ChangeActorSect(act2, Owner->sector());
@@ -2050,7 +2050,7 @@ void rr_specialstats()
 					{
 						ps[p].angle.ang = act2->spr.angle;
 						ps[p].posSet(act2->spr.pos.plusZ(-36));
-						ps[p].backupxyz();
+						ps[p].GetActor()->backuppos();
 						ps[p].setbobpos();
 						auto pact = ps[p].GetActor();
 						ChangeActorSect(pact, act2->sector());

@@ -116,7 +116,7 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 	player_struct* p = &ps[myconnectindex];
 
 	p->posSet(DVector3(x, y, z));
-	p->backupxyz();
+	p->GetActor()->backuppos();
 
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{

@@ -3889,7 +3889,7 @@ HORIZONLY:
 				if (!retry++)
 				{
 					p->posSet(oldpos);
-					p->backupxyz();
+					p->GetActor()->backuppos();
 					continue;
 				}
 				quickkill(p);
