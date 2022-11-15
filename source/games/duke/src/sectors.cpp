@@ -537,8 +537,8 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 		dax += wal.pos.X;
 		day += wal.pos.Y;
 	}
-	dax /= sptr->wall_count();
-	day /= sptr->wall_count();
+	dax /= sptr->walls.Size();
+	day /= sptr->walls.Size();
 
 	//find any points with either same x or same y coordinate
 	//  as center (dax, day) - should be 2 points found.
@@ -560,7 +560,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 		//find what direction door should open by averaging the
 		//  2 neighboring points of wallfind[0] & wallfind[1].
 		auto prevwall = wal - 1;
-		if (prevwall < sptr->firstWall()) prevwall += sptr->wall_count();
+		if (prevwall < sptr->firstWall()) prevwall += sptr->walls.Size();
 
 		if ((wal->pos.X == dax) && (wal->pos.Y == day))
 		{
@@ -1117,7 +1117,7 @@ void operateactivators(int low, int plnum)
 
 			sect->floorshade = sect->ceilingshade = (int8_t)p->shade2;
 			wal = sect->firstWall();
-			for (j = sect->wall_count(); j > 0; j--, wal++)
+			for (j = sect->walls.Size(); j > 0; j--, wal++)
 				wal->shade = (int8_t)p->shade2;
 		}
 	}

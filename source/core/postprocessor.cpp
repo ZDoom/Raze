@@ -120,14 +120,14 @@ DEFINE_ACTION_FUNCTION(DLevelPostProcessor, SplitSector)
 {
 	PARAM_SELF_PROLOGUE(DLevelPostProcessor);
 	PARAM_UINT(sectornum);
-	PARAM_INT(firstwall);
-	PARAM_INT(secondwall);
+	PARAM_UINT(firstwall);
+	PARAM_UINT(secondwall);
 
 	if (sectornum < sector.Size())
 	{
-		int sectstart = wallindex(sector[sectornum].firstWall());
-		if (firstwall >= sectstart && firstwall < sectstart + sector[sectornum].wall_count() &&
-			secondwall >= sectstart && secondwall < sectstart + sector[sectornum].wall_count())
+		unsigned sectstart = wallindex(sector[sectornum].firstWall());
+		if (firstwall >= sectstart && firstwall < sectstart + sector[sectornum].walls.Size() &&
+			secondwall >= sectstart && secondwall < sectstart + sector[sectornum].walls.Size())
 
 			hw_SetSplitSector(sectornum, firstwall, secondwall);
 	}

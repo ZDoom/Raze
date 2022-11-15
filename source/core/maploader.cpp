@@ -757,14 +757,14 @@ void setWallSectors()
 		auto sect = &sector[i];
 		auto nextsect = &sector[i + 1];
 
-		int sectstart = wallindex(sect->firstWall());
-		int nextsectstart = wallindex(sect->firstWall());
+		unsigned int sectstart = wallindex(sect->firstWall());
+		unsigned int nextsectstart = wallindex(sect->firstWall());
 
-		if (sectstart < nextsectstart && sectstart + sect->wall_count() > nextsectstart)
+		if (sectstart < nextsectstart && sectstart + sect->walls.Size() > nextsectstart)
 		{
 			// We have overlapping wall ranges for two sectors. Do some analysis to see where these walls belong
 			int checkstart = nextsectstart;
-			int checkend = sectstart + sect->wall_count();
+			int checkend = sectstart + sect->walls.Size();
 
 			// for now assign the walls to the first sector. Final decisions are made below.
 			nextsectstart = checkend;
@@ -786,17 +786,17 @@ void setWallSectors()
 
 			sect->walls.Set(sect->firstWall(), checkstart - sectstart);
 
-			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsectstart + nextsect->wall_count(), checkstart))
+			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsectstart + nextsect->walls.Size(), checkstart))
 				checkend--;
 
 			int cnt = nextsect->walls.Size() - (nextsectstart - checkend);
 			nextsectstart = checkend;
 			nextsect->walls.Set(&wall[nextsectstart], cnt);
 
-			if (nextsectstart > sectstart + sect->wall_count())
+			if (nextsectstart > sectstart + sect->walls.Size())
 			{
 				// If there's a gap, assign to the first sector. In this case we may only guess.
-				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sectstart + sect->wall_count(), nextsectstart - 1, i, i + 1);
+				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sectstart + sect->walls.Size(), nextsectstart - 1, i, i + 1);
 				sect->walls.Set(sect->firstWall(), nextsectstart - sectstart);
 			}
 		}

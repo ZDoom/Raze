@@ -723,7 +723,7 @@ void CreatePushBlock(sectortype* pSector)
         sum += wal.pos;
     }
 
-    DVector2 avg = sum / pSector->wall_count();
+    DVector2 avg = sum / pSector->walls.Size();
 
     sBlockInfo[nBlock].pos = avg;
 

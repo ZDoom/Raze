@@ -2193,7 +2193,7 @@ void SpriteSetup(void)
                     actor->user.rotator->vel = SP_TAG8(actor);
                     actor->user.rotator->pos = 0; // closed
                     actor->user.rotator->tgt = actor->user.rotator->open_dest; // closed
-                    actor->user.rotator->SetNumWalls(actor->sector()->wall_count());
+                    actor->user.rotator->SetNumWalls(actor->sector()->walls.Size());
 
                     actor->user.rotator->orig_speed = actor->user.rotator->speed;
 

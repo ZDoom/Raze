@@ -1627,7 +1627,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 
     auto pActor = insertActor(pSector, 406);
 
-	pActor->spr.pos.XY() = apos / pSector->wall_count();
+	pActor->spr.pos.XY() = apos / pSector->walls.Size();
 
     pSector->extra = (int16_t)EnergyBlocks.Push(pActor);
 

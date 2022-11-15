@@ -465,7 +465,7 @@ inline int I_GetBuildTime()
 
 inline TArrayView<walltype> wallsofsector(const sectortype* sec)
 {
-	return TArrayView<walltype>(sec->firstWall(), sec->wall_count());
+	return TArrayView<walltype>(sec->firstWall(), sec->walls.Size());
 }
 
 inline TArrayView<walltype> wallsofsector(int sec)
