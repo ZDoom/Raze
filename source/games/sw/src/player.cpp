@@ -1312,7 +1312,8 @@ void DoPlayerTeleportPause(PLAYER* pp)
 void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
     pp->angle.ang = pp->angle.oang = ang;
-	pp->PlayerPrevPosition = pp->PlayerNowPosition= pos.plusZ(-PLAYER_HEIGHTF);
+    pp->posSet(pos.plusZ(-PLAYER_HEIGHTF));
+	pp->PlayerPrevPosition = pos.plusZ(-PLAYER_HEIGHTF);
 	pp->PlayerOldPosition.XY() = pp->posXY();
 
     updatesector(pp->PlayerNowPosition, &pp->cursector);
@@ -2050,7 +2051,7 @@ void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
     {
-        pp->PlayerNowPosition = pp->PlayerOldPosition;
+        pp->posSet(pp->PlayerOldPosition);
         pp->cursector = pp->lastcursector;
     }
 }
@@ -5406,7 +5407,7 @@ void RemoteToPlayer(PLAYER* pp)
     pp->setcursector(pp->remote.cursectp);
     pp->lastcursector = pp->remote.lastcursectp;
 
-    pp->PlayerNowPosition = pp->remote.pos;
+    pp->posSet(pp->remote.pos);
 
     pp->vect = pp->remote.vect;
     pp->ovect = pp->remote.ovect;
@@ -7173,7 +7174,8 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->PlayerNowPosition = pp->PlayerPrevPosition = pfirst->PlayerNowPosition;
+        pp->posSet(pfirst->PlayerNowPosition);
+        pp->PlayerPrevPosition = pfirst->PlayerNowPosition;
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
         pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursector = pfirst->cursector;
@@ -7333,7 +7335,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->PlayerNowPosition = spawn_sprite->spr.pos;
+    pp->posSet(spawn_sprite->spr.pos);
     pp->PlayerPrevPosition = pp->PlayerNowPosition;
     pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());

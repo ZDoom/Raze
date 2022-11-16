@@ -56,7 +56,7 @@ BEGIN_SW_NS
 
 void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
-    Player->PlayerNowPosition = DVector3(x,y,z);
+    Player->posSet(DVector3(x,y,z));
 
     Player->PlayerPrevPosition = Player->PlayerNowPosition;
 

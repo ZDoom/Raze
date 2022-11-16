@@ -732,6 +732,11 @@ struct PLAYER
     {
         return PlayerNowPosition.Z;
     }
+
+    void posSet(const DVector3& val)
+    {
+        PlayerNowPosition = val;
+    }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
