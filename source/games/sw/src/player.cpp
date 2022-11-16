@@ -1328,7 +1328,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 
 void DoPlayerTeleportToOffset(PLAYER* pp)
 {
-    pp->PlayerOldPosition.XY() = pp->PlayerPrevPosition.XY() = pp->posXY();
+    pp->PlayerOldPosition.XY() = pp->posprevXY() = pp->posXY();
 
     updatesector(pp->posGet(), &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
@@ -2167,7 +2167,7 @@ void DoPlayerMove(PLAYER* pp)
         auto sect = pp->cursector;
         if (interpolate_ride)
         {
-            pp->PlayerPrevPosition.XY() = pp->posXY();
+            pp->posprevXY() = pp->posXY();
         }
 		pp->posAdd(pp->vect);
         updatesector(pp->posGet(), &sect);
@@ -2192,7 +2192,7 @@ void DoPlayerMove(PLAYER* pp)
 
         if (interpolate_ride)
         {
-            pp->PlayerPrevPosition.XY() = pp->posXY();
+            pp->posprevXY() = pp->posXY();
         }
 
         auto save_cstat = actor->spr.cstat;
