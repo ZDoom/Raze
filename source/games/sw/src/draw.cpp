@@ -1268,7 +1268,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         updatesectorz(tpos, &tsect);
     }
 
-    pp->si = tpos.plusZ(-pp->PlayerNowPosition.Z);
+    pp->si = tpos.plusZ(-pp->posZget());
     pp->siang = tang;
 
     QuakeViewChange(camerapp, tpos, tang);

@@ -728,6 +728,10 @@ struct PLAYER
     {
         PlayerNowPosition.Z += val;
     }
+    double posZget()
+    {
+        return PlayerNowPosition.Z;
+    }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
