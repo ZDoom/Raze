@@ -850,11 +850,12 @@ void callbackCondition(DBloodActor* actor, sectortype*)
 {
 	if (actor->xspr.isTriggered) return;
 
-	TRCONDITION const* pCond = &gCondition[actor->xspr.sysData1];
-	for (unsigned i = 0; i < pCond->length; i++) {
+	TRCONDITION const* pCond = &gConditions[actor->xspr.sysData1];
+	for (auto& obj : pCond->objects) 
+	{
 		EVENT evn;
-		evn.target = pCond->obj[i].obj;
-		evn.cmd = pCond->obj[i].cmd;
+		evn.target = obj.obj;
+		evn.cmd = obj.cmd;
 		evn.funcID = kCallbackCondition;
 		useCondition(actor, evn);
 	}

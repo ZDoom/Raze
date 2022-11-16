@@ -61,8 +61,7 @@ short gEffectGenCallbacks[] = {
 
 TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
 
-TRCONDITION gCondition[kMaxTrackingConditions];
-int gTrackingCondsCount;
+TArray<TRCONDITION> gConditions;
 
 std::default_random_engine gStdRandom;
 
@@ -472,19 +471,7 @@ void nnExtResetGlobals()
 	memset(gProxySpritesList, 0, sizeof(gProxySpritesList));
 	memset(gPhysSpritesList, 0, sizeof(gPhysSpritesList));
 	memset(gImpactSpritesList, 0, sizeof(gImpactSpritesList));
-
-	// reset tracking conditions, if any
-	for (size_t i = 0; i < countof(gCondition); i++)
-	{
-		TRCONDITION* pCond = &gCondition[i];
-		for (unsigned k = 0; k < kMaxTracedObjects; k++)
-		{
-			pCond->obj[k].obj = EventObject(nullptr);
-		}
-		pCond->actor = nullptr;
-		pCond->length = 0;
-	}
-	gTrackingCondsCount = 0;
+	gConditions.Clear();
 }
 
 //---------------------------------------------------------------------------
@@ -819,11 +806,9 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 	while (auto iactor = it2.Next())
 	{
 		if (iactor->xspr.busyTime <= 0 || iactor->xspr.isTriggered) continue;
-		else if (gTrackingCondsCount >= kMaxTrackingConditions)
-			I_Error("\nMax (%d) tracking conditions reached!", kMaxTrackingConditions);
 
 		int count = 0;
-		TRCONDITION* pCond = &gCondition[gTrackingCondsCount];
+		TRCONDITION* pCond = &gConditions[gConditions.Reserve(1)];
 
 		for (auto iactor2 : actors)
 		{
@@ -840,21 +825,18 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			if (iactor2->spr.type == kModernCondition || iactor2->spr.type == kModernConditionFalse)
 				condError(iactor, "Tracking condition always must be first in condition sequence!");
 
-			if (count >= kMaxTracedObjects)
-				condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
-
-			pCond->obj[count].obj = EventObject(iactor2);
-			pCond->obj[count++].cmd = (uint8_t)iactor2->xspr.command;
+			pCond->objects.Reserve(2);
+			pCond->objects[count].obj = EventObject(iactor2);
+			pCond->objects[count++].cmd = (uint8_t)iactor2->xspr.command;
 		}
 
 		for (auto& sect : sector)
 		{
 			if (!sect.hasX() || sect.xs().txID != iactor->xspr.rxID) continue;
-			else if (count >= kMaxTracedObjects)
-				condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
-			pCond->obj[count].obj = EventObject(&sect);
-			pCond->obj[count++].cmd = sect.xs().command;
+			pCond->objects.Reserve(2);
+			pCond->objects[count].obj = EventObject(&sect);
+			pCond->objects[count++].cmd = sect.xs().command;
 		}
 
 		for (auto& wal : wall)
@@ -868,20 +850,15 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 				continue;
 			}
 
-			if (count >= kMaxTracedObjects)
-				condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
-
-			pCond->obj[count].obj = EventObject(&wal);
-			pCond->obj[count++].cmd = wal.xw().command;
+			pCond->objects.Reserve(2);
+			pCond->objects[count].obj = EventObject(&wal);
+			pCond->objects[count++].cmd = wal.xw().command;
 		}
 
 		if (iactor->xspr.data1 > kCondGameMax && count == 0)
 			Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", iactor->GetIndex(), iactor->xspr.rxID);
 
-		pCond->length = count;
 		pCond->actor = iactor;
-		gTrackingCondsCount++;
-
 	}
 }
 
@@ -1092,23 +1069,23 @@ static void windGenDoVerticalWind(int factor, sectortype* pSector)
 void nnExtProcessSuperSprites()
 {
 	// process tracking conditions
-	if (gTrackingCondsCount > 0)
+	if (gConditions.Size() > 0)
 	{
-		for (int i = 0; i < gTrackingCondsCount; i++)
+		for (unsigned i = 0; i < gConditions.Size(); i++)
 		{
-			TRCONDITION const* pCond = &gCondition[i];
+			TRCONDITION const* pCond = &gConditions[i];
 			auto aCond = pCond->actor;
 			if (aCond->xspr.locked || aCond->xspr.isTriggered || ++aCond->xspr.busy < aCond->xspr.busyTime)
 				continue;
 
-			if (pCond->length > 0)
+			if (pCond->objects.Size() > 0)
 			{
 				aCond->xspr.busy = 0;
-				for (unsigned k = 0; k < pCond->length; k++)
+				for (unsigned k = 0; k < pCond->objects.Size(); k++)
 				{
 					EVENT evn;
-					evn.target = pCond->obj[k].obj;
-					evn.cmd = pCond->obj[k].cmd;
+					evn.target = pCond->objects[k].obj;
+					evn.cmd = pCond->objects[k].cmd;
 					evn.funcID = kCallbackMax;
 					evn.initiator = nullptr;
 					useCondition(pCond->actor, evn);
@@ -2090,18 +2067,18 @@ void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondi
 	// let's check if there is tracking condition expecting objects with this TX id
 	if (checkCondition && sourceactor->xspr.txID >= kChannelUser)
 	{
-		for (int i = 0; i < gTrackingCondsCount; i++)
+		for (unsigned i = 0; i < gConditions.Size(); i++)
 		{
-			TRCONDITION* pCond = &gCondition[i];
+			TRCONDITION* pCond = &gConditions[i];
 			if (pCond->actor->xspr.rxID != sourceactor->xspr.txID)
 				continue;
 
 			// search for player control sprite and replace it with actual player sprite
-			for (unsigned k = 0; k < pCond->length; k++)
+			for (unsigned k = 0; k < pCond->objects.Size(); k++)
 			{
-				if (!pCond->obj[k].obj.isActor() || pCond->obj[k].obj.actor() != sourceactor) continue;
-				pCond->obj[k].obj = EventObject(pPlayer->actor);
-				pCond->obj[k].cmd = (uint8_t)pPlayer->actor->xspr.command;
+				if (!pCond->objects[k].obj.isActor() || pCond->objects[k].obj.actor() != sourceactor) continue;
+				pCond->objects[k].obj = EventObject(pPlayer->actor);
+				pCond->objects[k].cmd = (uint8_t)pPlayer->actor->xspr.command;
 				break;
 			}
 		}
@@ -4842,13 +4819,13 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 void conditionsUpdateIndex(DBloodActor* oldActor, DBloodActor* newActor)
 {
 	// update index in tracking conditions first
-	for (int i = 0; i < gTrackingCondsCount; i++)
+	for (unsigned i = 0; i < gConditions.Size(); i++)
 	{
-		TRCONDITION* pCond = &gCondition[i];
-		for (unsigned k = 0; k < pCond->length; k++)
+		TRCONDITION* pCond = &gConditions[i];
+		for (unsigned k = 0; k < pCond->objects.Size(); k++)
 		{
-			if (!pCond->obj[k].obj.isActor() || pCond->obj[k].obj.actor() != oldActor) continue;
-			pCond->obj[k].obj = EventObject(newActor);
+			if (!pCond->objects[k].obj.isActor() || pCond->objects[k].obj.actor() != oldActor) continue;
+			pCond->objects[k].obj = EventObject(newActor);
 			break;
 		}
 	}
@@ -9507,9 +9484,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRCONDITION& w, TR
 	if (arc.isReading()) w = {};
 	if (arc.BeginObject(keyname))
 	{
-		arc("length", w.length, &nul.length)
-			("xindex", w.actor, &nul.actor)
-			.Array("obj", w.obj, w.length)
+		arc("xindex", w.actor, &nul.actor)
+			("obj", w.objects)
 			.EndObject();
 	}
 	return arc;
@@ -9528,8 +9504,7 @@ void SerializeNNExts(FSerializer& arc)
 			("impactspritescount", gImpactSpritesCount)
 			.Array("impactspriteslist", gImpactSpritesList, gImpactSpritesCount)
 			("eventredirects", gEventRedirectsUsed)
-			("trconditioncount", gTrackingCondsCount)
-			.Array("trcondition", gCondition, gTrackingCondsCount);
+			("trcondition", gConditions);
 		gSprNSect.Serialize(arc);
 		arc.EndObject();
 	}
