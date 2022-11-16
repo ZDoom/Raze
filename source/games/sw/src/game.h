@@ -750,6 +750,11 @@ struct PLAYER
     {
         return PlayerPrevPosition.XY();
     }
+
+    void posprevZset(const double val)
+    {
+        PlayerPrevPosition.Z = val;
+    }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

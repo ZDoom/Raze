@@ -2221,7 +2221,7 @@ void DoPlayerMove(PLAYER* pp)
 
     if (interpolate_ride)
     {
-        pp->PlayerPrevPosition.Z = pp->posZget();
+        pp->posprevZset(pp->posZget());
         pp->angle.backup();
     }
 
@@ -7357,7 +7357,7 @@ void PlayerSpawnPosition(PLAYER* pp)
     if (pp->posZget() > fz - PLAYER_HEIGHTF)
     {
 		pp->posZset(fz - PLAYER_HEIGHTF);
-        pp->PlayerPrevPosition.Z = pp->posZget();
+        pp->posprevZset(pp->posZget());
     }
 }
 
