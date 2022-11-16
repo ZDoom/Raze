@@ -1544,7 +1544,7 @@ void PreMapCombineFloors(void)
                 if (itsect == dasect)
                 {
                     pp->posAdd(dv);
-                    pp->posprevXY() = pp->PlayerOldPosition.XY() = pp->posXY();
+                    pp->posprevXY() = pp->posoldXY() = pp->posXY();
                     break;
                 }
             }

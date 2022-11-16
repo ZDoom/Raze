@@ -764,6 +764,11 @@ struct PLAYER
     {
         return PlayerPrevPosition;
     }
+
+    DVector2& posoldXY()
+    {
+        return PlayerOldPosition.XY();
+    }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

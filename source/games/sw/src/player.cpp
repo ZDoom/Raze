@@ -1314,7 +1314,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
     pp->angle.ang = pp->angle.oang = ang;
     pp->posSet(pos.plusZ(-PLAYER_HEIGHTF));
 	pp->posprevSet(pos.plusZ(-PLAYER_HEIGHTF));
-	pp->PlayerOldPosition.XY() = pp->posXY();
+	pp->posoldXY() = pp->posXY();
 
     updatesector(pp->posGet(), &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
@@ -1328,7 +1328,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 
 void DoPlayerTeleportToOffset(PLAYER* pp)
 {
-    pp->PlayerOldPosition.XY() = pp->posprevXY() = pp->posXY();
+    pp->posoldXY() = pp->posprevXY() = pp->posXY();
 
     updatesector(pp->posGet(), &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
@@ -1703,7 +1703,7 @@ void DoPlayerBob(PLAYER* pp)
 {
     double amt;
 
-    double dist = (pp->posXY() - pp->PlayerOldPosition.XY()).Length();
+    double dist = (pp->posXY() - pp->posoldXY()).Length();
 
     if (dist > 32)
         dist = 0;
