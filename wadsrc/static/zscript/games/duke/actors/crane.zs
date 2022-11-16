@@ -87,7 +87,7 @@ class DukeCrane : DukeActor
 				case STAT_STANDABLE:
 				case STAT_PLAYER:
 					self.angle = (self.polepos - self.pos.XY).Angle();
-					a2.SetPosition(( self.polepos, a2.pos.Z ));
+					if (a2.statnum != STAT_PLAYER) a2.SetPosition(( self.polepos, a2.pos.Z ));
 					self.temp_data[0]++;
 					return;
 				}
