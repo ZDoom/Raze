@@ -598,7 +598,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
-                    if (pp->PlayerNowPosition.X == pp->PlayerPrevPosition.X && pp->PlayerNowPosition.Y == pp->PlayerPrevPosition.Y && pp->PlayerNowPosition.Z == pp->PlayerPrevPosition.Z)
+                    if (pp->PlayerNowPosition == pp->PlayerPrevPosition)
                         DoCam = true;
 
 
