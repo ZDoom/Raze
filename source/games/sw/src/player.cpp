@@ -1401,7 +1401,11 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
             TAG 5 to 8 = random match locations
 #endif
 
-    if ((act_warp = Warp(pp->posGet(), &pp->cursector)) == nullptr)
+    auto pos = pp->posGet();
+    act_warp = Warp(pos, &pp->cursector);
+    pp->posSet(pos);
+
+    if (act_warp == nullptr)
     {
         return;
     }
@@ -2222,7 +2226,11 @@ void DoPlayerMove(PLAYER* pp)
     }
 
     // check for warp - probably can remove from CeilingHit
-    if (WarpPlane(pp->posGet(), &pp->cursector))
+    auto pos = pp->posGet();
+    auto res = WarpPlane(pos, &pp->cursector);
+    pp->posSet(pos);
+
+    if (res)
     {
         PlayerWarpUpdatePos(pp);
     }
@@ -3498,7 +3506,11 @@ void DoPlayerClimb(PLAYER* pp)
         LadderUpdate = true;
     }
 
-    if (WarpPlane(pp->posGet(), &pp->cursector))
+    auto pos = pp->posGet();
+    auto res = WarpPlane(pos, &pp->cursector);
+    pp->posSet(pos);
+
+    if (res)
     {
         PlayerWarpUpdatePos(pp);
         LadderUpdate = true;
