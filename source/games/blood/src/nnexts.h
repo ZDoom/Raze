@@ -244,8 +244,7 @@ struct OBJECTS_TO_TRACK {
 
 struct TRCONDITION {
 	DBloodActor* actor;
-	uint8_t length;
-	OBJECTS_TO_TRACK obj[kMaxTracedObjects];
+	TArray<OBJECTS_TO_TRACK> objects;
 };
 
 struct PATROL_FOUND_SOUNDS {
@@ -275,7 +274,7 @@ extern const VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
 extern const MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
 extern const DUDEINFO_EXTRA gDudeInfoExtra[kDudeMax];
 extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
-extern TRCONDITION gCondition[kMaxTrackingConditions];
+extern TArray<TRCONDITION> gConditions;
 inline TObjPtr<DBloodActor*> gProxySpritesList[kMaxSuperXSprites];
 inline TObjPtr<DBloodActor*> gSightSpritesList[kMaxSuperXSprites];
 inline TObjPtr<DBloodActor*> gPhysSpritesList[kMaxSuperXSprites];
@@ -284,7 +283,6 @@ inline int gProxySpritesCount;
 inline int gSightSpritesCount;
 inline int gPhysSpritesCount;
 inline int gImpactSpritesCount;
-extern int gTrackingCondsCount;
 extern AISTATE genPatrolStates[kPatrolStateSize];
 
 
