@@ -392,8 +392,11 @@ void doanimations(void)
 			{
 				if (act->spr.statnum != STAT_EFFECTOR)
 				{
-					act->backupz();
-					act->spr.pos.Z += v;
+					if (act->spr.statnum != STAT_PLAYER)
+					{
+						act->backupz();
+						act->spr.pos.Z += v;
+					}
 					act->floorz = dasectp->floorz + v;
 				}
 			}
