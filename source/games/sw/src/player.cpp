@@ -2165,7 +2165,7 @@ void DoPlayerMove(PLAYER* pp)
         {
             pp->PlayerPrevPosition.XY() = pp->posXY();
         }
-		pp->PlayerNowPosition += pp->vect;
+		pp->posAdd(pp->vect);
         updatesector(pp->PlayerNowPosition, &sect);
         if (sect != nullptr)
             pp->cursector = sect;
