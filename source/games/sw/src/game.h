@@ -755,6 +755,11 @@ struct PLAYER
     {
         PlayerPrevPosition.Z = val;
     }
+
+    void posprevSet(const DVector3& val)
+    {
+        PlayerPrevPosition = val;
+    }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

@@ -1313,7 +1313,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
     pp->angle.ang = pp->angle.oang = ang;
     pp->posSet(pos.plusZ(-PLAYER_HEIGHTF));
-	pp->PlayerPrevPosition = pos.plusZ(-PLAYER_HEIGHTF);
+	pp->posprevSet(pos.plusZ(-PLAYER_HEIGHTF));
 	pp->PlayerOldPosition.XY() = pp->posXY();
 
     updatesector(pp->posGet(), &pp->cursector);
@@ -3765,7 +3765,7 @@ void PlayerWarpUpdatePos(PLAYER* pp)
     if (Prediction)
         return;
 
-    pp->PlayerPrevPosition = pp->posGet();
+    pp->posprevSet(pp->posGet());
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
 }
@@ -4295,7 +4295,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
 
     pp->posZset(under_act->sector()->ceilingz + 6);
 
-    pp->PlayerPrevPosition = pp->posGet();
+    pp->posprevSet(pp->posGet());
 
     DoPlayerZrange(pp);
     return;
@@ -4371,7 +4371,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
 
     pp->posZadd(-pp->WadeDepth);
 
-    pp->PlayerPrevPosition = pp->posGet();
+    pp->posprevSet(pp->posGet());
 
     return;
 }
@@ -6830,7 +6830,7 @@ void MoveSkipSavePos(void)
     {
         pp = Player + pnum;
 
-        pp->PlayerPrevPosition = pp->posGet();
+        pp->posprevSet(pp->posGet());
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
         pp->horizon.backup();
@@ -7187,7 +7187,7 @@ void InitAllPlayers(void)
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
         pp->posSet(pfirst->posGet());
-        pp->PlayerPrevPosition = pfirst->posGet();
+        pp->posprevSet(pfirst->posGet());
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
         pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursector = pfirst->cursector;
@@ -7348,7 +7348,7 @@ void PlayerSpawnPosition(PLAYER* pp)
     ASSERT(spawn_sprite != nullptr);
 
     pp->posSet(spawn_sprite->spr.pos);
-    pp->PlayerPrevPosition = pp->posGet();
+    pp->posprevSet(pp->posGet());
     pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());
 

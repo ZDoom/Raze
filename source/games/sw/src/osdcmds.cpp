@@ -58,7 +58,7 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
     Player->posSet(DVector3(x,y,z));
 
-    Player->PlayerPrevPosition = Player->posGet();
+    Player->posprevSet(Player->posGet());
 
     if (ang != DAngle::fromDeg(INT_MIN))
     {
