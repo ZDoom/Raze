@@ -2027,7 +2027,7 @@ void OperateTripTrigger(PLAYER* pp)
         {
             if (actor->user.Flags & (SPR_WAIT_FOR_TRIGGER))
             {
-                if ((actor->spr.pos.XY() - pp->PlayerNowPosition.XY()).Length() < dist)
+                if ((actor->spr.pos.XY() - pp->posXY()).Length() < dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_TRIGGER);
@@ -2178,7 +2178,7 @@ bool NearThings(PLAYER* pp)
         if (hit.hitSector == nullptr)
             return false;
 
-        if ((hit.hitpos.XY() - pp->PlayerNowPosition.XY()).Length() > 93.75)
+        if ((hit.hitpos.XY() - pp->posXY()).Length() > 93.75)
             return false;
 
         // hit a sprite?
@@ -2221,7 +2221,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int typ
     HitInfo near;
 
 
-    neartag(DVector3(pp->PlayerNowPosition.XY(), z), pp->cursector, pp->angle.ang, near, dist, type);
+    neartag(DVector3(pp->posXY(), z), pp->cursector, pp->angle.ang, near, dist, type);
 
     if (near.hitSector != nullptr)
     {
@@ -2935,7 +2935,7 @@ void DoSector(void)
             }
             else
             {
-				double dist = (pp->PlayerNowPosition.XY() - sop->pmid.XY()).Length();
+				double dist = (pp->posXY() - sop->pmid.XY()).Length();
                 if (dist < min_dist)
                     min_dist = dist;
             }

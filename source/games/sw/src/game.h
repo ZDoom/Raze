@@ -713,6 +713,12 @@ struct PLAYER
     int cookieTime;
 
     uint8_t WpnReloadState;
+
+
+    DVector2& posXY()
+    {
+        return PlayerNowPosition.XY();
+    }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

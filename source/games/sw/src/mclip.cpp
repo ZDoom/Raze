@@ -111,7 +111,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
     }
 
     // put posx and y off from offset
-    pp->PlayerNowPosition.XY() += pos[min_ndx].XY() - opos[min_ndx].XY();
+    pp->posXY() += pos[min_ndx].XY() - opos[min_ndx].XY();
 
     return min_ret;
 }
@@ -223,7 +223,7 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->PlayerNowPosition.XY() += { -pvect.X * 0.5, pvect.X * 0.5 };
+            pp->posXY() += { -pvect.X * 0.5, pvect.X * 0.5 };
         }
 
         return false;
@@ -238,7 +238,7 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
-            pp->PlayerNowPosition.XY() += { pvect.X * 0.5, -pvect.X * 0.5 };
+            pp->posXY() += { pvect.X * 0.5, -pvect.X * 0.5 };
         }
 
         return false;
@@ -264,7 +264,7 @@ short RectClipTurn(PLAYER* pp, DAngle new_angl, DVector2* qpos, DVector2* opos)
     rot_angl = new_angl + sop->spin_ang - sop->ang_orig;
     for (i = 0; i < 4; i++)
     {
-        xy[i] = rotatepoint(pp->PlayerNowPosition.XY(), opos[i], rot_angl);
+        xy[i] = rotatepoint(pp->posXY(), opos[i], rot_angl);
         // cannot use sop->xmid and ymid because the SO is off the map at this point
     }
 

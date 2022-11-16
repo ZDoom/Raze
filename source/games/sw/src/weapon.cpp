@@ -12228,7 +12228,7 @@ int InitSwordAttack(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            double dist = (pp->PlayerNowPosition.XY() - itActor->spr.pos.XY()).Length();
+            double dist = (pp->posXY() - itActor->spr.pos.XY()).Length();
 
             face = mapangle(200);
 
@@ -12393,7 +12393,7 @@ int InitFistAttack(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-			double dist = (pp->PlayerNowPosition.XY() - itActor->spr.pos.XY()).Length();
+			double dist = (pp->posXY() - itActor->spr.pos.XY()).Length();
 			bool iactive = pp->InventoryActive[2];
             if (iactive) // Shadow Bombs give you demon fist
             {
@@ -14024,7 +14024,7 @@ int InitMicro(PLAYER* pp)
         {
             picked = ts->actor;
 
-            angle = (picked->spr.pos.XY() - pp->PlayerNowPosition.XY()).Angle();
+            angle = (picked->spr.pos.XY() - pp->posXY()).Angle();
 
             ts++;
         }
@@ -15530,7 +15530,7 @@ int InitUzi(PLAYER* pp)
 
     DVector3 vect(daang.ToVector() * dax, daz);
 
-    FAFhitscan(DVector3(pp->PlayerNowPosition.XY(), nz), pp->cursector, vect, hit, CLIPMASK_MISSILE);
+    FAFhitscan(DVector3(pp->posXY(), nz), pp->cursector, vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
     {
@@ -18234,7 +18234,7 @@ int DoFloorBlood(DSWActor* actor)
         {
             pp = &Player[pnum];
 
-            double dist = (actor->spr.pos.XY() - pp->PlayerNowPosition.XY()).Length();
+            double dist = (actor->spr.pos.XY() - pp->posXY()).Length();
 
             if (dist < FEET_IN_BLOOD_DIST)
             {

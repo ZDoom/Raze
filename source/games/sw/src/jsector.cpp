@@ -424,7 +424,7 @@ void JS_ProcessEchoSpot()
     while (auto actor = it.Next())
     {
         double maxdist = SP_TAG4(actor) * maptoworld;
-        auto v = actor->spr.pos.XY() - pp->PlayerNowPosition.XY();
+        auto v = actor->spr.pos.XY() - pp->posXY();
         double dist = abs(v.X) + abs(v.Y);
 
         if (dist <= maxdist) // tag4 = ang
