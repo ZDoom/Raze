@@ -3125,7 +3125,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						}
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
-							a2->spr.pos.Z += extra;
+							if (!a2->isPlayer()) a2->spr.pos.Z += extra;
 							a2->floorz = sc->floorz;
 						}
 					}
@@ -3164,7 +3164,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						}
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && a2->spr.statnum != STAT_PROJECTILE)
 						{
-							a2->spr.pos.Z -= extra;
+							if (!a2->isPlayer()) a2->spr.pos.Z -= extra;
 							a2->floorz = sc->floorz;
 						}
 					}
@@ -3872,7 +3872,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 								ps[a2->PlayerIndex()].posZadd(l);
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
-							a2->spr.pos.Z += l;
+							if (!a2->isPlayer()) a2->spr.pos.Z += l;
 							a2->floorz = sec->floorz;
 						}
 					}
@@ -3901,7 +3901,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 								ps[a2->PlayerIndex()].posZadd(l);
 						if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 						{
-							a2->spr.pos.Z += l;
+							if (!a2->isPlayer()) a2->spr.pos.Z += l;
 							a2->floorz = sec->floorz;
 						}
 					}
@@ -3932,7 +3932,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 							ps[a2->PlayerIndex()].posZadd(l);
 					if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
-						a2->spr.pos.Z += l;
+						if (!a2->isPlayer()) a2->spr.pos.Z += l;
 						a2->floorz = sec->floorz;
 					}
 				}
@@ -3960,7 +3960,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 							ps[a2->PlayerIndex()].posZadd(-l);
 					if (a2->vel.Z == 0 && a2->spr.statnum != STAT_EFFECTOR && (!choosedir || a2->spr.statnum != STAT_PROJECTILE))
 					{
-						a2->spr.pos.Z -= l;
+						if (!a2->isPlayer()) a2->spr.pos.Z -= l;
 						a2->floorz = sec->floorz;
 					}
 				}
