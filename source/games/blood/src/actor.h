@@ -194,6 +194,11 @@ template<typename T> bool IsDudeSprite(T const * const pSprite)
 	return pSprite->type >= kDudeBase && pSprite->type < kDudeMax;
 }
 
+template<typename T> bool IsThingSprite(T const* const pSprite)
+{
+	return pSprite->type >= kThingBase && pSprite->type < kThingMax;
+}
+
 template<typename T> bool IsItemSprite(T const * const pSprite)
 {
 	return pSprite->type >= kItemBase && pSprite->type < kItemMax;

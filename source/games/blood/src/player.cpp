@@ -883,12 +883,12 @@ void playerStart(int nPlayer, int bNewLevel)
 		BloodStatIterator it(kStatModernPlayerLinker);
 		while (auto iactor = it.Next())
 		{
-			if (iactor->xspr.data1 == pPlayer->nPlayer + 1)
+			if (!iactor->xspr.data1 || iactor->xspr.data1 == pPlayer->nPlayer + 1)
 			{
 				DBloodActor* SpriteOld = iactor->prevmarker;
 				trPlayerCtrlLink(iactor, pPlayer, (SpriteOld == nullptr)); // this modifies iactor's prevmarker field!
 				if (SpriteOld)
-					condUpdateObjectIndex(SpriteOld, iactor->prevmarker);
+					conditionsUpdateIndex(SpriteOld, iactor->prevmarker);
 			}
 		}
 

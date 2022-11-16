@@ -265,7 +265,7 @@ struct CONDITION_TYPE_NAMES {
 };
 
 // - VARIABLES ------------------------------------------------------------------
-extern bool gModernMap;
+extern uint8_t gModernMap;
 extern bool gTeamsSpawnUsed;
 extern bool gEventRedirectsUsed;
 extern ZONE gStartZoneTeam1[kMaxPlayers];
@@ -372,7 +372,7 @@ void levelEndLevelCustom(int nLevel);
 int useCondition(DBloodActor*, EVENT& event);
 bool condCmp(int val, int arg1, int arg2, int comOp);
 void condError(DBloodActor* pXCond, const char* pzFormat, ...);
-void condUpdateObjectIndex(DBloodActor* oldplayer, DBloodActor* newplayer);
+void conditionsUpdateIndex(DBloodActor* oldplayer, DBloodActor* newplayer);
 DBloodActor* evrListRedirectors(int objType, sectortype*, walltype*, DBloodActor* objActor, DBloodActor* pXRedir, int* tx);
 void seqSpawnerOffSameTx(DBloodActor* actor);
 void triggerTouchSprite(DBloodActor* pSprite, DBloodActor* nHSprite);

@@ -4802,7 +4802,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
 //
 //---------------------------------------------------------------------------
 
-void condUpdateObjectIndex(DBloodActor* oldActor, DBloodActor* newActor)
+void conditionsUpdateIndex(DBloodActor* oldActor, DBloodActor* newActor)
 {
 	// update index in tracking conditions first
 	for (int i = 0; i < gTrackingCondsCount; i++)

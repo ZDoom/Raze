@@ -66,7 +66,7 @@ int DeleteSprite(DBloodActor* actor)
 }
 
 
-bool gModernMap = false;
+uint8_t gModernMap = 0;
 int gVisibility;
 
 //---------------------------------------------------------------------------
@@ -172,7 +172,17 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		// indicate if the map requires modern features to work properly
 		// for maps wich created in PMAPEDIT BETA13 or higher versions. Since only minor version changed,
 		// the map is still can be loaded with vanilla BLOOD / MAPEDIT and should work in other ports too.
-		if ((header.version & 0x00ff) == 0x001) gModernMap = true;
+		int tmp = (header.version & 0x00ff);
+
+		// get the modern features revision
+		switch (tmp) {
+		case 0x001:
+			gModernMap = 1;
+			break;
+		case 0x002:
+			gModernMap = 2;
+			break;
+		}
 #endif
 
 	}
@@ -579,8 +589,18 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 #ifdef NOONE_EXTENSIONS
 			// indicate if the map requires modern features to work properly
 			// for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
-			if (!gModernMap && pXSprite->rxID == kChannelMapModernize && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCmdModernFeaturesEnable)
-				gModernMap = true;
+			if (!gModernMap && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCmdModernFeaturesEnable)
+			{
+				// get the modern features revision
+				switch (pXSprite->txID) {
+				case kChannelMapModernRev1:
+					gModernMap = 1;
+					break;
+				case kChannelMapModernRev2:
+					gModernMap = 2;
+					break;
+				}
+			}
 #endif
 		}
 	}
