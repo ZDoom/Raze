@@ -534,254 +534,6 @@ struct REMOTE_CONTROL
     SECTOR_OBJECT* sop_control;
 };
 
-struct PLAYER
-{
-    // variable that fit in the sprite or user structure
-
-    DVector3 PlayerNowPosition, PlayerPrevPosition, PlayerOldPosition;
-
-    DSWActor* actor;    // this may not be a TObjPtr!
-    TObjPtr<DSWActor*> lowActor, highActor;
-    TObjPtr<DSWActor*> remoteActor;
-    TObjPtr<DSWActor*> PlayerUnderActor;
-    TObjPtr<DSWActor*> KillerActor;  //who killed me
-    TObjPtr<DSWActor*> HitBy;                    // Sprite num of whatever player was last hit by
-    TObjPtr<DSWActor*> last_camera_act;
-
-    // holds last valid move position
-    DVector3 lv;
-
-    REMOTE_CONTROL remote;
-    SECTOR_OBJECT* sop_remote;
-    SECTOR_OBJECT* sop;  // will either be sop_remote or sop_control
-
-    double hiz, loz;
-    double opbob_amt, pbob_amt;
-
-    int jump_count, jump_speed;     // jumping
-    double z_speed;
-    int climb_ndx;
-    double p_ceiling_dist,p_floor_dist;
-    sectortype* hi_sectp, *lo_sectp;
-
-    double circle_camera_dist;
-    DVector3 si; // save player interp position for PlayerSprite
-    DAngle siang;
-
-    DVector2 vect, ovect, slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
-
-    int friction;
-    int16_t slide_ang; // todo: floatify
-    int slide_dec;
-    float drive_avel;
-
-    DAngle circle_camera_ang;
-    int16_t camera_check_time_delay;
-
-
-    sectortype
-        * cursector,
-        * lastcursector,
-        * lv_sector;
-
-    void setcursector(sectortype* s) { cursector = s; }
-    bool insector() const { return cursector != nullptr; }
-
-    // variables that do not fit into sprite structure
-    PlayerHorizon horizon;
-    PlayerAngle angle;
-    double recoil_amt;
-    int16_t recoil_speed;
-    int16_t recoil_ndx;
-    DAngle recoil_ohorizoff, recoil_horizoff;
-
-    DVector3 Revolve;
-    DAngle RevolveDeltaAng;
-    DAngle RevolveAng;
-
-    int16_t pnum; // carry along the player number
-
-    sectortype* LadderSector;
-    DVector2 LadderPosition; // ladder x and y
-
-    int16_t JumpDuration;
-    int16_t WadeDepth;
-    int16_t bob_ndx;
-    int16_t bcnt; // bob count
-    double bob_z, obob_z;
-
-    //Multiplayer variables
-    InputPacket input;
-    InputPacket lastinput;
-
-    // must start out as 0
-    int playerreadyflag;
-
-    PLAYER_ACTION_FUNCp DoPlayerAction;
-    int Flags, Flags2;
-    ESyncBits KeyPressBits;
-
-    SECTOR_OBJECT* sop_control; // sector object pointer
-    SECTOR_OBJECT* sop_riding; // sector object pointer
-
-    struct
-    {
-        PANEL_SPRITE* Next, *Prev;
-    } PanelSpriteList;
-
-    // hack stuff to get a working pointer to this list element without running into type punning warnings with GCC.
-    // The list uses itself as sentinel element despite the type mismatch.
-    PANEL_SPRITE* GetPanelSpriteList()
-    {
-        void* p = &PanelSpriteList;
-        return reinterpret_cast<PANEL_SPRITE*>(p);
-    }
-
-    // Key stuff
-    uint8_t HasKey[8];
-
-    // Weapon stuff
-    int16_t SwordAng;
-    int WpnGotOnceFlags; // for no respawn mode where weapons are allowed grabbed only once
-    int WpnFlags;
-    int16_t WpnAmmo[MAX_WEAPONS];
-    int16_t WpnNum;
-    PANEL_SPRITE* CurWpn;
-    PANEL_SPRITE* Wpn[MAX_WEAPONS];
-    PANEL_SPRITE* Chops;
-    uint8_t WpnRocketType; // rocket type
-    uint8_t WpnRocketHeat; // 5 to 0 range
-    uint8_t WpnRocketNuke; // 1, you have it, or you don't
-    uint8_t WpnFlameType; // Guardian weapons fire
-    uint8_t WpnFirstType; // First weapon type - Sword/Shuriken
-    uint8_t WeaponType; // for weapons with secondary functions
-    int16_t FirePause; // for sector objects - limits rapid firing
-    //
-    // Inventory Vars
-    //
-    int16_t InventoryNum;
-    int16_t InventoryBarTics;
-    int16_t InventoryTics[MAX_INVENTORY];
-    int16_t InventoryPercent[MAX_INVENTORY];
-    int8_t InventoryAmount[MAX_INVENTORY];
-    bool InventoryActive[MAX_INVENTORY];
-
-    int16_t DiveTics;
-    int16_t DiveDamageTics;
-
-    // Death stuff
-    uint16_t DeathType;
-    int16_t Kills;
-    int16_t KilledPlayer[MAX_SW_PLAYERS_REG];
-    int16_t SecretsFound;
-
-    // Health
-    int16_t Armor;
-    int16_t MaxHealth;
-
-    char PlayerName[32];
-
-    uint8_t UziShellLeftAlt;
-    uint8_t UziShellRightAlt;
-    uint8_t TeamColor;  // used in team play and also used in regular mulit-play for show
-
-    // palette fading up and down for player hit and get items
-    int16_t FadeTics;                 // Tics between each fade cycle
-    int16_t FadeAmt;                  // Current intensity of fade
-    bool NightVision;               // Is player's night vision active?
-    uint8_t StartColor;       // Darkest color in color range being used
-    //short electro[64];
-    bool IsAI;                      // Is this and AI character?
-    int16_t fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
-    int16_t NumFootPrints;            // Number of foot prints left to lay down
-    uint8_t WpnUziType;                // Toggle between single or double uzi's if you own 2.
-    uint8_t WpnShotgunType;            // Shotgun has normal or fully automatic fire
-    uint8_t WpnShotgunAuto;            // 50-0 automatic shotgun rounds
-    uint8_t WpnShotgunLastShell;       // Number of last shell fired
-    uint8_t WpnRailType;               // Normal Rail Gun or EMP Burst Mode
-    bool Bloody;                    // Is player gooey from the slaughter?
-    bool InitingNuke;
-    bool TestNukeInit;
-    bool NukeInitialized;           // Nuke already has counted down
-    int16_t FistAng;                  // KungFu attack angle
-    uint8_t WpnKungFuMove;             // KungFu special moves
-    int16_t Reverb;                   // Player's current reverb setting
-    int16_t Heads;                    // Number of Accursed Heads orbiting player
-    int PlayerVersion;
-
-    char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
-    int cookieTime;
-
-    uint8_t WpnReloadState;
-
-
-    DVector2& posXY()
-    {
-        return PlayerNowPosition.XY();
-    }
-
-    void posZset(const double val)
-    {
-        PlayerNowPosition.Z = val;
-    }
-    void posZadd(const double val)
-    {
-        PlayerNowPosition.Z += val;
-    }
-    double posZget()
-    {
-        return PlayerNowPosition.Z;
-    }
-
-    void posSet(const DVector3& val)
-    {
-        PlayerNowPosition = val;
-    }
-    void posAdd(const DVector2& val)
-    {
-        PlayerNowPosition += val;
-    }
-    DVector3 posGet()
-    {
-        return PlayerNowPosition;
-    }
-
-    DVector2& posprevXY()
-    {
-        return PlayerPrevPosition.XY();
-    }
-
-    void posprevZset(const double val)
-    {
-        PlayerPrevPosition.Z = val;
-    }
-
-    void posprevSet(const DVector3& val)
-    {
-        PlayerPrevPosition = val;
-    }
-    DVector3 posprevGet()
-    {
-        return PlayerPrevPosition;
-    }
-
-    DVector2& posoldXY()
-    {
-        return PlayerOldPosition.XY();
-    }
-
-    void posoldSet(const DVector3& val)
-    {
-        PlayerOldPosition = val;
-    }
-    DVector3 posoldGet()
-    {
-        return PlayerOldPosition;
-    }
-};
-
-extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
-
 
 //
 // Player Flags
@@ -1953,6 +1705,255 @@ END_SW_NS
 #include "swactor.h"
 
 BEGIN_SW_NS
+
+struct PLAYER
+{
+    // variable that fit in the sprite or user structure
+
+    DVector3 PlayerNowPosition, PlayerPrevPosition, PlayerOldPosition;
+
+    DSWActor* actor;    // this may not be a TObjPtr!
+    TObjPtr<DSWActor*> lowActor, highActor;
+    TObjPtr<DSWActor*> remoteActor;
+    TObjPtr<DSWActor*> PlayerUnderActor;
+    TObjPtr<DSWActor*> KillerActor;  //who killed me
+    TObjPtr<DSWActor*> HitBy;                    // Sprite num of whatever player was last hit by
+    TObjPtr<DSWActor*> last_camera_act;
+
+    // holds last valid move position
+    DVector3 lv;
+
+    REMOTE_CONTROL remote;
+    SECTOR_OBJECT* sop_remote;
+    SECTOR_OBJECT* sop;  // will either be sop_remote or sop_control
+
+    double hiz, loz;
+    double opbob_amt, pbob_amt;
+
+    int jump_count, jump_speed;     // jumping
+    double z_speed;
+    int climb_ndx;
+    double p_ceiling_dist,p_floor_dist;
+    sectortype* hi_sectp, *lo_sectp;
+
+    double circle_camera_dist;
+    DVector3 si; // save player interp position for PlayerSprite
+    DAngle siang;
+
+    DVector2 vect, ovect, slide_vect; // these need floatification, but must be done together. vect is in 14.18 format!
+
+    int friction;
+    int16_t slide_ang; // todo: floatify
+    int slide_dec;
+    float drive_avel;
+
+    DAngle circle_camera_ang;
+    int16_t camera_check_time_delay;
+
+
+    sectortype
+        * cursector,
+        * lastcursector,
+        * lv_sector;
+
+    void setcursector(sectortype* s) { cursector = s; }
+    bool insector() const { return cursector != nullptr; }
+
+    // variables that do not fit into sprite structure
+    PlayerHorizon horizon;
+    PlayerAngle angle;
+    double recoil_amt;
+    int16_t recoil_speed;
+    int16_t recoil_ndx;
+    DAngle recoil_ohorizoff, recoil_horizoff;
+
+    DVector3 Revolve;
+    DAngle RevolveDeltaAng;
+    DAngle RevolveAng;
+
+    int16_t pnum; // carry along the player number
+
+    sectortype* LadderSector;
+    DVector2 LadderPosition; // ladder x and y
+
+    int16_t JumpDuration;
+    int16_t WadeDepth;
+    int16_t bob_ndx;
+    int16_t bcnt; // bob count
+    double bob_z, obob_z;
+
+    //Multiplayer variables
+    InputPacket input;
+    InputPacket lastinput;
+
+    // must start out as 0
+    int playerreadyflag;
+
+    PLAYER_ACTION_FUNCp DoPlayerAction;
+    int Flags, Flags2;
+    ESyncBits KeyPressBits;
+
+    SECTOR_OBJECT* sop_control; // sector object pointer
+    SECTOR_OBJECT* sop_riding; // sector object pointer
+
+    struct
+    {
+        PANEL_SPRITE* Next, *Prev;
+    } PanelSpriteList;
+
+    // hack stuff to get a working pointer to this list element without running into type punning warnings with GCC.
+    // The list uses itself as sentinel element despite the type mismatch.
+    PANEL_SPRITE* GetPanelSpriteList()
+    {
+        void* p = &PanelSpriteList;
+        return reinterpret_cast<PANEL_SPRITE*>(p);
+    }
+
+    // Key stuff
+    uint8_t HasKey[8];
+
+    // Weapon stuff
+    int16_t SwordAng;
+    int WpnGotOnceFlags; // for no respawn mode where weapons are allowed grabbed only once
+    int WpnFlags;
+    int16_t WpnAmmo[MAX_WEAPONS];
+    int16_t WpnNum;
+    PANEL_SPRITE* CurWpn;
+    PANEL_SPRITE* Wpn[MAX_WEAPONS];
+    PANEL_SPRITE* Chops;
+    uint8_t WpnRocketType; // rocket type
+    uint8_t WpnRocketHeat; // 5 to 0 range
+    uint8_t WpnRocketNuke; // 1, you have it, or you don't
+    uint8_t WpnFlameType; // Guardian weapons fire
+    uint8_t WpnFirstType; // First weapon type - Sword/Shuriken
+    uint8_t WeaponType; // for weapons with secondary functions
+    int16_t FirePause; // for sector objects - limits rapid firing
+    //
+    // Inventory Vars
+    //
+    int16_t InventoryNum;
+    int16_t InventoryBarTics;
+    int16_t InventoryTics[MAX_INVENTORY];
+    int16_t InventoryPercent[MAX_INVENTORY];
+    int8_t InventoryAmount[MAX_INVENTORY];
+    bool InventoryActive[MAX_INVENTORY];
+
+    int16_t DiveTics;
+    int16_t DiveDamageTics;
+
+    // Death stuff
+    uint16_t DeathType;
+    int16_t Kills;
+    int16_t KilledPlayer[MAX_SW_PLAYERS_REG];
+    int16_t SecretsFound;
+
+    // Health
+    int16_t Armor;
+    int16_t MaxHealth;
+
+    char PlayerName[32];
+
+    uint8_t UziShellLeftAlt;
+    uint8_t UziShellRightAlt;
+    uint8_t TeamColor;  // used in team play and also used in regular mulit-play for show
+
+    // palette fading up and down for player hit and get items
+    int16_t FadeTics;                 // Tics between each fade cycle
+    int16_t FadeAmt;                  // Current intensity of fade
+    bool NightVision;               // Is player's night vision active?
+    uint8_t StartColor;       // Darkest color in color range being used
+    //short electro[64];
+    bool IsAI;                      // Is this and AI character?
+    int16_t fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
+    int16_t NumFootPrints;            // Number of foot prints left to lay down
+    uint8_t WpnUziType;                // Toggle between single or double uzi's if you own 2.
+    uint8_t WpnShotgunType;            // Shotgun has normal or fully automatic fire
+    uint8_t WpnShotgunAuto;            // 50-0 automatic shotgun rounds
+    uint8_t WpnShotgunLastShell;       // Number of last shell fired
+    uint8_t WpnRailType;               // Normal Rail Gun or EMP Burst Mode
+    bool Bloody;                    // Is player gooey from the slaughter?
+    bool InitingNuke;
+    bool TestNukeInit;
+    bool NukeInitialized;           // Nuke already has counted down
+    int16_t FistAng;                  // KungFu attack angle
+    uint8_t WpnKungFuMove;             // KungFu special moves
+    int16_t Reverb;                   // Player's current reverb setting
+    int16_t Heads;                    // Number of Accursed Heads orbiting player
+    int PlayerVersion;
+
+    char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
+    int cookieTime;
+
+    uint8_t WpnReloadState;
+
+
+    DVector2& posXY()
+    {
+        return PlayerNowPosition.XY();
+    }
+
+    void posZset(const double val)
+    {
+        PlayerNowPosition.Z = val;
+    }
+    void posZadd(const double val)
+    {
+        PlayerNowPosition.Z += val;
+    }
+    double posZget()
+    {
+        return PlayerNowPosition.Z;
+    }
+
+    void posSet(const DVector3& val)
+    {
+        PlayerNowPosition = val;
+    }
+    void posAdd(const DVector2& val)
+    {
+        PlayerNowPosition += val;
+    }
+    DVector3 posGet()
+    {
+        return PlayerNowPosition;
+    }
+
+    DVector2& posprevXY()
+    {
+        return PlayerPrevPosition.XY();
+    }
+
+    void posprevZset(const double val)
+    {
+        PlayerPrevPosition.Z = val;
+    }
+
+    void posprevSet(const DVector3& val)
+    {
+        PlayerPrevPosition = val;
+    }
+    DVector3 posprevGet()
+    {
+        return PlayerPrevPosition;
+    }
+
+    DVector2& posoldXY()
+    {
+        return PlayerOldPosition.XY();
+    }
+
+    void posoldSet(const DVector3& val)
+    {
+        PlayerOldPosition = val;
+    }
+    DVector3 posoldGet()
+    {
+        return PlayerOldPosition;
+    }
+};
+
+extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
+
 
 // OVER and UNDER water macros
 inline bool SectorIsDiveArea(sectortype* sect)
