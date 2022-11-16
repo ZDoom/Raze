@@ -1279,37 +1279,15 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
 
 bool playGenDudeSound(DBloodActor* actor, int mode)
 {
-	if (mode < kGenDudeSndTargetSpot || mode >= kGenDudeSndMax) return false;
-	const GENDUDESND* sndInfo = &gCustomDudeSnd[mode]; bool gotSnd = false;
+	if (mode < kGenDudeSndTargetSpot || mode >= kGenDudeSndMax || !actor->hasX()) return false;
+	const GENDUDESND* sndInfo = &gCustomDudeSnd[mode];
 	int sndStartId = actor->xspr.sysData1;
 	int rand = sndInfo->randomRange;
 	int sndId = (sndStartId <= 0) ? sndInfo->defaultSndId : sndStartId + sndInfo->sndIdOffset;
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 
-	// let's check if there same sounds already played by other dudes
-	// so we won't get a lot of annoying screams in the same time and ensure sound played in it's full length (if not interruptable)
-	if (pExtra->sndPlaying && !sndInfo->interruptable) {
-#if 0
-		for (int i = 0; i < 256; i++) {
-			if (Bonkle[i].atc <= 0) continue;
-			for (int a = 0; a < rand; a++) {
-				if (sndId + a == Bonkle[i].atc) {
-					if (Bonkle[i].at0 <= 0) {
-						pExtra->sndPlaying = false;
-						break;
-					}
-					return true;
-				}
-			}
-		}
-#endif
-
-		pExtra->sndPlaying = false;
-
-	}
-
 	if (sndId < 0) return false;
-	else if (sndStartId <= 0) { sndId += Random(rand); gotSnd = true; }
+	else if (sndStartId <= 0) sndId += Random(rand);
 	else
 	{
 		// Let's try to get random snd
@@ -1318,26 +1296,31 @@ bool playGenDudeSound(DBloodActor* actor, int mode)
 			int random = Random(rand);
 			if (!soundEngine->FindSoundByResID(sndId + random)) continue;
 			sndId = sndId + random;
-			gotSnd = true;
 			break;
 		}
 
 		// If no success in getting random snd, get first existing one
-		if (gotSnd == false)
+		if (maxRetries <= 0)
 		{
 			int maxSndId = sndId + rand;
-			while (sndId++ < maxSndId)
-			{
-				if (!soundEngine->FindSoundByResID(sndId)) continue;
-				gotSnd = true;
-				break;
-			}
+			while (sndId < maxSndId && !soundEngine->FindSoundByResID(sndId++));
 		}
 
+		// let's check if there same sounds already played by other dudes
+		// so we won't get a lot of annoying screams in the same time and
+		// ensure sound played in it's full length (if not interruptable)
+		if (pExtra->sndPlaying && !sndInfo->interruptable)
+		{
+			if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundEngine->FindSoundByResID(sndId)))
+			{
+				return true;
+			}
+
+			pExtra->sndPlaying = false;
+		}
 	}
 
-	if (gotSnd == false) return false;
-	else if (sndInfo->aiPlaySound) aiPlay3DSound(actor, sndId, AI_SFX_PRIORITY_2, -1);
+	if (sndInfo->aiPlaySound) aiPlay3DSound(actor, sndId, AI_SFX_PRIORITY_2, -1);
 	else sfxPlay3DSound(actor, sndId, -1, 0);
 
 	pExtra->sndPlaying = true;

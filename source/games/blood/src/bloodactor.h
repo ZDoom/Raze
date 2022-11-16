@@ -104,6 +104,11 @@ public:
 		return spr.type >= kDudeBase && spr.type < kDudeMax;
 	}
 
+	bool IsThingActor()
+	{
+		return spr.type >= kThingBase && spr.type < kThingMax;
+	}
+
 	bool IsItemActor()
 	{
 		return spr.type >= kItemBase && spr.type < kItemMax;
