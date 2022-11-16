@@ -355,7 +355,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 
 #define setter(flag, var) if (actorinfo->DefaultFlags & flag) actor->spr.var = actorinfo->defsprite.var;
 
-		if (stat < 0 && (actorinfo->DefaultFlags & DEFF_STATNUM)) stat = actorinfo->defsprite.statnum;
+		if (actorinfo->DefaultFlags & DEFF_STATNUM) stat = actorinfo->defsprite.statnum;
 		setter(DEFF_PICNUM, picnum);
 		setter(DEFF_ANG, angle);
 		setter(DEFF_XVEL, xint);
