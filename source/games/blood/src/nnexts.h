@@ -422,6 +422,8 @@ void clampSprite(DBloodActor* actor, int which = 3);
 int getSpritesNearWalls(int nSrcSect, int* spriOut, int nMax, int nDist);
 bool isMovableSector(int nType);
 bool isMovableSector(sectortype* pSect);
+void killEffectGenCallbacks(DBloodActor* actor);
+bool xsprIsFine(DBloodActor* pSpr);
 #endif
 
 inline bool valueIsBetween(int val, int min, int max)

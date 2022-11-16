@@ -670,7 +670,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			{
 			case kCmdLink:
 			{
-				if (actor->xspr.data1 < 1 || actor->xspr.data1 > kMaxPlayers)
+				if (actor->xspr.data1 < 0 || actor->xspr.data1 > kMaxPlayers)
 					I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", actor->GetIndex(), actor->xspr.data1);
 
 				//if (numplayers < actor->xspr.data1)
@@ -686,7 +686,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 				BloodStatIterator it(kStatModernPlayerLinker);
 				while (auto iactor = it.Next())
 				{
-					if (actor->xspr.data1 == iactor->xspr.data1)
+					if (actor != iactor && actor->xspr.data1 == iactor->xspr.data1)
 						I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), actor->xspr.data1, iactor->GetIndex());
 				}
 				actor->xspr.sysData1 = -1;
@@ -706,7 +706,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 			{
 				if (actor->xspr.waitTime > 0)
 				{
-					actor->xspr.busyTime += ClipHigh(((actor->xspr.waitTime * 120) / 10), 4095); actor->xspr.waitTime = 0;
+					actor->xspr.busyTime = ClipHigh(actor->xspr.busyTime + ((actor->xspr.waitTime * 120) / 10), 4095); actor->xspr.waitTime = 0;
 					Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", actor->GetIndex(), actor->xspr.rxID, actor->xspr.busyTime);
 				}
 				actor->xspr.busy = actor->xspr.busyTime;
@@ -716,9 +716,17 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
 				condError(actor, "Delay is not available when using numberic commands (%d - %d)", kCmdNumberic, 255);
 
 			actor->xspr.Decoupled = false; // must go through operateSprite always
-			actor->xspr.Sight = actor->xspr.Impact = actor->xspr.Touch = actor->xspr.triggerOff = false;
-			actor->xspr.Proximity = actor->xspr.Push = actor->xspr.Vector = actor->xspr.triggerOn = false;
+			actor->xspr.Sight = actor->xspr.Impact = actor->xspr.Touch = false;
+			actor->xspr.Proximity = actor->xspr.Push = actor->xspr.Vector = false;
 			actor->xspr.state = actor->xspr.restState = 0;
+
+			if (gModernMap == 2 && actor->xspr.triggerOn && !actor->xspr.triggerOff)
+				actor->spr.flags |= kModernTypeFlag64;
+			else
+				actor->spr.flags &= ~kModernTypeFlag64;
+
+			actor->xspr.triggerOn = actor->xspr.triggerOff = false;
+
 
 			actor->xspr.TargetPos.X = actor->xspr.TargetPos.Y = actor->xspr.TargetPos.Z = actor->xspr.sysData2 = -1;
 			actor->SetTarget(nullptr);
@@ -1176,7 +1184,7 @@ void nnExtProcessSuperSprites()
 		for (int i = 0; i < gProxySpritesCount; i++)
 		{
 			DBloodActor* pProx = gProxySpritesList[i];
-			if (!pProx || !pProx->hasX()) continue;
+			if (!pProx || !xsprIsFine(pProx)) continue;
 
 			if (!pProx->xspr.Proximity || (!pProx->xspr.Interrutable && pProx->xspr.state != pProx->xspr.restState) || pProx->xspr.locked == 1
 				|| pProx->xspr.isTriggered) continue;  // don't process locked or triggered sprites
@@ -1192,7 +1200,7 @@ void nnExtProcessSuperSprites()
 				BloodStatIterator itr(kStatDude);
 				while (auto affected = itr.Next())
 				{
-					if (!affected->hasX() || affected->xspr.health <= 0) continue;
+					if (!xsprIsFine(affected) || affected->xspr.health <= 0) continue;
 					else if (CheckProximity(affected, x, y, z, pSect, okDist))
 					{
 						trTriggerSprite(pProx, kCmdSpriteProximity, affected);
@@ -1205,7 +1213,7 @@ void nnExtProcessSuperSprites()
 				for (int a = connecthead; a >= 0; a = connectpoint2[a])
 				{
 					PLAYER* pPlayer = &gPlayer[a];
-					if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->actor->xspr.health <= 0)
+					if (!pPlayer || !xsprIsFine(pPlayer->actor) || pPlayer->actor->xspr.health <= 0)
 						continue;
 
 					if (pPlayer->actor->xspr.health > 0 && CheckProximity(gPlayer->actor, x, y, z, pSect, okDist))
@@ -1223,7 +1231,7 @@ void nnExtProcessSuperSprites()
 		for (int i = 0; i < gSightSpritesCount; i++)
 		{
 			DBloodActor* pSight = gSightSpritesList[i];
-			if (!pSight || !pSight->hasX()) continue;
+			if (!pSight || !xsprIsFine(pSight)) continue;
 
 			if ((!pSight->xspr.Interrutable && pSight->xspr.state != pSight->xspr.restState) || pSight->xspr.locked == 1 ||
 				pSight->xspr.isTriggered) continue; // don't process locked or triggered sprites
@@ -1245,7 +1253,7 @@ void nnExtProcessSuperSprites()
 			for (int a = connecthead; a >= 0; a = connectpoint2[a])
 			{
 				PLAYER* pPlayer = &gPlayer[a];
-				if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->actor->xspr.health <= 0)
+				if (!pPlayer || !xsprIsFine(pPlayer->actor) || pPlayer->actor->xspr.health <= 0)
 					continue;
 
 				auto plActor = pPlayer->actor;
@@ -5815,7 +5823,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 		switch (event.cmd)
 		{
 		case kCmdOff:
-			if (actor->xspr.state == 1) SetSpriteState(actor, 0, initiator);
+			if (actor->xspr.state == 1) 
+			{
+				SetSpriteState(actor, 0, initiator);
+				if (actor->spr.type == kModernEffectSpawner)
+					killEffectGenCallbacks(actor);
+			}
 			break;
 		case kCmdOn:
 			evKillActor(actor, initiator); // queue overflow protect
@@ -8218,7 +8231,7 @@ void aiPatrolMove(DBloodActor* actor)
 		auto hitactor = actor->hit.hit.actor();
 		if (hitactor)
 		{
-			if (hitactor->hasX() && hitactor->xspr.health)
+			if (xsprIsFine(hitactor) && hitactor->xspr.health)
 			{
 				hitactor->xspr.dodgeDir = (actor->xspr.dodgeDir > 0) ? -1 : 1;
 				if (hitactor->vel.X || hitactor->vel.Y)
@@ -8256,7 +8269,7 @@ void aiPatrolMove(DBloodActor* actor)
 
 void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 {
-	if (!actor->hasX() || !actor->IsDudeActor())
+	if (!xsprIsFine(actor) || !actor->IsDudeActor())
 		return;
 
 	if (actor->xspr.health <= 0)
@@ -8301,7 +8314,7 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 
 void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 {
-	if (!actor->hasX() || !actor->IsDudeActor())
+	if (!xsprIsFine(actor) || !actor->IsDudeActor())
 		return;
 
 	if (actor->xspr.health <= 0)
@@ -8436,13 +8449,14 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 	bool stealth = (actor->xspr.unused1 & kDudeFlagStealth);
 	bool blind = (actor->xspr.dudeGuard);
 	bool deaf = (actor->xspr.dudeDeaf);
+	int nRandomSkill = Random(gGameOptions.nDifficulty);
 
 	DBloodActor* newtarget = nullptr;
 	// search for player targets
 	for (i = connecthead; i != -1; i = connectpoint2[i])
 	{
 		pPlayer = &gPlayer[i];
-		if (!pPlayer->actor->hasX()) continue;
+		if (!xsprIsFine(pPlayer->actor)) continue;
 
 		auto plActor = pPlayer->actor;
 		if (plActor->xspr.health <= 0)
@@ -8536,7 +8550,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 					f = ClipLow((hearDist - nDist) / 8, 0);
 					int sndvol = int(chan->Volume * (80.f / 0.8f));
-					hearChance += mulscale8(sndvol, f) + Random(gGameOptions.nDifficulty);
+					hearChance += mulscale8(sndvol, f) + nRandomSkill;
 					return (hearChance >= kMaxPatrolSpotValue);
 				});
 			/*
@@ -9341,18 +9355,78 @@ void changeSpriteAngle(DBloodActor* pSpr, int nAng)
 		else
 		{
 			pSpr->spr.ang = nAng;
-			if (pSpr->hasX())
+			if (xsprIsFine(pSpr))
 				pSpr->xspr.goalAng = pSpr->spr.ang;
 		}
 	}
 }
 
-int getVelocityAngle(DBloodActor* pSpr)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void dokillEffectGenCallbacks(DBloodActor* actor)
 {
-	return getangle(pSpr->vel.X >> 12, pSpr->vel.Y >> 12);
+	int l = sizeof(gEffectGenCallbacks) / sizeof(gEffectGenCallbacks[0]);
+	while (--l >= 0)
+		evKillActor(actor, (CALLBACK_ID)gEffectGenCallbacks[l]);
 }
 
-#if 0
+void killEffectGenCallbacks(DBloodActor* actor)
+{
+	int i;
+	if (actor->xspr.data2 < kEffectGenCallbackBase)
+		return;
+
+	switch (actor->xspr.txID)
+	{
+	case kChannelZero:  // self 
+		dokillEffectGenCallbacks(actor);
+		break;
+	case kChannelAllPlayers: // player sprites
+		for (i = connecthead; i >= 0; i = connectpoint2[i])
+		{
+			if (gPlayer[i].actor != nullptr)
+				dokillEffectGenCallbacks(gPlayer[i].actor);
+		}
+		break;
+	case kChannelEventCauser: // worst case...
+		for(auto& sec : sector)
+		{
+			BloodSectIterator it(&sec);
+			while (auto act = it.Next())
+				dokillEffectGenCallbacks(act);
+		}
+		break;
+	default:
+		if (actor->xspr.txID >= kChannelUser) // TX ID scope
+		{
+			for (i = bucketHead[actor->xspr.txID]; i < bucketHead[actor->xspr.txID + 1]; i++)
+			{
+				if (rxBucket[i].isActor())
+					dokillEffectGenCallbacks(rxBucket[i].actor());
+			}
+		}
+		else if (actor->xspr.txID >= kChannelPlayer0 && actor->xspr.txID < kChannelPlayer0 + kMaxPlayers)
+		{
+			// player sprites
+			PLAYER* pPlayer = getPlayerById(actor->xspr.txID - kChannelPlayer0);
+			if (pPlayer && pPlayer->actor != nullptr)
+				dokillEffectGenCallbacks(pPlayer->actor);
+		}
+		break;
+
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool xsprIsFine(DBloodActor* pSpr)
 {
 	if (pSpr && pSpr->hasX() && !(pSpr->spr.flags & kHitagFree))
@@ -9363,7 +9437,6 @@ bool xsprIsFine(DBloodActor* pSpr)
 
 	return false;
 }
-#endif
 
 
 
