@@ -1495,7 +1495,7 @@ void DoPlayerJumpHeight(PLAYER* pp)
     {
         if (pp->PlayerNowPosition.Z + PLAYER_HEIGHTF > pp->loz)
         {
-            pp->PlayerNowPosition.Z = pp->loz - PLAYER_HEIGHTF;
+            pp->posZset(pp->loz - PLAYER_HEIGHTF);
             DoPlayerBeginRun(pp);
         }
     }
@@ -2081,10 +2081,10 @@ void PlayerSectorBound(PLAYER* pp, double amt)
     calcSlope(pp->cursector, pp->PlayerNowPosition, &cz, &fz);
 
     if (pp->PlayerNowPosition.Z > fz - amt)
-        pp->PlayerNowPosition.Z = fz - amt;
+        pp->posZset(fz - amt);
 
     if (pp->PlayerNowPosition.Z < cz + amt)
-        pp->PlayerNowPosition.Z = cz + amt;
+        pp->posZset(cz + amt);
 
 }
 
@@ -2247,18 +2247,18 @@ void DoPlayerMove(PLAYER* pp)
         if (pp->Flags & (PF_FLYING|PF_JUMPING|PF_FALLING))
         {
             if (pp->PlayerNowPosition.Z > pp->loz)
-                pp->PlayerNowPosition.Z = pp->loz - PLAYER_HEIGHTF;
+                pp->posZset(pp->loz - PLAYER_HEIGHTF);
 
             if (pp->PlayerNowPosition.Z < pp->hiz)
-                pp->PlayerNowPosition.Z = pp->hiz + PLAYER_HEIGHTF;
+                pp->posZset(pp->hiz + PLAYER_HEIGHTF);
         }
         else if (pp->Flags & (PF_SWIMMING|PF_DIVING))
         {
             if (pp->PlayerNowPosition.Z > pp->loz)
-                pp->PlayerNowPosition.Z = pp->loz - PLAYER_SWIM_HEIGHTF;
+                pp->posZset(pp->loz - PLAYER_SWIM_HEIGHTF);
 
             if (pp->PlayerNowPosition.Z < pp->hiz)
-                pp->PlayerNowPosition.Z = pp->hiz + PLAYER_SWIM_HEIGHTF;
+                pp->posZset(pp->hiz + PLAYER_SWIM_HEIGHTF);
         }
     }
 }
@@ -2324,10 +2324,10 @@ void DoPlayerSectorUpdatePostMove(PLAYER* pp)
             // adjust the posz to be in a sector
             calcSlope(pp->cursector, pp->PlayerNowPosition, &cz, &fz);
             if (pp->PlayerNowPosition.Z > fz)
-                pp->PlayerNowPosition.Z = fz;
+                pp->posZset(fz);
 
             if (pp->PlayerNowPosition.Z < cz)
-                pp->PlayerNowPosition.Z = cz;
+                pp->posZset(cz);
 
             // try again
             updatesectorz(pp->PlayerNowPosition, &pp->cursector);
@@ -2992,7 +2992,7 @@ void DoPlayerJump(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
-            pp->PlayerNowPosition.Z = pp->hiz + 4;
+            pp->posZset(pp->hiz + 4);
 
             // reverse your speed to falling
             pp->jump_speed = -pp->jump_speed;
@@ -3008,7 +3008,7 @@ void DoPlayerJump(PLAYER* pp)
         // if player gets to close the floor while jumping
         if (PlayerFloorHit(pp, pp->loz - pp->p_floor_dist))
         {
-            pp->PlayerNowPosition.Z = pp->loz - pp->p_floor_dist;
+            pp->posZset(pp->loz - pp->p_floor_dist);
 
             pp->jump_speed = 0;
             PlayerSectorBound(pp, 1);
@@ -3067,7 +3067,7 @@ void DoPlayerForceJump(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
-            pp->PlayerNowPosition.Z = pp->hiz + 4;
+            pp->posZset(pp->hiz + 4);
 
             // reverse your speed to falling
             pp->jump_speed = -pp->jump_speed;
@@ -3193,7 +3193,7 @@ void DoPlayerFall(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + pp->p_ceiling_dist))
         {
             // put player at the ceiling
-            pp->PlayerNowPosition.Z = pp->hiz + pp->p_ceiling_dist;
+            pp->posZset(pp->hiz + pp->p_ceiling_dist);
             // don't return or anything - allow to fall until
             // hit floor
         }
@@ -3220,7 +3220,7 @@ void DoPlayerFall(PLAYER* pp)
             // i any kind of crawl key get rid of recoil
             if (DoPlayerTestCrawl(pp) || (pp->input.actions & SB_CROUCH))
             {
-                pp->PlayerNowPosition.Z = pp->loz - PLAYER_CRAWL_HEIGHTF;
+                pp->posZset(pp->loz - PLAYER_CRAWL_HEIGHTF);
             }
             else
             {
@@ -3428,7 +3428,7 @@ void DoPlayerClimb(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz))
         {
             // put player at the hiz
-            pp->PlayerNowPosition.Z = pp->hiz;
+            pp->posZset(pp->hiz);
             NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
         }
 
@@ -3436,7 +3436,7 @@ void DoPlayerClimb(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
-            pp->PlayerNowPosition.Z = pp->LadderSector->ceilingz + 4;
+            pp->posZset(pp->LadderSector->ceilingz + 4);
             NewStateGroup(pp->actor, sg_PlayerNinjaClimb);
         }
 
@@ -3462,7 +3462,7 @@ void DoPlayerClimb(PLAYER* pp)
         if (PlayerFloorHit(pp, pp->loz - 4 - PLAYER_HEIGHTF))
         {
             // stand on floor
-            pp->PlayerNowPosition.Z = pp->loz - 4 - PLAYER_HEIGHTF;
+            pp->posZset(pp->loz - 4 - PLAYER_HEIGHTF);
 
             // if moving backwards start running
             if (climbVel < 0)
@@ -3657,7 +3657,7 @@ void DoPlayerCrawl(PLAYER* pp)
         if (FAF_ConnectArea(pp->cursector))
         {
             // adjust the z
-            pp->PlayerNowPosition.Z = pp->cursector->ceilingz + 12;
+            pp->posZset(pp->cursector->ceilingz + 12);
         }
 
         DoPlayerBeginDiveNoWarp(pp);
@@ -3711,7 +3711,7 @@ void DoPlayerCrawl(PLAYER* pp)
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
-        pp->PlayerNowPosition.Z = pp->loz - PLAYER_CRAWL_HEIGHTF;
+        pp->posZset(pp->loz - PLAYER_CRAWL_HEIGHTF);
     }
 
     DoPlayerBob(pp);
@@ -3798,14 +3798,14 @@ void DoPlayerFly(PLAYER* pp)
     // Only get so close to the ceiling
     if (PlayerCeilingHit(pp, pp->hiz + PLAYER_FLY_BOB_AMT + 8))
     {
-        pp->PlayerNowPosition.Z = pp->hiz + PLAYER_FLY_BOB_AMT + 8;
+        pp->posZset(pp->hiz + PLAYER_FLY_BOB_AMT + 8);
         pp->z_speed = 0;
     }
 
     // Only get so close to the floor
     if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMT))
     {
-        pp->PlayerNowPosition.Z = pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMT;
+        pp->posZset(pp->loz - PLAYER_HEIGHTF - PLAYER_FLY_BOB_AMT);
         pp->z_speed = 0;
     }
 
@@ -4029,7 +4029,7 @@ int PlayerCanDiveNoWarp(PLAYER* pp)
             if (SectorIsUnderwaterArea(sect))
             {
                 pp->setcursector(sect);
-                pp->PlayerNowPosition.Z = sect->ceilingz + 20;
+                pp->posZset(sect->ceilingz + 20);
 
                 pp->z_speed = 20;
                 pp->jump_speed = 0;
@@ -4281,7 +4281,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     else
         pp->setcursector(over);
 
-    pp->PlayerNowPosition.Z = under_act->sector()->ceilingz + 6;
+    pp->posZset(under_act->sector()->ceilingz + 6);
 
     pp->PlayerPrevPosition = pp->PlayerNowPosition;
 
@@ -4351,7 +4351,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
         pp->setcursector(over);
     }
 
-    pp->PlayerNowPosition.Z = over_act->sector()->floorz - 2;
+    pp->posZset(over_act->sector()->floorz - 2);
 
     // set z range and wade depth so we know how high to set view
     DoPlayerZrange(pp);
@@ -4698,7 +4698,7 @@ void DoPlayerDive(PLAYER* pp)
             {
                 // if not underwater sector we must surface
                 // force into above sector
-                pp->PlayerNowPosition.Z = pp->cursector->ceilingz- 8;
+                pp->posZset(pp->cursector->ceilingz- 8);
                 pp->setcursector(sect);
                 DoPlayerStopDiveNoWarp(pp);
                 DoPlayerBeginRun(pp);
@@ -4715,7 +4715,7 @@ void DoPlayerDive(PLAYER* pp)
         // for room over room water the hiz will be the top rooms ceiling
         if (pp->PlayerNowPosition.Z < pp->hiz + pp->p_ceiling_dist)
         {
-            pp->PlayerNowPosition.Z = pp->hiz + pp->p_ceiling_dist;
+            pp->posZset(pp->hiz + pp->p_ceiling_dist);
         }
     }
     else
@@ -4734,7 +4734,7 @@ void DoPlayerDive(PLAYER* pp)
     // Only get so close to the floor
     if (pp->PlayerNowPosition.Z >= pp->loz - PLAYER_DIVE_HEIGHTF)
     {
-        pp->PlayerNowPosition.Z = pp->loz - PLAYER_DIVE_HEIGHTF;
+        pp->posZset(pp->loz - PLAYER_DIVE_HEIGHTF);
     }
 
     // make player bob if sitting still
@@ -5247,7 +5247,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
     pp->posXY() = sop->pmid.XY();
     updatesector(pp->PlayerNowPosition, &pp->cursector);
     calcSlope(pp->cursector, pp->PlayerNowPosition, &cz, &fz);
-    pp->PlayerNowPosition.Z = fz - PLAYER_HEIGHTF;
+    pp->posZset(fz - PLAYER_HEIGHTF);
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
@@ -5272,7 +5272,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-		pp->PlayerNowPosition.Z = fz - PLAYER_HEIGHTF;
+		pp->posZset(fz - PLAYER_HEIGHTF);
         DoPlayerBeginOperateVehicle(pp);
         break;
     case SO_TURRET_MGUN:
@@ -5281,7 +5281,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-		pp->PlayerNowPosition.Z = fz - PLAYER_HEIGHTF;
+		pp->posZset(fz - PLAYER_HEIGHTF);
         DoPlayerBeginOperateTurret(pp);
         break;
 #if 0
@@ -5337,7 +5337,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
     pp->posXY() = sop->pmid.XY();
     updatesector(pp->PlayerNowPosition, &pp->cursector);
     calcSlope(pp->cursector, pp->PlayerNowPosition, &cz, &fz);
-	pp->PlayerNowPosition.Z = fz - PLAYER_HEIGHTF;
+	pp->posZset(fz - PLAYER_HEIGHTF);
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
@@ -5365,7 +5365,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-		pp->PlayerNowPosition.Z = fz - PLAYER_HEIGHTF;
+		pp->posZset(fz - PLAYER_HEIGHTF);
         DoPlayerBeginOperateVehicle(pp);
         break;
     case SO_TURRET_MGUN:
@@ -5374,7 +5374,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-		pp->PlayerNowPosition.Z = fz - PLAYER_HEIGHTF;
+		pp->posZset(fz - PLAYER_HEIGHTF);
         DoPlayerBeginOperateTurret(pp);
         break;
     default:
@@ -5421,7 +5421,7 @@ void PlayerRemoteReset(PLAYER* pp, sectortype* sect)
 
     auto rsp = pp->remoteActor;
     pp->posXY() = rsp->spr.pos.XY();
-    pp->PlayerNowPosition.Z = sect->floorz - PLAYER_HEIGHTF;
+    pp->posZset(sect->floorz - PLAYER_HEIGHTF);
 
     pp->vect.Zero();
     pp->ovect.Zero();
@@ -5590,7 +5590,7 @@ void DoPlayerDeathJump(PLAYER* pp)
         if (PlayerCeilingHit(pp, pp->hiz + 4))
         {
             // put player at the ceiling
-            pp->PlayerNowPosition.Z = pp->hiz + 4;
+            pp->posZset(pp->hiz + 4);
 
             // reverse your speed to falling
             pp->jump_speed = -pp->jump_speed;
@@ -5639,7 +5639,7 @@ void DoPlayerDeathFall(PLAYER* pp)
             else
                 PlaySound(DIGI_BODYFALL2, pp, v3df_dontpan);
 
-            pp->PlayerNowPosition.Z = loz - PLAYER_DEATH_HEIGHTF;
+            pp->posZset(loz - PLAYER_DEATH_HEIGHTF);
             pp->Flags &= ~(PF_FALLING);
         }
     }
@@ -6397,7 +6397,7 @@ void DoPlayerDeathDrown(PLAYER* pp)
             // Stick like glue when you hit the ground
             if (pp->PlayerNowPosition.Z > pp->loz - PLAYER_DEATH_HEIGHTF)
             {
-                pp->PlayerNowPosition.Z = pp->loz - PLAYER_DEATH_HEIGHTF;
+                pp->posZset(pp->loz - PLAYER_DEATH_HEIGHTF);
                 pp->Flags &= ~(PF_FALLING);
             }
         }
@@ -6639,7 +6639,7 @@ void DoPlayerRun(PLAYER* pp)
             //DoPlayerHeight(pp);
             //DoPlayerHeight(pp);
             //DoPlayerHeight(pp);
-            pp->PlayerNowPosition.Z = pp->loz - PLAYER_HEIGHTF;
+            pp->posZset(pp->loz - PLAYER_HEIGHTF);
             DoPlayerBeginJump(pp);
             return;
         }
@@ -6734,7 +6734,7 @@ void DoPlayerRun(PLAYER* pp)
 
     if ((pp->cursector && pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
-        pp->PlayerNowPosition.Z = pp->loz - PLAYER_HEIGHTF;
+        pp->posZset(pp->loz - PLAYER_HEIGHTF);
     }
 
     // Adjust height moving up and down sectors
@@ -7343,7 +7343,7 @@ void PlayerSpawnPosition(PLAYER* pp)
     // if too close to the floor - stand up
     if (pp->PlayerNowPosition.Z > fz - PLAYER_HEIGHTF)
     {
-		pp->PlayerNowPosition.Z = fz - PLAYER_HEIGHTF;
+		pp->posZset(fz - PLAYER_HEIGHTF);
         pp->PlayerPrevPosition.Z = pp->PlayerNowPosition.Z;
     }
 }
