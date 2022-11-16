@@ -760,6 +760,10 @@ struct PLAYER
     {
         PlayerPrevPosition = val;
     }
+    DVector3 posprevGet()
+    {
+        return PlayerPrevPosition;
+    }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
