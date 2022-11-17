@@ -2055,7 +2055,7 @@ void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
     {
-        pp->posSet(pp->PlayerOldPosition);
+        pp->posSet(pp->posoldGet());
         pp->cursector = pp->lastcursector;
     }
 }
@@ -2123,7 +2123,7 @@ void DoPlayerMove(PLAYER* pp)
         DoPlayerTurn(pp, pp->input.avel, 1);
     }
 
-    pp->PlayerOldPosition = pp->posGet();
+    pp->posoldSet(pp->posGet());
     pp->lastcursector = pp->cursector;
 
     if (PLAYER_MOVING(pp) == 0)
@@ -7196,8 +7196,7 @@ void InitAllPlayers(void)
 
         //pp->MaxHealth = 100;
 
-        pp->PlayerOldPosition.X = 0;
-        pp->PlayerOldPosition.Y = 0;
+        pp->posoldXY().Zero();
         pp->climb_ndx = 10;
         pp->KillerActor = nullptr;
         pp->Kills = 0;
