@@ -11500,7 +11500,7 @@ int DoRing(DSWActor* actor)
     double z;
     // move the center with the player
     if (pp)
-        z = pp->pos.Z + 20;
+        z = pp->PlayerNowPosition.Z + 20;
     else
         z = ActorZOfMiddle(own) + 30;
 
@@ -11594,7 +11594,7 @@ void InitSpellRing(PLAYER* pp)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->pos, ang, 0);
+        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->PlayerNowPosition, ang, 0);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->vel.X = 31.25;
@@ -11612,7 +11612,7 @@ void InitSpellRing(PLAYER* pp)
 
         // put it out there
         actorNew->spr.pos += actorNew->spr.angle.ToVector() * actorNew->user.Dist;
-        actorNew->spr.pos.Z += pp->pos.Z + 20 - (actorNew->user.Dist * pp->horizon.horiz.Tan() * 2.); // horizon math sucks...
+        actorNew->spr.pos.Z += pp->PlayerNowPosition.Z + 20 - (actorNew->user.Dist * pp->horizon.horiz.Tan() * 2.); // horizon math sucks...
 
         actorNew->spr.angle += DAngle90;
 
@@ -11971,7 +11971,7 @@ void InitSpellNapalm(PLAYER* pp)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector,
-                                pp->pos.plusZ(12), pp->angle.ang, NAPALM_VELOCITY*2);
+                                pp->PlayerNowPosition.plusZ(12), pp->angle.ang, NAPALM_VELOCITY*2);
 
         actor->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -12106,7 +12106,7 @@ int InitSpellMirv(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector, pp->pos.plusZ(12), pp->angle.ang, MIRV_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector, pp->PlayerNowPosition.plusZ(12), pp->angle.ang, MIRV_VELOCITY);
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
@@ -12228,7 +12228,7 @@ int InitSwordAttack(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            double dist = (pp->pos.XY() - itActor->spr.pos.XY()).Length();
+            double dist = (pp->PlayerNowPosition.XY() - itActor->spr.pos.XY()).Length();
 
             face = mapangle(200);
 
@@ -12250,12 +12250,12 @@ int InitSwordAttack(PLAYER* pp)
         double dax = 1024., daz = 0;
         DAngle daang = pp->angle.ang;
         setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
-        FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->PlayerNowPosition, pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
 
-        if ((pp->pos - hit.hitpos).Length() < 43.75)
+        if ((pp->PlayerNowPosition - hit.hitpos).Length() < 43.75)
         {
 
             if (hit.actor() != nullptr)
@@ -12393,7 +12393,7 @@ int InitFistAttack(PLAYER* pp)
             if (!(itActor->spr.extra & SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-			double dist = (pp->pos.XY() - itActor->spr.pos.XY()).Length();
+			double dist = (pp->PlayerNowPosition.XY() - itActor->spr.pos.XY()).Length();
 			bool iactive = pp->InventoryActive[2];
             if (iactive) // Shadow Bombs give you demon fist
             {
@@ -12428,12 +12428,12 @@ int InitFistAttack(PLAYER* pp)
         double dax = 1024., daz = 0;
         auto daang = pp->angle.ang;
         setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
-        FAFhitscan(pp->pos, pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->PlayerNowPosition, pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
 
-        if ((pp->pos - hit.hitpos).Length() < 43.75)
+        if ((pp->PlayerNowPosition - hit.hitpos).Length() < 43.75)
         {
 
             if (hit.actor() != nullptr)
@@ -12975,7 +12975,7 @@ int InitStar(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 8);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13080,7 +13080,7 @@ void InitHeartAttack(PLAYER* pp)
         return;
 
     auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector,
-                            pp->pos.plusZ(12), pp->angle.ang, BLOOD_WORM_VELOCITY*2);
+                            pp->PlayerNowPosition.plusZ(12), pp->angle.ang, BLOOD_WORM_VELOCITY*2);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -13223,7 +13223,7 @@ int InitShotgun(PLAYER* pp)
         }
     }
 
-    auto pos = pp->pos.plusZ(pp->bob_z);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z);
     double dax = 1024.;
     double daz = pos.Z;
 
@@ -13378,7 +13378,7 @@ int InitLaser(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 8);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13476,7 +13476,7 @@ int InitRail(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 11);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 11);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13641,7 +13641,7 @@ int InitRocket(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 8);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13748,7 +13748,7 @@ int InitBunnyRocket(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 8);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13850,7 +13850,7 @@ int InitNuke(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 8);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -14024,7 +14024,7 @@ int InitMicro(PLAYER* pp)
         {
             picked = ts->actor;
 
-            angle = (picked->spr.pos.XY() - pp->pos.XY()).Angle();
+            angle = (picked->spr.pos.XY() - pp->PlayerNowPosition.XY()).Angle();
 
             ts++;
         }
@@ -14034,7 +14034,7 @@ int InitMicro(PLAYER* pp)
             angle = pp->angle.ang;
         }
 
-        auto pos = pp->pos.plusZ(pp->bob_z + 4 + RandomRange(20));
+        auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 4 + RandomRange(20));
 
         // Spawn a shot
         // Inserting and setting up variables
@@ -15226,7 +15226,7 @@ int InitTracerUzi(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector, pp->pos.plusZ(nz), pp->angle.ang, TRACER_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector, pp->PlayerNowPosition.plusZ(nz), pp->angle.ang, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
@@ -15513,7 +15513,7 @@ int InitUzi(PLAYER* pp)
     if (RANDOM_P2(1024) < 400)
         InitTracerUzi(pp);
 
-    double nz = (pp->pos.Z + pp->bob_z);
+    double nz = (pp->PlayerNowPosition.Z + pp->bob_z);
     double dax = 1024.;
     double daz = nz;
     DAngle daang = DAngle22_5 / 4;
@@ -15530,7 +15530,7 @@ int InitUzi(PLAYER* pp)
 
     DVector3 vect(daang.ToVector() * dax, daz);
 
-    FAFhitscan(DVector3(pp->pos.XY(), nz), pp->cursector, vect, hit, CLIPMASK_MISSILE);
+    FAFhitscan(DVector3(pp->PlayerNowPosition.XY(), nz), pp->cursector, vect, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
     {
@@ -16662,7 +16662,7 @@ int InitGrenade(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 8);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -16800,7 +16800,7 @@ int InitMine(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 8);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -16931,7 +16931,7 @@ int InitFireball(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->pos.plusZ(pp->bob_z + 15);
+    auto pos = pp->PlayerNowPosition.plusZ(pp->bob_z + 15);
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, pos, pp->angle.ang, FIREBALL_VELOCITY);
 
@@ -18234,7 +18234,7 @@ int DoFloorBlood(DSWActor* actor)
         {
             pp = &Player[pnum];
 
-            double dist = (actor->spr.pos.XY() - pp->pos.XY()).Length();
+            double dist = (actor->spr.pos.XY() - pp->PlayerNowPosition.XY()).Length();
 
             if (dist < FEET_IN_BLOOD_DIST)
             {

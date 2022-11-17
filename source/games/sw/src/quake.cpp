@@ -195,7 +195,7 @@ void QuakeViewChange(PLAYER* pp, DVector3& tpos, DAngle& tang)
     SWStatIterator it(STAT_QUAKE_ON);
 	while ((actor = it.Next()))
 	{
-        auto dist = (pp->pos - actor->spr.pos).Length();
+        auto dist = (pp->PlayerNowPosition - actor->spr.pos).Length();
 
         // shake whole level
         if (QUAKE_TestDontTaper(actor))
@@ -277,7 +277,7 @@ void SpawnQuake(sectortype* sect, const DVector3& pos, int tics, int amt, int ra
 
 bool SetQuake(PLAYER* pp, short tics, short amt)
 {
-    SpawnQuake(pp->cursector, pp->pos,  tics, amt, 30000);
+    SpawnQuake(pp->cursector, pp->PlayerNowPosition,  tics, amt, 30000);
     return false;
 }
 
@@ -295,7 +295,7 @@ int SetGunQuake(DSWActor* actor)
 
 int SetPlayerQuake(PLAYER* pp)
 {
-    SpawnQuake(pp->cursector, pp->pos,  40, 8, 40000);
+    SpawnQuake(pp->cursector, pp->PlayerNowPosition,  40, 8, 40000);
     return 0;
 }
 

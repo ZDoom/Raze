@@ -316,7 +316,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
             //    continue;
         }
 
-        dist = (actor->spr.pos - pp->pos).Length();
+        dist = (actor->spr.pos - pp->PlayerNowPosition).Length();
 
         if (dist < near_dist)
         {
@@ -342,7 +342,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
                 continue;
         }
 
-        dist = (actor->spr.pos - pp->pos).Length();
+        dist = (actor->spr.pos - pp->PlayerNowPosition).Length();
 
         DSWActor* plActor = pp->actor;
 

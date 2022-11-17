@@ -2392,7 +2392,7 @@ void InitPlayerSprite(PLAYER* pp)
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
-    auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursector, pp->pos, pp->angle.ang);
+    auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursector, pp->PlayerNowPosition, pp->angle.ang);
 
     pp->actor = actor;
     pp->pnum = pnum;
@@ -2465,7 +2465,7 @@ void SpawnPlayerUnderSprite(PLAYER* pp)
     int pnum = int(pp - Player);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
-                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->pos, pp->angle.ang);
+                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->PlayerNowPosition, pp->angle.ang);
 
     DSWActor* actor = pp->PlayerUnderActor;
 

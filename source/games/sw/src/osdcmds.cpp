@@ -56,9 +56,9 @@ BEGIN_SW_NS
 
 void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
-    Player->pos = DVector3(x,y,z);
+    Player->PlayerNowPosition = DVector3(x,y,z);
 
-    Player->opos = Player->pos;
+    Player->opos = Player->PlayerNowPosition;
 
     if (ang != DAngle::fromDeg(INT_MIN))
     {

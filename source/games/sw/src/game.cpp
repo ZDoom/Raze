@@ -408,7 +408,7 @@ void InitLevel(MapRecord *maprec)
     SpawnSpriteDef sprites;
     DVector3 ppos;
     loadMap(maprec->fileName, SW_SHAREWARE ? 1 : 0, &ppos, &ang, &cursect, sprites);
-    Player[0].pos = ppos;
+    Player[0].PlayerNowPosition = ppos;
     spawnactors(sprites);
     Player[0].cursector = cursect;
 

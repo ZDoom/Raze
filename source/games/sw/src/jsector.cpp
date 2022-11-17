@@ -424,7 +424,7 @@ void JS_ProcessEchoSpot()
     while (auto actor = it.Next())
     {
         double maxdist = SP_TAG4(actor) * maptoworld;
-        auto v = actor->spr.pos.XY() - pp->pos.XY();
+        auto v = actor->spr.pos.XY() - pp->PlayerNowPosition.XY();
         double dist = abs(v.X) + abs(v.Y);
 
         if (dist <= maxdist) // tag4 = ang
@@ -598,7 +598,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
-                    if (pp->pos.X == pp->opos.X && pp->pos.Y == pp->opos.Y && pp->pos.Z == pp->opos.Z)
+                    if (pp->PlayerNowPosition.X == pp->opos.X && pp->PlayerNowPosition.Y == pp->opos.Y && pp->PlayerNowPosition.Z == pp->opos.Z)
                         DoCam = true;
 
 
@@ -612,7 +612,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
-                                drawroomstotile(cp->pos, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->PlayerNowPosition, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {

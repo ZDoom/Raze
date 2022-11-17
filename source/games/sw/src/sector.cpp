@@ -1549,7 +1549,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->pos, pp->cursector, actor->spr.pos.plusZ(ActorSizeZ(actor) * -0.5), actor->sector()))
+        if (!FAFcansee(pp->PlayerNowPosition, pp->cursector, actor->spr.pos.plusZ(ActorSizeZ(actor) * -0.5), actor->sector()))
             return false;
     }
 
@@ -2027,7 +2027,7 @@ void OperateTripTrigger(PLAYER* pp)
         {
             if (actor->user.Flags & (SPR_WAIT_FOR_TRIGGER))
             {
-                if ((actor->spr.pos.XY() - pp->pos.XY()).Length() < dist)
+                if ((actor->spr.pos.XY() - pp->PlayerNowPosition.XY()).Length() < dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_TRIGGER);
@@ -2140,7 +2140,7 @@ bool NearThings(PLAYER* pp)
         return false;
     }
 
-    neartag(pp->pos, pp->cursector, pp->angle.ang, near, 64., NT_Lotag | NT_Hitag);
+    neartag(pp->PlayerNowPosition, pp->cursector, pp->angle.ang, near, 64., NT_Lotag | NT_Hitag);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2173,12 +2173,12 @@ bool NearThings(PLAYER* pp)
     {
         HitInfo hit{};
 
-        FAFhitscan(pp->pos.plusZ(-30), pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->PlayerNowPosition.plusZ(-30), pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return false;
 
-        if ((hit.hitpos.XY() - pp->pos.XY()).Length() > 93.75)
+        if ((hit.hitpos.XY() - pp->PlayerNowPosition.XY()).Length() > 93.75)
             return false;
 
         // hit a sprite?
@@ -2221,7 +2221,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int typ
     HitInfo near;
 
 
-    neartag(DVector3(pp->pos.XY(), z), pp->cursector, pp->angle.ang, near, dist, type);
+    neartag(DVector3(pp->PlayerNowPosition.XY(), z), pp->cursector, pp->angle.ang, near, dist, type);
 
     if (near.hitSector != nullptr)
     {
@@ -2346,7 +2346,7 @@ int DoPlayerGrabStar(PLAYER* pp)
         auto actor = StarQueue[i];
         if (actor != nullptr)
         {
-            if ((actor->spr.pos - pp->pos).plusZ(12).Length() < 31.25)
+            if ((actor->spr.pos - pp->PlayerNowPosition).plusZ(12).Length() < 31.25)
             {
                 break;
             }
@@ -2404,7 +2404,7 @@ void PlayerOperateEnv(PLAYER* pp)
                 NearThings(pp); // Check for player sound specified in a level sprite
             }
 
-            BuildNearTagList(nti, sizeof(nti), pp, pp->pos.Z, 128, NT_Lotag | NT_Hitag, 8);
+            BuildNearTagList(nti, sizeof(nti), pp, pp->PlayerNowPosition.Z, 128, NT_Lotag | NT_Hitag, 8);
 
             found = false;
 
@@ -2935,7 +2935,7 @@ void DoSector(void)
             }
             else
             {
-				double dist = (pp->pos.XY() - sop->pmid.XY()).Length();
+				double dist = (pp->PlayerNowPosition.XY() - sop->pmid.XY()).Length();
                 if (dist < min_dist)
                     min_dist = dist;
             }

@@ -435,9 +435,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("x", w.pos.X)
-			("y", w.pos.Y)
-			("z", w.pos.Z)
+		arc("x", w.PlayerNowPosition.X)
+			("y", w.PlayerNowPosition.Y)
+			("z", w.PlayerNowPosition.Z)
 			("lv_sectnum", w.lv_sector)
 			("lv_x", w.lv.X)
 			("lv_y", w.lv.Y)
@@ -574,7 +574,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	}
 	if (arc.isReading())
 	{
-		w.opos = w.pos;
+		w.opos = w.PlayerNowPosition;
 		w.ovect = w.vect;
 		w.obob_z = w.bob_z;
 		w.input = {};

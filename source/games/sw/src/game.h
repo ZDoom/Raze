@@ -538,7 +538,7 @@ struct PLAYER
 {
     // variable that fit in the sprite or user structure
 
-    DVector3 pos, opos, oldpos;
+    DVector3 PlayerNowPosition, opos, oldpos;
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -1902,7 +1902,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
 {
-    return absangle((a->spr.pos - pp->pos).Angle(), pp->angle.ang) < range;
+    return absangle((a->spr.pos - pp->PlayerNowPosition).Angle(), pp->angle.ang) < range;
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)

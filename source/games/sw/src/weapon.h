@@ -40,7 +40,7 @@ inline DAngle AngToSprite(DSWActor* actor, DSWActor* other)
 
 inline DAngle AngToPlayer(PLAYER* player, DSWActor* other)
 {
-    return (player->pos - other->spr.pos).Angle();
+    return (player->PlayerNowPosition - other->spr.pos).Angle();
 }
 
 

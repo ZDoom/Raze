@@ -811,7 +811,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             else // Otherwise just interpolate the player sprite
             {
                 pp = tActor->user.PlayerP;
-                tsp->pos = interpolatedvalue(pp->opos, pp->pos, interpfrac);
+                tsp->pos = interpolatedvalue(pp->opos, pp->PlayerNowPosition, interpfrac);
                 tsp->angle = pp->angle.interpolatedang(interpfrac);
             }
         }
@@ -965,7 +965,7 @@ void post_analyzesprites(tspriteArray& tsprites)
 std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
     PLAYER* pp = Player + myconnectindex;
-    return std::make_pair(pp->pos, pp->angle.ang);
+    return std::make_pair(pp->PlayerNowPosition, pp->angle.ang);
 }
 
 //---------------------------------------------------------------------------
@@ -1240,7 +1240,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     }
 
     // Get initial player position, interpolating if required.
-    DVector3 tpos = interpolatedvalue(camerapp->opos, camerapp->pos, interpfrac);
+    DVector3 tpos = interpolatedvalue(camerapp->opos, camerapp->PlayerNowPosition, interpfrac);
     if (SyncInput() || pp != Player+myconnectindex)
     {
         tang = camerapp->angle.interpolatedsum(interpfrac);
@@ -1261,14 +1261,14 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     {
         if (pp->sop_control && (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
-            tpos = pp->pos;
+            tpos = pp->PlayerNowPosition;
             tang = pp->angle.ang;
         }
         tsect = pp->cursector;
         updatesectorz(tpos, &tsect);
     }
 
-    pp->si = tpos.plusZ(-pp->pos.Z);
+    pp->si = tpos.plusZ(-pp->PlayerNowPosition.Z);
     pp->siang = tang;
 
     QuakeViewChange(camerapp, tpos, tang);
