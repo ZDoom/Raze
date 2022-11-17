@@ -1060,24 +1060,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case FIREEXT:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->spr.extra = gs.impact_damage << 2;
-
-		if (ud.multimode < 2 && act->spr.pal != 0)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-
-		act->spr.pal = 0;
-		act->SetOwner(act);
-		ChangeActorStat(act, STAT_STANDABLE);
-		act->vel.X = 0.5;
-		ssp(act, CLIPMASK0);
-		break;
-
 	case TOILET:
 	case STALL:
 		act->spr.lotag = 1;

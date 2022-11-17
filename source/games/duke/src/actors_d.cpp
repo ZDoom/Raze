@@ -796,63 +796,6 @@ void movefallers_d(void)
 
 //---------------------------------------------------------------------------
 //
-// Duke only
-//
-//---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
-//
-// Duke only
-//
-//---------------------------------------------------------------------------
-
-static void movefireext(DDukeActor* actor)
-{
-	int j = fi.ifhitbyweapon(actor);
-	if (j == -1) return;
-
-	for (int k = 0; k < 16; k++)
-	{
-		auto a = randomAngle();
-		auto vel = krandf(4) + 4;
-		auto zvel = -krandf(16) - actor->vel.Z * 0.25;
-		auto spawned = CreateActor(actor->sector(), actor->spr.pos.plusZ(krandf(-48)), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, actor, STAT_MISC);
-		if (spawned)
-		{
-			if (spawned) spawned->spriteextra = Scrap3 + krand() & 3;
-			spawned->spr.pal = 2;
-		}
-	}
-
-	spawn(actor, EXPLOSION2);
-	S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
-	S_PlayActorSound(GLASS_HEAVYBREAK, actor);
-
-	if (actor->spr.hitag > 0)
-	{
-		DukeStatIterator it(STAT_STANDABLE);
-		while (auto a1 = it.Next())
-		{
-			if (actor->spr.hitag == a1->spr.hitag && actorflag(a1, SFLAG2_BRIGHTEXPLODE))
-				if (a1->spr.shade != -32)
-					a1->spr.shade = -32;
-		}
-
-		int x = actor->spr.extra;
-		spawn(actor, EXPLOSION2);
-		fi.hitradius(actor, gs.pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
-		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
-		detonate(actor, EXPLOSION2);
-	}
-	else
-	{
-		fi.hitradius(actor, gs.seenineblastradius, 10, 15, 20, 25);
-		deletesprite(actor);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
@@ -1000,11 +943,6 @@ void movestandables_d(void)
 		{
 			CallTick(act);
 			continue;
-		}
-
-		else if (picnum == FIREEXT)
-		{
-			movefireext(act);
 		}
 
 		else if (picnum == OOZFILTER || picnum == SEENINE || picnum == SEENINEDEAD || picnum == (SEENINEDEAD + 1))
