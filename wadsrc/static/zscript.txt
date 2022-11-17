@@ -56,6 +56,7 @@ version "4.10"
 #include "zscript/games/duke/actors/scrap.zs"
 #include "zscript/games/duke/actors/cactus.zs"
 #include "zscript/games/duke/actors/tripbomb.zs"
+#include "zscript/games/duke/actors/crack.zs"
 
 #include "zscript/games/blood/bloodgame.zs"
 #include "zscript/games/blood/ui/menu.zs"

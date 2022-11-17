@@ -317,6 +317,21 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ChangeStat, ChangeActorStat)
 	return 0;
 }
 
+void DukeActor_detonate(DDukeActor* origin, int intname)
+{
+	// all callers use "EXPLOSION2", so ignore the parameter for now
+	int picnum = TileFiles.tileForName("EXPLOSION2");
+	detonate(origin, picnum);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, detonate, DukeActor_detonate)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(type);
+	DukeActor_detonate(self, type);
+	return 0;
+}
+
 
 // temporary helpers to hide the fact that these flags are not part of the actor yet.
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)

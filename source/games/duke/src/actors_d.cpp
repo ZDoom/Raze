@@ -802,39 +802,6 @@ void movefallers_d(void)
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-static void movecrack(DDukeActor* actor)
-{
-	if (actor->spr.hitag > 0)
-	{
-		actor->temp_data[0] = actor->spr.cstat;
-		actor->temp_angle = actor->spr.angle;
-		int j = fi.ifhitbyweapon(actor);
-		if (gs.actorinfo[j].flags2 & SFLAG2_EXPLOSIVE)
-		{
-			DukeStatIterator it(STAT_STANDABLE);
-			while (auto a1 = it.Next())
-			{
-				if (actor->spr.hitag == a1->spr.hitag && actorflag(a1, SFLAG2_BRIGHTEXPLODE))
-					if (a1->spr.shade != -32)
-						a1->spr.shade = -32;
-			}
-			detonate(actor, EXPLOSION2);
-		}
-		else
-		{
-			actor->spr.cstat = ESpriteFlags::FromInt(actor->temp_data[0]);
-			actor->spr.angle = actor->temp_angle;
-			actor->spr.extra = 0;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // Duke only
 //
 //---------------------------------------------------------------------------
@@ -1033,11 +1000,6 @@ void movestandables_d(void)
 		{
 			CallTick(act);
 			continue;
-		}
-
-		else if (picnum >= CRACK1 && picnum <= CRACK1 + 3)
-		{
-			movecrack(act);
 		}
 
 		else if (picnum == FIREEXT)

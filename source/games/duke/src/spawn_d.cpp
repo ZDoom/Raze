@@ -1060,21 +1060,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case CRACK1:
-	case CRACK2:
-	case CRACK3:
-	case CRACK4:
 	case FIREEXT:
-		if (act->spr.picnum == FIREEXT)
-		{
-			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-			act->spr.extra = gs.impact_damage << 2;
-		}
-		else
-		{
-			act->spr.cstat |= (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) ? CSTAT_SPRITE_BLOCK : (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_ALIGNMENT_WALL);
-			act->spr.extra = 1;
-		}
+		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+		act->spr.extra = gs.impact_damage << 2;
 
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{

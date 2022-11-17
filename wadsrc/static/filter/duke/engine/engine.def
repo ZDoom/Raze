@@ -16,4 +16,8 @@ spawnclasses
 	939 = DukeCactusBroke
 	2566 = DukeTripbombPlaced
 	2567 = DukeLaserline
+	546 = DukeCrack1
+	547 = DukeCrack2
+	548 = DukeCrack3
+	549 = DukeCrack4
 }

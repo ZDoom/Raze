@@ -1286,26 +1286,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case CRACK1:
-	case CRACK2:
-	case CRACK3:
-	case CRACK4:
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_ALIGNMENT_WALL;
-		act->spr.extra = 1;
-		if (ud.multimode < 2 && act->spr.pal != 0)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-
-		act->spr.pal = 0;
-		act->SetOwner(act);
-		ChangeActorStat(act, STAT_STANDABLE);
-		act->vel.X = 0.5;
-		ssp(act, CLIPMASK0);
-		break;
-
 	case EMPTYBIKE:
 		if (!isRRRA()) goto default_case;
 		if (ud.multimode < 2 && act->spr.pal == 1)

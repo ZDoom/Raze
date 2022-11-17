@@ -106,10 +106,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			[[fallthrough]];
 		case BULLETHOLE:
-		case CRACK1:
-		case CRACK2:
-		case CRACK3:
-		case CRACK4:
 			t->shade = 16;
 			continue;
 		case NEON1:

@@ -75,6 +75,7 @@ class DukeActor : CoreActor native
 	native DukeActor spawnweaponorammo(int type);
 	native void lotsofglass(int count);
 	native void makeitfall();
+	native void detonate(name type);
 	
 	virtual void BeginPlay() {}
 	virtual void Initialize() {}

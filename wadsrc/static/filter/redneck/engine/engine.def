@@ -13,5 +13,9 @@ spawnclasses
 	1230 = DukeTire
 	1194 = DukeCactus
 	1203 = DukeCactusBroke
+	1075 = DukeCrack1
+	1076 = DukeCrack2
+	1077 = DukeCrack3
+	1078 = DukeCrack4
 }
 
