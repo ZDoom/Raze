@@ -149,6 +149,8 @@ struct Raze
 	native static int GetBuildTime();
 	native static Font PickBigFont(String cmptext = "");
 	native static Font PickSmallFont(String cmptext = "");
+	
+	native static sectortype updatesector(Vector2 pos, sectortype lastsect, double maxdist = 96);
 
 	// game check shortcuts
 

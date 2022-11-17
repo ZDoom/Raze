@@ -599,14 +599,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case LASERLINE:
-			if (!OwnerAc) break;
-			if (t->sectp->lotag == 2) t->pal = 8;
-			t->pos.Z = OwnerAc->spr.pos.Z - 3;
-			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
-				t->scale.Y = (0);
-			t->shade = -127;
-			break;
 		case EXPLOSION2:
 		case EXPLOSION2BOT:
 		case FREEZEBLAST:

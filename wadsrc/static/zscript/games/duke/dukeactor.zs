@@ -40,6 +40,8 @@ class DukeActor : CoreActor native
 	native sectortype temp_sect, actorstayput;
 
 	native DukeActor temp_actor, seek_actor;
+	native Vector3 temp_pos, temp_pos2;
+	native double temp_angle;
 
 
 	flagdef Inventory: flags1, 0;
@@ -65,7 +67,7 @@ class DukeActor : CoreActor native
 	flagdef NoInterpolate: flags1, 20;
 	
 	native void getglobalz();
-	native DukePlayer findplayer();
+	native DukePlayer, double findplayer();
 	native int ifhitbyweapon();
 	native int domove(int clipmask);
 	native void PlayActorSound(int snd);
@@ -82,6 +84,13 @@ class DukeActor : CoreActor native
 	virtual void onUse(DukePlayer user) {}
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
+	
+	native void RandomScrap();
+	native void hitradius(int r, int hp1, int hp2, int hp3, int hp4);
+	native double, DukeActor hitasprite();
+	native void ChangeSector(sectortype s, bool forcetail = false);
+	native void ChangeStat(int s, bool forcetail = false);
+	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags
 	native int actorflag1(int mask);
@@ -95,6 +104,7 @@ class DukeActor : CoreActor native
 extend struct _
 {
 	native @DukeGameInfo gs;
+	native @DukeUserDefs ud;
 	native DukeLevel dlevel;
 }
 

@@ -37,6 +37,22 @@
 #include "vm.h"
 #include "gamefuncs.h"
 
+sectortype* Raze_updatesector(double x, double y, sectortype* sec, double dist)
+{
+	updatesector(DVector2(x, y), &sec, dist);
+	return sec;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, updatesector, Raze_updatesector)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_POINTER(s, sectortype);
+	PARAM_FLOAT(dist);
+	ACTION_RETURN_POINTER(Raze_updatesector(x, y, s, dist));
+}
+
 //=============================================================================
 //
 // internal sector struct - no longer identical with on-disk format
@@ -101,6 +117,7 @@ DEFINE_FIELD_X(tspritetype, tspritetype, xoffset)
 DEFINE_FIELD_X(tspritetype, tspritetype, yoffset)
 DEFINE_FIELD_X(tspritetype, tspritetype, ownerActor)
 DEFINE_FIELD_X(tspritetype, tspritetype, time)
+DEFINE_FIELD_X(tspritetype, tspritetype, pos)
 
 DEFINE_GLOBAL_NAMED(wall, walls)
 DEFINE_GLOBAL_NAMED(sector, sectors)
@@ -691,5 +708,3 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpositionz, coreactor_setpositionz)
 	coreactor_setpositionz(self, x, y, z);
 	return 0;
 }
-
-

@@ -5,6 +5,8 @@ enum EClipMask
 	CLIPMASK1 = (256 << 16) + 64
 };
 
+const MAXPLAYERS = 8;
+
 class CoreActor native
 {
 	const REPEAT_SCALE = 1. / 64.;

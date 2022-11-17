@@ -236,22 +236,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case LASERLINE:
-		act->spr.scale = DVector2(0.5, 0.09375);
-
-		if (gs.lasermode == 1)
-			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_TRANSLUCENT;
-		else if (gs.lasermode == 0 || gs.lasermode == 2)
-			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
-		else
-		{
-			act->spr.scale = DVector2(0, 0);
-		}
-
-		if (actj) act->spr.angle = actj->temp_angle + DAngle90;
-		ChangeActorStat(act, STAT_MISC);
-		break;
-
 	case FORCESPHERE:
 		if (!actj)
 		{
@@ -320,33 +304,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case TRIPBOMB:
-		if (act->spr.lotag > ud.player_skill)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-
-		act->spr.scale = DVector2(0.0625, 0.078125);
-
-		act->SetOwner(act);
-		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
-		act->spr.hitag = ud.bomb_tag;
-
-		act->vel.X = 1;
-		ssp(act, CLIPMASK0);
-		act->temp_data[0] = 17;
-		act->temp_data[2] = 0;
-		act->temp_angle = act->spr.angle;
-		[[fallthrough]];
-
 	case SPACEMARINE:
-		if (act->spr.picnum == SPACEMARINE)
-		{
-			act->spr.extra = 20;
-			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		}
+		act->spr.extra = 20;
+		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 

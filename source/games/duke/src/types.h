@@ -59,8 +59,8 @@ public:
 	// Some SE's stored indices in temp_data. For purposes of clarity avoid that. These variables are meant to store these elements now
 	walltype* temp_walls[2]; // SE20 + SE128
 	sectortype* temp_sect, *actorstayput;
-	DAngle temp_angle; // only used by TRIPBOMB
-	DVector3 temp_pos, temp_pos2; // used by TRIPBOMB, SE_26 and FIREBALL.
+	DAngle temp_angle;
+	DVector3 temp_pos, temp_pos2;
 
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 
@@ -153,10 +153,8 @@ struct user_defs
 
 	int const_visibility;
 
-	int runkey_mode;
-
 	int shadows;
-	int coords, levelstats, m_coop, coop;
+	int coords, m_coop, coop;
 	int wchoice[MAXPLAYERS][MAX_WEAPONS];
 
 	int respawn_monsters, respawn_items, respawn_inventory, recstat, monsters_off, brightness;

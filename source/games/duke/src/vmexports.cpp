@@ -6,14 +6,15 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-DEFINE_ACTION_FUNCTION(_Duke, GetViewPlayer)
+player_struct* duke_getviewplayer()
 {
-	ACTION_RETURN_POINTER(&ps[screenpeek]);
+	return &ps[screenpeek];
 }
 
-DEFINE_ACTION_FUNCTION(_Duke, MaxPlayerHealth)
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getviewplayer, duke_getviewplayer)
 {
-	ACTION_RETURN_INT(gs.max_player_health);
+	PARAM_PROLOGUE;
+	ACTION_RETURN_POINTER(duke_getviewplayer());
 }
 
 DEFINE_ACTION_FUNCTION(_Duke, MaxAmmoAmount)
@@ -113,6 +114,9 @@ DEFINE_FIELD(DDukeActor, spritesetindex)
 DEFINE_FIELD(DDukeActor, temp_walls)
 DEFINE_FIELD(DDukeActor, temp_sect)
 DEFINE_FIELD(DDukeActor, actorstayput)
+DEFINE_FIELD(DDukeActor, temp_pos)
+DEFINE_FIELD(DDukeActor, temp_pos2)
+DEFINE_FIELD(DDukeActor, temp_angle)
 
 static void setSpritesetImage(DDukeActor* self, unsigned int index)
 {
@@ -141,16 +145,20 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, getglobalz, getglobalz)
 	return 0;
 }
 
-player_struct* DukeActor_findplayer(DDukeActor* self)
+player_struct* DukeActor_findplayer(DDukeActor* self, double* dist)
 {
 	double a;
-	return &ps[findplayer(self, &a)];
+	return &ps[findplayer(self, dist? dist : &a)];
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, findplayer, DukeActor_findplayer)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
-	ACTION_RETURN_POINTER(DukeActor_findplayer(self));
+	double d;
+	auto p = DukeActor_findplayer(self, &d);
+	if (numret > 0) ret[0].SetPointer(p);
+	if (numret > 1) ret[1].SetFloat(d);
+	return min(numret, 2);
 }
 
 int DukeActor_ifhitbyweapon(DDukeActor* self)
@@ -199,6 +207,11 @@ DDukeActor* DukeActor_Spawn(DDukeActor* origin, int intname)
 	{
 		picnum = TileFiles.tileForName("BLOODPOOL");
 	}
+	if (FName(ENamedName(intname)) == FName("DukeExplosion2"))
+	{
+		picnum = TileFiles.tileForName("EXPLOSION2");
+	}
+	
 
 	if (picnum == -1)
 	{
@@ -252,7 +265,60 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, makeitfall, makeitfall)
 	return 0;
 }
 
-// temporary helpers.
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, RandomScrap, RANDOMSCRAP)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	RANDOMSCRAP(self);
+	return 0;
+}
+
+void DukeActor_hitradius(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
+{
+	fi.hitradius(actor, r, hp1, hp2, hp3, hp4);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, hitradius, DukeActor_hitradius)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(r);
+	PARAM_INT(h1);
+	PARAM_INT(h2);
+	PARAM_INT(h3);
+	PARAM_INT(h4);
+	DukeActor_hitradius(self, r, h1, h2, h3, h4);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, hitasprite, hitasprite)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	DDukeActor* p;
+	double d = hitasprite(self, &p);
+	if (numret > 0) ret[0].SetFloat(d);
+	if (numret > 1) ret[1].SetPointer(p);
+	return min(numret, 2);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ChangeSector, ChangeActorSect)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(sec, sectortype);
+	PARAM_INT(tail);
+	ChangeActorSect(self, sec, tail);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ChangeStat, ChangeActorStat)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(stat);
+	PARAM_INT(tail);
+	ChangeActorStat(self, stat, tail);
+	return 0;
+}
+
+
+// temporary helpers to hide the fact that these flags are not part of the actor yet.
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
@@ -282,7 +348,6 @@ DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag2)
 }
 
 
- 
 //---------------------------------------------------------------------------
 //
 // DukePlayer
@@ -656,6 +721,30 @@ DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, impact_damage);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerheight);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, displayflags);
 DEFINE_GLOBAL_UNSIZED(gs)
+
+DEFINE_FIELD_X(DukeUserDefs, user_defs, god);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, cashman);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, eog);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, clipping);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, user_pals);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, from_bonus);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, last_level);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, secretlevel);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, const_visibility);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, coop);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, respawn_monsters);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, respawn_items);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, respawn_inventory);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, recstat); 
+DEFINE_FIELD_X(DukeUserDefs, user_defs, monsters_off);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, brightness);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, ffire);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, multimode);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, player_skill);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, marker);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, bomb_tag);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, cameraactor);
+DEFINE_GLOBAL_UNSIZED(ud)
 
 
 // this is only a temporary helper until weaponsandammosprites can be migrated to real class types. We absolutely do not want any access to tile numbers in the scripts - even now.

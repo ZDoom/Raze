@@ -500,3 +500,12 @@ DEFINE_PROPERTY(spriteset, Sssssssssssssssssssssssssssssss, CoreActor)
 	}
 }
 
+//==========================================================================
+//
+//==========================================================================
+DEFINE_PROPERTY(health, I, CoreActor)
+{
+	PROP_INT_PARM(i, 0);
+	bag.Info->ActorInfo()->Health = i;
+}
+

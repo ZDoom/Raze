@@ -73,7 +73,6 @@ struct Duke native
 	native static void StopSound(int num);
 	native static bool CheckSoundPlaying(int num);
 	native static DukePlayer GetViewPlayer();
-	native static int MaxPlayerHealth();
 	native static int MaxAmmoAmount(int weap);
 	native static DukePlayer checkcursectnums(sectortype sect);
 
@@ -120,7 +119,7 @@ struct Duke native
 	}
 }
 
-struct DukePlayer 
+struct DukePlayer native
 {
 	native Vector3 pos;
 
@@ -1269,4 +1268,22 @@ struct DukeGameInfo native
 	readonly native int impact_damage;
 	readonly native double playerheight;
 	readonly native int displayflags;
+}
+
+
+struct DukeUserDefs native
+{
+	native readonly uint8 god, cashman, eog;
+	native readonly uint8 clipping;
+	native readonly uint8 user_pals[MAXPLAYERS];
+	native readonly int16 from_bonus;
+	native readonly int16 last_level, secretlevel;
+	native readonly int const_visibility;
+	native readonly int coop;
+	native readonly int respawn_monsters, respawn_items, respawn_inventory, recstat, monsters_off, brightness;
+	native readonly int ffire, multimode;
+	native readonly int player_skill, marker;
+
+	native int16 bomb_tag;
+	native DukeActor cameraactor;
 }

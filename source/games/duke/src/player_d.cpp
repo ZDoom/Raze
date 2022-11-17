@@ -859,7 +859,9 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 					+ MulScale(krand(), lLifetimeVar, 14)
 					- lLifetimeVar;
 				}
+				bomb->spr.detail = lTripBombControl;
 			}
+			else bomb->spr.detail = TRIPBOMB_TRIPWIRE;
 
 			// this originally used the sprite index as tag to link the laser segments.
 			// This value is never used again to reference an actor by index. Decouple this for robustness.

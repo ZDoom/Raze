@@ -43,6 +43,7 @@ struct FActorInfo
 	int TypeNum = -1;
 	int DefaultFlags = 0;
 	int DefaultCstat = 0;
+	int Health = 0;	// not used yet - this will stand in if no CON defines a health value for Duke.
 	spritetype defsprite{};	// Due to how the map format works we cannot define defaults for the sprite itself. These must be applied later.
 
 	// these are temporary. Due to how Build games handle their tiles, we cannot look up the textures when scripts are being parsed.

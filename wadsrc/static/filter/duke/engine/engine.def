@@ -14,4 +14,6 @@ spawnclasses
 	990 = DukeTire
 	911 = DukeCactus
 	939 = DukeCactusBroke
+	2566 = DukeTripbombPlaced
+	2567 = DukeLaserline
 }
