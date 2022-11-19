@@ -826,12 +826,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_ACTIVATOR);
 		break;
 
-	case DOORSHOCK:
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		act->spr.shade = -12;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-
 	case OOZ:
 	case OOZ2:
 	{

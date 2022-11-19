@@ -673,20 +673,6 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movedoorshock(DDukeActor* actor)
-{
-	auto sectp = actor->sector();
-	double j = abs(sectp->ceilingz - sectp->floorz) / 128.;
-	actor->spr.scale = DVector2(0.25, 0.0625 + j);
-	actor->spr.pos.Z = sectp->floorz;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void movetouchplate(DDukeActor* actor, int plate)
 {
 	auto sectp = actor->sector();

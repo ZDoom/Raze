@@ -732,11 +732,6 @@ void movestandables_r(void)
 			continue;
 		}
 
-		else if (picnum == DOORSHOCK)
-		{
-			movedoorshock(act);
-		}
-
 		else if (picnum == TOUCHPLATE)
 		{
 			movetouchplate(act, TOUCHPLATE);

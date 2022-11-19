@@ -32,7 +32,6 @@ void movefta();
 void clearcameras(int i, player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, int explosion);
-void movedoorshock(DDukeActor* i);
 void movetouchplate(DDukeActor* i, int plate);
 void movecanwithsomething(DDukeActor* i);
 void bounce(DDukeActor* i);
