@@ -6,6 +6,7 @@ enum EClipMask
 };
 
 const MAXPLAYERS = 8;
+const MAXSTATUS = 1024;
 
 class CoreActor native
 {
@@ -54,4 +55,3 @@ class CoreActor native
 	native void setPosition(Vector3 pos);
 	native void setPositionZ(Vector3 pos);
 }
-

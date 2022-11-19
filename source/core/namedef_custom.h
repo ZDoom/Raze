@@ -10,3 +10,6 @@ xx(MultiMenu)
 xx(RazeStatusBar)
 xx(zoomsize)
 xx(AltHud)
+
+// internal Duke actor classes that need direct checking
+xx(DukeMasterSwitch)

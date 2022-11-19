@@ -945,11 +945,6 @@ void movestandables_d(void)
 			continue;
 		}
 
-		else if (picnum == MASTERSWITCH)
-		{
-			movemasterswitch(act);
-		}
-
 		else if (picnum == VIEWSCREEN || picnum == VIEWSCREEN2)
 		{
 			moveviewscreen(act);

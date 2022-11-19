@@ -1,3 +1,55 @@
+// sector effector lotags. Preferably these should be eliminated once SE's get converted to classes. Until then we still need these.
+enum EEffectorTypes
+{
+	SE_0_ROTATING_SECTOR              = 0,
+	SE_1_PIVOT                        = 1,
+	SE_2_EARTHQUAKE                   = 2,
+	SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT = 3,
+	SE_4_RANDOM_LIGHTS                = 4,
+	SE_5_BOSS                         = 5,
+	SE_6_SUBWAY                       = 6,
+
+	SE_7_TELEPORT                      = 7,
+	SE_8_UP_OPEN_DOOR_LIGHTS           = 8,
+	SE_9_DOWN_OPEN_DOOR_LIGHTS         = 9,
+	SE_10_DOOR_AUTO_CLOSE              = 10,
+	SE_11_SWINGING_DOOR                = 11,
+	SE_12_LIGHT_SWITCH                 = 12,
+	SE_13_EXPLOSIVE                    = 13,
+	SE_14_SUBWAY_CAR                   = 14,
+	SE_15_SLIDING_DOOR                 = 15,
+	SE_16_REACTOR                      = 16,
+	SE_17_WARP_ELEVATOR                = 17,
+	SE_18_INCREMENTAL_SECTOR_RISE_FALL = 18,
+	SE_19_EXPLOSION_LOWERS_CEILING     = 19,
+	SE_20_STRETCH_BRIDGE               = 20,
+	SE_21_DROP_FLOOR                   = 21,
+	SE_22_TEETH_DOOR                   = 22,
+	SE_23_ONE_WAY_TELEPORT             = 23,
+	SE_24_CONVEYOR                     = 24,
+	SE_25_PISTON                       = 25,
+	SE_26                              = 26,
+	SE_27_DEMO_CAM                     = 27,
+	SE_28_LIGHTNING                    = 28,
+	SE_29_WAVES                        = 29,
+	SE_30_TWO_WAY_TRAIN                = 30,
+	SE_31_FLOOR_RISE_FALL              = 31,
+	SE_32_CEILING_RISE_FALL            = 32,
+	SE_33_QUAKE_DEBRIS                 = 33,
+	SE_34                              = 34,
+	SE_35                              = 35,
+	SE_36_PROJ_SHOOTER                 = 36,
+	SE_47_LIGHT_SWITCH                 = 47,
+	SE_48_LIGHT_SWITCH                 = 48,
+	SE_49_POINT_LIGHT                  = 49,
+	SE_50_SPOT_LIGHT                   = 50,
+	SE_128_GLASS_BREAKING              = 128,
+	SE_130                             = 130,
+	SE_131                             = 131,
+	SE_156_CONVEYOR_NOSCROLL           = 156,
+};
+
+
 class DukeActor : CoreActor native
 {
 	enum EStatnums
@@ -21,6 +73,9 @@ class DukeActor : CoreActor native
 
 		STAT_DESTRUCT		= 100,
 		STAT_BOWLING		= 105,
+
+		STAT_REMOVED		= MAXSTATUS-2,
+
 	};
 	
 	native void SetSpritesetImage(int index);
@@ -78,6 +133,7 @@ class DukeActor : CoreActor native
 	native void makeitfall();
 	native void detonate(name type);
 	native void checkhitdefault(DukeActor proj);
+	native void operatesectors(sectortype sec);
 	
 	virtual void BeginPlay() {}
 	virtual void Initialize() {}

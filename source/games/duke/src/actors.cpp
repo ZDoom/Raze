@@ -673,59 +673,6 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movemasterswitch(DDukeActor *actor)
-{
-	if (actor->spr.yint == 1)
-	{
-		actor->spr.hitag--;
-		if (actor->spr.hitag <= 0)
-		{
-			operatesectors(actor->sector(), actor);
-
-			DukeSectIterator it(actor->sector());
-			while (auto effector = it.Next())
-			{
-				if (effector->spr.statnum == STAT_EFFECTOR)
-				{
-					switch (effector->spr.lotag)
-					{
-					case SE_2_EARTHQUAKE:
-					case SE_21_DROP_FLOOR:
-					case SE_31_FLOOR_RISE_FALL:
-					case SE_32_CEILING_RISE_FALL:
-					case SE_36_PROJ_SHOOTER:
-						effector->temp_data[0] = 1;
-						break;
-					case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
-						effector->temp_data[4] = 1;
-						break;
-					}
-				}
-				else if (effector->spr.statnum == STAT_STANDABLE)
-				{
-					if (actorflag(effector, SFLAG2_BRIGHTEXPLODE)) // _SEENINE_ and _OOZFILTER_
-					{
-						effector->spr.shade = -31;
-					}
-				}
-			}
-			// we cannot delete this because it may be used as a sound source.
-			// This originally depended on undefined behavior as the deleted sprite was still used for the sound
-			// with no checking if it got reused in the mean time.
-			actor->spr.picnum = 0;	// give it a picnum without any behavior attached, just in case
-			actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-			actor->spr.cstat2 |= CSTAT2_SPRITE_NOFIND;
-			ChangeActorStat(actor, STAT_REMOVED);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void movetrash(DDukeActor *actor)
 {
 	if (actor->vel.X == 0) actor->vel.X = 1 / 16.;
@@ -1530,7 +1477,7 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 			DukeStatIterator it(STAT_STANDABLE);
 			while (auto a2 = it.Next())
 			{
-				if (a2->spr.picnum == MASTERSWITCH)
+				if (ismasterswitch(a2))
 					if (a2->spr.hitag == actor->spr.hitag)
 						if (a2->spr.yint == 0)
 							a2->spr.yint = 1;

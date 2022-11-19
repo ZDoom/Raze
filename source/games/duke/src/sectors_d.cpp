@@ -1731,7 +1731,7 @@ void checksectors_d(int snum)
 			DukeSectIterator it(near.hitSector);
 			while (auto act = it.Next())
 			{
-				if (act->spr.picnum == ACTIVATOR || act->spr.picnum == MASTERSWITCH)
+				if (act->spr.picnum == ACTIVATOR || ismasterswitch(act))
 					return;
 			}
 			operatesectors(near.hitSector, p->GetActor());
@@ -1743,7 +1743,7 @@ void checksectors_d(int snum)
 				DukeSectIterator it(p->GetActor()->sector());
 				while (auto act = it.Next())
 				{
-					if (act->spr.picnum == ACTIVATOR || act->spr.picnum == MASTERSWITCH) return;
+					if (act->spr.picnum == ACTIVATOR || ismasterswitch(act)) return;
 				}
 				operatesectors(p->GetActor()->sector(), p->GetActor());
 			}

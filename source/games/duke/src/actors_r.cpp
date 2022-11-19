@@ -793,11 +793,6 @@ void movestandables_r(void)
 			continue;
 		}
 
-		else if (picnum == MASTERSWITCH)
-		{
-			movemasterswitch(act);
-		}
-
 		else if (picnum == TRASH)
 		{
 			movetrash(act);

@@ -50,7 +50,6 @@ void premapcontroller(DDukeActor* ac)
 	case ACTIVATOR:
 	case ACTIVATORLOCKED:
 	case LOCATORS:
-	case MASTERSWITCH:
 	case MUSICANDSFX:
 	case RESPAWN:
 	case SECTOREFFECTOR:
@@ -965,6 +964,12 @@ static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& sprites)
 			spawns.Pop();
 			continue;
 		}
+		if (i == 210)
+		{
+			int a = 0;
+		}
+
+
 		auto sprt = &sprites.sprites[i];
 		auto info = spawnMap.CheckKey(sprt->picnum);
 		auto actor = static_cast<DDukeActor*>(InsertActor(info? info->Class() : RUNTIME_CLASS(DDukeActor), sprt->sectp, sprt->statnum));

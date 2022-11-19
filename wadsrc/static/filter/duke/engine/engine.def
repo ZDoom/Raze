@@ -1,5 +1,7 @@
 spawnclasses
 {
+	8 = DukeMasterSwitch
+	
 	1221 = DukeCranePole
 	1222 = DukeCrane
 	563 = DukeWaterFountain

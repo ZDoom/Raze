@@ -1201,7 +1201,7 @@ void operatemasterswitches(int low)
 	DukeStatIterator it(STAT_STANDABLE);
 	while (auto act2 = it.Next())
 	{
-		if (act2->spr.picnum == MASTERSWITCH && act2->spr.lotag == low && act2->spr.yint == 0)
+		if (ismasterswitch(act2) && act2->spr.lotag == low && act2->spr.yint == 0)
 			act2->spr.yint = 1;
 	}
 }

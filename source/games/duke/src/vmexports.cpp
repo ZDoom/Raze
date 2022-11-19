@@ -357,6 +357,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, checkhitdefault, DukeActor_checkhitdef
 	return 0;
 }
 
+void DukeActor_operatesectors(DDukeActor* origin, sectortype* sector)
+{
+	operatesectors(sector, origin);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, operatesectors, DukeActor_operatesectors)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(sec, sectortype);
+	operatesectors(sec, self);
+	return 0;
+}
+
 // temporary helpers to hide the fact that these flags are not part of the actor yet.
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)
 {

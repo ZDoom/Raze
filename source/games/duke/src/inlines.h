@@ -11,6 +11,13 @@ inline int rnd(int X)
 	return ((krand() >> 8) >= (255 - (X)));
 }
 
+// internal controller classes can be directly checked for by type
+inline int ismasterswitch(DDukeActor* actor)
+{
+	// The STAT_REMOVED check here is important!
+	return actor->GetClass()->TypeName == NAME_DukeMasterSwitch && actor->spr.statnum != STAT_REMOVED;
+}
+
 inline int badguypic(int const tileNum)
 {
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);
