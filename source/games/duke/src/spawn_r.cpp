@@ -39,8 +39,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 {
 	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
-		auto sset = act->spriteset();
-		if (sset.Size() > 0) act->spr.picnum = sset[0];
 		CallInitialize(act);
 		return act;
 	}

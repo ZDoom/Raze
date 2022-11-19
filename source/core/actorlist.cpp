@@ -348,35 +348,9 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 	assert(type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)));
 
 	auto actor = static_cast<DCoreActor*>(type->CreateNew());
+	auto defaults = GetDefaultByType(type);
 	auto actorinfo = static_cast<PClassActor*>(actor->GetClass())->ActorInfo();
-	if (actorinfo)
-	{
-		actor->spr.cstat = (actor->spr.cstat & ~ESpriteFlags::FromInt(actorinfo->DefaultCstat)) | (actorinfo->defsprite.cstat & ESpriteFlags::FromInt(actorinfo->DefaultCstat));
-
-#define setter(flag, var) if (actorinfo->DefaultFlags & flag) actor->spr.var = actorinfo->defsprite.var;
-
-		if (actorinfo->DefaultFlags & DEFF_STATNUM) stat = actorinfo->defsprite.statnum;
-		setter(DEFF_PICNUM, picnum);
-		setter(DEFF_ANG, angle);
-		setter(DEFF_XVEL, xint);
-		setter(DEFF_YVEL, yint);
-		setter(DEFF_ZVEL, inittype);
-		setter(DEFF_HITAG, hitag);
-		setter(DEFF_LOTAG, lotag);
-		setter(DEFF_EXTRA, extra);
-		setter(DEFF_DETAIL, detail);
-		setter(DEFF_SHADE, shade);
-		setter(DEFF_PAL, pal);
-		setter(DEFF_CLIPDIST, clipdist);
-		setter(DEFF_BLEND, blend);
-		setter(DEFF_XREPEAT, scale.X);
-		setter(DEFF_YREPEAT, scale.Y);
-		setter(DEFF_XOFFSET, xoffset);
-		setter(DEFF_YOFFSET, yoffset);
-		setter(DEFF_OWNER, intowner);
-
-#undef setter
-	}
+	if (actorinfo && actorinfo->DefaultFlags & DEFF_STATNUM) stat = defaults->spr.statnum;
 	GC::WriteBarrier(actor);
 
 	InsertActorStat(actor, stat, tail);
@@ -385,6 +359,44 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 	Numsprites++;
 	actor->time = leveltimer++;
 	return actor;
+}
+
+void DCoreActor::initFromSprite(spritetype* mspr)
+{
+	auto actorinfo = static_cast<PClassActor*>(GetClass())->ActorInfo();
+
+	spr.cstat = (mspr->cstat & ~ESpriteFlags::FromInt(actorinfo->DefaultCstat)) | (spr.cstat & ESpriteFlags::FromInt(actorinfo->DefaultCstat));
+	spr.pos = mspr->pos;
+	spr.sectp = mspr->sectp;
+
+	// only copy those values which have not been defaulted by the class definition.
+#define setter(flag, var) if (!(actorinfo->DefaultFlags & flag)) spr.var = mspr->var;
+
+	setter(DEFF_PICNUM, picnum);
+	setter(DEFF_ANG, angle);
+	setter(DEFF_INTANG, intangle);
+	setter(DEFF_XVEL, xint);
+	setter(DEFF_YVEL, yint);
+	setter(DEFF_ZVEL, inittype);
+	setter(DEFF_HITAG, hitag);
+	setter(DEFF_LOTAG, lotag);
+	setter(DEFF_EXTRA, extra);
+	setter(DEFF_DETAIL, detail);
+	setter(DEFF_SHADE, shade);
+	setter(DEFF_PAL, pal);
+	setter(DEFF_CLIPDIST, clipdist);
+	setter(DEFF_BLEND, blend);
+	setter(DEFF_XREPEAT, scale.X);
+	setter(DEFF_YREPEAT, scale.Y);
+	setter(DEFF_XOFFSET, xoffset);
+	setter(DEFF_YOFFSET, yoffset);
+	setter(DEFF_OWNER, intowner);
+
+#undef setter
+
+	clipdist = spr.clipdist * 0.25;
+	if (mspr->statnum != 0 && !(actorinfo->DefaultFlags & DEFF_STATNUM))
+		ChangeActorStat(this, mspr->statnum);
 }
 
 //==========================================================================

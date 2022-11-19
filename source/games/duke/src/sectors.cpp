@@ -1202,7 +1202,10 @@ void operatemasterswitches(int low)
 	while (auto act2 = it.Next())
 	{
 		if (ismasterswitch(act2) && act2->spr.lotag == low && act2->spr.yint == 0)
+		{
 			act2->spr.yint = 1;
+			Printf("triggering %d\n", act2->time);
+		}
 	}
 }
 

@@ -45,8 +45,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 {
 	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
-		auto sset = act->spriteset();
-		if (sset.Size() > 0) act->spr.picnum = sset[0];
 		CallInitialize(act);
 		return act;
 	}
@@ -700,12 +698,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SIDEBOLT1 + 1:
 	case SIDEBOLT1 + 2:
 	case SIDEBOLT1 + 3:
-		act->temp_pos.X = act->spr.scale.X;
-		act->temp_pos.Y = act->spr.scale.Y;
-		[[fallthrough]];
-	case MASTERSWITCH:
-		if (act->spr.picnum == MASTERSWITCH)
-			act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
+		act->temp_pos.XY() = act->spr.scale;
 		act->spr.yint = 0;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;

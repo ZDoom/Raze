@@ -62,11 +62,7 @@ public:
 	size_t PropagateMark() override;
 	double GetOffsetAndHeight(double& height);
 	
-	void initFromSprite(spritetype* pspr)
-	{
-		spr = *pspr;
-		clipdist = pspr->clipdist * 0.25;
-	}
+	void initFromSprite(spritetype* pspr);
 
 	bool exists() const
 	{

@@ -323,18 +323,28 @@ DEFINE_PROPERTY(pic, S, CoreActor)
 DEFINE_PROPERTY(statnum, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.statnum = i;
+	defaults->spr.statnum = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_STATNUM;
 }
 
 //==========================================================================
 //
 //==========================================================================
-DEFINE_PROPERTY(angle, I, CoreActor)
+DEFINE_PROPERTY(angle, F, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.angle = DAngle::fromDeg(i);
+	defaults->spr.angle = DAngle::fromDeg(i);
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_ANG;
+}
+
+//==========================================================================
+//
+//==========================================================================
+DEFINE_PROPERTY(intangle, I, CoreActor)
+{
+	PROP_INT_PARM(i, 0);
+	defaults->spr.intangle = i;
+	bag.Info->ActorInfo()->DefaultFlags |= DEFF_INTANG;
 }
 
 //==========================================================================
@@ -343,7 +353,7 @@ DEFINE_PROPERTY(angle, I, CoreActor)
 DEFINE_PROPERTY(xvel, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.xint = i;
+	defaults->spr.xint = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_XVEL;
 }
 
@@ -353,7 +363,7 @@ DEFINE_PROPERTY(xvel, I, CoreActor)
 DEFINE_PROPERTY(yvel, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.yint = i;
+	defaults->spr.yint = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_YVEL;
 }
 
@@ -363,7 +373,7 @@ DEFINE_PROPERTY(yvel, I, CoreActor)
 DEFINE_PROPERTY(zvel, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.inittype = i;
+	defaults->spr.inittype = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_ZVEL;
 }
 
@@ -373,7 +383,7 @@ DEFINE_PROPERTY(zvel, I, CoreActor)
 DEFINE_PROPERTY(lotag, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.lotag = i;
+	defaults->spr.lotag = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_LOTAG;
 }
 
@@ -383,7 +393,7 @@ DEFINE_PROPERTY(lotag, I, CoreActor)
 DEFINE_PROPERTY(hitag, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.lotag = i;
+	defaults->spr.lotag = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_HITAG;
 }
 
@@ -393,7 +403,7 @@ DEFINE_PROPERTY(hitag, I, CoreActor)
 DEFINE_PROPERTY(extra, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.lotag = i;
+	defaults->spr.lotag = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_EXTRA;
 }
 
@@ -403,7 +413,7 @@ DEFINE_PROPERTY(extra, I, CoreActor)
 DEFINE_PROPERTY(detail, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.detail = i;
+	defaults->spr.detail = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_DETAIL;
 }
 
@@ -413,7 +423,7 @@ DEFINE_PROPERTY(detail, I, CoreActor)
 DEFINE_PROPERTY(shade, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.shade = i;
+	defaults->spr.shade = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_SHADE;
 }
 
@@ -423,7 +433,7 @@ DEFINE_PROPERTY(shade, I, CoreActor)
 DEFINE_PROPERTY(pal, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.pal = i;
+	defaults->spr.pal = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PAL;
 }
 
@@ -433,7 +443,7 @@ DEFINE_PROPERTY(pal, I, CoreActor)
 DEFINE_PROPERTY(clipdist, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.clipdist = i;
+	defaults->spr.clipdist = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_CLIPDIST;
 }
 
@@ -443,7 +453,7 @@ DEFINE_PROPERTY(clipdist, I, CoreActor)
 DEFINE_PROPERTY(scalex, F, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.scale.X = (i);
+	defaults->spr.scale.X = (i);
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_XREPEAT;
 }
 
@@ -453,7 +463,7 @@ DEFINE_PROPERTY(scalex, F, CoreActor)
 DEFINE_PROPERTY(scaley, F, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.scale.Y = (i);
+	defaults->spr.scale.Y = (i);
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_YREPEAT;
 }
 
@@ -463,7 +473,7 @@ DEFINE_PROPERTY(scaley, F, CoreActor)
 DEFINE_PROPERTY(xoffset, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.xoffset = i;
+	defaults->spr.xoffset = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_XOFFSET;
 }
 
@@ -473,7 +483,7 @@ DEFINE_PROPERTY(xoffset, I, CoreActor)
 DEFINE_PROPERTY(yoffset, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.yoffset = i;
+	defaults->spr.yoffset = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_YOFFSET;
 }
 
@@ -483,7 +493,7 @@ DEFINE_PROPERTY(yoffset, I, CoreActor)
 DEFINE_PROPERTY(owner, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->defsprite.intowner = i;
+	defaults->spr.intowner = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_OWNER;
 }
 
@@ -492,6 +502,7 @@ DEFINE_PROPERTY(owner, I, CoreActor)
 //==========================================================================
 DEFINE_PROPERTY(spriteset, Sssssssssssssssssssssssssssssss, CoreActor)
 {
+	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PICNUM;	// this also overrides the map's picnum
 	info->ActorInfo()->SpriteSetNames.Clear();
 	for (int i = 0; i < PROP_PARM_COUNT; ++i)
 	{
