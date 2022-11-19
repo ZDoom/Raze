@@ -671,13 +671,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case WATERDRIP:
 		initwaterdrip(actj, act);
 		break;
-	case TRASH:
-
-		if (act->spr.picnum != WATERDRIP) act->spr.angle = randomAngle();
-
-		act->spr.scale = DVector2(0.375, 0.375);
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
 
 	case PLUG:
 		act->spr.lotag = 9999;

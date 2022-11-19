@@ -673,25 +673,6 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movetrash(DDukeActor *actor)
-{
-	if (actor->vel.X == 0) actor->vel.X = 1 / 16.;
-	if (ssp(actor, CLIPMASK0))
-	{
-		makeitfall(actor);
-		if (krand() & 1) actor->vel.Z -= 1;
-		if (abs(actor->vel.X) < 3)
-			actor->vel.X += (krand() & 3) / 16.;
-	}
-	else deletesprite(actor);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void movewaterdrip(DDukeActor *actor, int drip)
 {
 	if (actor->temp_data[1])

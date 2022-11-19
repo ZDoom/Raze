@@ -950,11 +950,6 @@ void movestandables_d(void)
 			moveviewscreen(act);
 		}
 
-		else if (picnum == TRASH)
-		{
-			movetrash(act);
-		}
-
 		else if (picnum >= SIDEBOLT1 && picnum <= SIDEBOLT1 + 3)
 		{
 			movesidebolt(act);
