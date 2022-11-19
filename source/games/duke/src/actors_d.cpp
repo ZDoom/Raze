@@ -849,11 +849,6 @@ void movestandables_d(void)
 			moveviewscreen(act);
 		}
 
-		else if (picnum == WATERDRIP)
-		{
-			movewaterdrip(act, WATERDRIP);
-		}
-
 		else if (picnum == DOORSHOCK)
 		{
 			movedoorshock(act);

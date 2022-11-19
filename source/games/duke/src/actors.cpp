@@ -673,48 +673,6 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movewaterdrip(DDukeActor *actor, int drip)
-{
-	if (actor->temp_data[1])
-	{
-		actor->temp_data[1]--;
-		if (actor->temp_data[1] == 0)
-			actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-	}
-	else
-	{
-		makeitfall(actor);
-		ssp(actor, CLIPMASK0);
-		if(actor->vel.X > 0) actor->vel.X -= 1/8.;
-
-		if (actor->vel.Z == 0)
-		{
-			actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-
-			if (actor->spr.pal != 2 && (isRR() || actor->spr.hitag == 0))
-				S_PlayActorSound(SOMETHING_DRIPPING, actor);
-
-			auto Owner = actor->GetOwner();
-			if (!Owner || Owner->spr.picnum != drip)
-			{
-				deletesprite(actor);
-			}
-			else
-			{
-				actor->spr.pos.Z = actor->temp_pos.Z;
-				actor->backupz();
-				actor->temp_data[1] = 48 + (krand() & 31);
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void movedoorshock(DDukeActor* actor)
 {
 	auto sectp = actor->sector();

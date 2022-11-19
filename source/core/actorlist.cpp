@@ -249,7 +249,7 @@ static void AddSectTail(DCoreActor *actor, sectortype* sect)
 //
 //==========================================================================
 
-static void AddSectHead(DCoreActor *actor, sectortype* sect)
+static void AddSectHead(DCoreActor* actor, sectortype* sect)
 {
 	assert(actor->prevSect == nullptr && actor->nextSect == nullptr);
 
@@ -280,8 +280,8 @@ static void RemoveActorSect(DCoreActor* actor)
 		assert(actor->prevSect == nullptr && actor->nextSect == nullptr);
 		return;
 	}
-	DCoreActor *prev = actor->prevSect;
-	DCoreActor *next = actor->nextSect;
+	DCoreActor* prev = actor->prevSect;
+	DCoreActor* next = actor->nextSect;
 
 	auto& firstEntry = actor->link_sector->firstEntry;
 	auto& lastEntry = actor->link_sector->lastEntry;
@@ -346,6 +346,10 @@ void ChangeActorSect(DCoreActor* actor, sectortype* sect, bool tail)
 DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 {
 	assert(type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)));
+	if (!type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)))
+	{
+		I_Error("Tried to spawn object of non - actor class %s", type->TypeName.GetChars());
+	}
 
 	auto actor = static_cast<DCoreActor*>(type->CreateNew());
 	auto defaults = GetDefaultByType(type);

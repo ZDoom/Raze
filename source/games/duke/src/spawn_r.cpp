@@ -668,9 +668,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.scale = DVector2(0.5, 0.5);
 		ChangeActorStat(act, STAT_MISC);
 		break;
-	case WATERDRIP:
-		initwaterdrip(actj, act);
-		break;
 
 	case PLUG:
 		act->spr.lotag = 9999;

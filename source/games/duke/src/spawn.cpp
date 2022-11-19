@@ -468,38 +468,6 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 //
 //---------------------------------------------------------------------------
 
-void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
-{
-	if (actj && (actj->spr.statnum == 10 || actj->spr.statnum == 1))
-	{
-		actor->spr.shade = 32;
-		if (actj->spr.pal != 1)
-		{
-			actor->spr.pal = 2;
-			actor->spr.pos.Z -= 18;
-		}
-		else actor->spr.pos.Z -= 13;
-		actor->spr.angle = (ps[connecthead].pos.XY() - actor->spr.pos.XY()).Angle();
-		actor->vel.X = 3 - krandf(2);
-		ssp(actor, CLIPMASK0);
-	}
-	else if (!actj)
-	{
-		actor->spr.pos.Z += 4;
-		actor->temp_pos.Z = actor->spr.pos.Z;
-		if (!isRR()) actor->temp_data[1] = krand() & 127;
-	}
-	actor->spr.scale = DVector2(0.375, 0.375);
-	ChangeActorStat(actor, STAT_STANDABLE);
-}
-
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 {
 	if (isrecon)

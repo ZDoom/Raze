@@ -732,11 +732,6 @@ void movestandables_r(void)
 			continue;
 		}
 
-		else if (picnum == WATERDRIP)
-		{
-			movewaterdrip(act, WATERDRIP);
-		}
-
 		else if (picnum == DOORSHOCK)
 		{
 			movedoorshock(act);

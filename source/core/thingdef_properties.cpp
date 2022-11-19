@@ -452,8 +452,8 @@ DEFINE_PROPERTY(clipdist, I, CoreActor)
 //==========================================================================
 DEFINE_PROPERTY(scalex, F, CoreActor)
 {
-	PROP_INT_PARM(i, 0);
-	defaults->spr.scale.X = (i);
+	PROP_FLOAT_PARM(i, 0);
+	defaults->spr.scale.X = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_XREPEAT;
 }
 
@@ -462,8 +462,8 @@ DEFINE_PROPERTY(scalex, F, CoreActor)
 //==========================================================================
 DEFINE_PROPERTY(scaley, F, CoreActor)
 {
-	PROP_INT_PARM(i, 0);
-	defaults->spr.scale.Y = (i);
+	PROP_FLOAT_PARM(i, 0);
+	defaults->spr.scale.Y = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_YREPEAT;
 }
 
