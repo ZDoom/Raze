@@ -66,5 +66,12 @@ class CoreActor native
 		return CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP;
 	}
 
+	int randomXFlip()
+	{
+		int r = random(0, 1);
+		if (r == 0) return 0;
+		return CSTAT_SPRITE_XFLIP;
+	}
+
 
 }

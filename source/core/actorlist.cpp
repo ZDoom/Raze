@@ -372,6 +372,7 @@ void DCoreActor::initFromSprite(spritetype* mspr)
 	spr.cstat = (mspr->cstat & ~ESpriteFlags::FromInt(actorinfo->DefaultCstat)) | (spr.cstat & ESpriteFlags::FromInt(actorinfo->DefaultCstat));
 	spr.pos = mspr->pos;
 	spr.sectp = mspr->sectp;
+	spr.clipdist = mspr->clipdist;	// this has no associated property because it is needed for initialization of the real clipdist.
 
 	// only copy those values which have not been defaulted by the class definition.
 #define setter(flag, var) if (!(actorinfo->DefaultFlags & flag)) spr.var = mspr->var;
@@ -388,7 +389,6 @@ void DCoreActor::initFromSprite(spritetype* mspr)
 	setter(DEFF_DETAIL, detail);
 	setter(DEFF_SHADE, shade);
 	setter(DEFF_PAL, pal);
-	setter(DEFF_CLIPDIST, clipdist);
 	setter(DEFF_BLEND, blend);
 	setter(DEFF_XREPEAT, scale.X);
 	setter(DEFF_YREPEAT, scale.Y);
@@ -398,7 +398,7 @@ void DCoreActor::initFromSprite(spritetype* mspr)
 
 #undef setter
 
-	clipdist = spr.clipdist * 0.25;
+	if (!(actorinfo->DefaultFlags & DEFF_CLIPDIST)) clipdist = spr.clipdist * 0.25;
 	if (mspr->statnum != 0 && !(actorinfo->DefaultFlags & DEFF_STATNUM))
 		ChangeActorStat(this, mspr->statnum);
 }

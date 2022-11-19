@@ -1272,7 +1272,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->clipdist = 2;
 		act->SetOwner(act);
 		break;
-	case CANWITHSOMETHING:
 	case RUBBERCAN:
 		act->spr.extra = 0;
 		[[fallthrough]];

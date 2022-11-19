@@ -818,8 +818,8 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			{
 				if (sectp->lotag == 30)
 				{
-					if (actor->spr.pal) actor->spr.clipdist = 1; // notreallyclipdist
-					else actor->spr.clipdist = 0;
+					if (actor->spr.pal) actor->spr.detail = 1;
+					else actor->spr.detail = 0;
 					actor->temp_pos.Z = sectp->floorz;
 					sectp->hitagactor = actor;
 				}

@@ -440,10 +440,10 @@ DEFINE_PROPERTY(pal, I, CoreActor)
 //==========================================================================
 //
 //==========================================================================
-DEFINE_PROPERTY(clipdist, I, CoreActor)
+DEFINE_PROPERTY(clipdist, F, CoreActor)
 {
-	PROP_INT_PARM(i, 0);
-	defaults->spr.clipdist = i;
+	PROP_FLOAT_PARM(i, 0);
+	defaults->clipdist = i;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_CLIPDIST;
 }
 

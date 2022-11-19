@@ -732,11 +732,6 @@ void movestandables_r(void)
 			continue;
 		}
 
-		else if (picnum == CANWITHSOMETHING)
-		{
-			movecanwithsomething(act);
-		}
-
 		else if (isIn(picnum,
 				EXPLODINGBARREL,
 				WOODENHORSE,

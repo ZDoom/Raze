@@ -45,4 +45,9 @@ spawnclasses
 	4528 = DukeSideBolt4
 	660 = DukeWaterdrip
 	160 = DukeDoorshock
+	1232 = DukeCanWithSomething
+	2807 = DukeCanWithSomething2
+	2808 = DukeCanWithSomething3
+	2809 = DukeCanWithSomething4
+
 }

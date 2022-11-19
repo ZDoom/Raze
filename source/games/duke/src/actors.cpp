@@ -1925,7 +1925,7 @@ void handle_se00(DDukeActor* actor)
 				actor->tempval += 4;
 				if (actor->tempval >= 256)
 					callsound(actor->sector(), actor, true);
-				if (actor->spr.clipdist) direction = 1; // notreallyclipdist
+				if (actor->spr.detail) direction = 1;
 				else direction = -1;
 			}
 			else actor->tempval = 256;
@@ -1953,7 +1953,7 @@ void handle_se00(DDukeActor* actor)
 				actor->tempval -= 4;
 				if (actor->tempval <= 0)
 					callsound(actor->sector(), actor, true);
-				if (actor->spr.clipdist) direction = -1; // notreallyclipdist
+				if (actor->spr.detail) direction = -1;
 				else direction = 1;
 			}
 			else actor->tempval = 0;

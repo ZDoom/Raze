@@ -268,6 +268,22 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawn, DukeActor_Spawn)
 	ACTION_RETURN_POINTER(DukeActor_Spawn(self, type));
 }
 
+DDukeActor* DukeActor_Spawnsprite(DDukeActor* origin, int picnum)
+{
+	if (picnum >= 0 && picnum < MAXTILES)
+	{
+		return spawn(origin, picnum);
+	}
+	return nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnsprite, DukeActor_Spawnsprite)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(type);
+	ACTION_RETURN_POINTER(DukeActor_Spawnsprite(self, type));
+}
+
 DDukeActor* DukeActor_spawnweaponorammo(DDukeActor* origin, unsigned intname)
 {
 	if (intname > 14) return nullptr;
