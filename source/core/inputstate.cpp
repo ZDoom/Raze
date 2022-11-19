@@ -347,11 +347,6 @@ CCMD(holsterweapon)
 	ActionsToSend |= SB_HOLSTER;
 }
 
-CCMD(backoff)
-{
-	ActionsToSend |= SB_ESCAPE;
-}
-
 CCMD(pause)
 {
 	sendPause = true;
@@ -483,5 +478,6 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crou
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
 		input.actions |= SB_LOOK_RIGHT;
+
 }
 

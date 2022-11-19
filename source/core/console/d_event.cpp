@@ -69,6 +69,12 @@ bool G_Responder (event_t *ev)
 	switch (ev->type)
 	{
 	case EV_KeyDown:
+		if (ev->data1 == KEY_ESCAPE && gi->WantEscape())
+		{
+			// special case: This is hardcoded to the 'Escape' button. Only used by Duke's cameras.
+			ActionsToSend |= SB_ESCAPE;
+			return true;
+		}
 		if (C_DoKey (ev, &Bindings, &DoubleBindings))
 			return true;
 		break;

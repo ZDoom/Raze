@@ -1552,7 +1552,12 @@ void checksectors_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		if (abs(PlayerInputSideVel(snum)) > 768 || abs(PlayerInputForwardVel(snum)) > 768)
+		if (abs(PlayerInputSideVel(snum)) > 384 || abs(PlayerInputForwardVel(snum)) > 384)
+		{
+			clearcameras(-1, p);
+			return;
+		}
+		else if (PlayerInput(snum, SB_ESCAPE))
 		{
 			clearcameras(-1, p);
 			return;
@@ -1564,16 +1569,6 @@ void checksectors_d(int snum)
 
 	else if (!p->toggle_key_flag)
 	{
-
-		if (PlayerInput(snum, SB_ESCAPE))
-		{
-			if (p->newOwner != nullptr)
-			{
-				clearcameras(-1, p);
-			}
-			return;
-		}
-
 		near.hitActor = nullptr;
 		p->toggle_key_flag = 1;
 		hitscanwall = nullptr;

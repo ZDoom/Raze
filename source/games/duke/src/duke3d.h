@@ -66,6 +66,7 @@ struct GameInterface : public ::GameInterface
 	bool GetGeoEffect(GeoEffect* eff, sectortype* viewsector) override;
 	void AddExcludedEpisode(const FString& episode) override;
 	int GetCurrentSkill() override;
+	bool WantEscape() override;
 
 };
 
