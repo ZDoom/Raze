@@ -732,11 +732,6 @@ void movestandables_r(void)
 			continue;
 		}
 
-		else if (picnum == TOUCHPLATE)
-		{
-			movetouchplate(act, TOUCHPLATE);
-		}
-
 		else if (picnum == CANWITHSOMETHING)
 		{
 			movecanwithsomething(act);
@@ -3581,7 +3576,7 @@ void fakebubbaspawn(DDukeActor *actor, int g_p)
 		break;
 	case 4:
 		spawn(actor, VIXEN);
-		operateactivators(666, g_p);
+		operateactivators(666, &ps[g_p]);
 		break;
 	}
 }

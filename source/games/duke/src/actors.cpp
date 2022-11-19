@@ -673,89 +673,6 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movetouchplate(DDukeActor* actor, int plate)
-{
-	auto sectp = actor->sector();
-	int p;
-
-	if (actor->temp_data[1] == 1 && actor->spr.hitag >= 0) //Move the sector floor
-	{
-		double X = sectp->floorz;
-		double add = sectp->extra * zmaptoworld;
-
-		if (actor->temp_data[3] == 1)
-		{
-			if (X >= actor->temp_pos.Z)
-			{
-				sectp->setfloorz(X);
-				actor->temp_data[1] = 0;
-			}
-			else
-			{
-				sectp->addfloorz(add);
-				p = checkcursectnums(actor->sector());
-				if (p >= 0) ps[p].pos.Z += add;
-			}
-		}
-		else
-		{
-			if (X <= actor->spr.pos.Z)
-			{
-				sectp->setfloorz(actor->spr.pos.Z);
-				actor->temp_data[1] = 0;
-			}
-			else
-			{
-				sectp->floorz -= add;
-				p = checkcursectnums(actor->sector());
-				if (p >= 0)
-					ps[p].pos.Z -= add;
-			}
-		}
-		return;
-	}
-
-	if (actor->temp_data[5] == 1) return;
-
-	p = checkcursectnums(actor->sector());
-	if (p >= 0 && (ps[p].on_ground || actor->spr.intangle == 512))
-	{
-		if (actor->temp_data[0] == 0 && !check_activator_motion(actor->spr.lotag))
-		{
-			actor->temp_data[0] = 1;
-			actor->temp_data[1] = 1;
-			actor->temp_data[3] = !actor->temp_data[3];
-			operatemasterswitches(actor->spr.lotag);
-			operateactivators(actor->spr.lotag, p);
-			if (actor->spr.hitag > 0)
-			{
-				actor->spr.hitag--;
-				if (actor->spr.hitag == 0) actor->temp_data[5] = 1;
-			}
-		}
-	}
-	else actor->temp_data[0] = 0;
-
-	if (actor->temp_data[1] == 1)
-	{
-		DukeStatIterator it(STAT_STANDABLE);
-		while (auto act2 = it.Next())
-		{
-			if (act2 != actor && act2->spr.picnum == plate && act2->spr.lotag == actor->spr.lotag)
-			{
-				act2->temp_data[1] = 1;
-				act2->temp_data[3] = actor->temp_data[3];
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void movecanwithsomething(DDukeActor* actor)
 {
 	makeitfall(actor);
@@ -2429,7 +2346,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			else
 			{
 				if (actor->vel.X == 0)
-					operateactivators(actor->spr.hitag + (!actor->temp_data[3]), -1);
+					operateactivators(actor->spr.hitag + (!actor->temp_data[3]), nullptr);
 				if (actor->vel.X < 16)
 					actor->vel.X += 1;
 			}
@@ -2444,7 +2361,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			else
 			{
 				actor->vel.X = 0;
-				operateactivators(actor->spr.hitag + (short)actor->temp_data[3], -1);
+				operateactivators(actor->spr.hitag + (short)actor->temp_data[3], nullptr);
 				actor->SetOwner(nullptr);
 				actor->spr.angle += DAngle180;
 				actor->temp_data[4] = 0;

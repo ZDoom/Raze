@@ -1615,7 +1615,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_mamatrigger:
-		operateactivators(667, g_p);
+		operateactivators(667, &ps[g_p]);
 		insptr++;
 		break;
 	case concmd_mamaspawn:

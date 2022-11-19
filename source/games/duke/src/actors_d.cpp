@@ -849,11 +849,6 @@ void movestandables_d(void)
 			moveviewscreen(act);
 		}
 
-		else if (picnum == TOUCHPLATE)
-		{
-			movetouchplate(act, TOUCHPLATE);
-		}
-
 		else if (isIn(picnum, CANWITHSOMETHING, CANWITHSOMETHING2, CANWITHSOMETHING3, CANWITHSOMETHING4))
 		{
 			movecanwithsomething(act);
@@ -2417,7 +2412,7 @@ void moveactors_d(void)
 
 					if (k == 1)
 					{
-						operateactivators(act->spr.lotag, -1);
+						operateactivators(act->spr.lotag, nullptr);
 						fi.operateforcefields(act, act->spr.lotag);
 						operatemasterswitches(act->spr.lotag);
 					}

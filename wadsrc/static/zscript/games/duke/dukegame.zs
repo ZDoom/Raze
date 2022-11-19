@@ -277,6 +277,7 @@ struct DukePlayer native
 	native void backuppos();
 	native void backupxyz();
 	native void setpos(Vector3 pos);
+	native void addpos(Vector3 pos);
 	native void settargetangle(double angle, bool backup = false);
 	native double angle();
 

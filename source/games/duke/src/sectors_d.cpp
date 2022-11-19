@@ -578,7 +578,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			}
 		}
 
-		operateactivators(lotag, snum);
+		operateactivators(lotag, &ps[snum]);
 		fi.operateforcefields(ps[snum].GetActor(), lotag);
 		operatemasterswitches(lotag);
 
@@ -622,7 +622,7 @@ void activatebysector_d(sectortype* sect, DDukeActor* activator)
 	{
 		if (act->spr.picnum == ACTIVATOR)
 		{
-			operateactivators(act->spr.lotag, -1);
+			operateactivators(act->spr.lotag, nullptr);
 			didit = 1;
 			//			return;
 		}

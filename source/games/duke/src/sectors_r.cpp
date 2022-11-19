@@ -771,7 +771,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 				{
 					if (ps[snum].SeaSick == 0)
 						ps[snum].SeaSick = 350;
-					operateactivators(668, snum);
+					operateactivators(668, &ps[snum]);
 					operatemasterswitches(668);
 					S_PlayActorSound(328, ps[snum].GetActor());
 					return 1;
@@ -867,7 +867,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 			}
 		}
 
-		operateactivators(lotag, snum);
+		operateactivators(lotag, &ps[snum]);
 		fi.operateforcefields(ps[snum].GetActor(), lotag);
 		operatemasterswitches(lotag);
 
@@ -909,7 +909,7 @@ void activatebysector_r(sectortype* sect, DDukeActor* activator)
 	{
 		if (act->spr.picnum == ACTIVATOR)
 		{
-			operateactivators(act->spr.lotag, -1);
+			operateactivators(act->spr.lotag, nullptr);
 			//			return;
 		}
 	}

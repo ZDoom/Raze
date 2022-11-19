@@ -1,6 +1,7 @@
 spawnclasses
 {
 	8 = DukeMasterSwitch
+	3 = DukeTouchplate
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane

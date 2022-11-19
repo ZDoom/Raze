@@ -1099,7 +1099,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void operateactivators(int low, int plnum)
+void operateactivators(int low, player_struct* plr)
 {
 	int i, j, k;
 	Cycler * p;
@@ -1132,11 +1132,11 @@ void operateactivators(int low, int plnum)
 			{
 				act->sector()->lotag ^= 16384;
 
-				if (plnum >= 0)
+				if (plr)
 				{
 					if (act->sector()->lotag & 16384)
-						FTA(4, &ps[plnum]);
-					else FTA(8, &ps[plnum]);
+						FTA(4, plr);
+					else FTA(8, plr);
 				}
 			}
 			else
@@ -1204,7 +1204,6 @@ void operatemasterswitches(int low)
 		if (ismasterswitch(act2) && act2->spr.lotag == low && act2->spr.yint == 0)
 		{
 			act2->spr.yint = 1;
-			Printf("triggering %d\n", act2->time);
 		}
 	}
 }

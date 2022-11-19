@@ -7,6 +7,8 @@ enum EClipMask
 
 const MAXPLAYERS = 8;
 const MAXSTATUS = 1024;
+const zmaptoworld = (1. / 256.);
+const maptoworld = (1. / 16.);
 
 class CoreActor native
 {

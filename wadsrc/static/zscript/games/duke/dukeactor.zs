@@ -172,6 +172,9 @@ extend struct _
 struct DukeLevel
 {
 	native DukeActor SpawnActor(sectortype sect, Vector3 pos, class<DukeActor> type, int shade, Vector2 scale, double angle, double vel, double zvel, DukeActor owner, int stat = -1);
+	native static int check_activator_motion(int lotag);
+	native static void operatemasterswitches(int lotag);
+	native static void operateactivators(int lotag, DukePlayer p);
 }
 
 struct DukeStatIterator

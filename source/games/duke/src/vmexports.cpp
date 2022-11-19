@@ -654,6 +654,21 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)
 	return 0;
 }
 
+void dukeplayer_addpos(player_struct* self, double x, double y, double z)
+{
+	self->pos += { x, y, z };
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addpos, dukeplayer_addpos)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	dukeplayer_addpos(self, x, y, z);
+	return 0;
+}
+
 void dukeplayer_settargetangle(player_struct* self, double a, int backup)
 {
 	self->angle.settarget(DAngle::fromDeg(a), backup);
@@ -773,6 +788,30 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, SpawnActor, DukeLevel_SpawnActor)
 	PARAM_OBJECT(owner, DDukeActor);
 	PARAM_INT(stat);
 	ACTION_RETURN_POINTER(DukeLevel_SpawnActor(self, sect, x, y, z, static_cast<PClassActor*>(type), shade, scalex, scaley, angle, vel, zvel, owner, stat));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, check_activator_motion, check_activator_motion)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(lotag);
+	ACTION_RETURN_INT(check_activator_motion(lotag));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, operatemasterswitches, operatemasterswitches)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(lotag);
+	operatemasterswitches(lotag);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, operateactivators, operateactivators)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(lotag);
+	PARAM_POINTER(p, player_struct);
+	operateactivators(lotag, p);
+	return 0;
 }
 
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerfriction);
