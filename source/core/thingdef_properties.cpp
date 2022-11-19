@@ -350,7 +350,7 @@ DEFINE_PROPERTY(intangle, I, CoreActor)
 //==========================================================================
 //
 //==========================================================================
-DEFINE_PROPERTY(xvel, I, CoreActor)
+DEFINE_PROPERTY(xint, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
 	defaults->spr.xint = i;
@@ -360,7 +360,7 @@ DEFINE_PROPERTY(xvel, I, CoreActor)
 //==========================================================================
 //
 //==========================================================================
-DEFINE_PROPERTY(yvel, I, CoreActor)
+DEFINE_PROPERTY(yint, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
 	defaults->spr.yint = i;
@@ -370,7 +370,7 @@ DEFINE_PROPERTY(yvel, I, CoreActor)
 //==========================================================================
 //
 //==========================================================================
-DEFINE_PROPERTY(zvel, I, CoreActor)
+DEFINE_PROPERTY(inittype, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
 	defaults->spr.inittype = i;
@@ -509,6 +509,15 @@ DEFINE_PROPERTY(spriteset, Sssssssssssssssssssssssssssssss, CoreActor)
 		PROP_STRING_PARM(n, i);
 		info->ActorInfo()->SpriteSetNames.Push(n);
 	}
+}
+
+//==========================================================================
+//
+//==========================================================================
+DEFINE_PROPERTY(spritesetindex, I, CoreActor)
+{
+	PROP_INT_PARM(i, 0);
+	defaults->spritesetindex = i;
 }
 
 //==========================================================================

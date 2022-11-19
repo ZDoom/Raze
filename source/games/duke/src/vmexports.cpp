@@ -84,6 +84,29 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, checkcursectnums, duke_checkcursectnums)
 	ACTION_RETURN_POINTER(duke_checkcursectnums(sect));
 }
 
+int duke_floorflags(sectortype* sector)
+{
+	return gs.tileinfo[sector->floorpicnum].flags;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, floorflags, duke_floorflags)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_INT(duke_floorflags(sect));
+}
+
+int duke_global_random()
+{
+	return global_random;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, global_random, duke_global_random)
+{
+	PARAM_PROLOGUE;
+	ACTION_RETURN_INT(global_random);
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 
 //---------------------------------------------------------------------------

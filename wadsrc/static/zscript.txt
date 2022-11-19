@@ -61,6 +61,7 @@ version "4.10"
 #include "zscript/games/duke/actors/fireext.zs"
 #include "zscript/games/duke/actors/oozfilter.zs"
 #include "zscript/games/duke/actors/trash.zs"
+#include "zscript/games/duke/actors/bolt.zs"
 
 #include "zscript/games/blood/bloodgame.zs"
 #include "zscript/games/blood/ui/menu.zs"

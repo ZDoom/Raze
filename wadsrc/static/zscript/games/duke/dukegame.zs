@@ -68,6 +68,16 @@ struct Duke native
 		CLIPMASK1 = (256 << 16) + 64
 	}
 
+	enum ETextureFlags
+	{
+		TFLAG_WALLSWITCH			= 1,
+		TFLAG_ADULT					= 2,
+		TFLAG_ELECTRIC				= 4,
+		TFLAG_CLEARINVENTORY		= 8,	// really dumb Duke stuff...
+		TFLAG_SLIME					= 16,
+	};
+
+
 	native static void PlaySpecialMusic(int which);
 	native static int PlaySound(int num, int channel = CHAN_AUTO, int flags = 0, float vol =0.8f);
 	native static void StopSound(int num);
@@ -75,6 +85,8 @@ struct Duke native
 	native static DukePlayer GetViewPlayer();
 	native static int MaxAmmoAmount(int weap);
 	native static DukePlayer checkcursectnums(sectortype sect);
+	native static int floorflags(sectortype s);
+	native static int global_random();
 
 	static void PlayBonusMusic()
 	{

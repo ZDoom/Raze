@@ -26,5 +26,12 @@ spawnclasses
 	1079 = DukeOozFilter
 	1247 = DukeSeenine
 	1272 = DukeTrash
-
+	634 = DukeBolt1
+	635 = DukeBolt2
+	636 = DukeBolt3
+	637 = DukeBolt4
+	4525 = DukeSideBolt1
+	4526 = DukeSideBolt2
+	4527 = DukeSideBolt3
+	4528 = DukeSideBolt4
 }

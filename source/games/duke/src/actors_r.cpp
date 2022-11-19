@@ -709,67 +709,6 @@ void movefallers_r(void)
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-static void movebolt(DDukeActor* actor)
-{
-	double xx;
-	auto sectp = actor->sector();
-
-	findplayer(actor, &xx);
-	if (xx > 1280) return;
-
-	if (actor->temp_data[3] == 0)
-		actor->temp_data[3] = sectp->floorshade;
-
-CLEAR_THE_BOLT:
-	if (actor->temp_data[2])
-	{
-		actor->temp_data[2]--;
-		sectp->floorshade = 20;
-		sectp->ceilingshade = 20;
-		return;
-	}
-	if (actor->spr.scale.X == 0 && actor->spr.scale.Y == 0)
-	{
-		actor->spr.scale = DVector2(actor->temp_pos.X, actor->temp_pos.Y);
-	}
-	else if ((krand() & 8) == 0)
-	{
-		actor->temp_pos.X = actor->spr.scale.X;
-		actor->temp_pos.Y = actor->spr.scale.Y;
-		actor->temp_data[2] = global_random & 4;
-		actor->spr.scale = DVector2(0, 0);
-		goto CLEAR_THE_BOLT;
-	}
-	actor->spr.picnum++;
-
-	int l = global_random & 7;
-	actor->spr.scale.X = (0.125 + l * REPEAT_SCALE);
-
-	if (l & 1) actor->spr.cstat ^= CSTAT_SPRITE_TRANSLUCENT;
-
-	if (actor->spr.picnum == (BOLT1 + 1) && (krand() & 1) && (gs.tileinfo[sectp->floorpicnum].flags & TFLAG_ELECTRIC))
-		S_PlayActorSound(SHORT_CIRCUIT, actor);
-
-	if (actor->spr.picnum == BOLT1 + 4) actor->spr.picnum = BOLT1;
-
-	if (actor->spr.picnum & 1)
-	{
-		sectp->floorshade = 0;
-		sectp->ceilingshade = 0;
-	}
-	else
-	{
-		sectp->floorshade = 20;
-		sectp->ceilingshade = 20;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // this has been broken up into lots of smaller subfunctions
 //
 //---------------------------------------------------------------------------
@@ -791,16 +730,6 @@ void movestandables_r(void)
 		{
 			CallTick(act);
 			continue;
-		}
-
-		else if (picnum == TRASH)
-		{
-			movetrash(act);
-		}
-
-		else if (picnum >= BOLT1 && picnum <= BOLT1 + 3)
-		{
-			movebolt(act);
 		}
 
 		else if (picnum == WATERDRIP)

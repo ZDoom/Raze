@@ -684,18 +684,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-	case BOLT1:
-	case BOLT1 + 1:
-	case BOLT1 + 2:
-	case BOLT1 + 3:
-	case SIDEBOLT1:
-	case SIDEBOLT1 + 1:
-	case SIDEBOLT1 + 2:
-	case SIDEBOLT1 + 3:
-		act->temp_pos.XY() = act->spr.scale;
-		act->spr.yint = 0;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
 	case TARGET:
 	case DUCK:
 	case LETTER:

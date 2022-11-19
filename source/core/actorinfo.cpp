@@ -250,7 +250,11 @@ void FActorInfo::ResolveTextures(const char* clsname, DCoreActor* defaults)
 		SpriteSet[i] = TileFiles.tileForName(SpriteSetNames[i]);
 		if (SpriteSet[i] == -1) Printf("Unknown texture '%s' in sprite set for class %s\n", SpriteSetNames[i].GetChars(), clsname);
 	}
-	if (SpriteSet.Size() > 0) defaults->spr.picnum = SpriteSet[0]; // Unless picnum is specified it will be set to the first image of the sprite set.
+	if (SpriteSet.Size() > 0)
+	{
+		if (defaults->spritesetindex < 0 || defaults->spritesetindex >= (int)SpriteSet.Size()) defaults->spritesetindex = 0;
+		defaults->spr.picnum = SpriteSet[defaults->spritesetindex]; // Unless picnum is specified it will be set to the given image of the sprite set.
+	}
 	if (PicName.IsNotEmpty())
 	{
 		defaults->spr.picnum = TileFiles.tileForName(PicName);
