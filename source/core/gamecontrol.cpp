@@ -543,6 +543,11 @@ static void System_SetTransition(int type)
 	nextwipe = type;
 }
 
+bool WantEscape()
+{
+	return gi->WantEscape();
+}
+
 
 
 void I_StartupJoysticks();
@@ -591,7 +596,8 @@ int GameMain()
 		OnMenuOpen,
 		nullptr,
 		nullptr,
-		[]() ->FConfigFile* { return GameConfig; }
+		[]() ->FConfigFile* { return GameConfig; },
+		WantEscape,
 	};
 
 	try

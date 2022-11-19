@@ -158,6 +158,11 @@ void GameInterface::ToggleShowWeapon()
 	FTA(QUOTE_WEAPON_MODE_OFF - cl_showweapon, &ps[screenpeek]);
 }
 
+bool GameInterface::WantEscape() 
+{ 
+	return ps[myconnectindex].newOwner != nullptr;
+}
+
 
 int registerosdcommands(void)
 {
