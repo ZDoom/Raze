@@ -455,11 +455,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_LUMBERMILL);
 		break;
-	case RRTILE296:
-	case RRTILE297:
+	case RRTELEPORT:
+	case RRTELEPORTDEST:
 		act->spr.scale = DVector2(1, 1);
 		act->clipdist = 16;
-		ChangeActorStat(act, 108);
+		ChangeActorStat(act, STAT_TELEPORT);
 		break;
 	case CHICKENA:
 	case CHICKENB:
