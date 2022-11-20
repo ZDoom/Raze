@@ -171,7 +171,7 @@ x(NUGGETSPAWN, 290)
 x(ROASTSPAWN, 291)
 x(BONELESSSPAWN, 292)
 x(JIBSSPAWN, 293)
-y(RRTILE295, 295)
+x(KEGHOLDER, 295)	// that's what the text on the sprite says. It doesn't seem to do anything.
 y(RRTILE296, 296)
 y(RRTILE297, 297)
 x(CDPLAYER, 370)

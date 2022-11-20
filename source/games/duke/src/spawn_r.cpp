@@ -469,7 +469,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.yrepeat = 15;
 		ChangeActorStat(act, 2);
 		break;
-	case RRTILE295:
+	case KEGHOLDER:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_LUMBERMILL);
 		break;
