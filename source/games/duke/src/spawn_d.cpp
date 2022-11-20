@@ -520,18 +520,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		initshell(actj, act, act->spr.picnum == SHELL);
 		break;
 
-	case RESPAWN:
-		act->spr.extra = 66 - 13;
-		if (ud.multimode < 2 && act->spr.pal == 1)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_FX);
-		break;
-
 	case ONFIRE:
 		// Twentieth Anniversary World Tour
 		if (!isWorldTour())
@@ -777,19 +765,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == ROTATEGUN)
 			act->vel.Z = 0;
 
-		break;
-
-	case LOCATORS:
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_LOCATOR);
-		break;
-
-	case ACTIVATORLOCKED:
-	case ACTIVATOR:
-		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		if (act->spr.picnum == ACTIVATORLOCKED)
-			act->sector()->lotag |= 16384;
-		ChangeActorStat(act, STAT_ACTIVATOR);
 		break;
 
 	case OOZ:

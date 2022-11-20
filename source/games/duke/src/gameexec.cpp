@@ -2498,7 +2498,7 @@ int ParseState::parse(void)
 							DDukeActor* a2;
 							while ((a2 = it.Next()))
 							{
-								if (a2->spr.picnum == ACTIVATOR)
+								if (isactivator(a2))
 									break;
 							}
 							if (a2 == nullptr)

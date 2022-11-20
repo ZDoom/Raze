@@ -1,7 +1,10 @@
 spawnclasses
 {
+	2 = DukeActivator
 	3 = DukeTouchplate
+	4 = DukeActivatorLocked
 	5 = DukeSoundController
+	6 = DukeLocator
 	8 = DukeMasterSwitch
 	9 = DukeRespawnController
 	

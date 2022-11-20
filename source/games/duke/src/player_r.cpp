@@ -2446,7 +2446,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		p->TurbCount = 6;
 	}
 	else if ((victim->spr.picnum == RRTILE2431 || victim->spr.picnum == RRTILE2443 || victim->spr.picnum == RRTILE2451 || victim->spr.picnum == RRTILE2455)
-		&& victim->spr.picnum != ACTIVATORLOCKED && p->MotoSpeed > 45)
+		&& !islockedactivator(victim) && p->MotoSpeed > 45)
 	{
 		S_PlayActorSound(SQUISHED, victim);
 		if (victim->spr.picnum == RRTILE2431 || victim->spr.picnum == RRTILE2451)

@@ -592,7 +592,7 @@ void activatebysector_d(sectortype* sect, DDukeActor* activator)
 	DukeSectIterator it(sect);
 	while (auto act = it.Next())
 	{
-		if (act->spr.picnum == ACTIVATOR)
+		if (isactivator(act))
 		{
 			operateactivators(act->spr.lotag, nullptr);
 			didit = 1;
@@ -1669,7 +1669,7 @@ void checksectors_d(int snum)
 			DukeSectIterator it(near.hitSector);
 			while (auto act = it.Next())
 			{
-				if (act->spr.picnum == ACTIVATOR || ismasterswitch(act))
+				if (isactivator(act) || ismasterswitch(act))
 					return;
 			}
 			operatesectors(near.hitSector, p->GetActor());
@@ -1681,7 +1681,7 @@ void checksectors_d(int snum)
 				DukeSectIterator it(p->GetActor()->sector());
 				while (auto act = it.Next())
 				{
-					if (act->spr.picnum == ACTIVATOR || ismasterswitch(act)) return;
+					if (isactivator(act) || ismasterswitch(act)) return;
 				}
 				operatesectors(p->GetActor()->sector(), p->GetActor());
 			}

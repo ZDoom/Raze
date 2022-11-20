@@ -297,7 +297,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			act->clipdist = 20;
 			if (actj)
 			{
-				if (actj->spr.picnum == RESPAWN)
+				if (isrespawncontroller(actj))
 					act->tempval = act->spr.pal = actj->spr.pal;
 				ChangeActorStat(act, STAT_ACTOR);
 			}
@@ -917,7 +917,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			DukeSectIterator it(actor->sector());
 			while (auto itActor = it.Next())
 			{
-				if (itActor->spr.picnum == ACTIVATOR || itActor->spr.picnum == ACTIVATORLOCKED)
+				if (isactivator(itActor) || islockedactivator(itActor))
 					actor->flags2 |= SFLAG2_USEACTIVATOR;
 			}
 			ChangeActorStat(actor, STAT_LIGHT);

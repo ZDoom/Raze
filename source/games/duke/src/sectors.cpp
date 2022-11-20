@@ -1128,7 +1128,7 @@ void operateactivators(int low, player_struct* plr)
 	{
 		if (act->spr.lotag == low)
 		{
-			if (act->spr.picnum == ACTIVATORLOCKED)
+			if (islockedactivator(act))
 			{
 				act->sector()->lotag ^= 16384;
 

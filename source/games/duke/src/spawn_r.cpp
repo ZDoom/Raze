@@ -948,18 +948,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 
 		break;
-	case LOCATORS:
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_LOCATOR);
-		break;
-
-	case ACTIVATORLOCKED:
-	case ACTIVATOR:
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		if (act->spr.picnum == ACTIVATORLOCKED)
-			sectp->lotag ^= 16384;
-		ChangeActorStat(act, STAT_ACTIVATOR);
-		break;
 
 	case OOZ:
 	{

@@ -29,6 +29,21 @@ inline int isrespawncontroller(DDukeActor* actor)
 	return actor->GetClass()->TypeName == NAME_DukeRespawnController;
 }
 
+inline int isactivator(DDukeActor* actor)
+{
+	return actor->GetClass()->TypeName == NAME_DukeActivator;
+}
+
+inline int islockedactivator(DDukeActor* actor)
+{
+	return actor->GetClass()->TypeName == NAME_DukeActivatorLocked;
+}
+
+inline int islocator(DDukeActor* actor)
+{
+	return actor->GetClass()->TypeName == NAME_DukeLocator;
+}
+
 inline int badguypic(int const tileNum)
 {
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);
