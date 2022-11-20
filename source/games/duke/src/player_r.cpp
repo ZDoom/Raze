@@ -2177,13 +2177,13 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 			double k = (floorz - i - p->posZget()) * 0.5;
 			if (abs(k) < 1) k = 0;
-			p->posZadd(k);
+			p->GetActor()->spr.pos.Z += k;
 			p->vel.Z -= 3;
 			if (p->vel.Z < 0) p->vel.Z = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->posZadd(((floorz - i * 0.5) - p->posZget()) * 0.5); //Smooth on the water
+			p->GetActor()->spr.pos.Z += ((floorz - i * 0.5) - p->posZget()) * 0.5; //Smooth on the water
 			if (p->on_warping_sector == 0 && p->posZget() > floorz - 16)
 			{
 				p->GetActor()->spr.pos.Z = floorz - 16 + gs.playerheight;
@@ -2233,7 +2233,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		}
 	}
 
-	p->posZadd(p->vel.Z );
+	p->GetActor()->spr.pos.Z += p->vel.Z;
 
 	if (p->posZget() < ceilingz + 4)
 	{
@@ -2296,10 +2296,10 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 	if (p->vel.Z > 8)
 		p->vel.Z *= 0.5;
 
-	p->posZadd(p->vel.Z );
+	p->GetActor()->spr.pos.Z += p->vel.Z;
 
 	if (p->posZget() > floorz - 15)
-		p->posZadd((((floorz - 15) - p->posZget()) * 0.5));
+		p->GetActor()->spr.pos.Z += ((floorz - 15) - p->posZget()) * 0.5;
 
 	if (p->posZget() < ceilingz + 4)
 	{
@@ -3745,7 +3745,7 @@ HORIZONLY:
 		clipmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->posZadd(32);
+		p->GetActor()->spr.pos.Z += 32;
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_r(p, clip);

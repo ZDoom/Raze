@@ -336,10 +336,6 @@ struct player_struct
 	}
 
 
-	void posZadd(const double val)
-	{
-		GetActor()->spr.pos.Z += val;
-	}
 	double posZget()
 	{
 		return GetActor()->spr.pos.Z + GetActor()->viewzoffset;
