@@ -248,7 +248,10 @@ void FActorInfo::ResolveTextures(const char* clsname, DCoreActor* defaults)
 	for (unsigned i = 0; i < SpriteSet.Size(); i++)
 	{
 		SpriteSet[i] = TileFiles.tileForName(SpriteSetNames[i]);
-		if (SpriteSet[i] == -1) Printf("Unknown texture '%s' in sprite set for class %s\n", SpriteSetNames[i].GetChars(), clsname);
+		// This will print some noise in RR. Should later be restricted to user content.
+#ifdef _DEBUG
+		if (SpriteSet[i] == -1) Printf(TEXTCOLOR_RED "Unknown texture '%s' in sprite set for class %s\n", SpriteSetNames[i].GetChars(), clsname);
+#endif
 	}
 	if (SpriteSet.Size() > 0)
 	{
@@ -258,7 +261,9 @@ void FActorInfo::ResolveTextures(const char* clsname, DCoreActor* defaults)
 	if (PicName.IsNotEmpty())
 	{
 		defaults->spr.picnum = TileFiles.tileForName(PicName);
-		if (defaults->spr.picnum == -1) Printf("Unknown texture '%s' in pic for class %s\n", PicName.GetChars(), clsname);
+#ifdef _DEBUG
+		if (defaults->spr.picnum == -1) Printf(TEXTCOLOR_RED "Unknown texture '%s' in pic for class %s\n", PicName.GetChars(), clsname);
+#endif
 	}
 	SpriteSetNames.Reset();
 	PicName = "";
