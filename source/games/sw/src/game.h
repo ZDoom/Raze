@@ -741,6 +741,10 @@ struct PLAYER
     {
         PlayerNowPosition += val;
     }
+    DVector3 posGet()
+    {
+        return PlayerNowPosition;
+    }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
@@ -1930,7 +1934,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
 {
-    return absangle((a->spr.pos - pp->PlayerNowPosition).Angle(), pp->angle.ang) < range;
+    return absangle((a->spr.pos - pp->posGet()).Angle(), pp->angle.ang) < range;
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)

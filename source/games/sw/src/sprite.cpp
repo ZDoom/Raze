@@ -5147,7 +5147,7 @@ int DoGet(DSWActor* actor)
 
         auto cstat_bak = actor->spr.cstat;
         actor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        can_see = FAFcansee(actor->spr.pos, actor->sector(), pp->PlayerNowPosition, pp->cursector);
+        can_see = FAFcansee(actor->spr.pos, actor->sector(), pp->posGet(), pp->cursector);
         actor->spr.cstat = cstat_bak;
 
         if (!can_see)

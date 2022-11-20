@@ -1549,7 +1549,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->PlayerNowPosition, pp->cursector, actor->spr.pos.plusZ(ActorSizeZ(actor) * -0.5), actor->sector()))
+        if (!FAFcansee(pp->posGet(), pp->cursector, actor->spr.pos.plusZ(ActorSizeZ(actor) * -0.5), actor->sector()))
             return false;
     }
 
@@ -2140,7 +2140,7 @@ bool NearThings(PLAYER* pp)
         return false;
     }
 
-    neartag(pp->PlayerNowPosition, pp->cursector, pp->angle.ang, near, 64., NT_Lotag | NT_Hitag);
+    neartag(pp->posGet(), pp->cursector, pp->angle.ang, near, 64., NT_Lotag | NT_Hitag);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2173,7 +2173,7 @@ bool NearThings(PLAYER* pp)
     {
         HitInfo hit{};
 
-        FAFhitscan(pp->PlayerNowPosition.plusZ(-30), pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->posGet().plusZ(-30), pp->cursector, DVector3(pp->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return false;
@@ -2346,7 +2346,7 @@ int DoPlayerGrabStar(PLAYER* pp)
         auto actor = StarQueue[i];
         if (actor != nullptr)
         {
-            if ((actor->spr.pos - pp->PlayerNowPosition).plusZ(12).Length() < 31.25)
+            if ((actor->spr.pos - pp->posGet()).plusZ(12).Length() < 31.25)
             {
                 break;
             }

@@ -574,7 +574,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	}
 	if (arc.isReading())
 	{
-		w.PlayerPrevPosition = w.PlayerNowPosition;
+		w.PlayerPrevPosition = w.posGet();
 		w.ovect = w.vect;
 		w.obob_z = w.bob_z;
 		w.input = {};
