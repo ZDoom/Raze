@@ -614,27 +614,6 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movecanwithsomething(DDukeActor* actor)
-{
-	makeitfall(actor);
-	int j = fi.ifhitbyweapon(actor);
-	if (j >= 0)
-	{
-		S_PlayActorSound(VENT_BUST, actor);
-		for (j = 0; j < 10; j++)
-			RANDOMSCRAP(actor);
-
-		if (actor->spr.lotag) spawn(actor, actor->spr.lotag);
-		deletesprite(actor);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void bounce(DDukeActor* actor)
 {
 	DVector3 vect(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z);
