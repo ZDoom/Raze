@@ -3801,14 +3801,14 @@ HORIZONLY:
 				ChangeActorStat(clip.actor(), 1);
 			}
 		}
-		else if (!isRRRA() && clip.actor()->spr.picnum == RRTILE3410)
+		else if (!isRRRA() && clip.actor()->spr.picnum == LUMBERBLADE1)
 		{
 			quickkill(p);
 			S_PlayActorSound(446, pact);
 		}
 		if (isRRRA())
 		{
-			if (clip.actor()->spr.picnum == RRTILE3410)
+			if (clip.actor()->spr.picnum == LUMBERBLADE1)
 			{
 				quickkill(p);
 				S_PlayActorSound(446, pact);

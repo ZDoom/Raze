@@ -1890,7 +1890,7 @@ static void rrra_specialstats()
 
 void rr_specialstats()
 {
-	DukeStatIterator it(107);
+	DukeStatIterator it(STAT_LUMBERMILL);
 	while (auto act = it.Next())
 	{
 		if (act->spr.hitag == 100)
@@ -1908,7 +1908,7 @@ void rr_specialstats()
 				act->spr.hitag = 0;
 				act->spr.pos.Z = act->sector()->floorz - 59.25;
 				act->spr.extra = 0;
-				act->spr.picnum = RRTILE3410;
+				act->spr.picnum = LUMBERBLADE1;
 				DukeStatIterator it2(STAT_DEFAULT);
 				while (auto act2 = it2.Next())
 				{
@@ -1922,28 +1922,28 @@ void rr_specialstats()
 
 	if (chickenplant)
 	{
-		it.Reset(106);
+		it.Reset(STAT_CHICKENPLANT);
 		while (auto act = it.Next())
 		{
 			switch (act->spr.picnum)
 			{
-			case RRTILE285:
+			case CHICKENASPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3190)->spr.angle = act->spr.angle;
+					spawn(act, CHICKENA)->spr.angle = act->spr.angle;
 					act->spr.lotag = 128;
 				}
 				break;
-			case RRTILE286:
+			case CHICKENCSPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3192)->spr.angle = act->spr.angle;
+					spawn(act, CHICKENC)->spr.angle = act->spr.angle;
 					act->spr.lotag = 256;
 				}
 				break;
-			case RRTILE287:
+			case FEATHERSPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
@@ -1951,48 +1951,48 @@ void rr_specialstats()
 					act->spr.lotag = 84;
 				}
 				break;
-			case RRTILE288:
+			case CHICKENHEADSPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					auto j = spawn(act, RRTILE3132);
+					auto j = spawn(act, CHICKENHEAD);
 					act->spr.lotag = 96;
 					if (j && !isRRRA()) S_PlayActorSound(472, j);
 				}
 				break;
-			case RRTILE289:
+			case LOAFSPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3120)->spr.angle = act->spr.angle;
+					spawn(act, CHICKENLOAF)->spr.angle = act->spr.angle;
 					act->spr.lotag = 448;
 				}
 				break;
-			case RRTILE290:
+			case NUGGETSPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3122)->spr.angle = act->spr.angle;
+					spawn(act, CHICKENNUGGET)->spr.angle = act->spr.angle;
 					act->spr.lotag = 64;
 				}
 				break;
-			case RRTILE291:
+			case ROASTSPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3123)->spr.angle = act->spr.angle;
+					spawn(act, ROASTEDCHICKEN)->spr.angle = act->spr.angle;
 					act->spr.lotag = 512;
 				}
 				break;
-			case RRTILE292:
+			case BONELESSSPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3124)->spr.angle = act->spr.angle;
+					spawn(act, BONELESSCHICKEN)->spr.angle = act->spr.angle;
 					act->spr.lotag = 224;
 				}
 				break;
-			case RRTILE293:
+			case JIBSSPAWN:
 				act->spr.lotag--;
 				if (act->spr.lotag < 0)
 				{
@@ -2426,9 +2426,9 @@ void moveactors_r(void)
 			case RAT:
 				if (!rat(act, !isRRRA())) continue;
 				break;
-			case RRTILE3190:
-			case RRTILE3191:
-			case RRTILE3192:
+			case CHICKENA:
+			case CHICKENB:
+			case CHICKENC:
 				if (!chickenplant)
 				{
 					act->Destroy();
@@ -2440,10 +2440,10 @@ void moveactors_r(void)
 				switch (sectp->lotag)
 				{
 					case 901:
-						act->spr.picnum = RRTILE3191;
+						act->spr.picnum = CHICKENB;
 						break;
 					case 902:
-						act->spr.picnum = RRTILE3192;
+						act->spr.picnum = CHICKENC;
 						break;
 					case 903:
 						if (act->spr.pos.Z >= sectp->floorz - 8)
@@ -2464,10 +2464,10 @@ void moveactors_r(void)
 				}
 				break;
 
-			case RRTILE3120:
-			case RRTILE3122:
-			case RRTILE3123:
-			case RRTILE3124:
+			case CHICKENLOAF:
+			case CHICKENNUGGET:
+			case ROASTEDCHICKEN:
+			case BONELESSCHICKEN:
 				if (!chickenplant)
 				{
 					act->Destroy();
@@ -2495,7 +2495,7 @@ void moveactors_r(void)
 				}
 				break;
 
-			case RRTILE3132:
+			case CHICKENHEAD:
 				if (!chickenplant)
 				{
 					act->Destroy();
