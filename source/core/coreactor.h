@@ -91,11 +91,6 @@ public:
 		spr.angle = spr.angle.Normalized360();
 	}
 
-	void ZeroVelocityXY()
-	{
-		vel .X = vel .Y = 0;
-	}
-
 	void ZeroVelocity()
 	{
 		vel = { 0,0,0 };

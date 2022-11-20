@@ -217,7 +217,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	if (actor->GetTarget() == nullptr) return;
 
 	DVector3 dv;
-	actor->ZeroVelocityXY();
+	actor->vel.XY().Zero();
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	int dispersion = pExtra->baseDispersion;

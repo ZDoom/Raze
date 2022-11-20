@@ -2934,7 +2934,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			actDropObject(actor, actor->xspr.dropMsg);
 
 		actor->spr.flags &= ~kPhysMove;
-		actor->ZeroVelocityXY();
+		actor->vel.XY().Zero();
 
 		playGenDudeSound(actor, kGenDudeSndTransforming);
 		int seqId = actor->xspr.data2 + kGenDudeSeqTransform;
@@ -5162,7 +5162,7 @@ void MoveDude(DBloodActor* actor)
 		actor->vel.Y += FixedToFloat(-mulscale16r(FloatToFixed(actor->vel.Y), nDrag));
 
 		if (actor->vel.XY().Length() < 0.0625)
-			actor->ZeroVelocityXY();
+			actor->vel.XY().Zero();
 	}
 }
 
@@ -5949,7 +5949,7 @@ static void actCheckDudes()
 			// handle incarnations of custom dude
 			if (actor->spr.type == kDudeModernCustom && actor->xspr.txID > 0 && actor->xspr.sysData1 == kGenDudeTransformStatus)
 			{
-				actor->ZeroVelocityXY();
+				actor->vel.XY().Zero();
 				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
 			}
 #endif

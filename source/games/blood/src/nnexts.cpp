@@ -1846,7 +1846,7 @@ void debrisMove(int listIndex)
 
 	actor->vel.XY() *= 1 - nDrag;
 	if (actor->vel.XY().LengthSquared() < 1 / 256.)
-		actor->ZeroVelocityXY();
+		actor->vel.XY().Zero();
 }
 
 //---------------------------------------------------------------------------
@@ -8154,7 +8154,7 @@ void aiPatrolMove(DBloodActor* actor)
 
 	if (abs(nAng) > goalAng || ((targetactor->xspr.waitTime > 0 || targetactor->xspr.data1 == targetactor->xspr.data2) && aiPatrolMarkerReached(actor)))
 	{
-		actor->ZeroVelocityXY();
+		actor->vel.XY().Zero();
 		return;
 	}
 

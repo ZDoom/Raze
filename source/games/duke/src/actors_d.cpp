@@ -2056,7 +2056,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	}
 
 	if (coll.type != 0) {
-		actor->ZeroVelocityXY();
+		actor->vel.XY().Zero();
 		actor->vel.Z = 0;
 		if (coll.type == kHitSprite)
 		{
