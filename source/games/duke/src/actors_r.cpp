@@ -3209,7 +3209,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = (ps[pnum].posoldXY() - actor->spr.pos.XY()).Angle();
+			goalang = (ps[pnum].GetActor()->opos.XY() - actor->spr.pos.XY()).Angle();
 		else goalang = (ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
 		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
@@ -3222,7 +3222,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = (ps[pnum].posoldXY() - actor->spr.pos.XY()).Angle();
+			goalang = (ps[pnum].GetActor()->opos.XY() - actor->spr.pos.XY()).Angle();
 		else goalang = (ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 		actor->spr.angle += angdif;
@@ -3233,7 +3233,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (a & antifaceplayerslow)
 		{
 			if (ps[pnum].newOwner != nullptr)
-				goalang = ((ps[pnum].posoldXY() - actor->spr.pos.XY()).Angle() + DAngle180);
+				goalang = ((ps[pnum].GetActor()->opos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
 			else goalang = ((ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
 			angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.angle, goalang).Degrees()); // this looks very wrong...
 			actor->spr.angle += angdif;

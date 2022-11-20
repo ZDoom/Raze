@@ -4392,8 +4392,8 @@ void movefta(void)
 					if (badguy(act))
 					{
 						auto xyrand = []() -> double { return (64 - (krand() & 127)) * maptoworld; };
-						double px = ps[p].posoldX() - xyrand();
-						double py = ps[p].posoldY() - xyrand();
+						double px = ps[p].GetActor()->opos.X - xyrand();
+						double py = ps[p].GetActor()->opos.Y - xyrand();
 						updatesector(DVector3(px, py, 0), &psect);
 						if (psect == nullptr)
 						{

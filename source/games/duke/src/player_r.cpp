@@ -613,7 +613,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	{
 		double x;
 		int j = findplayer(actor, &x);
-		ang = (ps[j].posoldXY() - pos.XY()).Angle();
+		ang = (ps[j].GetActor()->opos.XY() - pos.XY()).Angle();
 		if (actor->spr.picnum == BOSS3)
 			pos.Z -= 32;
 		else if (actor->spr.picnum == BOSS2)

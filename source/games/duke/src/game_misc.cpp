@@ -279,7 +279,7 @@ void drawoverlays(double interpfrac)
 			}
 			else
 			{
-				cposxy = pp->posoldXY();
+				cposxy = pp->GetActor()->opos.XY();
 				cang = pp->angle.oang;
 			}
 			DrawOverheadMap(cposxy, cang, interpfrac);

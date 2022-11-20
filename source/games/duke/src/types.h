@@ -336,19 +336,6 @@ struct player_struct
 	}
 
 
-	double& posoldX()
-	{
-		return GetActor()->opos.X;
-	}
-	double& posoldY()
-	{
-		return GetActor()->opos.Y;
-	}
-	DVector2& posoldXY()
-	{
-		return GetActor()->opos.XY();
-	}
-
 	void posoldZset(const double val)
 	{
 		GetActor()->opos.Z = val - GetActor()->viewzoffset;

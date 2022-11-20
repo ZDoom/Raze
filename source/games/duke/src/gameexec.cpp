@@ -378,13 +378,13 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_OPOSX:
-		if (bSet) ps[iPlayer].posoldX() = lValue * maptoworld;
-		else SetGameVarID(lVar2, int(ps[iPlayer].posoldX() * (1/maptoworld)), sActor, sPlayer);
+		if (bSet) ps[iPlayer].GetActor()->opos.X = lValue * maptoworld;
+		else SetGameVarID(lVar2, int(ps[iPlayer].GetActor()->opos.X * (1/maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSY:
-		if (bSet) ps[iPlayer].posoldY() = lValue * maptoworld;
-		else SetGameVarID(lVar2, int(ps[iPlayer].posoldY() * (1 / maptoworld)), sActor, sPlayer);
+		if (bSet) ps[iPlayer].GetActor()->opos.Y = lValue * maptoworld;
+		else SetGameVarID(lVar2, int(ps[iPlayer].GetActor()->opos.Y * (1 / maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSZ:
