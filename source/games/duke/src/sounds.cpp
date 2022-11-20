@@ -318,7 +318,11 @@ void S_GetCamera(DVector3* c, DAngle* ca, sectortype** cs)
 	if (ud.cameraactor == nullptr)
 	{
 		auto p = &ps[screenpeek];
-		if (c && p->GetActor()) *c = p->posGet();
+		if (c)
+		{
+			if (p->GetActor()) *c = p->posGet();
+			else  c->Zero();
+		}
 		if (cs) *cs = p->cursector;
 		if (ca) *ca = p->angle.ang;
 	}
