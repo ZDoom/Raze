@@ -3742,7 +3742,7 @@ HORIZONLY:
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->PlayerNowPosition, &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
+		clipmove(p->posXY(), p->posZget(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->posZadd(32);
@@ -3771,10 +3771,10 @@ HORIZONLY:
 				if (wal->lotag < 44)
 				{
 					dofurniture(clip.hitWall, p->cursector, snum);
-					pushmove(p->PlayerNowPosition, &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(p->posXY(), p->posZget(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
 				}
 				else
-					pushmove(p->PlayerNowPosition, &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(p->posXY(), p->posZget(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
 			}
 		}
 	}
@@ -3875,9 +3875,9 @@ HORIZONLY:
 	{
 		int blocked;
 		if (pact->clipdist == 16)
-			blocked = (pushmove(p->PlayerNowPosition, &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->posXY(), p->posZget(), &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 		else
-			blocked = (pushmove(p->PlayerNowPosition, &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->posXY(), p->posZget(), &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{

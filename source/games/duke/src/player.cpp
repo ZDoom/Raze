@@ -618,7 +618,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		}
 
 		Collision coll;
-		clipmove(p->PlayerNowPosition, &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
+		clipmove(p->posXY(), p->posZget(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
@@ -627,7 +627,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	updatesector(p->PlayerNowPosition, &p->cursector);
 
-	pushmove(p->PlayerNowPosition, &p->cursector, 8, 4, 20, CLIPMASK0);
+	pushmove(p->posXY(), p->posZget(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
 		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->posZget()) * 2));
