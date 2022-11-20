@@ -214,7 +214,7 @@ double hitawall(player_struct* p, walltype** hitw)
 	hitscan(p->posGet(), p->cursector, DVector3(p->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (hit.hitpos.XY() - p->posXY()).Length();
+	return (hit.hitpos.XY() - p->GetActor()->spr.pos.XY()).Length();
 }
 
 
@@ -618,7 +618,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		}
 
 		Collision coll;
-		clipmove(p->posXY(), p->posZget(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
+		clipmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
@@ -627,7 +627,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	updatesector(p->posGet(), &p->cursector);
 
-	pushmove(p->posXY(), p->posZget(), &p->cursector, 8, 4, 20, CLIPMASK0);
+	pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
 		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->posZget()) * 2));
@@ -773,7 +773,7 @@ void player_struct::backuppos(bool noclipping)
 	}
 
 	posoldZset(posZget());
-	bobpos = posXY();
+	bobpos = GetActor()->spr.pos.XY();
 	opyoff = pyoff;
 }
 

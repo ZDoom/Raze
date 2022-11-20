@@ -178,7 +178,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 40.5);
 		
 		// WTF???
-		DAngle myang = DAngle90 - (DAngle180 - abs(abs((spos.XY() - ps[p].posXY()).Angle() - sang) - DAngle180));
+		DAngle myang = DAngle90 - (DAngle180 - abs(abs((spos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle() - sang) - DAngle180));
 		if (ps[p].GetActor()->vel.X != 0)
 			vel = ((myang / DAngle90) * ps[p].GetActor()->vel.X) + 25;
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
@@ -2040,7 +2040,7 @@ int operateTripbomb(int snum)
 	if (act == nullptr && hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
 		if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag <= 2) || (!hit.hitWall->twoSided() && hit.hitSector->lotag <= 2))
 		{
-			auto delta = hit.hitpos.XY() - p->posXY();
+			auto delta = hit.hitpos.XY() - p->GetActor()->spr.pos.XY();
 			if (delta.LengthSquared() < (18.125 * 18.125))
 			{
 				p->posZset(p->posoldZget());
@@ -2867,7 +2867,7 @@ void processinput_d(int snum)
 
 	p->playerweaponsway(pact->vel.X);
 
-	pact->vel.X = clamp((p->posXY() - p->bobpos).Length(), 0., 32.);
+	pact->vel.X = clamp((p->GetActor()->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));
@@ -3033,12 +3033,12 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->posXY() += p->vel.XY() ;
+		p->GetActor()->spr.pos.XY() += p->vel.XY() ;
 		updatesector(p->posGet(), &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->posXY(), p->posZget(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
+		clipmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->posZadd(32);
@@ -3090,7 +3090,7 @@ HORIZONLY:
 	while (ud.clipping == 0)
 	{
 		int blocked;
-		blocked = (pushmove(p->posXY(), p->posZget(), &p->cursector, 10.25, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+		blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 10.25, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{

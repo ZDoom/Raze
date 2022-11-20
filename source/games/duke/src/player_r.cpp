@@ -3532,7 +3532,7 @@ void processinput_r(int snum)
 
 	p->playerweaponsway(pact->vel.X);
 
-	pact->vel.X = clamp((p->posXY() - p->bobpos).Length(), 0., 32.);
+	pact->vel.X = clamp((p->GetActor()->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
 	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == MIRROR) || !p->insector()));
@@ -3737,12 +3737,12 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->posXY() += p->vel.XY() ;
+		p->GetActor()->spr.pos.XY() += p->vel.XY() ;
 		updatesector(p->posGet(), &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->posXY(), p->posZget(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
+		clipmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->posZadd(32);
@@ -3771,10 +3771,10 @@ HORIZONLY:
 				if (wal->lotag < 44)
 				{
 					dofurniture(clip.hitWall, p->cursector, snum);
-					pushmove(p->posXY(), p->posZget(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
 				}
 				else
-					pushmove(p->posXY(), p->posZget(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
 			}
 		}
 	}
@@ -3875,9 +3875,9 @@ HORIZONLY:
 	{
 		int blocked;
 		if (pact->clipdist == 16)
-			blocked = (pushmove(p->posXY(), p->posZget(), &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 		else
-			blocked = (pushmove(p->posXY(), p->posZget(), &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{
