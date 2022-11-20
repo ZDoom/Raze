@@ -1313,7 +1313,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
     pp->angle.ang = pp->angle.oang = ang;
 	pp->PlayerPrevPosition = pp->PlayerNowPosition= pos.plusZ(-PLAYER_HEIGHTF);
-	pp->oldpos.XY() = pp->PlayerNowPosition.XY();
+	pp->PlayerOldPosition.XY() = pp->PlayerNowPosition.XY();
 
     updatesector(pp->PlayerNowPosition, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
@@ -1327,7 +1327,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 
 void DoPlayerTeleportToOffset(PLAYER* pp)
 {
-    pp->oldpos.XY() = pp->PlayerPrevPosition.XY() = pp->PlayerNowPosition.XY();
+    pp->PlayerOldPosition.XY() = pp->PlayerPrevPosition.XY() = pp->PlayerNowPosition.XY();
 
     updatesector(pp->PlayerNowPosition, &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
@@ -1698,7 +1698,7 @@ void DoPlayerBob(PLAYER* pp)
 {
     double amt;
 
-    double dist = (pp->PlayerNowPosition.XY() - pp->oldpos.XY()).Length();
+    double dist = (pp->PlayerNowPosition.XY() - pp->PlayerOldPosition.XY()).Length();
 
     if (dist > 32)
         dist = 0;
@@ -2051,7 +2051,7 @@ void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
     {
-        pp->PlayerNowPosition = pp->oldpos;
+        pp->PlayerNowPosition = pp->PlayerOldPosition;
         pp->cursector = pp->lastcursector;
     }
 }
@@ -2119,7 +2119,7 @@ void DoPlayerMove(PLAYER* pp)
         DoPlayerTurn(pp, pp->input.avel, 1);
     }
 
-    pp->oldpos = pp->PlayerNowPosition;
+    pp->PlayerOldPosition = pp->PlayerNowPosition;
     pp->lastcursector = pp->cursector;
 
     if (PLAYER_MOVING(pp) == 0)
@@ -7183,8 +7183,8 @@ void InitAllPlayers(void)
 
         //pp->MaxHealth = 100;
 
-        pp->oldpos.X = 0;
-        pp->oldpos.Y = 0;
+        pp->PlayerOldPosition.X = 0;
+        pp->PlayerOldPosition.Y = 0;
         pp->climb_ndx = 10;
         pp->KillerActor = nullptr;
         pp->Kills = 0;
