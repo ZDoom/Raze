@@ -103,12 +103,12 @@ public:
 
 	DVector3 interpolatedpos(double const interpfrac)
 	{
-		return ::interpolatedvalue(opos, spr.pos, interpfrac);
+		return interpolatedvalue(opos, spr.pos, interpfrac);
 	}
 
 	DAngle interpolatedangle(double const interpfrac)
 	{
-		return ::interpolatedvalue(oang, spr.angle, interpfrac);
+		return interpolatedvalue(oang, spr.angle, interpfrac);
 	}
 
 	void backupz()
