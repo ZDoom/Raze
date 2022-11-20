@@ -26,7 +26,7 @@ void movedummyplayers(void);
 void resetlanepics(void);
 void moveplayers();
 void doanimations();
-void movefx();
+void tickstat(int stat);
 void operaterespawns(int low);
 void moveclouds(double interpfrac);
 void movefta();

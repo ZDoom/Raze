@@ -1881,9 +1881,21 @@ static void rrra_specialstats()
 
 //---------------------------------------------------------------------------
 //
-// 
+// this one's a hack. Can only be replaced with something better when
+// the switch code has been redone.
 //
 //---------------------------------------------------------------------------
+
+void resetswitch(int tag)
+{
+	DukeStatIterator it2(STAT_DEFAULT);
+	while (auto act2 = it2.Next())
+	{
+		if (act2->spr.picnum == DIPSWITCH3 + 1)
+			if (act2->spr.hitag == tag)
+				act2->spr.picnum = DIPSWITCH3;
+	}
+}
 
 void rr_specialstats()
 {
@@ -1906,13 +1918,7 @@ void rr_specialstats()
 				act->spr.pos.Z = act->sector()->floorz - 59.25;
 				act->spr.extra = 0;
 				act->spr.picnum = LUMBERBLADE1;
-				DukeStatIterator it2(STAT_DEFAULT);
-				while (auto act2 = it2.Next())
-				{
-					if (act2->spr.picnum == DIPSWITCH3 + 1)
-						if (act2->spr.hitag == 999)
-							act2->spr.picnum = DIPSWITCH3;
-				}
+				resetswitch(999);
 			}
 		}
 	}
@@ -3581,7 +3587,7 @@ void think_r(void)
 	moveeffectors_r();		//ST 3
 	movestandables_r();		//ST 6
 	doanimations();
-	movefx();				//ST 11
+	tickstat(STAT_FX);				//ST 11
 
 	if (numplayers < 2 && thunderon)
 		thunder();

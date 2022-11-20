@@ -526,11 +526,19 @@ void moveplayers(void)
 //
 //---------------------------------------------------------------------------
 
-void movefx(void)
+void tickstat(int stat)
 {
-	DukeStatIterator iti(STAT_FX);
+	DukeStatIterator iti(stat);
 	while (auto act = iti.Next())
-		CallTick(act);
+	{
+		if (actorflag(act, SFLAG2_DIENOW))
+		{
+			act->Destroy();
+			continue;
+		}
+		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+			CallTick(act);
+	}
 }
 
 //---------------------------------------------------------------------------

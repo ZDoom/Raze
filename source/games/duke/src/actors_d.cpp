@@ -3283,7 +3283,7 @@ void think_d(void)
 	moveeffectors_d();		//ST 3
 	movestandables_d();		//ST 6
 	doanimations();
-	movefx();				//ST 11
+	tickstat(STAT_FX);				//ST 11
 
 	thinktime.Unclock();
 }
