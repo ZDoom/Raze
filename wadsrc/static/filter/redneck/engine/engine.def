@@ -43,5 +43,9 @@ spawnclasses
 	239 = DukeWaterdrip
 	120 = DukeDoorshock
 	1309 = DukeCanWithSomething
+	1414 = DukeTongue
+	1439 = DukeInnerJaw
+	1440 = DukeInnerJaw1
+
 }
 

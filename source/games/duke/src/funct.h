@@ -35,7 +35,6 @@ void clearcameras(player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, int explosion);
 void bounce(DDukeActor* i);
-void movetongue(DDukeActor* i, int tongue, int jaw);
 void rpgexplode(DDukeActor* i, int j, const DVector3& pos, int EXPLOSION2, int EXPLOSIONBOT2, int newextra, int playsound);
 void lotsofstuff(DDukeActor* s, int n, int spawntype);
 bool respawnmarker(DDukeActor* i, int yellow, int green);

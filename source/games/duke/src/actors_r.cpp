@@ -1118,12 +1118,14 @@ void moveweapons_r(void)
 			continue;
 		}
 
+		if (proj->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			CallTick(proj);
+			continue;
+		}
+
 		switch (proj->spr.picnum)
 		{
-		case TONGUE:
-			movetongue(proj, TONGUE, INNERJAW);
-			continue;
-
 		case FREEZEBLAST:
 			if (proj->spr.yint < 1 || proj->spr.extra < 2 || (proj->vel.X == 0 && proj->vel.Z == 0))
 			{
@@ -2734,17 +2736,6 @@ void moveexplosions_r(void)  // STATNUM 5
 		case FRAMEEFFECT1:
 			frameeffect1(act);
 			continue;
-		case INNERJAW:
-		case INNERJAW + 1:
-
-			p = findplayer(act, &xx);
-			if (xx < 32)
-			{
-				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
-				ps[p].GetActor()->spr.extra -= 4;
-			}
-			[[fallthrough]];
-
 		case COOLEXPLOSION1:
 		case FIRELASER:
 		case OWHIP:
@@ -2757,9 +2748,6 @@ void moveexplosions_r(void)  // STATNUM 5
 				continue;
 			}
 			break;
-		case TONGUE:
-			act->Destroy();
-			continue;
 		case FEATHER + 1: // feather
 			act->spr.pos.Z = act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->sector()->lotag == 800)

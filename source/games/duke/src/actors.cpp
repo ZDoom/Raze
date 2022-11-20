@@ -638,59 +638,6 @@ void bounce(DDukeActor* actor)
 
 //---------------------------------------------------------------------------
 //
-// taken out of moveweapon
-//
-//---------------------------------------------------------------------------
-
-void movetongue(DDukeActor *actor, int tongue, int jaw)
-{
-	actor->temp_data[0] = int(BobVal(actor->temp_data[1]) * 32);
-	actor->temp_data[1] += 32;
-	if (actor->temp_data[1] > 2047)
-	{
-		actor->Destroy();
-		return;
-	}
-
-	auto Owner = actor->GetOwner();
-	if (!Owner) return;
-
-	if (Owner->spr.statnum == MAXSTATUS)
-		if (badguy(Owner) == 0)
-		{
-			actor->Destroy();
-			return;
-		}
-
-	actor->spr.angle = Owner->spr.angle;
-	actor->spr.pos = Owner->spr.pos.plusZ(Owner->isPlayer() ? -34 : 0);
-
-	for (int k = 0; k < actor->temp_data[0]; k++)
-	{
-		auto pos = actor->spr.pos + actor->spr.angle.ToVector() * 2 * k;
-		pos.Z += k * Sgn(actor->vel.Z) * abs(actor->vel.Z / 12);
-
-		auto q = CreateActor(actor->sector(), pos, tongue, -40 + (k << 1), DVector2(0.125, 0.125), nullAngle, 0., 0., actor, 5);
-		if (q)
-		{
-			q->spr.cstat = CSTAT_SPRITE_YCENTER;
-			q->spr.pal = 8;
-		}
-	}
-	int k = actor->temp_data[0];	// do not depend on the above loop counter.
-	auto pos = actor->spr.pos + actor->spr.angle.ToVector() * 2 * k;
-	pos.Z += k * Sgn(actor->vel.Z) * abs(actor->vel.Z / 12);
-	auto spawned = CreateActor(actor->sector(), pos, jaw, -40, DVector2(0.5, 0.5), nullAngle, 0., 0., actor, 5);
-	if (spawned)
-	{
-		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		if (actor->temp_data[1] > 512 && actor->temp_data[1] < (1024))
-			spawned->spr.picnum = jaw + 1;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------

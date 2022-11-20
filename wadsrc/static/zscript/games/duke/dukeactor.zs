@@ -183,6 +183,8 @@ class DukeActor : CoreActor native
 	native double, DukeActor hitasprite();
 	native void ChangeSector(sectortype s, bool forcetail = false);
 	native void ChangeStat(int s, bool forcetail = false);
+	native int badguy();
+	native int isplayer();
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags

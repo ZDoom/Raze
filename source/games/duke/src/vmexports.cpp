@@ -109,6 +109,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, badguyID, badguypic)
 	ACTION_RETURN_INT(badguypic(p));
 }
 
+
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
@@ -433,6 +435,23 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, operatesectors, DukeActor_operatesecto
 	PARAM_POINTER(sec, sectortype);
 	operatesectors(sec, self);
 	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, badguy, badguy)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(badguy(self));
+}
+
+int duke_isplayer(DDukeActor* act)
+{
+	return act->isPlayer();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, isplayer, duke_isplayer)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(duke_isplayer(self));
 }
 
 // temporary helpers to hide the fact that these flags are not part of the actor yet.

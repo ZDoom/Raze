@@ -145,6 +145,7 @@ struct Raze
 	native static Color shadeToLight(int shade);
 	native static String PlayerName(int i);
 	static int bsin(double angle) { return int(sin(angle * (360. / 2048)) * 16384); }
+	static double bobval(double angle) { return sin(angle * (360. / 2048)); }
 	native static TextureID PickTexture(TextureID texid);
 	native static int GetBuildTime();
 	native static Font PickBigFont(String cmptext = "");

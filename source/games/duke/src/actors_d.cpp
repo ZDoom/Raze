@@ -364,7 +364,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					else
 					{
 						if (actor->spr.picnum == SHRINKSPARK || actor->spr.picnum == FLAMETHROWERFLAME)
-							act2->attackertype = actor->spr.picnum;
+							act2->	attackertype = actor->spr.picnum;
 						else if (actor->spr.picnum != FIREBALL || !Owner || Owner->spr.picnum != APLAYER)
 						{
 							if (actor->spr.picnum == LAVAPOOL)
@@ -1235,13 +1235,14 @@ void moveweapons_d(void)
 			continue;
 		}
 
+		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		{
+			CallTick(act);
+			continue;
+		}
 
 		switch(act->spr.picnum)
 		{
-		case TONGUE:
-			movetongue(act, TONGUE, INNERJAW);
-			continue;
-
 		case FREEZEBLAST:
 			if (act->spr.yint < 1 || act->spr.extra < 2 || (act->vel.X == 0 && act->vel.Z == 0))
 			{
@@ -2596,17 +2597,6 @@ void moveexplosions_d(void)  // STATNUM 5
 		case FRAMEEFFECT1:
 			frameeffect1(act);
 			continue;
-		case INNERJAW:
-		case INNERJAW + 1:
-
-			p = findplayer(act, &xx);
-			if (xx < 32)
-			{
-				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
-				ps[p].GetActor()->spr.extra -= 4;
-			}
-			[[fallthrough]];
-
 		case FIRELASER:
 			if (act->spr.extra != 999)
 				act->spr.extra = 999;
@@ -2616,9 +2606,6 @@ void moveexplosions_d(void)  // STATNUM 5
 				continue;
 			}
 			break;
-		case TONGUE:
-			act->Destroy();
-			continue;
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:

@@ -1037,7 +1037,6 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if (proj->spr.picnum == FREEZEBLAST && ((targ->spr.picnum == APLAYER && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
 
-
 			int hitpic = proj->spr.picnum;
 			auto Owner = proj->GetOwner();
 			if (Owner && Owner->spr.picnum == APLAYER)
