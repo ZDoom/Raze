@@ -84,18 +84,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, checkcursectnums, duke_checkcursectnums)
 	ACTION_RETURN_POINTER(duke_checkcursectnums(sect));
 }
 
-int duke_floorflags(sectortype* sector)
-{
-	return gs.tileinfo[sector->floorpicnum].flags;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, floorflags, duke_floorflags)
-{
-	PARAM_PROLOGUE;
-	PARAM_POINTER(sect, sectortype);
-	ACTION_RETURN_INT(duke_floorflags(sect));
-}
-
 int duke_global_random()
 {
 	return global_random;
@@ -867,12 +855,65 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, operatemasterswitches, operatemastersw
 	return 0;
 }
 
-DEFINE_ACTION_FUNCTION(_DukeLevel, operateactivators)//, operateactivators)
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, operateactivators, operateactivators)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(lotag);
 	PARAM_POINTER(p, player_struct);
 	operateactivators(lotag, p);
+	return 0;
+}
+
+int duke_floorflags(sectortype* sector)
+{
+	return gs.tileinfo[sector->floorpicnum].flags;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, floorflags, duke_floorflags)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_INT(duke_floorflags(sect));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, addcycler, addcycler)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	PARAM_INT(lotag);
+	PARAM_INT(shade);
+	PARAM_INT(shade2);
+	PARAM_INT(hitag);
+	PARAM_INT(state);
+	addcycler(sect, lotag, shade, shade2, hitag, state);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, addtorch, addtorch)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	PARAM_INT(shade);
+	PARAM_INT(lotag);
+	addtorch(sect, shade, lotag);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, addlightning, addlightning)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	PARAM_INT(shade);
+	addlightning(sect, shade);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, addambient, addambient)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(hitag);
+	PARAM_INT(lotag);
+	ACTION_RETURN_INT(addambient(hitag, lotag));
 	return 0;
 }
 

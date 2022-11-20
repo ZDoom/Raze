@@ -168,6 +168,7 @@ class DukeActor : CoreActor native
 	native void operatesectors(sectortype sec);
 	
 	virtual void BeginPlay() {}
+	virtual void StaticSetup() {}
 	virtual void Initialize() {}
 	virtual void Tick() {}
 	virtual void onHit(DukeActor hitter) { checkhitdefault(hitter); }
@@ -209,6 +210,11 @@ struct DukeLevel
 	native static int check_activator_motion(int lotag);
 	native static void operatemasterswitches(int lotag);
 	native static void operateactivators(int lotag, DukePlayer p);
+	native static int floorflags(sectortype s);
+	native static void AddCycler(sectortype sector, int lotag, int shade, int shade2, int hitag, int state);
+	native static void addtorch(sectortype sector, int shade, int lotag);
+	native static void addlightning(sectortype sector, int shade);
+	native static int addambient(int hitag, int lotag);
 }
 
 struct DukeStatIterator

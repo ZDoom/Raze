@@ -97,7 +97,6 @@ struct Duke native
 	native static DukePlayer GetViewPlayer();
 	native static int MaxAmmoAmount(int weap);
 	native static DukePlayer checkcursectnums(sectortype sect);
-	native static int floorflags(sectortype s);
 	native static int global_random();
 	native static int GetSoundFlags(int sound);
 	native static int badguyID(int id);

@@ -45,29 +45,10 @@ int which_palookup = 9;
 
 void premapcontroller(DDukeActor* ac)
 {
-	switch (ac->spr.picnum)
+	CallStaticSetup(ac);
+	if (ac->spr.picnum == SECTOREFFECTOR)
 	{
-	case SECTOREFFECTOR:
 		ac->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ALIGNMENT_MASK);
-		break;
-
-	case GPSPEED:
-		ac->sector()->extra = ac->spr.lotag;
-		deletesprite(ac);
-		break;
-
-	case CYCLER:
-		if (numcyclers >= MAXCYCLERS)
-			I_Error("Too many cycling sectors.");
-		cyclers[numcyclers].sector = ac->sector();
-		cyclers[numcyclers].lotag = ac->spr.lotag;
-		cyclers[numcyclers].shade1 = ac->spr.shade;
-		cyclers[numcyclers].shade2 = ac->sector()->floorshade;
-		cyclers[numcyclers].hitag = ac->spr.hitag;
-		cyclers[numcyclers].state = (ac->spr.angle == DAngle270);
-		numcyclers++;
-		deletesprite(ac);
-		break;
 	}
 }
 

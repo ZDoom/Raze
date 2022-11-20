@@ -5,8 +5,10 @@ spawnclasses
 	4 = DukeActivatorLocked
 	5 = DukeSoundController
 	6 = DukeLocator
+	7 = DukeCycler
 	8 = DukeMasterSwitch
 	9 = DukeRespawnController
+	10 = DukeGPSpeed
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane

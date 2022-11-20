@@ -17,8 +17,9 @@ BEGIN_DUKE_NS
 void lava_cleararrays();
 void addjaildoor(int p1, int p2, int iht, int jlt, int p3, sectortype* h);
 void addminecart(int p1, int p2, sectortype* i, int iht, int p3, sectortype* childsectnum);
-void addtorch(DDukeActor* i);
-void addlightning(DDukeActor* i);
+void addtorch(sectortype* sect, int shade, int lotag);
+void addlightning(sectortype* sect, int shade);
+int addambient(int hitag, int lotag);
 
 void movecyclers(void);
 void movedummyplayers(void);

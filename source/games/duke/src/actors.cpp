@@ -334,6 +334,19 @@ void movecyclers(void)
 	}
 }
 
+void addcycler(sectortype* sector, int lotag, int shade, int shade2, int hitag, int state)
+{
+	if (numcyclers >= MAXCYCLERS)
+		I_Error("Too many cycling sectors.");
+	cyclers[numcyclers].sector = sector;
+	cyclers[numcyclers].lotag = lotag;
+	cyclers[numcyclers].shade1 = shade;
+	cyclers[numcyclers].shade2 = shade2;
+	cyclers[numcyclers].hitag = hitag;
+	cyclers[numcyclers].state = state;
+	numcyclers++;
+}
+
 //---------------------------------------------------------------------------
 //
 // 

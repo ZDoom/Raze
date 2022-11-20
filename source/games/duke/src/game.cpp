@@ -479,5 +479,13 @@ bool CallAnimate(DDukeActor* actor, tspritetype* tspr)
 	return nval;
 }
 
+void CallStaticSetup(DDukeActor* actor)
+{
+	IFVIRTUALPTR(actor, DDukeActor, StaticSetup)
+	{
+		VMValue val = actor;
+		VMCall(func, &val, 1, nullptr, 0);
+	}
+}
 
 END_DUKE_NS

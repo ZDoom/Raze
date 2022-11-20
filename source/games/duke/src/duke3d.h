@@ -123,6 +123,7 @@ void CallOnHurt(DDukeActor* actor, player_struct* hitter);
 bool CallOnUse(DDukeActor* actor, player_struct* user);
 void CallOnRespawn(DDukeActor* actor, int low);
 bool CallAnimate(DDukeActor* actor, tspritetype* hitter);
+void CallStaticSetup(DDukeActor* actor);
 
 
 END_DUKE_NS

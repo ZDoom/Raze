@@ -145,6 +145,9 @@ struct sectortype native
 	native uint8 exflags;
 
 
+	// Duke
+	native uint8 shadedsector;
+
 /*
 	// Game specific extensions. Only export what's really needed.
 	union

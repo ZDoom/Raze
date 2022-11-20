@@ -106,3 +106,74 @@ class DukeActivatorLocked : DukeActor
 	*/
 }
 
+// Note: StaticSetup is run much earlier than Initialize! This is only meant for things that modify global game state.
+
+class DukeCycler : DukeActor
+{
+	override void StaticSetup()
+	{
+		dlevel.AddCycler(self.sector, self.lotag, self.shade, self.sector.floorshade, self.hitag, self.intangle == 1536);
+		self.Destroy();
+	}
+}
+
+class DukeGPSpeed : DukeActor
+{
+	override void StaticSetup()
+	{
+		self.sector.extra = self.lotag;
+		self.Destroy();
+	}
+}
+
+// the following ones are only used in RR.
+class TorchCtrl : DukeActor
+{
+	override void StaticSetup()
+	{
+		dlevel.addtorch(self.sector, self.sector.floorshade, self.lotag);
+		self.Destroy();
+	}
+}
+
+class DukeLightningCtrl : DukeActor
+{
+	override void StaticSetup()
+	{
+		dlevel.addlightning(self.sector, self.sector.floorshade);
+		self.Destroy();
+	}
+}
+
+class DukeShadeCtrl : DukeActor
+{
+	override void StaticSetup()
+	{
+		self.sector.shadedsector = 1;
+		self.Destroy();
+	}
+}
+
+class DukeDummyCtrl : DukeActor
+{
+	override void StaticSetup()
+	{
+		self.cstat |= CSTAT_SPRITE_INVISIBLE;
+	}
+}
+
+class DukeSoundFX : DukeActor
+{
+	default
+	{
+		statnum STAT_ZOMBIEACTOR;
+	}
+	
+	override void StaticSetup()
+	{
+		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.detail = dlevel.addambient(self.hitag, self.lotag);
+		self.lotag = self.hitag = 0;
+	}
+}
+

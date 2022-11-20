@@ -534,48 +534,9 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		{
 			ps[0].Exit = ac->spr.pos.XY();
 		}
-		else switch (ac->spr.picnum)
+		else
 		{
-		default:
 			premapcontroller(ac);
-			break;
-			
-		case NUKEBUTTON:
-			chickenplant = 1;
-			break;
-
-		case RRTILE18:
-			addtorch(ac);
-			deletesprite(ac);
-			break;
-
-		case RRTILE35:
-			addlightning(ac);
-			deletesprite(ac);
-			break;
-
-		case RRTILE68:
-			ac->sector()->shadedsector = 1;
-			deletesprite(ac);
-			break;
-
-		case RRTILE67:
-			ac->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-			break;
-
-		case SOUNDFX:
-			if (ambientfx >= 64)
-				I_Error("Too many ambient effects");
-			else
-			{
-				ambienthitag[ambientfx] = ac->spr.hitag;
-				ambientlotag[ambientfx] = ac->spr.lotag;
-				ac->spr.detail = ambientfx;
-				ambientfx++;
-				ac->spr.lotag = 0;
-				ac->spr.hitag = 0;
-			}
-			break;
 		}
 	}
 

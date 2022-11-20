@@ -146,24 +146,24 @@ void lava_serialize(FSerializer& arc)
 		("windertime", windertime);
 }
 
-void addtorch(DDukeActor* actor)
+void addtorch(sectortype* sect, int shade, int lotag)
 {
 	if (torchcnt >= 64)
 		I_Error("Too many torch effects");
 
-	torchsector[torchcnt] = actor->sector();
-	torchsectorshade[torchcnt] = actor->sector()->floorshade;
-	torchtype[torchcnt] = actor->spr.lotag;
+	torchsector[torchcnt] = sect;
+	torchsectorshade[torchcnt] = shade;
+	torchtype[torchcnt] = lotag;
 	torchcnt++;
 }
 
-void addlightning(DDukeActor* actor)
+void addlightning(sectortype* sect, int shade)
 {
 	if (lightnincnt >= 64)
 		I_Error("Too many lightnin effects");
 
-	lightninsector[lightnincnt] = actor->sector();
-	lightninsectorshade[lightnincnt] = actor->sector()->floorshade;
+	lightninsector[lightnincnt] = sect;
+	lightninsectorshade[lightnincnt] = shade;
 	lightnincnt++;
 }
 
@@ -523,6 +523,18 @@ void thunder(void)
 			for (auto& wal : sectp->walls)
 				wal.shade = lightninsectorshade[i] - shade;
 		}
+	}
+}
+
+int addambient(int hitag, int lotag)
+{
+	if (ambientfx >= 64)
+		I_Error("Too many ambient effects");
+	else
+	{
+		ambienthitag[ambientfx] = hitag;
+		ambientlotag[ambientfx] = lotag;
+		return ambientfx++;
 	}
 }
 

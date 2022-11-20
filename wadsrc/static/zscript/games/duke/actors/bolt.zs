@@ -53,7 +53,7 @@ class DukeBolt1 : DukeActor
 
 		if (l & 1) self.cstat ^= CSTAT_SPRITE_TRANSLUCENT;
 
-		if (self.spritesetindex == 1 && random(0, 7) == 0 && (Duke.floorflags(sectp) & Duke.TFLAG_ELECTRIC))
+		if (self.spritesetindex == 1 && random(0, 7) == 0 && (dlevel.floorflags(sectp) & Duke.TFLAG_ELECTRIC))
 			self.PlayActorSound(DukeSnd.SHORT_CIRCUIT);
 
 		if (self.spritesetindex & 1)
@@ -132,7 +132,7 @@ class DukeSideBolt1 : DukeBolt1
 		}
 		self.SetSpriteSetImage((self.spritesetindex + 1) % self.GetSpriteSetSize());
 
-		if (random(0, 1) && (Duke.floorflags(sectp) & Duke.TFLAG_ELECTRIC))
+		if (random(0, 1) && (dlevel.floorflags(sectp) & Duke.TFLAG_ELECTRIC))
 			self.PlayActorSound(DukeSnd.SHORT_CIRCUIT);
 	}
 	

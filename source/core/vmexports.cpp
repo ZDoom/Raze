@@ -102,6 +102,8 @@ DEFINE_FIELD_X(sectortype, sectortype, exflags)
 DEFINE_FIELD_X(sectortype, sectortype, floorz)
 DEFINE_FIELD_X(sectortype, sectortype, ceilingz)
 
+DEFINE_FIELD_X(sectortype, sectortype, shadedsector)
+
 DEFINE_FIELD_NAMED_X(walltype, walltype, xpan_, xpan)
 DEFINE_FIELD_NAMED_X(walltype, walltype, ypan_, ypan)
 DEFINE_FIELD_X(walltype, walltype, pos)
