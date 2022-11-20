@@ -107,6 +107,13 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, global_random, duke_global_random)
 	ACTION_RETURN_INT(global_random);
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, GetSoundFlags, S_GetUserFlags)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(snd);
+	ACTION_RETURN_INT(S_GetUserFlags(snd));
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
@@ -215,16 +222,31 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, domove, ssp)
 	ACTION_RETURN_INT(ssp(self, clipmask));
 }
 
-int DukeActor_PlayActorSound(DDukeActor* self, int snd)
+int DukeActor_PlayActorSound(DDukeActor* self, int snd, int chan, int flags)
 {
-	return S_PlayActorSound(snd, self);
+	return S_PlayActorSound(snd, self, chan, EChanFlags::FromInt(flags));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, PlayActorSound, DukeActor_PlayActorSound)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(snd);
-	ACTION_RETURN_INT(DukeActor_PlayActorSound(self, snd));
+	PARAM_INT(chan);
+	PARAM_INT(flags);
+	ACTION_RETURN_INT(DukeActor_PlayActorSound(self, snd, chan, flags));
+}
+
+int DukeActor_StopSound(DDukeActor* self, int snd, int chan)
+{
+	return S_PlayActorSound(snd, self, chan);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, StopSound, DukeActor_StopSound)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(snd);
+	PARAM_INT(chan);
+	ACTION_RETURN_INT(DukeActor_StopSound(self, snd, chan));
 }
 
 DDukeActor* DukeActor_Spawn(DDukeActor* origin, int intname)

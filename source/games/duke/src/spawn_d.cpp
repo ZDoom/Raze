@@ -522,8 +522,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case RESPAWN:
 		act->spr.extra = 66 - 13;
-		[[fallthrough]];
-	case MUSICANDSFX:
 		if (ud.multimode < 2 && act->spr.pal == 1)
 		{
 			act->spr.scale = DVector2(0, 0);

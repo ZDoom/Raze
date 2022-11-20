@@ -77,6 +77,18 @@ struct Duke native
 		TFLAG_SLIME					= 16,
 	};
 
+	enum ESoundFlags
+	{
+		SF_LOOP = 1,
+		SF_MSFX = 2,
+		SF_TALK = 4,
+		SF_ADULT = 8,
+		SF_GLOBAL = 16,
+		SF_ONEINST_INTERNAL = 32,
+
+		SF_DTAG = 128,
+	};
+
 
 	native static void PlaySpecialMusic(int which);
 	native static int PlaySound(int num, int channel = CHAN_AUTO, int flags = 0, float vol =0.8f);
@@ -87,6 +99,7 @@ struct Duke native
 	native static DukePlayer checkcursectnums(sectortype sect);
 	native static int floorflags(sectortype s);
 	native static int global_random();
+	native static int GetSoundFlags(int sound);
 
 	static void PlayBonusMusic()
 	{

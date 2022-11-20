@@ -14,3 +14,4 @@ xx(AltHud)
 // internal Duke actor classes that need direct checking
 xx(DukeMasterSwitch)
 xx(DukeTouchplate)
+xx(DukeSoundController)

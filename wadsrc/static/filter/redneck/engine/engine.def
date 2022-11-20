@@ -1,7 +1,8 @@
 spawnclasses
 {
-	8 = DukeMasterSwitch
 	3 = DukeTouchplate
+	5 = DukeSoundController
+	8 = DukeMasterSwitch
 	
 	1298 = DukeCranePole
 	1299 = DukeCrane

@@ -36,6 +36,7 @@
 #include "maptypes.h"
 #include "vm.h"
 #include "gamefuncs.h"
+#include "raze_sound.h"
 
 sectortype* Raze_updatesector(double x, double y, sectortype* sec, double dist)
 {
@@ -51,6 +52,27 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, updatesector, Raze_updatesector)
 	PARAM_POINTER(s, sectortype);
 	PARAM_FLOAT(dist);
 	ACTION_RETURN_POINTER(Raze_updatesector(x, y, s, dist));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SoundEnabled, SoundEnabled)
+{
+	ACTION_RETURN_INT(SoundEnabled());
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SetReverb, FX_SetReverb)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(i);
+	FX_SetReverb(i);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SetReverbDelay, FX_SetReverbDelay)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(i);
+	FX_SetReverbDelay(i);
+	return 0;
 }
 
 //=============================================================================

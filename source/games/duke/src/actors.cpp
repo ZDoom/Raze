@@ -86,9 +86,6 @@ void RANDOMSCRAP(DDukeActor* origin)
 
 void deletesprite(DDukeActor *const actor)
 {
-	if (actor->spr.picnum == MUSICANDSFX && actor->temp_data[0] == 1)
-		S_StopSound(actor->spr.lotag, actor);
-
 	actor->Destroy();
 }
 
@@ -532,13 +529,15 @@ void moveplayers(void)
 
 void movefx(void)
 {
-	int p;
-
 	DukeStatIterator iti(STAT_FX);
 	while (auto act = iti.Next())
 	{
 		switch (act->spr.picnum)
 		{
+		default:
+			CallTick(act);
+			break;
+
 		case RESPAWN:
 			if (act->spr.extra == 66)
 			{
@@ -556,64 +555,6 @@ void movefx(void)
 				act->spr.extra++;
 			break;
 
-		case MUSICANDSFX:
-			{
-			double maxdist = act->spr.hitag * maptoworld;
-
-			if (act->temp_data[1] != (int)SoundEnabled())
-			{
-				act->temp_data[1] = SoundEnabled();
-				act->temp_data[0] = 0;
-			}
-
-			if (act->spr.lotag >= 1000 && act->spr.lotag < 2000)
-			{
-				double dist = (ps[screenpeek].GetActor()->spr.pos.XY() - act->spr.pos.XY()).Length();
-				if (dist < maxdist && act->temp_data[0] == 0)
-				{
-					FX_SetReverb(act->spr.lotag - 1100);
-					act->temp_data[0] = 1;
-				}
-				if (dist >= maxdist && act->temp_data[0] == 1)
-				{
-					FX_SetReverb(0);
-					FX_SetReverbDelay(0);
-					act->temp_data[0] = 0;
-				}
-			}
-			else if (act->spr.lotag < 999 && (unsigned)act->sector()->lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && act->sector()->floorz != act->sector()->ceilingz)
-			{
-				int flags = S_GetUserFlags(act->spr.lotag);
-				if (flags & SF_MSFX)
-				{
-					double distance = (ps[screenpeek].GetActor()->spr.pos - act->spr.pos).Length();
-
-					if (distance < maxdist && act->temp_data[0] == 0)
-					{
-						// Start playing an ambience sound.
-						S_PlayActorSound(act->spr.lotag, act, CHAN_AUTO, CHANF_LOOP);
-						act->temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
-					}
-					else if (distance >= maxdist && act->temp_data[0] == 1)
-					{
-						// Stop playing ambience sound because we're out of its range.
-						S_StopSound(act->spr.lotag, act);
-					}
-				}
-
-				if ((flags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL)
-				{
-					if (act->temp_data[4] > 0) act->temp_data[4]--;
-					else for (p = connecthead; p >= 0; p = connectpoint2[p])
-						if (p == myconnectindex && ps[p].cursector == act->sector())
-						{
-							S_PlaySound(act->spr.lotag + (unsigned)global_random % (act->spr.hitag + 1));
-							act->temp_data[4] = 26 * 40 + (global_random % (26 * 40));
-						}
-				}
-			}
-			break;
-			}
 		}
 	}
 }

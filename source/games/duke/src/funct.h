@@ -32,7 +32,6 @@ void movefta();
 void clearcameras(player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, int explosion);
-void movecanwithsomething(DDukeActor* i);
 void bounce(DDukeActor* i);
 void movetongue(DDukeActor* i, int tongue, int jaw);
 void rpgexplode(DDukeActor* i, int j, const DVector3& pos, int EXPLOSION2, int EXPLOSIONBOT2, int newextra, int playsound);

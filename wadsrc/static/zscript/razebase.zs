@@ -149,6 +149,9 @@ struct Raze
 	native static int GetBuildTime();
 	native static Font PickBigFont(String cmptext = "");
 	native static Font PickSmallFont(String cmptext = "");
+	native static int SoundEnabled();
+	native static void SetReverb(int r);
+	native static void SetReverbDelay(int d);
 	
 	native static sectortype updatesector(Vector2 pos, sectortype lastsect, double maxdist = 96);
 

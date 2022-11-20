@@ -62,7 +62,7 @@ int callsound(sectortype* sn, DDukeActor* whatsprite, bool endstate)
 	DukeSectIterator it(sn);
 	while (auto act = it.Next())
 	{
-		if (act->spr.picnum == MUSICANDSFX && act->spr.lotag < 1000)
+		if (issoundcontroller(act) && act->spr.lotag < 1000)
 		{
 			if (whatsprite == nullptr) whatsprite = act;
 

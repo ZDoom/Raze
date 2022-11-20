@@ -244,7 +244,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 
 inline bool S_IsAmbientSFX(DDukeActor* actor)
 {
-	return (actor->spr.picnum == MUSICANDSFX && actor->spr.lotag < 999);
+	return (issoundcontroller(actor) && actor->spr.lotag < 999);
 }
 
 //==========================================================================
@@ -271,14 +271,14 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 	{
 		orgsndist = sndist = int(16 * (sndorg - campos).Length());
 
-		if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && actor->spr.picnum == MUSICANDSFX && actor->spr.lotag < 999 && (actor->sector()->lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
+		if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && issoundcontroller(actor) && actor->spr.lotag < 999 && (actor->sector()->lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
 			sndist = DivScale(sndist, actor->spr.hitag + 1, 14);
 	}
 
 	sndist += dist_adjust;
 	if (sndist < 0) sndist = 0;
 
-	if (sect!= nullptr && sndist && actor->spr.picnum != MUSICANDSFX && !cansee(cam.plusZ(-24), sect, actor->spr.pos.plusZ(-24), actor->sector()))
+	if (sect!= nullptr && sndist && !issoundcontroller(actor) && !cansee(cam.plusZ(-24), sect, actor->spr.pos.plusZ(-24), actor->sector()))
 		sndist += sndist >> (isRR() ? 2 : 5);
 
 	// Here the sound distance was clamped to a minimum of 144*4. 
@@ -471,7 +471,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const DVector3& pos, int channe
 	}
 	else
 	{
-		if (sndist > 32767 && actor->spr.picnum != MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
+		if (sndist > 32767 && !issoundcontroller(actor) && (userflags & (SF_LOOP | SF_MSFX)) == 0)
 			return -1;
 
 		if (underwater && (userflags & SF_TALK) == 0)
@@ -479,7 +479,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const DVector3& pos, int channe
 	}
 
 	bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum+1);
-	if (is_playing && actor->spr.picnum != MUSICANDSFX)
+	if (is_playing && !issoundcontroller(actor))
 		S_StopSound(sndnum, actor);
 
 	int const repeatp = (userflags & SF_LOOP);

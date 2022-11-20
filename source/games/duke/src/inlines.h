@@ -19,6 +19,11 @@ inline int ismasterswitch(DDukeActor* actor)
 	return actor->GetClass()->TypeName == NAME_DukeMasterSwitch && actor->spr.statnum != STAT_REMOVED;
 }
 
+inline int issoundcontroller(DDukeActor* actor)
+{
+	return actor->GetClass()->TypeName == NAME_DukeSoundController;
+}
+
 inline int badguypic(int const tileNum)
 {
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);

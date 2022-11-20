@@ -49,6 +49,35 @@ enum EEffectorTypes
 	SE_156_CONVEYOR_NOSCROLL           = 156,
 };
 
+enum ESectorTriggers
+{
+	ST_0_NO_EFFECT   = 0,
+	ST_1_ABOVE_WATER = 1,
+	ST_2_UNDERWATER  = 2,
+	ST_3             = 3,
+	// ^^^ maybe not complete substitution in code
+	ST_9_SLIDING_ST_DOOR     = 9,
+	ST_15_WARP_ELEVATOR      = 15,
+	ST_16_PLATFORM_DOWN      = 16,
+	ST_17_PLATFORM_UP        = 17,
+	ST_18_ELEVATOR_DOWN      = 18,
+	ST_19_ELEVATOR_UP        = 19,
+	ST_20_CEILING_DOOR       = 20,
+	ST_21_FLOOR_DOOR         = 21,
+	ST_22_SPLITTING_DOOR     = 22,
+	ST_23_SWINGING_DOOR      = 23,
+	ST_25_SLIDING_DOOR       = 25,
+	ST_26_SPLITTING_ST_DOOR  = 26,
+	ST_27_STRETCH_BRIDGE     = 27,
+	ST_28_DROP_FLOOR         = 28,
+	ST_29_TEETH_DOOR         = 29,
+	ST_30_ROTATE_RISE_BRIDGE = 30,
+	ST_31_TWO_WAY_TRAIN      = 31,
+
+	ST_41_JAILDOOR			= 41,
+	ST_42_MINECART			= 42,
+	// left: ST 32767, 65534, 65535
+};
 
 class DukeActor : CoreActor native
 {
@@ -126,7 +155,8 @@ class DukeActor : CoreActor native
 	native DukePlayer, double findplayer();
 	native int ifhitbyweapon();
 	native int domove(int clipmask);
-	native void PlayActorSound(int snd);
+	native void PlayActorSound(int snd, int chan = CHAN_AUTO, int flags = 0);
+	native void StopSound(int snd, int chan = -1);
 	native DukeActor spawn(Name type);
 	native DukeActor spawnsprite(int type);	// for cases where the map has a picnum stored. Avoid when possible.
 	native DukeActor spawnweaponorammo(int type);
