@@ -91,11 +91,6 @@ public:
 		spr.angle = spr.angle.Normalized360();
 	}
 
-	void ZeroVelocity()
-	{
-		vel = { 0,0,0 };
-	}
-
 	DVector3 interpolatedpos(double const interpfrac)
 	{
 		return interpolatedvalue(opos, spr.pos, interpfrac);

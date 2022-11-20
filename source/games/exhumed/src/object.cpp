@@ -2148,7 +2148,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
 
         if (pActor->spr.statnum == kStatExplodeTarget)
         {
-            pActor->ZeroVelocity();
+            pActor->vel.Zero();
         }
         else if (pActor->spr.statnum != kStatAnubisDrum)
         {

@@ -1620,7 +1620,7 @@ void OperateTeleport(sectortype* pSector)
 				actor->spr.angle = destactor->spr.angle;
 				ChangeActorSect(actor, destactor->sector());
 				sfxPlay3DSound(destactor, 201, -1, 0);
-				actor->ZeroVelocity();
+				actor->vel.Zero();
 				actor->interpolated = false;
 				viewBackupSpriteLoc(actor);
 				if (pPlayer)

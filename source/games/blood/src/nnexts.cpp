@@ -2613,7 +2613,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 					else flags &= ~(kPhysGravity | kPhysFalling);
 
 					targetactor->spr.flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
-					targetactor->ZeroVelocity();
+					targetactor->vel.Zero();
 					targetactor->xspr.restState = targetactor->xspr.state;
 
 				}
@@ -2726,7 +2726,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 				{
 
 					if (oldFlags == 0)
-						targetactor->ZeroVelocity();
+						targetactor->vel.Zero();
 
 					if (nIndex != -1)
 					{
@@ -2762,7 +2762,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 				{
 
 					targetactor->xspr.physAttr = flags;
-					targetactor->ZeroVelocity();
+					targetactor->vel.Zero();
 					if (targetactor->spr.lotag >= kThingBase && targetactor->spr.lotag < kThingMax)
 						ChangeActorStat(targetactor, kStatThing);  // if it was a thing - restore statnum
 				}
@@ -3240,7 +3240,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
 	if (sourceactor->xspr.data3 == 1)
 	{
-		actor->ZeroVelocity();
+		actor->vel.Zero();
 	}
 	else if (sourceactor->xspr.data3 > 0)
 	{

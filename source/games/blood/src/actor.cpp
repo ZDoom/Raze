@@ -2387,7 +2387,7 @@ static void actInitThings()
 
 		act->spr.flags = thingInfo[nType].flags;
 		if (act->spr.flags & kPhysGravity) act->spr.flags |= kPhysFalling;
-		act->ZeroVelocity();
+		act->vel.Zero();
 
 		switch (act->spr.type)
 		{
@@ -2489,7 +2489,7 @@ static void actInitDudes()
 				act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 #endif
 
-				act->ZeroVelocity();
+				act->vel.Zero();
 
 #ifdef NOONE_EXTENSIONS
 				// add a way to set custom hp for every enemy - should work only if map just started and not loaded.
@@ -2705,7 +2705,7 @@ static void actNapalmMove(DBloodActor* actor)
 		spawnparam[0] = actor->xspr.data4 >> 1;
 		spawnparam[1] = actor->xspr.data4 - spawnparam[0];
 		auto ang = actor->spr.angle;
-		actor->ZeroVelocity();
+		actor->vel.Zero();
 		for (int i = 0; i < 2; i++)
 		{
 			double t1 = RandomD(3.2) + 3.2;
@@ -5448,7 +5448,7 @@ void actExplodeSprite(DBloodActor* actor)
 		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 	}
-	actor->ZeroVelocity();
+	actor->vel.Zero();
 	actPostSprite(actor, kStatExplosion);
 	actor->spr.scale = DVector2(explodeInfo[nType].repeat * REPEAT_SCALE, explodeInfo[nType].repeat* REPEAT_SCALE);
 
