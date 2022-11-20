@@ -39,8 +39,6 @@ bool isadoorwall_d(int dapic);
 bool isadoorwall_r(int dapic);
 void animatewalls_d(void);
 void animatewalls_r(void);
-void operaterespawns_d(int low);
-void operaterespawns_r(int low);
 void operateforcefields_r(DDukeActor* act, int low);
 void operateforcefields_d(DDukeActor* act, int low);
 bool checkhitswitch_d(int snum, walltype* w, DDukeActor *act);
@@ -114,7 +112,6 @@ void SetDispatcher()
 		initactorflags_d,
 		isadoorwall_d,
 		animatewalls_d,
-		operaterespawns_d,
 		operateforcefields_d,
 		checkhitswitch_d,
 		activatebysector_d,
@@ -157,7 +154,6 @@ void SetDispatcher()
 		initactorflags_r,
 		isadoorwall_r,
 		animatewalls_r,
-		operaterespawns_r,
 		operateforcefields_r,
 		checkhitswitch_r,
 		activatebysector_r,

@@ -63,7 +63,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case BOSS5:
 			if (act->spr.picnum != FIREFLY)
 			{
-				if (actj && actj->spr.picnum == RESPAWN)
+				if (actj && isrespawncontroller(actj))
 					act->spr.pal = actj->spr.pal;
 				if (act->spr.pal != 0)
 				{
@@ -710,7 +710,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (bossguy(act))
 		{
-			if (actj && actj->spr.picnum == RESPAWN)
+			if (actj && isrespawncontroller(actj))
 				act->spr.pal = actj->spr.pal;
 			if (act->spr.pal && (!isWorldTour() || !(currentLevel->flags & LEVEL_WT_BOSSSPAWN) || act->spr.pal != 22))
 			{

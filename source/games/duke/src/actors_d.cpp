@@ -3265,10 +3265,10 @@ void respawnhitag_d(DDukeActor* actor)
 	case PODFEM1:
 	case NAKED1:
 	case STATUE:
-		if (actor->spr.yint) fi.operaterespawns(actor->spr.yint);
+		if (actor->spr.yint) operaterespawns(actor->spr.yint);
 		break;
 	default:
-		if (actor->spr.hitag >= 0) fi.operaterespawns(actor->spr.hitag);
+		if (actor->spr.hitag >= 0) operaterespawns(actor->spr.hitag);
 		break;
 	}
 }

@@ -100,6 +100,7 @@ struct Duke native
 	native static int floorflags(sectortype s);
 	native static int global_random();
 	native static int GetSoundFlags(int sound);
+	native static int badguyID(int id);
 
 	static void PlayBonusMusic()
 	{

@@ -51,7 +51,6 @@ void premapcontroller(DDukeActor* ac)
 	case ACTIVATORLOCKED:
 	case LOCATORS:
 	case MUSICANDSFX:
-	case RESPAWN:
 	case SECTOREFFECTOR:
 		ac->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ALIGNMENT_MASK);
 		break;

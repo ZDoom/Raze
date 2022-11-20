@@ -114,6 +114,13 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, GetSoundFlags, S_GetUserFlags)
 	ACTION_RETURN_INT(S_GetUserFlags(snd));
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, badguyID, badguypic)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(p);
+	ACTION_RETURN_INT(badguypic(p));
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
@@ -261,15 +268,23 @@ DDukeActor* DukeActor_Spawn(DDukeActor* origin, int intname)
 	{
 		picnum = TileFiles.tileForName("BURNIMG");
 	}
-	if (FName(ENamedName(intname)) == FName("DukeBloodPool"))
+	else if (FName(ENamedName(intname)) == FName("DukeBloodPool"))
 	{
 		picnum = TileFiles.tileForName("BLOODPOOL");
 	}
-	if (FName(ENamedName(intname)) == FName("DukeExplosion2"))
+	else if (FName(ENamedName(intname)) == FName("DukeExplosion2"))
 	{
 		picnum = TileFiles.tileForName("EXPLOSION2");
 	}
-	
+	else if (FName(ENamedName(intname)) == FName("DukeTransporterStar"))
+	{
+		picnum = TileFiles.tileForName("TRANSPORTERSTAR");
+	}
+	else if (FName(ENamedName(intname)) == FName("RedneckRabbit"))
+	{
+		picnum = TileFiles.tileForName("RABBIT");
+	}
+
 
 	if (picnum == -1)
 	{

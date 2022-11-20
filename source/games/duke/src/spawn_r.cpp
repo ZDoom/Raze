@@ -93,12 +93,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.hitag = 0;
 		ChangeActorStat(act, 117);
 		break;
-	case RRTILE7424:
-		if (!isRRRA()) goto default_case;
-		act->spr.extra = 0;
-		act->spr.scale = DVector2(0, 0);
-		ChangeActorStat(act, STAT_FX);
-		break;
 	case RRTILE7936:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(0, 0);
@@ -569,17 +563,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SHOTGUNSHELL:
 		initshell(actj, act, act->spr.picnum == SHELL);
 		break;
-	case RESPAWN:
-		act->spr.extra = 66 - 13;
-		if (ud.multimode < 2 && act->spr.pal == 1)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-		act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_FX);
-		break;
 	case SOUNDFX:
 	{
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -829,6 +812,9 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.pos.Z += krandf(8) - 4;
 			break;
 		case MAMA:
+			if (actj && isrespawncontroller(actj))
+				act->spr.pal = actj->spr.pal;
+
 			if (act->spr.pal == 30)
 			{
 				act->spr.scale = DVector2(0.40625, 0.40625);

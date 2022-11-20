@@ -102,6 +102,7 @@ class DukeActor : CoreActor native
 
 		STAT_DESTRUCT		= 100,
 		STAT_BOWLING		= 105,
+		STAT_RABBITSPAWN	= 119,
 
 		STAT_REMOVED		= MAXSTATUS-2,
 
@@ -172,6 +173,7 @@ class DukeActor : CoreActor native
 	virtual void onHit(DukeActor hitter) { checkhitdefault(hitter); }
 	virtual void onHurt(DukePlayer p) {}
 	virtual bool onUse(DukePlayer user) { return false; }
+	virtual void onRespawn(int tag) { }
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
 	

@@ -186,34 +186,6 @@ void animatewalls_d(void)
 //
 //---------------------------------------------------------------------------
 
-void operaterespawns_d(int low)
-{
-	DukeStatIterator it(STAT_FX);
-	while (auto act = it.Next())
-	{
-		if (act->spr.lotag == low) switch (act->spr.picnum)
-		{
-		case RESPAWN:
-			if (badguypic(act->spr.hitag) && ud.monsters_off) break;
-
-			auto star = spawn(act, TRANSPORTERSTAR);
-			if (star)
-			{
-				star->spr.pos.Z -= 32;
-
-				act->spr.extra = 66 - 12;   // Just a way to killit
-			}
-			break;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void operateforcefields_d(DDukeActor* act, int low)
 {
 	operateforcefields_common(act, low, { W_FORCEFIELD, W_FORCEFIELD + 1, W_FORCEFIELD + 2, BIGFORCE });

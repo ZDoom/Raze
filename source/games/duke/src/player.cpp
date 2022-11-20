@@ -394,7 +394,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 				if (isIn(p->actorsqu->spr.picnum, respawnlist))
 				{
 					if (p->actorsqu->spr.yint)
-						fi.operaterespawns(p->actorsqu->spr.yint);
+						operaterespawns(p->actorsqu->spr.yint);
 				}
 
 				if (p->actorsqu->isPlayer())

@@ -568,53 +568,6 @@ int ifhitbyweapon_r(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void respawn_rrra(DDukeActor* oldact, DDukeActor* newact)
-{
-	newact->spr.pal = oldact->spr.pal;
-	if (newact->spr.picnum == MAMA)
-	{
-		if (newact->spr.pal == 30)
-		{
-			newact->spr.scale = DVector2(0.40625, 0.40625);
-			newact->clipdist = 18.75;
-		}
-		else if (newact->spr.pal == 31)
-		{
-			newact->spr.scale = DVector2(0.5625, 0.5625);
-			newact->clipdist = 25;
-		}
-		else if (newact->spr.pal == 32)
-		{
-			newact->spr.scale = DVector2(0.78125, 0.78125);
-			newact->clipdist = 25;
-		}
-		else
-		{
-			newact->spr.scale = DVector2(0.78125, 0.78125);
-			newact->clipdist = 25;
-		}
-	}
-
-	if (newact->spr.pal == 8)
-	{
-		newact->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
-	}
-
-	if (newact->spr.pal != 6)
-	{
-		deletesprite(oldact);
-		return;
-	}
-	oldact->spr.extra = (66 - 13);
-	newact->spr.pal = 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void movefallers_r(void)
 {
 	DukeStatIterator it(STAT_FALLER);
@@ -1746,20 +1699,10 @@ static void rrra_specialstats()
 		}
 	}
 
-	it.Reset(119);
+	it.Reset(STAT_RABBITSPAWN);
 	while (auto act = it.Next())
 	{
-		if (act->spr.hitag > 0)
-		{
-			if (act->spr.extra == 0)
-			{
-				act->spr.hitag--;
-				act->spr.extra = 150;
-				spawn(act, RABBIT);
-			}
-			else
-				act->spr.extra--;
-		}
+		CallTick(act);
 	}
 	it.Reset(116);
 	while (auto act = it.Next())
@@ -3795,10 +3738,10 @@ void respawnhitag_r(DDukeActor *actor)
 	case FEM10:
 	case NAKED1:
 	case STATUE:
-		if (actor->spr.yint) fi.operaterespawns(actor->spr.yint);
+		if (actor->spr.yint) operaterespawns(actor->spr.yint);
 		break;
 	default:
-		if (actor->spr.hitag >= 0) fi.operaterespawns(actor->spr.hitag);
+		if (actor->spr.hitag >= 0) operaterespawns(actor->spr.hitag);
 		break;
 	}
 }

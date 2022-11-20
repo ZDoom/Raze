@@ -26,6 +26,7 @@ void resetlanepics(void);
 void moveplayers();
 void doanimations();
 void movefx();
+void operaterespawns(int low);
 void moveclouds(double interpfrac);
 void movefta();
 
@@ -85,7 +86,6 @@ void handle_se35(DDukeActor* i, int SMALLSMOKE, int EXPLOSION2);
 void handle_se128(DDukeActor* i);
 void handle_se130(DDukeActor* i, int countmax, int EXPLOSION2);
 
-void respawn_rrra(DDukeActor* oldact, DDukeActor* newact);
 void check_fta_sounds_d(DDukeActor* i);
 void check_fta_sounds_r(DDukeActor* i);
 

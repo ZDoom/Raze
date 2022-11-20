@@ -3,6 +3,7 @@ spawnclasses
 	3 = DukeTouchplate
 	5 = DukeSoundController
 	8 = DukeMasterSwitch
+	9 = DukeRespawnController
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane

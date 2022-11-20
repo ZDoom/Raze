@@ -93,7 +93,6 @@ class DukeTouchPlate : DukeActor
 		{
 			if (self.temp_data[0] == 0 && !dlevel.check_activator_motion(self.lotag))
 			{
-				Console.Printf("Trigger %d", self.spawnindex);
 				self.temp_data[0] = 1;
 				self.temp_data[1] = 1;
 				self.temp_data[3] = !self.temp_data[3];

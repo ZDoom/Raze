@@ -73,7 +73,6 @@ struct Dispatcher
 	void (*initactorflags)();
 	bool (*isadoorwall)(int dapic);
 	void (*animatewalls)();
-	void (*operaterespawns)(int low);
 	void (*operateforcefields)(DDukeActor* act, int low);
 	bool (*checkhitswitch)(int snum, walltype* w, DDukeActor* act);
 	void (*activatebysector)(sectortype* sect, DDukeActor* j);
@@ -122,6 +121,7 @@ void CallAction(DDukeActor* actor);
 void CallOnHit(DDukeActor* actor, DDukeActor* hitter);
 void CallOnHurt(DDukeActor* actor, player_struct* hitter);
 bool CallOnUse(DDukeActor* actor, player_struct* user);
+void CallOnRespawn(DDukeActor* actor, int low);
 bool CallAnimate(DDukeActor* actor, tspritetype* hitter);
 
 

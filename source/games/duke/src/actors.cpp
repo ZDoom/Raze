@@ -531,33 +531,24 @@ void movefx(void)
 {
 	DukeStatIterator iti(STAT_FX);
 	while (auto act = iti.Next())
+		CallTick(act);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void operaterespawns(int low)
+{
+	DukeStatIterator it(STAT_FX);
+	while (auto act = it.Next())
 	{
-		switch (act->spr.picnum)
-		{
-		default:
-			CallTick(act);
-			break;
-
-		case RESPAWN:
-			if (act->spr.extra == 66)
-			{
-				auto j = spawn(act, act->spr.hitag);
-				if (isRRRA() && j)
-				{
-					respawn_rrra(act, j);
-				}
-				else
-				{
-					deletesprite(act);
-				}
-			}
-			else if (act->spr.extra > (66 - 13))
-				act->spr.extra++;
-			break;
-
-		}
+		CallOnRespawn(act, low);
 	}
 }
+
 
 //---------------------------------------------------------------------------
 //

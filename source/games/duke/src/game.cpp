@@ -458,6 +458,15 @@ bool CallOnUse(DDukeActor* actor, player_struct* user)
 	return nval;
 }
 
+void CallOnRespawn(DDukeActor* actor, int low)
+{
+	IFVIRTUALPTR(actor, DDukeActor, onRespawn)
+	{
+		VMValue val[2] = { actor, low };
+		VMCall(func, val, 2, nullptr, 0);
+	}
+}
+
 bool CallAnimate(DDukeActor* actor, tspritetype* tspr)
 {
 	int nval = false;

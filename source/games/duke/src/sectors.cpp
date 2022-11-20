@@ -1187,7 +1187,7 @@ void operateactivators(int low, player_struct* plr)
 		}
 	}
 
-	fi.operaterespawns(low);
+	operaterespawns(low);
 }
 
 //---------------------------------------------------------------------------
