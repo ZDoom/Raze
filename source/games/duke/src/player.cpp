@@ -404,10 +404,10 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 				}
 				else if (badguy(p->actorsqu))
 				{
-					deletesprite(p->actorsqu);
+					p->actorsqu->Destroy();
 					p->actors_killed++;
 				}
-				else deletesprite(p->actorsqu);
+				else p->actorsqu->Destroy();
 			}
 			p->actorsqu = nullptr;
 		}

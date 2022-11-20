@@ -103,8 +103,8 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 
 		if (spawned->sector() == nullptr)
 		{
-			Printf("spawn: Sprite can't be spawned into null space\n");
-			deletesprite(spawned);
+			Printf("spawn: Sprite cannot be spawned into null space\n");
+			spawned->Destroy();
 		}
 	}
 

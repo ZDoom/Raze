@@ -780,7 +780,7 @@ void movefallers_d(void)
 				{
 					j = 1 + (krand() & 7);
 					for (int x = 0; x < j; x++) RANDOMSCRAP(act);
-					deletesprite(act);
+					act->Destroy();
 				}
 			}
 		}
@@ -801,9 +801,9 @@ void movestandables_d(void)
 	{
 		int picnum = act->spr.picnum;
 
-		if (!act->insector())
+		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		}
 
@@ -848,7 +848,7 @@ static bool movefireball(DDukeActor* actor)
 
 	if (actor->sector()->lotag == 2)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return true;
 	}
 
@@ -909,7 +909,7 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 				spawned->spr.scale = DVector2(0.5, 0.5);
 			}
 
-			deletesprite(proj);
+			proj->Destroy();
 			return true;
 		}
 
@@ -1006,7 +1006,7 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 		if (proj->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (proj->sector()->ceilingpal == 0)
 			{
-				deletesprite(proj);
+				proj->Destroy();
 				return true;
 			}
 
@@ -1021,7 +1021,7 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 			spawned->SetHitOwner(proj);
 			spawned->spr.yint = proj->spr.yint;
 		}
-		deletesprite(proj);
+		proj->Destroy();
 		return true;
 	}
 
@@ -1091,7 +1091,7 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	if (!proj->insector())
 	{
-		deletesprite(proj);
+		proj->Destroy();
 		return;
 	}
 
@@ -1201,7 +1201,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		}
 		if (proj->spr.picnum != COOLEXPLOSION1)
 		{
-			deletesprite(proj);
+			proj->Destroy();
 			return;
 		}
 	}
@@ -1210,7 +1210,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		proj->spr.shade++;
 		if (proj->spr.shade >= 40)
 		{
-			deletesprite(proj);
+			proj->Destroy();
 			return;
 		}
 	}
@@ -1229,19 +1229,15 @@ void moveweapons_d(void)
 	DukeStatIterator it(STAT_PROJECTILE);
 	while (auto act = it.Next())
 	{
-		if (!act->insector())
+		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		}
 
 
 		switch(act->spr.picnum)
 		{
-		case RADIUSEXPLOSION:
-		case KNEE:
-			deletesprite(act);
-			continue;
 		case TONGUE:
 			movetongue(act, TONGUE, INNERJAW);
 			continue;
@@ -1255,7 +1251,7 @@ void moveweapons_d(void)
 					spawned->spr.pal = 1;
 					spawned->spr.scale = DVector2(0.5, 0.5);
 				}
-				deletesprite(act);
+				act->Destroy();
 				continue;
 			}
 			[[fallthrough]];
@@ -1614,7 +1610,7 @@ static void greenslime(DDukeActor *actor)
 
 	if (sectp->floorstat & CSTAT_SECTOR_SKY)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -1662,7 +1658,7 @@ static void greenslime(DDukeActor *actor)
 			}
 			ps[p].actors_killed++;
 			S_PlayActorSound(GLASS_BREAKING, actor);
-			deletesprite(actor);
+			actor->Destroy();
 		}
 		else if (xx < 64 && ps[p].quick_kick == 0)
 		{
@@ -1718,7 +1714,7 @@ static void greenslime(DDukeActor *actor)
 				actor->temp_data[0] = -3;
 				if (ps[p].somethingonplayer == actor)
 					ps[p].somethingonplayer = nullptr;
-				deletesprite(actor);
+				actor->Destroy();
 				return;
 			}
 
@@ -1823,7 +1819,7 @@ static void greenslime(DDukeActor *actor)
 			}
 		}
 		actor->temp_data[0] = -3;
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 	// All weap
@@ -2007,7 +2003,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	if (sectp->lotag == 2)
 	{
 		spawn(actor, EXPLOSION2)->spr.shade = 127;
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -2027,7 +2023,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	if (actor->temp_data[0] > 30) 
 	{
 		spawn(actor, EXPLOSION2)->spr.shade = 127;
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -2036,7 +2032,7 @@ static void flamethrowerflame(DDukeActor *actor)
 
 	if (!actor->insector())
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -2245,7 +2241,7 @@ DETONATEB:
 		{
 			if (Owner != actor || ud.respawn_items == 0)
 			{
-				deletesprite(actor);
+				actor->Destroy();
 				return;
 			}
 			else
@@ -2288,7 +2284,7 @@ DETONATEB:
 					if (Owner == actor && ud.coop >= 1)
 						return;
 
-					deletesprite(actor);
+					actor->Destroy();
 					return;
 				}
 				else
@@ -2318,9 +2314,9 @@ void moveactors_d(void)
 	{
 		auto sectp = act->sector();
 
-		if (act->spr.scale.X == 0 || sectp == nullptr)
+		if (act->spr.scale.X == 0 || sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
 		{ 
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		}
 
@@ -2402,7 +2398,7 @@ void moveactors_d(void)
 				for (int j = 0; j < 32; j++) 
 						RANDOMSCRAP(act);
 				earthquaketime = 16;
-				deletesprite(act);
+				act->Destroy();
 				continue;
 			} 
 			else if ((act->temp_data[0] & 3) == 0)
@@ -2495,7 +2491,7 @@ static void fireflyflyingeffect(DDukeActor *actor)
 	auto Owner = actor->GetOwner();
 	if (!Owner || Owner->spr.picnum != FIREFLY) 
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -2512,7 +2508,7 @@ static void fireflyflyingeffect(DDukeActor *actor)
 
 	if (Owner->spr.extra <= 0) 
 	{
-		deletesprite(actor);
+		actor->Destroy();
 	}
 
 }
@@ -2532,7 +2528,7 @@ void moveexplosions_d(void)  // STATNUM 5
 	{
 		if (!act->insector() || act->spr.scale.X == 0) 
 		{
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		}
 
@@ -2616,12 +2612,12 @@ void moveexplosions_d(void)  // STATNUM 5
 				act->spr.extra = 999;
 			else
 			{
-				deletesprite(act);
+				act->Destroy();
 				continue;
 			}
 			break;
 		case TONGUE:
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		case MONEY + 1:
 		case MAIL + 1:
@@ -3227,7 +3223,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		else actor->spr.shade += (actor->sector()->floorshade - actor->spr.shade) >> 1;
 
 		if (actor->sector()->floorpicnum == MIRROR)
-			deletesprite(actor);
+			actor->Destroy();
 	}
 }
 

@@ -3660,7 +3660,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 	if(!actor->insector())
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 	do
@@ -3675,7 +3675,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 			if (ps[p].actorsqu == actor)
 				ps[p].actorsqu = nullptr;
 		}
-		deletesprite(actor);
+		actor->Destroy();
 	}
 	else
 	{
@@ -3726,7 +3726,7 @@ void execute(DDukeActor *actor,int p,double xx)
 	{
 		if(badguy(actor))
 			ps[p].actors_killed++;
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -3783,7 +3783,7 @@ void execute(DDukeActor *actor,int p,double xx)
 		}
 	}
 quit:
-	if (killthesprite) deletesprite(actor);
+	if (killthesprite) actor->Destroy();
 	killthesprite = false;
 }
 

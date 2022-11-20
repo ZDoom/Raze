@@ -1105,7 +1105,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			break;
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, nullptr, 10);
-		deletesprite(targ);
+		targ->Destroy();
 		return;
 
 	case OCEANSPRITE1:
@@ -1114,7 +1114,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case OCEANSPRITE4:
 	case OCEANSPRITE5:
 		spawn(targ, SMALLSMOKE);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	case QUEBALL:
 	case STRIPEBALL:
@@ -1136,7 +1136,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			else
 			{
 				lotsofglass(targ, nullptr, 3);
-				deletesprite(targ);
+				targ->Destroy();
 			}
 		}
 		break;
@@ -1151,7 +1151,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			if (spawned) spawned->spriteextra = Scrap1 + krand() & 15;
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 
 
@@ -1182,7 +1182,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 			}
 			spawn(targ, EXPLOSION2);
-			deletesprite(targ);
+			targ->Destroy();
 		}
 		break;
 	case BOTTLE1:
@@ -1225,7 +1225,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		targ->spr.angle = randomAngle();
 		lotsofglass(targ, nullptr, 8);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	case FETUS:
 		targ->spr.picnum = FETUSBROKE;
@@ -1244,7 +1244,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, nullptr, 10);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	case HYDROPLANT:
 		targ->spr.picnum = BROKEHYDROPLANT;
@@ -1372,7 +1372,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		fi.guts(targ, JIBS5, 1, myconnectindex);
 		fi.guts(targ, JIBS3, 6, myconnectindex);
 		S_PlaySound(SQUISHED);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	}
 	case CHAIR1:
@@ -1392,7 +1392,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case TRIPODCAMERA:
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	case PLAYERONWATER:
 		targ = targ->GetOwner();

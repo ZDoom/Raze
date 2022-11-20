@@ -94,7 +94,6 @@ int dodge(DDukeActor*);
 void alterang(int ang, DDukeActor* actor, int g_p);
 void fall_common(DDukeActor* actor, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int));
 void checkavailweapon(player_struct* p);
-void deletesprite(DDukeActor* num);
 void addammo(int weapon, player_struct* p, int amount);
 
 int ssp(DDukeActor* i, unsigned int cliptype); //The set sprite function

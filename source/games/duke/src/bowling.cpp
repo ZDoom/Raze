@@ -170,7 +170,7 @@ void resetpins(sectortype* sect)
 	while (auto a2 = it.Next())
 	{
 		if (a2->spr.picnum == BOWLINGPIN)
-			deletesprite(a2);
+			a2->Destroy();
 	}
 	it.Reset(sect);
 	while (auto a2 = it.Next())

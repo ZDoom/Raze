@@ -429,7 +429,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			if (actor->spr.pal == 100)
 			{
 				if (numplayers > 1)
-					deletesprite(actor);
+					actor->Destroy();
 				else
 					actor->spr.pal = 0;
 			}
@@ -461,12 +461,12 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				{
 					dist = act->spr.lotag;
 					speed = act->spr.hitag;
-					deletesprite(act);
+					act->Destroy();
 				}
 				if (act->spr.picnum == RRJAILDOORSOUND)
 				{
 					sound = act->spr.lotag;
-					deletesprite(act);
+					act->Destroy();
 				}
 			}
 			if (dist == 0)
@@ -508,15 +508,15 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 							if (act1->spr.lotag == act->sectno()) // bad map format design... Should have used a tag instead...
 							{
 								childsectnum = act1->sector();
-								deletesprite(act1);
+								act1->Destroy();
 							}
 					}
-					deletesprite(act);
+					act->Destroy();
 				}
 				if (act->spr.picnum == RRMINECARTSOUND)
 				{
 					sound = act->spr.lotag;
-					deletesprite(act);
+					act->Destroy();
 				}
 			}
 			addminecart(dist, speed, sectp, sectp->hitag, sound, childsectnum);
@@ -592,11 +592,11 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				spriteinit_r(actor, actors);
 			if (actor->spr.picnum == RRTILE19)
-				deletesprite(actor);
+				actor->Destroy();
 			if (actor->spr.picnum == RRTILE34)
 			{
 				actor->sector()->keyinfo = uint8_t(actor->spr.lotag);
-				deletesprite(actor);
+				actor->Destroy();
 			}
 		}
 	}

@@ -80,17 +80,6 @@ void RANDOMSCRAP(DDukeActor* origin)
 
 //---------------------------------------------------------------------------
 //
-// wrapper to ensure that if a sound actor is killed, the sound is stopped as well.
-//
-//---------------------------------------------------------------------------
-
-void deletesprite(DDukeActor *const actor)
-{
-	actor->Destroy();
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
@@ -252,7 +241,7 @@ void insertspriteq(DDukeActor* const actor)
 		if (spriteq[spriteqloc] != nullptr)
 		{
 			// todo: Make list size a CVAR.
-			deletesprite(spriteq[spriteqloc]);
+			spriteq[spriteqloc]->Destroy();
 		}
 		spriteq[spriteqloc] = actor;
 		spriteqloc = (spriteqloc + 1) % spriteqamount;
@@ -364,7 +353,7 @@ void movedummyplayers(void)
 		if ((!isRR() && ps[p].on_crane != nullptr) || !ps[p].insector() || ps[p].cursector->lotag != 1 || ps->GetActor()->spr.extra <= 0)
 		{
 			ps[p].dummyplayersprite = nullptr;
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		}
 		else
@@ -484,7 +473,7 @@ void moveplayers(void)
 		{
 			if (p->holoduke_on == nullptr)
 			{
-				deletesprite(act);
+				act->Destroy();
 				continue;
 			}
 
@@ -606,7 +595,7 @@ void detonate(DDukeActor *actor, int explosion)
 	if (actor->spr.scale.X != 0)
 		for (int x = 0; x < 8; x++) RANDOMSCRAP(actor);
 
-	deletesprite(actor);
+	actor->Destroy();
 
 }
 
@@ -659,7 +648,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	actor->temp_data[1] += 32;
 	if (actor->temp_data[1] > 2047)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -669,7 +658,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	if (Owner->spr.statnum == MAXSTATUS)
 		if (badguy(Owner) == 0)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 
@@ -752,7 +741,7 @@ bool respawnmarker(DDukeActor *actor, int yellow, int green)
 	actor->temp_data[0]++;
 	if (actor->temp_data[0] > gs.respawnitemtime)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return false;
 	}
 	if (actor->temp_data[0] >= (gs.respawnitemtime >> 1) && actor->temp_data[0] < ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
@@ -782,7 +771,7 @@ bool rat(DDukeActor* actor, bool makesound)
 		actor->temp_data[0]++;
 		if (actor->temp_data[0] > 1)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return false;
 		}
 		else actor->spr.angle = randomAngle();
@@ -809,7 +798,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 			double dist = (aa->spr.pos.XY() - actor->spr.pos.XY()).Length();
 			if (aa->spr.picnum == pocket && dist < 3.25)
 			{
-				deletesprite(actor);
+				actor->Destroy();
 				return false;
 			}
 		}
@@ -927,7 +916,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 		actor->temp_data[3]--;
 		if (actor->temp_data[3] == 0)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 		else if (actor->temp_data[2] > 10)
@@ -1000,7 +989,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			int sp = getspawn(actor);
 			if (sp >= 0) spawn(actor, sp);
 			ps[myconnectindex].actors_killed++;
-			deletesprite(actor);
+			actor->Destroy();
 		}
 		return;
 	}
@@ -1111,7 +1100,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				NewOwner = LocateTheLocator(actor->spr.hitag, nullptr);
 				if (!NewOwner)
 				{
-					deletesprite(actor);
+					actor->Destroy();
 					return;
 				}
 			}
@@ -1258,7 +1247,7 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 			{
 				if (a2 != actor)
 				{
-					deletesprite(a2);
+					a2->Destroy();
 					break;
 				}
 			}
@@ -1318,7 +1307,7 @@ void forcesphereexplode(DDukeActor *actor)
 		actor->temp_data[1]--;
 		if (actor->temp_data[1] == 0)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 	}
@@ -1365,7 +1354,7 @@ void watersplash2(DDukeActor* actor)
 	{
 		if (sectp->lotag != 1 && sectp->lotag != 2)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 		if (!S_CheckSoundPlaying(ITEM_SPLASH))
@@ -1377,7 +1366,7 @@ void watersplash2(DDukeActor* actor)
 		actor->temp_data[1]++;
 	}
 	if (actor->temp_data[1] == 5)
-		deletesprite(actor);
+		actor->Destroy();
 }
 
 //---------------------------------------------------------------------------
@@ -1395,7 +1384,7 @@ void frameeffect1(DDukeActor *actor)
 
 		if (actor->temp_data[0] > 7)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 		else if (actor->temp_data[0] > 4) actor->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
@@ -1436,7 +1425,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 
 	if (!actor->insector())
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return false;
 	}
 	double l = getflorzofslopeptr(actor->sector(), actor->spr.pos);
@@ -1484,7 +1473,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			actor->temp_data[5]++;
 		else
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return false;
 		}
 	}
@@ -1500,7 +1489,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	// this was after the slope calls, but we should avoid calling that for invalid sectors.
 	if (!actor->insector())
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return false;
 	}
 
@@ -1508,7 +1497,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	double cz = getceilzofslopeptr(sectp, actor->spr.pos);
 	if (cz == fz)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return false;
 	}
 
@@ -1547,7 +1536,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 
 		if (floorcheck && actor->spr.pos.Z >= actor->sector()->floorz)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return false;
 		}
 	}
@@ -1555,19 +1544,19 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	{
 		if (zcheck2)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return false;
 		}
 		if (actor->temp_data[2] == 0)
 		{
 			if (!actor->insector())
 			{
-				deletesprite(actor);
+				actor->Destroy();
 				return false;
 			}
 			if ((actor->sector()->floorstat & CSTAT_SECTOR_SLOPE))
 			{
-				deletesprite(actor);
+				actor->Destroy();
 				return false;
 			}
 			actor->temp_data[2]++;
@@ -1584,7 +1573,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 				actor->temp_data[0]++;
 			if (actor->temp_data[1] > 20)
 			{
-				deletesprite(actor);
+				actor->Destroy();
 				return false;
 			}
 		}
@@ -1608,7 +1597,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		actor->temp_data[0] = 1;
 		if (sectp->floorstat & CSTAT_SECTOR_SLOPE)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return false;
 		}
 		else insertspriteq(actor);
@@ -1691,7 +1680,7 @@ void shell(DDukeActor* actor, bool morecheck)
 
 	if (!actor->insector() || morecheck)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -1724,7 +1713,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			actor->vel.X -= 1/16.;
 		else
 		{
-			deletesprite(actor);
+			actor->Destroy();
 		}
 	}
 }
@@ -1744,7 +1733,7 @@ void glasspieces(DDukeActor* actor)
 	if (actor->vel.Z > 16) actor->vel.Z = 16;
 	if (!actor->insector())
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -1761,7 +1750,7 @@ void glasspieces(DDukeActor* actor)
 	}
 	else if (actor->temp_data[0] == 3)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -1829,7 +1818,7 @@ void handle_se00(DDukeActor* actor)
 
 	if (!Owner || Owner->spr.lotag == -1)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 
@@ -1906,7 +1895,7 @@ void handle_se00(DDukeActor* actor)
 		if (Owner->temp_data[0] == 0) return;
 		if (Owner->temp_data[0] == 2)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 
@@ -2185,7 +2174,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						{
 							gutsdir(a2, JIBS6, 72, myconnectindex);
 							S_PlayActorSound(SQUISHED, actor);
-							deletesprite(a2);
+							a2->Destroy();
 						}
 					}
 				}
@@ -2345,7 +2334,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 							{
 								gutsdir(a2, JIBS6, 24, myconnectindex);
 								S_PlayActorSound(SQUISHED, a2);
-								deletesprite(a2);
+								a2->Destroy();
 						}
 					}
 				}
@@ -2383,7 +2372,7 @@ void handle_se02(DDukeActor* actor)
 		{
 			actor->temp_data[0] = -1; //Stop the quake
 			actor->temp_data[4] = -1;
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 		else
@@ -2530,7 +2519,7 @@ void handle_se04(DDukeActor *actor)
 	}
 
 	if (actor->temp_data[4])
-		deletesprite(actor);
+		actor->Destroy();
 
 }
 
@@ -2646,7 +2635,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 		actor->temp_data[4]++;
 		if (actor->temp_data[4] > 8)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 		goal = 1;
@@ -2848,7 +2837,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 
 		if (actor->temp_data[3] == 1)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 	}
@@ -2951,7 +2940,7 @@ void handle_se13(DDukeActor* actor)
 		actor->temp_data[2]++;
 		if (actor->temp_data[2] > 256)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 	}
@@ -3029,7 +3018,7 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 		}
 		if (a2 == nullptr)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 		else actor->spr.shade = 1;
@@ -3175,7 +3164,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				if (sc->ceilingz <= goal)
 				{
 					sc->setceilingz(goal);
-					deletesprite(actor);
+					actor->Destroy();
 					return;
 				}
 			}
@@ -3201,7 +3190,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				if (sc->floorz >= goal)
 				{
 					sc->setfloorz(goal);
-					deletesprite(actor);
+					actor->Destroy();
 					return;
 				}
 			}
@@ -3214,7 +3203,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				if (sc->ceilingz >= actor->spr.pos.Z)
 				{
 					sc->setceilingz(actor->spr.pos.Z);
-					deletesprite(actor);
+					actor->Destroy();
 					return;
 				}
 			}
@@ -3240,7 +3229,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				if (sc->floorz <= actor->spr.pos.Z)
 				{
 					sc->setfloorz(actor->spr.pos.Z);
-					deletesprite(actor);
+					actor->Destroy();
 					return;
 				}
 			}
@@ -3322,7 +3311,7 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 					a2Owner->temp_data[0] = 2;
 				}
 			}
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 	}
@@ -3459,7 +3448,7 @@ void handle_se21(DDukeActor* actor)
 		if (abs(lp - actor->spr.pos.Z) < 4)
 		{
 			lp = actor->spr.pos.Z;
-			deletesprite(actor);
+			actor->Destroy();
 		}
 
 		if (actor->spr.intangle == 1536)
@@ -3843,7 +3832,7 @@ void handle_se128(DDukeActor *actor)
 		wal->cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
 		if (nextwal)
 			nextwal->cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
-		deletesprite(actor);
+		actor->Destroy();
 	}
 }
 
@@ -3859,7 +3848,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 
 	if (actor->temp_data[0] > countmax)
 	{
-		deletesprite(actor);
+		actor->Destroy();
 		return;
 	}
 	else actor->temp_data[0]++;

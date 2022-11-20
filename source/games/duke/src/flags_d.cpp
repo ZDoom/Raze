@@ -226,6 +226,7 @@ void initactorflags_d()
 	setflag(SFLAG2_INTERPOLATEANGLE, { BEARINGPLATE });
 	setflag(SFLAG2_GREENBLOOD, { OOZFILTER, NEWBEAST });
 	setflag(SFLAG2_ALWAYSROTATE1, { RAT, CAMERA1 });
+	setflag(SFLAG2_DIENOW, { RADIUSEXPLOSION, KNEE });
 
 	if (isWorldTour())
 	{

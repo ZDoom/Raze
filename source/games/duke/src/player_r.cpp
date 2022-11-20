@@ -3994,7 +3994,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 			p->pos.Y = motosprite->spr.pos.Y;
 			p->angle.ang = motosprite->spr.angle;
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
-			deletesprite(motosprite);
+			motosprite->Destroy();
 		}
 		p->over_shoulder_on = 0;
 		p->OnMotorcycle = 1;
@@ -4069,7 +4069,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 			p->pos.Y = boat->spr.pos.Y;
 			p->angle.ang = boat->spr.angle;
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
-			deletesprite(boat);
+			boat->Destroy();
 		}
 		p->over_shoulder_on = 0;
 		p->OnBoat = 1;

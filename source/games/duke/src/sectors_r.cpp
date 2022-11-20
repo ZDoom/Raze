@@ -490,7 +490,6 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 			break;
 
 		case RRTILE2214:
-			//if (ud.level_numbe r > 6) ud.level_numbe r = 0; ??? Looks like some leftover garbage.
 			other->spr.picnum++;
 			break;
 		case RRTILE8660:
@@ -528,7 +527,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 							S_PlayActorSound(474, other2);
 						}
 						else if (other2->spr.picnum == RRTILE295)
-							deletesprite(other2);
+							other2->Destroy();
 					}
 					other->spr.picnum++;
 					break;
@@ -1057,7 +1056,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					act->sector()->lotag = 0;
 					S_StopSound(act->spr.lotag);
 					S_PlayActorSound(400, act);
-					deletesprite(act);
+					act->Destroy();
 				}
 			}
 		}
@@ -2010,7 +2009,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE2455:
 		S_PlayActorSound(SQUISHED, targ);
 		fi.guts(targ, RRTILE2465, 3, myconnectindex);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	case RRTILE2451:
 		if (targ->spr.pal != 4)
@@ -2179,7 +2178,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				if (spawned) spawned->spriteextra = Scrap1 + krand() & 15;
 			}
 			spawn(targ, EXPLOSION2);
-			deletesprite(targ);
+			targ->Destroy();
 		}
 		break;
 	case RRTILE1824:
@@ -2225,7 +2224,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		targ->spr.angle = randomAngle();
 		lotsofglass(targ, nullptr, 8);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	case RRTILE2654:
 	case RRTILE2656:
@@ -2235,7 +2234,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, nullptr, 10);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	case FORCESPHERE:
 	{
@@ -2322,7 +2321,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case POT3:
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
-		deletesprite(targ);
+		targ->Destroy();
 		break;
 	case PLAYERONWATER:
 		targ = targ->GetOwner();

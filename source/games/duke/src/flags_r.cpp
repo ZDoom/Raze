@@ -253,6 +253,8 @@ void initactorflags_r()
 	setflag(SFLAG2_CAMERA, { CAMERA1 });
 	setflag(SFLAG2_GREENBLOOD, { OOZFILTER });
 	setflag(SFLAG2_ALWAYSROTATE1, { RAT, CAMERA1 });
+	setflag(SFLAG2_DIENOW, { RADIUSEXPLOSION });
+
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)

@@ -647,7 +647,7 @@ void movefallers_r(void)
 				{
 					int j = 1 + (krand() & 7);
 					for (int x = 0; x < j; x++) RANDOMSCRAP(act);
-					deletesprite(act);
+					act->Destroy();
 				}
 			}
 		}
@@ -656,13 +656,7 @@ void movefallers_r(void)
 
 //---------------------------------------------------------------------------
 //
-// split out of movestandables
 //
-//---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
-//
-// this has been broken up into lots of smaller subfunctions
 //
 //---------------------------------------------------------------------------
 
@@ -673,9 +667,9 @@ void movestandables_r(void)
 	{
 		int picnum = act->spr.picnum;
 
-		if (!act->insector())
+		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		}
 
@@ -784,7 +778,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 				star->spr.scale = DVector2(0.5, 0.5);
 			}
 
-			deletesprite(proj);
+			proj->Destroy();
 			return true;
 		}
 
@@ -874,7 +868,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 		{
 			if (wal->picnum >= RRTILE3643 && wal->picnum < RRTILE3643 + 3)
 			{
-				deletesprite(proj);
+				proj->Destroy();
 			}
 			if (proj->spr.extra <= 0)
 			{
@@ -891,7 +885,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 						j->clipdist = proj->spr.scale.X * tileWidth(proj->spr.picnum) * 0.125;
 					}
 				}
-				deletesprite(proj);
+				proj->Destroy();
 				return true;
 			}
 			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
@@ -931,7 +925,7 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		if (proj->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (proj->sector()->ceilingpal == 0)
 			{
-				deletesprite(proj);
+				proj->Destroy();
 				return true;
 			}
 
@@ -1022,7 +1016,7 @@ static void weaponcommon_r(DDukeActor *proj)
 
 	if (!proj->insector()) // || (isRR() && proj->sector()->filler == 800))
 	{
-		deletesprite(proj);
+		proj->Destroy();
 		return;
 	}
 
@@ -1099,7 +1093,7 @@ static void weaponcommon_r(DDukeActor *proj)
 				}
 			}
 		}
-		deletesprite(proj);
+		proj->Destroy();
 		return;
 	}
 	if ((proj->spr.picnum == RPG || (isRRRA() && proj->spr.picnum == RPG2)) && proj->sector()->lotag == 2 && proj->spr.scale.X >= 0.15625 && rnd(184))
@@ -1118,17 +1112,14 @@ void moveweapons_r(void)
 	DukeStatIterator it(STAT_PROJECTILE);
 	while (auto proj = it.Next())
 	{
-		if (!proj->insector())
+		if (!proj->insector() || actorflag(proj, SFLAG2_DIENOW))
 		{
-			deletesprite(proj);
+			proj->Destroy();
 			continue;
 		}
 
 		switch (proj->spr.picnum)
 		{
-		case RADIUSEXPLOSION:
-			deletesprite(proj);
-			continue;
 		case TONGUE:
 			movetongue(proj, TONGUE, INNERJAW);
 			continue;
@@ -1142,7 +1133,7 @@ void moveweapons_r(void)
 					star->spr.pal = 1;
 					star->spr.scale = DVector2(0.5, 0.5);
 				}
-				deletesprite(proj);
+				proj->Destroy();
 				continue;
 			}
 			[[fallthrough]];
@@ -1572,7 +1563,7 @@ static void rrra_specialstats()
 			if (act->spr.extra <= -104)
 			{
 				spawn(act, act->spr.lotag);
-				deletesprite(act);
+				act->Destroy();
 			}
 		}
 		movesprite_ex(act, DVector3(0, 0, act->spr.extra / 128.), CLIPMASK0, coll);
@@ -1716,12 +1707,12 @@ static void rrra_specialstats()
 			if (j > 0)
 			{
 				S_PlayActorSound(PIPEBOMB_EXPLODE, act);
-				deletesprite(act);
+				act->Destroy();
 			}
 			if (act->spr.extra == 0)
 			{
 				S_PlaySound(215);
-				deletesprite(act);
+				act->Destroy();
 				earthquaketime = 32;
 				SetPlayerPal(&ps[myconnectindex], PalEntry(32, 32, 32, 48));
 			}
@@ -2063,7 +2054,7 @@ void rr_specialstats()
 						ChangeActorSect(pact, act2->sector());
 						ps[p].setCursector(pact->sector());
 						S_PlayActorSound(70, act2);
-						deletesprite(act2);
+						act2->Destroy();
 					}
 				}
 			}
@@ -2247,13 +2238,13 @@ DETONATEB:
 
 		if (actor->temp_data[4] > 20)
 		{
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 		if (actor->spr.picnum == CHEERBOMB)
 		{
 			spawn(actor, BURNING);
-			deletesprite(actor);
+			actor->Destroy();
 			return;
 		}
 	}
@@ -2288,7 +2279,7 @@ DETONATEB:
 					{
 						if (actor->spr.picnum == DYNAMITE && Owner->spr.picnum != APLAYER && ud.coop)
 							return;
-						deletesprite(actor);
+						actor->Destroy();
 						return;
 					}
 					else
@@ -2316,7 +2307,7 @@ static int henstand(DDukeActor *actor)
 		if (actor->spr.lotag == 0)
 		{
 			spawn(actor, HEN);
-			deletesprite(actor);
+			actor->Destroy();
 			return 1;
 		}
 	}
@@ -2341,7 +2332,7 @@ static int henstand(DDukeActor *actor)
 				if (hitact->spr.picnum == HEN)
 				{
 					auto ns = spawn(hitact, HENSTAND);
-					deletesprite(hitact);
+					hitact->Destroy();
 					if (ns)
 					{
 						ns->vel.X = 2;
@@ -2368,18 +2359,18 @@ static int henstand(DDukeActor *actor)
 			if (krand() & 1)
 				actor->spr.picnum = HENSTAND + 1;
 			if (actor->vel.X == 0)
-				return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
+				return 2;//actor->Destroy(); still needs to run a script but should not do on a deleted object
 		}
 		if (actor->spr.picnum == BOWLINGPIN || (actor->spr.picnum == BOWLINGPIN + 1 && actor->vel.X == 0))
 		{
-			return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
+			return 2;//actor->Destroy(); still needs to run a script but should not do on a deleted object
 		}
 	}
 	else if (actor->sector()->lotag == 900)
 	{
 		if (actor->spr.picnum == BOWLINGBALL)
 			ballreturn(actor);
-		deletesprite(actor);
+		actor->Destroy();
 		return 1;
 	}
 	return 0;
@@ -2411,9 +2402,9 @@ void moveactors_r(void)
 	{
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
 
-		if( act->spr.scale.X == 0 || !act->insector())
+		if( act->spr.scale.X == 0 || !act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		}
 
@@ -2438,7 +2429,7 @@ void moveactors_r(void)
 			case RRTILE3192:
 				if (!chickenplant)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				if (sectp->lotag == 903)
@@ -2455,18 +2446,18 @@ void moveactors_r(void)
 					case 903:
 						if (act->spr.pos.Z >= sectp->floorz - 8)
 						{
-							deletesprite(act);
+							act->Destroy();
 							continue;
 						}
 						break;
 					case 904:
-						deletesprite(act);
+						act->Destroy();
 						continue;
 						break;
 				}
 				if (coll.type > kHitSector)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				break;
@@ -2477,27 +2468,27 @@ void moveactors_r(void)
 			case RRTILE3124:
 				if (!chickenplant)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				makeitfall(act);
 				movesprite_ex(act, DVector3(act->spr.angle.ToVector() * act->vel.X, act->vel.Z), CLIPMASK0, coll);
 				if (coll.type > kHitSector)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				if (sectp->lotag == 903)
 				{
 					if (act->spr.pos.Z >= sectp->floorz - 4)
 					{
-						deletesprite(act);
+						act->Destroy();
 						continue;
 					}
 				}
 				else if (sectp->lotag == 904)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				break;
@@ -2505,7 +2496,7 @@ void moveactors_r(void)
 			case RRTILE3132:
 				if (!chickenplant)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				makeitfall(act);
@@ -2517,7 +2508,7 @@ void moveactors_r(void)
 						auto j = spawn(act, WATERSPLASH2);
 						if (j) j->spr.pos.Z = j->sector()->floorz;
 					}
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				break;
@@ -2530,7 +2521,7 @@ void moveactors_r(void)
 				else
 				{
 					spawn(act,BOWLINGBALLSPRITE);
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				if (act->sector()->lotag == 900)
@@ -2644,7 +2635,7 @@ void moveactors_r(void)
 		p = findplayer(act, &xx);
 
 		execute(act,p,xx);
-		if (deleteafterexecute) deletesprite(act);
+		if (deleteafterexecute) act->Destroy();
 	}
 
 }
@@ -2670,7 +2661,7 @@ void moveexplosions_r(void)  // STATNUM 5
 
 		if (!act->insector() || act->spr.scale.X == 0) 
 		{
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		}
 
@@ -2686,7 +2677,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (act->sector()->lotag == 800)
 				if (act->spr.pos.Z >= act->sector()->floorz - 8)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 			break;
@@ -2721,7 +2712,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			{
 				if (sectp->floorpicnum != 3073)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 				if (S_CheckSoundPlaying(22))
@@ -2733,7 +2724,7 @@ void moveexplosions_r(void)  // STATNUM 5
 				act->temp_data[1]++;
 			}
 			if (act->temp_data[1] == 5)
-				deletesprite(act);
+				act->Destroy();
 			continue;
 
 		case WATERSPLASH2:
@@ -2762,18 +2753,18 @@ void moveexplosions_r(void)  // STATNUM 5
 				act->spr.extra = 999;
 			else
 			{
-				deletesprite(act);
+				act->Destroy();
 				continue;
 			}
 			break;
 		case TONGUE:
-			deletesprite(act);
+			act->Destroy();
 			continue;
 		case FEATHER + 1: // feather
 			act->spr.pos.Z = act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->sector()->lotag == 800)
 			{
-				deletesprite(act);
+				act->Destroy();
 				continue;
 			}
 			break;
@@ -2783,7 +2774,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (act->sector()->lotag == 800)
 				if (act->spr.pos.Z >= act->sector()->floorz - 8)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 
@@ -2838,7 +2829,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (act->sector()->lotag == 800)
 				if (act->spr.pos.Z >= act->sector()->floorz - 8)
 				{
-					deletesprite(act);
+					act->Destroy();
 					continue;
 				}
 
@@ -2850,7 +2841,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (act->sector()->lotag == 800)
 				if (act->spr.pos.Z >= act->sector()->floorz - 8)
 				{
-					deletesprite(act);
+					act->Destroy();
 				}
 			continue;
 
@@ -2933,7 +2924,7 @@ void handle_se06_r(DDukeActor *actor)
 						ns->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 						ns->spr.pos.Z = actor->sector()->floorz - 24;
 					}
-					deletesprite(actor);
+					actor->Destroy();
 					return;
 				}
 			}
@@ -3492,7 +3483,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		else actor->spr.shade += (actor->sector()->floorshade - actor->spr.shade) >> 1;
 
 		if (actor->sector()->floorpicnum == MIRROR)
-			deletesprite(actor);
+			actor->Destroy();
 	}
 }
 
@@ -3705,7 +3696,7 @@ void destroyit(DDukeActor *actor)
 		case COOT:
 			break;
 		default:
-			deletesprite(a2);
+			a2->Destroy();
 			break;
 		}
 	}
