@@ -451,7 +451,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.scale = DVector2(0.328125, 0.234375);
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
-	case RRTILE295:
+	case KEGHOLDER:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_LUMBERMILL);
 		break;

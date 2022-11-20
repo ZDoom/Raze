@@ -526,7 +526,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 							other2->spr.extra = 0;
 							S_PlayActorSound(474, other2);
 						}
-						else if (other2->spr.picnum == RRTILE295)
+						else if (other2->spr.picnum == KEGHOLDER)
 							other2->Destroy();
 					}
 					other->spr.picnum++;
