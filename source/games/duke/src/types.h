@@ -330,11 +330,6 @@ struct player_struct
 		return cursector != nullptr;
 	}
 
-	void restorexyz()
-	{
-		GetActor()->spr.pos = GetActor()->opos;
-	}
-
 	void backupxy()
 	{
 		GetActor()->opos.X = GetActor()->spr.pos.X;

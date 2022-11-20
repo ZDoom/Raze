@@ -139,6 +139,12 @@ public:
 		backupang();
 	}
 
+	void restorepos()
+	{
+		spr.pos = opos;
+		viewzoffset = oviewzoffset;
+	}
+
 	sectortype* sector() const
 	{
 		return spr.sectp;

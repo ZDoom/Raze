@@ -203,7 +203,7 @@ void checkavailweapon(player_struct* player)
 void clearcamera(player_struct* ps)
 {
 	ps->newOwner = nullptr;
-	ps->restorexyz();
+	ps->GetActor()->restorepos();
 	ps->angle.restore();
 	updatesector(ps->posGet(), &ps->cursector);
 

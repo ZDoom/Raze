@@ -1544,7 +1544,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 			if (ps[p].newOwner != nullptr)
 			{
 				ps[p].newOwner = nullptr;
-				ps[p].restorexyz();
+				ps[p].GetActor()->restorepos();
 
 				updatesector(ps[p].posGet(), &ps[p].cursector);
 

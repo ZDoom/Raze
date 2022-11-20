@@ -1061,7 +1061,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if (ps[p].newOwner != nullptr)
 			{
 				ps[p].newOwner = nullptr;
-				ps[p].restorexyz();
+				ps[p].GetActor()->restorepos();
 				ps[p].angle.restore();
 
 				updatesector(ps[p].posGet(), &ps[p].cursector);
@@ -1411,7 +1411,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 void clearcameras(player_struct* p)
 {
-	p->restorexyz();
+	p->GetActor()->restorepos();
 	p->newOwner = nullptr;
 
 	updatesector(p->posGet(), &p->cursector);

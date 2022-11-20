@@ -2045,7 +2045,7 @@ int ParseState::parse(void)
 		if(!isRR() && ps[g_p].newOwner != nullptr)
 		{
 			ps[g_p].newOwner = nullptr;
-			ps[g_p].restorexyz();
+			ps[g_p].GetActor()->restorepos();
 			ps[g_p].angle.restore();
 			updatesector(ps[g_p].posGet(), &ps[g_p].cursector);
 
