@@ -2162,9 +2162,9 @@ void rr_specialstats()
 				DukeStatIterator it2(STAT_DEFAULT);
 				while (auto act2 = it2.Next())
 				{
-					if (act2->spr.picnum == 128)
+					if (act2->spr.picnum == DIPSWITCH3 + 1)
 						if (act2->spr.hitag == 999)
-							act2->spr.picnum = 127;
+							act2->spr.picnum = DIPSWITCH3;
 				}
 			}
 		}
@@ -2284,19 +2284,19 @@ void rr_specialstats()
 			}
 	}
 
-	it.Reset(108);
+	it.Reset(STAT_TELEPORT);
 	while (auto act = it.Next())
 	{
-		if (act->spr.picnum == RRTILE296)
+		if (act->spr.picnum == RRTELEPORT)
 		{
 			int x;
 			int p = findplayer(act, &x);
 			if (x < 2047)
 			{
-				DukeStatIterator it2(108);
+				DukeStatIterator it2(STAT_TELEPORT);
 				while (auto act2 = it2.Next())
 				{
-					if (act2->spr.picnum == RRTILE297)
+					if (act2->spr.picnum == RRTELEPORTDEST)
 					{
 						ps[p].angle.ang = buildang(act2->spr.ang);
 						ps[p].bobpos.X = ps[p].opos.X = ps[p].pos.X = act2->spr.pos.X;
