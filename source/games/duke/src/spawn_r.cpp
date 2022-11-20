@@ -671,17 +671,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.lotag = 9999;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-	case TOUCHPLATE:
-		act->temp_pos.Z = sectp->floorz;
-		if (sectp->lotag != 1 && sectp->lotag != 2)
-			sectp->setfloorz(act->spr.pos.Z);
-		if (act->spr.pal && ud.multimode > 1)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-		[[fallthrough]];
 	case WATERBUBBLEMAKER:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_STANDABLE);

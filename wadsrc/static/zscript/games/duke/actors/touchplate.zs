@@ -26,7 +26,7 @@ class DukeTouchPlate : DukeActor
 	override void Initialize()
 	{
 		let sectp = self.sector;
-		self.temp_data[2] = sectp.floorz;
+		self.temp_pos.Z = sectp.floorz;
 		if (sectp.lotag != 1 && sectp.lotag != 2)
 			sectp.setfloorz(self.pos.Z);
 		if (!checkspawn())
@@ -35,7 +35,7 @@ class DukeTouchPlate : DukeActor
 			self.ChangeStat(STAT_MISC);
 			return;
 		}
-		self.cstat |= CSTAT_SPRITE_INVISIBLE;
+		self.cstat = CSTAT_SPRITE_INVISIBLE;
 	}
 
 
@@ -93,6 +93,7 @@ class DukeTouchPlate : DukeActor
 		{
 			if (self.temp_data[0] == 0 && !dlevel.check_activator_motion(self.lotag))
 			{
+				Console.Printf("Trigger %d", self.spawnindex);
 				self.temp_data[0] = 1;
 				self.temp_data[1] = 1;
 				self.temp_data[3] = !self.temp_data[3];

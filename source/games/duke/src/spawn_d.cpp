@@ -637,30 +637,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.lotag = 9999;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-	case TOUCHPLATE:
-		act->temp_pos.Z = sectp->floorz;
-		if (sectp->lotag != 1 && sectp->lotag != 2)
-			sectp->setfloorz(act->spr.pos.Z);
-		if (!isWorldTour())
-		{
-			if (act->spr.pal && ud.multimode > 1)
-			{
-				act->spr.scale = DVector2(0, 0);
-				ChangeActorStat(act, STAT_MISC);
-				break;
-			}
-		}
-		else { // Twentieth Anniversary World Tour addition
-			if ((act->spr.pal == 1 && ud.multimode > 1) // Single-game Only
-				|| (act->spr.pal == 2 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop != 1))) // Co-op Only
-				|| (act->spr.pal == 3 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop == 1)))) // Dukematch Only
-			{
-				act->spr.scale = DVector2(0, 0);
-				ChangeActorStat(act, STAT_MISC);
-				break;
-			}
-		}
-		[[fallthrough]];
 	case WATERBUBBLEMAKER:
 		if (act->spr.hitag && act->spr.picnum == WATERBUBBLEMAKER)
 		{	// JBF 20030913: Pisses off move(), eg. in bobsp2

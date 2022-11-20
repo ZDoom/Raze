@@ -53,7 +53,6 @@ void premapcontroller(DDukeActor* ac)
 	case MUSICANDSFX:
 	case RESPAWN:
 	case SECTOREFFECTOR:
-	case TOUCHPLATE:
 		ac->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ALIGNMENT_MASK);
 		break;
 

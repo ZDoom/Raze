@@ -852,7 +852,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, operatemasterswitches, operatemastersw
 	return 0;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, operateactivators, operateactivators)
+DEFINE_ACTION_FUNCTION(_DukeLevel, operateactivators)//, operateactivators)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(lotag);
