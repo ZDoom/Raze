@@ -528,14 +528,11 @@ void thunder(void)
 
 int addambient(int hitag, int lotag)
 {
-	if (ambientfx >= 64)
-		I_Error("Too many ambient effects");
-	else
-	{
-		ambienthitag[ambientfx] = hitag;
-		ambientlotag[ambientfx] = lotag;
-		return ambientfx++;
-	}
+
+	ambienttags.Reserve(1);
+	ambienttags.Last().lo = lotag;
+	ambienttags.Last().hi = hitag;
+	return ambienttags.Size() - 1;
 }
 
 END_DUKE_NS

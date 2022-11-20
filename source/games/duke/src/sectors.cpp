@@ -1105,7 +1105,7 @@ void operateactivators(int low, player_struct* plr)
 	Cycler * p;
 	walltype* wal;
 
-	for (i = numcyclers - 1; i >= 0; i--)
+	for (i = cyclers.Size() - 1; i >= 0; i--)
 	{
 		p = &cyclers[i];
 

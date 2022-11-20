@@ -368,6 +368,10 @@ struct Cycler
 	bool state;
 };
 
+struct AmbientTags
+{
+	int lo, hi;
+};
 
 struct DukeLevel
 {

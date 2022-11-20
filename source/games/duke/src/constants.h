@@ -281,7 +281,6 @@ enum
 
 enum
 {
-	MAXCYCLERS      = 1024,
 	MAXANIMATES     = 1024,
 	MAXANIMWALLS    = 512,
 	MAXANIMPOINTS   = 2048,

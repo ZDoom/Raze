@@ -99,16 +99,13 @@ sectortype* clouds[256];
 float cloudx;
 float cloudy;
 int cloudclock;
-int numcyclers;								// sector lighting effects
-Cycler cyclers[MAXCYCLERS];
+TArray<Cycler> cyclers;
+TArray<AmbientTags> ambienttags;
 int mirrorcnt;
 sectortype* mirrorsector[64];					// mirrors
 walltype* mirrorwall[64];
 int numplayersprites;						// player management for some SEs.
 player_orig po[MAXPLAYERS];
-unsigned ambientfx;							// used by soundtag and soundtagonce script commands. If exported, export the commands, not the data!
-short ambientlotag[64];
-short ambienthitag[64];
 uint32_t everyothertime;					// Global animation ticker helper.
 
 // Redneck Rampage

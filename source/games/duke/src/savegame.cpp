@@ -310,6 +310,19 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler*
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, AmbientTags& w, AmbientTags* def)
+{
+	static AmbientTags nul;
+	if (!def) def = &nul;
+	if (arc.BeginObject(keyname))
+	{
+		arc("lotag", w.lo, def->lo)
+			("hitag", w.hi, def->hi)
+			.EndObject();
+	}
+	return arc;
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animate& w, animate* def)
 {
 	static animate nul;
@@ -332,8 +345,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	{
 		memset(geosectorwarp, -1, sizeof(geosectorwarp));
 		memset(geosectorwarp2, -1, sizeof(geosectorwarp2));
-		memset(ambienthitag, -1, sizeof(ambienthitag));
-		memset(ambientlotag, -1, sizeof(ambientlotag));
 	}
 	if (arc.BeginObject("duke.gamestate"))
 	{
@@ -380,8 +391,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			.Array("clouds", clouds, numclouds)
 
 			.Array("spriteq", spriteq, 1024)
-			("numcyclers", numcyclers)
-			.Array("cycler", cyclers, numcyclers)
+			("cycler", cyclers)
 			("mirrorcnt", mirrorcnt)
 			.Array("mirrorsector", mirrorsector, mirrorcnt)
 			.Array("mirrorwall", mirrorwall, mirrorcnt)
@@ -400,9 +410,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			.Array("geoy", geoy, geocnt)
 			.Array("geox2", geox2, geocnt)
 			.Array("geoy2", geoy2, geocnt)
-			("ambientfx", ambientfx)
-			.Array("ambientlotag", ambientlotag, ambientfx)
-			.Array("ambienthitag", ambienthitag, ambientfx)
+			("ambienttags", ambienttags)
 			("mspos", mspos)
 			("windtime", WindTime)
 			("winddir", WindDir)

@@ -71,7 +71,6 @@ extern int lastvisinc;
 extern animwalltype animwall[MAXANIMWALLS];
 extern int numanimwalls;
 extern int numclouds;
-extern int numcyclers;
 extern int earthquaketime;
 extern int global_random;
 extern int mirrorcnt;
@@ -105,7 +104,8 @@ extern float cloudx;
 extern float cloudy;
 extern int cloudclock;
 
-extern Cycler cyclers[MAXCYCLERS];
+extern TArray<Cycler> cyclers;
+extern TArray<AmbientTags> ambienttags;
 extern sectortype* mirrorsector[64];
 extern walltype* mirrorwall[64];
 
@@ -126,9 +126,6 @@ extern double geox2[MAXGEOSECTORS];
 extern double geoy2[MAXGEOSECTORS];
 extern int geocnt;
 
-extern short ambientlotag[64];
-extern short ambienthitag[64];
-extern unsigned ambientfx;
 extern TArray<DVector2> mspos;
 extern int WindTime;
 extern DAngle WindDir;

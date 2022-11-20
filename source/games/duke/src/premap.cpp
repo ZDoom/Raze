@@ -420,7 +420,7 @@ void resetprestat(int snum,int g)
 
 	screenpeek              = myconnectindex;
 	numanimwalls            = 0;
-	numcyclers              = 0;
+	cyclers.Clear();
 	animatecnt              = 0;
 	randomseed              = 17L;
 	paused             = 0;
@@ -657,7 +657,7 @@ void prelevel_common(int g)
 
 	lava_cleararrays();
 	geocnt = 0;
-	ambientfx = 0;
+	ambienttags.Clear();
 	thunderon = 0;
 	chickenplant = 0;
 	WindTime = 0;
@@ -676,8 +676,6 @@ void prelevel_common(int g)
 
 	memset(geosectorwarp, -1, sizeof(geosectorwarp));
 	memset(geosectorwarp2, -1, sizeof(geosectorwarp2));
-	memset(ambienthitag, -1, sizeof(ambienthitag));
-	memset(ambientlotag, -1, sizeof(ambientlotag));
 
 	for(auto&sec: sector)
 	{

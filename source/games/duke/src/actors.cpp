@@ -303,7 +303,7 @@ void movesector(DDukeActor* const actor, int msindex, DAngle rotation)
 
 void movecyclers(void)
 {
-	for (int q = numcyclers - 1; q >= 0; q--)
+	for (int q = cyclers.Size() - 1; q >= 0; q--)
 	{
 		Cycler* c = &cyclers[q];
 		auto sect = c->sector;
@@ -336,15 +336,13 @@ void movecyclers(void)
 
 void addcycler(sectortype* sector, int lotag, int shade, int shade2, int hitag, int state)
 {
-	if (numcyclers >= MAXCYCLERS)
-		I_Error("Too many cycling sectors.");
-	cyclers[numcyclers].sector = sector;
-	cyclers[numcyclers].lotag = lotag;
-	cyclers[numcyclers].shade1 = shade;
-	cyclers[numcyclers].shade2 = shade2;
-	cyclers[numcyclers].hitag = hitag;
-	cyclers[numcyclers].state = state;
-	numcyclers++;
+	cyclers.Reserve(1);
+	cyclers.Last().sector = sector;
+	cyclers.Last().lotag = lotag;
+	cyclers.Last().shade1 = shade;
+	cyclers.Last().shade2 = shade2;
+	cyclers.Last().hitag = hitag;
+	cyclers.Last().state = state;
 }
 
 //---------------------------------------------------------------------------
