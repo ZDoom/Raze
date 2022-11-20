@@ -551,10 +551,10 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 			if (other->spr.picnum == DIPSWITCH3)
 				if (other->spr.hitag == 999)
 				{
-					DukeStatIterator it1(107);
+					DukeStatIterator it1(STAT_LUMBERMILL);
 					while (auto other2 = it1.Next())
 					{
-						if (other2->spr.picnum == RRTILE3410)
+						if (other2->spr.picnum == LUMBERBLADE1)
 						{
 							other2->spr.picnum++;
 							other2->spr.hitag = 100;

@@ -61,9 +61,9 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.extra = 0;
 		ChangeActorStat(act, STAT_BOWLING);
 		break;
-	case RRTILE3410:
+	case LUMBERBLADE1:
 		act->spr.extra = 0;
-		ChangeActorStat(act, 107);
+		ChangeActorStat(act, STAT_LUMBERMILL);
 		break;
 	case RRTILE8450:
 		if (!isRRRA()) goto default_case;
@@ -155,22 +155,22 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.extra = 0;
 		ChangeActorStat(act, 122);
 		break;
-	case RRTILE285:
-	case RRTILE286:
-	case RRTILE287:
-	case RRTILE288:
-	case RRTILE289:
-	case RRTILE290:
-	case RRTILE291:
-	case RRTILE292:
-	case RRTILE293:
+	case CHICKENASPAWN:
+	case CHICKENCSPAWN:
+	case FEATHERSPAWN:
+	case CHICKENHEADSPAWN:
+	case LOAFSPAWN:
+	case NUGGETSPAWN:
+	case ROASTSPAWN:
+	case BONELESSSPAWN:
+	case JIBSSPAWN:
 		act->spr.cstat = 0;
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		act->spr.xrepeat = 0;
 		act->spr.yrepeat = 0;
 		act->spr.clipdist = 0;
 		act->spr.lotag = 0;
-		ChangeActorStat(act, 106);
+		ChangeActorStat(act, STAT_CHICKENPLANT);
 		break;
 
 	case RRTILE2460:
@@ -471,7 +471,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case RRTILE295:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, 107);
+		ChangeActorStat(act, STAT_LUMBERMILL);
 		break;
 	case RRTILE296:
 	case RRTILE297:
@@ -480,9 +480,9 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.clipdist = 64;
 		ChangeActorStat(act, 108);
 		break;
-	case RRTILE3190:
-	case RRTILE3191:
-	case RRTILE3192:
+	case CHICKENA:
+	case CHICKENB:
+	case CHICKENC:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 32;
@@ -490,7 +490,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.xvel = 32;
 		ChangeActorStat(act, 1);
 		break;
-	case RRTILE3120:
+	case CHICKENLOAF:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 12;
@@ -498,7 +498,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.xvel = 32;
 		ChangeActorStat(act, 1);
 		break;
-	case RRTILE3122:
+	case CHICKENNUGGET:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.clipdist = 2;
 		act->spr.xrepeat = 8;
@@ -506,7 +506,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.xvel = 16;
 		ChangeActorStat(act, 1);
 		break;
-	case RRTILE3123:
+	case ROASTEDCHICKEN:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 13;
@@ -514,7 +514,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.xvel = 16;
 		ChangeActorStat(act, 1);
 		break;
-	case RRTILE3124:
+	case BONELESSCHICKEN:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 17;
@@ -522,7 +522,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.xvel = 32;
 		ChangeActorStat(act, 1);
 		break;
-	case RRTILE3132:
+	case CHICKENHEAD:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->spr.clipdist = 8;
 		act->spr.xrepeat = 13;
