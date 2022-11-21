@@ -2235,7 +2235,7 @@ int ParseState::parse(void)
 			ps[g_p].setbobpos();
 			g_ac->backuppos();
 			updatesector(ps[g_p].posGet(), &ps[g_p].cursector);
-			SetActor(ps[g_p].GetActor(), ps[g_p].posGet().plusZ(gs.playerheight ));
+			SetActor(ps[g_p].GetActor(), ps[g_p].GetActor()->spr.pos);
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 			g_ac->spr.shade = -12;

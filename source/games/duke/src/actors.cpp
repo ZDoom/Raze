@@ -400,7 +400,7 @@ void moveplayers(void)
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				act->spr.pos = p->posoldGet().plusZ(gs.playerheight);
+				act->restorepos();
 				act->backupz();
 				act->spr.angle = p->angle.oang;
 				SetActor(act, act->spr.pos);
@@ -3349,7 +3349,7 @@ void handle_se20(DDukeActor* actor)
 				ps[p].posAdd(vec);
 				ps[p].GetActor()->backupvec2();
 
-				SetActor(ps[p].GetActor(), ps[p].posGet().plusZ(gs.playerheight));
+				SetActor(ps[p].GetActor(), ps[p].GetActor()->spr.pos);
 			}
 
 		sc->addfloorxpan(-(float)vec.X * 2);

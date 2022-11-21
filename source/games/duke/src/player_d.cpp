@@ -3063,7 +3063,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	SetActor(pact, p->posGet().plusZ(gs.playerheight));
+	SetActor(pact, p->GetActor()->spr.pos);
 
 	if (psectlotag < 3)
 	{

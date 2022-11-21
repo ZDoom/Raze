@@ -1233,7 +1233,7 @@ void movetransports_r(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].posSet(Owner->spr.pos.plusZ(-gs.playerheight + 4));
+							ps[p].GetActor()->spr.pos = Owner->spr.pos.plusZ(4);
 							ps[p].GetActor()->backuppos();
 							ps[p].setbobpos();
 

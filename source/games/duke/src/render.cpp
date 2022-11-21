@@ -273,6 +273,9 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		// set screen rotation.
 		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(interpfrac);
 
+		// use player's actor initially.
+		viewer = p->GetActor();
+
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
 			cpos = interpolatedvalue(omypos, mypos, interpfrac);
@@ -290,7 +293,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		}
 		else
 		{
-			cpos = interpolatedvalue(p->posoldGet(), p->posGet(), interpfrac);
+			cpos = viewer->interpolatedpos(interpfrac).plusZ(viewer->viewzoffset);
 
 			if (SyncInput())
 			{
@@ -320,14 +323,12 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		else if (p->over_shoulder_on == 0)
 		{
 			if (cl_viewbob) cpos.Z += interpolatedvalue(p->opyoff, p->pyoff, interpfrac);
-			viewer = p->GetActor();
 		}
 		else
 		{
 			auto adjustment = isRR() ? 15 : 12;
 			cpos.Z -= adjustment;
 
-			viewer = p->GetActor();
 			if (!calcChaseCamPos(cpos, viewer, &sect, cang, choriz, interpfrac, 64.))
 			{
 				cpos.Z += adjustment;

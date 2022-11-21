@@ -1345,7 +1345,7 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].posSet(Owner->spr.pos.plusZ(-gs.playerheight));
+							ps[p].GetActor()->spr.pos = Owner->spr.pos;
 							ps[p].GetActor()->backuppos();
 							ps[p].setbobpos();
 
@@ -1434,7 +1434,7 @@ void movetransports_d(void)
 						ps[p].setCursector(Owner->sector());
 
 						ChangeActorSect(act2, Owner->sector());
-						SetActor(ps[p].GetActor(), ps[p].posGet().plusZ(gs.playerheight));
+						SetActor(act2, act2->spr.pos);
 
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
