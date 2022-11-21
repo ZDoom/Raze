@@ -1374,7 +1374,7 @@ void movetransports_d(void)
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].posZset(Owner->spr.pos.Z - 24);
 							else ps[p].posZset(Owner->spr.pos.Z + 24);
-							ps[p].backupz();
+							ps[p].GetActor()->backupz();
 
 							auto pa = ps[p].GetActor();
 							pa->opos = ps[p].posGet();
@@ -1398,7 +1398,7 @@ void movetransports_d(void)
 						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
 						ps[p].posZset(Owner->sector()->ceilingz + 7);
-						ps[p].backupz();
+						ps[p].GetActor()->backupz();
 
 						// this is actually below the precision óf the original Build coordinate system...
 						ps[p].vel.X = ((krand() & 8192) ? 1 / 64. : -1 / 64.);
@@ -1417,7 +1417,7 @@ void movetransports_d(void)
 						S_PlayActorSound(DUKE_GASP, act2);
 
 						ps[p].posZset(Owner->sector()->floorz - 7);
-						ps[p].backupz();
+						ps[p].GetActor()->backupz();
 
 						ps[p].jumping_toggle = 1;
 						ps[p].jumping_counter = 0;

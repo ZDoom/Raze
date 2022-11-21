@@ -3051,7 +3051,7 @@ void handle_se17(DDukeActor* actor)
 				ps[p].posZadd(act2->sector()->floorz - sc->floorz);
 				ps[p].posoldAdd(ps[p].posGet());
 
-				if (q > 0) ps[p].backupz();
+				if (q > 0) ps[p].GetActor()->backupz();
 
 				act3->floorz = act2->sector()->floorz;
 				act3->ceilingz = act2->sector()->ceilingz;
