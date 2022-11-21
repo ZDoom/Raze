@@ -627,9 +627,14 @@ void DCoreActor::Serialize(FSerializer& arc)
 		("spriteext", sprext)
 		("xvel", vel.X)
 		("yvel", vel.Y)
-		("zvel", vel.Z);
+		("zvel", vel.Z)
+		("viewzoffset", viewzoffset);
 
-	if (arc.isReading()) spsmooth = {};
+	if (arc.isReading())
+	{
+		spsmooth = {};
+		backuppos();
+	}
 }
 
 

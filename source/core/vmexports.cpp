@@ -619,6 +619,7 @@ DEFINE_FIELD_NAMED(DCoreActor, time, spawnindex)
 DEFINE_FIELD(DCoreActor, spritesetindex)
 DEFINE_FIELD_NAMED(DCoreActor, spr.angle, angle)
 DEFINE_FIELD(DCoreActor, vel)
+DEFINE_FIELD(DCoreActor, viewzoffset)
 
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
 {

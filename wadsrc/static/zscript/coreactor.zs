@@ -45,6 +45,7 @@ class CoreActor native
 	native double clipdist;
 	native double angle;
 	native Vector3 vel;
+	native double viewzoffset;
 
 	native readonly int16 spritesetindex;
 	native readonly int spawnindex;

@@ -44,6 +44,7 @@ public:
 	DVector3 opos;
 	DAngle oang;
 	DVector3 vel;
+	double oviewzoffset, viewzoffset;
 	double clipdist;
 
 	int time;
@@ -113,6 +114,7 @@ public:
 	void backupz()
 	{
 		opos.Z = spr.pos.Z;
+		oviewzoffset = viewzoffset;
 	}
 
 	void backupvec2()
@@ -123,6 +125,7 @@ public:
 	void backuppos()
 	{
 		opos = spr.pos;
+		oviewzoffset = viewzoffset;
 	}
 
 	void backupang()
