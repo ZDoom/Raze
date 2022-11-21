@@ -1254,7 +1254,7 @@ void movetransports_r(void)
 						{
 							ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
 							ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
-							ps[p].backupxy();
+							ps[p].GetActor()->backupvec2();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].posZset(Owner->spr.pos.Z - 24);
@@ -1321,7 +1321,7 @@ void movetransports_r(void)
 					{
 						ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
 						ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
-						ps[p].backupxy();
+						ps[p].GetActor()->backupvec2();
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -1336,7 +1336,7 @@ void movetransports_r(void)
 					{
 						ps[p].posoldX() = ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
 						ps[p].posoldY() = ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
-						ps[p].backupxy();
+						ps[p].GetActor()->backupvec2();
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;

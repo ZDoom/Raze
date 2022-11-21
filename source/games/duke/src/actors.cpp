@@ -2052,7 +2052,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 					if (numplayers > 1)
 					{
-						ps[p].backupxy();
+						ps[p].GetActor()->backupvec2();
 					}
 					if (psp->spr.extra <= 0)
 					{
@@ -2094,7 +2094,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
 							ps[p].posXY() = actor->spr.pos.XY();
-							ps[p].backupxy();
+							ps[p].GetActor()->backupvec2();
 							ps[p].setCursector(actor->sector());
 
 							SetActor(ps[p].GetActor(), actor->spr.pos);
@@ -2213,7 +2213,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 				if (numplayers > 1)
 				{
-					ps[p].backupxy();
+					ps[p].GetActor()->backupvec2();
 				}
 
 				ps[p].bobpos += vect;
@@ -2253,7 +2253,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
 							ps[p].posXY() = actor->spr.pos.XY();
-							ps[p].backupxy();
+							ps[p].GetActor()->backupvec2();
 
 							ps[p].setCursector(actor->sector());
 
@@ -3347,7 +3347,7 @@ void handle_se20(DDukeActor* actor)
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 			{
 				ps[p].posAdd(vec);
-				ps[p].backupxy();
+				ps[p].GetActor()->backupvec2();
 
 				SetActor(ps[p].GetActor(), ps[p].posGet().plusZ(gs.playerheight));
 			}
