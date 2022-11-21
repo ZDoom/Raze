@@ -3525,7 +3525,7 @@ void processinput_r(int snum)
 	checklook(snum, actions);
 	p->apply_seasick(1);
 
-	auto oldpos = p->posoldGet();
+	auto oldpos = p->GetActor()->opos;
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -3888,7 +3888,7 @@ HORIZONLY:
 			{
 				if (!retry++)
 				{
-					p->posSet(oldpos);
+					p->GetActor()->spr.pos = oldpos;
 					p->GetActor()->backuppos();
 					continue;
 				}

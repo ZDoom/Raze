@@ -457,7 +457,7 @@ void moveplayers(void)
 				}
 				else
 				{
-					p->posSet(act->spr.pos.plusZ(-20));
+					p->GetActor()->spr.pos.Z += 20;
 					p->newOwner = nullptr;
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)

@@ -336,11 +336,6 @@ struct player_struct
 	}
 
 
-	void posSet(const DVector3& val)
-	{
-		GetActor()->spr.pos = val.plusZ(-GetActor()->viewzoffset);
-	}
-
 	double& posoldX()
 	{
 		return GetActor()->opos.X;

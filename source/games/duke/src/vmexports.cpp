@@ -702,7 +702,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, backupxyz, dukeplayer_backupxyz)
 
 void dukeplayer_setpos(player_struct* self, double x, double y, double z)
 {
-	self->posSet({ x, y, z });
+	self->GetActor()->spr.pos = { x, y, z + self->GetActor()->viewzoffset };
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)

@@ -2046,7 +2046,7 @@ void rr_specialstats()
 					if (act2->spr.picnum == RRTELEPORTDEST)
 					{
 						ps[p].angle.ang = act2->spr.angle;
-						ps[p].posSet(act2->spr.pos.plusZ(-36));
+						ps[p].GetActor()->spr.pos = act2->spr.pos.plusZ(-36 + gs.playerheight);
 						ps[p].GetActor()->backuppos();
 						ps[p].setbobpos();
 						auto pact = ps[p].GetActor();
