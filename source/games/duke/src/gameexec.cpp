@@ -326,7 +326,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSX: // oh, my... :( Writing to these has been disabled until I know how to do it without the engine shitting all over itself.
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].PlayerNowPosition.X * (1/maptoworld)), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].posX() * (1/maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSY:

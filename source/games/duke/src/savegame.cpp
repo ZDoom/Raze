@@ -76,7 +76,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("posx", w.PlayerNowPosition.X)
+		arc("posx", w.posX())
 			("posy", w.PlayerNowPosition.Y)
 			("posz", w.PlayerNowPosition.Z)
 			("angle", w.angle)
