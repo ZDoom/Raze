@@ -717,7 +717,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setpos, dukeplayer_setpos)
 
 void dukeplayer_addpos(player_struct* self, double x, double y, double z)
 {
-	self->posAdd({ x, y, z });
+	self->GetActor()->spr.pos += { x, y, z };
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addpos, dukeplayer_addpos)
