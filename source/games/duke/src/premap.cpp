@@ -69,7 +69,7 @@ void pickrandomspot(int snum)
 		i = krand()%numplayersprites;
 	else i = snum;
 
-	p->posSet(po[i].opos);
+	p->GetActor()->spr.pos = po[i].opos;
 	p->backupxyz();
 	p->setbobpos();
 	p->angle.oang = p->angle.ang = po[i].oa;
@@ -505,14 +505,14 @@ void resetprestat(int snum,int g)
 //
 //---------------------------------------------------------------------------
 
-void resetpspritevars(int g)
+void resetpspritevars(int g, const DVector3& startpos)
 {
 	int i, j;
 	int circ;
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
-	auto newActor = CreateActor(ps[0].cursector, ps[0].posGet(),
+	auto newActor = CreateActor(ps[0].cursector, startpos.plusZ(gs.playerheight),
 		TILE_APLAYER, 0, DVector2(0, 0), ps[0].angle.ang, 0., 0., nullptr, 10);
 
 	newActor->viewzoffset = -gs.playerheight;
@@ -625,10 +625,7 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].posSet(act->spr.pos);
-			ps[j].backupxyz();
 			ps[j].setbobpos();
-			act->backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = act->spr.angle;
 
 			updatesector(act->spr.pos, &ps[j].cursector);
@@ -979,7 +976,6 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	SpawnSpriteDef sprites;
 	DVector3 pos;
 	loadMap(mi->fileName, isShareware(), &pos, &lbang, &sect, sprites);
-	p->posSet(pos);
 	p->cursector = sect;
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);
@@ -998,7 +994,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	SpawnPortals();
 
 	allignwarpelevators();
-	resetpspritevars(gamemode);
+	resetpspritevars(gamemode, pos);
 
 	if (isRR()) cacheit_r(); else cacheit_d();
 	return 0;

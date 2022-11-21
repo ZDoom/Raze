@@ -176,7 +176,6 @@ struct player_orig
 struct player_struct
 {
 	DVector3 vel;
-	DVector3 PlayerNowPosition, PlayerOldPosition;
 	DVector2 bobpos;
 	DVector2 fric;
 	DVector2 Exit;
@@ -333,103 +332,103 @@ struct player_struct
 
 	void backupxyz()
 	{
-		PlayerOldPosition = PlayerNowPosition;
+		GetActor()->opos = GetActor()->spr.pos;
 	}
 
 	void restorexyz()
 	{
-		PlayerNowPosition = PlayerOldPosition;
+		GetActor()->spr.pos = GetActor()->opos;
 	}
 
 	void backupxy()
 	{
-		PlayerOldPosition.X = PlayerNowPosition.X;
-		PlayerOldPosition.Y = PlayerNowPosition.Y;
+		GetActor()->opos.X = GetActor()->spr.pos.X;
+		GetActor()->opos.Y = GetActor()->spr.pos.Y;
 	}
 
 	void backupz()
 	{
-		PlayerOldPosition.Z = PlayerNowPosition.Z;
+		GetActor()->opos.Z = GetActor()->spr.pos.Z;
 	}
 
 	void setbobpos()
 	{
-		bobpos = PlayerNowPosition.XY();
+		bobpos = GetActor()->spr.pos.XY();
 	}
 
 
 	double& posX()
 	{
-		return PlayerNowPosition.X;
+		return GetActor()->spr.pos.X;
 	}
 	double& posY()
 	{
-		return PlayerNowPosition.Y;
+		return GetActor()->spr.pos.Y;
 	}
 	DVector2& posXY()
 	{
-		return PlayerNowPosition.XY();
+		return GetActor()->spr.pos.XY();
 	}
 
 	void posZset(const double val)
 	{
-		PlayerNowPosition.Z = val;
+		GetActor()->spr.pos.Z = val - GetActor()->viewzoffset;
 	}
 	void posZadd(const double val)
 	{
-		PlayerNowPosition.Z += val;
+		GetActor()->spr.pos.Z += val;
 	}
 	double posZget()
 	{
-		return PlayerNowPosition.Z;
+		return GetActor()->spr.pos.Z + GetActor()->viewzoffset;
 	}
 
 	void posSet(const DVector3& val)
 	{
-		PlayerNowPosition = val;
+		GetActor()->spr.pos = val.plusZ(-GetActor()->viewzoffset);
 	}
 	void posAdd(const DVector3& val)
 	{
-		PlayerNowPosition += val;
+		GetActor()->spr.pos += val;
 	}
 	void posAdd(const DVector2& val)
 	{
-		PlayerNowPosition.XY() += val;
+		GetActor()->spr.pos.XY() += val;
 	}
 	DVector3 posGet()
 	{
-		return PlayerNowPosition;
+		return GetActor()->spr.pos.plusZ(GetActor()->viewzoffset);
 	}
 
 	double& posoldX()
 	{
-		return PlayerOldPosition.X;
+		return GetActor()->opos.X;
 	}
 	double& posoldY()
 	{
-		return PlayerOldPosition.Y;
+		return GetActor()->opos.Y;
 	}
 	DVector2& posoldXY()
 	{
-		return PlayerOldPosition.XY();
+		return GetActor()->opos.XY();
 	}
 
 	void posoldZset(const double val)
 	{
-		PlayerOldPosition.Z = val;
+		GetActor()->opos.Z = val - GetActor()->viewzoffset;
 	}
 	double posoldZget()
 	{
-		return PlayerOldPosition.Z;
+		return GetActor()->opos.Z + GetActor()->viewzoffset;
 	}
 
 	void posoldAdd(const DVector3& val)
 	{
-		PlayerOldPosition += val;
+		GetActor()->opos += val;
 	}
 	DVector3 posoldGet()
 	{
-		return PlayerOldPosition;
+		return GetActor()->opos.plusZ(GetActor()->viewzoffset);
 	}
 };
 

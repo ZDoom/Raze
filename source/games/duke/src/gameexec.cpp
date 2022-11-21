@@ -1980,7 +1980,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].GetActor()->spr.pos.Z = ps[g_p].PlayerNowPosition.Z = ps[g_p].GetActor()->sector()->ceilingz;
+		ps[g_p].GetActor()->spr.pos.Z = ps[g_p].GetActor()->sector()->ceilingz;
 		break;
 	case concmd_destroyit:
 		insptr++;
