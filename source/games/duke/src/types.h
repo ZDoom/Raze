@@ -388,6 +388,14 @@ struct player_struct
 	{
 		PlayerNowPosition = val;
 	}
+	void posAdd(const DVector3& val)
+	{
+		PlayerNowPosition += val;
+	}
+	void posAdd(const DVector2& val)
+	{
+		PlayerNowPosition.XY() += val;
+	}
 };
 
 struct Cycler

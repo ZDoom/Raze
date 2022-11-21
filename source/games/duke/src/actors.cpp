@@ -2209,7 +2209,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			auto psp = ps[p].GetActor();
 			if (psp->sector() == actor->sector())
 			{
-				ps[p].PlayerNowPosition += vect;
+				ps[p].posAdd(vect);
 
 				if (numplayers > 1)
 				{
@@ -2336,7 +2336,7 @@ void handle_se02(DDukeActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 			{
-				ps[p].PlayerNowPosition += vect;
+				ps[p].posAdd(vect);
 				ps[p].bobpos += vect;
 			}
 
@@ -3346,7 +3346,7 @@ void handle_se20(DDukeActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 			{
-				ps[p].PlayerNowPosition += vec;
+				ps[p].posAdd(vec);
 				ps[p].backupxy();
 
 				SetActor(ps[p].GetActor(), ps[p].PlayerNowPosition.plusZ(gs.playerheight));
