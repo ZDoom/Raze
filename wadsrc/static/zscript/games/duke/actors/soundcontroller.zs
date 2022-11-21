@@ -28,9 +28,10 @@ class DukeSoundController : DukeActor
 			self.temp_data[0] = 0;
 		}
 
+		let p = Duke.GetViewPlayer();
 		if (self.lotag >= 1000 && self.lotag < 2000)
 		{
-			double dist = (Duke.GetViewPlayer().actor.pos.XY - self.pos.XY).LengthSquared();
+			double dist = (p.actor.pos.XY - self.pos.XY).LengthSquared();
 			if (dist < maxdist * maxdist && self.temp_data[0] == 0)
 			{
 				Raze.SetReverb(self.lotag - 1100);
@@ -51,7 +52,7 @@ class DukeSoundController : DukeActor
 				int flags = Duke.GetSoundFlags(self.lotag);
 				if (flags & Duke.SF_MSFX)
 				{
-					double distance = (Duke.GetViewPlayer().actor.pos - self.pos).Length();
+					double distance = (p.actor.pos - self.pos).Length();
 
 					if (distance < maxdist && self.temp_data[0] == 0)
 					{
@@ -69,7 +70,7 @@ class DukeSoundController : DukeActor
 				if ((flags & (Duke.SF_GLOBAL | Duke.SF_DTAG)) == Duke.SF_GLOBAL)
 				{
 					if (self.temp_data[4] > 0) self.temp_data[4]--;
-					else 
+					else if (sec == p.actor.sector)
 					{
 						Duke.PlaySound(self.lotag + uint(Duke.global_random()) % uint(self.hitag + 1));
 						self.temp_data[4] = 26 * 40 + (Duke.global_random() % (26 * 40));

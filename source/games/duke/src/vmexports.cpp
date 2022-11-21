@@ -233,9 +233,9 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, PlayActorSound, DukeActor_PlayActorSou
 	ACTION_RETURN_INT(DukeActor_PlayActorSound(self, snd, chan, flags));
 }
 
-int DukeActor_StopSound(DDukeActor* self, int snd, int chan)
+void DukeActor_StopSound(DDukeActor* self, int snd, int flags)
 {
-	return S_PlayActorSound(snd, self, chan);
+	S_StopSound(snd, self, flags);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, StopSound, DukeActor_StopSound)
@@ -243,7 +243,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, StopSound, DukeActor_StopSound)
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(snd);
 	PARAM_INT(chan);
-	ACTION_RETURN_INT(DukeActor_StopSound(self, snd, chan));
+	DukeActor_StopSound(self, snd, chan);
+	return 0;
 }
 
 DDukeActor* DukeActor_Spawn(DDukeActor* origin, int intname)

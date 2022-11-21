@@ -156,8 +156,8 @@ class DukeActor : CoreActor native
 	native DukePlayer, double findplayer();
 	native int ifhitbyweapon();
 	native int domove(int clipmask);
-	native void PlayActorSound(int snd, int chan = CHAN_AUTO, int flags = 0);
-	native void StopSound(int snd, int chan = -1);
+	native int PlayActorSound(int snd, int chan = CHAN_AUTO, int flags = 0);
+	native void StopSound(int snd, int flags = 0);
 	native DukeActor spawn(Name type);
 	native DukeActor spawnsprite(int type);	// for cases where the map has a picnum stored. Avoid when possible.
 	native DukeActor spawnweaponorammo(int type);
