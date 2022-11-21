@@ -337,16 +337,18 @@ class DukeStatusBar : DukeCommonStatusBar
 		String format;
 		bool parsedDivisor = false;
 
+		num1 = max(num1, 0);
+		num2 = max(num2, 0);
 		if (numdigits == 2)
 		{
-			if (num1 > 99) num1 = 99;
-			if (num2 > 99) num2 = 99;
+			num1 = min(num1, 99);
+			num2 = min(num2, 99);
 			format = String.Format("%2d/%d", num1, num2);
 		}
 		else
 		{
-			if (num1 > 999) num1 = 999;
-			if (num2 > 999) num2 = 999;
+			num1 = min(num1, 999);
+			num2 = min(num2, 999);
 			format = String.Format("%3d/%d", num1, num2);
 		}
 		y--;
