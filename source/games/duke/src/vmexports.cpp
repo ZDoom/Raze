@@ -1,5 +1,7 @@
 BEGIN_DUKE_NS
 
+void resetswitch(int tag);
+
 // Workaround so that the script code can be written in its final form. This must go away later.
 int PicForName(int intname)
 {
@@ -836,6 +838,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, clearcameras, clearcameras)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, quickkill, quickkill)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	quickkill(self);
+	return 0;
+}
 
 static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)
 {
@@ -1007,8 +1015,16 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, addambient, addambient)
 	PARAM_INT(hitag);
 	PARAM_INT(lotag);
 	ACTION_RETURN_INT(addambient(hitag, lotag));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, resetswitch, resetswitch)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(tag);
+	resetswitch(tag);
 	return 0;
 }
+
 
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerfriction);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, gravity);

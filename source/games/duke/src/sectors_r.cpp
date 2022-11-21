@@ -519,15 +519,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					DukeStatIterator it1(STAT_LUMBERMILL);
 					while (auto other2 = it1.Next())
 					{
-						if (other2->spr.picnum == LUMBERBLADE1)
-						{
-							other2->spr.picnum++;
-							other2->spr.hitag = 100;
-							other2->spr.extra = 0;
-							S_PlayActorSound(474, other2);
-						}
-						else if (other2->spr.picnum == KEGHOLDER)
-							other2->Destroy();
+						CallOnUse(other2, nullptr);
 					}
 					other->spr.picnum++;
 					break;

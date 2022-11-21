@@ -292,6 +292,7 @@ struct DukePlayer native
 	native void settargetangle(double angle, bool backup = false);
 	native double angle();
 	native void clearcameras();
+	native void quickkill();
 
 
 }

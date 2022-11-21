@@ -444,6 +444,14 @@ void CallOnHurt(DDukeActor* actor, player_struct* hitter)
 	}
 }
 
+void CallOnTouch(DDukeActor* actor, player_struct* hitter)
+{
+	IFVIRTUALPTR(actor, DDukeActor, onTouch)
+	{
+		VMValue val[2] = { actor, hitter };
+		VMCall(func, val, 2, nullptr, 0);
+	}
+}
 
 
 bool CallOnUse(DDukeActor* actor, player_struct* user)

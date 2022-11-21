@@ -65,10 +65,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.extra = 0;
 		ChangeActorStat(act, STAT_BOWLING);
 		break;
-	case LUMBERBLADE1:
-		act->spr.extra = 0;
-		ChangeActorStat(act, STAT_LUMBERMILL);
-		break;
 	case RRTILE8450:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(1, 1);
@@ -434,10 +430,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->clipdist = 12;
 		act->spr.scale = DVector2(0.328125, 0.234375);
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
-		break;
-	case KEGHOLDER:
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_LUMBERMILL);
 		break;
 	case RRTELEPORT:
 	case RRTELEPORTDEST:

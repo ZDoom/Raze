@@ -3801,19 +3801,10 @@ HORIZONLY:
 				ChangeActorStat(clip.actor(), 1);
 			}
 		}
-		else if (!isRRRA() && clip.actor()->spr.picnum == LUMBERBLADE1)
-		{
-			quickkill(p);
-			S_PlayActorSound(446, pact);
-		}
+		CallOnTouch(clip.actor(), p);
 		if (isRRRA())
 		{
-			if (clip.actor()->spr.picnum == LUMBERBLADE1)
-			{
-				quickkill(p);
-				S_PlayActorSound(446, pact);
-			}
-			else if (clip.actor()->spr.picnum == RRTILE2443 && clip.actor()->spr.pal == 19)
+			if (clip.actor()->spr.picnum == RRTILE2443 && clip.actor()->spr.pal == 19)
 			{
 				clip.actor()->spr.pal = 0;
 				p->DrugMode = 5;

@@ -121,6 +121,7 @@ bool CallOperate(DDukeActor* actor, int plnum);
 void CallAction(DDukeActor* actor);
 void CallOnHit(DDukeActor* actor, DDukeActor* hitter);
 void CallOnHurt(DDukeActor* actor, player_struct* hitter);
+void CallOnTouch(DDukeActor* actor, player_struct* hitter);
 bool CallOnUse(DDukeActor* actor, player_struct* user);
 void CallOnRespawn(DDukeActor* actor, int low);
 bool CallAnimate(DDukeActor* actor, tspritetype* hitter);

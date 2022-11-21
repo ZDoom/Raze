@@ -1899,36 +1899,14 @@ void resetswitch(int tag)
 
 void rr_specialstats()
 {
-	DukeStatIterator it(STAT_LUMBERMILL);
-	while (auto act = it.Next())
-	{
-		if (act->spr.hitag == 100)
-		{
-			act->spr.pos.Z += 4;
-			if (act->spr.pos.Z >= act->sector()->floorz + 59.25)
-				act->spr.pos.Z = act->sector()->floorz + 59.25;
-		}
-
-		if (act->spr.picnum == LUMBERBLADE)
-		{
-			act->spr.extra++;
-			if (act->spr.extra == 192)
-			{
-				act->spr.hitag = 0;
-				act->spr.pos.Z = act->sector()->floorz - 59.25;
-				act->spr.extra = 0;
-				act->spr.picnum = LUMBERBLADE1;
-				resetswitch(999);
-			}
-		}
-	}
+	tickstat(STAT_LUMBERMILL);
 
 	if (ud.chickenplant)
 	{
 		tickstat(STAT_CHICKENPLANT);
 	}
 
-	it.Reset(STAT_BOWLING);
+	DukeStatIterator it(STAT_BOWLING);
 	while (auto act = it.Next())
 	{
 		if (act->spr.picnum == BOWLINGPINSPOT)

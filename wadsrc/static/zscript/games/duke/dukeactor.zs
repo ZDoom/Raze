@@ -177,6 +177,7 @@ class DukeActor : CoreActor native
 	virtual void onHit(DukeActor hitter) { checkhitdefault(hitter); }
 	virtual void onHurt(DukePlayer p) {}
 	virtual bool onUse(DukePlayer user) { return false; }
+	virtual void onTouch(DukePlayer toucher) {}
 	virtual void onRespawn(int tag) { }
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
@@ -223,6 +224,7 @@ struct DukeLevel
 	native static void addtorch(sectortype sector, int shade, int lotag);
 	native static void addlightning(sectortype sector, int shade);
 	native static int addambient(int hitag, int lotag);
+	native static void resetswitch(int tag);	// 
 }
 
 struct DukeStatIterator
