@@ -176,6 +176,11 @@ public:
 		return opos.plusZ(oviewzoffset);
 	}
 
+	DVector3 getRenderPos(const double interpfrac)
+	{
+		return interpolatedpos(interpfrac).plusZ(interpolatedvalue(oviewzoffset, viewzoffset, interpfrac));
+	}
+
 	sectortype* sector() const
 	{
 		return spr.sectp;

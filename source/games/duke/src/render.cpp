@@ -293,7 +293,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		}
 		else
 		{
-			cpos = viewer->interpolatedpos(interpfrac).plusZ(viewer->viewzoffset);
+			cpos = viewer->getRenderPos(interpfrac);
 
 			if (SyncInput())
 			{
