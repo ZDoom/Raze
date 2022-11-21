@@ -1252,8 +1252,7 @@ void movetransports_r(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
-							ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
+							ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 							ps[p].GetActor()->backupvec2();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
@@ -1319,8 +1318,7 @@ void movetransports_r(void)
 
 					if (k == 1)
 					{
-						ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 						ps[p].GetActor()->backupvec2();
 
 						if (Owner->GetOwner() != Owner)
@@ -1334,8 +1332,7 @@ void movetransports_r(void)
 					}
 					else if (isRRRA() && k == 2)
 					{
-						ps[p].posoldX() = ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].posoldY() = ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 						ps[p].GetActor()->backupvec2();
 
 						if (Owner->GetOwner() != Owner)

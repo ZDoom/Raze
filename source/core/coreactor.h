@@ -139,6 +139,11 @@ public:
 		backupang();
 	}
 
+	void restorevec2()
+	{
+		spr.pos.XY() = opos.XY();
+	}
+
 	void restorepos()
 	{
 		spr.pos = opos;

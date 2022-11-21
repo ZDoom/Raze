@@ -507,8 +507,8 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->spr.pos.X - p->posX()) < 24)
-						if (abs(act->spr.pos.Y - p->posY()) < 24)
+					if (abs(act->spr.pos.X - p->GetActor()->spr.pos.X) < 24)
+						if (abs(act->spr.pos.Y - p->GetActor()->spr.pos.Y) < 24)
 						{
 							j = 1;
 							break;
@@ -765,13 +765,11 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		posoldX() = posX();
-		posoldY() = posY();
+		GetActor()->backupvec2();
 	}
 	else
 	{
-		posX() = posoldX();
-		posY() = posoldY();
+		GetActor()->restorevec2();
 	}
 
 	posoldZset(posZget());

@@ -374,8 +374,7 @@ void movedummyplayers(void)
 			}
 		}
 
-		act->spr.pos.X += (ps[p].posX() - ps[p].posoldX());
-		act->spr.pos.Y += (ps[p].posY() - ps[p].posoldY());
+		act->spr.pos.XY() += ps[p].GetActor()->spr.pos.XY() - ps[p].GetActor()->opos.XY();
 		SetActor(act, act->spr.pos);
 	}
 }
@@ -1868,15 +1867,7 @@ void handle_se00(DDukeActor* actor)
 
 				ps[p].bobpos += (result - ps[p].posXY());
 
-				ps[p].posX() = result.X;
-				ps[p].posY() = result.Y;
-
-				auto psp = ps[p].GetActor();
-				if (psp->spr.extra <= 0)
-				{
-					psp->spr.pos.X = result.X;
-					psp->spr.pos.Y = result.Y;
-				}
+				ps[p].GetActor()->spr.pos.XY() = result;
 			}
 		}
 		DukeSectIterator itp(actor->sector());

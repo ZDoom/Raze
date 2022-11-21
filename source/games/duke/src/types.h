@@ -336,14 +336,6 @@ struct player_struct
 	}
 
 
-	double& posX()
-	{
-		return GetActor()->spr.pos.X;
-	}
-	double& posY()
-	{
-		return GetActor()->spr.pos.Y;
-	}
 	DVector2& posXY()
 	{
 		return GetActor()->spr.pos.XY();
