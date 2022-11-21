@@ -375,7 +375,7 @@ void movedummyplayers(void)
 		}
 
 		act->spr.pos.X += (ps[p].posX() - ps[p].PlayerOldPosition.X);
-		act->spr.pos.Y += (ps[p].PlayerNowPosition.Y - ps[p].PlayerOldPosition.Y);
+		act->spr.pos.Y += (ps[p].posY() - ps[p].PlayerOldPosition.Y);
 		SetActor(act, act->spr.pos);
 	}
 }
@@ -1869,7 +1869,7 @@ void handle_se00(DDukeActor* actor)
 				ps[p].bobpos += (result - ps[p].posXY());
 
 				ps[p].posX() = result.X;
-				ps[p].PlayerNowPosition.Y = result.Y;
+				ps[p].posY() = result.Y;
 
 				auto psp = ps[p].GetActor();
 				if (psp->spr.extra <= 0)

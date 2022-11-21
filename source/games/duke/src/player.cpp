@@ -508,7 +508,7 @@ void footprints(int snum)
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
 					if (abs(act->spr.pos.X - p->posX()) < 24)
-						if (abs(act->spr.pos.Y - p->PlayerNowPosition.Y) < 24)
+						if (abs(act->spr.pos.Y - p->posY()) < 24)
 						{
 							j = 1;
 							break;
@@ -766,12 +766,12 @@ void player_struct::backuppos(bool noclipping)
 	if (!noclipping)
 	{
 		PlayerOldPosition.X = posX();
-		PlayerOldPosition.Y = PlayerNowPosition.Y;
+		PlayerOldPosition.Y = posY();
 	}
 	else
 	{
 		posX() = PlayerOldPosition.X;
-		PlayerNowPosition.Y = PlayerOldPosition.Y;
+		posY() = PlayerOldPosition.Y;
 	}
 
 	PlayerOldPosition.Z = PlayerNowPosition.Z;

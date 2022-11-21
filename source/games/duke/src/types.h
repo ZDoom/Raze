@@ -362,6 +362,10 @@ struct player_struct
 	{
 		return PlayerNowPosition.X;
 	}
+	double& posY()
+	{
+		return PlayerNowPosition.Y;
+	}
 	DVector2& posXY()
 	{
 		return PlayerNowPosition.XY();

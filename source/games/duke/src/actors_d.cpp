@@ -1368,7 +1368,7 @@ void movetransports_d(void)
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
 							ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
-							ps[p].PlayerNowPosition.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+							ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
 							ps[p].backupxy();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
@@ -1426,7 +1426,7 @@ void movetransports_d(void)
 					if (k == 1)
 					{
 						ps[p].posX() += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].PlayerNowPosition.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].posY() += Owner->spr.pos.Y - act->spr.pos.Y;
 						ps[p].backupxy();
 
 						if (!Owner || Owner->GetOwner() != Owner)

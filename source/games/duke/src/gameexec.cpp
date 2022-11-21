@@ -330,7 +330,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSY:
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].PlayerNowPosition.Y * (1 / maptoworld)), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].posY() * (1 / maptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_POSZ:
