@@ -972,9 +972,9 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 		if (actor->temp_data[0] == 2)
 		{
-			double l = ps[p].posZget() - actor->spr.pos.Z;
+			double l = ps[p].GetActor()->getOffsetZ() - actor->spr.pos.Z;
 			if (fabs(l) < 48) actor->temp_data[0] = 3;
-			else actor->spr.pos.Z += (Sgn(ps[p].posZget() - actor->spr.pos.Z) * shift); // The shift here differs between Duke and RR.
+			else actor->spr.pos.Z += (Sgn(ps[p].GetActor()->getOffsetZ() - actor->spr.pos.Z) * shift); // The shift here differs between Duke and RR.
 		}
 		else
 		{
@@ -3490,7 +3490,7 @@ void handle_se27(DDukeActor* actor)
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
 					actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
-					actor->spr.yint = 100 + int((actor->spr.pos.Z - ps[p].posZget()) * (256. / 257.));
+					actor->spr.yint = 100 + int((actor->spr.pos.Z - ps[p].GetActor()->getOffsetZ()) * (256. / 257.));
 
 				}
 				else if (actor->temp_data[0] == 999)
@@ -3570,7 +3570,7 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 	{
 		if (ps[p].cursector == actor->sector() && ps[p].on_ground)
 		{
-			if (abs(ps[p].posZget() - ps[p].truefz) < gs.playerheight + 9)
+			if (abs(ps[p].GetActor()->getOffsetZ() - ps[p].truefz) < gs.playerheight + 9)
 			{
 				ps[p].fric += vec * (1. / 8.); // keeping the original velocity. to match the animation it should be ~1/24.
 			}

@@ -380,7 +380,7 @@ void doanimations(void)
 		{
 			for (auto p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursector == dasectp)
-					if ((dasectp->floorz - ps[p].posZget()) < 64)
+					if ((dasectp->floorz - ps[p].GetActor()->getOffsetZ()) < 64)
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
 							ps[p].GetActor()->spr.pos.Z += v;

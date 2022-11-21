@@ -607,7 +607,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->posZget() - floorz) > (gs.playerheight * 0.5))
+			if (abs(p->GetActor()->getOffsetZ() - floorz) > (gs.playerheight * 0.5))
 				p->GetActor()->spr.pos.Z += 348/ 256.;
 		}
 		else
@@ -617,7 +617,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		}
 
 		Collision coll;
-		clipmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
+		clipmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
@@ -626,10 +626,10 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	updatesector(p->posGet(), &p->cursector);
 
-	pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 8, 4, 20, CLIPMASK0);
+	pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
-		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->posZget()) * 2));
+		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->GetActor()->getOffsetZ()) * 2));
 
 	p->on_warping_sector = 0;
 
@@ -771,7 +771,7 @@ void player_struct::backuppos(bool noclipping)
 		GetActor()->restorevec2();
 	}
 
-	posoldZset(posZget());
+	posoldZset(GetActor()->getOffsetZ());
 	bobpos = GetActor()->spr.pos.XY();
 	opyoff = pyoff;
 }

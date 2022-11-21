@@ -384,7 +384,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 		int j = findplayer(actor, &x);
 		pos.Z -= 4;
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].posZget() - pos.Z) * 16) / dist;
+		zvel = ((ps[j].GetActor()->getOffsetZ() - pos.Z) * 16) / dist;
 		zvel += 0.5 - krandf(1);
 		if (actor->spr.picnum != BOSS1)
 		{
@@ -933,7 +933,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		int j = findplayer(actor, &x);
 		pos.Z -= 4;
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].posZget() - pos.Z) * 16) / dist;
+		zvel = ((ps[j].GetActor()->getOffsetZ() - pos.Z) * 16) / dist;
 		zvel += 0.5 - krandf(1);
 		ang += DAngle22_5 / 4 - randomAngle(22.5 / 2);
 	}
@@ -1022,7 +1022,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 		double x;
 		int j = findplayer(actor, &x);
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].posZget() - pos.Z) * 32) / dist;
+		zvel = ((ps[j].GetActor()->getOffsetZ() - pos.Z) * 32) / dist;
 	}
 	else zvel = 0;
 
@@ -1729,9 +1729,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	if (psectlotag != 2 && p->scuba_on == 1)
 		p->scuba_on = 0;
 
-	if (p->posZget() > floorz - k)
-		p->GetActor()->spr.pos.Z += ((floorz - k) - p->posZget()) * 0.5;
-	if (p->posZget() < pact->ceilingz + 18)
+	if (p->GetActor()->getOffsetZ() > floorz - k)
+		p->GetActor()->spr.pos.Z += ((floorz - k) - p->GetActor()->getOffsetZ()) * 0.5;
+	if (p->GetActor()->getOffsetZ() < pact->ceilingz + 18)
 		p->GetActor()->spr.pos.Z = pact->ceilingz + 18 + gs.playerheight;
 
 }
@@ -1786,11 +1786,11 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		footprints(snum);
 	}
 
-	if (p->posZget() < floorz - i) //falling
+	if (p->GetActor()->getOffsetZ() < floorz - i) //falling
 	{
 
 		// not jumping or crouching
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->posZget() >= (floorz - i - 16))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->GetActor()->getOffsetZ() >= (floorz - i - 16))
 			p->GetActor()->spr.pos.Z = floorz - i + gs.playerheight;
 		else
 		{
@@ -1804,7 +1804,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->posZget() + p->vel.Z  >= floorz - i) // hit the ground
+			if (p->GetActor()->getOffsetZ() + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -1848,7 +1848,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		{
 			//Smooth on the ground
 
-			double k = (floorz - i - p->posZget()) * 0.5;
+			double k = (floorz - i - p->GetActor()->getOffsetZ()) * 0.5;
 			if (abs(k) < 1) k = 0;
 			p->GetActor()->spr.pos.Z += k;
 			p->vel.Z -= 3;
@@ -1856,8 +1856,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->GetActor()->spr.pos.Z += ((floorz - i * 0.5) - p->posZget()) * 0.5; //Smooth on the water
-			if (p->on_warping_sector == 0 && p->posZget() > floorz - 16)
+			p->GetActor()->spr.pos.Z += ((floorz - i * 0.5) - p->GetActor()->getOffsetZ()) * 0.5; //Smooth on the water
+			if (p->on_warping_sector == 0 && p->GetActor()->getOffsetZ() > floorz - 16)
 			{
 				p->GetActor()->spr.pos.Z = floorz - 16 + gs.playerheight;
 				p->vel.Z *= 0.5;
@@ -1912,7 +1912,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 	p->GetActor()->spr.pos.Z += p->vel.Z;
 
-	if (p->posZget() < ceilingz + 4)
+	if (p->GetActor()->getOffsetZ() < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
@@ -1979,10 +1979,10 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	p->GetActor()->spr.pos.Z += p->vel.Z;
 
-	if (p->posZget() > floorz - 15)
-		p->GetActor()->spr.pos.Z += ((floorz - 15) - p->posZget()) * 0.5;
+	if (p->GetActor()->getOffsetZ() > floorz - 15)
+		p->GetActor()->spr.pos.Z += ((floorz - 15) - p->GetActor()->getOffsetZ()) * 0.5;
 
-	if (p->posZget() < ceilingz + 4)
+	if (p->GetActor()->getOffsetZ() < ceilingz + 4)
 	{
 		p->GetActor()->spr.pos.Z = ceilingz + 4 + gs.playerheight;
 		p->vel.Z = 0;
@@ -1995,7 +1995,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.3125);
-			j->spr.pos.Z = p->posZget() + 8;
+			j->spr.pos.Z = p->GetActor()->getOffsetZ() + 8;
 		}
 	}
 }
@@ -2755,7 +2755,7 @@ void processinput_d(int snum)
 	p->truefz = getflorzofslopeptr(psectp, p->posGet());
 	p->truecz = getceilzofslopeptr(psectp, p->posGet());
 
-	truefdist = abs(p->posZget() - p->truefz);
+	truefdist = abs(p->GetActor()->getOffsetZ() - p->truefz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 
@@ -3038,7 +3038,7 @@ HORIZONLY:
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
+		clipmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->GetActor()->spr.pos.Z += 32;
@@ -3090,7 +3090,7 @@ HORIZONLY:
 	while (ud.clipping == 0)
 	{
 		int blocked;
-		blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 10.25, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+		blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 10.25, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{

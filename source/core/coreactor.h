@@ -156,6 +156,11 @@ public:
 		viewzoffset = oviewzoffset;
 	}
 
+	double getOffsetZ()
+	{
+		return spr.pos.Z + viewzoffset;
+	}
+
 	sectortype* sector() const
 	{
 		return spr.sectp;

@@ -452,7 +452,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		return 1;
 	}
 
-	DVector3 v(spos, ps[snum].posZget());
+	DVector3 v(spos, ps[snum].GetActor()->getOffsetZ());
 	switch (picnum)
 	{
 	default:

@@ -245,7 +245,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		int j = findplayer(actor, &x);
 		pos.Z -= 4;
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].posZget() - pos.Z) * 16) / dist;
+		zvel = ((ps[j].GetActor()->getOffsetZ() - pos.Z) * 16) / dist;
 		if (actor->spr.picnum != BOSS1)
 		{
 			zvel += 0.5 - krandf(1);
@@ -2077,15 +2077,15 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		footprints(snum);
 	}
 
-	if (p->posZget() < floorz - i) //falling
+	if (p->GetActor()->getOffsetZ() < floorz - i) //falling
 	{
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->posZget() >= (floorz - i - 16))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->GetActor()->getOffsetZ() >= (floorz - i - 16))
 			p->GetActor()->spr.pos.Z = floorz - i + gs.playerheight;
 		else
 		{
 			p->on_ground = 0;
 
-			if ((p->OnMotorcycle || p->OnBoat) && floorz - i * 2 > p->posZget())
+			if ((p->OnMotorcycle || p->OnBoat) && floorz - i * 2 > p->GetActor()->getOffsetZ())
 			{
 				if (p->MotoOnGround)
 				{
@@ -2115,7 +2115,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if (p->posZget() + p->vel.Z  >= floorz - i) // hit the ground
+			if (p->GetActor()->getOffsetZ() + p->vel.Z  >= floorz - i) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (!p->insector() || p->cursector->lotag != 1)
@@ -2175,7 +2175,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		{
 			//Smooth on the ground
 
-			double k = (floorz - i - p->posZget()) * 0.5;
+			double k = (floorz - i - p->GetActor()->getOffsetZ()) * 0.5;
 			if (abs(k) < 1) k = 0;
 			p->GetActor()->spr.pos.Z += k;
 			p->vel.Z -= 3;
@@ -2183,8 +2183,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->GetActor()->spr.pos.Z += ((floorz - i * 0.5) - p->posZget()) * 0.5; //Smooth on the water
-			if (p->on_warping_sector == 0 && p->posZget() > floorz - 16)
+			p->GetActor()->spr.pos.Z += ((floorz - i * 0.5) - p->GetActor()->getOffsetZ()) * 0.5; //Smooth on the water
+			if (p->on_warping_sector == 0 && p->GetActor()->getOffsetZ() > floorz - 16)
 			{
 				p->GetActor()->spr.pos.Z = floorz - 16 + gs.playerheight;
 				p->vel.Z *= 0.5;
@@ -2235,7 +2235,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 	p->GetActor()->spr.pos.Z += p->vel.Z;
 
-	if (p->posZget() < ceilingz + 4)
+	if (p->GetActor()->getOffsetZ() < ceilingz + 4)
 	{
 		p->jumping_counter = 0;
 		if (p->vel.Z < 0)
@@ -2298,10 +2298,10 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	p->GetActor()->spr.pos.Z += p->vel.Z;
 
-	if (p->posZget() > floorz - 15)
-		p->GetActor()->spr.pos.Z += ((floorz - 15) - p->posZget()) * 0.5;
+	if (p->GetActor()->getOffsetZ() > floorz - 15)
+		p->GetActor()->spr.pos.Z += ((floorz - 15) - p->GetActor()->getOffsetZ()) * 0.5;
 
-	if (p->posZget() < ceilingz + 4)
+	if (p->GetActor()->getOffsetZ() < ceilingz + 4)
 	{
 		p->GetActor()->spr.pos.Z = ceilingz + 4 + gs.playerheight;
 		p->vel.Z = 0;
@@ -2314,7 +2314,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		{
 			j->spr.pos += (p->angle.ang.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.03125);
-			j->spr.pos.Z = p->posZget() + 8;
+			j->spr.pos.Z = p->GetActor()->getOffsetZ() + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}
 	}
@@ -3332,7 +3332,7 @@ void processinput_r(int snum)
 		while (auto act2 = it.Next())
 		{
 			if (act2->spr.picnum == RRTILE380)
-				if (act2->spr.pos.Z - 8 < p->posZget())
+				if (act2->spr.pos.Z - 8 < p->GetActor()->getOffsetZ())
 					psectlotag = 2;
 		}
 	}
@@ -3365,7 +3365,7 @@ void processinput_r(int snum)
 	p->truefz = tempfz;
 	p->truecz = getceilzofslopeptr(psectp, p->posGet());
 
-	double truefdist = abs(p->posZget() - tempfz);
+	double truefdist = abs(p->GetActor()->getOffsetZ() - tempfz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
 		psectlotag = 0;
 
@@ -3742,7 +3742,7 @@ HORIZONLY:
 		ChangeActorSect(pact, p->cursector);
 	}
 	else
-		clipmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
+		clipmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, p->vel, 10.25, 4., iif, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->GetActor()->spr.pos.Z += 32;
@@ -3771,10 +3771,10 @@ HORIZONLY:
 				if (wal->lotag < 44)
 				{
 					dofurniture(clip.hitWall, p->cursector, snum);
-					pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
 				}
 				else
-					pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
+					pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 10.75, 4, 4, CLIPMASK0);
 			}
 		}
 	}
@@ -3875,9 +3875,9 @@ HORIZONLY:
 	{
 		int blocked;
 		if (pact->clipdist == 16)
-			blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 8, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 		else
-			blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->posZget(), &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
+			blocked = (pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 1, 4, 4, CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < DAngle90);
 
 		if (fabs(pact->floorz - pact->ceilingz) < 48 || blocked)
 		{
