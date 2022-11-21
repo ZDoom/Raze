@@ -161,6 +161,7 @@ struct user_defs
 	int m_respawn_items, m_respawn_monsters, m_respawn_inventory, m_recstat, m_monsters_off;
 	int m_ffire, ffire, m_player_skill, multimode;
 	int player_skill, marker;
+	int chickenplant;							// readonly - used to trigger some special behavior if a special item is found in a map.
 
 	TObjPtr<DDukeActor*> cameraactor;
 

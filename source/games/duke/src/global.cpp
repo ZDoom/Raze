@@ -60,7 +60,6 @@ int earthquaketime;
 int global_random;							// readonly - one single global per-frame random value. Ugh...
 
 // Redneck Rampage
-int chickenplant;							// readonly - used to trigger some special behavior if a special item is found in a map.
 int thunderon;								// readonly - enables thunder effect in RR if true.
 int ufospawn;								// UFO spawn flag
 int ufocnt;									// UFO spawn count

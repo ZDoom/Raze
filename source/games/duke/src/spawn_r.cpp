@@ -145,22 +145,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.extra = 0;
 		ChangeActorStat(act, 122);
 		break;
-	case CHICKENASPAWN:
-	case CHICKENCSPAWN:
-	case FEATHERSPAWN:
-	case CHICKENHEADSPAWN:
-	case LOAFSPAWN:
-	case NUGGETSPAWN:
-	case ROASTSPAWN:
-	case BONELESSSPAWN:
-	case JIBSSPAWN:
-		act->spr.cstat = 0;
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.scale = DVector2(0, 0);
-		act->clipdist = 0;
-		act->spr.lotag = 0;
-		ChangeActorStat(act, STAT_CHICKENPLANT);
-		break;
 
 	case RRTILE2460:
 	case RRTILE2465:
@@ -461,50 +445,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->clipdist = 16;
 		ChangeActorStat(act, STAT_TELEPORT);
 		break;
-	case CHICKENA:
-	case CHICKENB:
-	case CHICKENC:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 2;
-		act->spr.scale = DVector2(0.5, 0.40625);
-		act->vel.X = 2;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
-	case CHICKENLOAF:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 2;
-		act->spr.scale = DVector2(0.1875, 0.15625);
-		act->vel.X = 2;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
-	case CHICKENNUGGET:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 0.5;
-		act->spr.scale = DVector2(0.125, 0.09375);
-		act->vel.X = 1;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
-	case ROASTEDCHICKEN:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 2;
-		act->spr.scale = DVector2(0.203125, 0.203125);
-		act->vel.X = 1;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
-	case BONELESSCHICKEN:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 2;
-		act->spr.scale = DVector2(0.265625, 0.1875);
-		act->vel.X = 2;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
-	case CHICKENHEAD:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 2;
-		act->spr.scale = DVector2(0.203125, 0.15625);
-		act->vel.X = 0;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
 	case BOWLINGPIN:
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 12;
@@ -548,8 +488,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
 		[[fallthrough]];
-	case MONEY:
-		if (act->spr.picnum == MONEY)
+	case FEATHER:
+		if (act->spr.picnum == FEATHER)
 		{
 			act->temp_data[0] = krand() & 2047;
 			act->spr.cstat = randomFlip();

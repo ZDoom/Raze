@@ -432,7 +432,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 
 void lotsoffeathers_r(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, MONEY);
+	lotsofstuff(actor, n, FEATHER);
 }
 
 
@@ -715,7 +715,7 @@ static void chickenarrow(DDukeActor* actor)
 		if (spawned) spawned->spr.pos.Z += 1;
 		if ((krand() & 15) == 2)
 		{
-			spawn(actor, MONEY);
+			spawn(actor, FEATHER);
 		}
 	}
 	DDukeActor* ts = actor->seek_actor;
@@ -1917,91 +1917,9 @@ void rr_specialstats()
 		}
 	}
 
-	if (chickenplant)
+	if (ud.chickenplant)
 	{
-		it.Reset(STAT_CHICKENPLANT);
-		while (auto act = it.Next())
-		{
-			switch (act->spr.picnum)
-			{
-			case CHICKENASPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					spawn(act, CHICKENA)->spr.angle = act->spr.angle;
-					act->spr.lotag = 128;
-				}
-				break;
-			case CHICKENCSPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					spawn(act, CHICKENC)->spr.angle = act->spr.angle;
-					act->spr.lotag = 256;
-				}
-				break;
-			case FEATHERSPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					lotsoffeathers_r(act, (krand() & 3) + 4);
-					act->spr.lotag = 84;
-				}
-				break;
-			case CHICKENHEADSPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					auto j = spawn(act, CHICKENHEAD);
-					act->spr.lotag = 96;
-					if (j && !isRRRA()) S_PlayActorSound(472, j);
-				}
-				break;
-			case LOAFSPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					spawn(act, CHICKENLOAF)->spr.angle = act->spr.angle;
-					act->spr.lotag = 448;
-				}
-				break;
-			case NUGGETSPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					spawn(act, CHICKENNUGGET)->spr.angle = act->spr.angle;
-					act->spr.lotag = 64;
-				}
-				break;
-			case ROASTSPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					spawn(act, ROASTEDCHICKEN)->spr.angle = act->spr.angle;
-					act->spr.lotag = 512;
-				}
-				break;
-			case BONELESSSPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					spawn(act, BONELESSCHICKEN)->spr.angle = act->spr.angle;
-					act->spr.lotag = 224;
-				}
-				break;
-			case JIBSSPAWN:
-				act->spr.lotag--;
-				if (act->spr.lotag < 0)
-				{
-					fi.guts(act, JIBS1, 1, myconnectindex);
-					fi.guts(act, JIBS2, 1, myconnectindex);
-					fi.guts(act, JIBS3, 1, myconnectindex);
-					fi.guts(act, JIBS4, 1, myconnectindex);
-					act->spr.lotag = 256;
-				}
-				break;
-			}
-		}
+		tickstat(STAT_CHICKENPLANT);
 	}
 
 	it.Reset(STAT_BOWLING);
@@ -2424,94 +2342,6 @@ void moveactors_r(void)
 				break;
 			case RAT:
 				if (!rat(act, !isRRRA())) continue;
-				break;
-			case CHICKENA:
-			case CHICKENB:
-			case CHICKENC:
-				if (!chickenplant)
-				{
-					act->Destroy();
-					continue;
-				}
-				if (sectp->lotag == 903)
-					makeitfall(act);
-				movesprite_ex(act, DVector3(act->spr.angle.ToVector() * act->vel.X, act->vel.Z), CLIPMASK0, coll);
-				switch (sectp->lotag)
-				{
-					case 901:
-						act->spr.picnum = CHICKENB;
-						break;
-					case 902:
-						act->spr.picnum = CHICKENC;
-						break;
-					case 903:
-						if (act->spr.pos.Z >= sectp->floorz - 8)
-						{
-							act->Destroy();
-							continue;
-						}
-						break;
-					case 904:
-						act->Destroy();
-						continue;
-						break;
-				}
-				if (coll.type > kHitSector)
-				{
-					act->Destroy();
-					continue;
-				}
-				break;
-
-			case CHICKENLOAF:
-			case CHICKENNUGGET:
-			case ROASTEDCHICKEN:
-			case BONELESSCHICKEN:
-				if (!chickenplant)
-				{
-					act->Destroy();
-					continue;
-				}
-				makeitfall(act);
-				movesprite_ex(act, DVector3(act->spr.angle.ToVector() * act->vel.X, act->vel.Z), CLIPMASK0, coll);
-				if (coll.type > kHitSector)
-				{
-					act->Destroy();
-					continue;
-				}
-				if (sectp->lotag == 903)
-				{
-					if (act->spr.pos.Z >= sectp->floorz - 4)
-					{
-						act->Destroy();
-						continue;
-					}
-				}
-				else if (sectp->lotag == 904)
-				{
-					act->Destroy();
-					continue;
-				}
-				break;
-
-			case CHICKENHEAD:
-				if (!chickenplant)
-				{
-					act->Destroy();
-					continue;
-				}
-				makeitfall(act);
-				movesprite_ex(act, DVector3(act->spr.angle.ToVector() * act->vel.X, act->vel.Z), CLIPMASK0, coll);
-				if (act->spr.pos.Z >= sectp->floorz - 8)
-				{
-					if (sectp->lotag == 1)
-					{
-						auto j = spawn(act, WATERSPLASH2);
-						if (j) j->spr.pos.Z = j->sector()->floorz;
-					}
-					act->Destroy();
-					continue;
-				}
 				break;
 			case BOWLINGBALL:
 				if (act->vel.X != 0)

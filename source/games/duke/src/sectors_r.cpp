@@ -437,8 +437,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	case LOCKSWITCH1 + 1:
 	case POWERSWITCH2:
 	case POWERSWITCH2 + 1:
-	case NUKEBUTTON:
-	case NUKEBUTTON + 1:
+	case CHICKENPLANTBUTTON:
+	case CHICKENPLANTBUTTON + 1:
 	case RRTILE2214:
 	case RRTILE2697:
 	case RRTILE2697 + 1:
@@ -510,7 +510,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		case PULLSWITCH:
 		case DIPSWITCH2:
 		case DIPSWITCH3:
-		case NUKEBUTTON:
+		case CHICKENPLANTBUTTON:
 		case RRTILE2697:
 		case RRTILE2707:
 			if (other->spr.picnum == DIPSWITCH3)
@@ -532,8 +532,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					other->spr.picnum++;
 					break;
 				}
-			if (other->spr.picnum == NUKEBUTTON)
-				chickenplant = 0;
+			if (other->spr.picnum == CHICKENPLANTBUTTON)
+				ud.chickenplant = 0;
 			if (other->spr.picnum == RRTILE8660)
 			{
 				BellTime = 132;
@@ -554,11 +554,11 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		case FRANKENSTINESWITCH + 1:
 		case DIPSWITCH2 + 1:
 		case DIPSWITCH3 + 1:
-		case NUKEBUTTON + 1:
+		case CHICKENPLANTBUTTON + 1:
 		case RRTILE2697 + 1:
 		case RRTILE2707 + 1:
-			if (other->spr.picnum == NUKEBUTTON + 1)
-				chickenplant = 1;
+			if (other->spr.picnum == CHICKENPLANTBUTTON + 1)
+				ud.chickenplant = 1;
 			if (other->spr.hitag != 999)
 				other->spr.picnum--;
 			break;

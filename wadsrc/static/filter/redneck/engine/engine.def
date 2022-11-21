@@ -47,5 +47,24 @@ spawnclasses
 	1439 = DukeInnerJaw
 	1440 = DukeInnerJaw1
 
+	285 = RedneckChickenSpawner1
+	286 = RedneckChickenSpawner2
+	287 = RedneckFeatherSpawner
+	288 = RedneckChickenHeadSpawner
+	289 = RedneckChickenLoafSpawner
+	290 = RedneckChickenNuggetSpawner
+	291 = RedneckChickenRoastSpawner
+	292 = RedneckBonelessSpawner
+	293 = RedneckJibsSpawner
+	7525 = RedneckRabbitSpawner
+	3190 = RedneckChickenA
+	3191 = RedneckChickenB
+	3192 = RedneckChickenC
+	3120 = RedneckChickenLoaf
+	3122 = RedneckChickenNugget
+	3123 = RedneckRoastedChicken
+	3124 = RedneckBonelessChicken
+	3132 = RedneckChickenHead
+
 }
 

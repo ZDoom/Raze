@@ -660,7 +660,7 @@ void prelevel_common(int g)
 	geocnt = 0;
 	ambienttags.Clear();
 	thunderon = 0;
-	chickenplant = 0;
+	ud.chickenplant = 0;
 	WindTime = 0;
 	WindDir = nullAngle;
 	fakebubba_spawn = 0;

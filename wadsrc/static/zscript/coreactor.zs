@@ -5,6 +5,15 @@ enum EClipMask
 	CLIPMASK1 = (256 << 16) + 64
 };
 
+enum EHitBits
+{
+	kHitNone = 0,
+	kHitSector = 0x4000,
+	kHitWall = 0x8000,
+	kHitSprite = 0xC000,
+	kHitVoid = 0x10000,      // SW only
+};
+
 const MAXPLAYERS = 8;
 const MAXSTATUS = 1024;
 const zmaptoworld = (1. / 256.);

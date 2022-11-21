@@ -102,6 +102,9 @@ class DukeActor : CoreActor native
 
 		STAT_DESTRUCT		= 100,
 		STAT_BOWLING		= 105,
+		STAT_CHICKENPLANT	= 106,
+		STAT_LUMBERMILL		= 107,
+		STAT_TELEPORT		= 108,
 		STAT_RABBITSPAWN	= 119,
 
 		STAT_REMOVED		= MAXSTATUS-2,
@@ -185,6 +188,9 @@ class DukeActor : CoreActor native
 	native void ChangeStat(int s, bool forcetail = false);
 	native int badguy();
 	native int isplayer();
+	native void lotsofstuff(Name type, int count);
+	native void spawnguts(Name type, int count);
+	native int movesprite(Vector3 move, int clipmask);
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags

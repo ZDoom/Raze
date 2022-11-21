@@ -1,5 +1,58 @@
 BEGIN_DUKE_NS
 
+// Workaround so that the script code can be written in its final form. This must go away later.
+int PicForName(int intname)
+{
+	int picnum = -1;
+	// this is still a hack so it can spawn actors which haven't been scriptified yet. This will go away later.
+	if (FName(ENamedName(intname)) == FName("DukeToiletWater"))
+	{
+		picnum = TileFiles.tileForName("TOILETWATER");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeBurning"))
+	{
+		picnum = TileFiles.tileForName("BURNIMG");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeBloodPool"))
+	{
+		picnum = TileFiles.tileForName("BLOODPOOL");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeExplosion2"))
+	{
+		picnum = TileFiles.tileForName("EXPLOSION2");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeTransporterStar"))
+	{
+		picnum = TileFiles.tileForName("TRANSPORTERSTAR");
+	}
+	else if (FName(ENamedName(intname)) == FName("RedneckRabbit"))
+	{
+		picnum = TileFiles.tileForName("RABBIT");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeJibs1"))
+	{
+		picnum = TileFiles.tileForName("JIBS1");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeJibs2"))
+	{
+		picnum = TileFiles.tileForName("JIBS2");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeJibs3"))
+	{
+		picnum = TileFiles.tileForName("JIBS3");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeJibs4"))
+	{
+		picnum = TileFiles.tileForName("JIBS4");
+	}
+	else if (FName(ENamedName(intname)) == FName("RedneckFeather"))
+	{
+		picnum = TileFiles.tileForName("FEATHER");
+	}
+	return picnum;
+}
+
+
 //---------------------------------------------------------------------------
 //
 // global exports
@@ -249,33 +302,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, StopSound, DukeActor_StopSound)
 
 DDukeActor* DukeActor_Spawn(DDukeActor* origin, int intname)
 {
-	int picnum = -1;
-	// this is still a hack so it can spawn actors which haven't been scriptified yet. This will go away later.
-	if (FName(ENamedName(intname)) == FName("DukeToiletWater"))
-	{
-		picnum = TileFiles.tileForName("TOILETWATER");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeBurning"))
-	{
-		picnum = TileFiles.tileForName("BURNIMG");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeBloodPool"))
-	{
-		picnum = TileFiles.tileForName("BLOODPOOL");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeExplosion2"))
-	{
-		picnum = TileFiles.tileForName("EXPLOSION2");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeTransporterStar"))
-	{
-		picnum = TileFiles.tileForName("TRANSPORTERSTAR");
-	}
-	else if (FName(ENamedName(intname)) == FName("RedneckRabbit"))
-	{
-		picnum = TileFiles.tileForName("RABBIT");
-	}
-
+	int picnum = PicForName(intname);
 
 	if (picnum == -1)
 	{
@@ -294,6 +321,53 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawn, DukeActor_Spawn)
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(type);
 	ACTION_RETURN_POINTER(DukeActor_Spawn(self, type));
+}
+
+void DukeActor_Lotsofstuff(DDukeActor* actor, int count, int intname)
+{
+	int picnum = PicForName(intname);
+	// Todo: make this class aware.
+	lotsofstuff(actor, count, picnum);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofstuff, DukeActor_Lotsofstuff)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(type);
+	PARAM_INT(count);
+	DukeActor_Lotsofstuff(self, count, type);
+	return 0;
+}
+
+void DukeActor_spawnguts(DDukeActor* actor, int count, int intname)
+{
+	int picnum = PicForName(intname);
+	fi.guts(actor, picnum, count, myconnectindex);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnguts, DukeActor_spawnguts)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(type);
+	PARAM_INT(count);
+	DukeActor_spawnguts(self, count, type);
+	return 0;
+}
+
+int DukeActor_movesprite(DDukeActor* actor, double velx, double vely, double velz, int clipmask)
+{
+	Collision coll;
+	return movesprite_ex(actor, DVector3(velx, vely, velz), clipmask, coll);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, movesprite, DukeActor_movesprite)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_FLOAT(velx);
+	PARAM_FLOAT(vely);
+	PARAM_FLOAT(velz);
+	PARAM_INT(clipmask);
+	ACTION_RETURN_INT(DukeActor_movesprite(self, velx, vely, velz, clipmask));
 }
 
 DDukeActor* DukeActor_Spawnsprite(DDukeActor* origin, int picnum)
@@ -980,6 +1054,7 @@ DEFINE_FIELD_X(DukeUserDefs, user_defs, player_skill);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, marker);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, bomb_tag);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, cameraactor);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, chickenplant);
 DEFINE_GLOBAL_UNSIZED(ud)
 
 

@@ -201,8 +201,8 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FOOTPRINTS4:
 			if (t->pal == 6)
 				t->shade = -127;
-		case MONEY:
-		case MONEY + 1:
+		case FEATHER:
+		case FEATHER + 1:
 			break;
 		case POWDERKEG:
 			continue;
