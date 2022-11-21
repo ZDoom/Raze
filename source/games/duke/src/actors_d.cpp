@@ -1624,7 +1624,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->timetosleep > SLEEPTIME)
 		{
 			actor->timetosleep = 0;
-			ChangeActorStat(actor, 2);
+			ChangeActorStat(actor, STAT_ZOMBIEACTOR);
 			return;
 		}
 	}
