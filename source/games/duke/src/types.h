@@ -334,16 +334,6 @@ struct player_struct
 	{
 		bobpos = GetActor()->spr.pos.XY();
 	}
-
-
-	void posoldAdd(const DVector3& val)
-	{
-		GetActor()->opos += val;
-	}
-	DVector3 posoldGet()
-	{
-		return GetActor()->opos.plusZ(GetActor()->viewzoffset);
-	}
 };
 
 struct Cycler

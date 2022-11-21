@@ -171,6 +171,11 @@ public:
 		return spr.pos.plusZ(viewzoffset);
 	}
 
+	DVector3 getPrevPosWithOffsetZ()
+	{
+		return opos.plusZ(oviewzoffset);
+	}
+
 	sectortype* sector() const
 	{
 		return spr.sectp;

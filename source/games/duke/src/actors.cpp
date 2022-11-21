@@ -3037,10 +3037,10 @@ void handle_se17(DDukeActor* actor)
 			{
 				int p = act3->PlayerIndex();
 
-				ps[p].posoldAdd(-ps[p].GetActor()->getPosWithOffsetZ());
-				ps[p].GetActor()->spr.pos.XY() += act2->spr.pos.XY() - actor->spr.pos.XY();
-				ps[p].GetActor()->spr.pos.Z += act2->sector()->floorz - sc->floorz;
-				ps[p].posoldAdd(ps[p].GetActor()->getPosWithOffsetZ());
+				act3->opos -= act3->spr.pos;
+				act3->spr.pos.XY() += act2->spr.pos.XY() - actor->spr.pos.XY();
+				act3->spr.pos.Z += act2->sector()->floorz - sc->floorz;
+				act3->opos += act3->spr.pos;
 
 				if (q > 0) ps[p].GetActor()->backupz();
 
@@ -4417,7 +4417,7 @@ void movefta(void)
 					{
 						int r1 = krand();
 						int r2 = krand();
-						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), ps[p].posoldGet().plusZ(-(r1 & 31)), ps[p].cursector);
+						canseeme = cansee(act->spr.pos.plusZ(-(r2 & 31)), act->sector(), ps[p].GetActor()->getPrevPosWithOffsetZ().plusZ(-(r1 & 31)), ps[p].cursector);
 					}
 
 

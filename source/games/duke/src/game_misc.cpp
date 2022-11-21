@@ -273,7 +273,7 @@ void drawoverlays(double interpfrac)
 				}
 				else
 				{
-					cposxy = interpolatedvalue(pp->posoldGet(), pp->GetActor()->getPosWithOffsetZ(), interpfrac).XY();
+					cposxy = interpolatedvalue(pp->GetActor()->getPrevPosWithOffsetZ(), pp->GetActor()->getPosWithOffsetZ(), interpfrac).XY();
 					cang = !SyncInput() ? pp->angle.ang : interpolatedvalue(pp->angle.oang, pp->angle.ang, interpfrac);
 				}
 			}
