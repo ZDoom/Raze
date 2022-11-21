@@ -1147,7 +1147,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			auto vel = krandf(4) + 4;
 			auto zvel = -krandf(16) - targ->vel.Z * 0.25;
 			auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, targ, STAT_MISC);
-			if (spawned) spawned->spriteextra = Scrap1 + krand() & 15;
+			if (spawned) spawned->spriteextra = Scrap1 + (krand() & 15);
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		targ->Destroy();
@@ -1177,7 +1177,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				auto zvel = -krandf(2) - 1;
 
 				auto spawned = CreateActor(targ->sector(), DVector3(targ->spr.pos.XY(), targ->sector()->floorz - 12 - j * 2), PClass::FindActor("DukeScrap"), -8, DVector2(1, 1), a, vel, zvel, targ, 5);
-				if (spawned) spawned->spriteextra = Scrap1 + krand() & 15;
+				if (spawned) spawned->spriteextra = Scrap1 + (krand() & 15);
 
 			}
 			spawn(targ, EXPLOSION2);

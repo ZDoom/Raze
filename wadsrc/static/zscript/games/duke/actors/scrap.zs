@@ -93,6 +93,7 @@ class DukeScrap : DukeActor
 		else 
 		{
 			let frame = self.spriteextra + self.temp_data[0];
+			Console.Printf("extra = %d, temp = %d", self.spriteextra, self.temp_data[0]);
 			if (frame < 0 || frame >= ScrapMax) frame = Scrap3;
 			tspr.setSpritePic(self, frame);
 			if (brighter[frame]) tspr.shade -= 6;
