@@ -1256,8 +1256,8 @@ void movetransports_r(void)
 							ps[p].GetActor()->backupvec2();
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].posZset(Owner->spr.pos.Z - 24);
-							else ps[p].posZset(Owner->spr.pos.Z + 24);
+								ps[p].GetActor()->spr.pos.Z = Owner->spr.pos.Z - 24 + gs.playerheight;
+							else ps[p].GetActor()->spr.pos.Z = Owner->spr.pos.Z + 24 + gs.playerheight;
 							ps[p].GetActor()->backupz();
 
 							ChangeActorSect(act2, Owner->sector());
@@ -1273,7 +1273,7 @@ void movetransports_r(void)
 						if (onfloorz && sectlotag == 160 && ps[p].posZget() > sectp->floorz - 48)
 						{
 							k = 2;
-							ps[p].posZset(Owner->sector()->ceilingz + 7);
+							ps[p].GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
 							ps[p].GetActor()->backupz();
 						}
 
@@ -1281,7 +1281,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].posZset(Owner->sector()->floorz - 49);
+							ps[p].GetActor()->spr.pos.Z = Owner->sector()->floorz - 49 + gs.playerheight;
 							ps[p].GetActor()->backupz();
 						}
 					}
@@ -1296,7 +1296,7 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].posZset(Owner->sector()->ceilingz + 7);
+						ps[p].GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
 						ps[p].GetActor()->backupz();
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
@@ -1312,7 +1312,7 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].posZset(Owner->sector()->floorz - 7);
+						ps[p].GetActor()->spr.pos.Z = Owner->sector()->floorz - 7 + gs.playerheight;
 						ps[p].GetActor()->backupz();
 					}
 

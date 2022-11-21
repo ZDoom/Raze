@@ -139,6 +139,12 @@ public:
 		backupang();
 	}
 
+	void restorez()
+	{
+		spr.pos.Z = opos.Z;
+		viewzoffset = oviewzoffset;
+	}
+
 	void restorevec2()
 	{
 		spr.pos.XY() = opos.XY();

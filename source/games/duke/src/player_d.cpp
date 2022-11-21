@@ -1732,7 +1732,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	if (p->posZget() > floorz - k)
 		p->posZadd(((floorz - k) - p->posZget()) * 0.5);
 	if (p->posZget() < pact->ceilingz + 18)
-		p->posZset(pact->ceilingz + 18);
+		p->GetActor()->spr.pos.Z = pact->ceilingz + 18 + gs.playerheight;
 
 }
 
@@ -1791,7 +1791,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		// not jumping or crouching
 		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->posZget() >= (floorz - i - 16))
-			p->posZset(floorz - i);
+			p->GetActor()->spr.pos.Z = floorz - i + gs.playerheight;
 		else
 		{
 			p->on_ground = 0;
@@ -1859,7 +1859,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 			p->posZadd(((floorz - i * 0.5) - p->posZget()) * 0.5); //Smooth on the water
 			if (p->on_warping_sector == 0 && p->posZget() > floorz - 16)
 			{
-				p->posZset(floorz - 16);
+				p->GetActor()->spr.pos.Z = floorz - 16 + gs.playerheight;
 				p->vel.Z *= 0.5;
 			}
 		}
@@ -1918,7 +1918,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 		if (p->vel.Z < 0)
 			p->vel.X = p->vel.Y = 0;
 		p->vel.Z = 0.5;
-		p->posZset(ceilingz + 4);
+		p->GetActor()->spr.pos.Z = ceilingz + 4 + gs.playerheight;
 	}
 }
 
@@ -1984,7 +1984,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	if (p->posZget() < ceilingz + 4)
 	{
-		p->posZset(ceilingz + 4);
+		p->GetActor()->spr.pos.Z = ceilingz + 4 + gs.playerheight;
 		p->vel.Z = 0;
 	}
 
@@ -2043,7 +2043,7 @@ int operateTripbomb(int snum)
 			auto delta = hit.hitpos.XY() - p->GetActor()->spr.pos.XY();
 			if (delta.LengthSquared() < (18.125 * 18.125))
 			{
-				p->posZset(p->posoldZget());
+				p->GetActor()->restorez();
 				p->vel.Z = 0;
 				return 1;
 			}
@@ -2585,7 +2585,7 @@ static void operateweapon(int snum, ESyncBits actions)
 	case TRIPBOMB_WEAPON:	// Claymore in NAM
 		if (p->kickback_pic < 4)
 		{
-			p->posZset(p->posoldZget());
+			p->GetActor()->restorez();
 			p->vel.Z = 0;
 			if (p->kickback_pic == 3)
 				fi.shoot(pact, HANDHOLDINGLASER);
