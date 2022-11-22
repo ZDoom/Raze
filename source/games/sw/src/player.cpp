@@ -1490,8 +1490,9 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
 
 void DoPlayerHeight(PLAYER* pp)
 {
-    double diff = pp->posZget() - (pp->loz - PLAYER_HEIGHTF);
-    pp->posZadd(-diff * 0.375);
+    constexpr double scale = 0.375;
+    pp->actor->viewzoffset -= pp->getViewHeightDiff() * scale;
+    pp->actor->spr.pos.Z -= (pp->actor->spr.pos.Z - pp->loz) * scale;
 }
 
 void DoPlayerJumpHeight(PLAYER* pp)
@@ -1504,12 +1505,6 @@ void DoPlayerJumpHeight(PLAYER* pp)
             DoPlayerBeginRun(pp);
         }
     }
-}
-
-void DoPlayerCrawlHeight(PLAYER* pp)
-{
-    double diff = pp->posZget() - (pp->loz - PLAYER_CRAWL_HEIGHTF);
-    pp->posZadd(-diff * 0.375);
 }
 
 //---------------------------------------------------------------------------
@@ -1870,56 +1865,42 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     if (pp->sop_control)
     {
-        actor->spr.pos.Z = pp->cursector->floorz;
-        ChangeActorSect(pp->actor, pp->cursector);
+        pp->height = PLAYER_HEIGHTF;
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
     {
-        actor->spr.pos.Z = pp->posZget() + PLAYER_CRAWL_HEIGHTF;
-        ChangeActorSect(pp->actor, pp->cursector);
+        pp->height = PLAYER_CRAWL_HEIGHTF;
     }
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
-        actor->spr.pos.Z = pp->posZget() + PLAYER_HEIGHTF;
-        ChangeActorSect(pp->actor, pp->cursector);
+        pp->height = PLAYER_HEIGHTF;
 
         if (pp->WadeDepth > Z(29))
         {
-            DoPlayerSpriteBob(pp, PLAYER_HEIGHTF, 3, 3);
+            DoPlayerSpriteBob(pp, pp->height, 3, 3);
         }
     }
     else if (pp->DoPlayerAction == DoPlayerDive)
     {
         // bobbing and sprite position taken care of in DoPlayerDive
-        actor->spr.pos.Z = pp->posZget() + 10;
-        ChangeActorSect(pp->actor, pp->cursector);
+        pp->height = 10;
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
-        actor->spr.pos.Z = pp->posZget() + 17;
-        ChangeActorSect(pp->actor, pp->cursector);
+        pp->height = 17;
     }
     else if (pp->DoPlayerAction == DoPlayerFly)
     {
         // bobbing and sprite position taken care of in DoPlayerFly
-        DoPlayerSpriteBob(pp, PLAYER_HEIGHTF, 6, 3);
-        ChangeActorSect(pp->actor, pp->cursector);
-    }
-    else if (pp->DoPlayerAction == DoPlayerJump || pp->DoPlayerAction == DoPlayerFall || pp->DoPlayerAction == DoPlayerForceJump)
-    {
-        actor->spr.pos.Z = pp->posZget() + PLAYER_HEIGHTF;
-        ChangeActorSect(pp->actor, pp->cursector);
-    }
-    else if (pp->DoPlayerAction == DoPlayerTeleportPause)
-    {
-        actor->spr.pos.Z = pp->posZget() + PLAYER_HEIGHTF;
-        ChangeActorSect(pp->actor, pp->cursector);
+        pp->height = PLAYER_HEIGHTF;
+        DoPlayerSpriteBob(pp, pp->height, 6, 3);
     }
     else
     {
-        actor->spr.pos.Z = pp->loz;
-        ChangeActorSect(pp->actor, pp->cursector);
+        pp->height = PLAYER_HEIGHTF;
     }
+
+    ChangeActorSect(pp->actor, pp->cursector);
 
     UpdatePlayerUnderSprite(pp);
 
@@ -3723,7 +3704,7 @@ void DoPlayerCrawl(PLAYER* pp)
     }
 
     DoPlayerBob(pp);
-    DoPlayerCrawlHeight(pp);
+    DoPlayerHeight(pp);
 }
 
 //---------------------------------------------------------------------------

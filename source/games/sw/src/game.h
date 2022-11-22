@@ -1881,8 +1881,14 @@ struct PLAYER
 
     char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
     int cookieTime;
+    double height;
 
     uint8_t WpnReloadState;
+
+    double getViewHeightDiff()
+    {
+        return actor->viewzoffset + height;
+    }
 
 
     DVector2& posXY()

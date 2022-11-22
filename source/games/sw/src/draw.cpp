@@ -796,7 +796,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                         pos.Y = pp->si.Y;
                     }
 
-                    pos.Z = tsp->pos.Z + pp->si.Z;
+                    pos.Z = tsp->pos.Z + pp->si.Z + pp->getViewHeightDiff();
 					tsp->pos = pos;
                     tsp->angle = pp->siang;
                     //continue;
