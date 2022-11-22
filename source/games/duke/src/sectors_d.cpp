@@ -1326,12 +1326,12 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		fi.shoot(targ, BLOODSPLAT3);
 		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT4);
-		fi.guts(targ, JIBS1, 1, myconnectindex);
-		fi.guts(targ, JIBS2, 2, myconnectindex);
-		fi.guts(targ, JIBS3, 3, myconnectindex);
-		fi.guts(targ, JIBS4, 4, myconnectindex);
-		fi.guts(targ, JIBS5, 1, myconnectindex);
-		fi.guts(targ, JIBS3, 6, myconnectindex);
+		spawnguts(targ, PClass::FindActor("DukeJibs1"), 1);
+		spawnguts(targ, PClass::FindActor("DukeJibs2"), 2);
+		spawnguts(targ, PClass::FindActor("DukeJibs3"), 3);
+		spawnguts(targ, PClass::FindActor("DukeJibs4"), 4);
+		spawnguts(targ, PClass::FindActor("DukeJibs5"), 1);
+		spawnguts(targ, PClass::FindActor("DukeJibs3"), 6);
 		S_PlaySound(SQUISHED);
 		targ->Destroy();
 		break;

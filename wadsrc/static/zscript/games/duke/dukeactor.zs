@@ -191,7 +191,7 @@ class DukeActor : CoreActor native
 	native int badguy();
 	native int isplayer();
 	native void lotsofstuff(Name type, int count);
-	native void spawnguts(Name type, int count);
+	native double gutsoffset();
 	native int movesprite(Vector3 move, int clipmask);
 	
 
@@ -301,4 +301,8 @@ enum sflags2_t
 	SFLAG2_CAMERA				= 0x00000100,
 	SFLAG2_DONTANIMATE			= 0x00000200,
 	SFLAG2_INTERPOLATEANGLE		= 0x00000400,
+	SFLAG2_GREENBLOOD			= 0x00000800,
+	SFLAG2_ALWAYSROTATE1		= 0x00001000,
+	SFLAG2_DIENOW				= 0x00002000,
+	SFLAG2_TRANFERPALTOJIBS		= 0x00004000,
 };

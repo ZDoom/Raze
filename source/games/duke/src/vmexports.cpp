@@ -1,3 +1,8 @@
+#include "vm.h"
+#include "ns.h"
+#include "buildtiles.h"
+#include "global.h"
+#include "funct.h"
 BEGIN_DUKE_NS
 
 void resetswitch(int tag);
@@ -31,33 +36,9 @@ int PicForName(int intname)
 	{
 		picnum = TileFiles.tileForName("RABBIT");
 	}
-	else if (FName(ENamedName(intname)) == FName("DukeJibs1"))
-	{
-		picnum = TileFiles.tileForName("JIBS1");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeJibs2"))
-	{
-		picnum = TileFiles.tileForName("JIBS2");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeJibs3"))
-	{
-		picnum = TileFiles.tileForName("JIBS3");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeJibs4"))
-	{
-		picnum = TileFiles.tileForName("JIBS4");
-	}
 	else if (FName(ENamedName(intname)) == FName("RedneckFeather"))
 	{
 		picnum = TileFiles.tileForName("FEATHER");
-	}
-	else if (FName(ENamedName(intname)) == FName("RedneckCactusDebris1"))
-	{
-		picnum = TileFiles.tileForName("CACTUSDEBRIS1");
-	}
-	else if (FName(ENamedName(intname)) == FName("RedneckCactusDebris2"))
-	{
-		picnum = TileFiles.tileForName("CACTUSDEBRIS2");
 	}
 
 	return picnum;
@@ -364,18 +345,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofstuff, DukeActor_Lotsofstuff)
 	return 0;
 }
 
-void DukeActor_spawnguts(DDukeActor* actor, int intname, int count)
+double DukeActor_gutsoffset(DDukeActor* self)
 {
-	int picnum = PicForName(intname);
-	fi.guts(actor, picnum, count, myconnectindex);
+	return gs.actorinfo[self->spr.picnum].gutsoffset;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnguts, DukeActor_spawnguts)
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, gutsoffset, DukeActor_gutsoffset)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(type);
-	PARAM_INT(count);
-	DukeActor_spawnguts(self, type, count);
+	ACTION_RETURN_FLOAT(DukeActor_gutsoffset(self));
 	return 0;
 }
 
@@ -1068,6 +1046,7 @@ DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, lasermode);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, freezerhurtowner);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, impact_damage);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerheight);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, gutsscale);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, displayflags);
 DEFINE_GLOBAL_UNSIZED(gs)
 
@@ -1112,6 +1091,16 @@ DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setWeaponOrAmmoSprite, tspritetype_s
 	PARAM_INT(z);
 	tspritetype_setWeaponOrAmmoSprite(self, z);
 	return 0;
+}
+
+
+void spawnguts(DDukeActor* origin, PClass* type, int count)
+{
+	IFVM(DukeActor, spawnguts)
+	{
+		VMValue params[] = { (DObject*)origin, type, count };
+		VMCall(func, params, 3, nullptr, 0);
+	}
 }
 
 

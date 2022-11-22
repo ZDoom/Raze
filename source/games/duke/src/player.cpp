@@ -103,7 +103,7 @@ void quickkill(player_struct* p)
 	auto pa = p->GetActor();
 	pa->spr.extra = 0;
 	pa->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-	if (ud.god == 0) fi.guts(pa, TILE_JIBS6, 8, myconnectindex);
+	if (ud.god == 0) spawnguts(pa, PClass::FindActor("DukeJibs6"), 8);
 	return;
 }
 
@@ -390,7 +390,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 				p->weapon_pos = -p->weapon_pos;
 			if (p->actorsqu != nullptr && (p->GetActor()->spr.pos - p->actorsqu->spr.pos).Length() < 1400/16.)
 			{
-				fi.guts(p->actorsqu, TILE_JIBS6, 7, myconnectindex);
+				spawnguts(p->actorsqu, PClass::FindActor("DukeJibs6"), 7);
 				spawn(p->actorsqu, TILE_BLOODPOOL);
 				S_PlayActorSound(SQUISHED, p->actorsqu);
 				if (isIn(p->actorsqu->spr.picnum, respawnlist))

@@ -189,6 +189,7 @@ void initactorflags_r()
 	if (isRRRA())
 	{
 		setflag(SFLAG_MOVEFTA_CHECKSEEWITHPAL8, { MINION });
+		setflag(SFLAG2_TRANFERPALTOJIBS, { MINION });
 	}
 
 	gs.actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;
@@ -246,6 +247,7 @@ void initactorflags_r()
 	TILE_EGG = EGG;
 
 	gs.firstdebris = SCRAP6;
+	gs.gutsscale = 0.25;
 }
 
 END_DUKE_NS

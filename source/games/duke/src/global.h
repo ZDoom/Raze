@@ -18,6 +18,8 @@ struct DukeGameInfo
 	// Static constant global state
 	double playerfriction;
 	double gravity;
+	double playerheight;
+	double gutsscale;
 
 	int respawnactortime;
 	int bouncemineblastradius;
@@ -41,7 +43,6 @@ struct DukeGameInfo
 	ActorInfo actorinfo[MAXTILES];
 	int16_t max_ammo_amount[MAX_WEAPONS];
 	int16_t weaponsandammosprites[15];
-	double playerheight;
 	int displayflags;
 };
 

@@ -494,60 +494,6 @@ void lotsofpaper_d(DDukeActor *actor, int n)
 //
 //---------------------------------------------------------------------------
 
-void guts_d(DDukeActor* actor, int gtype, int n, int p)
-{
-	double scale;
-	uint8_t pal;
-
-	if (badguy(actor) && actor->spr.scale.X < 0.25)
-		scale = 0.125;
-	else scale = 0.5;
-
-	double gutz = actor->spr.pos.Z - 8;
-	double floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
-
-	if (gutz > floorz - 8)
-		gutz = floorz - 8;
-
-	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset;
-
-	if (badguy(actor) && actor->spr.pal == 6)
-		pal = 6;
-	else if (actor->spr.picnum != LIZTROOP) // EDuke32 transfers the palette unconditionally, I'm not sure that's such a good idea.
-		pal = 0;
-	else
-		pal = actor->spr.pal;
-
-	for (int j = 0; j < n; j++)
-	{
-		// RANDCORRECT version from RR.
-		DAngle a = randomAngle();
-		double zvel = -2 -krandf(8);
-		double vel = 3 + krandf(2);
-		DVector3 offs;
-		offs.Z = gutz - krandf(16);
-		offs.Y = krandf(16) - 8;
-		offs.X = krandf(16) - 8;
-		// TRANSITIONAL: owned by a player???
-		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, DVector2(scale, scale), a, vel, zvel, ps[p].GetActor(), 5);
-		if (spawned)
-		{
-			if (spawned->spr.picnum == JIBS2)
-			{
-				spawned->spr.scale *= 0.25;
-			}
-			if (pal != 0)
-				spawned->spr.pal = pal;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 int ifhitbyweapon_d(DDukeActor *actor)
 {
 	int p;

@@ -2447,10 +2447,17 @@ int ParseState::parse(void)
 		parseifelse(g_ac->spr.extra <= *insptr);
 		break;
 	case concmd_guts:
+	{
 		insptr += 2;
-		fi.guts(g_ac,*(insptr-1),*insptr,g_p);
+		auto info = spawnMap.CheckKey(*(insptr - 1));
+		if (info)
+		{
+			auto clstype = static_cast<PClassActor*>(info->Class(*(insptr - 1)));
+			if (clstype) spawnguts(g_ac, clstype, *insptr);
+		}
 		insptr++;
 		break;
+	}
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);

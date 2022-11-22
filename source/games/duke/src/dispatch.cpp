@@ -62,8 +62,6 @@ void lotsofmoney_d(DDukeActor* s, int n);
 void lotsofmail_d(DDukeActor* s, int n);
 void lotsofpaper_d(DDukeActor* s, int n);
 void lotsoffeathers_r(DDukeActor* s, int n);
-void guts_d(DDukeActor* s, int gtype, int n, int p);
-void guts_r(DDukeActor* s, int gtype, int n, int p);
 int ifhitbyweapon_r(DDukeActor* sn);
 int ifhitbyweapon_d(DDukeActor* sn);
 void fall_d(DDukeActor* i, int g_p);
@@ -123,7 +121,6 @@ void SetDispatcher()
 		lotsofmoney_d,
 		lotsofmail_d,
 		lotsofpaper_d,
-		guts_d,
 		ifhitbyweapon_d,
 		fall_d,
 		spawnweapondebris_d,
@@ -163,7 +160,6 @@ void SetDispatcher()
 		lotsoffeathers_r,
 		lotsoffeathers_r,
 		lotsoffeathers_r,
-		guts_r,
 		ifhitbyweapon_r,
 		fall_r,
 		spawnweapondebris_r,

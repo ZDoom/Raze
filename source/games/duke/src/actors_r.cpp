@@ -399,58 +399,6 @@ void lotsoffeathers_r(DDukeActor *actor, int n)
 //
 //---------------------------------------------------------------------------
 
-void guts_r(DDukeActor* actor, int gtype, int n, int p)
-{
-	int j;
-	double scale;
-	uint8_t pal;
-
-	if (badguy(actor) && actor->spr.scale.X < 0.25)
-		scale = 0.0625;
-	else scale = 0.25;
-
-	double gutz = actor->spr.pos.Z - 8;
-	double floorz = getflorzofslopeptr(actor->sector(), actor->spr.pos);
-
-	if (gutz > floorz - 8)
-		gutz = floorz - 8;
-
-	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset;
-
-	if (badguy(actor) && actor->spr.pal == 6)
-		pal = 6;
-	else
-	{
-		pal = 0;
-		if (isRRRA())
-		{
-			if (actor->spr.picnum == MINION && (actor->spr.pal == 8 || actor->spr.pal == 19)) pal = actor->spr.pal;
-		}
-	}
-
-	for (j = 0; j < n; j++)
-	{
-		// RANDCORRECT version from RR.
-		DAngle a = randomAngle();
-		double zvel = -2 - krandf(8);
-		double vel = 3 + krandf(2);
-		DVector3 offs;
-		offs.Z = gutz - krandf(16);
-		offs.Y = krandf(16) - 8;
-		offs.X = krandf(16) - 8;
-		// TRANSITIONAL: owned by a player???
-		auto spawned = CreateActor(actor->sector(), offs + actor->spr.pos.XY(), gtype, -32, DVector2(scale, scale), a, vel, zvel, ps[p].GetActor(), 5);
-		if (spawned && pal != 0)
-			spawned->spr.pal = pal;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 int ifhitbyweapon_r(DDukeActor *actor)
 {
 	int p;
@@ -704,6 +652,13 @@ static void chickenarrow(DDukeActor* actor)
 	}
 }
 
+static void rabbitguts(DDukeActor* proj)
+{
+	spawnguts(proj, PClass::FindActor("RedneckRabbitGibA"), 2);
+	spawnguts(proj, PClass::FindActor("RedneckRabbitGibB"), 2);
+	spawnguts(proj, PClass::FindActor("RedneckRabbitGibC"), 2);
+}
+
 //---------------------------------------------------------------------------
 //
 // 
@@ -750,9 +705,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 		{
 			if (isRRRA() && proj->GetOwner() && proj->GetOwner()->spr.picnum == MAMA)
 			{
-				guts_r(proj, RABBITJIBA, 2, myconnectindex);
-				guts_r(proj, RABBITJIBB, 2, myconnectindex);
-				guts_r(proj, RABBITJIBC, 2, myconnectindex);
+				rabbitguts(proj);
 			}
 
 			ps[p].Angles.addPitch(DAngle::fromDeg(-14.04));
@@ -787,9 +740,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 {
 	if (isRRRA() && proj->GetOwner() && proj->GetOwner()->spr.picnum == MAMA)
 	{
-		guts_r(proj, RABBITJIBA, 2, myconnectindex);
-		guts_r(proj, RABBITJIBB, 2, myconnectindex);
-		guts_r(proj, RABBITJIBC, 2, myconnectindex);
+		rabbitguts(proj);
 	}
 
 	if (proj->spr.picnum != RPG && (!isRRRA() || proj->spr.picnum != RPG2) && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SPIT && proj->spr.picnum != SHRINKSPARK && (wal->overpicnum == MIRROR || wal->picnum == MIRROR))
@@ -872,9 +823,7 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 
 	if (isRRRA() && proj->GetOwner() && proj->GetOwner()->spr.picnum == MAMA)
 	{
-		guts_r(proj, RABBITJIBA, 2, myconnectindex);
-		guts_r(proj, RABBITJIBB, 2, myconnectindex);
-		guts_r(proj, RABBITJIBC, 2, myconnectindex);
+		rabbitguts(proj);
 	}
 
 	if (proj->vel.Z < 0)
@@ -3235,7 +3184,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		{
 			if (actor->spr.picnum != APLAYER && badguy(actor) && actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F)
 			{
-				fi.guts(actor, JIBS6, 5, playernum);
+				spawnguts(actor, PClass::FindActor("DukeJibs6"), 5);
 				S_PlayActorSound(SQUISHED, actor);
 				addspritetodelete();
 			}

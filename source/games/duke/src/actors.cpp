@@ -4179,12 +4179,12 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 							goto SKIPJIBS;
 						if (sphit)
 						{
-							fi.guts(actor, JIBS6, 5, playernum);
+							spawnguts(actor, PClass::FindActor("DukeJibs6"), 5);
 							S_PlayActorSound(squished, actor);
 						}
 						else
 						{
-							fi.guts(actor, JIBS6, 15, playernum);
+							spawnguts(actor, PClass::FindActor("DukeJibs6"), 15);
 							S_PlayActorSound(squished, actor);
 							spawn(actor, BLOODPOOL);
 						}

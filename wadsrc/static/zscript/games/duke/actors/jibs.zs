@@ -1,3 +1,49 @@
+extend class DukeActor
+{
+	
+	void spawnguts(class<DukeJibs1> gtype, int n)
+	{
+		double scale = gs.gutsscale;
+		int pal;
+
+		if (self.badguy() && self.scale.X < 0.25)
+			scale *= 0.25;
+
+		double gutz = self.pos.Z - 8;
+		double c;
+		double floorz;
+		[c, floorz] = self.sector.getslopes(self.pos.XY);
+
+		if (gutz > floorz - 8)
+			gutz = floorz - 8;
+
+		gutz += self.gutsoffset();
+
+		if (self.badguy() && self.pal == 6)
+			pal = 6;
+		else if (!self.actorflag2(SFLAG2_TRANFERPALTOJIBS))
+			pal = 0;
+		else
+			pal = self.pal;
+
+		for (int j = 0; j < n; j++)
+		{
+			// RANDCORRECT version from RR.
+			double a = frandom(0, 360);
+			double zvel = -2 - frandom(0, 8);
+			double vel = frandom(3, 5);
+			Vector3 offs;
+			offs.Z = gutz - frandom(0, 16);
+			offs.Y = frandom(0, 16) - 8;
+			offs.X = frandom(0, 16) - 8;
+
+			let spawned = dlevel.SpawnActor(self.sector, offs + self.pos.XY, gtype, -32, (scale, scale), a, vel, zvel, self, STAT_MISC);
+			if (spawned && pal != 0)
+				spawned.pal = pal;
+		}
+	}
+}
+
 
 class DukeJibs1 : DukeActor
 {
@@ -156,6 +202,19 @@ class DukeJibs1 : DukeActor
 //---------------------------------------------------------------------------
 
 class DukeJibs2 : DukeJibs1
+{
+	default
+	{
+		pic "JIBS2";
+	}
+	
+	override void Initialize()
+	{
+		self.scale *= 0.25; // only Duke needs this.
+	}
+}
+
+class RedneckJibs2 : DukeJibs1
 {
 	default
 	{
