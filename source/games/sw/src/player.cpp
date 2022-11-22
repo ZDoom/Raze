@@ -1214,7 +1214,7 @@ DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
             double ezhl = ActorZOfBottom(itActor) - (ActorSizeZ(itActor) * 0.25);
 
             if (actor->hasU() && actor->user.PlayerP)
-                apos.Z = actor->user.PlayerP->posZget();
+                apos.Z = actor->user.PlayerP->actor->getOffsetZ();
             else
                 apos.Z = ActorZOfTop(actor) + (ActorSizeZ(actor) * 0.25);
 
@@ -1476,7 +1476,7 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
     if ((sectp->extra & SECTFX_SINK))
     {
         // make sure your even in the water
-        if (pp->posZget() + PLAYER_HEIGHTF > pp->lo_sectp->floorz - FixedToInt(pp->lo_sectp->depth_fixed))
+        if (pp->actor->getOffsetZ() + PLAYER_HEIGHTF > pp->lo_sectp->floorz - FixedToInt(pp->lo_sectp->depth_fixed))
             pp->WadeDepth = FixedToInt(pp->lo_sectp->depth_fixed);
     }
 }
@@ -1987,7 +1987,7 @@ void DoPlayerSlide(PLAYER* pp)
     if (abs(pp->slide_vect.X) < 0.05 && abs(pp->slide_vect.Y) < 0.05)
         pp->slide_vect.Zero();
 
-    push_ret = pushmove(pp->posXY(), pp->posZget(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2001,10 +2001,10 @@ void DoPlayerSlide(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->posXY(), pp->posZget(), &pp->cursector, pp->slide_vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, pp->slide_vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(pp->posXY(), pp->posZget(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -2146,7 +2146,7 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        push_ret = pushmove(pp->posXY(), pp->posZget(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2169,12 +2169,12 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->posGet(), &pp->cursector);
-        clipmove(pp->posXY(), pp->posZget(), &pp->cursector, pp->vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+        clipmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, pp->vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(pp->posXY(), pp->posZget(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2191,7 +2191,7 @@ void DoPlayerMove(PLAYER* pp)
 
     if (interpolate_ride)
     {
-        pp->posprevZset(pp->posZget());
+        pp->actor->backupz();
         pp->angle.backup();
     }
 
@@ -2656,7 +2656,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         pp->vect.X = pp->vect.Y = 0;
 
     pp->lastcursector = pp->cursector;
-    double zz = pp->posZget() + 10;
+    double zz = pp->actor->getOffsetZ() + 10;
 
     DVector2 pos[4], opos[4];
 
@@ -2753,7 +2753,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(pp->posXY(), pp->posZget(), &pp->cursector, pp->vect, pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
+            clipmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, pp->vect, pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
         }
         else
         {
@@ -3354,7 +3354,7 @@ void DoPlayerClimb(PLAYER* pp)
         // if floor is ABOVE you && your head goes above it, do a jump up to
         // terrace
 
-        if (pp->posZget() < pp->LadderSector->floorz - 6)
+        if (pp->actor->getOffsetZ() < pp->LadderSector->floorz - 6)
         {
             pp->jump_speed = PLAYER_CLIMB_JUMP_AMT;
             pp->Flags &= ~(PF_CLIMBING|PF_WEAPON_DOWN);
@@ -3466,7 +3466,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
         {
             hit.hitSector = hit.hitWall->nextSector();
 
-            if (hit.hitSector != nullptr && abs(hit.hitSector->floorz - pp->posZget()) < 50)
+            if (hit.hitSector != nullptr && abs(hit.hitSector->floorz - pp->actor->getOffsetZ()) < 50)
             {
 				double dist = (pp->posXY() - hit.hitpos.XY()).Length();
 				double comp = (pp->actor->clipdist + 16);
@@ -3530,7 +3530,7 @@ void DoPlayerBeginCrawl(PLAYER* pp)
 bool PlayerFallTest(PLAYER* pp, double player_height)
 {
     // If the floor is far below you, fall hard instead of adjusting height
-    if (abs(pp->posZget() - pp->loz) > player_height + PLAYER_FALL_HEIGHTF)
+    if (abs(pp->actor->getOffsetZ() - pp->loz) > player_height + PLAYER_FALL_HEIGHTF)
     {
         // if on a STEEP slope sector and you have not moved off of the sector
         if (pp->lo_sectp &&
@@ -3896,7 +3896,7 @@ int PlayerCanDive(PLAYER* pp)
             pp->z_speed = 20;
             pp->jump_speed = 0;
 
-            if (pp->posZget() > pp->loz - pp->WadeDepth - 2)
+            if (pp->actor->getOffsetZ() > pp->loz - pp->WadeDepth - 2)
             {
                 DoPlayerBeginDive(pp);
             }
@@ -4589,7 +4589,7 @@ void DoPlayerDive(PLAYER* pp)
 
     if (pp->z_speed < 0 && FAF_ConnectArea(pp->cursector))
     {
-        if (pp->posZget() < pp->cursector->ceilingz + 10)
+        if (pp->actor->getOffsetZ() < pp->cursector->ceilingz + 10)
         {
             auto sect = pp->cursector;
 
@@ -4623,7 +4623,7 @@ void DoPlayerDive(PLAYER* pp)
         // !JIM! FRANK - I added !pp->hiActor so that you don't warp to surface when
         //     there is a sprite above you since getzrange returns a hiz < ceiling height
         //     if you are clipping into a sprite and not the ceiling.
-        if (pp->posZget() < pp->hiz + 4 && !pp->highActor)
+        if (pp->actor->getOffsetZ() < pp->hiz + 4 && !pp->highActor)
         {
             DoPlayerStopDive(pp);
             return;
@@ -4655,13 +4655,13 @@ void DoPlayerDive(PLAYER* pp)
     }
 
     // Reverse bobbing when getting close to the floor
-    if (pp->posZget() + pp->pbob_amt >= pp->loz - PLAYER_DIVE_HEIGHTF)
+    if (pp->actor->getOffsetZ() + pp->pbob_amt >= pp->loz - PLAYER_DIVE_HEIGHTF)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((1024 + 512) - pp->bob_ndx) * 2);
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMT, 3);
     }
     // Reverse bobbing when getting close to the ceiling
-    if (pp->posZget() + pp->pbob_amt < pp->hiz + pp->p_ceiling_dist)
+    if (pp->actor->getOffsetZ() + pp->pbob_amt < pp->hiz + pp->p_ceiling_dist)
     {
         pp->bob_ndx = NORM_ANGLE(pp->bob_ndx + ((512) - pp->bob_ndx) * 2);
         DoPlayerSpriteBob(pp, PLAYER_DIVE_HEIGHTF, PLAYER_DIVE_BOB_AMT, 3);
@@ -4726,7 +4726,7 @@ void DoPlayerCurrent(PLAYER* pp)
 
 	auto vect = sectu->angle.ToVector() / 256. * sectu->speed * synctics; // 16384 >> 4 - Beware of clipmove's odd format for vect!
 
-    push_ret = pushmove(pp->posXY(), pp->posZget(), &pp->cursector, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4742,10 +4742,10 @@ void DoPlayerCurrent(PLAYER* pp)
         return;
     }
     Collision coll;
-    clipmove(pp->posXY(), pp->posZget(), &pp->cursector, vect, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, vect, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(pp->posXY(), pp->posZget(), &pp->cursector, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
+    pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, pp->actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!(pp->Flags & PF_DEAD))
@@ -4945,7 +4945,7 @@ void DoPlayerWade(PLAYER* pp)
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
-    if (abs(pp->posZget() - pp->loz) > PLAYER_HEIGHTF + PLAYER_FALL_HEIGHTF)
+    if (abs(pp->actor->getOffsetZ() - pp->loz) > PLAYER_HEIGHTF + PLAYER_FALL_HEIGHTF)
     {
         pp->jump_speed = 256;
         DoPlayerBeginFall(pp);
@@ -4962,7 +4962,7 @@ void DoPlayerWade(PLAYER* pp)
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
-    if (abs(pp->posZget() - pp->loz) > PLAYER_HEIGHTF + PLAYER_FALL_HEIGHTF)
+    if (abs(pp->actor->getOffsetZ() - pp->loz) > PLAYER_HEIGHTF + PLAYER_FALL_HEIGHTF)
     {
         pp->jump_speed = Z(1);
         DoPlayerBeginFall(pp);

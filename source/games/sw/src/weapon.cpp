@@ -11500,7 +11500,7 @@ int DoRing(DSWActor* actor)
     double z;
     // move the center with the player
     if (pp)
-        z = pp->posZget() + 20;
+        z = pp->actor->getOffsetZ() + 20;
     else
         z = ActorZOfMiddle(own) + 30;
 
@@ -11612,7 +11612,7 @@ void InitSpellRing(PLAYER* pp)
 
         // put it out there
         actorNew->spr.pos += actorNew->spr.angle.ToVector() * actorNew->user.Dist;
-        actorNew->spr.pos.Z += pp->posZget() + 20 - (actorNew->user.Dist * pp->horizon.horiz.Tan() * 2.); // horizon math sucks...
+        actorNew->spr.pos.Z += pp->actor->getOffsetZ() + 20 - (actorNew->user.Dist * pp->horizon.horiz.Tan() * 2.); // horizon math sucks...
 
         actorNew->spr.angle += DAngle90;
 
@@ -15513,7 +15513,7 @@ int InitUzi(PLAYER* pp)
     if (RANDOM_P2(1024) < 400)
         InitTracerUzi(pp);
 
-    double nz = (pp->posZget() + pp->bob_z);
+    double nz = (pp->actor->getOffsetZ() + pp->bob_z);
     double dax = 1024.;
     double daz = nz;
     DAngle daang = DAngle22_5 / 4;

@@ -2404,7 +2404,7 @@ void PlayerOperateEnv(PLAYER* pp)
                 NearThings(pp); // Check for player sound specified in a level sprite
             }
 
-            BuildNearTagList(nti, sizeof(nti), pp, pp->posZget(), 128, NT_Lotag | NT_Hitag, 8);
+            BuildNearTagList(nti, sizeof(nti), pp, pp->actor->getOffsetZ(), 128, NT_Lotag | NT_Hitag, 8);
 
             found = false;
 

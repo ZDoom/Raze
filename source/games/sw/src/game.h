@@ -1900,10 +1900,6 @@ struct PLAYER
     {
         actor->spr.pos.Z += val;
     }
-    double posZget()
-    {
-        return actor->spr.pos.Z + actor->viewzoffset;
-    }
 
     void posSet(const DVector3& val)
     {
@@ -1921,11 +1917,6 @@ struct PLAYER
     DVector2& posprevXY()
     {
         return actor->opos.XY();
-    }
-
-    void posprevZset(const double val)
-    {
-        actor->opos.Z = val - actor->viewzoffset;
     }
 
     void posprevSet(const DVector3& val)
