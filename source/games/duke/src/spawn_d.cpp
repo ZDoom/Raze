@@ -187,31 +187,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case NUKEBUTTON:
 		if (act->spr.picnum == DOMELITE)
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		[[fallthrough]];
-	case JIBS1:
-	case JIBS2:
-	case JIBS3:
-	case JIBS4:
-	case JIBS5:
-	case JIBS6:
-	case HEADJIB1:
-	case ARMJIB1:
-	case LEGJIB1:
-	case LIZMANHEAD1:
-	case LIZMANARM1:
-	case LIZMANLEG1:
-	case DUKETORSO:
-	case DUKEGUN:
-	case DUKELEG:
 		ChangeActorStat(act, STAT_MISC);
-		break;
-	case TONGUE:
-		if (actj)
-			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-		act->spr.pos.Z -= gs.playerheight;
-		act->vel.Z = 1 - krandf(2);
-		act->vel.X = 4 - krandf(8);
-		ChangeActorStat(act, STAT_PROJECTILE);
 		break;
 	case NATURALLIGHTNING:
 		act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;

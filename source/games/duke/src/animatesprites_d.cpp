@@ -421,24 +421,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			break;
 
-		case JIBS1:
-		case JIBS2:
-		case JIBS3:
-		case JIBS4:
-		case JIBS5:
-		case JIBS6:
-		case HEADJIB1:
-		case LEGJIB1:
-		case ARMJIB1:
-		case LIZMANHEAD1:
-		case LIZMANARM1:
-		case LIZMANLEG1:
-		case DUKELEG:
-		case DUKEGUN:
-		case DUKETORSO:
-			if (t->pal == 6) t->shade = -120;
-			[[fallthrough]];
-
 		case WATERBUBBLE:
 			if (t->sectp->floorpicnum == FLOORSLIME)
 			{

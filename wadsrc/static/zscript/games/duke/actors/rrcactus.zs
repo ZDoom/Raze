@@ -175,38 +175,3 @@ class RedneckCactusSmall : RedneckCactusDrug
 	}
 }
 
-// ---------------------------------
-
-class RedneckCactusDebris1 : DukeActor
-{
-	default
-	{
-		statnum STAT_MISC;
-		pic "CACTUSDEBRIS1";
-	}
-	
-	override void Tick()
-	{
-		if (!self.jibs(false, false, true, true, false, true)) return; // very poor API... Change this when jibs can be scriptified.
-		if (self.sector.lotag == 800 &&  self.pos.Z >= self.sector.floorz - 8)
-			self.Destroy();
-	}
-	
-	override bool animate(tspritetype tspr) 
-	{ 
-		if (tspr.pal == 6) tspr.shade = -120;
-
-		if (self.sector.shadedsector == 1)
-			tspr.shade = 16;
-		
-		return true;
-	}
-}
-
-class RedneckCactusDebris2 : RedneckCactusDebris1
-{
-	default
-	{
-		pic "CACTUSDEBRIS2";
-	}
-}

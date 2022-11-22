@@ -215,6 +215,7 @@ struct sectortype native
 	native void setfloorslope(int heinum);
 	native int ceilingslope();
 	native int floorslope();
+	native double, double getslopes(Vector2 pos);
 }
 
 //=============================================================================

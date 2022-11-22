@@ -69,7 +69,26 @@ spawnclasses
 	3132 = RedneckChickenHead
 	3410 = RedneckLumberBlade
 	295 = RedneckKegHolder
-
+	1463 = DukeJibs1
+	1468 = DukeJibs2
+	1473 = DukeJibs3
+	1478 = DukeJibs4
+	1483 = DukeJibs5
+	1515 = DukeJibs6
+	4041 = DukePlayerTorso
+	4046 = DukePlayerGun
+	4055 = DukePlayerLeg
+	4235 = RedneckBillyJibA
+	4244 = RedneckBillyJibB
+	4748 = RedneckHulkJibA
+	4753 = RedneckHulkJibB
+	4758 = RedneckHulkJibB
+	5290 = RedneckMinJibA
+	5295 = RedneckMinJibB
+	5300 = RedneckMinJibB
+	5602 = RedneckCootJibA
+	5607 = RedneckCootJibB
+	5616 = RedneckCootJibB
 }
 
 tileflag TFLAG_WALLSWITCH {

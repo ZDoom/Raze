@@ -526,57 +526,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			break;
 
-		case BIKEJIBA:
-		case BIKEJIBB:
-		case BIKEJIBC:
-		case BIKERJIBA:
-		case BIKERJIBB:
-		case BIKERJIBC:
-		case BIKERJIBD:
-		case CHEERJIBA:
-		case CHEERJIBB:
-		case CHEERJIBC:
-		case CHEERJIBD:
-		case FBOATJIBA:
-		case FBOATJIBB:
-		case RABBITJIBA:
-		case RABBITJIBB:
-		case RABBITJIBC:
-		case MAMAJIBA:
-		case MAMAJIBB:
-			if (isRRRA()) goto stuff;
-			else goto default_case;
-
-		case MINJIBA:
-		case MINJIBB:
-		case MINJIBC:
-			if (isRRRA() && t->pal == 19)
-				t->shade = -127;
-			[[fallthrough]];
-		case JIBS1:
-		case JIBS2:
-		case JIBS3:
-		case JIBS4:
-		case JIBS5:
-		case JIBS6:
-		case DUKEGUN:
-		case DUKETORSO:
-		case DUKELEG:
-		case BILLYJIBA:
-		case BILLYJIBB:
-		case HULKJIBA:
-		case HULKJIBB:
-		case HULKJIBC:
-		case COOTJIBA:
-		case COOTJIBB:
-		case COOTJIBC:
-		stuff:
-			if (t->pal == 6) t->shade = -120;
-
-			if (h->sector()->shadedsector == 1)
-				t->shade = 16;
-			[[fallthrough]];
-
 		case WATERBUBBLE:
 			if (t->sectp->floorpicnum == FLOORSLIME)
 			{

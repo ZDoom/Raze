@@ -12,6 +12,24 @@ spawnclasses
 	2460 = RedneckCactusDebris1
 	2465 = RedneckCactusDebris2
 	7424 = RedneckRabbitSpawner
+	5872 = RedneckBikeJibA
+	5877 = RedneckBikeJibB
+	5882 = RedneckBikeJibC
+	6112 = RedneckBikerJibA
+	6117 = RedneckBikerJibB
+	6121 = RedneckBikerJibC
+	6127 = RedneckBikerJibD
+	7000 = RedneckCheerJibA
+	7005 = RedneckCheerJibB
+	7010 = RedneckCheerJibC
+	7015 = RedneckCheerJibD
+	7020 = RedneckFBoatJibA
+	7025 = RedneckFBoatJibB
+	7387 = RedneckRabbitJibA
+	7392 = RedneckRabbitJibB
+	7397 = RedneckRabbitJibC
+	8890 = RedneckMamaJibA
+	8895 = RedneckMamaJibB	
 }
 
 tileflag TFLAG_WALLSWITCH {

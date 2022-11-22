@@ -2576,24 +2576,6 @@ void moveexplosions_d(void)  // STATNUM 5
 			money(act, BLOODPOOL);
 			break;
 
-		case JIBS1:
-		case JIBS2:
-		case JIBS3:
-		case JIBS4:
-		case JIBS5:
-		case JIBS6:
-		case HEADJIB1:
-		case ARMJIB1:
-		case LEGJIB1:
-		case LIZMANHEAD1:
-		case LIZMANARM1:
-		case LIZMANLEG1:
-		case DUKETORSO:
-		case DUKEGUN:
-		case DUKELEG:
-			jibs(act, JIBS6, true, false, false, act->spr.picnum == DUKELEG || act->spr.picnum == DUKETORSO || act->spr.picnum == DUKEGUN, false);
-
-			continue;
 		case BLOODPOOL:
 		case PUKE:
 			bloodpool(act, act->spr.picnum == PUKE);

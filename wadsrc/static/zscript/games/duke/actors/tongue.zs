@@ -6,7 +6,15 @@ class DukeTongue : DukeActor
 		statnum STAT_PROJECTILE;
 		pic "TONGUE";
 	}
-	
+
+	override void Initialize()
+	{
+		self.angle = self.ownerActor.angle;
+		self.pos.Z -= gs.playerheight;
+		self.vel.Z = 1 - frandom(0, 2);
+		self.vel.X = 4 - frandom(0, 8);
+	}
+
 	override void Tick()
 	{
 		self.temp_data[0] = int(Raze.BobVal(self.temp_data[1]) * 32);

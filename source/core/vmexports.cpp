@@ -379,6 +379,25 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, ceilingslope, sector_ceilingslope)
 	ACTION_RETURN_INT(self->getceilingslope());
 }
 
+double sector_getslopes(sectortype* sect, double x, double y, double *pf)
+{
+	if (!sect) ThrowAbortException(X_READ_NIL, nullptr);
+	double pc;
+	calcSlope(sect, x, y, &pc, pf);
+	return pc;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, getslopes, sector_getslopes)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	double c, f;
+	calcSlope(self, x, y, &c, &f);
+	if (numret > 0) ret[0].SetFloat(c);
+	if (numret > 1) ret[1].SetFloat(f);
+	return min(numret, 2);
+}
 
 //=============================================================================
 

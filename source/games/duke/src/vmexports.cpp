@@ -395,24 +395,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, movesprite, DukeActor_movesprite)
 	ACTION_RETURN_INT(DukeActor_movesprite(self, velx, vely, velz, clipmask));
 }
 
-int DukeActor_jibs(DDukeActor* actor, int jib6mode, int timeout, int callsetsprite, int floorcheck, int zcheck1, int zcheck2)
-{
-
-	return jibs(actor, -1 /* fixme*/, timeout, callsetsprite, floorcheck, zcheck1, zcheck2);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, jibs, DukeActor_jibs)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(jib6mode);
-	PARAM_INT(timeout);
-	PARAM_INT(callsetsprite);
-	PARAM_INT(floorcheck);
-	PARAM_INT(zcheck1);
-	PARAM_INT(zcheck2);
-	ACTION_RETURN_INT(DukeActor_jibs(self, jib6mode, timeout, callsetsprite, floorcheck, zcheck1, zcheck2));
-}
-
 DDukeActor* DukeActor_Spawnsprite(DDukeActor* origin, int picnum)
 {
 	if (picnum >= 0 && picnum < MAXTILES)

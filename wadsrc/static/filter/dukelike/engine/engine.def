@@ -61,6 +61,21 @@ spawnclasses
 	1647 = DukeTongue
 	1860 = DukeInnerJaw
 	1861 = DukeInnerJaw1
+	2245 = DukeJibs1
+	2250 = DukeJibs2
+	2255 = DukeJibs3
+	2260 = DukeJibs4
+	2265 = DukeJibs5
+	2286 = DukeJibs6
+	1768 = DukeHeadJib1
+	1772 = DukeArmJib1
+	1776 = DukeLegJib1
+	2201 = DukeLizmanHead
+	2205 = DukeLizmanArm
+	2209 = DukeLizmanLeg
+	1520 = DukePlayerTorso
+	1528 = DukePlayerGun
+	1536 = DukePlayerLeg
 
 }
 

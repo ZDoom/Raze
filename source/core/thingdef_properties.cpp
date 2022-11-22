@@ -305,13 +305,17 @@ static bool PointerCheck(PType *symtype, PType *checktype)
 
 //==========================================================================
 //
+// Unlike 'spriteset' this only replaces the first image so that it
+// can reuse the previously defined set, except for the base image.
 // 
 //==========================================================================
 DEFINE_PROPERTY(pic, S, CoreActor)
 {
 	PROP_STRING_PARM(str, 0);
-	info->ActorInfo()->SpriteSetNames.Clear();
-	info->ActorInfo()->SpriteSetNames.Push(str);
+	if (info->ActorInfo()->SpriteSetNames.Size() == 0)
+		info->ActorInfo()->SpriteSetNames.Push(str);
+	else
+		info->ActorInfo()->SpriteSetNames[0] = str;
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PICNUM;
 }
 

@@ -2538,58 +2538,6 @@ void moveexplosions_r(void)  // STATNUM 5
 
 			break;
 
-		case BIKEJIBA:
-		case BIKEJIBB:
-		case BIKEJIBC:
-		case BIKERJIBA:
-		case BIKERJIBB:
-		case BIKERJIBC:
-		case BIKERJIBD:
-		case CHEERJIBA:
-		case CHEERJIBB:
-		case CHEERJIBC:
-		case CHEERJIBD:
-		case FBOATJIBA:
-		case FBOATJIBB:
-		case RABBITJIBA:
-		case RABBITJIBB:
-		case RABBITJIBC:
-		case MAMAJIBA:
-		case MAMAJIBB:
-			if (!isRRRA()) break;
-			[[fallthrough]];
-
-		case BILLYJIBA:
-		case BILLYJIBB:
-		case HULKJIBA:
-		case HULKJIBB:
-		case HULKJIBC:
-		case MINJIBA:
-		case MINJIBB:
-		case MINJIBC:
-		case COOTJIBA:
-		case COOTJIBB:
-		case COOTJIBC:
-		case JIBS1:
-		case JIBS2:
-		case JIBS3:
-		case JIBS4:
-		case JIBS5:
-		case JIBS6:
-		case DUKETORSO:
-		case DUKEGUN:
-		case DUKELEG:
-			if (!jibs(act, JIBS6, false, true, true, act->spr.picnum == DUKELEG || act->spr.picnum == DUKETORSO || act->spr.picnum == DUKEGUN, false)) continue;
-
-			if (act->sector()->lotag == 800)
-				if (act->spr.pos.Z >= act->sector()->floorz - 8)
-				{
-					act->Destroy();
-					continue;
-				}
-
-			continue;
-
 		case BLOODPOOL:
 			if (!bloodpool(act, false)) continue;
 
