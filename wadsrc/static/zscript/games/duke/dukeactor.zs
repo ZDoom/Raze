@@ -178,6 +178,7 @@ class DukeActor : CoreActor native
 	virtual void onHurt(DukePlayer p) {}
 	virtual bool onUse(DukePlayer user) { return false; }
 	virtual void onTouch(DukePlayer toucher) {}
+	virtual void onMotoSmash(DukePlayer toucher) {}
 	virtual void onRespawn(int tag) { }
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
@@ -192,6 +193,7 @@ class DukeActor : CoreActor native
 	native void lotsofstuff(Name type, int count);
 	native void spawnguts(Name type, int count);
 	native int movesprite(Vector3 move, int clipmask);
+	native bool jibs(bool jib6mode, bool timeout, bool callsetsprite, bool floorcheck, bool zcheck1, bool zcheck2);
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags

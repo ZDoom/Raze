@@ -47,7 +47,6 @@ struct FActorInfo
 	int Health = 0;	// not used yet - this will stand in if no CON defines a health value for Duke.
 
 	// these are temporary. Due to how Build games handle their tiles, we cannot look up the textures when scripts are being parsed.
-	FString PicName;
 	TArray<FString> SpriteSetNames;
 
 	FActorInfo() = default;
@@ -57,7 +56,6 @@ struct FActorInfo
 		TypeNum = other.TypeNum;
 		DefaultFlags = other.DefaultFlags;
 		DefaultCstat = other.DefaultCstat;
-		PicName = other.PicName;
 		SpriteSetNames = other.SpriteSetNames;
 	}
 

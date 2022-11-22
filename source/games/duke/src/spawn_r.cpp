@@ -142,8 +142,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 122);
 		break;
 
-	case RRTILE2460:
-	case RRTILE2465:
 	case BIKEJIBA:
 	case BIKEJIBB:
 	case BIKEJIBC:

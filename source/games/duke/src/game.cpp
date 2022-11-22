@@ -466,6 +466,16 @@ bool CallOnUse(DDukeActor* actor, player_struct* user)
 	return nval;
 }
 
+void CallOnMotoSmash(DDukeActor* actor, player_struct* hitter)
+{
+	IFVIRTUALPTR(actor, DDukeActor, onMotoSmash)
+	{
+		VMValue val[2] = { actor, hitter };
+		VMCall(func, val, 2, nullptr, 0);
+	}
+}
+
+
 void CallOnRespawn(DDukeActor* actor, int low)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onRespawn)

@@ -526,8 +526,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			break;
 
-		case RRTILE2460:
-		case RRTILE2465:
 		case BIKEJIBA:
 		case BIKEJIBB:
 		case BIKEJIBC:

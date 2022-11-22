@@ -305,15 +305,13 @@ static bool PointerCheck(PType *symtype, PType *checktype)
 
 //==========================================================================
 //
-// Default spritetype fields cannot be set directly
-// they need to be combined with the data from the map, so they need to be
-// stored outside the actual actor until the spawn code can init it.
 // 
 //==========================================================================
 DEFINE_PROPERTY(pic, S, CoreActor)
 {
 	PROP_STRING_PARM(str, 0);
-	bag.Info->ActorInfo()->PicName = str;
+	info->ActorInfo()->SpriteSetNames.Clear();
+	info->ActorInfo()->SpriteSetNames.Push(str);
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PICNUM;
 }
 

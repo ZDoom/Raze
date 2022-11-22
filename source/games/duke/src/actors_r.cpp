@@ -2581,8 +2581,6 @@ void moveexplosions_r(void)  // STATNUM 5
 
 			break;
 
-		case RRTILE2460:
-		case RRTILE2465:
 		case BIKEJIBA:
 		case BIKEJIBB:
 		case BIKEJIBC:
@@ -2624,8 +2622,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		case DUKETORSO:
 		case DUKEGUN:
 		case DUKELEG:
-			if (!jibs(act, JIBS6, false, true, true, act->spr.picnum == DUKELEG || act->spr.picnum == DUKETORSO || act->spr.picnum == DUKEGUN,
-				isRRRA() && (act->spr.picnum == RRTILE2465 || act->spr.picnum == RRTILE2560))) continue;
+			if (!jibs(act, JIBS6, false, true, true, act->spr.picnum == DUKELEG || act->spr.picnum == DUKETORSO || act->spr.picnum == DUKEGUN, false)) continue;
 
 			if (act->sector()->lotag == 800)
 				if (act->spr.pos.Z >= act->sector()->floorz - 8)

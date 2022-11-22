@@ -2445,33 +2445,9 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
 	}
-	else if ((victim->spr.picnum == RRTILE2431 || victim->spr.picnum == RRTILE2443 || victim->spr.picnum == RRTILE2451 || victim->spr.picnum == RRTILE2455)
-		&& !islockedactivator(victim) && p->MotoSpeed > 45)
+	else if (p->MotoSpeed > 45)
 	{
-		S_PlayActorSound(SQUISHED, victim);
-		if (victim->spr.picnum == RRTILE2431 || victim->spr.picnum == RRTILE2451)
-		{
-			if (victim->spr.lotag != 0)
-			{
-				DukeSpriteIterator it;
-				while (auto act2 = it.Next())
-				{
-					if ((act2->spr.picnum == RRTILE2431 || act2->spr.picnum == RRTILE2451) && act2->spr.pal == 4)
-					{
-						if (victim->spr.lotag == act2->spr.lotag)
-						{
-							act2->spr.scale = DVector2(0, 0);
-						}
-					}
-				}
-			}
-			fi.guts(victim, RRTILE2460, 12, myconnectindex);
-			fi.guts(victim, RRTILE2465, 3, myconnectindex);
-		}
-		else
-			fi.guts(victim, RRTILE2465, 3, myconnectindex);
-		fi.guts(victim, RRTILE2465, 3, myconnectindex);
-		victim->spr.scale = DVector2(0, 0);
+		CallOnMotoSmash(victim, p);
 	}
 }
 
@@ -3802,15 +3778,6 @@ HORIZONLY:
 			}
 		}
 		CallOnTouch(clip.actor(), p);
-		if (isRRRA())
-		{
-			if (clip.actor()->spr.picnum == RRTILE2443 && clip.actor()->spr.pal == 19)
-			{
-				clip.actor()->spr.pal = 0;
-				p->DrugMode = 5;
-				ps[snum].GetActor()->spr.extra = gs.max_player_health;
-			}
-		}
 	}
 
 	if (p->jetpack_on == 0)

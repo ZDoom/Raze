@@ -1326,42 +1326,23 @@ void checkplayerhurt_r(player_struct* p, const Collision &coll)
 {
 	if (coll.type == kHitSprite)
 	{
-		switch (coll.actor()->spr.picnum)
-		{
-		case RRTILE2430:
-		case RRTILE2431:
-		case RRTILE2432:
-		case RRTILE2443:
-		case RRTILE2446:
-		case RRTILE2451:
-		case RRTILE2455:
-			if (isRRRA() && p->hurt_delay2 < 8)
-			{
-				p->GetActor()->spr.extra -= 2;
-				p->hurt_delay2 = 16;
-				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
-				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
-			}
-			return;
-
-		default:
-			CallOnHurt(coll.actor(), p);
-			return;
-		}
-
+		CallOnHurt(coll.actor(), p);
+		return;
 	}
 
-	if (coll.type != kHitWall) return;
-	auto wal = coll.hitWall;
-
-	if (p->hurt_delay > 0) p->hurt_delay--;
-	else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN)) switch (wal->overpicnum)
+	if (coll.type == kHitWall)
 	{
-	case BIGFORCE:
-		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->angle.ang.ToVector() * 2, -1);
-		break;
+		auto wal = coll.hitWall;
 
+		if (p->hurt_delay > 0) p->hurt_delay--;
+		else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN)) switch (wal->overpicnum)
+		{
+		case BIGFORCE:
+			p->hurt_delay = 26;
+			fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->angle.ang.ToVector() * 2, -1);
+			break;
+
+		}
 	}
 }
 
@@ -1973,62 +1954,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			{
 				if (act->spr.picnum == RRTILE8094)
 					act->spr.picnum = RRTILE5088;
-			}
-		}
-		break;
-	case RRTILE2431:
-		if (targ->spr.pal != 4)
-		{
-			targ->spr.picnum = RRTILE2451;
-			if (targ->spr.lotag != 0)
-			{
-				DukeSpriteIterator it;
-				while (auto act = it.Next())
-				{
-					if (act->spr.picnum == RRTILE2431 && act->spr.pal == 4)
-					{
-						if (targ->spr.lotag == act->spr.lotag)
-							act->spr.picnum = RRTILE2451;
-					}
-				}
-			}
-		}
-		break;
-	case RRTILE2443:
-		if (targ->spr.pal != 19)
-			targ->spr.picnum = RRTILE2455;
-		break;
-	case RRTILE2455:
-		S_PlayActorSound(SQUISHED, targ);
-		fi.guts(targ, RRTILE2465, 3, myconnectindex);
-		targ->Destroy();
-		break;
-	case RRTILE2451:
-		if (targ->spr.pal != 4)
-		{
-			S_PlayActorSound(SQUISHED, targ);
-			if (targ->spr.lotag != 0)
-			{
-				DukeSpriteIterator it;
-				while (auto act = it.Next())
-				{
-					if (act->spr.picnum == RRTILE2451 && act->spr.pal == 4)
-					{
-						if (targ->spr.lotag == act->spr.lotag)
-						{
-							fi.guts(targ, RRTILE2460, 12, myconnectindex);
-							fi.guts(targ, RRTILE2465, 3, myconnectindex);
-							act->spr.scale = DVector2(0, 0);
-							targ->spr.scale = DVector2(0, 0);
-						}
-					}
-				}
-			}
-			else
-			{
-				fi.guts(targ, RRTILE2460, 12, myconnectindex);
-				fi.guts(targ, RRTILE2465, 3, myconnectindex);
-				targ->spr.scale = DVector2(0, 0);
 			}
 		}
 		break;

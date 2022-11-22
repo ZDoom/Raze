@@ -51,6 +51,15 @@ int PicForName(int intname)
 	{
 		picnum = TileFiles.tileForName("FEATHER");
 	}
+	else if (FName(ENamedName(intname)) == FName("RedneckCactusDebris1"))
+	{
+		picnum = TileFiles.tileForName("CACTUSDEBRIS1");
+	}
+	else if (FName(ENamedName(intname)) == FName("RedneckCactusDebris2"))
+	{
+		picnum = TileFiles.tileForName("CACTUSDEBRIS2");
+	}
+
 	return picnum;
 }
 
@@ -341,7 +350,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofstuff, DukeActor_Lotsofstuff)
 	return 0;
 }
 
-void DukeActor_spawnguts(DDukeActor* actor, int count, int intname)
+void DukeActor_spawnguts(DDukeActor* actor, int intname, int count)
 {
 	int picnum = PicForName(intname);
 	fi.guts(actor, picnum, count, myconnectindex);
@@ -352,7 +361,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnguts, DukeActor_spawnguts)
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(type);
 	PARAM_INT(count);
-	DukeActor_spawnguts(self, count, type);
+	DukeActor_spawnguts(self, type, count);
 	return 0;
 }
 
@@ -370,6 +379,24 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, movesprite, DukeActor_movesprite)
 	PARAM_FLOAT(velz);
 	PARAM_INT(clipmask);
 	ACTION_RETURN_INT(DukeActor_movesprite(self, velx, vely, velz, clipmask));
+}
+
+int DukeActor_jibs(DDukeActor* actor, int jib6mode, int timeout, int callsetsprite, int floorcheck, int zcheck1, int zcheck2)
+{
+
+	return jibs(actor, -1 /* fixme*/, timeout, callsetsprite, floorcheck, zcheck1, zcheck2);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, jibs, DukeActor_jibs)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(jib6mode);
+	PARAM_INT(timeout);
+	PARAM_INT(callsetsprite);
+	PARAM_INT(floorcheck);
+	PARAM_INT(zcheck1);
+	PARAM_INT(zcheck2);
+	ACTION_RETURN_INT(DukeActor_jibs(self, jib6mode, timeout, callsetsprite, floorcheck, zcheck1, zcheck2));
 }
 
 DDukeActor* DukeActor_Spawnsprite(DDukeActor* origin, int picnum)

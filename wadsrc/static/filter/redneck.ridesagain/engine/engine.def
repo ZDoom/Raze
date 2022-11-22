@@ -1,4 +1,13 @@
 spawnclasses
 {
+	2430 = RedneckCactusLargeYellow
+	2431 = RedneckCactusLargeGreen
+	2432 = RedneckCactusLargeBrown
+	2443 = RedneckCactusDrug
+	2451 = RedneckCactusWithHoles
+	2455 = RedneckCactusSmall
+	2446 = RedneckCactusLargeGreen2
+	2460 = RedneckCactusDebris1
+	2465 = RedneckCactusDebris2
 	7424 = RedneckRabbitSpawner
 }
