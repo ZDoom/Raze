@@ -178,6 +178,7 @@ void initactorflags_r()
 	setflag(SFLAG2_GREENBLOOD, { OOZFILTER });
 	setflag(SFLAG2_ALWAYSROTATE1, { RAT, CAMERA1 });
 	setflag(SFLAG2_DIENOW, { RADIUSEXPLOSION });
+	setflag(SFLAG2_NORADIUSPUSH, { HULK });
 
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
@@ -190,6 +191,11 @@ void initactorflags_r()
 	{
 		setflag(SFLAG_MOVEFTA_CHECKSEEWITHPAL8, { MINION });
 		setflag(SFLAG2_TRANFERPALTOJIBS, { MINION });
+		setflag(SFLAG2_NORADIUSPUSH, { MAMA, BILLYPLAY, COOTPLAY, MAMACLOUD });
+	}
+	else
+	{
+		setflag(SFLAG2_NORADIUSPUSH, { SBMOVE });
 	}
 
 	gs.actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;

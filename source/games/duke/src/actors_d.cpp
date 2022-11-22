@@ -352,7 +352,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							act2->hitextra = hp1 + (krand() % (hp2 - hp1));
 						}
 
-						if (act2->spr.picnum != TANK && act2->spr.picnum != ROTATEGUN && act2->spr.picnum != RECON && !bossguy(act2))
+						if (!actorflag(act2, SFLAG2_NORADIUSPUSH) && !bossguy(act2))
 						{
 							if (act2->vel.X < 0) act2->vel.X = 0;
 							act2->vel.X += ( (actor->spr.extra / 4.));

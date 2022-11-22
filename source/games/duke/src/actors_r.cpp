@@ -285,10 +285,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						act2->hitextra = hp1 + (krand() % (hp2 - hp1));
 					}
 
-					int pic = act2->spr.picnum;
-					if ((isRRRA())? 
-						(pic != HULK && pic != MAMA && pic != BILLYPLAY && pic != COOTPLAY && pic != MAMACLOUD) :
-						(pic != HULK && pic != SBMOVE))
+					if (!actorflag(act2, SFLAG2_NORADIUSPUSH) && !bossguy(act2))
 					{
 						if (act2->vel.X < 0) act2->vel.X = 0;
 						act2->vel.X += ((actor->spr.extra / 4.));
