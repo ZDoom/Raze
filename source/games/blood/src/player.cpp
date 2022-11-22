@@ -715,6 +715,7 @@ void playerResetInertia(PLAYER* pPlayer)
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
 	pPlayer->zView = pPlayer->actor->spr.pos.Z - pPosture->eyeAboveZ;
 	pPlayer->zWeapon = pPlayer->actor->spr.pos.Z - pPosture->weaponAboveZ;
+	pPlayer->actor->oviewzoffset = pPlayer->actor->viewzoffset = pPlayer->zView - pPlayer->actor->spr.pos.Z;
 	viewBackupView(pPlayer->nPlayer);
 }
 
@@ -725,6 +726,7 @@ void playerCorrectInertia(PLAYER* pPlayer, const DVector3& oldpos)
 	pPlayer->zWeapon += zAdj;
 	pPlayer->actor->opos.XY() += pPlayer->actor->spr.pos.XY() - oldpos.XY();
 	pPlayer->ozView += zAdj;
+	pPlayer->actor->opos.Z += zAdj;
 }
 
 void playerResetPowerUps(PLAYER* pPlayer)

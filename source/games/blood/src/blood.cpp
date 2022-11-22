@@ -457,6 +457,10 @@ void GameInterface::Ticker()
 		}
 		thinktime.Unclock();
 
+		// update console player's viewzoffset at the end of the tic.
+		pPlayer->actor->oviewzoffset = pPlayer->actor->viewzoffset;
+		pPlayer->actor->viewzoffset = pPlayer->zView - pPlayer->actor->spr.pos.Z;
+
 		gFrameCount++;
 		PlayClock += kTicsPerFrame;
 		if (PlayClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.

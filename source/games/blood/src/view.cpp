@@ -492,8 +492,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 	else
 #endif
 	{
-		cPos.XY() = pPlayer->actor->interpolatedpos(interpfrac).XY();
-		cPos.Z = interpolatedvalue(pPlayer->ozView, pPlayer->zView, interpfrac);
+		cPos = pPlayer->actor->getRenderPos(interpfrac);
 		zDelta = interpolatedvalue(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - 12, interpfrac);
 		bobWidth = interpolatedvalue(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
 		bobHeight = interpolatedvalue(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
