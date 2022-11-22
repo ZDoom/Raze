@@ -2939,7 +2939,7 @@ void DoPlayerJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->posZadd(pp->jump_speed * JUMP_FACTOR);
+        pp->actor->spr.pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         // if player gets to close the ceiling while jumping
         if (pp->aboveCeilZ(pp->hiz + 4))
@@ -3008,7 +3008,7 @@ void DoPlayerForceJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->posZadd(pp->jump_speed * JUMP_FACTOR);
+        pp->actor->spr.pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         // if player gets to close the ceiling while jumping
         if (pp->aboveCeilZ(pp->hiz + 4))
@@ -3105,7 +3105,7 @@ void DoPlayerFall(PLAYER* pp)
             pp->jump_speed = 4100;
 
         // adjust player height by jump speed
-        pp->posZadd(pp->jump_speed * JUMP_FACTOR);
+        pp->actor->spr.pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         if (pp->jump_speed > 2000)
         {
@@ -3165,7 +3165,7 @@ void DoPlayerFall(PLAYER* pp)
                 // this was causing the z to snap immediately
                 // changed it so it stays gradual
 
-                pp->posZadd(recoil_amnt);
+                pp->actor->spr.pos.Z += recoil_amnt;
                 DoPlayerHeight(pp);
             }
 
@@ -3334,7 +3334,7 @@ void DoPlayerClimb(PLAYER* pp)
     // moving UP
     if (climbVel > 0)
     {
-        pp->posZadd(-climbVel);
+        plActor->spr.pos.Z -= climbVel;
         pp->climb_ndx &= 1023;
 
         // if player gets to close the ceiling while climbing
@@ -3366,7 +3366,7 @@ void DoPlayerClimb(PLAYER* pp)
     // move DOWN
     if (climbVel < 0)
     {
-        pp->posZadd(-climbVel);
+        plActor->spr.pos.Z -= climbVel;
         pp->climb_ndx &= 1023;
 
         // if you are touching the floor
@@ -3700,7 +3700,7 @@ void DoPlayerFly(PLAYER* pp)
 
     pp->z_speed *= FixedToFloat(58000);
 
-    pp->posZadd(pp->z_speed);
+    pp->actor->spr.pos.Z += pp->z_speed;
 
     // Make the min distance from the ceiling/floor match bobbing amount
     // so the player never goes into the ceiling/floor
@@ -3892,7 +3892,7 @@ int PlayerCanDive(PLAYER* pp)
     {
         if (PlayerInDiveArea(pp))
         {
-            pp->posZadd(20);
+            pp->actor->spr.pos.Z += 20;
             pp->z_speed = 20;
             pp->jump_speed = 0;
 
@@ -4259,7 +4259,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
     DoPlayerZrange(pp);
     DoPlayerSetWadeDepth(pp);
 
-    pp->posZadd(-pp->WadeDepth);
+    plActor->spr.pos.Z -= pp->WadeDepth;
 
     pp->posprevSet(pp->posGet());
 
@@ -4585,7 +4585,7 @@ void DoPlayerDive(PLAYER* pp)
     if (abs(pp->z_speed) < 1./16)
         pp->z_speed = 0;
 
-    pp->posZadd(pp->z_speed);
+    plActor->spr.pos.Z += pp->z_speed;
 
     if (pp->z_speed < 0 && FAF_ConnectArea(pp->cursector))
     {
@@ -5479,7 +5479,7 @@ void DoPlayerDeathJump(PLAYER* pp)
         }
 
         // adjust height by jump speed
-        pp->posZadd(pp->jump_speed * JUMP_FACTOR);
+        pp->actor->spr.pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         // if player gets to close the ceiling while jumping
         //if (pp->posz < pp->hiz + Z(4))
@@ -5513,7 +5513,7 @@ void DoPlayerDeathFall(PLAYER* pp)
         pp->jump_speed += PLAYER_DEATH_GRAV;
 
         // adjust player height by jump speed
-        pp->posZadd(pp->jump_speed * JUMP_FACTOR);
+        pp->actor->spr.pos.Z += pp->jump_speed * JUMP_FACTOR;
 
         if (pp->lo_sectp && (pp->lo_sectp->extra & SECTFX_SINK))
         {
@@ -6272,7 +6272,7 @@ void DoPlayerDeathDrown(PLAYER* pp)
 
         if ((pp->Flags & PF_FALLING))
         {
-            pp->posZadd(2);
+            actor->spr.pos.Z += 2;
 
             // Stick like glue when you hit the ground
             if (pp->belowFloorZ(pp->loz, PLAYER_DEATH_HEIGHTF))

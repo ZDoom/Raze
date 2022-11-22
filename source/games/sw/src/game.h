@@ -1896,11 +1896,6 @@ struct PLAYER
         return actor->spr.pos.XY();
     }
 
-    void posZadd(const double val)
-    {
-        actor->spr.pos.Z += val;
-    }
-
     void posSet(const DVector3& val)
     {
         actor->spr.pos = val.plusZ(-actor->viewzoffset);
