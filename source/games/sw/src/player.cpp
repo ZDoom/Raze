@@ -1316,7 +1316,7 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
     pp->actor->backuppos();
 	pp->posoldXY() = pp->actor->spr.pos.XY();
 
-    updatesector(pp->posGet(), &pp->cursector);
+    updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
@@ -1331,7 +1331,7 @@ void DoPlayerTeleportToOffset(PLAYER* pp)
     pp->posoldXY() = pp->actor->spr.pos.XY();
     pp->actor->backupvec2();
 
-    updatesector(pp->posGet(), &pp->cursector);
+    updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
 }
 
@@ -1920,7 +1920,7 @@ void DoPlayerZrange(PLAYER* pp)
     auto bakcstat = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrange(pp->posGet().plusZ(8), pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, actor->clipdist - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    FAFgetzrange(pp->actor->getPosWithOffsetZ().plusZ(8), pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, actor->clipdist - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     actor->spr.cstat = bakcstat;
 
     Collision ceilColl(ceilhit);
@@ -2053,7 +2053,7 @@ void PlayerSectorBound(PLAYER* pp, double amt)
     // called from DoPlayerMove() but can be called
     // from anywhere it is needed
 
-    calcSlope(pp->cursector, pp->posGet(), &cz, &fz);
+    calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
 
     pp->belowFloorZ(fz - amt);
     pp->aboveCeilZ(cz + amt);
@@ -2090,7 +2090,7 @@ void DoPlayerMove(PLAYER* pp)
         DoPlayerTurn(pp, pp->input.avel, 1);
     }
 
-    pp->posoldSet(pp->posGet());
+    pp->posoldSet(pp->actor->getPosWithOffsetZ());
     pp->lastcursector = pp->cursector;
 
     if (PLAYER_MOVING(pp) == 0)
@@ -2137,7 +2137,7 @@ void DoPlayerMove(PLAYER* pp)
             actor->backupvec2();
         }
 		actor->spr.pos.XY() += pp->vect;
-        updatesector(pp->posGet(), &sect);
+        updatesector(pp->actor->getPosWithOffsetZ(), &sect);
         if (sect != nullptr)
             pp->cursector = sect;
     }
@@ -2165,7 +2165,7 @@ void DoPlayerMove(PLAYER* pp)
         auto save_cstat = actor->spr.cstat;
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
         Collision coll;
-        updatesector(pp->posGet(), &pp->cursector);
+        updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
         clipmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, pp->vect, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist, CLIPMASK_PLAYER, coll);
 
         actor->spr.cstat = save_cstat;
@@ -2243,21 +2243,21 @@ void DoPlayerSectorUpdatePreMove(PLAYER* pp)
 
     if ((pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
-        updatesectorz(pp->posGet(), &sect);
+        updatesectorz(pp->actor->getPosWithOffsetZ(), &sect);
         if (sect == nullptr)
         {
             sect = pp->cursector;
-            updatesector(pp->posGet(), &sect);
+            updatesector(pp->actor->getPosWithOffsetZ(), &sect);
         }
         ASSERT(sect);
     }
     else if (FAF_ConnectArea(sect))
     {
-        updatesectorz(pp->posGet(), &sect);
+        updatesectorz(pp->actor->getPosWithOffsetZ(), &sect);
         if (sect == nullptr)
         {
             sect = pp->cursector;
-            updatesector(pp->posGet(), &sect);
+            updatesector(pp->actor->getPosWithOffsetZ(), &sect);
         }
         ASSERT(sect);
     }
@@ -2279,7 +2279,7 @@ void DoPlayerSectorUpdatePostMove(PLAYER* pp)
     // need to do updatesectorz if in connect area
     if (sect != nullptr && FAF_ConnectArea(sect))
     {
-        updatesectorz(pp->posGet(), &pp->cursector);
+        updatesectorz(pp->actor->getPosWithOffsetZ(), &pp->cursector);
 
         // can mess up if below
         if (!pp->insector())
@@ -2287,12 +2287,12 @@ void DoPlayerSectorUpdatePostMove(PLAYER* pp)
             pp->setcursector(sect);
 
             // adjust the posz to be in a sector
-            calcSlope(pp->cursector, pp->posGet(), &cz, &fz);
+            calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
             pp->belowFloorZ(fz);
             pp->aboveCeilZ(cz);
 
             // try again
-            updatesectorz(pp->posGet(), &pp->cursector);
+            updatesectorz(pp->actor->getPosWithOffsetZ(), &pp->cursector);
         }
     }
     else
@@ -3393,7 +3393,7 @@ void DoPlayerClimb(PLAYER* pp)
 
     if (FAF_ConnectArea(pp->cursector))
     {
-        updatesectorz(pp->posGet(), &pp->cursector);
+        updatesectorz(pp->actor->getPosWithOffsetZ(), &pp->cursector);
         LadderUpdate = true;
     }
 
@@ -3409,7 +3409,7 @@ void DoPlayerClimb(PLAYER* pp)
         HitInfo near;
 
         // constantly look for new ladder sector because of warping at any time
-        neartag(pp->posGet(), pp->cursector, pp->angle.ang, near, 50., NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
+        neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->angle.ang, near, 50., NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
 
         if (near.hitWall)
         {
@@ -3652,7 +3652,7 @@ void PlayerWarpUpdatePos(PLAYER* pp)
     if (Prediction)
         return;
 
-    pp->posprevSet(pp->posGet());
+    pp->actor->backuppos();
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
 }
@@ -3762,7 +3762,7 @@ bool PlayerOnLadder(PLAYER* pp)
     if (Prediction)
         return false;
 
-    neartag(pp->posGet(), pp->cursector, pp->angle.ang, near, 64. + 48., NT_Lotag | NT_Hitag);
+    neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->angle.ang, near, 64. + 48., NT_Lotag | NT_Hitag);
 
     double dir = pp->vect.dot(pp->angle.ang.ToVector());
 
@@ -3774,12 +3774,12 @@ bool PlayerOnLadder(PLAYER* pp)
 
     for (i = 0; i < SIZ(angles); i++)
     {
-        neartag(pp->posGet(), pp->cursector, pp->angle.ang + angles[i], near, 37.5, NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
+        neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->angle.ang + angles[i], near, 37.5, NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
 
         if (near.hitWall == nullptr || near.hitpos.X < 6.25 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;
 
-        FAFhitscan(pp->posGet(), pp->cursector, DVector3((pp->angle.ang + angles[i]).ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3((pp->angle.ang + angles[i]).ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.actor() != nullptr)
         {
@@ -4165,7 +4165,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
     auto over  = over_act->sector();
     auto under = under_act->sector();
 
-    if (GetOverlapSector(pp->posGet(), &over, &under) == 2)
+    if (GetOverlapSector(pp->actor->getPosWithOffsetZ(), &over, &under) == 2)
     {
         pp->setcursector(under);
     }
@@ -4174,7 +4174,7 @@ void DoPlayerWarpToUnderwater(PLAYER* pp)
 
     plActor->spr.pos.Z = under_act->sector()->ceilingz + 6 - plActor->viewzoffset;
 
-    pp->posprevSet(pp->posGet());
+    plActor->backuppos();
 
     DoPlayerZrange(pp);
     return;
@@ -4237,7 +4237,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
     auto over = over_act->sector();
     auto under = under_act->sector();
 
-    if (GetOverlapSector(pp->posGet(), &over, &under))
+    if (GetOverlapSector(pp->actor->getPosWithOffsetZ(), &over, &under))
     {
         pp->setcursector(over);
     }
@@ -4250,7 +4250,7 @@ void DoPlayerWarpToSurface(PLAYER* pp)
 
     plActor->spr.pos.Z -= pp->WadeDepth;
 
-    pp->posprevSet(pp->posGet());
+    plActor->backuppos();
 
     return;
 }
@@ -4583,7 +4583,7 @@ void DoPlayerDive(PLAYER* pp)
             auto sect = pp->cursector;
 
             // check for sector above to see if it is an underwater sector also
-            updatesectorz(DVector3(pp->posGet(), pp->cursector->ceilingz - 8), &sect);
+            updatesectorz(DVector3(pp->actor->getPosWithOffsetZ(), pp->cursector->ceilingz - 8), &sect);
 
             if (!SectorIsUnderwaterArea(sect))
             {
@@ -5130,8 +5130,8 @@ void DoPlayerBeginOperate(PLAYER* pp)
 
     pp->angle.oang = pp->angle.ang = sop->ang;
     pp->actor->spr.pos.XY() = sop->pmid.XY();
-    updatesector(pp->posGet(), &pp->cursector);
-    calcSlope(pp->cursector, pp->posGet(), &cz, &fz);
+    updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
+    calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
     pp->setHeightAndZ(fz, PLAYER_HEIGHTF);
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
@@ -5220,8 +5220,8 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 
     pp->angle.oang = pp->angle.ang = sop->ang;
     pp->actor->spr.pos.XY() = sop->pmid.XY();
-    updatesector(pp->posGet(), &pp->cursector);
-    calcSlope(pp->cursector, pp->posGet(), &cz, &fz);
+    updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
+    calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
     pp->setHeightAndZ(fz, PLAYER_HEIGHTF);
 
     pp->Flags &= ~(PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
@@ -5280,7 +5280,7 @@ void PlayerToRemote(PLAYER* pp)
     pp->remote.cursectp = pp->cursector;
     pp->remote.lastcursectp = pp->lastcursector;
 
-    pp->remote.pos = pp->posGet();
+    pp->remote.pos = pp->actor->getPosWithOffsetZ();
 
     pp->remote.vect = pp->vect;
     pp->remote.ovect = pp->ovect;
@@ -5972,7 +5972,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     DSWActor* killer = pp->KillerActor;
     if (killer)
     {
-        if (FAFcansee(ActorVectOfTop(killer), killer->sector(), pp->posGet(), pp->cursector))
+        if (FAFcansee(ActorVectOfTop(killer), killer->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector))
         {
             pp->angle.addadjustment(deltaangle(pp->angle.ang, (killer->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle()) * (1. / 16.));
         }
@@ -6183,7 +6183,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
 
     // try to stay in valid area - death sometimes throws you out of the map
     auto sect = pp->cursector;
-    updatesector(pp->posGet(), &sect);
+    updatesector(pp->actor->getPosWithOffsetZ(), &sect);
     if (sect == nullptr)
     {
         pp->cursector = pp->lv_sector;
@@ -6697,7 +6697,7 @@ void MoveSkipSavePos(void)
     {
         pp = Player + pnum;
 
-        pp->posprevSet(pp->posGet());
+        pp->actor->backuppos();
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
         pp->horizon.backup();
@@ -6978,7 +6978,7 @@ void domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].angle.settarget((Player[myconnectindex].posGet() - Player[screenpeek].posGet()).Angle());
+            Player[screenpeek].angle.settarget((Player[myconnectindex].actor->spr.pos.XY() - Player[screenpeek].actor->spr.pos.XY()).Angle());
         }
 
         if (!(pp->Flags & PF_DEAD))

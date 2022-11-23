@@ -1256,7 +1256,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -1630,7 +1630,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     auto actorNew = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector, pos, pp->angle.ang, (CHEMBOMB_VELOCITY + RandomRangeF(CHEMBOMB_VELOCITY)) / 2);
 

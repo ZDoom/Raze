@@ -1735,7 +1735,7 @@ PlayerPart:
             // prevents you from falling into map HOLEs created by moving
             // Sectors and sprites around.
             //if (!SO_EMPTY(sop))
-            updatesector(pp->posGet(), &pp->cursector);
+            updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
 
             // in case you are in a whirlpool
             // move perfectly with the ride in the z direction

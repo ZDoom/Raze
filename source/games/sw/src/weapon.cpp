@@ -11594,7 +11594,7 @@ void InitSpellRing(PLAYER* pp)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->posGet(), ang, 0);
+        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->actor->getPosWithOffsetZ(), ang, 0);
 
         actorNew->spr.hitag = LUMINOUS; //Always full brightness
         actorNew->vel.X = 31.25;
@@ -11971,7 +11971,7 @@ void InitSpellNapalm(PLAYER* pp)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector,
-                                pp->posGet().plusZ(12), pp->angle.ang, NAPALM_VELOCITY*2);
+                                pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ang, NAPALM_VELOCITY*2);
 
         actor->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -12106,7 +12106,7 @@ int InitSpellMirv(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector, pp->posGet().plusZ(12), pp->angle.ang, MIRV_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector, pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ang, MIRV_VELOCITY);
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
@@ -12250,12 +12250,12 @@ int InitSwordAttack(PLAYER* pp)
         double dax = 1024., daz = 0;
         DAngle daang = pp->angle.ang;
         setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
-        FAFhitscan(pp->posGet(), pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
 
-        if ((pp->posGet() - hit.hitpos).Length() < 43.75)
+        if ((pp->actor->getPosWithOffsetZ() - hit.hitpos).Length() < 43.75)
         {
 
             if (hit.actor() != nullptr)
@@ -12428,12 +12428,12 @@ int InitFistAttack(PLAYER* pp)
         double dax = 1024., daz = 0;
         auto daang = pp->angle.ang;
         setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
-        FAFhitscan(pp->posGet(), pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
 
-        if ((pp->posGet() - hit.hitpos).Length() < 43.75)
+        if ((pp->actor->getPosWithOffsetZ() - hit.hitpos).Length() < 43.75)
         {
 
             if (hit.actor() != nullptr)
@@ -12975,7 +12975,7 @@ int InitStar(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13080,7 +13080,7 @@ void InitHeartAttack(PLAYER* pp)
         return;
 
     auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector,
-                            pp->posGet().plusZ(12), pp->angle.ang, BLOOD_WORM_VELOCITY*2);
+                            pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ang, BLOOD_WORM_VELOCITY*2);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -13223,7 +13223,7 @@ int InitShotgun(PLAYER* pp)
         }
     }
 
-    auto pos = pp->posGet().plusZ(pp->bob_z);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z);
     double dax = 1024.;
     double daz = pos.Z;
 
@@ -13378,7 +13378,7 @@ int InitLaser(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13476,7 +13476,7 @@ int InitRail(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 11);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 11);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13641,7 +13641,7 @@ int InitRocket(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13748,7 +13748,7 @@ int InitBunnyRocket(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -13850,7 +13850,7 @@ int InitNuke(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -14034,7 +14034,7 @@ int InitMicro(PLAYER* pp)
             angle = pp->angle.ang;
         }
 
-        auto pos = pp->posGet().plusZ(pp->bob_z + 4 + RandomRange(20));
+        auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 4 + RandomRange(20));
 
         // Spawn a shot
         // Inserting and setting up variables
@@ -15226,7 +15226,7 @@ int InitTracerUzi(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector, pp->posGet().plusZ(nz), pp->angle.ang, TRACER_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector, pp->actor->getPosWithOffsetZ().plusZ(nz), pp->angle.ang, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
@@ -16662,7 +16662,7 @@ int InitGrenade(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -16800,7 +16800,7 @@ int InitMine(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 8);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -16931,7 +16931,7 @@ int InitFireball(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto pos = pp->posGet().plusZ(pp->bob_z + 15);
+    auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 15);
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, pos, pp->angle.ang, FIREBALL_VELOCITY);
 

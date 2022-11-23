@@ -1891,20 +1891,6 @@ struct PLAYER
     }
 
 
-    DVector3 posGet()
-    {
-        return actor->spr.pos.plusZ(actor->viewzoffset);
-    }
-
-    void posprevSet(const DVector3& val)
-    {
-        actor->opos = val.plusZ(-actor->viewzoffset);
-    }
-    DVector3 posprevGet()
-    {
-        return actor->opos.plusZ(actor->viewzoffset);
-    }
-
     DVector2& posoldXY()
     {
         return PlayerOldPosition.XY();
@@ -1986,7 +1972,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
 {
-    return absangle((a->spr.pos - pp->posGet()).Angle(), pp->angle.ang) < range;
+    return absangle((a->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle(), pp->angle.ang) < range;
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)

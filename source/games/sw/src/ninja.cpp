@@ -2475,7 +2475,7 @@ void SpawnPlayerUnderSprite(PLAYER* pp)
     int pnum = int(pp - Player);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
-                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->posGet(), pp->angle.ang);
+                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->actor->getPosWithOffsetZ(), pp->angle.ang);
 
     DSWActor* actor = pp->PlayerUnderActor;
 

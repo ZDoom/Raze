@@ -811,7 +811,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             else // Otherwise just interpolate the player sprite
             {
                 pp = tActor->user.PlayerP;
-                tsp->pos = interpolatedvalue(pp->posprevGet(), pp->posGet(), interpfrac);
+                tsp->pos = pp->actor->getRenderPos(interpfrac);
                 tsp->angle = pp->angle.interpolatedang(interpfrac);
             }
         }
@@ -1262,7 +1262,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     {
         if (pp->sop_control && (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
-            tpos = pp->posGet();
+            tpos = pp->actor->getPosWithOffsetZ();
             tang = pp->angle.ang;
         }
         tsect = pp->cursector;
