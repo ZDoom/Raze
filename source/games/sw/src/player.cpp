@@ -1774,7 +1774,6 @@ void DoPlayerSpriteBob(PLAYER* pp, double player_height, double bobamt, short bo
 {
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
     pp->pbob_amt = bobamt * BobVal(pp->bob_ndx);
-    pp->actor->spr.pos.Z = pp->posZget() + player_height + pp->pbob_amt;
 }
 
 //---------------------------------------------------------------------------
