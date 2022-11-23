@@ -1543,7 +1543,7 @@ void PreMapCombineFloors(void)
             {
                 if (itsect == dasect)
                 {
-                    pp->posAdd(dv);
+                    pp->actor->spr.pos.XY() += dv;
                     pp->posoldXY() = pp->actor->spr.pos.XY();
                     pp->actor->backupvec2();
                     break;

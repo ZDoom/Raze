@@ -1487,7 +1487,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
         pp->RevolveDeltaAng = nullAngle;
     }
 
-    pp->posAdd(move);
+    pp->actor->spr.pos.XY() += move;
 
     if ((sop->flags & SOBJ_DONT_ROTATE))
     {

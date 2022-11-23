@@ -207,7 +207,7 @@ int RectClipMove(PLAYER* pp, DVector2* qpos)
     //Given the 4 points: x[4], y[4]
     if (testquadinsect(&point_num, xy, pp->cursector))
     {
-        pp->posAdd(pvect);
+        pp->actor->spr.pos.XY() += pvect;
         return true;
     }
 

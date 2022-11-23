@@ -1891,10 +1891,6 @@ struct PLAYER
     }
 
 
-    void posAdd(const DVector2& val)
-    {
-        actor->spr.pos += val;
-    }
     DVector3 posGet()
     {
         return actor->spr.pos.plusZ(actor->viewzoffset);

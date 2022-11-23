@@ -2136,7 +2136,7 @@ void DoPlayerMove(PLAYER* pp)
         {
             actor->backupvec2();
         }
-		pp->posAdd(pp->vect);
+		actor->spr.pos.XY() += pp->vect;
         updatesector(pp->posGet(), &sect);
         if (sect != nullptr)
             pp->cursector = sect;
