@@ -18068,7 +18068,7 @@ enum
     WALLBLOOD2 = 2501,
     WALLBLOOD3 = 2502,
     WALLBLOOD4 = 2503,
-    WALLBLOOD_RATE = 30,
+    WALLBLOOD_RATE = 1,
 };
 ANIMATOR DoWallBlood;
 STATE s_WallBlood1[] =
@@ -18269,8 +18269,8 @@ int DoWallBlood(DSWActor* actor)
     // Make blood drip down the wall
     if (actor->spr.scale.Y < 1.25)
     {
-        actor->spr.scale.Y += (REPEAT_SCALE);
-        actor->spr.pos.Z += 0.5;
+        actor->spr.scale.Y += (REPEAT_SCALE) / 30.;
+        actor->spr.pos.Z += 0.5 / 30.;
     }
 
     return 0;
