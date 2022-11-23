@@ -3826,10 +3826,7 @@ bool PlayerOnLadder(PLAYER* pp)
 
 bool DoPlayerTestCrawl(PLAYER* pp)
 {
-    if (abs(pp->loz - pp->hiz) < PLAYER_STANDING_ROOM)
-        return true;
-
-    return false;
+    return abs(pp->loz - pp->hiz) < PLAYER_STANDING_ROOM;
 }
 
 //---------------------------------------------------------------------------
