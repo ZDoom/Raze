@@ -99,7 +99,6 @@ struct Player
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;
-    double eyelevel, oeyelevel;
     TObjPtr<DExhumedActor*> pPlayerGrenade;
     TObjPtr<DExhumedActor*> pPlayerFloorSprite;
     TObjPtr<DExhumedActor*> pDoppleSprite;

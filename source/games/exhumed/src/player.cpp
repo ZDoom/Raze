@@ -400,7 +400,7 @@ void RestartPlayer(int nPlayer)
 	}
 
 	plr->pPlayerGrenade = nullptr;
-	plr->oeyelevel = plr->eyelevel = -55.;
+	pActor->oviewzoffset = pActor->viewzoffset = -55.;
 	dVertPan[nPlayer] = 0;
 
 	nTemperature[nPlayer] = 0;
@@ -504,7 +504,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     StopFiringWeapon(nPlayer);
 
     PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = nullAngle;
-    PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel = -55;
+    pActor->oviewzoffset = pActor->viewzoffset = -55;
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
 
@@ -908,7 +908,6 @@ void AIPlayer::Tick(RunListEvent* ev)
     PlayerList[nPlayer].horizon.backup();
     PlayerList[nPlayer].angle.resetadjustment();
     PlayerList[nPlayer].horizon.resetadjustment();
-    PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel;
 
     pPlayerActor->vel.XY() = sPlayerInput[nPlayer].vel;
 
@@ -1170,7 +1169,7 @@ sectdone:
 
     auto pViewSect = pPlayerActor->sector();
 
-    double EyeZ = PlayerList[nPlayer].eyelevel + pPlayerActor->spr.pos.Z + nQuake[nPlayer];
+    double EyeZ = pPlayerActor->getOffsetZ() + nQuake[nPlayer];
 
     while (1)
     {
@@ -2363,8 +2362,8 @@ sectdone:
                 }
                 else
                 {
-                    if (PlayerList[nPlayer].eyelevel < -32.5) {
-                        PlayerList[nPlayer].eyelevel += ((-32.5 - PlayerList[nPlayer].eyelevel) * 0.5);
+                    if (pPlayerActor->viewzoffset < -32.5) {
+                        pPlayerActor->viewzoffset += ((-32.5 - pPlayerActor->viewzoffset) * 0.5);
                     }
 
                 loc_1BD2E:
@@ -2382,7 +2381,7 @@ sectdone:
             {
                 if (PlayerList[nPlayer].nHealth > 0)
                 {
-                    PlayerList[nPlayer].eyelevel += (nActionEyeLevel[nAction] - PlayerList[nPlayer].eyelevel) * 0.5;
+                    pPlayerActor->viewzoffset += (nActionEyeLevel[nAction] - pPlayerActor->viewzoffset) * 0.5;
 
                     if (bUnderwater)
                     {
@@ -2610,9 +2609,9 @@ sectdone:
     {
         PlayerList[nPlayer].nThrust.Zero();
 
-        if (PlayerList[nPlayer].eyelevel >= -11)
+        if (pPlayerActor->viewzoffset >= -11)
         {
-            PlayerList[nPlayer].eyelevel = -11;
+            pPlayerActor->viewzoffset = -11;
             dVertPan[nPlayer] = 0;
         }
         else
@@ -2620,7 +2619,7 @@ sectdone:
             if (PlayerList[nPlayer].horizon.horiz.Sgn() > 0)
             {
                 PlayerList[nPlayer].horizon.settarget(nullAngle);
-                PlayerList[nPlayer].eyelevel -= dVertPan[nPlayer];
+                pPlayerActor->viewzoffset -= dVertPan[nPlayer];
             }
             else
             {
@@ -2718,7 +2717,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("floorspr", w.pPlayerFloorSprite)
             ("save", w.sPlayerSave)
             ("totalvel", w.totalvel)
-            ("eyelevel", w.eyelevel)
             ("grenade", w.pPlayerGrenade)
 
             .EndObject();

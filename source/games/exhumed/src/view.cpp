@@ -226,7 +226,7 @@ void DrawView(double interpfrac, bool sceneonly)
     }
     else
     {
-        nCamerapos = pPlayerActor->interpolatedpos(interpfrac).plusZ(interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, interpfrac));
+        nCamerapos = pPlayerActor->getRenderPos(interpfrac);
 
         pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
         updatesector(nCamerapos, &pSector);
