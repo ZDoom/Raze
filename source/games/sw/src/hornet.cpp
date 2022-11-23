@@ -571,7 +571,7 @@ int DoCheckSwarm(DSWActor* actor)
     if (actor->user.targetActor->user.PlayerP)
     {
         pp = actor->user.targetActor->user.PlayerP;
-        pdist = (actor->spr.pos.XY() - pp->posXY()).LengthSquared();
+        pdist = (actor->spr.pos.XY() - pp->actor->spr.pos.XY()).LengthSquared();
     }
     else
         return 0;

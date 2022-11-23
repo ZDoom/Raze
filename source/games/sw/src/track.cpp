@@ -1481,7 +1481,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
         pp->Flags |= (PF_PLAYER_RIDING);
 
         pp->RevolveAng = pp->angle.ang;
-        pp->Revolve.XY() = pp->posXY();
+        pp->Revolve.XY() = pp->actor->spr.pos.XY();
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
@@ -1503,7 +1503,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
         // moving then you
         // know where he was last
         pp->RevolveAng = pp->angle.ang;
-        pp->Revolve.XY() = pp->posXY();
+        pp->Revolve.XY() = pp->actor->spr.pos.XY();
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = nullAngle;
@@ -1522,7 +1522,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
     // increment Players delta angle
     pp->RevolveDeltaAng += GlobSpeedSO;
 
-    pp->posXY() = rotatepoint(sop->pmid.XY(), pp->Revolve.XY(), pp->RevolveDeltaAng);
+    pp->actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), pp->Revolve.XY(), pp->RevolveDeltaAng);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
@@ -3336,7 +3336,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             {
                 pp = &Player[pnum];
 
-                if ((actor->spr.pos.XY() - pp->posXY()).Length() < actor->user.Dist)
+                if ((actor->spr.pos.XY() - pp->actor->spr.pos.XY()).Length() < actor->user.Dist)
                 {
                     actor->user.targetActor = pp->actor;
                     actor->user.Flags &= ~(SPR_WAIT_FOR_PLAYER);

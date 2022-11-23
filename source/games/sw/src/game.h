@@ -1891,11 +1891,6 @@ struct PLAYER
     }
 
 
-    DVector2& posXY()
-    {
-        return actor->spr.pos.XY();
-    }
-
     void posSet(const DVector3& val)
     {
         actor->spr.pos = val.plusZ(-actor->viewzoffset);
@@ -1907,11 +1902,6 @@ struct PLAYER
     DVector3 posGet()
     {
         return actor->spr.pos.plusZ(actor->viewzoffset);
-    }
-
-    DVector2& posprevXY()
-    {
-        return actor->opos.XY();
     }
 
     void posprevSet(const DVector3& val)
