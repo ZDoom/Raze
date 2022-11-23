@@ -1314,7 +1314,6 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
     pp->angle.ang = pp->angle.oang = ang;
     pp->actor->spr.pos = pos;
     pp->actor->backuppos();
-	pp->posoldXY() = pp->actor->spr.pos.XY();
 
     updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
     pp->Flags2 |= (PF2_TELEPORTED);
@@ -1328,7 +1327,6 @@ void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 
 void DoPlayerTeleportToOffset(PLAYER* pp)
 {
-    pp->posoldXY() = pp->actor->spr.pos.XY();
     pp->actor->backupvec2();
 
     updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
@@ -1693,7 +1691,7 @@ void DoPlayerBob(PLAYER* pp)
 {
     double amt;
 
-    double dist = (pp->actor->spr.pos.XY() - pp->posoldXY()).Length();
+    double dist = (pp->actor->spr.pos.XY() - pp->actor->opos.XY()).Length();
 
     if (dist > 32)
         dist = 0;
@@ -2026,7 +2024,7 @@ void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
     {
-        pp->actor->spr.pos = pp->posoldGet().plusZ(-pp->actor->viewzoffset);
+        pp->actor->restorepos();
         pp->cursector = pp->lastcursector;
     }
 }
@@ -2090,7 +2088,6 @@ void DoPlayerMove(PLAYER* pp)
         DoPlayerTurn(pp, pp->input.avel, 1);
     }
 
-    pp->posoldSet(pp->actor->getPosWithOffsetZ());
     pp->lastcursector = pp->cursector;
 
     if (PLAYER_MOVING(pp) == 0)
@@ -6568,8 +6565,6 @@ void DoPlayerRun(PLAYER* pp)
         }
     }
 
-    DoPlayerBob(pp);
-
     if (pp->WadeDepth)
     {
         DoPlayerBeginWade(pp);
@@ -6615,6 +6610,8 @@ void DoPlayerRun(PLAYER* pp)
     {
         pp->setHeightAndZ(pp->loz, PLAYER_HEIGHTF);
     }
+
+    DoPlayerBob(pp);
 
     // Adjust height moving up and down sectors
     DoPlayerHeight(pp);

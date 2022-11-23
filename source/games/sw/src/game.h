@@ -1708,8 +1708,6 @@ BEGIN_SW_NS
 
 struct PLAYER
 {
-    DVector3 PlayerOldPosition;
-
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
     TObjPtr<DSWActor*> remoteActor;
@@ -1888,21 +1886,6 @@ struct PLAYER
     double getViewHeightDiff()
     {
         return actor->viewzoffset + height;
-    }
-
-
-    DVector2& posoldXY()
-    {
-        return PlayerOldPosition.XY();
-    }
-
-    void posoldSet(const DVector3& val)
-    {
-        PlayerOldPosition = val;
-    }
-    DVector3 posoldGet()
-    {
-        return PlayerOldPosition;
     }
 
     void setHeightAndZ(const double newz, const double newheight)
