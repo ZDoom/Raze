@@ -5991,7 +5991,7 @@ static inline void DoPlayerDeathHoriz(PLAYER* pp, const DAngle target, const dou
 {
     auto targetdelta = deltaangle(pp->horizon.horiz, target);
 
-    if (abs(targetdelta.Degrees()) > 0.4476)
+    if (abs(targetdelta.Degrees()) > 1)
     {
         pp->horizon.addadjustment(DAngle::fromDeg(speed * targetdelta.Sgn()));
     }
