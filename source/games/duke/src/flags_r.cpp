@@ -179,6 +179,7 @@ void initactorflags_r()
 	setflag(SFLAG2_ALWAYSROTATE1, { RAT, CAMERA1 });
 	setflag(SFLAG2_DIENOW, { RADIUSEXPLOSION });
 	setflag(SFLAG2_NORADIUSPUSH, { HULK });
+	setflag(SFLAG2_FREEZEDAMAGE | SFLAG2_REFLECTIVE, { FREEZEBLAST });
 
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.

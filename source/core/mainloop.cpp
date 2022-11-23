@@ -457,7 +457,7 @@ void Display()
 		DrawOverlays();
 		if (drawtile >= 0)
 		{
-			DrawTexture(twod, tileGetTexture(drawtile), false, 0, 0, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(drawtile), false, 0, 0, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_ScaleX, 2., DTA_ScaleY, 2., TAG_DONE);
 		}
 	}
 	else

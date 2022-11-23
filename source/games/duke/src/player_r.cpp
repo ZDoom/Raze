@@ -657,7 +657,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	}
 
 	spawned->spr.extra += (krand() & 7);
-	if (atwith != FREEZEBLAST)
+	if (!(actorflag(spawned, SFLAG2_REFLECTIVE)))
 		spawned->temp_actor = aimed;
 	else
 	{
