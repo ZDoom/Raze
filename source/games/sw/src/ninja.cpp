@@ -2166,13 +2166,13 @@ int DoNinjaCeiling(DSWActor* actor)
 // too convienent to put it here.
 //
 
-void InitAllPlayerSprites(void)
+void InitAllPlayerSprites(const DVector3& spawnpos)
 {
     short i;
 
     TRAVERSE_CONNECT(i)
     {
-        InitPlayerSprite(Player + i);
+        InitPlayerSprite(Player + i, spawnpos);
     }
 }
 
@@ -2385,14 +2385,24 @@ extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 //
 //---------------------------------------------------------------------------
 
-void InitPlayerSprite(PLAYER* pp)
+void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos)
 {
     int pnum = int(pp - Player);
+    double fz,cz;
     extern bool NewGame;
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
-    auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursector, pp->posGet(), pp->angle.ang);
+    auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursector, spawnpos.plusZ(PLAYER_HEIGHTF), pp->angle.ang);
+    actor->viewzoffset = -PLAYER_HEIGHTF;
+
+    // if too close to the floor - stand up
+    calcSlope(pp->cursector, actor->getPosWithOffsetZ(), &cz, &fz);
+    if (actor->spr.pos.Z > fz)
+    {
+        actor->spr.pos.Z = fz;
+    }
+    actor->backuppos();
 
     pp->actor = actor;
     pp->pnum = pnum;

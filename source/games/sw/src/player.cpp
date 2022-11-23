@@ -1859,10 +1859,6 @@ void UpdatePlayerSprite(PLAYER* pp)
     DSWActor* actor = pp->actor;
     if (!actor) return;
 
-    // Update sprite representation of player
-
-	actor->spr.pos.XY() = pp->posXY();
-
     // there are multiple death functions
     if (pp->Flags & (PF_DEAD))
     {
@@ -6137,14 +6133,10 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
             InitBloodSpray(plActor,true,-1);
         }
 
-        PlayerSpawnPosition(pp);
-
         NewStateGroup(plActor, plActor->user.ActorActionSet->Stand);
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
-        plActor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_XREPEAT);
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-        plActor->spr.pos = pp->posGet().plusZ(PLAYER_HEIGHTF);
         plActor->spr.angle = pp->angle.ang;
 
         DoSpawnTeleporterEffect(plActor);
@@ -6165,7 +6157,6 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
 		plActor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
         pp->horizon.horiz = nullAngle;
-        DoPlayerResetMovement(pp);
         plActor->user.ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
 
@@ -7186,8 +7177,6 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->posSet(pfirst->posGet());
-        pp->posprevSet(pfirst->posGet());
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
         pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursector = pfirst->cursector;
@@ -7196,7 +7185,6 @@ void InitAllPlayers(void)
 
         //pp->MaxHealth = 100;
 
-        pp->posoldXY().Zero();
         pp->climb_ndx = 10;
         pp->KillerActor = nullptr;
         pp->Kills = 0;
@@ -7287,7 +7275,6 @@ void PlayerSpawnPosition(PLAYER* pp)
 {
     short pnum = short(pp - Player);
     short pos_num = pnum;
-    double fz,cz;
     int i;
     DSWActor* spawn_sprite = nullptr;
 
@@ -7346,17 +7333,14 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->posSet(spawn_sprite->spr.pos);
-    pp->posprevSet(pp->posGet());
     pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
     pp->setcursector(spawn_sprite->sector());
 
-    calcSlope(pp->cursector, pp->posGet(), &cz, &fz);
-    // if too close to the floor - stand up
-    if (pp->posZget() > fz - PLAYER_HEIGHTF)
+    if (pp->actor)
     {
-		pp->posZset(fz - PLAYER_HEIGHTF);
-        pp->posprevZset(pp->posZget());
+        pp->actor->spr.pos = spawn_sprite->spr.pos;
+        pp->actor->viewzoffset = spawn_sprite->viewzoffset;
+        pp->actor->backuppos();
     }
 }
 
@@ -7366,12 +7350,13 @@ void PlayerSpawnPosition(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void InitMultiPlayerInfo(void)
+void InitMultiPlayerInfo(const DVector3& spawnpos)
 {
     PLAYER* pp;
     short pnum;
     unsigned stat;
     int tag;
+    double fz,cz;
     static short MultiStatList[] =
     {
         STAT_MULTI_START,
@@ -7411,7 +7396,16 @@ void InitMultiPlayerInfo(void)
                 continue;
         }
 
-        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, pp->posGet(), pp->angle.ang);
+        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, spawnpos.plusZ(PLAYER_HEIGHTF), pp->angle.ang);
+        start0->viewzoffset = -PLAYER_HEIGHTF;
+
+        // if too close to the floor - stand up
+        calcSlope(pp->cursector, start0->getPosWithOffsetZ(), &cz, &fz);
+        if (start0->spr.pos.Z > fz)
+        {
+            start0->spr.pos.Z = fz;
+        }
+        start0->backuppos();
         start0->clearUser();
         start0->spr.picnum = ST1;
     }

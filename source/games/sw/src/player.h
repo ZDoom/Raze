@@ -126,7 +126,7 @@ void HeadBobStateControl(void);
 void DoPlayer(void);
 void domovethings(void);
 void InitAllPlayers(void);
-void InitMultiPlayerInfo(void);
+void InitMultiPlayerInfo(const DVector3& spawnpos);
 void MoveScrollMode2D(PLAYER* pp, ControlInfo* const hidInput);
 void DoPlayerDivePalette(PLAYER* pp);
 void DoPlayerNightVisionPalette(PLAYER* pp);

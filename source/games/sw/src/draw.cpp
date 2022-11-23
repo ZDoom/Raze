@@ -1240,7 +1240,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     }
 
     // Get initial player position, interpolating if required.
-    DVector3 tpos = interpolatedvalue(camerapp->posprevGet(), camerapp->posGet(), interpfrac);
+    DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
     if (SyncInput() || pp != Player+myconnectindex)
     {
         tang = camerapp->angle.interpolatedsum(interpfrac);

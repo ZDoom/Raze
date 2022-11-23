@@ -408,7 +408,6 @@ void InitLevel(MapRecord *maprec)
     SpawnSpriteDef sprites;
     DVector3 ppos;
     loadMap(maprec->fileName, SW_SHAREWARE ? 1 : 0, &ppos, &ang, &cursect, sprites);
-    Player[0].posSet(ppos);
     spawnactors(sprites);
     Player[0].cursector = cursect;
 
@@ -434,8 +433,8 @@ void InitLevel(MapRecord *maprec)
 
     QueueReset();
     PreMapCombineFloors();
-    InitMultiPlayerInfo();
-    InitAllPlayerSprites();
+    InitMultiPlayerInfo(ppos);
+    InitAllPlayerSprites(ppos);
 
     //
     // Do setup for sprite, track, panel, sector, etc

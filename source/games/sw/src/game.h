@@ -1708,9 +1708,7 @@ BEGIN_SW_NS
 
 struct PLAYER
 {
-    // variable that fit in the sprite or user structure
-
-    DVector3 PlayerNowPosition, PlayerPrevPosition, PlayerOldPosition;
+    DVector3 PlayerOldPosition;
 
     DSWActor* actor;    // this may not be a TObjPtr!
     TObjPtr<DSWActor*> lowActor, highActor;
@@ -1889,52 +1887,52 @@ struct PLAYER
 
     DVector2& posXY()
     {
-        return PlayerNowPosition.XY();
+        return actor->spr.pos.XY();
     }
 
     void posZset(const double val)
     {
-        PlayerNowPosition.Z = val;
+        actor->spr.pos.Z = val - actor->viewzoffset;
     }
     void posZadd(const double val)
     {
-        PlayerNowPosition.Z += val;
+        actor->spr.pos.Z += val;
     }
     double posZget()
     {
-        return PlayerNowPosition.Z;
+        return actor->spr.pos.Z + actor->viewzoffset;
     }
 
     void posSet(const DVector3& val)
     {
-        PlayerNowPosition = val;
+        actor->spr.pos = val.plusZ(-actor->viewzoffset);
     }
     void posAdd(const DVector2& val)
     {
-        PlayerNowPosition += val;
+        actor->spr.pos += val;
     }
     DVector3 posGet()
     {
-        return PlayerNowPosition;
+        return actor->spr.pos.plusZ(actor->viewzoffset);
     }
 
     DVector2& posprevXY()
     {
-        return PlayerPrevPosition.XY();
+        return actor->opos.XY();
     }
 
     void posprevZset(const double val)
     {
-        PlayerPrevPosition.Z = val;
+        actor->opos.Z = val - actor->viewzoffset;
     }
 
     void posprevSet(const DVector3& val)
     {
-        PlayerPrevPosition = val;
+        actor->opos = val.plusZ(-actor->viewzoffset);
     }
     DVector3 posprevGet()
     {
-        return PlayerPrevPosition;
+        return actor->opos.plusZ(actor->viewzoffset);
     }
 
     DVector2& posoldXY()
