@@ -1896,10 +1896,6 @@ struct PLAYER
         return actor->spr.pos.XY();
     }
 
-    void posZset(const double val)
-    {
-        actor->spr.pos.Z = val - actor->viewzoffset;
-    }
     void posZadd(const double val)
     {
         actor->spr.pos.Z += val;
@@ -1953,6 +1949,56 @@ struct PLAYER
     DVector3 posoldGet()
     {
         return PlayerOldPosition;
+    }
+
+    void setHeightAndZ(const double newz, const double newheight)
+    {
+        actor->spr.pos.Z = newz;
+        height = newheight;
+    }
+
+    bool belowFloorZ(const double floorz, const double newheight = DBL_MAX)
+    {
+        if (newheight == DBL_MAX)
+        {
+            if (actor->getOffsetZ() > floorz)
+            {
+                actor->spr.pos.Z = floorz - actor->viewzoffset;
+                return true;
+            }
+        }
+        else
+        {
+            if (actor->spr.pos.Z > floorz)
+            {
+                setHeightAndZ(floorz, newheight);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool aboveCeilZ(const double ceilz, const double newheight = DBL_MAX)
+    {
+        if (newheight == DBL_MAX)
+        {
+            if (actor->getOffsetZ() < ceilz)
+            {
+                actor->spr.pos.Z = ceilz - actor->viewzoffset;
+                return true;
+            }
+        }
+        else
+        {
+            if (actor->spr.pos.Z < ceilz)
+            {
+                setHeightAndZ(ceilz, newheight);
+                return true;
+            }
+        }
+
+        return false;
     }
 };
 
