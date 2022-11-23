@@ -81,9 +81,11 @@ bool WarpPlaneSectorInfo(sectortype* sect, DSWActor** sp_ceiling, DSWActor** sp_
 //
 //---------------------------------------------------------------------------
 
-DSWActor* WarpPlane(DVector3& pos, sectortype** sect)
+DSWActor* WarpPlane(DVector3& pos, sectortype** sect, double testz)
 {
     DSWActor* sp_floor,* sp_ceiling;
+
+    if (testz == DBL_MAX) testz = pos.Z;
 
     if (Prediction)
         return nullptr;

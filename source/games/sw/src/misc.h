@@ -20,7 +20,7 @@ int32_t CONFIG_ReadSetup(void);
 
 bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp);
 DSWActor* Warp(DVector3& pos, sectortype** sect);
-DSWActor* WarpPlane(DVector3& pos, sectortype** sect);
+DSWActor* WarpPlane(DVector3& pos, sectortype** sect, double testz = DBL_MAX);
 
 
 
