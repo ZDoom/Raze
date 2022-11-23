@@ -239,10 +239,10 @@ ADD_STAT(coord)
 	FString out;
 	if (coord.first.X < DBL_MAX)
 	{
-		out.AppendFormat("X: %d ", int(coord.first.X));
-		out.AppendFormat("Y: %d ", int(coord.first.Y));
-		out.AppendFormat("Z: %d ", int(coord.first.Z));
-		out.AppendFormat("Angle: %d\n", int(coord.second.Degrees()));
+		out.AppendFormat("X: %f ", coord.first.X);
+		out.AppendFormat("Y: %f ", coord.first.Y);
+		out.AppendFormat("Z: %f ", coord.first.Z);
+		out.AppendFormat("Angle: %f\n", coord.second.Degrees());
 	}
 	return out;
 }
