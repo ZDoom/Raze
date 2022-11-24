@@ -4224,7 +4224,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 		if (actor->vel.X != 0 && actor->spr.picnum != TILE_DRONE)
 		{
-			angdif = absangle(aang, goalang);
+			angdif = deltaangle(aang, goalang);
 
 			if (ticselapsed < 2)
 			{
