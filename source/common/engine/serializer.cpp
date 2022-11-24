@@ -1332,9 +1332,9 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundI
 	if (!arc.soundNamesAreUnique)
 	{
 		//If sound name here is not reliable, we need to save by index instead.
-		int id = sid;
+		int id = sid.index();
 		Serialize(arc, key, id, nullptr);
-		if (arc.isReading()) sid = FSoundID(id);
+		if (arc.isReading()) sid = FSoundID::fromInt(id);
 	}
 	else if (arc.isWriting())
 	{
@@ -1354,16 +1354,16 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundI
 			assert(val->IsString() || val->IsNull());
 			if (val->IsString())
 			{
-				sid = UnicodeToString(val->GetString());
+				sid = S_FindSound(UnicodeToString(val->GetString()));
 			}
 			else if (val->IsNull())
 			{
-				sid = 0;
+				sid = NO_SOUND;
 			}
 			else
 			{
 				Printf(TEXTCOLOR_RED "string type expected for '%s'\n", key);
-				sid = 0;
+				sid = NO_SOUND;
 				arc.mErrors++;
 			}
 		}

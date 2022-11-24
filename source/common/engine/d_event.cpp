@@ -44,6 +44,8 @@
 #include "gamestate.h"
 #include "i_interface.h"
 
+bool G_Responder(event_t* ev);
+
 int eventhead;
 int eventtail;
 event_t events[MAXEVENTS];
@@ -84,16 +86,12 @@ void D_ProcessEvents (void)
 		if (ev->type == EV_DeviceChange)
 			UpdateJoystickMenu(I_UpdateDeviceList());
 
-		// allow the game to intercept Escape before dispatching it.
-		if (ev->type != EV_KeyDown || ev->data1 != KEY_ESCAPE || !sysCallbacks.WantEscape())
+		if (gamestate != GS_INTRO) // GS_INTRO blocks the UI.
 		{
-			if (gamestate != GS_INTRO) // GS_INTRO blocks the UI.
-			{
-				if (C_Responder(ev))
-					continue;				// console ate the event
-				if (M_Responder(ev))
-					continue;				// menu ate the event
-			}
+			if (C_Responder(ev))
+				continue;				// console ate the event
+			if (M_Responder(ev))
+				continue;				// menu ate the event
 		}
 
 		if (sysCallbacks.G_Responder(ev) && ev->type == EV_KeyDown) keywasdown.Set(ev->data1);

@@ -1129,3 +1129,136 @@ DEFINE_FIELD(DStatusBarCore, drawClip);
 DEFINE_FIELD(DStatusBarCore, fullscreenOffsets);
 DEFINE_FIELD(DStatusBarCore, defaultScale);
 DEFINE_FIELD(DHUDFont, mFont);
+
+//
+// Quaternion
+void QuatFromAngles(double yaw, double pitch, double roll, DQuaternion* pquat)
+{
+	*pquat = DQuaternion::FromAngles(DAngle::fromDeg(yaw), DAngle::fromDeg(pitch), DAngle::fromDeg(roll));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_QuatStruct, FromAngles, QuatFromAngles)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(yaw);
+	PARAM_FLOAT(pitch);
+	PARAM_FLOAT(roll);
+
+	DQuaternion quat;
+	QuatFromAngles(yaw, pitch, roll, &quat);
+	ACTION_RETURN_QUAT(quat);
+}
+
+void QuatAxisAngle(double x, double y, double z, double angleDeg, DQuaternion* pquat)
+{
+	auto axis = DVector3(x, y, z);
+	auto angle = DAngle::fromDeg(angleDeg);
+	*pquat = DQuaternion::AxisAngle(axis, angle);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_QuatStruct, AxisAngle, QuatAxisAngle)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	PARAM_FLOAT(angle);
+
+	DQuaternion quat;
+	QuatAxisAngle(x, y, z, angle, &quat);
+	ACTION_RETURN_QUAT(quat);
+}
+
+void QuatNLerp(
+	double ax, double ay, double az, double aw,
+	double bx, double by, double bz, double bw,
+	double t,
+	DQuaternion* pquat
+)
+{
+	auto from = DQuaternion { ax, ay, az, aw };
+	auto to   = DQuaternion { bx, by, bz, bw };
+	*pquat = DQuaternion::NLerp(from, to, t);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_QuatStruct, NLerp, QuatNLerp)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(ax);
+	PARAM_FLOAT(ay);
+	PARAM_FLOAT(az);
+	PARAM_FLOAT(aw);
+	PARAM_FLOAT(bx);
+	PARAM_FLOAT(by);
+	PARAM_FLOAT(bz);
+	PARAM_FLOAT(bw);
+	PARAM_FLOAT(t);
+
+	DQuaternion quat;
+	QuatNLerp(ax, ay, az, aw, bx, by, bz, bw, t, &quat);
+	ACTION_RETURN_QUAT(quat);
+}
+
+void QuatSLerp(
+	double ax, double ay, double az, double aw,
+	double bx, double by, double bz, double bw,
+	double t,
+	DQuaternion* pquat
+)
+{
+	auto from = DQuaternion { ax, ay, az, aw };
+	auto to   = DQuaternion { bx, by, bz, bw };
+	*pquat = DQuaternion::SLerp(from, to, t);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_QuatStruct, SLerp, QuatSLerp)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(ax);
+	PARAM_FLOAT(ay);
+	PARAM_FLOAT(az);
+	PARAM_FLOAT(aw);
+	PARAM_FLOAT(bx);
+	PARAM_FLOAT(by);
+	PARAM_FLOAT(bz);
+	PARAM_FLOAT(bw);
+	PARAM_FLOAT(t);
+
+	DQuaternion quat;
+	QuatSLerp(ax, ay, az, aw, bx, by, bz, bw, t, &quat);
+	ACTION_RETURN_QUAT(quat);
+}
+
+void QuatConjugate(
+	double x, double y, double z, double w,
+	DQuaternion* pquat
+)
+{
+	*pquat = DQuaternion(x, y, z, w).Conjugate();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_QuatStruct, Conjugate, QuatConjugate)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DQuaternion);
+
+	DQuaternion quat;
+	QuatConjugate(self->X, self->Y, self->Z, self->W, &quat);
+	ACTION_RETURN_QUAT(quat);
+}
+
+void QuatInverse(
+	double x, double y, double z, double w,
+	DQuaternion* pquat
+)
+{
+	*pquat = DQuaternion(x, y, z, w).Inverse();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_QuatStruct, Inverse, QuatInverse)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DQuaternion);
+
+	DQuaternion quat;
+	QuatInverse(self->X, self->Y, self->Z, self->W, &quat);
+	ACTION_RETURN_QUAT(quat);
+}

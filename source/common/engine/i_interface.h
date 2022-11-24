@@ -46,7 +46,6 @@ struct SystemCallbacks
 	void (*LanguageChanged)(const char*);
 	bool (*OkForLocalization)(FTextureID, const char*);
 	FConfigFile* (*GetConfig)();
-	bool (*WantEscape)();
 };
 
 extern SystemCallbacks sysCallbacks;

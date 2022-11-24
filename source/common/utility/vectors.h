@@ -678,6 +678,11 @@ struct TVector4
 	{
 	}
 
+	TVector4(const vec_t v[4])
+		: TVector4(v[0], v[1], v[2], v[3])
+	{
+	}
+
 	void Zero()
 	{
 		Z = Y = X = W = 0;
@@ -915,6 +920,11 @@ struct TVector4
 
 	// Dot product
 	vec_t operator | (const TVector4 &other) const
+	{
+		return X*other.X + Y*other.Y + Z*other.Z + W*other.W;
+	}
+
+	vec_t dot(const TVector4 &other) const
 	{
 		return X*other.X + Y*other.Y + Z*other.Z + W*other.W;
 	}
@@ -1598,7 +1608,6 @@ inline TMatrix3x3<T>::TMatrix3x3(const TVector3<T> &axis, TAngle<T> degrees)
 	Cells[2][2] = T(     (t-txx-tyy) + c  );
 }
 
-
 typedef TVector2<float>		FVector2;
 typedef TVector3<float>		FVector3;
 typedef TVector4<float>		FVector4;
@@ -1663,6 +1672,5 @@ protected:
 	FVector3 m_normal;
 	float m_d;
 };
-
 
 #endif
