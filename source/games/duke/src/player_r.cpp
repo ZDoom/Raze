@@ -2034,7 +2034,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 	if (p->scuba_on == 1)
 		p->scuba_on = 0;
 
-	double i = 40;
+	double i = gs.playerheight;
 	if (psectlotag == ST_1_ABOVE_WATER && p->spritebridge == 0)
 	{
 		if (shrunk == 0)
@@ -2171,12 +2171,11 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 
 		p->on_ground = 1;
 
-		if (i == 40)
+		if (i == gs.playerheight)
 		{
 			//Smooth on the ground
 
 			double k = (floorz - i - p->GetActor()->getOffsetZ()) * 0.5;
-			if (abs(k) < 1) k = 0;
 			p->GetActor()->spr.pos.Z += k;
 			p->vel.Z -= 3;
 			if (p->vel.Z < 0) p->vel.Z = 0;

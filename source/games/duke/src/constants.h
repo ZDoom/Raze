@@ -438,8 +438,6 @@ enum miscConstants
 
 	MOVEFIFOSIZ     =256,
 	AUTO_AIM_ANGLE  =48,
-	PHEIGHT_DUKE    =38,
-	PHEIGHT_RR      =40,
 
 	MAXMINECARTS = 16,
 	MAXJAILDOORS = 32,

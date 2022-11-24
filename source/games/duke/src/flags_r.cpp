@@ -321,7 +321,6 @@ void initactorflags_r()
 	TILE_BIGORBIT1 = BIGORBIT1;
 	TILE_EGG = EGG;
 
-	gs.playerheight = PHEIGHT_RR;
 	gs.firstdebris = SCRAP6;
 }
 
