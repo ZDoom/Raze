@@ -43,6 +43,22 @@ source as it is released.
 BEGIN_DUKE_NS
 
 
+void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
+{
+	if (info)
+	{
+		//int basepicnum = info->param;
+		//act->basepicnum = basepicnum;
+		if (info->basetex > 0 && act->IsKindOf(NAME_DukeGenericDestructible))
+		{
+			// allow defining simple destructibles without actual actor definitions.
+			act->IntVar(NAME_spawnstate) = info->basetex;
+			act->IntVar(NAME_brokenstate) = info->brokentex;
+			act->IntVar(NAME_breaksound) = S_FindSound(info->breaksound.GetChars()).index();
+		}
+	}
+}
+
 //---------------------------------------------------------------------------
 //
 // this creates a new actor but does not run any init code on it
@@ -56,26 +72,24 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	if (whatsectp == nullptr || !validSectorIndex(sectindex(whatsectp))) return nullptr;
 	// spawning out of range sprites will also crash.
 	if (clstype == nullptr && (s_pn < 0 || s_pn >= MAXTILES)) return nullptr;
+	SpawnRec* info = nullptr;
 
-	int basepicnum = -1;
 	if (!clstype)
 	{
-		auto info = spawnMap.CheckKey(s_pn);
+		info = spawnMap.CheckKey(s_pn);
 		if (info)
 		{
 			clstype = static_cast<PClassActor*>(info->Class(s_pn));
-			basepicnum = info->param;
 		}
 	}
 
 	auto act = static_cast<DDukeActor*>(InsertActor(clstype? clstype : RUNTIME_CLASS(DDukeActor), whatsectp, s_stat));
-
 	if (act == nullptr) return nullptr;
 	SetupGameVarsForActor(act);
 
-	act->basepicnum = basepicnum;
-	act->spr.pos = pos;
 	if (s_pn != -1) act->spr.picnum = s_pn;	// if -1 use the class default.
+	setFromSpawnRec(act, info);
+	act->spr.pos = pos;
 	act->spr.shade = s_shd;
 	if (!scale.isZero()) act->spr.scale = DVector2(scale.X, scale.Y);
 

@@ -2245,8 +2245,12 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 	}
 	while (!sc.CheckString("}"))
 	{
+		// This will need some reworking once we can use real textures.
 		int num = -1;
 		int base = -1;
+		int basetex = -1;
+		int brokentex = -1;
+		FName sound = NAME_None;
 		FName cname;
 		sc.GetNumber(num, true);
 		sc.MustGetStringName("=");
@@ -2254,11 +2258,34 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 		cname = sc.String;
 		if (sc.CheckString(","))
 		{
-			sc.GetNumber(base, true);
+			if (sc.CheckNumber(true)) base = sc.Number;
+			else
+			{
+				sc.MustGetString();
+				basetex = TileFiles.tileForName(sc.String);
+				if (basetex < 0) Printf(TEXTCOLOR_RED "Unknown texture %s in definition for spawn ID # %d\n", num);
+				if (sc.CheckString(","))
+				{
+					sc.MustGetString();
+					brokentex = TileFiles.tileForName(sc.String);
+					if (brokentex < 0) Printf(TEXTCOLOR_RED "Unknown texture %s in definition for spawn ID # %d\n", num);
+					if (sc.CheckString(","))
+					{
+						sc.MustGetString();
+						sound = sc.String;
+#if 0
+						// Sound engine is not initialized here.
+						S_FindSound(sc.String).index();
+						if (sound <= 0) Printf(TEXTCOLOR_RED "Unknown sound %s in definition for spawn ID # %d\n", num);
+#endif
+					}
+				}
+				
+			}
 		}
 
 		// todo: check for proper base class
-		spawnMap.Insert(num, { cname, nullptr, base });
+		spawnMap.Insert(num, { cname, nullptr, base, basetex, brokentex, sound });
 	}
 	sc.SetCMode(false);
 }

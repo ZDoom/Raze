@@ -978,6 +978,30 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, floorflags, duke_floorflags)
 	ACTION_RETURN_INT(duke_floorflags(sect));
 }
 
+int duke_wallflags(walltype* wal)
+{
+	return tileflags(wal->picnum);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, wallflags, duke_wallflags)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, walltype);
+	ACTION_RETURN_INT(duke_wallflags(sect));
+}
+
+int duke_ismirror(walltype* wal)
+{
+	return wal->picnum == TILE_MIRROR || wal->overpicnum == TILE_MIRROR;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ismirror, duke_ismirror)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(wal, walltype);
+	ACTION_RETURN_BOOL(duke_ismirror(wal));
+}
+
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, addcycler, addcycler)
 {
 	PARAM_PROLOGUE;
@@ -1092,6 +1116,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setWeaponOrAmmoSprite, tspritetype_s
 	tspritetype_setWeaponOrAmmoSprite(self, z);
 	return 0;
 }
+
+// this must still work around the lack of proper texture support on the script side.
+DEFINE_ACTION_FUNCTION(DDukeGenericDestructible, SetBroken)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(DDukeActor);
+	PARAM_INT(bust);
+	int tilenum = self->IntVar(bust ? NAME_brokenstate : NAME_spawnstate);
+	if (tilenum > 0) self->spr.picnum = tilenum;
+	ACTION_RETURN_BOOL(tilenum > 0);
+}
+
+
 
 
 void spawnguts(DDukeActor* origin, PClass* type, int count)

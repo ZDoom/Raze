@@ -936,10 +936,10 @@ bool checkhitceiling_d(sectortype* sectp)
 
 void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 {
-	if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == 0)
+	if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == STAT_DEFAULT)
 		return;
 
-	if ((proj->spr.picnum == FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != 4)
+	if ((proj->spr.picnum == FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != STAT_PROJECTILE)
 	{
 		if (badguy(targ) == 1)
 		{
@@ -995,7 +995,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if ((targ->spr.scale.X < 0.375 || targ->spr.picnum == SHARK) && proj->spr.picnum == SHRINKSPARK) return;
 		}
 
-		if (targ->spr.statnum != 2)
+		if (targ->spr.statnum != STAT_ZOMBIEACTOR)
 		{
 			if (proj->spr.picnum == FREEZEBLAST && ((targ->spr.picnum == APLAYER && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
@@ -1018,7 +1018,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			targ->SetHitOwner(Owner);
 		}
 
-		if (targ->spr.statnum == 10)
+		if (targ->spr.statnum == STAT_PLAYER)
 		{
 			auto p = targ->spr.yint;
 			if (ps[p].newOwner != nullptr)

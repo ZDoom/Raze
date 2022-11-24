@@ -19,3 +19,8 @@ xx(DukeRespawnController)
 xx(DukeActivator)
 xx(DukeActivatorLocked)
 xx(DukeLocator)
+xx(DukeGenericDestructible)
+
+xx(spawnstate)
+xx(brokenstate)
+xx(breaksound)

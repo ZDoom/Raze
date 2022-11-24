@@ -142,28 +142,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 122);
 		break;
 
-	case BIKEJIBA:
-	case BIKEJIBB:
-	case BIKEJIBC:
-	case BIKERJIBA:
-	case BIKERJIBB:
-	case BIKERJIBC:
-	case BIKERJIBD:
-	case CHEERJIBA:
-	case CHEERJIBB:
-	case CHEERJIBC:
-	case CHEERJIBD:
-	case FBOATJIBA:
-	case FBOATJIBB:
-	case RABBITJIBA:
-	case RABBITJIBB:
-	case RABBITJIBC:
-	case MAMAJIBA:
-	case MAMAJIBB:
-		// impossible to do with better methods outside of redoing the entire switch/case block
-		if (isRRRA()) goto rrra_badguy;
-		else goto default_case;
-
 	case WATERSPLASH2:
 	case MUD:
 		if (actj)
@@ -204,58 +182,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DOMELITE:
 		if (act->spr.picnum != WATERSPLASH2)
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		if (act->spr.picnum == DOMELITE)
-			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		[[fallthrough]];
-	case JIBS1:
-	case JIBS2:
-	case JIBS3:
-	case JIBS4:
-	case JIBS5:
-	case JIBS6:
-	case DUKETORSO:
-	case DUKEGUN:
-	case DUKELEG:
-	case BILLYJIBA:
-	case BILLYJIBB:
-	case HULKJIBA:
-	case HULKJIBB:
-	case HULKJIBC:
-	case MINJIBA:
-	case MINJIBB:
-	case MINJIBC:
-	case COOTJIBA:
-	case COOTJIBB:
-	case COOTJIBC:
-	rrra_badguy:
-		if (act->spr.picnum == JIBS6)
-		{
-			act->spr.scale *= 0.5;
-		}
-		else if (isRRRA())
-		{
-			if (act->spr.picnum == RABBITJIBA)
-			{
-				act->spr.scale = DVector2(0.28125, 0.28125);
-			}
-			else if (act->spr.picnum == RABBITJIBB)
-			{
-				act->spr.scale = DVector2(0.5625, 0.5625);
-			}
-			else if (act->spr.picnum == RABBITJIBC)
-			{
-				act->spr.scale = DVector2(0.84375, 0.84375);
-			}
-		}
 		ChangeActorStat(act, STAT_MISC);
-		break;
-	case TONGUE:
-		if (actj)
-			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-		act->spr.pos.Z -= gs.playerheight;
-		act->vel.Z = 1 - krandf(2);
-		act->vel.X = 4 - krandf(8);
-		ChangeActorStat(act, STAT_PROJECTILE);
 		break;
 	case TRANSPORTERSTAR:
 	case TRANSPORTERBEAM:

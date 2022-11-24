@@ -221,11 +221,13 @@ struct DukeLevel
 	native static void operatemasterswitches(int lotag);
 	native static void operateactivators(int lotag, DukePlayer p);
 	native static int floorflags(sectortype s);
+	native static int wallflags(walltype s);
 	native static void AddCycler(sectortype sector, int lotag, int shade, int shade2, int hitag, int state);
 	native static void addtorch(sectortype sector, int shade, int lotag);
 	native static void addlightning(sectortype sector, int shade);
 	native static int addambient(int hitag, int lotag);
 	native static void resetswitch(int tag);	// 
+	native bool isMirror(walltype wal);
 }
 
 struct DukeStatIterator
@@ -305,4 +307,12 @@ enum sflags2_t
 	SFLAG2_ALWAYSROTATE1		= 0x00001000,
 	SFLAG2_DIENOW				= 0x00002000,
 	SFLAG2_TRANFERPALTOJIBS		= 0x00004000,
+	SFLAG2_NORADIUSPUSH			= 0x00008000,
+	SFLAG2_FREEZEDAMAGE			= 0x00010000,
+	SFLAG2_REFLECTIVE			= 0x00020000,
+	SFLAG2_SPAWNRABBITGUTS		= 0x00040000, // this depends on the shooter, not the projectile so it has to be done with a flag.
+	SFLAG2_NONSMOKYROCKET		= 0x00080000, // same with this one. Flags should later be copied to the projectile once posible.
+	SFLAG2_MIRRORREFLECT		= 0x00100000,
+	SFLAG2_NOCIRCLEREFLECT		= 0x00200000, // yet another shooter flag. :(
+	SFLAG2_UNDERWATERSLOWDOWN	= 0x00400000,
 };

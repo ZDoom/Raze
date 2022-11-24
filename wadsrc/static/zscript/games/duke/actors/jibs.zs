@@ -252,6 +252,11 @@ class DukeJibs6 : DukeJibs1
 	{
 		spritesetindex 1;
 	}
+	
+	override void Initialize()
+	{
+		if (Raze.isRR()) self.scale *= 0.5; // only RR needs this.
+	}
 }
 
 class DukeHeadJib1 : DukeJibs1
@@ -544,6 +549,8 @@ class RedneckRabbitJibA : DukeJibs1
 	default
 	{
 		pic "RABBITJIBA";
+		ScaleX 0.28125;
+		ScaleY 0.28125;
 	}
 }
 
@@ -552,6 +559,8 @@ class RedneckRabbitJibB : DukeJibs1
 	default
 	{
 		pic "RABBITJIBB";
+		ScaleX 0.5625;
+		ScaleY 0.5625;
 	}
 }
 
@@ -560,6 +569,8 @@ class RedneckRabbitJibC : DukeJibs1
 	default
 	{
 		pic "RABBITJIBC";
+		ScaleX 0.84375;
+		ScaleY 0.84375;
 	}
 }
 
