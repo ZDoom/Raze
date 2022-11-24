@@ -392,7 +392,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 		}
 		else
 		{
-			ang = (ps[j].posGet() - pos).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
+			ang = (ps[j].GetActor()->spr.pos.XY() - pos.XY()).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
 		}
 	}
 
@@ -1070,7 +1070,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 	if (actor->isPlayer())
 	{
-		spos = ps[p].posGet().plusZ(ps[p].pyoff + 4);
+		spos = ps[p].GetActor()->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
 		sang = ps[p].angle.ang;
 
 		ps[p].crack_time = CRACK_TIME;
@@ -2013,7 +2013,7 @@ int operateTripbomb(int snum)
 	double vel = 1024, zvel = 0;
 	setFreeAimVelocity(vel, zvel, p->horizon.sum(), 16.);
 
-	hitscan(p->posGet(), p->cursector, DVector3(p->angle.ang.ToVector() * vel, zvel), hit, CLIPMASK1);
+	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->angle.ang.ToVector() * vel, zvel), hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;
@@ -2210,7 +2210,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->posGet() + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
+			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->angle.ang.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
 				p->angle.ang, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (isNam())
@@ -2750,10 +2750,10 @@ void processinput_d(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (pact->spr.scale.Y < 0.5);
-	getzrange(p->posGet(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
+	getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
 
-	p->truefz = getflorzofslopeptr(psectp, p->posGet());
-	p->truecz = getceilzofslopeptr(psectp, p->posGet());
+	p->truefz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
+	p->truecz = getceilzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 
 	truefdist = abs(p->GetActor()->getOffsetZ() - p->truefz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
@@ -2787,7 +2787,7 @@ void processinput_d(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			auto ang = (clz.actor()->spr.pos - p->posGet()).Angle();
+			auto ang = (clz.actor()->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
 	}
@@ -3034,7 +3034,7 @@ HORIZONLY:
 	if (ud.clipping)
 	{
 		p->GetActor()->spr.pos.XY() += p->vel.XY() ;
-		updatesector(p->posGet(), &p->cursector);
+		updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else

@@ -878,12 +878,12 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 		p->vel.XY() = -p->angle.ang.ToVector() * 16;
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
-		fi.checkhitwall(p->GetActor(), wal, p->posGet() + p->angle.ang.ToVector() * 2, -1);
+		fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->angle.ang.ToVector() * 2, -1);
 		break;
 
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), wal, p->posGet() + p->angle.ang.ToVector() * 2, -1);
+		fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->angle.ang.ToVector() * 2, -1);
 		break;
 
 	}
@@ -1064,7 +1064,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				ps[p].GetActor()->restorepos();
 				ps[p].angle.restore();
 
-				updatesector(ps[p].posGet(), &ps[p].cursector);
+				updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &ps[p].cursector);
 
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto itActor = it.Next())
@@ -1414,7 +1414,7 @@ void clearcameras(player_struct* p)
 	p->GetActor()->restorepos();
 	p->newOwner = nullptr;
 
-	updatesector(p->posGet(), &p->cursector);
+	updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
@@ -1519,14 +1519,14 @@ void checksectors_d(int snum)
 			neartag(p->posoldGet(), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 		else
 		{
-			neartag(p->posGet(), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
+			neartag(p->GetActor()->getPosWithOffsetZ(), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->posGet().plusZ(8), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(8), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->posGet().plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag(p->posGet().plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag | NT_Hitag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->angle.oang, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)

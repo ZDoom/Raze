@@ -254,7 +254,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		else
 		{
 			zvel += 0.5 - krandf(1);
-			ang = (ps[j].posGet() - pos).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
+			ang = (ps[j].GetActor()->spr.pos.XY() - pos.XY()).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
 		}
 	}
 
@@ -821,7 +821,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	if (actor->isPlayer())
 	{
 		p = actor->PlayerIndex();
-		spos = ps[p].posGet().plusZ(ps[p].pyoff + 4);
+		spos = ps[p].GetActor()->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
 		sang = ps[p].angle.ang;
 
 		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
@@ -2708,7 +2708,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->posGet() + p->angle.ang.ToVector() * 16, DYNAMITE, -16, DVector2(0.140625, 0.140625),
+			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->angle.ang.ToVector() * 16, DYNAMITE, -16, DVector2(0.140625, 0.140625),
 				p->angle.ang, (vel + p->hbomb_hold_delay * 2) * 2, zvel, pact, 1);
 
 			if (spawned)
@@ -3116,7 +3116,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel -= 4;
 			}
 
-			CreateActor(p->cursector, p->posGet() + p->angle.ang.ToVector() * 16, POWDERKEG, -16, DVector2(0.140625, 0.140625), p->angle.ang, vel * 2, zvel, pact, 1);
+			CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->angle.ang.ToVector() * 16, POWDERKEG, -16, DVector2(0.140625, 0.140625), p->angle.ang, vel * 2, zvel, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
@@ -3353,17 +3353,17 @@ void processinput_r(int snum)
 	double tempfz;
 	if (pact->clipdist == 16)
 	{
-		getzrange(p->posGet(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
-		tempfz = getflorzofslopeptr(psectp, p->posGet());
+		getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 10.1875, CLIPMASK0);
+		tempfz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 	}
 	else
 	{
-		getzrange(p->posGet(), psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
-		tempfz = getflorzofslopeptr(psectp, p->posGet());
+		getzrange(p->GetActor()->getPosWithOffsetZ(), psectp, &ceilingz, chz, &floorz, clz, 0.25, CLIPMASK0);
+		tempfz = getflorzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 	}
 
 	p->truefz = tempfz;
-	p->truecz = getceilzofslopeptr(psectp, p->posGet());
+	p->truecz = getceilzofslopeptr(psectp, p->GetActor()->getPosWithOffsetZ());
 
 	double truefdist = abs(p->GetActor()->getOffsetZ() - tempfz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + 16)
@@ -3427,7 +3427,7 @@ void processinput_r(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.scale.X > 0.375 && abs(pact->spr.pos.Z - clz.actor()->spr.pos.Z) < 84)
 		{
-			auto ang = (clz.actor()->spr.pos - p->posGet()).Angle();
+			auto ang = (clz.actor()->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
 		if (clz.actor()->spr.picnum == LADDER)
@@ -3738,7 +3738,7 @@ HORIZONLY:
 	if (ud.clipping)
 	{
 		p->GetActor()->spr.pos.XY() += p->vel.XY() ;
-		updatesector(p->posGet(), &p->cursector);
+		updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
 		ChangeActorSect(pact, p->cursector);
 	}
 	else

@@ -205,7 +205,7 @@ void clearcamera(player_struct* ps)
 	ps->newOwner = nullptr;
 	ps->GetActor()->restorepos();
 	ps->angle.restore();
-	updatesector(ps->posGet(), &ps->cursector);
+	updatesector(ps->GetActor()->getPosWithOffsetZ(), &ps->cursector);
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto k = it.Next())
@@ -442,7 +442,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->angle.addadjustment(deltaangle(p->angle.ang, (p->actorsqu->spr.pos - p->posGet()).Angle()) * 0.25);
+					p->angle.addadjustment(deltaangle(p->angle.ang, (p->actorsqu->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.25);
 				}
 
 				if (act->spr.extra > 0)
@@ -462,7 +462,7 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->angle.addadjustment(deltaangle(p->angle.ang, (p->wackedbyactor->spr.pos - p->posGet()).Angle()) * 0.5);
+						p->angle.addadjustment(deltaangle(p->angle.ang, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5);
 					}
 				}
 				act->spr.angle = p->angle.ang;
@@ -957,7 +957,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			fi.shoot(actor, firelaser);
 			actor->spr.angle = a;
 		}
-		if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].posGet(), ps[p].cursector))
+		if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].GetActor()->getPosWithOffsetZ(), ps[p].cursector))
 		{
 			actor->temp_data[0] = 0;
 			actor->temp_data[2] = 0;
@@ -979,7 +979,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		else
 		{
 			actor->temp_data[2]++;
-			if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].posGet(), ps[p].cursector))
+			if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].GetActor()->getPosWithOffsetZ(), ps[p].cursector))
 			{
 				actor->temp_data[0] = 1;
 				actor->temp_data[2] = 0;
@@ -2006,7 +2006,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					if (psp->spr.extra > 0)
 					{
 						auto sect = ps[p].cursector;
-						updatesector(ps[p].posGet(), &sect);
+						updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &sect);
 						if ((sect == nullptr && ud.clipping == 0) || (sect == actor->sector() && ps[p].cursector != actor->sector()))
 						{
 							ps[p].GetActor()->spr.pos.XY() = actor->spr.pos.XY();
@@ -2081,7 +2081,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					if (ps[p].GetActor()->spr.extra > 0)
 					{
 						auto k = ps[p].cursector;
-						updatesector(ps[p].posGet(), &k);
+						updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
 							ps[p].GetActor()->spr.pos.XY() = actor->spr.pos.XY();
@@ -2184,7 +2184,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 					if (psp->spr.extra > 0)
 					{
 						auto k = ps[p].cursector;
-						updatesector(ps[p].posGet(), &k);
+						updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
 							ps[p].GetActor()->spr.pos.XY() = actor->spr.pos.XY();
@@ -2240,7 +2240,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 					if (ps[p].GetActor()->spr.extra > 0)
 					{
 						auto k = ps[p].cursector;
-						updatesector(ps[p].posGet(), &k);
+						updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->sector() && ps[p].cursector != actor->sector()))
 						{
 							ps[p].GetActor()->spr.pos.XY() = actor->spr.pos.XY();
@@ -2473,7 +2473,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	if (x < 512)
 	{
 		auto ang = actor->spr.angle;
-		actor->spr.angle = (actor->spr.pos.XY() - ps[p].posGet()).Angle();
+		actor->spr.angle = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
 		fi.shoot(actor, FIRELASER);
 		actor->spr.angle = ang;
 	}
@@ -3037,10 +3037,10 @@ void handle_se17(DDukeActor* actor)
 			{
 				int p = act3->PlayerIndex();
 
-				ps[p].posoldAdd(-ps[p].posGet());
+				ps[p].posoldAdd(-ps[p].GetActor()->getPosWithOffsetZ());
 				ps[p].GetActor()->spr.pos.XY() += act2->spr.pos.XY() - actor->spr.pos.XY();
 				ps[p].GetActor()->spr.pos.Z += act2->sector()->floorz - sc->floorz;
-				ps[p].posoldAdd(ps[p].posGet());
+				ps[p].posoldAdd(ps[p].GetActor()->getPosWithOffsetZ());
 
 				if (q > 0) ps[p].GetActor()->backupz();
 
@@ -3483,7 +3483,7 @@ void handle_se27(DDukeActor* actor)
 		}
 		else if (ud.recstat == 2 && ps[p].newOwner == nullptr)
 		{
-			if (cansee(actor->spr.pos, actor->sector(), ps[p].posGet(), ps[p].cursector))
+			if (cansee(actor->spr.pos, actor->sector(), ps[p].GetActor()->getPosWithOffsetZ(), ps[p].cursector))
 			{
 				if (xx < sh * maptoworld)
 				{

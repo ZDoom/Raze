@@ -1517,12 +1517,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->spr.pos.plusZ(krand() & 41), g_ac->sector(), ps[g_p].posGet(), ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos.plusZ(krand() & 41), g_ac->sector(), ps[g_p].GetActor()->getPosWithOffsetZ(), ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->spr.pos, g_ac->sector(), ps[g_p].posGet(), ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos, g_ac->sector(), ps[g_p].GetActor()->getPosWithOffsetZ(), ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -2047,7 +2047,7 @@ int ParseState::parse(void)
 			ps[g_p].newOwner = nullptr;
 			ps[g_p].GetActor()->restorepos();
 			ps[g_p].angle.restore();
-			updatesector(ps[g_p].posGet(), &ps[g_p].cursector);
+			updatesector(ps[g_p].GetActor()->getPosWithOffsetZ(), &ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto actj = it.Next())
@@ -2230,11 +2230,11 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_ac->spr.pos = ps[g_p].posGet();
+			g_ac->spr.pos = ps[g_p].GetActor()->getPosWithOffsetZ();
 			ps[g_p].GetActor()->backuppos();
 			ps[g_p].setbobpos();
 			g_ac->backuppos();
-			updatesector(ps[g_p].posGet(), &ps[g_p].cursector);
+			updatesector(ps[g_p].GetActor()->getPosWithOffsetZ(), &ps[g_p].cursector);
 			SetActor(ps[g_p].GetActor(), ps[g_p].GetActor()->spr.pos);
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
@@ -2793,7 +2793,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.scale.X >= (isRR()? 0.140625 : 0.625) )
-			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), ps[g_p].posGet().plusZ(16), ps[g_p].GetActor()->sector()))
+			if (cansee(g_ac->spr.pos.plusZ(-4), g_ac->sector(), ps[g_p].GetActor()->getPosWithOffsetZ().plusZ(16), ps[g_p].GetActor()->sector()))
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)

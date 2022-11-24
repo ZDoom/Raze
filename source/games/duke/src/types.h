@@ -348,10 +348,6 @@ struct player_struct
 	{
 		GetActor()->spr.pos.XY() += val;
 	}
-	DVector3 posGet()
-	{
-		return GetActor()->spr.pos.plusZ(GetActor()->viewzoffset);
-	}
 
 	double& posoldX()
 	{

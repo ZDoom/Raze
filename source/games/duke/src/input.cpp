@@ -284,7 +284,7 @@ void hud_input(int plnum)
 							p->inven_icon = 3;
 
 							auto pactor =
-								CreateActor(p->cursector, p->posGet().plusZ(30), TILE_APLAYER, -64, DVector2(0, 0), p->angle.ang, 0., 0., nullptr, 10);
+								CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ().plusZ(30), TILE_APLAYER, -64, DVector2(0, 0), p->angle.ang, 0., 0., nullptr, 10);
 							pactor->temp_data[3] = pactor->temp_data[4] = 0;
 							p->holoduke_on = pactor;
 							pactor->spr.yint = plnum;

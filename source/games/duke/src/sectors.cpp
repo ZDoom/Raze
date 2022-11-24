@@ -263,7 +263,7 @@ int findotherplayer(int p, double* d)
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 		if (p != j && ps[j].GetActor()->spr.extra > 0)
 		{
-			double x = (ps[j].posoldGet() - ps[p].posGet()).Sum();
+			double x = (ps[j].posoldGet() - ps[p].GetActor()->getPosWithOffsetZ()).Sum();
 
 			if (x < closest)
 			{

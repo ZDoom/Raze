@@ -1376,7 +1376,7 @@ void movetransports_d(void)
 							ps[p].GetActor()->backupz();
 
 							auto pa = ps[p].GetActor();
-							pa->opos = ps[p].posGet();
+							pa->opos = ps[p].GetActor()->getPosWithOffsetZ();
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -1735,7 +1735,7 @@ static void greenslime(DDukeActor *actor)
 			ps[p].GetActor()->restorepos();
 			ps[p].angle.restore();
 
-			updatesector(ps[p].posGet(), &ps[p].cursector);
+			updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &ps[p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
@@ -2258,7 +2258,7 @@ DETONATEB:
 		}
 	}
 	else if (actor->spr.picnum == HEAVYHBOMB && xx < 788 / 16. && actor->temp_data[0] > 7 && actor->vel.X == 0)
-		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].posGet(), ps[p].cursector))
+		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].GetActor()->getPosWithOffsetZ(), ps[p].cursector))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{
 				if (ud.coop >= 1 && Owner == actor)
@@ -2784,7 +2784,7 @@ static void handle_se28(DDukeActor* actor)
 		}
 		else if (actor->temp_data[2] > (actor->temp_data[1] >> 3) && actor->temp_data[2] < (actor->temp_data[1] >> 2))
 		{
-			int j = !!cansee(actor->spr.pos, actor->sector(), ps[screenpeek].posGet(), ps[screenpeek].cursector);
+			int j = !!cansee(actor->spr.pos, actor->sector(), ps[screenpeek].GetActor()->getPosWithOffsetZ(), ps[screenpeek].cursector);
 
 			if (rnd(192) && (actor->temp_data[2] & 1))
 			{

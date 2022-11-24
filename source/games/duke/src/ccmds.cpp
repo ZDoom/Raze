@@ -114,9 +114,12 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
 	player_struct* p = &ps[myconnectindex];
+	auto pActor = p->GetActor();
 
-	p->posSet(DVector3(x, y, z));
-	p->GetActor()->backuppos();
+	if (!pActor) return;
+
+	pActor->spr.pos = DVector3(x, y, z);
+	pActor->backuppos();
 
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{

@@ -51,7 +51,7 @@ short myangbak[MOVEFIFOSIZ];
 
 void resetmys()
 {
-	mypos = omypos = ps[myconnectindex].posGet();
+	mypos = omypos = ps[myconnectindex].GetActor()->getPosWithOffsetZ();
 	myxvel = myyvel = myzvel = 0;
 	myang = ps[myconnectindex].angle.ang;
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;

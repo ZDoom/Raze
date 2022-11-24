@@ -320,7 +320,7 @@ void S_GetCamera(DVector3* c, DAngle* ca, sectortype** cs)
 		auto p = &ps[screenpeek];
 		if (c)
 		{
-			if (p->GetActor()) *c = p->posGet();
+			if (p->GetActor()) *c = p->GetActor()->getPosWithOffsetZ();
 			else  c->Zero();
 		}
 		if (cs) *cs = p->cursector;
