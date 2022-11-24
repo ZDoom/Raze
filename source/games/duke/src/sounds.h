@@ -56,7 +56,7 @@ int S_GetUserFlags(int sndnum);
 
 inline bool S_IsSoundValid(int num)
 {
-	return (!soundEngine->isValidSoundId(num + 1));
+	return (!soundEngine->isValidSoundId(FSoundID::fromInt(num + 1)));
 }
 
 

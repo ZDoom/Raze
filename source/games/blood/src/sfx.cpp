@@ -170,7 +170,7 @@ void sfxPlay3DSound(const DVector3& pos, int soundId, sectortype* pSector)
 {
 	if (!SoundEnabled() || soundId < 0) return;
 	auto sid = soundEngine->FindSoundByResID(soundId);
-	if (sid == 0) return;
+	if (!sid.isvalid()) return;
 
 	auto svec = GetSoundPos(pos);
 
@@ -196,7 +196,7 @@ void sfxPlay3DSoundCP(DBloodActor* pActor, int soundId, int playchannel, int pla
 {
 	if (!SoundEnabled() || soundId < 0 || !pActor) return;
 	auto sid = soundEngine->FindSoundByResID(soundId);
-	if (sid == 0) return;
+	if (!sid.isvalid()) return;
 
 	auto svec = GetSoundPos(pActor->spr.pos);
 

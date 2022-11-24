@@ -197,7 +197,7 @@ struct AmbientSound
 {
     DSWActor* spot;
     int ambIndex;
-    int vocIndex;
+    FSoundID vocIndex;
     int ChanFlags;
     int maxIndex;
     int curIndex;
@@ -250,7 +250,7 @@ void InitAmbient(int num, DSWActor* actor)
         }
         return;
     }
-    auto vnum = ambarray[num].diginame;
+    auto vnum = FSoundID::fromInt(ambarray[num].diginame);
     if (!soundEngine->isValidSoundId(vnum))
     {
         return; // linked sound does not exist.
@@ -262,7 +262,7 @@ void InitAmbient(int num, DSWActor* actor)
     amb->vocIndex = vnum;
     amb->ChanFlags = CHANF_TRANSIENT;
     if (ambarray[num].ambient_flags & v3df_dontpan) amb->ChanFlags |= EChanFlags::FromInt(CHANEXF_DONTPAN);
-    if (voc[vnum].voc_flags & vf_loop) amb->ChanFlags |= CHANF_LOOP; 
+    if (voc[vnum.index()].voc_flags & vf_loop) amb->ChanFlags |= CHANF_LOOP;
     amb->maxIndex = ambarray[num].maxtics;
     amb->curIndex = 0;
     amb->intermit = !!(ambarray[num].ambient_flags & v3df_intermit);
@@ -296,7 +296,7 @@ static void RestartAmbient(AmbientSound* amb)
 {
     if (!SoundEnabled()) return;
 
-    auto& vp = voc[amb->vocIndex];
+    auto& vp = voc[amb->vocIndex.index()];
     auto rolloff = GetRolloff(vp.voc_distance);
     int pitch = 0;
     if (vp.pitch_hi <= vp.pitch_lo) pitch = vp.pitch_lo;
@@ -348,7 +348,7 @@ static void DoTimedSound(AmbientSound* amb)
             int ambid = RandomizeAmbientSpecials(amb->ambIndex);
             if (ambid != -1)
             {
-                amb->vocIndex = ambarray[ambid].diginame;
+                amb->vocIndex = FSoundID::fromInt(ambarray[ambid].diginame);
                 amb->maxIndex = StdRandomRange(ambarray[ambid].maxtics);
             }
             RestartAmbient(amb);
@@ -369,9 +369,9 @@ static void UpdateAmbients()
     for (auto& amb : ambients)
     {
         auto spot = amb->spot;
-        auto sdist = SoundDist(spot->spr.pos, voc[amb->vocIndex].voc_distance);
+        auto sdist = SoundDist(spot->spr.pos, voc[amb->vocIndex.index()].voc_distance);
 
-        if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
+        if (sdist < 255 && amb->vocIndex.index() == DIGI_WHIPME)
         {
             PLAYER* pp = Player + screenpeek;
             if (!FAFcansee(spot->spr.pos, spot->sector(), pp->pos, pp->cursector))
@@ -569,7 +569,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         {
             // For unpanned sounds the volume must be set directly and the position taken from the listener.
             *pos = campos;
-            auto sdist = SoundDist(vPos, voc[chanSound].voc_distance);
+            auto sdist = SoundDist(vPos, voc[chanSound.index()].voc_distance);
             if (chan) SetVolume(chan, (255 - sdist) * (1 / 255.f));
         }
 
@@ -627,7 +627,7 @@ void GameInterface::UpdateSounds(void)
 
 int _PlaySound(int num, DSWActor* actor, PLAYER* pp, const DVector3* const ppos, int flags, int channel, EChanFlags cflags)
 {
-    if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
+    if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(FSoundID::fromInt(num)))
         return -1;
 
     auto sps = actor;
@@ -681,7 +681,7 @@ int _PlaySound(int num, DSWActor* actor, PLAYER* pp, const DVector3* const ppos,
 
     auto rolloff = GetRolloff(vp->voc_distance);
     FVector3 spos = GetSoundPos(pos);
-    auto chan = soundEngine->StartSound(sourcetype, source, &spos, channel, cflags, num, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
+    auto chan = soundEngine->StartSound(sourcetype, source, &spos, channel, cflags, FSoundID::fromInt(num), 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
     if (chan && sourcetype == SOURCE_Unattached) chan->Source = sps; // needed for sound termination.
     return 1;
 }
@@ -697,7 +697,7 @@ void PlaySoundRTS(int rts_num)
     if (SoundEnabled() && RTS_IsInitialized() && snd_speech)
     {
         auto sid = RTS_GetSoundID(rts_num - 1);
-        if (sid != -1)
+        if (sid.isvalid())
         {
             soundEngine->StartSound(SOURCE_Unattached, nullptr, nullptr, CHAN_VOICE, 0, sid, 0.8f, ATTN_NONE);
         }
@@ -809,7 +809,7 @@ int _PlayerSound(int num, PLAYER* pp)
         return 0;
     }
 
-    if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(num) || !SoundEnabled())
+    if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(FSoundID::fromInt(num)) || !SoundEnabled())
         return 0;
 
     if (pp->Flags & (PF_DEAD)) return 0; // You're dead, no talking!
@@ -826,7 +826,7 @@ int _PlayerSound(int num, PLAYER* pp)
         return 0;
 
     // The surfacing sound should not block other player speech.
-    if (soundEngine->IsSourcePlayingSomething(SOURCE_Player, pp, CHAN_VOICE, DIGI_SURFACE))
+    if (soundEngine->IsSourcePlayingSomething(SOURCE_Player, pp, CHAN_VOICE, FSoundID::fromInt(DIGI_SURFACE)))
     {
         soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE);
     }
@@ -834,7 +834,7 @@ int _PlayerSound(int num, PLAYER* pp)
     // He wasn't talking, but he will be now.
     if (!soundEngine->IsSourcePlayingSomething(SOURCE_Player, pp, CHAN_VOICE))
     {
-        soundEngine->StartSound(SOURCE_Player, pp, nullptr, CHAN_VOICE, 0, num, 1.f, ATTN_NORM);
+        soundEngine->StartSound(SOURCE_Player, pp, nullptr, CHAN_VOICE, 0, FSoundID::fromInt(num), 1.f, ATTN_NORM);
     }
 
     return 0;
@@ -842,7 +842,7 @@ int _PlayerSound(int num, PLAYER* pp)
 
 void StopPlayerSound(PLAYER* pp, int which)
 {
-    soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE, which);
+    soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE, FSoundID::fromInt(which));
 }
 
 bool SoundValidAndActive(DSWActor* spr, int channel)

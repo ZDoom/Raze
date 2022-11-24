@@ -379,7 +379,7 @@ void SEQINST::Update()
 
 			int sndId = surfSfxMove[surf][Random(2)];
 			auto snd = soundEngine->FindSoundByResID(sndId);
-			if (snd > 0)
+			if (snd.isvalid())
 			{
 				auto udata = soundEngine->GetUserData(snd);
 				int relVol = udata ? udata[2] : 255;

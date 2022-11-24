@@ -74,29 +74,29 @@ static void S_AddBloodSFX(int lumpnum)
 	ByteSwapSFX(sfx);
 	FStringf rawname("%s.raw", sfx->rawName);
 	auto rawlump = fileSystem.FindFile(rawname);
-	int sfxnum;
+	FSoundID sfxnum;
 
 	if (rawlump != -1)
 	{
-		auto& S_sfx = soundEngine->GetSounds();
 		sfxnum = soundEngine->AddSoundLump(sfx->rawName, rawlump, 0, fileSystem.GetResourceId(lumpnum), 6);
+		auto soundfx = soundEngine->GetWritableSfx(sfxnum);
 		if (sfx->format < 5 || sfx->format > 12)
 		{	// [0..4] + invalid formats
-			S_sfx[sfxnum].RawRate = 11025;
+			soundfx->RawRate = 11025;
 		}
 		else if (sfx->format < 9)
 		{	// [5..8]
-			S_sfx[sfxnum].RawRate = 22050;
+			soundfx->RawRate = 22050;
 		}
 		else
 		{	// [9..12]
-			S_sfx[sfxnum].RawRate = 44100;
+			soundfx->RawRate = 44100;
 		}
-		S_sfx[sfxnum].bLoadRAW = true;
-		S_sfx[sfxnum].LoopStart = LittleLong(sfx->loopStart);
+		soundfx->bLoadRAW = true;
+		soundfx->LoopStart = LittleLong(sfx->loopStart);
 		//S_sfx[sfxnum].Volume = sfx->relVol / 255.f; This cannot be done because this volume setting is optional.
-		S_sfx[sfxnum].UserData.Resize(3);
-		int* udata = (int*)S_sfx[sfxnum].UserData.Data();
+		soundfx->UserData.Resize(3);
+		int* udata = (int*)soundfx->UserData.Data();
 		udata[0] = sfx->pitch;
 		udata[1] = sfx->pitchRange;
 		udata[2] = sfx->relVol;
@@ -118,7 +118,7 @@ void sndInit(void)
 		auto type = fileSystem.GetResourceType(i);
 		if (!stricmp(type, "SFX"))
 		{
-			if (soundEngine->FindSoundByResID(fileSystem.GetResourceId(i)) == 0)
+			if (soundEngine->FindSoundByResID(fileSystem.GetResourceId(i)) == NO_SOUND)
 				S_AddBloodSFX(i);
 		}
 		else if (!stricmp(type, "WAV") || !stricmp(type, "OGG") || !stricmp(type, "FLAC") || !stricmp(type, "VOC"))
@@ -146,14 +146,14 @@ int sndGetRate(int format)
 bool sndCheckPlaying(unsigned int nSound)
 {
 	auto snd = soundEngine->FindSoundByResID(nSound);
-	return snd > 0 ? soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, snd) : false;
+	return snd.isvalid() ? soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, snd) : false;
 }
 
 void sndStopSample(unsigned int nSound)
 {
 	auto snd = soundEngine->FindSoundByResID(nSound);
 
-	if (snd > 0)
+	if (snd.isvalid())
 	{
 		soundEngine->StopSoundID(snd);
 	}
@@ -172,7 +172,7 @@ void sndStartSample(const char* pzSound, int nVolume, int nChannel)
 	if (!strlen(pzSound))
 		return;
 	auto snd = soundEngine->FindSound(pzSound);
-	if (snd > 0)
+	if (snd.isvalid())
 	{
 		soundEngine->StartSound(SOURCE_None, nullptr, nullptr, nChannel + 1, 0, snd, nVolume / 255.f, ATTN_NONE);
 	}
@@ -184,7 +184,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, 
 		return;
 	if (nChannel >= 7) nChannel = -1;
 	auto snd = soundEngine->FindSoundByResID(nSound);
-	if (snd > 0)
+	if (snd.isvalid())
 	{
 		if (nVolume < 0)
 		{

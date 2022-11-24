@@ -349,9 +349,9 @@ int startrts(int lumpNum, int localPlayer)
 		RTS_IsInitialized() && rtsplaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
 	{
 		auto sid = RTS_GetSoundID(lumpNum - 1);
-		if (sid != -1)
+		if (sid.isvalid())
 		{
-			S_PlaySound(sid, CHAN_AUTO, CHANF_UI);
+			S_PlaySound(sid.index() - 1, CHAN_AUTO, CHANF_UI);
 			rtsplaying = 7;
 			return 1;
 		}
