@@ -1299,7 +1299,7 @@ FxExpression *FxStringCast::Resolve(FCompileContext &ctx)
 		if (basex->isConstant())
 		{
 			ExpVal constval = static_cast<FxConstant *>(basex)->GetValue();
-			FxExpression *x = new FxConstant(soundEngine->GetSoundName(constval.GetInt()), ScriptPosition);
+			FxExpression *x = new FxConstant(soundEngine->GetSoundName(FSoundID::fromInt(constval.GetInt())), ScriptPosition);
 			delete this;
 			return x;
 		}
@@ -1475,7 +1475,7 @@ FxExpression *FxSoundCast::Resolve(FCompileContext &ctx)
 		if (basex->isConstant())
 		{
 			ExpVal constval = static_cast<FxConstant *>(basex)->GetValue();
-			FxExpression *x = new FxConstant(FSoundID(constval.GetString()), ScriptPosition);
+			FxExpression *x = new FxConstant(S_FindSound(constval.GetString()), ScriptPosition);
 			delete this;
 			return x;
 		}
@@ -3093,7 +3093,14 @@ FxExpression *FxMulDiv::Resolve(FCompileContext& ctx)
 			[[fallthrough]];
 
 		case '*':
-			if ((left->IsVector() || left->IsQuaternion()) && right->IsNumeric())
+			if (Operator == '*' && left->IsQuaternion() && (right->IsVector3() || right->IsQuaternion()))
+			{
+				// quat * vec3
+				// quat * quat
+				ValueType = right->ValueType;
+				break;
+			}
+			else if ((left->IsVector() || left->IsQuaternion()) && right->IsNumeric())
 			{
 				if (right->IsInteger())
 				{
@@ -3208,10 +3215,26 @@ ExpEmit FxMulDiv::Emit(VMFunctionBuilder *build)
 	ExpEmit op1 = left->Emit(build);
 	ExpEmit op2 = right->Emit(build);
 
-	if (IsVector() || IsQuaternion())
+	if (Operator == '*' && left->IsQuaternion() && right->IsQuaternion())
+	{
+		op1.Free(build);
+		op2.Free(build);
+		ExpEmit to(build, ValueType->GetRegType(), ValueType->GetRegCount());
+		build->Emit(OP_MULQQ_RR, to.RegNum, op1.RegNum, op2.RegNum);
+		return to;
+	}
+	else if (Operator == '*' && left->IsQuaternion() && right->IsVector3())
+	{
+		op1.Free(build);
+		op2.Free(build);
+		ExpEmit to(build, ValueType->GetRegType(), ValueType->GetRegCount());
+		build->Emit(OP_MULQV3_RR, to.RegNum, op1.RegNum, op2.RegNum);
+		return to;
+	}
+	else if (IsVector() || IsQuaternion())
 	{
 		assert(Operator != '%');
-		if (right->IsVector())
+		if (left->IsFloat())
 		{
 			std::swap(op1, op2);
 		}
@@ -4378,7 +4401,7 @@ ExpEmit FxConcat::Emit(VMFunctionBuilder *build)
 			build->Emit(op2.RegType == REGT_INT ? OP_LK : op2.RegType == REGT_FLOAT ? OP_LKF : OP_LKP, nonconst.RegNum, op2.RegNum);
 			op2 = nonconst;
 		}
-		if (op1.RegType == REGT_FLOAT) cast = op1.RegCount == 1 ? CAST_F2S : op1.RegCount == 2 ? CAST_V22S : op1.RegCount == 3 ? CAST_V32S : CAST_V42S;
+		if (op2.RegType == REGT_FLOAT) cast = op2.RegCount == 1 ? CAST_F2S : op2.RegCount == 2 ? CAST_V22S : op2.RegCount == 3 ? CAST_V32S : CAST_V42S;
 		else if (right->ValueType == TypeUInt32) cast = CAST_U2S;
 		else if (right->ValueType == TypeName) cast = CAST_N2S;
 		else if (right->ValueType == TypeSound) cast = CAST_So2S;
@@ -8206,6 +8229,7 @@ FxExpression *FxMemberFunctionCall::Resolve(FCompileContext& ctx)
 		// because the resulting value type would cause problems in nearly every other place where identifiers are being used.
 		// [ZZ] substitute ccls for String internal type.
 		if (id == NAME_String) ccls = TypeStringStruct;
+		else if (id == NAME_Quat || id == NAME_FQuat) ccls = TypeQuaternionStruct;
 		else ccls = FindContainerType(id, ctx);
 		if (ccls != nullptr) static_cast<FxIdentifier *>(Self)->noglobal = true;
 	}
@@ -8385,9 +8409,9 @@ FxExpression *FxMemberFunctionCall::Resolve(FCompileContext& ctx)
 			delete this;
 			return x->Resolve(ctx);
 		}
+
+		Self->ValueType = TypeQuaternionStruct;
 	}
-
-
 	else if (Self->ValueType == TypeString)
 	{
 		if (MethodName == NAME_Length)	// This is an intrinsic because a dedicated opcode exists for it.

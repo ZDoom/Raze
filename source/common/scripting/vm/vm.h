@@ -39,6 +39,7 @@
 #include "autosegs.h"
 #include "zstring.h"
 #include "vectors.h"
+#include "quaternion.h"
 #include "cmdlib.h"
 #include "engineerrors.h"
 #include "memarena.h"
@@ -140,6 +141,14 @@ struct VMReturn
 		((double *)Location)[3] = val[3];
 	}
 	void SetVector4(const DVector4 &val)
+	{
+		assert(RegType == (REGT_FLOAT | REGT_MULTIREG4));
+		((double *)Location)[0] = val[0];
+		((double *)Location)[1] = val[1];
+		((double *)Location)[2] = val[2];
+		((double *)Location)[3] = val[3];
+	}
+	void SetQuaternion(const DQuaternion &val)
 	{
 		assert(RegType == (REGT_FLOAT | REGT_MULTIREG4));
 		((double *)Location)[0] = val[0];
@@ -530,7 +539,7 @@ bool AssertObject(void * ob);
 #define PARAM_UINT_AT(p,x)			assert((p) < numparam); assert(reginfo[p] == REGT_INT); unsigned x = param[p].i;
 #define PARAM_BOOL_AT(p,x)			assert((p) < numparam); assert(reginfo[p] == REGT_INT); bool x = !!param[p].i;
 #define PARAM_NAME_AT(p,x)			assert((p) < numparam); assert(reginfo[p] == REGT_INT); FName x = ENamedName(param[p].i);
-#define PARAM_SOUND_AT(p,x)			assert((p) < numparam); assert(reginfo[p] == REGT_INT); FSoundID x = param[p].i;
+#define PARAM_SOUND_AT(p,x)			assert((p) < numparam); assert(reginfo[p] == REGT_INT); FSoundID x = FSoundID::fromInt(param[p].i);
 #define PARAM_COLOR_AT(p,x)			assert((p) < numparam); assert(reginfo[p] == REGT_INT); PalEntry x = param[p].i;
 #define PARAM_FLOAT_AT(p,x)			assert((p) < numparam); assert(reginfo[p] == REGT_FLOAT); double x = param[p].f;
 #define PARAM_ANGLE_AT(p,x)			assert((p) < numparam); assert(reginfo[p] == REGT_FLOAT); DAngle x = DAngle::fromDeg(param[p].f);
@@ -748,6 +757,8 @@ class AActor;
 #define ACTION_RETURN_FLOAT(v) do { double u = v; if (numret > 0) { assert(ret != nullptr); ret->SetFloat(u); return 1; } return 0; } while(0)
 #define ACTION_RETURN_VEC2(v) do { DVector2 u = v; if (numret > 0) { assert(ret != nullptr); ret[0].SetVector2(u); return 1; } return 0; } while(0)
 #define ACTION_RETURN_VEC3(v) do { DVector3 u = v; if (numret > 0) { assert(ret != nullptr); ret[0].SetVector(u); return 1; } return 0; } while(0)
+#define ACTION_RETURN_VEC4(v) do { DVector4 u = v; if (numret > 0) { assert(ret != nullptr); ret[0].SetVector4(u); return 1; } return 0; } while(0)
+#define ACTION_RETURN_QUAT(v) do { DQuaternion u = v; if (numret > 0) { assert(ret != nullptr); ret[0].SetQuaternion(u); return 1; } return 0; } while(0)
 #define ACTION_RETURN_INT(v) do { int u = v; if (numret > 0) { assert(ret != NULL); ret->SetInt(u); return 1; } return 0; } while(0)
 #define ACTION_RETURN_BOOL(v) ACTION_RETURN_INT(v)
 #define ACTION_RETURN_STRING(v) do { FString u = v; if (numret > 0) { assert(ret != NULL); ret->SetString(u); return 1; } return 0; } while(0)
