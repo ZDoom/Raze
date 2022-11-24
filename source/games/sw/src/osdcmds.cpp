@@ -56,9 +56,13 @@ BEGIN_SW_NS
 
 void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 {
-    Player->posSet(DVector3(x,y,z));
+    auto pp = &Player[myconnectindex];
+    auto ppActor = pp->actor;
 
-    Player->posprevSet(Player->posGet());
+    if (!ppActor) return;
+
+    ppActor->spr.pos = DVector3(x,y,z);
+    ppActor->backuppos();
 
     if (ang != DAngle::fromDeg(INT_MIN))
     {

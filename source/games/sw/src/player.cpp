@@ -1312,8 +1312,8 @@ void DoPlayerTeleportPause(PLAYER* pp)
 void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
     pp->angle.ang = pp->angle.oang = ang;
-    pp->posSet(pos.plusZ(-PLAYER_HEIGHTF));
-	pp->posprevSet(pos.plusZ(-PLAYER_HEIGHTF));
+    pp->actor->spr.pos = pos;
+    pp->actor->backuppos();
 	pp->posoldXY() = pp->actor->spr.pos.XY();
 
     updatesector(pp->posGet(), &pp->cursector);
@@ -2030,7 +2030,7 @@ void PlayerCheckValidMove(PLAYER* pp)
 {
     if (!pp->insector())
     {
-        pp->posSet(pp->posoldGet());
+        pp->actor->spr.pos = pp->posoldGet().plusZ(-pp->actor->viewzoffset);
         pp->cursector = pp->lastcursector;
     }
 }
@@ -5304,7 +5304,7 @@ void RemoteToPlayer(PLAYER* pp)
     pp->setcursector(pp->remote.cursectp);
     pp->lastcursector = pp->remote.lastcursectp;
 
-    pp->posSet(pp->remote.pos);
+    pp->actor->spr.pos = pp->remote.pos.plusZ(-pp->actor->viewzoffset);
 
     pp->vect = pp->remote.vect;
     pp->ovect = pp->remote.ovect;

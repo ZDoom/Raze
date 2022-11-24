@@ -964,8 +964,9 @@ void post_analyzesprites(tspriteArray& tsprites)
 
 std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
-    PLAYER* pp = Player + myconnectindex;
-    return std::make_pair(pp->posGet(), pp->angle.ang);
+    auto ppActor = Player[myconnectindex].actor;
+    if (!ppActor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
+    return std::make_pair(ppActor->spr.pos, ppActor->spr.angle);
 }
 
 //---------------------------------------------------------------------------
