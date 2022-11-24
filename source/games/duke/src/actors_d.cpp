@@ -3156,9 +3156,6 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				}
 			}
 		}
-		else if (actor->spr.picnum == APLAYER)
-			if ((actor->spr.pos.Z - actor->ceilingz) < 32)
-				actor->spr.pos.Z = actor->ceilingz + 32;
 
 		daxvel = actor->vel.X;
 		angdif = actor->spr.angle;
