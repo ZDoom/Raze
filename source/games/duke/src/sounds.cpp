@@ -172,7 +172,7 @@ void S_CacheAllSounds(void)
 //
 //==========================================================================
 
-static inline int S_GetPitch(int num)
+static inline int S_GetPitch(FSoundID num)
 {
 	auto soundid = FSoundID::fromInt(num + 1);
 	auto const* snd = soundEngine->GetUserData(soundid);
@@ -203,13 +203,14 @@ int S_GetUserFlags(int num)
 
 int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpitch, int priority, int type, int distance, float volume)
 {
-	auto& S_sfx = soundEngine->GetSounds();
-	index++;
-	if (index >= S_sfx.Size())
+	int s_index = soundEngine->FindSoundByResID(index);
+	if (s_index == 0)
 	{
-		S_sfx.Resize(index + 1);
+		// If the slot isn't defined, give it a meaningful name containing the index.
+		s_index = S_ReserveSoundSlot(FStringf("ConSound@%04d", index), index, 6);
 	}
-	auto sfx = &S_sfx[index];
+
+	auto sfx = &soundEngine->GetSounds()[s_index];
 	sfx->UserData.Resize(kMaxUserData);
 	auto sndinf = sfx->UserData.Data();
 	sndinf[kFlags] = type & ~SF_ONEINST_INTERNAL;
@@ -235,7 +236,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	sndinf[kVolAdjust] = clamp<int>(distance, INT16_MIN, INT16_MAX);
 	sndinf[kWorldTourMapping] = 0;
 	sfx->Volume = volume;
-	sfx->NearLimit = index == TELEPORTER + 1? 6 : 0; // the teleporter sound cannot be unlimited due to how it gets used.
+	//sfx->NearLimit = index == TELEPORTER + 1? 6 : 0; // the teleporter sound cannot be unlimited due to how it gets used.
 	sfx->bTentative = false;
 	sfx->name = std::move(fn);
 	return 0;
@@ -253,7 +254,7 @@ inline bool S_IsAmbientSFX(DDukeActor* actor)
 //
 //==========================================================================
 
-static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
+static int GetPositionInfo(DDukeActor* actor, FSoundID soundID, sectortype* sect,
 							 const DVector3 &cam, const DVector3 &pos, int *distPtr, FVector3 *sndPos)
 {
 	// There's a lot of hackery going on here that could be mapped to rolloff and attenuation parameters.

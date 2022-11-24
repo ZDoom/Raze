@@ -102,6 +102,9 @@ static void SerializeGlobals(FSerializer& arc)
 
 static void SerializeSession(FSerializer& arc)
 {
+	// In Duke we now have reliable sound names.
+	if (isDukeLike()) arc.SetUniqueSoundNames();	
+
 	arc.ReadObjects(false);
 	SerializeMap(arc);
 	SerializeStatistics(arc);

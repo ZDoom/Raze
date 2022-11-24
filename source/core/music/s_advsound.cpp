@@ -41,6 +41,7 @@
 #include "v_text.h"
 #include "s_music.h"
 #include "sc_man.h"
+#include "s_soundinternal.h"
 #include <zmusic.h>
 
 #include "raze_music.h"
@@ -52,6 +53,8 @@ enum SICommands
 	SI_MusicVolume,
 	SI_MidiDevice,
 	SI_MusicAlias,
+	SI_ConReserve,
+	SI_Alias
 };
 
 
@@ -78,11 +81,63 @@ static const char *SICommandStrings[] =
 	"$musicvolume",
 	"$mididevice",
 	"$musicalias",
+	"$conreserve",
+	"$alias",
 	NULL
 };
 
 
 // CODE --------------------------------------------------------------------
+
+//==========================================================================
+//
+// S_ReserveSoundSlot
+//
+// Reserves an empty sound slot and assigns it a resource ID and a name
+// 
+//==========================================================================
+
+int S_ReserveSoundSlot(const char* logicalname, int slotnum, int limit = 6)
+{
+	auto& S_sfx = soundEngine->GetSounds();
+	int sfxid;
+
+	sfxid = soundEngine->FindSoundNoHash(logicalname);
+
+	if (sfxid > 0 && (unsigned int)sfxid < S_sfx.Size())
+	{ // If the sound has already been defined, change the old definition
+		sfxinfo_t* sfx = &S_sfx[sfxid];
+
+		if (sfx->ResourceId != -1)
+		{
+			// If the name was reseved before, delete that mapping.
+			soundEngine->RemoveResourceID(sfx->ResourceId);
+		}
+		if (sfx->bRandomHeader)
+		{
+			FRandomSoundList* rnd = soundEngine->ResolveRandomSound(sfx);
+			rnd->Choices.Reset();
+			rnd->Owner = 0;
+		}
+		sfx->ResourceId = slotnum;
+		sfx->lumpnum = sfx_empty;
+		sfx->bRandomHeader = false;
+		sfx->link = sfxinfo_t::NO_LINK;
+		sfx->bTentative = true;
+		if (sfx->NearLimit == -1)
+		{
+			sfx->NearLimit = 2;
+			sfx->LimitRange = 256 * 256;
+		}
+		//sfx->PitchMask = CurrentPitchMask;
+	}
+	else
+	{ // Otherwise, create a new definition.
+		sfxid = soundEngine->AddSoundLump(logicalname, sfx_empty, 0, slotnum, limit);
+	}
+
+	return sfxid;
+}
 
 //==========================================================================
 //
@@ -208,7 +263,23 @@ static void S_AddSNDINFO (int lump)
 				}
 				break;
 
+			case SI_ConReserve: {
+				sc.MustGetNumber();
+				int num = sc.Number;
+				sc.MustGetStringName("=");
+				sc.MustGetString();
+				FString name = sc.String;
+				int limit = 6;
+				if (sc.CheckString(","))
+				{
+					sc.MustGetNumber();
+					limit = sc.Number;
+				}
+				S_ReserveSoundSlot(name, num, limit);
 			}
+			}
+
+
 		}
 	}
 }

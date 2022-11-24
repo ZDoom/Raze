@@ -33,6 +33,7 @@ inline void FX_SetReverbDelay(int delay)
 int S_LookupSound(const char* fn);
 class FSerializer;
 void S_SerializeSounds(FSerializer& arc);
+int S_ReserveSoundSlot(const char* logicalname, int slotnum, int limit = 6);
 
 class RazeSoundEngine : public SoundEngine
 {
