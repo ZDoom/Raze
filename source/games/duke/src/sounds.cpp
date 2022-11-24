@@ -111,8 +111,8 @@ public:
 
 		if (schan != NULL && schan->SoundID == currentCommentarySound)
 		{
-			UnloadSound(schan->SoundID);
-			currentCommentarySound = 0;
+			UnloadSound(schan->SoundID.index());
+			currentCommentarySound = NO_SOUND;
 			if (currentCommentarySprite) currentCommentarySprite->spr.picnum = DEVELOPERCOMMENTARY;
 			I_SetRelativeVolume(1.0f);
 			UnmuteSounds();
@@ -129,9 +129,9 @@ void S_InitSound()
 
 static int GetReplacementSound(int soundNum)
 {
-	if (wt_forcevoc && isWorldTour() && soundEngine->isValidSoundId(soundNum+1))
+	if (wt_forcevoc && isWorldTour() && soundEngine->isValidSoundId(FSoundID::fromInt(soundNum+1)))
 	{
-		auto const* snd = soundEngine->GetUserData(soundNum + 1);
+		auto const* snd = soundEngine->GetUserData(FSoundID::fromInt(soundNum + 1));
 		int sndx = snd[kWorldTourMapping];
 		if (sndx > 0) soundNum = sndx-1;
 	}
@@ -158,12 +158,10 @@ TArray<uint8_t> DukeSoundEngine::ReadSound(int lumpnum)
 
 void S_CacheAllSounds(void)
 {
-	auto& sfx = soundEngine->GetSounds();
-	int i = 0;
-	for(auto &snd : sfx)
+	for(unsigned i = 0; i < soundEngine->GetNumSounds(); i++)
 	{
-		soundEngine->CacheSound(&snd);
-		if (((++i)&31) == 0)
+		soundEngine->CacheSound(FSoundID::fromInt(i));
+		if ((i & 31) == 0)
 			I_GetEvent();
 	}
 }
@@ -176,7 +174,8 @@ void S_CacheAllSounds(void)
 
 static inline int S_GetPitch(int num)
 {
-	auto const* snd = soundEngine->GetUserData(num+1);
+	auto soundid = FSoundID::fromInt(num + 1);
+	auto const* snd = soundEngine->GetUserData(soundid);
 	if (!snd) return 0;
 	int const   range = abs(snd[kPitchEnd] - snd[kPitchStart]);
 	return (range == 0) ? snd[kPitchStart] : min(snd[kPitchStart], snd[kPitchEnd]) + rand() % range;
@@ -189,8 +188,9 @@ float S_ConvertPitch(int lpitch)
 
 int S_GetUserFlags(int num)
 {
-	if (!soundEngine->isValidSoundId(num+1)) return 0;
-	auto const* snd = soundEngine->GetUserData(num + 1);
+	auto soundid = FSoundID::fromInt(num + 1);
+	if (!soundEngine->isValidSoundId(soundid)) return 0;
+	auto const* snd = soundEngine->GetUserData(soundid);
 	if (!snd) return 0;
 	return snd[kFlags];
 }
@@ -259,8 +259,9 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 	// There's a lot of hackery going on here that could be mapped to rolloff and attenuation parameters.
 	// However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
+	auto soundid = FSoundID::fromInt(soundNum + 1);
 	int orgsndist = 0, sndist = 0;
-	auto const* snd = soundEngine->GetUserData(soundNum + 1);
+	auto const* snd = soundEngine->GetUserData(soundid);
 	int userflags = snd ? snd[kFlags] : 0;
 	int dist_adjust = snd ? snd[kVolAdjust] : 0;
 
@@ -317,7 +318,7 @@ void S_GetCamera(vec3_t** c, int32_t* ca, sectortype** cs)
 	if (ud.cameraactor == nullptr)
 	{
 		auto p = &ps[screenpeek];
-		if (c) *c = &p->pos;
+		if (c) *c = p->actor->spr.pos;
 		if (cs) *cs = p->cursector;
 		if (ca) *ca = p->angle.ang.asbuild();
 	}
@@ -358,7 +359,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 			auto aactor = (DDukeActor*)source;
 			if (aactor != nullptr)
 			{
-				GetPositionInfo(aactor, chanSound - 1, camsect, campos, &aactor->spr.pos, nullptr, pos);
+				GetPositionInfo(aactor, chanSound.index() - 1, camsect, campos, aactor->spr.pos, nullptr, pos);
 				/*
 				if (vel) // DN3D does not properly maintain this.
 				{
@@ -429,11 +430,13 @@ void GameInterface::UpdateSounds(void)
 
 int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel, EChanFlags flags)
 {
+	auto soundid = FSoundID::fromInt(sndnum + 1);
 	auto const pl = &ps[myconnectindex];
-	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || actor == nullptr || !playrunning() ||
+	if (!soundEngine->isValidSoundId(soundid) || !SoundEnabled() || actor == nullptr || !playrunning() ||
 		(pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;
 
 	sndnum = GetReplacementSound(sndnum);
+	soundid = FSoundID::fromInt(sndnum + 1);
 	int userflags = S_GetUserFlags(sndnum);
 
 	if ((userflags & (SF_DTAG | SF_GLOBAL)) == SF_DTAG)
@@ -448,7 +451,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 		bool foundone =  soundEngine->EnumerateChannels([&](FSoundChan* chan)
 			{
 				auto sid = chan->OrgID;
-				auto flags = S_GetUserFlags(sid - 1);
+				auto flags = S_GetUserFlags(sid.index() - 1);
 				return !!(flags & SF_TALK);
 			});
 		// don't play if any Duke talk sounds are already playing
@@ -489,7 +492,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 			pitch = -768;
 	}
 
-	bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum+1);
+	bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundid);
 	if (is_playing && actor->spr.picnum != MUSICANDSFX)
 		S_StopSound(sndnum, actor);
 
@@ -509,9 +512,9 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 
 	if (userflags & SF_LOOP) flags |= CHANF_LOOP;
 	float vol = attenuation == ATTN_NONE ? 0.8f : 1.f;
-	if (currentCommentarySound != 0) vol *= 0.25f;
-	auto chan = soundEngine->StartSound(SOURCE_Actor, actor, &sndpos, CHAN_AUTO, flags, sndnum+1, vol, attenuation, nullptr, S_ConvertPitch(pitch));
-	if (chan) chan->UserData = (currentCommentarySound != 0);
+	if (currentCommentarySound != NO_SOUND) vol *= 0.25f;
+	auto chan = soundEngine->StartSound(SOURCE_Actor, actor, &sndpos, CHAN_AUTO, flags, soundid, vol, attenuation, nullptr, S_ConvertPitch(pitch));
+	if (chan) chan->UserData = (currentCommentarySound != NO_SOUND);
 	return chan ? 0 : -1;
 }
 
@@ -523,9 +526,11 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 
 int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 {
-	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled()) return -1;
+	auto soundid = FSoundID::fromInt(sndnum + 1);
+	if (!soundEngine->isValidSoundId(soundid) || !SoundEnabled()) return -1;
 
 	sndnum = GetReplacementSound(sndnum);
+	soundid = FSoundID::fromInt(sndnum + 1);
 
 	int userflags = S_GetUserFlags(sndnum);
 	if ((!(snd_speech & 1) && (userflags & SF_TALK)))
@@ -534,9 +539,9 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 	int const pitch = S_GetPitch(sndnum);
 
 	if (userflags & SF_LOOP) flags |= CHANF_LOOP;
-	if (currentCommentarySound != 0) vol *= 0.25f;
-	auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, channel, flags, sndnum + 1, vol, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
-	if (chan) chan->UserData = (currentCommentarySound != 0);
+	if (currentCommentarySound != NO_SOUND) vol *= 0.25f;
+	auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, channel, flags, soundid, vol, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
+	if (chan) chan->UserData = (currentCommentarySound != NO_SOUND);
 	return chan ? 0 : -1;
 }
 
@@ -556,11 +561,12 @@ void S_StopSound(int sndNum, DDukeActor* actor, int channel)
 {
 	sndNum = GetReplacementSound(sndNum);
 
-	if (!actor) soundEngine->StopSoundID(sndNum+1);
+	auto soundid = FSoundID::fromInt(sndNum + 1);
+	if (!actor) soundEngine->StopSoundID(soundid);
 	else
 	{
-		if (channel == -1) soundEngine->StopSound(SOURCE_Actor, actor, -1, sndNum + 1);
-		else soundEngine->StopSound(SOURCE_Actor, actor, channel, -1);
+		if (channel == -1) soundEngine->StopSound(SOURCE_Actor, actor, -1, soundid);
+		else soundEngine->StopSound(SOURCE_Actor, actor, channel);
 
 		// StopSound kills the actor reference so this cannot be delayed until ChannelEnded gets called. At that point the actor may also not be valid anymore.
 		if (S_IsAmbientSFX(actor) && actor->sector()->lotag < 3)  // ST_2_UNDERWATER
@@ -571,15 +577,16 @@ void S_StopSound(int sndNum, DDukeActor* actor, int channel)
 void S_ChangeSoundPitch(int soundNum, DDukeActor* actor, int pitchoffset)
 {
 	soundNum = GetReplacementSound(soundNum);
+	auto soundid = FSoundID::fromInt(soundNum + 1);
 
 	double expitch = pow(2, pitchoffset / 1200.);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
 	if (!actor)
 	{
-		soundEngine->ChangeSoundPitch(SOURCE_Unattached, nullptr, CHAN_AUTO, expitch, soundNum+1);
+		soundEngine->ChangeSoundPitch(SOURCE_Unattached, nullptr, CHAN_AUTO, expitch, soundid);
 	}
 	else
 	{
-		soundEngine->ChangeSoundPitch(SOURCE_Actor, actor, CHAN_AUTO, expitch, soundNum+1);
+		soundEngine->ChangeSoundPitch(SOURCE_Actor, actor, CHAN_AUTO, expitch, soundid);
 	}
 }
 
@@ -592,22 +599,24 @@ void S_ChangeSoundPitch(int soundNum, DDukeActor* actor, int pitchoffset)
 int S_CheckActorSoundPlaying(DDukeActor* actor, int soundNum, int channel)
 {
 	soundNum = GetReplacementSound(soundNum);
+	auto soundid = FSoundID::fromInt(soundNum + 1);
 
-	if (actor == nullptr) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
-	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, actor, channel, soundNum+1);
+	if (actor == nullptr) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundid);
+	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, actor, channel, soundid);
 }
 
 // Check if actor <i> is playing any sound.
 int S_CheckAnyActorSoundPlaying(DDukeActor* actor)
 {
 	if (!actor) return false;
-	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, actor, CHAN_AUTO, 0);
+	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, actor, CHAN_AUTO);
 }
 
 int S_CheckSoundPlaying(int soundNum)
 {
 	soundNum = GetReplacementSound(soundNum);
-	return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
+	auto soundid = FSoundID::fromInt(soundNum + 1);
+	return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundid);
 }
 
 //==========================================================================
@@ -739,10 +748,11 @@ void S_WorldTourMappingsForOldSounds()
 	// This tries to retrieve the original sounds for World Tour's often inferior replacements.
 	// It's really ironic that despite their low quality they often sound a lot better than the new ones.
 	if (!isWorldTour()) return;
-	auto &s_sfx = soundEngine->GetSounds();
-	for(unsigned i = 1; i < s_sfx.Size(); i++)
+	unsigned maxsnd = soundEngine->GetNumSounds();
+	for(unsigned i = 1; i < maxsnd; i++)
 	{
-		auto fname = s_sfx[i].name;
+		auto sfx = soundEngine->GetSfx(FSoundID::fromInt(i));
+		auto fname = sfx->name;
 		if (!fname.Right(4).CompareNoCase(".ogg"))
 		{
 			// All names here follow the same convention. We must strip the "sound/" folder and replace the extension to get the original VOCs.
@@ -752,11 +762,11 @@ void S_WorldTourMappingsForOldSounds()
 			int lump = fileSystem.FindFile(fname); // in this case we absolutely do not want the extended lookup that's optionally performed by S_LookupSound.
 			if (lump >= 0)
 			{
-				s_sfx.Reserve(1);
-				s_sfx.Last() = s_sfx[i];
-				s_sfx.Last().name = fname;
-				s_sfx.Last().lumpnum = lump;
-				s_sfx[i].UserData[kWorldTourMapping] = s_sfx.Size() - 1;
+				auto newsfx = soundEngine->AllocateSound();
+				*newsfx = *sfx;
+				newsfx->name = fname;
+				newsfx->lumpnum = lump;
+				sfx->UserData[kWorldTourMapping] = soundEngine->GetNumSounds() - 1;
 			}
 		}
 	}
@@ -816,7 +826,7 @@ void S_ParseDeveloperCommentary()
 
 void StopCommentary()
 {
-	if (currentCommentarySound > 0)
+	if (currentCommentarySound.isvalid())
 	{
 		soundEngine->StopSound(SOURCE_None, nullptr, CHAN_VOICE, currentCommentarySound);
 	}
@@ -827,7 +837,7 @@ bool StartCommentary(int tag, DDukeActor* actor)
 	if (wt_commentary && Commentaries.Size() > (unsigned)tag && Commentaries[tag].IsNotEmpty())
 	{
 		FSoundID id = soundEngine->FindSound(Commentaries[tag]);
-		if (id == 0)
+		if (!id.isvalid())
 		{
 			int lump = fileSystem.FindFile(Commentaries[tag]);
 			if (lump < 0)

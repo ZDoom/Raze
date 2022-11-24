@@ -248,7 +248,7 @@ struct TRCONDITION {
 
 struct PATROL_FOUND_SOUNDS {
 
-	int snd;
+	FSoundID snd;
 	int max;
 	int cur;
 

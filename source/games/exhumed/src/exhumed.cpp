@@ -503,7 +503,7 @@ void GameInterface::Ticker()
         videoTintBlood(flash * 30, flash * 30, flash * 30);
         if (EndLevel == 1)
         {
-            if (!soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, StaticSound[59] + 1))
+            if (!soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, FSoundID::fromInt(StaticSound[59] + 1)))
             {
                 videoTintBlood(0, 0, 0);
                 CompleteLevel(NextMap);

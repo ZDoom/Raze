@@ -398,6 +398,12 @@ public:
 	FSoundID PickReplacement(FSoundID refid);
 	void HashSounds();
 	void AddRandomSound(FSoundID Owner, TArray<FSoundID> list);
+
+	TArray<sfxinfo_t>& GetSounds()	//We still need this for a short time...
+	{
+		return S_sfx;
+	}
+
 };
 
 

@@ -8418,7 +8418,8 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
 	for (int i = 0; i < kMaxPatrolFoundSounds; i++)
 	{
-		patrolBonkles[i].snd = patrolBonkles[i].cur = 0;
+		patrolBonkles[i].snd = NO_SOUND;
+		patrolBonkles[i].cur = 0;
 		patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
 	}
 
@@ -8501,7 +8502,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 					if (nDist > hearDist) return false;
 
 
-					int sndnum = chan->OrgID;
+					auto sndnum = chan->OrgID;
 
 					// N same sounds per single enemy
 					for (int f = 0; f < sndCnt; f++)

@@ -57,7 +57,8 @@ struct FileLump
 
 struct LumpInfoInternal
 {
-	int32_t position, size, sid;
+	int32_t position, size;
+	FSoundID sid;
 };
 
 //=============
@@ -97,7 +98,7 @@ bool RTS_IsInitialized()
 				LumpInfo.Resize(numlumps);
 				for(int i = 0; i < numlumps; i++, li++)
 				{
-					LumpInfo[i] = { LittleLong(li->position), LittleLong(li->size), -1 };
+					LumpInfo[i] = { LittleLong(li->position), LittleLong(li->size), INVALID_SOUND };
 					if (unsigned(LumpInfo[i].position + LumpInfo[i].size) >= RTSFile.Size())
 					{
 						LumpInfo[i].size = 0;	// points to invalid data
@@ -142,11 +143,11 @@ void *RTS_GetSound(int lump)
 	return RTSFile.Data() + LumpInfo[lump].position;
 }
 
-int RTS_GetSoundID(int lump)
+FSoundID RTS_GetSoundID(int lump)
 {
-	if (!RTS_IsInitialized()) return -1;
+	if (!RTS_IsInitialized()) return INVALID_SOUND;
 	lump++;
-	if ((unsigned)lump >= LumpInfo.Size()) return -1;
-	if (LumpInfo[lump].size <= 0) return -1;
+	if ((unsigned)lump >= LumpInfo.Size()) return INVALID_SOUND;
+	if (LumpInfo[lump].size <= 0) return INVALID_SOUND;
 	return LumpInfo[lump].sid;
 }

@@ -1294,7 +1294,7 @@ bool playGenDudeSound(DBloodActor* actor, int mode)
 		int maxRetries = 5;
 		while (maxRetries-- > 0) {
 			int random = Random(rand);
-			if (!soundEngine->FindSoundByResID(sndId + random)) continue;
+			if (!soundEngine->FindSoundByResID(sndId + random).isvalid()) continue;
 			sndId = sndId + random;
 			break;
 		}
@@ -1303,7 +1303,7 @@ bool playGenDudeSound(DBloodActor* actor, int mode)
 		if (maxRetries <= 0)
 		{
 			int maxSndId = sndId + rand;
-			while (sndId < maxSndId && !soundEngine->FindSoundByResID(sndId++));
+			while (sndId < maxSndId && !soundEngine->FindSoundByResID(sndId++).isvalid());
 		}
 
 		// let's check if there same sounds already played by other dudes

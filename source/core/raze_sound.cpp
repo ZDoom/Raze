@@ -124,7 +124,7 @@ FString NoiseDebug(SoundEngine *engine)
 			(chan->ChanFlags & CHANF_LOOP) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
 			(chan->ChanFlags & CHANF_EVICTED) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
 			(chan->ChanFlags & CHANF_VIRTUAL) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
-			GSnd->GetAudibility(chan), GSnd->GetPosition(chan), ((int)chan->OrgID)-1, engine->GetSounds()[chan->SoundID].name.GetChars(), chan->Source);
+			GSnd->GetAudibility(chan), GSnd->GetPosition(chan), ((int)chan->OrgID.index())-1, engine->GetSfx(chan->SoundID)->name.GetChars(), chan->Source);
 		ch++;
 	}
 	out.AppendFormat("%d channels\n", ch);
@@ -283,8 +283,8 @@ CCMD(playsound)
 {
 	if (argv.argc() > 1)
 	{
-		FSoundID id = argv[1];
-		if (id == 0)
+		FSoundID id = S_FindSound(argv[1]);
+		if (id == NO_SOUND)
 		{
 			Printf("'%s' is not a sound\n", argv[1]);
 		}
@@ -306,7 +306,7 @@ CCMD(playsoundid)
 	if (argv.argc() > 1)
 	{
 		FSoundID id = soundEngine->FindSoundByResID((int)strtol(argv[1], nullptr, 0));
-		if (id == 0)
+		if (id == NO_SOUND)
 		{
 			Printf("'%s' is not a sound\n", argv[1]);
 		}
@@ -325,9 +325,9 @@ CCMD(playsoundid)
 
 CCMD(listsounds)
 {
-	auto& S_sfx = soundEngine->GetSounds();
-	for (unsigned i = 0; i < S_sfx.Size(); i++)
+	for (unsigned i = 0; i < soundEngine->GetNumSounds(); i++)
 	{
-		Printf("%4d: name = %s, resId = %d, lumpnum = %d\n", i, S_sfx[i].name.GetChars(), S_sfx[i].ResourceId, S_sfx[i].lumpnum);
+		auto sfx = soundEngine->GetSfx(FSoundID::fromInt(i));
+		Printf("%4d: name = %s, resId = %d, lumpnum = %d\n", i, sfx->name.GetChars(), sfx->ResourceId, sfx->lumpnum);
 	}
 }
