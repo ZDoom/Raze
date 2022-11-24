@@ -53,7 +53,7 @@ class DukeTripBomb : DukeActor
 			self.temp_data[2]--;
 			if (self.temp_data[2] == 8)
 			{
-				self.PlayActorSound(Dukesnd.LASERTRIP_EXPLODE);
+				self.PlayActorSound("LASERTRIP_EXPLODE");
 				for (j = 0; j < 5; j++) self.RandomScrap();
 				int ex = self.extra;
 				self.hitradius(gs.tripbombblastradius, ex >> 2, ex >> 1, ex - (ex >> 2), ex);

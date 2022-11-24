@@ -390,18 +390,15 @@ public:
 	FSoundID FindSound(const char* logicalname);
 	FSoundID FindSoundByResID(int rid);
 	FSoundID FindSoundNoHash(const char* logicalname);
+	FSoundID FindSoundByResIDNoHash(int rid);
 	FSoundID FindSoundByLump(int lump);
 	virtual FSoundID AddSoundLump(const char* logicalname, int lump, int CurrentPitchMask, int resid = -1, int nearlimit = 2);
-	FSoundID FindSoundTentative(const char* name);
+	FSoundID FindSoundTentative(const char* name, int nearlimit = 2);
 	void CacheRandomSound(sfxinfo_t* sfx);
 	unsigned int GetMSLength(FSoundID sound);
 	FSoundID PickReplacement(FSoundID refid);
 	void HashSounds();
 	void AddRandomSound(FSoundID Owner, TArray<FSoundID> list);
-	void RemoveResourceID(int id)
-	{
-		ResIdMap.Remove(id);
-	}
 
 	TArray<sfxinfo_t>& GetSounds()	//We still need this for a short time...
 	{

@@ -54,7 +54,9 @@ enum SICommands
 	SI_MidiDevice,
 	SI_MusicAlias,
 	SI_ConReserve,
-	SI_Alias
+	SI_Alias,
+	SI_Limit,
+	SI_Singular
 };
 
 
@@ -83,77 +85,59 @@ static const char *SICommandStrings[] =
 	"$musicalias",
 	"$conreserve",
 	"$alias",
+	"$limit",
+	"$singular",
 	NULL
 };
 
-
+static const int DEFAULT_LIMIT = 6;
 // CODE --------------------------------------------------------------------
 
 //==========================================================================
 //
-// S_ReserveSoundSlot
+// S_AddSound
 //
-// Reserves an empty sound slot and assigns it a resource ID and a name
-// 
+// If logical name is already in S_sfx, updates it to use the new sound
+// lump. Otherwise, adds the new mapping by using S_AddSoundLump().
 //==========================================================================
 
-FSoundID S_ReserveSoundSlot(const char* logicalname, int slotnum, int limit = 6)
+static FSoundID S_AddSound(const char* logicalname, int lumpnum, FScanner* sc)
 {
-	auto& S_sfx = soundEngine->GetSounds();
+	FSoundID sfxid = soundEngine->FindSoundNoHash(logicalname);
 
-	auto sfxid = soundEngine->FindSoundNoHash(logicalname);
-
-	if (soundEngine->isValidSoundId(sfxid))
+	if (sfxid.isvalid())
 	{ // If the sound has already been defined, change the old definition
-		sfxinfo_t* sfx = soundEngine->GetWritableSfx(sfxid);
+		auto sfx = soundEngine->GetWritableSfx(sfxid);
 
-		if (sfx->ResourceId != -1)
-		{
-			// If the name was reseved before, delete that mapping.
-			soundEngine->RemoveResourceID(sfx->ResourceId);
-		}
 		if (sfx->bRandomHeader)
 		{
 			FRandomSoundList* rnd = soundEngine->ResolveRandomSound(sfx);
 			rnd->Choices.Reset();
 			rnd->Owner = NO_SOUND;
 		}
-		sfx->ResourceId = slotnum;
-		sfx->lumpnum = sfx_empty;
+		sfx->lumpnum = lumpnum;
 		sfx->bRandomHeader = false;
 		sfx->link = sfxinfo_t::NO_LINK;
-		sfx->bTentative = true;
+		sfx->bTentative = false;
 		if (sfx->NearLimit == -1)
 		{
-			sfx->NearLimit = 2;
+			sfx->NearLimit = 6;
 			sfx->LimitRange = 256 * 256;
 		}
 		//sfx->PitchMask = CurrentPitchMask;
 	}
 	else
 	{ // Otherwise, create a new definition.
-		sfxid = soundEngine->AddSoundLump(logicalname, sfx_empty, 0, slotnum, limit);
+		sfxid = soundEngine->AddSoundLump(logicalname, lumpnum, 0);
 	}
 
 	return sfxid;
 }
 
-//==========================================================================
-//
-// S_ParseSndInfo
-//
-// Parses all loaded SNDINFO lumps.
-// Also registers Blood SFX files and Strife's voices.
-//==========================================================================
-
-void S_ParseSndInfo ()
+FSoundID S_AddSound(const char* logicalname, const char* lumpname, FScanner* sc)
 {
-	int lump, lastlump = 0;
-
-	while ((lump = fileSystem.FindLumpFullName("engine/mussetting.txt", &lastlump)) >= 0)
-	{
-		S_AddSNDINFO (lump);
-	}
+	int lump = fileSystem.CheckNumForFullName(lumpname, true, ns_sounds);
+	return S_AddSound(logicalname, lump, sc);
 }
 
 //==========================================================================
@@ -168,6 +152,7 @@ static void S_AddSNDINFO (int lump)
 {
 	bool skipToEndIf;
 	TArray<uint32_t> list;
+	int wantassigns = -1;
 
 	FScanner sc(lump);
 	skipToEndIf = false;
@@ -262,24 +247,105 @@ static void S_AddSNDINFO (int lump)
 				}
 				break;
 
-			case SI_ConReserve: {
-				sc.MustGetNumber();
-				int num = sc.Number;
-				sc.MustGetStringName("=");
-				sc.MustGetString();
-				FString name = sc.String;
-				int limit = 6;
-				if (sc.CheckString(","))
-				{
-					sc.MustGetNumber();
-					limit = sc.Number;
+			case SI_Alias: {
+				// $alias <name of alias> <name of real sound>
+				FSoundID sfxfrom;
+
+				sc.MustGetString ();
+				sfxfrom = S_AddSound (sc.String, -1, &sc);
+				sc.MustGetString ();
+				auto sfx = soundEngine->GetWritableSfx(sfxfrom);
+				sfx->link = soundEngine->FindSoundTentative (sc.String);
+				sfx->NearLimit = -1;	// Aliases must use the original sound's limit. (Can be changed later)
 				}
-				S_ReserveSoundSlot(name, num, limit);
-			}
+				break;
+
+			case SI_Limit: {
+				// $limit <logical name> <max channels> [<distance>]
+				FSoundID sfxfrom;
+
+				sc.MustGetString ();
+				sfxfrom = soundEngine->FindSoundTentative (sc.String);
+				sc.MustGetNumber ();
+				auto sfx = soundEngine->GetWritableSfx(sfxfrom);
+				sfx->NearLimit = min(max(sc.Number, 0), 255);
+				if (sc.CheckFloat())
+				{
+					sfx->LimitRange = float(sc.Float * sc.Float);
+				}
+				}
+				break;
+
+			case SI_Singular: {
+				// $singular <logical name>
+				FSoundID sfx;
+
+				sc.MustGetString ();
+				sfx = soundEngine->FindSoundTentative (sc.String, DEFAULT_LIMIT);
+				auto sfxp = soundEngine->GetWritableSfx(sfx);
+				sfxp->bSingular = true;
+				}
+				break;
+
+
+			case SI_ConReserve: {
+				// $conreserve <logical name> <resource id>
+				// Assigns a resource ID to the given sound.
+				sc.MustGetString();
+				FSoundID sfx = soundEngine->FindSoundTentative(sc.String, DEFAULT_LIMIT);
+				auto sfxp = soundEngine->GetWritableSfx(sfx);
+
+				sc.MustGetNumber();
+				sfxp->ResourceId = sc.Number;
+				break;
+				}
+
+			default:
+			{ // Got a logical sound mapping
+				FString name (sc.String);
+				if (wantassigns == -1)
+				{
+					wantassigns = sc.CheckString("=");
+				}
+				else if (wantassigns)
+				{
+					sc.MustGetStringName("=");
+				}
+
+				sc.MustGetString ();
+				S_AddSound (name, sc.String, &sc);
 			}
 
+			}
 
 		}
 	}
+}
+
+//==========================================================================
+//
+// S_ParseSndInfo
+//
+// Parses all loaded SNDINFO lumps.
+//
+//==========================================================================
+
+void S_ParseSndInfo()
+{
+	int lump;
+
+	soundEngine->Clear();
+	MusicAliases.Clear();
+	MidiDevices.Clear();
+	MusicVolumes.Clear();
+
+	S_AddSound("{ no sound }", "DSEMPTY", nullptr);	// Sound 0 is no sound at all
+
+	int lastlump = 0;
+	while ((lump = fileSystem.FindLump("SNDINFO", &lastlump, false)) != -1)
+	{
+		S_AddSNDINFO(lump);
+	}
+	soundEngine->HashSounds();
 }
 

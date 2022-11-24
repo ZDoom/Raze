@@ -1512,6 +1512,27 @@ FSoundID SoundEngine::FindSoundNoHash(const char* logicalname)
 
 //==========================================================================
 //
+// S_FindSoundByResIDNoHash
+//
+// same with resource IDs.
+//==========================================================================
+
+FSoundID SoundEngine::FindSoundByResIDNoHash(int resid)
+{
+	unsigned int i;
+
+	for (i = 1; i < S_sfx.Size(); i++)
+	{
+		if (S_sfx[i].ResourceId == resid)
+		{
+			return FSoundID::fromInt(i);
+		}
+	}
+	return NO_SOUND;
+}
+
+//==========================================================================
+//
 // S_FindSoundByLump
 //
 // Given a sound lump, find the sound's index in S_sfx.
@@ -1550,8 +1571,6 @@ FSoundID SoundEngine::AddSoundLump(const char* logicalname, int lump, int Curren
 	newsfx.ResourceId = resid;
 	newsfx.bTentative = false;
 	auto id = FSoundID::fromInt(S_sfx.Size() - 1);
-
-	if (resid >= 0) ResIdMap[resid] = id;
 	return id;
 }
 
@@ -1565,12 +1584,12 @@ FSoundID SoundEngine::AddSoundLump(const char* logicalname, int lump, int Curren
 // an associated lump is created.
 //==========================================================================
 
-FSoundID SoundEngine::FindSoundTentative(const char* name)
+FSoundID SoundEngine::FindSoundTentative(const char* name, int nearlimit)
 {
 	auto id = FindSoundNoHash(name);
 	if (id == NO_SOUND)
 	{
-		id = AddSoundLump(name, -1, 0);
+		id = AddSoundLump(name, -1, 0, -1, nearlimit);
 		S_sfx[id.index()].bTentative = true;
 	}
 	return id;
@@ -1694,9 +1713,9 @@ void SoundEngine::HashSounds()
 		S_sfx[i].next = S_sfx[j].index;
 		S_sfx[j].index = i;
 
-		if (S_sfx[j].ResourceId != -1)
+		if (S_sfx[i].ResourceId != -1)
 		{
-			ResIdMap.Insert(S_sfx[j].ResourceId, FSoundID::fromInt(i));
+			ResIdMap.Insert(S_sfx[i].ResourceId, FSoundID::fromInt(i));
 		}
 	}
 	S_rnd.ShrinkToFit();

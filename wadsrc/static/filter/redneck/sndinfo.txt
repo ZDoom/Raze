@@ -74,7 +74,8 @@ $conreserve LN_RODE      66
 $conreserve CURTAIN      67
 $conreserve FIRE09       68
 $conreserve SQUISHED     69
-$conreserve TELEPORT     70
+$conreserve TELEPORTER     70
+$limit TELEPORTER 0
 $conreserve GBELEV01     71
 $conreserve LN_BNCH      72
 $conreserve GBELEV02     73

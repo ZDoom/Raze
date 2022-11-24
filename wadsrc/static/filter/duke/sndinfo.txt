@@ -68,6 +68,7 @@ $conreserve PLAYER_TIP2           67
 $conreserve FLESH_BURNING       68
 $conreserve SQUISHED            69
 $conreserve TELEPORTER          70
+$limit teleporter 0
 $conreserve ELEVATOR_ON         71
 $conreserve PLAYER_KILLED3        72
 $conreserve ELEVATOR_OFF        73
@@ -225,7 +226,7 @@ $conreserve JIBBED_ACTOR4      225
 $conreserve JIBBED_ACTOR5      226
 $conreserve JIBBED_ACTOR6      227
 $conreserve JIBBED_ACTOR7      228
-$conreserve PLAYER_GOTHEALTHATLOW229
+$conreserve PLAYER_GOTHEALTHATLOW 229
 $conreserve BOSSTALKTODUKE     230
 $conreserve WAR_AMBIENCE1      231
 $conreserve WAR_AMBIENCE2      232
@@ -247,8 +248,8 @@ $conreserve RATTY              247
 $conreserve INTO_MENU          248
 $conreserve BONUSMUSIC         249
 $conreserve PLAYER_BOOBY         250
-$conreserve PLAYER_TALKTOBOSSFALL251
-$conreserve PLAYER_LOOKINTOMIRROR252
+$conreserve PLAYER_TALKTOBOSSFALL 251
+$conreserve PLAYER_LOOKINTOMIRROR 252
 $conreserve PIG_ROAM3          253
 $conreserve KILLME             254
 $conreserve DRON_JETSND        255
@@ -270,9 +271,9 @@ $conreserve PLAYER_KILLED4       270
 $conreserve PLAYER_KILLED5       271
 $conreserve ALIEN_SWITCH1      272
 $conreserve PLAYER_STEPONFECES   273
-$conreserve PLAYER_LONGTERM_PAIN2274
-$conreserve PLAYER_LONGTERM_PAIN3275
-$conreserve PLAYER_LONGTERM_PAIN4276
+$conreserve PLAYER_LONGTERM_PAIN2 274
+$conreserve PLAYER_LONGTERM_PAIN3 275
+$conreserve PLAYER_LONGTERM_PAIN4 276
 $conreserve COMPANB2           277
 $conreserve KTIT               278
 $conreserve HELICOP_IDLE       279
@@ -300,10 +301,10 @@ $conreserve ENDSEQVOL2SND6     300
 $conreserve ENDSEQVOL2SND7     301
 $conreserve GENERIC_AMBIENCE23 302
 $conreserve SOMETHINGFROZE     303
-$conreserve PLAYER_LONGTERM_PAIN5304
-$conreserve PLAYER_LONGTERM_PAIN6305
-$conreserve PLAYER_LONGTERM_PAIN7306
-$conreserve PLAYER_LONGTERM_PAIN8307
+$conreserve PLAYER_LONGTERM_PAIN5 304
+$conreserve PLAYER_LONGTERM_PAIN6 305
+$conreserve PLAYER_LONGTERM_PAIN7 306
+$conreserve PLAYER_LONGTERM_PAIN8 307
 $conreserve WIND_REPEAT        308
 $conreserve MYENEMY_ROAM       309
 $conreserve MYENEMY_HURT       310
@@ -342,7 +343,7 @@ $conreserve BOS4_RECOG         342
 $conreserve BOS4_ATTACK        343
 $conreserve BOS4_PAIN          344
 $conreserve BOS4_DYING         345
-$conreserve NEWBEAST_ATTACKMISS346
+$conreserve NEWBEAST_ATTACKMISS 346
 $conreserve VOL4_2             347
 $conreserve COOKINGDEEPFRIER   348
 $conreserve WHINING_DOG        349

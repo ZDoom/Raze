@@ -201,20 +201,50 @@ int S_GetUserFlags(FSoundID soundid)
 
 int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpitch, int priority, int type, int distance, float volume)
 {
-	FSoundID s_index = soundEngine->FindSoundByResID(index);
-	sfxinfo_t* sfx;
+	FSoundID s_index = soundEngine->FindSoundByResIDNoHash(index); // cannot use the hash while editing.
 	if (!s_index.isvalid())
 	{
 		// If the slot isn't defined, give it a meaningful name containing the index.
-		sfx = soundEngine->AllocateSound();
-		sfx->name.Format("ConSound@%04d", index);
-		sfx->ResourceId = index;
+		s_index = soundEngine->FindSoundTentative(FStringf("ConSound@%04d", index));
 	}
-	else sfx = soundEngine->GetWritableSfx(s_index);
+	auto sfx = soundEngine->GetWritableSfx(s_index);
 
+	// Check if we are allowed to override this sound.
+	// If it is still tentative, it's ok. Otherwise check if SF_CONDEFINED is set, This means it was defined by CON and may be overwritten.
+	// If the sound was defined by other means we leave it alone, but set the flags to defaults, if they are not present.
+
+	bool settable = sfx->bTentative;
+
+	if (!settable)
+	{
+		if (sfx->UserData.Size() >= kMaxUserData)
+		{
+			auto& sndinf = sfx->UserData;
+			settable = !!(sndinf[kFlags] & SF_CONDEFINED);
+		}
+	}
+	if (!settable)
+	{
+		if (sfx->UserData.Size() < kMaxUserData)
+		{
+			// sound is defined but has no userdata. 
+			// This means it was defined through SNDINFO without setting extended properties and should not be overwritten.
+			// Set everything to 0 to have default handling.
+			sfx->UserData.Resize(kMaxUserData);
+			auto& sndinf = sfx->UserData;
+			sndinf[kPitchStart] = 0;
+			sndinf[kPitchEnd] = 0;
+			sndinf[kPriority] = 0; // Raze's sound engine does not use this.
+			sndinf[kVolAdjust] = 0;
+			sndinf[kWorldTourMapping] = 0;
+			sndinf[kFlags] = 0;
+		}
+	}
+
+	sfx->ResourceId = index;
 	sfx->UserData.Resize(kMaxUserData);
-	auto sndinf = sfx->UserData.Data();
-	sndinf[kFlags] = type & ~SF_ONEINST_INTERNAL;
+	auto& sndinf = sfx->UserData;
+	sndinf[kFlags] = (type & ~SF_ONEINST_INTERNAL) | SF_CONDEFINED;
 	if (sndinf[kFlags] & SF_LOOP)
 		sndinf[kFlags] |= SF_ONEINST_INTERNAL;
 
@@ -239,7 +269,6 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	sfx->Volume = volume;
 	//sfx->NearLimit = index == TELEPORTER + 1? 6 : 0; // the teleporter sound cannot be unlimited due to how it gets used.
 	sfx->bTentative = false;
-	sfx->name = std::move(fn);
 	return 0;
 }
 
