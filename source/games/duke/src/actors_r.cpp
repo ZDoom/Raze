@@ -292,9 +292,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					continue;
 				}
 
-				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z -= gs.playerheight;
-				double dist = (actor->spr.pos - act2->spr.pos).Length();
-				if (act2->spr.picnum == APLAYER) act2->spr.pos.Z += gs.playerheight;
+				double dist = (actor->getPosWithOffsetZ() - act2->spr.pos).Length();
 
 				if (dist < radius && cansee(act2->spr.pos.plusZ(-8), act2->sector(), actor->spr.pos.plusZ(-12), actor->sector()))
 				{
