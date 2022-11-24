@@ -3213,7 +3213,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			goalang = (ps[pnum].opos.XY() - actor->spr.pos.XY()).Angle();
 		else goalang = (ps[pnum].pos.XY() - actor->spr.pos.XY()).Angle();
 		angdif = deltaangle(actor->spr.angle, goalang) * 0.25;
-		if (angdif > -DAngle22_5 / 8 && angdif < nullAngle) angdif = nullAngle;
+		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
 		actor->spr.angle += angdif;
 	}
 
