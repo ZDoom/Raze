@@ -63,6 +63,7 @@ struct GameInterface : public ::GameInterface
 	void AddExcludedEpisode(const FString& episode) override;
 	int GetCurrentSkill() override;
 	bool WantEscape() override;
+	void StartSoundEngine() override;
 
 };
 

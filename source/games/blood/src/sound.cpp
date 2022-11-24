@@ -109,9 +109,13 @@ static void S_AddBloodSFX(int lumpnum)
 //
 //---------------------------------------------------------------------------
 
-void sndInit(void)
+void GameInterface::StartSoundEngine()
 {
 	soundEngine = new BloodSoundEngine;
+}
+
+void sndInit(void)
+{
 	soundEngine->AddSoundLump("", 0, 0, -1, 6); // add a dummy entry at index #0
 	for (int i = fileSystem.GetNumEntries() - 1; i >= 0; i--)
 	{

@@ -127,6 +127,7 @@ struct GameInterface
 	virtual void AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata) { }
 	virtual void RemoveQAVInterpProps(const int res_id) { }
 	virtual bool WantEscape() { return false; }
+	virtual void StartSoundEngine() = 0;
 
 	virtual FString statFPS()
 	{

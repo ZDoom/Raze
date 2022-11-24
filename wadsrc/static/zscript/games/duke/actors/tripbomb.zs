@@ -44,7 +44,7 @@ class DukeTripBomb : DukeActor
 				if (self.extra == 0)
 				{
 					self.temp_data[2] = 16;
-					self.PlayActorSound(DukeSnd.LASERTRIP_ARMING);
+					self.PlayActorSound("LASERTRIP_ARMING");
 				}
 			}
 		}
@@ -161,7 +161,7 @@ class DukeTripBomb : DukeActor
 			if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
 			{
 				self.temp_data[2] = 13;
-				self.PlayActorSound(DukeSnd.LASERTRIP_ARMING);
+				self.PlayActorSound("LASERTRIP_ARMING");
 			}
 			else self.temp_data[2] = 0;
 		}
@@ -184,7 +184,7 @@ class DukeTripBomb : DukeActor
 			if (self.temp_pos2.X != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
 			{
 				self.temp_data[2] = 13;
-				self.PlayActorSound(DukeSnd.LASERTRIP_ARMING);
+				self.PlayActorSound("LASERTRIP_ARMING");
 			}
 		}
 	}

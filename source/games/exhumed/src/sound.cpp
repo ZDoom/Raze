@@ -213,12 +213,13 @@ int LoadSound(const char* name)
 //
 //
 //==========================================================================
+void GameInterface::StartSoundEngine()
+{
+    soundEngine = new EXSoundEngine;
+}
 
 void InitFX(void)
 {
-    if (soundEngine) return; // just in case.
-    soundEngine = new EXSoundEngine;
-
     auto& S_sfx = soundEngine->GetSounds();
     S_sfx.Resize(1);
     for (size_t i = 0; i < kMaxSoundFiles; i++)

@@ -472,11 +472,13 @@ TArray<uint8_t> SWSoundEngine::ReadSound(int lumpnum)
 //
 //
 //==========================================================================
+void GameInterface::StartSoundEngine()
+{
+    soundEngine = new SWSoundEngine;
+}
 
 void InitFX(void)
 {
-    if (soundEngine) return; // just in case.
-    soundEngine = new SWSoundEngine;
 
     auto &S_sfx = soundEngine->GetSounds();
     S_sfx.Resize(countof(voc));

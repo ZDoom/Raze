@@ -89,22 +89,22 @@ class DukeTitleScreen : SkippableScreenJob
 		if (soundanm == 0 && clock >= 120 && clock < 120 + 60)
 		{
 			soundanm = 1;
-			Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 		}
 		if (soundanm == 1 && clock > 220 && clock < (220 + 30))
 		{
 			soundanm = 2;
-			Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 		}
 		if (soundanm == 2 && clock >= 280 && clock < 395)
 		{
 			soundanm = 3;
-			if (Raze.isPlutoPak()) Duke.PlaySound(DukeSnd.FLY_BY, CHAN_AUTO, CHANF_UI);
+			if (Raze.isPlutoPak()) Duke.PlaySound("FLY_BY", CHAN_AUTO, CHANF_UI);
 		}
 		else if (soundanm == 3 && clock >= 395)
 		{
 			soundanm = 4;
-			if (Raze.isPlutoPak()) Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			if (Raze.isPlutoPak()) Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 		}
 
 		if (clock > (860 + 120))
@@ -159,7 +159,7 @@ class DukeTitleScreen : SkippableScreenJob
 
 	override void OnDestroy()
 	{
-		Duke.PlaySound(DukeSnd.NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI);
+		Duke.PlaySound("NITEVISION_ONOFF", CHAN_AUTO, CHANF_UI);
 	}
 }
 
@@ -215,8 +215,8 @@ class Episode1End1 : SkippableScreenJob
 			{
 				if (t == 10 && bonuscnt == 1)
 				{
-					Duke.PlaySound(DukeSnd.SHOTGUN_FIRE, CHAN_AUTO, CHANF_UI);
-					Duke.PlaySound(DukeSnd.SQUISHED, CHAN_AUTO, CHANF_UI);
+					Duke.PlaySound("SHOTGUN_FIRE", CHAN_AUTO, CHANF_UI);
+					Duke.PlaySound("SQUISHED", CHAN_AUTO, CHANF_UI);
 					bonuscnt++;
 				}
 				bossani = TexMan.CheckForTexture(boss_tile[tt]);
@@ -231,7 +231,7 @@ class Episode1End1 : SkippableScreenJob
 				breathebg = true;
 				if (currentclock >= 750 && bonuscnt == 2)
 				{
-					Duke.PlaySound(DukeSnd.DUKETALKTOBOSS, CHAN_AUTO, CHANF_UI);
+					Duke.PlaySound("DUKETALKTOBOSS", CHAN_AUTO, CHANF_UI);
 					bonuscnt++;
 				}
 			}
@@ -240,7 +240,7 @@ class Episode1End1 : SkippableScreenJob
 				{
 					if (t == 5 && bonuscnt == 0)
 					{
-						Duke.PlaySound(DukeSnd.BOSSTALKTODUKE, CHAN_AUTO, CHANF_UI);
+						Duke.PlaySound("BOSSTALKTODUKE", CHAN_AUTO, CHANF_UI);
 						bonuscnt++;
 					}
 					breatheani = TexMan.CheckForTexture(breathe_tile[tt]);
@@ -294,7 +294,7 @@ class E2EndScreen : ImageScreen
 
 	override void Start()
 	{
-		Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+		Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 	}
 }
 
@@ -327,44 +327,45 @@ class Episode3End : ImageScreen
 		switch (soundstate)
 		{
 		case 0:
-			Duke.PlaySound(DukeSnd.ENDSEQVOL3SND5, CHAN_AUTO, CHANF_UI);
+			Duke.PlaySound("ENDSEQVOL3SND5", CHAN_AUTO, CHANF_UI);
 			soundstate++;
 			break;
 
+		/*
 		case 1:
-			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND5))
+			if (!Duke.CheckSoundPlaying("ENDSEQVOL3SND5"))
 			{
-				Duke.PlaySound(DukeSnd.ENDSEQVOL3SND6, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("ENDSEQVOL3SND6", CHAN_AUTO, CHANF_UI);
 				soundstate++;
 			}
 			break;
 
 		case 2:
-			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND6))
+			if (!Duke.CheckSoundPlaying("ENDSEQVOL3SND6"))
 			{
-				Duke.PlaySound(DukeSnd.ENDSEQVOL3SND7, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("ENDSEQVOL3SND7", CHAN_AUTO, CHANF_UI);
 				soundstate++;
 			}
 			break;
 
 		case 3:
-			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND7))
+			if (!Duke.CheckSoundPlaying("ENDSEQVOL3SND7"))
 			{
-				Duke.PlaySound(DukeSnd.ENDSEQVOL3SND8, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("ENDSEQVOL3SND8", CHAN_AUTO, CHANF_UI);
 				soundstate++;
 			}
 			break;
 
 		case 4:
-			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND8))
+			if (!Duke.CheckSoundPlaying("ENDSEQVOL3SND8"))
 			{
-				Duke.PlaySound(DukeSnd.ENDSEQVOL3SND9, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("ENDSEQVOL3SND92, CHAN_AUTO, CHANF_UI);
 				soundstate++;
 			}
 			break;
 
 		case 5:
-			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND9))
+			if (!Duke.CheckSoundPlaying("ENDSEQVOL3SND9"))
 			{
 				soundstate++;
 				finishtime = ticks + GameTicRate * (System.SoundEnabled() ? 1 : 5);	// if sound is off this wouldn't wait without a longer delay here.
@@ -377,6 +378,7 @@ class Episode3End : ImageScreen
 				if (ticks > finishtime) jobstate = finished;
 			}
 			break;
+		*/
 
 		default:
 			break;
@@ -386,7 +388,7 @@ class Episode3End : ImageScreen
 
 	override void OnDestroy()
 	{
-		if (!Raze.isPlutoPak()) Duke.PlaySound(DukeSnd.ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
+		if (!Raze.isPlutoPak()) Duke.PlaySound("ENDSEQVOL3SND4", CHAN_AUTO, CHANF_UI);
 	}
 }
 
@@ -416,7 +418,7 @@ class Episode4Text : SkippableScreenJob
 
 	override void Start()
 	{
-		Duke.PlaySound(DukeSnd.ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
+		Duke.PlaySound("ENDSEQVOL3SND4", CHAN_AUTO, CHANF_UI);
 	}
 }
 
@@ -436,7 +438,7 @@ class Episode5End : ImageScreen
 
 	override void OnTick()
 	{
-		if (ticks == 1) Duke.PlaySound(DukeSnd.E5L7_DUKE_QUIT_YOU, CHAN_AUTO, CHANF_UI);
+		if (ticks == 1) Duke.PlaySound("E5L7_DUKE_QUIT_YOU", CHAN_AUTO, CHANF_UI);
 	}
 }
 
@@ -486,7 +488,7 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 class DukeLevelSummaryScreen : SummaryScreenBase
 {
 	String lastmapname;
-	int speech;
+	Sound speech;
 	int displaystate;
 	int dukeAnimStart;
 
@@ -536,15 +538,15 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 		{
 			if ((displaystate & printStatsAll) != printStatsAll)
 			{
-				Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 				displaystate = printStatsAll;
 			}
 			else if (!(displaystate & dukeAnim))
 			{
 				displaystate |= dukeAnim;
 				dukeAnimStart = ticks;
-				Duke.PlaySound(DukeSnd.SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
-				static const int speeches[] = { DukeSnd.BONUS_SPEECH1, DukeSnd.BONUS_SPEECH2, DukeSnd.BONUS_SPEECH3, DukeSnd.BONUS_SPEECH4 };
+				Duke.PlaySound("SHOTGUN_COCK", CHAN_AUTO, CHANF_UI);
+				static const Sound speeches[] = { "BONUS_SPEECH1", "BONUS_SPEECH2", "BONUS_SPEECH3", "BONUS_SPEECH4" };
 				speech = speeches[random(0, 3)];
 				Duke.PlaySound(speech, CHAN_AUTO, CHANF_UI, 1);
 			}
@@ -569,17 +571,17 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 			else if (ticks == 15 * 4)
 			{
 				displaystate |= printTimeVal;
-				Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 			}
 			else if (ticks == 15 * 6)
 			{
 				displaystate |= printKillsText;
-				Duke.PlaySound(DukeSnd.FLY_BY, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("FLY_BY", CHAN_AUTO, CHANF_UI);
 			}
 			else if (ticks == 15 * 7)
 			{
 				displaystate |= printKillsVal;
-				Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 			}
 			else if (ticks == 15 * 9)
 			{
@@ -588,7 +590,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 			else if (ticks == 15 * 10)
 			{
 				displaystate |= printSecretsVal;
-				Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("PIPEBOMB_EXPLODE", CHAN_AUTO, CHANF_UI);
 			}
 		}
 		if (displaystate & dukeAnim)
@@ -731,7 +733,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 class RRLevelSummaryScreen : SummaryScreenBase
 {
 	String lastmapname;
-	int speech;
+	Sound speech;
 	int displaystate;
 	int exitSoundStart;
 	TextureID texBg;
@@ -773,15 +775,15 @@ class RRLevelSummaryScreen : SummaryScreenBase
 		{
 			if ((displaystate & printStatsAll) != printStatsAll)
 			{
-				Duke.PlaySound(RRSnd.FART1, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("FART1", CHAN_AUTO, CHANF_UI);
 				displaystate = printStatsAll;
 			}
 			else if (!(displaystate & exitSound))
 			{
 				displaystate |= exitSound;
 				exitSoundStart = ticks;
-				Duke.PlaySound(RRSnd.CHUG, CHAN_AUTO, CHANF_UI);
-				static const int speeches[] = { RRSnd.BNS_SPCH1, RRSnd.BNS_SPCH2, RRSnd.BNS_SPCH3, RRSnd.BNS_SPCH4 };
+				Duke.PlaySound("CHUG", CHAN_AUTO, CHANF_UI);
+				static const Sound speeches[] = { "BONUS_SPEECH1", "BONUS_SPEECH2", "BONUS_SPEECH3", "BONUS_SPEECH4" };
 				speech = speeches[random(0, 3)];
 				Duke.PlaySound(speech, CHAN_AUTO, CHANF_UI);
 			}
@@ -801,7 +803,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 			else if (ticks == 15 * 4)
 			{
 				displaystate |= printTimeVal;
-				Duke.PlaySound(RRSnd.FART1, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("FART1", CHAN_AUTO, CHANF_UI);
 			}
 			else if (ticks == 15 * 6)
 			{
@@ -810,7 +812,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 			else if (ticks == 15 * 7)
 			{
 				displaystate |= printKillsVal;
-				Duke.PlaySound(RRSnd.FART1, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("FART1", CHAN_AUTO, CHANF_UI);
 			}
 			else if (ticks == 15 * 9)
 			{
@@ -819,7 +821,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 			else if (ticks == 15 * 10)
 			{
 				displaystate |= printSecretsVal;
-				Duke.PlaySound(RRSnd.FART1, CHAN_AUTO, CHANF_UI);
+				Duke.PlaySound("FART1", CHAN_AUTO, CHANF_UI);
 			}
 		}
 		if (displaystate & exitSound)
@@ -931,17 +933,17 @@ class RRRAEndOfGame : SkippableScreenJob
 
 	override void OnSkip()
 	{
-		Duke.StopSound(RRSnd.LN_FINAL);
+		Duke.StopSound("LN_FINAL");
 	}
 
 	override void Start()
 	{
-		Duke.PlaySound(RRSnd.LN_FINAL, CHAN_AUTO, CHANF_UI);
+		Duke.PlaySound("LN_FINAL", CHAN_AUTO, CHANF_UI);
 	}
 
 	override void OnTick()
 	{
-		if (!Duke.CheckSoundPlaying(RRSnd.LN_FINAL) && ticks > 15 * GameTicRate) jobstate = finished; // make sure it stays, even if sound is off.
+		if (!Duke.CheckSoundPlaying("LN_FINAL") && ticks > 15 * GameTicRate) jobstate = finished; // make sure it stays, even if sound is off.
 	}
 
 	override void Draw(double sr) 

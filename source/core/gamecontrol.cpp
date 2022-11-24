@@ -1111,6 +1111,7 @@ int RunGame()
 
 	StartWindow->Progress();
 	I_InitSound();
+	gi->StartSoundEngine();
 	StartWindow->Progress();
 	Mus_InitMusic();
 	S_ParseSndInfo();

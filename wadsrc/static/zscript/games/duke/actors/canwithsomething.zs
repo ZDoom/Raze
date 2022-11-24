@@ -24,7 +24,7 @@ class DukeCanWithSomething : DukeActor
 		int j = self.ifhitbyweapon();
 		if (j >= 0)
 		{
-			self.PlayActorSound(DukeSnd.VENT_BUST);
+			self.PlayActorSound("VENT_BUST");
 			for (j = 0; j < 10; j++)
 				self.RANDOMSCRAP();
 

@@ -1681,6 +1681,7 @@ void SoundEngine::HashSounds()
 
 	S_sfx.ShrinkToFit();
 	size = S_sfx.Size();
+	ResIdMap.Clear();
 
 	// Mark all buckets as empty
 	for (i = 0; i < size; i++)
@@ -1692,8 +1693,15 @@ void SoundEngine::HashSounds()
 		j = MakeKey(S_sfx[i].name) % size;
 		S_sfx[i].next = S_sfx[j].index;
 		S_sfx[j].index = i;
+
+		if (S_sfx[j].ResourceId != -1)
+		{
+			ResIdMap.Insert(S_sfx[j].ResourceId, FSoundID::fromInt(i));
+		}
 	}
 	S_rnd.ShrinkToFit();
+
+
 }
 
 void SoundEngine::AddRandomSound(FSoundID Owner, TArray<FSoundID> list)

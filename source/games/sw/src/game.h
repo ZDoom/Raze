@@ -1694,6 +1694,7 @@ struct GameInterface : public ::GameInterface
     int Voxelize(int sprnum);
     void ExitFromMenu() override;
     int GetCurrentSkill() override;
+    void StartSoundEngine() override;
 
 
     GameStats getStats() override;

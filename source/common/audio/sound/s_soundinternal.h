@@ -398,6 +398,10 @@ public:
 	FSoundID PickReplacement(FSoundID refid);
 	void HashSounds();
 	void AddRandomSound(FSoundID Owner, TArray<FSoundID> list);
+	void RemoveResourceID(int id)
+	{
+		ResIdMap.Remove(id);
+	}
 
 	TArray<sfxinfo_t>& GetSounds()	//We still need this for a short time...
 	{

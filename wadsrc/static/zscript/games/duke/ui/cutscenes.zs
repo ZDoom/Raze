@@ -42,8 +42,8 @@ class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot e
 			{
 				Array<int> soundinfo;
 				soundinfo.Pushv(
-					1, DukeSnd.FLY_BY+1,
-					19, DukeSnd.PIPEBOMB_EXPLODE+1);
+					1, int(Sound("FLY_BY")),
+					19, int(Sound("PIPEBOMB_EXPLODE")));
 				runner.Append(MoviePlayerJob.CreateWithSoundinfo("logo.anm", soundinfo, 0, 9, 9, 9));
 			}
 			if (!Raze.isNam()) runner.Append(new("DRealmsScreen").Init());
@@ -73,15 +73,15 @@ class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot e
 	{
 		Array<int> soundinfo;
 		soundinfo.Pushv(
-			1, DukeSnd.WIND_AMBIENCE+1,
-			26, DukeSnd.ENDSEQVOL2SND1+1,
-			36, DukeSnd.ENDSEQVOL2SND2+1,
-			54, DukeSnd.THUD+1,
-			62, DukeSnd.ENDSEQVOL2SND3+1,
-			75, DukeSnd.ENDSEQVOL2SND4 + 1,
-			81, DukeSnd.ENDSEQVOL2SND5 + 1,
-			115, DukeSnd.ENDSEQVOL2SND6 + 1,
-			124, DukeSnd.ENDSEQVOL2SND7 + 1);
+			1, int(Sound("WIND_AMBIENCE")),
+			26, int(Sound("ENDSEQVOL2SND1")),
+			36, int(Sound("ENDSEQVOL2SND2")),
+			54, int(Sound("THUD")),
+			62, int(Sound("ENDSEQVOL2SND3")),
+			75, int(Sound("ENDSEQVOL2SND4")),
+			81, int(Sound("ENDSEQVOL2SND5")),
+			115, int(Sound("ENDSEQVOL2SND6")),
+			124, int(Sound("ENDSEQVOL2SND7")));
 
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("cineov2.anm", soundinfo, 0, 18, 18, 18));
 		runner.Append(new("E2EndScreen").Init());
@@ -98,20 +98,20 @@ class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot e
 		if (gameinfo.gameType & GAMEFLAG_DUKEDC)
 		{
 			Array<int> soundinfo;
-			soundinfo.Pushv(144, DukeSnd.ENDSEQVOL3SND3 + 1);
+			soundinfo.Pushv(144, int(Sound("ENDSEQVOL3SND3")));
 			runner.Append(MoviePlayerJob.CreateWithSoundinfo("radlogo.anm", soundinfo, 0, 10, 10, 10));
 		}
 		else
 		{
 			Array<int> soundinfo;
 			soundinfo.Pushv(
-				1, DukeSnd.WIND_REPEAT + 1,
-				98, DukeSnd.DUKE_GRUNT + 1,
-				102, DukeSnd.THUD + 1,
-				102, DukeSnd.SQUISHED + 1,
-				124, DukeSnd.ENDSEQVOL3SND3 + 1,
-				134, DukeSnd.ENDSEQVOL3SND2 + 1,
-				158, DukeSnd.PIPEBOMB_EXPLODE + 1);
+				1, int(Sound("WIND_REPEAT")),
+				98, int(Sound("PLAYER_GRUNT")),
+				102, int(Sound("THUD")),
+				102, int(Sound("SQUISHED")),
+				124, int(Sound("ENDSEQVOL3SND3")),
+				134, int(Sound("ENDSEQVOL3SND2")),
+				158, int(Sound("PIPEBOMB_EXPLODE")));
 
 			runner.Append(MoviePlayerJob.CreateWithSoundinfo("cineov3.anm", soundinfo, 0, 10, 10, 10));
 			runner.Append(BlackScreen.Create(200, ScreenJob.stopsound));
@@ -131,22 +131,22 @@ class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot e
 		Array<int> soundinfo;
 
 		soundinfo.Pushv(
-			3, DukeSnd.DUKE_UNDERWATER+1,
-			35, DukeSnd.VOL4ENDSND1+1);
+			3, int(Sound("PLAYER_UNDERWATER")),
+			35, int(Sound("VOL4ENDSND1")));
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol4e1.anm", soundinfo, 0, 10, 10, 10));
 
 		soundinfo.Pushv(
-			11, DukeSnd.DUKE_UNDERWATER+1,
-			20, DukeSnd.VOL4ENDSND1+1,
-			39, DukeSnd.VOL4ENDSND2+1,
+			11, int(Sound("PLAYER_UNDERWATER")),
+			20, int(Sound("VOL4ENDSND1")),
+			39, int(Sound("VOL4ENDSND2")),
 			50, -1);
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol4e2.anm", soundinfo, 0, 14, 14, 14));
 
 		soundinfo.Pushv(
-			1, DukeSnd.BOSS4_DEADSPEECH+1,
-			40, DukeSnd.VOL4ENDSND1+1,
-			40, DukeSnd.DUKE_UNDERWATER+1,
-			50, DukeSnd.BIGBANG+1);
+			1, int(Sound("BOSS4_DEADSPEECH")),
+			40, int(Sound("VOL4ENDSND1")),
+			40, int(Sound("PLAYER_UNDERWATER")),
+			50, int(Sound("BIGBANG")));
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol4e3.anm", soundinfo, 0, 10, 10, 10));
 
 		runner.Append(new("Episode4Text").Init());
@@ -177,23 +177,23 @@ class DukeCutscenes ui // Note: must be class, not struct, otherwise we cannot e
 
 		Duke.PlaySpecialMusic(Duke.MUS_BRIEFING);
 		soundinfo.Pushv(
-			1, DukeSnd.INTRO4_1 + 1,
-			7, DukeSnd.INTRO4_3 + 1,
-			12, DukeSnd.INTRO4_2 + 1,
-			26, DukeSnd.INTRO4_4 + 1);
+			1, int(Sound("INTRO4_1")),
+			7, int(Sound("INTRO4_3")),
+			12, int(Sound("INTRO4_2")),
+			26, int(Sound("INTRO4_4")));
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol41a.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 14, 14, 14));
 
 		soundinfo.Pushv(
-			1, DukeSnd.INTRO4_B + 1,
-			12, DukeSnd.SHORT_CIRCUIT + 1,
-			18, DukeSnd.INTRO4_5 + 1,
-			34, DukeSnd.SHORT_CIRCUIT + 1);
+			1, int(Sound("INTRO4_B")),
+			12, int(Sound("SHORT_CIRCUIT")),
+			18, int(Sound("INTRO4_5")),
+			34, int(Sound("SHORT_CIRCUIT")));
 		let m = MoviePlayerJob.CreateWithSoundinfo("vol42a.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 18, 18, 18);
 		if (m) m.skipover = true;
 		runner.Append(m);
 
 		soundinfo.Pushv(
-			10, DukeSnd.INTRO4_6 + 1);
+			10, int(Sound("INTRO4_6")));
 		m = MoviePlayerJob.CreateWithSoundinfo("vol43a.anm", soundinfo, 0, 10, 10, 10);
 		if (m) m.skipover = true;
 		runner.Append(m);
@@ -275,13 +275,13 @@ class RRCutscenes ui
 		if (!userConfig.nologo)
 		{
 			Array<int> soundinfo;
-			soundinfo.Pushv(1, RRSnd.URANUS + 1);
+			soundinfo.Pushv(1, int(Sound("URANUS")));
 			runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_intro.anm", soundinfo, 0, 9, 9, 9));
 
-			soundinfo.Pushv(1, RRSnd.REDNECK2 + 1);
+			soundinfo.Pushv(1, int(Sound("REDNECK2")));
 			runner.Append(MoviePlayerJob.CreateWithSoundinfo("redneck.anm", soundinfo, 0, 9, 9, 9));
 
-			soundinfo.Pushv(1, RRSnd.XATRIX + 1);
+			soundinfo.Pushv(1, int(Sound("XATRIX")));
 			runner.Append(MoviePlayerJob.CreateWithSoundinfo("xatlogo.anm", soundinfo, 0, 9, 9, 9));
 		}
 	}
@@ -313,7 +313,7 @@ class RRCutscenes ui
 		if (!Raze.isRRRA())
 		{
 			Array<int> soundinfo;
-			soundinfo.Pushv(1, RRSnd.CHKAMMO + 1);
+			soundinfo.Pushv(1, int(Sound("CHKAMMO")));
 			runner.Append(MoviePlayerJob.CreateWithSoundinfo("turdmov.anm", soundinfo, 0, 9, 9, 9));
 		} 
 	}
@@ -328,7 +328,7 @@ class RRCutscenes ui
 	static void BuildE2End(ScreenJobRunner runner)
     {
 		Array<int> soundinfo;
-		soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);
+		soundinfo.Pushv(1, int(Sound("LN_FINAL")));
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 9, 9, 9));
 		runner.Append(ImageScreen.CreateNamed("TENSCREEN"));
 	}

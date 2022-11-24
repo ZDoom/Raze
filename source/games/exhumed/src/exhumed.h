@@ -238,6 +238,7 @@ struct GameInterface : public ::GameInterface
     void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
     int GetCurrentSkill() override;
     std::pair<DVector3, DAngle> GetCoordinates() override;
+    void StartSoundEngine() override;
 
 	::GameStats getStats() override;
 };

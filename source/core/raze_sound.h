@@ -38,6 +38,11 @@ int S_ReserveSoundSlot(const char* logicalname, int slotnum, int limit = 6);
 class RazeSoundEngine : public SoundEngine
 {
 public:
+	RazeSoundEngine()
+	{
+		// add the empty sound right now.
+		AddSoundLump("no_sound", fileSystem.CheckNumForFullName("engine/dsempty.lmp"), 0);
+	}
 	virtual bool SourceIsActor(FSoundChan* chan) { return chan->SourceType == SOURCE_Actor; }
 	virtual int SoundSourceIndex(FSoundChan* chan) { return 0; }
 	virtual void SetSource(FSoundChan* chan, int index) {}

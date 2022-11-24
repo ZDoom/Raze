@@ -99,39 +99,48 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PlaySpecialMusic, S_PlaySpecialMusic)
 	return 0;
 }
 
-static int PlaySound(int num, int chan, int flags, double vol)
+static int duke_PlaySound(int num, int chan, int flags, double vol)
 {
-	return S_PlaySound(num, chan, EChanFlags::FromInt(flags), float(vol));
+	return S_PlaySound(FSoundID::fromInt(num), chan, EChanFlags::FromInt(flags), float(vol));
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PlaySound, PlaySound)
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PlaySound, duke_PlaySound)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(snd);
 	PARAM_INT(chan);
 	PARAM_INT(flags);
 	PARAM_FLOAT(vol);
-	ACTION_RETURN_INT(PlaySound(snd, chan, flags, vol));
+	ACTION_RETURN_INT(duke_PlaySound(snd, chan, flags, vol));
 }
 static void StopSound(int num)
 {
 	S_StopSound(num);
 }
 
+void duke_StopSound(int snd)
+{
+	S_StopSound(FSoundID::fromInt(snd));
+}
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, StopSound, StopSound)
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, StopSound, duke_StopSound)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(snd);
-	StopSound(snd);
+	duke_StopSound(snd);
 	return 0;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, CheckSoundPlaying, S_CheckSoundPlaying)
+int duke_CheckSoundPlaying(int snd)
+{
+	return S_CheckSoundPlaying(FSoundID::fromInt(snd));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, CheckSoundPlaying, duke_CheckSoundPlaying)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(snd);
-	ACTION_RETURN_INT(S_CheckSoundPlaying(snd));
+	ACTION_RETURN_INT(duke_CheckSoundPlaying(snd));
 }
 
 player_struct* duke_checkcursectnums(sectortype* sector)
@@ -159,11 +168,16 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, global_random, duke_global_random)
 	ACTION_RETURN_INT(global_random);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, GetSoundFlags, S_GetUserFlags)
+int duke_GetSoundFlags(int sndid)
+{
+	return S_GetUserFlags(FSoundID::fromInt(sndid));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, GetSoundFlags, duke_GetSoundFlags)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(snd);
-	ACTION_RETURN_INT(S_GetUserFlags(snd));
+	ACTION_RETURN_INT(duke_GetSoundFlags(snd));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Duke, badguyID, badguypic)
@@ -285,7 +299,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, domove, ssp)
 
 int DukeActor_PlayActorSound(DDukeActor* self, int snd, int chan, int flags)
 {
-	return S_PlayActorSound(snd, self, chan, EChanFlags::FromInt(flags));
+	return S_PlayActorSound(FSoundID::fromInt(snd), self, chan, EChanFlags::FromInt(flags));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, PlayActorSound, DukeActor_PlayActorSound)
@@ -299,7 +313,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, PlayActorSound, DukeActor_PlayActorSou
 
 void DukeActor_StopSound(DDukeActor* self, int snd, int flags)
 {
-	S_StopSound(snd, self, flags);
+	S_StopSound(FSoundID::fromInt(snd), self, flags);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, StopSound, DukeActor_StopSound)

@@ -3239,6 +3239,7 @@ void loadcons()
 	// These can only be retrieved AFTER loading the scripts.
 	FinalizeGameVars();
 	S_WorldTourMappingsForOldSounds(); // create a sound mapping for World Tour.
+	soundEngine->HashSounds();
 	S_CacheAllSounds();
 	comp.setmusic();
 

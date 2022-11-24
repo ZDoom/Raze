@@ -364,9 +364,7 @@ void GameInterface::app_init()
 	connectpoint2[0] = -1;
 
 	SetDispatcher();
-	S_InitSound();
-
-
+	
 	loadcons();
 	fi.initactorflags();
 	duke_menufont->Callback(); // depends on the .CON files so it must be after loadcons

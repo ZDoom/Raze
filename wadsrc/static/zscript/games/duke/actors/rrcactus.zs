@@ -14,7 +14,7 @@ class RedneckCactusLargeYellow : DukeActor
 			p.actor.extra -= 2;
 			p.hurt_delay2 = 16;
 			p.pals = Color(32, 32, 0, 0);
-			p.actor.PlayActorSound(RRSnd.LN_PAIN8);
+			p.actor.PlayActorSound("PLAYER_LONGTERM_PAIN");
 		}
 	}
 
@@ -68,7 +68,7 @@ class RedneckCactusLargeGreen : RedneckCactusLargeYellow
 		{
 			if (self.pal != 4)
 			{
-				self.PlayActorSound(DukeSnd.SQUISHED);
+				self.PlayActorSound("SQUISHED");
 				if (self.lotag != 0)
 				{
 					DukeSpriteIterator it;
@@ -98,7 +98,7 @@ class RedneckCactusLargeGreen : RedneckCactusLargeYellow
 	
 	override void OnMotoSmash(DukePlayer hitter)
 	{
-		self.PlayActorSound(DukeSnd.SQUISHED);
+		self.PlayActorSound("SQUISHED");
 		if (self.lotag != 0)
 		{
 			DukeSpriteIterator it;
@@ -143,7 +143,7 @@ class RedneckCactusDrug : RedneckCactusLargeYellow
 		}
 		else if (self.spritesetIndex == 1)
 		{
-			self.PlayActorSound(DukeSnd.SQUISHED);
+			self.PlayActorSound("SQUISHED");
 			self.spawnguts('RedneckCactusDebris2', 3);
 			self.Destroy();
 		}

@@ -97,16 +97,15 @@ static const char *SICommandStrings[] =
 // 
 //==========================================================================
 
-int S_ReserveSoundSlot(const char* logicalname, int slotnum, int limit = 6)
+FSoundID S_ReserveSoundSlot(const char* logicalname, int slotnum, int limit = 6)
 {
 	auto& S_sfx = soundEngine->GetSounds();
-	int sfxid;
 
-	sfxid = soundEngine->FindSoundNoHash(logicalname);
+	auto sfxid = soundEngine->FindSoundNoHash(logicalname);
 
-	if (sfxid > 0 && (unsigned int)sfxid < S_sfx.Size())
+	if (soundEngine->isValidSoundId(sfxid))
 	{ // If the sound has already been defined, change the old definition
-		sfxinfo_t* sfx = &S_sfx[sfxid];
+		sfxinfo_t* sfx = soundEngine->GetWritableSfx(sfxid);
 
 		if (sfx->ResourceId != -1)
 		{
@@ -117,7 +116,7 @@ int S_ReserveSoundSlot(const char* logicalname, int slotnum, int limit = 6)
 		{
 			FRandomSoundList* rnd = soundEngine->ResolveRandomSound(sfx);
 			rnd->Choices.Reset();
-			rnd->Owner = 0;
+			rnd->Owner = NO_SOUND;
 		}
 		sfx->ResourceId = slotnum;
 		sfx->lumpnum = sfx_empty;

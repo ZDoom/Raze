@@ -40,7 +40,7 @@ class DukeViewscreen : DukeActor
 			if (acti.actorflag2(SFLAG2_CAMERA) && acti.yint == 0 && self.hitag == acti.lotag)
 			{
 				acti.yint = 1; //Using this camera
-				if (user == Duke.GetViewPlayer()) Duke.PlaySound(DukeSnd.MONITOR_ACTIVE);
+				if (user == Duke.GetViewPlayer()) Duke.PlaySound("MONITOR_ACTIVE");
 
 				self.ownerActor = acti;
 				self.yint = 1;

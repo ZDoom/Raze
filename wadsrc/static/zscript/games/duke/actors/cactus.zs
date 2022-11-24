@@ -56,7 +56,7 @@ class DukeCactus : DukeCactusBroke
 			p.actor.extra -= 5;
 			p.hurt_delay = 16;
 			p.pals = Color(32, 32, 0, 0);
-			p.actor.PlayActorSound(DukeSnd.DUKE_LONGTERM_PAIN);
+			p.actor.PlayActorSound("PLAYER_LONGTERM_PAIN");
 		}
 	}
 }

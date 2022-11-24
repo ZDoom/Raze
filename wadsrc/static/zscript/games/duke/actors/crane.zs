@@ -127,8 +127,7 @@ class DukeCrane : DukeActor
 						if (self.isactive)
 						{
 							let pp = findplayer();
-							// fixme: Sounds really need to be better abstracted...
-							pp.actor.PlayActorSound(Raze.isRR() ? RRSnd.YEHAA16 : DukeSnd.DUKE_GRUNT);
+							pp.actor.PlayActorSound("CRANEGRAB");
 							if (pp.on_crane == self)
 								pp.on_crane = null;
 						}
@@ -150,8 +149,7 @@ class DukeCrane : DukeActor
 					self.isactive = true;
 					self.ownerActor = null;
 					plr.on_crane = self;
-					// fixme: Sounds really need to be better abstracted...
-					plr.actor.PlayActorSound(Raze.isRR() ? RRSnd.YEHAA16 : DukeSnd.DUKE_GRUNT);
+					plr.actor.PlayActorSound("CRANEGRAB");
 					plr.settargetangle(self.angle + 180);
 				}
 				else

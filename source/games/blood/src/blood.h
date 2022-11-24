@@ -147,6 +147,7 @@ struct GameInterface : public ::GameInterface
 	bool IsQAVInterpTypeValid(const FString& type) override;
 	void AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata) override;
 	void RemoveQAVInterpProps(const int res_id) override;
+	void StartSoundEngine() override;
 
 	GameStats getStats() override;
 };

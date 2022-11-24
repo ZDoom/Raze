@@ -38,7 +38,7 @@ class RedneckLumberBlade : DukeActor
 			self.setSpritesetImage(1);
 			self.hitag = 100;
 			self.extra = 0;
-			self.PlayActorSound(RRSnd.BK_JIB2);
+			self.PlayActorSound("BK_JIB2");
 			return true;
 		}
 		return false;
@@ -49,7 +49,7 @@ class RedneckLumberBlade : DukeActor
 		if (self.spritesetindex == 0)
 		{
 			user.quickkill();
-			user.actor.PlayActorSound(RRSnd.JOE9000B);
+			user.actor.PlayActorSound("JOE9000B");
 		}
 	}
 }

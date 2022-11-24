@@ -44,8 +44,8 @@ class DukeFireext : DukeActor
 		}
 
 		self.spawn("DukeExplosion2");
-		self.PlayActorSound(DukeSnd.PIPEBOMB_EXPLODE);
-		self.PlayActorSound(DukeSnd.GLASS_HEAVYBREAK);
+		self.PlayActorSound("PIPEBOMB_EXPLODE");
+		self.PlayActorSound("GLASS_HEAVYBREAK");
 
 		if (self.hitag > 0)
 		{
@@ -60,7 +60,7 @@ class DukeFireext : DukeActor
 			int x = self.extra;
 			self.spawn("DukeExplosion2");
 			self.hitradius(gs.pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
-			self.PlayActorSound(DukeSnd.PIPEBOMB_EXPLODE);
+			self.PlayActorSound("PIPEBOMB_EXPLODE");
 			self.detonate("DukeExplosion2");
 		}
 		else

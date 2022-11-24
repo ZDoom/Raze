@@ -51,7 +51,7 @@ class DukeWaterDrip : DukeActor
 				self.cstat |= CSTAT_SPRITE_INVISIBLE;
 
 				if (self.pal != 2 && (self.hitag == 0 || Raze.isRR()))
-					self.PlayActorSound(DukeSnd.SOMETHING_DRIPPING);
+					self.PlayActorSound("SOMETHING_DRIPPING");
 
 				if (self.ownerActor != self)
 				{

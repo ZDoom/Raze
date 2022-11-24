@@ -62,7 +62,7 @@ class DukeWaterFountain : DukeActor
 		}
 		else
 		{
-			self.PlayActorSound(DukeSnd.GLASS_BREAKING);
+			self.PlayActorSound("GLASS_BREAKING");
 			self.angle = FRandom(0., 360.);
 			self.lotsofglass(8);
 			self.Destroy();
@@ -80,7 +80,7 @@ class DukeWaterFountain : DukeActor
 			if (act.extra < gs.max_player_health)
 			{
 				act.extra++;
-				act.PlayActorSound(DukeSnd.DUKE_DRINKING);
+				act.PlayActorSound("PLAYER_DRINKING");
 			}
 		}
 		return true;
@@ -104,7 +104,7 @@ class DukeWaterFountainBroke : DukeActor
 
 	override void onHit(DukeActor hitter)
 	{
-		self.PlayActorSound(DukeSnd.GLASS_BREAKING);
+		self.PlayActorSound("GLASS_BREAKING");
 		self.angle = FRandom(0., 360.);
 		self.lotsofglass(8);
 		self.Destroy();
