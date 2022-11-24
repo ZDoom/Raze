@@ -563,12 +563,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SHOTGUNSHELL:
 		initshell(actj, act, act->spr.picnum == SHELL);
 		break;
-	case SOUNDFX:
-	{
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_ZOMBIEACTOR);
-	}
-	break;
 	case EXPLOSION2:
 	case EXPLOSION3:
 	case BURNING:

@@ -1760,23 +1760,23 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifsoundid:
 		insptr++;
-		parseifelse((short)*insptr == ambienttags[g_ac->spr.detail].lo);
+		parseifelse((short)*insptr == ambienttags.SafeGet(g_ac->spr.detail, {}).lo);
 		break;
 	case concmd_ifsounddist:
 		insptr++;
 		if (*insptr == 0)
-			parseifelse(ambienttags[g_ac->spr.detail].hi > g_x);
+			parseifelse(ambienttags.SafeGet(g_ac->spr.detail, {}).hi > g_x);
 		else if (*insptr == 1)
-			parseifelse(ambienttags[g_ac->spr.detail].hi < g_x);
+			parseifelse(ambienttags.SafeGet(g_ac->spr.detail, {}).hi < g_x);
 		break;
 	case concmd_soundtag:
 		insptr++;
-		S_PlayActorSound(ambienttags[g_ac->spr.detail].lo, g_ac);
+		S_PlayActorSound(ambienttags.SafeGet(g_ac->spr.detail, {}).lo, g_ac);
 		break;
 	case concmd_soundtagonce:
 		insptr++;
-		if (!S_CheckActorSoundPlaying(g_ac, ambienttags[g_ac->spr.detail].lo))
-			S_PlayActorSound(ambienttags[g_ac->spr.detail].lo, g_ac);
+		if (!S_CheckActorSoundPlaying(g_ac, ambienttags.SafeGet(g_ac->spr.detail, {}).lo))
+			S_PlayActorSound(ambienttags.SafeGet(g_ac->spr.detail, {}).lo, g_ac);
 		break;
 	case concmd_soundonce:
 		insptr++;
