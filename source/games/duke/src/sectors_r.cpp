@@ -1064,7 +1064,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 	}
 	case RRTILE7555:
 		if (!isRRRA()) break;
-		wal->picnum = SBMOVE;
+		wal->picnum = RRTILE5015;
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;
 	case RRTILE7441:

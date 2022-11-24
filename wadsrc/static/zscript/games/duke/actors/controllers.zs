@@ -127,7 +127,7 @@ class DukeGPSpeed : DukeActor
 }
 
 // the following ones are only used in RR.
-class TorchCtrl : DukeActor
+class DukeTorchCtrl : DukeActor
 {
 	override void StaticSetup()
 	{

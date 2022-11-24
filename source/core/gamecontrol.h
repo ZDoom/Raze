@@ -272,9 +272,13 @@ struct SpawnRec
 	PClass* cls;
 	int param;
 
-	PClass* Class()
+	PClass* Class(int pn)
 	{
 		if (!cls && clsname != NAME_None) cls = PClass::FindClass(clsname);
+		if (cls == nullptr)
+		{
+			Printf(TEXTCOLOR_RED "Bad class name %s for ID# %d\n", clsname.GetChars(), pn);
+		}
 		clsname = NAME_None;
 		return cls;
 	}

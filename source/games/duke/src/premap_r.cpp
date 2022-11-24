@@ -552,7 +552,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				geosector[geocnt] = actor->sector();
 				for (auto actor2 : actors)
 				{
-					if (actor->spr.lotag == actor2->spr.lotag && actor2 != actor && actor2->spr.picnum == RRTILE19)
+					if (actor && actor->spr.lotag == actor2->spr.lotag && actor2 != actor && actor2->spr.picnum == RRTILE19)
 					{
 						if (actor2->spr.hitag == 1)
 						{

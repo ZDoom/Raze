@@ -345,6 +345,7 @@ void ChangeActorSect(DCoreActor* actor, sectortype* sect, bool tail)
 
 DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 {
+	if (type == nullptr) return nullptr;
 	assert(type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)));
 	if (!type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)))
 	{

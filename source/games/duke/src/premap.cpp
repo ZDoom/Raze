@@ -937,15 +937,11 @@ static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& sprites)
 			spawns.Pop();
 			continue;
 		}
-		if (i == 210)
-		{
-			int a = 0;
-		}
-
 
 		auto sprt = &sprites.sprites[i];
 		auto info = spawnMap.CheckKey(sprt->picnum);
-		auto actor = static_cast<DDukeActor*>(InsertActor(info? info->Class() : RUNTIME_CLASS(DDukeActor), sprt->sectp, sprt->statnum));
+		auto cls = info ? info->Class(sprt->picnum) : nullptr;;
+		auto actor = static_cast<DDukeActor*>(InsertActor(cls? cls : RUNTIME_CLASS(DDukeActor), sprt->sectp, sprt->statnum));
 		if (actor)
 		{
 			spawns[j++] = actor;

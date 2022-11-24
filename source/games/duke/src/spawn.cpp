@@ -63,7 +63,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 		auto info = spawnMap.CheckKey(s_pn);
 		if (info)
 		{
-			clstype = static_cast<PClassActor*>(info->Class());
+			clstype = static_cast<PClassActor*>(info->Class(s_pn));
 			basepicnum = info->param;
 		}
 	}
