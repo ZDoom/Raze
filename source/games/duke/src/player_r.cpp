@@ -534,7 +534,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 	if (atwith == SPIT)
 	{
-		if (!isRRRA() || actor->spr.picnum != MAMA) pos.Z -= 10; else pos.Z -= (20 << 8);
+		if (!isRRRA() || actor->spr.picnum != MAMA) pos.Z -= 10; else pos.Z -= 20;
 	}
 
 	while (scount > 0)
@@ -3629,7 +3629,7 @@ void processinput_r(int snum)
 				p->NotOnWater = 1;
 		}
 
-		if (truefdist < gs.playerheight + (8 << 8) && (k == 1 || k == 3))
+		if (truefdist < gs.playerheight + 8 && (k == 1 || k == 3))
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
