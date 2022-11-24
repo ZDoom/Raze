@@ -149,7 +149,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case NEON4:
 	case NEON5:
 	case NEON6:
-	case DOMELITE:
 		if (act->spr.picnum != WATERSPLASH2)
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, STAT_MISC);
@@ -200,32 +199,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SOLARPANNEL:
 	case ANTENNA:
 	case GRATE1:
-	case BOTTLE1:
-	case BOTTLE2:
-	case BOTTLE3:
-	case BOTTLE4:
-	case BOTTLE5:
-	case BOTTLE6:
-	case BOTTLE7:
-	case BOTTLE8:
-	case BOTTLE10:
-	case BOTTLE11:
-	case BOTTLE12:
-	case BOTTLE13:
-	case BOTTLE14:
-	case BOTTLE15:
-	case BOTTLE16:
-	case BOTTLE17:
-	case BOTTLE18:
-	case BOTTLE19:
 	case FANSPRITE:
-	case SUSHIPLATE1:
-	case SUSHIPLATE2:
-	case SUSHIPLATE3:
-	case SUSHIPLATE4:
-	case SUSHIPLATE5:
-	case WAITTOBESEATED:
-	case VASE:
 	case PIPE1:
 	case PIPE2:
 	case PIPE3:

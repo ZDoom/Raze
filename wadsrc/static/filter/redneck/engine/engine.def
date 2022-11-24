@@ -67,7 +67,13 @@ spawnclasses
 	1109 = DukeReactor2Spark
 	2239 = DukeReactor
 	2243 = DukeReactorSpark
-	
+	2754 = DukeGenericPole2
+	3063 = DukeHangLight
+	2231 = DukeStatueFlash
+	1168 = DukeStatue
+	1280 = DukeBottle10
+	1172 = DukeVase
+
 	285 = RedneckChickenSpawner1
 	286 = RedneckChickenSpawner2
 	287 = RedneckFeatherSpawner
@@ -109,34 +115,58 @@ spawnclasses
 	5607 = RedneckCootJibB
 	5616 = RedneckCootJibB
 	
-	3114 = DukeGenericGlassSpawningDestructible, "RRTILE3114", "RRTILE3117", "GLASS_BREAKING"
-	2876 = DukeGenericGlassSpawningDestructible, "RRTILE2876", "RRTILE2990", "GLASS_BREAKING"
-	3152 = DukeGenericGlassSpawningDestructible, "RRTILE3152", "RRTILE3218", "GLASS_BREAKING"
-	3153 = DukeGenericGlassSpawningDestructible, "RRTILE3153", "RRTILE3219", "GLASS_BREAKING"
-	2030 = DukeGenericGlassSpawningDestructible, "RRTILE2030", "RRTILE2034", "GLASS_BREAKING"
-	2915 = DukeGenericGlassSpawningDestructible, "RRTILE2915", "RRTILE2977", "GLASS_BREAKING"
-	2893 = DukeGenericGlassSpawningDestructible, "RRTILE2893", "RRTILE2978", "GLASS_BREAKING"
-	3115 = DukeGenericGlassSpawningDestructible, "RRTILE3115", "RRTILE3116", "GLASS_BREAKING"
-	3171 = DukeGenericGlassSpawningDestructible, "RRTILE3171", "RRTILE3216", "GLASS_BREAKING"
-	2156 = DukeGenericGlassSpawningDestructible, "*RRTILE2156", "*RRTILE2157", "GLASS_BREAKING"
-	2158 = DukeGenericGlassSpawningDestructible, "*RRTILE2158", "*RRTILE2159", "GLASS_BREAKING"
-	2160 = DukeGenericGlassSpawningDestructible, "*RRTILE2160", "*RRTILE2161", "GLASS_BREAKING"
-	2175 = DukeGenericGlassSpawningDestructible, "*RRTILE2175", "*RRTILE2176", "GLASS_BREAKING"
+	3114 = DukeGenericDestructible, "RRTILE3114", "RRTILE3117", "GLASS_BREAKING", spawnglass
+	2876 = DukeGenericDestructible, "RRTILE2876", "RRTILE2990", "GLASS_BREAKING", spawnglass
+	3152 = DukeGenericDestructible, "RRTILE3152", "RRTILE3218", "GLASS_BREAKING", spawnglass
+	3153 = DukeGenericDestructible, "RRTILE3153", "RRTILE3219", "GLASS_BREAKING", spawnglass
+	2030 = DukeGenericDestructible, "RRTILE2030", "RRTILE2034", "GLASS_BREAKING", spawnglass
+	2915 = DukeGenericDestructible, "RRTILE2915", "RRTILE2977", "GLASS_BREAKING", spawnglass
+	2893 = DukeGenericDestructible, "RRTILE2893", "RRTILE2978", "GLASS_BREAKING", spawnglass
+	3115 = DukeGenericDestructible, "RRTILE3115", "RRTILE3116", "GLASS_BREAKING", spawnglass
+	3171 = DukeGenericDestructible, "RRTILE3171", "RRTILE3216", "GLASS_BREAKING", spawnglass
+	2156 = DukeGenericDestructible, "*RRTILE2156", "*RRTILE2157", "GLASS_BREAKING", spawnglass
+	2158 = DukeGenericDestructible, "*RRTILE2158", "*RRTILE2159", "GLASS_BREAKING", spawnglass
+	2160 = DukeGenericDestructible, "*RRTILE2160", "*RRTILE2161", "GLASS_BREAKING", spawnglass
+	2175 = DukeGenericDestructible, "*RRTILE2175", "*RRTILE2176", "GLASS_BREAKING", spawnglass
 
-	234 = DukeGenericSolidUnblockingDestructible, "GRATE1", "BGRATE1", "VENT_BUST"
-	2251 = DukeGenericUnblockingDestructible, "CIRCLEPANNEL", "CIRCLEPANNELBROKE", "VENT_BUST"
-	343 = DukeGenericSolidUnblockingDestructible, "PANNEL2", "BPANNEL3", "VENT_BUST"
-	1085 = DukeGenericSolidUnblockingDestructible, "CHAIR1", "BROKENCHAIR"
-	1086 = DukeGenericSolidUnblockingDestructible, "CHAIR2", "BROKENCHAIR"
-	1158 = DukeGenericSolidScrapSpawningDestructible, "MOVIECAMERA", "", "GLASS_HEAVYBREAK"
-	1150 = DukeGenericSolidScrapSpawningDestructible, "SCALE", "", "GLASS_HEAVYBREAK"
-	1157 = DukeGenericScrapSpawningDestructible, "CAMERALIGHT", "", "GLASS_HEAVYBREAK"
-	1163 = DukeGenericSolidScrapSpawningDestructible, "IVUNIT", "", "GLASS_HEAVYBREAK"
-	1164 = DukeGenericSolidScrapSpawningDestructible, "POT1", "", "GLASS_HEAVYBREAK"
-	1165 = DukeGenericSolidScrapSpawningDestructible, "POT2", "", "GLASS_HEAVYBREAK"
-	1166 = DukeGenericSolidScrapSpawningDestructible, "POT3", "", "GLASS_HEAVYBREAK"
-	1141 = DukeGenericSolidScrapSpawningDestructible, "VACUUM", "", "GLASS_HEAVYBREAK"
+	234 = DukeGenericDestructible, "GRATE1", "BGRATE1", "VENT_BUST", solid, unblocking
+	2251 = DukeGenericDestructible, "CIRCLEPANNEL", "CIRCLEPANNELBROKE", "VENT_BUST", unblocking
+	343 = DukeGenericDestructible, "PANNEL2", "BPANNEL3", "VENT_BUST", solid, unblocking
+	1085 = DukeGenericDestructible, "CHAIR1", "BROKENCHAIR", solid, unblocking
+	1086 = DukeGenericDestructible, "CHAIR2", "BROKENCHAIR", solid, unblocking
+	1157 = DukeGenericDestructible, "CAMERALIGHT", "", "GLASS_HEAVYBREAK", spawnscrap
+	1158 = DukeGenericDestructible, "MOVIECAMERA", "", "GLASS_HEAVYBREAK", solid, spawnscrap
+	1150 = DukeGenericDestructible, "SCALE", "", "GLASS_HEAVYBREAK", solid, spawnscrap
+	1163 = DukeGenericDestructible, "IVUNIT", "", "GLASS_HEAVYBREAK", solid, spawnscrap
+	1164 = DukeGenericDestructible, "POT1", "", "GLASS_HEAVYBREAK", solid, spawnscrap
+	1165 = DukeGenericDestructible, "POT2", "", "GLASS_HEAVYBREAK", solid, spawnscrap
+	1166 = DukeGenericDestructible, "POT3", "", "GLASS_HEAVYBREAK", solid, spawnscrap
+	1141 = DukeGenericDestructible, "VACUUM", "", "GLASS_HEAVYBREAK", solid, spawnscrap
+	1080 = DukeGenericDestructible, "DOMELITE", "", "GLASS_HEAVYBREAK", blocking, spawnglass2
+	1215 = DukeGenericDestructible, "BOTTLE1", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1216 = DukeGenericDestructible, "BOTTLE2", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1217 = DukeGenericDestructible, "BOTTLE3", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1218 = DukeGenericDestructible, "BOTTLE4", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1219 = DukeGenericDestructible, "BOTTLE5", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1220 = DukeGenericDestructible, "BOTTLE6", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1221 = DukeGenericDestructible, "BOTTLE7", "", "GLASS_BREAKING", solid, spawnglass
+	1222 = DukeGenericDestructible, "BOTTLE8", "",  "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1281 = DukeGenericDestructible, "BOTTLE11", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1282 = DukeGenericDestructible, "BOTTLE12", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1283 = DukeGenericDestructible, "BOTTLE13", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1284 = DukeGenericDestructible, "BOTTLE14", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1285 = DukeGenericDestructible, "BOTTLE15", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1286 = DukeGenericDestructible, "BOTTLE16", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1287 = DukeGenericDestructible, "BOTTLE17", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1288 = DukeGenericDestructible, "BOTTLE18", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1289 = DukeGenericDestructible, "BOTTLE19", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
 
+	2215 = DukeGenericDestructible, "WAITTOBESEATED", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1174 = DukeGenericDestructible, "SUSHIPLATE1", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1175 = DukeGenericDestructible, "SUSHIPLATE2", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1176 = DukeGenericDestructible, "SUSHIPLATE3", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1178 = DukeGenericDestructible, "SUSHIPLATE4", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	1180 = DukeGenericDestructible, "SUSHIPLATE5", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
 }
 
 

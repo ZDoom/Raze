@@ -32,6 +32,7 @@ int PicForName(int intname)
 			{"RedneckCircleStuck", "CIRCLESTUCK"},
 			{"DukePigCop", "PIGCOP"},
 			{"DukeSmallSmoke", "SMALLSMOKE"},
+			{"DukeMoney", "MONEY"},
 		};
 
 		for (auto& p : classes)
@@ -461,6 +462,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofglass, DukeActor_Lotsofglass)
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(count);
 	DukeActor_Lotsofglass(self, count);
+	return 0;
+}
+
+void DukeActor_Lotsofcolourglass(DDukeActor* origin, int count)
+{
+	lotsofcolourglass(origin, nullptr, count);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofcolourglass, DukeActor_Lotsofcolourglass)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(count);
+	DukeActor_Lotsofcolourglass(self, count);
 	return 0;
 }
 

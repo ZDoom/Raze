@@ -2235,6 +2235,7 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 	int res_id = -1;
 	int numframes = -1;
 	bool interpolate = false;
+	int clipdist = -1;
 
 	sc.SetCMode(true);
 	if (!sc.CheckString("{"))
@@ -2251,6 +2252,7 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 		int basetex = -1;
 		int brokentex = -1;
 		int fullbright = 0;
+		int flags = 0;
 		FName sound = NAME_None;
 		FName cname;
 		sc.GetNumber(num, true);
@@ -2287,6 +2289,28 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 						S_FindSound(sc.String).index();
 						if (sound <= 0) Printf(TEXTCOLOR_RED "Unknown sound %s in definition for spawn ID # %d\n", num);
 #endif
+						if (sc.CheckString(","))
+						{
+							bool cont = true;
+							if (sc.CheckNumber())
+							{
+								clipdist = sc.Number;
+								cont = sc.CheckString(",");
+							}
+							if (cont) do
+							{
+								sc.MustGetString();
+								if (sc.Compare("damaging")) flags |= 1;
+								else if (sc.Compare("solid") || sc.Compare("blocking")) flags |= 2;
+								else if (sc.Compare("unblocking")) flags |= 4;
+								else if (sc.Compare("spawnglass")) flags |= 8;
+								else if (sc.Compare("spawnscrap")) flags |= 16;
+								else if (sc.Compare("spawnsmoke")) flags |= 32;
+								else if (sc.Compare("spawnglass2")) flags |= 64; // Duke has 2 ways of spawning glass debris...
+								else sc.ScriptMessage("'%s': Unknown actor class flag", sc.String);
+							} while (sc.CheckString(","));
+						}
+
 					}
 				}
 				
@@ -2294,7 +2318,7 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 		}
 
 		// todo: check for proper base class
-		spawnMap.Insert(num, { cname, nullptr, base, basetex, brokentex, sound, fullbright });
+		spawnMap.Insert(num, { cname, nullptr, base, basetex, brokentex, sound, int8_t(fullbright), int8_t(clipdist), int16_t(flags) });
 	}
 	sc.SetCMode(false);
 }

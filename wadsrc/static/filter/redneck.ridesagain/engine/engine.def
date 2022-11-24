@@ -131,18 +131,19 @@ spawnclasses
 	8498 = DukeGenericDestructible, "RRTILE8498", "RRTILE5077", "GLASS_HEAVYBREAK"
 	8499 = DukeGenericDestructible, "RRTILE8499", "RRTILE5078", "GLASS_HEAVYBREAK"
 	2445 = DukeGenericDestructible, "RRTILE2445", "RRTILE2450", "GLASS_HEAVYBREAK"
-	7885 = DukeGenericDamagingDestructible, "RRTILE7885", "RRTILE5045", "SIGNHIT"
-	7890 = DukeGenericDamagingDestructible, "RRTILE7890", "RRTILE5045", "SIGNHIT"
-	7886 = DukeGenericDamagingDestructible, "RRTILE7886", "RRTILE5046", "SIGNHIT"
-	7887 = DukeGenericDamagingDestructible, "RRTILE7887", "RRTILE5044", "GLASS_HEAVYBREAK"
-	2123 = DukeGenericDamagingDestructible, "RRTILE2123", "RRTILE2124", "GLASS_BREAKING"
-	3773 = DukeGenericDamagingDestructible, "RRTILE3773", "RRTILE8651", "GLASS_BREAKING"
-	7533 = DukeGenericDamagingDestructible, "*RRTILE7533", "*RRTILE5035", "SIGNHIT"
-	3584 = DukeGenericDamagingDestructible, "RRTILE3584", "RRTILE8681", "SIGNHIT"
+	7885 = DukeGenericDestructible, "RRTILE7885", "RRTILE5045", "SIGNHIT", damaging
+	7890 = DukeGenericDestructible, "RRTILE7890", "RRTILE5045", "SIGNHIT", damaging
+	7886 = DukeGenericDestructible, "RRTILE7886", "RRTILE5046", "SIGNHIT", damaging
+	7887 = DukeGenericDestructible, "RRTILE7887", "RRTILE5044", "GLASS_HEAVYBREAK", damaging
+	2123 = DukeGenericDestructible, "RRTILE2123", "RRTILE2124", "GLASS_BREAKING", damaging
+	3773 = DukeGenericDestructible, "RRTILE3773", "RRTILE8651", "GLASS_BREAKING", damaging
+	7533 = DukeGenericDestructible, "*RRTILE7533", "*RRTILE5035", "SIGNHIT", damaging
+	3584 = DukeGenericDestructible, "RRTILE3584", "RRTILE8681", "SIGNHIT", damaging
 	8394 = DukeGenericDestructible, "RRTILE8394", "RRTILE5072", "SIGNHIT"
 	8461 = DukeGenericDestructible, "RRTILE8461", "RRTILE5074", "GLASS_HEAVYBREAK"
 	8462 = DukeGenericDestructible, "RRTILE8462", "RRTILE5074", "GLASS_HEAVYBREAK"
 	8682 = DukeGenericDestructible, "RRTILE8682", "RRTILE8683", "GLASS_HEAVYBREAK"
+	1824 = DukeGenericDestructible, "YELLOWBOTTLE", "", "GLASS_HEAVYBREAK", spawnglass2
 }
 
 tileflag TFLAG_WALLSWITCH {

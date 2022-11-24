@@ -1049,7 +1049,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 {
-	int j, k;
+	int j;
 
 	if (targ->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
@@ -1060,38 +1060,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 	switch (targ->spr.picnum)
 	{
-	case WTGLASS1:
-	case WTGLASS2:
-		if (!isWorldTour())
-			break;
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, nullptr, 10);
-		targ->Destroy();
-		return;
-
-	case OCEANSPRITE1:
-	case OCEANSPRITE2:
-	case OCEANSPRITE3:
-	case OCEANSPRITE4:
-	case OCEANSPRITE5:
-		spawn(targ, SMALLSMOKE);
-		targ->Destroy();
-		break;
-	case HANGLIGHT:
-	case GENERICPOLE2:
-		for (k = 0; k < 6; k++)
-		{
-			auto a = randomAngle();
-			auto vel = krandf(4) + 4;
-			auto zvel = -krandf(16) - targ->vel.Z * 0.25;
-			auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, targ, STAT_MISC);
-			if (spawned) spawned->spriteextra = Scrap1 + (krand() & 15);
-		}
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		targ->Destroy();
-		break;
-
-
 	case FANSPRITE:
 		targ->spr.picnum = FANSPRITEBROKE;
 		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -1122,48 +1090,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			targ->Destroy();
 		}
 		break;
-	case BOTTLE1:
-	case BOTTLE2:
-	case BOTTLE3:
-	case BOTTLE4:
-	case BOTTLE5:
-	case BOTTLE6:
-	case BOTTLE8:
-	case BOTTLE10:
-	case BOTTLE11:
-	case BOTTLE12:
-	case BOTTLE13:
-	case BOTTLE14:
-	case BOTTLE15:
-	case BOTTLE16:
-	case BOTTLE17:
-	case BOTTLE18:
-	case BOTTLE19:
-	case DOMELITE:
-	case SUSHIPLATE1:
-	case SUSHIPLATE2:
-	case SUSHIPLATE3:
-	case SUSHIPLATE4:
-	case SUSHIPLATE5:
-	case WAITTOBESEATED:
-	case VASE:
-	case STATUEFLASH:
-	case STATUE:
-		if (targ->spr.picnum == BOTTLE10)
-			fi.lotsofmoney(targ, 4 + (krand() & 3));
-		else if (targ->spr.picnum == STATUE || targ->spr.picnum == STATUEFLASH)
-		{
-			lotsofcolourglass(targ, nullptr, 40);
-			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		}
-		else if (targ->spr.picnum == VASE)
-			lotsofglass(targ, nullptr, 40);
-
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->spr.Angles.Yaw = randomAngle();
-		lotsofglass(targ, nullptr, 8);
-		targ->Destroy();
-		break;
 	case FETUS:
 		targ->spr.picnum = FETUSBROKE;
 		S_PlayActorSound(GLASS_BREAKING, targ);
@@ -1177,8 +1103,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		S_PlayActorSound(SQUISHED, targ);
-		[[fallthrough]];
-	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, nullptr, 10);
 		targ->Destroy();

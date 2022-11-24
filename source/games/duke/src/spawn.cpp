@@ -56,6 +56,8 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 			act->IntVar(NAME_brokenstate) = info->brokentex;
 			act->IntVar(NAME_breaksound) = S_FindSound(info->breaksound.GetChars()).index();
 			act->IntVar(NAME_fullbright) = info->fullbright;
+			act->spr.inittype = info->flags;
+			if (info->clipdist > 0) act->spr.clipdist = info->clipdist;
 		}
 	}
 }

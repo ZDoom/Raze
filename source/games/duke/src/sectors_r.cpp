@@ -1509,57 +1509,10 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			targ->Destroy();
 		}
 		break;
-	case YELLOWBOTTLE:
-		if (!isRRRA()) break;
-		[[fallthrough]];
-	case BOTTLE1:
-	case BOTTLE2:
-	case BOTTLE3:
-	case BOTTLE4:
-	case BOTTLE5:
-	case BOTTLE6:
-	case BOTTLE8:
-	case BOTTLE10:
-	case BOTTLE11:
-	case BOTTLE12:
-	case BOTTLE13:
-	case BOTTLE14:
-	case BOTTLE15:
-	case BOTTLE16:
-	case BOTTLE17:
-	case BOTTLE18:
-	case BOTTLE19:
-	case DOMELITE:
-	case SUSHIPLATE1:
-	case SUSHIPLATE2:
-	case SUSHIPLATE3:
-	case SUSHIPLATE4:
-	case SUSHIPLATE5:
-	case WAITTOBESEATED:
-	case VASE:
-	case STATUEFLASH:
-	case STATUE:
-		if (targ->spr.picnum == BOTTLE10)
-			fi.lotsofmoney(targ, 4 + (krand() & 3));
-		else if (targ->spr.picnum == STATUE || targ->spr.picnum == STATUEFLASH)
-		{
-			lotsofcolourglass(targ, nullptr, 40);
-			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		}
-		else if (targ->spr.picnum == VASE)
-			lotsofglass(targ, nullptr, 40);
-
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->spr.Angles.Yaw = randomAngle();
-		lotsofglass(targ, nullptr, 8);
-		targ->Destroy();
-		break;
 	case RRTILE2654:
 	case RRTILE2656:
 	case RRTILE3172:
 		if (!isRRRA()) break;
-		[[fallthrough]];
-	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, nullptr, 10);
 		targ->Destroy();
