@@ -388,8 +388,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_OPOSZ:
-		if (bSet) ps[iPlayer].posoldZset(lValue * zmaptoworld);
-		else SetGameVarID(lVar2, int(ps[iPlayer].posoldZget() * (1 / zmaptoworld)), sActor, sPlayer);
+		if (bSet) ps[iPlayer].GetActor()->opos.Z = (lValue * zmaptoworld) + gs.playerheight;
+		else SetGameVarID(lVar2, int(ps[iPlayer].GetActor()->getPrevOffsetZ() * (1 / zmaptoworld)), sActor, sPlayer);
 		break;
 
 	case PLAYER_PYOFF:

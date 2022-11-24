@@ -771,7 +771,7 @@ void player_struct::backuppos(bool noclipping)
 		GetActor()->restorevec2();
 	}
 
-	posoldZset(GetActor()->getOffsetZ());
+	GetActor()->backupz();
 	bobpos = GetActor()->spr.pos.XY();
 	opyoff = pyoff;
 }

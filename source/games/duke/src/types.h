@@ -336,15 +336,6 @@ struct player_struct
 	}
 
 
-	void posoldZset(const double val)
-	{
-		GetActor()->opos.Z = val - GetActor()->viewzoffset;
-	}
-	double posoldZget()
-	{
-		return GetActor()->opos.Z + GetActor()->viewzoffset;
-	}
-
 	void posoldAdd(const DVector3& val)
 	{
 		GetActor()->opos += val;

@@ -161,6 +161,11 @@ public:
 		return spr.pos.Z + viewzoffset;
 	}
 
+	double getPrevOffsetZ()
+	{
+		return opos.Z + oviewzoffset;
+	}
+
 	DVector3 getPosWithOffsetZ()
 	{
 		return spr.pos.plusZ(viewzoffset);
