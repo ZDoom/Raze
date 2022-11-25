@@ -29,7 +29,7 @@ private:
 	{
 		if ((unsigned)texnum >= Textures.Size()) return -1;
 		if (animate) texnum = Translation[texnum];
-		if (localize && Textures[texnum].HasLocalization) texnum = ResolveLocalizedTexture(texnum);
+		if (localize && Textures[texnum].Flags & TEXFLAG_HASLOCALIZATION) texnum = ResolveLocalizedTexture(texnum);
 		return texnum;
 	}
 
@@ -183,17 +183,22 @@ private:
 
 	// Switches
 
-	struct TextureHash
+	struct TextureDescriptor
 	{
 		FGameTexture* Texture;
 		int Paletted;		// redirection to paletted variant
 		int FrontSkyLayer;	// and front sky layer,
 		int RawTexture;		
 		int HashNext;
-		bool HasLocalization;
+		uint64_t Flags;
+	};
+	enum : uint64_t
+	{
+		TEXFLAG_HASLOCALIZATION = 1,
+		TEXFLAG_FIRSTUSER = 65536,	// this leaves 16 flags to the texture manager and 48 flags to the user
 	};
 	enum { HASH_END = -1, HASH_SIZE = 1027 };
-	TArray<TextureHash> Textures;
+	TArray<TextureDescriptor> Textures;
 	TMap<uint64_t, int> LocalizedTextures;
 	int HashFirst[HASH_SIZE];
 	FTextureID DefaultTexture;
