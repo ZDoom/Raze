@@ -626,7 +626,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 			act->SetOwner(act);
 
 			ps[j].setbobpos();
-			ps[j].angle.oang = ps[j].angle.ang = act->spr.Angles.Yaw;
+			ps[j].angle.oang = ps[j].angle.ang = act->spr.Angles.Yaw; // check me out later.
 
 			updatesector(act->spr.pos, &ps[j].cursector);
 

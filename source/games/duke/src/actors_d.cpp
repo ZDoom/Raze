@@ -1334,7 +1334,7 @@ void movetransports_d(void)
 								ps[k].GetActor()->spr.extra = 0;
 							}
 
-							ps[p].angle.ang = Owner->spr.Angles.Yaw;
+							ps[p].angle.ang = Owner->spr.Angles.Yaw; // check me out later.
 
 							if (Owner->GetOwner() != Owner)
 							{

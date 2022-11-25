@@ -3949,7 +3949,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		if (motosprite)
 		{
 			p->GetActor()->spr.pos.XY() = motosprite->spr.pos.XY();
-			p->angle.ang = motosprite->spr.Angles.Yaw;
+			p->angle.ang = motosprite->spr.Angles.Yaw; // check me out later.
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			motosprite->Destroy();
 		}
@@ -4023,7 +4023,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		if (boat)
 		{
 			p->GetActor()->spr.pos.XY() = boat->spr.pos.XY();
-			p->angle.ang = boat->spr.Angles.Yaw;
+			p->angle.ang = boat->spr.Angles.Yaw; // check me out later.
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			boat->Destroy();
 		}

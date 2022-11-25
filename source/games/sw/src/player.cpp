@@ -5334,7 +5334,7 @@ void DoPlayerStopOperate(PLAYER* pp)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            pp->angle.ang = pp->angle.oang = rsp->spr.Angles.Yaw;
+            pp->angle.ang = pp->angle.oang = rsp->spr.Angles.Yaw; // check me out later.
         else
             pp->angle.ang = pp->angle.oang = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
     }
@@ -7203,7 +7203,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->angle.ang = pp->angle.oang = spawn_sprite->spr.Angles.Yaw;
+    pp->angle.ang = pp->angle.oang = spawn_sprite->spr.Angles.Yaw; // check me out later.
     pp->setcursector(spawn_sprite->sector());
 
     if (pp->actor)
