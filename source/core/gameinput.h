@@ -36,6 +36,10 @@ struct PlayerAngles
 	void setActor(DCoreActor* const actor) { pActor = actor; }
 
 	// Angle getters.
+	DAngle getPitchWithView()
+	{
+		return pActor->spr.Angles.Pitch + ViewAngles.Pitch;
+	}
 	DRotator lerpViewAngles(const double interpfrac)
 	{
 		return interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
@@ -113,7 +117,6 @@ struct PlayerAngles
 
 
 	// Legacy, to be removed.
-	DAngle horizSUM(const double interpfrac = 1) { return ZzHORIZON() + interpolatedvalue(PrevViewAngles.Pitch, ViewAngles.Pitch, interpfrac); }
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(ZzOLDHORIZON() + PrevViewAngles.Pitch, ZzHORIZON() + ViewAngles.Pitch, interpfrac); }
 	DAngle angSUM(const double interpfrac) { return ZzANGLE() + angLERPLOOKANG(interpfrac); }
 	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE() + PrevViewAngles.Yaw, ZzANGLE() + ViewAngles.Yaw, interpfrac); }

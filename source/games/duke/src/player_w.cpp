@@ -333,12 +333,12 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				setFreeAimVelocity(vel, zvel, p->Angles.horizSUM(), 10.);
+				setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 10.);
 			}
 			else
 			{
 				vel = 140 / 16.;
-				setFreeAimVelocity(vel, zvel, p->Angles.horizSUM(), 10.);
+				setFreeAimVelocity(vel, zvel, p->Angles.getPitchWithView(), 10.);
 				zvel -= 4;
 			}
 

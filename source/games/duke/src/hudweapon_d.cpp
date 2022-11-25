@@ -230,7 +230,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 	auto offpair = p->Angles.getWeaponOffsets(interpfrac);
 	auto offsets = offpair.first;
-	auto horiz = !SyncInput() ? p->Angles.horizSUM(interpfrac) : p->Angles.horizLERPSUM(interpfrac);
+	auto horiz = !SyncInput() ? p->Angles.getPitchWithView(interpfrac) : p->Angles.horizLERPSUM(interpfrac);
 	auto pitchoffset = interpolatedvalue(0., 16., horiz / DAngle90);
 	auto yawinput = getavel(snum) * (1. / 16.);
 	auto angle = -offpair.second;
