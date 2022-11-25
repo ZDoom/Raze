@@ -3565,7 +3565,7 @@ void processinput_r(int snum)
 
 		if (p->on_ground && truefdist <= gs.playerheight + 16)
 		{
-			int whichsound = (gs.tileinfo[j].flags & TFLAG_ELECTRIC) ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 :
+			int whichsound = (tileflags(j) & TFLAG_ELECTRIC) ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 :
 				(isRRRA() && (j == RRTILE7768 || j == RRTILE7820) ? 3 : -1);
 			if (j >= 0) k = makepainsounds(snum, whichsound);
 		}

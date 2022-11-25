@@ -1008,7 +1008,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, operateactivators, operateactivators)
 
 int duke_floorflags(sectortype* sector)
 {
-	return gs.tileinfo[sector->floorpicnum].flags;
+	return tileflags(sector->floorpicnum);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, floorflags, duke_floorflags)

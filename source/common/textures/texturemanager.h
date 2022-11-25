@@ -192,11 +192,15 @@ private:
 		int HashNext;
 		uint64_t Flags;
 	};
+
 	enum : uint64_t
 	{
 		TEXFLAG_HASLOCALIZATION = 1,
-		TEXFLAG_FIRSTUSER = 65536,	// this leaves 16 flags to the texture manager and 48 flags to the user
 	};
+public:
+	constexpr static int TEXFLAG_FIRSTUSER = 65536;	// this leaves 16 flags to the texture manager and 48 flags to the user
+private:
+
 	enum { HASH_END = -1, HASH_SIZE = 1027 };
 	TArray<TextureDescriptor> Textures;
 	TMap<uint64_t, int> LocalizedTextures;

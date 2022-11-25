@@ -283,6 +283,7 @@ struct TileDesc
 	rottile_t RotTile;// = { -1,-1 };
 	ReplacementType replacement;
 	float alphaThreshold;
+	int tileflags;
 
 	// Sprite offset hackery for hires replacements. This only gets used for sprites in the 3D view, nothing else.
 	TileOffs hiofs;

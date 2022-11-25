@@ -100,17 +100,21 @@ inline bool inventory(DDukeActor* S)
 	return actorflag(S, SFLAG_INVENTORY);
 }
 
+inline int& tileflags(int tilenum)
+{
+	return TileFiles.tiledata[tilenum].tileflags;
+}
 inline void settileflag(int flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)
 	{
-		gs.tileinfo[val].flags |= flag;
+		tileflags(val) |= flag;
 	}
 }
 
 inline bool wallswitchcheck(DDukeActor* s)
 {
-	return !!(gs.tileinfo[s->spr.picnum].flags & TFLAG_WALLSWITCH);
+	return !!(tileflags(s->spr.picnum) & TFLAG_WALLSWITCH);
 }
 
 inline int checkcursectnums(sectortype* se)
