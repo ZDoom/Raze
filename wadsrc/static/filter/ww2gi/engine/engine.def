@@ -1,0 +1,63 @@
+spawnclasses
+{
+	2 = DukeActivator
+	3 = DukeTouchplate
+	4 = DukeActivatorLocked
+	5 = DukeSoundController
+	6 = DukeLocator
+	7 = DukeCycler
+	8 = DukeMasterSwitch
+	9 = DukeRespawnController
+	10 = DukeGPSpeed
+	
+	1221 = DukeCranePole
+	1222 = DukeCrane
+	563 = DukeWaterFountain
+	564 = DukeWaterFountain
+	565 = DukeWaterFountain
+	566 = DukeWaterFountain
+	567 = DukeWaterFountainBroke
+	951 = DukeBox
+	978 = DukeCone
+	908 = DukeTree1
+	910 = DukeTree2
+	990 = DukeTire
+	911 = DukeCactus
+	939 = DukeCactusBroke
+	2566 = DukeTripbombPlaced
+	2567 = DukeLaserline
+	546 = DukeCrack1
+	547 = DukeCrack2
+	548 = DukeCrack3
+	549 = DukeCrack4
+	916 = DukeFireext
+	1079 = DukeOozFilter
+	1247 = DukeSeenine
+	502 = DukeViewscreen
+	499 = DukeViewscreen2
+	621 = DukeCamera // yes, they are all the same!
+	622 = DukeCamera
+	623 = DukeCamera
+	624 = DukeCamera
+	625 = DukeCamera
+
+	1272 = DukeTrash
+	634 = DukeBolt1
+	635 = DukeBolt2
+	636 = DukeBolt3
+	637 = DukeBolt4
+	4525 = DukeSideBolt1
+	4526 = DukeSideBolt2
+	4527 = DukeSideBolt3
+	4528 = DukeSideBolt4
+	660 = DukeWaterdrip
+	160 = DukeDoorshock
+	1232 = DukeCanWithSomething
+	2807 = DukeCanWithSomething2
+	2808 = DukeCanWithSomething3
+	2809 = DukeCanWithSomething4
+	1647 = DukeTongue
+	1860 = DukeInnerJaw
+	1861 = DukeInnerJaw1
+
+}
