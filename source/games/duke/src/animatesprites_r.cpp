@@ -734,15 +734,12 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		case WALLLIGHT3:
 		case WALLLIGHT1:
+
+			// none of these are active
 		case RRTILE3668:
 		case RRTILE3795:
-		case RRTILE5035:
 		case RRTILE7505:
 		case RRTILE7506:
-		case RRTILE7533:
-		case RRTILE8216:
-		case RRTILE8218:
-		case RRTILE8220:
 			if (!isRRRA()) break;
 			[[fallthrough]];
 		case RRTILE1878:
@@ -755,14 +752,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case RRTILE2075:
 		case RRTILE2083:
 		case RRTILE2097:
-		case RRTILE2156:
-		case RRTILE2157:
-		case RRTILE2158:
-		case RRTILE2159:
-		case RRTILE2160:
-		case RRTILE2161:
-		case RRTILE2175:
-		case RRTILE2176:
 		case RRTILE2357:
 		case RRTILE2564:
 		case RRTILE2573:

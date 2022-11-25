@@ -80,15 +80,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat = 0;
 		ChangeActorStat(act, 121);
 		break;
-	case RRTILE8487:
-	case RRTILE8489:
-		if (!isRRRA()) goto default_case;
-		act->spr.scale = DVector2(0.5, 0.5);
-		act->spr.extra = 0;
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		act->spr.hitag = 0;
-		ChangeActorStat(act, 117);
-		break;
 	case RRTILE7936:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(0, 0);
@@ -257,9 +248,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SOLARPANNEL:
 	case ANTENNA:
 	case GRATE1:
-	case CHAIR1:
-	case CHAIR2:
-	case CHAIR3:
 	case BOTTLE1:
 	case BOTTLE2:
 	case BOTTLE3:
@@ -278,15 +266,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BOTTLE17:
 	case BOTTLE18:
 	case BOTTLE19:
-	case SCALE:
-	case VACUUM:
 	case FANSPRITE:
-	case CAMERALIGHT:
-	case MOVIECAMERA:
-	case IVUNIT:
-	case POT1:
-	case POT2:
-	case POT3:
 	case SUSHIPLATE1:
 	case SUSHIPLATE2:
 	case SUSHIPLATE3:

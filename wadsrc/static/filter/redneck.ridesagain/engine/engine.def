@@ -30,393 +30,108 @@ spawnclasses
 	7397 = RedneckRabbitJibC
 	8890 = RedneckMamaJibA
 	8895 = RedneckMamaJibB	
+	8487 = RedneckBalloons1
+	8489 = RedneckBalloons2
 	
-	8487 = DukeGenericDestructible, "RRTILE8487", "RRTILE8488", "BALLOON"
-	8489 = DukeGenericDestructible, "RRTILE8489", "RRTILE8490", "BALLOON"
-	
-	/*
-	case RRTILE8487:
-	case RRTILE8489:
-		S_PlayActorSound(471, targ);
-		targ->spr.picnum++;
-		break;
-	case RRTILE7638:
-	case RRTILE7644:
-	case RRTILE7646:
-	case RRTILE7650:
-	case RRTILE7653:
-	case RRTILE7655:
-	case RRTILE7691:
-	case RRTILE7876:
-	case RRTILE7881:
-	case RRTILE7883:
-		targ->spr.picnum++;
-		S_PlayActorSound(VENT_BUST, targ);
-		break;
-	case RRTILE7879:
-		targ->spr.picnum++;
-		S_PlayActorSound(495, targ);
-		fi.hitradius(targ, 10, 0, 0, 1, 1);
-		break;
-	case RRTILE7648:
-	case RRTILE7694:
-	case RRTILE7700:
-	case RRTILE7702:
-	case RRTILE7711:
-		targ->spr.picnum++;
-		S_PlayActorSound(47, targ);
-		break;
-	case RRTILE7636:
-		targ->spr.picnum += 3;
-		S_PlayActorSound(VENT_BUST, targ);
-		break;
-	case RRTILE7875:
-		targ->spr.picnum += 3;
-		S_PlayActorSound(VENT_BUST, targ);
-		break;
-	case RRTILE7640:
-		targ->spr.picnum += 2;
-		S_PlayActorSound(VENT_BUST, targ);
-		break;
-	case RRTILE7595:
-	case RRTILE7704:
-		targ->spr.picnum = RRTILE7705;
-		S_PlayActorSound(495, targ);
-		break;
-	case RRTILE8579:
-		targ->spr.picnum = RRTILE5014;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7441:
-		targ->spr.picnum = RRTILE5016;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7534:
-		targ->spr.picnum = RRTILE5029;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7545:
-		targ->spr.picnum = RRTILE5030;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7547:
-		targ->spr.picnum = RRTILE5031;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7574:
-		targ->spr.picnum = RRTILE5032;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7575:
-		targ->spr.picnum = RRTILE5033;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7578:
-		targ->spr.picnum = RRTILE5034;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7478:
-		targ->spr.picnum = RRTILE5035;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8525:
-		targ->spr.picnum = RRTILE5036;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8537:
-		targ->spr.picnum = RRTILE5062;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8215:
-		targ->spr.picnum = RRTILE5064;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8216:
-		targ->spr.picnum = RRTILE5065;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8217:
-		targ->spr.picnum = RRTILE5066;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8218:
-		targ->spr.picnum = RRTILE5067;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8220:
-		targ->spr.picnum = RRTILE5068;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8221:
-		targ->spr.picnum = RRTILE5069;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8312:
-		targ->spr.picnum = RRTILE5071;
-		S_PlayActorSound(472, targ);
-		break;
-	case RRTILE8395:
-		targ->spr.picnum = RRTILE5072;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8423:
-		targ->spr.picnum = RRTILE5073;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE3462:
-		targ->spr.picnum = RRTILE5074;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case UWHIP:
-		targ->spr.picnum = RRTILE5075;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8608:
-		targ->spr.picnum = RRTILE5083;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8609:
-		targ->spr.picnum = RRTILE5084;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8567:
-	case RRTILE8568:
-	case RRTILE8569:
-	case RRTILE8570:
-	case RRTILE8571:
-		targ->spr.picnum = RRTILE5082;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8640:
-		targ->spr.picnum = RRTILE5085;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8611:
-		targ->spr.picnum = RRTILE5086;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case TECHLIGHTBUST2:
-		targ->spr.picnum = TECHLIGHTBUST4;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8497:
-		targ->spr.picnum = RRTILE5076;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8162:
-	case RRTILE8163:
-	case RRTILE8164:
-	case RRTILE8165:
-	case RRTILE8166:
-	case RRTILE8167:
-	case RRTILE8168:
-		ChangeActorStat(targ, STAT_MISC);
-		targ->spr.picnum = RRTILE5063;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8589:
-	case RRTILE8590:
-	case RRTILE8591:
-	case RRTILE8592:
-	case RRTILE8593:
-	case RRTILE8594:
-	case RRTILE8595:
-		ChangeActorStat(targ, STAT_MISC);
-		targ->spr.picnum = RRTILE8588;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE3497:
-		targ->spr.picnum = RRTILE5076;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE3498:
-		targ->spr.picnum = RRTILE5077;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE3499:
-		targ->spr.picnum = RRTILE5078;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8503:
-		targ->spr.picnum = RRTILE5079;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7901:
-		targ->spr.picnum = RRTILE5080;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7696:
-		targ->spr.picnum = RRTILE7697;
-		S_PlayActorSound(DUKE_SHUCKS, targ);
-		break;
-	case RRTILE7806:
-		targ->spr.picnum = RRTILE5043;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7885:
-	case RRTILE7890:
-		targ->spr.picnum = RRTILE5045;
-		S_PlayActorSound(495, targ);
-		fi.hitradius(targ, 10, 0, 0, 1, 1);
-		break;
-	case RRTILE7886:
-		targ->spr.picnum = RRTILE5046;
-		S_PlayActorSound(495, targ);
-		fi.hitradius(targ, 10, 0, 0, 1, 1);
-		break;
-	case RRTILE7887:
-		targ->spr.picnum = RRTILE5044;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		fi.hitradius(targ, 10, 0, 0, 1, 1);
-		break;
-	case RRTILE7900:
-		targ->spr.picnum = RRTILE5047;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7906:
-		targ->spr.picnum = RRTILE5048;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7912:
-	case RRTILE7913:
-		targ->spr.picnum = RRTILE5049;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8047:
-		targ->spr.picnum = RRTILE5050;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8596:
-		targ->spr.picnum = RRTILE8598;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8059:
-		targ->spr.picnum = RRTILE5051;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8060:
-		targ->spr.picnum = RRTILE5052;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8222:
-		targ->spr.picnum = RRTILE5053;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8223:
-		targ->spr.picnum = RRTILE5054;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8224:
-		targ->spr.picnum = RRTILE5055;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8370:
-		targ->spr.picnum = RRTILE5056;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8371:
-		targ->spr.picnum = RRTILE5057;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8372:
-		targ->spr.picnum = RRTILE5058;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8373:
-		targ->spr.picnum = RRTILE5059;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8396:
-		targ->spr.picnum = RRTILE5038;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8397:
-		targ->spr.picnum = RRTILE5039;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8398:
-		targ->spr.picnum = RRTILE5040;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8399:
-		targ->spr.picnum = RRTILE5041;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8385:
-		targ->spr.picnum = RRTILE8386;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8387:
-		targ->spr.picnum = RRTILE8388;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8389:
-		targ->spr.picnum = RRTILE8390;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8391:
-		targ->spr.picnum = RRTILE8392;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE7553:
-		targ->spr.picnum = RRTILE5035;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8475:
-		targ->spr.picnum = RRTILE5075;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8498:
-		targ->spr.picnum = RRTILE5077;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE8499:
-		targ->spr.picnum = RRTILE5078;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE2445:
-		targ->spr.picnum = RRTILE2450;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE2123:
-		targ->spr.picnum = RRTILE2124;
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, nullptr, 10);
-		break;
-	case RRTILE3773:
-		targ->spr.picnum = RRTILE8651;
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, nullptr, 10);
-		break;
-	case RRTILE7533:
-		targ->spr.picnum = RRTILE5035;
-		S_PlayActorSound(495, targ);
-		fi.hitradius(targ, 10, 0, 0, 1, 1);
-		break;
-	case RRTILE8394:
-		targ->spr.picnum = RRTILE5072;
-		S_PlayActorSound(495, targ);
-		break;
-	case RRTILE8461:
-	case RRTILE8462:
-		targ->spr.picnum = RRTILE5074;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE3584:
-		targ->spr.picnum = RRTILE8681;
-		S_PlayActorSound(495, targ);
-		fi.hitradius(targ, 250, 0, 0, 1, 1);
-		break;
-	case RRTILE8682:
-		targ->spr.picnum = RRTILE8683;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-	case RRTILE2437:
-		S_PlayActorSound(439, targ);
-		break;
-	
-}
-*/
+	7636 = DukeGenericDestructible, "OLDPHOTO0", "OLDPHOTO0BROKE", "VENT_BUST"
+	7638 = DukeGenericDestructible, "OLDPHOTO1", "OLDPHOTO1BROKE", "VENT_BUST"
+	7640 = DukeGenericDestructible, "FLAMMABLESIGN", "FLAMMABLESIGNBROKE", "VENT_BUST"
+	7644 = DukeGenericDestructible, "OLDPHOTO2", "OLDPHOTO2BROKE", "VENT_BUST"
+	7646 = DukeGenericDestructible, "OLDPHOTO3", "OLDPHOTO3BROKE", "VENT_BUST"
+	7648 = DukeGenericDestructible, "WILLIESGUNS", "WILLIESGUNSBROKE", "WOODBREK"
+	7650 = DukeGenericDestructible, "FLAMMABLE2SIGN", "FLAMMABLE2SIGNBROKE", "VENT_BUST"
+	7653 = DukeGenericDestructible, "LABSIGN", "LABSIGNBROKE", "VENT_BUST"
+	7655 = DukeGenericDestructible, "LABSIGN2", "LABSIGN2BROKE", "VENT_BUST"
+	7691 = DukeGenericDestructible, "SALOONSIGN", "SALOONSIGNBROKE", "VENT_BUST"
+	7875 = DukeGenericDestructible, "NOMOTOSIGN", "NOMOTOSIGNBROKE", "VENT_BUST"
+	7876 = DukeGenericDestructible, "STREETSIGN1", "STREETSIGN1BROKE", "VENT_BUST"
+	7881 = DukeGenericDestructible, "DANGERSIGN", "DANGERSIGNBROKE", "VENT_BUST"
+	7883 = DukeGenericDestructible, "RADIATIONSIGN", "RADIATIONSIGNBROKE", "VENT_BUST"
+	7879 = DukeGenericDamagingDestructible, "DIABLOHWAY", "DIABLOHWAYBROKE", "SIGNHIT"
+	7694 = DukeGenericDestructible, "BANKELPESO", "BANKELPESOBROKE", "WOODBREK"
+	7700 = DukeGenericDestructible, "SHERIFFSIGN", "SHERIFFSIGNBROKE", "WOODBREK"
+	7702 = DukeGenericDestructible, "STORESIGN", "STORESIGNBROKE", "WOODBREK"
+	7711 = DukeGenericDestructible, "HOTELSIGN", "HOTELSIGNBROKE", "WOODBREK"
+	7595 = DukeGenericDestructible, "RRTILE7595", "RRTILE7705", "SIGNHIT"
+	7704 = DukeGenericDestructible, "RRTILE7704", "RRTILE7705", "SIGNHIT"
+	8579 = DukeGenericDestructible, "RRTILE8579", "RRTILE5014", "GLASS_HEAVYBREAK"
+	7441 = DukeGenericDestructible, "RRTILE7441", "RRTILE5016", "GLASS_HEAVYBREAK"
+	7534 = DukeGenericDestructible, "RRTILE7534", "RRTILE5029", "GLASS_HEAVYBREAK"
+	7545 = DukeGenericDestructible, "RRTILE7545", "RRTILE5030", "GLASS_HEAVYBREAK"
+	7547 = DukeGenericDestructible, "RRTILE7547", "RRTILE5031", "GLASS_HEAVYBREAK"
+	7574 = DukeGenericDestructible, "RRTILE7574", "RRTILE5032", "GLASS_HEAVYBREAK"
+	7575 = DukeGenericDestructible, "RRTILE7575", "RRTILE5033", "GLASS_HEAVYBREAK"
+	7578 = DukeGenericDestructible, "RRTILE7578", "RRTILE5034", "GLASS_HEAVYBREAK"
+	7478 = DukeGenericDestructible, "RRTILE7478", "RRTILE5035", "GLASS_HEAVYBREAK"
+	8525 = DukeGenericDestructible, "RRTILE8525", "RRTILE5036", "GLASS_HEAVYBREAK"
+	8537 = DukeGenericDestructible, "RRTILE8537", "RRTILE5062", "GLASS_HEAVYBREAK"
+	8215 = DukeGenericDestructible, "RRTILE8215", "RRTILE5064", "GLASS_HEAVYBREAK"
+	8216 = DukeGenericDestructible, "*RRTILE8216", "RRTILE5065", "GLASS_HEAVYBREAK"	// *prefix means fullbright.
+	8217 = DukeGenericDestructible, "RRTILE8217", "RRTILE5066", "GLASS_HEAVYBREAK"
+	8218 = DukeGenericDestructible, "*RRTILE8218", "RRTILE5067", "GLASS_HEAVYBREAK"
+	8220 = DukeGenericDestructible, "*RRTILE8220", "RRTILE5068", "GLASS_HEAVYBREAK"
+	8221 = DukeGenericDestructible, "RRTILE8221", "RRTILE5069", "GLASS_HEAVYBREAK"
+	8395 = DukeGenericDestructible, "RRTILE8395", "RRTILE5072", "GLASS_HEAVYBREAK"
+	8423 = DukeGenericDestructible, "RRTILE8423", "RRTILE5073", "GLASS_HEAVYBREAK"
+	8462 = DukeGenericDestructible, "RRTILE8462", "RRTILE5074", "GLASS_HEAVYBREAK"
+	8475 = DukeGenericDestructible, "RRTILE8475", "RRTILE5075", "GLASS_HEAVYBREAK"
+	8608 = DukeGenericDestructible, "RRTILE8608", "RRTILE5083", "GLASS_HEAVYBREAK"
+	8609 = DukeGenericDestructible, "RRTILE8609", "RRTILE5084", "GLASS_HEAVYBREAK"
+	8312 = DukeGenericDestructible, "RRTILE8312", "RRTILE5071", "POOLBUD"
+	8567 = DukeGenericDestructible, "RRTILE8567", "RRTILE5082", "GLASS_HEAVYBREAK"
+	8568 = DukeGenericDestructible, "RRTILE8568", "RRTILE5082", "GLASS_HEAVYBREAK"
+	8569 = DukeGenericDestructible, "RRTILE8569", "RRTILE5082", "GLASS_HEAVYBREAK"
+	8570 = DukeGenericDestructible, "RRTILE8570", "RRTILE5082", "GLASS_HEAVYBREAK"
+	8571 = DukeGenericDestructible, "RRTILE8571", "RRTILE5082", "GLASS_HEAVYBREAK"
+	8640 = DukeGenericDestructible, "RRTILE8640", "RRTILE5085", "GLASS_HEAVYBREAK"
+	8611 = DukeGenericDestructible, "RRTILE8611", "RRTILE5086", "GLASS_HEAVYBREAK"
+	8497 = DukeGenericDestructible, "RRTILE8497", "RRTILE5076", "GLASS_HEAVYBREAK"
+	8498 = DukeGenericDestructible, "RRTILE8498", "RRTILE5077", "GLASS_HEAVYBREAK"
+	8499 = DukeGenericDestructible, "RRTILE8499", "RRTILE5078", "GLASS_HEAVYBREAK"
+	8503 = DukeGenericDestructible, "RRTILE8503", "RRTILE5079", "GLASS_HEAVYBREAK"
+	7901 = DukeGenericDestructible, "RRTILE7901", "RRTILE5080", "GLASS_HEAVYBREAK"
+	7696 = DukeGenericDestructible, "RRTILE7696", "RRTILE7697", "WOODBREK"
+	7806 = DukeGenericDestructible, "RRTILE7806", "RRTILE5043", "GLASS_HEAVYBREAK"
+	7900 = DukeGenericDestructible, "RRTILE7900", "RRTILE5047", "GLASS_HEAVYBREAK"
+	7906 = DukeGenericDestructible, "RRTILE7906", "RRTILE5048", "GLASS_HEAVYBREAK"
+	7912 = DukeGenericDestructible, "RRTILE7912", "RRTILE5049", "GLASS_HEAVYBREAK"
+	7913 = DukeGenericDestructible, "RRTILE7913", "RRTILE5049", "GLASS_HEAVYBREAK"
+	8047 = DukeGenericDestructible, "RRTILE8047", "RRTILE5050", "GLASS_HEAVYBREAK"
+	8596 = DukeGenericDestructible, "RRTILE8596", "RRTILE8598", "GLASS_HEAVYBREAK"
+	8059 = DukeGenericDestructible, "RRTILE8059", "RRTILE5051", "GLASS_HEAVYBREAK"
+	8060 = DukeGenericDestructible, "RRTILE8060", "RRTILE5052", "GLASS_HEAVYBREAK"
+	8222 = DukeGenericDestructible, "RRTILE8222", "RRTILE5053", "GLASS_HEAVYBREAK"
+	8223 = DukeGenericDestructible, "RRTILE8223", "RRTILE5054", "GLASS_HEAVYBREAK"
+	8224 = DukeGenericDestructible, "RRTILE8224", "RRTILE5055", "GLASS_HEAVYBREAK"
+	8370 = DukeGenericDestructible, "RRTILE8370", "RRTILE5056", "GLASS_HEAVYBREAK"
+	8371 = DukeGenericDestructible, "RRTILE8371", "RRTILE5057", "GLASS_HEAVYBREAK"
+	8372 = DukeGenericDestructible, "RRTILE8372", "RRTILE5058", "GLASS_HEAVYBREAK"
+	8373 = DukeGenericDestructible, "RRTILE8373", "RRTILE5059", "GLASS_HEAVYBREAK"
+	8396 = DukeGenericDestructible, "RRTILE8396", "RRTILE5038", "GLASS_HEAVYBREAK"
+	8397 = DukeGenericDestructible, "RRTILE8397", "RRTILE5039", "GLASS_HEAVYBREAK"
+	8398 = DukeGenericDestructible, "RRTILE8398", "RRTILE5040", "GLASS_HEAVYBREAK"
+	8399 = DukeGenericDestructible, "RRTILE8399", "RRTILE5041", "GLASS_HEAVYBREAK"
+	8385 = DukeGenericDestructible, "RRTILE8385", "RRTILE8386", "GLASS_HEAVYBREAK"
+	8387 = DukeGenericDestructible, "RRTILE8387", "RRTILE8388", "GLASS_HEAVYBREAK"
+	8389 = DukeGenericDestructible, "RRTILE8389", "RRTILE8390", "GLASS_HEAVYBREAK"
+	8391 = DukeGenericDestructible, "RRTILE8391", "RRTILE8392", "GLASS_HEAVYBREAK"
+	7553 = DukeGenericDestructible, "RRTILE7553", "RRTILE5035", "GLASS_HEAVYBREAK"
+	8475 = DukeGenericDestructible, "RRTILE8475", "RRTILE5075", "GLASS_HEAVYBREAK"
+	8498 = DukeGenericDestructible, "RRTILE8498", "RRTILE5077", "GLASS_HEAVYBREAK"
+	8499 = DukeGenericDestructible, "RRTILE8499", "RRTILE5078", "GLASS_HEAVYBREAK"
+	2445 = DukeGenericDestructible, "RRTILE2445", "RRTILE2450", "GLASS_HEAVYBREAK"
+	7885 = DukeGenericDamagingDestructible, "RRTILE7885", "RRTILE5045", "SIGNHIT"
+	7890 = DukeGenericDamagingDestructible, "RRTILE7890", "RRTILE5045", "SIGNHIT"
+	7886 = DukeGenericDamagingDestructible, "RRTILE7886", "RRTILE5046", "SIGNHIT"
+	7887 = DukeGenericDamagingDestructible, "RRTILE7887", "RRTILE5044", "GLASS_HEAVYBREAK"
+	2123 = DukeGenericDamagingDestructible, "RRTILE2123", "RRTILE2124", "GLASS_BREAKING"
+	3773 = DukeGenericDamagingDestructible, "RRTILE3773", "RRTILE8651", "GLASS_BREAKING"
+	7533 = DukeGenericDamagingDestructible, "*RRTILE7533", "*RRTILE5035", "SIGNHIT"
+	3584 = DukeGenericDamagingDestructible, "RRTILE3584", "RRTILE8681", "SIGNHIT"
+	8394 = DukeGenericDestructible, "RRTILE8394", "RRTILE5072", "SIGNHIT"
+	8461 = DukeGenericDestructible, "RRTILE8461", "RRTILE5074", "GLASS_HEAVYBREAK"
+	8462 = DukeGenericDestructible, "RRTILE8462", "RRTILE5074", "GLASS_HEAVYBREAK"
+	8682 = DukeGenericDestructible, "RRTILE8682", "RRTILE8683", "GLASS_HEAVYBREAK"
 }
 
 tileflag TFLAG_WALLSWITCH {

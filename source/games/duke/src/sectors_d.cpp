@@ -1256,28 +1256,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 
-	case GRATE1:
-		targ->spr.picnum = BGRATE1;
-		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		S_PlayActorSound(VENT_BUST, targ);
-		break;
-
-	case CIRCLEPANNEL:
-		targ->spr.picnum = CIRCLEPANNELBROKE;
-		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		S_PlayActorSound(VENT_BUST, targ);
-		break;
-	case PANNEL1:
-	case PANNEL2:
-		targ->spr.picnum = BPANNEL1;
-		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		S_PlayActorSound(VENT_BUST, targ);
-		break;
-	case PANNEL3:
-		targ->spr.picnum = BPANNEL3;
-		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		S_PlayActorSound(VENT_BUST, targ);
-		break;
 	case PIPE1:
 	case PIPE2:
 	case PIPE3:
@@ -1336,21 +1314,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		targ->Destroy();
 		break;
 	}
-	case CHAIR1:
-	case CHAIR2:
-		targ->spr.picnum = BROKENCHAIR;
-		targ->spr.cstat = 0;
-		break;
 	case CHAIR3:
-	case MOVIECAMERA:
-	case SCALE:
-	case VACUUM:
-	case CAMERALIGHT:
-	case IVUNIT:
-	case POT1:
-	case POT2:
-	case POT3:
-	case TRIPODCAMERA:
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
 		targ->Destroy();

@@ -1123,8 +1123,8 @@ DEFINE_ACTION_FUNCTION(DDukeGenericDestructible, SetBroken)
 	PARAM_SELF_STRUCT_PROLOGUE(DDukeActor);
 	PARAM_INT(bust);
 	int tilenum = self->IntVar(bust ? NAME_brokenstate : NAME_spawnstate);
-	if (tilenum > 0) self->spr.picnum = tilenum;
-	ACTION_RETURN_BOOL(tilenum > 0);
+	if (tilenum >= 0) self->spr.picnum = tilenum;
+	ACTION_RETURN_BOOL(tilenum < 0);
 }
 
 

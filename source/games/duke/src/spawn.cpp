@@ -55,6 +55,7 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 			act->IntVar(NAME_spawnstate) = info->basetex;
 			act->IntVar(NAME_brokenstate) = info->brokentex;
 			act->IntVar(NAME_breaksound) = S_FindSound(info->breaksound.GetChars()).index();
+			act->IntVar(NAME_fullbright) = info->fullbright;
 		}
 	}
 }

@@ -2250,6 +2250,7 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 		int base = -1;
 		int basetex = -1;
 		int brokentex = -1;
+		int fullbright = 0;
 		FName sound = NAME_None;
 		FName cname;
 		sc.GetNumber(num, true);
@@ -2261,14 +2262,22 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 			if (sc.CheckNumber(true)) base = sc.Number;
 			else
 			{
+				// prefixing the texture names here with a '*' will render them fullbright.
 				sc.MustGetString();
-				basetex = TileFiles.tileForName(sc.String);
-				if (basetex < 0) Printf(TEXTCOLOR_RED "Unknown texture %s in definition for spawn ID # %d\n", num);
+				const char* p = sc.String;
+				if (*p == '*') { fullbright |= 1; p++; }
+				basetex = TileFiles.tileForName(p);
+				if (basetex < 0) Printf(TEXTCOLOR_RED "Unknown texture %s in definition for spawn ID # %d\n", sc.String, num);
 				if (sc.CheckString(","))
 				{
 					sc.MustGetString();
-					brokentex = TileFiles.tileForName(sc.String);
-					if (brokentex < 0) Printf(TEXTCOLOR_RED "Unknown texture %s in definition for spawn ID # %d\n", num);
+					const char* p = sc.String;
+					if (*p)
+					{
+						if (*p == '*') { fullbright |= 2; p++; }
+						brokentex = TileFiles.tileForName(p);
+						if (brokentex < 0) Printf(TEXTCOLOR_RED "Unknown texture %s in definition for spawn ID # %d\n", sc.String, num);
+					}
 					if (sc.CheckString(","))
 					{
 						sc.MustGetString();
@@ -2285,7 +2294,7 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 		}
 
 		// todo: check for proper base class
-		spawnMap.Insert(num, { cname, nullptr, base, basetex, brokentex, sound });
+		spawnMap.Insert(num, { cname, nullptr, base, basetex, brokentex, sound, fullbright });
 	}
 	sc.SetCMode(false);
 }

@@ -76,11 +76,17 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		if (isdigit((uint8_t)parm->parms[0][0])) {
 			picnum = (unsigned short)atol(parm->parms[0]);
 		}
-		else {
+		else 
+		{
 			picnum = getlabelvalue(parm->parms[0]);
-			if (picnum < 0) {
-				Printf("spawn: Invalid tile label given\n");
-				return CCMD_OK;
+			if (picnum < 0) 
+			{
+				picnum = TileFiles.tileForName(parm->parms[0]);
+				if (picnum < 0)
+				{
+					Printf("spawn: Invalid tile label given\n");
+					return CCMD_OK;
+				}
 			}
 		}
 
@@ -100,6 +106,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		if (set & 2) spawned->spr.cstat = ESpriteFlags::FromInt(cstat);
 		if (set & 4) spawned->spr.Angles.Yaw = ang;
 		if (set & 8) SetActor(spawned, DVector3( x, y, z ));
+		if (spawned->spr.scale.isZero()) spawned->spr.scale = isRR() ? DVector2(0.5, 0.5) : DVector2(1., 1.); // nake sure it's visible.
 
 		if (spawned->sector() == nullptr)
 		{

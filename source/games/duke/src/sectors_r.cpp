@@ -1018,9 +1018,9 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 		wal->picnum = RRTILE8623;
 		S_PlayActorSound(495, spr);
 		return;
-	case RRTILE7657:
+	case WEAPONCABINET:
 		if (!isRRRA()) break;
-		wal->picnum = RRTILE7659;
+		wal->picnum = WEAPONCABINETBROKE;
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;
 	case RRTILE8497:
@@ -1631,20 +1631,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		break;
 
-	case CHAIR1:
-	case CHAIR2:
-		targ->spr.picnum = BROKENCHAIR;
-		targ->spr.cstat = 0;
-		break;
 	case CHAIR3:
-	case MOVIECAMERA:
-	case SCALE:
-	case VACUUM:
-	case CAMERALIGHT:
-	case IVUNIT:
-	case POT1:
-	case POT2:
-	case POT3:
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
 		targ->Destroy();

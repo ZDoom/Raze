@@ -1,0 +1,6 @@
+spawnclasses
+{
+	2654 = DukeGenericGlassSpawningDestructible, "*RRTILE2654", "", "GLASS_BREAKING"
+	2656 = DukeGenericGlassSpawningDestructible, "*RRTILE2656", "", "GLASS_BREAKING"
+	3172 = DukeGenericGlassSpawningDestructible, "*RRTILE3172", "", "GLASS_BREAKING"
+}

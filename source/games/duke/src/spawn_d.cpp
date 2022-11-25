@@ -285,16 +285,10 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case HYDRENT:
-	case PANNEL1:
-	case PANNEL2:
 	case SATELITE:
 	case FUELPOD:
 	case SOLARPANNEL:
 	case ANTENNA:
-	case GRATE1:
-	case CHAIR1:
-	case CHAIR2:
-	case CHAIR3:
 	case BOTTLE1:
 	case BOTTLE2:
 	case BOTTLE3:
@@ -321,19 +315,10 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case INDY:
 	case LUKE:
 	case JURYGUY:
-	case SCALE:
-	case VACUUM:
 	case FANSPRITE:
 	case HANGLIGHT:
 	case FETUS:
 	case FETUSBROKE:
-	case CAMERALIGHT:
-	case MOVIECAMERA:
-	case IVUNIT:
-	case POT1:
-	case POT2:
-	case POT3:
-	case TRIPODCAMERA:
 	case SUSHIPLATE1:
 	case SUSHIPLATE2:
 	case SUSHIPLATE3:

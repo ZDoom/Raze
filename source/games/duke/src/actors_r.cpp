@@ -1437,41 +1437,7 @@ void movetransports_r(void)
 static void rrra_specialstats()
 {
 	Collision coll;
-	DukeStatIterator it(117);
-	while (auto act = it.Next())
-	{
-		if (act->spr.hitag > 2)
-			act->spr.hitag = 0;
-		if ((act->spr.picnum == RRTILE8488 || act->spr.picnum == RRTILE8490) && act->spr.hitag != 2)
-		{
-			act->spr.hitag = 2;
-			act->spr.extra = -100;
-		}
-		if (act->spr.hitag == 0)
-		{
-			act->spr.extra++;
-			if (act->spr.extra >= 30)
-				act->spr.hitag = 1;
-		}
-		else if (act->spr.hitag == 1)
-		{
-			act->spr.extra--;
-			if (act->spr.extra <= -30)
-				act->spr.hitag = 0;
-		}
-		else if (act->spr.hitag == 2)
-		{
-			act->spr.extra--;
-			if (act->spr.extra <= -104)
-			{
-				spawn(act, act->spr.lotag);
-				act->Destroy();
-			}
-		}
-		movesprite_ex(act, DVector3(0, 0, act->spr.extra / 128.), CLIPMASK0, coll);
-	}
-
-	it.Reset(118);
+	DukeStatIterator it(118);
 	while (auto act = it.Next())
 	{
 		if (act->spr.hitag > 1)

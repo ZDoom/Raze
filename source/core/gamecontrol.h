@@ -278,6 +278,7 @@ struct SpawnRec
 	int param;
 	int basetex, brokentex;
 	FName breaksound;
+	int fullbright;
 
 	PClass* Class(int pn)
 	{

@@ -77,6 +77,23 @@ spawnclasses
 	1528 = DukePlayerGun
 	1536 = DukePlayerLeg
 
+	595 = DukeGenericSolidUnblockingDestructible, "GRATE1", "BGRATE1", "VENT_BUST"
+	1113 = DukeGenericUnblockingDestructible, "CIRCLEPANNEL", "CIRCLEPANNELBROKE", "VENT_BUST"
+	342 = DukeGenericSolidUnblockingDestructible, "PANNEL1", "BPANNEL1", "VENT_BUST"
+	343 = DukeGenericSolidUnblockingDestructible, "PANNEL2", "BPANNEL3", "VENT_BUST"
+	4099 = DukeGenericUnblockingDestructible, "PANNEL3", "BPANNEL3", "VENT_BUST"
+	556 = DukeGenericSolidUnblockingDestructible, "CHAIR1", "BROKENCHAIR"
+	557 = DukeGenericSolidUnblockingDestructible, "CHAIR2", "BROKENCHAIR"
+
+	686 = DukeGenericSolidScrapSpawningDestructible, "MOVIECAMERA", "", "GLASS_HEAVYBREAK"
+	678 = DukeGenericSolidScrapSpawningDestructible, "SCALE", "", "GLASS_HEAVYBREAK"
+	685 = DukeGenericSolidScrapSpawningDestructible, "CAMERALIGHT", "", "GLASS_HEAVYBREAK"
+	689 = DukeGenericSolidScrapSpawningDestructible, "IVUNIT", "", "GLASS_HEAVYBREAK"
+	694 = DukeGenericSolidScrapSpawningDestructible, "POT1", "", "GLASS_HEAVYBREAK"
+	695 = DukeGenericSolidScrapSpawningDestructible, "POT2", "", "GLASS_HEAVYBREAK"
+	697 = DukeGenericSolidScrapSpawningDestructible, "POT3", "", "GLASS_HEAVYBREAK"
+	4444 = DukeGenericSolidScrapSpawningDestructible, "TRIPODCAMERA", "", "GLASS_HEAVYBREAK"
+	669 = DukeGenericSolidScrapSpawningDestructible, "*VACUUM", "", "GLASS_HEAVYBREAK"
 }
 
 tileflag TFLAG_WALLSWITCH {

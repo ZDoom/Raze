@@ -89,7 +89,37 @@ spawnclasses
 	5602 = RedneckCootJibA
 	5607 = RedneckCootJibB
 	5616 = RedneckCootJibB
+	
+	3114 = DukeGenericGlassSpawningDestructible, "RRTILE3114", "RRTILE3117", "GLASS_BREAKING"
+	2876 = DukeGenericGlassSpawningDestructible, "RRTILE2876", "RRTILE2990", "GLASS_BREAKING"
+	3152 = DukeGenericGlassSpawningDestructible, "RRTILE3152", "RRTILE3218", "GLASS_BREAKING"
+	3153 = DukeGenericGlassSpawningDestructible, "RRTILE3153", "RRTILE3219", "GLASS_BREAKING"
+	2030 = DukeGenericGlassSpawningDestructible, "RRTILE2030", "RRTILE2034", "GLASS_BREAKING"
+	2915 = DukeGenericGlassSpawningDestructible, "RRTILE2915", "RRTILE2977", "GLASS_BREAKING"
+	2893 = DukeGenericGlassSpawningDestructible, "RRTILE2893", "RRTILE2978", "GLASS_BREAKING"
+	3115 = DukeGenericGlassSpawningDestructible, "RRTILE3115", "RRTILE3116", "GLASS_BREAKING"
+	3171 = DukeGenericGlassSpawningDestructible, "RRTILE3171", "RRTILE3216", "GLASS_BREAKING"
+	2156 = DukeGenericGlassSpawningDestructible, "*RRTILE2156", "*RRTILE2157", "GLASS_BREAKING"
+	2158 = DukeGenericGlassSpawningDestructible, "*RRTILE2158", "*RRTILE2159", "GLASS_BREAKING"
+	2160 = DukeGenericGlassSpawningDestructible, "*RRTILE2160", "*RRTILE2161", "GLASS_BREAKING"
+	2175 = DukeGenericGlassSpawningDestructible, "*RRTILE2175", "*RRTILE2176", "GLASS_BREAKING"
+
+	234 = DukeGenericSolidUnblockingDestructible, "GRATE1", "BGRATE1", "VENT_BUST"
+	2251 = DukeGenericUnblockingDestructible, "CIRCLEPANNEL", "CIRCLEPANNELBROKE", "VENT_BUST"
+	343 = DukeGenericSolidUnblockingDestructible, "PANNEL2", "BPANNEL3", "VENT_BUST"
+	1085 = DukeGenericSolidUnblockingDestructible, "CHAIR1", "BROKENCHAIR"
+	1086 = DukeGenericSolidUnblockingDestructible, "CHAIR2", "BROKENCHAIR"
+	1158 = DukeGenericSolidScrapSpawningDestructible, "MOVIECAMERA", "", "GLASS_HEAVYBREAK"
+	1150 = DukeGenericSolidScrapSpawningDestructible, "SCALE", "", "GLASS_HEAVYBREAK"
+	1157 = DukeGenericScrapSpawningDestructible, "CAMERALIGHT", "", "GLASS_HEAVYBREAK"
+	1163 = DukeGenericSolidScrapSpawningDestructible, "IVUNIT", "", "GLASS_HEAVYBREAK"
+	1164 = DukeGenericSolidScrapSpawningDestructible, "POT1", "", "GLASS_HEAVYBREAK"
+	1165 = DukeGenericSolidScrapSpawningDestructible, "POT2", "", "GLASS_HEAVYBREAK"
+	1166 = DukeGenericSolidScrapSpawningDestructible, "POT3", "", "GLASS_HEAVYBREAK"
+	1141 = DukeGenericSolidScrapSpawningDestructible, "VACUUM", "", "GLASS_HEAVYBREAK"
+
 }
+
 
 tileflag TFLAG_WALLSWITCH {
 	HANDPRINTSWITCH
