@@ -59,7 +59,7 @@ Collision MultiClipMove(PLAYER* pp, double zz, double floordist)
     {
         // move the box to position instead of using offset- this prevents small rounding errors
         // allowing you to move through wall
-        DAngle ang = (pp->angle.ang + sop->clipbox_ang[i]);
+        DAngle ang = (pp->angle.ZzANGLE + sop->clipbox_ang[i]);
         DVector3 spos(pp->actor->getPosWithOffsetZ(), zz);
 
         DVector2 vect = ang.ToVector() * sop->clipbox_vdist[i];

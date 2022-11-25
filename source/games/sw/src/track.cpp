@@ -1480,7 +1480,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
     {
         pp->Flags |= (PF_PLAYER_RIDING);
 
-        pp->RevolveAng = pp->angle.ang;
+        pp->RevolveAng = pp->angle.ZzANGLE;
         pp->Revolve.XY() = pp->actor->spr.pos.XY();
 
         // set the delta angle to 0 when moving
@@ -1502,7 +1502,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
         // save the current information so when Player stops
         // moving then you
         // know where he was last
-        pp->RevolveAng = pp->angle.ang;
+        pp->RevolveAng = pp->angle.ZzANGLE;
         pp->Revolve.XY() = pp->actor->spr.pos.XY();
 
         // set the delta angle to 0 when moving
@@ -1516,7 +1516,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
         pp->Revolve += move;
 
         // Last known angle is now adjusted by the delta angle
-        pp->RevolveAng = deltaangle(pp->RevolveDeltaAng, pp->angle.ang);
+        pp->RevolveAng = deltaangle(pp->RevolveDeltaAng, pp->angle.ZzANGLE);
     }
 
     // increment Players delta angle
@@ -1529,7 +1529,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->angle.addadjustment(deltaangle(pp->RevolveAng + pp->RevolveDeltaAng, pp->angle.ang));
+    pp->angle.addadjustment(deltaangle(pp->RevolveAng + pp->RevolveDeltaAng, pp->angle.ZzANGLE));
 
     UpdatePlayerSprite(pp);
 }

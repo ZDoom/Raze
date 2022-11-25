@@ -1222,7 +1222,7 @@ void movetransports_r(void)
 									ps[k].GetActor()->spr.extra = 0;
 								}
 
-							ps[p].angle.ang = Owner->spr.Angles.Yaw; // check me out later.
+							ps[p].angle.ZzANGLE = Owner->spr.Angles.Yaw; // check me out later.
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -1945,7 +1945,7 @@ void rr_specialstats()
 				{
 					if (act2->spr.picnum == RRTELEPORTDEST)
 					{
-						ps[p].angle.ang = act2->spr.Angles.Yaw; // check me out later.
+						ps[p].angle.ZzANGLE = act2->spr.Angles.Yaw; // check me out later.
 						ps[p].GetActor()->spr.pos = act2->spr.pos.plusZ(-36 + gs.playerheight);
 						ps[p].GetActor()->backuppos();
 						ps[p].setbobpos();

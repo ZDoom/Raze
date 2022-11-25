@@ -72,7 +72,7 @@ void pickrandomspot(int snum)
 	p->GetActor()->spr.pos = po[i].opos;
 	p->GetActor()->backuppos();
 	p->setbobpos();
-	p->angle.oang = p->angle.ang = po[i].oa;
+	p->angle.oang = p->angle.ZzANGLE = po[i].oa;
 	p->setCursector(po[i].os);
 }
 
@@ -513,7 +513,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
 	auto newActor = CreateActor(ps[0].cursector, startpos.plusZ(gs.playerheight),
-		TILE_APLAYER, 0, DVector2(0, 0), ps[0].angle.ang, 0., 0., nullptr, 10);
+		TILE_APLAYER, 0, DVector2(0, 0), ps[0].angle.ZzANGLE, 0., 0., nullptr, 10);
 
 	newActor->viewzoffset = -gs.playerheight;
 	newActor->backupz();
@@ -626,7 +626,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 			act->SetOwner(act);
 
 			ps[j].setbobpos();
-			ps[j].angle.oang = ps[j].angle.ang = act->spr.Angles.Yaw; // check me out later.
+			ps[j].angle.oang = ps[j].angle.ZzANGLE = act->spr.Angles.Yaw; // check me out later.
 
 			updatesector(act->spr.pos, &ps[j].cursector);
 
@@ -982,7 +982,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	STAT_NewLevel(mi->fileName);
 	TITLE_InformName(mi->name);
 	
-	p->angle.ang = mapangle(lbang);
+	p->angle.ZzANGLE = mapangle(lbang);
 
 	gotpic.Zero();
 

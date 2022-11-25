@@ -238,7 +238,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	if (!movementlocked())
 	{
 		// add player's input
-		ang += DAngle::fromDeg(avel);
+		ZzANGLE += DAngle::fromDeg(avel);
 
 		if (*actions & SB_TURNAROUND)
 		{
@@ -261,7 +261,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 				add -= spin;
 				spin = nullAngle;
 			}
-			ang += add;
+			ZzANGLE += add;
 		}
 	}
 	else
@@ -334,7 +334,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("ang", w.ang)
+		arc("ang", w.ZzANGLE)
 			("lookang", w.look_ang)
 			("rotscrnang", w.rotscrnang)
 			("spin", w.spin)
@@ -343,7 +343,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 
 		if (arc.isReading())
 		{
-			w.oang = w.ang;
+			w.oang = w.ZzANGLE;
 			w.olook_ang = w.look_ang;
 			w.orotscrnang = w.rotscrnang;
 			w.inputdisabled = w.inputdisabled;

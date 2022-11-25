@@ -2393,7 +2393,7 @@ void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos)
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
-    auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursector, spawnpos.plusZ(PLAYER_HEIGHTF), pp->angle.ang);
+    auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursector, spawnpos.plusZ(PLAYER_HEIGHTF), pp->angle.ZzANGLE);
     actor->viewzoffset = -PLAYER_HEIGHTF;
 
     // if too close to the floor - stand up
@@ -2475,7 +2475,7 @@ void SpawnPlayerUnderSprite(PLAYER* pp)
     int pnum = int(pp - Player);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
-                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->actor->getPosWithOffsetZ(), pp->angle.ang);
+                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->actor->getPosWithOffsetZ(), pp->angle.ZzANGLE);
 
     DSWActor* actor = pp->PlayerUnderActor;
 

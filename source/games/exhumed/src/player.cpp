@@ -293,8 +293,8 @@ void RestartPlayer(int nPlayer)
 
 		pActor->spr.pos = nNStartSprite->spr.pos;
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->angle.ang = nNStartSprite->spr.Angles.Yaw; // check me out later.
-		pActor->spr.Angles.Yaw = plr->angle.ang; // check me out later.
+		plr->angle.ZzANGLE = nNStartSprite->spr.Angles.Yaw; // check me out later.
+		pActor->spr.Angles.Yaw = plr->angle.ZzANGLE; // check me out later.
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
@@ -307,8 +307,8 @@ void RestartPlayer(int nPlayer)
 	{
         pActor->spr.pos.XY() = plr->sPlayerSave.pos.XY();
 		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
-		plr->angle.ang = plr->sPlayerSave.nAngle;
-		pActor->spr.Angles.Yaw = plr->angle.ang; // check me out later.
+		plr->angle.ZzANGLE = plr->sPlayerSave.nAngle;
+		pActor->spr.Angles.Yaw = plr->angle.ZzANGLE; // check me out later.
 
 		floorsprt = nullptr;
 	}
@@ -664,7 +664,7 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    inita = pPlayer->angle.ang;
+    inita = pPlayer->angle.ZzANGLE;
     if (pPlayer->pActor) pPlayer->pActor->spr.Angles.Yaw = inita;
 }
 

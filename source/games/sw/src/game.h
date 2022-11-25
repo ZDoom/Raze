@@ -1956,7 +1956,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
 {
-    return absangle((a->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle(), pp->angle.ang) < range;
+    return absangle((a->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle(), pp->angle.ZzANGLE) < range;
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)

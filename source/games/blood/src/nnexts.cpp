@@ -9278,7 +9278,7 @@ void changeSpriteAngle(DBloodActor* pSpr, DAngle nAng)
 	{
 		PLAYER* pPlayer = getPlayerById(pSpr->spr.type);
 		if (pPlayer)
-			pPlayer->angle.ang = nAng;
+			pPlayer->angle.ZzANGLE = nAng;
 		else
 		{
 			pSpr->spr.Angles.Yaw = nAng;

@@ -66,7 +66,7 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 
     if (ang != DAngle::fromDeg(INT_MIN))
     {
-		Player->angle.oang = Player->angle.ang = ang;
+		Player->angle.oang = Player->angle.ZzANGLE = ang;
     }
 }
 

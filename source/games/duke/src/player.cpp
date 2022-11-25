@@ -211,7 +211,7 @@ double hitawall(player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->angle.ang.ToVector() * 1024, 0), hit, CLIPMASK0);
+	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->angle.ZzANGLE.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
 	return (hit.hitpos.XY() - p->GetActor()->spr.pos.XY()).Length();

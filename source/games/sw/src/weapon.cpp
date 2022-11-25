@@ -11584,7 +11584,7 @@ void InitSpellRing(PLAYER* pp)
 
     DAngle ang_diff = DAngle360 / max_missiles;
 
-    DAngle ang_start = pp->angle.ang - DAngle180;
+    DAngle ang_start = pp->angle.ZzANGLE - DAngle180;
 
     if (!SW_SHAREWARE)
         PlaySound(DIGI_RFWIZ, pp, v3df_none);
@@ -11971,7 +11971,7 @@ void InitSpellNapalm(PLAYER* pp)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector,
-                                pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ang, NAPALM_VELOCITY*2);
+                                pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ZzANGLE, NAPALM_VELOCITY*2);
 
         actor->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -12106,7 +12106,7 @@ int InitSpellMirv(PLAYER* pp)
     if (!pp->insector())
         return 0;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector, pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ang, MIRV_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector, pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ZzANGLE, MIRV_VELOCITY);
 
     PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
@@ -12201,7 +12201,7 @@ int InitSwordAttack(PLAYER* pp)
             bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
-                bubble->spr.Angles.Yaw = pp->angle.ang; // check me out later.
+                bubble->spr.Angles.Yaw = pp->angle.ZzANGLE; // check me out later.
 
 				auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
@@ -12248,9 +12248,9 @@ int InitSwordAttack(PLAYER* pp)
         HitInfo hit{};
 
         double dax = 1024., daz = 0;
-        DAngle daang = pp->angle.ang;
+        DAngle daang = pp->angle.ZzANGLE;
         setFreeAimVelocity(dax, daz, pp->horizon.ZzHORIZON, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
-        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3(pp->angle.ZzANGLE.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
@@ -12326,7 +12326,7 @@ int InitSwordAttack(PLAYER* pp)
 
                 if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hit.hitWall, hit.hitpos, pp->angle.ang, plActor->user.ID);
+                    HitBreakWall(hit.hitWall, hit.hitpos, pp->angle.ZzANGLE, plActor->user.ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
@@ -12369,7 +12369,7 @@ int InitFistAttack(PLAYER* pp)
             bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
-                bubble->spr.Angles.Yaw = pp->angle.ang; // check me out later.
+                bubble->spr.Angles.Yaw = pp->angle.ZzANGLE; // check me out later.
 
                 auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
@@ -12426,9 +12426,9 @@ int InitFistAttack(PLAYER* pp)
     {
         HitInfo hit{};
         double dax = 1024., daz = 0;
-        auto daang = pp->angle.ang;
+        auto daang = pp->angle.ZzANGLE;
         setFreeAimVelocity(dax, daz, pp->horizon.ZzHORIZON, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
-        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3(pp->angle.ZzANGLE.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return 0;
@@ -12517,7 +12517,7 @@ int InitFistAttack(PLAYER* pp)
 
                 if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hit.hitWall, hit.hitpos, pp->angle.ang, plActor->user.ID);
+                    HitBreakWall(hit.hitWall, hit.hitpos, pp->angle.ZzANGLE, plActor->user.ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
@@ -12980,7 +12980,7 @@ int InitStar(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, pos, pp->angle.ang, STAR_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, pos, pp->angle.ZzANGLE, STAR_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(STAR_REPEAT, STAR_REPEAT);
@@ -13080,7 +13080,7 @@ void InitHeartAttack(PLAYER* pp)
         return;
 
     auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector,
-                            pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ang, BLOOD_WORM_VELOCITY*2);
+                            pp->actor->getPosWithOffsetZ().plusZ(12), pp->angle.ZzANGLE, BLOOD_WORM_VELOCITY*2);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
 
@@ -13231,7 +13231,7 @@ int InitShotgun(PLAYER* pp)
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) == nullptr)
     {
         setFreeAimVelocity(dax, daz, pp->horizon.ZzHORIZON, 1000.);
-        daang = pp->angle.ang;
+        daang = pp->angle.ZzANGLE;
     }
 
     double ndaz;
@@ -13383,7 +13383,7 @@ int InitLaser(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector, pos, pp->angle.ang, 18.75);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector, pos, pp->angle.ZzANGLE, 18.75);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
@@ -13481,7 +13481,7 @@ int InitRail(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector, pos, pp->angle.ang, 75);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector, pos, pp->angle.ZzANGLE, 75);
 
 
     SetOwner(pp->actor, actorNew);
@@ -13646,7 +13646,7 @@ int InitRocket(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->angle.ang, ROCKET_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->angle.ZzANGLE, ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(1.40626, 1.40625);
@@ -13753,7 +13753,7 @@ int InitBunnyRocket(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector, pos, pp->angle.ang, ROCKET_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector, pos, pp->angle.ZzANGLE, ROCKET_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(1, 1);
@@ -13855,7 +13855,7 @@ int InitNuke(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->angle.ang, 700/16.);
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector, pos, pp->angle.ZzANGLE, 700/16.);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(2, 2);
@@ -13912,7 +13912,7 @@ int InitNuke(PLAYER* pp)
 	UpdateChangeXY(actorNew);
     actorNew->user.change.Z = zvel;
 
-    PlayerDamageSlide(pp, -40, pp->angle.ang + DAngle180); // Recoil slide
+    PlayerDamageSlide(pp, -40, pp->angle.ZzANGLE + DAngle180); // Recoil slide
 
     return 0;
 }
@@ -14031,7 +14031,7 @@ int InitMicro(PLAYER* pp)
         else
         {
             picked = nullptr;
-            angle = pp->angle.ang;
+            angle = pp->angle.ZzANGLE;
         }
 
         auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 4 + RandomRange(20));
@@ -15226,7 +15226,7 @@ int InitTracerUzi(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector, pp->actor->getPosWithOffsetZ().plusZ(nz), pp->angle.ang, TRACER_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector, pp->actor->getPosWithOffsetZ().plusZ(nz), pp->angle.ZzANGLE, TRACER_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->actor, actorNew);
@@ -15524,7 +15524,7 @@ int InitUzi(PLAYER* pp)
     }
     else
     {
-        daang = pp->angle.ang + mapangle(RandomRange(24) - 12);
+        daang = pp->angle.ZzANGLE + mapangle(RandomRange(24) - 12);
         setFreeAimVelocity(dax, daz, pp->horizon.ZzHORIZON, 1000. - (RandomRangeF(24000/256.) - 12000/256.));
     }
 
@@ -16667,7 +16667,7 @@ int InitGrenade(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector, pos, pp->angle.ang, GRENADE_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector, pos, pp->angle.ZzANGLE, GRENADE_VELOCITY);
 
     // don't throw it as far if crawling
     if (pp->Flags & (PF_CRAWLING))
@@ -16805,7 +16805,7 @@ int InitMine(PLAYER* pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector, pos, pp->angle.ang, MINE_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector, pos, pp->angle.ZzANGLE, MINE_VELOCITY);
 
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(0.5, 0.5);
@@ -16828,7 +16828,7 @@ int InitMine(PLAYER* pp)
 
 	UpdateChange(actorNew, 0.5);
 
-	double dot = pp->vect.dot(pp->angle.ang.ToVector());
+	double dot = pp->vect.dot(pp->angle.ZzANGLE.ToVector());
 
     // don't adjust for strafing
 	// not really sure what to do here as the original formula was very likely to overflow, creating a Q0.32 value.
@@ -16933,7 +16933,7 @@ int InitFireball(PLAYER* pp)
 
     auto pos = pp->actor->getPosWithOffsetZ().plusZ(pp->bob_z + 15);
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, pos, pp->angle.ang, FIREBALL_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, pos, pp->angle.ZzANGLE, FIREBALL_VELOCITY);
 
     actorNew->spr.hitag = LUMINOUS; //Always full brightness
     actorNew->spr.scale = DVector2(0.625, 0.625);

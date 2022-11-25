@@ -100,7 +100,7 @@ private:
 
 struct PlayerAngle
 {
-	DAngle ang, oang, look_ang, olook_ang, rotscrnang, orotscrnang, spin;
+	DAngle ZzANGLE, oang, look_ang, olook_ang, rotscrnang, orotscrnang, spin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
 
@@ -110,22 +110,22 @@ struct PlayerAngle
 	// Interpolation helpers.
 	void backup()
 	{
-		oang = ang;
+		oang = ZzANGLE;
 		olook_ang = look_ang;
 		orotscrnang = rotscrnang;
 	}
 	void restore()
 	{
-		ang = oang;
+		ZzANGLE = oang;
 		look_ang = olook_ang;
 		rotscrnang = orotscrnang;
 	}
 
 	// Commonly used getters.
 	DAngle osum() { return oang + olook_ang; }
-	DAngle sum() { return ang + look_ang; }
+	DAngle sum() { return ZzANGLE + look_ang; }
 	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
-	DAngle interpolatedang(double const interpfrac) { return interpolatedvalue(oang, ang, interpfrac); }
+	DAngle interpolatedang(double const interpfrac) { return interpolatedvalue(oang, ZzANGLE, interpfrac); }
 	DAngle interpolatedlookang(double const interpfrac) { return interpolatedvalue(olook_ang, look_ang, interpfrac); }
 	DAngle interpolatedrotscrn(double const interpfrac) { return interpolatedvalue(orotscrnang, rotscrnang, interpfrac); }
 	DAngle renderlookang(double const interpfrac) { return !SyncInput() ? look_ang : interpolatedlookang(interpfrac); }
@@ -166,7 +166,7 @@ struct PlayerAngle
 		}
 		else
 		{
-			ang += value;
+			ZzANGLE += value;
 		}
 	}
 
@@ -178,8 +178,8 @@ struct PlayerAngle
 		}
 		else
 		{
-			ang = value;
-			if (backup) oang = ang;
+			ZzANGLE = value;
+			if (backup) oang = ZzANGLE;
 		}
 	}
 
@@ -187,21 +187,21 @@ struct PlayerAngle
 	{
 		if (targetset())
 		{
-			auto delta = deltaangle(ang, target);
+			auto delta = deltaangle(ZzANGLE, target);
 
 			if (abs(delta) > DAngleBuildToDeg)
 			{
-				ang += delta * scaleAdjust;
+				ZzANGLE += delta * scaleAdjust;
 			}
 			else
 			{
-				ang = target;
+				ZzANGLE = target;
 				target = nullAngle;
 			}
 		}
 		else if (adjustment.Sgn())
 		{
-			ang += adjustment * scaleAdjust;
+			ZzANGLE += adjustment * scaleAdjust;
 		}
 	}
 
