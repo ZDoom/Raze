@@ -7083,7 +7083,7 @@ void InitAllPlayers(void)
         pp->FadeAmt = 0;
         pp->FadeTics = 0;
         pp->StartColor = 0;
-        pp->horizon.horizoff = nullAngle;
+        pp->horizon.ZzHORIZOFF = nullAngle;
 
         INITLIST(&pp->PanelSpriteList);
     }

@@ -622,7 +622,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	backupplayer(p);
 
-	p->horizon.horizoff = p->horizon.ZzHORIZON = nullAngle;
+	p->horizon.ZzHORIZOFF = p->horizon.ZzHORIZON = nullAngle;
 
 	updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
 

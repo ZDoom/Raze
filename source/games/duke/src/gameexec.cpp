@@ -354,8 +354,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_HORIZOFF:
-		if (bSet) ps[iPlayer].horizon.horizoff = maphoriz(-lValue);
-		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.horizoff.Tan() * -128.), sActor, sPlayer);
+		if (bSet) ps[iPlayer].horizon.ZzHORIZOFF = maphoriz(-lValue);
+		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.ZzHORIZOFF.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZOFF:
@@ -2250,7 +2250,7 @@ int ParseState::parse(void)
 			ps[g_p].horizon.ZzOLDHORIZON = ps[g_p].horizon.ZzHORIZON = nullAngle;
 			ps[g_p].on_crane = nullptr;
 			ps[g_p].frag_ps = g_p;
-			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = nullAngle;
+			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.ZzHORIZOFF = nullAngle;
 			ps[g_p].opyoff = 0;
 			ps[g_p].wackedbyactor = nullptr;
 			ps[g_p].shield_amount = gs.max_armour_amount;

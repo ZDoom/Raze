@@ -302,7 +302,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
-					horizoff -= maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
+					ZzHORIZOFF -= maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
 				}
 			}
 		}
@@ -310,16 +310,16 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff > PITCH_HORIZOFFCLIMB) horizoff += getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(horizoff, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
+			if (ZzHORIZOFF > PITCH_HORIZOFFCLIMB) ZzHORIZOFF += getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(ZzHORIZOFF, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(horizoff, PITCH_HORIZOFFSPEED, scaleAdjust, PITCH_HORIZOFFPUSH);
+			scaletozero(ZzHORIZOFF, PITCH_HORIZOFFSPEED, scaleAdjust, PITCH_HORIZOFFPUSH);
 		}
 
 		// Clamp off against the maximum allowed pitch.
-		horizoff = ClampViewPitch(horizoff);
+		ZzHORIZOFF = ClampViewPitch(ZzHORIZOFF);
 	}
 }
 
@@ -358,14 +358,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 	if (arc.BeginObject(keyname))
 	{
 		arc("horiz", w.ZzHORIZON)
-			("horizoff", w.horizoff)
+			("horizoff", w.ZzHORIZOFF)
 			("inputdisabled", w.inputdisabled)
 			.EndObject();
 
 		if (arc.isReading())
 		{
 			w.ZzOLDHORIZON = w.ZzHORIZON;
-			w.ohorizoff = w.horizoff;
+			w.ohorizoff = w.ZzHORIZOFF;
 			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();
 		}

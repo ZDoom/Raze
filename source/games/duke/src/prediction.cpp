@@ -55,7 +55,7 @@ void resetmys()
 	myxvel = myyvel = myzvel = 0;
 	myang = ps[myconnectindex].angle.ang;
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.ZzHORIZON;
-	myhorizoff = omyhorizoff = ps[myconnectindex].horizon.horizoff;
+	myhorizoff = omyhorizoff = ps[myconnectindex].horizon.ZzHORIZOFF;
 	mycursectnum = sectindex(ps[myconnectindex].cursector);
 	myjumpingcounter = ps[myconnectindex].jumping_counter;
 	myjumpingtoggle = ps[myconnectindex].jumping_toggle;

@@ -126,7 +126,7 @@ void resetplayerstats(int snum)
 	p->footprintshade   = 0;
 	p->jumping_toggle   = 0;
 	p->horizon.ZzOLDHORIZON = p->horizon.ZzHORIZON = DAngle::fromDeg(-17.354);
-	p->horizon.ohorizoff = p->horizon.horizoff = nullAngle;
+	p->horizon.ohorizoff = p->horizon.ZzHORIZOFF = nullAngle;
 	p->bobcounter       = 0;
 	p->on_ground        = 0;
 	p->player_par       = 0;
