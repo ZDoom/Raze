@@ -340,7 +340,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 			("spin", w.YawSpin)
 			("actor", w.pActor)
 			("inputdisabled", w.legacyDisabledYaw)
-			("horiz", w.ZzHORIZON())
 			("horizoff", w.ZzHORIZOFF)
 			("inputdisabled", w.legacyDisabledPitch)
 			.EndObject();
@@ -352,7 +351,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
 			w.legacyDisabledYaw = w.legacyDisabledYaw;
 			w.resetAdjustmentYaw();
-			w.ZzOLDHORIZON() = w.ZzHORIZON();
 			w.ZzOHORIZOFF = w.ZzHORIZOFF;
 			w.legacyDisabledPitch = w.legacyDisabledPitch;
 			w.resetAdjustmentPitch();
