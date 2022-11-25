@@ -1311,7 +1311,7 @@ void DoPlayerTeleportPause(PLAYER* pp)
 
 void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
-    pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = ang;
+    pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = ang;
     pp->actor->spr.pos = pos;
     pp->actor->backuppos();
 
@@ -5122,7 +5122,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->actor;
 
-    pp->Angles.ZzOLDANGLE = pp->Angles.ZzANGLE() = sop->ang;
+    pp->Angles.ZzOLDANGLE() = pp->Angles.ZzANGLE() = sop->ang;
     pp->actor->spr.pos.XY() = sop->pmid.XY();
     updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
     calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
@@ -5212,7 +5212,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 
     auto save_sect = pp->cursector;
 
-    pp->Angles.ZzOLDANGLE = pp->Angles.ZzANGLE() = sop->ang;
+    pp->Angles.ZzOLDANGLE() = pp->Angles.ZzANGLE() = sop->ang;
     pp->actor->spr.pos.XY() = sop->pmid.XY();
     updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
     calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
@@ -5334,9 +5334,9 @@ void DoPlayerStopOperate(PLAYER* pp)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = rsp->spr.Angles.Yaw; // check me out later.
+            pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = rsp->spr.Angles.Yaw; // check me out later.
         else
-            pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
+            pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
     }
 
     if (pp->sop_control)
@@ -7047,7 +7047,7 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = pfirst->Angles.ZzANGLE();
+        pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = pfirst->Angles.ZzANGLE();
         pp->Angles.ZzHORIZON() = pp->Angles.ZzOLDHORIZON() = pfirst->Angles.ZzHORIZON();
         pp->cursector = pfirst->cursector;
         // set like this so that player can trigger something on start of the level
@@ -7203,7 +7203,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = spawn_sprite->spr.Angles.Yaw; // check me out later.
+    pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = spawn_sprite->spr.Angles.Yaw; // check me out later.
     pp->setcursector(spawn_sprite->sector());
 
     if (pp->actor)

@@ -15,6 +15,8 @@ struct PlayerAngles
 	DAngle& ZzOLDHORIZON() { return prevHoriz; }
 	DAngle thisAngle;
 	DAngle& ZzANGLE() { return thisAngle; }
+	DAngle prevAngle;
+	DAngle& ZzOLDANGLE() { return prevAngle; }
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 
@@ -86,7 +88,7 @@ struct PlayerAngles
 		else
 		{
 			ZzANGLE() = value;
-			if (backup) ZzOLDANGLE = ZzANGLE();
+			if (backup) ZzOLDANGLE() = ZzANGLE();
 		}
 	}
 
@@ -146,7 +148,7 @@ struct PlayerAngles
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
 	void resetAdjustmentPitch() { legacyAdjustmentPitch = nullAngle; }
 
-	DAngle ZzOLDANGLE, ZzLOOKANG, ZzOLDLOOKANG, ZzROTSCRNANG, ZzOLDROTSCRNANG, YawSpin;
+	DAngle ZzLOOKANG, ZzOLDLOOKANG, ZzROTSCRNANG, ZzOLDROTSCRNANG, YawSpin;
 	void processLegacyHelperYaw(double const scaleAdjust)
 	{
 		if (targetedYaw())
@@ -170,20 +172,20 @@ struct PlayerAngles
 	}
 	void backupYaw()
 	{
-		ZzOLDANGLE = ZzANGLE();
+		ZzOLDANGLE() = ZzANGLE();
 		ZzOLDLOOKANG = ZzLOOKANG;
 		ZzOLDROTSCRNANG = ZzROTSCRNANG;
 	}
 	void restoreYaw()
 	{
-		ZzANGLE() = ZzOLDANGLE;
+		ZzANGLE() = ZzOLDANGLE();
 		ZzLOOKANG = ZzOLDLOOKANG;
 		ZzROTSCRNANG = ZzOLDROTSCRNANG;
 	}
-	DAngle angOLDSUM() { return ZzOLDANGLE + ZzOLDLOOKANG; }
+	DAngle angOLDSUM() { return ZzOLDANGLE() + ZzOLDLOOKANG; }
 	DAngle angSUM() { return ZzANGLE() + ZzLOOKANG; }
 	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(angOLDSUM(), angSUM(), interpfrac); }
-	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE, ZzANGLE(), interpfrac); }
+	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE(), ZzANGLE(), interpfrac); }
 	DAngle angLERPLOOKANG(double const interpfrac) { return interpolatedvalue(ZzOLDLOOKANG, ZzLOOKANG, interpfrac); }
 	DAngle angLERPROTSCRN(double const interpfrac) { return interpolatedvalue(ZzOLDROTSCRNANG, ZzROTSCRNANG, interpfrac); }
 	DAngle angRENDERLOOKANG(double const interpfrac) { return !SyncInput() ? ZzLOOKANG : angLERPLOOKANG(interpfrac); }

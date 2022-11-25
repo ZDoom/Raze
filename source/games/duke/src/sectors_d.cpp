@@ -1516,17 +1516,17 @@ void checksectors_d(int snum)
 					return;
 		}
 		if (p->newOwner != nullptr)
-			neartag(p->GetActor()->getPrevPosWithOffsetZ(), p->GetActor()->sector(), p->Angles.ZzOLDANGLE, near, 80., NT_Lotag);
+			neartag(p->GetActor()->getPrevPosWithOffsetZ(), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag);
 		else
 		{
-			neartag(p->GetActor()->getPosWithOffsetZ(), p->GetActor()->sector(), p->Angles.ZzOLDANGLE, near, 80., NT_Lotag);
+			neartag(p->GetActor()->getPosWithOffsetZ(), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(8), p->GetActor()->sector(), p->Angles.ZzOLDANGLE, near, 80., NT_Lotag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(8), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->Angles.ZzOLDANGLE, near, 80., NT_Lotag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->Angles.ZzOLDANGLE, near, 80., NT_Lotag | NT_Hitag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)
