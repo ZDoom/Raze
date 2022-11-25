@@ -502,7 +502,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 		if (!SyncInput())
 		{
 			cA = pPlayer->Angles.angSUM(interpfrac);
-			cH = pPlayer->Angles.horizSUM();
+			cH = pPlayer->Angles.horizSUM(interpfrac);
 		}
 		else
 		{

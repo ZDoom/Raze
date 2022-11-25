@@ -27,7 +27,7 @@ struct PlayerAngles
 	void applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
 
 	// Prototypes for applying view.
-	void doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
+	void doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, bool const climbing = false);
 	void doViewYaw(const ESyncBits actions);
 
 	// General methods.
@@ -101,9 +101,8 @@ struct PlayerAngles
 
 
 	// Legacy, to be removed.
-	DAngle horizOLDSUM() { return ZzOLDHORIZON() + PrevViewAngles.Pitch; }
-	DAngle horizSUM() { return ZzHORIZON() + ViewAngles.Pitch; }
-	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
+	DAngle horizSUM(const double interpfrac = 1) { return ZzHORIZON() + interpolatedvalue(PrevViewAngles.Pitch, ViewAngles.Pitch, interpfrac); }
+	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(ZzOLDHORIZON() + PrevViewAngles.Pitch, ZzHORIZON() + ViewAngles.Pitch, interpfrac); }
 	DAngle angSUM(const double interpfrac) { return ZzANGLE() + angLERPLOOKANG(interpfrac); }
 	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE() + PrevViewAngles.Yaw, ZzANGLE() + ViewAngles.Yaw, interpfrac); }
 	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE(), ZzANGLE(), interpfrac); }

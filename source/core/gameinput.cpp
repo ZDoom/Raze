@@ -267,7 +267,7 @@ void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const s
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
+void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, bool const climbing)
 {
 	if (cl_slopetilting && cursectnum != nullptr)
 	{
@@ -292,7 +292,7 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
-					ViewAngles.Pitch -= maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
+					ViewAngles.Pitch -= maphoriz((j - k) * (!isBlood() ? 0.625 : 5.5));
 				}
 			}
 		}
@@ -300,12 +300,12 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB) ViewAngles.Pitch += getscaledangle(PITCH_HORIZOFFSPEED, deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH, scaleAdjust);
+			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB) ViewAngles.Pitch += getscaledangle(PITCH_HORIZOFFSPEED, deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, scaleAdjust, PITCH_HORIZOFFPUSH);
+			scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, 1, PITCH_HORIZOFFPUSH);
 		}
 
 		// Clamp off against the maximum allowed pitch.

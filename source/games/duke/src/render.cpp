@@ -305,7 +305,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 			{
 				// This is for real time updating of the view direction.
 				cang = p->Angles.angSUM(interpfrac);
-				choriz = p->Angles.horizSUM();
+				choriz = p->Angles.horizSUM(interpfrac);
 			}
 		}
 

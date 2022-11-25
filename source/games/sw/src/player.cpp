@@ -1667,10 +1667,20 @@ void SlipSlope(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
+void DoPlayerSlopeTilting(PLAYER* pp)
 {
     bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
-    pp->Angles.doViewPitch(pp->actor->spr.pos.XY(), pp->Angles.ZzANGLE(), pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
+    pp->Angles.doViewPitch(pp->actor->spr.pos.XY(), pp->Angles.ZzANGLE(), pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, (pp->Flags & PF_CLIMBING));
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
+{
     pp->Angles.applyPitch(horz, &pp->input.actions, scaleAdjust);
 }
 
@@ -2201,6 +2211,8 @@ void DoPlayerMove(PLAYER* pp)
     {
         DoPlayerHorizon(pp, pp->input.horz, 1);
     }
+
+    DoPlayerSlopeTilting(pp);
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
@@ -2776,6 +2788,8 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 
+    DoPlayerSlopeTilting(pp);
+
     DoTankTreads(pp);
 }
 
@@ -2817,6 +2831,8 @@ void DoPlayerMoveTurret(PLAYER* pp)
     {
         DoPlayerHorizon(pp, pp->input.horz, 1);
     }
+
+    DoPlayerSlopeTilting(pp);
 }
 
 //---------------------------------------------------------------------------
@@ -3379,6 +3395,8 @@ void DoPlayerClimb(PLAYER* pp)
     {
         DoPlayerHorizon(pp, pp->input.horz, 1);
     }
+
+    DoPlayerSlopeTilting(pp);
 
     if (FAF_ConnectArea(pp->cursector))
     {

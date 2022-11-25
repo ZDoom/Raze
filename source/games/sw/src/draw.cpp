@@ -1250,7 +1250,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     else
     {
         tang = pp->Angles.angSUM(interpfrac);
-        thoriz = pp->Angles.horizSUM();
+        thoriz = pp->Angles.horizSUM(interpfrac);
     }
     trotscrnang = camerapp->Angles.angLERPROTSCRN(interpfrac);
     tsect = camerapp->cursector;

@@ -34,8 +34,6 @@ BEGIN_BLD_NS
 
 static InputPacket gInput;
 
-void doslopetilting(PLAYER* pPlayer, double const scaleAdjust);
-
 //---------------------------------------------------------------------------
 //
 //
@@ -63,7 +61,6 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 		{
 			pPlayer->Angles.applyYaw(input.avel, &pPlayer->input.actions, scaleAdjust);
 			pPlayer->Angles.applyPitch(input.horz, &pPlayer->input.actions, scaleAdjust);
-			doslopetilting(pPlayer, scaleAdjust);
 		}
 
 		pPlayer->Angles.applyScaledAdjustments(scaleAdjust);

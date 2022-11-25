@@ -229,7 +229,7 @@ void displayweapon_d(int snum, double interpfrac)
 	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.5 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16) + hard_landing;
 
 	auto offsets = p->Angles.angWEAPONOFFSETS(interpfrac);
-	auto horiz = !SyncInput() ? p->Angles.horizSUM() : p->Angles.horizLERPSUM(interpfrac);
+	auto horiz = !SyncInput() ? p->Angles.horizSUM(interpfrac) : p->Angles.horizLERPSUM(interpfrac);
 	auto pitchoffset = interpolatedvalue(0., 16., horiz / DAngle90);
 	auto yawinput = getavel(snum) * (1. / 16.);
 	auto angle = -p->Angles.angLERPROTSCRN(interpfrac);

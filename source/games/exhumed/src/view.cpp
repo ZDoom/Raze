@@ -234,7 +234,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
         if (!SyncInput())
         {
-            nCamerapan = PlayerList[nLocalPlayer].Angles.horizSUM();
+            nCamerapan = PlayerList[nLocalPlayer].Angles.horizSUM(interpfrac);
             nCameraang = PlayerList[nLocalPlayer].Angles.angSUM(interpfrac);
         }
         else
