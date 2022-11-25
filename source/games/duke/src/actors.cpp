@@ -362,7 +362,7 @@ void movedummyplayers(void)
 			{
 				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 				act->spr.pos.Z = act->sector()->ceilingz + 27;
-				act->spr.Angles.Yaw = ps[p].angle.ang;
+				act->spr.Angles.Yaw = ps[p].angle.ang; // check me out later.
 				if (act->temp_data[0] == 8)
 					act->temp_data[0] = 0;
 				else act->temp_data[0]++;
@@ -465,7 +465,7 @@ void moveplayers(void)
 						p->angle.addadjustment(deltaangle(p->angle.ang, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5);
 					}
 				}
-				act->spr.Angles.Yaw = p->angle.ang;
+				act->spr.Angles.Yaw = p->angle.ang; // check me out later.
 			}
 		}
 		else
@@ -499,13 +499,13 @@ void moveplayers(void)
 			if (act->spr.extra < 8)
 			{
 				act->vel.X = 8;
-				act->spr.Angles.Yaw = p->angle.ang;
+				act->spr.Angles.Yaw = p->angle.ang; // check me out later.
 				act->spr.extra++;
 				ssp(act, CLIPMASK0);
 			}
 			else
 			{
-				act->spr.Angles.Yaw = DAngle360 - minAngle - p->angle.ang;
+				act->spr.Angles.Yaw = DAngle360 - minAngle - p->angle.ang; // check me out later.
 				SetActor(act, act->spr.pos);
 			}
 		}
@@ -811,7 +811,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 							if (actor->spr.pal == 12)
 								actor->vel.X = 10.25;
 							else actor->vel.X = 8.75;
-							actor->spr.Angles.Yaw = ps[p].angle.ang;
+							actor->spr.Angles.Yaw = ps[p].angle.ang; // check me out later.
 							ps[p].toggle_key_flag = 2;
 						}
 					}

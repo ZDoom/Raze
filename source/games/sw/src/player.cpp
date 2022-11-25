@@ -1510,14 +1510,14 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     plActor->backupang();
-    plActor->spr.Angles.Yaw = pp->angle.ang;
+    plActor->spr.Angles.Yaw = pp->angle.ang; // check me out later.
 
     plActor = pp->PlayerUnderActor;
 
     if (!Prediction && plActor)
     {
         plActor->backupang();
-        plActor->spr.Angles.Yaw = pp->angle.ang;
+        plActor->spr.Angles.Yaw = pp->angle.ang; // check me out later.
     }
 }
 
@@ -1561,7 +1561,7 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
         if (MultiClipTurn(pp, sum, zz, floordist))
         {
             pp->angle.ang = sum;
-            pp->actor->spr.Angles.Yaw = pp->angle.ang;
+            pp->actor->spr.Angles.Yaw = pp->angle.ang; // check me out later.
         }
     }
 }
@@ -1595,7 +1595,7 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
         if (RectClipTurn(pp, sum, pos, opos))
         {
             pp->angle.ang = sum;
-            pp->actor->spr.Angles.Yaw = pp->angle.ang;
+            pp->actor->spr.Angles.Yaw = pp->angle.ang; // check me out later.
         }
     }
 }
@@ -1641,7 +1641,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
         }
 
         pp->angle.ang = new_ang;
-        pp->actor->spr.Angles.Yaw = pp->angle.ang;
+        pp->actor->spr.Angles.Yaw = pp->angle.ang; // check me out later.
     }
 
     OperateSectorObject(pp->sop, pp->angle.ang, pp->sop->pmid);
@@ -1850,7 +1850,7 @@ void UpdatePlayerSprite(PLAYER* pp)
     if (pp->Flags & (PF_DEAD))
     {
         ChangeActorSect(pp->actor, pp->cursector);
-        actor->spr.Angles.Yaw = pp->angle.ang;
+        actor->spr.Angles.Yaw = pp->angle.ang; // check me out later.
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -1896,7 +1896,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     UpdatePlayerUnderSprite(pp);
 
-    actor->spr.Angles.Yaw = pp->angle.ang;
+    actor->spr.Angles.Yaw = pp->angle.ang; // check me out later.
 }
 
 //---------------------------------------------------------------------------
@@ -6004,7 +6004,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-        plActor->spr.Angles.Yaw = pp->angle.ang;
+        plActor->spr.Angles.Yaw = pp->angle.ang; // check me out later.
 
         DoSpawnTeleporterEffect(plActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);

@@ -185,7 +185,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			if (splash)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.Angles.Yaw = ps[p].angle.ang; // Total tweek
+				splash->spr.Angles.Yaw = ps[p].angle.ang; // check me out later. // Total tweek
 				splash->vel.X = 2;
 				ssp(actor, 0);
 				splash->vel.X = 0;
@@ -1467,7 +1467,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7220);
 			if (j)
 			{
-				j->spr.Angles.Yaw = p->angle.ang;
+				j->spr.Angles.Yaw = p->angle.ang; // check me out later.
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
@@ -1486,7 +1486,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7233);
 			if (j)
 			{
-				j->spr.Angles.Yaw = p->angle.ang;
+				j->spr.Angles.Yaw = p->angle.ang; // check me out later.
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
@@ -4004,7 +4004,7 @@ void OffMotorcycle(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
-			spawned->spr.Angles.Yaw = p->angle.ang;
+			spawned->spr.Angles.Yaw = p->angle.ang; // check me out later.
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 		}
 	}
@@ -4065,7 +4065,7 @@ void OffBoat(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
-			spawned->spr.Angles.Yaw = p->angle.ang;
+			spawned->spr.Angles.Yaw = p->angle.ang; // check me out later.
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 		}
 	}

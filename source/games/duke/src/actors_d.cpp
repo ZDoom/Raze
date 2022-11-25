@@ -1685,7 +1685,7 @@ static void greenslime(DDukeActor *actor)
 
 		SetActor(actor, actor->spr.pos);
 
-		actor->spr.Angles.Yaw = ps[p].angle.ang;
+		actor->spr.Angles.Yaw = ps[p].angle.ang; // check me out later.
 
 		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->spr.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
