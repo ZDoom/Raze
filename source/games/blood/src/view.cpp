@@ -446,7 +446,7 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 		setViewport(Hud_Stbar);
 		tm = 1;
 	}
-	auto ang = !SyncInput() ? pPlayer->angle.sum() : pPlayer->angle.interpolatedsum(interpfrac);
+	auto ang = !SyncInput() ? pPlayer->angle.angSUM() : pPlayer->angle.angLERPSUM(interpfrac);
 	DrawOverheadMap(pPlayer->actor->interpolatedpos(interpfrac).XY(), ang, interpfrac);
 	if (tm)
 		setViewport(hud_size);
@@ -501,15 +501,15 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 
 		if (!SyncInput())
 		{
-			cA = pPlayer->angle.sum();
+			cA = pPlayer->angle.angSUM();
 			cH = pPlayer->horizon.horizSUM();
 			rotscrnang = pPlayer->angle.ZzROTSCRNANG;
 		}
 		else
 		{
-			cA = pPlayer->angle.interpolatedsum(interpfrac);
+			cA = pPlayer->angle.angLERPSUM(interpfrac);
 			cH = pPlayer->horizon.horizLERPSUM(interpfrac);
-			rotscrnang = pPlayer->angle.interpolatedrotscrn(interpfrac);
+			rotscrnang = pPlayer->angle.angLERPROTSCRN(interpfrac);
 		}
 	}
 
@@ -742,8 +742,8 @@ void viewDrawScreen(bool sceneonly)
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
 		if (sceneonly) return;
-		auto offsets = pPlayer->angle.crosshairoffsets(interpfrac);
-		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, offsets.X, offsets.Y, 2, -pPlayer->angle.interpolatedrotscrn(interpfrac));
+		auto offsets = pPlayer->angle.angCROSSHAIROFFSETS(interpfrac);
+		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, offsets.X, offsets.Y, 2, -pPlayer->angle.angLERPROTSCRN(interpfrac));
 #if 0 // This currently does not work. May have to be redone as a hardware effect.
 		if (v4 && gNetPlayers > 1)
 		{

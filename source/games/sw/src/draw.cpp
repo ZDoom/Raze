@@ -812,7 +812,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             {
                 pp = tActor->user.PlayerP;
                 tsp->pos = pp->actor->getRenderPos(interpfrac);
-                tsp->Angles.Yaw = pp->angle.interpolatedang(interpfrac);
+                tsp->Angles.Yaw = pp->angle.angLERPANG(interpfrac);
             }
         }
 
@@ -1021,8 +1021,8 @@ void PrintSpriteInfo(PLAYER* pp)
 
 static void DrawCrosshair(PLAYER* pp, const double interpfrac)
 {
-    auto offsets = pp->angle.crosshairoffsets(interpfrac);
-    ::DrawCrosshair(2326, pp->actor->user.Health, offsets.X, offsets.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, -pp->angle.interpolatedrotscrn(interpfrac), shadeToLight(10));
+    auto offsets = pp->angle.angCROSSHAIROFFSETS(interpfrac);
+    ::DrawCrosshair(2326, pp->actor->user.Health, offsets.X, offsets.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, -pp->angle.angLERPROTSCRN(interpfrac), shadeToLight(10));
 }
 
 //---------------------------------------------------------------------------
@@ -1244,13 +1244,13 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
     if (SyncInput() || pp != Player+myconnectindex)
     {
-        tang = camerapp->angle.interpolatedsum(interpfrac);
+        tang = camerapp->angle.angLERPSUM(interpfrac);
         thoriz = camerapp->horizon.horizLERPSUM(interpfrac);
-        trotscrnang = camerapp->angle.interpolatedrotscrn(interpfrac);
+        trotscrnang = camerapp->angle.angLERPROTSCRN(interpfrac);
     }
     else
     {
-        tang = pp->angle.sum();
+        tang = pp->angle.angSUM();
         thoriz = pp->horizon.horizSUM();
         trotscrnang = pp->angle.ZzROTSCRNANG;
     }

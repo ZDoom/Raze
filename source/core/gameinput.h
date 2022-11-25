@@ -122,14 +122,14 @@ struct PlayerAngle
 	}
 
 	// Commonly used getters.
-	DAngle osum() { return ZzOLDANGLE + ZzOLDLOOKANG; }
-	DAngle sum() { return ZzANGLE + ZzLOOKANG; }
-	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
-	DAngle interpolatedang(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE, ZzANGLE, interpfrac); }
-	DAngle interpolatedlookang(double const interpfrac) { return interpolatedvalue(ZzOLDLOOKANG, ZzLOOKANG, interpfrac); }
-	DAngle interpolatedrotscrn(double const interpfrac) { return interpolatedvalue(ZzOLDROTSCRNANG, ZzROTSCRNANG, interpfrac); }
-	DAngle renderlookang(double const interpfrac) { return !SyncInput() ? ZzLOOKANG : interpolatedlookang(interpfrac); }
-	DAngle renderrotscrn(double const interpfrac) { return !SyncInput() ? ZzROTSCRNANG : interpolatedrotscrn(interpfrac); }
+	DAngle angOLDSUM() { return ZzOLDANGLE + ZzOLDLOOKANG; }
+	DAngle angSUM() { return ZzANGLE + ZzLOOKANG; }
+	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(angOLDSUM(), angSUM(), interpfrac); }
+	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE, ZzANGLE, interpfrac); }
+	DAngle angLERPLOOKANG(double const interpfrac) { return interpolatedvalue(ZzOLDLOOKANG, ZzLOOKANG, interpfrac); }
+	DAngle angLERPROTSCRN(double const interpfrac) { return interpolatedvalue(ZzOLDROTSCRNANG, ZzROTSCRNANG, interpfrac); }
+	DAngle angRENDERLOOKANG(double const interpfrac) { return !SyncInput() ? ZzLOOKANG : angLERPLOOKANG(interpfrac); }
+	DAngle angRENDERROTSCRN(double const interpfrac) { return !SyncInput() ? ZzROTSCRNANG : angLERPROTSCRN(interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = nullAngle; }
@@ -141,19 +141,19 @@ struct PlayerAngle
 	bool movementlocked() { return targetset() || inputdisabled; }
 
 	// Draw code helpers. The logic where these are used rely heavily on Build's angle period.
-	double look_anghalf(double const interpfrac) { return renderlookang(interpfrac).Normalized180().Degrees() * (128. / 45.); }
-	double looking_arc(double const interpfrac) { return fabs(renderlookang(interpfrac).Normalized180().Degrees() * (1024. / 1620.)); }
+	double angLOOKANGHALF(double const interpfrac) { return angRENDERLOOKANG(interpfrac).Normalized180().Degrees() * (128. / 45.); }
+	double angLOOKINGARC(double const interpfrac) { return fabs(angRENDERLOOKANG(interpfrac).Normalized180().Degrees() * (1024. / 1620.)); }
 
 	// Crosshair x/y offsets based on look_ang's tangent.
-	DVector2 crosshairoffsets(const double interpfrac)
+	DVector2 angCROSSHAIROFFSETS(const double interpfrac)
 	{
-		return DVector2(159.72, 145.5 * renderrotscrn(interpfrac).Sin()) * -renderlookang(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
+		return DVector2(159.72, 145.5 * angRENDERROTSCRN(interpfrac).Sin()) * -angRENDERLOOKANG(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
 	}
 
 	// Weapon x/y offsets based on the above.
-	DVector2 weaponoffsets(const double interpfrac)
+	DVector2 angWEAPONOFFSETS(const double interpfrac)
 	{
-		auto offsets = crosshairoffsets(interpfrac); offsets.Y = abs(offsets.Y) * 4.;
+		auto offsets = angCROSSHAIROFFSETS(interpfrac); offsets.Y = abs(offsets.Y) * 4.;
 		return offsets;
 	}
 

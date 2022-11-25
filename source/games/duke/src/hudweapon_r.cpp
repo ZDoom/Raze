@@ -133,8 +133,8 @@ void displayweapon_r(int snum, double interpfrac)
 		TiltStatus = p->TiltStatus;
 	}
 
-	look_anghalf = p->angle.look_anghalf(interpfrac);
-	looking_arc = p->angle.looking_arc(interpfrac);
+	look_anghalf = p->angle.angLOOKANGHALF(interpfrac);
+	looking_arc = p->angle.angLOOKINGARC(interpfrac);
 	hard_landing *= 8.;
 
 	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);

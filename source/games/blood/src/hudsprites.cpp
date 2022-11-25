@@ -108,7 +108,7 @@ void hudDraw(PLAYER* pPlayer, sectortype* pSector, double bobx, double boby, dou
 {
 	if (gViewPos == 0)
 	{
-		auto cXY = DVector2(160, 220) + pPlayer->angle.weaponoffsets(interpfrac);
+		auto cXY = DVector2(160, 220) + pPlayer->angle.angWEAPONOFFSETS(interpfrac);
 
 		if (cl_weaponsway)
 		{

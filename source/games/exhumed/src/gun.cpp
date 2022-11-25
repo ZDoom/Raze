@@ -1000,8 +1000,8 @@ void DrawWeapons(double interpfrac)
         nShade = PlayerList[nLocalPlayer].pActor->spr.shade;
     }
 
-    double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(interpfrac);
-    double const looking_arc = PlayerList[nLocalPlayer].angle.looking_arc(interpfrac);
+    double const look_anghalf = PlayerList[nLocalPlayer].angle.angLOOKANGHALF(interpfrac);
+    double const looking_arc = PlayerList[nLocalPlayer].angle.angLOOKINGARC(interpfrac);
 
     xOffset -= look_anghalf;
     yOffset += looking_arc;

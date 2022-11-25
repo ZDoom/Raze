@@ -271,7 +271,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		setgamepalette(setpal(p));
 
 		// set screen rotation.
-		rotscrnang = !SyncInput() ? p->angle.ZzROTSCRNANG : p->angle.interpolatedrotscrn(interpfrac);
+		rotscrnang = !SyncInput() ? p->angle.ZzROTSCRNANG : p->angle.angLERPROTSCRN(interpfrac);
 
 		// use player's actor initially.
 		viewer = p->GetActor();
@@ -298,13 +298,13 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
-				cang = p->angle.interpolatedsum(interpfrac);
+				cang = p->angle.angLERPSUM(interpfrac);
 				choriz = p->horizon.horizLERPSUM(interpfrac);
 			}
 			else
 			{
 				// This is for real time updating of the view direction.
-				cang = p->angle.sum();
+				cang = p->angle.angSUM();
 				choriz = p->horizon.horizSUM();
 			}
 		}
