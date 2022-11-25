@@ -8,7 +8,7 @@
 
 struct PlayerHorizon
 {
-	DAngle ZzHORIZON, ZzOLDHORIZON, ZzHORIZOFF, ohorizoff;
+	DAngle ZzHORIZON, ZzOLDHORIZON, ZzHORIZOFF, ZzOHORIZOFF;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def);
 
@@ -20,16 +20,16 @@ struct PlayerHorizon
 	void backup()
 	{
 		ZzOLDHORIZON = ZzHORIZON;
-		ohorizoff = ZzHORIZOFF;
+		ZzOHORIZOFF = ZzHORIZOFF;
 	}
 	void restore()
 	{
 		ZzHORIZON = ZzOLDHORIZON;
-		ZzHORIZOFF = ohorizoff;
+		ZzHORIZOFF = ZzOHORIZOFF;
 	}
 
 	// Commonly used getters.
-	DAngle osum() { return ZzOLDHORIZON + ohorizoff; }
+	DAngle osum() { return ZzOLDHORIZON + ZzOHORIZOFF; }
 	DAngle sum() { return ZzHORIZON + ZzHORIZOFF; }
 	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
 
