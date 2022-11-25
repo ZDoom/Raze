@@ -1,3 +1,5 @@
+include "engine/defines.def"
+
 spawnclasses
 {
 	2430 = RedneckCactusLargeYellow

@@ -21,6 +21,9 @@ void addtorch(sectortype* sect, int shade, int lotag);
 void addlightning(sectortype* sect, int shade);
 int addambient(int hitag, int lotag);
 
+bool ceilingspace(sectortype* sectp);
+bool floorspace(sectortype* sectp);
+
 void movecyclers(void);
 void movedummyplayers(void);
 void resetlanepics(void);

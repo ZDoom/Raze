@@ -54,10 +54,6 @@ void checkhitdefault_r(DDukeActor* i, DDukeActor* sn);
 void checksectors_d(int snum);
 void checksectors_r(int snum);
 
-bool ceilingspace_d(sectortype*);
-bool ceilingspace_r(sectortype*);
-bool floorspace_d(sectortype*);
-bool floorspace_r(sectortype*);
 void addweapon_d(player_struct* p, int weapon, bool wswitch);
 void addweapon_r(player_struct* p, int weapon, bool wswitch);
 void hitradius_d(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
@@ -122,8 +118,6 @@ void SetDispatcher()
 		checksectors_d,
 		spawninit_d,
 
-		ceilingspace_d,
-		floorspace_d,
 		addweapon_d,
 		hitradius_d,
 		lotsofmoney_d,
@@ -164,8 +158,6 @@ void SetDispatcher()
 		checksectors_r,
 		spawninit_r,
 
-		ceilingspace_r,
-		floorspace_r,
 		addweapon_r,
 		hitradius_r,
 		lotsoffeathers_r,

@@ -49,46 +49,6 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-bool ceilingspace_d(sectortype* sectp)
-{
-	if (sectp && (sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0)
-	{
-		switch(sectp->ceilingpicnum)
-		{
-			case MOONSKY1:
-			case BIGORBIT1:
-				return 1;
-		}
-	}
-	return 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-bool floorspace_d(sectortype* sectp)
-{
-	if (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0)
-	{
-		switch(sectp->floorpicnum)
-		{
-			case MOONSKY1:
-			case BIGORBIT1:
-				return 1;
-		}
-	}
-	return 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void check_fta_sounds_d(DDukeActor* actor)
 {
 	if (actor->spr.extra > 0) switch (actor->spr.picnum)
@@ -758,10 +718,10 @@ void movefallers_d(void)
 				}
 
 				double grav;
-				if (fi.floorspace(act->sector())) grav = 0;
+				if (floorspace(act->sector())) grav = 0;
 				else
 				{
-					if (fi.ceilingspace(act->sector()))
+					if (ceilingspace(act->sector()))
 						grav = gs.gravity / 6;
 					else
 						grav = gs.gravity;

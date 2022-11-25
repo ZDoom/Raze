@@ -380,6 +380,7 @@ enum
 	TFLAG_SLIME					= 1 << 4,
 	TFLAG_DOORWALL				= 1 << 5,
 	TFLAG_BLOCKDOOR				= 1 << 6,
+	TFLAG_OUTERSPACE			= 1 << 7,
 
 };
 

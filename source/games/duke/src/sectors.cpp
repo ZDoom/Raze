@@ -49,6 +49,29 @@ static int interptype[] = { Interp_Sect_Floorz, Interp_Sect_Ceilingz, Interp_Wal
 // 
 //
 //---------------------------------------------------------------------------
+
+bool ceilingspace(sectortype* sectp)
+{
+	return (sectp && (sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tileflags(sectp->ceilingpicnum) & TFLAG_OUTERSPACE));
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool floorspace(sectortype* sectp)
+{
+	return (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->floorpal == 0 && (tileflags(sectp->floorpicnum) & TFLAG_OUTERSPACE));
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 static bool haltsoundhack;
 
 int callsound(sectortype* sn, DDukeActor* whatsprite, bool endstate)

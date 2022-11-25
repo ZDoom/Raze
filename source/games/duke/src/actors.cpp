@@ -451,7 +451,7 @@ void moveplayers(void)
 					act->SetHitOwner(act);
 
 					if (ud.god == 0)
-						if (fi.ceilingspace(act->sector()) || fi.floorspace(act->sector()))
+						if (ceilingspace(act->sector()) || floorspace(act->sector()))
 							quickkill(p);
 				}
 				else
@@ -4028,11 +4028,11 @@ void makeitfall(DDukeActor* actor)
 {
 	double grav;
 
-	if( fi.floorspace(actor->sector()) )
+	if( floorspace(actor->sector()) )
 		grav = 0;
 	else
 	{
-		if( fi.ceilingspace(actor->sector()) || actor->sector()->lotag == ST_2_UNDERWATER)
+		if( ceilingspace(actor->sector()) || actor->sector()->lotag == ST_2_UNDERWATER)
 			grav = gs.gravity/6;
 		else grav = gs.gravity;
 	}
@@ -4269,11 +4269,11 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 		double grav;
 
 		int sphit = fallspecial? fallspecial(actor, playernum) : 0;
-		if (fi.floorspace(actor->sector()))
+		if (floorspace(actor->sector()))
 			grav = 0;
 		else
 		{
-			if (fi.ceilingspace(actor->sector()) || actor->sector()->lotag == 2)
+			if (ceilingspace(actor->sector()) || actor->sector()->lotag == 2)
 				grav = gs.gravity / 6;
 			else grav = gs.gravity;
 		}
