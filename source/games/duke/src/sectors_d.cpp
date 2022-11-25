@@ -229,11 +229,11 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	switch (picnum)
 	{
 	case DIPSWITCH:
-	case DIPSWITCH + 1:
+	case DIPSWITCHON:
 	case TECHSWITCH:
-	case TECHSWITCH + 1:
+	case TECHSWITCHON:
 	case ALIENSWITCH:
-	case ALIENSWITCH + 1:
+	case ALIENSWITCHON:
 		break;
 	case DEVELOPERCOMMENTARY + 1: //Twentieth Anniversary World Tour
 		if (act)
@@ -288,35 +288,35 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		}
 		[[fallthrough]];
 	case DIPSWITCH2:
-	case DIPSWITCH2 + 1:
+	case DIPSWITCH2ON:
 	case DIPSWITCH3:
-	case DIPSWITCH3 + 1:
+	case DIPSWITCH3ON:
 	case MULTISWITCH:
-	case MULTISWITCH + 1:
-	case MULTISWITCH + 2:
-	case MULTISWITCH + 3:
+	case MULTISWITCH_2:
+	case MULTISWITCH_3:
+	case MULTISWITCH_4:
 	case PULLSWITCH:
-	case PULLSWITCH + 1:
+	case PULLSWITCHON:
 	case HANDSWITCH:
-	case HANDSWITCH + 1:
+	case HANDSWITCHON:
 	case SLOTDOOR:
-	case SLOTDOOR + 1:
+	case SLOTDOORON:
 	case LIGHTSWITCH:
-	case LIGHTSWITCH + 1:
+	case LIGHTSWITCHON:
 	case SPACELIGHTSWITCH:
-	case SPACELIGHTSWITCH + 1:
+	case SPACELIGHTSWITCHON:
 	case SPACEDOORSWITCH:
-	case SPACEDOORSWITCH + 1:
+	case SPACEDOORSWITCHON:
 	case FRANKENSTINESWITCH:
-	case FRANKENSTINESWITCH + 1:
+	case FRANKENSTINESWITCHON:
 	case LIGHTSWITCH2:
-	case LIGHTSWITCH2 + 1:
+	case LIGHTSWITCH2ON:
 	case POWERSWITCH1:
-	case POWERSWITCH1 + 1:
+	case POWERSWITCH1ON:
 	case LOCKSWITCH1:
-	case LOCKSWITCH1 + 1:
+	case LOCKSWITCH1ON:
 	case POWERSWITCH2:
-	case POWERSWITCH2 + 1:
+	case POWERSWITCH2ON:
 		if (check_activator_motion(lotag)) return 0;
 		break;
 	default:
@@ -336,19 +336,19 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			else if (other->spr.hitag == 0) correctdips++;
 			numdips++;
 			break;
-		case TECHSWITCH + 1:
-		case DIPSWITCH + 1:
-		case ALIENSWITCH + 1:
+		case TECHSWITCHON:
+		case DIPSWITCHON:
+		case ALIENSWITCHON:
 			if (act && act == other) other->spr.picnum--;
 			else if (other->spr.hitag == 1) correctdips++;
 			numdips++;
 			break;
 		case MULTISWITCH:
-		case MULTISWITCH + 1:
-		case MULTISWITCH + 2:
-		case MULTISWITCH + 3:
+		case MULTISWITCH_2:
+		case MULTISWITCH_3:
+		case MULTISWITCH_4:
 			other->spr.picnum++;
-			if (other->spr.picnum > (MULTISWITCH + 3))
+			if (other->spr.picnum > (MULTISWITCH_4))
 				other->spr.picnum = MULTISWITCH;
 			break;
 		case ACCESSSWITCH:
@@ -368,19 +368,19 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		case DIPSWITCH3:
 			other->spr.picnum++;
 			break;
-		case PULLSWITCH + 1:
-		case HANDSWITCH + 1:
-		case LIGHTSWITCH2 + 1:
-		case POWERSWITCH1 + 1:
-		case LOCKSWITCH1 + 1:
-		case POWERSWITCH2 + 1:
-		case SLOTDOOR + 1:
-		case LIGHTSWITCH + 1:
-		case SPACELIGHTSWITCH + 1:
-		case SPACEDOORSWITCH + 1:
-		case FRANKENSTINESWITCH + 1:
-		case DIPSWITCH2 + 1:
-		case DIPSWITCH3 + 1:
+		case PULLSWITCHON:
+		case HANDSWITCHON:
+		case LIGHTSWITCH2ON:
+		case POWERSWITCH1ON:
+		case LOCKSWITCH1ON:
+		case POWERSWITCH2ON:
+		case SLOTDOORON:
+		case LIGHTSWITCHON:
+		case SPACELIGHTSWITCHON:
+		case SPACEDOORSWITCHON:
+		case FRANKENSTINESWITCHON:
+		case DIPSWITCH2ON:
+		case DIPSWITCH3ON:
 			other->spr.picnum--;
 			break;
 		}
@@ -398,19 +398,19 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 				else if (wal.hitag == 0) correctdips++;
 				numdips++;
 				break;
-			case DIPSWITCH + 1:
-			case TECHSWITCH + 1:
-			case ALIENSWITCH + 1:
+			case DIPSWITCHON:
+			case TECHSWITCHON:
+			case ALIENSWITCHON:
 				if (!act && &wal == wwal) wal.picnum--;
 				else if (wal.hitag == 1) correctdips++;
 				numdips++;
 				break;
 			case MULTISWITCH:
-			case MULTISWITCH + 1:
-			case MULTISWITCH + 2:
-			case MULTISWITCH + 3:
+			case MULTISWITCH_2:
+			case MULTISWITCH_3:
+			case MULTISWITCH_4:
 				wal.picnum++;
-				if (wal.picnum > (MULTISWITCH + 3))
+				if (wal.picnum > (MULTISWITCH_4))
 					wal.picnum = MULTISWITCH;
 				break;
 			case ACCESSSWITCH:
@@ -429,18 +429,18 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			case DIPSWITCH3:
 				wal.picnum++;
 				break;
-			case HANDSWITCH + 1:
-			case PULLSWITCH + 1:
-			case LIGHTSWITCH2 + 1:
-			case POWERSWITCH1 + 1:
-			case LOCKSWITCH1 + 1:
-			case POWERSWITCH2 + 1:
-			case SLOTDOOR + 1:
-			case LIGHTSWITCH + 1:
-			case SPACELIGHTSWITCH + 1:
-			case SPACEDOORSWITCH + 1:
-			case DIPSWITCH2 + 1:
-			case DIPSWITCH3 + 1:
+			case HANDSWITCHON:
+			case PULLSWITCHON:
+			case LIGHTSWITCH2ON:
+			case POWERSWITCH1ON:
+			case LOCKSWITCH1ON:
+			case POWERSWITCH2ON:
+			case SLOTDOORON:
+			case LIGHTSWITCHON:
+			case SPACELIGHTSWITCHON:
+			case SPACEDOORSWITCHON:
+			case DIPSWITCH2ON:
+			case DIPSWITCH3ON:
 				wal.picnum--;
 				break;
 			}
@@ -459,16 +459,16 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		if (fi.isadoorwall(picnum) == 0) break;
 		[[fallthrough]];
 	case DIPSWITCH:
-	case DIPSWITCH + 1:
+	case DIPSWITCHON:
 	case TECHSWITCH:
-	case TECHSWITCH + 1:
+	case TECHSWITCHON:
 	case ALIENSWITCH:
-	case ALIENSWITCH + 1:
-		if (picnum == DIPSWITCH || picnum == DIPSWITCH + 1 ||
-			picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1 ||
-			picnum == TECHSWITCH || picnum == TECHSWITCH + 1)
+	case ALIENSWITCHON:
+		if (picnum == DIPSWITCH || picnum == DIPSWITCHON ||
+			picnum == ALIENSWITCH || picnum == ALIENSWITCHON ||
+			picnum == TECHSWITCH || picnum == TECHSWITCHON)
 		{
-			if (picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1)
+			if (picnum == ALIENSWITCH || picnum == ALIENSWITCHON)
 			{
 				if (act)
 					S_PlaySound3D(ALIEN_SWITCH1, act, v);
@@ -485,40 +485,40 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		}
 		[[fallthrough]];
 	case DIPSWITCH2:
-	case DIPSWITCH2 + 1:
+	case DIPSWITCH2ON:
 	case DIPSWITCH3:
-	case DIPSWITCH3 + 1:
+	case DIPSWITCH3ON:
 	case MULTISWITCH:
-	case MULTISWITCH + 1:
-	case MULTISWITCH + 2:
-	case MULTISWITCH + 3:
+	case MULTISWITCH_2:
+	case MULTISWITCH_3:
+	case MULTISWITCH_4:
 	case ACCESSSWITCH:
 	case ACCESSSWITCH2:
 	case SLOTDOOR:
-	case SLOTDOOR + 1:
+	case SLOTDOORON:
 	case LIGHTSWITCH:
-	case LIGHTSWITCH + 1:
+	case LIGHTSWITCHON:
 	case SPACELIGHTSWITCH:
-	case SPACELIGHTSWITCH + 1:
+	case SPACELIGHTSWITCHON:
 	case SPACEDOORSWITCH:
-	case SPACEDOORSWITCH + 1:
+	case SPACEDOORSWITCHON:
 	case FRANKENSTINESWITCH:
-	case FRANKENSTINESWITCH + 1:
+	case FRANKENSTINESWITCHON:
 	case LIGHTSWITCH2:
-	case LIGHTSWITCH2 + 1:
+	case LIGHTSWITCH2ON:
 	case POWERSWITCH1:
-	case POWERSWITCH1 + 1:
+	case POWERSWITCH1ON:
 	case LOCKSWITCH1:
-	case LOCKSWITCH1 + 1:
+	case LOCKSWITCH1ON:
 	case POWERSWITCH2:
-	case POWERSWITCH2 + 1:
+	case POWERSWITCH2ON:
 	case HANDSWITCH:
-	case HANDSWITCH + 1:
+	case HANDSWITCHON:
 	case PULLSWITCH:
-	case PULLSWITCH + 1:
+	case PULLSWITCHON:
 
-		if (picnum == MULTISWITCH || picnum == (MULTISWITCH + 1) ||
-			picnum == (MULTISWITCH + 2) || picnum == (MULTISWITCH + 3))
+		if (picnum == MULTISWITCH || picnum == (MULTISWITCH_2) ||
+			picnum == (MULTISWITCH_3) || picnum == (MULTISWITCH_4))
 			lotag += picnum - MULTISWITCH;
 
 		DukeStatIterator itr(STAT_EFFECTOR);
@@ -554,9 +554,9 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		fi.operateforcefields(ps[snum].GetActor(), lotag);
 		operatemasterswitches(lotag);
 
-		if (picnum == DIPSWITCH || picnum == DIPSWITCH + 1 ||
-			picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1 ||
-			picnum == TECHSWITCH || picnum == TECHSWITCH + 1) return 1;
+		if (picnum == DIPSWITCH || picnum == DIPSWITCHON ||
+			picnum == ALIENSWITCH || picnum == ALIENSWITCHON ||
+			picnum == TECHSWITCH || picnum == TECHSWITCHON) return 1;
 
 		if (hitag == 0 && fi.isadoorwall(picnum) == 0)
 		{

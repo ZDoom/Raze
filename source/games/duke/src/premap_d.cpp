@@ -311,19 +311,19 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		switch (actor->spr.picnum)
 		{
-		case DIPSWITCH + 1:
-		case DIPSWITCH2 + 1:
-		case PULLSWITCH + 1:
-		case HANDSWITCH + 1:
-		case SLOTDOOR + 1:
-		case LIGHTSWITCH + 1:
-		case SPACELIGHTSWITCH + 1:
-		case SPACEDOORSWITCH + 1:
-		case FRANKENSTINESWITCH + 1:
-		case LIGHTSWITCH2 + 1:
-		case POWERSWITCH1 + 1:
-		case LOCKSWITCH1 + 1:
-		case POWERSWITCH2 + 1:
+		case DIPSWITCHON:
+		case DIPSWITCH2ON:
+		case PULLSWITCHON:
+		case HANDSWITCHON:
+		case SLOTDOORON:
+		case LIGHTSWITCHON:
+		case SPACELIGHTSWITCHON:
+		case SPACEDOORSWITCHON:
+		case FRANKENSTINESWITCHON:
+		case LIGHTSWITCH2ON:
+		case POWERSWITCH1ON:
+		case LOCKSWITCH1ON:
+		case POWERSWITCH2ON:
 			for (j = 0; j < lotaglist; j++)
 				if (actor->spr.lotag == lotags[j])
 					break;

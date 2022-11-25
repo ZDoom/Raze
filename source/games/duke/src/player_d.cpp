@@ -449,13 +449,13 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 
 			if (p >= 0 && (
 				hit.actor()->spr.picnum == DIPSWITCH ||
-				hit.actor()->spr.picnum == DIPSWITCH + 1 ||
+				hit.actor()->spr.picnum == DIPSWITCHON ||
 				hit.actor()->spr.picnum == DIPSWITCH2 ||
-				hit.actor()->spr.picnum == DIPSWITCH2 + 1 ||
+				hit.actor()->spr.picnum == DIPSWITCH2ON ||
 				hit.actor()->spr.picnum == DIPSWITCH3 ||
-				hit.actor()->spr.picnum == DIPSWITCH3 + 1 ||
+				hit.actor()->spr.picnum == DIPSWITCH3ON ||
 				hit.actor()->spr.picnum == HANDSWITCH ||
-				hit.actor()->spr.picnum == HANDSWITCH + 1))
+				hit.actor()->spr.picnum == HANDSWITCHON))
 			{
 				fi.checkhitswitch(p, nullptr, hit.actor());
 				return;
@@ -469,13 +469,13 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 				goto SKIPBULLETHOLE;
 			if (p >= 0 && (
 				hit.hitWall->picnum == DIPSWITCH ||
-				hit.hitWall->picnum == DIPSWITCH + 1 ||
+				hit.hitWall->picnum == DIPSWITCHON ||
 				hit.hitWall->picnum == DIPSWITCH2 ||
-				hit.hitWall->picnum == DIPSWITCH2 + 1 ||
+				hit.hitWall->picnum == DIPSWITCH2ON ||
 				hit.hitWall->picnum == DIPSWITCH3 ||
-				hit.hitWall->picnum == DIPSWITCH3 + 1 ||
+				hit.hitWall->picnum == DIPSWITCH3ON ||
 				hit.hitWall->picnum == HANDSWITCH ||
-				hit.hitWall->picnum == HANDSWITCH + 1))
+				hit.hitWall->picnum == HANDSWITCHON))
 			{
 				fi.checkhitswitch(p, hit.hitWall, nullptr);
 				return;

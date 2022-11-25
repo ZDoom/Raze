@@ -1889,7 +1889,7 @@ void resetswitch(int tag)
 	DukeStatIterator it2(STAT_DEFAULT);
 	while (auto act2 = it2.Next())
 	{
-		if (act2->spr.picnum == DIPSWITCH3 + 1)
+		if (act2->spr.picnum == DIPSWITCH3ON)
 			if (act2->spr.hitag == tag)
 				act2->spr.picnum = DIPSWITCH3;
 	}
