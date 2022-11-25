@@ -1296,8 +1296,8 @@ void moveclouds(double interpfrac)
 		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
-		cloudx += (float)ps[screenpeek].Angles.ZzANGLE().Cos() * 0.5f;
-		cloudy += (float)ps[screenpeek].Angles.ZzANGLE().Sin() * 0.5f;
+		cloudx += (float)ps[screenpeek].GetActor()->spr.Angles.Yaw.Cos() * 0.5f;
+		cloudy += (float)ps[screenpeek].GetActor()->spr.Angles.Yaw.Sin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
 			// no clamping here!

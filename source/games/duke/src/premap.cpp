@@ -72,7 +72,7 @@ void pickrandomspot(int snum)
 	p->GetActor()->spr.pos = po[i].opos;
 	p->GetActor()->backuppos();
 	p->setbobpos();
-	p->Angles.ZzOLDANGLE() = p->Angles.ZzANGLE() = po[i].oa;
+	p->GetActor()->PrevAngles.Yaw = p->GetActor()->spr.Angles.Yaw = po[i].oa;
 	p->setCursector(po[i].os);
 }
 

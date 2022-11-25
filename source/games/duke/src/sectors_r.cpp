@@ -976,7 +976,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, DVector2(0, 0), ps[0].Angles.ZzANGLE(), 0., 0., spr, 3);
+					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, DVector2(0, 0), ps[0].GetActor()->spr.Angles.Yaw, 0., 0., spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -997,7 +997,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, DVector2(0, 0), ps[0].Angles.ZzANGLE(), 0., 0., spr, 3);
+					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, DVector2(0, 0), ps[0].GetActor()->spr.Angles.Yaw, 0., 0., spr, 3);
 					if (spawned)
 					{
 						spawned->spr.lotag = SE_128_GLASS_BREAKING;
@@ -1339,7 +1339,7 @@ void checkplayerhurt_r(player_struct* p, const Collision &coll)
 		{
 		case BIGFORCE:
 			p->hurt_delay = 26;
-			fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->Angles.ZzANGLE().ToVector() * 2, -1);
+			fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2, -1);
 			break;
 
 		}
@@ -2379,21 +2379,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->GetActor()->getPosWithOffsetZ(), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near , 80., NT_Lotag | NT_Hitag);
+			neartag(p->GetActor()->getPosWithOffsetZ(), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near , 80., NT_Lotag | NT_Hitag);
 		}
 
 		if (p->newOwner != nullptr)
-			neartag(p->GetActor()->getPrevPosWithOffsetZ(), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag);
+			neartag(p->GetActor()->getPrevPosWithOffsetZ(), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag);
 		else
 		{
-			neartag(p->GetActor()->getPosWithOffsetZ(), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag);
+			neartag(p->GetActor()->getPosWithOffsetZ(), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(8), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(8), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->Angles.ZzOLDANGLE(), near, 80., NT_Lotag | NT_Hitag);
+				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)

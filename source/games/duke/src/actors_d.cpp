@@ -1663,7 +1663,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (xx < 64 && ps[p].quick_kick == 0)
 		{
-			auto ang = absangle(ps[p].Angles.ZzANGLE(), (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle());
+			auto ang = absangle(ps[p].GetActor()->spr.Angles.Yaw, (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle());
 			if (ang < DAngle22_5)
 				ps[p].quick_kick = 14;
 		}
@@ -1719,7 +1719,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			}
 
-		actor->spr.pos.Z = ps[p].GetActor()->getOffsetZ() + 8 + ps[p].pyoff - (actor->temp_data[2] + (ps[p].Angles.ZzHORIZON().Tan() * 2048.)) * zinttoworld;
+		actor->spr.pos.Z = ps[p].GetActor()->getOffsetZ() + 8 + ps[p].pyoff - (actor->temp_data[2] + (ps[p].GetActor()->spr.Angles.Pitch.Tan() * 2048.)) * zinttoworld;
 
 		if (actor->temp_data[2] > 512)
 			actor->temp_data[2] -= 128;
@@ -1767,7 +1767,7 @@ static void greenslime(DDukeActor *actor)
 
 		double add = (BobVal(actor->temp_data[1]) * 2) * REPEAT_SCALE;
 		actor->spr.scale = DVector2(0.3125 + add, 0.234375 + add);
-		actor->spr.pos.XY() = ps[p].GetActor()->spr.pos.XY() + ps[p].Angles.ZzANGLE().ToVector() * 8;
+		actor->spr.pos.XY() = ps[p].GetActor()->spr.pos.XY() + ps[p].GetActor()->spr.Angles.Yaw.ToVector() * 8;
 		return;
 	}
 

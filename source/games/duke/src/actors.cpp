@@ -400,7 +400,7 @@ void moveplayers(void)
 			{
 				act->restorepos();
 				act->backupz();
-				act->spr.Angles.Yaw = p->Angles.ZzOLDANGLE();
+				act->spr.Angles.Yaw = p->GetActor()->PrevAngles.Yaw;
 				SetActor(act, act->spr.pos);
 			}
 			else
@@ -441,7 +441,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->Angles.addYaw(deltaangle(p->Angles.ZzANGLE(), (p->actorsqu->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.25);
+					p->Angles.addYaw(deltaangle(p->GetActor()->spr.Angles.Yaw, (p->actorsqu->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.25);
 				}
 
 				if (act->spr.extra > 0)
@@ -461,7 +461,7 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->Angles.addYaw(deltaangle(p->Angles.ZzANGLE(), (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5);
+						p->Angles.addYaw(deltaangle(p->GetActor()->spr.Angles.Yaw, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5);
 					}
 				}
 			}
@@ -783,7 +783,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		{
 			//						if(actor->spr.pal == 12)
 			{
-				auto delta = absangle(ps[p].Angles.ZzANGLE(), (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle());
+				auto delta = absangle(ps[p].GetActor()->spr.Angles.Yaw, (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle());
 				if (delta < DAngle22_5 / 2 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
@@ -793,7 +793,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 						{
 							if (act2->spr.picnum == queball || act2->spr.picnum == stripeball)
 							{
-								delta = absangle(ps[p].Angles.ZzANGLE(), (act2->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle());
+								delta = absangle(ps[p].GetActor()->spr.Angles.Yaw, (act2->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle());
 								if (delta < DAngle22_5 / 2)
 								{
 									double l;

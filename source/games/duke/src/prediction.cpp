@@ -53,8 +53,8 @@ void resetmys()
 {
 	mypos = omypos = ps[myconnectindex].GetActor()->getPosWithOffsetZ();
 	myxvel = myyvel = myzvel = 0;
-	myang = ps[myconnectindex].Angles.ZzANGLE();
-	myhoriz = omyhoriz = ps[myconnectindex].Angles.ZzHORIZON();
+	myang = ps[myconnectindex].GetActor()->spr.Angles.Yaw;
+	myhoriz = omyhoriz = ps[myconnectindex].GetActor()->spr.Angles.Pitch;
 	myhorizoff = omyhorizoff = ps[myconnectindex].Angles.ViewAngles.Pitch;
 	mycursectnum = sectindex(ps[myconnectindex].cursector);
 	myjumpingcounter = ps[myconnectindex].jumping_counter;

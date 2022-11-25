@@ -123,7 +123,7 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{
-		p->Angles.ZzOLDANGLE() = p->Angles.ZzANGLE() = ang;
+		p->GetActor()->PrevAngles.Yaw = p->GetActor()->spr.Angles.Yaw = ang;
 	}
 }
 

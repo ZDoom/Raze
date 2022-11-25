@@ -280,7 +280,7 @@ void drawoverlays(double interpfrac)
 			else
 			{
 				cposxy = pp->GetActor()->opos.XY();
-				cang = pp->Angles.ZzOLDANGLE();
+				cang = pp->GetActor()->PrevAngles.Yaw;
 			}
 			DrawOverheadMap(cposxy, cang, interpfrac);
 			RestoreInterpolations();

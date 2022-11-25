@@ -213,7 +213,7 @@ double hitawall(player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->Angles.ZzANGLE().ToVector() * 1024, 0), hit, CLIPMASK0);
+	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->GetActor()->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
 	return (hit.hitpos.XY() - p->GetActor()->spr.pos.XY()).Length();
@@ -380,7 +380,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->Angles.addPitch(deltaangle(p->Angles.ZzHORIZON(), (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
+		p->Angles.addPitch(deltaangle(p->GetActor()->spr.Angles.Pitch, (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -617,7 +617,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	actor->backuploc();
 
-	p->Angles.ViewAngles.Pitch = p->Angles.ZzHORIZON() = nullAngle;
+	p->Angles.ViewAngles.Pitch = p->GetActor()->spr.Angles.Pitch = nullAngle;
 
 	updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
 
