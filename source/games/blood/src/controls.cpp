@@ -63,7 +63,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 		if (pPlayer->actor->xspr.health != 0)
 		{
 			pPlayer->angle.applyinput(input.avel, &pPlayer->input.actions, scaleAdjust);
-			pPlayer->horizon.applyinput(input.horz, &pPlayer->input.actions, scaleAdjust);
+			pPlayer->horizon.applyPitch(input.horz, &pPlayer->input.actions, scaleAdjust);
 			doslopetilting(pPlayer, scaleAdjust);
 		}
 

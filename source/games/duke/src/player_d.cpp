@@ -3137,7 +3137,7 @@ HORIZONLY:
 
 	if (SyncInput())
 	{
-		p->horizon.applyinput(GetPlayerHorizon(snum), &actions);
+		p->horizon.applyPitch(GetPlayerHorizon(snum), &actions);
 	}
 
 	p->checkhardlanding();

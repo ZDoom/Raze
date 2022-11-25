@@ -87,7 +87,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
         if (!nFreeze)
         {
             pPlayer->angle.applyinput(input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
-            pPlayer->horizon.applyinput(input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+            pPlayer->horizon.applyPitch(input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
 
             if (input.horz)
             {

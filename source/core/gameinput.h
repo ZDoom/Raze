@@ -13,8 +13,8 @@ struct PlayerHorizon
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def);
 
 	// Prototypes for functions in gameinput.cpp.
-	void applyinput(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
-	void calcviewpitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
+	void applyPitch(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
+	void doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
 
 	// Interpolation helpers.
 	void backupPitch()

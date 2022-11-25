@@ -173,7 +173,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 //
 //---------------------------------------------------------------------------
 
-void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
+void PlayerHorizon::applyPitch(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process only if movement isn't locked.
 	if (!lockedPitch())
@@ -277,7 +277,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 //
 //---------------------------------------------------------------------------
 
-void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
+void PlayerHorizon::doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting && cursectnum != nullptr)
 	{

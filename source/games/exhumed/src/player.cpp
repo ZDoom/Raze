@@ -2475,7 +2475,7 @@ sectdone:
 
         if (SyncInput())
         {
-            pPlayer->horizon.applyinput(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
+            pPlayer->horizon.applyPitch(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
         }
 
         if (actions & (SB_AIM_UP | SB_AIM_DOWN) || sPlayerInput[nPlayer].pan)
