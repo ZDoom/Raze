@@ -346,6 +346,19 @@ void BuildTiles::LoadArtSet(const char* filename)
 	}
 }
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void BuildTiles::SetAliases()
+{
+	TMap<FName, int>::Iterator it(nametoindex);
+	TMap<FName, int>::Pair* pair;
+	while (it.NextPair(pair))
+		TexMan.AddAlias(pair->Key.GetChars(), tileGetTexture(pair->Value));
+}
 
 //==========================================================================
 //

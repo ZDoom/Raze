@@ -964,6 +964,7 @@ static void InitTextures()
 	gi->LoadGameTextures(); // loads game-side data that must be present before processing the .def files.
 	LoadDefinitions();
 	InitFont();				// InitFonts may only be called once all texture data has been initialized.
+	TileFiles.SetAliases();
 
 	lookups.postLoadTables();
 	highTileSetup();

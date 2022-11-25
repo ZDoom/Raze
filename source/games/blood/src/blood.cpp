@@ -497,22 +497,6 @@ void GameInterface::DrawBackground()
 	DrawTexture(twod, TexMan.GetGameTexture(tex), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 }
 
-#define x(a, b) registerName(#a, b);
-static void SetTileNames()
-{
-	auto registerName = [](const char* name, int index)
-	{
-		TexMan.AddAlias(name, tileGetTexture(index));
-		TileFiles.addName(name, index);
-	};
-#include "namelist.h"
-	// Oh Joy! Plasma Pak changes the tile number of the title screen, but we preferably want mods that use the original one to display it.
-	// So let's make this remapping depend on the CRC.
-	if (tileGetCRC32(2518) == 1170870757 && (tileGetCRC32(2046) != 290208654 || tileWidth(2518) == 0)) registerName("titlescreen", 2046);
-	else registerName("titlescreen", 2518); 
-}
-#undef x
-
 
 void ReadAllRFS();
 
@@ -608,7 +592,6 @@ void GameInterface::app_init()
 	levelLoadDefaults();
 
 	//---------
-	SetTileNames();
 	C_InitConback(TexMan.CheckForTexture("BACKTILE", ETextureType::Any), true, 0.25);
 
 	Printf(PRINT_NONOTIFY, "Initializing view subsystem\n");

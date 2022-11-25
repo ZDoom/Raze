@@ -213,7 +213,6 @@ static void SetTileNames()
 {
     auto registerName = [](const char* name, int index)
     {
-        TexMan.AddAlias(name, tileGetTexture(index));
         TileFiles.addName(name, index);
     };
 #include "namelist.h"
@@ -223,6 +222,7 @@ static void SetTileNames()
 void GameInterface::LoadGameTextures()
 {
     LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
+    SetTileNames();
 }
 
 //---------------------------------------------------------------------------
@@ -279,7 +279,6 @@ void GameInterface::app_init()
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
 
-    SetTileNames();
     userConfig.AddDefs.reset();
     InitFX();
 }

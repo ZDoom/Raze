@@ -323,6 +323,9 @@ struct BuildTiles
 		return *nmm;
 	}
 
+	void SetAliases();
+
+
 	void Init(); // This cannot be a constructor because it needs the texture manager running.
 	~BuildTiles()
 	{

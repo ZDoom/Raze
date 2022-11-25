@@ -2263,6 +2263,34 @@ static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
 	sc.SetCMode(false);
 }
 
+static void parseTileFlags(FScanner& sc, FScriptPosition& pos)
+{
+	int num = -1;
+
+	sc.SetCMode(true);
+	sc.GetNumber(num, true);
+	if (!sc.CheckString("{"))
+	{
+		pos.Message(MSG_ERROR, "tileflags:'{' expected, unable to continue");
+		sc.SetCMode(false);
+		return;
+	}
+	while (!sc.CheckString("}"))
+	{
+		sc.MustGetString();
+		int tile = TileFiles.tileForName(sc.String);
+		if (tile == -1)
+		{
+			pos.Message(MSG_ERROR, "tileflags:Unknown tile name '%s'", sc.String);
+		}
+		else
+		{
+			TileFiles.tiledata[tile].tileflags |= num;
+		}
+	}
+	sc.SetCMode(false);
+}
+
 //===========================================================================
 //
 // 
@@ -2356,6 +2384,7 @@ static const dispatch basetokens[] =
 	{ "defineqav",       parseDefineQAV        },
 
 	{ "spawnclasses",		parseSpawnClasses },
+	{ "tileflag",			parseTileFlags },
 	{ nullptr,           nullptr               },
 };
 

@@ -534,12 +534,16 @@ static void SetTileNames()
 {
     auto registerName = [](const char* name, int index)
     {
-        TexMan.AddAlias(name, tileGetTexture(index));
         TileFiles.addName(name, index);
     };
 #include "namelist.h"
 }
 #undef x
+
+void GameInterface::LoadGameTextures()
+{
+    SetTileNames();
+}
 
 //---------------------------------------------------------------------------
 //
@@ -564,7 +568,6 @@ void GameInterface::app_init()
         nTotalPlayers += nNetPlayerCount;
     }
 
-    SetTileNames();
     defineSky(DEFAULTPSKY, 2, nullptr, 256, 1.f);
 
     InitFX();

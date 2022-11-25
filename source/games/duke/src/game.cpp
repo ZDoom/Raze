@@ -296,7 +296,6 @@ static void SetTileNames()
 {
 	auto registerName = [](const char* name, int index)
 	{
-		TexMan.AddAlias(name, tileGetTexture(index));
 		TileFiles.addName(name, index);
 	};
 	if (!isRR())
@@ -310,6 +309,11 @@ static void SetTileNames()
 }
 #undef x
 #undef y
+
+void GameInterface::LoadGameTextures()
+{
+	SetTileNames();
+}
 
 
 void GameInterface::loadPalette()
@@ -382,7 +386,6 @@ void GameInterface::app_init()
 
 	screenpeek = myconnectindex;
 
-	SetTileNames();
 	C_InitConback(TexMan.CheckForTexture("MENUSCREEN", ETextureType::Any), false, 0.75);
 
 	if (ud.multimode > 1)
