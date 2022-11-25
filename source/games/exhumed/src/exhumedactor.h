@@ -44,7 +44,7 @@ public:
 	void Serialize(FSerializer& arc) override;
 	void VelFromAngle(int shift = 0)
 	{
-		vel.XY() = spr.angle.ToVector() * (1 << (10 + shift));
+		vel.XY() = spr.Angles.Yaw.ToVector() * (1 << (10 + shift));
 	}
 
 

@@ -1200,7 +1200,7 @@ DSWActor* DoPickTarget(DSWActor* actor, DAngle max_delta_ang, int skip_targets)
 
             // Get the angle difference
 
-            DAngle delta_ang = absangle(angle2, actor->spr.angle);
+            DAngle delta_ang = absangle(angle2, actor->spr.Angles.Yaw);
 
             // If delta_ang not in the range skip this one
             if (delta_ang > max_delta_ang)
@@ -1342,10 +1342,10 @@ void DoPlayerTeleportToOffset(PLAYER* pp)
 void DoSpawnTeleporterEffect(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
-    DVector2 vect = actor->spr.angle.ToVector() * 32;
+    DVector2 vect = actor->spr.Angles.Yaw.ToVector() * 32;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(),
-                         ActorVectOfTop(actor).plusZ(16) + vect, actor->spr.angle);
+                         ActorVectOfTop(actor).plusZ(16) + vect, actor->spr.Angles.Yaw);
 
     SetActorZ(effectActor, effectActor->spr.pos);
 
@@ -1367,7 +1367,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 {
     extern STATE s_TeleportEffect[];
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), ActorVectOfTop(actor).plusZ(16), actor->spr.angle);
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, actor->sector(), ActorVectOfTop(actor).plusZ(16), actor->spr.Angles.Yaw);
 
     SetActorZ(effectActor, effectActor->spr.pos);
 
@@ -1413,7 +1413,7 @@ void DoPlayerWarpTeleporter(PLAYER* pp)
         break;
     default:
     {
-        DoPlayerTeleportToSprite(pp, act_warp->spr.pos, act_warp->spr.angle);
+        DoPlayerTeleportToSprite(pp, act_warp->spr.pos, act_warp->spr.Angles.Yaw);
 
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
@@ -1510,14 +1510,14 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     plActor->backupang();
-    plActor->spr.angle = pp->angle.ang;
+    plActor->spr.Angles.Yaw = pp->angle.ang;
 
     plActor = pp->PlayerUnderActor;
 
     if (!Prediction && plActor)
     {
         plActor->backupang();
-        plActor->spr.angle = pp->angle.ang;
+        plActor->spr.Angles.Yaw = pp->angle.ang;
     }
 }
 
@@ -1561,7 +1561,7 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
         if (MultiClipTurn(pp, sum, zz, floordist))
         {
             pp->angle.ang = sum;
-            pp->actor->spr.angle = pp->angle.ang;
+            pp->actor->spr.Angles.Yaw = pp->angle.ang;
         }
     }
 }
@@ -1595,7 +1595,7 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
         if (RectClipTurn(pp, sum, pos, opos))
         {
             pp->angle.ang = sum;
-            pp->actor->spr.angle = pp->angle.ang;
+            pp->actor->spr.Angles.Yaw = pp->angle.ang;
         }
     }
 }
@@ -1641,7 +1641,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
         }
 
         pp->angle.ang = new_ang;
-        pp->actor->spr.angle = pp->angle.ang;
+        pp->actor->spr.Angles.Yaw = pp->angle.ang;
     }
 
     OperateSectorObject(pp->sop, pp->angle.ang, pp->sop->pmid);
@@ -1850,7 +1850,7 @@ void UpdatePlayerSprite(PLAYER* pp)
     if (pp->Flags & (PF_DEAD))
     {
         ChangeActorSect(pp->actor, pp->cursector);
-        actor->spr.angle = pp->angle.ang;
+        actor->spr.Angles.Yaw = pp->angle.ang;
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -1896,7 +1896,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     UpdatePlayerUnderSprite(pp);
 
-    actor->spr.angle = pp->angle.ang;
+    actor->spr.Angles.Yaw = pp->angle.ang;
 }
 
 //---------------------------------------------------------------------------
@@ -2373,7 +2373,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.angle += DAngle180;
+                        actor->spr.Angles.Yaw += DAngle180;
                     }
                 }
                 else
@@ -2381,7 +2381,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.angle += DAngle180;
+                        actor->spr.Angles.Yaw += DAngle180;
                     }
                 }
 
@@ -2394,7 +2394,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.angle += DAngle180;
+                        actor->spr.Angles.Yaw += DAngle180;
                     }
                 }
                 else
@@ -2402,7 +2402,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.angle += DAngle180;
+                        actor->spr.Angles.Yaw += DAngle180;
                     }
                 }
 
@@ -2415,7 +2415,7 @@ void DoTankTreads(PLAYER* pp)
                     if (!TEST_BOOL2(actor))
                     {
                         SET_BOOL2(actor);
-                        actor->spr.angle += DAngle180;
+                        actor->spr.Angles.Yaw += DAngle180;
                     }
                 }
                 else
@@ -2423,7 +2423,7 @@ void DoTankTreads(PLAYER* pp)
                     if (TEST_BOOL2(actor))
                     {
                         RESET_BOOL2(actor);
-                        actor->spr.angle += DAngle180;
+                        actor->spr.Angles.Yaw += DAngle180;
                     }
                 }
 
@@ -3415,7 +3415,7 @@ void DoPlayerClimb(PLAYER* pp)
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-			auto nvec = lActor->spr.angle.ToVector() * 31.25;
+			auto nvec = lActor->spr.Angles.Yaw.ToVector() * 31.25;
 
             // set ladder sector
             pp->LadderSector = near.hitWall->twoSided()? near.hitWall->nextSector() : near.hitWall->sectorp();
@@ -3425,7 +3425,7 @@ void DoPlayerClimb(PLAYER* pp)
 
             pp->LadderPosition = lActor->spr.pos.XY() + nvec;
 
-            pp->angle.settarget(lActor->spr.angle + DAngle180);
+            pp->angle.settarget(lActor->spr.Angles.Yaw + DAngle180);
         }
     }
 }
@@ -3805,7 +3805,7 @@ bool PlayerOnLadder(PLAYER* pp)
 
     // determine where the player is supposed to be in relation to the ladder
     // move out in front of the ladder
-	auto npos = lActor->spr.angle.ToVector() * 31.25;
+	auto npos = lActor->spr.Angles.Yaw.ToVector() * 31.25;
 
     pp->LadderSector = near.hitWall->twoSided() ? near.hitWall->nextSector() : near.hitWall->sectorp();
 
@@ -3813,7 +3813,7 @@ bool PlayerOnLadder(PLAYER* pp)
     // the sprite
 
 	pp->LadderPosition = lActor->spr.pos + npos;
-    pp->angle.settarget(lActor->spr.angle + DAngle180);
+    pp->angle.settarget(lActor->spr.Angles.Yaw + DAngle180);
 
     return true;
 }
@@ -4664,7 +4664,7 @@ void DoPlayerDive(PLAYER* pp)
         if (bubble != nullptr)
         {
             // back it up a bit to get it out of your face
-            auto vec = (bubble->spr.angle + DAngle180).ToVector() * 12;
+            auto vec = (bubble->spr.Angles.Yaw + DAngle180).ToVector() * 12;
 
             move_sprite(bubble, DVector3(vec, 0), plActor->user.ceiling_dist, plActor->user.floor_dist, 0, synctics);
         }
@@ -5334,7 +5334,7 @@ void DoPlayerStopOperate(PLAYER* pp)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            pp->angle.ang = pp->angle.oang = rsp->spr.angle;
+            pp->angle.ang = pp->angle.oang = rsp->spr.Angles.Yaw;
         else
             pp->angle.ang = pp->angle.oang = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
     }
@@ -6004,7 +6004,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-        plActor->spr.angle = pp->angle.ang;
+        plActor->spr.Angles.Yaw = pp->angle.ang;
 
         DoSpawnTeleporterEffect(plActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
@@ -6153,7 +6153,7 @@ void DoPlayerDeathMoveHead(PLAYER* pp)
                 break;
 
 
-            DAngle wall_ang = hitActor->spr.angle;
+            DAngle wall_ang = hitActor->spr.Angles.Yaw;
             DAngle dang = deltaangle(wall_ang, plActor->user.slide_ang);
             plActor->user.slide_ang = wall_ang + DAngle180 - dang;
 
@@ -7203,7 +7203,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->angle.ang = pp->angle.oang = spawn_sprite->spr.angle;
+    pp->angle.ang = pp->angle.oang = spawn_sprite->spr.Angles.Yaw;
     pp->setcursector(spawn_sprite->sector());
 
     if (pp->actor)

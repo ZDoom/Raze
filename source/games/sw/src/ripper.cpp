@@ -945,7 +945,7 @@ int InitRipperHang(DSWActor* actor)
 
     for (auto dang = nullAngle; dang < DAngle360; dang += DAngle22_5)
     {
-        auto tang = actor->spr.angle + dang;
+        auto tang = actor->spr.Angles.Yaw + dang;
 
         FAFhitscan(actor->spr.pos.plusZ(-ActorSizeZ(actor)), actor->sector(), DVector3(tang.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
@@ -960,7 +960,7 @@ int InitRipperHang(DSWActor* actor)
         }
 
         Found = true;
-        actor->spr.angle = tang;
+        actor->spr.Angles.Yaw = tang;
         break;
     }
 
@@ -1013,7 +1013,7 @@ int DoRipperHang(DSWActor* actor)
 int DoRipperMoveHang(DSWActor* actor)
 {
     // if cannot move the sprite
-    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
+    if (!move_actor(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, 0)))
     {
         if (actor->user.coll.type == kHitWall)
         {
@@ -1021,7 +1021,7 @@ int DoRipperMoveHang(DSWActor* actor)
             actor->user.WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
-            actor->spr.angle = actor->user.coll.hitWall->delta().Angle() - DAngle90;
+            actor->spr.Angles.Yaw = actor->user.coll.hitWall->delta().Angle() - DAngle90;
 
             return 0;
         }
@@ -1075,9 +1075,9 @@ int DoRipperBeginJumpAttack(DSWActor* actor)
 	Collision coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
 
     if (coll.type != kHitNone)
-		actor->spr.angle += RandomAngle(DAngle45) + DAngle180 - DAngle22_5;
+		actor->spr.Angles.Yaw += RandomAngle(DAngle45) + DAngle180 - DAngle22_5;
     else
-		actor->spr.angle = vec.Angle() + RandomAngle(DAngle45) - DAngle22_5;
+		actor->spr.Angles.Yaw = vec.Angle() + RandomAngle(DAngle45) - DAngle22_5;
 
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -1198,7 +1198,7 @@ int DoRipperRipHeart(DSWActor* actor)
     actor->user.WaitTics = 6 * 120;
 
     // player face ripper
-    target->spr.angle = (actor->spr.pos - target->spr.pos).Angle();
+    target->spr.Angles.Yaw = (actor->spr.pos - target->spr.pos).Angle();
     return 0;
 }
 
@@ -1234,7 +1234,7 @@ void RipperHatch(DSWActor* actor)
         ClearOwner(actorNew);
         actorNew->spr.pos = actor->spr.pos;
         actorNew->spr.scale = DVector2(1, 1);
-        actorNew->spr.angle = RandomAngle();
+        actorNew->spr.Angles.Yaw = RandomAngle();
         actorNew->spr.pal = 0;
         SetupRipper(actorNew);
 

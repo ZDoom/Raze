@@ -61,7 +61,7 @@ void GillBiteSeqCallback(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DVector3 vec(actor->spr.angle.ToVector() * 64, actor->spr.pos.Z - target->spr.pos.Z);
+	DVector3 vec(actor->spr.Angles.Yaw.ToVector() * 64, actor->spr.pos.Z - target->spr.pos.Z);
 	vec.X += Random3F(2000, 8);
 	vec.Y += Random3F(2000, 8);
 	actFireVector(actor, 0, 0, vec, kVectorGillBite);
@@ -87,7 +87,7 @@ static void gillThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &gillBeastSwimSearch);
@@ -136,7 +136,7 @@ static void gillThinkChase(DBloodActor* actor)
 	double nDist = dv.Length();
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
@@ -200,7 +200,7 @@ static void gillThinkSwimGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &gillBeastSwimSearch);
 	aiThinkTarget(actor);
 }
@@ -234,7 +234,7 @@ static void gillThinkSwimChase(DBloodActor* actor)
 
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		double top, bottom;
 		GetActorExtents(actor, &top, &bottom);
@@ -264,14 +264,14 @@ static void sub_6CB00(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
-		actor->spr.angle += DAngle45;
+		actor->spr.Angles.Yaw += DAngle45;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	double nDist = dvec.Length();
 	if (Random(64) < 32 && nDist <= 0x40)
@@ -292,9 +292,9 @@ static void sub_6CD74(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 	{
@@ -319,13 +319,13 @@ static void sub_6D03C(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = FixedToFloat((pDudeInfo->frontSpeed - (((4 - gGameOptions.nDifficulty) << 27) / 120) / 120) << 2);
 	if (abs(nAng) > DAngle60)
 	{
-		actor->spr.angle += DAngle90;
+		actor->spr.Angles.Yaw += DAngle90;
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();

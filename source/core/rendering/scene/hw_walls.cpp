@@ -62,13 +62,13 @@ static walltype* IsOnWall(tspritetype* tspr, int height, DVector2& outpos)
 	{
 		// Intentionally include two sided walls. Even on them the sprite should be projected onto the wall for better results.
 		auto d = wal.delta();
-		auto deltaang = absangle(d.Angle(), tspr->angle);
+		auto deltaang = absangle(d.Angle(), tspr->Angles.Yaw);
 		const DAngle maxangdelta = DAngle360 / 1024;
 
 		// angle of the sprite must either be the wall's normal or the negative wall's normal to be aligned.
 		if (deltaang >= DAngle90 - maxangdelta && deltaang <= DAngle90 + maxangdelta)
 		{
-			if (!((tspr->angle.Buildang()) & 510))
+			if (!((tspr->Angles.Yaw.Buildang()) & 510))
 			{
 				// orthogonal lines do not check the actual position so that certain off-sector sprites get handled properly. 
 				// In Wanton Destruction's airplane level there's such a sprite assigned to the wrong sector.
@@ -1101,7 +1101,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 int HWWall::CheckWallSprite(tspritetype* spr, tspritetype* last)
 {
 	// If the position changed we need to recalculate everything.
-	if (spr->pos.XY() != last->pos.XY() || spr->sectp != last->sectp || spr->angle != last->angle) return 3;
+	if (spr->pos.XY() != last->pos.XY() || spr->sectp != last->sectp || spr->Angles.Yaw != last->Angles.Yaw) return 3;
 	
 	// if the horizontal orientation changes we need to recalculate the walls this attaches to, but not the positioning.
 	if (spr->scale.X != last->scale.X || spr->xoffset != last->xoffset || spr->picnum != last->picnum || ((spr->cstat ^ last->cstat) & CSTAT_SPRITE_XFLIP)) return 2;

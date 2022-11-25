@@ -292,7 +292,7 @@ void TrackAddPoint(TRACK* t, TRACK_POINT* tp, DSWActor* actor)
     TRACK_POINT* tpoint = (tp + t->NumPoints);
 
     tpoint->pos = actor->spr.pos;
-    tpoint->angle = actor->spr.angle;
+    tpoint->angle = actor->spr.Angles.Yaw;
     tpoint->tag_low = actor->spr.lotag;
     tpoint->tag_high = actor->spr.hitag;
 
@@ -308,7 +308,7 @@ DSWActor* TrackClonePoint(DSWActor* actor)
     actorNew->spr.cstat = 0;
     actorNew->spr.extra = 0;
     actorNew->spr.pos = actor->spr.pos;
-    actorNew->spr.angle = actor->spr.angle;
+    actorNew->spr.Angles.Yaw = actor->spr.Angles.Yaw;
     actorNew->spr.lotag = actor->spr.lotag;
     actorNew->spr.hitag = actor->spr.hitag;
 
@@ -354,12 +354,12 @@ void QuickJumpSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
-        actor->spr.pos += actor->spr.angle.ToVector() * 4;
+        actor->spr.pos += actor->spr.Angles.Yaw.ToVector() * 4;
         actor->spr.lotag = lotag;
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->spr.pos += end_sprite->spr.angle.ToVector() * 128;
+        end_sprite->spr.pos += end_sprite->spr.Angles.Yaw.ToVector() * 128;
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -407,7 +407,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->spr.pos += start_sprite->spr.angle.ToVector() * 4;
+        start_sprite->spr.pos += start_sprite->spr.Angles.Yaw.ToVector() * 4;
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
@@ -415,7 +415,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->spr.pos += end_sprite->spr.angle.ToVector() * 4;
+        end_sprite->spr.pos += end_sprite->spr.Angles.Yaw.ToVector() * 4;
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -465,7 +465,7 @@ void QuickExitSetup(short stat, short type)
         KillActor(actor);
 
         // add end point
-        end_sprite->spr.pos += end_sprite->spr.angle.ToVector() * 64;
+        end_sprite->spr.pos += end_sprite->spr.Angles.Yaw.ToVector() * 64;
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -510,7 +510,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         // add start point
         start_sprite->spr.lotag = TRACK_START;
         start_sprite->spr.hitag = 0;
-        start_sprite->spr.pos += (start_sprite->spr.angle + DAngle180).ToVector() * 16;
+        start_sprite->spr.pos += (start_sprite->spr.Angles.Yaw + DAngle180).ToVector() * 16;
         TrackAddPoint(t, tp, start_sprite);
 
         // add climb point
@@ -518,7 +518,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, actor);
 
         // add end point
-        end_sprite->spr.pos += end_sprite->spr.angle.ToVector() * 32;
+        end_sprite->spr.pos += end_sprite->spr.Angles.Yaw.ToVector() * 32;
         end_sprite->spr.lotag = TRACK_END;
         end_sprite->spr.hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -849,7 +849,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECT* sop)
 
                 itActor->user.Flags |= (SPR_SO_ATTACHED);
 
-                itActor->user.sang = itActor->spr.angle;
+                itActor->user.sang = itActor->spr.Angles.Yaw;
                 itActor->user.spal = itActor->spr.pal;
 
                 // search SO's sectors to make sure that it is not on a
@@ -1193,7 +1193,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_LIMIT_TURN:
-                    sop->limit_ang_center = actor->spr.angle;
+                    sop->limit_ang_center = actor->spr.Angles.Yaw;
                     sop->limit_ang_delta = mapangle(actor->spr.lotag);
                     KillActor(actor);
                     break;
@@ -1214,7 +1214,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
                     KillActor(actor);
                     break;
                 case SO_ANGLE:
-                    sop->ang = sop->ang_moving = actor->spr.angle;
+                    sop->ang = sop->ang_moving = actor->spr.Angles.Yaw;
                     sop->last_ang = sop->ang_orig = sop->ang;
                     sop->spin_ang = nullAngle;
                     KillActor(actor);
@@ -1423,7 +1423,7 @@ void PlaceActorsOnTracks(void)
         actor->user.track = tag - TAG_ACTOR_TRACK_BEGIN;
         actor->norm_ang();
         // if facing left go backward
-        if (actor->spr.angle > DAngle90  && actor->spr.angle < DAngle270)
+        if (actor->spr.Angles.Yaw > DAngle90  && actor->spr.Angles.Yaw < DAngle270)
         {
             actor->user.track_dir = -1;
         }
@@ -1459,7 +1459,7 @@ void PlaceActorsOnTracks(void)
         }
 
         // check angle in the "forward" direction
-        actor->spr.angle = ((tpoint + actor->user.point)->pos - actor->spr.pos).Angle();
+        actor->spr.Angles.Yaw = ((tpoint + actor->user.point)->pos - actor->spr.pos).Angle();
     }
 }
 
@@ -1675,8 +1675,8 @@ PlayerPart:
             }
         }
 
-        auto oldang = actor->spr.angle;
-        actor->spr.angle = actor->user.sang;
+        auto oldang = actor->spr.Angles.Yaw;
+        actor->spr.Angles.Yaw = actor->user.sang;
 
         if (actor->user.Flags & (SPR_ON_SO_SECTOR))
         {
@@ -1691,12 +1691,12 @@ PlayerPart:
             if ((actor->sector()->walls[0].extra & WALLFX_LOOP_REVERSE_SPIN))
             {
                 actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), -deltaangle);
-                actor->spr.angle -= deltaangle;
+                actor->spr.Angles.Yaw -= deltaangle;
             }
             else
             {
                 actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), deltaangle);
-                actor->spr.angle += deltaangle;
+                actor->spr.Angles.Yaw += deltaangle;
             }
 			actor->norm_ang();
         }
@@ -1706,7 +1706,7 @@ PlayerPart:
             {
                 // NOT part of a sector - independant of any sector
                 actor->spr.pos.XY() = rotatepoint(sop->pmid.XY(), actor->spr.pos.XY(), deltaangle);
-                actor->spr.angle += deltaangle;
+                actor->spr.Angles.Yaw += deltaangle;
 				actor->norm_ang();
             }
 
@@ -1716,7 +1716,7 @@ PlayerPart:
                 SetActorZ(sop->so_actors[i], actor->spr.pos);
         }
 
-        actor->user.oangdiff += ::deltaangle(oldang, actor->spr.angle);
+        actor->user.oangdiff += ::deltaangle(oldang, actor->spr.Angles.Yaw);
 
         if ((actor->spr.extra & SPRX_BLADE))
         {
@@ -2763,7 +2763,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
         if (actor->user.track >= 0)
         {
             auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-            actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
+            actor->spr.Angles.Yaw = (tp->pos - actor->spr.pos).Angle();
         }
         else
         {
@@ -2780,7 +2780,7 @@ void DoActorHitTrackEndPoint(DSWActor* actor)
         if (actor->user.track >= 0)
         {
             auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-            actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
+            actor->spr.Angles.Yaw = (tp->pos - actor->spr.pos).Angle();
         }
         else
         {
@@ -2903,7 +2903,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
     case TRACK_ACTOR_JUMP:
         if (actor->user.ActorActionSet->Jump)
         {
-            actor->spr.angle = tpoint->angle;
+            actor->spr.Angles.Yaw = tpoint->angle;
 
             if (!tpoint->tag_high)
                 actor->user.jump_speed = ACTOR_STD_JUMP;
@@ -2923,7 +2923,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             int zdiff;
             HitInfo hit{};
 
-            actor->spr.angle = tpoint->angle;
+            actor->spr.Angles.Yaw = tpoint->angle;
 
 
             ActorLeaveTrack(actor);
@@ -2936,7 +2936,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
             {
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-                FAFhitscan(actor->spr.pos.plusZ(-24), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+                FAFhitscan(actor->spr.pos.plusZ(-24), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
                 actor->spr.cstat |= (CSTAT_SPRITE_BLOCK);
 
@@ -2968,7 +2968,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         if (actor->user.ActorActionSet->Jump)
         {
-            actor->spr.angle = tpoint->angle;
+            actor->spr.Angles.Yaw = tpoint->angle;
 
             ActorLeaveTrack(actor);
 
@@ -3002,7 +3002,7 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
         if (actor->user.Rot != actor->user.ActorActionSet->Duck)
         {
-            actor->spr.angle = tpoint->angle;
+            actor->spr.Angles.Yaw = tpoint->angle;
 
             ActorLeaveTrack(actor);
 
@@ -3027,14 +3027,14 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
         if (actor->user.Rot == actor->user.ActorActionSet->Sit || actor->user.Rot == actor->user.ActorActionSet->Stand)
             return false;
 
-        actor->spr.angle = tpoint->angle;
+        actor->spr.Angles.Yaw = tpoint->angle;
 
         z[0] = actor->spr.pos.Z - ActorSizeZ(actor) + 5;
         z[1] = actor->spr.pos.Z - (ActorSizeZ(actor) * 0.5);
 
         for (auto& zz : z)
         {
-            neartag(DVector3(actor->spr.pos.XY(), zz), actor->sector(), actor->spr.angle, near, 64., NT_Lotag | NT_Hitag);
+            neartag(DVector3(actor->spr.pos.XY(), zz), actor->sector(), actor->spr.Angles.Yaw, near, 64., NT_Lotag | NT_Hitag);
 
             if (near.actor() != nullptr)
             {
@@ -3238,18 +3238,18 @@ bool ActorTrackDecide(TRACK_POINT* tpoint, DSWActor* actor)
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
-            auto vec = lActor->spr.angle.ToVector() * 6.25;
+            auto vec = lActor->spr.Angles.Yaw.ToVector() * 6.25;
 
 			actor->spr.pos.XY() = lActor->spr.pos.XY() + vec;
 
-			actor->spr.angle += DAngle180;
+			actor->spr.Angles.Yaw += DAngle180;
 
             //
             // Get the z height to climb
             //
 
 			double z = ActorZOfTop(actor) - (ActorSizeZ(actor) * 0.5);
-            neartag(DVector3(actor->spr.pos.XY(), z), actor->sector(), actor->spr.angle, near, 37.5, NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
+            neartag(DVector3(actor->spr.pos.XY(), z), actor->sector(), actor->spr.Angles.Yaw, near, 37.5, NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
 
             if (near.hitWall == nullptr)
             {
@@ -3367,7 +3367,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
     if (!(actor->user.Flags & (SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
     {
-        actor->spr.angle = (tpoint->pos - actor->spr.pos).Angle();
+        actor->spr.Angles.Yaw = (tpoint->pos - actor->spr.pos).Angle();
     }
 
     double dist = (actor->spr.pos.XY() - tpoint->pos.XY()).Length();
@@ -3383,7 +3383,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         if (!(actor->user.Flags & (SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
         {
             // calculate a new angle to the target
-            actor->spr.angle = (tpoint->pos - actor->spr.pos).Angle();
+            actor->spr.Angles.Yaw = (tpoint->pos - actor->spr.pos).Angle();
         }
 
         if (actor->user.Flags & (SPR_ZDIFF_MODE))
@@ -3429,7 +3429,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 actor->vel.Z = 0;
 
-                actor->spr.angle = (tpoint->pos - actor->spr.pos).Angle();
+                actor->spr.Angles.Yaw = (tpoint->pos - actor->spr.pos).Angle();
 
                 ActorLeaveTrack(actor);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
@@ -3446,7 +3446,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
         else
         {
             // calculate a new x and y
-			vec.XY() = actor->spr.angle.ToVector() * actor->vel.X;
+			vec.XY() = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
         }
 
         if (actor->vel.Z != 0)

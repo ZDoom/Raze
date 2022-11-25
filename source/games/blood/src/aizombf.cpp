@@ -55,7 +55,7 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
 	double height = pDudeInfo->eyeHeight * actor->spr.scale.Y * 0.25;
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	double height2 = pDudeInfoT->eyeHeight * target->spr.scale.Y * 0.25;
-	actFireVector(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 64, height - height2), kVectorCleaver);
+	actFireVector(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector() * 64, height - height2), kVectorCleaver);
 }
 
 void PukeSeqCallback(int, DBloodActor* actor)
@@ -77,7 +77,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 
 void ThrowSeqCallback(int, DBloodActor* actor)
 {
-	actFireMissile(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), 0), kMissileButcherKnife);
+	actFireMissile(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), 0), kMissileButcherKnife);
 }
 
 static void zombfThinkSearch(DBloodActor* actor)
@@ -94,7 +94,7 @@ static void zombfThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &zombieFSearch);
 	aiThinkTarget(actor);
 }
@@ -127,7 +127,7 @@ static void zombfThinkChase(DBloodActor* actor)
 	double nDist = dv.Length();
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{

@@ -68,7 +68,7 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 
 	DVector3 vec;
-	vec.XY() = actor->spr.angle.ToVector() * 64;
+	vec.XY() = actor->spr.Angles.Yaw.ToVector() * 64;
 	vec.Z = target->spr.pos.Z - actor->spr.pos.Z;
 	actFireVector(actor, Cerberus_XYOff, -Cerberus_ZOff, vec, kVectorCerberusHack);
 	actFireVector(actor, -Cerberus_XYOff, 0, vec, kVectorCerberusHack);
@@ -84,7 +84,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 	DVector3 pos(actor->spr.pos.XY(), height);
 	//auto pos = actor->spr.pos.plusZ(height); //  what it probably should be
 
-	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope);
+	DVector3 Aim(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 	double nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
 	while (auto actor2 = it.Next())
@@ -99,7 +99,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 		pos += actor2->vel * nDist * (65536. / 0x1aaaaa);
 		
 		DVector3 tvec = pos;
-		tvec.XY() += actor->spr.angle.ToVector() * nDist;
+		tvec.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
 		tvec.Z += actor->dudeSlope * nDist;
 		double tsr = nDist * 9.23828125;
 		double top, bottom;
@@ -110,7 +110,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			DAngle nAngle = (pos2.XY() - pos.XY()).Angle();
-			DAngle nDeltaAngle = absangle(nAngle, actor->spr.angle);
+			DAngle nDeltaAngle = absangle(nAngle, actor->spr.Angles.Yaw);
 			if (nDeltaAngle <= DAngle45)
 			{
 				double tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
@@ -145,7 +145,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 	DVector3 pos(actor->spr.pos.XY(), height);
 	//auto pos = actor->spr.pos.plusZ(height); //  what it probably should be
 
-	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope);
+	DVector3 Aim(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 	DVector3 Aim2(Aim.XY(), 0);
 
 	double nClosest = 0x7fffffff;
@@ -164,7 +164,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 		pos += actor2->vel * nDist * (65536. / 0x1aaaaa);
 
 		DVector3 tvec = pos;
-		tvec.XY() += actor->spr.angle.ToVector() * nDist;
+		tvec.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
 		tvec.Z += actor->dudeSlope * nDist;
 
 		double tsr = nDist * 9.23828125;
@@ -177,7 +177,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			DAngle nAngle = (pos2.XY() - pos.XY()).Angle();
-			DAngle nDeltaAngle = absangle(nAngle, actor->spr.angle);
+			DAngle nDeltaAngle = absangle(nAngle, actor->spr.Angles.Yaw);
 			if (nDeltaAngle <= DAngle45)
 			{
 				DUDEINFO* pDudeInfo2 = getDudeInfo(actor2->spr.type);
@@ -249,7 +249,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 			double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			DAngle nDeltaAngle = absangle(actor->spr.angle, dvect.Angle());
+			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvect.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				pDudeExtraE->thinkTime = 0;
@@ -280,7 +280,7 @@ static void cerberusThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
 		switch (actor->spr.type) {
 		case kDudeCerberusTwoHead:
@@ -351,7 +351,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{

@@ -843,7 +843,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
 		p->angle.processhelpers(scaleAdjust);
 		p->horizon.processhelpers(scaleAdjust);
-		p->GetActor()->spr.angle = p->angle.ang;
+		p->GetActor()->spr.Angles.Yaw = p->angle.ang;
 	}
 
 	if (packet)

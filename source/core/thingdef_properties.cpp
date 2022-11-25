@@ -331,7 +331,7 @@ DEFINE_PROPERTY(statnum, I, CoreActor)
 DEFINE_PROPERTY(angle, F, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
-	defaults->spr.angle = DAngle::fromDeg(i);
+	defaults->spr.Angles.Yaw = DAngle::fromDeg(i);
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_ANG;
 }
 

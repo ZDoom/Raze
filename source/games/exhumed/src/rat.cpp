@@ -101,7 +101,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
 	{
 		ChangeActorStat(pActor, 108);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-		nAngle = pActor->spr.angle;
+		nAngle = pActor->spr.Angles.Yaw;
 	}
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -111,7 +111,7 @@ void BuildRat(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
 	pActor->clipdist = 7.5;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->spr.scale = DVector2(0.78125, 0.78125);
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
@@ -369,7 +369,7 @@ void AIRat::Tick(RunListEvent* ev)
                     return;
                 }
 
-                pActor->spr.angle = RandomAngle();
+                pActor->spr.Angles.Yaw = RandomAngle();
                 SetRatVel(pActor);
                 return;
             }

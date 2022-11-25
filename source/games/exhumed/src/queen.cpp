@@ -308,7 +308,7 @@ void DestroyAllEggs()
 
 void SetHeadVel(DExhumedActor* pActor)
 {
-	pActor->vel.XY() = pActor->spr.angle.ToVector() * 1024 * (1 << nVelShift);
+	pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 1024 * (1 << nVelShift);
 }
 
 //---------------------------------------------------------------------------
@@ -324,7 +324,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
     if (pActor2 == nullptr)
     {
         pActor->pitch = nullAngle;
-        nAngle = pActor->spr.angle;
+        nAngle = pActor->spr.Angles.Yaw;
     }
     else
     {
@@ -336,7 +336,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
 
         DAngle nMyAngle = vect.Angle();
         DAngle nPitch = VecToAngle(nSqrt * 16, edx);
-        DAngle nAngDelta = deltaangle(pActor->spr.angle, nMyAngle);
+        DAngle nAngDelta = deltaangle(pActor->spr.Angles.Yaw, nMyAngle);
 
         if (abs(nAngDelta) >= DAngle22_5)
         {
@@ -353,13 +353,13 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int thr
                 nAngDelta = val2;
         }
 
-        nAngle = (nAngDelta + pActor->spr.angle).Normalized360();
+        nAngle = (nAngDelta + pActor->spr.Angles.Yaw).Normalized360();
 
         auto nPitchDelta = clamp(deltaangle(pActor->pitch, nPitch), -DAngle22_5 / 5, DAngle22_5 / 5);
         pActor->pitch = (pActor->pitch + nPitchDelta).Normalized180();
     }
 
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
 
     auto cospitch = pActor->pitch.Cos();
 
@@ -472,13 +472,13 @@ void BuildQueenEgg(int nQueen, int nVal)
     pActor2->spr.yoffset = 0;
     pActor2->spr.shade = -12;
     pActor2->spr.picnum = 1;
-	pActor2->spr.angle = pActor->spr.angle + RandomAngle9() - DAngle45;
+	pActor2->spr.Angles.Yaw = pActor->spr.Angles.Yaw + RandomAngle9() - DAngle45;
     pActor2->backuppos();
 
     if (!nVal)
     {
 		pActor2->spr.scale = DVector2(0.46875, 0.46875);
-		pActor2->vel.XY() = pActor2->spr.angle.ToVector() * 1024;
+		pActor2->vel.XY() = pActor2->spr.Angles.Yaw.ToVector() * 1024;
         pActor2->vel.Z = -6000 / 256.;
         pActor2->spr.cstat = 0;
     }
@@ -604,12 +604,12 @@ void AIQueenEgg::Tick(RunListEvent* ev)
                 nAngle = GetWallNormal(nMov.hitWall);
                 break;
             case kHitSprite:
-                nAngle = nMov.actor()->spr.angle;
+                nAngle = nMov.actor()->spr.Angles.Yaw;
                 break;
             }
 
-            pActor->spr.angle = nAngle;
-			pActor->vel.XY() = pActor->spr.angle.ToVector() * 512;
+            pActor->spr.Angles.Yaw = nAngle;
+			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 512;
         }
 
         break;
@@ -639,7 +639,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             }
             [[fallthrough]];
         case kHitWall:
-            pActor->spr.angle = DAngle45 + DAngle90 + RandomAngle9();
+            pActor->spr.Angles.Yaw = DAngle45 + DAngle90 + RandomAngle9();
             pActor->VelFromAngle(-3);
             pActor->vel.Z = (-RandomSize(5)) / 256.;
             break;
@@ -664,7 +664,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->nCounter--;
         if (pEgg->nCounter <= 0)
         {
-            auto pWaspSprite = BuildWasp(nullptr, pActor->spr.pos, pActor->sector(), pActor->spr.angle, true);
+            auto pWaspSprite = BuildWasp(nullptr, pActor->spr.pos, pActor->sector(), pActor->spr.Angles.Yaw, true);
             pActor->spr.pos.Z = pWaspSprite->spr.pos.Z;
 
             DestroyEgg(nEgg);
@@ -753,7 +753,7 @@ void BuildQueenHead(int nQueen)
     pActor2->spr.pal = 0;
     pActor2->spr.xoffset = 0;
     pActor2->spr.yoffset = 0;
-    pActor2->spr.angle = pActor->spr.angle;
+    pActor2->spr.Angles.Yaw = pActor->spr.Angles.Yaw;
 
     nVelShift = 2;
     SetHeadVel(pActor2);
@@ -851,11 +851,11 @@ void AIQueenHead::Tick(RunListEvent* ev)
             auto nMov = MoveCreature(pActor);
 
             // original BUG - this line doesn't exist in original code?
-            DAngle nNewAng = pActor->spr.angle;
+            DAngle nNewAng = pActor->spr.Angles.Yaw;
 
             if (nMov.exbits == 0)
             {
-                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->spr.angle;
+                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->spr.Angles.Yaw;
                 else if (nMov.type == kHitWall) nNewAng = GetWallNormal(nMov.hitWall);
             }
             else if (nMov.exbits == kHitAux2)
@@ -870,7 +870,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
 
             // original BUG - var_18 isn't being set if the check above == 0x20000 ?
-            pActor->spr.angle = nNewAng;
+            pActor->spr.Angles.Yaw = nNewAng;
             nVelShift++;
 
             if (nVelShift < 5)
@@ -945,7 +945,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     runlist_DamageEnemy(pTarget, pActor, 10);
                     D3PlayFX(StaticSound[kSoundQTail] | 0x2000, pActor);
 
-					pActor->spr.angle += DAngle45 + DAngle90 + RandomAngle9();
+					pActor->spr.Angles.Yaw += DAngle45 + DAngle90 + RandomAngle9();
                     pActor->norm_ang();
 
                     pActor->vel.Z = ((-20) - RandomSize(6)) / 256.;
@@ -960,7 +960,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         MoveQP[nQHead] = pActor->spr.pos;
         assert(pActor->sector());
         MoveQS[nQHead] = pActor->sector();
-        MoveQA[nQHead] = pActor->spr.angle;
+        MoveQA[nQHead] = pActor->spr.Angles.Yaw;
 
         nHd = nQHead;
 
@@ -983,7 +983,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 }
 
                 pTActor->spr.pos = MoveQP[nHd];
-                pTActor->spr.angle = MoveQA[nHd];
+                pTActor->spr.Angles.Yaw = MoveQA[nHd];
             }
         }
 
@@ -1171,7 +1171,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 	{
 		ChangeActorStat(pActor, 121);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-        nAngle = pActor->spr.angle;
+        nAngle = pActor->spr.Angles.Yaw;
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -1182,7 +1182,7 @@ void BuildQueen(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -1363,7 +1363,7 @@ void AIQueen::Tick(RunListEvent* ev)
             }
             [[fallthrough]];
         case 0x8000:
-			pActor->spr.angle += DAngle45;
+			pActor->spr.Angles.Yaw += DAngle45;
             pActor->norm_ang();
 
             SetQueenSpeed(pActor, si);
@@ -1406,7 +1406,7 @@ void AIQueen::Tick(RunListEvent* ev)
 
                 if (!si)
                 {
-                    BuildBullet(pActor, 12, INT_MAX, pActor->spr.angle, pTarget, 1);
+                    BuildBullet(pActor, 12, INT_MAX, pActor->spr.Angles.Yaw, pTarget, 1);
                 }
                 else
                 {

@@ -94,7 +94,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, const DVector
     pActor->clipdist = 2.5;
 	pActor->spr.scale = DVector2(nScale, nScale);
     pActor->spr.picnum = 1;
-    pActor->spr.angle = nullAngle;
+    pActor->spr.Angles.Yaw = nullAngle;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->vel.X = 0;

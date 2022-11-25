@@ -651,7 +651,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					if (spawned)
 					{
 						spawned->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER;
-						spawned->spr.angle = wal->delta().Angle() + DAngle90;
+						spawned->spr.Angles.Yaw = wal->delta().Angle() + DAngle90;
 
 						S_PlayActorSound(SOMETHINGHITFORCE, spawned);
 					}
@@ -997,7 +997,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 						spawned->spr.pos.Z += 4;
 						spawned->vel.X = 1;
 						spawned->spr.scale = DVector2(0.375, 0.375);
-						spawned->spr.angle = DAngle22_5 / 4 - randomAngle(22.5 / 2);
+						spawned->spr.Angles.Yaw = DAngle22_5 / 4 - randomAngle(22.5 / 2);
 					}
 				}
 
@@ -1015,7 +1015,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if (targ->spr.picnum != TANK && !bossguy(targ) && targ->spr.picnum != RECON && targ->spr.picnum != ROTATEGUN)
 			{
 				if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
-					targ->spr.angle = proj->spr.angle + DAngle180;
+					targ->spr.Angles.Yaw = proj->spr.Angles.Yaw + DAngle180;
 
 				targ->vel.X = -proj->spr.extra * 0.25;
 				auto sp = targ->sector();
@@ -1051,7 +1051,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 			targ->attackertype = hitpic;
 			targ->hitextra += proj->spr.extra;
-			targ->hitang = proj->spr.angle;
+			targ->hitang = proj->spr.Angles.Yaw;
 			targ->SetHitOwner(Owner);
 		}
 
@@ -1120,8 +1120,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
 			proj->vel.X = targ->vel.X * 0.75;
-			proj->spr.angle -= targ->spr.angle.Normalized180() * 2 + DAngle180;
-			targ->spr.angle = (targ->spr.pos.XY() - proj->spr.pos.XY()).Angle() - DAngle90;
+			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw.Normalized180() * 2 + DAngle180;
+			targ->spr.Angles.Yaw = (targ->spr.pos.XY() - proj->spr.pos.XY()).Angle() - DAngle90;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
@@ -1130,7 +1130,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			if (krand() & 3)
 			{
 				targ->vel.X = 10.25;
-				targ->spr.angle = proj->spr.angle;
+				targ->spr.Angles.Yaw = proj->spr.Angles.Yaw;
 			}
 			else
 			{
@@ -1222,7 +1222,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		lotsofglass(targ, nullptr, 8);
 		targ->Destroy();
 		break;
@@ -1235,7 +1235,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		for (j = 0; j < 48; j++)
 		{
 			fi.shoot(targ, BLOODSPLAT1);
-			targ->spr.angle += DAngle1 * 58.5; // Was 333, which really makes no sense.
+			targ->spr.Angles.Yaw += DAngle1 * 58.5; // Was 333, which really makes no sense.
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		S_PlayActorSound(SQUISHED, targ);
@@ -1348,21 +1348,21 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	{
 		targ->spr.extra -= proj->spr.extra;
 		if (targ->spr.extra > 0) break;
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT1);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT2);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT3);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT4);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT1);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT2);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT3);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		fi.shoot(targ, BLOODSPLAT4);
 		fi.guts(targ, JIBS1, 1, myconnectindex);
 		fi.guts(targ, JIBS2, 2, myconnectindex);

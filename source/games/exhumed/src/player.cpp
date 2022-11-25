@@ -293,8 +293,8 @@ void RestartPlayer(int nPlayer)
 
 		pActor->spr.pos = nNStartSprite->spr.pos;
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->angle.ang = nNStartSprite->spr.angle;
-		pActor->spr.angle = plr->angle.ang;
+		plr->angle.ang = nNStartSprite->spr.Angles.Yaw;
+		pActor->spr.Angles.Yaw = plr->angle.ang;
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
@@ -308,7 +308,7 @@ void RestartPlayer(int nPlayer)
         pActor->spr.pos.XY() = plr->sPlayerSave.pos.XY();
 		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
 		plr->angle.ang = plr->sPlayerSave.nAngle;
-		pActor->spr.angle = plr->angle.ang;
+		pActor->spr.Angles.Yaw = plr->angle.ang;
 
 		floorsprt = nullptr;
 	}
@@ -342,7 +342,7 @@ void RestartPlayer(int nPlayer)
 	pDActor->spr.xoffset = 0;
 	pDActor->spr.yoffset = 0;
 	pDActor->spr.shade = pActor->spr.shade;
-	pDActor->spr.angle = pActor->spr.angle;
+	pDActor->spr.Angles.Yaw = pActor->spr.Angles.Yaw;
 	pDActor->spr.cstat = pActor->spr.cstat;
 
 	pDActor->spr.lotag = runlist_HeadRun() + 1;
@@ -665,7 +665,7 @@ static void pickupMessage(int no)
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
     inita = pPlayer->angle.ang;
-    if (pPlayer->pActor) pPlayer->pActor->spr.angle = inita;
+    if (pPlayer->pActor) pPlayer->pActor->spr.Angles.Yaw = inita;
 }
 
 //---------------------------------------------------------------------------
@@ -847,7 +847,7 @@ bool CheckMovingBlocks(int nPlayer, Collision& nMove, DVector3& spr_pos, sectort
         {
             if ((sect->hitag == 45) && bTouchFloor)
             {
-                auto nDiff = absangle(nNormal, pPlayerActor->spr.angle + DAngle180);
+                auto nDiff = absangle(nNormal, pPlayerActor->spr.Angles.Yaw + DAngle180);
 
                 if (nDiff <= DAngle45)
                 {
@@ -1073,7 +1073,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         {
             auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite);
             PlayerList[nPlayer].angle.settarget(ang, true);
-            pPlayerActor->spr.angle = ang;
+            pPlayerActor->spr.Angles.Yaw = ang;
 
             PlayerList[nPlayer].horizon.settarget(nullAngle, true);
 
@@ -1360,7 +1360,7 @@ sectdone:
         HitInfo near;
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-        neartag(pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.angle, near, 128., NT_Hitag | NT_NoSpriteCheck);
+        neartag(pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw, near, 128., NT_Hitag | NT_NoSpriteCheck);
 
         DExhumedActor* pActorB;
         feebtag(pPlayerActor->spr.pos, pPlayerActor->sector(), &pActorB, var_30, 48);
@@ -2258,7 +2258,7 @@ sectdone:
                         ChangeActorStat(pActorB, 899);
                     }
 
-                    SetSavePoint(nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.angle);
+                    SetSavePoint(nPlayer, pPlayerActor->spr.pos, pPlayerActor->sector(), pPlayerActor->spr.Angles.Yaw);
                     break;
                 }
 
@@ -2602,7 +2602,7 @@ sectdone:
     {
         initpos = pPlayerActor->spr.pos;
         initsectp = pPlayerActor->sector();
-        inita = pPlayerActor->spr.angle;
+        inita = pPlayerActor->spr.Angles.Yaw;
     }
 
     if (!PlayerList[nPlayer].nHealth)
@@ -2647,7 +2647,7 @@ sectdone:
 
     if (pPlayerActor->sector()->pAbove != nullptr)
     {
-        pDopple->spr.angle = pPlayerActor->spr.angle;
+        pDopple->spr.Angles.Yaw = pPlayerActor->spr.Angles.Yaw;
         ChangeActorSect(pDopple, pPlayerActor->sector()->pAbove);
         pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
@@ -2814,7 +2814,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(self->pActor->spr.angle.Buildang());
+    ACTION_RETURN_INT(self->pActor->spr.Angles.Yaw.Buildang());
 }
 
 

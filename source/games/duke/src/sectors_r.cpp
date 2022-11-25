@@ -892,7 +892,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 	{
 		for (int j = n - 1; j >= 0; j--)
 		{
-			DAngle a = actor->spr.angle - DAngle45 + DAngle180 + randomAngle(90);
+			DAngle a = actor->spr.Angles.Yaw - DAngle45 + DAngle180 + randomAngle(90);
 			auto vel = krandf(4) + 2;
 			auto zvel = 4 - krandf(4);
 
@@ -917,7 +917,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 			double z = sect->floorz - krandf(abs(sect->ceilingz - sect->floorz));
 			if (abs(z) > 32)
 				z = actor->spr.pos.Z - 32 + krandf(64);
-			DAngle a = actor->spr.angle - DAngle180;
+			DAngle a = actor->spr.Angles.Yaw - DAngle180;
 			auto vel = krandf(4) + 2;
 			auto zvel = -krandf(4);
 
@@ -1477,7 +1477,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 						spawned->spr.pos.Z += 4;
 						spawned->vel.X = 1;
 						spawned->spr.scale = DVector2(0.375, 0.375);
-						spawned->spr.angle = DAngle22_5 / 4 - randomAngle(22.5 / 2);
+						spawned->spr.Angles.Yaw = DAngle22_5 / 4 - randomAngle(22.5 / 2);
 					}
 				}
 
@@ -1507,7 +1507,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 			targ->attackertype = proj->spr.picnum;
 			targ->hitextra += proj->spr.extra;
 			if (targ->spr.picnum != COW)
-				targ->hitang = proj->spr.angle;
+				targ->hitang = proj->spr.Angles.Yaw;
 			targ->SetHitOwner(proj->GetOwner());
 		}
 
@@ -2029,7 +2029,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		break;
 	case BOWLINGBALL:
 		proj->vel.X = targ->vel.X * 0.75;
-		if (krand() & 16) proj->spr.angle -= DAngle22_5 / 8;
+		if (krand() & 16) proj->spr.Angles.Yaw -= DAngle22_5 / 8;
 		S_PlayActorSound(355, targ);
 		break;
 
@@ -2042,23 +2042,23 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
 			proj->vel.X = targ->vel.X * 0.75;
-			proj->spr.angle -= targ->spr.angle.Normalized180() * 2 + DAngle180;
-			targ->spr.angle = (targ->spr.pos.XY() - proj->spr.pos.XY()).Angle() - DAngle90;
+			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw.Normalized180() * 2 + DAngle180;
+			targ->spr.Angles.Yaw = (targ->spr.pos.XY() - proj->spr.pos.XY()).Angle() - DAngle90;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
 		else if (proj->spr.picnum == BOWLINGPIN || proj->spr.picnum == BOWLINGPIN + 1)
 		{
 			proj->vel.X *= 0.75;
-			proj->spr.angle -= targ->spr.angle * 2 + randomAngle(11.25);
-			targ->spr.angle += randomAngle(22.5 / 8);
+			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw * 2 + randomAngle(11.25);
+			targ->spr.Angles.Yaw += randomAngle(22.5 / 8);
 			S_PlayActorSound(355, targ);
 		}
 		else if (proj->spr.picnum == HENSTAND || proj->spr.picnum == HENSTAND + 1)
 		{
 			proj->vel.X *= 0.75;
-			proj->spr.angle -= targ->spr.angle * 2 + randomAngle(22.5 / 8);
-			targ->spr.angle += randomAngle(22.5 / 8);
+			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw * 2 + randomAngle(22.5 / 8);
+			targ->spr.Angles.Yaw += randomAngle(22.5 / 8);
 			S_PlayActorSound(355, targ);
 		}
 		else
@@ -2066,7 +2066,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			if (krand() & 3)
 			{
 				targ->vel.X = 10.25;
-				targ->spr.angle = proj->spr.angle;
+				targ->spr.Angles.Yaw = proj->spr.Angles.Yaw;
 			}
 		}
 		break;
@@ -2139,7 +2139,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		targ->spr.angle = randomAngle();
+		targ->spr.Angles.Yaw = randomAngle();
 		lotsofglass(targ, nullptr, 8);
 		targ->Destroy();
 		break;

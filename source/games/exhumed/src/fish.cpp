@@ -168,7 +168,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     }
     else
     {
-        nAngle = pActor->spr.angle;
+        nAngle = pActor->spr.Angles.Yaw;
         ChangeActorStat(pActor, 103);
     }
 
@@ -183,7 +183,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->spr.lotag = runlist_HeadRun() + 1;
     pActor->spr.hitag = 0;
     pActor->spr.extra = -1;
@@ -210,7 +210,7 @@ void BuildFish(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
 
 void IdleFish(DExhumedActor* pActor, int edx)
 {
-    pActor->spr.angle += DAngle180 + DAngle45 - RandomAngle9();
+    pActor->spr.Angles.Yaw += DAngle180 + DAngle45 - RandomAngle9();
     pActor->norm_ang();
 
     pActor->VelFromAngle(-8);
@@ -426,7 +426,7 @@ void AIFish::Tick(RunListEvent* ev)
 
             if (z <= nHeight)
             {
-				pActor->vel.XY() = pActor->spr.angle.ToVector() * (32 - 8);
+				pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (32 - 8);
             }
             else
             {
@@ -506,7 +506,7 @@ void AIFish::Tick(RunListEvent* ev)
                 if (pHitAct->spr.statnum == 100)
                 {
                     pActor->pTarget = coll.actor();
-                    pActor->spr.angle = (pHitAct->spr.pos - pActor->spr.pos).Angle();
+                    pActor->spr.Angles.Yaw = (pHitAct->spr.pos - pActor->spr.pos).Angle();
 
                     if (nAction != 3)
                     {

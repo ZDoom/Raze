@@ -171,7 +171,7 @@ double hits(DDukeActor* actor)
 	else zoff = 0;
 
 	auto pos = actor->spr.pos;
-	hitscan(pos.plusZ(-zoff), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK1);
+	hitscan(pos.plusZ(-zoff), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK1);
 	return (hit.hitpos.XY() - actor->spr.pos.XY()).Length();
 }
 
@@ -192,7 +192,7 @@ double hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else zoff = 0;
 
 	auto pos = actor->spr.pos;
-	hitscan(pos.plusZ(-zoff), actor->sector(), DVector3(actor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK1);
+	hitscan(pos.plusZ(-zoff), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
@@ -231,7 +231,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 	bool gotshrinker, gotfreezer;
 	static const int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 
-	DAngle a = actor->spr.angle;
+	DAngle a = actor->spr.Angles.Yaw;
 
 	// Autoaim from DukeGDX.
 	if (actor->isPlayer())
@@ -248,7 +248,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 				setFreeAimVelocity(vel, zvel, plr->horizon.sum(), 16.);
 
 				HitInfo hit{};
-				hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.angle.ToVector() * vel, zvel), hit, CLIPMASK1);
+				hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel), hit, CLIPMASK1);
 
 				if (hit.actor() != nullptr)
 				{
@@ -1051,7 +1051,7 @@ void shootbloodsplat(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, 
 				if (spawned)
 				{
 					spawned->vel.X = -0.75;
-					spawned->spr.angle = hit.hitWall->delta().Angle() - DAngle90;
+					spawned->spr.Angles.Yaw = hit.hitWall->delta().Angle() - DAngle90;
 					spawned->spr.pos = hit.hitpos;
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);

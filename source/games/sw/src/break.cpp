@@ -602,7 +602,7 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
         auto breakActor = insertActor(0, STAT_DEFAULT);
         breakActor->spr.cstat = 0;
         breakActor->spr.extra = 0;
-        breakActor->spr.angle = ang;
+        breakActor->spr.Angles.Yaw = ang;
         breakActor->spr.picnum = ST1;
         breakActor->spr.scale = DVector2(1, 1);
         SetActorZ(breakActor, hit_pos);

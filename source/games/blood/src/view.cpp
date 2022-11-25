@@ -817,7 +817,7 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
 	PLAYER* pPlayer = &gPlayer[myconnectindex];
 	if (!pPlayer->actor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
-	return std::make_pair(pPlayer->actor->spr.pos, pPlayer->actor->spr.angle);
+	return std::make_pair(pPlayer->actor->spr.pos, pPlayer->actor->spr.Angles.Yaw);
 }
 
 

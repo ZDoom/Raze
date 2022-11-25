@@ -238,7 +238,7 @@ static void so_setspriteanginterpolation(so_interp *interp, DSWActor* actor)
     data->curelement = soi_sprang;
     data->oldipos =
         data->lastipos =
-        data->lastoldipos = actor->spr.angle.Degrees();
+        data->lastoldipos = actor->spr.Angles.Yaw.Degrees();
     data->lastangdiff = nullAngle;
     data->actorofang = actor;
 }
@@ -401,7 +401,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
                         actorofang->user.oangdiff = nullAngle;
                     if (!interpolating)
                         data->lastangdiff = nullAngle;
-                    data->oldipos = actorofang->spr.angle.Degrees();
+                    data->oldipos = actorofang->spr.Angles.Yaw.Degrees();
                 }
             }
             else
@@ -446,7 +446,7 @@ void so_dointerpolations(double interpfrac)                      // Stick at beg
                 continue; // target went poof.
 
             interp->data[i].bakipos = (interp->data[i].curelement == soi_sprang) ?
-                                      actorofang->spr.angle.Degrees() :
+                                      actorofang->spr.Angles.Yaw.Degrees() :
                                       getvalue(interp->data[i]);
         }
         if (interp->tic == 0) // Only if the SO has just moved
@@ -513,7 +513,7 @@ void so_dointerpolations(double interpfrac)                      // Stick at beg
             {
                 DSWActor* actor = data->actorofang;
                 if (!actor) continue;
-                actor->spr.angle = (DAngle::fromDeg(data->lastoldipos) + data->lastangdiff * ratio).Normalized360();
+                actor->spr.Angles.Yaw = (DAngle::fromDeg(data->lastoldipos) + data->lastangdiff * ratio).Normalized360();
             }
             else
             {
@@ -548,7 +548,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
             if (data->curelement == soi_sprang)
             {
                 auto actorofang = interp->data[i].actorofang;
-                if (actorofang) actorofang->spr.angle = DAngle::fromDeg(data->bakipos);
+                if (actorofang) actorofang->spr.Angles.Yaw = DAngle::fromDeg(data->bakipos);
             }
             else
             {

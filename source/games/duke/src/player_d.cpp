@@ -168,7 +168,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 			zvel = (((ps[j].GetActor()->getPrevOffsetZ() - spos.Z) * vel) / dist);
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
-			sang = actor->spr.angle + mapangle((krand() & 31) - 16);
+			sang = actor->spr.Angles.Yaw + mapangle((krand() & 31) - 16);
 
 		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
@@ -203,7 +203,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	spawned->spr.pos.Z--;
 	spawned->setsector(actor->sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-	spawned->spr.angle = sang;
+	spawned->spr.Angles.Yaw = sang;
 	spawned->spr.scale = DVector2(0.03125, 0.03125);
 	spawned->clipdist = 10;
 	spawned->spr.yint = p;
@@ -294,7 +294,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			if (splash)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.angle = ps[p].angle.ang; // Total tweek
+				splash->spr.Angles.Yaw = ps[p].angle.ang; // Total tweek
 				splash->vel.X = 2;
 				ssp(actor, CLIPMASK0);
 				splash->vel.X = 0;
@@ -442,7 +442,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 					jib->spr.pos.Z += 4;
 					jib->vel.X = 1;
 					jib->spr.scale = DVector2(0.375, 0.375);
-					jib->spr.angle += DAngle22_5 / 2 - randomAngle(22.5);
+					jib->spr.Angles.Yaw += DAngle22_5 / 2 - randomAngle(22.5);
 				}
 			}
 			else spawn(spark, SMALLSMOKE);
@@ -511,7 +511,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 							if (hole)
 							{
 								hole->vel.X = -1 / 16.;
-								hole->spr.angle = hit.hitWall->delta().Angle() - DAngle90;
+								hole->spr.Angles.Yaw = hit.hitWall->delta().Angle() - DAngle90;
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}
@@ -638,14 +638,14 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 				spawned->vel.X = 64;
 				ssp(spawned, CLIPMASK0);
 				spawned->vel.X = ovel;
-				spawned->spr.angle += DAngle22_5 - randomAngle(45);
+				spawned->spr.Angles.Yaw += DAngle22_5 - randomAngle(45);
 			}
 		}
 
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 		spawned->clipdist = 1;
 
-		ang = actor->spr.angle + DAngle22_5 / 4 - randomAngle(22.5 / 2);
+		ang = actor->spr.Angles.Yaw + DAngle22_5 / 4 - randomAngle(22.5 / 2);
 		zvel = oldzvel + 2 - krandf(4);
 
 		scount--;
@@ -715,7 +715,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 		zvel = ((ps[j].GetActor()->getPrevOffsetZ() - pos.Z) * vel) / dist;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
-			ang = actor->spr.angle + randomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
+			ang = actor->spr.Angles.Yaw + randomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 	}
 	if (p < 0) aimed = nullptr;
 
@@ -755,7 +755,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			}
 
 			spawned->spr.pos += spawnofs;
-			spawned->spr.angle += aoffs;
+			spawned->spr.Angles.Yaw += aoffs;
 
 			spawned->spr.scale = DVector2(0.65625, 0.65625);
 		}
@@ -771,7 +771,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			}
 
 			spawned->spr.pos += spawnofs;
-			spawned->spr.angle += aoffs;
+			spawned->spr.Angles.Yaw += aoffs;
 
 			spawned->spr.scale = DVector2(0.375, 0.375);
 		}
@@ -784,7 +784,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	else if ((isWW2GI() && aplWeaponWorksLike(ps[p].curr_weapon, p) == DEVISTATOR_WEAPON) || (!isWW2GI() && ps[p].curr_weapon == DEVISTATOR_WEAPON))
 	{
 		spawned->spr.extra >>= 2;
-		spawned->spr.angle += DAngle22_5 / 8 - randomAngle(22.5 / 4);
+		spawned->spr.Angles.Yaw += DAngle22_5 / 8 - randomAngle(22.5 / 4);
 		spawned->vel.Z += 1 - krandf(2);
 
 		if (ps[p].hbomb_hold_delay)
@@ -872,8 +872,8 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			ssp(bomb, CLIPMASK0);
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 			auto delta = -hit.hitWall->delta();
-			bomb->spr.angle = delta.Angle() - DAngle90;
-			bomb->temp_angle = bomb->spr.angle;
+			bomb->spr.Angles.Yaw = delta.Angle() - DAngle90;
+			bomb->temp_angle = bomb->spr.Angles.Yaw;
 
 			if (p >= 0)
 				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
@@ -1078,7 +1078,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	}
 	else
 	{
-		sang = actor->spr.angle;
+		sang = actor->spr.Angles.Yaw;
 		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tileHeight(actor->spr.picnum) * 0.5) + 4);
 
 		if (actor->spr.picnum != ROTATEGUN)
@@ -1111,7 +1111,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 			{
 				k->setsector(sect);
 				k->spr.pos = spos;
-				k->spr.angle = sang;
+				k->spr.Angles.Yaw = sang;
 				k->vel.X = 500 / 16.;
 				k->vel.Z = 0;
 			}
@@ -2226,7 +2226,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			double hd = hits(pact);
 			if (hd < 32)
 			{
-				spawned->spr.angle += DAngle180;
+				spawned->spr.Angles.Yaw += DAngle180;
 				spawned->vel *= 1./3.;
 			}
 
@@ -2353,9 +2353,9 @@ static void operateweapon(int snum, ESyncBits actions)
 			auto j = spawn(pact, SHOTGUNSHELL);
 			if (j)
 			{
-				j->spr.angle += DAngle180;
+				j->spr.Angles.Yaw += DAngle180;
 				ssp(j, CLIPMASK0);
-				j->spr.angle -= DAngle180;
+				j->spr.Angles.Yaw -= DAngle180;
 			}
 			p->kickback_pic++;
 			break;
@@ -2387,7 +2387,7 @@ static void operateweapon(int snum, ESyncBits actions)
 					auto j = spawn(pact, SHELL);
 					if (j)
 					{
-						j->spr.angle += DAngle180;
+						j->spr.Angles.Yaw += DAngle180;
 						j->vel.X += 2.;
 						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);

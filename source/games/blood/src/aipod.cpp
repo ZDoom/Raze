@@ -140,7 +140,7 @@ static void aiPodMove(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
 		switch (actor->spr.type) {
 		case kDudePodGreen:
@@ -198,7 +198,7 @@ static void aiPodChase(DBloodActor* actor)
 	}
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{

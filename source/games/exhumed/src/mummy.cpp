@@ -52,7 +52,7 @@ void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     }
     else
     {
-        nAngle = pActor->spr.angle;
+        nAngle = pActor->spr.Angles.Yaw;
         ChangeActorStat(pActor, 102);
     }
 
@@ -66,7 +66,7 @@ void BuildMummy(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->spr.picnum = 1;
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -274,7 +274,7 @@ void AIMummy::Tick(RunListEvent* ev)
         {
         case kHitWall:
         {
-            pActor->spr.angle += DAngle180 + mapangle(RandomWord() & 0x3FF);
+            pActor->spr.Angles.Yaw += DAngle180 + mapangle(RandomWord() & 0x3FF);
             pActor->VelFromAngle(-2);
             return;
         }
@@ -283,7 +283,7 @@ void AIMummy::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                auto nAngDiff = absangle(pActor->spr.angle, (pTarget->spr.pos - pActor->spr.pos).Angle());
+                auto nAngDiff = absangle(pActor->spr.Angles.Yaw, (pTarget->spr.pos - pActor->spr.pos).Angle());
                 if (nAngDiff < DAngle22_5 / 2)
                 {
                     pActor->nAction = 2;
@@ -337,7 +337,7 @@ void AIMummy::Tick(RunListEvent* ev)
             SetQuake(pActor, 100);
 
             // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
-            auto pBullet = BuildBullet(pActor, 9, -60, pActor->spr.angle, pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 9, -60, pActor->spr.Angles.Yaw, pTarget, 1);
             CheckMummyRevive(pActor);
 
             if (pBullet)

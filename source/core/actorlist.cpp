@@ -379,7 +379,7 @@ void DCoreActor::initFromSprite(spritetype* mspr)
 #define setter(flag, var) if (!(actorinfo->DefaultFlags & flag)) spr.var = mspr->var;
 
 	setter(DEFF_PICNUM, picnum);
-	setter(DEFF_ANG, angle);
+	setter(DEFF_ANG, Angles.Yaw);
 	setter(DEFF_INTANG, intangle);
 	setter(DEFF_XVEL, xint);
 	setter(DEFF_YVEL, yint);

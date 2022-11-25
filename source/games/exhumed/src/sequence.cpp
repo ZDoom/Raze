@@ -534,7 +534,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
     tspritetype* pTSprite = mytspriteArray->get(nSprite);
     DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
 
-    int nSeqOffset = (((pTSprite->angle + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
+    int nSeqOffset = (((pTSprite->Angles.Yaw + DAngle90 + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
 
     int16_t nFrame = SeqBase[nSeqOffset + nSeq] + nVal;
 
@@ -596,7 +596,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     else
     {
         DAngle nAngle = (nCamerapos.XY() - pTSprite->pos.XY()).Angle();
-        val = (((pTSprite->angle + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
+        val = (((pTSprite->Angles.Yaw + DAngle22_5 - nAngle).Buildang()) & kAngleMask) >> 8;
     }
 
     int eax = SeqBase[edx] + nFrame;
@@ -644,7 +644,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tsp->shade = shade;
         tsp->pal = pTSprite->pal;
         tsp->scale = pTSprite->scale;
-        tsp->angle = pTSprite->angle;
+        tsp->Angles.Yaw = pTSprite->Angles.Yaw;
         tsp->ownerActor = pTSprite->ownerActor;
         tsp->sectp = pTSprite->sectp;
         tsp->cstat = pTSprite->cstat |= CSTAT_SPRITE_YCENTER;

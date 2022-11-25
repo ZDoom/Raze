@@ -115,7 +115,7 @@ int GetRotation(tspriteArray& tsprites, int tSpriteNum, const DVector2& view)
     // Get which of the 8 angles of the sprite to draw (0-7)
     // rotation ranges from 0-7
     DAngle angle2 = (tsp->pos - view).Angle();
-    rotation = (tsp->angle + DAngle180 + DAngle22_5 * 0.5 - angle2).Buildang() & 2047;
+    rotation = (tsp->Angles.Yaw + DAngle180 + DAngle22_5 * 0.5 - angle2).Buildang() & 2047;
     rotation = (rotation >> 8) & 7;
 
     if (ownerActor->user.RotNum == 5)
@@ -385,7 +385,7 @@ void DoMotionBlur(tspriteArray& tsprites, tspritetype const * const tsp)
 	DVector2 scale;
     double z_amt_per_pixel;
 
-    auto angle = tsp->angle + DAngle180;
+    auto angle = tsp->Angles.Yaw + DAngle180;
 
     if (!ownerActor->hasU() || ownerActor->vel.X == 0)
     {
@@ -544,7 +544,7 @@ DSWActor* CopySprite(spritetypebase const* tsp, sectortype* newsector)
     actorNew->spr.scale = tsp->scale;
     actorNew->spr.xoffset = tsp->xoffset;
     actorNew->spr.yoffset = tsp->yoffset;
-    actorNew->spr.angle = tsp->angle;
+    actorNew->spr.Angles.Yaw = tsp->Angles.Yaw;
     actorNew->spr.xint = tsp->xint;
     actorNew->spr.yint = tsp->yint;
     actorNew->spr.inittype = tsp->inittype;
@@ -693,7 +693,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                 {
 
                     tsp->picnum = DART_PIC;
-                    tsp->angle -= DAngle90 + mapangle(24);
+                    tsp->Angles.Yaw -= DAngle90 + mapangle(24);
 					tsp->scale = DVector2(DART_REPEAT, DART_REPEAT);
                     tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
@@ -757,7 +757,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             if (tsp->statnum == STAT_STAR_QUEUE)
             {
                 tsp->picnum = DART_PIC;
-                tsp->angle -= DAngle90;
+                tsp->Angles.Yaw -= DAngle90;
 				tsp->scale = DVector2(DART_REPEAT, DART_REPEAT);
                 tsp->cstat |= (CSTAT_SPRITE_ALIGNMENT_WALL);
             }
@@ -788,7 +788,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     {
                         // move sprite forward some so he looks like he's
                         // climbing
-                        pos.XY() = pp->si.XY() + tsp->angle.ToVector() * 13;
+                        pos.XY() = pp->si.XY() + tsp->Angles.Yaw.ToVector() * 13;
                     }
                     else
                     {
@@ -798,7 +798,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
 
                     pos.Z = tsp->pos.Z + pp->si.Z + pp->getViewHeightDiff();
 					tsp->pos = pos;
-                    tsp->angle = pp->siang;
+                    tsp->Angles.Yaw = pp->siang;
                     //continue;
                 }
                 else
@@ -812,7 +812,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             {
                 pp = tActor->user.PlayerP;
                 tsp->pos = pp->actor->getRenderPos(interpfrac);
-                tsp->angle = pp->angle.interpolatedang(interpfrac);
+                tsp->Angles.Yaw = pp->angle.interpolatedang(interpfrac);
             }
         }
 
@@ -966,7 +966,7 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
     auto ppActor = Player[myconnectindex].actor;
     if (!ppActor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
-    return std::make_pair(ppActor->spr.pos, ppActor->spr.angle);
+    return std::make_pair(ppActor->spr.pos, ppActor->spr.Angles.Yaw);
 }
 
 //---------------------------------------------------------------------------
@@ -1007,7 +1007,7 @@ void PrintSpriteInfo(PLAYER* pp)
             Printf("POSX:%2.3f, ", actor->spr.pos.X);
             Printf("POSY:%2.3f, ", actor->spr.pos.Y);
             Printf("POSZ:%2.3f,", actor->spr.pos.Z);
-            Printf("ANG:%2.0f\n", actor->spr.angle.Degrees());
+            Printf("ANG:%2.0f\n", actor->spr.Angles.Yaw.Degrees());
         }
     }
 }
@@ -1280,7 +1280,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     if (pp->sop_remote)
     {
         DSWActor* ractor = pp->remoteActor;
-        tang = TEST_BOOL1(ractor) ? ractor->spr.angle : (pp->sop_remote->pmid.XY() - tpos.XY()).Angle();
+        tang = TEST_BOOL1(ractor) ? ractor->spr.Angles.Yaw : (pp->sop_remote->pmid.XY() - tpos.XY()).Angle();
     }
 
     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
@@ -1464,7 +1464,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                 if (spnum >= 0)
                 {
-                    const auto daang = -((!SyncInput() ? actor->spr.angle : actor->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();
+                    const auto daang = -((!SyncInput() ? actor->spr.Angles.Yaw : actor->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                     // This repeat scale is correct.

@@ -421,7 +421,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 			("yoffset", c.yoffset, def->yoffset)
 			("statnum", c.statnum)
 			("sectnum", c.sectp)
-			("angle", c.angle, def->angle)
+			("angles", c.Angles, def->Angles)
 			("ang", c.intangle, def->intangle)
 			("owner", c.intowner, def->intowner)
 			("xvel", c.xint, def->xint)
@@ -636,7 +636,7 @@ void DCoreActor::Serialize(FSerializer& arc)
 	if (arc.isReading())
 	{
 		spsmooth = {};
-		backuppos();
+		backuploc();
 	}
 }
 

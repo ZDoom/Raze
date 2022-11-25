@@ -558,7 +558,7 @@ int NewCoolg(DSWActor* actor)
 {
     ANIMATOR DoActorDecide;
 
-    auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], actor->sector(), actor->spr.pos, actor->spr.angle, 50/16.);
+    auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw, 50/16.);
 
     ChangeState(actorNew, &s_CoolgBirth[0]);
     actorNew->user.StateEnd = s_CoolgDie;
@@ -750,9 +750,9 @@ int DoCoolgCircle(DSWActor* actor)
 {
     double bound;
 
-    actor->spr.angle += mapangle(actor->user.Counter2);
+    actor->spr.Angles.Yaw += mapangle(actor->user.Counter2);
 
-    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
+    if (!move_actor(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, 0)))
     {
         InitActorReposition(actor);
         return 0;
@@ -810,7 +810,7 @@ int DoCoolgDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
+	auto vec = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
     actor->user.coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(actor);

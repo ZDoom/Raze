@@ -51,7 +51,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
 	{
 		ChangeActorStat(pActor, 105);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-		angle = pActor->spr.angle;
+		angle = pActor->spr.Angles.Yaw;
 	}
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -61,7 +61,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
     pActor->spr.picnum = 1;
     pActor->spr.pal = pActor->sector()->ceilingpal;
 	pActor->clipdist = 15;
-    pActor->spr.angle = angle;
+    pActor->spr.Angles.Yaw = angle;
     pActor->spr.scale = DVector2(0.625, 0.625);
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
@@ -101,7 +101,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, const DVector3& pos, sectortyp
 
 void GoRoach(DExhumedActor* pActor)
 {
-	pActor->vel.XY() = pActor->spr.angle.ToVector() * (512 - 128);
+	pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * (512 - 128);
 }
 
 void AIRoach::Draw(RunListEvent* ev)
@@ -300,19 +300,19 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->vel.X = 0;
                 pActor->vel.Y = 0;
-                pActor->spr.angle = (pTarget->spr.pos - pActor->spr.pos).Angle();
+                pActor->spr.Angles.Yaw = (pTarget->spr.pos - pActor->spr.pos).Angle();
 
                 pActor->nFrame = 0;
             }
             else
             {
-                pActor->spr.angle += DAngle45;
+                pActor->spr.Angles.Yaw += DAngle45;
                 GoRoach(pActor);
             }
         }
         else if (nMov.type == kHitWall)
         {
-            pActor->spr.angle += DAngle45;
+            pActor->spr.Angles.Yaw += DAngle45;
             GoRoach(pActor);
         }
         else
@@ -329,7 +329,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pActor->vel.X = 0;
                 pActor->vel.Y = 0;
-				pActor->spr.angle = (pTarget->spr.pos - pActor->spr.pos).Angle();
+				pActor->spr.Angles.Yaw = (pTarget->spr.pos - pActor->spr.pos).Angle();
 
                 pActor->nFrame = 0;
             }
@@ -365,7 +365,7 @@ void AIRoach::Tick(RunListEvent* ev)
         {
             if (nFlag & 0x80)
             {
-                BuildBullet(pActor, 13, INT_MAX, pActor->spr.angle, pTarget, 1);
+                BuildBullet(pActor, 13, INT_MAX, pActor->spr.Angles.Yaw, pTarget, 1);
             }
         }
 

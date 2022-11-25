@@ -253,7 +253,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 
 	int nNum = 256;
 	gHitInfo.clearObj();
-	auto pos = actor->spr.pos.plusZ(nZOffset) + (actor->spr.angle + DAngle90).ToVector() * nOffset;
+	auto pos = actor->spr.pos.plusZ(nZOffset) + (actor->spr.Angles.Yaw + DAngle90).ToVector() * nOffset;
 	auto bakCstat = actor->spr.cstat;
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 

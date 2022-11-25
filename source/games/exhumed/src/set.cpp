@@ -56,7 +56,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     {
         ChangeActorStat(pActor, 120);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-        nAngle = pActor->spr.angle;
+        nAngle = pActor->spr.Angles.Yaw;
     }
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -69,7 +69,7 @@ void BuildSet(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->spr.picnum = 1;
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
@@ -114,7 +114,7 @@ void BuildSoul(DExhumedActor* pSet)
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
-    pActor->spr.angle = RandomAngle();
+    pActor->spr.Angles.Yaw = RandomAngle();
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = -1 - RandomSize(10) / 256.;
@@ -155,7 +155,7 @@ void AISoul::Tick(RunListEvent* ev)
 
     double nVel = mapangle(pActor->spr.extra).Cos();
 
-    auto vect = pActor->spr.angle.ToVector() * nVel * 8;
+    auto vect = pActor->spr.Angles.Yaw.ToVector() * nVel * 8;
 	auto coll = movesprite(pActor,vect, pActor->vel.Z, 0, CLIPMASK0);
     if (coll.exbits & 0x10000)
     {
@@ -427,7 +427,7 @@ void AISet::Tick(RunListEvent* ev)
             }
 
             // loc_338E2
-			pActor->vel.XY() = pActor->spr.angle.ToVector() * 512;
+			pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 512;
 
             if (pActor->nIndex2)
             {
@@ -455,7 +455,7 @@ void AISet::Tick(RunListEvent* ev)
                     }
                 }
 
-                pActor->spr.angle += DAngle45;
+                pActor->spr.Angles.Yaw += DAngle45;
                 pActor->VelFromAngle(-1);
                 break;
             }
@@ -463,7 +463,7 @@ void AISet::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    auto nAngDiff = absangle(pActor->spr.angle, (pTarget->spr.pos - pActor->spr.pos).Angle());
+                    auto nAngDiff = absangle(pActor->spr.Angles.Yaw, (pTarget->spr.pos - pActor->spr.pos).Angle());
                     if (nAngDiff < DAngle22_5 / 2)
                     {
                         pActor->nAction = 4;
@@ -528,7 +528,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            auto pBullet = BuildBullet(pActor, 11, INT_MAX, pActor->spr.angle, pTarget, 1);
+            auto pBullet = BuildBullet(pActor, 11, INT_MAX, pActor->spr.Angles.Yaw, pTarget, 1);
             if (pBullet)
 				SetBulletEnemy(pBullet->nPhase, pTarget);
 

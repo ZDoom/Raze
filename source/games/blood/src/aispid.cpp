@@ -59,7 +59,7 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 
 void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
-	DVector3 vec(actor->spr.angle.ToVector(), 0);
+	DVector3 vec(actor->spr.Angles.Yaw.ToVector(), 0);
 
 	vec.X += Random2F(2000, 14);
 	vec.Y += Random2F(2000, 14);
@@ -107,7 +107,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 
 void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
-	DVector3 vec(actor->spr.angle.ToVector(), 0);
+	DVector3 vec(actor->spr.Angles.Yaw.ToVector(), 0);
 
 	vec.X += Random2F(200, 14);
 	vec.Y += Random2F(200, 14);
@@ -143,7 +143,7 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 	DBloodActor* spawned = nullptr;
 	if (target->IsPlayerActor() && pDudeExtraE->birthCounter < 10)
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		if (nDist < 0x1a0 && nDist > 0x140 && nDeltaAngle < pDudeInfo->Periphery())
 			spawned = actSpawnDude(actor, kDudeSpiderRed, actor->clipdist * 0.25);
 		else if (nDist < 0x140 && nDist > 0xc0 && nDeltaAngle < pDudeInfo->Periphery())
@@ -175,7 +175,7 @@ static void spidThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &spidSearch);
 	aiThinkTarget(actor);
 }
@@ -208,7 +208,7 @@ static void spidThinkChase(DBloodActor* actor)
 
 	if (nDist <= pDudeInfo->SeeDist()) 
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{

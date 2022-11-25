@@ -247,7 +247,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 
             if (nStat == kStatAnubisDrum)
             {
-                auto nAngle = (pActor->spr.angle + DAngle22_5) - RandomAngle9();
+                auto nAngle = (pActor->spr.Angles.Yaw + DAngle22_5) - RandomAngle9();
 
 				pHitActor->vel.XY() = nAngle.ToVector() * 2048;
                 pHitActor->vel.Z = -(RandomSize(3) + 1);
@@ -434,7 +434,7 @@ MOVEEND:
 
             HitInfo hit{};
             double dz = -pBullet->nPitch *2;
-			hitscan(apos, pActor->sector(), DVector3(pActor->spr.angle.ToVector() * 1024, dz), hit, CLIPMASK1);
+			hitscan(apos, pActor->sector(), DVector3(pActor->spr.Angles.Yaw.ToVector() * 1024, dz), hit, CLIPMASK1);
             pos = hit.hitpos;
             hitactor = hit.actor();
             pHitSect = hit.hitSector;
@@ -498,8 +498,8 @@ HITSPRITE:
             {
                 if (pHitWall != nullptr)
                 {
-					pos.X -= pActor->spr.angle.Cos() * 0.5;
-					pos.Y -= pActor->spr.angle.Sin() * 0.5;
+					pos.X -= pActor->spr.Angles.Yaw.Cos() * 0.5;
+					pos.Y -= pActor->spr.Angles.Yaw.Sin() * 0.5;
 
                     if (nType != 3 || RandomSize(2) == 0)
                     {
@@ -573,7 +573,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
                 sBullet.nDoubleDamage = nDoubleDamage;
 
                 sBullet.pActor = insertActor(pActor->sector(), 200);
-                sBullet.pActor->spr.angle = nAngle;
+                sBullet.pActor->spr.Angles.Yaw = nAngle;
 
                 double nHeight = GetActorHeight(pTarget);
 
@@ -639,7 +639,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
     pBulletActor->spr.scale = DVector2(nRepeat * REPEAT_SCALE, nRepeat * REPEAT_SCALE);
     pBulletActor->spr.xoffset = 0;
     pBulletActor->spr.yoffset = 0;
-    pBulletActor->spr.angle = nAngle;
+    pBulletActor->spr.Angles.Yaw = nAngle;
     pBulletActor->vel.X = 0;
     pBulletActor->vel.Y = 0;
     pBulletActor->vel.Z = 0;
@@ -748,7 +748,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, double fZOffset, DA
                 xy -= pBulletActor->spr.pos.XY();
 
                 nAngle = xy.Angle();
-                pActor->spr.angle = nAngle;
+                pActor->spr.Angles.Yaw = nAngle;
             }
             else
             {

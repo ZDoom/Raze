@@ -462,7 +462,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	visibility = sectorVisibility(sector);
 	voxel = vox;
 
-	auto ang = spr->angle + ownerActor->sprext.rot.Yaw;
+	auto ang = spr->Angles.Yaw + ownerActor->sprext.rot.Yaw;
 	if ((spr->clipdist & TSPR_MDLROTATE) || rotate)
 	{
 		int myclock = (PlayClock << 3) + MulScale(4 << 3, (int)di->Viewpoint.TicFrac, 16);

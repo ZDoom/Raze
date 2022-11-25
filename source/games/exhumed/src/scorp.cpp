@@ -55,7 +55,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
 	{
 		ChangeActorStat(pActor, 122);
 		pActor->spr.pos.Z = pActor->sector()->floorz;
-		nAngle = pActor->spr.angle;
+		nAngle = pActor->spr.Angles.Yaw;
 	}
 
     pActor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -66,7 +66,7 @@ void BuildScorp(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector,
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -273,7 +273,7 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    auto nAngDiff = absangle(pActor->spr.angle, (pTarget->spr.pos - pActor->spr.pos).Angle());
+                    auto nAngDiff = absangle(pActor->spr.Angles.Yaw, (pTarget->spr.pos - pActor->spr.pos).Angle());
                     if (nAngDiff < DAngle22_5 / 2)
                     {
                         pActor->nAction = 2;
@@ -341,7 +341,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto nBulletSprite = BuildBullet(pActor, 16, INT_MAX, pActor->spr.angle, pTarget, 1);
+        auto nBulletSprite = BuildBullet(pActor, 16, INT_MAX, pActor->spr.Angles.Yaw, pTarget, 1);
         if (nBulletSprite)
         {
             PlotCourseToSprite(nBulletSprite, pTarget);
@@ -391,14 +391,14 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto pSpiderActor = BuildSpider(nullptr, pActor->spr.pos, pActor->sector(), pActor->spr.angle);
+        auto pSpiderActor = BuildSpider(nullptr, pActor->spr.pos, pActor->sector(), pActor->spr.Angles.Yaw);
         if (pSpiderActor)
         {
-            pSpiderActor->spr.angle = RandomAngle();
+            pSpiderActor->spr.Angles.Yaw = RandomAngle();
 
             int nVel = RandomSize(5) + 1;
 
-			pSpiderActor->vel.XY() = pSpiderActor->spr.angle.ToVector() * 4 * nVel;
+			pSpiderActor->vel.XY() = pSpiderActor->spr.Angles.Yaw.ToVector() * 4 * nVel;
             pSpiderActor->vel.Z = -(RandomSize(5) + 3);
         }
 
@@ -439,7 +439,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
     if (mode == 0)
     {
         PlotCourseToSprite(pActor, pTarget);
-        pActor->spr.angle += mapangle(RandomSize(7) - 63);
+        pActor->spr.Angles.Yaw += mapangle(RandomSize(7) - 63);
         pActor->norm_ang();
 
         pActor->VelFromAngle();
@@ -459,7 +459,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
             {
                 pActor->vel.X = 0;
                 pActor->vel.Y = 0;
-				pActor->spr.angle = (pTarget->spr.pos - pActor->spr.pos).Angle();
+				pActor->spr.Angles.Yaw = (pTarget->spr.pos - pActor->spr.pos).Angle();
 
                 pActor->nIndex = RandomSize(2) + RandomSize(3);
 

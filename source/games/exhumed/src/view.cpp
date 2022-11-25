@@ -70,7 +70,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
         {
             // interpolate sprite position
             pTSprite->pos = pTSprite->ownerActor->interpolatedpos(interpfrac);
-            pTSprite->angle = pTSprite->ownerActor->interpolatedangle(interpfrac);
+            pTSprite->Angles.Yaw = pTSprite->ownerActor->interpolatedangle(interpfrac);
         }
     }
 
@@ -84,7 +84,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
 
     auto pSector =pPlayerActor->sector();
 
-    DAngle nAngle = -pPlayerActor->spr.angle;
+    DAngle nAngle = -pPlayerActor->spr.Angles.Yaw;
 
     for (int nTSprite = int(tsprites.Size()-1); nTSprite >= 0; nTSprite--)
     {
@@ -207,7 +207,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
         nCamerapos = pActor->spr.pos;
         pSector = pActor->sector();
-        nCameraang = pActor->spr.angle;
+        nCameraang = pActor->spr.Angles.Yaw;
         rotscrnang = nullAngle;
 
         SetGreenPal();
@@ -343,7 +343,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
                     pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-                    auto ang2 = nCameraang - pPlayerActor->spr.angle;
+                    auto ang2 = nCameraang - pPlayerActor->spr.Angles.Yaw;
                     if (ang2.Degrees() < 0)
                         ang2 = -ang2;
 

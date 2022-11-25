@@ -306,7 +306,7 @@ Collision CheckCloseRange(int nPlayer, DVector3& pos, sectortype* *ppSector)
     auto pActor = PlayerList[nPlayer].pActor;
 
     HitInfo hit{};
-    hitscan(pos, *ppSector, DVector3(pActor->spr.angle.ToVector() * 1024, 0 ), hit, CLIPMASK1);
+    hitscan(pos, *ppSector, DVector3(pActor->spr.Angles.Yaw.ToVector() * 1024, 0 ), hit, CLIPMASK1);
 
 	const double ecx = 56.84; // bsin(150, -3)
 	double sqrtNum = (hit.hitpos.XY() - pos.XY()).LengthSquared();
@@ -702,7 +702,7 @@ loc_flag:
             }
 
             int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
-            DAngle nAngle = pPlayerActor->spr.angle;
+            DAngle nAngle = pPlayerActor->spr.Angles.Yaw;
 			auto thePos = pPlayerActor->spr.pos;
 
             double nHeight = GetActorHeight(pPlayerActor) * -0.5;
@@ -844,7 +844,7 @@ loc_flag:
                         // only autoaim if target is in front of the player.
 						assert(t->sector());
                         DAngle angletotarget = (t->spr.pos - pPlayerActor->spr.pos).Angle();
-                        DAngle anglediff = absangle(pPlayerActor->spr.angle, angletotarget);
+                        DAngle anglediff = absangle(pPlayerActor->spr.Angles.Yaw, angletotarget);
                         if (anglediff < DAngle90)
                         {
                             target = t;
@@ -866,7 +866,7 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 2.;
 
-                    PlayerList[nPlayer].nThrust -= pPlayerActor->spr.angle.ToVector() * 2;
+                    PlayerList[nPlayer].nThrust -= pPlayerActor->spr.Angles.Yaw.ToVector() * 2;
                     break;
                 }
                 case kWeaponRing:

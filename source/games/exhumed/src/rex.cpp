@@ -52,7 +52,7 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
 	}
 	else
 	{
-		nAngle = pActor->spr.angle;
+		nAngle = pActor->spr.Angles.Yaw;
 		pActor->spr.pos.Z = pActor->sector()->floorz;
         ChangeActorStat(pActor, 119);
     }
@@ -65,7 +65,7 @@ void BuildRex(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, D
     pActor->spr.pal = pActor->sector()->ceilingpal;
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -232,9 +232,9 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 if (pTarget == nullptr)
                 {
-                    auto nAngle = pActor->spr.angle;
+                    auto nAngle = pActor->spr.Angles.Yaw;
                     pActor->pTarget = FindPlayer(pActor, 60);
-                    pActor->spr.angle = nAngle;
+                    pActor->spr.Angles.Yaw = nAngle;
                 }
                 else
                 {
@@ -282,7 +282,7 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 if ((PlotCourseToSprite(pActor, pTarget) >= 60*16) || pActor->nCount > 0)
                 {
-					pActor->vel.XY() = pActor->spr.angle.ToVector() * 256;
+					pActor->vel.XY() = pActor->spr.Angles.Yaw.ToVector() * 256;
                 }
                 else
                 {
@@ -312,7 +312,7 @@ void AIRex::Tick(RunListEvent* ev)
         }
         case kHitWall:
         {
-            pActor->spr.angle += DAngle45;
+            pActor->spr.Angles.Yaw += DAngle45;
             pActor->VelFromAngle(-2);
             pActor->nAction = 1;
             pActor->nFrame = 0;
@@ -342,7 +342,7 @@ void AIRex::Tick(RunListEvent* ev)
                 SetQuake(pActor, 25);
                 pActor->nCount = 60;
 
-                pActor->spr.angle += DAngle45;
+                pActor->spr.Angles.Yaw += DAngle45;
                 pActor->VelFromAngle(-2);
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
@@ -360,7 +360,7 @@ void AIRex::Tick(RunListEvent* ev)
                 {
                     runlist_DamageEnemy(nMov.actor(), pActor, 15);
 
-					auto vel = pActor->spr.angle.ToVector() * 1024 * 15;
+					auto vel = pActor->spr.Angles.Yaw.ToVector() * 1024 * 15;
 
                     if (pHitActor->spr.statnum == 100)
                     {

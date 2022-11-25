@@ -106,7 +106,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     else
     {
         pSector = pActor->sector();
-        nAngle = pActor->spr.angle;
+        nAngle = pActor->spr.Angles.Yaw;
 		pActor->spr.pos.Z = pSector->floorz;
 
         ChangeActorStat(pActor, 118);
@@ -123,7 +123,7 @@ void BuildLava(DExhumedActor* pActor, const DVector3& pos, sectortype* pSector, 
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->spr.hitag = 0;
     pActor->spr.lotag = runlist_HeadRun() + 1;
 
@@ -284,7 +284,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             ChangeActorSect(pActor, pSector);
 			pActor->spr.pos = pos;
 
-            pActor->spr.angle += DAngle180 + mapangle(RandomWord() & 0x3FF);
+            pActor->spr.Angles.Yaw += DAngle180 + mapangle(RandomWord() & 0x3FF);
             pActor->VelFromAngle();
             break;
         }
@@ -295,7 +295,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
         if (coll.type == kHitWall)
         {
-            pActor->spr.angle += DAngle180 + mapangle(RandomWord() & 0x3FF);
+            pActor->spr.Angles.Yaw += DAngle180 + mapangle(RandomWord() & 0x3FF);
             pActor->VelFromAngle();
             break;
         }
@@ -303,7 +303,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         {
             if (coll.actor() == pTarget)
             {
-				auto nAngDiff = absangle(pActor->spr.angle, (pTarget->spr.pos - pActor->spr.pos).Angle());
+				auto nAngDiff = absangle(pActor->spr.Angles.Yaw, (pTarget->spr.pos - pActor->spr.pos).Angle());
 				if (nAngDiff < DAngle22_5 / 2)
                 {
                     pActor->nAction = 2;
@@ -342,7 +342,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         if ((nFlag & 0x80) && pTarget)
         {
-             BuildBullet(pActor, 10, INT_MAX, pActor->spr.angle, pTarget, 1);
+             BuildBullet(pActor, 10, INT_MAX, pActor->spr.Angles.Yaw, pTarget, 1);
         }
         else if (var_1C)
         {

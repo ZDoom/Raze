@@ -120,7 +120,7 @@ void GameInterface::UpdateSounds()
 
 	if (pPlayer->actor)
 	{
-		listener.angle = float(-pPlayer->actor->spr.angle.Radians());
+		listener.angle = float(-pPlayer->actor->spr.Angles.Yaw.Radians());
 		listener.velocity.Zero();
 		listener.position = GetSoundPos(pPlayer->actor->spr.pos);
 		listener.valid = true;

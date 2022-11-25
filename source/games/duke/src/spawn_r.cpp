@@ -251,7 +251,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case TONGUE:
 		if (actj)
-			act->spr.angle = actj->spr.angle;
+			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 		act->spr.pos.Z -= gs.playerheight;
 		act->vel.Z = 1 - krandf(2);
 		act->vel.X = 4 - krandf(8);
@@ -484,7 +484,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->temp_data[0] = krand() & 2047;
 			act->spr.cstat = randomFlip();
 			act->spr.scale = DVector2(0.125, 0.125);
-			act->spr.angle = randomAngle();
+			act->spr.Angles.Yaw = randomAngle();
 		}
 		ChangeActorStat(act, STAT_MISC);
 		break;
@@ -499,7 +499,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case SMALLSMOKE:
 		if (actj)
 		{
-			act->spr.angle = actj->spr.angle;
+			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 			act->spr.shade = -64;
 			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
@@ -565,7 +565,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == WATERBUBBLE)
 		{
 			if (actj)
-				act->spr.angle = actj->spr.angle;
+				act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 			double s = REPEAT_SCALE + (krand() & 7) * REPEAT_SCALE;
 			act->spr.scale = DVector2(s, s);
 		}
@@ -847,7 +847,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 			if (act->spr.picnum == RAT)
 			{
-				act->spr.angle = randomAngle();
+				act->spr.Angles.Yaw = randomAngle();
 				act->spr.scale = DVector2(0.75, 0.75);
 				act->spr.cstat = 0;
 			}
@@ -1103,7 +1103,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case STEAM:
 		if (actj)
 		{
-			act->spr.angle = actj->spr.angle;
+			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 			act->vel.X = -0.5;

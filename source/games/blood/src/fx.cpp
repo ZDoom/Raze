@@ -276,7 +276,7 @@ void fxSpawnBlood(DBloodActor* actor, int)
 	auto bloodactor = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos);
 	if (bloodactor)
 	{
-		bloodactor->spr.angle = DAngle180;
+		bloodactor->spr.Angles.Yaw = DAngle180;
 		bloodactor->vel.X = Random2F(0x6aaaa);
 		bloodactor->vel.Y = Random2F(0x6aaaa);
 		bloodactor->vel.Z = -Random2F(0x10aaaa) - FixedToFloat(100);
@@ -306,7 +306,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 		spawnactor = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos);
 	if (spawnactor)
 	{
-		spawnactor->spr.angle = DAngle180;
+		spawnactor->spr.Angles.Yaw = DAngle180;
 		spawnactor->vel.X = Random2F(0x6aaaa);
 		spawnactor->vel.Y = Random2F(0x6aaaa);
 		spawnactor->vel.Z = -Random2F(0x10aaaa) - FixedToFloat(100);
@@ -322,15 +322,15 @@ void fxSpawnPodStuff(DBloodActor* actor, int)
 
 void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int rdist)
 {
-	DVector3 pos(actor->spr.pos.XY() + actor->clipdist * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z); 
+	DVector3 pos(actor->spr.pos.XY() + actor->clipdist * actor->spr.Angles.Yaw.ToVector() + (actor->spr.Angles.Yaw + DAngle90).ToVector() * dist, z); 
 
 	auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), actor->sector(), pos);
 	if (pBrass)
 	{
 		if (!VanillaMode())
-			pBrass->spr.angle = RandomAngle();
+			pBrass->spr.Angles.Yaw = RandomAngle();
 		double nDist = rdist / 30. + Random2F(((rdist / 4) << 18) / 120, 4);
-		DAngle nAngle = actor->spr.angle + Random2A(56) + DAngle90;
+		DAngle nAngle = actor->spr.Angles.Yaw + Random2A(56) + DAngle90;
 		pBrass->vel.XY() = nAngle.ToVector() * nDist;
 		pBrass->vel.Z = actor->vel.Z - 2 - Random2(40) / 30.;
 	}
@@ -344,15 +344,15 @@ void fxSpawnEjectingBrass(DBloodActor* actor, double z, double dist, int rdist)
 
 void fxSpawnEjectingShell(DBloodActor* actor, double z, double dist, int rdist)
 {
-	DVector3 pos(actor->spr.pos.XY() + actor->clipdist * actor->spr.angle.ToVector() + (actor->spr.angle + DAngle90).ToVector() * dist, z);
+	DVector3 pos(actor->spr.pos.XY() + actor->clipdist * actor->spr.Angles.Yaw.ToVector() + (actor->spr.Angles.Yaw + DAngle90).ToVector() * dist, z);
 
 	auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), actor->sector(), pos);
 	if (pShell)
 	{
 		if (!VanillaMode())
-			pShell->spr.angle = RandomAngle();
+			pShell->spr.Angles.Yaw = RandomAngle();
 		double nDist = rdist / 30. + Random2F(((rdist / 4) << 18) / 120, 4);
-		DAngle nAngle = actor->spr.angle + Random2A(56) + DAngle90;
+		DAngle nAngle = actor->spr.Angles.Yaw + Random2A(56) + DAngle90;
 		pShell->vel.XY() = nAngle.ToVector() * nDist;
 		pShell->vel.Z = actor->vel.Z - 2 - Random2(28) / 30.;
 	}

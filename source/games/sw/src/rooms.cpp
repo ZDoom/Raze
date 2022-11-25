@@ -862,7 +862,7 @@ short FindViewSectorInScene(sectortype* cursect, int level)
             if (cursect == actor->sector())
             {
                 // ignore case if sprite is pointing up
-                if (actor->spr.angle == DAngle270)
+                if (actor->spr.Angles.Yaw == DAngle270)
                     continue;
 
                 // only gets to here is sprite is pointing down

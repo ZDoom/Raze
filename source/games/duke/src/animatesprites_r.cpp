@@ -64,7 +64,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		case CHAIR3:
 
-			k = angletorotation1(t->angle, viewang);
+			k = angletorotation1(t->Angles.Yaw, viewang);
 			if (k > 4)
 			{
 				k = 8 - k;
@@ -154,7 +154,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (actorflag(h, SFLAG2_INTERPOLATEANGLE))
 		{
-			t->angle = h->interpolatedangle(interpfrac);
+			t->Angles.Yaw = h->interpolatedangle(interpfrac);
 		}
 
 
@@ -228,8 +228,8 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					t->scale = DVector2(0, 0);
 				else
 				{
-					t->angle = (viewVec - t->pos.XY()).Angle();
-					t->pos.XY() = OwnerAc->spr.pos.XY() + t->angle.ToVector();
+					t->Angles.Yaw = (viewVec - t->pos.XY()).Angle();
+					t->pos.XY() = OwnerAc->spr.pos.XY() + t->Angles.Yaw.ToVector();
 				}
 			}
 			break;
@@ -269,7 +269,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else if (OwnerAc->spr.picnum == MAMA)
 				{
 					kang = (h->spr.pos - viewVec).Angle();
-					k = angletorotation1(h->spr.angle, kang);
+					k = angletorotation1(h->spr.Angles.Yaw, kang);
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -287,7 +287,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case EMPTYBIKE:
 			if (!isRRRA()) goto default_case;
 			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.angle, kang);
+			k = angletorotation2(h->spr.Angles.Yaw, kang);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -299,7 +299,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case EMPTYBOAT:
 			if (!isRRRA()) goto default_case;
 			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.angle, kang);
+			k = angletorotation2(h->spr.Angles.Yaw, kang);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -310,7 +310,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		case RPG:
 			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.angle, kang);
+			k = angletorotation2(h->spr.Angles.Yaw, kang);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -322,7 +322,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case RPG2:
 			if (!isRRRA()) goto default_case;
 			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.angle, kang);
+			k = angletorotation2(h->spr.Angles.Yaw, kang);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -335,7 +335,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case RECON:
 
 			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.angle, kang);
+			k = angletorotation2(h->spr.Angles.Yaw, kang);
 
 			if (k > 6)
 			{
@@ -422,7 +422,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				} else
 				{
-					k = angletorotation1(h->spr.angle, viewang);
+					k = angletorotation1(h->spr.Angles.Yaw, viewang);
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -484,7 +484,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			else if (ps[p].OnMotorcycle)
 			{
-				k = angletorotation2(h->spr.angle, viewang);
+				k = angletorotation2(h->spr.Angles.Yaw, viewang);
 				if (k > 6)
 				{
 					k = 12 - k;
@@ -508,7 +508,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			else if (ps[p].OnBoat)
 			{
-				k = angletorotation2(h->spr.angle, viewang);
+				k = angletorotation2(h->spr.Angles.Yaw, viewang);
 
 				if (k > 6)
 				{
@@ -606,12 +606,12 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				else switch (l) 
 				{
 				case 2:
-					k = angletorotation1(h->spr.angle, viewang, 8, 1);
+					k = angletorotation1(h->spr.Angles.Yaw, viewang, 8, 1);
 					break;
 
 				case 3:
 				case 4:
-					k = angletorotation1(h->spr.angle, viewang, 7);
+					k = angletorotation1(h->spr.Angles.Yaw, viewang, 7);
 					if (k > 3)
 					{
 						t->cstat |= CSTAT_SPRITE_XFLIP;
@@ -622,7 +622,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 				case 5:
 					kang = (h->spr.pos - viewVec).Angle();
-					k = angletorotation1(h->spr.angle, kang);
+					k = angletorotation1(h->spr.Angles.Yaw, kang);
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -632,7 +632,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					break;
 				case 7:
 					kang = (h->spr.pos - viewVec).Angle();
-					k = angletorotation2(h->spr.angle, kang);
+					k = angletorotation2(h->spr.Angles.Yaw, kang);
 					if (k > 6)
 					{
 						k = 12 - k;
@@ -641,7 +641,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 8:
-					k = angletorotation1(h->spr.angle, viewang);
+					k = angletorotation1(h->spr.Angles.Yaw, viewang);
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				default:
@@ -649,7 +649,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					if (bg && h->spr.statnum == 2 && h->spr.extra > 0)
 					{
 						kang = (h->spr.pos - viewVec).Angle();
-						k = angletorotation1(h->spr.angle, kang);
+						k = angletorotation1(h->spr.Angles.Yaw, kang);
 						if (k > 4)
 						{
 							k = 8 - k;
@@ -869,7 +869,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		case PLAYERONWATER:
 
-			k = angletorotation1(t->angle, viewang);
+			k = angletorotation1(t->Angles.Yaw, viewang);
 			if (k > 4)
 			{
 				k = 8 - k;
@@ -915,14 +915,14 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 						t->picnum = OwnerAc->dispicnum;
 					t->pal = OwnerAc->spr.pal;
 					t->shade = OwnerAc->spr.shade;
-					t->angle = OwnerAc->spr.angle;
+					t->Angles.Yaw = OwnerAc->spr.Angles.Yaw;
 					t->cstat = CSTAT_SPRITE_TRANSLUCENT | OwnerAc->spr.cstat;
 				}
 			}
 			break;
 
 		case RAT:
-			k = angletorotation1(t->angle, viewang);
+			k = angletorotation1(t->Angles.Yaw, viewang);
 			if (k > 4)
 			{
 				k = 8 - k;

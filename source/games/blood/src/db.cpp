@@ -484,7 +484,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		pSprite->picnum = LittleShort(load.picnum);
 		int secno = LittleShort(load.sectnum);
 		pSprite->statnum = LittleShort(load.statnum);
-		pSprite->angle = mapangle(LittleShort(load.ang));
+		pSprite->Angles.Yaw = mapangle(LittleShort(load.ang));
 		pSprite->intowner = LittleShort(load.owner);
 		pSprite->xint = LittleShort(load.index);
 		pSprite->yint = LittleShort(load.yvel);

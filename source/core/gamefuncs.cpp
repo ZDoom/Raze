@@ -86,7 +86,7 @@ bool calcChaseCamPos(DVector3& ppos, DCoreActor* act, sectortype** psect, DAngle
 			else
 			{
 				// same as wall calculation.
-				hpos.*c -= npos.*c * npos.XY().dot((act->spr.angle - DAngle90).ToVector().Rotated90CW()) * (1. / 1024.);
+				hpos.*c -= npos.*c * npos.XY().dot((act->spr.Angles.Yaw - DAngle90).ToVector().Rotated90CW()) * (1. / 1024.);
 			}
 		}
 
@@ -215,7 +215,7 @@ void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVect
 		xoffset = tex->GetDisplayLeftOffset() + spr->xoffset;
 	}
 
-	auto p = spr->angle.ToVector().Rotated90CW() * spr->scale.X;
+	auto p = spr->Angles.Yaw.ToVector().Rotated90CW() * spr->scale.X;
 
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoffset = -xoffset;
 	double origin = (width * 0.5) + xoffset;
@@ -264,8 +264,8 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 	double sprcenterx = (width * 0.5) + leftofs;
 	double sprcentery = (height * 0.5) + topofs;
 
-	double cosang = spr->angle.Cos();
-	double sinang = spr->angle.Sin();
+	double cosang = spr->Angles.Yaw.Cos();
+	double sinang = spr->Angles.Yaw.Sin();
 	double cosangslope = cosang / sloperatio;
 	double sinangslope = sinang / sloperatio;
 
@@ -953,7 +953,7 @@ bool checkRangeOfFloorSprite(DCoreActor* itActor, const DVector3& pos, double ma
 	GetFlatSpritePosition(itActor, itActor->spr.pos.XY(), out);
 
 	// expand the area to cover 'maxdist' units more on each side. (i.e. move the edges out)
-	auto expand = (itActor->spr.angle - DAngle45).ToVector() * (maxdist + 0.25);	// that's surely not accurate but here we must match Build's original value.
+	auto expand = (itActor->spr.Angles.Yaw - DAngle45).ToVector() * (maxdist + 0.25);	// that's surely not accurate but here we must match Build's original value.
 	out[0] += expand; 
 	out[1] += expand.Rotated90CCW();
 	out[2] -= expand;
@@ -1353,7 +1353,7 @@ tspritetype* renderAddTsprite(tspriteArray& tsprites, DCoreActor* actor)
 	tspr->yoffset = actor->spr.yoffset;
 	tspr->sectp = actor->spr.sectp;
 	tspr->statnum = actor->spr.statnum;
-	tspr->angle = actor->spr.angle;
+	tspr->Angles.Yaw = actor->spr.Angles.Yaw;
 	tspr->xint = actor->spr.xint;
 	tspr->yint = actor->spr.yint;
 	tspr->inittype = actor->spr.inittype; // not used by tsprites.

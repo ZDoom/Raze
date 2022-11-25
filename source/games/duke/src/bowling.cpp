@@ -182,7 +182,7 @@ void resetpins(sectortype* sect)
 			{
 				spawned->spr.lotag = a2->spr.lotag;
 				spawned->clipdist = 12;	// random formula here was bogus and always produced 48.
-				spawned->spr.angle -= DAngle22_5 * 0.125 * (((krand() & 32) - (krand() & 64)) >> 5); // weird formula to preserve number of krand calls.
+				spawned->spr.Angles.Yaw -= DAngle22_5 * 0.125 * (((krand() & 32) - (krand() & 64)) >> 5); // weird formula to preserve number of krand calls.
 			}
 		}
 		if (a2->spr.picnum == 280)

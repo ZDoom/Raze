@@ -187,7 +187,7 @@ void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 	auto pFX = gFX.fxSpawnActor(FX_27, actor->sector(), actor->spr.pos);
 	if (pFX)
 	{
-		pFX->spr.angle = nullAngle;
+		pFX->spr.Angles.Yaw = nullAngle;
 		pFX->vel = actor->vel * (1./256);
 	}
 	evPostActor(actor, 6, kCallbackFXBloodSpurt);
@@ -224,7 +224,7 @@ void fxDynPuff(DBloodActor* actor, sectortype*) // 8
 	if (actor->vel.Z)
 	{
 		double nDist = (actor->spr.scale.X * tileWidth(actor->spr.picnum)) * (1. / 2);
-		DVector3 pos = actor->spr.pos + (actor->spr.angle - DAngle90).ToVector() * nDist;
+		DVector3 pos = actor->spr.pos + (actor->spr.Angles.Yaw - DAngle90).ToVector() * nDist;
 		auto pFX = gFX.fxSpawnActor(FX_7, actor->sector(), pos);
 		if (pFX)
 		{
@@ -343,7 +343,7 @@ void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 		for (int i = 0; i < (pPlayer->bubbleTime >> 6); i++)
 		{
 			double nDist = (actor->spr.scale.X * tileWidth(actor->spr.picnum)) * (1. / 2);
-			DVector2 pos = actor->spr.pos.XY() + actor->spr.angle.ToVector() * nDist;
+			DVector2 pos = actor->spr.pos.XY() + actor->spr.Angles.Yaw.ToVector() * nDist;
 			double z = bottom - RandomD(bottom - top, 8);
 			auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), actor->sector(), DVector3(pos, z));
 			if (pFX)
@@ -447,7 +447,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	int nDist = Random(16);
 	auto pos = nAngle.ToVector() * nDist * 4;
 	gFX.fxSpawnActor(FX_48, actor->sector(), DVector3(pos, actor->spr.pos.Z));
-	if (actor->spr.angle == DAngle180)
+	if (actor->spr.Angles.Yaw == DAngle180)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);    // this is a little stupid...
 		sfxPlay3DSound(actor, 385, nChannel, 1);
@@ -456,7 +456,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	{
 		auto pFX = gFX.fxSpawnActor(FX_36, actor->sector(), DVector3(pos, floorZ - 0.25));
 		if (pFX)
-			pFX->spr.angle = nAngle;
+			pFX->spr.Angles.Yaw = nAngle;
 	}
 	gFX.remove(actor);
 }
@@ -611,7 +611,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 		pFX = gFX.fxSpawnActor(FX_54, actor->sector(), actor->spr.pos);
 	if (pFX)
 	{
-		pFX->spr.angle = nullAngle;
+		pFX->spr.Angles.Yaw = nullAngle;
 		pFX->vel = actor->vel * (1./256);
 	}
 	evPostActor(actor, 6, kCallbackFXPodBloodSpray);
@@ -637,7 +637,7 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 	int nDist = Random(16);
 	auto pos = actor->spr.pos.XY() + nAngle.ToVector() * nDist * 4;
 
-	if (actor->spr.angle == DAngle180 && actor->spr.type == 53)
+	if (actor->spr.Angles.Yaw == DAngle180 && actor->spr.type == 53)
 	{
 		int nChannel = 28 + (actor->GetIndex() & 2);
 		assert(nChannel < 32);
@@ -649,13 +649,13 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 		if (Chance(0x500) || actor->spr.type == kThingPodGreenBall)
 			pFX = gFX.fxSpawnActor(FX_55, actor->sector(), DVector3(pos, floorZ - 0.25));
 		if (pFX)
-			pFX->spr.angle = nAngle;
+			pFX->spr.Angles.Yaw = nAngle;
 	}
 	else
 	{
 		pFX = gFX.fxSpawnActor(FX_32, actor->sector(), DVector3(pos, floorZ - 0.25));
 		if (pFX)
-			pFX->spr.angle = nAngle;
+			pFX->spr.Angles.Yaw = nAngle;
 	}
 	gFX.remove(actor);
 }
@@ -693,7 +693,7 @@ void sub_76A08(DBloodActor* actor, DBloodActor* actor2, PLAYER* pPlayer) // ???
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
 	actor->spr.pos = actor2->spr.pos.plusZ(-(bottom - actor->spr.pos.Z));
-	actor->spr.angle = actor2->spr.angle;
+	actor->spr.Angles.Yaw = actor2->spr.Angles.Yaw;
 	ChangeActorSect(actor, actor2->sector());
 	sfxPlay3DSound(actor2, 201, -1, 0);
 	actor->vel.Zero();
@@ -730,7 +730,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 		evPostActor(actor, 0, kCallbackRemove);
 		return;
 	}
-	actor->spr.angle = (Owner->spr.pos - actor->spr.pos).Angle();
+	actor->spr.Angles.Yaw = (Owner->spr.pos - actor->spr.pos).Angle();
 	if (actor->hasX())
 	{
 		if (actor->xspr.data1 == 0)

@@ -628,7 +628,7 @@ void DrawOverheadMap(const DVector2& plxy, const DAngle pl_angle, double const i
 void DrawAutomapAlignmentFacing(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col)
 {
 	auto v1 = OutAutomapVector(bpos, cangvect, czoom, xydim);
-	auto v2 = OutAutomapVector(spr.angle.ToVector() * 8., cangvect, czoom);
+	auto v2 = OutAutomapVector(spr.Angles.Yaw.ToVector() * 8., cangvect, czoom);
 	auto v3 = v2.Rotated90CW();
 	auto v4 = v1 + v2;
 
@@ -651,7 +651,7 @@ void DrawAutomapAlignmentWall(const spritetype& spr, const DVector2& bpos, const
 
 	if ((spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
 
-	auto sprvec = spr.angle.ToVector().Rotated90CW() * xrep;
+	auto sprvec = spr.Angles.Yaw.ToVector().Rotated90CW() * xrep;
 	
 	auto b1 = bpos - sprvec * ((xspan * 0.5) + xoff);
 	auto b2 = b1 + sprvec * xspan;
@@ -687,7 +687,7 @@ void DrawAutomapAlignmentFloor(const spritetype& spr, const DVector2& bpos, cons
 	if ((spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
 	if ((spr.cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
 
-	auto sprvec = spr.angle.ToVector();
+	auto sprvec = spr.Angles.Yaw.ToVector();
 	auto xscale = sprvec.Rotated90CW() * xspan * xrep;
 	auto yscale = sprvec * yspan * yrep;
 	auto xybase = DVector2(((xspan * 0.5) + xoff) * xrep, ((yspan * 0.5) + yoff) * yrep);

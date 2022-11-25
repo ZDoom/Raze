@@ -67,7 +67,7 @@ void SlashSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DVector3 dv;
-	dv.XY() = actor->spr.angle.ToVector();
+	dv.XY() = actor->spr.Angles.Yaw.ToVector();
 	// Correct ?
 	dv.Z = (actor->spr.pos.Z - target->spr.pos.Z) / 64;
 
@@ -90,7 +90,7 @@ void StompSeqCallback(int, DBloodActor* actor)
 
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
 	auto sectorMap = GetClosestSpriteSectors(pSector, actor->spr.pos.XY(), nDist, nullptr, newSectCheckMethod);
-	int hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector() * 1024, 0), CLIPMASK1, 0);
+	int hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.Angles.Yaw.ToVector() * 1024, 0), CLIPMASK1, 0);
 	DBloodActor* actorh = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actorh);
 
@@ -179,7 +179,7 @@ static void beastThinkGoto(DBloodActor* actor)
 	auto nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &beastSwimSearch);
@@ -232,7 +232,7 @@ static void beastThinkChase(DBloodActor* actor)
 	double nDist = dv.Length();
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, dv.Angle());
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dv.Angle());
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
@@ -328,7 +328,7 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 	auto nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &beastSwimSearch);
 	aiThinkTarget(actor);
 }
@@ -363,7 +363,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
@@ -391,30 +391,30 @@ static void beastMoveForward(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	if (abs(nAng) > DAngle60)
 		return;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	double nDist = dvec.Length();
 	if (nDist <= 0x40 && Random(64) < 32)
 		return;
-	actor->vel.XY() += actor->spr.angle.ToVector() * pDudeInfo->FrontSpeed();
+	actor->vel.XY() += actor->spr.Angles.Yaw.ToVector() * pDudeInfo->FrontSpeed();
 }
 
 static void sub_628A0(DBloodActor* actor)
 {
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
-		actor->spr.angle += DAngle45;
+		actor->spr.Angles.Yaw += DAngle45;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	double nDist = dvec.Length();
 	if (Random(64) < 32 && nDist <= 0x40)
@@ -434,9 +434,9 @@ static void sub_62AE0(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	
 	if (abs(nAng) > DAngle60)
@@ -464,14 +464,14 @@ static void sub_62D7C(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = pDudeInfo->FrontSpeed() * 4;
 
 	if (abs(nAng) > DAngle60)
 	{
-		actor->spr.angle += DAngle90;
+		actor->spr.Angles.Yaw += DAngle90;
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();

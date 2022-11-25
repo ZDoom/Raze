@@ -448,7 +448,7 @@ struct spritetypebase
 	DVector3 pos;
 
 	sectortype* sectp;
-	DAngle angle;
+	DRotator Angles;
 	DVector2 scale;
 
 	ESpriteFlags cstat;

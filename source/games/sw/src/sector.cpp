@@ -914,7 +914,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
     actor->spr.cstat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
     auto mid = SectorMidPoint(sectp);
     // randomize the explosions
-	actor->spr.angle = RandomAngle(45) + DAngle22_5;
+	actor->spr.Angles.Yaw = RandomAngle(45) + DAngle22_5;
     actor->spr.pos = { mid.X + RANDOM_P2F(16, 4) - 16, mid.Y + RANDOM_P2F(64, 4) - 64, zh };
     
     // setup vars needed by SectorExp
@@ -927,7 +927,7 @@ void SectorExp(DSWActor* actor, sectortype* sectp, double zh)
 
     exp->spr.scale.X += (((RANDOM_P2(32 << 8) >> 8) - 16) * REPEAT_SCALE);
     exp->spr.scale.Y += (((RANDOM_P2(32 << 8) >> 8) - 16) * REPEAT_SCALE);
-    exp->user.change.XY() = exp->spr.angle.ToVector(5.75);
+    exp->user.change.XY() = exp->spr.Angles.Yaw.ToVector(5.75);
 }
 
 
@@ -2867,8 +2867,8 @@ void DoPanning(void)
     {
         sectp = actor->sector();
 
-		nx = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Cos() * 0.25);
-		ny = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Sin() * 0.25);
+		nx = xs_CRoundToInt(actor->vel.X * actor->spr.Angles.Yaw.Cos() * 0.25);
+		ny = xs_CRoundToInt(actor->vel.X * actor->spr.Angles.Yaw.Sin() * 0.25);
 
         sectp->addfloorxpan((float)nx);
         sectp->addfloorypan((float)ny);
@@ -2879,8 +2879,8 @@ void DoPanning(void)
     {
         sectp = actor->sector();
 
-        nx = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Cos() * 0.25);
-        ny = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Sin() * 0.25);
+        nx = xs_CRoundToInt(actor->vel.X * actor->spr.Angles.Yaw.Cos() * 0.25);
+        ny = xs_CRoundToInt(actor->vel.X * actor->spr.Angles.Yaw.Sin() * 0.25);
 
         sectp->addceilingxpan((float)nx);
         sectp->addceilingypan((float)ny);
@@ -2891,8 +2891,8 @@ void DoPanning(void)
     {
         wallp = actor->tempwall;
 
-        nx = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Cos() * 0.25);
-        ny = xs_CRoundToInt(actor->vel.X * actor->spr.angle.Sin() * 0.25);
+        nx = xs_CRoundToInt(actor->vel.X * actor->spr.Angles.Yaw.Cos() * 0.25);
+        ny = xs_CRoundToInt(actor->vel.X * actor->spr.Angles.Yaw.Sin() * 0.25);
 
         wallp->addxpan((float)nx);
         wallp->addypan((float)ny);

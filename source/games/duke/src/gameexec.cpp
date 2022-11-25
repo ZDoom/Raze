@@ -1225,8 +1225,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else*/ SetGameVarID(lVar2, act->spr.statnum, sActor, sPlayer);
 		break;
 	case ACTOR_ANG:
-		if (bSet) act->spr.angle = DAngle::fromBuild(lValue);
-		else SetGameVarID(lVar2, act->spr.angle.Buildang(), sActor, sPlayer);
+		if (bSet) act->spr.Angles.Yaw = DAngle::fromBuild(lValue);
+		else SetGameVarID(lVar2, act->spr.Angles.Yaw.Buildang(), sActor, sPlayer);
 		break;
 	case ACTOR_OWNER:
 		// there is no way to handle this well because we do not know whether this is an actor or not. Pity.
@@ -1409,18 +1409,18 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 				return 0;
 			else
 			{
-				actor->spr.angle += angdif;
+				actor->spr.Angles.Yaw += angdif;
 				hs = hitasprite(actor, &hit);
-				actor->spr.angle -= angdif;
+				actor->spr.Angles.Yaw -= angdif;
 				if (hs > sclip)
 				{
 					if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
 						return 0;
 					else
 					{
-						actor->spr.angle += angdif;
+						actor->spr.Angles.Yaw += angdif;
 						hs = hitasprite(actor, &hit);
-						actor->spr.angle -= angdif;
+						actor->spr.Angles.Yaw -= angdif;
 						if (hs > 48)
 						{
 							if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
@@ -1556,7 +1556,7 @@ int ParseState::parse(void)
 		g_ac->spr.hitag = ScriptCode[g_t[5] + 2];	  // Ai
 		g_t[0] = g_t[2] = g_t[3] = 0;
 		if (g_ac->spr.hitag & random_angle)
-			g_ac->spr.angle = randomAngle();
+			g_ac->spr.Angles.Yaw = randomAngle();
 		insptr++;
 		break;
 	case concmd_action:
@@ -1596,10 +1596,10 @@ int ParseState::parse(void)
 		switch (krand() & 1)
 		{
 		case 0:
-			g_ac->spr.angle += DAngle90 + randomAngle(90);
+			g_ac->spr.Angles.Yaw += DAngle90 + randomAngle(90);
 			break;
 		case 1:
-			g_ac->spr.angle -= DAngle90 + randomAngle(90);
+			g_ac->spr.Angles.Yaw -= DAngle90 + randomAngle(90);
 			break;
 		}
 		insptr++;
@@ -1610,7 +1610,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_rndmove:
-		g_ac->spr.angle = randomAngle();
+		g_ac->spr.Angles.Yaw = randomAngle();
 		g_ac->vel.X = 25/16.;
 		insptr++;
 		break;
@@ -1972,11 +1972,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		movesprite_ex(g_ac, DVector3(-g_ac->spr.angle.Sin(), g_ac->spr.angle.Cos(), g_ac->vel.Z), CLIPMASK0, coll);
+		movesprite_ex(g_ac, DVector3(-g_ac->spr.Angles.Yaw.Sin(), g_ac->spr.Angles.Yaw.Cos(), g_ac->vel.Z), CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		movesprite_ex(g_ac, DVector3(g_ac->spr.angle.Sin(), -g_ac->spr.angle.Cos(), g_ac->vel.Z), CLIPMASK0, coll);
+		movesprite_ex(g_ac, DVector3(g_ac->spr.Angles.Yaw.Sin(), -g_ac->spr.Angles.Yaw.Cos(), g_ac->vel.Z), CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;
@@ -2121,7 +2121,7 @@ int ParseState::parse(void)
 		g_ac->spr.hitag = *insptr;
 		insptr++;
 		if(g_ac->spr.hitag&random_angle)
-			g_ac->spr.angle = randomAngle();
+			g_ac->spr.Angles.Yaw = randomAngle();
 		break;
 	case concmd_spawn:
 		insptr++;
@@ -2486,7 +2486,7 @@ int ParseState::parse(void)
 		if( g_ac->sector()->lotag == 0 )
 		{
 			HitInfo hit{};
-			neartag(g_ac->spr.pos.plusZ(-32), g_ac->sector(), g_ac->spr.angle, hit, 48, NT_Lotag | NT_NoSpriteCheck);
+			neartag(g_ac->spr.pos.plusZ(-32), g_ac->sector(), g_ac->spr.Angles.Yaw, hit, 48, NT_Lotag | NT_NoSpriteCheck);
 			auto sectp = hit.hitSector;
 			if (sectp)
 			{
@@ -2833,7 +2833,7 @@ int ParseState::parse(void)
 	case concmd_ifangdiffl:
 		{
 		insptr++;
-		auto ang = absangle(ps[g_p].angle.ang, g_ac->spr.angle);
+		auto ang = absangle(ps[g_p].angle.ang, g_ac->spr.Angles.Yaw);
 		parseifelse( ang <= mapangle(*insptr));
 		break;
 		}
@@ -3147,7 +3147,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, g_ac->spr.angle.Buildang(), g_ac, g_p);
+		SetGameVarID(i, g_ac->spr.Angles.Yaw.Buildang(), g_ac, g_p);
 		break;
 	}
 	case concmd_setactorangle:
@@ -3155,7 +3155,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		g_ac->spr.angle = DAngle::fromBuild(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
+		g_ac->spr.Angles.Yaw = DAngle::fromBuild(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
 		break;
 	}
 	case concmd_randvar:

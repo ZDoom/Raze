@@ -225,7 +225,7 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 {
 	Collision c;
 
-	return movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z), cliptype, c) == kHitNone;
+	return movesprite_ex(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, actor->vel.Z), cliptype, c) == kHitNone;
 }
 
 //---------------------------------------------------------------------------
@@ -275,7 +275,7 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 void movesector(DDukeActor* const actor, int msindex, DAngle rotation)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
-	actor->spr.pos.XY() += actor->spr.angle.ToVector() * actor->vel.X;
+	actor->spr.pos.XY() += actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
 	for(auto& wal : actor->sector()->walls)
 	{
@@ -362,7 +362,7 @@ void movedummyplayers(void)
 			{
 				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 				act->spr.pos.Z = act->sector()->ceilingz + 27;
-				act->spr.angle = ps[p].angle.ang;
+				act->spr.Angles.Yaw = ps[p].angle.ang;
 				if (act->temp_data[0] == 8)
 					act->temp_data[0] = 0;
 				else act->temp_data[0]++;
@@ -401,7 +401,7 @@ void moveplayers(void)
 			{
 				act->restorepos();
 				act->backupz();
-				act->spr.angle = p->angle.oang;
+				act->spr.Angles.Yaw = p->angle.oang;
 				SetActor(act, act->spr.pos);
 			}
 			else
@@ -465,7 +465,7 @@ void moveplayers(void)
 						p->angle.addadjustment(deltaangle(p->angle.ang, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5);
 					}
 				}
-				act->spr.angle = p->angle.ang;
+				act->spr.Angles.Yaw = p->angle.ang;
 			}
 		}
 		else
@@ -499,13 +499,13 @@ void moveplayers(void)
 			if (act->spr.extra < 8)
 			{
 				act->vel.X = 8;
-				act->spr.angle = p->angle.ang;
+				act->spr.Angles.Yaw = p->angle.ang;
 				act->spr.extra++;
 				ssp(act, CLIPMASK0);
 			}
 			else
 			{
-				act->spr.angle = DAngle360 - minAngle - p->angle.ang;
+				act->spr.Angles.Yaw = DAngle360 - minAngle - p->angle.ang;
 				SetActor(act, act->spr.pos);
 			}
 		}
@@ -614,7 +614,7 @@ void detonate(DDukeActor *actor, int explosion)
 
 void bounce(DDukeActor* actor)
 {
-	DVector3 vect(actor->spr.angle.ToVector() * actor->vel.X, actor->vel.Z);
+	DVector3 vect(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, actor->vel.Z);
 
 	auto sectp = actor->sector();
 
@@ -635,7 +635,7 @@ void bounce(DDukeActor* actor)
 
 	actor->vel.Z = vect.Z;
 	actor->vel.X = vect.XY().Length();
-	actor->spr.angle = vect.Angle();
+	actor->spr.Angles.Yaw = vect.Angle();
 }
 
 //---------------------------------------------------------------------------
@@ -713,7 +713,7 @@ bool rat(DDukeActor* actor, bool makesound)
 	if (ssp(actor, CLIPMASK0))
 	{
 		if (makesound && (krand() & 255) == 0) S_PlayActorSound(RATTY, actor);
-		actor->spr.angle += mapangle((krand() & 31) - 15 + int(BobVal(actor->temp_data[0] << 8) * 8));
+		actor->spr.Angles.Yaw += mapangle((krand() & 31) - 15 + int(BobVal(actor->temp_data[0] << 8) * 8));
 	}
 	else
 	{
@@ -723,11 +723,11 @@ bool rat(DDukeActor* actor, bool makesound)
 			actor->Destroy();
 			return false;
 		}
-		else actor->spr.angle = randomAngle();
+		else actor->spr.Angles.Yaw = randomAngle();
 	}
 	if (actor->vel.X < 8)
 		actor->vel.X += 1/8.;
-	actor->spr.angle += mapangle((krand() & 3) - 6);
+	actor->spr.Angles.Yaw += mapangle((krand() & 3) - 6);
 	return true;
 }
 
@@ -755,7 +755,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		Collision coll;
 		auto sect = actor->sector();
 		auto pos = actor->spr.pos;
-		auto move = actor->spr.angle.ToVector() * actor->vel.X * 0.5;
+		auto move = actor->spr.Angles.Yaw.ToVector() * actor->vel.X * 0.5;
 		int j = clipmove(pos, &sect, move, 1.5, 4., 4., CLIPMASK1, coll);
 		actor->spr.pos = pos;;
 		actor->setsector(sect);
@@ -763,7 +763,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		if (j == kHitWall)
 		{
 			auto ang = coll.hitWall->delta().Angle();
-			actor->spr.angle = ang * 2 - actor->spr.angle;
+			actor->spr.Angles.Yaw = ang * 2 - actor->spr.Angles.Yaw;
 		}
 		else if (j == kHitSprite)
 		{
@@ -811,7 +811,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 							if (actor->spr.pal == 12)
 								actor->vel.X = 10.25;
 							else actor->vel.X = 8.75;
-							actor->spr.angle = ps[p].angle.ang;
+							actor->spr.Angles.Yaw = ps[p].angle.ang;
 							ps[p].toggle_key_flag = 2;
 						}
 					}
@@ -819,7 +819,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 		if (x < 32 && actor->sector() == ps[p].cursector)
 		{
-			actor->spr.angle = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
+			actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
 			actor->vel.X = 3;
 		}
 	}
@@ -847,7 +847,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 				{
 					k->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_YCENTER;
 					k->clipdist = 16;
-					k->spr.angle = j;
+					k->spr.Angles.Yaw = j;
 					k->vel.Z = l.Sin() * 2;
 					k->vel.X = l.Cos() * 2;
 					k->SetOwner(actor);
@@ -927,7 +927,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->temp_data[2]++;
 		if ((actor->temp_data[2] & 3) == 0) spawn(actor, explosion);
 		getglobalz(actor);
-		actor->spr.angle += DAngle22_5 * 0.75;
+		actor->spr.Angles.Yaw += DAngle22_5 * 0.75;
 		actor->vel.X = 8;
 		int j = ssp(actor, CLIPMASK0);
 		if (j != 1 || actor->spr.pos.Z > actor->floorz)
@@ -959,11 +959,11 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		actor->temp_data[2]++;
 		if ((actor->temp_data[2] & 15) == 0)
 		{
-			a = actor->spr.angle;
-			actor->spr.angle = actor->temp_angle;
+			a = actor->spr.Angles.Yaw;
+			actor->spr.Angles.Yaw = actor->temp_angle;
 			if (attacksnd >= 0) S_PlayActorSound(attacksnd, actor);
 			fi.shoot(actor, firelaser);
-			actor->spr.angle = a;
+			actor->spr.Angles.Yaw = a;
 		}
 		if (actor->temp_data[2] > (26 * 3) || !cansee(actor->spr.pos.plusZ(-16), actor->sector(), ps[p].GetActor()->getPosWithOffsetZ(), ps[p].cursector))
 		{
@@ -998,7 +998,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				fi.shoot(actor, firelaser);
 			}
 		}
-		actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.25;
+		actor->spr.Angles.Yaw += deltaangle(actor->spr.Angles.Yaw, (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.25;
 	}
 
 	if (actor->temp_data[0] != 2 && actor->temp_data[0] != 3 && Owner)
@@ -1006,7 +1006,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		double dist = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Length();
 		if (dist <= 96)
 		{
-			a = actor->spr.angle;
+			a = actor->spr.Angles.Yaw;
 			actor->vel.X *= 0.5;
 		}
 		else a = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Angle();
@@ -1033,7 +1033,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			{
 				actor->temp_data[0] = 2 + (krand() & 2);
 				actor->temp_data[2] = 0;
-				actor->temp_angle = actor->spr.angle;
+				actor->temp_angle = actor->spr.Angles.Yaw;
 			}
 		}
 
@@ -1057,8 +1057,8 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			actor->SetOwner(NewOwner);
 		}
 
-		auto ang = deltaangle(actor->spr.angle, a);
-		actor->spr.angle += ang * 0.125;
+		auto ang = deltaangle(actor->spr.Angles.Yaw, a);
+		actor->spr.Angles.Yaw += ang * 0.125;
 
         if (actor->spr.pos.Z < Owner->spr.pos.Z - 2)
             actor->spr.pos.Z += 2;
@@ -1279,7 +1279,7 @@ void forcesphereexplode(DDukeActor *actor)
 		}
 
 	actor->spr.pos = Owner->spr.pos;;
-	actor->spr.angle += mapangle(Owner->temp_data[0]);
+	actor->spr.Angles.Yaw += mapangle(Owner->temp_data[0]);
 
 	size = clamp(size, REPEAT_SCALE, 1.);
 
@@ -1481,7 +1481,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			else actor->vel.Z += ( gs.gravity - 50/256.);
 		}
 
-		actor->spr.pos += actor->spr.angle.ToVector() * actor->vel.X;
+		actor->spr.pos += actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 		actor->spr.pos.Z += actor->vel.Z;
 
 		if (floorcheck && actor->spr.pos.Z >= actor->sector()->floorz)
@@ -1837,7 +1837,7 @@ void handle_se00(DDukeActor* actor)
 			}
 		}
 
-		actor->spr.angle += ang_amount * direction;
+		actor->spr.Angles.Yaw += ang_amount * direction;
 		actor->temp_angle += ang_amount * direction;
 	}
 	else
@@ -1849,14 +1849,14 @@ void handle_se00(DDukeActor* actor)
 			return;
 		}
 
-		if (Owner->spr.angle.Normalized360() > DAngle180)
+		if (Owner->spr.Angles.Yaw.Normalized360() > DAngle180)
 			direction = -1;
 		else direction = 1;
 		if (actor->temp_pos.Y == 0)
 			actor->temp_pos.Y = (actor->spr.pos.XY() - Owner->spr.pos.XY()).Length();
 		actor->vel.X = actor->temp_pos.Y;
 		actor->spr.pos.XY() = Owner->spr.pos.XY();
-		actor->spr.angle += ang_amount * direction;
+		actor->spr.Angles.Yaw += ang_amount * direction;
 		actor->temp_angle += ang_amount * direction;
 	}
 
@@ -1888,7 +1888,7 @@ void handle_se00(DDukeActor* actor)
 					continue;
 				}
 
-				act2->spr.angle += ang_amount * direction;
+				act2->spr.Angles.Yaw += ang_amount * direction;
 				act2->norm_ang();
 
 				act2->spr.pos.Z += zchange;
@@ -1975,10 +1975,10 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	if(actor->vel.X != 0)
 	{
 		auto curangle = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Angle();
-		auto diffangle = deltaangle(actor->spr.angle, curangle) * 0.125;
+		auto diffangle = deltaangle(actor->spr.Angles.Yaw, curangle) * 0.125;
 
 		actor->temp_angle += diffangle;
-		actor->spr.angle += diffangle;
+		actor->spr.Angles.Yaw += diffangle;
 
 		bool statstate = (!checkstat || ((sc->floorstat & CSTAT_SECTOR_SKY) == 0 && (sc->ceilingstat & CSTAT_SECTOR_SKY) == 0));
 		if (actor->vel.X == sc->extra * maptoworld)
@@ -1994,10 +1994,10 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				int p = findplayer(actor, &dist2);
 				if (dist2 < 1280)//20480)
 				{
-					auto saved_angle = actor->spr.angle;
-					actor->spr.angle = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
+					auto saved_angle = actor->spr.Angles.Yaw;
+					actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
 					fi.shoot(actor, RPG);
-					actor->spr.angle = saved_angle;
+					actor->spr.Angles.Yaw = saved_angle;
 				}
 			}
 		}
@@ -2027,7 +2027,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				}
 		}
 
-		auto vec = actor->spr.angle.ToVector() * actor->vel.X;
+		auto vec = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
@@ -2068,7 +2068,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				!islocator(a2))
 			{
 				a2->spr.pos.XY() = rotatepoint(actor->spr.pos.XY(), a2->spr.pos.XY(), diffangle) + vec;
-				a2->spr.angle += diffangle;
+				a2->spr.Angles.Yaw += diffangle;
 
 				if (numplayers > 1)
 				{
@@ -2173,7 +2173,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				actor->vel.X = 0;
 				operateactivators(actor->spr.hitag + (short)actor->temp_data[3], nullptr);
 				actor->SetOwner(nullptr);
-				actor->spr.angle += DAngle180;
+				actor->spr.Angles.Yaw += DAngle180;
 				actor->temp_data[4] = 0;
 				fi.operateforcefields(actor, actor->spr.hitag);
 			}
@@ -2182,7 +2182,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 	if(actor->vel.X != 0)
 	{
-		auto vect = actor->spr.angle.ToVector() * actor->vel.X;
+		auto vect = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
 		if ((sc->floorz - sc->ceilingz) < 108)
 			if (ud.clipping == 0)
@@ -2330,7 +2330,7 @@ void handle_se02(DDukeActor* actor)
 			else sc->setfloorslope(sc->getfloorslope() + (Sgn(actor->temp_data[5] - sc->getfloorslope()) << 4));
 		}
 
-		auto vect = actor->spr.angle.ToVector() * actor->vel.X;
+		auto vect = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground)
@@ -2480,10 +2480,10 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	int p = findplayer(actor, &x);
 	if (x < 512)
 	{
-		auto ang = actor->spr.angle;
-		actor->spr.angle = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
+		auto ang = actor->spr.Angles.Yaw;
+		actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
 		fi.shoot(actor, FIRELASER);
-		actor->spr.angle = ang;
+		actor->spr.Angles.Yaw = ang;
 	}
 
 	auto Owner = actor->GetOwner();
@@ -2525,8 +2525,8 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	else actor->vel.X = 16;
 
 	auto ang = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Angle();
-	auto angdiff = deltaangle(actor->spr.angle, ang) / 8;
-	actor->spr.angle += angdiff;
+	auto angdiff = deltaangle(actor->spr.Angles.Yaw, ang) / 8;
+	actor->spr.Angles.Yaw += angdiff;
 
 	if (rnd(32))
 	{
@@ -2888,7 +2888,7 @@ void handle_se13(DDukeActor* actor)
 	}
 
 
-	if (actor->temp_data[2] == 4 && actor->spr.angle != DAngle90)
+	if (actor->temp_data[2] == 4 && actor->spr.Angles.Yaw != DAngle90)
 		for (int x = 0; x < 7; x++) RANDOMSCRAP(actor);
 }
 
@@ -3312,7 +3312,7 @@ void handle_se20(DDukeActor* actor)
 
 	//if(actor->vel.X != 0) //Moving
 	{
-		auto vec = actor->spr.angle.ToVector() * (actor->temp_data[0] == 1 ? 0.5 : -0.5);
+		auto vec = actor->spr.Angles.Yaw.ToVector() * (actor->temp_data[0] == 1 ? 0.5 : -0.5);
 
 		actor->temp_data[3] += actor->temp_data[0] == 1? 8 :- 8;
 
@@ -3431,7 +3431,7 @@ void handle_se26(DDukeActor* actor)
 	double zvel = actor->vel.Z;
 
 	actor->vel.X = 2;
-	DVector2 vect = 2 * actor->spr.angle.ToVector(); // was: (32 * b sin) >> 14
+	DVector2 vect = 2 * actor->spr.Angles.Yaw.ToVector(); // was: (32 * b sin) >> 14
 
 	actor->spr.shade++;
 	if (actor->spr.shade > 7)
@@ -3479,7 +3479,7 @@ void handle_se27(DDukeActor* actor)
 
 	if (ud.recstat == 0) return;
 
-	actor->temp_angle = actor->spr.angle;
+	actor->temp_angle = actor->spr.Angles.Yaw;
 
 	p = findplayer(actor, &xx);
 	if (ps[p].GetActor()->spr.extra > 0 && myconnectindex == screenpeek)
@@ -3497,7 +3497,7 @@ void handle_se27(DDukeActor* actor)
 				{
 					ud.cameraactor = actor;
 					actor->temp_data[0] = 999;
-					actor->spr.angle += deltaangle(actor->spr.angle, (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
+					actor->spr.Angles.Yaw += deltaangle(actor->spr.Angles.Yaw, (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
 					actor->spr.yint = 100 + int((actor->spr.pos.Z - ps[p].GetActor()->getOffsetZ()) * (256. / 257.));
 
 				}
@@ -3512,7 +3512,7 @@ void handle_se27(DDukeActor* actor)
 			}
 			else
 			{
-				actor->spr.angle = (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+				actor->spr.Angles.Yaw = (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
 				if (actor->temp_data[0] == 999)
 				{
@@ -3536,7 +3536,7 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 {
 	if (actor->temp_data[4]) return;
 
-	auto vec = actor->spr.angle.ToVector() * actor->spr.yint / 256.;
+	auto vec = actor->spr.Angles.Yaw.ToVector() * actor->spr.yint / 256.;
 
 	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
@@ -3706,7 +3706,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 	if (sc->ceilingz > actor->spr.pos.Z)
 		for (int j = 0; j < 8; j++)
 		{
-			actor->spr.angle = randomAngle(90);
+			actor->spr.Angles.Yaw = randomAngle(90);
 			auto spawned = spawn(actor, SMALLSMOKE);
 			if (spawned)
 			{
@@ -3805,7 +3805,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 			double s = 0.03125 + (krand() & 7) * REPEAT_SCALE;
 			k->spr.scale = DVector2(s, s);
 			k->spr.pos.Z = sc->floorz + krandf(x);
-			k->spr.angle += DAngle45 - randomAngle(90);
+			k->spr.Angles.Yaw += DAngle45 - randomAngle(90);
 			k->vel.X = krandf(8);
 			ssp(k, CLIPMASK0);
 		}
@@ -4090,16 +4090,16 @@ int dodge(DDukeActor* actor)
 			continue;
 
 		auto delta = ac->spr.pos.XY() - oldpos;
-		auto bvect = ac->spr.angle.ToVector() * 1024;
+		auto bvect = ac->spr.Angles.Yaw.ToVector() * 1024;
 
-		if (actor->spr.angle.ToVector().dot(delta) >= 0)
+		if (actor->spr.Angles.Yaw.ToVector().dot(delta) >= 0)
 		{
 			if (bvect.dot(delta) < 0)
 			{
 				double d = bvect.X * delta.Y - bvect.Y * delta.X;
 				if (abs(d) < 256 * 64)
 				{
-					actor->spr.angle -= DAngle90 + randomAngle(180);
+					actor->spr.Angles.Yaw -= DAngle90 + randomAngle(180);
 					return 1;
 				}
 			}
@@ -4124,9 +4124,9 @@ DAngle furthestangle(DDukeActor *actor, int angs)
 	DAngle angincs = DAngle360 / angs;
 
 	if (!actor->isPlayer())
-		if ((actor->temp_data[0] & 63) > 2) return(actor->spr.angle + DAngle180);
+		if ((actor->temp_data[0] & 63) > 2) return(actor->spr.Angles.Yaw + DAngle180);
 
-	for (DAngle j = actor->spr.angle; j < DAngle360 + actor->spr.angle; j += angincs)
+	for (DAngle j = actor->spr.Angles.Yaw; j < DAngle360 + actor->spr.Angles.Yaw; j += angincs)
 	{
 		hitscan(actor->spr.pos.plusZ(-8), actor->sector(), DVector3(j.ToVector() * 1024, 0), hit, CLIPMASK1);
 
@@ -4158,7 +4158,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, DVector2& pos)
 		angincs = DAngle180;
 	else angincs = DAngle360 / (1 + (krand() & 1));
 
-	for (auto j = tosee->spr.angle; j < tosee->spr.angle + DAngle360; j += (angincs - randomAngle(90)))
+	for (auto j = tosee->spr.Angles.Yaw; j < tosee->spr.Angles.Yaw + DAngle360; j += (angincs - randomAngle(90)))
 	{
 		hitscan(tosee->spr.pos.plusZ(-16), tosee->sector(), DVector3(j.ToVector() * 1024, 64 - krandf(128)), hit, CLIPMASK1);
 
@@ -4191,7 +4191,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 	ticselapsed = (actor->temp_data[0]) & 31;
 
-	aang = actor->spr.angle;
+	aang = actor->spr.Angles.Yaw;
 
 	actor->vel.X += (moveptr[0] / 16 - actor->vel.X) / 5;
 	if (actor->vel.Z < (648 / 256.))
@@ -4200,7 +4200,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 	}
 
 	if (isRRRA() && (ang & windang))
-		actor->spr.angle = WindDir;
+		actor->spr.Angles.Yaw = WindDir;
 	else if (ang & seekplayer)
 	{
 		DDukeActor* holoduke = !isRR()? ps[playernum].holoduke_on.Get() : nullptr;
@@ -4226,18 +4226,18 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 				if (angdif < DAngle45)
 				{
 					DAngle add = DAngle22_5 * ((krand() & 256)? 1 : -1);
-					actor->spr.angle += add;
+					actor->spr.Angles.Yaw += add;
 					if (hits(actor) < 51.25)
-						actor->spr.angle -= add;
+						actor->spr.Angles.Yaw -= add;
 				}
 			}
 			else if (ticselapsed > 18 && ticselapsed < 26) // choose
 			{
-				if (angdif < DAngle90) actor->spr.angle = goalang;
-				else actor->spr.angle += angdif * 0.25;
+				if (angdif < DAngle90) actor->spr.Angles.Yaw = goalang;
+				else actor->spr.Angles.Yaw += angdif * 0.25;
 			}
 		}
-		else actor->spr.angle = goalang;
+		else actor->spr.Angles.Yaw = goalang;
 	}
 
 	if (ticselapsed < 1)
@@ -4246,14 +4246,14 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		if (ang & furthestdir)
 		{
 			goalang = furthestangle(actor, j);
-			actor->spr.angle = goalang;
+			actor->spr.Angles.Yaw = goalang;
 			actor->SetOwner(ps[playernum].GetActor());
 		}
 
 		if (ang & fleeenemy)
 		{
 			goalang = furthestangle(actor, j);
-			actor->spr.angle = goalang;
+			actor->spr.Angles.Yaw = goalang;
 		}
 	}
 }
@@ -4414,7 +4414,7 @@ void movefta(void)
 						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.
 						if (act->spr.pal == 33 || actorflag(act, SFLAG_MOVEFTA_CHECKSEE) ||
 							(actorflag(act, SFLAG_MOVEFTA_CHECKSEEWITHPAL8) && act->spr.pal == 8) ||
-							(act->spr.angle.Cos() * (px - sx) + act->spr.angle.Sin() * (py - sy) >= 0))
+							(act->spr.Angles.Yaw.Cos() * (px - sx) + act->spr.Angles.Yaw.Sin() * (py - sy) >= 0))
 						{
 							double r1 = zrand(32);
 							double r2 = zrand(52);

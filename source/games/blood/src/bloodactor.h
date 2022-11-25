@@ -174,8 +174,8 @@ inline bool IsTargetTeammate(DBloodActor* pSource, DBloodActor* pTarget)
 template<typename T>
 void AdjustVelocity(DBloodActor *actor, T adjuster)
 {
-	double nCos = actor->spr.angle.Cos();
-	double nSin = actor->spr.angle.Sin();
+	double nCos = actor->spr.Angles.Yaw.Cos();
+	double nSin = actor->spr.Angles.Yaw.Sin();
 	double t1 = actor->vel.X * nCos + actor->vel.Y * nSin;
 	double t2 = actor->vel.X * nSin - actor->vel.Y * nCos;
 	adjuster(actor, t1, t2);

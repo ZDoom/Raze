@@ -599,7 +599,7 @@ void GameInterface::UpdateSounds(void)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            tang = rsp->spr.angle;
+            tang = rsp->spr.Angles.Yaw;
         else
             tang = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
     }

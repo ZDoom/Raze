@@ -51,14 +51,14 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	DVector3 vec(actor->spr.angle.ToVector() * 64, target->spr.pos.Z - actor->spr.pos.Z);
+	DVector3 vec(actor->spr.Angles.Yaw.ToVector() * 64, target->spr.pos.Z - actor->spr.pos.Z);
 	if (target->IsPlayerActor() || gModernMap) // allow to hit non-player targets
 		actFireVector(actor, 0, 0, vec, kVectorHoundBite);
 }
 
 void houndBurnSeqCallback(int, DBloodActor* actor)
 {
-	actFireMissile(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), 0), kMissileFlameHound);
+	actFireMissile(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), 0), kMissileFlameHound);
 }
 
 static void houndThinkSearch(DBloodActor* actor)
@@ -79,7 +79,7 @@ static void houndThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &houndSearch);
 	aiThinkTarget(actor);
 }
@@ -115,7 +115,7 @@ static void houndThinkChase(DBloodActor* actor)
 
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{

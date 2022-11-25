@@ -584,7 +584,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 			I_Error("Too many player sprites (max 16.)");
 
 		po[numplayersprites].opos = act->spr.pos;
-		po[numplayersprites].oa = act->spr.angle;
+		po[numplayersprites].oa = act->spr.Angles.Yaw;
 		po[numplayersprites].os = act->sector();
 
 		numplayersprites++;
@@ -626,7 +626,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 			act->SetOwner(act);
 
 			ps[j].setbobpos();
-			ps[j].angle.oang = ps[j].angle.ang = act->spr.angle;
+			ps[j].angle.oang = ps[j].angle.ang = act->spr.Angles.Yaw;
 
 			updatesector(act->spr.pos, &ps[j].cursector);
 

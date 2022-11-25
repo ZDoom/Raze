@@ -61,7 +61,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
         ChangeActorStat(ap, 101);
 
 		ap->spr.pos.Z = ap->sector()->floorz;
-        nAngle = ap->spr.angle;
+        nAngle = ap->spr.Angles.Yaw;
     }
 
     ap->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -71,7 +71,7 @@ void BuildAnubis(DExhumedActor* ap, const DVector3& pos, sectortype* pSector, DA
     ap->spr.picnum = 1;
     ap->spr.pal = ap->sector()->ceilingpal;
 	ap->clipdist = 15;
-    ap->spr.angle = nAngle;
+    ap->spr.Angles.Yaw = nAngle;
     ap->spr.scale = DVector2(0.625, 0.625);
     ap->vel.X = 0;
     ap->vel.Y = 0;
@@ -179,7 +179,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             PlotCourseToSprite(ap, pTarget);
 
-			ap->vel.XY() = ap->spr.angle.ToVector() * 256;
+			ap->vel.XY() = ap->spr.Angles.Yaw.ToVector() * 256;
         }
 
         switch (move.type)
@@ -188,7 +188,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             if (move.actor() == pTarget)
             {
-                auto nAngDiff = absangle(ap->spr.angle, (pTarget->spr.pos - ap->spr.pos).Angle());
+                auto nAngDiff = absangle(ap->spr.Angles.Yaw, (pTarget->spr.pos - ap->spr.pos).Angle());
                 if (nAngDiff < DAngle22_5 / 2)
                 {
                     ap->nAction = 2;
@@ -201,7 +201,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         }
         case kHitWall:
         {
-			ap->spr.angle += DAngle45;
+			ap->spr.Angles.Yaw += DAngle45;
             ap->VelFromAngle(-2);
             break;
         }
@@ -223,7 +223,7 @@ void AIAnubis::Tick(RunListEvent* ev)
                     {
                         ap->vel.X = 0;
                         ap->vel.Y = 0;
-                        ap->spr.angle = (pTarget->spr.pos - ap->spr.pos).Angle();
+                        ap->spr.Angles.Yaw = (pTarget->spr.pos - ap->spr.pos).Angle();
 
                         ap->nAction = 3;
                         ap->nFrame = 0;
@@ -265,7 +265,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             ap->nAction = 1;
 
-			ap->vel.XY() = ap->spr.angle.ToVector() * 256;
+			ap->vel.XY() = ap->spr.Angles.Yaw.ToVector() * 256;
             ap->nFrame = 0;
         }
         else
@@ -273,7 +273,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             // loc_25718:
             if (nFlag & 0x80)
             {
-                BuildBullet(ap, 8, INT_MAX, ap->spr.angle, pTarget, 1);
+                BuildBullet(ap, 8, INT_MAX, ap->spr.Angles.Yaw, pTarget, 1);
             }
         }
 

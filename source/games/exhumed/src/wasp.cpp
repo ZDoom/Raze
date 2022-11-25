@@ -50,7 +50,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
     }
     else
     {
-        nAngle = pActor->spr.angle;
+        nAngle = pActor->spr.Angles.Yaw;
         ChangeActorStat(pActor, 107);
     }
 
@@ -71,7 +71,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, const DVector3& pos, sectortype*
     pActor->spr.xoffset = 0;
     pActor->spr.yoffset = 0;
     pActor->spr.picnum = 1;
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
     pActor->vel.X = 0;
     pActor->vel.Y = 0;
     pActor->vel.Z = 0;
@@ -172,7 +172,7 @@ void AIWasp::Damage(RunListEvent* ev)
             }
 
             pActor->nAction = 1;
-			pActor->spr.angle += DAngle45 + DAngle90 + RandomAngle9();
+			pActor->spr.Angles.Yaw += DAngle45 + DAngle90 + RandomAngle9();
             pActor->norm_ang();
 
             pActor->nVel = 3000;
@@ -186,7 +186,7 @@ void AIWasp::Damage(RunListEvent* ev)
             pActor->nFrame = 0;
 
             pActor->spr.cstat = 0;
-            pActor->spr.angle += DAngle180;
+            pActor->spr.Angles.Yaw += DAngle180;
 
             pActor->VelFromAngle();
 
@@ -327,7 +327,7 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-			pActor->spr.angle += DAngle45 + DAngle90 + RandomAngle9();
+			pActor->spr.Angles.Yaw += DAngle45 + DAngle90 + RandomAngle9();
             pActor->vel.Z = ((-20) - RandomSize(6)) / 256.;
 
             pActor->nAction = 1;

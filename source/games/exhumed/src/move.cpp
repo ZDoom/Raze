@@ -567,7 +567,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
             ChangeActorSect(pActor, pSectorPre);
 
-            pActor->spr.angle += DAngle45;
+            pActor->spr.Angles.Yaw += DAngle45;
             pActor->VelFromAngle(-2);
             Collision c;
             c.setNone();
@@ -604,7 +604,7 @@ double PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
         return -1;
 	
 	auto vect = pActor2->spr.pos.XY() - pActor1->spr.pos.XY();
-	pActor1->spr.angle = vect.Angle();
+	pActor1->spr.Angles.Yaw = vect.Angle();
 	return vect.Length();
 
 }
@@ -944,7 +944,7 @@ void MoveSector(sectortype* pSector, DAngle nAngle, DVector2& nVel)
     */
     auto pActor = PlayerList[nLocalPlayer].pActor;
     initpos = pActor->spr.pos;
-    inita = pActor->spr.angle;
+    inita = pActor->spr.Angles.Yaw;
     initsectp = pActor->sector();
 }
 
@@ -995,7 +995,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
     if (pActor2 == nullptr)
     {
         pActor->pitch = nullAngle;
-        nAngle = pActor->spr.angle;
+        nAngle = pActor->spr.Angles.Yaw;
     }
     else
     {
@@ -1005,7 +1005,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
         double nSqrt = vect.Length();
         DAngle nPitch = VecToAngle(nSqrt, (pActor2->spr.pos.Z - nHeight - pActor->spr.pos.Z) / 16.);
 
-        DAngle nAngDelta = deltaangle(pActor->spr.angle, nMyAngle);
+        DAngle nAngDelta = deltaangle(pActor->spr.Angles.Yaw, nMyAngle);
 
         if (abs(nAngDelta) >= DAngle22_5 / 2)
         {
@@ -1019,12 +1019,12 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int threshol
         }
 
         nAngDelta = clamp(nAngDelta, -push1, push1);
-        nAngle = (nAngDelta + pActor->spr.angle).Normalized360();
+        nAngle = (nAngDelta + pActor->spr.Angles.Yaw).Normalized360();
         auto nPitchDelta = clamp(deltaangle(pActor->pitch, nPitch), -DAngle22_5 / 5, DAngle22_5 / 5);
         pActor->pitch = (pActor->pitch + nPitchDelta).Normalized180();
     }
 
-    pActor->spr.angle = nAngle;
+    pActor->spr.Angles.Yaw = nAngle;
 
     auto cospitch = pActor->pitch.Cos();
 
@@ -1054,7 +1054,7 @@ DVector3 WheresMyMouth(int nPlayer, sectortype **sectnum)
     *sectnum = pActor->sector();
 	auto pos = pActor->spr.pos.plusZ(-height);
 
-    auto vect = pActor->spr.angle.ToVector() * 8;
+    auto vect = pActor->spr.Angles.Yaw.ToVector() * 8;
 
     Collision scratch;
     clipmove(pos, sectnum, vect, 320, 5., 5., CLIPMASK1, scratch);
@@ -1282,7 +1282,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
             else if (nVal.type == kHitSprite)
             {
-                nAngle = nVal.actor()->spr.angle;
+                nAngle = nVal.actor()->spr.Angles.Yaw;
             }
             else if (nVal.type == kHitWall)
             {

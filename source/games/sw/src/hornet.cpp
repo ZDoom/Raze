@@ -465,17 +465,17 @@ int DoHornetCircle(DSWActor* actor)
 {
     double bound;
 
-    actor->spr.angle += mapangle(actor->user.Counter2);
+    actor->spr.Angles.Yaw += mapangle(actor->user.Counter2);
 
-    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
+    if (!move_actor(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, 0)))
     {
         //ActorMoveHitReact(actor);
 
         // try moving in the opposite direction
         actor->user.Counter2 = -actor->user.Counter2;
-        actor->spr.angle += DAngle180;
+        actor->spr.Angles.Yaw += DAngle180;
 
-        if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
+        if (!move_actor(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, 0)))
         {
             InitActorReposition(actor);
             return 0;
@@ -533,7 +533,7 @@ int DoHornetDeath(DSWActor* actor)
         DoActorSlide(actor);
 
     // slide while falling
-	auto vec = actor->spr.angle.ToVector() * actor->vel.X;
+	auto vec = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
 
     actor->user.coll = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, 1, ACTORMOVETICS);
 

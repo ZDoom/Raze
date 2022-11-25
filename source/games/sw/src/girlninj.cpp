@@ -793,7 +793,7 @@ int DoGirlNinjaMove(DSWActor* actor)
 int GirlNinjaJumpActionFunc(DSWActor* actor)
 {
     // if cannot move the sprite
-    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
+    if (!move_actor(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, 0)))
     {
         return 0;
     }

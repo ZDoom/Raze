@@ -185,7 +185,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			if (splash)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.angle = ps[p].angle.ang; // Total tweek
+				splash->spr.Angles.Yaw = ps[p].angle.ang; // Total tweek
 				splash->vel.X = 2;
 				ssp(actor, 0);
 				splash->vel.X = 0;
@@ -336,7 +336,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 					jib->spr.pos.Z += 4;
 					jib->vel.X = 1;
 					jib->spr.scale = DVector2(0.375, 0.375);
-					jib->spr.angle += DAngle22_5 / 2 - randomAngle(22.5);
+					jib->spr.Angles.Yaw += DAngle22_5 / 2 - randomAngle(22.5);
 				}
 			}
 			else spawn(spark, SMALLSMOKE);
@@ -409,7 +409,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 							if (hole)
 							{
 								hole->vel.X = -1 / 16;
-								hole->spr.angle = hit.hitWall->delta().Angle() - DAngle90;
+								hole->spr.Angles.Yaw = hit.hitWall->delta().Angle() - DAngle90;
 								ssp(hole, CLIPMASK0);
 								hole->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 							}
@@ -486,7 +486,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		pos.Z -= 4;
 		if (actor->spr.picnum == 4649)
 		{
-			pos += (actor->spr.angle + DAngle45).ToVector() * 16;
+			pos += (actor->spr.Angles.Yaw + DAngle45).ToVector() * 16;
 			pos.Z += 12;
 		}
 		if (actor->spr.picnum == VIXEN)
@@ -499,7 +499,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	{
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 
-		pos += (actor->spr.angle + DAngle22_5 * 1.25).ToVector() * 16;
+		pos += (actor->spr.Angles.Yaw + DAngle22_5 * 1.25).ToVector() * 16;
 
 		if (aimed)
 		{
@@ -545,7 +545,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 		spawned->clipdist = 1;
 
-		ang = actor->spr.angle + DAngle22_5 / 4 + randomAngle(22.5 / 2);
+		ang = actor->spr.Angles.Yaw + DAngle22_5 / 4 + randomAngle(22.5 / 2);
 		zvel = oldzvel + 2 - krandf(4);
 
 		if (atwith == FIRELASER)
@@ -626,7 +626,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 		zvel = ((ps[j].GetActor()->getPrevOffsetZ() - pos.Z) * vel) / dist;
 
 		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
-			ang = actor->spr.angle + randomAngle(22.5 / 4) - DAngle22_5 / 8;
+			ang = actor->spr.Angles.Yaw + randomAngle(22.5 / 4) - DAngle22_5 / 8;
 	}
 
 	if (p < 0) aimed = nullptr;
@@ -681,7 +681,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	else if (ps[p].curr_weapon == TIT_WEAPON)
 	{
 		spawned->spr.extra >>= 2;
-		spawned->spr.angle += DAngle22_5 / 8 - randomAngle(DAngle22_5 / 4);
+		spawned->spr.Angles.Yaw += DAngle22_5 / 8 - randomAngle(DAngle22_5 / 4);
 		spawned->vel.Z += 1 - krandf(2);
 
 		if (ps[p].hbomb_hold_delay)
@@ -772,7 +772,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 		spawned->clipdist = 1;
 
-		ang = actor->spr.angle + DAngle22_5/4 - randomAngle(DAngle22_5/2);
+		ang = actor->spr.Angles.Yaw + DAngle22_5/4 - randomAngle(DAngle22_5/2);
 		zvel = oldzvel + 2 - krandf(4);
 
 		scount--;
@@ -829,7 +829,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	else
 	{
 		p = -1;
-		sang = actor->spr.angle;
+		sang = actor->spr.Angles.Yaw;
 		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tileHeight(actor->spr.picnum) * 0.5) - 3);
 
 		if (badguy(actor))
@@ -876,7 +876,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->vel.X = 2;
-			j->spr.angle = actor->spr.angle;
+			j->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 			j->spr.pos.Z -= 5;
 		}
 		break;
@@ -887,7 +887,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->vel.X = 250 / 16.;
-			j->spr.angle = actor->spr.angle;
+			j->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 			j->spr.pos.Z -= 15;
 		}
 		break;
@@ -1467,7 +1467,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7220);
 			if (j)
 			{
-				j->spr.angle = p->angle.ang;
+				j->spr.Angles.Yaw = p->angle.ang;
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
@@ -1486,7 +1486,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7233);
 			if (j)
 			{
-				j->spr.angle = p->angle.ang;
+				j->spr.Angles.Yaw = p->angle.ang;
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
@@ -2697,7 +2697,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				double hd = hits(p->GetActor());
 				if (hd < 32)
 				{
-					spawned->spr.angle += DAngle180;
+					spawned->spr.Angles.Yaw += DAngle180;
 					spawned->vel *= 1./3.;
 				}
 
@@ -2909,7 +2909,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 					if (j)
 					{
 
-						j->spr.angle += DAngle180;
+						j->spr.Angles.Yaw += DAngle180;
 						j->vel.X += 2.;
 						j->spr.pos.Z += 3;
 						ssp(j, CLIPMASK0);
@@ -3949,7 +3949,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		if (motosprite)
 		{
 			p->GetActor()->spr.pos.XY() = motosprite->spr.pos.XY();
-			p->angle.ang = motosprite->spr.angle;
+			p->angle.ang = motosprite->spr.Angles.Yaw;
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			motosprite->Destroy();
 		}
@@ -4004,7 +4004,7 @@ void OffMotorcycle(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
-			spawned->spr.angle = p->angle.ang;
+			spawned->spr.Angles.Yaw = p->angle.ang;
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 		}
 	}
@@ -4023,7 +4023,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		if (boat)
 		{
 			p->GetActor()->spr.pos.XY() = boat->spr.pos.XY();
-			p->angle.ang = boat->spr.angle;
+			p->angle.ang = boat->spr.Angles.Yaw;
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			boat->Destroy();
 		}
@@ -4065,7 +4065,7 @@ void OffBoat(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
-			spawned->spr.angle = p->angle.ang;
+			spawned->spr.Angles.Yaw = p->angle.ang;
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 		}
 	}

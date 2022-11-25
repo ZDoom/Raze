@@ -278,7 +278,7 @@ inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang)
 		return;
 	}
 
-	int k = angletorotation1(t->angle, viewang);
+	int k = angletorotation1(t->Angles.Yaw, viewang);
 	if (k > 4)
 	{
 		k = 8 - k;

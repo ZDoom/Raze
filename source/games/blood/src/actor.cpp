@@ -2704,13 +2704,13 @@ static void actNapalmMove(DBloodActor* actor)
 		int spawnparam[2];
 		spawnparam[0] = actor->xspr.data4 >> 1;
 		spawnparam[1] = actor->xspr.data4 - spawnparam[0];
-		auto ang = actor->spr.angle;
+		auto ang = actor->spr.Angles.Yaw;
 		actor->vel.Zero();
 		for (int i = 0; i < 2; i++)
 		{
 			double t1 = RandomD(3.2) + 3.2;
 			auto rndang = Random2A(0x71);
-			actor->spr.angle = (ang + rndang).Normalized360();
+			actor->spr.Angles.Yaw = (ang + rndang).Normalized360();
 			auto spawned = actFireThing(actor, 0., 0., -0.5774, kThingNapalmBall, t1);
 			spawned->SetOwner(actor->GetOwner());
 			seqSpawn(61, spawned, nNapalmClient);
@@ -2942,7 +2942,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		else
 		{
 			seqKill(actor);
-			DBloodActor* pEffect = gFX.fxSpawnActor((FX_ID)52, actor->sector(), actor->spr.pos, actor->spr.angle);
+			DBloodActor* pEffect = gFX.fxSpawnActor((FX_ID)52, actor->sector(), actor->spr.pos, actor->spr.Angles.Yaw);
 			if (pEffect != nullptr)
 			{
 				pEffect->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
@@ -3835,7 +3835,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		if (missileActor->hasX())
 		{
 			actPostSprite(missileActor, kStatDecoration);
-			if (missileActor->spr.angle == DAngle180) sfxPlay3DSound(missileActor, 307, -1, 0);
+			if (missileActor->spr.Angles.Yaw == DAngle180) sfxPlay3DSound(missileActor, 307, -1, 0);
 			missileActor->spr.type = kSpriteDecoration;
 			seqSpawn(9, missileActor, -1);
 		}
@@ -3854,7 +3854,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			if (pWallHit)
 			{
 				auto pFX = gFX.fxSpawnActor(FX_52, missileActor->sector(), missileActor->spr.pos);
-				if (pFX) pFX->spr.angle = (pWallHit->delta().Angle() + DAngle90).Normalized360();
+				if (pFX) pFX->spr.Angles.Yaw = (pWallHit->delta().Angle() + DAngle90).Normalized360();
 			}
 			break;
 		}
@@ -3947,7 +3947,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
 				missileActor->xspr.TargetPos.Z = (missileActor->spr.pos.Z - actorHit->spr.pos.Z);
-				missileActor->xspr.goalAng = (missileActor->spr.pos.XY() - actorHit->spr.pos.XY()).Angle() - actorHit->spr.angle;
+				missileActor->xspr.goalAng = (missileActor->spr.pos.XY() - actorHit->spr.pos.XY()).Angle() - actorHit->spr.Angles.Yaw;
 				missileActor->xspr.state = 1;
 				actPostSprite(missileActor, kStatFlare);
 				missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -4074,8 +4074,8 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 static void actKickObject(DBloodActor* kicker, DBloodActor* kicked)
 {
 	double nSpeed = max(kicker->vel.XY().Length() * 2, FixedToFloat(0xaaaaa));
-	kicked->vel.X = nSpeed * (kicker->spr.angle + Random2A(85)).Cos();
-	kicked->vel.Y = nSpeed * (kicker->spr.angle + Random2A(85)).Sin();
+	kicked->vel.X = nSpeed * (kicker->spr.Angles.Yaw + Random2A(85)).Cos();
+	kicked->vel.Y = nSpeed * (kicker->spr.Angles.Yaw + Random2A(85)).Sin();
 	kicked->vel.Z = nSpeed * -0.5;
 	kicked->spr.flags = 7;
 }
@@ -4677,7 +4677,7 @@ static Collision MoveThing(DBloodActor* actor)
 		}
 	}
 	if (actor->vel.X != 0 || actor->vel.Y != 0)
-		actor->spr.angle = actor->vel.Angle();
+		actor->spr.Angles.Yaw = actor->vel.Angle();
 	return lhit;
 }
 
@@ -5891,7 +5891,7 @@ static void actCheckTraps()
 			{
 				auto pos = actor->spr.pos;
 				double t = actor->xspr.data1 * (128. / 120.);
-				auto vec = actor->spr.angle.ToVector() * t;
+				auto vec = actor->spr.Angles.Yaw.ToVector() * t;
 				for (int i = 0; i < 2; i++)
 				{
 					auto pFX = gFX.fxSpawnActor(FX_32, actor->sector(), pos);
@@ -5903,7 +5903,7 @@ static void actCheckTraps()
 					}
 					pos += vec / 2;
 				}
-				actFireVector(actor, 0., 0., DVector3(actor->spr.angle.ToVector(), Random2F(0x8888) * 4), kVectorTchernobogBurn, actor->xspr.data1 << 5);
+				actFireVector(actor, 0., 0., DVector3(actor->spr.Angles.Yaw.ToVector(), Random2F(0x8888) * 4), kVectorTchernobogBurn, actor->xspr.data1 << 5);
 			}
 			break;
 		}
@@ -6081,7 +6081,7 @@ void actCheckFlares()
 		if (target->hasX() && target->xspr.health > 0)
 		{
 			DVector3 pos = target->spr.pos;
-			pos.XY() += (actor->xspr.goalAng + target->spr.angle).ToVector() * target->clipdist * 0.5;
+			pos.XY() += (actor->xspr.goalAng + target->spr.Angles.Yaw).ToVector() * target->clipdist * 0.5;
 			pos.Z += actor->xspr.TargetPos.Z;
 			SetActor(actor, pos);
 			actor->vel = target->vel;
@@ -6169,7 +6169,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 {
 	auto spawned = actSpawnSprite(source, kStatDude);
 	if (!spawned) return nullptr;
-	DAngle angle = source->spr.angle;
+	DAngle angle = source->spr.Angles.Yaw;
 	int nDude = nType - kDudeBase;
 
 	auto pos = source->spr.pos;
@@ -6181,7 +6181,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, double dist)
 	spawned->spr.type = nType;
 	if (!VanillaMode())
 		 spawned->spr.inittype = nType;
-	spawned->spr.angle = angle;
+	spawned->spr.Angles.Yaw = angle;
 	SetActor(spawned, pos);
 
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
@@ -6329,16 +6329,16 @@ DBloodActor* actFireThing(DBloodActor* actor, double xyoff, double zoff, double 
 {
 	assert(thingType >= kThingBase && thingType < kThingMax);
 
-	DVector3 vect = actor->spr.pos.plusZ(zoff) + (actor->spr.angle + DAngle90).ToVector() * xyoff + actor->spr.angle.ToVector() * actor->clipdist;
+	DVector3 vect = actor->spr.pos.plusZ(zoff) + (actor->spr.Angles.Yaw + DAngle90).ToVector() * xyoff + actor->spr.Angles.Yaw.ToVector() * actor->clipdist;
 
 	if (HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, actor->clipdist * 0.25) != -1)
 	{
-		vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * actor->clipdist * 2;
+		vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * actor->clipdist * 2;
 	}
 	auto fired = actSpawnThing(actor->sector(), vect, thingType);
 	fired->SetOwner(actor);
-	fired->spr.angle = actor->spr.angle;
-	fired->vel = DVector3(fired->spr.angle.ToVector() * nSpeed, nSpeed * zvel * 4) + actor->vel * 0.5;
+	fired->spr.Angles.Yaw = actor->spr.Angles.Yaw;
+	fired->vel = DVector3(fired->spr.Angles.Yaw.ToVector() * nSpeed, nSpeed * zvel * 4) + actor->vel * 0.5;
 	return fired;
 }
 
@@ -6437,10 +6437,10 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 	bool impact = false;
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
 
-	auto vect = actor->spr.pos.plusZ(zoff) + (actor->spr.angle + DAngle90).ToVector() * xyoff;
+	auto vect = actor->spr.pos.plusZ(zoff) + (actor->spr.Angles.Yaw + DAngle90).ToVector() * xyoff;
 
 	double clipdist = pMissileInfo->fClipDist() + actor->clipdist;
-	vect += actor->spr.angle.ToVector() * clipdist;
+	vect += actor->spr.Angles.Yaw.ToVector() * clipdist;
 
 	int hit = HitScan(actor, vect.Z, DVector3(vect.XY() - actor->spr.pos.XY(), 0), CLIPMASK0, clipdist * 4); 
 	if (hit != -1)
@@ -6448,11 +6448,11 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 		if (hit == 3 || hit == 0)
 		{
 			impact = true;
-			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * 1;
+			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * 1;
 		}
 		else
 		{
-			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.angle.ToVector() * pMissileInfo->fClipDist() * 2;
+			vect.XY() = gHitInfo.hitpos.XY() - actor->spr.Angles.Yaw.ToVector() * pMissileInfo->fClipDist() * 2;
 		}
 	}
 	auto spawned = actSpawnSprite(actor->sector(), vect, 5, 1);
@@ -6466,7 +6466,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, double xyoff, double zoff, DVect
 
 	spawned->spr.scale = DVector2(pMissileInfo->xrepeat * REPEAT_SCALE, pMissileInfo->yrepeat * REPEAT_SCALE);
 	spawned->spr.picnum = pMissileInfo->picnum;
-	spawned->spr.angle = actor->spr.angle += mapangle(pMissileInfo->angleOfs);
+	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw += mapangle(pMissileInfo->angleOfs);
 	spawned->vel = dv * pMissileInfo->fVelocity();
 	spawned->SetOwner(actor);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
@@ -6663,7 +6663,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 					auto pFX = gFX.fxSpawnActor(pVectorData->surfHit[nnSurf].fx1, pSector, ppos);
 					if (pFX)
 					{
-						pFX->spr.angle = pWall->normalAngle();
+						pFX->spr.Angles.Yaw = pWall->normalAngle();
 						pFX->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 						pFX->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 					}
@@ -6760,7 +6760,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 								if (pFX)
 								{
 									pFX->vel.Z = FixedToFloat(0x2222);
-									pFX->spr.angle = pWall->normalAngle();
+									pFX->spr.Angles.Yaw = pWall->normalAngle();
 									pFX->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 									pFX->spr.cstat2 |= CSTAT2_SPRITE_DECAL;
 								}

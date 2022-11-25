@@ -48,7 +48,7 @@ void ratBiteSeqCallback(int, DBloodActor* actor)
 	auto target = actor->GetTarget();
 	if (target->IsPlayerActor())
 	{
-		DVector3 vec(actor->spr.angle.ToVector() * 64, target->spr.pos.Z - actor->spr.pos.Z);
+		DVector3 vec(actor->spr.Angles.Yaw.ToVector() * 64, target->spr.pos.Z - actor->spr.pos.Z);
 		actFireVector(actor, 0, 0, vec, kVectorRatBite);
 	}
 }
@@ -67,7 +67,7 @@ static void ratThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &ratSearch);
 	aiThinkTarget(actor);
 }
@@ -100,7 +100,7 @@ static void ratThinkChase(DBloodActor* actor)
 
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{

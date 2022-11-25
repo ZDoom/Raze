@@ -140,7 +140,7 @@ static bool genDudeAdjustSlope(DBloodActor* actor, double dist, int weaponType, 
 		for (int i = -8191; i < 8192; i += by)
 		{
 			double ii = i / 16384.;
-			HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), ii), clipMask, dist * 16); // this originally passed a badly scaled 'dist'.
+			HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.Angles.Yaw.ToVector(), ii), clipMask, dist * 16); // this originally passed a badly scaled 'dist'.
 			if (!fStart && actor->GetTarget() == gHitInfo.actor()) fStart = ii;
 			else if (fStart && actor->GetTarget() != gHitInfo.actor())
 			{
@@ -202,7 +202,7 @@ void punchCallback(int, DBloodActor* actor)
 		if (!playGenDudeSound(actor, kGenDudeSndAttackMelee))
 			sfxPlay3DSound(actor, 530, 1, 0);
 
-		actFireVector(actor, 0, 0, DVector3(actor->spr.angle.ToVector() * 64, nZOffset1 - nZOffset2), kVectorGenDudePunch);
+		actFireVector(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector() * 64, nZOffset1 - nZOffset2), kVectorGenDudePunch);
 	}
 }
 
@@ -226,7 +226,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 
 	if (pExtra->weaponType == kGenDudeWeaponHitscan)
 	{
-		dv = DVector3(actor->spr.angle.ToVector(), actor->dudeSlope);
+		dv = DVector3(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 		// dispersal modifiers here in case if non-melee enemy
 		if (!dudeIsMelee(actor))
 		{
@@ -265,7 +265,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 	}
 	else if (pExtra->weaponType == kGenDudeWeaponMissile)
 	{
-		dv = DVector3(actor->spr.angle.ToVector(), actor->dudeSlope);
+		dv = DVector3(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 
 		// dispersal modifiers here
 		dv.X += Random3F(dispersion, 14);
@@ -427,7 +427,7 @@ static void unicultThinkGoto(DBloodActor* actor)
 	aiChooseDirection(actor, nAngle);
 
 	// if reached target, change to search mode
-	if (nDist < 320 && absangle(actor->spr.angle, nAngle) < getDudeInfo(actor->spr.type)->Periphery())
+	if (nDist < 320 && absangle(actor->spr.Angles.Yaw, nAngle) < getDudeInfo(actor->spr.type)->Periphery())
 	{
 		if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
 		else aiGenDudeNewState(actor, &genDudeSearchL);
@@ -515,7 +515,7 @@ static void unicultThinkChase(DBloodActor* actor)
 	}
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	DAngle losAngle = absangle(actor->spr.angle, nAngle);
+	DAngle losAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 
 	if (dist > pDudeInfo->SeeDist() || !cansee(target->spr.pos, target->sector(),
@@ -750,9 +750,9 @@ static void unicultThinkChase(DBloodActor* actor)
 					double targetDist = -1; 
 					int hit = -1;
 					if (weaponType == kGenDudeWeaponHitscan)
-						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), CLIPMASK1, dist);
+						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope), CLIPMASK1, dist);
 					else if (weaponType == kGenDudeWeaponMissile)
-						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), CLIPMASK0, dist);
+						hit = HitScan(actor, actor->spr.pos.Z, DVector3(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope), CLIPMASK0, dist);
 
 					if (hit >= 0)
 					{
@@ -865,7 +865,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							else if (weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								if (genDudeAdjustSlope(actor, dist, weaponType)) break;
-								VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), dist, 1);
+								VectorScan(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope), dist, 1);
 								if (actor == gHitInfo.actor()) break;
 
 								bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
@@ -926,7 +926,7 @@ static void unicultThinkChase(DBloodActor* actor)
 							if (hit == 4 && weaponType == kGenDudeWeaponHitscan && hscn)
 							{
 								bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
-								if (masked) VectorScan(actor, 0, 0, DVector3(actor->spr.angle.ToVector(), actor->dudeSlope), dist, 1);
+								if (masked) VectorScan(actor, 0, 0, DVector3(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope), dist, 1);
 
 								if ((actor != gHitInfo.actor()) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked))
 								{
@@ -1120,14 +1120,14 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 
 	if (pExtra->canFly)
 	{
-		auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+		auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 		auto nTurnRange = pDudeInfo->TurnRange();
-		actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+		actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 		double nAccel = pDudeInfo->FrontSpeed() * 4;
 		if (abs(nAng) > DAngle60)
 			return;
 		if (actor->GetTarget() == nullptr)
-			actor->spr.angle += DAngle45;
+			actor->spr.Angles.Yaw += DAngle45;
 		auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 		double nDist = dvec.Length();
 		if ((unsigned int)Random(64) < 32 && nDist <= 0x40)
@@ -1144,15 +1144,15 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 	{
 		DAngle maxTurn = mapangle(pDudeInfo->angSpeed * 4 >> 4);
 
-		DAngle dang = actor->xspr.goalAng - actor->spr.angle;
-		actor->spr.angle += clamp(dang, -maxTurn, maxTurn);
+		DAngle dang = actor->xspr.goalAng - actor->spr.Angles.Yaw;
+		actor->spr.Angles.Yaw += clamp(dang, -maxTurn, maxTurn);
 
 		// don't move forward if trying to turn around
 		if (abs(dang) > DAngle180 / 3)
 			return;
 
 		double frontSpeed = FixedToFloat(actor->genDudeExtra.moveSpeed);
-		actor->vel += actor->spr.angle.ToVector() * frontSpeed;
+		actor->vel += actor->spr.Angles.Yaw.ToVector() * frontSpeed;
 	}
 }
 
@@ -1172,32 +1172,32 @@ void aiGenDudeChooseDirection(DBloodActor* actor, DAngle direction, const DVecto
 
 	// TO-DO: Take in account if sprite is flip-x, so enemy select correct angle
 
-	DAngle vc = deltaangle(actor->spr.angle, direction);
-	double range = vel.dot(actor->spr.angle.ToVector()) * 120;
+	DAngle vc = deltaangle(actor->spr.Angles.Yaw, direction);
+	double range = vel.dot(actor->spr.Angles.Yaw.ToVector()) * 120;
 	DAngle v8 = vc > nullAngle ? DAngle180 / 3 : -DAngle180 / 3;
 
-	if (CanMove(actor, actor->GetTarget(), actor->spr.angle + vc, range))
-		actor->xspr.goalAng = actor->spr.angle + vc;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle + vc / 2, range))
-		actor->xspr.goalAng = actor->spr.angle + vc / 2;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle - vc / 2, range))
-		actor->xspr.goalAng = actor->spr.angle - vc / 2;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle + v8, range))
-		actor->xspr.goalAng = actor->spr.angle + v8;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle, range))
-		actor->xspr.goalAng = actor->spr.angle;
-	else if (CanMove(actor, actor->GetTarget(), actor->spr.angle - v8, range))
-		actor->xspr.goalAng = actor->spr.angle - v8;
+	if (CanMove(actor, actor->GetTarget(), actor->spr.Angles.Yaw + vc, range))
+		actor->xspr.goalAng = actor->spr.Angles.Yaw + vc;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.Angles.Yaw + vc / 2, range))
+		actor->xspr.goalAng = actor->spr.Angles.Yaw + vc / 2;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.Angles.Yaw - vc / 2, range))
+		actor->xspr.goalAng = actor->spr.Angles.Yaw - vc / 2;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.Angles.Yaw + v8, range))
+		actor->xspr.goalAng = actor->spr.Angles.Yaw + v8;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.Angles.Yaw, range))
+		actor->xspr.goalAng = actor->spr.Angles.Yaw;
+	else if (CanMove(actor, actor->GetTarget(), actor->spr.Angles.Yaw - v8, range))
+		actor->xspr.goalAng = actor->spr.Angles.Yaw - v8;
 	else
-		actor->xspr.goalAng = actor->spr.angle + DAngle180 / 3;
+		actor->xspr.goalAng = actor->spr.Angles.Yaw + DAngle180 / 3;
 
 	actor->xspr.goalAng = actor->xspr.goalAng.Normalized360();
 	actor->xspr.dodgeDir = (Chance(0x8000)) ? 1 : -1;
 
-	if (!CanMove(actor, actor->GetTarget(), actor->spr.angle + DAngle90 * actor->xspr.dodgeDir, 512))
+	if (!CanMove(actor, actor->GetTarget(), actor->spr.Angles.Yaw + DAngle90 * actor->xspr.dodgeDir, 512))
 	{
 		actor->xspr.dodgeDir = -actor->xspr.dodgeDir;
-		if (!CanMove(actor, actor->GetTarget(), actor->spr.angle + DAngle90 * actor->xspr.dodgeDir, 512))
+		if (!CanMove(actor, actor->GetTarget(), actor->spr.Angles.Yaw + DAngle90 * actor->xspr.dodgeDir, 512))
 			actor->xspr.dodgeDir = 0;
 	}
 }
@@ -1386,7 +1386,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 {
 	if (actLeech != nullptr)
 	{
-		auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->sector(), actLeech->spr.pos, actLeech->spr.angle);
+		auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->sector(), actLeech->spr.pos, actLeech->spr.Angles.Yaw);
 		if (effectactor != nullptr)
 		{
 			effectactor->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
@@ -1778,10 +1778,10 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 			{
 				atpos.XY() += actTarget->vel.XY() * nDist * 0.0375;
 
-				auto angBak = actor->spr.angle;
-				actor->spr.angle = (atpos - actor->spr.pos.XY()).Angle();
+				auto angBak = actor->spr.Angles.Yaw;
+				actor->spr.Angles.Yaw = (atpos - actor->spr.pos.XY()).Angle();
 				DVector3 dv;
-				dv.XY() = actor->spr.angle.ToVector() * 64;
+				dv.XY() = actor->spr.Angles.Yaw.ToVector() * 64;
 				double tz = actTarget->spr.pos.Z - (actTarget->spr.scale.Y * pDudeInfo->aimHeight);
 				double dz = (tz - top - 1) / nDist * 4;
 				int nMissileType = kMissileLifeLeechAltNormal + (actor->xspr.data3 ? 1 : 0);
@@ -1798,7 +1798,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 					evPostActor(actor, t2, kCallbackLeechStateTimer);
 					actor->xspr.data3 = ClipLow(actor->xspr.data3 - 1, 0);
 				}
-				actor->spr.angle = angBak;
+				actor->spr.Angles.Yaw = angBak;
 			}
 		}
 
@@ -1858,11 +1858,11 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, double nDist)
 	auto pos = actor->spr.pos;
 	if (nDist > 0)
 	{
-		pos.XY() += actor->spr.angle.ToVector() * nDist;
+		pos.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
 	}
 
 	spawned->spr.type = nType; 
-	spawned->spr.angle = actor->spr.angle;
+	spawned->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 	SetActor(spawned, pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
 	spawned->clipdist = dudeInfo[nType - kDudeBase].fClipdist();

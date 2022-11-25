@@ -83,12 +83,12 @@ public:
 
 	constexpr int int_ang() const
 	{
-		return spr.angle.Buildang();
+		return spr.Angles.Yaw.Buildang();
 	}
 
 	void norm_ang()
 	{
-		spr.angle = spr.angle.Normalized360();
+		spr.Angles.Yaw = spr.Angles.Yaw.Normalized360();
 	}
 
 	DVector3 interpolatedpos(double const interpfrac)
@@ -98,7 +98,7 @@ public:
 
 	DAngle interpolatedangle(double const interpfrac)
 	{
-		return interpolatedvalue(oang, spr.angle, interpfrac);
+		return interpolatedvalue(oang, spr.Angles.Yaw, interpfrac);
 	}
 
 	void backupz()
@@ -120,7 +120,7 @@ public:
 
 	void backupang()
 	{
-		oang = spr.angle;
+		oang = spr.Angles.Yaw;
 	}
 
 	void backuploc()

@@ -98,7 +98,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	{
 		if (set & 1) spawned->spr.pal = (uint8_t)pal;
 		if (set & 2) spawned->spr.cstat = ESpriteFlags::FromInt(cstat);
-		if (set & 4) spawned->spr.angle = ang;
+		if (set & 4) spawned->spr.Angles.Yaw = ang;
 		if (set & 8) SetActor(spawned, DVector3( x, y, z ));
 
 		if (spawned->sector() == nullptr)

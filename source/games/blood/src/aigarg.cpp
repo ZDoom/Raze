@@ -83,7 +83,7 @@ void SlashFSeqCallback(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 	double height2 = (pDudeInfoT->eyeHeight * target->spr.scale.Y);
-	DVector3 vec(actor->spr.angle.ToVector() * 64, height - height2);
+	DVector3 vec(actor->spr.Angles.Yaw.ToVector() * 64, height - height2);
 
 	actFireVector(actor, 0, 0, vec, kVectorGargSlash);
 	double r1 = RandomF(50, 8);
@@ -107,7 +107,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 	double height = (actor->spr.scale.Y * getDudeInfo(actor->spr.type)->eyeHeight);
 	DVector3 pos(actor->spr.pos.XY(), height);
 
-	DVector3 Aim(actor->spr.angle.ToVector(), actor->dudeSlope);
+	DVector3 Aim(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 	double nClosest = 0x7fffffff;
 
 	BloodStatIterator it(kStatDude);
@@ -124,7 +124,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 		pos += actor2->vel * nDist * (65536. / 0x1aaaaa);
 
 		DVector3 tvec = pos;
-		tvec.XY() += actor->spr.angle.ToVector() * nDist;
+		tvec.XY() += actor->spr.Angles.Yaw.ToVector() * nDist;
 		tvec.Z += actor->dudeSlope * nDist;
 
 		double tsr = nDist * 9.23828125;
@@ -137,7 +137,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			DAngle nAngle = (pos2.XY() - pos.XY()).Angle();
-			DAngle nDeltaAngle = absangle(nAngle, actor->spr.angle);
+			DAngle nDeltaAngle = absangle(nAngle, actor->spr.Angles.Yaw);
 			if (nDeltaAngle <= DAngle45)
 			{
 				double tz1 = actor2->spr.pos.Z - actor->spr.pos.Z;
@@ -205,7 +205,7 @@ static void gargThinkTarget(DBloodActor* actor)
 			double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 			if (!cansee(ppos, pSector, actor->spr.pos.plusZ(-height), actor->sector()))
 				continue;
-			DAngle nDeltaAngle = absangle(actor->spr.angle, dvect.Angle());
+			DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dvect.Angle());
 			if (nDist < pDudeInfo->SeeDist() && nDeltaAngle <= pDudeInfo->Periphery())
 			{
 				pDudeExtraE->thinkTime = 0;
@@ -242,7 +242,7 @@ static void gargThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 32 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 32 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 		aiNewState(actor, &gargoyleFSearch);
 	aiThinkTarget(actor);
 }
@@ -254,9 +254,9 @@ static void gargMoveDodgeUp(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	AdjustVelocity(actor, ADJUSTER{
 		if (actor->xspr.dodgeDir > 0)
 			t2 += FixedToFloat(pDudeInfo->sideSpeed);
@@ -274,9 +274,9 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	if (actor->xspr.dodgeDir == 0)
 		return;
 	AdjustVelocity(actor, ADJUSTER{
@@ -320,7 +320,7 @@ static void gargThinkChase(DBloodActor* actor)
 	double nDist = dxy.Length();
 	if (nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, dxyAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, dxyAngle);
 		double height = pDudeInfo->eyeHeight * actor->spr.scale.Y;
 		// Should be dudeInfo[target->spr.type-kDudeBase]
 		double height2 = pDudeInfo->eyeHeight * target->spr.scale.Y;
@@ -489,14 +489,14 @@ static void gargMoveForward(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 		return;
 	if (actor->GetTarget() == nullptr)
-		actor->spr.angle += DAngle45;
+		actor->spr.Angles.Yaw += DAngle45;
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();
 	double nDist = dvec.Length();
 	if ((unsigned int)Random(64) < 32 && nDist <= 0x40)
@@ -517,9 +517,9 @@ static void gargMoveSlow(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
@@ -552,9 +552,9 @@ static void gargMoveSwoop(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
@@ -587,13 +587,13 @@ static void gargMoveFly(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	auto nAng = deltaangle(actor->spr.angle, actor->xspr.goalAng);
+	auto nAng = deltaangle(actor->spr.Angles.Yaw, actor->xspr.goalAng);
 	auto nTurnRange = pDudeInfo->TurnRange();
-	actor->spr.angle += clamp(nAng, -nTurnRange, nTurnRange);
+	actor->spr.Angles.Yaw += clamp(nAng, -nTurnRange, nTurnRange);
 	double nAccel = pDudeInfo->FrontSpeed() * 4;
 	if (abs(nAng) > DAngle60)
 	{
-		actor->spr.angle += DAngle90;
+		actor->spr.Angles.Yaw += DAngle90;
 		return;
 	}
 	auto dvec = actor->xspr.TargetPos.XY() - actor->spr.pos.XY();

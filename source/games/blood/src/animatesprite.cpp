@@ -69,7 +69,7 @@ tspritetype* viewInsertTSprite(tspriteArray& tsprites, sectortype* pSector, int 
 	{
 		pos = parentTSprite->pos;
 		pTSprite->ownerActor = parentTSprite->ownerActor;
-		pTSprite->angle = parentTSprite->angle;
+		pTSprite->Angles.Yaw = parentTSprite->Angles.Yaw;
 	}
 	pos.XY() += gCameraAng.ToVector() * 2;
 	pTSprite->pos = pos;
@@ -242,7 +242,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	}
 	case kViewEffectTrail:
 	{
-		auto nAng = pTSprite->angle;
+		auto nAng = pTSprite->Angles.Yaw;
 		if (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)
 		{
 			nAng += DAngle90;
@@ -422,7 +422,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->scale = DVector2(1, 1);
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->angle = pTSprite->angle;
+		pNSprite->Angles.Yaw = pTSprite->Angles.Yaw;
 		pNSprite->ownerActor = pTSprite->ownerActor;
 		break;
 	}
@@ -440,7 +440,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pal = 2;
 		pNSprite->scale = DVector2(nShade * REPEAT_SCALE, nShade * REPEAT_SCALE);
 		pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
-		pNSprite->angle = pTSprite->angle;
+		pNSprite->Angles.Yaw = pTSprite->Angles.Yaw;
 		pNSprite->ownerActor = pTSprite->ownerActor;
 		break;
 	}
@@ -477,16 +477,16 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
 			auto gView = &gPlayer[gViewIndex];
-			pNSprite->angle = gView->actor->spr.angle += DAngle90; // always face viewer
+			pNSprite->Angles.Yaw = gView->actor->spr.Angles.Yaw += DAngle90; // always face viewer
 			pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 			pNSprite->picnum = nVoxel;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
-				pNSprite->pos.XY() += gView->actor->spr.angle.ToVector() * 8;
+				pNSprite->pos.XY() += gView->actor->spr.Angles.Yaw.ToVector() * 8;
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
-				pNSprite->angle += DAngle90;
+				pNSprite->Angles.Yaw += DAngle90;
 		}
 		break;
 	}
@@ -556,7 +556,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
 			pTSprite->pos = owneractor->interpolatedpos(interpfrac);
-			pTSprite->angle = owneractor->interpolatedangle(interpfrac);
+			pTSprite->Angles.Yaw = owneractor->interpolatedangle(interpfrac);
 		}
 		int nAnim = 0;
 		switch (picanm[nTile].extra & 7) {
@@ -585,7 +585,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
-			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->angle));
+			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->Angles.Yaw));
 			if (nAnim <= 4)
 			{
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -604,7 +604,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
-			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->angle));
+			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->Angles.Yaw));
 			break;
 		}
 		case 3:
@@ -640,7 +640,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 					pTSprite->picnum = voxelIndex[pTSprite->picnum];
 					if ((picanm[nTile].extra & 7) == 7)
 					{
-						pTSprite->angle = myclock.Normalized360();
+						pTSprite->Angles.Yaw = myclock.Normalized360();
 					}
 				}
 			}
@@ -874,7 +874,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 					auto pNTSprite = viewAddEffect(tsprites, nTSprite, kViewEffectShoot);
 					if (pNTSprite) {
 						POSTURE* pPosture = &thisPlayer->pPosture[thisPlayer->lifeMode][thisPlayer->posture];
-						pNTSprite->pos.XY() += pTSprite->angle.ToVector() * pPosture->xOffset;
+						pNTSprite->pos.XY() += pTSprite->Angles.Yaw.ToVector() * pPosture->xOffset;
 						pNTSprite->pos.Z = thisPlayer->actor->spr.pos.Z - pPosture->zOffset;
 					}
 				}
@@ -948,7 +948,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		{
 		case 1:
 		{
-			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->angle));
+			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->Angles.Yaw));
 			if (nAnim <= 4)
 			{
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -962,7 +962,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		case 2:
 		{
-			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->angle));
+			nAnim = GetOctant(DVector2(cPos.XY() - pTSprite->pos).Rotated(DAngle22_5 - pTSprite->Angles.Yaw));
 			break;
 		}
 		}

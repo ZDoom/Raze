@@ -54,7 +54,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
         ChangeActorStat(spp, 99);
 
         spp->spr.pos.Z = spp->sector()->floorz;
-        nAngle = spp->spr.angle;
+        nAngle = spp->spr.Angles.Yaw;
     }
 
     spp->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -67,7 +67,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, const DVector3& pos, sectortype* 
     spp->spr.pal = spp->sector()->ceilingpal;
     spp->spr.xoffset = 0;
     spp->spr.yoffset = 0;
-    spp->spr.angle = nAngle;
+    spp->spr.Angles.Yaw = nAngle;
     spp->spr.picnum = 1;
     spp->spr.hitag = 0;
     spp->spr.lotag = runlist_HeadRun() + 1;
@@ -308,7 +308,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
         case kHitWall:
         {
-            spp->spr.angle += DAngle45;
+            spp->spr.Angles.Yaw += DAngle45;
 			spp->VelFromAngle();
             return;
         }
@@ -316,7 +316,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                auto nAngDiff = absangle(spp->spr.angle, (pTarget->spr.pos - spp->spr.pos).Angle());
+                auto nAngDiff = absangle(spp->spr.Angles.Yaw, (pTarget->spr.pos - spp->spr.pos).Angle());
                 if (nAngDiff < DAngle22_5 / 2)
                 {
                     spp->nAction = 2;

@@ -441,7 +441,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 	assert(pPlayer != NULL);
 	auto plActor = pPlayer->actor;
 	DVector3 pos(plActor->spr.pos.XY(), pPlayer->zWeapon);
-	DVector3 Aim(plActor->spr.angle.ToVector(), pPlayer->slope);
+	DVector3 Aim(plActor->spr.Angles.Yaw.ToVector(), pPlayer->slope);
 
 	WEAPONTRACK* pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
 	DBloodActor* targetactor = nullptr;
@@ -472,7 +472,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 				double t = nDist * 4096 / pWeaponTrack->seeker;
 				pos2 += actor->vel * t;
 			}
-			DVector3 lpos = pos + DVector3(plActor->spr.angle.ToVector(), pPlayer->slope) * nDist;
+			DVector3 lpos = pos + DVector3(plActor->spr.Angles.Yaw.ToVector(), pPlayer->slope) * nDist;
 
 			double zRange = nDist * (9460 / 16384.);
 			double top, bottom;
@@ -481,7 +481,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 				continue;
 
 			DAngle angle = (pos2 - pos).Angle();
-			DAngle deltaangle = absangle(angle, plActor->spr.angle);
+			DAngle deltaangle = absangle(angle, plActor->spr.Angles.Yaw);
 			if (deltaangle > DAngle::fromBuild(pWeaponTrack->angleRange))
 				continue;
 			if (pPlayer->aimTargetsCount < 16 && cansee(pos, plActor->sector(), pos2, actor->sector()))
@@ -519,7 +519,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 				if (nDist == 0 || nDist > 3200)
 					continue;
 
-				DVector3 lpos = pos + DVector3(plActor->spr.angle.ToVector(), pPlayer->slope) * nDist;
+				DVector3 lpos = pos + DVector3(plActor->spr.Angles.Yaw.ToVector(), pPlayer->slope) * nDist;
 				double zRange = nDist * (9460 / 16384.);
 
 				double top, bottom;
@@ -528,7 +528,7 @@ void UpdateAimVector(PLAYER* pPlayer)
 					continue;
 
 				DAngle angle = dv.Angle();
-				DAngle deltaangle = absangle(angle, plActor->spr.angle);
+				DAngle deltaangle = absangle(angle, plActor->spr.Angles.Yaw);
 				if (deltaangle > DAngle::fromBuild(pWeaponTrack->thingAngle))
 					continue;
 
@@ -549,14 +549,14 @@ void UpdateAimVector(PLAYER* pPlayer)
 		}
 	}
 	DVector3 Aim2(Aim);
-	Aim2.XY() = Aim2.XY().Rotated(-plActor->spr.angle);
+	Aim2.XY() = Aim2.XY().Rotated(-plActor->spr.Angles.Yaw);
 	Aim2.Z -= pPlayer->slope;
 
 	pPlayer->relAim.X = interpolatedvalue(pPlayer->relAim.X, Aim2.X, FixedToFloat(pWeaponTrack->aimSpeedHorz));
 	pPlayer->relAim.Y = interpolatedvalue(pPlayer->relAim.Y, Aim2.Y, FixedToFloat(pWeaponTrack->aimSpeedHorz));
 	pPlayer->relAim.Z = interpolatedvalue(pPlayer->relAim.Z, Aim2.Z, FixedToFloat(pWeaponTrack->aimSpeedVert));
 	pPlayer->aim = pPlayer->relAim;
-	pPlayer->aim.XY() = pPlayer->aim.XY().Rotated(plActor->spr.angle);
+	pPlayer->aim.XY() = pPlayer->aim.XY().Rotated(plActor->spr.Angles.Yaw);
 	pPlayer->aim.Z += pPlayer->slope;
 	pPlayer->aimTarget = targetactor;
 }
@@ -1975,7 +1975,7 @@ void FireLifeLeech(int nTrigger, PLAYER* pPlayer)
 	if (missileActor)
 	{
 		missileActor->SetTarget(pPlayer->aimTarget);
-		missileActor->spr.angle = ((nTrigger == 2) ? DAngle180 : nullAngle);
+		missileActor->spr.Angles.Yaw = ((nTrigger == 2) ? DAngle180 : nullAngle);
 	}
 	if (checkAmmo2(pPlayer, 8, 1))
 		UseAmmo(pPlayer, 8, 1);

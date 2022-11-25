@@ -812,7 +812,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	GetActorExtents(actor, &top, &bottom);
 	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
-	actor->spr.angle = pPlayer->angle.ang = pStartZone->angle;
+	actor->spr.Angles.Yaw = pPlayer->angle.ang = pStartZone->angle;
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->clipdist = pDudeInfo->fClipdist();
 	actor->spr.flags = 15;
@@ -1421,7 +1421,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 {
 	auto plActor = pPlayer->actor;
 	*out = {};
-	auto pos = DVector3(plActor->spr.angle.ToVector(), pPlayer->slope);
+	auto pos = DVector3(plActor->spr.Angles.Yaw.ToVector(), pPlayer->slope);
 	int hit = HitScan(pPlayer->actor, pPlayer->zView, pos, 0x10000040, 128);
 	double hitDist = (plActor->spr.pos.XY() - gHitInfo.hitpos.XY()).Length();
 	if (hitDist < 64)
@@ -1499,7 +1499,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer)
 {
-	pPlayer->actor->spr.angle = pPlayer->angle.ang;
+	pPlayer->actor->spr.Angles.Yaw = pPlayer->angle.ang;
 }
 
 //---------------------------------------------------------------------------
@@ -1513,7 +1513,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 	auto plActor = pPlayer->actor;
 	int const florhit = pPlayer->actor->hit.florhit.type;
 	bool const va = plActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
-	pPlayer->horizon.calcviewpitch(plActor->spr.pos.XY(), plActor->spr.angle, va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
+	pPlayer->horizon.calcviewpitch(plActor->spr.pos.XY(), plActor->spr.Angles.Yaw, va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
 }
 
 //---------------------------------------------------------------------------
@@ -1592,7 +1592,7 @@ void ProcessInput(PLAYER* pPlayer)
 		const double speed = pPlayer->posture == 1? 1. : 1. - (actor->xspr.height < 256 ? actor->xspr.height * (1. / 256.) : 0);
 		const double& fvAccel = pInput->fvel > 0 ? pPosture->frontAccel : pPosture->backAccel;
 		const double& svAccel = pPosture->sideAccel;
-		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, pInput->svel * svAccel).Rotated(actor->spr.angle) * speed;
+		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, pInput->svel * svAccel).Rotated(actor->spr.Angles.Yaw) * speed;
 	}
 
 	if (SyncInput())
@@ -1715,8 +1715,8 @@ void ProcessInput(PLAYER* pPlayer)
 			auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->actor->clipdist * 0.5);
 			if (spawned)
 			{
-				spawned->spr.angle += DAngle180;
-				spawned->vel.XY() = pPlayer->actor->vel.XY() + (64. / 3.) * pPlayer->actor->spr.angle.ToVector();
+				spawned->spr.Angles.Yaw += DAngle180;
+				spawned->vel.XY() = pPlayer->actor->vel.XY() + (64. / 3.) * pPlayer->actor->spr.Angles.Yaw.ToVector();
 				spawned->vel.Z = pPlayer->actor->vel.Z;
 			}
 			pPlayer->hand = 0;

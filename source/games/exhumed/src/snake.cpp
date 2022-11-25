@@ -170,13 +170,13 @@ void BuildSnake(int nPlayer, double zVal)
 	auto pos = pPlayerActor->spr.pos.plusZ(zVal - 10);
 
     HitInfo hit{};
-    hitscan(pos, pPlayerActor->sector(), DVector3(pPlayerActor->spr.angle.ToVector() * 1024, 0), hit, CLIPMASK1);
+    hitscan(pos, pPlayerActor->sector(), DVector3(pPlayerActor->spr.Angles.Yaw.ToVector() * 1024, 0), hit, CLIPMASK1);
 
 	double nSize = (hit.hitpos.XY() - pos.XY()).Length();
 
     if (nSize < 64)
     {
-		hit.hitpos -= pPlayerActor->spr.angle.ToVector() * 0.5;
+		hit.hitpos -= pPlayerActor->spr.Angles.Yaw.ToVector() * 0.5;
         auto pActor = insertActor(hit.hitSector, 202);
         pActor->spr.pos = hit.hitpos;
 
@@ -231,7 +231,7 @@ void BuildSnake(int nPlayer, double zVal)
             pActor->spr.pal = 0;
             pActor->spr.xoffset = 0;
             pActor->spr.yoffset = 0;
-            pActor->spr.angle = pPlayerActor->spr.angle;
+            pActor->spr.Angles.Yaw = pPlayerActor->spr.Angles.Yaw;
             pActor->vel.X = 0;
             pActor->vel.Y = 0;
             pActor->vel.Z = 0;
@@ -284,7 +284,7 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
     DExhumedActor* pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     if (!pActor) return nullptr;
 
-    DAngle nAngle = pActor->spr.angle;
+    DAngle nAngle = pActor->spr.Angles.Yaw;
     auto pSector =pActor->sector();
 
     DAngle maxangle = DAngle360;
@@ -350,7 +350,7 @@ void AISnake::Tick(RunListEvent* ev)
     if (pEnemySprite == nullptr)
     {
     SEARCH_ENEMY:
-        auto vec = pActor->spr.angle.ToVector() * 37.5;
+        auto vec = pActor->spr.Angles.Yaw.ToVector() * 37.5;
         nMov = movesprite(pActor, vec, BobVal(SnakeList[nSnake].nAngle) * 2, 0, CLIPMASK1);
 
         FindSnakeEnemy(nSnake);
@@ -384,7 +384,7 @@ void AISnake::Tick(RunListEvent* ev)
     }
     else
     {
-        DAngle nAngle = pActor->spr.angle;
+        DAngle nAngle = pActor->spr.Angles.Yaw;
         double cosang = -nAngle.Cos() * 4;
         double sinang = -nAngle.Sin() * 4;
 
@@ -400,7 +400,7 @@ void AISnake::Tick(RunListEvent* ev)
             DExhumedActor* pActor2 = SnakeList[nSnake].pSprites[i];
             if (!pActor2) continue;
 
-            pActor2->spr.angle = nAngle;
+            pActor2->spr.Angles.Yaw = nAngle;
 			pActor2->spr.pos = pActor->spr.pos;
 
             ChangeActorSect(pActor2, pSector);

@@ -79,7 +79,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	act->spr.shade = s_shd;
 	if (!scale.isZero()) act->spr.scale = DVector2(scale.X, scale.Y);
 
-	act->spr.angle = s_ang;
+	act->spr.Angles.Yaw = s_ang;
 	act->vel.X = s_vel;
 	act->vel.Z = s_zvel;
 	act->backuploc();
@@ -313,7 +313,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		act->timetosleep = 0;
 
 		if (actj)
-			act->spr.angle = actj->spr.angle;
+			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 	}
 }
 
@@ -347,7 +347,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 
 	act->spr.shade = -127;
 	act->spr.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-	act->spr.angle = actj->spr.angle;
+	act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 
 	act->vel.X = 8;
 	ChangeActorStat(act, STAT_MISC);
@@ -400,7 +400,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if ((ps[actj->PlayerIndex()].footprintcount & 1)) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		act->spr.angle = actj->spr.angle;
+		act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 	}
 
 	act->spr.pos.Z = sect->floorz;
@@ -435,7 +435,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 		}
 		else
 		{
-			ang = act->spr.angle;
+			ang = act->spr.Angles.Yaw;
 			act->spr.pos.Z = actj->spr.pos.Z - gs.playerheight + 3;
 		}
 
@@ -446,12 +446,12 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 		if (isNamWW2GI())
 		{
 			// to the right, with feeling
-			act->spr.angle = ang + DAngle90;
+			act->spr.Angles.Yaw = ang + DAngle90;
 			act->vel.X = 1.875;
 		}
 		else
 		{
-			act->spr.angle = ang - DAngle90;
+			act->spr.Angles.Yaw = ang - DAngle90;
 			act->vel.X = 1.25;
 		}
 
@@ -850,7 +850,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 							act2->spr.lotag == SE_1_PIVOT &&
 							act2->spr.hitag == actor->spr.hitag)
 						{
-							if (actor->spr.angle == DAngle90)
+							if (actor->spr.Angles.Yaw == DAngle90)
 							{
 								actor->spr.pos.XY() = act2->spr.pos.XY();
 							}
@@ -1000,7 +1000,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
-			auto a = actor->spr.angle - DAngle45 + DAngle180 + randomAngle(90);
+			auto a = actor->spr.Angles.Yaw - DAngle45 + DAngle180 + randomAngle(90);
 			auto vel = krandf(4) + 2;
 			auto zvel = 4 - krandf(4);
 
@@ -1027,7 +1027,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 			double z = sect->floorz - krandf(abs(sect->ceilingz - sect->floorz));
 			if (fabs(z) > 32)
 				z = actor->spr.pos.Z - 32 + krandf(64);
-			DAngle angl = actor->spr.angle - DAngle180;
+			DAngle angl = actor->spr.Angles.Yaw - DAngle180;
 			auto vel = krandf(4) + 2;
 			auto zvel = 4 - krandf(4);
 
@@ -1119,7 +1119,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		if (abs(z) > 32)
 			z = actor->spr.pos.Z - 32 + krandf(64);
 
-		DAngle a = actor->spr.angle - DAngle180;
+		DAngle a = actor->spr.Angles.Yaw - DAngle180;
 		auto vel = krandf(4) + 2;
 		auto zvel = - krandf(8);
 

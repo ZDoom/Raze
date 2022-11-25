@@ -310,7 +310,7 @@ void JS_InitMirrors(void)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
-                            itActor->user.sang = itActor->spr.angle;      // Set current angle to sprite angle
+                            itActor->user.sang = itActor->spr.Angles.Yaw;      // Set current angle to sprite angle
                             Found_Cam = true;
                         }
                     }
@@ -323,7 +323,7 @@ void JS_InitMirrors(void)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
-                            itActor->user.sang = itActor->spr.angle;      // Set current angle to sprite angle
+                            itActor->user.sang = itActor->spr.Angles.Yaw;      // Set current angle to sprite angle
                             Found_Cam = true;
                         }
                     }
@@ -569,7 +569,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
                             camactor->user.sang += oscillation_angle;
 
                             // TAG6 = Turn radius
-                            if (absangle(camactor->spr.angle, camactor->user.sang) >= maxang)
+                            if (absangle(camactor->spr.Angles.Yaw, camactor->user.sang) >= maxang)
                             {
                                 camactor->user.sang -= oscillation_angle;
                                 RESET_BOOL3(camactor);    // Reverse turn direction.
@@ -581,7 +581,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
                             camactor->user.sang -= oscillation_angle;
 
                             // TAG6 = Turn radius
-                            if (absangle(camactor->spr.angle, camactor->user.sang) >= maxang)
+                            if (absangle(camactor->spr.Angles.Yaw, camactor->user.sang) >= maxang)
                             {
                                 camactor->user.sang += oscillation_angle;
                                 SET_BOOL3(camactor);      // Reverse turn direction.
@@ -590,7 +590,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
                     }
                     else if (!TEST_BOOL2(camactor))
                     {
-                        camactor->user.sang = camactor->spr.angle;      // Copy sprite angle to tag5
+                        camactor->user.sang = camactor->spr.Angles.Yaw;      // Copy sprite angle to tag5
                     }
 
                     // Set the horizon value.

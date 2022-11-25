@@ -432,7 +432,7 @@ int DoActorOperate(DSWActor* actor)
 
     for (i = 0; i < SIZ(z); i++)
     {
-        neartag(actor->spr.pos.plusZ(z[i]), actor->sector(), actor->spr.angle, near, 64., NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
+        neartag(actor->spr.pos.plusZ(z[i]), actor->sector(), actor->spr.Angles.Yaw, near, 64., NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
     }
 
     if (near.hitSector != nullptr)
@@ -837,7 +837,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
+        actor->spr.Angles.Yaw = (tp->pos - actor->spr.pos).Angle();
 
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
@@ -862,7 +862,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
 int DoActorMoveCloser(DSWActor* actor)
 {
     // if cannot move the sprite
-    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
+    if (!move_actor(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, 0)))
     {
         if (ActorMoveHitReact(actor))
             return 0;
@@ -889,7 +889,7 @@ int DoActorMoveCloser(DSWActor* actor)
         else
         {
             // turn to face player
-            actor->spr.angle = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
+            actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
         }
     }
 
@@ -1086,7 +1086,7 @@ int InitActorRunAway(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
+        actor->spr.Angles.Yaw = (tp->pos - actor->spr.pos).Angle();
         DoActorSetSpeed(actor, FAST_SPEED);
         actor->user.Flags |= (SPR_RUN_AWAY);
     }
@@ -1173,7 +1173,7 @@ int InitActorAttack(DSWActor* actor)
     //NewStateGroup(actor, actor->user.ActorActionSet->Stand);
 
     // face player when attacking
-    actor->spr.angle = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
+    actor->spr.Angles.Yaw = (actor->user.targetActor->spr.pos - actor->spr.pos).Angle();
 
     // If it's your own kind, lay off!
     if (actor->user.ID == actor->user.targetActor->user.ID && !actor->user.targetActor->user.PlayerP)
@@ -1262,7 +1262,7 @@ int InitActorEvade(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
+        actor->spr.Angles.Yaw = (tp->pos - actor->spr.pos).Angle();
         DoActorSetSpeed(actor, FAST_SPEED);
         // NOT doing a RUN_AWAY
         actor->user.Flags &= ~(SPR_RUN_AWAY);
@@ -1289,7 +1289,7 @@ int InitActorWanderAround(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
+        actor->spr.Angles.Yaw = (tp->pos - actor->spr.pos).Angle();
         DoActorSetSpeed(actor, NORM_SPEED);
     }
 
@@ -1312,7 +1312,7 @@ int InitActorFindPlayer(DSWActor* actor)
     if (actor->user.track >= 0)
     {
         auto tp = Track[actor->user.track].TrackPoint + actor->user.point;
-        actor->spr.angle = (tp->pos - actor->spr.pos).Angle();
+        actor->spr.Angles.Yaw = (tp->pos - actor->spr.pos).Angle();
         DoActorSetSpeed(actor, MID_SPEED);
         actor->user.Flags |= (SPR_FIND_PLAYER);
 
@@ -1387,7 +1387,7 @@ int DoActorDuck(DSWActor* actor)
 
 int DoActorMoveJump(DSWActor* actor)
 {
-	move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0));
+	move_actor(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, 0));
 
     if (!(actor->user.Flags & (SPR_JUMPING|SPR_FALLING)))
     {
@@ -1416,7 +1416,7 @@ Collision move_scan(DSWActor* actor, DAngle ang, double dst, DVector3& stop)
 
     // save off position info
 	auto pos = actor->spr.pos;
-    auto sang = actor->spr.angle;
+    auto sang = actor->spr.Angles.Yaw;
     auto loz = actor->user.loz;
     auto hiz = actor->user.hiz;
     lowActor = actor->user.lowActor;
@@ -1426,7 +1426,7 @@ Collision move_scan(DSWActor* actor, DAngle ang, double dst, DVector3& stop)
     ssp = actor->sector();
 
     // do the move
-    actor->spr.angle = ang;
+    actor->spr.Angles.Yaw = ang;
 	auto vec = ang.ToVector() * dst;
 
     Collision ret = move_sprite(actor, DVector3(vec, 0), actor->user.ceiling_dist, actor->user.floor_dist, cliptype, 1);
@@ -1439,7 +1439,7 @@ Collision move_scan(DSWActor* actor, DAngle ang, double dst, DVector3& stop)
 
     // reset position information
 	actor->spr.pos = pos;
-    actor->spr.angle = sang;
+    actor->spr.Angles.Yaw = sang;
     actor->user.loz = loz;
     actor->user.hiz = hiz;
     actor->user.lowActor = lowActor;
@@ -1530,13 +1530,13 @@ DAngle FindNewAngle(DSWActor* actor, int dir, double DistToMove)
         // look directly ahead for a ledge
         if (!(actor->user.Flags & (SPR_NO_SCAREDZ | SPR_JUMPING | SPR_FALLING | SPR_SWIMMING | SPR_DEAD)))
         {
-            actor->spr.angle = new_ang;
+            actor->spr.Angles.Yaw = new_ang;
             if (DropAhead(actor, actor->user.lo_step))
             {
-                actor->spr.angle = oang;
+                actor->spr.Angles.Yaw = oang;
                 continue;
             }
-            actor->spr.angle = oang;
+            actor->spr.Angles.Yaw = oang;
         }
 #endif
 
@@ -1578,7 +1578,7 @@ DAngle FindNewAngle(DSWActor* actor, int dir, double DistToMove)
         if (actor->user.TargetDist > 250)
             actor->user.TargetDist -= 218.75;
 
-        actor->spr.angle = save_ang;
+        actor->spr.Angles.Yaw = save_ang;
         return save_ang;
     }
 
@@ -1657,7 +1657,7 @@ int InitActorReposition(DSWActor* actor)
             return 0;
         }
 
-        actor->spr.angle = ang;
+        actor->spr.Angles.Yaw = ang;
         DoActorSetSpeed(actor, FAST_SPEED);
         actor->user.Flags &= ~(SPR_RUN_AWAY);
     }
@@ -1687,7 +1687,7 @@ int InitActorReposition(DSWActor* actor)
                 DoActorSetSpeed(actor, MID_SPEED);
         }
 
-        actor->spr.angle = ang;
+        actor->spr.Angles.Yaw = ang;
     }
 
 
@@ -1709,7 +1709,7 @@ int InitActorReposition(DSWActor* actor)
 int DoActorReposition(DSWActor* actor)
 {
     // still might hit something and have to handle it.
-    if (!move_actor(actor, DVector3(actor->spr.angle.ToVector() * actor->vel.X, 0)))
+    if (!move_actor(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, 0)))
     {
         if (ActorMoveHitReact(actor))
             return 0;

@@ -1961,7 +1961,7 @@ inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)
 {
-    return absangle((a1->spr.pos - a2->spr.pos).Angle(), a2->spr.angle) < range;
+    return absangle((a1->spr.pos - a2->spr.pos).Angle(), a2->spr.Angles.Yaw) < range;
 }
 inline void SET_BOOL1(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL1; }
 inline void SET_BOOL2(DSWActor* sp) { sp->spr.extra |= SPRX_BOOL2; }
@@ -2084,7 +2084,7 @@ inline void SetActorSizeX(DSWActor* sp)
 
 inline bool Facing(DSWActor* actor1, DSWActor* actor2)
 {
-    return absangle((actor1->spr.pos - actor2->spr.pos).Angle(), actor2->spr.angle) < DAngle90;
+    return absangle((actor1->spr.pos - actor2->spr.pos).Angle(), actor2->spr.Angles.Yaw) < DAngle90;
 }
 
 // Given a z height and sprite return the correct y repeat value

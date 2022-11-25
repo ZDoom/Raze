@@ -360,7 +360,7 @@ void S_GetCamera(DVector3* c, DAngle* ca, sectortype** cs)
 	{
 		if (c) *c =  ud.cameraactor->spr.pos;
 		if (cs) *cs = ud.cameraactor->sector();
-		if (ca) *ca = ud.cameraactor->spr.angle;
+		if (ca) *ca = ud.cameraactor->spr.Angles.Yaw;
 	}
 }
 

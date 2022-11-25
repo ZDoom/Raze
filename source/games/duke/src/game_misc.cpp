@@ -59,7 +59,7 @@ std::pair<DVector3, DAngle> GameInterface::GetCoordinates()
 {
 	auto pActor = ps[screenpeek].GetActor();
 	if (!pActor) return std::make_pair(DVector3(DBL_MAX, 0, 0), nullAngle);
-	return std::make_pair(pActor->spr.pos, pActor->spr.angle);
+	return std::make_pair(pActor->spr.pos, pActor->spr.Angles.Yaw);
 }
 
 GameStats GameInterface::getStats()
@@ -436,7 +436,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 			double j = clamp(czoom * act->spr.scale.Y + abs(pp.truefz - pp.GetActor()->getOffsetZ()) * REPEAT_SCALE, 0.333, 2.);
 
 			auto const vec = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
-			auto const daang = -((!SyncInput() ? act->spr.angle : act->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();
+			auto const daang = -((!SyncInput() ? act->spr.Angles.Yaw : act->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();
 
 			DrawTexture(twod, tileGetTexture(i), vec.X, vec.Y, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), act->spr.pal), DTA_CenterOffset, true,
 				DTA_Rotate, daang, DTA_Color, shadeToLight(act->spr.shade), DTA_ScaleX, j, DTA_ScaleY, j, TAG_DONE);

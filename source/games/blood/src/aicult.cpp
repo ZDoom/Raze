@@ -75,7 +75,7 @@ AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &culti
 
 void TommySeqCallback(int, DBloodActor* actor)
 {
-	DVector3 vect(actor->spr.angle.ToVector(), actor->dudeSlope);
+	DVector3 vect(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 	vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 	vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 	vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
@@ -87,7 +87,7 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 {
 	if (Chance(gCultTeslaFireChance[gGameOptions.nDifficulty]))
 	{
-		DVector3 vect(actor->spr.angle.ToVector(), actor->dudeSlope);
+		DVector3 vect(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 		vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 		vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 		vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
@@ -98,7 +98,7 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 
 void ShotSeqCallback(int, DBloodActor* actor)
 {
-	DVector3 vect(actor->spr.angle.ToVector(), actor->dudeSlope);
+	DVector3 vect(actor->spr.Angles.Yaw.ToVector(), actor->dudeSlope);
 	vect.X += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 	vect.Y += Random3F((5 - gGameOptions.nDifficulty) * 1000, 14);
 	vect.Z += Random3F((5 - gGameOptions.nDifficulty) * 500, 14);
@@ -188,7 +188,7 @@ static void cultThinkGoto(DBloodActor* actor)
 	DAngle nAngle = dvec.Angle();
 	double nDist = dvec.Length();
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 320 && absangle(actor->spr.angle, nAngle) < pDudeInfo->Periphery())
+	if (nDist < 320 && absangle(actor->spr.Angles.Yaw, nAngle) < pDudeInfo->Periphery())
 	{
 		switch (actor->xspr.medium)
 		{
@@ -263,7 +263,7 @@ static void cultThinkChase(DBloodActor* actor)
 	}
 	if (nDist > 0 && nDist <= pDudeInfo->SeeDist())
 	{
-		DAngle nDeltaAngle = absangle(actor->spr.angle, nAngle);
+		DAngle nDeltaAngle = absangle(actor->spr.Angles.Yaw, nAngle);
 		double height = (pDudeInfo->eyeHeight * actor->spr.scale.Y);
 		if (cansee(target->spr.pos, target->sector(), actor->spr.pos.plusZ(-height), actor->sector()))
 		{
