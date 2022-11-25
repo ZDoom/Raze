@@ -9,8 +9,7 @@
 struct PlayerAngles
 {
 	// Temporary wrappers.
-	DAngle thisHoriz;
-	DAngle& ZzHORIZON() { return thisHoriz; }
+	DAngle& ZzHORIZON() { return pActor->spr.Angles.Pitch; }
 	DAngle prevHoriz;
 	DAngle& ZzOLDHORIZON() { return prevHoriz; }
 	DAngle thisAngle;

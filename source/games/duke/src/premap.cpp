@@ -125,7 +125,6 @@ void resetplayerstats(int snum)
 	p->footprintpal     = 0;
 	p->footprintshade   = 0;
 	p->jumping_toggle   = 0;
-	p->Angles.ZzOLDHORIZON() = p->Angles.ZzHORIZON() = DAngle::fromDeg(-17.354);
 	p->Angles.ZzOHORIZOFF = p->Angles.ZzHORIZOFF = nullAngle;
 	p->bobcounter       = 0;
 	p->on_ground        = 0;
@@ -515,8 +514,9 @@ void resetpspritevars(int g, const DVector3& startpos)
 	auto newActor = CreateActor(ps[0].cursector, startpos.plusZ(gs.playerheight),
 		TILE_APLAYER, 0, DVector2(0, 0), ps[0].Angles.ZzANGLE(), 0., 0., nullptr, 10);
 
+	newActor->spr.Angles.Pitch = DAngle::fromDeg(-17.354);
 	newActor->viewzoffset = -gs.playerheight;
-	newActor->backupz();
+	newActor->backuploc();
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
 	{

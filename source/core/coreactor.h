@@ -120,7 +120,7 @@ public:
 
 	void backupang()
 	{
-		PrevAngles.Yaw = spr.Angles.Yaw;
+		PrevAngles = spr.Angles;
 	}
 
 	void backuploc()

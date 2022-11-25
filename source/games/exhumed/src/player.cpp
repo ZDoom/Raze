@@ -317,7 +317,6 @@ void RestartPlayer(int nPlayer)
 	}
 
 	plr->Angles.backupYaw();
-	plr->Angles.backupPitch();
 
 	plr->pPlayerFloorSprite = floorsprt;
 
