@@ -355,13 +355,14 @@ enum sflags2_t
 using EDukeFlags2 = TFlags<sflags2_t, uint32_t>;
 DEFINE_TFLAGS_OPERATORS(EDukeFlags2)
 
+// these get stored as user flags inside the texture manager.
 enum
 {
-	TFLAG_WALLSWITCH			= 1,
-	TFLAG_ADULT					= 2,
-	TFLAG_ELECTRIC				= 4,
-	TFLAG_CLEARINVENTORY		= 8,	// really dumb Duke stuff...
-	TFLAG_SLIME					= 16,
+	TFLAG_WALLSWITCH			= 1 << 0,
+	TFLAG_ADULT					= 1 << 1,
+	TFLAG_ELECTRIC				= 1 << 2,
+	TFLAG_CLEARINVENTORY		= 1 << 3,	// really dumb Duke stuff...
+	TFLAG_SLIME					= 1 << 4,
 };
 
 enum

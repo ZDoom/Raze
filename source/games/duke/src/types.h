@@ -143,10 +143,9 @@ struct animwalltype
 	int tag;
 };
 
-// for now just flags not related to actors, may get more info later.
+// legacy CON baggage which needs to be refactored later.
 struct TileInfo
 {
-	int flags;
 	int loadeventscriptptr;
 };
 

@@ -796,7 +796,7 @@ CLEAR_THE_BOLT:
 
 	if (l & 1) actor->spr.cstat ^= CSTAT_SPRITE_TRANSLUCENT;
 
-	if (actor->spr.picnum == (BOLT1 + 1) && (krand() & 1) && (gs.tileinfo[sectp->floorpicnum].flags & TFLAG_ELECTRIC))
+	if (actor->spr.picnum == (BOLT1 + 1) && (krand() & 1) && (tileflags(sectp->floorpicnum) & TFLAG_ELECTRIC))
 		S_PlayActorSound(SHORT_CIRCUIT, actor);
 
 	if (actor->spr.picnum == BOLT1 + 4) actor->spr.picnum = BOLT1;

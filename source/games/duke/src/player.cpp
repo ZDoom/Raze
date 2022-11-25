@@ -84,7 +84,7 @@ int setpal(struct player_struct* p)
 	if (p->DrugMode) palette = DRUGPAL;
 	else if (p->heat_on) palette = SLIMEPAL;
 	else if (!p->insector()) palette = BASEPAL; // don't crash if out of range.
-	else if (gs.tileinfo[p->cursector->ceilingpicnum].flags & TFLAG_SLIME) palette = SLIMEPAL;
+	else if (tileflags(p->cursector->ceilingpicnum) & TFLAG_SLIME) palette = SLIMEPAL;
 	else if (p->cursector->lotag == ST_2_UNDERWATER) palette = WATERPAL;
 	else palette = BASEPAL;
 	return palette;
