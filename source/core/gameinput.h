@@ -132,13 +132,13 @@ struct PlayerAngle
 	DAngle angRENDERROTSCRN(double const interpfrac) { return !SyncInput() ? ZzROTSCRNANG : angLERPROTSCRN(interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
-	void resetAdjustmentYaw() { adjustment = nullAngle; }
-	bool targetedYaw() { return target.Sgn(); }
+	void resetAdjustmentYaw() { legacyAdjustmentYaw = nullAngle; }
+	bool targetedYaw() { return legacyTargetYaw.Sgn(); }
 
 	// Input locking helpers.
-	void lockYaw() { inputdisabled = true; }
-	void unlockYaw() { inputdisabled = false; }
-	bool lockedYaw() { return targetedYaw() || inputdisabled; }
+	void lockYaw() { legacyDisabledYaw = true; }
+	void unlockYaw() { legacyDisabledYaw = false; }
+	bool lockedYaw() { return targetedYaw() || legacyDisabledYaw; }
 
 	// Draw code helpers. The logic where these are used rely heavily on Build's angle period.
 	double angLOOKANGHALF(double const interpfrac) { return angRENDERLOOKANG(interpfrac).Normalized180().Degrees() * (128. / 45.); }
@@ -162,7 +162,7 @@ struct PlayerAngle
 	{
 		if (!SyncInput())
 		{
-			adjustment += value.Normalized180();
+			legacyAdjustmentYaw += value.Normalized180();
 		}
 		else
 		{
@@ -174,7 +174,7 @@ struct PlayerAngle
 	{
 		if (!SyncInput() && !backup)
 		{
-			target = value.Sgn() ? value : minAngle;
+			legacyTargetYaw = value.Sgn() ? value : minAngle;
 		}
 		else
 		{
@@ -187,7 +187,7 @@ struct PlayerAngle
 	{
 		if (targetedYaw())
 		{
-			auto delta = deltaangle(ZzANGLE, target);
+			auto delta = deltaangle(ZzANGLE, legacyTargetYaw);
 
 			if (abs(delta) > DAngleBuildToDeg)
 			{
@@ -195,19 +195,19 @@ struct PlayerAngle
 			}
 			else
 			{
-				ZzANGLE = target;
-				target = nullAngle;
+				ZzANGLE = legacyTargetYaw;
+				legacyTargetYaw = nullAngle;
 			}
 		}
-		else if (adjustment.Sgn())
+		else if (legacyAdjustmentYaw.Sgn())
 		{
-			ZzANGLE += adjustment * scaleAdjust;
+			ZzANGLE += legacyAdjustmentYaw * scaleAdjust;
 		}
 	}
 
 private:
-	DAngle target, adjustment;
-	bool inputdisabled;
+	DAngle legacyTargetYaw, legacyAdjustmentYaw;
+	bool legacyDisabledYaw;
 };
 
 class FSerializer;

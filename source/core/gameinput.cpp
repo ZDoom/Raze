@@ -338,7 +338,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 			("lookang", w.ZzLOOKANG)
 			("rotscrnang", w.ZzROTSCRNANG)
 			("spin", w.YawSpin)
-			("inputdisabled", w.inputdisabled)
+			("inputdisabled", w.legacyDisabledYaw)
 			.EndObject();
 
 		if (arc.isReading())
@@ -346,7 +346,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 			w.ZzOLDANGLE = w.ZzANGLE;
 			w.ZzOLDLOOKANG = w.ZzLOOKANG;
 			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
-			w.inputdisabled = w.inputdisabled;
+			w.legacyDisabledYaw = w.legacyDisabledYaw;
 			w.resetAdjustmentYaw();
 		}
 	}
