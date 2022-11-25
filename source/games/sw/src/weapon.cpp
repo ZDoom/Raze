@@ -11534,7 +11534,7 @@ int DoRing(DSWActor* actor)
 
     // put it out there
     actor->spr.pos += actor->spr.Angles.Yaw.ToVector() * actor->user.Dist;
-    if (pp) actor->spr.pos.Z -= actor->user.Dist * pp->horizon.horiz.Tan() * 2.; // horizon math sucks...
+    if (pp) actor->spr.pos.Z -= actor->user.Dist * pp->horizon.ZzHORIZON.Tan() * 2.; // horizon math sucks...
 
     SetActor(actor, actor->spr.pos);
 
@@ -11612,7 +11612,7 @@ void InitSpellRing(PLAYER* pp)
 
         // put it out there
         actorNew->spr.pos += actorNew->spr.Angles.Yaw.ToVector() * actorNew->user.Dist;
-        actorNew->spr.pos.Z += pp->actor->getOffsetZ() + 20 - (actorNew->user.Dist * pp->horizon.horiz.Tan() * 2.); // horizon math sucks...
+        actorNew->spr.pos.Z += pp->actor->getOffsetZ() + 20 - (actorNew->user.Dist * pp->horizon.ZzHORIZON.Tan() * 2.); // horizon math sucks...
 
         actorNew->spr.Angles.Yaw += DAngle90;
 
@@ -11984,7 +11984,7 @@ void InitSpellNapalm(PLAYER* pp)
         actor->spr.shade = -40;
         actor->spr.scale = DVector2(0.5, 0.5);
         actor->clipdist = 0;
-        setFreeAimVelocity(actor->vel.X, actor->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
+        setFreeAimVelocity(actor->vel.X, actor->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF);
         actor->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
         actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
         actor->user.Flags2 |= (SPR2_BLUR_TAPER_FAST);
@@ -12114,7 +12114,7 @@ int InitSpellMirv(PLAYER* pp)
     actorNew->spr.shade = -40;
     actorNew->spr.scale = DVector2(1.125, 1.125);
     actorNew->clipdist = 2;
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF);
     actorNew->spr.cstat |= (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -12249,7 +12249,7 @@ int InitSwordAttack(PLAYER* pp)
 
         double dax = 1024., daz = 0;
         DAngle daang = pp->angle.ang;
-        setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
+        setFreeAimVelocity(dax, daz, pp->horizon.ZzHORIZON, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
         FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
@@ -12427,7 +12427,7 @@ int InitFistAttack(PLAYER* pp)
         HitInfo hit{};
         double dax = 1024., daz = 0;
         auto daang = pp->angle.ang;
-        setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
+        setFreeAimVelocity(dax, daz, pp->horizon.ZzHORIZON, 1000. - (RandomRangeF(24000 / 256.) - 12000 / 256.));
         FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3(pp->angle.ang.ToVector() * dax, daz), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
@@ -12988,7 +12988,7 @@ int InitStar(PLAYER* pp)
     actorNew->clipdist = 2;
     // zvel was overflowing with this calculation - had to move to a local long var
     double zvel = 0;
-    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.ZzHORIZON, (HORIZ_MULT + STAR_HORIZ_ADJ) * 0.5);
 
     actorNew->user.ceiling_dist = (1);
     actorNew->user.floor_dist = (1);
@@ -13088,7 +13088,7 @@ void InitHeartAttack(PLAYER* pp)
     actorNew->spr.shade = -10;
     actorNew->spr.scale = DVector2(0.8125, 0.8125);
     actorNew->clipdist = 0;
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF);
     actorNew->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actorNew->user.Flags2 |= (SPR2_DONT_TARGET_OWNER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
@@ -13230,7 +13230,7 @@ int InitShotgun(PLAYER* pp)
     DAngle daang = DAngle22_5 * 0.5;
     if (WeaponAutoAimHitscan(pp->actor, &daz, &daang, false) == nullptr)
     {
-        setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000.);
+        setFreeAimVelocity(dax, daz, pp->horizon.ZzHORIZON, 1000.);
         daang = pp->angle.ang;
     }
 
@@ -13392,7 +13392,7 @@ int InitLaser(PLAYER* pp)
     actorNew->clipdist = 4;
 
     // the slower the missile travels the less of a zvel it needs
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, 16.);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, 16.);
 
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
@@ -13487,7 +13487,7 @@ int InitRail(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(0.8125, 0.8125);
     actorNew->spr.shade = -15;
-    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + 17) * 0.5);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.ZzHORIZON, (HORIZ_MULT + 17) * 0.5);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
@@ -13651,7 +13651,7 @@ int InitRocket(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(1.40626, 1.40625);
     actorNew->spr.shade = -15;
-    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + 35) * 0.5);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.ZzHORIZON, (HORIZ_MULT + 35) * 0.5);
 
     actorNew->clipdist = 4;
 
@@ -13758,7 +13758,7 @@ int InitBunnyRocket(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(1, 1);
     actorNew->spr.shade = -15;
-    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + 35) * 0.5);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.ZzHORIZON, (HORIZ_MULT + 35) * 0.5);
 
     actorNew->clipdist = 4;
 
@@ -13860,7 +13860,7 @@ int InitNuke(PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(2, 2);
     actorNew->spr.shade = -15;
-    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, (HORIZ_MULT + 36) * 0.5);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.ZzHORIZON, (HORIZ_MULT + 36) * 0.5);
     actorNew->clipdist = 4;
 
     // Set to red palette
@@ -14016,7 +14016,7 @@ int InitMicro(PLAYER* pp)
         return 0;
 
     double vel = 75., zvel = 0;
-    setFreeAimVelocity(vel, zvel, pp->horizon.horiz, HORIZ_MULTF);
+    setFreeAimVelocity(vel, zvel, pp->horizon.ZzHORIZON, HORIZ_MULTF);
 
     for (i = 0; i < MAX_MICRO; i++)
     {
@@ -15221,7 +15221,7 @@ int InitTracerUzi(PLAYER* pp)
 
     static const short lat_dist[] = {800,-800};
 
-    double nz = 8 + (pp->horizon.horiz.Tan() * 36.);
+    double nz = 8 + (pp->horizon.ZzHORIZON.Tan() * 36.);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -15260,7 +15260,7 @@ int InitTracerUzi(PLAYER* pp)
         return 0;
     }
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, actorNew->vel.X);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, actorNew->vel.X);
 
     plActor->clipdist = oclipdist;
 
@@ -15525,7 +15525,7 @@ int InitUzi(PLAYER* pp)
     else
     {
         daang = pp->angle.ang + mapangle(RandomRange(24) - 12);
-        setFreeAimVelocity(dax, daz, pp->horizon.horiz, 1000. - (RandomRangeF(24000/256.) - 12000/256.));
+        setFreeAimVelocity(dax, daz, pp->horizon.ZzHORIZON, 1000. - (RandomRangeF(24000/256.) - 12000/256.));
     }
 
     DVector3 vect(daang.ToVector() * dax, daz);
@@ -15697,7 +15697,7 @@ int InitTankShell(DSWActor* actor, PLAYER* pp)
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
     actorNew->spr.cstat |= (CSTAT_SPRITE_INVISIBLE);
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, actorNew->vel.X);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, actorNew->vel.X);
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
@@ -15765,7 +15765,7 @@ int InitTurretMicro(DSWActor* actor, PLAYER* pp)
         SetOwner(plActor, actorNew);
         actorNew->spr.scale = DVector2(0.375, 0.375);
         actorNew->spr.shade = -15;
-        setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF - RandomRangeF(8) + 5);
+        setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF - RandomRangeF(8) + 5);
         actorNew->clipdist = 4;
 
 
@@ -15834,7 +15834,7 @@ int InitTurretRocket(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, actorNew->vel.X);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, actorNew->vel.X);
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
@@ -15873,7 +15873,7 @@ int InitTurretFireball(DSWActor* actor, PLAYER* pp)
     actorNew->user.Flags2 |= (SPR2_SO_MISSILE);
     actorNew->spr.cstat |= (CSTAT_SPRITE_YCENTER);
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, actorNew->vel.X);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, actorNew->vel.X);
 
     WeaponAutoAim(actor, actorNew, DAngle22_5 / 2, false);
     // a bit of randomness
@@ -15910,7 +15910,7 @@ int InitTurretRail(DSWActor* actor, PLAYER* pp)
     SetOwner(pp->actor, actorNew);
     actorNew->spr.scale = DVector2(0.8125, 0.8125);
     actorNew->spr.shade = -15;
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF);
 
     actorNew->user.RotNum = 5;
     NewStateGroup(actorNew, &sg_Rail[0]);
@@ -15957,7 +15957,7 @@ int InitTurretLaser(DSWActor* actor, PLAYER* pp)
     actorNew->spr.shade = -15;
 
     // the slower the missile travels the less of a zvel it needs
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, 16.);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, 16.);
 
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (1);
@@ -15996,7 +15996,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
     double daz = npos.Z;
 
     if (RANDOM_P2(1024) < 200)
-        InitTracerTurret(actor, pp->actor, pp->horizon.horiz);
+        InitTracerTurret(actor, pp->actor, pp->horizon.ZzHORIZON);
 
     DAngle daang = DAngle22_5 / 2;
     if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
@@ -16005,7 +16005,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYER* pp)
     }
     else
     {
-        setFreeAimVelocity(dax, daz, DAngle::fromDeg(min(pp->horizon.horiz.Degrees(), 11.0515)), 1000 - RandomRangeF(80) + 40);
+        setFreeAimVelocity(dax, daz, DAngle::fromDeg(min(pp->horizon.ZzHORIZON.Degrees(), 11.0515)), 1000 - RandomRangeF(80) + 40);
         daang = actor->spr.Angles.Yaw;
     }
 
@@ -16695,7 +16695,7 @@ int InitGrenade(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF);
 
     auto oclipdist = actor->clipdist;
     actor->clipdist = 0;
@@ -16811,7 +16811,7 @@ int InitMine(PLAYER* pp)
     actorNew->spr.scale = DVector2(0.5, 0.5);
     actorNew->spr.shade = -15;
     actorNew->clipdist = 8;
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF);
     actorNew->user.WeaponNum = actor->user.WeaponNum;
     actorNew->user.Radius = 200;
     actorNew->user.ceiling_dist = (5);
@@ -16946,7 +16946,7 @@ int InitFireball(PLAYER* pp)
     actorNew->user.ceiling_dist = (6);
     actorNew->user.floor_dist = (6);
     double zvel = 0.;
-    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.horiz, 120.);
+    setFreeAimVelocity(actorNew->vel.X, zvel, pp->horizon.ZzHORIZON, 120.);
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.

@@ -729,7 +729,7 @@ loc_flag:
                 // loc_27266:
                 case kWeaponSword:
                 {
-                    nHeight += PlayerList[nLocalPlayer].horizon.horiz.Tan() * 32.;
+                    nHeight += PlayerList[nLocalPlayer].horizon.ZzHORIZON.Tan() * 32.;
 
                     thePos.Z += nHeight;
 
@@ -834,7 +834,7 @@ loc_flag:
                 }
                 case kWeaponPistol:
                 {
-                    double h = PlayerList[nLocalPlayer].horizon.horiz.Tan() * 2.;
+                    double h = PlayerList[nLocalPlayer].horizon.ZzHORIZON.Tan() * 2.;
                     nHeight += h;
 
                     DExhumedActor* target = nullptr;
@@ -858,7 +858,7 @@ loc_flag:
 
                 case kWeaponGrenade:
                 {
-                    ThrowGrenade(nPlayer, nHeight - 10, PlayerList[nLocalPlayer].horizon.horiz.Tan());
+                    ThrowGrenade(nPlayer, nHeight - 10, PlayerList[nLocalPlayer].horizon.ZzHORIZON.Tan());
                     break;
                 }
                 case kWeaponStaff:

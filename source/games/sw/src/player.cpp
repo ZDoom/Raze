@@ -5876,7 +5876,7 @@ void DoPlayerBeginDie(PLAYER* pp)
 
 static inline void DoPlayerDeathHoriz(PLAYER* pp, const DAngle target, const double speed)
 {
-    auto targetdelta = deltaangle(pp->horizon.horiz, target);
+    auto targetdelta = deltaangle(pp->horizon.ZzHORIZON, target);
 
     if (abs(targetdelta.Degrees()) > 1)
     {
@@ -6023,7 +6023,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         pp->input.actions |= SB_CENTERVIEW;
 		plActor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
-        pp->horizon.horiz = nullAngle;
+        pp->horizon.ZzHORIZON = nullAngle;
         plActor->user.ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
 
@@ -7042,13 +7042,13 @@ void InitAllPlayers(void)
     extern bool NewGame;
     //int fz,cz;
 
-    pfirst->horizon.horiz = nullAngle;
+    pfirst->horizon.ZzHORIZON = nullAngle;
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
-        pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
+        pp->horizon.ZzHORIZON = pp->horizon.ohoriz = pfirst->horizon.ZzHORIZON;
         pp->cursector = pfirst->cursector;
         // set like this so that player can trigger something on start of the level
         pp->lastcursector = pfirst->cursector+1;

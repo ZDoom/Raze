@@ -1285,7 +1285,7 @@ int PlayerInitChemBomb(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF);
 
     double oclipdist = plActor->clipdist;
     plActor->clipdist = 0;
@@ -1655,7 +1655,7 @@ int PlayerInitCaltrops(PLAYER* pp)
     if (pp->Flags & (PF_DIVING) || SpriteInUnderwaterArea(actorNew))
         actorNew->user.Flags |= (SPR_UNDERWATER);
 
-    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.horiz, HORIZ_MULTF);
+    setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, pp->horizon.ZzHORIZON, HORIZ_MULTF);
 
     double oclipdist = plActor->clipdist;
     plActor->clipdist = 0;
@@ -2198,7 +2198,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
     if (actor->user.PlayerP)
     {
-        setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, actor->user.PlayerP->horizon.horiz, HORIZ_MULTF * (1. / 3.));
+        setFreeAimVelocity(actorNew->vel.X, actorNew->vel.Z, actor->user.PlayerP->horizon.ZzHORIZON, HORIZ_MULTF * (1. / 3.));
     }
 
     switch (actorNew->user.ID)

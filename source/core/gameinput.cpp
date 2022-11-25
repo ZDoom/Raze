@@ -181,33 +181,33 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		// Process mouse input.
 		if (horz)
 		{
-			horiz += DAngle::fromDeg(horz);
+			ZzHORIZON += DAngle::fromDeg(horz);
 			*actions &= ~SB_CENTERVIEW;
 		}
 
 		// Process keyboard input.
 		if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
 		{
-			horiz += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
+			ZzHORIZON += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
 			*actions &= ~SB_CENTERVIEW;
 		}
 		if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
 		{
-			horiz += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
+			ZzHORIZON += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
 			*actions |= SB_CENTERVIEW;
 		}
 
 		// Do return to centre.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
-			const auto pitch = abs(horiz);
+			const auto pitch = abs(ZzHORIZON);
 			const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
-			scaletozero(horiz, PITCH_CENTERSPEED * scale, scaleAdjust);
-			if (!horiz.Sgn()) *actions &= ~SB_CENTERVIEW;
+			scaletozero(ZzHORIZON, PITCH_CENTERSPEED * scale, scaleAdjust);
+			if (!ZzHORIZON.Sgn()) *actions &= ~SB_CENTERVIEW;
 		}
 
 		// clamp before we finish, even if it's clamped in the drawer.
-		horiz = ClampViewPitch(horiz);
+		ZzHORIZON = ClampViewPitch(ZzHORIZON);
 	}
 	else
 	{
@@ -357,14 +357,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("horiz", w.horiz)
+		arc("horiz", w.ZzHORIZON)
 			("horizoff", w.horizoff)
 			("inputdisabled", w.inputdisabled)
 			.EndObject();
 
 		if (arc.isReading())
 		{
-			w.ohoriz = w.horiz;
+			w.ohoriz = w.ZzHORIZON;
 			w.ohorizoff = w.horizoff;
 			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();
