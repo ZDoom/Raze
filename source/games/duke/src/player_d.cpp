@@ -465,7 +465,9 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 		{
 			spawn(spark, SMALLSMOKE);
 
-			if (fi.isadoorwall(hit.hitWall->picnum) == 1)
+			if (isadoorwall(hit.hitWall->picnum) == 1)
+				goto SKIPBULLETHOLE;
+			if (isablockdoor(hit.hitWall->picnum) == 1)
 				goto SKIPBULLETHOLE;
 			if (p >= 0 && (
 				hit.hitWall->picnum == DIPSWITCH ||

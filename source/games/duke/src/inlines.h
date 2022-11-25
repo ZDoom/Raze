@@ -100,22 +100,29 @@ inline bool inventory(DDukeActor* S)
 	return actorflag(S, SFLAG_INVENTORY);
 }
 
-inline int& tileflags(int tilenum)
+inline int& tileflags(unsigned int tilenum)
 {
+	static int sink = 0;
+	if (tilenum >= MAXTILES) return sink;
 	return TileFiles.tiledata[tilenum].tileflags;
-}
-inline void settileflag(int flag, const std::initializer_list<short>& types)
-{
-	for (auto val : types)
-	{
-		tileflags(val) |= flag;
-	}
 }
 
 inline bool wallswitchcheck(DDukeActor* s)
 {
 	return !!(tileflags(s->spr.picnum) & TFLAG_WALLSWITCH);
 }
+
+inline bool isadoorwall(int dapic)
+{
+	return tileflags(dapic) & TFLAG_DOORWALL;
+}
+
+inline bool isablockdoor(int dapic)
+{
+	return tileflags(dapic) & TFLAG_BLOCKDOOR;
+}
+
+
 
 inline int checkcursectnums(sectortype* se)
 {

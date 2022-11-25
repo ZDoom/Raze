@@ -49,43 +49,6 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-bool isadoorwall_d(int dapic)
-{
-	switch(dapic)
-	{
-		case DOORTILE1:
-		case DOORTILE2:
-		case DOORTILE3:
-		case DOORTILE4:
-		case DOORTILE5:
-		case DOORTILE6:
-		case DOORTILE7:
-		case DOORTILE8:
-		case DOORTILE9:
-		case DOORTILE10:
-		case DOORTILE11:
-		case DOORTILE12:
-		case DOORTILE14:
-		case DOORTILE15:
-		case DOORTILE16:
-		case DOORTILE17:
-		case DOORTILE18:
-		case DOORTILE19:
-		case DOORTILE20:
-		case DOORTILE21:
-		case DOORTILE22:
-		case DOORTILE23:
-			return 1;
-	}
-	return 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void animatewalls_d(void)
 {
 	int t;
@@ -320,7 +283,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		if (check_activator_motion(lotag)) return 0;
 		break;
 	default:
-		if (fi.isadoorwall(picnum) == 0) return 0;
+		if (isadoorwall(picnum) == 0) return 0;
 		break;
 	}
 
@@ -456,7 +419,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	switch (picnum)
 	{
 	default:
-		if (fi.isadoorwall(picnum) == 0) break;
+		if (isadoorwall(picnum) == 0) break;
 		[[fallthrough]];
 	case DIPSWITCH:
 	case DIPSWITCHON:
@@ -558,7 +521,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			picnum == ALIENSWITCH || picnum == ALIENSWITCHON ||
 			picnum == TECHSWITCH || picnum == TECHSWITCHON) return 1;
 
-		if (hitag == 0 && fi.isadoorwall(picnum) == 0)
+		if (hitag == 0 && isadoorwall(picnum) == 0)
 		{
 			if (act)
 				S_PlaySound3D(SWITCH_ON, act, v);
@@ -1649,7 +1612,7 @@ void checksectors_d(int snum)
 
 		if (near.hitWall)
 		{
-			if (near.hitWall->lotag > 0 && fi.isadoorwall(near.hitWall->picnum))
+			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->picnum))
 			{
 				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
 					fi.checkhitswitch(snum, near.hitWall, nullptr);

@@ -378,6 +378,9 @@ enum
 	TFLAG_ELECTRIC				= 1 << 2,
 	TFLAG_CLEARINVENTORY		= 1 << 3,	// really dumb Duke stuff...
 	TFLAG_SLIME					= 1 << 4,
+	TFLAG_DOORWALL				= 1 << 5,
+	TFLAG_BLOCKDOOR				= 1 << 6,
+
 };
 
 enum

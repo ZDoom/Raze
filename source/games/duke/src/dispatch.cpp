@@ -35,8 +35,6 @@ BEGIN_DUKE_NS
 void initactorflags_d();
 void initactorflags_r();
 
-bool isadoorwall_d(int dapic);
-bool isadoorwall_r(int dapic);
 void animatewalls_d(void);
 void animatewalls_r(void);
 void operateforcefields_r(DDukeActor* act, int low);
@@ -113,7 +111,6 @@ void SetDispatcher()
 		think_d,
 		movetransports_d,
 		initactorflags_d,
-		isadoorwall_d,
 		animatewalls_d,
 		operateforcefields_d,
 		checkhitswitch_d,
@@ -156,7 +153,6 @@ void SetDispatcher()
 		think_r,
 		movetransports_r,
 		initactorflags_r,
-		isadoorwall_r,
 		animatewalls_r,
 		operateforcefields_r,
 		checkhitswitch_r,

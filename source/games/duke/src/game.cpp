@@ -291,7 +291,7 @@ static void initTiles()
 }
 
 #define x(a, b) registerName(#a, b);
-#define y(a, b)	// Do not create names for RRTILExxxx.
+#define y(a, b)	registerName(#a, b);
 static void SetTileNames()
 {
 	auto registerName = [](const char* name, int index)
