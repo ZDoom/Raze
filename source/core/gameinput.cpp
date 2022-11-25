@@ -364,7 +364,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 
 		if (arc.isReading())
 		{
-			w.ohoriz = w.ZzHORIZON;
+			w.ZzOLDHORIZON = w.ZzHORIZON;
 			w.ohorizoff = w.horizoff;
 			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();

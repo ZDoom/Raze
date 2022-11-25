@@ -407,7 +407,7 @@ void RestartPlayer(int nPlayer)
 
     plr->nThrust.Zero();
 
-	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.ZzHORIZON = nullAngle;
+	plr->nDestVertPan = plr->horizon.ZzOLDHORIZON = plr->horizon.ZzHORIZON = nullAngle;
 	plr->nBreathTimer = 90;
 
 	plr->nTauntTimer = RandomSize(3) + 3;
@@ -503,7 +503,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.ZzHORIZON = nullAngle;
+    PlayerList[nPlayer].horizon.ZzOLDHORIZON = PlayerList[nPlayer].horizon.ZzHORIZON = nullAngle;
     pActor->oviewzoffset = pActor->viewzoffset = -55;
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
