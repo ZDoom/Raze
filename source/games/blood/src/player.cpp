@@ -822,7 +822,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->actor->xspr.health = pDudeInfo->startHealth << 4;
 	pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	pPlayer->bloodlust = 0;
-	pPlayer->Angles.ZzHORIZON() = pPlayer->Angles.ViewAngles.Pitch = nullAngle;
+	pPlayer->actor->spr.Angles.Pitch = pPlayer->Angles.ViewAngles.Pitch = nullAngle;
 	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
 	pPlayer->underwaterTime = 1200;
@@ -1544,11 +1544,11 @@ void ProcessInput(PLAYER* pPlayer)
 		DBloodActor* fragger = pPlayer->fragger;
 		if (fragger)
 		{
-			pPlayer->Angles.addYaw(deltaangle(pPlayer->Angles.ZzANGLE(), (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
+			pPlayer->Angles.addYaw(deltaangle(pPlayer->actor->spr.Angles.Yaw, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->Angles.addPitch(deltaangle(pPlayer->Angles.ZzHORIZON(), gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5));
+			pPlayer->Angles.addPitch(deltaangle(pPlayer->actor->spr.Angles.Pitch, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5));
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)
@@ -1722,7 +1722,7 @@ void ProcessInput(PLAYER* pPlayer)
 	pPlayer->Angles.unlockYaw();
 	pPlayer->Angles.unlockPitch();
 
-	pPlayer->slope = pPlayer->Angles.ZzHORIZON().Tan();
+	pPlayer->slope = pPlayer->actor->spr.Angles.Pitch.Tan();
 	if (pInput->actions & SB_INVPREV)
 	{
 		pInput->actions &= ~SB_INVPREV;
