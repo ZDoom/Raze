@@ -181,33 +181,33 @@ void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const
 		// Process mouse input.
 		if (horz)
 		{
-			ZzHORIZON += DAngle::fromDeg(horz);
+			ZzHORIZON() += DAngle::fromDeg(horz);
 			*actions &= ~SB_CENTERVIEW;
 		}
 
 		// Process keyboard input.
 		if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
 		{
-			ZzHORIZON += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
+			ZzHORIZON() += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
 			*actions &= ~SB_CENTERVIEW;
 		}
 		if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
 		{
-			ZzHORIZON += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
+			ZzHORIZON() += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
 			*actions |= SB_CENTERVIEW;
 		}
 
 		// Do return to centre.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
-			const auto pitch = abs(ZzHORIZON);
+			const auto pitch = abs(ZzHORIZON());
 			const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
-			scaletozero(ZzHORIZON, PITCH_CENTERSPEED * scale, scaleAdjust);
-			if (!ZzHORIZON.Sgn()) *actions &= ~SB_CENTERVIEW;
+			scaletozero(ZzHORIZON(), PITCH_CENTERSPEED * scale, scaleAdjust);
+			if (!ZzHORIZON().Sgn()) *actions &= ~SB_CENTERVIEW;
 		}
 
 		// clamp before we finish, even if it's clamped in the drawer.
-		ZzHORIZON = ClampViewPitch(ZzHORIZON);
+		ZzHORIZON() = ClampViewPitch(ZzHORIZON());
 	}
 	else
 	{
@@ -340,7 +340,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 			("spin", w.YawSpin)
 			("actor", w.pActor)
 			("inputdisabled", w.legacyDisabledYaw)
-			("horiz", w.ZzHORIZON)
+			("horiz", w.ZzHORIZON())
 			("horizoff", w.ZzHORIZOFF)
 			("inputdisabled", w.legacyDisabledPitch)
 			.EndObject();
@@ -352,7 +352,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
 			w.legacyDisabledYaw = w.legacyDisabledYaw;
 			w.resetAdjustmentYaw();
-			w.ZzOLDHORIZON = w.ZzHORIZON;
+			w.ZzOLDHORIZON = w.ZzHORIZON();
 			w.ZzOHORIZOFF = w.ZzHORIZOFF;
 			w.legacyDisabledPitch = w.legacyDisabledPitch;
 			w.resetAdjustmentPitch();

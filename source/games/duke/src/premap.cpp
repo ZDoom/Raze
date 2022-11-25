@@ -125,7 +125,7 @@ void resetplayerstats(int snum)
 	p->footprintpal     = 0;
 	p->footprintshade   = 0;
 	p->jumping_toggle   = 0;
-	p->Angles.ZzOLDHORIZON = p->Angles.ZzHORIZON = DAngle::fromDeg(-17.354);
+	p->Angles.ZzOLDHORIZON = p->Angles.ZzHORIZON() = DAngle::fromDeg(-17.354);
 	p->Angles.ZzOHORIZOFF = p->Angles.ZzHORIZOFF = nullAngle;
 	p->bobcounter       = 0;
 	p->on_ground        = 0;

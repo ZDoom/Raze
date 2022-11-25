@@ -378,7 +378,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->Angles.addPitch(deltaangle(p->Angles.ZzHORIZON, (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
+		p->Angles.addPitch(deltaangle(p->Angles.ZzHORIZON(), (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -622,7 +622,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	backupplayer(p);
 
-	p->Angles.ZzHORIZOFF = p->Angles.ZzHORIZON = nullAngle;
+	p->Angles.ZzHORIZOFF = p->Angles.ZzHORIZON() = nullAngle;
 
 	updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
 

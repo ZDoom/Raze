@@ -8,6 +8,10 @@
 
 struct PlayerAngles
 {
+	// Temporary wrappers.
+	DAngle thisHoriz;
+	DAngle& ZzHORIZON() { return thisHoriz; }
+
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 
 	// Prototypes for applying input.
@@ -33,7 +37,7 @@ struct PlayerAngles
 		}
 		else
 		{
-			ZzHORIZON += value;
+			ZzHORIZON() += value;
 		}
 	}
 	void setPitch(DAngle value, bool const backup = false)
@@ -47,8 +51,8 @@ struct PlayerAngles
 		}
 		else
 		{
-			ZzHORIZON = value;
-			if (backup) ZzOLDHORIZON = ZzHORIZON;
+			ZzHORIZON() = value;
+			if (backup) ZzOLDHORIZON = ZzHORIZON();
 		}
 	}
 
@@ -101,40 +105,40 @@ struct PlayerAngles
 
 
 	// Legacy, to be removed.
-	DAngle ZzHORIZON, ZzOLDHORIZON, ZzHORIZOFF, ZzOHORIZOFF;
+	DAngle ZzOLDHORIZON, ZzHORIZOFF, ZzOHORIZOFF;
 	void processLegacyHelperPitch(double const scaleAdjust)
 	{
 		if (targetedPitch())
 		{
-			auto delta = deltaangle(ZzHORIZON, legacyTargetPitch);
+			auto delta = deltaangle(ZzHORIZON(), legacyTargetPitch);
 
 			if (abs(delta).Degrees() > 0.45)
 			{
-				ZzHORIZON += delta * scaleAdjust;
+				ZzHORIZON() += delta * scaleAdjust;
 			}
 			else
 			{
-				ZzHORIZON = legacyTargetPitch;
+				ZzHORIZON() = legacyTargetPitch;
 				legacyTargetPitch = nullAngle;
 			}
 		}
 		else if (legacyAdjustmentPitch.Sgn())
 		{
-			ZzHORIZON += legacyAdjustmentPitch * scaleAdjust;
+			ZzHORIZON() += legacyAdjustmentPitch * scaleAdjust;
 		}
 	}
 	void backupPitch()
 	{
-		ZzOLDHORIZON = ZzHORIZON;
+		ZzOLDHORIZON = ZzHORIZON();
 		ZzOHORIZOFF = ZzHORIZOFF;
 	}
 	void restorePitch()
 	{
-		ZzHORIZON = ZzOLDHORIZON;
+		ZzHORIZON() = ZzOLDHORIZON;
 		ZzHORIZOFF = ZzOHORIZOFF;
 	}
 	DAngle horizOLDSUM() { return ZzOLDHORIZON + ZzOHORIZOFF; }
-	DAngle horizSUM() { return ZzHORIZON + ZzHORIZOFF; }
+	DAngle horizSUM() { return ZzHORIZON() + ZzHORIZOFF; }
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
 	void resetAdjustmentPitch() { legacyAdjustmentPitch = nullAngle; }
 

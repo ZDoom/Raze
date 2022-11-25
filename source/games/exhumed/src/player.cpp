@@ -411,7 +411,7 @@ void RestartPlayer(int nPlayer)
 
     plr->nThrust.Zero();
 
-	plr->nDestVertPan = plr->Angles.ZzOLDHORIZON = plr->Angles.ZzHORIZON = nullAngle;
+	plr->nDestVertPan = plr->Angles.ZzOLDHORIZON = plr->Angles.ZzHORIZON() = nullAngle;
 	plr->nBreathTimer = 90;
 
 	plr->nTauntTimer = RandomSize(3) + 3;
@@ -507,7 +507,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].Angles.ZzOLDHORIZON = PlayerList[nPlayer].Angles.ZzHORIZON = nullAngle;
+    PlayerList[nPlayer].Angles.ZzOLDHORIZON = PlayerList[nPlayer].Angles.ZzHORIZON() = nullAngle;
     pActor->oviewzoffset = pActor->viewzoffset = -55;
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
@@ -1118,7 +1118,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                     zVelB = -zVelB;
                 }
 
-                if (zVelB > 2 && !PlayerList[nPlayer].Angles.ZzHORIZON.Sgn() && cl_slopetilting) {
+                if (zVelB > 2 && !PlayerList[nPlayer].Angles.ZzHORIZON().Sgn() && cl_slopetilting) {
                     PlayerList[nPlayer].nDestVertPan = nullAngle;
                 }
             }
@@ -2484,12 +2484,12 @@ sectdone:
 
         if (actions & (SB_AIM_UP | SB_AIM_DOWN) || sPlayerInput[nPlayer].pan)
         {
-            pPlayer->nDestVertPan = pPlayer->Angles.ZzHORIZON;
+            pPlayer->nDestVertPan = pPlayer->Angles.ZzHORIZON();
             pPlayer->bPlayerPan = pPlayer->bLockPan = true;
         }
         else if (actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
         {
-            pPlayer->nDestVertPan = pPlayer->Angles.ZzHORIZON;
+            pPlayer->nDestVertPan = pPlayer->Angles.ZzHORIZON();
             pPlayer->bPlayerPan = pPlayer->bLockPan = false;
         }
 
@@ -2500,7 +2500,7 @@ sectdone:
 
         if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
         {
-            if (double nVertPan = deltaangle(pPlayer->Angles.ZzHORIZON, pPlayer->nDestVertPan).Tan() * 32.)
+            if (double nVertPan = deltaangle(pPlayer->Angles.ZzHORIZON(), pPlayer->nDestVertPan).Tan() * 32.)
             {
                 pPlayer->Angles.addPitch(maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
             }
@@ -2620,7 +2620,7 @@ sectdone:
         }
         else
         {
-            if (PlayerList[nPlayer].Angles.ZzHORIZON.Sgn() > 0)
+            if (PlayerList[nPlayer].Angles.ZzHORIZON().Sgn() > 0)
             {
                 PlayerList[nPlayer].Angles.setPitch(nullAngle);
                 pPlayerActor->viewzoffset -= dVertPan[nPlayer];
@@ -2629,11 +2629,11 @@ sectdone:
             {
                 PlayerList[nPlayer].Angles.addPitch(maphoriz(-dVertPan[nPlayer]));
 
-                if (PlayerList[nPlayer].Angles.ZzHORIZON.Degrees() <= 38)
+                if (PlayerList[nPlayer].Angles.ZzHORIZON().Degrees() <= 38)
                 {
                     PlayerList[nPlayer].Angles.setPitch(DAngle::fromDeg(-37.72));
                 }
-                else if (PlayerList[nPlayer].Angles.ZzHORIZON.Sgn() >= 0)
+                else if (PlayerList[nPlayer].Angles.ZzHORIZON().Sgn() >= 0)
                 {
                     if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
                     {
