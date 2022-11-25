@@ -359,14 +359,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 	{
 		arc("horiz", w.ZzHORIZON)
 			("horizoff", w.ZzHORIZOFF)
-			("inputdisabled", w.inputdisabled)
+			("inputdisabled", w.legacyDisabledPitch)
 			.EndObject();
 
 		if (arc.isReading())
 		{
 			w.ZzOLDHORIZON = w.ZzHORIZON;
 			w.ZzOHORIZOFF = w.ZzHORIZOFF;
-			w.inputdisabled = w.inputdisabled;
+			w.legacyDisabledPitch = w.legacyDisabledPitch;
 			w.resetAdjustmentPitch();
 		}
 	}

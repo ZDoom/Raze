@@ -34,20 +34,20 @@ struct PlayerHorizon
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
-	void resetAdjustmentPitch() { adjustment = nullAngle; }
-	bool targetedPitch() { return target.Sgn(); }
+	void resetAdjustmentPitch() { legacyAdjustmentPitch = nullAngle; }
+	bool targetedPitch() { return legacyTargetPitch.Sgn(); }
 
 	// Input locking helpers.
-	void lockPitch() { inputdisabled = true; }
-	void unlockPitch() { inputdisabled = false; }
-	bool lockedPitch() { return targetedPitch() || inputdisabled; }
+	void lockPitch() { legacyDisabledPitch = true; }
+	void unlockPitch() { legacyDisabledPitch = false; }
+	bool lockedPitch() { return targetedPitch() || legacyDisabledPitch; }
 
 	// Ticrate playsim adjustment setters and processor.
 	void addPitch(DAngle const value)
 	{
 		if (!SyncInput())
 		{
-			adjustment += value;
+			legacyAdjustmentPitch += value;
 		}
 		else
 		{
@@ -62,7 +62,7 @@ struct PlayerHorizon
 
 		if (!SyncInput() && !backup)
 		{
-			target = value.Sgn() ? value : minAngle;
+			legacyTargetPitch = value.Sgn() ? value : minAngle;
 		}
 		else
 		{
@@ -75,7 +75,7 @@ struct PlayerHorizon
 	{
 		if (targetedPitch())
 		{
-			auto delta = deltaangle(ZzHORIZON, target);
+			auto delta = deltaangle(ZzHORIZON, legacyTargetPitch);
 
 			if (abs(delta).Degrees() > 0.45)
 			{
@@ -83,19 +83,19 @@ struct PlayerHorizon
 			}
 			else
 			{
-				ZzHORIZON = target;
-				target = nullAngle;
+				ZzHORIZON = legacyTargetPitch;
+				legacyTargetPitch = nullAngle;
 			}
 		}
-		else if (adjustment.Sgn())
+		else if (legacyAdjustmentPitch.Sgn())
 		{
-			ZzHORIZON += adjustment * scaleAdjust;
+			ZzHORIZON += legacyAdjustmentPitch * scaleAdjust;
 		}
 	}
 
 private:
-	DAngle target, adjustment;
-	bool inputdisabled;
+	DAngle legacyTargetPitch, legacyAdjustmentPitch;
+	bool legacyDisabledPitch;
 };
 
 struct PlayerAngle
