@@ -75,7 +75,7 @@ inline static double getCorrectedScale(const double scaleAdjust)
 	return scaleAdjust < 1. ? scaleAdjust * (1. + 0.21 * (1. - scaleAdjust)) : scaleAdjust;
 }
 
-inline static DAngle getscaledangle(const DAngle value, const double scaleAdjust, const DAngle object, const DAngle push)
+inline static DAngle getscaledangle(const DAngle value, const DAngle object, const DAngle push, const double scaleAdjust = 1)
 {
 	return ((object.Normalized180() * getTicrateScale(value)) + push) * getCorrectedScale(scaleAdjust);
 }
@@ -84,7 +84,7 @@ inline static void scaletozero(DAngle& object, const DAngle value, const double 
 {
 	if (auto sgn = object.Sgn())
 	{
-		object  -= getscaledangle(value, scaleAdjust, object, push * sgn);
+		object  -= getscaledangle(value, object, push * sgn, scaleAdjust);
 		if (sgn != object.Sgn()) object = nullAngle;
 	}
 }
@@ -300,7 +300,7 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB) ViewAngles.Pitch += getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
+			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB) ViewAngles.Pitch += getscaledangle(PITCH_HORIZOFFSPEED, deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH, scaleAdjust);
 		}
 		else
 		{
