@@ -113,7 +113,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 	}
 	else
 	{
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 49.);
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
 		pos += (ang + DAngle1 * 61.171875).ToVector() * (1024. / 448.);
 		pos.Z += 3;
 	}
@@ -175,7 +175,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	}
 	else
 	{
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 40.5);
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 40.5);
 		
 		// WTF???
 		DAngle myang = DAngle90 - (DAngle180 - abs(abs((spos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle() - sang) - DAngle180));
@@ -233,7 +233,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 
 	if (p >= 0)
 	{
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -365,14 +365,14 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				// no target
-				setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
+				setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
 			}
 			zvel += (zRange / 2) - krandf(zRange);
 		}
 		else if (aimed == nullptr)
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 
@@ -596,7 +596,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 49.);
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
 	}
 	else
 	{
@@ -683,7 +683,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else 
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 40.5);
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 40.5);
 
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
@@ -822,7 +822,7 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	HitInfo hit{};
 
 	if (p >= 0)
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
 	else zvel = 0;
 
 	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
@@ -921,7 +921,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		else
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 
@@ -1015,7 +1015,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 49.);
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
 	}
 	else if (actor->spr.statnum != 3)
 	{
@@ -2010,7 +2010,7 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 	HitInfo hit{};
 	double vel = 1024, zvel = 0;
-	setFreeAimVelocity(vel, zvel, p->horizon.sum(), 16.);
+	setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 16.);
 
 	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->angle.ang.ToVector() * vel, zvel), hit, CLIPMASK1);
 
@@ -2200,12 +2200,12 @@ static void operateweapon(int snum, ESyncBits actions)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15/16.;
-				zvel = p->horizon.sum().Sin() * 10.;
+				zvel = p->horizon.horizSUM().Sin() * 10.;
 			}
 			else
 			{
 				vel = 140/16.;
-				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
+				setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 10.);
 				zvel -= 4;
 			}
 

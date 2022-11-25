@@ -245,7 +245,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
 			{
 				double vel = 1024, zvel = 0;
-				setFreeAimVelocity(vel, zvel, plr->horizon.sum(), 16.);
+				setFreeAimVelocity(vel, zvel, plr->horizon.horizSUM(), 16.);
 
 				HitInfo hit{};
 				hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel), hit, CLIPMASK1);
@@ -343,7 +343,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 								if (actor->isPlayer())
 								{
 									double checkval = (act->spr.pos.Z - actor->spr.pos.Z) * 1.25 / sdist;
-									double horiz = ps[actor->PlayerIndex()].horizon.sum().Tan();
+									double horiz = ps[actor->PlayerIndex()].horizon.horizSUM().Tan();
 									check = abs(checkval - horiz) < 0.78125;
 								}
 								else check = 1;

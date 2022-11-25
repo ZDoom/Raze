@@ -430,7 +430,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 			ang = ps[snum].angle.ang - mapangle((krand() & 63) + 8);  //Fine tune
 
 			act->temp_data[0] = krand() & 1;
-			act->spr.pos.Z = 3 + ps[snum].GetActor()->getOffsetZ() + ps[snum].pyoff + (ps[snum].horizon.sum().Tan() * 8.) + (!isshell ? 3 : 0);
+			act->spr.pos.Z = 3 + ps[snum].GetActor()->getOffsetZ() + ps[snum].pyoff + (ps[snum].horizon.horizSUM().Tan() * 8.) + (!isshell ? 3 : 0);
 			act->vel.Z = -krandf(1);
 		}
 		else

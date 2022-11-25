@@ -1245,13 +1245,13 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     if (SyncInput() || pp != Player+myconnectindex)
     {
         tang = camerapp->angle.interpolatedsum(interpfrac);
-        thoriz = camerapp->horizon.interpolatedsum(interpfrac);
+        thoriz = camerapp->horizon.horizLERPSUM(interpfrac);
         trotscrnang = camerapp->angle.interpolatedrotscrn(interpfrac);
     }
     else
     {
         tang = pp->angle.sum();
-        thoriz = pp->horizon.sum();
+        thoriz = pp->horizon.horizSUM();
         trotscrnang = pp->angle.rotscrnang;
     }
     tsect = camerapp->cursector;

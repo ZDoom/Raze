@@ -502,13 +502,13 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 		if (!SyncInput())
 		{
 			cA = pPlayer->angle.sum();
-			cH = pPlayer->horizon.sum();
+			cH = pPlayer->horizon.horizSUM();
 			rotscrnang = pPlayer->angle.rotscrnang;
 		}
 		else
 		{
 			cA = pPlayer->angle.interpolatedsum(interpfrac);
-			cH = pPlayer->horizon.interpolatedsum(interpfrac);
+			cH = pPlayer->horizon.horizLERPSUM(interpfrac);
 			rotscrnang = pPlayer->angle.interpolatedrotscrn(interpfrac);
 		}
 	}

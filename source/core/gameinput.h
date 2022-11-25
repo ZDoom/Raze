@@ -29,9 +29,9 @@ struct PlayerHorizon
 	}
 
 	// Commonly used getters.
-	DAngle osum() { return ZzOLDHORIZON + ZzOHORIZOFF; }
-	DAngle sum() { return ZzHORIZON + ZzHORIZOFF; }
-	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
+	DAngle horizOLDSUM() { return ZzOLDHORIZON + ZzOHORIZOFF; }
+	DAngle horizSUM() { return ZzHORIZON + ZzHORIZOFF; }
+	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = nullAngle; }

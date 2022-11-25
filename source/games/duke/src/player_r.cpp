@@ -91,7 +91,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 
 	if (p >= 0)
 	{
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
+		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -224,7 +224,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-				setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
+				setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
 				zvel += 0.5 - krandf(1);
 			}
 		}
@@ -234,7 +234,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				ang += DAngle22_5 / 2 - randomAngle(22.5);
 			else
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			if (aimed == nullptr) setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 16.);
+			if (aimed == nullptr) setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 		pos.Z -= 2;
@@ -511,7 +511,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		}
 		else
 		{
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 49.);
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
 		}
 	}
 	else
@@ -596,7 +596,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 40.5);
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 40.5);
 
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
@@ -746,7 +746,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.sum(), 49.);
+			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
 	}
 	else
 	{
@@ -2674,12 +2674,12 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				zvel = p->horizon.sum().Sin() * 10.;
+				zvel = p->horizon.horizSUM().Sin() * 10.;
 			}
 			else
 			{
 				vel = 140 / 16.;
-				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
+				setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 10.);
 				zvel -= 4;
 			}
 
@@ -3082,12 +3082,12 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				vel = 15 / 16.;
-				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
+				setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 10.);
 			}
 			else
 			{
 				vel = 2.;
-				setFreeAimVelocity(vel, zvel, p->horizon.sum(), 10.);
+				setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 10.);
 				zvel -= 4;
 			}
 

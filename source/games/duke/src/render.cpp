@@ -299,13 +299,13 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 			{
 				// Original code for when the values are passed through the sync struct
 				cang = p->angle.interpolatedsum(interpfrac);
-				choriz = p->horizon.interpolatedsum(interpfrac);
+				choriz = p->horizon.horizLERPSUM(interpfrac);
 			}
 			else
 			{
 				// This is for real time updating of the view direction.
 				cang = p->angle.sum();
-				choriz = p->horizon.sum();
+				choriz = p->horizon.horizSUM();
 			}
 		}
 
