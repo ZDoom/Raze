@@ -161,7 +161,7 @@ void resetplayerstats(int snum)
 	p->fric.X            = 0;
 	p->fric.Y            = 0;
 	p->somethingonplayer = nullptr;
-	p->angle.spin        = nullAngle;
+	p->angle.YawSpin        = nullAngle;
 
 	p->on_crane          = nullptr;
 

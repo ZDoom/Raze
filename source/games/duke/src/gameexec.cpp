@@ -650,8 +650,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ONE_EIGHTY_COUNT:
-		if (bSet) ps[iPlayer].angle.spin = mapangle(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.spin.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.YawSpin = mapangle(lValue);
+		else SetGameVarID(lVar2, ps[iPlayer].angle.YawSpin.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_CHEAT_PHASE:

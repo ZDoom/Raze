@@ -242,31 +242,31 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 
 		if (*actions & SB_TURNAROUND)
 		{
-			if (spin == nullAngle)
+			if (YawSpin == nullAngle)
 			{
 				// currently not spinning, so start a spin
-				spin = -DAngle180;
+				YawSpin = -DAngle180;
 			}
 			*actions &= ~SB_TURNAROUND;
 		}
 
-		if (spin < nullAngle)
+		if (YawSpin < nullAngle)
 		{
 			// return spin to 0
 			DAngle add = getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH) * scaleAdjust;
-			spin += add;
-			if (spin > nullAngle)
+			YawSpin += add;
+			if (YawSpin > nullAngle)
 			{
 				// Don't overshoot our target. With variable factor this is possible.
-				add -= spin;
-				spin = nullAngle;
+				add -= YawSpin;
+				YawSpin = nullAngle;
 			}
 			ZzANGLE += add;
 		}
 	}
 	else
 	{
-		spin = nullAngle;
+		YawSpin = nullAngle;
 	}
 }
 
@@ -337,7 +337,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 		arc("ang", w.ZzANGLE)
 			("lookang", w.ZzLOOKANG)
 			("rotscrnang", w.ZzROTSCRNANG)
-			("spin", w.spin)
+			("spin", w.YawSpin)
 			("inputdisabled", w.inputdisabled)
 			.EndObject();
 
