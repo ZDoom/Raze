@@ -116,22 +116,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.scale = DVector2(0, 0);
 		pistonsound = 1;
 		break;
-	case RRTILE8165:
-		if (!isRRRA()) goto default_case;
-		act->spr.lotag = 1;
-		act->clipdist = 0;
-		act->SetOwner(act);
-		act->spr.extra = 0;
-		ChangeActorStat(act, 115);
-		break;
-	case RRTILE8593:
-		if (!isRRRA()) goto default_case;
-		act->spr.lotag = 1;
-		act->clipdist = 0;
-		act->SetOwner(act);
-		act->spr.extra = 0;
-		ChangeActorStat(act, 122);
-		break;
 
 	case WATERSPLASH2:
 	case MUD:

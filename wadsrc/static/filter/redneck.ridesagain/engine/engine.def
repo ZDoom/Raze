@@ -32,6 +32,9 @@ spawnclasses
 	8895 = RedneckMamaJibB	
 	8487 = RedneckBalloons1
 	8489 = RedneckBalloons2
+	8165 = RedneckGamblingMachine
+	8593 = RedneckGamblingMachine2
+	2437 = RedneckBell
 	
 	7636 = DukeGenericDestructible, "OLDPHOTO0", "OLDPHOTO0BROKE", "VENT_BUST"
 	7638 = DukeGenericDestructible, "OLDPHOTO1", "OLDPHOTO1BROKE", "VENT_BUST"

@@ -1874,20 +1874,6 @@ void checksectors_r(int snum)
 				if (!isRRRA()) return;
 				OnBoat(p, neartagsprite);
 				return;
-			case RRTILE8164:
-			case RRTILE8165:
-			case RRTILE8166:
-			case RRTILE8167:
-			case RRTILE8168:
-			case RRTILE8591:
-			case RRTILE8592:
-			case RRTILE8593:
-			case RRTILE8594:
-			case RRTILE8595:
-				if (!isRRRA()) return;
-				neartagsprite->spr.extra = 60;
-				S_PlayActorSound(235, neartagsprite);
-				return;
 
 			case TOILET:
 			case STALL:

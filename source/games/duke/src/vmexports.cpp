@@ -40,10 +40,24 @@ int PicForName(int intname)
 	{
 		picnum = TileFiles.tileForName("FEATHER");
 	}
-
+	else if (FName(ENamedName(intname)) == FName("DukeBatteryAmmo"))
+	{
+		picnum = TileFiles.tileForName("BATTERYAMMO");
+	}
+	else if (FName(ENamedName(intname)) == FName("RedneckDynamite"))
+	{
+		picnum = TileFiles.tileForName("DYNAMITE");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeSixpak"))
+	{
+		picnum = TileFiles.tileForName("SIXPAK");
+	}
+	else if (FName(ENamedName(intname)) == FName("DukeAtomicHealth"))
+	{
+		picnum = TileFiles.tileForName("ATOMICHEALTH");
+	}
 	return picnum;
 }
-
 
 //---------------------------------------------------------------------------
 //
