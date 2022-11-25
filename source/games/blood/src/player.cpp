@@ -1597,7 +1597,7 @@ void ProcessInput(PLAYER* pPlayer)
 
 	if (SyncInput())
 	{
-		pPlayer->angle.applyinput(pInput->avel, &pInput->actions);
+		pPlayer->angle.applyYaw(pInput->avel, &pInput->actions);
 	}
 
 	// unconditionally update the player's sprite angle

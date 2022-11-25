@@ -1529,7 +1529,7 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
 
 void DoPlayerTurn(PLAYER* pp, float const avel, double const scaleAdjust)
 {
-    pp->angle.applyinput(avel, &pp->input.actions, scaleAdjust);
+    pp->angle.applyYaw(avel, &pp->input.actions, scaleAdjust);
     UpdatePlayerSpriteAngle(pp);
 }
 

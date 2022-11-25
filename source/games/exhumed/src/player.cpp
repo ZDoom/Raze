@@ -986,7 +986,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     if (SyncInput())
     {
         Player* pPlayer = &PlayerList[nPlayer];
-        pPlayer->angle.applyinput(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
+        pPlayer->angle.applyYaw(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 

@@ -2904,7 +2904,7 @@ void processinput_d(int snum)
 		// may still be needed later for demo recording
 
 		sb_avel = p->adjustavel(sb_avel);
-		p->angle.applyinput(sb_avel, &actions);
+		p->angle.applyYaw(sb_avel, &actions);
 	}
 
 	if (p->spritebridge == 0 && pact->insector())

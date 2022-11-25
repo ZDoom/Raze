@@ -222,7 +222,7 @@ void PlayerHorizon::applyPitch(float const horz, ESyncBits* actions, double cons
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
+void PlayerAngle::applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process angle return to zeros.
 	scaletozero(ZzROTSCRNANG, YAW_LOOKRETURN, scaleAdjust);

@@ -105,7 +105,7 @@ struct PlayerAngle
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
 
 	// Prototypes for functions in gameinput.cpp.
-	void applyinput(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
+	void applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
 
 	// Interpolation helpers.
 	void backupYaw()
