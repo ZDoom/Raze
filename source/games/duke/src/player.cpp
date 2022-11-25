@@ -119,7 +119,7 @@ void forceplayerangle(int snum)
 
 	p->horizon.addPitch(DAngle::fromDeg(-26.566));
 	p->sync.actions |= SB_CENTERVIEW;
-	p->angle.rotscrnang = p->angle.ZzLOOKANG = (DAngle22_5 - randomAngle(45)) / 2.;
+	p->angle.ZzROTSCRNANG = p->angle.ZzLOOKANG = (DAngle22_5 - randomAngle(45)) / 2.;
 }
 
 //---------------------------------------------------------------------------
@@ -629,7 +629,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 	pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
-		p->angle.rotscrnang = DAngle::fromBuild(p->dead_flag + ((floorz + p->GetActor()->getOffsetZ()) * 2));
+		p->angle.ZzROTSCRNANG = DAngle::fromBuild(p->dead_flag + ((floorz + p->GetActor()->getOffsetZ()) * 2));
 
 	p->on_warping_sector = 0;
 
@@ -741,13 +741,13 @@ void player_struct::apply_seasick(double factor)
 		if (SeaSick < 250)
 		{
 			if (SeaSick >= 180)
-				angle.rotscrnang += DAngle::fromDeg(24 * factor * BAngToDegree);
+				angle.ZzROTSCRNANG += DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 130)
-				angle.rotscrnang -= DAngle::fromDeg(24 * factor * BAngToDegree);
+				angle.ZzROTSCRNANG -= DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 70)
-				angle.rotscrnang += DAngle::fromDeg(24 * factor * BAngToDegree);
+				angle.ZzROTSCRNANG += DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 20)
-				angle.rotscrnang -= DAngle::fromDeg(24 * factor * BAngToDegree);
+				angle.ZzROTSCRNANG -= DAngle::fromDeg(24 * factor * BAngToDegree);
 		}
 		if (SeaSick < 250)
 			angle.ZzLOOKANG = DAngle::fromDeg(((krand() & 255) - 128) * factor * BAngToDegree);

@@ -710,8 +710,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].angle.orotscrnang = ps[iPlayer].angle.rotscrnang = mapangle(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.rotscrnang.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.orotscrnang = ps[iPlayer].angle.ZzROTSCRNANG = mapangle(lValue);
+		else SetGameVarID(lVar2, ps[iPlayer].angle.ZzROTSCRNANG.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_DEAD_FLAG:
@@ -2261,7 +2261,7 @@ int ParseState::parse(void)
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].vel.X = ps[g_p].vel.Y = 0;
-			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = nullAngle;
+			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.ZzROTSCRNANG = nullAngle;
 
 			ps[g_p].falling_counter = 0;
 

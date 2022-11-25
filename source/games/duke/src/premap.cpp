@@ -152,7 +152,7 @@ void resetplayerstats(int snum)
 	p->holoduke_on =       nullptr;
 
 	p->angle.ZzOLDLOOKANG = p->angle.ZzLOOKANG = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
-	p->angle.orotscrnang = p->angle.rotscrnang = nullAngle;
+	p->angle.orotscrnang = p->angle.ZzROTSCRNANG = nullAngle;
 
 	p->newOwner          =nullptr;
 	p->jumping_counter   = 0;

@@ -100,7 +100,7 @@ private:
 
 struct PlayerAngle
 {
-	DAngle ZzANGLE, ZzOLDANGLE, ZzLOOKANG, ZzOLDLOOKANG, rotscrnang, orotscrnang, spin;
+	DAngle ZzANGLE, ZzOLDANGLE, ZzLOOKANG, ZzOLDLOOKANG, ZzROTSCRNANG, orotscrnang, spin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
 
@@ -112,13 +112,13 @@ struct PlayerAngle
 	{
 		ZzOLDANGLE = ZzANGLE;
 		ZzOLDLOOKANG = ZzLOOKANG;
-		orotscrnang = rotscrnang;
+		orotscrnang = ZzROTSCRNANG;
 	}
 	void restore()
 	{
 		ZzANGLE = ZzOLDANGLE;
 		ZzLOOKANG = ZzOLDLOOKANG;
-		rotscrnang = orotscrnang;
+		ZzROTSCRNANG = orotscrnang;
 	}
 
 	// Commonly used getters.
@@ -127,9 +127,9 @@ struct PlayerAngle
 	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
 	DAngle interpolatedang(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE, ZzANGLE, interpfrac); }
 	DAngle interpolatedlookang(double const interpfrac) { return interpolatedvalue(ZzOLDLOOKANG, ZzLOOKANG, interpfrac); }
-	DAngle interpolatedrotscrn(double const interpfrac) { return interpolatedvalue(orotscrnang, rotscrnang, interpfrac); }
+	DAngle interpolatedrotscrn(double const interpfrac) { return interpolatedvalue(orotscrnang, ZzROTSCRNANG, interpfrac); }
 	DAngle renderlookang(double const interpfrac) { return !SyncInput() ? ZzLOOKANG : interpolatedlookang(interpfrac); }
-	DAngle renderrotscrn(double const interpfrac) { return !SyncInput() ? rotscrnang : interpolatedrotscrn(interpfrac); }
+	DAngle renderrotscrn(double const interpfrac) { return !SyncInput() ? ZzROTSCRNANG : interpolatedrotscrn(interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
 	void resetadjustment() { adjustment = nullAngle; }

@@ -271,7 +271,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		setgamepalette(setpal(p));
 
 		// set screen rotation.
-		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(interpfrac);
+		rotscrnang = !SyncInput() ? p->angle.ZzROTSCRNANG : p->angle.interpolatedrotscrn(interpfrac);
 
 		// use player's actor initially.
 		viewer = p->GetActor();

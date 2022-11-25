@@ -503,7 +503,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 		{
 			cA = pPlayer->angle.sum();
 			cH = pPlayer->horizon.horizSUM();
-			rotscrnang = pPlayer->angle.rotscrnang;
+			rotscrnang = pPlayer->angle.ZzROTSCRNANG;
 		}
 		else
 		{
