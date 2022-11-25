@@ -61,7 +61,7 @@ void ambProcess(PLAYER* pPlayer)
             if (actor->xspr.state)
             {
                 int nDist = (int)(actor->spr.pos - pPlayer->actor->spr.pos).Length();
-                int vs = MulScale(actor->xspr.data4, actor->xspr.busy, 16);
+                int vs = min(MulScale(actor->xspr.data4, actor->xspr.busy, 16), 127);
                 ambChannels[actor->spr.intowner].distance += ClipRange(scale(nDist, actor->xspr.data1, actor->xspr.data2, vs, 0), 0, vs);
             }
         }
