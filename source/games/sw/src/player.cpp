@@ -7048,7 +7048,7 @@ void InitAllPlayers(void)
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
         pp->Angles.ZzANGLE = pp->Angles.ZzOLDANGLE = pfirst->Angles.ZzANGLE;
-        pp->Angles.ZzHORIZON() = pp->Angles.ZzOLDHORIZON = pfirst->Angles.ZzHORIZON();
+        pp->Angles.ZzHORIZON() = pp->Angles.ZzOLDHORIZON() = pfirst->Angles.ZzHORIZON();
         pp->cursector = pfirst->cursector;
         // set like this so that player can trigger something on start of the level
         pp->lastcursector = pfirst->cursector+1;

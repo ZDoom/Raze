@@ -350,7 +350,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_OHORIZ:
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].Angles.ZzOLDHORIZON.Tan() * -128.), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].Angles.ZzOLDHORIZON().Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZOFF:
@@ -2247,7 +2247,7 @@ int ParseState::parse(void)
 
 			ps[g_p].last_extra = g_ac->spr.extra = gs.max_player_health;
 			ps[g_p].wantweaponfire = -1;
-			ps[g_p].Angles.ZzOLDHORIZON = ps[g_p].Angles.ZzHORIZON() = nullAngle;
+			ps[g_p].Angles.ZzOLDHORIZON() = ps[g_p].Angles.ZzHORIZON() = nullAngle;
 			ps[g_p].on_crane = nullptr;
 			ps[g_p].frag_ps = g_p;
 			ps[g_p].Angles.ZzOHORIZOFF = ps[g_p].Angles.ZzHORIZOFF = nullAngle;

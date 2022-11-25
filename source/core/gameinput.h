@@ -11,6 +11,8 @@ struct PlayerAngles
 	// Temporary wrappers.
 	DAngle thisHoriz;
 	DAngle& ZzHORIZON() { return thisHoriz; }
+	DAngle prevHoriz;
+	DAngle& ZzOLDHORIZON() { return prevHoriz; }
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 
@@ -52,7 +54,7 @@ struct PlayerAngles
 		else
 		{
 			ZzHORIZON() = value;
-			if (backup) ZzOLDHORIZON = ZzHORIZON();
+			if (backup) ZzOLDHORIZON() = ZzHORIZON();
 		}
 	}
 
@@ -105,7 +107,7 @@ struct PlayerAngles
 
 
 	// Legacy, to be removed.
-	DAngle ZzOLDHORIZON, ZzHORIZOFF, ZzOHORIZOFF;
+	DAngle ZzHORIZOFF, ZzOHORIZOFF;
 	void processLegacyHelperPitch(double const scaleAdjust)
 	{
 		if (targetedPitch())
@@ -129,15 +131,15 @@ struct PlayerAngles
 	}
 	void backupPitch()
 	{
-		ZzOLDHORIZON = ZzHORIZON();
+		ZzOLDHORIZON() = ZzHORIZON();
 		ZzOHORIZOFF = ZzHORIZOFF;
 	}
 	void restorePitch()
 	{
-		ZzHORIZON() = ZzOLDHORIZON;
+		ZzHORIZON() = ZzOLDHORIZON();
 		ZzHORIZOFF = ZzOHORIZOFF;
 	}
-	DAngle horizOLDSUM() { return ZzOLDHORIZON + ZzOHORIZOFF; }
+	DAngle horizOLDSUM() { return ZzOLDHORIZON() + ZzOHORIZOFF; }
 	DAngle horizSUM() { return ZzHORIZON() + ZzHORIZOFF; }
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
 	void resetAdjustmentPitch() { legacyAdjustmentPitch = nullAngle; }

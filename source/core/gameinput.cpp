@@ -352,7 +352,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
 			w.legacyDisabledYaw = w.legacyDisabledYaw;
 			w.resetAdjustmentYaw();
-			w.ZzOLDHORIZON = w.ZzHORIZON();
+			w.ZzOLDHORIZON() = w.ZzHORIZON();
 			w.ZzOHORIZOFF = w.ZzHORIZOFF;
 			w.legacyDisabledPitch = w.legacyDisabledPitch;
 			w.resetAdjustmentPitch();
