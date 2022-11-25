@@ -86,8 +86,8 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     {
         if (!nFreeze)
         {
-            pPlayer->angle.applyYaw(input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
-            pPlayer->horizon.applyPitch(input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+            pPlayer->Angles.applyYaw(input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+            pPlayer->Angles.applyPitch(input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
 
             if (input.horz)
             {
@@ -95,8 +95,8 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
             }
         }
 
-        pPlayer->angle.processLegacyHelperYaw(scaleAdjust);
-        pPlayer->horizon.processLegacyHelperPitch(scaleAdjust);
+        pPlayer->Angles.processLegacyHelperYaw(scaleAdjust);
+        pPlayer->Angles.processLegacyHelperPitch(scaleAdjust);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 

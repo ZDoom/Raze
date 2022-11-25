@@ -83,8 +83,7 @@ struct PLAYER
 	DBloodActor* actor;
 	DUDEINFO* pDudeInfo;
 	InputPacket         input;
-	PlayerHorizon       horizon;
-	PlayerAngle         angle;
+	PlayerAngles        Angles;
 	uint8_t             newWeapon;
 	int                 used1;  // something related to game checksum
 	int                 weaponQav;

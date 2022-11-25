@@ -812,7 +812,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             {
                 pp = tActor->user.PlayerP;
                 tsp->pos = pp->actor->getRenderPos(interpfrac);
-                tsp->Angles.Yaw = pp->angle.angLERPANG(interpfrac);
+                tsp->Angles.Yaw = pp->Angles.angLERPANG(interpfrac);
             }
         }
 
@@ -1021,8 +1021,8 @@ void PrintSpriteInfo(PLAYER* pp)
 
 static void DrawCrosshair(PLAYER* pp, const double interpfrac)
 {
-    auto offsets = pp->angle.angCROSSHAIROFFSETS(interpfrac);
-    ::DrawCrosshair(2326, pp->actor->user.Health, offsets.X, offsets.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, -pp->angle.angLERPROTSCRN(interpfrac), shadeToLight(10));
+    auto offsets = pp->Angles.angCROSSHAIROFFSETS(interpfrac);
+    ::DrawCrosshair(2326, pp->actor->user.Health, offsets.X, offsets.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, -pp->Angles.angLERPROTSCRN(interpfrac), shadeToLight(10));
 }
 
 //---------------------------------------------------------------------------
@@ -1244,15 +1244,15 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
     if (SyncInput() || pp != Player+myconnectindex)
     {
-        tang = camerapp->angle.angLERPSUM(interpfrac);
-        thoriz = camerapp->horizon.horizLERPSUM(interpfrac);
-        trotscrnang = camerapp->angle.angLERPROTSCRN(interpfrac);
+        tang = camerapp->Angles.angLERPSUM(interpfrac);
+        thoriz = camerapp->Angles.horizLERPSUM(interpfrac);
+        trotscrnang = camerapp->Angles.angLERPROTSCRN(interpfrac);
     }
     else
     {
-        tang = pp->angle.angSUM();
-        thoriz = pp->horizon.horizSUM();
-        trotscrnang = pp->angle.ZzROTSCRNANG;
+        tang = pp->Angles.angSUM();
+        thoriz = pp->Angles.horizSUM();
+        trotscrnang = pp->Angles.ZzROTSCRNANG;
     }
     tsect = camerapp->cursector;
 
@@ -1263,7 +1263,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         if (pp->sop_control && (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
             tpos = pp->actor->getPosWithOffsetZ();
-            tang = pp->angle.ZzANGLE;
+            tang = pp->Angles.ZzANGLE;
         }
         tsect = pp->cursector;
         updatesectorz(tpos, &tsect);

@@ -91,7 +91,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 
 	if (p >= 0)
 	{
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
+		setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 16.);
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -185,7 +185,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			if (splash)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.Angles.Yaw = ps[p].angle.ZzANGLE; // check me out later. // Total tweek
+				splash->spr.Angles.Yaw = ps[p].Angles.ZzANGLE; // check me out later. // Total tweek
 				splash->vel.X = 2;
 				ssp(actor, 0);
 				splash->vel.X = 0;
@@ -224,7 +224,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-				setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
+				setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 16.);
 				zvel += 0.5 - krandf(1);
 			}
 		}
@@ -234,7 +234,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				ang += DAngle22_5 / 2 - randomAngle(22.5);
 			else
 				ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			if (aimed == nullptr) setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
+			if (aimed == nullptr) setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 		pos.Z -= 2;
@@ -511,7 +511,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		}
 		else
 		{
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
+			setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 49.);
 		}
 	}
 	else
@@ -596,7 +596,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 40.5);
+			setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 40.5);
 
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
@@ -746,7 +746,7 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
+			setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 49.);
 	}
 	else
 	{
@@ -822,7 +822,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	{
 		p = actor->PlayerIndex();
 		spos = ps[p].GetActor()->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
-		sang = ps[p].angle.ZzANGLE;
+		sang = ps[p].Angles.ZzANGLE;
 
 		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
 	}
@@ -1283,7 +1283,7 @@ int doincrements_r(player_struct* p)
 		{
 			p->noise_radius = 1024;
 			madenoise(screenpeek);
-			p->vel.XY() += p->angle.ZzANGLE.ToVector();
+			p->vel.XY() += p->Angles.ZzANGLE.ToVector();
 		}
 		p->eat -= 4;
 		if (p->eat < 0)
@@ -1467,12 +1467,12 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7220);
 			if (j)
 			{
-				j->spr.Angles.Yaw = p->angle.ZzANGLE; // check me out later.
+				j->spr.Angles.Yaw = p->Angles.ZzANGLE; // check me out later.
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
 			p->gotweapon[MOTORCYCLE_WEAPON] = false;
-			p->horizon.ZzHORIZON = nullAngle;
+			p->Angles.ZzHORIZON = nullAngle;
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1486,12 +1486,12 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7233);
 			if (j)
 			{
-				j->spr.Angles.Yaw = p->angle.ZzANGLE; // check me out later.
+				j->spr.Angles.Yaw = p->Angles.ZzANGLE; // check me out later.
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
 			p->gotweapon[BOAT_WEAPON] = false;
-			p->horizon.ZzHORIZON = nullAngle;
+			p->Angles.ZzHORIZON = nullAngle;
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1718,7 +1718,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addPitch(deltaangle(p->horizon.ZzHORIZON, maphoriz(-horiz)));
+		p->Angles.addPitch(deltaangle(p->Angles.ZzHORIZON, maphoriz(-horiz)));
 	}
 
 	const DAngle adjust = mapangle(-510);
@@ -1764,15 +1764,15 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			}
 		}
 
-		p->vel.XY() += (p->angle.ZzANGLE + velAdjustment).ToVector() * currSpeed;
-		p->angle.addYaw(deltaangle(p->angle.ZzANGLE, p->angle.ZzANGLE - DAngle::fromBam(angAdjustment)));
+		p->vel.XY() += (p->Angles.ZzANGLE + velAdjustment).ToVector() * currSpeed;
+		p->Angles.addYaw(deltaangle(p->Angles.ZzANGLE, p->Angles.ZzANGLE - DAngle::fromBam(angAdjustment)));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		rng = krand() & 1;
 		velAdjustment = rng == 0 ? -adjust : adjust;
 		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
-		p->vel.XY() += (p->angle.ZzANGLE + velAdjustment).ToVector() * currSpeed;
+		p->vel.XY() += (p->Angles.ZzANGLE + velAdjustment).ToVector() * currSpeed;
 	}
 
 	p->moto_on_mud = p->moto_on_oil = 0;
@@ -1986,7 +1986,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addPitch(deltaangle(p->horizon.ZzHORIZON, maphoriz(-horiz)));
+		p->Angles.addPitch(deltaangle(p->Angles.ZzHORIZON, maphoriz(-horiz)));
 	}
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
@@ -2008,8 +2008,8 @@ static void onBoat(int snum, ESyncBits &actions)
 			angAdjustment >>= 6;
 		}
 
-		p->vel.XY() += (p->angle.ZzANGLE + velAdjustment).ToVector() * currSpeed;
-		p->angle.addYaw(deltaangle(p->angle.ZzANGLE, p->angle.ZzANGLE - DAngle::fromBam(angAdjustment)));
+		p->vel.XY() += (p->Angles.ZzANGLE + velAdjustment).ToVector() * currSpeed;
+		p->Angles.addYaw(deltaangle(p->Angles.ZzANGLE, p->Angles.ZzANGLE - DAngle::fromBam(angAdjustment)));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
@@ -2311,7 +2311,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		auto j = spawn(pact, WATERBUBBLE);
 		if (j)
 		{
-			j->spr.pos += (p->angle.ZzANGLE.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
+			j->spr.pos += (p->Angles.ZzANGLE.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.03125);
 			j->spr.pos.Z = p->GetActor()->getOffsetZ() + 8;
 			j->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
@@ -2329,11 +2329,11 @@ void onMotorcycleMove(int snum, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	double angleDelta = absangle(p->angle.ZzANGLE, wal->delta().Angle()).Degrees();
+	double angleDelta = absangle(p->Angles.ZzANGLE, wal->delta().Angle()).Degrees();
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
 	const double scale = (180. / 2048.);
-	p->angle.addYaw(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));
+	p->Angles.addYaw(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));
 
 	// That's some very weird angles here...
 	if (angleDelta >= 77.51 && angleDelta <= 102.13)
@@ -2385,10 +2385,10 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	double angleDelta = absangle(p->angle.ZzANGLE, wal->delta().Angle()).Degrees();
+	double angleDelta = absangle(p->Angles.ZzANGLE, wal->delta().Angle()).Degrees();
 
 	const double scale = (90. / 2048.);
-	p->angle.addYaw(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));
+	p->Angles.addYaw(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));
 
 	if (angleDelta >= 77.51 && angleDelta <= 102.13)
 	{
@@ -2433,7 +2433,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				DAngle ang = DAngle::fromBuild(p->TiltStatus * 20) + p->angle.ZzANGLE;
+				DAngle ang = DAngle::fromBuild(p->TiltStatus * 20) + p->Angles.ZzANGLE;
 				movesprite_ex(victim, DVector3(ang.ToVector() * 4, victim->vel.Z), CLIPMASK0, coll);
 			}
 		}
@@ -2467,7 +2467,7 @@ void onBoatHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				DAngle ang = DAngle::fromBuild(p->TiltStatus * 20) + p->angle.ZzANGLE;
+				DAngle ang = DAngle::fromBuild(p->TiltStatus * 20) + p->Angles.ZzANGLE;
 				movesprite_ex(victim, DVector3(ang.ToVector() * 2, victim->vel.Z), CLIPMASK0, coll);
 			}
 		}
@@ -2674,17 +2674,17 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15 / 16.;
-				zvel = p->horizon.horizSUM().Sin() * 10.;
+				zvel = p->Angles.horizSUM().Sin() * 10.;
 			}
 			else
 			{
 				vel = 140 / 16.;
-				setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 10.);
+				setFreeAimVelocity(vel, zvel, p->Angles.horizSUM(), 10.);
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->angle.ZzANGLE.ToVector() * 16, DYNAMITE, -16, DVector2(0.140625, 0.140625),
-				p->angle.ZzANGLE, (vel + p->hbomb_hold_delay * 2) * 2, zvel, pact, 1);
+			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->Angles.ZzANGLE.ToVector() * 16, DYNAMITE, -16, DVector2(0.140625, 0.140625),
+				p->Angles.ZzANGLE, (vel + p->hbomb_hold_delay * 2) * 2, zvel, pact, 1);
 
 			if (spawned)
 			{
@@ -2735,7 +2735,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			if (psectlotag != 857)
 			{
-				p->vel.XY() -= p->angle.ZzANGLE.ToVector();
+				p->vel.XY() -= p->Angles.ZzANGLE.ToVector();
 			}
 		}
 		else if (p->kickback_pic == 2)
@@ -2834,12 +2834,12 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->vel.XY() -= p->angle.ZzANGLE.ToVector() * 2;
+					p->vel.XY() -= p->Angles.ZzANGLE.ToVector() * 2;
 				}
 			}
 			else if (psectlotag != 857)
 			{
-				p->vel.XY() -= p->angle.ZzANGLE.ToVector();
+				p->vel.XY() -= p->Angles.ZzANGLE.ToVector();
 			}
 		}
 
@@ -2894,7 +2894,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->horizon.addPitch(DAngle::fromDeg(-0.4476));
+		p->Angles.addPitch(DAngle::fromDeg(-0.4476));
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -2925,7 +2925,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if (psectlotag != 857)
 				{
-					p->vel.XY() -= p->angle.ZzANGLE.ToVector();
+					p->vel.XY() -= p->Angles.ZzANGLE.ToVector();
 				}
 				checkavailweapon(p);
 
@@ -2985,11 +2985,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angle.addYaw(mapangle(16));
+			p->Angles.addYaw(mapangle(16));
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angle.addYaw(mapangle(-16));
+			p->Angles.addYaw(mapangle(-16));
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3015,11 +3015,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angle.addYaw(mapangle(4));
+			p->Angles.addYaw(mapangle(4));
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angle.addYaw(mapangle(-4));
+			p->Angles.addYaw(mapangle(-4));
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3065,8 +3065,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		else if (p->kickback_pic == 12)
 		{
-			p->vel.XY() -= p->angle.ZzANGLE.ToVector();
-			p->horizon.addPitch(DAngle::fromDeg(-8.88));
+			p->vel.XY() -= p->Angles.ZzANGLE.ToVector();
+			p->Angles.addPitch(DAngle::fromDeg(-8.88));
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3082,16 +3082,16 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				vel = 15 / 16.;
-				setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 10.);
+				setFreeAimVelocity(vel, zvel, p->Angles.horizSUM(), 10.);
 			}
 			else
 			{
 				vel = 2.;
-				setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 10.);
+				setFreeAimVelocity(vel, zvel, p->Angles.horizSUM(), 10.);
 				zvel -= 4;
 			}
 
-			CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->angle.ZzANGLE.ToVector() * 16, POWDERKEG, -16, DVector2(0.140625, 0.140625), p->angle.ZzANGLE, vel * 2, zvel, pact, 1);
+			CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->Angles.ZzANGLE.ToVector() * 16, POWDERKEG, -16, DVector2(0.140625, 0.140625), p->Angles.ZzANGLE, vel * 2, zvel, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
@@ -3112,7 +3112,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic < 30)
 		{
-			p->vel.XY() += p->angle.ZzANGLE.ToVector();
+			p->vel.XY() += p->Angles.ZzANGLE.ToVector();
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
@@ -3272,8 +3272,8 @@ void processinput_r(int snum)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	p->horizon.resetAdjustmentPitch();
-	p->angle.resetAdjustmentYaw();
+	p->Angles.resetAdjustmentPitch();
+	p->Angles.resetAdjustmentYaw();
 
 	ESyncBits& actions = p->sync.actions;
 
@@ -3349,7 +3349,7 @@ void processinput_r(int snum)
 
 	if (SyncInput())
 	{
-		p->horizon.backupPitch();
+		p->Angles.backupPitch();
 		doslopetilting(p);
 	}
 
@@ -3559,7 +3559,7 @@ void processinput_r(int snum)
 		// may still be needed later for demo recording
 
 		sb_avel = p->adjustavel(sb_avel);
-		p->angle.applyYaw(sb_avel, &actions);
+		p->Angles.applyYaw(sb_avel, &actions);
 	}
 
 	if (p->spritebridge == 0 && pact->insector())
@@ -3890,12 +3890,12 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->horizon.addPitch(maphoriz(d));
+		p->Angles.addPitch(maphoriz(d));
 	}
 
 	if (SyncInput())
 	{
-		p->horizon.applyPitch(GetPlayerHorizon(snum), &actions);
+		p->Angles.applyPitch(GetPlayerHorizon(snum), &actions);
 	}
 
 	p->checkhardlanding();
@@ -3949,7 +3949,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		if (motosprite)
 		{
 			p->GetActor()->spr.pos.XY() = motosprite->spr.pos.XY();
-			p->angle.ZzANGLE = motosprite->spr.Angles.Yaw; // check me out later.
+			p->Angles.ZzANGLE = motosprite->spr.Angles.Yaw; // check me out later.
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			motosprite->Destroy();
 		}
@@ -3960,7 +3960,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		p->gotweapon[MOTORCYCLE_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->horizon.setPitch(nullAngle);
+		p->Angles.setPitch(nullAngle);
 	}
 	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
 		S_PlayActorSound(186, p->GetActor());
@@ -3991,7 +3991,7 @@ void OffMotorcycle(player_struct *p)
 		p->gotweapon[MOTORCYCLE_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->horizon.setPitch(nullAngle);
+		p->Angles.setPitch(nullAngle);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
@@ -3999,12 +3999,12 @@ void OffMotorcycle(player_struct *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.XY() = p->angle.ZzANGLE.ToVector() / 2048.;
+		p->vel.XY() = p->Angles.ZzANGLE.ToVector() / 2048.;
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
-			spawned->spr.Angles.Yaw = p->angle.ZzANGLE; // check me out later.
+			spawned->spr.Angles.Yaw = p->Angles.ZzANGLE; // check me out later.
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 		}
 	}
@@ -4023,7 +4023,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		if (boat)
 		{
 			p->GetActor()->spr.pos.XY() = boat->spr.pos.XY();
-			p->angle.ZzANGLE = boat->spr.Angles.Yaw; // check me out later.
+			p->Angles.ZzANGLE = boat->spr.Angles.Yaw; // check me out later.
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			boat->Destroy();
 		}
@@ -4034,7 +4034,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		p->gotweapon[BOAT_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->horizon.setPitch(nullAngle);
+		p->Angles.setPitch(nullAngle);
 	}
 }
 
@@ -4052,7 +4052,7 @@ void OffBoat(player_struct *p)
 		p->gotweapon[BOAT_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->horizon.setPitch(nullAngle);
+		p->Angles.setPitch(nullAngle);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
@@ -4060,12 +4060,12 @@ void OffBoat(player_struct *p)
 		p->VBumpTarget = 0;
 		p->VBumpNow = 0;
 		p->TurbCount = 0;
-		p->vel.XY() = p->angle.ZzANGLE.ToVector() / 2048.;
+		p->vel.XY() = p->Angles.ZzANGLE.ToVector() / 2048.;
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
-			spawned->spr.Angles.Yaw = p->angle.ZzANGLE; // check me out later.
+			spawned->spr.Angles.Yaw = p->Angles.ZzANGLE; // check me out later.
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 		}
 	}

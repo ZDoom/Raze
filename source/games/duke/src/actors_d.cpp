@@ -928,7 +928,7 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 
 		if (proj->spr.picnum == SPIT)
 		{
-			ps[p].horizon.addPitch(DAngle::fromDeg(-14.04));
+			ps[p].Angles.addPitch(DAngle::fromDeg(-14.04));
 			ps[p].sync.actions |= SB_CENTERVIEW;
 
 			if (ps[p].loogcnt == 0)
@@ -1334,7 +1334,7 @@ void movetransports_d(void)
 								ps[k].GetActor()->spr.extra = 0;
 							}
 
-							ps[p].angle.ZzANGLE = Owner->spr.Angles.Yaw; // check me out later.
+							ps[p].Angles.ZzANGLE = Owner->spr.Angles.Yaw; // check me out later.
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -1663,7 +1663,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (xx < 64 && ps[p].quick_kick == 0)
 		{
-			auto ang = absangle(ps[p].angle.ZzANGLE, (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle());
+			auto ang = absangle(ps[p].Angles.ZzANGLE, (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle());
 			if (ang < DAngle22_5)
 				ps[p].quick_kick = 14;
 		}
@@ -1685,7 +1685,7 @@ static void greenslime(DDukeActor *actor)
 
 		SetActor(actor, actor->spr.pos);
 
-		actor->spr.Angles.Yaw = ps[p].angle.ZzANGLE; // check me out later.
+		actor->spr.Angles.Yaw = ps[p].Angles.ZzANGLE; // check me out later.
 
 		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->spr.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
@@ -1719,7 +1719,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			}
 
-		actor->spr.pos.Z = ps[p].GetActor()->getOffsetZ() + 8 + ps[p].pyoff - (actor->temp_data[2] + (ps[p].horizon.ZzHORIZON.Tan() * 2048.)) * zinttoworld;
+		actor->spr.pos.Z = ps[p].GetActor()->getOffsetZ() + 8 + ps[p].pyoff - (actor->temp_data[2] + (ps[p].Angles.ZzHORIZON.Tan() * 2048.)) * zinttoworld;
 
 		if (actor->temp_data[2] > 512)
 			actor->temp_data[2] -= 128;
@@ -1731,7 +1731,7 @@ static void greenslime(DDukeActor *actor)
 		{
 			ps[p].newOwner = nullptr;
 			ps[p].GetActor()->restorepos();
-			ps[p].angle.restoreYaw();
+			ps[p].Angles.restoreYaw();
 
 			updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &ps[p].cursector);
 
@@ -1768,7 +1768,7 @@ static void greenslime(DDukeActor *actor)
 
 		double add = (BobVal(actor->temp_data[1]) * 2) * REPEAT_SCALE;
 		actor->spr.scale = DVector2(0.3125 + add, 0.234375 + add);
-		actor->spr.pos.XY() = ps[p].GetActor()->spr.pos.XY() + ps[p].angle.ZzANGLE.ToVector() * 8;
+		actor->spr.pos.XY() = ps[p].GetActor()->spr.pos.XY() + ps[p].Angles.ZzANGLE.ToVector() * 8;
 		return;
 	}
 

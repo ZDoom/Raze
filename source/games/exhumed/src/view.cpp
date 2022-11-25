@@ -234,15 +234,15 @@ void DrawView(double interpfrac, bool sceneonly)
 
         if (!SyncInput())
         {
-            nCamerapan = PlayerList[nLocalPlayer].horizon.horizSUM();
-            nCameraang = PlayerList[nLocalPlayer].angle.angSUM();
-            rotscrnang = PlayerList[nLocalPlayer].angle.ZzROTSCRNANG;
+            nCamerapan = PlayerList[nLocalPlayer].Angles.horizSUM();
+            nCameraang = PlayerList[nLocalPlayer].Angles.angSUM();
+            rotscrnang = PlayerList[nLocalPlayer].Angles.ZzROTSCRNANG;
         }
         else
         {
-            nCamerapan = PlayerList[nLocalPlayer].horizon.horizLERPSUM(interpfrac);
-            nCameraang = PlayerList[nLocalPlayer].angle.angLERPSUM(interpfrac);
-            rotscrnang = PlayerList[nLocalPlayer].angle.angLERPROTSCRN(interpfrac);
+            nCamerapan = PlayerList[nLocalPlayer].Angles.horizLERPSUM(interpfrac);
+            nCameraang = PlayerList[nLocalPlayer].Angles.angLERPSUM(interpfrac);
+            rotscrnang = PlayerList[nLocalPlayer].Angles.angLERPROTSCRN(interpfrac);
         }
 
         if (!bCamera)

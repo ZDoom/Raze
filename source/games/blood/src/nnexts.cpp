@@ -2186,8 +2186,8 @@ void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 
 	if (const double adjustment = clamp(value * 0.125 * (value > 0 ? lookStepUp : lookStepDown), downAngle, upAngle))
 	{
-		pPlayer->horizon.setPitch(maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.))));
-		pPlayer->horizon.lockPitch();
+		pPlayer->Angles.setPitch(maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.))));
+		pPlayer->Angles.lockPitch();
 	}
 }
 
@@ -6050,13 +6050,13 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
-				pPlayer->angle.setYaw(actor->spr.Angles.Yaw);
-				pPlayer->angle.lockYaw();
+				pPlayer->Angles.setYaw(actor->spr.Angles.Yaw);
+				pPlayer->Angles.lockYaw();
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
-				pPlayer->angle.setYaw(mapangle(actor->xspr.data2));
-				pPlayer->angle.lockYaw();
+				pPlayer->Angles.setYaw(mapangle(actor->xspr.data2));
+				pPlayer->Angles.lockYaw();
 			}
 			break;
 		case 10: // 74 (de)activate powerup
@@ -9278,7 +9278,7 @@ void changeSpriteAngle(DBloodActor* pSpr, DAngle nAng)
 	{
 		PLAYER* pPlayer = getPlayerById(pSpr->spr.type);
 		if (pPlayer)
-			pPlayer->angle.ZzANGLE = nAng;
+			pPlayer->Angles.ZzANGLE = nAng;
 		else
 		{
 			pSpr->spr.Angles.Yaw = nAng;

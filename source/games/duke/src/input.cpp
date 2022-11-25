@@ -284,7 +284,7 @@ void hud_input(int plnum)
 							p->inven_icon = 3;
 
 							auto pactor =
-								CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ().plusZ(30), TILE_APLAYER, -64, DVector2(0, 0), p->angle.ZzANGLE, 0., 0., nullptr, 10);
+								CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ().plusZ(30), TILE_APLAYER, -64, DVector2(0, 0), p->Angles.ZzANGLE, 0., 0., nullptr, 10);
 							pactor->temp_data[3] = pactor->temp_data[4] = 0;
 							p->holoduke_on = pactor;
 							pactor->spr.yint = plnum;
@@ -476,7 +476,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerInput(plnum, SB_TURNAROUND) && p->angle.YawSpin == nullAngle && p->on_crane == nullptr)
+		if (PlayerInput(plnum, SB_TURNAROUND) && p->Angles.YawSpin == nullAngle && p->on_crane == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);
@@ -792,7 +792,7 @@ static void FinalizeInput(player_struct *p, InputPacket& input)
 			loc.avel = input.avel = 0;
 		}
 
-		if (p->newOwner != nullptr || (p->sync.actions & SB_CENTERVIEW && abs(p->horizon.ZzHORIZON.Degrees()) > 2.2370))
+		if (p->newOwner != nullptr || (p->sync.actions & SB_CENTERVIEW && abs(p->Angles.ZzHORIZON.Degrees()) > 2.2370))
 		{
 			loc.horz = input.horz = 0;
 		}
@@ -836,20 +836,20 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 		{
 			// Do these in the same order as the old code.
 			doslopetilting(p, scaleAdjust);
-			p->angle.applyYaw(p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
+			p->Angles.applyYaw(p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
 			p->apply_seasick(scaleAdjust);
-			p->horizon.applyPitch(input.horz, &p->sync.actions, scaleAdjust);
+			p->Angles.applyPitch(input.horz, &p->sync.actions, scaleAdjust);
 		}
 
-		p->angle.processLegacyHelperYaw(scaleAdjust);
-		p->horizon.processLegacyHelperPitch(scaleAdjust);
-		p->GetActor()->spr.Angles.Yaw = p->angle.ZzANGLE; // check me out later.
+		p->Angles.processLegacyHelperYaw(scaleAdjust);
+		p->Angles.processLegacyHelperPitch(scaleAdjust);
+		p->GetActor()->spr.Angles.Yaw = p->Angles.ZzANGLE; // check me out later.
 	}
 
 	if (packet)
 	{
 		*packet = loc;
-		auto velvect = DVector2(loc.fvel, loc.svel).Rotated(p->angle.ZzANGLE) + p->fric;
+		auto velvect = DVector2(loc.fvel, loc.svel).Rotated(p->Angles.ZzANGLE) + p->fric;
 		packet->fvel = (float)velvect.X;
 		packet->svel = (float)velvect.Y;
 		loc = {};

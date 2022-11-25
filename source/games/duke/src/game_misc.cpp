@@ -274,13 +274,13 @@ void drawoverlays(double interpfrac)
 				else
 				{
 					cposxy = interpolatedvalue(pp->GetActor()->getPrevPosWithOffsetZ(), pp->GetActor()->getPosWithOffsetZ(), interpfrac).XY();
-					cang = !SyncInput() ? pp->angle.ZzANGLE : interpolatedvalue(pp->angle.ZzOLDANGLE, pp->angle.ZzANGLE, interpfrac);
+					cang = !SyncInput() ? pp->Angles.ZzANGLE : interpolatedvalue(pp->Angles.ZzOLDANGLE, pp->Angles.ZzANGLE, interpfrac);
 				}
 			}
 			else
 			{
 				cposxy = pp->GetActor()->opos.XY();
-				cang = pp->angle.ZzOLDANGLE;
+				cang = pp->Angles.ZzOLDANGLE;
 			}
 			DrawOverheadMap(cposxy, cang, interpfrac);
 			RestoreInterpolations();
@@ -291,8 +291,8 @@ void drawoverlays(double interpfrac)
 
 	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{
-		auto offsets = pp->angle.angCROSSHAIROFFSETS(interpfrac);
-		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, offsets.X, offsets.Y + (pp->over_shoulder_on ? 2.5 : 0), isRR() ? 0.5 : 1, -pp->angle.angLERPROTSCRN(interpfrac));
+		auto offsets = pp->Angles.angCROSSHAIROFFSETS(interpfrac);
+		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, offsets.X, offsets.Y + (pp->over_shoulder_on ? 2.5 : 0), isRR() ? 0.5 : 1, -pp->Angles.angLERPROTSCRN(interpfrac));
 	}
 
 	if (paused == 2)

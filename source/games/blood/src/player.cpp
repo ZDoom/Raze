@@ -812,7 +812,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	GetActorExtents(actor, &top, &bottom);
 	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
-	actor->spr.Angles.Yaw = pPlayer->angle.ZzANGLE = pStartZone->angle; // check me out later.
+	actor->spr.Angles.Yaw = pPlayer->Angles.ZzANGLE = pStartZone->angle; // check me out later.
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->clipdist = pDudeInfo->fClipdist();
 	actor->spr.flags = 15;
@@ -821,7 +821,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->actor->xspr.health = pDudeInfo->startHealth << 4;
 	pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	pPlayer->bloodlust = 0;
-	pPlayer->horizon.ZzHORIZON = pPlayer->horizon.ZzHORIZOFF = nullAngle;
+	pPlayer->Angles.ZzHORIZON = pPlayer->Angles.ZzHORIZOFF = nullAngle;
 	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
 	pPlayer->underwaterTime = 1200;
@@ -829,7 +829,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->restTime = 0;
 	pPlayer->kickPower = 0;
 	pPlayer->laughCount = 0;
-	pPlayer->angle.YawSpin = nullAngle;
+	pPlayer->Angles.YawSpin = nullAngle;
 	pPlayer->posture = 0;
 	pPlayer->voodooTarget = nullptr;
 	pPlayer->voodooTargets = 0;
@@ -1499,7 +1499,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer)
 {
-	pPlayer->actor->spr.Angles.Yaw = pPlayer->angle.ZzANGLE; // check me out later.
+	pPlayer->actor->spr.Angles.Yaw = pPlayer->Angles.ZzANGLE; // check me out later.
 }
 
 //---------------------------------------------------------------------------
@@ -1513,7 +1513,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 	auto plActor = pPlayer->actor;
 	int const florhit = pPlayer->actor->hit.florhit.type;
 	bool const va = plActor->xspr.height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
-	pPlayer->horizon.doViewPitch(plActor->spr.pos.XY(), plActor->spr.Angles.Yaw, va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
+	pPlayer->Angles.doViewPitch(plActor->spr.pos.XY(), plActor->spr.Angles.Yaw, va, plActor->sector()->floorstat & CSTAT_SECTOR_SLOPE, plActor->sector(), scaleAdjust);
 }
 
 //---------------------------------------------------------------------------
@@ -1532,8 +1532,8 @@ void ProcessInput(PLAYER* pPlayer)
 		Item_JumpBoots = 3
 	};
 
-	pPlayer->horizon.resetAdjustmentPitch();
-	pPlayer->angle.resetAdjustmentYaw();
+	pPlayer->Angles.resetAdjustmentPitch();
+	pPlayer->Angles.resetAdjustmentYaw();
 
 	DBloodActor* actor = pPlayer->actor;
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
@@ -1554,11 +1554,11 @@ void ProcessInput(PLAYER* pPlayer)
 		DBloodActor* fragger = pPlayer->fragger;
 		if (fragger)
 		{
-			pPlayer->angle.addYaw(deltaangle(pPlayer->angle.ZzANGLE, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
+			pPlayer->Angles.addYaw(deltaangle(pPlayer->Angles.ZzANGLE, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->horizon.addPitch(deltaangle(pPlayer->horizon.ZzHORIZON, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5));
+			pPlayer->Angles.addPitch(deltaangle(pPlayer->Angles.ZzHORIZON, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5));
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)
@@ -1597,7 +1597,7 @@ void ProcessInput(PLAYER* pPlayer)
 
 	if (SyncInput())
 	{
-		pPlayer->angle.applyYaw(pInput->avel, &pInput->actions);
+		pPlayer->Angles.applyYaw(pInput->avel, &pInput->actions);
 	}
 
 	// unconditionally update the player's sprite angle
@@ -1726,14 +1726,14 @@ void ProcessInput(PLAYER* pPlayer)
 
 	if (SyncInput())
 	{
-		pPlayer->horizon.applyPitch(pInput->horz, &pInput->actions);
+		pPlayer->Angles.applyPitch(pInput->horz, &pInput->actions);
 		doslopetilting(pPlayer);
 	}
 
-	pPlayer->angle.unlockYaw();
-	pPlayer->horizon.unlockPitch();
+	pPlayer->Angles.unlockYaw();
+	pPlayer->Angles.unlockPitch();
 
-	pPlayer->slope = pPlayer->horizon.ZzHORIZON.Tan();
+	pPlayer->slope = pPlayer->Angles.ZzHORIZON.Tan();
 	if (pInput->actions & SB_INVPREV)
 	{
 		pInput->actions &= ~SB_INVPREV;
@@ -2424,8 +2424,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
 	if (arc.BeginObject(keyname))
 	{
 		arc("spritenum", w.actor)
-			("horizon", w.horizon)
-			("angle", w.angle)
+			("horizon", w.Angles)
+			("angle", w.Angles)
 			("newweapon", w.newWeapon)
 			("used1", w.used1)
 			("weaponqav", w.weaponQav)

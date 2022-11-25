@@ -78,8 +78,7 @@ struct Player
     bool bPlayerPan, bLockPan;
     DAngle nDestVertPan;
 
-    PlayerHorizon horizon;
-    PlayerAngle angle;
+    PlayerAngles Angles;
     sectortype* pPlayerPushSect;
     sectortype* pPlayerViewSect;
 

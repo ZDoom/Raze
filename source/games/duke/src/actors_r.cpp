@@ -796,7 +796,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 				guts_r(proj, RABBITJIBC, 2, myconnectindex);
 			}
 
-			ps[p].horizon.addPitch(DAngle::fromDeg(-14.04));
+			ps[p].Angles.addPitch(DAngle::fromDeg(-14.04));
 			ps[p].sync.actions |= SB_CENTERVIEW;
 
 			if (ps[p].loogcnt == 0)
@@ -1222,7 +1222,7 @@ void movetransports_r(void)
 									ps[k].GetActor()->spr.extra = 0;
 								}
 
-							ps[p].angle.ZzANGLE = Owner->spr.Angles.Yaw; // check me out later.
+							ps[p].Angles.ZzANGLE = Owner->spr.Angles.Yaw; // check me out later.
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -1945,7 +1945,7 @@ void rr_specialstats()
 				{
 					if (act2->spr.picnum == RRTELEPORTDEST)
 					{
-						ps[p].angle.ZzANGLE = act2->spr.Angles.Yaw; // check me out later.
+						ps[p].Angles.ZzANGLE = act2->spr.Angles.Yaw; // check me out later.
 						ps[p].GetActor()->spr.pos = act2->spr.pos.plusZ(-36 + gs.playerheight);
 						ps[p].GetActor()->backuppos();
 						ps[p].setbobpos();

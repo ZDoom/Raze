@@ -40,7 +40,7 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
 
 	if (ang != DAngle::fromDeg(INT_MIN))
 	{
-		pPlayer->angle.ZzOLDANGLE = pPlayer->angle.ZzANGLE = ang;
+		pPlayer->Angles.ZzOLDANGLE = pPlayer->Angles.ZzANGLE = ang;
 	}
 }
 

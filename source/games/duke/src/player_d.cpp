@@ -113,7 +113,7 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 	}
 	else
 	{
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
+		setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 49.);
 		pos += (ang + DAngle1 * 61.171875).ToVector() * (1024. / 448.);
 		pos.Z += 3;
 	}
@@ -175,7 +175,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAng
 	}
 	else
 	{
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 40.5);
+		setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 40.5);
 		
 		// WTF???
 		DAngle myang = DAngle90 - (DAngle180 - abs(abs((spos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle() - sang) - DAngle180));
@@ -233,7 +233,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 
 	if (p >= 0)
 	{
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
+		setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 16.);
 		pos.Z += 6;
 		ang += DAngle1 * 2.64;
 	}
@@ -294,7 +294,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			if (splash)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.Angles.Yaw = ps[p].angle.ZzANGLE; // check me out later. // Total tweek
+				splash->spr.Angles.Yaw = ps[p].Angles.ZzANGLE; // check me out later. // Total tweek
 				splash->vel.X = 2;
 				ssp(actor, CLIPMASK0);
 				splash->vel.X = 0;
@@ -365,14 +365,14 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			if (aimed == nullptr)
 			{
 				// no target
-				setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
+				setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 16.);
 			}
 			zvel += (zRange / 2) - krandf(zRange);
 		}
 		else if (aimed == nullptr)
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
+			setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 
@@ -596,7 +596,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
+			setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 49.);
 	}
 	else
 	{
@@ -683,7 +683,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else 
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 40.5);
+			setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 40.5);
 
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
@@ -822,7 +822,7 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	HitInfo hit{};
 
 	if (p >= 0)
-		setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
+		setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 16.);
 	else zvel = 0;
 
 	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
@@ -921,7 +921,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		else
 		{
 			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 16.);
+			setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 16.);
 			zvel += 0.5 - krandf(1);
 		}
 
@@ -1015,7 +1015,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
-			setFreeAimVelocity(vel, zvel, ps[p].horizon.horizSUM(), 49.);
+			setFreeAimVelocity(vel, zvel, ps[p].Angles.horizSUM(), 49.);
 	}
 	else if (actor->spr.statnum != 3)
 	{
@@ -1071,7 +1071,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	if (actor->isPlayer())
 	{
 		spos = ps[p].GetActor()->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
-		sang = ps[p].angle.ZzANGLE;
+		sang = ps[p].Angles.ZzANGLE;
 
 		ps[p].crack_time = CRACK_TIME;
 
@@ -1992,7 +1992,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		auto j = spawn(pact, WATERBUBBLE);
 		if (j)
 		{
-			j->spr.pos += (p->angle.ZzANGLE.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
+			j->spr.pos += (p->Angles.ZzANGLE.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.3125);
 			j->spr.pos.Z = p->GetActor()->getOffsetZ() + 8;
 		}
@@ -2010,9 +2010,9 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 	HitInfo hit{};
 	double vel = 1024, zvel = 0;
-	setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 16.);
+	setFreeAimVelocity(vel, zvel, p->Angles.horizSUM(), 16.);
 
-	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->angle.ZzANGLE.ToVector() * vel, zvel), hit, CLIPMASK1);
+	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->Angles.ZzANGLE.ToVector() * vel, zvel), hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;
@@ -2200,17 +2200,17 @@ static void operateweapon(int snum, ESyncBits actions)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				vel = 15/16.;
-				zvel = p->horizon.horizSUM().Sin() * 10.;
+				zvel = p->Angles.horizSUM().Sin() * 10.;
 			}
 			else
 			{
 				vel = 140/16.;
-				setFreeAimVelocity(vel, zvel, p->horizon.horizSUM(), 10.);
+				setFreeAimVelocity(vel, zvel, p->Angles.horizSUM(), 10.);
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->angle.ZzANGLE.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
-				p->angle.ZzANGLE, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
+			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->Angles.ZzANGLE.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
+				p->Angles.ZzANGLE, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (isNam())
 			{
@@ -2725,8 +2725,8 @@ void processinput_d(int snum)
 	p = &ps[snum];
 	auto pact = p->GetActor();
 
-	p->horizon.resetAdjustmentPitch();
-	p->angle.resetAdjustmentYaw();
+	p->Angles.resetAdjustmentPitch();
+	p->Angles.resetAdjustmentYaw();
 
 	ESyncBits& actions = p->sync.actions;
 
@@ -2763,7 +2763,7 @@ void processinput_d(int snum)
 
 	if (SyncInput())
 	{
-		p->horizon.backupPitch();
+		p->Angles.backupPitch();
 		doslopetilting(p);
 	}
 
@@ -2904,7 +2904,7 @@ void processinput_d(int snum)
 		// may still be needed later for demo recording
 
 		sb_avel = p->adjustavel(sb_avel);
-		p->angle.applyYaw(sb_avel, &actions);
+		p->Angles.applyYaw(sb_avel, &actions);
 	}
 
 	if (p->spritebridge == 0 && pact->insector())
@@ -3137,7 +3137,7 @@ HORIZONLY:
 
 	if (SyncInput())
 	{
-		p->horizon.applyPitch(GetPlayerHorizon(snum), &actions);
+		p->Angles.applyPitch(GetPlayerHorizon(snum), &actions);
 	}
 
 	p->checkhardlanding();

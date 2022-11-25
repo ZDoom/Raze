@@ -603,7 +603,7 @@ void GameInterface::UpdateSounds(void)
         else
             tang = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
     }
-    else tang = pp->angle.ZzANGLE;
+    else tang = pp->Angles.ZzANGLE;
 
     listener.angle = float(-tang.Radians());
     listener.velocity.Zero();

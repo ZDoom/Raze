@@ -849,7 +849,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addpos, dukeplayer_addpos)
 
 void dukeplayer_settargetangle(player_struct* self, double a, int backup)
 {
-	self->angle.setYaw(DAngle::fromDeg(a), backup);
+	self->Angles.setYaw(DAngle::fromDeg(a), backup);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, settargetangle, dukeplayer_settargetangle)
@@ -863,7 +863,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, settargetangle, dukeplayer_settargeta
 
 double dukeplayer_angle(player_struct* self)
 {
-	return self->angle.ZzANGLE.Degrees();
+	return self->Angles.ZzANGLE.Degrees();
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, angle, dukeplayer_angle)

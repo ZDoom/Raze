@@ -62,13 +62,13 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 		// Perform unsynchronised angle/horizon if not dead.
 		if (pPlayer->actor->xspr.health != 0)
 		{
-			pPlayer->angle.applyYaw(input.avel, &pPlayer->input.actions, scaleAdjust);
-			pPlayer->horizon.applyPitch(input.horz, &pPlayer->input.actions, scaleAdjust);
+			pPlayer->Angles.applyYaw(input.avel, &pPlayer->input.actions, scaleAdjust);
+			pPlayer->Angles.applyPitch(input.horz, &pPlayer->input.actions, scaleAdjust);
 			doslopetilting(pPlayer, scaleAdjust);
 		}
 
-		pPlayer->angle.processLegacyHelperYaw(scaleAdjust);
-		pPlayer->horizon.processLegacyHelperPitch(scaleAdjust);
+		pPlayer->Angles.processLegacyHelperYaw(scaleAdjust);
+		pPlayer->Angles.processLegacyHelperPitch(scaleAdjust);
 		UpdatePlayerSpriteAngle(pPlayer);
 	}
 

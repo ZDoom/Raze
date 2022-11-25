@@ -293,8 +293,8 @@ void RestartPlayer(int nPlayer)
 
 		pActor->spr.pos = nNStartSprite->spr.pos;
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->angle.ZzANGLE = nNStartSprite->spr.Angles.Yaw; // check me out later.
-		pActor->spr.Angles.Yaw = plr->angle.ZzANGLE; // check me out later.
+		plr->Angles.ZzANGLE = nNStartSprite->spr.Angles.Yaw; // check me out later.
+		pActor->spr.Angles.Yaw = plr->Angles.ZzANGLE; // check me out later.
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
@@ -307,14 +307,14 @@ void RestartPlayer(int nPlayer)
 	{
         pActor->spr.pos.XY() = plr->sPlayerSave.pos.XY();
 		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
-		plr->angle.ZzANGLE = plr->sPlayerSave.nAngle;
-		pActor->spr.Angles.Yaw = plr->angle.ZzANGLE; // check me out later.
+		plr->Angles.ZzANGLE = plr->sPlayerSave.nAngle;
+		pActor->spr.Angles.Yaw = plr->Angles.ZzANGLE; // check me out later.
 
 		floorsprt = nullptr;
 	}
 
-	plr->angle.backupYaw();
-	plr->horizon.backupPitch();
+	plr->Angles.backupYaw();
+	plr->Angles.backupPitch();
 
 	plr->pPlayerFloorSprite = floorsprt;
 
@@ -407,7 +407,7 @@ void RestartPlayer(int nPlayer)
 
     plr->nThrust.Zero();
 
-	plr->nDestVertPan = plr->horizon.ZzOLDHORIZON = plr->horizon.ZzHORIZON = nullAngle;
+	plr->nDestVertPan = plr->Angles.ZzOLDHORIZON = plr->Angles.ZzHORIZON = nullAngle;
 	plr->nBreathTimer = 90;
 
 	plr->nTauntTimer = RandomSize(3) + 3;
@@ -503,7 +503,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].horizon.ZzOLDHORIZON = PlayerList[nPlayer].horizon.ZzHORIZON = nullAngle;
+    PlayerList[nPlayer].Angles.ZzOLDHORIZON = PlayerList[nPlayer].Angles.ZzHORIZON = nullAngle;
     pActor->oviewzoffset = pActor->viewzoffset = -55;
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
@@ -664,7 +664,7 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    inita = pPlayer->angle.ZzANGLE;
+    inita = pPlayer->Angles.ZzANGLE;
     if (pPlayer->pActor) pPlayer->pActor->spr.Angles.Yaw = inita;
 }
 
@@ -904,10 +904,10 @@ void AIPlayer::Tick(RunListEvent* ev)
     int nAction = PlayerList[nPlayer].nAction;
     int nActionB = PlayerList[nPlayer].nAction;
 
-    PlayerList[nPlayer].angle.backupYaw();
-    PlayerList[nPlayer].horizon.backupPitch();
-    PlayerList[nPlayer].angle.resetAdjustmentYaw();
-    PlayerList[nPlayer].horizon.resetAdjustmentPitch();
+    PlayerList[nPlayer].Angles.backupYaw();
+    PlayerList[nPlayer].Angles.backupPitch();
+    PlayerList[nPlayer].Angles.resetAdjustmentYaw();
+    PlayerList[nPlayer].Angles.resetAdjustmentPitch();
 
     pPlayerActor->vel.XY() = sPlayerInput[nPlayer].vel;
 
@@ -986,7 +986,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     if (SyncInput())
     {
         Player* pPlayer = &PlayerList[nPlayer];
-        pPlayer->angle.applyYaw(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
+        pPlayer->Angles.applyYaw(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 
@@ -1072,10 +1072,10 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (nTotalPlayers <= 1)
         {
             auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite);
-            PlayerList[nPlayer].angle.setYaw(ang, true);
+            PlayerList[nPlayer].Angles.setYaw(ang, true);
             pPlayerActor->spr.Angles.Yaw = ang;
 
-            PlayerList[nPlayer].horizon.setPitch(nullAngle, true);
+            PlayerList[nPlayer].Angles.setPitch(nullAngle, true);
 
             sPlayerInput[nPlayer].vel.Zero();
             pPlayerActor->vel.Zero();
@@ -1088,7 +1088,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 InitSpiritHead();
 
                 PlayerList[nPlayer].nDestVertPan = nullAngle;
-                PlayerList[nPlayer].horizon.setPitch(currentLevel->ex_ramses_horiz);
+                PlayerList[nPlayer].Angles.setPitch(currentLevel->ex_ramses_horiz);
             }
         }
         else
@@ -1114,7 +1114,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                     zVelB = -zVelB;
                 }
 
-                if (zVelB > 2 && !PlayerList[nPlayer].horizon.ZzHORIZON.Sgn() && cl_slopetilting) {
+                if (zVelB > 2 && !PlayerList[nPlayer].Angles.ZzHORIZON.Sgn() && cl_slopetilting) {
                     PlayerList[nPlayer].nDestVertPan = nullAngle;
                 }
             }
@@ -2475,17 +2475,17 @@ sectdone:
 
         if (SyncInput())
         {
-            pPlayer->horizon.applyPitch(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
+            pPlayer->Angles.applyPitch(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
         }
 
         if (actions & (SB_AIM_UP | SB_AIM_DOWN) || sPlayerInput[nPlayer].pan)
         {
-            pPlayer->nDestVertPan = pPlayer->horizon.ZzHORIZON;
+            pPlayer->nDestVertPan = pPlayer->Angles.ZzHORIZON;
             pPlayer->bPlayerPan = pPlayer->bLockPan = true;
         }
         else if (actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
         {
-            pPlayer->nDestVertPan = pPlayer->horizon.ZzHORIZON;
+            pPlayer->nDestVertPan = pPlayer->Angles.ZzHORIZON;
             pPlayer->bPlayerPan = pPlayer->bLockPan = false;
         }
 
@@ -2496,9 +2496,9 @@ sectdone:
 
         if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
         {
-            if (double nVertPan = deltaangle(pPlayer->horizon.ZzHORIZON, pPlayer->nDestVertPan).Tan() * 32.)
+            if (double nVertPan = deltaangle(pPlayer->Angles.ZzHORIZON, pPlayer->nDestVertPan).Tan() * 32.)
             {
-                pPlayer->horizon.addPitch(maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
+                pPlayer->Angles.addPitch(maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
             }
         }
     }
@@ -2616,20 +2616,20 @@ sectdone:
         }
         else
         {
-            if (PlayerList[nPlayer].horizon.ZzHORIZON.Sgn() > 0)
+            if (PlayerList[nPlayer].Angles.ZzHORIZON.Sgn() > 0)
             {
-                PlayerList[nPlayer].horizon.setPitch(nullAngle);
+                PlayerList[nPlayer].Angles.setPitch(nullAngle);
                 pPlayerActor->viewzoffset -= dVertPan[nPlayer];
             }
             else
             {
-                PlayerList[nPlayer].horizon.addPitch(maphoriz(-dVertPan[nPlayer]));
+                PlayerList[nPlayer].Angles.addPitch(maphoriz(-dVertPan[nPlayer]));
 
-                if (PlayerList[nPlayer].horizon.ZzHORIZON.Degrees() <= 38)
+                if (PlayerList[nPlayer].Angles.ZzHORIZON.Degrees() <= 38)
                 {
-                    PlayerList[nPlayer].horizon.setPitch(DAngle::fromDeg(-37.72));
+                    PlayerList[nPlayer].Angles.setPitch(DAngle::fromDeg(-37.72));
                 }
-                else if (PlayerList[nPlayer].horizon.ZzHORIZON.Sgn() >= 0)
+                else if (PlayerList[nPlayer].Angles.ZzHORIZON.Sgn() >= 0)
                 {
                     if (!(pPlayerActor->sector()->Flag & kSectUnderwater))
                     {
@@ -2690,8 +2690,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("field3a", w.nState)
             ("field3c", w.nLastWeapon)
             ("seq", w.nSeq)
-            ("horizon", w.horizon)
-            ("angle", w.angle)
+            ("horizon", w.Angles)
+            ("angle", w.Angles)
             ("lives", w.nLives)
             ("double", w.nDouble)
             ("invisible", w.nInvisible)

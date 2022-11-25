@@ -72,7 +72,7 @@ void pickrandomspot(int snum)
 	p->GetActor()->spr.pos = po[i].opos;
 	p->GetActor()->backuppos();
 	p->setbobpos();
-	p->angle.ZzOLDANGLE = p->angle.ZzANGLE = po[i].oa;
+	p->Angles.ZzOLDANGLE = p->Angles.ZzANGLE = po[i].oa;
 	p->setCursector(po[i].os);
 }
 
@@ -125,8 +125,8 @@ void resetplayerstats(int snum)
 	p->footprintpal     = 0;
 	p->footprintshade   = 0;
 	p->jumping_toggle   = 0;
-	p->horizon.ZzOLDHORIZON = p->horizon.ZzHORIZON = DAngle::fromDeg(-17.354);
-	p->horizon.ZzOHORIZOFF = p->horizon.ZzHORIZOFF = nullAngle;
+	p->Angles.ZzOLDHORIZON = p->Angles.ZzHORIZON = DAngle::fromDeg(-17.354);
+	p->Angles.ZzOHORIZOFF = p->Angles.ZzHORIZOFF = nullAngle;
 	p->bobcounter       = 0;
 	p->on_ground        = 0;
 	p->player_par       = 0;
@@ -151,8 +151,8 @@ void resetplayerstats(int snum)
 	p->jetpack_on =         0;
 	p->holoduke_on =       nullptr;
 
-	p->angle.ZzOLDLOOKANG = p->angle.ZzLOOKANG = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
-	p->angle.ZzOLDROTSCRNANG = p->angle.ZzROTSCRNANG = nullAngle;
+	p->Angles.ZzOLDLOOKANG = p->Angles.ZzLOOKANG = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
+	p->Angles.ZzOLDROTSCRNANG = p->Angles.ZzROTSCRNANG = nullAngle;
 
 	p->newOwner          =nullptr;
 	p->jumping_counter   = 0;
@@ -161,7 +161,7 @@ void resetplayerstats(int snum)
 	p->fric.X            = 0;
 	p->fric.Y            = 0;
 	p->somethingonplayer = nullptr;
-	p->angle.YawSpin        = nullAngle;
+	p->Angles.YawSpin        = nullAngle;
 
 	p->on_crane          = nullptr;
 
@@ -513,7 +513,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
 	auto newActor = CreateActor(ps[0].cursector, startpos.plusZ(gs.playerheight),
-		TILE_APLAYER, 0, DVector2(0, 0), ps[0].angle.ZzANGLE, 0., 0., nullptr, 10);
+		TILE_APLAYER, 0, DVector2(0, 0), ps[0].Angles.ZzANGLE, 0., 0., nullptr, 10);
 
 	newActor->viewzoffset = -gs.playerheight;
 	newActor->backupz();
@@ -626,7 +626,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 			act->SetOwner(act);
 
 			ps[j].setbobpos();
-			ps[j].angle.ZzOLDANGLE = ps[j].angle.ZzANGLE = act->spr.Angles.Yaw; // check me out later.
+			ps[j].Angles.ZzOLDANGLE = ps[j].Angles.ZzANGLE = act->spr.Angles.Yaw; // check me out later.
 
 			updatesector(act->spr.pos, &ps[j].cursector);
 
@@ -982,7 +982,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	STAT_NewLevel(mi->fileName);
 	TITLE_InformName(mi->name);
 	
-	p->angle.ZzANGLE = mapangle(lbang);
+	p->Angles.ZzANGLE = mapangle(lbang);
 
 	gotpic.Zero();
 

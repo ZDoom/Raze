@@ -1757,8 +1757,7 @@ struct PLAYER
     bool insector() const { return cursector != nullptr; }
 
     // variables that do not fit into sprite structure
-    PlayerHorizon horizon;
-    PlayerAngle angle;
+    PlayerAngles Angles;
     double recoil_amt;
     int16_t recoil_speed;
     int16_t recoil_ndx;
@@ -1956,7 +1955,7 @@ inline bool SectorIsUnderwaterArea(sectortype* sect)
 
 inline bool PlayerFacingRange(PLAYER* pp, DSWActor* a, DAngle range)
 {
-    return absangle((a->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle(), pp->angle.ZzANGLE) < range;
+    return absangle((a->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle(), pp->Angles.ZzANGLE) < range;
 }
 
 inline bool FacingRange(DSWActor* a1, DSWActor* a2, DAngle range)

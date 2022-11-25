@@ -612,7 +612,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 
                             if (TEST_BOOL11(camactor) && numplayers > 1)
                             {
-                                drawroomstotile(cp->actor->getPosWithOffsetZ(), cp->angle.ZzANGLE, cp->horizon.ZzHORIZON, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->actor->getPosWithOffsetZ(), cp->Angles.ZzANGLE, cp->Angles.ZzHORIZON, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {

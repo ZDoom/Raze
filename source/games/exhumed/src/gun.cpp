@@ -729,7 +729,7 @@ loc_flag:
                 // loc_27266:
                 case kWeaponSword:
                 {
-                    nHeight += PlayerList[nLocalPlayer].horizon.ZzHORIZON.Tan() * 32.;
+                    nHeight += PlayerList[nLocalPlayer].Angles.ZzHORIZON.Tan() * 32.;
 
                     thePos.Z += nHeight;
 
@@ -834,7 +834,7 @@ loc_flag:
                 }
                 case kWeaponPistol:
                 {
-                    double h = PlayerList[nLocalPlayer].horizon.ZzHORIZON.Tan() * 2.;
+                    double h = PlayerList[nLocalPlayer].Angles.ZzHORIZON.Tan() * 2.;
                     nHeight += h;
 
                     DExhumedActor* target = nullptr;
@@ -858,7 +858,7 @@ loc_flag:
 
                 case kWeaponGrenade:
                 {
-                    ThrowGrenade(nPlayer, nHeight - 10, PlayerList[nLocalPlayer].horizon.ZzHORIZON.Tan());
+                    ThrowGrenade(nPlayer, nHeight - 10, PlayerList[nLocalPlayer].Angles.ZzHORIZON.Tan());
                     break;
                 }
                 case kWeaponStaff:
@@ -1000,8 +1000,8 @@ void DrawWeapons(double interpfrac)
         nShade = PlayerList[nLocalPlayer].pActor->spr.shade;
     }
 
-    double const look_anghalf = PlayerList[nLocalPlayer].angle.angLOOKANGHALF(interpfrac);
-    double const looking_arc = PlayerList[nLocalPlayer].angle.angLOOKINGARC(interpfrac);
+    double const look_anghalf = PlayerList[nLocalPlayer].Angles.angLOOKANGHALF(interpfrac);
+    double const looking_arc = PlayerList[nLocalPlayer].Angles.angLOOKINGARC(interpfrac);
 
     xOffset -= look_anghalf;
     yOffset += looking_arc;

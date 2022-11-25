@@ -7428,8 +7428,8 @@ void pDisplaySprites(PLAYER* pp, double interpfrac)
     double ang;
     int flags;
 
-    const auto offsets = pp->angle.angWEAPONOFFSETS(interpfrac);
-    const auto angle = pp->angle.angRENDERROTSCRN(interpfrac).Buildfang();
+    const auto offsets = pp->Angles.angWEAPONOFFSETS(interpfrac);
+    const auto angle = pp->Angles.angRENDERROTSCRN(interpfrac).Buildfang();
 
     auto list = pp->GetPanelSpriteList();
     for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)

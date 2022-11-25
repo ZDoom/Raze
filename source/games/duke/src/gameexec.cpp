@@ -344,22 +344,22 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 			{
 				ps[iPlayer].sync.actions &= ~SB_CENTERVIEW;
 			}
-			ps[iPlayer].horizon.setPitch(maphoriz(-lValue));
+			ps[iPlayer].Angles.setPitch(maphoriz(-lValue));
 		}
-		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.ZzHORIZON.Tan() * -128.), sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].Angles.ZzHORIZON.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZ:
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].horizon.ZzOLDHORIZON.Tan() * -128.), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].Angles.ZzOLDHORIZON.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZOFF:
-		if (bSet) ps[iPlayer].horizon.ZzHORIZOFF = maphoriz(-lValue);
-		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.ZzHORIZOFF.Tan() * -128.), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.ZzHORIZOFF = maphoriz(-lValue);
+		else SetGameVarID(lVar2, int(ps[iPlayer].Angles.ZzHORIZOFF.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZOFF:
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].horizon.ZzOHORIZOFF.Tan() * -128.), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].Angles.ZzOHORIZOFF.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_INVDISPTIME:
@@ -472,12 +472,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ANG:
-		if (bSet) ps[iPlayer].angle.setYaw(mapangle(lValue));
-		else SetGameVarID(lVar2, ps[iPlayer].angle.ZzANGLE.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.setYaw(mapangle(lValue));
+		else SetGameVarID(lVar2, ps[iPlayer].Angles.ZzANGLE.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_OANG:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].angle.ZzOLDANGLE.Buildang(), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].Angles.ZzOLDANGLE.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_ANGVEL: // This no longer exists.
@@ -490,8 +490,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) ps[iPlayer].angle.ZzLOOKANG = mapangle(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.ZzLOOKANG.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.ZzLOOKANG = mapangle(lValue);
+		else SetGameVarID(lVar2, ps[iPlayer].Angles.ZzLOOKANG.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_EXTRA:
@@ -650,8 +650,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ONE_EIGHTY_COUNT:
-		if (bSet) ps[iPlayer].angle.YawSpin = mapangle(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.YawSpin.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.YawSpin = mapangle(lValue);
+		else SetGameVarID(lVar2, ps[iPlayer].Angles.YawSpin.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_CHEAT_PHASE:
@@ -710,8 +710,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].angle.ZzOLDROTSCRNANG = ps[iPlayer].angle.ZzROTSCRNANG = mapangle(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.ZzROTSCRNANG.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.ZzOLDROTSCRNANG = ps[iPlayer].Angles.ZzROTSCRNANG = mapangle(lValue);
+		else SetGameVarID(lVar2, ps[iPlayer].Angles.ZzROTSCRNANG.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_DEAD_FLAG:
@@ -925,7 +925,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_RETURN_TO_CENTER:
 		if (bSet) ps[iPlayer].sync.actions |= SB_CENTERVIEW;
-		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? int(abs((ps[iPlayer].horizon.ZzHORIZON * (DAngle::fromDeg(9.) / GetMaxPitch())).Degrees())) : 0, sActor, sPlayer);
+		else SetGameVarID(lVar2, ps[iPlayer].sync.actions & SB_CENTERVIEW ? int(abs((ps[iPlayer].Angles.ZzHORIZON * (DAngle::fromDeg(9.) / GetMaxPitch())).Degrees())) : 0, sActor, sPlayer);
 		break;
 
 	default:
@@ -2046,7 +2046,7 @@ int ParseState::parse(void)
 		{
 			ps[g_p].newOwner = nullptr;
 			ps[g_p].GetActor()->restorepos();
-			ps[g_p].angle.restoreYaw();
+			ps[g_p].Angles.restoreYaw();
 			updatesector(ps[g_p].GetActor()->getPosWithOffsetZ(), &ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
@@ -2247,10 +2247,10 @@ int ParseState::parse(void)
 
 			ps[g_p].last_extra = g_ac->spr.extra = gs.max_player_health;
 			ps[g_p].wantweaponfire = -1;
-			ps[g_p].horizon.ZzOLDHORIZON = ps[g_p].horizon.ZzHORIZON = nullAngle;
+			ps[g_p].Angles.ZzOLDHORIZON = ps[g_p].Angles.ZzHORIZON = nullAngle;
 			ps[g_p].on_crane = nullptr;
 			ps[g_p].frag_ps = g_p;
-			ps[g_p].horizon.ZzOHORIZOFF = ps[g_p].horizon.ZzHORIZOFF = nullAngle;
+			ps[g_p].Angles.ZzOHORIZOFF = ps[g_p].Angles.ZzHORIZOFF = nullAngle;
 			ps[g_p].opyoff = 0;
 			ps[g_p].wackedbyactor = nullptr;
 			ps[g_p].shield_amount = gs.max_armour_amount;
@@ -2261,7 +2261,7 @@ int ParseState::parse(void)
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].vel.X = ps[g_p].vel.Y = 0;
-			if (!isRR()) ps[g_p].angle.ZzOLDROTSCRNANG = ps[g_p].angle.ZzROTSCRNANG = nullAngle;
+			if (!isRR()) ps[g_p].Angles.ZzOLDROTSCRNANG = ps[g_p].Angles.ZzROTSCRNANG = nullAngle;
 
 			ps[g_p].falling_counter = 0;
 
@@ -2432,9 +2432,9 @@ int ParseState::parse(void)
 			{
 				DAngle ang;
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					ang = absangle(ps[otherp].angle.ZzANGLE, (ps[g_p].GetActor()->spr.pos.XY() - ps[otherp].GetActor()->spr.pos.XY()).Angle());
+					ang = absangle(ps[otherp].Angles.ZzANGLE, (ps[g_p].GetActor()->spr.pos.XY() - ps[otherp].GetActor()->spr.pos.XY()).Angle());
 				else
-					ang = absangle(ps[g_p].angle.ZzANGLE, (g_ac->spr.pos.XY() - ps[g_p].GetActor()->spr.pos.XY()).Angle());
+					ang = absangle(ps[g_p].Angles.ZzANGLE, (g_ac->spr.pos.XY() - ps[g_p].GetActor()->spr.pos.XY()).Angle());
 
 				j = ang < DAngle22_5;
 			}
@@ -2455,7 +2455,7 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);
-		ps[g_p].vel.XY() -= ps[g_p].angle.ZzANGLE.ToVector() * 8;
+		ps[g_p].vel.XY() -= ps[g_p].Angles.ZzANGLE.ToVector() * 8;
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2463,7 +2463,7 @@ int ParseState::parse(void)
 			forceplayerangle(g_p);
 		else
 		{
-			ps[g_p].vel.XY() -= ps[g_p].angle.ZzANGLE.ToVector() * 64;
+			ps[g_p].vel.XY() -= ps[g_p].Angles.ZzANGLE.ToVector() * 64;
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}
@@ -2833,7 +2833,7 @@ int ParseState::parse(void)
 	case concmd_ifangdiffl:
 		{
 		insptr++;
-		auto ang = absangle(ps[g_p].angle.ZzANGLE, g_ac->spr.Angles.Yaw); // check me out later.
+		auto ang = absangle(ps[g_p].Angles.ZzANGLE, g_ac->spr.Angles.Yaw); // check me out later.
 		parseifelse( ang <= mapangle(*insptr));
 		break;
 		}
@@ -3131,7 +3131,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, ps[g_p].angle.ZzANGLE.Buildang(), g_ac, g_p);
+		SetGameVarID(i, ps[g_p].Angles.ZzANGLE.Buildang(), g_ac, g_p);
 		break;
 	}
 	case concmd_setplayerangle:
@@ -3139,7 +3139,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		ps[g_p].angle.ZzANGLE = mapangle(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
+		ps[g_p].Angles.ZzANGLE = mapangle(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
 		break;
 	}
 	case concmd_getactorangle:

@@ -117,9 +117,9 @@ void forceplayerangle(int snum)
 {
 	player_struct* p = &ps[snum];
 
-	p->horizon.addPitch(DAngle::fromDeg(-26.566));
+	p->Angles.addPitch(DAngle::fromDeg(-26.566));
 	p->sync.actions |= SB_CENTERVIEW;
-	p->angle.ZzROTSCRNANG = p->angle.ZzLOOKANG = (DAngle22_5 - randomAngle(45)) / 2.;
+	p->Angles.ZzROTSCRNANG = p->Angles.ZzLOOKANG = (DAngle22_5 - randomAngle(45)) / 2.;
 }
 
 //---------------------------------------------------------------------------
@@ -211,7 +211,7 @@ double hitawall(player_struct* p, walltype** hitw)
 {
 	HitInfo hit{};
 
-	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->angle.ZzANGLE.ToVector() * 1024, 0), hit, CLIPMASK0);
+	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->Angles.ZzANGLE.ToVector() * 1024, 0), hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
 	return (hit.hitpos.XY() - p->GetActor()->spr.pos.XY()).Length();
@@ -245,7 +245,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 			if (plr->curr_weapon == PISTOL_WEAPON && !isWW2GI())
 			{
 				double vel = 1024, zvel = 0;
-				setFreeAimVelocity(vel, zvel, plr->horizon.horizSUM(), 16.);
+				setFreeAimVelocity(vel, zvel, plr->Angles.horizSUM(), 16.);
 
 				HitInfo hit{};
 				hitscan(plr->GetActor()->getPosWithOffsetZ().plusZ(4), actor->sector(), DVector3(actor->spr.Angles.Yaw.ToVector() * vel, zvel), hit, CLIPMASK1);
@@ -343,7 +343,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 								if (actor->isPlayer())
 								{
 									double checkval = (act->spr.pos.Z - actor->spr.pos.Z) * 1.25 / sdist;
-									double horiz = ps[actor->PlayerIndex()].horizon.horizSUM().Tan();
+									double horiz = ps[actor->PlayerIndex()].Angles.horizSUM().Tan();
 									check = abs(checkval - horiz) < 0.78125;
 								}
 								else check = 1;
@@ -378,7 +378,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->horizon.addPitch(deltaangle(p->horizon.ZzHORIZON, (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
+		p->Angles.addPitch(deltaangle(p->Angles.ZzHORIZON, (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -546,8 +546,8 @@ void footprints(int snum)
 inline void backupplayer(player_struct* p)
 {
 	p->backuppos();
-	p->angle.backupYaw();
-	p->horizon.backupPitch();
+	p->Angles.backupYaw();
+	p->Angles.backupPitch();
 }
 
 void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
@@ -622,14 +622,14 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	backupplayer(p);
 
-	p->horizon.ZzHORIZOFF = p->horizon.ZzHORIZON = nullAngle;
+	p->Angles.ZzHORIZOFF = p->Angles.ZzHORIZON = nullAngle;
 
 	updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
 
 	pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
-		p->angle.ZzROTSCRNANG = DAngle::fromBuild(p->dead_flag + ((floorz + p->GetActor()->getOffsetZ()) * 2));
+		p->Angles.ZzROTSCRNANG = DAngle::fromBuild(p->dead_flag + ((floorz + p->GetActor()->getOffsetZ()) * 2));
 
 	p->on_warping_sector = 0;
 
@@ -741,16 +741,16 @@ void player_struct::apply_seasick(double factor)
 		if (SeaSick < 250)
 		{
 			if (SeaSick >= 180)
-				angle.ZzROTSCRNANG += DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ZzROTSCRNANG += DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 130)
-				angle.ZzROTSCRNANG -= DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ZzROTSCRNANG -= DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 70)
-				angle.ZzROTSCRNANG += DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ZzROTSCRNANG += DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 20)
-				angle.ZzROTSCRNANG -= DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ZzROTSCRNANG -= DAngle::fromDeg(24 * factor * BAngToDegree);
 		}
 		if (SeaSick < 250)
-			angle.ZzLOOKANG = DAngle::fromDeg(((krand() & 255) - 128) * factor * BAngToDegree);
+			Angles.ZzLOOKANG = DAngle::fromDeg(((krand() & 255) - 128) * factor * BAngToDegree);
 	}
 }
 
@@ -807,7 +807,7 @@ void player_struct::checkhardlanding()
 {
 	if (hard_landing > 0)
 	{
-		horizon.addPitch(maphoriz(hard_landing << 4));
+		Angles.addPitch(maphoriz(hard_landing << 4));
 		hard_landing--;
 	}
 }
@@ -865,7 +865,7 @@ void checklook(int snum, ESyncBits actions)
 			actions &= ~SB_LOOK_RIGHT;
 		}
 	}
-	p->angle.backupYaw();
+	p->Angles.backupYaw();
 }
 
 //---------------------------------------------------------------------------

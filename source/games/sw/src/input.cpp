@@ -200,14 +200,14 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
             DoPlayerTurnTurret(pp, input.avel);
         }
 
-        pp->angle.processLegacyHelperYaw(scaleAdjust);
-        pp->horizon.processLegacyHelperPitch(scaleAdjust);
+        pp->Angles.processLegacyHelperYaw(scaleAdjust);
+        pp->Angles.processLegacyHelperPitch(scaleAdjust);
     }
 
     if (packet)
     {
         *packet = loc;
-        auto velvect = DVector2(loc.fvel, loc.svel).Rotated(pp->angle.ZzANGLE);
+        auto velvect = DVector2(loc.fvel, loc.svel).Rotated(pp->Angles.ZzANGLE);
         packet->fvel = (float)velvect.X;
         packet->svel = (float)velvect.Y;
         loc = {};

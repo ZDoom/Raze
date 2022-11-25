@@ -2140,7 +2140,7 @@ bool NearThings(PLAYER* pp)
         return false;
     }
 
-    neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->angle.ZzANGLE, near, 64., NT_Lotag | NT_Hitag);
+    neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->Angles.ZzANGLE, near, 64., NT_Lotag | NT_Hitag);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2173,7 +2173,7 @@ bool NearThings(PLAYER* pp)
     {
         HitInfo hit{};
 
-        FAFhitscan(pp->actor->getPosWithOffsetZ().plusZ(-30), pp->cursector, DVector3(pp->angle.ZzANGLE.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->actor->getPosWithOffsetZ().plusZ(-30), pp->cursector, DVector3(pp->Angles.ZzANGLE.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.hitSector == nullptr)
             return false;
@@ -2221,7 +2221,7 @@ void NearTagList(NEAR_TAG_INFO* ntip, PLAYER* pp, double z, double dist, int typ
     HitInfo near;
 
 
-    neartag(DVector3(pp->actor->spr.pos.XY(), z), pp->cursector, pp->angle.ZzANGLE, near, dist, type);
+    neartag(DVector3(pp->actor->spr.pos.XY(), z), pp->cursector, pp->Angles.ZzANGLE, near, dist, type);
 
     if (near.hitSector != nullptr)
     {

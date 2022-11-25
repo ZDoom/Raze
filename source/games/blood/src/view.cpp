@@ -65,8 +65,8 @@ void viewBackupView(int nPlayer)
 	pPlayer->obobWidth = pPlayer->bobWidth;
 	pPlayer->oswayHeight = pPlayer->swayHeight;
 	pPlayer->oswayWidth = pPlayer->swayWidth;
-	pPlayer->angle.backupYaw();
-	pPlayer->horizon.backupPitch();
+	pPlayer->Angles.backupYaw();
+	pPlayer->Angles.backupPitch();
 }
 
 //---------------------------------------------------------------------------
@@ -446,7 +446,7 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 		setViewport(Hud_Stbar);
 		tm = 1;
 	}
-	auto ang = !SyncInput() ? pPlayer->angle.angSUM() : pPlayer->angle.angLERPSUM(interpfrac);
+	auto ang = !SyncInput() ? pPlayer->Angles.angSUM() : pPlayer->Angles.angLERPSUM(interpfrac);
 	DrawOverheadMap(pPlayer->actor->interpolatedpos(interpfrac).XY(), ang, interpfrac);
 	if (tm)
 		setViewport(hud_size);
@@ -501,15 +501,15 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 
 		if (!SyncInput())
 		{
-			cA = pPlayer->angle.angSUM();
-			cH = pPlayer->horizon.horizSUM();
-			rotscrnang = pPlayer->angle.ZzROTSCRNANG;
+			cA = pPlayer->Angles.angSUM();
+			cH = pPlayer->Angles.horizSUM();
+			rotscrnang = pPlayer->Angles.ZzROTSCRNANG;
 		}
 		else
 		{
-			cA = pPlayer->angle.angLERPSUM(interpfrac);
-			cH = pPlayer->horizon.horizLERPSUM(interpfrac);
-			rotscrnang = pPlayer->angle.angLERPROTSCRN(interpfrac);
+			cA = pPlayer->Angles.angLERPSUM(interpfrac);
+			cH = pPlayer->Angles.horizLERPSUM(interpfrac);
+			rotscrnang = pPlayer->Angles.angLERPROTSCRN(interpfrac);
 		}
 	}
 
@@ -742,8 +742,8 @@ void viewDrawScreen(bool sceneonly)
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
 		if (sceneonly) return;
-		auto offsets = pPlayer->angle.angCROSSHAIROFFSETS(interpfrac);
-		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, offsets.X, offsets.Y, 2, -pPlayer->angle.angLERPROTSCRN(interpfrac));
+		auto offsets = pPlayer->Angles.angCROSSHAIROFFSETS(interpfrac);
+		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, offsets.X, offsets.Y, 2, -pPlayer->Angles.angLERPROTSCRN(interpfrac));
 #if 0 // This currently does not work. May have to be redone as a hardware effect.
 		if (v4 && gNetPlayers > 1)
 		{

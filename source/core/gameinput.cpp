@@ -173,7 +173,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 //
 //---------------------------------------------------------------------------
 
-void PlayerHorizon::applyPitch(float const horz, ESyncBits* actions, double const scaleAdjust)
+void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process only if movement isn't locked.
 	if (!lockedPitch())
@@ -222,7 +222,7 @@ void PlayerHorizon::applyPitch(float const horz, ESyncBits* actions, double cons
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngle::applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust)
+void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process angle return to zeros.
 	scaletozero(ZzROTSCRNANG, YAW_LOOKRETURN, scaleAdjust);
@@ -277,7 +277,7 @@ void PlayerAngle::applyYaw(float const avel, ESyncBits* actions, double const sc
 //
 //---------------------------------------------------------------------------
 
-void PlayerHorizon::doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
+void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting && cursectnum != nullptr)
 	{
@@ -330,7 +330,7 @@ void PlayerHorizon::doViewPitch(const DVector2& pos, DAngle const ang, bool cons
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def)
 {
 	if (arc.BeginObject(keyname))
 	{
@@ -339,6 +339,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 			("rotscrnang", w.ZzROTSCRNANG)
 			("spin", w.YawSpin)
 			("inputdisabled", w.legacyDisabledYaw)
+			("horiz", w.ZzHORIZON)
+			("horizoff", w.ZzHORIZOFF)
+			("inputdisabled", w.legacyDisabledPitch)
 			.EndObject();
 
 		if (arc.isReading())
@@ -348,22 +351,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
 			w.legacyDisabledYaw = w.legacyDisabledYaw;
 			w.resetAdjustmentYaw();
-		}
-	}
-	return arc;
-}
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc("horiz", w.ZzHORIZON)
-			("horizoff", w.ZzHORIZOFF)
-			("inputdisabled", w.legacyDisabledPitch)
-			.EndObject();
-
-		if (arc.isReading())
-		{
 			w.ZzOLDHORIZON = w.ZzHORIZON;
 			w.ZzOHORIZOFF = w.ZzHORIZOFF;
 			w.legacyDisabledPitch = w.legacyDisabledPitch;

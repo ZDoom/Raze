@@ -182,8 +182,7 @@ struct player_struct
 	DVector2 Exit;
 
 	// player's horizon and angle structs.
-	PlayerHorizon horizon;
-	PlayerAngle angle;
+	PlayerAngles Angles;
 
 	uint16_t frags[MAXPLAYERS];
 
