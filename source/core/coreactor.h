@@ -42,7 +42,7 @@ public:
 	spritesmooth_t spsmooth;
 
 	DVector3 opos;
-	DAngle oang;
+	DRotator PrevAngles;
 	DVector3 vel;
 	double oviewzoffset, viewzoffset;
 	double clipdist;
@@ -98,7 +98,7 @@ public:
 
 	DAngle interpolatedangle(double const interpfrac)
 	{
-		return interpolatedvalue(oang, spr.Angles.Yaw, interpfrac);
+		return interpolatedvalue(PrevAngles.Yaw, spr.Angles.Yaw, interpfrac);
 	}
 
 	void backupz()
@@ -120,7 +120,7 @@ public:
 
 	void backupang()
 	{
-		oang = spr.Angles.Yaw;
+		PrevAngles.Yaw = spr.Angles.Yaw;
 	}
 
 	void backuploc()
