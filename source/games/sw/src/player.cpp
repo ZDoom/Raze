@@ -1311,7 +1311,7 @@ void DoPlayerTeleportPause(PLAYER* pp)
 
 void DoPlayerTeleportToSprite(PLAYER* pp, DVector3& pos, DAngle ang)
 {
-    pp->Angles.ZzANGLE = pp->Angles.ZzOLDANGLE = ang;
+    pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = ang;
     pp->actor->spr.pos = pos;
     pp->actor->backuppos();
 
@@ -1510,14 +1510,14 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
 {
     DSWActor* plActor = pp->actor;
     plActor->backupang();
-    plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE; // check me out later.
+    plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
 
     plActor = pp->PlayerUnderActor;
 
     if (!Prediction && plActor)
     {
         plActor->backupang();
-        plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE; // check me out later.
+        plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
     }
 }
 
@@ -1557,11 +1557,11 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
 
     if (avel != 0)
     {
-        auto sum = pp->Angles.ZzANGLE + DAngle::fromDeg(avel);
+        auto sum = pp->Angles.ZzANGLE() + DAngle::fromDeg(avel);
         if (MultiClipTurn(pp, sum, zz, floordist))
         {
-            pp->Angles.ZzANGLE = sum;
-            pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE; // check me out later.
+            pp->Angles.ZzANGLE() = sum;
+            pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
         }
     }
 }
@@ -1591,11 +1591,11 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
 
     if (avel != 0)
     {
-        auto sum = pp->Angles.ZzANGLE + DAngle::fromDeg(avel);
+        auto sum = pp->Angles.ZzANGLE() + DAngle::fromDeg(avel);
         if (RectClipTurn(pp, sum, pos, opos))
         {
-            pp->Angles.ZzANGLE = sum;
-            pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE; // check me out later.
+            pp->Angles.ZzANGLE() = sum;
+            pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
         }
     }
 }
@@ -1625,7 +1625,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
 
     if (fabs(avel) >= FLT_EPSILON)
     {
-        new_ang = pp->Angles.ZzANGLE + DAngle::fromDeg(avel);
+        new_ang = pp->Angles.ZzANGLE() + DAngle::fromDeg(avel);
 
         if (sop->limit_ang_center >= nullAngle)
         {
@@ -1640,11 +1640,11 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
             }
         }
 
-        pp->Angles.ZzANGLE = new_ang;
-        pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE; // check me out later.
+        pp->Angles.ZzANGLE() = new_ang;
+        pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
     }
 
-    OperateSectorObject(pp->sop, pp->Angles.ZzANGLE, pp->sop->pmid);
+    OperateSectorObject(pp->sop, pp->Angles.ZzANGLE(), pp->sop->pmid);
 }
 
 //---------------------------------------------------------------------------
@@ -1677,7 +1677,7 @@ void SlipSlope(PLAYER* pp)
 void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
-    pp->Angles.doViewPitch(pp->actor->spr.pos.XY(), pp->Angles.ZzANGLE, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
+    pp->Angles.doViewPitch(pp->actor->spr.pos.XY(), pp->Angles.ZzANGLE(), pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, (pp->Flags & PF_CLIMBING));
     pp->Angles.applyPitch(horz, &pp->input.actions, scaleAdjust);
 }
 
@@ -1850,7 +1850,7 @@ void UpdatePlayerSprite(PLAYER* pp)
     if (pp->Flags & (PF_DEAD))
     {
         ChangeActorSect(pp->actor, pp->cursector);
-        actor->spr.Angles.Yaw = pp->Angles.ZzANGLE; // check me out later.
+        actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -1896,7 +1896,7 @@ void UpdatePlayerSprite(PLAYER* pp)
 
     UpdatePlayerUnderSprite(pp);
 
-    actor->spr.Angles.Yaw = pp->Angles.ZzANGLE; // check me out later.
+    actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
 }
 
 //---------------------------------------------------------------------------
@@ -2353,7 +2353,7 @@ void DoTankTreads(PLAYER* pp)
         return;
 
     int vel = int(pp->vect.Length() * 1024);
-	double dot =  pp->vect.dot(pp->Angles.ZzANGLE.ToVector());
+	double dot =  pp->vect.dot(pp->Angles.ZzANGLE().ToVector());
     if (dot < 0)
         reverse = true;
 
@@ -2551,7 +2551,7 @@ void DriveCrush(PLAYER* pp, DVector2* quad)
                 continue;
 
             damage = -(actor->user.Health + 100);
-            PlayerDamageSlide(actor->user.PlayerP, damage, pp->Angles.ZzANGLE);
+            PlayerDamageSlide(actor->user.PlayerP, damage, pp->Angles.ZzANGLE());
             PlayerUpdateHealth(actor->user.PlayerP, damage);
             PlayerCheckDeath(actor->user.PlayerP, pp->actor);
         }
@@ -2671,7 +2671,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     }
 
     auto save_sect = pp->cursector;
-    OperateSectorObject(pp->sop, pp->Angles.ZzANGLE, { MAXSO, MAXSO });
+    OperateSectorObject(pp->sop, pp->Angles.ZzANGLE(), { MAXSO, MAXSO });
     pp->setcursector(pp->sop->op_main_sector); // for speed
 
     double floordist = abs(zz - pp->sop->floor_loz);
@@ -2699,7 +2699,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
                 DVector3 hitpos((pos[0] + pos[1]) * 0.5, pp->cursector->floorz - 10);
 
                 hitscan(hitpos, pp->cursector,
-                    DVector3(pp->Angles.ZzANGLE.ToVector() * 16, 0),
+                    DVector3(pp->Angles.ZzANGLE().ToVector() * 16, 0),
                     hit, CLIPMASK_PLAYER);
 
                 if ((hit.hitpos.XY() - hitpos.XY()).LengthSquared() < 50 * 50)
@@ -2772,7 +2772,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         }
     }
 
-    OperateSectorObject(pp->sop, pp->Angles.ZzANGLE, pp->actor->spr.pos.XY());
+    OperateSectorObject(pp->sop, pp->Angles.ZzANGLE(), pp->actor->spr.pos.XY());
     pp->cursector = save_sect; // for speed
 
     if (!SyncInput())
@@ -3265,7 +3265,7 @@ void DoPlayerClimb(PLAYER* pp)
         pp->vect.X = pp->vect.Y = 0;
 
     double climbVel = pp->vect.Length();
-    double dot = pp->vect.dot(pp->Angles.ZzANGLE.ToVector());
+    double dot = pp->vect.dot(pp->Angles.ZzANGLE().ToVector());
     if (dot < 0)
         climbVel = -climbVel;
 
@@ -3406,7 +3406,7 @@ void DoPlayerClimb(PLAYER* pp)
         HitInfo near;
 
         // constantly look for new ladder sector because of warping at any time
-        neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->Angles.ZzANGLE, near, 50., NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
+        neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->Angles.ZzANGLE(), near, 50., NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
 
         if (near.hitWall)
         {
@@ -3446,7 +3446,7 @@ int DoPlayerWadeSuperJump(PLAYER* pp)
 
     //for (i = 0; i < SIZ(angs); i++)
     {
-        FAFhitscan(DVector3(pp->actor->spr.pos.XY(), zh), pp->cursector, DVector3(pp->Angles.ZzANGLE.ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+        FAFhitscan(DVector3(pp->actor->spr.pos.XY(), zh), pp->cursector, DVector3(pp->Angles.ZzANGLE().ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.hitWall != nullptr && hit.hitSector != nullptr)
         {
@@ -3759,9 +3759,9 @@ bool PlayerOnLadder(PLAYER* pp)
     if (Prediction)
         return false;
 
-    neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->Angles.ZzANGLE, near, 64. + 48., NT_Lotag | NT_Hitag);
+    neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->Angles.ZzANGLE(), near, 64. + 48., NT_Lotag | NT_Hitag);
 
-    double dir = pp->vect.dot(pp->Angles.ZzANGLE.ToVector());
+    double dir = pp->vect.dot(pp->Angles.ZzANGLE().ToVector());
 
     if (dir < 0)
         return false;
@@ -3771,12 +3771,12 @@ bool PlayerOnLadder(PLAYER* pp)
 
     for (i = 0; i < SIZ(angles); i++)
     {
-        neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->Angles.ZzANGLE + angles[i], near, 37.5, NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
+        neartag(pp->actor->getPosWithOffsetZ(), pp->cursector, pp->Angles.ZzANGLE() + angles[i], near, 37.5, NT_Lotag | NT_Hitag | NT_NoSpriteCheck);
 
         if (near.hitWall == nullptr || near.hitpos.X < 6.25 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;
 
-        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3((pp->Angles.ZzANGLE + angles[i]).ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
+        FAFhitscan(pp->actor->getPosWithOffsetZ(), pp->cursector, DVector3((pp->Angles.ZzANGLE() + angles[i]).ToVector() * 1024, 0), hit, CLIPMASK_MISSILE);
 
         if (hit.actor() != nullptr)
         {
@@ -5122,7 +5122,7 @@ void DoPlayerBeginOperate(PLAYER* pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->actor;
 
-    pp->Angles.ZzOLDANGLE = pp->Angles.ZzANGLE = sop->ang;
+    pp->Angles.ZzOLDANGLE = pp->Angles.ZzANGLE() = sop->ang;
     pp->actor->spr.pos.XY() = sop->pmid.XY();
     updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
     calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
@@ -5212,7 +5212,7 @@ void DoPlayerBeginRemoteOperate(PLAYER* pp, SECTOR_OBJECT* sop)
 
     auto save_sect = pp->cursector;
 
-    pp->Angles.ZzOLDANGLE = pp->Angles.ZzANGLE = sop->ang;
+    pp->Angles.ZzOLDANGLE = pp->Angles.ZzANGLE() = sop->ang;
     pp->actor->spr.pos.XY() = sop->pmid.XY();
     updatesector(pp->actor->getPosWithOffsetZ(), &pp->cursector);
     calcSlope(pp->cursector, pp->actor->getPosWithOffsetZ(), &cz, &fz);
@@ -5334,9 +5334,9 @@ void DoPlayerStopOperate(PLAYER* pp)
     {
         DSWActor* rsp = pp->remoteActor;
         if (TEST_BOOL1(rsp))
-            pp->Angles.ZzANGLE = pp->Angles.ZzOLDANGLE = rsp->spr.Angles.Yaw; // check me out later.
+            pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = rsp->spr.Angles.Yaw; // check me out later.
         else
-            pp->Angles.ZzANGLE = pp->Angles.ZzOLDANGLE = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
+            pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
     }
 
     if (pp->sop_control)
@@ -5968,7 +5968,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     {
         if (FAFcansee(ActorVectOfTop(killer), killer->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector))
         {
-            pp->Angles.addYaw(deltaangle(pp->Angles.ZzANGLE, (killer->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle()) * (1. / 16.));
+            pp->Angles.addYaw(deltaangle(pp->Angles.ZzANGLE(), (killer->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle()) * (1. / 16.));
         }
     }
 }
@@ -6004,7 +6004,7 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-        plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE; // check me out later.
+        plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
 
         DoSpawnTeleporterEffect(plActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
@@ -7047,7 +7047,7 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->Angles.ZzANGLE = pp->Angles.ZzOLDANGLE = pfirst->Angles.ZzANGLE;
+        pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = pfirst->Angles.ZzANGLE();
         pp->Angles.ZzHORIZON() = pp->Angles.ZzOLDHORIZON() = pfirst->Angles.ZzHORIZON();
         pp->cursector = pfirst->cursector;
         // set like this so that player can trigger something on start of the level
@@ -7203,7 +7203,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->Angles.ZzANGLE = pp->Angles.ZzOLDANGLE = spawn_sprite->spr.Angles.Yaw; // check me out later.
+    pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE = spawn_sprite->spr.Angles.Yaw; // check me out later.
     pp->setcursector(spawn_sprite->sector());
 
     if (pp->actor)
@@ -7266,7 +7266,7 @@ void InitMultiPlayerInfo(const DVector3& spawnpos)
                 continue;
         }
 
-        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, spawnpos.plusZ(PLAYER_HEIGHTF), pp->Angles.ZzANGLE);
+        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, spawnpos.plusZ(PLAYER_HEIGHTF), pp->Angles.ZzANGLE());
         start0->viewzoffset = -PLAYER_HEIGHTF;
 
         // if too close to the floor - stand up
@@ -7559,7 +7559,7 @@ DEFINE_ACTION_FUNCTION(_SWPlayer, MaxUserHealth)
 DEFINE_ACTION_FUNCTION(_SWPlayer, GetBuildAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
-    ACTION_RETURN_INT(self->Angles.ZzANGLE.Buildang());
+    ACTION_RETURN_INT(self->Angles.ZzANGLE().Buildang());
 }
 
 DEFINE_ACTION_FUNCTION(_SW, WeaponMaxAmmo)

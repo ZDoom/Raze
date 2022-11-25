@@ -13,6 +13,8 @@ struct PlayerAngles
 	DAngle& ZzHORIZON() { return thisHoriz; }
 	DAngle prevHoriz;
 	DAngle& ZzOLDHORIZON() { return prevHoriz; }
+	DAngle thisAngle;
+	DAngle& ZzANGLE() { return thisAngle; }
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 
@@ -71,7 +73,7 @@ struct PlayerAngles
 		}
 		else
 		{
-			ZzANGLE += value;
+			ZzANGLE() += value;
 		}
 	}
 
@@ -83,8 +85,8 @@ struct PlayerAngles
 		}
 		else
 		{
-			ZzANGLE = value;
-			if (backup) ZzOLDANGLE = ZzANGLE;
+			ZzANGLE() = value;
+			if (backup) ZzOLDANGLE = ZzANGLE();
 		}
 	}
 
@@ -144,44 +146,44 @@ struct PlayerAngles
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
 	void resetAdjustmentPitch() { legacyAdjustmentPitch = nullAngle; }
 
-	DAngle ZzANGLE, ZzOLDANGLE, ZzLOOKANG, ZzOLDLOOKANG, ZzROTSCRNANG, ZzOLDROTSCRNANG, YawSpin;
+	DAngle ZzOLDANGLE, ZzLOOKANG, ZzOLDLOOKANG, ZzROTSCRNANG, ZzOLDROTSCRNANG, YawSpin;
 	void processLegacyHelperYaw(double const scaleAdjust)
 	{
 		if (targetedYaw())
 		{
-			auto delta = deltaangle(ZzANGLE, legacyTargetYaw);
+			auto delta = deltaangle(ZzANGLE(), legacyTargetYaw);
 
 			if (abs(delta) > DAngleBuildToDeg)
 			{
-				ZzANGLE += delta * scaleAdjust;
+				ZzANGLE() += delta * scaleAdjust;
 			}
 			else
 			{
-				ZzANGLE = legacyTargetYaw;
+				ZzANGLE() = legacyTargetYaw;
 				legacyTargetYaw = nullAngle;
 			}
 		}
 		else if (legacyAdjustmentYaw.Sgn())
 		{
-			ZzANGLE += legacyAdjustmentYaw * scaleAdjust;
+			ZzANGLE() += legacyAdjustmentYaw * scaleAdjust;
 		}
 	}
 	void backupYaw()
 	{
-		ZzOLDANGLE = ZzANGLE;
+		ZzOLDANGLE = ZzANGLE();
 		ZzOLDLOOKANG = ZzLOOKANG;
 		ZzOLDROTSCRNANG = ZzROTSCRNANG;
 	}
 	void restoreYaw()
 	{
-		ZzANGLE = ZzOLDANGLE;
+		ZzANGLE() = ZzOLDANGLE;
 		ZzLOOKANG = ZzOLDLOOKANG;
 		ZzROTSCRNANG = ZzOLDROTSCRNANG;
 	}
 	DAngle angOLDSUM() { return ZzOLDANGLE + ZzOLDLOOKANG; }
-	DAngle angSUM() { return ZzANGLE + ZzLOOKANG; }
+	DAngle angSUM() { return ZzANGLE() + ZzLOOKANG; }
 	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(angOLDSUM(), angSUM(), interpfrac); }
-	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE, ZzANGLE, interpfrac); }
+	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE, ZzANGLE(), interpfrac); }
 	DAngle angLERPLOOKANG(double const interpfrac) { return interpolatedvalue(ZzOLDLOOKANG, ZzLOOKANG, interpfrac); }
 	DAngle angLERPROTSCRN(double const interpfrac) { return interpolatedvalue(ZzOLDROTSCRNANG, ZzROTSCRNANG, interpfrac); }
 	DAngle angRENDERLOOKANG(double const interpfrac) { return !SyncInput() ? ZzLOOKANG : angLERPLOOKANG(interpfrac); }

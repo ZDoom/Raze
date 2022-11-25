@@ -354,7 +354,7 @@ void S_GetCamera(DVector3* c, DAngle* ca, sectortype** cs)
 			else  c->Zero();
 		}
 		if (cs) *cs = p->cursector;
-		if (ca) *ca = p->Angles.ZzANGLE;
+		if (ca) *ca = p->Angles.ZzANGLE();
 	}
 	else
 	{

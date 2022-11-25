@@ -238,7 +238,7 @@ void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const s
 	if (!lockedYaw())
 	{
 		// add player's input
-		ZzANGLE += DAngle::fromDeg(avel);
+		ZzANGLE() += DAngle::fromDeg(avel);
 
 		if (*actions & SB_TURNAROUND)
 		{
@@ -261,7 +261,7 @@ void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const s
 				add -= YawSpin;
 				YawSpin = nullAngle;
 			}
-			ZzANGLE += add;
+			ZzANGLE() += add;
 		}
 	}
 	else
@@ -334,7 +334,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("ang", w.ZzANGLE)
+		arc("ang", w.ZzANGLE())
 			("lookang", w.ZzLOOKANG)
 			("rotscrnang", w.ZzROTSCRNANG)
 			("spin", w.YawSpin)
@@ -347,7 +347,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 
 		if (arc.isReading())
 		{
-			w.ZzOLDANGLE = w.ZzANGLE;
+			w.ZzOLDANGLE = w.ZzANGLE();
 			w.ZzOLDLOOKANG = w.ZzLOOKANG;
 			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
 			w.legacyDisabledYaw = w.legacyDisabledYaw;

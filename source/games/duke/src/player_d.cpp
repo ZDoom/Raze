@@ -294,7 +294,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			if (splash)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.Angles.Yaw = ps[p].Angles.ZzANGLE; // check me out later. // Total tweek
+				splash->spr.Angles.Yaw = ps[p].Angles.ZzANGLE(); // check me out later. // Total tweek
 				splash->vel.X = 2;
 				ssp(actor, CLIPMASK0);
 				splash->vel.X = 0;
@@ -1071,7 +1071,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	if (actor->isPlayer())
 	{
 		spos = ps[p].GetActor()->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
-		sang = ps[p].Angles.ZzANGLE;
+		sang = ps[p].Angles.ZzANGLE();
 
 		ps[p].crack_time = CRACK_TIME;
 
@@ -1992,7 +1992,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 		auto j = spawn(pact, WATERBUBBLE);
 		if (j)
 		{
-			j->spr.pos += (p->Angles.ZzANGLE.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
+			j->spr.pos += (p->Angles.ZzANGLE().ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
 			j->spr.scale = DVector2(0.046875, 0.3125);
 			j->spr.pos.Z = p->GetActor()->getOffsetZ() + 8;
 		}
@@ -2012,7 +2012,7 @@ int operateTripbomb(int snum)
 	double vel = 1024, zvel = 0;
 	setFreeAimVelocity(vel, zvel, p->Angles.horizSUM(), 16.);
 
-	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->Angles.ZzANGLE.ToVector() * vel, zvel), hit, CLIPMASK1);
+	hitscan(p->GetActor()->getPosWithOffsetZ(), p->cursector, DVector3(p->Angles.ZzANGLE().ToVector() * vel, zvel), hit, CLIPMASK1);
 
 	if (hit.hitSector == nullptr || hit.actor())
 		return 0;
@@ -2209,8 +2209,8 @@ static void operateweapon(int snum, ESyncBits actions)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->Angles.ZzANGLE.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
-				p->Angles.ZzANGLE, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
+			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->Angles.ZzANGLE().ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
+				p->Angles.ZzANGLE(), vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (isNam())
 			{

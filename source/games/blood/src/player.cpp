@@ -813,7 +813,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	GetActorExtents(actor, &top, &bottom);
 	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
-	actor->spr.Angles.Yaw = pPlayer->Angles.ZzANGLE = pStartZone->angle; // check me out later.
+	actor->spr.Angles.Yaw = pPlayer->Angles.ZzANGLE() = pStartZone->angle; // check me out later.
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->clipdist = pDudeInfo->fClipdist();
 	actor->spr.flags = 15;
@@ -1500,7 +1500,7 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer)
 {
-	pPlayer->actor->spr.Angles.Yaw = pPlayer->Angles.ZzANGLE; // check me out later.
+	pPlayer->actor->spr.Angles.Yaw = pPlayer->Angles.ZzANGLE(); // check me out later.
 }
 
 //---------------------------------------------------------------------------
@@ -1555,7 +1555,7 @@ void ProcessInput(PLAYER* pPlayer)
 		DBloodActor* fragger = pPlayer->fragger;
 		if (fragger)
 		{
-			pPlayer->Angles.addYaw(deltaangle(pPlayer->Angles.ZzANGLE, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
+			pPlayer->Angles.addYaw(deltaangle(pPlayer->Angles.ZzANGLE(), (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)

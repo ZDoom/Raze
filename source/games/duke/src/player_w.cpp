@@ -342,8 +342,8 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->Angles.ZzANGLE.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
-				p->Angles.ZzANGLE, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
+			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->Angles.ZzANGLE().ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
+				p->Angles.ZzANGLE(), vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
 
 			if (spawned)
 			{

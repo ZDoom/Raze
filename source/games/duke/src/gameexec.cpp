@@ -473,7 +473,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_ANG:
 		if (bSet) ps[iPlayer].Angles.setYaw(mapangle(lValue));
-		else SetGameVarID(lVar2, ps[iPlayer].Angles.ZzANGLE.Buildang(), sActor, sPlayer);
+		else SetGameVarID(lVar2, ps[iPlayer].Angles.ZzANGLE().Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_OANG:
@@ -2432,9 +2432,9 @@ int ParseState::parse(void)
 			{
 				DAngle ang;
 				if (g_ac->isPlayer() && ud.multimode > 1)
-					ang = absangle(ps[otherp].Angles.ZzANGLE, (ps[g_p].GetActor()->spr.pos.XY() - ps[otherp].GetActor()->spr.pos.XY()).Angle());
+					ang = absangle(ps[otherp].Angles.ZzANGLE(), (ps[g_p].GetActor()->spr.pos.XY() - ps[otherp].GetActor()->spr.pos.XY()).Angle());
 				else
-					ang = absangle(ps[g_p].Angles.ZzANGLE, (g_ac->spr.pos.XY() - ps[g_p].GetActor()->spr.pos.XY()).Angle());
+					ang = absangle(ps[g_p].Angles.ZzANGLE(), (g_ac->spr.pos.XY() - ps[g_p].GetActor()->spr.pos.XY()).Angle());
 
 				j = ang < DAngle22_5;
 			}
@@ -2455,7 +2455,7 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);
-		ps[g_p].vel.XY() -= ps[g_p].Angles.ZzANGLE.ToVector() * 8;
+		ps[g_p].vel.XY() -= ps[g_p].Angles.ZzANGLE().ToVector() * 8;
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2463,7 +2463,7 @@ int ParseState::parse(void)
 			forceplayerangle(g_p);
 		else
 		{
-			ps[g_p].vel.XY() -= ps[g_p].Angles.ZzANGLE.ToVector() * 64;
+			ps[g_p].vel.XY() -= ps[g_p].Angles.ZzANGLE().ToVector() * 64;
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}
@@ -2833,7 +2833,7 @@ int ParseState::parse(void)
 	case concmd_ifangdiffl:
 		{
 		insptr++;
-		auto ang = absangle(ps[g_p].Angles.ZzANGLE, g_ac->spr.Angles.Yaw); // check me out later.
+		auto ang = absangle(ps[g_p].Angles.ZzANGLE(), g_ac->spr.Angles.Yaw); // check me out later.
 		parseifelse( ang <= mapangle(*insptr));
 		break;
 		}
@@ -3131,7 +3131,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, ps[g_p].Angles.ZzANGLE.Buildang(), g_ac, g_p);
+		SetGameVarID(i, ps[g_p].Angles.ZzANGLE().Buildang(), g_ac, g_p);
 		break;
 	}
 	case concmd_setplayerangle:
@@ -3139,7 +3139,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		ps[g_p].Angles.ZzANGLE = mapangle(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
+		ps[g_p].Angles.ZzANGLE() = mapangle(GetGameVarID(i, g_ac, g_p).safeValue() & 2047);
 		break;
 	}
 	case concmd_getactorangle:

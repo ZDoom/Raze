@@ -207,7 +207,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     if (packet)
     {
         *packet = loc;
-        auto velvect = DVector2(loc.fvel, loc.svel).Rotated(pp->Angles.ZzANGLE);
+        auto velvect = DVector2(loc.fvel, loc.svel).Rotated(pp->Angles.ZzANGLE());
         packet->fvel = (float)velvect.X;
         packet->svel = (float)velvect.Y;
         loc = {};

@@ -1263,7 +1263,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         if (pp->sop_control && (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
             tpos = pp->actor->getPosWithOffsetZ();
-            tang = pp->Angles.ZzANGLE;
+            tang = pp->Angles.ZzANGLE();
         }
         tsect = pp->cursector;
         updatesectorz(tpos, &tsect);

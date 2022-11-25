@@ -863,7 +863,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, settargetangle, dukeplayer_settargeta
 
 double dukeplayer_angle(player_struct* self)
 {
-	return self->Angles.ZzANGLE.Degrees();
+	return self->Angles.ZzANGLE().Degrees();
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, angle, dukeplayer_angle)
