@@ -198,6 +198,11 @@ inline bool isShareware()
 
 inline bool isDukeLike()
 {
+	return g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_DUKE);
+}
+
+inline bool isDukeEngine()
+{
 	return g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_DUKE | GAMEFLAG_RRALL);
 }
 

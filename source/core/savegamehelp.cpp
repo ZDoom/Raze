@@ -103,7 +103,7 @@ static void SerializeGlobals(FSerializer& arc)
 static void SerializeSession(FSerializer& arc)
 {
 	// In Duke we now have reliable sound names.
-	if (isDukeLike()) arc.SetUniqueSoundNames();	
+	if (isDukeEngine()) arc.SetUniqueSoundNames();	
 
 	arc.ReadObjects(false);
 	SerializeMap(arc);
@@ -489,7 +489,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("exflags", c.exflags, def->exflags);
 
 		// Save the extensions only when playing their respective games.
-		if (isDukeLike())
+		if (isDukeEngine())
 		{
 			arc("keyinfo", c.keyinfo, def->keyinfo)
 				("shadedsector", c.shadedsector, def->shadedsector)

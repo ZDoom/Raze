@@ -402,7 +402,8 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 
 	lfi.dotFilter = LumpFilter;
 
-	if (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_RRALL)) lfi.gameTypeFilter.Push("DukeEngine");
+	if (isDukeEngine()) lfi.gameTypeFilter.Push("DukeEngine");
+	if (isDukeLike()) lfi.gameTypeFilter.Push("DukeLike");
 
 	lfi.postprocessFunc = [&]()
 	{

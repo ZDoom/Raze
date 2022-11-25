@@ -869,7 +869,7 @@ void MarkMap()
 	{
 		GC::Mark(sect.firstEntry);
 		GC::Mark(sect.lastEntry);
-		if (isDukeLike()) GC::Mark(sect.hitagactor);
+		if (isDukeEngine()) GC::Mark(sect.hitagactor);
 		else if (isBlood())
 		{
 			GC::Mark(sect.upperLink);
