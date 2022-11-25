@@ -100,7 +100,7 @@ private:
 
 struct PlayerAngle
 {
-	DAngle ZzANGLE, ZzOLDANGLE, ZzLOOKANG, olook_ang, rotscrnang, orotscrnang, spin;
+	DAngle ZzANGLE, ZzOLDANGLE, ZzLOOKANG, ZzOLDLOOKANG, rotscrnang, orotscrnang, spin;
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
 
@@ -111,22 +111,22 @@ struct PlayerAngle
 	void backup()
 	{
 		ZzOLDANGLE = ZzANGLE;
-		olook_ang = ZzLOOKANG;
+		ZzOLDLOOKANG = ZzLOOKANG;
 		orotscrnang = rotscrnang;
 	}
 	void restore()
 	{
 		ZzANGLE = ZzOLDANGLE;
-		ZzLOOKANG = olook_ang;
+		ZzLOOKANG = ZzOLDLOOKANG;
 		rotscrnang = orotscrnang;
 	}
 
 	// Commonly used getters.
-	DAngle osum() { return ZzOLDANGLE + olook_ang; }
+	DAngle osum() { return ZzOLDANGLE + ZzOLDLOOKANG; }
 	DAngle sum() { return ZzANGLE + ZzLOOKANG; }
 	DAngle interpolatedsum(double const interpfrac) { return interpolatedvalue(osum(), sum(), interpfrac); }
 	DAngle interpolatedang(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE, ZzANGLE, interpfrac); }
-	DAngle interpolatedlookang(double const interpfrac) { return interpolatedvalue(olook_ang, ZzLOOKANG, interpfrac); }
+	DAngle interpolatedlookang(double const interpfrac) { return interpolatedvalue(ZzOLDLOOKANG, ZzLOOKANG, interpfrac); }
 	DAngle interpolatedrotscrn(double const interpfrac) { return interpolatedvalue(orotscrnang, rotscrnang, interpfrac); }
 	DAngle renderlookang(double const interpfrac) { return !SyncInput() ? ZzLOOKANG : interpolatedlookang(interpfrac); }
 	DAngle renderrotscrn(double const interpfrac) { return !SyncInput() ? rotscrnang : interpolatedrotscrn(interpfrac); }

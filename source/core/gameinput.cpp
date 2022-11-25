@@ -344,7 +344,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 		if (arc.isReading())
 		{
 			w.ZzOLDANGLE = w.ZzANGLE;
-			w.olook_ang = w.ZzLOOKANG;
+			w.ZzOLDLOOKANG = w.ZzLOOKANG;
 			w.orotscrnang = w.rotscrnang;
 			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();
