@@ -226,12 +226,12 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 {
 	// Process angle return to zeros.
 	scaletozero(rotscrnang, YAW_LOOKRETURN, scaleAdjust);
-	scaletozero(look_ang, YAW_LOOKRETURN, scaleAdjust);
+	scaletozero(ZzLOOKANG, YAW_LOOKRETURN, scaleAdjust);
 
 	// Process keyboard input.
 	if (auto looking = !!(*actions & SB_LOOK_RIGHT) - !!(*actions & SB_LOOK_LEFT))
 	{
-		look_ang += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * looking;
+		ZzLOOKANG += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * looking;
 		rotscrnang -= getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * looking;
 	}
 
@@ -335,7 +335,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 	if (arc.BeginObject(keyname))
 	{
 		arc("ang", w.ZzANGLE)
-			("lookang", w.look_ang)
+			("lookang", w.ZzLOOKANG)
 			("rotscrnang", w.rotscrnang)
 			("spin", w.spin)
 			("inputdisabled", w.inputdisabled)
@@ -344,7 +344,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 		if (arc.isReading())
 		{
 			w.ZzOLDANGLE = w.ZzANGLE;
-			w.olook_ang = w.look_ang;
+			w.olook_ang = w.ZzLOOKANG;
 			w.orotscrnang = w.rotscrnang;
 			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();

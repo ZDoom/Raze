@@ -151,7 +151,7 @@ void resetplayerstats(int snum)
 	p->jetpack_on =         0;
 	p->holoduke_on =       nullptr;
 
-	p->angle.olook_ang = p->angle.look_ang = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
+	p->angle.olook_ang = p->angle.ZzLOOKANG = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
 	p->angle.orotscrnang = p->angle.rotscrnang = nullAngle;
 
 	p->newOwner          =nullptr;

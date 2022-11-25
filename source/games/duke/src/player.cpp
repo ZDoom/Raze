@@ -119,7 +119,7 @@ void forceplayerangle(int snum)
 
 	p->horizon.addPitch(DAngle::fromDeg(-26.566));
 	p->sync.actions |= SB_CENTERVIEW;
-	p->angle.rotscrnang = p->angle.look_ang = (DAngle22_5 - randomAngle(45)) / 2.;
+	p->angle.rotscrnang = p->angle.ZzLOOKANG = (DAngle22_5 - randomAngle(45)) / 2.;
 }
 
 //---------------------------------------------------------------------------
@@ -750,7 +750,7 @@ void player_struct::apply_seasick(double factor)
 				angle.rotscrnang -= DAngle::fromDeg(24 * factor * BAngToDegree);
 		}
 		if (SeaSick < 250)
-			angle.look_ang = DAngle::fromDeg(((krand() & 255) - 128) * factor * BAngToDegree);
+			angle.ZzLOOKANG = DAngle::fromDeg(((krand() & 255) - 128) * factor * BAngToDegree);
 	}
 }
 

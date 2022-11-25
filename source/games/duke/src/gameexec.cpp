@@ -490,8 +490,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) ps[iPlayer].angle.look_ang = mapangle(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.look_ang.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.ZzLOOKANG = mapangle(lValue);
+		else SetGameVarID(lVar2, ps[iPlayer].angle.ZzLOOKANG.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_EXTRA:
