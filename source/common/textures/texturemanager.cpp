@@ -426,7 +426,7 @@ FTextureID FTextureManager::AddGameTexture (FGameTexture *texture, bool addtohas
 		hash = -1;
 	}
 
-	TextureHash hasher = { texture, -1, -1, -1, hash };
+	TextureDescriptor hasher = { texture, -1, -1, -1, hash };
 	int trans = Textures.Push (hasher);
 	Translation.Push (trans);
 	if (bucket >= 0) HashFirst[bucket] = trans;
@@ -1150,7 +1150,7 @@ void FTextureManager::AddLocalizedVariants()
 								uint32_t langid = MAKE_ID(lang[0], lang[1], lang[2], 0);
 								uint64_t comboid = (uint64_t(langid) << 32) | origTex.GetIndex();
 								LocalizedTextures.Insert(comboid, tex.GetIndex());
-								Textures[origTex.GetIndex()].HasLocalization = true;
+								Textures[origTex.GetIndex()].Flags |= TEXFLAG_HASLOCALIZATION;
 							}
 							else
 							{

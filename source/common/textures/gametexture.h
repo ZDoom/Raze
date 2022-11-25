@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <memory>
 #include "vectors.h"
 #include "floatrect.h"
 #include "refcounted.h"
@@ -62,6 +63,18 @@ enum EGameTexFlags
 	GTexf_NoTrim = 1024,					// Don't perform trimming on this texture.
 };
 
+struct FMaterialLayers
+{
+	RefCountedPtr<FTexture> Detailmap;
+	RefCountedPtr<FTexture> Glowmap;
+	RefCountedPtr<FTexture> Normal;							// Normal map texture
+	RefCountedPtr<FTexture> Specular;						// Specular light texture for the diffuse+normal+specular light model
+	RefCountedPtr<FTexture> Metallic;						// Metalness texture for the physically based rendering (PBR) light model
+	RefCountedPtr<FTexture> Roughness;						// Roughness texture for PBR
+	RefCountedPtr<FTexture> AmbientOcclusion;				// Ambient occlusion texture for PBR
+	RefCountedPtr<FTexture> CustomShaderTextures[MAX_CUSTOM_HW_SHADER_TEXTURES]; // Custom texture maps for custom hardware shaders
+};
+
 // Refactoring helper to allow piece by piece adjustment of the API
 class FGameTexture
 {
@@ -71,14 +84,7 @@ class FGameTexture
 	// Material layers. These are shared so reference counting is used.
 	RefCountedPtr<FTexture> Base;
 	RefCountedPtr<FTexture> Brightmap;
-	RefCountedPtr<FTexture> Detailmap;
-	RefCountedPtr<FTexture> Glowmap;
-	RefCountedPtr<FTexture> Normal;							// Normal map texture
-	RefCountedPtr<FTexture> Specular;						// Specular light texture for the diffuse+normal+specular light model
-	RefCountedPtr<FTexture> Metallic;						// Metalness texture for the physically based rendering (PBR) light model
-	RefCountedPtr<FTexture> Roughness;						// Roughness texture for PBR
-	RefCountedPtr<FTexture> AmbientOcclusion;				// Ambient occlusion texture for PBR
-	RefCountedPtr<FTexture> CustomShaderTextures[MAX_CUSTOM_HW_SHADER_TEXTURES]; // Custom texture maps for custom hardware shaders
+	std::unique_ptr<FMaterialLayers> Layers;
 
 	FString Name;
 	FTextureID id;
@@ -204,14 +210,25 @@ public:
 		if (lay.Glossiness > -1000) Glossiness = lay.Glossiness;
 		if (lay.SpecularLevel > -1000) SpecularLevel = lay.SpecularLevel;
 		if (lay.Brightmap) Brightmap = lay.Brightmap->GetTexture();
-		if (lay.Normal) Normal = lay.Normal->GetTexture();
-		if (lay.Specular) Specular = lay.Specular->GetTexture();
-		if (lay.Metallic) Metallic = lay.Metallic->GetTexture();
-		if (lay.Roughness) Roughness = lay.Roughness->GetTexture();
-		if (lay.AmbientOcclusion) AmbientOcclusion = lay.AmbientOcclusion->GetTexture();
-		for (int i = 0; i < MAX_CUSTOM_HW_SHADER_TEXTURES; i++)
+
+		bool needlayers = (lay.Normal || lay.Specular || lay.Metallic || lay.Roughness || lay.AmbientOcclusion);
+		for (int i = 0; i < MAX_CUSTOM_HW_SHADER_TEXTURES && !needlayers; i++)
 		{
-			if (lay.CustomShaderTextures[i]) CustomShaderTextures[i] = lay.CustomShaderTextures[i]->GetTexture();
+			if (lay.CustomShaderTextures[i]) needlayers = true;
+		}
+		if (needlayers)
+		{
+			Layers = std::make_unique<FMaterialLayers>();
+
+			if (lay.Normal) Layers->Normal = lay.Normal->GetTexture();
+			if (lay.Specular) Layers->Specular = lay.Specular->GetTexture();
+			if (lay.Metallic) Layers->Metallic = lay.Metallic->GetTexture();
+			if (lay.Roughness) Layers->Roughness = lay.Roughness->GetTexture();
+			if (lay.AmbientOcclusion) Layers->AmbientOcclusion = lay.AmbientOcclusion->GetTexture();
+			for (int i = 0; i < MAX_CUSTOM_HW_SHADER_TEXTURES; i++)
+			{
+				if (lay.CustomShaderTextures[i]) Layers->CustomShaderTextures[i] = lay.CustomShaderTextures[i]->GetTexture();
+			}
 		}
 	}
 	float GetGlossiness() const { return Glossiness; }
@@ -306,13 +323,20 @@ public:
 	void GetLayers(TArray<FTexture*>& layers)
 	{
 		layers.Clear();
-		for (auto tex : { Base.get(), Brightmap.get(), Detailmap.get(), Glowmap.get(), Normal.get(), Specular.get(), Metallic.get(), Roughness.get(), AmbientOcclusion.get() })
+		for (auto tex : { Base.get(), Brightmap.get() })
 		{
 			if (tex != nullptr) layers.Push(tex);
 		}
-		for (auto& tex : CustomShaderTextures)
+		if (Layers)
 		{
-			if (tex != nullptr) layers.Push(tex.get());
+			for (auto tex : { Layers->Detailmap.get(), Layers->Glowmap.get(), Layers->Normal.get(), Layers->Specular.get(), Layers->Metallic.get(), Layers->Roughness.get(), Layers->AmbientOcclusion.get() })
+			{
+				if (tex != nullptr) layers.Push(tex);
+			}
+			for (auto& tex : Layers->CustomShaderTextures)
+			{
+				if (tex != nullptr) layers.Push(tex.get());
+			}
 		}
 	}
 
@@ -335,28 +359,34 @@ public:
 	}
 	FTexture* GetGlowmap()
 	{
-		return Glowmap.get();
+		if (!Layers) return nullptr;
+		return Layers->Glowmap.get();
 	}
 	FTexture* GetDetailmap()
 	{
-		return Detailmap.get();
+		if (!Layers) return nullptr;
+		return Layers->Detailmap.get();
 	}
 
 	void SetGlowmap(FTexture *T)
 	{
-		Glowmap = T;
+		if (!Layers) Layers = std::make_unique<FMaterialLayers>();
+		Layers->Glowmap = T;
 	}
 	void SetDetailmap(FTexture* T)
 	{
-		Detailmap = T;
+		if (!Layers) Layers = std::make_unique<FMaterialLayers>();
+		Layers->Detailmap = T;
 	}
 	void SetNormalmap(FTexture* T)
 	{
-		Normal = T;
+		if (!Layers) Layers = std::make_unique<FMaterialLayers>();
+		Layers->Normal = T;
 	}
 	void SetSpecularmap(FTexture* T)
 	{
-		Specular = T;
+		if (!Layers) Layers = std::make_unique<FMaterialLayers>();
+		Layers->Specular = T;
 	}
 
 };
