@@ -552,7 +552,7 @@ void GameInterface::UpdateSounds()
 void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags, const DVector3* soundpos)
 {
     if (!SoundEnabled()) return;
-    auto soundid = FSoundID::fromInt(nSound & 0x1ff);
+    auto soundid = FSoundID::fromInt((nSound & 0x1ff) + 1);
     if (!soundEngine->isValidSoundId(soundid))
     {
         Printf("PlayFX2: Invalid sound nSound == %i\n", nSound);
@@ -729,7 +729,7 @@ void UpdateCreepySounds()
                 auto sp = PlayerList[nLocalPlayer].pActor->spr.pos + adder;
                 creepy = GetSoundPos(sp);
 
-                auto soundid = FSoundID::fromInt(vsi & 0x1ff);
+                auto soundid = FSoundID::fromInt((vsi & 0x1ff) + 1);
 
                 if (!soundEngine->isValidSoundId(soundid))
                 {
