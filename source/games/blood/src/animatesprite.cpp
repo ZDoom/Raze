@@ -556,7 +556,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags & 512))
 		{
 			pTSprite->pos = owneractor->interpolatedpos(interpfrac);
-			pTSprite->Angles.Yaw = owneractor->interpolatedangle(interpfrac);
+			pTSprite->Angles.Yaw = owneractor->interpolatedyaw(interpfrac);
 		}
 		int nAnim = 0;
 		switch (picanm[nTile].extra & 7) {

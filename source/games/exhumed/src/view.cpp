@@ -70,7 +70,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& view, double 
         {
             // interpolate sprite position
             pTSprite->pos = pTSprite->ownerActor->interpolatedpos(interpfrac);
-            pTSprite->Angles.Yaw = pTSprite->ownerActor->interpolatedangle(interpfrac);
+            pTSprite->Angles.Yaw = pTSprite->ownerActor->interpolatedyaw(interpfrac);
         }
     }
 

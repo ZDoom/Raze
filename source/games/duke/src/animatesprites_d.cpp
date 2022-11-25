@@ -174,7 +174,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (actorflag(h, SFLAG2_INTERPOLATEANGLE))
 		{
-			t->Angles.Yaw = h->interpolatedangle(interpfrac);
+			t->Angles.Yaw = h->interpolatedyaw(interpfrac);
 		}
 
 

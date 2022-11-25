@@ -1463,7 +1463,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 
                 if (spnum >= 0)
                 {
-                    const auto daang = -((!SyncInput() ? actor->spr.Angles.Yaw : actor->interpolatedangle(interpfrac)) - cang).Normalized360().Degrees();
+                    const auto daang = -((!SyncInput() ? actor->spr.Angles.Yaw : actor->interpolatedyaw(interpfrac)) - cang).Normalized360().Degrees();
                     auto vect = OutAutomapVector(mxy - cpos, cangvect, czoom, xydim);
 
                     // This repeat scale is correct.

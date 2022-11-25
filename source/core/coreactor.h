@@ -96,7 +96,7 @@ public:
 		return interpolatedvalue(opos, spr.pos, interpfrac);
 	}
 
-	DAngle interpolatedangle(double const interpfrac)
+	DAngle interpolatedyaw(double const interpfrac)
 	{
 		return interpolatedvalue(PrevAngles.Yaw, spr.Angles.Yaw, interpfrac);
 	}
