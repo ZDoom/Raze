@@ -72,7 +72,7 @@ void pickrandomspot(int snum)
 	p->GetActor()->spr.pos = po[i].opos;
 	p->GetActor()->backuppos();
 	p->setbobpos();
-	p->angle.oang = p->angle.ZzANGLE = po[i].oa;
+	p->angle.ZzOLDANGLE = p->angle.ZzANGLE = po[i].oa;
 	p->setCursector(po[i].os);
 }
 
@@ -626,7 +626,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 			act->SetOwner(act);
 
 			ps[j].setbobpos();
-			ps[j].angle.oang = ps[j].angle.ZzANGLE = act->spr.Angles.Yaw; // check me out later.
+			ps[j].angle.ZzOLDANGLE = ps[j].angle.ZzANGLE = act->spr.Angles.Yaw; // check me out later.
 
 			updatesector(act->spr.pos, &ps[j].cursector);
 

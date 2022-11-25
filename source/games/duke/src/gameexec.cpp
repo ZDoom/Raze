@@ -477,7 +477,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_OANG:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].angle.oang.Buildang(), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].angle.ZzOLDANGLE.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_ANGVEL: // This no longer exists.

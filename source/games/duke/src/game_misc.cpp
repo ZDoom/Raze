@@ -274,13 +274,13 @@ void drawoverlays(double interpfrac)
 				else
 				{
 					cposxy = interpolatedvalue(pp->GetActor()->getPrevPosWithOffsetZ(), pp->GetActor()->getPosWithOffsetZ(), interpfrac).XY();
-					cang = !SyncInput() ? pp->angle.ZzANGLE : interpolatedvalue(pp->angle.oang, pp->angle.ZzANGLE, interpfrac);
+					cang = !SyncInput() ? pp->angle.ZzANGLE : interpolatedvalue(pp->angle.ZzOLDANGLE, pp->angle.ZzANGLE, interpfrac);
 				}
 			}
 			else
 			{
 				cposxy = pp->GetActor()->opos.XY();
-				cang = pp->angle.oang;
+				cang = pp->angle.ZzOLDANGLE;
 			}
 			DrawOverheadMap(cposxy, cang, interpfrac);
 			RestoreInterpolations();

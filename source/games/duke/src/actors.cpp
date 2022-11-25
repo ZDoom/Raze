@@ -401,7 +401,7 @@ void moveplayers(void)
 			{
 				act->restorepos();
 				act->backupz();
-				act->spr.Angles.Yaw = p->angle.oang;
+				act->spr.Angles.Yaw = p->angle.ZzOLDANGLE;
 				SetActor(act, act->spr.pos);
 			}
 			else
