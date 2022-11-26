@@ -7,56 +7,39 @@ BEGIN_DUKE_NS
 
 void resetswitch(int tag);
 
+static TMap<FName, int> classnameToTile;
 // Workaround so that the script code can be written in its final form. This must go away later.
 int PicForName(int intname)
 {
-	int picnum = -1;
-	// this is still a hack so it can spawn actors which haven't been scriptified yet. This will go away later.
-	if (FName(ENamedName(intname)) == FName("DukeToiletWater"))
+	if (classnameToTile.CountUsed() == 0)
 	{
-		picnum = TileFiles.tileForName("TOILETWATER");
+		static std::pair<const char*, const char*> classes[] = {
+			{ "DukeToiletWater", "TOILETWATER" },
+			{ "DukeBurning", "BURNIMG"},
+			{"DukeBloodPool","BLOODPOOL"},
+			{"DukeExplosion2","EXPLOSION2"},
+			{"DukeExplosion2Bot","EXPLOSION2BOT"},
+			{"DukeTransporterStar",	"TRANSPORTERSTAR"},
+			{"RedneckRabbit","RABBIT"},
+			{"RedneckFeather","FEATHER"},
+			{"DukeBatteryAmmo",	"BATTERYAMMO"},
+			{"RedneckDynamite",	"DYNAMITE"},
+			{"DukeSixpak", "SIXPAK"},
+			{"DukeAtomicHealth", "ATOMICHEALTH"},
+			{"DukeShrinkerExplosion", "SHRINKEREXPLOSION" },
+			{"DukeWaterBubble", "WATERBUBBLE"},
+			{"DukeLavaPool", "LAVAPOOL"},
+			{"RedneckCircleStuck", "CIRCLESTUCK"}
+		};
+
+		for (auto& p : classes)
+		{
+			classnameToTile.Insert(FName(p.first), TileFiles.tileForName(p.second));
+		}
 	}
-	else if (FName(ENamedName(intname)) == FName("DukeBurning"))
-	{
-		picnum = TileFiles.tileForName("BURNIMG");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeBloodPool"))
-	{
-		picnum = TileFiles.tileForName("BLOODPOOL");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeExplosion2"))
-	{
-		picnum = TileFiles.tileForName("EXPLOSION2");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeTransporterStar"))
-	{
-		picnum = TileFiles.tileForName("TRANSPORTERSTAR");
-	}
-	else if (FName(ENamedName(intname)) == FName("RedneckRabbit"))
-	{
-		picnum = TileFiles.tileForName("RABBIT");
-	}
-	else if (FName(ENamedName(intname)) == FName("RedneckFeather"))
-	{
-		picnum = TileFiles.tileForName("FEATHER");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeBatteryAmmo"))
-	{
-		picnum = TileFiles.tileForName("BATTERYAMMO");
-	}
-	else if (FName(ENamedName(intname)) == FName("RedneckDynamite"))
-	{
-		picnum = TileFiles.tileForName("DYNAMITE");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeSixpak"))
-	{
-		picnum = TileFiles.tileForName("SIXPAK");
-	}
-	else if (FName(ENamedName(intname)) == FName("DukeAtomicHealth"))
-	{
-		picnum = TileFiles.tileForName("ATOMICHEALTH");
-	}
-	return picnum;
+	auto p = classnameToTile.CheckKey(FName(ENamedName(intname)));
+	if (p) return *p;
+	return -1;
 }
 
 //---------------------------------------------------------------------------
