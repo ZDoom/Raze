@@ -168,7 +168,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 		{
 			act->spr.scale = actj->spr.scale;
-			if (actj->spr.picnum == APLAYER)
+			if (actj->isPlayer())
 				act->temp_data[1] = SMALLSMOKE;
 			else
 				act->temp_data[1] = actj->spr.picnum;
@@ -333,7 +333,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 	case DUKELYINGDEAD:
-		if (actj && actj->spr.picnum == APLAYER)
+		if (actj && actj->isPlayer())
 		{
 			act->spr.scale = actj->spr.scale;
 			act->spr.shade = actj->spr.shade;
@@ -451,7 +451,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	}
 	case WATERBUBBLE:
-		if (actj && actj->spr.picnum == APLAYER)
+		if (actj && actj->isPlayer())
 			act->spr.pos.Z -= 16;
 		if (act->spr.picnum == WATERBUBBLE)
 		{

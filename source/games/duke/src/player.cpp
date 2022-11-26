@@ -190,7 +190,7 @@ double hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 
 	if (badguy(actor))
 		zoff = 42;
-	else if (actor->spr.picnum == TILE_APLAYER) zoff = gs.playerheight;
+	else if (actor->isPlayer()) zoff = gs.playerheight;
 	else zoff = 0;
 
 	auto pos = actor->spr.pos;

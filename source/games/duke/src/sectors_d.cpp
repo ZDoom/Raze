@@ -966,7 +966,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 			auto Owner = proj->GetOwner();
 
-			if (Owner && Owner->spr.picnum == APLAYER && targ->spr.picnum != ROTATEGUN && targ->spr.picnum != DRONE)
+			if (Owner && Owner->isPlayer() && targ->spr.picnum != ROTATEGUN && targ->spr.picnum != DRONE)
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
 					fi.shoot(targ, BLOODSPLAT3);
@@ -997,14 +997,14 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 		if (targ->spr.statnum != STAT_ZOMBIEACTOR)
 		{
-			if (proj->spr.picnum == FREEZEBLAST && ((targ->spr.picnum == APLAYER && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
+			if (proj->spr.picnum == FREEZEBLAST && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
 
 			int hitpic = proj->spr.picnum;
 			auto Owner = proj->GetOwner();
-			if (Owner && Owner->spr.picnum == APLAYER)
+			if (Owner && Owner->isPlayer())
 			{
-				if (targ->spr.picnum == APLAYER && ud.coop != 0 && ud.ffire == 0)
+				if (targ->isPlayer() && ud.coop != 0 && ud.ffire == 0)
 					return;
 
 				auto tOwner = targ->GetOwner();
@@ -1039,7 +1039,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				return;
 
 			auto hitowner = targ->GetHitOwner();
-			if (!hitowner || hitowner->spr.picnum != APLAYER)
+			if (!hitowner || !hitowner->isPlayer())
 				if (ud.player_skill >= 3)
 					proj->spr.extra += (proj->spr.extra >> 1);
 		}

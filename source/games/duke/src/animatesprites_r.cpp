@@ -142,7 +142,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (t->statnum == 99) continue;
 		auto pp = &ps[h->PlayerIndex()];
-		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && pp->newOwner == nullptr && h->GetOwner())
+		if (h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner())
 		{
 			t->pos = h->interpolatedpos(interpfrac);
 			h->spr.scale = DVector2(0.375, 0.265625);
@@ -636,7 +636,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		if (!isRRRA() && h->spr.picnum == SBMOVE)
 			t->shade = -127;
 
-		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->spr.picnum == APLAYER && h->GetOwner()))
+		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->isPlayer() && h->GetOwner()))
 		{
 			if ((h->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0 && t->statnum != 99)
 			{
@@ -691,7 +691,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		switch (h->spr.picnum)
 		{
 		case RPG2:
-		case RRTILE1790:
+		case BOATGRENADE:
 			if (!isRRRA()) break;
 			[[fallthrough]];
 		case EXPLOSION2:
@@ -838,7 +838,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FRAMEEFFECT1:
 			if (OwnerAc && OwnerAc->spr.statnum < MAXSTATUS)
 			{
-				if (OwnerAc->spr.picnum == APLAYER)
+				if (OwnerAc->isPlayer())
 					if (ud.cameraactor == nullptr)
 						if (screenpeek == OwnerAc->PlayerIndex() && display_mirror == 0)
 						{
@@ -847,7 +847,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 						}
 				if ((OwnerAc->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
 				{
-					if (OwnerAc->spr.picnum == APLAYER)
+					if (OwnerAc->isPlayer())
 						t->picnum = 1554;
 					else
 						t->picnum = OwnerAc->dispicnum;

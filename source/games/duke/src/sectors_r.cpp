@@ -1330,7 +1330,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 
 			auto Owner = proj->GetOwner();
 
-			if (Owner && Owner->spr.picnum == APLAYER && targ->spr.picnum != DRONE)
+			if (Owner && Owner->isPlayer() && targ->spr.picnum != DRONE)
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
 					fi.shoot(targ, BLOODSPLAT3);
@@ -1348,7 +1348,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 
 		if (targ->spr.statnum != 2)
 		{
-			if (proj->spr.picnum == FREEZEBLAST && ((targ->spr.picnum == APLAYER && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
+			if (proj->spr.picnum == FREEZEBLAST && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
 
 			targ->attackertype = proj->spr.picnum;
@@ -1375,7 +1375,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 				}
 			}
 			auto Owner = targ->GetHitOwner();
-			if (!Owner || Owner->spr.picnum != APLAYER)
+			if (!Owner || !Owner->isPlayer())
 				if (ud.player_skill >= 3)
 					proj->spr.extra += (proj->spr.extra >> 1);
 		}

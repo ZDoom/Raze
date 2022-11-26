@@ -297,7 +297,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					if (act2->spr.picnum != RADIUSEXPLOSION &&
 						Owner && Owner->spr.statnum < MAXSTATUS)
 					{
-						if (act2->spr.picnum == APLAYER)
+						if (act2->isPlayer())
 						{
 							int p = act2->PlayerIndex();
 							if (ps[p].newOwner != nullptr)
@@ -405,14 +405,14 @@ int ifhitbyweapon_r(DDukeActor *actor)
 	{
 		if (actor->spr.extra >= 0)
 		{
-			if (actor->spr.picnum == APLAYER)
+			if (actor->isPlayer())
 			{
 				if (ud.god) return -1;
 
 				p = actor->PlayerIndex();
 
 				if (hitowner &&
-					hitowner->spr.picnum == APLAYER &&
+					hitowner->isPlayer() &&
 					ud.coop == 1 &&
 					ud.ffire == 0)
 					return -1;
@@ -427,7 +427,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 
 						ps[p].wackedbyactor = hitowner;
 
-						if (hitowner->spr.picnum == APLAYER && p != hitowner->PlayerIndex())
+						if (hitowner->isPlayer() && p != hitowner->PlayerIndex())
 						{
 							ps[p].frag_ps = hitowner->PlayerIndex();
 						}
@@ -678,7 +678,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 		}
 	}
 	else if (proj->spr.picnum == FREEZEBLAST && targ->spr.pal == 1)
-		if (badguy(targ) || targ->spr.picnum == APLAYER)
+		if (badguy(targ) || targ->isPlayer())
 		{
 			auto star = spawn(proj, TRANSPORTERSTAR);
 			if (star)
@@ -693,7 +693,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 
 	fi.checkhitsprite(targ, proj);
 
-	if (targ->spr.picnum == APLAYER)
+	if (targ->isPlayer())
 	{
 		int p = targ->PlayerIndex();
 		S_PlayActorSound(PISTOL_BODYHIT, targ);
@@ -893,7 +893,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		chickenarrow(proj);
 		break;
 
-	case RRTILE1790:
+	case BOATGRENADE:
 		if (!isRRRA()) break;
 		if (proj->spr.extra)
 		{
@@ -913,7 +913,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	Collision coll;
 	movesprite_ex(proj, DVector3(proj->spr.Angles.Yaw.ToVector() * vel, velz), CLIPMASK1, coll);
 
-	if ((proj->spr.picnum == RPG || (isRRRA() && isIn(proj->spr.picnum, RPG2, RRTILE1790))) && proj->temp_actor != nullptr)
+	if ((proj->spr.picnum == RPG || (isRRRA() && isIn(proj->spr.picnum, RPG2, BOATGRENADE))) && proj->temp_actor != nullptr)
 		if ((proj->spr.pos.XY() - proj->temp_actor->spr.pos.XY()).Length() < 16)
 			coll.setSprite(proj->temp_actor);
 
@@ -977,7 +977,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		{
 			if (proj->spr.picnum == RPG) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
 			else if (isRRRA() && proj->spr.picnum == RPG2) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  150, 247);
-			else if (isRRRA() && proj->spr.picnum == RRTILE1790) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  160, RPG_EXPLODE);
+			else if (isRRRA() && proj->spr.picnum == BOATGRENADE) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  160, RPG_EXPLODE);
 			else if (proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != FIRELASER && proj->spr.picnum != SHRINKSPARK)
 			{
 				auto spawned = spawn(proj, 1441);
@@ -1043,7 +1043,7 @@ void moveweapons_r(void)
 			}
 			[[fallthrough]];
 		case RPG2:
-		case RRTILE1790:
+		case BOATGRENADE:
 			if (!isRRRA()) continue;
 			[[fallthrough]];
 		case SHRINKSPARK:
@@ -1785,7 +1785,7 @@ static void heavyhbomb(DDukeActor *actor)
 		goto DETONATEB;
 	}
 
-	if (Owner && Owner->spr.picnum == APLAYER)
+	if (Owner && Owner->isPlayer())
 		l = Owner->PlayerIndex();
 	else l = -1;
 
@@ -1889,14 +1889,14 @@ DETONATEB:
 					if (ps[p].gotweapon[DYNAMITE_WEAPON] == 0 || Owner == ps[p].GetActor())
 						fi.addweapon(&ps[p], DYNAMITE_WEAPON, true);
 
-					if (!Owner || Owner->spr.picnum != APLAYER)
+					if (!Owner || !Owner->isPlayer())
 					{
 						SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
 					}
 
-					if (Owner && (Owner->attackertype != DYNAMITE || ud.respawn_items == 0 || Owner->spr.picnum == APLAYER))
+					if (Owner && (Owner->attackertype != DYNAMITE || ud.respawn_items == 0 || Owner->isPlayer()))
 					{
-						if (actor->spr.picnum == DYNAMITE && Owner->spr.picnum != APLAYER && ud.coop)
+						if (actor->spr.picnum == DYNAMITE && !Owner->isPlayer() && ud.coop)
 							return;
 						actor->Destroy();
 						return;
@@ -2781,7 +2781,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
-			if (actor->spr.picnum != APLAYER) actor->backupvec2();
+			if (!actor->isPlayer()) actor->backupvec2();
 			SetActor(actor, actor->spr.pos);
 		}
 		if (badguy(actor) && actor->spr.extra <= 0)
@@ -2813,7 +2813,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & dodgebullet)
 		dodge(actor);
 
-	if (actor->spr.picnum != APLAYER)
+	if (!actor->isPlayer())
 		alterang(a, actor, pnum);
 
 	if (abs(actor->vel.X) < 6 / 16.) actor->vel.X = 0;
@@ -2994,7 +2994,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		}
 		else if (actor->sector()->lotag == 802)
 		{
-			if (actor->spr.picnum != APLAYER && badguy(actor) && actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F)
+			if (!actor->isPlayer() && badguy(actor) && actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F)
 			{
 				spawnguts(actor, PClass::FindActor("DukeJibs6"), 5);
 				S_PlayActorSound(SQUISHED, actor);
@@ -3016,7 +3016,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 			addspritetodelete();
 			return 0;
 		}
-		if (actor->spr.picnum != APLAYER && (badguy(actor) || actor->spr.picnum == HEN || actor->spr.picnum == COW || actor->spr.picnum == PIG || actor->spr.picnum == DOGRUN || actor->spr.picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
+		if (!actor->isPlayer() && (badguy(actor) || actor->spr.picnum == HEN || actor->spr.picnum == COW || actor->spr.picnum == PIG || actor->spr.picnum == DOGRUN || actor->spr.picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
 		{
 			actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
 			actor->vel.Z = 8000 / 256.;
@@ -3024,7 +3024,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 			actor->spriteextra++;
 			sphit = 1;
 		}
-		else if (actor->spr.picnum != APLAYER)
+		else if (!actor->isPlayer())
 		{
 			if (!actor->spriteextra)
 				addspritetodelete();

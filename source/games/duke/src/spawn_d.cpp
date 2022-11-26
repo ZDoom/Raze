@@ -420,7 +420,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case DUKELYINGDEAD:
-		if (actj && actj->spr.picnum == APLAYER)
+		if (actj && actj->isPlayer())
 		{
 			act->spr.scale = actj->spr.scale;
 			act->spr.shade = actj->spr.shade;
@@ -564,7 +564,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	}
 	case WATERBUBBLE:
-		if (actj && actj->spr.picnum == APLAYER)
+		if (actj && actj->isPlayer())
 			act->spr.pos.Z -= 16;
 		if (act->spr.picnum == WATERBUBBLE)
 		{

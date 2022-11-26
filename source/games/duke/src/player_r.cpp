@@ -604,7 +604,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 		{
 			if (atwith == RPG2)
 				S_PlayActorSound(244, actor);
-			else if (atwith == RRTILE1790)
+			else if (atwith == BOATGRENADE)
 				S_PlayActorSound(94, actor);
 		}
 
@@ -631,7 +631,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 
 	if (p < 0) aimed = nullptr;
 
-	if (isRRRA() && atwith == RRTILE1790)
+	if (isRRRA() && atwith == BOATGRENADE)
 	{
 		zvel = -10;
 		vel *= 2;
@@ -643,7 +643,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	if (!spawned) return;
 	if (isRRRA())
 	{
-		if (atwith == RRTILE1790)
+		if (atwith == BOATGRENADE)
 		{
 			spawned->spr.extra = 10;
 			spawned->vel.Z = -10;
@@ -904,7 +904,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		return;
 
 	case RPG2:
-	case RRTILE1790:
+	case BOATGRENADE:
 		if (isRRRA()) goto rrra_rpg2;
 		else break;
 
@@ -2426,9 +2426,9 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 void onMotorcycleHit(int snum, DDukeActor* victim)
 {
 	auto p = &ps[snum];
-	if (badguy(victim) || victim->spr.picnum == APLAYER)
+	if (badguy(victim) || victim->isPlayer())
 	{
-		if (victim->spr.picnum != APLAYER)
+		if (!victim->isPlayer())
 		{
 			if (numplayers == 1)
 			{
@@ -2460,9 +2460,9 @@ void onBoatHit(int snum, DDukeActor* victim)
 {
 	auto p = &ps[snum];
 
-	if (badguy(victim) || victim->spr.picnum == APLAYER)
+	if (badguy(victim) || victim->isPlayer())
 	{
-		if (victim->spr.picnum != APLAYER)
+		if (!victim->isPlayer())
 		{
 			if (numplayers == 1)
 			{
@@ -3031,7 +3031,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			p->MotoSpeed -= 20;
 			p->ammo_amount[BOAT_WEAPON]--;
-			fi.shoot(pact, RRTILE1790);
+			fi.shoot(pact, BOATGRENADE);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)

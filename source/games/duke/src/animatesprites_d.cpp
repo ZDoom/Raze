@@ -163,7 +163,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (t->statnum == 99) continue;
 		auto pp = &ps[h->PlayerIndex()];
-		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && pp->newOwner == nullptr && h->GetOwner())
+		if (h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner())
 		{
 			t->pos = h->interpolatedpos(interpfrac);
 		}
@@ -507,7 +507,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 		}
 
-		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->spr.picnum == APLAYER && h->GetOwner()))
+		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->isPlayer() && h->GetOwner()))
 		{
 			if (t->statnum != 99 && h->spr.picnum != EXPLOSION2 && h->spr.picnum != HANGLIGHT && h->spr.picnum != DOMELITE)
 			{
@@ -637,7 +637,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FRAMEEFFECT1:
 			if (OwnerAc && OwnerAc->spr.statnum < MAXSTATUS)
 			{
-				if (OwnerAc->spr.picnum == APLAYER)
+				if (OwnerAc->isPlayer())
 					if (ud.cameraactor == nullptr)
 						if (screenpeek == OwnerAc->PlayerIndex() && display_mirror == 0)
 						{

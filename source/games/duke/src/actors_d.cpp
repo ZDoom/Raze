@@ -179,7 +179,7 @@ bool ifsquished(DDukeActor* actor, int p)
 	if (isRR()) return false;	// this function is a no-op in RR's source.
 
 	bool squishme = false;
-	if (actor->spr.picnum == APLAYER && ud.clipping)
+	if (actor->isPlayer() && ud.clipping)
 		return false;
 
 	auto sectp = actor->sector();
@@ -273,7 +273,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 		{
 			if (isWorldTour() && Owner)
 			{
-				if (Owner->spr.picnum == APLAYER && act2->spr.picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && Owner != act2)
+				if (Owner->isPlayer() && act2->isPlayer() && ud.coop != 0 && ud.ffire == 0 && Owner != act2)
 				{
 					continue;
 				}
@@ -323,7 +323,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					{
 						if (actor->spr.picnum == SHRINKSPARK || actor->spr.picnum == FLAMETHROWERFLAME)
 							act2->	attackertype = actor->spr.picnum;
-						else if (actor->spr.picnum != FIREBALL || !Owner || Owner->spr.picnum != APLAYER)
+						else if (actor->spr.picnum != FIREBALL || !Owner || !Owner->isPlayer())
 						{
 							if (actor->spr.picnum == LAVAPOOL)
 								act2->attackertype = FLAMETHROWERFLAME;
@@ -365,11 +365,11 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 					if (act2->spr.picnum != RADIUSEXPLOSION && Owner && Owner->spr.statnum < MAXSTATUS)
 					{
-						if (act2->spr.picnum == APLAYER)
+						if (act2->isPlayer())
 						{
 							int p = act2->spr.yint;
 
-							if (isWorldTour() && act2->attackertype == FLAMETHROWERFLAME && Owner->spr.picnum == APLAYER)
+							if (isWorldTour() && act2->attackertype == FLAMETHROWERFLAME && Owner->isPlayer())
 							{
 								ps[p].numloogs = -1 - actor->spr.yint;
 							}
@@ -503,14 +503,14 @@ int ifhitbyweapon_d(DDukeActor *actor)
 	{
 		if (actor->spr.extra >= 0)
 		{
-			if (actor->spr.picnum == APLAYER)
+			if (actor->isPlayer())
 			{
 				if (ud.god && actor->attackertype != SHRINKSPARK) return -1;
 
 				p = actor->PlayerIndex();
 
 				if (hitowner &&
-					hitowner->spr.picnum == APLAYER &&
+					hitowner->isPlayer() &&
 					ud.coop == 1 &&
 					ud.ffire == 0)
 					return -1;
@@ -525,7 +525,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 						ps[p].wackedbyactor = hitowner;
 
-						if (hitowner->spr.picnum == APLAYER && p != hitowner->PlayerIndex())
+						if (hitowner->isPlayer() && p != hitowner->PlayerIndex())
 						{
 							ps[p].frag_ps = hitowner->PlayerIndex();
 						}
@@ -570,7 +570,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 		|| actor->attackertype != FLAMETHROWERFLAME
 		|| actor->hitextra >= 0
 		|| actor->spr.extra > 0
-		|| actor->spr.picnum != APLAYER
+		|| !actor->isPlayer()
 		|| ps[actor->PlayerIndex()].numloogs > 0
 		|| hitowner == nullptr)
 	{
@@ -583,7 +583,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 		actor->spr.extra = 0;
 		ps[p].wackedbyactor = hitowner;
 
-		if (hitowner->spr.picnum == APLAYER && hitowner != ps[p].GetActor())
+		if (hitowner->isPlayer() && hitowner != ps[p].GetActor())
 			ps[p].frag_ps = hitowner->PlayerIndex(); // set the proper player index here - this previously set the sprite index...
 
 		actor->SetHitOwner(ps[p].GetActor());
@@ -804,7 +804,7 @@ static bool movefireball(DDukeActor* actor)
 static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 {
 	if (proj->spr.picnum == FREEZEBLAST && targ->spr.pal == 1)
-		if (badguy(targ) || targ->spr.picnum == APLAYER)
+		if (badguy(targ) || targ->isPlayer())
 		{
 			auto spawned = spawn(targ, TRANSPORTERSTAR);
 			if (spawned)
@@ -820,12 +820,12 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 	if (!isWorldTour() || proj->spr.picnum != FIREBALL || fireball)
 		fi.checkhitsprite(targ, proj);
 
-	if (targ->spr.picnum == APLAYER)
+	if (targ->isPlayer())
 	{
 		int p = targ->spr.yint;
 		auto Owner = proj->GetOwner();
 
-		if (ud.multimode >= 2 && fireball && Owner && Owner->spr.picnum == APLAYER)
+		if (ud.multimode >= 2 && fireball && Owner && Owner->isPlayer())
 		{
 			ps[p].numloogs = -1 - proj->spr.yint;
 		}
@@ -1040,7 +1040,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	{
 		if (proj->spr.picnum == COOLEXPLOSION1)
 		{
-			if (coll.type == kHitSprite && coll.actor()->spr.picnum != APLAYER)
+			if (coll.type == kHitSprite && !coll.actor()->isPlayer())
 			{
 				return;
 			}
@@ -1964,7 +1964,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		if (coll.type == kHitSprite)
 		{
 			fi.checkhitsprite(coll.actor(), actor);
-			if (coll.actor()->spr.picnum == APLAYER)
+			if (coll.actor()->isPlayer())
 				S_PlayActorSound(PISTOL_BODYHIT, coll.actor());
 		}
 		else if (coll.type == kHitWall)
@@ -2078,7 +2078,7 @@ static void heavyhbomb(DDukeActor *actor)
 		goto DETONATEB;
 	}
 
-	if ( Owner && Owner->spr.picnum == APLAYER)
+	if ( Owner && Owner->isPlayer())
 		l = Owner->PlayerIndex();
 	else l = -1;
 
@@ -2180,7 +2180,7 @@ DETONATEB:
 				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || Owner == ps[p].GetActor())
 					fi.addweapon(&ps[p], HANDBOMB_WEAPON, true);
 
-				if (!Owner || Owner->spr.picnum != APLAYER)
+				if (!Owner || !Owner->isPlayer())
 				{
 					SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
 				}
@@ -2956,7 +2956,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
-			if (actor->spr.picnum != APLAYER) actor->backupvec2();
+			if (!actor->isPlayer()) actor->backupvec2();
 			SetActor(actor, actor->spr.pos);
 		}
 		return;
@@ -2975,7 +2975,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if (a & dodgebullet)
 		dodge(actor);
 
-	if (actor->spr.picnum != APLAYER)
+	if (!actor->isPlayer())
 		alterang(a, actor, playernum);
 
 	if (abs(actor->vel.X) < 6 / 16.) actor->vel.X = 0;
