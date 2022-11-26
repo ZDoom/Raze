@@ -2375,6 +2375,12 @@ static void operateweapon(int snum, ESyncBits actions)
 		{
 			if (((p->kickback_pic) % 3) == 0)
 			{
+				if (p->ammo_amount[CHAINGUN_WEAPON] <= 0)
+				{
+					p->ammo_amount[CHAINGUN_WEAPON] = 0;
+					p->okickback_pic = p->kickback_pic = 0;
+					break;
+				}
 				p->ammo_amount[CHAINGUN_WEAPON]--;
 
 				if ((p->kickback_pic % 3) == 0)
