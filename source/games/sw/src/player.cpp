@@ -3342,7 +3342,7 @@ void DoPlayerClimb(PLAYER* pp)
         {
             const double ADJ_AMT = 0.5;
 
-            auto ppos = pp->posXY();
+            auto ppos = plActor->spr.pos.XY();
             // player
             if (ppos.X != pp->LadderPosition.X)
             {
@@ -3364,31 +3364,6 @@ void DoPlayerClimb(PLAYER* pp)
 
                 if (fabs(ppos.Y - pp->LadderPosition.Y) <= ADJ_AMT)
                     ppos.Y = pp->LadderPosition.Y;
-            }
-            pp->posXY() = ppos;
-
-            // sprite
-            ppos = plActor->spr.pos.XY();
-            if (ppos.X != plActor->user.pos.X)
-            {
-                if (ppos.X < plActor->user.pos.X)
-                    ppos.X += ADJ_AMT;
-                else if (ppos.X > plActor->user.pos.X)
-                    ppos.X -= ADJ_AMT;
-
-                if (abs(ppos.X - plActor->user.pos.X) <= ADJ_AMT)
-                    ppos.X = plActor->user.pos.X;
-            }
-
-            if (ppos.Y != plActor->user.pos.Y)
-            {
-                if (ppos.Y < plActor->user.pos.Y)
-                    ppos.Y += ADJ_AMT;
-                else if (ppos.Y > plActor->user.pos.Y)
-                    ppos.Y -= ADJ_AMT;
-
-                if (abs(ppos.Y - plActor->user.pos.Y) <= ADJ_AMT)
-                    ppos.Y = plActor->user.pos.Y;
             }
             plActor->spr.pos.XY() = ppos;
         }
