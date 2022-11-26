@@ -153,6 +153,7 @@ struct Raze
 	native static int SoundEnabled();
 	native static void SetReverb(int r);
 	native static void SetReverbDelay(int d);
+	native static Sound FindSoundByResID(int id);
 	
 	native static sectortype updatesector(Vector2 pos, sectortype lastsect, double maxdist = 96);
 

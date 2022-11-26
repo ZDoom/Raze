@@ -75,6 +75,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SetReverbDelay, FX_SetReverbDelay)
 	return 0;
 }
 
+int Raze_FindSoundByResID(int id)
+{
+	return soundEngine->FindSoundByResID(id).index();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, FindSoundByResID, Raze_FindSoundByResID)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(i);
+	ACTION_RETURN_INT(Raze_FindSoundByResID(i));
+}
+
 //=============================================================================
 //
 // internal sector struct - no longer identical with on-disk format

@@ -57,7 +57,7 @@ class DukeSoundController : DukeActor
 					if (distance < maxdist && self.temp_data[0] == 0)
 					{
 						// Start playing an ambience sound.
-						self.PlayActorSound(self.lotag, CHAN_AUTO, CHANF_LOOP);
+						self.PlayActorSound(Raze.FindSoundByResID(self.lotag), CHAN_AUTO, CHANF_LOOP);
 						self.temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
 					}
 					else if (distance >= maxdist && self.temp_data[0] == 1)
@@ -72,7 +72,7 @@ class DukeSoundController : DukeActor
 					if (self.temp_data[4] > 0) self.temp_data[4]--;
 					else if (sec == p.actor.sector)
 					{
-						Duke.PlaySound(self.lotag + uint(Duke.global_random()) % uint(self.hitag + 1));
+						Duke.PlaySound(Raze.FindSoundByResID(self.lotag + uint(Duke.global_random()) % uint(self.hitag + 1)));
 						self.temp_data[4] = 26 * 40 + (Duke.global_random() % (26 * 40));
 					}
 				}
