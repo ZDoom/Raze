@@ -84,8 +84,8 @@ class DukeActivatorLocked : DukeActor
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
-		if (!Raze.IsRR()) self.lotag |= 16384;
-		else self.lotag ^= 16384;
+		if (!Raze.IsRR()) self.sector.lotag |= 16384;
+		else self.sector.lotag ^= 16384;
 	}
 	
 	/* must wait until Activator.onActivate can be done.
