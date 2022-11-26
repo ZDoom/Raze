@@ -1229,11 +1229,12 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 
 void bloodsplats(DDukeActor *actor)
 {
-	if (actor->temp_data[0] < 7 * 26)
+	if (actor->temp_data[0] < 14 * 26)
 	{
 		auto offset = krandf(1);
-		auto zadj = (1. / 16.);
-		auto sadj = (1. / 12.) * REPEAT_SCALE;
+		auto lerp = 1. - (double(actor->temp_data[0]) / (14 * 26));
+		auto zadj = (1. / 16.) * lerp;
+		auto sadj = (1. / 12.) * lerp * REPEAT_SCALE;
 		actor->spr.pos.Z += zadj + offset * zadj;
 		actor->spr.scale.Y += sadj + offset * sadj;
 		actor->temp_data[0]++;
