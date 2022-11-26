@@ -1488,9 +1488,8 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerHeight(PLAYER* pp)
+void DoPlayerHeight(PLAYER* pp, const double scale = PLAYER_NORMAL_FALL_VALUEF)
 {
-    constexpr double scale = 0.375;
     pp->actor->viewzoffset -= pp->getViewHeightDiff() * scale;
     pp->actor->spr.pos.Z -= (pp->actor->spr.pos.Z - pp->loz) * scale;
 }
@@ -6324,16 +6323,12 @@ void DoPlayerDeathFlip(PLAYER* pp)
         {
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUEF, 0.8952);
-            if (MoveSkip2 == 0)
-                DoJump(pp->actor);
         }
 
         if ((pp->Flags & PF_FALLING))
         {
             DoPlayerDeathFall(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUEF, 1.79);
-            if (MoveSkip2 == 0)
-                DoFall(pp->actor);
         }
     }
     else
@@ -6342,6 +6337,7 @@ void DoPlayerDeathFlip(PLAYER* pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
+    if (pp->height == PLAYER_DEATH_HEIGHTF) DoPlayerHeight(pp, PLAYER_DEATH_FALL_VALUEF);
 }
 
 
@@ -6367,15 +6363,11 @@ void DoPlayerDeathDrown(PLAYER* pp)
         {
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUEF, 0.8952);
-            if (MoveSkip2 == 0)
-                DoJump(pp->actor);
         }
 
         if ((pp->Flags & PF_FALLING))
         {
             pp->posZadd(2);
-            if (MoveSkip2 == 0)
-                actor->spr.pos.Z += 4;
 
             // Stick like glue when you hit the ground
             if (pp->posZget() > pp->loz - PLAYER_DEATH_HEIGHTF)
@@ -6388,6 +6380,7 @@ void DoPlayerDeathDrown(PLAYER* pp)
 
     DoPlayerDeathFollowKiller(pp);
     DoPlayerDeathCheckKeys(pp);
+    if (pp->height == PLAYER_DEATH_HEIGHTF) DoPlayerHeight(pp, PLAYER_DEATH_FALL_VALUEF);
 }
 
 
@@ -6477,8 +6470,13 @@ void DoPlayerDeathCrumble(PLAYER* pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    plActor->spr.pos.Z = pp->posZget() + PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
+
+    if (pp->height == PLAYER_DEATH_HEIGHTF)
+    {
+        pp->loz = pp->actor->user.loz - PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
+        DoPlayerHeight(pp, PLAYER_DEATH_FALL_VALUEF);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -6536,8 +6534,13 @@ void DoPlayerDeathExplode(PLAYER* pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    plActor->spr.pos.Z = pp->posZget() + PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
+
+    if (pp->height == PLAYER_DEATH_HEIGHTF)
+    {
+        pp->loz = pp->actor->user.loz - PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
+        DoPlayerHeight(pp, PLAYER_DEATH_FALL_VALUEF);
+    }
 }
 
 //---------------------------------------------------------------------------
