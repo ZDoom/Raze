@@ -683,15 +683,32 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 		case SE_20_STRETCH_BRIDGE:
 		{
-			//find the two most clostest wall x's and y's
+			auto FindDistance2D = [](int x, int y)
+			{
+				x = abs(x);
+				y = abs(y);
+
+				if (x < y)
+					std::swap(x, y);
+
+				int t = y + (y >> 1);
+
+				return (x - (x >> 5) - (x >> 7) + (t >> 2) + (t >> 6));
+
+			};
+			//find the two most closest wall x's and y's
+
 			for (unsigned i = 0; i < 2; i++)
 			{
 				walltype* closewall = nullptr;
-				double maxdist = 0x7fffffff;
+				int maxdist = 0x7fffffff;
 
 				for (auto& wal : sectp->walls)
 				{
-					double dist = (actor->spr.pos.XY() - wal.pos).LengthSquared();
+					int x = int(actor->spr.pos.X - wal.pos.X) * 16;
+					int y = int(actor->spr.pos.Y - wal.pos.Y) * 16;
+
+					int dist = FindDistance2D(x, y);
 					if (dist < maxdist && &wal != actor->temp_walls[0])
 					{
 						maxdist = dist;
