@@ -176,7 +176,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process only if movement isn't locked.
-	if (!movementlocked())
+	if (!lockedPitch())
 	{
 		// Process mouse input.
 		if (horz)
@@ -367,7 +367,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 			w.ZzOLDHORIZON = w.ZzHORIZON;
 			w.ZzOHORIZOFF = w.ZzHORIZOFF;
 			w.inputdisabled = w.inputdisabled;
-			w.resetadjustment();
+			w.resetAdjustmentPitch();
 		}
 	}
 	return arc;

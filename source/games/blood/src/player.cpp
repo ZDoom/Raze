@@ -1532,7 +1532,7 @@ void ProcessInput(PLAYER* pPlayer)
 		Item_JumpBoots = 3
 	};
 
-	pPlayer->horizon.resetadjustment();
+	pPlayer->horizon.resetAdjustmentPitch();
 	pPlayer->angle.resetadjustment();
 
 	DBloodActor* actor = pPlayer->actor;
@@ -1558,7 +1558,7 @@ void ProcessInput(PLAYER* pPlayer)
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->horizon.addadjustment(deltaangle(pPlayer->horizon.ZzHORIZON, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5));
+			pPlayer->horizon.addPitch(deltaangle(pPlayer->horizon.ZzHORIZON, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5));
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)
@@ -1731,7 +1731,7 @@ void ProcessInput(PLAYER* pPlayer)
 	}
 
 	pPlayer->angle.unlockinput();
-	pPlayer->horizon.unlockinput();
+	pPlayer->horizon.unlockPitch();
 
 	pPlayer->slope = pPlayer->horizon.ZzHORIZON.Tan();
 	if (pInput->actions & SB_INVPREV)

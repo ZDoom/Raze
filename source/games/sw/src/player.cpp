@@ -5880,7 +5880,7 @@ static inline void DoPlayerDeathHoriz(PLAYER* pp, const DAngle target, const dou
 
     if (abs(targetdelta.Degrees()) > 1)
     {
-        pp->horizon.addadjustment(DAngle::fromDeg(speed * targetdelta.Sgn()));
+        pp->horizon.addPitch(DAngle::fromDeg(speed * targetdelta.Sgn()));
     }
 }
 
@@ -6694,7 +6694,7 @@ void MoveSkipSavePos(void)
         pp->actor->backuppos();
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
-        pp->horizon.backup();
+        pp->horizon.backupPitch();
         pp->opbob_amt = pp->pbob_amt;
     }
 
@@ -6987,7 +6987,7 @@ void domovethings(void)
 
         // Reset flags used while tying input to framerate
         pp->Flags2 &= ~(PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
-        pp->horizon.resetadjustment();
+        pp->horizon.resetAdjustmentPitch();
         pp->angle.resetadjustment();
 
         // disable synchronised input if set by game.

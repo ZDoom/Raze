@@ -117,7 +117,7 @@ void forceplayerangle(int snum)
 {
 	player_struct* p = &ps[snum];
 
-	p->horizon.addadjustment(DAngle::fromDeg(-26.566));
+	p->horizon.addPitch(DAngle::fromDeg(-26.566));
 	p->sync.actions |= SB_CENTERVIEW;
 	p->angle.rotscrnang = p->angle.look_ang = (DAngle22_5 - randomAngle(45)) / 2.;
 }
@@ -378,7 +378,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->horizon.addadjustment(deltaangle(p->horizon.ZzHORIZON, (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
+		p->horizon.addPitch(deltaangle(p->horizon.ZzHORIZON, (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -547,7 +547,7 @@ inline void backupplayer(player_struct* p)
 {
 	p->backuppos();
 	p->angle.backup();
-	p->horizon.backup();
+	p->horizon.backupPitch();
 }
 
 void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
@@ -807,7 +807,7 @@ void player_struct::checkhardlanding()
 {
 	if (hard_landing > 0)
 	{
-		horizon.addadjustment(maphoriz(hard_landing << 4));
+		horizon.addPitch(maphoriz(hard_landing << 4));
 		hard_landing--;
 	}
 }

@@ -201,7 +201,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
         }
 
         pp->angle.processhelpers(scaleAdjust);
-        pp->horizon.processhelpers(scaleAdjust);
+        pp->horizon.processLegacyHelperPitch(scaleAdjust);
     }
 
     if (packet)

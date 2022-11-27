@@ -796,7 +796,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 				guts_r(proj, RABBITJIBC, 2, myconnectindex);
 			}
 
-			ps[p].horizon.addadjustment(DAngle::fromDeg(-14.04));
+			ps[p].horizon.addPitch(DAngle::fromDeg(-14.04));
 			ps[p].sync.actions |= SB_CENTERVIEW;
 
 			if (ps[p].loogcnt == 0)

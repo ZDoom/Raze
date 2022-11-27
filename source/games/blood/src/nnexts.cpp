@@ -2186,8 +2186,8 @@ void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 
 	if (const double adjustment = clamp(value * 0.125 * (value > 0 ? lookStepUp : lookStepDown), downAngle, upAngle))
 	{
-		pPlayer->horizon.settarget(maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.))));
-		pPlayer->horizon.lockinput();
+		pPlayer->horizon.setPitch(maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.))));
+		pPlayer->horizon.lockPitch();
 	}
 }
 

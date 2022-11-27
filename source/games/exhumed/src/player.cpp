@@ -314,7 +314,7 @@ void RestartPlayer(int nPlayer)
 	}
 
 	plr->angle.backup();
-	plr->horizon.backup();
+	plr->horizon.backupPitch();
 
 	plr->pPlayerFloorSprite = floorsprt;
 
@@ -905,9 +905,9 @@ void AIPlayer::Tick(RunListEvent* ev)
     int nActionB = PlayerList[nPlayer].nAction;
 
     PlayerList[nPlayer].angle.backup();
-    PlayerList[nPlayer].horizon.backup();
+    PlayerList[nPlayer].horizon.backupPitch();
     PlayerList[nPlayer].angle.resetadjustment();
-    PlayerList[nPlayer].horizon.resetadjustment();
+    PlayerList[nPlayer].horizon.resetAdjustmentPitch();
 
     pPlayerActor->vel.XY() = sPlayerInput[nPlayer].vel;
 
@@ -1075,7 +1075,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             PlayerList[nPlayer].angle.settarget(ang, true);
             pPlayerActor->spr.Angles.Yaw = ang;
 
-            PlayerList[nPlayer].horizon.settarget(nullAngle, true);
+            PlayerList[nPlayer].horizon.setPitch(nullAngle, true);
 
             sPlayerInput[nPlayer].vel.Zero();
             pPlayerActor->vel.Zero();
@@ -1088,7 +1088,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 InitSpiritHead();
 
                 PlayerList[nPlayer].nDestVertPan = nullAngle;
-                PlayerList[nPlayer].horizon.settarget(currentLevel->ex_ramses_horiz);
+                PlayerList[nPlayer].horizon.setPitch(currentLevel->ex_ramses_horiz);
             }
         }
         else
@@ -2498,7 +2498,7 @@ sectdone:
         {
             if (double nVertPan = deltaangle(pPlayer->horizon.ZzHORIZON, pPlayer->nDestVertPan).Tan() * 32.)
             {
-                pPlayer->horizon.addadjustment(maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
+                pPlayer->horizon.addPitch(maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
             }
         }
     }
@@ -2618,16 +2618,16 @@ sectdone:
         {
             if (PlayerList[nPlayer].horizon.ZzHORIZON.Sgn() > 0)
             {
-                PlayerList[nPlayer].horizon.settarget(nullAngle);
+                PlayerList[nPlayer].horizon.setPitch(nullAngle);
                 pPlayerActor->viewzoffset -= dVertPan[nPlayer];
             }
             else
             {
-                PlayerList[nPlayer].horizon.addadjustment(maphoriz(-dVertPan[nPlayer]));
+                PlayerList[nPlayer].horizon.addPitch(maphoriz(-dVertPan[nPlayer]));
 
                 if (PlayerList[nPlayer].horizon.ZzHORIZON.Degrees() <= 38)
                 {
-                    PlayerList[nPlayer].horizon.settarget(DAngle::fromDeg(-37.72));
+                    PlayerList[nPlayer].horizon.setPitch(DAngle::fromDeg(-37.72));
                 }
                 else if (PlayerList[nPlayer].horizon.ZzHORIZON.Sgn() >= 0)
                 {

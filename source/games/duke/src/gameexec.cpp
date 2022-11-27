@@ -344,7 +344,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 			{
 				ps[iPlayer].sync.actions &= ~SB_CENTERVIEW;
 			}
-			ps[iPlayer].horizon.settarget(maphoriz(-lValue));
+			ps[iPlayer].horizon.setPitch(maphoriz(-lValue));
 		}
 		else SetGameVarID(lVar2, int(ps[iPlayer].horizon.ZzHORIZON.Tan() * -128.), sActor, sPlayer);
 		break;

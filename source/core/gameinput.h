@@ -17,12 +17,12 @@ struct PlayerHorizon
 	void calcviewpitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
 
 	// Interpolation helpers.
-	void backup()
+	void backupPitch()
 	{
 		ZzOLDHORIZON = ZzHORIZON;
 		ZzOHORIZOFF = ZzHORIZOFF;
 	}
-	void restore()
+	void restorePitch()
 	{
 		ZzHORIZON = ZzOLDHORIZON;
 		ZzHORIZOFF = ZzOHORIZOFF;
@@ -34,16 +34,16 @@ struct PlayerHorizon
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
-	void resetadjustment() { adjustment = nullAngle; }
-	bool targetset() { return target.Sgn(); }
+	void resetAdjustmentPitch() { adjustment = nullAngle; }
+	bool targetedPitch() { return target.Sgn(); }
 
 	// Input locking helpers.
-	void lockinput() { inputdisabled = true; }
-	void unlockinput() { inputdisabled = false; }
-	bool movementlocked() {	return targetset() || inputdisabled; }
+	void lockPitch() { inputdisabled = true; }
+	void unlockPitch() { inputdisabled = false; }
+	bool lockedPitch() { return targetedPitch() || inputdisabled; }
 
 	// Ticrate playsim adjustment setters and processor.
-	void addadjustment(DAngle const value)
+	void addPitch(DAngle const value)
 	{
 		if (!SyncInput())
 		{
@@ -55,7 +55,7 @@ struct PlayerHorizon
 		}
 	}
 
-	void settarget(DAngle value, bool const backup = false)
+	void setPitch(DAngle value, bool const backup = false)
 	{
 		// Clamp incoming variable because sometimes the caller can exceed bounds.
 		value = ClampViewPitch(value);
@@ -71,9 +71,9 @@ struct PlayerHorizon
 		}
 	}
 
-	void processhelpers(double const scaleAdjust)
+	void processLegacyHelperPitch(double const scaleAdjust)
 	{
-		if (targetset())
+		if (targetedPitch())
 		{
 			auto delta = deltaangle(ZzHORIZON, target);
 

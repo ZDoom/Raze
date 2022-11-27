@@ -2725,7 +2725,7 @@ void processinput_d(int snum)
 	p = &ps[snum];
 	auto pact = p->GetActor();
 
-	p->horizon.resetadjustment();
+	p->horizon.resetAdjustmentPitch();
 	p->angle.resetadjustment();
 
 	ESyncBits& actions = p->sync.actions;
@@ -2763,7 +2763,7 @@ void processinput_d(int snum)
 
 	if (SyncInput())
 	{
-		p->horizon.backup();
+		p->horizon.backupPitch();
 		doslopetilting(p);
 	}
 

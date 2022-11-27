@@ -1718,7 +1718,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addadjustment(deltaangle(p->horizon.ZzHORIZON, maphoriz(-horiz)));
+		p->horizon.addPitch(deltaangle(p->horizon.ZzHORIZON, maphoriz(-horiz)));
 	}
 
 	const DAngle adjust = mapangle(-510);
@@ -1986,7 +1986,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->horizon.addadjustment(deltaangle(p->horizon.ZzHORIZON, maphoriz(-horiz)));
+		p->horizon.addPitch(deltaangle(p->horizon.ZzHORIZON, maphoriz(-horiz)));
 	}
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
@@ -2894,7 +2894,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->horizon.addadjustment(DAngle::fromDeg(-0.4476));
+		p->horizon.addPitch(DAngle::fromDeg(-0.4476));
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3066,7 +3066,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		else if (p->kickback_pic == 12)
 		{
 			p->vel.XY() -= p->angle.ang.ToVector();
-			p->horizon.addadjustment(DAngle::fromDeg(-8.88));
+			p->horizon.addPitch(DAngle::fromDeg(-8.88));
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3272,7 +3272,7 @@ void processinput_r(int snum)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	p->horizon.resetadjustment();
+	p->horizon.resetAdjustmentPitch();
 	p->angle.resetadjustment();
 
 	ESyncBits& actions = p->sync.actions;
@@ -3349,7 +3349,7 @@ void processinput_r(int snum)
 
 	if (SyncInput())
 	{
-		p->horizon.backup();
+		p->horizon.backupPitch();
 		doslopetilting(p);
 	}
 
@@ -3890,7 +3890,7 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->horizon.addadjustment(maphoriz(d));
+		p->horizon.addPitch(maphoriz(d));
 	}
 
 	if (SyncInput())
@@ -3960,7 +3960,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		p->gotweapon[MOTORCYCLE_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->horizon.settarget(nullAngle);
+		p->horizon.setPitch(nullAngle);
 	}
 	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
 		S_PlayActorSound(186, p->GetActor());
@@ -3991,7 +3991,7 @@ void OffMotorcycle(player_struct *p)
 		p->gotweapon[MOTORCYCLE_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->horizon.settarget(nullAngle);
+		p->horizon.setPitch(nullAngle);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
@@ -4034,7 +4034,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		p->gotweapon[BOAT_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->horizon.settarget(nullAngle);
+		p->horizon.setPitch(nullAngle);
 	}
 }
 
@@ -4052,7 +4052,7 @@ void OffBoat(player_struct *p)
 		p->gotweapon[BOAT_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->horizon.settarget(nullAngle);
+		p->horizon.setPitch(nullAngle);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
