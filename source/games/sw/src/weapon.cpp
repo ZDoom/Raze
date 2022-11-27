@@ -12201,7 +12201,7 @@ int InitSwordAttack(PLAYER* pp)
             bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
-                bubble->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
+                bubble->spr.Angles.Yaw = plActor->spr.Angles.Yaw;
 
 				auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 
@@ -12369,7 +12369,7 @@ int InitFistAttack(PLAYER* pp)
             bubble = SpawnBubble(pp->actor);
             if (bubble != nullptr)
             {
-                bubble->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
+                bubble->spr.Angles.Yaw = plActor->spr.Angles.Yaw;
 
                 auto random_amt = RandomAngle(DAngle22_5 / 4) - DAngle22_5 / 8;
 

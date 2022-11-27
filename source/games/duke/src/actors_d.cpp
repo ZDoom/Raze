@@ -1334,7 +1334,7 @@ void movetransports_d(void)
 								ps[k].GetActor()->spr.extra = 0;
 							}
 
-							ps[p].Angles.ZzANGLE() = Owner->spr.Angles.Yaw; // check me out later.
+							ps[p].Angles.setYaw(Owner->spr.Angles.Yaw, true);
 
 							if (Owner->GetOwner() != Owner)
 							{
@@ -1685,7 +1685,7 @@ static void greenslime(DDukeActor *actor)
 
 		SetActor(actor, actor->spr.pos);
 
-		actor->spr.Angles.Yaw = ps[p].Angles.ZzANGLE(); // check me out later.
+		actor->spr.Angles.Yaw = ps[p].GetActor()->spr.Angles.Yaw;
 
 		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->spr.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))

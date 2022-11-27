@@ -843,7 +843,6 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
 		p->Angles.processLegacyHelperYaw(scaleAdjust);
 		p->Angles.processLegacyHelperPitch(scaleAdjust);
-		p->GetActor()->spr.Angles.Yaw = p->Angles.ZzANGLE(); // check me out later.
 	}
 
 	if (packet)

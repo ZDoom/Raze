@@ -34,7 +34,6 @@ BEGIN_BLD_NS
 
 static InputPacket gInput;
 
-void UpdatePlayerSpriteAngle(PLAYER* pPlayer);
 void doslopetilting(PLAYER* pPlayer, double const scaleAdjust);
 
 //---------------------------------------------------------------------------
@@ -69,7 +68,6 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 
 		pPlayer->Angles.processLegacyHelperYaw(scaleAdjust);
 		pPlayer->Angles.processLegacyHelperPitch(scaleAdjust);
-		UpdatePlayerSpriteAngle(pPlayer);
 	}
 
 	if (packet)

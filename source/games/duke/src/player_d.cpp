@@ -294,7 +294,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			if (splash)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.Angles.Yaw = ps[p].Angles.ZzANGLE(); // check me out later. // Total tweek
+				splash->spr.Angles.Yaw = ps[p].GetActor()->spr.Angles.Yaw;
 				splash->vel.X = 2;
 				ssp(actor, CLIPMASK0);
 				splash->vel.X = 0;

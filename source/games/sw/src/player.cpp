@@ -1508,16 +1508,12 @@ void DoPlayerJumpHeight(PLAYER* pp)
 
 void UpdatePlayerSpriteAngle(PLAYER* pp)
 {
-    DSWActor* plActor = pp->actor;
-    plActor->backupang();
-    plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
-
-    plActor = pp->PlayerUnderActor;
+    DSWActor* plActor = pp->PlayerUnderActor;
 
     if (!Prediction && plActor)
     {
         plActor->backupang();
-        plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
+        plActor->spr.Angles.Yaw = pp->actor->spr.Angles.Yaw;
     }
 }
 
@@ -1557,11 +1553,10 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
 
     if (avel != 0)
     {
-        auto sum = pp->Angles.ZzANGLE() + DAngle::fromDeg(avel);
+        auto sum = pp->actor->spr.Angles.Yaw + DAngle::fromDeg(avel);
         if (MultiClipTurn(pp, sum, zz, floordist))
         {
-            pp->Angles.ZzANGLE() = sum;
-            pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
+            pp->actor->spr.Angles.Yaw = sum;
         }
     }
 }
@@ -1591,11 +1586,10 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
 
     if (avel != 0)
     {
-        auto sum = pp->Angles.ZzANGLE() + DAngle::fromDeg(avel);
+        auto sum = pp->actor->spr.Angles.Yaw + DAngle::fromDeg(avel);
         if (RectClipTurn(pp, sum, pos, opos))
         {
-            pp->Angles.ZzANGLE() = sum;
-            pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
+            pp->actor->spr.Angles.Yaw = sum;
         }
     }
 }
@@ -1625,7 +1619,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
 
     if (fabs(avel) >= FLT_EPSILON)
     {
-        new_ang = pp->Angles.ZzANGLE() + DAngle::fromDeg(avel);
+        new_ang = pp->actor->spr.Angles.Yaw + DAngle::fromDeg(avel);
 
         if (sop->limit_ang_center >= nullAngle)
         {
@@ -1640,8 +1634,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
             }
         }
 
-        pp->Angles.ZzANGLE() = new_ang;
-        pp->actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
+        pp->actor->spr.Angles.Yaw = new_ang;
     }
 
     OperateSectorObject(pp->sop, pp->Angles.ZzANGLE(), pp->sop->pmid);
@@ -1850,7 +1843,6 @@ void UpdatePlayerSprite(PLAYER* pp)
     if (pp->Flags & (PF_DEAD))
     {
         ChangeActorSect(pp->actor, pp->cursector);
-        actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -1895,8 +1887,6 @@ void UpdatePlayerSprite(PLAYER* pp)
     ChangeActorSect(pp->actor, pp->cursector);
 
     UpdatePlayerUnderSprite(pp);
-
-    actor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
 }
 
 //---------------------------------------------------------------------------
@@ -5333,10 +5323,7 @@ void DoPlayerStopOperate(PLAYER* pp)
     if (pp->sop_remote)
     {
         DSWActor* rsp = pp->remoteActor;
-        if (TEST_BOOL1(rsp))
-            pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = rsp->spr.Angles.Yaw; // check me out later.
-        else
-            pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
+        pp->Angles.setYaw(rsp && TEST_BOOL1(rsp) ? rsp->spr.Angles.Yaw : (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle(), true);
     }
 
     if (pp->sop_control)
@@ -6004,7 +5991,6 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.picnum = plActor->user.State->Pic;
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
-        plActor->spr.Angles.Yaw = pp->Angles.ZzANGLE(); // check me out later.
 
         DoSpawnTeleporterEffect(plActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);

@@ -813,7 +813,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	GetActorExtents(actor, &top, &bottom);
 	actor->spr.pos.Z -= bottom - actor->spr.pos.Z;
 	actor->spr.pal = 11 + (pPlayer->teamId & 3);
-	actor->spr.Angles.Yaw = pPlayer->Angles.ZzANGLE() = pStartZone->angle; // check me out later.
+	actor->spr.Angles.Yaw = pStartZone->angle;
 	actor->spr.type = kDudePlayer1 + nPlayer;
 	actor->clipdist = pDudeInfo->fClipdist();
 	actor->spr.flags = 15;
@@ -1494,17 +1494,6 @@ int ActionScan(PLAYER* pPlayer, HitInfo* out)
 
 //---------------------------------------------------------------------------
 //
-// Player's sprite angle function, called in ProcessInput() or from gi->GetInput() as required.
-//
-//---------------------------------------------------------------------------
-
-void UpdatePlayerSpriteAngle(PLAYER* pPlayer)
-{
-	pPlayer->actor->spr.Angles.Yaw = pPlayer->Angles.ZzANGLE(); // check me out later.
-}
-
-//---------------------------------------------------------------------------
-//
 // Player's slope tilting wrapper function function, called in ProcessInput() or from gi->GetInput() as required.
 //
 //---------------------------------------------------------------------------
@@ -1600,10 +1589,6 @@ void ProcessInput(PLAYER* pPlayer)
 	{
 		pPlayer->Angles.applyYaw(pInput->avel, &pInput->actions);
 	}
-
-	// unconditionally update the player's sprite angle
-	// in case game is forcing synchronised input.
-	UpdatePlayerSpriteAngle(pPlayer);
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;

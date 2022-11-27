@@ -665,8 +665,7 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    inita = pPlayer->Angles.ZzANGLE();
-    if (pPlayer->pActor) pPlayer->pActor->spr.Angles.Yaw = inita;
+    if (pPlayer->pActor) inita = pPlayer->pActor->spr.Angles.Yaw;
 }
 
 //---------------------------------------------------------------------------

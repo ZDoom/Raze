@@ -185,7 +185,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			if (splash)
 			{
 				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.Angles.Yaw = ps[p].Angles.ZzANGLE(); // check me out later. // Total tweek
+				splash->spr.Angles.Yaw = ps[p].GetActor()->spr.Angles.Yaw;
 				splash->vel.X = 2;
 				ssp(actor, 0);
 				splash->vel.X = 0;
@@ -1467,7 +1467,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7220);
 			if (j)
 			{
-				j->spr.Angles.Yaw = p->Angles.ZzANGLE(); // check me out later.
+				j->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
 				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			}
 			p->OnMotorcycle = 0;
@@ -1486,7 +1486,7 @@ void checkweapons_r(player_struct* p)
 			auto j = spawn(p->GetActor(), 7233);
 			if (j)
 			{
-				j->spr.Angles.Yaw = p->Angles.ZzANGLE(); // check me out later.
+				j->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
 				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			}
 			p->OnBoat = 0;
@@ -3949,7 +3949,7 @@ void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
 		if (motosprite)
 		{
 			p->GetActor()->spr.pos.XY() = motosprite->spr.pos.XY();
-			p->Angles.ZzANGLE() = motosprite->spr.Angles.Yaw; // check me out later.
+			p->Angles.setYaw(motosprite->spr.Angles.Yaw, true);
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			motosprite->Destroy();
 		}
@@ -4004,7 +4004,7 @@ void OffMotorcycle(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
 		if (spawned)
 		{
-			spawned->spr.Angles.Yaw = p->Angles.ZzANGLE(); // check me out later.
+			spawned->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
 			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 		}
 	}
@@ -4023,7 +4023,7 @@ void OnBoat(player_struct *p, DDukeActor* boat)
 		if (boat)
 		{
 			p->GetActor()->spr.pos.XY() = boat->spr.pos.XY();
-			p->Angles.ZzANGLE() = boat->spr.Angles.Yaw; // check me out later.
+			p->Angles.setYaw(boat->spr.Angles.Yaw, true);
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			boat->Destroy();
 		}
@@ -4065,7 +4065,7 @@ void OffBoat(player_struct *p)
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
 		if (spawned)
 		{
-			spawned->spr.Angles.Yaw = p->Angles.ZzANGLE(); // check me out later.
+			spawned->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
 			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 		}
 	}

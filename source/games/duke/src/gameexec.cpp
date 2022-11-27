@@ -2833,7 +2833,7 @@ int ParseState::parse(void)
 	case concmd_ifangdiffl:
 		{
 		insptr++;
-		auto ang = absangle(ps[g_p].Angles.ZzANGLE(), g_ac->spr.Angles.Yaw); // check me out later.
+		auto ang = absangle(ps[g_p].GetActor()->spr.Angles.Yaw, g_ac->spr.Angles.Yaw);
 		parseifelse( ang <= mapangle(*insptr));
 		break;
 		}
