@@ -434,19 +434,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->vel.X = 292 / 16.;
 		act->vel.Z = 360 / 256.;
 		[[fallthrough]];
-	case RESPAWNMARKERRED:
 	case BLIMP:
-
-		if (act->spr.picnum == RESPAWNMARKERRED)
-		{
-			act->spr.scale = DVector2(0.375, 0.375);
-			if (actj) act->spr.pos.Z = actj->floorz; // -(1<<4);
-		}
-		else
-		{
-			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-			act->clipdist = 32;
-		}
+		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		act->clipdist = 32;
 		[[fallthrough]];
 	case MIKE:
 		if (act->spr.picnum == MIKE)

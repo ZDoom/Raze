@@ -56,6 +56,7 @@ version "4.10"
 #include "zscript/games/duke/actors/touchplate.zs"
 #include "zscript/games/duke/actors/soundcontroller.zs"
 #include "zscript/games/duke/actors/respawncontroller.zs"
+#include "zscript/games/duke/actors/respawnmarker.zs"
 
 #include "zscript/games/duke/actors/jibs.zs"
 #include "zscript/games/duke/actors/crane.zs"

@@ -176,19 +176,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case RESPAWNMARKERRED:
-		case RESPAWNMARKERYELLOW:
-		case RESPAWNMARKERGREEN:
-			t->picnum = 861 + ((PlayClock >> 4) & 13);
-			if (h->spr.picnum == RESPAWNMARKERRED)
-				t->pal = 0;
-			else if (h->spr.picnum == RESPAWNMARKERYELLOW)
-				t->pal = 1;
-			else
-				t->pal = 2;
-			if (ud.marker == 0)
-				t->scale = DVector2(0, 0);
-			break;
 		case DUKELYINGDEAD:
 			h->spr.scale = DVector2(0.375, 0.265625);
 			if (h->spr.extra > 0)

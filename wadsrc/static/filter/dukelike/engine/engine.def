@@ -42,6 +42,7 @@ spawnclasses
 	623 = DukeCamera
 	624 = DukeCamera
 	625 = DukeCamera
+	3190 = DukeRespawnmarker
 
 	1272 = DukeTrash
 	634 = DukeBolt1

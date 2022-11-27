@@ -2153,7 +2153,7 @@ DETONATEB:
 			else
 			{
 				actor->temp_data[2] = gs.respawnitemtime;
-				spawn(actor, RESPAWNMARKERRED);
+				spawn(actor, PClass::FindActor("DukeRespawnMarker"));
 				actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 				actor->spr.scale.Y = (0.140625);
 				return;
@@ -2196,7 +2196,7 @@ DETONATEB:
 				else
 				{
 					actor->temp_data[2] = gs.respawnitemtime;
-					spawn(actor, RESPAWNMARKERRED);
+					spawn(actor, PClass::FindActor("DukeRespawnMarker"));
 					actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 				}
 			}
@@ -2283,12 +2283,6 @@ void moveactors_d(void)
 				}
 			}
 			continue;
-
-		case RESPAWNMARKERRED:
-		case RESPAWNMARKERYELLOW:
-		case RESPAWNMARKERGREEN:
-			if (!respawnmarker(act, RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
-			break;
 
 		case HELECOPT:
 		case DUKECAR:

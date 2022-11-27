@@ -73,12 +73,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FOOTPRINTS4:
 			if (t->shade == 127) continue;
 			break;
-		case RESPAWNMARKERRED:
-		case RESPAWNMARKERYELLOW:
-		case RESPAWNMARKERGREEN:
-			if (ud.marker == 0)
-				t->scale = DVector2(0, 0);
-			continue;
 		case CHAIR3:
 			if (hw_models && modelManager.CheckModel(t->picnum, t->pal)) 
 			{

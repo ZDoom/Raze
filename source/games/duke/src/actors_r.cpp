@@ -1904,7 +1904,7 @@ DETONATEB:
 					else
 					{
 						actor->temp_data[2] = gs.respawnitemtime;
-						spawn(actor, RESPAWNMARKERRED);
+						spawn(actor, PClass::FindActor("RedneckRespawnMarker"));
 						actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 					}
 				}
@@ -2037,11 +2037,6 @@ void moveactors_r(void)
 		}
 		else switch(act->spr.picnum)
 		{
-			case RESPAWNMARKERRED:
-			case RESPAWNMARKERYELLOW:
-			case RESPAWNMARKERGREEN:
-				if (!respawnmarker(act, RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
-				break;
 			case RAT:
 				if (!rat(act, !isRRRA())) continue;
 				break;

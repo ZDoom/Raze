@@ -681,28 +681,6 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 //
 //---------------------------------------------------------------------------
 
-bool respawnmarker(DDukeActor *actor, int yellow, int green)
-{
-	actor->temp_data[0]++;
-	if (actor->temp_data[0] > gs.respawnitemtime)
-	{
-		actor->Destroy();
-		return false;
-	}
-	if (actor->temp_data[0] >= (gs.respawnitemtime >> 1) && actor->temp_data[0] < ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
-		actor->spr.picnum = yellow;
-	else if (actor->temp_data[0] > ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
-		actor->spr.picnum = green;
-	makeitfall(actor);
-	return true;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 bool rat(DDukeActor* actor, bool makesound)
 {
 	makeitfall(actor);
