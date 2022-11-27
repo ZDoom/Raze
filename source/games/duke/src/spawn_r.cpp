@@ -293,19 +293,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TOUGHGAL:
 		act->spr.yint = act->spr.hitag;
 		act->spr.hitag = -1;
-		[[fallthrough]];
-	case QUEBALL:
-	case STRIPEBALL:
-		if (act->spr.picnum == QUEBALL || act->spr.picnum == STRIPEBALL)
-		{
-			act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
-			act->clipdist = 2;
-		}
-		else
-		{
-			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-			act->clipdist = 8;
-		}
+		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		act->clipdist = 8;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 	case BOWLINGBALL:

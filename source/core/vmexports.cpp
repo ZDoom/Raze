@@ -54,6 +54,30 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, updatesector, Raze_updatesector)
 	ACTION_RETURN_POINTER(Raze_updatesector(x, y, s, dist));
 }
 
+DEFINE_ACTION_FUNCTION(_Raze, clipmove)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	PARAM_POINTER_NOT_NULL(s, sectortype);
+	PARAM_FLOAT(mx);
+	PARAM_FLOAT(my);
+	PARAM_FLOAT(wdist);
+	PARAM_FLOAT(cdist);
+	PARAM_FLOAT(fdist);
+	PARAM_UINT(cliptype);
+	PARAM_POINTER_NOT_NULL(coll, CollisionBase);
+	PARAM_INT(cmtn);
+	DVector3 rpos(x, y, z);
+	clipmove(rpos, &s, DVector2(mx, my), wdist, cdist, fdist, cliptype, *coll, cmtn);
+	if (numret > 0) ret[0].SetPointer(s);
+	if (numret > 1) ret[1].SetVector(rpos);
+	return min(numret, 2);
+}
+
+
+
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SoundEnabled, SoundEnabled)
 {
 	ACTION_RETURN_INT(SoundEnabled());
@@ -795,6 +819,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, absangle, absangleDbl)	// should this 
 	ACTION_RETURN_FLOAT(absangle(DAngle::fromDeg(a1), DAngle::fromDeg(a2)).Degrees());
 }
 
+static double Normalize180(double angle)
+{
+	return DAngle::fromDeg(angle).Normalized180().Degrees();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, Normalize180, Normalize180)
+{
+	PARAM_PROLOGUE;
+	PARAM_ANGLE(angle);
+	ACTION_RETURN_FLOAT(angle.Normalized180().Degrees());
+}
+
+
 
 DEFINE_FIELD_X(Collision, CollisionBase, type)
 DEFINE_FIELD_X(Collision, CollisionBase, exbits)
@@ -805,7 +842,7 @@ walltype* collision_getwall(CollisionBase* coll)
 	else return nullptr;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Collision, hitwall, collision_getwall)
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, hitwall, collision_getwall)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
 	ACTION_RETURN_POINTER(collision_getwall(self));
@@ -817,7 +854,7 @@ sectortype* collision_getsector(CollisionBase* coll)
 	else return nullptr;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Collision, hitsector, collision_getsector)
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, hitsector, collision_getsector)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
 	ACTION_RETURN_POINTER(collision_getsector(self));
@@ -829,7 +866,7 @@ DCoreActor* collision_getactor(CollisionBase* coll)
 	else return nullptr;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Collision, hitactor, collision_getactor)
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, hitactor, collision_getactor)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
 	ACTION_RETURN_POINTER(collision_getactor(self));
@@ -843,7 +880,7 @@ void collision_setwall(CollisionBase* coll, walltype * w)
 	coll->hitWall = w;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Collision, setwall, collision_setwall)
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, setwall, collision_setwall)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
 	PARAM_POINTER(p, walltype);
@@ -857,7 +894,7 @@ void collision_setsector(CollisionBase* coll, sectortype* s)
 	coll->hitSector = s;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Collision, setsector, collision_setsector)
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, setsector, collision_setsector)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
 	PARAM_POINTER(p, sectortype);
@@ -871,7 +908,7 @@ void collision_setactor(CollisionBase* coll, DCoreActor* a)
 	coll->hitActor = a;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Collision, setactor, collision_setactor)
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, setactor, collision_setactor)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
 	PARAM_POINTER(p, DCoreActor);
@@ -885,7 +922,7 @@ void collision_setvoid(CollisionBase* coll)
 	coll->hitActor = nullptr;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Collision, setvoid, collision_setvoid)
+DEFINE_ACTION_FUNCTION_NATIVE(_CollisionData, setvoid, collision_setvoid)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
 	collision_setvoid(self);

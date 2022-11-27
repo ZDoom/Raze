@@ -1077,30 +1077,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		spawn(targ, SMALLSMOKE);
 		targ->Destroy();
 		break;
-	case QUEBALL:
-	case STRIPEBALL:
-		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
-		{
-			proj->vel.X = targ->vel.X * 0.75;
-			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw.Normalized180() * 2 + DAngle180;
-			targ->spr.Angles.Yaw = (targ->spr.pos.XY() - proj->spr.pos.XY()).Angle() - DAngle90;
-			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
-				S_PlayActorSound(POOLBALLHIT, targ);
-		}
-		else
-		{
-			if (krand() & 3)
-			{
-				targ->vel.X = 10.25;
-				targ->spr.Angles.Yaw = proj->spr.Angles.Yaw;
-			}
-			else
-			{
-				lotsofglass(targ, nullptr, 3);
-				targ->Destroy();
-			}
-		}
-		break;
 	case HANGLIGHT:
 	case GENERICPOLE2:
 		for (k = 0; k < 6; k++)

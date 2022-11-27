@@ -2218,6 +2218,10 @@ void moveactors_d(void)
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
 	{
+		if (act->spr.picnum == QUEBALL)
+		{
+			int a = 0;
+		}
 		auto sectp = act->sector();
 
 		if (act->spr.scale.X == 0 || sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
@@ -2304,10 +2308,6 @@ void moveactors_d(void)
 			else if ((act->temp_data[0] & 3) == 0)
 				spawn(act, EXPLOSION2);
 			ssp(act, CLIPMASK0);
-			break;
-		case QUEBALL:
-		case STRIPEBALL:
-			if (!queball(act, POCKET, QUEBALL, STRIPEBALL)) continue;
 			break;
 		case FORCESPHERE:
 			forcesphere(act, FORCESPHERE);

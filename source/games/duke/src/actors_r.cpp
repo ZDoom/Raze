@@ -2065,10 +2065,6 @@ void moveactors_r(void)
 				break;
 			}
 
-			case QUEBALL:
-			case STRIPEBALL:
-				if (!queball(act, POCKET, QUEBALL, STRIPEBALL)) continue;
-				break;
 			case FORCESPHERE:
 				forcesphere(act, FORCESPHERE);
 				continue;

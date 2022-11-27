@@ -137,6 +137,21 @@ struct SummaryInfo native
 	native readonly bool endofgame;
 }
 
+// this only allows function getters to enable validation on the target.
+struct CollisionData
+{
+	int type;
+	int exbits;
+	voidptr hit;	// do not access!
+	native walltype hitWall();
+	native sectortype hitSector();
+	native CoreActor hitActor();
+	native void setSector(sectortype s);
+	native void setWall(walltype w);
+	native void setActor(CoreActor a);
+	native void setVoid();
+
+}
 struct Raze
 {
 	const kAngleMask	= 0x7FF;
@@ -156,6 +171,7 @@ struct Raze
 	native static Sound FindSoundByResID(int id);
 	
 	native static sectortype updatesector(Vector2 pos, sectortype lastsect, double maxdist = 96);
+	native static sectortype, Vector3 clipmove(Vector3 pos, sectortype sect, Vector2 move, double walldist, double ceildist, double flordist, uint cliptype, CollisionData coll, int clipmoveboxtracenum = 3);
 
 	// game check shortcuts
 

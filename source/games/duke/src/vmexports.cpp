@@ -898,6 +898,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, centerview, dukeplayer_centerview)
 	return 0;
 }
 
+inline int DukePlayer_PlayerInput(player_struct* pl, int bit)
+{
+	return (!!((pl->sync.actions) & ESyncBits::FromInt(bit)));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playerinput, DukePlayer_PlayerInput)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(bit);
+	ACTION_RETURN_INT(DukePlayer_PlayerInput(self, bit));
+}
+
 void dukeplayer_settargetangle(player_struct* self, double a, int backup)
 {
 	self->Angles.setYaw(DAngle::fromDeg(a), backup);

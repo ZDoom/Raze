@@ -200,7 +200,7 @@ class DukeActor : CoreActor native
 	native void lotsofstuff(Name type, int count);
 	native double gutsoffset();
 	native int movesprite(Vector3 move, int clipmask);
-	native int movesprite_ex(Vector3 move, int clipmask, Collision coll);
+	native int movesprite_ex(Vector3 move, int clipmask, CollisionData coll);
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags

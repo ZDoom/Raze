@@ -41,7 +41,6 @@ void bounce(DDukeActor* i);
 void rpgexplode(DDukeActor* i, int j, const DVector3& pos, int EXPLOSION2, int EXPLOSIONBOT2, int newextra, int playsound);
 void lotsofstuff(DDukeActor* s, int n, int spawntype);
 bool respawnmarker(DDukeActor* i, int yellow, int green);
-bool queball(DDukeActor* i, int pocket, int queball, int stripeball);
 void forcesphere(DDukeActor* i, int forcesphere);
 void recon(DDukeActor* i, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(DDukeActor* i));
 void ooz(DDukeActor* i);

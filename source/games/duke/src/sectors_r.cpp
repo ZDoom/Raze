@@ -1454,21 +1454,11 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		S_PlayActorSound(355, targ);
 		break;
 
-	case STRIPEBALL:
-	case QUEBALL:
 	case BOWLINGPIN:
 	case BOWLINGPIN + 1:
 	case HENSTAND:
 	case HENSTAND + 1:
-		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
-		{
-			proj->vel.X = targ->vel.X * 0.75;
-			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw.Normalized180() * 2 + DAngle180;
-			targ->spr.Angles.Yaw = (targ->spr.pos.XY() - proj->spr.pos.XY()).Angle() - DAngle90;
-			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
-				S_PlayActorSound(POOLBALLHIT, targ);
-		}
-		else if (proj->spr.picnum == BOWLINGPIN || proj->spr.picnum == BOWLINGPIN + 1)
+		if (proj->spr.picnum == BOWLINGPIN || proj->spr.picnum == BOWLINGPIN + 1)
 		{
 			proj->vel.X *= 0.75;
 			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw * 2 + randomAngle(11.25);

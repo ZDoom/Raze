@@ -44,6 +44,10 @@ spawnclasses
 	625 = DukeCamera
 	3190 = DukeRespawnmarker
 	1267 = DukeRat
+	902 = DukeQueball
+	901 = DukeStripeBall
+	903 = DukePoolPocket
+
 
 	1272 = DukeTrash
 	634 = DukeBolt1

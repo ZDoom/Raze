@@ -7,6 +7,7 @@ $conreserve INSERT_CLIP          5
 $conreserve CHAINGUN_FIRE        6
 $conreserve RPG_SHOOT            7
 $conreserve POOLBALLHIT          8
+$limit POOLBALLHIT 2
 $conreserve RPG_EXPLODE          9
 $conreserve CAT_FIRE            10
 $conreserve SHRINKER_FIRE       11

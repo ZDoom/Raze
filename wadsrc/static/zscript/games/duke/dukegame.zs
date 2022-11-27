@@ -90,6 +90,49 @@ struct Duke native
 		SF_DTAG = 128,
 	};
 
+	enum ESyncBits
+	{
+		SB_FIRST_WEAPON_BIT = 1 << 0,
+		SB_ITEM_BIT_1 = 1 << 4,
+		SB_ITEM_BIT_2 = 1 << 5,
+		SB_ITEM_BIT_3 = 1 << 6,
+		SB_ITEM_BIT_4 = 1 << 7,
+		SB_ITEM_BIT_5 = 1 << 8,
+		SB_ITEM_BIT_6 = 1 << 9,
+		SB_ITEM_BIT_7 = 1 << 10,
+
+		SB_INVPREV = 1 << 11,
+		SB_INVNEXT = 1 << 12,
+		SB_INVUSE = 1 << 13,
+		SB_CENTERVIEW = 1 << 14,
+		SB_TURNAROUND = 1 << 15,
+		SB_HOLSTER = 1 << 16,
+		SB_OPEN = 1 << 17,
+
+		SB_AIMMODE = 1 << 18,   
+		SB_QUICK_KICK = 1 << 19,
+		SB_ESCAPE = 1 << 20,
+
+		SB_AIM_UP = 1 << 21,
+		SB_AIM_DOWN = 1 << 22,
+		SB_LOOK_LEFT = 1 << 23,
+		SB_LOOK_RIGHT = 1 << 24,
+		SB_LOOK_UP = 1 << 25,
+		SB_LOOK_DOWN = 1 << 26,
+		SB_RUN = 1 << 27,
+		SB_JUMP = 1 << 28,
+		SB_CROUCH = 1 << 29,
+		SB_FIRE = 1 << 30,
+		SB_ALTFIRE = 1u << 31,
+
+		SB_WEAPONMASK_BITS = (15u * SB_FIRST_WEAPON_BIT), // Weapons take up 4 bits
+		SB_ITEMUSE_BITS = (127u * SB_ITEM_BIT_1),
+
+		SB_BUTTON_MASK = SB_ALTFIRE|SB_FIRE|SB_CROUCH|SB_JUMP|SB_LOOK_UP|SB_LOOK_DOWN|SB_AIM_UP|SB_AIM_DOWN|SB_LOOK_LEFT|SB_LOOK_RIGHT,     // all input from buttons (i.e. active while held)
+		SB_INTERFACE_MASK = (SB_INVPREV|SB_INVNEXT|SB_INVUSE|SB_CENTERVIEW|SB_TURNAROUND|SB_HOLSTER|SB_OPEN|SB_ESCAPE|SB_QUICK_KICK),  // all input from CCMDs
+		SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS | SB_ITEMUSE_BITS | SB_INTERFACE_MASK),
+		SB_ALL = ~0u
+	};
 
 	native static void PlaySpecialMusic(int which);
 	native static int PlaySound(Sound num, int channel = CHAN_AUTO, int flags = 0, float vol =0.8f);
@@ -300,6 +343,7 @@ struct DukePlayer native
 	native void quickkill();
 	native void addPitch(double p);
 	native void centerView();
+	native int playerinput(int bit);
 
 
 }

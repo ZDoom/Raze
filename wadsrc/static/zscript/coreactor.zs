@@ -22,7 +22,7 @@ const maptoworld = (1. / 16.);
 class CoreActor native
 {
 	const REPEAT_SCALE = 1. / 64.;
-	native readonly sectortype sector;
+	native sectortype sector;	// cannot be read-only, some code calls clipmove directly on this.
 	
 	native int16 cstat;
 	//native int16 picnum; // access is disabled to allow later refactoring.
@@ -70,6 +70,7 @@ class CoreActor native
 
 	native clearscope static double deltaangle(double ang1, double ang2);
 	native clearscope static double absangle(double ang1, double ang2);
+	native clearscope static double Normalize180(double ang);
 
 	int randomFlip()
 	{
@@ -90,17 +91,3 @@ class CoreActor native
 
 }
 
-// this only allows function getters to enable validation on the target.
-struct Collision
-{
-	native int type;
-	native int exbits;
-	native walltype hitWall();
-	native sectortype hitSector();
-	native CoreActor hitActor();
-	native void setSector(sectortype s);
-	native void setWall(walltype w);
-	native void setActor(CoreActor a);
-	native void setVoid();
-
-}
