@@ -8,6 +8,12 @@
 
 struct PlayerAngles
 {
+	// Player viewing angles, separate from the camera.
+	DRotator PrevViewAngles, ViewAngles;
+
+	// Holder of current yaw spin state for the 180 degree turn.
+	DAngle YawSpin;
+
 	// Temporary wrappers.
 	DAngle& ZzHORIZON() { return pActor->spr.Angles.Pitch; }
 	DAngle& ZzOLDHORIZON() { return pActor->PrevAngles.Pitch; }
@@ -25,6 +31,7 @@ struct PlayerAngles
 
 	// General methods.
 	void resetAdjustments() { Adjustments = {}; }
+	void backupViewAngles() { PrevViewAngles = ViewAngles; }
 	void setActor(DCoreActor* const actor) { pActor = actor; }
 
 	// Pitch methods.
@@ -93,20 +100,17 @@ struct PlayerAngles
 
 
 	// Legacy, to be removed.
-	DAngle ZzHORIZOFF, ZzOHORIZOFF;
-	DAngle horizOLDSUM() { return ZzOLDHORIZON() + ZzOHORIZOFF; }
-	DAngle horizSUM() { return ZzHORIZON() + ZzHORIZOFF; }
+	DAngle horizOLDSUM() { return ZzOLDHORIZON() + PrevViewAngles.Pitch; }
+	DAngle horizSUM() { return ZzHORIZON() + ViewAngles.Pitch; }
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
-
-	DAngle ZzLOOKANG, ZzOLDLOOKANG, ZzROTSCRNANG, ZzOLDROTSCRNANG, YawSpin;
-	DAngle angOLDSUM() { return ZzOLDANGLE() + ZzOLDLOOKANG; }
-	DAngle angSUM() { return ZzANGLE() + ZzLOOKANG; }
+	DAngle angOLDSUM() { return ZzOLDANGLE() + PrevViewAngles.Yaw; }
+	DAngle angSUM() { return ZzANGLE() + ViewAngles.Yaw; }
 	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(angOLDSUM(), angSUM(), interpfrac); }
 	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE(), ZzANGLE(), interpfrac); }
-	DAngle angLERPLOOKANG(double const interpfrac) { return interpolatedvalue(ZzOLDLOOKANG, ZzLOOKANG, interpfrac); }
-	DAngle angLERPROTSCRN(double const interpfrac) { return interpolatedvalue(ZzOLDROTSCRNANG, ZzROTSCRNANG, interpfrac); }
-	DAngle angRENDERLOOKANG(double const interpfrac) { return !SyncInput() ? ZzLOOKANG : angLERPLOOKANG(interpfrac); }
-	DAngle angRENDERROTSCRN(double const interpfrac) { return !SyncInput() ? ZzROTSCRNANG : angLERPROTSCRN(interpfrac); }
+	DAngle angLERPLOOKANG(double const interpfrac) { return interpolatedvalue(PrevViewAngles.Yaw, ViewAngles.Yaw, interpfrac); }
+	DAngle angLERPROTSCRN(double const interpfrac) { return interpolatedvalue(PrevViewAngles.Roll, ViewAngles.Roll, interpfrac); }
+	DAngle angRENDERLOOKANG(double const interpfrac) { return !SyncInput() ? ViewAngles.Yaw : angLERPLOOKANG(interpfrac); }
+	DAngle angRENDERROTSCRN(double const interpfrac) { return !SyncInput() ? ViewAngles.Roll : angLERPROTSCRN(interpfrac); }
 
 private:
 	// DRotator indices.

@@ -1252,7 +1252,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     {
         tang = pp->Angles.angSUM();
         thoriz = pp->Angles.horizSUM();
-        trotscrnang = pp->Angles.ZzROTSCRNANG;
+        trotscrnang = pp->Angles.ViewAngles.Roll;
     }
     tsect = camerapp->cursector;
 

@@ -503,7 +503,7 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 		{
 			cA = pPlayer->Angles.angSUM();
 			cH = pPlayer->Angles.horizSUM();
-			rotscrnang = pPlayer->Angles.ZzROTSCRNANG;
+			rotscrnang = pPlayer->Angles.ViewAngles.Roll;
 		}
 		else
 		{

@@ -354,12 +354,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_HORIZOFF:
-		if (bSet) ps[iPlayer].Angles.ZzHORIZOFF = maphoriz(-lValue);
-		else SetGameVarID(lVar2, int(ps[iPlayer].Angles.ZzHORIZOFF.Tan() * -128.), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.ViewAngles.Pitch = maphoriz(-lValue);
+		else SetGameVarID(lVar2, int(ps[iPlayer].Angles.ViewAngles.Pitch.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZOFF:
-		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].Angles.ZzOHORIZOFF.Tan() * -128.), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, int(ps[iPlayer].Angles.PrevViewAngles.Pitch.Tan() * -128.), sActor, sPlayer);
 		break;
 
 	case PLAYER_INVDISPTIME:
@@ -490,8 +490,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) ps[iPlayer].Angles.ZzLOOKANG = mapangle(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].Angles.ZzLOOKANG.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.ViewAngles.Yaw = mapangle(lValue);
+		else SetGameVarID(lVar2, ps[iPlayer].Angles.ViewAngles.Yaw.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_EXTRA:
@@ -710,8 +710,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].Angles.ZzOLDROTSCRNANG = ps[iPlayer].Angles.ZzROTSCRNANG = -mapangle(lValue);
-		else SetGameVarID(lVar2, -ps[iPlayer].Angles.ZzROTSCRNANG.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.PrevViewAngles.Roll = ps[iPlayer].Angles.ViewAngles.Roll = -mapangle(lValue);
+		else SetGameVarID(lVar2, -ps[iPlayer].Angles.ViewAngles.Roll.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_DEAD_FLAG:
@@ -2249,7 +2249,7 @@ int ParseState::parse(void)
 			ps[g_p].Angles.ZzOLDHORIZON() = ps[g_p].Angles.ZzHORIZON() = nullAngle;
 			ps[g_p].on_crane = nullptr;
 			ps[g_p].frag_ps = g_p;
-			ps[g_p].Angles.ZzOHORIZOFF = ps[g_p].Angles.ZzHORIZOFF = nullAngle;
+			ps[g_p].Angles.PrevViewAngles.Pitch = ps[g_p].Angles.ViewAngles.Pitch = nullAngle;
 			ps[g_p].opyoff = 0;
 			ps[g_p].wackedbyactor = nullptr;
 			ps[g_p].shield_amount = gs.max_armour_amount;
@@ -2260,7 +2260,7 @@ int ParseState::parse(void)
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].vel.X = ps[g_p].vel.Y = 0;
-			if (!isRR()) ps[g_p].Angles.ZzOLDROTSCRNANG = ps[g_p].Angles.ZzROTSCRNANG = nullAngle;
+			if (!isRR()) ps[g_p].Angles.PrevViewAngles.Roll = ps[g_p].Angles.ViewAngles.Roll = nullAngle;
 
 			ps[g_p].falling_counter = 0;
 

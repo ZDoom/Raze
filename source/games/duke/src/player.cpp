@@ -120,8 +120,8 @@ void forceplayerangle(int snum)
 
 	p->Angles.addPitch(DAngle::fromDeg(-26.566));
 	p->sync.actions |= SB_CENTERVIEW;
-	p->Angles.ZzLOOKANG = ang;
-	p->Angles.ZzROTSCRNANG = -ang;
+	p->Angles.ViewAngles.Yaw = ang;
+	p->Angles.ViewAngles.Roll = -ang;
 }
 
 //---------------------------------------------------------------------------
@@ -617,14 +617,14 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 
 	actor->backuploc();
 
-	p->Angles.ZzHORIZOFF = p->Angles.ZzHORIZON() = nullAngle;
+	p->Angles.ViewAngles.Pitch = p->Angles.ZzHORIZON() = nullAngle;
 
 	updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
 
 	pushmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, 8, 4, 20, CLIPMASK0);
 	
 	if (floorz > ceilingz + 16 && actor->spr.pal != 1)
-		p->Angles.ZzROTSCRNANG = DAngle::fromBuild(-(p->dead_flag + ((floorz + p->GetActor()->getOffsetZ()) * 2)));
+		p->Angles.ViewAngles.Roll = DAngle::fromBuild(-(p->dead_flag + ((floorz + p->GetActor()->getOffsetZ()) * 2)));
 
 	p->on_warping_sector = 0;
 
@@ -736,16 +736,16 @@ void player_struct::apply_seasick(double factor)
 		if (SeaSick < 250)
 		{
 			if (SeaSick >= 180)
-				Angles.ZzROTSCRNANG -= DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ViewAngles.Roll -= DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 130)
-				Angles.ZzROTSCRNANG += DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ViewAngles.Roll += DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 70)
-				Angles.ZzROTSCRNANG -= DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ViewAngles.Roll -= DAngle::fromDeg(24 * factor * BAngToDegree);
 			else if (SeaSick >= 20)
-				Angles.ZzROTSCRNANG += DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ViewAngles.Roll += DAngle::fromDeg(24 * factor * BAngToDegree);
 		}
 		if (SeaSick < 250)
-			Angles.ZzLOOKANG = DAngle::fromDeg(((krand() & 255) - 128) * factor * BAngToDegree);
+			Angles.ViewAngles.Yaw = DAngle::fromDeg(((krand() & 255) - 128) * factor * BAngToDegree);
 	}
 }
 

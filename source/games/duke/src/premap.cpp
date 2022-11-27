@@ -125,7 +125,7 @@ void resetplayerstats(int snum)
 	p->footprintpal     = 0;
 	p->footprintshade   = 0;
 	p->jumping_toggle   = 0;
-	p->Angles.ZzOHORIZOFF = p->Angles.ZzHORIZOFF = nullAngle;
+	p->Angles.PrevViewAngles.Pitch = p->Angles.ViewAngles.Pitch = nullAngle;
 	p->bobcounter       = 0;
 	p->on_ground        = 0;
 	p->player_par       = 0;
@@ -150,8 +150,8 @@ void resetplayerstats(int snum)
 	p->jetpack_on =         0;
 	p->holoduke_on =       nullptr;
 
-	p->Angles.ZzOLDLOOKANG = p->Angles.ZzLOOKANG = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
-	p->Angles.ZzOLDROTSCRNANG = p->Angles.ZzROTSCRNANG = nullAngle;
+	p->Angles.PrevViewAngles.Yaw = p->Angles.ViewAngles.Yaw = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
+	p->Angles.PrevViewAngles.Roll = p->Angles.ViewAngles.Roll = nullAngle;
 
 	p->newOwner          =nullptr;
 	p->jumping_counter   = 0;

@@ -236,7 +236,7 @@ void DrawView(double interpfrac, bool sceneonly)
         {
             nCamerapan = PlayerList[nLocalPlayer].Angles.horizSUM();
             nCameraang = PlayerList[nLocalPlayer].Angles.angSUM();
-            rotscrnang = PlayerList[nLocalPlayer].Angles.ZzROTSCRNANG;
+            rotscrnang = PlayerList[nLocalPlayer].Angles.ViewAngles.Roll;
         }
         else
         {

@@ -822,7 +822,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	pPlayer->actor->xspr.health = pDudeInfo->startHealth << 4;
 	pPlayer->actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	pPlayer->bloodlust = 0;
-	pPlayer->Angles.ZzHORIZON() = pPlayer->Angles.ZzHORIZOFF = nullAngle;
+	pPlayer->Angles.ZzHORIZON() = pPlayer->Angles.ViewAngles.Pitch = nullAngle;
 	pPlayer->slope = 0;
 	pPlayer->fragger = nullptr;
 	pPlayer->underwaterTime = 1200;
@@ -1523,6 +1523,7 @@ void ProcessInput(PLAYER* pPlayer)
 	};
 
 	pPlayer->Angles.resetAdjustments();
+	pPlayer->Angles.backupViewAngles();
 
 	DBloodActor* actor = pPlayer->actor;
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];

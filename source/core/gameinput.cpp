@@ -225,14 +225,14 @@ void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const
 void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process angle return to zeros.
-	scaletozero(ZzROTSCRNANG, YAW_LOOKRETURN, scaleAdjust);
-	scaletozero(ZzLOOKANG, YAW_LOOKRETURN, scaleAdjust);
+	scaletozero(ViewAngles.Roll, YAW_LOOKRETURN, scaleAdjust);
+	scaletozero(ViewAngles.Yaw, YAW_LOOKRETURN, scaleAdjust);
 
 	// Process keyboard input.
 	if (auto looking = !!(*actions & SB_LOOK_RIGHT) - !!(*actions & SB_LOOK_LEFT))
 	{
-		ZzLOOKANG += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * looking;
-		ZzROTSCRNANG += getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * looking;
+		ViewAngles.Yaw += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * looking;
+		ViewAngles.Roll += getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * looking;
 	}
 
 	if (!lockedYaw())
@@ -302,7 +302,7 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, rotpt) - k) <= 4))
 				{
-					ZzHORIZOFF -= maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
+					ViewAngles.Pitch -= maphoriz(scaleAdjust * ((j - k) * (!isBlood() ? 0.625 : 5.5)));
 				}
 			}
 		}
@@ -310,16 +310,16 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (ZzHORIZOFF > PITCH_HORIZOFFCLIMB) ZzHORIZOFF += getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(ZzHORIZOFF, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
+			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB) ViewAngles.Pitch += getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(ZzHORIZOFF, PITCH_HORIZOFFSPEED, scaleAdjust, PITCH_HORIZOFFPUSH);
+			scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, scaleAdjust, PITCH_HORIZOFFPUSH);
 		}
 
 		// Clamp off against the maximum allowed pitch.
-		ZzHORIZOFF = ClampViewPitch(ZzHORIZOFF);
+		ViewAngles.Pitch = ClampViewPitch(ViewAngles.Pitch);
 	}
 }
 
@@ -334,19 +334,15 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("lookang", w.ZzLOOKANG)
-			("rotscrnang", w.ZzROTSCRNANG)
+		arc("viewangles", w.ViewAngles)
 			("spin", w.YawSpin)
 			("actor", w.pActor)
 			("anglelocks", w.AngleLocks)
-			("horizoff", w.ZzHORIZOFF)
 			.EndObject();
 
 		if (arc.isReading())
 		{
-			w.ZzOLDLOOKANG = w.ZzLOOKANG;
-			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
-			w.ZzOHORIZOFF = w.ZzHORIZOFF;
+			w.backupViewAngles();
 			w.resetAdjustments();
 		}
 	}
