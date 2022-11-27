@@ -7045,7 +7045,6 @@ void InitAllPlayers(void)
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
-        pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = pfirst->Angles.ZzANGLE();
         pp->cursector = pfirst->cursector;
         // set like this so that player can trigger something on start of the level
         pp->lastcursector = pfirst->cursector+1;
@@ -7200,14 +7199,14 @@ void PlayerSpawnPosition(PLAYER* pp)
 
     ASSERT(spawn_sprite != nullptr);
 
-    pp->Angles.ZzANGLE() = pp->Angles.ZzOLDANGLE() = spawn_sprite->spr.Angles.Yaw; // check me out later.
     pp->setcursector(spawn_sprite->sector());
 
     if (pp->actor)
     {
+        pp->actor->spr.Angles.Yaw = spawn_sprite->spr.Angles.Yaw;
         pp->actor->spr.pos = spawn_sprite->spr.pos;
         pp->actor->viewzoffset = spawn_sprite->viewzoffset;
-        pp->actor->backuppos();
+        pp->actor->backuploc();
     }
 }
 
@@ -7217,7 +7216,7 @@ void PlayerSpawnPosition(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void InitMultiPlayerInfo(const DVector3& spawnpos)
+void InitMultiPlayerInfo(const DVector3& spawnpos, const DAngle startang)
 {
     PLAYER* pp;
     short pnum;
@@ -7263,7 +7262,7 @@ void InitMultiPlayerInfo(const DVector3& spawnpos)
                 continue;
         }
 
-        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, spawnpos.plusZ(PLAYER_HEIGHTF), pp->Angles.ZzANGLE());
+        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, spawnpos.plusZ(PLAYER_HEIGHTF), startang);
         start0->viewzoffset = -PLAYER_HEIGHTF;
 
         // if too close to the floor - stand up
@@ -7272,7 +7271,7 @@ void InitMultiPlayerInfo(const DVector3& spawnpos)
         {
             start0->spr.pos.Z = fz;
         }
-        start0->backuppos();
+        start0->backuploc();
         start0->clearUser();
         start0->spr.picnum = ST1;
     }

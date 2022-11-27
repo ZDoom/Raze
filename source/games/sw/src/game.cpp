@@ -414,7 +414,6 @@ void InitLevel(MapRecord *maprec)
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     TITLE_InformName(currentLevel->name);
-    Player[0].Angles.ZzANGLE() = DAngle::fromBuild(ang);
 
     auto vissect = &sector[0]; // hack alert!
     if (vissect->extra != -1)
@@ -433,8 +432,8 @@ void InitLevel(MapRecord *maprec)
 
     QueueReset();
     PreMapCombineFloors();
-    InitMultiPlayerInfo(ppos);
-    InitAllPlayerSprites(ppos);
+    InitMultiPlayerInfo(ppos, mapangle(ang));
+    InitAllPlayerSprites(ppos, mapangle(ang));
 
     //
     // Do setup for sprite, track, panel, sector, etc

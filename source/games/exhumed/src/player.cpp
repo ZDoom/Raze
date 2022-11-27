@@ -296,8 +296,7 @@ void RestartPlayer(int nPlayer)
 
 		pActor->spr.pos = nNStartSprite->spr.pos;
 		ChangeActorSect(pActor, nNStartSprite->sector());
-		plr->Angles.ZzANGLE() = nNStartSprite->spr.Angles.Yaw; // check me out later.
-		pActor->spr.Angles.Yaw = plr->Angles.ZzANGLE(); // check me out later.
+        pActor->spr.Angles.Yaw = nNStartSprite->spr.Angles.Yaw;
 
 		floorsprt = insertActor(pActor->sector(), 0);
 
@@ -310,13 +309,12 @@ void RestartPlayer(int nPlayer)
 	{
         pActor->spr.pos.XY() = plr->sPlayerSave.pos.XY();
 		pActor->spr.pos.Z = plr->sPlayerSave.pSector->floorz;
-		plr->Angles.ZzANGLE() = plr->sPlayerSave.nAngle;
-		pActor->spr.Angles.Yaw = plr->Angles.ZzANGLE(); // check me out later.
+		pActor->spr.Angles.Yaw = plr->sPlayerSave.nAngle;
 
 		floorsprt = nullptr;
 	}
 
-	plr->Angles.backupYaw();
+    pActor->backuploc();
 
 	plr->pPlayerFloorSprite = floorsprt;
 

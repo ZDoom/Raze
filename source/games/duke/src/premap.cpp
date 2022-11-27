@@ -504,7 +504,7 @@ void resetprestat(int snum,int g)
 //
 //---------------------------------------------------------------------------
 
-void resetpspritevars(int g, const DVector3& startpos)
+void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 {
 	int i, j;
 	int circ;
@@ -512,7 +512,7 @@ void resetpspritevars(int g, const DVector3& startpos)
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
 	auto newActor = CreateActor(ps[0].cursector, startpos.plusZ(gs.playerheight),
-		TILE_APLAYER, 0, DVector2(0, 0), ps[0].Angles.ZzANGLE(), 0., 0., nullptr, 10);
+		TILE_APLAYER, 0, DVector2(0, 0), startang, 0., 0., nullptr, 10);
 
 	newActor->spr.Angles.Pitch = DAngle::fromDeg(-17.354);
 	newActor->viewzoffset = -gs.playerheight;
@@ -627,7 +627,6 @@ void resetpspritevars(int g, const DVector3& startpos)
 			act->SetOwner(act);
 
 			ps[j].setbobpos();
-			ps[j].Angles.ZzOLDANGLE() = ps[j].Angles.ZzANGLE() = act->spr.Angles.Yaw; // check me out later.
 
 			updatesector(act->spr.pos, &ps[j].cursector);
 
@@ -982,8 +981,6 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	SECRET_SetMapName(mi->DisplayName(), mi->name);
 	STAT_NewLevel(mi->fileName);
 	TITLE_InformName(mi->name);
-	
-	p->Angles.ZzANGLE() = mapangle(lbang);
 
 	gotpic.Zero();
 
@@ -995,7 +992,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	SpawnPortals();
 
 	allignwarpelevators();
-	resetpspritevars(gamemode, pos);
+	resetpspritevars(gamemode, pos, mapangle(lbang));
 
 	if (isRR()) cacheit_r(); else cacheit_d();
 	return 0;

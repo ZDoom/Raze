@@ -348,13 +348,18 @@ void S_GetCamera(DVector3* c, DAngle* ca, sectortype** cs)
 	if (ud.cameraactor == nullptr)
 	{
 		auto p = &ps[screenpeek];
+		auto pact = p->GetActor();
 		if (c)
 		{
-			if (p->GetActor()) *c = p->GetActor()->getPosWithOffsetZ();
+			if (pact) *c = pact->getPosWithOffsetZ();
 			else  c->Zero();
 		}
 		if (cs) *cs = p->cursector;
-		if (ca) *ca = p->Angles.ZzANGLE();
+		if (ca)
+		{
+			if (pact) *ca = pact->spr.Angles.Yaw;
+			else *ca = nullAngle;
+		}
 	}
 	else
 	{
