@@ -603,7 +603,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
-        DVector3 fpos(pos->X* inttoworld, pos->Y* inttoworld, pos->Z* inttoworld);
+        DVector3 fpos(pos->X* inttoworld, pos->Y* inttoworld, pos->Z* zinttoworld);
 
         for (int j=0; j<clipsectnum; j++)
             if (inside(fpos.X, fpos.Y, &sector[clipsectorlist[j]]) == 1)

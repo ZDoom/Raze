@@ -6386,7 +6386,7 @@ Collision move_sprite(DSWActor* actor, const DVector3& change, double ceildist, 
     // I subtracted 8 from the clipdist because actors kept going up on
     // ledges they were not supposed to go up on.  Did the same for the
     // player. Seems to work ok!
-    auto pos = actor->spr.pos.plusZ(-zH - maptoworld);
+    auto pos = actor->spr.pos.plusZ(-zH - zmaptoworld);
     FAFgetzrange(pos, actor->sector(),
                  &globhiz, &globhihit, &globloz, &globlohit,
                  actor->clipdist - GETZRANGE_CLIP_ADJ, cliptype);
@@ -6544,7 +6544,7 @@ int MissileZrange(DSWActor* actor)
     auto tempshort = actor->spr.cstat;
     actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(actor->spr.pos.plusZ(-maptoworld), actor->sector(), &globhiz, &globhihit, &globloz, &globlohit);
+    FAFgetzrangepoint(actor->spr.pos.plusZ(-zmaptoworld), actor->sector(), &globhiz, &globhihit, &globloz, &globlohit);
 
     actor->spr.cstat = tempshort;
 

@@ -14981,7 +14981,7 @@ int InitCoolgFire(DSWActor* actor)
 int DoCoolgDrip(DSWActor* actor)
 {
     actor->user.Counter += 220;
-    actor->spr.pos.Z += actor->user.Counter * maptoworld;
+    actor->spr.pos.Z += actor->user.Counter * zmaptoworld;
 
     if (actor->spr.pos.Z > actor->user.loz - actor->user.floor_dist)
     {
