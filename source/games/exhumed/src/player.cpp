@@ -181,6 +181,7 @@ void InitPlayer()
 {
     for (int i = 0; i < kMaxPlayers; i++) {
         PlayerList[i].pActor = nullptr;
+        PlayerList[i].Angles.setActor(nullptr);
         PlayerList[i].pPlayerPushSect = nullptr;
         PlayerList[i].pPlayerViewSect = nullptr;
     }
@@ -209,6 +210,7 @@ void InitPlayerInventory(int nPlayer)
     PlayerList[nPlayer].nLives = kDefaultLives;
 
     PlayerList[nPlayer].pActor = nullptr;
+    PlayerList[nPlayer].Angles.setActor(nullptr);
     PlayerList[nPlayer].nRun = -1;
 
     PlayerList[nPlayer].nPistolClip = 6;
@@ -260,6 +262,7 @@ void RestartPlayer(int nPlayer)
 		ChangeActorStat(pActor, 0);
 
         plr->pActor = nullptr;
+        plr->Angles.setActor(nullptr);
 
 		DExhumedActor* pFloorSprite = plr->pPlayerFloorSprite;
 		if (pFloorSprite != nullptr) {
@@ -356,6 +359,7 @@ void RestartPlayer(int nPlayer)
 
 	plr->nSeqSize = 0;
 	plr->pActor = pActor;
+    plr->Angles.setActor(pActor);
 	plr->bIsMummified = false;
 
 	if (plr->invincibility >= 0) {

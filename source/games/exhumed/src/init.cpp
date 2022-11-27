@@ -156,6 +156,7 @@ uint8_t LoadLevel(MapRecord* map)
     for (i = 0; i < kMaxPlayers; i++)
     {
         PlayerList[i].pActor = nullptr;
+        PlayerList[i].Angles.setActor(nullptr);
     }
 
     g_visibility = 1024;

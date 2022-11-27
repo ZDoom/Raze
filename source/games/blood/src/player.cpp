@@ -801,6 +801,7 @@ void playerStart(int nPlayer, int bNewLevel)
 	auto actor = actSpawnSprite(pStartZone->sector, pStartZone->pos, 6, 1);
 	assert(actor->hasX());
 	pPlayer->actor = actor;
+	pPlayer->Angles.setActor(actor);
 	DUDEINFO* pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
 	pPlayer->pDudeInfo = pDudeInfo;
 	playerSetRace(pPlayer, kModeHuman);

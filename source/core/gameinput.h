@@ -17,6 +17,9 @@ struct PlayerAngles
 	// Prototypes for applying view.
 	void doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
 
+	// General methods.
+	void setActor(DCoreActor* const actor) { pActor = actor; }
+
 	// Pitch methods.
 	void lockPitch() { legacyDisabledPitch = true; }
 	void unlockPitch() { legacyDisabledPitch = false; }
@@ -180,6 +183,8 @@ struct PlayerAngles
 	void resetAdjustmentYaw() { legacyAdjustmentYaw = nullAngle; }
 
 private:
+	// Private data which should never be accessed publically.
+	DCoreActor* pActor;
 
 
 	// Legacy, to be removed.

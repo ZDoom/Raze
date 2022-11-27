@@ -338,6 +338,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 			("lookang", w.ZzLOOKANG)
 			("rotscrnang", w.ZzROTSCRNANG)
 			("spin", w.YawSpin)
+			("actor", w.pActor)
 			("inputdisabled", w.legacyDisabledYaw)
 			("horiz", w.ZzHORIZON)
 			("horizoff", w.ZzHORIZOFF)

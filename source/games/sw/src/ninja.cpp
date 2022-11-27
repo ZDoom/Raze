@@ -2407,6 +2407,8 @@ void InitPlayerSprite(PLAYER* pp, const DVector3& spawnpos)
     pp->actor = actor;
     pp->pnum = pnum;
 
+    pp->Angles.setActor(actor);
+
     actor->spr.cstat |= (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     actor->spr.extra |= (SPRX_PLAYER_OR_ENEMY);
     actor->spr.cstat &= ~(CSTAT_SPRITE_TRANSLUCENT);
