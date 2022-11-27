@@ -681,36 +681,6 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 //
 //---------------------------------------------------------------------------
 
-bool rat(DDukeActor* actor, bool makesound)
-{
-	makeitfall(actor);
-	if (ssp(actor, CLIPMASK0))
-	{
-		if (makesound && (krand() & 255) == 0) S_PlayActorSound(RATTY, actor);
-		actor->spr.Angles.Yaw += mapangle((krand() & 31) - 15 + int(BobVal(actor->temp_data[0] << 8) * 8));
-	}
-	else
-	{
-		actor->temp_data[0]++;
-		if (actor->temp_data[0] > 1)
-		{
-			actor->Destroy();
-			return false;
-		}
-		else actor->spr.Angles.Yaw = randomAngle();
-	}
-	if (actor->vel.X < 8)
-		actor->vel.X += 1/8.;
-	actor->spr.Angles.Yaw += mapangle((krand() & 3) - 6);
-	return true;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 {
 	if(actor->vel.X != 0)

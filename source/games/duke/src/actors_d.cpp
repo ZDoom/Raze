@@ -2305,9 +2305,6 @@ void moveactors_d(void)
 				spawn(act, EXPLOSION2);
 			ssp(act, CLIPMASK0);
 			break;
-		case RAT:
-			if (!rat(act, true)) continue;
-			break;
 		case QUEBALL:
 		case STRIPEBALL:
 			if (!queball(act, POCKET, QUEBALL, STRIPEBALL)) continue;

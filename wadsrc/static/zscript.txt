@@ -58,6 +58,7 @@ version "4.10"
 #include "zscript/games/duke/actors/respawncontroller.zs"
 #include "zscript/games/duke/actors/respawnmarker.zs"
 
+#include "zscript/games/duke/actors/rat.zs"
 #include "zscript/games/duke/actors/jibs.zs"
 #include "zscript/games/duke/actors/crane.zs"
 #include "zscript/games/duke/actors/waterfountain.zs"

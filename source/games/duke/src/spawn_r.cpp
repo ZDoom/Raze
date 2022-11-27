@@ -510,7 +510,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case BOULDER:
 	case BOULDER1:
-	case RAT:
 	case TORNADO:
 	case BILLYCOCK:
 	case BILLYRAY:
@@ -726,20 +725,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			makeitfall(act);
 
-			if (act->spr.picnum == RAT)
-			{
-				act->spr.Angles.Yaw = randomAngle();
-				act->spr.scale = DVector2(0.75, 0.75);
-				act->spr.cstat = 0;
-			}
-			else
-			{
-				act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
-				if (act->spr.picnum != 5501)
-					if (actorfella(act))
-						ps[myconnectindex].max_actors_killed++;
-			}
+			if (act->spr.picnum != 5501)
+				if (actorfella(act))
+					ps[myconnectindex].max_actors_killed++;
 
 			if (actj)
 			{

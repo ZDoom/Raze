@@ -627,7 +627,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case LIZMANFEEDING:
 	case LIZMANJUMP:
 	case ORGANTIC:
-	case RAT:
 	case SHARK:
 
 		if (act->spr.pal == 0)
@@ -688,19 +687,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			makeitfall(act);
 
-			if (act->spr.picnum == RAT)
-			{
-				act->spr.Angles.Yaw = randomAngle();
-				act->spr.scale = DVector2(0.75, 0.75);
-				act->spr.cstat = 0;
-			}
-			else
-			{
-				act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-
-				if (act->spr.picnum != SHARK)
-					ps[myconnectindex].max_actors_killed++;
-			}
+			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+			if (act->spr.picnum != SHARK)
+				ps[myconnectindex].max_actors_killed++;
 
 			if (act->spr.picnum == ORGANTIC) act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 

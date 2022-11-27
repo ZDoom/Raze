@@ -2037,9 +2037,6 @@ void moveactors_r(void)
 		}
 		else switch(act->spr.picnum)
 		{
-			case RAT:
-				if (!rat(act, !isRRRA())) continue;
-				break;
 			case BOWLINGBALL:
 				if (act->vel.X != 0)
 				{

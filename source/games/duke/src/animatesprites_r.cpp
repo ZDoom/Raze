@@ -846,16 +846,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			break;
 
-		case RAT:
-			k = angletorotation1(t->Angles.Yaw, viewang);
-			if (k > 4)
-			{
-				k = 8 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = h->spr.picnum + k;
-			break;
 		}
 
 		h->dispicnum = t->picnum;
