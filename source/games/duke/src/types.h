@@ -191,7 +191,7 @@ struct player_struct
 	PalEntry pals;
 
 	// this was a global variable originally.
-	vec2_t loogie[64];
+	DVector2 loogie[64];
 
 	// weapon drawer variables and their interpolation counterparts.
 	int weapon_sway;

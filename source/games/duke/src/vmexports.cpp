@@ -183,7 +183,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, badguyID, badguypic)
 }
 
 
-
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
@@ -274,6 +273,17 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, findplayer, DukeActor_findplayer)
 	return min(numret, 2);
 }
 
+player_struct* DukeActor_getplayer(DDukeActor* self)
+{
+	return self->isPlayer() ? &ps[self->PlayerIndex()] : nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, getplayer, DukeActor_getplayer)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_POINTER(DukeActor_getplayer(self));
+}
+
 int DukeActor_ifhitbyweapon(DDukeActor* self)
 {
 	return fi.ifhitbyweapon(self);
@@ -304,6 +314,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, PlayActorSound, DukeActor_PlayActorSou
 	PARAM_INT(chan);
 	PARAM_INT(flags);
 	ACTION_RETURN_INT(DukeActor_PlayActorSound(self, snd, chan, flags));
+}
+
+int DukeActor_IsSoundPlaying(DDukeActor* self, int snd, int chan)
+{
+	return S_CheckActorSoundPlaying(self, FSoundID::fromInt(snd), chan);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, CheckSoundPlaying, DukeActor_IsSoundPlaying)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(snd);
+	PARAM_INT(chan);
+	ACTION_RETURN_INT(DukeActor_IsSoundPlaying(self, snd, chan));
 }
 
 void DukeActor_StopSound(DDukeActor* self, int snd, int flags)
@@ -385,6 +408,22 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, movesprite, DukeActor_movesprite)
 	PARAM_FLOAT(velz);
 	PARAM_INT(clipmask);
 	ACTION_RETURN_INT(DukeActor_movesprite(self, velx, vely, velz, clipmask));
+}
+
+int DukeActor_movesprite_ex(DDukeActor* actor, double velx, double vely, double velz, int clipmask, Collision* coll)
+{
+	return movesprite_ex(actor, DVector3(velx, vely, velz), clipmask, *coll);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, movesprite_ex, DukeActor_movesprite_ex)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_FLOAT(velx);
+	PARAM_FLOAT(vely);
+	PARAM_FLOAT(velz);
+	PARAM_INT(clipmask);
+	PARAM_POINTER(coll, Collision);
+	ACTION_RETURN_INT(DukeActor_movesprite_ex(self, velx, vely, velz, clipmask, coll));
 }
 
 DDukeActor* DukeActor_Spawnsprite(DDukeActor* origin, int picnum)
@@ -490,7 +529,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ChangeStat, ChangeActorStat)
 
 void DukeActor_detonate(DDukeActor* origin, int intname)
 {
-	// all callers use "EXPLOSION2", so ignore the parameter for now
+	// all callers use "EXPLOSION2", so ignore the parameter for now. This should be fixed once EXPLOSION2 gets scriptified.
 	int picnum = TileFiles.tileForName("EXPLOSION2");
 	detonate(origin, picnum);
 }
@@ -546,6 +585,33 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, isplayer, duke_isplayer)
 	ACTION_RETURN_INT(duke_isplayer(self));
 }
 
+void DukeActor_checkhitsprite(DDukeActor* act, DDukeActor* hitter)
+{
+	fi.checkhitsprite(act, hitter);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, checkhitsprite, DukeActor_checkhitsprite)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(h, DDukeActor);
+	DukeActor_checkhitsprite(self, h);
+	return 0;
+}
+
+int duke_spw(DDukeActor* act)
+{
+	return tileWidth(act->spr.picnum);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spritewidth, duke_spw)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(duke_spw(self));
+}
+
+
+
+
 // temporary helpers to hide the fact that these flags are not part of the actor yet.
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)
 {
@@ -597,8 +663,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, ohard_landing)
 DEFINE_FIELD_X(DukePlayer, player_struct, psectlotag)
 //DEFINE_FIELD_X(DukePlayer, player_struct, exitx)
 //DEFINE_FIELD_X(DukePlayer, player_struct, exity)
-//DEFINE_FIELD_X(DukePlayer, player_struct, loogiex)
-//DEFINE_FIELD_X(DukePlayer, player_struct, loogiey)
+DEFINE_FIELD_UNSIZED(DukePlayer, player_struct, loogie)
 DEFINE_FIELD_X(DukePlayer, player_struct, numloogs)
 DEFINE_FIELD_X(DukePlayer, player_struct, loogcnt)
 DEFINE_FIELD_X(DukePlayer, player_struct, invdisptime)
@@ -821,6 +886,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addpos, dukeplayer_addpos)
 	return 0;
 }
 
+void dukeplayer_centerview(player_struct* self)
+{
+	self->sync.actions |= SB_CENTERVIEW;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, centerview, dukeplayer_centerview)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	self->sync.actions |= SB_CENTERVIEW;
+	return 0;
+}
+
 void dukeplayer_settargetangle(player_struct* self, double a, int backup)
 {
 	self->Angles.setYaw(DAngle::fromDeg(a), backup);
@@ -844,6 +921,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, angle, dukeplayer_angle)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
 	ACTION_RETURN_FLOAT(dukeplayer_angle(self));
+}
+
+void dukeplayer_addpitch(player_struct* self, double a)
+{
+	self->Angles.addPitch(DAngle::fromDeg(a));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addpitch, dukeplayer_addpitch)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_FLOAT(a);
+	dukeplayer_addpitch(self, a);
+	return 0;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, clearcameras, clearcameras)
@@ -1014,6 +1104,37 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ismirror, duke_ismirror)
 	PARAM_PROLOGUE;
 	PARAM_POINTER(wal, walltype);
 	ACTION_RETURN_BOOL(duke_ismirror(wal));
+}
+
+void duke_checkhitwall(walltype* wal, DDukeActor * actor, double x, double y, double z)
+{
+	fi.checkhitwall(actor, wal, DVector3(x, y, z), actor->spr.picnum);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, checkhitwall, duke_checkhitwall)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(wal, walltype);
+	PARAM_POINTER(act, DDukeActor);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	duke_checkhitwall(wal, act, x, y, z);
+	return 0;
+}
+
+void duke_checkhitceiling(sectortype* sect, DDukeActor* actor)
+{
+	fi.checkhitceiling(sect); // actor is currently unused, this may change.
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, checkhitceiling, duke_checkhitceiling)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(wal, sectortype);
+	PARAM_POINTER(act, DDukeActor);
+	fi.checkhitceiling(wal);
+	return 0;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, addcycler, addcycler)

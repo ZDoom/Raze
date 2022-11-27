@@ -27,6 +27,7 @@ class CoreActor native
 	native int16 cstat;
 	//native int16 picnum; // access is disabled to allow later refactoring.
 	native Vector3 pos;
+	native Vector3 opos;
 	native readonly int16 statnum;
 	native int16 intangle;
 	native int16 xint;
@@ -67,6 +68,9 @@ class CoreActor native
 	native void setPosition(Vector3 pos);
 	native void setPositionZ(Vector3 pos);
 
+	native clearscope static double deltaangle(double ang1, double ang2);
+	native clearscope static double absangle(double ang1, double ang2);
+
 	int randomFlip()
 	{
 		int r = random(0, 3);
@@ -83,5 +87,20 @@ class CoreActor native
 		return CSTAT_SPRITE_XFLIP;
 	}
 
+
+}
+
+// this only allows function getters to enable validation on the target.
+struct Collision
+{
+	native int type;
+	native int exbits;
+	native walltype hitWall();
+	native sectortype hitSector();
+	native CoreActor hitActor();
+	native void setSector(sectortype s);
+	native void setWall(walltype w);
+	native void setActor(CoreActor a);
+	native void setVoid();
 
 }

@@ -386,6 +386,7 @@ enum
 	TFLAG_BLOCKDOOR				= 1 << 6,
 	TFLAG_OUTERSPACE			= 1 << 7,
 
+	TFLAG_NOCIRCLEREFLECT			= 32,
 };
 
 enum

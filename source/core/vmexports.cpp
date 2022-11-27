@@ -103,6 +103,8 @@ DEFINE_FIELD_X(sectortype, sectortype, floorstat)
 DEFINE_FIELD_X(sectortype, sectortype, lotag)
 DEFINE_FIELD_X(sectortype, sectortype, type)
 DEFINE_FIELD_X(sectortype, sectortype, hitag)
+DEFINE_FIELD_X(sectortype, sectortype, ceilingheinum)
+DEFINE_FIELD_X(sectortype, sectortype, floorheinum)
 DEFINE_FIELD_X(sectortype, sectortype, extra)
 DEFINE_FIELD_X(sectortype, sectortype, ceilingshade)
 DEFINE_FIELD_X(sectortype, sectortype, ceilingpal)
@@ -517,29 +519,30 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, point2wall, wall_point2wall)
 	ACTION_RETURN_POINTER(self->point2Wall());
 }
 
-double wall_deltax(walltype* wal)
+void wall_delta(walltype* wal, DVector2* result)
 {
 	if (!wal) ThrowAbortException(X_READ_NIL, nullptr);
-	return wal->delta().X;
+	*result = wal->delta();
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_walltype, deltax, wall_point2wall)
+DEFINE_ACTION_FUNCTION_NATIVE(_walltype, delta, wall_delta)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
-	ACTION_RETURN_FLOAT(self->delta().X);
+	ACTION_RETURN_VEC2(self->delta());
 }
 
-double wall_deltay(walltype* wal)
+void wall_center(walltype* wal, DVector2* result)
 {
 	if (!wal) ThrowAbortException(X_READ_NIL, nullptr);
-	return wal->delta().Y;
+	*result = wal->center();
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_walltype, deltay, wall_point2wall)
+DEFINE_ACTION_FUNCTION_NATIVE(_walltype, center, wall_center)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
-	ACTION_RETURN_FLOAT(self->delta().Y);
+	ACTION_RETURN_VEC2(self->center());
 }
+
 
 double wall_length(walltype* wal)
 {
@@ -651,6 +654,7 @@ DEFINE_FIELD(DCoreActor, spritesetindex)
 DEFINE_FIELD_NAMED(DCoreActor, spr.Angles.Yaw, angle)
 DEFINE_FIELD(DCoreActor, vel)
 DEFINE_FIELD(DCoreActor, viewzoffset)
+DEFINE_FIELD(DCoreActor, opos)
 
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
 {
@@ -764,3 +768,127 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setpositionz, coreactor_setpositionz)
 	coreactor_setpositionz(self, x, y, z);
 	return 0;
 }
+
+static double deltaangleDbl(double a1, double a2)
+{
+	return deltaangle(DAngle::fromDeg(a1), DAngle::fromDeg(a2)).Degrees();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, deltaangle, deltaangleDbl)	// should this be global?
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(a1);
+	PARAM_FLOAT(a2);
+	ACTION_RETURN_FLOAT(deltaangle(DAngle::fromDeg(a1), DAngle::fromDeg(a2)).Degrees());
+}
+
+static double absangleDbl(double a1, double a2)
+{
+	return absangle(DAngle::fromDeg(a1), DAngle::fromDeg(a2)).Degrees();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, absangle, absangleDbl)	// should this be global?
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(a1);
+	PARAM_FLOAT(a2);
+	ACTION_RETURN_FLOAT(absangle(DAngle::fromDeg(a1), DAngle::fromDeg(a2)).Degrees());
+}
+
+
+DEFINE_FIELD_X(Collision, CollisionBase, type)
+DEFINE_FIELD_X(Collision, CollisionBase, exbits)
+
+walltype* collision_getwall(CollisionBase* coll)
+{
+	if (coll->type == kHitWall) return coll->hitWall;
+	else return nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Collision, hitwall, collision_getwall)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	ACTION_RETURN_POINTER(collision_getwall(self));
+}
+
+sectortype* collision_getsector(CollisionBase* coll)
+{
+	if (coll->type == kHitSector) return coll->hitSector;
+	else return nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Collision, hitsector, collision_getsector)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	ACTION_RETURN_POINTER(collision_getsector(self));
+}
+
+DCoreActor* collision_getactor(CollisionBase* coll)
+{
+	if (coll->type == kHitSprite) return coll->hitActor;
+	else return nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Collision, hitactor, collision_getactor)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	ACTION_RETURN_POINTER(collision_getactor(self));
+}
+
+/////
+
+void collision_setwall(CollisionBase* coll, walltype * w)
+{
+	coll->type = kHitWall;
+	coll->hitWall = w;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Collision, setwall, collision_setwall)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	PARAM_POINTER(p, walltype);
+	collision_setwall(self, p);
+	return 0;
+}
+
+void collision_setsector(CollisionBase* coll, sectortype* s)
+{
+	coll->type = kHitSector;
+	coll->hitSector = s;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Collision, setsector, collision_setsector)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	PARAM_POINTER(p, sectortype);
+	collision_setsector(self, p);
+	return 0;
+}
+
+void collision_setactor(CollisionBase* coll, DCoreActor* a)
+{
+	coll->type = kHitSprite;
+	coll->hitActor = a;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Collision, setactor, collision_setactor)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	PARAM_POINTER(p, DCoreActor);
+	collision_setactor(self, p);
+	return 0;
+}
+
+void collision_setvoid(CollisionBase* coll)
+{
+	coll->type = kHitVoid;
+	coll->hitActor = nullptr;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Collision, setvoid, collision_setvoid)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(CollisionBase);
+	collision_setvoid(self);
+	return 0;
+}
+

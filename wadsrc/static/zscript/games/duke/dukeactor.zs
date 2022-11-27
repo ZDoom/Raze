@@ -157,9 +157,11 @@ class DukeActor : CoreActor native
 	
 	native void getglobalz();
 	native DukePlayer, double findplayer();
+	native DukePlayer GetPlayer();
 	native int ifhitbyweapon();
 	native int domove(int clipmask);
 	native int PlayActorSound(Sound snd, int chan = CHAN_AUTO, int flags = 0);
+	native int CheckSoundPlaying(Sound snd, int chan = CHAN_AUTO);
 	native void StopSound(Sound snd, int flags = 0);
 	native DukeActor spawn(Name type);
 	native DukeActor spawnsprite(int type);	// for cases where the map has a picnum stored. Avoid when possible.
@@ -169,6 +171,11 @@ class DukeActor : CoreActor native
 	native void detonate(name type);
 	native void checkhitdefault(DukeActor proj);
 	native void operatesectors(sectortype sec);
+	native int SpriteWidth();
+
+	native void checkhitsprite(DukeActor hitter);
+
+
 	
 	virtual void BeginPlay() {}
 	virtual void StaticSetup() {}
@@ -193,6 +200,7 @@ class DukeActor : CoreActor native
 	native void lotsofstuff(Name type, int count);
 	native double gutsoffset();
 	native int movesprite(Vector3 move, int clipmask);
+	native int movesprite_ex(Vector3 move, int clipmask, Collision coll);
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags
@@ -200,8 +208,6 @@ class DukeActor : CoreActor native
 	native int actorflag2(int mask);
 	native int attackerflag1(int mask);
 	native int attackerflag2(int mask);
-
-
 }
 
 extend struct _
@@ -228,6 +234,8 @@ struct DukeLevel
 	native static int addambient(int hitag, int lotag);
 	native static void resetswitch(int tag);	// 
 	native bool isMirror(walltype wal);
+	native void checkhitwall(walltype wal, DukeActor hitter, Vector3 hitpos);
+	native void checkhitceiling(sectortype wal, DukeActor hitter);
 }
 
 struct DukeStatIterator

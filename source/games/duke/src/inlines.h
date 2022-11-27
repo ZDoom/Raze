@@ -281,6 +281,7 @@ inline int angletorotation2(DAngle sprang, DAngle viewang)
 	return ((sprang.Buildang() + 3072 + 128 - viewang.Buildang()) & 2047) / 170;
 }
 
+// 4 (8) frame rotation.
 inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang)
 {
 	if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal))
@@ -293,6 +294,25 @@ inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang)
 	if (k > 4)
 	{
 		k = 8 - k;
+		t->cstat |= CSTAT_SPRITE_XFLIP;
+	}
+	else t->cstat &= ~CSTAT_SPRITE_XFLIP;
+	t->picnum = h->spr.picnum + k;
+}
+
+// 6 (12) frame rotation.
+inline void applyRotation2(DDukeActor* h, tspritetype* t, DAngle viewang)
+{
+	if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal))
+	{
+		t->cstat &= ~CSTAT_SPRITE_XFLIP;
+		return;
+	}
+
+	int k = angletorotation2(t->Angles.Yaw, viewang);
+	if (k > 6)
+	{
+		k = 12 - k;
 		t->cstat |= CSTAT_SPRITE_XFLIP;
 	}
 	else t->cstat &= ~CSTAT_SPRITE_XFLIP;

@@ -97,6 +97,8 @@ enum ETSprFlags
 	TSPR_FLAGS_DRAW_LAST = 2,	// Currently unused: checked by Polymost but never set.
 	TSPR_MDLROTATE = 4,			// rotate if this is a model or voxel.
 	TSPR_SLOPESPRITE = 8,       // render as sloped sprite
+	TSPR_ROTATE8FRAMES = 16,	// do an 8 frame rotation
+	TSPR_ROTATE12FRAMES = 32,	// do an 12 frame rotation
 }
 
 enum ESectorExBits
@@ -122,12 +124,12 @@ struct sectortype native
 	native readonly float floorxpan;
 	native readonly float floorypan;
 	native readonly double ceilingz, floorz;
+	native readonly int16 ceilingheinum;
+	native readonly int16 floorheinum;
 
 	native Array<@walltype> walls;
 	native int16 ceilingstat;
 	native int16 floorstat;
-	//int16 ceilingpicnum;
-	//int16 floorpicnum;
 
 	native int16 lotag;
 	native int16 type; // type is an alias of lotag for Blood.
@@ -262,12 +264,8 @@ struct walltype native
 	native walltype nextWallp() const;
 	native walltype lastWall() const;
 	native walltype point2Wall() const;
-	/*
-	Vector2 delta() const;
-	Vector2 center() const;
-	*/
-	native double deltax() const;
-	native double deltay() const;
+	native Vector2 delta() const;
+	native Vector2 center() const;
 	native bool twoSided() const;
 
 	native double Length();

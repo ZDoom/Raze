@@ -75,6 +75,7 @@ struct Duke native
 		TFLAG_ELECTRIC				= 4,
 		TFLAG_CLEARINVENTORY		= 8,	// really dumb Duke stuff...
 		TFLAG_SLIME					= 16,
+		TFLAG_NOCIRCLEREFLECT			= 32,
 	};
 
 	enum ESoundFlags
@@ -100,6 +101,10 @@ struct Duke native
 	native static int global_random();
 	native static int GetSoundFlags(Sound snd);
 	native static int badguyID(int id);
+	static int rnd(int val)
+	{
+		return (random(0, 255) >= (255 - (val)));
+	}
 
 	static void PlayBonusMusic()
 	{
@@ -173,7 +178,7 @@ struct DukePlayer native
 	// Store current psectlotag as determined in processinput() for use with scaling angle aiming.
 	native int16 psectlotag;
 
-	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
+	native Vector2 loogie[64];
 	native int numloogs, loogcnt;
 	native int invdisptime;
 	native double pyoff, opyoff;
@@ -293,6 +298,8 @@ struct DukePlayer native
 	native double angle();
 	native void clearcameras();
 	native void quickkill();
+	native void addPitch(double p);
+	native void centerView();
 
 
 }

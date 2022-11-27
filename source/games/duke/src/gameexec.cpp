@@ -307,12 +307,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_LOOGIEX:
 		if (bSet) ps[iPlayer].loogie[lParm2].X = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].loogie[lParm2].X, sActor, sPlayer);
+		else SetGameVarID(lVar2, (int)ps[iPlayer].loogie[lParm2].X, sActor, sPlayer);
 		break;
 
 	case PLAYER_LOOGIEY:
 		if (bSet) ps[iPlayer].loogie[lParm2].Y = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].loogie[lParm2].Y, sActor, sPlayer);
+		else SetGameVarID(lVar2, (int)ps[iPlayer].loogie[lParm2].Y, sActor, sPlayer);
 		break;
 
 	case PLAYER_NUMLOOGS:

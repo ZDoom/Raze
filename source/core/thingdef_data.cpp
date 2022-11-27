@@ -323,6 +323,11 @@ void InitThingdef()
 		}
 	);
 
+	auto collstruct = NewStruct("Collision", nullptr, true);
+	collstruct->Size = sizeof(CollisionBase);
+	collstruct->Align = alignof(CollisionBase);
+
+
 	auto sidestruct = NewStruct("TSprite", nullptr, true);
 	sidestruct->Size = sizeof(tspritetype);
 	sidestruct->Align = alignof(tspritetype);
