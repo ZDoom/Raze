@@ -3200,7 +3200,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		}
 
 		Collision coll;
-		actor->movflag = movesprite_ex(actor, DVector3(actor->spr.angle.ToVector() * daxvel, actor->vel.Z), CLIPMASK0, coll);
+		actor->movflag = movesprite_ex(actor, DVector3(angdif.ToVector() * daxvel, actor->vel.Z), CLIPMASK0, coll);
 	}
 
 	if (a)
