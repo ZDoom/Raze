@@ -2186,7 +2186,7 @@ void DoPlayerMove(PLAYER* pp)
     if (interpolate_ride)
     {
         pp->actor->backupz();
-        pp->angle.backup();
+        pp->angle.backupYaw();
     }
 
     // check for warp - probably can remove from CeilingHit
@@ -3425,7 +3425,7 @@ void DoPlayerClimb(PLAYER* pp)
 
             pp->LadderPosition = lActor->spr.pos.XY() + nvec;
 
-            pp->angle.settarget(lActor->spr.Angles.Yaw + DAngle180);
+            pp->angle.setYaw(lActor->spr.Angles.Yaw + DAngle180);
         }
     }
 }
@@ -3813,7 +3813,7 @@ bool PlayerOnLadder(PLAYER* pp)
     // the sprite
 
 	pp->LadderPosition = lActor->spr.pos + npos;
-    pp->angle.settarget(lActor->spr.Angles.Yaw + DAngle180);
+    pp->angle.setYaw(lActor->spr.Angles.Yaw + DAngle180);
 
     return true;
 }
@@ -5968,7 +5968,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     {
         if (FAFcansee(ActorVectOfTop(killer), killer->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector))
         {
-            pp->angle.addadjustment(deltaangle(pp->angle.ZzANGLE, (killer->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle()) * (1. / 16.));
+            pp->angle.addYaw(deltaangle(pp->angle.ZzANGLE, (killer->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle()) * (1. / 16.));
         }
     }
 }
@@ -6693,7 +6693,7 @@ void MoveSkipSavePos(void)
 
         pp->actor->backuppos();
         pp->obob_z = pp->bob_z;
-        pp->angle.backup();
+        pp->angle.backupYaw();
         pp->horizon.backupPitch();
         pp->opbob_amt = pp->pbob_amt;
     }
@@ -6972,7 +6972,7 @@ void domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].angle.settarget((Player[myconnectindex].actor->spr.pos.XY() - Player[screenpeek].actor->spr.pos.XY()).Angle());
+            Player[screenpeek].angle.setYaw((Player[myconnectindex].actor->spr.pos.XY() - Player[screenpeek].actor->spr.pos.XY()).Angle());
         }
 
         if (!(pp->Flags & PF_DEAD))
@@ -6988,7 +6988,7 @@ void domovethings(void)
         // Reset flags used while tying input to framerate
         pp->Flags2 &= ~(PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
         pp->horizon.resetAdjustmentPitch();
-        pp->angle.resetadjustment();
+        pp->angle.resetAdjustmentYaw();
 
         // disable synchronised input if set by game.
         resetForcedSyncInput();

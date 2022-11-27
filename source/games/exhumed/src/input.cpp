@@ -95,7 +95,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
             }
         }
 
-        pPlayer->angle.processhelpers(scaleAdjust);
+        pPlayer->angle.processLegacyHelperYaw(scaleAdjust);
         pPlayer->horizon.processLegacyHelperPitch(scaleAdjust);
         UpdatePlayerSpriteAngle(pPlayer);
     }

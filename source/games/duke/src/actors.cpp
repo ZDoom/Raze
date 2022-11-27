@@ -204,7 +204,7 @@ void clearcamera(player_struct* ps)
 {
 	ps->newOwner = nullptr;
 	ps->GetActor()->restorepos();
-	ps->angle.restore();
+	ps->angle.restoreYaw();
 	updatesector(ps->GetActor()->getPosWithOffsetZ(), &ps->cursector);
 
 	DukeStatIterator it(STAT_ACTOR);
@@ -442,7 +442,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->angle.addadjustment(deltaangle(p->angle.ZzANGLE, (p->actorsqu->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.25);
+					p->angle.addYaw(deltaangle(p->angle.ZzANGLE, (p->actorsqu->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.25);
 				}
 
 				if (act->spr.extra > 0)
@@ -462,7 +462,7 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->angle.addadjustment(deltaangle(p->angle.ZzANGLE, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5);
+						p->angle.addYaw(deltaangle(p->angle.ZzANGLE, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5);
 					}
 				}
 				act->spr.Angles.Yaw = p->angle.ZzANGLE; // check me out later.
@@ -1867,7 +1867,7 @@ void handle_se00(DDukeActor* actor)
 		{
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground == 1)
 			{
-				ps[p].angle.addadjustment(ang_amount * direction);
+				ps[p].angle.addYaw(ang_amount * direction);
 
 				ps[p].GetActor()->spr.pos.Z += zchange;
 
@@ -2047,7 +2047,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 					ps[p].bobpos += vec;
 
-					ps[p].angle.addadjustment(diffangle);
+					ps[p].angle.addYaw(diffangle);
 
 					if (numplayers > 1)
 					{

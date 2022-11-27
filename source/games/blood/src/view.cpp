@@ -65,7 +65,7 @@ void viewBackupView(int nPlayer)
 	pPlayer->obobWidth = pPlayer->bobWidth;
 	pPlayer->oswayHeight = pPlayer->swayHeight;
 	pPlayer->oswayWidth = pPlayer->swayWidth;
-	pPlayer->angle.backup();
+	pPlayer->angle.backupYaw();
 	pPlayer->horizon.backupPitch();
 }
 

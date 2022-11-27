@@ -841,7 +841,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 			p->horizon.applyPitch(input.horz, &p->sync.actions, scaleAdjust);
 		}
 
-		p->angle.processhelpers(scaleAdjust);
+		p->angle.processLegacyHelperYaw(scaleAdjust);
 		p->horizon.processLegacyHelperPitch(scaleAdjust);
 		p->GetActor()->spr.Angles.Yaw = p->angle.ZzANGLE; // check me out later.
 	}

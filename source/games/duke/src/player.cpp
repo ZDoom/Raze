@@ -546,7 +546,7 @@ void footprints(int snum)
 inline void backupplayer(player_struct* p)
 {
 	p->backuppos();
-	p->angle.backup();
+	p->angle.backupYaw();
 	p->horizon.backupPitch();
 }
 
@@ -865,7 +865,7 @@ void checklook(int snum, ESyncBits actions)
 			actions &= ~SB_LOOK_RIGHT;
 		}
 	}
-	p->angle.backup();
+	p->angle.backupYaw();
 }
 
 //---------------------------------------------------------------------------

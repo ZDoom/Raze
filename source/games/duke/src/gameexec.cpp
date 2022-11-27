@@ -472,7 +472,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ANG:
-		if (bSet) ps[iPlayer].angle.settarget(mapangle(lValue));
+		if (bSet) ps[iPlayer].angle.setYaw(mapangle(lValue));
 		else SetGameVarID(lVar2, ps[iPlayer].angle.ZzANGLE.Buildang(), sActor, sPlayer);
 		break;
 
@@ -2046,7 +2046,7 @@ int ParseState::parse(void)
 		{
 			ps[g_p].newOwner = nullptr;
 			ps[g_p].GetActor()->restorepos();
-			ps[g_p].angle.restore();
+			ps[g_p].angle.restoreYaw();
 			updatesector(ps[g_p].GetActor()->getPosWithOffsetZ(), &ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);

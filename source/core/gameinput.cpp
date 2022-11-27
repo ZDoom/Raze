@@ -235,7 +235,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		ZzROTSCRNANG -= getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * looking;
 	}
 
-	if (!movementlocked())
+	if (!lockedYaw())
 	{
 		// add player's input
 		ZzANGLE += DAngle::fromDeg(avel);
@@ -347,7 +347,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 			w.ZzOLDLOOKANG = w.ZzLOOKANG;
 			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
 			w.inputdisabled = w.inputdisabled;
-			w.resetadjustment();
+			w.resetAdjustmentYaw();
 		}
 	}
 	return arc;

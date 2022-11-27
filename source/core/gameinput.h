@@ -108,13 +108,13 @@ struct PlayerAngle
 	void applyinput(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
 
 	// Interpolation helpers.
-	void backup()
+	void backupYaw()
 	{
 		ZzOLDANGLE = ZzANGLE;
 		ZzOLDLOOKANG = ZzLOOKANG;
 		ZzOLDROTSCRNANG = ZzROTSCRNANG;
 	}
-	void restore()
+	void restoreYaw()
 	{
 		ZzANGLE = ZzOLDANGLE;
 		ZzLOOKANG = ZzOLDLOOKANG;
@@ -132,13 +132,13 @@ struct PlayerAngle
 	DAngle angRENDERROTSCRN(double const interpfrac) { return !SyncInput() ? ZzROTSCRNANG : angLERPROTSCRN(interpfrac); }
 
 	// Ticrate playsim adjustment helpers.
-	void resetadjustment() { adjustment = nullAngle; }
-	bool targetset() { return target.Sgn(); }
+	void resetAdjustmentYaw() { adjustment = nullAngle; }
+	bool targetedYaw() { return target.Sgn(); }
 
 	// Input locking helpers.
-	void lockinput() { inputdisabled = true; }
-	void unlockinput() { inputdisabled = false; }
-	bool movementlocked() { return targetset() || inputdisabled; }
+	void lockYaw() { inputdisabled = true; }
+	void unlockYaw() { inputdisabled = false; }
+	bool lockedYaw() { return targetedYaw() || inputdisabled; }
 
 	// Draw code helpers. The logic where these are used rely heavily on Build's angle period.
 	double angLOOKANGHALF(double const interpfrac) { return angRENDERLOOKANG(interpfrac).Normalized180().Degrees() * (128. / 45.); }
@@ -158,7 +158,7 @@ struct PlayerAngle
 	}
 
 	// Ticrate playsim adjustment setters and processor.
-	void addadjustment(const DAngle value)
+	void addYaw(const DAngle value)
 	{
 		if (!SyncInput())
 		{
@@ -170,7 +170,7 @@ struct PlayerAngle
 		}
 	}
 
-	void settarget(const DAngle value, bool const backup = false)
+	void setYaw(const DAngle value, bool const backup = false)
 	{
 		if (!SyncInput() && !backup)
 		{
@@ -183,9 +183,9 @@ struct PlayerAngle
 		}
 	}
 
-	void processhelpers(double const scaleAdjust)
+	void processLegacyHelperYaw(double const scaleAdjust)
 	{
-		if (targetset())
+		if (targetedYaw())
 		{
 			auto delta = deltaangle(ZzANGLE, target);
 

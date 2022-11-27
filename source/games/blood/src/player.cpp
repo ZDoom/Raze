@@ -1533,7 +1533,7 @@ void ProcessInput(PLAYER* pPlayer)
 	};
 
 	pPlayer->horizon.resetAdjustmentPitch();
-	pPlayer->angle.resetadjustment();
+	pPlayer->angle.resetAdjustmentYaw();
 
 	DBloodActor* actor = pPlayer->actor;
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
@@ -1554,7 +1554,7 @@ void ProcessInput(PLAYER* pPlayer)
 		DBloodActor* fragger = pPlayer->fragger;
 		if (fragger)
 		{
-			pPlayer->angle.addadjustment(deltaangle(pPlayer->angle.ZzANGLE, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
+			pPlayer->angle.addYaw(deltaangle(pPlayer->angle.ZzANGLE, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
@@ -1730,7 +1730,7 @@ void ProcessInput(PLAYER* pPlayer)
 		doslopetilting(pPlayer);
 	}
 
-	pPlayer->angle.unlockinput();
+	pPlayer->angle.unlockYaw();
 	pPlayer->horizon.unlockPitch();
 
 	pPlayer->slope = pPlayer->horizon.ZzHORIZON.Tan();

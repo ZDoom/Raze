@@ -313,7 +313,7 @@ void RestartPlayer(int nPlayer)
 		floorsprt = nullptr;
 	}
 
-	plr->angle.backup();
+	plr->angle.backupYaw();
 	plr->horizon.backupPitch();
 
 	plr->pPlayerFloorSprite = floorsprt;
@@ -904,9 +904,9 @@ void AIPlayer::Tick(RunListEvent* ev)
     int nAction = PlayerList[nPlayer].nAction;
     int nActionB = PlayerList[nPlayer].nAction;
 
-    PlayerList[nPlayer].angle.backup();
+    PlayerList[nPlayer].angle.backupYaw();
     PlayerList[nPlayer].horizon.backupPitch();
-    PlayerList[nPlayer].angle.resetadjustment();
+    PlayerList[nPlayer].angle.resetAdjustmentYaw();
     PlayerList[nPlayer].horizon.resetAdjustmentPitch();
 
     pPlayerActor->vel.XY() = sPlayerInput[nPlayer].vel;
@@ -1072,7 +1072,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (nTotalPlayers <= 1)
         {
             auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite);
-            PlayerList[nPlayer].angle.settarget(ang, true);
+            PlayerList[nPlayer].angle.setYaw(ang, true);
             pPlayerActor->spr.Angles.Yaw = ang;
 
             PlayerList[nPlayer].horizon.setPitch(nullAngle, true);

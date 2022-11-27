@@ -6050,13 +6050,13 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
-				pPlayer->angle.settarget(actor->spr.Angles.Yaw);
-				pPlayer->angle.lockinput();
+				pPlayer->angle.setYaw(actor->spr.Angles.Yaw);
+				pPlayer->angle.lockYaw();
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
-				pPlayer->angle.settarget(mapangle(actor->xspr.data2));
-				pPlayer->angle.lockinput();
+				pPlayer->angle.setYaw(mapangle(actor->xspr.data2));
+				pPlayer->angle.lockYaw();
 			}
 			break;
 		case 10: // 74 (de)activate powerup

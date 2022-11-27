@@ -1529,7 +1529,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->angle.addadjustment(deltaangle(pp->RevolveAng + pp->RevolveDeltaAng, pp->angle.ZzANGLE));
+    pp->angle.addYaw(deltaangle(pp->RevolveAng + pp->RevolveDeltaAng, pp->angle.ZzANGLE));
 
     UpdatePlayerSprite(pp);
 }
