@@ -69,7 +69,7 @@ short fakebubba_spawn, mamaspawn_count, banjosound; // RRRA special effects
 short BellTime;
 int WindTime;
 DAngle WindDir;
-uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
+uint8_t enemysizecheat /*raat607*/, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
 
 //------------------------------------------------------------------------- 
 //

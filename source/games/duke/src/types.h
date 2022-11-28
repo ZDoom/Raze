@@ -145,6 +145,7 @@ struct user_defs
 	uint8_t god, cashman, eog;
 	uint8_t clipping;
 	uint8_t user_pals[MAXPLAYERS];
+	uint8_t ufospawnsminion;
 
 	short from_bonus;
 	short last_level, secretlevel;

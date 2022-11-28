@@ -713,8 +713,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case REACTOR2:
 	case REACTOR:
-	case RECON:
-		if (initreactor(actj, act, act->spr.picnum == RECON)) return act;
+		if (initreactor(actj, act, false)) return act;
 		break;
 
 	case FLAMETHROWERSPRITE:

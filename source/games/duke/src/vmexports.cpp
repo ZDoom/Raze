@@ -29,7 +29,9 @@ int PicForName(int intname)
 			{"DukeShrinkerExplosion", "SHRINKEREXPLOSION" },
 			{"DukeWaterBubble", "WATERBUBBLE"},
 			{"DukeLavaPool", "LAVAPOOL"},
-			{"RedneckCircleStuck", "CIRCLESTUCK"}
+			{"RedneckCircleStuck", "CIRCLESTUCK"},
+			{"DukePigCop", "PIGCOP"},
+			{"DukeFireLaser", "FIRELASER"},
 		};
 
 		for (auto& p : classes)
@@ -57,6 +59,17 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getviewplayer, duke_getviewplayer)
 {
 	PARAM_PROLOGUE;
 	ACTION_RETURN_POINTER(duke_getviewplayer());
+}
+
+player_struct* duke_getlocalplayer()
+{
+	return &ps[myconnectindex];
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getlocalplayer, duke_getlocalplayer)
+{
+	PARAM_PROLOGUE;
+	ACTION_RETURN_POINTER(duke_getlocalplayer());
 }
 
 DEFINE_ACTION_FUNCTION(_Duke, MaxAmmoAmount)
@@ -592,6 +605,48 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spritewidth, duke_spw)
 	ACTION_RETURN_INT(duke_spw(self));
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, monsterCheatCheck, monsterCheatCheck)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(monsterCheatCheck(self));
+}
+
+void DukeActor_shoot(DDukeActor* act, int intname)
+{
+	int picnum = PicForName(intname);
+
+	if (picnum == -1)
+	{
+		auto cls = PClass::FindActor(FName(ENamedName(intname)));
+		assert(cls);
+		picnum = GetDefaultByType(cls)->spr.picnum;
+		fi.shoot(act, picnum); // for now this crutch must suffice.
+	}
+	else
+	{
+		fi.shoot(act, picnum);
+	}
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, shoot, DukeActor_shoot)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(type);
+	DukeActor_shoot(self, type);
+	return 0;
+}
+
+void DukeActor_setclipDistFromTile(DDukeActor* a)
+{
+	a->setClipDistFromTile();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, setclipDistFromTile, DukeActor_setclipDistFromTile)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	DukeActor_setclipDistFromTile(self);
+	return 0;
+}
 
 
 
@@ -1180,6 +1235,14 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, resetswitch, resetswitch)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, LocateTheLocator, LocateTheLocator)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(tag);
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_POINTER(LocateTheLocator(tag, sect));
+}
+
 
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerfriction);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, gravity);
@@ -1227,6 +1290,7 @@ DEFINE_FIELD_X(DukeUserDefs, user_defs, marker);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, bomb_tag);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, cameraactor);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, chickenplant);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, ufospawnsminion);
 DEFINE_GLOBAL_UNSIZED(ud)
 
 

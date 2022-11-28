@@ -139,6 +139,7 @@ struct Duke native
 	native static void StopSound(Sound num);
 	native static bool CheckSoundPlaying(Sound num);
 	native static DukePlayer GetViewPlayer();
+	native static DukePlayer GetLocalPlayer();
 	native static int MaxAmmoAmount(int weap);
 	native static DukePlayer checkcursectnums(sectortype sect);
 	native static int global_random();
@@ -442,6 +443,7 @@ struct DukeUserDefs native
 	native readonly int ffire, multimode;
 	native readonly int player_skill, marker, chickenplant;
 
+	native uint8 ufospawnsminion;
 	native int16 bomb_tag;
 	native DukeActor cameraactor;
 }

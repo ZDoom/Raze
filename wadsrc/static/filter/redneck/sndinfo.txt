@@ -15,7 +15,7 @@ $conreserve DYNOCLMP     13
 $conreserve DYNEW        14
 $conreserve CRAPSTIR     15
 $conreserve BRICDOOR     16
-$conreserve BOMBEXPL     17
+$conreserve LASERTRIP_EXPLODE     17
 $conreserve VENT_BUST          18
 $conreserve GLASS_BREAKING     19
 $conreserve GLASS_HEAVYBREAK   20

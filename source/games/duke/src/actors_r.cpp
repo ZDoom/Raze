@@ -451,7 +451,8 @@ int ifhitbyweapon_r(DDukeActor *actor)
 						return -1;
 
 				actor->spr.extra -= actor->hitextra;
-				if (actor->spr.picnum != RECON && actor->GetOwner() && actor->GetOwner()->spr.statnum < MAXSTATUS)
+				auto Owner = actor->GetOwner();
+				if (!actorflag(actor, SFLAG2_IGNOREHITOWNER) && Owner && Owner->spr.statnum < MAXSTATUS)
 					actor->SetOwner(hitowner);
 			}
 
@@ -1248,13 +1249,10 @@ void movetransports_r(void)
 				break;
 
 			case STAT_ACTOR:
-				if (act->spr.picnum == SHARK ||
-					(isRRRA() && (act->spr.picnum == CHEERBOAT || act->spr.picnum == HULKBOAT || act->spr.picnum == MINIONBOAT || act->spr.picnum == UFO1_RRRA)) ||
-					(!isRRRA() && (act->spr.picnum == UFO1_RR || act->spr.picnum == UFO2 || act->spr.picnum == UFO3 || act->spr.picnum == UFO4 || act->spr.picnum == UFO5))) continue;
-				[[fallthrough]];
 			case STAT_PROJECTILE:
 			case STAT_MISC:
 			case STAT_DUMMYPLAYER:
+				if (actorflag(act, SFLAG2_DONTDIVE)) continue;
 
 				ll = abs(act2->vel.Z);
 				if (isRRRA())
@@ -1271,8 +1269,7 @@ void movetransports_r(void)
 						warpspriteto = 1;
 
 					if (ll && sectlotag == ST_1_ABOVE_WATER && act2->spr.pos.Z > (sectp->floorz - ll))
-						if (!isRRRA() || (act2->spr.picnum != CHEERBOAT && act2->spr.picnum != HULKBOAT && act2->spr.picnum != MINIONBOAT))
-							warpspriteto = 1;
+						warpspriteto = 1;
 
 					if (isRRRA())
 					{
@@ -2065,30 +2062,6 @@ void moveactors_r(void)
 				break;
 			}
 
-			case RECON:
-			case UFO1_RR:
-			case UFO2:
-			case UFO3:
-			case UFO4:
-			case UFO5:
-				recon(act, EXPLOSION2, FIRELASER, -1, -1, 457, 1, [](DDukeActor* act) ->int
-					{
-						if (isRRRA() && ufospawnsminion)
-							return MINION;
-						else if (act->spr.picnum == UFO1_RR)
-							return HEN;
-						else if (act->spr.picnum == UFO2)
-							return COOT;
-						else if (act->spr.picnum == UFO3)
-							return COW;
-						else if (act->spr.picnum == UFO4)
-							return PIG;
-						else if (act->spr.picnum == UFO5)
-							return BILLYRAY;
-						else return -1;
-					});
-				continue;
-
 			case OOZ:
 				ooz(act);
 				continue;
@@ -2137,17 +2110,10 @@ void moveactors_r(void)
 		}
 
 
-// #ifndef VOLOMEONE
-		if( ud.multimode < 2 && badguy(act) )
+		if (monsterCheatCheck(act) && badguy(act))
 		{
-			if( actor_tog == 1)
-			{
-				act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				continue;
-			}
-			else if(actor_tog == 2) act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+			continue;
 		}
-// #endif
 
 		p = findplayer(act, &xx);
 
@@ -2381,30 +2347,30 @@ void handle_se06_r(DDukeActor *actor)
 		{
 			if (a2->spr.picnum == UFOBEAM && ufospawn && ++ufocnt == 64)
 			{
-				int pn;
 				ufocnt = 0;
 				ufospawn--;
+				const char* pn;
 				if (!isRRRA())
 				{
 					switch (krand() & 3)
 					{
 					default:
 					case 0:
-						pn = UFO1_RR;
+						pn = "RedneckUfo1";
 						break;
 					case 1:
-						pn = UFO2;
+						pn = "RedneckUfo2";
 						break;
 					case 2:
-						pn = UFO3;
+						pn = "RedneckUfo3";
 						break;
 					case 3:
-						pn = UFO4;
+						pn = "RedneckUfo4";
 						break;
 					}
 				}
-				else pn = UFO1_RRRA;
-				auto ns = spawn(actor, pn);
+				else pn = "RedneckUfoRRRA";
+				auto ns = spawn(actor, PClass::FindActor(pn));
 				if (ns) ns->spr.pos.Z = ns->sector()->ceilingz;
 			}
 		}
@@ -2858,9 +2824,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					ps[pnum].vel.XY() *= gs.playerfriction - 0.125;
 				}
 			}
-			else if ((isRRRA() && actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != UFO1_RRRA) ||
-					(!isRRRA() && actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != UFO1_RR
-							&& actor->spr.picnum != UFO2 && actor->spr.picnum != UFO3 && actor->spr.picnum != UFO4 && actor->spr.picnum != UFO5))
+			else if (!actorflag(actor, SFLAG2_FLOATING))
 			{
 				if (!*(moveptr + 1))
 				{

@@ -76,6 +76,25 @@ DEFINE_ACTION_FUNCTION(_Raze, clipmove)
 	return min(numret, 2);
 }
 
+int Raze_cansee(double x, double y, double z, sectortype* sec, double xe, double ye, double ze, sectortype* sece)
+{
+	return cansee(DVector3(x, y, z), sec, DVector3(xe, ye, ze), sece);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, cansee, Raze_cansee)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	PARAM_POINTER(s, sectortype);
+	PARAM_FLOAT(xe);
+	PARAM_FLOAT(ye);
+	PARAM_FLOAT(ze);
+	PARAM_POINTER(se, sectortype);
+	ACTION_RETURN_BOOL(Raze_cansee(x, y, z, s, xe, ye, ze, se));
+}
+
 
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SoundEnabled, SoundEnabled)

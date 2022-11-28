@@ -78,6 +78,7 @@ version "4.10"
 #include "zscript/games/duke/actors/tongue.zs"
 #include "zscript/games/duke/actors/queball.zs"
 #include "zscript/games/duke/actors/forcesphere.zs"
+#include "zscript/games/duke/actors/recon.zs"
 
 #include "zscript/games/duke/actors/genericdestructible.zs"
 #include "zscript/games/duke/actors/redneckmisc.zs"

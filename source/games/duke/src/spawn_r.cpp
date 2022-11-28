@@ -106,11 +106,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.lotag = 1;
 		act->clipdist = 0;
 		break;
-	case RRTILE8192:
-		if (!isRRRA()) goto default_case;
-		act->spr.scale = DVector2(0, 0);
-		ufospawnsminion = 1;
-		break;
 	case RRTILE8193:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(0, 0);
@@ -457,12 +452,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case ROCK2:
 	case MAMACLOUD:
 	case MAMA:
-	case UFO1_RRRA:
 		if (isRRRA()) goto rrra_badguy2;
-		else goto default_case;
-
-	case UFO1_RR:
-		if (!isRRRA()) goto rrra_badguy2;
 		else goto default_case;
 
 	case SBSWIPE:
@@ -496,13 +486,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DRONE:
 	case PIG:
 	case MINION:
-	case UFO2:
-	case UFO3:
-	case UFO4:
-	case UFO5:
 	case COW:
 	case COOT:
-	case SHARK:
 	case VIXEN:
 	rrra_badguy2:
 		act->spr.scale = DVector2(0.625, 0.625);
@@ -571,7 +556,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case MINIONSTAYPUT:
 			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
-			if (isRRRA() && ufospawnsminion)
+			if (isRRRA() && ud.ufospawnsminion)
 				act->spr.pal = 8;
 			break;
 		case DOGRUN:
@@ -670,16 +655,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->setClipDistFromTile();
 			break;
 
-		case UFO1_RRRA:
-		case UFO1_RR:
-		case UFO2:
-		case UFO3:
-		case UFO4:
-		case UFO5:
-			act->spr.scale = DVector2(0.5, 0.5);
-			act->setClipDistFromTile();
-			act->spr.extra = 50;
-			break;
 		case SBMOVE:
 			act->spr.scale = DVector2(0.75, 0.75);
 			act->setClipDistFromTile();
@@ -745,8 +720,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case REACTOR2:
 	case REACTOR:
-	case RECON:
-		if (initreactor(actj, act, act->spr.picnum == RECON)) return act;
+		if (initreactor(actj, act, false)) return act;
 		break;
 
 	case RPG2SPRITE:

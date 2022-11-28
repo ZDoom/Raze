@@ -319,4 +319,18 @@ inline void applyRotation2(DDukeActor* h, tspritetype* t, DAngle viewang)
 	t->picnum = h->spr.picnum + k;
 }
 
+inline int monsterCheatCheck(DDukeActor* self)
+{
+	if (ud.multimode < 2)
+	{
+		if (actor_tog == 1)
+		{
+			self->spr.cstat = CSTAT_SPRITE_INVISIBLE;
+			return true;
+		}
+		else if (actor_tog == 2) self->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+	}
+	return false;
+}
+
 END_DUKE_NS

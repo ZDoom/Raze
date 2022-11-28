@@ -485,27 +485,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 
 int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 {
-	if (isrecon)
-	{
-		if (actor->spr.lotag > ud.player_skill)
-		{
-			actor->spr.scale = DVector2(0, 0);
-			ChangeActorStat(actor, STAT_MISC);
-			return true;
-		}
-		if (!isRR() || actorflag(actor, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
-			ps[myconnectindex].max_actors_killed++;
-		actor->temp_data[5] = 0;
-		if (ud.monsters_off == 1)
-		{
-			actor->spr.scale = DVector2(0, 0);
-			ChangeActorStat(actor, STAT_MISC);
-			return false;
-		}
-		actor->spr.extra = 130;
-	}
-	else
-		actor->spr.extra = gs.impact_damage;
+	actor->spr.extra = gs.impact_damage;
 
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
 

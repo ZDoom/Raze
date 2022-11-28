@@ -556,7 +556,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 				actor->spr.extra -= actor->hitextra;
 				auto Owner = actor->GetOwner();
-				if (actor->spr.picnum != RECON && Owner && Owner->spr.statnum < MAXSTATUS)
+				if (!actorflag(actor, SFLAG2_IGNOREHITOWNER) && Owner && Owner->spr.statnum < MAXSTATUS)
 					actor->SetOwner(hitowner);
 			}
 
@@ -1373,6 +1373,7 @@ void movetransports_d(void)
 			case STAT_MISC:
 			case STAT_FALLER:
 			case STAT_DUMMYPLAYER:
+				if (actorflag(act, SFLAG2_DONTDIVE)) continue;
 
 				ll = abs(act2->vel.Z);
 
@@ -1501,17 +1502,7 @@ static void greenslime(DDukeActor *actor)
 	auto sectp = actor->sector();
 	int j;
 
-	// #ifndef isShareware()
-	if (ud.multimode < 2)
-	{
-		if (actor_tog == 1)
-		{
-			actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			return;
-		}
-		else if (actor_tog == 2) actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-	}
-	// #endif
+	if (monsterCheatCheck(actor)) return;
 
 	actor->temp_data[1] += 128;
 
@@ -2310,10 +2301,6 @@ void moveactors_d(void)
 			ssp(act, CLIPMASK0);
 			break;
 
-		case RECON:
-			recon(act, EXPLOSION2, FIRELASER, RECO_ATTACK, RECO_PAIN, RECO_ROAM, 4, [](DDukeActor* i)->int { return PIGCOP; });
-			continue;
-
 		case OOZ:
 		case OOZ2:
 			ooz(act);
@@ -2349,18 +2336,10 @@ void moveactors_d(void)
 			continue;
 		}
 
-
-		// #ifndef VOLOMEONE
-		if (ud.multimode < 2 && badguy(act))
+		if (monsterCheatCheck(act) && badguy(act))
 		{
-			if (actor_tog == 1)
-			{
-				act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				continue;
-			}
-			else if (actor_tog == 2) act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+			continue;
 		}
-		// #endif
 
 		double xx;
 		p = findplayer(act, &xx);
@@ -3050,7 +3029,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 					ps[playernum].vel.XY() *= gs.playerfriction - 0.125;
 				}
 			}
-			else if (actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != COMMANDER)
+			else if (!actorflag(actor, SFLAG2_FLOATING))
 			{
 				if (!*(moveptr + 1))
 				{

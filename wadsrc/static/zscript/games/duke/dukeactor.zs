@@ -201,6 +201,9 @@ class DukeActor : CoreActor native
 	native double gutsoffset();
 	native int movesprite(Vector3 move, int clipmask);
 	native int movesprite_ex(Vector3 move, int clipmask, CollisionData coll);
+	native int monsterCheatCheck();
+	native void shoot(Name spawnclass);
+	native void setClipDistFromTile();
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags
@@ -233,9 +236,10 @@ struct DukeLevel
 	native static void addlightning(sectortype sector, int shade);
 	native static int addambient(int hitag, int lotag);
 	native static void resetswitch(int tag);	// 
-	native bool isMirror(walltype wal);
-	native void checkhitwall(walltype wal, DukeActor hitter, Vector3 hitpos);
-	native void checkhitceiling(sectortype wal, DukeActor hitter);
+	native static bool isMirror(walltype wal);
+	native static void checkhitwall(walltype wal, DukeActor hitter, Vector3 hitpos);
+	native static void checkhitceiling(sectortype wal, DukeActor hitter);
+	native static DukeActor LocateTheLocator(int n, sectortype sect);
 }
 
 struct DukeStatIterator

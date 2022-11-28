@@ -162,8 +162,11 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		if (h->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			bool res = CallAnimate(h, t);
-			if (actorflag(h, SFLAG2_ALWAYSROTATE1))
+			// some actors have 4, some 6 rotation frames - in true Build fashion there's no pointers what to do here without flagging it.
+			if (actorflag(h, SFLAG2_ALWAYSROTATE1) || (t->clipdist & TSPR_ROTATE8FRAMES))
 				applyRotation1(h, t, viewang);
+			else if (actorflag(h, SFLAG2_ALWAYSROTATE2) || (t->clipdist & TSPR_ROTATE12FRAMES))
+				applyRotation2(h, t, viewang);
 			if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL))
 				copyfloorpal(t, sectp);
 
@@ -302,23 +305,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 			t->picnum = RPG2 + k;
-			break;
-
-		case RECON:
-
-			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.Angles.Yaw, kang);
-
-			if (k > 6)
-			{
-				k = 12 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-
-			if (abs(t3) > 64) k += 7;
-			t->picnum = RECON + k;
-
 			break;
 
 		case APLAYER:

@@ -648,7 +648,7 @@ void prelevel_common(int g)
 {
 	auto p = &ps[screenpeek];
 	p->sea_sick_stat = 0;
-	ufospawnsminion = 0;
+	ud.ufospawnsminion = 0;
 	pistonsound = 0;
 	p->SlotWin = 0;
 	enemysizecheat = 0;

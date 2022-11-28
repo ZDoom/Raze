@@ -172,6 +172,7 @@ struct Raze
 	
 	native static sectortype updatesector(Vector2 pos, sectortype lastsect, double maxdist = 96);
 	native static sectortype, Vector3 clipmove(Vector3 pos, sectortype sect, Vector2 move, double walldist, double ceildist, double flordist, uint cliptype, CollisionData coll, int clipmoveboxtracenum = 3);
+	native static bool cansee(Vector3 start, sectortype startsec, Vector3 end, sectortype endsec);
 
 	// game check shortcuts
 

@@ -1,5 +1,10 @@
 spawnclasses
 {
+	5260 = "RedneckUfo1"
+	5274 = "RedneckUfo2"
+	5278 = "RedneckUfo3"
+	5282 = "RedneckUfo4"
+	5286 = "RedneckUfo5"
 	2654 = DukeGenericGlassSpawningDestructible, "*RRTILE2654", "", "GLASS_BREAKING"
 	2656 = DukeGenericGlassSpawningDestructible, "*RRTILE2656", "", "GLASS_BREAKING"
 	3172 = DukeGenericGlassSpawningDestructible, "*RRTILE3172", "", "GLASS_BREAKING"
