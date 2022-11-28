@@ -1564,19 +1564,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		lotsofglass(targ, nullptr, 10);
 		targ->Destroy();
 		break;
-	case FORCESPHERE:
-	{
-		targ->spr.scale.X = (0);
-		auto Owner = targ->GetOwner();
-		if (Owner)
-		{
-			Owner->temp_data[0] = 32;
-			Owner->temp_data[1] = !Owner->temp_data[1];
-			Owner->temp_data[2] ++;
-		}
-		spawn(targ, EXPLOSION2);
-		break;
-	}
 	case TOILET:
 		targ->spr.picnum = TOILETBROKE;
 		if(krand() & 1) targ->spr.cstat |= CSTAT_SPRITE_XFLIP;

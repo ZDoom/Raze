@@ -681,61 +681,6 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 //
 //---------------------------------------------------------------------------
 
-void forcesphere(DDukeActor* actor, int forcesphere)
-{
-	auto sectp = actor->sector();
-	if (actor->spr.yint == 0)
-	{
-		actor->spr.yint = 1;
-
-		for (DAngle l = DAngle90; l < DAngle270; l += DAngle22_5)
-			for (DAngle j = nullAngle; j < DAngle360; j += DAngle22_5)
-			{
-				auto k = spawn(actor, forcesphere);
-				if (k)
-				{
-					k->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_YCENTER;
-					k->clipdist = 16;
-					k->spr.Angles.Yaw = j;
-					k->vel.Z = l.Sin() * 2;
-					k->vel.X = l.Cos() * 2;
-					k->SetOwner(actor);
-				}
-			}
-	}
-
-	if (actor->temp_data[3] > 0)
-	{
-		if (actor->vel.Z < 24)
-			actor->vel.Z += 0.75;
-		actor->spr.pos.Z += actor->vel.Z;
-		if (actor->spr.pos.Z > sectp->floorz)
-			actor->spr.pos.Z = sectp->floorz;
-		actor->temp_data[3]--;
-		if (actor->temp_data[3] == 0)
-		{
-			actor->Destroy();
-			return;
-		}
-		else if (actor->temp_data[2] > 10)
-		{
-			DukeStatIterator it(STAT_MISC);
-			while (auto aa = it.Next())
-			{
-				if (aa->GetOwner() == actor && aa->spr.picnum == forcesphere)
-					aa->temp_data[1] = 1 + (krand() & 63);
-			}
-			actor->temp_data[3] = 64;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(DDukeActor* i))
 {
 	auto sectp = actor->sector();
@@ -1090,53 +1035,6 @@ void bloodsplats(DDukeActor *actor)
 		actor->spr.scale.Y += sadj + offset * sadj;
 		actor->temp_data[0]++;
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// taken out of moveexplosion
-//
-//---------------------------------------------------------------------------
-
-void forcesphereexplode(DDukeActor *actor)
-{
-	double size = actor->spr.scale.X;
-	if (actor->temp_data[1] > 0)
-	{
-		actor->temp_data[1]--;
-		if (actor->temp_data[1] == 0)
-		{
-			actor->Destroy();
-			return;
-		}
-	}
-	auto Owner = actor->GetOwner();
-	if (!Owner) return;
-	if (Owner->temp_data[1] == 0)
-	{
-		if (actor->temp_data[0] < 64)
-		{
-			actor->temp_data[0]++;
-			size += 0.046875;
-		}
-	}
-	else
-		if (actor->temp_data[0] > 64)
-		{
-			actor->temp_data[0]--;
-			size -= 0.046875;
-		}
-
-	actor->spr.pos = Owner->spr.pos;;
-	actor->spr.Angles.Yaw += mapangle(Owner->temp_data[0]);
-
-	size = clamp(size, REPEAT_SCALE, 1.);
-
-	actor->spr.scale = DVector2(size, size);
-	actor->spr.shade = int8_t((size * 32) - 48);
-
-	for (int j = actor->temp_data[0]; j > 0; j--)
-		ssp(actor, CLIPMASK0);
 }
 
 //---------------------------------------------------------------------------

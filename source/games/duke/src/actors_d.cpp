@@ -2309,9 +2309,6 @@ void moveactors_d(void)
 				spawn(act, EXPLOSION2);
 			ssp(act, CLIPMASK0);
 			break;
-		case FORCESPHERE:
-			forcesphere(act, FORCESPHERE);
-			continue;
 
 		case RECON:
 			recon(act, EXPLOSION2, FIRELASER, RECO_ATTACK, RECO_PAIN, RECO_ROAM, 4, [](DDukeActor* i)->int { return PIGCOP; });
@@ -2483,9 +2480,6 @@ void moveexplosions_d(void)  // STATNUM 5
 			}
 			continue;
 
-		case FORCESPHERE:
-			forcesphereexplode(act);
-			continue;
 		case WATERSPLASH2:
 			watersplash2(act);
 			continue;

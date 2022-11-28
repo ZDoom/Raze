@@ -2065,10 +2065,6 @@ void moveactors_r(void)
 				break;
 			}
 
-			case FORCESPHERE:
-				forcesphere(act, FORCESPHERE);
-				continue;
-
 			case RECON:
 			case UFO1_RR:
 			case UFO2:
@@ -2219,11 +2215,6 @@ void moveexplosions_r(void)  // STATNUM 5
 		case BLOODSPLAT4:
 
 			bloodsplats(act);
-			continue;
-
-
-		case FORCESPHERE:
-			forcesphereexplode(act);
 			continue;
 
 		case MUD:

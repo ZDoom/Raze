@@ -1189,17 +1189,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		lotsofglass(targ, nullptr, 10);
 		break;
 
-	case FORCESPHERE:
-		targ->spr.scale.X = (0);
-		if (targ->GetOwner())
-		{
-			targ->GetOwner()->temp_data[0] = 32;
-			targ->GetOwner()->temp_data[1] = !targ->GetOwner()->temp_data[1];
-			targ->GetOwner()->temp_data[2] ++;
-		}
-		spawn(targ, EXPLOSION2);
-		break;
-
 	case BROKEHYDROPLANT:
 		if (targ->spr.cstat & CSTAT_SPRITE_BLOCK)
 		{

@@ -178,19 +178,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case FORCESPHERE:
-		if (!actj)
-		{
-			act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-			ChangeActorStat(act, STAT_ZOMBIEACTOR);
-		}
-		else
-		{
-			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
-			ChangeActorStat(act, STAT_MISC);
-		}
-		break;
-
 	case BLOOD:
 		act->spr.scale = DVector2(0.0625, 0.0625);
 		act->spr.pos.Z -= 26;

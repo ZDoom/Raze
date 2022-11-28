@@ -208,21 +208,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case PAPER:
 		case PAPER + 1:
 			break;
-		case FORCESPHERE:
-			if (t->statnum == STAT_MISC && OwnerAc)
-			{
-				auto sqa = ( OwnerAc->spr.pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).Angle();
-				auto sqb = (OwnerAc->spr.pos.XY() - t->pos.XY()).Angle();
-
-				if (absangle(sqa, sqb) > DAngle90)
-				{
-					double dist1 = (OwnerAc->spr.pos.XY() - t->pos.XY()).LengthSquared();
-					double dist2 = (OwnerAc->spr.pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).LengthSquared();
-					if (dist1 < dist2)
-						t->scale = DVector2(0, 0);
-				}
-			}
-			continue;
 		case BURNING:
 		case BURNING2:
 			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
