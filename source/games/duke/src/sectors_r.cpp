@@ -1339,9 +1339,9 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 					fi.shoot(targ, BLOODSPLAT4);
 				}
 
-			if (targ->spr.statnum == 2)
+			if (targ->spr.statnum == STAT_ZOMBIEACTOR)
 			{
-				ChangeActorStat(targ, 1);
+				ChangeActorStat(targ, STAT_ACTOR);
 				targ->timetosleep = SLEEPTIME;
 			}
 		}

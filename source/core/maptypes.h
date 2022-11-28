@@ -193,6 +193,8 @@ enum ETSprFlags
 	TSPR_FLAGS_DRAW_LAST = 2,	// Currently unused: checked by Polymost but never set.
 	TSPR_MDLROTATE = 4,			// rotate if this is a model or voxel.
 	TSPR_SLOPESPRITE = 8,       // render as sloped sprite
+	TSPR_ROTATE8FRAMES = 16,	// do an 8 frame rotation
+	TSPR_ROTATE12FRAMES = 32,	// do an 12 frame rotation
 };
 
 

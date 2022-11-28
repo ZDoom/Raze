@@ -180,6 +180,10 @@ void initactorflags_r()
 	setflag(SFLAG2_DIENOW, { RADIUSEXPLOSION });
 	setflag(SFLAG2_NORADIUSPUSH, { HULK });
 	setflag(SFLAG2_FREEZEDAMAGE | SFLAG2_REFLECTIVE, { FREEZEBLAST });
+	setflag(SFLAG2_ALWAYSROTATE2, { RECON });
+	setflag(SFLAG2_SPECIALAUTOAIM, { RECON });
+	setflag(SFLAG2_IGNOREHITOWNER, { RECON });
+	setflag(SFLAG2_FLOATING, { DRONE });
 
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
@@ -188,15 +192,20 @@ void initactorflags_r()
 		ainf.flags |= SFLAG_MOVEFTA_WAKEUPCHECK;
 	}
 
+
 	if (isRRRA())
 	{
 		setflag(SFLAG_MOVEFTA_CHECKSEEWITHPAL8, { MINION });
 		setflag(SFLAG2_TRANFERPALTOJIBS, { MINION });
 		setflag(SFLAG2_NORADIUSPUSH, { MAMA, BILLYPLAY, COOTPLAY, MAMACLOUD });
+		setflag(SFLAG2_DONTDIVE, { CHEERBOAT, HULKBOAT, MINIONBOAT, UFO1_RRRA });
+		setflag(SFLAG2_FLOATING, { UFO1_RRRA });
 	}
 	else
 	{
 		setflag(SFLAG2_NORADIUSPUSH, { SBMOVE });
+		setflag(SFLAG2_DONTDIVE, { UFO1_RR, UFO2, UFO3, UFO4, UFO5 });
+		setflag(SFLAG2_FLOATING, { UFO1_RR, UFO2, UFO3, UFO4, UFO5 });
 	}
 
 	gs.actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;

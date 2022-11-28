@@ -681,7 +681,7 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 8;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
-			if (aimed->spr.picnum != RECON)
+			if (!actorflag(aimed, SFLAG2_SPECIALAUTOAIM))
 				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else 

@@ -975,7 +975,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 					fi.shoot(targ, BLOODSPLAT4);
 				}
 
-			if (targ->spr.picnum != TANK && !bossguy(targ) && targ->spr.picnum != RECON && targ->spr.picnum != ROTATEGUN)
+			if (!actorflag(targ, SFLAG2_NODAMAGEPUSH) && !bossguy(targ)) // RR does not have this.
 			{
 				if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 					targ->spr.Angles.Yaw = proj->spr.Angles.Yaw + DAngle180;
@@ -987,9 +987,9 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 					ChangeActorSect(targ, sp);
 			}
 
-			if (targ->spr.statnum == 2)
+			if (targ->spr.statnum == STAT_ZOMBIEACTOR)
 			{
-				ChangeActorStat(targ, 1);
+				ChangeActorStat(targ, STAT_ACTOR);
 				targ->timetosleep = SLEEPTIME;
 			}
 			if ((targ->spr.scale.X < 0.375 || targ->spr.picnum == SHARK) && proj->spr.picnum == SHRINKSPARK) return;
