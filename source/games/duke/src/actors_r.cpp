@@ -2062,10 +2062,6 @@ void moveactors_r(void)
 				break;
 			}
 
-			case OOZ:
-				ooz(act);
-				continue;
-
 			case EMPTYBIKE:
 				if (!isRRRA()) break;
 				makeitfall(act);

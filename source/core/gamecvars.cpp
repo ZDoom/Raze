@@ -302,6 +302,10 @@ CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
 	if (self < 0 || self > 3) self = 0;
 }
 
+CUSTOM_CVAR(Int, cl_maxdecalamount, 1024, CVAR_ARCHIVE)
+{
+	if (self < 0) self = 0;
+}
 
 
 

@@ -106,6 +106,8 @@ EXTERN_CVAR(Int, m_ffire)
 EXTERN_CVAR(Int, m_noexits)
 EXTERN_CVAR(Int, playercolor)
 
+EXTERN_CVAR(Int, cl_maxdecalamount)
+
 inline const char* PlayerName(size_t pindex)
 {
 	// Todo: proper implementation of user CVARs.

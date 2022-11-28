@@ -648,6 +648,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, setclipDistFromTile, DukeActor_setclip
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, insertspriteq, insertspriteq)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	insertspriteq(self);
+	return 0;
+}
 
 
 // temporary helpers to hide the fact that these flags are not part of the actor yet.

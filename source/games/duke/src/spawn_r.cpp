@@ -695,24 +695,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case OOZ:
-	{
-		act->spr.shade = -12;
-
-		if (actj)
-			if (actj->spr.picnum == NUKEBARREL)
-				act->spr.pal = 8;
-
-		ChangeActorStat(act, STAT_STANDABLE);
-
-		getglobalz(act);
-
-		double j = ((act->floorz - act->ceilingz) / 128.);
-
-		act->spr.scale = DVector2(max(0., 0.390625 - j * 0.5), j);
-		if(krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		break;
-	}
 	case DYNAMITE:
 		act->SetOwner(act);
 		act->spr.scale = DVector2(0.140625, 0.140625);

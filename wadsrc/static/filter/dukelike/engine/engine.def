@@ -49,7 +49,8 @@ spawnclasses
 	903 = DukePoolPocket
 	2590 = DukeForceSphere
 	1960 = DukeRecon
-
+	2300 = DukeOoz
+	2309 = DukeOoz2
 
 	1272 = DukeTrash
 	634 = DukeBolt1

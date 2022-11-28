@@ -391,12 +391,11 @@ void resetinventory(int snum)
 void resetprestat(int snum,int g)
 {
 	player_struct* p;
-	int i;
 
 	p = &ps[snum];
 
 	spriteqloc = 0;
-	for(i=0;i<spriteqamount;i++) spriteq[i] = nullptr;
+	for(auto& p : spriteq) p = nullptr;
 
 	p->hbomb_on          = 0;
 	p->pals.a         = 0;

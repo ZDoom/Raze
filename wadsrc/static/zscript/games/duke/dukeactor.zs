@@ -204,6 +204,7 @@ class DukeActor : CoreActor native
 	native int monsterCheatCheck();
 	native void shoot(Name spawnclass);
 	native void setClipDistFromTile();
+	native void insertspriteq();
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags
@@ -328,4 +329,5 @@ enum sflags2_t
 	SFLAG2_IGNOREHITOWNER		= 0x00200000,
 	SFLAG2_DONTDIVE				= 0x00400000,
 	SFLAG2_FLOATING				= 0x00800000,
+	SFLAG2_PAL8OOZ				= 0x01000000,	// dirty hack - only needed because this needs to work from CON.
 };

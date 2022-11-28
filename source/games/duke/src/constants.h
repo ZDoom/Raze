@@ -375,6 +375,7 @@ enum sflags2_t
 	SFLAG2_IGNOREHITOWNER		= 0x00200000,
 	SFLAG2_DONTDIVE				= 0x00400000,
 	SFLAG2_FLOATING				= 0x00800000,
+	SFLAG2_PAL8OOZ				= 0x01000000,	// dirty hack - only needed because this needs to work from CON.
 };
 
 using EDukeFlags2 = TFlags<sflags2_t, uint32_t>;

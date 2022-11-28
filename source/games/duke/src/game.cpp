@@ -77,7 +77,7 @@ static void markgcroots()
 {
 	GC::Mark(camsprite);
 	GC::Mark(BellSprite);
-	GC::MarkArray(spriteq, countof(spriteq));
+	GC::MarkArray(spriteq, 1024);
 	GC::Mark(currentCommentarySprite);
 	GC::Mark(ud.cameraactor);
 	for (auto& pl : ps)

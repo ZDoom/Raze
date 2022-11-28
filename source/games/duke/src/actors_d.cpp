@@ -2301,11 +2301,6 @@ void moveactors_d(void)
 			ssp(act, CLIPMASK0);
 			break;
 
-		case OOZ:
-		case OOZ2:
-			ooz(act);
-			continue;
-
 		case GREENSLIME:
 		case GREENSLIME + 1:
 		case GREENSLIME + 2:

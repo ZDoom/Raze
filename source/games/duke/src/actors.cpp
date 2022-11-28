@@ -681,23 +681,6 @@ void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2,
 //
 //---------------------------------------------------------------------------
 
-void ooz(DDukeActor *actor)
-{
-	getglobalz(actor);
-
-	double y = min((actor->floorz - actor->ceilingz) / 128, 4.);
-	double x = clamp(0.390625 - y * 0.5, 0.125, 0.75);
-
-	actor->spr.scale = DVector2(x, y);
-	actor->spr.pos.Z = actor->floorz;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK)
 {
 	auto sectp = actor->sector();
