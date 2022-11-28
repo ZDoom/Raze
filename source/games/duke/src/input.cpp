@@ -841,8 +841,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 			p->Angles.applyPitch(input.horz, &p->sync.actions, scaleAdjust);
 		}
 
-		p->Angles.processLegacyHelperYaw(scaleAdjust);
-		p->Angles.processLegacyHelperPitch(scaleAdjust);
+		p->Angles.applyScaledAdjustments(scaleAdjust);
 	}
 
 	if (packet)

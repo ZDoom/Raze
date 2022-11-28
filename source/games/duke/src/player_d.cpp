@@ -2725,8 +2725,7 @@ void processinput_d(int snum)
 	p = &ps[snum];
 	auto pact = p->GetActor();
 
-	p->Angles.resetAdjustmentPitch();
-	p->Angles.resetAdjustmentYaw();
+	p->Angles.resetAdjustments();
 
 	ESyncBits& actions = p->sync.actions;
 

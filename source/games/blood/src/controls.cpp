@@ -66,8 +66,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 			doslopetilting(pPlayer, scaleAdjust);
 		}
 
-		pPlayer->Angles.processLegacyHelperYaw(scaleAdjust);
-		pPlayer->Angles.processLegacyHelperPitch(scaleAdjust);
+		pPlayer->Angles.applyScaledAdjustments(scaleAdjust);
 	}
 
 	if (packet)

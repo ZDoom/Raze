@@ -1522,8 +1522,7 @@ void ProcessInput(PLAYER* pPlayer)
 		Item_JumpBoots = 3
 	};
 
-	pPlayer->Angles.resetAdjustmentPitch();
-	pPlayer->Angles.resetAdjustmentYaw();
+	pPlayer->Angles.resetAdjustments();
 
 	DBloodActor* actor = pPlayer->actor;
 	POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];

@@ -200,8 +200,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
             DoPlayerTurnTurret(pp, input.avel);
         }
 
-        pp->Angles.processLegacyHelperYaw(scaleAdjust);
-        pp->Angles.processLegacyHelperPitch(scaleAdjust);
+        pp->Angles.applyScaledAdjustments(scaleAdjust);
     }
 
     if (packet)

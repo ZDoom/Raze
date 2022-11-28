@@ -906,8 +906,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     PlayerList[nPlayer].Angles.backupYaw();
     PlayerList[nPlayer].Angles.backupPitch();
-    PlayerList[nPlayer].Angles.resetAdjustmentYaw();
-    PlayerList[nPlayer].Angles.resetAdjustmentPitch();
+    PlayerList[nPlayer].Angles.resetAdjustments();
 
     pPlayerActor->vel.XY() = sPlayerInput[nPlayer].vel;
 

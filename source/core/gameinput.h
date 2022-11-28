@@ -24,67 +24,53 @@ struct PlayerAngles
 	void doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
 
 	// General methods.
+	void resetAdjustments() { Adjustments = {}; }
 	void setActor(DCoreActor* const actor) { pActor = actor; }
 
 	// Pitch methods.
-	void lockPitch() { legacyDisabledPitch = true; }
-	void unlockPitch() { legacyDisabledPitch = false; }
-	bool targetedPitch() { return legacyTargetPitch.Sgn(); }
-	bool lockedPitch() { return targetedPitch() || legacyDisabledPitch; }
-	void addPitch(DAngle const value)
-	{
-		if (!SyncInput())
-		{
-			legacyAdjustmentPitch += value;
-		}
-		else
-		{
-			ZzHORIZON() += value;
-		}
-	}
-	void setPitch(DAngle value, bool const backup = false)
-	{
-		// Clamp incoming variable because sometimes the caller can exceed bounds.
-		value = ClampViewPitch(value);
-
-		if (!SyncInput() && !backup)
-		{
-			legacyTargetPitch = value.Sgn() ? value : minAngle;
-		}
-		else
-		{
-			ZzHORIZON() = value;
-			if (backup) ZzOLDHORIZON() = ZzHORIZON();
-		}
-	}
+	void lockPitch() { AngleLocks.Set(PITCH); }
+	void unlockPitch() { AngleLocks.Clear(PITCH); }
+	bool lockedPitch() { return Targets.Pitch.Sgn() || AngleLocks[PITCH]; }
+	void addPitch(const DAngle value) { addAngle(PITCH, value); }
+	void setPitch(const DAngle value, const bool backup = false) { setAngle(PITCH, ClampViewPitch(value), backup); }
 
 	// Yaw methods.
-	void lockYaw() { legacyDisabledYaw = true; }
-	void unlockYaw() { legacyDisabledYaw = false; }
-	bool targetedYaw() { return legacyTargetYaw.Sgn(); }
-	bool lockedYaw() { return targetedYaw() || legacyDisabledYaw; }
-	void addYaw(const DAngle value)
-	{
-		if (!SyncInput())
-		{
-			legacyAdjustmentYaw += value.Normalized180();
-		}
-		else
-		{
-			ZzANGLE() += value;
-		}
-	}
+	void lockYaw() { AngleLocks.Set(YAW); }
+	void unlockYaw() { AngleLocks.Clear(YAW); }
+	bool lockedYaw() { return Targets.Yaw.Sgn() || AngleLocks[YAW]; }
+	void addYaw(const DAngle value) { addAngle(YAW, value); }
+	void setYaw(const DAngle value, const bool backup = false) { setAngle(YAW, value, backup); }
 
-	void setYaw(const DAngle value, bool const backup = false)
+	// Roll methods.
+	void lockRoll() { AngleLocks.Set(ROLL); }
+	void unlockRoll() { AngleLocks.Clear(ROLL); }
+	bool lockedRoll() { return Targets.Roll.Sgn() || AngleLocks[ROLL]; }
+	void addRoll(const DAngle value) { addAngle(ROLL, value); }
+	void setRoll(const DAngle value, const bool backup = false) { setAngle(ROLL, value, backup); }
+
+	// Applicator of pending angle changes.
+	void applyScaledAdjustments(const double scaleAdjust)
 	{
-		if (!SyncInput() && !backup)
+		for (unsigned i = 0; i < MAXANGLES; i++)
 		{
-			legacyTargetYaw = value.Sgn() ? value : minAngle;
-		}
-		else
-		{
-			ZzANGLE() = value;
-			if (backup) ZzOLDANGLE() = ZzANGLE();
+			if (Targets[i].Sgn())
+			{
+				const auto delta = deltaangle(pActor->spr.Angles[i], Targets[i]);
+
+				if (abs(delta.Degrees()) > BAngToDegree)
+				{
+					pActor->spr.Angles[i] += delta * scaleAdjust;
+				}
+				else
+				{
+					pActor->spr.Angles[i] = Targets[i];
+					Targets[i] = nullAngle;
+				}
+			}
+			else if (Adjustments[i].Sgn())
+			{
+				pActor->spr.Angles[i] += Adjustments[i] * scaleAdjust;
+			}
 		}
 	}
 
@@ -108,27 +94,6 @@ struct PlayerAngles
 
 	// Legacy, to be removed.
 	DAngle ZzHORIZOFF, ZzOHORIZOFF;
-	void processLegacyHelperPitch(double const scaleAdjust)
-	{
-		if (targetedPitch())
-		{
-			auto delta = deltaangle(ZzHORIZON(), legacyTargetPitch);
-
-			if (abs(delta).Degrees() > 0.45)
-			{
-				ZzHORIZON() += delta * scaleAdjust;
-			}
-			else
-			{
-				ZzHORIZON() = legacyTargetPitch;
-				legacyTargetPitch = nullAngle;
-			}
-		}
-		else if (legacyAdjustmentPitch.Sgn())
-		{
-			ZzHORIZON() += legacyAdjustmentPitch * scaleAdjust;
-		}
-	}
 	void backupPitch()
 	{
 		ZzOLDHORIZON() = ZzHORIZON();
@@ -142,30 +107,8 @@ struct PlayerAngles
 	DAngle horizOLDSUM() { return ZzOLDHORIZON() + ZzOHORIZOFF; }
 	DAngle horizSUM() { return ZzHORIZON() + ZzHORIZOFF; }
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
-	void resetAdjustmentPitch() { legacyAdjustmentPitch = nullAngle; }
 
 	DAngle ZzLOOKANG, ZzOLDLOOKANG, ZzROTSCRNANG, ZzOLDROTSCRNANG, YawSpin;
-	void processLegacyHelperYaw(double const scaleAdjust)
-	{
-		if (targetedYaw())
-		{
-			auto delta = deltaangle(ZzANGLE(), legacyTargetYaw);
-
-			if (abs(delta) > DAngleBuildToDeg)
-			{
-				ZzANGLE() += delta * scaleAdjust;
-			}
-			else
-			{
-				ZzANGLE() = legacyTargetYaw;
-				legacyTargetYaw = nullAngle;
-			}
-		}
-		else if (legacyAdjustmentYaw.Sgn())
-		{
-			ZzANGLE() += legacyAdjustmentYaw * scaleAdjust;
-		}
-	}
 	void backupYaw()
 	{
 		ZzOLDANGLE() = ZzANGLE();
@@ -186,19 +129,46 @@ struct PlayerAngles
 	DAngle angLERPROTSCRN(double const interpfrac) { return interpolatedvalue(ZzOLDROTSCRNANG, ZzROTSCRNANG, interpfrac); }
 	DAngle angRENDERLOOKANG(double const interpfrac) { return !SyncInput() ? ZzLOOKANG : angLERPLOOKANG(interpfrac); }
 	DAngle angRENDERROTSCRN(double const interpfrac) { return !SyncInput() ? ZzROTSCRNANG : angLERPROTSCRN(interpfrac); }
-	void resetAdjustmentYaw() { legacyAdjustmentYaw = nullAngle; }
 
 private:
+	// DRotator indices.
+	enum : unsigned
+	{
+		PITCH,
+		YAW,
+		ROLL,
+		MAXANGLES,
+	};
+
 	// Private data which should never be accessed publically.
+	DRotator Targets, Adjustments;
+	FixedBitArray<MAXANGLES> AngleLocks;
 	DCoreActor* pActor;
 
+	void addAngle(const unsigned angIndex, const DAngle value)
+	{
+		if (!SyncInput())
+		{
+			Adjustments[angIndex] += value.Normalized180();
+		}
+		else
+		{
+			pActor->spr.Angles[angIndex] += value;
+		}
+	}
 
-	// Legacy, to be removed.
-	DAngle legacyTargetPitch, legacyAdjustmentPitch;
-	bool legacyDisabledPitch;
-
-	DAngle legacyTargetYaw, legacyAdjustmentYaw;
-	bool legacyDisabledYaw;
+	void setAngle(const unsigned angIndex, const DAngle value, const bool backup)
+	{
+		if (!SyncInput() && !backup)
+		{
+			Targets[angIndex] = value.Sgn() ? value : minAngle;
+		}
+		else
+		{
+			pActor->spr.Angles[angIndex] = value;
+			if (backup) pActor->PrevAngles[angIndex] = pActor->spr.Angles[angIndex];
+		}
+	}
 };
 
 class FSerializer;
