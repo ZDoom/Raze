@@ -334,4 +334,10 @@ enum sflags2_t
 	SFLAG2_DONTDIVE				= 0x00400000,
 	SFLAG2_FLOATING				= 0x00800000,
 	SFLAG2_PAL8OOZ				= 0x01000000,	// dirty hack - only needed because this needs to work from CON.
+	SFLAG2_SPAWNRABBITGUTS		= 0x02000000, // this depends on the shooter, not the projectile so it has to be done with a flag.
+	SFLAG2_NONSMOKYROCKET		= 0x04000000, // same with this one. Flags should later be copied to the projectile once posible.
+	SFLAG2_MIRRORREFLECT		= 0x08000000,
+	SFLAG2_ALTPROJECTILESPRITE	= 0x10000000, // yet another shooter flag. RRRA has some projectiles with alternative visuals, again this is on the caller thanks to CON.
+	SFLAG2_UNDERWATERSLOWDOWN	= 0x20000000,
+
 };

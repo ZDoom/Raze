@@ -205,14 +205,14 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;
-		case SHRINKSPARK:
+		case SAWBLADE:
 			if (OwnerAc && (OwnerAc->spr.picnum == CHEER || OwnerAc->spr.picnum == CHEERSTAYPUT) && isRRRA())
 			{
 				t->picnum = CHEERBLADE + ((PlayClock >> 4) & 3);
 				t->shade = -127;
 			}
 			else
-				t->picnum = SHRINKSPARK + ((PlayClock >> 4) & 7);
+				t->picnum = SAWBLADE + ((PlayClock >> 4) & 7);
 			break;
 		case CHEERBOMB:
 			if (isRRRA())
@@ -221,14 +221,14 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				break;
 			}
 			else goto default_case;
-		case SPIT:
+		case SHITBALL:
 			if (isRRRA() && OwnerAc)
 			{
 				if (OwnerAc->spr.picnum == MINION && OwnerAc->spr.pal == 8)
-					t->picnum = RRTILE3500 + ((PlayClock >> 4) % 6);
+					t->picnum = FROGBALL1 + ((PlayClock >> 4) % 6);
 				else if (OwnerAc->spr.picnum == MINION && OwnerAc->spr.pal == 19)
 				{
-					t->picnum = RRTILE5090 + ((PlayClock >> 4) & 3);
+					t->picnum = SHITBURN1 + ((PlayClock >> 4) & 3);
 					t->shade = -127;
 				}
 				else if (OwnerAc->spr.picnum == MAMA)
@@ -241,13 +241,13 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 						t->cstat |= CSTAT_SPRITE_XFLIP;
 					}
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-					t->picnum = RRTILE7274 + k;
+					t->picnum = RABBITBALL + k;
 				}
 				else
-					t->picnum = SPIT + ((PlayClock >> 4) & 3);
+					t->picnum = SHITBALL + ((PlayClock >> 4) & 3);
 			}
 			else
-				t->picnum = SPIT + ((PlayClock >> 4) & 3);
+				t->picnum = SHITBALL + ((PlayClock >> 4) & 3);
 			break;
 		case EMPTYBIKE:
 			if (!isRRRA()) goto default_case;
@@ -646,7 +646,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FREEZEBLAST:
 		case ATOMICHEALTH:
 		case FIRELASER:
-		case SHRINKSPARK:
+		case SAWBLADE:
 		case CHAINGUN:
 		case RPG:
 		case EXPLOSION3:

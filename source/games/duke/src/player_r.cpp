@@ -462,10 +462,10 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 	if (isRRRA())
 	{
-		if (atwith != SPIT && actor->spr.extra >= 0) actor->spr.shade = -96;
+		if (atwith != SHITBALL && actor->spr.extra >= 0) actor->spr.shade = -96;
 
 		scount = 1;
-		if (atwith == SPIT)
+		if (atwith == SHITBALL)
 		{
 			if (actor->spr.picnum == 8705)
 				vel = 37.5;
@@ -478,9 +478,9 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 		scount = 1;
-		if (atwith == SPIT) vel = 25;
+		if (atwith == SHITBALL) vel = 25;
 	}
-	if (atwith != SPIT)
+	if (atwith != SHITBALL)
 	{
 		vel = 52.5;
 		pos.Z -= 4;
@@ -532,7 +532,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	double oldzvel = zvel;
 	double scale = p >= 0? 0.109375 : atwith == COOLEXPLOSION1? 0.125 : 0.28125;
 
-	if (atwith == SPIT)
+	if (atwith == SHITBALL)
 	{
 		if (!isRRRA() || actor->spr.picnum != MAMA) pos.Z -= 10; else pos.Z -= 20;
 	}
@@ -892,7 +892,7 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 		return;
 
 	case FIRELASER:
-	case SPIT:
+	case SHITBALL:
 	case COOLEXPLOSION1:
 		shootstuff(actor, p, spos, sang, atwith);
 		return;
@@ -907,7 +907,7 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 		[[fallthrough]];
 
 	case RPG:
-	case SHRINKSPARK:
+	case SAWBLADE:
 	rrra_rpg2:
 		shootrpg(actor, p, spos, sang, atwith);
 		break;
@@ -2956,7 +2956,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic == 1)
 		{
 			p->ammo_amount[THROWSAW_WEAPON]--;
-			fi.shoot(pact, SHRINKSPARK, nullptr);
+			fi.shoot(pact, SAWBLADE, nullptr);
 			checkavailweapon(p);
 		}
 		p->kickback_pic++;

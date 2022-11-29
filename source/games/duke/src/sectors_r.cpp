@@ -1305,7 +1305,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 	if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == 0)
 		return;
 
-	if ((proj->spr.picnum == SHRINKSPARK || proj->spr.picnum == FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != 4)
+	if ((proj->spr.picnum == SAWBLADE || proj->spr.picnum == FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != 4)
 	{
 		if (badguy(targ) == 1)
 		{

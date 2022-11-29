@@ -699,7 +699,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &
 		int p = targ->PlayerIndex();
 		S_PlayActorSound(PISTOL_BODYHIT, targ);
 
-		if (proj->spr.picnum == SPIT)
+		if (proj->spr.picnum == SHITBALL)
 		{
 			if (isRRRA() && proj->GetOwner() && proj->GetOwner()->spr.picnum == MAMA)
 			{
@@ -741,7 +741,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 		rabbitguts(proj);
 	}
 
-	if (proj->spr.picnum != RPG && (!isRRRA() || proj->spr.picnum != RPG2) && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SPIT && proj->spr.picnum != SHRINKSPARK && (wal->overpicnum == MIRROR || wal->picnum == MIRROR))
+	if (proj->spr.picnum != RPG && (!isRRRA() || proj->spr.picnum != RPG2) && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SHITBALL && proj->spr.picnum != SHITBALL && (wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
 		DAngle walang = wal->delta().Angle();
 		proj->spr.Angles.Yaw = walang * 2 - proj->spr.Angles.Yaw;
@@ -770,7 +770,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 			proj->spr.Angles.Yaw = walang * 2 - proj->spr.Angles.Yaw;
 			return true;
 		}
-		if (proj->spr.picnum == SHRINKSPARK)
+		if (proj->spr.picnum == SAWBLADE)
 		{
 			if (wal->picnum >= RRTILE3643 && wal->picnum < RRTILE3643 + 3)
 			{
@@ -956,7 +956,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			}
 		}
 	}
-	else if (proj->spr.picnum == SPIT) if (proj->vel.Z < 24)
+	else if (proj->spr.picnum == SHITBALL) if (proj->vel.Z < 24)
 		proj->vel.Z += gs.gravity - 112/256.;
 
 	if (coll.type != 0)
@@ -974,12 +974,12 @@ static void weaponcommon_r(DDukeActor *proj)
 			if (weaponhitsector(proj, oldpos)) return;
 		}
 
-		if (proj->spr.picnum != SPIT)
+		if (proj->spr.picnum != SHITBALL)
 		{
 			if (proj->spr.picnum == RPG) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
 			else if (isRRRA() && proj->spr.picnum == RPG2) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  150, 247);
 			else if (isRRRA() && proj->spr.picnum == BOATGRENADE) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  160, RPG_EXPLODE);
-			else if (proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != FIRELASER && proj->spr.picnum != SHRINKSPARK)
+			else if (proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != FIRELASER && proj->spr.picnum != SAWBLADE)
 			{
 				auto spawned = spawn(proj, 1441);
 				if (spawned)
@@ -1047,10 +1047,10 @@ void moveweapons_r(void)
 		case BOATGRENADE:
 			if (!isRRRA()) continue;
 			[[fallthrough]];
-		case SHRINKSPARK:
+		case SAWBLADE:
 		case RPG:
 		case FIRELASER:
-		case SPIT:
+		case SHITBALL:
 		case COOLEXPLOSION1:
 		case OWHIP:
 		case UWHIP:
