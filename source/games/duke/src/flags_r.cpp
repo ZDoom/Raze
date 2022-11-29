@@ -250,7 +250,7 @@ void initactorflags_r()
 	TILE_EGG = EGG;
 
 	gs.firstdebris = SCRAP6;
-	gs.gutsscale = 0.25;
+	gs.gutsscale = 0.125;
 }
 
 END_DUKE_NS

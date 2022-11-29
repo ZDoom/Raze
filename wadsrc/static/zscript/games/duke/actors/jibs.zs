@@ -50,7 +50,7 @@ class DukeJibs1 : DukeActor
 	default
 	{
 		statnum STAT_MISC;
-		spriteset "JIBS1", "JIBS6";
+		spriteset "JIBS1", "JIBS6", "JIBS6A", "JIBS6B", "JIBS6C", "JIBS6D", "JIBS6E", "JIBS6F", "JIBS6G";
 	}
 	
 	override void Tick()
@@ -184,6 +184,10 @@ class DukeJibs1 : DukeActor
 		if (Raze.isRRRA() && tspr.pal == 19)
 			tspr.shade = -127;
 	
+		if (spritesetindex == 1)
+		{
+			tspr.SetSpritePic(self, 1 + self.temp_data[0]);
+		}
 		if (tspr.pal == 6) tspr.shade = -120;
 
 		if (self.sector.shadedsector == 1)
@@ -256,6 +260,7 @@ class DukeJibs6 : DukeJibs1
 	override void Initialize()
 	{
 		if (Raze.isRR()) self.scale *= 0.5; // only RR needs this.
+		self.setSpriteSetImage(1);
 	}
 }
 
