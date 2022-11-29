@@ -940,23 +940,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			}
 	}
 
-	if (proj->spr.picnum == FIRELASER)
-	{
-		for (int k = -3; k < 2; k++)
-		{
-			double zAdd = k * proj->vel.Z / 24;
-			auto x = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.Angles.Yaw.ToVector() * k * 2.,
-				FIRELASER, -40 + (k << 2),
-				proj->spr.scale, nullAngle, 0., 0., proj->GetOwner(), 5);
-
-			if (x)
-			{
-				x->spr.cstat = CSTAT_SPRITE_YCENTER;
-				x->spr.pal = proj->spr.pal;
-			}
-		}
-	}
-	else if (proj->spr.picnum == SHITBALL) if (proj->vel.Z < 24)
+	if (proj->spr.picnum == SHITBALL) if (proj->vel.Z < 24)
 		proj->vel.Z += gs.gravity - 112/256.;
 
 	if (coll.type != 0)
@@ -979,7 +963,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			if (proj->spr.picnum == RPG) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
 			else if (isRRRA() && proj->spr.picnum == RPG2) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  150, 247);
 			else if (isRRRA() && proj->spr.picnum == BOATGRENADE) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  160, RPG_EXPLODE);
-			else if (proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != FIRELASER && proj->spr.picnum != SAWBLADE)
+			else if (proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SAWBLADE)
 			{
 				auto spawned = spawn(proj, 1441);
 				if (spawned)
@@ -1049,7 +1033,6 @@ void moveweapons_r(void)
 			[[fallthrough]];
 		case SAWBLADE:
 		case RPG:
-		case FIRELASER:
 		case SHITBALL:
 		case COOLEXPLOSION1:
 		case OWHIP:
@@ -2201,7 +2184,6 @@ void moveexplosions_r(void)  // STATNUM 5
 			frameeffect1(act);
 			continue;
 		case COOLEXPLOSION1:
-		case FIRELASER:
 		case OWHIP:
 		case UWHIP:
 			if (act->spr.extra != 999)
@@ -2438,7 +2420,7 @@ void moveeffectors_r(void)   //STATNUM 3
 
 			//BOSS
 		case SE_5_BOSS:
-			handle_se05(act, FIRELASER);
+			handle_se05(act);
 			break;
 
 		case SE_8_UP_OPEN_DOOR_LIGHTS:

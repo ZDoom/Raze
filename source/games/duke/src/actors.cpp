@@ -1861,7 +1861,7 @@ void handle_se04(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se05(DDukeActor* actor, int FIRELASER)
+void handle_se05(DDukeActor* actor)
 {
 	auto sc = actor->sector();
 	int j;
@@ -1872,7 +1872,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	{
 		auto ang = actor->spr.Angles.Yaw;
 		actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-		fi.shoot(actor, FIRELASER, nullptr);
+		fi.shoot(actor, -1, PClass::FindActor("DukeFireLaser"));
 		actor->spr.Angles.Yaw = ang;
 	}
 

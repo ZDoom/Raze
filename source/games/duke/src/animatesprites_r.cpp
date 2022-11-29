@@ -645,7 +645,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case EXPLOSION2:
 		case FREEZEBLAST:
 		case ATOMICHEALTH:
-		case FIRELASER:
 		case SAWBLADE:
 		case CHAINGUN:
 		case RPG:
@@ -658,10 +657,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				ps[screenpeek].visibility = -127;
 				lastvisinc = PlayClock + 32;
 				t->pal = 0;
-			}
-			else if (t->picnum == FIRELASER)
-			{
-				t->picnum = FIRELASER + ((PlayClock >> 2) & 5);
 			}
 			t->shade = -127;
 			break;

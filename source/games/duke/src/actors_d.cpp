@@ -1016,24 +1016,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			}
 	}
 
-	if (proj->spr.picnum == FIRELASER)
-	{
-		for (int k = -3; k < 2; k++)
-		{
-			double zAdd = k * proj->vel.Z / 24;
-			auto spawned = CreateActor(proj->sector(), proj->spr.pos.plusZ(zAdd) + proj->spr.Angles.Yaw.ToVector() * k * 2.,
-				FIRELASER, -40 + (k << 2),
-				proj->spr.scale, nullAngle, 0., 0., proj->GetOwner(), 5);
-
-			if (spawned)
-			{
-				spawned->opos = proj->opos - proj->spr.pos + spawned->spr.pos;
-				spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-				spawned->spr.pal = proj->spr.pal;
-			}
-		}
-	}
-	else if (proj->spr.picnum == SPIT) if (proj->vel.Z < 24)
+	if (proj->spr.picnum == SPIT) if (proj->vel.Z < 24)
 		proj->vel.Z += gs.gravity - 112 / 256.;
 
 	if (coll.type != 0)
@@ -1076,7 +1059,7 @@ static void weaponcommon_d(DDukeActor* proj)
 				S_PlayActorSound(SHRINKER_HIT, proj);
 				fi.hitradius(proj, gs.shrinkerblastradius, 0, 0, 0, 0);
 			}
-			else if (proj->spr.picnum != COOLEXPLOSION1 && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != FIRELASER && (!isWorldTour() || proj->spr.picnum != FIREBALL))
+			else if (proj->spr.picnum != COOLEXPLOSION1 && proj->spr.picnum != FREEZEBLAST && (!isWorldTour() || proj->spr.picnum != FIREBALL))
 			{
 				auto spawned = spawn(proj, EXPLOSION2);
 				if (spawned)
@@ -1166,7 +1149,6 @@ void moveweapons_d(void)
 			[[fallthrough]];
 		case SHRINKSPARK:
 		case RPG:
-		case FIRELASER:
 		case SPIT:
 		case COOLEXPLOSION1:
 			weaponcommon_d(act);
@@ -2453,15 +2435,6 @@ void moveexplosions_d(void)  // STATNUM 5
 		case FRAMEEFFECT1:
 			frameeffect1(act);
 			continue;
-		case FIRELASER:
-			if (act->spr.extra != 999)
-				act->spr.extra = 999;
-			else
-			{
-				act->Destroy();
-				continue;
-			}
-			break;
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:
@@ -2710,7 +2683,7 @@ void moveeffectors_d(void)   //STATNUM 3
 
 			//BOSS
 		case SE_5_BOSS:
-			handle_se05(act, FIRELASER);
+			handle_se05(act);
 			break;
 
 		case SE_8_UP_OPEN_DOOR_LIGHTS:

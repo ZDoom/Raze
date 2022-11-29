@@ -159,3 +159,68 @@ class DukeProjectile : DukeActor
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeFirelaser : DukeProjectile // Liztrooper shot
+{
+	default
+	{
+		spriteset "FIRELASER", "FIRELASER2", "FIRELASER3", "FIRELASER4", "FIRELASER5", "FIRELASER6";
+	}
+	override bool postmoveeffect(CollisionData coll)
+	{
+		if (Super.postmoveeffect(coll)) return true;
+		for (int k = -3; k < 2; k++)
+		{
+			double zAdd = k * self.vel.Z / 24;
+			let spawned = dlevel.SpawnActor(self.sector, self.pos.plusZ(zAdd) + self.angle.ToVector() * k * 2., 'DukeFireLaserTrail', -40 + (k << 2), self.scale, 0, 0., 0., self.ownerActor, STAT_MISC);
+
+			if (spawned)
+			{
+				spawned.opos = self.opos - self.pos + spawned.pos;
+				spawned.cstat = CSTAT_SPRITE_YCENTER;
+				spawned.pal = self.pal;
+			}
+		}
+		return false;
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		if (Raze.isRR()) tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
+		tspr.shade = -127;
+		return true;
+	}
+
+}
+
+class DukeFirelaserTrail : DukeActor
+{
+	default
+	{
+		statnum STAT_MISC;
+		spriteset "FIRELASER", "FIRELASER2", "FIRELASER3", "FIRELASER4", "FIRELASER5", "FIRELASER6";
+	}
+	
+	override void Tick()
+	{
+		if (self.extra == 999)
+		{
+			self.Destroy();
+		}
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		self.extra = 999;
+		if (Raze.isRR()) tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
+		tspr.shade = -127;
+		return true;
+	}
+	
+}
+

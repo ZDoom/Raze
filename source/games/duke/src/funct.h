@@ -60,7 +60,7 @@ void handle_se30(DDukeActor* i, int JIBS6);
 void handle_se02(DDukeActor* i);
 void handle_se03(DDukeActor* i);
 void handle_se04(DDukeActor* i);
-void handle_se05(DDukeActor* i, int FIRELASER);
+void handle_se05(DDukeActor* i);
 void handle_se08(DDukeActor* i, bool checkhitag1);
 void handle_se10(DDukeActor* i, const int *);
 void handle_se11(DDukeActor* i);
