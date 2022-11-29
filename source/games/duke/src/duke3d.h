@@ -99,7 +99,7 @@ struct Dispatcher
 
 	// player
 	void (*incur_damage)(player_struct* p);
-	void (*shoot)(DDukeActor*, int);
+	void (*shoot)(DDukeActor*, int, PClass* cls);
 	void (*selectweapon)(int snum, int j);
 	int (*doincrements)(player_struct* p);
 	void (*checkweapons)(player_struct* p);
@@ -125,6 +125,7 @@ bool CallOnUse(DDukeActor* actor, player_struct* user);
 void CallOnMotoSmash(DDukeActor* actor, player_struct* hitter);
 void CallOnRespawn(DDukeActor* actor, int low);
 bool CallAnimate(DDukeActor* actor, tspritetype* hitter);
+bool CallShootThis(DDukeActor* clsdef, DDukeActor* actor, int pn, const DVector3& spos, DAngle sang);
 void CallStaticSetup(DDukeActor* actor);
 
 

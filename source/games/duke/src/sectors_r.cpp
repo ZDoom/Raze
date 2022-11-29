@@ -1333,10 +1333,10 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 			if (Owner && Owner->isPlayer() && targ->spr.picnum != DRONE)
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
-					fi.shoot(targ, BLOODSPLAT3);
-					fi.shoot(targ, BLOODSPLAT1);
-					fi.shoot(targ, BLOODSPLAT2);
-					fi.shoot(targ, BLOODSPLAT4);
+					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat3"));
+					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
+					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat2"));
+					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat4"));
 				}
 
 			if (targ->spr.statnum == STAT_ZOMBIEACTOR)

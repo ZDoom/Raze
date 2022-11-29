@@ -73,16 +73,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 			t->picnum = h->spr.picnum + k;
 			break;
-		case BLOODSPLAT1:
-		case BLOODSPLAT2:
-		case BLOODSPLAT3:
-		case BLOODSPLAT4:
-			if (t->pal == 6)
-			{
-				t->shade = -127;
-				continue;
-			}
-			[[fallthrough]];
 		case BULLETHOLE:
 			t->shade = 16;
 			continue;

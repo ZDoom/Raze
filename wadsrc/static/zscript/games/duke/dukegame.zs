@@ -70,12 +70,16 @@ struct Duke native
 
 	enum ETextureFlags
 	{
-		TFLAG_WALLSWITCH			= 1,
-		TFLAG_ADULT					= 2,
-		TFLAG_ELECTRIC				= 4,
-		TFLAG_CLEARINVENTORY		= 8,	// really dumb Duke stuff...
-		TFLAG_SLIME					= 16,
-		TFLAG_NOCIRCLEREFLECT			= 32,
+		TFLAG_WALLSWITCH			= 1 << 0,
+		TFLAG_ADULT					= 1 << 1,
+		TFLAG_ELECTRIC				= 1 << 2,
+		TFLAG_CLEARINVENTORY		= 1 << 3,	// really dumb Duke stuff...
+		TFLAG_SLIME					= 1 << 4,
+		TFLAG_DOORWALL				= 1 << 5,
+		TFLAG_BLOCKDOOR				= 1 << 6,
+		TFLAG_OUTERSPACE			= 1 << 7,
+		TFLAG_NOBLOODSPLAT			= 1 << 8,
+		TFLAG_NOCIRCLEREFLECT		= 1 << 9,
 	};
 
 	enum ESoundFlags

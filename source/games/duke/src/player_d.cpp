@@ -1044,7 +1044,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 //
 //---------------------------------------------------------------------------
 
-void shoot_d(DDukeActor* actor, int atwith)
+void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 {
 	int p;
 	DVector3 spos;
@@ -1052,35 +1052,17 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 	auto const sect = actor->sector();
 
+	sang = actor->spr.Angles.Yaw;
 	if (actor->isPlayer())
 	{
 		p = actor->PlayerIndex();
+		spos = actor->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
+
+		ps[p].crack_time = CRACK_TIME;
 	}
 	else
 	{
 		p = -1;
-	}
-
-	SetGameVarID(g_iAtWithVarID, atwith, actor, p);
-	SetGameVarID(g_iReturnVarID, 0, actor, p);
-	OnEvent(EVENT_SHOOT, p, ps[p].GetActor(), -1);
-	if (GetGameVarID(g_iReturnVarID, actor, p).safeValue() != 0)
-	{
-		return;
-	}
-
-
-	if (actor->isPlayer())
-	{
-		spos = ps[p].GetActor()->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
-		sang = ps[p].GetActor()->spr.Angles.Yaw;
-
-		ps[p].crack_time = CRACK_TIME;
-
-	}
-	else
-	{
-		sang = actor->spr.Angles.Yaw;
 		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tileHeight(actor->spr.picnum) * 0.5) + 4);
 
 		if (actor->spr.picnum != ROTATEGUN)
@@ -1093,6 +1075,16 @@ void shoot_d(DDukeActor* actor, int atwith)
 			}
 		}
 	}
+
+	if (cls == nullptr)
+	{
+		auto info = spawnMap.CheckKey(atwith);
+		if (info)
+		{
+			cls = static_cast<PClassActor*>(info->Class(atwith));
+		}
+	}
+	if (cls && cls->IsDescendantOf(RUNTIME_CLASS(DDukeActor)) && CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, p, spos, sang)) return;
 
 	if (isWorldTour()) 
 	{ // Twentieth Anniversary World Tour
@@ -1124,13 +1116,6 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 	switch (atwith)
 	{
-	case BLOODSPLAT1:
-	case BLOODSPLAT2:
-	case BLOODSPLAT3:
-	case BLOODSPLAT4:
-		shootbloodsplat(actor, p, spos, sang, atwith, BIGFORCE);
-		break;
-
 	case KNEE:
 		shootknee(actor, p, spos, sang);
 		break;
@@ -1528,7 +1513,7 @@ int doincrements_d(player_struct* p)
 		p->last_quick_kick = p->quick_kick + 1;
 		p->quick_kick--;
 		if (p->quick_kick == 8)
-			fi.shoot(p->GetActor(), KNEE);
+			fi.shoot(p->GetActor(), KNEE, nullptr);
 	}
 	else if (p->last_quick_kick > 0)
 		p->last_quick_kick--;
@@ -2277,7 +2262,7 @@ static void operateweapon(int snum, ESyncBits actions)
 	case PISTOL_WEAPON:	// m-16 in NAM
 		if (p->kickback_pic == 1)
 		{
-			fi.shoot(pact, SHOTSPARK1);
+			fi.shoot(pact, SHOTSPARK1, nullptr);
 			S_PlayActorSound(PISTOL_FIRE, pact);
 			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
@@ -2328,7 +2313,7 @@ static void operateweapon(int snum, ESyncBits actions)
 		if (p->kickback_pic == 4)
 		{
 			for(int ii = 0; ii < 7; ii++)
-				fi.shoot(pact, SHOTGUN);
+				fi.shoot(pact, SHOTGUN, nullptr);
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 
 			S_PlayActorSound(SHOTGUN_FIRE, pact);
@@ -2397,7 +2382,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				}
 
 				S_PlayActorSound(CHAINGUN_FIRE, pact);
-				fi.shoot(pact, CHAINGUN);
+				fi.shoot(pact, CHAINGUN, nullptr);
 				lastvisinc = PlayClock + 32;
 				p->visibility = 0;
 				checkavailweapon(p);
@@ -2441,7 +2426,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			else
 				p->okickback_pic = p->kickback_pic = 0;
 			p->ammo_amount[p->curr_weapon]--;
-			fi.shoot(pact, GROWSPARK);
+			fi.shoot(pact, GROWSPARK, nullptr);
 
 			//#ifdef NAM
 			//#else
@@ -2476,7 +2461,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			else p->okickback_pic = p->kickback_pic = 0;
 
 			p->ammo_amount[SHRINKER_WEAPON]--;
-			fi.shoot(pact, SHRINKER);
+			fi.shoot(pact, SHRINKER, nullptr);
 
 			if (!isNam())
 			{
@@ -2509,7 +2494,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				{
 					p->visibility = 0;
 					lastvisinc = PlayClock + 32;
-					fi.shoot(pact, RPG);
+					fi.shoot(pact, RPG, nullptr);
 					p->ammo_amount[DEVISTATOR_WEAPON]--;
 					checkavailweapon(p);
 				}
@@ -2519,7 +2504,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			{
 				p->visibility = 0;
 				lastvisinc = PlayClock + 32;
-				fi.shoot(pact, RPG);
+				fi.shoot(pact, RPG, nullptr);
 				p->ammo_amount[DEVISTATOR_WEAPON]--;
 				checkavailweapon(p);
 				if (p->ammo_amount[DEVISTATOR_WEAPON] <= 0) p->okickback_pic = p->kickback_pic = 0;
@@ -2539,7 +2524,7 @@ static void operateweapon(int snum, ESyncBits actions)
 
 				p->visibility = 0;
 				lastvisinc = PlayClock + 32;
-				fi.shoot(pact, FREEZEBLAST);
+				fi.shoot(pact, FREEZEBLAST, nullptr);
 				checkavailweapon(p);
 			}
 			if (pact->spr.scale.X < 0.5)
@@ -2567,7 +2552,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			if (p->cursector->lotag != 2) 
 			{
 				p->ammo_amount[FLAMETHROWER_WEAPON]--;
-				fi.shoot(pact, FIREBALL);
+				fi.shoot(pact, FIREBALL, nullptr);
 			}
 			checkavailweapon(p);
 		}
@@ -2589,7 +2574,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			p->GetActor()->restorez();
 			p->vel.Z = 0;
 			if (p->kickback_pic == 3)
-				fi.shoot(pact, HANDHOLDINGLASER);
+				fi.shoot(pact, HANDHOLDINGLASER, nullptr);
 		}
 		if (p->kickback_pic == 16)
 		{
@@ -2602,7 +2587,7 @@ static void operateweapon(int snum, ESyncBits actions)
 	case KNEE_WEAPON:
 		p->kickback_pic++;
 
-		if (p->kickback_pic == 7) fi.shoot(pact, KNEE);
+		if (p->kickback_pic == 7) fi.shoot(pact, KNEE, nullptr);
 		else if (p->kickback_pic == 14)
 		{
 			if (actions & SB_FIRE)
@@ -2621,7 +2606,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			p->ammo_amount[RPG_WEAPON]--;
 			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
-			fi.shoot(pact, RPG);
+			fi.shoot(pact, RPG, nullptr);
 			checkavailweapon(p);
 		}
 		else if (p->kickback_pic == 20)

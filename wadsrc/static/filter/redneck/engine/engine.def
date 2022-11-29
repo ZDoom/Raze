@@ -52,6 +52,10 @@ spawnclasses
 	1344 = DukeRat
 	1759 = DukeForceSphere
 	1529 = DukeOoz
+	1525 = DukeBloodSplat1
+	1526 = DukeBloodSplat2
+	1527 = DukeBloodSplat3
+	1528 = DukeBloodSplat4
 
 	285 = RedneckChickenSpawner1
 	286 = RedneckChickenSpawner2

@@ -2426,14 +2426,6 @@ void moveexplosions_d(void)  // STATNUM 5
 			else act->spr.shade = 127;
 			continue;
 
-		case BLOODSPLAT1:
-		case BLOODSPLAT2:
-		case BLOODSPLAT3:
-		case BLOODSPLAT4:
-
-			bloodsplats(act);
-			continue;
-
 		case NUKEBUTTON:
 		case NUKEBUTTON + 1:
 		case NUKEBUTTON + 2:
@@ -2824,7 +2816,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			if (act->temp_data[0])
 			{
 				if (act->temp_data[0] == 1)
-					fi.shoot(act, sc->extra);
+					fi.shoot(act, sc->extra, nullptr);
 				else if (act->temp_data[0] == 26 * 5)
 					act->temp_data[0] = 0;
 				act->temp_data[0]++;

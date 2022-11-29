@@ -969,10 +969,10 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if (Owner && Owner->isPlayer() && targ->spr.picnum != ROTATEGUN && targ->spr.picnum != DRONE)
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
-					fi.shoot(targ, BLOODSPLAT3);
-					fi.shoot(targ, BLOODSPLAT1);
-					fi.shoot(targ, BLOODSPLAT2);
-					fi.shoot(targ, BLOODSPLAT4);
+					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat3"));
+					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
+					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat2"));
+					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat4"));
 				}
 
 			if (!actorflag(targ, SFLAG2_NODAMAGEPUSH) && !bossguy(targ)) // RR does not have this.
@@ -1172,7 +1172,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case FETUSBROKE:
 		for (j = 0; j < 48; j++)
 		{
-			fi.shoot(targ, BLOODSPLAT1);
+			fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
 			targ->spr.Angles.Yaw += DAngle1 * 58.5; // Was 333, which really makes no sense.
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
@@ -1254,21 +1254,21 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		targ->spr.extra -= proj->spr.extra;
 		if (targ->spr.extra > 0) break;
 		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, BLOODSPLAT1);
+		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
 		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, BLOODSPLAT2);
+		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat2"));
 		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, BLOODSPLAT3);
+		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat3"));
 		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, BLOODSPLAT4);
+		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat4"));
 		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, BLOODSPLAT1);
+		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
 		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, BLOODSPLAT2);
+		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat2"));
 		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, BLOODSPLAT3);
+		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat3"));
 		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, BLOODSPLAT4);
+		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat4"));
 		spawnguts(targ, PClass::FindActor("DukeJibs1"), 1);
 		spawnguts(targ, PClass::FindActor("DukeJibs2"), 2);
 		spawnguts(targ, PClass::FindActor("DukeJibs3"), 3);

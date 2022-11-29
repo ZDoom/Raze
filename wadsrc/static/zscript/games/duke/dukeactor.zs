@@ -189,6 +189,10 @@ class DukeActor : CoreActor native
 	virtual void onRespawn(int tag) { }
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
+	virtual bool shootthis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const // this gets called on the defaults.
+	{
+		return false;
+	}
 	
 	native void RandomScrap();
 	native void hitradius(int r, int hp1, int hp2, int hp3, int hp4);
@@ -231,7 +235,7 @@ struct DukeLevel
 	native static void operatemasterswitches(int lotag);
 	native static void operateactivators(int lotag, DukePlayer p);
 	native static int floorflags(sectortype s);
-	native static int wallflags(walltype s);
+	native static int wallflags(walltype s, int which);
 	native static void AddCycler(sectortype sector, int lotag, int shade, int shade2, int hitag, int state);
 	native static void addtorch(sectortype sector, int shade, int lotag);
 	native static void addlightning(sectortype sector, int shade);

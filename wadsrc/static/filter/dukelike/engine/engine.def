@@ -51,6 +51,10 @@ spawnclasses
 	1960 = DukeRecon
 	2300 = DukeOoz
 	2309 = DukeOoz2
+	2296 = DukeBloodSplat1
+	2297 = DukeBloodSplat2
+	2298 = DukeBloodSplat3
+	2299 = DukeBloodSplat4
 
 	1272 = DukeTrash
 	634 = DukeBolt1
@@ -232,4 +236,8 @@ tileflag TFLAG_DOORWALL {
 tileflag TFLAG_OUTERSPACE {
 	MOONSKY1
 	BIGORBIT1
+	}
+
+tileflag TFLAG_NOBLOODSPLAT {
+	BIGFORCE
 	}

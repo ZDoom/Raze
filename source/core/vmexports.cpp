@@ -95,6 +95,26 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, cansee, Raze_cansee)
 	ACTION_RETURN_BOOL(Raze_cansee(x, y, z, s, xe, ye, ze, se));
 }
 
+int Raze_hitscan(double x, double y, double z, sectortype* sec, double xe, double ye, double ze, HitInfoBase* hit, unsigned cliptype, double maxrange)
+{
+	return hitscan(DVector3(x, y, z), sec, DVector3(xe, ye, ze), *hit, cliptype, maxrange);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, hitscan, Raze_hitscan)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_FLOAT(z);
+	PARAM_POINTER(s, sectortype);
+	PARAM_FLOAT(xe);
+	PARAM_FLOAT(ye);
+	PARAM_FLOAT(ze);
+	PARAM_POINTER(se, HitInfoBase);
+	PARAM_UINT(clip);
+	PARAM_FLOAT(maxrange);
+	ACTION_RETURN_INT(Raze_hitscan(x, y, z, s, xe, ye, ze, se, clip, maxrange));
+}
 
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SoundEnabled, SoundEnabled)

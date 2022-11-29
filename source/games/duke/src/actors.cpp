@@ -810,26 +810,6 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 
 //---------------------------------------------------------------------------
 //
-//
-//
-//---------------------------------------------------------------------------
-
-void bloodsplats(DDukeActor *actor)
-{
-	if (actor->temp_data[0] < 14 * 26)
-	{
-		auto offset = krandf(1);
-		auto lerp = 1. - (double(actor->temp_data[0]) / (14 * 26));
-		auto zadj = (1. / 16.) * lerp;
-		auto sadj = (1. / 12.) * lerp * REPEAT_SCALE;
-		actor->spr.pos.Z += zadj + offset * zadj;
-		actor->spr.scale.Y += sadj + offset * sadj;
-		actor->temp_data[0]++;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
@@ -1406,7 +1386,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				{
 					auto saved_angle = actor->spr.Angles.Yaw;
 					actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-					fi.shoot(actor, RPG);
+					fi.shoot(actor, RPG, nullptr);
 					actor->spr.Angles.Yaw = saved_angle;
 				}
 			}
@@ -1892,7 +1872,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	{
 		auto ang = actor->spr.Angles.Yaw;
 		actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-		fi.shoot(actor, FIRELASER);
+		fi.shoot(actor, FIRELASER, nullptr);
 		actor->spr.Angles.Yaw = ang;
 	}
 

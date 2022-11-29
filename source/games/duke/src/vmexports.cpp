@@ -619,12 +619,11 @@ void DukeActor_shoot(DDukeActor* act, int intname)
 	{
 		auto cls = PClass::FindActor(FName(ENamedName(intname)));
 		assert(cls);
-		picnum = GetDefaultByType(cls)->spr.picnum;
-		fi.shoot(act, picnum); // for now this crutch must suffice.
+		fi.shoot(act, -1, cls);
 	}
 	else
 	{
-		fi.shoot(act, picnum);
+		fi.shoot(act, picnum, nullptr);
 	}
 }
 
@@ -1138,16 +1137,17 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, floorflags, duke_floorflags)
 	ACTION_RETURN_INT(duke_floorflags(sect));
 }
 
-int duke_wallflags(walltype* wal)
+int duke_wallflags(walltype* wal, int which)
 {
-	return tileflags(wal->picnum);
+	return tileflags(which? wal->overpicnum : wal->picnum);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, wallflags, duke_wallflags)
 {
 	PARAM_PROLOGUE;
 	PARAM_POINTER(sect, walltype);
-	ACTION_RETURN_INT(duke_wallflags(sect));
+	PARAM_INT(which);
+	ACTION_RETURN_INT(duke_wallflags(sect, which));
 }
 
 int duke_ismirror(walltype* wal)

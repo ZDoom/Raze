@@ -2171,14 +2171,6 @@ void moveexplosions_r(void)  // STATNUM 5
 			else act->spr.shade = 127;
 			continue;
 
-		case BLOODSPLAT1:
-		case BLOODSPLAT2:
-		case BLOODSPLAT3:
-		case BLOODSPLAT4:
-
-			bloodsplats(act);
-			continue;
-
 		case MUD:
 
 			act->temp_data[0]++;
@@ -2559,7 +2551,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			if (act->temp_data[0])
 			{
 				if (act->temp_data[0] == 1)
-					fi.shoot(act, sc->extra);
+					fi.shoot(act, sc->extra, nullptr);
 				else if (act->temp_data[0] == 26 * 5)
 					act->temp_data[0] = 0;
 				act->temp_data[0]++;

@@ -194,20 +194,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		[[fallthrough]];
 
-	case BLOODSPLAT1:
-	case BLOODSPLAT2:
-	case BLOODSPLAT3:
-	case BLOODSPLAT4:
-		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
-		act->spr.scale.X = (0.109375 + (krand() & 7) * REPEAT_SCALE);
-		act->spr.scale.Y = (0.109375 + (krand() & 7) * REPEAT_SCALE);
-		act->spr.pos.Z -= 16;
-		if (actj && actj->spr.pal == 6)
-			act->spr.pal = 6;
-		insertspriteq(act);
-		ChangeActorStat(act, STAT_MISC);
-		break;
-
 	case HYDRENT:
 	case SATELITE:
 	case FUELPOD:

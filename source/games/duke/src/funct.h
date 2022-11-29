@@ -44,7 +44,6 @@ bool respawnmarker(DDukeActor* i, int yellow, int green);
 void forcesphere(DDukeActor* i, int forcesphere);
 void recon(DDukeActor* i, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(DDukeActor* i));
 void reactor(DDukeActor* i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK);
-void bloodsplats(DDukeActor* actor);
 void forcesphereexplode(DDukeActor* i);
 void watersplash2(DDukeActor* i);
 void frameeffect1(DDukeActor* i);
@@ -123,7 +122,6 @@ void quickkill(player_struct* p);
 int setpal(player_struct* p);
 int madenoise(int playerNum);
 int haskey(sectortype* sect, int snum);
-void shootbloodsplat(DDukeActor* i, int p, const DVector3& pos, DAngle ang, int atwith, int BIGFORCE);
 
 void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
 int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);

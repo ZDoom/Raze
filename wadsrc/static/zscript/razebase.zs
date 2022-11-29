@@ -150,8 +150,16 @@ struct CollisionData
 	native void setWall(walltype w);
 	native void setActor(CoreActor a);
 	native void setVoid();
-
 }
+
+struct HitInfo
+{
+	Vector3 hitpos;
+	sectortype hitSector;
+	walltype hitWall;
+	CoreActor hitActor;
+}
+
 struct Raze
 {
 	const kAngleMask	= 0x7FF;
@@ -173,6 +181,7 @@ struct Raze
 	native static sectortype updatesector(Vector2 pos, sectortype lastsect, double maxdist = 96);
 	native static sectortype, Vector3 clipmove(Vector3 pos, sectortype sect, Vector2 move, double walldist, double ceildist, double flordist, uint cliptype, CollisionData coll, int clipmoveboxtracenum = 3);
 	native static bool cansee(Vector3 start, sectortype startsec, Vector3 end, sectortype endsec);
+	native static int hitscan(Vector3 start, sectortype startsect, Vector3 vect, HitInfo hitinfo, uint cliptype, double maxrange = -1);
 
 	// game check shortcuts
 

@@ -507,4 +507,16 @@ void CallStaticSetup(DDukeActor* actor)
 	}
 }
 
+bool CallShootThis(DDukeActor* clsdef, DDukeActor* actor, int pn, const DVector3& spos, DAngle sang)
+{
+	int rv = 0;
+	VMReturn ret(&rv);
+	IFVIRTUALPTR(clsdef, DDukeActor, ShootThis)
+	{
+		VMValue val[] = {clsdef, actor, pn >= 0? &ps[pn] : nullptr, spos.X, spos.Y, spos.Z, sang.Degrees()};
+		VMCall(func, val, 7, &ret, 1);
+	}
+	return rv;
+}
+
 END_DUKE_NS
