@@ -686,10 +686,6 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 		}
 		else 
 			setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 40.5);
-
-		if (atwith == RPG)
-			S_PlayActorSound(RPG_SHOOT, actor);
-
 	}
 	else
 	{
@@ -725,6 +721,12 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, DVector2(0.21875, 0.21875), ang, vel, zvel, actor, 4);
 
 	if (!spawned) return;
+
+	if (p >= 0)
+	{
+		int snd = spawned->IntVar(NAME_spawnsound);
+		if (snd > 0) S_PlayActorSound(FSoundID::fromInt(snd), actor);
+	}
 
 	spawned->spr.extra += (krand() & 7);
 	if (!(actorflag(spawned, SFLAG2_REFLECTIVE)))

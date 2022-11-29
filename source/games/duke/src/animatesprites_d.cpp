@@ -224,24 +224,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case GROWSPARK:
 			t->picnum = GROWSPARK + ((PlayClock >> 4) & 3);
 			break;
-		case RPG:
-			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
-			{
-				t->cstat &= ~CSTAT_SPRITE_XFLIP;
-				break;
-			}
-
-			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.Angles.Yaw, kang);
-			if (k > 6)
-			{
-				k = 12 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = RPG + k;
-			break;
-
 		case APLAYER:
 
 			p = h->PlayerIndex();
@@ -519,7 +501,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case GROWSPARK:
 		case CHAINGUN:
 		case SHRINKEREXPLOSION:
-		case RPG:
 		case FLOORFLAME:
 			if (t->picnum == EXPLOSION2)
 			{

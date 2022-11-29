@@ -961,25 +961,11 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	int p = -1;
 
-	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
-	{
-		vel *= 0.5;
-		velz *= 0.5;
-	}
-
 	auto oldpos = proj->spr.pos;
 	getglobalz(proj);
 
 	switch (proj->spr.picnum)
 	{
-	case RPG:
-		if (proj->attackertype != BOSS2 && proj->spr.scale.X >= 0.15625 && proj->sector()->lotag != 2)
-		{
-			auto spawned = spawn(proj, SMALLSMOKE);
-			if (spawned) spawned->spr.pos.Z += 1;
-		}
-		break;
-
 	case FIREBALL:
 		if (movefireball(proj)) return;
 		break;
@@ -1048,11 +1034,6 @@ static void weaponcommon_d(DDukeActor* proj)
 
 		if (proj->spr.picnum != SPIT)
 		{
-			if (proj->spr.picnum == RPG)
-			{
-				// j is only needed for the hit type mask.
-				rpgexplode(proj, coll.type, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
-			}
 			if (proj->spr.picnum != COOLEXPLOSION1 && proj->spr.picnum != FREEZEBLAST && (!isWorldTour() || proj->spr.picnum != FIREBALL))
 			{
 				auto spawned = spawn(proj, EXPLOSION2);
@@ -1095,9 +1076,6 @@ static void weaponcommon_d(DDukeActor* proj)
 			return;
 		}
 	}
-	else if (proj->spr.picnum == RPG && proj->sector()->lotag == 2 && proj->spr.scale.X >= 0.15625 && rnd(140))
-		spawn(proj, WATERBUBBLE);
-
 }
 //---------------------------------------------------------------------------
 //
@@ -1141,7 +1119,6 @@ void moveweapons_d(void)
 			// Twentieth Anniversary World Tour
 			if (act->spr.picnum == FIREBALL && !isWorldTour()) break;
 			[[fallthrough]];
-		case RPG:
 		case SPIT:
 		case COOLEXPLOSION1:
 			weaponcommon_d(act);

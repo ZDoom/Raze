@@ -176,7 +176,7 @@ void initactorflags_r()
 	if (isRRRA()) setflag(SFLAG2_BREAKMIRRORS, { RPG2 });
 	setflag(SFLAG2_CAMERA, { CAMERA1 });
 	setflag(SFLAG2_GREENBLOOD, { OOZFILTER });
-	setflag(SFLAG2_ALWAYSROTATE1, { RPG, RAT, CAMERA1 });
+	setflag(SFLAG2_ALWAYSROTATE1, { RAT, CAMERA1 });
 	setflag(SFLAG2_ALWAYSROTATE2, { RPG });
 	setflag(SFLAG2_DIENOW, { RADIUSEXPLOSION });
 	setflag(SFLAG2_NORADIUSPUSH, { HULK });

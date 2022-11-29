@@ -115,7 +115,7 @@ class DukeProjectile : DukeActor
 	{
 		double vel = self.vel.X;
 		double velz = self.vel.Z;
-		let oldpos = self.pos;
+		oldpos = self.pos;
 
 		int p = -1;
 
@@ -248,6 +248,100 @@ class DukeShrinkSpark : DukeProjectile
 	override bool animate(tspritetype tspr)
 	{
 		tspr.setSpritePic(self, (PlayClock >> 4) & 3);
+		tspr.shade = -127;
+		return true;
+	}
+	
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeRPG : DukeProjectile
+{
+	default
+	{
+		pic "RPG";
+	}
+	
+	override void Initialize()
+	{
+		SpawnSound = "RPG_SHOOT";
+	}
+	
+	override bool premoveeffect()
+	{
+		if ((!self.ownerActor || !self.ownerActor.actorflag2(SFLAG2_NONSMOKYROCKET)) && self.scale.X >= 0.15625 && self.sector.lotag != ST_2_UNDERWATER)
+		{
+			let spawned = self.spawn("DukeSmallSmoke");
+			if (spawned) spawned.pos.Z += 1;
+		}
+		return super.premoveeffect();
+	}
+	
+	override bool postmoveeffect(CollisionData coll)
+	{
+		Super.postmoveeffect(coll);
+		if (self.temp_actor != nullptr && (self.pos.XY - self.temp_actor.pos.XY).LengthSquared() < 16 * 16)
+			coll.setActor(self.temp_actor);
+		return false;
+	}
+	
+	override void posthiteffect(CollisionData coll)
+	{
+		self.rpgexplode(coll.type, oldpos, true, -1, "RPG_EXPLODE");
+		self.Destroy();
+	}
+	
+	void rpgexplode(int hit, Vector3 pos, bool exbottom, int newextra, Sound playsound)
+	{
+		let explosion = self.spawn("DukeExplosion2");
+		if (!explosion) return;
+		explosion.pos = pos;
+
+		if (self.scale.X < 0.15625)
+		{
+			explosion.scale = (0.09375, 0.09375);
+		}
+		else if (hit == kHitSector)
+		{
+			if (self.vel.Z > 0 && exbottom)
+				self.spawn("DukeExplosion2Bot");
+			else
+			{
+				explosion.cstat |= CSTAT_SPRITE_YFLIP;
+				explosion.pos.Z += 48;
+			}
+		}
+		if (newextra > 0) self.extra = newextra;
+		self.PlayActorSound(playsound);
+
+		if (self.scale.X >= 0.15625)
+		{
+			int x = self.extra;
+			self.hitradius(gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+		}
+		else
+		{
+			int x = self.extra + (Duke.global_random() & 3);
+			self.hitradius((gs.rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+		}
+	}
+	
+	override void Tick()
+	{
+		super.Tick();
+		if (self.sector && self.sector.lotag == ST_2_UNDERWATER && self.scale.X >= 0.15625 && Duke.rnd(140))
+			self.spawn('DukeWaterBubble');
+		
+	}
+
+	override bool animate(tspritetype tspr)
+	{
 		tspr.shade = -127;
 		return true;
 	}
