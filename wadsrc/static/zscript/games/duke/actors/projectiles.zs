@@ -583,3 +583,112 @@ class DukeCoolExplosion1 : DukeProjectile // octabrain shot.
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeFireball : DukeProjectile // WorldTour only
+{
+	default
+	{
+		pic "FIREBALL";
+	}
+	
+	override bool premoveeffect()
+	{
+		let Owner = self.ownerActor;
+
+		if (self.sector.lotag == 2)
+		{
+			self.Destroy();
+			return true;
+		}
+
+		if (self.detail != 1)
+		{
+			if (self.temp_data[0] >= 1 && self.temp_data[0] < 6)
+			{
+				double siz = 1.0 - (self.temp_data[0] * 0.2);
+				DukeActor trail = self.temp_actor;
+				let ball = self.spawn('DukeFireball');
+				if (ball)
+				{
+					self.temp_actor = ball;
+
+					ball.vel.X = self.vel.X;
+					ball.vel.Z = self.vel.Z;
+					ball.angle = self.angle;
+					if (self.temp_data[0] > 1)
+					{
+						if (trail)
+						{
+							ball.pos = trail.temp_pos;
+							ball.vel = trail.temp_pos2;
+						}
+					}
+					double scale = self.scale.X * siz;
+					ball.scale = (scale, scale);
+					ball.cstat = self.cstat;
+					ball.extra = 0;
+
+					ball.temp_pos = ball.pos;
+					ball.temp_pos2 = ball.vel;
+					ball.detail = 1;
+
+					ball.ChangeStat(STAT_PROJECTILE);
+				}
+			}
+			self.temp_data[0]++;
+		}
+		if (self.vel.Z < 15000. / 256.)
+			self.vel.Z += 200 / 256.;
+		return false;
+	}
+	
+	override bool weaponhitsprite_pre(DukeActor targ)
+	{
+		if (self.detail != 1)
+			return super.weaponhitsprite_pre(targ);
+		return false;
+	}
+	
+	override bool weaponhitplayer(DukeActor targ)
+	{
+		let p = targ.GetPlayer();
+		let Owner = self.ownerActor;
+
+		if (p && ud.multimode >= 2 && Owner && Owner.isPlayer())
+		{
+			p.numloogs = -1 - self.yint;
+		}
+		return Super.weaponhitplayer(targ);
+	}
+	
+	override bool weaponhitsector()
+	{
+		if (super.weaponhitsector()) return true;
+		if (self.detail != 1)
+		{
+			let spawned = self.spawn('DukeLavapool');
+			if (spawned)
+			{
+				spawned.ownerActor = self;
+				spawned.hitOwnerActor = self;
+				spawned.yint = self.yint;
+			}
+			self.Destroy();
+			return true;
+		}
+		return false;
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		tspr.shade = -127;
+		return true;
+	}
+	
+}
+
