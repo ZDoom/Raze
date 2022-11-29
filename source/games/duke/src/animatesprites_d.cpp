@@ -519,10 +519,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
-		case COOLEXPLOSION1:
-			t->shade = -127;
-			t->picnum += (h->spr.shade >> 1);
-			break;
 		case PLAYERONWATER:
 			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 			{

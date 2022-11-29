@@ -503,3 +503,83 @@ class DukeSpit : DukeProjectile
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeCoolExplosion1 : DukeProjectile // octabrain shot.
+{
+	default
+	{
+		spriteset "COOLEXPLOSION1", "COOLEXPLOSION2", "COOLEXPLOSION3", "COOLEXPLOSION4", "COOLEXPLOSION5", 
+			"COOLEXPLOSION6", "COOLEXPLOSION7", "COOLEXPLOSION8", "COOLEXPLOSION9", "COOLEXPLOSION10", 
+			"COOLEXPLOSION11", "COOLEXPLOSION12", "COOLEXPLOSION13", "COOLEXPLOSION14", "COOLEXPLOSION15", 
+			"COOLEXPLOSION16", "COOLEXPLOSION17", "COOLEXPLOSION18", "COOLEXPLOSION19", "COOLEXPLOSION20";
+	}
+	
+	override void Initialize()
+	{
+		self.angle = self.ownerActor.angle;
+		self.shade = -64;
+		self.cstat = CSTAT_SPRITE_YCENTER | self.randomXFlip();
+
+		double c, f;
+		[c, f] = self.sector.getSlopes(self.pos.XY);
+		if (self.pos.Z > f - 12)
+			self.pos.Z = f - 12;
+	}
+	
+	override bool premoveeffect()
+	{
+		if (!self.CheckSoundPlaying("WIERDSHOT_FLY"))
+			self.PlayActorSound("WIERDSHOT_FLY");
+		return false;
+	}
+	
+	override bool weaponhitsprite_pre(DukeActor targ)
+	{
+		if (!targ.isPlayer())
+		{
+			return true;
+		}
+		self.vel.X = self.vel.Z = 0;
+		return super.weaponhitsprite_pre(targ);
+	}
+
+	override bool weaponhitwall(walltype wal)
+	{
+		self.vel.X = self.vel.Z = 0;
+		return super.weaponhitwall(wal);
+	}
+
+	override bool weaponhitsector()
+	{
+		self.vel.X = self.vel.Z = 0;
+		return super.weaponhitsector();
+	}
+
+	override void posthiteffect(CollisionData coll)
+	{
+		// don't destroy.
+	}
+	
+	override void Tick()
+	{
+		Super.Tick();
+		if (++self.shade >= 40)
+		{
+			self.Destroy();
+		}
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		tspr.setSpritePic(self, clamp((self.shade >> 1), 0, 19));
+		tspr.shade = -127;
+		return true;
+	}
+
+}
+

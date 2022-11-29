@@ -892,10 +892,6 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 
 static void weaponcommon_d(DDukeActor* proj)
 {
-	if (proj->spr.picnum == COOLEXPLOSION1)
-		if (!S_CheckActorSoundPlaying(proj, WIERDSHOT_FLY))
-			S_PlayActorSound(WIERDSHOT_FLY, proj);
-
 	double vel = proj->vel.X;
 	double velz = proj->vel.Z;
 
@@ -940,16 +936,6 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	if (coll.type != 0)
 	{
-		if (proj->spr.picnum == COOLEXPLOSION1)
-		{
-			if (coll.type == kHitSprite && !coll.actor()->isPlayer())
-			{
-				return;
-			}
-			proj->vel.X = 0;
-			proj->vel.Z = 0;
-		}
-
 		bool fireball = (isWorldTour() && proj->spr.picnum == FIREBALL && (!proj->GetOwner() || proj->GetOwner()->spr.picnum != FIREBALL));
 
 		if (coll.type == kHitSprite)
@@ -1000,15 +986,6 @@ static void weaponcommon_d(DDukeActor* proj)
 			return;
 		}
 	}
-	if (proj->spr.picnum == COOLEXPLOSION1)
-	{
-		proj->spr.shade++;
-		if (proj->spr.shade >= 40)
-		{
-			proj->Destroy();
-			return;
-		}
-	}
 }
 //---------------------------------------------------------------------------
 //
@@ -1038,9 +1015,6 @@ void moveweapons_d(void)
 		case FIREBALL:
 			// Twentieth Anniversary World Tour
 			if (act->spr.picnum == FIREBALL && !isWorldTour()) break;
-			[[fallthrough]];
-		case SPIT:
-		case COOLEXPLOSION1:
 			weaponcommon_d(act);
 			break;
 

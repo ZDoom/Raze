@@ -442,7 +442,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BURNING2:
 	case SMALLSMOKE:
 	case SHRINKEREXPLOSION:
-	case COOLEXPLOSION1:
 
 		if (actj)
 		{
