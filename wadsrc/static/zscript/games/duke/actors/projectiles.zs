@@ -84,6 +84,7 @@ class DukeProjectile : DukeActor
 	protected bool weaponhitsprite(DukeActor targ)
 	{
 		if (self.weaponhitsprite_pre(targ)) return true;
+		if (!targ.isPlayer()) return false;
 		return self.weaponhitplayer(targ);
 	}
 
@@ -880,3 +881,140 @@ class RedneckBoatGrenade : RedneckDynamiteArrow // RRRA only
 	
 }
 
+//---------------------------------------------------------------------------
+//
+// this class is called shitball - but it's not just about throwing shit in the game,
+// the entire logic with 4 different looks depending on the shooter is also shit...
+//
+//---------------------------------------------------------------------------
+
+class RedneckShitBall : DukeSpit
+{
+	default
+	{
+		spriteset "SHITBALL", "SHITBALL2", "SHITBALL3", "SHITBALL4", 
+			"FROGBALL1", "FROGBALL2", "FROGBALL3", "FROGBALL4", "FROGBALL5", "FROGBALL6", 
+			"SHITBURN", "SHITBURN2", "SHITBURN3", "SHITBURN4",
+			"RABBITBALL";
+	}
+	
+	private void rabbitguts()
+	{
+		self.spawnguts('RedneckRabbitJibA', 2);
+		self.spawnguts('RedneckRabbitJibB', 2);
+		self.spawnguts('RedneckRabbitJibC', 2);
+
+	}
+	override bool weaponhitplayer(DukeActor targ)
+	{
+		if (ownerActor && ownerActor.actorflag2(SFLAG2_SPAWNRABBITGUTS))
+			rabbitguts();
+
+		return Super.weaponhitplayer(targ);
+	}
+	
+	override bool weaponhitwall(walltype wal)
+	{
+		self.SetPosition(oldpos);
+		if (ownerActor && ownerActor.actorflag2(SFLAG2_SPAWNRABBITGUTS))
+			rabbitguts();
+		
+		return super.weaponhitwall(wal);
+	}	
+	
+	override bool weaponhitsector()
+	{
+		self.setPosition(oldpos);
+		if (ownerActor && ownerActor.actorflag2(SFLAG2_SPAWNRABBITGUTS))
+			rabbitguts();
+
+		return super.weaponhitsector();
+	}
+		
+	override bool animate(tspritetype tspr)
+	{
+		int sprite = ((PlayClock >> 4) & 3);
+		if (self.ownerActor)
+		{
+			let OwnerAc = self.ownerActor;
+			if (OwnerAc.actorflag2(SFLAG2_TRANFERPALTOJIBS))
+			{
+				if (OwnerAc.pal == 8)
+				{
+					sprite = 4 + ((PlayClock >> 4) % 6);
+				}
+				else if (OwnerAc.pal == 19)
+				{
+					sprite = 10 + ((PlayClock >> 4) & 3);
+					tspr.shade = -127;
+				}
+			}
+			else if (OwnerAc.actorflag2(SFLAG2_SPAWNRABBITGUTS))
+			{
+				tspr.clipdist |= TSPR_ROTATE8FRAMES;
+				sprite = 14;
+			}
+		}
+		return true;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class RedneckSawBlade : DukeProjectile
+{
+	default
+	{
+		spriteset "SAWBLADE", "SAWBLADE2", "SAWBLADE3",  "SAWBLADE4",  "SAWBLADE5",  "SAWBLADE6",  "SAWBLADE7",  "SAWBLADE8",
+			"CHEERBLADE", "CHEERBLADE2", "CHEERBLADE3", "CHEERBLADE4";
+	}
+
+	override bool weaponhitwall(walltype wal)
+	{
+		if (dlevel.wallflags(wal, 0) & Duke.TFLAG_NOCIRCLEREFLECT)
+		{
+			self.Destroy();
+			return true;
+		}
+		if (self.extra <= 0)
+		{
+			self.pos += self.angle.ToVector() * 8;
+			let Owner = self.ownerActor;
+			if (!Owner || !(Owner.actorflag2(SFLAG2_ALTPROJECTILESPRITE))) // depends on the shooter. Urgh...
+			{
+				let j = self.spawn("RedneckCircleStuck");
+				if (j)
+				{
+					j.scale = (0.125, 0.125);
+					j.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
+					j.angle += 90;
+					j.clipdist = self.scale.X * self.spriteWidth() * 0.125;
+				}
+			}
+			self.Destroy();
+			return true;
+		}
+		if (!dlevel.isMirror(wal))
+		{
+			self.extra -= 20;
+			self.yint--;
+		}
+
+		let k = wal.delta().Angle();
+		self.angle = k * 2 - self.angle;
+		return true;
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		int frame;
+		if (!OwnerActor || !(OwnerActor.actorflag2(SFLAG2_ALTPROJECTILESPRITE))) frame = ((PlayClock >> 4) & 7);
+		else frame = 8 + ((PlayClock >> 4) & 3);
+		tspr.SetSpritePic(self, frame);
+		return true;
+	}
+}

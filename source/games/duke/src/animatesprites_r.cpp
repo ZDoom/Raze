@@ -205,15 +205,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;
-		case SAWBLADE:
-			if (OwnerAc && (OwnerAc->spr.picnum == CHEER || OwnerAc->spr.picnum == CHEERSTAYPUT) && isRRRA())
-			{
-				t->picnum = CHEERBLADE + ((PlayClock >> 4) & 3);
-				t->shade = -127;
-			}
-			else
-				t->picnum = SAWBLADE + ((PlayClock >> 4) & 7);
-			break;
 		case CHEERBOMB:
 			if (isRRRA())
 			{
@@ -221,34 +212,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				break;
 			}
 			else goto default_case;
-		case SHITBALL:
-			if (isRRRA() && OwnerAc)
-			{
-				if (OwnerAc->spr.picnum == MINION && OwnerAc->spr.pal == 8)
-					t->picnum = FROGBALL1 + ((PlayClock >> 4) % 6);
-				else if (OwnerAc->spr.picnum == MINION && OwnerAc->spr.pal == 19)
-				{
-					t->picnum = SHITBURN1 + ((PlayClock >> 4) & 3);
-					t->shade = -127;
-				}
-				else if (OwnerAc->spr.picnum == MAMA)
-				{
-					kang = (h->spr.pos - viewVec).Angle();
-					k = angletorotation1(h->spr.Angles.Yaw, kang);
-					if (k > 4)
-					{
-						k = 8 - k;
-						t->cstat |= CSTAT_SPRITE_XFLIP;
-					}
-					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-					t->picnum = RABBITBALL + k;
-				}
-				else
-					t->picnum = SHITBALL + ((PlayClock >> 4) & 3);
-			}
-			else
-				t->picnum = SHITBALL + ((PlayClock >> 4) & 3);
-			break;
 		case EMPTYBIKE:
 			if (!isRRRA()) goto default_case;
 			kang = (h->spr.pos - viewVec).Angle();
@@ -618,7 +581,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			[[fallthrough]];
 		case EXPLOSION2:
 		case ATOMICHEALTH:
-		case SAWBLADE:
 		case CHAINGUN:
 		case EXPLOSION3:
 			if (t->picnum == EXPLOSION2)
