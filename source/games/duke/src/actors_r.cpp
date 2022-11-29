@@ -836,18 +836,6 @@ bool weaponhitsector(DDukeActor *proj, const DVector3& oldpos)
 		fi.checkhitceiling(proj->sector());
 	}
 
-	if (!isRRRA() && proj->spr.picnum == FREEZEBLAST)
-	{
-		bounce(proj);
-		ssp(proj, CLIPMASK1);
-		proj->spr.extra >>= 1;
-		if (proj->spr.scale.X > 0.125 )
-			proj->spr.scale.X += (-0.03125);
-		if (proj->spr.scale.Y > 0.125 )
-			proj->spr.scale.Y += (-0.03125);
-		proj->spr.yint--;
-		return true;
-	}
 	return false;
 }
 
@@ -1014,19 +1002,6 @@ void moveweapons_r(void)
 
 		switch (proj->spr.picnum)
 		{
-		case FREEZEBLAST:
-			if (proj->spr.yint < 1 || proj->spr.extra < 2 || (proj->vel.X == 0 && proj->vel.Z == 0))
-			{
-				auto star = spawn(proj, TRANSPORTERSTAR);
-				if (star)
-				{
-					star->spr.pal = 1;
-					star->spr.scale = DVector2(0.5, 0.5);
-				}
-				proj->Destroy();
-				continue;
-			}
-			[[fallthrough]];
 		case RPG2:
 		case BOATGRENADE:
 			if (!isRRRA()) continue;

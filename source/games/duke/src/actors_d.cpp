@@ -803,20 +803,6 @@ static bool movefireball(DDukeActor* actor)
 
 static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 {
-	if (proj->spr.picnum == FREEZEBLAST && targ->spr.pal == 1)
-		if (badguy(targ) || targ->isPlayer())
-		{
-			auto spawned = spawn(targ, TRANSPORTERSTAR);
-			if (spawned)
-			{
-				spawned->spr.pal = 1;
-				spawned->spr.scale = DVector2(0.5, 0.5);
-			}
-
-			proj->Destroy();
-			return true;
-		}
-
 	if (!isWorldTour() || proj->spr.picnum != FIREBALL || fireball)
 		fi.checkhitsprite(targ, proj);
 
@@ -878,19 +864,6 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3 &oldpo
 	{
 		SetActor(proj, oldpos);
 		fi.checkhitwall(proj, wal, proj->spr.pos, proj->spr.picnum);
-
-		if (proj->spr.picnum == FREEZEBLAST)
-		{
-			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
-			{
-				proj->spr.extra >>= 1;
-				proj->spr.yint--;
-			}
-
-			DAngle k = wal->delta().Angle();
-			proj->spr.Angles.Yaw = k * 2 - proj->spr.Angles.Yaw;
-			return true;
-		}
 	}
 	return false;
 }
@@ -926,19 +899,6 @@ static bool weaponhitsector(DDukeActor* proj, const DVector3& oldpos, bool fireb
 			spawned->spr.yint = proj->spr.yint;
 		}
 		proj->Destroy();
-		return true;
-	}
-
-	if (proj->spr.picnum == FREEZEBLAST)
-	{
-		bounce(proj);
-		ssp(proj, CLIPMASK1);
-		proj->spr.extra >>= 1;
-		if (proj->spr.scale.X > 0.125 )
-			proj->spr.scale.X += (-0.03125);
-		if (proj->spr.scale.Y > 0.125 )
-			proj->spr.scale.Y += (-0.03125);
-		proj->spr.yint--;
 		return true;
 	}
 	return false;
@@ -1102,19 +1062,6 @@ void moveweapons_d(void)
 
 		switch(act->spr.picnum)
 		{
-		case FREEZEBLAST:
-			if (act->spr.yint < 1 || act->spr.extra < 2 || (act->vel.X == 0 && act->vel.Z == 0))
-			{
-				auto spawned = spawn(act,TRANSPORTERSTAR);
-				if (spawned)
-				{
-					spawned->spr.pal = 1;
-					spawned->spr.scale = DVector2(0.5, 0.5);
-				}
-				act->Destroy();
-				continue;
-			}
-			[[fallthrough]];
 		case FIREBALL:
 			// Twentieth Anniversary World Tour
 			if (act->spr.picnum == FIREBALL && !isWorldTour()) break;

@@ -643,7 +643,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (!isRRRA()) break;
 			[[fallthrough]];
 		case EXPLOSION2:
-		case FREEZEBLAST:
 		case ATOMICHEALTH:
 		case SAWBLADE:
 		case CHAINGUN:

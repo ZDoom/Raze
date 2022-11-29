@@ -608,32 +608,6 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void bounce(DDukeActor* actor)
-{
-	DVector3 vect(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, actor->vel.Z);
-
-	auto sectp = actor->sector();
-
-	DAngle daang = sectp->walls[0].delta().Angle();
-
-	double k;
-	if (actor->spr.pos.Z < (actor->floorz + actor->ceilingz) * 0.5)
-		k = sectp->ceilingheinum;
-	else
-		k = sectp->floorheinum;
-
-	DVector3 davec(daang.Sin() * k, -daang.Cos() * k, 4096);
-
-	double dot = vect.dot(davec);
-	double l = davec.LengthSquared();
-
-	vect -= davec * (2 * dot / l);
-
-	actor->vel.Z = vect.Z;
-	actor->vel.X = vect.XY().Length();
-	actor->spr.Angles.Yaw = vect.Angle();
-}
-
 //---------------------------------------------------------------------------
 //
 // 

@@ -2,6 +2,35 @@
 // even if it is given the right statnum the projectile code won't get called for it.
 // So even in the future any projectile needs to inherit from this to gain the needed feature support.
 
+extend class DukeActor
+{
+	// placed in DukeActor so it remains reusable.
+	void bounce()
+	{
+		Vector3 vect = (self.angle.ToVector() * self.vel.X, self.vel.Z);
+		let sectp = self.sector;
+
+		double daang = sectp.walls[0].delta().Angle();
+
+		double k;
+		if (self.pos.Z < (self.floorz + self.ceilingz) * 0.5)
+			k = sectp.ceilingheinum;
+		else
+			k = sectp.floorheinum;
+
+		Vector3 davec = (sin(daang) * k, -cos(daang) * k, 4096);
+
+		double dotp = vect dot davec;
+		double l = davec.LengthSquared();
+
+		vect -= davec * (2 * dotp / l);
+
+		self.vel.Z = vect.Z;
+		self.vel.X = vect.XY.Length();
+		self.angle = vect.Angle();
+	}
+}
+
 class DukeProjectile : DukeActor
 {
 	default
@@ -348,4 +377,81 @@ class DukeRPG : DukeProjectile
 	
 }
 
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeFreezeBlast : DukeProjectile
+{
+	default
+	{
+		pic "FREEZEBLAST";
+	}
+	
+	override bool postmoveeffect(CollisionData coll)
+	{
+		return false;
+	}
+
+	override bool weaponhitsprite_pre(DukeActor targ)
+	{
+		if (targ.pal == 1) // is target already frozen?
+		{
+			if (targ.badguy() || targ.isPlayer())
+			{
+				let spawned = targ.spawn('DukeTransporterStar');
+				if (spawned)
+				{
+					spawned.pal = 1;
+					spawned.scale = (0.5, 0.5);
+				}
+
+				self.Destroy();
+				return true;
+			}
+		}
+		return super.weaponhitsprite_pre(targ);
+	}
+	
+	override void Tick()
+	{
+		
+		if (self.yint < 1 || self.extra < 2 || (self.vel.X == 0 && self.vel.Z == 0))
+		{
+			let star = self.spawn("DukeTransporterStar");
+			if (star)
+			{
+				star.pal = 1;
+				star.scale = (0.5, 0.5);
+			}
+			self.Destroy();
+		}
+		else
+			Super.Tick();
+	
+	}
+	
+	override bool weaponhitsector()
+	{
+		self.bounce();
+		self.doMove(CLIPMASK1);
+		self.extra >>= 1;
+		if (self.scale.X > 0.125 )
+			self.scale.X -= 0.03125;
+		if (self.scale.Y > 0.125 )
+			self.scale.Y -= 0.03125;
+		self.yint--;
+		return true;
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		tspr.shade = -127;
+		return true;
+	}
+	
+}
 

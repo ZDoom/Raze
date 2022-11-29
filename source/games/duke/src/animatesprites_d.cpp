@@ -496,7 +496,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		{
 		case EXPLOSION2:
 		case EXPLOSION2BOT:
-		case FREEZEBLAST:
 		case ATOMICHEALTH:
 		case GROWSPARK:
 		case CHAINGUN:

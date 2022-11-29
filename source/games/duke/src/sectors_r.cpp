@@ -784,7 +784,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 	int j;
 	int darkestwall;
 
-	if (wal->overpicnum == MIRROR && gs.actorinfo[atwith].flags2 & SFLAG2_BREAKMIRRORS)
+	if (wal->overpicnum == MIRROR && atwith != -1 && gs.actorinfo[atwith].flags2 & SFLAG2_BREAKMIRRORS)
 	{
 		lotsofglass(spr, wal, 70);
 		wal->cstat &= ~CSTAT_WALL_MASKED;
@@ -1314,7 +1314,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 
 			if ((targ->spr.picnum != DRONE))
 				if (proj->spr.picnum != FREEZEBLAST)
-					//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
+					//if (actortype[targ->spr.picnum] == 0)  
 				{
 					auto spawned = spawn(proj, JIBS6);
 					if (spawned)
