@@ -224,3 +224,34 @@ class DukeFirelaserTrail : DukeActor
 	
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeShrinkSpark : DukeProjectile
+{
+	default
+	{
+		spriteset "SHRINKSPARK", "SHRINKSPARK1", "SHRINKSPARK2", "SHRINKSPARK3";
+	}
+	
+	override void posthiteffect(CollisionData coll)
+	{
+		self.spawn('DukeShrinkerExplosion');
+		self.PlayActorSound("SHRINKER_HIT");
+		self.hitradius(gs.shrinkerblastradius, 0, 0, 0, 0);
+		self.Destroy();
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		tspr.setSpritePic(self, (PlayClock >> 4) & 3);
+		tspr.shade = -127;
+		return true;
+	}
+	
+}
+
+

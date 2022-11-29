@@ -1053,13 +1053,7 @@ static void weaponcommon_d(DDukeActor* proj)
 				// j is only needed for the hit type mask.
 				rpgexplode(proj, coll.type, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
 			}
-			else if (proj->spr.picnum == SHRINKSPARK)
-			{
-				spawn(proj, SHRINKEREXPLOSION);
-				S_PlayActorSound(SHRINKER_HIT, proj);
-				fi.hitradius(proj, gs.shrinkerblastradius, 0, 0, 0, 0);
-			}
-			else if (proj->spr.picnum != COOLEXPLOSION1 && proj->spr.picnum != FREEZEBLAST && (!isWorldTour() || proj->spr.picnum != FIREBALL))
+			if (proj->spr.picnum != COOLEXPLOSION1 && proj->spr.picnum != FREEZEBLAST && (!isWorldTour() || proj->spr.picnum != FIREBALL))
 			{
 				auto spawned = spawn(proj, EXPLOSION2);
 				if (spawned)
@@ -1147,7 +1141,6 @@ void moveweapons_d(void)
 			// Twentieth Anniversary World Tour
 			if (act->spr.picnum == FIREBALL && !isWorldTour()) break;
 			[[fallthrough]];
-		case SHRINKSPARK:
 		case RPG:
 		case SPIT:
 		case COOLEXPLOSION1:

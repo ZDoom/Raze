@@ -1029,7 +1029,7 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 	else zvel = 0;
 
 	auto spawned = CreateActor(actor->sector(),
-		pos.plusZ(2) + ang.ToVector() * 0.25, SHRINKSPARK, -16, DVector2(0.4375, 0.4375), ang, vel, zvel, actor, 4);
+		pos.plusZ(2) + ang.ToVector() * 0.25, PClass::FindActor("DukeShrinkSpark"), -16, DVector2(0.4375, 0.4375), ang, vel, zvel, actor, 4);
 
 	if (spawned)
 	{

@@ -221,9 +221,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			continue;
-		case SHRINKSPARK:
-			t->picnum = SHRINKSPARK + ((PlayClock >> 4) & 3);
-			break;
 		case GROWSPARK:
 			t->picnum = GROWSPARK + ((PlayClock >> 4) & 3);
 			break;
@@ -519,7 +516,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case EXPLOSION2BOT:
 		case FREEZEBLAST:
 		case ATOMICHEALTH:
-		case SHRINKSPARK:
 		case GROWSPARK:
 		case CHAINGUN:
 		case SHRINKEREXPLOSION:
