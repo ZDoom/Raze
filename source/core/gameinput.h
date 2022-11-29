@@ -94,33 +94,11 @@ struct PlayerAngles
 
 	// Legacy, to be removed.
 	DAngle ZzHORIZOFF, ZzOHORIZOFF;
-	void backupPitch()
-	{
-		ZzOLDHORIZON() = ZzHORIZON();
-		ZzOHORIZOFF = ZzHORIZOFF;
-	}
-	void restorePitch()
-	{
-		ZzHORIZON() = ZzOLDHORIZON();
-		ZzHORIZOFF = ZzOHORIZOFF;
-	}
 	DAngle horizOLDSUM() { return ZzOLDHORIZON() + ZzOHORIZOFF; }
 	DAngle horizSUM() { return ZzHORIZON() + ZzHORIZOFF; }
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
 
 	DAngle ZzLOOKANG, ZzOLDLOOKANG, ZzROTSCRNANG, ZzOLDROTSCRNANG, YawSpin;
-	void backupYaw()
-	{
-		ZzOLDANGLE() = ZzANGLE();
-		ZzOLDLOOKANG = ZzLOOKANG;
-		ZzOLDROTSCRNANG = ZzROTSCRNANG;
-	}
-	void restoreYaw()
-	{
-		ZzANGLE() = ZzOLDANGLE();
-		ZzLOOKANG = ZzOLDLOOKANG;
-		ZzROTSCRNANG = ZzOLDROTSCRNANG;
-	}
 	DAngle angOLDSUM() { return ZzOLDANGLE() + ZzOLDLOOKANG; }
 	DAngle angSUM() { return ZzANGLE() + ZzLOOKANG; }
 	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(angOLDSUM(), angSUM(), interpfrac); }

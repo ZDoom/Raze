@@ -3348,7 +3348,6 @@ void processinput_r(int snum)
 
 	if (SyncInput())
 	{
-		p->Angles.backupPitch();
 		doslopetilting(p);
 	}
 

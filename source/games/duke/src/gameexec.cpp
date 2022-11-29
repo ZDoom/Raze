@@ -2045,8 +2045,7 @@ int ParseState::parse(void)
 		if(!isRR() && ps[g_p].newOwner != nullptr)
 		{
 			ps[g_p].newOwner = nullptr;
-			ps[g_p].GetActor()->restorepos();
-			ps[g_p].Angles.restoreYaw();
+			ps[g_p].GetActor()->restoreloc();
 			updatesector(ps[g_p].GetActor()->getPosWithOffsetZ(), &ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);

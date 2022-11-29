@@ -543,13 +543,6 @@ void footprints(int snum)
 //
 //---------------------------------------------------------------------------
 
-inline void backupplayer(player_struct* p)
-{
-	p->backuppos();
-	p->Angles.backupYaw();
-	p->Angles.backupPitch();
-}
-
 void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 {
 	auto p = &ps[snum];
@@ -620,7 +613,7 @@ void playerisdead(int snum, int psectlotag, double floorz, double ceilingz)
 		clipmove(p->GetActor()->spr.pos.XY(), p->GetActor()->getOffsetZ(), &p->cursector, DVector2( 0, 0), 10.25, 4., 4., CLIPMASK0, coll);
 	}
 
-	backupplayer(p);
+	actor->backuploc();
 
 	p->Angles.ZzHORIZOFF = p->Angles.ZzHORIZON() = nullAngle;
 
@@ -865,7 +858,6 @@ void checklook(int snum, ESyncBits actions)
 			actions &= ~SB_LOOK_RIGHT;
 		}
 	}
-	p->Angles.backupYaw();
 }
 
 //---------------------------------------------------------------------------

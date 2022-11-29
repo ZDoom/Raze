@@ -1061,8 +1061,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if (ps[p].newOwner != nullptr)
 			{
 				ps[p].newOwner = nullptr;
-				ps[p].GetActor()->restorepos();
-				ps[p].Angles.restoreYaw();
+				ps[p].GetActor()->restoreloc();
 
 				updatesector(ps[p].GetActor()->getPosWithOffsetZ(), &ps[p].cursector);
 

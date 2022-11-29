@@ -2176,7 +2176,7 @@ void DoPlayerMove(PLAYER* pp)
     if (interpolate_ride)
     {
         pp->actor->backupz();
-        pp->Angles.backupYaw();
+        pp->actor->backupang();
     }
 
     // check for warp - probably can remove from CeilingHit
@@ -6677,10 +6677,8 @@ void MoveSkipSavePos(void)
     {
         pp = Player + pnum;
 
-        pp->actor->backuppos();
+        pp->actor->backuploc();
         pp->obob_z = pp->bob_z;
-        pp->Angles.backupYaw();
-        pp->Angles.backupPitch();
         pp->opbob_amt = pp->pbob_amt;
     }
 

@@ -146,6 +146,17 @@ public:
 		viewzoffset = oviewzoffset;
 	}
 
+	void restoreang()
+	{
+		spr.Angles = PrevAngles;
+	}
+
+	void restoreloc()
+	{
+		restorepos();
+		restoreang();
+	}
+
 	double getOffsetZ()
 	{
 		return spr.pos.Z + viewzoffset;

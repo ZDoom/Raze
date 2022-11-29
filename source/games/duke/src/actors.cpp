@@ -203,8 +203,7 @@ void checkavailweapon(player_struct* player)
 void clearcamera(player_struct* ps)
 {
 	ps->newOwner = nullptr;
-	ps->GetActor()->restorepos();
-	ps->Angles.restoreYaw();
+	ps->GetActor()->restoreloc();
 	updatesector(ps->GetActor()->getPosWithOffsetZ(), &ps->cursector);
 
 	DukeStatIterator it(STAT_ACTOR);
