@@ -455,3 +455,51 @@ class DukeFreezeBlast : DukeProjectile
 	
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeSpit : DukeProjectile
+{
+	default
+	{
+		pic "SPIT";
+	}
+
+	override bool postmoveeffect(CollisionData coll)
+	{
+		Super.postmoveeffect(coll);
+		if (self.vel.Z < 24)
+			self.vel.Z += gs.gravity - 112 / 256.;
+		return false;
+	}
+	
+	override bool weaponhitplayer(DukeActor targ)
+	{
+		if (Super.weaponhitplayer(targ)) return true;
+		
+		let p = targ.GetPlayer();
+		
+		p.addPitch(-14.04);
+		p.centerview();
+
+		if (p.loogcnt == 0)
+		{
+			if (!p.actor.CheckSoundPlaying("PLAYER_LONGTERM_PAIN"))
+				p.actor.PlayActorSound("PLAYER_LONGTERM_PAIN");
+
+			int j = random(3, 7);
+			p.numloogs = j;
+			p.loogcnt = 24 * 4;
+			for (int x = 0; x < j; x++)
+			{
+				p.loogie[x].X = random(0, 319);
+				p.loogie[x].Y = random(0, 199);
+			}
+		}
+		return false;
+	}
+}
+

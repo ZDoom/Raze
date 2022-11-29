@@ -818,26 +818,6 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 
 		S_PlayActorSound(PISTOL_BODYHIT, targ);
 
-		if (proj->spr.picnum == SPIT)
-		{
-			ps[p].Angles.addPitch(DAngle::fromDeg(-14.04));
-			ps[p].sync.actions |= SB_CENTERVIEW;
-
-			if (ps[p].loogcnt == 0)
-			{
-				if (!S_CheckActorSoundPlaying(ps[p].GetActor(), DUKE_LONGTERM_PAIN))
-					S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].GetActor());
-
-				int j = 3 + (krand() & 3);
-				ps[p].numloogs = j;
-				ps[p].loogcnt = 24 * 4;
-				for (int x = 0; x < j; x++)
-				{
-					ps[p].loogie[x].X = krand() % 320;
-					ps[p].loogie[x].Y = krand() % 200;
-				}
-			}
-		}
 	}
 	return false;
 }
@@ -935,10 +915,6 @@ static void weaponcommon_d(DDukeActor* proj)
 	movesprite_ex(proj, DVector3(proj->spr.Angles.Yaw.ToVector() * vel, velz), CLIPMASK1, coll);
 
 
-	if (proj->spr.picnum == RPG && proj->temp_actor != nullptr)
-		if ((proj->spr.pos.XY() - proj->temp_actor->spr.pos.XY()).Length() < 16)
-			coll.setSprite(proj->temp_actor);
-
 	if (!proj->insector())
 	{
 		proj->Destroy();
@@ -961,9 +937,6 @@ static void weaponcommon_d(DDukeActor* proj)
 					proj->vel.Z += 1/256.;
 			}
 	}
-
-	if (proj->spr.picnum == SPIT) if (proj->vel.Z < 24)
-		proj->vel.Z += gs.gravity - 112 / 256.;
 
 	if (coll.type != 0)
 	{
