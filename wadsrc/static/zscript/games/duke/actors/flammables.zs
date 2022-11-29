@@ -26,6 +26,7 @@ class DukeFlammable : DukeActor
 				{
 					spawned.pal = 2;
 					spawned.shade = 127;
+					spawned.detail = 1;
 				}
 			}
 			else

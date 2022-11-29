@@ -880,7 +880,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 	if (actor->temp_data[2] < 32)
 	{
 		actor->temp_data[2]++;
-		if (attackerflag(actor, SFLAG_FLAMMABLEPOOLEFFECT))
+		if (actor->spr.detail == 1)
 		{
 			if (actor->spr.scale.X < 1 && actor->spr.scale.Y < 1)
 			{
@@ -916,7 +916,7 @@ bool bloodpool(DDukeActor* actor, bool puke)
 		if (actor->temp_data[1] == 1) return false;
 		actor->temp_data[1] = 1;
 
-		if (attackerflag(actor, SFLAG_FLAMMABLEPOOLEFFECT))
+		if (actor->spr.detail == 1)
 			ps[p].footprintcount = 10;
 		else ps[p].footprintcount = 3;
 
