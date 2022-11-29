@@ -458,7 +458,7 @@ void moveplayers(void)
 				}
 				else
 				{
-					p->pos = act->spr.pos.plusZ(-28);
+					p->pos = act->spr.pos.plusZ(-20);
 					p->newOwner = nullptr;
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
