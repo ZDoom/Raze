@@ -609,46 +609,6 @@ void movestandables_r(void)
 //
 //---------------------------------------------------------------------------
 
-static void chickenarrow(DDukeActor* actor)
-{
-	actor->spr.hitag++;
-	if (actor->attackertype != BOSS2 && actor->spr.scale.X >= 0.15625 && actor->sector()->lotag != 2)
-	{
-		auto spawned = spawn(actor, SMALLSMOKE);
-		if (spawned) spawned->spr.pos.Z += 1;
-		if ((krand() & 15) == 2)
-		{
-			spawn(actor, FEATHER);
-		}
-	}
-	DDukeActor* ts = actor->seek_actor;
-	if (!ts) return;
-
-	if (ts->spr.extra <= 0)
-		actor->seek_actor = nullptr;
-
-	if (actor->seek_actor && actor->spr.hitag > 5)
-	{
-		DAngle ang, ang2;
-		ang = (ts->spr.pos - actor->spr.pos).Angle();
-		ang2 = deltaangle(ang, actor->spr.Angles.Yaw);
-		// this was quite broken in the original code. Fixed so that it seeks properly
-		if (abs(ang2) < DAngle1 * 17.5)
-		{
-			actor->spr.Angles.Yaw = ang;
-		}
-		else if (ang2 > nullAngle)
-		{
-			actor->spr.Angles.Yaw -= DAngle1 * 9;
-		}
-		else
-			actor->spr.Angles.Yaw += DAngle1 * 9;
-
-		if (actor->spr.hitag > 180)
-			if (actor->vel.Z <= 0)
-				actor->vel.Z += 200 / 256;
-	}
-}
 
 static void rabbitguts(DDukeActor* proj)
 {
@@ -665,33 +625,6 @@ static void rabbitguts(DDukeActor* proj)
 
 static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const DVector3 &oldpos)
 {
-	if (isRRRA())
-	{
-		if (targ->spr.picnum == MINION
-			&& (proj->spr.picnum == RPG || proj->spr.picnum == RPG2)
-			&& targ->spr.pal == 19)
-		{
-			S_PlayActorSound(RPG_EXPLODE, proj);
-			auto spawned = spawn(proj, EXPLOSION2);
-			if (spawned)
-				spawned->spr.pos = oldpos;
-			return true;
-		}
-	}
-	else if (proj->spr.picnum == FREEZEBLAST && targ->spr.pal == 1)
-		if (badguy(targ) || targ->isPlayer())
-		{
-			auto star = spawn(proj, TRANSPORTERSTAR);
-			if (star)
-			{
-				star->spr.pal = 1;
-				star->spr.scale = DVector2(0.5, 0.5);
-			}
-
-			proj->Destroy();
-			return true;
-		}
-
 	fi.checkhitsprite(targ, proj);
 
 	if (targ->isPlayer())
@@ -754,25 +687,9 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const DVector3& oldpo
 		SetActor(proj, oldpos);
 		fi.checkhitwall(proj, wal, proj->spr.pos, proj->spr.picnum);
 
-		if (!isRRRA() && proj->spr.picnum == FREEZEBLAST)
-		{
-			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
-			{
-				proj->spr.extra >>= 1;
-				if (proj->spr.scale.X > 0.125 )
-					proj->spr.scale.X += (-0.03125);
-				if (proj->spr.scale.Y > 0.125 )
-					proj->spr.scale.Y += (-0.03125);
-				proj->spr.yint--;
-			}
-
-			DAngle walang = wal->delta().Angle();
-			proj->spr.Angles.Yaw = walang * 2 - proj->spr.Angles.Yaw;
-			return true;
-		}
 		if (proj->spr.picnum == SAWBLADE)
 		{
-			if (wal->picnum >= RRTILE3643 && wal->picnum < RRTILE3643 + 3)
+			if (wal->picnum >= PICKUPSIDE && wal->picnum < PICKUPSIDE + 3)
 			{
 				proj->Destroy();
 			}
@@ -852,52 +769,12 @@ static void weaponcommon_r(DDukeActor *proj)
 
 	int p = -1;
 
-	if (proj->spr.picnum == RPG && proj->sector()->lotag == 2)
-	{
-		vel *= 0.5;
-		velz *= 0.5;
-	}
-	else if (isRRRA() && proj->spr.picnum == RPG2 && proj->sector()->lotag == 2)
-	{
-		vel *= 0.5;
-		velz *= 0.5;
-	}
 
 
 	auto oldpos = proj->spr.pos;
 
 	getglobalz(proj);
 
-	switch (proj->spr.picnum)
-	{
-	case RPG:
-		if (proj->attackertype != BOSS2 && proj->spr.scale.X >= 0.15625 && proj->sector()->lotag != 2)
-		{
-			auto spawned = spawn(proj, SMALLSMOKE);
-			if (spawned) spawned->spr.pos.Z += 1;
-		}
-		break;
-	case RPG2:
-		if (!isRRRA()) break;
-		chickenarrow(proj);
-		break;
-
-	case BOATGRENADE:
-		if (!isRRRA()) break;
-		if (proj->spr.extra)
-		{
-			proj->vel.Z = -(proj->spr.extra * 250/256.); // 250 looks like a typo...
-			proj->spr.extra--;
-		}
-		else
-			makeitfall(proj);
-		if (proj->spr.scale.X >= 0.15625 && proj->sector()->lotag != 2)
-		{
-			auto spawned = spawn(proj, SMALLSMOKE);
-			if (spawned) spawned->spr.pos.Z += 1;
-		}
-		break;
-	}
 
 	Collision coll;
 	movesprite_ex(proj, DVector3(proj->spr.Angles.Yaw.ToVector() * vel, velz), CLIPMASK1, coll);
@@ -948,10 +825,7 @@ static void weaponcommon_r(DDukeActor *proj)
 
 		if (proj->spr.picnum != SHITBALL)
 		{
-			if (proj->spr.picnum == RPG) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
-			else if (isRRRA() && proj->spr.picnum == RPG2) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  150, 247);
-			else if (isRRRA() && proj->spr.picnum == BOATGRENADE) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  160, RPG_EXPLODE);
-			else if (proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SAWBLADE)
+			if (proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SAWBLADE)
 			{
 				auto spawned = spawn(proj, 1441);
 				if (spawned)
@@ -972,9 +846,6 @@ static void weaponcommon_r(DDukeActor *proj)
 		proj->Destroy();
 		return;
 	}
-	if ((proj->spr.picnum == RPG || (isRRRA() && proj->spr.picnum == RPG2)) && proj->sector()->lotag == 2 && proj->spr.scale.X >= 0.15625 && rnd(184))
-		spawn(proj, WATERBUBBLE);
-
 }
 
 //---------------------------------------------------------------------------
@@ -1002,16 +873,8 @@ void moveweapons_r(void)
 
 		switch (proj->spr.picnum)
 		{
-		case RPG2:
-		case BOATGRENADE:
-			if (!isRRRA()) continue;
-			[[fallthrough]];
 		case SAWBLADE:
-		case RPG:
 		case SHITBALL:
-		case COOLEXPLOSION1:
-		case OWHIP:
-		case UWHIP:
 			weaponcommon_r(proj);
 			continue;
 
@@ -2158,17 +2021,6 @@ void moveexplosions_r(void)  // STATNUM 5
 		case FRAMEEFFECT1:
 			frameeffect1(act);
 			continue;
-		case COOLEXPLOSION1:
-		case OWHIP:
-		case UWHIP:
-			if (act->spr.extra != 999)
-				act->spr.extra = 999;
-			else
-			{
-				act->Destroy();
-				continue;
-			}
-			break;
 		case FEATHER + 1: // feather
 			act->spr.pos.Z = act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->sector()->lotag == 800)

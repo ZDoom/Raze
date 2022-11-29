@@ -608,53 +608,6 @@ void detonate(DDukeActor *actor, int explosion)
 //
 //---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void rpgexplode(DDukeActor *actor, int hit, const DVector3 &pos, int EXPLOSION2, int EXPLOSION2BOT, int newextra, int playsound)
-{
-	auto explosion = spawn(actor, EXPLOSION2);
-	if (!explosion) return;
-	explosion->spr.pos = pos;
-
-	if (actor->spr.scale.X < 0.15625)
-	{
-		explosion->spr.scale = DVector2(0.09375, 0.09375);
-	}
-	else if (hit == kHitSector)
-	{
-		if (actor->vel.Z > 0 && EXPLOSION2BOT >= 0)
-			spawn(actor, EXPLOSION2BOT);
-		else
-		{
-			explosion->spr.cstat |= CSTAT_SPRITE_YFLIP;
-			explosion->spr.pos.Z += 48;
-		}
-	}
-	if (newextra > 0) actor->spr.extra = newextra;
-	S_PlayActorSound(playsound, actor);
-
-	if (actor->spr.scale.X >= 0.15625)
-	{
-		int x = actor->spr.extra;
-		fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
-	}
-	else
-	{
-		int x = actor->spr.extra + (global_random & 3);
-		fi.hitradius(actor, (gs.rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK)
 {
 	auto sectp = actor->sector();

@@ -246,16 +246,8 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		pos.Z -= 4;
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
 		zvel = ((ps[j].GetActor()->getOffsetZ() - pos.Z) * 16) / dist;
-		if (actor->spr.picnum != BOSS1)
-		{
-			zvel += 0.5 - krandf(1);
-			ang += DAngle22_5 / 4 - randomAngle(22.5 / 2);
-		}
-		else
-		{
-			zvel += 0.5 - krandf(1);
-			ang = (ps[j].GetActor()->spr.pos.XY() - pos.XY()).Angle() + DAngle22_5 / 2 - randomAngle(22.5);
-		}
+		zvel += 0.5 - krandf(1);
+		ang += DAngle22_5 / 4 - randomAngle(22.5 / 2);
 	}
 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -530,7 +522,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	}
 
 	double oldzvel = zvel;
-	double scale = p >= 0? 0.109375 : atwith == COOLEXPLOSION1? 0.125 : 0.28125;
+	double scale = p >= 0? 0.109375 : atwith == VIXENSHOT? 0.125 : 0.28125;
 
 	if (atwith == SHITBALL)
 	{
@@ -598,29 +590,12 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 		else
 			setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 40.5);
 
-		if (atwith == RPG)
-			S_PlayActorSound(RPG_SHOOT, actor);
-		else if (isRRRA())
-		{
-			if (atwith == RPG2)
-				S_PlayActorSound(244, actor);
-			else if (atwith == BOATGRENADE)
-				S_PlayActorSound(94, actor);
-		}
-
 	}
 	else
 	{
 		double x;
 		int j = findplayer(actor, &x);
 		ang = (ps[j].GetActor()->opos.XY() - pos.XY()).Angle();
-		if (actor->spr.picnum == BOSS3)
-			pos.Z -= 32;
-		else if (actor->spr.picnum == BOSS2)
-		{
-			vel += 8;
-			pos.Z += 24;
-		}
 
 		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
 		zvel = ((ps[j].GetActor()->getPrevOffsetZ() - pos.Z) * vel) / dist;
@@ -631,30 +606,18 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 
 	if (p < 0) aimed = nullptr;
 
-	if (isRRRA() && atwith == BOATGRENADE)
-	{
-		zvel = -10;
-		vel *= 2;
-	}
-
 	auto offset = (ang + DAngle1 * 61).ToVector() * (1024 / 448.);
 	auto spawned = CreateActor(sect, pos.plusZ(-1) + offset, atwith, 0, DVector2(0.21875, 0.21875), ang, vel, zvel, actor, 4);
 
 	if (!spawned) return;
-	if (isRRRA())
+
+	if (p >= 0)
 	{
-		if (atwith == BOATGRENADE)
-		{
-			spawned->spr.extra = 10;
-			spawned->vel.Z = -10;
-		}
-		else if (atwith == RPG2)
-		{
-			spawned->seek_actor = act90;
-			spawned->spr.hitag = 0;
-			fi.lotsofmoney(spawned, (krand() & 3) + 1);
-		}
+		int snd = spawned->IntVar(NAME_spawnsound);
+		if (snd > 0) S_PlayActorSound(FSoundID::fromInt(snd), actor);
 	}
+
+	spawned->seek_actor = act90;
 
 	spawned->spr.extra += (krand() & 7);
 	if (!(actorflag(spawned, SFLAG2_REFLECTIVE)))
@@ -893,7 +856,7 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 
 	case FIRELASER:
 	case SHITBALL:
-	case COOLEXPLOSION1:
+	case VIXENSHOT:
 		shootstuff(actor, p, spos, sang, atwith);
 		return;
 

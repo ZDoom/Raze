@@ -273,30 +273,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 			t->picnum = EMPTYBOAT + k;
 			break;
-		case RPG:
-			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.Angles.Yaw, kang);
-			if (k > 6)
-			{
-				k = 12 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = RPG + k;
-			break;
-		case RPG2:
-			if (!isRRRA()) goto default_case;
-			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.Angles.Yaw, kang);
-			if (k > 6)
-			{
-				k = 12 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = RPG2 + k;
-			break;
-
 		case APLAYER:
 
 			p = h->PlayerIndex();
@@ -638,19 +614,13 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case RPG2:
-		case BOATGRENADE:
 			if (!isRRRA()) break;
 			[[fallthrough]];
 		case EXPLOSION2:
 		case ATOMICHEALTH:
 		case SAWBLADE:
 		case CHAINGUN:
-		case RPG:
 		case EXPLOSION3:
-		case COOLEXPLOSION1:
-		case OWHIP:
-		case UWHIP:
 			if (t->picnum == EXPLOSION2)
 			{
 				ps[screenpeek].visibility = -127;

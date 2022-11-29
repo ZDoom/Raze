@@ -249,7 +249,7 @@ $conreserve BIKEX_3      240
 $conreserve TVSNOW       241
 $conreserve WINDLITE     242
 $conreserve EXITMENU     243
-$conreserve CHKBOWFR     244
+$conreserve CHICKENBOW_FIRE     244
 $conreserve DSCREM04     245
 $conreserve SHRNK_HIT    246
 $conreserve CHKBOWEX     247

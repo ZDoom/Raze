@@ -37,7 +37,6 @@ void movefta();
 void clearcameras(player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, int explosion);
-void rpgexplode(DDukeActor* i, int j, const DVector3& pos, int EXPLOSION2, int EXPLOSIONBOT2, int newextra, int playsound);
 void lotsofstuff(DDukeActor* s, int n, int spawntype);
 void reactor(DDukeActor* i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK);
 void watersplash2(DDukeActor* i);

@@ -874,10 +874,10 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 	case IRONWHEELSWITCH:
 		if (isRRRA()) break;
 		break;
-	case RRTILE3643:
-	case RRTILE3643 + 1:
-	case RRTILE3643 + 2:
-	case RRTILE3643 + 3:
+	case PICKUPSIDE:
+	case PICKUPFRONT:
+	case PICKUPBACK1:
+	case PICKUPBACK2:
 	{
 		auto sect = wal->nextWall()->nextSector();
 		DukeSectIterator it(sect);

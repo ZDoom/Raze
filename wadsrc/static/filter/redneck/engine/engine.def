@@ -57,7 +57,11 @@ spawnclasses
 	1527 = DukeBloodSplat3
 	1528 = DukeBloodSplat4
 	3420 = DukeFireLaser
-
+	3471 = RedneckOWhip
+	3475 = RedneckUWhip
+	2095 = RedneckVixenShot
+	1774 = RedneckDynamiteArrow
+	
 	285 = RedneckChickenSpawner1
 	286 = RedneckChickenSpawner2
 	287 = RedneckFeatherSpawner
@@ -205,6 +209,8 @@ tileflag TFLAG_DOORWALL {
 	}
 	
 tileflag TFLAG_BLOCKDOOR {
+	PICKUPBACK1
+	PICKUPBACK1
 	RRTILE1792
 	RRTILE1801
 	RRTILE1805
@@ -263,8 +269,6 @@ tileflag TFLAG_BLOCKDOOR {
 	RRTILE3631
 	RRTILE3635
 	RRTILE3637
-	RRTILE3645
-	RRTILE3646
 	RRTILE3647
 	RRTILE3652
 	RRTILE3653
