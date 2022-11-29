@@ -696,5 +696,5 @@ constexpr DAngle mapangle(int mapang)
 }
 inline DAngle maphoriz(double maphoriz)
 {
-	return DAngle::fromDeg(g_atan2(maphoriz, 128.) * (180. / pi::pi()));
+	return DAngle::fromRad(g_atan2(maphoriz, 128.));
 }
