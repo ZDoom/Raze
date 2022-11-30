@@ -25,4 +25,5 @@ void addSkyCRC(SkyDefinition& sky, int64_t crc32);
 void SetSkyOverride(float scale, int bits);
 SkyDefinition getSky(int tilenum);
 void defineSky(int tilenum, int lognumtiles, const int16_t *tileofs, int yoff = 0, float yscale = 1.f, int yoff2 = 0x7fffffff);
+void defineSky(const char* tilename, int lognumtiles, const int16_t* tileofs, int yoff = 0, float yscale = 1.f, int yoff2 = 0x7fffffff);
 

@@ -238,10 +238,10 @@ static void setupbackdrop()
 	static const int16_t defoff7[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
 
 	defineSky(DEFAULTPSKY, 3, nullptr);
-	defineSky(TILE_CLOUDYOCEAN, 3, nullptr);
-	defineSky(TILE_MOONSKY1, 3, moonoff);
-	defineSky(TILE_BIGORBIT1, 3, orbitoff);
-	defineSky(TILE_LA, 3, laoff);
+	defineSky("CLOUDYOCEAN", 3, nullptr);
+	defineSky("MOONSKY12", 3, moonoff);
+	defineSky("BIGORBIT1", 3, orbitoff);
+	defineSky("LA", 3, laoff);
 	if (isWorldTour())
 	{
 		defineSky(5284, 3, defoff);

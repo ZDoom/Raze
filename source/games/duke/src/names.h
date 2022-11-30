@@ -6,7 +6,6 @@ BEGIN_DUKE_NS
 extern int TILE_W_FORCEFIELD;
 extern int TILE_APLAYER;
 extern int TILE_DRONE;
-extern int TILE_MENUSCREEN;
 extern int TILE_SCREENBORDER;
 extern int TILE_VIEWBORDER;
 extern int TILE_APLAYERTOP;
@@ -29,13 +28,8 @@ extern int TILE_ACCESSSWITCH2;
 extern int TILE_GLASSPIECES;
 extern int TILE_HEN;
 extern int TILE_MIRROR;
-extern int TILE_CLOUDYOCEAN;
-extern int TILE_MOONSKY1;
-extern int TILE_BIGORBIT;
-extern int TILE_LA;
 extern int TILE_LOADSCREEN;
 extern int TILE_CROSSHAIR;
-extern int TILE_BIGORBIT1;
 extern int TILE_EGG;
 
 

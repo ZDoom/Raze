@@ -151,7 +151,8 @@ void FTA(int q, player_struct* p)
 void GameInterface::DrawBackground()
 {
 	twod->ClearScreen();
-	auto tex = tileGetTexture(TILE_MENUSCREEN);
+	auto tex = TexMan.FindGameTexture("MENUSCREEN");
+	if (!tex) return;
 	PalEntry color = 0xff808080;
 	if (!hud_bgstretch)
 		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, color, TAG_DONE);
