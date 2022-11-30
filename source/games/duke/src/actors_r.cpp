@@ -1495,14 +1495,14 @@ void movetransports_r(void)
 
 					if (isRRRA())
 					{
-						if (onfloorz && sectlotag == 160 && ps[p].pos.Z > (sectp->floorz - (48 << 8)))
+						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && ps[p].pos.Z > (sectp->floorz - (48 << 8)))
 						{
 							k = 2;
 							ps[p].opos.Z = ps[p].pos.Z =
 								Owner->sector()->ceilingz + (7 << 8);
 						}
 
-						if (onfloorz && sectlotag == 161 && ps[p].pos.Z < (sectp->ceilingz + (6 << 8)))
+						if (onfloorz && sectlotag == ST_161_CEILING_TELEPORT && ps[p].pos.Z < (sectp->ceilingz + (6 << 8)))
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
@@ -1598,22 +1598,22 @@ void movetransports_r(void)
 
 					if (isRRRA())
 					{
-						if (ll && sectlotag == 161 && act2->spr.pos.Z < (sectp->ceilingz + ll) && warpdir == 1)
+						if (ll && sectlotag == ST_161_CEILING_TELEPORT && act2->spr.pos.Z < (sectp->ceilingz + ll) && warpdir == 1)
 						{
 							warpspriteto = 1;
 							ll2 = ll - abs(act2->spr.pos.Z - sectp->ceilingz);
 						}
-						else if (sectlotag == 161 && act2->spr.pos.Z < (sectp->ceilingz + 1000) && warpdir == 1)
+						else if (sectlotag == ST_161_CEILING_TELEPORT && act2->spr.pos.Z < (sectp->ceilingz + 1000) && warpdir == 1)
 						{
 							warpspriteto = 1;
 							ll2 = 1;
 						}
-						if (ll && sectlotag == 160 && act2->spr.pos.Z > (sectp->floorz - ll) && warpdir == 2)
+						if (ll && sectlotag == ST_160_FLOOR_TELEPORT && act2->spr.pos.Z > (sectp->floorz - ll) && warpdir == 2)
 						{
 							warpspriteto = 1;
 							ll2 = ll - abs(sectp->floorz - act2->spr.pos.Z);
 						}
-						else if (sectlotag == 160 && act2->spr.pos.Z > (sectp->floorz - 1000) && warpdir == 2)
+						else if (sectlotag == ST_160_FLOOR_TELEPORT && act2->spr.pos.Z > (sectp->floorz - 1000) && warpdir == 2)
 						{
 							warpspriteto = 1;
 							ll2 = 1;
@@ -1643,7 +1643,7 @@ void movetransports_r(void)
 							}
 							[[fallthrough]];
 						default:
-							if (act2->spr.statnum == 5 && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || (isRRRA() && (sectlotag == 160 || sectlotag == 161))))
+							if (act2->spr.statnum == 5 && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || (isRRRA() && (sectlotag == ST_160_FLOOR_TELEPORT || sectlotag == ST_161_CEILING_TELEPORT))))
 								break;
 							[[fallthrough]];
 
@@ -2358,7 +2358,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 	makeitfall(actor);
 
-	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != 160) && actor->spr.pos.Z >= actor->floorz - (FOURSLEIGHT) && actor->spr.yvel < 3)
+	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != ST_160_FLOOR_TELEPORT) && actor->spr.pos.Z >= actor->floorz - (FOURSLEIGHT) && actor->spr.yvel < 3)
 	{
 		if (actor->spr.yvel > 0 || (actor->spr.yvel == 0 && actor->floorz == sectp->floorz))
 		{
@@ -2858,7 +2858,7 @@ void moveactors_r(void)
 				break;
 
 			case POWDERKEG:
-				if (!isRRRA() || (sectp->lotag != 1 && sectp->lotag != 160))
+				if (!isRRRA() || (sectp->lotag != ST_1_ABOVE_WATER && sectp->lotag != ST_160_FLOOR_TELEPORT))
 					if (act->spr.xvel)
 					{
 						movesprite_ex(act,

@@ -727,7 +727,7 @@ void animatesprites_r(tspriteArray& tsprites, int x, int y, int a, int smoothrat
 					{
 						int daz;
 
-						if (isRRRA() && sectp->lotag == 160) continue;
+						if (isRRRA() && sectp->lotag == ST_160_FLOOR_TELEPORT) continue;
 						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE)
 							daz = sectp->floorz;
 						else

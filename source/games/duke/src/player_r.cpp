@@ -105,7 +105,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
-	if (isRRRA() && hit.hitSector != nullptr && ((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
+	if (isRRRA() && hit.hitSector != nullptr && ((hit.hitSector->lotag == ST_160_FLOOR_TELEPORT && zvel > 0) || (hit.hitSector->lotag == ST_161_CEILING_TELEPORT && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr)
 	{
 		DukeStatIterator its(STAT_EFFECTOR);
@@ -117,7 +117,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				int nx, ny, nz;
 				nx = hit.hitpos.X + (effector->GetOwner()->spr.pos.X - effector->spr.pos.X);
 				ny = hit.hitpos.Y + (effector->GetOwner()->spr.pos.Y - effector->spr.pos.Y);
-				if (hit.hitSector->lotag == 161)
+				if (hit.hitSector->lotag == ST_161_CEILING_TELEPORT)
 				{
 					nz = effector->GetOwner()->sector()->floorz;
 				}
@@ -261,7 +261,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa),zvel << 6 }, hit, CLIPMASK1);
 
-	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
+	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == ST_160_FLOOR_TELEPORT && zvel > 0) || (hit.hitSector->lotag == ST_161_CEILING_TELEPORT && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr))
 	{
 		DukeStatIterator its(STAT_EFFECTOR);
@@ -273,7 +273,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				int nx, ny, nz;
 				nx = hit.hitpos.X + (effector->GetOwner()->spr.pos.X - effector->spr.pos.X);
 				ny = hit.hitpos.Y + (effector->GetOwner()->spr.pos.Y - effector->spr.pos.Y);
-				if (hit.hitSector->lotag == 161)
+				if (hit.hitSector->lotag == ST_161_CEILING_TELEPORT)
 				{
 					nz = effector->GetOwner()->sector()->floorz;
 				}
