@@ -137,6 +137,9 @@ struct Duke native
 		SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS | SB_ITEMUSE_BITS | SB_INTERFACE_MASK),
 		SB_ALL = ~0u
 	};
+	
+	const SLEEPTIME = 1536;
+
 
 	native static void PlaySpecialMusic(int which);
 	native static int PlaySound(Sound num, int channel = CHAN_AUTO, int flags = 0, float vol =0.8f);

@@ -110,6 +110,8 @@ spawnclasses
 	1520 = DukePlayerTorso
 	1528 = DukePlayerGun
 	1536 = DukePlayerLeg
+	
+	2370 = DukeGreenSlime
 
 	595 = DukeGenericDestructible, "GRATE1", "BGRATE1", "VENT_BUST", solid, unblocking
 	1113 = DukeGenericDestructible, "CIRCLEPANNEL", "CIRCLEPANNELBROKE", "VENT_BUST", unblocking

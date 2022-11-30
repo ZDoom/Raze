@@ -909,8 +909,7 @@ void glasspieces(DDukeActor* actor)
 	if(actor->vel.X > 0)
 	{
 		actor->vel.X -= 1/8.;
-		static const ESpriteFlags flips[] = { 0, CSTAT_SPRITE_XFLIP, CSTAT_SPRITE_YFLIP, CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP };
-		actor->spr.cstat = flips[int(actor->vel.X * 16) & 3];
+		actor->spr.cstat = randomFlip();
 	}
 	else actor->vel.X = 0;
 
@@ -3580,8 +3579,13 @@ void movefta(void)
 
 	auto check_fta_sounds = [](DDukeActor* act)
 	{
-		if (isRR()) check_fta_sounds_r(act);
-		else check_fta_sounds_d(act);
+		if (act->GetClass() == RUNTIME_CLASS(DDukeActor))
+		{
+			if (isRR()) check_fta_sounds_r(act);
+			else check_fta_sounds_d(act);
+		}
+		else
+			CallPlayFTASound(act);
 	};
 
 	DukeStatIterator it(STAT_ZOMBIEACTOR);

@@ -27,6 +27,7 @@ struct ActorInfo
 	uint32_t scriptaddress;
 	EDukeFlags1 flags;
 	EDukeFlags2 flags2;
+	EDukeFlags3 flags3;
 	int aimoffset;
 	int falladjustz;
 	int gutsoffset;
@@ -68,6 +69,7 @@ public:
 
 	EDukeFlags1 flags1;
 	EDukeFlags2 flags2;
+	EDukeFlags3 flags3;
 
 	DDukeActor() = default;
 	size_t PropagateMark() override;

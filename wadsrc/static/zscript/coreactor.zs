@@ -54,6 +54,7 @@ class CoreActor native
 	native float alpha;
 	native double clipdist;
 	native double angle;
+	native double pitch;
 	native Vector3 vel;
 	native double viewzoffset;
 

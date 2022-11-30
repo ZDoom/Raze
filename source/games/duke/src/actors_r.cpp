@@ -1810,8 +1810,8 @@ void moveexplosions_r(void)  // STATNUM 5
 			continue;
 
 		case GLASSPIECES:
-		case GLASSPIECES + 1:
-		case GLASSPIECES + 2:
+		case GLASSPIECES1:
+		case GLASSPIECES2:
 		case POPCORN:
 			glasspieces(act);
 			continue;

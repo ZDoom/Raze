@@ -519,4 +519,14 @@ bool CallShootThis(DDukeActor* clsdef, DDukeActor* actor, int pn, const DVector3
 	return rv;
 }
 
+void CallPlayFTASound(DDukeActor* actor)
+{
+	IFVIRTUALPTR(actor, DDukeActor, PlayFTASound)
+	{
+		VMValue val = actor;
+		VMCall(func, &val, 1, nullptr, 0);
+	}
+}
+
+
 END_DUKE_NS

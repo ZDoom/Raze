@@ -207,6 +207,7 @@ DEFINE_FIELD(DDukeActor, temp_actor)
 DEFINE_FIELD(DDukeActor, seek_actor)
 DEFINE_FIELD(DDukeActor, flags1)
 DEFINE_FIELD(DDukeActor, flags2)
+DEFINE_FIELD(DDukeActor, flags3)
 DEFINE_FIELD(DDukeActor, spritesetindex)
 DEFINE_FIELD(DDukeActor, temp_walls)
 DEFINE_FIELD(DDukeActor, temp_sect)
@@ -681,6 +682,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, operateforcefields, DukeActor_operatef
 	return 0;
 }
 
+void DukeActor_restoreloc(DDukeActor* self)
+{
+	self->restoreloc();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, restoreloc, DukeActor_restoreloc)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(tag);
+	DukeActor_restoreloc(self);
+	return 0;
+}
 
 // temporary helpers to hide the fact that these flags are not part of the actor yet.
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)

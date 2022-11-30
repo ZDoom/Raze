@@ -948,7 +948,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 			if (proj->spr.picnum == RPG) proj->spr.extra <<= 1;
 
-			if ((targ->spr.picnum != DRONE) && (targ->spr.picnum != ROTATEGUN) && (targ->spr.picnum != COMMANDER) && (targ->spr.picnum < GREENSLIME || targ->spr.picnum > GREENSLIME + 7))
+			if ((targ->spr.picnum != DRONE) && (targ->spr.picnum != ROTATEGUN) && (targ->spr.picnum != COMMANDER) && targ->spr.picnum != GREENSLIME)
 				if (proj->spr.picnum != FREEZEBLAST)
 					//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL.
 				{

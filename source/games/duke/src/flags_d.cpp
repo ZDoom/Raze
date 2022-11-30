@@ -78,13 +78,6 @@ void initactorflags_d()
 			BOSS3,
 			BOSS4,
 			GREENSLIME,
-			GREENSLIME+1,
-			GREENSLIME+2,
-			GREENSLIME+3,
-			GREENSLIME+4,
-			GREENSLIME+5,
-			GREENSLIME+6,
-			GREENSLIME+7,
 			RAT,
 			ROTATEGUN });
 
@@ -150,13 +143,6 @@ void initactorflags_d()
 
 	setflag(SFLAG_SHRINKAUTOAIM, {
 		GREENSLIME,
-		GREENSLIME + 1,
-		GREENSLIME + 2,
-		GREENSLIME + 3,
-		GREENSLIME + 4,
-		GREENSLIME + 5,
-		GREENSLIME + 6,
-		GREENSLIME + 7,
 		});
 
 	setflag(SFLAG_HITRADIUSCHECK, {
@@ -214,6 +200,7 @@ void initactorflags_d()
 		TOUGHGAL
 		});
 
+	setflag(SFLAG2_FORCESECTORSHADE, { GREENSLIME });
 
 	// The feature guarded by this flag does not exist in Duke, it always acts as if the flag was set.
 	for (auto& ainf : gs.actorinfo) ainf.flags |= SFLAG_MOVEFTA_CHECKSEE;

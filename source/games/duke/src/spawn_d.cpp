@@ -525,10 +525,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BOSS3:
 	case BOSS4:
 	case ROTATEGUN:
-	case GREENSLIME:
-		if (act->spr.picnum == GREENSLIME)
-			act->spr.extra = 1;
-		[[fallthrough]];
 	case DRONE:
 	case LIZTROOPONTOILET:
 	case LIZTROOPJUSTSIT:

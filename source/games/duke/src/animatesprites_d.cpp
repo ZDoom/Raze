@@ -58,10 +58,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 
+		if (!actorflag(h, SFLAG2_FORCESECTORSHADE))
 		switch (t->picnum)
 		{
 		case DEVELOPERCOMMENTARY:
-		case DEVELOPERCOMMENTARY + 1:
+		case DEVELOPERCOMMENTARYON:
 			if (isWorldTour() && !wt_commentary)
 				t->scale = DVector2(0, 0);
 			break;
@@ -99,15 +100,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case NEON5:
 		case NEON6:
 			continue;
-		case GREENSLIME:
-		case GREENSLIME + 1:
-		case GREENSLIME + 2:
-		case GREENSLIME + 3:
-		case GREENSLIME + 4:
-		case GREENSLIME + 5:
-		case GREENSLIME + 6:
-		case GREENSLIME + 7:
-			break;
 		default:
 			if (((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
 				continue;

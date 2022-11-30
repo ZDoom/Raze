@@ -286,7 +286,8 @@ void DDukeActor::Serialize(FSerializer& arc)
 		("temp_sect", temp_sect)
 		("uservars", uservars)
 		("flags1", flags1)
-		("flags2", flags2);
+		("flags2", flags2)
+		("flags3", flags3);
 }
 
 

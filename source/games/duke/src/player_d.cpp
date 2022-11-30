@@ -335,13 +335,6 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 			switch (aimed->spr.picnum)
 			{
 			case GREENSLIME:
-			case GREENSLIME + 1:
-			case GREENSLIME + 2:
-			case GREENSLIME + 3:
-			case GREENSLIME + 4:
-			case GREENSLIME + 5:
-			case GREENSLIME + 6:
-			case GREENSLIME + 7:
 			case ROTATEGUN:
 				dal -= 8;
 				break;
@@ -907,13 +900,6 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			switch (aimed->spr.picnum)
 			{
 			case GREENSLIME:
-			case GREENSLIME + 1:
-			case GREENSLIME + 2:
-			case GREENSLIME + 3:
-			case GREENSLIME + 4:
-			case GREENSLIME + 5:
-			case GREENSLIME + 6:
-			case GREENSLIME + 7:
 			case ROTATEGUN:
 				dal -= 8;
 				break;

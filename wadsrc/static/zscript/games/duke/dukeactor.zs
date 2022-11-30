@@ -124,7 +124,7 @@ class DukeActor : CoreActor native
 	native int saved_ammo;
 	native int palvals;
 	native int temp_data[6];
-	native private int flags1, flags2;
+	native private int flags1, flags2, flags3;
 	native walltype temp_walls[2];
 	native sectortype temp_sect, actorstayput;
 
@@ -132,7 +132,7 @@ class DukeActor : CoreActor native
 	native Vector3 temp_pos, temp_pos2;
 	native double temp_angle;
 
-
+	// this is not really usable unless all actors are properly scriptified.
 	flagdef Inventory: flags1, 0;
 	flagdef ShrinkAutoaim: flags1, 1;
 	flagdef Badguy: flags1, 2;
@@ -190,6 +190,7 @@ class DukeActor : CoreActor native
 	virtual void onRespawn(int tag) { }
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
+	virtual void PlayFTASound() {}
 	virtual bool shootthis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const // this gets called on the defaults.
 	{
 		return false;
@@ -211,6 +212,7 @@ class DukeActor : CoreActor native
 	native void setClipDistFromTile();
 	native void insertspriteq();
 	native void operateforcefields(int tag);
+	native void restoreloc();
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags
@@ -218,6 +220,34 @@ class DukeActor : CoreActor native
 	native int actorflag2(int mask);
 	native int attackerflag1(int mask);
 	native int attackerflag2(int mask);
+	
+	
+	void commonEnemySetup(bool countkill = true)
+	{
+		if (self.ownerActor != self) self.lotag = 0;
+
+		if ((self.lotag > ud.player_skill) || ud.monsters_off == 1)
+		{
+			self.scale = (0, 0);
+			self.ChangeStat(STAT_MISC);
+		}
+		else
+		{
+			self.makeitfall();
+
+			self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+			if (countkill)
+				Duke.GetLocalPlayer().max_actors_killed++;
+
+			if (self.ownerActor != self)
+			{
+				self.timetosleep = 0;
+				self.PlayFTASound();
+				self.ChangeStat(STAT_ACTOR);
+			}
+			else self.ChangeStat(STAT_ZOMBIEACTOR);
+		}
+	}
 }
 
 extend struct _

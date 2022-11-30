@@ -64,6 +64,11 @@ inline int actorflag(DDukeActor* actor, EDukeFlags2 mask)
 	return (((gs.actorinfo[actor->spr.picnum].flags2) & mask) != 0);
 }
 
+inline int actorflag(DDukeActor* actor, EDukeFlags3 mask)
+{
+	return (((gs.actorinfo[actor->spr.picnum].flags3) & mask) != 0);
+}
+
 inline int attackerflag(DDukeActor* actor, EDukeFlags1 mask)
 {
 	return (((gs.actorinfo[actor->attackertype].flags) & mask) != 0);

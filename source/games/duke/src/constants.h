@@ -382,11 +382,21 @@ enum sflags2_t
 	SFLAG2_ALTPROJECTILESPRITE	= 0x10000000, // yet another shooter flag. :(
 	SFLAG2_UNDERWATERSLOWDOWN	= 0x20000000,
 	SFLAG2_TRIGGERRESPAWN		= 0x40000000,
+	SFLAG2_FORCESECTORSHADE		= 0x80000000,
 
 };
 
 using EDukeFlags2 = TFlags<sflags2_t, uint32_t>;
 DEFINE_TFLAGS_OPERATORS(EDukeFlags2)
+
+enum sflags3_t
+{
+	SFLAG3_DONTDIVEALIVE = 0x00000001,
+
+};
+
+using EDukeFlags3 = TFlags<sflags3_t, uint32_t>;
+DEFINE_TFLAGS_OPERATORS(EDukeFlags3)
 
 // these get stored as user flags inside the texture manager.
 enum
