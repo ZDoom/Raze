@@ -2031,7 +2031,7 @@ OptionMenu "EngineCredits1a"
 	Submenu " ---->", "EngineCredits1b"
 	StaticText "Raze QA", 1
 
-	StaticText "sinisterseed                        ", 0
+	StaticText "sinisterseed      Kevin Caccamo     ", 0
 	StaticText "Major Cooke       Dynamo            ", 0
 	StaticText "Nash Muhandes     Martin Howe       ", 0
 	StaticText "SanyaWaffles      Nigel Rowand      ", 0
