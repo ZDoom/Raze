@@ -615,21 +615,16 @@ void bounce(DDukeActor* actor)
 
 	double k;
 	if (actor->spr.pos.Z < (actor->floorz + actor->ceilingz) * 0.5)
-		k = sectp->ceilingheinum / 16.;
+		k = sectp->ceilingheinum;
 	else
-		k = sectp->floorheinum / 16.;
+		k = sectp->floorheinum;
 
-	DVector3 davec(daang.Sin() * k, -daang.Cos() * k, 16);
+	DVector3 davec(daang.Sin() * k, -daang.Cos() * k, 4096);
 
 	double dot = vect.dot(davec);
 	double l = davec.LengthSquared();
 
-	const double scale = 1;	// still need to figure out.
-	if ((abs(dot) * scale) < l)
-	{
-		k = k * l / 8.; // Guessed by '<< (17-14)'
-		vect -= davec * k;
-	}
+	vect -= davec * (2 * dot / l);
 
 	actor->vel.Z = vect.Z;
 	actor->vel.X = vect.XY().Length();
