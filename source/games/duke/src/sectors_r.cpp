@@ -1722,13 +1722,11 @@ void checksectors_r(int snum)
 				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
+					if (actorflag(near.actor(), SFLAG2_TRIGGERRESPAWN))
+						return;
+
 					switch (near.actor()->spr.picnum)
 					{
-					case FEM10:
-					case NAKED1:
-					case STATUE:
-					case TOUGHGAL:
-						return;
 					case COW:
 						near.actor()->spriteextra = 1;
 						return;

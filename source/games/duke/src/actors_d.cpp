@@ -2641,31 +2641,6 @@ bool spawnweapondebris_d(int picnum)
 	return picnum == BLIMP;
 }
 
-void respawnhitag_d(DDukeActor* actor)
-{
-	switch (actor->spr.picnum)
-	{
-	case FEM1:
-	case FEM2:
-	case FEM3:
-	case FEM4:
-	case FEM5:
-	case FEM6:
-	case FEM7:
-	case FEM8:
-	case FEM9:
-	case FEM10:
-	case PODFEM1:
-	case NAKED1:
-	case STATUE:
-		if (actor->spr.yint) operaterespawns(actor->spr.yint);
-		break;
-	default:
-		if (actor->spr.hitag >= 0) operaterespawns(actor->spr.hitag);
-		break;
-	}
-}
-
 //---------------------------------------------------------------------------
 //
 // 

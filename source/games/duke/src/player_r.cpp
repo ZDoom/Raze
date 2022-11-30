@@ -3865,7 +3865,7 @@ HORIZONLY:
 			return;
 		}
 	}
-	dokneeattack(snum, { FEM10, NAKED1, STATUE });
+	dokneeattack(snum);
 
 
 	if (fi.doincrements(p)) return;

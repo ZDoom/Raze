@@ -37,6 +37,12 @@ BEGIN_DUKE_NS
 
 DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
+	if (actorflag(act, SFLAG2_TRIGGERRESPAWN))
+	{
+		act->spr.yint = act->spr.hitag;
+		act->spr.hitag = -1;
+	}
+
 	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
 		CallInitialize(act);
@@ -233,8 +239,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case NAKED1:
 	case STATUE:
 	case TOUGHGAL:
-		act->spr.yint = act->spr.hitag;
-		act->spr.hitag = -1;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 8;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);

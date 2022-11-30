@@ -53,6 +53,24 @@ double adjustfall(DDukeActor* actor, double c);
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+void respawnhitag(DDukeActor* actor)
+{
+	if (actorflag(actor, SFLAG2_TRIGGERRESPAWN))
+	{
+		if (actor->spr.yint) operaterespawns(actor->spr.yint);
+	}
+	else
+	{
+		if (actor->spr.hitag >= 0) operaterespawns(actor->spr.hitag);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // this was once a macro
 //
 //---------------------------------------------------------------------------

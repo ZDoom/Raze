@@ -3143,7 +3143,7 @@ HORIZONLY:
 		}
 	}
 
-	dokneeattack(snum, { FEM1, FEM2, FEM3, FEM4, FEM5, FEM6, FEM7, FEM8, FEM9, FEM10, PODFEM1, NAKED1, STATUE });
+	dokneeattack(snum);
 
 	if (fi.doincrements(p)) return;
 

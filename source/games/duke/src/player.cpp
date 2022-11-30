@@ -372,7 +372,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 //
 //---------------------------------------------------------------------------
 
-void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
+void dokneeattack(int snum)
 {
 	auto p = &ps[snum];
 
@@ -393,7 +393,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 				spawnguts(p->actorsqu, PClass::FindActor("DukeJibs6"), 7);
 				spawn(p->actorsqu, TILE_BLOODPOOL);
 				S_PlayActorSound(SQUISHED, p->actorsqu);
-				if (isIn(p->actorsqu->spr.picnum, respawnlist))
+				if (actorflag(p->actorsqu, SFLAG2_TRIGGERRESPAWN))
 				{
 					if (p->actorsqu->spr.yint)
 						operaterespawns(p->actorsqu->spr.yint);

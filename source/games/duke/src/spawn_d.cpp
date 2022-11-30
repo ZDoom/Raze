@@ -43,12 +43,19 @@ BEGIN_DUKE_NS
 
 DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
+	if (actorflag(act, SFLAG2_TRIGGERRESPAWN))
+	{
+		act->spr.yint = act->spr.hitag;
+		act->spr.hitag = -1;
+	}
+
 	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
 		CallInitialize(act);
 		return act;
 	}
 	auto sectp = act->sector();
+
 
 	if (isWorldTour())
 	{
@@ -331,10 +338,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case FEM10:
 	case PODFEM1:
 	case NAKED1:
-	case STATUE:
 	case TOUGHGAL:
-		act->spr.yint = act->spr.hitag;
-		act->spr.hitag = -1;
 		if (act->spr.picnum == PODFEM1) act->spr.extra <<= 1;
 		[[fallthrough]];
 

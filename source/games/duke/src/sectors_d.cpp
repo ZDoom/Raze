@@ -1344,24 +1344,8 @@ void checksectors_d(int snum)
 				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
-					switch (near.actor()->spr.picnum)
-					{
-					case FEM1:
-					case FEM2:
-					case FEM3:
-					case FEM4:
-					case FEM5:
-					case FEM6:
-					case FEM7:
-					case FEM8:
-					case FEM9:
-					case FEM10:
-					case PODFEM1:
-					case NAKED1:
-					case STATUE:
-					case TOUGHGAL:
+					if (actorflag(near.actor(), SFLAG2_TRIGGERRESPAWN))
 						return;
-					}
 				}
 
 				near.clearObj();

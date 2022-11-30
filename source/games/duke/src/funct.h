@@ -93,7 +93,7 @@ int wakeup(DDukeActor* sn, int pn);
 
 
 int timedexit(int snum);
-void dokneeattack(int snum, const std::initializer_list<int>& respawnlist);
+void dokneeattack(int snum);
 int endoflevel(int snum);
 void playerisdead(int snum, int psectlotag, double fz, double cz);
 void footprints(int snum);

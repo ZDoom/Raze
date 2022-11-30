@@ -68,8 +68,6 @@ void fall_d(DDukeActor* i, int g_p);
 void fall_r(DDukeActor* i, int g_p);
 bool spawnweapondebris_d(int picnum);
 bool spawnweapondebris_r(int picnum);
-void respawnhitag_d(DDukeActor* g_sp);
-void respawnhitag_r(DDukeActor* g_sp);
 void move_d(DDukeActor* i, int g_p, int g_x);
 void move_r(DDukeActor* i, int g_p, int g_x);
 void incur_damage_d(player_struct* p);
@@ -124,7 +122,6 @@ void SetDispatcher()
 		ifhitbyweapon_d,
 		fall_d,
 		spawnweapondebris_d,
-		respawnhitag_d,
 		move_d,
 
 		incur_damage_d,
@@ -163,7 +160,6 @@ void SetDispatcher()
 		ifhitbyweapon_r,
 		fall_r,
 		spawnweapondebris_r,
-		respawnhitag_r,
 		move_r,
 
 		incur_damage_r,

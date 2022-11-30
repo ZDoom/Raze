@@ -197,6 +197,24 @@ void initactorflags_d()
 		TRIPBOMB
 		});
 
+	setflag(SFLAG2_TRIGGERRESPAWN, {
+		FEM1,
+		FEM2,
+		FEM3,
+		FEM4,
+		FEM5,
+		FEM6,
+		FEM7,
+		FEM8,
+		FEM9,
+		FEM10,
+		PODFEM1,
+		NAKED1,
+		STATUE,
+		TOUGHGAL
+		});
+
+
 	// The feature guarded by this flag does not exist in Duke, it always acts as if the flag was set.
 	for (auto& ainf : gs.actorinfo) ainf.flags |= SFLAG_MOVEFTA_CHECKSEE;
 

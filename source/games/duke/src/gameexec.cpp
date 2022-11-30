@@ -2829,7 +2829,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_respawnhitag:
 		insptr++;
-		fi.respawnhitag(g_ac);
+		respawnhitag(g_ac);
 		break;
 	case concmd_ifspritepal:
 		insptr++;

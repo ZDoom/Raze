@@ -183,6 +183,13 @@ void initactorflags_r()
 	setflag(SFLAG2_FREEZEDAMAGE | SFLAG2_REFLECTIVE, { FREEZEBLAST });
 	setflag(SFLAG2_FLOATING, { DRONE });
 
+	setflag(SFLAG2_TRIGGERRESPAWN, {
+		FEM10,
+		PODFEM1,
+		NAKED1,
+		STATUE,
+		TOUGHGAL
+		});
 
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)

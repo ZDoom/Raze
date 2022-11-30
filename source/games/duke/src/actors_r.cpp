@@ -2663,21 +2663,6 @@ bool spawnweapondebris_r(int picnum)
 	return true;
 }
 
-void respawnhitag_r(DDukeActor *actor)
-{
-	switch (actor->spr.picnum)
-	{
-	case FEM10:
-	case NAKED1:
-	case STATUE:
-		if (actor->spr.yint) operaterespawns(actor->spr.yint);
-		break;
-	default:
-		if (actor->spr.hitag >= 0) operaterespawns(actor->spr.hitag);
-		break;
-	}
-}
-
 //---------------------------------------------------------------------------
 //
 //
