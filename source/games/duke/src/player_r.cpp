@@ -105,7 +105,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 
 	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
-	if (isRRRA() && hit.hitSector != nullptr && ((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
+	if (isRRRA() && hit.hitSector != nullptr && ((hit.hitSector->lotag == ST_160_FLOOR_TELEPORT && zvel > 0) || (hit.hitSector->lotag == ST_161_CEILING_TELEPORT && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr)
 	{
 		DukeStatIterator its(STAT_EFFECTOR);
@@ -116,7 +116,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			{
 				DVector3 npos;
 				npos.XY() = hit.hitpos.XY() + (effector->GetOwner()->spr.pos.XY() - effector->spr.pos.XY());
-				if (hit.hitSector->lotag == 161)
+				if (hit.hitSector->lotag == ST_161_CEILING_TELEPORT)
 				{
 					npos.Z = effector->GetOwner()->sector()->floorz;
 				}
@@ -253,7 +253,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
-	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
+	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == ST_160_FLOOR_TELEPORT && zvel > 0) || (hit.hitSector->lotag == ST_161_CEILING_TELEPORT && zvel < 0))
 		&& hit.actor() == nullptr && hit.hitWall == nullptr))
 	{
 		DukeStatIterator its(STAT_EFFECTOR);
@@ -264,7 +264,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			{
 				DVector3 npos;
 				npos.XY() = hit.hitpos.XY() + (Owner->spr.pos.XY() - effector->spr.pos.XY());
-				if (hit.hitSector->lotag == 161)
+				if (hit.hitSector->lotag == ST_161_CEILING_TELEPORT)
 				{
 					npos.Z = Owner->sector()->floorz;
 				}

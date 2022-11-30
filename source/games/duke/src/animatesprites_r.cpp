@@ -533,7 +533,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					{
 						double floorz;
 
-						if (isRRRA() && sectp->lotag == 160) continue;
+						if (isRRRA() && sectp->lotag == ST_160_FLOOR_TELEPORT) continue;
 						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE)
 							floorz = sectp->floorz;
 						else
