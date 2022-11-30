@@ -210,6 +210,7 @@ class DukeActor : CoreActor native
 	native void shoot(Name spawnclass);
 	native void setClipDistFromTile();
 	native void insertspriteq();
+	native void operateforcefields(int tag);
 	
 
 	// temporary flag accessors - need to be eliminated once we can have true actor flags

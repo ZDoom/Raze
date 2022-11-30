@@ -1826,52 +1826,6 @@ void moveactors_d(void)
 			if (isWorldTour()) flamethrowerflame(act);
 			continue;
 
-		case DUCK:
-		case TARGET:
-			if (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
-			{
-				act->temp_data[0]++;
-				if (act->temp_data[0] > 60)
-				{
-					act->temp_data[0] = 0;
-					act->spr.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ALIGNMENT_WALL;
-					act->spr.extra = 1;
-				}
-			}
-			else
-			{
-				int j = fi.ifhitbyweapon(act);
-				if (j >= 0)
-				{
-					act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YCENTER;
-					k = 1;
-
-					DukeStatIterator itr(STAT_ACTOR);
-					while (auto act2 = itr.Next())
-					{
-						if (act2->spr.lotag == act->spr.lotag &&
-							act2->spr.picnum == act->spr.picnum)
-						{
-							if ((act2->spr.hitag && !(act2->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) ||
-								(!act2->spr.hitag && (act2->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
-								)
-							{
-								k = 0;
-								break;
-							}
-						}
-					}
-
-					if (k == 1)
-					{
-						operateactivators(act->spr.lotag, nullptr);
-						fi.operateforcefields(act, act->spr.lotag);
-						operatemasterswitches(act->spr.lotag);
-					}
-				}
-			}
-			continue;
-
 		case HELECOPT:
 		case DUKECAR:
 

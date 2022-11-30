@@ -668,6 +668,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, insertspriteq, insertspriteq)
 	return 0;
 }
 
+void DukeActor_operateforcefields(DDukeActor* self, int tag)
+{
+	fi.operateforcefields(self, tag);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, operateforcefields, DukeActor_operateforcefields)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(tag);
+	fi.operateforcefields(self, tag);
+	return 0;
+}
+
 
 // temporary helpers to hide the fact that these flags are not part of the actor yet.
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)

@@ -513,13 +513,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-	case TARGET:
-	case DUCK:
-	case LETTER:
-		act->spr.extra = 1;
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
 	case OCTABRAINSTAYPUT:
 	case LIZTROOPSTAYPUT:
 	case PIGCOPSTAYPUT:

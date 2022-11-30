@@ -71,6 +71,9 @@ spawnclasses
 	753 = DukeStatue
 	1157 = DukeBottle10
 	765 = DukeVase
+	4502 = DukeLetter
+	4361 = DukeDuck
+	4359 = DukeTarget
 
 	1272 = DukeTrash
 	634 = DukeBolt1
