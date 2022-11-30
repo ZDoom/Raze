@@ -1387,7 +1387,7 @@ void GameInterface::FreeLevelData()
 //
 //---------------------------------------------------------------------------
 
-void ST_DrawCrosshair(int phealth, double xpos, double ypos, double scale);
+void ST_DrawCrosshair(int phealth, double xpos, double ypos, double scale, DAngle angle);
 //void DrawGenericCrosshair(int num, int phealth, double xdelta);
 void ST_LoadCrosshair(int num, bool alwaysload);
 CVAR(Int, crosshair, 0, CVAR_ARCHIVE)
@@ -1414,8 +1414,8 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 		ST_LoadCrosshair(crosshair == 0 ? 2 : *crosshair, false);
 
 		double xpos = viewport3d.Width() * 0.5 + xdelta * viewport3d.Height() / 240.;
-		double ypos = viewport3d.Height() * 0.5;
-		ST_DrawCrosshair(health, xpos, ypos, 1);
+		double ypos = viewport3d.Height() * 0.5 + ydelta * viewport3d.Width() / 320.;
+		ST_DrawCrosshair(health, xpos, ypos, 1, angle);
 	}
 }
 //---------------------------------------------------------------------------
