@@ -698,9 +698,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case WATERSPLASH2:
 			t->picnum = WATERSPLASH2 + t1;
 			break;
-		case REACTOR2:
-			t->picnum = h->spr.picnum + h->temp_data[2];
-			break;
 		case SHELL:
 			t->picnum = h->spr.picnum + (h->temp_data[0] & 1);
 			[[fallthrough]];

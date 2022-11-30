@@ -1664,15 +1664,6 @@ void moveactors_r(void)
 			case DYNAMITE:
 				heavyhbomb(act);
 				continue;
-
-			case REACTORBURNT:
-			case REACTOR2BURNT:
-				continue;
-
-			case REACTOR:
-			case REACTOR2:
-				reactor(act, REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
-				continue;
 		}
 
 

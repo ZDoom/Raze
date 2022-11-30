@@ -61,6 +61,11 @@ spawnclasses
 	1641 = DukeFreezeBlast
 	1636 = DukeSpit
 	1360 = DukeCoolExplosion1
+	578 = DukeReactor2
+	580 = DukeReactor2Spark
+	1088 = DukeReactor
+	1092 = DukeReactorSpark
+
 
 	1272 = DukeTrash
 	634 = DukeBolt1

@@ -672,9 +672,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		act->spr.scale = DVector2(0.140625, 0.140625);
 		act->spr.yint = 4;
-		[[fallthrough]];
-	case REACTOR2:
-	case REACTOR:
 		if (initreactor(actj, act, false)) return act;
 		break;
 

@@ -63,6 +63,10 @@ spawnclasses
 	1774 = RedneckDynamiteArrow
 	3390 = RedneckShitBall
 	3400 = RedneckSawBlade
+	1107 = DukeReactor2
+	1109 = DukeReactor2Spark
+	2239 = DukeReactor
+	2243 = DukeReactorSpark
 	
 	285 = RedneckChickenSpawner1
 	286 = RedneckChickenSpawner2

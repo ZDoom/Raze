@@ -1913,15 +1913,6 @@ void moveactors_d(void)
 		case HEAVYHBOMB:
 			heavyhbomb(act);
 			continue;
-
-		case REACTORBURNT:
-		case REACTOR2BURNT:
-			continue;
-
-		case REACTOR:
-		case REACTOR2:
-			reactor(act, REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
-			continue;
 		}
 
 		if (monsterCheatCheck(act) && badguy(act))
