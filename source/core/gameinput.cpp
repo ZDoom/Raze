@@ -175,44 +175,36 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
-	// Process only if movement isn't locked.
-	if (!lockedPitch())
+	// Process mouse input.
+	if (horz)
 	{
-		// Process mouse input.
-		if (horz)
-		{
-			pActor->spr.Angles.Pitch += DAngle::fromDeg(horz);
-			*actions &= ~SB_CENTERVIEW;
-		}
-
-		// Process keyboard input.
-		if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
-		{
-			pActor->spr.Angles.Pitch += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
-			*actions &= ~SB_CENTERVIEW;
-		}
-		if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
-		{
-			pActor->spr.Angles.Pitch += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
-			*actions |= SB_CENTERVIEW;
-		}
-
-		// Do return to centre.
-		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
-		{
-			const auto pitch = abs(pActor->spr.Angles.Pitch);
-			const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
-			scaletozero(pActor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale, scaleAdjust);
-			if (!pActor->spr.Angles.Pitch.Sgn()) *actions &= ~SB_CENTERVIEW;
-		}
-
-		// clamp before we finish, even if it's clamped in the drawer.
-		pActor->spr.Angles.Pitch = ClampViewPitch(pActor->spr.Angles.Pitch);
-	}
-	else
-	{
+		pActor->spr.Angles.Pitch += DAngle::fromDeg(horz);
 		*actions &= ~SB_CENTERVIEW;
 	}
+
+	// Process keyboard input.
+	if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
+	{
+		pActor->spr.Angles.Pitch += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
+		*actions &= ~SB_CENTERVIEW;
+	}
+	if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
+	{
+		pActor->spr.Angles.Pitch += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
+		*actions |= SB_CENTERVIEW;
+	}
+
+	// Do return to centre.
+	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+	{
+		const auto pitch = abs(pActor->spr.Angles.Pitch);
+		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
+		scaletozero(pActor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale, scaleAdjust);
+		if (!pActor->spr.Angles.Pitch.Sgn()) *actions &= ~SB_CENTERVIEW;
+	}
+
+	// clamp before we finish, even if it's clamped in the drawer.
+	pActor->spr.Angles.Pitch = ClampViewPitch(pActor->spr.Angles.Pitch);
 }
 
 
@@ -224,39 +216,31 @@ void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const
 
 void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
-	// Process only if movement isn't locked.
-	if (!lockedYaw())
+	// add player's input
+	pActor->spr.Angles.Yaw += DAngle::fromDeg(avel);
+
+	if (*actions & SB_TURNAROUND)
 	{
-		// add player's input
-		pActor->spr.Angles.Yaw += DAngle::fromDeg(avel);
-
-		if (*actions & SB_TURNAROUND)
+		if (YawSpin == nullAngle)
 		{
-			if (YawSpin == nullAngle)
-			{
-				// currently not spinning, so start a spin
-				YawSpin = -DAngle180;
-			}
-			*actions &= ~SB_TURNAROUND;
+			// currently not spinning, so start a spin
+			YawSpin = -DAngle180;
 		}
-
-		if (YawSpin < nullAngle)
-		{
-			// return spin to 0
-			DAngle add = getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH) * scaleAdjust;
-			YawSpin += add;
-			if (YawSpin > nullAngle)
-			{
-				// Don't overshoot our target. With variable factor this is possible.
-				add -= YawSpin;
-				YawSpin = nullAngle;
-			}
-			pActor->spr.Angles.Yaw += add;
-		}
+		*actions &= ~SB_TURNAROUND;
 	}
-	else
+
+	if (YawSpin < nullAngle)
 	{
-		YawSpin = nullAngle;
+		// return spin to 0
+		DAngle add = getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH) * scaleAdjust;
+		YawSpin += add;
+		if (YawSpin > nullAngle)
+		{
+			// Don't overshoot our target. With variable factor this is possible.
+			add -= YawSpin;
+			YawSpin = nullAngle;
+		}
+		pActor->spr.Angles.Yaw += add;
 	}
 }
 
@@ -348,7 +332,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 		arc("viewangles", w.ViewAngles)
 			("spin", w.YawSpin)
 			("actor", w.pActor)
-			("anglelocks", w.AngleLocks)
 			.EndObject();
 
 		if (arc.isReading())

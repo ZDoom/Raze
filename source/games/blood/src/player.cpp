@@ -1718,9 +1718,6 @@ void ProcessInput(PLAYER* pPlayer)
 
 	doslopetilting(pPlayer);
 
-	pPlayer->Angles.unlockYaw();
-	pPlayer->Angles.unlockPitch();
-
 	pPlayer->slope = pPlayer->actor->spr.Angles.Pitch.Tan();
 	if (pInput->actions & SB_INVPREV)
 	{

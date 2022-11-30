@@ -62,23 +62,14 @@ struct PlayerAngles
 	}
 
 	// Pitch methods.
-	void lockPitch() { AngleLocks.Set(PITCH); }
-	void unlockPitch() { AngleLocks.Clear(PITCH); }
-	bool lockedPitch() { return AngleLocks[PITCH]; }
 	void addPitch(const DAngle value) { updateAngle(PITCH, ClampViewPitch(pActor->spr.Angles.Pitch + value)); }
 	void setPitch(const DAngle value, const bool backup = false) { updateAngle(PITCH, ClampViewPitch(value), backup); }
 
 	// Yaw methods.
-	void lockYaw() { AngleLocks.Set(YAW); }
-	void unlockYaw() { AngleLocks.Clear(YAW); }
-	bool lockedYaw() { return AngleLocks[YAW]; }
 	void addYaw(const DAngle value) { updateAngle(YAW, pActor->spr.Angles.Yaw + value); }
 	void setYaw(const DAngle value, const bool backup = false) { updateAngle(YAW, value, backup); }
 
 	// Roll methods.
-	void lockRoll() { AngleLocks.Set(ROLL); }
-	void unlockRoll() { AngleLocks.Clear(ROLL); }
-	bool lockedRoll() { return AngleLocks[ROLL]; }
 	void addRoll(const DAngle value) { updateAngle(ROLL, pActor->spr.Angles.Roll + value); }
 	void setRoll(const DAngle value, const bool backup = false) { updateAngle(ROLL, value, backup); }
 
@@ -118,7 +109,6 @@ private:
 
 	// Private data which should never be accessed publically.
 	DRotator Targets, AppliedAmounts;
-	FixedBitArray<MAXANGLES> AngleLocks;
 	DCoreActor* pActor;
 
 	// Internal angle updater to reduce boilerplate from the public setters.

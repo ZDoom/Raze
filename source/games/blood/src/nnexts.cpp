@@ -2186,8 +2186,8 @@ void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 
 	if (const double adjustment = clamp(value * 0.125 * (value > 0 ? lookStepUp : lookStepDown), downAngle, upAngle))
 	{
+		setForcedSyncInput();
 		pPlayer->Angles.setPitch(maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.))));
-		pPlayer->Angles.lockPitch();
 	}
 }
 
@@ -6050,13 +6050,13 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event)
 			if (actor->xspr.data4 != 0) break;
 			else if (actor->spr.flags & kModernTypeFlag1)
 			{
+				setForcedSyncInput();
 				pPlayer->Angles.setYaw(actor->spr.Angles.Yaw);
-				pPlayer->Angles.lockYaw();
 			}
 			else if (valueIsBetween(actor->xspr.data2, -kAng360, kAng360))
 			{
+				setForcedSyncInput();
 				pPlayer->Angles.setYaw(mapangle(actor->xspr.data2));
-				pPlayer->Angles.lockYaw();
 			}
 			break;
 		case 10: // 74 (de)activate powerup
