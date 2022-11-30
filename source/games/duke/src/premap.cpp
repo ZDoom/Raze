@@ -426,7 +426,7 @@ void resetprestat(int snum,int g)
 	mspos.Clear();
 	animates.Clear();
 	camsprite               =nullptr;
-	earthquaketime          = 0;
+	ud.earthquaketime          = 0;
 
 	WindTime = 0;
 	WindDir = nullAngle;

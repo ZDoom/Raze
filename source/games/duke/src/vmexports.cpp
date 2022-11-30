@@ -1323,6 +1323,7 @@ DEFINE_FIELD_X(DukeUserDefs, user_defs, marker);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, bomb_tag);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, cameraactor);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, chickenplant);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, earthquaketime);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, ufospawnsminion);
 DEFINE_GLOBAL_UNSIZED(ud)
 

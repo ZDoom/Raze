@@ -72,7 +72,6 @@ extern int lastvisinc;
 extern animwalltype animwall[MAXANIMWALLS];
 extern int numanimwalls;
 extern int numclouds;
-extern int earthquaketime;
 extern int global_random;
 extern int mirrorcnt;
 extern int numplayersprites;
@@ -111,7 +110,6 @@ extern sectortype* mirrorsector[64];
 extern walltype* mirrorwall[64];
 
 extern int wupass;
-extern int chickenplant;
 extern int thunderon;
 extern int ufospawn;
 extern int ufocnt;

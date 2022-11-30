@@ -1148,7 +1148,7 @@ static void rrra_specialstats()
 			{
 				S_PlaySound(215);
 				act->Destroy();
-				earthquaketime = 32;
+				ud.earthquaketime = 32;
 				SetPlayerPal(&ps[myconnectindex], PalEntry(32, 32, 32, 48));
 			}
 		}
@@ -2092,7 +2092,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case SE_33_QUAKE_DEBRIS:
-			if (earthquaketime > 0 && (krand() & 7) == 0)
+			if (ud.earthquaketime > 0 && (krand() & 7) == 0)
 				RANDOMSCRAP(act);
 			break;
 		case SE_36_PROJ_SHOOTER:

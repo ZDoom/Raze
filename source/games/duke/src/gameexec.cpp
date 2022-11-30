@@ -1624,9 +1624,9 @@ int ParseState::parse(void)
 		break;
 	case concmd_mamaquake:
 		if (g_ac->spr.pal == 31)
-			earthquaketime = 4;
+			ud.earthquaketime = 4;
 		else if (g_ac->spr.pal == 32)
-			earthquaketime = 6;
+			ud.earthquaketime = 6;
 		insptr++;
 		break;
 	case concmd_garybanjo:

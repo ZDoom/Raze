@@ -74,6 +74,8 @@ spawnclasses
 	4502 = DukeLetter
 	4361 = DukeDuck
 	4359 = DukeTarget
+	1346 = DukeHelicopter
+	2491 = DukeCar
 
 	1272 = DukeTrash
 	634 = DukeBolt1

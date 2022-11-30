@@ -314,10 +314,10 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		double cz = p->GetActor()->ceilingz;
 		double fz = p->GetActor()->floorz;
 
-		if (earthquaketime > 0 && p->on_ground == 1)
+		if (ud.earthquaketime > 0 && p->on_ground == 1)
 		{
-			cpos.Z += 1 - (((earthquaketime) & 1) * 2.);
-			cangles.Yaw += DAngle::fromBuild((2 - ((earthquaketime) & 2)) << 2);
+			cpos.Z += 1 - (((ud.earthquaketime) & 1) * 2.);
+			cangles.Yaw += DAngle::fromBuild((2 - ((ud.earthquaketime) & 2)) << 2);
 		}
 
 		if (p->GetActor()->spr.pal == 1) cpos.Z -= 18;

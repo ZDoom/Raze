@@ -579,7 +579,7 @@ void operaterespawns(int low)
 
 void detonate(DDukeActor *actor, int explosion)
 {
-	earthquaketime = 16;
+	ud.earthquaketime = 16;
 
 	DukeStatIterator itj(STAT_EFFECTOR);
 	while (auto effector = itj.Next())
@@ -1523,7 +1523,7 @@ void handle_se02(DDukeActor* actor)
 		{
 			if ((actor->temp_data[0] & 31) == 8)
 			{
-				earthquaketime = 48;
+				ud.earthquaketime = 48;
 				S_PlayActorSound(EARTHQUAKE, ps[screenpeek].GetActor());
 			}
 

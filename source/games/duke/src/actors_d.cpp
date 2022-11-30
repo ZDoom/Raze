@@ -1797,7 +1797,6 @@ DETONATEB:
 void moveactors_d(void)
 {
 	int p;
-	unsigned int k;
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
@@ -1825,28 +1824,6 @@ void moveactors_d(void)
 		case FLAMETHROWERFLAME:
 			if (isWorldTour()) flamethrowerflame(act);
 			continue;
-
-		case HELECOPT:
-		case DUKECAR:
-
-			act->spr.pos.Z += act->vel.Z;
-			act->temp_data[0]++;
-
-			if (act->temp_data[0] == 4) S_PlayActorSound(WAR_AMBIENCE2, act);
-
-			if (act->temp_data[0] > (26 * 8))
-			{
-				S_PlaySound(RPG_EXPLODE);
-				for (int j = 0; j < 32; j++) 
-						RANDOMSCRAP(act);
-				earthquaketime = 16;
-				act->Destroy();
-				continue;
-			} 
-			else if ((act->temp_data[0] & 3) == 0)
-				spawn(act, EXPLOSION2);
-			ssp(act, CLIPMASK0);
-			break;
 
 		case GREENSLIME:
 		case GREENSLIME + 1:
@@ -2337,7 +2314,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_33_QUAKE_DEBRIS:
-			if (earthquaketime > 0 && (krand() & 7) == 0)
+			if (ud.earthquaketime > 0 && (krand() & 7) == 0)
 				RANDOMSCRAP(act);
 			break;
 		case SE_36_PROJ_SHOOTER:

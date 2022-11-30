@@ -355,9 +355,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.shade = actj->spr.shade;
 			act->spr.pal = ps[actj->PlayerIndex()].palookup;
 		}
-		[[fallthrough]];
-	case DUKECAR:
-	case HELECOPT:
 		act->spr.cstat = 0;
 		act->spr.extra = 1;
 		act->vel.X = 292 / 16.;

@@ -64,7 +64,7 @@ void GameInterface::Ticker()
 
 	if (playrunning())
 	{
-		if (earthquaketime > 0) earthquaketime--;
+		if (ud.earthquaketime > 0) ud.earthquaketime--;
 
 		ud.cameraactor = nullptr;
 		everyothertime++;

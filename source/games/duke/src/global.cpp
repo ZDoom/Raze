@@ -56,7 +56,6 @@ player_struct ps[MAXPLAYERS];
 //------------------------------------------------------------------------- 
 
 int lastvisinc;								// weapon flash
-int earthquaketime;
 int global_random;							// readonly - one single global per-frame random value. Ugh...
 
 // Redneck Rampage

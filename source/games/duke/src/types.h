@@ -162,6 +162,7 @@ struct user_defs
 	int m_ffire, ffire, m_player_skill, multimode;
 	int player_skill, marker;
 	int chickenplant;							// readonly - used to trigger some special behavior if a special item is found in a map.
+	int earthquaketime;
 
 	TObjPtr<DDukeActor*> cameraactor;
 
