@@ -73,6 +73,7 @@ spawnclasses
 	1168 = DukeStatue
 	1280 = DukeBottle10
 	1172 = DukeVase
+	4095 = DukeFrameEffect
 
 	26 = RedneckDynamite
 	1416 = RedneckMortar

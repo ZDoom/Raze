@@ -202,18 +202,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		spawntransporter(actj, act, act->spr.picnum == TRANSPORTERBEAM);
 		break;
 
-	case FRAMEEFFECT1:
-		if (actj)
-		{
-			act->spr.scale = actj->spr.scale;
-			act->temp_data[1] = actj->spr.picnum;
-		}
-		else act->spr.scale = DVector2(0, 0);
-
-		ChangeActorStat(act, STAT_MISC);
-
-		break;
-
 	case BLOOD:
 		act->spr.scale = DVector2(0.25, 0.25);
 		act->spr.pos.Z -= 26;

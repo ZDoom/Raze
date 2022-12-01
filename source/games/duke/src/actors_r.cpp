@@ -1520,9 +1520,6 @@ void moveexplosions_r(void)  // STATNUM 5
 			watersplash2(act);
 			continue;
 
-		case FRAMEEFFECT1:
-			frameeffect1(act);
-			continue;
 		case FEATHER + 1: // feather
 			act->spr.pos.Z = act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->sector()->lotag == 800)

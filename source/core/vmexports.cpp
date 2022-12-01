@@ -222,6 +222,7 @@ DEFINE_FIELD_X(tspritetype, tspritetype, pos)
 
 DEFINE_GLOBAL_NAMED(wall, walls)
 DEFINE_GLOBAL_NAMED(sector, sectors)
+DEFINE_GLOBAL(display_mirror)
 
 void sector_setfloorz(sectortype* sect, double val)
 {
@@ -670,6 +671,10 @@ void tspritetype_setSpritePic(tspritetype* targ, DCoreActor* self, unsigned z)
 	{
 		targ->picnum = spriteset[z];
 	}
+	else if (z == ~0)
+	{
+		targ->picnum = self->dispicnum;
+	}
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setSpritePic, tspritetype_setSpritePic)
@@ -770,24 +775,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, move, coreactor_move)
 	PARAM_FLOAT(z);
 	PARAM_BOOL(relink);
 	coreactor_move(self, x, y, z, relink);
-	return 0;
-}
-
-void coreactor_setSpritePic(DCoreActor* self, unsigned z)
-{
-	auto& spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;
-	if (z < spriteset.Size())
-	{
-		self->spritesetindex = z;
-		self->spr.picnum = spriteset[z];
-	}
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, setSpritePic, coreactor_setSpritePic)
-{
-	PARAM_SELF_PROLOGUE(DCoreActor);
-	PARAM_INT(z);
-	coreactor_setSpritePic(self, z);
 	return 0;
 }
 

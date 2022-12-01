@@ -79,6 +79,7 @@ spawnclasses
 	26 = DukePipeBomb
 	940 = DukeBounceMine
 	1650 = DukeMortar
+	2999 = DukeFrameEffect
 
 	1272 = DukeTrash
 	634 = DukeBolt1

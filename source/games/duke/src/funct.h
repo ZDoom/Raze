@@ -39,7 +39,6 @@ void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, int explosion);
 void lotsofstuff(DDukeActor* s, int n, int spawntype);
 void watersplash2(DDukeActor* i);
-void frameeffect1(DDukeActor* i);
 bool money(DDukeActor* i, int BLOODPOOL);
 bool bloodpool(DDukeActor* i, bool puke);
 void shell(DDukeActor* i, bool morecheck);

@@ -44,7 +44,7 @@ public:
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	uint16_t movflag;
 	short attackertype, hitextra;
-	short tempval, dispicnum, basepicnum;
+	short tempval, basepicnum;
 	unsigned short timetosleep;
 	DVector2 ovel;
 	DAngle hitang;

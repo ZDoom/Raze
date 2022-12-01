@@ -17,7 +17,7 @@ class DukeWaterFountain : DukeActor
 
 	override void Initialize()
 	{
-		self.setSpritePic(0);
+		self.setSpritesetImage(0);
 		self.lotag = 1;
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
 		self.extra = 1;
@@ -37,7 +37,7 @@ class DukeWaterFountain : DukeActor
 				if (frame == 3)
 					frame = 1;
 
-				self.setSpritePic(frame);
+				self.setSpritesetImage(frame);
 			}
 			else
 			{
@@ -46,7 +46,7 @@ class DukeWaterFountain : DukeActor
 				if ((self.pos - p.actor.pos.plusZ(28)).Sum() > 32)
 				{
 					self.temp_data[0] = 0;
-					self.setSpritePic(0);
+					self.setSpritesetImage(0);
 				}
 				else self.temp_data[0] = 1;
 			}
@@ -57,7 +57,7 @@ class DukeWaterFountain : DukeActor
 	{
 		if (self.spritesetindex < 4)
 		{
-			self.setSpritePic(4);
+			self.setSpritesetImage(4);
 			self.spawn("DukeToiletWater");
 		}
 		else

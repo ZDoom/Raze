@@ -220,6 +220,7 @@ struct _ native	// These are the global variables, the struct is only here to av
 	native readonly double NotifyFontScale;
 	native readonly int paused;
 	native readonly ui uint8 ConsoleState;
+	native readonly int display_mirror;
 }
 
 struct System native

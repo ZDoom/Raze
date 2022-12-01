@@ -1323,9 +1323,6 @@ void moveexplosions_d(void)  // STATNUM 5
 			watersplash2(act);
 			continue;
 
-		case FRAMEEFFECT1:
-			frameeffect1(act);
-			continue;
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:

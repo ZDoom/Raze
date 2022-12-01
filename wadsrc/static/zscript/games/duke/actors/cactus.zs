@@ -44,7 +44,7 @@ class DukeCactus : DukeCactusBroke
 				}
 			}
 
-			setSpritePic(1);
+			self.setSpritesetImage(1);
 			self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		}
 	}

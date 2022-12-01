@@ -282,6 +282,7 @@ struct walltype native
 struct tspritetype native
 {
 	native Vector3 pos;
+	native double angle;
 	native sectortype sector;
 	native int16 cstat;
 	//native int16 picnum;

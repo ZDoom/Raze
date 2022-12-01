@@ -166,7 +166,12 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL))
 				copyfloorpal(t, sectp);
 
-			if (res) continue;
+			if (res)
+			{
+				if (h->dispicnum >= 0)
+					h->dispicnum = t->picnum;
+				continue;
+			}
 		}
 
 		t1 = h->temp_data[1];
@@ -543,26 +548,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 			if (h->temp_data[0] > 1) t->cstat &= ~CSTAT_SPRITE_XFLIP;
 			if (h->temp_data[0] > 2) t->cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
-			break;
-		case FRAMEEFFECT1:
-			if (OwnerAc && OwnerAc->spr.statnum < MAXSTATUS)
-			{
-				if (OwnerAc->isPlayer())
-					if (ud.cameraactor == nullptr)
-						if (screenpeek == OwnerAc->PlayerIndex() && display_mirror == 0)
-						{
-							t->ownerActor = nullptr;
-							break;
-						}
-				if ((OwnerAc->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
-				{
-					t->picnum = OwnerAc->dispicnum;
-					t->pal = OwnerAc->spr.pal;
-					t->shade = OwnerAc->spr.shade;
-					t->Angles.Yaw = OwnerAc->spr.Angles.Yaw;
-					t->cstat = CSTAT_SPRITE_TRANSLUCENT | OwnerAc->spr.cstat;
-				}
-			}
 			break;
 
 		}

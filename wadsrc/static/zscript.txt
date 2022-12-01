@@ -58,6 +58,7 @@ version "4.10"
 #include "zscript/games/duke/actors/respawncontroller.zs"
 #include "zscript/games/duke/actors/respawnmarker.zs"
 #include "zscript/games/duke/actors/genericdestructible.zs"
+#include "zscript/games/duke/actors/frameeffect.zs"
 
 #include "zscript/games/duke/actors/projectiles.zs"
 #include "zscript/games/duke/actors/rat.zs"
@@ -90,6 +91,7 @@ version "4.10"
 #include "zscript/games/duke/actors/greenslime.zs"
 #include "zscript/games/duke/actors/heavyhbomb.zs"
 #include "zscript/games/duke/actors/mortar.zs"
+
 
 #include "zscript/games/duke/actors/redneckmisc.zs"
 #include "zscript/games/duke/actors/rabbitspawner.zs"

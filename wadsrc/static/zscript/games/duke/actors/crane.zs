@@ -32,7 +32,7 @@ class DukeCrane : DukeActor
 		let sect = self.sector;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ONE_SIDE;
 
-		self.setSpritePic(PIC_CLOSED);
+		self.setSpritesetImage(PIC_CLOSED);
 		self.pos.Z = sect.ceilingz + 48;
 
 		self.cranepos = self.pos;
@@ -98,7 +98,7 @@ class DukeCrane : DukeActor
 		{
 			if (self.vel.X < 11.5)
 			{
-				self.setSpritePic(PIC_OPEN);
+				self.setSpritesetImage(PIC_OPEN);
 				self.vel.X += 0.5;
 			}
 			self.DoMove(CLIPMASK0);
@@ -112,7 +112,7 @@ class DukeCrane : DukeActor
 			if (self.temp_data[0] == 2)
 			{
 				if ((sectp.floorz - self.pos.Z) < 64)
-					if (self.spritesetindex != PIC_DEFAULT) self.setSpritePic(self.spritesetindex - 1);
+					if (self.spritesetindex != PIC_DEFAULT) self.setSpritesetImage(self.spritesetindex - 1);
 
 				if ((sectp.floorz - self.pos.Z) < 20)
 					self.temp_data[0]++;
@@ -121,7 +121,7 @@ class DukeCrane : DukeActor
 			{
 				if ((sectp.floorz - self.pos.Z) < 64)
 				{
-					if (self.spritesetindex != PIC_DEFAULT) self.setSpritePic(self.spritesetindex - 1);
+					if (self.spritesetindex != PIC_DEFAULT) self.setSpritesetImage(self.spritesetindex - 1);
 					else
 					{
 						if (self.isactive)
@@ -140,7 +140,7 @@ class DukeCrane : DukeActor
 		}
 		else if (self.temp_data[0] == 3)
 		{
-			self.setSpritePic(self.spritesetindex + 1);
+			self.setSpritesetImage(self.spritesetindex + 1);
 			if (self.spritesetindex == PIC_CLOSED)
 			{
 				let plr = Duke.checkcursectnums(self.temp_sect);
@@ -182,7 +182,7 @@ class DukeCrane : DukeActor
 		{
 			if (self.temp_data[0] == 8 && self.spritesetindex < PIC_CLOSED)
 				if ((sectp.floorz - self.pos.Z) > 32)
-					self.setSpritePic(self.spritesetindex + 1);
+					self.setSpritesetImage(self.spritesetindex + 1);
 
 			if (self.pos.Z < self.cranepos.Z)
 			{
@@ -220,7 +220,7 @@ class DukeCrane : DukeActor
 					p.on_crane = null;
 				self.isactive = false;
 				self.ownerActor = null;
-				self.setSpritePic(PIC_DEFAULT);
+				self.setSpritesetImage(PIC_DEFAULT);
 				return;
 			}
 

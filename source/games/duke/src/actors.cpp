@@ -655,31 +655,6 @@ void watersplash2(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void frameeffect1(DDukeActor *actor)
-{
-	auto Owner = actor->GetOwner();
-	if (Owner)
-	{
-		actor->temp_data[0]++;
-
-		if (actor->temp_data[0] > 7)
-		{
-			actor->Destroy();
-			return;
-		}
-		else if (actor->temp_data[0] > 4) actor->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
-		else if (actor->temp_data[0] > 2) actor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
-		actor->spr.xoffset = Owner->spr.xoffset;
-		actor->spr.yoffset = Owner->spr.yoffset;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 bool money(DDukeActor* actor, int BLOODPOOL)
 {
 	auto sectp = actor->sector();

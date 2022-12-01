@@ -64,7 +64,6 @@ class CoreActor native
 	native void setpos(Vector3 newpos, bool relink = true);
 	native void copypos(CoreActor newpos, bool relink = true);
 	native void move(Vector3 newpos, bool relink = true);
-	native void setSpritePic(int index);	// index into actor's spriteset.
 	native void backuppos();
 	native void setPosition(Vector3 pos);
 	native void setPositionZ(Vector3 pos);
