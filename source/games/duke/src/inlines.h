@@ -44,6 +44,12 @@ inline int islocator(DDukeActor* actor)
 	return actor->GetClass()->TypeName == NAME_DukeLocator;
 }
 
+inline int iseffector(DDukeActor* actor)
+{
+	return actor->spr.picnum  == SECTOREFFECTOR;
+}
+
+
 inline int badguypic(int const tileNum)
 {
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);

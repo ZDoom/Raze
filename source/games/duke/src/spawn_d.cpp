@@ -151,10 +151,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.scale = DVector2(0, 0);
 		ChangeActorStat(act, STAT_MISC);
 		break;
-	case NATURALLIGHTNING:
-		act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		break;
 	case TRANSPORTERSTAR:
 	case TRANSPORTERBEAM:
 		spawntransporter(actj, act, act->spr.picnum == TRANSPORTERBEAM);

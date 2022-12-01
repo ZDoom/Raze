@@ -648,7 +648,7 @@ static void handle_st15(sectortype* sptr, DDukeActor* actor)
 	DDukeActor* a2;
 	while ((a2 = it.Next()))
 	{
-		if (a2->spr.picnum == SECTOREFFECTOR && a2->spr.lotag == ST_17_PLATFORM_UP) break;
+		if (iseffector(a2) && a2->spr.lotag == ST_17_PLATFORM_UP) break;
 	}
 	if (!a2) return;
 
@@ -1255,7 +1255,7 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 				{
 					wal->cstat = 0;
 
-					if (effector && effector->spr.picnum == SECTOREFFECTOR && effector->spr.lotag == 30)
+					if (effector && iseffector(effector) && effector->spr.lotag == 30)
 						wal->lotag = 0;
 				}
 				else

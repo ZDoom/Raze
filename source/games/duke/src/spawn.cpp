@@ -455,7 +455,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 				for(auto act2 : *actors)
 				{
-					if (act2->spr.statnum < MAXSTATUS && act2->spr.picnum == SECTOREFFECTOR && (act2->spr.lotag == SE_7_TELEPORT || act2->spr.lotag == SE_23_ONE_WAY_TELEPORT) && 
+					if (act2->spr.statnum < MAXSTATUS && iseffector(act2) && (act2->spr.lotag == SE_7_TELEPORT || act2->spr.lotag == SE_23_ONE_WAY_TELEPORT) && 
 						actor != act2 && act2->spr.hitag == actor->spr.hitag)
 					{
 						actor->SetOwner(act2);
@@ -767,7 +767,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				if (actors) for (auto act2 : *actors)
 				{
 					if (act2->spr.statnum < MAXSTATUS)
-						if (act2->spr.picnum == SECTOREFFECTOR &&
+						if (iseffector(act2) &&
 							act2->spr.lotag == SE_1_PIVOT &&
 							act2->spr.hitag == actor->spr.hitag)
 						{

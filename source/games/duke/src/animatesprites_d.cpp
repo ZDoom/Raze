@@ -109,9 +109,8 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		h = static_cast<DDukeActor*>(t->ownerActor);
 		auto OwnerAc = h->GetOwner();
 
-		switch (h->spr.picnum)
+		if (iseffector(h))
 		{
-		case SECTOREFFECTOR:
 			if (t->lotag == SE_27_DEMO_CAM && ud.recstat == 1)
 			{
 				t->picnum = 11 + ((PlayClock >> 3) & 1);
@@ -119,12 +118,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			else
 				t->scale = DVector2(0, 0);
-			break;
-		case NATURALLIGHTNING:
-			t->shade = -127;
-			break;
-
-		default:
 			break;
 		}
 

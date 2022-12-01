@@ -23,6 +23,7 @@ xx(DukeGenericDestructible)
 xx(DukeGlassPieces)
 xx(DukeGlassPieces1)
 xx(DukeGlassPieces2)
+xx(DukeNaturalLightning)
 
 xx(spawnstate)
 xx(brokenstate)

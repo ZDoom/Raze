@@ -898,7 +898,7 @@ bool checkhitceiling_d(sectortype* sectp)
 			DukeSectIterator it(sectp);
 			while (auto act = it.Next())
 			{
-				if (act->spr.picnum == SECTOREFFECTOR && act->spr.lotag == SE_12_LIGHT_SWITCH)
+				if (iseffector(act) && act->spr.lotag == SE_12_LIGHT_SWITCH)
 				{
 					DukeStatIterator it1(STAT_EFFECTOR);
 					while (auto act2 = it1.Next())

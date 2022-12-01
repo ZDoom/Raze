@@ -1413,7 +1413,7 @@ static void handle_se28(DDukeActor* actor)
 			DukeStatIterator it(STAT_DEFAULT);
 			while (auto act2 = it.Next())
 			{
-				if (act2->spr.picnum == NATURALLIGHTNING && act2->spr.hitag == actor->spr.hitag)
+				if (act2->GetClass()->TypeName == NAME_DukeNaturalLightning && act2->spr.hitag == actor->spr.hitag)
 					act2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 			}
 		}
@@ -1430,7 +1430,7 @@ static void handle_se28(DDukeActor* actor)
 			DukeStatIterator it(STAT_DEFAULT);
 			while (auto act2 = it.Next())
 			{
-				if (act2->spr.picnum == NATURALLIGHTNING && act2->spr.hitag == actor->spr.hitag)
+				if (act2->GetClass()->TypeName == NAME_DukeNaturalLightning && act2->spr.hitag == actor->spr.hitag)
 				{
 					if (rnd(32) && (actor->temp_data[2] & 1))
 					{

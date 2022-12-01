@@ -111,7 +111,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 		DukeStatIterator its(STAT_EFFECTOR);
 		while (auto effector = its.Next())
 		{
-			if (effector->sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && effector->GetOwner()
+			if (effector->sector() == hit.hitSector && iseffector(effector) && effector->GetOwner()
 				&& effector->spr.lotag == SE_7_TELEPORT)
 			{
 				DVector3 npos;
@@ -260,7 +260,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		while (auto effector = its.Next())
 		{
 			auto Owner = effector->GetOwner();
-			if (effector->sector() == hit.hitSector && effector->spr.picnum == SECTOREFFECTOR && Owner && effector->spr.lotag == SE_7_TELEPORT)
+			if (effector->sector() == hit.hitSector && iseffector(effector) && Owner && effector->spr.lotag == SE_7_TELEPORT)
 			{
 				DVector3 npos;
 				npos.XY() = hit.hitpos.XY() + (Owner->spr.pos.XY() - effector->spr.pos.XY());

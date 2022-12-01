@@ -583,7 +583,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	{
 		if (actor->exists())
 		{
-			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
+			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				continue;
 			spriteinit_r(actor, actors);
 		}
@@ -593,7 +593,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	{
 		if (actor->exists())
 		{
-			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
+			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				spriteinit_r(actor, actors);
 			if (actor->spr.picnum == RRTILE19)
 				actor->Destroy();

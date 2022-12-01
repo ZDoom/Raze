@@ -11,6 +11,7 @@ spawnclasses
 	8 = DukeMasterSwitch
 	9 = DukeRespawnController
 	10 = DukeGPSpeed
+	4890 = DukeNaturalLightning
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane

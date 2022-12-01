@@ -46,7 +46,7 @@ int which_palookup = 9;
 void premapcontroller(DDukeActor* ac)
 {
 	CallStaticSetup(ac);
-	if (ac->spr.picnum == SECTOREFFECTOR)
+	if (iseffector(ac))
 	{
 		ac->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ALIGNMENT_MASK);
 	}
@@ -824,7 +824,7 @@ static void SpawnPortals()
 	DukeStatIterator it(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		if (act->spr.picnum == SECTOREFFECTOR && act->spr.lotag == tag)
+		if (iseffector(act) && act->spr.lotag == tag)
 		{
 			int hitag = act->spr.hitag;
 			if (processedTags.Find(hitag) == processedTags.Size())
@@ -832,7 +832,7 @@ static void SpawnPortals()
 				DukeStatIterator it2(STAT_RAROR);
 				while (auto act2 = it2.Next())
 				{
-					if (act2->spr.picnum == SECTOREFFECTOR && act2->spr.lotag == tag + 1 && act2->spr.hitag == hitag)
+					if (iseffector(act2) && act2->spr.lotag == tag + 1 && act2->spr.hitag == hitag)
 					{
 						if (processedTags.Find(act->spr.hitag) == processedTags.Size())
 						{

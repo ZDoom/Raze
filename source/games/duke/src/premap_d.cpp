@@ -290,7 +290,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		if (actor->exists())
 		{
-			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
+			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				continue;
 			spriteinit_d(actor, actors);
 		}
@@ -300,7 +300,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		if (actor->exists())
 		{
-			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
+			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				spriteinit_d(actor, actors);
 		}
 	}
