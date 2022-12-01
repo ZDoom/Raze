@@ -2,6 +2,7 @@ include "engine/defines.def"
 
 spawnclasses
 {
+	3464 = RedneckCheerBomb
 	2430 = RedneckCactusLargeYellow
 	2431 = RedneckCactusLargeGreen
 	2432 = RedneckCactusLargeBrown

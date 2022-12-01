@@ -77,6 +77,8 @@ spawnclasses
 	1346 = DukeHelicopter
 	2491 = DukeCar
 	26 = DukePipeBomb
+	940 = DukeBounceMine
+	1650 = DukeMortar
 
 	1272 = DukeTrash
 	634 = DukeBolt1

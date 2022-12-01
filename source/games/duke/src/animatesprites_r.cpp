@@ -205,13 +205,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;
-		case CHEERBOMB:
-			if (isRRRA())
-			{
-				t->picnum = CHEERBOMB + ((PlayClock >> 4) & 3);
-				break;
-			}
-			else goto default_case;
 		case EMPTYBIKE:
 			if (!isRRRA()) goto default_case;
 			kang = (h->spr.pos - viewVec).Angle();

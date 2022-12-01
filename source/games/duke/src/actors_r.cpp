@@ -1254,171 +1254,6 @@ void rr_specialstats()
 //
 //---------------------------------------------------------------------------
 
-static void heavyhbomb(DDukeActor *actor)
-{
-	auto sectp = actor->sector();
-	int l;
-	double xx;
-	auto Owner = actor->GetOwner();
-
-	if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
-	{
-		actor->temp_data[2]--;
-		if (actor->temp_data[2] <= 0)
-		{
-			S_PlayActorSound(TELEPORTER, actor);
-			spawn(actor, TRANSPORTERSTAR);
-			actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		}
-		return;
-	}
-
-	int p = findplayer(actor, &xx);
-
-	makeitfall(actor);
-
-	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != ST_160_FLOOR_TELEPORT) && actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F && actor->spr.yint < 3)
-	{
-		if (actor->spr.yint > 0 || (actor->spr.yint == 0 && actor->floorz == sectp->floorz))
-		{
-			if (actor->spr.picnum != CHEERBOMB)
-				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
-			else
-			{
-				actor->temp_data[3] = 1;
-				actor->temp_data[4] = 1;
-				l = 0;
-				goto DETONATEB;
-			}
-		}
-		actor->vel.Z = -(4 - actor->spr.yint);
-		if (actor->sector()->lotag == 2)
-			actor->vel.Z *= 0.25;
-		actor->spr.yint++;
-	}
-	if (actor->spr.picnum != CHEERBOMB && actor->spr.pos.Z < actor->ceilingz + 16 && sectp->lotag != 2)
-	{
-		actor->spr.pos.Z = actor->ceilingz + 16;
-		actor->vel.Z = 0;
-	}
-
-	Collision coll;
-	movesprite_ex(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, actor->vel.Z), CLIPMASK0, coll);
-
-	if (actor->sector()->lotag == 1 && actor->vel.Z == 0)
-	{
-		actor->spr.pos.Z += 32;
-		if (actor->temp_data[5] == 0)
-		{
-			actor->temp_data[5] = 1;
-			spawn(actor, WATERSPLASH2);
-			if (isRRRA() && actor->spr.picnum == MORTER)
-				actor->vel.X = 0;
-		}
-	}
-	else actor->temp_data[5] = 0;
-
-	if (actor->temp_data[3] == 0 && actor->spr.picnum == MORTER && (coll.type || xx < 844 / 16.))
-	{
-		actor->temp_data[3] = 1;
-		actor->temp_data[4] = 0;
-		l = 0;
-		actor->vel.X = 0;
-		goto DETONATEB;
-	}
-
-	if (actor->temp_data[3] == 0 && actor->spr.picnum == CHEERBOMB && (coll.type || xx < 844 / 16.))
-	{
-		actor->temp_data[3] = 1;
-		actor->temp_data[4] = 0;
-		l = 0;
-		actor->vel.X = 0;
-		goto DETONATEB;
-	}
-
-	if (Owner && Owner->isPlayer())
-		l = Owner->PlayerIndex();
-	else l = -1;
-
-	if(actor->vel.X > 0)
-	{
-		actor->vel.X -= 5. / 16;
-		if (sectp->lotag == 2)
-			actor->vel.X -= 10. / 16;
-
-		if(actor->vel.X < 0)
-			actor->vel.X = 0;
-		if (int(actor->vel.X * 16) & 8) actor->spr.cstat ^= CSTAT_SPRITE_XFLIP;
-	}
-
-	if (coll.type == kHitWall)
-	{
-		auto wal = coll.hitWall;
-		fi.checkhitwall(actor, wal, actor->spr.pos, actor->spr.picnum);
-
-		if (actor->spr.picnum == CHEERBOMB)
-		{
-			actor->temp_data[3] = 1;
-			actor->temp_data[4] = 0;
-			l = 0;
-			actor->vel.X = 0;
-			goto DETONATEB;
-		}
-		DAngle k = wal->delta().Angle();
-		actor->spr.Angles.Yaw = k * 2 - actor->spr.Angles.Yaw;
-		actor->vel.X *= 0.5;
-	}
-
-DETONATEB:
-
-	if (actor->temp_data[3] == 1)
-	{
-		actor->temp_data[4]++;
-
-		if (actor->temp_data[4] == 2)
-		{
-			int x = actor->spr.extra;
-			int m = gs.morterblastradius;
-
-			if (actor->sector()->lotag != 800)
-			{
-				fi.hitradius(actor, m, x >> 2, x >> 1, x - (x >> 2), x);
-				spawn(actor, EXPLOSION2);
-				if (actor->spr.picnum == CHEERBOMB)
-					spawn(actor, BURNING);
-				S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
-				for (x = 0; x < 8; x++)
-					RANDOMSCRAP(actor);
-			}
-		}
-
-		if (actor->spr.scale.Y)
-		{
-			actor->spr.scale.Y = (0);
-			return;
-		}
-
-		if (actor->temp_data[4] > 20)
-		{
-			actor->Destroy();
-			return;
-		}
-		if (actor->spr.picnum == CHEERBOMB)
-		{
-			spawn(actor, BURNING);
-			actor->Destroy();
-			return;
-		}
-	}
-	if (actor->temp_data[0] < 8) actor->temp_data[0]++;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 static int henstand(DDukeActor *actor)
 {
 	if (actor->spr.picnum == HENSTAND || actor->spr.picnum == HENSTAND + 1)
@@ -1535,6 +1370,7 @@ void moveactors_r(void)
 		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			CallTick(act);
+			continue;
 		}
 		else switch(act->spr.picnum)
 		{
@@ -1590,13 +1426,6 @@ void moveactors_r(void)
 						act->vel.X -= 1. / 16.;
 					}
 				break;
-
-			case CHEERBOMB:
-				if (!isRRRA()) break;
-				[[fallthrough]];
-			case MORTER:
-				heavyhbomb(act);
-				continue;
 		}
 
 
