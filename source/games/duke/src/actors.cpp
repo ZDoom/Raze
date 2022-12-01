@@ -1765,7 +1765,7 @@ void handle_se00(DDukeActor* actor)
 		return;
 	}
 
-	DAngle ang_amount = mapangle(sect->extra >> 3);
+	DAngle ang_amount = DAngle::fromQ16(sect->extra << 2);
 	double direction = 0;
 
 	if (sect->lotag == 30)
