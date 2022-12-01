@@ -1275,22 +1275,6 @@ static void heavyhbomb(DDukeActor *actor)
 
 	int p = findplayer(actor, &xx);
 
-	if (xx < 1220 / 16.) actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	else actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-
-	if (actor->temp_data[3] == 0)
-	{
-		int j = fi.ifhitbyweapon(actor);
-		if (j >= 0)
-		{
-			actor->temp_data[3] = 1;
-			actor->temp_data[4] = 0;
-			l = 0;
-			actor->vel.X = 0;
-			goto DETONATEB;
-		}
-	}
-
 	makeitfall(actor);
 
 	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != ST_160_FLOOR_TELEPORT) && actor->spr.pos.Z >= actor->floorz - FOURSLEIGHT_F && actor->spr.yint < 3)
@@ -1387,22 +1371,14 @@ static void heavyhbomb(DDukeActor *actor)
 
 DETONATEB:
 
-	if ((l >= 0 && ps[l].hbomb_on == 0) || actor->temp_data[3] == 1)
+	if (actor->temp_data[3] == 1)
 	{
 		actor->temp_data[4]++;
 
 		if (actor->temp_data[4] == 2)
 		{
 			int x = actor->spr.extra;
-			int m = 0;
-			switch (actor->spr.picnum)
-			{
-			case POWDERKEG: m = gs.tripbombblastradius; break;	// powder keg
-			case DYNAMITE: m = gs.pipebombblastradius; break;
-			case HBOMBAMMO: m = gs.pipebombblastradius; break;
-			case MORTER: m = gs.morterblastradius; break;
-			case CHEERBOMB: m = gs.morterblastradius; break;
-			}
+			int m = gs.morterblastradius;
 
 			if (actor->sector()->lotag != 800)
 			{
@@ -1434,48 +1410,6 @@ DETONATEB:
 			return;
 		}
 	}
-	else if (actor->spr.picnum == DYNAMITE && xx < 788 / 16. && actor->temp_data[0] > 7 && actor->vel.X == 0)
-		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].GetActor()->getPosWithOffsetZ(), ps[p].cursector))
-			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
-				if (actor->spr.pal == 0)
-				{
-					if (ud.coop >= 1)
-					{
-						for (int j = 0; j < ps[p].weapreccnt; j++)
-							if (ps[p].weaprecs[j] == actor->spr.picnum)
-								return;
-
-						if (ps[p].weapreccnt < 255)
-							ps[p].weaprecs[ps[p].weapreccnt++] = actor->spr.picnum;
-					}
-
-					addammo(DYNAMITE_WEAPON, &ps[p], 1);
-					addammo(CROSSBOW_WEAPON, &ps[p], 1);
-					S_PlayActorSound(DUKE_GET, ps[p].GetActor());
-
-					if (ps[p].gotweapon[DYNAMITE_WEAPON] == 0 || Owner == ps[p].GetActor())
-						fi.addweapon(&ps[p], DYNAMITE_WEAPON, true);
-
-					if (!Owner || !Owner->isPlayer())
-					{
-						SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
-					}
-
-					if (Owner && (Owner->attackertype != DYNAMITE || ud.respawn_items == 0 || Owner->isPlayer()))
-					{
-						if (actor->spr.picnum == DYNAMITE && !Owner->isPlayer() && ud.coop)
-							return;
-						actor->Destroy();
-						return;
-					}
-					else
-					{
-						actor->temp_data[2] = gs.respawnitemtime;
-						spawn(actor, PClass::FindActor("RedneckRespawnMarker"));
-						actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-					}
-				}
-
 	if (actor->temp_data[0] < 8) actor->temp_data[0]++;
 }
 
@@ -1661,7 +1595,6 @@ void moveactors_r(void)
 				if (!isRRRA()) break;
 				[[fallthrough]];
 			case MORTER:
-			case DYNAMITE:
 				heavyhbomb(act);
 				continue;
 		}

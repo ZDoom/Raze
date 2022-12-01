@@ -258,7 +258,6 @@ struct DukePlayer native
 	native DukeActor actor, actorsqu, wackedbyactor, on_crane, somethingonplayer, access_spritenum, dummyplayersprite, newOwner, holoduke_on;
 	native sectortype cursector;
 
-	native int16 weaprecs[256], weapreccnt;
 	native uint interface_toggle_flag;
 
 	native int16 dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
@@ -352,6 +351,9 @@ struct DukePlayer native
 	native void addPitch(double p);
 	native void centerView();
 	native int playerinput(int bit);
+	native int CheckWeapRec(DukeActor item, bool checkonly);
+	native void addammo(int type, int amount);
+	native void addweapon(int type, bool switchit);
 
 
 }
@@ -414,6 +416,7 @@ struct DukeGameInfo native
 	// Static constant global state
 	readonly native double playerfriction;
 	readonly native double gravity;
+	readonly native int16 max_ammo_amount[RRWpn.MAX_WEAPONS];
 
 	readonly native int respawnactortime;
 	readonly native int bouncemineblastradius;

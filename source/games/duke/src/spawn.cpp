@@ -485,31 +485,6 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 //
 //---------------------------------------------------------------------------
 
-int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
-{
-	actor->spr.extra = gs.impact_damage;
-
-	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
-
-	if (ud.multimode < 2 && actor->spr.pal != 0)
-	{
-		actor->spr.scale = DVector2(0, 0);
-		ChangeActorStat(actor, STAT_MISC);
-		return false;
-	}
-	actor->spr.pal = 0;
-	actor->spr.shade = -17;
-
-	ChangeActorStat(actor, 2);
-	return false;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 {
 	auto sectp = actor->sector();

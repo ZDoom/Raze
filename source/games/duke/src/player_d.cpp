@@ -2185,7 +2185,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			}
 
 			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
-				p->GetActor()->spr.Angles.Yaw, vel + p->hbomb_hold_delay * 2, zvel, pact, 1);
+				p->GetActor()->spr.Angles.Yaw, vel + p->hbomb_hold_delay * 2, zvel, pact, STAT_ACTOR);
 
 			if (isNam())
 			{

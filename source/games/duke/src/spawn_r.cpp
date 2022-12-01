@@ -659,13 +659,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case DYNAMITE:
-		act->SetOwner(act);
-		act->spr.scale = DVector2(0.140625, 0.140625);
-		act->spr.yint = 4;
-		if (initreactor(actj, act, false)) return act;
-		break;
-
 	case RPG2SPRITE:
 	case MOTOAMMO:
 	case BOATAMMO:

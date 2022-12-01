@@ -865,10 +865,6 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 		if (isRRRA()) goto rrra_rpg2;
 		else break;
 
-	case FREEZEBLAST:
-		spos.Z += 3;
-		[[fallthrough]];
-
 	case RPG:
 	case SAWBLADE:
 	rrra_rpg2:

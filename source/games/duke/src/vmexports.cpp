@@ -23,7 +23,6 @@ int PicForName(int intname)
 			{"RedneckRabbit","RABBIT"},
 			{"RedneckFeather","FEATHER"},
 			{"DukeBatteryAmmo",	"BATTERYAMMO"},
-			{"RedneckDynamite",	"DYNAMITE"},
 			{"DukeSixpak", "SIXPAK"},
 			{"DukeAtomicHealth", "ATOMICHEALTH"},
 			{"DukeShrinkerExplosion", "SHRINKEREXPLOSION" },
@@ -800,8 +799,6 @@ DEFINE_FIELD_X(DukePlayer, player_struct, last_quick_kick)
 DEFINE_FIELD_X(DukePlayer, player_struct, heat_amount)
 DEFINE_FIELD_X(DukePlayer, player_struct, timebeforeexit)
 DEFINE_FIELD_X(DukePlayer, player_struct, customexitsound)
-DEFINE_FIELD_X(DukePlayer, player_struct, weaprecs)
-DEFINE_FIELD_X(DukePlayer, player_struct, weapreccnt)
 DEFINE_FIELD_X(DukePlayer, player_struct, interface_toggle_flag)
 DEFINE_FIELD_X(DukePlayer, player_struct, dead_flag)
 DEFINE_FIELD_X(DukePlayer, player_struct, show_empty_weapon)
@@ -1043,6 +1040,45 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, quickkill, quickkill)
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
 	quickkill(self);
 	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, CheckWeapRec, CheckWeapRec)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_POINTER(ac, DDukeActor);
+	PARAM_BOOL(test);
+	ACTION_RETURN_INT(CheckWeapRec(self, ac, test));
+}
+
+void DukePlayer_addammo(player_struct* p, int ammo, int amount)
+{
+	if ((unsigned)ammo >= MAX_WEAPONS) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Ammo number out of range");
+	addammo(ammo, p, amount);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addammo, DukePlayer_addammo)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(type);
+	PARAM_INT(amount);
+	DukePlayer_addammo(self, type, amount);
+	return 0;
+}
+
+void DukePlayer_addweapon(player_struct* p, int wpn, int switchit)
+{
+	if ((unsigned)wpn >= MAX_WEAPONS) ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Weapon number out of range");
+	fi.addweapon(p, wpn, switchit);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addweapon, DukePlayer_addweapon)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(type);
+	PARAM_INT(switchit);
+	DukePlayer_addweapon(self, type, switchit);
+	return 0;
+
 }
 
 static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)
@@ -1290,6 +1326,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, LocateTheLocator, LocateTheLocator)
 }
 
 
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, max_ammo_amount);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerfriction);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, gravity);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, respawnactortime);

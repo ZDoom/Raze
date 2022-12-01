@@ -177,7 +177,6 @@ void spawntransporter(DDukeActor* actj, DDukeActor* acti, bool beam);
 int spawnbloodpoolpart1(DDukeActor* acti);
 void initfootprint(DDukeActor* actj, DDukeActor* acti);
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell);
-int initreactor(DDukeActor* actj, DDukeActor* acti, bool isrecon);
 void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors);
 int startrts(int lumpNum, int localPlayer);
 

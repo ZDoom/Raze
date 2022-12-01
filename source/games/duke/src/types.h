@@ -240,7 +240,7 @@ struct player_struct
 	short extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, timebeforeexit, customexitsound;
 
-	short weaprecs[256], weapreccnt;
+	short weaprecs[32], weapreccnt;
 	unsigned int interface_toggle_flag;
 
 	short dead_flag, show_empty_weapon;

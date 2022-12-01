@@ -621,15 +621,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case HEAVYHBOMB:
-		if (actj) act->SetOwner(actj);
-		else act->SetOwner(act);
-
-		act->spr.scale = DVector2(0.140625, 0.140625);
-		act->spr.yint = 4;
-		if (initreactor(actj, act, false)) return act;
-		break;
-
 	case FLAMETHROWERSPRITE:
 	case FLAMETHROWERAMMO: // Twentieth Anniversary World Tour
 		if (!isWorldTour())
@@ -722,15 +713,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case FLOORFLAME:
 		act->spr.shade = -127;
 		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-
-	case BOUNCEMINE:
-		act->SetOwner(act);
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL; //Make it hitable
-		act->spr.scale = DVector2(0.375, 0.375);
-		act->spr.shade = -127;
-		act->spr.extra = gs.impact_damage << 2;
-		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 
 	case CAMERAPOLE:

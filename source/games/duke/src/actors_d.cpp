@@ -1178,18 +1178,6 @@ static void heavyhbomb(DDukeActor *actor)
 	int l;
 	double xx;
 
-	if ((actor->spr.cstat & CSTAT_SPRITE_INVISIBLE))
-	{
-		actor->temp_data[2]--;
-		if (actor->temp_data[2] <= 0)
-		{
-			S_PlayActorSound(TELEPORTER, actor);
-			spawn(actor, TRANSPORTERSTAR);
-			actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		}
-		return;
-	}
-
 	int p = findplayer(actor, &xx);
 
 	if (xx < 1220 / 16.) actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -1278,16 +1266,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 DETONATEB:
 
-	bool bBoom = false;
-	if ((l >= 0 && ps[l].hbomb_on == 0) || actor->temp_data[3] == 1)
-		bBoom = true;
-	if (isNamWW2GI() && actor->spr.picnum == HEAVYHBOMB)
-	{
-		actor->spr.extra--;
-		if (actor->spr.extra <= 0)
-			bBoom = true;
-	}
-	if (bBoom)
+	if (actor->temp_data[3] == 1)
 	{
 		actor->temp_data[4]++;
 
@@ -1297,7 +1276,6 @@ DETONATEB:
 			int m = 0;
 			switch (actor->spr.picnum)
 			{
-			case HEAVYHBOMB: m = gs.pipebombblastradius; break;
 			case MORTER: m = gs.morterblastradius; break;
 			case BOUNCEMINE: m = gs.bouncemineblastradius; break;
 			}
@@ -1318,61 +1296,10 @@ DETONATEB:
 
 		if (actor->temp_data[4] > 20)
 		{
-			if (Owner != actor || ud.respawn_items == 0)
-			{
-				actor->Destroy();
-				return;
-			}
-			else
-			{
-				actor->temp_data[2] = gs.respawnitemtime;
-				spawn(actor, PClass::FindActor("DukeRespawnMarker"));
-				actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				actor->spr.scale.Y = (0.140625);
-				return;
-			}
+			actor->Destroy();
+			return;
 		}
 	}
-	else if (actor->spr.picnum == HEAVYHBOMB && xx < 788 / 16. && actor->temp_data[0] > 7 && actor->vel.X == 0)
-		if (cansee(actor->spr.pos.plusZ(-8), actor->sector(), ps[p].GetActor()->getPosWithOffsetZ(), ps[p].cursector))
-			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
-			{
-				if (ud.coop >= 1 && Owner == actor)
-				{
-					for (int j = 0; j < ps[p].weapreccnt; j++)
-						if (ps[p].weaprecs[j] == actor->spr.picnum)
-							continue;
-
-					if (ps[p].weapreccnt < 255) // DukeGDX has 16 here.
-						ps[p].weaprecs[ps[p].weapreccnt++] = actor->spr.picnum;
-				}
-
-				addammo(HANDBOMB_WEAPON, &ps[p], 1);
-				S_PlayActorSound(DUKE_GET, ps[p].GetActor());
-
-				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || Owner == ps[p].GetActor())
-					fi.addweapon(&ps[p], HANDBOMB_WEAPON, true);
-
-				if (!Owner || !Owner->isPlayer())
-				{
-					SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
-				}
-
-				if (Owner != actor || ud.respawn_items == 0)
-				{
-					if (Owner == actor && ud.coop >= 1)
-						return;
-
-					actor->Destroy();
-					return;
-				}
-				else
-				{
-					actor->temp_data[2] = gs.respawnitemtime;
-					spawn(actor, PClass::FindActor("DukeRespawnMarker"));
-					actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				}
-			}
 
 	if (actor->temp_data[0] < 8) actor->temp_data[0]++;
 }
@@ -1417,13 +1344,9 @@ void moveactors_d(void)
 		case BOUNCEMINE:
 		case MORTER:
 			spawn(act, FRAMEEFFECT1)->temp_data[0] = 3;
-			[[fallthrough]];
-
-		case HEAVYHBOMB:
 			heavyhbomb(act);
 			continue;
 		}
-
 		if (monsterCheatCheck(act) && badguy(act))
 		{
 			continue;

@@ -76,6 +76,10 @@ enum ESectorTriggers
 
 	ST_41_JAILDOOR			= 41,
 	ST_42_MINECART			= 42,
+
+	ST_160_FLOOR_TELEPORT	= 160,
+	ST_161_CEILING_TELEPORT = 161,
+
 	// left: ST 32767, 65534, 65535
 };
 

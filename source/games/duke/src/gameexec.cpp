@@ -1347,6 +1347,31 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 
 //---------------------------------------------------------------------------
 //
+// what a lousy hack job... :(
+//
+//---------------------------------------------------------------------------
+
+int CheckWeapRec(player_struct* p, DDukeActor* g_ac, int testonly)
+{
+	int j;
+	for (j = 0; j < p->weapreccnt; j++)
+		if (p->weaprecs[j] == g_ac->spr.picnum)
+			break;
+
+	if (testonly)
+	{
+		return (j < p->weapreccnt && g_ac->GetOwner() == g_ac);
+	}
+	else if (p->weapreccnt < 32)
+	{
+		p->weaprecs[p->weapreccnt++] = g_ac->spr.picnum;
+		return (g_ac->GetOwner() == g_ac);
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------
@@ -1665,19 +1690,7 @@ int ParseState::parse(void)
 
 		if (ud.coop >= 1 && ud.multimode > 1)
 		{
-			if (*insptr == 0)
-			{
-				for (j = 0; j < ps[g_p].weapreccnt; j++)
-					if (ps[g_p].weaprecs[j] == g_ac->spr.picnum)
-						break;
-
-				parseifelse(j < ps[g_p].weapreccnt&& g_ac->GetOwner() == g_ac);
-			}
-			else if (ps[g_p].weapreccnt < 16)
-			{
-				ps[g_p].weaprecs[ps[g_p].weapreccnt++] = g_ac->spr.picnum;
-				parseifelse(g_ac->GetOwner() == g_ac);
-			}
+			parseifelse(CheckWeapRec(&ps[g_p], g_ac, !*insptr));
 		}
 		else parseifelse(0);
 		break;
