@@ -110,7 +110,7 @@ void initactorflags_d()
 	setflag(SFLAG2_CAMERA, { CAMERA1 });
 	setflag(SFLAG2_DONTANIMATE, { TRIPBOMB, LASERLINE });
 	setflag(SFLAG2_INTERPOLATEANGLE, { BEARINGPLATE });
-	setflag(SFLAG2_GREENBLOOD, { OOZFILTER, NEWBEAST });
+	setflag(SFLAG2_GREENBLOOD, { OOZFILTER, NEWBEAST, NUKEBARREL });
 	setflag(SFLAG2_ALWAYSROTATE1, { RAT, CAMERA1 });
 	setflag(SFLAG2_ALWAYSROTATE2, { RPG });
 	setflag(SFLAG2_DIENOW, { RADIUSEXPLOSION, KNEE });
@@ -125,6 +125,7 @@ void initactorflags_d()
 	setflag(SFLAG2_NONSMOKYROCKET, { BOSS2 }); // If this wasn't needed for a CON defined actor it could be handled better
 	setflag(SFLAG2_MIRRORREFLECT, { SHRINKSPARK, FIRELASER, COOLEXPLOSION1 });
 	setflag(SFLAG2_UNDERWATERSLOWDOWN, { RPG });
+	setflag(SFLAG3_BROWNBLOOD, { FECES });
 
 	if (isWorldTour())
 	{
@@ -201,6 +202,8 @@ void initactorflags_d()
 		});
 
 	setflag(SFLAG2_FORCESECTORSHADE, { GREENSLIME });
+	setflag(SFLAG3_DONTDIVEALIVE, { GREENSLIME, SHARK, OCTABRAIN });
+	setflag(SFLAG3_BLOODY, { BLOODPOOL });
 
 	// The feature guarded by this flag does not exist in Duke, it always acts as if the flag was set.
 	for (auto& ainf : gs.actorinfo) ainf.flags |= SFLAG_MOVEFTA_CHECKSEE;
@@ -247,7 +250,6 @@ void initactorflags_d()
 	TILE_CLOUDYSKIES = CLOUDYSKIES;
 	TILE_ACCESSSWITCH = ACCESSSWITCH;
 	TILE_ACCESSSWITCH2 = ACCESSSWITCH2;
-	TILE_GLASSPIECES = GLASSPIECES;
 	TILE_MIRROR = MIRROR;
 	TILE_LOADSCREEN = LOADSCREEN;
 	TILE_CROSSHAIR = CROSSHAIR;

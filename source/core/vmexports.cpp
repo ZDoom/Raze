@@ -858,6 +858,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, Normalize180, Normalize180)
 	ACTION_RETURN_FLOAT(angle.Normalized180().Degrees());
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, isAwayFromWall, isAwayFromWall)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_FLOAT(dist);
+	ACTION_RETURN_INT(isAwayFromWall(self, dist));
+	return 0;
+}
+
+
 
 
 DEFINE_FIELD_X(Collision, CollisionBase, type)

@@ -80,6 +80,23 @@ spawnclasses
 	940 = DukeBounceMine
 	1650 = DukeMortar
 	2999 = DukeFrameEffect
+	925 = DukeNeon1
+	926 = DukeNeon2
+	1007 = DukeNeon3
+	1008 = DukeNeon4
+	1009 = DukeNeon5
+	1046 = DukeNeon6
+	142 = DukeNukeButton
+	1233 = DukeMoney
+	4460 = DukePaper
+	4410 = DukeMail
+	1380 = DukeWaterSplash
+	1031 = DukeGlassPieces1
+	1032 = DukeGlassPieces2
+	1033 = DukeGlassPieces3
+	2533 = DukeShell
+	2535 = DukeShotgunShell
+	1226 = DukeBloodPool
 
 	1272 = DukeTrash
 	634 = DukeBolt1

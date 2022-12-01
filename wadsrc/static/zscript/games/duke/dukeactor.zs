@@ -222,6 +222,7 @@ class DukeActor : CoreActor native
 	// temporary flag accessors - need to be eliminated once we can have true actor flags
 	native int actorflag1(int mask);
 	native int actorflag2(int mask);
+	native int actorflag3(int mask);
 	native int attackerflag1(int mask);
 	native int attackerflag2(int mask);
 	
@@ -252,6 +253,27 @@ class DukeActor : CoreActor native
 			else self.ChangeStat(STAT_ZOMBIEACTOR);
 		}
 	}
+	
+	int checkLocationForFloorSprite(double radius)
+	{
+		bool away = self.isAwayFromWall(radius);
+		
+		if (!away)
+		{
+			self.scale = (0, 0); 
+			self.ChangeStat(STAT_MISC); 
+			return false;
+		}
+
+		if (self.sector.lotag == ST_1_ABOVE_WATER)
+		{
+			self.scale = (0, 0); 
+			self.ChangeStat(STAT_MISC);
+			return false;
+		}
+		return true;
+	}
+	
 }
 
 extend struct _
@@ -271,6 +293,7 @@ struct DukeLevel
 	native static void operatemasterswitches(int lotag);
 	native static void operateactivators(int lotag, DukePlayer p);
 	native static int floorflags(sectortype s);
+	native static int ceilingflags(sectortype s);
 	native static int wallflags(walltype s, int which);
 	native static void AddCycler(sectortype sector, int lotag, int shade, int shade2, int hitag, int state);
 	native static void addtorch(sectortype sector, int shade, int lotag);
@@ -376,4 +399,11 @@ enum sflags2_t
 	SFLAG2_ALTPROJECTILESPRITE	= 0x10000000, // yet another shooter flag. RRRA has some projectiles with alternative visuals, again this is on the caller thanks to CON.
 	SFLAG2_UNDERWATERSLOWDOWN	= 0x20000000,
 
+};
+
+enum sflags3_t
+{
+	SFLAG3_DONTDIVEALIVE = 0x00000001,
+	SFLAG3_BLOODY = 0x00000002,
+	SFLAG3_BROWNBLOOD = 0x00000004,
 };

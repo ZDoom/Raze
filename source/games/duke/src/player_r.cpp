@@ -3622,7 +3622,7 @@ void processinput_r(int snum)
 		}
 		else
 
-			if (psectp->floorpicnum == RRTILE3073 || psectp->floorpicnum == RRTILE2702)
+			if (psectp->floorpicnum == MUDDY || psectp->floorpicnum == MUDDYPATH)
 			{
 				if (p->OnMotorcycle)
 				{

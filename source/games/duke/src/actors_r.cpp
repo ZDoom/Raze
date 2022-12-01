@@ -1458,6 +1458,10 @@ void moveexplosions_r(void)  // STATNUM 5
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
+		if (act->time == 959)
+		{
+			int a = 0;
+		}
 		t = &act->temp_data[0];
 		auto sectp = act->sector();
 
@@ -1483,73 +1487,6 @@ void moveexplosions_r(void)  // STATNUM 5
 					continue;
 				}
 			break;
-		case NEON1:
-		case NEON2:
-		case NEON3:
-		case NEON4:
-		case NEON5:
-		case NEON6:
-
-			if ((global_random / (act->spr.lotag + 1) & 31) > 4) act->spr.shade = -127;
-			else act->spr.shade = 127;
-			continue;
-
-		case MUD:
-
-			act->temp_data[0]++;
-			if (act->temp_data[0] == 1)
-			{
-				if (sectp->floorpicnum != 3073)
-				{
-					act->Destroy();
-					continue;
-				}
-				if (S_CheckSoundPlaying(22))
-					S_PlayActorSound(22, act);
-			}
-			if (act->temp_data[0] == 3)
-			{
-				act->temp_data[0] = 0;
-				act->temp_data[1]++;
-			}
-			if (act->temp_data[1] == 5)
-				act->Destroy();
-			continue;
-
-		case WATERSPLASH2:
-			watersplash2(act);
-			continue;
-
-		case FEATHER + 1: // feather
-			act->spr.pos.Z = act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
-			if (act->sector()->lotag == 800)
-			{
-				act->Destroy();
-				continue;
-			}
-			break;
-		case FEATHER:
-			if (!money(act, BLOODPOOL)) continue;
-
-			if (act->sector()->lotag == 800)
-				if (act->spr.pos.Z >= act->sector()->floorz - 8)
-				{
-					act->Destroy();
-					continue;
-				}
-
-			break;
-
-		case BLOODPOOL:
-			if (!bloodpool(act, false)) continue;
-
-			if (act->sector()->lotag == 800)
-				if (act->spr.pos.Z >= act->sector()->floorz - 8)
-				{
-					act->Destroy();
-				}
-			continue;
-
 		case BURNING:
 		case WATERBUBBLE:
 		case SMALLSMOKE:
@@ -1561,18 +1498,6 @@ void moveexplosions_r(void)  // STATNUM 5
 		case TRANSPORTERBEAM:
 			p = findplayer(act, &xx);
 			execute(act, p, xx);
-			continue;
-
-		case SHELL:
-		case SHOTGUNSHELL:
-			shell(act, false);
-			continue;
-
-		case GLASSPIECES:
-		case GLASSPIECES1:
-		case GLASSPIECES2:
-		case POPCORN:
-			glasspieces(act);
 			continue;
 		}
 	}

@@ -67,6 +67,7 @@ class CoreActor native
 	native void backuppos();
 	native void setPosition(Vector3 pos);
 	native void setPositionZ(Vector3 pos);
+	native bool isAwayFromWall(double dist);
 
 	native clearscope static double deltaangle(double ang1, double ang2);
 	native clearscope static double absangle(double ang1, double ang2);

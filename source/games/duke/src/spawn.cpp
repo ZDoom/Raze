@@ -434,57 +434,6 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 //
 //---------------------------------------------------------------------------
 
-void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
-{
-	if (actj)
-	{
-		int snum;
-		DAngle ang;
-
-		if (actj->isPlayer())
-		{
-			snum = actj->PlayerIndex();
-			ang = ps[snum].GetActor()->spr.Angles.Yaw - mapangle((krand() & 63) + 8);  //Fine tune
-
-			act->temp_data[0] = krand() & 1;
-			act->spr.pos.Z = 3 + ps[snum].GetActor()->getOffsetZ() + ps[snum].pyoff + (ps[snum].Angles.getPitchWithView().Tan() * 8.) + (!isshell ? 3 : 0);
-			act->vel.Z = -krandf(1);
-		}
-		else
-		{
-			ang = act->spr.Angles.Yaw;
-			act->spr.pos.Z = actj->spr.pos.Z - gs.playerheight + 3;
-		}
-
-		act->spr.pos.XY() = actj->spr.pos.XY() + ang.ToVector() * 8;
-
-		act->spr.shade = -8;
-
-		if (isNamWW2GI())
-		{
-			// to the right, with feeling
-			act->spr.Angles.Yaw = ang + DAngle90;
-			act->vel.X = 1.875;
-		}
-		else
-		{
-			act->spr.Angles.Yaw = ang - DAngle90;
-			act->vel.X = 1.25;
-		}
-
-		double scale = isRR() && isshell ? 0.03125 : 0.0625;
-		act->spr.scale = DVector2(scale, scale);
-
-		ChangeActorStat(act, STAT_MISC);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 {
 	auto sectp = actor->sector();
@@ -963,6 +912,20 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 //
 //---------------------------------------------------------------------------
 
+inline PClassActor* GlassClass(int j)
+{
+	static PClassActor* glasses[3];
+	if (glasses[0] == nullptr)
+	{
+		static const FName glassnames[] = { NAME_DukeGlassPieces, NAME_DukeGlassPieces1, NAME_DukeGlassPieces2 };
+		for (int i = 0; i < 3; i++)
+		{
+			glasses[i] = PClass::FindActor(glassnames[i]);
+		}
+	}
+	return glasses[j % 3];
+}
+
 void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 {
 	int j;
@@ -976,7 +939,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 			auto vel = krandf(4) + 2;
 			auto zvel = 4 - krandf(4);
 
-			CreateActor(actor->sector(), actor->spr.pos, TILE_GLASSPIECES + (j % 3), -32, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
+			CreateActor(actor->sector(), actor->spr.pos, GlassClass(j), -32, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
 		}
 		return;
 	}
@@ -1003,7 +966,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 			auto vel = krandf(4) + 2;
 			auto zvel = 4 - krandf(4);
 
-			CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, DVector2(0.5625, 0.5625), angl, vel, zvel, actor, 5);
+			CreateActor(actor->sector(), DVector3(pos, z), GlassClass(j), -32, DVector2(0.5625, 0.5625), angl, vel, zvel, actor, 5);
 		}
 	}
 }
@@ -1022,7 +985,7 @@ void spriteglass(DDukeActor* actor, int n)
 		auto vel = krandf(4) + 2;
 		auto zvel = -2 - krandf(8);
 
-		auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 16)), TILE_GLASSPIECES + (j % 3), krand() & 15, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
+		auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 16)), GlassClass(j), krand() & 15, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
 		if (k) k->spr.pal = actor->spr.pal;
 	}
 }
@@ -1047,7 +1010,7 @@ void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 			auto vel = krandf(2);
 
 			double z = sectp->ceilingz + krandf(16);
-			CreateActor(sectp, DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, DVector2(0.5625, 0.5625), a, vel, 0, actor, 5);
+			CreateActor(sectp, DVector3(pos, z), GlassClass(j), -32, DVector2(0.5625, 0.5625), a, vel, 0, actor, 5);
 		}
 	}
 }
@@ -1071,7 +1034,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 			auto vel = krandf(4) + 2;
 			auto zvel = 4 - krandf(4);
 
-			auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 63)), TILE_GLASSPIECES + (j % 3), -32, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
+			auto k = CreateActor(actor->sector(), actor->spr.pos.plusZ(-(krand() & 63)), GlassClass(j), -32, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
 			if (k) k->spr.pal = krand() & 15;
 		}
 		return;
@@ -1095,7 +1058,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		auto vel = krandf(4) + 2;
 		auto zvel = - krandf(8);
 
-		auto k = CreateActor(actor->sector(), DVector3(pos, z), TILE_GLASSPIECES + (j % 3), -32, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
+		auto k = CreateActor(actor->sector(), DVector3(pos, z), GlassClass(j), -32, DVector2(0.5625, 0.5625), a, vel, zvel, actor, 5);
 		if (k) k->spr.pal = krand() & 7;
 	}
 }

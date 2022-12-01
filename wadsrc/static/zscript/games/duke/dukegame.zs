@@ -80,6 +80,7 @@ struct Duke native
 		TFLAG_OUTERSPACE			= 1 << 7,
 		TFLAG_NOBLOODSPLAT			= 1 << 8,
 		TFLAG_NOCIRCLEREFLECT		= 1 << 9,
+		TFLAG_MUDDY					= 1 << 10,
 	};
 
 	enum ESoundFlags
@@ -354,6 +355,8 @@ struct DukePlayer native
 	native int CheckWeapRec(DukeActor item, bool checkonly);
 	native void addammo(int type, int amount);
 	native void addweapon(int type, bool switchit);
+	native bool hitablockingwall();
+	native double getPitchWithView();
 
 
 }
@@ -446,7 +449,7 @@ struct DukeUserDefs native
 	native readonly uint8 clipping;
 	native readonly uint8 user_pals[MAXPLAYERS];
 	native readonly int16 from_bonus;
-	native readonly int16 last_level, secretlevel;
+	native int16 last_level, secretlevel;
 	native readonly int const_visibility;
 	native readonly int coop;
 	native readonly int respawn_monsters, respawn_items, respawn_inventory, recstat, monsters_off, brightness;

@@ -100,6 +100,14 @@ inline void setflag(EDukeFlags2 flag, const std::initializer_list<short>& types)
 	}
 }
 
+inline void setflag(EDukeFlags3 flag, const std::initializer_list<short>& types)
+{
+	for (auto val : types)
+	{
+		gs.actorinfo[val].flags3 |= flag;
+	}
+}
+
 inline bool inventory(DDukeActor* S)
 {
 	return actorflag(S, SFLAG_INVENTORY);

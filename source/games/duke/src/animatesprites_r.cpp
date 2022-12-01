@@ -55,7 +55,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (t->picnum)
 		{
-		case BLOODPOOL:
 		case FOOTPRINTS:
 		case FOOTPRINTS2:
 		case FOOTPRINTS3:
@@ -85,13 +84,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case RRTILE8096:
 			if (isRRRA()) continue;
 
-		case NEON1:
-		case NEON2:
-		case NEON3:
-		case NEON4:
-		case NEON5:
-		case NEON6:
-			continue;
 		default:
 			if (((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
 			{
@@ -179,15 +171,12 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (h->spr.extra > 0)
 				t->pos.Z += 6;
 			break;
-		case BLOODPOOL:
 		case FOOTPRINTS:
 		case FOOTPRINTS2:
 		case FOOTPRINTS3:
 		case FOOTPRINTS4:
 			if (t->pal == 6)
 				t->shade = -127;
-		case FEATHER:
-		case FEATHER + 1:
 			break;
 		case POWDERKEG:
 			continue;
@@ -689,20 +678,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			t->picnum = h->spr.picnum + k + ((h->temp_data[0] < 4) * 5);
 			if (OwnerAc) t->shade = OwnerAc->spr.shade;
-			break;
-		case MUD:
-			t->picnum = MUD + t1;
-			break;
-		case WATERSPLASH2:
-			t->picnum = WATERSPLASH2 + t1;
-			break;
-		case SHELL:
-			t->picnum = h->spr.picnum + (h->temp_data[0] & 1);
-			[[fallthrough]];
-		case SHOTGUNSHELL:
-			t->cstat |= CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP;
-			if (h->temp_data[0] > 1) t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			if (h->temp_data[0] > 2) t->cstat &= ~CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP;
 			break;
 		}
 

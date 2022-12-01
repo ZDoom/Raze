@@ -440,7 +440,7 @@ enum EFindNextSector
 	Find_FloorDown = Find_Floor | Find_Down,
 };
 sectortype* nextsectorneighborzptr(sectortype* sectp, double startz, int flags);
-bool isAwayFromWall(DCoreActor* ac, double delta);
+int isAwayFromWall(DCoreActor* ac, double delta);
 
 
 // important note: This returns positive for 'in front' with renderer coordinates.

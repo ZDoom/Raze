@@ -74,6 +74,21 @@ spawnclasses
 	1280 = DukeBottle10
 	1172 = DukeVase
 	4095 = DukeFrameEffect
+	1200 = DukeNeon1
+	1201 = DukeNeon2
+	1241 = DukeNeon3
+	1242 = DukeNeon4
+	1243 = DukeNeon5
+	1264 = DukeNeon6
+	1310 = RedneckFeather
+	1383 = DukeWaterSplash
+	1420 = RedneckMudSplash
+	1256 = DukeGlassPieces1
+	1257 = DukeGlassPieces2
+	1258 = DukeGlassPieces3
+	1702 = DukeShell
+	1704 = DukeShotgunShell
+	1303 = DukeBloodPool
 
 	26 = RedneckDynamite
 	1416 = RedneckMortar
@@ -333,3 +348,6 @@ tileflag TFLAG_BLOCKDOOR {
 	RRTILE3827
 	RRTILE3837
 	}
+
+tileflag TFLAG_MUDDY { MUDDY MUDDYPATH }
+	

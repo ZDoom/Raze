@@ -16,12 +16,10 @@ int PicForName(int intname)
 		static std::pair<const char*, const char*> classes[] = {
 			{ "DukeToiletWater", "TOILETWATER" },
 			{ "DukeBurning", "BURNIMG"},
-			{"DukeBloodPool","BLOODPOOL"},
 			{"DukeExplosion2","EXPLOSION2"},
 			{"DukeExplosion2Bot","EXPLOSION2BOT"},
 			{"DukeTransporterStar",	"TRANSPORTERSTAR"},
 			{"RedneckRabbit","RABBIT"},
-			{"RedneckFeather","FEATHER"},
 			{"DukeBatteryAmmo",	"BATTERYAMMO"},
 			{"DukeSixpak", "SIXPAK"},
 			{"DukeAtomicHealth", "ATOMICHEALTH"},
@@ -31,7 +29,6 @@ int PicForName(int intname)
 			{"RedneckCircleStuck", "CIRCLESTUCK"},
 			{"DukePigCop", "PIGCOP"},
 			{"DukeSmallSmoke", "SMALLSMOKE"},
-			{"DukeMoney", "MONEY"},
 			{"DukeBurning", "BURNING"},
 		};
 
@@ -710,6 +707,13 @@ DEFINE_ACTION_FUNCTION(DDukeActor, actorflag2)
 	ACTION_RETURN_BOOL(!!actorflag(self, EDukeFlags2::FromInt(mask)));
 }
 
+DEFINE_ACTION_FUNCTION(DDukeActor, actorflag3)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(mask);
+	ACTION_RETURN_BOOL(!!actorflag(self, EDukeFlags3::FromInt(mask)));
+}
+
 DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag1)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
@@ -1082,6 +1086,27 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addweapon, DukePlayer_addweapon)
 
 }
 
+DEFINE_ACTION_FUNCTION(_DukePlayer, hitablockingwall)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	walltype* pwal;
+	hitawall(self, &pwal);
+	ACTION_RETURN_BOOL(pwal && pwal->overpicnum > 0);
+}
+
+inline double DukePlayer_GetPitchwithView(player_struct* pl)
+{
+	return pl->Angles.getPitchWithView().Degrees();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, GetPitchwithView, DukePlayer_GetPitchwithView)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	ACTION_RETURN_FLOAT(DukePlayer_GetPitchwithView(self));
+}
+
+
+
 static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)
 {
 	it->Reset(statnum);
@@ -1212,6 +1237,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, floorflags, duke_floorflags)
 	PARAM_PROLOGUE;
 	PARAM_POINTER(sect, sectortype);
 	ACTION_RETURN_INT(duke_floorflags(sect));
+}
+
+int duke_ceilingflags(sectortype* sector)
+{
+	return tileflags(sector->floorpicnum);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ceilingflags, duke_ceilingflags)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_INT(duke_ceilingflags(sect));
 }
 
 int duke_wallflags(walltype* wal, int which)

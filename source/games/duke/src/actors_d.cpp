@@ -1288,58 +1288,6 @@ void moveexplosions_d(void)  // STATNUM 5
 			if (isWorldTour()) fireflyflyingeffect(act);
 			continue;
 
-		case NEON1:
-		case NEON2:
-		case NEON3:
-		case NEON4:
-		case NEON5:
-		case NEON6:
-
-			if ((global_random / (act->spr.lotag + 1) & 31) > 4) act->spr.shade = -127;
-			else act->spr.shade = 127;
-			continue;
-
-		case NUKEBUTTON:
-		case NUKEBUTTON + 1:
-		case NUKEBUTTON + 2:
-		case NUKEBUTTON + 3:
-
-			if (act->temp_data[0])
-			{
-				act->temp_data[0]++;
-				auto Owner = act->GetOwner();
-				if (act->temp_data[0] == 8) act->spr.picnum = NUKEBUTTON + 1;
-				else if (act->temp_data[0] == 16 && Owner)
-				{
-					act->spr.picnum = NUKEBUTTON + 2;
-					ps[Owner->PlayerIndex()].fist_incs = 1;
-				}
-				if (Owner && ps[Owner->PlayerIndex()].fist_incs == 26)
-					act->spr.picnum = NUKEBUTTON + 3;
-			}
-			continue;
-
-		case WATERSPLASH2:
-			watersplash2(act);
-			continue;
-
-		case MONEY + 1:
-		case MAIL + 1:
-		case PAPER + 1:
-			act->vel.Z = act->floorz = getflorzofslopeptr(act->sector(), act->spr.pos.X, act->spr.pos.Y);
-			break;
-		case MONEY:
-		case MAIL:
-		case PAPER:
-			money(act, BLOODPOOL);
-			break;
-
-		case BLOODPOOL:
-		case PUKE:
-			bloodpool(act, act->spr.picnum == PUKE);
-
-			continue;
-
 		case LAVAPOOL:
 		case ONFIRE:
 		case ONFIRESMOKE:
@@ -1367,16 +1315,6 @@ void moveexplosions_d(void)  // STATNUM 5
 			execute(act, p, xx);
 			continue;
 
-		case SHELL:
-		case SHOTGUNSHELL:
-			shell(act, sectp->floorz + 24 < act->spr.pos.Z);
-			continue;
-
-		case GLASSPIECES:
-		case GLASSPIECES1:
-		case GLASSPIECES2:
-			glasspieces(act);
-			continue;
 		}
 	}
 }

@@ -1309,7 +1309,7 @@ int FindBestSector(const DVector3& pos)
 //
 //==========================================================================
 
-bool isAwayFromWall(DCoreActor* ac, double delta)
+int isAwayFromWall(DCoreActor* ac, double delta)
 {
 	sectortype* s1;
 

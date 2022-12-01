@@ -118,47 +118,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		pistonsound = 1;
 		break;
 
-	case WATERSPLASH2:
-	case MUD:
-		if (actj)
-		{
-			SetActor(act, actj->spr.pos);
-			double s = 0.125 + (krand() & 7) * REPEAT_SCALE;
-			act->spr.scale = DVector2(s, s);
-		}
-		else
-		{
-			double s = 0.25 + (krand() & 15) * REPEAT_SCALE;
-			act->spr.scale = DVector2(s, s);
-		}
-
-		act->spr.shade = -16;
-		act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-		if (actj)
-		{
-			if (actj->sector()->lotag == 2)
-			{
-				act->spr.pos.Z = getceilzofslopeptr(act->sector(), act->spr.pos) + 16;
-				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
-			}
-			else if (actj->sector()->lotag == 1)
-				act->spr.pos.Z = getceilzofslopeptr(act->sector(), act->spr.pos);
-		}
-
-		if (sectp->floorpicnum == FLOORSLIME ||
-			sectp->ceilingpicnum == FLOORSLIME)
-			act->spr.pal = 7;
-		[[fallthrough]];
-	case NEON1:
-	case NEON2:
-	case NEON3:
-	case NEON4:
-	case NEON5:
-	case NEON6:
-		if (act->spr.picnum != WATERSPLASH2)
-			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, STAT_MISC);
-		break;
 	case TRANSPORTERSTAR:
 	case TRANSPORTERBEAM:
 		spawntransporter(actj, act, act->spr.picnum == TRANSPORTERBEAM);
@@ -169,22 +128,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pos.Z -= 26;
 		ChangeActorStat(act, STAT_MISC);
 		break;
-	case BLOODPOOL:
-		if (spawnbloodpoolpart1(act)) break;
-
-		if (actj)
-		{
-			if (actj->spr.pal == 1)
-				act->spr.pal = 1;
-			else if (actj->spr.pal != 6 && actj->spr.picnum != NUKEBARREL)
-			{
-				act->spr.pal = 2; // Red
-			}
-			else act->spr.pal = 0;  // green
-		}
-		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		[[fallthrough]];
-
 	case HYDRENT:
 	case SATELITE:
 	case FUELPOD:
@@ -279,22 +222,9 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.scale = DVector2(0.046875, 0.046875);
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
-		[[fallthrough]];
-	case FEATHER:
-		if (act->spr.picnum == FEATHER)
-		{
-			act->temp_data[0] = krand() & 2047;
-			act->spr.cstat = randomFlip();
-			act->spr.scale = DVector2(0.125, 0.125);
-			act->spr.Angles.Yaw = randomAngle();
-		}
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case SHELL: //From the player
-	case SHOTGUNSHELL:
-		initshell(actj, act, act->spr.picnum == SHELL);
-		break;
 	case EXPLOSION2:
 	case EXPLOSION3:
 	case BURNING:

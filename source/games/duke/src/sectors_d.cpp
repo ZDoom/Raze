@@ -1407,22 +1407,6 @@ void checksectors_d(int snum)
 						S_PlayActorSound(FLUSH_TOILET, neartagsprite);
 					return;
 
-				case NUKEBUTTON:
-				{
-					walltype* wal;
-					hitawall(p, &wal);
-					if (wal != nullptr && wal->overpicnum == 0)
-						if (neartagsprite->temp_data[0] == 0)
-						{
-							neartagsprite->temp_data[0] = 1;
-							neartagsprite->SetOwner(p->GetActor());
-							p->buttonpalette = neartagsprite->spr.pal;
-							if (p->buttonpalette)
-								ud.secretlevel = neartagsprite->spr.lotag;
-							else ud.secretlevel = 0;
-						}
-					return;
-				}
 				case PLUG:
 					S_PlayActorSound(SHORT_CIRCUIT, pact);
 					p->GetActor()->spr.extra -= 2 + (krand() & 3);
