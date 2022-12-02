@@ -62,12 +62,13 @@ void GameInterface::WarpToCoords(double x, double y, double z, DAngle ang)
     if (!ppActor) return;
 
     ppActor->spr.pos = DVector3(x,y,z);
-    ppActor->backuppos();
 
     if (ang != DAngle::fromDeg(INT_MIN))
     {
-		Player->Angles.ZzOLDANGLE() = Player->Angles.ZzANGLE() = ang;
+		Player->actor->spr.Angles.Yaw = ang;
     }
+
+    ppActor->backuploc();
 }
 
 //---------------------------------------------------------------------------

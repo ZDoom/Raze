@@ -2477,7 +2477,7 @@ void SpawnPlayerUnderSprite(PLAYER* pp)
     int pnum = int(pp - Player);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
-                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->actor->getPosWithOffsetZ(), pp->Angles.ZzANGLE());
+                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->actor->getPosWithOffsetZ(), pp->actor->spr.Angles.Yaw);
 
     DSWActor* actor = pp->PlayerUnderActor;
 
