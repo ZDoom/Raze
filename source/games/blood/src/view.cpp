@@ -731,8 +731,8 @@ void viewDrawScreen(bool sceneonly)
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
 		if (sceneonly) return;
-		auto offsets = pPlayer->Angles.angCROSSHAIROFFSETS(interpfrac);
-		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, offsets.X, offsets.Y, 2, pPlayer->Angles.angLERPROTSCRN(interpfrac));
+		auto offsets = pPlayer->Angles.getCrosshairOffsets(interpfrac);
+		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, offsets.first.X, offsets.first.Y, 2, offsets.second);
 #if 0 // This currently does not work. May have to be redone as a hardware effect.
 		if (v4 && gNetPlayers > 1)
 		{

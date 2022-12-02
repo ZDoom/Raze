@@ -45,6 +45,25 @@ struct PlayerAngles
 		return (!SyncInput() ? pActor->spr.Angles : pActor->interpolatedangles(interpfrac)) + lerpViewAngles(interpfrac);
 	}
 
+	// Draw code helpers.
+	auto getCrosshairOffsets(const double interpfrac)
+	{
+		// Set up angles.
+		const auto viewAngles = lerpViewAngles(interpfrac);
+		const auto rotTangent = viewAngles.Roll.Tan();
+		const auto yawTangent = clamp(viewAngles.Yaw, -DAngle90, DAngle90).Tan();
+		const auto fovTangent = tan(r_fov * pi::pi() / 360.);
+
+		// Return as pair with roll as the 2nd object since all callers inevitably need it.
+		return std::make_pair(DVector2(160, 120 * -rotTangent) * -yawTangent / fovTangent, viewAngles.Roll);
+	}
+	auto getWeaponOffsets(const double interpfrac)
+	{
+		// Push the Y down a bit since the weapon is at the edge of the screen.
+		auto offsets = getCrosshairOffsets(interpfrac); offsets.first.Y *= 4.;
+		return offsets;
+	}
+
 	// Pitch methods.
 	void lockPitch() { AngleLocks.Set(PITCH); }
 	void unlockPitch() { AngleLocks.Clear(PITCH); }
@@ -96,19 +115,6 @@ struct PlayerAngles
 	double angLOOKANGHALF(double const interpfrac) { return angLERPLOOKANG(interpfrac).Normalized180().Degrees() * (128. / 45.); }
 	double angLOOKINGARC(double const interpfrac) { return fabs(angLERPLOOKANG(interpfrac).Normalized180().Degrees() * (1024. / 1620.)); }
 
-	// Crosshair x/y offsets based on look_ang's tangent.
-	DVector2 angCROSSHAIROFFSETS(const double interpfrac)
-	{
-		return DVector2(159.72, 145.5 * -angLERPROTSCRN(interpfrac).Sin()) * -angLERPLOOKANG(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
-	}
-
-	// Weapon x/y offsets based on the above.
-	DVector2 angWEAPONOFFSETS(const double interpfrac)
-	{
-		auto offsets = angCROSSHAIROFFSETS(interpfrac); offsets.Y = abs(offsets.Y) * 4.;
-		return offsets;
-	}
-
 
 	// Legacy, to be removed.
 	DAngle horizSUM(const double interpfrac = 1) { return ZzHORIZON() + interpolatedvalue(PrevViewAngles.Pitch, ViewAngles.Pitch, interpfrac); }
@@ -117,7 +123,6 @@ struct PlayerAngles
 	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE() + PrevViewAngles.Yaw, ZzANGLE() + ViewAngles.Yaw, interpfrac); }
 	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE(), ZzANGLE(), interpfrac); }
 	DAngle angLERPLOOKANG(double const interpfrac) { return interpolatedvalue(PrevViewAngles.Yaw, ViewAngles.Yaw, interpfrac); }
-	DAngle angLERPROTSCRN(double const interpfrac) { return interpolatedvalue(PrevViewAngles.Roll, ViewAngles.Roll, interpfrac); }
 
 private:
 	// DRotator indices.
