@@ -2759,6 +2759,7 @@ void processinput_d(int snum)
 			auto ang = (clz.actor()->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
+		CallStandingOn(clz.actor(), p);
 	}
 
 

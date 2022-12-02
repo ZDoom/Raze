@@ -1841,7 +1841,7 @@ void handle_se15(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
+void handle_se16(DDukeActor* actor)
 {
 	auto sc = actor->sector();
 
@@ -1860,7 +1860,7 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 		DDukeActor* a2;
 		while ((a2 = it.Next()))
 		{
-			if (a2->spr.picnum == REACTOR || a2->spr.picnum == REACTOR2)
+			if (a2->IsKindOf(NAME_DukeReactor) && a2->spritesetindex == 0)
 				return;
 		}
 		if (a2 == nullptr)

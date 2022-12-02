@@ -684,13 +684,13 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 	scount = 1;
-	if (atwith == 3471)
+	if (atwith == OWHIP)
 	{
 		vel = 300/16.;
 		pos.Z -= 15;
 		scount = 1;
 	}
-	else if (atwith == 3475)
+	else if (atwith == UWHIP)
 	{
 		vel = 300/16;
 		pos.Z += 4;
@@ -3361,12 +3361,13 @@ void processinput_r(int snum)
 		{
 			if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				//if (Sound[436].num == 0)
-				{
-					S_PlayActorSound(436, pact);
-					p->last_pissed_time = 4000;
-					p->eat = 0;
-				}
+			{
+				S_PlayActorSound(436, pact);
+				p->last_pissed_time = 4000;
+				p->eat = 0;
+			}
 		}
+		else CallStandingOn(clz.actor(), p);
 	}
 
 

@@ -1540,7 +1540,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_16_REACTOR:
-			handle_se16(act, REACTOR, REACTOR2);
+			handle_se16(act);
 			break;
 
 		case SE_17_WARP_ELEVATOR:

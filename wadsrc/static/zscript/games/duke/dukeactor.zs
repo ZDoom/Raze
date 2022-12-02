@@ -196,6 +196,7 @@ class DukeActor : CoreActor native
 	virtual bool animate(tspritetype tspr) { return false; }
 	virtual void RunState() {}	// this is the CON function.
 	virtual void PlayFTASound() {}
+	virtual void StandingOn(DukePlayer p) {}
 	virtual bool shootthis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const // this gets called on the defaults.
 	{
 		return false;

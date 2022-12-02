@@ -528,5 +528,14 @@ void CallPlayFTASound(DDukeActor* actor)
 	}
 }
 
+void CallStandingOn(DDukeActor* actor, player_struct* p)
+{
+	IFVIRTUALPTR(actor, DDukeActor, StandingOn)
+	{
+		VMValue val[] = { actor, p };
+		VMCall(func, val, 2, nullptr, 0);
+	}
+}
+
 
 END_DUKE_NS
