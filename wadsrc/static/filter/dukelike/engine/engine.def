@@ -107,7 +107,20 @@ spawnclasses
 	1359 = DukeFetusBroke
 	969 = DukeHydroplant
 	1003 = DukeHydroplantBroke
-	
+	981 = DukeHydrant
+	619 = DukePipe1
+	616 = DukePipe2
+	618 = DukePipe3
+	996 = DukePipe4
+	994 = DukePipe5
+	995 = DukePipe6
+	4943 = DukeJuryGuy
+	1353 = DukeSpaceMarine
+	1355 = DukeIndy
+	1352 = DukeMonk
+	1354 = DukeLuke
+	680 = DukeChair3
+
 
 	1272 = DukeTrash
 	634 = DukeBolt1

@@ -1049,8 +1049,6 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 {
-	int j;
-
 	if (targ->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
 		CallOnHit(targ, proj);
@@ -1076,75 +1074,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 
-	case HYDRENT:
-		targ->spr.picnum = BROKEFIREHYDRENT;
-		spawn(targ, TOILETWATER);
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-
-	case PIPE1:
-	case PIPE2:
-	case PIPE3:
-	case PIPE4:
-	case PIPE5:
-	case PIPE6:
-		switch (targ->spr.picnum)
-		{
-		case PIPE1:targ->spr.picnum = PIPE1B; break;
-		case PIPE2:targ->spr.picnum = PIPE2B; break;
-		case PIPE3:targ->spr.picnum = PIPE3B; break;
-		case PIPE4:targ->spr.picnum = PIPE4B; break;
-		case PIPE5:targ->spr.picnum = PIPE5B; break;
-		case PIPE6:targ->spr.picnum = PIPE6B; break;
-		}
-		{
-			auto spawned = spawn(targ, STEAM);
-			if (spawned) spawned->spr.pos.Z = targ->sector()->floorz - 32;
-		}
-		break;
-
-	case MONK:
-	case LUKE:
-	case INDY:
-	case JURYGUY:
-		S_PlayActorSound(targ->spr.lotag, targ);
-		spawn(targ, targ->spr.hitag);
-		[[fallthrough]];
-	case SPACEMARINE:
-	{
-		targ->spr.extra -= proj->spr.extra;
-		if (targ->spr.extra > 0) break;
-		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
-		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat2"));
-		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat3"));
-		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat4"));
-		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
-		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat2"));
-		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat3"));
-		targ->spr.Angles.Yaw = randomAngle();
-		fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat4"));
-		spawnguts(targ, PClass::FindActor("DukeJibs1"), 1);
-		spawnguts(targ, PClass::FindActor("DukeJibs2"), 2);
-		spawnguts(targ, PClass::FindActor("DukeJibs3"), 3);
-		spawnguts(targ, PClass::FindActor("DukeJibs4"), 4);
-		spawnguts(targ, PClass::FindActor("DukeJibs5"), 1);
-		spawnguts(targ, PClass::FindActor("DukeJibs3"), 6);
-		S_PlaySound(SQUISHED);
-		targ->Destroy();
-		break;
-	}
-	case CHAIR3:
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
-		targ->Destroy();
-		break;
 	case PLAYERONWATER:
 		targ = targ->GetOwner();
 		if (!targ) break;

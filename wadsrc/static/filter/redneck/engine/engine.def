@@ -94,8 +94,14 @@ spawnclasses
 	1067 = DukeFuelPod
 	1114 = DukeSolarPanel
 	1117 = DukeAntenna
-	1349 = DukeFetus
-	1360 = DukeFetusBroke
+	1228 = DukeHydrant
+	1124 = DukePipe1
+	1121 = DukePipe2
+	1123 = DukePipe3
+	1234 = DukePipe4
+	1232 = DukePipe5
+	1233 = DukePipe6
+	1152 = DukeChair3
 
 	26 = RedneckDynamite
 	1416 = RedneckMortar

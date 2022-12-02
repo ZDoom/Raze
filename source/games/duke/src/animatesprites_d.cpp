@@ -72,22 +72,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FOOTPRINTS4:
 			if (t->shade == 127) continue;
 			break;
-		case CHAIR3:
-			if (hw_models && modelManager.CheckModel(t->picnum, t->pal)) 
-			{
-				t->cstat &= ~CSTAT_SPRITE_XFLIP;
-				break;
-			}
-
-			k = angletorotation1(t->Angles.Yaw, viewang);
-			if (k > 4)
-			{
-				k = 8 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = h->spr.picnum + k;
-			break;
 		case BULLETHOLE:
 			t->shade = 16;
 			continue;

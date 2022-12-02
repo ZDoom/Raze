@@ -179,27 +179,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case SPACEMARINE:
-		act->spr.extra = 20;
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, STAT_ZOMBIEACTOR);
-		break;
-
-	case HYDRENT:
-	case MONK:
-	case INDY:
-	case LUKE:
-	case JURYGUY:
-	case PIPE1:
-	case PIPE2:
-	case PIPE3:
-	case PIPE4:
-	case PIPE5:
-	case PIPE6:
-		act->clipdist = 8;
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, 0);
-		break;
 	case FEMMAG1:
 	case FEMMAG2:
 		act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;

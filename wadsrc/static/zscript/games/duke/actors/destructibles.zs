@@ -209,18 +209,14 @@ class DukeFetus : DukeActor
 	}
 	override void OnHit(DukeActor proj)
 	{
-		Console.printf("a%d", self.spritesetindex);
-		
 		if (self.spritesetindex == 0)
 		{
-			Console.printf("a%d", proj.spawnindex);
 			self.setSpriteSetImage(1);
 			self.PlayActorSound("GLASS_BREAKING");
 			self.lotsofglass(10);
 		}
 		else
 		{
-			Console.printf("b%d", proj.spawnindex);
 			for (int j = 0; j < 48; j++)
 			{
 				self.shoot("DukeBloodSplat1");
@@ -274,5 +270,199 @@ class DukeHydroplantBroke : DukeHydroplant
 	Default
 	{
 		spritesetindex 1;
+	}
+}
+
+class DukeHydrant : DukeActor
+{
+	Default
+	{
+		spriteset "HYDRENT", "BROKEFIREHYDRENT";
+		clipdist 8;
+		statnum STAT_DEFAULT;
+	}
+	
+	override void Initialize()
+	{
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+	}
+	override void OnHit(DukeActor proj)
+	{
+		if (self.spritesetindex == 0)
+		{
+			self.setSpriteSetImage(1);
+			self.spawn("DukeToiletWater");
+			self.PlayActorSound("GLASS_HEAVYBREAK");
+		}
+	}
+}
+
+class DukePipe1 : DukeActor
+{
+	Default
+	{
+		spriteset "PIPE1", "PIPE1B";
+		clipdist 8;
+		statnum STAT_DEFAULT;
+	}
+	
+	override void Initialize()
+	{
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+	}
+	override void OnHit(DukeActor proj)
+	{
+		if (self.spritesetindex == 0)
+		{
+			self.setSpriteSetImage(1);
+			let spawned = self.spawn("DukeSteam");
+			if (spawned) spawned.pos.Z = self.sector.floorz - 32;
+		}
+	}
+}
+
+class DukePipe2 : DukePipe1
+{
+	Default
+	{
+		spriteset "PIPE2", "PIPE2B";
+	}
+}
+
+class DukePipe3 : DukePipe1
+{
+	Default
+	{
+		spriteset "PIPE3", "PIPE3B";
+	}
+}
+
+class DukePipe4 : DukePipe1
+{
+	Default
+	{
+		spriteset "PIPE4", "PIPE4B";
+	}
+}
+
+class DukePipe5 : DukePipe1
+{
+	Default
+	{
+		spriteset "PIPE5", "PIPE5B";
+	}
+}
+
+class DukePipe6 : DukePipe1
+{
+	Default
+	{
+		spriteset "PIPE6", "PIPE6B";
+	}
+}
+
+
+class DukeSpaceMarine : DukeActor
+{
+	Default
+	{
+		pic "SPACEMARINE";
+	}
+	
+	override void Initialize()
+	{
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.extra = 20;
+		ChangeStat(STAT_ZOMBIEACTOR);
+	}
+	override void OnHit(DukeActor proj)
+	{
+		self.extra -= proj.extra;
+		if (self.extra > 0) return;
+		self.angle = frandom(0, 360);
+		self.shoot("DukeBloodSplat1");
+		self.angle = frandom(0, 360);
+		self.shoot("DukeBloodSplat2");
+		self.angle = frandom(0, 360);
+		self.shoot("DukeBloodSplat3");
+		self.angle = frandom(0, 360);
+		self.shoot("DukeBloodSplat4");
+		self.angle = frandom(0, 360);
+		self.shoot("DukeBloodSplat1");
+		self.angle = frandom(0, 360);
+		self.shoot("DukeBloodSplat2");
+		self.angle = frandom(0, 360);
+		self.shoot("DukeBloodSplat3");
+		self.angle = frandom(0, 360);
+		self.shoot("DukeBloodSplat4");
+		self.spawnguts("DukeJibs1", 1);
+		self.spawnguts("DukeJibs2", 2);
+		self.spawnguts("DukeJibs3", 3);
+		self.spawnguts("DukeJibs4", 4);
+		self.spawnguts("DukeJibs5", 1);
+		self.spawnguts("DukeJibs3", 6);
+		Duke.PlaySound("SQUISHED");
+		self.Destroy();
+	}
+}
+
+class DukeMonk : DukeSpaceMarine
+{
+	default
+	{
+		pic "MONK";
+		clipdist 8;
+	}
+	
+	override void Initialize()
+	{
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		ChangeStat(STAT_DEFAULT);
+	}
+	
+	override void OnHit(DukeActor proj)
+	{
+		self.PlayActorSound(Raze.FindSoundByResID(self.lotag));
+		self.spawnsprite(self.hitag);
+		super.OnHit(proj);
+	}
+}
+
+class DukeLuke : DukeMonk
+{
+	default
+	{
+		pic "LUKE";
+	}
+}
+
+class DukeIndy : DukeMonk
+{
+	default
+	{
+		pic "INDY";
+	}
+}
+
+class DukeJuryGuy : DukeMonk
+{
+	default
+	{
+		pic "JURYGUY";
+	}
+}
+
+class DukeChair3 : DukeActor
+{
+	default
+	{
+		pic "CHAIR3";
+	}
+	
+	override void OnHit(DukeActor proj)
+	{
+		self.PlayActorSound("GLASS_HEAVYBREAK");
+		for (int j = 0; j < 16; j++) self.RANDOMSCRAP();
+		self.Destroy();
 	}
 }
