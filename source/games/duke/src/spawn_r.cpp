@@ -56,13 +56,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	default_case:
 		spawninitdefault(actj, act);
 		break;
-	case RRTILE8450:
-		if (!isRRRA()) goto default_case;
-		act->spr.scale = DVector2(1, 1);
-		act->spr.extra = act->spr.lotag;
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, 116);
-		break;
 	case RRTILE7936:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(0, 0);
@@ -77,12 +70,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isRRRA()) goto default_case;
 		act->spr.lotag = 1;
 		act->clipdist = 0;
-		break;
-	case RRTILE8099:
-		if (!isRRRA()) goto default_case;
-		act->spr.lotag = 5;
-		act->clipdist = 0;
-		ChangeActorStat(act, 123);
 		break;
 	case RRTILE8704:
 		if (!isRRRA()) goto default_case;

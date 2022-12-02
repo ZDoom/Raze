@@ -1414,20 +1414,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			}
 		}
 		break;
-	case RRTILE8099:
-		if (targ->spr.lotag == 5)
-		{
-			targ->spr.lotag = 0;
-			targ->spr.picnum = RRTILE5087;
-			S_PlayActorSound(340, targ);
-			DukeSpriteIterator it;
-			while (auto act = it.Next())
-			{
-				if (act->spr.picnum == RRTILE8094)
-					act->spr.picnum = RRTILE5088;
-			}
-		}
-		break;
 	}
 
 	switch (targ->spr.picnum)

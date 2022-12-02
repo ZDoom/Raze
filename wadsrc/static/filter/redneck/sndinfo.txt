@@ -12,7 +12,7 @@ $conreserve LASERA       10
 $conreserve SHRINKER     11
 $conreserve CRAPFLOW     12
 $conreserve DYNOCLMP     13
-$conreserve DYNEW        14
+$conreserve PIPEBOMB_EXPLODE        14
 $conreserve CRAPSTIR     15
 $conreserve BRICDOOR     16
 $conreserve LASERTRIP_EXPLODE     17

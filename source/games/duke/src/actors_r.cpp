@@ -1092,38 +1092,6 @@ static void rrra_specialstats()
 	{
 		CallTick(act);
 	}
-	it.Reset(116);
-	while (auto act = it.Next())
-	{
-		if (act->spr.extra)
-		{
-			if (act->spr.extra == act->spr.lotag)
-				S_PlaySound(183);
-			act->spr.extra--;
-			int j = movesprite_ex(act, DVector3(act->spr.Angles.Yaw.ToVector() * act->spr.hitag / 16., act->spr.hitag / 128.), CLIPMASK0, coll);
-			if (j > 0)
-			{
-				S_PlayActorSound(PIPEBOMB_EXPLODE, act);
-				act->Destroy();
-			}
-			if (act->spr.extra == 0)
-			{
-				S_PlaySound(215);
-				act->Destroy();
-				ud.earthquaketime = 32;
-				SetPlayerPal(&ps[myconnectindex], PalEntry(32, 32, 32, 48));
-			}
-		}
-	}
-
-
-	it.Reset(123);
-	while (auto act = it.Next())
-	{
-		if (act->spr.lotag == 5)
-			if (!S_CheckSoundPlaying(330))
-				S_PlayActorSound(330, act);
-	}
 }
 
 //---------------------------------------------------------------------------

@@ -110,6 +110,8 @@ version "4.10"
 #include "zscript/games/duke/actors/balloons.zs"
 #include "zscript/games/duke/actors/gamblingmachine.zs"
 #include "zscript/games/duke/actors/pigback.zs"
+#include "zscript/games/duke/actors/airplane.zs"
+#include "zscript/games/duke/actors/piano.zs"
 
 #include "zscript/games/blood/bloodgame.zs"
 #include "zscript/games/blood/ui/menu.zs"

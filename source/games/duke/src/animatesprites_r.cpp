@@ -79,8 +79,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case RRTILE1947:
 		case RRTILE2859:
 		case RRTILE3774:
-		case RRTILE5088:
-		case RRTILE8094:
 		case RRTILE8096:
 			if (isRRRA()) continue;
 
