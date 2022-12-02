@@ -2562,7 +2562,8 @@ static int henstand(DDukeActor *actor)
 		if (actor->spr.lotag == 0)
 		{
 			spawn(actor, HEN);
-			deletesprite(actor);
+			actor->spr.scale.Zero();
+			ChangeActorStat(actor, STAT_MISC);
 			return 1;
 		}
 	}
@@ -2590,7 +2591,8 @@ static int henstand(DDukeActor *actor)
 				if (hitact->spr.picnum == HEN)
 				{
 					auto ns = spawn(hitact, HENSTAND);
-					deletesprite(hitact);
+					hitact->spr.scale.Zero();
+					ChangeActorStat(hitact, STAT_MISC);
 					if (ns)
 					{
 						ns->spr.xvel = 32;
