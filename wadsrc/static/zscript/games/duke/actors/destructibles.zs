@@ -466,3 +466,78 @@ class DukeChair3 : DukeActor
 		self.Destroy();
 	}
 }
+
+
+class RedneckFlamingo : DukeActor
+{
+	default
+	{
+		spriteset "FLAMINGO", "FLAMINGOB";
+	}
+	
+	override void OnHit(DukeActor proj)
+	{
+		if (self.spritesetindex < self.getSpriteSetSize() - 1)
+		{
+			self.setSpriteSetImage(self.spritesetindex + 1);
+			self.PlayActorSound("GLASS_BREAKING");
+			self.lotsofglass(10);
+			for (int k = 0; k < 6; k++)
+			{
+				let a = frandom(0, 360);
+				let vel = frandom(4, 8);
+				let zvel = -frandom(0, 16) - self.vel.Z * 0.25;
+
+				let spawned = dlevel.SpawnActor(self.sector, self.pos.plusZ(-8), "DukeScrap", -8, (0.75, 0.75), a, vel, zvel, self, STAT_MISC);
+				if (spawned) spawned.spriteextra = DukeScrap.Scrap6 + random(0, 15);
+			}
+		}
+	}
+}
+
+class RedneckMarbleStatue : RedneckFlamingo
+{
+	default
+	{
+		spriteset "MARBLESTATUE1", "MARBLESTATUE2", "MARBLESTATUE3";
+	}
+}
+
+class RedneckMarbleStatue2 : RedneckMarbleStatue
+{
+	default
+	{
+		spritesetindex 1;
+	}
+}
+
+class RedneckSnakeRiverSign : DukeActor
+{
+	default
+	{
+		spriteset "FLAMINGO", "FLAMINGOB";
+	}
+	
+	override void OnHit(DukeActor proj)
+	{
+		if (self.spritesetindex == 0)
+		{
+			self.setSpriteSetImage(1);
+				
+			self.PlayActorSound("WOODBREK");
+			self.hitradius(10, 0, 0, 1, 1);
+			if (self.lotag != 0)
+			{
+				DukeSpriteIterator it;
+				for (let act = it.First(); act; act = it.Next())
+				{
+					if (act is 'RedneckSnakeRiverSign' && act.pal == 4)
+					{
+						if (act.lotag == self.lotag)
+							act.setSpriteSetImage(1);
+					}
+				}
+			}
+		}
+	}
+}

@@ -1395,51 +1395,10 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	{
 	case IRONWHEELSWITCH:
 		break;
-	case RRTILE8679:
-		targ->spr.picnum = RRTILE8680;
-		S_PlayActorSound(DUKE_SHUCKS, targ);
-		fi.hitradius(targ, 10, 0, 0, 1, 1);
-		if (targ->spr.lotag != 0)
-		{
-			DukeSpriteIterator it;
-			while (auto act = it.Next())
-			{
-				if (act->spr.picnum == RRTILE8679 && act->spr.pal == 4)
-				{
-					if (act->spr.lotag == targ->spr.lotag)
-						act->spr.picnum = RRTILE8680;
-				}
-			}
-		}
-		break;
 	}
 
 	switch (targ->spr.picnum)
 	{
-	case RRTILE2137:
-	case RRTILE2151:
-	case RRTILE2152:
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, nullptr, 10);
-		targ->spr.picnum++;
-		for (int k = 0; k < 6; k++)
-		{
-			auto a = randomAngle();
-			auto vel = krandf(4) + 4;
-			auto zvel = -krandf(16) - targ->vel.Z * 0.25;
-
-			auto spawned = CreateActor(targ->sector(), targ->spr.pos.plusZ(-8), PClass::FindActor("DukeScrap"), -8, DVector2(0.75, 0.75), a, vel, zvel, targ, 5);
-			if (spawned) spawned->spriteextra = Scrap6 + (krand() & 15);
-		}
-		break;
-	case RRTILE2654:
-	case RRTILE2656:
-	case RRTILE3172:
-		if (!isRRRA()) break;
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, nullptr, 10);
-		targ->Destroy();
-		break;
 	case TOILET:
 		targ->spr.picnum = TOILETBROKE;
 		if(krand() & 1) targ->spr.cstat |= CSTAT_SPRITE_XFLIP;
