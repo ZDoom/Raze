@@ -69,6 +69,9 @@ class CoreActor native
 	native void setPositionZ(Vector3 pos);
 	native bool isAwayFromWall(double dist);
 
+	native void ChangeSector(sectortype s, bool forcetail = false);
+	native void ChangeStat(int s, bool forcetail = false);
+
 	native clearscope static double deltaangle(double ang1, double ang2);
 	native clearscope static double absangle(double ang1, double ang2);
 	native clearscope static double Normalize180(double ang);

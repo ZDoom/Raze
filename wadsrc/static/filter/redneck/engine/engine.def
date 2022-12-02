@@ -139,6 +139,8 @@ spawnclasses
 	3440 = RedneckBowlingPin
 	3430 = RedneckBowlingBall
 	4897 = RedneckHenstand
+	296 = RedneckTeleport
+	297 = RedneckTeleportDest
 	
 	3114 = DukeGenericDestructible, "RRTILE3114", "RRTILE3117", "GLASS_BREAKING", spawnglass
 	2876 = DukeGenericDestructible, "RRTILE2876", "RRTILE2990", "GLASS_BREAKING", spawnglass

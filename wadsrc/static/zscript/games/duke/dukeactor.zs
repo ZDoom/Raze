@@ -203,8 +203,6 @@ class DukeActor : CoreActor native
 	native void RandomScrap();
 	native void hitradius(int r, int hp1, int hp2, int hp3, int hp4);
 	native double, DukeActor hitasprite();
-	native void ChangeSector(sectortype s, bool forcetail = false);
-	native void ChangeStat(int s, bool forcetail = false);
 	native int badguy();
 	native int isplayer();
 	native void lotsofstuff(Name type, int count);

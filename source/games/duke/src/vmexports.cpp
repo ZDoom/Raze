@@ -528,24 +528,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, hitasprite, hitasprite)
 	return min(numret, 2);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ChangeSector, ChangeActorSect)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_POINTER(sec, sectortype);
-	PARAM_INT(tail);
-	ChangeActorSect(self, sec, tail);
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ChangeStat, ChangeActorStat)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(stat);
-	PARAM_INT(tail);
-	ChangeActorStat(self, stat, tail);
-	return 0;
-}
-
 void DukeActor_detonate(DDukeActor* origin, int intname)
 {
 	// all callers use "EXPLOSION2", so ignore the parameter for now. This should be fixed once EXPLOSION2 gets scriptified.
@@ -1122,6 +1104,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, GetPitchwithView, DukePlayer_GetPitch
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
 	ACTION_RETURN_FLOAT(DukePlayer_GetPitchwithView(self));
 }
+
+inline void DukePlayer_setbobpos(player_struct* pl)
+{
+	return pl->setbobpos();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setbobpos, DukePlayer_setbobpos)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	self->setbobpos();
+	return 0;
+}
+
 
 
 

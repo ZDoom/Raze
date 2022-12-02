@@ -157,12 +157,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->clipdist = 8;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
-	case RRTELEPORT:
-	case RRTELEPORTDEST:
-		act->spr.scale = DVector2(1, 1);
-		act->clipdist = 16;
-		ChangeActorStat(act, STAT_TELEPORT);
-		break;
 	case DUKELYINGDEAD:
 		if (actj && actj->isPlayer())
 		{

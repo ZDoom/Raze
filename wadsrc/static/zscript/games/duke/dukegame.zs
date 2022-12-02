@@ -358,6 +358,7 @@ struct DukePlayer native
 	native void addweapon(int type, bool switchit);
 	native bool hitablockingwall();
 	native double getPitchWithView();
+	native void setbobpos();
 
 
 }

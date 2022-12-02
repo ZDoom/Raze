@@ -1174,47 +1174,6 @@ void resetswitch(int tag)
 	}
 }
 
-void rr_specialstats()
-{
-	tickstat(STAT_LUMBERMILL);
-
-	if (ud.chickenplant)
-	{
-		tickstat(STAT_CHICKENPLANT);
-	}
-
-	tickstat(STAT_BOWLING);
-
-	DukeStatIterator it(STAT_TELEPORT);
-	while (auto act = it.Next())
-	{
-		if (act->spr.picnum == RRTELEPORT)
-		{
-			double xx;
-			int p = findplayer(act, &xx);
-			if (xx < 128)
-			{
-				DukeStatIterator it2(STAT_TELEPORT);
-				while (auto act2 = it2.Next())
-				{
-					if (act2->spr.picnum == RRTELEPORTDEST)
-					{
-						ps[p].Angles.setYaw(act2->spr.Angles.Yaw, true);
-						ps[p].GetActor()->spr.pos = act2->spr.pos.plusZ(-36 + gs.playerheight);
-						ps[p].GetActor()->backuppos();
-						ps[p].setbobpos();
-						auto pact = ps[p].GetActor();
-						ChangeActorSect(pact, act2->sector());
-						ps[p].setCursector(pact->sector());
-						S_PlayActorSound(70, act2);
-						act2->Destroy();
-					}
-				}
-			}
-		}
-	}
-}
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -1234,13 +1193,14 @@ void moveactors_r(void)
 	{
 		rrra_specialstats();
 	}
-	rr_specialstats();
+	tickstat(STAT_LUMBERMILL);
+	if (ud.chickenplant) tickstat(STAT_CHICKENPLANT);
+	tickstat(STAT_BOWLING);
+	tickstat(STAT_TELEPORT);
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
 	{
-		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
-
 		if( act->spr.scale.X == 0 || !act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
 			act->Destroy();
@@ -1291,7 +1251,6 @@ void moveactors_r(void)
 		p = findplayer(act, &xx);
 
 		execute(act,p,xx);
-		if (deleteafterexecute) act->Destroy();
 	}
 
 }

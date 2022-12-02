@@ -875,6 +875,24 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, isAwayFromWall, isAwayFromWall)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, ChangeSector, ChangeActorSect)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_POINTER(sec, sectortype);
+	PARAM_INT(tail);
+	ChangeActorSect(self, sec, tail);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, ChangeStat, ChangeActorStat)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	PARAM_INT(stat);
+	PARAM_INT(tail);
+	ChangeActorStat(self, stat, tail);
+	return 0;
+}
+
 
 
 
