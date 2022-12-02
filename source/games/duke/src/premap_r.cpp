@@ -63,8 +63,8 @@ static void cachespritenum(DDukeActor* actor)
 		for (j = TOILETWATER; j < (TOILETWATER + 4); j++)
 			tloadtile(j, pal);
 		break;
-	case RRTILE2121:
-	case RRTILE2122:
+	case TOILETSEAT:
+	case TOILET2:
 		tloadtile(actor->spr.picnum, pal);
 		break;
 	case TOILET:

@@ -427,6 +427,7 @@ void resetprestat(int snum,int g)
 	animates.Clear();
 	camsprite               =nullptr;
 	ud.earthquaketime          = 0;
+	ud.joe9000 = false;
 
 	WindTime = 0;
 	WindDir = nullAngle;

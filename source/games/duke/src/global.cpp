@@ -85,8 +85,6 @@ int rtsplaying;								// RTS playback state
 TArray<DVector2> mspos;
 TArray<animate> animates;
 
-bool sound445done;							// used in checksectors_r. This was local state inside a function, but this must be maintained globally and serialized
-
 int spriteqamount = 64;						// internal sprite queue
 int spriteqloc;
 animwalltype animwall[MAXANIMWALLS];		// animated walls

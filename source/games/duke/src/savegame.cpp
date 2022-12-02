@@ -366,7 +366,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 			("rtsplaying", rtsplaying)
 			//("tempwallptr", tempwallptr)
-			("sound445done", sound445done)
+			("joe9000", ud.joe9000)
 			.Array("players", ps, ud.multimode)
 			("spriteqamount", spriteqamount)
 			("lastvisinc", lastvisinc)

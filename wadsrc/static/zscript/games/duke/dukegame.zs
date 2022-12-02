@@ -462,4 +462,5 @@ struct DukeUserDefs native
 	native uint8 ufospawnsminion;
 	native int16 bomb_tag;
 	native DukeActor cameraactor;
+	native bool joe9000;
 }

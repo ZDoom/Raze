@@ -165,6 +165,7 @@ struct user_defs
 	int player_skill, marker;
 	int chickenplant;							// readonly - used to trigger some special behavior if a special item is found in a map.
 	int earthquaketime;
+	bool joe9000;	// this was formerly a static local variable inside a function, but needs to be properly maintained and serialized.
 
 	TObjPtr<DDukeActor*> cameraactor;
 

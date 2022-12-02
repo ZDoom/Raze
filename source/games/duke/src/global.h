@@ -65,7 +65,6 @@ extern int screenpeek;
 // Variables that must be saved
 extern int rtsplaying;
 
-extern bool sound445done;
 extern player_struct ps[MAXPLAYERS];
 extern int spriteqamount;
 extern int lastvisinc;

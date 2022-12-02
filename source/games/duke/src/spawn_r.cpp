@@ -66,12 +66,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.scale = DVector2(0, 0);
 		ps[screenpeek].sea_sick_stat = 1;
 		break;
-	case RRTILE8448:
+	case MUSICNOTES:
 		if (!isRRRA()) goto default_case;
 		act->spr.lotag = 1;
 		act->clipdist = 0;
 		break;
-	case RRTILE8704:
+	case JOE9000:
 		if (!isRRRA()) goto default_case;
 		act->spr.lotag = 1;
 		act->clipdist = 0;
@@ -750,8 +750,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case TOILET:
 	case STALL:
-	case RRTILE2121:
-	case RRTILE2122:
+	case TOILETSEAT:
+	case TOILET2:
 		act->spr.lotag = 1;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 2;

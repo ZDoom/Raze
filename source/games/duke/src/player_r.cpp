@@ -3357,7 +3357,7 @@ void processinput_r(int snum)
 			else
 				p->stairs--;
 		}
-		else if (clz.actor()->spr.picnum == TOILET || clz.actor()->spr.picnum == RRTILE2121)
+		else if (clz.actor()->spr.picnum == TOILET || clz.actor()->spr.picnum == TOILETSEAT)
 		{
 			if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				//if (Sound[436].num == 0)
