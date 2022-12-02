@@ -1522,7 +1522,6 @@ void ProcessInput(PLAYER* pPlayer)
 		Item_JumpBoots = 3
 	};
 
-	pPlayer->Angles.resetAdjustments();
 	pPlayer->Angles.backupViewAngles();
 
 	DBloodActor* actor = pPlayer->actor;

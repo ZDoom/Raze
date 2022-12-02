@@ -6991,7 +6991,6 @@ void domovethings(void)
 
         // Reset flags used while tying input to framerate
         pp->Flags2 &= ~(PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
-        pp->Angles.resetAdjustments();
         pp->Angles.backupViewAngles();
 
         // disable synchronised input if set by game.

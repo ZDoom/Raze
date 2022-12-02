@@ -904,7 +904,6 @@ void AIPlayer::Tick(RunListEvent* ev)
     int nAction = PlayerList[nPlayer].nAction;
     int nActionB = PlayerList[nPlayer].nAction;
 
-    PlayerList[nPlayer].Angles.resetAdjustments();
     PlayerList[nPlayer].Angles.backupViewAngles();
 
     pPlayerActor->vel.XY() = sPlayerInput[nPlayer].vel;

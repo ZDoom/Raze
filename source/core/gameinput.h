@@ -25,7 +25,6 @@ struct PlayerAngles
 	void doViewYaw(const ESyncBits actions);
 
 	// General methods.
-	void resetAdjustments() { Adjustments = {}; }
 	void backupViewAngles() { PrevViewAngles = ViewAngles; }
 	void setActor(DCoreActor* const actor) { pActor = actor; }
 
@@ -65,23 +64,23 @@ struct PlayerAngles
 	// Pitch methods.
 	void lockPitch() { AngleLocks.Set(PITCH); }
 	void unlockPitch() { AngleLocks.Clear(PITCH); }
-	bool lockedPitch() { return Targets.Pitch.Sgn() || AngleLocks[PITCH]; }
-	void addPitch(const DAngle value) { addAngle(PITCH, value); }
-	void setPitch(const DAngle value, const bool backup = false) { setAngle(PITCH, ClampViewPitch(value), backup); }
+	bool lockedPitch() { return AngleLocks[PITCH]; }
+	void addPitch(const DAngle value) { updateAngle(PITCH, ClampViewPitch(pActor->spr.Angles.Pitch + value)); }
+	void setPitch(const DAngle value, const bool backup = false) { updateAngle(PITCH, ClampViewPitch(value), backup); }
 
 	// Yaw methods.
 	void lockYaw() { AngleLocks.Set(YAW); }
 	void unlockYaw() { AngleLocks.Clear(YAW); }
-	bool lockedYaw() { return Targets.Yaw.Sgn() || AngleLocks[YAW]; }
-	void addYaw(const DAngle value) { addAngle(YAW, value); }
-	void setYaw(const DAngle value, const bool backup = false) { setAngle(YAW, value, backup); }
+	bool lockedYaw() { return AngleLocks[YAW]; }
+	void addYaw(const DAngle value) { updateAngle(YAW, pActor->spr.Angles.Yaw + value); }
+	void setYaw(const DAngle value, const bool backup = false) { updateAngle(YAW, value, backup); }
 
 	// Roll methods.
 	void lockRoll() { AngleLocks.Set(ROLL); }
 	void unlockRoll() { AngleLocks.Clear(ROLL); }
-	bool lockedRoll() { return Targets.Roll.Sgn() || AngleLocks[ROLL]; }
-	void addRoll(const DAngle value) { addAngle(ROLL, value); }
-	void setRoll(const DAngle value, const bool backup = false) { setAngle(ROLL, value, backup); }
+	bool lockedRoll() { return AngleLocks[ROLL]; }
+	void addRoll(const DAngle value) { updateAngle(ROLL, pActor->spr.Angles.Roll + value); }
+	void setRoll(const DAngle value, const bool backup = false) { updateAngle(ROLL, value, backup); }
 
 	// Applicator of pending angle changes.
 	void applyScaledAdjustments(const double scaleAdjust)
@@ -90,21 +89,19 @@ struct PlayerAngles
 		{
 			if (Targets[i].Sgn())
 			{
-				const auto delta = deltaangle(pActor->spr.Angles[i], Targets[i]);
+				// Calculate scaled amount of target and add to the accumlation buffer.
+				DAngle addition = Targets[i] * scaleAdjust;
+				AppliedAmounts[i] += addition;
 
-				if (abs(delta.Degrees()) > BAngToDegree)
+				// Test whether we're now reached/exceeded our target.
+				if (abs(AppliedAmounts[i]) >= abs(Targets[i]))
 				{
-					pActor->spr.Angles[i] += delta * scaleAdjust;
+					addition -= AppliedAmounts[i] - Targets[i];
+					Targets[i] = AppliedAmounts[i] = nullAngle;
 				}
-				else
-				{
-					pActor->spr.Angles[i] = Targets[i];
-					Targets[i] = nullAngle;
-				}
-			}
-			else if (Adjustments[i].Sgn())
-			{
-				pActor->spr.Angles[i] += Adjustments[i] * scaleAdjust;
+
+				// Apply the scaled addition to the angle.
+				pActor->spr.Angles[i] += addition;
 			}
 		}
 	}
@@ -120,27 +117,17 @@ private:
 	};
 
 	// Private data which should never be accessed publically.
-	DRotator Targets, Adjustments;
+	DRotator Targets, AppliedAmounts;
 	FixedBitArray<MAXANGLES> AngleLocks;
 	DCoreActor* pActor;
 
-	void addAngle(const unsigned angIndex, const DAngle value)
-	{
-		if (!SyncInput())
-		{
-			Adjustments[angIndex] += value.Normalized180();
-		}
-		else
-		{
-			pActor->spr.Angles[angIndex] += value;
-		}
-	}
-
-	void setAngle(const unsigned angIndex, const DAngle value, const bool backup)
+	// Internal angle updater to reduce boilerplate from the public setters.
+	void updateAngle(const unsigned angIndex, const DAngle value, const bool backup = false)
 	{
 		if (!SyncInput() && !backup)
 		{
-			Targets[angIndex] = value.Sgn() ? value : minAngle;
+			Targets[angIndex] = deltaangle(pActor->spr.Angles[angIndex], value);
+			AppliedAmounts[angIndex] = nullAngle;
 		}
 		else
 		{
