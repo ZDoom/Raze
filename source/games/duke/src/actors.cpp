@@ -969,7 +969,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		while (auto a2 = it.Next())
 		{
 			if (a2->spr.statnum != STAT_PLAYER && a2->sector()->lotag != 2 && 
-				(a2->spr.picnum != SECTOREFFECTOR || a2->spr.lotag == SE_49_POINT_LIGHT || a2->spr.lotag == SE_50_SPOT_LIGHT) &&
+				(!iseffector(a2) || a2->spr.lotag == SE_49_POINT_LIGHT || a2->spr.lotag == SE_50_SPOT_LIGHT) &&
 				!islocator(a2))
 			{
 				a2->spr.pos.XY() = rotatepoint(actor->spr.pos.XY(), a2->spr.pos.XY(), diffangle) + vec;
@@ -1013,7 +1013,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				DukeSectIterator itr(actOwner->sector());
 				while (auto a2 = itr.Next())
 				{
-					if (a2->spr.statnum == 1 && badguy(a2) && a2->spr.picnum != SECTOREFFECTOR && !islocator(a2))
+					if (a2->spr.statnum == 1 && badguy(a2) && !iseffector(a2) && !islocator(a2))
 					{
 						auto k = a2->sector();
 						updatesector(a2->spr.pos, &k);
@@ -1132,7 +1132,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		DukeSectIterator its(actor->sector());
 		while (auto a2 = its.Next())
 		{
-			if (a2->spr.picnum != SECTOREFFECTOR && !islocator(a2))
+			if (!iseffector(a2) && !islocator(a2))
 			{
 				a2->spr.pos += vect;
 
@@ -1171,7 +1171,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				DukeSectIterator it(Owner->sector());
 				while (auto a2 = it.Next())
 				{
-					if (a2->spr.statnum == STAT_ACTOR && badguy(a2) && a2->spr.picnum != SECTOREFFECTOR && !islocator(a2))
+					if (a2->spr.statnum == STAT_ACTOR && badguy(a2) && !iseffector(a2) && !islocator(a2))
 					{
 						//					if(a2->spr.sector != actor->spr.sector)
 						{
@@ -1247,7 +1247,7 @@ void handle_se02(DDukeActor* actor)
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
-			if (a2->spr.picnum != SECTOREFFECTOR)
+			if (!iseffector(a2))
 			{
 				a2->spr.pos += vect;
 				SetActor(a2, a2->spr.pos);

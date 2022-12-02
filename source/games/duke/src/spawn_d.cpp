@@ -179,14 +179,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case FEMMAG1:
-	case FEMMAG2:
+	case FEMMAG1: // ok
+	case FEMMAG2: // ok
 		act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 0);
 		break;
-	case DUKETAG:
-	case SIGN1:
-	case SIGN2:
+	case DUKETAG: // ok
+	case SIGN1:		// ok
+	case SIGN2:		// ok
 		if (ud.multimode < 2 && act->spr.pal)
 		{
 			act->spr.scale = DVector2(0, 0);
@@ -194,7 +194,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else act->spr.pal = 0;
 		break;
-	case MASKWALL1:
+	case MASKWALL1:	// all ok
 	case MASKWALL2:
 	case MASKWALL3:
 	case MASKWALL4:
@@ -215,7 +215,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 0);
 		break;
 	}
-	case FOOTPRINTS:
+	case FOOTPRINTS:	// ok
 	case FOOTPRINTS2:
 	case FOOTPRINTS3:
 	case FOOTPRINTS4:
@@ -264,13 +264,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == MIKE)
 			act->spr.yint = act->spr.hitag;
 		[[fallthrough]];
-	case WEATHERWARN:
+	case WEATHERWARN: // ok
 		ChangeActorStat(act, STAT_ACTOR);
 		break;
 
-	case SPOTLITE:
+	case SPOTLITE: // ok
 		break;
-	case BULLETHOLE:
+	case BULLETHOLE: // ok
 		act->spr.scale = DVector2(0.046875, 0.046875);
 		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
@@ -371,7 +371,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case WATERDRIPSPLASH:
+	case WATERDRIPSPLASH: // ok
 		act->spr.scale = DVector2(0.375, 0.375);
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
@@ -594,14 +594,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case CAMERAPOLE:
+	case CAMERAPOLE: // ok
 		act->spr.extra = 1;
 
 		if (gs.camerashitable) act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		else act->spr.cstat = 0;
 		[[fallthrough]];
 
-	case GENERICPOLE:
+	case GENERICPOLE: // ok
 
 		if (ud.multimode < 2 && act->spr.pal != 0)
 		{
