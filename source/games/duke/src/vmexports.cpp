@@ -30,6 +30,7 @@ int PicForName(int intname)
 			{"DukePigCop", "PIGCOP"},
 			{"DukeSmallSmoke", "SMALLSMOKE"},
 			{"DukeBurning", "BURNING"},
+			{"RedneckBowlingBallSprite", "BOWLINGBALLSPRITE"},
 		};
 
 		for (auto& p : classes)
@@ -176,6 +177,16 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, badguyID, badguypic)
 	ACTION_RETURN_INT(badguypic(p));
 }
 
+void updatepindisplay(int tag, int pins);
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, updatepindisplay, updatepindisplay)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(tag);
+	PARAM_INT(mask);
+	updatepindisplay(tag, mask);
+	return 0;
+}
 
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
@@ -726,6 +737,13 @@ DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag2)
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(mask);
 	ACTION_RETURN_BOOL(!!attackerflag(self, EDukeFlags2::FromInt(mask)));
+}
+
+DEFINE_ACTION_FUNCTION(DDukeActor, checktype) // for temporary checking of types that haven't been ported yet.
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_STRING(name);
+	ACTION_RETURN_BOOL(self->spr.picnum == TileFiles.tileForName(name));
 }
 
 
@@ -1363,6 +1381,24 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, LocateTheLocator, LocateTheLocator)
 	ACTION_RETURN_POINTER(LocateTheLocator(tag, sect));
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, getanimationindex, getanimationindex)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(tag);
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_INT(getanimationindex(tag, sect));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, setanimation, static_cast<int(*)(sectortype*, int, sectortype*, double, double)>(setanimation))
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(asect, sectortype);
+	PARAM_INT(tag);
+	PARAM_POINTER(sect, sectortype);
+	PARAM_FLOAT(dest);
+	PARAM_FLOAT(vel);
+	ACTION_RETURN_INT(setanimation(asect, tag, sect, dest, vel));
+}
 
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, max_ammo_amount);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerfriction);

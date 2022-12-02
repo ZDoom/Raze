@@ -1448,40 +1448,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			if (spawned) spawned->spriteextra = Scrap6 + (krand() & 15);
 		}
 		break;
-	case BOWLINGBALL:
-		proj->vel.X = targ->vel.X * 0.75;
-		if (krand() & 16) proj->spr.Angles.Yaw -= DAngle22_5 / 8;
-		S_PlayActorSound(355, targ);
-		break;
-
-	case BOWLINGPIN:
-	case BOWLINGPIN + 1:
-	case HENSTAND:
-	case HENSTAND + 1:
-		if (proj->spr.picnum == BOWLINGPIN || proj->spr.picnum == BOWLINGPIN + 1)
-		{
-			proj->vel.X *= 0.75;
-			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw * 2 + randomAngle(11.25);
-			targ->spr.Angles.Yaw += randomAngle(22.5 / 8);
-			S_PlayActorSound(355, targ);
-		}
-		else if (proj->spr.picnum == HENSTAND || proj->spr.picnum == HENSTAND + 1)
-		{
-			proj->vel.X *= 0.75;
-			proj->spr.Angles.Yaw -= targ->spr.Angles.Yaw * 2 + randomAngle(22.5 / 8);
-			targ->spr.Angles.Yaw += randomAngle(22.5 / 8);
-			S_PlayActorSound(355, targ);
-		}
-		else
-		{
-			if (krand() & 3)
-			{
-				targ->vel.X = 10.25;
-				targ->spr.Angles.Yaw = proj->spr.Angles.Yaw;
-			}
-		}
-		break;
-
 	case FANSPRITE:
 		targ->spr.picnum = FANSPRITEBROKE;
 		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;

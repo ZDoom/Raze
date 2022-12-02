@@ -34,275 +34,29 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS
 
-void ballreturn(DDukeActor *ball)
+void updatepindisplay(int tag, int pins)
 {
-	DukeStatIterator it(STAT_BOWLING);
-	while (auto act = it.Next())
+	static const uint8_t pinx[] = { 64, 56, 72, 48, 64, 80, 40, 56, 72, 88 };
+	static const uint8_t piny[] = { 48, 40, 40, 32, 32, 32, 24, 24, 24, 24 };
+
+	if (tag < 1 || tag > 4) return;
+	tag += BOWLINGLANE1 - 1;
+	if (TileFiles.tileMakeWritable(tag))
 	{
-		if (act->spr.picnum == RRTILE281 && ball->sector() == act->sector())
-		{
-			DukeStatIterator it2(STAT_BOWLING);
-			while (auto act2 = it2.Next())
-			{
-				if (act2->spr.picnum == BOWLINGBALLSPOT && act->spr.hitag == act2->spr.hitag)
-					spawn(act2, BOWLINGBALLSPRITE);
-				if (act2->spr.picnum == BOWLINGPINSPOT && act->spr.hitag == act2->spr.hitag && act2->spr.lotag == 0)
-				{
-					act2->spr.lotag = 100;
-					act2->spr.extra++;
-					pinsectorresetdown(act2->sector());
-				}
-			}
-		}
-	}
-}
-
-void pinsectorresetdown(sectortype* sec)
-{
-	int j = getanimationindex(anim_ceilingz, sec);
-
-	if (j == -1)
-	{
-		setanimation(sec, anim_ceilingz, sec, sec->floorz, 0.25);
-	}
-}
-
-int pinsectorresetup(sectortype* sec)
-{
-	int j = getanimationindex(anim_ceilingz, sec);
-
-	if (j == -1)
-	{
-		double z = nextsectorneighborzptr(sec, sec->ceilingz, Find_CeilingUp | Find_Safe)->ceilingz;
-		setanimation(sec, anim_ceilingz, sec, z, 0.25);
-		return 1;
-	}
-	return 0;
-}
-
-int checkpins(sectortype* sect)
-{
-	int  x, y;
-	bool pins[10] = {};
-	int tag = 0;
-	int pin = 0;
-
-	DukeSectIterator it(sect);
-	while (auto a2 = it.Next())
-	{
-		if (a2->spr.picnum == BOWLINGPIN)
-		{
-			pin++;
-			pins[a2->spr.lotag] = true;
-		}
-		if (a2->spr.picnum == BOWLINGPINSPOT)
-		{
-			tag = a2->spr.hitag;
-		}
-	}
-
-	if (tag)
-	{
-		tag += LANEPICS + 1;
-		TileFiles.tileMakeWritable(tag);
-		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, tag, 0, 0);
-		for (int i = 0; i < 10; i++)
-		{
-			if (pins[i])
-			{
-				switch (i)
-				{
-				default:
-				case 0:
-					x = 64;
-					y = 48;
-					break;
-				case 1:
-					x = 56;
-					y = 40;
-					break;
-				case 2:
-					x = 72;
-					y = 40;
-					break;
-				case 3:
-					x = 48;
-					y = 32;
-					break;
-				case 4:
-					x = 64;
-					y = 32;
-					break;
-				case 5:
-					x = 80;
-					y = 32;
-					break;
-				case 6:
-					x = 40;
-					y = 24;
-					break;
-				case 7:
-					x = 56;
-					y = 24;
-					break;
-				case 8:
-					x = 72;
-					y = 24;
-					break;
-				case 9:
-					x = 88;
-					y = 24;
-					break;
-				}
-				tileCopySection(LANEPICS, 0, 0, 8, 8, tag, x - 4, y - 10);
-			}
-		}
-	}
-
-	return pin;
-}
-
-void resetpins(sectortype* sect)
-{
-	int i, tag = 0;
-	int x, y;
-	DukeSectIterator it(sect);
-	while (auto a2 = it.Next())
-	{
-		if (a2->spr.picnum == BOWLINGPIN)
-			a2->Destroy();
-	}
-	it.Reset(sect);
-	while (auto a2 = it.Next())
-	{
-		if (a2->spr.picnum == 283)
-		{
-			auto spawned = spawn(a2, BOWLINGPIN);
-			if (spawned)
-			{
-				spawned->spr.lotag = a2->spr.lotag;
-				spawned->clipdist = 12;	// random formula here was bogus and always produced 48.
-				spawned->spr.Angles.Yaw -= DAngle22_5 * 0.125 * (((krand() & 32) - (krand() & 64)) >> 5); // weird formula to preserve number of krand calls.
-			}
-		}
-		if (a2->spr.picnum == 280)
-			tag = a2->spr.hitag;
-	}
-	if (tag)
-	{
-		tag += LANEPICS + 1;
-		TileFiles.tileMakeWritable(tag);
-		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, tag, 0, 0);
-		for (i = 0; i < 10; i++)
-		{
-			switch (i)
-			{
-			default:
-			case 0:
-				x = 64;
-				y = 48;
-				break;
-			case 1:
-				x = 56;
-				y = 40;
-				break;
-			case 2:
-				x = 72;
-				y = 40;
-				break;
-			case 3:
-				x = 48;
-				y = 32;
-				break;
-			case 4:
-				x = 64;
-				y = 32;
-				break;
-			case 5:
-				x = 80;
-				y = 32;
-				break;
-			case 6:
-				x = 40;
-				y = 24;
-				break;
-			case 7:
-				x = 56;
-				y = 24;
-				break;
-			case 8:
-				x = 72;
-				y = 24;
-				break;
-			case 9:
-				x = 88;
-				y = 24;
-				break;
-			}
-			tileCopySection(LANEPICS, 0, 0, 8, 8, tag, x - 4, y - 10);
-		}
+		tileCopySection(LANEPICBG, 0, 0, 128, 64, tag, 0, 0);
+		for (int i = 0; i < 10; i++) if (pins & (1 << i))
+			tileCopySection(LANEPICS, 0, 0, 8, 8, tag, pinx[i] - 4, piny[i] - 10);
 	}
 }
 
 void resetlanepics(void)
 {
 	if (!isRR()) return;
-	int x, y;
 	for (int tag = 0; tag < 4; tag++)
 	{
 		int pic = tag + 1;
 		if (pic == 0) continue;
-		pic += LANEPICS + 1;
-		TileFiles.tileMakeWritable(pic);
-		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, pic, 0, 0);
-		for (int i = 0; i < 10; i++)
-		{
-			switch (i)
-			{
-			default:
-			case 0:
-				x = 64;
-				y = 48;
-				break;
-			case 1:
-				x = 56;
-				y = 40;
-				break;
-			case 2:
-				x = 72;
-				y = 40;
-				break;
-			case 3:
-				x = 48;
-				y = 32;
-				break;
-			case 4:
-				x = 64;
-				y = 32;
-				break;
-			case 5:
-				x = 80;
-				y = 32;
-				break;
-			case 6:
-				x = 40;
-				y = 24;
-				break;
-			case 7:
-				x = 56;
-				y = 24;
-				break;
-			case 8:
-				x = 72;
-				y = 24;
-				break;
-			case 9:
-				x = 88;
-				y = 24;
-				break;
-			}
-			tileCopySection(LANEPICS, 0, 0, 8, 8, pic, x - 4, y - 10);
-		}
+		updatepindisplay(pic, 0xffff);
 	}
 }
 

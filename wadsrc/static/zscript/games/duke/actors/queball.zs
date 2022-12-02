@@ -44,7 +44,10 @@ class DukeQueball : DukeActor
 			}
 			else if (j == kHitSprite)
 			{
-				self.checkhitsprite(DukeActor(colli.hitactor()));
+				// the logic here was inverted, so to set things right the type check had to be added.
+				let targ = DukeActor(colli.hitactor());
+				if (targ is 'DukeQueball')
+					targ.checkhitsprite(self);
 			}
 
 			self.vel.X -= 1/16.;
@@ -108,10 +111,10 @@ class DukeQueball : DukeActor
 	{
 		if (hitter is 'DukeQueball')
 		{
-			hitter.vel.X = self.vel.X * 0.75;
-			hitter.angle -= Normalize180(self.angle) * 2 + 180;
-			self.angle = (self.pos.XY - hitter.pos.XY).Angle() - 90;
-			self.PlayActorSound("POOLBALLHIT");
+			self.vel.X = hitter.vel.X * 0.75;
+			self.angle -= Normalize180(hitter.angle) * 2 + 180;
+			hitter.angle = (hitter.pos.XY - self.pos.XY).Angle() - 90;
+			hitter.PlayActorSound("POOLBALLHIT");
 		}
 		else
 		{

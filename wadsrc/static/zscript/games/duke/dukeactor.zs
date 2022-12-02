@@ -225,6 +225,7 @@ class DukeActor : CoreActor native
 	native int actorflag3(int mask);
 	native int attackerflag1(int mask);
 	native int attackerflag2(int mask);
+	deprecated("4.9") native bool checktype(String name);	// this must not stay in the code, so mark it deprecated to keep the annoying warning at startup.
 	
 	
 	void commonEnemySetup(bool countkill = true)
@@ -288,6 +289,14 @@ extend struct _
 // On the script side we do not really want scattered global data that is publicly accessible.
 struct DukeLevel
 {
+	enum animtype_t
+	{
+		anim_floorz,
+		anim_ceilingz,
+		anim_vertexx,
+		anim_vertexy,
+	};
+
 	native DukeActor SpawnActor(sectortype sect, Vector3 pos, class<DukeActor> type, int shade, Vector2 scale, double angle, double vel, double zvel, DukeActor owner, int stat = -1);
 	native static int check_activator_motion(int lotag);
 	native static void operatemasterswitches(int lotag);
@@ -304,6 +313,8 @@ struct DukeLevel
 	native static void checkhitwall(walltype wal, DukeActor hitter, Vector3 hitpos);
 	native static void checkhitceiling(sectortype wal, DukeActor hitter);
 	native static DukeActor LocateTheLocator(int n, sectortype sect);
+	native static int getanimationindex(int type, sectortype sec);
+	native static int setanimation(sectortype animsect, int type, sectortype sec, double target, double vel);
 }
 
 struct DukeStatIterator

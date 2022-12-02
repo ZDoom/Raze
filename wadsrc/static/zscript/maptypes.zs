@@ -118,6 +118,22 @@ enum ESectorExBits
 
 struct sectortype native
 {
+	enum EFindNextSector
+	{
+		Find_Floor = 0,
+		Find_Ceiling = 1,
+	
+		Find_Down = 0,
+		Find_Up = 2,
+	
+		Find_Safe = 4,
+	
+		Find_CeilingUp = Find_Ceiling | Find_Up,
+		Find_CeilingDown = Find_Ceiling | Find_Down,
+		Find_FloorUp = Find_Floor | Find_Up,
+		Find_FloorDown = Find_Floor | Find_Down,
+	};
+
 	// panning byte fields were promoted to full floats to enable panning interpolation.
 	native readonly float ceilingxpan;
 	native readonly float ceilingypan;
@@ -218,6 +234,8 @@ struct sectortype native
 	native int ceilingslope();
 	native int floorslope();
 	native double, double getslopes(Vector2 pos);
+	native sectortype nextsectorneighborz(double refz, int find);
+
 }
 
 //=============================================================================

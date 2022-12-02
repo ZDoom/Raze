@@ -838,17 +838,6 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 		}
 		break;
 	}
-	case BOWLINGBALL:
-	{
-		auto j = spawn(actor, atwith);
-		if (j)
-		{
-			j->vel.X = 250 / 16.;
-			j->spr.Angles.Yaw = actor->spr.Angles.Yaw;
-			j->spr.pos.Z -= 15;
-		}
-		break;
-	}
 	case OWHIP:
 	case UWHIP:
 		shootwhip(actor, p, spos, sang, atwith);

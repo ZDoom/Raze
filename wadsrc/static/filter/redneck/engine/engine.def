@@ -132,6 +132,13 @@ spawnclasses
 	5602 = RedneckCootJibA
 	5607 = RedneckCootJibB
 	5616 = RedneckCootJibB
+	280 = RedneckBowlingPinController
+	281 = RedneckBowlingSectorLink
+	282 = RedneckBowlingBallSpot
+	283 = RedneckBowlingPinSpot
+	3440 = RedneckBowlingPin
+	3430 = RedneckBowlingBall
+	4897 = RedneckHenstand
 	
 	3114 = DukeGenericDestructible, "RRTILE3114", "RRTILE3117", "GLASS_BREAKING", spawnglass
 	2876 = DukeGenericDestructible, "RRTILE2876", "RRTILE2990", "GLASS_BREAKING", spawnglass

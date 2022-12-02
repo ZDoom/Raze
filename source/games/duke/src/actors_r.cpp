@@ -37,14 +37,6 @@ BEGIN_DUKE_NS
 void dojaildoor();
 void moveminecart();
 
-void ballreturn(DDukeActor* spr);
-void pinsectorresetdown(sectortype* sect);
-int pinsectorresetup(sectortype* sect);
-int checkpins(sectortype* sect);
-void resetpins(sectortype* sect);
-void resetlanepics(void);
-
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -1191,34 +1183,9 @@ void rr_specialstats()
 		tickstat(STAT_CHICKENPLANT);
 	}
 
-	DukeStatIterator it(STAT_BOWLING);
-	while (auto act = it.Next())
-	{
-		if (act->spr.picnum == BOWLINGPINSPOT)
-			if (act->spr.lotag == 100)
-			{
-				auto pst = pinsectorresetup(act->sector());
-				if (pst)
-				{
-					act->spr.lotag = 0;
-					if (act->spr.extra == 1)
-					{
-						pst = checkpins(act->sector());
-						if (!pst)
-						{
-							act->spr.extra = 2;
-						}
-					}
-					if (act->spr.extra == 2)
-					{
-						act->spr.extra = 0;
-						resetpins(act->sector());
-					}
-				}
-			}
-	}
+	tickstat(STAT_BOWLING);
 
-	it.Reset(STAT_TELEPORT);
+	DukeStatIterator it(STAT_TELEPORT);
 	while (auto act = it.Next())
 	{
 		if (act->spr.picnum == RRTELEPORT)
@@ -1246,91 +1213,6 @@ void rr_specialstats()
 			}
 		}
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static int henstand(DDukeActor *actor)
-{
-	if (actor->spr.picnum == HENSTAND || actor->spr.picnum == HENSTAND + 1)
-	{
-		actor->spr.lotag--;
-		if (actor->spr.lotag == 0)
-		{
-			spawn(actor, HEN);
-			actor->spr.scale.Zero();
-			ChangeActorStat(actor, STAT_MISC);
-			return 1;
-		}
-	}
-	if (actor->sector()->lotag == 900)
-		actor->vel.X = 0;
-	if(actor->vel.X != 0)
-	{
-		makeitfall(actor);
-		Collision coll;
-		movesprite_ex(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, actor->vel.Z), CLIPMASK0, coll);
-		if (coll.type)
-		{
-			if (coll.type == kHitWall)
-			{
-				DAngle k = coll.hitWall->delta().Angle();
-				actor->spr.Angles.Yaw = k * 2 - actor->spr.Angles.Yaw;
-			}
-			else if (coll.type == kHitSprite)
-			{
-				auto hitact = coll.actor();
-				fi.checkhitsprite(actor, hitact);
-				if (hitact->spr.picnum == HEN)
-				{
-					auto ns = spawn(hitact, HENSTAND);
-					hitact->spr.scale.Zero();
-					ChangeActorStat(hitact, STAT_MISC);
-					if (ns)
-					{
-						ns->vel.X = 2;
-						ns->spr.lotag = 40;
-						ns->spr.Angles.Yaw = actor->spr.Angles.Yaw;
-					}
-				}
-			}
-		}
-		actor->vel.X -= 1/16.;
-		if(actor->vel.X < 0) actor->vel.X = 0;
-		actor->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		if (actor->spr.picnum == BOWLINGPIN)
-		{
-			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
-			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
-			if (krand() & 1)
-				actor->spr.picnum = BOWLINGPIN + 1;
-		}
-		else if (actor->spr.picnum == HENSTAND)
-		{
-			actor->spr.cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
-			actor->spr.cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(int(actor->vel.X * 16));
-			if (krand() & 1)
-				actor->spr.picnum = HENSTAND + 1;
-			if (actor->vel.X == 0)
-				return 2;//actor->Destroy(); still needs to run a script but should not do on a deleted object
-		}
-		if (actor->spr.picnum == BOWLINGPIN || (actor->spr.picnum == BOWLINGPIN + 1 && actor->vel.X == 0))
-		{
-			return 2;//actor->Destroy(); still needs to run a script but should not do on a deleted object
-		}
-	}
-	else if (actor->sector()->lotag == 900)
-	{
-		if (actor->spr.picnum == BOWLINGBALL)
-			ballreturn(actor);
-		actor->Destroy();
-		return 1;
-	}
-	return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -1374,34 +1256,6 @@ void moveactors_r(void)
 		}
 		else switch(act->spr.picnum)
 		{
-			case BOWLINGBALL:
-				if (act->vel.X != 0)
-				{
-					if(!S_CheckSoundPlaying(356))
-						S_PlayActorSound(356,act);
-				}
-				else
-				{
-					spawn(act,BOWLINGBALLSPRITE);
-					act->Destroy();
-					continue;
-				}
-				if (act->sector()->lotag == 900)
-				{
-					S_StopSound(356, nullptr);
-				}
-				[[fallthrough]];
-			case BOWLINGPIN:
-			case BOWLINGPIN+1:
-			case HENSTAND:
-			case HENSTAND+1:
-			{
-				int todo = henstand(act);
-				if (todo == 2) deleteafterexecute = true;
-				if (todo == 1) continue;
-				break;
-			}
-
 			case EMPTYBIKE:
 				if (!isRRRA()) break;
 				makeitfall(act);
@@ -2175,7 +2029,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 	}
 	if (actor->sector()->lotag == 800)
 	{
-		if (actor->spr.picnum == 40)
+		if (actor->spr.picnum == AMMO)
 		{
 			addspritetodelete();
 			return 0;

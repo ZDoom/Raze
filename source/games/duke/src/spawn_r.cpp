@@ -56,21 +56,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	default_case:
 		spawninitdefault(actj, act);
 		break;
-	case BOWLINGPINSPOT:
-	case RRTILE281:
-	case BOWLINGBALLSPOT:
-	case RRTILE283:
-	case RRTILE2025:
-	case RRTILE2026:
-	case RRTILE2027:
-	case RRTILE2028:
-		act->spr.cstat = 0;
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.scale = DVector2(0, 0);
-		act->clipdist = 0;
-		act->spr.extra = 0;
-		ChangeActorStat(act, STAT_BOWLING);
-		break;
 	case RRTILE8450:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(1, 1);
@@ -172,29 +157,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->clipdist = 8;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
-	case BOWLINGBALL:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
-		act->clipdist = 16;
-		act->spr.scale = DVector2(0.171875, 0.140625);
-		ChangeActorStat(act, STAT_ZOMBIEACTOR);
-		break;
-	case HENSTAND:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 12;
-		act->spr.scale = DVector2(0.328125, 0.234375);
-		ChangeActorStat(act, STAT_ZOMBIEACTOR);
-		break;
 	case RRTELEPORT:
 	case RRTELEPORTDEST:
 		act->spr.scale = DVector2(1, 1);
 		act->clipdist = 16;
 		ChangeActorStat(act, STAT_TELEPORT);
-		break;
-	case BOWLINGPIN:
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 12;
-		act->spr.scale = DVector2(0.359375, 0.359375);
-		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 	case DUKELYINGDEAD:
 		if (actj && actj->isPlayer())
@@ -420,7 +387,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case HEN:
 		case HENSTAYPUT:
-		case HENSTAND:
 			if (act->spr.pal == 35)
 			{
 				act->spr.scale = DVector2(0.65625, 0.46875);

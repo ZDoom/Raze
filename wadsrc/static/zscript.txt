@@ -101,6 +101,7 @@ version "4.10"
 
 
 #include "zscript/games/duke/actors/redneckmisc.zs"
+#include "zscript/games/duke/actors/bowling.zs"
 #include "zscript/games/duke/actors/rabbitspawner.zs"
 #include "zscript/games/duke/actors/chickenplant.zs"
 #include "zscript/games/duke/actors/lumberblade.zs"

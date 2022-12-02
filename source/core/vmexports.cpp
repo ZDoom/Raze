@@ -465,6 +465,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, getslopes, sector_getslopes)
 	return min(numret, 2);
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, nextsectorneighborz, nextsectorneighborzptr)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
+	PARAM_FLOAT(z);
+	PARAM_INT(find);
+	ACTION_RETURN_POINTER(nextsectorneighborzptr(self, z, find));
+}
+
+
 //=============================================================================
 
 void wall_setxpan(walltype* wal, double val)

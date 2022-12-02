@@ -351,7 +351,7 @@ void displayweapon_r(int snum, double interpfrac)
 			if (p->ammo_amount[BOWLING_WEAPON])
 			{
 				hud_drawpal(weapon_xoffset + 162 - look_anghalf,
-					looking_arc + 214 - gun_pos + (*kb << 3), BOWLINGBALLH, shade, o, pal);
+					looking_arc + 214 - gun_pos + (*kb << 3), BOWLINGBALLHUD, shade, o, pal);
 			}
 			else
 			{
