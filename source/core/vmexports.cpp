@@ -473,6 +473,36 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, nextsectorneighborz, nextsectorneighb
 	ACTION_RETURN_POINTER(nextsectorneighborzptr(self, z, find));
 }
 
+int sector_checktexture(sectortype* sec, int place, int intname)
+{
+	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
+
+	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
+	return tilenum == place ? sec->ceilingpicnum : sec->floorpicnum;
+}
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, checktexture, sector_checktexture)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
+	PARAM_INT(place);
+	PARAM_INT(name);
+	ACTION_RETURN_BOOL(sector_checktexture(self, place, name));
+}
+
+void sector_settexture(sectortype* sec, int place, int intname)
+{
+	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
+	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
+	(place ? sec->ceilingpicnum : sec->floorpicnum) = tilenum;
+}
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, settexture, sector_settexture)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
+	PARAM_INT(place);
+	PARAM_INT(name);
+	sector_settexture(self, place, name);
+	return 0;
+}
+
 
 //=============================================================================
 

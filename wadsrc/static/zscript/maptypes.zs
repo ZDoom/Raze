@@ -118,6 +118,11 @@ enum ESectorExBits
 
 struct sectortype native
 {
+	enum EPlane
+	{
+		ceiling = 0,
+		floor = 1,
+	}
 	enum EFindNextSector
 	{
 		Find_Floor = 0,
@@ -235,6 +240,8 @@ struct sectortype native
 	native int floorslope();
 	native double, double getslopes(Vector2 pos);
 	native sectortype nextsectorneighborz(double refz, int find);
+	native bool CheckTexture(int place, Name tex);
+	native void SetTexture(int place, Name tex);
 
 }
 

@@ -31,6 +31,7 @@ int PicForName(int intname)
 			{"DukeSmallSmoke", "SMALLSMOKE"},
 			{"DukeBurning", "BURNING"},
 			{"RedneckBowlingBallSprite", "BOWLINGBALLSPRITE"},
+			{"DukeBloodSplat1", "BLOODSPLAT1"},
 		};
 
 		for (auto& p : classes)

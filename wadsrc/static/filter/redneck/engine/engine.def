@@ -89,6 +89,13 @@ spawnclasses
 	1702 = DukeShell
 	1704 = DukeShotgunShell
 	1303 = DukeBloodPool
+	210 = DukeFanSprite
+	1066 = DukeSatellite
+	1067 = DukeFuelPod
+	1114 = DukeSolarPanel
+	1117 = DukeAntenna
+	1349 = DukeFetus
+	1360 = DukeFetusBroke
 
 	26 = RedneckDynamite
 	1416 = RedneckMortar

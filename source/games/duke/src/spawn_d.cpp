@@ -186,17 +186,10 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case HYDRENT:
-	case SATELITE:
-	case FUELPOD:
-	case SOLARPANNEL:
-	case ANTENNA:
 	case MONK:
 	case INDY:
 	case LUKE:
 	case JURYGUY:
-	case FANSPRITE:
-	case FETUS:
-	case FETUSBROKE:
 	case PIPE1:
 	case PIPE2:
 	case PIPE3:

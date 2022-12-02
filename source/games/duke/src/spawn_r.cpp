@@ -93,12 +93,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 	case HYDRENT:
-	case SATELITE:
-	case FUELPOD:
-	case SOLARPANNEL:
-	case ANTENNA:
 	case GRATE1:
-	case FANSPRITE:
 	case PIPE1:
 	case PIPE2:
 	case PIPE3:

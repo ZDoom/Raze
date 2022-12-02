@@ -98,6 +98,16 @@ spawnclasses
 	2533 = DukeShell
 	2535 = DukeShotgunShell
 	1226 = DukeBloodPool
+	407 = DukeFanSprite
+	516 = DukeSatellite
+	517 = DukeFuelPod
+	602 = DukeSolarPanel
+	607 = DukeAntenna
+	1358 = DukeFetus
+	1359 = DukeFetusBroke
+	969 = DukeHydroplant
+	1003 = DukeHydroplantBroke
+	
 
 	1272 = DukeTrash
 	634 = DukeBolt1

@@ -1060,69 +1060,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 	switch (targ->spr.picnum)
 	{
-	case FANSPRITE:
-		targ->spr.picnum = FANSPRITEBROKE;
-		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		if (targ->sector()->floorpicnum == FANSHADOW)
-			targ->sector()->floorpicnum = FANSHADOWBROKE;
-
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
-
-		break;
-	case SATELITE:
-	case FUELPOD:
-	case SOLARPANNEL:
-	case ANTENNA:
-		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
-		{
-			for (j = 0; j < 15; j++)
-			{
-				auto a = randomAngle();
-				auto vel = krandf(8) + 4;
-				auto zvel = -krandf(2) - 1;
-
-				auto spawned = CreateActor(targ->sector(), DVector3(targ->spr.pos.XY(), targ->sector()->floorz - 12 - j * 2), PClass::FindActor("DukeScrap"), -8, DVector2(1, 1), a, vel, zvel, targ, 5);
-				if (spawned) spawned->spriteextra = Scrap1 + (krand() & 15);
-
-			}
-			spawn(targ, EXPLOSION2);
-			targ->Destroy();
-		}
-		break;
-	case FETUS:
-		targ->spr.picnum = FETUSBROKE;
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, nullptr, 10);
-		break;
-	case FETUSBROKE:
-		for (j = 0; j < 48; j++)
-		{
-			fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
-			targ->spr.Angles.Yaw += DAngle1 * 58.5; // Was 333, which really makes no sense.
-		}
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		S_PlayActorSound(SQUISHED, targ);
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, nullptr, 10);
-		targ->Destroy();
-		break;
-	case HYDROPLANT:
-		targ->spr.picnum = BROKEHYDROPLANT;
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, nullptr, 10);
-		break;
-
-	case BROKEHYDROPLANT:
-		if (targ->spr.cstat & CSTAT_SPRITE_BLOCK)
-		{
-			S_PlayActorSound(GLASS_BREAKING, targ);
-			targ->spr.pos.Z += 16;
-			targ->spr.cstat = 0;
-			lotsofglass(targ, nullptr, 5);
-		}
-		break;
-
 	case TOILET:
 		targ->spr.picnum = TOILETBROKE;
 		if (krand() & 1) targ->spr.cstat |= CSTAT_SPRITE_XFLIP;

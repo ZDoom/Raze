@@ -78,10 +78,10 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		}
 		else 
 		{
-			picnum = getlabelvalue(parm->parms[0]);
+			picnum = TileFiles.tileForName(parm->parms[0]);
 			if (picnum < 0) 
 			{
-				picnum = TileFiles.tileForName(parm->parms[0]);
+				picnum = getlabelvalue(parm->parms[0]);
 				if (picnum < 0)
 				{
 					Printf("spawn: Invalid tile label given\n");

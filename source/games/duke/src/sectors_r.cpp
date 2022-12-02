@@ -1434,33 +1434,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			if (spawned) spawned->spriteextra = Scrap6 + (krand() & 15);
 		}
 		break;
-	case FANSPRITE:
-		targ->spr.picnum = FANSPRITEBROKE;
-		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
-
-		break;
-	case SATELITE:
-	case FUELPOD:
-	case SOLARPANNEL:
-	case ANTENNA:
-		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
-		{
-			for (j = 0; j < 15; j++)
-			{
-				auto a = randomAngle();
-				auto vel = krandf(8) + 4;
-				auto zvel = -krandf(2) - 1;
-
-				auto spawned = CreateActor(targ->sector(), DVector3(targ->spr.pos.XY(), targ->sector()->floorz - 12 - j * 2), PClass::FindActor("DukeScrap"), -8, DVector2(1, 1),
-					a, vel, zvel, targ, 5);
-				if (spawned) spawned->spriteextra = Scrap1 + (krand() & 15);
-			}
-			spawn(targ, EXPLOSION2);
-			targ->Destroy();
-		}
-		break;
 	case RRTILE2654:
 	case RRTILE2656:
 	case RRTILE3172:
