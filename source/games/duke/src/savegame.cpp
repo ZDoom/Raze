@@ -462,6 +462,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			everyothertime = 0;
 
 			FX_SetReverb(0);
+			resetlanepics();
 
 		}
 	}
