@@ -996,7 +996,7 @@ void movetransports_r(void)
 static void rrra_specialstats()
 {
 	Collision coll;
-	DukeStatIterator it(118);
+	DukeStatIterator it(STAT_BOBBING);
 	while (auto act = it.Next())
 	{
 		if (act->spr.hitag > 1)
@@ -1085,36 +1085,6 @@ static void rrra_specialstats()
 
 		}
 		enemysizecheat = 0;
-	}
-
-	it.Reset(121);
-	while (auto act = it.Next())
-	{
-		act->spr.extra++;
-		if (act->spr.extra < 100)
-		{
-			if (act->spr.extra == 90)
-			{
-				act->spr.picnum--;
-				if (act->spr.picnum < PIG + 7)
-					act->spr.picnum = PIG + 7;
-				act->spr.extra = 1;
-			}
-			movesprite_ex(act, DVector3(0, 0, -300/256.), CLIPMASK0, coll);
-			if (act->sector()->ceilingz+ 4 > act->spr.pos.Z)
-			{
-				act->spr.picnum = 0;
-				act->spr.extra = 100;
-			}
-		}
-		else if (act->spr.extra == 200)
-		{
-			// This was really 10 and not (10 << 8)!
-			SetActor(act, DVector3(act->spr.pos.X, act->spr.pos.Y, act->sector()->floorz - 10 * zmaptoworld));
-			act->spr.extra = 1;
-			act->spr.picnum = PIG + 11;
-			spawn(act, TRANSPORTERSTAR);
-		}
 	}
 
 	it.Reset(STAT_RABBITSPAWN);

@@ -438,7 +438,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				actor->spr.extra = 0;
 				actor->spr.hitag = 1;
 				actor->spr.pal = 0;
-				ChangeActorStat(actor, 118);
+				ChangeActorStat(actor, STAT_BOBBING);
 			}
 		}
 	}

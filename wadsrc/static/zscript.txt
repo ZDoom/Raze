@@ -109,6 +109,7 @@ version "4.10"
 #include "zscript/games/duke/actors/rrcactus.zs"
 #include "zscript/games/duke/actors/balloons.zs"
 #include "zscript/games/duke/actors/gamblingmachine.zs"
+#include "zscript/games/duke/actors/pigback.zs"
 
 #include "zscript/games/blood/bloodgame.zs"
 #include "zscript/games/blood/ui/menu.zs"
