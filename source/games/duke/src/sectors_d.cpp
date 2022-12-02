@@ -1056,32 +1056,12 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	}
 
 
-	switch (targ->spr.picnum)
+	if (targ->spr.picnum == PLAYERONWATER)
 	{
-	case TOILET:
-		targ->spr.picnum = TOILETBROKE;
-		if (krand() & 1) targ->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		spawn(targ, TOILETWATER);
-		S_PlayActorSound(GLASS_BREAKING, targ);
-		break;
-
-	case STALL:
-		targ->spr.picnum = STALLBROKE;
-		if (krand() & 1) targ->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		spawn(targ, TOILETWATER);
-		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		break;
-
-	case PLAYERONWATER:
 		targ = targ->GetOwner();
-		if (!targ) break;
-		[[fallthrough]];
-	default:
-		checkhitdefault_d(targ, proj);
-		break;
+		if (!targ) return;
 	}
+	checkhitdefault_d(targ, proj);
 }
 
 //---------------------------------------------------------------------------
@@ -1248,31 +1228,6 @@ void checksectors_d(int snum)
 			else
 				switch (neartagsprite->spr.picnum)
 				{
-				case TOILET:
-				case STALL:
-					if (p->last_pissed_time == 0)
-					{
-						S_PlayActorSound(DUKE_URINATE, p->GetActor());
-
-						p->last_pissed_time = 26 * 220;
-						p->transporter_hold = 29 * 2;
-						if (p->holster_weapon == 0)
-						{
-							p->holster_weapon = 1;
-							p->weapon_pos = -1;
-						}
-						if (p->GetActor()->spr.extra <= (gs.max_player_health - (gs.max_player_health / 10)))
-						{
-							p->GetActor()->spr.extra += gs.max_player_health / 10;
-							p->last_extra = p->GetActor()->spr.extra;
-						}
-						else if (p->GetActor()->spr.extra < gs.max_player_health)
-							p->GetActor()->spr.extra = gs.max_player_health;
-					}
-					else if (S_CheckActorSoundPlaying(neartagsprite, FLUSH_TOILET) == 0)
-						S_PlayActorSound(FLUSH_TOILET, neartagsprite);
-					return;
-
 				case PLUG:
 					S_PlayActorSound(SHORT_CIRCUIT, pact);
 					p->GetActor()->spr.extra -= 2 + (krand() & 3);

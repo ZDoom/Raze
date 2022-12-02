@@ -3357,16 +3357,6 @@ void processinput_r(int snum)
 			else
 				p->stairs--;
 		}
-		else if (clz.actor()->spr.picnum == TOILET || clz.actor()->spr.picnum == TOILETSEAT)
-		{
-			if ((actions & SB_CROUCH) && !p->OnMotorcycle)
-				//if (Sound[436].num == 0)
-			{
-				S_PlayActorSound(436, pact);
-				p->last_pissed_time = 4000;
-				p->eat = 0;
-			}
-		}
 		else CallStandingOn(clz.actor(), p);
 	}
 

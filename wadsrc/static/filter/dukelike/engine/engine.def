@@ -120,7 +120,8 @@ spawnclasses
 	1352 = DukeMonk
 	1354 = DukeLuke
 	680 = DukeChair3
-
+	569 = DukeToilet
+	571 = DukeStall
 
 	1272 = DukeTrash
 	634 = DukeBolt1

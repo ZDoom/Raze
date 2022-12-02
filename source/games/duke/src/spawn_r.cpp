@@ -748,15 +748,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_ACTOR);
 		break;
 
-	case TOILET:
-	case STALL:
-	case TOILETSEAT:
-	case TOILET2:
-		act->spr.lotag = 1;
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 2;
-		act->SetOwner(act);
-		break;
 	case RUBBERCAN:
 		act->spr.extra = 0;
 		[[fallthrough]];

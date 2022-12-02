@@ -42,7 +42,7 @@ $conreserve BUB_LN1      34
 $conreserve LN_FINAL     35					// !!!
 $conreserve CLOCKTK      36
 $conreserve LN_STANK     37
-$conreserve LNRD_GRUNT   38
+$conreserve PLAYER_GRUNT   38
 $conreserve CLOCKCHM     39
 $conreserve WETFEET      40
 $conreserve LNRD_DEAD    41
@@ -440,7 +440,7 @@ $conreserve BUZSAWSND    431
 $conreserve ELEVLOOP     432
 $conreserve PISSEND      433
 $conreserve PISSLOOP     434
-$conreserve PISSSTRT     435
+$conreserve PLAYER_URINATE     435
 $conreserve CRAP         436
 $conreserve PEE          437
 $conreserve JACK_RM2     438
@@ -507,3 +507,4 @@ $conreserve BUB_HEY1     498
 $conreserve BUB_HEY2     499
 
 $alias CRANEGRAB YEHAA16
+$alias FLUSH_TOILET PLAYER_GRUNT

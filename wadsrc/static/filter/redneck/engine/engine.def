@@ -102,6 +102,10 @@ spawnclasses
 	1232 = DukePipe5
 	1233 = DukePipe6
 	1152 = DukeChair3
+	1098 = DukeToilet
+	1100 = DukeStall
+	2121 = RedneckToiletSeat
+	2122 = RedneckToilet2
 
 	26 = RedneckDynamite
 	1416 = RedneckMortar
