@@ -95,7 +95,6 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
             }
         }
 
-        pPlayer->Angles.applyScaledAdjustments(scaleAdjust);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 

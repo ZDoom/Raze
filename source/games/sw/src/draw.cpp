@@ -1237,6 +1237,10 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         if (cl_sointerpolation) so_dointerpolations(interpfrac);
     }
 
+    // process scaled actor adjustments prior to drawing.
+    if ((inputScale = I_GetInputFrac(SyncInput())) != 1.)
+        pp->Angles.applyScaledAdjustments(inputScale);
+
     // Get initial player position, interpolating if required.
     DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
     DRotator tangles = camerapp->Angles.getRenderAngles(interpfrac);

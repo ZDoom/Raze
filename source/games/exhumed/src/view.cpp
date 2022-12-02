@@ -195,10 +195,18 @@ void DrawView(double interpfrac, bool sceneonly)
 
     DoInterpolations(interpfrac);
 
-    auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
+    auto pPlayer = &PlayerList[nLocalPlayer];
+    auto pPlayerActor = pPlayer->pActor;
     auto nPlayerOldCstat = pPlayerActor->spr.cstat;
-    auto pDop = PlayerList[nLocalPlayer].pDoppleSprite;
+    auto pDop = pPlayer->pDoppleSprite;
     auto nDoppleOldCstat = pDop->spr.cstat;
+
+    // process scaled actor adjustments prior to drawing.
+    if ((inputScale = I_GetInputFrac(SyncInput())) != 1.)
+    {
+        pPlayer->Angles.applyScaledAdjustments(inputScale);
+        UpdatePlayerSpriteAngle(pPlayer);
+    }
 
     if (nSnakeCam >= 0 && !sceneonly)
     {

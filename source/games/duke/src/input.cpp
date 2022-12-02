@@ -838,8 +838,6 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 			p->Angles.applyYaw(p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
 			p->Angles.applyPitch(input.horz, &p->sync.actions, scaleAdjust);
 		}
-
-		p->Angles.applyScaledAdjustments(scaleAdjust);
 	}
 
 	if (packet)

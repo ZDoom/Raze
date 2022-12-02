@@ -199,8 +199,6 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
         {
             DoPlayerTurnTurret(pp, input.avel);
         }
-
-        pp->Angles.applyScaledAdjustments(scaleAdjust);
     }
 
     if (packet)

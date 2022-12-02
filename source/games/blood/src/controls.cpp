@@ -62,8 +62,6 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 			pPlayer->Angles.applyYaw(input.avel, &pPlayer->input.actions, scaleAdjust);
 			pPlayer->Angles.applyPitch(input.horz, &pPlayer->input.actions, scaleAdjust);
 		}
-
-		pPlayer->Angles.applyScaledAdjustments(scaleAdjust);
 	}
 
 	if (packet)
