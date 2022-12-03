@@ -218,6 +218,7 @@ void loadcons();
 void DrawStatusBar();
 
 void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h);
+void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang);
 
 inline int32_t krand(void)
 {

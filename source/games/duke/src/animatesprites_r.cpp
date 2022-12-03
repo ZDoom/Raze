@@ -348,101 +348,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				copyfloorpal(t, sectp);
 			break;
 		}
-
-		if (gs.actorinfo[h->spr.picnum].scriptaddress && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
-		{
-			if (t4)
-			{
-				l = ScriptCode[t4 + 2];
-
-				if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
-				{
-					k = 0;
-					t->cstat &= ~CSTAT_SPRITE_XFLIP;
-				} 
-				else switch (l) 
-				{
-				case 2:
-					k = angletorotation1(h->spr.Angles.Yaw, viewang, 8, 1);
-					break;
-
-				case 3:
-				case 4:
-					k = angletorotation1(h->spr.Angles.Yaw, viewang, 7);
-					if (k > 3)
-					{
-						t->cstat |= CSTAT_SPRITE_XFLIP;
-						k = 7 - k;
-					}
-					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-					break;
-
-				case 5:
-					kang = (h->spr.pos - viewVec).Angle();
-					k = angletorotation1(h->spr.Angles.Yaw, kang);
-					if (k > 4)
-					{
-						k = 8 - k;
-						t->cstat |= CSTAT_SPRITE_XFLIP;
-					}
-					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-					break;
-				case 7:
-					kang = (h->spr.pos - viewVec).Angle();
-					k = angletorotation2(h->spr.Angles.Yaw, kang);
-					if (k > 6)
-					{
-						k = 12 - k;
-						t->cstat |= CSTAT_SPRITE_XFLIP;
-					}
-					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-					break;
-				case 8:
-					k = angletorotation1(h->spr.Angles.Yaw, viewang);
-					t->cstat &= ~CSTAT_SPRITE_XFLIP;
-					break;
-				default:
-					bg = badguy(h);
-					if (bg && h->spr.statnum == 2 && h->spr.extra > 0)
-					{
-						kang = (h->spr.pos - viewVec).Angle();
-						k = angletorotation1(h->spr.Angles.Yaw, kang);
-						if (k > 4)
-						{
-							k = 8 - k;
-							t->cstat |= CSTAT_SPRITE_XFLIP;
-						}
-						else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-						break;
-					}
-					k = 0;
-					bg = 0;
-					break;
-				}
-
-				t->picnum += k + ScriptCode[t4] + l * t3;
-
-				if (l > 0)
-				{
-					while (t->picnum >= 0 && t->picnum < MAXTILES && !tileGetTexture(t->picnum)->isValid())
-						t->picnum -= l;       //Hack, for actors 
-				}
-
-				if (t->picnum < 0 || t->picnum >= MAXTILES)
-				{
-					t->picnum = 0;
-					t->scale = DVector2(0, 0);
-				}
-
-				if (h->dispicnum >= 0)
-					h->dispicnum = t->picnum;
-			}
-			else if (display_mirror == 1)
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-		}
-
-		if (!isRRRA() && h->spr.picnum == SBMOVE)
-			t->shade = -127;
+		applyanimations(t, h, viewVec, viewang);
 
 		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->isPlayer() && h->GetOwner()))
 		{
@@ -450,11 +356,13 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		}
 
 
-
 		switch (h->spr.picnum)
 		{
-			if (!isRRRA()) break;
-			[[fallthrough]];
+		case SBMOVE:
+			if (!isRRRA())
+				t->shade = -127;
+			break;
+
 		case EXPLOSION2:
 		case ATOMICHEALTH:
 		case CHAINGUN:
