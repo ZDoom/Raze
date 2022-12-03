@@ -71,6 +71,10 @@ public:
 	EDukeFlags2 flags2;
 	EDukeFlags3 flags3;
 
+	// these two variables are only valid while RunState is executed. They are explicitly nulled right afterward and only accessible throgh the CON emulation interface.
+	struct player_struct* state_player;
+	double state_dist;
+
 	DDukeActor() = default;
 	size_t PropagateMark() override;
 	const ActorInfo* actorInfo() const;

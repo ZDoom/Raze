@@ -242,6 +242,13 @@ DEFINE_FIELD(DDukeActor, temp_pos)
 DEFINE_FIELD(DDukeActor, temp_pos2)
 DEFINE_FIELD(DDukeActor, temp_angle)
 
+void TickActor(DDukeActor*);
+DEFINE_ACTION_FUNCTION(DDukeActor, Tick)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	TickActor(self);
+	return 0;
+}
 void setSpritesetImage(DDukeActor* self, unsigned int index)
 {
 	auto& spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;

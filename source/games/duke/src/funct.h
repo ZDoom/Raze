@@ -144,7 +144,7 @@ DDukeActor* LocateTheLocator(int n, sectortype* sectnum);
 void clearcamera(player_struct* ps);
 
 void LoadActor(DDukeActor* i, int p, int x);
-void execute(DDukeActor* s, int p, double d);
+bool execute(DDukeActor* s, int p, double d);
 void makeitfall(DDukeActor* s);
 DAngle furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);

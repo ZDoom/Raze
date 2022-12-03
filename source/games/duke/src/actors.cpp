@@ -40,6 +40,7 @@ This file is a combination of code from the following sources:
 //-------------------------------------------------------------------------
 
 #include "ns.h"
+#include "vm.h"
 #include "global.h"
 #include "names.h"
 #include "stats.h"
@@ -50,6 +51,34 @@ BEGIN_DUKE_NS
 
 double adjustfall(DDukeActor* actor, double c);
 
+
+//---------------------------------------------------------------------------
+//
+// this is the implementation of DDukeActor::Tick. It is native so that
+// its internally needed accesss does not have to be made public.
+//
+//---------------------------------------------------------------------------
+
+void TickActor(DDukeActor* self)
+{
+	if (self->spr.statnum == STAT_ACTOR || actorflag(self, SFLAG3_FORCERUNCON))
+	{
+		double xx;
+		int p = findplayer(self, &xx);
+		if (!execute(self, p, xx))
+		{
+			self->state_player = &ps[p];
+			self->state_dist = xx;
+			IFVIRTUALPTR(self, DDukeActor, RunState)
+			{
+				VMValue val[] = { self };
+				VMCall(func, val, 1, nullptr, 0);
+			}
+			self->state_player = nullptr;
+			self->state_dist = -1;
+		}
+	}
+}
 
 //---------------------------------------------------------------------------
 //

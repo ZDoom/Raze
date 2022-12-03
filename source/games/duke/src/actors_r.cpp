@@ -566,15 +566,9 @@ void movestandables_r(void)
 		{
 			act->Destroy();
 		}
-		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else
 		{
 			CallTick(act);
-		}
-		else if (actorflag(act, SFLAG3_FORCERUNCON))
-		{
-			double x;
-			int p = findplayer(act, &x);
-			execute(act, p, x);
 		}
 	}
 }
@@ -594,15 +588,9 @@ void moveweapons_r(void)
 		{
 			act->Destroy();
 		}
-		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else
 		{
 			CallTick(act);
-		}
-		else if (actorflag(act, SFLAG3_FORCERUNCON))
-		{
-			double x;
-			int p = findplayer(act, &x);
-			execute(act, p, x);
 		}
 	}
 }
@@ -1185,16 +1173,9 @@ void moveexplosions_r(void)  // STATNUM 5
 		{
 			act->Destroy();
 		}
-		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else
 		{
 			CallTick(act);
-		}
-		else if (actorflag(act, SFLAG3_FORCERUNCON))
-		{
-			int p;
-			double xx;
-			p = findplayer(act, &xx);
-			execute(act, p, xx);
 		}
 	}
 }

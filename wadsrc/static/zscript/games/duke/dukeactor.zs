@@ -181,12 +181,12 @@ class DukeActor : CoreActor native
 
 	native void checkhitsprite(DukeActor hitter);
 
+	virtual native void Tick();
 
 	
 	virtual void BeginPlay() {}
 	virtual void StaticSetup() {}
 	virtual void Initialize() {}
-	virtual void Tick() {}
 	virtual void onHit(DukeActor hitter) { checkhitdefault(hitter); }
 	virtual void onHurt(DukePlayer p) {}
 	virtual bool onUse(DukePlayer user) { return false; }

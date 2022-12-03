@@ -3725,9 +3725,9 @@ void LoadActor(DDukeActor *actor, int p, int x)
 //
 //---------------------------------------------------------------------------
 
-void execute(DDukeActor *actor,int p,double xx)
+bool execute(DDukeActor *actor,int p,double xx)
 {
-	if (gs.actorinfo[actor->spr.picnum].scriptaddress == 0) return;
+	if (gs.actorinfo[actor->spr.picnum].scriptaddress == 0) return false;
 
 	int done;
 
@@ -3737,17 +3737,17 @@ void execute(DDukeActor *actor,int p,double xx)
 	s.g_ac = actor;
 	s.g_t = &actor->temp_data[0];	// Sprite's 'extra' data
 
-	if (gs.actorinfo[actor->spr.picnum].scriptaddress == 0) return;
 	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->spr.picnum].scriptaddress)];
 
 	s.killit_flag = 0;
 
+	// this must go away.
 	if(!actor->insector())
 	{
 		if(badguy(actor))
 			ps[p].actors_killed++;
 		actor->Destroy();
-		return;
+		return true;
 	}
 
 	if (s.g_t[4])
@@ -3805,6 +3805,7 @@ void execute(DDukeActor *actor,int p,double xx)
 quit:
 	if (killthesprite) actor->Destroy();
 	killthesprite = false;
+	return true;
 }
 
 

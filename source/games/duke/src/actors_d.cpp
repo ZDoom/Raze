@@ -706,15 +706,9 @@ void movestandables_d(void)
 		{
 			act->Destroy();
 		}
-		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else
 		{
 			CallTick(act);
-		}
-		else if (actorflag(act, SFLAG3_FORCERUNCON))
-		{
-			double x;
-			int p = findplayer(act, &x);
-			execute(act, p, x);
 		}
 	}
 }
@@ -734,15 +728,9 @@ void moveweapons_d(void)
 		{
 			act->Destroy();
 		}
-		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else
 		{
 			CallTick(act);
-		}
-		else if (actorflag(act, SFLAG3_FORCERUNCON))
-		{
-			double x;
-			int p = findplayer(act, &x);
-			execute(act, p, x);
 		}
 	}
 }
@@ -1052,6 +1040,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	double xx;
 	int p = findplayer(actor, &xx);
 	execute(actor, p, xx);
+	if (actor->ObjectFlags & OF_EuthanizeMe) return;	// killed by script.
 	actor->temp_data[0]++;
 	if (sectp->lotag == 2)
 	{
@@ -1148,8 +1137,6 @@ static void flamethrowerflame(DDukeActor *actor)
 
 void moveactors_d(void)
 {
-	int p;
-
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
 	{
@@ -1165,16 +1152,9 @@ void moveactors_d(void)
 		{
 			flamethrowerflame(act);
 		}
-		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
-		{
-			CallTick(act);
-			continue;
-		}
 		else
 		{
-			double xx;
-			p = findplayer(act, &xx);
-			execute(act, p, xx);
+			CallTick(act);
 		}
 	}
 
@@ -1191,6 +1171,7 @@ static void fireflyflyingeffect(DDukeActor *actor)
 	double xx;
 	int p = findplayer(actor, &xx);
 	execute(actor, p, xx);
+	if (actor->ObjectFlags & OF_EuthanizeMe) return;	// killed by script.
 
 	auto Owner = actor->GetOwner();
 	if (!Owner || Owner->spr.picnum != FIREFLY) 
@@ -1224,9 +1205,6 @@ static void fireflyflyingeffect(DDukeActor *actor)
 
 void moveexplosions_d(void)  // STATNUM 5
 {
-	int p;
-	double xx;
-
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
@@ -1238,14 +1216,9 @@ void moveexplosions_d(void)  // STATNUM 5
 		{
 			fireflyflyingeffect(act);
 		}
-		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else
 		{
 			CallTick(act);
-		}
-		else if (actorflag(act, SFLAG3_FORCERUNCON))
-		{
-			p = findplayer(act, &xx);
-			execute(act, p, xx);
 		}
 	}
 }

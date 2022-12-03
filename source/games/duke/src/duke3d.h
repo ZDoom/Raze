@@ -128,6 +128,7 @@ bool CallShootThis(DDukeActor* clsdef, DDukeActor* actor, int pn, const DVector3
 void CallStaticSetup(DDukeActor* actor);
 void CallPlayFTASound(DDukeActor* actor);
 void CallStandingOn(DDukeActor* actor, player_struct* p);
+void CallRunState(DDukeActor* actor);
 
 
 END_DUKE_NS
