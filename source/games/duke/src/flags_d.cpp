@@ -81,6 +81,37 @@ void initactorflags_d()
 			RAT,
 			ROTATEGUN });
 
+	// non-STAT_ACTOR classes that need CON support. For compatibility this must be explicitly enabled.
+	setflag(SFLAG3_FORCERUNCON, {
+			EXPLODINGBARREL,
+			WOODENHORSE,
+			HORSEONSIDE,
+			FLOORFLAME,
+			FIREBARREL,
+			FIREVASE,
+			NUKEBARREL,
+			NUKEBARRELDENTED,
+			NUKEBARRELLEAKED,
+			TOILETWATER,
+			RUBBERCAN,
+			STEAM,
+			CEILINGSTEAM,
+			WATERBUBBLEMAKER,
+			SHOTSPARK1,
+			BURNING,
+			BURNING2,
+			FECES,
+			WATERBUBBLE,
+			SMALLSMOKE,
+			EXPLOSION2,
+			SHRINKEREXPLOSION,
+			EXPLOSION2BOT,
+			BLOOD,
+			LASERSITE,
+			FORCERIPPLE,
+			TRANSPORTERSTAR,
+			TRANSPORTERBEAM
+		});
 	// Some flags taken from RedNukem's init code. This is a good start as any to reduce the insane dependency on tile numbers for making decisions in the play code. A lot more will be added here later.
 	setflag(SFLAG_NODAMAGEPUSH, { TANK, BOSS1, BOSS2, BOSS3, BOSS4, RECON, ROTATEGUN });
 	setflag(SFLAG_BOSS, { BOSS1, BOSS2, BOSS3, BOSS4, BOSS4STAYPUT, BOSS1STAYPUT });
@@ -133,6 +164,7 @@ void initactorflags_d()
 	{
 		setflag(SFLAG_INTERNAL_BADGUY, { FIREFLY });
 		setflag(SFLAG_INTERNAL_BADGUY|SFLAG_NODAMAGEPUSH|SFLAG_BOSS, { BOSS5 });
+		setflag(SFLAG3_FORCERUNCON, { LAVAPOOL, ONFIRE, ONFIRESMOKE, BURNEDCORPSE, LAVAPOOLBUBBLE, WHISPYSMOKE });
 	}
 
 	setflag(SFLAG_INVENTORY, {

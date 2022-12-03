@@ -25,8 +25,6 @@ class DukeGreenSlime : DukeActor
 		let sectp = self.sector;
 		int j;
 
-		if (self.monsterCheatCheck()) return;
-
 		self.temp_data[1] += 128;
 
 		if (sectp.floorstat & CSTAT_SECTOR_SKY)

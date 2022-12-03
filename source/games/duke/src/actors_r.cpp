@@ -565,28 +565,12 @@ void movestandables_r(void)
 		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
 			act->Destroy();
-			continue;
 		}
-
-		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			CallTick(act);
-			continue;
 		}
-
-		else if (isIn(picnum,
-				EXPLODINGBARREL,
-				WOODENHORSE,
-				HORSEONSIDE,
-				FIREBARREL,
-				FIREVASE,
-				NUKEBARREL,
-				NUKEBARRELDENTED,
-				NUKEBARRELLEAKED,
-				TOILETWATER,
-				RUBBERCAN,
-				STEAM,
-				CEILINGSTEAM))
+		else if (actorflag(act, SFLAG3_FORCERUNCON))
 		{
 			double x;
 			int p = findplayer(act, &x);
@@ -604,29 +588,21 @@ void movestandables_r(void)
 void moveweapons_r(void)
 {
 	DukeStatIterator it(STAT_PROJECTILE);
-	while (auto proj = it.Next())
+	while (auto act = it.Next())
 	{
-		if (!proj->insector() || actorflag(proj, SFLAG2_DIENOW))
+		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
-			proj->Destroy();
-			continue;
+			act->Destroy();
 		}
-
-		if (proj->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
-			CallTick(proj);
-			continue;
+			CallTick(act);
 		}
-
-		switch (proj->spr.picnum)
-		{
-		case SHOTSPARK1:
+		else if (actorflag(act, SFLAG3_FORCERUNCON))
 		{
 			double x;
-			int p = findplayer(proj, &x);
-			execute(proj, p, x);
-			continue;
-		}
+			int p = findplayer(act, &x);
+			execute(act, p, x);
 		}
 	}
 }
@@ -1144,6 +1120,10 @@ void moveactors_r(void)
 			act->Destroy();
 			continue;
 		}
+		if (monsterCheatCheck(act) && badguy(act))
+		{
+			continue;
+		}
 
 		auto sectp = act->sector();
 
@@ -1181,10 +1161,6 @@ void moveactors_r(void)
 		}
 
 
-		if (monsterCheatCheck(act) && badguy(act))
-		{
-			continue;
-		}
 
 		p = findplayer(act, &xx);
 
@@ -1201,55 +1177,24 @@ void moveactors_r(void)
 
 void moveexplosions_r(void)  // STATNUM 5
 {
-	int p;
-	int * t;
-	double xx;
-
 
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
-		if (act->time == 959)
-		{
-			int a = 0;
-		}
-		t = &act->temp_data[0];
-		auto sectp = act->sector();
-
-		if (!act->insector() || act->spr.scale.X == 0) 
+		if (act->spr.scale.X == 0 || act->spr.sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
 		{
 			act->Destroy();
-			continue;
 		}
-
-		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			CallTick(act);
-			continue;
 		}
-
-		switch (act->spr.picnum)
+		else if (actorflag(act, SFLAG3_FORCERUNCON))
 		{
-		case SHOTGUNSPRITE:
-			if (act->sector()->lotag == 800)
-				if (act->spr.pos.Z >= act->sector()->floorz - 8)
-				{
-					act->Destroy();
-					continue;
-				}
-			break;
-		case BURNING:
-		case WATERBUBBLE:
-		case SMALLSMOKE:
-		case EXPLOSION2:
-		case EXPLOSION3:
-		case BLOOD:
-		case FORCERIPPLE:
-		case TRANSPORTERSTAR:
-		case TRANSPORTERBEAM:
+			int p;
+			double xx;
 			p = findplayer(act, &xx);
 			execute(act, p, xx);
-			continue;
 		}
 	}
 }

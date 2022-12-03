@@ -705,30 +705,12 @@ void movestandables_d(void)
 		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
 			act->Destroy();
-			continue;
 		}
-
-		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			CallTick(act);
-			continue;
 		}
-
-		else if (isIn(picnum,
-				EXPLODINGBARREL,
-				WOODENHORSE,
-				HORSEONSIDE,
-				FLOORFLAME,
-				FIREBARREL,
-				FIREVASE,
-				NUKEBARREL,
-				NUKEBARRELDENTED,
-				NUKEBARRELLEAKED,
-				TOILETWATER,
-				RUBBERCAN,
-				STEAM,
-				CEILINGSTEAM,
-				WATERBUBBLEMAKER))
+		else if (actorflag(act, SFLAG3_FORCERUNCON))
 		{
 			double x;
 			int p = findplayer(act, &x);
@@ -751,24 +733,16 @@ void moveweapons_d(void)
 		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
 		{
 			act->Destroy();
-			continue;
 		}
-
-		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			CallTick(act);
-			continue;
 		}
-
-		switch(act->spr.picnum)
-		{
-		case SHOTSPARK1:
+		else if (actorflag(act, SFLAG3_FORCERUNCON))
 		{
 			double x;
 			int p = findplayer(act, &x);
 			execute(act, p, x);
-			break;
-		}
 		}
 	}
 }
@@ -1179,40 +1153,29 @@ void moveactors_d(void)
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
 	{
-		if (act->spr.picnum == QUEBALL)
-		{
-			int a = 0;
-		}
-		auto sectp = act->sector();
-
-		if (act->spr.scale.X == 0 || sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
+		if (act->spr.scale.X == 0 || act->spr.sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
 		{ 
 			act->Destroy();
+		}
+		else if (monsterCheatCheck(act) && badguy(act))
+		{
 			continue;
 		}
-
-		int *t = &act->temp_data[0];
-
-		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else if (isWorldTour() && act->spr.picnum == FLAMETHROWERFLAME)
+		{
+			flamethrowerflame(act);
+		}
+		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			CallTick(act);
 			continue;
 		}
-		else switch (act->spr.picnum)
+		else
 		{
-		case FLAMETHROWERFLAME:
-			if (isWorldTour()) flamethrowerflame(act);
-			continue;
+			double xx;
+			p = findplayer(act, &xx);
+			execute(act, p, xx);
 		}
-		if (monsterCheatCheck(act) && badguy(act))
-		{
-			continue;
-		}
-
-		double xx;
-		p = findplayer(act, &xx);
-
-		execute(act, p, xx);
 	}
 
 }
@@ -1267,54 +1230,22 @@ void moveexplosions_d(void)  // STATNUM 5
 	DukeStatIterator it(STAT_MISC);
 	while (auto act = it.Next())
 	{
-		if (!act->insector() || act->spr.scale.X == 0) 
+		if (act->spr.scale.X == 0 || act->spr.sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
 		{
 			act->Destroy();
-			continue;
 		}
-
-		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
+		else if (isWorldTour() && act->spr.picnum == FIREFLYFLYINGEFFECT)
+		{
+			fireflyflyingeffect(act);
+		}
+		else if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 		{
 			CallTick(act);
-			continue;
 		}
-
-
-		auto sectp = act->sector();
-
-		switch (act->spr.picnum)
+		else if (actorflag(act, SFLAG3_FORCERUNCON))
 		{
-		case FIREFLYFLYINGEFFECT:
-			if (isWorldTour()) fireflyflyingeffect(act);
-			continue;
-
-		case LAVAPOOL:
-		case ONFIRE:
-		case ONFIRESMOKE:
-		case BURNEDCORPSE:
-		case LAVAPOOLBUBBLE:
-		case WHISPYSMOKE:
-			if (!isWorldTour())
-				continue;
-			[[fallthrough]];
-
-		case BURNING:
-		case BURNING2:
-		case FECES:
-		case WATERBUBBLE:
-		case SMALLSMOKE:
-		case EXPLOSION2:
-		case SHRINKEREXPLOSION:
-		case EXPLOSION2BOT:
-		case BLOOD:
-		case LASERSITE:
-		case FORCERIPPLE:
-		case TRANSPORTERSTAR:
-		case TRANSPORTERBEAM:
 			p = findplayer(act, &xx);
 			execute(act, p, xx);
-			continue;
-
 		}
 	}
 }

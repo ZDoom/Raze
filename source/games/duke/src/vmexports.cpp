@@ -628,12 +628,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spritewidth, duke_spw)
 	ACTION_RETURN_INT(duke_spw(self));
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, monsterCheatCheck, monsterCheatCheck)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	ACTION_RETURN_INT(monsterCheatCheck(self));
-}
-
 void DukeActor_shoot(DDukeActor* act, int intname)
 {
 	int picnum = PicForName(intname);

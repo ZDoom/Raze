@@ -399,6 +399,7 @@ enum sflags3_t
 	SFLAG3_BLOODY = 0x00000002,
 	SFLAG3_BROWNBLOOD = 0x00000004,
 	SFLAG3_LIGHTDAMAGE = 0x00000008,
+	SFLAG3_FORCERUNCON = 0x00000010,	// by default only STAT_ACTOR runs CON - this enables it for other statnums as well, provided they run Tick()
 
 };
 

@@ -211,7 +211,6 @@ class DukeActor : CoreActor native
 	native double gutsoffset();
 	native int movesprite(Vector3 move, int clipmask);
 	native int movesprite_ex(Vector3 move, int clipmask, CollisionData coll);
-	native int monsterCheatCheck();
 	native void shoot(Name spawnclass);
 	native void setClipDistFromTile();
 	native void insertspriteq();

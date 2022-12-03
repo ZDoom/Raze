@@ -64,8 +64,6 @@ class DukeRecon : DukeActor
 		if (self.pos.Z < sectp.ceilingz + 32)
 			self.pos.Z = sectp.ceilingz + 32;
 
-		if (self.monsterCheatCheck()) return;
-		
 		if (self.ifhitbyweapon() >= 0)
 		{
 			if (self.extra < 0 && self.temp_data[0] != -1)
