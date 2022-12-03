@@ -1,5 +1,5 @@
 
-class DukeCrack1 : DukeActor
+class DukeCrack : DukeActor
 {
 	default
 	{
@@ -55,29 +55,5 @@ class DukeCrack1 : DukeActor
 	{
 		tspr.shade = 16;
 		return true;
-	}
-}
-
-class DukeCrack2 : DukeCrack1
-{
-	default
-	{
-		pic "CRACK2";
-	}
-}
-
-class DukeCrack3 : DukeCrack1
-{
-	default
-	{
-		pic "CRACK3";
-	}
-}
-
-class DukeCrack4 : DukeCrack1
-{
-	default
-	{
-		pic "CRACK4";
 	}
 }

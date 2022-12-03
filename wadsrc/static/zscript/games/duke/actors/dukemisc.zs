@@ -17,7 +17,7 @@ class DukePlug : DukeActor
 	}
 }
 
-class DukeFemMag1 : DukeActor
+class DukeFemMag : DukeActor
 {
 	default 
 	{
@@ -29,11 +29,6 @@ class DukeFemMag1 : DukeActor
 	{
 		self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	}
-}
-
-class DukeFemMag2 : DukeFemMag1
-{
-	default { pic "FEMMAG1"; }
 }
 
 class DukeTag : DukeActor
@@ -54,17 +49,7 @@ class DukeTag : DukeActor
 	}
 }
 
-class DukeSign1 : DukeTag
-{
-	default { pic "SIGN1"; }
-}
-
-class DukeSign2 : DukeTag
-{
-	default { pic "SIGN2"; }
-}
-
-class DukeMaskWall1 : DukeActor
+class DukeMaskWall : DukeActor
 {
 	default
 	{
@@ -77,71 +62,6 @@ class DukeMaskWall1 : DukeActor
 		let j = self.cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 		self.cstat = j | CSTAT_SPRITE_BLOCK;
 	}
-}
-
-class DukeMaskWall2 : DukeMaskWall1
-{
-	default { pic "MASKWALL2"; }
-}
-
-class DukeMaskWall3 : DukeMaskWall1
-{
-	default { pic "MASKWALL3"; }
-}
-
-class DukeMaskWall4 : DukeMaskWall1
-{
-	default { pic "MASKWALL4"; }
-}
-
-class DukeMaskWall5 : DukeMaskWall1
-{
-	default { pic "MASKWALL5"; }
-}
-
-class DukeMaskWall6 : DukeMaskWall1
-{
-	default { pic "MASKWALL6"; }
-}
-
-class DukeMaskWall7 : DukeMaskWall1
-{
-	default { pic "MASKWALL7"; }
-}
-
-class DukeMaskWall8 : DukeMaskWall1
-{
-	default { pic "MASKWALL9"; }
-}
-
-class DukeMaskWall10 : DukeMaskWall1
-{
-	default { pic "MASKWALL10"; }
-}
-
-class DukeMaskWall11 : DukeMaskWall1
-{
-	default { pic "MASKWALL11"; }
-}
-
-class DukeMaskWall12 : DukeMaskWall1
-{
-	default { pic "MASKWALL12"; }
-}
-
-class DukeMaskWall13 : DukeMaskWall1
-{
-	default { pic "MASKWALL13"; }
-}
-
-class DukeMaskWall14 : DukeMaskWall1
-{
-	default { pic "MASKWALL14"; }
-}
-
-class DukeMaskWall15 : DukeMaskWall1
-{
-	default { pic "MASKWALL15"; }
 }
 
 class DukeFootprints : DukeActor
@@ -234,6 +154,32 @@ class DukeCameraPole : DukeGenericPole
 		if (gs.camerashitable) self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		else self.cstat = 0;
 		super.Initialize();
+	}
+}
+
+class DukeNeon : DukeActor
+{
+	default
+	{
+		statnum STAT_MISC;
+		pic "NEON1";
+	}
+	
+	override void Initialize()
+	{
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+	}
+
+	override void Tick()
+	{
+		if ((Duke.global_random() / (self.lotag + 1) & 31) > 4) self.shade = -127;
+		else self.shade = 127;
+	}
+	
+	override bool Animate(tspritetype t)
+	{
+		t.shade = self.shade;
+		return true;
 	}
 }
 

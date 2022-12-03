@@ -33,28 +33,3 @@ class DukeCanWithSomething : DukeActor
 		}
 	}
 }
-
-class DukeCanWithSomething2 : DukeCanWithSomething
-{
-	Default
-	{
-		pic "CANWITHSOMETHING2";
-	}
-}
-
-class DukeCanWithSomething3 : DukeCanWithSomething
-{
-	Default
-	{
-		pic "CANWITHSOMETHING3";
-	}
-}
-
-class DukeCanWithSomething4 : DukeCanWithSomething
-{
-	Default
-	{
-		pic "CANWITHSOMETHING4";
-	}
-}
-
