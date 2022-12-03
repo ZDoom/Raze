@@ -51,7 +51,9 @@ spawnclasses
 	8679 = RedneckSnakeRiverSign
 	8448 = RedneckMusicNotes
 	8704 = RedneckJoe9000
-	
+	7220 = RedneckEmptyBike
+	7233 = RedneckEmptyBoat
+
 	7636 = DukeGenericDestructible, "OLDPHOTO0", "OLDPHOTO0BROKE", "VENT_BUST"
 	7638 = DukeGenericDestructible, "OLDPHOTO1", "OLDPHOTO1BROKE", "VENT_BUST"
 	7640 = DukeGenericDestructible, "FLAMMABLESIGN", "FLAMMABLESIGNBROKE", "VENT_BUST"
@@ -66,7 +68,7 @@ spawnclasses
 	7876 = DukeGenericDestructible, "STREETSIGN1", "STREETSIGN1BROKE", "VENT_BUST"
 	7881 = DukeGenericDestructible, "DANGERSIGN", "DANGERSIGNBROKE", "VENT_BUST"
 	7883 = DukeGenericDestructible, "RADIATIONSIGN", "RADIATIONSIGNBROKE", "VENT_BUST"
-	7879 = DukeGenericDamagingDestructible, "DIABLOHWAY", "DIABLOHWAYBROKE", "SIGNHIT"
+	7879 = DukeGenericDestructible, "DIABLOHWAY", "DIABLOHWAYBROKE", "SIGNHIT", damaging
 	7694 = DukeGenericDestructible, "BANKELPESO", "BANKELPESOBROKE", "WOODBREK"
 	7700 = DukeGenericDestructible, "SHERIFFSIGN", "SHERIFFSIGNBROKE", "WOODBREK"
 	7702 = DukeGenericDestructible, "STORESIGN", "STORESIGNBROKE", "WOODBREK"

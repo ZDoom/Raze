@@ -1136,7 +1136,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, setbobpos, DukePlayer_setbobpos)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, StartMotorcycle, OnMotorcycle)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	OnMotorcycle(self);
+	return 0;
+}
 
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, StartBoat, OnBoat)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	OnBoat(self);
+	return 0;
+}
 
 
 static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)

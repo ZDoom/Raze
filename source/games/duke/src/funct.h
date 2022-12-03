@@ -189,9 +189,9 @@ void cacheit_d();
 void cacheit_r();
 
 void FTA(int q, player_struct* p);
-void OnMotorcycle(player_struct *pl, DDukeActor* snum);
+void OnMotorcycle(player_struct *pl);
 void OffMotorcycle(player_struct *pl);
-void OnBoat(player_struct *pl, DDukeActor* snum);
+void OnBoat(player_struct *pl);
 void OffBoat(player_struct *pl);
 
 void cameratext(DDukeActor* i);

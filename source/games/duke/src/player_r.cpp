@@ -3871,17 +3871,10 @@ HORIZONLY:
 //
 //---------------------------------------------------------------------------
 
-void OnMotorcycle(player_struct *p, DDukeActor* motosprite)
+void OnMotorcycle(player_struct *p)
 {
-	if (!p->OnMotorcycle && !(p->cursector->lotag == 2))
+	if (!p->OnMotorcycle && p->cursector->lotag != ST_2_UNDERWATER)
 	{
-		if (motosprite)
-		{
-			p->GetActor()->spr.pos.XY() = motosprite->spr.pos.XY();
-			p->Angles.setYaw(motosprite->spr.Angles.Yaw, true);
-			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
-			motosprite->Destroy();
-		}
 		p->over_shoulder_on = 0;
 		p->OnMotorcycle = 1;
 		p->last_full_weapon = p->curr_weapon;
@@ -3945,17 +3938,10 @@ void OffMotorcycle(player_struct *p)
 //
 //---------------------------------------------------------------------------
 
-void OnBoat(player_struct *p, DDukeActor* boat)
+void OnBoat(player_struct *p)
 {
 	if (!p->OnBoat)
 	{
-		if (boat)
-		{
-			p->GetActor()->spr.pos.XY() = boat->spr.pos.XY();
-			p->Angles.setYaw(boat->spr.Angles.Yaw, true);
-			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
-			boat->Destroy();
-		}
 		p->over_shoulder_on = 0;
 		p->OnBoat = 1;
 		p->last_full_weapon = p->curr_weapon;

@@ -661,37 +661,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		spawneffector(act, actors);
 		break;
 
-	case EMPTYBIKE:
-		if (!isRRRA()) goto default_case;
-		if (ud.multimode < 2 && act->spr.pal == 1)
-		{
-			act->spr.scale = DVector2(0, 0);
-			break;
-		}
-		act->spr.pal = 0;
-		act->spr.scale = DVector2(0.28125, 0.28125);
-		act->setClipDistFromTile();
-		act->saved_ammo = 100;
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->spr.lotag = 1;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
-	case EMPTYBOAT:
-		if (!isRRRA()) goto default_case;
-		if (ud.multimode < 2 && act->spr.pal == 1)
-		{
-			act->spr.scale = DVector2(0, 0);
-			break;
-		}
-		act->spr.pal = 0;
-		act->spr.scale = DVector2(0.5, 0.5);
-		act->setClipDistFromTile();
-		act->saved_ammo = 20;
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		act->spr.lotag = 1;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
-
 	case RUBBERCAN:
 		act->spr.extra = 0;
 		[[fallthrough]];

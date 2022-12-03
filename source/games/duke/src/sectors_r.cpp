@@ -1592,19 +1592,6 @@ void checksectors_r(int snum)
 				if (CallOnUse(neartagsprite, p))
 					return;
 			}
-			else
-			switch (neartagsprite->spr.picnum)
-			{
-			case EMPTYBIKE:
-				if (!isRRRA()) return;
-				OnMotorcycle(p, neartagsprite);
-				return;
-			case EMPTYBOAT:
-				if (!isRRRA()) return;
-				OnBoat(p, neartagsprite);
-				return;
-				break;
-			}
 		}
 
 		if (!PlayerInput(snum, SB_OPEN)) return;

@@ -361,6 +361,8 @@ struct DukePlayer native
 	native bool hitablockingwall();
 	native double getPitchWithView();
 	native void setbobpos();
+	native void StartMotorcycle();
+	native void StartBoat();
 
 
 }

@@ -1072,22 +1072,6 @@ void moveactors_r(void)
 		}
 		else switch(act->spr.picnum)
 		{
-			case EMPTYBIKE:
-				if (!isRRRA()) break;
-				makeitfall(act);
-				getglobalz(act);
-				if (sectp->lotag == 1)
-				{
-					SetActor(act, DVector3(act->spr.pos.X, act->spr.pos.Y, act->floorz + 16));
-				}
-				break;
-
-			case EMPTYBOAT:
-				if (!isRRRA()) break;
-				makeitfall(act);
-				getglobalz(act);
-				break;
-
 			case POWDERKEG:
 				if (!isRRRA() || (sectp->lotag != ST_1_ABOVE_WATER && sectp->lotag != ST_160_FLOOR_TELEPORT))
 					if (act->vel.X != 0)

@@ -158,30 +158,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;
-		case EMPTYBIKE:
-			if (!isRRRA()) goto default_case;
-			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.Angles.Yaw, kang);
-			if (k > 6)
-			{
-				k = 12 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = EMPTYBIKE + k;
-			break;
-		case EMPTYBOAT:
-			if (!isRRRA()) goto default_case;
-			kang = (h->spr.pos - viewVec).Angle();
-			k = angletorotation2(h->spr.Angles.Yaw, kang);
-			if (k > 6)
-			{
-				k = 12 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = EMPTYBOAT + k;
-			break;
 		case APLAYER:
 
 			p = h->PlayerIndex();
@@ -367,7 +343,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			[[fallthrough]];
 		default:
-		default_case:
 
 			if (sectp->floorpal)
 				copyfloorpal(t, sectp);
