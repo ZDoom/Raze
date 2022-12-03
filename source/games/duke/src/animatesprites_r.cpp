@@ -53,34 +53,13 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 
-		switch (t->picnum)
+		if (!actorflag(h, SFLAG2_FORCESECTORSHADE) && ((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
 		{
-		case FOOTPRINTS:
-		case FOOTPRINTS2:
-		case FOOTPRINTS3:
-		case FOOTPRINTS4:
-			if (t->shade == 127) continue;
-			break;
-		case BULLETHOLE:
-			t->shade = 16;
-			continue;
-
-		case RRTILE1947:
-		case RRTILE2859:
-		case RRTILE3774:
-		case RRTILE8096:
-			if (isRRRA()) continue;
-
-		default:
-			if (((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
+			if (h->sector()->shadedsector == 1 && h->spr.statnum != 1)
 			{
-				if (h->sector()->shadedsector == 1 && h->spr.statnum != 1)
-				{
-					h->spr.shade = 16;
-					t->shade = 16;
-				}
-				continue;
+				t->shade = 16;
 			}
+			continue;
 		}
 
 		if (t->sectp != nullptr)
@@ -157,13 +136,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			h->spr.scale = DVector2(0.375, 0.265625);
 			if (h->spr.extra > 0)
 				t->pos.Z += 6;
-			break;
-		case FOOTPRINTS:
-		case FOOTPRINTS2:
-		case FOOTPRINTS3:
-		case FOOTPRINTS4:
-			if (t->pal == 6)
-				t->shade = -127;
 			break;
 		case POWDERKEG:
 			continue;

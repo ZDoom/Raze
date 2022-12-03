@@ -1631,11 +1631,6 @@ void checksectors_r(int snum)
 				if (!isRRRA()) return;
 				OnBoat(p, neartagsprite);
 				return;
-
-			case PLUG:
-				S_PlayActorSound(SHORT_CIRCUIT, pact);
-				p->GetActor()->spr.extra -= 2 + (krand() & 3);
-				SetPlayerPal(p, PalEntry(32, 48, 48, 64));
 				break;
 			}
 		}

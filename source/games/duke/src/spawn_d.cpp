@@ -179,49 +179,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case FEMMAG1: // ok
-	case FEMMAG2: // ok
-		act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, 0);
-		break;
-	case DUKETAG: // ok
-	case SIGN1:		// ok
-	case SIGN2:		// ok
-		if (ud.multimode < 2 && act->spr.pal)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-		}
-		else act->spr.pal = 0;
-		break;
-	case MASKWALL1:	// all ok
-	case MASKWALL2:
-	case MASKWALL3:
-	case MASKWALL4:
-	case MASKWALL5:
-	case MASKWALL6:
-	case MASKWALL7:
-	case MASKWALL8:
-	case MASKWALL9:
-	case MASKWALL10:
-	case MASKWALL11:
-	case MASKWALL12:
-	case MASKWALL13:
-	case MASKWALL14:
-	case MASKWALL15:
-	{
-		auto j = act->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
-		act->spr.cstat = j | CSTAT_SPRITE_BLOCK;
-		ChangeActorStat(act, 0);
-		break;
-	}
-	case FOOTPRINTS:	// ok
-	case FOOTPRINTS2:
-	case FOOTPRINTS3:
-	case FOOTPRINTS4:
-		initfootprint(actj, act);
-		break;
-
 	case FEM1:
 	case FEM2:
 	case FEM3:
@@ -263,20 +220,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MIKE:
 		if (act->spr.picnum == MIKE)
 			act->spr.yint = act->spr.hitag;
-		[[fallthrough]];
-	case WEATHERWARN: // ok
-		ChangeActorStat(act, STAT_ACTOR);
+		ChangeActorStat(act, 1);
 		break;
-
-	case SPOTLITE: // ok
-		break;
-	case BULLETHOLE: // ok
-		act->spr.scale = DVector2(0.046875, 0.046875);
-		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
-		insertspriteq(act);
-		ChangeActorStat(act, STAT_MISC);
-		break;
-
 	case ONFIRE:
 		// Twentieth Anniversary World Tour
 		if (!isWorldTour())
@@ -376,10 +321,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case PLUG:
-		act->spr.lotag = 9999;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
 	case WATERBUBBLEMAKER:
 		if (act->spr.hitag && act->spr.picnum == WATERBUBBLEMAKER)
 		{	// JBF 20030913: Pisses off move(), eg. in bobsp2
@@ -594,23 +535,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case CAMERAPOLE: // ok
-		act->spr.extra = 1;
-
-		if (gs.camerashitable) act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		else act->spr.cstat = 0;
-		[[fallthrough]];
-
-	case GENERICPOLE: // ok
-
-		if (ud.multimode < 2 && act->spr.pal != 0)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-		else act->spr.pal = 0;
-		break;
 	case STEAM:
 		if (actj)
 		{

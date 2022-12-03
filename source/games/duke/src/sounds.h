@@ -109,7 +109,7 @@ void S_ContinueLevelMusic(void);
 void S_ParseDeveloperCommentary();
 
 void StopCommentary();
-bool StartCommentary(int tag, DDukeActor* sprnum);
+int StartCommentary(int tag, DDukeActor* sprnum);
 
 
 END_DUKE_NS

@@ -97,25 +97,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 0);
 		break;
-	case FEMMAG1:
-	case FEMMAG2:
-		act->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, 0);
-		break;
-
-	case MASKWALL7:
-	{
-		auto j = act->spr.cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
-		act->spr.cstat = j | CSTAT_SPRITE_BLOCK;
-		ChangeActorStat(act, 0);
-		break;
-	}
-	case FOOTPRINTS:
-	case FOOTPRINTS2:
-	case FOOTPRINTS3:
-	case FOOTPRINTS4:
-		initfootprint(actj, act);
-		break;
 	case FEM10:
 	case NAKED1:
 	case STATUE:
@@ -142,15 +123,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == MIKE)
 			act->spr.yint = act->spr.hitag;
 		ChangeActorStat(act, STAT_ACTOR);
-		break;
-
-	case SPOTLITE:
-		break;
-	case BULLETHOLE:
-		act->spr.scale = DVector2(0.046875, 0.046875);
-		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
-		insertspriteq(act);
-		ChangeActorStat(act, STAT_MISC);
 		break;
 
 	case EXPLOSION2:
@@ -234,10 +206,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case PLUG:
-		act->spr.lotag = 9999;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
 	case WATERBUBBLEMAKER:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_STANDABLE);
@@ -685,20 +653,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		}
 		act->spr.shade = act->sector()->floorshade;
-		break;
-	case CAMERAPOLE:
-		act->spr.extra = 1;
-
-		if (gs.camerashitable) act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-		else act->spr.cstat = 0;
-
-		if (ud.multimode < 2 && act->spr.pal != 0)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-		else act->spr.pal = 0;
 		break;
 	case STEAM:
 		if (actj)

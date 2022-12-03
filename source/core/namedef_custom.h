@@ -26,6 +26,7 @@ xx(DukeGlassPieces2)
 xx(DukeNaturalLightning)
 xx(RedneckBowlingPin)
 xx(DukeReactor)
+xx(DukeFootprints)
 
 xx(spawnstate)
 xx(brokenstate)

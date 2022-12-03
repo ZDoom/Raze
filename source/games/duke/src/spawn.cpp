@@ -403,37 +403,6 @@ int spawnbloodpoolpart1(DDukeActor* act)
 //
 //---------------------------------------------------------------------------
 
-void initfootprint(DDukeActor* actj, DDukeActor* act)
-{
-	auto sect = act->sector();
-	if (actj)
-	{
-		bool away = isAwayFromWall(act, 5.25);
-		if (!away)
-		{
-			act->spr.scale = DVector2(0, 0);
-			return;
-		}
-
-		act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		if ((ps[actj->PlayerIndex()].footprintcount & 1)) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-	}
-
-	act->spr.pos.Z = sect->floorz;
-	if (sect->lotag != 1 && sect->lotag != 2)
-		act->spr.scale = DVector2(0.5, 0.5);
-
-	insertspriteq(act);
-	ChangeActorStat(act, STAT_MISC);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 {
 	auto sectp = actor->sector();

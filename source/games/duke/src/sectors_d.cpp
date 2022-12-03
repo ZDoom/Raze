@@ -198,22 +198,6 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	case ALIENSWITCH:
 	case ALIENSWITCHON:
 		break;
-	case DEVELOPERCOMMENTARY + 1: //Twentieth Anniversary World Tour
-		if (act)
-		{
-			StopCommentary();
-			act->spr.picnum = DEVELOPERCOMMENTARY;
-			return true;
-		}
-		return false;
-	case DEVELOPERCOMMENTARY: //Twentieth Anniversary World Tour
-		if (act)
-		{
-			if (StartCommentary(lotag, act))
-				act->spr.picnum = DEVELOPERCOMMENTARY+1;
-			return true;
-		}
-		return false;
 	case ACCESSSWITCH:
 	case ACCESSSWITCH2:
 		if (ps[snum].access_incs == 0)
@@ -1220,20 +1204,8 @@ void checksectors_d(int snum)
 		{
 			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
 
-			if (neartagsprite->GetClass() != RUNTIME_CLASS(DDukeActor))
-			{
-				if (CallOnUse(neartagsprite, p))
-					return;
-			}
-			else
-				switch (neartagsprite->spr.picnum)
-				{
-				case PLUG:
-					S_PlayActorSound(SHORT_CIRCUIT, pact);
-					p->GetActor()->spr.extra -= 2 + (krand() & 3);
-					SetPlayerPal(p, PalEntry(32, 48, 48, 64));
-					break;
-				}
+			if (CallOnUse(neartagsprite, p))
+				return;
 		}
 
 		if (!PlayerInput(snum, SB_OPEN)) return;

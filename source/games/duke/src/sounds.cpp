@@ -80,6 +80,8 @@ void MuteSounds()
 		});
 }
 
+void setSpritesetImage(DDukeActor* self, unsigned int index);
+
 class DukeSoundEngine : public RazeSoundEngine
 {
 	// client specific parts of the sound engine go in this class.
@@ -113,7 +115,7 @@ public:
 		{
 			UnloadSound(schan->SoundID.index());
 			currentCommentarySound = NO_SOUND;
-			if (currentCommentarySprite) currentCommentarySprite->spr.picnum = DEVELOPERCOMMENTARY;
+			if (currentCommentarySprite) setSpritesetImage(currentCommentarySprite, 0);
 			I_SetRelativeVolume(1.0f);
 			UnmuteSounds();
 		}
@@ -851,7 +853,7 @@ void StopCommentary()
 	}
 }
 
-bool StartCommentary(int tag, DDukeActor* actor)
+int StartCommentary(int tag, DDukeActor* actor)
 {
 	if (wt_commentary && Commentaries.Size() > (unsigned)tag && Commentaries[tag].IsNotEmpty())
 	{

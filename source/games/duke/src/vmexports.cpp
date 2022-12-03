@@ -190,6 +190,22 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, updatepindisplay, updatepindisplay)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, StartCommentary, StartCommentary)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(tag);
+	PARAM_POINTER(act, DDukeActor);
+	ACTION_RETURN_BOOL(StartCommentary(tag, act));
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, StopCommentary, StopCommentary)
+{
+	PARAM_PROLOGUE;
+	StopCommentary();
+	return 0;
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
@@ -226,7 +242,7 @@ DEFINE_FIELD(DDukeActor, temp_pos)
 DEFINE_FIELD(DDukeActor, temp_pos2)
 DEFINE_FIELD(DDukeActor, temp_angle)
 
-static void setSpritesetImage(DDukeActor* self, unsigned int index)
+void setSpritesetImage(DDukeActor* self, unsigned int index)
 {
 	auto& spriteset = static_cast<PClassActor*>(self->GetClass())->ActorInfo()->SpriteSet;
 

@@ -106,6 +106,15 @@ spawnclasses
 	1100 = DukeStall
 	2121 = RedneckToiletSeat
 	2122 = RedneckToilet2
+	1097 = DukeFemMag1
+	1106 = DukeFemMag2
+	2264 = DukeMaskWall7
+	1079 = DukeFootprints
+	1144 = DukeFootprints
+	1145 = DukeFootprints
+	1146 = DukeFootprints
+	1212 = DukeBulletHole
+	1083 = DukeCameraPole
 
 	26 = RedneckDynamite
 	1416 = RedneckMortar

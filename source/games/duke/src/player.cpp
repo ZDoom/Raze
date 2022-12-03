@@ -508,7 +508,7 @@ void footprints(int snum)
 			DukeSectIterator it(actor->sector());
 			while (auto act = it.Next())
 			{
-				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
+				if (act->IsKindOf(NAME_DukeFootprints))
 					if (abs(act->spr.pos.X - p->GetActor()->spr.pos.X) < 24)
 						if (abs(act->spr.pos.Y - p->GetActor()->spr.pos.Y) < 24)
 						{
@@ -521,16 +521,10 @@ void footprints(int snum)
 				p->footprintcount--;
 				if (p->cursector->lotag == 0 && p->cursector->hitag == 0)
 				{
-					DDukeActor* fprint;
-					switch (krand() & 3)
-					{
-					case 0:	 fprint = spawn(actor, TILE_FOOTPRINTS); break;
-					case 1:	 fprint = spawn(actor, TILE_FOOTPRINTS2); break;
-					case 2:	 fprint = spawn(actor, TILE_FOOTPRINTS3); break;
-					default: fprint = spawn(actor, TILE_FOOTPRINTS4); break;
-					}
+					DDukeActor* fprint = spawn(actor, PClass::FindActor(NAME_DukeFootprints));
 					if (fprint)
 					{
+						fprint->spr.Angles.Yaw = p->actor->spr.Angles.Yaw;
 						fprint->spr.pal = p->footprintpal;
 						fprint->spr.shade = (int8_t)p->footprintshade;
 					}

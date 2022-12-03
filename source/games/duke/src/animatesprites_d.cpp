@@ -58,26 +58,13 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 
-		if (!actorflag(h, SFLAG2_FORCESECTORSHADE))
-		switch (t->picnum)
+		if (!actorflag(h, SFLAG2_FORCESECTORSHADE) && ((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
 		{
-		case DEVELOPERCOMMENTARY:
-		case DEVELOPERCOMMENTARYON:
-			if (isWorldTour() && !wt_commentary)
-				t->scale = DVector2(0, 0);
-			break;
-		case FOOTPRINTS:
-		case FOOTPRINTS2:
-		case FOOTPRINTS3:
-		case FOOTPRINTS4:
-			if (t->shade == 127) continue;
-			break;
-		case BULLETHOLE:
-			t->shade = 16;
+			if (h->sector()->shadedsector == 1 && h->spr.statnum != 1)
+			{
+				t->shade = 16;
+			}
 			continue;
-		default:
-			if (((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
-				continue;
 		}
 
 		if (t->sectp != nullptr)
@@ -150,13 +137,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		{
 		case DUKELYINGDEAD:
 			t->pos.Z += 24;
-			break;
-		case FOOTPRINTS:
-		case FOOTPRINTS2:
-		case FOOTPRINTS3:
-		case FOOTPRINTS4:
-			if (t->pal == 6)
-				t->shade = -127;
 			break;
 		case BURNING:
 		case BURNING2:

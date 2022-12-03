@@ -154,6 +154,8 @@ struct Duke native
 	native static int GetSoundFlags(Sound snd);
 	native static int badguyID(int id);
 	native static void updatepindisplay(int tag, int pinmask);
+	native static bool StartCommentary(int tag, DukeActor act);
+	native static void StopCommentary();
 	static int rnd(int val)
 	{
 		return (random(0, 255) >= (255 - (val)));
