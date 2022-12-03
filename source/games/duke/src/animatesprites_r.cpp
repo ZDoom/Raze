@@ -40,9 +40,8 @@ BEGIN_DUKE_NS
 
 void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac)
 {
-	DAngle kang;
 	int k, p;
-	int l, t1, t3, t4;
+	int t1, t3, t4;
 	tspritetype* t;
 	DDukeActor* h;
 
