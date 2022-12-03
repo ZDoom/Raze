@@ -271,7 +271,7 @@ void spriteinit_d(DDukeActor* actor, TArray<DDukeActor*>& actors)
 void prelevel_d(int g, TArray<DDukeActor*>& actors)
 {
 	int i, j, lotaglist;
-	short lotags[65];
+	TArray<short> lotags;
 
 	prelevel_common(g);
 
@@ -328,17 +328,10 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		case POWERSWITCH1 + 1:
 		case LOCKSWITCH1 + 1:
 		case POWERSWITCH2 + 1:
-			for (j = 0; j < lotaglist; j++)
-				if (actor->spr.lotag == lotags[j])
-					break;
-
-			if (j == lotaglist)
+			j = lotags.Find(actor->spr.lotag);
+			if (j == lotags.Size())
 			{
-				lotags[lotaglist] = actor->spr.lotag;
-				lotaglist++;
-				if (lotaglist > 64)
-					I_Error("Too many switches (64 max).");
-
+				lotags.Push(actor->spr.lotag);
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto ac = it1.Next())
 				{

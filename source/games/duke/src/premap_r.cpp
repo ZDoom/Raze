@@ -412,7 +412,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	int i;
 	int j;
 	int lotaglist;
-	short lotags[65];
+	TArray<short> lotags;
 	int speed = 0;
 	int dist;
 	int sound;
@@ -670,17 +670,10 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		case NUKEBUTTON:
 		case NUKEBUTTON + 1:
 
-			for (j = 0; j < lotaglist; j++)
-				if (ac->spr.lotag == lotags[j])
-					break;
-
-			if (j == lotaglist)
+			j = lotags.Find(ac->spr.lotag);
+			if (j == lotags.Size()) 
 			{
-				lotags[lotaglist] = ac->spr.lotag;
-				lotaglist++;
-				if (lotaglist > 64)
-					I_Error("Too many switches (64 max).");
-
+				lotags.Push(ac->spr.lotag);
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto actj = it1.Next())
 				{
