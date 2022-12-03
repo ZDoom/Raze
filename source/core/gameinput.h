@@ -88,9 +88,6 @@ struct PlayerAngles
 		return offsets;
 	}
 
-	// Pitch methods.
-	void setPitch(const DAngle value, const bool backup = false) { updateAngle(PITCH, ClampViewPitch(value), backup); }
-
 	// Yaw methods.
 	void setYaw(const DAngle value, const bool backup = false) { updateAngle(YAW, value, backup); }
 

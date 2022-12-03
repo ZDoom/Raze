@@ -1069,11 +1069,8 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         if (nTotalPlayers <= 1)
         {
-            auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite);
-            PlayerList[nPlayer].Angles.setYaw(ang, true);
-            pPlayerActor->spr.Angles.Yaw = ang;
-
-            PlayerList[nPlayer].Angles.setPitch(nullAngle, true);
+            pPlayerActor->spr.Angles = DRotator(nullAngle, GetAngleToSprite(pPlayerActor, pSpiritSprite), nullAngle);
+            pPlayerActor->backupang();
 
             sPlayerInput[nPlayer].vel.Zero();
             pPlayerActor->vel.Zero();
@@ -1086,7 +1083,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                 InitSpiritHead();
 
                 PlayerList[nPlayer].nDestVertPan = nullAngle;
-                PlayerList[nPlayer].Angles.setPitch(currentLevel->ex_ramses_horiz);
+                pPlayerActor->spr.Angles.Pitch = currentLevel->ex_ramses_horiz;
             }
         }
         else
@@ -2616,7 +2613,7 @@ sectdone:
         {
             if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Sgn() > 0)
             {
-                PlayerList[nPlayer].Angles.setPitch(nullAngle);
+                pPlayerActor->spr.Angles.Pitch = nullAngle;
                 pPlayerActor->viewzoffset -= dVertPan[nPlayer];
             }
             else
@@ -2625,7 +2622,7 @@ sectdone:
 
                 if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Degrees() <= 38)
                 {
-                    PlayerList[nPlayer].Angles.setPitch(DAngle::fromDeg(-37.72));
+                    PlayerList[nPlayer].pActor->spr.Angles.Pitch = DAngle::fromDeg(-37.72);
                 }
                 else if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Sgn() >= 0)
                 {

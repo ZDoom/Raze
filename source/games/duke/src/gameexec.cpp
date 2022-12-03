@@ -344,7 +344,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 			{
 				ps[iPlayer].sync.actions &= ~SB_CENTERVIEW;
 			}
-			ps[iPlayer].Angles.setPitch(maphoriz(-lValue));
+			ps[iPlayer].GetActor()->spr.Angles.Pitch = maphoriz(-lValue);
 		}
 		else SetGameVarID(lVar2, int(ps[iPlayer].GetActor()->spr.Angles.Pitch.Tan() * -128.), sActor, sPlayer);
 		break;

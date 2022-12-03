@@ -2187,7 +2187,7 @@ void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 	if (const double adjustment = clamp(value * 0.125 * (value > 0 ? lookStepUp : lookStepDown), downAngle, upAngle))
 	{
 		setForcedSyncInput();
-		pPlayer->Angles.setPitch(maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.))));
+		pPlayer->actor->spr.Angles.Pitch = maphoriz(-100. * tan(adjustment * pi::pi() * (1. / 1024.)));
 	}
 }
 

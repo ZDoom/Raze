@@ -3880,7 +3880,7 @@ void OnMotorcycle(player_struct *p)
 		p->gotweapon[MOTORCYCLE_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->Angles.setPitch(nullAngle);
+		p->GetActor()->spr.Angles.Pitch = nullAngle;
 	}
 	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
 		S_PlayActorSound(186, p->GetActor());
@@ -3911,7 +3911,7 @@ void OffMotorcycle(player_struct *p)
 		p->gotweapon[MOTORCYCLE_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->Angles.setPitch(nullAngle);
+		p->GetActor()->spr.Angles.Pitch = nullAngle;
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
@@ -3947,7 +3947,7 @@ void OnBoat(player_struct *p)
 		p->gotweapon[BOAT_WEAPON] = true;
 		p->vel.X = 0;
 		p->vel.Y = 0;
-		p->Angles.setPitch(nullAngle);
+		p->GetActor()->spr.Angles.Pitch = nullAngle;
 	}
 }
 
@@ -3965,7 +3965,7 @@ void OffBoat(player_struct *p)
 		p->gotweapon[BOAT_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->Angles.setPitch(nullAngle);
+		p->GetActor()->spr.Angles.Pitch = nullAngle;
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
