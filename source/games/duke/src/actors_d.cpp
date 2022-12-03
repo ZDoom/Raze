@@ -695,52 +695,6 @@ void movefallers_d(void)
 //
 //---------------------------------------------------------------------------
 
-void movestandables_d(void)
-{
-	DukeStatIterator it(STAT_STANDABLE);
-	while (auto act = it.Next())
-	{
-		int picnum = act->spr.picnum;
-
-		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
-		{
-			act->Destroy();
-		}
-		else
-		{
-			CallTick(act);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void moveweapons_d(void)
-{
-	DukeStatIterator it(STAT_PROJECTILE);
-	while (auto act = it.Next())
-	{
-		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
-		{
-			act->Destroy();
-		}
-		else
-		{
-			CallTick(act);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void movetransports_d(void)
 {
 	int warpspriteto;
@@ -1781,7 +1735,7 @@ void think_d(void)
 	thinktime.Clock();
 
 	movefta();			//ST 2
-	moveweapons_d();		//ST 4
+	tickstat(STAT_PROJECTILE);		//ST 4
 	moveplayers();			//ST 10
 	movefallers_d();		//ST 12
 	moveexplosions_d();		//ST 5
@@ -1792,7 +1746,7 @@ void think_d(void)
 	actortime.Unclock();
 
 	moveeffectors_d();		//ST 3
-	movestandables_d();		//ST 6
+	tickstat(STAT_STANDABLE);		//ST 6
 	doanimations();
 	tickstat(STAT_FX);				//ST 11
 

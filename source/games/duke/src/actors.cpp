@@ -569,18 +569,17 @@ void moveplayers(void)
 //
 //---------------------------------------------------------------------------
 
-void tickstat(int stat)
+void tickstat(int stat, bool deleteinvalid)
 {
 	DukeStatIterator iti(stat);
 	while (auto act = iti.Next())
 	{
-		if (actorflag(act, SFLAG2_DIENOW))
+		if (actorflag(act, SFLAG2_DIENOW) || act->sector() == nullptr || (deleteinvalid && act->spr.scale.X == 0))
 		{
 			act->Destroy();
 			continue;
 		}
-		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
-			CallTick(act);
+		CallTick(act);
 	}
 }
 

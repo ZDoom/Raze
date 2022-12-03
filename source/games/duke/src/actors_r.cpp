@@ -551,52 +551,6 @@ void movefallers_r(void)
 
 //---------------------------------------------------------------------------
 //
-//
-//
-//---------------------------------------------------------------------------
-
-void movestandables_r(void)
-{
-	DukeStatIterator it(STAT_STANDABLE);
-	while (auto act = it.Next())
-	{
-		int picnum = act->spr.picnum;
-
-		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
-		{
-			act->Destroy();
-		}
-		else
-		{
-			CallTick(act);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void moveweapons_r(void)
-{
-	DukeStatIterator it(STAT_PROJECTILE);
-	while (auto act = it.Next())
-	{
-		if (!act->insector() || actorflag(act, SFLAG2_DIENOW))
-		{
-			act->Destroy();
-		}
-		else
-		{
-			CallTick(act);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
@@ -1051,11 +1005,7 @@ static void rrra_specialstats()
 		enemysizecheat = 0;
 	}
 
-	it.Reset(STAT_RABBITSPAWN);
-	while (auto act = it.Next())
-	{
-		CallTick(act);
-	}
+	tickstat(STAT_RABBITSPAWN);
 }
 
 //---------------------------------------------------------------------------
@@ -1155,29 +1105,6 @@ void moveactors_r(void)
 		execute(act,p,xx);
 	}
 
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void moveexplosions_r(void)  // STATNUM 5
-{
-
-	DukeStatIterator it(STAT_MISC);
-	while (auto act = it.Next())
-	{
-		if (act->spr.scale.X == 0 || act->spr.sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
-		{
-			act->Destroy();
-		}
-		else
-		{
-			CallTick(act);
-		}
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -2038,10 +1965,10 @@ void think_r(void)
 	thinktime.Clock();
 
 	movefta();			//ST 2
-	moveweapons_r();		//ST 4
+	tickstat(STAT_PROJECTILE);
 	moveplayers();			//ST 10
 	movefallers_r();		//ST 12
-	moveexplosions_r();		//ST 5
+	tickstat(STAT_MISC, true);
 
 	actortime.Reset();
 	actortime.Clock();
@@ -2049,7 +1976,7 @@ void think_r(void)
 	actortime.Unclock();
 
 	moveeffectors_r();		//ST 3
-	movestandables_r();		//ST 6
+	tickstat(STAT_STANDABLE);
 	doanimations();
 	tickstat(STAT_FX);				//ST 11
 

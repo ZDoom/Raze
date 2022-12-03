@@ -29,7 +29,7 @@ void movedummyplayers(void);
 void resetlanepics(void);
 void moveplayers();
 void doanimations();
-void tickstat(int stat);
+void tickstat(int stat, bool deleteinvalid = false);
 void operaterespawns(int low);
 void moveclouds(double interpfrac);
 void movefta();
