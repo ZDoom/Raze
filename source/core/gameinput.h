@@ -88,33 +88,10 @@ struct PlayerAngles
 		return offsets;
 	}
 
-	// Yaw methods.
-	void setYaw(const DAngle value, const bool backup = false) { updateAngle(YAW, value, backup); }
-
-	// Roll methods.
-	void addRoll(const DAngle value) { updateAngle(ROLL, pActor->spr.Angles.Roll + value); }
-	void setRoll(const DAngle value, const bool backup = false) { updateAngle(ROLL, value, backup); }
-
 private:
-	// DRotator indices.
-	enum : unsigned
-	{
-		PITCH,
-		YAW,
-		ROLL,
-		MAXANGLES,
-	};
-
 	// Private data which should never be accessed publically.
 	DRotator PrevLerpAngles;
 	DCoreActor* pActor;
-
-	// Internal angle updater to reduce boilerplate from the public setters.
-	void updateAngle(const unsigned angIndex, const DAngle value, const bool backup = false)
-	{
-		pActor->spr.Angles[angIndex] = value;
-		if (backup) pActor->PrevAngles[angIndex] = pActor->spr.Angles[angIndex];
-	}
 };
 
 class FSerializer;

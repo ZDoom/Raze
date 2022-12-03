@@ -1016,7 +1016,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playerinput, DukePlayer_PlayerInput)
 
 void dukeplayer_settargetangle(player_struct* self, double a, int backup)
 {
-	self->Angles.setYaw(DAngle::fromDeg(a), backup);
+	self->GetActor()->spr.Angles.Yaw = DAngle::fromDeg(a);
+	if (backup) self->GetActor()->PrevAngles.Yaw = self->GetActor()->spr.Angles.Yaw;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, settargetangle, dukeplayer_settargetangle)

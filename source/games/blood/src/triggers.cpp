@@ -1627,7 +1627,7 @@ void OperateTeleport(sectortype* pSector)
 				{
 					playerResetInertia(pPlayer);
 					pPlayer->zViewVel = pPlayer->zWeaponVel = 0;
-					pPlayer->Angles.setYaw(actor->spr.Angles.Yaw, true);
+					pPlayer->actor->PrevAngles.Yaw = pPlayer->actor->spr.Angles.Yaw = actor->spr.Angles.Yaw;
 				}
 			}
 		}

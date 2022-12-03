@@ -3435,7 +3435,7 @@ void DoPlayerClimb(PLAYER* pp)
 
             pp->LadderPosition = lActor->spr.pos.XY() + nvec;
 
-            pp->Angles.setYaw(lActor->spr.Angles.Yaw + DAngle180);
+            pp->actor->spr.Angles.Yaw = lActor->spr.Angles.Yaw + DAngle180;
         }
     }
 }
@@ -3823,7 +3823,7 @@ bool PlayerOnLadder(PLAYER* pp)
     // the sprite
 
 	pp->LadderPosition = lActor->spr.pos + npos;
-    pp->Angles.setYaw(lActor->spr.Angles.Yaw + DAngle180);
+    pp->actor->spr.Angles.Yaw = lActor->spr.Angles.Yaw + DAngle180;
 
     return true;
 }
@@ -5343,7 +5343,7 @@ void DoPlayerStopOperate(PLAYER* pp)
     if (pp->sop_remote)
     {
         DSWActor* rsp = pp->remoteActor;
-        pp->Angles.setYaw(rsp && TEST_BOOL1(rsp) ? rsp->spr.Angles.Yaw : (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle(), true);
+        pp->actor->PrevAngles.Yaw = pp->actor->spr.Angles.Yaw = rsp && TEST_BOOL1(rsp) ? rsp->spr.Angles.Yaw : (pp->sop_remote->pmid.XY() - pp->actor->spr.pos.XY()).Angle();
     }
 
     if (pp->sop_control)
@@ -6985,7 +6985,7 @@ void domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].Angles.setYaw((Player[myconnectindex].actor->spr.pos.XY() - Player[screenpeek].actor->spr.pos.XY()).Angle());
+            Player[screenpeek].actor->spr.Angles.Yaw = (Player[myconnectindex].actor->spr.pos.XY() - Player[screenpeek].actor->spr.pos.XY()).Angle();
         }
 
         if (!(pp->Flags & PF_DEAD))

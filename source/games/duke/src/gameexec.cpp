@@ -472,7 +472,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ANG:
-		if (bSet) ps[iPlayer].Angles.setYaw(mapangle(lValue));
+		if (bSet) ps[iPlayer].GetActor()->spr.Angles.Yaw = mapangle(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].GetActor()->spr.Angles.Yaw.Buildang(), sActor, sPlayer);
 		break;
 
