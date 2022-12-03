@@ -219,6 +219,18 @@ void initactorflags_r()
 		TOUGHGAL
 		});
 
+	setflag(SFLAG2_NOFLOORPAL, {
+		RESPAWNMARKERRED,
+		RESPAWNMARKERYELLOW,
+		RESPAWNMARKERGREEN,
+		FORCESPHERE,
+		BURNING,
+		ATOMICHEALTH,
+		CRYSTALAMMO,
+		SHITBALL,
+		RPG,
+		RECON,
+		});
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)
 	{
@@ -236,7 +248,8 @@ void initactorflags_r()
 		setflag(SFLAG2_SPAWNRABBITGUTS, { MAMA });
 		setflag(SFLAG2_ALTPROJECTILESPRITE, { CHEER, CHEERSTAYPUT });
 		setflag(SFLAG2_UNDERWATERSLOWDOWN, { RPG2 });
-		setflag(SFLAG2_ALWAYSROTATE2, { RPG2 });
+		setflag(SFLAG2_ALWAYSROTATE2, { RPG2, EMPTYBIKE, EMPTYBOAT });
+		setflag(SFLAG2_NOFLOORPAL, { CHEERBOMB, RPG2 });
 	}
 	else
 	{
