@@ -457,13 +457,13 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			dist = 0;
 			while (auto act = it.Next())
 			{
-				if (act->spr.picnum == RRJAILDOOR)
+				if (act->GetClass()->TypeName == NAME_RedneckJaildoorDef)
 				{
 					dist = act->spr.lotag;
 					speed = act->spr.hitag;
 					act->Destroy();
 				}
-				if (act->spr.picnum == RRJAILDOORSOUND)
+				if (act->GetClass()->TypeName == NAME_RedneckJaildoorSound)
 				{
 					sound = act->spr.lotag;
 					act->Destroy();
@@ -497,14 +497,14 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			DukeSectIterator it(sectp);
 			while (auto act = it.Next())
 			{
-				if (act->spr.picnum == RRMINECART)
+				if (act->GetClass()->TypeName == NAME_RedneckMinecartDef)
 				{
 					dist = act->spr.lotag;
 					speed = act->spr.hitag;
 					DukeSpriteIterator itt;
 					while(auto act1 = itt.Next())
 					{
-						if (act1->spr.picnum == RRMINECARTINNER)
+						if (act1->GetClass()->TypeName == NAME_RedneckMinecartInner)
 							if (act1->spr.lotag == act->sectno()) // bad map format design... Should have used a tag instead...
 							{
 								childsectnum = act1->sector();
@@ -513,7 +513,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 					}
 					act->Destroy();
 				}
-				if (act->spr.picnum == RRMINECARTSOUND)
+				if (act->GetClass()->TypeName == NAME_RedneckMinecartSound)
 				{
 					sound = act->spr.lotag;
 					act->Destroy();
@@ -547,7 +547,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	for (auto actor : actors)
 	{
 		if (!actor->exists()) continue;
-		if (actor->spr.picnum == RRTILE19)
+		if (actor->GetClass()->TypeName == NAME_RedneckGeometryEffect)
 		{
 			if (geocnt > 64)
 				I_Error("Too many geometry effects");
@@ -556,7 +556,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				geosector[geocnt] = actor->sector();
 				for (auto actor2 : actors)
 				{
-					if (actor && actor->spr.lotag == actor2->spr.lotag && actor2 != actor && actor2->spr.picnum == RRTILE19)
+					if (actor && actor->spr.lotag == actor2->spr.lotag && actor2 != actor && actor2->GetClass() == actor->GetClass())
 					{
 						if (actor2->spr.hitag == 1)
 						{
@@ -595,9 +595,9 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		{
 			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				spriteinit_r(actor, actors);
-			if (actor->spr.picnum == RRTILE19)
+			if (actor->GetClass()->TypeName == NAME_RedneckGeometryEffect)
 				actor->Destroy();
-			if (actor->spr.picnum == RRTILE34)
+			if (actor->spr.picnum == NAME_RedneckKeyinfoSetter)
 			{
 				actor->sector()->keyinfo = uint8_t(actor->spr.lotag);
 				actor->Destroy();
@@ -645,7 +645,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto actj = it1.Next())
 				{
-					if (actj->spr.lotag == 12 && actj->spr.hitag == ac->spr.lotag)
+					if (actj->spr.lotag == SE_12_LIGHT_SWITCH && actj->spr.hitag == ac->spr.lotag)
 						actj->temp_data[0] = 1;
 				}
 			}

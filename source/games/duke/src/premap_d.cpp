@@ -338,7 +338,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto ac = it1.Next())
 				{
-					if (ac->spr.lotag == 12 && ac->spr.hitag == actor->spr.lotag)
+					if (ac->spr.lotag == SE_12_LIGHT_SWITCH && ac->spr.hitag == actor->spr.lotag)
 						ac->temp_data[0] = 1;
 				}
 			}

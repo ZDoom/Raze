@@ -178,3 +178,30 @@ class DukeSoundFX : DukeActor
 	}
 }
 
+class RedneckMinecartDef : DukeActor
+{
+}
+
+class RedneckMinecartSound : DukeActor
+{
+}
+
+class RedneckMinecartInner : DukeActor
+{
+}
+
+class RedneckJaildoorDef : DukeActor
+{
+}
+
+class RedneckJaildoorSound : DukeActor
+{
+}
+
+class RedneckGeometryEffect : DukeActor
+{
+}
+
+class RedneckKeyinfoSetter : DukeActor
+{
+}
