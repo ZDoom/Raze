@@ -1595,34 +1595,6 @@ void checksectors_r(int snum)
 			else
 			switch (neartagsprite->spr.picnum)
 			{
-			case MUSICNOTES:
-				if (!isRRRA()) return;
-				if (!S_CheckActorSoundPlaying(neartagsprite, 340))
-					S_PlayActorSound(340, neartagsprite);
-				return;
-			case JOE9000:
-				if (!isRRRA()) return;
-				if (numplayers == 1)
-				{
-					// This is from RedneckGDX - the version in RR Reconstruction looked like broken nonsense.
-					if (S_CheckActorSoundPlaying(neartagsprite, 445) || ud.joe9000 != 0)
-					{
-						if (!S_CheckActorSoundPlaying(neartagsprite, 445) && !S_CheckActorSoundPlaying(neartagsprite, 446) && 
-							!S_CheckActorSoundPlaying(neartagsprite, 447) && ud.joe9000 != 0)
-						{
-							if ((krand() % 2) == 1)
-								S_PlayActorSound(446, neartagsprite);
-							else
-								S_PlayActorSound(447, neartagsprite);
-						}
-					}
-					else
-					{
-						S_PlayActorSound(445, neartagsprite);
-						ud.joe9000 = 1;
-					}
-				}
-				return;
 			case EMPTYBIKE:
 				if (!isRRRA()) return;
 				OnMotorcycle(p, neartagsprite);

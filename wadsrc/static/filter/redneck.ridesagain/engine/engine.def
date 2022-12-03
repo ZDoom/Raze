@@ -49,6 +49,8 @@ spawnclasses
 	8099 = RedneckPiano
 	8094 = RedneckPianoKeys
 	8679 = RedneckSnakeRiverSign
+	8448 = RedneckMusicNotes
+	8704 = RedneckJoe9000
 	
 	7636 = DukeGenericDestructible, "OLDPHOTO0", "OLDPHOTO0BROKE", "VENT_BUST"
 	7638 = DukeGenericDestructible, "OLDPHOTO1", "OLDPHOTO1BROKE", "VENT_BUST"

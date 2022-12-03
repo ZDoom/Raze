@@ -66,16 +66,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.scale = DVector2(0, 0);
 		ps[screenpeek].sea_sick_stat = 1;
 		break;
-	case MUSICNOTES:
-		if (!isRRRA()) goto default_case;
-		act->spr.lotag = 1;
-		act->clipdist = 0;
-		break;
-	case JOE9000:
-		if (!isRRRA()) goto default_case;
-		act->spr.lotag = 1;
-		act->clipdist = 0;
-		break;
 	case RRTILE8193:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(0, 0);
