@@ -3672,6 +3672,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	s.g_ac = actor;
 	s.g_t = &s.g_ac->temp_data[0];	// Sprite's 'extra' data
 
+	if (actor->spr.picnum < 0 || actor->spr.picnum >= MAXTILES) return;
 	auto addr = gs.tileinfo[actor->spr.picnum].loadeventscriptptr;
 	if (addr == 0) return;
 

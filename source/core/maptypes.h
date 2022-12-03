@@ -184,6 +184,7 @@ enum ESpriteBits2
 	CSTAT2_SPRITE_MAPPED = 2,		// sprite was mapped for automap
 	CSTAT2_SPRITE_NOSHADOW = 4,		// cast no shadow.
 	CSTAT2_SPRITE_DECAL = 8,		// always attached to a wall.
+	CSTAT2_SPRITE_FULLBRIGHT = 16,	// always draw fullbright with shade -127
 };
 
 // tsprite flags use the otherwise unused clipdist field.

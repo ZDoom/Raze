@@ -285,6 +285,8 @@ void HWDrawInfo::DispatchSprites()
 
 		if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 			tileUpdatePicnum(&tilenum, false, (actor->GetIndex() & 16383));
+		if (tspr->cstat2 & CSTAT2_SPRITE_FULLBRIGHT)
+			tspr->shade = -127;
 		tspr->picnum = tilenum;
 		gotpic.Set(tilenum);
 

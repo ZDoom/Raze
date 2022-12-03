@@ -59,6 +59,11 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 			act->spr.inittype = info->flags;
 			if (info->clipdist > 0) act->spr.clipdist = info->clipdist;
 		}
+		else
+		{
+			if (info->basetex >= 0 && info->basetex < MAXTILES) act->spr.picnum = info->basetex;
+			if (info->fullbright & 1) act->spr.cstat2 |= CSTAT2_SPRITE_FULLBRIGHT;
+		}
 	}
 }
 

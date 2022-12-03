@@ -227,6 +227,39 @@ spawnclasses
 	2654 = DukeGenericDestructible, "RRTILE2654", "", "GLASS_BREAKING", spawnglass
 	2656 = DukeGenericDestructible, "RRTILE2656", "", "GLASS_BREAKING", spawnglass
 	3172 = DukeGenericDestructible, "RRTILE3172", "", "GLASS_BREAKING", spawnglass
+	
+	1878 = DukeActor, "*RRTILE1878"
+	1952 = DukeActor, "*RRTILE1952"
+	1953 = DukeActor, "*RRTILE1953"
+	1990 = DukeActor, "*RRTILE1990"
+	2050 = DukeActor, "*RRTILE2050"
+	2056 = DukeActor, "*RRTILE2056"
+	2072 = DukeActor, "*RRTILE2072"
+	2075 = DukeActor, "*RRTILE2075"
+	2083 = DukeActor, "*RRTILE2083"
+	2097 = DukeActor, "*RRTILE2097"
+	2357 = DukeActor, "*RRTILE2357"
+	2564 = DukeActor, "*RRTILE2564"
+	2573 = DukeActor, "*RRTILE2573"
+	2574 = DukeActor, "*RRTILE2574"
+	2583 = DukeActor, "*RRTILE2583"
+	2604 = DukeActor, "*RRTILE2604"
+	2689 = DukeActor, "*RRTILE2689"
+	2893 = DukeActor, "*RRTILE2893"
+	2894 = DukeActor, "*RRTILE2894"
+	2915 = DukeActor, "*RRTILE2915"
+	2945 = DukeActor, "*RRTILE2945"
+	2946 = DukeActor, "*RRTILE2946"
+	2947 = DukeActor, "*RRTILE2947"
+	2948 = DukeActor, "*RRTILE2948"
+	2949 = DukeActor, "*RRTILE2949"
+	2977 = DukeActor, "*RRTILE2977"
+	2978 = DukeActor, "*RRTILE2978"
+	3116 = DukeActor, "*RRTILE3116"
+	3171 = DukeActor, "*RRTILE3171"
+	3216 = DukeActor, "*RRTILE3216"
+	3720 = DukeActor, "*RRTILE3720"
+	
 }
 
 

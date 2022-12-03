@@ -150,6 +150,13 @@ spawnclasses
 	8462 = DukeGenericDestructible, "RRTILE8462", "RRTILE5074", "GLASS_HEAVYBREAK"
 	8682 = DukeGenericDestructible, "RRTILE8682", "RRTILE8683", "GLASS_HEAVYBREAK"
 	1824 = DukeGenericDestructible, "YELLOWBOTTLE", "", "GLASS_HEAVYBREAK", spawnglass2
+	244 = DukeActor, "*WALLLIGHT3"
+	246 = DukeActor, "*WALLLIGHT1"
+	3668 = DukeActor, "*RRTILE3668"
+	3795 = DukeActor, "*RRTILE3795"
+	7505 = DukeActor, "*RRTILE7505"
+	7506 = DukeActor, "*RRTILE7506"
+
 }
 
 tileflag TFLAG_WALLSWITCH {
@@ -182,3 +189,4 @@ tileflag TFLAG_BLOCKDOOR {
 	RRTILE8565
 	RRTILE8605
 	}
+	

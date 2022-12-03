@@ -552,49 +552,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
-		case WALLLIGHT3:
-		case WALLLIGHT1:
-
-			// none of these are active
-		case RRTILE3668:
-		case RRTILE3795:
-		case RRTILE7505:
-		case RRTILE7506:
-			if (!isRRRA()) break;
-			[[fallthrough]];
-		case RRTILE1878:
-		case RRTILE1952:
-		case RRTILE1953:
-		case RRTILE1990:
-		case RRTILE2050:
-		case RRTILE2056:
-		case RRTILE2072:
-		case RRTILE2075:
-		case RRTILE2083:
-		case RRTILE2097:
-		case RRTILE2357:
-		case RRTILE2564:
-		case RRTILE2573:
-		case RRTILE2574:
-		case RRTILE2583:
-		case RRTILE2604:
-		case RRTILE2689:
-		case RRTILE2893:
-		case RRTILE2894:
-		case RRTILE2915:
-		case RRTILE2945:
-		case RRTILE2946:
-		case RRTILE2947:
-		case RRTILE2948:
-		case RRTILE2949:
-		case RRTILE2977:
-		case RRTILE2978:
-		case RRTILE3116:
-		case RRTILE3171:
-		case RRTILE3216:
-		case RRTILE3720:
-			t->shade = -127;
-			break;
 		case CHEER:
 			if (!isRRRA()) break;
 			if (t->picnum >= CHEER + 102 && t->picnum <= CHEER + 151)
