@@ -275,6 +275,7 @@ enum
 	STAT_LIGHT          = 14,
 	STAT_RAROR          = 15,
 
+	STAT_TEMP			= 99,
 	STAT_DESTRUCT		= 100,
 	STAT_BOWLING		= 105,
 	STAT_CHICKENPLANT	= 106,

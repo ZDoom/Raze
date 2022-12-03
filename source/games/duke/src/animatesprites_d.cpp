@@ -92,7 +92,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		}
 
-		if (t->statnum == 99) continue;
+		if (t->statnum == STAT_TEMP) continue;
 		auto pp = &ps[h->PlayerIndex()];
 		if (h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner())
 		{
@@ -185,7 +185,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				auto newtspr = tsprites.newTSprite();
 				*newtspr = *t;
 
-				newtspr->statnum = 99;
+				newtspr->statnum = STAT_TEMP;
 
 				newtspr->scale.Y = (max(t->scale.Y * 0.125, 0.0625));
 
@@ -375,57 +375,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->isPlayer() && h->GetOwner()))
 		{
-			if (t->statnum != 99 && h->spr.picnum != EXPLOSION2 && h->spr.picnum != HANGLIGHT && h->spr.picnum != DOMELITE)
+			drawshadows(tsprites, t, h);
+			if (ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on)
 			{
-				if (h->spr.picnum != HOTMEAT)
-				{
-					if (r_shadows && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
-					{
-						double floorz;
-
-						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE || h->spr.picnum == COMMANDER)
-							floorz = sectp->floorz;
-						else
-							floorz = h->floorz;
-
-
-						if (h->spr.pos.Z - floorz < 8 && ps[screenpeek].GetActor()->getOffsetZ() < floorz)
-						{
-							auto shadowspr = tsprites.newTSprite();
-							*shadowspr = *t;
-
-							shadowspr->statnum = 99;
-
-							shadowspr->scale.Y = (max(t->scale.Y * 0.125, 0.0625));
-							shadowspr->shade = 127;
-							shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-
-							shadowspr->pos.Z = floorz;
-							shadowspr->pal = 4;
-
-							if (hw_models && modelManager.CheckModel(t->picnum, t->pal))
-							{
-								shadowspr->scale.Y = (0);
-								// 512:trans reverse
-								//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-								shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
-								shadowspr->cstat |= CSTAT_SPRITE_TRANS_FLIP;
-							}
-							else
-							{
-								// Alter the shadow's position so that it appears behind the sprite itself.
-								auto look = (shadowspr->pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).Angle();
-								shadowspr->pos.XY() += look.ToVector() * 2;
-							}
-						}
-					}
-
-					if (ps[screenpeek].heat_amount > 0 && ps[screenpeek].heat_on)
-					{
-						t->pal = 6;
-						t->shade = 0;
-					}
-				}
+				t->pal = 6;
+				t->shade = 0;
 			}
 		}
 

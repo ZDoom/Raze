@@ -446,52 +446,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->isPlayer() && h->GetOwner()))
 		{
-			if ((h->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0 && t->statnum != 99)
-			{
-				if (h->spr.picnum != EXPLOSION2 && h->spr.picnum != DOMELITE && h->spr.picnum != TORNADO && h->spr.picnum != EXPLOSION3 && (h->spr.picnum != SBMOVE || isRRRA()))
-				{
-					if (r_shadows && !(h->spr.cstat2 & CSTAT2_SPRITE_NOSHADOW))
-					{
-						double floorz;
-
-						if (isRRRA() && sectp->lotag == ST_160_FLOOR_TELEPORT) continue;
-						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE)
-							floorz = sectp->floorz;
-						else
-							floorz = h->floorz;
-
-						if (h->spr.pos.Z - floorz < 8 && ps[screenpeek].GetActor()->getOffsetZ() < floorz)
-						{
-								auto shadowspr = tsprites.newTSprite();
-								*shadowspr = *t;
-
-								shadowspr->statnum = 99;
-
-								shadowspr->scale.Y = (max(t->scale.Y * 0.125, 0.0625));
-								shadowspr->shade = 127;
-								shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-
-								shadowspr->pos.Z = floorz;
-								shadowspr->pal = 4;
-
-								if (hw_models && modelManager.CheckModel(t->picnum, t->pal))
-								{
-									shadowspr->scale = DVector2(0, 0);
-									// 512:trans reverse
-									//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-									shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
-									shadowspr->cstat |= CSTAT_SPRITE_TRANS_FLIP;
-								}
-								else
-								{
-									// Alter the shadow's position so that it appears behind the sprite itself.
-									auto look = (shadowspr->pos.XY() - ps[screenpeek].GetActor()->spr.pos.XY()).Angle();
-									shadowspr->pos.XY() += look.ToVector() * 2;
-								}
-						}
-					}
-				}
-			}
+			drawshadows(tsprites, t, h);
 		}
 
 

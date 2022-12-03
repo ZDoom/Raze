@@ -217,6 +217,8 @@ bool movementBlocked(player_struct *p);
 void loadcons();
 void DrawStatusBar();
 
+void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h);
+
 inline int32_t krand(void)
 {
 	randomseed = (randomseed * 27584621) + 1;
