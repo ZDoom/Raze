@@ -232,7 +232,7 @@ void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const s
 	if (auto looking = !!(*actions & SB_LOOK_RIGHT) - !!(*actions & SB_LOOK_LEFT))
 	{
 		ZzLOOKANG += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * looking;
-		ZzROTSCRNANG -= getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * looking;
+		ZzROTSCRNANG += getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * looking;
 	}
 
 	if (!lockedYaw())

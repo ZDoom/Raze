@@ -214,7 +214,7 @@ void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double
 				tileAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.f;
 			}
 
-			DrawFrame(tileX + x, tileY + y, tileZ, (tileA + angle).Buildfang(), tileAlpha, thisTile->picnum, tileStat, tileShade + shade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
+			DrawFrame(tileX + x, tileY + y, tileZ, (tileA - angle).Buildfang(), tileAlpha, thisTile->picnum, tileStat, tileShade + shade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
 		}
 	}
 }

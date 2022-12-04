@@ -201,7 +201,7 @@ FRenderViewpoint SetupViewpoint(DCoreActor* cam, const DVector3& position, int s
 	r_viewpoint.Pos = { position.X, -position.Y, -position.Z };
 	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(-90.f + (float)angle.Degrees());
 	r_viewpoint.HWAngles.Pitch = FAngle::fromDeg(ClampViewPitch(horizon).Degrees());
-	r_viewpoint.HWAngles.Roll = FAngle::fromDeg(-(float)rollang.Degrees());
+	r_viewpoint.HWAngles.Roll = FAngle::fromDeg((float)rollang.Degrees());
 	r_viewpoint.FieldOfView = FAngle::fromDeg(fov > 0? fov :  (float)r_fov);
 	r_viewpoint.RotAngle = angle.BAMs();
 	double FocalTangent = tan(r_viewpoint.FieldOfView.Radians() / 2);

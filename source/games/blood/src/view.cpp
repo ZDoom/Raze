@@ -663,7 +663,7 @@ void viewDrawScreen(bool sceneonly)
 		uint8_t otherview = powerupCheck(pPlayer, kPwUpCrystalBall) > 0;
 		if (tilt.Degrees() || bDelirium)
 		{
-			rotscrnang = tilt;
+			rotscrnang = -tilt;
 		}
 		else if (otherview && gNetPlayers > 1)
 		{
@@ -743,7 +743,7 @@ void viewDrawScreen(bool sceneonly)
 
 		if (sceneonly) return;
 		auto offsets = pPlayer->Angles.angCROSSHAIROFFSETS(interpfrac);
-		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, offsets.X, offsets.Y, 2, -pPlayer->Angles.angLERPROTSCRN(interpfrac));
+		DrawCrosshair(kCrosshairTile, pPlayer->actor->xspr.health >> 4, offsets.X, offsets.Y, 2, pPlayer->Angles.angLERPROTSCRN(interpfrac));
 #if 0 // This currently does not work. May have to be redone as a hardware effect.
 		if (v4 && gNetPlayers > 1)
 		{

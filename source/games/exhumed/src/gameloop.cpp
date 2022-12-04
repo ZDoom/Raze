@@ -88,7 +88,7 @@ void GameInterface::Render()
     {
         DrawStatusBar();
         auto offsets = PlayerList[nLocalPlayer].Angles.angCROSSHAIROFFSETS(interpfrac);
-        DrawCrosshair(kCrosshairTile, PlayerList[nLocalPlayer].nHealth >> 3, offsets.X, offsets.Y, 1, -PlayerList[nLocalPlayer].Angles.angLERPROTSCRN(interpfrac));
+        DrawCrosshair(kCrosshairTile, PlayerList[nLocalPlayer].nHealth >> 3, offsets.X, offsets.Y, 1, PlayerList[nLocalPlayer].Angles.angLERPROTSCRN(interpfrac));
 
         if (paused && !M_Active())
         {

@@ -710,8 +710,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].Angles.ZzOLDROTSCRNANG = ps[iPlayer].Angles.ZzROTSCRNANG = mapangle(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].Angles.ZzROTSCRNANG.Buildang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].Angles.ZzOLDROTSCRNANG = ps[iPlayer].Angles.ZzROTSCRNANG = -mapangle(lValue);
+		else SetGameVarID(lVar2, -ps[iPlayer].Angles.ZzROTSCRNANG.Buildang(), sActor, sPlayer);
 		break;
 
 	case PLAYER_DEAD_FLAG:

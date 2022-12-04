@@ -81,7 +81,7 @@ struct PlayerAngles
 	// Crosshair x/y offsets based on look_ang's tangent.
 	DVector2 angCROSSHAIROFFSETS(const double interpfrac)
 	{
-		return DVector2(159.72, 145.5 * angRENDERROTSCRN(interpfrac).Sin()) * -angRENDERLOOKANG(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
+		return DVector2(159.72, 145.5 * -angRENDERROTSCRN(interpfrac).Sin()) * -angRENDERLOOKANG(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
 	}
 
 	// Weapon x/y offsets based on the above.

@@ -1022,7 +1022,7 @@ void PrintSpriteInfo(PLAYER* pp)
 static void DrawCrosshair(PLAYER* pp, const double interpfrac)
 {
     auto offsets = pp->Angles.angCROSSHAIROFFSETS(interpfrac);
-    ::DrawCrosshair(2326, pp->actor->user.Health, offsets.X, offsets.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, -pp->Angles.angLERPROTSCRN(interpfrac), shadeToLight(10));
+    ::DrawCrosshair(2326, pp->actor->user.Health, offsets.X, offsets.Y + ((pp->Flags & PF_VIEW_FROM_OUTSIDE) ? 5 : 0), 2, pp->Angles.angLERPROTSCRN(interpfrac), shadeToLight(10));
 }
 
 //---------------------------------------------------------------------------
