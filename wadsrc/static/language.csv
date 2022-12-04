@@ -124,7 +124,6 @@ Only preferred,PLRMNU_PREFERRED,,,,Pouze preferované,Nur bevorzugte,,,Solo pref
 Original Keyboard Turning Speed,PLRMNU_EXHUMEDOLDTURN,,,,Původni rychlost otáčení pomocí klávesnice,Originale Tastatur-Drehgeschwindigkeit,,,Velocidad de Giro del Teclado como en Vanilla,,Alkuperäinen näppäinkääntymisnopeus,,Eredeti billentyűs fordulás sebesség,,,,,Oryginalna prędkość rozglądania się na klawiaturze,Velocidade de giro original por teclado,,Viteză Rotire cu Tastatură,,
 QAV Interpolation,PLRMNU_BLDQAVINTERP,,,,Interpolace QAV,QAV Interpolation,,,,,QAV-interpolaatio,Interpolation de QAV,QAV Interpoláció,,,,,Interpolacja QAV,Interpolação QAV,,Interpolare QAV,,
 Weapon Interpolation,PLRMNU_BLDWEAPINTERP,,,,Interpolace zbraní,Waffeninterpolation,,,,,Aseiden interpolaatio,Interpolation des armes,Fegyver Interpoláció,,,,,Interpolacja Broni,Interpolação de arma,,Interpolare Arme,,
-Full Viewing Pitch (Experimental),PLRMNU_FULLVIEWPITCH,,,,,,,,,,,,,,,,,,,,,,
 ,,Render,,,,,,,,,,,,,,,,,,,,,
 True Color Textures,RENDER_TC,,,True Colour Textures,True Color textury,True Color Texturen,,,Texturas de Color Verdadero,,True Color -asetukset,Textures Truecolor,24 bit textúrák,,,,,Tekstury True Color,Texturas true color,,Texturi Naturale,,
 Pre-load map textures,RENDER_CACHE,,,,Přednačíst textury mapy,Texturen cachen,,,Precargar texturas de mapa,,Esilataa tason pintakuvioinnit,Précharger textures de la map,Pálya textúrák elő-töltése,Precarica le texture della mappa,,,,Wcześniej Załaduj Tekstury Map,Pré-carregar texturas da fase,,Preîncărcare Texturi Hartă,,
@@ -901,7 +900,7 @@ Dyn-O-Mite!,DYN-O-MITE!,,,,Dynamit!,Dynamit!,,,¡Dinomita!,,Dyny!,,Dinamit!,,,,,
 Crossbow!,CROSSBOW!,,,,Kuše!,Armbrust!,,,¡Ballesta!,,Jouskari!,,Nyílpuska!,,,,,Kusza!,Besta!,,Arbaletă!,,
 Yer Scattergun!,YER SCATTERGUN!,,,,Tvoja brokáda!,Deine Schrotflinte!,,,¡Tu trabuco!,,Haulikko!,,Szórópisztoly!,,,,,Dubeltówka!,Espingarda!,,Pușca!,,
 Powder Keg!,POWDER KEG!,,,,Barel s prachem!,Pulverfass!,,,,,Ruutitynnyri!,,Puskaporos Hordó!,,,,,Beczka z Prochem!,Barril de Pólvora!,,Praf de Pușcă!,,
-Alien Teat Gun!,ALIEN TEAT GUN!,,,,Mimozemský ceckopal!,BH-Waffe!,,,¡Arma de tetas alien!,,Ufonännipyssy!,,Marslakó Mell Mordály,,,,,CyckoStrzał!,Arma de Teta Alienígena!,,Armă Sân Extraterestru!,,
+Alien Teat Gun!,ALIEN TEAT GUN!,,,,Mimozemský ceckopal!,BH-Waffe!,,,¡Arma de tetas alien!,,Ufonännipyssy!,,Marslakó Mell Mordály,,,,,CyckoStrzał!,Arma de Teta Alienígena!,,Sân Extraterestru!,,
 Bowling Ball!!,BOWLING BALL!!,,,,Bowlingová koule!,Bowlingkugel!,,,¡¡Bola de bolos!!,,Keilapallo!!,,Tekegolyó!!,,,,,Kula do Kręgli!!,Bola de Boliche!!,,Bilă de Bowling!!,,
 Ripsaw!!,RIPSAW!!,,,,Bruskomet!,Spaltsäge!,,,¡¡Rebanadora!!,,Sirkkeli!!,,Hasítófűrész!!,,,,,Piła Tarczowa!!,Serra Circular!!,,Drujbă Circulară!!,,
 Large Pork Rinds!,LARGE PORK RINDS!,,,,Velké balení škvarků!,Schweineschwarten!,,,¡Cortezas de cerdo grandes!,,Kuivattuja possupaloja!,,Nagy Szalonnabőrke!,,,,,Duże Skwarki!,Toicinho!,,Grătar!,,
@@ -1021,7 +1020,7 @@ Slaughterhouse,SLAUGHTERHOUSE,,,,Jatka,Schlachthaus,,,,,Teurastamo,,Vágóhíd,,
 Fun Park,FUN PARK,,,,Lunapark,Freizeitpark,,,,,Huvipuisto,,Vidámpark,,,,,Lunapark,Parque de Diversões,,Parcul de Distracții,,
 ,,,,,,,,,,,,,,,,,,,,,,,
 Gassin' Up,GASSIN' UP,,,,Tankujeme,Auftanken,,,,,Tankkaamassa,,Alkohol Mámorban,,,,,Czas Zatankować,Enchendo o Tanque,,Popasul,,
-House Of Ill Repute,HOUSE OF ILL REPUTE,,,,Dům se špatnou pověstí,Haus des miesen Rufs,,,,,Pahan maineen talo,,Kétes Hírű Hölgyek Háza,,,,,Dom o Złej Reputacji,Casa da Mãe Joana,,Casă de Reputație Bolnavă,,
+House Of Ill Repute,HOUSE OF ILL REPUTE,,,,Dům se špatnou pověstí,Haus des miesen Rufs,,,,,Pahan maineen talo,,Kétes Hírű Hölgyek Háza,,,,,Dom o Złej Reputacji,Casa da Mãe Joana,,Casă cu Reputație Bolnavă,,
 Mystery Dino Cave,MYSTERY DINO CAVE,,,,Tajemná dinosauří jeskyně,"Geheimnisvolle Dinohöhle
 ",,,,,Salaperäinen dinoluola,,Rejtélyes Dínó Barlang,,,,,Jaskinia Dinozaurów,Caverna dos Dinossauros,,Caverna Dinozaurilor,,
 Campy Crystal Lake,CAMPY CRYSTAL LAKE,,,,Kýčovité křišťálové jezero,,,,,,Campia Crystal Laken tyyliin,,Kristály Tábor Tó,,,,,Obozowisko w Crystal Lake,Acampamento Crystal Lake,,Tabăra Lacului de Cristal,,
@@ -1040,8 +1039,8 @@ Frags,Frags,,,,Fragy,,,Ludmurdoj,Bajas,,Frägit,,Fragek,Frags,フラグ,플레�
 Deaths,Deaths,,,,Smrti,Tode,,Mortoj,Muertes,,Kuolemat,Morts,Halálok,Morti,デス,사망한 횟수,Overlijden,Śmierci,Mortes,,Decese,Смерти,Смрти
 Game Paused,Game Paused,,,,Hra pozastavena,Spiel pausiert,,Ludo Paŭzita,Juego en pausa,,,,Játék Megállítva,Partita in pausa,ー時停止,,,Gra Zatrzymana,Jogo pausado,,Pauză,Игра на паузе,
 Thanks to all our,Thanks to all our,,,,Děkujeme všem,Danke an alle,,,Gracias a todos nuestros,,,,Köszönjük az összes,,,,,Dziękujemy Naszym,Agradecemos aos,,Mulțumim tuturor,,
-fans for giving,fans for giving,,,,našim fanouškům,unsere Fans für,,,fans por darnos,,,,"rajongónknak, hogy",,,,,Fanom za to,nosso fãs pelos seus,,fanilor pentru,,
-us big heads.,us big heads.,,,,za podporu.,ihre Unterstützung.,,,una gran oportunidad,,,,ilyen büszkévé tettek.,,,,,Że Nam Stanął.,grandes cabeções.,,susținerea lor.,,
+fans for giving,fans for giving,,,,našim fanouškům,unsere Fans für,,,fans por darnos,,,,"rajongónknak, hogy",,,,,Fanom za to,nossos fãs pelo,,fanilor pentru,,
+us big heads.,us big heads.,,,,za podporu.,ihre Unterstützung.,,,una gran oportunidad,,,,ilyen büszkévé tettek.,,,,,Że Nam Stanął.,grande apoio.,,susținerea lor.,,
 Look for a Duke Nukem 3D,Look for a Duke Nukem 3D,,,,Brzy se těšte na pokračování,Haltet bald Ausschau nach,,,Esperen pronto una secuela de,,,,Figyeljétek a következő,,,,,Oczekujcie rychłej,Fique de olho por uma,,Fiți pe faza pentru o continuare,,
 sequel soon.,sequel soon.,,,,k Duke Nukem 3D.,dem Duke Nukem 3D Sequel,,,Duke Nukem 3D.,,,,Duke Nukem 3D folytatást.,,,,,kontunuacji Duke'a Nukema 3D.,continuação do Duke Nukem 3D em breve.,,a Duke Nukem 3D în viitorul apropiat.,,
 Press any key to continue,Presskey,,,,Zmáčkni libovolnou klávesu,Drücke eine Taste um fortzufahren.,,Premu iun ajn klavon por daŭrigi,Pulsa una tecla para continuar,,,Appuyez sur une touche,Nyomj egy Gombot a Folytatáshoz,Premi qualsiasi tasto per continuare,キーを押して続行する,,,Wciśnij Przycisk,Aperte algo para continuar,,Apasă orice tastă pentru a continua,"Нажмите, чтобы продолжить",
@@ -1060,7 +1059,7 @@ Varmints Left:,TXT_VARMINTSLEFT,,,,Havětě necháno:,Lebendes Ungeziefer:,,,,,,
 N/A,TXT_N_A,,,,N/A,N/V,,,N/D,,,,,,利用不可,,,Brak,,,,,
 Secrets Found:,TXT_SECFND,,,,Tajemství nalezeno:,Gefundene Geheimnisse,,,Secretos hallados:,,,Secrets trouvés :,Megtalált Rejtekhelyek:,Segreti trovati:,発見した秘密：,,,Znal. Sekrety:,Segredos encontrados:,,Secrete Găsite:,Найдено тайников:,
 Secrets Missed:,TXT_SECMISS,,,,Tajemství vynecháno:,Verpasste Geheimnisse,,,Secretos perdidos:,,,Secrets manqués :,Elmulasztott Rejtekhelyek:,Segreti mancati:,見逃した秘密：,,,Pom. Sekrety:,Segredos não encontrados:,,Secrete Ratate:,Пропущено тайников:,
-Enterin',TXT_ENTERIN,,,,Vstupuješ do,Starte,,,Entrando a:,,,Niveau Suivant,Belépés ide,Prossimo livello,突入開始,,,Wchodzisz,Tamo entrando,,Începe,Следующий уровень,
+Enterin',TXT_ENTERIN,,,,Vstupuješ do,Starte,,,Entrando a:,,,Niveau Suivant,Belépés ide,Prossimo livello,突入開始,,,Wchodzisz,Tamo entrando em,,Începe,Следующий уровень,
 Close Encounters,TXT_CLOSEENCOUNTERS,,,,Blízká setkání,Unheimliche Begegnung,,,Encuentros cercanos,,,,Közeli Összecsapások,,,,,Bliskie Spotkania,Encontros Imediatos,,Înfruntări Imediate,,
 Enterin' User Map,TXT_ENTRUM,,,,Vstupuješ do uživ. mapy,Starte Benutzerlevel,,,Entrando en mapa de usuario,,,Entrée dans carte joueur...,Belépés Egyéni pályára,Ingresso alla mappa utente,ユーザーマップを開いています,,,Mapa Użytkownika,Entrando em mapa de usuário,,Începe Harta de Utilizatori,Вход в карту пользователя,
 Loadin',TXT_LOADIN,,,,Načítání,Laden,,,Cargando,,,Charger,Töltés,Caricamento,ロード中,,,Ładowańsko,Tá carregando,,Se Încarcă,Загрузка,
@@ -1171,7 +1170,7 @@ Level Stats,TXTB_LEVELSTATS,,,,Výsledky levelu,Levelstatistik,,,Estadísticas d
 >>> YOU CHEATED! <<<,TXTB_CHEATED,,,,>>> PODVODNÍKU! <<<,>>> SCHUMMLER! <<<,,,>>> ¡HICISTE TRAMPAS! <<<,,,,>>> CSALTÁL! <<<,>>>STAI IMBROGLIANDO!<<<,,,,>>> OSZUKIWAŁEŚ! <<<,>>> VOCÊ TRAPACEOU! <<<,,>>> AI TRIȘAT! <<<,,
 Frag Stats,TXTB_FRAGSTATS,,,,Zabití,Frags,,,Estadísticas de bandera,,,,Freg Statok,Statistiche frag,,,,Zabici,Estatística de frags,,Statistici Ucideri,,
 Of,OF,,,,z,von,,,de,,,,,di,,,,Z,de,,de,,
-A secret is revealed.,TXTB_SECRET0,,,,Tajemství odhaleno!,Ein Geheimnis wurde enthüllt!,Ένα μυστικό αποκαλύφθηκε!,Sekreto estas malkaŝita!,¡Se ha revelado un secreto!,,Sala löydetty!,Vous avez découvert un secret!,Egy rejtekhely feltárva.,È stato svelato un segreto! ,シークレットを解き明かした!,비밀 발견!,Een geheim is onthuld!,Odkryto sekret.,Segredo revelado.,,Ai găsit un secret.,Обнаружен тайник!,Тајна је откривена!
+A secret is revealed.,TXTB_SECRET0,,,,Tajemství odhaleno!,Ein Geheimnis wurde enthüllt!,Ένα μυστικό αποκαλύφθηκε!,Sekreto estas malkaŝita!,¡Se ha revelado un secreto!,,Sala löydetty!,Vous avez découvert un secret!,Egy rejtekhely feltárva.,È stato svelato un segreto! ,シークレットを解き明かした!,비밀 발견!,Een geheim is onthuld!,Odkryto sekret.,Segredo revelado.,,Un secret se ivește.,Обнаружен тайник!,Тајна је откривена!
 You found a secret.,TXTB_SECRET1,,,,Nalezeno tajemství.,Du hast ein Geheimnis gefunden,,,Encontraste un secreto,,,,Megleltél egy rejtekhelyet.,Hai trovato un segreto.,,,,Znalazłeś sekret.,Você encontrou um segredo.,,Ai găsit un secret.,,
 Secrets,TXT_SECRETS,,,,Tajemství,Geheimnisse,,Sekretoj,Secretos,,Salat,,Rejtekhelyek,Segreti,シークレット,밝혀낸 비밀,Geheimen,Sekrety,Segredos,,Secrete,Тайники,Тајне
 You found a Super Secret!,TXT_SUPERSECRET,,,,Nalezeno super tajemství!,Du hast ein Supergeheimnis gefunden!,,,¡Encontraste un Super-Secreto!,,,,Megleltél egy ELDUGOTT rejtekhelyet!,Hai trovato un Super Segreto!,,,,Znalazłeś Super Sekret!,Você encontrou um Supersegredo!,,Ai găsit un Super Secret!,,
@@ -1260,7 +1259,7 @@ Rest for the Wicked,Rest for the Wicked,,Blood,,Pokoj pro bezbožné,Ruhe für d
 You hear hedges rustling nearby.,You hear hedges rustling nearby.,,Blood,,Slyšíš poblíž šumět křoví.,Du hörst Hecken in der Nähe rascheln,,,Oyes el susurro de los setos cerca.,,,,Sövény zörgést hallasz a közelben.,,,,,Słyszysz szelest liści w oddali.,Você ouve o barulho dos arbustos por perto.,,Auzi foșnetul tufișurilor în apropiere.,,
 The Overlooked Hotel,The Overlooked Hotel,,Blood,,Zapomenutý hotel,Das übersehene Hotel,,,El Hotel Olvidado,,,,A hotel amit mindenki kerül,,,,,Hotel Panorama,O Hotel Abandonado,,Hotelul Abandonat,,
 The secret level lies before you.,The secret level lies before you.,,Blood,,Tajná úroveň leží před tebou.,Das Geheimnis liegt vor dir.,,,El nivel secreto se encuentra ante ti.,,,,A titkos pálya a lábaid előtt hever.,,,,,Przed tobą leży sekretny poziom.,A fase secreta está à sua frente.,,Nivelul secret e în fața ochilor tăi.,,
-The Haunting,The Haunting,https://www.imdb.com/title/tt0057129/,Blood,,Strašení,Der Spuk,,,El Embrujo,,,,A ház hideg szíve,,,,,Nawiedzony Dom,A Assombração,,Bântuirea,,
+The Haunting,The Haunting,https://www.imdb.com/title/tt0057129/,Blood,,Strašení,Der Spuk,,,El Embrujo,,,,A ház hideg szíve,,,,,Nawiedzony Dom,Assombração,,Bântuirea,,
 The Cold Rush,The Cold Rush,,Blood,,Studená horečka,Der Kalte Rausch,,,La Fiebre del Frío,,,,A Hó Láz,,,,,Zimny Dreszcz,A Corrida do Frio,,Goana Rece,,
 Bowels of the Earth,Bowels of the Earth,,Blood,,Hlubiny zemské,In den Tiefen der Erde,,,Las Entrañas de la Tierra,,,,A Föld Gyomrában,,,,,Wnętrzności Ziemi,Entranhas da Terra,,Străfundurile Pământului,,
 The Lair of Shial,The Lair of Shial,,Blood,,Šialino doupě,Das Lager von Shial,,,La Guarida de Shial,,,,Shial Kriptája,,,,,Leże Shial,O Covil de Shial,,Bârlogul lui Shial,,
@@ -1309,14 +1308,14 @@ Part two of three in the sequence has been completed.,Part two of three in the s
 Final part completed.  A door has opened.,Final part completed.  A door has opened.,,Blood,,Poslední část splněna. Dveře se otevřely.,Sequenz komplett. Eine Tür hat sich geöffnet,,,La parte final ha sido completada. Se ha abierto una puerta.,,,,Végső művelet kész. Az ajtó kinyílt.,,,,,Cała sekwencja ukończona. Drzwi otwarte.,Parte final completada. Uma porta se abriu.,,Ultima parte a secvenței e gata.,,
 Beauty and the Beast,Beauty and the Beast,,Blood,,Kráska a zvíře,Die Schöne und das Biest,,,La Bella y la Bestia,,,,A Szépség és Szörnyeteg,,,,,Piękna i Bestia,A Bela e a Fera,,Frumoasa și Bestia,,
 Forgotten Catacombs,Forgotten Catacombs,,Blood,,Zapomenuté katakomby,Vergessene Katakomben,,,Catacumbas Olvidadas,,,,Elfeledett Katakombák,,,,,Zapomniane Katakumby,Catacumbas Abandonadas,,Catacombe Uitate,,
-Cryptic Passage,Cryptic Passage,,Blood,,Tajemný průchod,Kryptische Passage,,,Pasaje Críptico,,,,Titokzatos Ösvény,,,,,Ukryta Przełęcz,Passagem Oculta,,Pasaj Criptic,,
+Cryptic Passage,Cryptic Passage,,Blood,,Tajemný průchod,Kryptische Passage,,,Pasaje Críptico,,,,Titokzatos Ösvény,,,,,Ukryta Przełęcz,Passagem Oculta,,Pasajul Criptic,,
 Cryptic BloodBath,Cryptic BloodBath,,Blood,,Tajemná krveřežba,Kryptisches Blutbad,,,Baño de Sangre Críptico,,,,Titokzatos Vérfürdő,,,,,Transylwański Rozlew Krwi,Banho de Sangue Oculto,,Baie de Sânge Criptică,,
-Boat Docks,Boat Docks,,Blood,,Doky,Bootdocks,,,,,,,Hajó Dokkok,,,,,Doki,Docas,,Docurile,,
-Old Opera House,Old Opera House,,Blood,,Stará opera,Altes Opernhaus,,,Antigua Casa de Ópera,,,,Régi Operaház,,,,,Stara Opera,Antiga Casa de Ópera,,Casa Antică de Operă,,
+Boat Docks,Boat Docks,,Blood,,Doky,Bootdocks,,,,,,,Hajó Dokkok,,,,,Doki,Docas,,Docuri,,
+Old Opera House,Old Opera House,,Blood,,Stará opera,Altes Opernhaus,,,Antigua Casa de Ópera,,,,Régi Operaház,,,,,Stara Opera,Antiga Casa de Ópera,,Casă Antică de Operă,,
 Gothic Library,Gothic Library,,Blood,,Gotická knihovna,Gotische Bibliothek,,,Biblioteca Gótica,,,,Gótikus Könyvtár,,,,,Gotycka Biblioteka,Biblioteca Gótica,,Bibliotecă Gotică,,
 Lost Monastery,Lost Monastery,,Blood,,Ztracený klášter,Vergessenes Kloster,,,Monasterio Perdido,,,,Az Elveszett Kolostor,,,,,Zaginiony Klasztor,Mosteiro Perdido,,Mănăstire Pierdută,,
 Steamboat,Steamboat,,Blood,,Parník,Raddampfer,,,Barco de Vapor,,,,Gőzhajó,Battello a vapore,,,,Parostatek,Barco a Vapor,,Barca de Abur,,
-Graveyard,Graveyard,,Blood,,Hřbitov,Friedhof,,,Cementerio,,,,Sírkert,Cimitero,,,,Cmentarz,Cemitério,,Cimitirul,,
+Graveyard,Graveyard,,Blood,,Hřbitov,Friedhof,,,Cementerio,,,,Sírkert,Cimitero,,,,Cmentarz,Cemitério,,Cimitir,,
 Mountain Pass,Mountain Pass,,Blood,,Horský průsmyk,Bergpass,,,,,,,Hegyi Hágó,,,,,Górska Przełęcz,Desfiladeiro,,Trecătoare,,
 Abysmal Mine,Abysmal Mine,,Blood,,Příšerný důl,Abgründige Mine,,,Mina Abismal,,,,Feneketlen Bánya,,,,,Kopalnia Bez Dna,Mina Abissal,,Mină Abisală,,
 Castle,Castle,,Blood,,Hrad,Burg,,,Castillo,,,,Kastély,Castello,,,,Zamek,Castelo,,Castel,,
@@ -1376,7 +1375,7 @@ Gas Bomb,TXTS_INV6,,,,Plynová bomba,Gasbombe,,,,,,,Gázbomba,,,,,Bomba Gazowa,B
 Flash Bomb,TXTS_INV7,,,,Oslepující bomba,Blendbombe,,,,,,,Fénybomba,,,,,Bomba Błyskowa,Bomba Atordoante,,Orbitoare,,
 Caltrops,TXTS_INV8,,,,Rozsocháče,Krähenfüße,,,,,,,Vassúlyom,,,,,Kolczatki,Estrepes,,Ciulini de Fier,,
 Night Vision Goggles,TXTS_INV9,,,,Noktovizor,Nachsichtgerät,,,,,,,Éjellátó Szemüveg,,,,,Gogle Noktowizyjne,Óculos de Visão Noturna,,Ochelari Infraroșii,,
-Repair Kit,TXTS_INV10,,,,Souprava pro opravy,Werkzeugkasten,,,,,,,Szerszámosláda,Kit di Riparazione,,,,Skrzynka z Narzędziami,Kit de Reparos,,Unelte de Reparații,,
+Repair Kit,TXTS_INV10,,,,Souprava pro opravy,Werkzeugkasten,,,,,,,Szerszámosláda,Kit di Riparazione,,,,Skrzynka z Narzędziami,Kit de Reparos,,Trusă pt. Reparații,,
 Smoke Bomb,TXTS_INV11,,,,Kouřová bomba,Rauchbombe,,,,,,,Füstbomba,,,,,Bomba Dymna,Bomba de Fumaça,,Fumigenă,,
 Fists,TXTS_WEAP1,,,,Pěsti,Fäuste,,,,,,,Öklök,Pugni,,,,Pięści,Punhos,,Pumni,,
 Sword,TXTS_WEAP2,,,,Meč,Schwert,,,,,,,Kard,Spada,,,,Miecz,Espada,,Sabie,,
@@ -1490,13 +1489,13 @@ Hara-Kiri Harbor,TXTS_MAP07,,,,Přístav Hara-Kiri,Hara-Kiri Hafen,,,,,,,Hara-Ki
 Zilla's Villa,TXTS_MAP08,,,,Zillova vila,Zillas Villa,,,,,,,Zilla Villája,,,,,Willa Zilli,Mansão Zilla,,Complexul lui Zilla,,
 Monastery,TXTS_MAP09,,,,Klášter,Kloster,,,Monasterio,,,,Apátság,,,,,Klasztor,Mosteiro,,Mănăstirea,,
 Raider of the Lost Wang,TXTS_MAP10,https://www.imdb.com/title/tt0082971/,,,Dobyvatel ztraceného Wanga,Jäger des verlorenen Wang,,,,,,,Elveszett Wang-ek Fosztogatói,,,,,Poszukiwacz Zaginionego Wanga,Caçadores do Wang Perdido,,Nava Rătăcitului Wang,,
-Sumo Sky Palace,TXTS_MAP11,,,,Nebeský palác suma,Sumo Himmelspalast,,,Palacio Celestial de Sumo,,,,Szumó Égbolt Luxusszálló,,,,,Podniebny Pałac Sumo,Palácio Celestial do Sumo,,Palatul Celest Sumo,,
+Sumo Sky Palace,TXTS_MAP11,,,,Nebeský palác suma,Sumo Himmelspalast,,,Palacio Celestial de Sumo,,,,Szumó Égbolt Luxusszálló,,,,,Podniebny Pałac Sumo,Palácio Celestial do Sumô,,Palatul Celest Sumo,,
 Bath House,TXTS_MAP12,,,,Lázně,Badehaus,,,Saunas,,,,Fürdőház,,,,,Łaźnie,Casa de Banho,,Casa de Îmbăiere,,
 Unfriendly Skies,TXTS_MAP13,,,,Nevlídné nebe,Unfreundlicher Himmel,,,,,,,Barátságtalan Égbolt,,,,,Wróg Na Horyzoncie,Céus Nada Amigáveis,,Orizonturi Ostile,,
 Crude Oil,TXTS_MAP14,,,,Surová ropa,Rohöl,,,,,,,Kőolaj,,,,,Ropa,Puro Petróleo,,Ulei Nerafinat,,
 Coolie Mines,TXTS_MAP15,,,,Důl kuliů,Kuli Minen,,,,,,,Csíkszem Bányák,,,,,Kopalnie Kulisów,Minas dos Coolies,,Minele Coolie,,
 Subpen 7,TXTS_MAP16,,,,Ponorkový bunkr 7,Gebäude 7,,,,,,,7-es Tengeralattjáró Kikötő,,,,,Baza 7,Base de Submarinos 7,,Baza de Submarine 7,,
-The Great Escape,TXTS_MAP17,https://www.imdb.com/title/tt0057115/,,,Velký útěk,Die große Flucht,,,La Gran Fuga,,,,A Nagy Szökés,,,,,Wielka Ucieczka,A Grande Fuga,,Marea Evadare,,
+The Great Escape,TXTS_MAP17,https://www.imdb.com/title/tt0057115/,,,Velký útěk,Die große Flucht,,,La Gran Fuga,,,,A Nagy Szökés,,,,,Wielka Ucieczka,Fugindo do Inferno,,Marea Evadare,,
 Floating Fortress,TXTS_MAP18,,,,Létající pevnost,Schwebende Festung,,,Fortaleza Flotante,,,,Lebegő Erőd,,,,,Latająca Forteca,Fortaleza Flutuante,,Fortăreața Plutitoare,,
 Water Torture,TXTS_MAP19,,,,Vodní mučení,Wasserfolter,,,,,,,Vizes Kínzás,,,,,Wodna Tortura,Tortura d'Água,,Tortura Apei,,
 Stone Rain,TXTS_MAP20,,,,Prší kamení,Steinregen,,,,,,,Kő Eső,,,,,Deszcz Kamieni,Chuva de Pedra,,Ploaia de Pietre,,
@@ -1689,8 +1688,8 @@ ache e destrua todas as torres
 de energia para poder acessar
 a sala de controle. Lá você vai
 precisar destruir os painéis de
-controle e a fonte de energia
-central. Essa é a grande missão,
+controle e a fonte central de energia. 
+Essa é a grande missão,
 meu amigo. Boa sorte... Para
 todos nós.",,"Acostează înainte să plece,
 apoi găsește și distruge turnurile
@@ -2096,7 +2095,7 @@ from destruction.
 Your bravery and heroism
 are legendary.
 ",TXT_EX_CINEMA8,After Level 20,,,"Kilmáti byli zničení a
-tys vlastnoručně zachránil
+ty jsi vlastnoručně zachránil
 Zemi před jejím zničením.
 
 
@@ -2248,10 +2247,11 @@ Natural,GLPREFMNU_NATURAL,,,,Přirozené,Natürlich,,,,,,,Természetes,,,,,Natur
 High Contrast,GLPREFMNU_HIGHCONTRAST,,,,Vysoký kontrast,Hoher Kontrast,,,,,,,Magas Kontrasztú,,,,,Duży Kontrast,Alto Contraste,,De Înalt Contrast,,
 Original,GLPREFMNU_ORIGINAL,,,,Původní,,,,,,,,Eredeti,,,,,Oryginalne,Original,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-You need the key for this door,TXT_EX_NEEDKEY,,,,,Du brauchst einen Schlüssel für diese Tür,,,,,,,,,,,,Potrzebujesz klucza do tych drzwi,Você precisa da chave para esta porta,,Ai nevoie de cheie pentru ușa asta,,
-Take out the control center!,TXT_EX_TAKEOUT,,,,,Schalte das Kontrollzentrum aus!,,,,,,,,,,,,Zniszcz centrum kontrolne!,Destrua o centro de controle!,,Distruge centrul de control!,,
-%d towers remaining,TXT_EX_TOWERSREMAIN,,,,,%d Türme noch übrig,,,,,,,,,,,,Zostało %d wież,Ainda restam %d torres,,%d turnuri rămase,,
-Invisibility is about to expire,TXT_EX_INVISEXP,,,,,Unsichtbarkeit läuft bald ab,,,,,,,,,,,,Niewidzialność kończy się,Invisibilidade está prestes a expirar,,Invizibilitatea expiră curând,,
-Invincibility is about to expire,TXT_EX_INVINVCEX,,,,,Unverwundbarkeit läuft bald ab,,,,,,,,,,,,Nietykalność kończy się,Invencibilidade está prestes a expirar,,Invincibilitatea expiră curând,,
-Weapon power is about to expire,TXT_EX_WEAPONEX,,,,,Waffenenergie läuft bald ab,,,,,,,,,,,,Wzmocnienie broni kończy się,Poder da arma está prestes a expirar,,Puterea armei expiră curând,,
-Mask is about to expire,TXT_EX_MASKEX,,,,,Maske läuft bald ab,,,,,,,,,,,,Maska traci swą moc,Máscara está prestes a expirar,,Masca expiră curând,,
+You need the key for this door,TXT_EX_NEEDKEY,,,,K těmto dveřím potřebuješ klíč,Du brauchst einen Schlüssel für diese Tür,,,,,,,,,,,,Potrzebujesz klucza do tych drzwi,Você precisa da chave para esta porta,,Ai nevoie de cheie pentru ușa asta,,
+Take out the control center!,TXT_EX_TAKEOUT,,,,Znič řídící středisko!,Schalte das Kontrollzentrum aus!,,,,,,,,,,,,Zniszcz centrum kontrolne!,Destrua o centro de controle!,,Distruge centrul de control!,,
+%d towers remaining,TXT_EX_TOWERSREMAIN,,,,Zbývají %d věže,%d Türme noch übrig,,,,,,,,,,,,Zostało %d wież,Ainda restam %d torres,,%d turnuri rămase,,
+Invisibility is about to expire,TXT_EX_INVISEXP,,,,Neviditelnost brzy vyprchá,Unsichtbarkeit läuft bald ab,,,,,,,,,,,,Niewidzialność kończy się,Invisibilidade está prestes a expirar,,Invizibilitatea expiră curând,,
+Invincibility is about to expire,TXT_EX_INVINVCEX,,,,Nesmrtelnost brzy vyprchá,Unverwundbarkeit läuft bald ab,,,,,,,,,,,,Nietykalność kończy się,Invencibilidade está prestes a expirar,,Invincibilitatea expiră curând,,
+Weapon power is about to expire,TXT_EX_WEAPONEX,,,,Síla zbraně brzy vyprchá,Waffenenergie läuft bald ab,,,,,,,,,,,,Wzmocnienie broni kończy się,Poder da arma está prestes a expirar,,Puterea armei expiră curând,,
+Mask is about to expire,TXT_EX_MASKEX,,,,Maska brzy vyprchá,Maske läuft bald ab,,,,,,,,,,,,Maska traci swą moc,Máscara está prestes a expirar,,Masca expiră curând,,
+Full Viewing Pitch (Experimental),PLRMNU_FULLVIEWPITCH,,,,Plný pohled nahoru/dolů (experimentální),,,,,,,,,,,,,,Inclinação completa de visão (experimental),,Privire Sus-Jos la 90° (Prototip),,
