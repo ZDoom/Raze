@@ -5883,11 +5883,17 @@ void DoPlayerBeginDie(PLAYER* pp)
 
 static inline void DoPlayerDeathHoriz(PLAYER* pp, const DAngle target, const double speed)
 {
-    auto targetdelta = deltaangle(pp->actor->spr.Angles.Pitch, target);
+    auto& pitch = pp->actor->spr.Angles.Pitch;
+    auto pspeed = DAngle::fromDeg(speed);
 
-    if (abs(targetdelta.Degrees()) > 1)
+    if (pitch < target)
     {
-        pp->Angles.addPitch(DAngle::fromDeg(speed * targetdelta.Sgn()));
+        pitch = min(pitch + pspeed, target);
+    }
+
+    if (pitch > target)
+    {
+        pitch = max(pitch - pspeed, target);
     }
 }
 

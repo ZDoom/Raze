@@ -89,7 +89,6 @@ struct PlayerAngles
 	}
 
 	// Pitch methods.
-	void addPitch(const DAngle value) { updateAngle(PITCH, ClampViewPitch(pActor->spr.Angles.Pitch + value)); }
 	void setPitch(const DAngle value, const bool backup = false) { updateAngle(PITCH, ClampViewPitch(value), backup); }
 
 	// Yaw methods.

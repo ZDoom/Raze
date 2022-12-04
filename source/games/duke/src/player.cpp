@@ -118,7 +118,7 @@ void forceplayerangle(int snum)
 	player_struct* p = &ps[snum];
 	const auto ang = (DAngle22_5 - randomAngle(45)) / 2.;
 
-	p->Angles.addPitch(DAngle::fromDeg(-26.566));
+	p->GetActor()->spr.Angles.Pitch -= DAngle::fromDeg(26.566);
 	p->sync.actions |= SB_CENTERVIEW;
 	p->Angles.ViewAngles.Yaw = ang;
 	p->Angles.ViewAngles.Roll = -ang;
@@ -797,7 +797,7 @@ void player_struct::checkhardlanding()
 {
 	if (hard_landing > 0)
 	{
-		Angles.addPitch(maphoriz(hard_landing << 4));
+		GetActor()->spr.Angles.Pitch += maphoriz(hard_landing << 4);
 		hard_landing--;
 	}
 }

@@ -2496,7 +2496,7 @@ sectdone:
         {
             if (double nVertPan = deltaangle(pPlayer->pActor->spr.Angles.Pitch, pPlayer->nDestVertPan).Tan() * 32.)
             {
-                pPlayer->Angles.addPitch(maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.));
+                pPlayer->pActor->spr.Angles.Pitch += maphoriz(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.);
             }
         }
     }
@@ -2621,7 +2621,7 @@ sectdone:
             }
             else
             {
-                PlayerList[nPlayer].Angles.addPitch(maphoriz(-dVertPan[nPlayer]));
+                PlayerList[nPlayer].pActor->spr.Angles.Pitch -= maphoriz(dVertPan[nPlayer]);
 
                 if (PlayerList[nPlayer].pActor->spr.Angles.Pitch.Degrees() <= 38)
                 {

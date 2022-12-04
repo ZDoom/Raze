@@ -1660,7 +1660,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->Angles.addPitch(deltaangle(p->GetActor()->spr.Angles.Pitch, maphoriz(-horiz)));
+		p->GetActor()->spr.Angles.Pitch += deltaangle(p->GetActor()->spr.Angles.Pitch, maphoriz(-horiz));
 	}
 
 	const DAngle adjust = mapangle(-510);
@@ -1928,7 +1928,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (horiz != FRACUNIT)
 	{
-		p->Angles.addPitch(deltaangle(p->GetActor()->spr.Angles.Pitch, maphoriz(-horiz)));
+		p->GetActor()->spr.Angles.Pitch += deltaangle(p->GetActor()->spr.Angles.Pitch, maphoriz(-horiz));
 	}
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
@@ -2836,7 +2836,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->Angles.addPitch(DAngle::fromDeg(-0.4476));
+		p->GetActor()->spr.Angles.Pitch -= DAngle::fromDeg(0.4476);
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3008,7 +3008,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		else if (p->kickback_pic == 12)
 		{
 			p->vel.XY() -= p->GetActor()->spr.Angles.Yaw.ToVector();
-			p->Angles.addPitch(DAngle::fromDeg(-8.88));
+			p->GetActor()->spr.Angles.Pitch -= DAngle::fromDeg(8.88);
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3817,7 +3817,7 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->Angles.addPitch(maphoriz(d));
+		p->GetActor()->spr.Angles.Pitch += maphoriz(d);
 	}
 
 	if (SyncInput())

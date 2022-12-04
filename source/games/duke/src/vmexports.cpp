@@ -1041,7 +1041,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, angle, dukeplayer_angle)
 
 void dukeplayer_addpitch(player_struct* self, double a)
 {
-	self->Angles.addPitch(DAngle::fromDeg(a));
+	self->GetActor()->spr.Angles.Pitch += DAngle::fromDeg(a);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addpitch, dukeplayer_addpitch)

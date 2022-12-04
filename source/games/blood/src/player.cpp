@@ -1546,7 +1546,7 @@ void ProcessInput(PLAYER* pPlayer)
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->Angles.addPitch(deltaangle(pPlayer->actor->spr.Angles.Pitch, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5));
+			pPlayer->actor->spr.Angles.Pitch += deltaangle(pPlayer->actor->spr.Angles.Pitch, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5);
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)
