@@ -1542,7 +1542,7 @@ void ProcessInput(PLAYER* pPlayer)
 		DBloodActor* fragger = pPlayer->fragger;
 		if (fragger)
 		{
-			pPlayer->Angles.addYaw(deltaangle(pPlayer->actor->spr.Angles.Yaw, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle()));
+			pPlayer->actor->spr.Angles.Yaw += deltaangle(pPlayer->actor->spr.Angles.Yaw, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle());
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)

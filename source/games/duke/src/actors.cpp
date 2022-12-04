@@ -488,7 +488,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->Angles.addYaw(deltaangle(p->GetActor()->spr.Angles.Yaw, (p->actorsqu->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.25);
+					p->GetActor()->spr.Angles.Yaw += deltaangle(p->GetActor()->spr.Angles.Yaw, (p->actorsqu->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.25;
 				}
 
 				if (act->spr.extra > 0)
@@ -508,7 +508,7 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->spr.statnum < MAXSTATUS)
 					{
-						p->Angles.addYaw(deltaangle(p->GetActor()->spr.Angles.Yaw, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5);
+						p->GetActor()->spr.Angles.Yaw += deltaangle(p->GetActor()->spr.Angles.Yaw, (p->wackedbyactor->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle()) * 0.5;
 					}
 				}
 			}
@@ -800,7 +800,7 @@ void handle_se00(DDukeActor* actor)
 		{
 			if (ps[p].cursector == actor->sector() && ps[p].on_ground == 1)
 			{
-				ps[p].Angles.addYaw(ang_amount * direction);
+				ps[p].GetActor()->spr.Angles.Yaw += ang_amount * direction;
 
 				ps[p].GetActor()->spr.pos.Z += zchange;
 
@@ -980,7 +980,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 					ps[p].bobpos += vec;
 
-					ps[p].Angles.addYaw(diffangle);
+					ps[p].GetActor()->spr.Angles.Yaw += diffangle;
 
 					if (numplayers > 1)
 					{

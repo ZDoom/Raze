@@ -1707,7 +1707,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		}
 
 		p->vel.XY() += (p->GetActor()->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
-		p->Angles.addYaw(deltaangle(p->GetActor()->spr.Angles.Yaw, p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment)));
+		p->GetActor()->spr.Angles.Yaw += deltaangle(p->GetActor()->spr.Angles.Yaw, p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
@@ -1951,7 +1951,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 
 		p->vel.XY() += (p->GetActor()->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
-		p->Angles.addYaw(deltaangle(p->GetActor()->spr.Angles.Yaw, p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment)));
+		p->GetActor()->spr.Angles.Yaw += deltaangle(p->GetActor()->spr.Angles.Yaw, p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
@@ -2275,7 +2275,7 @@ void onMotorcycleMove(int snum, walltype* wal)
 	double damageAmount = p->MotoSpeed * p->MotoSpeed;
 
 	const double scale = (180. / 2048.);
-	p->Angles.addYaw(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));
+	p->GetActor()->spr.Angles.Yaw += DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale));
 
 	// That's some very weird angles here...
 	if (angleDelta >= 77.51 && angleDelta <= 102.13)
@@ -2330,7 +2330,7 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 	double angleDelta = absangle(p->GetActor()->spr.Angles.Yaw, wal->delta().Angle()).Degrees();
 
 	const double scale = (90. / 2048.);
-	p->Angles.addYaw(DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale)));
+	p->GetActor()->spr.Angles.Yaw += DAngle::fromDeg(p->MotoSpeed * (krand() & 1 ? -scale : scale));
 
 	if (angleDelta >= 77.51 && angleDelta <= 102.13)
 	{
@@ -2927,11 +2927,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->Angles.addYaw(mapangle(16));
+			p->GetActor()->spr.Angles.Yaw += mapangle(16);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->Angles.addYaw(mapangle(-16));
+			p->GetActor()->spr.Angles.Yaw -= mapangle(16);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -2957,11 +2957,11 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->Angles.addYaw(mapangle(4));
+			p->GetActor()->spr.Angles.Yaw += mapangle(4);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->Angles.addYaw(mapangle(-4));
+			p->GetActor()->spr.Angles.Yaw -= mapangle(4);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;

@@ -910,7 +910,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 			viewBackupSpriteLoc(actor);
 			actor->spr.pos.XY() = spot + pt_w2 - pivot;
 			actor->spr.Angles.Yaw += angleofs;
-			if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].Angles.addYaw(angleofs);
+			if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
 
 		}
 		else if (actor->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
@@ -922,7 +922,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 			viewBackupSpriteLoc(actor);
 			actor->spr.pos.XY() = spot - pt_w2 + pivot;
 			actor->spr.Angles.Yaw += angleofs;
-			if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].Angles.addYaw(angleofs);
+			if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
 		}
 		else if (pXSector->Drag)
 		{
@@ -938,7 +938,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 				}
 				actor->spr.Angles.Yaw += angleofs;
 				actor->spr.pos += position;
-				if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].Angles.addYaw(angleofs);
+				if (!VanillaMode() && actor->IsPlayerActor()) gPlayer[actor->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
 			}
 		}
 	}
@@ -963,7 +963,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot + pt_w2 - pivot;
 					ac->spr.Angles.Yaw += angleofs;
-					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].Angles.addYaw(angleofs);
+					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
 				}
 				else if (ac->spr.cstat & CSTAT_SPRITE_MOVE_REVERSE)
 				{
@@ -971,7 +971,7 @@ void TranslateSector(sectortype* pSector, double wave1, double wave2, const DVec
 					viewBackupSpriteLoc(ac);
 					ac->spr.pos.XY() = spot - pt_w2 + pivot;
 					ac->spr.Angles.Yaw += angleofs;
-					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].Angles.addYaw(angleofs);
+					if (!VanillaMode() && ac->IsPlayerActor()) gPlayer[ac->spr.type - kDudePlayer1].actor->spr.Angles.Yaw += angleofs;
 				}
 			}
 		}

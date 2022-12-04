@@ -5981,7 +5981,7 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
     {
         if (FAFcansee(ActorVectOfTop(killer), killer->sector(), pp->actor->getPosWithOffsetZ(), pp->cursector))
         {
-            pp->Angles.addYaw(deltaangle(pp->actor->spr.Angles.Yaw, (killer->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle()) * (1. / 16.));
+            pp->actor->spr.Angles.Yaw += deltaangle(pp->actor->spr.Angles.Yaw, (killer->spr.pos.XY() - pp->actor->spr.pos.XY()).Angle()) * (1. / 16.);
         }
     }
 }
