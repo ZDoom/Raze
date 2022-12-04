@@ -180,8 +180,6 @@ static void cachegoodsprites(void)
 	if (ud.multimode > 1)
 	{
 		tloadtile(DTILE_FRAGBAR);
-		for (i = DTILE_MINIFONT; i < DTILE_MINIFONT + 63; i++)
-			tloadtile(i);
 	}
 
 	for(i=DTILE_FOOTPRINTS;i<DTILE_FOOTPRINTS+3;i++)
