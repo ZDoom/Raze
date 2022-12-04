@@ -131,14 +131,14 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case DUKELYINGDEAD:
+		case RTILE_DUKELYINGDEAD:
 			h->spr.scale = DVector2(0.375, 0.265625);
 			if (h->spr.extra > 0)
 				t->pos.Z += 6;
 			break;
-		case POWDERKEG:
+		case RTILE_POWDERKEG:
 			continue;
-		case BURNING:
+		case RTILE_BURNING:
 			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
 			{
 				if (display_mirror == 0 && OwnerAc->PlayerIndex() == screenpeek && ps[OwnerAc->PlayerIndex()].over_shoulder_on == 0)
@@ -151,13 +151,13 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			break;
 
-		case ATOMICHEALTH:
+		case RTILE_ATOMICHEALTH:
 			t->pos.Z -= 4;
 			break;
-		case CRYSTALAMMO:
+		case RTILE_CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;
-		case APLAYER:
+		case RTILE_APLAYER:
 
 			p = h->PlayerIndex();
 
@@ -190,19 +190,19 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 				switch (ps[p].curr_weapon)
 				{
-				case PISTOL_WEAPON:      newtspr->picnum = FIRSTGUNSPRITE;       break;
-				case SHOTGUN_WEAPON:     newtspr->picnum = SHOTGUNSPRITE;        break;
-				case RIFLEGUN_WEAPON:    newtspr->picnum = RIFLEGUNSPRITE;       break;
-				case CROSSBOW_WEAPON:         newtspr->picnum = CROSSBOWSPRITE;            break;
-				case CHICKEN_WEAPON:        newtspr->picnum = CROSSBOWSPRITE; break;
+				case PISTOL_WEAPON:      newtspr->picnum = RTILE_FIRSTGUNSPRITE;       break;
+				case SHOTGUN_WEAPON:     newtspr->picnum = RTILE_SHOTGUNSPRITE;        break;
+				case RIFLEGUN_WEAPON:    newtspr->picnum = RTILE_RIFLEGUNSPRITE;       break;
+				case CROSSBOW_WEAPON:         newtspr->picnum = RTILE_CROSSBOWSPRITE;            break;
+				case CHICKEN_WEAPON:        newtspr->picnum = RTILE_CROSSBOWSPRITE; break;
 				case THROWINGDYNAMITE_WEAPON:
-				case DYNAMITE_WEAPON:    newtspr->picnum = DYNAMITE;           break;
-				case POWDERKEG_WEAPON:    newtspr->picnum = POWDERKEG;       break;
-				case BOWLING_WEAPON:     newtspr->picnum = BOWLINGBALLSPRITE;                 break;
-				case THROWSAW_WEAPON:    newtspr->picnum = RIPSAWSPRITE;          break;
-				case BUZZSAW_WEAPON:        newtspr->picnum = RIPSAWSPRITE;          break;
-				case ALIENBLASTER_WEAPON:      newtspr->picnum = ALIENBLASTERSPRITE;     break;
-				case TIT_WEAPON:  newtspr->picnum = TITSPRITE;         break;
+				case DYNAMITE_WEAPON:    newtspr->picnum = RTILE_DYNAMITE;           break;
+				case POWDERKEG_WEAPON:    newtspr->picnum = RTILE_POWDERKEG;       break;
+				case BOWLING_WEAPON:     newtspr->picnum = RTILE_BOWLINGBALLSPRITE;                 break;
+				case THROWSAW_WEAPON:    newtspr->picnum = RTILE_RIPSAWSPRITE;          break;
+				case BUZZSAW_WEAPON:        newtspr->picnum = RTILE_RIPSAWSPRITE;          break;
+				case ALIENBLASTER_WEAPON:      newtspr->picnum = RTILE_ALIENBLASTERSPRITE;     break;
+				case TIT_WEAPON:  newtspr->picnum = RTILE_TITSPRITE;         break;
 				}
 
 				if (h->GetOwner()) newtspr->pos.Z = ps[p].GetActor()->getOffsetZ() - 12;
@@ -258,9 +258,9 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (ps[p].newOwner != nullptr)
 			{
-				t4 = ScriptCode[gs.actorinfo[APLAYER].scriptaddress + 1];
+				t4 = ScriptCode[gs.actorinfo[RTILE_APLAYER].scriptaddress + 1];
 				t3 = 0;
-				t1 = ScriptCode[gs.actorinfo[APLAYER].scriptaddress + 2];
+				t1 = ScriptCode[gs.actorinfo[RTILE_APLAYER].scriptaddress + 2];
 			}
 
 			if (ud.cameraactor == nullptr && ps[p].newOwner == nullptr)
@@ -284,7 +284,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (ps[p].OnMotorcycle && p == screenpeek)
 			{
-				t->picnum = RRTILE7219;
+				t->picnum = RTILE_RRTILE7219;
 				t->scale = DVector2(0.28125, 0.28125);
 				t4 = 0;
 				t3 = 0;
@@ -300,7 +300,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				}
 				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 
-				t->picnum = RRTILE7213 + k;
+				t->picnum = RTILE_RRTILE7213 + k;
 				t->scale = DVector2(0.28125, 0.28125);
 				t4 = 0;
 				t3 = 0;
@@ -308,7 +308,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			else if (ps[p].OnBoat && p == screenpeek)
 			{
-				t->picnum = RRTILE7190;
+				t->picnum = RTILE_RRTILE7190;
 				t->scale = DVector2(0.5, 0.5);
 				t4 = 0;
 				t3 = 0;
@@ -325,7 +325,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				}
 				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 
-				t->picnum = RRTILE7184 + k;
+				t->picnum = RTILE_RRTILE7184 + k;
 				t->scale = DVector2(0.5, 0.5);
 				t4 = 0;
 				t3 = 0;
@@ -334,8 +334,8 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			break;
 
-		case WATERBUBBLE:
-			if (t->sectp->floorpicnum == FLOORSLIME)
+		case RTILE_WATERBUBBLE:
+			if (t->sectp->floorpicnum == RTILE_FLOORSLIME)
 			{
 				t->pal = 7;
 				break;
@@ -357,16 +357,16 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case SBMOVE:
+		case RTILE_SBMOVE:
 			if (!isRRRA())
 				t->shade = -127;
 			break;
 
-		case EXPLOSION2:
-		case ATOMICHEALTH:
-		case CHAINGUN:
-		case EXPLOSION3:
-			if (t->picnum == EXPLOSION2)
+		case RTILE_EXPLOSION2:
+		case RTILE_ATOMICHEALTH:
+		case RTILE_CHAINGUN:
+		case RTILE_EXPLOSION3:
+			if (t->picnum == RTILE_EXPLOSION2)
 			{
 				ps[screenpeek].visibility = -127;
 				lastvisinc = PlayClock + 32;
@@ -374,52 +374,52 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			t->shade = -127;
 			break;
-		case UFOBEAM:
-		case RRTILE3586:
-		case LADDER:
+		case RTILE_UFOBEAM:
+		case RTILE_RRTILE3586:
+		case RTILE_LADDER:
 			t->cstat |= CSTAT_SPRITE_INVISIBLE;
 			h->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 			break;
-		case DESTRUCTO:
+		case RTILE_DESTRUCTO:
 			t->cstat |= CSTAT_SPRITE_INVISIBLE;
 			break;
-		case FIRE:
-		case BURNING:
+		case RTILE_FIRE:
+		case RTILE_BURNING:
 			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
 				t->pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
-		case CHEER:
+		case RTILE_CHEER:
 			if (!isRRRA()) break;
-			if (t->picnum >= CHEER + 102 && t->picnum <= CHEER + 151)
+			if (t->picnum >= RTILE_CHEER + 102 && t->picnum <= RTILE_CHEER + 151)
 				t->shade = -127;
 			break;
-		case MINION:
+		case RTILE_MINION:
 			if (!isRRRA()) break;
 			if (t->pal == 19)
 				t->shade = -127;
 			break;
-		case BIKER:
+		case RTILE_BIKER:
 			if (!isRRRA()) break;
-			if (t->picnum >= BIKER + 54 && t->picnum <= BIKER + 58)
+			if (t->picnum >= RTILE_BIKER + 54 && t->picnum <= RTILE_BIKER + 58)
 				t->shade = -127;
-			else if (t->picnum >= BIKER + 84 && t->picnum <= BIKER + 88)
+			else if (t->picnum >= RTILE_BIKER + 84 && t->picnum <= RTILE_BIKER + 88)
 				t->shade = -127;
 			break;
-		case BILLYRAY:
-		case BILLYRAYSTAYPUT:
+		case RTILE_BILLYRAY:
+		case RTILE_BILLYRAYSTAYPUT:
 			if (!isRRRA()) break;
-			if (t->picnum >= BILLYRAY + 5 && t->picnum <= BILLYRAY + 9)
+			if (t->picnum >= RTILE_BILLYRAY + 5 && t->picnum <= RTILE_BILLYRAY + 9)
 				t->shade = -127;
 			break;
-		case RRTILE2034:
-			t->picnum = RRTILE2034 + ((PlayClock >> 2) & 1);
+		case RTILE_RRTILE2034:
+			t->picnum = RTILE_RRTILE2034 + ((PlayClock >> 2) & 1);
 			break;
-		case RRTILE2944:
+		case RTILE_RRTILE2944:
 			t->shade = -127;
-			t->picnum = RRTILE2944 + ((PlayClock >> 2) & 4);
+			t->picnum = RTILE_RRTILE2944 + ((PlayClock >> 2) & 4);
 			break;
-		case PLAYERONWATER:
+		case RTILE_PLAYERONWATER:
 
 			k = angletorotation1(t->Angles.Yaw, viewang);
 			if (k > 4)
@@ -435,7 +435,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		}
 
 		h->dispicnum = t->picnum;
-		if (t->sectp->floorpicnum == MIRROR)
+		if (t->sectp->floorpicnum == RTILE_MIRROR)
 			t->scale = DVector2(0, 0);
 	}
 }

@@ -56,46 +56,46 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	default_case:
 		spawninitdefault(actj, act);
 		break;
-	case RRTILE7936:
+	case RTILE_RRTILE7936:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(0, 0);
 		fogactive = 1;
 		break;
-	case RRTILE6144:
+	case RTILE_RRTILE6144:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(0, 0);
 		ps[screenpeek].sea_sick_stat = 1;
 		break;
-	case RRTILE8193:
+	case RTILE_RRTILE8193:
 		if (!isRRRA()) goto default_case;
 		act->spr.scale = DVector2(0, 0);
 		pistonsound = 1;
 		break;
 
-	case TRANSPORTERSTAR:
-	case TRANSPORTERBEAM:
-		spawntransporter(actj, act, act->spr.picnum == TRANSPORTERBEAM);
+	case RTILE_TRANSPORTERSTAR:
+	case RTILE_TRANSPORTERBEAM:
+		spawntransporter(actj, act, act->spr.picnum == RTILE_TRANSPORTERBEAM);
 		break;
 
-	case BLOOD:
+	case RTILE_BLOOD:
 		act->spr.scale = DVector2(0.0625, 0.0625);
 		act->spr.pos.Z -= 26;
 		ChangeActorStat(act, STAT_MISC);
 		break;
-	case GRATE1:
+	case RTILE_GRATE1:
 		act->clipdist = 8;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 0);
 		break;
-	case FEM10:
-	case NAKED1:
-	case STATUE:
-	case TOUGHGAL:
+	case RTILE_FEM10:
+	case RTILE_NAKED1:
+	case RTILE_STATUE:
+	case RTILE_TOUGHGAL:
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 8;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
-	case DUKELYINGDEAD:
+	case RTILE_DUKELYINGDEAD:
 		if (actj && actj->isPlayer())
 		{
 			act->spr.scale = actj->spr.scale;
@@ -109,16 +109,16 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 32;
 		[[fallthrough]];
-	case MIKE:
-		if (act->spr.picnum == MIKE)
+	case RTILE_MIKE:
+		if (act->spr.picnum == RTILE_MIKE)
 			act->spr.yint = act->spr.hitag;
 		ChangeActorStat(act, STAT_ACTOR);
 		break;
 
-	case EXPLOSION2:
-	case EXPLOSION3:
-	case BURNING:
-	case SMALLSMOKE:
+	case RTILE_EXPLOSION2:
+	case RTILE_EXPLOSION3:
+	case RTILE_BURNING:
+	case RTILE_SMALLSMOKE:
 		if (actj)
 		{
 			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
@@ -126,23 +126,23 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
 
-		if (act->spr.picnum == EXPLOSION2)
+		if (act->spr.picnum == RTILE_EXPLOSION2)
 		{
 			act->spr.scale = DVector2(0.75, 0.75);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
-		else if (act->spr.picnum == EXPLOSION3)
+		else if (act->spr.picnum == RTILE_EXPLOSION3)
 		{
 			act->spr.scale = DVector2(2, 2);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
-		else if (act->spr.picnum == SMALLSMOKE)
+		else if (act->spr.picnum == RTILE_SMALLSMOKE)
 		{
 			act->spr.scale = DVector2(0.1875, 0.1875);
 		}
-		else if (act->spr.picnum == BURNING)
+		else if (act->spr.picnum == RTILE_BURNING)
 		{
 			act->spr.scale = DVector2(0.0625, 0.0625);
 		}
@@ -158,7 +158,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case PLAYERONWATER:
+	case RTILE_PLAYERONWATER:
 		if (actj)
 		{
 			act->spr.scale = actj->spr.scale;
@@ -169,7 +169,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_DUMMYPLAYER);
 		break;
 
-	case APLAYER:
+	case RTILE_APLAYER:
 	{
 		act->spr.scale = DVector2(0, 0);
 		int j = ud.coop;
@@ -181,10 +181,10 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_PLAYER);
 		break;
 	}
-	case WATERBUBBLE:
+	case RTILE_WATERBUBBLE:
 		if (actj && actj->isPlayer())
 			act->spr.pos.Z -= 16;
-		if (act->spr.picnum == WATERBUBBLE)
+		if (act->spr.picnum == RTILE_WATERBUBBLE)
 		{
 			if (actj)
 				act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
@@ -196,71 +196,71 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case WATERBUBBLEMAKER:
+	case RTILE_WATERBUBBLEMAKER:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 		// this is not really nice...
-	case BIKERB:
-	case BIKERBV2:
-	case BIKER:
-	case MAKEOUT:
-	case CHEERB:
-	case CHEER:
-	case COOTPLAY:
-	case BILLYPLAY:
-	case MINIONBOAT:
-	case HULKBOAT:
-	case CHEERBOAT:
-	case RABBIT:
-	case ROCK:
-	case ROCK2:
-	case MAMACLOUD:
-	case MAMA:
+	case RTILE_BIKERB:
+	case RTILE_BIKERBV2:
+	case RTILE_BIKER:
+	case RTILE_MAKEOUT:
+	case RTILE_CHEERB:
+	case RTILE_CHEER:
+	case RTILE_COOTPLAY:
+	case RTILE_BILLYPLAY:
+	case RTILE_MINIONBOAT:
+	case RTILE_HULKBOAT:
+	case RTILE_CHEERBOAT:
+	case RTILE_RABBIT:
+	case RTILE_ROCK:
+	case RTILE_ROCK2:
+	case RTILE_MAMACLOUD:
+	case RTILE_MAMA:
 		if (isRRRA()) goto rrra_badguy2;
 		else goto default_case;
 
-	case SBSWIPE:
-	case CHEERSTAYPUT:
+	case RTILE_SBSWIPE:
+	case RTILE_CHEERSTAYPUT:
 		if (isRRRA()) goto rrra_stayput;
 		else goto default_case;
-	case SBMOVE:
+	case RTILE_SBMOVE:
 		if (isRRRA()) goto default_case;
 		[[fallthrough]];
 
-	case BILLYRAYSTAYPUT:
-	case BRAYSNIPER:
-	case BUBBASTAND:
-	case HULKSTAYPUT:
-	case HENSTAYPUT:
-	case PIGSTAYPUT:
-	case MINIONSTAYPUT:
-	case COOTSTAYPUT:
+	case RTILE_BILLYRAYSTAYPUT:
+	case RTILE_BRAYSNIPER:
+	case RTILE_BUBBASTAND:
+	case RTILE_HULKSTAYPUT:
+	case RTILE_HENSTAYPUT:
+	case RTILE_PIGSTAYPUT:
+	case RTILE_MINIONSTAYPUT:
+	case RTILE_COOTSTAYPUT:
 	rrra_stayput:
 		act->actorstayput = act->sector();
 		[[fallthrough]];
-	case BOULDER:
-	case BOULDER1:
-	case TORNADO:
-	case BILLYCOCK:
-	case BILLYRAY:
-	case DOGRUN:
-	case LTH:
-	case HULK:
-	case HEN:
-	case DRONE:
-	case PIG:
-	case MINION:
-	case COW:
-	case COOT:
-	case VIXEN:
+	case RTILE_BOULDER:
+	case RTILE_BOULDER1:
+	case RTILE_TORNADO:
+	case RTILE_BILLYCOCK:
+	case RTILE_BILLYRAY:
+	case RTILE_DOGRUN:
+	case RTILE_LTH:
+	case RTILE_HULK:
+	case RTILE_HEN:
+	case RTILE_DRONE:
+	case RTILE_PIG:
+	case RTILE_MINION:
+	case RTILE_COW:
+	case RTILE_COOT:
+	case RTILE_VIXEN:
 	rrra_badguy2:
 		act->spr.scale = DVector2(0.625, 0.625);
 		// Note: All inappropriate tiles have already been weeded out by the outer switch block so this does not need game type checks anymore.
 		switch (act->spr.picnum)
 		{
-		case VIXEN:
+		case RTILE_VIXEN:
 			if (act->spr.pal == 34)
 			{
 				act->spr.scale = DVector2(0.34375, 0.328125);
@@ -271,41 +271,41 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			act->setClipDistFromTile();
 			break;
-		case HULKHANG:
-		case HULKHANGDEAD:
-		case HULKJUMP:
-		case HULK:
-		case HULKSTAYPUT:
+		case RTILE_HULKHANG:
+		case RTILE_HULKHANGDEAD:
+		case RTILE_HULKJUMP:
+		case RTILE_HULK:
+		case RTILE_HULKSTAYPUT:
 			act->spr.scale = DVector2(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
-		case COOTPLAY:
-		case COOT:
-		case COOTSTAYPUT:
+		case RTILE_COOTPLAY:
+		case RTILE_COOT:
+		case RTILE_COOTSTAYPUT:
 			act->spr.scale = DVector2(0.375, 0.28125);
 			act->setClipDistFromTile();
 			act->clipdist *= 4;
 			break;
-		case DRONE:
+		case RTILE_DRONE:
 			act->spr.scale = DVector2(0.21875, 0.109375);
 			act->clipdist = 32;
 			break;
-		case SBSWIPE:
-		case BILLYPLAY:
-		case BILLYCOCK:
-		case BILLYRAY:
-		case BILLYRAYSTAYPUT:
-		case BRAYSNIPER:
-		case BUBBASTAND:
+		case RTILE_SBSWIPE:
+		case RTILE_BILLYPLAY:
+		case RTILE_BILLYCOCK:
+		case RTILE_BILLYRAY:
+		case RTILE_BILLYRAYSTAYPUT:
+		case RTILE_BRAYSNIPER:
+		case RTILE_BUBBASTAND:
 			act->spr.scale = DVector2(0.390625, 0.328125);
 			act->setClipDistFromTile();
 			break;
-		case COW:
+		case RTILE_COW:
 			act->spr.scale = DVector2(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
-		case HEN:
-		case HENSTAYPUT:
+		case RTILE_HEN:
+		case RTILE_HENSTAYPUT:
 			if (act->spr.pal == 35)
 			{
 				act->spr.scale = DVector2(0.65625, 0.46875);
@@ -317,23 +317,23 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				act->clipdist = 16;
 			}
 			break;
-		case MINION:
-		case MINIONSTAYPUT:
+		case RTILE_MINION:
+		case RTILE_MINIONSTAYPUT:
 			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
 			if (isRRRA() && ud.ufospawnsminion)
 				act->spr.pal = 8;
 			break;
-		case DOGRUN:
-		case PIG:
+		case RTILE_DOGRUN:
+		case RTILE_PIG:
 			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
 			break;
-		case RABBIT:
+		case RTILE_RABBIT:
 			act->spr.scale = DVector2(0.28125, 0.28125);
 			act->setClipDistFromTile();
 			break;
-		case MAMACLOUD:
+		case RTILE_MAMACLOUD:
 			act->spr.scale = DVector2(1, 1);
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP;
@@ -341,7 +341,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.pos.Y += krandf(128) - 64;
 			act->spr.pos.Z += krandf(8) - 4;
 			break;
-		case MAMA:
+		case RTILE_MAMA:
 			if (actj && isrespawncontroller(actj))
 				act->spr.pal = actj->spr.pal;
 
@@ -366,61 +366,61 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				act->clipdist = 25;
 			}
 			break;
-		case BIKERB:
+		case RTILE_BIKERB:
 			act->spr.scale = DVector2(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
-		case BIKERBV2:
+		case RTILE_BIKERBV2:
 			act->spr.scale = DVector2(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
-		case BIKER:
+		case RTILE_BIKER:
 			act->spr.scale = DVector2(0.4375, 0.34375);
 			act->setClipDistFromTile();
 			break;
-		case CHEERB:
+		case RTILE_CHEERB:
 			act->spr.scale = DVector2(0.4375, 0.34375);
 			act->clipdist = 18;
 			break;
-		case CHEER:
-		case CHEERSTAYPUT:
+		case RTILE_CHEER:
+		case RTILE_CHEERSTAYPUT:
 			act->spr.scale = DVector2(0.34375, 0.3125);
 			act->setClipDistFromTile();
 			break;
-		case MAKEOUT:
+		case RTILE_MAKEOUT:
 			act->spr.scale = DVector2(0.40625, 0.40625);
 			act->setClipDistFromTile();
 			break;
-		case MINIONBOAT:
+		case RTILE_MINIONBOAT:
 			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
 			break;
-		case HULKBOAT:
+		case RTILE_HULKBOAT:
 			act->spr.scale = DVector2(0.75, 0.75);
 			act->setClipDistFromTile();
 			break;
-		case CHEERBOAT:
+		case RTILE_CHEERBOAT:
 			act->spr.scale = DVector2(0.5, 0.5);
 			act->setClipDistFromTile();
 			break;
 
-		case TORNADO:
+		case RTILE_TORNADO:
 			act->spr.scale = DVector2(1, 2);
 			act->setClipDistFromTile();
 			act->clipdist *= 0.25;
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			break;
-		case LTH:
+		case RTILE_LTH:
 			act->spr.scale = DVector2(0.375, 0.34375);
 			act->setClipDistFromTile();
 			break;
-		case ROCK:
-		case ROCK2:
+		case RTILE_ROCK:
+		case RTILE_ROCK2:
 			act->spr.scale = DVector2(1, 1);
 			act->setClipDistFromTile();
 			break;
 
-		case SBMOVE:
+		case RTILE_SBMOVE:
 			act->spr.scale = DVector2(0.75, 0.75);
 			act->setClipDistFromTile();
 			break;
@@ -460,50 +460,50 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case RPG2SPRITE:
-	case MOTOAMMO:
-	case BOATAMMO:
+	case RTILE_RPG2SPRITE:
+	case RTILE_MOTOAMMO:
+	case RTILE_BOATAMMO:
 		if (!isRRRA()) goto default_case;
 		[[fallthrough]];
 
-	case ATOMICHEALTH:
-	case STEROIDS:
-	case HEATSENSOR:
-	case SHIELD:
-	case AIRTANK:
-	case POWDERKEG:
-	case COWPIE:
-	case HOLODUKE:
+	case RTILE_ATOMICHEALTH:
+	case RTILE_STEROIDS:
+	case RTILE_HEATSENSOR:
+	case RTILE_SHIELD:
+	case RTILE_AIRTANK:
+	case RTILE_POWDERKEG:
+	case RTILE_COWPIE:
+	case RTILE_HOLODUKE:
 
-	case FIRSTGUNSPRITE:
-	case RIFLEGUNSPRITE:
-	case SHOTGUNSPRITE:
-	case CROSSBOWSPRITE:
-	case RIPSAWSPRITE:
-	case TITSPRITE:
-	case ALIENBLASTERSPRITE:
+	case RTILE_FIRSTGUNSPRITE:
+	case RTILE_RIFLEGUNSPRITE:
+	case RTILE_SHOTGUNSPRITE:
+	case RTILE_CROSSBOWSPRITE:
+	case RTILE_RIPSAWSPRITE:
+	case RTILE_TITSPRITE:
+	case RTILE_ALIENBLASTERSPRITE:
 
-	case SHOTGUNAMMO:
-	case FREEZEAMMO:
-	case HBOMBAMMO:
-	case CRYSTALAMMO:
-	case GROWAMMO:
-	case BATTERYAMMO:
-	case DEVISTATORAMMO:
-	case RPGAMMO:
-	case BOOTS:
-	case AMMO:
-	case AMMOLOTS:
-	case BEER:
-	case FIRSTAID:
-	case SIXPAK:
+	case RTILE_SHOTGUNAMMO:
+	case RTILE_FREEZEAMMO:
+	case RTILE_HBOMBAMMO:
+	case RTILE_CRYSTALAMMO:
+	case RTILE_GROWAMMO:
+	case RTILE_BATTERYAMMO:
+	case RTILE_DEVISTATORAMMO:
+	case RTILE_RPGAMMO:
+	case RTILE_BOOTS:
+	case RTILE_AMMO:
+	case RTILE_AMMOLOTS:
+	case RTILE_BEER:
+	case RTILE_FIRSTAID:
+	case RTILE_SIXPAK:
 
-	case SAWAMMO:
-	case BOWLINGBALLSPRITE:
+	case RTILE_SAWAMMO:
+	case RTILE_BOWLINGBALLSPRITE:
 		if (actj)
 		{
 			act->spr.lotag = 0;
-			if (act->spr.picnum != BOWLINGBALLSPRITE)
+			if (act->spr.picnum != RTILE_BOWLINGBALLSPRITE)
 			{
 				act->spr.pos.Z -= 32;
 				act->vel.Z = -4;
@@ -531,12 +531,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pal = 0;
 		[[fallthrough]];
 
-	case ACCESSCARD:
+	case RTILE_ACCESSCARD:
 
-		if (act->spr.picnum == ATOMICHEALTH)
+		if (act->spr.picnum == RTILE_ATOMICHEALTH)
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 
-		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == ACCESSCARD)
+		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == RTILE_ACCESSCARD)
 		{
 			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
@@ -544,7 +544,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			if (act->spr.picnum == AMMO)
+			if (act->spr.picnum == RTILE_AMMO)
 				act->spr.scale = DVector2(0.25, 0.25);
 			else act->spr.scale = DVector2(0.5, 0.5);
 		}
@@ -559,92 +559,92 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		switch (act->spr.picnum)
 		{
-		case FIRSTGUNSPRITE:
+		case RTILE_FIRSTGUNSPRITE:
 			act->spr.scale = DVector2(0.25, 0.25);
 			break;
-		case SHOTGUNAMMO:
+		case RTILE_SHOTGUNAMMO:
 			act->spr.scale = DVector2(0.28125, 0.265625);
 			if (isRRRA()) act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
-		case SIXPAK:
+		case RTILE_SIXPAK:
 			act->spr.scale = DVector2(0.203125, 0.140625);
 			if (isRRRA()) act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
-		case FIRSTAID:
+		case RTILE_FIRSTAID:
 			act->spr.scale = DVector2(0.125, 0.125);
 			break;
-		case BEER:
+		case RTILE_BEER:
 			act->spr.scale = DVector2(0.078125, 0.0625);
 			break;
-		case AMMO:
+		case RTILE_AMMO:
 			act->spr.scale = DVector2(0.140625, 0.140625);
 			break;
-		case MOTOAMMO:
+		case RTILE_MOTOAMMO:
 			if (!isRRRA()) goto default_case;
 			act->spr.scale = DVector2(0.359375, 0.359375);
 			break;
-		case BOATAMMO:
+		case RTILE_BOATAMMO:
 			if (!isRRRA()) goto default_case;
 			act->spr.scale = DVector2(0.25, 0.25);
 			break;
-		case COWPIE:
+		case RTILE_COWPIE:
 			act->spr.scale = DVector2(0.125, 0.09375);
 			break;
-		case STEROIDS:
+		case RTILE_STEROIDS:
 			act->spr.scale = DVector2(0.203125, 0.140625);
 			break;
-		case ACCESSCARD:
+		case RTILE_ACCESSCARD:
 			act->spr.scale = DVector2(0.171875, 0.1875);
 			break;
-		case HEATSENSOR:
+		case RTILE_HEATSENSOR:
 			act->spr.scale = DVector2(0.09375, 0.0625);
 			break;
-		case AIRTANK:
+		case RTILE_AIRTANK:
 			act->spr.scale = DVector2(0.296875, 0.25);
 			break;
-		case BATTERYAMMO:
+		case RTILE_BATTERYAMMO:
 			act->spr.scale = DVector2(0.234375, 0.234375);
 			break;
-		case BOWLINGBALLSPRITE:
+		case RTILE_BOWLINGBALLSPRITE:
 			act->spr.scale = DVector2(0.171875, 0.171875);
 			break;
-		case POWDERKEG:
+		case RTILE_POWDERKEG:
 			act->spr.scale = DVector2(0.171875, 0.171875);
 			act->spr.yint = 4;
 			act->vel.X = 2;
 			break;
-		case CROSSBOWSPRITE:
+		case RTILE_CROSSBOWSPRITE:
 			act->spr.scale = DVector2(0.25, 0.21875);
 			break;
-		case RPG2SPRITE:
+		case RTILE_RPG2SPRITE:
 			if (!isRRRA()) goto default_case;
 			act->spr.scale = DVector2(0.34375, 0.3125);
 			break;
-		case RIPSAWSPRITE:
+		case RTILE_RIPSAWSPRITE:
 			act->spr.scale = DVector2(0.34375, 0.203125);
 			break;
-		case ALIENBLASTERSPRITE:
+		case RTILE_ALIENBLASTERSPRITE:
 			act->spr.scale = DVector2(0.28125, 0.265625);
 			break;
-		case SAWAMMO:
+		case RTILE_SAWAMMO:
 			act->spr.scale = DVector2(0.1875, 0.109375);
 			break;
-		case GROWSPRITEICON:
+		case RTILE_GROWSPRITEICON:
 			act->spr.scale = DVector2(0.15625, 0.140625);
 			break;
-		case DEVISTATORAMMO:
+		case RTILE_DEVISTATORAMMO:
 			act->spr.scale = DVector2(0.15625, 0.140625);
 			break;
-		case ATOMICHEALTH:
+		case RTILE_ATOMICHEALTH:
 			act->spr.scale = DVector2(0.125, 0.125);
 			break;
-		case TITSPRITE:
+		case RTILE_TITSPRITE:
 			act->spr.scale = DVector2(0.265625, 0.25);
 			break;
 		}
 		act->spr.shade = act->sector()->floorshade;
 		break;
-	case STEAM:
+	case RTILE_STEAM:
 		if (actj)
 		{
 			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
@@ -654,24 +654,24 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ssp(act, CLIPMASK0);
 		}
 		[[fallthrough]];
-	case CEILINGSTEAM:
+	case RTILE_CEILINGSTEAM:
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case SECTOREFFECTOR:
 		spawneffector(act, actors);
 		break;
 
-	case RUBBERCAN:
+	case RTILE_RUBBERCAN:
 		act->spr.extra = 0;
 		[[fallthrough]];
-	case EXPLODINGBARREL:
-	case HORSEONSIDE:
-	case FIREBARREL:
-	case NUKEBARREL:
-	case FIREVASE:
-	case NUKEBARRELDENTED:
-	case NUKEBARRELLEAKED:
-	case WOODENHORSE:
+	case RTILE_EXPLODINGBARREL:
+	case RTILE_HORSEONSIDE:
+	case RTILE_FIREBARREL:
+	case RTILE_NUKEBARREL:
+	case RTILE_FIREVASE:
+	case RTILE_NUKEBARRELDENTED:
+	case RTILE_NUKEBARRELLEAKED:
+	case RTILE_WOODENHORSE:
 
 		if (actj)
 			act->spr.scale = DVector2(0.5, 0.5);
@@ -681,25 +681,25 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else act->SetOwner(act);
 		[[fallthrough]];
 
-	case EGG:
-		if (ud.monsters_off == 1 && act->spr.picnum == EGG)
+	case RTILE_EGG:
+		if (ud.monsters_off == 1 && act->spr.picnum == RTILE_EGG)
 		{
 			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		else
 		{
-			if (act->spr.picnum == EGG)
+			if (act->spr.picnum == RTILE_EGG)
 				act->clipdist = 6;
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		break;
-	case TOILETWATER:
+	case RTILE_TOILETWATER:
 		act->spr.shade = -16;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-	case RRTILE63:
+	case RTILE_RRTILE63:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 		act->clipdist = 0.25;

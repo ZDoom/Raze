@@ -30,8 +30,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS
 
-#define x(a, b) a = b,
-#define y(a, b) a = b,
+#define x(a, b) RTILE_##a = b,
+#define y(a, b) RTILE_##a = b,
 enum
 {
 	#include "namelist_r.h"

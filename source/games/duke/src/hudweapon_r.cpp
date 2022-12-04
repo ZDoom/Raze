@@ -73,11 +73,11 @@ void displaymasks_r(int snum, int p, double interpfrac)
 		// to get the proper clock value with regards to interpolation we have add a interpfrac based offset to the value.
 		double interpclock = PlayClock + TICSPERFRAME * interpfrac;
 		int pin = RS_STRETCH;
-		hud_drawsprite((320 - (tileWidth(SCUBAMASK) >> 1) - 15), (200 - (tileHeight(SCUBAMASK) >> 1) + BobVal(interpclock) * 16), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
-		hud_drawsprite((320 - tileWidth(SCUBAMASK + 4)), (200 - tileHeight(SCUBAMASK + 4)), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
-		hud_drawsprite(tileWidth(SCUBAMASK + 4), (200 - tileHeight(SCUBAMASK + 4)), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
-		hud_drawsprite(35, (-1), 65536, 0, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
-		hud_drawsprite(285, 200, 65536, 1024, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - (tileWidth(RTILE_SCUBAMASK) >> 1) - 15), (200 - (tileHeight(RTILE_SCUBAMASK) >> 1) + BobVal(interpclock) * 16), 49152, 0, RTILE_SCUBAMASK, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - tileWidth(RTILE_SCUBAMASK + 4)), (200 - tileHeight(RTILE_SCUBAMASK + 4)), 65536, 0, RTILE_SCUBAMASK + 4, 0, p, 2 + 16 + pin);
+		hud_drawsprite(tileWidth(RTILE_SCUBAMASK + 4), (200 - tileHeight(RTILE_SCUBAMASK + 4)), 65536, 0, RTILE_SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
+		hud_drawsprite(35, (-1), 65536, 0, RTILE_SCUBAMASK + 3, 0, p, 2 + 16 + pin);
+		hud_drawsprite(285, 200, 65536, 1024, RTILE_SCUBAMASK + 3, 0, p, 2 + 16 + pin);
 	}
 }
 
@@ -181,23 +181,23 @@ void displayweapon_r(int snum, double interpfrac)
 				if (*kb == 1)
 				{
 					if ((krand()&1) == 1)
-						temp_kb = MOTOHIT+1;
+						temp_kb = RTILE_MOTOHIT+1;
 					else
-						temp_kb = MOTOHIT+2;
+						temp_kb = RTILE_MOTOHIT+2;
 				}
 				else if (*kb == 4)
 				{
 					if ((krand()&1) == 1)
-						temp_kb = MOTOHIT+3;
+						temp_kb = RTILE_MOTOHIT+3;
 					else
-						temp_kb = MOTOHIT+4;
+						temp_kb = RTILE_MOTOHIT+4;
 				}
 				else
-					temp_kb = MOTOHIT;
+					temp_kb = RTILE_MOTOHIT;
 
 			}
 			else
-				temp_kb = MOTOHIT;
+				temp_kb = RTILE_MOTOHIT;
 		}
 		else
 		{
@@ -205,19 +205,19 @@ void displayweapon_r(int snum, double interpfrac)
 			{
 				shade = 0;
 				if (*kb == 1)
-					temp_kb = MOTOHIT+1;
+					temp_kb = RTILE_MOTOHIT+1;
 				else if (*kb == 2)
-					temp_kb = MOTOHIT+2;
+					temp_kb = RTILE_MOTOHIT+2;
 				else if (*kb == 3)
-					temp_kb = MOTOHIT+3;
+					temp_kb = RTILE_MOTOHIT+3;
 				else if (*kb == 4)
-					temp_kb = MOTOHIT+4;
+					temp_kb = RTILE_MOTOHIT+4;
 				else
-					temp_kb = MOTOHIT;
+					temp_kb = RTILE_MOTOHIT;
 
 			}
 			else
-				temp_kb = MOTOHIT;
+				temp_kb = RTILE_MOTOHIT;
 		}
 
 		ShowMotorcycle(160-look_anghalf, 174, temp_kb, shade, 0, pal, TiltStatus*5);
@@ -230,53 +230,53 @@ void displayweapon_r(int snum, double interpfrac)
 		if (TiltStatus > 0)
 		{
 			if (*kb == 0)
-				temp_kb = BOATHIT+1;
+				temp_kb = RTILE_BOATHIT+1;
 			else if (*kb <= 3)
 			{
-				temp_kb = BOATHIT+5;
+				temp_kb = RTILE_BOATHIT+5;
 				temp2 = 1;
 			}
 			else if (*kb <= 6)
 			{
-				temp_kb = BOATHIT+6;
+				temp_kb = RTILE_BOATHIT+6;
 				temp2 = 1;
 			}
 			else
-				temp_kb = BOATHIT+1;
+				temp_kb = RTILE_BOATHIT+1;
 		}
 		else if (TiltStatus < 0)
 		{
 			if (*kb == 0)
-				temp_kb = BOATHIT+2;
+				temp_kb = RTILE_BOATHIT+2;
 			else if (*kb <= 3)
 			{
-				temp_kb = BOATHIT+7;
+				temp_kb = RTILE_BOATHIT+7;
 				temp2 = 1;
 			}
 			else if (*kb <= 6)
 			{
-				temp_kb = BOATHIT+8;
+				temp_kb = RTILE_BOATHIT+8;
 				temp2 = 1;
 			}
 			else
-				temp_kb = BOATHIT+2;
+				temp_kb = RTILE_BOATHIT+2;
 		}
 		else
 		{
 			if (*kb == 0)
-				temp_kb = BOATHIT;
+				temp_kb = RTILE_BOATHIT;
 			else if (*kb <= 3)
 			{
-				temp_kb = BOATHIT+3;
+				temp_kb = RTILE_BOATHIT+3;
 				temp2 = 1;
 			}
 			else if (*kb <= 6)
 			{
-				temp_kb = BOATHIT+4;
+				temp_kb = RTILE_BOATHIT+4;
 				temp2 = 1;
 			}
 			else
-				temp_kb = BOATHIT;
+				temp_kb = RTILE_BOATHIT;
 		}
 
 		if (p->NotOnWater)
@@ -293,7 +293,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 	if (p->GetActor()->spr.scale.X < 0.125)
 	{
-		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, FIST, shade, o, interpfrac);
+		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, RTILE_FIST, shade, o, interpfrac);
 	}
 	else
 	{
@@ -316,7 +316,7 @@ void displayweapon_r(int snum, double interpfrac)
 			x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
 			y = 200 - (244 - kb_oy[kb_frames[*kb]]);
 			hud_drawpal(x - look_anghalf, looking_arc + y - gun_pos,
-				KNEE + kb_frames[*kb], shade, 0, pal);
+				RTILE_KNEE + kb_frames[*kb], shade, 0, pal);
 		};
 
 		//---------------------------------------------------------------------------
@@ -335,7 +335,7 @@ void displayweapon_r(int snum, double interpfrac)
 			x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
 			y = 210 - (244 - kb_oy[kb_frames[*kb]]);
 			hud_drawpal(x - look_anghalf + 20, looking_arc + y - gun_pos - 80,
-				SLINGBLADE + kb_frames[*kb], shade, 0, pal);
+				RTILE_SLINGBLADE + kb_frames[*kb], shade, 0, pal);
 		};
 
 		//---------------------------------------------------------------------------
@@ -351,12 +351,12 @@ void displayweapon_r(int snum, double interpfrac)
 			if (p->ammo_amount[BOWLING_WEAPON])
 			{
 				hud_drawpal(weapon_xoffset + 162 - look_anghalf,
-					looking_arc + 214 - gun_pos + (*kb << 3), BOWLINGBALLHUD, shade, o, pal);
+					looking_arc + 214 - gun_pos + (*kb << 3), RTILE_BOWLINGBALLHUD, shade, o, pal);
 			}
 			else
 			{
 				rdmyospal(weapon_xoffset + 162 - look_anghalf,
-					looking_arc + 214 - gun_pos, HANDTHROW + 5, shade, o, pal);
+					looking_arc + 214 - gun_pos, RTILE_HANDTHROW + 5, shade, o, pal);
 			}
 		};
 
@@ -373,14 +373,14 @@ void displayweapon_r(int snum, double interpfrac)
 			if (p->ammo_amount[POWDERKEG_WEAPON])
 			{
 				rdmyospal(weapon_xoffset + 180 - look_anghalf,
-					looking_arc + 214 - gun_pos + (*kb << 3), POWDERH, shade, o, pal);
+					looking_arc + 214 - gun_pos + (*kb << 3), RTILE_POWDERH, shade, o, pal);
 				rdmyospal(weapon_xoffset + 90 - look_anghalf,
-					looking_arc + 214 - gun_pos + (*kb << 3), POWDERH, shade, o | 4, pal);
+					looking_arc + 214 - gun_pos + (*kb << 3), RTILE_POWDERH, shade, o | 4, pal);
 			}
 			else
 			{
 				rdmyospal(weapon_xoffset + 162 - look_anghalf,
-					looking_arc + 214 - gun_pos, HANDTHROW + 5, shade, o, pal);
+					looking_arc + 214 - gun_pos, RTILE_HANDTHROW + 5, shade, o, pal);
 			}
 		};
 
@@ -397,17 +397,17 @@ void displayweapon_r(int snum, double interpfrac)
 			if (kb_frames[*kb] == 2 || kb_frames[*kb] == 3)
 			{
 				rdmyospal((weapon_xoffset + 200) - look_anghalf,
-					looking_arc + 250 - gun_pos, RPGGUN + kb_frames[*kb], shade, o | pin, pal);
+					looking_arc + 250 - gun_pos, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal);
 			}
 			else if (kb_frames[*kb] == 1)
 			{
 				rdmyospal((weapon_xoffset + 200) - look_anghalf,
-					looking_arc + 250 - gun_pos, RPGGUN + kb_frames[*kb], 0, o | pin, pal);
+					looking_arc + 250 - gun_pos, RTILE_RPGGUN + kb_frames[*kb], 0, o | pin, pal);
 			}
 			else
 			{
 				rdmyospal((weapon_xoffset + 210) - look_anghalf,
-					looking_arc + 255 - gun_pos, RPGGUN + kb_frames[*kb], shade, o | pin, pal);
+					looking_arc + 255 - gun_pos, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal);
 			}
 		};
 
@@ -426,17 +426,17 @@ void displayweapon_r(int snum, double interpfrac)
 				if (kb_frames[*kb] == 2 || kb_frames[*kb] == 3)
 				{
 					rdmyospal((weapon_xoffset + 200) - look_anghalf,
-						looking_arc + 250 - gun_pos, RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal);
+						looking_arc + 250 - gun_pos, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal);
 				}
 				else if (kb_frames[*kb] == 1)
 				{
 					rdmyospal((weapon_xoffset + 200) - look_anghalf,
-						looking_arc + 250 - gun_pos, RPGGUN2 + kb_frames[*kb], 0, o |  pin, pal);
+						looking_arc + 250 - gun_pos, RTILE_RPGGUN2 + kb_frames[*kb], 0, o |  pin, pal);
 				}
 				else
 				{
 					rdmyospal((weapon_xoffset + 210) - look_anghalf,
-						looking_arc + 255 - gun_pos, RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal);
+						looking_arc + 255 - gun_pos, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal);
 				}
 			}
 			else
@@ -446,25 +446,25 @@ void displayweapon_r(int snum, double interpfrac)
 					if (chickenphase)
 					{
 						rdmyospal((weapon_xoffset + 210) - look_anghalf,
-							looking_arc + 222 - gun_pos, RPGGUN2 + 7, shade, o |  pin, pal);
+							looking_arc + 222 - gun_pos, RTILE_RPGGUN2 + 7, shade, o |  pin, pal);
 					}
 					else if ((krand() & 15) == 5)
 					{
 						S_PlayActorSound(327, p->GetActor());
 						rdmyospal((weapon_xoffset + 210) - look_anghalf,
-							looking_arc + 222 - gun_pos, RPGGUN2 + 7, shade, o |  pin, pal);
+							looking_arc + 222 - gun_pos, RTILE_RPGGUN2 + 7, shade, o |  pin, pal);
 						chickenphase = 6;
 					}
 					else
 					{
 						rdmyospal((weapon_xoffset + 210) - look_anghalf,
-							looking_arc + 225 - gun_pos, RPGGUN2, shade, o |  pin, pal);
+							looking_arc + 225 - gun_pos, RTILE_RPGGUN2, shade, o |  pin, pal);
 					}
 				}
 				else
 				{
 					rdmyospal((weapon_xoffset + 210) - look_anghalf,
-						looking_arc + 225 - gun_pos, RPGGUN2, shade, o |  pin, pal);
+						looking_arc + 225 - gun_pos, RTILE_RPGGUN2, shade, o |  pin, pal);
 				}
 			}
 		};
@@ -498,7 +498,7 @@ void displayweapon_r(int snum, double interpfrac)
 						x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
 						y = tm - (244 - kb_oy[kb_frames[*kb]]);
 						hud_drawpal(x + 64 - look_anghalf,
-							y + looking_arc - gun_pos, SHOTGUN + kb_frames[*kb], shade, 0, pal);
+							y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames[*kb], shade, 0, pal);
 					}
 					else
 					{
@@ -521,9 +521,9 @@ void displayweapon_r(int snum, double interpfrac)
 							y += 30;
 							break;
 						}
-						hud_drawpal(x + 64 - look_anghalf, y + looking_arc - gun_pos, SHOTGUN + kb_frames[*kb], shade, 0, pal);
+						hud_drawpal(x + 64 - look_anghalf, y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames[*kb], shade, 0, pal);
 						if (kb_frames[*kb] == 21)
-							hud_drawpal(x + 96 - look_anghalf, y + looking_arc - gun_pos, SHOTGUNSHELLS, shade, 0, pal);
+							hud_drawpal(x + 96 - look_anghalf, y + looking_arc - gun_pos, RTILE_SHOTGUNSHELLS, shade, 0, pal);
 					}
 				}
 				else
@@ -537,7 +537,7 @@ void displayweapon_r(int snum, double interpfrac)
 							x = weapon_xoffset + ((kb_ox[kb_frames2[*kb]] >> 1) - 12);
 							y = tm - (244 - kb_oy[kb_frames2[*kb]]);
 							hud_drawpal(x + 64 - look_anghalf,
-								y + looking_arc - gun_pos, SHOTGUN + kb_frames2[*kb], shade, 0, pal);
+								y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames2[*kb], shade, 0, pal);
 						}
 						else
 						{
@@ -546,7 +546,7 @@ void displayweapon_r(int snum, double interpfrac)
 							x = weapon_xoffset + ((kb_ox[kb_frames3[*kb]] >> 1) - 12);
 							y = tm - (244 - kb_oy[kb_frames3[*kb]]);
 							hud_drawpal(x + 64 - look_anghalf,
-								y + looking_arc - gun_pos, SHOTGUN + kb_frames3[*kb], shade, 0, pal);
+								y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames3[*kb], shade, 0, pal);
 						}
 					}
 					else if (p->shotgun_state[0])
@@ -570,9 +570,9 @@ void displayweapon_r(int snum, double interpfrac)
 							y += 30;
 							break;
 						}
-						hud_drawpal(x + 64 - look_anghalf, y + looking_arc - gun_pos, SHOTGUN + kb_frames2[*kb], shade, 0, pal);
+						hud_drawpal(x + 64 - look_anghalf, y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames2[*kb], shade, 0, pal);
 						if (kb_frames2[*kb] == 21)
-							hud_drawpal(x + 96 - look_anghalf, y + looking_arc - gun_pos, SHOTGUNSHELLS, shade, 0, pal);
+							hud_drawpal(x + 96 - look_anghalf, y + looking_arc - gun_pos, RTILE_SHOTGUNSHELLS, shade, 0, pal);
 					}
 				}
 			}
@@ -595,7 +595,7 @@ void displayweapon_r(int snum, double interpfrac)
 			{
 			case 0:
 				hud_drawpal(weapon_xoffset + 178 - look_anghalf + 30, looking_arc + 233 - gun_pos + 5,
-					CHAINGUN, shade, o, pal);
+					RTILE_CHAINGUN, shade, o, pal);
 				break;
 			default:
 				shade = 0;
@@ -603,10 +603,10 @@ void displayweapon_r(int snum, double interpfrac)
 				{
 					i = rand() & 7;
 					hud_drawpal(weapon_xoffset + 178 - look_anghalf + 30, looking_arc + 233 - gun_pos + 5,
-						CHAINGUN + 1, shade, o, pal);
+						RTILE_CHAINGUN + 1, shade, o, pal);
 				}
 				else hud_drawpal(weapon_xoffset + 178 - look_anghalf + 30, looking_arc + 233 - gun_pos + 5,
-					CHAINGUN + 2, shade, o, pal);
+					RTILE_CHAINGUN + 2, shade, o, pal);
 				break;
 			}
 		};
@@ -634,7 +634,7 @@ void displayweapon_r(int snum, double interpfrac)
 					shade = 0;
 
 				rdmyospal(x - look_anghalf,
-					y + looking_arc - gun_pos, FIRSTGUN + kb_frames[*kb], shade, 0, pal);
+					y + looking_arc - gun_pos, RTILE_FIRSTGUN + kb_frames[*kb], shade, 0, pal);
 			}
 			else
 			{
@@ -692,7 +692,7 @@ void displayweapon_r(int snum, double interpfrac)
 					break;
 				}
 				rdmyospal(x - look_anghalf - dx,
-					y + looking_arc - gun_pos + dy, FIRSTGUNRELOAD + kb_frames[(*kb) - 22], shade, 0, pal);
+					y + looking_arc - gun_pos + dy, RTILE_FIRSTGUNRELOAD + kb_frames[(*kb) - 22], shade, 0, pal);
 			}
 		};
 
@@ -706,7 +706,7 @@ void displayweapon_r(int snum, double interpfrac)
 		{
 			gun_pos -= 9 * (*kb);
 
-			rdmyospal(weapon_xoffset + 190 - look_anghalf, looking_arc + 260 - gun_pos, HANDTHROW, shade, o, pal);
+			rdmyospal(weapon_xoffset + 190 - look_anghalf, looking_arc + 260 - gun_pos, RTILE_HANDTHROW, shade, o, pal);
 		};
 
 		//---------------------------------------------------------------------------
@@ -733,20 +733,20 @@ void displayweapon_r(int snum, double interpfrac)
 					if ((*kb) < 5)
 					{
 						rdmyospal(weapon_xoffset + x + 190 - look_anghalf - dx,
-							looking_arc + 258 - gun_pos - 64 + p->detonate_count - dy, RRTILE1752, 0, o |  pin, pal);
+							looking_arc + 258 - gun_pos - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal);
 					}
 					rdmyospal(weapon_xoffset + x + 190 - look_anghalf,
-						looking_arc + 258 - gun_pos - dy, HANDTHROW + remote_frames[*kb], shade, o |  pin, pal);
+						looking_arc + 258 - gun_pos - dy, RTILE_HANDTHROW + remote_frames[*kb], shade, o |  pin, pal);
 				}
 				else
 				{
 					if ((*kb) < 5)
 					{
 						rdmyospal(weapon_xoffset + x + 190 - look_anghalf - dx,
-							looking_arc + 258 - gun_pos - 64 + p->detonate_count - dy, RRTILE1752, 0, o |  pin, pal);
+							looking_arc + 258 - gun_pos - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal);
 					}
 					rdmyospal(weapon_xoffset + x + 190 - look_anghalf,
-						looking_arc + 258 - gun_pos - dy, HANDTHROW + 1, shade, o |  pin, pal);
+						looking_arc + 258 - gun_pos - dy, RTILE_HANDTHROW + 1, shade, o |  pin, pal);
 				}
 			}
 		};
@@ -762,10 +762,10 @@ void displayweapon_r(int snum, double interpfrac)
 			if (*kb)
 			{
 				shade = 0;
-				rd3myospal(150 + (weapon_xoffset / 2.) - look_anghalf, 266 + (looking_arc / 2.) - gun_pos, DEVISTATOR, shade, o, pal);
+				rd3myospal(150 + (weapon_xoffset / 2.) - look_anghalf, 266 + (looking_arc / 2.) - gun_pos, RTILE_DEVISTATOR, shade, o, pal);
 			}
 			else
-				rd3myospal(150 + (weapon_xoffset / 2.) - look_anghalf, 266 + (looking_arc / 2.) - gun_pos, DEVISTATOR + 1, shade, o, pal);
+				rd3myospal(150 + (weapon_xoffset / 2.) - look_anghalf, 266 + (looking_arc / 2.) - gun_pos, RTILE_DEVISTATOR + 1, shade, o, pal);
 		};
 
 		//---------------------------------------------------------------------------
@@ -780,9 +780,9 @@ void displayweapon_r(int snum, double interpfrac)
 			if ((*kb))
 			{
 				static const uint8_t cat_frames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-				rdmyospal(weapon_xoffset + 260 - look_anghalf, looking_arc + 215 - gun_pos, FREEZE + cat_frames[*kb], -32, o |  pin, pal);
+				rdmyospal(weapon_xoffset + 260 - look_anghalf, looking_arc + 215 - gun_pos, RTILE_FREEZE + cat_frames[*kb], -32, o |  pin, pal);
 			}
-			else rdmyospal(weapon_xoffset + 260 - look_anghalf, looking_arc + 215 - gun_pos, FREEZE, shade, o |  pin, pal);
+			else rdmyospal(weapon_xoffset + 260 - look_anghalf, looking_arc + 215 - gun_pos, RTILE_FREEZE, shade, o |  pin, pal);
 		};
 
 		//---------------------------------------------------------------------------
@@ -798,7 +798,7 @@ void displayweapon_r(int snum, double interpfrac)
 			if ((*kb) == 0)
 			{
 				rd2myospal(weapon_xoffset + 188 - look_anghalf,
-					looking_arc + 240 - gun_pos, SHRINKER, shade, o, pal);
+					looking_arc + 240 - gun_pos, RTILE_SHRINKER, shade, o, pal);
 			}
 			else
 			{
@@ -811,14 +811,14 @@ void displayweapon_r(int snum, double interpfrac)
 				if (cw == BUZZSAW_WEAPON)
 				{
 					rd2myospal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, GROWSPARK + ((*kb) & 2), shade, o, 0);
+						looking_arc + 240 - gun_pos, RTILE_GROWSPARK + ((*kb) & 2), shade, o, 0);
 				}
 				else
 				{
 					static const int8_t kb_frames[] = { 1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0 };
 					int frm = kb_frames[*kb];
 					rd2myospal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + frm, shade, o, 0);
+						looking_arc + 240 - gun_pos, RTILE_SHRINKER + frm, shade, o, 0);
 				}
 			}
 		};

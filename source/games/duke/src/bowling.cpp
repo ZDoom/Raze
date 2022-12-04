@@ -40,12 +40,12 @@ void updatepindisplay(int tag, int pins)
 	static const uint8_t piny[] = { 48, 40, 40, 32, 32, 32, 24, 24, 24, 24 };
 
 	if (tag < 1 || tag > 4) return;
-	tag += BOWLINGLANE1 - 1;
+	tag += RTILE_BOWLINGLANE1 - 1;
 	if (TileFiles.tileMakeWritable(tag))
 	{
-		tileCopySection(LANEPICBG, 0, 0, 128, 64, tag, 0, 0);
+		tileCopySection(RTILE_LANEPICBG, 0, 0, 128, 64, tag, 0, 0);
 		for (int i = 0; i < 10; i++) if (pins & (1 << i))
-			tileCopySection(LANEPICS, 0, 0, 8, 8, tag, pinx[i] - 4, piny[i] - 10);
+			tileCopySection(RTILE_LANEPICS, 0, 0, 8, 8, tag, pinx[i] - 4, piny[i] - 10);
 	}
 }
 
