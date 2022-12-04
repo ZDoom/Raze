@@ -61,14 +61,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	{
 		switch (act->spr.picnum)
 		{
-		case BOSS2STAYPUT:
-		case BOSS3STAYPUT:
-		case BOSS5STAYPUT:
+		case DTILE_BOSS2STAYPUT:
+		case DTILE_BOSS3STAYPUT:
+		case DTILE_BOSS5STAYPUT:
 			act->actorstayput = act->sector();
 			[[fallthrough]];
-		case FIREFLY:
-		case BOSS5:
-			if (act->spr.picnum != FIREFLY)
+		case DTILE_FIREFLY:
+		case DTILE_BOSS5:
+			if (act->spr.picnum != DTILE_FIREFLY)
 			{
 				if (actj && isrespawncontroller(actj))
 					act->spr.pal = actj->spr.pal;
@@ -114,12 +114,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 					ChangeActorStat(act, STAT_ZOMBIEACTOR);
 			}
 			return act;
-		case FIREFLYFLYINGEFFECT:
+		case DTILE_FIREFLYFLYINGEFFECT:
 			act->SetOwner(actj);
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.scale = DVector2(0.25, 0.25);
 			return act;
-		case LAVAPOOLBUBBLE:
+		case DTILE_LAVAPOOLBUBBLE:
 			if (actj->spr.scale.X < 0.46875)
 				return act;
 			act->SetOwner(actj);
@@ -128,13 +128,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.pos.Y += krandf(32) - 16;
 			act->spr.scale = DVector2(0.25, 0.25);
 			return act;
-		case WHISPYSMOKE:
+		case DTILE_WHISPYSMOKE:
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krandf(16) - 8;
 			act->spr.pos.Y += krandf(16) - 8;
 			act->spr.scale = DVector2(0.3125, 0.3125);
 			return act;
-		case SERIOUSSAM:
+		case DTILE_SERIOUSSAM:
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 			act->spr.extra = 150;
@@ -151,19 +151,19 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.scale = DVector2(0, 0);
 		ChangeActorStat(act, STAT_MISC);
 		break;
-	case TRANSPORTERSTAR:
-	case TRANSPORTERBEAM:
-		spawntransporter(actj, act, act->spr.picnum == TRANSPORTERBEAM);
+	case DTILE_TRANSPORTERSTAR:
+	case DTILE_TRANSPORTERBEAM:
+		spawntransporter(actj, act, act->spr.picnum == DTILE_TRANSPORTERBEAM);
 		break;
 
-	case BLOOD:
+	case DTILE_BLOOD:
 		act->spr.scale = DVector2(0.25, 0.25);
 		act->spr.pos.Z -= 26;
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
 		ChangeActorStat(act, STAT_MISC);
 		break;
-	case LAVAPOOL:
+	case DTILE_LAVAPOOL:
 		if (!isWorldTour()) // Twentieth Anniversary World Tour
 			return act;
 
@@ -173,35 +173,35 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pos.Z = getflorzofslopeptr(act->sector(), act->spr.pos) - 0.78125;
 		[[fallthrough]];
 
-	case FECES:
+	case DTILE_FECES:
 		if (actj)
 			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case FEM1:
-	case FEM2:
-	case FEM3:
-	case FEM4:
-	case FEM5:
-	case FEM6:
-	case FEM7:
-	case FEM8:
-	case FEM9:
-	case FEM10:
-	case PODFEM1:
-	case NAKED1:
-	case TOUGHGAL:
-		if (act->spr.picnum == PODFEM1) act->spr.extra <<= 1;
+	case DTILE_FEM1:
+	case DTILE_FEM2:
+	case DTILE_FEM3:
+	case DTILE_FEM4:
+	case DTILE_FEM5:
+	case DTILE_FEM6:
+	case DTILE_FEM7:
+	case DTILE_FEM8:
+	case DTILE_FEM9:
+	case DTILE_FEM10:
+	case DTILE_PODFEM1:
+	case DTILE_NAKED1:
+	case DTILE_TOUGHGAL:
+		if (act->spr.picnum == DTILE_PODFEM1) act->spr.extra <<= 1;
 		[[fallthrough]];
 
-	case BLOODYPOLE:
+	case DTILE_BLOODYPOLE:
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 8;
 		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 
-	case DUKELYINGDEAD:
+	case DTILE_DUKELYINGDEAD:
 		if (actj && actj->isPlayer())
 		{
 			act->spr.scale = actj->spr.scale;
@@ -213,26 +213,26 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->vel.X = 292 / 16.;
 		act->vel.Z = 360 / 256.;
 		[[fallthrough]];
-	case BLIMP:
+	case DTILE_BLIMP:
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		act->clipdist = 32;
 		[[fallthrough]];
-	case MIKE:
-		if (act->spr.picnum == MIKE)
+	case DTILE_MIKE:
+		if (act->spr.picnum == DTILE_MIKE)
 			act->spr.yint = act->spr.hitag;
 		ChangeActorStat(act, 1);
 		break;
-	case ONFIRE:
+	case DTILE_ONFIRE:
 		// Twentieth Anniversary World Tour
 		if (!isWorldTour())
 			break;
 		[[fallthrough]];
-	case EXPLOSION2:
-	case EXPLOSION2BOT:
-	case BURNING:
-	case BURNING2:
-	case SMALLSMOKE:
-	case SHRINKEREXPLOSION:
+	case DTILE_EXPLOSION2:
+	case DTILE_EXPLOSION2BOT:
+	case DTILE_BURNING:
+	case DTILE_BURNING2:
+	case DTILE_SMALLSMOKE:
+	case DTILE_SHRINKEREXPLOSION:
 
 		if (actj)
 		{
@@ -241,21 +241,21 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
 
-		if (act->spr.picnum == EXPLOSION2 || act->spr.picnum == EXPLOSION2BOT)
+		if (act->spr.picnum == DTILE_EXPLOSION2 || act->spr.picnum == DTILE_EXPLOSION2BOT)
 		{
 			act->spr.scale = DVector2(0.75, 0.75);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
-		else if (act->spr.picnum == SHRINKEREXPLOSION)
+		else if (act->spr.picnum == DTILE_SHRINKEREXPLOSION)
 		{
 			act->spr.scale = DVector2(0.5, 0.5);
 		}
-		else if (act->spr.picnum == SMALLSMOKE || act->spr.picnum == ONFIRE)
+		else if (act->spr.picnum == DTILE_SMALLSMOKE || act->spr.picnum == DTILE_ONFIRE)
 		{
 			act->spr.scale = DVector2(0.375, 0.375);
 		}
-		else if (act->spr.picnum == BURNING || act->spr.picnum == BURNING2)
+		else if (act->spr.picnum == DTILE_BURNING || act->spr.picnum == DTILE_BURNING2)
 		{
 			act->spr.scale = DVector2(0.0625, 0.0625);
 		}
@@ -267,7 +267,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				act->spr.pos.Z = x - 12;
 		}
 
-		if (act->spr.picnum == ONFIRE)
+		if (act->spr.picnum == DTILE_ONFIRE)
 		{
 			act->spr.pos.X += krandf(32) - 16;
 			act->spr.pos.Y += krandf(32) - 16;
@@ -279,7 +279,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case PLAYERONWATER:
+	case DTILE_PLAYERONWATER:
 		if (actj)
 		{
 			act->spr.scale = actj->spr.scale;
@@ -290,7 +290,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_DUMMYPLAYER);
 		break;
 
-	case APLAYER:
+	case DTILE_APLAYER:
 	{
 		act->spr.scale = DVector2(0, 0);
 		int j = ud.coop;
@@ -302,10 +302,10 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_PLAYER);
 		break;
 	}
-	case WATERBUBBLE:
+	case DTILE_WATERBUBBLE:
 		if (actj && actj->isPlayer())
 			act->spr.pos.Z -= 16;
-		if (act->spr.picnum == WATERBUBBLE)
+		if (act->spr.picnum == DTILE_WATERBUBBLE)
 		{
 			if (actj)
 				act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
@@ -316,65 +316,65 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_MISC);
 		break;
 
-	case WATERDRIPSPLASH: // ok
+	case DTILE_WATERDRIPSPLASH: // ok
 		act->spr.scale = DVector2(0.375, 0.375);
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case WATERBUBBLEMAKER:
-		if (act->spr.hitag && act->spr.picnum == WATERBUBBLEMAKER)
+	case DTILE_WATERBUBBLEMAKER:
+		if (act->spr.hitag && act->spr.picnum == DTILE_WATERBUBBLEMAKER)
 		{	// JBF 20030913: Pisses off move(), eg. in bobsp2
-			Printf(TEXTCOLOR_YELLOW "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n", act->GetIndex(), int(act->spr.pos.X), int(act->spr.pos.Y));
+			Printf(TEXTCOLOR_YELLOW "WARNING: DTILE_WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n", act->GetIndex(), int(act->spr.pos.X), int(act->spr.pos.Y));
 			act->spr.hitag = 0;
 		}
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-	case OCTABRAINSTAYPUT:
-	case LIZTROOPSTAYPUT:
-	case PIGCOPSTAYPUT:
-	case LIZMANSTAYPUT:
-	case BOSS1STAYPUT:
-	case PIGCOPDIVE:
-	case COMMANDERSTAYPUT:
-	case BOSS4STAYPUT:
+	case DTILE_OCTABRAINSTAYPUT:
+	case DTILE_LIZTROOPSTAYPUT:
+	case DTILE_PIGCOPSTAYPUT:
+	case DTILE_LIZMANSTAYPUT:
+	case DTILE_BOSS1STAYPUT:
+	case DTILE_PIGCOPDIVE:
+	case DTILE_COMMANDERSTAYPUT:
+	case DTILE_BOSS4STAYPUT:
 		act->actorstayput = act->sector();
 		[[fallthrough]];
-	case BOSS1:
-	case BOSS2:
-	case BOSS3:
-	case BOSS4:
-	case ROTATEGUN:
-	case DRONE:
-	case LIZTROOPONTOILET:
-	case LIZTROOPJUSTSIT:
-	case LIZTROOPSHOOT:
-	case LIZTROOPJETPACK:
-	case LIZTROOPDUCKING:
-	case LIZTROOPRUNNING:
-	case LIZTROOP:
-	case OCTABRAIN:
-	case COMMANDER:
-	case PIGCOP:
-	case LIZMAN:
-	case LIZMANSPITTING:
-	case LIZMANFEEDING:
-	case LIZMANJUMP:
-	case ORGANTIC:
-	case SHARK:
+	case DTILE_BOSS1:
+	case DTILE_BOSS2:
+	case DTILE_BOSS3:
+	case DTILE_BOSS4:
+	case DTILE_ROTATEGUN:
+	case DTILE_DRONE:
+	case DTILE_LIZTROOPONTOILET:
+	case DTILE_LIZTROOPJUSTSIT:
+	case DTILE_LIZTROOPSHOOT:
+	case DTILE_LIZTROOPJETPACK:
+	case DTILE_LIZTROOPDUCKING:
+	case DTILE_LIZTROOPRUNNING:
+	case DTILE_LIZTROOP:
+	case DTILE_OCTABRAIN:
+	case DTILE_COMMANDER:
+	case DTILE_PIGCOP:
+	case DTILE_LIZMAN:
+	case DTILE_LIZMANSPITTING:
+	case DTILE_LIZMANFEEDING:
+	case DTILE_LIZMANJUMP:
+	case DTILE_ORGANTIC:
+	case DTILE_SHARK:
 
 		if (act->spr.pal == 0)
 		{
 			switch (act->spr.picnum)
 			{
-			case LIZTROOPONTOILET:
-			case LIZTROOPSHOOT:
-			case LIZTROOPJETPACK:
-			case LIZTROOPDUCKING:
-			case LIZTROOPRUNNING:
-			case LIZTROOPSTAYPUT:
-			case LIZTROOPJUSTSIT:
-			case LIZTROOP:
+			case DTILE_LIZTROOPONTOILET:
+			case DTILE_LIZTROOPSHOOT:
+			case DTILE_LIZTROOPJETPACK:
+			case DTILE_LIZTROOPDUCKING:
+			case DTILE_LIZTROOPRUNNING:
+			case DTILE_LIZTROOPSTAYPUT:
+			case DTILE_LIZTROOPJUSTSIT:
+			case DTILE_LIZTROOP:
 				act->spr.pal = 22;
 				break;
 			}
@@ -397,7 +397,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			if (act->spr.picnum != SHARK)
+			if (act->spr.picnum != DTILE_SHARK)
 			{
 				act->spr.scale = DVector2(0.625, 0.625);
 				act->clipdist = 20;
@@ -422,10 +422,10 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			makeitfall(act);
 
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-			if (act->spr.picnum != SHARK)
+			if (act->spr.picnum != DTILE_SHARK)
 				ps[myconnectindex].max_actors_killed++;
 
-			if (act->spr.picnum == ORGANTIC) act->spr.cstat |= CSTAT_SPRITE_YCENTER;
+			if (act->spr.picnum == DTILE_ORGANTIC) act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 
 			if (actj)
 			{
@@ -436,48 +436,48 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			else ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 
-		if (act->spr.picnum == ROTATEGUN)
+		if (act->spr.picnum == DTILE_ROTATEGUN)
 			act->vel.Z = 0;
 
 		break;
 
-	case FLAMETHROWERSPRITE:
-	case FLAMETHROWERAMMO: // Twentieth Anniversary World Tour
+	case DTILE_FLAMETHROWERSPRITE:
+	case DTILE_FLAMETHROWERAMMO: // Twentieth Anniversary World Tour
 		if (!isWorldTour())
 			break;
 		[[fallthrough]];
 
-	case ATOMICHEALTH:
-	case STEROIDS:
-	case HEATSENSOR:
-	case SHIELD:
-	case AIRTANK:
-	case TRIPBOMBSPRITE:
-	case JETPACK:
-	case HOLODUKE:
+	case DTILE_ATOMICHEALTH:
+	case DTILE_STEROIDS:
+	case DTILE_HEATSENSOR:
+	case DTILE_SHIELD:
+	case DTILE_AIRTANK:
+	case DTILE_TRIPBOMBSPRITE:
+	case DTILE_JETPACK:
+	case DTILE_HOLODUKE:
 
-	case FIRSTGUNSPRITE:
-	case CHAINGUNSPRITE:
-	case SHOTGUNSPRITE:
-	case RPGSPRITE:
-	case SHRINKERSPRITE:
-	case FREEZESPRITE:
-	case DEVISTATORSPRITE:
+	case DTILE_FIRSTGUNSPRITE:
+	case DTILE_CHAINGUNSPRITE:
+	case DTILE_SHOTGUNSPRITE:
+	case DTILE_RPGSPRITE:
+	case DTILE_SHRINKERSPRITE:
+	case DTILE_FREEZESPRITE:
+	case DTILE_DEVISTATORSPRITE:
 
-	case SHOTGUNAMMO:
-	case FREEZEAMMO:
-	case HBOMBAMMO:
-	case CRYSTALAMMO:
-	case GROWAMMO:
-	case BATTERYAMMO:
-	case DEVISTATORAMMO:
-	case RPGAMMO:
-	case BOOTS:
-	case AMMO:
-	case AMMOLOTS:
-	case COLA:
-	case FIRSTAID:
-	case SIXPAK:
+	case DTILE_SHOTGUNAMMO:
+	case DTILE_FREEZEAMMO:
+	case DTILE_HBOMBAMMO:
+	case DTILE_CRYSTALAMMO:
+	case DTILE_GROWAMMO:
+	case DTILE_BATTERYAMMO:
+	case DTILE_DEVISTATORAMMO:
+	case DTILE_RPGAMMO:
+	case DTILE_BOOTS:
+	case DTILE_AMMO:
+	case DTILE_AMMOLOTS:
+	case DTILE_COLA:
+	case DTILE_FIRSTAID:
+	case DTILE_SIXPAK:
 		if (actj)
 		{
 			act->spr.lotag = 0;
@@ -502,12 +502,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.pal = 0;
 		[[fallthrough]];
 
-	case ACCESSCARD:
+	case DTILE_ACCESSCARD:
 
-		if (act->spr.picnum == ATOMICHEALTH)
+		if (act->spr.picnum == DTILE_ATOMICHEALTH)
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 
-		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == ACCESSCARD)
+		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == DTILE_ACCESSCARD)
 		{
 			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
@@ -515,7 +515,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			if (act->spr.picnum == AMMO)
+			if (act->spr.picnum == DTILE_AMMO)
 				act->spr.scale = DVector2(0.25, 0.25);
 			else act->spr.scale = DVector2(0.5, 0.5);
 		}
@@ -530,12 +530,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		break;
 
-	case FLOORFLAME:
+	case DTILE_FLOORFLAME:
 		act->spr.shade = -127;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case STEAM:
+	case DTILE_STEAM:
 		if (actj)
 		{
 			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
@@ -545,7 +545,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ssp(act, CLIPMASK0);
 		}
 		[[fallthrough]];
-	case CEILINGSTEAM:
+	case DTILE_CEILINGSTEAM:
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
@@ -553,17 +553,17 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		spawneffector(act, actors);
 		break;
 
-	case RUBBERCAN:
+	case DTILE_RUBBERCAN:
 		act->spr.extra = 0;
 		[[fallthrough]];
-	case EXPLODINGBARREL:
-	case HORSEONSIDE:
-	case FIREBARREL:
-	case NUKEBARREL:
-	case FIREVASE:
-	case NUKEBARRELDENTED:
-	case NUKEBARRELLEAKED:
-	case WOODENHORSE:
+	case DTILE_EXPLODINGBARREL:
+	case DTILE_HORSEONSIDE:
+	case DTILE_FIREBARREL:
+	case DTILE_NUKEBARREL:
+	case DTILE_FIREVASE:
+	case DTILE_NUKEBARRELDENTED:
+	case DTILE_NUKEBARRELLEAKED:
+	case DTILE_WOODENHORSE:
 
 		if (actj)
 			act->spr.scale = DVector2(0.5, 0.5);
@@ -573,15 +573,15 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else act->SetOwner(act);
 		[[fallthrough]];
 
-	case EGG:
-		if (ud.monsters_off == 1 && act->spr.picnum == EGG)
+	case DTILE_EGG:
+		if (ud.monsters_off == 1 && act->spr.picnum == DTILE_EGG)
 		{
 			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
 		}
 		else
 		{
-			if (act->spr.picnum == EGG)
+			if (act->spr.picnum == DTILE_EGG)
 			{
 				act->clipdist = 6;
 				ps[connecthead].max_actors_killed++;
@@ -590,7 +590,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		break;
-	case TOILETWATER:
+	case DTILE_TOILETWATER:
 		act->spr.shade = -16;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;

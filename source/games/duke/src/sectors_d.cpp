@@ -60,43 +60,43 @@ void animatewalls_d(void)
 
 		switch (j)
 		{
-		case SCREENBREAK1:
-		case SCREENBREAK2:
-		case SCREENBREAK3:
-		case SCREENBREAK4:
-		case SCREENBREAK5:
+		case DTILE_SCREENBREAK1:
+		case DTILE_SCREENBREAK2:
+		case DTILE_SCREENBREAK3:
+		case DTILE_SCREENBREAK4:
+		case DTILE_SCREENBREAK5:
 
-		case SCREENBREAK9:
-		case SCREENBREAK10:
-		case SCREENBREAK11:
-		case SCREENBREAK12:
-		case SCREENBREAK13:
-		case SCREENBREAK14:
-		case SCREENBREAK15:
-		case SCREENBREAK16:
-		case SCREENBREAK17:
-		case SCREENBREAK18:
-		case SCREENBREAK19:
+		case DTILE_SCREENBREAK9:
+		case DTILE_SCREENBREAK10:
+		case DTILE_SCREENBREAK11:
+		case DTILE_SCREENBREAK12:
+		case DTILE_SCREENBREAK13:
+		case DTILE_SCREENBREAK14:
+		case DTILE_SCREENBREAK15:
+		case DTILE_SCREENBREAK16:
+		case DTILE_SCREENBREAK17:
+		case DTILE_SCREENBREAK18:
+		case DTILE_SCREENBREAK19:
 
 			if ((krand() & 255) < 16)
 			{
 				animwall[p].tag = wal->picnum;
-				wal->picnum = SCREENBREAK6;
+				wal->picnum = DTILE_SCREENBREAK6;
 			}
 
 			continue;
 
-		case SCREENBREAK6:
-		case SCREENBREAK7:
-		case SCREENBREAK8:
+		case DTILE_SCREENBREAK6:
+		case DTILE_SCREENBREAK7:
+		case DTILE_SCREENBREAK8:
 
-			if (animwall[p].tag >= 0 && wal->extra != FEMPIC2 && wal->extra != FEMPIC3)
+			if (animwall[p].tag >= 0 && wal->extra != DTILE_FEMPIC2 && wal->extra != DTILE_FEMPIC3)
 				wal->picnum = animwall[p].tag;
 			else
 			{
 				wal->picnum++;
-				if (wal->picnum == (SCREENBREAK6 + 3))
-					wal->picnum = SCREENBREAK6;
+				if (wal->picnum == (DTILE_SCREENBREAK6 + 3))
+					wal->picnum = DTILE_SCREENBREAK6;
 			}
 			continue;
 
@@ -105,9 +105,9 @@ void animatewalls_d(void)
 		if (wal->cstat & CSTAT_WALL_MASKED)
 			switch (wal->overpicnum)
 			{
-			case W_FORCEFIELD:
-			case W_FORCEFIELD + 1:
-			case W_FORCEFIELD + 2:
+			case DTILE_W_FORCEFIELD:
+			case DTILE_W_FORCEFIELD + 1:
+			case DTILE_W_FORCEFIELD + 2:
 
 				t = animwall[p].tag;
 
@@ -127,14 +127,14 @@ void animatewalls_d(void)
 					if (animwall[p].tag < (128 << 4))
 					{
 						if (animwall[p].tag & 128)
-							wal->overpicnum = W_FORCEFIELD;
-						else wal->overpicnum = W_FORCEFIELD + 1;
+							wal->overpicnum = DTILE_W_FORCEFIELD;
+						else wal->overpicnum = DTILE_W_FORCEFIELD + 1;
 					}
 					else
 					{
 						if ((krand() & 255) < 32)
 							animwall[p].tag = 128 << (krand() & 3);
-						else wal->overpicnum = W_FORCEFIELD + 1;
+						else wal->overpicnum = DTILE_W_FORCEFIELD + 1;
 					}
 				}
 
@@ -151,7 +151,7 @@ void animatewalls_d(void)
 
 void operateforcefields_d(DDukeActor* act, int low)
 {
-	operateforcefields_common(act, low, { W_FORCEFIELD, W_FORCEFIELD + 1, W_FORCEFIELD + 2, BIGFORCE });
+	operateforcefields_common(act, low, { DTILE_W_FORCEFIELD, DTILE_W_FORCEFIELD + 1, DTILE_W_FORCEFIELD + 2, DTILE_BIGFORCE });
 }
 
 //---------------------------------------------------------------------------
@@ -191,15 +191,15 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 
 	switch (picnum)
 	{
-	case DIPSWITCH:
-	case DIPSWITCHON:
-	case TECHSWITCH:
-	case TECHSWITCHON:
-	case ALIENSWITCH:
-	case ALIENSWITCHON:
+	case DTILE_DIPSWITCH:
+	case DTILE_DIPSWITCHON:
+	case DTILE_TECHSWITCH:
+	case DTILE_TECHSWITCHON:
+	case DTILE_ALIENSWITCH:
+	case DTILE_ALIENSWITCHON:
 		break;
-	case ACCESSSWITCH:
-	case ACCESSSWITCH2:
+	case DTILE_ACCESSSWITCH:
+	case DTILE_ACCESSSWITCH2:
 		if (ps[snum].access_incs == 0)
 		{
 			if (switchpal == 0)
@@ -234,36 +234,36 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			return 0;
 		}
 		[[fallthrough]];
-	case DIPSWITCH2:
-	case DIPSWITCH2ON:
-	case DIPSWITCH3:
-	case DIPSWITCH3ON:
-	case MULTISWITCH:
-	case MULTISWITCH_2:
-	case MULTISWITCH_3:
-	case MULTISWITCH_4:
-	case PULLSWITCH:
-	case PULLSWITCHON:
-	case HANDSWITCH:
-	case HANDSWITCHON:
-	case SLOTDOOR:
-	case SLOTDOORON:
-	case LIGHTSWITCH:
-	case LIGHTSWITCHON:
-	case SPACELIGHTSWITCH:
-	case SPACELIGHTSWITCHON:
-	case SPACEDOORSWITCH:
-	case SPACEDOORSWITCHON:
-	case FRANKENSTINESWITCH:
-	case FRANKENSTINESWITCHON:
-	case LIGHTSWITCH2:
-	case LIGHTSWITCH2ON:
-	case POWERSWITCH1:
-	case POWERSWITCH1ON:
-	case LOCKSWITCH1:
-	case LOCKSWITCH1ON:
-	case POWERSWITCH2:
-	case POWERSWITCH2ON:
+	case DTILE_DIPSWITCH2:
+	case DTILE_DIPSWITCH2ON:
+	case DTILE_DIPSWITCH3:
+	case DTILE_DIPSWITCH3ON:
+	case DTILE_MULTISWITCH:
+	case DTILE_MULTISWITCH_2:
+	case DTILE_MULTISWITCH_3:
+	case DTILE_MULTISWITCH_4:
+	case DTILE_PULLSWITCH:
+	case DTILE_PULLSWITCHON:
+	case DTILE_HANDSWITCH:
+	case DTILE_HANDSWITCHON:
+	case DTILE_SLOTDOOR:
+	case DTILE_SLOTDOORON:
+	case DTILE_LIGHTSWITCH:
+	case DTILE_LIGHTSWITCHON:
+	case DTILE_SPACELIGHTSWITCH:
+	case DTILE_SPACELIGHTSWITCHON:
+	case DTILE_SPACEDOORSWITCH:
+	case DTILE_SPACEDOORSWITCHON:
+	case DTILE_FRANKENSTINESWITCH:
+	case DTILE_FRANKENSTINESWITCHON:
+	case DTILE_LIGHTSWITCH2:
+	case DTILE_LIGHTSWITCH2ON:
+	case DTILE_POWERSWITCH1:
+	case DTILE_POWERSWITCH1ON:
+	case DTILE_LOCKSWITCH1:
+	case DTILE_LOCKSWITCH1ON:
+	case DTILE_POWERSWITCH2:
+	case DTILE_POWERSWITCH2ON:
 		if (check_activator_motion(lotag)) return 0;
 		break;
 	default:
@@ -276,58 +276,58 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	{
 		if (lotag == other->spr.lotag) switch (other->spr.picnum)
 		{
-		case DIPSWITCH:
-		case TECHSWITCH:
-		case ALIENSWITCH:
+		case DTILE_DIPSWITCH:
+		case DTILE_TECHSWITCH:
+		case DTILE_ALIENSWITCH:
 			if (act && act == other) other->spr.picnum++;
 			else if (other->spr.hitag == 0) correctdips++;
 			numdips++;
 			break;
-		case TECHSWITCHON:
-		case DIPSWITCHON:
-		case ALIENSWITCHON:
+		case DTILE_TECHSWITCHON:
+		case DTILE_DIPSWITCHON:
+		case DTILE_ALIENSWITCHON:
 			if (act && act == other) other->spr.picnum--;
 			else if (other->spr.hitag == 1) correctdips++;
 			numdips++;
 			break;
-		case MULTISWITCH:
-		case MULTISWITCH_2:
-		case MULTISWITCH_3:
-		case MULTISWITCH_4:
+		case DTILE_MULTISWITCH:
+		case DTILE_MULTISWITCH_2:
+		case DTILE_MULTISWITCH_3:
+		case DTILE_MULTISWITCH_4:
 			other->spr.picnum++;
-			if (other->spr.picnum > (MULTISWITCH_4))
-				other->spr.picnum = MULTISWITCH;
+			if (other->spr.picnum > (DTILE_MULTISWITCH_4))
+				other->spr.picnum = DTILE_MULTISWITCH;
 			break;
-		case ACCESSSWITCH:
-		case ACCESSSWITCH2:
-		case SLOTDOOR:
-		case LIGHTSWITCH:
-		case SPACELIGHTSWITCH:
-		case SPACEDOORSWITCH:
-		case FRANKENSTINESWITCH:
-		case LIGHTSWITCH2:
-		case POWERSWITCH1:
-		case LOCKSWITCH1:
-		case POWERSWITCH2:
-		case HANDSWITCH:
-		case PULLSWITCH:
-		case DIPSWITCH2:
-		case DIPSWITCH3:
+		case DTILE_ACCESSSWITCH:
+		case DTILE_ACCESSSWITCH2:
+		case DTILE_SLOTDOOR:
+		case DTILE_LIGHTSWITCH:
+		case DTILE_SPACELIGHTSWITCH:
+		case DTILE_SPACEDOORSWITCH:
+		case DTILE_FRANKENSTINESWITCH:
+		case DTILE_LIGHTSWITCH2:
+		case DTILE_POWERSWITCH1:
+		case DTILE_LOCKSWITCH1:
+		case DTILE_POWERSWITCH2:
+		case DTILE_HANDSWITCH:
+		case DTILE_PULLSWITCH:
+		case DTILE_DIPSWITCH2:
+		case DTILE_DIPSWITCH3:
 			other->spr.picnum++;
 			break;
-		case PULLSWITCHON:
-		case HANDSWITCHON:
-		case LIGHTSWITCH2ON:
-		case POWERSWITCH1ON:
-		case LOCKSWITCH1ON:
-		case POWERSWITCH2ON:
-		case SLOTDOORON:
-		case LIGHTSWITCHON:
-		case SPACELIGHTSWITCHON:
-		case SPACEDOORSWITCHON:
-		case FRANKENSTINESWITCHON:
-		case DIPSWITCH2ON:
-		case DIPSWITCH3ON:
+		case DTILE_PULLSWITCHON:
+		case DTILE_HANDSWITCHON:
+		case DTILE_LIGHTSWITCH2ON:
+		case DTILE_POWERSWITCH1ON:
+		case DTILE_LOCKSWITCH1ON:
+		case DTILE_POWERSWITCH2ON:
+		case DTILE_SLOTDOORON:
+		case DTILE_LIGHTSWITCHON:
+		case DTILE_SPACELIGHTSWITCHON:
+		case DTILE_SPACEDOORSWITCHON:
+		case DTILE_FRANKENSTINESWITCHON:
+		case DTILE_DIPSWITCH2ON:
+		case DTILE_DIPSWITCH3ON:
 			other->spr.picnum--;
 			break;
 		}
@@ -338,56 +338,56 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		if (lotag == wal.lotag)
 			switch (wal.picnum)
 			{
-			case DIPSWITCH:
-			case TECHSWITCH:
-			case ALIENSWITCH:
+			case DTILE_DIPSWITCH:
+			case DTILE_TECHSWITCH:
+			case DTILE_ALIENSWITCH:
 				if (!act && &wal == wwal) wal.picnum++;
 				else if (wal.hitag == 0) correctdips++;
 				numdips++;
 				break;
-			case DIPSWITCHON:
-			case TECHSWITCHON:
-			case ALIENSWITCHON:
+			case DTILE_DIPSWITCHON:
+			case DTILE_TECHSWITCHON:
+			case DTILE_ALIENSWITCHON:
 				if (!act && &wal == wwal) wal.picnum--;
 				else if (wal.hitag == 1) correctdips++;
 				numdips++;
 				break;
-			case MULTISWITCH:
-			case MULTISWITCH_2:
-			case MULTISWITCH_3:
-			case MULTISWITCH_4:
+			case DTILE_MULTISWITCH:
+			case DTILE_MULTISWITCH_2:
+			case DTILE_MULTISWITCH_3:
+			case DTILE_MULTISWITCH_4:
 				wal.picnum++;
-				if (wal.picnum > (MULTISWITCH_4))
-					wal.picnum = MULTISWITCH;
+				if (wal.picnum > (DTILE_MULTISWITCH_4))
+					wal.picnum = DTILE_MULTISWITCH;
 				break;
-			case ACCESSSWITCH:
-			case ACCESSSWITCH2:
-			case SLOTDOOR:
-			case LIGHTSWITCH:
-			case SPACELIGHTSWITCH:
-			case SPACEDOORSWITCH:
-			case LIGHTSWITCH2:
-			case POWERSWITCH1:
-			case LOCKSWITCH1:
-			case POWERSWITCH2:
-			case PULLSWITCH:
-			case HANDSWITCH:
-			case DIPSWITCH2:
-			case DIPSWITCH3:
+			case DTILE_ACCESSSWITCH:
+			case DTILE_ACCESSSWITCH2:
+			case DTILE_SLOTDOOR:
+			case DTILE_LIGHTSWITCH:
+			case DTILE_SPACELIGHTSWITCH:
+			case DTILE_SPACEDOORSWITCH:
+			case DTILE_LIGHTSWITCH2:
+			case DTILE_POWERSWITCH1:
+			case DTILE_LOCKSWITCH1:
+			case DTILE_POWERSWITCH2:
+			case DTILE_PULLSWITCH:
+			case DTILE_HANDSWITCH:
+			case DTILE_DIPSWITCH2:
+			case DTILE_DIPSWITCH3:
 				wal.picnum++;
 				break;
-			case HANDSWITCHON:
-			case PULLSWITCHON:
-			case LIGHTSWITCH2ON:
-			case POWERSWITCH1ON:
-			case LOCKSWITCH1ON:
-			case POWERSWITCH2ON:
-			case SLOTDOORON:
-			case LIGHTSWITCHON:
-			case SPACELIGHTSWITCHON:
-			case SPACEDOORSWITCHON:
-			case DIPSWITCH2ON:
-			case DIPSWITCH3ON:
+			case DTILE_HANDSWITCHON:
+			case DTILE_PULLSWITCHON:
+			case DTILE_LIGHTSWITCH2ON:
+			case DTILE_POWERSWITCH1ON:
+			case DTILE_LOCKSWITCH1ON:
+			case DTILE_POWERSWITCH2ON:
+			case DTILE_SLOTDOORON:
+			case DTILE_LIGHTSWITCHON:
+			case DTILE_SPACELIGHTSWITCHON:
+			case DTILE_SPACEDOORSWITCHON:
+			case DTILE_DIPSWITCH2ON:
+			case DTILE_DIPSWITCH3ON:
 				wal.picnum--;
 				break;
 			}
@@ -405,17 +405,17 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	default:
 		if (isadoorwall(picnum) == 0) break;
 		[[fallthrough]];
-	case DIPSWITCH:
-	case DIPSWITCHON:
-	case TECHSWITCH:
-	case TECHSWITCHON:
-	case ALIENSWITCH:
-	case ALIENSWITCHON:
-		if (picnum == DIPSWITCH || picnum == DIPSWITCHON ||
-			picnum == ALIENSWITCH || picnum == ALIENSWITCHON ||
-			picnum == TECHSWITCH || picnum == TECHSWITCHON)
+	case DTILE_DIPSWITCH:
+	case DTILE_DIPSWITCHON:
+	case DTILE_TECHSWITCH:
+	case DTILE_TECHSWITCHON:
+	case DTILE_ALIENSWITCH:
+	case DTILE_ALIENSWITCHON:
+		if (picnum == DTILE_DIPSWITCH || picnum == DTILE_DIPSWITCHON ||
+			picnum == DTILE_ALIENSWITCH || picnum == DTILE_ALIENSWITCHON ||
+			picnum == DTILE_TECHSWITCH || picnum == DTILE_TECHSWITCHON)
 		{
-			if (picnum == ALIENSWITCH || picnum == ALIENSWITCHON)
+			if (picnum == DTILE_ALIENSWITCH || picnum == DTILE_ALIENSWITCHON)
 			{
 				if (act)
 					S_PlaySound3D(ALIEN_SWITCH1, act, v);
@@ -431,42 +431,42 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
 		}
 		[[fallthrough]];
-	case DIPSWITCH2:
-	case DIPSWITCH2ON:
-	case DIPSWITCH3:
-	case DIPSWITCH3ON:
-	case MULTISWITCH:
-	case MULTISWITCH_2:
-	case MULTISWITCH_3:
-	case MULTISWITCH_4:
-	case ACCESSSWITCH:
-	case ACCESSSWITCH2:
-	case SLOTDOOR:
-	case SLOTDOORON:
-	case LIGHTSWITCH:
-	case LIGHTSWITCHON:
-	case SPACELIGHTSWITCH:
-	case SPACELIGHTSWITCHON:
-	case SPACEDOORSWITCH:
-	case SPACEDOORSWITCHON:
-	case FRANKENSTINESWITCH:
-	case FRANKENSTINESWITCHON:
-	case LIGHTSWITCH2:
-	case LIGHTSWITCH2ON:
-	case POWERSWITCH1:
-	case POWERSWITCH1ON:
-	case LOCKSWITCH1:
-	case LOCKSWITCH1ON:
-	case POWERSWITCH2:
-	case POWERSWITCH2ON:
-	case HANDSWITCH:
-	case HANDSWITCHON:
-	case PULLSWITCH:
-	case PULLSWITCHON:
+	case DTILE_DIPSWITCH2:
+	case DTILE_DIPSWITCH2ON:
+	case DTILE_DIPSWITCH3:
+	case DTILE_DIPSWITCH3ON:
+	case DTILE_MULTISWITCH:
+	case DTILE_MULTISWITCH_2:
+	case DTILE_MULTISWITCH_3:
+	case DTILE_MULTISWITCH_4:
+	case DTILE_ACCESSSWITCH:
+	case DTILE_ACCESSSWITCH2:
+	case DTILE_SLOTDOOR:
+	case DTILE_SLOTDOORON:
+	case DTILE_LIGHTSWITCH:
+	case DTILE_LIGHTSWITCHON:
+	case DTILE_SPACELIGHTSWITCH:
+	case DTILE_SPACELIGHTSWITCHON:
+	case DTILE_SPACEDOORSWITCH:
+	case DTILE_SPACEDOORSWITCHON:
+	case DTILE_FRANKENSTINESWITCH:
+	case DTILE_FRANKENSTINESWITCHON:
+	case DTILE_LIGHTSWITCH2:
+	case DTILE_LIGHTSWITCH2ON:
+	case DTILE_POWERSWITCH1:
+	case DTILE_POWERSWITCH1ON:
+	case DTILE_LOCKSWITCH1:
+	case DTILE_LOCKSWITCH1ON:
+	case DTILE_POWERSWITCH2:
+	case DTILE_POWERSWITCH2ON:
+	case DTILE_HANDSWITCH:
+	case DTILE_HANDSWITCHON:
+	case DTILE_PULLSWITCH:
+	case DTILE_PULLSWITCHON:
 
-		if (picnum == MULTISWITCH || picnum == (MULTISWITCH_2) ||
-			picnum == (MULTISWITCH_3) || picnum == (MULTISWITCH_4))
-			lotag += picnum - MULTISWITCH;
+		if (picnum == DTILE_MULTISWITCH || picnum == (DTILE_MULTISWITCH_2) ||
+			picnum == (DTILE_MULTISWITCH_3) || picnum == (DTILE_MULTISWITCH_4))
+			lotag += picnum - DTILE_MULTISWITCH;
 
 		DukeStatIterator itr(STAT_EFFECTOR);
 		while (auto other = itr.Next())
@@ -501,9 +501,9 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		fi.operateforcefields(ps[snum].GetActor(), lotag);
 		operatemasterswitches(lotag);
 
-		if (picnum == DIPSWITCH || picnum == DIPSWITCHON ||
-			picnum == ALIENSWITCH || picnum == ALIENSWITCHON ||
-			picnum == TECHSWITCH || picnum == TECHSWITCHON) return 1;
+		if (picnum == DTILE_DIPSWITCH || picnum == DTILE_DIPSWITCHON ||
+			picnum == DTILE_ALIENSWITCH || picnum == DTILE_ALIENSWITCHON ||
+			picnum == DTILE_TECHSWITCH || picnum == DTILE_TECHSWITCHON) return 1;
 
 		if (hitag == 0 && isadoorwall(picnum) == 0)
 		{
@@ -561,39 +561,39 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 {
 	int j, sn = -1, darkestwall;
 
-	if (wal->overpicnum == MIRROR && atwith != -1 && gs.actorinfo[atwith].flags2 & SFLAG2_BREAKMIRRORS)
+	if (wal->overpicnum == DTILE_MIRROR && atwith != -1 && gs.actorinfo[atwith].flags2 & SFLAG2_BREAKMIRRORS)
 	{
 		lotsofglass(spr, wal, 70);
 		wal->cstat &= ~CSTAT_WALL_MASKED;
-		wal->overpicnum = MIRRORBROKE;
+		wal->overpicnum = DTILE_MIRRORBROKE;
 		wal->portalflags = 0;
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;
 	}
 
-	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == BIGFORCE) && wal->twoSided())
+	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == DTILE_BIGFORCE) && wal->twoSided())
 		if (wal->nextSector()->floorz> pos.Z)
 			if (wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 				switch (wal->overpicnum)
 				{
-				case W_FORCEFIELD:
-				case W_FORCEFIELD + 1:
-				case W_FORCEFIELD + 2:
+				case DTILE_W_FORCEFIELD:
+				case DTILE_W_FORCEFIELD + 1:
+				case DTILE_W_FORCEFIELD + 2:
 					wal->extra = 1; // tell the forces to animate
 					[[fallthrough]];
-				case BIGFORCE:
+				case DTILE_BIGFORCE:
 				{
 					sectortype* sptr = nullptr;
 					updatesector(pos, &sptr);
 					if (sptr == nullptr) return;
 					DDukeActor* spawned;
 					if (atwith == -1)
-						spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, DVector2(0.125, 0.125), nullAngle, 0., 0., spr, 5);
+						spawned = CreateActor(sptr, pos, DTILE_FORCERIPPLE, -127, DVector2(0.125, 0.125), nullAngle, 0., 0., spr, 5);
 					else
 					{
-						if (atwith == CHAINGUN)
-							spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, DVector2(0.25, 0.25) + spr->spr.scale, nullAngle, 0., 0., spr, 5);
-						else spawned = CreateActor(sptr, pos, FORCERIPPLE, -127, DVector2(0.5, 0.5), nullAngle, 0., 0., spr, 5);
+						if (atwith == DTILE_CHAINGUN)
+							spawned = CreateActor(sptr, pos, DTILE_FORCERIPPLE, -127, DVector2(0.25, 0.25) + spr->spr.scale, nullAngle, 0., 0., spr, 5);
+						else spawned = CreateActor(sptr, pos, DTILE_FORCERIPPLE, -127, DVector2(0.5, 0.5), nullAngle, 0., 0., spr, 5);
 					}
 					if (spawned)
 					{
@@ -604,24 +604,24 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					}
 					return;
 				}
-				case FANSPRITE:
-					wal->overpicnum = FANSPRITEBROKE;
+				case DTILE_FANSPRITE:
+					wal->overpicnum = DTILE_FANSPRITEBROKE;
 					wal->cstat &= ~(CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN);
 					if (wal->twoSided())
 					{
-						wal->nextWall()->overpicnum = FANSPRITEBROKE;
+						wal->nextWall()->overpicnum = DTILE_FANSPRITEBROKE;
 						wal->nextWall()->cstat &= ~(CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN);
 					}
 					S_PlayActorSound(VENT_BUST, spr);
 					S_PlayActorSound(GLASS_BREAKING, spr);
 					return;
 
-				case GLASS:
+				case DTILE_GLASS:
 				{
 					sectortype* sptr = nullptr;
 					updatesector(pos, &sptr);
 					if (sptr == nullptr) return;
-					wal->overpicnum = GLASS2;
+					wal->overpicnum = DTILE_GLASS2;
 					lotsofglass(spr, wal, 10);
 					wal->cstat = 0;
 
@@ -638,7 +638,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 					}
 					return;
 				}
-				case STAINGLASS1:
+				case DTILE_STAINGLASS1:
 					sectortype* sptr = nullptr;
 					updatesector(pos, &sptr);
 					if (sptr == nullptr) return;
@@ -653,122 +653,122 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 
 	switch (wal->picnum)
 	{
-	case COLAMACHINE:
-	case VENDMACHINE:
+	case DTILE_COLAMACHINE:
+	case DTILE_VENDMACHINE:
 		breakwall(wal->picnum + 2, spr, wal);
 		S_PlayActorSound(VENT_BUST, spr);
 		return;
 
-	case OJ:
-	case FEMPIC2:
-	case FEMPIC3:
+	case DTILE_OJ:
+	case DTILE_FEMPIC2:
+	case DTILE_FEMPIC3:
 
-	case SCREENBREAK6:
-	case SCREENBREAK7:
-	case SCREENBREAK8:
+	case DTILE_SCREENBREAK6:
+	case DTILE_SCREENBREAK7:
+	case DTILE_SCREENBREAK8:
 
-	case SCREENBREAK1:
-	case SCREENBREAK2:
-	case SCREENBREAK3:
-	case SCREENBREAK4:
-	case SCREENBREAK5:
+	case DTILE_SCREENBREAK1:
+	case DTILE_SCREENBREAK2:
+	case DTILE_SCREENBREAK3:
+	case DTILE_SCREENBREAK4:
+	case DTILE_SCREENBREAK5:
 
-	case SCREENBREAK9:
-	case SCREENBREAK10:
-	case SCREENBREAK11:
-	case SCREENBREAK12:
-	case SCREENBREAK13:
-	case SCREENBREAK14:
-	case SCREENBREAK15:
-	case SCREENBREAK16:
-	case SCREENBREAK17:
-	case SCREENBREAK18:
-	case SCREENBREAK19:
-	case BORNTOBEWILDSCREEN:
+	case DTILE_SCREENBREAK9:
+	case DTILE_SCREENBREAK10:
+	case DTILE_SCREENBREAK11:
+	case DTILE_SCREENBREAK12:
+	case DTILE_SCREENBREAK13:
+	case DTILE_SCREENBREAK14:
+	case DTILE_SCREENBREAK15:
+	case DTILE_SCREENBREAK16:
+	case DTILE_SCREENBREAK17:
+	case DTILE_SCREENBREAK18:
+	case DTILE_SCREENBREAK19:
+	case DTILE_BORNTOBEWILDSCREEN:
 
 		lotsofglass(spr, wal, 30);
-		wal->picnum = W_SCREENBREAK + (krand() % 3);
+		wal->picnum = DTILE_W_SCREENBREAK + (krand() % 3);
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;
 
-	case W_TECHWALL5:
-	case W_TECHWALL6:
-	case W_TECHWALL7:
-	case W_TECHWALL8:
-	case W_TECHWALL9:
+	case DTILE_W_TECHWALL5:
+	case DTILE_W_TECHWALL6:
+	case DTILE_W_TECHWALL7:
+	case DTILE_W_TECHWALL8:
+	case DTILE_W_TECHWALL9:
 		breakwall(wal->picnum + 1, spr, wal);
 		return;
-	case W_MILKSHELF:
-		breakwall(W_MILKSHELFBROKE, spr, wal);
+	case DTILE_W_MILKSHELF:
+		breakwall(DTILE_W_MILKSHELFBROKE, spr, wal);
 		return;
 
-	case W_TECHWALL10:
-		breakwall(W_HITTECHWALL10, spr, wal);
+	case DTILE_W_TECHWALL10:
+		breakwall(DTILE_W_HITTECHWALL10, spr, wal);
 		return;
 
-	case W_TECHWALL1:
-	case W_TECHWALL11:
-	case W_TECHWALL12:
-	case W_TECHWALL13:
-	case W_TECHWALL14:
-		breakwall(W_HITTECHWALL1, spr, wal);
+	case DTILE_W_TECHWALL1:
+	case DTILE_W_TECHWALL11:
+	case DTILE_W_TECHWALL12:
+	case DTILE_W_TECHWALL13:
+	case DTILE_W_TECHWALL14:
+		breakwall(DTILE_W_HITTECHWALL1, spr, wal);
 		return;
 
-	case W_TECHWALL15:
-		breakwall(W_HITTECHWALL15, spr, wal);
+	case DTILE_W_TECHWALL15:
+		breakwall(DTILE_W_HITTECHWALL15, spr, wal);
 		return;
 
-	case W_TECHWALL16:
-		breakwall(W_HITTECHWALL16, spr, wal);
+	case DTILE_W_TECHWALL16:
+		breakwall(DTILE_W_HITTECHWALL16, spr, wal);
 		return;
 
-	case W_TECHWALL2:
-		breakwall(W_HITTECHWALL2, spr, wal);
+	case DTILE_W_TECHWALL2:
+		breakwall(DTILE_W_HITTECHWALL2, spr, wal);
 		return;
 
-	case W_TECHWALL3:
-		breakwall(W_HITTECHWALL3, spr, wal);
+	case DTILE_W_TECHWALL3:
+		breakwall(DTILE_W_HITTECHWALL3, spr, wal);
 		return;
 
-	case W_TECHWALL4:
-		breakwall(W_HITTECHWALL4, spr, wal);
+	case DTILE_W_TECHWALL4:
+		breakwall(DTILE_W_HITTECHWALL4, spr, wal);
 		return;
 
-	case ATM:
-		wal->picnum = ATMBROKE;
+	case DTILE_ATM:
+		wal->picnum = DTILE_ATMBROKE;
 		fi.lotsofmoney(spr, 1 + (krand() & 7));
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		break;
 
-	case WALLLIGHT1:
-	case WALLLIGHT2:
-	case WALLLIGHT3:
-	case WALLLIGHT4:
-	case TECHLIGHT2:
-	case TECHLIGHT4:
+	case DTILE_WALLLIGHT1:
+	case DTILE_WALLLIGHT2:
+	case DTILE_WALLLIGHT3:
+	case DTILE_WALLLIGHT4:
+	case DTILE_TECHLIGHT2:
+	case DTILE_TECHLIGHT4:
 
 		if (rnd(128))
 			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		else S_PlayActorSound(GLASS_BREAKING, spr);
 		lotsofglass(spr, wal, 30);
 
-		if (wal->picnum == WALLLIGHT1)
-			wal->picnum = WALLLIGHTBUST1;
+		if (wal->picnum == DTILE_WALLLIGHT1)
+			wal->picnum = DTILE_WALLLIGHTBUST1;
 
-		if (wal->picnum == WALLLIGHT2)
-			wal->picnum = WALLLIGHTBUST2;
+		if (wal->picnum == DTILE_WALLLIGHT2)
+			wal->picnum = DTILE_WALLLIGHTBUST2;
 
-		if (wal->picnum == WALLLIGHT3)
-			wal->picnum = WALLLIGHTBUST3;
+		if (wal->picnum == DTILE_WALLLIGHT3)
+			wal->picnum = DTILE_WALLLIGHTBUST3;
 
-		if (wal->picnum == WALLLIGHT4)
-			wal->picnum = WALLLIGHTBUST4;
+		if (wal->picnum == DTILE_WALLLIGHT4)
+			wal->picnum = DTILE_WALLLIGHTBUST4;
 
-		if (wal->picnum == TECHLIGHT2)
-			wal->picnum = TECHLIGHTBUST2;
+		if (wal->picnum == DTILE_TECHLIGHT2)
+			wal->picnum = DTILE_TECHLIGHTBUST2;
 
-		if (wal->picnum == TECHLIGHT4)
-			wal->picnum = TECHLIGHTBUST4;
+		if (wal->picnum == DTILE_TECHLIGHT4)
+			wal->picnum = DTILE_TECHLIGHTBUST4;
 
 		if (!wal->lotag) return;
 
@@ -814,9 +814,9 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 	if (p->hurt_delay > 0) p->hurt_delay--;
 	else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN)) switch (wal->overpicnum)
 	{
-	case W_FORCEFIELD:
-	case W_FORCEFIELD + 1:
-	case W_FORCEFIELD + 2:
+	case DTILE_W_FORCEFIELD:
+	case DTILE_W_FORCEFIELD + 1:
+	case DTILE_W_FORCEFIELD + 2:
 		p->GetActor()->spr.extra -= 5;
 
 		p->hurt_delay = 16;
@@ -828,7 +828,7 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 		fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2, -1);
 		break;
 
-	case BIGFORCE:
+	case DTILE_BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2, -1);
 		break;
@@ -848,33 +848,33 @@ bool checkhitceiling_d(sectortype* sectp)
 
 	switch (sectp->ceilingpicnum)
 	{
-	case WALLLIGHT1:
-	case WALLLIGHT2:
-	case WALLLIGHT3:
-	case WALLLIGHT4:
-	case TECHLIGHT2:
-	case TECHLIGHT4:
+	case DTILE_WALLLIGHT1:
+	case DTILE_WALLLIGHT2:
+	case DTILE_WALLLIGHT3:
+	case DTILE_WALLLIGHT4:
+	case DTILE_TECHLIGHT2:
+	case DTILE_TECHLIGHT4:
 
 		ceilingglass(ps[myconnectindex].GetActor(), sectp, 10);
 		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].GetActor());
 
-		if (sectp->ceilingpicnum == WALLLIGHT1)
-			sectp->ceilingpicnum = WALLLIGHTBUST1;
+		if (sectp->ceilingpicnum == DTILE_WALLLIGHT1)
+			sectp->ceilingpicnum = DTILE_WALLLIGHTBUST1;
 
-		if (sectp->ceilingpicnum == WALLLIGHT2)
-			sectp->ceilingpicnum = WALLLIGHTBUST2;
+		if (sectp->ceilingpicnum == DTILE_WALLLIGHT2)
+			sectp->ceilingpicnum = DTILE_WALLLIGHTBUST2;
 
-		if (sectp->ceilingpicnum == WALLLIGHT3)
-			sectp->ceilingpicnum = WALLLIGHTBUST3;
+		if (sectp->ceilingpicnum == DTILE_WALLLIGHT3)
+			sectp->ceilingpicnum = DTILE_WALLLIGHTBUST3;
 
-		if (sectp->ceilingpicnum == WALLLIGHT4)
-			sectp->ceilingpicnum = WALLLIGHTBUST4;
+		if (sectp->ceilingpicnum == DTILE_WALLLIGHT4)
+			sectp->ceilingpicnum = DTILE_WALLLIGHTBUST4;
 
-		if (sectp->ceilingpicnum == TECHLIGHT2)
-			sectp->ceilingpicnum = TECHLIGHTBUST2;
+		if (sectp->ceilingpicnum == DTILE_TECHLIGHT2)
+			sectp->ceilingpicnum = DTILE_TECHLIGHTBUST2;
 
-		if (sectp->ceilingpicnum == TECHLIGHT4)
-			sectp->ceilingpicnum = TECHLIGHTBUST4;
+		if (sectp->ceilingpicnum == DTILE_TECHLIGHT4)
+			sectp->ceilingpicnum = DTILE_TECHLIGHTBUST4;
 
 
 		if (!sectp->hitag)
@@ -923,20 +923,20 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 	if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == STAT_DEFAULT)
 		return;
 
-	if ((proj->spr.picnum == FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != STAT_PROJECTILE)
+	if ((proj->spr.picnum == DTILE_FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != STAT_PROJECTILE)
 	{
 		if (badguy(targ) == 1)
 		{
-			if (isWorldTour() && targ->spr.picnum == FIREFLY && targ->spr.scale.X < 0.75)
+			if (isWorldTour() && targ->spr.picnum == DTILE_FIREFLY && targ->spr.scale.X < 0.75)
 				return;
 
-			if (proj->spr.picnum == RPG) proj->spr.extra <<= 1;
+			if (proj->spr.picnum == DTILE_RPG) proj->spr.extra <<= 1;
 
-			if ((targ->spr.picnum != DRONE) && (targ->spr.picnum != ROTATEGUN) && (targ->spr.picnum != COMMANDER) && targ->spr.picnum != GREENSLIME)
-				if (proj->spr.picnum != FREEZEBLAST)
+			if ((targ->spr.picnum != DTILE_DRONE) && (targ->spr.picnum != DTILE_ROTATEGUN) && (targ->spr.picnum != DTILE_COMMANDER) && targ->spr.picnum != DTILE_GREENSLIME)
+				if (proj->spr.picnum != DTILE_FREEZEBLAST)
 					//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL.
 				{
-					auto spawned = spawn(proj, JIBS6);
+					auto spawned = spawn(proj, DTILE_JIBS6);
 					if (spawned)
 					{
 						if (proj->spr.pal == 6)
@@ -950,7 +950,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 			auto Owner = proj->GetOwner();
 
-			if (Owner && Owner->isPlayer() && targ->spr.picnum != ROTATEGUN && targ->spr.picnum != DRONE)
+			if (Owner && Owner->isPlayer() && targ->spr.picnum != DTILE_ROTATEGUN && targ->spr.picnum != DTILE_DRONE)
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
 					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat3"));
@@ -976,12 +976,12 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				ChangeActorStat(targ, STAT_ACTOR);
 				targ->timetosleep = SLEEPTIME;
 			}
-			if ((targ->spr.scale.X < 0.375 || targ->spr.picnum == SHARK) && proj->spr.picnum == SHRINKSPARK) return;
+			if ((targ->spr.scale.X < 0.375 || targ->spr.picnum == DTILE_SHARK) && proj->spr.picnum == DTILE_SHRINKSPARK) return;
 		}
 
 		if (targ->spr.statnum != STAT_ZOMBIEACTOR)
 		{
-			if (proj->spr.picnum == FREEZEBLAST && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
+			if (proj->spr.picnum == DTILE_FREEZEBLAST && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
 
 			int hitpic = proj->spr.picnum;
@@ -992,8 +992,8 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 					return;
 
 				auto tOwner = targ->GetOwner();
-				if (isWorldTour() && hitpic == FIREBALL && tOwner && tOwner->spr.picnum != FIREBALL)
-					hitpic = FLAMETHROWERFLAME;
+				if (isWorldTour() && hitpic == DTILE_FIREBALL && tOwner && tOwner->spr.picnum != DTILE_FIREBALL)
+					hitpic = DTILE_FLAMETHROWERFLAME;
 			}
 
 			targ->attackertype = hitpic;
@@ -1019,7 +1019,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				}
 			}
 
-			if (targ->spr.scale.X < 0.375 && proj->spr.picnum == SHRINKSPARK)
+			if (targ->spr.scale.X < 0.375 && proj->spr.picnum == DTILE_SHRINKSPARK)
 				return;
 
 			auto hitowner = targ->GetHitOwner();
@@ -1040,7 +1040,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	}
 
 
-	if (targ->spr.picnum == PLAYERONWATER)
+	if (targ->spr.picnum == DTILE_PLAYERONWATER)
 	{
 		targ = targ->GetOwner();
 		if (!targ) return;
@@ -1149,7 +1149,7 @@ void checksectors_d(int snum)
 
 		if (hitscanwall != nullptr)
 		{
-			if (dist < 80 && hitscanwall->overpicnum == MIRROR)
+			if (dist < 80 && hitscanwall->overpicnum == DTILE_MIRROR)
 				if (hitscanwall->lotag > 0 && S_CheckSoundPlaying(hitscanwall->lotag) == 0 && snum == screenpeek)
 				{
 					S_PlayActorSound(hitscanwall->lotag, pact);

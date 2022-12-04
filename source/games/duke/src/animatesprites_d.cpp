@@ -134,11 +134,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case DUKELYINGDEAD:
+		case DTILE_DUKELYINGDEAD:
 			t->pos.Z += 24;
 			break;
-		case BURNING:
-		case BURNING2:
+		case DTILE_BURNING:
+		case DTILE_BURNING2:
 			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
 			{
 				if (display_mirror == 0 && OwnerAc->PlayerIndex() == screenpeek && ps[screenpeek].over_shoulder_on == 0)
@@ -151,16 +151,16 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			break;
 
-		case ATOMICHEALTH:
+		case DTILE_ATOMICHEALTH:
 			t->pos.Z -= 4;
 			break;
-		case CRYSTALAMMO:
+		case DTILE_CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			continue;
-		case GROWSPARK:
-			t->picnum = GROWSPARK + ((PlayClock >> 4) & 3);
+		case DTILE_GROWSPARK:
+			t->picnum = DTILE_GROWSPARK + ((PlayClock >> 4) & 3);
 			break;
-		case APLAYER:
+		case DTILE_APLAYER:
 
 			p = h->PlayerIndex();
 
@@ -193,21 +193,21 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 				switch (ps[p].curr_weapon)
 				{
-				case PISTOL_WEAPON:      newtspr->picnum = FIRSTGUNSPRITE;       break;
-				case SHOTGUN_WEAPON:     newtspr->picnum = SHOTGUNSPRITE;        break;
-				case CHAINGUN_WEAPON:    newtspr->picnum = CHAINGUNSPRITE;       break;
-				case RPG_WEAPON:         newtspr->picnum = RPGSPRITE;            break;
+				case PISTOL_WEAPON:      newtspr->picnum = DTILE_FIRSTGUNSPRITE;       break;
+				case SHOTGUN_WEAPON:     newtspr->picnum = DTILE_SHOTGUNSPRITE;        break;
+				case CHAINGUN_WEAPON:    newtspr->picnum = DTILE_CHAINGUNSPRITE;       break;
+				case RPG_WEAPON:         newtspr->picnum = DTILE_RPGSPRITE;            break;
 				case HANDREMOTE_WEAPON:
-				case HANDBOMB_WEAPON:    newtspr->picnum = HEAVYHBOMB;           break;
-				case TRIPBOMB_WEAPON:    newtspr->picnum = TRIPBOMBSPRITE;       break;
-				case GROW_WEAPON:        newtspr->picnum = GROWSPRITEICON;       break;
-				case SHRINKER_WEAPON:    newtspr->picnum = SHRINKERSPRITE;       break;
-				case FREEZE_WEAPON:      newtspr->picnum = FREEZESPRITE;         break;
+				case HANDBOMB_WEAPON:    newtspr->picnum = DTILE_HEAVYHBOMB;           break;
+				case TRIPBOMB_WEAPON:    newtspr->picnum = DTILE_TRIPBOMBSPRITE;       break;
+				case GROW_WEAPON:        newtspr->picnum = DTILE_GROWSPRITEICON;       break;
+				case SHRINKER_WEAPON:    newtspr->picnum = DTILE_SHRINKERSPRITE;       break;
+				case FREEZE_WEAPON:      newtspr->picnum = DTILE_FREEZESPRITE;         break;
 				case FLAMETHROWER_WEAPON: //Twentieth Anniversary World Tour
 					if (isWorldTour())
-						newtspr->picnum = FLAMETHROWERSPRITE;   
+						newtspr->picnum = DTILE_FLAMETHROWERSPRITE;   
 					break;
-				case DEVISTATOR_WEAPON:  newtspr->picnum = DEVISTATORSPRITE;     break;
+				case DEVISTATOR_WEAPON:  newtspr->picnum = DTILE_DEVISTATORSPRITE;     break;
 				}
 
 				if (h->GetOwner()) newtspr->pos.Z = ps[p].GetActor()->getOffsetZ() - 12;
@@ -260,9 +260,9 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (ps[p].newOwner != nullptr)
 			{
-				t4 = ScriptCode[gs.actorinfo[APLAYER].scriptaddress + 1];
+				t4 = ScriptCode[gs.actorinfo[DTILE_APLAYER].scriptaddress + 1];
 				t3 = 0;
-				t1 = ScriptCode[gs.actorinfo[APLAYER].scriptaddress + 2];
+				t1 = ScriptCode[gs.actorinfo[DTILE_APLAYER].scriptaddress + 2];
 			}
 
 			if (ud.cameraactor == nullptr && ps[p].newOwner == nullptr)
@@ -286,8 +286,8 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			break;
 
-		case WATERBUBBLE:
-			if (t->sectp->floorpicnum == FLOORSLIME)
+		case DTILE_WATERBUBBLE:
+			if (t->sectp->floorpicnum == DTILE_FLOORSLIME)
 			{
 				t->pal = 7;
 				break;
@@ -314,32 +314,32 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case EXPLOSION2:
-		case EXPLOSION2BOT:
-		case ATOMICHEALTH:
-		case GROWSPARK:
-		case CHAINGUN:
-		case SHRINKEREXPLOSION:
-		case FLOORFLAME:
-			if (t->picnum == EXPLOSION2)
+		case DTILE_EXPLOSION2:
+		case DTILE_EXPLOSION2BOT:
+		case DTILE_ATOMICHEALTH:
+		case DTILE_GROWSPARK:
+		case DTILE_CHAINGUN:
+		case DTILE_SHRINKEREXPLOSION:
+		case DTILE_FLOORFLAME:
+			if (t->picnum == DTILE_EXPLOSION2)
 			{
 				ps[screenpeek].visibility = -127;
 				lastvisinc = PlayClock + 32;
 			}
 			t->shade = -127;
 			break;
-		case FIRE:
-		case FIRE2:
+		case DTILE_FIRE:
+		case DTILE_FIRE2:
 			t->cstat |= CSTAT_SPRITE_YCENTER;
 			[[fallthrough]];
-		case BURNING:
-		case BURNING2:
+		case DTILE_BURNING:
+		case DTILE_BURNING2:
 			if (!OwnerAc) break;
 			if (!actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
 				t->pos.Z = t->sectp->floorz;
 			t->shade = -127;
 			break;
-		case PLAYERONWATER:
+		case DTILE_PLAYERONWATER:
 			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
 			{
 				k = 0;
@@ -364,7 +364,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		}
 
 		h->dispicnum = t->picnum;
-		if (t->sectp->floorpicnum == MIRROR)
+		if (t->sectp->floorpicnum == DTILE_MIRROR)
 			t->scale = DVector2(0, 0);
 	}
 }

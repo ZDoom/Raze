@@ -65,81 +65,81 @@ static void cachespritenum(DDukeActor* actor)
 
 	switch(actor->spr.picnum)
 	{
-		case HYDRENT:
-			tloadtile(BROKEFIREHYDRENT);
-			for(j = TOILETWATER; j < (TOILETWATER+4); j++)
+		case DTILE_HYDRENT:
+			tloadtile(DTILE_BROKEFIREHYDRENT);
+			for(j = DTILE_TOILETWATER; j < (DTILE_TOILETWATER+4); j++)
 				tloadtile(j, pal);
 			break;
-		case TOILET:
-			tloadtile(TOILETBROKE);
-			for(j = TOILETWATER; j < (TOILETWATER+4); j++)
+		case DTILE_TOILET:
+			tloadtile(DTILE_TOILETBROKE);
+			for(j = DTILE_TOILETWATER; j < (DTILE_TOILETWATER+4); j++)
 				tloadtile(j, pal);
 			break;
-		case STALL:
-			tloadtile(STALLBROKE);
-			for(j = TOILETWATER; j < (TOILETWATER+4); j++)
+		case DTILE_STALL:
+			tloadtile(DTILE_STALLBROKE);
+			for(j = DTILE_TOILETWATER; j < (DTILE_TOILETWATER+4); j++)
 				tloadtile(j, pal);
 			break;
-		case RUBBERCAN:
+		case DTILE_RUBBERCAN:
 			maxc = 2;
 			break;
-		case TOILETWATER:
+		case DTILE_TOILETWATER:
 			maxc = 4;
 			break;
-		case FEMPIC1:
+		case DTILE_FEMPIC1:
 			maxc = 44;
 			break;
-		case LIZTROOP:
-		case LIZTROOPRUNNING:
-		case LIZTROOPSHOOT:
-		case LIZTROOPJETPACK:
-		case LIZTROOPONTOILET:
-		case LIZTROOPDUCKING:
-			for(j = LIZTROOP; j < (LIZTROOP+72); j++)
+		case DTILE_LIZTROOP:
+		case DTILE_LIZTROOPRUNNING:
+		case DTILE_LIZTROOPSHOOT:
+		case DTILE_LIZTROOPJETPACK:
+		case DTILE_LIZTROOPONTOILET:
+		case DTILE_LIZTROOPDUCKING:
+			for(j = DTILE_LIZTROOP; j < (DTILE_LIZTROOP+72); j++)
 				   tloadtile(j, pal);
-			for(j=HEADJIB1;j<LEGJIB1+3;j++)
+			for(j=DTILE_HEADJIB1;j<DTILE_LEGJIB1+3;j++)
 					tloadtile(j, pal);
 			maxc = 0;
 			break;
-		case WOODENHORSE:
+		case DTILE_WOODENHORSE:
 			maxc = 5;
-			for(j = HORSEONSIDE; j < (HORSEONSIDE+4); j++)
+			for(j = DTILE_HORSEONSIDE; j < (DTILE_HORSEONSIDE+4); j++)
 					tloadtile(j, pal);
 			break;
-		case NEWBEAST:
-		case NEWBEASTSTAYPUT:
+		case DTILE_NEWBEAST:
+		case DTILE_NEWBEASTSTAYPUT:
 			maxc = 90;
 			break;
-		case BOSS1:
-		case BOSS2:
-		case BOSS3:
+		case DTILE_BOSS1:
+		case DTILE_BOSS2:
+		case DTILE_BOSS3:
 			maxc = 30;
 			break;
-		case OCTABRAIN:
-		case OCTABRAINSTAYPUT:
-		case COMMANDER:
-		case COMMANDERSTAYPUT:
+		case DTILE_OCTABRAIN:
+		case DTILE_OCTABRAINSTAYPUT:
+		case DTILE_COMMANDER:
+		case DTILE_COMMANDERSTAYPUT:
 			maxc = 38;
 			break;
-		case RECON:
+		case DTILE_RECON:
 			maxc = 13;
 			break;
-		case PIGCOP:
-		case PIGCOPDIVE:
+		case DTILE_PIGCOP:
+		case DTILE_PIGCOPDIVE:
 			maxc = 61;
 			break;
-		case SHARK:
+		case DTILE_SHARK:
 			maxc = 30;
 			break;
-		case LIZMAN:
-		case LIZMANSPITTING:
-		case LIZMANFEEDING:
-		case LIZMANJUMP:
-			for(j=LIZMANHEAD1;j<LIZMANLEG1+3;j++)
+		case DTILE_LIZMAN:
+		case DTILE_LIZMANSPITTING:
+		case DTILE_LIZMANFEEDING:
+		case DTILE_LIZMANJUMP:
+			for(j=DTILE_LIZMANHEAD1;j<DTILE_LIZMANLEG1+3;j++)
 					tloadtile(j, pal);
 			maxc = 80;
 			break;
-		case APLAYER:
+		case DTILE_APLAYER:
 			maxc = 0;
 			if(ud.multimode > 1)
 			{
@@ -148,16 +148,16 @@ static void cachespritenum(DDukeActor* actor)
 						tloadtile(j, pal);
 			}
 			break;
-		case ATOMICHEALTH:
+		case DTILE_ATOMICHEALTH:
 			maxc = 14;
 			break;
-		case DRONE:
+		case DTILE_DRONE:
 			maxc = 10;
 			break;
-		case EXPLODINGBARREL:
+		case DTILE_EXPLODINGBARREL:
 			maxc = 3;
 			break;
-		case NUKEBARREL:
+		case DTILE_NUKEBARREL:
 			maxc = 5;
 			break;
 	}
@@ -176,46 +176,46 @@ static void cachegoodsprites(void)
 {
 	int i;
 
-	tloadtile(BOTTOMSTATUSBAR);
+	tloadtile(DTILE_BOTTOMSTATUSBAR);
 	if (ud.multimode > 1)
 	{
-		tloadtile(FRAGBAR);
-		for (i = MINIFONT; i < MINIFONT + 63; i++)
+		tloadtile(DTILE_FRAGBAR);
+		for (i = DTILE_MINIFONT; i < DTILE_MINIFONT + 63; i++)
 			tloadtile(i);
 	}
 
-	for(i=FOOTPRINTS;i<FOOTPRINTS+3;i++)
+	for(i=DTILE_FOOTPRINTS;i<DTILE_FOOTPRINTS+3;i++)
 			tloadtile(i);
 
-	for( i = BURNING; i < BURNING+14; i++)
+	for( i = DTILE_BURNING; i < DTILE_BURNING+14; i++)
 			tloadtile(i);
 
-	for( i = BURNING2; i < BURNING2+14; i++)
+	for( i = DTILE_BURNING2; i < DTILE_BURNING2+14; i++)
 			tloadtile(i);
 
-	for( i = CRACKKNUCKLES; i < CRACKKNUCKLES+4; i++)
+	for( i = DTILE_CRACKKNUCKLES; i < DTILE_CRACKKNUCKLES+4; i++)
 			tloadtile(i);
 
-	for( i = FIRSTGUN; i < FIRSTGUN+3 ; i++ )
+	for( i = DTILE_FIRSTGUN; i < DTILE_FIRSTGUN+3 ; i++ )
 			tloadtile(i);
 
-	for( i = EXPLOSION2; i < EXPLOSION2+21 ; i++ )
+	for( i = DTILE_EXPLOSION2; i < DTILE_EXPLOSION2+21 ; i++ )
 			tloadtile(i);
 
-	tloadtile(BULLETHOLE);
+	tloadtile(DTILE_BULLETHOLE);
 
-	for( i = FIRSTGUNRELOAD; i < FIRSTGUNRELOAD+8 ; i++ )
+	for( i = DTILE_FIRSTGUNRELOAD; i < DTILE_FIRSTGUNRELOAD+8 ; i++ )
 			tloadtile(i);
 
-	tloadtile(FOOTPRINTS);
+	tloadtile(DTILE_FOOTPRINTS);
 
-	for( i = JIBS1; i < (JIBS5+5); i++)
+	for( i = DTILE_JIBS1; i < (DTILE_JIBS5+5); i++)
 			tloadtile(i);
 
-	for( i = SCRAP1; i < (SCRAP1+19); i++)
+	for( i = DTILE_SCRAP1; i < (DTILE_SCRAP1+19); i++)
 			tloadtile(i);
 
-	for( i = SMALLSMOKE; i < (SMALLSMOKE+4); i++)
+	for( i = DTILE_SMALLSMOKE; i < (DTILE_SMALLSMOKE+4); i++)
 			tloadtile(i);
 }
 
@@ -311,19 +311,19 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		switch (actor->spr.picnum)
 		{
-		case DIPSWITCHON:
-		case DIPSWITCH2ON:
-		case PULLSWITCHON:
-		case HANDSWITCHON:
-		case SLOTDOORON:
-		case LIGHTSWITCHON:
-		case SPACELIGHTSWITCHON:
-		case SPACEDOORSWITCHON:
-		case FRANKENSTINESWITCHON:
-		case LIGHTSWITCH2ON:
-		case POWERSWITCH1ON:
-		case LOCKSWITCH1ON:
-		case POWERSWITCH2ON:
+		case DTILE_DIPSWITCHON:
+		case DTILE_DIPSWITCH2ON:
+		case DTILE_PULLSWITCHON:
+		case DTILE_HANDSWITCHON:
+		case DTILE_SLOTDOORON:
+		case DTILE_LIGHTSWITCHON:
+		case DTILE_SPACELIGHTSWITCHON:
+		case DTILE_SPACEDOORSWITCHON:
+		case DTILE_FRANKENSTINESWITCHON:
+		case DTILE_LIGHTSWITCH2ON:
+		case DTILE_POWERSWITCH1ON:
+		case DTILE_LOCKSWITCH1ON:
+		case DTILE_POWERSWITCH2ON:
 			j = lotags.Find(actor->spr.lotag);
 			if (j == lotags.Size())
 			{
@@ -343,16 +343,16 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 	for (auto& wal : wall)
 	{
-		if (wal.overpicnum == MIRROR && (wal.cstat & CSTAT_WALL_1WAY) != 0)
+		if (wal.overpicnum == DTILE_MIRROR && (wal.cstat & CSTAT_WALL_1WAY) != 0)
 		{
 			auto sectp = wal.nextSector();
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if (sectp && sectp->ceilingpicnum != MIRROR)
+			if (sectp && sectp->ceilingpicnum != DTILE_MIRROR)
 			{
-				sectp->ceilingpicnum = MIRROR;
-				sectp->floorpicnum = MIRROR;
+				sectp->ceilingpicnum = DTILE_MIRROR;
+				sectp->floorpicnum = DTILE_MIRROR;
 				mirrorwall[mirrorcnt] = &wal;
 				mirrorsector[mirrorcnt] = sectp;
 				mirrorcnt++;
@@ -368,19 +368,19 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 		switch (wal.overpicnum)
 		{
-		case FANSHADOW:
-		case FANSPRITE:
+		case DTILE_FANSHADOW:
+		case DTILE_FANSPRITE:
 			//wal.cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN; Original code assigned this to 'wall', i.e. wall[0]
 			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
 			break;
 
-		case W_FORCEFIELD:
+		case DTILE_W_FORCEFIELD:
 			for (int jj = 0; jj < 3; jj++)
-				tloadtile(W_FORCEFIELD + jj);
+				tloadtile(DTILE_W_FORCEFIELD + jj);
 			[[fallthrough]];
-		case W_FORCEFIELD + 1:
-		case W_FORCEFIELD + 2:
+		case DTILE_W_FORCEFIELD + 1:
+		case DTILE_W_FORCEFIELD + 2:
 			if (wal.shade > 31)
 				wal.cstat = 0;
 			else wal.cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN | CSTAT_WALL_YFLIP;
@@ -389,7 +389,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 				wal.nextWall()->lotag = wal.lotag;
 			[[fallthrough]];
 
-		case BIGFORCE:
+		case DTILE_BIGFORCE:
 
 			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
@@ -401,27 +401,27 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 		switch (wal.picnum)
 		{
-		case W_TECHWALL1:
-		case W_TECHWALL2:
-		case W_TECHWALL3:
-		case W_TECHWALL4:
+		case DTILE_W_TECHWALL1:
+		case DTILE_W_TECHWALL2:
+		case DTILE_W_TECHWALL3:
+		case DTILE_W_TECHWALL4:
 			animwall[numanimwalls].wall = &wal;
 			//                animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;
-		case SCREENBREAK6:
-		case SCREENBREAK7:
-		case SCREENBREAK8:
-			for (int jj = SCREENBREAK6; jj < SCREENBREAK9; jj++)
+		case DTILE_SCREENBREAK6:
+		case DTILE_SCREENBREAK7:
+		case DTILE_SCREENBREAK8:
+			for (int jj = DTILE_SCREENBREAK6; jj < DTILE_SCREENBREAK9; jj++)
 				tloadtile(jj);
 			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;
 
-		case FEMPIC1:
-		case FEMPIC2:
-		case FEMPIC3:
+		case DTILE_FEMPIC1:
+		case DTILE_FEMPIC2:
+		case DTILE_FEMPIC3:
 
 			wal.extra = wal.picnum;
 			animwall[numanimwalls].tag = -1;
@@ -431,23 +431,23 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 			numanimwalls++;
 			break;
 
-		case SCREENBREAK1:
-		case SCREENBREAK2:
-		case SCREENBREAK3:
-		case SCREENBREAK4:
-		case SCREENBREAK5:
+		case DTILE_SCREENBREAK1:
+		case DTILE_SCREENBREAK2:
+		case DTILE_SCREENBREAK3:
+		case DTILE_SCREENBREAK4:
+		case DTILE_SCREENBREAK5:
 
-		case SCREENBREAK9:
-		case SCREENBREAK10:
-		case SCREENBREAK11:
-		case SCREENBREAK12:
-		case SCREENBREAK13:
-		case SCREENBREAK14:
-		case SCREENBREAK15:
-		case SCREENBREAK16:
-		case SCREENBREAK17:
-		case SCREENBREAK18:
-		case SCREENBREAK19:
+		case DTILE_SCREENBREAK9:
+		case DTILE_SCREENBREAK10:
+		case DTILE_SCREENBREAK11:
+		case DTILE_SCREENBREAK12:
+		case DTILE_SCREENBREAK13:
+		case DTILE_SCREENBREAK14:
+		case DTILE_SCREENBREAK15:
+		case DTILE_SCREENBREAK16:
+		case DTILE_SCREENBREAK17:
+		case DTILE_SCREENBREAK18:
+		case DTILE_SCREENBREAK19:
 
 			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = wal.picnum;
@@ -461,8 +461,8 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		for (auto& wal : mirrorsector[i]->walls)
 		{
-			wal.picnum = MIRROR;
-			wal.overpicnum = MIRROR;
+			wal.picnum = DTILE_MIRROR;
+			wal.overpicnum = DTILE_MIRROR;
 		}
 	}
 }

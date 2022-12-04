@@ -74,7 +74,7 @@ static void displayloogie(player_struct* p, double const interpfrac)
 		const double z = 4096. + ((loogi + i) * 512.);
 		const double x = -getavel(p->GetPlayerNum()) + BobVal((loogi + i) * 64.) * 16;
 
-		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), z - (i << 8), 256 - a, LOOGIE, 0, 0, 2);
+		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), z - (i << 8), 256 - a, DTILE_LOOGIE, 0, 0, 2);
 	}
 }
 
@@ -92,7 +92,7 @@ static bool animatefist(int gs, player_struct* p, double xoffset, double yoffset
 	hud_drawsprite(
 		(-fisti + 222 + xoffset),
 		(yoffset + 194 + BobVal((6 + fisti) * 128.) * 32),
-		clamp(65536. - 65536. * BobVal(512 + fisti * 64.), 40920., 90612.), 0, FIST, gs, fistpal, 2);
+		clamp(65536. - 65536. * BobVal(512 + fisti * 64.), 40920., 90612.), 0, DTILE_FIST, gs, fistpal, 2);
 
 	return true;
 }
@@ -110,7 +110,7 @@ static bool animateknee(int gs, player_struct* p, double xoffset, double yoffset
 	static const int8_t knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
 	const double kneei = interpolatedvalue<double>(knee_y[p->oknee_incs], knee_y[p->knee_incs], interpfrac);
 
-	hud_drawpal(105 + (kneei * 0.25) + xoffset, 280 + kneei + yoffset, KNEE, gs, 4, pal, angle);
+	hud_drawpal(105 + (kneei * 0.25) + xoffset, 280 + kneei + yoffset, DTILE_KNEE, gs, 4, pal, angle);
 
 	return true;
 }
@@ -127,7 +127,7 @@ static bool animateknuckles(int gs, player_struct* p, double xoffset, double yof
 
 	static const uint8_t knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
 
-	hud_drawpal(160 + xoffset, 180 + yoffset, CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal, angle);
+	hud_drawpal(160 + xoffset, 180 + yoffset, DTILE_CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal, angle);
 
 	return true;
 }
@@ -143,9 +143,9 @@ void displaymasks_d(int snum, int p, double interpfrac)
 {
 	if (ps[snum].scuba_on)
 	{
-		int y = 200 - tileHeight(SCUBAMASK);
-		hud_drawsprite(44, y, 65536, 0, SCUBAMASK, 0, p, 2 + 16);
-		hud_drawsprite((320 - 43), y, 65536, 0, SCUBAMASK, 0, p, 2 + 4 + 16);
+		int y = 200 - tileHeight(DTILE_SCUBAMASK);
+		hud_drawsprite(44, y, 65536, 0, DTILE_SCUBAMASK, 0, p, 2 + 16);
+		hud_drawsprite((320 - 43), y, 65536, 0, DTILE_SCUBAMASK, 0, p, 2 + 4 + 16);
 	}
 }
 
@@ -162,7 +162,7 @@ static bool animatetip(int gs, player_struct* p, double xoffset, double yoffset,
 	static const int8_t tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
 	const double tipi = interpolatedvalue<double>(tip_y[p->otipincs], tip_y[p->tipincs], interpfrac) * 0.5;
 
-	hud_drawpal(170 + xoffset, 240 + tipi + yoffset, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal, angle);
+	hud_drawpal(170 + xoffset, 240 + tipi + yoffset, DTILE_TIP + ((26 - p->tipincs) >> 4), gs, 0, pal, angle);
 
 	return true;
 }
@@ -183,9 +183,9 @@ static bool animateaccess(int gs, player_struct* p, double xoffset, double yoffs
 	const int pal = p->access_spritenum != nullptr ? p->access_spritenum->spr.pal : 0;
 
 	if ((p->access_incs-3) > 0 && (p->access_incs-3)>>3)
-		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal, angle);
+		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, DTILE_HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal, angle);
 	else
-		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, HANDHOLDINGACCESS, gs, 4, pal, angle);
+		hud_drawpal(170 + (accessi * 0.25) + xoffset, 266 + accessi + yoffset, DTILE_HANDHOLDINGACCESS, gs, 4, pal, angle);
 
 	return true;
 }
@@ -266,18 +266,18 @@ void displayweapon_d(int snum, double interpfrac)
 	{
 		if (quick_kick < 5 || quick_kick > 9)
 		{
-			hud_drawpal(80 + offsets.X, 250 + offsets.Y, KNEE, shade, o | 4, pal2, angle);
+			hud_drawpal(80 + offsets.X, 250 + offsets.Y, DTILE_KNEE, shade, o | 4, pal2, angle);
 		}
 		else
 		{
-			hud_drawpal(160 - 16 + offsets.X, 214 + offsets.Y, KNEE + 1, shade, o | 4, pal2, angle);
+			hud_drawpal(160 - 16 + offsets.X, 214 + offsets.Y, DTILE_KNEE + 1, shade, o | 4, pal2, angle);
 		}
 	}
 
 	if (p->GetActor()->spr.scale.X < 0.625)
 	{
 		//shrunken..
-		animateshrunken(p, 0, offsets.Y + gun_pos, -offsets.X, FIST, shade, o, interpfrac);
+		animateshrunken(p, 0, offsets.Y + gun_pos, -offsets.X, DTILE_FIST, shade, o, interpfrac);
 	}
 	else
 	{
@@ -297,11 +297,11 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				if (*kb < 5 || *kb > 9)
 				{
-					hud_drawpal(220 + offsets.X, 250 + offsets.Y, KNEE, shade, o, pal2, angle);
+					hud_drawpal(220 + offsets.X, 250 + offsets.Y, DTILE_KNEE, shade, o, pal2, angle);
 				}
 				else
 				{
-					hud_drawpal(160 + offsets.X, 214 + offsets.Y, KNEE + 1, shade, o, pal2, angle);
+					hud_drawpal(160 + offsets.X, 214 + offsets.Y, DTILE_KNEE + 1, shade, o, pal2, angle);
 				}
 			}
 		};
@@ -320,10 +320,10 @@ void displayweapon_d(int snum, double interpfrac)
 			if (*kb > 6)
 				offsets.Y += kickback_pic * 8.;
 			else if (*kb < 4)
-				hud_drawpal(142 + offsets.X, 234 + offsets.Y, HANDHOLDINGLASER + 3, shade, o, pal, angle);
+				hud_drawpal(142 + offsets.X, 234 + offsets.Y, DTILE_HANDHOLDINGLASER + 3, shade, o, pal, angle);
 
-			hud_drawpal(130 + offsets.X, 249 + offsets.Y, HANDHOLDINGLASER + (*kb >> 2), shade, o, pal, angle);
-			hud_drawpal(152 + offsets.X, 249 + offsets.Y, HANDHOLDINGLASER + (*kb >> 2), shade, o | 4, pal, angle);
+			hud_drawpal(130 + offsets.X, 249 + offsets.Y, DTILE_HANDHOLDINGLASER + (*kb >> 2), shade, o, pal, angle);
+			hud_drawpal(152 + offsets.X, 249 + offsets.Y, DTILE_HANDHOLDINGLASER + (*kb >> 2), shade, o | 4, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
@@ -342,7 +342,7 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				if (*kb < (isWW2GI() ? weapTotalTime : 8))
 				{
-					hud_drawpal(164 + offsets.X, 176 + offsets.Y, RPGGUN + (*kb >> 1), shade, o | pin, pal, angle);
+					hud_drawpal(164 + offsets.X, 176 + offsets.Y, DTILE_RPGGUN + (*kb >> 1), shade, o | pin, pal, angle);
 				}
 				else if (isWW2GI())
 				{
@@ -360,7 +360,7 @@ void displayweapon_d(int snum, double interpfrac)
 				}
 			}
 
-			hud_drawpal(164 + offsets.X, 176 + offsets.Y, RPGGUN, shade, o | pin, pal, angle);
+			hud_drawpal(164 + offsets.X, 176 + offsets.Y, DTILE_RPGGUN, shade, o | pin, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
@@ -379,7 +379,7 @@ void displayweapon_d(int snum, double interpfrac)
 			if (*kb > 0 && p->GetActor()->spr.pal != 1)
 				offsets.X += 1 - (rand() & 3);
 
-			int pic = SHOTGUN;
+			int pic = DTILE_SHOTGUN;
 
 			if (*kb == 0)
 			{
@@ -418,13 +418,13 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				case 1:
 				case 2:
-					hud_drawpal(168 + offsets.X, 201 + offsets.Y, SHOTGUN + 2, -128, o, pal, angle);
+					hud_drawpal(168 + offsets.X, 201 + offsets.Y, DTILE_SHOTGUN + 2, -128, o, pal, angle);
 					[[fallthrough]];
 				case 0:
 				case 6:
 				case 7:
 				case 8:
-					hud_drawpal(146 + offsets.X, 202 + offsets.Y, SHOTGUN, shade, o, pal, angle);
+					hud_drawpal(146 + offsets.X, 202 + offsets.Y, DTILE_SHOTGUN, shade, o, pal, angle);
 					break;
 				case 3:
 				case 4:
@@ -438,37 +438,37 @@ void displayweapon_d(int snum, double interpfrac)
 						offsets.Y += 40;
 						offsets.X += 20;
 
-						hud_drawpal(178 + offsets.X, 194 + offsets.Y, SHOTGUN + 1 + ((*(kb)-1) >> 1), -128, o, pal, angle);
+						hud_drawpal(178 + offsets.X, 194 + offsets.Y, DTILE_SHOTGUN + 1 + ((*(kb)-1) >> 1), -128, o, pal, angle);
 					}
-					hud_drawpal(158 + offsets.X, 220 + offsets.Y, SHOTGUN + 3, shade, o, pal, angle);
+					hud_drawpal(158 + offsets.X, 220 + offsets.Y, DTILE_SHOTGUN + 3, shade, o, pal, angle);
 					break;
 				case 13:
 				case 14:
 				case 15:
-					hud_drawpal(198 + offsets.X, 210 + offsets.Y, SHOTGUN + 4, shade, o, pal, angle);
+					hud_drawpal(198 + offsets.X, 210 + offsets.Y, DTILE_SHOTGUN + 4, shade, o, pal, angle);
 					break;
 				case 16:
 				case 17:
 				case 18:
 				case 19:
-					hud_drawpal(234 + offsets.X, 196 + offsets.Y, SHOTGUN + 5, shade, o, pal, angle);
+					hud_drawpal(234 + offsets.X, 196 + offsets.Y, DTILE_SHOTGUN + 5, shade, o, pal, angle);
 					break;
 				case 20:
 				case 21:
 				case 22:
 				case 23:
-					hud_drawpal(240 + offsets.X, 196 + offsets.Y, SHOTGUN + 6, shade, o, pal, angle);
+					hud_drawpal(240 + offsets.X, 196 + offsets.Y, DTILE_SHOTGUN + 6, shade, o, pal, angle);
 					break;
 				case 24:
 				case 25:
 				case 26:
 				case 27:
-					hud_drawpal(234 + offsets.X, 196 + offsets.Y, SHOTGUN + 5, shade, o, pal, angle);
+					hud_drawpal(234 + offsets.X, 196 + offsets.Y, DTILE_SHOTGUN + 5, shade, o, pal, angle);
 					break;
 				case 28:
 				case 29:
 				case 30:
-					hud_drawpal(188 + offsets.X, 206 + offsets.Y, SHOTGUN + 4, shade, o, pal, angle);
+					hud_drawpal(188 + offsets.X, 206 + offsets.Y, DTILE_SHOTGUN + 4, shade, o, pal, angle);
 					break;
 			}
 		};
@@ -489,11 +489,11 @@ void displayweapon_d(int snum, double interpfrac)
 
 			if (*kb == 0)
 			{
-				hud_drawpal(178 + offsets.X, 233 + offsets.Y, CHAINGUN + 1, shade, o, pal, angle);
+				hud_drawpal(178 + offsets.X, 233 + offsets.Y, DTILE_CHAINGUN + 1, shade, o, pal, angle);
 			}
 			else if (*kb <= weapTotalTime)
 			{
-				hud_drawpal(188 + offsets.X, 243 + offsets.Y, CHAINGUN + 2, shade, o, pal, angle);
+				hud_drawpal(188 + offsets.X, 243 + offsets.Y, DTILE_CHAINGUN + 2, shade, o, pal, angle);
 			}
 			else
 			{
@@ -558,32 +558,32 @@ void displayweapon_d(int snum, double interpfrac)
 			if (*kb > 0 && p->GetActor()->spr.pal != 1)
 				offsets.X += 1 - (rand() & 3);
 
-			hud_drawpal(168 + offsets.X, 260 + offsets.Y, CHAINGUN, shade, o, pal, angle);
+			hud_drawpal(168 + offsets.X, 260 + offsets.Y, DTILE_CHAINGUN, shade, o, pal, angle);
 
 			switch(*kb)
 			{
 				case 0:
-					hud_drawpal(178 + offsets.X, 233 + offsets.Y, CHAINGUN + 1, shade, o, pal, angle);
+					hud_drawpal(178 + offsets.X, 233 + offsets.Y, DTILE_CHAINGUN + 1, shade, o, pal, angle);
 					break;
 				default:
 					if (*kb > 4 && *kb < 12)
 					{
 						auto rnd = p->GetActor()->spr.pal != 1 ? rand() & 7 : 0;
-						hud_drawpal(136 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), CHAINGUN + 5 + ((*kb - 4) / 5), shade, o, pal, angle);
+						hud_drawpal(136 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), DTILE_CHAINGUN + 5 + ((*kb - 4) / 5), shade, o, pal, angle);
 
 						if (p->GetActor()->spr.pal != 1) rnd = rand() & 7;
-						hud_drawpal(180 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), CHAINGUN + 5 + ((*kb - 4) / 5), shade, o, pal, angle);
+						hud_drawpal(180 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), DTILE_CHAINGUN + 5 + ((*kb - 4) / 5), shade, o, pal, angle);
 					}
 
 					if (*kb < 8)
 					{
 						auto rnd = rand() & 7;
-						hud_drawpal(158 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), CHAINGUN + 5 + ((*kb - 2) / 5), shade, o, pal, angle);
-						hud_drawpal(178 + offsets.X, 233 + offsets.Y, CHAINGUN + 1 + (*kb >> 1), shade, o, pal, angle);
+						hud_drawpal(158 + offsets.X + rnd, 208 + offsets.Y + rnd - (kickback_pic * 0.5), DTILE_CHAINGUN + 5 + ((*kb - 2) / 5), shade, o, pal, angle);
+						hud_drawpal(178 + offsets.X, 233 + offsets.Y, DTILE_CHAINGUN + 1 + (*kb >> 1), shade, o, pal, angle);
 					}
 					else
 					{
-						hud_drawpal(178 + offsets.X, 233 + offsets.Y, CHAINGUN + 1, shade, o, pal, angle);
+						hud_drawpal(178 + offsets.X, 233 + offsets.Y, DTILE_CHAINGUN + 1, shade, o, pal, angle);
 					}
 					break;
 			}
@@ -600,12 +600,12 @@ void displayweapon_d(int snum, double interpfrac)
 			if (*kb < 5)
 			{
 				static constexpr uint8_t kb_frames[] = { 0,1,2,0,0 };
-				hud_drawpal((195 - 12 - (*kb == 2) * 3) + offsets.X, 244 + offsets.Y, FIRSTGUN + kb_frames[*kb], shade, 2, pal, angle);
+				hud_drawpal((195 - 12 - (*kb == 2) * 3) + offsets.X, 244 + offsets.Y, DTILE_FIRSTGUN + kb_frames[*kb], shade, 2, pal, angle);
 			}
 			else
 			{
 				const int pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
-				const int pic_5 = FIRSTGUN+5;
+				const int pic_5 = DTILE_FIRSTGUN+5;
 				const int WEAPON2_RELOAD_TIME = 50;
 				const int reload_time = isWW2GI() ? weapReload : WEAPON2_RELOAD_TIME;
 
@@ -613,26 +613,26 @@ void displayweapon_d(int snum, double interpfrac)
 
 				if (*kb < 10)
 				{
-					hud_drawpal(194 + offsets.X, 230 + offsets.Y, FIRSTGUN + 4, shade, o | pin, pal, angle);
+					hud_drawpal(194 + offsets.X, 230 + offsets.Y, DTILE_FIRSTGUN + 4, shade, o | pin, pal, angle);
 				}
 				else if (*kb < 15)
 				{
-					hud_drawpal(244 + offsets.X - (kickback_pic * 8.), 130 + offsets.Y + (kickback_pic * 16.), FIRSTGUN + 6, shade, o | pin, pal, angle);
+					hud_drawpal(244 + offsets.X - (kickback_pic * 8.), 130 + offsets.Y + (kickback_pic * 16.), DTILE_FIRSTGUN + 6, shade, o | pin, pal, angle);
 					hud_drawpal(224 + offsets.X, 220 + offsets.Y, pic_5, shade, o | pin, pal, angle);
 				}
 				else if (*kb < 20)
 				{
-					hud_drawpal(124 + offsets.X + (kickback_pic * 2.), 430 + offsets.Y - (kickback_pic * 8.), FIRSTGUN + 6, shade, o | pin, pal, angle);
+					hud_drawpal(124 + offsets.X + (kickback_pic * 2.), 430 + offsets.Y - (kickback_pic * 8.), DTILE_FIRSTGUN + 6, shade, o | pin, pal, angle);
 					hud_drawpal(224 + offsets.X, 220 + offsets.Y, pic_5, shade, o | pin, pal, angle);
 				}
 				else if (*kb < (isNamWW2GI()? (reload_time - 12) : 23))
 				{
-					hud_drawpal(184 + offsets.X, 235 + offsets.Y, FIRSTGUN + 8, shade, o | pin, pal, angle);
+					hud_drawpal(184 + offsets.X, 235 + offsets.Y, DTILE_FIRSTGUN + 8, shade, o | pin, pal, angle);
 					hud_drawpal(224 + offsets.X, 210 + offsets.Y, pic_5, shade, o | pin, pal, angle);
 				}
 				else if (*kb < (isNamWW2GI()? (reload_time - 6) : 25))
 				{
-					hud_drawpal(164 + offsets.X, 245 + offsets.Y, FIRSTGUN + 8, shade, o | pin, pal, angle);
+					hud_drawpal(164 + offsets.X, 245 + offsets.Y, DTILE_FIRSTGUN + 8, shade, o | pin, pal, angle);
 					hud_drawpal(224 + offsets.X, 220 + offsets.Y, pic_5, shade, o | pin, pal, angle);
 				}
 				else if (*kb < (isNamWW2GI()? reload_time : 27))
@@ -650,7 +650,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayhandbomb = [&]()
 		{
-			int pic = HANDTHROW;
+			int pic = DTILE_HANDTHROW;
 
 			if (*kb)
 			{
@@ -703,7 +703,7 @@ void displayweapon_d(int snum, double interpfrac)
 		auto displayhandremote = [&]()
 		{
 			static constexpr uint8_t remote_frames[] = { 0,1,1,2,1,1,0,0,0,0,0 };
-			hud_drawpal(102 + offsets.X, 258 + offsets.Y, HANDREMOTE + (*kb ? remote_frames[*kb] : 0), shade, o, pal, angle);
+			hud_drawpal(102 + offsets.X, 258 + offsets.Y, DTILE_HANDREMOTE + (*kb ? remote_frames[*kb] : 0), shade, o, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
@@ -722,13 +722,13 @@ void displayweapon_d(int snum, double interpfrac)
 
 					if (p->ammo_amount[p->curr_weapon] & 1)
 					{
-						hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
-						hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR + i, -32, o, pal, angle);
+						hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR, shade, o | 4, pal, angle);
+						hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR + i, -32, o, pal, angle);
 					}
 					else
 					{
-						hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR + i, -32, o | 4, pal, angle);
-						hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR, shade, o, pal, angle);
+						hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR + i, -32, o | 4, pal, angle);
+						hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR, shade, o, pal, angle);
 					}
 				}
 				// else we are in 'reload time'
@@ -737,22 +737,22 @@ void displayweapon_d(int snum, double interpfrac)
 					// down 
 					offsets.Y += 10 * (kickback_pic - weapTotalTime); //D
 					// offsets.X += 80 * (*kb - aplWeaponTotalTime[cw][snum]);
-					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR, shade, o, pal, angle);
-					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
+					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR, shade, o, pal, angle);
+					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR, shade, o | 4, pal, angle);
 				}
 				else
 				{
 					// up and left
 					offsets.Y += 10 * (weapReload - kickback_pic); //U
 					// offsets.X += 80 * (*kb - aplWeaponTotalTime[cw][snum]);
-					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR, shade, o, pal, angle);
-					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
+					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR, shade, o, pal, angle);
+					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR, shade, o | 4, pal, angle);
 				}
 			}
 			else
 			{
-				hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR, shade, o, pal, angle);
-				hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
+				hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR, shade, o, pal, angle);
+				hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR, shade, o | 4, pal, angle);
 			}
 		};
 
@@ -771,19 +771,19 @@ void displayweapon_d(int snum, double interpfrac)
 
 				if (p->hbomb_hold_delay)
 				{
-					hud_drawpal(268 + offsets.X + (cycloidy[*kb] >> 1), 238 + offsets.Y + cycloidy[*kb], DEVISTATOR + i, -32, o, pal, angle);
-					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
+					hud_drawpal(268 + offsets.X + (cycloidy[*kb] >> 1), 238 + offsets.Y + cycloidy[*kb], DTILE_DEVISTATOR + i, -32, o, pal, angle);
+					hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR, shade, o | 4, pal, angle);
 				}
 				else
 				{
-					hud_drawpal(30 + offsets.X - (cycloidy[*kb] >> 1), 240 + offsets.Y + cycloidy[*kb], DEVISTATOR + i, -32, o | 4, pal, angle);
-					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR, shade, o, pal, angle);
+					hud_drawpal(30 + offsets.X - (cycloidy[*kb] >> 1), 240 + offsets.Y + cycloidy[*kb], DTILE_DEVISTATOR + i, -32, o | 4, pal, angle);
+					hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR, shade, o, pal, angle);
 				}
 			}
 			else
 			{
-				hud_drawpal(268 + offsets.X, 238 + offsets.Y, DEVISTATOR, shade, o, pal, angle);
-				hud_drawpal(30 + offsets.X, 240 + offsets.Y, DEVISTATOR, shade, o | 4, pal, angle);
+				hud_drawpal(268 + offsets.X, 238 + offsets.Y, DTILE_DEVISTATOR, shade, o, pal, angle);
+				hud_drawpal(30 + offsets.X, 240 + offsets.Y, DTILE_DEVISTATOR, shade, o | 4, pal, angle);
 			}
 		};
 
@@ -809,12 +809,12 @@ void displayweapon_d(int snum, double interpfrac)
 
 				offsets.Y += 16;
 
-				hud_drawpal(210 + offsets.X, 261 + offsets.Y, FREEZE + 2, -32, o | pin, pal, angle);
-				hud_drawpal(210 + offsets.X, 235 + offsets.Y, FREEZE + 3 + cat_frames[*kb % 6], -32, o | pin, pal, angle);
+				hud_drawpal(210 + offsets.X, 261 + offsets.Y, DTILE_FREEZE + 2, -32, o | pin, pal, angle);
+				hud_drawpal(210 + offsets.X, 235 + offsets.Y, DTILE_FREEZE + 3 + cat_frames[*kb % 6], -32, o | pin, pal, angle);
 			}
 			else
 			{
-				hud_drawpal(210 + offsets.X, 261 + offsets.Y, FREEZE, shade, o | pin, pal, angle);
+				hud_drawpal(210 + offsets.X, 261 + offsets.Y, DTILE_FREEZE, shade, o | pin, pal, angle);
 			}
 		};
 
@@ -834,13 +834,13 @@ void displayweapon_d(int snum, double interpfrac)
 				// the 'at rest' display
 				if (p->ammo_amount[cw] <= 0) //p->last_weapon >= 0)
 				{
-					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
-					hud_drawpal(188 + offsets.X, 240 + offsets.Y, SHRINKER + 1, shade, o, pal, angle);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
+					hud_drawpal(188 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 1, shade, o, pal, angle);
 				}
 				else
 				{
-					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 0, angle);
-					hud_drawpal(188 + offsets.X, 240 + offsets.Y, SHRINKER, shade, o, pal, angle);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 0, angle);
+					hud_drawpal(188 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER, shade, o, pal, angle);
 				}
 			}
 			else
@@ -874,8 +874,8 @@ void displayweapon_d(int snum, double interpfrac)
 				}
 
 				// draw weapon
-				hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
-				hud_drawpal(188 + offsets.X, 240 + offsets.Y, SHRINKER + 1, shade, o, pal, angle);
+				hud_drawpal(184 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
+				hud_drawpal(188 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 1, shade, o, pal, angle);
 			}
 		};
 
@@ -892,7 +892,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 			if (*kb == 0)
 			{
-				hud_drawpal(188 + offsets.X, 240 + offsets.Y, SHRINKER - 2, shade, o, pal, angle);
+				hud_drawpal(188 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER - 2, shade, o, pal, angle);
 			}
 			else
 			{
@@ -923,8 +923,8 @@ void displayweapon_d(int snum, double interpfrac)
 				}
 
 				// display weapon
-				hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 2, angle);
-				hud_drawpal(188 + offsets.X, 240 + offsets.Y, SHRINKER - 1, shade, o, pal, angle);
+				hud_drawpal(184 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 3 + (*kb & 3), -32, o, 2, angle);
+				hud_drawpal(188 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER - 1, shade, o, pal, angle);
 			}
 		};
 
@@ -936,7 +936,7 @@ void displayweapon_d(int snum, double interpfrac)
 
 		auto displayshrinker = [&]
 		{
-			auto shrinker = /*isWorldTour() ? SHRINKERWIDE :*/ SHRINKER;
+			auto shrinker = /*isWorldTour() ? DTILE_SHRINKERWIDE :*/ DTILE_SHRINKER;
 			offsets.X += 28;
 			offsets.Y += 18;
 
@@ -944,12 +944,12 @@ void displayweapon_d(int snum, double interpfrac)
 			{
 				if (cw == GROW_WEAPON)
 				{
-					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 2, angle);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 2, angle);
 					hud_drawpal(188 + offsets.X, 240 + offsets.Y, shrinker - 2, shade, o, pal, angle);
 				}
 				else
 				{
-					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 0, angle);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 2, 16 - int(BobVal(random_club_frame) * 16), o, 0, angle);
 					hud_drawpal(188 + offsets.X, 240 + offsets.Y, shrinker, shade, o, pal, angle);
 				}
 			}
@@ -963,12 +963,12 @@ void displayweapon_d(int snum, double interpfrac)
 
 				if (cw == GROW_WEAPON)
 				{
-					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 2, angle);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 3 + (*kb & 3), -32, o, 2, angle);
 					hud_drawpal(188 + offsets.X, 240 + offsets.Y, shrinker - 1, shade, o, pal, angle);
 				}
 				else
 				{
-					hud_drawpal(184 + offsets.X, 240 + offsets.Y, SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
+					hud_drawpal(184 + offsets.X, 240 + offsets.Y, DTILE_SHRINKER + 3 + (*kb & 3), -32, o, 0, angle);
 					hud_drawpal(188 + offsets.X, 240 + offsets.Y, shrinker + 1, shade, o, pal, angle);
 				}
 			}
@@ -984,8 +984,8 @@ void displayweapon_d(int snum, double interpfrac)
 		{
 			if (*kb < 1 || p->cursector->lotag == 2)
 			{
-				hud_drawpal(210 + offsets.X, 261 + offsets.Y, FLAMETHROWER, shade, o, pal, angle);
-				hud_drawpal(210 + offsets.X, 261 + offsets.Y, FLAMETHROWERPILOT, shade, o, pal, angle);
+				hud_drawpal(210 + offsets.X, 261 + offsets.Y, DTILE_FLAMETHROWER, shade, o, pal, angle);
+				hud_drawpal(210 + offsets.X, 261 + offsets.Y, DTILE_FLAMETHROWERPILOT, shade, o, pal, angle);
 			}
 			else
 			{
@@ -999,8 +999,8 @@ void displayweapon_d(int snum, double interpfrac)
 
 				offsets.Y += 16;
 
-				hud_drawpal(210 + offsets.X, 261 + offsets.Y, FLAMETHROWER + 1, -32, o, pal, angle);
-				hud_drawpal(210 + offsets.X, 235 + offsets.Y, FLAMETHROWER + 2 + cat_frames[*kb % 6], -32, o, pal, angle);
+				hud_drawpal(210 + offsets.X, 261 + offsets.Y, DTILE_FLAMETHROWER + 1, -32, o, pal, angle);
+				hud_drawpal(210 + offsets.X, 235 + offsets.Y, DTILE_FLAMETHROWER + 2 + cat_frames[*kb % 6], -32, o, pal, angle);
 			}
 		};
 
