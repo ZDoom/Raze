@@ -12,8 +12,7 @@ struct PlayerAngles
 	DAngle& ZzHORIZON() { return pActor->spr.Angles.Pitch; }
 	DAngle& ZzOLDHORIZON() { return pActor->PrevAngles.Pitch; }
 	DAngle& ZzANGLE() { return pActor->spr.Angles.Yaw; }
-	DAngle prevAngle;
-	DAngle& ZzOLDANGLE() { return prevAngle; }
+	DAngle& ZzOLDANGLE() { return pActor->PrevAngles.Yaw; }
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 

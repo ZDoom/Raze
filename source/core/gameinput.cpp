@@ -334,8 +334,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("ang", w.ZzANGLE())
-			("lookang", w.ZzLOOKANG)
+		arc("lookang", w.ZzLOOKANG)
 			("rotscrnang", w.ZzROTSCRNANG)
 			("spin", w.YawSpin)
 			("actor", w.pActor)
@@ -346,7 +345,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 
 		if (arc.isReading())
 		{
-			w.ZzOLDANGLE() = w.ZzANGLE();
 			w.ZzOLDLOOKANG = w.ZzLOOKANG;
 			w.ZzOLDROTSCRNANG = w.ZzROTSCRNANG;
 			w.legacyDisabledYaw = w.legacyDisabledYaw;
