@@ -98,6 +98,7 @@ enum EZCCTreeNodeType
 	AST_Type,
 	AST_BasicType,
 	AST_MapType,
+	AST_MapIteratorType,
 	AST_DynArrayType,
 	AST_ClassType,
 	AST_Expression,
@@ -367,6 +368,12 @@ struct ZCC_MapType : ZCC_Type
 	ZCC_Type *ValueType;
 };
 
+struct ZCC_MapIteratorType : ZCC_Type
+{
+	ZCC_Type *KeyType;
+	ZCC_Type *ValueType;
+};
+
 struct ZCC_DynArrayType : ZCC_Type
 {
 	ZCC_Type *ElementType;
@@ -601,7 +608,7 @@ struct ZCC_MixinStmt : ZCC_Statement
 	ENamedName MixinName;
 };
 
-FString ZCC_PrintAST(ZCC_TreeNode *root);
+FString ZCC_PrintAST(const ZCC_TreeNode *root);
 
 
 struct ZCC_AST
