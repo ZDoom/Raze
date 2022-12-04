@@ -241,7 +241,8 @@ struct sectortype native
 	native double, double getslopes(Vector2 pos);
 	native sectortype nextsectorneighborz(double refz, int find);
 	native bool CheckTexture(int place, Name tex);
-	native void SetTexture(int place, Name tex);
+	native void SetTextureName(int place, Name tex);
+	native void SetTexture(int place, TextureID tex);
 
 }
 
@@ -253,6 +254,11 @@ struct sectortype native
 
 struct walltype native
 {
+	enum EPlane
+	{
+		main = 0,
+		over = 1,
+	}
 	native readonly Vector2 pos;
 
 	native readonly int point2;
@@ -296,6 +302,8 @@ struct walltype native
 	native double Length();
 	native void move(Vector2 vec);
 	native void dragpoint(Vector2 vec);
+	native void SetTextureName(int place, Name tex);
+	native void SetTexture(int place, TextureID tex);
 }
 
 //=============================================================================

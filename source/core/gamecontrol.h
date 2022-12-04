@@ -294,3 +294,12 @@ struct SpawnRec
 };
 using SpawnMap = TMap<int, SpawnRec>;
 inline SpawnMap spawnMap;
+
+struct BreakWallRec
+{
+	int brokentex;
+	FName breaksound;
+	VMFunction* handler;
+};
+using BreakWallMap = TMap<int, BreakWallRec>;
+inline BreakWallMap breakWallMap;

@@ -171,8 +171,8 @@ class DukeActor : CoreActor native
 	native DukeActor spawn(Name type);
 	native DukeActor spawnsprite(int type);	// for cases where the map has a picnum stored. Avoid when possible.
 	native DukeActor spawnweaponorammo(int type);
-	native void lotsofglass(int count);
-	native void lotsofcolourglass(int count);
+	native void lotsofglass(int count, walltype wal = null);
+	native void lotsofcolourglass(int count, walltype wal = null);
 	native void makeitfall();
 	native void detonate(name type);
 	native void checkhitdefault(DukeActor proj);

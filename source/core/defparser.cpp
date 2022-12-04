@@ -2351,6 +2351,47 @@ static void parseTileFlags(FScanner& sc, FScriptPosition& pos)
 	sc.SetCMode(false);
 }
 
+static void parseBreakWall(FScanner& sc, FScriptPosition& pos)
+{
+	int basetile;
+	int breaktile;
+	FName sound;
+	VMFunction* handler = nullptr;
+
+	sc.SetCMode(true);
+	sc.MustGetString();
+	basetile = TileFiles.tileForName(sc.String);
+	sc.MustGetStringName(",");
+	sc.MustGetString();
+	breaktile = TileFiles.tileForName(sc.String);
+	sc.MustGetStringName(",");
+	sc.MustGetString();
+	sound = sc.String;
+	if (sc.CheckString(","))
+	{
+		sc.MustGetString();
+
+		size_t p = strcspn(sc.String, ".");
+		if (p == 0)
+		{
+			sc.ScriptMessage("Call to undefined function %s", sc.String);
+			return;
+		}
+
+		FString clsname(sc.String, p);
+		FString funcname = sc.String + p + 1;
+		handler = PClass::FindFunction(clsname, funcname);
+		if (handler == nullptr)
+			sc.ScriptMessage("Call to undefined function %s", sc.String);
+
+		// todo: validate the function's signature. Must be (walltype, TextureID, Sound, DukeActor)
+
+	}
+	breakWallMap.Insert(basetile, { breaktile, sound, handler });
+	sc.SetCMode(false);
+}
+
+
 //===========================================================================
 //
 // 
@@ -2445,6 +2486,7 @@ static const dispatch basetokens[] =
 
 	{ "spawnclasses",		parseSpawnClasses },
 	{ "tileflag",			parseTileFlags },
+	{ "breakwall",			parseBreakWall },
 	{ nullptr,           nullptr               },
 };
 

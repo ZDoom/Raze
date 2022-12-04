@@ -478,8 +478,9 @@ int sector_checktexture(sectortype* sec, int place, int intname)
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
 
 	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
-	return tilenum == place ? sec->ceilingpicnum : sec->floorpicnum;
+	return tilenum == (place == 0 ? sec->ceilingpicnum : sec->floorpicnum);
 }
+
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, checktexture, sector_checktexture)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
@@ -488,11 +489,26 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, checktexture, sector_checktexture)
 	ACTION_RETURN_BOOL(sector_checktexture(self, place, name));
 }
 
-void sector_settexture(sectortype* sec, int place, int intname)
+void sector_settexturename(sectortype* sec, int place, int intname)
 {
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
 	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
-	(place ? sec->ceilingpicnum : sec->floorpicnum) = tilenum;
+	(place == 0 ? sec->ceilingpicnum : sec->floorpicnum) = tilenum;
+}
+DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, settexturename, sector_settexturename)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(sectortype);
+	PARAM_INT(place);
+	PARAM_INT(name);
+	sector_settexturename(self, place, name);
+	return 0;
+}
+
+// This is declared as TextureID but for now receives a tilenum
+void sector_settexture(sectortype* sec, int place, int tilenum)
+{
+	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
+	(place == 0 ? sec->ceilingpicnum : sec->floorpicnum) = tilenum;
 }
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, settexture, sector_settexture)
 {
@@ -700,6 +716,37 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, twosided, wall_twosided)
 	PARAM_SELF_STRUCT_PROLOGUE(walltype);
 	ACTION_RETURN_BOOL(self->twoSided());
 }
+
+void wall_settexturename(walltype* sec, int place, int intname)
+{
+	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
+	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
+	(place ? sec->overpicnum : sec->picnum) = tilenum;
+}
+DEFINE_ACTION_FUNCTION_NATIVE(_walltype, settexturename, wall_settexturename)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(walltype);
+	PARAM_INT(place);
+	PARAM_INT(name);
+	wall_settexturename(self, place, name);
+	return 0;
+}
+
+// This is declared as TextureID but for now receives a tilenum
+void wall_settexture(walltype* sec, int place, int tilenum)
+{
+	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
+	(place ? sec->overpicnum : sec->picnum) = tilenum;
+}
+DEFINE_ACTION_FUNCTION_NATIVE(_walltype, settexture, wall_settexture)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(walltype);
+	PARAM_INT(place);
+	PARAM_INT(name);
+	wall_settexture(self, place, name);
+	return 0;
+}
+
 
 //=============================================================================
 

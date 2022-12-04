@@ -129,7 +129,7 @@ class DukeFanSprite : DukeActor
 			self.setSpriteSetImage(1);
 			self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 			if (self.sector.CheckTexture(sectortype.floor, "FANSHADOW"))
-				self.sector.SetTexture(sectortype.floor, "FANSHADOWBROKE");
+				self.sector.SetTextureName(sectortype.floor, "FANSHADOWBROKE");
 
 			self.PlayActorSound("GLASS_HEAVYBREAK");
 			for (int j = 0; j < 16; j++) self.RANDOMSCRAP();

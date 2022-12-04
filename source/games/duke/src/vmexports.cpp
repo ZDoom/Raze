@@ -486,29 +486,31 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnweaponorammo, DukeActor_spawnweap
 	ACTION_RETURN_POINTER(DukeActor_spawnweaponorammo(self, type));
 }
 
-void DukeActor_Lotsofglass(DDukeActor* origin, int count)
+void DukeActor_Lotsofglass(DDukeActor* origin, int count, walltype* wal)
 {
-	lotsofglass(origin, nullptr, count);
+	lotsofglass(origin, wal, count);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofglass, DukeActor_Lotsofglass)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(count);
-	DukeActor_Lotsofglass(self, count);
+	PARAM_POINTER(wall, walltype);
+	DukeActor_Lotsofglass(self, count, wall);
 	return 0;
 }
 
-void DukeActor_Lotsofcolourglass(DDukeActor* origin, int count)
+void DukeActor_Lotsofcolourglass(DDukeActor* origin, int count, walltype* wal)
 {
-	lotsofcolourglass(origin, nullptr, count);
+	lotsofcolourglass(origin, wal, count);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofcolourglass, DukeActor_Lotsofcolourglass)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(count);
-	DukeActor_Lotsofcolourglass(self, count);
+	PARAM_POINTER(wall, walltype);
+	DukeActor_Lotsofcolourglass(self, count, wall);
 	return 0;
 }
 

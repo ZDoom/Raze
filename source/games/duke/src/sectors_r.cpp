@@ -33,6 +33,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "dukeactor.h"
 #include "secrets.h"
+#include "vm.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS
@@ -869,7 +870,21 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 				}
 				}
 
-	switch (wal->picnum)
+	auto data = breakWallMap.CheckKey(wal->picnum);
+	if (data)
+	{
+		if (!data->handler)
+		{
+			wal->picnum = data->brokentex;
+			S_PlayActorSound(S_FindSound(data->breaksound.GetChars()), spr);
+		}
+		else
+		{
+			VMValue args[4] = { wal, data->brokentex, S_FindSound(data->breaksound.GetChars()).index(), spr };
+			VMCall(data->handler, args, 4, nullptr, 0);
+		}
+	}
+	else switch (wal->picnum)
 	{
 	case IRONWHEELSWITCH:
 		if (isRRRA()) break;
@@ -901,139 +916,6 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 		}
 		return;
 	}
-	case RRTILE7555:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5015;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7441:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5016;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7559:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5017;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7433:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5018;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7557:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5019;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7553:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5020;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7552:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5021;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7568:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5022;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7540:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5023;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7558:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5024;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7554:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5025;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7579:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5026;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7561:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5027;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7580:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5037;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE8227:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5070;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE8503:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5079;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE8567:
-	case RRTILE8568:
-	case RRTILE8569:
-	case RRTILE8570:
-	case RRTILE8571:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5082;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE7859:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5081;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE8496:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5061;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE8617:
-		if (!isRRRA()) break;
-		if (numplayers < 2)
-		{
-			wal->picnum = RRTILE8618;
-			S_PlayActorSound(47, spr);
-		}
-		return;
-	case RRTILE8620:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE8621;
-		S_PlayActorSound(47, spr);
-		return;
-	case RRTILE8622:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE8623;
-		S_PlayActorSound(495, spr);
-		return;
-	case WEAPONCABINET:
-		if (!isRRRA()) break;
-		wal->picnum = WEAPONCABINETBROKE;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	case RRTILE8497:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5076;
-		S_PlayActorSound(495, spr);
-		return;
-	case RRTILE7533:
-		if (!isRRRA()) break;
-		wal->picnum = RRTILE5035;
-		S_PlayActorSound(495, spr);
-		return;
-
 	case COLAMACHINE:
 	case VENDMACHINE:
 		breakwall(wal->picnum + 2, spr, wal);

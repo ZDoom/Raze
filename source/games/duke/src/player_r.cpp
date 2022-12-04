@@ -316,7 +316,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 
 		if (hit.actor())
 		{
-			if (hit.actor()->spr.picnum == 1930)
+			if (hit.actor()->spr.picnum == TORNADO)
 				return;
 			fi.checkhitsprite(hit.actor(), spark);
 			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
@@ -459,7 +459,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 		scount = 1;
 		if (atwith == SHITBALL)
 		{
-			if (actor->spr.picnum == 8705)
+			if (actor->spr.picnum == MAMA)
 				vel = 37.5;
 			else
 				vel = 25;
@@ -476,7 +476,7 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 	{
 		vel = 52.5;
 		pos.Z -= 4;
-		if (actor->spr.picnum == 4649)
+		if (actor->spr.picnum == HULK)
 		{
 			pos += (actor->spr.Angles.Yaw + DAngle45).ToVector() * 16;
 			pos.Z += 12;

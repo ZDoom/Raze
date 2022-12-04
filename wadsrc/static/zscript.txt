@@ -115,6 +115,8 @@ version "4.10"
 #include "zscript/games/duke/actors/airplane.zs"
 #include "zscript/games/duke/actors/piano.zs"
 
+#include "zscript/games/duke/world/redneckbreak.zs"
+
 #include "zscript/games/blood/bloodgame.zs"
 #include "zscript/games/blood/ui/menu.zs"
 #include "zscript/games/blood/ui/sbar.zs"
