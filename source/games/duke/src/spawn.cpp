@@ -47,14 +47,12 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 {
 	if (info)
 	{
-		//int basepicnum = info->param;
-		//act->basepicnum = basepicnum;
 		if (info->basetex > 0 && act->IsKindOf(NAME_DukeGenericDestructible))
 		{
 			// allow defining simple destructibles without actual actor definitions.
 			act->IntVar(NAME_spawnstate) = info->basetex;
 			act->IntVar(NAME_brokenstate) = info->brokentex;
-			act->IntVar(NAME_breaksound) = S_FindSound(info->breaksound.GetChars()).index();
+			act->IntVar(NAME_breaksound) = info->breaksound.index();
 			act->IntVar(NAME_fullbright) = info->fullbright;
 			act->spr.inittype = info->flags;
 			if (info->clipdist > 0) act->spr.clipdist = info->clipdist;

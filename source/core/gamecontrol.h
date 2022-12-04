@@ -271,35 +271,3 @@ enum gameaction_t : int
 };
 extern gameaction_t		gameaction;
 
-struct SpawnRec
-{
-	FName clsname;
-	PClass* cls;
-	int param;
-	int basetex, brokentex;
-	FName breaksound;
-	int8_t fullbright, clipdist;
-	int16_t flags;
-
-	PClass* Class(int pn)
-	{
-		if (!cls && clsname != NAME_None) cls = PClass::FindClass(clsname);
-		if (cls == nullptr)
-		{
-			Printf(TEXTCOLOR_RED "Bad class name %s for ID# %d\n", clsname.GetChars(), pn);
-		}
-		clsname = NAME_None;
-		return cls;
-	}
-};
-using SpawnMap = TMap<int, SpawnRec>;
-inline SpawnMap spawnMap;
-
-struct BreakWallRec
-{
-	int brokentex;
-	FName breaksound;
-	VMFunction* handler;
-};
-using BreakWallMap = TMap<int, BreakWallRec>;
-inline BreakWallMap breakWallMap;

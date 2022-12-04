@@ -45,7 +45,7 @@
 #include "autosegs.h"
 #include "i_system.h"
 #include "gamecontrol.h"
-#include "autosegs.h"
+#include "coreactor.h"
 
 extern TArray<ClusterDef> clusters;
 extern TArray<VolumeRecord> volumes;
@@ -219,6 +219,173 @@ void FMapInfoParser::ParseMusic(FString &name, int &order)
 		order = sc.Number;
 	}
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FMapInfoParser::ParseSpawnClasses()
+{
+	FString fn;
+	int res_id = -1;
+	int numframes = -1;
+	bool interpolate = false;
+	int clipdist = -1;
+
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		// This will need some reworking once we can use real textures.
+		int num = -1;
+		int base = -1;
+		int basetex = -1;
+		int brokentex = -1;
+		int fullbright = 0;
+		int flags = 0;
+		FSoundID sound = NO_SOUND;
+		PClassActor* actor = nullptr;
+
+		sc.MustGetString();
+		char* p;
+		num = (int)strtol(sc.String, &p, 10);
+		if (num < 0 || *p)
+		{
+			sc.ScriptMessage("Invalid spawn number. Must be positive integer, but got '%s'", sc.String);
+			SkipToNext();
+			continue;
+		}
+		ParseAssign();
+		sc.MustGetString();
+		actor = PClass::FindActor(sc.String);
+		if (actor == nullptr)
+		{
+			sc.ScriptMessage("Unknown actor class '%s' for spawn ID # %d", sc.String, num);
+
+		}
+
+		if (sc.CheckString(","))
+		{
+			// prefixing the texture names here with a '*' will render them fullbright.
+			sc.MustGetString();
+			const char* p = sc.String;
+			if (*p == '*') { fullbright |= 1; p++; }
+			basetex = TileFiles.tileForName(p);
+			if (basetex < 0) sc.ScriptMessage("Unknown texture '%s' in definition for spawn ID # %d", sc.String, num);
+			if (sc.CheckString(","))
+			{
+				sc.MustGetString();
+				const char* p = sc.String;
+				if (*p)
+				{
+					if (*p == '*') { fullbright |= 2; p++; }
+					brokentex = TileFiles.tileForName(p);
+					if (brokentex < 0) sc.ScriptMessage("Unknown texture '%s' in definition for spawn ID # %d", sc.String, num);
+				}
+				if (sc.CheckString(","))
+				{
+					sc.MustGetString();
+
+					sound = S_FindSound(sc.String);
+					if (*sc.String && !sound.isvalid()) Printf(TEXTCOLOR_RED "Unknown sound '%s' in definition for spawn ID # %d\n", sc.String, num);
+					if (sc.CheckString(","))
+					{
+						bool cont = true;
+						if (sc.CheckNumber())
+						{
+							clipdist = sc.Number;
+							cont = sc.CheckString(",");
+						}
+						if (cont) do
+						{
+							sc.MustGetString();
+							if (sc.Compare("damaging")) flags |= 1;
+							else if (sc.Compare("solid") || sc.Compare("blocking")) flags |= 2;
+							else if (sc.Compare("unblocking")) flags |= 4;
+							else if (sc.Compare("spawnglass")) flags |= 8;
+							else if (sc.Compare("spawnscrap")) flags |= 16;
+							else if (sc.Compare("spawnsmoke")) flags |= 32;
+							else if (sc.Compare("spawnglass2")) flags |= 64; // Duke has 2 ways of spawning glass debris...
+							else sc.ScriptMessage("'%s': Unknown actor class flag", sc.String);
+						} while (sc.CheckString(","));
+					}
+				}
+			}
+		}
+		if (actor != 0 && num >= 0)
+		{
+			// todo: check for proper base class
+			spawnMap.Insert(num, { actor, basetex, brokentex, sound, int8_t(fullbright), int8_t(clipdist), int16_t(flags) });
+		}
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FMapInfoParser::ParseBreakWall()
+{
+	int basetile = -1;
+	int breaktile = -1;
+	int flags = 0;
+	FSoundID sound = NO_SOUND;
+	VMFunction* handler = nullptr;
+	FString basename;
+
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		sc.MustGetString();
+		basename = sc.String; // save for printing error messages.
+		basetile = TileFiles.tileForName(sc.String);
+		if (basetile < 0)
+		{
+			sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String, basetile);
+			SkipToNext();
+		}
+		ParseAssign();
+		sc.MustGetString();
+		breaktile = TileFiles.tileForName(sc.String);
+		if (breaktile < 0) sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String, breaktile);
+		if (sc.CheckString(","))
+		{
+			sc.MustGetString();
+			sound = S_FindSound(sc.String);
+			if (*sc.String && !sound.isvalid()) Printf(TEXTCOLOR_RED "Unknown sound '%s' in definition for breakable wall '5s'\n", basename.GetChars());
+
+			auto saved = sc.SavePos();
+			if (sc.CheckString(","))
+			{
+				sc.MustGetString();
+
+				size_t p = strcspn(sc.String, ".");
+				if (p != 0)
+				{
+					FName clsname(sc.String, p, false);
+					FName funcname = sc.String + p + 1;
+					handler = PClass::FindFunction(clsname, funcname);
+					if (handler == nullptr)
+						sc.ScriptMessage("Call to undefined function %s", sc.String);
+					// todo: validate the function's signature. Must be (walltype, TextureID, Sound, DukeActor)
+				}
+				else sc.RestorePos(saved);
+				while (sc.CheckString(","))
+				{
+					sc.MustGetString();
+					if (sc.Compare("twosided")) flags |= 1;
+					else sc.ScriptMessage("'%s': Unknown breakable flag", sc.String);
+				}
+			}
+		}
+		breakWallMap.Insert(basetile, { breaktile, sound, handler, flags });
+	}
+}
+
+
 
 //==========================================================================
 //
@@ -1111,7 +1278,7 @@ void FMapInfoParser::ParseGameInfo()
 			ParseAssign();
 			sc.SetCMode(false);
 			sc.MustGetString();
-			sc.SetCMode(false);
+			sc.SetCMode(true);
 			globalCutscenes.SummaryScreen = sc.String;
 		}
 		else if (sc.Compare("mpsummaryscreen"))
@@ -1119,7 +1286,7 @@ void FMapInfoParser::ParseGameInfo()
 			ParseAssign();
 			sc.SetCMode(false);
 			sc.MustGetString();
-			sc.SetCMode(false);
+			sc.SetCMode(true);
 			globalCutscenes.MPSummaryScreen = sc.String;
 		}
 		else if (sc.Compare("statusbarclass"))
@@ -1127,7 +1294,7 @@ void FMapInfoParser::ParseGameInfo()
 			ParseAssign();
 			sc.SetCMode(false);
 			sc.MustGetString();
-			sc.SetCMode(false);
+			sc.SetCMode(true);
 			globalCutscenes.StatusBarClass = sc.String;
 		}
 		else if (!ParseCloseBrace())
@@ -1187,7 +1354,7 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 	{
 		ParsedLumps.Push(lump);
 	}
-
+	sc.SetCMode(true);
 	while (sc.GetString ())
 	{
 		if (sc.Compare("include"))
@@ -1262,6 +1429,14 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		else if (sc.Compare("gameinfo"))
 		{
 			ParseGameInfo();
+		}
+		else if (sc.Compare("spawnclasses"))
+		{
+			ParseSpawnClasses();
+		}
+		else if (sc.Compare("breakwalls"))
+		{
+			ParseBreakWall();
 		}
 		else if (sc.Compare("clearall"))
 		{

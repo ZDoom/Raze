@@ -63,6 +63,7 @@ version "4.10"
 
 #include "zscript/games/duke/actors/dukemisc.zs"
 #include "zscript/games/duke/actors/projectiles.zs"
+#include "zscript/games/duke/actors/mortar.zs"
 #include "zscript/games/duke/actors/rat.zs"
 #include "zscript/games/duke/actors/jibs.zs"
 #include "zscript/games/duke/actors/crane.zs"

@@ -177,7 +177,7 @@ class DukeBounceMine : DukeMortar
 	}
 }
 
-class RedneckNortar : DukeMortar
+class RedneckMortar : DukeMortar
 {
 	default
 	{

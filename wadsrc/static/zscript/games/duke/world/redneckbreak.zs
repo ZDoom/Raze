@@ -1,5 +1,7 @@
-// Container for handler functions that handle walls with breakable textures
-struct RedneckBreakWalls
+// Container for handler functions that handle walls with breakable textures.
+// Note that this must be a class, not a struct, so that the internal lookup functions can find it.
+
+class RedneckBreakWalls
 {
 
 	static void breakwall(TextureID newpn, DukeActor spr, walltype wal)

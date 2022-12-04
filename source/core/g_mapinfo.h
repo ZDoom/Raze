@@ -39,6 +39,32 @@
 #include "sc_man.h"
 #include "file_zip.h"
 
+struct SpawnRec
+{
+	PClassActor* cls;
+	int basetex, brokentex;
+	FSoundID breaksound;
+	int8_t fullbright, clipdist;
+	int16_t flags;
+
+	PClassActor* Class(int pn)
+	{
+		return cls;
+	}
+};
+using SpawnMap = TMap<int, SpawnRec>;
+inline SpawnMap spawnMap;
+
+struct BreakWallRec
+{
+	int brokentex;
+	FSoundID breaksound;
+	VMFunction* handler;
+	int flags;
+};
+using BreakWallMap = TMap<int, BreakWallRec>;
+inline BreakWallMap breakWallMap;
+
 struct FMapInfoParser
 {
 	FScanner sc;
@@ -63,6 +89,8 @@ struct FMapInfoParser
 	void ParseEpisodeInfo ();
 	void ParseCutsceneInfo();
 	void ParseGameInfo();
+	void ParseSpawnClasses();
+	void ParseBreakWall();
 	void ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord &defaultinfo);
 
 	void ParseOpenBrace();

@@ -2229,100 +2229,6 @@ static void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 	fileSystem.CreatePathlessCopy(fn, res_id, 0);
 }
 
-static void parseSpawnClasses(FScanner& sc, FScriptPosition& pos)
-{
-	FString fn;
-	int res_id = -1;
-	int numframes = -1;
-	bool interpolate = false;
-	int clipdist = -1;
-
-	sc.SetCMode(true);
-	if (!sc.CheckString("{"))
-	{
-		pos.Message(MSG_ERROR, "spawnclasses:'{' expected, unable to continue");
-		sc.SetCMode(false);
-		return;
-	}
-	while (!sc.CheckString("}"))
-	{
-		// This will need some reworking once we can use real textures.
-		int num = -1;
-		int base = -1;
-		int basetex = -1;
-		int brokentex = -1;
-		int fullbright = 0;
-		int flags = 0;
-		FName sound = NAME_None;
-		FName cname;
-		sc.GetNumber(num, true);
-		sc.MustGetStringName("=");
-		sc.MustGetString();
-		cname = sc.String;
-		if (sc.CheckString(","))
-		{
-			if (sc.CheckNumber(true)) base = sc.Number;
-			else
-			{
-				// prefixing the texture names here with a '*' will render them fullbright.
-				sc.MustGetString();
-				const char* p = sc.String;
-				if (*p == '*') { fullbright |= 1; p++; }
-				basetex = TileFiles.tileForName(p);
-				if (basetex < 0) Printf(TEXTCOLOR_RED "Unknown texture %s in definition for spawn ID # %d\n", sc.String, num);
-				if (sc.CheckString(","))
-				{
-					sc.MustGetString();
-					const char* p = sc.String;
-					if (*p)
-					{
-						if (*p == '*') { fullbright |= 2; p++; }
-						brokentex = TileFiles.tileForName(p);
-						if (brokentex < 0) Printf(TEXTCOLOR_RED "Unknown texture %s in definition for spawn ID # %d\n", sc.String, num);
-					}
-					if (sc.CheckString(","))
-					{
-						sc.MustGetString();
-						sound = sc.String;
-#if 0
-						// Sound engine is not initialized here.
-						S_FindSound(sc.String).index();
-						if (sound <= 0) Printf(TEXTCOLOR_RED "Unknown sound %s in definition for spawn ID # %d\n", num);
-#endif
-						if (sc.CheckString(","))
-						{
-							bool cont = true;
-							if (sc.CheckNumber())
-							{
-								clipdist = sc.Number;
-								cont = sc.CheckString(",");
-							}
-							if (cont) do
-							{
-								sc.MustGetString();
-								if (sc.Compare("damaging")) flags |= 1;
-								else if (sc.Compare("solid") || sc.Compare("blocking")) flags |= 2;
-								else if (sc.Compare("unblocking")) flags |= 4;
-								else if (sc.Compare("spawnglass")) flags |= 8;
-								else if (sc.Compare("spawnscrap")) flags |= 16;
-								else if (sc.Compare("spawnsmoke")) flags |= 32;
-								else if (sc.Compare("spawnglass2")) flags |= 64; // Duke has 2 ways of spawning glass debris...
-								else sc.ScriptMessage("'%s': Unknown actor class flag", sc.String);
-							} while (sc.CheckString(","));
-						}
-
-					}
-				}
-				
-			}
-		}
-
-		// todo: check for proper base class
-		spawnMap.Insert(num, { cname, nullptr, base, basetex, brokentex, sound, int8_t(fullbright), int8_t(clipdist), int16_t(flags) });
-	}
-	sc.SetCMode(false);
-}
-
 static void parseTileFlags(FScanner& sc, FScriptPosition& pos)
 {
 	int num = -1;
@@ -2350,47 +2256,6 @@ static void parseTileFlags(FScanner& sc, FScriptPosition& pos)
 	}
 	sc.SetCMode(false);
 }
-
-static void parseBreakWall(FScanner& sc, FScriptPosition& pos)
-{
-	int basetile;
-	int breaktile;
-	FName sound;
-	VMFunction* handler = nullptr;
-
-	sc.SetCMode(true);
-	sc.MustGetString();
-	basetile = TileFiles.tileForName(sc.String);
-	sc.MustGetStringName(",");
-	sc.MustGetString();
-	breaktile = TileFiles.tileForName(sc.String);
-	sc.MustGetStringName(",");
-	sc.MustGetString();
-	sound = sc.String;
-	if (sc.CheckString(","))
-	{
-		sc.MustGetString();
-
-		size_t p = strcspn(sc.String, ".");
-		if (p == 0)
-		{
-			sc.ScriptMessage("Call to undefined function %s", sc.String);
-			return;
-		}
-
-		FString clsname(sc.String, p);
-		FString funcname = sc.String + p + 1;
-		handler = PClass::FindFunction(clsname, funcname);
-		if (handler == nullptr)
-			sc.ScriptMessage("Call to undefined function %s", sc.String);
-
-		// todo: validate the function's signature. Must be (walltype, TextureID, Sound, DukeActor)
-
-	}
-	breakWallMap.Insert(basetile, { breaktile, sound, handler });
-	sc.SetCMode(false);
-}
-
 
 //===========================================================================
 //
@@ -2484,9 +2349,7 @@ static const dispatch basetokens[] =
 	{ "rffdefineid",     parseRffDefineId      },
 	{ "defineqav",       parseDefineQAV        },
 
-	{ "spawnclasses",		parseSpawnClasses },
 	{ "tileflag",			parseTileFlags },
-	{ "breakwall",			parseBreakWall },
 	{ nullptr,           nullptr               },
 };
 

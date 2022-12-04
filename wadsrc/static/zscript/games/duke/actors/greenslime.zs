@@ -74,7 +74,7 @@ class DukeGreenSlime : DukeActor
 					let vel = frandom(0, 2) + 2;
 					let zvel = 4 - frandom(0, 4);
 
-					static const name pieces[] = {'DukeGlassPieces', 'DukeGlassPieces', 'DukeGlassPieces'};
+					static const name pieces[] = {'DukeGlassPieces', 'DukeGlassPieces1', 'DukeGlassPieces2'};
 					let k = dlevel.SpawnActor(self.sector, self.pos, pieces[j % 3], -32, (0.5625, 0.5625), a, vel, zvel, self, STAT_MISC);
 					if (k) k.pal = 1;
 				}

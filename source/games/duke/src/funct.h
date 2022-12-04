@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "packet.h"
 #include "types.h"
+#include "g_mapinfo.h"
 
 struct MapRecord;
 

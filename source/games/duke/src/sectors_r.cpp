@@ -876,11 +876,11 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, const DVector3& pos, int atw
 		if (!data->handler)
 		{
 			wal->picnum = data->brokentex;
-			S_PlayActorSound(S_FindSound(data->breaksound.GetChars()), spr);
+			S_PlayActorSound(data->breaksound, spr);
 		}
 		else
 		{
-			VMValue args[4] = { wal, data->brokentex, S_FindSound(data->breaksound.GetChars()).index(), spr };
+			VMValue args[4] = { wal, data->brokentex, data->breaksound.index(), spr};
 			VMCall(data->handler, args, 4, nullptr, 0);
 		}
 	}
