@@ -1343,7 +1343,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, checkhitwall, duke_checkhitwall)
 
 void duke_checkhitceiling(sectortype* sect, DDukeActor* actor)
 {
-	fi.checkhitceiling(sect); // actor is currently unused, this may change.
+	checkhitceiling(sect); // actor is currently unused, this may change.
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, checkhitceiling, duke_checkhitceiling)
@@ -1351,7 +1351,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, checkhitceiling, duke_checkhitceiling)
 	PARAM_PROLOGUE;
 	PARAM_POINTER(wal, sectortype);
 	PARAM_POINTER(act, DDukeActor);
-	fi.checkhitceiling(wal);
+	checkhitceiling(wal);
 	return 0;
 }
 

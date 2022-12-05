@@ -1319,6 +1319,67 @@ void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 //
 //---------------------------------------------------------------------------
 
+bool checkhitceiling(sectortype* sectp)
+{
+	auto data = breakCeilingMap.CheckKey(sectp->ceilingpicnum);
+	if (data && !(data->flags & 1))
+	{
+		if (!data->handler)
+		{
+			sectp->ceilingpicnum = data->brokentex;
+			S_PlayActorSound(data->breaksound, ps[screenpeek].GetActor());	// this is nonsense but what the original code did.
+		}
+		else
+		{
+			VMValue args[7] = { sectp, data->brokentex, data->breaksound.index() };
+			VMCall(data->handler, args, 3, nullptr, 0);
+		}
+		if (data->flags & 1)
+		{
+			if (!sectp->hitag)
+			{
+				DukeSectIterator it(sectp);
+				while (auto act = it.Next())
+				{
+					if (iseffector(act) && act->spr.lotag == SE_12_LIGHT_SWITCH)
+					{
+						DukeStatIterator it1(STAT_EFFECTOR);
+						while (auto act2 = it1.Next())
+						{
+							if (act2->spr.hitag == act->spr.hitag)
+								act2->temp_data[3] = 1;
+						}
+						break;
+					}
+				}
+			}
+
+			int j = krand() & 1;
+			DukeStatIterator it(STAT_EFFECTOR);
+			while (auto act = it.Next())
+			{
+				if (act->spr.hitag == (sectp->hitag) && act->spr.lotag == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
+				{
+					act->temp_data[2] = j;
+					act->temp_data[4] = 1;
+				}
+			}
+		}
+		if (data->flags & 2)
+		{
+			ceilingglass(ps[myconnectindex].GetActor(), sectp, 10);
+		}
+		return true;
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void allignwarpelevators(void)
 {
 	DukeStatIterator it(STAT_EFFECTOR);

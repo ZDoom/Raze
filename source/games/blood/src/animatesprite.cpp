@@ -363,7 +363,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!pNSprite)
 			break;
 		pNSprite->pos.Z = getflorzofslopeptr(pTSprite->sectp, pNSprite->pos);
-		if ((pNSprite->sectp->floorpicnum >= 4080) && (pNSprite->sectp->floorpicnum <= 4095) && !VanillaMode()) // if floor has ror, find actual floor
+		if (pNSprite->sectp->portalflags == PORTAL_SECTOR_FLOOR && !VanillaMode()) // if floor has ror, find actual floor
 		{
 			DVector3 cPos = pNSprite->pos;
 			double cZrel = cPos.Z;
@@ -374,7 +374,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 					break;
 				const double newFloorZ = getflorzofslopeptr(cSect, cPos.X, cPos.Z);
 				cZrel += newFloorZ - cPos.Z; // get height difference for next sector's ceiling/floor, and add to relative height for shadow
-				if ((cSect->floorpicnum < 4080) || (cSect->floorpicnum > 4095)) // if current sector is not open air, use as floor for shadow casting, otherwise continue to next sector
+				if (cSect->portalflags != PORTAL_SECTOR_FLOOR) // if current sector is not open air, use as floor for shadow casting, otherwise continue to next sector
 					break;
 				cPos.Z = newFloorZ;
 			}

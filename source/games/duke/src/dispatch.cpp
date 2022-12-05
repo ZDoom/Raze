@@ -43,8 +43,6 @@ bool checkhitswitch_d(int snum, walltype* w, DDukeActor *act);
 bool checkhitswitch_r(int snum, walltype* w, DDukeActor* act);
 void activatebysector_d(sectortype* sect, DDukeActor* j);
 void activatebysector_r(sectortype* sect, DDukeActor* j);
-bool checkhitceiling_d(sectortype* sn);
-bool checkhitceiling_r(sectortype* sn);
 void checkhitsprite_d(DDukeActor* i, DDukeActor* sn);
 void checkhitsprite_r(DDukeActor* i, DDukeActor* sn);
 void checkhitdefault_d(DDukeActor* i, DDukeActor* sn);
@@ -105,7 +103,6 @@ void SetDispatcher()
 		operateforcefields_d,
 		checkhitswitch_d,
 		activatebysector_d,
-		checkhitceiling_d,
 		checkhitsprite_d,
 		checkhitdefault_d,
 		checksectors_d,
@@ -142,7 +139,6 @@ void SetDispatcher()
 		operateforcefields_r,
 		checkhitswitch_r,
 		activatebysector_r,
-		checkhitceiling_r,
 		checkhitsprite_r,
 		checkhitdefault_r,
 		checksectors_r,

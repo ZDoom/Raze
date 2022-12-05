@@ -360,7 +360,7 @@ void FMapInfoParser::ParseBreakWall()
 				sc.MustGetString();
 
 				size_t p = strcspn(sc.String, ".");
-				if (p != 0)
+				if (sc.String[p] != 0)
 				{
 					FName clsname(sc.String, p, false);
 					FName funcname = sc.String + p + 1;
@@ -384,6 +384,70 @@ void FMapInfoParser::ParseBreakWall()
 }
 
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FMapInfoParser::ParseBreakCeiling()
+{
+
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		int basetile = -1;
+		int breaktile = -1;
+		int flags = 0;
+		FSoundID sound = NO_SOUND;
+		VMFunction* handler = nullptr;
+
+		sc.MustGetString();
+		FString basename = sc.String; // save for printing error messages.
+		basetile = TileFiles.tileForName(sc.String);
+		if (basetile < 0)
+		{
+			sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String, basetile);
+			SkipToNext();
+		}
+		ParseAssign();
+		sc.MustGetString();
+		breaktile = TileFiles.tileForName(sc.String);
+		if (*sc.String && breaktile < 0) sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String, breaktile);
+		if (sc.CheckString(","))
+		{
+			sc.MustGetString();
+			sound = S_FindSound(sc.String);
+			if (*sc.String && !sound.isvalid()) Printf(TEXTCOLOR_RED "Unknown sound '%s' in definition for breakable ceiling '5s'\n", basename.GetChars());
+
+			auto saved = sc.SavePos();
+			if (sc.CheckString(","))
+			{
+				sc.MustGetString();
+
+				size_t p = strcspn(sc.String, ".");
+				if (sc.String[p] != 0)
+				{
+					FName clsname(sc.String, p, false);
+					FName funcname = sc.String + p + 1;
+					handler = PClass::FindFunction(clsname, funcname);
+					if (handler == nullptr)
+						sc.ScriptMessage("Call to undefined function %s", sc.String);
+					// todo: validate the function's signature. Must be (sectortype)
+				}
+				else sc.RestorePos(saved);
+				while (sc.CheckString(","))
+				{
+					sc.MustGetString();
+					if (sc.Compare("lightsout")) flags |= 1;			// all internal definitions have these two flags.
+					else if (sc.Compare("ceilingglass")) flags |= 2;
+					else sc.ScriptMessage("'%s': Unknown breakable flag", sc.String);
+				}
+			}
+		}
+		breakCeilingMap.Insert(basetile, { breaktile, sound, handler, flags });
+	}
+}
 
 //==========================================================================
 //
@@ -1435,6 +1499,10 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		else if (sc.Compare("breakwalls"))
 		{
 			ParseBreakWall();
+		}
+		else if (sc.Compare("breakceiling"))
+		{
+			ParseBreakCeiling();
 		}
 		else if (sc.Compare("clearall"))
 		{

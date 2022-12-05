@@ -1075,7 +1075,7 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 	case SECTOR_CEILINGPICNUM:
 		if (bSet) sectp->ceilingpicnum = lValue;
-		else SetGameVarID(lVar2, sectp->ceilingpicnum, sActor, sPlayer);
+		else SetGameVarID(lVar2, sectp->legacyTileNum(sectortype::ceiling), sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGSLOPE:
 		if (bSet) sectp->setceilingslope(lValue);
@@ -1099,7 +1099,7 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 	case SECTOR_FLOORPICNUM:
 		if (bSet) sectp->floorpicnum = lValue;
-		else SetGameVarID(lVar2, sectp->floorpicnum, sActor, sPlayer);
+		else SetGameVarID(lVar2, sectp->legacyTileNum(sectortype::ceiling), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORSLOPE:
 		if (bSet) sectp->setfloorslope(lValue);
@@ -3454,7 +3454,7 @@ int ParseState::parse(void)
 	case concmd_gettexturefloor:
 	{
 		insptr++;
-		SetGameVarID(g_iTextureID, g_ac->sector()->floorpicnum, g_ac, g_p);
+		SetGameVarID(g_iTextureID, g_ac->sector()->legacyTileNum(sectortype::ceiling), g_ac, g_p);
 		break;
 	}
 
@@ -3591,7 +3591,7 @@ int ParseState::parse(void)
 	case concmd_gettextureceiling:
 	{
 		insptr++;
-		SetGameVarID(g_iTextureID, g_ac->sector()->ceilingpicnum, g_ac, g_p);
+		SetGameVarID(g_iTextureID, g_ac->sector()->legacyTileNum(sectortype::ceiling), g_ac, g_p);
 		break;
 	}
 	case concmd_ifvarvarand:

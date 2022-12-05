@@ -306,6 +306,11 @@ struct walltype
 
 struct sectortype
 {
+	enum EWhich
+	{
+		ceiling = 0,
+		floor = 1,
+	};
 
 	// Fields were reordered by size, some also enlarged.
 	DCoreActor* firstEntry, * lastEntry;
@@ -439,6 +444,12 @@ struct sectortype
 
 	// same for SW
 	bool hasU() const { return u_defined; }
+
+	// Refactoring helper to remove all places that will need the tile num from future searches
+	int legacyTileNum(int which) const
+	{
+		return which? ceilingpicnum : floorpicnum;
+	}
 };
 
 //=============================================================================

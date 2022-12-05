@@ -34,6 +34,23 @@ breakwalls
 	PICKUPFRONT = "", "TRUKDIE", "RedneckBreakwalls.PickupHit"
 	PICKUPBACK1 = "", "TRUKDIE", "RedneckBreakwalls.PickupHit"
 	PICKUPBACK2 = "", "TRUKDIE", "RedneckBreakwalls.PickupHit"
-
-
 }
+
+breakceiling
+{
+	WALLLIGHT1 = WALLLIGHTBUST1, "GLASS_BREAKING", lightsout, ceilingglass
+	WALLLIGHT3 = WALLLIGHTBUST3, "GLASS_BREAKING", lightsout, ceilingglass
+	WALLLIGHT4 = WALLLIGHTBUST4, "GLASS_BREAKING", lightsout, ceilingglass
+	TECHLIGHT2 = TECHLIGHTBUST2, "GLASS_BREAKING", lightsout, ceilingglass
+	TECHLIGHT4 = TECHLIGHTBUST4, "GLASS_BREAKING", lightsout, ceilingglass
+	RRTILE1986 = RRTILE1987, "GLASS_BREAKING", lightsout, ceilingglass
+	RRTILE1939 = RRTILE2004, "GLASS_BREAKING", lightsout, ceilingglass
+	RRTILE1988 = RRTILE2005, "GLASS_BREAKING", lightsout, ceilingglass
+	RRTILE2898 = RRTILE2899, "GLASS_BREAKING", lightsout, ceilingglass
+	RRTILE2878 = RRTILE2879, "GLASS_BREAKING", lightsout, ceilingglass
+	RRTILE2123 = RRTILE2124, "GLASS_BREAKING", lightsout, ceilingglass
+	RRTILE2125 = RRTILE2126, "GLASS_BREAKING", lightsout, ceilingglass
+}
+
+
+

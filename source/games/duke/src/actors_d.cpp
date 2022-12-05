@@ -231,13 +231,13 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				auto wal = dasectp->walls.Data();
 				double d = (wal->pos - actor->spr.pos.XY()).Sum();
 				if (d < radius)
-					fi.checkhitceiling(dasectp);
+					checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
 					d = (thirdpoint->pos - actor->spr.pos.XY()).Sum();
 					if (d < radius)
-						fi.checkhitceiling(dasectp);
+						checkhitceiling(dasectp);
 				}
 			}
 
@@ -1066,7 +1066,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		{
 			SetActor(actor, dapos);
 			if (actor->vel.Z < 0)
-				fi.checkhitceiling(actor->sector());
+				checkhitceiling(actor->sector());
 		}
 
 		if (actor->spr.scale.X >= 0.15625)

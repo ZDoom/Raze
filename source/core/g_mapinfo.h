@@ -64,6 +64,7 @@ struct BreakWallRec
 };
 using BreakWallMap = TMap<int, BreakWallRec>;
 inline BreakWallMap breakWallMap;
+inline BreakWallMap breakCeilingMap;
 
 struct FMapInfoParser
 {
@@ -91,6 +92,7 @@ struct FMapInfoParser
 	void ParseGameInfo();
 	void ParseSpawnClasses();
 	void ParseBreakWall();
+	void ParseBreakCeiling();
 	void ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord &defaultinfo);
 
 	void ParseOpenBrace();

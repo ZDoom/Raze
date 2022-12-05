@@ -116,6 +116,7 @@ int setpal(player_struct* p);
 int madenoise(int playerNum);
 int haskey(sectortype* sect, int snum);
 
+bool checkhitceiling(sectortype* sectp);
 void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos);
 int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);
 double hitasprite(DDukeActor* snum,DDukeActor **hitSprite);

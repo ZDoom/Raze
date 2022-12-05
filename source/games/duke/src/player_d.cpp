@@ -418,7 +418,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 					return;
 				}
 				else
-					fi.checkhitceiling(hit.hitSector);
+					checkhitceiling(hit.hitSector);
 			}
 			spawn(spark, DTILE_SMALLSMOKE);
 		}
@@ -947,7 +947,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	if (hit.hitWall == nullptr && hit.actor() == nullptr && hit.hitSector != nullptr)
 	{
 		if (zvel < 0 && (hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY) == 0)
-			fi.checkhitceiling(hit.hitSector);
+			checkhitceiling(hit.hitSector);
 	}
 	else if (hit.actor() != nullptr) fi.checkhitsprite(hit.actor(), spark);
 	else if (hit.hitWall != nullptr)

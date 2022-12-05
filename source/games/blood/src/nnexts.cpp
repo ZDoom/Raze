@@ -2850,13 +2850,13 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						aLower->spr.type = kMarkerLowWater;
 						break;
 					default:
-						if (pSector->ceilingpicnum < 4080 || pSector->ceilingpicnum > 4095) aLower->xspr.sysData1 = kMarkerLowLink;
+						if (pSector->portalflags != PORTAL_SECTOR_CEILING) aLower->xspr.sysData1 = kMarkerLowLink;
 						else aLower->xspr.sysData1 = kMarkerLowStack;
 						break;
 					}
 				}
 				else if (aLower->xspr.sysData1 > 0) aLower->spr.type = aLower->xspr.sysData1;
-				else if (pSector->ceilingpicnum < 4080 || pSector->ceilingpicnum > 4095) aLower->spr.type = kMarkerLowLink;
+				else if (pSector->portalflags != PORTAL_SECTOR_CEILING) aLower->spr.type = kMarkerLowLink;
 				else aLower->spr.type = kMarkerLowStack;
 			}
 
@@ -2872,13 +2872,13 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 						aUpper->spr.type = kMarkerUpWater;
 						break;
 					default:
-						if (pSector->floorpicnum < 4080 || pSector->floorpicnum > 4095) aUpper->xspr.sysData1 = kMarkerUpLink;
+						if (pSector->portalflags != PORTAL_SECTOR_FLOOR) aUpper->xspr.sysData1 = kMarkerUpLink;
 						else aUpper->xspr.sysData1 = kMarkerUpStack;
 						break;
 					}
 				}
 				else if (aUpper->xspr.sysData1 > 0) aUpper->spr.type = aUpper->xspr.sysData1;
-				else if (pSector->floorpicnum < 4080 || pSector->floorpicnum > 4095) aUpper->spr.type = kMarkerUpLink;
+				else if (pSector->portalflags != PORTAL_SECTOR_FLOOR) aUpper->spr.type = kMarkerUpLink;
 				else aUpper->spr.type = kMarkerUpStack;
 			}
 
@@ -3983,17 +3983,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 24:
 				switch (arg3)
 				{
-				default: return (condCmp(surfType[pObj->floorpicnum], arg1, arg2, cmpOp) || condCmp(surfType[pObj->ceilingpicnum], arg1, arg2, cmpOp));
-				case 1: return condCmp(surfType[pObj->floorpicnum], arg1, arg2, cmpOp);
-				case 2: return condCmp(surfType[pObj->ceilingpicnum], arg1, arg2, cmpOp);
+				default: return (condCmp(surfType[pObj->legacyTileNum(sectortype::floor)], arg1, arg2, cmpOp) || condCmp(surfType[pObj->legacyTileNum(sectortype::ceiling)], arg1, arg2, cmpOp));
+				case 1: return condCmp(surfType[pObj->legacyTileNum(sectortype::floor)], arg1, arg2, cmpOp);
+				case 2: return condCmp(surfType[pObj->legacyTileNum(sectortype::ceiling)], arg1, arg2, cmpOp);
 				}
 				break;
 			case 25:
 				switch (arg3)
 				{
-				default: return (condCmp(pObj->floorpicnum, arg1, arg2, cmpOp) || condCmp(pObj->ceilingpicnum, arg1, arg2, cmpOp));
-				case 1:  return condCmp(pObj->floorpicnum, arg1, arg2, cmpOp);
-				case 2:  return condCmp(pObj->ceilingpicnum, arg1, arg2, cmpOp);
+				default: return (condCmp(pObj->legacyTileNum(sectortype::floor), arg1, arg2, cmpOp) || condCmp(pObj->legacyTileNum(sectortype::ceiling), arg1, arg2, cmpOp));
+				case 1:  return condCmp(pObj->legacyTileNum(sectortype::floor), arg1, arg2, cmpOp);
+				case 2:  return condCmp(pObj->legacyTileNum(sectortype::ceiling), arg1, arg2, cmpOp);
 				}
 				break;
 			case 26:
@@ -4265,7 +4265,7 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
 			if (PUSH) condPush(aCond, pWall->sectorp());
 			return true;
 		case 10: // this wall is a mirror?                          // must be as constants here
-			return (pWall->type != kWallStack && condCmp(pWall->picnum, 4080, (4080 + 16) - 1, 0));
+			return (pWall->portalflags == PORTAL_WALL_MIRROR);
 		case 15:
 			if (!pWall->twoSided()) return false;
 			else if (PUSH) condPush(aCond, pWall->nextSector());

@@ -58,3 +58,13 @@ breakwalls
 	TECHLIGHT4 = TECHLIGHTBUST4, "", "DukeBreakWalls.LightBreak"
 	ATM = ATMBROKE, "GLASS_HEAVYBREAK", "DukeBreakWalls.ATMBreak"
 }
+
+breakceiling
+{
+	WALLLIGHT1 = WALLLIGHTBUST1, "GLASS_BREAKING", lightsout, ceilingglass
+	WALLLIGHT2 = WALLLIGHTBUST2, "GLASS_BREAKING", lightsout, ceilingglass
+	WALLLIGHT3 = WALLLIGHTBUST3, "GLASS_BREAKING", lightsout, ceilingglass
+	WALLLIGHT4 = WALLLIGHTBUST4, "GLASS_BREAKING", lightsout, ceilingglass
+	TECHLIGHT2 = TECHLIGHTBUST2, "GLASS_BREAKING", lightsout, ceilingglass
+	TECHLIGHT4 = TECHLIGHTBUST4, "GLASS_BREAKING", lightsout, ceilingglass
+}

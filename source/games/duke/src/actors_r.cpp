@@ -184,13 +184,13 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				auto wal = dasectp->walls.Data();
 				double d = (wal->pos - actor->spr.pos.XY()).Sum();
 				if (d < radius)
-					fi.checkhitceiling(dasectp);
+					checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
 					d = (thirdpoint->pos - actor->spr.pos.XY()).Sum();
 					if (d < radius)
-						fi.checkhitceiling(dasectp);
+						checkhitceiling(dasectp);
 				}
 			}
 
