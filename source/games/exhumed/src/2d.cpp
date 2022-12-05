@@ -112,10 +112,10 @@ void menu_DoPlasma()
 
         if (!PlasmaBuffer)
         {
-            auto pixels = TileFiles.tileCreate(kTile4092, kPlasmaWidth, kPlasmaHeight);
+            auto pixels = tileData(kTile4092);
             memset(pixels, 96, kPlasmaWidth * kPlasmaHeight);
 
-            PlasmaBuffer = TileFiles.tileCreate(kTile4093, kPlasmaWidth, kPlasmaHeight);
+            PlasmaBuffer = tileData(kTile4093);
             memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
 
 
@@ -437,10 +437,9 @@ void uploadCinemaPalettes()
 
 static int DoStatic(int a, int b)
 {
-    TileFiles.tileMakeWritable(kTileLoboLaptop);
     auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
     if (tex) tex->Reload();
-        auto pixels = TileFiles.tileMakeWritable(kTileLoboLaptop);
+    auto pixels = tileData(kTileLoboLaptop);
 
     int y = 160 - a / 2;
     int left = 81 - b / 2;

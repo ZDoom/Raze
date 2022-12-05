@@ -279,16 +279,6 @@ static void setupbackdrop()
 //
 //---------------------------------------------------------------------------
 
-static void initTiles()
-{
-	tileDelete(TILE_MIRROR);
-
-	if (isRR())
-		tileDelete(0);
-
-	tileDelete(FOF);
-}
-
 #define x(a, b) registerName(#a, b);
 #define y(a, b)	registerName(#a, b);
 static void SetTileNames()
@@ -313,6 +303,29 @@ void GameInterface::LoadGameTextures()
 {
 	SetTileNames();
 }
+
+void GameInterface::SetupSpecialTextures()
+{
+	// set up all special tiles here, before we fully hook up with the texture manager.
+	tileDelete(FOF);	// portal marker
+	if (!isRR())
+	{
+		tileDelete(560); // the mirror tile.
+		TileFiles.MakeCanvas(TILE_VIEWSCR, tileWidth(502), tileHeight(502));
+	}
+	else
+	{
+		tileDelete(1089);	// the mirror tile.
+		tileDelete(0);		// RR uses this as an empty texture
+		TileFiles.tileMakeWritable(2025);	// bowling lane pin displays
+		TileFiles.tileMakeWritable(2026);
+		TileFiles.tileMakeWritable(2027);
+		TileFiles.tileMakeWritable(2028);
+		TileFiles.MakeCanvas(TILE_VIEWSCR, tileWidth(1055), tileHeight(1055));	// not used by the game but all the support code is present, meaning maps are free to use it.
+	}
+	TileFiles.lock();   // from this point on the tile<->texture associations may not change anymore.
+}
+
 
 
 void GameInterface::loadPalette()
@@ -376,7 +389,6 @@ void GameInterface::app_init()
 
 	//Net_SendClientInfo();
 
-	initTiles();
 	setupbackdrop();
 	SetupGameButtons();
 	InitCheats();

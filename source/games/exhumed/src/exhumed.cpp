@@ -236,7 +236,7 @@ void DrawClock()
 {
     int ebp = 49;
 
-	auto pixels = TileFiles.tileMakeWritable(kTile3603);
+	auto pixels = tileData(kTile3603);
 
     memset(pixels, TRANSPARENT_INDEX, 4096);
 
@@ -549,6 +549,21 @@ void GameInterface::LoadGameTextures()
     SetTileNames();
 }
 
+void GameInterface::SetupSpecialTextures()
+{
+    TileFiles.tileCreate(kTile4092, kPlasmaWidth, kPlasmaHeight);
+    TileFiles.tileCreate(kTile4093, kPlasmaWidth, kPlasmaHeight);
+    TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritY * 2, kSpiritX * 2);
+    TileFiles.tileMakeWritable(kTileLoboLaptop);
+    for(int i = kTile3603; i < kClockSymbol1 + 145; i++)
+    TileFiles.tileMakeWritable(kTile3603);
+    TileFiles.tileMakeWritable(kEnergy1);
+    TileFiles.tileMakeWritable(kEnergy2);
+    for (int i = 0; i < 16; i++)
+        TileFiles.tileMakeWritable(kClockSymbol1);
+    TileFiles.lock();
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -615,7 +630,7 @@ void CopyTileToBitmap(int nSrcTile,  int nDestTile, int xPos, int yPos)
 {
     int nOffs = tileHeight(nDestTile) * xPos;
 
-	auto pixels = TileFiles.tileMakeWritable(nDestTile);
+	auto pixels = tileData(nDestTile);
     uint8_t *pDest = pixels + nOffs + yPos;
     uint8_t *pDestB = pDest;
 

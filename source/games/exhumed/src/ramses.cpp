@@ -121,7 +121,7 @@ void InitSpiritHead()
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
-	Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritY * 2, kSpiritX * 2);
+	Worktile = tileData(kTileRamsesWorkTile);
 
     pSpiritSpr->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 

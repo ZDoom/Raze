@@ -155,7 +155,7 @@ void viewInit(void)
 		lensTable[i] = LittleLong(lensTable[i]);
 	}
 #endif
-	uint8_t* data = TileFiles.tileGet(4077);
+	uint8_t* data = tileData(4077);
 	memset(data, TRANSPARENT_INDEX, kLensSize * kLensSize);
 
 	for (int i = 0; i < 16; i++)

@@ -34,6 +34,51 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS
 
+//==========================================================================
+//
+//
+//==========================================================================
+
+void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int tilenum2, int sx2, int sy2)
+{
+	int xsiz1 = tileWidth(tilenum1);
+	int ysiz1 = tileHeight(tilenum1);
+	int xsiz2 = tileWidth(tilenum2);
+	int ysiz2 = tileHeight(tilenum2);
+	if (xsiz1 > 0 && ysiz1 > 0 && xsiz2 > 0 && ysiz2 > 0)
+	{
+		auto p1 = tilePtr(tilenum1);
+		auto p2 = tileData(tilenum2);
+		if (p2 == nullptr) return;	// Error: Destination is not writable.
+
+		int x1 = sx1;
+		int x2 = sx2;
+		for (int i = 0; i < xsiz; i++)
+		{
+			int y1 = sy1;
+			int y2 = sy2;
+			for (int j = 0; j < ysiz; j++)
+			{
+				if (x2 >= 0 && y2 >= 0 && x2 < xsiz2 && y2 < ysiz2)
+				{
+					auto src = p1[x1 * ysiz1 + y1];
+					if (src != TRANSPARENT_INDEX)
+						p2[x2 * ysiz2 + y2] = src;
+				}
+
+				y1++;
+				y2++;
+				if (y1 >= ysiz1) y1 = 0;
+			}
+			x1++;
+			x2++;
+			if (x1 >= xsiz1) x1 = 0;
+		}
+	}
+
+}
+
+
 void updatepindisplay(int tag, int pins)
 {
 	static const uint8_t pinx[] = { 64, 56, 72, 48, 64, 80, 40, 56, 72, 88 };
@@ -41,11 +86,12 @@ void updatepindisplay(int tag, int pins)
 
 	if (tag < 1 || tag > 4) return;
 	tag += RTILE_BOWLINGLANE1 - 1;
-	if (TileFiles.tileMakeWritable(tag))
+	if (tileData(tag))
 	{
 		tileCopySection(RTILE_LANEPICBG, 0, 0, 128, 64, tag, 0, 0);
 		for (int i = 0; i < 10; i++) if (pins & (1 << i))
-			tileCopySection(RTILE_LANEPICS, 0, 0, 8, 8, tag, pinx[i] - 4, piny[i] - 10);
+			tileCopySection(RTILE_LANEPICS, 0, 0, 8, 8, tag, pinx[i] - 4, piny[i] - 10);	
+		TileFiles.InvalidateTile(tag);
 	}
 }
 

@@ -365,10 +365,8 @@ struct BuildTiles
 	}
 
 	FGameTexture* ValidateCustomTile(int tilenum, ReplacementType type);
-	int32_t artLoadFiles(const char* filename);
 	uint8_t* tileMakeWritable(int num);
 	uint8_t* tileCreate(int tilenum, int width, int height);
-	uint8_t* tileGet(int tilenum);
 	void InvalidateTile(int num);
 	void MakeCanvas(int tilenum, int width, int height);
 };

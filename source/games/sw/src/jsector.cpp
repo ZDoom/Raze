@@ -261,12 +261,10 @@ void JS_InitMirrors(void)
 
     // Scan wall tags for mirrors
     mirrorcnt = 0;
-	tileDelete(MIRROR);
 	oscilationclock = I_GetBuildTime();
 
     for (i = 0; i < MAXMIRRORS; i++)
     {
-		tileDelete(i + MIRRORLABEL);
         mirror[i].campic = -1;
         mirror[i].camspriteActor = nullptr;
         mirror[i].cameraActor = nullptr;
@@ -348,10 +346,6 @@ void JS_InitMirrors(void)
                             {
                                 mirror[mirrorcnt].campic = itActor->spr.picnum;
                                 mirror[mirrorcnt].camspriteActor = itActor;
-
-                                // JBF: commenting out this line results in the screen in $BULLET being visible
-								tileDelete(mirror[mirrorcnt].campic);
-
                                 Found_Cam = true;
                             }
                         }
@@ -603,7 +597,6 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
 
 
                     // Set up the tile for drawing
-                    TileFiles.MakeCanvas(mirror[cnt].campic, 128, 114);
 
                     {
                         if (dist < MAXCAMDIST)

@@ -75,7 +75,7 @@ void DoFireFrame(void)
 		memcpy(FrameBuffer + 16896 + i * 128, SeedBuffer[nRand], 128);
 	}
 	CellularFrame(FrameBuffer, 128, 132);
-	auto pData = TileFiles.tileGet(2342);
+	auto pData = tileData(2342);
 	uint8_t* pSource = FrameBuffer;
 	int x = fireSize;
 	do

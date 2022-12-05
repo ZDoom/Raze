@@ -93,8 +93,8 @@ void DoEnergyTile()
 {
     nButtonColor += nButtonColor < 0 ? 8 : 0;
 
-    auto energy1 = TileFiles.tileMakeWritable(kEnergy1);
-    auto energy2 = TileFiles.tileMakeWritable(kEnergy2);
+    auto energy1 = tileData(kEnergy1);
+    auto energy2 = tileData(kEnergy2);
     uint8_t* ptr1 = energy1 + 1984;
     uint8_t* ptr2 = energy1 + 2048;
 

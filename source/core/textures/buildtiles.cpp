@@ -422,40 +422,6 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 
 //==========================================================================
 //
-//  global interface
-//
-//==========================================================================
-
-int32_t BuildTiles::artLoadFiles(const char* filename)
-{
-	TileFiles.LoadArtSet(filename);
-	gotpic.Zero();
-	return 0;
-}
-
-//==========================================================================
-//
-// Retrieves the pixel store for a modifiable tile
-// Modifiable tiles must be declared on startup.
-//
-//==========================================================================
-
-uint8_t* BuildTiles::tileGet(int tilenum)
-{
-	if (tilenum < 0 || tilenum >= MAXTILES) return nullptr;
-	auto& td = tiledata[tilenum];
-	auto tile = td.texture;
-	auto reptype = td.replacement;
-	if (reptype == ReplacementType::Writable || reptype == ReplacementType::Restorable)
-	{
-		auto wtex = static_cast<FWritableTile*>(tile->GetTexture()->GetImage());
-		if (wtex) return wtex->GetRawData();
-	}
-	return nullptr;
-}
-
-//==========================================================================
-//
 // Creates a tile for displaying custom content
 //
 //==========================================================================
@@ -622,6 +588,8 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 
 void tileDelete(int tile)
 {
+	if (TileFiles.locked) 
+		I_FatalError("Modifying tiles after startup is not allowed.");
 	TileFiles.tiledata[tile].texture = TexMan.GameByIndex(0);
 	TileFiles.tiledata[tile].replacement = ReplacementType::Art; // whatever this was, now it isn't anymore. (SW tries to nuke camera textures with this, :( )
 	tiletovox[tile] = -1; // clear the link but don't clear the voxel. It may be in use for another tile.
@@ -657,52 +625,6 @@ void tileSetDummy(int tile, int width, int height)
 void BuildTiles::CloseAll()
 {
 	ArtFiles.DeleteAndClear();
-}
-
-//==========================================================================
-//
-//  Copy a block of a tile.
-//  Only used by RR's bowling lane.
-//
-//==========================================================================
-
-void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int tilenum2, int sx2, int sy2)
-{
-	int xsiz1 = tileWidth(tilenum1);
-	int ysiz1 = tileHeight(tilenum1);
-	int xsiz2 = tileWidth(tilenum2);
-	int ysiz2 = tileHeight(tilenum2);
-	if (xsiz1 > 0 && ysiz1 > 0 && xsiz2 > 0 && ysiz2 > 0)
-	{
-		auto p1 = tilePtr(tilenum1);
-		auto p2 = tileData(tilenum2);
-		if (p2 == nullptr) return;	// Error: Destination is not writable.
-
-		int x1 = sx1;
-		int x2 = sx2;
-		for (int i=0; i<xsiz; i++)
-		{
-			int y1 = sy1;
-			int y2 = sy2;
-			for (int j=0; j<ysiz; j++)
-			{
-				if (x2 >= 0 && y2 >= 0 && x2 < xsiz2 && y2 < ysiz2)
-				{
-					auto src = p1[x1 * ysiz1 + y1];
-					if (src != TRANSPARENT_INDEX)
-						p2[x2 * ysiz2 + y2] = src;
-				}
-
-				y1++;
-				y2++;
-				if (y1 >= ysiz1) y1 = 0;
-			}
-			x1++;
-			x2++;
-			if (x1 >= xsiz1) x1 = 0;
-		}
-	}
-	TileFiles.InvalidateTile(tilenum2);
 }
 
 //==========================================================================

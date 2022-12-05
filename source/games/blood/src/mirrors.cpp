@@ -44,7 +44,6 @@ MIRROR mirror[16]; // only needed by Polymost.
 void InitMirrors(void)
 {
 	mirrorcnt = 0;
-	tileDelete(504);
 	portalClear();
 
 	for (int i = (int)wall.Size() - 1; i >= 0; i--)
@@ -52,13 +51,10 @@ void InitMirrors(void)
 		auto pWalli = &wall[i];
 		if (mirrorcnt == 16)
 			break;
-		int nTile = 4080 + mirrorcnt;
 		if (pWalli->overpicnum == 504)
 		{
 			if (pWalli->extra > 0 && pWalli->type == kWallStack)
 			{
-				pWalli->overpicnum = nTile;
-
 				mirror[mirrorcnt].mynum = i;
 				mirror[mirrorcnt].type = 0;
 				pWalli->cstat |= CSTAT_WALL_1WAY;
@@ -96,7 +92,6 @@ void InitMirrors(void)
 		{
 			mirror[mirrorcnt].link = i;
 			mirror[mirrorcnt].mynum = i;
-			pWalli->picnum = nTile;
 			mirror[mirrorcnt].type = 0;
 			pWalli->cstat |= CSTAT_WALL_1WAY;
 			pWalli->portalflags = PORTAL_WALL_MIRROR;
@@ -175,17 +170,6 @@ void SerializeMirrors(FSerializer& arc)
 		arc("mirrorcnt", mirrorcnt)
 			.Array("mirror", mirror, countof(mirror))
 			.EndObject();
-	}
-
-	if (arc.isReading())
-	{
-
-		tileDelete(504);
-
-		for (int i = 0; i < 16; i++)
-		{
-			tileDelete(4080 + i);
-		}
 	}
 }
 

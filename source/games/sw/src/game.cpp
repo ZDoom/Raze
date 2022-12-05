@@ -225,6 +225,16 @@ void GameInterface::LoadGameTextures()
     SetTileNames();
 }
 
+void GameInterface::SetupSpecialTextures()
+{
+    tileDelete(MIRROR); // mirror
+    for (int i = 0; i < MAXMIRRORS; i++)
+    {
+        tileDelete(i + MIRRORLABEL);
+        TileFiles.MakeCanvas(CAMSPRITE + i, 128, 114);
+    }
+    TileFiles.lock();
+}
 //---------------------------------------------------------------------------
 //
 //
