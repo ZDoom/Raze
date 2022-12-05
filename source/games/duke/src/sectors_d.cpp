@@ -106,8 +106,8 @@ void animatewalls_d(void)
 			switch (wal->overpicnum)
 			{
 			case DTILE_W_FORCEFIELD:
-			case DTILE_W_FORCEFIELD + 1:
-			case DTILE_W_FORCEFIELD + 2:
+			case DTILE_W_FORCEFIELD2:
+			case DTILE_W_FORCEFIELD3:
 
 				t = animwall[p].tag;
 
@@ -128,13 +128,13 @@ void animatewalls_d(void)
 					{
 						if (animwall[p].tag & 128)
 							wal->overpicnum = DTILE_W_FORCEFIELD;
-						else wal->overpicnum = DTILE_W_FORCEFIELD + 1;
+						else wal->overpicnum = DTILE_W_FORCEFIELD2;
 					}
 					else
 					{
 						if ((krand() & 255) < 32)
 							animwall[p].tag = 128 << (krand() & 3);
-						else wal->overpicnum = DTILE_W_FORCEFIELD + 1;
+						else wal->overpicnum = DTILE_W_FORCEFIELD2;
 					}
 				}
 
@@ -151,7 +151,7 @@ void animatewalls_d(void)
 
 void operateforcefields_d(DDukeActor* act, int low)
 {
-	operateforcefields_common(act, low, { DTILE_W_FORCEFIELD, DTILE_W_FORCEFIELD + 1, DTILE_W_FORCEFIELD + 2, DTILE_BIGFORCE });
+	operateforcefields_common(act, low, { DTILE_W_FORCEFIELD, DTILE_W_FORCEFIELD2, DTILE_W_FORCEFIELD3, DTILE_BIGFORCE });
 }
 
 //---------------------------------------------------------------------------
@@ -557,249 +557,6 @@ void activatebysector_d(sectortype* sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-void checkhitwall_d(DDukeActor* spr, walltype* wal, const DVector3& pos, int atwith)
-{
-	int j, sn = -1, darkestwall;
-
-	if (wal->overpicnum == DTILE_MIRROR && atwith != -1 && gs.actorinfo[atwith].flags2 & SFLAG2_BREAKMIRRORS)
-	{
-		lotsofglass(spr, wal, 70);
-		wal->cstat &= ~CSTAT_WALL_MASKED;
-		wal->overpicnum = DTILE_MIRRORBROKE;
-		wal->portalflags = 0;
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-	}
-
-	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == DTILE_BIGFORCE) && wal->twoSided())
-		if (wal->nextSector()->floorz> pos.Z)
-			if (wal->nextSector()->floorz - wal->nextSector()->ceilingz)
-				switch (wal->overpicnum)
-				{
-				case DTILE_W_FORCEFIELD:
-				case DTILE_W_FORCEFIELD + 1:
-				case DTILE_W_FORCEFIELD + 2:
-					wal->extra = 1; // tell the forces to animate
-					[[fallthrough]];
-				case DTILE_BIGFORCE:
-				{
-					sectortype* sptr = nullptr;
-					updatesector(pos, &sptr);
-					if (sptr == nullptr) return;
-					DDukeActor* spawned;
-					if (atwith == -1)
-						spawned = CreateActor(sptr, pos, DTILE_FORCERIPPLE, -127, DVector2(0.125, 0.125), nullAngle, 0., 0., spr, 5);
-					else
-					{
-						if (atwith == DTILE_CHAINGUN)
-							spawned = CreateActor(sptr, pos, DTILE_FORCERIPPLE, -127, DVector2(0.25, 0.25) + spr->spr.scale, nullAngle, 0., 0., spr, 5);
-						else spawned = CreateActor(sptr, pos, DTILE_FORCERIPPLE, -127, DVector2(0.5, 0.5), nullAngle, 0., 0., spr, 5);
-					}
-					if (spawned)
-					{
-						spawned->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER;
-						spawned->spr.Angles.Yaw = wal->delta().Angle() + DAngle90;
-
-						S_PlayActorSound(SOMETHINGHITFORCE, spawned);
-					}
-					return;
-				}
-				case DTILE_FANSPRITE:
-					wal->overpicnum = DTILE_FANSPRITEBROKE;
-					wal->cstat &= ~(CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN);
-					if (wal->twoSided())
-					{
-						wal->nextWall()->overpicnum = DTILE_FANSPRITEBROKE;
-						wal->nextWall()->cstat &= ~(CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN);
-					}
-					S_PlayActorSound(VENT_BUST, spr);
-					S_PlayActorSound(GLASS_BREAKING, spr);
-					return;
-
-				case DTILE_GLASS:
-				{
-					sectortype* sptr = nullptr;
-					updatesector(pos, &sptr);
-					if (sptr == nullptr) return;
-					wal->overpicnum = DTILE_GLASS2;
-					lotsofglass(spr, wal, 10);
-					wal->cstat = 0;
-
-					if (wal->twoSided())
-						wal->nextWall()->cstat = 0;
-
-					auto spawned = CreateActor(sptr, pos, SECTOREFFECTOR, 0, DVector2(0, 0), ps[0].GetActor()->spr.Angles.Yaw, 0., 0., spr, 3);
-					if (spawned)
-					{
-						spawned->spr.lotag = SE_128_GLASS_BREAKING;
-						spawned->temp_data[1] = 5;
-						spawned->temp_walls[0] = wal;
-						S_PlayActorSound(GLASS_BREAKING, spawned);
-					}
-					return;
-				}
-				case DTILE_STAINGLASS1:
-					sectortype* sptr = nullptr;
-					updatesector(pos, &sptr);
-					if (sptr == nullptr) return;
-					lotsofcolourglass(spr, wal, 80);
-					wal->cstat = 0;
-					if (wal->twoSided())
-						wal->nextWall()->cstat = 0;
-					S_PlayActorSound(VENT_BUST, spr);
-					S_PlayActorSound(GLASS_BREAKING, spr);
-					return;
-				}
-
-	switch (wal->picnum)
-	{
-	case DTILE_COLAMACHINE:
-	case DTILE_VENDMACHINE:
-		breakwall(wal->picnum + 2, spr, wal);
-		S_PlayActorSound(VENT_BUST, spr);
-		return;
-
-	case DTILE_OJ:
-	case DTILE_FEMPIC2:
-	case DTILE_FEMPIC3:
-
-	case DTILE_SCREENBREAK6:
-	case DTILE_SCREENBREAK7:
-	case DTILE_SCREENBREAK8:
-
-	case DTILE_SCREENBREAK1:
-	case DTILE_SCREENBREAK2:
-	case DTILE_SCREENBREAK3:
-	case DTILE_SCREENBREAK4:
-	case DTILE_SCREENBREAK5:
-
-	case DTILE_SCREENBREAK9:
-	case DTILE_SCREENBREAK10:
-	case DTILE_SCREENBREAK11:
-	case DTILE_SCREENBREAK12:
-	case DTILE_SCREENBREAK13:
-	case DTILE_SCREENBREAK14:
-	case DTILE_SCREENBREAK15:
-	case DTILE_SCREENBREAK16:
-	case DTILE_SCREENBREAK17:
-	case DTILE_SCREENBREAK18:
-	case DTILE_SCREENBREAK19:
-	case DTILE_BORNTOBEWILDSCREEN:
-
-		lotsofglass(spr, wal, 30);
-		wal->picnum = DTILE_W_SCREENBREAK + (krand() % 3);
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		return;
-
-	case DTILE_W_TECHWALL5:
-	case DTILE_W_TECHWALL6:
-	case DTILE_W_TECHWALL7:
-	case DTILE_W_TECHWALL8:
-	case DTILE_W_TECHWALL9:
-		breakwall(wal->picnum + 1, spr, wal);
-		return;
-	case DTILE_W_MILKSHELF:
-		breakwall(DTILE_W_MILKSHELFBROKE, spr, wal);
-		return;
-
-	case DTILE_W_TECHWALL10:
-		breakwall(DTILE_W_HITTECHWALL10, spr, wal);
-		return;
-
-	case DTILE_W_TECHWALL1:
-	case DTILE_W_TECHWALL11:
-	case DTILE_W_TECHWALL12:
-	case DTILE_W_TECHWALL13:
-	case DTILE_W_TECHWALL14:
-		breakwall(DTILE_W_HITTECHWALL1, spr, wal);
-		return;
-
-	case DTILE_W_TECHWALL15:
-		breakwall(DTILE_W_HITTECHWALL15, spr, wal);
-		return;
-
-	case DTILE_W_TECHWALL16:
-		breakwall(DTILE_W_HITTECHWALL16, spr, wal);
-		return;
-
-	case DTILE_W_TECHWALL2:
-		breakwall(DTILE_W_HITTECHWALL2, spr, wal);
-		return;
-
-	case DTILE_W_TECHWALL3:
-		breakwall(DTILE_W_HITTECHWALL3, spr, wal);
-		return;
-
-	case DTILE_W_TECHWALL4:
-		breakwall(DTILE_W_HITTECHWALL4, spr, wal);
-		return;
-
-	case DTILE_ATM:
-		wal->picnum = DTILE_ATMBROKE;
-		fi.lotsofmoney(spr, 1 + (krand() & 7));
-		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		break;
-
-	case DTILE_WALLLIGHT1:
-	case DTILE_WALLLIGHT2:
-	case DTILE_WALLLIGHT3:
-	case DTILE_WALLLIGHT4:
-	case DTILE_TECHLIGHT2:
-	case DTILE_TECHLIGHT4:
-
-		if (rnd(128))
-			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-		else S_PlayActorSound(GLASS_BREAKING, spr);
-		lotsofglass(spr, wal, 30);
-
-		if (wal->picnum == DTILE_WALLLIGHT1)
-			wal->picnum = DTILE_WALLLIGHTBUST1;
-
-		if (wal->picnum == DTILE_WALLLIGHT2)
-			wal->picnum = DTILE_WALLLIGHTBUST2;
-
-		if (wal->picnum == DTILE_WALLLIGHT3)
-			wal->picnum = DTILE_WALLLIGHTBUST3;
-
-		if (wal->picnum == DTILE_WALLLIGHT4)
-			wal->picnum = DTILE_WALLLIGHTBUST4;
-
-		if (wal->picnum == DTILE_TECHLIGHT2)
-			wal->picnum = DTILE_TECHLIGHTBUST2;
-
-		if (wal->picnum == DTILE_TECHLIGHT4)
-			wal->picnum = DTILE_TECHLIGHTBUST4;
-
-		if (!wal->lotag) return;
-
-		if (!wal->twoSided()) return;
-		darkestwall = 0;
-
-		for (auto& wl : wal->nextSector()->walls)
-			if (wl.shade > darkestwall)
-				darkestwall = wl.shade;
-
-		j = krand() & 1;
-		DukeStatIterator it(STAT_EFFECTOR);
-		while (auto effector = it.Next())
-		{
-			if (effector->spr.hitag == wal->lotag && effector->spr.lotag == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
-			{
-				effector->temp_data[2] = j;
-				effector->temp_data[3] = darkestwall;
-				effector->temp_data[4] = 1;
-			}
-		}
-		break;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void checkplayerhurt_d(player_struct* p, const Collision& coll)
 {
 	if (coll.type == kHitSprite)
@@ -825,12 +582,12 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 		p->vel.XY() = -p->GetActor()->spr.Angles.Yaw.ToVector() * 16;
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
-		fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2, -1);
+		checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
 		break;
 
 	case DTILE_BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2, -1);
+		checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
 		break;
 
 	}

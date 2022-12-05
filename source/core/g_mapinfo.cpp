@@ -229,15 +229,12 @@ void FMapInfoParser::ParseMusic(FString &name, int &order)
 void FMapInfoParser::ParseSpawnClasses()
 {
 	FString fn;
-	int res_id = -1;
-	int numframes = -1;
-	bool interpolate = false;
-	int clipdist = -1;
 
 	sc.MustGetStringName("{");
 	while (!sc.CheckString("}"))
 	{
 		// This will need some reworking once we can use real textures.
+		int clipdist = -1;
 		int num = -1;
 		int base = -1;
 		int basetex = -1;
@@ -329,18 +326,18 @@ void FMapInfoParser::ParseSpawnClasses()
 
 void FMapInfoParser::ParseBreakWall()
 {
-	int basetile = -1;
-	int breaktile = -1;
-	int flags = 0;
-	FSoundID sound = NO_SOUND;
-	VMFunction* handler = nullptr;
-	FString basename;
 
 	sc.MustGetStringName("{");
 	while (!sc.CheckString("}"))
 	{
+		int basetile = -1;
+		int breaktile = -1;
+		int flags = 0;
+		FSoundID sound = NO_SOUND;
+		VMFunction* handler = nullptr;
+
 		sc.MustGetString();
-		basename = sc.String; // save for printing error messages.
+		FString basename = sc.String; // save for printing error messages.
 		basetile = TileFiles.tileForName(sc.String);
 		if (basetile < 0)
 		{
@@ -350,7 +347,7 @@ void FMapInfoParser::ParseBreakWall()
 		ParseAssign();
 		sc.MustGetString();
 		breaktile = TileFiles.tileForName(sc.String);
-		if (breaktile < 0) sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String, breaktile);
+		if (*sc.String && breaktile < 0) sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String, breaktile);
 		if (sc.CheckString(","))
 		{
 			sc.MustGetString();
@@ -377,6 +374,7 @@ void FMapInfoParser::ParseBreakWall()
 				{
 					sc.MustGetString();
 					if (sc.Compare("twosided")) flags |= 1;
+					else if (sc.Compare("maskedonly")) flags |= 2;
 					else sc.ScriptMessage("'%s': Unknown breakable flag", sc.String);
 				}
 			}

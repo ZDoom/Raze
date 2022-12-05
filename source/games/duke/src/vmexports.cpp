@@ -1247,6 +1247,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, SpawnActor, DukeLevel_SpawnActor)
 	PARAM_FLOAT(zvel);
 	PARAM_OBJECT(owner, DDukeActor);
 	PARAM_INT(stat);
+
 	ACTION_RETURN_POINTER(DukeLevel_SpawnActor(self, sect, x, y, z, static_cast<PClassActor*>(type), shade, scalex, scaley, angle, vel, zvel, owner, stat));
 }
 
@@ -1325,7 +1326,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ismirror, duke_ismirror)
 
 void duke_checkhitwall(walltype* wal, DDukeActor * actor, double x, double y, double z)
 {
-	fi.checkhitwall(actor, wal, DVector3(x, y, z), actor->spr.picnum);
+	checkhitwall(actor, wal, DVector3(x, y, z));
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, checkhitwall, duke_checkhitwall)

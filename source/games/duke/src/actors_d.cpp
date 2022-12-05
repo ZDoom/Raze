@@ -254,7 +254,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					updatesector(w1, &sect);
 
 					if (sect && cansee(w1, sect, actor->spr.pos, actor->sector()))
-						fi.checkhitwall(actor, &wal, DVector3(wal.pos, actor->spr.pos.Z), actor->spr.picnum);
+						checkhitwall(actor, &wal, DVector3(wal.pos, actor->spr.pos.Z));
 				}
 			}
 		}
@@ -1060,7 +1060,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		else if (coll.type == kHitWall)
 		{
 			SetActor(actor, dapos);
-			fi.checkhitwall(actor, coll.hitWall, actor->spr.pos, actor->spr.picnum);
+			checkhitwall(actor, coll.hitWall, actor->spr.pos);
 		}
 		else if (coll.type == kHitSector)
 		{

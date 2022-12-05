@@ -46,7 +46,7 @@ inline int islocator(DDukeActor* actor)
 
 inline int iseffector(DDukeActor* actor)
 {
-	return actor->spr.picnum  == SECTOREFFECTOR;
+	return actor->GetClass()->TypeName == NAME_DukeSectorEffector;
 }
 
 

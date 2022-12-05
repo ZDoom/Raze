@@ -1,0 +1,39 @@
+breakwalls
+{
+	FANSPRITE = FANSPRITEBROKE, "VENT_BUST", "DukeBreakwalls.FanSpriteHit", twosided, maskedonly
+	GLASS = GLASS2, "GLASS_BREAKING", "DukeBreakwalls.GlassHit", twosided, maskedonly
+	STAINGLASS1 = "", "GLASS_BREAKING", "DukeBreakwalls.StainGlassHit", twosided, maskedonly
+	COLAMACHINE = COLAMACHINEBROKE, "GLASS_BREAKING", "DukeBreakWalls.TechStuffBreak"
+	VENDMACHINE = VENDMACHINEBROKE, "VENT_BUST", "DukeBreakWalls.TechStuffBreak"
+	OJ = "", "GLASS_HEAVYBREAK", "DukeBreakWalls.ScreenBreak"
+	SCREENBREAK6 = "", "GLASS_HEAVYBREAK", "DukeBreakWalls.ScreenBreak"
+	SCREENBREAK7 = "", "GLASS_HEAVYBREAK", "DukeBreakWalls.ScreenBreak"
+	SCREENBREAK8 = "", "GLASS_HEAVYBREAK", "DukeBreakWalls.ScreenBreak"
+	ATM = ATMBROKE, "GLASS_HEAVYBREAK", "DukeBreakWalls.ATMBreak"
+	WALLLIGHT1 = WALLLIGHTBUST1, "", "DukeBreakWalls.LightBreak"
+	WALLLIGHT3 = WALLLIGHTBUST3, "", "DukeBreakWalls.LightBreak"
+	WALLLIGHT4 = WALLLIGHTBUST4, "", "DukeBreakWalls.LightBreak"
+	TECHLIGHT2 = TECHLIGHTBUST2, "", "DukeBreakWalls.LightBreak"
+	TECHLIGHT4 = TECHLIGHTBUST4, "", "DukeBreakWalls.LightBreak"
+	RRTILE1814 = RRTILE1817, "", "DukeBreakWalls.LightBreak"
+	RRTILE1986 = RRTILE1987, "", "DukeBreakWalls.LightBreak"
+	RRTILE1939 = RRTILE2004, "", "DukeBreakWalls.LightBreak"
+	RRTILE1988 = RRTILE2005, "", "DukeBreakWalls.LightBreak"
+	RRTILE2898 = RRTILE2899, "", "DukeBreakWalls.LightBreak"
+	RRTILE2878 = RRTILE2879, "", "DukeBreakWalls.LightBreak"
+	RRTILE2123 = RRTILE2124, "", "DukeBreakWalls.LightBreak"
+	RRTILE2125 = RRTILE2126, "", "DukeBreakWalls.LightBreak"
+	RRTILE3200 = RRTILE3201, "", "DukeBreakWalls.LightBreak"
+	RRTILE3202 = RRTILE3203, "", "DukeBreakWalls.LightBreak"
+	RRTILE3204 = RRTILE3205, "", "DukeBreakWalls.LightBreak"
+	RRTILE3206 = RRTILE3207, "", "DukeBreakWalls.LightBreak"
+	RRTILE3208 = RRTILE3209, "", "DukeBreakWalls.LightBreak"
+	RRTILE2636 = RRTILE2637, "", "DukeBreakWalls.LightBreak"
+	RRTILE1973 = GLASS2, "GLASS_BREAKING", "RedneckBreakwalls.PopcornHit", twosided, maskedonly
+	PICKUPSIDE = "", "TRUKDIE", "RedneckBreakwalls.PickupHit"
+	PICKUPFRONT = "", "TRUKDIE", "RedneckBreakwalls.PickupHit"
+	PICKUPBACK1 = "", "TRUKDIE", "RedneckBreakwalls.PickupHit"
+	PICKUPBACK2 = "", "TRUKDIE", "RedneckBreakwalls.PickupHit"
+
+
+}

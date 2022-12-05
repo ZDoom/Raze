@@ -109,23 +109,20 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 
 		auto sectp = h->sector();
-		if (h->GetClass() != RUNTIME_CLASS(DDukeActor))
-		{
-			bool res = CallAnimate(h, t);
-			// some actors have 4, some 6 rotation frames - in true Build fashion there's no pointers what to do here without flagging it.
-			if (actorflag(h, SFLAG2_ALWAYSROTATE1) || (t->clipdist & TSPR_ROTATE8FRAMES))
-				applyRotation1(h, t, viewang);
-			else if (actorflag(h, SFLAG2_ALWAYSROTATE2) || (t->clipdist & TSPR_ROTATE12FRAMES))
-				applyRotation2(h, t, viewang);
-			if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL))
-				copyfloorpal(t, sectp);
+		bool res = CallAnimate(h, t);
+		// some actors have 4, some 6 rotation frames - in true Build fashion there's no pointers what to do here without flagging it.
+		if (actorflag(h, SFLAG2_ALWAYSROTATE1) || (t->clipdist & TSPR_ROTATE8FRAMES))
+			applyRotation1(h, t, viewang);
+		else if (actorflag(h, SFLAG2_ALWAYSROTATE2) || (t->clipdist & TSPR_ROTATE12FRAMES))
+			applyRotation2(h, t, viewang);
+		if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL) && !(t->clipdist & TSPR_NOFLOORPAL))
+			copyfloorpal(t, sectp);
 
-			if (res)
-			{
-				if (h->dispicnum >= 0)
-					h->dispicnum = t->picnum;
-				continue;
-			}
+		if (res)
+		{
+			if (h->dispicnum >= 0)
+				h->dispicnum = t->picnum;
+			continue;
 		}
 
 		t1 = h->temp_data[1];

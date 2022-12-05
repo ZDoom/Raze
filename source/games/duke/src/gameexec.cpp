@@ -2295,7 +2295,7 @@ int ParseState::parse(void)
 		parseifelse(ud.coop || numplayers > 2);
 		break;
 	case concmd_ifonmud:
-		parseifelse(abs(g_ac->spr.pos.Z - g_ac->sector()->floorz) < 32 && g_ac->sector()->floorpicnum == 3073); // eew, hard coded tile numbers.. :?
+		parseifelse(abs(g_ac->spr.pos.Z - g_ac->sector()->floorz) < 32 && (tileflags(g_ac->sector()->floorpicnum) & TFLAG_MUDDY) != 0);
 		break;
 	case concmd_ifonwater:
 		parseifelse( abs(g_ac->spr.pos.Z-g_ac->sector()->floorz) < 32 && g_ac->sector()->lotag == ST_1_ABOVE_WATER);

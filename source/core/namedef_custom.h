@@ -34,6 +34,7 @@ xx(RedneckJaildoorDef)
 xx(RedneckJaildoorSound)
 xx(RedneckGeometryEffect)
 xx(RedneckKeyinfoSetter)
+xx(DukeSectorEffector)
 
 xx(spawnstate)
 xx(brokenstate)

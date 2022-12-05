@@ -43,8 +43,6 @@ bool checkhitswitch_d(int snum, walltype* w, DDukeActor *act);
 bool checkhitswitch_r(int snum, walltype* w, DDukeActor* act);
 void activatebysector_d(sectortype* sect, DDukeActor* j);
 void activatebysector_r(sectortype* sect, DDukeActor* j);
-void checkhitwall_d(DDukeActor* spr, walltype* dawall, const DVector3& pos, int atwith);
-void checkhitwall_r(DDukeActor* spr, walltype* dawall, const DVector3& pos, int atwith);
 bool checkhitceiling_d(sectortype* sn);
 bool checkhitceiling_r(sectortype* sn);
 void checkhitsprite_d(DDukeActor* i, DDukeActor* sn);
@@ -107,7 +105,6 @@ void SetDispatcher()
 		operateforcefields_d,
 		checkhitswitch_d,
 		activatebysector_d,
-		checkhitwall_d,
 		checkhitceiling_d,
 		checkhitsprite_d,
 		checkhitdefault_d,
@@ -145,7 +142,6 @@ void SetDispatcher()
 		operateforcefields_r,
 		checkhitswitch_r,
 		activatebysector_r,
-		checkhitwall_r,
 		checkhitceiling_r,
 		checkhitsprite_r,
 		checkhitdefault_r,
@@ -176,7 +172,6 @@ void SetDispatcher()
 }
 
 
-int TILE_W_FORCEFIELD;
 int TILE_APLAYER;
 int TILE_DRONE;
 int TILE_SCREENBORDER;
@@ -198,6 +193,7 @@ int TILE_ACCESSSWITCH;
 int TILE_ACCESSSWITCH2;
 int TILE_HEN;
 int TILE_MIRROR;
+int TILE_MIRRORBROKE;
 int TILE_LOADSCREEN;
 int TILE_CROSSHAIR;
 int TILE_EGG;

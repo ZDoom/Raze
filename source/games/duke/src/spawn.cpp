@@ -119,6 +119,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 
 	}
 
+	s_pn = act->spr.picnum;
 	memset(act->temp_data, 0, sizeof(act->temp_data));
 	if (gs.actorinfo[s_pn].scriptaddress)
 	{
@@ -281,7 +282,7 @@ DDukeActor* spawn(DDukeActor* actj, PClassActor * cls)
 //
 //---------------------------------------------------------------------------
 
-void spawninitdefault(DDukeActor* actj, DDukeActor *act)
+bool spawninitdefault(DDukeActor* actj, DDukeActor *act)
 {
 	if (gs.actorinfo[act->spr.picnum].scriptaddress)
 	{
@@ -290,7 +291,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			// make it go away...
 			act->spr.scale = DVector2(0, 0);
 			ChangeActorStat(act, STAT_MISC);
-			return;
+			return false;
 		}
 
 		//  Init the size
@@ -303,7 +304,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			{
 				act->spr.scale = DVector2(0, 0);
 				ChangeActorStat(act, STAT_MISC);
-				return;
+				return false;
 			}
 
 			makeitfall(act);
@@ -335,6 +336,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		if (actj)
 			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 	}
+	return true;
 }
 
 //---------------------------------------------------------------------------

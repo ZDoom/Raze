@@ -1255,7 +1255,7 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 				{
 					wal->cstat = 0;
 
-					if (effector && iseffector(effector) && effector->spr.lotag == 30)
+					if (effector && iseffector(effector) && effector->spr.lotag == SE_30_TWO_WAY_TRAIN)
 						wal->lotag = 0;
 				}
 				else
@@ -1270,12 +1270,47 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 //
 //---------------------------------------------------------------------------
 
-void breakwall(int newpn, DDukeActor* spr, walltype* wal)
+void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 {
-	wal->picnum = newpn;
-	S_PlayActorSound(VENT_BUST, spr);
-	S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-	lotsofglass(spr, wal, 10);
+	if (wal->overpicnum == TILE_MIRROR && actorflag(spr, SFLAG2_BREAKMIRRORS))
+	{
+		lotsofglass(spr, wal, 70);
+		wal->cstat &= ~CSTAT_WALL_MASKED;
+		wal->overpicnum = TILE_MIRRORBROKE;
+		wal->portalflags = 0;
+		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
+		return;
+	}
+
+	auto handler = [=](const BreakWallRec* data, int16_t* pic)
+	{
+		if (!data->handler)
+		{
+			*pic = data->brokentex;
+			S_PlayActorSound(data->breaksound, spr);
+		}
+		else
+		{
+			VMValue args[7] = { wal, data->brokentex, data->breaksound.index(), spr, pos.X, pos.Y, pos.Z };
+			VMCall(data->handler, args, 7, nullptr, 0);
+		}
+	};
+
+
+	if (wal->twoSided() && wal->nextSector()->floorz > pos.Z && wal->nextSector()->floorz - wal->nextSector()->ceilingz)
+	{
+		auto data = breakWallMap.CheckKey(wal->overpicnum);
+		if (data && (data->flags & 1) && (!(data->flags & 2) || wal->cstat & CSTAT_WALL_MASKED))
+		{
+			handler(data, &wal->overpicnum);
+		}
+	}
+
+	auto data = breakWallMap.CheckKey(wal->picnum);
+	if (data && !(data->flags & 1))
+	{
+		handler(data, &wal->picnum);
+	}
 }
 
 //---------------------------------------------------------------------------

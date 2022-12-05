@@ -3,7 +3,6 @@
 BEGIN_DUKE_NS
 
 // These are all globally accessed tiles.
-extern int TILE_W_FORCEFIELD;
 extern int TILE_APLAYER;
 extern int TILE_DRONE;
 extern int TILE_SCREENBORDER;
@@ -23,6 +22,7 @@ extern int TILE_ACCESSSWITCH;
 extern int TILE_ACCESSSWITCH2;
 extern int TILE_HEN;
 extern int TILE_MIRROR;
+extern int TILE_MIRRORBROKE;
 extern int TILE_LOADSCREEN;
 extern int TILE_CROSSHAIR;
 extern int TILE_EGG;

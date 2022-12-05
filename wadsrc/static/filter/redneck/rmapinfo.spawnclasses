@@ -1,5 +1,6 @@
 spawnclasses
 {
+	1 = DukeSectorEffector
 	2 = DukeActivator
 	3 = DukeTouchplate
 	4 = DukeActivatorLocked
@@ -23,6 +24,7 @@ spawnclasses
 	38 = RedneckJaildoorSound
 	19 = RedneckGeometryEffect
 	34 = RedneckKeyinfoSetter
+	3380 = DukeChaingun
 
 	1298 = DukeCranePole
 	1299 = DukeCrane
@@ -176,6 +178,7 @@ spawnclasses
 	2137 = RedneckFlamingo
 	2151 = RedneckMarbleStatue
 	2152 = RedneckMarbleStatue2
+	2021 = RedneckPopcorn
 	
 	3114 = DukeGenericDestructible, "RRTILE3114", "RRTILE3117", "GLASS_BREAKING", spawnglass
 	2876 = DukeGenericDestructible, "RRTILE2876", "RRTILE2990", "GLASS_BREAKING", spawnglass

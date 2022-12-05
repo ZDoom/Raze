@@ -689,8 +689,6 @@ void AddFlow(sectortype* pSector, int nSpeed, int b, DAngle nAngle)
     int nFlow = nFlowCount;
     nFlowCount++;
 
-    int nPic = pSector->floorpicnum;
-
     sFlowInfo[nFlow].angcos  = float(-nAngle.Cos() * nSpeed);
     sFlowInfo[nFlow].angsin = float(nAngle.Sin() * nSpeed);
     sFlowInfo[nFlow].pSector = pSector;

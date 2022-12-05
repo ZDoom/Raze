@@ -49,9 +49,18 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.hitag = -1;
 	}
 
+	if (iseffector(act))
+	{
+		// for in-game spawned SE's the init code must not run. The only type ever being spawned that way is SE128 - 
+		// but we cannot check that here as the number has not been set yet.
+		if (actj == 0) spawneffector(act, actors);
+		return act;
+	}
+
 	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
-		CallInitialize(act);
+		if (spawninitdefault(actj, act))
+			CallInitialize(act);
 		return act;
 	}
 	auto sectp = act->sector();
@@ -547,10 +556,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case DTILE_CEILINGSTEAM:
 		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-
-	case SECTOREFFECTOR:
-		spawneffector(act, actors);
 		break;
 
 	case DTILE_RUBBERCAN:

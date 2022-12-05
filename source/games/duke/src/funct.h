@@ -116,7 +116,7 @@ int setpal(player_struct* p);
 int madenoise(int playerNum);
 int haskey(sectortype* sect, int snum);
 
-void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
+void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos);
 int callsound(sectortype* sectnum,DDukeActor* snum, bool endstate = false);
 double hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
 int findplayer(const DDukeActor* s, double* dist);
@@ -172,7 +172,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 void addspritetodelete(int spnum=0);
 void checkavailinven(player_struct* p);
 bool initspriteforspawn(DDukeActor* spn);
-void spawninitdefault(DDukeActor* actj, DDukeActor* act);
+bool spawninitdefault(DDukeActor* actj, DDukeActor* act);
 void spawntransporter(DDukeActor* actj, DDukeActor* acti, bool beam);
 int spawnbloodpoolpart1(DDukeActor* acti);
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell);

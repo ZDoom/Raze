@@ -61,6 +61,7 @@ version "4.10"
 #include "zscript/games/duke/actors/frameeffect.zs"
 #include "zscript/games/duke/actors/naturallightning.zs"
 
+#include "zscript/games/duke/actors/_placeholders.zs"
 #include "zscript/games/duke/actors/dukemisc.zs"
 #include "zscript/games/duke/actors/projectiles.zs"
 #include "zscript/games/duke/actors/mortar.zs"
@@ -116,6 +117,7 @@ version "4.10"
 #include "zscript/games/duke/actors/airplane.zs"
 #include "zscript/games/duke/actors/piano.zs"
 
+#include "zscript/games/duke/world/dukebreak.zs"
 #include "zscript/games/duke/world/redneckbreak.zs"
 
 #include "zscript/games/blood/bloodgame.zs"

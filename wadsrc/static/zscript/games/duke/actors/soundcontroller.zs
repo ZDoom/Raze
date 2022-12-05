@@ -82,8 +82,8 @@ class DukeSoundController : DukeActor
 	
 	override void OnDestroy()
 	{
-		Super.OnDestroy();
 		if (self.temp_data[0] == 1)
-			self.StopSound(self.lotag);
+			self.StopSound(-1);
+		Super.OnDestroy();
 	}
 }

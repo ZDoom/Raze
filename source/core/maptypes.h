@@ -196,6 +196,7 @@ enum ETSprFlags
 	TSPR_SLOPESPRITE = 8,       // render as sloped sprite
 	TSPR_ROTATE8FRAMES = 16,	// do an 8 frame rotation
 	TSPR_ROTATE12FRAMES = 32,	// do an 12 frame rotation
+	TSPR_NOFLOORPAL = 64,		// ignore the floorpal
 };
 
 

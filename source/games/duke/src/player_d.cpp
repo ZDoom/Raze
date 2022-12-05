@@ -283,7 +283,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 
 				if (hit.hitWall->picnum != DTILE_ACCESSSWITCH && hit.hitWall->picnum != DTILE_ACCESSSWITCH2)
 				{
-					fi.checkhitwall(knee, hit.hitWall, hit.hitpos, DTILE_KNEE);
+					checkhitwall(knee, hit.hitWall, hit.hitpos);
 					if (p >= 0) fi.checkhitswitch(p, hit.hitWall, nullptr);
 				}
 			}
@@ -519,7 +519,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 					if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
 						hit.hitWall = hit.hitWall->nextWall();
 
-			fi.checkhitwall(spark, hit.hitWall, hit.hitpos, DTILE_SHOTSPARK1);
+			checkhitwall(spark, hit.hitWall, hit.hitpos);
 		}
 	}
 	else
@@ -537,7 +537,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 				else spark->spr.scale = DVector2(0, 0);
 			}
 			else if (hit.hitWall)
-				fi.checkhitwall(spark, hit.hitWall, hit.hitpos, DTILE_SHOTSPARK1);
+				checkhitwall(spark, hit.hitWall, hit.hitpos);
 		}
 	}
 
@@ -954,7 +954,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	{
 		if (hit.hitWall->picnum != DTILE_ACCESSSWITCH && hit.hitWall->picnum != DTILE_ACCESSSWITCH2)
 		{
-			fi.checkhitwall(spark, hit.hitWall, hit.hitpos, DTILE_GROWSPARK);
+			checkhitwall(spark, hit.hitWall, hit.hitpos);
 		}
 	}
 }

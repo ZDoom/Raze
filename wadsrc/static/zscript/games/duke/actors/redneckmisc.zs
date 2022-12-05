@@ -62,3 +62,11 @@ class RedneckJoe9000 : DukeActor
 		return true;
 	}
 }
+
+class RedneckPopcorn : DukeActor
+{
+	default
+	{
+		pic "POPCORN";
+	}
+}

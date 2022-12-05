@@ -162,5 +162,5 @@ tileflag TFLAG_BLOCKDOOR {
 	RRTILE3837
 	}
 
-tileflag TFLAG_MUDDY { MUDDY MUDDYPATH }
+tileflag TFLAG_MUDDY { MUDDY }
 	

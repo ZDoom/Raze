@@ -1,5 +1,6 @@
 spawnclasses
 {
+	1 = DukeSectorEffector
 	2 = DukeActivator
 	3 = DukeTouchplate
 	4 = DukeActivatorLocked
@@ -10,6 +11,7 @@ spawnclasses
 	9 = DukeRespawnController
 	10 = DukeGPSpeed
 	4890 = DukeNaturalLightning
+	2536 = DukeChaingun
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane
@@ -231,4 +233,7 @@ spawnclasses
 	774 = DukeGenericDestructible, "SUSHIPLATE3", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
 	779 = DukeGenericDestructible, "SUSHIPLATE4", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
 	792 = DukeGenericDestructible, "SUSHIPLATE5", "", "GLASS_HEAVYBREAK", 8, blocking, spawnglass2
+	
+	// the following actors use CON.
+	1671 = DukeForceRipple
 }

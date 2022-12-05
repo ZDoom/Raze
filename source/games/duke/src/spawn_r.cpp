@@ -43,9 +43,16 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.hitag = -1;
 	}
 
+	if (iseffector(act))
+	{
+		spawneffector(act, actors);
+		return act;
+	}
+
 	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
-		CallInitialize(act);
+		if (spawninitdefault(actj, act))
+			CallInitialize(act);
 		return act;
 	}
 	auto sectp = act->sector();
@@ -656,9 +663,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case RTILE_CEILINGSTEAM:
 		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-	case SECTOREFFECTOR:
-		spawneffector(act, actors);
 		break;
 
 	case RTILE_RUBBERCAN:
