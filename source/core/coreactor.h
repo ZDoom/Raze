@@ -101,6 +101,11 @@ public:
 		return interpolatedvalue(PrevAngles.Yaw, spr.Angles.Yaw, interpfrac);
 	}
 
+	DRotator interpolatedangles(double const interpfrac)
+	{
+		return interpolatedvalue(PrevAngles, spr.Angles, interpfrac);
+	}
+
 	void backupz()
 	{
 		opos.Z = spr.pos.Z;

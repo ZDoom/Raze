@@ -245,7 +245,7 @@ extern double cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
 
-bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, DAngle ang, DAngle horiz, double const interpfrac, double const backamp);
+bool calcChaseCamPos(DVector3& ppos, DCoreActor* pspr, sectortype** psectnum, const DRotator& angles, double const interpfrac, double const backamp);
 int getslopeval(sectortype* sect, const DVector3& pos, double bazez);
 bool cansee(const DVector3& start, sectortype* sect1, const DVector3& end, sectortype* sect2);
 double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor);

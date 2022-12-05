@@ -35,6 +35,16 @@ struct PlayerAngles
 	void backupViewAngles() { PrevViewAngles = ViewAngles; }
 	void setActor(DCoreActor* const actor) { pActor = actor; }
 
+	// Angle getters.
+	DRotator lerpViewAngles(const double interpfrac)
+	{
+		return interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);
+	}
+	DRotator getRenderAngles(const double interpfrac)
+	{
+		return (!SyncInput() ? pActor->spr.Angles : pActor->interpolatedangles(interpfrac)) + lerpViewAngles(interpfrac);
+	}
+
 	// Pitch methods.
 	void lockPitch() { AngleLocks.Set(PITCH); }
 	void unlockPitch() { AngleLocks.Clear(PITCH); }

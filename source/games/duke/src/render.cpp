@@ -89,7 +89,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				display_mirror = 1; // should really be 'display external view'.
 				auto cstat = camera->spr.cstat;
 				camera->spr.cstat = CSTAT_SPRITE_INVISIBLE;
-				render_camtex(camera, camera->spr.pos, camera->sector(), camera->interpolatedyaw(smoothratio), maphoriz(-camera->spr.shade), nullAngle, tex, rect, smoothratio);
+				render_camtex(camera, camera->spr.pos, camera->sector(), DRotator(maphoriz(-camera->spr.shade), camera->interpolatedyaw(smoothratio), nullAngle), tex, rect, smoothratio);
 				camera->spr.cstat = cstat;
 				display_mirror = 0;
 			});
@@ -217,7 +217,7 @@ static int getdrugmode(player_struct *p, int oyrepeat)
 void displayrooms(int snum, double interpfrac, bool sceneonly)
 {
 	DVector3 cpos;
-	DAngle cang, rotscrnang, choriz;
+	DRotator cangles;
 
 	player_struct* p = &ps[snum];
 
@@ -253,9 +253,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		else if (viewer->spr.yint > 199) viewer->spr.yint = 300;
 
 		cpos = viewer->spr.pos.plusZ(-4);
-		cang = viewer->interpolatedyaw(interpfrac);
-		choriz = maphoriz(-viewer->spr.yint);
-		rotscrnang = nullAngle;
+		cangles = DRotator(maphoriz(-viewer->spr.yint), viewer->interpolatedyaw(interpfrac), nullAngle);
 		sect = viewer->sector();
 	}
 	else
@@ -270,53 +268,26 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
 		setgamepalette(setpal(p));
 
-		// set screen rotation.
-		rotscrnang = p->Angles.angLERPROTSCRN(interpfrac);
-
 		// use player's actor initially.
 		viewer = p->GetActor();
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
 			cpos = interpolatedvalue(omypos, mypos, interpfrac);
-
-			if (SyncInput())
-			{
-				choriz = interpolatedvalue(omyhoriz + omyhorizoff, myhoriz + myhorizoff, interpfrac);
-				cang = interpolatedvalue(omyang, myang, interpfrac);
-			}
-			else
-			{
-				cang = myang;
-				choriz = myhoriz + myhorizoff;
-			}
+			cangles = DRotator(interpolatedvalue(omyhoriz + omyhorizoff, myhoriz + myhorizoff, interpfrac), interpolatedvalue(omyang, myang, interpfrac), nullAngle);
 		}
 		else
 		{
 			cpos = viewer->getRenderPos(interpfrac);
-
-			if (SyncInput())
-			{
-				// Original code for when the values are passed through the sync struct
-				cang = p->Angles.angLERPSUM(interpfrac);
-				choriz = p->Angles.horizLERPSUM(interpfrac);
-			}
-			else
-			{
-				// This is for real time updating of the view direction.
-				cang = p->Angles.angSUM(interpfrac);
-				choriz = p->Angles.horizSUM(interpfrac);
-			}
+			cangles = p->Angles.getRenderAngles(interpfrac);
 		}
 
 		if (p->newOwner != nullptr)
 		{
 			viewer = p->newOwner;
-			cang = viewer->interpolatedyaw(interpfrac);
-			choriz = maphoriz(-viewer->spr.shade);
 			cpos = viewer->spr.pos;
+			cangles = DRotator(maphoriz(-viewer->spr.shade), viewer->interpolatedyaw(interpfrac), nullAngle);
 			sect = viewer->sector();
-			rotscrnang = nullAngle;
 			interpfrac = 1.;
 			camview = true;
 		}
@@ -329,10 +300,10 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 			auto adjustment = isRR() ? 15 : 12;
 			cpos.Z -= adjustment;
 
-			if (!calcChaseCamPos(cpos, viewer, &sect, cang, choriz, interpfrac, 64.))
+			if (!calcChaseCamPos(cpos, viewer, &sect, cangles, interpfrac, 64.))
 			{
 				cpos.Z += adjustment;
-				calcChaseCamPos(cpos, viewer, &sect, cang, choriz, interpfrac, 64.);
+				calcChaseCamPos(cpos, viewer, &sect, cangles, interpfrac, 64.);
 			}
 		}
 
@@ -342,7 +313,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		if (earthquaketime > 0 && p->on_ground == 1)
 		{
 			cpos.Z += 1 - (((earthquaketime) & 1) * 2.);
-			cang += DAngle::fromBuild((2 - ((earthquaketime) & 2)) << 2);
+			cangles.Yaw += DAngle::fromBuild((2 - ((earthquaketime) & 2)) << 2);
 		}
 
 		if (p->GetActor()->spr.pal == 1) cpos.Z -= 18;
@@ -362,7 +333,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	auto cstat = viewer->spr.cstat;
 	if (camview) viewer->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 	if (!sceneonly) drawweapon(interpfrac);
-	render_drawrooms(viewer, cpos, sect, cang, choriz, rotscrnang, interpfrac, fov);
+	render_drawrooms(viewer, cpos, sect, cangles, interpfrac, fov);
 	viewer->spr.cstat = cstat;
 
 	//GLInterface.SetMapFog(false);

@@ -191,8 +191,7 @@ void DrawView(double interpfrac, bool sceneonly)
     DExhumedActor* pEnemy = nullptr;
     int nEnemyPal = -1;
     sectortype* pSector = nullptr;
-    DAngle nCameraang, rotscrnang;
-    DAngle nCamerapan = nullAngle;
+    DRotator nCameraangles{};
 
     DoInterpolations(interpfrac);
 
@@ -207,8 +206,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
         nCamerapos = pActor->spr.pos;
         pSector = pActor->sector();
-        nCameraang = pActor->spr.Angles.Yaw;
-        rotscrnang = nullAngle;
+        nCameraangles.Yaw = pActor->spr.Angles.Yaw;
 
         SetGreenPal();
 
@@ -232,18 +230,7 @@ void DrawView(double interpfrac, bool sceneonly)
         updatesector(nCamerapos, &pSector);
         if (pSector == nullptr) pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
 
-        if (!SyncInput())
-        {
-            nCamerapan = PlayerList[nLocalPlayer].Angles.horizSUM(interpfrac);
-            nCameraang = PlayerList[nLocalPlayer].Angles.angSUM(interpfrac);
-        }
-        else
-        {
-            nCamerapan = PlayerList[nLocalPlayer].Angles.horizLERPSUM(interpfrac);
-            nCameraang = PlayerList[nLocalPlayer].Angles.angLERPSUM(interpfrac);
-            
-        }
-        rotscrnang = PlayerList[nLocalPlayer].Angles.angLERPROTSCRN(interpfrac);
+        nCameraangles = PlayerList[nLocalPlayer].Angles.getRenderAngles(interpfrac);
 
         if (!bCamera)
         {
@@ -259,20 +246,20 @@ void DrawView(double interpfrac, bool sceneonly)
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
-        nCamerapan = nullAngle;
+        nCameraangles.Pitch = nullAngle;
     }
     else
     {
         nCamerapos.Z = min(nCamerapos.Z + nQuake[nLocalPlayer], pPlayerActor->sector()->floorz);
-        nCameraang += DAngle::fromDeg(fmod(nQuake[nLocalPlayer], 16.) * (45. / 128.));
+        nCameraangles.Yaw += DAngle::fromDeg(fmod(nQuake[nLocalPlayer], 16.) * (45. / 128.));
 
         if (bCamera)
         {
             nCamerapos.Z -= 10;
-            if (!calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac, 96.))
+            if (!calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraangles, interpfrac, 96.))
             {
                 nCamerapos.Z += 10;
-                calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraang, nCamerapan, interpfrac, 96.);
+                calcChaseCamPos(nCamerapos, pPlayerActor, &pSector, nCameraangles, interpfrac, 96.);
             }
         }
     }
@@ -315,7 +302,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
         if (!nFreeze && !sceneonly)
             DrawWeapons(interpfrac);
-        render_drawrooms(nullptr, nCamerapos, pSector, nCameraang, nCamerapan, rotscrnang, interpfrac);
+        render_drawrooms(nullptr, nCamerapos, pSector, nCameraangles, interpfrac);
 
         if (HavePLURemap())
         {
@@ -343,7 +330,7 @@ void DrawView(double interpfrac, bool sceneonly)
 
                     pPlayerActor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-                    auto ang2 = nCameraang - pPlayerActor->spr.Angles.Yaw;
+                    auto ang2 = nCameraangles.Yaw - pPlayerActor->spr.Angles.Yaw;
                     if (ang2.Degrees() < 0)
                         ang2 = -ang2;
 

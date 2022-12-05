@@ -405,15 +405,15 @@ void viewUpdateDelirium(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, double& pshakeX, double& pshakeY)
+void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DRotator& cAngles, double& pshakeX, double& pshakeY)
 {
 	auto doEffect = [&](const int& effectType)
 	{
 		if (effectType)
 		{
 			int nValue = ClipHigh(effectType * 8, 2000);
-			cH -= maphoriz(QRandom2F(nValue * (1. / 256.)));
-			cA += DAngle::fromDeg(QRandom2F(nValue * (360. / 524288.)));
+			cAngles.Pitch -= maphoriz(QRandom2F(nValue * (1. / 256.)));
+			cAngles.Yaw += DAngle::fromDeg(QRandom2F(nValue * (360. / 524288.)));
 			cPos.X += QRandom2F(nValue * maptoworld) * maptoworld;
 			cPos.Y += QRandom2F(nValue * maptoworld) * maptoworld;
 			cPos.Z += QRandom2F(nValue) * zmaptoworld;
@@ -424,7 +424,7 @@ void viewUpdateShake(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, do
 	doEffect(pPlayer->flickerEffect);
 	doEffect(pPlayer->quakeEffect);
 
-	cH -= DAngle::fromDeg((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
+	cAngles.Pitch -= DAngle::fromDeg((1 - BobVal((pPlayer->tiltEffect << 2) + 512)) * 13.2);
 }
 
 
@@ -458,7 +458,7 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, DAngle& rotscrnang, const double interpfrac)
+static void SetupView(PLAYER* pPlayer, DVector3& cPos, DRotator& cAngles, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, const double interpfrac)
 {
 	double bobWidth, bobHeight;
 
@@ -478,57 +478,46 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 
 		if (!SyncInput())
 		{
-			cA = bamang(predict.angle.asbam() + predict.look_ang.asbam());
-			cH = predict.horiz + predict.horizoff;
-			rotscrnang = predict.rotscrnang;
+			cAngles.Yaw = bamang(predict.angle.asbam() + predict.look_ang.asbam());
+			cAngles.Pitch = predict.horiz + predict.horizoff;
+			cAngles.Roll = predict.cAngles.Roll;
 		}
 		else
 		{
-			cA = interpolatedvalue(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, interpfrac);
-			cH = interpolatedvalue(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, interpfrac);
-			rotscrnang = interpolatedvalue(predictOld.rotscrnang, predict.rotscrnang, interpfrac);
+			cAngles.Yaw = interpolatedvalue(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, interpfrac);
+			cAngles.Pitch = interpolatedvalue(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, interpfrac);
+			cAngles.Roll = interpolatedvalue(predictOld.rotscrnang, predict.rotscrnang, interpfrac);
 		}
 	}
 	else
 #endif
 	{
 		cPos = pPlayer->actor->getRenderPos(interpfrac);
+		cAngles = pPlayer->Angles.getRenderAngles(interpfrac);
 		zDelta = interpolatedvalue(pPlayer->ozWeapon, pPlayer->zWeapon - pPlayer->zView - 12, interpfrac);
 		bobWidth = interpolatedvalue(pPlayer->obobWidth, pPlayer->bobWidth, interpfrac);
 		bobHeight = interpolatedvalue(pPlayer->obobHeight, pPlayer->bobHeight, interpfrac);
 		shakeX = interpolatedvalue(pPlayer->oswayWidth, pPlayer->swayWidth, interpfrac);
 		shakeY = interpolatedvalue(pPlayer->oswayHeight, pPlayer->swayHeight, interpfrac);
-
-		if (!SyncInput())
-		{
-			cA = pPlayer->Angles.angSUM(interpfrac);
-			cH = pPlayer->Angles.horizSUM(interpfrac);
-		}
-		else
-		{
-			cA = pPlayer->Angles.angLERPSUM(interpfrac);
-			cH = pPlayer->Angles.horizLERPSUM(interpfrac);
-		}
-		rotscrnang = pPlayer->Angles.angLERPROTSCRN(interpfrac);
 	}
 
-	viewUpdateShake(pPlayer, cPos, cA, cH, shakeX, shakeY);
+	viewUpdateShake(pPlayer, cPos, cAngles, shakeX, shakeY);
 
 	if (gViewPos == 0)
 	{
 		if (cl_viewhbob)
 		{
-			cPos.XY() -= cA.ToVector().Rotated90CW() * bobWidth;
+			cPos.XY() -= cAngles.Yaw.ToVector().Rotated90CW() * bobWidth;
 		}
 		if (cl_viewvbob)
 		{
 			cPos.Z += bobHeight;
 		}
-		cPos.Z -= interpolatedvalue(0., 10., cH / DAngle90);
+		cPos.Z -= interpolatedvalue(0., 10., cAngles.Pitch / DAngle90);
 	}
 	else
 	{
-		calcChaseCamPos(cPos, pPlayer->actor, &pSector, cA, cH, interpfrac, 80.);
+		calcChaseCamPos(cPos, pPlayer->actor, &pSector, cAngles, interpfrac, 80.);
 	}
 	if (pSector != nullptr)
 		CheckLink(cPos, &pSector);
@@ -649,11 +638,11 @@ void viewDrawScreen(bool sceneonly)
 		UpdateBlend(pPlayer);
 
 		DVector3 cPos;
-		DAngle cA, rotscrnang, cH;
+		DRotator cAngles;
 		sectortype* pSector;
 		double zDelta;
 		double shakeX, shakeY;
-		SetupView(pPlayer, cPos, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang, interpfrac);
+		SetupView(pPlayer, cPos, cAngles, pSector, zDelta, shakeX, shakeY, interpfrac);
 
 		DAngle tilt = interpolatedvalue(gScreenTiltO, gScreenTilt, interpfrac);
 		bool bDelirium = powerupCheck(pPlayer, kPwUpDeliriumShroom) > 0;
@@ -662,7 +651,7 @@ void viewDrawScreen(bool sceneonly)
 		uint8_t otherview = powerupCheck(pPlayer, kPwUpCrystalBall) > 0;
 		if (tilt.Degrees() || bDelirium)
 		{
-			rotscrnang = -tilt;
+			cAngles.Roll = -tilt;
 		}
 		else if (otherview && gNetPlayers > 1)
 		{
@@ -704,7 +693,7 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 		g_relvisibility = (int32_t)(ClipLow(gVisibility - 32 * pPlayer->visibility - brightness, 0)) - g_visibility;
-		cA += interpolatedvalue(deliriumTurnO, deliriumTurn, interpfrac);
+		cAngles.Yaw += interpolatedvalue(deliriumTurnO, deliriumTurn, interpfrac);
 
 		if (pSector != nullptr)
 		{
@@ -732,11 +721,12 @@ void viewDrawScreen(bool sceneonly)
 			}
 		}
 
-		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, rotscrnang, basepal, interpfrac);
+		if (!sceneonly) hudDraw(pPlayer, pSector, shakeX, shakeY, zDelta, cAngles.Roll, basepal, interpfrac);
 		DAngle deliriumPitchI = interpolatedvalue(maphoriz(deliriumPitchO), maphoriz(deliriumPitch), interpfrac);
 		auto bakCstat = pPlayer->actor->spr.cstat;
 		pPlayer->actor->spr.cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
-		render_drawrooms(pPlayer->actor, cPos, pSector, cA, cH - deliriumPitchI, rotscrnang, interpfrac);
+		cAngles.Pitch -= deliriumPitchI;
+		render_drawrooms(pPlayer->actor, cPos, pSector, cAngles, interpfrac);
 		pPlayer->actor->spr.cstat = bakCstat;
 		bDeliriumOld = bDelirium && gDeliriumBlur;
 
@@ -761,7 +751,7 @@ void viewDrawScreen(bool sceneonly)
 		int v8 = byte_1CE5C2 > 0 && (sector[tmpSect].ceilingstat & CSTAT_SECTOR_SKY);
 		if (gWeather.at12d8 > 0 || v8)
 		{
-			gWeather.Draw(cX, cY, cZ, cA.Tan() * (1 << 23), cH.Tan() * (1 << 23) + deliriumPitch, gWeather.at12d8);
+			gWeather.Draw(cX, cY, cZ, cAngles.Yaw.Tan() * (1 << 23), cAngles.Pitch.Tan() * (1 << 23) + deliriumPitch, gWeather.at12d8);
 			if (v8)
 			{
 				gWeather.at12d8 = ClipRange(delta * 8 + gWeather.at12d8, 0, 4095);

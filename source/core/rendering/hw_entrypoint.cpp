@@ -192,18 +192,18 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 //
 //===========================================================================
 
-FRenderViewpoint SetupViewpoint(DCoreActor* cam, const DVector3& position, int sectnum, DAngle angle, DAngle horizon, DAngle rollang, float fov = -1)
+FRenderViewpoint SetupViewpoint(DCoreActor* cam, const DVector3& position, int sectnum, const DRotator& angles, float fov = -1)
 {
 	FRenderViewpoint r_viewpoint{};
 	r_viewpoint.CameraActor = cam;
 	r_viewpoint.SectNums = nullptr;
 	r_viewpoint.SectCount = sectnum;
 	r_viewpoint.Pos = { position.X, -position.Y, -position.Z };
-	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(-90.f + (float)angle.Degrees());
-	r_viewpoint.HWAngles.Pitch = FAngle::fromDeg(ClampViewPitch(horizon).Degrees());
-	r_viewpoint.HWAngles.Roll = FAngle::fromDeg((float)rollang.Degrees());
+	r_viewpoint.HWAngles.Yaw = FAngle::fromDeg(-90.f + (float)angles.Yaw.Degrees());
+	r_viewpoint.HWAngles.Pitch = FAngle::fromDeg(ClampViewPitch(angles.Pitch).Degrees());
+	r_viewpoint.HWAngles.Roll = FAngle::fromDeg((float)angles.Roll.Degrees());
 	r_viewpoint.FieldOfView = FAngle::fromDeg(fov > 0? fov :  (float)r_fov);
-	r_viewpoint.RotAngle = angle.BAMs();
+	r_viewpoint.RotAngle = angles.Yaw.BAMs();
 	double FocalTangent = tan(r_viewpoint.FieldOfView.Radians() / 2);
 	DAngle an = DAngle::fromDeg(270. - r_viewpoint.HWAngles.Yaw.Degrees());
 	r_viewpoint.TanSin = FocalTangent * an.Sin();
@@ -305,7 +305,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 void animatecamsprite(double s);
 
 
-void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, DAngle horizon, DAngle rollang, double interpfrac, float fov)
+void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sectortype* sect, const DRotator& angles, double interpfrac, float fov)
 {
 	checkRotatedWalls();
 
@@ -319,7 +319,7 @@ void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sector
 	ResetProfilingData();
 
 	// Get this before everything else
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectindex(sect), angle, horizon, rollang, fov);
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectindex(sect), angles, fov);
 	r_viewpoint.TicFrac = !cl_capfps ? interpfrac : 1.;
 
 	screen->mLights->Clear();
@@ -359,7 +359,7 @@ void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sector
 	All.Unclock();
 }
 
-void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortype* sect, DAngle angle, DAngle horizon, DAngle rollang, FGameTexture* camtex, IntRect& rect, double interpfrac)
+void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortype* sect, const DRotator& angles, FGameTexture* camtex, IntRect& rect, double interpfrac)
 {
 	updatesector(position, &sect);
 	if (!sect) return;
@@ -369,7 +369,7 @@ void render_camtex(DCoreActor* playersprite, const DVector3& position, sectortyp
 	// now render the main view
 	float ratio = camtex->GetDisplayWidth() / camtex->GetDisplayHeight();
 
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectindex(sect), angle, horizon, rollang);
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectindex(sect), angles);
 	r_viewpoint.TicFrac = !cl_capfps ? interpfrac : 1.;
 
 	RenderViewpoint(r_viewpoint, &rect, r_viewpoint.FieldOfView.Degrees(), ratio, ratio, false, false);

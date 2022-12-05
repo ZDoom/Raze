@@ -408,7 +408,7 @@ void drawroomstotile(const DVector3& pos, DAngle ang, DAngle horiz, sectortype* 
 
     screen->RenderTextureView(canvas, [=](IntRect& rect)
         {
-               render_camtex(nullptr, pos, dacursect, ang, horiz, nullAngle, tileGetTexture(tilenume), rect, smoothratio);
+               render_camtex(nullptr, pos, dacursect, DRotator(horiz, ang, nullAngle), tileGetTexture(tilenume), rect, smoothratio);
         });
 
 }

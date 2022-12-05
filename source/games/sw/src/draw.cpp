@@ -1224,9 +1224,6 @@ void RestorePortalState()
 
 void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
 {
-    DAngle tang, trotscrnang, thoriz;
-    sectortype* tsect;
-
     // prediction player if prediction is on, else regular player
     PLAYER* camerapp = (PredictionOn && CommEnabled && pp == Player+myconnectindex) ? ppp : pp;
 
@@ -1242,18 +1239,8 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
 
     // Get initial player position, interpolating if required.
     DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
-    if (SyncInput() || pp != Player+myconnectindex)
-    {
-        tang = camerapp->Angles.angLERPSUM(interpfrac);
-        thoriz = camerapp->Angles.horizLERPSUM(interpfrac);
-    }
-    else
-    {
-        tang = pp->Angles.angSUM(interpfrac);
-        thoriz = pp->Angles.horizSUM(interpfrac);
-    }
-    trotscrnang = camerapp->Angles.angLERPROTSCRN(interpfrac);
-    tsect = camerapp->cursector;
+    DRotator tangles = camerapp->Angles.getRenderAngles(interpfrac);
+    sectortype* tsect = camerapp->cursector;
 
     updatesector(tpos, &tsect);
 
@@ -1262,16 +1249,16 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         if (pp->sop_control && (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
             tpos = pp->actor->getPosWithOffsetZ();
-            tang = pp->Angles.ZzANGLE();
+            tangles.Yaw = pp->actor->spr.Angles.Yaw;
         }
         tsect = pp->cursector;
         updatesectorz(tpos, &tsect);
     }
 
     pp->si = tpos.plusZ(-pp->actor->getOffsetZ());
-    pp->siang = tang;
+    pp->siang = tangles.Yaw;
 
-    QuakeViewChange(camerapp, tpos, tang);
+    QuakeViewChange(camerapp, tpos, tangles.Yaw);
     int vis = g_visibility;
     VisViewChange(camerapp, &vis);
     g_relvisibility = vis - g_visibility;
@@ -1279,17 +1266,17 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     if (pp->sop_remote)
     {
         DSWActor* ractor = pp->remoteActor;
-        tang = TEST_BOOL1(ractor) ? ractor->spr.Angles.Yaw : (pp->sop_remote->pmid.XY() - tpos.XY()).Angle();
+        tangles.Yaw = TEST_BOOL1(ractor) ? ractor->spr.Angles.Yaw : (pp->sop_remote->pmid.XY() - tpos.XY()).Angle();
     }
 
     if (pp->Flags & (PF_VIEW_FROM_OUTSIDE))
     {
         tpos.Z -= 33;
 
-        if (!calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac, 128.))
+        if (!calcChaseCamPos(tpos, pp->actor, &tsect, tangles, interpfrac, 128.))
         {
             tpos.Z += 33;
-            calcChaseCamPos(tpos, pp->actor, &tsect, tang, thoriz, interpfrac, 128.);
+            calcChaseCamPos(tpos, pp->actor, &tsect, tangles, interpfrac, 128.);
         }
     }
 
@@ -1301,7 +1288,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         }
 
         // recoil only when not in camera
-        thoriz -= interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, interpfrac);
+        tangles.Pitch -= interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, interpfrac);
     }
 
     if (automapMode != am_full)
@@ -1314,7 +1301,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         UpdatePanel(interpfrac);
 
     UpdateWallPortalState();
-    render_drawrooms(pp->actor, tpos, tsect, tang, thoriz, trotscrnang, interpfrac);
+    render_drawrooms(pp->actor, tpos, tsect, tangles, interpfrac);
     RestorePortalState();
 
     if (sceneonly)
@@ -1340,7 +1327,7 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
                 }
             }
         }
-        DrawOverheadMap(tpos.XY(), tang, interpfrac);
+        DrawOverheadMap(tpos.XY(), tangles.Yaw, interpfrac);
     }
 
     SWSpriteIterator it;
