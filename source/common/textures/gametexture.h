@@ -61,6 +61,7 @@ enum EGameTexFlags
 	GTexf_AutoMaterialsAdded = 256,			// AddAutoMaterials has been called on this texture.
 	GTexf_OffsetsNotForFont = 512,			// The offsets must be ignored when using this texture in a font.
 	GTexf_NoTrim = 1024,					// Don't perform trimming on this texture.
+	GTexf_Seen = 2024,						// Set to true when the texture is being used for rendering. Must be cleared manually if the check is needed.
 };
 
 struct FMaterialLayers
@@ -185,6 +186,13 @@ public:
 	void SetRotations(int rot) { Rotations = int16_t(rot); }
 	void SetSkyOffset(int offs) { SkyOffset = offs; }
 	int GetSkyOffset() const { return SkyOffset; }
+	void setSeen() { flags |= GTexf_Seen; }
+	bool isSeen(bool reset) 
+	{ 
+		int v = flags & GTexf_Seen;   
+		if (reset) flags &= ~GTexf_Seen;
+		return v;
+	}
 
 	ISoftwareTexture* GetSoftwareTexture()
 	{

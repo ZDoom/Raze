@@ -303,7 +303,6 @@ struct BuildTiles
 	TileDesc tiledata[MAXTILES];
 	TArray<FString> addedArt;
 	TArray<FString> maptilesadded;
-	TMap<int, FGameTexture*> cameratextures;
 	TMap<FName, int> nametoindex;
 	bool locked;	// if this is true, no more tile modifications are allowed.
 

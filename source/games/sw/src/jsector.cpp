@@ -480,29 +480,18 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
         {
             if (!mirror[cnt].ismagic) continue; // these are definitely not camera textures.
 
-            if (testgotpic(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && testgotpic(mirror[cnt].campic)))
+            auto tex = tileGetTexture(mirror[cnt].campic);
+            if (tex && tex->isSeen(true))
             {
-                // Do not change any global state here!
-                bIsWallMirror = testgotpic(cnt + MIRRORLABEL);
-
-                DVector2 vec;
-                if (bIsWallMirror)
-                {
-                    vec = mirror[cnt].mirrorWall->pos - campos.XY();
-                }
-                else
-                {
-                    DSWActor* camactor = mirror[cnt].camspriteActor;
-
-                    vec = camactor->spr.pos - campos.XY();
-                }
+                DSWActor* camactor = mirror[cnt].camspriteActor;
+                DVector2 vec = camactor->spr.pos - campos.XY();
                 dist = abs(vec.X) + abs(vec.Y);
 
 
                 short w;
 
-                DSWActor *camactor = mirror[cnt].cameraActor;
-                assert(camactor);
+                camactor = mirror[cnt].cameraActor;
+                if (!camactor) continue;
 
                 // Calculate the angle of the mirror wall
                 auto wal = mirror[cnt].mirrorWall;

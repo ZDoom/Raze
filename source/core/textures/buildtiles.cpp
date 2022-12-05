@@ -393,29 +393,14 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 		// B) the pin display in Redneck Rampage's bowling lanes.
 		// C) Exhumed's menu plus one special effect tile.
 		if (tile->GetTexelWidth() == 0 || tile->GetTexelHeight() == 0) return nullptr;	// The base must have a size for this to work.
-		// todo: invalidate hardware textures for tile.
 		replacement = new FImageTexture(new FRestorableTile(tile->GetTexture()->GetImage()));
 	}
 	else if (type == ReplacementType::Canvas)
 	{
-		// necessary fuckery thanks to SW considering camera textures the same as mirrors and deleting them if opportune.
-		// If we do not remember them this would create new ones over and over again.
-		auto check = cameratextures.CheckKey(tilenum);
-		if (check)
-		{
-			// if this once was a camera texture but now isn't anymore, grab that camera texture from the cache and reuse it.
-			AddTile(tilenum, *check);
-			return *check;
-		}
-
 		replacement = new FCanvasTexture(1, 1);
 	}
 	else return nullptr;
 	auto rep = MakeGameTexture(replacement, tile->GetName(), ETextureType::Override);
-	if (type == ReplacementType::Canvas)
-	{
-		cameratextures.Insert(tilenum, rep);
-	}
 	AddTile(tilenum, rep);
 	return rep;
 }
