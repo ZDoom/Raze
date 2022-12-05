@@ -115,14 +115,6 @@ struct PlayerAngles
 		}
 	}
 
-
-	// Legacy, to be removed.
-	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(ZzOLDHORIZON() + PrevViewAngles.Pitch, ZzHORIZON() + ViewAngles.Pitch, interpfrac); }
-	DAngle angSUM(const double interpfrac) { return ZzANGLE() + angLERPLOOKANG(interpfrac); }
-	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE() + PrevViewAngles.Yaw, ZzANGLE() + ViewAngles.Yaw, interpfrac); }
-	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE(), ZzANGLE(), interpfrac); }
-	DAngle angLERPLOOKANG(double const interpfrac) { return interpolatedvalue(PrevViewAngles.Yaw, ViewAngles.Yaw, interpfrac); }
-
 private:
 	// DRotator indices.
 	enum : unsigned

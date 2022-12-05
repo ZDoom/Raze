@@ -446,8 +446,7 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 		setViewport(Hud_Stbar);
 		tm = 1;
 	}
-	auto ang = !SyncInput() ? pPlayer->Angles.angSUM(interpfrac) : pPlayer->Angles.angLERPSUM(interpfrac);
-	DrawOverheadMap(pPlayer->actor->interpolatedpos(interpfrac).XY(), ang, interpfrac);
+	DrawOverheadMap(pPlayer->actor->interpolatedpos(interpfrac).XY(), pPlayer->Angles.getRenderAngles(interpfrac).Yaw, interpfrac);
 	if (tm)
 		setViewport(hud_size);
 }

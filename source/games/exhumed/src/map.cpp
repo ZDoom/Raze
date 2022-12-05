@@ -55,8 +55,7 @@ void DrawMap(double const interpfrac)
     if (!nFreeze && automapMode != am_off) 
     {
         auto pPlayerActor = PlayerList[nLocalPlayer].pActor;
-        auto ang = !SyncInput() ? PlayerList[nLocalPlayer].Angles.angSUM(interpfrac) : PlayerList[nLocalPlayer].Angles.angLERPSUM(interpfrac);
-        DrawOverheadMap(pPlayerActor->interpolatedpos(interpfrac).XY(), ang, interpfrac);
+        DrawOverheadMap(pPlayerActor->interpolatedpos(interpfrac).XY(), PlayerList[nLocalPlayer].Angles.getRenderAngles(interpfrac).Yaw, interpfrac);
     }
 }
 

@@ -812,7 +812,7 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
             {
                 pp = tActor->user.PlayerP;
                 tsp->pos = pp->actor->getRenderPos(interpfrac);
-                tsp->Angles.Yaw = pp->Angles.angLERPANG(interpfrac);
+                tsp->Angles.Yaw = pp->actor->interpolatedyaw(interpfrac);
             }
         }
 
