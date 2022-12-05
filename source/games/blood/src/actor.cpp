@@ -6026,7 +6026,7 @@ static void actCheckDudes()
 		if (actor->spr.flags & 32 || !actor->hasX()) continue;
 
 		auto pSector = actor->sector();
-		viewBackupSpriteLoc(actor);
+		if (!actor->IsPlayerActor()) viewBackupSpriteLoc(actor);
 		XSECTOR* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
 		if (pXSector)

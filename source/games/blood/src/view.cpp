@@ -65,8 +65,8 @@ void viewBackupView(int nPlayer)
 	pPlayer->obobWidth = pPlayer->bobWidth;
 	pPlayer->oswayHeight = pPlayer->swayHeight;
 	pPlayer->oswayWidth = pPlayer->swayWidth;
-	pPlayer->Angles.backupYaw();
-	pPlayer->Angles.backupPitch();
+	pPlayer->actor->backuploc();
+	pPlayer->actor->interpolated = true;
 }
 
 //---------------------------------------------------------------------------
