@@ -58,7 +58,7 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
     // this looks broken.
     do
     {
-        dwall->picnum = swall->picnum;
+        dwall->wallpicnum = swall->wallpicnum;
 
         dwall->xrepeat =       swall->xrepeat;
         dwall->yrepeat =       swall->yrepeat;
@@ -76,7 +76,7 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
         {
             auto const dest_nextwall = dwall->nextWall();
             auto const src_nextwall = swall->nextWall();
-            dest_nextwall->picnum = src_nextwall->picnum;
+            dest_nextwall->wallpicnum = src_nextwall->wallpicnum;
             dest_nextwall->xrepeat = src_nextwall->xrepeat;
             dest_nextwall->yrepeat = src_nextwall->yrepeat;
             dest_nextwall->overpicnum = src_nextwall->overpicnum;

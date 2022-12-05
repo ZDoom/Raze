@@ -267,7 +267,7 @@ void PreloadCache()
 	}
 	for (auto& wal : wall)
 	{
-		tilePrecacheTile(wal.picnum, 0, wal.pal);
+		tilePrecacheTile(wal.wallpicnum, 0, wal.pal);
 		if (wal.overpicnum >= 0)
 			tilePrecacheTile(wal.overpicnum, 0, wal.pal);
 	}

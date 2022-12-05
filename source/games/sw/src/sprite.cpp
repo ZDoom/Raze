@@ -6114,7 +6114,7 @@ int  StateControl(DSWActor* actor)
         if ((actor->user.State->Tics & SF_WALL_STATE))
         {
             ASSERT(actor->user.WallP);
-            actor->user.WallP->picnum = actor->user.State->Pic;
+            actor->user.WallP->wallpicnum = actor->user.State->Pic;
         }
         else
         {

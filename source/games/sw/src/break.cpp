@@ -476,7 +476,7 @@ BREAK_INFO* SetupWallForBreak(walltype* wallp)
 {
     BREAK_INFO* break_info;
 
-    break_info = FindWallBreakInfo(wallp->picnum);
+    break_info = FindWallBreakInfo(wallp->wallpicnum);
     if (break_info)
     {
         wallp->lotag = TAG_WALL_BREAK;
@@ -586,7 +586,7 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
     if (wallp->overpicnum > 0 && (wallp->cstat & CSTAT_WALL_MASKED))
         break_info = FindWallBreakInfo(wallp->overpicnum);
     else
-        break_info = FindWallBreakInfo(wallp->picnum);
+        break_info = FindWallBreakInfo(wallp->wallpicnum);
 
     if (!break_info)
     {
@@ -639,10 +639,10 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
     else
     {
         if (break_info->breaknum == -1)
-            wallp->picnum = 594; // temporary break pic
+            wallp->wallpicnum = 594; // temporary break pic
         else
         {
-            wallp->picnum = break_info->breaknum;
+            wallp->wallpicnum = break_info->breaknum;
             if (wallp->hitag < 0)
                 DoWallBreakSpriteMatch(wallp->hitag);
         }
@@ -681,7 +681,7 @@ bool UserBreakWall(walltype* wp)
         return true;
     }
 
-    if (wp->picnum == SP_TAG5(actor))
+    if (wp->wallpicnum == SP_TAG5(actor))
         return true;
 
     // make it BROKEN
@@ -692,7 +692,7 @@ bool UserBreakWall(walltype* wp)
 
         if (SP_TAG8(actor) == 0)
         {
-            wp->picnum = SP_TAG5(actor);
+            wp->wallpicnum = SP_TAG5(actor);
             // clear tags
             wp->hitag = wp->lotag = 0;
             if (wp->twoSided())
@@ -715,7 +715,7 @@ bool UserBreakWall(walltype* wp)
         else if (SP_TAG8(actor) == 2)
         {
             // set to broken pic
-            wp->picnum = SP_TAG5(actor);
+            wp->wallpicnum = SP_TAG5(actor);
 
             // clear flags
             wp->cstat &= ~(block_flags);
@@ -735,7 +735,7 @@ bool UserBreakWall(walltype* wp)
     else
     {
         // increment picnum
-        wp->picnum++;
+        wp->wallpicnum++;
 
         DoSpawnSpotsForDamage(match);
     }

@@ -231,7 +231,7 @@ void cacheit_d(void)
 
 	for (auto& wal : wall)
 	{
-		tloadtile(wal.picnum, wal.pal);
+		tloadtile(wal.wallpicnum, wal.pal);
 		if (wal.overpicnum >= 0)
 			tloadtile(wal.overpicnum, wal.pal);
 	}
@@ -397,7 +397,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 		wal.extra = -1;
 
-		switch (wal.picnum)
+		switch (wal.wallpicnum)
 		{
 		case DTILE_W_TECHWALL1:
 		case DTILE_W_TECHWALL2:
@@ -421,11 +421,11 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		case DTILE_FEMPIC2:
 		case DTILE_FEMPIC3:
 
-			wal.extra = wal.picnum;
+			wal.extra = wal.wallpicnum;
 			animwall[numanimwalls].tag = -1;
 
 			animwall[numanimwalls].wall = &wal;
-			animwall[numanimwalls].tag = wal.picnum;
+			animwall[numanimwalls].tag = wal.wallpicnum;
 			numanimwalls++;
 			break;
 
@@ -448,7 +448,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		case DTILE_SCREENBREAK19:
 
 			animwall[numanimwalls].wall = &wal;
-			animwall[numanimwalls].tag = wal.picnum;
+			animwall[numanimwalls].tag = wal.wallpicnum;
 			numanimwalls++;
 			break;
 		}
@@ -459,7 +459,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		for (auto& wal : mirrorsector[i]->walls)
 		{
-			wal.picnum = DTILE_MIRROR;
+			wal.wallpicnum = DTILE_MIRROR;
 			wal.overpicnum = DTILE_MIRROR;
 		}
 	}

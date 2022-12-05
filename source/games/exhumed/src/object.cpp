@@ -962,7 +962,7 @@ void AIWallFace::ProcessChannel(RunListEvent* ev)
 
     if ((si <= WallFace[nWallFace].count) && (si >= 0))
     {
-        WallFace[nWallFace].pWall->picnum = WallFace[nWallFace].piclist[si];
+        WallFace[nWallFace].pWall->wallpicnum = WallFace[nWallFace].piclist[si];
     }
 }
 
@@ -1256,13 +1256,13 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
             if (sTrap[nTrap].pWall1 != nullptr)
             {
                 sTrap[nTrap].pWall2 = &wal;
-                sTrap[nTrap].nPicnum2 = wal.picnum;
+                sTrap[nTrap].nPicnum2 = wal.wallpicnum;
                 break;
             }
             else
             {
                 sTrap[nTrap].pWall1 = &wal;
-                sTrap[nTrap].nPicnum1 = wal.picnum;
+                sTrap[nTrap].nPicnum1 = wal.wallpicnum;
             }
         }
     }
@@ -1321,13 +1321,13 @@ void AITrap::Tick(RunListEvent* ev)
                 auto pWall = sTrap[nTrap].pWall1;
                 if (pWall)
                 {
-                    pWall->picnum = sTrap[nTrap].nPicnum1;
+                    pWall->wallpicnum = sTrap[nTrap].nPicnum1;
                 }
 
                 pWall = sTrap[nTrap].pWall1;
                 if (pWall)
                 {
-                    pWall->picnum = sTrap[nTrap].nPicnum2;
+                    pWall->wallpicnum = sTrap[nTrap].nPicnum2;
                 }
             }
         }
@@ -1353,13 +1353,13 @@ void AITrap::Tick(RunListEvent* ev)
                     auto pWall = sTrap[nTrap].pWall1;
                     if (pWall)
                     {
-                        pWall->picnum = sTrap[nTrap].nPicnum1 + 1;
+                        pWall->wallpicnum = sTrap[nTrap].nPicnum1 + 1;
                     }
 
                     pWall = sTrap[nTrap].pWall2;
                     if (pWall)
                     {
-                        pWall->picnum = sTrap[nTrap].nPicnum2;
+                        pWall->wallpicnum = sTrap[nTrap].nPicnum2;
                     }
 
                     D3PlayFX(StaticSound[kSound36], pBullet);
@@ -1620,7 +1620,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     {
 		apos += wal.pos;
 		
-        wal.picnum = kClockSymbol16;
+        wal.wallpicnum = kClockSymbol16;
         wal.pal = 0;
         wal.shade = 50;
     }
@@ -2625,7 +2625,7 @@ void PostProcess()
 
             for(auto& wal : sect.walls)
             {
-                if (wal.picnum == kTile3603)
+                if (wal.wallpicnum == kTile3603)
                 {
                     wal.pal = 1;
                     auto pActor = insertActor(&sect, 407);

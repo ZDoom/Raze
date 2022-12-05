@@ -88,7 +88,7 @@ void InitMirrors(void)
 			}
 			continue;
 		}
-		if (pWalli->picnum == 504)
+		if (pWalli->wallpicnum == 504)
 		{
 			mirror[mirrorcnt].link = i;
 			mirror[mirrorcnt].mynum = i;

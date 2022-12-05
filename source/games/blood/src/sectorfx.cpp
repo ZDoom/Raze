@@ -320,7 +320,7 @@ void DoSectorPanning(void)
 				psx = MulScale(psx, pXWall->busy, 16);
 				psy = MulScale(psy, pXWall->busy, 16);
 			}
-			int nTile = pWall->picnum;
+			int nTile = pWall->wallpicnum;
 			int px = (psx << 2) / tileWidth(nTile);
 			int py = (psy << 2) / tileHeight(nTile);
 

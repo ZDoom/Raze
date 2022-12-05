@@ -1301,7 +1301,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ceilingflags, duke_ceilingflags)
 
 int duke_wallflags(walltype* wal, int which)
 {
-	return tileflags(which? wal->overpicnum : wal->picnum);
+	return tileflags(which? wal->overpicnum : wal->wallpicnum);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, wallflags, duke_wallflags)
@@ -1314,7 +1314,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, wallflags, duke_wallflags)
 
 int duke_ismirror(walltype* wal)
 {
-	return wal->picnum == TILE_MIRROR || wal->overpicnum == TILE_MIRROR;
+	return wal->wallpicnum == TILE_MIRROR || wal->overpicnum == TILE_MIRROR;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ismirror, duke_ismirror)

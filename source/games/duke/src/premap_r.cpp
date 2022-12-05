@@ -371,7 +371,7 @@ void cacheit_r(void)
 
 	for (auto& wal : wall)
 	{
-			tloadtile(wal.picnum, wal.pal);
+			tloadtile(wal.wallpicnum, wal.pal);
 		if(wal.overpicnum >= 0)
 			tloadtile(wal.overpicnum, wal.pal);
 	}
@@ -691,7 +691,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 
 		wal->extra = -1;
 
-		switch (wal->picnum)
+		switch (wal->wallpicnum)
 		{
 		case RTILE_SCREENBREAK6:
 		case RTILE_SCREENBREAK7:
@@ -710,7 +710,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	{
 		for (auto& mwal : mirrorsector[i]->walls)
 		{
-			mwal.picnum = RTILE_MIRROR;
+			mwal.wallpicnum = RTILE_MIRROR;
 			mwal.overpicnum = RTILE_MIRROR;
 		}
 	}

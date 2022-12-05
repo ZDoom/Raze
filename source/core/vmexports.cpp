@@ -721,7 +721,7 @@ void wall_settexturename(walltype* sec, int place, int intname)
 {
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
 	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
-	(place ? sec->overpicnum : sec->picnum) = tilenum;
+	(place ? sec->overpicnum : sec->wallpicnum) = tilenum;
 }
 DEFINE_ACTION_FUNCTION_NATIVE(_walltype, settexturename, wall_settexturename)
 {
@@ -736,7 +736,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, settexturename, wall_settexturename)
 void wall_settexture(walltype* sec, int place, int tilenum)
 {
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
-	(place ? sec->overpicnum : sec->picnum) = tilenum;
+	(place ? sec->overpicnum : sec->wallpicnum) = tilenum;
 }
 DEFINE_ACTION_FUNCTION_NATIVE(_walltype, settexture, wall_settexture)
 {

@@ -3945,8 +3945,8 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			walltype* pObj = eob.wall();
 			switch (cond)
 			{
-			case 24: return condCmp(surfType[pObj->picnum], arg1, arg2, cmpOp);
-			case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
+			case 24: return condCmp(surfType[pObj->wallpicnum], arg1, arg2, cmpOp);
+			case 25: return condCmp(pObj->wallpicnum, arg1, arg2, cmpOp);
 			case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((pObj->cstat & EWallFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (pObj->cstat & EWallFlags::FromInt(arg1));
@@ -7212,7 +7212,7 @@ void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype* targSe
 		break;
 	case OBJ_WALL:
 		if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
-			targWall->picnum = sourceactor->xspr.data1;
+			targWall->wallpicnum = sourceactor->xspr.data1;
 
 		if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
 			targWall->overpicnum = sourceactor->xspr.data2;

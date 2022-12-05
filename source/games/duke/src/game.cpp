@@ -558,7 +558,7 @@ CCMD(changewalltexture)
 	hitscan(ps[0].actor->spr.pos, ps[0].cursector, DVector3(ps[0].actor->spr.Angles.Yaw.ToVector(), 0) * 1024, hit, CLIPMASK1);
 	if (hit.hitWall)
 	{
-		hit.hitWall->picnum = tile;
+		hit.hitWall->wallpicnum = tile;
 	}
 }
 

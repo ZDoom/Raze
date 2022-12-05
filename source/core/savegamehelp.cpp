@@ -563,7 +563,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 			("nextwall", c.nextwall, def->nextwall)
 			("nextsector", c.nextsector, def->nextsector)
 			("cstat", c.cstat, def->cstat)
-			("picnum", c.picnum, def->picnum)
+			("picnum", c.wallpicnum, def->wallpicnum)
 			("overpicnum", c.overpicnum, def->overpicnum)
 			("shade", c.shade, def->shade)
 			("pal", c.pal, def->pal)

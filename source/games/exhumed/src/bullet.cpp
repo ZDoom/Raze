@@ -464,7 +464,7 @@ HITSPRITE:
         else if (pHitWall != nullptr)
         {
         HITWALL:
-            if (pHitWall->picnum == kEnergy1)
+            if (pHitWall->wallpicnum == kEnergy1)
             {
                 if (pHitWall->twoSided())
                 {

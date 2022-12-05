@@ -1306,10 +1306,10 @@ void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 		}
 	}
 
-	auto data = breakWallMap.CheckKey(wal->picnum);
+	auto data = breakWallMap.CheckKey(wal->wallpicnum);
 	if (data && !(data->flags & 1))
 	{
-		handler(data, &wal->picnum);
+		handler(data, &wal->wallpicnum);
 	}
 }
 

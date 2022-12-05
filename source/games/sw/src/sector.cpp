@@ -191,11 +191,11 @@ void WallSetup(void)
 
     for (auto& wal : wall)
     {
-        if (wal.picnum == FAF_PLACE_MIRROR_PIC)
-            wal.picnum = FAF_MIRROR_PIC;
+        if (wal.wallpicnum == FAF_PLACE_MIRROR_PIC)
+            wal.wallpicnum = FAF_MIRROR_PIC;
 
-        if (wal.picnum == FAF_PLACE_MIRROR_PIC+1)
-            wal.picnum = FAF_MIRROR_PIC+1;
+        if (wal.wallpicnum == FAF_PLACE_MIRROR_PIC+1)
+            wal.wallpicnum = FAF_MIRROR_PIC+1;
 
         // this overwrites the lotag so it needs to be called LAST - its down there
         // SetupWallForBreak(wp);

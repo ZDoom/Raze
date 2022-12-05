@@ -98,7 +98,7 @@ void precacheMap(void)
 
 	for (auto& wal : wall)
 	{
-		j = wal.picnum;
+		j = wal.wallpicnum;
 		markTileForPrecache(j, wal.pal);
 
 		if (wal.overpicnum > 0 && wal.overpicnum < MAXTILES)

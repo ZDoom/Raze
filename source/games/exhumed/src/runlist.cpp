@@ -1625,7 +1625,7 @@ void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
 
         case 1:
         {
-            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->picnum, pWall->picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->wallpicnum, pWall->wallpicnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
             auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, nEffectTag, 0), pWall);
@@ -1643,7 +1643,7 @@ void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
 
         case 7: // Regular switch
         {
-            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->picnum, pWall->picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->wallpicnum, pWall->wallpicnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
             auto nSwitch = BuildSwPressWall(nChannel, BuildLink(1, 1), pWall);
@@ -1653,7 +1653,7 @@ void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
 
         case 8: // Reverse switch
         {
-            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->picnum, pWall->picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->wallpicnum, pWall->wallpicnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
             auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, -1, 0), pWall);

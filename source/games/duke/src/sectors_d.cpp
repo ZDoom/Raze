@@ -56,7 +56,7 @@ void animatewalls_d(void)
 	for (int p = 0; p < numanimwalls; p++)
 	{
 		auto wal = animwall[p].wall;
-		int j = wal->picnum;
+		int j = wal->wallpicnum;
 
 		switch (j)
 		{
@@ -80,8 +80,8 @@ void animatewalls_d(void)
 
 			if ((krand() & 255) < 16)
 			{
-				animwall[p].tag = wal->picnum;
-				wal->picnum = DTILE_SCREENBREAK6;
+				animwall[p].tag = wal->wallpicnum;
+				wal->wallpicnum = DTILE_SCREENBREAK6;
 			}
 
 			continue;
@@ -91,12 +91,12 @@ void animatewalls_d(void)
 		case DTILE_SCREENBREAK8:
 
 			if (animwall[p].tag >= 0 && wal->extra != DTILE_FEMPIC2 && wal->extra != DTILE_FEMPIC3)
-				wal->picnum = animwall[p].tag;
+				wal->wallpicnum = animwall[p].tag;
 			else
 			{
-				wal->picnum++;
-				if (wal->picnum == (DTILE_SCREENBREAK6 + 3))
-					wal->picnum = DTILE_SCREENBREAK6;
+				wal->wallpicnum++;
+				if (wal->wallpicnum == (DTILE_SCREENBREAK6 + 3))
+					wal->wallpicnum = DTILE_SCREENBREAK6;
 			}
 			continue;
 
@@ -185,7 +185,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
 		spos = wwal->pos;
-		picnum = wwal->picnum;
+		picnum = wwal->wallpicnum;
 		switchpal = wwal->pal;
 	}
 
@@ -336,19 +336,19 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	for (auto& wal : wall)
 	{
 		if (lotag == wal.lotag)
-			switch (wal.picnum)
+			switch (wal.wallpicnum)
 			{
 			case DTILE_DIPSWITCH:
 			case DTILE_TECHSWITCH:
 			case DTILE_ALIENSWITCH:
-				if (!act && &wal == wwal) wal.picnum++;
+				if (!act && &wal == wwal) wal.wallpicnum++;
 				else if (wal.hitag == 0) correctdips++;
 				numdips++;
 				break;
 			case DTILE_DIPSWITCHON:
 			case DTILE_TECHSWITCHON:
 			case DTILE_ALIENSWITCHON:
-				if (!act && &wal == wwal) wal.picnum--;
+				if (!act && &wal == wwal) wal.wallpicnum--;
 				else if (wal.hitag == 1) correctdips++;
 				numdips++;
 				break;
@@ -356,9 +356,9 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			case DTILE_MULTISWITCH_2:
 			case DTILE_MULTISWITCH_3:
 			case DTILE_MULTISWITCH_4:
-				wal.picnum++;
-				if (wal.picnum > (DTILE_MULTISWITCH_4))
-					wal.picnum = DTILE_MULTISWITCH;
+				wal.wallpicnum++;
+				if (wal.wallpicnum > (DTILE_MULTISWITCH_4))
+					wal.wallpicnum = DTILE_MULTISWITCH;
 				break;
 			case DTILE_ACCESSSWITCH:
 			case DTILE_ACCESSSWITCH2:
@@ -374,7 +374,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			case DTILE_HANDSWITCH:
 			case DTILE_DIPSWITCH2:
 			case DTILE_DIPSWITCH3:
-				wal.picnum++;
+				wal.wallpicnum++;
 				break;
 			case DTILE_HANDSWITCHON:
 			case DTILE_PULLSWITCHON:
@@ -388,7 +388,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			case DTILE_SPACEDOORSWITCHON:
 			case DTILE_DIPSWITCH2ON:
 			case DTILE_DIPSWITCH3ON:
-				wal.picnum--;
+				wal.wallpicnum--;
 				break;
 			}
 	}
@@ -907,7 +907,7 @@ void checksectors_d(int snum)
 
 		if (near.hitWall)
 		{
-			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->picnum))
+			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->wallpicnum))
 			{
 				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
 					fi.checkhitswitch(snum, near.hitWall, nullptr);

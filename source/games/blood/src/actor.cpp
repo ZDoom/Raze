@@ -6644,11 +6644,11 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 		case 0:
 		{
 			auto pWall = gHitInfo.hitWall;
-			nSurf = surfType[pWall->picnum];
+			nSurf = surfType[pWall->wallpicnum];
 			if (actCanSplatWall(pWall))
 			{
 				auto ppos = gHitInfo.hitpos - dv;
-				int nnSurf = surfType[pWall->picnum];
+				int nnSurf = surfType[pWall->wallpicnum];
 				assert(nnSurf < kSurfMax);
 				if (pVectorData->surfHit[nnSurf].fx1 >= 0)
 				{
@@ -6741,7 +6741,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 							if (actCanSplatWall(pWall))
 							{
 								auto ppos = gHitInfo.hitpos - dv;
-								int nnSurf = surfType[pWall->picnum];
+								int nnSurf = surfType[pWall->wallpicnum];
 								const VECTORDATA* pVectorData1 = &gVectorData[19];
 								FX_ID t2 = pVectorData1->surfHit[nnSurf].fx2;
 								FX_ID t3 = pVectorData1->surfHit[nnSurf].fx3;

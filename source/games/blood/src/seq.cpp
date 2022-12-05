@@ -157,7 +157,7 @@ void UpdateFloor(sectortype* pSector, SEQFRAME* pFrame)
 void UpdateWall(walltype* pWall, SEQFRAME* pFrame)
 {
 	assert(pWall->hasX());
-	pWall->picnum = seqGetTile(pFrame);
+	pWall->wallpicnum = seqGetTile(pFrame);
 	if (pFrame->palette)
 		pWall->pal = pFrame->palette;
 	if (pFrame->transparent)

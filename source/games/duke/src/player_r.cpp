@@ -172,7 +172,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 						if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
 							hit.hitWall = hit.hitWall->nextWall();
 
-				if (hit.hitWall->picnum != RTILE_ACCESSSWITCH && hit.hitWall->picnum != RTILE_ACCESSSWITCH2)
+				if (hit.hitWall->wallpicnum != RTILE_ACCESSSWITCH && hit.hitWall->wallpicnum != RTILE_ACCESSSWITCH2)
 				{
 					checkhitwall(wpn, hit.hitWall, hit.hitpos);
 					if (p >= 0) fi.checkhitswitch(p, hit.hitWall, nullptr);
@@ -352,20 +352,20 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		{
 			spawn(spark, RTILE_SMALLSMOKE);
 
-			if (isadoorwall(hit.hitWall->picnum) == 1)
+			if (isadoorwall(hit.hitWall->wallpicnum) == 1)
 				goto SKIPBULLETHOLE;
-			if (isablockdoor(hit.hitWall->picnum) == 1)
+			if (isablockdoor(hit.hitWall->wallpicnum) == 1)
 				goto SKIPBULLETHOLE;
 			if (p >= 0 && (
-				hit.hitWall->picnum == RTILE_DIPSWITCH ||
-				hit.hitWall->picnum == RTILE_DIPSWITCHON ||
-				hit.hitWall->picnum == RTILE_DIPSWITCH2 ||
-				hit.hitWall->picnum == RTILE_DIPSWITCH2ON ||
-				hit.hitWall->picnum == RTILE_DIPSWITCH3 ||
-				hit.hitWall->picnum == RTILE_DIPSWITCH3ON ||
-				(isRRRA() && hit.hitWall->picnum == RTILE_RRTILE8660) ||
-				hit.hitWall->picnum == RTILE_HANDSWITCH ||
-				hit.hitWall->picnum == RTILE_HANDSWITCHON))
+				hit.hitWall->wallpicnum == RTILE_DIPSWITCH ||
+				hit.hitWall->wallpicnum == RTILE_DIPSWITCHON ||
+				hit.hitWall->wallpicnum == RTILE_DIPSWITCH2 ||
+				hit.hitWall->wallpicnum == RTILE_DIPSWITCH2ON ||
+				hit.hitWall->wallpicnum == RTILE_DIPSWITCH3 ||
+				hit.hitWall->wallpicnum == RTILE_DIPSWITCH3ON ||
+				(isRRRA() && hit.hitWall->wallpicnum == RTILE_RRTILE8660) ||
+				hit.hitWall->wallpicnum == RTILE_HANDSWITCH ||
+				hit.hitWall->wallpicnum == RTILE_HANDSWITCHON))
 			{
 				fi.checkhitswitch(p, hit.hitWall, nullptr);
 				return;

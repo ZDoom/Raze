@@ -220,7 +220,7 @@ void JS_SpriteSetup(void)
     // Check for certain walls to make sounds
     for(auto& wal : wall)
     {
-        int picnum = wal.picnum;
+        int picnum = wal.wallpicnum;
 
         // Set the don't stick bit for liquid tiles
         switch (picnum)
@@ -286,7 +286,7 @@ void JS_InitMirrors(void)
                 }
 
                 wal.overpicnum = MIRRORLABEL + mirrorcnt;
-                wal.picnum = MIRRORLABEL + mirrorcnt;
+                wal.wallpicnum = MIRRORLABEL + mirrorcnt;
                 sec->ceilingpicnum = MIRRORLABEL + mirrorcnt;
                 sec->floorpicnum = MIRRORLABEL + mirrorcnt;
                 sec->floorstat |= CSTAT_SECTOR_SKY;
@@ -385,7 +385,7 @@ void JS_InitMirrors(void)
     {
         for (auto& wal : mirror[i].mirrorSector->walls)
         {
-            wal.picnum = MIRROR;
+            wal.wallpicnum = MIRROR;
             wal.overpicnum = MIRROR;
         }
     }

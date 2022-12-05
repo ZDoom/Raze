@@ -190,7 +190,7 @@ static void ReadWallV7(FileReader& fr, walltype& wall)
 	wall.nextwall = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
 	wall.cstat = EWallFlags::FromInt(fr.ReadUInt16());
-	wall.picnum = fr.ReadInt16();
+	wall.wallpicnum = fr.ReadInt16();
 	wall.overpicnum = fr.ReadInt16();
 	wall.shade = fr.ReadInt8();
 	wall.pal = fr.ReadUInt8();
@@ -211,7 +211,7 @@ static void ReadWallV6(FileReader& fr, walltype& wall)
 	wall.point2 = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();
-	wall.picnum = fr.ReadInt16();
+	wall.wallpicnum = fr.ReadInt16();
 	wall.overpicnum = fr.ReadInt16();
 	wall.shade = fr.ReadInt8();
 	wall.pal = fr.ReadUInt8();
@@ -231,7 +231,7 @@ static void ReadWallV5(FileReader& fr, walltype& wall)
 	int y = fr.ReadInt32();
 	wall.setPosFromMap(x, y);
 	wall.point2 = fr.ReadInt16();
-	wall.picnum = fr.ReadInt16();
+	wall.wallpicnum = fr.ReadInt16();
 	wall.overpicnum = fr.ReadInt16();
 	wall.shade = fr.ReadInt8();
 	wall.cstat = EWallFlags::FromInt(fr.ReadUInt16());

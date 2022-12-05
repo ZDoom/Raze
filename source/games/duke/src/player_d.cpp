@@ -281,7 +281,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 						if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
 							hit.hitWall =hit.hitWall->nextWall();
 
-				if (hit.hitWall->picnum != DTILE_ACCESSSWITCH && hit.hitWall->picnum != DTILE_ACCESSSWITCH2)
+				if (hit.hitWall->wallpicnum != DTILE_ACCESSSWITCH && hit.hitWall->wallpicnum != DTILE_ACCESSSWITCH2)
 				{
 					checkhitwall(knee, hit.hitWall, hit.hitpos);
 					if (p >= 0) fi.checkhitswitch(p, hit.hitWall, nullptr);
@@ -458,19 +458,19 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 		{
 			spawn(spark, DTILE_SMALLSMOKE);
 
-			if (isadoorwall(hit.hitWall->picnum) == 1)
+			if (isadoorwall(hit.hitWall->wallpicnum) == 1)
 				goto SKIPBULLETHOLE;
-			if (isablockdoor(hit.hitWall->picnum) == 1)
+			if (isablockdoor(hit.hitWall->wallpicnum) == 1)
 				goto SKIPBULLETHOLE;
 			if (p >= 0 && (
-				hit.hitWall->picnum == DTILE_DIPSWITCH ||
-				hit.hitWall->picnum == DTILE_DIPSWITCHON ||
-				hit.hitWall->picnum == DTILE_DIPSWITCH2 ||
-				hit.hitWall->picnum == DTILE_DIPSWITCH2ON ||
-				hit.hitWall->picnum == DTILE_DIPSWITCH3 ||
-				hit.hitWall->picnum == DTILE_DIPSWITCH3ON ||
-				hit.hitWall->picnum == DTILE_HANDSWITCH ||
-				hit.hitWall->picnum == DTILE_HANDSWITCHON))
+				hit.hitWall->wallpicnum == DTILE_DIPSWITCH ||
+				hit.hitWall->wallpicnum == DTILE_DIPSWITCHON ||
+				hit.hitWall->wallpicnum == DTILE_DIPSWITCH2 ||
+				hit.hitWall->wallpicnum == DTILE_DIPSWITCH2ON ||
+				hit.hitWall->wallpicnum == DTILE_DIPSWITCH3 ||
+				hit.hitWall->wallpicnum == DTILE_DIPSWITCH3ON ||
+				hit.hitWall->wallpicnum == DTILE_HANDSWITCH ||
+				hit.hitWall->wallpicnum == DTILE_HANDSWITCHON))
 			{
 				fi.checkhitswitch(p, hit.hitWall, nullptr);
 				return;
@@ -952,7 +952,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	else if (hit.actor() != nullptr) fi.checkhitsprite(hit.actor(), spark);
 	else if (hit.hitWall != nullptr)
 	{
-		if (hit.hitWall->picnum != DTILE_ACCESSSWITCH && hit.hitWall->picnum != DTILE_ACCESSSWITCH2)
+		if (hit.hitWall->wallpicnum != DTILE_ACCESSSWITCH && hit.hitWall->wallpicnum != DTILE_ACCESSSWITCH2)
 		{
 			checkhitwall(spark, hit.hitWall, hit.hitpos);
 		}

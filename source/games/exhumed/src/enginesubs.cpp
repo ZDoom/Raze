@@ -55,7 +55,7 @@ void precache()
 
     for(auto& wal : wall)
     {
-        int j = wal.picnum;
+        int j = wal.wallpicnum;
         markTileForPrecache(j, wal.pal);
 
         if (wal.twoSided())

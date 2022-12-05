@@ -242,7 +242,7 @@ struct walltype
 	float ypan_;
 
 	EWallFlags cstat;
-	int16_t picnum;
+	int16_t wallpicnum;
 	int16_t overpicnum;
 	union { int16_t lotag, type; }; // type is for Blood
 	int16_t hitag;
@@ -293,6 +293,9 @@ struct walltype
 	Blood::XWALL& xw() const { return *_xw; }
 	bool hasX() const { return _xw != nullptr; }
 	void allocX();
+
+	FTextureID walltexture() const;
+	FTextureID overtexture() const;
 };
 
 // enable for running a compile-check to ensure that renderer-critical variables are not being written to directly.
@@ -437,6 +440,9 @@ struct sectortype
 	int getfloorslope() const { return floorstat & CSTAT_SECTOR_SLOPE ? floorheinum : 0; }
 	int getceilingslope() const { return ceilingstat & CSTAT_SECTOR_SLOPE ? ceilingheinum : 0; }
 
+	FTextureID ceilingtexture() const;
+	FTextureID floortexture() const;
+
 
 	Blood::XSECTOR& xs() const { return *_xs;  }
 	bool hasX() const { return _xs != nullptr; } // 0 is invalid!
@@ -490,6 +496,8 @@ struct spritetypebase
 	{
 		pos = { x * maptoworld, y * maptoworld, z * zmaptoworld };
 	}
+
+	FTextureID spritetexture() const;
 };
 
 

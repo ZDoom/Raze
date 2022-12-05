@@ -429,7 +429,7 @@ static void drawwhitelines(const DVector2& cpos, const DVector2& cangvect, const
 		for (auto& wal : sector[i].walls)
 		{
 			if (wal.nextwall >= 0) continue;
-			if (!gFullMap && !tileGetTexture(wal.picnum)->isValid()) continue;
+			if (!gFullMap && !tileGetTexture(wal.wallpicnum)->isValid()) continue;
 
 			if (isSWALL() && !gFullMap && !show2dwall[wallindex(&wal)])
 				continue;

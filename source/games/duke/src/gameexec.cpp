@@ -972,8 +972,8 @@ void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, i
 		else SetGameVarID(lVar2, wallp->cstat, sActor, sPlayer);
 		break;
 	case WALL_PICNUM:
-		if (bSet) wallp->picnum = lValue;
-		else SetGameVarID(lVar2, wallp->picnum, sActor, sPlayer);
+		if (bSet) wallp->wallpicnum = lValue;
+		else SetGameVarID(lVar2, wallp->wallpicnum, sActor, sPlayer);
 		break;
 	case WALL_OVERPICNUM:
 		if (bSet) wallp->overpicnum = lValue;

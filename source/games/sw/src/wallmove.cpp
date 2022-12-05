@@ -128,14 +128,14 @@ int DoWallMove(DSWActor* actor)
             if (shade1)
                 wal.shade = int8_t(shade1);
             if (picnum1)
-                wal.picnum = picnum1;
+                wal.wallpicnum = picnum1;
 
             // find the previous wall
             auto prev_wall = PrevWall(&wal);
             if (shade2)
                 prev_wall->shade = int8_t(shade2);
             if (picnum2)
-                prev_wall->picnum = picnum2;
+                prev_wall->wallpicnum = picnum2;
         }
     }
 

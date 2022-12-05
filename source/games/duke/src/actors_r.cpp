@@ -1860,7 +1860,7 @@ void destroyit(DDukeActor *actor)
 				auto srcwal = srcsect->walls.Data();
 				for (unsigned i = 0; i < destsect->walls.Size(); i++, srcwal++, destwal++)
 				{
-					destwal->picnum = srcwal->picnum;
+					destwal->wallpicnum = srcwal->wallpicnum;
 					destwal->overpicnum = srcwal->overpicnum;
 					destwal->shade = srcwal->shade;
 					destwal->xrepeat = srcwal->xrepeat;
