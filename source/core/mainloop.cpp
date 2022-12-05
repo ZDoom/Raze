@@ -347,7 +347,6 @@ static void GameTicker()
 	{
 	default:
 	case GS_STARTUP:
-		artClearMapArt();
 		gi->Startup();
 		break;
 

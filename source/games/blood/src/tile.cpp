@@ -34,13 +34,18 @@ BEGIN_BLD_NS
 
 int nTileFiles = 0;
 
-int tileStart[256];
-int tileEnd[256];
-int hTileFile[256];
-
 uint8_t surfType[kMaxTiles];
 int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
+
+struct TextureProps
+{
+    uint8_t surfType;
+    int8_t tileShade;
+    int16_t voxelIndex;
+};
+
+TArray<TextureProps> tprops;
 
 #define x(a, b) registerName(#a, b);
 static void SetTileNames()
@@ -90,6 +95,16 @@ void GameInterface::LoadGameTextures()
             voxreserve.Set(voxelIndex[i]);
     }
     SetTileNames();
+}
+
+void GameInterface::SetupSpecialTextures()
+{
+    // set up all special tiles here, before we fully hook up with the texture manager.
+    tileDelete(504);
+    TileFiles.tileCreate(4077, kLensSize, kLensSize);
+    TileFiles.tileCreate(4079, 128, 128);
+    TileFiles.tileMakeWritable(2342);
+    TileFiles.lock();   // from this point on the tile<->texture associations may not change anymore.
 }
 
 //---------------------------------------------------------------------------

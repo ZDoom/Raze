@@ -276,10 +276,8 @@ struct TileOffs
 struct TileDesc
 {
 	FGameTexture* texture;	// the currently active tile
-	FGameTexture* backup;	// original backup for map tiles
 	RawCacheNode rawCache;	// this is needed for hitscan testing to avoid reloading the texture each time.
 	picanm_t picanm;		// animation descriptor
-	picanm_t picanmbackup;	// animation descriptor backup when using map tiles
 	rottile_t RotTile;// = { -1,-1 };
 	ReplacementType replacement;
 	float alphaThreshold;
@@ -308,10 +306,16 @@ struct BuildTiles
 	TArray<FString> maptilesadded;
 	TMap<int, FGameTexture*> cameratextures;
 	TMap<FName, int> nametoindex;
+	bool locked;	// if this is true, no more tile modifications are allowed.
 
 	void addName(const char* name, int index)
 	{
 		nametoindex.Insert(name, index);
+	}
+
+	void lock()
+	{
+		locked = true;
 	}
 
 	int tileForName(const char* name)
@@ -332,22 +336,13 @@ struct BuildTiles
 		CloseAll();
 	}
 
-	void SetBackup()
-	{
-		for (auto& td : tiledata)
-		{
-			td.backup = td.texture;
-			td.picanmbackup = td.picanm;
-		}
-	}
-
 	void CloseAll();
 
-	void AddTile(int tilenum, FGameTexture* tex, bool permap = false);
+	void AddTile(int tilenum, FGameTexture* tex);
 
 	void AddTiles(int firsttile, TArray<uint8_t>& store, const char* mapname);
 
-	void AddFile(BuildArtFile* bfd, bool permap)
+	void AddFile(BuildArtFile* bfd)
 	{
 		ArtFiles.Push(bfd);
 	}
@@ -374,6 +369,7 @@ struct BuildTiles
 	int32_t artLoadFiles(const char* filename);
 	uint8_t* tileMakeWritable(int num);
 	uint8_t* tileCreate(int tilenum, int width, int height);
+	uint8_t* tileGet(int tilenum);
 	int findUnusedTile(void);
 	int tileCreateRotated(int owner);
 	void InvalidateTile(int num);
@@ -386,8 +382,6 @@ void tileCopy(int tile, int tempsource, int temppal, int xoffset, int yoffset, i
 void tileSetDummy(int tile, int width, int height);
 void tileDelete(int tile);
 bool tileLoad(int tileNum);
-void    artClearMapArt(void);
-void    artSetupMapArt(const char* filename);
 void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int tilenum2, int sx2, int sy2);
 
 extern BuildTiles TileFiles;
@@ -419,14 +413,6 @@ inline uint8_t* tileData(int num)
 	auto tex = dynamic_cast<FImageTexture*>(TileFiles.tiledata[num].texture->GetTexture());
 	if (!tex) return nullptr;
 	auto p = dynamic_cast<FWritableTile*>(tex->GetImage());
-	return p ? p->GetRawData() : nullptr;
-}
-
-inline const uint8_t* tileRawData(int num)
-{
-	auto tex = dynamic_cast<FImageTexture*>(TileFiles.tiledata[num].texture->GetTexture());
-	if (!tex) return nullptr;
-	auto p = dynamic_cast<FTileTexture*>(tex->GetImage());
 	return p ? p->GetRawData() : nullptr;
 }
 
@@ -498,12 +484,7 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 	return TileFiles.tiledata[tile].texture;
 }
 
-bool tileEqualTo(int me, int other);
 void tileUpdateAnimations();
-
-bool ValidateTileRange(const char* cmd, int& begin, int& end, FScriptPosition pos, bool allowswap = true);
-bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos);
-
 
 struct TileImport
 {
@@ -520,14 +501,11 @@ struct TileImport
 
 };
 
-void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp);
-
 struct SetAnim
 {
 	int tile1, tile2, speed, type;
 };
 
-void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp);
 class FGameTexture;
 bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wantindexed = false);
 FCanvasTexture* tileGetCanvas(int tilenum);

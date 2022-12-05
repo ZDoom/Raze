@@ -143,6 +143,7 @@ struct GameInterface : public ::GameInterface
 	void EnterPortal(DCoreActor* viewer, int type) override;
 	void LeavePortal(DCoreActor* viewer, int type) override;
 	void LoadGameTextures() override;
+	void SetupSpecialTextures() override;
 	int GetCurrentSkill() override;
 	bool IsQAVInterpTypeValid(const FString& type) override;
 	void AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata) override;

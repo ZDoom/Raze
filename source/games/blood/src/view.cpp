@@ -155,7 +155,7 @@ void viewInit(void)
 		lensTable[i] = LittleLong(lensTable[i]);
 	}
 #endif
-	uint8_t* data = TileFiles.tileCreate(4077, kLensSize, kLensSize);
+	uint8_t* data = TileFiles.tileGet(4077);
 	memset(data, TRANSPARENT_INDEX, kLensSize * kLensSize);
 
 	for (int i = 0; i < 16; i++)
@@ -544,10 +544,6 @@ void renderCrystalBall()
 	}
 	PLAYER* pOther = &gPlayer[i];
 	//othercameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);;
-	if (!tileData(4079))
-	{
-		TileFiles.tileCreate(4079, 128, 128);
-	}
 	//renderSetTarget(4079, 128, 128);
 	renderSetAspect(65536, 78643);
 	int vd8 = pOther->actor->spr.x;

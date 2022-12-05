@@ -964,6 +964,7 @@ static void InitTextures()
 	gi->LoadGameTextures(); // loads game-side data that must be present before processing the .def files.
 	LoadDefinitions();
 	InitFont();				// InitFonts may only be called once all texture data has been initialized.
+	gi->SetupSpecialTextures();	// For installing dynamic or deleted textures in the texture manager. This must be done after parsing .def and before setting the aliases.
 	TileFiles.SetAliases();
 
 	lookups.postLoadTables();
@@ -972,7 +973,6 @@ static void InitTextures()
 	SetupFontSubstitution();
 	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
 	UpdateUpscaleMask();
-	TileFiles.SetBackup();
 }
 
 //==========================================================================

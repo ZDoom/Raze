@@ -142,7 +142,6 @@ void BuildTiles::Init()
 	for (auto& tile : tiledata)
 	{
 		tile.texture = Placeholder;
-		tile.backup = Placeholder;
 		tile.picanm = {};
 		tile.RotTile = { -1,-1 };
 		tile.replacement = ReplacementType::Art;
@@ -157,12 +156,11 @@ void BuildTiles::Init()
 //
 //==========================================================================
 
-void BuildTiles::AddTile(int tilenum, FGameTexture* tex, bool permap)
+void BuildTiles::AddTile(int tilenum, FGameTexture* tex)
 {
 	if (!tex->GetID().isValid())
 		TexMan.AddGameTexture(tex);
 	tiledata[tilenum].texture = tex;
-	if (!permap) tiledata[tilenum].backup = tex;
 }
 
 //===========================================================================
@@ -207,7 +205,7 @@ void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, const char *
 		auto tex = GetTileTexture(texname, RawData, uint32_t(tiledata - tiles), width, height);
 		AddTile(i, tex);
 		int leftoffset, topoffset;
-		this->tiledata[i].picanmbackup = this->tiledata[i].picanm = tileConvertAnimFormat(anm, &leftoffset, &topoffset);
+		this->tiledata[i].picanm = tileConvertAnimFormat(anm, &leftoffset, &topoffset);
 		tex->SetOffsets(leftoffset, topoffset);
 
 		tiledata += size;
@@ -372,9 +370,9 @@ void BuildTiles::SetAliases()
 
 FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 {
+	if (locked) I_FatalError("Modifying tiles after startup is not allowed.");
 	if (tilenum < 0 || tilenum >= MAXTILES) return nullptr;
 	auto &td = tiledata[tilenum];
-	if (td.texture != td.backup) return nullptr;	// no mucking around with map tiles.
 	auto tile = td.texture;
 	auto reptype = td.replacement;
 	if (reptype == type) return tile;		// already created
@@ -391,11 +389,10 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 	else if (type == ReplacementType::Restorable)
 	{
 		// This is for modifying an existing tile.
-		// It only gets used for the crosshair and a few specific effects:
+		// It only gets used for a few specific effects:
 		// A) the fire in Blood.
 		// B) the pin display in Redneck Rampage's bowling lanes.
 		// C) Exhumed's menu plus one special effect tile.
-		// All of these effects should probably be redone without actual texture hacking...
 		if (tile->GetTexelWidth() == 0 || tile->GetTexelHeight() == 0) return nullptr;	// The base must have a size for this to work.
 		// todo: invalidate hardware textures for tile.
 		replacement = new FImageTexture(new FRestorableTile(tile->GetTexture()->GetImage()));
@@ -435,6 +432,27 @@ int32_t BuildTiles::artLoadFiles(const char* filename)
 	TileFiles.LoadArtSet(filename);
 	gotpic.Zero();
 	return 0;
+}
+
+//==========================================================================
+//
+// Retrieves the pixel store for a modifiable tile
+// Modifiable tiles must be declared on startup.
+//
+//==========================================================================
+
+uint8_t* BuildTiles::tileGet(int tilenum)
+{
+	if (tilenum < 0 || tilenum >= MAXTILES) return nullptr;
+	auto& td = tiledata[tilenum];
+	auto tile = td.texture;
+	auto reptype = td.replacement;
+	if (reptype == ReplacementType::Writable || reptype == ReplacementType::Restorable)
+	{
+		auto wtex = static_cast<FWritableTile*>(tile->GetTexture()->GetImage());
+		if (wtex) return wtex->GetRawData();
+	}
+	return nullptr;
 }
 
 //==========================================================================
@@ -537,7 +555,7 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	// create a new game texture here - we want to give it a different name!
 	tex = MakeGameTexture(tex->GetTexture(), FStringf("#%05d", tilenum), ETextureType::Override);
 	TexMan.AddGameTexture(tex);
-	TileFiles.tiledata[tilenum].backup = TileFiles.tiledata[tilenum].texture = tex;
+	TileFiles.tiledata[tilenum].texture = tex;
 	if (istexture)
 		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0);
 	return 0;
@@ -599,80 +617,13 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 
 //==========================================================================
 //
-// Clear map specific ART
-//
-//==========================================================================
-static FString currentMapArt;
-
-void artClearMapArt(void)
-{
-	for (auto& td : TileFiles.tiledata)
-	{
-		td.texture = td.backup;
-		td.picanm = td.picanmbackup;
-	}
-	currentMapArt = "";
-}
-
-//==========================================================================
-//
-// Load map specficied ART
-//
-//==========================================================================
-
-void artSetupMapArt(const char* filename)
-{
-	FString lcfilename = StripExtension(filename);
-	lcfilename.MakeLower();
-
-	if (currentMapArt.CompareNoCase(lcfilename) == 0) return;
-	artClearMapArt();
-	currentMapArt = lcfilename;
-
-
-	// Re-get from the texture manager if this map's tiles have already been created.
-	if (TileFiles.maptilesadded.Find(lcfilename) < TileFiles.maptilesadded.Size())
-	{
-		for (int i = 0; i < MAXTILES; i++)
-		{
-			FStringf name("maptile_%s_%05d", lcfilename.GetChars(), i);
-			auto texid = TexMan.CheckForTexture(name, ETextureType::Any);
-			if (texid.isValid())
-			{
-				TileFiles.tiledata[i].texture = TexMan.GetGameTexture(texid);
-			}
-		}
-		return;
-	}
-
-	TileFiles.maptilesadded.Push(lcfilename);
-
-
-	FStringf firstname("%s_00.art", lcfilename.GetChars());
-	auto fr = fileSystem.OpenFileReader(firstname);
-	if (!fr.isOpen()) return;
-	for (auto& td : TileFiles.tiledata)
-	{
-		td.picanmbackup = td.picanm;
-	}
-
-
-	for (int i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)
-	{
-		FStringf fullname("%s_%02d.art", lcfilename.GetChars(), i);
-		TileFiles.LoadArtFile(fullname, filename);
-	}
-}
-
-//==========================================================================
-//
 //
 //
 //==========================================================================
 
 void tileDelete(int tile)
 {
-	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.GameByIndex(0);
+	TileFiles.tiledata[tile].texture = TexMan.GameByIndex(0);
 	TileFiles.tiledata[tile].replacement = ReplacementType::Art; // whatever this was, now it isn't anymore. (SW tries to nuke camera textures with this, :( )
 	tiletovox[tile] = -1; // clear the link but don't clear the voxel. It may be in use for another tile.
 	modelManager.UndefineTile(tile);
@@ -749,8 +700,7 @@ int BuildTiles::tileCreateRotated(int tileNum)
 
 	auto dtex = MakeGameTexture(new FImageTexture(new FLooseTile(dbuffer, tex->GetTexelHeight(), tex->GetTexelWidth())), "", ETextureType::Override);
 	int index = findUnusedTile();
-	bool mapart = TileFiles.tiledata[tileNum].texture != TileFiles.tiledata[tileNum].backup;
-	TileFiles.AddTile(index, dtex, mapart);
+	TileFiles.AddTile(index, dtex);
 	return index;
 }
 
@@ -846,30 +796,6 @@ int tileAnimateOfs(int tilenum, int randomize)
 	return 0;
 }
 
-//==========================================================================
-//
-//  Check if two tiles are the same
-//
-//==========================================================================
-
-bool tileEqualTo(int me, int other)
-{
-	auto tile = tileGetTexture(me);
-	auto tile2 = tileGetTexture(other);
-	int tilew1 = tile->GetTexelWidth();
-	int tileh1 = tile->GetTexelHeight();
-	int tilew2 = tile2->GetTexelWidth();
-	int tileh2 = tile2->GetTexelHeight();
-	if (tilew1 == tilew2 && tileh1 == tileh2)
-	{
-		auto p1 = tileRawData(me);
-		auto p2 = tileRawData(other);
-		if (p1 && p2 && !memcmp(p1, p2, tilew1 * tileh2))
-			return true;
-	}
-	return false;
-}
-
 //===========================================================================
 // 
 //	Picks a texture for rendering for a given tilenum/palette combination
@@ -909,136 +835,5 @@ FCanvasTexture* tileGetCanvas(int tilenum)
 	return canvas;
 }
 
-
-
-//===========================================================================
-// 
-//	Parsing stuff for tile data comes below.
-//
-//===========================================================================
-
-//===========================================================================
-// 
-//	Helpers for tile parsing
-//
-//===========================================================================
-
-bool ValidateTileRange(const char* cmd, int &begin, int& end, FScriptPosition pos, bool allowswap)
-{
-	if (end < begin)
-	{
-		pos.Message(MSG_WARNING, "%s: tile range [%d..%d] is backwards. Indices were swapped.", cmd, begin, end);
-		std::swap(begin, end);
-	}
-
-	if ((unsigned)begin >= MAXUSERTILES || (unsigned)end >= MAXUSERTILES)
-	{
-		pos.Message(MSG_ERROR, "%s: Invalid tile range [%d..%d]", cmd, begin, end);
-		return false;
-	}
-
-	return true;
-}
-
-bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos)
-{
-	if ((unsigned)tile >= MAXUSERTILES)
-	{
-		pos.Message(MSG_ERROR, "%s: Invalid tile number %d", cmd, tile);
-		return false;
-	}
-
-	return true;
-}
-
-//===========================================================================
-// 
-//	Internal worker for tileImportTexture
-//
-//===========================================================================
-
-void processTileImport(const char *cmd, FScriptPosition& pos, TileImport& imp)
-{
-	if (!ValidateTilenum(cmd, imp.tile, pos))
-		return;
-
-	if (imp.crc32 != INT64_MAX && int(imp.crc32) != tileGetCRC32(imp.tile))
-		return;
-
-	if (imp.sizex != INT_MAX && tileWidth(imp.tile) != imp.sizex && tileHeight(imp.tile) != imp.sizey)
-		return;
-
-	imp.alphacut = clamp(imp.alphacut, 0, 255);
-
-	gi->SetTileProps(imp.tile, imp.surface, imp.vox, imp.shade);
-
-	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
-
-	TileFiles.tiledata[imp.tile].picanm.sf |= imp.flags;
-	// This is not quite the same as originally, for two reasons:
-	// 1: Since these are texture properties now, there's no need to clear them.
-	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
-	if (imp.xoffset == INT_MAX) imp.xoffset = tileLeftOffset(imp.tile);
-	else imp.xoffset = clamp(imp.xoffset, -128, 127);
-	if (imp.yoffset == INT_MAX) imp.yoffset = tileTopOffset(imp.tile);
-	else imp.yoffset = clamp(imp.yoffset, -128, 127);
-
-	auto tex = tileGetTexture(imp.tile);
-	if (tex)
-	{
-		tex->SetOffsets(imp.xoffset, imp.yoffset);
-		if (imp.flags & PICANM_NOFULLBRIGHT_BIT)
-		{
-			tex->SetDisableBrightmap();
-		}
-	}
-	if (imp.extra != INT_MAX) TileFiles.tiledata[imp.tile].picanm.extra = imp.extra;
-}
-
-//===========================================================================
-// 
-//	Internal worker for tileSetAnim
-//
-//===========================================================================
-
-void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp) 
-{
-	if (!ValidateTilenum(cmd, imp.tile1, pos) ||
-	    !ValidateTilenum(cmd, imp.tile2, pos))
-		return;
-
-	if (imp.type < 0 || imp.type > 3)
-	{
-		pos.Message(MSG_ERROR, "%s: animation type must be 0-3, got %d", cmd, imp.type);
-		return;
-	}
-
-	int count = imp.tile2 - imp.tile1;
-	if (imp.type == (PICANM_ANIMTYPE_BACK >> PICANM_ANIMTYPE_SHIFT) && imp.tile1 > imp.tile2)
-		count = -count;
-
-	TileFiles.setAnim(imp.tile1, imp.type, imp.speed, count);
-}
-
 PicAnm picanm;
-
-#if 0 // this only gets in if unavoidable. It'd be preferable if the script side can solely operate on texture names.
-#include "vm.h"
-
-static int GetTexture(int tile, int anim)
-{
-	if (tile < 0 || tile >= MAXTILES) return 0;
-	auto tex = tileGetTexture(tile, anim);
-	return tex ? tex->GetID().GetIndex() : 0;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_TileFiles, GetTexture, GetTexture)
-{
-	PARAM_PROLOGUE;
-	PARAM_INT(tile);
-	PARAM_BOOL(animate);
-	ACTION_RETURN_INT(GetTexture(tile, animate));
-}
-#endif
-
 

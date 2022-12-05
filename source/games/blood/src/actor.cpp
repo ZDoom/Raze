@@ -4889,14 +4889,6 @@ void MoveDude(DBloodActor* actor)
 			playerCorrectInertia(pPlayer, oldpos);
 		switch (nLink)
 		{
-		case kMarkerLowStack:
-			if (pPlayer && pPlayer->nPlayer == gViewIndex)
-				gotpic.Set(actor->sector()->floorpicnum);
-			break;
-		case kMarkerUpStack:
-			if (pPlayer && pPlayer->nPlayer == gViewIndex)
-				gotpic.Set(actor->sector()->ceilingpicnum);
-			break;
 		case kMarkerLowWater:
 		case kMarkerLowGoo:
 			actor->xspr.medium = kMediumNormal;

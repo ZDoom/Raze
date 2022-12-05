@@ -84,6 +84,109 @@ void parseIncludeDefault(FScanner& sc, FScriptPosition& pos)
 }
 
 //===========================================================================
+// 
+//	Helpers for tile parsing
+//
+//===========================================================================
+
+bool ValidateTileRange(const char* cmd, int& begin, int& end, FScriptPosition pos, bool allowswap = true)
+{
+	if (end < begin)
+	{
+		pos.Message(MSG_WARNING, "%s: tile range [%d..%d] is backwards. Indices were swapped.", cmd, begin, end);
+		std::swap(begin, end);
+	}
+
+	if ((unsigned)begin >= MAXUSERTILES || (unsigned)end >= MAXUSERTILES)
+	{
+		pos.Message(MSG_ERROR, "%s: Invalid tile range [%d..%d]", cmd, begin, end);
+		return false;
+	}
+
+	return true;
+}
+
+bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos)
+{
+	if ((unsigned)tile >= MAXUSERTILES)
+	{
+		pos.Message(MSG_ERROR, "%s: Invalid tile number %d", cmd, tile);
+		return false;
+	}
+
+	return true;
+}
+
+//===========================================================================
+// 
+//	Internal worker for tileImportTexture
+//
+//===========================================================================
+
+void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp)
+{
+	if (!ValidateTilenum(cmd, imp.tile, pos))
+		return;
+
+	if (imp.crc32 != INT64_MAX && int(imp.crc32) != tileGetCRC32(imp.tile))
+		return;
+
+	if (imp.sizex != INT_MAX && tileWidth(imp.tile) != imp.sizex && tileHeight(imp.tile) != imp.sizey)
+		return;
+
+	imp.alphacut = clamp(imp.alphacut, 0, 255);
+
+	gi->SetTileProps(imp.tile, imp.surface, imp.vox, imp.shade);
+
+	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
+
+	TileFiles.tiledata[imp.tile].picanm.sf |= imp.flags;
+	// This is not quite the same as originally, for two reasons:
+	// 1: Since these are texture properties now, there's no need to clear them.
+	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
+	if (imp.xoffset == INT_MAX) imp.xoffset = tileLeftOffset(imp.tile);
+	else imp.xoffset = clamp(imp.xoffset, -128, 127);
+	if (imp.yoffset == INT_MAX) imp.yoffset = tileTopOffset(imp.tile);
+	else imp.yoffset = clamp(imp.yoffset, -128, 127);
+
+	auto tex = tileGetTexture(imp.tile);
+	if (tex)
+	{
+		tex->SetOffsets(imp.xoffset, imp.yoffset);
+		if (imp.flags & PICANM_NOFULLBRIGHT_BIT)
+		{
+			tex->SetDisableBrightmap();
+		}
+	}
+	if (imp.extra != INT_MAX) TileFiles.tiledata[imp.tile].picanm.extra = imp.extra;
+}
+
+//===========================================================================
+// 
+//	Internal worker for tileSetAnim
+//
+//===========================================================================
+
+void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
+{
+	if (!ValidateTilenum(cmd, imp.tile1, pos) ||
+		!ValidateTilenum(cmd, imp.tile2, pos))
+		return;
+
+	if (imp.type < 0 || imp.type > 3)
+	{
+		pos.Message(MSG_ERROR, "%s: animation type must be 0-3, got %d", cmd, imp.type);
+		return;
+	}
+
+	int count = imp.tile2 - imp.tile1;
+	if (imp.type == (PICANM_ANIMTYPE_BACK >> PICANM_ANIMTYPE_SHIFT) && imp.tile1 > imp.tile2)
+		count = -count;
+
+	TileFiles.setAnim(imp.tile1, imp.type, imp.speed, count);
+}
+
+//===========================================================================
 //
 //
 //

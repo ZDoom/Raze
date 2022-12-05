@@ -1203,8 +1203,6 @@ void exitlevel(MapRecord* nextlevel)
 		// MP scoreboard
 		ShowScoreboard(playerswhenstarted, [=](bool)
 			{
-			// Clear potentially loaded per-map ART only after the bonus screens.
-			artClearMapArt();
 			gameaction = ga_level;
 			ud.eog = false;
 			if (endofgame)
@@ -1227,8 +1225,6 @@ void exitlevel(MapRecord* nextlevel)
 		// SP cutscene + summary
 		ShowIntermission(currentLevel, nextlevel, &info, [=](bool)
 		{
-			// Clear potentially loaded per-map ART only after the bonus screens.
-			artClearMapArt();
 			ud.eog = false;
 			gameaction = endofgame? ga_startup : ga_nextlevel;
 		});

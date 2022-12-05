@@ -27,10 +27,10 @@ struct sectortypedisk
 	int16_t wallptr, wallnum;
 	int32_t ceilingz, floorz;
 	uint16_t ceilingstat, floorstat;
-	int16_t ceilingpicnum, ceilingheinum;
+	int16_t ceilingpic, ceilingheinum;
 	int8_t ceilingshade;
 	uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
-	int16_t floorpicnum, floorheinum;
+	int16_t floorpic, floorheinum;
 	int8_t floorshade;
 	uint8_t floorpal, floorxpanning, floorypanning;
 	uint8_t visibility, fogpal;

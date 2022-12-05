@@ -533,8 +533,6 @@ void loadMap(const char* filename, int flags, DVector3* pos, int16_t* ang, secto
 
 	}
 
-	artSetupMapArt(filename);
-
 	//Must be last.
 	fixSectors();
 	*cursect = validSectorIndex(cursectnum) ? &sector[cursectnum] : nullptr;

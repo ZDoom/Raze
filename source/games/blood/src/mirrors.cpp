@@ -47,10 +47,6 @@ void InitMirrors(void)
 	tileDelete(504);
 	portalClear();
 
-	for (int i = 0; i < 16; i++)
-	{
-		tileDelete(4080 + i);
-	}
 	for (int i = (int)wall.Size() - 1; i >= 0; i--)
 	{
 		auto pWalli = &wall[i];
@@ -131,7 +127,6 @@ void InitMirrors(void)
 			mirror[mirrorcnt].diff = link2->spr.pos - link->spr.pos;
 			mirror[mirrorcnt].mynum = i;
 			mirror[mirrorcnt].link = j;
-			secti->floorpicnum = 4080 + mirrorcnt;
 			secti->portalflags = PORTAL_SECTOR_FLOOR;
 			secti->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].diff);
 			mirrorcnt++;
@@ -139,7 +134,6 @@ void InitMirrors(void)
 			mirror[mirrorcnt].diff = link->spr.pos - link2->spr.pos;
 			mirror[mirrorcnt].mynum = j;
 			mirror[mirrorcnt].link = i;
-			sectj->ceilingpicnum = 4080 + mirrorcnt;
 			sectj->portalflags = PORTAL_SECTOR_CEILING;
 			sectj->portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, mirror[mirrorcnt].diff);
 			mirrorcnt++;
