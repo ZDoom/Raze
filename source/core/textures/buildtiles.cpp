@@ -143,7 +143,6 @@ void BuildTiles::Init()
 	{
 		tile.texture = Placeholder;
 		tile.picanm = {};
-		tile.RotTile = { -1,-1 };
 		tile.replacement = ReplacementType::Art;
 		tile.alphaThreshold = 0.5;
 		tile.hiofs = {};
@@ -604,7 +603,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 				pixel = remap[pixel];
 			}
 		}
-		tex = MakeGameTexture(new FImageTexture(new FLooseTile(buffer, tex->GetTexelWidth(), tex->GetTexelHeight())), "", ETextureType::Any);
+		tex = MakeGameTexture(new FImageTexture(new FLooseTile(buffer, tex->GetTexelWidth(), tex->GetTexelHeight())), FStringf("#%05d", tile), ETextureType::Any);
 		picanm = &TileFiles.tiledata[tile].picanm;
 		TileFiles.AddTile(tile, tex);
 	}
@@ -647,61 +646,6 @@ void tileSetDummy(int tile, int width, int height)
 		auto dtile = MakeGameTexture(new FImageTexture(new FDummyTile(width, height)), texname, ETextureType::Any);
 		TileFiles.AddTile(tile, dtile);
 	}
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-int BuildTiles::findUnusedTile(void)
-{
-	static int lastUnusedTile = MAXUSERTILES - 1;
-
-	for (; lastUnusedTile >= 0; --lastUnusedTile)
-	{
-		auto tex = tileGetTexture(lastUnusedTile);
-		if (!tex || !tex->isValid()) return lastUnusedTile;
-	}
-	return -1;
-}
-
-//==========================================================================
-//
-// fixme: This *really* needs to be done by rotating the texture coordinates,
-// not by creating an entirely new texture.
-// Unfortunately it's in all the wrong place in the rendering code so it
-// has to wait for later.
-//
-//==========================================================================
-
-int BuildTiles::tileCreateRotated(int tileNum)
-{
-	if ((unsigned)tileNum >= MAXTILES) return tileNum;
-	auto tex = tileGetTexture(tileNum);
-	if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return tileNum;
-	TArray<uint8_t> buffer = tex->GetTexture()->Get8BitPixels(false);
-	TArray<uint8_t> dbuffer(tex->GetTexelWidth() * tex->GetTexelHeight(), true);
-
-	auto src = buffer.Data();
-	auto dst = dbuffer.Data();
-
-	auto width = tex->GetTexelWidth();
-	auto height = tex->GetTexelHeight();
-	for (int x = 0; x < width; ++x)
-	{
-		int xofs = width - x - 1;
-		int yofs = height * x;
-
-		for (int y = 0; y < height; ++y)
-			*(dst + y * width + xofs) = *(src + y + yofs);
-	}
-
-	auto dtex = MakeGameTexture(new FImageTexture(new FLooseTile(dbuffer, tex->GetTexelHeight(), tex->GetTexelWidth())), "", ETextureType::Override);
-	int index = findUnusedTile();
-	TileFiles.AddTile(index, dtex);
-	return index;
 }
 
 //==========================================================================

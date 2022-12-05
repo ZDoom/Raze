@@ -197,13 +197,16 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 			state.EnableTexture(false);
 		}
 
-		int h = (int)texture->GetDisplayHeight();
-		int h2 = 1 << sizeToBits(h);
-		if (h2 < h) h2 *= 2;
-		if (h != h2)
+		if (!(seg->cstat & CSTAT_WALL_ROTATE_90))
 		{
-			float xOffset = 1.f / texture->GetDisplayWidth();
-			state.SetNpotEmulation(float(h2) / h, xOffset);
+			int h = (int)texture->GetDisplayHeight();
+			int h2 = 1 << sizeToBits(h);
+			if (h2 < h) h2 *= 2;
+			if (h != h2)
+			{
+				float xOffset = 1.f / texture->GetDisplayWidth();
+				state.SetNpotEmulation(float(h2) / h, xOffset);
+			}
 		}
 		RenderWall(di, state, rflags);
 	}
@@ -412,6 +415,15 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 		ViewDistance = (di->Viewpoint.Pos.XY() - DVector2((glseg.x1 + glseg.x2) * 0.5f, (glseg.y1 + glseg.y2) * 0.5f)).LengthSquared();
 	}
 
+	if (seg && (seg->cstat & CSTAT_WALL_ROTATE_90))
+	{
+		float f;
+		// rotate 90° clockwise. The coordinates have already been set up in rotated space, so all we need to do here is swap u and v and then negate the new v.
+		f = tcs[UPLFT].u; tcs[UPLFT].u = tcs[UPLFT].v; tcs[UPLFT].v = 1.f - f;
+		f = tcs[LOLFT].u; tcs[LOLFT].u = tcs[LOLFT].v; tcs[LOLFT].v = 1.f - f;
+		f = tcs[UPRGT].u; tcs[UPRGT].u = tcs[UPRGT].v; tcs[UPRGT].v = 1.f - f;
+		f = tcs[LORGT].u; tcs[LORGT].u = tcs[LORGT].v; tcs[LORGT].v = 1.f - f;
+	}
 	if (texture->isHardwareCanvas())
 	{
 		tcs[UPLFT].v = 1.f - tcs[UPLFT].v;
@@ -743,6 +755,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 
 	float tw = texture->GetDisplayWidth();
 	float th = texture->GetDisplayHeight();
+	if (wal->cstat & CSTAT_WALL_ROTATE_90) std::swap(tw, th);
 	int pow2size = 1 << sizeToBits(th);
 	if (pow2size < th) pow2size *= 2;
 	float ypanning = refwall->ypan_ ? pow2size * refwall->ypan_ / (256.0f * th) : 0;
@@ -999,7 +1012,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		int tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overpicnum : wal->picnum;
 		gotpic.Set(tilenum);
-		tileUpdatePicnum(&tilenum, (wal->cstat & CSTAT_WALL_ROTATE_90));
+		tileUpdatePicnum(&tilenum);
 		texture = tileGetTexture(tilenum);
 		if (texture && texture->isValid())
 		{
@@ -1037,7 +1050,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 			{
 				int tilenum = wal->picnum;
 				gotpic.Set(tilenum);
-				tileUpdatePicnum(&tilenum, (wal->cstat & CSTAT_WALL_ROTATE_90));
+				tileUpdatePicnum(&tilenum);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
 				{
@@ -1050,7 +1063,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		{
 			int tilenum = wal->overpicnum;
 			gotpic.Set(tilenum);
-			tileUpdatePicnum(&tilenum, (wal->cstat & CSTAT_WALL_ROTATE_90));
+			tileUpdatePicnum(&tilenum);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
 			{
@@ -1076,7 +1089,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 				auto w = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? backwall : wal;
 				int tilenum = w->picnum;
 				gotpic.Set(tilenum);
-				tileUpdatePicnum(&tilenum, (w->cstat & CSTAT_WALL_ROTATE_90));
+				tileUpdatePicnum(&tilenum);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
 				{

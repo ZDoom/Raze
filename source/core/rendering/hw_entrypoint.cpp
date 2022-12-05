@@ -307,8 +307,6 @@ void animatecamsprite(double s);
 
 void render_drawrooms(DCoreActor* playersprite, const DVector3& position, sectortype* sect, const DRotator& angles, double interpfrac, float fov)
 {
-	checkRotatedWalls();
-
 	updatesector(position.XY(), &sect);
 	if (sect == nullptr) return;
 

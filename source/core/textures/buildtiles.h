@@ -278,7 +278,6 @@ struct TileDesc
 	FGameTexture* texture;	// the currently active tile
 	RawCacheNode rawCache;	// this is needed for hitscan testing to avoid reloading the texture each time.
 	picanm_t picanm;		// animation descriptor
-	rottile_t RotTile;// = { -1,-1 };
 	ReplacementType replacement;
 	float alphaThreshold;
 	int tileflags;
@@ -370,8 +369,6 @@ struct BuildTiles
 	uint8_t* tileMakeWritable(int num);
 	uint8_t* tileCreate(int tilenum, int width, int height);
 	uint8_t* tileGet(int tilenum);
-	int findUnusedTile(void);
-	int tileCreateRotated(int owner);
 	void InvalidateTile(int num);
 	void MakeCanvas(int tilenum, int width, int height);
 };
@@ -455,13 +452,6 @@ inline int tileTopOffset(int num)
 	return (int)TileFiles.tiledata[num].texture->GetDisplayTopOffset();
 }
 
-inline rottile_t& RotTile(int tile)
-{
-	assert(tile < MAXTILES);
-	return TileFiles.tiledata[tile].RotTile;
-}
-
-
 int tileAnimateOfs(int tilenum, int randomize = -1);
 
 inline void tileUpdatePicnum(int* const tileptr, bool mayrotate = false, int randomize = -1)
@@ -470,9 +460,6 @@ inline void tileUpdatePicnum(int* const tileptr, bool mayrotate = false, int ran
 
 	if (picanm[tile].type())
 		tile += tileAnimateOfs(tile, randomize);
-
-	if (mayrotate && RotTile(tile).newtile != -1)
-		tile = RotTile(tile).newtile;
 }
 
 

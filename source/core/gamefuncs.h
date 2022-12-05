@@ -298,7 +298,6 @@ enum class EClose
 EClose IsCloseToLine(const DVector2& vect, const DVector2& start, const DVector2& end, double walldist);
 EClose IsCloseToWall(const DVector2& vect, walltype* wal, double walldist);
 
-void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
 int32_t inside(double x, double y, const sectortype* sect);
 int insidePoly(double x, double y, const DVector2* points, int count);

@@ -346,36 +346,6 @@ EClose IsCloseToWall(const DVector2& point, walltype* wal, double maxdist)
 
 //==========================================================================
 //
-// Check if some walls are set to use rotated textures.
-// Ideally this should just have been done with texture rotation,
-// but the effects on the render code would be too severe due to the alignment mess.
-//
-//==========================================================================
-
-void checkRotatedWalls()
-{
-	for (auto& w : wall)
-	{
-		if (w.cstat & CSTAT_WALL_ROTATE_90)
-		{
-			int picnum = w.picnum;
-			tileUpdatePicnum(&picnum);
-			auto& tile = RotTile(picnum);
-
-			if (tile.newtile == -1 && tile.owner == -1)
-			{
-				tile.newtile = TileFiles.tileCreateRotated(picnum);
-				assert(tile.newtile != -1);
-
-				RotTile(tile.newtile).owner = picnum;
-
-			}
-		}
-	}
-}
-
-//==========================================================================
-//
 // check if two sectors share a wall connection
 //
 //==========================================================================
