@@ -294,8 +294,8 @@ struct walltype
 	bool hasX() const { return _xw != nullptr; }
 	void allocX();
 
-	FTextureID walltexture() const;
-	FTextureID overtexture() const;
+	const FTextureID walltexture() const;
+	const FTextureID overtexture() const;
 	void setwalltexture(FTextureID tex);
 	void setovertexture(FTextureID tex);
 };
@@ -501,7 +501,7 @@ struct spritetypebase
 		pos = { x * maptoworld, y * maptoworld, z * zmaptoworld };
 	}
 
-	FTextureID spritetexture() const;
+	const FTextureID spritetexture() const;
 };
 
 

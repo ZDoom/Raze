@@ -693,11 +693,11 @@ PicAnm picanm;
 
 
 // wrappers that allow partial migration to a textureID-based setup.
-FTextureID walltype::walltexture() const
+const FTextureID walltype::walltexture() const
 {
 	return tileGetTextureID(wallpicnum);
 }
-FTextureID walltype::overtexture() const
+const FTextureID walltype::overtexture() const
 {
 	return tileGetTextureID(overpicnum);
 }
@@ -712,7 +712,7 @@ const FTextureID sectortype::floortexture() const
 	return tileGetTextureID(floorpicnum);
 }
 
-FTextureID spritetypebase::spritetexture() const
+const FTextureID spritetypebase::spritetexture() const
 {
 	return tileGetTextureID(picnum);
 }
