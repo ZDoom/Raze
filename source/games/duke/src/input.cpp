@@ -843,9 +843,6 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 	if (packet)
 	{
 		*packet = loc;
-		auto velvect = DVector2(loc.fvel, loc.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
-		packet->fvel = (float)velvect.X;
-		packet->svel = (float)velvect.Y;
 		loc = {};
 	}
 }

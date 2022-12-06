@@ -352,4 +352,12 @@ inline int monsterCheatCheck(DDukeActor* self)
 	return false;
 }
 
+inline void processinputvel(int snum)
+{
+	const auto p = &ps[snum];
+	const auto velvect = DVector2(p->sync.fvel, p->sync.svel).Rotated(p->GetActor()->spr.Angles.Yaw) + p->fric;
+	p->sync.fvel = (float)velvect.X;
+	p->sync.svel = (float)velvect.Y;
+}
+
 END_DUKE_NS

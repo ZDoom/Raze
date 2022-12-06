@@ -6996,6 +6996,11 @@ void domovethings(void)
         // disable synchronised input if set by game.
         resetForcedSyncInput();
 
+        // convert fvel/svel into a vector before performing actions.
+        const auto velvect = DVector2(pp->input.fvel, pp->input.svel).Rotated(pp->actor->spr.Angles.Yaw);
+        pp->input.fvel = (float)velvect.X;
+        pp->input.svel = (float)velvect.Y;
+
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
         UpdatePlayerSprite(pp);
