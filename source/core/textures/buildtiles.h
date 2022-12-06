@@ -304,6 +304,7 @@ struct BuildTiles
 	TArray<FString> addedArt;
 	TArray<FString> maptilesadded;
 	TMap<FName, int> nametoindex;
+	TMap<int, int> textotile;
 	bool locked;	// if this is true, no more tile modifications are allowed.
 
 	void addName(const char* name, int index)
@@ -314,6 +315,14 @@ struct BuildTiles
 	void lock()
 	{
 		locked = true;
+		// Now we can set up the reverse map.
+		for (unsigned i = 0; i < MAXTILES; i++)
+		{
+			if (tiledata[i].texture != Placeholder)
+			{
+				textotile.Insert(tiledata[i].texture->GetID().GetIndex(), i);
+			}
+		}
 	}
 
 	int tileForName(const char* name)
@@ -466,6 +475,12 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 	if (tile < 0 || tile >= MAXTILES) return nullptr;
 	if (animate) tileUpdatePicnum(&tile);
 	return TileFiles.tiledata[tile].texture;
+}
+
+inline FTextureID tileGetTextureID(int tile)
+{
+	if (tile < 0 || tile >= MAXTILES) return FNullTextureID();
+	return TileFiles.tiledata[tile].texture->GetID();
 }
 
 void tileUpdateAnimations();
