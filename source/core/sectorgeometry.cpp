@@ -440,7 +440,7 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 {
 	auto sectorp = &sector[section->sector];
 	// calculate the rest.
-	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
+	auto texture = TexMan.GetGameTexture(plane ? sectorp->ceilingtexture() : sectorp->floortexture());
 	auto& sdata = data[section->index];
 	auto& entry = sdata.planes[plane];
 	double fz = sectorp->floorz, cz = sectorp->ceilingz;

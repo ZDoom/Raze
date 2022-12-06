@@ -688,3 +688,33 @@ FCanvasTexture* tileGetCanvas(int tilenum)
 
 PicAnm picanm;
 
+
+// wrappers that allow partial migration to a textureID-based setup.
+FTextureID walltype::walltexture() const
+{
+	auto tex = tileGetTexture(wallpicnum);
+	return tex ? tex->GetID() : FNullTextureID();
+}
+FTextureID walltype::overtexture() const
+{
+	auto tex = tileGetTexture(overpicnum);
+	return tex ? tex->GetID() : FNullTextureID();
+}
+
+FTextureID sectortype::ceilingtexture() const
+{
+	auto tex = tileGetTexture(ceilingpicnum);
+	return tex ? tex->GetID() : FNullTextureID();
+}
+
+FTextureID sectortype::floortexture() const
+{
+	auto tex = tileGetTexture(floorpicnum);
+	return tex ? tex->GetID() : FNullTextureID();
+}
+
+FTextureID spritetypebase::spritetexture() const
+{
+	auto tex = tileGetTexture(picnum);
+	return tex ? tex->GetID() : FNullTextureID();
+}

@@ -37,6 +37,7 @@
 #include "hw_renderstate.h"
 #include "sectorgeometry.h"
 #include "hw_sections.h"
+#include "texturemanager.h"
 
 #ifdef _DEBUG
 CVAR(Int, gl_breaksec, -1, 0)
@@ -351,9 +352,8 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 
 		if (alpha != 0.f)
 		{
-			int tilenum = frontsector->floorpicnum;
-			tileUpdatePicnum(&tilenum);
-			texture = tileGetTexture(tilenum);
+			auto texid = frontsector->floortexture();
+			texture = TexMan.GetGameTexture(texid, true);
 			if (texture && texture->isValid())
 			{
 				//iboindex = frontsector->iboindex[sector_t::floor];
@@ -394,9 +394,8 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 		{
 			//iboindex = frontsector->iboindex[sector_t::ceiling];
 
-			int tilenum = frontsector->ceilingpicnum;
-			tileUpdatePicnum(&tilenum);
-			texture = tileGetTexture(tilenum);
+			auto texid = frontsector->ceilingtexture();
+			texture = TexMan.GetGameTexture(texid, true);
 			if (texture && texture->isValid())
 			{
 				//iboindex = frontsector->iboindex[sector_t::floor];

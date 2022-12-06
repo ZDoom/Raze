@@ -1010,9 +1010,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		// normal texture
 
-		int tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overpicnum : wal->wallpicnum;
-		tileUpdatePicnum(&tilenum);
-		texture = tileGetTexture(tilenum);
+		auto tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overtexture() : wal->walltexture();
+		texture = TexMan.GetGameTexture(tilenum, true);
 		if (texture && texture->isValid())
 		{
 			DoOneSidedTexture(di, wal, frontsector, backsector, fch1, fch2, ffh1, ffh2);
@@ -1047,9 +1046,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 			if (bch1a < fch1 || bch2a < fch2)
 			{
-				int tilenum = wal->wallpicnum;
-				tileUpdatePicnum(&tilenum);
-				texture = tileGetTexture(tilenum);
+				auto tilenum = wal->walltexture();
+				texture = TexMan.GetGameTexture(tilenum, true);
 				if (texture && texture->isValid())
 				{
 					DoUpperTexture(di, wal, frontsector, backsector, fch1, fch2, bch1a, bch2a);
@@ -1059,9 +1057,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		if (wal->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY))
 		{
-			int tilenum = wal->overpicnum;
-			tileUpdatePicnum(&tilenum);
-			texture = tileGetTexture(tilenum);
+			auto tilenum = wal->overtexture();
+			texture = TexMan.GetGameTexture(tilenum, true);
 			if (texture && texture->isValid())
 			{
 				DoMidTexture(di, wal, frontsector, backsector, fch1, fch2, ffh1, ffh2, bch1, bch2, bfh1, bfh2);
@@ -1084,9 +1081,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 			if (bfh1 > ffh1 || bfh2 > ffh2)
 			{
 				auto w = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? backwall : wal;
-				int tilenum = w->wallpicnum;
-				tileUpdatePicnum(&tilenum);
-				texture = tileGetTexture(tilenum);
+				auto tilenum = w->walltexture();
+				texture = TexMan.GetGameTexture(tilenum, true);
 				if (texture && texture->isValid())
 				{
 					DoLowerTexture(di, wal, frontsector, backsector, bfh1, bfh2, ffh1, ffh2);
