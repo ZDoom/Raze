@@ -62,8 +62,9 @@ void DrawAbs(int tile, double x, double y, int shade = 0)
 void DrawRel(int tile, double x, double y, int shade)
 {
     // This is slightly different than what the backend does here, but critical for some graphics.
-    int offx = (tileWidth(tile) >> 1) + tileLeftOffset(tile);
-    int offy = (tileHeight(tile) >> 1) + tileTopOffset(tile);
+    auto tex = tileGetTexture(tile);
+    int offx = (int(tex->GetDisplayWidth()) >> 1) + int(tex->GetDisplayLeftOffset());
+    int offy = (int(tex->GetDisplayHeight()) >> 1) + int(tex->GetDisplayTopOffset());
     DrawAbs(tile, x - offx, y - offy, shade);
 }
 

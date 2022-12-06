@@ -394,20 +394,6 @@ inline int tileHeight(int num)
 	return (int)TileFiles.tiledata[num].texture->GetDisplayHeight();
 }
 
-inline int tileLeftOffset(int num)
-{
-	assert((unsigned)num < MAXTILES);
-	if ((unsigned)num >= MAXTILES) return 0;
-	return (int)TileFiles.tiledata[num].texture->GetDisplayLeftOffset();
-}
-
-inline int tileTopOffset(int num)
-{
-	assert((unsigned)num < MAXTILES);
-	if ((unsigned)num >= MAXTILES) return 0;
-	return (int)TileFiles.tiledata[num].texture->GetDisplayTopOffset();
-}
-
 int tileAnimateOfs(int tilenum, int randomize = -1);
 
 inline void tileUpdatePicnum(int* const tileptr, bool mayrotate = false, int randomize = -1)

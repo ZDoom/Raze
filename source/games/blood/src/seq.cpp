@@ -246,7 +246,9 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	assert(actor->hasX());
 	if (actor->spr.flags & 2)
 	{
-		if (tileHeight(actor->spr.picnum) != tileHeight(seqGetTile(pFrame)) || tileTopOffset(actor->spr.picnum) != tileTopOffset(seqGetTile(pFrame))
+		auto atex = TexMan.GetGameTexture(actor->spr.spritetexture());
+		auto stex = TexMan.GetGameTexture(seqGetTexture(pFrame));
+		if (atex->GetDisplayHeight() != stex->GetDisplayHeight() || atex->GetDisplayTopOffset() != stex->GetDisplayTopOffset()
 			|| (pFrame->scaley && pFrame->scaley != int(actor->spr.scale.Y * INV_REPEAT_SCALE)))
 			actor->spr.flags |= 4;
 	}

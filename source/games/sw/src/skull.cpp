@@ -240,7 +240,8 @@ int SetupSkull(DSWActor* actor)
 
     if (ActorZOfBottom(actor) > actor->user.loz - 16)
     {
-        actor->spr.pos.Z = actor->user.loz + tileTopOffset(actor->spr.picnum);
+        auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+        actor->spr.pos.Z = actor->user.loz + tex->GetDisplayTopOffset();
 
         actor->user.loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground
@@ -658,7 +659,8 @@ int SetupBetty(DSWActor* actor)
 
     if (ActorZOfBottom(actor) > actor->user.loz - 16)
     {
-        actor->spr.pos.Z = actor->user.loz + tileTopOffset(actor->spr.picnum);
+        auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+        actor->spr.pos.Z = actor->user.loz + tex->GetDisplayTopOffset();
 
         actor->user.loz = actor->spr.pos.Z;
         // leave 8 pixels above the ground

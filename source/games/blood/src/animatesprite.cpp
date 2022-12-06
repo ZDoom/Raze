@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_font.h"
 #include "hw_voxels.h"
 #include "gamefuncs.h"
+#include "texturemanager.h"
 #include "models/modeldata.h"
 
 BEGIN_BLD_NS
@@ -389,8 +390,9 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		if (!VanillaMode() && (pTSprite->type == kThingDroppedLifeLeech)) // fix shadow for thrown lifeleech
 			pNSprite->picnum = 800;
 		pNSprite->pal = 5;
-		int height = tileHeight(pNSprite->picnum);
-		int center = height / 2 + tileTopOffset(pNSprite->picnum);
+		auto tex = TexMan.GetGameTexture(pNSprite->spritetexture());
+		double height = tex->GetDisplayHeight();
+		double center = height / 2 + tex->GetDisplayTopOffset();
 		pNSprite->pos.Z -= (pNSprite->scale.Y) * (height - center);
 		break;
 	}
@@ -636,7 +638,8 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				{
 					pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 					pTSprite->cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
-					pTSprite->yoffset += tileTopOffset(pTSprite->picnum);
+					auto tex = TexMan.GetGameTexture(pTSprite->spritetexture());
+					pTSprite->yoffset += (uint8_t)tex->GetDisplayTopOffset();
 					pTSprite->picnum = tprops[pTSprite->spritetexture()].voxelIndex;
 					if ((picanm[nTile].extra & 7) == 7)
 					{

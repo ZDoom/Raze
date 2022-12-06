@@ -88,7 +88,8 @@ static void viewBurnTime(int gScale)
 
 	for (int i = 0; i < 9; i++)
 	{
-		int nTile = burnTable[i].nTile + tileAnimateOfs(burnTable[i].nTile, i);
+		int nTile = burnTable[i].nTile;
+		tileUpdatePicnum(&nTile);
 		int nScale = burnTable[i].nScale;
 		if (gScale < 600)
 		{

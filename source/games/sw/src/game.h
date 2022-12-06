@@ -47,6 +47,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "packet.h"
 #include "gameinput.h"
 #include "serialize_obj.h"
+#include "texturemanager.h"
 
 EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
@@ -202,24 +203,23 @@ constexpr int NORM_ANGLE(int ang) { return ((ang) & 2047); }
 int StdRandomRange(int range);
 
 
-inline double GetSpriteSizeZ(const spritetypebase* sp)
-{
-	return (tileHeight(sp->picnum) * sp->scale.Y);
-}
-
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 inline double GetSpriteZOfTop(const spritetypebase* sp)
 {
+    auto tex = TexMan.GetGameTexture(sp->spritetexture());
+    auto sizez = tex->GetDisplayHeight() * sp->scale.Y;
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->pos.Z - ((GetSpriteSizeZ(sp) * 0.5) + tileTopOffset(sp->picnum)) :
-        sp->pos.Z - GetSpriteSizeZ(sp);
+        sp->pos.Z - ((sizez * 0.5) + tex->GetDisplayTopOffset()) :
+        sp->pos.Z - sizez;
 }
 
 inline double GetSpriteZOfBottom(const spritetypebase* sp)
 {
+    auto tex = TexMan.GetGameTexture(sp->spritetexture());
+    auto sizez = tex->GetDisplayHeight() * sp->scale.Y;
     return (sp->cstat & CSTAT_SPRITE_YCENTER) ?
-        sp->pos.Z + ((GetSpriteSizeZ(sp) * 0.5) - tileTopOffset(sp->picnum)) :
+        sp->pos.Z + ((sizez * 0.5) - tex->GetDisplayTopOffset()) :
         sp->pos.Z;
 }
 
@@ -2071,12 +2071,14 @@ inline DVector3 ActorLowerVect(DSWActor* actor)
 // Z size of top (TOS) and bottom (BOS) part of sprite
 inline double ActorSizeToTop(DSWActor* a)
 {
-    return (ActorSizeZ(a) + tileTopOffset(a->spr.picnum)) * 0.5;
+    auto tex = TexMan.GetGameTexture(a->spr.spritetexture());
+    return (ActorSizeZ(a) + tex->GetDisplayTopOffset()) * 0.5;
 }
 
 inline void SetActorSizeX(DSWActor* sp)
 {
-    sp->clipdist = tileWidth(sp->spr.picnum) * sp->spr.scale.X * 0.25;
+    auto tex = TexMan.GetGameTexture(sp->spr.spritetexture());
+    sp->clipdist = tex->GetDisplayWidth() * sp->spr.scale.X * 0.25;
 }
 
 inline bool Facing(DSWActor* actor1, DSWActor* actor2)
@@ -2087,7 +2089,8 @@ inline bool Facing(DSWActor* actor1, DSWActor* actor2)
 // Given a z height and sprite return the correct y repeat value
 inline int GetRepeatFromHeight(DSWActor* sp, double zh)
 {
-    return int(zh * 64) / tileHeight(sp->spr.picnum);
+    auto tex = TexMan.GetGameTexture(sp->spr.spritetexture());
+    return int(zh * 64) / int(tex->GetDisplayHeight());
 }
 
 inline bool SpriteInDiveArea(DSWActor* a)

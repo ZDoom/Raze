@@ -3311,8 +3311,12 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 			pos = bottom;
 			break;
 		case 2: // middle
-			pos = actor->spr.pos.Z + (tileHeight(actor->spr.picnum) / 2 + tileTopOffset(actor->spr.picnum)) * actor->spr.scale.Y;
+		{
+			auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+			double center = tex->GetDisplayHeight() / 2 + tex->GetDisplayTopOffset();
+			pos = actor->spr.pos.Z + center * actor->spr.scale.Y;
 			break;
+		}
 		case 3:
 		case 4:
 			if (actor->insector())
@@ -3752,9 +3756,13 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 						pos.Z = top;
 						break;
 					case 4:
+					{
 						// this had no value shift and no repeat handling, which looks like a bug.
-						pos.Z += (tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum)) * iactor->spr.scale.Y;
+						auto tex = TexMan.GetGameTexture(iactor->spr.spritetexture());
+						double center = tex->GetDisplayHeight() / 2 + tex->GetDisplayTopOffset();
+						pos.Z += center * iactor->spr.scale.Y;
 						break;
+					}
 					case 5:
 					case 6:
 						if (!iactor->insector()) pos.Z = top;

@@ -47,6 +47,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "gamefuncs.h"
 #include "hw_sections.h"
 #include "coreactor.h"
+#include "texturemanager.h"
+
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)
 CVAR(Float, am_linealpha, 1.0f, CVAR_ARCHIVE)
@@ -637,15 +639,16 @@ void DrawAutomapAlignmentFacing(const spritetype& spr, const DVector2& bpos, con
 
 //---------------------------------------------------------------------------
 //
-// Draws lines for alls in Duke/SW when cstat is CSTAT_SPRITE_ALIGNMENT_WALL.
+// Draws lines for sprites in Duke/SW when cstat is CSTAT_SPRITE_ALIGNMENT_WALL.
 //
 //---------------------------------------------------------------------------
 
 void DrawAutomapAlignmentWall(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col)
 {
+	auto tex = TexMan.GetGameTexture(spr.spritetexture());
 	auto xrep = spr.scale.X;
-	auto xspan = tileWidth(spr.picnum);
-	auto xoff = tileLeftOffset(spr.picnum) + spr.xoffset;
+	int xspan = (int)tex->GetDisplayWidth();
+	int xoff = (int)tex->GetDisplayLeftOffset() + spr.xoffset;
 
 	if ((spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
 
@@ -669,12 +672,14 @@ void DrawAutomapAlignmentWall(const spritetype& spr, const DVector2& bpos, const
 
 void DrawAutomapAlignmentFloor(const spritetype& spr, const DVector2& bpos, const DVector2& cangvect, const double czoom, const DVector2& xydim, const PalEntry& col)
 {
+	auto tex = TexMan.GetGameTexture(spr.spritetexture());
+
 	auto xrep = spr.scale.X;
 	auto yrep = spr.scale.Y;
-	auto xspan = tileWidth(spr.picnum);
-	auto yspan = tileHeight(spr.picnum);
-	auto xoff = tileLeftOffset(spr.picnum);
-	auto yoff = tileTopOffset(spr.picnum);
+	int xspan = (int)tex->GetDisplayWidth();
+	int yspan = (int)tex->GetDisplayHeight();
+	int xoff = (int)tex->GetDisplayLeftOffset();
+	int yoff = (int)tex->GetDisplayTopOffset();
 
 	if (isSWALL() || (spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
 	{

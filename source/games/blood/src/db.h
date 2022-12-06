@@ -22,7 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+#include <stdint.h>
 #include "mapstructs.h"
+#include "texturemanager.h"
 
 BEGIN_BLD_NS
 
@@ -85,8 +87,9 @@ void GetSpriteExtents(spritetypebase const* const pSprite, double* top, double* 
 	*top = *bottom = pSprite->pos.Z;
 	if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
 	{
-		int height = tileHeight(pSprite->picnum);
-		int center = height / 2 + tileTopOffset(pSprite->picnum);
+		auto tex = TexMan.GetGameTexture(pSprite->spritetexture());
+		double height = tex->GetDisplayHeight();
+		double center = height / 2 + tex->GetDisplayTopOffset();
 		*top -= pSprite->scale.Y * center;
 		*bottom += pSprite->scale.Y * (height - center);
 	}

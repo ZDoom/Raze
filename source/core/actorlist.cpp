@@ -37,6 +37,7 @@
 #include "gamefuncs.h"
 #include "raze_sound.h"
 #include "vm.h"
+#include "texturemanager.h"
 
 // Doubly linked ring list of Actors
 
@@ -528,9 +529,10 @@ size_t DCoreActor::PropagateMark()
 
 double DCoreActor::GetOffsetAndHeight(double& height)
 {
+	auto tex = TexMan.GetGameTexture(spr.spritetexture());
 	double yscale = spr.scale.Y;
-	height = tileHeight(spr.picnum) * yscale;
+	height = tex->GetDisplayHeight() * yscale;
 	double zofs = (spr.cstat & CSTAT_SPRITE_YCENTER) ? height * 0.5 : 0;
-	return zofs - tileTopOffset(spr.picnum) * yscale;
+	return zofs - tex->GetDisplayTopOffset() * yscale;
 }
 
