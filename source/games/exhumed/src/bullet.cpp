@@ -183,7 +183,8 @@ void IgniteSprite(DExhumedActor* pActor)
     {
         pAnimActor->pTarget = pActor;
         ChangeActorStat(pAnimActor, kStatIgnited);
-        pAnimActor->spr.scale.Y = (max(1, (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight) * REPEAT_SCALE);
+        auto tex = TexMan.GetGameTexture(pAnimActor->spr.spritetexture());
+        pAnimActor->spr.scale.Y = (max(1.f, (tex->GetDisplayHeight() * 32) / nFlameHeight) * REPEAT_SCALE);
     }
 }
 

@@ -711,7 +711,8 @@ int DoActorJump(DSWActor* actor)
     actor->spr.pos.Z += actor->user.jump_speed * ACTORMOVETICS * JUMP_FACTOR;
 
     // if player gets to close the ceiling while jumping
-    double minh = actor->user.hiz + tileHeight(actor->spr.picnum);
+    auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+    double minh = actor->user.hiz + tex->GetDisplayHeight();
     if (actor->spr.pos.Z < minh)
     {
         // put player at the ceiling
@@ -905,7 +906,8 @@ int DoJump(DSWActor* actor)
     actor->spr.pos.Z += actor->user.jump_speed * ACTORMOVETICS * JUMP_FACTOR;
 
     // if player gets to close the ceiling while jumping
-    double minh = actor->user.hiz + tileHeight(actor->spr.picnum);
+    auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+    double minh = actor->user.hiz + tex->GetDisplayHeight();
     if (actor->spr.pos.Z < minh)
     {
         // put player at the ceiling

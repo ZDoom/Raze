@@ -1557,7 +1557,8 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, const DVector3& pos, 
 
 		dmg = int(dmg * (0x4000 / (0x4000 + dv.LengthSquared())));
 		bool thing = (actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
-		double size = (tileWidth(actor->spr.picnum) * actor->spr.scale.X * tileHeight(actor->spr.picnum) * actor->spr.scale.Y) * 2048;
+		auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+		double size = (tex->GetDisplayWidth() * actor->spr.scale.X * tex->GetDisplayHeight() * actor->spr.scale.Y) * 2048;
 		if (actor->xspr.physAttr & kPhysDebrisExplode)
 		{
 			if (actor->spriteMass.mass > 0)
@@ -1588,9 +1589,11 @@ void debrisBubble(DBloodActor* actor)
 {
 	double top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	for (unsigned int i = 0; i < 1 + Random(5); i++) {
 
-		double nDist = actor->spr.scale.X * tileWidth(actor->spr.picnum) * 0.5; // original code ended with * 8 which is 1/2 map unit.
+	auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+	double nDist = (actor->spr.scale.X * tex->GetDisplayWidth()) * (1. / 2);
+	for (unsigned int i = 0; i < 1 + Random(5); i++)
+	{
 		DAngle nAngle = RandomAngle();
 		DVector3 pos;
 		pos.XY() = actor->spr.pos.XY() + nAngle.ToVector() * nDist;

@@ -326,7 +326,8 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 	auto dasectp = actor->sector();
 
 	auto ppos = actor->spr.pos;
-	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.scale.Y) * 0.5;
+	auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+	ppos.Z -= tex->GetDisplayHeight() * actor->spr.scale.Y * 0.5;
 
 	if (bg)
 	{
@@ -996,7 +997,8 @@ static void rrra_specialstats()
 				else if (enemysizecheat == 2)
 				{
 					act->spr.scale *= 0.5;
-					act->clipdist = act->spr.scale.X, tileHeight(act->spr.picnum) * 0.125;
+					auto tex = TexMan.GetGameTexture(act->spr.spritetexture());
+					act->clipdist = act->spr.scale.X, tex->GetDisplayHeight() * 0.125;
 				}
 				break;
 			}

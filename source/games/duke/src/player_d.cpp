@@ -331,7 +331,8 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 
 		if (aimed)
 		{
-			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
+			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
+			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) + 5;
 			switch (aimed->spr.picnum)
 			{
 			case DTILE_GREENSLIME:
@@ -584,7 +585,8 @@ static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int a
 
 		if (aimed)
 		{
-			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) - 12;
+			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
+			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) - 12;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
@@ -671,7 +673,8 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 		aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 8;
+			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
+			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) + 8;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
 			if (!actorflag(aimed, SFLAG2_SPECIALAUTOAIM))
@@ -896,7 +899,8 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5) + 5;
+			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
+			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) + 5;
 			switch (aimed->spr.picnum)
 			{
 			case DTILE_GREENSLIME:
@@ -999,7 +1003,8 @@ static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle 
 		auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			double dal = ((aimed->spr.scale.X * tileHeight(aimed->spr.picnum)) * 0.5);
+			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
+			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5);
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal - 4) * 48) / dist;
 			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
@@ -1051,7 +1056,8 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 	else
 	{
 		p = -1;
-		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tileHeight(actor->spr.picnum) * 0.5) + 4);
+		auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tex->GetDisplayHeight() * 0.5) + 4);
 
 		if (actor->spr.picnum != DTILE_ROTATEGUN)
 		{

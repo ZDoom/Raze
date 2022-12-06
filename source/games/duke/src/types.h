@@ -4,6 +4,7 @@
 #include "packet.h"
 #include "d_net.h"
 #include "gameinput.h"
+#include "texturemanager.h"
 
 BEGIN_DUKE_NS
 
@@ -125,7 +126,8 @@ public:
 	
 	void setClipDistFromTile()
 	{
-		clipdist = spr.scale.X * tileWidth(spr.picnum) * 0.125;
+		auto tex = TexMan.GetGameTexture(spr.spritetexture());
+		clipdist = spr.scale.X * tex->GetDisplayWidth() * 0.125;
 	}
 
 };

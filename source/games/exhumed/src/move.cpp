@@ -402,7 +402,8 @@ Collision movespritez(DExhumedActor* pActor, double z, double height, double cli
 
 double GetActorHeight(DExhumedActor* actor)
 {
-    return tileHeight(actor->spr.picnum) * actor->spr.scale.Y;
+    auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+    return tex->GetDisplayHeight() * actor->spr.scale.Y;
 }
 
 DExhumedActor* insertActor(sectortype* s, int st)

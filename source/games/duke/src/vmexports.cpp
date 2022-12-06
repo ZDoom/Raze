@@ -628,7 +628,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, checkhitsprite, DukeActor_checkhitspri
 
 int duke_spw(DDukeActor* act)
 {
-	return tileWidth(act->spr.picnum);
+	auto tex = TexMan.GetGameTexture(act->spr.spritetexture());
+	return (int)tex->GetDisplayWidth();
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spritewidth, duke_spw)

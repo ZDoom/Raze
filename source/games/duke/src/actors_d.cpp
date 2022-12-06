@@ -39,6 +39,7 @@ This file contains parts of DukeGDX by Alexander Makarov-[M210] (m210-2007@mail.
 #include "names_d.h"
 #include "serializer.h"
 #include "dukeactor.h"
+#include "texturemanager.h"
 
 BEGIN_DUKE_NS
 
@@ -406,7 +407,9 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 	auto dasectp = actor->sector();
 
 	auto ppos = actor->spr.pos;
-	ppos.Z -= (tileHeight(actor->spr.picnum) * actor->spr.scale.Y) * 0.5;
+
+	auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+	ppos.Z -= tex->GetDisplayHeight() * actor->spr.scale.Y * 0.5;
 
 	if (bg)
 	{

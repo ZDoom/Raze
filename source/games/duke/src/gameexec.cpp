@@ -1748,7 +1748,8 @@ int ParseState::parse(void)
 		insptr++;
 
 		auto scale = g_ac->spr.scale.Y;
-		if ((g_ac->isPlayer() && scale < 0.5626) || *insptr * REPEAT_SCALE < scale || (scale * (tileHeight(g_ac->spr.picnum) + 8)) < g_ac->floorz - g_ac->ceilingz)
+		auto tex = TexMan.GetGameTexture(g_ac->spr.spritetexture());
+		if ((g_ac->isPlayer() && scale < 0.5626) || *insptr * REPEAT_SCALE < scale || (scale * (tex->GetDisplayHeight() + 8)) < g_ac->floorz - g_ac->ceilingz)
 		{
 			siz = ((*insptr) * REPEAT_SCALE - g_ac->spr.scale.Y);
 			g_ac->spr.scale.Y = (clamp(g_ac->spr.scale.Y + Sgn(siz) * REPEAT_SCALE, 0., 4.));

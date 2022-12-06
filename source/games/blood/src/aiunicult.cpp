@@ -881,9 +881,11 @@ static void unicultThinkChase(DBloodActor* actor)
 										return;
 
 									}
+									auto tex1 = TexMan.GetGameTexture(hitactor->spr.spritetexture());
+									auto tex2 = TexMan.GetGameTexture(actor->spr.spritetexture());
 
-									double wd1 = tileWidth(hitactor->spr.picnum) * hitactor->spr.scale.X;
-									double wd2 = tileWidth(actor->spr.picnum) * actor->spr.scale.X;
+									double wd1 = tex1->GetDisplayWidth() * hitactor->spr.scale.X;
+									double wd2 = tex2->GetDisplayWidth() * actor->spr.scale.X;
 									if (wd1 < (wd2 * 8))
 									{
 										//viewSetSystemMessage("OBJ SIZE: %d   DUDE SIZE: %d", wd1, wd2);

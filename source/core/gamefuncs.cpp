@@ -532,7 +532,8 @@ double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3&
 	if (factor < 0 || factor > maxfactor) return -1;
 
 
-	auto sprwidth = tileWidth(actor->spr.picnum) * actor->spr.scale.X * 0.5;
+	auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+	auto sprwidth = tex->GetDisplayWidth() * actor->spr.scale.X * 0.5;
 	auto point = start + direction * factor;
 
 	// Using proper distance here, Build originally used the sum of x- and y-distance

@@ -302,7 +302,8 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 
     if (tsp->scale.Y > 0.25)
     {
-		double sizey = tileHeight(tsp->picnum) * tsp->scale.Y;
+        auto tex = TexMan.GetGameTexture(tsp->spritetexture());
+        double sizey = tex->GetDisplayHeight() * tsp->scale.Y;
         scale.Y = (tsp->scale.Y * 0.25) - (sizey / 2048.);
         scale.X = tsp->scale.X;
     }

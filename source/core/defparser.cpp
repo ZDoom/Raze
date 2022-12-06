@@ -147,7 +147,8 @@ void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp)
 	if (imp.crc32 != INT64_MAX && int(imp.crc32) != tileGetCRC32(imp.tile))
 		return;
 
-	if (imp.sizex != INT_MAX && tileWidth(imp.tile) != imp.sizex && tileHeight(imp.tile) != imp.sizey)
+	auto tex = tileGetTexture(imp.tile);
+	if (imp.sizex != INT_MAX && tex->GetTexelWidth() != imp.sizex && tex->GetTexelHeight() != imp.sizey)
 		return;
 
 	imp.alphacut = clamp(imp.alphacut, 0, 255);
@@ -160,7 +161,7 @@ void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp)
 	// This is not quite the same as originally, for two reasons:
 	// 1: Since these are texture properties now, there's no need to clear them.
 	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
-	auto tex = tileGetTexture(imp.tile);
+	tex = tileGetTexture(imp.tile); // this is not the same texture as above anymore!
 
 	if (imp.xoffset == INT_MAX) imp.xoffset = tex->GetTexelLeftOffset();
 	else imp.xoffset = clamp(imp.xoffset, -128, 127);

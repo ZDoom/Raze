@@ -2573,7 +2573,8 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, const DVector
 
 		if (mass > 0)
 		{
-			double size = (tileWidth(actor->spr.picnum) * actor->spr.scale.X * tileHeight(actor->spr.picnum) * actor->spr.scale.Y) / 0x20000;
+			auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+			double size = (tex->GetDisplayWidth() * actor->spr.scale.X * tex->GetDisplayHeight() * actor->spr.scale.Y) / 0x20000;
 			actor->vel += vect * Scale(damage, size, mass);
 		}
 	}
