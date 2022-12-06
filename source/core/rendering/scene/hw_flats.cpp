@@ -413,8 +413,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 
 void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* sector)
 {
-	int tilenum = sprite->picnum;
-	texture = tileGetTexture(tilenum);
+	texture = TexMan.GetGameTexture(sprite->spritetexture());
 	bool belowfloor = false;
 	if (sprite->pos.Z > sprite->sectp->floorz)
 	{

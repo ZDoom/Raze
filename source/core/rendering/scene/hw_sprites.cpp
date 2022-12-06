@@ -318,7 +318,7 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 	if (spr == nullptr)
 		return;
 
-	auto tex = tileGetTexture(spr->picnum);
+	auto tex = TexMan.GetGameTexture(spr->spritetexture());
 	if (!tex || !tex->isValid()) return;
 
 	texture = tex;

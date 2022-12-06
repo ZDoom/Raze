@@ -373,7 +373,7 @@ bool ShowRedLine(int j, int i)
 					if (((wal->cstat | wal->nextWall()->cstat) & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == 0)
 						if (sector[i].floorz == wal->nextSector()->floorz)
 							return false;
-			if (sector[i].floorpicnum != wal->nextSector()->floorpicnum)
+			if (sector[i].floortexture() != wal->nextSector()->floortexture())
 				return false;
 			if (sector[i].floorshade != wal->nextSector()->floorshade)
 				return false;
@@ -431,7 +431,7 @@ static void drawwhitelines(const DVector2& cpos, const DVector2& cangvect, const
 		for (auto& wal : sector[i].walls)
 		{
 			if (wal.nextwall >= 0) continue;
-			if (!gFullMap && !tileGetTexture(wal.wallpicnum)->isValid()) continue;
+			if (!gFullMap && !wal.walltexture().isValid()) continue;
 
 			if (isSWALL() && !gFullMap && !show2dwall[wallindex(&wal)])
 				continue;
@@ -524,8 +524,8 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 
 		if (sect->floorstat & CSTAT_SECTOR_SKY) continue;
 
-		int picnum = sect->floorpicnum;
-		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
+		auto flortex = sect->floortexture();
+		if (!flortex.isValid()) continue;
 
 		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);
 		PalEntry light = shadeToLight(sector[i].floorshade);
@@ -541,7 +541,7 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 				vertices[j] = { float(v.X), float(v.Y), mesh->texcoords[j].X, mesh->texcoords[j].Y };
 			}
 
-			twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), (unsigned*)indices->Data(), indices->Size(), translation, light,
+			twod->AddPoly(TexMan.GetGameTexture(flortex, true), vertices.Data(), vertices.Size(), (unsigned*)indices->Data(), indices->Size(), translation, light,
 				LegacyRenderStyles[STYLE_Translucent], &viewport3d);
 		}
 	}
@@ -581,9 +581,8 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 		}
 
 		int translation = TRANSLATION(Translation_Remap + curbasepal, actor->spr.pal);
-		int picnum = actor->spr.picnum;
 		const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
-		twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), indices, 6, translation, color, rs, &viewport3d);
+		twod->AddPoly(TexMan.GetGameTexture(actor->spr.spritetexture(), true), vertices.Data(), vertices.Size(), indices, 6, translation, color, rs, &viewport3d);
 	}
 }
 

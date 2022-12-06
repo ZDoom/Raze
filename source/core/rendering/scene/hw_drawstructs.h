@@ -388,7 +388,7 @@ int checkTranslucentReplacement(FTextureID picnum, int pal);
 
 inline bool maskWallHasTranslucency(const walltype* wall)
 {
-	return (wall->cstat & CSTAT_WALL_TRANSLUCENT) || checkTranslucentReplacement(tileGetTexture(wall->wallpicnum)->GetID(), wall->pal);
+	return (wall->cstat & CSTAT_WALL_TRANSLUCENT) || checkTranslucentReplacement(wall->walltexture(), wall->pal);
 }
 
 inline bool spriteHasTranslucency(const tspritetype* tspr)
@@ -397,7 +397,7 @@ inline bool spriteHasTranslucency(const tspritetype* tspr)
 		(tspr->ownerActor->sprext.alpha))
 		return true;
 
-	return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
+	return checkTranslucentReplacement(tspr->spritetexture(), tspr->pal);
 }
 
 inline void SetSpriteTranslucency(const tspritetype* sprite, float& alpha, FRenderStyle& RenderStyle)

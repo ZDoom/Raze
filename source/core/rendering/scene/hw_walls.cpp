@@ -1126,7 +1126,7 @@ int HWWall::CheckWallSprite(tspritetype* spr, tspritetype* last)
 
 void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sector)
 {
-	auto tex = tileGetTexture(spr->picnum);
+	auto tex = TexMan.GetGameTexture(spr->spritetexture());
 	if (!tex || !tex->isValid()) return;
 
 	seg = nullptr;
