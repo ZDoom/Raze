@@ -225,13 +225,12 @@ static FGameTexture* GetTileTexture(const char* name, const TArray<uint8_t>& bac
 void BuildTiles::Init()
 {
 	Placeholder = TexMan.GameByIndex(0);
+	tiledata.Resize(MAXTILES);
+	memset(tiledata.Data(), 0, sizeof(tiledata[0]) * MAXTILES);
 	for (auto& tile : tiledata)
 	{
 		tile.texture = Placeholder;
-		tile.picanm = {};
-		tile.replacement = ReplacementType::Art;
 		tile.alphaThreshold = 0.5;
-		tile.hiofs = {};
 	}
 
 }

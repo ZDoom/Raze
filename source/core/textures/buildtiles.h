@@ -284,7 +284,7 @@ struct BuildTiles
 {
 	FGameTexture* Placeholder;
 	TDeletingArray<BuildArtFile*> ArtFiles;
-	TileDesc tiledata[MAXTILES];
+	TArray<TileDesc> tiledata;
 	TArray<FString> addedArt;
 	TMap<FName, int> nametoindex;
 	TMap<int, int> textotile;
