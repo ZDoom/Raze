@@ -296,6 +296,8 @@ struct walltype
 
 	FTextureID walltexture() const;
 	FTextureID overtexture() const;
+	void setwalltexture(FTextureID tex);
+	void setovertexture(FTextureID tex);
 };
 
 // enable for running a compile-check to ensure that renderer-critical variables are not being written to directly.

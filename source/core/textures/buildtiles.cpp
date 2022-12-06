@@ -695,31 +695,26 @@ PicAnm picanm;
 // wrappers that allow partial migration to a textureID-based setup.
 FTextureID walltype::walltexture() const
 {
-	auto tex = tileGetTexture(wallpicnum);
-	return tex ? tex->GetID() : FNullTextureID();
+	return tileGetTextureID(wallpicnum);
 }
 FTextureID walltype::overtexture() const
 {
-	auto tex = tileGetTexture(overpicnum);
-	return tex ? tex->GetID() : FNullTextureID();
+	return tileGetTextureID(overpicnum);
 }
 
 const FTextureID sectortype::ceilingtexture() const
 {
-	auto tex = tileGetTexture(ceilingpicnum);
-	return tex ? tex->GetID() : FNullTextureID();
+	return tileGetTextureID(ceilingpicnum);
 }
 
 const FTextureID sectortype::floortexture() const
 {
-	auto tex = tileGetTexture(floorpicnum);
-	return tex ? tex->GetID() : FNullTextureID();
+	return tileGetTextureID(floorpicnum);
 }
 
 FTextureID spritetypebase::spritetexture() const
 {
-	auto tex = tileGetTexture(picnum);
-	return tex ? tex->GetID() : FNullTextureID();
+	return tileGetTextureID(picnum);
 }
 
 void sectortype::setfloortexture(FTextureID tex)
@@ -732,4 +727,17 @@ void sectortype::setceilingtexture(FTextureID tex)
 {
 	auto p = TileFiles.textotile.CheckKey(tex.GetIndex());
 	if (p) ceilingpicnum = *p;
+}
+
+void walltype::setwalltexture(FTextureID tex)
+{
+	auto p = TileFiles.textotile.CheckKey(tex.GetIndex());
+	if (p) wallpicnum = *p; 
+}
+
+void walltype::setovertexture(FTextureID tex)
+{
+	auto p = TileFiles.textotile.CheckKey(tex.GetIndex());
+	if (p) overpicnum = *p;
+	else overpicnum = -1;	// unlike the others this one can be invalid.
 }

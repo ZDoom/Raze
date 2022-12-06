@@ -471,7 +471,7 @@ inline void tileUpdatePicnum(int* const tileptr, bool mayrotate = false, int ran
 
 inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 {
-	assert((unsigned)tile < MAXTILES);
+	assert((unsigned)tile < MAXTILES && tile != -1);	// -1 is valid for overpicnum as 'no texture'.
 	if (tile < 0 || tile >= MAXTILES) return nullptr;
 	if (animate) tileUpdatePicnum(&tile);
 	return TileFiles.tiledata[tile].texture;
@@ -481,6 +481,12 @@ inline FTextureID tileGetTextureID(int tile)
 {
 	if (tile < 0 || tile >= MAXTILES) return FNullTextureID();
 	return TileFiles.tiledata[tile].texture->GetID();
+}
+
+inline int legacyTileNum(FTextureID tex)
+{
+	auto p = TileFiles.textotile.CheckKey(tex.GetIndex());
+	return p ? *p : -1;
 }
 
 void tileUpdateAnimations();
