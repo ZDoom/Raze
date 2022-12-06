@@ -191,3 +191,5 @@ x(SBarWaponNum0, 2246)
 x(SBarWaponNum0, 2247)
 x(SBarWaponNum0, 2248)
 x(SBarWaponNum0, 2249)
+
+x(MIRRORTILE, 504)

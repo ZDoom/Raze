@@ -95,6 +95,7 @@ extern int8_t tileShade[MAXTILES];
 extern short voxelIndex[MAXTILES];
 
 extern int nPrecacheCount;
+inline FTextureID mirrortile;
 
 void tilePrecacheTile(int nTile, int nType, int palette);
 

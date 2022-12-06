@@ -43,7 +43,6 @@ MIRROR mirror[16]; // only needed by Polymost.
 
 void InitMirrors(void)
 {
-	auto mirrortile = tileGetTextureID(504);
 	mirrorcnt = 0;
 	portalClear();
 

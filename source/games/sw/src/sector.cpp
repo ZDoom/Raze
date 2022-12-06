@@ -191,11 +191,12 @@ void WallSetup(void)
 
     for (auto& wal : wall)
     {
+        /*
         if (wal.walltexture() == FAFPlaceMirrorPic[0])
             wal.setwalltexture(FAFMirrorPic[0]);
 
         if (wal.walltexture() == FAFPlaceMirrorPic[1])
-            wal.setwalltexture(FAFMirrorPic[1]);
+            wal.setwalltexture(FAFMirrorPic[1]);*/
 
         // this overwrites the lotag so it needs to be called LAST - its down there
         // SetupWallForBreak(wp);

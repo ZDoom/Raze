@@ -105,6 +105,7 @@ void GameInterface::SetupSpecialTextures()
     TileFiles.tileCreate(4079, 128, 128);
     TileFiles.tileMakeWritable(2342);
     TileFiles.lock();   // from this point on the tile<->texture associations may not change anymore.
+    mirrortile = tileGetTextureID(504);
 }
 
 //---------------------------------------------------------------------------
@@ -144,6 +145,9 @@ void GameInterface::SetTileProps(int tile, int surf, int vox, int shade)
     if (surf != INT_MAX) surfType[tile] = surf;
     if (vox != INT_MAX) voxelIndex[tile] = vox;
     if (shade != INT_MAX) tileShade[tile] = shade;
+
+    mirrortile = tileGetTextureID(504);
+
 }
 
 END_BLD_NS
