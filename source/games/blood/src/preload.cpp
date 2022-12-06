@@ -310,11 +310,13 @@ void PreloadCache()
 	seqPrecacheId(dudeInfo[31].seqStartID + 17, 0);
 	seqPrecacheId(dudeInfo[31].seqStartID + 18, 0);
 
+	/* fixme: cache the composite sky. These are useless.
 	if (skyTile > -1 && skyTile < kMaxTiles)
 	{
 		for (int i = 1; i < gSkyCount; i++)
 			tilePrecacheTile(skyTile + i, 0, 0);
 	}
+	*/
 
 	WeaponPrecache();
 	viewPrecacheTiles();
