@@ -653,41 +653,6 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			nAnim--;
 		}
 
-		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && r_voxels && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
-		{
-			int const nRootTile = pTSprite->picnum;
-			int nAnimTile = pTSprite->picnum + tileAnimateOfs(pTSprite->picnum, (pTSprite->ownerActor->GetIndex() & 16383));
-
-#if 0
-			if (tiletovox[nAnimTile] != -1)
-			{
-				pTSprite->yoffset += tileTopOffset(nAnimTile);
-				pTSprite->xoffset += tileLeftOffset(nAnimTile);
-			}
-#endif
-
-			int const nVoxel = tiletovox[pTSprite->picnum];
-
-			if (nVoxel != -1 && (picanm[nRootTile].extra & 7) == 7)
-				pTSprite->clipdist |= TSPR_MDLROTATE; // per-sprite rotation setting.
-		}
-
-		if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && hw_models && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
-		{
-			int const nRootTile = pTSprite->picnum;
-			int nAnimTile = pTSprite->picnum + tileAnimateOfs(pTSprite->picnum, (pTSprite->ownerActor->GetIndex() & 16383));
-			auto pt = modelManager.GetModel(nAnimTile, pTSprite->pal);
-
-			if (pt && pt->modelid >= 0 && pt->framenum >= 0)
-			{
-				pTSprite->yoffset += tileTopOffset(nAnimTile);
-				pTSprite->xoffset += tileLeftOffset(nAnimTile);
-
-				if ((picanm[nRootTile].extra & 7) == 7)
-					pTSprite->clipdist |= TSPR_MDLROTATE; // per-sprite rotation setting.
-			}
-		}
-
 		sectortype* pSector = pTSprite->sectp;
 		XSECTOR const* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 		int nShade = pTSprite->shade;
