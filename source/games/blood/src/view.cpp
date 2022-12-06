@@ -594,10 +594,7 @@ void viewDrawScreen(bool sceneonly)
 {
 	PLAYER* pPlayer = &gPlayer[gViewIndex];
 
-	if (testgotpic(2342, true))
-	{
-		FireProcess();
-	}
+	FireProcess();
 
 	double interpfrac;
 

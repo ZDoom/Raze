@@ -527,7 +527,6 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 
 		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);
 		PalEntry light = shadeToLight(sector[i].floorshade);
-		gotpic.Set(picnum);
 
 		for (auto section : sectionsPerSector[i])
 		{
@@ -581,7 +580,6 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 
 		int translation = TRANSLATION(Translation_Remap + curbasepal, actor->spr.pal);
 		int picnum = actor->spr.picnum;
-		gotpic.Set(picnum);
 		const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
 		twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), indices, 6, translation, color, rs, &viewport3d);
 	}

@@ -979,8 +979,6 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	STAT_NewLevel(mi->fileName);
 	TITLE_InformName(mi->name);
 
-	gotpic.Zero();
-
 	auto actorlist = spawnactors(sprites);
 
 	if (isRR()) prelevel_r(gamemode, actorlist);

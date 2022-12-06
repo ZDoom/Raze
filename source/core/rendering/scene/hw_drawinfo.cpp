@@ -288,7 +288,6 @@ void HWDrawInfo::DispatchSprites()
 		if (tspr->cstat2 & CSTAT2_SPRITE_FULLBRIGHT)
 			tspr->shade = -127;
 		tspr->picnum = tilenum;
-		gotpic.Set(tilenum);
 
 		if (!(actor->sprext.renderflags & SPREXT_NOTMD))
 		{
