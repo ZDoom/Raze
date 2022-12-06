@@ -375,12 +375,13 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 void dokneeattack(int snum)
 {
 	auto p = &ps[snum];
+	auto pact = p->GetActor();
 
 	if (p->knee_incs > 0)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		p->Angles.addPitch(deltaangle(p->GetActor()->spr.Angles.Pitch, (p->GetActor()->getPosWithOffsetZ() - p->actorsqu->spr.pos).Pitch() * 1.1875));
+		pact->spr.Angles.Pitch += deltaangle(pact->spr.Angles.Pitch, (pact->getPosWithOffsetZ() - p->actorsqu->spr.pos.plusZ(-4)).Pitch());
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -388,7 +389,7 @@ void dokneeattack(int snum)
 			p->holster_weapon = 0;
 			if (p->weapon_pos < 0)
 				p->weapon_pos = -p->weapon_pos;
-			if (p->actorsqu != nullptr && (p->GetActor()->spr.pos - p->actorsqu->spr.pos).Length() < 1400/16.)
+			if (p->actorsqu != nullptr && (pact->spr.pos - p->actorsqu->spr.pos).Length() < 1400/16.)
 			{
 				spawnguts(p->actorsqu, PClass::FindActor("DukeJibs6"), 7);
 				spawn(p->actorsqu, TILE_BLOODPOOL);
