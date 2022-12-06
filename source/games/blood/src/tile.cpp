@@ -34,18 +34,10 @@ BEGIN_BLD_NS
 
 int nTileFiles = 0;
 
-uint8_t surfType[kMaxTiles];
-int8_t tileShade[kMaxTiles];
+// these arrays get partially filled by .def, so they need to remain global.
+static uint8_t surfType[kMaxTiles];
+static int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
-
-struct TextureProps
-{
-    uint8_t surfType;
-    int8_t tileShade;
-    int16_t voxelIndex;
-};
-
-TArray<TextureProps> tprops;
 
 #define x(a, b) registerName(#a, b);
 static void SetTileNames()
@@ -106,6 +98,15 @@ void GameInterface::SetupSpecialTextures()
     TileFiles.tileMakeWritable(2342);
     TileFiles.lock();   // from this point on the tile<->texture associations may not change anymore.
     mirrortile = tileGetTextureID(504);
+    for (int i = 0; i < MAXTILES; i++)
+    {
+        auto tex = tileGetTexture(i);
+        if (tex)
+        {
+            TextureAttr a = { surfType[i], tileShade[i], voxelIndex[i] };
+            tprops.Set(tex->GetID().GetIndex(), a);
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -114,11 +115,6 @@ void GameInterface::SetupSpecialTextures()
 //
 //---------------------------------------------------------------------------
 
-int tileGetSurfType(int hit)
-{
-    return surfType[hit];
-}
-
 int tileGetSurfType(CollisionBase& hit)
 {
     switch (hit.type)
@@ -126,11 +122,11 @@ int tileGetSurfType(CollisionBase& hit)
     default:
         return 0;
     case kHitSector:
-        return surfType[hit.hitSector->floorpicnum];
+        return tprops[hit.hitSector->floortexture()].surfType;
     case kHitWall:
-        return surfType[hit.hitWall->wallpicnum];
+        return tprops[hit.hitWall->walltexture()].surfType;
     case kHitSprite:
-        return surfType[hit.hitActor->spr.picnum];
+        return tprops[hit.hitActor->spr.spritetexture()].surfType;
     }
 }
 

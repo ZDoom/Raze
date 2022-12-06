@@ -128,7 +128,7 @@ void seqPrecacheId(int id, int palette)
 
 void UpdateCeiling(sectortype* pSector, SEQFRAME* pFrame)
 {
-	pSector->ceilingpicnum = seqGetTile(pFrame);
+	pSector->setceilingtexture(seqGetTexture(pFrame));
 	pSector->ceilingshade = pFrame->shade;
 	if (pFrame->palette)
 		pSector->ceilingpal = pFrame->palette;
@@ -142,7 +142,7 @@ void UpdateCeiling(sectortype* pSector, SEQFRAME* pFrame)
 
 void UpdateFloor(sectortype* pSector, SEQFRAME* pFrame)
 {
-	pSector->floorpicnum = seqGetTile(pFrame);
+	pSector->setfloortexture(seqGetTexture(pFrame));
 	pSector->floorshade = pFrame->shade;
 	if (pFrame->palette)
 		pSector->floorpal = pFrame->palette;
@@ -157,7 +157,7 @@ void UpdateFloor(sectortype* pSector, SEQFRAME* pFrame)
 void UpdateWall(walltype* pWall, SEQFRAME* pFrame)
 {
 	assert(pWall->hasX());
-	pWall->wallpicnum = seqGetTile(pFrame);
+	pWall->setwalltexture(seqGetTexture(pFrame));
 	if (pFrame->palette)
 		pWall->pal = pFrame->palette;
 	if (pFrame->transparent)
@@ -188,7 +188,9 @@ void UpdateMasked(walltype* pWall, SEQFRAME* pFrame)
 {
 	assert(pWall->hasX());
 	walltype* pWallNext = pWall->nextWall();
-	pWall->overpicnum = pWallNext->overpicnum = seqGetTile(pFrame);
+	auto texid = seqGetTexture(pFrame);
+	pWall->setovertexture(texid);
+	pWallNext->setovertexture(texid);
 	if (pFrame->palette)
 		pWall->pal = pWallNext->pal = pFrame->palette;
 	if (pFrame->transparent)
@@ -356,7 +358,7 @@ void SEQINST::Update()
 		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->vel.Z == 0 && actor->vel.X != 0) {
 
 			if (actor->sector()->upperLink) break; // don't play surface sound for stacked sectors
-			int surf = tileGetSurfType(actor->sector()->floorpicnum);
+			int surf = tprops[actor->sector()->floortexture()].surfType;
 			if (!surf) break;
 			static int surfSfxMove[15][4] = {
 				/* {snd1, snd2, gameVolume, myVolume} */

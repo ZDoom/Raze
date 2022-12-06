@@ -454,12 +454,6 @@ struct sectortype
 
 	// same for SW
 	bool hasU() const { return u_defined; }
-
-	// Refactoring helper to remove all places that will need the tile num from future searches
-	int legacyTileNum(int which) const
-	{
-		return which? ceilingpicnum : floorpicnum;
-	}
 };
 
 //=============================================================================

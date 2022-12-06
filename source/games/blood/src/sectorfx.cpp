@@ -320,9 +320,9 @@ void DoSectorPanning(void)
 				psx = MulScale(psx, pXWall->busy, 16);
 				psy = MulScale(psy, pXWall->busy, 16);
 			}
-			int nTile = pWall->wallpicnum;
-			int px = (psx << 2) / tileWidth(nTile);
-			int py = (psy << 2) / tileHeight(nTile);
+			auto nTex = TexMan.GetGameTexture(pWall->walltexture());
+			int px = (psx << 2) / int(nTex->GetDisplayWidth());
+			int py = (psy << 2) / int(nTex->GetDisplayHeight());
 
 			pWall->addxpan(px * (1.f / 256));
 			pWall->addypan(py * (1.f / 256));

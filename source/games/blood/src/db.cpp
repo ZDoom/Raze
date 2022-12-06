@@ -402,8 +402,8 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		pWall->nextwall = LittleShort(load.nextwall);
 		pWall->nextsector = LittleShort(load.nextsector);
 		pWall->cstat = EWallFlags::FromInt(LittleShort(load.cstat));
-		pWall->wallpicnum = EWallFlags::FromInt(LittleShort(load.picnum));
-		pWall->overpicnum = LittleShort(load.overpicnum);
+		pWall->setwalltexture(tileGetTextureID(LittleShort(load.picnum)));
+		pWall->setovertexture(tileGetTextureID(LittleShort(load.overpicnum)));
 		pWall->type = LittleShort(load.type);
 		pWall->hitag = LittleShort(load.hitag);
 		pWall->extra = LittleShort(load.extra);

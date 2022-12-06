@@ -1446,7 +1446,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 	int yscale = int(actor->spr.scale.Y * 64);
 
 	// take surface type into account
-	switch (tileGetSurfType(actor->spr.picnum))
+	switch (tprops[actor->spr.spritetexture()].surfType)
 	{
 	case 1:  massDiv = 16; break; // stone
 	case 2:  massDiv = 18; break; // metal
@@ -3945,8 +3945,8 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			walltype* pObj = eob.wall();
 			switch (cond)
 			{
-			case 24: return condCmp(surfType[pObj->wallpicnum], arg1, arg2, cmpOp);
-			case 25: return condCmp(pObj->wallpicnum, arg1, arg2, cmpOp);
+			case 24: return condCmp(tprops[pObj->walltexture()].surfType, arg1, arg2, cmpOp);
+			case 25: return condCmp(legacyTileNum(pObj->walltexture()), arg1, arg2, cmpOp);
 			case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((pObj->cstat & EWallFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (pObj->cstat & EWallFlags::FromInt(arg1));
@@ -3963,7 +3963,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			if (!actor) break;
 			switch (cond)
 			{
-			case 24: return condCmp(surfType[actor->spr.picnum], arg1, arg2, cmpOp);
+			case 24: return condCmp(tprops[actor->spr.spritetexture()].surfType, arg1, arg2, cmpOp);
 			case 25: return condCmp(actor->spr.picnum, arg1, arg2, cmpOp);
 			case 26: return condCmp(actor->spr.pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(actor->spr.shade, arg1, arg2, cmpOp);
@@ -3983,17 +3983,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 24:
 				switch (arg3)
 				{
-				default: return (condCmp(surfType[pObj->legacyTileNum(sectortype::floor)], arg1, arg2, cmpOp) || condCmp(surfType[pObj->legacyTileNum(sectortype::ceiling)], arg1, arg2, cmpOp));
-				case 1: return condCmp(surfType[pObj->legacyTileNum(sectortype::floor)], arg1, arg2, cmpOp);
-				case 2: return condCmp(surfType[pObj->legacyTileNum(sectortype::ceiling)], arg1, arg2, cmpOp);
+				default: return (condCmp(tprops[pObj->floortexture()].surfType, arg1, arg2, cmpOp) || condCmp(tprops[pObj->ceilingtexture()].surfType, arg1, arg2, cmpOp));
+				case 1: return condCmp(tprops[pObj->floortexture()].surfType, arg1, arg2, cmpOp);
+				case 2: return condCmp(tprops[pObj->ceilingtexture()].surfType, arg1, arg2, cmpOp);
 				}
 				break;
 			case 25:
 				switch (arg3)
 				{
-				default: return (condCmp(pObj->legacyTileNum(sectortype::floor), arg1, arg2, cmpOp) || condCmp(pObj->legacyTileNum(sectortype::ceiling), arg1, arg2, cmpOp));
-				case 1:  return condCmp(pObj->legacyTileNum(sectortype::floor), arg1, arg2, cmpOp);
-				case 2:  return condCmp(pObj->legacyTileNum(sectortype::ceiling), arg1, arg2, cmpOp);
+				default: return (condCmp(legacyTileNum(pObj->floortexture()), arg1, arg2, cmpOp) || condCmp(legacyTileNum(pObj->ceilingtexture()), arg1, arg2, cmpOp));
+				case 1:  return condCmp(legacyTileNum(pObj->floortexture()), arg1, arg2, cmpOp);
+				case 2:  return condCmp(legacyTileNum(pObj->ceilingtexture()), arg1, arg2, cmpOp);
 				}
 				break;
 			case 26:

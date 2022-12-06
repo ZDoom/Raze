@@ -90,8 +90,6 @@ enum SurfaceType {
 	kSurfMax
 };
 
-extern uint8_t surfType[MAXTILES];
-extern int8_t tileShade[MAXTILES];
 extern short voxelIndex[MAXTILES];
 
 extern int nPrecacheCount;
@@ -99,7 +97,36 @@ inline FTextureID mirrortile;
 
 void tilePrecacheTile(int nTile, int nType, int palette);
 
-int tileGetSurfType(int hit);
 int tileGetSurfType(CollisionBase& hit);
+
+struct TextureAttr
+{
+    uint8_t surfType = kSurfNone;
+    int8_t tileShade = 0;
+    int16_t voxelIndex = -1;
+};
+
+class FTextureAttrArray
+{
+    TextureAttr defaultattr;
+public:
+    TArray<TextureAttr> Types;
+
+    TextureAttr operator [](FTextureID tex) const
+    {
+        if ((unsigned)tex.GetIndex() >= Types.Size()) return defaultattr;
+        return Types[tex.GetIndex()];
+    }
+    void Set(int index, const TextureAttr& value)
+    {
+        if ((unsigned)index >= Types.Size())
+        {
+            Types.Resize(index + 1);
+        }
+        Types[index] = value;
+    }
+};
+
+inline FTextureAttrArray tprops;
 
 END_BLD_NS

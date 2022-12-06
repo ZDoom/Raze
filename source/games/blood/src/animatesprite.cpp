@@ -630,14 +630,14 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				break;
 
 			// Can be overridden by def script
-			if (r_voxels && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1 && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
+			if (r_voxels && tiletovox[pTSprite->picnum] == -1 && tprops[pTSprite->spritetexture()].voxelIndex != -1 && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 			{
 				if ((pTSprite->flags & kHitagRespawn) == 0)
 				{
 					pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 					pTSprite->cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 					pTSprite->yoffset += tileTopOffset(pTSprite->picnum);
-					pTSprite->picnum = voxelIndex[pTSprite->picnum];
+					pTSprite->picnum = tprops[pTSprite->spritetexture()].voxelIndex;
 					if ((picanm[nTile].extra & 7) == 7)
 					{
 						pTSprite->Angles.Yaw = myclock.Normalized360();
@@ -694,13 +694,13 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 
 		if ((pSector->ceilingstat & CSTAT_SECTOR_SKY) && (pSector->floorstat & CSTAT_SECTOR_NO_CEILINGSHADE) == 0)
 		{
-			nShade += tileShade[pSector->ceilingpicnum] + pSector->ceilingshade;
+			nShade += tprops[pSector->ceilingtexture()].tileShade + pSector->ceilingshade;
 		}
 		else
 		{
-			nShade += tileShade[pSector->floorpicnum] + pSector->floorshade;
+			nShade += tprops[pSector->floortexture()].tileShade + pSector->floorshade;
 		}
-		nShade += tileShade[pTSprite->picnum];
+		nShade += tprops[pTSprite->spritetexture()].tileShade;
 		pTSprite->shade = ClipRange(nShade, -128, 127);
 		if ((pTSprite->flags & kHitagRespawn) && pTSprite->ownerActor->spr.intowner == 3 && owneractor->hasX())    // Where does this 3 come from? Nothing sets it.
 		{

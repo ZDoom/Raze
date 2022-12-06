@@ -91,6 +91,11 @@ inline int seqGetTile(SEQFRAME* pFrame)
 	return pFrame->tile + (pFrame->tile2 << 12);
 }
 
+inline FTextureID seqGetTexture(SEQFRAME* pFrame)
+{
+	return tileGetTextureID(pFrame->tile + (pFrame->tile2 << 12));
+}
+
 int seqRegisterClient(void(*pClient)(int, int));
 void seqPrecacheId(int id, int palette);
 SEQINST* GetInstance(int a1, EventObject& a2);
