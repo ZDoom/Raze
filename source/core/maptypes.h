@@ -440,8 +440,10 @@ struct sectortype
 	int getfloorslope() const { return floorstat & CSTAT_SECTOR_SLOPE ? floorheinum : 0; }
 	int getceilingslope() const { return ceilingstat & CSTAT_SECTOR_SLOPE ? ceilingheinum : 0; }
 
-	FTextureID ceilingtexture() const;
-	FTextureID floortexture() const;
+	const FTextureID ceilingtexture() const;
+	const FTextureID floortexture() const;
+	void setfloortexture(FTextureID tex);
+	void setceilingtexture(FTextureID tex);
 
 
 	Blood::XSECTOR& xs() const { return *_xs;  }

@@ -1455,20 +1455,17 @@ void CollectPortals();
 
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, DAngle hit_angle = nullAngle, const DVector3* hitpos = nullptr);
 
-enum
-{
-    FAF_PLACE_MIRROR_PIC = 341,
-    FAF_MIRROR_PIC = 2356
-};
+inline FTextureID FAFPlaceMirrorPic[2];
+inline FTextureID FAFMirrorPic[2];
 
 inline bool FAF_ConnectCeiling(sectortype* sect)
 {
-    return (sect && sect->ceilingpicnum == FAF_MIRROR_PIC);
+    return (sect && sect->ceilingtexture() == FAFMirrorPic[0]);
 }
 
 inline bool FAF_ConnectFloor(sectortype* sect)
 {
-    return (sect && sect->floorpicnum == FAF_MIRROR_PIC);
+    return (sect && sect->floortexture() == FAFMirrorPic[0]);
 }
 
 inline bool FAF_ConnectArea(sectortype* sect)

@@ -525,7 +525,7 @@ int testpointinquad(const DVector2& pt, const DVector2* quad)
 double intersectSprite(DCoreActor* actor, const DVector3& start, const DVector3& direction, DVector3& result, double maxfactor)
 {
 	auto end = start + direction;
-	if (direction.isZero()) return false;
+	if (direction.XY().isZero()) return false;
 
 	// get point on trace that is closest to the sprite
 	double factor = NearestPointOnLineFast(actor->spr.pos.X, actor->spr.pos.Y, start.X, start.Y, end.X, end.Y);

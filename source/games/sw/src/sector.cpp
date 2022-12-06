@@ -191,11 +191,11 @@ void WallSetup(void)
 
     for (auto& wal : wall)
     {
-        if (wal.wallpicnum == FAF_PLACE_MIRROR_PIC)
-            wal.wallpicnum = FAF_MIRROR_PIC;
+        if (wal.walltexture() == FAFPlaceMirrorPic[0])
+            wal.setwalltexture(FAFMirrorPic[0]);
 
-        if (wal.wallpicnum == FAF_PLACE_MIRROR_PIC+1)
-            wal.wallpicnum = FAF_MIRROR_PIC+1;
+        if (wal.walltexture() == FAFPlaceMirrorPic[1])
+            wal.setwalltexture(FAFMirrorPic[1]);
 
         // this overwrites the lotag so it needs to be called LAST - its down there
         // SetupWallForBreak(wp);
@@ -453,7 +453,7 @@ void SectorSetup(void)
         if ((sectp->floorstat & CSTAT_SECTOR_SKY))
         {
             // don't do a z adjust for FAF area
-            if (sectp->floorpicnum != FAF_PLACE_MIRROR_PIC)
+            if (sectp->floortexture() != FAFPlaceMirrorPic[0])
             {
                 sectp->extra |= (SECTFX_Z_ADJUST);
             }
@@ -462,7 +462,7 @@ void SectorSetup(void)
         if ((sectp->ceilingstat & CSTAT_SECTOR_SKY))
         {
             // don't do a z adjust for FAF area
-            if (sectp->ceilingpicnum != FAF_PLACE_MIRROR_PIC)
+            if (sectp->ceilingtexture() != FAFPlaceMirrorPic[0])
             {
                 sectp->extra |= (SECTFX_Z_ADJUST);
             }

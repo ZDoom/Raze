@@ -704,13 +704,13 @@ FTextureID walltype::overtexture() const
 	return tex ? tex->GetID() : FNullTextureID();
 }
 
-FTextureID sectortype::ceilingtexture() const
+const FTextureID sectortype::ceilingtexture() const
 {
 	auto tex = tileGetTexture(ceilingpicnum);
 	return tex ? tex->GetID() : FNullTextureID();
 }
 
-FTextureID sectortype::floortexture() const
+const FTextureID sectortype::floortexture() const
 {
 	auto tex = tileGetTexture(floorpicnum);
 	return tex ? tex->GetID() : FNullTextureID();
@@ -720,4 +720,16 @@ FTextureID spritetypebase::spritetexture() const
 {
 	auto tex = tileGetTexture(picnum);
 	return tex ? tex->GetID() : FNullTextureID();
+}
+
+void sectortype::setfloortexture(FTextureID tex)
+{
+	auto p = TileFiles.textotile.CheckKey(tex.GetIndex());
+	if (p) floorpicnum = *p; 
+}
+
+void sectortype::setceilingtexture(FTextureID tex)
+{
+	auto p = TileFiles.textotile.CheckKey(tex.GetIndex());
+	if (p) ceilingpicnum = *p;
 }

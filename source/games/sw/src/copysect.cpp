@@ -247,7 +247,7 @@ void CopySectorMatch(int match)
                 dsectp->extra = ssectp->extra;
                 dsectp->visibility = ssectp->visibility;
 
-                if (ssectp->floorpicnum == FAF_MIRROR_PIC || ssectp->ceilingpicnum == FAF_MIRROR_PIC)
+                if (ssectp->floortexture() == FAFMirrorPic[0] || ssectp->ceilingtexture() == FAFMirrorPic[0])
                 {
                     CollectPortals(); // unavoidable. Since these portals are not static we have to reinitialize all of them.
                 }

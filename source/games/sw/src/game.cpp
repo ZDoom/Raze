@@ -227,13 +227,28 @@ void GameInterface::LoadGameTextures()
 
 void GameInterface::SetupSpecialTextures()
 {
+    enum
+    {
+        FAF_PLACE_MIRROR_PIC = 341,
+        FAF_MIRROR_PIC = 2356
+    };
+
     tileDelete(MIRROR); // mirror
     for (int i = 0; i < MAXMIRRORS; i++)
     {
         tileDelete(i + MIRRORLABEL);
         TileFiles.MakeCanvas(CAMSPRITE + i, 128, 114);
     }
+    // make these two unique, they are empty by default.
+    tileDelete(FAF_MIRROR_PIC);
+    tileDelete(FAF_MIRROR_PIC + 1);
     TileFiles.lock();
+
+    // these are frequently checked markers.
+    FAFPlaceMirrorPic[0] = tileGetTextureID(FAF_PLACE_MIRROR_PIC);
+    FAFPlaceMirrorPic[1] = tileGetTextureID(FAF_PLACE_MIRROR_PIC + 1);
+    FAFMirrorPic[0] = tileGetTextureID(FAF_MIRROR_PIC);
+    FAFMirrorPic[1] = tileGetTextureID(FAF_MIRROR_PIC + 1);
 }
 //---------------------------------------------------------------------------
 //
