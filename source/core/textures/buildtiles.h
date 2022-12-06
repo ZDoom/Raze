@@ -528,13 +528,3 @@ void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp);
 class FGameTexture;
 bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wantindexed = false);
 FCanvasTexture* tileGetCanvas(int tilenum);
-
-inline FixedBitArray<MAXTILES> gotpic;
-
-inline bool testgotpic(int32_t tilenume, bool reset = false)
-{
-	bool res = gotpic[tilenume];
-	if (reset) gotpic.Clear(tilenume);
-	return res;
-}
-

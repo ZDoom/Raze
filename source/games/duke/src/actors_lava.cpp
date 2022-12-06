@@ -450,7 +450,7 @@ void thunder(void)
 
 	if (!thunderflash)
 	{
-		if (testgotpic(RRTHUNDERSKY, true))
+		if (ps[screenpeek].actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 		{
 			g_relvisibility = 0;
 			if (krand() > 65000)
@@ -477,7 +477,8 @@ void thunder(void)
 	}
 	if (!winderflash)
 	{
-		if (testgotpic(RRTILE2562, true))
+		auto tex = tileGetTexture(RTILE_RRTILE2562);
+		if (tex->isSeen(true))
 		{
 			if (krand() > 65000)
 			{

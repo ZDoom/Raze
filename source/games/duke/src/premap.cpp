@@ -1014,8 +1014,6 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 	
 	p->angle.ang = buildang(lbang);
 
-	gotpic.Zero();
-
 	auto actorlist = spawnactors(sprites);
 
 	if (isRR()) prelevel_r(gamemode, actorlist);

@@ -468,7 +468,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 				ps[myconnectindex].over_shoulder_on = 1;
 			}
 
-			gotpic.Zero();
 			if (isRR()) cacheit_r(); else cacheit_d();
 
 			Mus_ResumeSaved();

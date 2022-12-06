@@ -644,10 +644,7 @@ void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fix
 
 void viewDrawScreen(bool sceneonly)
 {
-	if (testgotpic(2342, true))
-	{
-		FireProcess();
-	}
+	FireProcess();
 
 	if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
 	{
