@@ -221,10 +221,6 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 
 	player_struct* p = &ps[snum];
 
-	// process scaled actor adjustments prior to drawing.
-	if ((inputScale = I_GetInputFrac(SyncInput())) != 1.)
-		p->Angles.applyScaledAdjustments(inputScale);
-
 	if (automapMode == am_full || !p->insector())
 		return;
 

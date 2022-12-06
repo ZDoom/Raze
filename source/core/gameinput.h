@@ -73,30 +73,6 @@ struct PlayerAngles
 	void addRoll(const DAngle value) { updateAngle(ROLL, pActor->spr.Angles.Roll + value); }
 	void setRoll(const DAngle value, const bool backup = false) { updateAngle(ROLL, value, backup); }
 
-	// Applicator of pending angle changes.
-	void applyScaledAdjustments(const double scaleAdjust)
-	{
-		for (unsigned i = 0; i < MAXANGLES; i++)
-		{
-			if (Targets[i].Sgn())
-			{
-				// Calculate scaled amount of target and add to the accumlation buffer.
-				DAngle addition = Targets[i] * scaleAdjust;
-				AppliedAmounts[i] += addition;
-
-				// Test whether we're now reached/exceeded our target.
-				if (abs(AppliedAmounts[i]) >= abs(Targets[i]))
-				{
-					addition -= AppliedAmounts[i] - Targets[i];
-					Targets[i] = AppliedAmounts[i] = nullAngle;
-				}
-
-				// Apply the scaled addition to the angle.
-				pActor->spr.Angles[i] += addition;
-			}
-		}
-	}
-
 private:
 	// DRotator indices.
 	enum : unsigned
@@ -108,22 +84,13 @@ private:
 	};
 
 	// Private data which should never be accessed publically.
-	DRotator Targets, AppliedAmounts;
 	DCoreActor* pActor;
 
 	// Internal angle updater to reduce boilerplate from the public setters.
 	void updateAngle(const unsigned angIndex, const DAngle value, const bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			Targets[angIndex] = deltaangle(pActor->spr.Angles[angIndex], value);
-			AppliedAmounts[angIndex] = nullAngle;
-		}
-		else
-		{
-			pActor->spr.Angles[angIndex] = value;
-			if (backup) pActor->PrevAngles[angIndex] = pActor->spr.Angles[angIndex];
-		}
+		pActor->spr.Angles[angIndex] = value;
+		if (backup) pActor->PrevAngles[angIndex] = pActor->spr.Angles[angIndex];
 	}
 };
 

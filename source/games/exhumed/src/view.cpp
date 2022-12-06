@@ -201,13 +201,6 @@ void DrawView(double interpfrac, bool sceneonly)
     auto pDop = pPlayer->pDoppleSprite;
     auto nDoppleOldCstat = pDop->spr.cstat;
 
-    // process scaled actor adjustments prior to drawing.
-    if ((inputScale = I_GetInputFrac(SyncInput())) != 1.)
-    {
-        pPlayer->Angles.applyScaledAdjustments(inputScale);
-        UpdatePlayerSpriteAngle(pPlayer);
-    }
-
     if (nSnakeCam >= 0 && !sceneonly)
     {
         DExhumedActor* pActor = SnakeList[nSnakeCam].pSprites[0];

@@ -598,10 +598,6 @@ void viewDrawScreen(bool sceneonly)
 {
 	PLAYER* pPlayer = &gPlayer[gViewIndex];
 
-	// process scaled actor adjustments prior to drawing.
-	if ((inputScale = I_GetInputFrac(SyncInput())) != 1.)
-		pPlayer->Angles.applyScaledAdjustments(inputScale);
-
 	if (testgotpic(2342, true))
 	{
 		FireProcess();
