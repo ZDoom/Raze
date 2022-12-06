@@ -58,7 +58,8 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
     // this looks broken.
     do
     {
-        dwall->wallpicnum = swall->wallpicnum;
+        dwall->setwalltexture(swall->walltexture());
+        dwall->setovertexture(swall->overtexture());
 
         dwall->xrepeat =       swall->xrepeat;
         dwall->yrepeat =       swall->yrepeat;

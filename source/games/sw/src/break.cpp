@@ -483,7 +483,7 @@ BREAK_INFO* SetupWallForBreak(walltype* wallp)
         wallp->extra |= (WALLFX_DONT_STICK);
     }
 
-    if (wallp->overpicnum > 0 && (wallp->cstat & CSTAT_WALL_MASKED))
+    if (wallp->overtexture().isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
     {
         break_info = FindWallBreakInfo(wallp->overpicnum);
         if (break_info)
@@ -583,7 +583,7 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
         }
     }
 
-    if (wallp->overpicnum > 0 && (wallp->cstat & CSTAT_WALL_MASKED))
+    if (wallp->overtexture().isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
         break_info = FindWallBreakInfo(wallp->overpicnum);
     else
         break_info = FindWallBreakInfo(wallp->wallpicnum);

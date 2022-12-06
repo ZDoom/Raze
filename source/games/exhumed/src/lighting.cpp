@@ -306,7 +306,7 @@ void AddFlash(sectortype* pSector, const DVector3& pos, int val)
 
                     wal.shade = max( -127, wal.shade + walldist);
 
-                    if (!var_1C && !wal.overpicnum && pNextSector)
+                    if (!var_1C && !wal.overtexture().isValid() && pNextSector)
                     {
                         AddFlash(pNextSector, pos, val);
                     }

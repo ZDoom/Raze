@@ -4260,7 +4260,7 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
 		{
 		default: break;
 		case 0:
-			return condCmp(pWall->overpicnum, arg1, arg2, cmpOp);
+			return condCmp(legacyTileNum(pWall->overtexture()), arg1, arg2, cmpOp);
 		case 5:
 			if (PUSH) condPush(aCond, pWall->sectorp());
 			return true;

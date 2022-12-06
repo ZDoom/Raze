@@ -972,12 +972,12 @@ void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, i
 		else SetGameVarID(lVar2, wallp->cstat, sActor, sPlayer);
 		break;
 	case WALL_PICNUM:
-		if (bSet) wallp->wallpicnum = lValue;
-		else SetGameVarID(lVar2, wallp->wallpicnum, sActor, sPlayer);
+		if (bSet) wallp->setwalltexture(tileGetTextureID(lValue));
+		else SetGameVarID(lVar2, legacyTileNum(wallp->walltexture()), sActor, sPlayer);
 		break;
 	case WALL_OVERPICNUM:
-		if (bSet) wallp->overpicnum = lValue;
-		else SetGameVarID(lVar2, wallp->overpicnum, sActor, sPlayer);
+		if (bSet) wallp->setovertexture(tileGetTextureID(lValue));
+		else SetGameVarID(lVar2, legacyTileNum(wallp->overtexture()), sActor, sPlayer);
 		break;
 	case WALL_SHADE:
 		if (bSet) wallp->shade = lValue;
