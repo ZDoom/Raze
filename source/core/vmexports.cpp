@@ -37,6 +37,7 @@
 #include "vm.h"
 #include "gamefuncs.h"
 #include "raze_sound.h"
+#include "texturemanager.h"
 
 sectortype* Raze_updatesector(double x, double y, sectortype* sec, double dist)
 {
@@ -477,8 +478,8 @@ int sector_checktexture(sectortype* sec, int place, int intname)
 {
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
 
-	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
-	return tilenum == (place == 0 ? sec->ceilingpicnum : sec->floorpicnum);
+	auto tex = TexMan.CheckForTexture(FName(ENamedName(intname)).GetChars(), ETextureType::Any);
+	return tex == (place == 0 ? sec->ceilingtexture() : sec->floortexture());
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, checktexture, sector_checktexture)

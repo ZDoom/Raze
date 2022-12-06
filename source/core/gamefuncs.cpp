@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "intvec.h"
 #include "coreactor.h"
 #include "interpolate.h"
+#include "texturemanager.h"
 #include "hw_voxels.h"
 
 IntRect viewport3d;
@@ -201,7 +202,7 @@ double SquareDistToSector(double px, double py, const sectortype* sect, DVector2
 
 void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVector2* out, bool render)
 {
-	auto tex = tileGetTexture(spr->picnum);
+	auto tex = TexMan.GetGameTexture(spr->spritetexture());
 
 	double width, xoffset;
 	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
@@ -233,7 +234,7 @@ void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVect
 
 void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVector2* out, double* outz, int heinum, bool render)
 {
-	auto tex = tileGetTexture(spr->picnum);
+	auto tex = TexMan.GetGameTexture(spr->spritetexture());
 
 	double width, height, leftofs, topofs;
 	double sloperatio = sqrt(heinum * heinum + SLOPEVAL_FACTOR * SLOPEVAL_FACTOR) * (1. / SLOPEVAL_FACTOR);
