@@ -478,7 +478,7 @@ void JS_DrawCameras(PLAYER* pp, const DVector3& campos, double smoothratio)
         DAngle oscillation_angle = mapangle(oscilation_delta);
         for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--) 
         {
-            if (!mirror[cnt].ismagic) continue; // these are definitely not camera textures.
+            if (!mirror[cnt].ismagic || mirror[cnt].campic < 0) continue; // these are definitely not camera textures.
 
             auto tex = tileGetTexture(mirror[cnt].campic);
             if (tex && tex->isSeen(true))
