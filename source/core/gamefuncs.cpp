@@ -577,10 +577,11 @@ double intersectWallSprite(DCoreActor* actor, const DVector3& start, const DVect
 
 	if (checktex)
 	{
-		int tilenum = actor->spr.picnum;
-		tileUpdatePicnum(&tilenum);
+		auto tiletexid = actor->spr.spritetexture();
+		auto tiletex = TexMan.GetGameTexture(tiletexid, true);
+		auto pixels = GetRawPixels(tiletex->GetID());
 
-		if (tileLoad(tilenum))
+		if (pixels && tiletex->GetScaleX() == 1 && tiletex->GetScaleY() == 1)	// does not work with scaled textures.
 		{
 			double zfactor = 1. - (position - result.Z) / height;
 
@@ -589,10 +590,10 @@ double intersectWallSprite(DCoreActor* actor, const DVector3& start, const DVect
 			if (actor->spr.cstat & CSTAT_SPRITE_XFLIP) factor2 = 1 - factor2;
 			if (actor->spr.cstat & CSTAT_SPRITE_YFLIP) zfactor = 1 - zfactor;
 
-			int xtex = int(factor2 * tileWidth(tilenum));
-			int ytex = int(zfactor * tileHeight(tilenum));
+			int xtex = int(factor2 * tiletex->GetTexelWidth());
+			int ytex = int(zfactor * tiletex->GetTexelHeight());
 
-			auto texel = (tilePtr(tilenum) + tileHeight(tilenum) * xtex + ytex);
+			auto texel = (pixels + tiletex->GetTexelHeight() * xtex + ytex);
 			if (*texel == TRANSPARENT_INDEX)
 				return -1;
 		}

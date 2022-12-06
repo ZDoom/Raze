@@ -224,7 +224,7 @@ void InitPlayerInventory(int nPlayer)
 
     PlayerList[nPlayer].nPlayerScore = 0;
 
-    auto pixels = tilePtr(kTile3571 + nPlayer);
+    auto pixels = GetRawPixels(tileGetTextureID(kTile3571 + nPlayer));
 
     PlayerList[nPlayer].nPlayerColor = pixels[tileWidth(nPlayer + kTile3571) * tileHeight(nPlayer + kTile3571) / 2];
 }

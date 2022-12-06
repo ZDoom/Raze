@@ -123,6 +123,22 @@ bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos)
 //
 //===========================================================================
 
+struct TileImport
+{
+	FString fn;
+	int tile = -1;
+	int alphacut = 128, flags = 0;
+	int haveextra = 0;
+	int xoffset = INT_MAX, yoffset = INT_MAX;
+	int istexture = 0, extra = INT_MAX;
+	int64_t crc32 = INT64_MAX;
+	int sizex = INT_MAX, sizey;
+	// Blood extensions
+	int surface = INT_MAX, vox = INT_MAX, shade = INT_MAX;
+
+};
+
+
 void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp)
 {
 	if (!ValidateTilenum(cmd, imp.tile, pos))
@@ -166,6 +182,11 @@ void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp)
 //	Internal worker for tileSetAnim
 //
 //===========================================================================
+
+struct SetAnim
+{
+	int tile1, tile2, speed, type;
+};
 
 void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
 {

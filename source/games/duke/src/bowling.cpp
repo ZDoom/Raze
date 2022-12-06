@@ -31,6 +31,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "names_r.h"
 #include "dukeactor.h"
 #include "buildtiles.h"
+#include "texturemanager.h"
 
 BEGIN_DUKE_NS
 
@@ -39,17 +40,15 @@ BEGIN_DUKE_NS
 //
 //==========================================================================
 
-void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int tilenum2, int sx2, int sy2)
+void tileCopySection(FTextureID tilenum1, int sx1, int sy1, int xsiz, int ysiz, uint8_t* p2, int xsiz2, int ysiz2, int sx2, int sy2)
 {
-	int xsiz1 = tileWidth(tilenum1);
-	int ysiz1 = tileHeight(tilenum1);
-	int xsiz2 = tileWidth(tilenum2);
-	int ysiz2 = tileHeight(tilenum2);
-	if (xsiz1 > 0 && ysiz1 > 0 && xsiz2 > 0 && ysiz2 > 0)
+	auto tex = TexMan.GetGameTexture(tilenum1);
+	int xsiz1 = tex->GetTexelWidth();
+	int ysiz1 = tex->GetTexelHeight();
+	if (xsiz1 > 0 && ysiz1 > 0)
 	{
-		auto p1 = tilePtr(tilenum1);
-		auto p2 = tileData(tilenum2);
-		if (p2 == nullptr) return;	// Error: Destination is not writable.
+		auto p1 = GetRawPixels(tilenum1);
+		if (!p1) return;
 
 		int x1 = sx1;
 		int x2 = sx2;
@@ -81,17 +80,22 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 
 void updatepindisplay(int tag, int pins)
 {
+	if (tag < 1 || tag > 4) return;
+
+	static const char* lanepics[] = { "BOWLINGLANE1", "BOWLINGLANE2", "BOWLINGLANE3", "BOWLINGLANE4" };
+	auto texidbg = TexMan.CheckForTexture("LANEPICBG", ETextureType::Any);
+	auto texidlite = TexMan.CheckForTexture("LANEPICS", ETextureType::Any);
+	auto texidwork = TexMan.CheckForTexture(lanepics[tag-1], ETextureType::Any);
 	static const uint8_t pinx[] = { 64, 56, 72, 48, 64, 80, 40, 56, 72, 88 };
 	static const uint8_t piny[] = { 48, 40, 40, 32, 32, 32, 24, 24, 24, 24 };
 
-	if (tag < 1 || tag > 4) return;
-	tag += RTILE_BOWLINGLANE1 - 1;
-	if (tileData(tag))
+	auto pixels = GetWritablePixels(texidwork);
+	if (pixels)
 	{
-		tileCopySection(RTILE_LANEPICBG, 0, 0, 128, 64, tag, 0, 0);
+		auto tex = TexMan.GetGameTexture(texidwork);
+		tileCopySection(texidbg,  0, 0, 128, 64, pixels, tex->GetTexelWidth(), tex->GetTexelHeight(), 0, 0);
 		for (int i = 0; i < 10; i++) if (pins & (1 << i))
-			tileCopySection(RTILE_LANEPICS, 0, 0, 8, 8, tag, pinx[i] - 4, piny[i] - 10);	
-		TileFiles.InvalidateTile(tag);
+			tileCopySection(texidlite, 0, 0, 8, 8, pixels, tex->GetTexelWidth(), tex->GetTexelHeight(), pinx[i] - 4, piny[i] - 10);
 	}
 }
 

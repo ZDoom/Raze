@@ -7,9 +7,6 @@
 #include "intvec.h"
 #include "name.h"
 
-// picanm[].sf:
-// |bit(1<<7)
-// |animtype|animtype|texhitscan|nofullbright|speed|speed|speed|speed|
 enum AnimFlags
 {
 	PICANM_ANIMTYPE_NONE = 0,
@@ -74,12 +71,6 @@ struct picanm_t
 
 };
 picanm_t    tileConvertAnimFormat(int32_t const picanmdisk, int* lo, int* to);
-
-struct rottile_t
-{
-	int16_t newtile;
-	int16_t owner;
-};
 
 class FTileTexture : public FImageSource
 {
@@ -262,12 +253,6 @@ struct BuildArtFile
 //
 //==========================================================================
 
-struct RawCacheNode
-{
-	TArray<uint8_t> data;	
-	uint64_t lastUseTime;
-};
-
 struct TileOffs
 {
 	int xsize, ysize, xoffs, yoffs;
@@ -276,7 +261,6 @@ struct TileOffs
 struct TileDesc
 {
 	FGameTexture* texture;	// the currently active tile
-	RawCacheNode rawCache;	// this is needed for hitscan testing to avoid reloading the texture each time.
 	picanm_t picanm;		// animation descriptor
 	ReplacementType replacement;
 	float alphaThreshold;
@@ -302,7 +286,6 @@ struct BuildTiles
 	TDeletingArray<BuildArtFile*> ArtFiles;
 	TileDesc tiledata[MAXTILES];
 	TArray<FString> addedArt;
-	TArray<FString> maptilesadded;
 	TMap<FName, int> nametoindex;
 	TMap<int, int> textotile;
 	bool locked;	// if this is true, no more tile modifications are allowed.
@@ -375,7 +358,6 @@ struct BuildTiles
 	FGameTexture* ValidateCustomTile(int tilenum, ReplacementType type);
 	uint8_t* tileMakeWritable(int num);
 	uint8_t* tileCreate(int tilenum, int width, int height);
-	void InvalidateTile(int num);
 	void MakeCanvas(int tilenum, int width, int height);
 };
 
@@ -384,40 +366,8 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 void tileCopy(int tile, int tempsource, int temppal, int xoffset, int yoffset, int flags);
 void tileSetDummy(int tile, int width, int height);
 void tileDelete(int tile);
-bool tileLoad(int tileNum);
-void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int tilenum2, int sx2, int sy2);
 
 extern BuildTiles TileFiles;
-inline bool tileCheck(int num)
-{
-	auto tex = TileFiles.tiledata[num].texture;
-	return tex && tex->GetTexelWidth() > 0 && tex->GetTexelHeight() > 0;
-}
-
-inline const uint8_t* tilePtr(int num)
-{
-	if (TileFiles.tiledata[num].rawCache.data.Size() == 0)
-	{
-		auto tex = TileFiles.tiledata[num].texture;
-		if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return nullptr;
-		TileFiles.tiledata[num].rawCache.data = tex->GetTexture()->Get8BitPixels(false);
-	}
-	TileFiles.tiledata[num].rawCache.lastUseTime = I_nsTime();
-	return TileFiles.tiledata[num].rawCache.data.Data();
-}
-
-inline bool tileLoad(int tileNum)
-{
-	return !!tilePtr(tileNum);
-}
-
-inline uint8_t* tileData(int num)
-{
-	auto tex = dynamic_cast<FImageTexture*>(TileFiles.tiledata[num].texture->GetTexture());
-	if (!tex) return nullptr;
-	auto p = dynamic_cast<FWritableTile*>(tex->GetImage());
-	return p ? p->GetRawData() : nullptr;
-}
 
 // Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
 struct PicAnm
@@ -491,25 +441,9 @@ inline int legacyTileNum(FTextureID tex)
 
 void tileUpdateAnimations();
 
-struct TileImport
-{
-	FString fn;
-	int tile = -1;
-	int alphacut = 128, flags = 0;
-	int haveextra = 0;
-	int xoffset = INT_MAX, yoffset = INT_MAX;
-	int istexture = 0, extra = INT_MAX;
-	int64_t crc32 = INT64_MAX;
-	int sizex = INT_MAX, sizey;
-	// Blood extensions
-	int surface = INT_MAX, vox = INT_MAX, shade = INT_MAX;
-
-};
-
-struct SetAnim
-{
-	int tile1, tile2, speed, type;
-};
+const uint8_t* GetRawPixels(FTextureID texid);
+uint8_t* GetWritablePixels(FTextureID texid);
+void InvalidateTexture(FTextureID num);
 
 class FGameTexture;
 bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wantindexed = false);

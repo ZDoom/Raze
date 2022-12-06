@@ -112,10 +112,10 @@ void menu_DoPlasma()
 
         if (!PlasmaBuffer)
         {
-            auto pixels = tileData(kTile4092);
+            auto pixels = GetWritablePixels(tileGetTextureID(kTile4092));
             memset(pixels, 96, kPlasmaWidth * kPlasmaHeight);
 
-            PlasmaBuffer = tileData(kTile4093);
+            PlasmaBuffer = GetWritablePixels(tileGetTextureID(kTile4093));
             memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
 
 
@@ -139,9 +139,9 @@ void menu_DoPlasma()
             }
         }
 
-        uint8_t* plasmapix = tileData(nPlasmaTile);
+        uint8_t* plasmapix = GetWritablePixels(tileGetTextureID(nPlasmaTile));
         uint8_t* r_ebx = plasmapix + 81;
-        const uint8_t* r_edx = tileData(nPlasmaTile ^ 1) + 81; // flip between value of 4092 and 4093 with xor
+        const uint8_t* r_edx = GetWritablePixels(tileGetTextureID(nPlasmaTile ^ 1)) + 81; // flip between value of 4092 and 4093 with xor
 
         for (int x = 0; x < kPlasmaWidth - 2; x++)
         {
@@ -231,7 +231,7 @@ void menu_DoPlasma()
             r_ebx += 2;
         }
 
-        auto logopix = tilePtr(nLogoTile);
+        auto logopix = GetRawPixels(tileGetTextureID(nLogoTile));
 
         for (int j = 0; j < 5; j++)
         {
@@ -291,8 +291,6 @@ void menu_DoPlasma()
             uint8_t* v28 = plasmapix + (80 * FixedToInt(plasma_C[j]));
             v28[nSmokeOffset] = 175;
         }
-
-        TileFiles.InvalidateTile(nPlasmaTile);
 
         // flip between tile 4092 and 4093
         if (nPlasmaTile == kTile4092) {
@@ -439,7 +437,7 @@ static int DoStatic(int a, int b)
 {
     auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
     if (tex) tex->Reload();
-    auto pixels = tileData(kTileLoboLaptop);
+    auto pixels = GetWritablePixels(tileGetTextureID(kTileLoboLaptop));
 
     int y = 160 - a / 2;
     int left = 81 - b / 2;
@@ -448,8 +446,6 @@ static int DoStatic(int a, int b)
     int right = left + b;
 
     auto pTile = (pixels + (200 * y)) + left;
-
-        TileFiles.InvalidateTile(kTileLoboLaptop);
 
     for(;y < bottom; y++)
         {
@@ -466,10 +462,11 @@ static int DoStatic(int a, int b)
 
 static int UndoStatic()
 {
-        auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
-        if (tex) tex->Reload();
-        TileFiles.InvalidateTile(kTileLoboLaptop);
-    return tileGetTexture(kTileLoboLaptop)->GetID().GetIndex();
+    auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
+    if (tex) tex->Reload();
+    auto texid = tileGetTextureID(kTileLoboLaptop);
+    GetWritablePixels(texid);
+    return texid.GetIndex();
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DLastLevelCinema, DoStatic, DoStatic)

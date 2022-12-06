@@ -272,37 +272,40 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 			if ((other->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0)
 				return SS_SPRITE;
 
-			int nPicnum = other->spr.picnum;
-			if (tileWidth(nPicnum) == 0 || tileHeight(nPicnum) == 0)
+			auto nTex = other->spr.spritetexture();
+			auto pTex = TexMan.GetGameTexture(nTex);
+			int twidth = pTex->GetTexelWidth();
+			int theight = pTex->GetTexelHeight();
+			if (twidth == 0 || theight == 0 || pTex->GetScaleX() != 1 || pTex->GetScaleY() != 1) // pixel checking does not work with scaled textures (at least not with this code...)
 				return SS_SPRITE;
 
-			double height = (tileHeight(nPicnum) * other->spr.scale.Y);
+			double height = (theight * other->spr.scale.Y);
 			double otherZ = other->spr.pos.Z;
 			if (other->spr.cstat & CSTAT_SPRITE_YCENTER)
 				otherZ += height / 2;
 
-			int nTopOfs = tileTopOffset(nPicnum);
+			int nTopOfs = pTex->GetTexelTopOffset();
 			if (nTopOfs)
 				otherZ -= (nTopOfs * other->spr.scale.Y);
 			assert(height > 0);
 
-			double height2 = (otherZ - gHitInfo.hitpos.Z) * tileHeight(nPicnum) / height;
+			double height2 = (otherZ - gHitInfo.hitpos.Z) * theight / height;
 			if (!(other->spr.cstat & CSTAT_SPRITE_YFLIP))
-				height2 = tileHeight(nPicnum) - height2;
+				height2 = theight - height2;
 
-			if (height2 >= 0 && height2 < tileHeight(nPicnum))
+			if (height2 >= 0 && height2 < theight)
 			{
-				double width = (tileWidth(nPicnum) * other->spr.scale.X) * 0.75; // should actually be 0.8 to match the renderer!
+				double width = (twidth * other->spr.scale.X) * 0.75; // should actually be 0.8 to match the renderer!
 				double check1 = ((pos.Y - other->spr.pos.Y) * vel.X - (pos.X - other->spr.pos.X) * vel.Y) / vel.XY().Length();
 				assert(width > 0);
 
-				double width2 = check1 * tileWidth(nPicnum) / width;
-				int nLeftOfs = tileLeftOffset(nPicnum);
-				width2 += nLeftOfs + tileWidth(nPicnum) / 2;
-				if (width2 >= 0 && width2 < tileWidth(nPicnum))
+				double width2 = check1 * twidth / width;
+				int nLeftOfs = pTex->GetTexelLeftOffset();
+				width2 += nLeftOfs + twidth / 2;
+				if (width2 >= 0 && width2 < twidth)
 				{
-					auto pData = tilePtr(nPicnum);
-					if (pData[int(width2) * tileHeight(nPicnum) + int(height2)] != TRANSPARENT_INDEX)
+					auto pData = GetRawPixels(nTex);
+					if (pData[int(width2) * theight + int(height2)] != TRANSPARENT_INDEX)
 						return SS_SPRITE;
 				}
 			}
@@ -359,7 +362,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 
 			int nHOffset = int(pWall->xpan_ + ((fHOffset * pWall->xrepeat) * 8) / nLength) % nSizX;
 			nnOfs %= nSizY;
-			auto pData = tilePtr(pWall->overpicnum);
+			auto pData = GetRawPixels(pWall->overtexture());
 			int nPixel = nHOffset * nSizY + nnOfs;
 
 			if (pData[nPixel] == TRANSPARENT_INDEX)

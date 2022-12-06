@@ -112,6 +112,92 @@ TArray<uint8_t> FTileTexture::CreatePalettedPixels(int conversion)
 
 //==========================================================================
 //
+// raw pixel cache. This is for accessing pixel data in the game code,
+// not for rendering.
+//
+//==========================================================================
+
+struct RawCacheNode
+{
+	TArray<uint8_t> data;
+	uint64_t lastUseTime;
+
+	RawCacheNode() = default;
+	RawCacheNode(RawCacheNode& other) = default;
+	RawCacheNode& operator=(RawCacheNode& other) = default;
+
+	RawCacheNode(RawCacheNode&& other) noexcept
+	{
+		data = std::move(other.data);
+		lastUseTime = other.lastUseTime;
+	}
+
+	RawCacheNode& operator=(RawCacheNode&& other) noexcept
+	{
+		data = std::move(other.data);
+		lastUseTime = other.lastUseTime;
+		return *this;
+	}
+};
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+static TMap<int, RawCacheNode> CacheNodes;
+
+const uint8_t* GetRawPixels(FTextureID texid)
+{
+	if (!texid.isValid()) return nullptr;
+	auto gtex = TexMan.GetGameTexture(texid);
+	auto tex = dynamic_cast<FImageTexture*>(gtex->GetTexture());
+
+	if (!tex || !tex->GetImage()) return nullptr;
+	auto img = tex->GetImage();
+	auto timg = dynamic_cast<FTileTexture*>(img);
+	if (!timg || !timg->GetRawData())
+	{
+		auto cache = CacheNodes.CheckKey(texid.GetIndex());
+		if (cache)
+		{
+			cache->lastUseTime = I_nsTime();
+			return cache->data.Data();
+		}
+		RawCacheNode newnode;
+		newnode.data = img->GetPalettedPixels(0);
+		newnode.lastUseTime = I_nsTime();
+		auto retval =newnode.data.Data();
+		CacheNodes.Insert(texid.GetIndex(), std::move(newnode));
+		return retval;
+	}
+	else
+	{
+		return timg->GetRawData();
+	}
+}
+
+//==========================================================================
+//
+//To use this the texture must have been made writable during texture init.
+//
+//==========================================================================
+
+uint8_t* GetWritablePixels(FTextureID texid)
+{
+	if (!texid.isValid()) return nullptr;
+	auto gtex = TexMan.GetGameTexture(texid);
+	auto tex = dynamic_cast<FImageTexture*>(gtex->GetTexture());
+
+	if (!tex || !tex->GetImage()) return nullptr;
+	auto timg = dynamic_cast<FWritableTile*>(tex->GetImage());
+	if (!timg) return nullptr;
+	gtex->CleanHardwareData();	// we can safely assume that this only gets called when the texture is about to be changed.
+	return timg->GetRawData();
+}
+
+//==========================================================================
+//
 // 
 //
 //==========================================================================
@@ -243,22 +329,6 @@ int CountTiles (const char *fn, const uint8_t *RawData)
 	}
 
 	return tileend >= tilestart ? tileend - tilestart + 1 : 0;
-}
-
-//===========================================================================
-//
-// InvalidateTile
-//
-//===========================================================================
-
-void BuildTiles::InvalidateTile(int num)
-{
-	if ((unsigned) num < MAXTILES)
-	{
-		auto tex = tiledata[num].texture;
-		tex->CleanHardwareData();
-		tiledata[num].rawCache.data.Clear();
-	}
 }
 
 //===========================================================================

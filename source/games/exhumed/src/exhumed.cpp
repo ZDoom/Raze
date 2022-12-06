@@ -236,7 +236,7 @@ void DrawClock()
 {
     int ebp = 49;
 
-	auto pixels = tileData(kTile3603);
+	auto pixels = GetWritablePixels(tileGetTextureID(kTile3603));
 
     memset(pixels, TRANSPARENT_INDEX, 4096);
 
@@ -630,16 +630,14 @@ void CopyTileToBitmap(int nSrcTile,  int nDestTile, int xPos, int yPos)
 {
     int nOffs = tileHeight(nDestTile) * xPos;
 
-	auto pixels = tileData(nDestTile);
+	auto pixels = GetWritablePixels(tileGetTextureID(nDestTile));
     uint8_t *pDest = pixels + nOffs + yPos;
     uint8_t *pDestB = pDest;
-
-    tileLoad(nSrcTile);
 
     int destYSize = tileHeight(nDestTile);
     int srcYSize = tileHeight(nSrcTile);
 
-    const uint8_t *pSrc = tilePtr(nSrcTile);
+    const uint8_t *pSrc = GetRawPixels(tileGetTextureID(nSrcTile));
 
     for (int x = 0; x < tileWidth(nSrcTile); x++)
     {
@@ -659,8 +657,6 @@ void CopyTileToBitmap(int nSrcTile,  int nDestTile, int xPos, int yPos)
         // reset pDestB
         pDestB = pDest;
     }
-
-    TileFiles.InvalidateTile(nDestTile);
 }
 
 //---------------------------------------------------------------------------

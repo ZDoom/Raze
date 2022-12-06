@@ -86,7 +86,6 @@ public:
 	// tries to get a buffer from the cache. If not available, create a new one. If further references are pending, create a copy.
 	TArray<uint8_t> GetPalettedPixels(int conversion);
 
-
 	// Unlile for paletted images there is no variant here that returns a persistent bitmap, because all users have to process the returned image into another format.
 	FBitmap GetCachedBitmap(const PalEntry *remap, int conversion, int *trans = nullptr);
 

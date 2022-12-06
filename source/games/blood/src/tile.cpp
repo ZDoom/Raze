@@ -93,8 +93,6 @@ void GameInterface::SetupSpecialTextures()
 {
     // set up all special tiles here, before we fully hook up with the texture manager.
     tileDelete(504);
-    TileFiles.tileCreate(4077, kLensSize, kLensSize);
-    TileFiles.tileCreate(4079, 128, 128);
     TileFiles.tileMakeWritable(2342);
     TileFiles.lock();   // from this point on the tile<->texture associations may not change anymore.
     mirrortile = tileGetTextureID(504);

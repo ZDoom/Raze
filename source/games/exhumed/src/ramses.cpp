@@ -68,8 +68,6 @@ void InitSpiritHead()
 
 	nSpiritScale = pSpiritSpr->spr.scale;
 
-    tileLoad(kTileRamsesNormal); // Ramses Normal Head
-
     ExhumedSpriteIterator it;
     while (auto act = it.Next())
     {
@@ -79,8 +77,8 @@ void InitSpiritHead()
         }
     }
 
-	auto pTile = tilePtr(kTileRamsesNormal); // Ramses Normal Head
-	auto pGold = tilePtr(kTileRamsesGold);
+	auto pTile = GetRawPixels(tileGetTextureID(kTileRamsesNormal)); // Ramses Normal Head
+	auto pGold = GetRawPixels(tileGetTextureID(kTileRamsesGold));
     for (int x = 0; x < 97; x++)
     {
         for (int y = 0; y < 106; y++)
@@ -121,14 +119,13 @@ void InitSpiritHead()
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
-	Worktile = tileData(kTileRamsesWorkTile);
+	Worktile = GetWritablePixels(tileGetTextureID(kTileRamsesWorkTile));
 
     pSpiritSpr->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
     nHeadTimeStart = PlayClock;
 
     memset(Worktile, TRANSPARENT_INDEX, WorktileSize);
-    TileFiles.InvalidateTile(kTileRamsesWorkTile);
 
     nPixelsToShow = 0;
 
@@ -176,7 +173,7 @@ void DimSector(sectortype* pSector)
 
 void CopyHeadToWorkTile(int nTile)
 {
-	const uint8_t* pSrc = tilePtr(nTile);
+	const uint8_t* pSrc = GetRawPixels(tileGetTextureID(nTile));
     uint8_t *pDest = &Worktile[212 * 49 + 53];
 
     for (unsigned i = 0; i < kSpiritY; i++)
@@ -200,7 +197,6 @@ void DoSpiritHead()
     auto pSpiritSpr = pSpiritSprite;
 
     sPlayerInput[0].actions |= SB_CENTERVIEW;
-    TileFiles.InvalidateTile(kTileRamsesWorkTile);
 
     switch (nHeadStage) 
     {
@@ -263,7 +259,7 @@ void DoSpiritHead()
         if (nMouthTile != 0) 
         {
             int srctile = nMouthTile + 598;
-            auto src = tilePtr(srctile);
+            auto src = GetRawPixels(tileGetTextureID(srctile));
             int sizx = tileWidth(srctile);
             int sizy = tileHeight(srctile);
             int workptr = 212 * (97 - sizx / 2) + 159 - sizy;

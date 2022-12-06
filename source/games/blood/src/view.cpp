@@ -130,9 +130,6 @@ void viewDrawAimedPlayerName(PLAYER* pPlayer)
 	}
 }
 
-static TArray<uint8_t> lensdata;
-int* lensTable;
-
 extern DAngle random_angles[16][3];
 
 //---------------------------------------------------------------------------
@@ -144,19 +141,6 @@ extern DAngle random_angles[16][3];
 void viewInit(void)
 {
 	Printf("Initializing status bar\n");
-
-	lensdata = fileSystem.LoadFile("lens.dat");
-	assert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));
-
-	lensTable = (int*)lensdata.Data();
-#if WORDS_BIGENDIAN
-	for (int i = 0; i < kLensSize * kLensSize; i++)
-	{
-		lensTable[i] = LittleLong(lensTable[i]);
-	}
-#endif
-	uint8_t* data = tileData(4077);
-	memset(data, TRANSPARENT_INDEX, kLensSize * kLensSize);
 
 	for (int i = 0; i < 16; i++)
 	{
@@ -254,15 +238,8 @@ void viewSetErrorMessage(const char* pMessage)
 
 void DoLensEffect(void)
 {
-	// To investigate whether this can be implemented as a shader effect.
-	auto d = tileData(4077);
-	assert(d != NULL);
-	auto s = tilePtr(4079);
-	assert(s != NULL);
-	for (int i = 0; i < kLensSize * kLensSize; i++, d++)
-		if (lensTable[i] >= 0)
-			*d = s[lensTable[i]];
-	TileFiles.InvalidateTile(4077);
+	// the lens effect depends on the software renderer and easy availability of the pixel data. 
+	// If this ever gets redone for hardware rendering it needs very different handling on the GPU side.
 }
 
 //---------------------------------------------------------------------------
