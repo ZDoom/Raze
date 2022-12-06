@@ -25,50 +25,50 @@ public:
 private:
 	int ResolveLocalizedTexture(int texnum);
 
-	int ResolveTextureIndex(int texnum, bool animate, bool localize)
+	int ResolveTextureIndex(int texnum, bool animate) const
 	{
 		if ((unsigned)texnum >= Textures.Size()) return -1;
 		if (animate) texnum = Translation[texnum];
-		if (localize && Textures[texnum].Flags & TEXFLAG_HASLOCALIZATION) texnum = ResolveLocalizedTexture(texnum);
+		//if (localize && Textures[texnum].Flags & TEXFLAG_HASLOCALIZATION) texnum = ResolveLocalizedTexture(texnum);
 		return texnum;
 	}
 
-	FGameTexture *InternalGetTexture(int texnum, bool animate, bool localize)
+	FGameTexture *InternalGetTexture(int texnum, bool animate) const
 	{
-		texnum = ResolveTextureIndex(texnum, animate, localize);
+		texnum = ResolveTextureIndex(texnum, animate);
 		if (texnum == -1) return nullptr;
 		return Textures[texnum].Texture;
 	}
 
-public:
-	FTextureID ResolveTextureIndex(FTextureID texid, bool animate, bool localize)
+	FTextureID ResolveTextureIndex(FTextureID texid, bool animate) const
 	{
-		return FSetTextureID(ResolveTextureIndex(texid.GetIndex(), animate, localize));
+		return FSetTextureID(ResolveTextureIndex(texid.GetIndex(), animate));
 	}
 
+public:
 	// This only gets used in UI code so we do not need PALVERS handling.
 	FGameTexture* GetGameTextureByName(const char *name, bool animate = false, int flags = 0)
 	{
 		FTextureID texnum = GetTextureID(name, ETextureType::MiscPatch, flags);
-		return InternalGetTexture(texnum.GetIndex(), animate, true);
+		return InternalGetTexture(texnum.GetIndex(), animate);
 	}
 
-	FGameTexture* GetGameTexture(FTextureID texnum, bool animate = false)
+	FGameTexture* GetGameTexture(FTextureID texnum, bool animate = false) const
 	{
-		return InternalGetTexture(texnum.GetIndex(), animate, true);
+		return InternalGetTexture(texnum.GetIndex(), animate);
 	}
 
-	FGameTexture* GetPalettedTexture(FTextureID texnum, bool animate = false, bool allowsubstitute = true)
+	FGameTexture* GetPalettedTexture(FTextureID texnum, bool animate = false, bool allowsubstitute = true) const
 	{
-		auto texid = ResolveTextureIndex(texnum.GetIndex(), animate, true);
+		auto texid = ResolveTextureIndex(texnum.GetIndex(), animate);
 		if (texid == -1) return nullptr;
 		if (allowsubstitute && Textures[texid].Paletted > 0) texid = Textures[texid].Paletted;
 		return Textures[texid].Texture;
 	}
 
-	FGameTexture* GameByIndex(int i, bool animate = false)
+	FGameTexture* GameByIndex(int i, bool animate = false) const
 	{
-		return InternalGetTexture(i, animate, true);
+		return InternalGetTexture(i, animate);
 	}
 
 	FGameTexture* FindGameTexture(const char* texname, ETextureType usetype = ETextureType::MiscPatch, BITFIELD flags = TEXMAN_TryAny);
