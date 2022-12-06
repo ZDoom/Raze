@@ -7189,10 +7189,10 @@ void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype* targSe
 	switch (objType) {
 	case OBJ_SECTOR:
 		if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
-			targSect->floorpicnum = sourceactor->xspr.data1;
+			targSect->setfloortexture(tileGetTextureID(sourceactor->xspr.data1));
 
 		if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
-			targSect->ceilingpicnum = sourceactor->xspr.data2;
+			targSect->setceilingtexture(tileGetTextureID(sourceactor->xspr.data2));
 
 		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
 			targSect->floorpal = uint8_t(sourceactor->xspr.data3);
@@ -7212,10 +7212,10 @@ void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype* targSe
 		break;
 	case OBJ_WALL:
 		if (valueIsBetween(sourceactor->xspr.data1, -1, 32767))
-			targWall->wallpicnum = sourceactor->xspr.data1;
+			targWall->setwalltexture(tileGetTextureID(sourceactor->xspr.data1));
 
 		if (valueIsBetween(sourceactor->xspr.data2, -1, 32767))
-			targWall->overpicnum = sourceactor->xspr.data2;
+			targWall->setovertexture(tileGetTextureID(sourceactor->xspr.data2));
 
 		if (valueIsBetween(sourceactor->xspr.data3, -1, 32767))
 			targWall->pal = uint8_t(sourceactor->xspr.data3);

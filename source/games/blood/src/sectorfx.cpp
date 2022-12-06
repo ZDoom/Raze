@@ -284,11 +284,11 @@ void DoSectorPanning(void)
 
 			if (pXSector->panFloor) // Floor
 			{
-				int nTile = pSector->floorpicnum;
+				auto nTex = TexMan.GetGameTexture(pSector->floortexture());
 				if (pSector->floorstat & CSTAT_SECTOR_ALIGN)
 					angle -= DAngle90;
-				int xBits = tileWidth(nTile) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
-				int yBits = tileHeight(nTile) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
+				int xBits = int(nTex->GetDisplayWidth()) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
+				int yBits = int(nTex->GetDisplayHeight()) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
 				double px = angle.Cos() * (speed << 2) / xBits;
 				double py = angle.Sin() * (speed << 2) / xBits;
 				pSector->addfloorxpan((float)px * (1.f / 256));
@@ -296,11 +296,11 @@ void DoSectorPanning(void)
 			}
 			if (pXSector->panCeiling) // Ceiling
 			{
-				int nTile = pSector->ceilingpicnum;
+				auto nTex = TexMan.GetGameTexture(pSector->ceilingtexture());
 				if (pSector->ceilingstat & CSTAT_SECTOR_ALIGN)
 					angle -= DAngle90;
-				int xBits = tileWidth(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
-				int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
+				int xBits = int(nTex->GetDisplayWidth()) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
+				int yBits = int(nTex->GetDisplayHeight()) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
 				double px = angle.Cos() * (speed << 2) / xBits;
 				double py = angle.Sin() * (speed << 2) / xBits;
 				pSector->addceilingxpan((float)px * (1.f / 256));

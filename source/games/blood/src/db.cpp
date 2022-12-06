@@ -267,9 +267,9 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		pSector->setzfrommap(LittleLong(load.ceilingz), LittleLong(load.floorz));
 		pSector->ceilingstat = ESectorFlags::FromInt(LittleShort(load.ceilingstat));
 		pSector->floorstat = ESectorFlags::FromInt(LittleShort(load.floorstat));
-		pSector->ceilingpicnum = LittleShort(load.ceilingpic);
+		pSector->setceilingtexture(tileGetTextureID(LittleShort(load.ceilingpic)));
 		pSector->ceilingheinum = LittleShort(load.ceilingheinum);
-		pSector->floorpicnum = LittleShort(load.floorpic);
+		pSector->setfloortexture(tileGetTextureID(LittleShort(load.floorpic)));
 		pSector->floorheinum = LittleShort(load.floorheinum);
 		pSector->type = LittleShort(load.type);
 		pSector->hitag = LittleShort(load.hitag);
