@@ -50,7 +50,7 @@ static constexpr DAngle PITCH_LOOKSPEED = DAngle::fromDeg(222.83185);
 static constexpr DAngle PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
 static constexpr DAngle PITCH_CENTERSPEED = DAngle::fromDeg(10.25);
 static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle::fromDeg(90. + 11.25);
-static constexpr DAngle PITCH_HORIZOFFSPEED = DAngle::fromDeg(1.95835);
+static constexpr DAngle PITCH_HORIZOFFSPEED = DAngle::fromDeg(4.375);
 static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-38.);
 static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
 
