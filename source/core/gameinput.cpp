@@ -51,7 +51,7 @@ static constexpr DAngle PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
 static constexpr DAngle PITCH_CENTERSPEED = DAngle::fromDeg(10.25);
 static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle::fromDeg(90. + 11.25);
 static constexpr DAngle PITCH_HORIZOFFSPEED = DAngle::fromDeg(1.95835);
-static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(38.);
+static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-38.);
 static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
 
 
@@ -308,7 +308,7 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff > PITCH_HORIZOFFCLIMB) horizoff -= getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(horizoff, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
+			if (horizoff > PITCH_HORIZOFFCLIMB) horizoff += getscaledangle(PITCH_HORIZOFFSPEED, scaleAdjust, deltaangle(horizoff, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
 		}
 		else
 		{
