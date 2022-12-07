@@ -41,16 +41,16 @@ enum
 
 static constexpr double YAW_TURNSPEEDS[3] = { 41.1987304, 156.555175, 272.24121 };
 static constexpr double YAW_PREAMBLESCALE = YAW_TURNSPEEDS[0] / YAW_TURNSPEEDS[1];
-static constexpr DAngle YAW_LOOKINGSPEED = DAngle::fromDeg(801.5625);
-static constexpr DAngle YAW_ROTATESPEED = DAngle::fromDeg(63.28125);
-static constexpr DAngle YAW_LOOKRETURN = DAngle::fromDeg(7.5);
-static constexpr DAngle YAW_SPINSTAND = DAngle::fromDeg(675.);
-static constexpr DAngle YAW_SPINCROUCH = YAW_SPINSTAND * 0.5;
-static constexpr DAngle PITCH_LOOKSPEED = DAngle::fromDeg(222.83185);
-static constexpr DAngle PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
-static constexpr DAngle PITCH_CENTERSPEED = DAngle::fromDeg(10.7375);
+static constexpr double YAW_LOOKINGSPEED = 801.5625;
+static constexpr double YAW_ROTATESPEED = 63.28125;
+static constexpr double YAW_LOOKRETURN = 7.5;
+static constexpr double YAW_SPINSTAND = 675.;
+static constexpr double YAW_SPINCROUCH = YAW_SPINSTAND * 0.5;
+static constexpr double PITCH_LOOKSPEED = 222.83185;
+static constexpr double PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
+static constexpr double PITCH_CENTERSPEED = 10.7375;
+static constexpr double PITCH_HORIZOFFSPEED = 4.375;
 static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
-static constexpr DAngle PITCH_HORIZOFFSPEED = DAngle::fromDeg(4.375);
 static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-38.);
 static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
 
@@ -61,23 +61,22 @@ static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
 //
 //---------------------------------------------------------------------------
 
-template<class T>
-inline static T getTicrateScale(const T value)
+static inline double getTicrateScale(const double value)
 {
-	return T(value / GameTicRate);
+	return value / GameTicRate;
 }
 
-inline static DAngle getscaledangle(const DAngle value, const DAngle object, const DAngle push)
+static inline DAngle getscaledangle(const DAngle angle, const double scale, const DAngle push)
 {
-	return (object.Normalized180() * getTicrateScale(value)) + push;
+	return (angle.Normalized180() * getTicrateScale(scale)) + push;
 }
 
-inline static void scaletozero(DAngle& object, const DAngle value, const DAngle push = DAngle::fromDeg(32. / 465.))
+static inline void scaletozero(DAngle& angle, const double scale, const DAngle push = DAngle::fromDeg(32. / 465.))
 {
-	if (auto sgn = object.Sgn())
+	if (auto sgn = angle.Sgn())
 	{
-		object  -= getscaledangle(value, object, push * sgn);
-		if (sgn != object.Sgn()) object = nullAngle;
+		angle -= getscaledangle(angle, scale, push * sgn);
+		if (sgn != angle.Sgn()) angle = nullAngle;
 	}
 }
 
@@ -173,12 +172,12 @@ void PlayerAngles::doPitchKeys(ESyncBits* actions, const bool stopcentering)
 	// Process keyboard input.
 	if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
 	{
-		pActor->spr.Angles.Pitch += getTicrateScale(PITCH_AIMSPEED) * aiming;
+		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_AIMSPEED)) * aiming;
 		*actions &= ~SB_CENTERVIEW;
 	}
 	if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
 	{
-		pActor->spr.Angles.Pitch += getTicrateScale(PITCH_LOOKSPEED) * looking;
+		pActor->spr.Angles.Pitch += DAngle::fromDeg(getTicrateScale(PITCH_LOOKSPEED)) * looking;
 		*actions |= SB_CENTERVIEW;
 	}
 
@@ -217,7 +216,7 @@ void PlayerAngles::doYawKeys(ESyncBits* actions)
 	if (YawSpin < nullAngle)
 	{
 		// return spin to 0
-		DAngle add = getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH);
+		DAngle add = DAngle::fromDeg(getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH));
 		YawSpin += add;
 		if (YawSpin > nullAngle)
 		{
@@ -269,7 +268,7 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB) ViewAngles.Pitch += getscaledangle(PITCH_HORIZOFFSPEED, deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFPUSH);
+			if (ViewAngles.Pitch > PITCH_HORIZOFFCLIMB) ViewAngles.Pitch += getscaledangle(deltaangle(ViewAngles.Pitch, PITCH_HORIZOFFCLIMB), PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
 		}
 		else
 		{
@@ -298,8 +297,8 @@ void PlayerAngles::doViewYaw(const ESyncBits actions)
 	// Process keyboard input.
 	if (auto looking = !!(actions & SB_LOOK_RIGHT) - !!(actions & SB_LOOK_LEFT))
 	{
-		ViewAngles.Yaw += getTicrateScale(YAW_LOOKINGSPEED) * looking;
-		ViewAngles.Roll += getTicrateScale(YAW_ROTATESPEED) * looking;
+		ViewAngles.Yaw += DAngle::fromDeg(getTicrateScale(YAW_LOOKINGSPEED)) * looking;
+		ViewAngles.Roll += DAngle::fromDeg(getTicrateScale(YAW_ROTATESPEED)) * looking;
 	}
 }
 
