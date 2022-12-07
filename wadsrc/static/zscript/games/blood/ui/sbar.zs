@@ -807,7 +807,7 @@ class BloodStatusBar : RazeStatusBar
 		}
 
 		// only show those weapons which are not their same ammo.
-		static const String weaponIcons[] = { "", "" /* pitchfork */,  "#00524", "#00559", "#00558", "", "", "#00539", "#00800", "", "", "" };
+		static const String weaponIcons[] = { "", "" /* pitchfork */,  "ICONFLAREGUN", "ICONSHOTGUN", "ICONTOMMY", "", "", "ICONTESLA", "ICONLEECH", "", "", "" };
 		
 		for(int i = 0; i < 11; i++)
 		{

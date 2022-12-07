@@ -75,7 +75,8 @@ map { 2, 3 }
 {
 	interbackground = "BONUSPIC10"
 	rr_startsound = 177
-	PrecacheTextures = "#03190","#03191","#03192","#03144","#03139","#03132","#03120","#03121","#03122","#03123","#03124"
+	// todo: attach these to the spawner objects.
+	PrecacheTextures = "CHICKENA","CHICKENB","CHICKENC","RRTILE3144","RRTILE3139","CHICKENHEAD","CHICKENLOAF","CHICKENLOAF1","CHICKENNUGGET","ROASTEDCHICKEN","BONELESSCHICKEN"
 }
 
 map { 2, 4 }

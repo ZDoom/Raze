@@ -38,7 +38,7 @@ map { 1, 5 }
 {
 	interbackground = "LEVELMAP05"
 	rr_startsound = 102
-	PrecacheTextures = "#02577"
+	PrecacheTextures = "RRTHUNDERSKY"
 }
 
 map { 1, 6 }
