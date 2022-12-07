@@ -1163,11 +1163,12 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 
 	SetSpriteTranslucency(Sprite, alpha, RenderStyle);
 
+	TileOffs* tofs;
 	int height, topofs;
-	if (hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
+	if (hw_hightile && (tofs = GetHiresOffset(spr->spritetexture())))
 	{
-		height = TileFiles.tiledata[spr->picnum].hiofs.ysize;
-		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + spr->yoffset);
+		height = tofs->ysize;
+		topofs = tofs->yoffs + spr->yoffset;
 	}
 	else
 	{

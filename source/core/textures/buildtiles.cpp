@@ -810,3 +810,11 @@ void walltype::setovertexture(FTextureID tex)
 	if (p) overpicnum = *p;
 	else overpicnum = -1;	// unlike the others this one can be invalid.
 }
+
+TileOffs* GetHiresOffset(FTextureID tex)
+{
+	// fixme: This must return nullptr if the tile has no replacement. 
+	auto p = TileFiles.textotile.CheckKey(tex.GetIndex());
+	if (p && TileFiles.tiledata[*p].hiofs.xsize != 0) return &TileFiles.tiledata[*p].hiofs;
+	else return nullptr;
+}

@@ -343,15 +343,16 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 	if (modelframe == 0)
 	{
 		int flags = spr->cstat;
-		int tilenum = spr->picnum;
 
 		int xsize, ysize, tilexoff, tileyoff;
-		if (hw_hightile && TileFiles.tiledata[tilenum].hiofs.xsize)
+		TileOffs* tofs;
+
+		if (hw_hightile && (tofs = GetHiresOffset(spr->spritetexture())))
 		{
-			xsize = TileFiles.tiledata[tilenum].hiofs.xsize;
-			ysize = TileFiles.tiledata[tilenum].hiofs.ysize;
-			tilexoff = TileFiles.tiledata[tilenum].hiofs.xoffs;
-			tileyoff = TileFiles.tiledata[tilenum].hiofs.yoffs;
+			xsize = tofs->xsize;
+			ysize = tofs->ysize;
+			tilexoff = tofs->xoffs;
+			tileyoff = tofs->yoffs;
 		}
 		else
 		{

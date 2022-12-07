@@ -430,6 +430,7 @@ void tileUpdateAnimations();
 const uint8_t* GetRawPixels(FTextureID texid);
 uint8_t* GetWritablePixels(FTextureID texid);
 void InvalidateTexture(FTextureID num);
+TileOffs* GetHiresOffset(FTextureID num);
 
 class FGameTexture;
 bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wantindexed = false);

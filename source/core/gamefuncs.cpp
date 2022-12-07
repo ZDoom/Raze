@@ -205,10 +205,11 @@ void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVect
 	auto tex = TexMan.GetGameTexture(spr->spritetexture());
 
 	double width, xoffset;
-	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
+	TileOffs* tofs;
+	if (render && hw_hightile && (tofs = GetHiresOffset(spr->spritetexture())))
 	{
-		width = TileFiles.tiledata[spr->picnum].hiofs.xsize;
-		xoffset = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + spr->xoffset);
+		width = tofs->xsize;
+		xoffset = (tofs->xoffs + spr->xoffset);
 	}
 	else
 	{
@@ -244,12 +245,13 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 	int xo = heinum ? 0 : spr->xoffset;
 	int yo = heinum ? 0 : spr->yoffset;
 
-	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
+	TileOffs* tofs;
+	if (render && hw_hightile && (tofs = GetHiresOffset(spr->spritetexture())))
 	{
-		width = TileFiles.tiledata[spr->picnum].hiofs.xsize * xrepeat;
-		height = TileFiles.tiledata[spr->picnum].hiofs.ysize * yrepeat;
-		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + xo) * xrepeat;
-		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + yo) * yrepeat;
+		width = tofs->xsize * xrepeat;
+		height = tofs->ysize * yrepeat;
+		leftofs = (tofs->xoffs + xo) * xrepeat;
+		topofs = (tofs->yoffs + yo) * yrepeat;
 	}
 	else
 	{
