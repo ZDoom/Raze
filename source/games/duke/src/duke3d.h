@@ -24,8 +24,7 @@ struct GameInterface : public ::GameInterface
 	const char* Name() override { return "Duke"; }
 	void app_init() override;
 	void loadPalette() override;
-	void LoadGameTextures() override;
-	void SetupSpecialTextures() override;
+	void SetupSpecialTextures(TilesetBuildInfo& info) override;
 	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;

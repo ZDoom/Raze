@@ -32,6 +32,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "gamefuncs.h"
 #include "models/modeldata.h"
 
+#include "buildtiles.h"
+
 BEGIN_DUKE_NS
 
 void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)

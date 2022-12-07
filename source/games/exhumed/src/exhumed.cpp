@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "razemenu.h"
 #include "v_draw.h"
 #include "interpolate.h"
+#include "tilesetbuilder.h"
 #include "psky.h"
 
 BEGIN_PS_NS
@@ -534,34 +535,29 @@ void LevelFinished()
 //---------------------------------------------------------------------------
 
 #define x(a, b) registerName(#a, b);
-static void SetTileNames()
+static void SetTileNames(TilesetBuildInfo& info)
 {
-    auto registerName = [](const char* name, int index)
+    auto registerName = [&](const char* name, int index)
     {
-        TileFiles.addName(name, index);
+        info.addName(name, index);
     };
 #include "namelist.h"
 }
 #undef x
 
-void GameInterface::LoadGameTextures()
+void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 {
-    SetTileNames();
-}
-
-void GameInterface::SetupSpecialTextures()
-{
-    TileFiles.tileCreate(kTile4092, kPlasmaWidth, kPlasmaHeight);
-    TileFiles.tileCreate(kTile4093, kPlasmaWidth, kPlasmaHeight);
-    TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritY * 2, kSpiritX * 2);
-    TileFiles.tileMakeWritable(kTileLoboLaptop);
+    SetTileNames(info);
+    info.CreateWritable(kTile4092, kPlasmaWidth, kPlasmaHeight);
+    info.CreateWritable(kTile4093, kPlasmaWidth, kPlasmaHeight);
+    info.CreateWritable(kTileRamsesWorkTile, kSpiritY * 2, kSpiritX * 2);
+    info.MakeWritable(kTileLoboLaptop);
     for(int i = kTile3603; i < kClockSymbol1 + 145; i++)
-    TileFiles.tileMakeWritable(kTile3603);
-    TileFiles.tileMakeWritable(kEnergy1);
-    TileFiles.tileMakeWritable(kEnergy2);
+    info.MakeWritable(kTile3603);
+    info.MakeWritable(kEnergy1);
+    info.MakeWritable(kEnergy2);
     for (int i = 0; i < 16; i++)
-        TileFiles.tileMakeWritable(kClockSymbol1);
-    TileFiles.lock();
+        info.MakeWritable(kClockSymbol1);
 }
 
 //---------------------------------------------------------------------------

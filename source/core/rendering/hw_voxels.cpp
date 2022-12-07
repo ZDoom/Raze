@@ -29,6 +29,7 @@
 #include "build.h"
 #include "voxels.h"
 #include "hw_voxels.h"
+#include "tiletexture.h"
 #include "gamecontrol.h"
 
 int16_t tiletovox[MAXTILES];

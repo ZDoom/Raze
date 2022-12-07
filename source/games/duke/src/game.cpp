@@ -43,6 +43,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "psky.h"
 #include "vm.h"
 #include "thingdef.h"
+#include "tilesetbuilder.h"
 
 BEGIN_DUKE_NS
 
@@ -281,11 +282,11 @@ static void setupbackdrop()
 
 #define x(a, b) registerName(#a, b);
 #define y(a, b)	registerName(#a, b);
-static void SetTileNames()
+static void SetTileNames(TilesetBuildInfo& info)
 {
-	auto registerName = [](const char* name, int index)
+	auto registerName = [&](const char* name, int index)
 	{
-		TileFiles.addName(name, index);
+		info.addName(name, index);
 	};
 	if (!isRR())
 	{
@@ -299,31 +300,29 @@ static void SetTileNames()
 #undef x
 #undef y
 
-void GameInterface::LoadGameTextures()
+void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 {
-	SetTileNames();
-}
-
-void GameInterface::SetupSpecialTextures()
-{
+	SetTileNames(info);
 	// set up all special tiles here, before we fully hook up with the texture manager.
-	tileDelete(FOF);	// portal marker
+	info.Delete(FOF);	// portal marker
+
+	FImageSource* viewscreen;
 	if (!isRR())
 	{
-		tileDelete(560); // the mirror tile.
-		TileFiles.MakeCanvas(TILE_VIEWSCR, tileWidth(502), tileHeight(502));
+		info.Delete(560); // the mirror tile.
+		viewscreen = info.tile[502].tileimage;
 	}
 	else
 	{
-		tileDelete(1089);	// the mirror tile.
-		tileDelete(0);		// RR uses this as an empty texture
-		TileFiles.tileMakeWritable(2025);	// bowling lane pin displays
-		TileFiles.tileMakeWritable(2026);
-		TileFiles.tileMakeWritable(2027);
-		TileFiles.tileMakeWritable(2028);
-		TileFiles.MakeCanvas(TILE_VIEWSCR, tileWidth(1055), tileHeight(1055));	// not used by the game but all the support code is present, meaning maps are free to use it.
+		info.Delete(1089);	// the mirror tile.
+		info.Delete(0);		// RR uses this as an empty texture
+		info.MakeWritable(2025);	// bowling lane pin displays
+		info.MakeWritable(2026);
+		info.MakeWritable(2027);
+		info.MakeWritable(2028);
+		viewscreen = info.tile[1055].tileimage;
 	}
-	TileFiles.lock();   // from this point on the tile<->texture associations may not change anymore.
+	info.MakeCanvas(TILE_VIEWSCR, viewscreen? viewscreen->GetWidth() : 128, viewscreen? viewscreen->GetHeight() : 128);
 }
 
 

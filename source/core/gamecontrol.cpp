@@ -82,6 +82,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "findfile.h"
 #include "version.h"
 #include "hw_material.h"
+#include "tiletexture.h"
+#include "tilesetbuilder.h"
+
+#include "buildtiles.h"
 
 void LoadHexFont(const char* filename);
 
@@ -629,7 +633,6 @@ int GameMain()
 	voxClear();
 	ClearPalManager();
 	TexMan.DeleteAll();
-	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
 	I_ShutdownGraphics();
 	if (gi)
 	{
@@ -950,22 +953,32 @@ void GetGames()
 //
 //==========================================================================
 
-static void InitTextures()
+static void InitTextures(TArray<GrpEntry>& usedgroups)
 {
+	voxInit();
 
 	TexMan.usefullnames = true;
 	TexMan.Init();
 	TexMan.AddTextures([]() {}, [](BuildInfo&) {});
 	StartWindow->Progress();
 
-	TileFiles.Init();
-	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
-	voxInit();
-	gi->LoadGameTextures(); // loads game-side data that must be present before processing the .def files.
-	LoadDefinitions();
+	TArray<FString> addArt;
+	for (auto& grp : usedgroups)
+	{
+		for (auto& art : grp.FileInfo.loadart)
+		{
+			addArt.Push(art);
+		}
+	}
+	if (userConfig.AddArt) for (auto& art : *userConfig.AddArt)
+	{
+		addArt.Push(art);
+	}
+	InitArtFiles(addArt);
+
+	ConstructTileset();
 	InitFont();				// InitFonts may only be called once all texture data has been initialized.
-	gi->SetupSpecialTextures();	// For installing dynamic or deleted textures in the texture manager. This must be done after parsing .def and before setting the aliases.
-	TileFiles.SetAliases();
+	//TileFiles.SetAliases();
 
 	lookups.postLoadTables();
 	highTileSetup();
@@ -1074,20 +1087,6 @@ int RunGame()
 	StartWindow = FStartupScreen::CreateInstance(8, true);
 	StartWindow->Progress();
 
-	TArray<FString> addArt;
-	for (auto& grp : usedgroups)
-	{
-		for (auto& art : grp.FileInfo.loadart)
-		{
-			addArt.Push(art);
-		}
-	}
-	if (userConfig.AddArt) for (auto& art : *userConfig.AddArt)
-	{
-		addArt.Push(art);
-	}
-	TileFiles.AddArt(addArt);
-
 	inputState.ClearAllInput();
 
 	if (!GameConfig->IsInitialized())
@@ -1108,7 +1107,7 @@ int RunGame()
 	gi->loadPalette();
 	BuildFogTable();
 	StartWindow->Progress();
-	InitTextures();
+	InitTextures(usedgroups);
 
 	StartWindow->Progress();
 	I_InitSound();
@@ -1418,61 +1417,6 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 		double ypos = viewport3d.Height() * 0.5 + ydelta * viewport3d.Width() / 320.;
 		ST_DrawCrosshair(health, xpos, ypos, 1, angle);
 	}
-}
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void LoadDefinitions()
-{
-	const char* defsfile = G_DefFile();
-	FString razedefsfile = defsfile;
-	razedefsfile.Substitute(".def", "-raze.def");
-
-	loaddefinitionsfile("engine/engine.def", true, true);	// Internal stuff that is required.
-
-	// check what we have.
-	// user .defs override the default ones and are not cumulative.
-	// if we fine even one Raze-specific file, all of those will be loaded cumulatively.
-	// otherwise the default rules inherited from older ports apply.
-	if (userConfig.UserDef.IsNotEmpty())
-	{
-		loaddefinitionsfile(userConfig.UserDef, false);
-	}
-	else
-	{
-		if (fileSystem.FileExists(razedefsfile))
-		{
-			loaddefinitionsfile(razedefsfile, true);
-		}
-		else if (fileSystem.FileExists(defsfile))
-		{
-			loaddefinitionsfile(defsfile, false);
-		}
-	}
-
-	if (userConfig.AddDefs)
-	{
-		for (auto& m : *userConfig.AddDefs)
-		{
-			loaddefinitionsfile(m, false);
-		}
-		userConfig.AddDefs.reset();
-	}
-
-	if (GameStartupInfo.def.IsNotEmpty())
-	{
-		loaddefinitionsfile(GameStartupInfo.def);	// Stuff from gameinfo.
-	}
-
-	// load the widescreen replacements last. This ensures that mods still get the correct CRCs for their own tile replacements.
-	if (fileSystem.FindFile("engine/widescreen.def") >= 0 && !Args->CheckParm("-nowidescreen"))
-	{
-		loaddefinitionsfile("engine/widescreen.def");
-	}
-	fileSystem.InitHashChains(); // make sure that any resources that got added can be found again.
 }
 
 bool M_Active()

@@ -100,6 +100,7 @@ public:
 		TEXMAN_Localize = 64,
 		TEXMAN_ForceLookup = 128,
 		TEXMAN_NoAlias = 256,
+		TEXMAN_ReturnAll = 512,
 	};
 
 	enum
@@ -155,7 +156,11 @@ public:
 		tmanips.Remove(cname);
 	}
 
-	void AddAlias(const char* name, FGameTexture* tex);
+	void AddAlias(const char* name, int texindex);
+	void AddAlias(const char* name, FTextureID texindex)
+	{
+		AddAlias(name, texindex.GetIndex());
+	}
 
 private:
 

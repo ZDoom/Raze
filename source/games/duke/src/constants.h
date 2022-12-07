@@ -26,7 +26,10 @@ enum
 	GPSPEED = 10,
 	FOF = 13,
 
-	TILE_VIEWSCR = (MAXTILES-5)
+	// hack alert! CYCLER is free for use here as all items of this type get destroyed right on map spawn and this value never gets checked anywhere else.
+	// This avoids overallocation of empty tile slots as a high value slightly below the tile limit would do.
+	// Once we can do texture management without tile numbers this can be done as a regular texture without a valid tile index.
+	TILE_VIEWSCR = CYCLER 
 
 };	
 

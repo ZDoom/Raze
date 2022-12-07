@@ -142,8 +142,8 @@ struct GameInterface : public ::GameInterface
 	void processSprites(tspriteArray& tsprites, const DVector3& view, DAngle viewang, double interpfrac) override;
 	void EnterPortal(DCoreActor* viewer, int type) override;
 	void LeavePortal(DCoreActor* viewer, int type) override;
-	void LoadGameTextures() override;
-	void SetupSpecialTextures() override;
+	void LoadTextureInfo(TilesetBuildInfo& info) override;
+	void SetupSpecialTextures(TilesetBuildInfo&) override;
 	int GetCurrentSkill() override;
 	bool IsQAVInterpTypeValid(const FString& type) override;
 	void AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata) override;

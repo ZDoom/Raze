@@ -51,6 +51,13 @@
 #include "skyboxtexture.h"
 #include "gamefuncs.h"
 
+enum ETexType
+{
+	TT_INDEXED,
+	TT_TRUECOLOR,
+};
+
+
 CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
 
 struct HightileReplacement
@@ -244,26 +251,10 @@ void highTileSetup()
 //
 //==========================================================================
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed)
+int tileSetHightileReplacement(int picnum, int palnum, FTextureID texid, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed)
 {
-	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
-	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
-
-	auto tex = tileGetTexture(picnum);
-	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0)
-	{
-		Printf("Warning: defined hightile replacement for empty tile %d.", picnum);
-		return -1;	// cannot add replacements to empty tiles, must create one beforehand
-	}
+	// assumes the texture was already validated.
 	HightileReplacement replace = {};
-
-	FTextureID texid = TexMan.CheckForTexture(filename, ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
-	if (!texid.isValid()) 
-	{
-		Printf("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
-		return -1;
-	}
-
 	replace.image = TexMan.GetGameTexture(texid);
     replace.alphacut = min(alphacut,1.f);
 	replace.scale = { xscale, yscale };

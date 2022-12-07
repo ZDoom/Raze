@@ -31,6 +31,8 @@
 #include "cmdlib.h"
 #include "psky.h"
 
+#include "buildtiles.h"
+
 CVAR(Bool,gl_noskyboxes, false, 0)
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap);
 FGameTexture* SkyboxReplacement(FTextureID picnum, int palnum);
@@ -45,7 +47,7 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane)
 {
 	int picnum = plane == plane_ceiling ? sector->ceilingpicnum : sector->floorpicnum;
 	auto tex = tileGetTexture(picnum);
-	tileUpdatePicnum(&picnum);
+	//tileUpdatePicnum(&picnum);	// for now we can make do without this.
 	int palette = plane == plane_ceiling ? sector->ceilingpal : sector->floorpal;
 
 	FGameTexture* skytex = SkyboxReplacement(tex->GetID(), palette);

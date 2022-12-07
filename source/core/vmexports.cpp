@@ -38,6 +38,9 @@
 #include "gamefuncs.h"
 #include "raze_sound.h"
 #include "texturemanager.h"
+#include "texinfo.h"
+
+#include "buildtiles.h"
 
 sectortype* Raze_updatesector(double x, double y, sectortype* sec, double dist)
 {
@@ -478,7 +481,7 @@ int sector_checktexture(sectortype* sec, int place, int intname)
 {
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
 
-	auto tex = TexMan.CheckForTexture(FName(ENamedName(intname)).GetChars(), ETextureType::Any);
+	auto tex = TexMan.CheckForTexture(FName(ENamedName(intname)).GetChars(), ETextureType::Any, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ReturnAll);
 	return tex == (place == 0 ? sec->ceilingtexture() : sec->floortexture());
 }
 

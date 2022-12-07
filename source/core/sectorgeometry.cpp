@@ -36,6 +36,7 @@
 
 #include "sectorgeometry.h"
 #include "build.h"
+#include "buildtiles.h"
 #include "gamefuncs.h"
 #include "texturemanager.h"
 #include "earcut.hpp"

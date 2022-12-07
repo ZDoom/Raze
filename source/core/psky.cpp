@@ -34,9 +34,10 @@
 */
 
 #include "psky.h"
-#include "buildtiles.h"
 #include "gamefuncs.h"
 #include "tarray.h"
+#include "texinfo.h"
+#include "buildtiles.h"
 
 
 static TArray<SkyDefinition> skies;

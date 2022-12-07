@@ -45,14 +45,20 @@
 #include "hw_voxels.h"
 #include "psky.h"
 #include "gamefuncs.h"
+#include "tilesetbuilder.h"
 #include "models/modeldata.h"
+#include "texturemanager.h"
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed = false);
+
+int tileSetHightileReplacement(int picnum, int palnum, FTextureID texid, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed);
+
 int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed = false);
 void tileRemoveReplacement(int num);
 void AddUserMapHack(const FString& title, const FString& mhkfile, uint8_t* md4);
 
+static TilesetBuildInfo* tbuild;
 static void defsparser(FScanner& sc);
+const char* G_DefaultDefFile(void);
 
 static void performInclude(FScanner* sc, const char* fn, FScriptPosition* pos)
 {
@@ -119,6 +125,62 @@ bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos)
 
 //===========================================================================
 // 
+//
+//
+//===========================================================================
+
+static int tileSetHightileReplacement(FScanner& sc, int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed = false)
+{
+	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
+	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
+
+	auto tex = tbuild->tile[picnum].tileimage;
+
+	if (tex == nullptr || tex->GetWidth() <= 0 || tex->GetHeight() <= 0)
+	{
+		sc.ScriptMessage("Warning: defined hightile replacement for empty tile %d.", picnum);
+		return -1;	// cannot add replacements to empty tiles, must create one beforehand
+	}
+
+	FTextureID texid = TexMan.CheckForTexture(filename, ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
+	if (!texid.isValid())
+	{
+		sc.ScriptMessage("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
+		return -1;
+	}
+	tileSetHightileReplacement(picnum, palnum, texid, alphacut, xscale, yscale, specpower, specfactor, indexed);
+	return 0;
+}
+
+//==========================================================================
+//
+// Import a tile from an external image.
+// This has been signifcantly altered so it may not cover everything yet.
+//
+//==========================================================================
+
+int tileImportFromTexture(FScanner& sc, const char* fn, int tilenum, int alphacut, int istexture)
+{
+	FTextureID texid = TexMan.CheckForTexture(fn, ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
+	if (!texid.isValid()) return -1;
+	auto tex = TexMan.GetGameTexture(texid);
+
+	int32_t xsiz = tex->GetTexelWidth(), ysiz = tex->GetTexelHeight();
+
+	if (xsiz <= 0 || ysiz <= 0)
+		return -2;
+
+	tbuild->tile[tilenum].imported = TexMan.GetGameTexture(texid);
+	tbuild->tile[tilenum].tileimage = tbuild->tile[tilenum].imported->GetTexture()->GetImage();
+
+	if (istexture)
+		tileSetHightileReplacement(sc, tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0);
+	return 0;
+
+}
+
+//===========================================================================
+// 
 //	Internal worker for tileImportTexture
 //
 //===========================================================================
@@ -139,44 +201,47 @@ struct TileImport
 };
 
 
-void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp)
+void processTileImport(FScanner& sc, const char* cmd, FScriptPosition& pos, TileImport& imp)
 {
 	if (!ValidateTilenum(cmd, imp.tile, pos))
 		return;
 
-	if (imp.crc32 != INT64_MAX && int(imp.crc32) != tileGetCRC32(imp.tile))
+	auto tex = tbuild->tile[imp.tile].tileimage;
+	if (imp.crc32 != INT64_MAX && int(imp.crc32) != tileGetCRC32(tex))
 		return;
 
-	auto tex = tileGetTexture(imp.tile);
-	if (imp.sizex != INT_MAX && tex->GetTexelWidth() != imp.sizex && tex->GetTexelHeight() != imp.sizey)
-		return;
+	if (imp.sizex != INT_MAX)
+	{
+		// the size must match the previous tile
+		if (!tex)
+		{
+			if (imp.sizex != 0 || imp.sizey != 0) return;
+		}
+		else
+		{
+			if (tex->GetWidth() != imp.sizex || tex->GetHeight() != imp.sizey) return;
+		}
+	}
 
 	imp.alphacut = clamp(imp.alphacut, 0, 255);
 
 	gi->SetTileProps(imp.tile, imp.surface, imp.vox, imp.shade);
 
-	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
+	if (imp.fn.IsNotEmpty() && tileImportFromTexture(sc, imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
 
-	TileFiles.tiledata[imp.tile].picanm.sf |= imp.flags;
+	tbuild->tile[imp.tile].extinfo.picanm.sf |= imp.flags;
 	// This is not quite the same as originally, for two reasons:
 	// 1: Since these are texture properties now, there's no need to clear them.
 	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
-	tex = tileGetTexture(imp.tile); // this is not the same texture as above anymore!
+	auto itex = tbuild->tile[imp.tile].imported;
 
-	if (imp.xoffset == INT_MAX) imp.xoffset = tex->GetTexelLeftOffset();
+	if (imp.xoffset == INT_MAX) imp.xoffset = itex->GetTexelLeftOffset();
 	else imp.xoffset = clamp(imp.xoffset, -128, 127);
-	if (imp.yoffset == INT_MAX) imp.yoffset = tex->GetTexelTopOffset();
+	if (imp.yoffset == INT_MAX) imp.yoffset = itex->GetTexelTopOffset();
 	else imp.yoffset = clamp(imp.yoffset, -128, 127);
-
-	if (tex)
-	{
-		tex->SetOffsets(imp.xoffset, imp.yoffset);
-		if (imp.flags & PICANM_NOFULLBRIGHT_BIT)
-		{
-			tex->SetDisableBrightmap();
-		}
-	}
-	if (imp.extra != INT_MAX) TileFiles.tiledata[imp.tile].picanm.extra = imp.extra;
+	tbuild->tile[imp.tile].leftOffset = imp.xoffset;
+	tbuild->tile[imp.tile].topOffset = imp.yoffset;
+	if (imp.extra != INT_MAX) tbuild->tile[imp.tile].extinfo.picanm.extra = imp.extra;
 }
 
 //===========================================================================
@@ -189,6 +254,14 @@ struct SetAnim
 {
 	int tile1, tile2, speed, type;
 };
+
+void setAnim(int tile, int type, int speed, int frames)
+{
+	auto& anm = tbuild->tile[tile].extinfo.picanm;
+	anm.sf &= ~(PICANM_ANIMTYPE_MASK | PICANM_ANIMSPEED_MASK);
+	anm.sf |= clamp(speed, 0, 15) | (type << PICANM_ANIMTYPE_SHIFT);
+	anm.num = frames;
+}
 
 void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
 {
@@ -206,7 +279,35 @@ void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
 	if (imp.type == (PICANM_ANIMTYPE_BACK >> PICANM_ANIMTYPE_SHIFT) && imp.tile1 > imp.tile2)
 		count = -count;
 
-	TileFiles.setAnim(imp.tile1, imp.type, imp.speed, count);
+	setAnim(imp.tile1, imp.type, imp.speed, count);
+}
+
+//==========================================================================
+//
+// Copies a tile into another and optionally translates its palette.
+//
+//==========================================================================
+
+static void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags)
+{
+	picanm_t* picanm = nullptr;
+	picanm_t* sourceanm = nullptr;
+
+	if (source == -1) source = tile;
+	auto& tiledesc = tbuild->tile[tile];
+	auto& srcdesc = tbuild->tile[source];
+	tiledesc.extinfo.picanm = {};
+	tiledesc.extinfo.picanm.sf = (srcdesc.extinfo.picanm.sf & PICANM_MISC_MASK) | flags;
+	tiledesc.tileimage = srcdesc.tileimage;
+	tiledesc.imported = srcdesc.imported;
+	tiledesc.leftOffset = srcdesc.leftOffset;
+	tiledesc.topOffset = srcdesc.topOffset;
+	/* todo: create translating image source class.
+	if (pal != -1)
+	{
+		tiledesc.tileimage = createTranslatedImage(tiledesc.tileimage, pal);
+	}
+	*/
 }
 
 //===========================================================================
@@ -247,7 +348,7 @@ void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(true)) return; //formerly y-size, unused
 	if (!sc.GetString())  return;
 
-	tileSetHightileReplacement(tile, palette, sc.String, -1.0, 1.0, 1.0, 1.0, 1.0);
+	tileSetHightileReplacement(sc, tile, palette, sc.String, -1.0, 1.0, 1.0, 1.0, 1.0);
 }
 
 //===========================================================================
@@ -292,12 +393,12 @@ static void parseTexturePaletteBlock(FScanner& sc, int tile)
 		{
 			if (xsiz > 0 && ysiz > 0)
 			{
-				tileSetDummy(tile, xsiz, ysiz);
+				tbuild->tile[tile].tileimage = createDummyTile(xsiz, ysiz);
 			}
 			xscale = 1.0f / xscale;
 			yscale = 1.0f / yscale;
 
-			tileSetHightileReplacement(tile, pal, fn, alphacut, xscale, yscale, specpower, specfactor, indexed);
+			tileSetHightileReplacement(sc, tile, pal, fn, alphacut, xscale, yscale, specpower, specfactor, indexed);
 		}
 	}
 }
@@ -333,7 +434,7 @@ static void parseTextureSpecialBlock(FScanner& sc, int tile, int pal)
 				yscale = 1.0f / yscale;
 			}
 
-			tileSetHightileReplacement(tile, pal, fn, -1.f, xscale, yscale, specpower, specfactor);
+			tileSetHightileReplacement(sc, tile, pal, fn, -1.f, xscale, yscale, specpower, specfactor);
 		}
 	}
 }
@@ -431,7 +532,7 @@ void parseTileFromTexture(FScanner& sc, FScriptPosition& pos)
 			}
 		}
 	}
-	processTileImport("tilefromtexture", pos, imp);
+	processTileImport(sc, "tilefromtexture", pos, imp);
 }
 
 //===========================================================================
@@ -509,8 +610,8 @@ void parseImportTile(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetString())  return;
 	if (!ValidateTilenum("importtile", tile, pos)) return;
 
-	int texstatus = tileImportFromTexture(sc.String, tile, 255, 0);
-	if (texstatus >= 0) TileFiles.tiledata[tile].picanm = {};
+	int texstatus = tileImportFromTexture(sc, sc.String, tile, 255, 0);
+	if (texstatus >= 0) tbuild->tile[tile].extinfo.picanm = {};
 }
 
 //===========================================================================
@@ -527,7 +628,9 @@ void parseDummyTile(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(xsiz, true)) return;
 	if (!sc.GetNumber(ysiz, true)) return;
 	if (!ValidateTilenum("dummytile", tile, pos)) return;
-	tileSetDummy(tile, xsiz, ysiz);
+	auto& tiled = tbuild->tile[tile];
+	tiled.tileimage = createDummyTile(xsiz, ysiz);
+	tiled.imported = nullptr;
 }
 
 //===========================================================================
@@ -547,7 +650,12 @@ void parseDummyTileRange(FScanner& sc, FScriptPosition& pos)
 	if (!ValidateTileRange("dummytilerange", tile1, tile2, pos)) return;
 	if (xsiz < 0 || ysiz < 0) return;
 
-	for (int i = tile1; i <= tile2; i++) tileSetDummy(i, xsiz, ysiz);
+	for (int i = tile1; i <= tile2; i++)
+	{
+		auto& tiled = tbuild->tile[i];
+		tiled.tileimage = createDummyTile(xsiz, ysiz);
+		tiled.imported = nullptr;
+	}
 }
 
 //===========================================================================
@@ -561,8 +669,12 @@ void parseUndefineTile(FScanner& sc, FScriptPosition& pos)
 	int tile;
 
 	if (!sc.GetNumber(tile, true)) return;
-	if (ValidateTilenum("undefinetile", tile, pos)) 
-		tileDelete(tile);
+	if (ValidateTilenum("undefinetile", tile, pos))
+	{
+		auto& tiled = tbuild->tile[tile];
+		tiled.tileimage = nullptr;
+		tiled.imported = nullptr;
+	}
 }
 
 //===========================================================================
@@ -579,7 +691,12 @@ void parseUndefineTileRange(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(tile2, true)) return;
 	if (!ValidateTileRange("undefinetilerange", tile1, tile2, pos)) return;
 
-	for (int i = tile1; i <= tile2; i++) tileDelete(i);
+	for (int i = tile1; i <= tile2; i++)
+	{
+		auto& tiled = tbuild->tile[i];
+		tiled.tileimage = nullptr;
+		tiled.imported = nullptr;
+	}
 }
 
 //===========================================================================
@@ -647,11 +764,11 @@ void parseSetupTile(FScanner& sc, FScriptPosition& pos)
 	int tile;
 	if (!sc.GetNumber(tile, true)) return;
 	if (!ValidateTilenum("setuptile", tile, pos)) return;
-	auto& tiled = TileFiles.tiledata[tile];
-	if (!sc.GetNumber(tiled.hiofs.xsize, true)) return;
-	if (!sc.GetNumber(tiled.hiofs.ysize, true)) return;
-	if (!sc.GetNumber(tiled.hiofs.xoffs, true)) return;
-	if (!sc.GetNumber(tiled.hiofs.yoffs, true)) return;
+	auto& tiled = tbuild->tile[tile];
+	if (!sc.GetNumber(tiled.extinfo.hiofs.xsize, true)) return;
+	if (!sc.GetNumber(tiled.extinfo.hiofs.ysize, true)) return;
+	if (!sc.GetNumber(tiled.extinfo.hiofs.xoffs, true)) return;
+	if (!sc.GetNumber(tiled.extinfo.hiofs.yoffs, true)) return;
 }
 
 //===========================================================================
@@ -673,7 +790,8 @@ void parseSetupTileRange(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(hiofs.xoffs, true)) return;
 	if (!sc.GetNumber(hiofs.yoffs, true)) return;
 
-	for (int i = tilestart; i <= tileend; i++) TileFiles.tiledata[i].hiofs = hiofs;
+	for (int i = tilestart; i <= tileend; i++) 
+		tbuild->tile[i].extinfo.hiofs = hiofs;
 }
 
 //===========================================================================
@@ -704,7 +822,7 @@ void parseAlphahack(FScanner& sc, FScriptPosition& pos)
 
 	if (!sc.GetNumber(tile, true)) return;
 	if (!sc.GetFloat(true)) return;
-	if ((unsigned)tile < MAXTILES) TileFiles.tiledata[tile].texture->alphaThreshold = (float)sc.Float;
+	if ((unsigned)tile < MAXTILES) tbuild->tile[tile].alphathreshold = (float)sc.Float;
 }
 
 //===========================================================================
@@ -723,7 +841,7 @@ void parseAlphahackRange(FScanner& sc, FScriptPosition& pos)
 	if (!ValidateTileRange("alphahackrange", tilestart, tileend, pos)) return;
 
 	for (int i = tilestart; i <= tileend; i++)
-		TileFiles.tiledata[i].texture->alphaThreshold = (float)sc.Number;
+		tbuild->tile[i].alphathreshold = (float)sc.Float;
 }
 
 //===========================================================================
@@ -1123,7 +1241,7 @@ void parseTexHitscanRange(FScanner& sc, FScriptPosition& pos)
 	if (start < 0) start = 0;
 	if (end >= MAXUSERTILES) end = MAXUSERTILES - 1;
 	for (int i = start; i <= end; i++)
-		TileFiles.tiledata[i].picanm.sf |= PICANM_TEXHITSCAN_BIT;
+		tbuild->tile[i].extinfo.picanm.sf |= PICANM_TEXHITSCAN_BIT;
 }
 
 //===========================================================================
@@ -1143,581 +1261,7 @@ void parseNoFullbrightRange(FScanner& sc, FScriptPosition& pos)
 	if (end >= MAXUSERTILES) end = MAXUSERTILES - 1;
 	for (int i = start; i <= end; i++)
 	{
-		auto tex = tileGetTexture(i);
-		if (tex->isValid())	tex->SetDisableBrightmap();
-	}
-}
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
-void parseArtFile(FScanner& sc, FScriptPosition& pos)
-{
-	FScanner::SavedPos blockend;
-	FString file;
-	int tile = -1;
-
-	if (sc.StartBraces(&blockend)) return;
-	while (!sc.FoundEndBrace(blockend)) 
-	{
-		sc.MustGetString();
-		if (sc.Compare("file")) sc.GetString(file);
-		else if (sc.Compare("tile")) sc.GetNumber(tile, true);
-	}
-
-	if (file.IsEmpty())
-	{
-		pos.Message(MSG_ERROR, "artfile: missing file name");
-	}
-	else if (tile >= 0 && ValidateTilenum("artfile", tile, pos))
-		TileFiles.LoadArtFile(file, nullptr, tile);
-}
-
-//===========================================================================
-//
-// this is only left in for compatibility purposes.
-// There's way better methods to handle translucency.
-//
-//===========================================================================
-
-static void parseBlendTableGlBlend(FScanner& sc, int id)
-{
-	FScanner::SavedPos blockend;
-	FScriptPosition pos = sc;
-	FString file;
-
-	if (sc.StartBraces(&blockend)) return;
-
-	glblend_t* const glb = glblend + id;
-	*glb = nullglblend;
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		int which = 0;
-		sc.MustGetString();
-		if (sc.Compare("forward")) which = 1;
-		else if (sc.Compare("reverse")) which = 2;
-		else if (sc.Compare("both")) which = 3;
-		else continue;
-
-		FScanner::SavedPos blockend2;
-
-		if (sc.StartBraces(&blockend2)) return;
-		glblenddef_t bdef{};
-		while (!sc.FoundEndBrace(blockend2))
-		{
-			int whichb = 0;
-			sc.MustGetString();
-			if (sc.Compare("}")) break;
-			if (sc.Compare({ "src", "sfactor", "top" })) whichb = 0;
-			else if (sc.Compare({ "dst", "dfactor", "bottom" })) whichb = 1;
-			else if (sc.Compare("alpha"))
-			{
-				sc.GetFloat(true);
-				bdef.alpha = (float)sc.Float;
-				continue;
-			}
-			uint8_t* const factor = whichb == 0 ? &bdef.src : &bdef.dst;
-			sc.MustGetString();
-			if (sc.Compare("ZERO")) *factor = STYLEALPHA_Zero;
-			else if (sc.Compare("ONE")) *factor = STYLEALPHA_One;
-			else if (sc.Compare("SRC_COLOR")) *factor = STYLEALPHA_SrcCol;
-			else if (sc.Compare("ONE_MINUS_SRC_COLOR")) *factor = STYLEALPHA_InvSrcCol;
-			else if (sc.Compare("SRC_ALPHA")) *factor = STYLEALPHA_Src;
-			else if (sc.Compare("ONE_MINUS_SRC_ALPHA")) *factor = STYLEALPHA_InvSrc;
-			else if (sc.Compare("DST_ALPHA")) *factor = STYLEALPHA_Dst;
-			else if (sc.Compare("ONE_MINUS_DST_ALPHA")) *factor = STYLEALPHA_InvDst;
-			else if (sc.Compare("DST_COLOR")) *factor = STYLEALPHA_DstCol;
-			else if (sc.Compare("ONE_MINUS_DST_COLOR")) *factor = STYLEALPHA_InvDstCol;
-			else sc.ScriptMessage("Unknown blend operation %s", sc.String);
-		}
-		if (which & 1) glb->def[0] = bdef;
-		if (which & 2) glb->def[1] = bdef;
-	}
-}
-
-void parseBlendTable(FScanner& sc, FScriptPosition& pos)
-{
-	FScanner::SavedPos blockend;
-	int id;
-
-	if (!sc.GetNumber(id, true)) return;
-
-	if (sc.StartBraces(&blockend)) return;
-
-	if ((unsigned)id >= MAXBLENDTABS)
-	{
-		pos.Message(MSG_ERROR, "blendtable: Invalid blendtable number %d", id);
-		sc.RestorePos(blockend);
-		return;
-	}
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare("raw")) parseEmptyBlock(sc, pos); // Raw translucency map for the software renderer. We have no use for this.
-		else if (sc.Compare("glblend")) parseBlendTableGlBlend(sc, id);
-		else if (sc.Compare("undef")) glblend[id] = defaultglblend;
-		else if (sc.Compare("copy"))
-		{
-			sc.GetNumber(true);
-
-			if ((unsigned)sc.Number >= MAXBLENDTABS || sc.Number == id)
-			{
-				pos.Message(MSG_ERROR, "blendtable: Invalid source blendtable number %d in copy", sc.Number);
-			}
-			else glblend[id] = glblend[sc.Number];
-		}
-	}
-}
-
-//===========================================================================
-//
-// thw same note as for blendtable applies here.
-//
-//===========================================================================
-
-void parseNumAlphaTabs(FScanner& sc, FScriptPosition& pos)
-{
-	int value;
-	if (!sc.GetNumber(value)) return;
-
-	for (int a = 1, value2 = value * 2 + (value & 1); a <= value; ++a)
-	{
-		float finv2value = 1.f / (float)value2;
-
-		glblend_t* const glb = glblend + a;
-		*glb = defaultglblend;
-		glb->def[0].alpha = (float)(value2 - a) * finv2value;
-		glb->def[1].alpha = (float)a * finv2value;
-	}
-}
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
-static bool parseBasePaletteRaw(FScanner& sc, FScriptPosition& pos, int id)
-{
-	FScanner::SavedPos blockend;
-	FString fn;
-	int32_t offset = 0;
-	int32_t shiftleft = 0;
-
-	if (sc.StartBraces(&blockend)) return false;
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare("file")) sc.GetString(fn);
-		else if (sc.Compare("offset")) sc.GetNumber(offset, true);
-		else if (sc.Compare("shiftleft")) sc.GetNumber(shiftleft, true);
-	}
-
-	if (fn.IsEmpty())
-	{
-		pos.Message(MSG_ERROR, "basepalette: filename missing");
-	}
-	else if (offset < 0)
-	{
-		pos.Message(MSG_ERROR, "basepalette: Invalid file offset");
-	}
-	else if ((unsigned)shiftleft >= 8)
-	{
-		pos.Message(MSG_ERROR, "basepalette: Invalid left shift %d provided", shiftleft);
-	}
-	else
-	{
-		FileReader fil = fileSystem.OpenFileReader(fn);
-		if (!fil.isOpen())
-		{
-			pos.Message(MSG_ERROR, "basepalette: Failed opening \"%s\"", fn.GetChars());
-		}
-		else
-		{
-			fil.Seek(offset, FileReader::SeekSet);
-			auto palbuf = fil.Read();
-			if (palbuf.Size() < 768)
-			{
-				pos.Message(MSG_ERROR, "basepalette: Read failed");
-			}
-			else
-			{
-				if (shiftleft != 0)
-				{
-					for (auto& pe : palbuf)
-						pe <<= shiftleft;
-				}
-
-				paletteSetColorTable(id, palbuf.Data(), false, false);
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-void parseBasePalette(FScanner& sc, FScriptPosition& pos)
-{
-	FScanner::SavedPos blockend;
-	int id;
-	bool didLoadPal = false;
-
-	if (!sc.GetNumber(id)) return;
-
-	if (sc.StartBraces(&blockend)) return;
-
-	if ((unsigned)id >= MAXBASEPALS)
-	{
-		pos.Message(MSG_ERROR, "basepalette: Invalid basepal number %d", id);
-		sc.RestorePos(blockend);
-		sc.CheckString("{");
-		return;
-	}
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare("raw")) didLoadPal |= parseBasePaletteRaw(sc, pos, id);
-		else if (sc.Compare("copy"))
-		{
-			int source = -1;
-			sc.GetNumber(source);
-
-			if ((unsigned)source >= MAXBASEPALS || source == id)
-			{
-				pos.Message(MSG_ERROR, "basepalette: Invalid source basepal number %d", source);
-			}
-			else
-			{
-				auto sourcepal = GPalette.GetTranslation(Translation_BasePalettes, source);
-				if (sourcepal == nullptr)
-				{
-					pos.Message(MSG_ERROR, "basepalette: Source basepal %d does not exist", source);
-				}
-				else
-				{
-					GPalette.CopyTranslation(TRANSLATION(Translation_BasePalettes, id), TRANSLATION(Translation_BasePalettes, source));
-					didLoadPal = true;
-				}
-			}
-		}
-		else if (sc.Compare("undef"))
-		{
-			GPalette.ClearTranslationSlot(TRANSLATION(Translation_BasePalettes, id));
-			didLoadPal = 0;
-			if (id == 0) paletteloaded &= ~PALETTE_MAIN;
-		}
-	}
-
-	if (didLoadPal && id == 0)
-	{
-		paletteloaded |= PALETTE_MAIN;
-	}
-}
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
-void parseUndefBasePaletteRange(FScanner& sc, FScriptPosition& pos)
-{
-	int start, end;
-
-	if (!sc.GetNumber(start)) return;
-	if (!sc.GetNumber(end)) return;
-
-	if (start > end || (unsigned)start >= MAXBASEPALS || (unsigned)end >= MAXBASEPALS)
-	{
-		pos.Message(MSG_ERROR, "undefbasepaletterange: Invalid range [%d, %d]", start, end);
-		return;
-	}
-	for (int i = start; i <= end; i++) GPalette.ClearTranslationSlot(TRANSLATION(Translation_BasePalettes, i));
-	if (start == 0) paletteloaded &= ~PALETTE_MAIN;
-}
-
-//===========================================================================
-//
-// sadly this looks broken by design with its hard coded 32 shades...
-//
-//===========================================================================
-
-static void parsePalookupRaw(FScanner& sc, int id, int& didLoadShade)
-{
-	FScanner::SavedPos blockend;
-	FScriptPosition pos = sc;
-
-	if (sc.StartBraces(&blockend)) return;
-
-	FString fn;
-	int32_t offset = 0;
-	int32_t length = 256 * 32; // hardcoding 32 instead of numshades
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare("file")) sc.GetString(fn);
-		else if (sc.Compare("offset")) sc.GetNumber(offset);
-		else if (sc.Compare("noshades")) length = 256;
-	}
-
-	if (fn.IsEmpty())
-	{
-		pos.Message(MSG_ERROR, "palookup: filename missing");
-	}
-	else if (offset < 0)
-	{
-		pos.Message(MSG_ERROR, "palookup: Invalid file offset %d", offset);
-	}
-	else
-	{
-		FileReader fil = fileSystem.OpenFileReader(fn);
-		if (!fil.isOpen())
-		{
-			pos.Message(MSG_ERROR, "palookup: Failed opening \"%s\"", fn.GetChars());
-		}
-		else
-		{
-			fil.Seek(offset, FileReader::SeekSet);
-			auto palookupbuf = fil.Read();
-			if (palookupbuf.Size() < 256)
-			{
-				pos.Message(MSG_ERROR, "palookup: Read failed");
-			}
-			else if (palookupbuf.Size() >= 256 * 32)
-			{
-				didLoadShade = 1;
-				numshades = 32;
-				lookups.setTable(id, palookupbuf.Data());
-			}
-			else
-			{
-				if (!(paletteloaded & PALETTE_SHADE))
-				{
-					pos.Message(MSG_ERROR, "palookup: Shade tables not loaded");
-				}
-				else
-					lookups.makeTable(id, palookupbuf.Data(), 0, 0, 0, lookups.tables[id].noFloorPal);
-			}
-		}
-	}
-}
-
-static void parsePalookupFogpal(FScanner& sc, int id)
-{
-	FScanner::SavedPos blockend;
-	FScriptPosition pos = sc;
-
-	if (sc.StartBraces(&blockend)) return;
-
-	int red = 0, green = 0, blue = 0;
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare({ "r", "red" })) sc.GetNumber(red);
-		else if (sc.Compare({ "g", "green" })) sc.GetNumber(green);
-		else if (sc.Compare({ "b", "blue" })) sc.GetNumber(blue);
-	}
-	red = clamp(red, 0, 255);
-	green = clamp(green, 0, 255);
-	blue = clamp(blue, 0, 255);
-
-	if (!(paletteloaded & PALETTE_SHADE))
-	{
-		pos.Message(MSG_ERROR, "palookup: Shade tables not loaded");
-	}
-	else
-		lookups.makeTable(id, nullptr, red, green, blue, 1);
-}
-
-static void parsePalookupMakePalookup(FScanner& sc, FScriptPosition& pos, int id, int& didLoadShade)
-{
-	FScanner::SavedPos blockend;
-
-	if (sc.StartBraces(&blockend)) return;
-
-	int red = 0, green = 0, blue = 0;
-	int remappal = -1;
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare({ "r", "red" })) sc.GetNumber(red);
-		else if (sc.Compare({ "g", "green" })) sc.GetNumber(green);
-		else if (sc.Compare({ "b", "blue" })) sc.GetNumber(blue);
-		else if (sc.Compare("remappal")) sc.GetNumber(remappal, true);
-		else if (sc.Compare("remapself")) remappal = id;
-	}
-	red = clamp(red, 0, 255);
-	green = clamp(green, 0, 255);
-	blue = clamp(blue, 0, 255);
-
-	if ((unsigned)remappal >= MAXPALOOKUPS)
-	{
-		pos.Message(MSG_ERROR, "palookup: Invalid remappal %d", remappal);
-	}
-	else if (!(paletteloaded & PALETTE_SHADE))
-	{
-		pos.Message(MSG_ERROR, "palookup: Shade tables not loaded");
-	}
-	else
-		lookups.makeTable(id, nullptr, red, green, blue, lookups.tables[id].noFloorPal);
-}
-
-void parsePalookup(FScanner& sc, FScriptPosition& pos)
-{
-	FScanner::SavedPos blockend;
-	int id;
-	int didLoadShade = 0;
-
-	if (!sc.GetNumber(id, true)) return;
-	if (sc.StartBraces(&blockend)) return;
-
-	if ((unsigned)id >= MAXPALOOKUPS)
-	{
-		pos.Message(MSG_ERROR, "palookup: Invalid palette number %d", id);
-		sc.RestorePos(blockend);
-		return;
-	}
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare("raw")) parsePalookupRaw(sc, id, didLoadShade);
-		else if (sc.Compare("fogpal")) parsePalookupFogpal(sc, id);
-		else if (sc.Compare("makepalookup")) parsePalookupMakePalookup(sc, pos, id, didLoadShade);
-		else if (sc.Compare("floorpal")) lookups.tables[id].noFloorPal = 0;
-		else if (sc.Compare("nofloorpal")) lookups.tables[id].noFloorPal = 1;
-		else if (sc.Compare("copy"))
-		{
-			int source = 0;
-			sc.GetNumber(source, true);
-
-			if ((unsigned)source >= MAXPALOOKUPS || source == id)
-			{
-				pos.Message(MSG_ERROR, "palookup: Invalid source pal number %d", source);
-			}
-			else if (source == 0 && !(paletteloaded & PALETTE_SHADE))
-			{
-				pos.Message(MSG_ERROR, "palookup: Shade tables not loaded");
-			}
-			else
-			{
-				// do not overwrite the base with an empty table.
-				if (lookups.checkTable(source) || id > 0) lookups.copyTable(id, source);
-				didLoadShade = 1;
-			}
-		}
-		else if (sc.Compare("undef")) 
-		{
-			lookups.clearTable(id);
-			didLoadShade = 0;
-			if (id == 0) paletteloaded &= ~PALETTE_SHADE;
-		}
-
-	}
-	if (didLoadShade && id == 0)
-	{
-		paletteloaded |= PALETTE_SHADE;
-	}
-}
-
-//===========================================================================
-//
-// 
-//
-//===========================================================================
-
-void parseMakePalookup(FScanner& sc, FScriptPosition& pos)
-{
-	FScanner::SavedPos blockend;
-	int red = 0, green = 0, blue = 0, pal = -1;
-	int remappal = 0;
-	int nofloorpal = -1;
-	bool havepal = false, haveremappal = false, haveremapself = false;
-
-	if (sc.StartBraces(&blockend)) return;
-
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare({ "r", "red" })) sc.GetNumber(red);
-		else if (sc.Compare({ "g", "green" })) sc.GetNumber(green);
-		else if (sc.Compare({ "b", "blue" })) sc.GetNumber(blue);
-		else if (sc.Compare("remappal"))
-		{
-			sc.GetNumber(remappal, true);
-			haveremappal = true;
-		}
-		else if (sc.Compare("remapself"))
-		{
-			haveremapself = true;
-		}
-		else if (sc.Compare("nofloorpal")) sc.GetNumber(nofloorpal, true);
-		else if (sc.Compare("pal"))
-		{
-			havepal = true;
-			sc.GetNumber(pal, true);
-		}
-	}
-	red = clamp(red, 0, 63);
-	green = clamp(green, 0, 63);
-	blue = clamp(blue, 0, 63);
-
-	if (!havepal)
-	{
-		pos.Message(MSG_ERROR, "makepalookup: missing palette number");
-	} 
-	else if (pal == 0 || (unsigned)pal >= MAXREALPAL)
-	{
-		pos.Message(MSG_ERROR, "makepalookup: palette number %d out of range (1 .. %d)", pal, MAXREALPAL - 1);
-	}
-	else if (haveremappal && haveremapself)
-	{
-		// will also disallow multiple remappals or remapselfs
-		pos.Message(MSG_ERROR, "makepalookup: must have either 'remappal' or 'remapself' but not both");
-	}
-	else if ((haveremappal && (unsigned)remappal >= MAXREALPAL))
-	{
-		pos.Message(MSG_ERROR, "makepalookup: remap palette number %d out of range (0 .. %d)", pal, MAXREALPAL - 1);
-	}
-	else
-	{
-		if (haveremapself) remappal = pal;
-		lookups.makeTable(pal, lookups.getTable(remappal), red << 2, green << 2, blue << 2,
-			remappal == 0 ? 1 : (nofloorpal == -1 ? lookups.tables[remappal].noFloorPal : nofloorpal));
-	}
-}
-
-//===========================================================================
-//
-// 
-//
-//===========================================================================
-
-void parseUndefPalookupRange(FScanner& sc, FScriptPosition& pos)
-{
-	int id0, id1;
-
-	if (!sc.GetNumber(id0, true)) return;
-	if (!sc.GetNumber(id1, true)) return;
-
-	if (id0 > id1 || (unsigned)id0 >= MAXPALOOKUPS || (unsigned)id1 >= MAXPALOOKUPS)
-	{
-		pos.Message(MSG_ERROR, "undefpalookuprange: Invalid range");
-	}
-	else
-	{
-		for (int i = id0; i <= id1; i++) lookups.clearTable(i);
-		if (id0 == 0) paletteloaded &= ~PALETTE_SHADE;
+		tbuild->tile[i].extinfo.picanm.sf |= PICANM_NOFULLBRIGHT_BIT;
 	}
 }
 
@@ -2355,34 +1899,6 @@ static void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 	fileSystem.CreatePathlessCopy(fn, res_id, 0);
 }
 
-static void parseTileFlags(FScanner& sc, FScriptPosition& pos)
-{
-	int num = -1;
-
-	sc.SetCMode(true);
-	sc.GetNumber(num, true);
-	if (!sc.CheckString("{"))
-	{
-		pos.Message(MSG_ERROR, "tileflags:'{' expected, unable to continue");
-		sc.SetCMode(false);
-		return;
-	}
-	while (!sc.CheckString("}"))
-	{
-		sc.MustGetString();
-		int tile = tileForName(sc.String);
-		if (tile == -1)
-		{
-			pos.Message(MSG_ERROR, "tileflags:Unknown tile name '%s'", sc.String);
-		}
-		else
-		{
-			TileFiles.tiledata[tile].tileflags |= num;
-		}
-	}
-	sc.SetCMode(false);
-}
-
 //===========================================================================
 //
 // 
@@ -2423,7 +1939,6 @@ static const dispatch basetokens[] =
 	{ "skybox",          parseSkybox           },
 	{ "highpalookup",    parseHighpalookup     },
 	{ "tint",            parseTint             },
-	{ "makepalookup",    parseMakePalookup     },
 	{ "texture",         parseTexture          },
 	{ "tile",            parseTexture          },
 	{ "music",           parseMusic            },
@@ -2456,26 +1971,18 @@ static const dispatch basetokens[] =
 	{ "cachesize",       parseSkip<1>			},
 	{ "dummytilefrompic",parseImportTile       },
 	{ "tilefromtexture", parseTileFromTexture  },
-	{ "artfile",         parseArtFile          },
 	{ "mapinfo",         parseMapinfo          },
 	{ "echo",            parseEcho             },
 	{ "globalflags",     parseSkip<1>      },
 	{ "copytile",        parseCopyTile         },
 	{ "globalgameflags", parseSkip<1>  },
 	{ "multipsky",       parseMultiPsky        },
-	{ "basepalette",     parseBasePalette      },
-	{ "palookup",        parsePalookup         },
-	{ "blendtable",      parseBlendTable       },
-	{ "numalphatables",  parseNumAlphaTabs     },
-	{ "undefbasepaletterange", parseUndefBasePaletteRange },
-	{ "undefpalookuprange", parseUndefPalookupRange },
 	{ "undefblendtablerange", parseSkip<2> },
 	{ "shadefactor",     parseSkip<1>      },
 	{ "newgamechoices",  parseEmptyBlock   },
 	{ "rffdefineid",     parseRffDefineId      },
 	{ "defineqav",       parseDefineQAV        },
 
-	{ "tileflag",			parseTileFlags },
 	{ nullptr,           nullptr               },
 };
 
@@ -2499,8 +2006,9 @@ static void defsparser(FScanner& sc)
 	}
 }
 
-void loaddefinitionsfile(const char* fn, bool cumulative, bool maingame)
+void loaddefinitionsfile(TilesetBuildInfo& info, const char* fn, bool cumulative, bool maingame)
 {
+	tbuild = &info;
 	bool done = false;
 	auto parseit = [&](int lump)
 	{

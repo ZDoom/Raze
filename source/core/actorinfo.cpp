@@ -45,6 +45,8 @@
 #include "types.h"
 #include "filesystem.h"
 #include "texturemanager.h"
+#include "texinfo.h"
+#include "buildtiles.h"
 
 extern void LoadActors ();
 

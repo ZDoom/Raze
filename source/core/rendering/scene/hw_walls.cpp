@@ -33,8 +33,10 @@
 #include "hw_skydome.h"
 #include "hw_drawstructs.h"
 #include "hw_vertexmap.h"
+#include "buildtiles.h"
 #include "gamefuncs.h"
 #include "cmdlib.h"
+#include "texinfo.h"
 
 #include "v_video.h"
 #include "flatvertices.h"
@@ -1163,7 +1165,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 
 	SetSpriteTranslucency(Sprite, alpha, RenderStyle);
 
-	TileOffs* tofs;
+	const TileOffs* tofs;
 	int height, topofs;
 	if (hw_hightile && (tofs = GetHiresOffset(spr->spritetexture())))
 	{

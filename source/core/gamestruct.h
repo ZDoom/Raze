@@ -49,6 +49,7 @@ struct ReservedSpace
 
 enum EMenuSounds : int;
 struct MapRecord;
+struct TilesetBuildInfo;
 
 extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 
@@ -71,8 +72,8 @@ struct GameInterface
 	virtual ~GameInterface() {}
 	virtual bool GenerateSavePic() { return false; }
 	virtual void app_init() = 0;
-	virtual void LoadGameTextures() {}
-	virtual void SetupSpecialTextures() {}
+	virtual void LoadTextureInfo(TilesetBuildInfo& info) {}
+	virtual void SetupSpecialTextures(TilesetBuildInfo&) {}
 	virtual void loadPalette();
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}

@@ -77,10 +77,10 @@ void GameInterface::UpdateCameras(double smoothratio)
 
 	if (camsprite->GetOwner() && (p->GetActor()->spr.pos - camsprite->spr.pos).Length() < VIEWSCREEN_ACTIVE_DISTANCE)
 	{
-		auto tex = tileGetTexture(camsprite->spr.picnum);
+		auto tex = TexMan.FindGameTexture("VIEWSCR", ETextureType::Any);
+		if (!tex || !tex->GetTexture()->isCanvas()) return;
 
-		auto canvas = tileGetCanvas(TILE_VIEWSCR);
-		if (!canvas) return;
+		auto canvas = static_cast<FCanvasTexture*>(tex->GetTexture());
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{

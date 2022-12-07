@@ -1,0 +1,122 @@
+#pragma once
+
+#include <stdint.h>
+#include "gamefuncs.h"
+#include "tiletexture.h"
+
+// extended texture info for which there is no room in the texture manager.
+
+enum AnimFlags
+{
+	PICANM_ANIMTYPE_NONE = 0,
+	PICANM_ANIMTYPE_OSC = (1 << 6),
+	PICANM_ANIMTYPE_FWD = (2 << 6),
+	PICANM_ANIMTYPE_BACK = (3 << 6),
+
+	PICANM_ANIMTYPE_SHIFT = 6,
+	PICANM_ANIMTYPE_MASK = (3 << 6),  // must be 192
+	PICANM_MISC_MASK = (3 << 4),
+	PICANM_TEXHITSCAN_BIT = (2 << 4),
+	PICANM_NOFULLBRIGHT_BIT = (1 << 4),
+	PICANM_ANIMSPEED_MASK = 15,  // must be 15
+};
+
+
+
+// NOTE: If the layout of this struct is changed, loadpics() must be modified
+// accordingly.
+struct picanm_t
+{
+	uint16_t num;  // animate number
+	uint8_t sf;  // anim. speed and flags
+	uint8_t extra;
+
+	void Clear()
+	{
+		extra = sf = 0;
+		num = 0;
+	}
+
+	int speed() const
+	{
+		return sf & PICANM_ANIMSPEED_MASK;
+	}
+
+	int type() const
+	{
+		return sf & PICANM_ANIMTYPE_MASK;
+	}
+
+};
+
+
+struct TileOffs
+{
+	int16_t xsize, ysize, xoffs, yoffs;
+};
+
+struct TexExtInfo
+{
+	// TexAnim *texanim // todo: extended texture animation like ZDoom's ANIMDEFS.
+	uint8_t terrain;	// Contents depend on the game, e.g. this holds Blood's surfType.
+	uint8_t shadeinfo;	// Blood's shade.dat
+	uint16_t voxindex;
+	picanm_t picanm;
+	uint32_t flags;		// contents are game dependent.
+	TileOffs hiofs;
+};
+
+inline TArray<TexExtInfo> texExtInfo;
+inline int firstarttile, maxarttile;	// we need this for conversion between tile numbers and texture IDs
+
+//==========================================================================
+//
+// THe tile container
+//
+//==========================================================================
+
+struct TexturePick
+{
+	FGameTexture* texture;		// which texture to use
+	int translation;		// which translation table to use
+	int tintFlags;			// which shader tinting options to use
+	PalEntry tintColor;		// Tint color
+	PalEntry basepalTint;	// can the base palette be done with a global tint effect?
+};
+bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wantindexed = false);
+
+
+
+void tileUpdatePicnum(FTextureID& tileptr, int randomize = -1);
+void tileUpdateAnimations();
+
+
+inline const TexExtInfo& GetExtInfo(FTextureID tex) // this is only for reading, not for modifying!
+{
+	unsigned index = tex.GetIndex();
+	if (index >= texExtInfo.Size()) index = 0;	// index 0 (the null texture) serves as backup if textures get added at runtime.
+	return texExtInfo[index];
+}
+
+inline FTextureID tileGetTextureID(int tilenum)
+{
+	if ((unsigned)tilenum >= MAXTILES) return FNullTextureID();
+	return FSetTextureID(firstarttile + min(tilenum, maxarttile));
+}
+
+// Use this only for places where some legacy feature needs a tile index. The only such places are CON and nnext.
+inline int legacyTileNum(FTextureID id)
+{
+	int index = id.GetIndex() - firstarttile;
+	if (index < 0 || index > maxarttile) return maxarttile;
+	return index;
+}
+
+inline const TileOffs* GetHiresOffset(FTextureID tex)
+{
+	// fixme: This must return nullptr if the tile has no replacement. 
+	auto& x = GetExtInfo(tex);
+	if (x.hiofs.xsize != 0) return &x.hiofs;
+	else return nullptr;
+}
+

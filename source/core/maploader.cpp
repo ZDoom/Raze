@@ -47,6 +47,7 @@
 #include "render.h"
 #include "hw_sections.h"
 #include "interpolate.h"
+#include "tiletexture.h"
 #include "games/blood/src/mapstructs.h"
 
 extern BitArray clipsectormap;

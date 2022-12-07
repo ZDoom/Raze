@@ -46,6 +46,9 @@
 #include "i_system.h"
 #include "gamecontrol.h"
 #include "coreactor.h"
+#include "texinfo.h"
+
+#include "buildtiles.h"
 
 extern TArray<ClusterDef> clusters;
 extern TArray<VolumeRecord> volumes;
@@ -500,18 +503,18 @@ void FMapInfoParser::ParseTextureFlags()
 		do
 		{
 			sc.MustGetString();
-			int tile = tileForName(sc.String);
+			// this must also get null textures and ones not yet loaded.
+			auto tex = TexMan.CheckForTexture(sc.String, ETextureType::Any, FTextureManager::TEXMAN_ReturnAll | FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
 
-			if (tile == -1)
+			if (!tex.isValid())
 			{
 				sc.ScriptMessage("textureflags:Unknown texture name '%s'", sc.String);
 			}
 			else
 			{
-				TileFiles.tiledata[tile].tileflags |= num;
+				texExtInfo[tex.GetIndex()].flags |= num;
 			}
 
-			// tileflags |= sc.Number;
 		} while (sc.CheckString(","));
 	}
 }

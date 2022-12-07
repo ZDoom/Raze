@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "texturemanager.h"
 #include "statusbar.h"
 #include "vm.h"
+#include "tilesetbuilder.h"
 
 BEGIN_BLD_NS
 
@@ -74,6 +75,7 @@ IMPLEMENT_POINTERS_END
 //
 //---------------------------------------------------------------------------
 void MarkSprInSect();
+void tileInitProps();
 
 size_t DBloodActor::PropagateMark()
 {
@@ -585,6 +587,9 @@ void GameInterface::loadPalette(void)
 
 void GameInterface::app_init()
 {
+	mirrortile = tileGetTextureID(504);
+	tileInitProps();
+
 	GC::AddMarkerFunc(markgcroots);
 
 	InitCheats();
@@ -717,7 +722,11 @@ enum
 DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
 {
 	static int bLoadScreenCrcMatch = -1;
-	if (bLoadScreenCrcMatch == -1) bLoadScreenCrcMatch = tileGetCRC32(kLoadScreen) == kLoadScreenCRC;
+	if (bLoadScreenCrcMatch == -1)
+	{
+		auto tex = tileGetTexture(kLoadScreen)->GetTexture()->GetImage(); // if this is invalid we have a bigger problem on our hand than the inevitable crash.
+		bLoadScreenCrcMatch = tileGetCRC32(tex) == kLoadScreenCRC;
+	}
 	ACTION_RETURN_INT(bLoadScreenCrcMatch);
 }
 

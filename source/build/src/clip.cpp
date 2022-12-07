@@ -12,6 +12,7 @@
 #include "gamefuncs.h"
 #include "coreactor.h"
 #include "texturemanager.h"
+#include "buildtiles.h"
 
 enum { MAXCLIPDIST = 1024 };
 

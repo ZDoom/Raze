@@ -17,7 +17,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 
 #include "printf.h"
 #include "palette.h"
-#include "buildtiles.h"
 #include "c_cvars.h"
 #include "cmdlib.h"
 

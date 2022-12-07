@@ -46,6 +46,10 @@
 #include "v_font.h"
 #include "gamestruct.h"
 #include "gamefuncs.h"
+#include "texinfo.h"
+
+#include "buildtiles.h"
+
 
 F2DDrawer twodpsp;
 
@@ -56,9 +60,7 @@ void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int d
 	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
 	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
 
-	tileUpdatePicnum(&picnum);
-
-	auto tex = tileGetTexture(picnum);
+	auto tex = tileGetTexture(picnum, true);
 
 	DrawTexture(&twodpsp, tex, sx, sy,
 		DTA_ScaleX, sz, DTA_ScaleY, sz,

@@ -43,6 +43,9 @@
 #include "automap.h"
 #include "hw_voxels.h"
 #include "coreactor.h"
+#include "tiletexture.h"
+
+#include "buildtiles.h"
 
 EXTERN_CVAR(Float, r_visibility)
 CVAR(Bool, gl_no_skyclear, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -275,23 +278,26 @@ void HWDrawInfo::DispatchSprites()
 	for (unsigned i = 0; i < tsprites.Size(); i++)
 	{
 		auto tspr = tsprites.get(i);
-		int tilenum = tspr->picnum;
 		auto actor = tspr->ownerActor;
+		auto texid = tspr->spritetexture();
 
-		if (actor == nullptr || tspr->scale.X == 0 || tspr->scale.Y == 0 || (unsigned)tilenum >= MAXTILES)
+		if (actor == nullptr || tspr->scale.X == 0 || tspr->scale.Y == 0)
 			continue;
 
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 
 		if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && !(tspr->cstat2 & CSTAT2_SPRITE_NOANIMATE))
-			tileUpdatePicnum(&tilenum, false, (actor->GetIndex() & 16383));
+		{
+			tileUpdatePicnum(texid, (actor->GetIndex() & 16383));
+		}
 		if (tspr->cstat2 & CSTAT2_SPRITE_FULLBRIGHT)
 			tspr->shade = -127;
-		tspr->picnum = tilenum;
+		tspr->picnum = legacyTileNum(texid);
+		int tilenum = tspr->picnum;
 
 		if (!(actor->sprext.renderflags & SPREXT_NOTMD))
 		{
-			auto pt = modelManager.GetModel(tilenum, tspr->pal);
+			auto pt = modelManager.GetModel(tspr->picnum, tspr->pal);
 			if (hw_models && pt && pt->modelid >= 0 && pt->framenum >= 0)
 			{
 				//HWSprite hwsprite;
@@ -315,6 +321,7 @@ void HWDrawInfo::DispatchSprites()
 				}
 			}
 		}
+		if (!texid.isValid()) return;	// due to CSTAT_SPRITE_ALIGNMENT_SLAB this can only be checked here
 
 		if (actor->sprext.renderflags & SPREXT_AWAY1)
 		{

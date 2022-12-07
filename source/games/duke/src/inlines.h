@@ -3,6 +3,7 @@
 #include "gamehud.h"
 #include "global.h"
 #include "models/modeldata.h"
+#include "texinfo.h"
 
 // all inline functions.
 BEGIN_DUKE_NS
@@ -119,11 +120,9 @@ inline bool inventory(DDukeActor* S)
 	return actorflag(S, SFLAG_INVENTORY);
 }
 
-inline int& tileflags(unsigned int tilenum)
+inline const unsigned& tileflags(unsigned int tilenum)
 {
-	static int sink = 0;
-	if (tilenum >= MAXTILES) return sink;
-	return TileFiles.tiledata[tilenum].tileflags;
+	return GetExtInfo(tileGetTextureID(tilenum)).flags;
 }
 
 inline bool wallswitchcheck(DDukeActor* s)

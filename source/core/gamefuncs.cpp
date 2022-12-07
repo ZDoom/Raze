@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "interpolate.h"
 #include "texturemanager.h"
 #include "hw_voxels.h"
+#include "texinfo.h"
+#include "buildtiles.h"
 
 IntRect viewport3d;
 constexpr double MAXCLIPDISTF = 64;
@@ -205,7 +207,7 @@ void GetWallSpritePosition(const spritetypebase* spr, const DVector2& pos, DVect
 	auto tex = TexMan.GetGameTexture(spr->spritetexture());
 
 	double width, xoffset;
-	TileOffs* tofs;
+	const TileOffs* tofs;
 	if (render && hw_hightile && (tofs = GetHiresOffset(spr->spritetexture())))
 	{
 		width = tofs->xsize;
@@ -245,7 +247,7 @@ void TGetFlatSpritePosition(const spritetypebase* spr, const DVector2& pos, DVec
 	int xo = heinum ? 0 : spr->xoffset;
 	int yo = heinum ? 0 : spr->yoffset;
 
-	TileOffs* tofs;
+	const TileOffs* tofs;
 	if (render && hw_hightile && (tofs = GetHiresOffset(spr->spritetexture())))
 	{
 		width = tofs->xsize * xrepeat;

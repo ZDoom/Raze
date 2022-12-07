@@ -42,7 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "vm.h"
 #include "razefont.h"
 
-#include <string>
+#include "buildtiles.h"
+
 
 #include <assert.h>
 
@@ -436,9 +437,7 @@ void uploadCinemaPalettes()
 
 static int DoStatic(int a, int b)
 {
-    auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
-    if (tex) tex->Reload();
-    auto pixels = GetWritablePixels(tileGetTextureID(kTileLoboLaptop));
+    auto pixels = GetWritablePixels(tileGetTextureID(kTileLoboLaptop), true);
 
     int y = 160 - a / 2;
     int left = 81 - b / 2;
@@ -463,10 +462,8 @@ static int DoStatic(int a, int b)
 
 static int UndoStatic()
 {
-    auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
-    if (tex) tex->Reload();
     auto texid = tileGetTextureID(kTileLoboLaptop);
-    GetWritablePixels(texid);
+    GetWritablePixels(texid, true);
     return texid.GetIndex();
 }
 

@@ -89,7 +89,10 @@ static void viewBurnTime(int gScale)
 	for (int i = 0; i < 9; i++)
 	{
 		int nTile = burnTable[i].nTile;
-		tileUpdatePicnum(&nTile);
+		// This is needed because hud_drawsprite still works with tilenums.
+		FTextureID nID = tileGetTextureID(nTile);
+		tileUpdatePicnum(nID);
+		nTile = legacyTileNum(nID);
 		int nScale = burnTable[i].nScale;
 		if (gScale < 600)
 		{

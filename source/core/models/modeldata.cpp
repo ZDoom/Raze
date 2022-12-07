@@ -4,6 +4,7 @@
 #include "texturemanager.h"
 #include "hw_voxels.h"
 #include "gamefuncs.h"
+#include "tiletexture.h"
 
 #include "build.h"
 

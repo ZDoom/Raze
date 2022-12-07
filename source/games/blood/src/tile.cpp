@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 
 #include "blood.h"
+#include "hw_voxels.h"
+#include "tilesetbuilder.h"
 
 BEGIN_BLD_NS
 
@@ -40,16 +42,20 @@ static int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
 
 #define x(a, b) registerName(#a, b);
-static void SetTileNames()
+static void SetTileNames(TilesetBuildInfo& info)
 {
-    auto registerName = [](const char* name, int index)
+    auto registerName = [&](const char* name, int index)
     {
-        TileFiles.addName(name, index);
+        info.addName(name, index);
     };
 #include "namelist.h"
-    // Oh Joy! Plasma Pak changes the tile number of the title screen, but we preferably want mods that use the original one to display it.
+    // Oh Joy! Plasma Pak changes the tile number of the title screen, but we preferably want mods that use the original one to display it, e.g. Cryptic Passage
     // So let's make this remapping depend on the CRC.
-    if (tileGetCRC32(2518) == 1170870757 && (tileGetCRC32(2046) != 290208654 || tileWidth(2518) == 0)) registerName("titlescreen", 2046);
+    const int OTITLE = 2046, PTITLE = 2518;
+    auto& orgtitle = info.tile[OTITLE];
+    auto& pptile = info.tile[PTITLE];
+
+    if (tileGetCRC32(pptile.tileimage) == 1170870757 && (tileGetCRC32(orgtitle.tileimage) != 290208654 || pptile.tileimage->GetWidth() == 0)) registerName("titlescreen", 2046);
     else registerName("titlescreen", 2518);
 }
 #undef x
@@ -60,7 +66,7 @@ static void SetTileNames()
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::LoadGameTextures()
+void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
 {
     auto hFile = fileSystem.OpenFileReader("SURFACE.DAT");
     if (hFile.isOpen())
@@ -86,16 +92,19 @@ void GameInterface::LoadGameTextures()
         if (voxelIndex[i] >= 0 && voxelIndex[i] < MAXVOXELS)
             voxreserve.Set(voxelIndex[i]);
     }
-    SetTileNames();
 }
 
-void GameInterface::SetupSpecialTextures()
+void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 {
+    SetTileNames(info);
     // set up all special tiles here, before we fully hook up with the texture manager.
-    tileDelete(504);
-    TileFiles.tileMakeWritable(2342);
-    TileFiles.lock();   // from this point on the tile<->texture associations may not change anymore.
-    mirrortile = tileGetTextureID(504);
+    info.Delete(504);
+    info.MakeWritable(2342);
+
+}
+
+void tileInitProps()
+{
     for (int i = 0; i < MAXTILES; i++)
     {
         auto tex = tileGetTexture(i);
@@ -106,7 +115,6 @@ void GameInterface::SetupSpecialTextures()
         }
     }
 }
-
 //---------------------------------------------------------------------------
 //
 // 

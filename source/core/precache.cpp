@@ -45,6 +45,9 @@
 #include "mapinfo.h"
 #include "models/modeldata.h"
 #include "gamefuncs.h"
+#include "texinfo.h"
+
+#include "buildtiles.h"
 
 BEGIN_BLD_NS
 extern short voxelIndex[MAXTILES];

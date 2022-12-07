@@ -63,7 +63,11 @@
 #include "ns.h"
 #include "serialize_obj.h"
 #include "games/blood/src/mapstructs.h"
+#include "texinfo.h"
 #include <zlib.h>
+
+#include "buildtiles.h"
+
 
 
 void WriteSavePic(FileWriter* file, int width, int height);

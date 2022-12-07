@@ -89,6 +89,7 @@
 #include "gamehud.h"
 #include "wipe.h"
 #include "i_interface.h"
+#include "texinfo.h"
 #include "texturemanager.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)

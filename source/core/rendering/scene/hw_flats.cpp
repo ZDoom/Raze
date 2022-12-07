@@ -38,6 +38,7 @@
 #include "sectorgeometry.h"
 #include "hw_sections.h"
 #include "texturemanager.h"
+#include "buildtiles.h"
 
 #ifdef _DEBUG
 CVAR(Int, gl_breaksec, -1, 0)

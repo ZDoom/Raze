@@ -1220,9 +1220,9 @@ set (PCH_SOURCES
 	common/scripting/backend/vmbuilder.cpp
 	common/scripting/backend/codegen.cpp
 
-
-
-	core/textures/buildtiles.cpp
+	core/textures/tiletexture.cpp
+	core/textures/texinfo.cpp
+	core/textures/tilesetbuilder.cpp
 	core/textures/skytexture.cpp
 	core/textures/hightile.cpp
 	core/music/s_advsound.cpp

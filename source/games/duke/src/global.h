@@ -8,6 +8,7 @@
 #include "types.h"
 #include "d_net.h"
 #include "serialize_obj.h"
+#include "tiletexture.h"
 
 BEGIN_DUKE_NS
 

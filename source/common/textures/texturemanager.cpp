@@ -186,6 +186,7 @@ FTextureID FTextureManager::CheckForTexture (const char *name, ETextureType uset
 			// The name matches, so check the texture type
 			if (usetype == ETextureType::Any)
 			{
+				if (flags & TEXMAN_ReturnAll) return FTextureID(i);	// user asked to skip all checks, including null textures.
 				// All NULL textures should actually return 0
 				if (texUseType == ETextureType::FirstDefined && !(flags & TEXMAN_ReturnFirst)) return 0;
 				if (texUseType == ETextureType::SkinGraphic && !(flags & TEXMAN_AllowSkins)) return 0;
@@ -229,6 +230,7 @@ FTextureID FTextureManager::CheckForTexture (const char *name, ETextureType uset
 		// Never return the index of NULL textures.
 		if (firstfound != -1)
 		{
+			if (flags & TEXMAN_ReturnAll) return FTextureID(i);	// user asked to skip all checks, including null textures.
 			if (firsttype == ETextureType::Null) return FTextureID(0);
 			if (firsttype == ETextureType::FirstDefined && !(flags & TEXMAN_ReturnFirst)) return FTextureID(0);
 			return FTextureID(firstfound);
@@ -1601,14 +1603,10 @@ void FTextureManager::SetTranslation(FTextureID fromtexnum, FTextureID totexnum)
 //
 //-----------------------------------------------------------------------------
 
-void FTextureManager::AddAlias(const char* name, FGameTexture* tex)
+void FTextureManager::AddAlias(const char* name, int texindex)
 {
-	FTextureID id = tex->GetID();
-	if (tex != Textures[id.GetIndex()].Texture)// || !tex->isValid())
-	{
-		return;	// Whatever got passed in here was not valid, so ignore the alias.
-	}
-	aliases.Insert(name, id.GetIndex());
+	if (texindex < 0 || texindex >= NumTextures()) return;	// Whatever got passed in here was not valid, so ignore the alias.
+	aliases.Insert(name, texindex);
 }
 
 void FTextureManager::Listaliases()

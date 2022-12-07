@@ -397,12 +397,13 @@ void JS_InitMirrors(void)
 /////////////////////////////////////////////////////
 void drawroomstotile(const DVector3& pos, DAngle ang, DAngle horiz, sectortype* dacursect, short tilenume, double smoothratio)
 {
-    auto canvas = tileGetCanvas(tilenume);
+    auto tex = tileGetTexture(tilenume);
+    auto canvas = dynamic_cast<FCanvasTexture*>(tex->GetTexture());
     if (!canvas) return;
 
     screen->RenderTextureView(canvas, [=](IntRect& rect)
         {
-               render_camtex(nullptr, pos, dacursect, DRotator(horiz, ang, nullAngle), tileGetTexture(tilenume), rect, smoothratio);
+               render_camtex(nullptr, pos, dacursect, DRotator(horiz, ang, nullAngle), tex, rect, smoothratio);
         });
 
 }

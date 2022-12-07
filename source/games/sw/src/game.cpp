@@ -49,6 +49,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "i_interface.h"
 #include "psky.h"
 #include "startscreen.h"
+#include "tilesetbuilder.h"
 
 
 
@@ -209,46 +210,39 @@ int ThemeTrack[6];
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #define x(a, b) registerName(#a, b);
-static void SetTileNames()
+static void SetTileNames(TilesetBuildInfo& info)
 {
-    auto registerName = [](const char* name, int index)
+    auto registerName = [&](const char* name, int index)
     {
-        TileFiles.addName(name, index);
+        info.addName(name, index);
     };
 #include "namelist.h"
 }
 #undef x
 
-void GameInterface::LoadGameTextures()
+void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
 {
     LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
-    SetTileNames();
 }
 
-void GameInterface::SetupSpecialTextures()
+enum
 {
-    enum
-    {
-        FAF_PLACE_MIRROR_PIC = 341,
-        FAF_MIRROR_PIC = 2356
-    };
+    FAF_PLACE_MIRROR_PIC = 341,
+    FAF_MIRROR_PIC = 2356
+};
 
-    tileDelete(MIRROR); // mirror
+void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
+{
+    info.Delete(MIRROR); // mirror
     for (int i = 0; i < MAXMIRRORS; i++)
     {
-        tileDelete(i + MIRRORLABEL);
-        TileFiles.MakeCanvas(CAMSPRITE + i, 128, 114);
+        info.Delete(i + MIRRORLABEL);
+        info.MakeCanvas(CAMSPRITE + i, 128, 114);
     }
     // make these two unique, they are empty by default.
-    tileDelete(FAF_MIRROR_PIC);
-    tileDelete(FAF_MIRROR_PIC + 1);
-    TileFiles.lock();
-
-    // these are frequently checked markers.
-    FAFPlaceMirrorPic[0] = tileGetTextureID(FAF_PLACE_MIRROR_PIC);
-    FAFPlaceMirrorPic[1] = tileGetTextureID(FAF_PLACE_MIRROR_PIC + 1);
-    FAFMirrorPic[0] = tileGetTextureID(FAF_MIRROR_PIC);
-    FAFMirrorPic[1] = tileGetTextureID(FAF_MIRROR_PIC + 1);
+    info.Delete(FAF_MIRROR_PIC);
+    info.Delete(FAF_MIRROR_PIC + 1);
+    SetTileNames(info);
 }
 //---------------------------------------------------------------------------
 //
@@ -258,6 +252,12 @@ void GameInterface::SetupSpecialTextures()
 
 void GameInterface::app_init()
 {
+    // these are frequently checked markers.
+    FAFPlaceMirrorPic[0] = tileGetTextureID(FAF_PLACE_MIRROR_PIC);
+    FAFPlaceMirrorPic[1] = tileGetTextureID(FAF_PLACE_MIRROR_PIC + 1);
+    FAFMirrorPic[0] = tileGetTextureID(FAF_MIRROR_PIC);
+    FAFMirrorPic[1] = tileGetTextureID(FAF_MIRROR_PIC + 1);
+
     GC::AddMarkerFunc(markgcroots);
 
     GameTicRate = TICS_PER_SEC / synctics;

@@ -1,9 +1,9 @@
 /*
-** skytexture.cpp
-** Composite sky textures for Build.
+** texinfo.cpp
+** Extended texture information / handling
 **
 **---------------------------------------------------------------------------
-** Copyright 2019 Christoph Oelckers
+** Copyright 2019-2022 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -32,48 +32,69 @@
 **
 **
 */
-
-#include "files.h"
-#include "filesystem.h"
-#include "image.h"
-#include "multipatchtexture.h"
-#include "printf.h"
 #include "texturemanager.h"
-#include "buildtiles.h"
 #include "texinfo.h"
+#include "m_crc32.h"
 
-FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilemap, int remap)
+
+//==========================================================================
+//
+//  Retrieve animation offset
+//
+//==========================================================================
+
+static int tileAnimateOfs(FTextureID texid, int randomize)
 {
-	FString synthname;
-
-
-	if ((lognumtiles == 0 && remap == 0) || lognumtiles > 4 || lognumtiles < 0) 
+	auto ext = GetExtInfo(texid);
+	int framecount = ext.picanm.num;
+	if (framecount > 0)
 	{
-		// no special handling - let the old code do its job as-is
-		return nullptr;
+		int frametime = !isBlood() ? I_GetBuildTime() : PlayClock;
+
+		if (isBlood() && randomize)
+		{
+			frametime += Bcrc32(&randomize, 2, 0);
+		}
+
+		int curframe = (frametime & 0x7fffffff) >> (ext.picanm.speed());
+
+		switch (ext.picanm.type())
+		{
+		case PICANM_ANIMTYPE_FWD:
+			return curframe % (framecount + 1);
+		case PICANM_ANIMTYPE_BACK:
+			return -(curframe % (framecount + 1));
+		case PICANM_ANIMTYPE_OSC:
+			curframe = curframe % (framecount << 1);
+			if (curframe >= framecount) return (framecount << 1) - curframe;
+			else return curframe;
+		}
 	}
-
-	int numtiles = 1 << lognumtiles;
-	synthname.Format("Sky%04x%02x", basetile, remap);
-	for(int i = 0; i < numtiles; i++)
-	{
-		synthname += 'A' + tilemap[i];
-	};
-	auto tex = TexMan.FindGameTexture(synthname);
-	if (tex) return tex;
-
-	TArray<TexPartBuild> build(numtiles, true);
-	int tilewidth = tileWidth(basetile);
-	for(int i = 0; i < numtiles; i++)
-	{
-		auto texture = tileGetTexture(basetile + tilemap[i]);
-		if (!texture || !texture->isValid() || texture->GetTexture() == 0) return nullptr;
-		build[i].TexImage = static_cast<FImageTexture*>(texture->GetTexture());
-		build[i].OriginX = tilewidth * i;
-		build[i].Translation = GPalette.GetTranslation(GetTranslationType(remap), GetTranslationIndex(remap));
-	}
-	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, tileHeight(basetile), build, false, false)), synthname, ETextureType::Override);
-	tt->SetUpscaleFlag(tileGetTexture(basetile)->GetUpscaleFlag(), true);
-	TexMan.AddGameTexture(tt, true);
-	return tt;
+	return 0;
 }
+
+void tileUpdatePicnum(FTextureID& tileptr, int randomize)
+{
+	tileptr = FSetTextureID(tileptr.GetIndex() + tileAnimateOfs(tileptr, randomize));
+}
+
+//===========================================================================
+// 
+//	update the animation info inside the texture manager.
+//
+//===========================================================================
+
+void tileUpdateAnimations()
+{
+	for (unsigned i = 0; i < texExtInfo.Size(); i++)
+	{
+		auto& x = texExtInfo[i];
+		if (x.picanm.type())
+		{
+			int j = i + tileAnimateOfs(FSetTextureID(i), false);
+			TexMan.SetTranslation(FSetTextureID(i), FSetTextureID(j));
+		}
+	}
+}
+
+

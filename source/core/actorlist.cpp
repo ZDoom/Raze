@@ -38,6 +38,7 @@
 #include "raze_sound.h"
 #include "vm.h"
 #include "texturemanager.h"
+#include "buildtiles.h"
 
 // Doubly linked ring list of Actors
 

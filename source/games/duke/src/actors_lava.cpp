@@ -33,6 +33,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "dukeactor.h"
 #include "interpolate.h"
 
+#include "buildtiles.h"
+
 BEGIN_DUKE_NS
 
 static int torchcnt;

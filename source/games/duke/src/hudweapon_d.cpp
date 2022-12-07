@@ -36,6 +36,7 @@ source as it is released.
 #include "global.h"
 #include "names_d.h"
 #include "dukeactor.h"
+#include "buildtiles.h"
 
 BEGIN_DUKE_NS 
 

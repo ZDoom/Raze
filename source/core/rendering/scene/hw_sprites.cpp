@@ -30,6 +30,7 @@
 #include "vectors.h"
 #include "texturemanager.h"
 #include "basics.h"
+#include "texinfo.h"
 
 //#include "hw_models.h"
 #include "hw_drawstructs.h"
@@ -45,6 +46,7 @@
 #include "hw_models.h"
 #include "hw_viewpointbuffer.h"
 #include "hw_voxels.h"
+#include "buildtiles.h"
 
 //==========================================================================
 //
@@ -345,7 +347,7 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 		int flags = spr->cstat;
 
 		int xsize, ysize, tilexoff, tileyoff;
-		TileOffs* tofs;
+		const TileOffs* tofs;
 
 		if (hw_hightile && (tofs = GetHiresOffset(spr->spritetexture())))
 		{
