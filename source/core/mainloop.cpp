@@ -89,6 +89,7 @@
 #include "gamehud.h"
 #include "wipe.h"
 #include "i_interface.h"
+#include "texturemanager.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -395,7 +396,7 @@ void DrawOverlays()
 // Display
 //
 //==========================================================================
-CVAR(Int, drawtile, -1, 0)	// debug stuff. Draws the tile with the given number on top of thze HUD
+CVAR(String, drawtile, "", 0)	// debug stuff. Draws the tile with the given number on top of thze HUD
 
 void Display()
 {
@@ -454,9 +455,31 @@ void Display()
 	if (nextwipe == wipe_None)
 	{
 		DrawOverlays();
-		if (drawtile >= 0)
+		if (drawtile[0])
 		{
-			DrawTexture(twod, tileGetTexture(drawtile), false, 0, 0, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_ScaleX, 2., DTA_ScaleY, 2., TAG_DONE);
+			auto tex = TexMan.CheckForTexture(drawtile, ETextureType::Any);
+			if (!tex.isValid()) tex = tileGetTextureID(atoi(drawtile));
+			if (tex.isValid())
+			{
+				auto tx = TexMan.GetGameTexture(tex);
+				if (tx)
+				{
+					int width = (int)tx->GetDisplayWidth();
+					int height = (int)tx->GetDisplayHeight();
+					int dwidth, dheight;
+					if (width > height)
+					{
+						dwidth = screen->GetWidth() / 4;
+						dheight = height * dwidth / width;
+					}
+					else
+					{
+						dheight = screen->GetHeight() / 4;
+						dwidth = width * dheight / height;
+					}
+					DrawTexture(twod, tx, 0, 0, DTA_DestWidth, dwidth, DTA_DestHeight, dheight, TAG_DONE);
+				}
+			}
 		}
 	}
 	else
