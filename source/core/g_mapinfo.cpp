@@ -226,6 +226,31 @@ void FMapInfoParser::ParseMusic(FString &name, int &order)
 //
 //==========================================================================
 
+void FMapInfoParser::ParseConstants()
+{
+	int num = -1;
+
+	// this block deliberately uses a 'flag = texture, texture...' syntax because it is a lot easier to handle than doing the reverse
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		// Do not use internal lookup here because this code must be able to gracefully skip the definition if the flag constant does not exist.
+		// This also blocks passing in literal numbers which is quite intentional.
+		sc.MustGetString();
+		FString cname = sc.String;
+		ParseAssign();
+		sc.MustGetNumber(true);
+		sc.AddSymbol(cname, sc.Number);
+
+	} while (sc.CheckString(","));
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void FMapInfoParser::ParseSpawnClasses()
 {
 	FString fn;
@@ -383,7 +408,6 @@ void FMapInfoParser::ParseBreakWall()
 	}
 }
 
-
 //==========================================================================
 //
 //
@@ -446,6 +470,49 @@ void FMapInfoParser::ParseBreakCeiling()
 			}
 		}
 		breakCeilingMap.Insert(basetile, { breaktile, sound, handler, flags });
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FMapInfoParser::ParseTextureFlags()
+{
+	int num = -1;
+
+	// this block deliberately uses a 'flag = texture, texture...' syntax because it is a lot easier to handle than doing the reverse
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		// Do not use internal lookup here because this code must be able to gracefully skip the definition if the flag constant does not exist.
+		// This also blocks passing in literal numbers which is quite intentional.
+		sc.MustGetString();
+		FName cname(sc.String, true);
+		auto lookup = cname == NAME_None ? nullptr : sc.LookupSymbol(cname);
+		num = 0;
+		if (lookup) num = int(lookup->Number);
+		else 
+			sc.ScriptMessage("'%s': Unknown texture flag", sc.String);
+		ParseAssign();
+		do
+		{
+			sc.MustGetString();
+			int tile = TileFiles.tileForName(sc.String);
+
+			if (tile == -1)
+			{
+				sc.ScriptMessage("textureflags:Unknown texture name '%s'", sc.String);
+			}
+			else
+			{
+				TileFiles.tiledata[tile].tileflags |= num;
+			}
+
+			// tileflags |= sc.Number;
+		} while (sc.CheckString(","));
 	}
 }
 
@@ -1408,6 +1475,7 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 	defaultinfo = gamedefaults;
 	defaultinfoptr = &defaultinfo;
 
+#if 0 // this check is too dumb and affects constant defining includes as well.
 	if (ParsedLumps.Find(lump) != ParsedLumps.Size())
 	{
 		sc.ScriptMessage("MAPINFO file is processed more than once\n");
@@ -1416,6 +1484,7 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 	{
 		ParsedLumps.Push(lump);
 	}
+#endif
 	sc.SetCMode(true);
 	while (sc.GetString ())
 	{
@@ -1436,9 +1505,9 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 						fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(inclump)), sc.String);
 				}
 			}
-			FScanner saved_sc = sc;
-			ParseMapInfo(inclump, gamedefaults, defaultinfo);
-			sc = saved_sc;
+			// use a new parser object to parse the include. Otherwise we'd have to save the entire FScanner in a local variable which is a lot more messy.
+			FMapInfoParser includer(&sc);
+			includer.ParseMapInfo(inclump, gamedefaults, defaultinfo);
 		}
 		else if (sc.Compare("gamedefaults"))
 		{
@@ -1503,6 +1572,14 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		else if (sc.Compare("breakceiling"))
 		{
 			ParseBreakCeiling();
+		}
+		else if (sc.Compare("textureflags"))
+		{
+			ParseTextureFlags();
+		}
+		else if (sc.Compare("constants"))
+		{
+			ParseConstants();
 		}
 		else if (sc.Compare("clearall"))
 		{

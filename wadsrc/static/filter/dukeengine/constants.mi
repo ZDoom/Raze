@@ -1,0 +1,17 @@
+// Global constants for all Duke based games.
+
+constants
+{
+	// Tile flags.
+	TFLAG_WALLSWITCH		= 1
+	TFLAG_ADULT				= 2
+	TFLAG_ELECTRIC			= 4
+	TFLAG_CLEARINVENTORY	= 8
+	TFLAG_SLIME				= 16 
+	TFLAG_DOORWALL			= 32
+	TFLAG_BLOCKDOOR			= 64
+	TFLAG_OUTERSPACE		= 128
+	TFLAG_NOBLOODSPLAT		= 256
+	TFLAG_NOCIRCLEREFLECT 	= 512
+	TFLAG_MUDDY				= 1024
+}

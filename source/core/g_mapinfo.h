@@ -72,9 +72,9 @@ struct FMapInfoParser
 	bool Internal;
 	MapRecord* defaultinfoptr;
 
-	FMapInfoParser(bool internal = false)
+	FMapInfoParser(FScanner* parent = nullptr) 
+		: sc(parent? &parent->GetSymbols() : nullptr)
 	{
-		Internal = internal;
 	}
 
 	bool CheckLegacyMapDefinition(FString& mapname);
@@ -93,6 +93,8 @@ struct FMapInfoParser
 	void ParseSpawnClasses();
 	void ParseBreakWall();
 	void ParseBreakCeiling();
+	void ParseTextureFlags();
+	void ParseConstants();
 	void ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord &defaultinfo);
 
 	void ParseOpenBrace();
