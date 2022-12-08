@@ -36,9 +36,6 @@ BEGIN_BLD_NS
 
 int nTileFiles = 0;
 
-// these arrays get partially filled by .def, so they need to remain global.
-static uint8_t surfType[kMaxTiles];
-static int8_t tileShade[kMaxTiles];
 
 #define x(a, b) registerName(#a, b);
 static void SetTileNames(TilesetBuildInfo& info)
@@ -70,8 +67,13 @@ void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
     auto hFile = fileSystem.OpenFileReader("SURFACE.DAT");
     if (hFile.isOpen())
     {
-        hFile.Read(surfType, sizeof(surfType));
+        int count = (int)hFile.GetLength();
+        for (int i = 0; i < count; i++)
+        {
+            info.tile[i].extinfo.surftype = hFile.ReadInt8();
+        }
     }
+
     hFile = fileSystem.OpenFileReader("VOXEL.DAT");
     if (hFile.isOpen())
     {
@@ -88,10 +90,15 @@ void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
             }
         }
     }
+
     hFile = fileSystem.OpenFileReader("SHADE.DAT");
     if (hFile.isOpen())
     {
-		hFile.Read(tileShade, sizeof(tileShade));
+        int count = (int)hFile.GetLength();
+        for (int i = 0; i < count; i++)
+        {
+            info.tile[i].extinfo.tileshade = hFile.ReadInt8();
+        }
     }
 }
 
@@ -104,18 +111,6 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 
 }
 
-void tileInitProps()
-{
-    for (int i = 0; i < MAXTILES; i++)
-    {
-        auto tex = tileGetTexture(i);
-        if (tex)
-        {
-            TextureAttr a = { surfType[i], tileShade[i] };
-            tprops.Set(tex->GetID().GetIndex(), a);
-        }
-    }
-}
 //---------------------------------------------------------------------------
 //
 // 
@@ -129,27 +124,12 @@ int tileGetSurfType(CollisionBase& hit)
     default:
         return 0;
     case kHitSector:
-        return tprops[hit.hitSector->floortexture()].surfType;
+        return GetExtInfo(hit.hitSector->floortexture()).surftype;
     case kHitWall:
-        return tprops[hit.hitWall->walltexture()].surfType;
+        return GetExtInfo(hit.hitWall->walltexture()).surftype;
     case kHitSprite:
-        return tprops[hit.hitActor->spr.spritetexture()].surfType;
+        return GetExtInfo(hit.hitActor->spr.spritetexture()).surftype;
     }
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::SetTileProps(int tile, int surf, int shade)
-{
-    if (surf != INT_MAX) surfType[tile] = surf;
-    if (shade != INT_MAX) tileShade[tile] = shade;
-
-    mirrortile = tileGetTextureID(504);
-
 }
 
 END_BLD_NS

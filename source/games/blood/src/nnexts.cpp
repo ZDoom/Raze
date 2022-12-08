@@ -1446,7 +1446,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 	int yscale = int(actor->spr.scale.Y * 64);
 
 	// take surface type into account
-	switch (tprops[actor->spr.spritetexture()].surfType)
+	switch (GetExtInfo(actor->spr.spritetexture()).surftype)
 	{
 	case 1:  massDiv = 16; break; // stone
 	case 2:  massDiv = 18; break; // metal
@@ -3956,7 +3956,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			walltype* pObj = eob.wall();
 			switch (cond)
 			{
-			case 24: return condCmp(tprops[pObj->walltexture()].surfType, arg1, arg2, cmpOp);
+			case 24: return condCmp(GetExtInfo(pObj->walltexture()).surftype, arg1, arg2, cmpOp);
 			case 25: return condCmp(legacyTileNum(pObj->walltexture()), arg1, arg2, cmpOp);
 			case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
@@ -3974,7 +3974,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			if (!actor) break;
 			switch (cond)
 			{
-			case 24: return condCmp(tprops[actor->spr.spritetexture()].surfType, arg1, arg2, cmpOp);
+			case 24: return condCmp(GetExtInfo(actor->spr.spritetexture()).surftype, arg1, arg2, cmpOp);
 			case 25: return condCmp(actor->spr.picnum, arg1, arg2, cmpOp);
 			case 26: return condCmp(actor->spr.pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(actor->spr.shade, arg1, arg2, cmpOp);
@@ -3994,9 +3994,9 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 24:
 				switch (arg3)
 				{
-				default: return (condCmp(tprops[pObj->floortexture()].surfType, arg1, arg2, cmpOp) || condCmp(tprops[pObj->ceilingtexture()].surfType, arg1, arg2, cmpOp));
-				case 1: return condCmp(tprops[pObj->floortexture()].surfType, arg1, arg2, cmpOp);
-				case 2: return condCmp(tprops[pObj->ceilingtexture()].surfType, arg1, arg2, cmpOp);
+				default: return (condCmp(GetExtInfo(pObj->floortexture()).surftype, arg1, arg2, cmpOp) || condCmp(GetExtInfo(pObj->ceilingtexture()).surftype, arg1, arg2, cmpOp));
+				case 1: return condCmp(GetExtInfo(pObj->floortexture()).surftype, arg1, arg2, cmpOp);
+				case 2: return condCmp(GetExtInfo(pObj->ceilingtexture()).surftype, arg1, arg2, cmpOp);
 				}
 				break;
 			case 25:

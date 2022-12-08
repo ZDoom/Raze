@@ -110,7 +110,6 @@ struct GameInterface
 	virtual void NewGame(MapRecord* map, int skill, bool special = false) {}
 	virtual void LevelCompleted(MapRecord* map, int skill) {}
 	virtual bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) { return false; }
-	virtual void SetTileProps(int tile, int surf, int shade) {}
 	virtual DAngle playerPitchMin() { return DAngle::fromDeg(57.375); }
 	virtual DAngle playerPitchMax() { return DAngle::fromDeg(-57.375); }
 	virtual void WarpToCoords(double x, double y, double z, DAngle a) {}

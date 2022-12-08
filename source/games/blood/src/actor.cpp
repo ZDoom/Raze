@@ -3943,7 +3943,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
 			}
 
-			if (tprops[actorHit->spr.spritetexture()].surfType == kSurfFlesh)
+			if (GetExtInfo(actorHit->spr.spritetexture()).surftype == kSurfFlesh)
 			{
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
@@ -4109,7 +4109,7 @@ static void actTouchFloor(DBloodActor* actor, sectortype* pSector)
 
 		actDamageSprite(actor, actor, nDamageType, Scale(4, nDamage, 120) << 4);
 	}
-	if (tprops[pSector->floortexture()].surfType == kSurfLava)
+	if (GetExtInfo(pSector->floortexture()).surftype == kSurfLava)
 	{
 		actDamageSprite(actor, actor, kDamageBurn, 16);
 		sfxPlay3DSound(actor, 352, 5, 2);
@@ -6631,7 +6631,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 			if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
 				nSurf = kSurfNone;
 			else
-				nSurf = tprops[pSector->ceilingtexture()].surfType;
+				nSurf = GetExtInfo(pSector->ceilingtexture()).surftype;
 			break;
 		}
 		case 2:
@@ -6639,17 +6639,17 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 			if (pSector->floorstat & CSTAT_SECTOR_SKY)
 				nSurf = kSurfNone;
 			else
-				nSurf = tprops[pSector->floortexture()].surfType;
+				nSurf = GetExtInfo(pSector->floortexture()).surftype;
 			break;
 		}
 		case 0:
 		{
 			auto pWall = gHitInfo.hitWall;
-			nSurf = tprops[pWall->walltexture()].surfType;
+			nSurf = GetExtInfo(pWall->walltexture()).surftype;
 			if (actCanSplatWall(pWall))
 			{
 				auto ppos = gHitInfo.hitpos - dv;
-				int nnSurf = tprops[pWall->walltexture()].surfType;
+				int nnSurf = GetExtInfo(pWall->walltexture()).surftype;
 				assert(nnSurf < kSurfMax);
 				if (pVectorData->surfHit[nnSurf].fx1 >= 0)
 				{
@@ -6667,7 +6667,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 		case 4:
 		{
 			auto pWall = gHitInfo.hitWall;
-			nSurf = tprops[pWall->overtexture()].surfType;
+			nSurf = GetExtInfo(pWall->overtexture()).surftype;
 			if (pWall->hasX())
 			{
 				if (pWall->xw().triggerVector)
@@ -6678,7 +6678,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 		case 3:
 		{
 			auto actor = gHitInfo.actor();
-			nSurf = tprops[actor->spr.spritetexture()].surfType;
+			nSurf = GetExtInfo(actor->spr.spritetexture()).surftype;
 			pos -= 7 * dv;
 			int shift = 4;
 			if (vectorType == kVectorTine && !actor->IsPlayerActor()) shift = 3;
@@ -6742,7 +6742,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 							if (actCanSplatWall(pWall))
 							{
 								auto ppos = gHitInfo.hitpos - dv;
-								int nnSurf = tprops[pWall->walltexture()].surfType;
+								int nnSurf = GetExtInfo(pWall->walltexture()).surftype;
 								const VECTORDATA* pVectorData1 = &gVectorData[19];
 								FX_ID t2 = pVectorData1->surfHit[nnSurf].fx2;
 								FX_ID t3 = pVectorData1->surfHit[nnSurf].fx3;

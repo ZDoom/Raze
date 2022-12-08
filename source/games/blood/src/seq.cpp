@@ -360,7 +360,7 @@ void SEQINST::Update()
 		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->vel.Z == 0 && actor->vel.X != 0) {
 
 			if (actor->sector()->upperLink) break; // don't play surface sound for stacked sectors
-			int surf = tprops[actor->sector()->floortexture()].surfType;
+			int surf = GetExtInfo(actor->sector()->floortexture()).surftype;
 			if (!surf) break;
 			static int surfSfxMove[15][4] = {
 				/* {snd1, snd2, gameVolume, myVolume} */

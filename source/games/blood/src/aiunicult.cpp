@@ -1576,7 +1576,7 @@ static void scaleDamage(DBloodActor* actor)
 	}
 
 	// take surface type into account
-	int surfType = tprops[actor->spr.spritetexture()].surfType;
+	int surfType = GetExtInfo(actor->spr.spritetexture()).surftype;
 	switch (surfType)
 	{
 	case 1:  // stone

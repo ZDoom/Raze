@@ -132,7 +132,6 @@ struct GameInterface : public ::GameInterface
 	void NextLevel(MapRecord* map, int skill) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos, const DAngle cang, const DVector2& xydim, const double czoom, double const interpfrac) override;
-	void SetTileProps(int til, int surf, int shade) override;
 	DAngle playerPitchMin() override { return DAngle::fromDeg(54.575); }
 	DAngle playerPitchMax() override { return DAngle::fromDeg(-43.15); }
 	void WarpToCoords(double x, double y, double z, DAngle a) override;

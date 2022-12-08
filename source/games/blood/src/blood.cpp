@@ -75,7 +75,6 @@ IMPLEMENT_POINTERS_END
 //
 //---------------------------------------------------------------------------
 void MarkSprInSect();
-void tileInitProps();
 
 size_t DBloodActor::PropagateMark()
 {
@@ -588,7 +587,6 @@ void GameInterface::loadPalette(void)
 void GameInterface::app_init()
 {
 	mirrortile = tileGetTextureID(504);
-	tileInitProps();
 
 	GC::AddMarkerFunc(markgcroots);
 

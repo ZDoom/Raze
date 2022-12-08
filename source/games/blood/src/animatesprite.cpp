@@ -663,13 +663,13 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 
 		if ((pSector->ceilingstat & CSTAT_SECTOR_SKY) && (pSector->floorstat & CSTAT_SECTOR_NO_CEILINGSHADE) == 0)
 		{
-			nShade += tprops[pSector->ceilingtexture()].tileShade + pSector->ceilingshade;
+			nShade += GetExtInfo(pSector->ceilingtexture()).tileshade + pSector->ceilingshade;
 		}
 		else
 		{
-			nShade += tprops[pSector->floortexture()].tileShade + pSector->floorshade;
+			nShade += GetExtInfo(pSector->floortexture()).tileshade + pSector->floorshade;
 		}
-		nShade += tprops[pTSprite->spritetexture()].tileShade;
+		nShade += GetExtInfo(pTSprite->spritetexture()).tileshade;
 		pTSprite->shade = ClipRange(nShade, -128, 127);
 		if ((pTSprite->flags & kHitagRespawn) && pTSprite->ownerActor->spr.intowner == 3 && owneractor->hasX())    // Where does this 3 come from? Nothing sets it.
 		{

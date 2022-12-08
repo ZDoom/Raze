@@ -58,8 +58,8 @@ struct TileOffs
 struct TexExtInfo
 {
 	// TexAnim *texanim // todo: extended texture animation like ZDoom's ANIMDEFS.
-	uint8_t terrain;	// Contents depend on the game, e.g. this holds Blood's surfType.
-	uint8_t shadeinfo;	// Blood's shade.dat
+	uint8_t surftype;	// Contents depend on the game, e.g. this holds Blood's surfType. Other games have hard coded handling for similar effects.
+	uint8_t tileshade;	// Blood's shade.dat
 	int16_t tiletovox;	// engine-side voxel index
 	picanm_t picanm;	// tile-based animation data.
 	uint32_t flags;		// contents are game dependent.
