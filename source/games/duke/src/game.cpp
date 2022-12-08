@@ -51,6 +51,8 @@ void SetDispatcher();
 void InitCheats();
 int registerosdcommands(void);
 
+FTextureID mirrortex, foftex;
+
 //---------------------------------------------------------------------------
 //
 // DObject stuff - everything GC related.
@@ -309,12 +311,12 @@ void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 	FImageSource* viewscreen;
 	if (!isRR())
 	{
-		info.Delete(560); // the mirror tile.
+		info.Delete(MIRROR_DUKE); // the mirror tile.
 		viewscreen = info.tile[502].tileimage;
 	}
 	else
 	{
-		info.Delete(1089);	// the mirror tile.
+		info.Delete(MIRROR_RR);	// the mirror tile.
 		info.Delete(0);		// RR uses this as an empty texture
 		info.MakeWritable(2025);	// bowling lane pin displays
 		info.MakeWritable(2026);
@@ -336,6 +338,18 @@ void GameInterface::loadPalette()
 int GameInterface::GetCurrentSkill()
 {
 	return ud.player_skill - 1;
+}
+
+//---------------------------------------------------------------------------
+//
+// IDs for non-textures that need direct checking
+//
+//---------------------------------------------------------------------------
+
+void setTextureIDs()
+{
+	mirrortex = tileGetTextureID(isRR() ? MIRROR_RR : MIRROR_DUKE);
+	foftex = tileGetTextureID(FOF);
 }
 
 //---------------------------------------------------------------------------
@@ -382,6 +396,7 @@ void GameInterface::app_init()
 	
 	loadcons();
 	fi.initactorflags();
+	setTextureIDs();			// sets a few texture IDs needed for map checking.
 	duke_menufont->Callback(); // depends on the .CON files so it must be after loadcons
 
 	OnEvent(EVENT_INIT);

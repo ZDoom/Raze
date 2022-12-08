@@ -2844,7 +2844,7 @@ void processinput_d(int snum)
 	pact->vel.X = clamp((p->GetActor()->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
-	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floorpicnum == DTILE_MIRROR) || !p->insector()));
+	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture() == mirrortex) || !p->insector()));
 
 	// Shrinking code
 

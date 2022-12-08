@@ -1323,7 +1323,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, wallflags, duke_wallflags)
 
 int duke_ismirror(walltype* wal)
 {
-	return wal->wallpicnum == TILE_MIRROR || wal->overpicnum == TILE_MIRROR;
+	return wal->walltexture() == mirrortex || wal->overtexture() == mirrortex;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ismirror, duke_ismirror)

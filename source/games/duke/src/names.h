@@ -21,7 +21,6 @@ extern int TILE_CLOUDYSKIES;
 extern int TILE_ACCESSSWITCH;
 extern int TILE_ACCESSSWITCH2;
 extern int TILE_HEN;
-extern int TILE_MIRROR;
 extern int TILE_MIRRORBROKE;
 extern int TILE_LOADSCREEN;
 extern int TILE_CROSSHAIR;

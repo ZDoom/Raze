@@ -127,6 +127,7 @@ void CallPlayFTASound(DDukeActor* actor);
 void CallStandingOn(DDukeActor* actor, player_struct* p);
 void CallRunState(DDukeActor* actor);
 
+extern FTextureID mirrortex, foftex;
 
 END_DUKE_NS
 

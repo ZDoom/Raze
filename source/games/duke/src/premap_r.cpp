@@ -634,22 +634,19 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 
 	mirrorcnt = 0;
 
-	for (auto& wl : wall)
+	for (auto& wal : wall)
 	{
-		walltype* wal = &wl;
-
-
-		if (wal->overpicnum == RTILE_MIRROR && (wal->cstat & CSTAT_WALL_1WAY) != 0)
+		if (wal.overtexture() == mirrortex && (wal.cstat & CSTAT_WALL_1WAY) != 0)
 		{
-			auto sectp = wal->nextSector();
+			auto sectp = wal.nextSector();
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if (sectp && sectp->ceilingpicnum != RTILE_MIRROR)
+			if (sectp && sectp->ceilingtexture() != mirrortex)
 			{
-				sectp->ceilingpicnum = RTILE_MIRROR;
-				sectp->floorpicnum = RTILE_MIRROR;
-				mirrorwall[mirrorcnt] = wal;
+				sectp->setceilingtexture(mirrortex);
+				sectp->setfloortexture(mirrortex);
+				mirrorwall[mirrorcnt] = &wal;
 				mirrorsector[mirrorcnt] = sectp;
 				mirrorcnt++;
 				continue;
@@ -662,29 +659,29 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		animwall[numanimwalls].tag = 0;
 		animwall[numanimwalls].wall = nullptr;
 
-		switch (wal->overpicnum)
+		switch (wal.overpicnum)
 		{
 		case RTILE_FANSPRITE:
 			//wal.cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN; Original code assigned this to 'wall', i.e. wall[0]
-			animwall[numanimwalls].wall = wal;
+			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
 			break;
 		case RTILE_BIGFORCE:
-			animwall[numanimwalls].wall = wal;
+			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
 			continue;
 		}
 
-		wal->extra = -1;
+		wal.extra = -1;
 
-		switch (wal->wallpicnum)
+		switch (wal.wallpicnum)
 		{
 		case RTILE_SCREENBREAK6:
 		case RTILE_SCREENBREAK7:
 		case RTILE_SCREENBREAK8:
 			for (j = RTILE_SCREENBREAK6; j <= RTILE_SCREENBREAK8; j++)
 				tloadtile(j);
-			animwall[numanimwalls].wall = wal;
+			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;
@@ -694,10 +691,10 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	//Invalidate textures in sector behind mirror
 	for (i = 0; i < mirrorcnt; i++)
 	{
-		for (auto& mwal : mirrorsector[i]->walls)
+		for (auto& wal : mirrorsector[i]->walls)
 		{
-			mwal.wallpicnum = RTILE_MIRROR;
-			mwal.overpicnum = RTILE_MIRROR;
+			wal.setwalltexture(mirrortex);
+			wal.setovertexture(mirrortex);
 		}
 	}
 	thunder_brightness = 0;

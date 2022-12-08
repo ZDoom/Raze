@@ -1697,7 +1697,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		}
 		else actor->spr.shade += (actor->sector()->floorshade - actor->spr.shade) >> 1;
 
-		if (actor->sector()->floorpicnum == RTILE_MIRROR)
+		if (actor->sector()->floortexture() == mirrortex)
 			actor->Destroy();
 	}
 }

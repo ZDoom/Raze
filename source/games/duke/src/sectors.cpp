@@ -1273,7 +1273,7 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 
 void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 {
-	if (wal->overpicnum == TILE_MIRROR && actorflag(spr, SFLAG2_BREAKMIRRORS))
+	if (wal->overtexture() == mirrortex && actorflag(spr, SFLAG2_BREAKMIRRORS))
 	{
 		lotsofglass(spr, wal, 70);
 		wal->cstat &= ~CSTAT_WALL_MASKED;

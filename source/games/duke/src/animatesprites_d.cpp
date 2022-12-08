@@ -352,7 +352,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		}
 
 		h->dispicnum = t->picnum;
-		if (t->sectp->floorpicnum == DTILE_MIRROR)
+		if (t->sectp->floortexture() == mirrortex)
 			t->scale = DVector2(0, 0);
 	}
 }

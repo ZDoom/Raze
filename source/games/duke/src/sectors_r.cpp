@@ -901,7 +901,7 @@ void checksectors_r(int snum)
 		{
 			if (isRRRA())
 			{
-				if (hitscanwall->overpicnum == RTILE_MIRROR && snum == screenpeek)
+				if (hitscanwall->overtexture() == mirrortex && snum == screenpeek)
 					if (numplayers == 1)
 					{
 						if (S_CheckActorSoundPlaying(pact, 27) == 0 && S_CheckActorSoundPlaying(pact, 28) == 0 && S_CheckActorSoundPlaying(pact, 29) == 0
@@ -924,7 +924,7 @@ void checksectors_r(int snum)
 			}
 			else
 			{
-				if (hitscanwall->overpicnum == RTILE_MIRROR)
+				if (hitscanwall->overtexture() == mirrortex)
 					if (hitscanwall->lotag > 0 && S_CheckActorSoundPlaying(pact, hitscanwall->lotag) == 0 && snum == screenpeek)
 					{
 						S_PlayActorSound(hitscanwall->lotag, pact);

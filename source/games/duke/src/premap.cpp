@@ -805,7 +805,7 @@ static void SpawnPortals()
 {
 	for (auto& wal : wall)
 	{
-		if (wal.overpicnum == TILE_MIRROR && (wal.cstat & CSTAT_WALL_1WAY)) wal.portalflags |= PORTAL_WALL_MIRROR;
+		if (wal.overtexture() == mirrortex && (wal.cstat & CSTAT_WALL_1WAY)) wal.portalflags |= PORTAL_WALL_MIRROR;
 	}
 
 	portalClear();
@@ -887,7 +887,7 @@ static void SpawnPortals()
 				}
 			}
 		}
-		else if (sectp->ceilingpicnum == FOF && sectp->portalflags != PORTAL_SECTOR_CEILING)
+		else if (sectp->ceilingtexture() == foftex && sectp->portalflags != PORTAL_SECTOR_CEILING)
 		{
 			for (auto& pt : allPortals)
 			{

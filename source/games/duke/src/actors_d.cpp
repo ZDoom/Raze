@@ -1704,7 +1704,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			actor->spr.shade += (actor->sector()->ceilingshade - actor->spr.shade) >> 1;
 		else actor->spr.shade += (actor->sector()->floorshade - actor->spr.shade) >> 1;
 
-		if (actor->sector()->floorpicnum == DTILE_MIRROR)
+		if (actor->sector()->floortexture() == mirrortex)
 			actor->Destroy();
 	}
 }

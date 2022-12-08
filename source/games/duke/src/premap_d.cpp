@@ -325,16 +325,16 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 	for (auto& wal : wall)
 	{
-		if (wal.overpicnum == DTILE_MIRROR && (wal.cstat & CSTAT_WALL_1WAY) != 0)
+		if (wal.overtexture() == mirrortex && (wal.cstat & CSTAT_WALL_1WAY) != 0)
 		{
 			auto sectp = wal.nextSector();
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if (sectp && sectp->ceilingpicnum != DTILE_MIRROR)
+			if (sectp && sectp->ceilingtexture() != mirrortex)
 			{
-				sectp->ceilingpicnum = DTILE_MIRROR;
-				sectp->floorpicnum = DTILE_MIRROR;
+				sectp->setceilingtexture(mirrortex);
+				sectp->setfloortexture(mirrortex);
 				mirrorwall[mirrorcnt] = &wal;
 				mirrorsector[mirrorcnt] = sectp;
 				mirrorcnt++;
@@ -443,8 +443,8 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		for (auto& wal : mirrorsector[i]->walls)
 		{
-			wal.wallpicnum = DTILE_MIRROR;
-			wal.overpicnum = DTILE_MIRROR;
+			wal.setwalltexture(mirrortex);
+			wal.setovertexture(mirrortex);
 		}
 	}
 }

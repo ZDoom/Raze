@@ -832,7 +832,7 @@ void checksectors_d(int snum)
 
 		if (hitscanwall != nullptr)
 		{
-			if (dist < 80 && hitscanwall->overpicnum == DTILE_MIRROR)
+			if (dist < 80 && hitscanwall->overtexture() == mirrortex)
 				if (hitscanwall->lotag > 0 && S_CheckSoundPlaying(hitscanwall->lotag) == 0 && snum == screenpeek)
 				{
 					S_PlayActorSound(hitscanwall->lotag, pact);
