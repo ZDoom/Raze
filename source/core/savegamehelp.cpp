@@ -662,17 +662,6 @@ void SerializeMap(FSerializer& arc)
 			("allportals", allPortals);
 
 		SerializeInterpolations(arc);
-
-		if (arc.BeginArray("picanm")) // write this in the most compact form available.
-		{
-			for (int i = 0; i < MAXTILES; i++)
-			{
-				arc(nullptr, picanm[i].sf)
-					(nullptr, picanm[i].extra);
-			}
-			arc.EndArray();
-		}
-
 		arc.EndObject();
 	}
 

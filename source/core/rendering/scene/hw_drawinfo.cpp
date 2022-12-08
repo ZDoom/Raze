@@ -283,7 +283,7 @@ void HWDrawInfo::DispatchSprites()
 
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 
-		if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
+		if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && !(tspr->cstat2 & CSTAT2_SPRITE_NOANIMATE))
 			tileUpdatePicnum(&tilenum, false, (actor->GetIndex() & 16383));
 		if (tspr->cstat2 & CSTAT2_SPRITE_FULLBRIGHT)
 			tspr->shade = -127;

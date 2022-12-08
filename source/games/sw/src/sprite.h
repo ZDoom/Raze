@@ -48,7 +48,6 @@ void SpriteSetupPost(void);
 int ActorCoughItem(DSWActor*);
 bool ActorSpawn(DSWActor*);
 int SpawnItemsMatch(short match);
-void PicAnimOff(short picnum);
 int MissileWaterAdjust(DSWActor*);
 bool SpriteOverlapZ(DSWActor*, DSWActor*, double);
 

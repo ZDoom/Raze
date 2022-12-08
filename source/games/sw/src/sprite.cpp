@@ -789,8 +789,7 @@ void ChangeState(DSWActor* actor, STATE* statep)
 
     actor->user.Tics = 0;
     actor->user.State = actor->user.StateStart = statep;
-    // Just in case
-    PicAnimOff(actor->user.State->Pic);
+    actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE; // just in case
 }
 
 //---------------------------------------------------------------------------
@@ -924,7 +923,8 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVe
     if (spawnedActor->user.State)
     {
         spawnedActor->spr.picnum = spawnedActor->user.State->Pic;
-        PicAnimOff(spawnedActor->spr.picnum);
+        spawnedActor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE; // just in case
+
     }
 
     spawnedActor->spr.scale = DVector2(1, 1);
@@ -932,24 +932,6 @@ DSWActor* SpawnActor(int stat, int id, STATE* state, sectortype* sect, const DVe
     spawnedActor->vel.X = vel;
 
     return spawnedActor;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void PicAnimOff(short picnum)
-{
-    short anim_type = (picanm[picnum].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT;
-
-    ASSERT(picnum >= 0 && picnum < MAXTILES);
-
-    if (!anim_type)
-        return;
-
-    picanm[picnum].sf &= ~(PICANM_ANIMTYPE_MASK);
 }
 
 //---------------------------------------------------------------------------
@@ -1094,8 +1076,7 @@ bool ActorSpawn(DSWActor* actor)
             KillActor(actor);
             return false;
         }
-
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupCoolie(actor);
 
         break;
@@ -1110,7 +1091,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupNinja(actor);
 
         break;
@@ -1124,7 +1105,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupGoro(actor);
         break;
     }
@@ -1138,7 +1119,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupCoolg(actor);
         break;
     }
@@ -1151,7 +1132,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupEel(actor);
         break;
     }
@@ -1164,7 +1145,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupSumo(actor);
 
         break;
@@ -1178,7 +1159,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupZilla(actor);
 
         break;
@@ -1192,7 +1173,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupToiletGirl(actor);
 
         break;
@@ -1206,7 +1187,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupWashGirl(actor);
 
         break;
@@ -1220,7 +1201,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupCarGirl(actor);
 
         break;
@@ -1234,7 +1215,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupMechanicGirl(actor);
 
         break;
@@ -1248,7 +1229,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupSailorGirl(actor);
 
         break;
@@ -1262,7 +1243,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupPruneGirl(actor);
 
         break;
@@ -1270,7 +1251,7 @@ bool ActorSpawn(DSWActor* actor)
 
     case TRASHCAN:
     {
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupTrashCan(actor);
         break;
     }
@@ -1283,7 +1264,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupBunny(actor);
         break;
     }
@@ -1296,7 +1277,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupRipper(actor);
         break;
     }
@@ -1309,7 +1290,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupRipper2(actor);
         break;
     }
@@ -1322,7 +1303,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupSerp(actor);
         break;
     }
@@ -1336,7 +1317,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupLava(actor);
         break;
     }
@@ -1349,7 +1330,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupSkel(actor);
         break;
     }
@@ -1362,7 +1343,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupHornet(actor);
         break;
     }
@@ -1375,7 +1356,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupSkull(actor);
         break;
     }
@@ -1388,42 +1369,42 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupBetty(actor);
         break;
     }
 
     case 623:   // Pachinko win light
     {
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupPachinkoLight(actor);
         break;
     }
 
     case PACHINKO1:
     {
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupPachinko1(actor);
         break;
     }
 
     case PACHINKO2:
     {
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupPachinko2(actor);
         break;
     }
 
     case PACHINKO3:
     {
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupPachinko3(actor);
         break;
     }
 
     case PACHINKO4:
     {
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupPachinko4(actor);
         break;
     }
@@ -1436,7 +1417,7 @@ bool ActorSpawn(DSWActor* actor)
             return false;
         }
 
-        PicAnimOff(picnum);
+        actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
         SetupGirlNinja(actor);
 
         break;
@@ -1619,7 +1600,7 @@ void SpriteSetup(void)
     MinEnemySkill = EnemyCheckSkill();
 
     // special case for player
-    PicAnimOff(PLAYER_NINJA_RUN_R0);
+    //PicAnimOff(PLAYER_NINJA_RUN_R0);
 
     // Clear Sprite Extension structure
 
@@ -2894,10 +2875,9 @@ KeyMain:
 
                 ChangeState(actor, s_Key[num]);
 
-                picanm[actor->spr.picnum].sf &= ~(PICANM_ANIMTYPE_MASK);
-                picanm[actor->spr.picnum + 1].sf &= ~(PICANM_ANIMTYPE_MASK);
                 change_actor_stat(actor, STAT_ITEM);
                 actor->spr.cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDE);
+                actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
                 actor->user.Radius = 500;
                 actor->spr.hitag = LUMINOUS; //Set so keys over ride colored lighting
 
@@ -3215,7 +3195,7 @@ NUKE_REPLACEMENT:
             SpawnUser(actor, ICON_SPELL, s_IconSpell);
             IconDefault(actor);
 
-            PicAnimOff(actor->spr.picnum);
+            actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
             break;
 
         case ICON_ARMOR:
@@ -3351,7 +3331,7 @@ NUKE_REPLACEMENT:
 
             SpawnUser(actor, ICON_ENVIRON_SUIT, s_IconEnvironSuit);
             IconDefault(actor);
-            PicAnimOff(actor->spr.picnum);
+            actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
             break;
 #endif
 
@@ -3365,7 +3345,7 @@ NUKE_REPLACEMENT:
 
             SpawnUser(actor, ICON_CLOAK, s_IconCloak);
             IconDefault(actor);
-            PicAnimOff(actor->spr.picnum);
+            actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
             break;
 
         case ICON_FLY:
@@ -3378,7 +3358,7 @@ NUKE_REPLACEMENT:
 
             SpawnUser(actor, ICON_FLY, s_IconFly);
             IconDefault(actor);
-            PicAnimOff(actor->spr.picnum);
+            actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
             break;
 
         case ICON_NIGHT_VISION:
@@ -3391,7 +3371,7 @@ NUKE_REPLACEMENT:
 
             SpawnUser(actor, ICON_NIGHT_VISION, s_IconNightVision);
             IconDefault(actor);
-            PicAnimOff(actor->spr.picnum);
+            actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
             break;
 
         case ICON_FLAG:
@@ -3407,7 +3387,7 @@ NUKE_REPLACEMENT:
             actor->sector()->hitag = 9000;       // Put flag's color in sect containing it
             actor->sector()->lotag = actor->user.spal;
             IconDefault(actor);
-            PicAnimOff(actor->spr.picnum);
+            actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
             break;
 
 #if 0
@@ -4298,9 +4278,7 @@ int SpawnItemsMatch(short match)
 
 
             ChangeState(spawnedActor, s_Key[num]);
-
-            picanm[spawnedActor->spr.picnum].sf &= ~(PICANM_ANIMTYPE_MASK);
-            picanm[spawnedActor->spr.picnum + 1].sf &= ~(PICANM_ANIMTYPE_MASK);
+            spawnedActor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
 
             SetupItemForJump(itActor, spawnedActor);
 
@@ -4339,7 +4317,7 @@ int NewStateGroup(DSWActor* actor, STATE* StateGroup[])
 
     // turn anims off because people keep setting them in the
     // art file
-    picanm[actor->spr.picnum].sf &= ~(PICANM_ANIMTYPE_MASK);
+    actor->spr.cstat2 |= CSTAT2_SPRITE_NOANIMATE;
     return 0;
 }
 
