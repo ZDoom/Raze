@@ -538,7 +538,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 							auto nsec = wl.nextSector();
 							if (!(nsec->ceilingstat & CSTAT_SECTOR_SKY))
 							{
-								sectp->ceilingpicnum = nsec->ceilingpicnum;
+								sectp->setceilingtexture(nsec->ceilingtexture());
 								sectp->ceilingshade = nsec->ceilingshade;
 								break; //Leave early
 							}

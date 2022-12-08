@@ -379,7 +379,7 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 	else
 	{
 		if (sec->ceilingheinum == compare->ceilingheinum &&
-			sec->ceilingpicnum == compare->ceilingpicnum &&
+			sec->ceilingtexture() == compare->ceilingtexture &&
 			((sec->ceilingstat ^ compare->ceilingstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->ceilingxpan_ == compare->ceilingxpan_ &&
 			sec->ceilingypan_ == compare->ceilingypan_ &&

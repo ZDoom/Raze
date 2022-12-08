@@ -1807,7 +1807,7 @@ void handle_se13(DDukeActor* actor)
 
 				if (ps[0].one_parallax_sectnum != nullptr)
 				{
-					sc->ceilingpicnum = ps[0].one_parallax_sectnum->ceilingpicnum;
+					sc->setceilingtexture(ps[0].one_parallax_sectnum->ceilingtexture());
 					sc->ceilingshade = ps[0].one_parallax_sectnum->ceilingshade;
 				}
 			}

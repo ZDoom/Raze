@@ -49,6 +49,7 @@
 #include "interpolate.h"
 #include "tiletexture.h"
 #include "games/blood/src/mapstructs.h"
+#include "buildtiles.h"
 
 extern BitArray clipsectormap;
 
@@ -104,7 +105,7 @@ static void ReadSectorV7(FileReader& fr, sectortype& sect)
 	sect.setzfrommap(c, f);
 	sect.ceilingstat = ESectorFlags::FromInt(fr.ReadUInt16());
 	sect.floorstat = ESectorFlags::FromInt(fr.ReadUInt16());
-	sect.ceilingpicnum = fr.ReadUInt16();
+	sect.setceilingtexture(tileGetTextureID(fr.ReadUInt16()));
 	sect.ceilingheinum = fr.ReadInt16();
 	sect.ceilingshade = fr.ReadInt8();
 	sect.ceilingpal = fr.ReadUInt8();
@@ -128,7 +129,7 @@ static void ReadSectorV6(FileReader& fr, sectortype& sect)
 	int wallptr = fr.ReadInt16();
 	int wallnum = fr.ReadInt16();
 	sect.walls.Set(&wall[wallptr], wallnum);
-	sect.ceilingpicnum = fr.ReadUInt16();
+	sect.setceilingtexture(tileGetTextureID(fr.ReadUInt16()));
 	sect.floorpicnum = fr.ReadUInt16();
 	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	sect.floorheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
@@ -157,7 +158,7 @@ static void ReadSectorV5(FileReader& fr, sectortype& sect)
 	int wallptr = fr.ReadInt16();
 	int wallnum = fr.ReadInt16();
 	sect.walls.Set(&wall[wallptr], wallnum);
-	sect.ceilingpicnum = fr.ReadUInt16();
+	sect.setceilingtexture(tileGetTextureID(fr.ReadUInt16()));
 	sect.floorpicnum = fr.ReadUInt16();
 	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	sect.floorheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);

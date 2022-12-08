@@ -1879,7 +1879,7 @@ void destroyit(DDukeActor *actor)
 				destsect->setceilingz(srcsect->ceilingz);
 				destsect->ceilingstat = srcsect->ceilingstat;
 				destsect->floorstat = srcsect->floorstat;
-				destsect->ceilingpicnum = srcsect->ceilingpicnum;
+				destsect->setceilingtexture(srcsect->ceilingtexture());
 				destsect->ceilingheinum = srcsect->ceilingheinum;
 				destsect->ceilingshade = srcsect->ceilingshade;
 				destsect->ceilingpal = srcsect->ceilingpal;

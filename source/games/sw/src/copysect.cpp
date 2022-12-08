@@ -228,7 +228,7 @@ void CopySectorMatch(int match)
                 dsectp->ceilingshade = ssectp->ceilingshade;
 
                 dsectp->floorpicnum = ssectp->floorpicnum;
-                dsectp->ceilingpicnum = ssectp->ceilingpicnum;
+                dsectp->setceilingtexture(ssectp->ceilingtexture());
 
                 dsectp->floorheinum = ssectp->floorheinum;
                 dsectp->ceilingheinum = ssectp->ceilingheinum;
