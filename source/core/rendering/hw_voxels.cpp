@@ -32,7 +32,6 @@
 #include "tiletexture.h"
 #include "gamecontrol.h"
 
-int16_t tiletovox[MAXTILES];
 static int voxlumps[MAXVOXELS];
 float voxscale[MAXVOXELS];
 voxmodel_t* voxmodels[MAXVOXELS];
@@ -41,7 +40,6 @@ FixedBitArray<MAXVOXELS> voxrotate;
 
 void voxInit()
 {
-	for (auto& v : tiletovox) v = -1;
 	for (auto& v : voxscale) v = 1.f;
 	voxrotate.Zero();
 }

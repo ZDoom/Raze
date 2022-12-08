@@ -39,7 +39,6 @@ int nTileFiles = 0;
 // these arrays get partially filled by .def, so they need to remain global.
 static uint8_t surfType[kMaxTiles];
 static int8_t tileShade[kMaxTiles];
-short voxelIndex[kMaxTiles];
 
 #define x(a, b) registerName(#a, b);
 static void SetTileNames(TilesetBuildInfo& info)
@@ -76,21 +75,24 @@ void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
     hFile = fileSystem.OpenFileReader("VOXEL.DAT");
     if (hFile.isOpen())
     {
-        hFile.Read(voxelIndex, sizeof(voxelIndex));
-#if WORDS_BIGENDIAN
-        for (int i = 0; i < kMaxTiles; i++)
-            voxelIndex[i] = LittleShort(voxelIndex[i]);
-#endif
+        int count = (int)hFile.GetLength() / 2;
+
+        for (int i = 0; i < count; i++)
+        {
+            int voxindex = hFile.ReadInt16();
+
+            // only insert into the table if they are flagged to be processed in viewProcessSprites, i.e. the type value is 6 or 7,
+            if (voxindex > -1 && (info.tile[i].extinfo.picanm.extra & 7) >= 6)
+            {
+                info.tile[i].extinfo.tiletovox = voxindex;
+            }
+            if (nextvoxid <= voxindex) nextvoxid = voxindex + 1;
+        }
     }
     hFile = fileSystem.OpenFileReader("SHADE.DAT");
     if (hFile.isOpen())
     {
 		hFile.Read(tileShade, sizeof(tileShade));
-    }
-    for (int i = 0; i < kMaxTiles; i++)
-    {
-        if (voxelIndex[i] >= 0 && voxelIndex[i] < MAXVOXELS)
-            voxreserve.Set(voxelIndex[i]);
     }
 }
 
@@ -110,7 +112,7 @@ void tileInitProps()
         auto tex = tileGetTexture(i);
         if (tex)
         {
-            TextureAttr a = { surfType[i], tileShade[i], voxelIndex[i] };
+            TextureAttr a = { surfType[i], tileShade[i] };
             tprops.Set(tex->GetID().GetIndex(), a);
         }
     }
@@ -142,10 +144,9 @@ int tileGetSurfType(CollisionBase& hit)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::SetTileProps(int tile, int surf, int vox, int shade)
+void GameInterface::SetTileProps(int tile, int surf, int shade)
 {
     if (surf != INT_MAX) surfType[tile] = surf;
-    if (vox != INT_MAX) voxelIndex[tile] = vox;
     if (shade != INT_MAX) tileShade[tile] = shade;
 
     mirrortile = tileGetTextureID(504);

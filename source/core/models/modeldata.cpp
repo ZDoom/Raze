@@ -230,16 +230,3 @@ void updateModelInterpolation()
 }
 #endif
 
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
-int tilehasmodelorvoxel(int const tilenume, int pal)
-{
-    return
-        (hw_models && modelManager.CheckModel(tilenume, pal)) ||
-        (r_voxels && tiletovox[tilenume] != -1);
-}
-

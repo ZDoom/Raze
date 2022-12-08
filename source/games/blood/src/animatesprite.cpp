@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "hw_voxels.h"
 #include "gamefuncs.h"
 #include "texturemanager.h"
+#include "texinfo.h"
 #include "models/modeldata.h"
 
 BEGIN_BLD_NS
@@ -475,20 +476,22 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->picnum = nTile;
 		pNSprite->shade = pTSprite->shade;
 		pNSprite->scale = DVector2(0.5, 0.5);
-		auto& nVoxel = voxelIndex[nTile];
+		int nVoxel = GetExtInfo(tileGetTextureID(nTile)).tiletovox;
 		if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
 		{
 			auto gView = &gPlayer[gViewIndex];
 			pNSprite->Angles.Yaw = gView->actor->spr.Angles.Yaw += DAngle90; // always face viewer
-			pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 			pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
-			pNSprite->picnum = nVoxel;
 			if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
 			{
 				pNSprite->pos.XY() += gView->actor->spr.Angles.Yaw.ToVector() * 8;
 			}
 			if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
 				pNSprite->Angles.Yaw += DAngle90;
+		}
+		else
+		{
+			pNSprite->cstat2 |= CSTAT2_SPRITE_NOMODEL;
 		}
 		break;
 	}
@@ -582,7 +585,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			break;
 		case 1:
 		{
-			if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
+			if (tilehasmodelorvoxel(pTSprite->spritetexture(), pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 			{
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
@@ -601,7 +604,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		case 2:
 		{
-			if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
+			if (tilehasmodelorvoxel(pTSprite->spritetexture(), pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 			{
 				pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
@@ -632,15 +635,13 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 				break;
 
 			// Can be overridden by def script
-			if (r_voxels && tiletovox[pTSprite->picnum] == -1 && tprops[pTSprite->spritetexture()].voxelIndex != -1 && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
+			if (tilehasvoxel(pTSprite->spritetexture()) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 			{
 				if ((pTSprite->flags & kHitagRespawn) == 0)
 				{
-					pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
 					pTSprite->cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 					auto tex = TexMan.GetGameTexture(pTSprite->spritetexture());
 					pTSprite->yoffset += (uint8_t)tex->GetDisplayTopOffset();
-					pTSprite->picnum = tprops[pTSprite->spritetexture()].voxelIndex;
 					if ((picanm[nTile].extra & 7) == 7)
 					{
 						pTSprite->Angles.Yaw = myclock.Normalized360();

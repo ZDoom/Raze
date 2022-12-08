@@ -302,7 +302,7 @@ inline int angletorotation2(DAngle sprang, DAngle viewang)
 // 4 (8) frame rotation.
 inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang)
 {
-	if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal))
+	if (tilehasmodelorvoxel(h->spr.spritetexture(), h->spr.pal))
 	{
 		t->cstat &= ~CSTAT_SPRITE_XFLIP;
 		return;
@@ -321,7 +321,7 @@ inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang)
 // 6 (12) frame rotation.
 inline void applyRotation2(DDukeActor* h, tspritetype* t, DAngle viewang)
 {
-	if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal))
+	if (tilehasmodelorvoxel(h->spr.spritetexture(), h->spr.pal))
 	{
 		t->cstat &= ~CSTAT_SPRITE_XFLIP;
 		return;

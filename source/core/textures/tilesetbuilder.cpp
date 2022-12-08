@@ -237,7 +237,11 @@ void ConstructTileset()
 	}
 	images.Reset();
 	rawpicanm.Reset();
-	for (auto& a : info.tile) a.alphathreshold = 0.5f;
+	for (auto& a : info.tile)
+	{
+		a.alphathreshold = 0.5f;
+		a.extinfo.tiletovox = -1;
+	}
 	gi->LoadTextureInfo(info); // initialize game data that must be done before loading .DEF
 	LoadDefinitions(info);
 	gi->SetupSpecialTextures(info);	// initialize game data that needs .DEF being processed.
@@ -301,7 +305,7 @@ void ConstructTileset()
 	// Textures being added afterward will always see the default extinfo, even if they are not covered by this array.
 	texExtInfo.Resize(TexMan.NumTextures());
 	memset(texExtInfo.Data(), 0, sizeof(texExtInfo[0]) * texExtInfo.Size());
-	for (auto& x : texExtInfo) x.voxindex = -1;
+	for (auto& x : texExtInfo) x.tiletovox = -1;
 	// now copy all extinfo stuff that got parsed by .DEF or some game specific setup.
 	for (int i = 0; i <= maxarttile; i++)
 	{

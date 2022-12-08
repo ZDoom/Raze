@@ -284,9 +284,11 @@ void HWDrawInfo::DispatchSprites()
 		if (actor == nullptr || tspr->scale.X == 0 || tspr->scale.Y == 0)
 			continue;
 
+		if (!texid.isValid()) return;
+
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 
-		if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && !(tspr->cstat2 & CSTAT2_SPRITE_NOANIMATE))
+		if (!(tspr->cstat2 & CSTAT2_SPRITE_NOANIMATE))
 		{
 			tileUpdatePicnum(texid, (actor->GetIndex() & 16383));
 		}
@@ -295,7 +297,7 @@ void HWDrawInfo::DispatchSprites()
 		tspr->picnum = legacyTileNum(texid);
 		int tilenum = tspr->picnum;
 
-		if (!(actor->sprext.renderflags & SPREXT_NOTMD))
+		if (!(actor->sprext.renderflags & SPREXT_NOTMD) && !(tspr->cstat2 & CSTAT2_SPRITE_NOMODEL))
 		{
 			auto pt = modelManager.GetModel(tspr->picnum, tspr->pal);
 			if (hw_models && pt && pt->modelid >= 0 && pt->framenum >= 0)
@@ -305,23 +307,15 @@ void HWDrawInfo::DispatchSprites()
 			}
 			if (r_voxels)
 			{
-				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tilenum] >= 0 && voxmodels[tiletovox[tilenum]])
+				auto vox = GetExtInfo(texid).tiletovox;
+				if (vox >= 0 && voxmodels[vox])
 				{
 					HWSprite hwsprite;
-					int num = tiletovox[tilenum];
-					if (hwsprite.ProcessVoxel(this, voxmodels[num], tspr, tspr->sectp, voxrotate[num])) 
+					if (hwsprite.ProcessVoxel(this, voxmodels[vox], tspr, tspr->sectp, voxrotate[vox])) 
 						continue;
-				}
-				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tilenum])
-				{
-					HWSprite hwsprite;
-					int num = tilenum;
-					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, tspr->sectp, voxrotate[num]);
-					continue;
 				}
 			}
 		}
-		if (!texid.isValid()) return;	// due to CSTAT_SPRITE_ALIGNMENT_SLAB this can only be checked here
 
 		if (actor->sprext.renderflags & SPREXT_AWAY1)
 		{

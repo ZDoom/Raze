@@ -225,11 +225,12 @@ void processTileImport(FScanner& sc, const char* cmd, FScriptPosition& pos, Tile
 
 	imp.alphacut = clamp(imp.alphacut, 0, 255);
 
-	gi->SetTileProps(imp.tile, imp.surface, imp.vox, imp.shade);
-
 	if (imp.fn.IsNotEmpty() && tileImportFromTexture(sc, imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
 
 	tbuild->tile[imp.tile].extinfo.picanm.sf |= imp.flags;
+
+	gi->SetTileProps(imp.tile, imp.surface, imp.shade);
+
 	// This is not quite the same as originally, for two reasons:
 	// 1: Since these are texture properties now, there's no need to clear them.
 	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
@@ -889,7 +890,7 @@ void parseDefineVoxelTiles(FScanner& sc, FScriptPosition& pos)
 		pos.Message(MSG_WARNING, "Warning: Ignoring voxel tiles definition without valid voxel.\n");
 		return;
 	}
-	for (int i = tilestart; i <= tileend; i++) tiletovox[i] = lastvoxid;
+	for (int i = tilestart; i <= tileend; i++) tbuild->tile[i].extinfo.tiletovox = lastvoxid;
 }
 
 //===========================================================================
@@ -931,7 +932,7 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 			sc.GetNumber(true);
 			if (ValidateTilenum("voxel", sc.Number, pos))
 			{
-				if (!error) tiletovox[sc.Number] = lastvoxid;
+				if (!error) tbuild->tile[sc.Number].extinfo.tiletovox = lastvoxid;
 			}
 		}
 		if (sc.Compare("tile0")) sc.GetNumber(tile0, true);
@@ -940,7 +941,7 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 			sc.GetNumber(tile1, true);
 			if (ValidateTileRange("voxel", tile0, tile1, pos) && !error)
 			{
-				for (int i = tile0; i <= tile1; i++) tiletovox[i] = lastvoxid;
+				for (int i = tile0; i <= tile1; i++) tbuild->tile[i].extinfo.tiletovox = lastvoxid;
 			}
 		}
 		if (sc.Compare("scale"))

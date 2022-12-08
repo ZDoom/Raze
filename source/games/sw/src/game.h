@@ -1584,7 +1584,7 @@ double GetZadjustment(sectortype* sect,short hitag);  // rooms.c
 
 void InitSetup(void);   // setup.c
 
-void LoadKVXFromScript(const char *filename); // scrip2.c
+void LoadKVXFromScript(TilesetBuildInfo& info, const char *filename); // scrip2.c
 void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 
 int PlayerInitChemBomb(PLAYER* pp); // jweapon.c
@@ -1689,7 +1689,6 @@ struct GameInterface : public ::GameInterface
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(DCoreActor* viewer, int type) override;
     void LeavePortal(DCoreActor* viewer, int type) override;
-    int Voxelize(int sprnum);
     void ExitFromMenu() override;
     int GetCurrentSkill() override;
     void StartSoundEngine() override;

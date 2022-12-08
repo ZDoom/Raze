@@ -93,8 +93,6 @@ enum SurfaceType {
 	kSurfMax
 };
 
-extern short voxelIndex[MAXTILES];
-
 extern int nPrecacheCount;
 inline FTextureID mirrortile;
 
@@ -106,7 +104,6 @@ struct TextureAttr
 {
     uint8_t surfType = kSurfNone;
     int8_t tileShade = 0;
-    int16_t voxelIndex = -1;
 };
 
 class FTextureAttrArray

@@ -49,10 +49,6 @@
 
 #include "buildtiles.h"
 
-BEGIN_BLD_NS
-extern short voxelIndex[MAXTILES];
-END_BLD_NS
-
 static void PrecacheTex(FGameTexture* tex, int palid)
 {
 	if (!tex || !tex->isValid()) return;
@@ -71,17 +67,13 @@ static void doprecache(int picnum, int palette)
     auto tex = tileGetTexture(picnum);
     PrecacheTex(tex, palid);
 
-    if (!hw_models) return;
-
-    int const mid = modelManager.CheckModel(picnum, palette);
+	int const mid = -1;// hw_models ? modelManager.CheckModel(picnum, palette) : -1;
 
 	if (mid < 0)
 	{
 		if (r_voxels)
 		{
-			int vox = tiletovox[picnum];
-			if (vox == -1) vox = gi->Voxelize(picnum);
-			if (vox == -1 && isBlood()) vox = Blood::voxelIndex[picnum];
+			int vox = GetExtInfo(tileGetTextureID(picnum)).tiletovox;
 			if (vox >= 0 && vox < MAXVOXELS && voxmodels[vox] && voxmodels[vox]->model)
 			{
 				FHWModelRenderer mr(*screen->RenderState(), 0);

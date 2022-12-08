@@ -512,7 +512,7 @@ void FMapInfoParser::ParseTextureFlags()
 			}
 			else
 			{
-				texExtInfo[tex.GetIndex()].flags |= num;
+				AccessExtInfo(tex).flags |= num;
 			}
 
 		} while (sc.CheckString(","));

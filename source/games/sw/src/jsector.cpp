@@ -69,8 +69,6 @@ bool bAutoSize = true;                  // Autosizing on/off
 extern AMB_INFO ambarray[];
 extern short NormalVisibility;
 
-extern TILE_INFO_TYPE aVoxelArray[MAXTILES];
-
 // F U N C T I O N S //////////////////////////////////////////////////////////////////////////////
 
 
@@ -781,39 +779,9 @@ void JAnalyzeSprites(tspritetype* tspr)
     // Take care of autosizing
     DoAutoSize(tspr);
 
-    if (hw_models && modelManager.CheckModel(tspr->picnum, 0)) return;
-
-    // Check for voxels
-    //if (bVoxelsOn)
-    if (r_voxels)
+    if (tspr->picnum == 764 && !tilehasmodelorvoxel(tspr->spritetexture(), 0))
     {
-        if (aVoxelArray[tspr->picnum].Voxel >= 0 && !(tspr->ownerActor->sprext.renderflags & SPREXT_NOTMD))
-        {
-            // Turn on voxels
-            tspr->picnum = aVoxelArray[tspr->picnum].Voxel;     // Get the voxel number
-            tspr->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;          // Set stat to voxelize sprite
-        }
-    }
-    else
-    {
-        switch (tspr->picnum)
-        {
-        case 764: // Gun barrel
-
-            if (!r_voxels || (tspr->ownerActor->sprext.renderflags & SPREXT_NOTMD))
-            {
-                tspr->cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
-                break;
-            }
-
-            if (aVoxelArray[tspr->picnum].Voxel >= 0)
-            {
-                // Turn on voxels
-                tspr->picnum = aVoxelArray[tspr->picnum].Voxel;     // Get the voxel number
-                tspr->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;          // Set stat to voxelize sprite
-            }
-            break;
-        }
+        tspr->cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
     }
 }
 

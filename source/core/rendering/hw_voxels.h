@@ -18,7 +18,6 @@ struct voxmodel_t // : public mdmodel_t
 
 
 
-extern int16_t tiletovox[];
 extern float voxscale[];
 extern voxmodel_t* voxmodels[MAXVOXELS];
 extern FixedBitArray<MAXVOXELS> voxrotate;

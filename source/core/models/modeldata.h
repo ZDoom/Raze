@@ -81,5 +81,4 @@ struct ModelManager
 };
 
 
-int tilehasmodelorvoxel(int const tilenume, int pal);
 inline ModelManager modelManager;

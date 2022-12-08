@@ -70,8 +70,6 @@ extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;
 extern int f_c;
 
-extern TILE_INFO_TYPE aVoxelArray[MAXTILES];
-
 void PreDrawStackedWater(void);
 
 //---------------------------------------------------------------------------
@@ -354,7 +352,7 @@ void DoShadows(tspriteArray& tsprites, tspritetype* tsp, double viewz)
 	scale.Y = clamp(scale.Y + scaleofs, 0.0625, 4.);
 	tSpr->scale = scale;
 
-    if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
+    if (tilehasmodelorvoxel(tsp->spritetexture(), tsp->pal))
     {
         tSpr->scale.Y = (0);
         // cstat:    trans reverse

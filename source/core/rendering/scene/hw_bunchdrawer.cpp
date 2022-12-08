@@ -45,6 +45,7 @@
 #include "gamecontrol.h"
 #include "hw_sections.h"
 #include "coreactor.h"
+#include "texinfo.h"
 
 //#define DEBUG_CLIPPER
 //==========================================================================
@@ -684,8 +685,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 			//if ((actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[actor->spr.picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
 			{
 				if ((actor->spr.cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
-					(r_voxels && tiletovox[actor->spr.picnum] >= 0 && voxmodels[tiletovox[actor->spr.picnum]]) ||
-					(r_voxels && gi->Voxelize(actor->spr.picnum) > -1) ||
+					tilehasvoxel(actor->spr.spritetexture()) ||
 					(actor->spr.Angles.Yaw.Cos() * viewvec.X) + (actor->spr.Angles.Yaw.Sin() * viewvec.Y) < 0)
 					if (!renderAddTsprite(di->tsprites, actor))
 						break;

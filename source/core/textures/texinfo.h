@@ -60,8 +60,8 @@ struct TexExtInfo
 	// TexAnim *texanim // todo: extended texture animation like ZDoom's ANIMDEFS.
 	uint8_t terrain;	// Contents depend on the game, e.g. this holds Blood's surfType.
 	uint8_t shadeinfo;	// Blood's shade.dat
-	uint16_t voxindex;
-	picanm_t picanm;
+	int16_t tiletovox;	// engine-side voxel index
+	picanm_t picanm;	// tile-based animation data.
 	uint32_t flags;		// contents are game dependent.
 	TileOffs hiofs;
 };
@@ -89,13 +89,35 @@ bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wanti
 
 void tileUpdatePicnum(FTextureID& tileptr, int randomize = -1);
 void tileUpdateAnimations();
-
+int tilehasmodelorvoxel(FTextureID tilenume, int pal);
 
 inline const TexExtInfo& GetExtInfo(FTextureID tex) // this is only for reading, not for modifying!
 {
 	unsigned index = tex.GetIndex();
 	if (index >= texExtInfo.Size()) index = 0;	// index 0 (the null texture) serves as backup if textures get added at runtime.
 	return texExtInfo[index];
+}
+
+inline TexExtInfo& AccessExtInfo(FTextureID tex) // this is for modifying and should only be called by init code!
+{
+	unsigned index = tex.GetIndex();
+	if (index >= texExtInfo.Size())
+	{
+		unsigned now = texExtInfo.Size();
+		texExtInfo.Resize(index + 1);
+		for (; now <= index; now++) texExtInfo[now] = texExtInfo[0];
+	}
+	return texExtInfo[index];
+}
+
+inline int tilehasvoxel(FTextureID texid)
+{
+	if (r_voxels)
+	{
+		auto x = GetExtInfo(texid);
+		if (x.tiletovox != -1) return true;
+	}
+	return false;
 }
 
 inline FTextureID tileGetTextureID(int tilenum)

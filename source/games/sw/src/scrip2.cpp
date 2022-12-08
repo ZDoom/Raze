@@ -44,9 +44,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-TILE_INFO_TYPE aVoxelArray[MAXTILES];
-
-
 /*
 =============================================================================
 
@@ -190,13 +187,10 @@ return;
 //              1804 1 shotgun.kvx
 //              etc....
 
-void LoadKVXFromScript(const char* filename)
+void LoadKVXFromScript(TilesetBuildInfo& info, const char* filename)
 {
     int lNumber = 0, lTile = 0; // lNumber is the voxel no. and lTile is the editart tile being
     // replaced.
-
-    // zero out the array memory with -1's for pics not being voxelized
-    memset(&aVoxelArray[0], -1, sizeof(struct TILE_INFO_TYPE) * MAXTILES);
 
     // Load the file
     auto buffer = LoadScriptFile(filename);
@@ -224,8 +218,7 @@ void LoadKVXFromScript(const char* filename)
         // Load the voxel file into memory
         if (!voxDefine(lNumber,token))
         {
-            // Store the sprite and voxel numbers for later use
-            aVoxelArray[lTile].Voxel = lNumber; // Voxel num
+            info.tile[lTile].extinfo.tiletovox = lNumber;
         }
 
         if (lNumber >= nextvoxid)   // JBF: so voxels in the def file append to the list

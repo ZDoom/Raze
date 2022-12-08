@@ -97,4 +97,26 @@ void tileUpdateAnimations()
 	}
 }
 
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+int tilehasmodelorvoxel(FTextureID texid, int pal)
+{
+	if (r_voxels)
+	{
+		auto x = GetExtInfo(texid);
+		if (x.tiletovox != -1) return true;
+	}
+	/*
+	if (hw_models)
+	{
+		return modelManager.CheckModel(tilenume, pal);	// we have no models yet.
+	}
+	*/
+	return false;
+}
+
 

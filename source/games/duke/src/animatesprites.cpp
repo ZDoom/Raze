@@ -83,7 +83,7 @@ void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang)
 {
-	if (gs.actorinfo[h->spr.picnum].scriptaddress && !actorflag(h, SFLAG2_DONTANIMATE) && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
+	if (gs.actorinfo[h->spr.picnum].scriptaddress && !actorflag(h, SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 	{
 		DAngle kang;
 		int t4 = h->temp_data[4];
@@ -92,7 +92,7 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 		{
 			l = ScriptCode[t4 + 2];
 
-			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal))
+			if (tilehasmodelorvoxel(h->spr.spritetexture(), h->spr.pal))
 			{
 				k = 0;
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;

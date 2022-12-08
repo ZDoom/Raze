@@ -222,7 +222,7 @@ static void SetTileNames(TilesetBuildInfo& info)
 
 void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
 {
-    LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
+    LoadKVXFromScript(info, "swvoxfil.txt");    // Load voxels from script file
 }
 
 enum
@@ -851,11 +851,6 @@ void GameInterface::FreeLevelData()
 {
     TerminateLevel();
     ::GameInterface::FreeLevelData();
-}
-
-int GameInterface::Voxelize(int sprnum) 
-{ 
-    return (aVoxelArray[sprnum].Voxel);
 }
 
 END_SW_NS

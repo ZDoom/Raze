@@ -186,6 +186,7 @@ enum ESpriteBits2
 	CSTAT2_SPRITE_DECAL = 8,		// always attached to a wall.
 	CSTAT2_SPRITE_FULLBRIGHT = 16,	// always draw fullbright with shade -127
 	CSTAT2_SPRITE_NOANIMATE = 32,	// disable texture animation
+	CSTAT2_SPRITE_NOMODEL = 64,		// disable models and voxels for this tsprite
 };
 
 // tsprite flags use the otherwise unused clipdist field.
