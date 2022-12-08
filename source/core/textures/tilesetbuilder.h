@@ -22,6 +22,7 @@ struct TilesetBuildInfo
 	TArray<TileBuildDesc> tile;
 	unsigned maxtileofart;
 	TArray <std::pair<FName, int>> aliases;
+	int32_t nextvoxid;
 	void addName(const char* name, int index)
 	{
 		aliases.Push(std::make_pair(name, index));

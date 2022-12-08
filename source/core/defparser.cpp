@@ -855,21 +855,20 @@ static int lastvoxid = -1;
 void parseDefineVoxel(FScanner& sc, FScriptPosition& pos)
 {
 	sc.MustGetString();
-	while (nextvoxid < MAXVOXELS && voxreserve[nextvoxid]) nextvoxid++;
 
-	if (nextvoxid == MAXVOXELS)
+	if (tbuild->nextvoxid == MAXVOXELS)
 	{
 		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
 		return;
 	}
 
-	if (voxDefine(nextvoxid, sc.String))
+	if (voxDefine(tbuild->nextvoxid, sc.String))
 	{
 		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"", sc.String);
 		return;
 	}
 
-	lastvoxid = nextvoxid++;
+	lastvoxid = tbuild->nextvoxid++;
 }
 
 //===========================================================================
@@ -908,20 +907,18 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 
 	if (!sc.GetString(fn)) return;
 
-	while (nextvoxid < MAXVOXELS && voxreserve[nextvoxid]) nextvoxid++;
-
-	if (nextvoxid == MAXVOXELS)
+	if (tbuild->nextvoxid == MAXVOXELS)
 	{
 		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
 		error = true;
 	}
-	else  if (voxDefine(nextvoxid, fn))
+	else  if (voxDefine(tbuild->nextvoxid, fn))
 	{
 		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"", fn.GetChars());
 		error = true;
 	}
 
-	int lastvoxid = nextvoxid++;
+	int lastvoxid = tbuild->nextvoxid++;
 
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))

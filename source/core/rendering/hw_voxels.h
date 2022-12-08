@@ -22,9 +22,6 @@ extern float voxscale[];
 extern voxmodel_t* voxmodels[MAXVOXELS];
 extern FixedBitArray<MAXVOXELS> voxrotate;
 
-inline int32_t nextvoxid;
-inline FixedBitArray<MAXVOXELS>voxreserve;
-
 void voxInit();
 void voxClear();
 int voxDefine(int voxindex, const char* filename);

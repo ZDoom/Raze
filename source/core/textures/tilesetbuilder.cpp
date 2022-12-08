@@ -100,6 +100,11 @@ CCMD(tilecrc)
 
 static void LoadDefinitions(TilesetBuildInfo& info)
 {
+	for (unsigned i = 0; i < info.tile.Size(); i++)
+	{
+		if (info.tile[i].extinfo.tiletovox > info.nextvoxid) info.nextvoxid = info.tile[i].extinfo.tiletovox;
+	}
+	info.nextvoxid++;
 	const char* defsfile = G_DefFile();
 	FString razedefsfile = defsfile;
 	razedefsfile.Substitute(".def", "-raze.def");

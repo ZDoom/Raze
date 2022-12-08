@@ -220,9 +220,6 @@ void LoadKVXFromScript(TilesetBuildInfo& info, const char* filename)
         {
             info.tile[lTile].extinfo.tiletovox = lNumber;
         }
-
-        if (lNumber >= nextvoxid)   // JBF: so voxels in the def file append to the list
-            nextvoxid = lNumber + 1;
     }
     while (script_p < scriptend_p);
 

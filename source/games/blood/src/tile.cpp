@@ -86,7 +86,6 @@ void GameInterface::LoadTextureInfo(TilesetBuildInfo& info)
             {
                 info.tile[i].extinfo.tiletovox = voxindex;
             }
-            if (nextvoxid <= voxindex) nextvoxid = voxindex + 1;
         }
     }
     hFile = fileSystem.OpenFileReader("SHADE.DAT");
