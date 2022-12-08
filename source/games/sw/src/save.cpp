@@ -1085,7 +1085,8 @@ void DSWActor::Serialize(FSerializer& arc)
 	Super::Serialize(arc);
 	arc("hasuser", hasUser)
 		("tempwall", tempwall)
-		("owner", ownerActor);
+		("owner", ownerActor)
+		("texparam", texparam);
 	if (hasUser) arc("user", user); // only write if defined.
 }
 

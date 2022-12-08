@@ -1171,7 +1171,8 @@ void UpdateWallPortalState()
     {
         if (SP_TAG3(actor) == 0)
         {
-            // back up ceilingpicnum and ceilingstat
+            // back up ceilingpic and ceilingstat
+            // std::swap(actor->sector->ceilingtexture, actor->texparam);
             SP_TAG5(actor) = actor->sector()->ceilingpicnum;
             actor->sector()->ceilingpicnum = SP_TAG2(actor);
             SP_TAG4(actor) = actor->sector()->ceilingstat;
@@ -1180,6 +1181,7 @@ void UpdateWallPortalState()
         }
         else if (SP_TAG3(actor) == 1)
         {
+            // std::swap(actor->sector->floortexture, actor->texparam);
             SP_TAG5(actor) = actor->sector()->floorpicnum;
             actor->sector()->floorpicnum = SP_TAG2(actor);
             SP_TAG4(actor) = actor->sector()->floorstat;
@@ -1203,13 +1205,15 @@ void RestorePortalState()
     {
         if (SP_TAG3(actor) == 0)
         {
-            // restore ceilingpicnum and ceilingstat
+            // restore ceilingpic and ceilingstat
+            // std::swap(actor->sector->ceilingtexture, actor->texparam);
             actor->sector()->ceilingpicnum = SP_TAG5(actor);
             actor->sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(actor));
             actor->sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
+            // std::swap(actor->sector->floortexture, actor->texparam);
             actor->sector()->floorpicnum = SP_TAG5(actor);
             actor->sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(actor));
             actor->sector()->floorstat &= ~(CSTAT_SECTOR_SKY);

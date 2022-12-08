@@ -279,7 +279,7 @@ void JS_InitMirrors(void)
                 if (mirrorcnt >= MAXMIRRORS)
                 {
                     Printf("MAXMIRRORS reached! Skipping mirror wall\n");
-                    wal.overpicnum = sec->ceilingpicnum;
+                    wal.overpicnum = legacyTileNum(sec->ceilingtexture());
                     continue;
                 }
 
@@ -374,7 +374,7 @@ void JS_InitMirrors(void)
                 mirrorcnt++;
             }
             else
-                wal.overpicnum = sec->ceilingpicnum;
+                wal.overpicnum = legacyTileNum(sec->ceilingtexture());
         }
     }
 

@@ -2009,6 +2009,8 @@ void SpriteSetup(void)
                     // copy tag 7 to tag 6 and pre-shift it
                     SP_TAG6(actor) = SP_TAG7(actor);
                     SP_TAG6(actor) <<= 7;
+                    if (SP_TAG2(actor) >= 0)
+                        actor->texparam = tileGetTextureID(SP_TAG2(actor)); // convert and copy to a safe place. A new map format cannot use the lotag to hold a named texture.
                     change_actor_stat(actor, STAT_CEILING_FLOOR_PIC_OVERRIDE);
                     break;
                 }
@@ -2022,6 +2024,8 @@ void SpriteSetup(void)
 
                 case SECT_CHANGOR:
                 {
+                    if (SP_TAG4(actor) >= 0)
+                        actor->texparam = tileGetTextureID(SP_TAG4(actor)); // convert and copy to a safe place. A new map format cannot use the lotag to hold a named texture.
                     change_actor_stat(actor, STAT_CHANGOR);
                     break;
                 }

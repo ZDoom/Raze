@@ -64,9 +64,7 @@ void PreCacheOverride(void)
 	SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
 	while (auto actor = it.Next())
 	{
-		int j = SP_TAG2(actor); // picnum
-		if(j >= 0 && j <= MAXTILES)
-			markTextureForPrecache(tileGetTextureID(j), 0);
+		markTextureForPrecache(actor->texparam, 0);
 	}
 }
 

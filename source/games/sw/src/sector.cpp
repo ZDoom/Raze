@@ -1402,7 +1402,7 @@ void DoChangorMatch(short match)
 
         if (TEST_BOOL1(actor))
         {
-            sectp->ceilingpicnum = SP_TAG4(actor);
+            sectp->ceilingpicnum = SP_TAG4(actor); // sectp->ceilingtexture = actor->texparam;
             sectp->addceilingz(SP_TAG5(actor));
             sectp->ceilingheinum += SP_TAG6(actor);
 
