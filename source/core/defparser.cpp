@@ -2370,7 +2370,7 @@ static void parseTileFlags(FScanner& sc, FScriptPosition& pos)
 	while (!sc.CheckString("}"))
 	{
 		sc.MustGetString();
-		int tile = TileFiles.tileForName(sc.String);
+		int tile = tileForName(sc.String);
 		if (tile == -1)
 		{
 			pos.Message(MSG_ERROR, "tileflags:Unknown tile name '%s'", sc.String);

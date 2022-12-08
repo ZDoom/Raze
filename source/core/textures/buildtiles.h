@@ -308,15 +308,6 @@ struct BuildTiles
 		}
 	}
 
-	int tileForName(const char* name)
-	{
-		FName nm(name, true);
-		if (nm == NAME_None) return -1;
-		auto nmm = nametoindex.CheckKey(nm);
-		if (!nmm) return -1;
-		return *nmm;
-	}
-
 	void SetAliases();
 
 
@@ -368,6 +359,15 @@ void tileSetDummy(int tile, int width, int height);
 void tileDelete(int tile);
 
 extern BuildTiles TileFiles;
+
+inline int tileForName(const char* name)
+{
+	FName nm(name, true);
+	if (nm == NAME_None) return -1;
+	auto nmm = TileFiles.nametoindex.CheckKey(nm);
+	if (!nmm) return -1;
+	return *nmm;
+}
 
 // Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
 struct PicAnm

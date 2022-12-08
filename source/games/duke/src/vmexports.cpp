@@ -37,7 +37,7 @@ int PicForName(int intname)
 
 		for (auto& p : classes)
 		{
-			classnameToTile.Insert(FName(p.first), TileFiles.tileForName(p.second));
+			classnameToTile.Insert(FName(p.first), tileForName(p.second));
 		}
 	}
 	auto p = classnameToTile.CheckKey(FName(ENamedName(intname)));
@@ -558,7 +558,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, hitasprite, hitasprite)
 void DukeActor_detonate(DDukeActor* origin, int intname)
 {
 	// all callers use "EXPLOSION2", so ignore the parameter for now. This should be fixed once EXPLOSION2 gets scriptified.
-	int picnum = TileFiles.tileForName("EXPLOSION2");
+	int picnum = tileForName("EXPLOSION2");
 	detonate(origin, picnum);
 }
 
@@ -747,7 +747,7 @@ DEFINE_ACTION_FUNCTION(DDukeActor, checktype) // for temporary checking of types
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_STRING(name);
-	ACTION_RETURN_BOOL(self->spr.picnum == TileFiles.tileForName(name));
+	ACTION_RETURN_BOOL(self->spr.picnum == tileForName(name));
 }
 
 

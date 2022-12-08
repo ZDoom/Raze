@@ -293,7 +293,7 @@ void FMapInfoParser::ParseSpawnClasses()
 			sc.MustGetString();
 			const char* p = sc.String;
 			if (*p == '*') { fullbright |= 1; p++; }
-			basetex = TileFiles.tileForName(p);
+			basetex = tileForName(p);
 			if (basetex < 0) sc.ScriptMessage("Unknown texture '%s' in definition for spawn ID # %d", sc.String, num);
 			if (sc.CheckString(","))
 			{
@@ -302,7 +302,7 @@ void FMapInfoParser::ParseSpawnClasses()
 				if (*p)
 				{
 					if (*p == '*') { fullbright |= 2; p++; }
-					brokentex = TileFiles.tileForName(p);
+					brokentex = tileForName(p);
 					if (brokentex < 0) sc.ScriptMessage("Unknown texture '%s' in definition for spawn ID # %d", sc.String, num);
 				}
 				if (sc.CheckString(","))
@@ -363,7 +363,7 @@ void FMapInfoParser::ParseBreakWall()
 
 		sc.MustGetString();
 		FString basename = sc.String; // save for printing error messages.
-		basetile = TileFiles.tileForName(sc.String);
+		basetile = tileForName(sc.String);
 		if (basetile < 0)
 		{
 			sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String, basetile);
@@ -371,7 +371,7 @@ void FMapInfoParser::ParseBreakWall()
 		}
 		ParseAssign();
 		sc.MustGetString();
-		breaktile = TileFiles.tileForName(sc.String);
+		breaktile = tileForName(sc.String);
 		if (*sc.String && breaktile < 0) sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String, breaktile);
 		if (sc.CheckString(","))
 		{
@@ -428,7 +428,7 @@ void FMapInfoParser::ParseBreakCeiling()
 
 		sc.MustGetString();
 		FString basename = sc.String; // save for printing error messages.
-		basetile = TileFiles.tileForName(sc.String);
+		basetile = tileForName(sc.String);
 		if (basetile < 0)
 		{
 			sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String, basetile);
@@ -436,7 +436,7 @@ void FMapInfoParser::ParseBreakCeiling()
 		}
 		ParseAssign();
 		sc.MustGetString();
-		breaktile = TileFiles.tileForName(sc.String);
+		breaktile = tileForName(sc.String);
 		if (*sc.String && breaktile < 0) sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String, breaktile);
 		if (sc.CheckString(","))
 		{
@@ -500,7 +500,7 @@ void FMapInfoParser::ParseTextureFlags()
 		do
 		{
 			sc.MustGetString();
-			int tile = TileFiles.tileForName(sc.String);
+			int tile = tileForName(sc.String);
 
 			if (tile == -1)
 			{

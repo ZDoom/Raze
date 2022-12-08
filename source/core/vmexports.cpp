@@ -493,7 +493,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, checktexture, sector_checktexture)
 void sector_settexturename(sectortype* sec, int place, int intname)
 {
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
-	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
+	int tilenum = tileForName(FName(ENamedName(intname)).GetChars());
 	(place == 0 ? sec->ceilingpicnum : sec->floorpicnum) = tilenum;
 }
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, settexturename, sector_settexturename)
@@ -721,7 +721,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_walltype, twosided, wall_twosided)
 void wall_settexturename(walltype* sec, int place, int intname)
 {
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
-	int tilenum = TileFiles.tileForName(FName(ENamedName(intname)).GetChars());
+	int tilenum = tileForName(FName(ENamedName(intname)).GetChars());
 	(place ? sec->overpicnum : sec->wallpicnum) = tilenum;
 }
 DEFINE_ACTION_FUNCTION_NATIVE(_walltype, settexturename, wall_settexturename)

@@ -78,7 +78,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		}
 		else 
 		{
-			picnum = TileFiles.tileForName(parm->parms[0]);
+			picnum = tileForName(parm->parms[0]);
 			if (picnum < 0) 
 			{
 				picnum = getlabelvalue(parm->parms[0]);

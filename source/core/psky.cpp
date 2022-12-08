@@ -124,7 +124,7 @@ void defineSky(int tilenum, int lognumtiles, const int16_t *tileofs, int yoff, f
 
 void defineSky(const char* tilename, int lognumtiles, const int16_t* tileofs, int yoff, float yscale, int yoff2)
 {
-	int tile = TileFiles.tileForName(tilename);
+	int tile = tileForName(tilename);
 	if (tile >= 0)
 		defineSky(tile, lognumtiles, tileofs, yoff, yscale, yoff2);
 }
