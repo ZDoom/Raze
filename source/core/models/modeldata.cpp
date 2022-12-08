@@ -125,7 +125,7 @@ int ModelManager::DefineSkin(int modelid, const char* skinfn, int palnum, int sk
     skdef->param = param;
     skdef->specpower = specpower;
     skdef->specfactor = specfactor;
-    skdef->texture = TexMan.CheckForTexture(skinfn, ETextureType::Any);
+    skdef->texture = TexMan.CheckForTexture(skinfn, ETextureType::Any, FTextureManager::TEXMAN_ForceLookup | FTextureManager::TEXMAN_TryAny);
     if (!skdef->texture.isValid()) return -2;
     return 0;
 }

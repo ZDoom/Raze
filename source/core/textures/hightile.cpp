@@ -299,7 +299,7 @@ int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed)
 	FGameTexture *faces[6];
 	for (int i = 0; i < 6; i++)
 	{
-		FTextureID texid = TexMan.CheckForTexture(facenames[i], ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
+		FTextureID texid = TexMan.CheckForTexture(facenames[i], ETextureType::Any, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
 		if (!texid.isValid())
 		{
 			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", facenames[i].GetChars(), picnum);
