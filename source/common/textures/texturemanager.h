@@ -76,6 +76,7 @@ public:
 	bool OkForLocalization(FTextureID texnum, const char *substitute, int locnum);
 
 	void FlushAll();
+	void Listaliases();
 	FTextureID GetFrontSkyLayer(FTextureID);
 	FTextureID GetRawTexture(FTextureID tex, bool dontlookup = false);
 	void SetRawTexture(FTextureID texid) 
