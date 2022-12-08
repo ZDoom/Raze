@@ -84,7 +84,7 @@ int setpal(player_struct* p)
 	if (p->DrugMode) palette = DRUGPAL;
 	else if (p->heat_on) palette = SLIMEPAL;
 	else if (!p->insector()) palette = BASEPAL; // don't crash if out of range.
-	else if (tileflags(p->cursector->ceilingtexture()) & TFLAG_SLIME) palette = SLIMEPAL;
+	else if (tilesurface(p->cursector->ceilingtexture()) == TSURF_SLIME) palette = SLIMEPAL;
 	else if (p->cursector->lotag == ST_2_UNDERWATER) palette = WATERPAL;
 	else palette = BASEPAL;
 	return palette;
@@ -1003,7 +1003,7 @@ void purplelavacheck(player_struct* p)
 	{
 		auto sect = pact->sector();
 		// one texflag for a single texture again, just to avoid one hard coded check...
-		if ((tileflags(sect->floortexture()) & TFLAG_PURPLELAVA) || (tileflags(sect->ceilingtexture()) & TFLAG_PURPLELAVA))
+		if ((tilesurface(sect->floortexture()) & TSURF_PURPLELAVA) || (tilesurface(sect->ceilingtexture()) & TSURF_PURPLELAVA))
 		{
 			if (p->boot_amount > 0)
 			{

@@ -477,9 +477,9 @@ void thunder(void)
 			thunder_brightness = brightness;
 		}
 	}
-	if (!winderflash)
+	if (!winderflash && isRR())
 	{
-		auto tex = tileGetTexture(RTILE_RRTILE2562);
+		auto tex = tileGetTexture(RTILE_CATACOMB);	// this cannot be easily generalized. :(
 		if (tex->isSeen(true))
 		{
 			if (krand() > 65000)

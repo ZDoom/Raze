@@ -123,7 +123,7 @@ void fakedomovethings(void)
 
 		shrunk = (p->GetActor()->s.y_repeat < (isRR()? 8 : 32));
 
-		if( ud.clipping == 0 && ( psect->floorpicnum == MIRROR || psect == nullptr) )
+		if( ud.clipping == 0 && ( psect->floortexture == mirrortex || psect == nullptr) )
 		{
 			mypos.XY() = omypos.XY();
 		}

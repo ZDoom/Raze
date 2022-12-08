@@ -689,7 +689,7 @@ void prelevel_common(int g)
 
 		if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 		{
-			if (sectp->ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
+			if (tilesurface(sectp->ceilingtexture()) == TSURF_SCROLLSKY && numclouds < 127)
 				clouds[numclouds++] = sectp;
 
 			if (ps[0].one_parallax_sectnum == nullptr)
@@ -868,7 +868,7 @@ static void SpawnPortals()
 	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		auto sectp = &sector[i];
-		if (sectp->floorpicnum == FOF && sectp->portalflags != PORTAL_SECTOR_FLOOR)
+		if (sectp->floortexture() == foftex && sectp->portalflags != PORTAL_SECTOR_FLOOR)
 		{
 			for (auto& pt : allPortals)
 			{
@@ -978,6 +978,12 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	TITLE_InformName(mi->name);
 
 	auto actorlist = spawnactors(sprites);
+
+	for (auto& sect : sector)
+	{
+		if (tilesurface(sect.ceilingtexture()) == TSURF_THUNDERSKY)
+			thunderon = 1;
+	}
 
 	if (isRR()) prelevel_r(gamemode, actorlist);
 	else prelevel_d(gamemode, actorlist);

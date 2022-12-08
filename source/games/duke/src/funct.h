@@ -219,6 +219,7 @@ void PlayerColorChanged(void);
 bool movementBlocked(player_struct *p);
 void loadcons();
 void DrawStatusBar();
+void thunder(void);
 
 void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h);
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang);

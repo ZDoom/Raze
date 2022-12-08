@@ -276,7 +276,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 
 		case DTILE_WATERBUBBLE:
-			if (t->sectp->floorpicnum == DTILE_FLOORSLIME)
+			if (tilesurface(t->sectp->floortexture()) == TSURF_SLIME)
 			{
 				t->pal = 7;
 				break;

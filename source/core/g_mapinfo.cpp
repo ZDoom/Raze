@@ -525,6 +525,49 @@ void FMapInfoParser::ParseTextureFlags()
 //
 //==========================================================================
 
+void FMapInfoParser::ParseSurfaceTypes()
+{
+	int num = -1;
+
+	// this block deliberately uses a 'type = texture, texture...' syntax because it is a lot easier to handle than doing the reverse
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		// Do not use internal lookup here because this code must be able to gracefully skip the definition if the flag constant does not exist.
+		// This also blocks passing in literal numbers which is quite intentional.
+		sc.MustGetString();
+		FName cname(sc.String, true);
+		auto lookup = cname == NAME_None ? nullptr : sc.LookupSymbol(cname);
+		num = 0;
+		if (lookup) num = int(lookup->Number);
+		else
+			sc.ScriptMessage("'%s': Unknown surface type", sc.String);
+		ParseAssign();
+		do
+		{
+			sc.MustGetString();
+			// this must also get null textures and ones not yet loaded.
+			auto tex = TexMan.CheckForTexture(sc.String, ETextureType::Any, FTextureManager::TEXMAN_ReturnAll | FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
+
+			if (!tex.isValid())
+			{
+				sc.ScriptMessage("textureflags:Unknown texture name '%s'", sc.String);
+			}
+			else
+			{
+				AccessExtInfo(tex).surftype = num;
+			}
+
+		} while (sc.CheckString(","));
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void FMapInfoParser::ParseCutscene(CutsceneDef& cdef)
 {
 	FString sound;
@@ -1579,6 +1622,10 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		else if (sc.Compare("textureflags"))
 		{
 			ParseTextureFlags();
+		}
+		else if (sc.Compare("surfacetypes"))
+		{
+			ParseSurfaceTypes();
 		}
 		else if (sc.Compare("constants"))
 		{

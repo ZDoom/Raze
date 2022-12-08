@@ -1787,7 +1787,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		actor->attackertype = RTILE_SHOTSPARK1;
 		actor->hitextra = 1;
 	}
-	else if (isRRRA() && (actor->sector()->floorpicnum == RTILE_RRTILE7820 || actor->sector()->floorpicnum == RTILE_RRTILE7768))
+	else if (tilesurface(actor->sector()->floortexture()) == TSURF_MAGMA)
 	{
 		if (actor->spr.picnum != RTILE_MINION && actor->spr.pal != 19)
 		{
@@ -1885,7 +1885,7 @@ void destroyit(DDukeActor *actor)
 				destsect->ceilingpal = srcsect->ceilingpal;
 				destsect->ceilingxpan_ = srcsect->ceilingxpan_;
 				destsect->ceilingypan_ = srcsect->ceilingypan_;
-				destsect->floorpicnum = srcsect->floorpicnum;
+				destsect->setfloortexture(srcsect->floortexture());
 				destsect->floorheinum = srcsect->floorheinum;
 				destsect->floorshade = srcsect->floorshade;
 				destsect->floorpal = srcsect->floorpal;
@@ -1942,8 +1942,6 @@ bool spawnweapondebris_r(int picnum)
 //
 //
 //---------------------------------------------------------------------------
-
-void thunder(void);
 
 void think_r(void)
 {

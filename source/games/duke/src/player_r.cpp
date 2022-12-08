@@ -2002,7 +2002,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					p->dummyplayersprite = spawn(pact, RTILE_PLAYERONWATER);
 
 				p->footprintcount = 6;
-				if (p->cursector->floorpicnum == RTILE_FLOORSLIME)
+				if (tilesurface(p->cursector->floortexture()) == TSURF_SLIME)
 				{
 					p->footprintpal = 8;
 					p->footprintshade = 0;
@@ -3498,14 +3498,14 @@ void processinput_r(int snum)
 
 	if (p->spritebridge == 0 && pact->insector())
 	{
-		int j = pact->sector()->floorpicnum;
+		auto sect = pact->sector();
 		k = 0;
 
 		if (p->on_ground && truefdist <= gs.playerheight + 16)
 		{
-			int whichsound = (tileflags(tileGetTextureID(j)) & TFLAG_ELECTRIC) ? 0 : j == RTILE_FLOORSLIME ? 1 : j == RTILE_FLOORPLASMA ? 2 :
-				(isRRRA() && (j == RTILE_RRTILE7768 || j == RTILE_RRTILE7820) ? 3 : -1);
-			if (j >= 0) k = makepainsounds(snum, whichsound);
+			int surface = tilesurface(sect->floortexture());
+			int whichsound = surface == TSURF_ELECTRIC ? 0 : surface == TSURF_SLIME ? 1 : surface == TSURF_PLASMA ? 2 : surface == TSURF_MAGMA ? 3 : -1;
+			k = makepainsounds(snum, whichsound);
 		}
 
 		if (k)

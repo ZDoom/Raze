@@ -1753,6 +1753,11 @@ void think_d(void)
 	doanimations();
 	tickstat(STAT_FX);				//ST 11
 
+#if 0 // still needs a bit of work.
+	if (numplayers < 2 && thunderon)
+		thunder();
+#endif
+
 	thinktime.Unclock();
 }
 

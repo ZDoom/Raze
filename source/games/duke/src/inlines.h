@@ -120,11 +120,6 @@ inline bool inventory(DDukeActor* S)
 	return actorflag(S, SFLAG_INVENTORY);
 }
 
-inline const unsigned& tileflags(FTextureID texid)
-{
-	return GetExtInfo(texid).flags;
-}
-
 inline bool wallswitchcheck(DDukeActor* s)
 {
 	return !!(tileflags(s->spr.spritetexture()) & TFLAG_WALLSWITCH);

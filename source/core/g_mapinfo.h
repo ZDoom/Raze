@@ -94,6 +94,7 @@ struct FMapInfoParser
 	void ParseBreakWall();
 	void ParseBreakCeiling();
 	void ParseTextureFlags();
+	void ParseSurfaceTypes();
 	void ParseConstants();
 	void ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord &defaultinfo);
 

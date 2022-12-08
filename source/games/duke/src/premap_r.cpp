@@ -432,8 +432,6 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	for (auto&sect: sector)
 	{
 		auto sectp = &sect;
-		if (sectp->ceilingpicnum == RTILE_RRTHUNDERSKY)
-			thunderon = 1;
 
 		switch (sectp->lotag)
 		{

@@ -1284,6 +1284,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, operateactivators, operateactivators)
 	return 0;
 }
 
+int duke_floorsurface(sectortype* sector)
+{
+	return tilesurface(sector->floortexture());
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, floorsurface, duke_floorsurface)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_INT(duke_floorsurface(sect));
+}
+
 int duke_floorflags(sectortype* sector)
 {
 	return tileflags(sector->floortexture());
@@ -1306,6 +1318,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ceilingflags, duke_ceilingflags)
 	PARAM_PROLOGUE;
 	PARAM_POINTER(sect, sectortype);
 	ACTION_RETURN_INT(duke_ceilingflags(sect));
+}
+
+int duke_ceilingsurface(sectortype* sector)
+{
+	return tilesurface(sector->ceilingtexture());
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ceilingsurface, duke_ceilingsurface)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	ACTION_RETURN_INT(duke_ceilingsurface(sect));
 }
 
 int duke_wallflags(walltype* wal, int which)

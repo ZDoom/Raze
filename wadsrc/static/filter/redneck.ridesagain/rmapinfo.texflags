@@ -33,4 +33,8 @@ textureflags
 		RRTILE8565,
 		RRTILE8605
 }
-	
+
+surfacetypes
+{
+	TSURF_MAGMA = MAGMA1, MAGMA2
+}

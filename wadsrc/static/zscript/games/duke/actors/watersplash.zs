@@ -37,7 +37,7 @@ class DukeWatersplash : DukeActor
 				self.pos.Z = f;
 		}
 
-		if ((dlevel.floorflags(sectp) & Duke.TFLAG_SLIME) || (dlevel.ceilingflags(sectp) & Duke.TFLAG_SLIME))
+		if ((dlevel.floorsurface(sectp) == Duke.TSURF_SLIME) || (dlevel.ceilingsurface(sectp) & Duke.TSURF_SLIME))
 			self.pal = 7;
 		self.ChangeStat(STAT_MISC);
 	}
@@ -93,7 +93,7 @@ class RedneckMudSplash : DukeWatersplash
 	override void Tick()
 	{
 		let sectp = self.sector;
-		DoTick(dlevel.floorflags(sectp) & Duke.TFLAG_MUDDY);
+		DoTick(dlevel.floorsurface(sectp) & Duke.TSURF_MUDDY);
 	}
 }
 

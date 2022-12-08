@@ -68,20 +68,29 @@ struct Duke native
 		CLIPMASK1 = (256 << 16) + 64
 	}
 
-	enum ETextureFlags
+	enum ETexFlags
 	{
 		TFLAG_WALLSWITCH			= 1 << 0,
 		TFLAG_ADULT					= 1 << 1,
-		TFLAG_ELECTRIC				= 1 << 2,
-		TFLAG_CLEARINVENTORY		= 1 << 3,	// really dumb Duke stuff...
-		TFLAG_SLIME					= 1 << 4,
-		TFLAG_DOORWALL				= 1 << 5,
-		TFLAG_BLOCKDOOR				= 1 << 6,
-		TFLAG_OUTERSPACE			= 1 << 7,
-		TFLAG_NOBLOODSPLAT			= 1 << 8,
-		TFLAG_NOCIRCLEREFLECT		= 1 << 9,
-		TFLAG_MUDDY					= 1 << 10,
-		TFLAG_PURPLELAVA			= 1 << 11,	// very special kind of terrain type.
+		TFLAG_CLEARINVENTORY		= 1 << 2,	// really dumb Duke stuff...
+		TFLAG_DOORWALL				= 1 << 3,
+		TFLAG_BLOCKDOOR				= 1 << 4,
+		TFLAG_NOBLOODSPLAT			= 1 << 5,
+		TFLAG_NOCIRCLEREFLECT		= 1 << 6,
+	};
+
+	enum ETexSurfaces
+	{
+		TSURF_NONE					= 0,
+		TSURF_ELECTRIC				= 1,
+		TSURF_SLIME					= 2,
+		TSURF_OUTERSPACE			= 3,
+		TSURF_MUDDY					= 4,
+		TSURF_PURPLELAVA			= 5,	// very special kind of terrain type.
+		TSURF_SCROLLSKY				= 6,
+		TSURF_THUNDERSKY			= 7,
+		TSURF_PLASMA				= 8,
+		TSURF_MAGMA					= 9,
 	};
 
 	enum ESoundFlags
