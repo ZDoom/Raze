@@ -57,7 +57,7 @@ inline SpawnMap spawnMap;
 
 struct BreakWallRec
 {
-	int brokentex;
+	FTextureID brokentex;
 	FSoundID breaksound;
 	VMFunction* handler;
 	int flags;

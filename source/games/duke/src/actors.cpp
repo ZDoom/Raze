@@ -2696,10 +2696,12 @@ void handle_se128(DDukeActor *actor)
 	}
 //	else return;
 
-	wal->overpicnum++;
+	auto data = breakWallMap.CheckKey(wal->overtexture().GetIndex());
+	FTextureID newtex = data? data->brokentex : FNullTextureID();
+	wal->setovertexture(newtex);
 	auto nextwal = wal->nextWall();
 	if (nextwal)
-		nextwal->overpicnum++;
+		nextwal->setovertexture(newtex);
 
 	if (actor->temp_data[0] < actor->temp_data[1]) actor->temp_data[0]++;
 	else

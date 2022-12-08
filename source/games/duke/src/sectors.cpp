@@ -1283,34 +1283,35 @@ void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 		return;
 	}
 
-	auto handler = [=](const BreakWallRec* data, int16_t* pic)
+	auto handler = [=](const BreakWallRec* data) ->bool
 	{
 		if (!data->handler)
 		{
-			*pic = data->brokentex;
 			S_PlayActorSound(data->breaksound, spr);
+			return true;
 		}
 		else
 		{
-			VMValue args[7] = { wal, data->brokentex, data->breaksound.index(), spr, pos.X, pos.Y, pos.Z };
+			VMValue args[7] = { wal, data->brokentex.GetIndex(), data->breaksound.index(), spr, pos.X, pos.Y, pos.Z};
 			VMCall(data->handler, args, 7, nullptr, 0);
 		}
+		return false;
 	};
 
 
 	if (wal->twoSided() && wal->nextSector()->floorz > pos.Z && wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 	{
-		auto data = breakWallMap.CheckKey(wal->overpicnum);
+		auto data = breakWallMap.CheckKey(wal->overtexture().GetIndex());
 		if (data && (data->flags & 1) && (!(data->flags & 2) || wal->cstat & CSTAT_WALL_MASKED))
 		{
-			handler(data, &wal->overpicnum);
+			if (handler(data)) wal->setovertexture(data->brokentex);
 		}
 	}
 
-	auto data = breakWallMap.CheckKey(wal->wallpicnum);
+	auto data = breakWallMap.CheckKey(wal->walltexture().GetIndex());
 	if (data && !(data->flags & 1))
 	{
-		handler(data, &wal->wallpicnum);
+		if (handler(data)) wal->setwalltexture(data->brokentex);
 	}
 }
 
@@ -1322,17 +1323,17 @@ void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 
 bool checkhitceiling(sectortype* sectp)
 {
-	auto data = breakCeilingMap.CheckKey(sectp->ceilingpicnum);
+	auto data = breakCeilingMap.CheckKey(sectp->ceilingtexture().GetIndex());
 	if (data && !(data->flags & 1))
 	{
 		if (!data->handler)
 		{
-			sectp->ceilingpicnum = data->brokentex;
+			sectp->setceilingtexture(data->brokentex);
 			S_PlayActorSound(data->breaksound, ps[screenpeek].GetActor());	// this is nonsense but what the original code did.
 		}
 		else
 		{
-			VMValue args[7] = { sectp, data->brokentex, data->breaksound.index() };
+			VMValue args[7] = { sectp, data->brokentex.GetIndex(), data->breaksound.index()};
 			VMCall(data->handler, args, 3, nullptr, 0);
 		}
 		if (data->flags & 1)

@@ -358,29 +358,29 @@ void FMapInfoParser::ParseBreakWall()
 	sc.MustGetStringName("{");
 	while (!sc.CheckString("}"))
 	{
-		int basetile = -1;
-		int breaktile = -1;
+		FTextureID basetile = FNullTextureID();
+		FTextureID breaktile = FNullTextureID();
 		int flags = 0;
 		FSoundID sound = NO_SOUND;
 		VMFunction* handler = nullptr;
 
 		sc.MustGetString();
 		FString basename = sc.String; // save for printing error messages.
-		basetile = tileForName(sc.String);
-		if (basetile < 0)
+		basetile = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		if (!basetile.isValid())
 		{
-			sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String, basetile);
+			sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String);
 			SkipToNext();
 		}
 		ParseAssign();
 		sc.MustGetString();
-		breaktile = tileForName(sc.String);
-		if (*sc.String && breaktile < 0) sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String, breaktile);
+		breaktile = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		if (*sc.String && !breaktile.isValid()) sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String);
 		if (sc.CheckString(","))
 		{
 			sc.MustGetString();
 			sound = S_FindSound(sc.String);
-			if (*sc.String && !sound.isvalid()) Printf(TEXTCOLOR_RED "Unknown sound '%s' in definition for breakable wall '5s'\n", basename.GetChars());
+			if (*sc.String && !sound.isvalid()) sc.ScriptMessage("Unknown sound '%s' in definition for breakable wall '5s'\n", basename.GetChars());
 
 			auto saved = sc.SavePos();
 			if (sc.CheckString(","))
@@ -407,7 +407,7 @@ void FMapInfoParser::ParseBreakWall()
 				}
 			}
 		}
-		breakWallMap.Insert(basetile, { breaktile, sound, handler, flags });
+		breakWallMap.Insert(basetile.GetIndex(), {breaktile, sound, handler, flags});
 	}
 }
 
@@ -423,29 +423,29 @@ void FMapInfoParser::ParseBreakCeiling()
 	sc.MustGetStringName("{");
 	while (!sc.CheckString("}"))
 	{
-		int basetile = -1;
-		int breaktile = -1;
+		FTextureID basetile = FNullTextureID();
+		FTextureID breaktile = FNullTextureID();
 		int flags = 0;
 		FSoundID sound = NO_SOUND;
 		VMFunction* handler = nullptr;
 
 		sc.MustGetString();
 		FString basename = sc.String; // save for printing error messages.
-		basetile = tileForName(sc.String);
-		if (basetile < 0)
+		basetile = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		if (!basetile.isValid())
 		{
-			sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String, basetile);
+			sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String);
 			SkipToNext();
 		}
 		ParseAssign();
 		sc.MustGetString();
-		breaktile = tileForName(sc.String);
-		if (*sc.String && breaktile < 0) sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String, breaktile);
+		breaktile = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		if (*sc.String && !breaktile.isValid()) sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String);
 		if (sc.CheckString(","))
 		{
 			sc.MustGetString();
 			sound = S_FindSound(sc.String);
-			if (*sc.String && !sound.isvalid()) Printf(TEXTCOLOR_RED "Unknown sound '%s' in definition for breakable ceiling '5s'\n", basename.GetChars());
+			if (*sc.String && !sound.isvalid()) sc.ScriptMessage("Unknown sound '%s' in definition for breakable ceiling '5s'\n", basename.GetChars());
 
 			auto saved = sc.SavePos();
 			if (sc.CheckString(","))
@@ -472,7 +472,7 @@ void FMapInfoParser::ParseBreakCeiling()
 				}
 			}
 		}
-		breakCeilingMap.Insert(basetile, { breaktile, sound, handler, flags });
+		breakCeilingMap.Insert(basetile.GetIndex(), {breaktile, sound, handler, flags});
 	}
 }
 
