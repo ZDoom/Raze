@@ -459,9 +459,9 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 		{
 			spawn(spark, DTILE_SMALLSMOKE);
 
-			if (isadoorwall(hit.hitWall->wallpicnum) == 1)
+			if (isadoorwall(hit.hitWall->walltexture()) == 1)
 				goto SKIPBULLETHOLE;
-			if (isablockdoor(hit.hitWall->wallpicnum) == 1)
+			if (isablockdoor(hit.hitWall->walltexture()) == 1)
 				goto SKIPBULLETHOLE;
 			if (p >= 0 && (
 				hit.hitWall->wallpicnum == DTILE_DIPSWITCH ||
@@ -2910,7 +2910,7 @@ void processinput_d(int snum)
 
 		if (p->on_ground && truefdist <= gs.playerheight + 16)
 		{
-			int whichsound = (tileflags(j) & TFLAG_ELECTRIC) ? 0 : j == DTILE_FLOORSLIME ? 1 : j == DTILE_FLOORPLASMA ? 2 : -1;
+			int whichsound = (tileflags(tileGetTextureID(j)) & TFLAG_ELECTRIC) ? 0 : j == DTILE_FLOORSLIME ? 1 : j == DTILE_FLOORPLASMA ? 2 : -1;
 			if (j >= 0) k = makepainsounds(snum, whichsound);
 		}
 

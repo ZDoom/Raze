@@ -44,7 +44,7 @@ struct walltypedisk
 	int32_t x, y;
 	int16_t point2, nextwall, nextsector;
 	uint16_t cstat;
-	int16_t picnum, overpicnum;
+	int16_t picnum, overpic;
 	int8_t shade;
 	uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
 	int16_t type;

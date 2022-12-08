@@ -52,7 +52,7 @@ static int interptype[] = { Interp_Sect_Floorz, Interp_Sect_Ceilingz, Interp_Wal
 
 bool ceilingspace(sectortype* sectp)
 {
-	return (sectp && (sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tileflags(sectp->ceilingpicnum) & TFLAG_OUTERSPACE));
+	return (sectp && (sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tileflags(sectp->ceilingtexture()) & TFLAG_OUTERSPACE));
 }
 
 
@@ -65,7 +65,7 @@ bool ceilingspace(sectortype* sectp)
 bool floorspace(sectortype* sectp)
 {
 	// Yes, ceilingpal in this check is correct...
-	return (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tileflags(sectp->floorpicnum) & TFLAG_OUTERSPACE));
+	return (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tileflags(sectp->floortexture()) & TFLAG_OUTERSPACE));
 }
 
 //---------------------------------------------------------------------------

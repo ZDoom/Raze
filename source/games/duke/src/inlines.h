@@ -120,22 +120,22 @@ inline bool inventory(DDukeActor* S)
 	return actorflag(S, SFLAG_INVENTORY);
 }
 
-inline const unsigned& tileflags(unsigned int tilenum)
+inline const unsigned& tileflags(FTextureID texid)
 {
-	return GetExtInfo(tileGetTextureID(tilenum)).flags;
+	return GetExtInfo(texid).flags;
 }
 
 inline bool wallswitchcheck(DDukeActor* s)
 {
-	return !!(tileflags(s->spr.picnum) & TFLAG_WALLSWITCH);
+	return !!(tileflags(s->spr.spritetexture()) & TFLAG_WALLSWITCH);
 }
 
-inline bool isadoorwall(int dapic)
+inline bool isadoorwall(FTextureID dapic)
 {
 	return tileflags(dapic) & TFLAG_DOORWALL;
 }
 
-inline bool isablockdoor(int dapic)
+inline bool isablockdoor(FTextureID dapic)
 {
 	return tileflags(dapic) & TFLAG_BLOCKDOOR;
 }

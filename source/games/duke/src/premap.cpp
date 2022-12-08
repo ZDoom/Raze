@@ -689,8 +689,6 @@ void prelevel_common(int g)
 
 		if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 		{
-			//setupbackdrop(sectp->ceilingpicnum);
-
 			if (sectp->ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
 				clouds[numclouds++] = sectp;
 
@@ -1055,7 +1053,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		bool clearweapon = !!(currentLevel->flags & LEVEL_CLEARWEAPONS);
-		int pn = ps[i].GetActor()->sector()->floorpicnum;
+		auto pn = ps[i].GetActor()->sector()->floortexture();
 		if (tileflags(pn) & TFLAG_CLEARINVENTORY)
 		{
 			resetinventory(i);

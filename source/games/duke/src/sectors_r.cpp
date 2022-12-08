@@ -124,6 +124,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	uint8_t switchpal;
 	int lotag, hitag, picnum, correctdips, numdips;
 	DVector2 pos;
+	FTextureID texid;
 
 	if (wwal == nullptr && act == nullptr) return 0;
 	correctdips = 1;
@@ -147,6 +148,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		picnum = wwal->wallpicnum;
 		switchpal = wwal->pal;
 	}
+	texid = tileGetTextureID(picnum);
 
 	switch (picnum)
 	{
@@ -255,7 +257,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		if (check_activator_motion(lotag)) return 0;
 		break;
 	default:
-		if (isadoorwall(picnum) == 0) return 0;
+		if (isadoorwall(texid) == 0) return 0;
 		break;
 	}
 
@@ -449,7 +451,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	switch (picnum)
 	{
 	default:
-		if (isadoorwall(picnum) == 0) break;
+		if (isadoorwall(texid) == 0) break;
 		[[fallthrough]];
 	case RTILE_DIPSWITCH:
 	case RTILE_DIPSWITCHON:
@@ -641,7 +643,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 			picnum == RTILE_ALIENSWITCH || picnum == RTILE_ALIENSWITCHON ||
 			picnum == RTILE_TECHSWITCH || picnum == RTILE_TECHSWITCHON) return 1;
 
-		if (hitag == 0 && isadoorwall(picnum) == 0)
+		if (hitag == 0 && isadoorwall(texid) == 0)
 		{
 			if (act)
 				S_PlaySound3D(SWITCH_ON, act, v);
@@ -1028,7 +1030,7 @@ void checksectors_r(int snum)
 
 		if (near.hitWall)
 		{
-			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->wallpicnum))
+			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->walltexture()))
 			{
 				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
 					fi.checkhitswitch(snum, near.hitWall, nullptr);
