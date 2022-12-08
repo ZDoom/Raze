@@ -990,5 +990,37 @@ int haskey(sectortype* sectp, int snum)
 	return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// taken out of Duke, now that it is no longer hard coded.
+//
+//---------------------------------------------------------------------------
+
+void purplelavacheck(player_struct* p)
+{
+	auto pact = p->actor;
+	if (p->spritebridge == 0 && pact->insector())
+	{
+		auto sect = pact->sector();
+		// one texflag for a single texture again, just to avoid one hard coded check...
+		if ((tileflags(sect->floortexture()) & TFLAG_PURPLELAVA) || (tileflags(sect->ceilingtexture()) & TFLAG_PURPLELAVA))
+		{
+			if (p->boot_amount > 0)
+			{
+				p->boot_amount--;
+				p->inven_icon = 7;
+				if (p->boot_amount <= 0)
+					checkavailinven(p);
+			}
+			else
+			{
+				if (!S_CheckActorSoundPlaying(pact, DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
+				SetPlayerPal(p, PalEntry(32, 0, 8, 0));
+				pact->spr.extra--;
+			}
+		}
+	}
+}
 
 END_DUKE_NS

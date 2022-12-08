@@ -2883,33 +2883,17 @@ void processinput_d(int snum)
 	}
 
 	p->Angles.doYawKeys(&actions);
+	purplelavacheck(p);
 
 	if (p->spritebridge == 0 && pact->insector())
 	{
-		int j = pact->sector()->floorpicnum;
-
-		if (j == DTILE_PURPLELAVA || pact->sector()->ceilingpicnum == DTILE_PURPLELAVA)
-		{
-			if (p->boot_amount > 0)
-			{
-				p->boot_amount--;
-				p->inven_icon = 7;
-				if (p->boot_amount <= 0)
-					checkavailinven(p);
-			}
-			else
-			{
-				if (!S_CheckActorSoundPlaying(pact, DUKE_LONGTERM_PAIN))
-					S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
-				SetPlayerPal(p, PalEntry(32, 0, 8, 0));
-				pact->spr.extra--;
-			}
-		}
+		auto sect = pact->sector();
 
 		k = 0;
 
 		if (p->on_ground && truefdist <= gs.playerheight + 16)
 		{
+			int j = sect->floorpicnum;
 			int whichsound = (tileflags(tileGetTextureID(j)) & TFLAG_ELECTRIC) ? 0 : j == DTILE_FLOORSLIME ? 1 : j == DTILE_FLOORPLASMA ? 2 : -1;
 			if (j >= 0) k = makepainsounds(snum, whichsound);
 		}

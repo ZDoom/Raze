@@ -424,6 +424,7 @@ enum
 	TFLAG_NOBLOODSPLAT			= 1 << 8,
 	TFLAG_NOCIRCLEREFLECT		= 1 << 9,
 	TFLAG_MUDDY					= 1 << 10,
+	TFLAG_PURPLELAVA			= 1 << 11,	// very special kind of terrain type.
 };
 
 enum

@@ -3494,6 +3494,7 @@ void processinput_r(int snum)
 	}
 
 	p->Angles.doYawKeys(&actions);
+	purplelavacheck(p);
 
 	if (p->spritebridge == 0 && pact->insector())
 	{
@@ -3524,7 +3525,7 @@ void processinput_r(int snum)
 
 		if (isRRRA() && p->spritebridge == 0 && p->on_ground)
 		{
-			if (psectlotag == 1)
+			if (psectlotag == ST_1_ABOVE_WATER)
 				p->NotOnWater = 0;
 			else if (p->OnBoat)
 			{
