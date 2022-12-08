@@ -61,24 +61,13 @@ enum VIEWPOS {
 	VIEWPOS_1
 };
 
+#define x(a, b) k##a = b,
 enum
 {
-	kBackTile = 253,
-
-	kCrosshairTile = 2319,
-	kLoadScreen = 2049,
-	kLoadScreenWideBack = 9216,
-	kLoadScreenWideLeft = 9217,
-	kLoadScreenWideRight = 9218,
-	kLoadScreenWideMiddle = 9219,
-
-	kSBarNumberHealth = 9220,
-	kSBarNumberAmmo = 9230,
-	kSBarNumberInv = 9240,
-	kSBarNumberArmor1 = 9250,
-	kSBarNumberArmor2 = 9260,
-	kSBarNumberArmor3 = 9270,
+#include "namelist.h"
 };
+#undef x
+
 
 enum { kFontNum = 5 };
 

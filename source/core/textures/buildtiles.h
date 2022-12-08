@@ -69,18 +69,6 @@ inline int tileForName(const char* name)
 	return legacyTileNum(texid);
 }
 
-// Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
-struct PicAnm
-{
-	//[[deprecated]]
-	const picanm_t& operator[](int index) const
-	{
-		assert((unsigned)index < MAXTILES);
-		return GetExtInfo(tileGetTextureID(index)).picanm;
-	}
-};
-inline PicAnm picanm;
-
 //[[deprecated]]
 inline int tileWidth(int num)
 {

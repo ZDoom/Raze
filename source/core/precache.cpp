@@ -101,15 +101,17 @@ TMap<int64_t, bool> cachemap;
 void markTileForPrecache(int tilenum, int palnum)
 {
 	int i, j;
-	if (picanm[tilenum].type() == PICANM_ANIMTYPE_BACK)
+	auto nTex = tileGetTextureID(tilenum);
+	auto& picanm = GetExtInfo(nTex).picanm;
+	if (picanm.type() == PICANM_ANIMTYPE_BACK)
 	{
-		i = tilenum - picanm[tilenum].num;
+		i = tilenum - picanm.num;
 		j = tilenum;
 	}
 	else
 	{
 		i = tilenum;
-		j = tilenum + picanm[tilenum].num * ((picanm[tilenum].type() == PICANM_ANIMTYPE_OSC) ? 2 : 1);
+		j = tilenum + picanm.num * ((picanm.type() == PICANM_ANIMTYPE_OSC) ? 2 : 1);
 	}
 
 	for (; i <= j; i++)

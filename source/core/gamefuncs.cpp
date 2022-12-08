@@ -812,7 +812,7 @@ int hitscan(const DVector3& start, const sectortype* startsect, const DVector3& 
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
-				hit = intersectWallSprite(actor, start, vect, v, hitfactor, (picanm[actor->spr.picnum].sf & PICANM_TEXHITSCAN_BIT));
+				hit = intersectWallSprite(actor, start, vect, v, hitfactor, GetExtInfo(actor->spr.spritetexture()).picanm.sf & PICANM_TEXHITSCAN_BIT);
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_FLOOR:

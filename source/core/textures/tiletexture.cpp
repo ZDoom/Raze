@@ -332,8 +332,8 @@ static void GetImagesFromFile(TArray<FImageSource*>& array, TArray<unsigned>& pi
 	unsigned tileend = LittleLong(((unsigned*)tiles)[3]);
 	const uint16_t* tilesizx = &((const uint16_t*)tiles)[8];
 	const uint16_t* tilesizy = &tilesizx[tileend - tilestart + 1];
-	const uint32_t* picanm = (const uint32_t*)&tilesizy[tileend - tilestart + 1];
-	const uint8_t* tiledata = (const uint8_t*)&picanm[tileend - tilestart + 1];
+	const uint32_t* picanmraw = (const uint32_t*)&tilesizy[tileend - tilestart + 1];
+	const uint8_t* tiledata = (const uint8_t*)&picanmraw[tileend - tilestart + 1];
 
 	unsigned oldsize = array.Size();
 	if (array.Size() < tileend + 1)
@@ -355,10 +355,10 @@ static void GetImagesFromFile(TArray<FImageSource*>& array, TArray<unsigned>& pi
 		int pic = i - tilestart;
 		int width = LittleShort(tilesizx[pic]);
 		int height = LittleShort(tilesizy[pic]);
-		uint32_t anm = LittleLong(picanm[pic]);
+		uint32_t anm = LittleLong(picanmraw[pic]);
 		int size = width * height;
 
-		picanmarray[i] = picanm[pic]; // this must also be retained for invalid tiles.
+		picanmarray[i] = picanmraw[pic]; // this must also be retained for invalid tiles.
 		if (width <= 0 || height <= 0)
 		{
 			// If an existing tile is discarded, add it to the free list

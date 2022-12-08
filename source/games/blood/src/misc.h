@@ -97,6 +97,7 @@ extern int nPrecacheCount;
 inline FTextureID mirrortile;
 
 void tilePrecacheTile(int nTile, int nType, int palette);
+void tilePrecacheTile(FTextureID nTile, int nType, int palette);
 
 int tileGetSurfType(CollisionBase& hit);
 

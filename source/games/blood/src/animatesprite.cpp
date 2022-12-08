@@ -543,16 +543,16 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			pTSprite->scale = DVector2(0, 0);
 			continue;
 		}
-		int nTile = pTSprite->picnum;
-		if (nTile < 0 || nTile >= kMaxTiles)
+		auto nTex = pTSprite->spritetexture();
+		if (!nTex.isValid())
 		{
 			pTSprite->scale = DVector2(0, 0);
 			continue;
 		}
 		// skip picnum 0 on face sprites. picnum 0 is a simple wall texture in Blood, 
-		// but there are maps that use 0 on some operator sprites that may show up in potals as a result.
+		// but there are maps that use 0 on some operator sprites that may show up in portals as a result.
 		// Since the wall texture is perfectly fine for wall and floor sprites, these will be allowed to pass.
-		if (nTile == 0 && (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
+		if (legacyTileNum(nTex) == 0 && (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 		{
 			pTSprite->scale = DVector2(0, 0);
 			continue;
@@ -564,10 +564,13 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 			pTSprite->Angles.Yaw = owneractor->interpolatedyaw(interpfrac);
 		}
 		int nAnim = 0;
-		switch (picanm[nTile].extra & 7) {
+		int nAnimType = GetExtInfo(nTex).picanm.extra & 7;
+		switch (nAnimType)
+		{
 		case 0:
 			if (!owneractor->hasX()) break;
-			switch (pTSprite->type) {
+			switch (pTSprite->type) 
+			{
 #ifdef NOONE_EXTENSIONS
 			case kModernCondition:
 			case kModernConditionFalse:
@@ -642,7 +645,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 					pTSprite->cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 					auto tex = TexMan.GetGameTexture(pTSprite->spritetexture());
 					pTSprite->yoffset += (uint8_t)tex->GetDisplayTopOffset();
-					if ((picanm[nTile].extra & 7) == 7)
+					if (nAnimType == 7)
 					{
 						pTSprite->Angles.Yaw = myclock.Normalized360();
 					}
@@ -653,7 +656,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		while (nAnim > 0)
 		{
-			pTSprite->picnum += picanm[pTSprite->picnum].num + 1;
+			pTSprite->picnum += GetExtInfo(pTSprite->spritetexture()).picanm.num + 1;
 			nAnim--;
 		}
 
@@ -913,7 +916,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 	{
 		tspritetype* pTSprite = tsprites.get(nTSprite);
 		int nAnim = 0;
-		switch (picanm[pTSprite->picnum].extra & 7)
+		switch (GetExtInfo(pTSprite->spritetexture()).picanm.extra & 7)
 		{
 		case 1:
 		{
@@ -937,7 +940,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		}
 		while (nAnim > 0)
 		{
-			pTSprite->picnum += picanm[pTSprite->picnum].num + 1;
+			pTSprite->picnum += GetExtInfo(pTSprite->spritetexture()).picanm.num + 1;
 			nAnim--;
 		}
 	}

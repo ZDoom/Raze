@@ -44,8 +44,9 @@ void gibPrecache();
 
 void tilePrecacheTile(int nTile, int nType, int palette)
 {
+	auto nTex = tileGetTextureID(nTile);
 	int n = 1;
-	switch (picanm[nTile].extra & 7)
+	switch (GetExtInfo(nTex).picanm.extra & 7)
 	{
 	case 0:
 		n = 1;
@@ -63,7 +64,7 @@ void tilePrecacheTile(int nTile, int nType, int palette)
 	while (n--)
 	{
 		markTileForPrecache(nTile, palette);
-		nTile += 1 + picanm[nTile].num;
+		nTile += 1 + GetExtInfo(nTex).picanm.num;
 	}
 }
 
@@ -78,32 +79,32 @@ void tilePrecacheTile(int nTile, int nType, int palette)
 
 void viewPrecacheTiles()
 {
-	tilePrecacheTile(2173, 0, 0);
-	tilePrecacheTile(2200, 0, 0);
-	tilePrecacheTile(2201, 0, 0);
-	tilePrecacheTile(2202, 0, 0);
-	tilePrecacheTile(2207, 0, 0);
-	tilePrecacheTile(2208, 0, 0);
-	tilePrecacheTile(2209, 0, 0);
-	tilePrecacheTile(2229, 0, 0);
-	tilePrecacheTile(2260, 0, 0);
-	tilePrecacheTile(2559, 0, 0);
-	tilePrecacheTile(2169, 0, 0);
-	tilePrecacheTile(2578, 0, 0);
-	tilePrecacheTile(2586, 0, 0);
-	tilePrecacheTile(2602, 0, 0);
+	tilePrecacheTile(kArmorbox, 0, 0);
+	tilePrecacheTile(kStatusbar, 0, 0);
+	tilePrecacheTile(kFullHUD, 0, 0);
+	tilePrecacheTile(kBlinkIcon, 0, 0);
+	tilePrecacheTile(kArmor1Gauge, 0, 0);
+	tilePrecacheTile(kArmor2Gauge, 0, 0);
+	tilePrecacheTile(kArmor3Gauge, 0, 0);
+	tilePrecacheTile(kSBPlayerSlot, 0, 0);
+	tilePrecacheTile(kThrowGauge, 0, 0);
+	tilePrecacheTile(kPackSelect, 0, 0);
+	tilePrecacheTile(kHealthicon, 0, 0);
+	tilePrecacheTile(kArmor1Icon, 0, 0);
+	tilePrecacheTile(kArmor2Icon, 0, 0);
+	tilePrecacheTile(kArmor3Icon, 0, 0);
 	for (int i = 0; i < 10; i++)
 	{
-		tilePrecacheTile(2190 + i, 0, 0);
-		tilePrecacheTile(2230 + i, 0, 0);
-		tilePrecacheTile(2240 + i, 0, 0);
-		tilePrecacheTile(2250 + i, 0, 0);
+		tilePrecacheTile(kSBarHealthAmount0 + i, 0, 0);
+		tilePrecacheTile(kSBarAmmoAmount0 + i, 0, 0);
+		tilePrecacheTile(kSBarWaponNum0 + i, 0, 0);
+		tilePrecacheTile(kSBarPackAmount0 + i, 0, 0);
 		tilePrecacheTile(kSBarNumberHealth + i, 0, 0);
 		tilePrecacheTile(kSBarNumberAmmo + i, 0, 0);
 		tilePrecacheTile(kSBarNumberInv + i, 0, 0);
-		tilePrecacheTile(kSBarNumberArmor1 + i, 0, 0);
-		tilePrecacheTile(kSBarNumberArmor2 + i, 0, 0);
-		tilePrecacheTile(kSBarNumberArmor3 + i, 0, 0);
+		tilePrecacheTile(kSBarNumberArmor1_1 + i, 0, 0);
+		tilePrecacheTile(kSBarNumberArmor2_1 + i, 0, 0);
+		tilePrecacheTile(kSBarNumberArmor3_1 + i, 0, 0);
 	}
 	/*
 	for (int i = 0; i < 5; i++)
@@ -114,8 +115,8 @@ void viewPrecacheTiles()
 	*/
 	for (int i = 0; i < 6; i++)
 	{
-		tilePrecacheTile(2220 + i, 0, 0);
-		tilePrecacheTile(2552 + i, 0, 0);
+		tilePrecacheTile(kKeyIcon1 + i, 0, 0);
+		tilePrecacheTile(kHudKeyIcon1 + i, 0, 0);
 	}
 }
 
