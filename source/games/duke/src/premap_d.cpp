@@ -44,7 +44,7 @@ BEGIN_DUKE_NS
 inline void tloadtile(int tilenum, int palnum = 0)
 {
 	assert(tilenum < MAXTILES);
-	markTileForPrecache(tilenum, palnum);
+	markTextureForPrecache(tileGetTextureID(tilenum), palnum);
 }
 
 //---------------------------------------------------------------------------
@@ -225,31 +225,14 @@ static void cachegoodsprites(void)
 
 void cacheit_d(void)
 {
-	if (!r_precache) return;
-
 	cachegoodsprites();
 
-	for (auto& wal : wall)
+	DukeSpriteIterator it;
+	while (auto act = it.Next())
 	{
-		tloadtile(wal.wallpicnum, wal.pal);
-		if (wal.overpicnum >= 0)
-			tloadtile(wal.overpicnum, wal.pal);
+		if (act->spr.scale.X != 0 && act->spr.scale.Y != 0 && (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
+			cachespritenum(act);
 	}
-
-	for (auto& sect: sector)
-	{
-		tloadtile(sect.floorpicnum, sect.floorpal);
-		tloadtile(sect.ceilingpicnum, sect.ceilingpal);
-
-		DukeSectIterator it(&sect);
-		while (auto act = it.Next())
-		{
-			if (act->spr.scale.X != 0 && act->spr.scale.Y != 0 && (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
-				cachespritenum(act);
-		}
-	}
-
-	precacheMarkedTiles();
 }
 
 //---------------------------------------------------------------------------

@@ -63,8 +63,8 @@ void tilePrecacheTile(int nTile, int nType, int palette)
 	}
 	while (n--)
 	{
-		markTileForPrecache(nTile, palette);
-		nTile += 1 + GetExtInfo(nTex).picanm.num;
+		markTextureForPrecache(nTex, palette);
+		nTex = nTex + 1 + GetExtInfo(nTex).picanm.num;
 	}
 }
 
@@ -259,19 +259,8 @@ void PreloadCache()
 	if (!r_precache) return;
 	int skyTile = -1;
 	// Fonts
-	for (auto& sect : sector)
-	{
-		tilePrecacheTile(sect.floorpicnum, 0, sect.floorpal);
-		tilePrecacheTile(sect.ceilingpicnum, 0, sect.ceilingpal);
-		if ((sect.ceilingstat & CSTAT_SECTOR_SKY) != 0 && skyTile == -1)
-			skyTile = sect.ceilingpicnum;
-	}
-	for (auto& wal : wall)
-	{
-		tilePrecacheTile(wal.wallpicnum, 0, wal.pal);
-		if (wal.overpicnum >= 0)
-			tilePrecacheTile(wal.overpicnum, 0, wal.pal);
-	}
+	precacheMap();
+
 	BloodSpriteIterator it;
 	while (auto actor = it.Next())
 	{
@@ -312,6 +301,11 @@ void PreloadCache()
 	seqPrecacheId(dudeInfo[31].seqStartID + 18, 0);
 
 	/* fixme: cache the composite sky. These are useless.
+	for (auto& sect : sector)
+	{
+		if ((sect.ceilingstat & CSTAT_SECTOR_SKY) != 0 && skyTile == -1)
+			skyTile = sect.ceilingtexture();
+	}
 	if (skyTile > -1 && skyTile < kMaxTiles)
 	{
 		for (int i = 1; i < gSkyCount; i++)

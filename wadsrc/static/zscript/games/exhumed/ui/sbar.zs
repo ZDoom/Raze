@@ -329,7 +329,7 @@ class ExhumedStatusBar : RazeStatusBar
 			}
 			/* non-implemented weapon icon.
 			int wicon = 0;// ammo_sprites[weapon];
-			img = tileGetTexture(wicon);
+			img = ammo_sprites[weapon];
 			imgScale = baseScale / img.GetDisplayHeight();
 			let imgX = 21.125;
 			let strlen = format.Len();

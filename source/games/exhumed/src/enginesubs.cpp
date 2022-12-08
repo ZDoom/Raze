@@ -44,32 +44,12 @@ void precache()
 {
     if (!r_precache) return;
 
-    for (auto& sect: sector)
-    {
-        int j = sect.ceilingpicnum;
-        markTileForPrecache(j, sect.ceilingpal);
-
-        j = sect.floorpicnum;
-        markTileForPrecache(j, sect.floorpal);
-    }
-
-    for(auto& wal : wall)
-    {
-        int j = wal.wallpicnum;
-        markTileForPrecache(j, wal.pal);
-
-        if (wal.twoSided())
-        {
-            j = wal.overpicnum;
-            markTileForPrecache(j, wal.pal);
-        }
-    }
+    precacheMap();
 
 	ExhumedSpriteIterator it;
 	while (auto ac = it.Next())
     {
-        int j = ac->spr.picnum;
-        markTileForPrecache(j, ac->spr.pal);
+        markTextureForPrecache(ac->spr.spritetexture(), ac->spr.pal);
     }
     precacheMarkedTiles();
 }

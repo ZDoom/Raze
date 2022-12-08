@@ -989,7 +989,13 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 	allignwarpelevators();
 	resetpspritevars(gamemode, pos, mapangle(lbang));
 
-	if (isRR()) cacheit_r(); else cacheit_d();
+	if (r_precache)
+	{
+		if (isRR()) cacheit_r(); else cacheit_d();
+
+		precacheMap();
+		precacheMarkedTiles();
+	}
 	return 0;
 }
 

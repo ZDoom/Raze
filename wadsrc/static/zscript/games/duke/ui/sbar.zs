@@ -65,7 +65,7 @@ class DukeCommonStatusBar : RazeStatusBar
 		for (i = connecthead; i >= 0; i = connectpoint2[i])
 			if (i > j) j = i;
 
-		auto tex = tileGetTexture(TILE_FRAGBAR);
+		auto tex = ("FRAGBAR");
 		for (int y = 0; y < 32; y += 8)
 			DrawTexture(twod, tex, 0, 0, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, 1.001, DTA_ScaleY, 1.001, TAG_Done);
 

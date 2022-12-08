@@ -59,12 +59,12 @@ static void PrecacheTex(FGameTexture* tex, int palid)
 	screen->PrecacheMaterial(mat, palid);
 }
 
-static void doprecache(int picnum, int palette)
+static void doprecache(FTextureID texid, int palette)
 {
    if ((palette < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(palette))) return;
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, palette);
-    auto tex = tileGetTexture(picnum);
+	auto tex = TexMan.GetGameTexture(texid);
     PrecacheTex(tex, palid);
 
 	int const mid = -1;// hw_models ? modelManager.CheckModel(picnum, palette) : -1;
@@ -73,7 +73,7 @@ static void doprecache(int picnum, int palette)
 	{
 		if (r_voxels)
 		{
-			int vox = GetExtInfo(tileGetTextureID(picnum)).tiletovox;
+			int vox = GetExtInfo(texid).tiletovox;
 			if (vox >= 0 && vox < MAXVOXELS && voxmodels[vox] && voxmodels[vox]->model)
 			{
 				FHWModelRenderer mr(*screen->RenderState(), 0);
@@ -98,28 +98,34 @@ static void doprecache(int picnum, int palette)
 
 TMap<int64_t, bool> cachemap;
 
-void markTileForPrecache(int tilenum, int palnum)
+void markTextureForPrecache(FTextureID nTex, int palnum)
 {
 	int i, j;
-	auto nTex = tileGetTextureID(tilenum);
 	auto& picanm = GetExtInfo(nTex).picanm;
 	if (picanm.type() == PICANM_ANIMTYPE_BACK)
 	{
-		i = tilenum - picanm.num;
-		j = tilenum;
+		i = nTex.GetIndex() - picanm.num;
+		j = nTex.GetIndex();
 	}
 	else
 	{
-		i = tilenum;
-		j = tilenum + picanm.num * ((picanm.type() == PICANM_ANIMTYPE_OSC) ? 2 : 1);
+		i = nTex.GetIndex();
+		j = nTex.GetIndex() + picanm.num * ((picanm.type() == PICANM_ANIMTYPE_OSC) ? 2 : 1);
 	}
 
-	for (; i <= j; i++)
+	for (; i <= j; i = i + 1)
 	{
 		int64_t val = i + (int64_t(palnum) << 32);
 		cachemap.Insert(val, true);
 	}
 }
+
+void markTextureForPrecache(const char* texname, int palnum)
+{
+	auto texid = TexMan.CheckForTexture(texname, ETextureType::Any);
+	if (texid.isValid()) markTextureForPrecache(texid, palnum);
+}
+
 
 void precacheMarkedTiles()
 {
@@ -128,9 +134,9 @@ void precacheMarkedTiles()
 	decltype(cachemap)::Pair* pair;
 	while (it.NextPair(pair))
 	{
-		int dapicnum = pair->Key & 0x7fffffff;
-		int dapalnum = pair->Key >> 32;
-		doprecache(dapicnum, dapalnum);
+		int texid = pair->Key & 0x7fffffff;
+		int palnum = pair->Key >> 32;
+		doprecache(FSetTextureID(texid), palnum);
 	}
 
 	// Cache everything the map explicitly declares.
@@ -148,3 +154,21 @@ void precacheMarkedTiles()
 	cachemap.Clear();
 }
 
+void precacheMap()
+{
+	for (auto& sect : sector)
+	{
+		markTextureForPrecache(sect.ceilingtexture(), sect.ceilingpal);
+		markTextureForPrecache(sect.floortexture(), sect.floorpal);
+	}
+
+	for (auto& wal : wall)
+	{
+		markTextureForPrecache(wal.walltexture(), wal.pal);
+
+		if (wal.twoSided())
+		{
+			markTextureForPrecache(wal.overtexture(), wal.pal);
+		}
+	}
+}
