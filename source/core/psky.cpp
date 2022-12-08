@@ -98,7 +98,7 @@ SkyDefinition getSky(int tilenum)
 			result = {};
 			result.scale = 1.f;
 		}
-		int w =   tileWidth(tilenum);
+		int w = tileWidth(tilenum);
 		if (result.lognumtiles == 0 || w >= 256)
 		{
 			if (w < 512) result.lognumtiles = 2;

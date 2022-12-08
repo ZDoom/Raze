@@ -174,6 +174,10 @@ public:
 		BuildTileData.Reserve(1);
 		return BuildTileData.Last();
 	}
+	TArray<TArray<uint8_t>>& GetBuildTileDataStore()
+	{
+		return BuildTileData;
+	}
 
 	FGameTexture* GameTexture(FTextureID id) { return Textures[id.GetIndex()].Texture; }
 	void SetTranslation(FTextureID fromtexnum, FTextureID totexnum);

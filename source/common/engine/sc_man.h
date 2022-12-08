@@ -117,6 +117,13 @@ public:
 	void MustGetNumber(bool evaluate = false);
 	bool CheckNumber(bool evaluate = false);
 
+	bool GetNumber(int16_t& var, bool evaluate = false)
+	{
+		if (!GetNumber(evaluate)) return false;
+		var = Number;
+		return true;
+	}
+
 	bool GetNumber(int& var, bool evaluate = false)
 	{
 		if (!GetNumber(evaluate)) return false;

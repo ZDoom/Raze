@@ -82,8 +82,8 @@ PalettedPixels FImageSource::GetCachedPalettedPixels(int conversion)
 {
 	PalettedPixels ret;
 
-	FString name;
-	fileSystem.GetFileShortName(name, SourceLump);
+	//FString name;
+	//fileSystem.GetFileShortName(name, SourceLump);
 
 	auto imageID = ImageID;
 
@@ -196,10 +196,10 @@ FBitmap FImageSource::GetCachedBitmap(const PalEntry *remap, int conversion, int
 {
 	FBitmap ret;
 
-	FString name;
-	int trans = -1;
-	fileSystem.GetFileShortName(name, SourceLump);
+	//FString name;
+	//fileSystem.GetFileShortName(name, SourceLump);
 
+	int trans = -1;
 	auto imageID = ImageID;
 
 	if (remap != nullptr)

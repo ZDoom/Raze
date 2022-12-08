@@ -43,6 +43,7 @@ BEGIN_DUKE_NS
 void tileCopySection(FTextureID tilenum1, int sx1, int sy1, int xsiz, int ysiz, uint8_t* p2, int xsiz2, int ysiz2, int sx2, int sy2)
 {
 	auto tex = TexMan.GetGameTexture(tilenum1);
+	if (!tex->isValid()) return;
 	int xsiz1 = tex->GetTexelWidth();
 	int ysiz1 = tex->GetTexelHeight();
 	if (xsiz1 > 0 && ysiz1 > 0)

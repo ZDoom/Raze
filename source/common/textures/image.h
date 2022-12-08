@@ -60,7 +60,7 @@ public:
 	virtual bool SupportRemap0() { return false; }		// Unfortunate hackery that's needed for Hexen's skies. Only the image can know about the needed parameters
 	virtual bool IsRawCompatible() { return true; }		// Same thing for mid texture compatibility handling. Can only be determined by looking at the composition data which is private to the image.
 
-	void CopySize(FImageSource &other)
+	void CopySize(FImageSource &other) noexcept
 	{
 		Width = other.Width;
 		Height = other.Height;
@@ -71,6 +71,7 @@ public:
 
 	// Images are statically allocated and freed in bulk. None of the subclasses may hold any destructible data.
 	void *operator new(size_t block) { return ImageArena.Alloc(block); }
+	void* operator new(size_t block, void* mem) { return mem; }
 	void operator delete(void *block) {}
 
 	bool bMasked = true;						// Image (might) have holes (Assume true unless proven otherwise!)
@@ -102,8 +103,8 @@ public:
 		noremap0 = 2
 	};
 
-	FImageSource(int sourcelump = -1) : SourceLump(sourcelump) { ImageID = ++NextID; }
-	virtual ~FImageSource() {}
+	FImageSource(int sourcelump = -1) noexcept : SourceLump(sourcelump) { ImageID = ++NextID; }
+	virtual ~FImageSource() = default;
 
 	int GetWidth() const
 	{
