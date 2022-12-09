@@ -19,11 +19,9 @@ struct PlayerAngles
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, PlayerAngles* def);
 
-	// Prototypes for applying input.
-	void applyPitch(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
-	void applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
-
-	// Prototypes for applying view.
+	// Prototypes.
+	void doPitchKeys(ESyncBits* actions, const bool stopcentering);
+	void doYawKeys(ESyncBits* actions);
 	void doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, bool const climbing = false);
 	void doViewYaw(const ESyncBits actions);
 
@@ -39,10 +37,6 @@ struct PlayerAngles
 	}
 
 	// Render angle functions.
-	DRotator& activeAngles()
-	{
-		return !SyncInput() ? RenderAngles : pActor->spr.Angles;
-	}
 	DRotator lerpViewAngles(const double interpfrac)
 	{
 		return interpolatedvalue(PrevViewAngles, ViewAngles, interpfrac);

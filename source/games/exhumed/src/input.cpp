@@ -86,8 +86,8 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     {
         if (!nFreeze)
         {
-            pPlayer->Angles.applyYaw(input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
-            pPlayer->Angles.applyPitch(input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+            pPlayer->Angles.RenderAngles.Yaw += DAngle::fromDeg(input.avel);
+            pPlayer->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
 
             if (input.horz)
             {

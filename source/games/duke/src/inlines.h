@@ -215,9 +215,9 @@ inline float PlayerInputAngVel(int pl)
 	return ps[pl].sync.avel;
 }
 
-inline float GetPlayerHorizon(int pl)
+inline DAngle GetPlayerHorizon(int pl)
 {
-	return ps[pl].sync.horz;
+	return DAngle::fromDeg(ps[pl].sync.horz);
 }
 
 inline void clearfriction()

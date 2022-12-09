@@ -34,10 +34,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust);
-void DoPlayerTurn(PLAYER* pp, float const avel, double const scaleAdjust);
-void DoPlayerTurnVehicle(PLAYER* pp, float avel, double z, double floor_dist);
-void DoPlayerTurnTurret(PLAYER* pp, float avel);
+void DoPlayerTurnVehicle(PLAYER* pp, DAngle& plyaw, float avel, double z, double floor_dist);
+void DoPlayerTurnTurret(PLAYER* pp, DAngle& plyaw, float avel);
 
 static InputPacket loc;
 
@@ -182,22 +180,22 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
     {
         if ((pp->Flags2 & PF2_INPUT_CAN_AIM))
         {
-            DoPlayerHorizon(pp, input.horz, scaleAdjust);
+            pp->Angles.RenderAngles.Pitch += DAngle::fromDeg(input.horz);
         }
 
         if ((pp->Flags2 & PF2_INPUT_CAN_TURN_GENERAL))
         {
-            DoPlayerTurn(pp, input.avel, scaleAdjust);
+            pp->Angles.RenderAngles.Yaw += DAngle::fromDeg(input.avel);
         }
 
         if ((pp->Flags2 & PF2_INPUT_CAN_TURN_VEHICLE))
         {
-            DoPlayerTurnVehicle(pp, input.avel, pp->actor->getOffsetZ() + 10, abs(pp->actor->getOffsetZ() + 10 - pp->sop->floor_loz));
+            DoPlayerTurnVehicle(pp, pp->Angles.RenderAngles.Yaw, input.avel, pp->actor->getOffsetZ() + 10, abs(pp->actor->getOffsetZ() + 10 - pp->sop->floor_loz));
         }
 
         if ((pp->Flags2 & PF2_INPUT_CAN_TURN_TURRET))
         {
-            DoPlayerTurnTurret(pp, input.avel);
+            DoPlayerTurnTurret(pp, pp->Angles.RenderAngles.Yaw, input.avel);
         }
     }
 

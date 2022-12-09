@@ -1523,19 +1523,7 @@ void UpdatePlayerSpriteAngle(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTurn(PLAYER* pp, float const avel, double const scaleAdjust)
-{
-    pp->Angles.applyYaw(avel, &pp->input.actions, scaleAdjust);
-    UpdatePlayerSpriteAngle(pp);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
+void DoPlayerTurnVehicle(PLAYER* pp, DAngle& plyaw, float avel, double zz, double floordist)
 {
     SECTOR_OBJECT* sop = pp->sop;
 
@@ -1553,10 +1541,10 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
 
     if (avel != 0)
     {
-        auto sum = pp->Angles.activeAngles().Yaw + DAngle::fromDeg(avel);
+        auto sum = plyaw + DAngle::fromDeg(avel);
         if (MultiClipTurn(pp, sum, zz, floordist))
         {
-            pp->Angles.activeAngles().Yaw = sum;
+            plyaw = sum;
         }
     }
 }
@@ -1600,7 +1588,7 @@ void DoPlayerTurnVehicleRect(PLAYER* pp, DVector2* pos, DVector2* opos)
 //
 //---------------------------------------------------------------------------
 
-void DoPlayerTurnTurret(PLAYER* pp, float avel)
+void DoPlayerTurnTurret(PLAYER* pp, DAngle& plyaw, float avel)
 {
     DAngle new_ang, diff;
     SECTOR_OBJECT* sop = pp->sop;
@@ -1619,7 +1607,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
 
     if (fabs(avel) >= FLT_EPSILON)
     {
-        new_ang = pp->Angles.activeAngles().Yaw + DAngle::fromDeg(avel);
+        new_ang = plyaw + DAngle::fromDeg(avel);
 
         if (sop->limit_ang_center >= nullAngle)
         {
@@ -1634,10 +1622,10 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
             }
         }
 
-        pp->Angles.activeAngles().Yaw = new_ang;
+        plyaw = new_ang;
     }
 
-    OperateSectorObject(pp->sop, pp->Angles.activeAngles().Yaw, pp->sop->pmid);
+    OperateSectorObject(pp->sop, plyaw, pp->sop->pmid);
 }
 
 //---------------------------------------------------------------------------
@@ -1671,17 +1659,6 @@ void DoPlayerSlopeTilting(PLAYER* pp)
 {
     bool const canslopetilt = !(pp->Flags & (PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING)) && pp->cursector && (pp->cursector->floorstat & CSTAT_SECTOR_SLOPE);
     pp->Angles.doViewPitch(pp->actor->spr.pos.XY(), pp->actor->spr.Angles.Yaw, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, (pp->Flags & PF_CLIMBING));
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void DoPlayerHorizon(PLAYER* pp, float const horz, double const scaleAdjust)
-{
-    pp->Angles.applyPitch(horz, &pp->input.actions, scaleAdjust);
 }
 
 //---------------------------------------------------------------------------
@@ -2087,8 +2064,11 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        DoPlayerTurn(pp, pp->input.avel, 1);
+        pp->actor->spr.Angles.Yaw += DAngle::fromDeg(pp->input.avel);
     }
+
+    pp->Angles.doYawKeys(&pp->input.actions);
+    UpdatePlayerSpriteAngle(pp);
 
     pp->lastcursector = pp->cursector;
 
@@ -2209,8 +2189,10 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.horz, 1);
+        pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
+
+    pp->Angles.doPitchKeys(&pp->input.actions, pp->input.horz);
 
     DoPlayerSlopeTilting(pp);
 
@@ -2739,7 +2721,7 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         }
         else
         {
-            DoPlayerTurnVehicle(pp, pp->input.avel, zz, floordist);
+            DoPlayerTurnVehicle(pp, pp->actor->spr.Angles.Yaw, pp->input.avel, zz, floordist);
         }
 
         auto save_cstat = plActor->spr.cstat;
@@ -2785,8 +2767,10 @@ void DoPlayerMoveVehicle(PLAYER* pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.horz, 1);
+        pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
+
+    pp->Angles.doPitchKeys(&pp->input.actions, pp->input.horz);
 
     DoPlayerSlopeTilting(pp);
 
@@ -2815,7 +2799,7 @@ void DoPlayerMoveTurret(PLAYER* pp)
     }
     else
     {
-        DoPlayerTurnTurret(pp, pp->input.avel);
+        DoPlayerTurnTurret(pp, pp->actor->spr.Angles.Yaw, pp->input.avel);
     }
 
     if (PLAYER_MOVING(pp) == 0)
@@ -2829,8 +2813,10 @@ void DoPlayerMoveTurret(PLAYER* pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.horz, 1);
+        pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
+
+    pp->Angles.doPitchKeys(&pp->input.actions, pp->input.horz);
 
     DoPlayerSlopeTilting(pp);
 }
@@ -3393,8 +3379,10 @@ void DoPlayerClimb(PLAYER* pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.horz, 1);
+        pp->actor->spr.Angles.Pitch += DAngle::fromDeg(pp->input.horz);
     }
+
+    pp->Angles.doPitchKeys(&pp->input.actions, pp->input.horz);
 
     DoPlayerSlopeTilting(pp);
 
@@ -5971,8 +5959,11 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
         }
         else
         {
-            DoPlayerTurn(pp, pp->input.avel, 1);
+            pp->actor->spr.Angles.Yaw += DAngle::fromDeg(pp->input.avel);
         }
+
+        pp->Angles.doYawKeys(&pp->input.actions);
+        UpdatePlayerSpriteAngle(pp);
     }
 
     // follow what killed you if its available

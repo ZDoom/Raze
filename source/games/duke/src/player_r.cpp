@@ -3218,7 +3218,6 @@ void processinput_r(int snum)
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);
-	auto sb_avel = PlayerInputAngVel(snum);
 
 	auto psectp = p->cursector;
 	if (p->OnMotorcycle && pact->spr.extra > 0)
@@ -3485,9 +3484,10 @@ void processinput_r(int snum)
 		//ENGINE calculates angvel for you
 		// may still be needed later for demo recording
 
-		sb_avel = p->adjustavel(sb_avel);
-		p->Angles.applyYaw(sb_avel, &actions);
+		p->GetActor()->spr.Angles.Yaw += p->adjustavel(PlayerInputAngVel(snum));
 	}
+
+	p->Angles.doYawKeys(&actions);
 
 	if (p->spritebridge == 0 && pact->insector())
 	{
@@ -3822,8 +3822,10 @@ HORIZONLY:
 
 	if (SyncInput())
 	{
-		p->Angles.applyPitch(GetPlayerHorizon(snum), &actions);
+		p->GetActor()->spr.Angles.Pitch += GetPlayerHorizon(snum);
 	}
+
+	p->Angles.doPitchKeys(&actions, GetPlayerHorizon(snum).Sgn());
 
 	p->checkhardlanding();
 

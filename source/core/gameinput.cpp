@@ -67,24 +67,16 @@ inline static T getTicrateScale(const T value)
 	return T(value / GameTicRate);
 }
 
-inline static double getCorrectedScale(const double scaleAdjust)
+inline static DAngle getscaledangle(const DAngle value, const DAngle object, const DAngle push)
 {
-	// When using the output of I_GetInputFrac() to scale input adjustments at framerate, deviations of over 100 ms can occur.
-	// Below formula corrects the deviation, with 0.2125 being an average between an ideal value of 0.20 for 40Hz and 0.22 for 30Hz.
-	// We use the average value here as the difference is under 5 ms and is not worth complicating the algorithm for such precision.
-	return scaleAdjust < 1. ? scaleAdjust * (1. + 0.21 * (1. - scaleAdjust)) : scaleAdjust;
+	return (object.Normalized180() * getTicrateScale(value)) + push;
 }
 
-inline static DAngle getscaledangle(const DAngle value, const DAngle object, const DAngle push, const double scaleAdjust = 1)
-{
-	return ((object.Normalized180() * getTicrateScale(value)) + push) * getCorrectedScale(scaleAdjust);
-}
-
-inline static void scaletozero(DAngle& object, const DAngle value, const double scaleAdjust = 1, const DAngle push = DAngle::fromDeg(32. / 465.))
+inline static void scaletozero(DAngle& object, const DAngle value, const DAngle push = DAngle::fromDeg(32. / 465.))
 {
 	if (auto sgn = object.Sgn())
 	{
-		object  -= getscaledangle(value, object, push * sgn, scaleAdjust);
+		object  -= getscaledangle(value, object, push * sgn);
 		if (sgn != object.Sgn()) object = nullAngle;
 	}
 }
@@ -169,56 +161,49 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 //---------------------------------------------------------------------------
 //
-// Player's horizon function, called from game's ticker or from gi->GetInput() as required.
+// Adjust player's pitch by way of keyboard input.
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const scaleAdjust)
+void PlayerAngles::doPitchKeys(ESyncBits* actions, const bool stopcentering)
 {
-	// Process mouse input.
-	if (horz)
-	{
-		activeAngles().Pitch += DAngle::fromDeg(horz);
-		*actions &= ~SB_CENTERVIEW;
-	}
+	// Cancel return to center if conditions met.
+	if (stopcentering) *actions &= ~SB_CENTERVIEW;
 
 	// Process keyboard input.
 	if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
 	{
-		activeAngles().Pitch += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
+		pActor->spr.Angles.Pitch += getTicrateScale(PITCH_AIMSPEED) * aiming;
 		*actions &= ~SB_CENTERVIEW;
 	}
 	if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
 	{
-		activeAngles().Pitch += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
+		pActor->spr.Angles.Pitch += getTicrateScale(PITCH_LOOKSPEED) * looking;
 		*actions |= SB_CENTERVIEW;
 	}
 
 	// Do return to centre.
 	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 	{
-		const auto pitch = abs(activeAngles().Pitch);
+		const auto pitch = abs(pActor->spr.Angles.Pitch);
 		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
-		scaletozero(activeAngles().Pitch, PITCH_CENTERSPEED * scale, scaleAdjust);
-		if (!activeAngles().Pitch.Sgn()) *actions &= ~SB_CENTERVIEW;
+		scaletozero(pActor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale);
+		if (!pActor->spr.Angles.Pitch.Sgn()) *actions &= ~SB_CENTERVIEW;
 	}
 
 	// clamp before we finish, even if it's clamped in the drawer.
-	activeAngles().Pitch = ClampViewPitch(activeAngles().Pitch);
+	pActor->spr.Angles.Pitch = ClampViewPitch(pActor->spr.Angles.Pitch);
 }
 
 
 //---------------------------------------------------------------------------
 //
-// Player's angle function, called from game's ticker or from gi->GetInput() as required.
+// Adjust player's yaw by way of keyboard input.
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust)
+void PlayerAngles::doYawKeys(ESyncBits* actions)
 {
-	// add player's input
-	activeAngles().Yaw += DAngle::fromDeg(avel);
-
 	if (*actions & SB_TURNAROUND)
 	{
 		if (YawSpin == nullAngle)
@@ -232,7 +217,7 @@ void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const s
 	if (YawSpin < nullAngle)
 	{
 		// return spin to 0
-		DAngle add = getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH) * scaleAdjust;
+		DAngle add = getTicrateScale(!(*actions & SB_CROUCH) ? YAW_SPINSTAND : YAW_SPINCROUCH);
 		YawSpin += add;
 		if (YawSpin > nullAngle)
 		{
@@ -240,7 +225,7 @@ void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const s
 			add -= YawSpin;
 			YawSpin = nullAngle;
 		}
-		activeAngles().Yaw += add;
+		pActor->spr.Angles.Yaw += add;
 	}
 }
 
@@ -289,7 +274,7 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, 1, PITCH_HORIZOFFPUSH);
+			scaletozero(ViewAngles.Pitch, PITCH_HORIZOFFSPEED, PITCH_HORIZOFFPUSH);
 		}
 
 		// Clamp off against the maximum allowed pitch.

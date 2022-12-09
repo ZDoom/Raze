@@ -1587,8 +1587,10 @@ void ProcessInput(PLAYER* pPlayer)
 
 	if (SyncInput())
 	{
-		pPlayer->Angles.applyYaw(pInput->avel, &pInput->actions);
+		pPlayer->actor->spr.Angles.Yaw += DAngle::fromDeg(pInput->avel);
 	}
+
+	pPlayer->Angles.doYawKeys(&pInput->actions);
 
 	if (!(pInput->actions & SB_JUMP))
 		pPlayer->cantJump = 0;
@@ -1712,9 +1714,10 @@ void ProcessInput(PLAYER* pPlayer)
 
 	if (SyncInput())
 	{
-		pPlayer->Angles.applyPitch(pInput->horz, &pInput->actions);
+		pPlayer->actor->spr.Angles.Pitch += DAngle::fromDeg(pInput->horz);
 	}
 
+	pPlayer->Angles.doPitchKeys(&pInput->actions, pInput->horz);
 	doslopetilting(pPlayer);
 
 	pPlayer->slope = pPlayer->actor->spr.Angles.Pitch.Tan();
