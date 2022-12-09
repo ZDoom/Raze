@@ -357,27 +357,12 @@ void SectorLiquidSet(sectortype* sectp)
     //
     // ///////////////////////////////////
 
-    if (sectp->floorpicnum >= 300 && sectp->floorpicnum <= 307)
+    if (tilesurface(sectp->floortexture()) == TSURF_WATER)
     {
         sectp->u_defined = true;
         sectp->extra |= (SECTFX_LIQUID_WATER);
     }
-    else if (sectp->floorpicnum >= 320 && sectp->floorpicnum <= 343)
-    {
-        sectp->u_defined = true;
-        sectp->extra |= (SECTFX_LIQUID_WATER);
-    }
-    else if (sectp->floorpicnum >= 780 && sectp->floorpicnum <= 794)
-    {
-        sectp->u_defined = true;
-        sectp->extra |= (SECTFX_LIQUID_WATER);
-    }
-    else if (sectp->floorpicnum >= 890 && sectp->floorpicnum <= 897)
-    {
-        sectp->u_defined = true;
-        sectp->extra |= (SECTFX_LIQUID_WATER);
-    }
-    else if (sectp->floorpicnum >= 175 && sectp->floorpicnum <= 182)
+    else if (tilesurface(sectp->floortexture()) == TSURF_LAVA)
     {
         sectp->u_defined = true;
         sectp->extra |= (SECTFX_LIQUID_LAVA);

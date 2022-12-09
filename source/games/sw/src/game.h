@@ -887,6 +887,12 @@ enum ETexFlags
     TFLAG_BUNNYFRIENDLY = 1, // bunnies like to stay in sectors with this as floor.
 };
 
+enum ESurfType
+{
+    TSURF_WATER         = 1,
+    TSURF_LAVA          = 2,
+};
+
 // User->Flags flags
 enum
 {
