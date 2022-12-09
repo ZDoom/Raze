@@ -234,9 +234,9 @@ enum
 void GameInterface::SetupSpecialTextures(TilesetBuildInfo& info)
 {
     info.Delete(MIRROR); // mirror
+    info.Delete(MIRRORLABEL);
     for (int i = 0; i < MAXMIRRORS; i++)
     {
-        info.Delete(i + MIRRORLABEL);
         info.MakeCanvas(CAMSPRITE + i, 128, 114);
     }
     // make these two unique, they are empty by default.

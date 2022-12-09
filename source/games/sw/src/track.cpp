@@ -2059,7 +2059,7 @@ void CallbackSOsink(ANIM* ap, void *data)
 
     ASSERT(destsect != nullptr);
 
-    destsect->floorpicnum = srcsect->floorpicnum;
+    destsect->setfloortexture(srcsect->floortexture());
     destsect->floorshade = srcsect->floorshade;
 
     destsect->floorstat &= ~(CSTAT_SECTOR_ALIGN);

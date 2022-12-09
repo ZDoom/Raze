@@ -283,10 +283,8 @@ void JS_InitMirrors(void)
                     continue;
                 }
 
-                wal.overpicnum = MIRRORLABEL + mirrorcnt;
-                wal.wallpicnum = MIRRORLABEL + mirrorcnt;
-                sec->ceilingpicnum = MIRRORLABEL + mirrorcnt;
-                sec->floorpicnum = MIRRORLABEL + mirrorcnt;
+                wal.overpicnum = MIRRORLABEL;
+                wal.wallpicnum = MIRRORLABEL;
                 sec->floorstat |= CSTAT_SECTOR_SKY;
                 mirror[mirrorcnt].mirrorWall = &wal;
                 mirror[mirrorcnt].mirrorSector = sec;

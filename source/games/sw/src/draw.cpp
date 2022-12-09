@@ -1138,7 +1138,7 @@ void UpdateWallPortalState()
             continue;
         }
          walltype* wal = mirror[i].mirrorWall;
-        if (wal->wallpicnum != MIRRORLABEL + i)
+        if (wal->wallpicnum != MIRRORLABEL)
         {
             wal->portalflags = 0;
             continue;
