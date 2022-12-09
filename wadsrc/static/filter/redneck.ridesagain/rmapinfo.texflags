@@ -37,4 +37,6 @@ textureflags
 surfacetypes
 {
 	TSURF_MAGMA = MAGMA1, MAGMA2
+	TSURF_OIL = OIL1, OIL2
+	TSURF_DEEPMUD = DEEPMUD
 }

@@ -111,7 +111,7 @@ static void ReadSectorV7(FileReader& fr, sectortype& sect)
 	sect.ceilingpal = fr.ReadUInt8();
 	sect.ceilingxpan_ = fr.ReadUInt8();
 	sect.ceilingypan_ = fr.ReadUInt8();
-	sect.floorpicnum = fr.ReadUInt16();
+	sect.setfloortexture(tileGetTextureID(fr.ReadUInt16()));
 	sect.floorheinum = fr.ReadInt16();
 	sect.floorshade = fr.ReadInt8();
 	sect.floorpal = fr.ReadUInt8();
@@ -130,7 +130,7 @@ static void ReadSectorV6(FileReader& fr, sectortype& sect)
 	int wallnum = fr.ReadInt16();
 	sect.walls.Set(&wall[wallptr], wallnum);
 	sect.setceilingtexture(tileGetTextureID(fr.ReadUInt16()));
-	sect.floorpicnum = fr.ReadUInt16();
+	sect.setfloortexture(tileGetTextureID(fr.ReadUInt16()));
 	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	sect.floorheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	int c = fr.ReadInt32();
@@ -159,7 +159,7 @@ static void ReadSectorV5(FileReader& fr, sectortype& sect)
 	int wallnum = fr.ReadInt16();
 	sect.walls.Set(&wall[wallptr], wallnum);
 	sect.setceilingtexture(tileGetTextureID(fr.ReadUInt16()));
-	sect.floorpicnum = fr.ReadUInt16();
+	sect.setfloortexture(tileGetTextureID(fr.ReadUInt16()));
 	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	sect.floorheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	int c = fr.ReadInt32();

@@ -436,6 +436,10 @@ enum
 	TSURF_THUNDERSKY			= 7,
 	TSURF_PLASMA				= 8,
 	TSURF_MAGMA					= 9,
+	TSURF_METALDUCTS			= 10,
+	TSURF_OIL					= 11,
+	TSURF_DEEPMUD				= 12,	// also affects motorcycle
+	TSURF_SPECIALWATER			= 13,
 };
 
 enum

@@ -2916,26 +2916,23 @@ void processinput_d(int snum)
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
-				int j;
+				FTextureID j;
 				switch (psectlotag)
 				{
 				case 0:
 
 					if (clz.type == kHitSprite)
-						j = clz.actor()->spr.picnum;
+						j = clz.actor()->spr.spritetexture();
 					else
-						j = psectp->floorpicnum;
+						j = psectp->floortexture();
 
-					switch (j)
+					if (tilesurface(j) == TSURF_METALDUCTS)
 					{
-					case DTILE_PANNEL1:
-					case DTILE_PANNEL2:
 						S_PlayActorSound(DUKE_WALKINDUCTS, pact);
 						p->walking_snd_toggle = 1;
-						break;
 					}
 					break;
-				case 1:
+				case ST_1_ABOVE_WATER:
 					if ((krand() & 1) == 0)
 						S_PlayActorSound(DUKE_ONWATER, pact);
 					p->walking_snd_toggle = 1;

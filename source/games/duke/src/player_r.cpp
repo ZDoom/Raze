@@ -2007,7 +2007,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					p->footprintpal = 8;
 					p->footprintshade = 0;
 				}
-				else if (isRRRA() && (p->cursector->floorpicnum == RTILE_RRTILE7756 || p->cursector->floorpicnum == RTILE_RRTILE7888))
+				else if (tilesurface(p->cursector->floortexture()) == TSURF_OIL)
 				{
 					p->footprintpal = 0;
 					p->footprintshade = 40;
@@ -3250,16 +3250,16 @@ void processinput_r(int snum)
 		DukeSectIterator it(psectp);
 		while (auto act2 = it.Next())
 		{
-			if (act2->spr.picnum == RTILE_RRTILE380)
+			if (act2->spr.picnum == RTILE_WATERSURFACE)
 				if (act2->spr.pos.Z - 8 < p->GetActor()->getOffsetZ())
-					psectlotag = 2;
+					psectlotag = ST_2_UNDERWATER;
 		}
 	}
 	else if (psectlotag == 7777 && (currentLevel->gameflags & LEVEL_RR_HULKSPAWN))
 			lastlevel = 1;
 
-	if (psectlotag == 848 && psectp->floorpicnum == RTILE_WATERTILE2)
-		psectlotag = 1;
+	if (psectlotag == 848 && tilesurface(psectp->floortexture()) == TSURF_SPECIALWATER)
+		psectlotag = ST_1_ABOVE_WATER;
 
 	if (psectlotag == 857)
 		pact->clipdist = 0.25;
@@ -3542,14 +3542,20 @@ void processinput_r(int snum)
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
-				int j;
+				FTextureID j;
 				switch (psectlotag)
 				{
 				case 0:
-
 					if (clz.type == kHitSprite)
-						j = clz.actor()->spr.picnum;
-					else j = psectp->floorpicnum;
+						j = clz.actor()->spr.spritetexture();
+					else
+						j = psectp->floortexture();
+
+					if (tilesurface(j) == TSURF_METALDUCTS)
+					{
+						S_PlayActorSound(S_FindSound("PLAYER_WALKINDUCTS"), pact); // Duke's sound slot is not available here.
+						p->walking_snd_toggle = 1;
+					}
 					break;
 				case 1:
 					if ((krand() & 1) == 0)
@@ -3585,13 +3591,13 @@ void processinput_r(int snum)
 			}
 		}
 
-		if (isRRRA() && psectp->floorpicnum == RTILE_RRTILE7888)
+		if (tilesurface(psectp->floortexture()) == TSURF_OIL)
 		{
 			if (p->OnMotorcycle)
 				if (p->on_ground)
 					p->moto_on_oil = 1;
 		}
-		else if (isRRRA() && psectp->floorpicnum == RTILE_RRTILE7889)
+		else if (tilesurface(psectp->floortexture()) == TSURF_DEEPMUD)
 		{
 			if (p->OnMotorcycle)
 			{
@@ -3605,25 +3611,23 @@ void processinput_r(int snum)
 				p->vel.XY() *= gs.playerfriction;
 			}
 		}
-		else
-
-			if (psectp->floorpicnum == RTILE_MUDDY || psectp->floorpicnum == RTILE_MUDDYPATH)
+		else if (tilesurface(psectp->floortexture()) == TSURF_MUDDY)
+		{
+			if (p->OnMotorcycle)
 			{
-				if (p->OnMotorcycle)
+				if (p->on_ground)
 				{
-					if (p->on_ground)
-					{
-						p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
-					}
+					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
 				}
-				else
-					if (p->boot_amount > 0)
-						p->boot_amount--;
-					else
-					{
-						p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
-					}
 			}
+			else
+				if (p->boot_amount > 0)
+					p->boot_amount--;
+				else
+				{
+					p->vel.XY() *= gs.playerfriction - FixedToFloat(0x1800);
+				}
+		}
 
 		if (abs(p->vel.X) < 1 / 128. && abs(p->vel.Y) < 1 / 128.)
 			p->vel.X = p->vel.Y = 0;

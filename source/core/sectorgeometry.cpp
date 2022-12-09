@@ -366,7 +366,7 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 	if (plane == 0)
 	{
 		if (sec->floorheinum == compare->floorheinum &&
-			sec->floorpicnum == compare->floorpicnum &&
+			sec->floortexture() == compare->floortexture &&
 			((sec->floorstat ^ compare->floorstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->floorxpan_ == compare->floorxpan_ &&
 			sec->floorypan_ == compare->floorypan_ &&

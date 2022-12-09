@@ -33,8 +33,8 @@ struct sectortypelight
 	ESectorFlags ceilingstat;
 	ESectorFlags floorstat;
 	FTextureID ceilingtexture;
+	FTextureID floortexture;
 	int16_t ceilingheinum;
-	int16_t floorpicnum;
 	int16_t floorheinum;
 
 	void copy(sectortype* sec)
@@ -48,7 +48,7 @@ struct sectortypelight
 		ceilingheinum = sec->ceilingheinum;
 		floorheinum = sec->floorheinum;
 		ceilingtexture = sec->ceilingtexture();
-		floorpicnum = sec->floorpicnum;
+		floortexture = sec->floortexture();
 	}
 };
 
