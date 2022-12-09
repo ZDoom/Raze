@@ -93,4 +93,12 @@ void TickStatusBar();
 void ResetStatusBar();
 void InitStatusBar();
 
+struct ReservedSpace
+{
+	int top;
+	int statusbar;
+};
+
+ReservedSpace GetReservedScreenSpace(int viewsize);
+
 #endif /* __SBAR_H__ */

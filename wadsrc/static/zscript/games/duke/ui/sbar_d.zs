@@ -39,6 +39,12 @@ class DukeStatusBar : DukeCommonStatusBar
 	TextureID ThreeByFive[12];
 	HUDFont indxfont;
 
+	override int, int GetReservedScreenSpace(int viewsize)
+	{
+		int sbar = tileHeight("BOTTOMSTATUSBAR");
+		return 0, sbar;
+	}
+
 	override void Init()
 	{
 		numberFont = HUDFont.Create(BigFont, 0, Mono_Off, 1, 1 );

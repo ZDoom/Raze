@@ -29,6 +29,13 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 class RedneckStatusBar : DukeCommonStatusBar
 {
+	override int, int GetReservedScreenSpace(int viewsize)
+	{
+		// todo: factor in the frag bar: tileHeight(TILE_FRAGBAR)
+		int sbar = tileHeight("BOTTOMSTATUSBAR");
+		return 0, sbar >> 1;
+	}
+
 	override void Init()
 	{
 		numberFont = HudFont.Create(BigFont, 0, Mono_Off, 1, 1 );

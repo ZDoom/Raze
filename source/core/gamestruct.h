@@ -41,12 +41,6 @@ struct FSavegameInfo
 	int currentsavever;
 };
 
-struct ReservedSpace
-{
-	int top;
-	int statusbar;
-};
-
 enum EMenuSounds : int;
 struct MapRecord;
 struct TilesetBuildInfo;
@@ -95,7 +89,6 @@ struct GameInterface
 	virtual void SetAmbience(bool on) {}
 	virtual std::pair<DVector3, DAngle> GetCoordinates() { return {}; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
-	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 	virtual void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) {}
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}

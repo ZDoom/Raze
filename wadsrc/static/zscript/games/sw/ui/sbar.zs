@@ -104,6 +104,11 @@ class SWStatusBar : RazeStatusBar
 	TextureID SmallSBFont[3][12];
 	HUDFont numberFont, miniFont;
 
+	override int, int GetReservedScreenSpace(int viewsize)
+	{
+		return 0, 48;
+	}
+
 	override void Init()
 	{
 		numberFont = HudFont.Create(BigFont, 0, Mono_Off, 1, 1);

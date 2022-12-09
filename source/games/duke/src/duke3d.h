@@ -38,7 +38,6 @@ struct GameInterface : public ::GameInterface
 	void SerializeGameState(FSerializer& arc) override;
 	std::pair<DVector3, DAngle> GetCoordinates() override;
 	void ExitFromMenu() override;
-	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
 	void UpdateSounds() override;

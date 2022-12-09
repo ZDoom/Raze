@@ -364,17 +364,6 @@ int startrts(int lumpNum, int localPlayer)
 	return 0;
 }
 
-ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
-{
-	// todo: factor in the frag bar: tileHeight(TILE_FRAGBAR)
-	int sbar = tileHeight(TILE_BOTTOMSTATUSBAR);
-	if (isRR())
-	{
-		sbar >>= 1;
-	}
-	return { 0, sbar };
-}
-
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;

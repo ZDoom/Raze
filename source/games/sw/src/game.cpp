@@ -831,11 +831,6 @@ int StdRandomRange(int range)
 //
 //---------------------------------------------------------------------------
 
-ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
-{
-    return { 0, 48 };
-}
-
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;

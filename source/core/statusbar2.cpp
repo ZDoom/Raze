@@ -93,6 +93,20 @@ void ST_Clear()
 	*/
 }
 
+ReservedSpace GetReservedScreenSpace(int viewsize)
+{
+	ReservedSpace res{};
+	IFVIRTUALPTRNAME(StatusBar, NAME_RazeStatusBar, GetReservedScreenSpace)
+	{
+		VMReturn ret[2];
+		ret[0].IntAt(&res.top);
+		ret[1].IntAt(&res.statusbar);
+		VMValue params[] = { StatusBar, viewsize };
+		VMCall(func, params, 2, ret, 2);
+	}
+	return res;
+}
+
 //============================================================================
 //
 // 
@@ -106,7 +120,7 @@ void setViewport(int viewSize)
 	int xdim = screen->GetWidth();
 	int ydim = screen->GetHeight();
 	if (xdim == 0 || ydim == 0) return;
-	auto reserved = gi->GetReservedScreenSpace(viewSize);
+	auto reserved = GetReservedScreenSpace(viewSize);
 	reserved.top = xs_CRoundToInt((reserved.top * hud_scalefactor * ydim) / 200);
 	reserved.statusbar = xs_CRoundToInt((reserved.statusbar * hud_scalefactor * ydim) / 200);
 

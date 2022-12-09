@@ -23,6 +23,11 @@ class RazeStatusBar : StatusBarCore
 	{
 	}
 
+	virtual int, int GetReservedScreenSpace(int viewsize)
+	{
+		return 0, 0;
+	}
+	
 	virtual void Tick() {}
 	virtual void Reset() {}
 	virtual void UpdateStatusBar(SummaryInfo info) {}

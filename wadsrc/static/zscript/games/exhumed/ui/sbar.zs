@@ -60,6 +60,11 @@ class ExhumedStatusBar : RazeStatusBar
 		KeySeq = 36,
 	}
 
+    override int, int GetReservedScreenSpace(int viewsize) 
+	{ 
+		return 0, 24;
+	}
+
 	override void Init()
 	{
 		textfont = HUDFont.Create(SmallFont, 1, Mono_Off, 1, 1);

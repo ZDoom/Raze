@@ -120,7 +120,6 @@ struct GameInterface : public ::GameInterface
 	void MenuClosed() override;
 	bool CanSave() override;
 	std::pair<DVector3, DAngle> GetCoordinates() override;
-	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;
 	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
 	void Ticker() override;

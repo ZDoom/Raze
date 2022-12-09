@@ -53,6 +53,7 @@
 #include "gamecvars.h"
 #include "menustate.h"
 #include "cheathandler.h"
+#include "statusbar.h"
 
 enum
 {
@@ -235,7 +236,7 @@ void CT_Drawer (void)
 		int screen_height= twod->GetHeight() / scale;
 
 		y = screen_height - displayfont->GetHeight()-2;
-		auto res = gi->GetReservedScreenSpace(hud_size);
+		auto res = GetReservedScreenSpace(hud_size);
 
 		promptwidth = displayfont->StringWidth (prompt) * scalex;
 		x = displayfont->GetCharWidth (displayfont->GetCursor()) * scalex * 2 + promptwidth;

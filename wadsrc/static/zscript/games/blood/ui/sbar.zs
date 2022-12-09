@@ -33,6 +33,19 @@ class BloodStatusBar : RazeStatusBar
 	bool gBlueFlagDropped, gRedFlagDropped; // also placeholders until we know where MP will go.
 
 
+	override int, int GetReservedScreenSpace(int viewsize)
+	{
+		int top = 0;
+		/*
+		if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
+		{
+			top = (tileHeight("SBPlayerSlot") * ((gNetPlayers + 3) / 4));
+		}
+		*/
+		return top, 25;
+	}
+
+
 	override void Init()
 	{
 		smallf = HUDFont.Create(SmallFont, 0, Mono_Off, 0, 0);
