@@ -583,7 +583,7 @@ void GameInterface::app_init()
         nTotalPlayers += nNetPlayerCount;
     }
 
-    defineSky(DEFAULTPSKY, 2, nullptr, 256, 1.f);
+    defineSky(nullptr, 2, nullptr, 256, 1.f);
 
     InitFX();
     seq_LoadSequences();

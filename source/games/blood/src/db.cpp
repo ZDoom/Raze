@@ -252,7 +252,7 @@ void dbLoadMap(const char* pPath, DVector3& pos, short* pAngle, sectortype** cur
 		tpskyoff[i] = LittleShort(tpskyoff[i]);
 	}
 
-	defineSky(DEFAULTPSKY, mapHeader.pskybits, tpskyoff);
+	defineSky(nullptr, mapHeader.pskybits, tpskyoff);
 
 	for (unsigned i = 0; i < sector.Size(); i++)
 	{

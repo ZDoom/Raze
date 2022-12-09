@@ -42,7 +42,7 @@
 #include "buildtiles.h"
 #include "texinfo.h"
 
-FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilemap, int remap)
+FGameTexture* GetSkyTexture(FTextureID baseid, int lognumtiles, const int16_t *tilemap, int remap)
 {
 	FString synthname;
 
@@ -54,26 +54,31 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilema
 	}
 
 	int numtiles = 1 << lognumtiles;
-	synthname.Format("Sky%04x%02x", basetile, remap);
+	synthname.Format("Sky%04x%02x", baseid.GetIndex(), remap);
 	for(int i = 0; i < numtiles; i++)
 	{
 		synthname += 'A' + tilemap[i];
 	};
 	auto tex = TexMan.FindGameTexture(synthname);
 	if (tex) return tex;
+	auto basetex = TexMan.GetGameTexture(baseid);
+	auto scalex = basetex->GetScaleX();
+	auto scaley = basetex->GetScaleY();
 
 	TArray<TexPartBuild> build(numtiles, true);
-	int tilewidth = tileWidth(basetile);
+	int tilewidth = basetex->GetTexelWidth();
 	for(int i = 0; i < numtiles; i++)
 	{
-		auto texture = tileGetTexture(basetile + tilemap[i]);
+		// Todo - allow named textures for the single patches
+		auto texture = TexMan.GameByIndex(baseid.GetIndex() + tilemap[i]);
 		if (!texture || !texture->isValid() || texture->GetTexture() == 0) return nullptr;
 		build[i].TexImage = static_cast<FImageTexture*>(texture->GetTexture());
 		build[i].OriginX = tilewidth * i;
 		build[i].Translation = GPalette.GetTranslation(GetTranslationType(remap), GetTranslationIndex(remap));
 	}
-	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, tileHeight(basetile), build, false, false)), synthname, ETextureType::Override);
-	tt->SetUpscaleFlag(tileGetTexture(basetile)->GetUpscaleFlag(), true);
+	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, basetex->GetTexelHeight(), build, false, false)), synthname, ETextureType::Override);
+	tt->SetScale(scalex, scaley);
+	tt->SetUpscaleFlag(basetex->GetUpscaleFlag(), true);
 	TexMan.AddGameTexture(tt, true);
 	return tt;
 }

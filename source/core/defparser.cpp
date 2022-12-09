@@ -1118,71 +1118,6 @@ void parseEcho(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseMultiPsky(FScanner& sc, FScriptPosition& pos)
-{
-	// The maximum tile offset ever used in any tiled parallaxed multi-sky.
-	enum { PSKYOFF_MAX = 16 };
-
-	FScanner::SavedPos blockend;
-	SkyDefinition sky{};
-
-	bool crc;
-	sky.scale = 1.f;
-	sky.baselineofs = INT_MIN;
-	if (sc.CheckString("crc"))
-	{
-		if (!sc.GetNumber(sky.crc32, true)) return;
-		crc = true;
-	}
-	else
-	{
-		if (!sc.GetNumber(sky.tilenum, true)) return;
-		crc = false;
-	}
-
-	if (sc.StartBraces(&blockend)) return;
-	while (!sc.FoundEndBrace(blockend))
-	{
-		sc.MustGetString();
-		if (sc.Compare("horizfrac")) sc.GetNumber(true); // not used anymore
-		else if (sc.Compare("yoffset")) sc.GetNumber(sky.pmoffset, true);
-		else if (sc.Compare("baseline")) sc.GetNumber(sky.baselineofs, true);
-		else if (sc.Compare("lognumtiles")) sc.GetNumber(sky.lognumtiles, true);
-		else if (sc.Compare("yscale")) { int intscale; sc.GetNumber(intscale, true); sky.scale = intscale * (1.f / 65536.f); }
-		else if (sc.Compare({ "tile", "panel" }))
-		{
-			if (!sc.CheckString("}"))
-			{
-				int panel = 0, offset = 0;
-				sc.GetNumber(panel, true);
-				sc.GetNumber(offset, true);
-				if ((unsigned)panel < MAXPSKYTILES && (unsigned)offset <= PSKYOFF_MAX) sky.offsets[panel] = offset;
-			}
-			else
-			{
-				int panel = 0, offset;
-				while (!sc.CheckString("}"))
-				{
-					sc.GetNumber(offset, true);
-					if ((unsigned)panel < MAXPSKYTILES && (unsigned)offset <= PSKYOFF_MAX) sky.offsets[panel] = offset;
-					panel++;
-				}
-			}
-		}
-	}
-	if (sky.baselineofs == INT_MIN) sky.baselineofs = sky.pmoffset;
-	if (!crc && sky.tilenum != DEFAULTPSKY && (unsigned)sky.tilenum >= MAXUSERTILES) return;
-	if ((1 << sky.lognumtiles) > MAXPSKYTILES) return;
-	if (crc) addSkyCRC(sky, sky.crc32);
-	else addSky(sky, sky.tilenum);
-}
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
 void parseRffDefineId(FScanner& sc, FScriptPosition& pos)
 {
 	FString resName;
@@ -1974,7 +1909,7 @@ static const dispatch basetokens[] =
 	{ "globalflags",     parseSkip<1>      },
 	{ "copytile",        parseCopyTile         },
 	{ "globalgameflags", parseSkip<1>  },
-	{ "multipsky",       parseMultiPsky        },
+	{ "multipsky",       parseEmptyBlockWithParm  },
 	{ "undefblendtablerange", parseSkip<2> },
 	{ "shadefactor",     parseSkip<1>      },
 	{ "newgamechoices",  parseEmptyBlock   },

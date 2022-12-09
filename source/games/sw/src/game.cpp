@@ -293,7 +293,7 @@ void GameInterface::app_init()
 
     //Connect();
     SortBreakInfo();
-    defineSky(DEFAULTPSKY, 1, nullptr);
+    defineSky(nullptr, 1, nullptr);
 
     memset(Track, 0, sizeof(Track));
     memset(Player, 0, sizeof(Player));

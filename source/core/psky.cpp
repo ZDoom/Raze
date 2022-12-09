@@ -37,61 +37,38 @@
 #include "gamefuncs.h"
 #include "tarray.h"
 #include "texinfo.h"
-#include "buildtiles.h"
+#include "texturemanager.h"
 
 
 static TArray<SkyDefinition> skies;
 
-static SkyDefinition *FindSky(int tilenum)
+static SkyDefinition *FindSky(FTextureID texid)
 {
     for (auto& sky : skies)
-        if (tilenum == sky.tilenum) return &sky;
+        if (texid == sky.texid) return &sky;
 
     return nullptr;
 }
 
-static SkyDefinition *FindSkyCRC(int64_t crc)
+void addSky(SkyDefinition& sky, FTextureID texid)
 {
-    for (auto& sky : skies)
-        if (crc == sky.crc32) return &sky;
+	SkyDefinition* old = FindSky(texid);
 
-    return nullptr;
-}
-
-void addSky(SkyDefinition& sky, int tilenum)
-{
-	SkyDefinition* old = FindSky(tilenum);
-
-	sky.tilenum = tilenum;
-	sky.crc32 = INT64_MAX;
+	sky.texid = texid;
 	if (sky.scale == 0) sky.scale = 1.f;
 	
 	if (old) *old = sky;
 	else skies.Push(sky);
 }
 
-void addSkyCRC(SkyDefinition& sky, int64_t crc32)
-{
-	SkyDefinition* old = FindSkyCRC(crc32);
-	
-	sky.tilenum = -1;
-	sky.crc32 = crc32;
-	if (sky.scale == 0) sky.scale = 1.f;
-	
-	if (old) *old = sky;
-	else skies.Push(sky);
-}
-
-SkyDefinition getSky(int tilenum)
+SkyDefinition getSky(FTextureID texid)
 {
 	SkyDefinition result;
-	auto sky = FindSky(tilenum);
+	auto sky = FindSky(texid);
 	if (sky) result = *sky;
 	else
 	{
-		// todo: handle CRC.
-
-		sky = FindSky(DEFAULTPSKY);
+		sky = FindSky(FNullTextureID());
 		if (sky)
 			result = *sky;
 		else
@@ -99,33 +76,34 @@ SkyDefinition getSky(int tilenum)
 			result = {};
 			result.scale = 1.f;
 		}
-		int w = tileWidth(tilenum);
-		if (result.lognumtiles == 0 || w >= 256)
+		auto tex = TexMan.GetGameTexture(texid);
+		if (tex->isValid())
 		{
-			if (w < 512) result.lognumtiles = 2;
-			else if (w < 1024) result.lognumtiles = 1;
-			else result.lognumtiles = 0;
+			int w = (int)tex->GetDisplayWidth();
+			if (result.lognumtiles == 0 || w >= 256)
+			{
+				if (w < 512) result.lognumtiles = 2;
+				else if (w < 1024) result.lognumtiles = 1;
+				else result.lognumtiles = 0;
+			}
 		}
-
 	}
 	return result;
 }
 
-void defineSky(int tilenum, int lognumtiles, const int16_t *tileofs, int yoff, float yscale, int yoff2)
+void defineSky(const char* tilename, int lognumtiles, const int16_t* tileofs, int yoff, float yscale, int yoff2)
 {
+	FTextureID texid = FNullTextureID();
+	if (tilename)
+	{
+		texid = TexMan.CheckForTexture(tilename, ETextureType::Any);
+		if (!texid.isValid()) return;
+	}
 	SkyDefinition sky;
 	sky.baselineofs = yoff2 == 0x7fffffff ? yoff : yoff2;
-	sky.pmoffset = yoff;
 	sky.lognumtiles = lognumtiles;
 	sky.scale = yscale;
 	memset(sky.offsets, 0, sizeof(sky.offsets));
     if (tileofs) memcpy(sky.offsets, tileofs, 2 << lognumtiles);
-	addSky(sky, tilenum);
-}
-
-void defineSky(const char* tilename, int lognumtiles, const int16_t* tileofs, int yoff, float yscale, int yoff2)
-{
-	int tile = tileForName(tilename);
-	if (tile >= 0)
-		defineSky(tile, lognumtiles, tileofs, yoff, yscale, yoff2);
+	addSky(sky, texid);
 }

@@ -226,7 +226,6 @@ static void genspriteremaps(void)
 //---------------------------------------------------------------------------
 //
 // Define sky layouts.
-// This one's easy - the other games are a total mess
 //
 //---------------------------------------------------------------------------
 
@@ -240,39 +239,39 @@ static void setupbackdrop()
 	static const int16_t defoff4[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
 	static const int16_t defoff7[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
 
-	defineSky(DEFAULTPSKY, 3, nullptr);
+	defineSky(nullptr, 3, nullptr);
 	defineSky("CLOUDYOCEAN", 3, nullptr);
 	defineSky("MOONSKY12", 3, moonoff);
 	defineSky("BIGORBIT1", 3, orbitoff);
 	defineSky("LA", 3, laoff);
 	if (isWorldTour())
 	{
-		defineSky(5284, 3, defoff);
-		defineSky(5412, 3, defoff, 80);
-		defineSky(5420, 3, defoff, 80);
-		defineSky(5450, 3, defoff7, 80);
-		defineSky(5540, 3, defoff, 80);
-		defineSky(5548, 3, defoff, 80);
-		defineSky(5556, 3, defoff1, 80);
-		defineSky(5720, 3, defoff4, 80);
-		defineSky(5814, 3, defoff, 80);
+		defineSky("SPACESKY", 3, defoff);
+		defineSky("PARISSKY", 3, defoff, 80);
+		defineSky("LONDONSKY", 3, defoff, 80);
+		defineSky("MOSCOWSKY", 3, defoff7, 80);
+		defineSky("DESERTSKY", 3, defoff, 80);
+		defineSky("AMSTERDAMSKY", 3, defoff, 80);
+		defineSky("HOLLYWOODSKY", 3, defoff1, 80);
+		defineSky("FRISCOSKY", 3, defoff4, 80);
+		defineSky("ROMESKY", 3, defoff, 80);
 	}
 
 	if (isNam())
 	{
-		defineSky(212, 3, nullptr, 0, 1, 140);
-		defineSky(225, 3, nullptr, 0, 1, 140);
+		defineSky("NAMSKY1", 3, nullptr, 0, 1, 140);
+		defineSky("NAMSKY2", 3, nullptr, 0, 1, 140);
 	}
 
 	if (isWW2GI() && (g_gameType & GAMEFLAG_ADDON))
 	{
-		defineSky(1086, 3, nullptr, 0, 1, 140);
+		defineSky("PLATOONSKY", 3, nullptr, 0, 1, 140);
 	}
 
 	// this sky isn't actually placed wrong - it's just so poorly designed that it needs to be shifted down to hide its shortcomings as good as possible.
 	if (isDuke() && (g_gameType & GAMEFLAG_DUKEDC))
 	{
-		defineSky(3708, 3, nullptr, 0, 1, -40);
+		defineSky("DUKEDCSKY", 3, nullptr, 0, 1, -40);
 	}
 }
 
