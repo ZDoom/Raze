@@ -482,7 +482,7 @@ int sector_checktexture(sectortype* sec, int place, int intname)
 	if (!sec) ThrowAbortException(X_READ_NIL, nullptr);
 
 	auto tex = TexMan.CheckForTexture(FName(ENamedName(intname)).GetChars(), ETextureType::Any, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ReturnAll);
-	return tex == (place == 0 ? sec->ceilingtexture() : sec->floortexture());
+	return tex == (place == 0 ? sec->ceilingtexture : sec->floortexture);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_sectortype, checktexture, sector_checktexture)

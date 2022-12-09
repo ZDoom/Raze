@@ -1169,21 +1169,18 @@ void UpdateWallPortalState()
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto actor = it.Next())
     {
+        // back up texture and stat
+        assert(SP_TAG2(actor) == -1 || tileGetTextureID(SP_TAG2(actor)) == actor->texparam); // this should catch items that evaded the property remapping somehow.
         if (SP_TAG3(actor) == 0)
         {
-            // back up ceilingpic and ceilingstat
-            // std::swap(actor->sector->ceilingtexture, actor->texparam);
-            SP_TAG5(actor) = actor->sector()->ceilingpicnum;
-            actor->sector()->ceilingpicnum = SP_TAG2(actor);
+            actor->sector()->swapceilingtexture(actor->texparam);
             SP_TAG4(actor) = actor->sector()->ceilingstat;
             actor->sector()->ceilingstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
             actor->sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
-            // std::swap(actor->sector->floortexture, actor->texparam);
-            SP_TAG5(actor) = actor->sector()->floorpicnum;
-            actor->sector()->floorpicnum = SP_TAG2(actor);
+            actor->sector()->swapfloortexture(actor->texparam);
             SP_TAG4(actor) = actor->sector()->floorstat;
             actor->sector()->floorstat |= (ESectorFlags::FromInt(SP_TAG6(actor)));
             actor->sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
@@ -1203,18 +1200,16 @@ void RestorePortalState()
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto actor = it.Next())
     {
+        // restore texture and stat
         if (SP_TAG3(actor) == 0)
         {
-            // restore ceilingpic and ceilingstat
-            // std::swap(actor->sector->ceilingtexture, actor->texparam);
-            actor->sector()->ceilingpicnum = SP_TAG5(actor);
+            actor->sector()->swapceilingtexture(actor->texparam);
             actor->sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(actor));
             actor->sector()->ceilingstat &= ~(CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(actor) == 1)
         {
-            // std::swap(actor->sector->floortexture, actor->texparam);
-            actor->sector()->floorpicnum = SP_TAG5(actor);
+            actor->sector()->swapfloortexture(actor->texparam);
             actor->sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(actor));
             actor->sector()->floorstat &= ~(CSTAT_SECTOR_SKY);
         }

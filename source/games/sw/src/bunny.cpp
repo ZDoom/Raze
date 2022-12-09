@@ -1307,7 +1307,7 @@ int DoBunnyMove(DSWActor* actor)
 
     if (RandomRange(1000) > 985 && actor->spr.pal != PALETTE_PLAYER1 && actor->user.track < 0)
     {
-        if (tileflags(actor->sector()->floortexture()) & TFLAG_BUNNYFRIENDLY)
+        if (tileflags(actor->sector()->floortexture) & TFLAG_BUNNYFRIENDLY)
         {
             NewStateGroup(actor, sg_BunnyStand);
         }
@@ -1366,7 +1366,7 @@ int DoBunnyEat(DSWActor* actor)
 
     DoActorSectorDamage(actor);
 
-    if (tileflags(actor->sector()->floortexture()) & TFLAG_BUNNYFRIENDLY)
+    if (tileflags(actor->sector()->floortexture) & TFLAG_BUNNYFRIENDLY)
     {
         if (RandomRange(1000) > 970)
             NewStateGroup(actor, sg_BunnyRun);

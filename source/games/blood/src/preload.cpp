@@ -304,7 +304,7 @@ void PreloadCache()
 	for (auto& sect : sector)
 	{
 		if ((sect.ceilingstat & CSTAT_SECTOR_SKY) != 0 && skyTile == -1)
-			skyTile = sect.ceilingtexture();
+			skyTile = sect.ceilingtexture;
 	}
 	if (skyTile > -1 && skyTile < kMaxTiles)
 	{

@@ -284,7 +284,7 @@ void DoSectorPanning(void)
 
 			if (pXSector->panFloor) // Floor
 			{
-				auto nTex = TexMan.GetGameTexture(pSector->floortexture());
+				auto nTex = TexMan.GetGameTexture(pSector->floortexture);
 				if (pSector->floorstat & CSTAT_SECTOR_ALIGN)
 					angle -= DAngle90;
 				int xBits = int(nTex->GetDisplayWidth()) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
@@ -296,7 +296,7 @@ void DoSectorPanning(void)
 			}
 			if (pXSector->panCeiling) // Ceiling
 			{
-				auto nTex = TexMan.GetGameTexture(pSector->ceilingtexture());
+				auto nTex = TexMan.GetGameTexture(pSector->ceilingtexture);
 				if (pSector->ceilingstat & CSTAT_SECTOR_ALIGN)
 					angle -= DAngle90;
 				int xBits = int(nTex->GetDisplayWidth()) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);

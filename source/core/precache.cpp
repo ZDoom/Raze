@@ -158,8 +158,8 @@ void precacheMap()
 {
 	for (auto& sect : sector)
 	{
-		markTextureForPrecache(sect.ceilingtexture(), sect.ceilingpal);
-		markTextureForPrecache(sect.floortexture(), sect.floorpal);
+		markTextureForPrecache(sect.ceilingtexture, sect.ceilingpal);
+		markTextureForPrecache(sect.floortexture, sect.floorpal);
 	}
 
 	for (auto& wal : wall)

@@ -353,7 +353,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 
 		if (alpha != 0.f)
 		{
-			auto texid = frontsector->floortexture();
+			auto texid = frontsector->floortexture;
 			texture = TexMan.GetGameTexture(texid, true);
 			if (texture && texture->isValid())
 			{
@@ -395,7 +395,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 		{
 			//iboindex = frontsector->iboindex[sector_t::ceiling];
 
-			auto texid = frontsector->ceilingtexture();
+			auto texid = frontsector->ceilingtexture;
 			texture = TexMan.GetGameTexture(texid, true);
 			if (texture && texture->isValid())
 			{

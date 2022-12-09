@@ -1697,7 +1697,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		}
 		else actor->spr.shade += (actor->sector()->floorshade - actor->spr.shade) >> 1;
 
-		if (actor->sector()->floortexture() == mirrortex)
+		if (actor->sector()->floortexture == mirrortex)
 			actor->Destroy();
 	}
 }
@@ -1787,7 +1787,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		actor->attackertype = RTILE_SHOTSPARK1;
 		actor->hitextra = 1;
 	}
-	else if (tilesurface(actor->sector()->floortexture()) == TSURF_MAGMA)
+	else if (tilesurface(actor->sector()->floortexture) == TSURF_MAGMA)
 	{
 		if (actor->spr.picnum != RTILE_MINION && actor->spr.pal != 19)
 		{
@@ -1879,13 +1879,13 @@ void destroyit(DDukeActor *actor)
 				destsect->setceilingz(srcsect->ceilingz);
 				destsect->ceilingstat = srcsect->ceilingstat;
 				destsect->floorstat = srcsect->floorstat;
-				destsect->setceilingtexture(srcsect->ceilingtexture());
+				destsect->setceilingtexture(srcsect->ceilingtexture);
 				destsect->ceilingheinum = srcsect->ceilingheinum;
 				destsect->ceilingshade = srcsect->ceilingshade;
 				destsect->ceilingpal = srcsect->ceilingpal;
 				destsect->ceilingxpan_ = srcsect->ceilingxpan_;
 				destsect->ceilingypan_ = srcsect->ceilingypan_;
-				destsect->setfloortexture(srcsect->floortexture());
+				destsect->setfloortexture(srcsect->floortexture);
 				destsect->floorheinum = srcsect->floorheinum;
 				destsect->floorshade = srcsect->floorshade;
 				destsect->floorpal = srcsect->floorpal;

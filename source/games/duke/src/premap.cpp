@@ -689,7 +689,7 @@ void prelevel_common(int g)
 
 		if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 		{
-			if (tilesurface(sectp->ceilingtexture()) == TSURF_SCROLLSKY && numclouds < 127)
+			if (tilesurface(sectp->ceilingtexture) == TSURF_SCROLLSKY && numclouds < 127)
 				clouds[numclouds++] = sectp;
 
 			if (ps[0].one_parallax_sectnum == nullptr)
@@ -868,7 +868,7 @@ static void SpawnPortals()
 	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		auto sectp = &sector[i];
-		if (sectp->floortexture() == foftex && sectp->portalflags != PORTAL_SECTOR_FLOOR)
+		if (sectp->floortexture == foftex && sectp->portalflags != PORTAL_SECTOR_FLOOR)
 		{
 			for (auto& pt : allPortals)
 			{
@@ -887,7 +887,7 @@ static void SpawnPortals()
 				}
 			}
 		}
-		else if (sectp->ceilingtexture() == foftex && sectp->portalflags != PORTAL_SECTOR_CEILING)
+		else if (sectp->ceilingtexture == foftex && sectp->portalflags != PORTAL_SECTOR_CEILING)
 		{
 			for (auto& pt : allPortals)
 			{
@@ -981,7 +981,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 
 	for (auto& sect : sector)
 	{
-		if (tilesurface(sect.ceilingtexture()) == TSURF_THUNDERSKY)
+		if (tilesurface(sect.ceilingtexture) == TSURF_THUNDERSKY)
 			thunderon = 1;
 	}
 
@@ -1059,7 +1059,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		bool clearweapon = !!(currentLevel->flags & LEVEL_CLEARWEAPONS);
-		auto pn = ps[i].GetActor()->sector()->floortexture();
+		auto pn = ps[i].GetActor()->sector()->floortexture;
 		if (tileflags(pn) & TFLAG_CLEARINVENTORY)
 		{
 			resetinventory(i);

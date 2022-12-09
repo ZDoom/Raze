@@ -4109,7 +4109,7 @@ static void actTouchFloor(DBloodActor* actor, sectortype* pSector)
 
 		actDamageSprite(actor, actor, nDamageType, Scale(4, nDamage, 120) << 4);
 	}
-	if (GetExtInfo(pSector->floortexture()).surftype == kSurfLava)
+	if (GetExtInfo(pSector->floortexture).surftype == kSurfLava)
 	{
 		actDamageSprite(actor, actor, kDamageBurn, 16);
 		sfxPlay3DSound(actor, 352, 5, 2);
@@ -6631,7 +6631,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 			if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
 				nSurf = kSurfNone;
 			else
-				nSurf = GetExtInfo(pSector->ceilingtexture()).surftype;
+				nSurf = GetExtInfo(pSector->ceilingtexture).surftype;
 			break;
 		}
 		case 2:
@@ -6639,7 +6639,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 			if (pSector->floorstat & CSTAT_SECTOR_SKY)
 				nSurf = kSurfNone;
 			else
-				nSurf = GetExtInfo(pSector->floortexture()).surftype;
+				nSurf = GetExtInfo(pSector->floortexture).surftype;
 			break;
 		}
 		case 0:

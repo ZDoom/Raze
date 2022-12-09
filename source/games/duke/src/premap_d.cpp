@@ -331,7 +331,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if (sectp && sectp->ceilingtexture() != mirrortex)
+			if (sectp && sectp->ceilingtexture != mirrortex)
 			{
 				sectp->setceilingtexture(mirrortex);
 				sectp->setfloortexture(mirrortex);

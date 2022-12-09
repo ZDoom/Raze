@@ -366,7 +366,7 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 	if (plane == 0)
 	{
 		if (sec->floorheinum == compare->floorheinum &&
-			sec->floortexture() == compare->floortexture &&
+			sec->floortexture == compare->floortexture &&
 			((sec->floorstat ^ compare->floorstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->floorxpan_ == compare->floorxpan_ &&
 			sec->floorypan_ == compare->floorypan_ &&
@@ -379,7 +379,7 @@ bool SectionGeometry::ValidateSection(Section* section, int plane)
 	else
 	{
 		if (sec->ceilingheinum == compare->ceilingheinum &&
-			sec->ceilingtexture() == compare->ceilingtexture &&
+			sec->ceilingtexture == compare->ceilingtexture &&
 			((sec->ceilingstat ^ compare->ceilingstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->ceilingxpan_ == compare->ceilingxpan_ &&
 			sec->ceilingypan_ == compare->ceilingypan_ &&
@@ -441,7 +441,7 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 {
 	auto sectorp = &sector[section->sector];
 	// calculate the rest.
-	auto texture = TexMan.GetGameTexture(plane ? sectorp->ceilingtexture() : sectorp->floortexture());
+	auto texture = TexMan.GetGameTexture(plane ? sectorp->ceilingtexture : sectorp->floortexture);
 	auto& sdata = data[section->index];
 	auto& entry = sdata.planes[plane];
 	double fz = sectorp->floorz, cz = sectorp->ceilingz;

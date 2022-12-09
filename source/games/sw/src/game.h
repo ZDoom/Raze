@@ -1470,12 +1470,12 @@ inline FTextureID FAFMirrorPic[2];
 
 inline bool FAF_ConnectCeiling(sectortype* sect)
 {
-    return (sect && sect->ceilingtexture() == FAFMirrorPic[0]);
+    return (sect && sect->ceilingtexture == FAFMirrorPic[0]);
 }
 
 inline bool FAF_ConnectFloor(sectortype* sect)
 {
-    return (sect && sect->floortexture() == FAFMirrorPic[0]);
+    return (sect && sect->floortexture == FAFMirrorPic[0]);
 }
 
 inline bool FAF_ConnectArea(sectortype* sect)

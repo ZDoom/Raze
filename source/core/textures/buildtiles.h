@@ -24,29 +24,9 @@ inline const FTextureID walltype::overtexture() const
 	return tileGetTextureID(overpicnum);
 }
 
-inline const FTextureID sectortype::ceilingtexture() const
-{
-	return tileGetTextureID(ceilingpicnum);
-}
-
-inline const FTextureID sectortype::floortexture() const
-{
-	return tileGetTextureID(floorpicnum);
-}
-
 inline const FTextureID spritetypebase::spritetexture() const
 {
 	return tileGetTextureID(picnum);
-}
-
-inline void sectortype::setfloortexture(FTextureID tex)
-{
-	floorpicnum = legacyTileNum(tex);
-}
-
-inline void sectortype::setceilingtexture(FTextureID tex)
-{
-	ceilingpicnum = legacyTileNum(tex);
 }
 
 inline void walltype::setwalltexture(FTextureID tex)

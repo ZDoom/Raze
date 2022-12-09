@@ -1756,7 +1756,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					p->dummyplayersprite = spawn(pact, DTILE_PLAYERONWATER);
 
 				p->footprintcount = 6;
-				if (tilesurface(p->cursector->floortexture()) == TSURF_SLIME)
+				if (tilesurface(p->cursector->floortexture) == TSURF_SLIME)
 					p->footprintpal = 8;
 				else p->footprintpal = 0;
 				p->footprintshade = 0;
@@ -2844,7 +2844,7 @@ void processinput_d(int snum)
 	pact->vel.X = clamp((p->GetActor()->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
-	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture() == mirrortex) || !p->insector()));
+	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture == mirrortex) || !p->insector()));
 
 	// Shrinking code
 
@@ -2892,7 +2892,7 @@ void processinput_d(int snum)
 
 		if (p->on_ground && truefdist <= gs.playerheight + 16)
 		{
-			int surface = tilesurface(sect->floortexture());
+			int surface = tilesurface(sect->floortexture);
 			int whichsound = surface == TSURF_ELECTRIC? 0 : surface == TSURF_SLIME? 1 : surface == TSURF_PLASMA? 2 : -1;
 			k = makepainsounds(snum, whichsound);
 		}
@@ -2924,7 +2924,7 @@ void processinput_d(int snum)
 					if (clz.type == kHitSprite)
 						j = clz.actor()->spr.spritetexture();
 					else
-						j = psectp->floortexture();
+						j = psectp->floortexture;
 
 					if (tilesurface(j) == TSURF_METALDUCTS)
 					{

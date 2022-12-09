@@ -4346,7 +4346,7 @@ bool WeaponMoveHit(DSWActor* actor)
             }
         }
 
-        if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingtexture() != FAFMirrorPic[0])
+        if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingtexture != FAFMirrorPic[0])
         {
             if (abs(actor->spr.pos.Z - sectp->ceilingz) < ActorSizeZ(actor))
             {

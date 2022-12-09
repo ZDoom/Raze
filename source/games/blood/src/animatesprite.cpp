@@ -666,11 +666,11 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 
 		if ((pSector->ceilingstat & CSTAT_SECTOR_SKY) && (pSector->floorstat & CSTAT_SECTOR_NO_CEILINGSHADE) == 0)
 		{
-			nShade += GetExtInfo(pSector->ceilingtexture()).tileshade + pSector->ceilingshade;
+			nShade += GetExtInfo(pSector->ceilingtexture).tileshade + pSector->ceilingshade;
 		}
 		else
 		{
-			nShade += GetExtInfo(pSector->floortexture()).tileshade + pSector->floorshade;
+			nShade += GetExtInfo(pSector->floortexture).tileshade + pSector->floorshade;
 		}
 		nShade += GetExtInfo(pTSprite->spritetexture()).tileshade;
 		pTSprite->shade = ClipRange(nShade, -128, 127);

@@ -354,12 +354,12 @@ struct sectortype
 	float ceilingypan_;
 	float floorxpan_;
 	float floorypan_;
+	FTextureID ceilingtexture;
+	FTextureID floortexture;
 
 	ESectorFlags ceilingstat;
 	ESectorFlags floorstat;
-	int16_t ceilingpicnum;
 	int16_t ceilingheinum;
-	int16_t floorpicnum;
 	int16_t floorheinum;
 	union { int16_t lotag, type; }; // type is for Blood.
 	int16_t hitag;
@@ -444,11 +444,11 @@ struct sectortype
 	int getfloorslope() const { return floorstat & CSTAT_SECTOR_SLOPE ? floorheinum : 0; }
 	int getceilingslope() const { return ceilingstat & CSTAT_SECTOR_SLOPE ? ceilingheinum : 0; }
 
-	const FTextureID ceilingtexture() const;
-	const FTextureID floortexture() const;
-	void setfloortexture(FTextureID tex);
-	void setceilingtexture(FTextureID tex);
-
+	// always go through these to alter the textures to ensure we can keep track of these things if engine improvements need it.
+	void setfloortexture(FTextureID tex) { floortexture = tex; }
+	void setceilingtexture(FTextureID tex) { ceilingtexture = tex; }
+	void swapfloortexture(FTextureID &tex) { std::swap(floortexture, tex); }
+	void swapceilingtexture(FTextureID &tex) { std::swap(ceilingtexture, tex); }
 
 	Blood::XSECTOR& xs() const { return *_xs;  }
 	bool hasX() const { return _xs != nullptr; } // 0 is invalid!

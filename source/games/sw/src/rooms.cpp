@@ -628,22 +628,22 @@ void SetupMirrorTiles(void)
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
     {
-        if (actor->sector()->ceilingtexture() == FAFPlaceMirrorPic[0])
+        if (actor->sector()->ceilingtexture == FAFPlaceMirrorPic[0])
         {
             actor->sector()->setceilingtexture(FAFMirrorPic[0]);
             actor->sector()->ceilingstat |= (CSTAT_SECTOR_SKY);
         }
 
-        if (actor->sector()->floortexture() == FAFPlaceMirrorPic[0])
+        if (actor->sector()->floortexture == FAFPlaceMirrorPic[0])
         {
             actor->sector()->setfloortexture(FAFMirrorPic[0]);
             actor->sector()->floorstat |= (CSTAT_SECTOR_SKY);
         }
 
-        if (actor->sector()->ceilingtexture() == FAFPlaceMirrorPic[1])
+        if (actor->sector()->ceilingtexture == FAFPlaceMirrorPic[1])
             actor->sector()->setceilingtexture(FAFMirrorPic[1]);
 
-        if (actor->sector()->floortexture() == FAFPlaceMirrorPic[1])
+        if (actor->sector()->floortexture == FAFPlaceMirrorPic[1])
             actor->sector()->setfloortexture(FAFMirrorPic[1]);
     }
 }
@@ -908,7 +908,7 @@ void CollectPortals()
 
     for (unsigned i = 0; i < sector.Size(); i++)
     {
-        if (sector[i].floortexture() == FAFMirrorPic[0] && !floordone[i])
+        if (sector[i].floortexture == FAFMirrorPic[0] && !floordone[i])
         {
             auto& fp = floorportals[floorportals.Reserve(1)];
             fp.sectors.Push(i);
@@ -920,13 +920,13 @@ void CollectPortals()
                     if (!wal.twoSided()) continue;
                     auto nsec = wal.nextSector();
                     auto ns = sectindex(nsec);
-                    if (floordone[ns] || nsec->floortexture() != FAFMirrorPic[0]) continue;
+                    if (floordone[ns] || nsec->floortexture != FAFMirrorPic[0]) continue;
                     fp.sectors.Push(ns);
                     floordone.Set(ns);
                 }
             }
         }
-        if (sector[i].ceilingtexture() == FAFMirrorPic[0] && !ceilingdone[i])
+        if (sector[i].ceilingtexture == FAFMirrorPic[0] && !ceilingdone[i])
         {
             auto& fp = ceilingportals[ceilingportals.Reserve(1)];
             fp.sectors.Push(i);
@@ -938,7 +938,7 @@ void CollectPortals()
                     if (!wal.twoSided()) continue;
                     auto nsec = wal.nextSector();
                     auto ns = sectindex(nsec);
-                    if (ceilingdone[ns] || nsec->ceilingtexture() != FAFMirrorPic[0]) continue;
+                    if (ceilingdone[ns] || nsec->ceilingtexture != FAFMirrorPic[0]) continue;
                     fp.sectors.Push(ns);
                     ceilingdone.Set(ns);
                 }
@@ -961,7 +961,7 @@ void CollectPortals()
                 if (match != -1)
                 {
                     FindCeilingView(match, &tpos.X, &tpos.Y, tpos.Z, &tsect);
-                    if (tsect != nullptr &&tsect->floortexture() == FAFMirrorPic[0])
+                    if (tsect != nullptr &&tsect->floortexture == FAFMirrorPic[0])
                     {
                         // got something!
                         fp.othersector = sectindex(tsect);
@@ -988,7 +988,7 @@ void CollectPortals()
                 if (match != -1)
                 {
                     FindFloorView(match, &tpos.X, &tpos.Y, tpos.Z, &tsect);
-                    if (tsect != nullptr && tsect->ceilingtexture() == FAFMirrorPic[0])
+                    if (tsect != nullptr && tsect->ceilingtexture == FAFMirrorPic[0])
                     {
                         // got something!
                         fp.othersector = sectindex(tsect);

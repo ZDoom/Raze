@@ -3994,17 +3994,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			case 24:
 				switch (arg3)
 				{
-				default: return (condCmp(GetExtInfo(pObj->floortexture()).surftype, arg1, arg2, cmpOp) || condCmp(GetExtInfo(pObj->ceilingtexture()).surftype, arg1, arg2, cmpOp));
-				case 1: return condCmp(GetExtInfo(pObj->floortexture()).surftype, arg1, arg2, cmpOp);
-				case 2: return condCmp(GetExtInfo(pObj->ceilingtexture()).surftype, arg1, arg2, cmpOp);
+				default: return (condCmp(GetExtInfo(pObj->floortexture).surftype, arg1, arg2, cmpOp) || condCmp(GetExtInfo(pObj->ceilingtexture).surftype, arg1, arg2, cmpOp));
+				case 1: return condCmp(GetExtInfo(pObj->floortexture).surftype, arg1, arg2, cmpOp);
+				case 2: return condCmp(GetExtInfo(pObj->ceilingtexture).surftype, arg1, arg2, cmpOp);
 				}
 				break;
 			case 25:
 				switch (arg3)
 				{
-				default: return (condCmp(legacyTileNum(pObj->floortexture()), arg1, arg2, cmpOp) || condCmp(legacyTileNum(pObj->ceilingtexture()), arg1, arg2, cmpOp));
-				case 1:  return condCmp(legacyTileNum(pObj->floortexture()), arg1, arg2, cmpOp);
-				case 2:  return condCmp(legacyTileNum(pObj->ceilingtexture()), arg1, arg2, cmpOp);
+				default: return (condCmp(legacyTileNum(pObj->floortexture), arg1, arg2, cmpOp) || condCmp(legacyTileNum(pObj->ceilingtexture), arg1, arg2, cmpOp));
+				case 1:  return condCmp(legacyTileNum(pObj->floortexture), arg1, arg2, cmpOp);
+				case 2:  return condCmp(legacyTileNum(pObj->ceilingtexture), arg1, arg2, cmpOp);
 				}
 				break;
 			case 26:

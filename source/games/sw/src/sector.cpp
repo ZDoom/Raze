@@ -357,12 +357,12 @@ void SectorLiquidSet(sectortype* sectp)
     //
     // ///////////////////////////////////
 
-    if (tilesurface(sectp->floortexture()) == TSURF_WATER)
+    if (tilesurface(sectp->floortexture) == TSURF_WATER)
     {
         sectp->u_defined = true;
         sectp->extra |= (SECTFX_LIQUID_WATER);
     }
-    else if (tilesurface(sectp->floortexture()) == TSURF_LAVA)
+    else if (tilesurface(sectp->floortexture) == TSURF_LAVA)
     {
         sectp->u_defined = true;
         sectp->extra |= (SECTFX_LIQUID_LAVA);
@@ -439,7 +439,7 @@ void SectorSetup(void)
         if ((sectp->floorstat & CSTAT_SECTOR_SKY))
         {
             // don't do a z adjust for FAF area
-            if (sectp->floortexture() != FAFPlaceMirrorPic[0])
+            if (sectp->floortexture != FAFPlaceMirrorPic[0])
             {
                 sectp->extra |= (SECTFX_Z_ADJUST);
             }
@@ -448,7 +448,7 @@ void SectorSetup(void)
         if ((sectp->ceilingstat & CSTAT_SECTOR_SKY))
         {
             // don't do a z adjust for FAF area
-            if (sectp->ceilingtexture() != FAFPlaceMirrorPic[0])
+            if (sectp->ceilingtexture != FAFPlaceMirrorPic[0])
             {
                 sectp->extra |= (SECTFX_Z_ADJUST);
             }
@@ -1385,9 +1385,10 @@ void DoChangorMatch(short match)
         if (SP_TAG2(actor) != match)
             continue;
 
+        assert(SP_TAG4(actor) == -1 || tileGetTextureID(SP_TAG4(actor)) == actor->texparam); // this should catch items that evaded the property remapping somehow.
         if (TEST_BOOL1(actor))
         {
-            sectp->ceilingpicnum = SP_TAG4(actor); // sectp->ceilingtexture = actor->texparam;
+            sectp->setceilingtexture(actor->texparam);
             sectp->addceilingz(SP_TAG5(actor));
             sectp->ceilingheinum += SP_TAG6(actor);
 
@@ -1401,7 +1402,7 @@ void DoChangorMatch(short match)
         }
         else
         {
-            sectp->floorpicnum = SP_TAG4(actor);
+            sectp->setfloortexture(actor->texparam);
             sectp->addfloorz(SP_TAG5(actor));
             sectp->floorheinum += SP_TAG6(actor);
 

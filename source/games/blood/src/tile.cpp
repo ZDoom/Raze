@@ -124,7 +124,7 @@ int tileGetSurfType(CollisionBase& hit)
     default:
         return 0;
     case kHitSector:
-        return GetExtInfo(hit.hitSector->floortexture()).surftype;
+        return GetExtInfo(hit.hitSector->floortexture).surftype;
     case kHitWall:
         return GetExtInfo(hit.hitWall->walltexture()).surftype;
     case kHitSprite:

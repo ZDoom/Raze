@@ -1159,7 +1159,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		int SavePlayClock = PlayClock;
 		InitTimingVars();
 		PlayClock = SavePlayClock;
-		defineSky(DEFAULTPSKY, pskybits_override, nullptr, 0, parallaxyscale_override / 65536.f);
+		defineSky(DEFAULTPSKY, pskybits_override, nullptr, 0, parallaxyscale_override / 8192.f);
 		InitNetVars();
 
 		screenpeek = myconnectindex;

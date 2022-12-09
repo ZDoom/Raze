@@ -105,7 +105,7 @@ void InitMirrors(void)
 			break;
 
 		auto secti = &sector[i];
-		if (secti->floortexture() == mirrortile)
+		if (secti->floortexture == mirrortile)
 		{
 			auto link = barrier_cast<DBloodActor*>(secti->upperLink);
 			if (link == nullptr)
@@ -116,7 +116,7 @@ void InitMirrors(void)
 
 			auto sectj = link2->sector();
 			int j = sectindex(sectj);
-			if (sectj->ceilingtexture() != mirrortile)
+			if (sectj->ceilingtexture != mirrortile)
 				I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
 			mirror[mirrorcnt].type = 2;
 			mirror[mirrorcnt].diff = link2->spr.pos - link->spr.pos;

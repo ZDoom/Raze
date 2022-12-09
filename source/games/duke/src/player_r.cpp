@@ -2002,12 +2002,12 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 					p->dummyplayersprite = spawn(pact, RTILE_PLAYERONWATER);
 
 				p->footprintcount = 6;
-				if (tilesurface(p->cursector->floortexture()) == TSURF_SLIME)
+				if (tilesurface(p->cursector->floortexture) == TSURF_SLIME)
 				{
 					p->footprintpal = 8;
 					p->footprintshade = 0;
 				}
-				else if (tilesurface(p->cursector->floortexture()) == TSURF_OIL)
+				else if (tilesurface(p->cursector->floortexture) == TSURF_OIL)
 				{
 					p->footprintpal = 0;
 					p->footprintshade = 40;
@@ -3258,7 +3258,7 @@ void processinput_r(int snum)
 	else if (psectlotag == 7777 && (currentLevel->gameflags & LEVEL_RR_HULKSPAWN))
 			lastlevel = 1;
 
-	if (psectlotag == 848 && tilesurface(psectp->floortexture()) == TSURF_SPECIALWATER)
+	if (psectlotag == 848 && tilesurface(psectp->floortexture) == TSURF_SPECIALWATER)
 		psectlotag = ST_1_ABOVE_WATER;
 
 	if (psectlotag == 857)
@@ -3441,7 +3441,7 @@ void processinput_r(int snum)
 	pact->vel.X = clamp((p->GetActor()->spr.pos.XY() - p->bobpos).Length(), 0., 32.);
 	if (p->on_ground) p->bobcounter += int(p->GetActor()->vel.X * 8);
 
-	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture() == mirrortex) || !p->insector()));
+	p->backuppos(ud.clipping == 0 && ((p->insector() && p->cursector->floortexture == mirrortex) || !p->insector()));
 
 	// Shrinking code
 
@@ -3503,7 +3503,7 @@ void processinput_r(int snum)
 
 		if (p->on_ground && truefdist <= gs.playerheight + 16)
 		{
-			int surface = tilesurface(sect->floortexture());
+			int surface = tilesurface(sect->floortexture);
 			int whichsound = surface == TSURF_ELECTRIC ? 0 : surface == TSURF_SLIME ? 1 : surface == TSURF_PLASMA ? 2 : surface == TSURF_MAGMA ? 3 : -1;
 			k = makepainsounds(snum, whichsound);
 		}
@@ -3549,7 +3549,7 @@ void processinput_r(int snum)
 					if (clz.type == kHitSprite)
 						j = clz.actor()->spr.spritetexture();
 					else
-						j = psectp->floortexture();
+						j = psectp->floortexture;
 
 					if (tilesurface(j) == TSURF_METALDUCTS)
 					{
@@ -3591,13 +3591,13 @@ void processinput_r(int snum)
 			}
 		}
 
-		if (tilesurface(psectp->floortexture()) == TSURF_OIL)
+		if (tilesurface(psectp->floortexture) == TSURF_OIL)
 		{
 			if (p->OnMotorcycle)
 				if (p->on_ground)
 					p->moto_on_oil = 1;
 		}
-		else if (tilesurface(psectp->floortexture()) == TSURF_DEEPMUD)
+		else if (tilesurface(psectp->floortexture) == TSURF_DEEPMUD)
 		{
 			if (p->OnMotorcycle)
 			{
@@ -3611,7 +3611,7 @@ void processinput_r(int snum)
 				p->vel.XY() *= gs.playerfriction;
 			}
 		}
-		else if (tilesurface(psectp->floortexture()) == TSURF_MUDDY)
+		else if (tilesurface(psectp->floortexture) == TSURF_MUDDY)
 		{
 			if (p->OnMotorcycle)
 			{

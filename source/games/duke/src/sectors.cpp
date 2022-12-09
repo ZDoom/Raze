@@ -52,7 +52,7 @@ static int interptype[] = { Interp_Sect_Floorz, Interp_Sect_Ceilingz, Interp_Wal
 
 bool ceilingspace(sectortype* sectp)
 {
-	return (sectp && (sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tilesurface(sectp->ceilingtexture()) == TSURF_OUTERSPACE));
+	return (sectp && (sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tilesurface(sectp->ceilingtexture) == TSURF_OUTERSPACE));
 }
 
 
@@ -65,7 +65,7 @@ bool ceilingspace(sectortype* sectp)
 bool floorspace(sectortype* sectp)
 {
 	// Yes, ceilingpal in this check is correct...
-	return (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tilesurface(sectp->floortexture()) == TSURF_OUTERSPACE));
+	return (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tilesurface(sectp->floortexture) == TSURF_OUTERSPACE));
 }
 
 //---------------------------------------------------------------------------
@@ -1323,7 +1323,7 @@ void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 
 bool checkhitceiling(sectortype* sectp)
 {
-	auto data = breakCeilingMap.CheckKey(sectp->ceilingtexture().GetIndex());
+	auto data = breakCeilingMap.CheckKey(sectp->ceilingtexture.GetIndex());
 	if (data && !(data->flags & 1))
 	{
 		if (!data->handler)

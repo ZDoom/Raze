@@ -47,8 +47,8 @@ struct sectortypelight
 		floorstat = sec->floorstat;
 		ceilingheinum = sec->ceilingheinum;
 		floorheinum = sec->floorheinum;
-		ceilingtexture = sec->ceilingtexture();
-		floortexture = sec->floortexture();
+		ceilingtexture = sec->ceilingtexture;
+		floortexture = sec->floortexture;
 	}
 };
 

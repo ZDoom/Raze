@@ -373,7 +373,7 @@ bool ShowRedLine(int j, int i)
 					if (((wal->cstat | wal->nextWall()->cstat) & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == 0)
 						if (sector[i].floorz == wal->nextSector()->floorz)
 							return false;
-			if (sector[i].floortexture() != wal->nextSector()->floortexture())
+			if (sector[i].floortexture != wal->nextSector()->floortexture)
 				return false;
 			if (sector[i].floorshade != wal->nextSector()->floorshade)
 				return false;
@@ -524,7 +524,7 @@ static void renderDrawMapView(const DVector2& cpos, const DVector2& cangvect, co
 
 		if (sect->floorstat & CSTAT_SECTOR_SKY) continue;
 
-		auto flortex = sect->floortexture();
+		auto flortex = sect->floortexture;
 		if (!flortex.isValid()) continue;
 
 		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);
