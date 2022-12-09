@@ -722,6 +722,24 @@ static TArray<GrpEntry> SetupGame()
 	}
 	foundit:
 
+	// If the user has specified a script, let's see if we know it.
+	//
+	if (groupno == -1 && userConfig.DefaultCon.Len())
+	{
+		FString DefaultConlower = userConfig.DefaultCon.MakeLower();
+
+		int g = 0;
+		for (auto& grp : groups)
+		{
+			if (grp.FileInfo.scriptname.MakeLower() == DefaultConlower)
+			{
+				groupno = g;
+				break;
+			}
+			g++;
+		}
+	}
+
 	// If the user has specified a file name, let's see if we know it.
 	//
 	if (groupno == -1 && userConfig.gamegrp.Len())
