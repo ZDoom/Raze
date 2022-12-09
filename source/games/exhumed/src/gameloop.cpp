@@ -117,7 +117,7 @@ void GameInterface::DrawBackground()
 
     DrawRel(kSkullHead, 160, 100, 0);
     DrawRel(kSkullJaw, 161, 130, 0);
-    DrawRel(nLogoTile, 160, 40, 0);
+    DrawRel(TexMan.GetGameTexture(nLogoTile), 160, 40, 0);
 
     // draw the fire urn/lamp thingies
     DrawRel(kTile3512 + dword_9AB5F, 50, 150, 0);

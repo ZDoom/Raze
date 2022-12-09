@@ -117,7 +117,7 @@ void GameInterface::loadPalette()
     LoadPaletteLookups();
 }
 
-void CopyTileToBitmap(int nSrcTile, int nDestTile, int xPos, int yPos);
+void CopyTileToBitmap(FTextureID nSrcTile, FTextureID nDestTile, int xPos, int yPos);
 
 // void TestSaveLoad();
 void LoadStatus();
@@ -252,9 +252,11 @@ void DrawClock()
     while (nVal)
     {
         int v2 = nVal & 0xF;
+        auto texid = tileGetTextureID(v2 + kClockSymbol1);
+        auto tex = TexMan.GetGameTexture(texid);
         int yPos = 32 - tileHeight(v2 + kClockSymbol1) / 2;
 
-        CopyTileToBitmap(v2 + kClockSymbol1, kTile3603, ebp - tileWidth(v2 + kClockSymbol1) / 2, yPos);
+        CopyTileToBitmap(texid, tileGetTextureID(kTile3603), ebp - tex->GetTexelWidth() / 2, yPos);
 
         ebp -= 15;
 
@@ -622,20 +624,24 @@ void DeleteActor(DExhumedActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void CopyTileToBitmap(int nSrcTile,  int nDestTile, int xPos, int yPos)
+void CopyTileToBitmap(FTextureID nSrcTile,  FTextureID nDestTile, int xPos, int yPos)
 {
-    int nOffs = tileHeight(nDestTile) * xPos;
+    auto pSrcTex = TexMan.GetGameTexture(nSrcTile);
+    auto pDestTex = TexMan.GetGameTexture(nDestTile);
+    int nOffs = pDestTex->GetTexelHeight() * xPos;
 
-	auto pixels = GetWritablePixels(tileGetTextureID(nDestTile));
+	auto pixels = GetWritablePixels(nDestTile);
+    if (!pixels) return;
     uint8_t *pDest = pixels + nOffs + yPos;
     uint8_t *pDestB = pDest;
 
-    int destYSize = tileHeight(nDestTile);
-    int srcYSize = tileHeight(nSrcTile);
+    int destYSize = pDestTex->GetTexelHeight();
+    int srcYSize = pSrcTex->GetTexelHeight();
 
-    const uint8_t *pSrc = GetRawPixels(tileGetTextureID(nSrcTile));
+    const uint8_t *pSrc = GetRawPixels(nSrcTile);
+    if (!pSrc) return;
 
-    for (int x = 0; x < tileWidth(nSrcTile); x++)
+    for (int x = 0; x < pSrcTex->GetTexelWidth(); x++)
     {
         pDest += destYSize;
 

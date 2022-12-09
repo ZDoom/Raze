@@ -119,6 +119,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 	auto pTSprite = tsprites.get(nTSprite);
 	auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
 	if (gDetail < effectDetail[nViewEffect]) return NULL;
+	auto pTTex = TexMan.GetGameTexture(pTSprite->spritetexture());
 	switch (nViewEffect)
 	{
 	case kViewEffectSpotProgress: {
@@ -289,7 +290,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = pTSprite->pos.Z;
 		pNSprite->picnum = 908;
 		pNSprite->statnum = kStatDecoration;
-		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 64.;
+		s = (pTTex->GetDisplayWidth() * pTSprite->scale.X) / 64.;
 		pNSprite->scale = DVector2(s, s);
 		break;
 	}
@@ -340,7 +341,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = top;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
-		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 32.;
+		s = (pTTex->GetDisplayWidth() * pTSprite->scale.X) / 32.;
 		pNSprite->scale = DVector2(s, s);
 		break;
 	}
@@ -355,7 +356,7 @@ static tspritetype* viewAddEffect(tspriteArray& tsprites, int nTSprite, VIEW_EFF
 		pNSprite->pos.Z = bottom;
 		pNSprite->picnum = 2101;
 		pNSprite->shade = -128;
-		s = (tileWidth(pTSprite->picnum) * pTSprite->scale.X) / 32.;
+		s = (pTTex->GetDisplayWidth() * pTSprite->scale.X) / 32.;
 		pNSprite->scale = DVector2(s, s);
 		break;
 	}

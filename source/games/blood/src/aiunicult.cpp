@@ -1692,7 +1692,7 @@ static double getRangeAttackDist(DBloodActor* actor, double minDist, double maxD
 	int dist = 0;
 	int seqId = actor->xspr.data2;
 	int mul = 550;
-	int picnum = actor->spr.picnum;
+	auto texid = actor->spr.spritetexture();
 
 	if (yscale > 0)
 	{
@@ -1701,11 +1701,11 @@ static double getRangeAttackDist(DBloodActor* actor, double minDist, double maxD
 			Seq* pSeq = getSequence(seqId);
 			if (pSeq)
 			{
-				picnum = seqGetTile(&pSeq->frames[0]);
+				texid = seqGetTexture(&pSeq->frames[0]);
 			}
 		}
-
-		dist = tileHeight(picnum) << 8;
+		auto tex = TexMan.GetGameTexture(texid);
+		dist = int(tex->GetDisplayHeight() * 256);
 		if (yscale < 64) dist -= (64 - yscale) * mul;
 		else if (yscale > 64) dist += (yscale - 64) * (mul / 3);
 	}

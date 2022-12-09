@@ -258,10 +258,11 @@ void DoSpiritHead()
 
         if (nMouthTile != 0) 
         {
-            int srctile = nMouthTile + 598;
-            auto src = GetRawPixels(tileGetTextureID(srctile));
-            int sizx = tileWidth(srctile);
-            int sizy = tileHeight(srctile);
+            FTextureID srctile = tileGetTextureID(nMouthTile + 598);
+            auto src = GetRawPixels(srctile);
+            auto tex = TexMan.GetGameTexture(srctile);
+            int sizx = tex->GetTexelWidth();
+            int sizy = tex->GetTexelHeight();
             int workptr = 212 * (97 - sizx / 2) + 159 - sizy;
             int srcptr = 0;
             while (sizx > 0) 

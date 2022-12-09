@@ -60,13 +60,17 @@ void DrawAbs(int tile, double x, double y, int shade = 0)
     DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
-void DrawRel(int tile, double x, double y, int shade)
+void DrawRel(FGameTexture* tex, double x, double y, int shade = 0)
 {
     // This is slightly different than what the backend does here, but critical for some graphics.
-    auto tex = tileGetTexture(tile);
     int offx = (int(tex->GetDisplayWidth()) >> 1) + int(tex->GetDisplayLeftOffset());
     int offy = (int(tex->GetDisplayHeight()) >> 1) + int(tex->GetDisplayTopOffset());
-    DrawAbs(tile, x - offx, y - offy, shade);
+    DrawTexture(twod, tex, x - offx, y - offy, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
+}
+
+void DrawRel(int tile, double x, double y, int shade)
+{
+    DrawRel(tileGetTexture(tile), x, y, shade);
 }
 
 //---------------------------------------------------------------------------
@@ -102,9 +106,10 @@ enum
 
 void menu_DoPlasma()
 {
-    auto nLogoTile = GameLogo();
-    int lw = tileWidth(nLogoTile);
-    int lh = tileHeight(nLogoTile);
+    auto nLogoTexid = GameLogo();
+    auto pLogoTex = TexMan.GetGameTexture(nLogoTexid);
+    int lw = (int)pLogoTex->GetDisplayWidth();
+    int lh = (int)pLogoTex->GetDisplayHeight();
 
     int ptile = nPlasmaTile;
     int pclock = I_GetBuildTime();
@@ -233,7 +238,7 @@ void menu_DoPlasma()
             r_ebx += 2;
         }
 
-        auto logopix = GetRawPixels(tileGetTextureID(nLogoTile));
+        auto logopix = GetRawPixels(nLogoTexid);
 
         for (int j = 0; j < 5; j++)
         {
@@ -303,7 +308,7 @@ void menu_DoPlasma()
         }
     }
     DrawAbs(ptile, 0, 0);
-    DrawRel(nLogoTile, 160, 40);
+    DrawRel(pLogoTex, 160, 40);
 
     // draw the fire urn/lamp thingies
     int dword_9AB5F = (pclock / 16) & 3;

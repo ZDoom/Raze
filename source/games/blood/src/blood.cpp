@@ -692,7 +692,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 	int top = 0;
 	if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
 	{
-		top = (tileHeight(2229) * ((gNetPlayers + 3) / 4));
+		top = (tileHeight(kSBPlayerSlot) * ((gNetPlayers + 3) / 4));
 	}
 	return { top, 25 };
 }

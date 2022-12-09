@@ -185,7 +185,8 @@ void AISpider::Tick(RunListEvent* ev)
             if (spp->spr.cstat & CSTAT_SPRITE_YFLIP)
             {
                 spp->vel.Z = 0;
-                spp->spr.pos.Z = pSector->ceilingz + (tileHeight(spp->spr.picnum) / 8.); // was << 5 in Build coordinates
+                auto tex = TexMan.GetGameTexture(spp->spr.spritetexture());
+                spp->spr.pos.Z = pSector->ceilingz + (tex->GetDisplayHeight() / 8.); // was << 5 in Build coordinates
 
                 if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
                 {

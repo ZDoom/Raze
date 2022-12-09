@@ -1423,7 +1423,7 @@ int getSpriteMassBySize(DBloodActor* actor)
 		return cached->mass;
 	}
 
-	int picnum = actor->spr.picnum;
+	auto texid = actor->spr.spritetexture();
 	int massDiv = 30;
 	int addMul = 2;
 	int subMul = 2;
@@ -1433,15 +1433,15 @@ int getSpriteMassBySize(DBloodActor* actor)
 		auto pSeq = getSequence(seqId);
 		if (pSeq)
 		{
-			picnum = seqGetTile(&pSeq->frames[0]);
+			texid = seqGetTexture(&pSeq->frames[0]);
 		}
-		else
-			picnum = actor->spr.picnum;
 	}
+	auto tex = TexMan.GetGameTexture(texid);
+	if (!tex) return 0;
 
 	clipDist = max(actor->clipdist, 0.25);
-	int x = tileWidth(picnum);
-	int y = tileHeight(picnum);
+	int x = (int)tex->GetDisplayWidth();
+	int y = (int)tex->GetDisplayHeight();
 	int xscale = int(actor->spr.scale.X * 64);
 	int yscale = int(actor->spr.scale.Y * 64);
 

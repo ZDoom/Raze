@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "names.h"
 #include "exhumedactor.h"
 #include "serialize_obj.h"
+#include "texturemanager.h"
 
 BEGIN_PS_NS
 
@@ -142,9 +143,9 @@ extern bool bDoFlashes;
 
 extern int bVanilla;
 
-inline int GameLogo()
+inline FTextureID GameLogo()
 {
-    return (g_gameType & GAMEFLAG_EXHUMED) ? kExhumedLogo : kPowerslaveLogo;
+    return TexMan.CheckForTexture((g_gameType & GAMEFLAG_EXHUMED) ? "ExhumedLogo" : "PowerslaveLogo", ETextureType::Any);
 }
 
 extern double g_frameDelay;
