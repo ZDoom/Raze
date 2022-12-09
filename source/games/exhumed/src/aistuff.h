@@ -283,7 +283,7 @@ void BuildDrip(DExhumedActor* nSprite);
 DExhumedActor* BuildEnergyBlock(sectortype* pSector);
 int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
-int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...);
+int BuildWallFace(int nChannel, walltype* pWall, FTextureID pic);
 int BuildSlide(int nChannel, walltype* edx, walltype* ebx, walltype* ecx, walltype* arg1, walltype* arg2, walltype* arg3);
 
 // queen

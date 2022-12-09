@@ -1879,6 +1879,8 @@ void SpriteSetup(void)
 
                 case BREAKABLE:
                     // used for wall info
+                    if (SP_TAG5(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG5(actor));
+
                     change_actor_stat(actor, STAT_BREAKABLE);
                     break;
 
@@ -2009,8 +2011,7 @@ void SpriteSetup(void)
                     // copy tag 7 to tag 6 and pre-shift it
                     SP_TAG6(actor) = SP_TAG7(actor);
                     SP_TAG6(actor) <<= 7;
-                    if (SP_TAG2(actor) >= 0)
-                        actor->texparam = tileGetTextureID(SP_TAG2(actor)); // convert and copy to a safe place. A new map format cannot use the lotag to hold a named texture.
+                    if (SP_TAG2(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG2(actor));
                     change_actor_stat(actor, STAT_CEILING_FLOOR_PIC_OVERRIDE);
                     break;
                 }
@@ -2024,8 +2025,7 @@ void SpriteSetup(void)
 
                 case SECT_CHANGOR:
                 {
-                    if (SP_TAG4(actor) >= 0)
-                        actor->texparam = tileGetTextureID(SP_TAG4(actor)); // convert and copy to a safe place. A new map format cannot use the lotag to hold a named texture.
+                    if (SP_TAG4(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG4(actor));
                     change_actor_stat(actor, STAT_CHANGOR);
                     break;
                 }
@@ -2532,6 +2532,8 @@ void SpriteSetup(void)
 
 
                 case SECT_WALL_MOVE:
+                    if (SP_TAG5(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG5(actor));
+                    if (SP_TAG6(actor) >= 0 && !actor->texparam.isValid()) actor->texparam2 = tileGetTextureID(SP_TAG6(actor));
                     change_actor_stat(actor, STAT_WALL_MOVE);
                     break;
                 case SECT_WALL_MOVE_CANSEE:
@@ -6096,7 +6098,7 @@ int  StateControl(DSWActor* actor)
         if ((actor->user.State->Tics & SF_WALL_STATE))
         {
             ASSERT(actor->user.WallP);
-            actor->user.WallP->wallpicnum = actor->user.State->Pic;
+            actor->user.WallP->setwalltexture(tileGetTextureID(actor->user.State->Pic));
         }
         else
         {

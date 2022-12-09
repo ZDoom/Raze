@@ -10,6 +10,7 @@ constants
 	TFLAG_BLOCKDOOR				= 16
 	TFLAG_NOBLOODSPLAT			= 32
 	TFLAG_NOCIRCLEREFLECT		= 64
+	TFLAG_INTERPOLATEWALL		= 128
 
 	// surface (terrain/environment) types
 	TSURF_NONE					= 0

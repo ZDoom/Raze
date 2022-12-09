@@ -1090,7 +1090,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	{
 		for (auto& wal : wall)
 		{
-			if (wal.wallpicnum == 7873 || wal.wallpicnum == 7870)
+			if (tileflags(wal.walltexture()) & TFLAG_INTERPOLATEWALL)
 				StartInterpolation(&wal, Interp_Wall_PanX);
 		}
 	}

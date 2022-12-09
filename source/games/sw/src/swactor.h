@@ -16,7 +16,7 @@ public:
 	USER user;
 	walltype* tempwall;	// transient, to replace a hack using a 16 bit sprite field.
 	TObjPtr<DSWActor*> ownerActor;
-	FTextureID texparam;	// only one special variant of ST1 needs this...
+	FTextureID texparam, texparam2;	// some special variants of ST1 need this...
 
 	DSWActor() = default;
 

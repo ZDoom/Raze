@@ -104,7 +104,7 @@ struct wallFace
     walltype* pWall;
     int16_t nChannel;
     int16_t count;
-    int16_t piclist[8];
+    FTextureID picList[2];
 };
 
 struct slideData
@@ -136,8 +136,8 @@ struct Trap
 
     int16_t nState;
     int16_t nType;
-    int16_t nPicnum1;
-    int16_t nPicnum2;
+    FTextureID nPicnum1;
+    FTextureID nPicnum2;
     int16_t nTrapInterval;
 
 };
@@ -269,8 +269,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, wallFace& w, wallF
     {
         arc("channel", w.nChannel)
             ("wall", w.pWall)
-            ("at4", w.count)
-            .Array("at6", w.piclist, 8)
+            ("count", w.count)
+            .Array("piclist", w.picList, 2)
             .EndObject();
     }
     return arc;
@@ -919,7 +919,7 @@ void InitWallFace()
 //
 //---------------------------------------------------------------------------
 
-int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...)
+int BuildWallFace(int nChannel, walltype* pWall, FTextureID pic)
 {
     auto WallFaceCount = WallFace.Reserve(1);
 
@@ -927,21 +927,13 @@ int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...)
     WallFace[WallFaceCount].pWall = pWall;
     WallFace[WallFaceCount].nChannel = nChannel;
 
-    if (nCount > 8) {
-        nCount = 8;
-    }
-
-    va_list piclist;
-    va_start(piclist, nCount);
-
-    while (WallFace[WallFaceCount].count < nCount)
+    while (WallFace[WallFaceCount].count < 2)
     {
         int i = WallFace[WallFaceCount].count;
         WallFace[WallFaceCount].count++;
 
-        WallFace[WallFaceCount].piclist[i] = (int16_t)va_arg(piclist, int);
+        WallFace[WallFaceCount].picList[i] = pic + i;
     }
-    va_end(piclist);
 
     return WallFaceCount;
 }
@@ -963,7 +955,7 @@ void AIWallFace::ProcessChannel(RunListEvent* ev)
 
     if ((si <= WallFace[nWallFace].count) && (si >= 0))
     {
-        WallFace[nWallFace].pWall->wallpicnum = WallFace[nWallFace].piclist[si];
+        WallFace[nWallFace].pWall->setwalltexture(WallFace[nWallFace].picList[si]);
     }
 }
 
@@ -1241,8 +1233,8 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
         sTrap[nTrap].nTrapInterval = 5;
     }
 
-    sTrap[nTrap].nPicnum2 = 0;
-    sTrap[nTrap].nPicnum1 = 0;
+    sTrap[nTrap].nPicnum2 = FNullTextureID();
+    sTrap[nTrap].nPicnum1 = FNullTextureID();
 
     if (var_18 == -1) {
         return nTrap;
@@ -1257,13 +1249,13 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
             if (sTrap[nTrap].pWall1 != nullptr)
             {
                 sTrap[nTrap].pWall2 = &wal;
-                sTrap[nTrap].nPicnum2 = wal.wallpicnum;
+                sTrap[nTrap].nPicnum2 = wal.walltexture();
                 break;
             }
             else
             {
                 sTrap[nTrap].pWall1 = &wal;
-                sTrap[nTrap].nPicnum1 = wal.wallpicnum;
+                sTrap[nTrap].nPicnum1 = wal.walltexture();
             }
         }
     }
@@ -1322,13 +1314,13 @@ void AITrap::Tick(RunListEvent* ev)
                 auto pWall = sTrap[nTrap].pWall1;
                 if (pWall)
                 {
-                    pWall->wallpicnum = sTrap[nTrap].nPicnum1;
+                    pWall->setwalltexture(sTrap[nTrap].nPicnum1);
                 }
 
                 pWall = sTrap[nTrap].pWall1;
                 if (pWall)
                 {
-                    pWall->wallpicnum = sTrap[nTrap].nPicnum2;
+                    pWall->setwalltexture(sTrap[nTrap].nPicnum2);
                 }
             }
         }
@@ -1354,13 +1346,13 @@ void AITrap::Tick(RunListEvent* ev)
                     auto pWall = sTrap[nTrap].pWall1;
                     if (pWall)
                     {
-                        pWall->wallpicnum = sTrap[nTrap].nPicnum1 + 1;
+                        pWall->setwalltexture(sTrap[nTrap].nPicnum1 + 1);
                     }
 
                     pWall = sTrap[nTrap].pWall2;
                     if (pWall)
                     {
-                        pWall->wallpicnum = sTrap[nTrap].nPicnum2;
+                        pWall->setwalltexture(sTrap[nTrap].nPicnum2);
                     }
 
                     D3PlayFX(StaticSound[kSound36], pBullet);
@@ -1621,7 +1613,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     {
 		apos += wal.pos;
 		
-        wal.wallpicnum = kClockSymbol16;
+        wal.setwalltexture(TexMan.CheckForTexture("ClockSymbol16", ETextureType::Any));
         wal.pal = 0;
         wal.shade = 50;
     }
@@ -2619,6 +2611,7 @@ void PostProcess()
     }
     else // nMap == kMap20)
     {
+        auto texid3603 = tileGetTextureID(kTile3603);
         for(auto& sect: sector)
         {
             sect.pSoundSect = &sect;
@@ -2626,7 +2619,7 @@ void PostProcess()
 
             for(auto& wal : sect.walls)
             {
-                if (wal.wallpicnum == kTile3603)
+                if (wal.walltexture() == texid3603)
                 {
                     wal.pal = 1;
                     auto pActor = insertActor(&sect, 407);
@@ -2638,7 +2631,7 @@ void PostProcess()
         ExhumedSpriteIterator it;
         while (auto act = it.Next())
         {
-            if (act->spr.statnum < kMaxStatus && act->spr.picnum == kTile3603)
+            if (act->spr.statnum < kMaxStatus && act->spr.spritetexture() == texid3603)
             {
                 ChangeActorStat(act, 407);
                 act->spr.pal = 1;

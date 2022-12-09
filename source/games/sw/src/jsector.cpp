@@ -375,17 +375,6 @@ void JS_InitMirrors(void)
                 wal.overpicnum = legacyTileNum(sec->ceilingtexture);
         }
     }
-
-    // Invalidate textures in sector behind mirror
-    for (i = 0; i < mirrorcnt; i++)
-    {
-        for (auto& wal : mirror[i].mirrorSector->walls)
-        {
-            wal.wallpicnum = MIRROR;
-            wal.overpicnum = MIRROR;
-        }
-    }
-
 }                                   // InitMirrors
 
 /////////////////////////////////////////////////////

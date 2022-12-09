@@ -1862,8 +1862,8 @@ void destroyit(DDukeActor *actor)
 				auto srcwal = srcsect->walls.Data();
 				for (unsigned i = 0; i < destsect->walls.Size(); i++, srcwal++, destwal++)
 				{
-					destwal->wallpicnum = srcwal->wallpicnum;
-					destwal->overpicnum = srcwal->overpicnum;
+					destwal->setwalltexture(srcwal->walltexture());
+					destwal->setovertexture(srcwal->overtexture());
 					destwal->shade = srcwal->shade;
 					destwal->xrepeat = srcwal->xrepeat;
 					destwal->yrepeat = srcwal->yrepeat;

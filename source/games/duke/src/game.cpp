@@ -565,13 +565,13 @@ void CallStandingOn(DDukeActor* actor, player_struct* p)
 CCMD(changewalltexture)
 {
 	if (argv.argc() < 2) return;
-	int tile = tileForName(argv[1]);
-	if (tile < 0) tile = (int)strtol(argv[1], nullptr, 10);
+	FTextureID tile = TexMan.CheckForTexture(argv[1], ETextureType::Any);
+	if (!tile.isValid()) tile = tileGetTextureID((int)strtol(argv[1], nullptr, 10));
 	HitInfoBase hit;
 	hitscan(ps[0].actor->spr.pos, ps[0].cursector, DVector3(ps[0].actor->spr.Angles.Yaw.ToVector(), 0) * 1024, hit, CLIPMASK1);
 	if (hit.hitWall)
 	{
-		hit.hitWall->wallpicnum = tile;
+		hit.hitWall->setwalltexture(tile);
 	}
 }
 

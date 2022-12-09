@@ -639,7 +639,7 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
     else
     {
         if (break_info->breaknum == -1)
-            wallp->wallpicnum = 594; // temporary break pic
+            wallp->setwalltexture(FNullTextureID()); // temporary break pic
         else
         {
             wallp->wallpicnum = break_info->breaknum;
@@ -681,7 +681,7 @@ bool UserBreakWall(walltype* wp)
         return true;
     }
 
-    if (wp->wallpicnum == SP_TAG5(actor))
+    if (wp->walltexture() == actor->texparam)
         return true;
 
     // make it BROKEN
@@ -692,7 +692,7 @@ bool UserBreakWall(walltype* wp)
 
         if (SP_TAG8(actor) == 0)
         {
-            wp->wallpicnum = SP_TAG5(actor);
+            wp->setwalltexture(actor->texparam);
             // clear tags
             wp->hitag = wp->lotag = 0;
             if (wp->twoSided())
@@ -715,7 +715,7 @@ bool UserBreakWall(walltype* wp)
         else if (SP_TAG8(actor) == 2)
         {
             // set to broken pic
-            wp->wallpicnum = SP_TAG5(actor);
+            wp->setwalltexture(actor->texparam);
 
             // clear flags
             wp->cstat &= ~(block_flags);
@@ -735,7 +735,7 @@ bool UserBreakWall(walltype* wp)
     else
     {
         // increment picnum
-        wp->wallpicnum++;
+        wp->setwalltexture(wp->walltexture() + 1);
 
         DoSpawnSpotsForDamage(match);
     }

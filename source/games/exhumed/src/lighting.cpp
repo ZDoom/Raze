@@ -718,8 +718,6 @@ void AddFlow(walltype* pWall, int nSpeed, int b)
     // only moves up or down
     StartInterpolation(pWall, Interp_Wall_PanY);
 
-    int nPic = pWall->wallpicnum;
-
     sFlowInfo[nFlow].angcos = 0;
     sFlowInfo[nFlow].angsin = b == 2 ? 1.f : -1.f;
     sFlowInfo[nFlow].pWall = pWall;
