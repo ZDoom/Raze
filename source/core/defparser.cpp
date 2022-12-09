@@ -228,8 +228,8 @@ void processTileImport(FScanner& sc, const char* cmd, FScriptPosition& pos, Tile
 	if (imp.fn.IsNotEmpty() && tileImportFromTexture(sc, imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
 
 	tbuild->tile[imp.tile].extinfo.picanm.sf |= imp.flags;
-	tbuild->tile[imp.tile].extinfo.surftype = imp.surface;
-	tbuild->tile[imp.tile].extinfo.tileshade = imp.shade;
+	if (imp.surface != INT_MAX) tbuild->tile[imp.tile].extinfo.surftype = imp.surface;
+	if (imp.shade != INT_MAX) tbuild->tile[imp.tile].extinfo.tileshade = imp.shade;
 
 	// This is not quite the same as originally, for two reasons:
 	// 1: Since these are texture properties now, there's no need to clear them.
