@@ -46,6 +46,7 @@
 #include "hw_sections.h"
 #include "coreactor.h"
 #include "texinfo.h"
+#include "buildtiles.h"
 
 //#define DEBUG_CLIPPER
 //==========================================================================
