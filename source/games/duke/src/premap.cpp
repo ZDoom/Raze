@@ -125,7 +125,6 @@ void resetplayerstats(int snum)
 	p->footprintpal     = 0;
 	p->footprintshade   = 0;
 	p->jumping_toggle   = 0;
-	p->Angles.PrevViewAngles.Pitch = p->Angles.ViewAngles.Pitch = nullAngle;
 	p->bobcounter       = 0;
 	p->on_ground        = 0;
 	p->player_par       = 0;
@@ -149,10 +148,6 @@ void resetplayerstats(int snum)
 	p->heat_on =            0;
 	p->jetpack_on =         0;
 	p->holoduke_on =       nullptr;
-
-	p->Angles.PrevViewAngles.Yaw = p->Angles.ViewAngles.Yaw = (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90;
-	p->Angles.PrevViewAngles.Roll = p->Angles.ViewAngles.Roll = nullAngle;
-
 	p->newOwner          =nullptr;
 	p->jumping_counter   = 0;
 	p->hard_landing      = 0;
@@ -160,7 +155,6 @@ void resetplayerstats(int snum)
 	p->fric.X            = 0;
 	p->fric.Y            = 0;
 	p->somethingonplayer = nullptr;
-	p->Angles.YawSpin        = nullAngle;
 
 	p->on_crane          = nullptr;
 
@@ -622,7 +616,8 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 				act->spr.pal = ps[j].palookup = ud.user_pals[j];
 
 			ps[j].actor = act;
-			ps[j].Angles.setActor(act);
+			ps[j].Angles = {};
+			ps[j].Angles.initialize(ps[j].actor, (currentLevel->levelNumber & 1)? DAngle90 : -DAngle90);
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 

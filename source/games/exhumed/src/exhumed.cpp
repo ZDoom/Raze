@@ -369,6 +369,10 @@ void GameInterface::Ticker()
 	}
     else if (EndLevel == 0)
     {
+        // this must be done before the view is backed up.
+        PlayerList[nLocalPlayer].Angles.resetRenderAngles();
+        UpdatePlayerSpriteAngle(&PlayerList[nLocalPlayer]);
+
         inita = inita.Normalized360();
 
         auto& lPlayerVel = sPlayerInput[nLocalPlayer].vel;

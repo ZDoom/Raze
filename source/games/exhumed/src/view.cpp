@@ -201,6 +201,10 @@ void DrawView(double interpfrac, bool sceneonly)
     auto pDop = pPlayer->pDoppleSprite;
     auto nDoppleOldCstat = pDop->spr.cstat;
 
+    // update render angles.
+    pPlayer->Angles.updateRenderAngles(interpfrac);
+    UpdatePlayerSpriteAngle(pPlayer);
+
     if (nSnakeCam >= 0 && !sceneonly)
     {
         DExhumedActor* pActor = SnakeList[nSnakeCam].pSprites[0];

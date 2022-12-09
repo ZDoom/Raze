@@ -611,6 +611,9 @@ void viewDrawScreen(bool sceneonly)
 	}
 	else interpfrac = 1.;
 
+	// update render angles.
+	pPlayer->Angles.updateRenderAngles(interpfrac);
+
 	if (cl_interpolate)
 	{
 		DoInterpolations(interpfrac);

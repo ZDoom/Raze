@@ -572,7 +572,7 @@ void TerminateLevel(void)
         pp->DoPlayerAction = nullptr;
 
         pp->actor = nullptr;
-        pp->Angles.setActor(nullptr);
+        pp->Angles = {};
 
         pp->PlayerUnderActor = nullptr;
 

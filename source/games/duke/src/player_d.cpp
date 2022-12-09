@@ -2700,8 +2700,6 @@ void processinput_d(int snum)
 	p = &ps[snum];
 	auto pact = p->GetActor();
 
-	p->Angles.backupViewAngles();
-
 	ESyncBits& actions = p->sync.actions;
 
 	auto sb_fvel = PlayerInputForwardVel(snum);

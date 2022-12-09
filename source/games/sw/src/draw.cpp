@@ -1237,6 +1237,9 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
         if (cl_sointerpolation) so_dointerpolations(interpfrac);
     }
 
+    // update render angles.
+    pp->Angles.updateRenderAngles(interpfrac);
+
     // Get initial player position, interpolating if required.
     DVector3 tpos = camerapp->actor->getRenderPos(interpfrac);
     DRotator tangles = camerapp->Angles.getRenderAngles(interpfrac);

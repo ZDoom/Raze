@@ -11,6 +11,9 @@ struct PlayerAngles
 	// Player viewing angles, separate from the camera.
 	DRotator PrevViewAngles, ViewAngles;
 
+	// Player camera angles, not for direct manipulation within the playsim.
+	DRotator RenderAngles;
+
 	// Holder of current yaw spin state for the 180 degree turn.
 	DAngle YawSpin;
 
@@ -25,13 +28,20 @@ struct PlayerAngles
 	void doViewYaw(const ESyncBits actions);
 
 	// General methods.
-	void backupViewAngles() { PrevViewAngles = ViewAngles; }
-	void setActor(DCoreActor* const actor) { pActor = actor; }
-
-	// Angle getters.
+	void initialize(DCoreActor* const actor, const DAngle viewyaw = nullAngle)
+	{
+		if ((pActor = actor)) RenderAngles = PrevLerpAngles = pActor->spr.Angles;
+		PrevViewAngles.Yaw = ViewAngles.Yaw = viewyaw;
+	}
 	DAngle getPitchWithView()
 	{
-		return pActor->spr.Angles.Pitch + ViewAngles.Pitch;
+		return ClampViewPitch(pActor->spr.Angles.Pitch + ViewAngles.Pitch);
+	}
+
+	// Render angle functions.
+	DRotator& activeAngles()
+	{
+		return !SyncInput() ? RenderAngles : pActor->spr.Angles;
 	}
 	DRotator lerpViewAngles(const double interpfrac)
 	{
@@ -39,7 +49,24 @@ struct PlayerAngles
 	}
 	DRotator getRenderAngles(const double interpfrac)
 	{
-		return (!SyncInput() ? pActor->spr.Angles : pActor->interpolatedangles(interpfrac)) + lerpViewAngles(interpfrac);
+		// Get angles and return with clamped off pitch.
+		auto angles = RenderAngles + lerpViewAngles(interpfrac);
+		angles.Pitch = ClampViewPitch(angles.Pitch);
+		return angles;
+	}
+	void updateRenderAngles(const double interpfrac)
+	{
+		// Apply the current interpolated angle state to the render angles.
+		const auto lerpAngles = pActor->interpolatedangles(interpfrac);
+		RenderAngles += lerpAngles - PrevLerpAngles;
+		PrevLerpAngles = lerpAngles;
+	}
+	void resetRenderAngles()
+	{
+		// Apply any last remaining ticrate angle updates and reset variables.
+		RenderAngles += pActor->spr.Angles - PrevLerpAngles;
+		PrevLerpAngles = pActor->spr.Angles = RenderAngles;
+		PrevViewAngles = ViewAngles;
 	}
 
 	// Draw code helpers.
@@ -84,6 +111,7 @@ private:
 	};
 
 	// Private data which should never be accessed publically.
+	DRotator PrevLerpAngles;
 	DCoreActor* pActor;
 
 	// Internal angle updater to reduce boilerplate from the public setters.

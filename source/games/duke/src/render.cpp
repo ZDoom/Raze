@@ -221,6 +221,9 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 
 	player_struct* p = &ps[snum];
 
+	// update render angles.
+	p->Angles.updateRenderAngles(interpfrac);
+
 	if (automapMode == am_full || !p->insector())
 		return;
 

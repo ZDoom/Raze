@@ -69,6 +69,9 @@ void GameInterface::Ticker()
 		ud.cameraactor = nullptr;
 		everyothertime++;
 
+		// this must be done before the view is backed up.
+		ps[myconnectindex].Angles.resetRenderAngles();
+
 		DukeSpriteIterator it;
 		while (auto ac = it.Next())
 		{

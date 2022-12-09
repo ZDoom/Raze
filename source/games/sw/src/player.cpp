@@ -1553,10 +1553,10 @@ void DoPlayerTurnVehicle(PLAYER* pp, float avel, double zz, double floordist)
 
     if (avel != 0)
     {
-        auto sum = pp->actor->spr.Angles.Yaw + DAngle::fromDeg(avel);
+        auto sum = pp->Angles.activeAngles().Yaw + DAngle::fromDeg(avel);
         if (MultiClipTurn(pp, sum, zz, floordist))
         {
-            pp->actor->spr.Angles.Yaw = sum;
+            pp->Angles.activeAngles().Yaw = sum;
         }
     }
 }
@@ -1619,7 +1619,7 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
 
     if (fabs(avel) >= FLT_EPSILON)
     {
-        new_ang = pp->actor->spr.Angles.Yaw + DAngle::fromDeg(avel);
+        new_ang = pp->Angles.activeAngles().Yaw + DAngle::fromDeg(avel);
 
         if (sop->limit_ang_center >= nullAngle)
         {
@@ -1634,10 +1634,10 @@ void DoPlayerTurnTurret(PLAYER* pp, float avel)
             }
         }
 
-        pp->actor->spr.Angles.Yaw = new_ang;
+        pp->Angles.activeAngles().Yaw = new_ang;
     }
 
-    OperateSectorObject(pp->sop, pp->actor->spr.Angles.Yaw, pp->sop->pmid);
+    OperateSectorObject(pp->sop, pp->Angles.activeAngles().Yaw, pp->sop->pmid);
 }
 
 //---------------------------------------------------------------------------
@@ -6697,6 +6697,9 @@ void MoveSkipSavePos(void)
     {
         pp = Player + pnum;
 
+        // this must be done before the view is backed up.
+        pp->Angles.resetRenderAngles();
+
         pp->actor->backuploc();
         pp->obob_z = pp->bob_z;
         pp->opbob_amt = pp->pbob_amt;
@@ -6991,7 +6994,6 @@ void domovethings(void)
 
         // Reset flags used while tying input to framerate
         pp->Flags2 &= ~(PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
-        pp->Angles.backupViewAngles();
 
         // disable synchronised input if set by game.
         resetForcedSyncInput();

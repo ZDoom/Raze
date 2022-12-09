@@ -178,33 +178,33 @@ void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const
 	// Process mouse input.
 	if (horz)
 	{
-		pActor->spr.Angles.Pitch += DAngle::fromDeg(horz);
+		activeAngles().Pitch += DAngle::fromDeg(horz);
 		*actions &= ~SB_CENTERVIEW;
 	}
 
 	// Process keyboard input.
 	if (auto aiming = !!(*actions & SB_AIM_DOWN) - !!(*actions & SB_AIM_UP))
 	{
-		pActor->spr.Angles.Pitch += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
+		activeAngles().Pitch += getTicrateScale(PITCH_AIMSPEED) * scaleAdjust * aiming;
 		*actions &= ~SB_CENTERVIEW;
 	}
 	if (auto looking = !!(*actions & SB_LOOK_DOWN) - !!(*actions & SB_LOOK_UP))
 	{
-		pActor->spr.Angles.Pitch += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
+		activeAngles().Pitch += getTicrateScale(PITCH_LOOKSPEED) * scaleAdjust * looking;
 		*actions |= SB_CENTERVIEW;
 	}
 
 	// Do return to centre.
 	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 	{
-		const auto pitch = abs(pActor->spr.Angles.Pitch);
+		const auto pitch = abs(activeAngles().Pitch);
 		const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
-		scaletozero(pActor->spr.Angles.Pitch, PITCH_CENTERSPEED * scale, scaleAdjust);
-		if (!pActor->spr.Angles.Pitch.Sgn()) *actions &= ~SB_CENTERVIEW;
+		scaletozero(activeAngles().Pitch, PITCH_CENTERSPEED * scale, scaleAdjust);
+		if (!activeAngles().Pitch.Sgn()) *actions &= ~SB_CENTERVIEW;
 	}
 
 	// clamp before we finish, even if it's clamped in the drawer.
-	pActor->spr.Angles.Pitch = ClampViewPitch(pActor->spr.Angles.Pitch);
+	activeAngles().Pitch = ClampViewPitch(activeAngles().Pitch);
 }
 
 
@@ -217,7 +217,7 @@ void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const
 void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// add player's input
-	pActor->spr.Angles.Yaw += DAngle::fromDeg(avel);
+	activeAngles().Yaw += DAngle::fromDeg(avel);
 
 	if (*actions & SB_TURNAROUND)
 	{
@@ -240,7 +240,7 @@ void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const s
 			add -= YawSpin;
 			YawSpin = nullAngle;
 		}
-		pActor->spr.Angles.Yaw += add;
+		activeAngles().Yaw += add;
 	}
 }
 
@@ -336,7 +336,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngles& w, P
 
 		if (arc.isReading())
 		{
-			w.backupViewAngles();
+			w.resetRenderAngles();
 		}
 	}
 	return arc;
