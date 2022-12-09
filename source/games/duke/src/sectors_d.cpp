@@ -156,6 +156,50 @@ void operateforcefields_d(DDukeActor* act, int low)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+bool checkaccessswitch_d(int snum, int switchpal, DDukeActor* act, walltype* wwal)
+{
+	if (ps[snum].access_incs == 0)
+	{
+		if (switchpal == 0)
+		{
+			if ((ps[snum].got_access & 1))
+				ps[snum].access_incs = 1;
+			else FTA(70, &ps[snum]);
+		}
+
+		else if (switchpal == 21)
+		{
+			if (ps[snum].got_access & 2)
+				ps[snum].access_incs = 1;
+			else FTA(71, &ps[snum]);
+		}
+
+		else if (switchpal == 23)
+		{
+			if (ps[snum].got_access & 4)
+				ps[snum].access_incs = 1;
+			else FTA(72, &ps[snum]);
+		}
+
+		if (ps[snum].access_incs == 1)
+		{
+			if (!act)
+				ps[snum].access_wall = wwal;
+			else
+				ps[snum].access_spritenum = act;
+		}
+
+		return 1;
+	}
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
 // how NOT to implement switch animations...
 //
 //---------------------------------------------------------------------------
@@ -202,39 +246,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		break;
 	case DTILE_ACCESSSWITCH:
 	case DTILE_ACCESSSWITCH2:
-		if (ps[snum].access_incs == 0)
-		{
-			if (switchpal == 0)
-			{
-				if ((ps[snum].got_access & 1))
-					ps[snum].access_incs = 1;
-				else FTA(70, &ps[snum]);
-			}
-
-			else if (switchpal == 21)
-			{
-				if (ps[snum].got_access & 2)
-					ps[snum].access_incs = 1;
-				else FTA(71, &ps[snum]);
-			}
-
-			else if (switchpal == 23)
-			{
-				if (ps[snum].got_access & 4)
-					ps[snum].access_incs = 1;
-				else FTA(72, &ps[snum]);
-			}
-
-			if (ps[snum].access_incs == 1)
-			{
-				if (!act)
-					ps[snum].access_wall = wwal;
-				else
-					ps[snum].access_spritenum = act;
-			}
-
-			return 0;
-		}
+		checkaccessswitch_d(snum, switchpal, act, wwal);
 		[[fallthrough]];
 	case DTILE_DIPSWITCH2:
 	case DTILE_DIPSWITCH2ON:

@@ -115,6 +115,61 @@ void operateforcefields_r(DDukeActor* act, int low)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+bool checkaccessswitch_r(int snum, int switchpal, DDukeActor* act, walltype* wwal)
+{
+	if (ps[snum].access_incs == 0)
+	{
+		if (switchpal == 0)
+		{
+			if (ps[snum].keys[1])
+				ps[snum].access_incs = 1;
+			else
+			{
+				FTA(70, &ps[snum]);
+				if (isRRRA()) S_PlayActorSound(99, act ? act : ps[snum].GetActor());
+			}
+		}
+
+		else if (switchpal == 21)
+		{
+			if (ps[snum].keys[2])
+				ps[snum].access_incs = 1;
+			else
+			{
+				FTA(71, &ps[snum]);
+				if (isRRRA()) S_PlayActorSound(99, act ? act : ps[snum].GetActor());
+			}
+		}
+
+		else if (switchpal == 23)
+		{
+			if (ps[snum].keys[3])
+				ps[snum].access_incs = 1;
+			else
+			{
+				FTA(72, &ps[snum]);
+				if (isRRRA()) S_PlayActorSound(99, act ? act : ps[snum].GetActor());
+			}
+		}
+
+		if (ps[snum].access_incs == 1)
+		{
+			if (!act)
+				ps[snum].access_wall = wwal;
+			else
+				ps[snum].access_spritenum = act;
+		}
+		return 1;
+	}
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------
@@ -161,51 +216,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		break;
 	case RTILE_ACCESSSWITCH:
 	case RTILE_ACCESSSWITCH2:
-		if (ps[snum].access_incs == 0)
-		{
-			if (switchpal == 0)
-			{
-				if (ps[snum].keys[1])
-					ps[snum].access_incs = 1;
-				else
-				{
-					FTA(70, &ps[snum]);
-					if (isRRRA()) S_PlayActorSound(99, act? act : ps[snum].GetActor());
-				}
-			}
-
-			else if (switchpal == 21)
-			{
-				if (ps[snum].keys[2])
-					ps[snum].access_incs = 1;
-				else
-				{
-					FTA(71, &ps[snum]);
-					if (isRRRA()) S_PlayActorSound(99, act ? act : ps[snum].GetActor());
-				}
-			}
-
-			else if (switchpal == 23)
-			{
-				if (ps[snum].keys[3])
-					ps[snum].access_incs = 1;
-				else
-				{
-					FTA(72, &ps[snum]);
-					if (isRRRA()) S_PlayActorSound(99, act ? act : ps[snum].GetActor());
-				}
-			}
-
-			if (ps[snum].access_incs == 1)
-			{
-				if (!act)
-					ps[snum].access_wall = wwal;
-				else
-					ps[snum].access_spritenum = act;
-			}
-
-			return 0;
-		}
+		checkaccessswitch_r(snum, switchpal, act, wwal);
 		goto goOn1;
 
 	case RTILE_MULTISWITCH2:
