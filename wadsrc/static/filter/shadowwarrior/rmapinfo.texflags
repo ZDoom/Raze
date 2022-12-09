@@ -1,0 +1,17 @@
+include "constants.mi"
+
+
+textureflags
+{
+	TFLAG_BUNNYFRIENDLY = 
+		DARKGRASS,
+		BRIGHTGRASS,
+		MOSS,
+		GRASSSTONE,
+		GRASSQUARRY,
+		DRYGRASS,
+		LAWN,
+		SAND,
+		FLOWERLAWN,
+		THINGRASS
+}

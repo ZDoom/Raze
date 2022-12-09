@@ -882,6 +882,10 @@ enum
     SPRX_BOOL10 = (BIT(15)),
 };
 
+enum ETexFlags
+{
+    TFLAG_BUNNYFRIENDLY = 1, // bunnies like to stay in sectors with this as floor.
+};
 
 // User->Flags flags
 enum

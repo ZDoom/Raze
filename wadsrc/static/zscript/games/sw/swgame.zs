@@ -117,6 +117,11 @@ struct SW native
 		INVF_COUNT = 4
 	}
 
+	enum ETexFlags // texture flags
+	{
+		TFLAG_BUNNYFRIENDLY = 1,
+	};
+
 	native static void PlaySound(int sound, int flags, int channel = CHAN_AUTO, int cflags = 0);
 	native static void StopSound();
 	native static bool IsSoundPlaying(int channel); //  soundEngine.IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))

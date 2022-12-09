@@ -35,6 +35,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 #include "weapon.h"
 #include "misc.h"
+#include "texinfo.h"
 
 BEGIN_SW_NS
 
@@ -1306,26 +1307,16 @@ int DoBunnyMove(DSWActor* actor)
 
     if (RandomRange(1000) > 985 && actor->spr.pal != PALETTE_PLAYER1 && actor->user.track < 0)
     {
-        switch (actor->sector()->floorpicnum)
+        if (tileflags(actor->sector()->floortexture()) & TFLAG_BUNNYFRIENDLY)
         {
-        case 153:
-        case 154:
-        case 193:
-        case 219:
-        case 2636:
-        case 2689:
-        case 3561:
-        case 3562:
-        case 3563:
-        case 3564:
-            NewStateGroup(actor,sg_BunnyStand);
-            break;
-        default:
+            NewStateGroup(actor, sg_BunnyStand);
+        }
+        else
+        {
 			actor->spr.Angles.Yaw = RandomAngle();
             actor->user.jump_speed = -350;
             DoActorBeginJump(actor);
             actor->user.ActorActionFunc = DoActorMoveJump;
-            break;
         }
     }
 
@@ -1375,24 +1366,14 @@ int DoBunnyEat(DSWActor* actor)
 
     DoActorSectorDamage(actor);
 
-    switch (actor->sector()->floorpicnum)
+    if (tileflags(actor->sector()->floortexture()) & TFLAG_BUNNYFRIENDLY)
     {
-    case 153:
-    case 154:
-    case 193:
-    case 219:
-    case 2636:
-    case 2689:
-    case 3561:
-    case 3562:
-    case 3563:
-    case 3564:
         if (RandomRange(1000) > 970)
-            NewStateGroup(actor,sg_BunnyRun);
-        break;
-    default:
+            NewStateGroup(actor, sg_BunnyRun);
+    }
+    else
+    {
         NewStateGroup(actor,sg_BunnyRun);
-        break;
     }
     return 0;
 }
