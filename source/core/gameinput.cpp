@@ -80,7 +80,7 @@ inline static DAngle getscaledangle(const DAngle value, const double scaleAdjust
 	return ((object.Normalized180() * getTicrateScale(value)) + push) * getCorrectedScale(scaleAdjust);
 }
 
-inline static void scaletozero(DAngle& object, const DAngle value, const double scaleAdjust, const DAngle push = DAngle::fromDeg(32. / 465.))
+inline static void scaletozero(DAngle& object, const DAngle value, const double scaleAdjust = 1, const DAngle push = DAngle::fromDeg(32. / 465.))
 {
 	if (auto sgn = object.Sgn())
 	{
@@ -224,17 +224,7 @@ void PlayerAngles::applyPitch(float const horz, ESyncBits* actions, double const
 
 void PlayerAngles::applyYaw(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
-	// Process angle return to zeros.
-	scaletozero(ViewAngles.Roll, YAW_LOOKRETURN, scaleAdjust);
-	scaletozero(ViewAngles.Yaw, YAW_LOOKRETURN, scaleAdjust);
-
-	// Process keyboard input.
-	if (auto looking = !!(*actions & SB_LOOK_RIGHT) - !!(*actions & SB_LOOK_LEFT))
-	{
-		ViewAngles.Yaw += getTicrateScale(YAW_LOOKINGSPEED) * getCorrectedScale(scaleAdjust) * looking;
-		ViewAngles.Roll += getTicrateScale(YAW_ROTATESPEED) * getCorrectedScale(scaleAdjust) * looking;
-	}
-
+	// Process only if movement isn't locked.
 	if (!lockedYaw())
 	{
 		// add player's input
@@ -320,6 +310,27 @@ void PlayerAngles::doViewPitch(const DVector2& pos, DAngle const ang, bool const
 
 		// Clamp off against the maximum allowed pitch.
 		ViewAngles.Pitch = ClampViewPitch(ViewAngles.Pitch);
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Player's look left/right key angle handler.
+//
+//---------------------------------------------------------------------------
+
+void PlayerAngles::doViewYaw(const ESyncBits actions)
+{
+	// Process angle return to zeros.
+	scaletozero(ViewAngles.Yaw, YAW_LOOKRETURN);
+	scaletozero(ViewAngles.Roll, YAW_LOOKRETURN);
+
+	// Process keyboard input.
+	if (auto looking = !!(actions & SB_LOOK_RIGHT) - !!(actions & SB_LOOK_LEFT))
+	{
+		ViewAngles.Yaw += getTicrateScale(YAW_LOOKINGSPEED) * looking;
+		ViewAngles.Roll += getTicrateScale(YAW_ROTATESPEED) * looking;
 	}
 }
 

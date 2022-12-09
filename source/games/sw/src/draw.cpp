@@ -1246,14 +1246,13 @@ void drawscreen(PLAYER* pp, double interpfrac, bool sceneonly)
     {
         tang = camerapp->Angles.angLERPSUM(interpfrac);
         thoriz = camerapp->Angles.horizLERPSUM(interpfrac);
-        trotscrnang = camerapp->Angles.angLERPROTSCRN(interpfrac);
     }
     else
     {
-        tang = pp->Angles.angSUM();
+        tang = pp->Angles.angSUM(interpfrac);
         thoriz = pp->Angles.horizSUM();
-        trotscrnang = pp->Angles.ViewAngles.Roll;
     }
+    trotscrnang = camerapp->Angles.angLERPROTSCRN(interpfrac);
     tsect = camerapp->cursector;
 
     updatesector(tpos, &tsect);

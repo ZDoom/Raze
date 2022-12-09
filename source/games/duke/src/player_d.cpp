@@ -2889,6 +2889,7 @@ void processinput_d(int snum)
 	p->psectlotag = psectlotag;
 
 	//Do the quick lefts and rights
+	p->Angles.doViewYaw(actions);
 
 	if (movementBlocked(p))
 	{

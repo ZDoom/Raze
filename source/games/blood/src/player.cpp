@@ -1585,6 +1585,8 @@ void ProcessInput(PLAYER* pPlayer)
 		actor->vel.XY() += DVector2(pInput->fvel * fvAccel, pInput->svel * svAccel).Rotated(actor->spr.Angles.Yaw) * speed;
 	}
 
+	pPlayer->Angles.doViewYaw(pInput->actions);
+
 	if (SyncInput())
 	{
 		pPlayer->Angles.applyYaw(pInput->avel, &pInput->actions);

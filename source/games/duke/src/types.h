@@ -309,7 +309,7 @@ struct player_struct
 	DDukeActor* GetActor();
 	int GetPlayerNum();
 
-	void apply_seasick(double factor);
+	void apply_seasick();
 	void backuppos(bool noclipping = false);
 	void backupweapon();
 	void checkhardlanding();

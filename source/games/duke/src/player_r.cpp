@@ -3497,7 +3497,7 @@ void processinput_r(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum, actions);
-	p->apply_seasick(1);
+	p->apply_seasick();
 
 	auto oldpos = p->GetActor()->opos;
 
@@ -3544,6 +3544,7 @@ void processinput_r(int snum)
 	p->psectlotag = psectlotag;
 
 	//Do the quick lefts and rights
+	p->Angles.doViewYaw(actions);
 
 	if (movementBlocked(p))
 	{

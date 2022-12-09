@@ -446,7 +446,7 @@ static void DrawMap(PLAYER* pPlayer, const double interpfrac)
 		setViewport(Hud_Stbar);
 		tm = 1;
 	}
-	auto ang = !SyncInput() ? pPlayer->Angles.angSUM() : pPlayer->Angles.angLERPSUM(interpfrac);
+	auto ang = !SyncInput() ? pPlayer->Angles.angSUM(interpfrac) : pPlayer->Angles.angLERPSUM(interpfrac);
 	DrawOverheadMap(pPlayer->actor->interpolatedpos(interpfrac).XY(), ang, interpfrac);
 	if (tm)
 		setViewport(hud_size);
@@ -501,16 +501,15 @@ static void SetupView(PLAYER* pPlayer, DVector3& cPos, DAngle& cA, DAngle& cH, s
 
 		if (!SyncInput())
 		{
-			cA = pPlayer->Angles.angSUM();
+			cA = pPlayer->Angles.angSUM(interpfrac);
 			cH = pPlayer->Angles.horizSUM();
-			rotscrnang = pPlayer->Angles.ViewAngles.Roll;
 		}
 		else
 		{
 			cA = pPlayer->Angles.angLERPSUM(interpfrac);
 			cH = pPlayer->Angles.horizLERPSUM(interpfrac);
-			rotscrnang = pPlayer->Angles.angLERPROTSCRN(interpfrac);
 		}
+		rotscrnang = pPlayer->Angles.angLERPROTSCRN(interpfrac);
 	}
 
 	viewUpdateShake(pPlayer, cPos, cA, cH, shakeX, shakeY);

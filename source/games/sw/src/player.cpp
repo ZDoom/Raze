@@ -2069,6 +2069,8 @@ void DoPlayerMove(PLAYER* pp)
 
     SlipSlope(pp);
 
+    pp->Angles.doViewYaw(pp->input.actions);
+
     if (!SyncInput())
     {
         pp->Flags2 |= (PF2_INPUT_CAN_TURN_GENERAL);

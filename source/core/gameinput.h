@@ -28,6 +28,7 @@ struct PlayerAngles
 
 	// Prototypes for applying view.
 	void doViewPitch(const DVector2& pos, DAngle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
+	void doViewYaw(const ESyncBits actions);
 
 	// General methods.
 	void resetAdjustments() { Adjustments = {}; }
@@ -82,13 +83,13 @@ struct PlayerAngles
 	}
 
 	// Miscellaneous helpers.
-	double angLOOKANGHALF(double const interpfrac) { return angRENDERLOOKANG(interpfrac).Normalized180().Degrees() * (128. / 45.); }
-	double angLOOKINGARC(double const interpfrac) { return fabs(angRENDERLOOKANG(interpfrac).Normalized180().Degrees() * (1024. / 1620.)); }
+	double angLOOKANGHALF(double const interpfrac) { return angLERPLOOKANG(interpfrac).Normalized180().Degrees() * (128. / 45.); }
+	double angLOOKINGARC(double const interpfrac) { return fabs(angLERPLOOKANG(interpfrac).Normalized180().Degrees() * (1024. / 1620.)); }
 
 	// Crosshair x/y offsets based on look_ang's tangent.
 	DVector2 angCROSSHAIROFFSETS(const double interpfrac)
 	{
-		return DVector2(159.72, 145.5 * -angRENDERROTSCRN(interpfrac).Sin()) * -angRENDERLOOKANG(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
+		return DVector2(159.72, 145.5 * -angLERPROTSCRN(interpfrac).Sin()) * -angLERPLOOKANG(interpfrac).Tan() * (1. / tan(r_fov * pi::pi() / 360.));
 	}
 
 	// Weapon x/y offsets based on the above.
@@ -103,14 +104,11 @@ struct PlayerAngles
 	DAngle horizOLDSUM() { return ZzOLDHORIZON() + PrevViewAngles.Pitch; }
 	DAngle horizSUM() { return ZzHORIZON() + ViewAngles.Pitch; }
 	DAngle horizLERPSUM(double const interpfrac) { return interpolatedvalue(horizOLDSUM(), horizSUM(), interpfrac); }
-	DAngle angOLDSUM() { return ZzOLDANGLE() + PrevViewAngles.Yaw; }
-	DAngle angSUM() { return ZzANGLE() + ViewAngles.Yaw; }
-	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(angOLDSUM(), angSUM(), interpfrac); }
+	DAngle angSUM(const double interpfrac) { return ZzANGLE() + angLERPLOOKANG(interpfrac); }
+	DAngle angLERPSUM(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE() + PrevViewAngles.Yaw, ZzANGLE() + ViewAngles.Yaw, interpfrac); }
 	DAngle angLERPANG(double const interpfrac) { return interpolatedvalue(ZzOLDANGLE(), ZzANGLE(), interpfrac); }
 	DAngle angLERPLOOKANG(double const interpfrac) { return interpolatedvalue(PrevViewAngles.Yaw, ViewAngles.Yaw, interpfrac); }
 	DAngle angLERPROTSCRN(double const interpfrac) { return interpolatedvalue(PrevViewAngles.Roll, ViewAngles.Roll, interpfrac); }
-	DAngle angRENDERLOOKANG(double const interpfrac) { return !SyncInput() ? ViewAngles.Yaw : angLERPLOOKANG(interpfrac); }
-	DAngle angRENDERROTSCRN(double const interpfrac) { return !SyncInput() ? ViewAngles.Roll : angLERPROTSCRN(interpfrac); }
 
 private:
 	// DRotator indices.

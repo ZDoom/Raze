@@ -729,23 +729,23 @@ void playerJump(int snum, double floorz, double ceilingz)
 //
 //---------------------------------------------------------------------------
 
-void player_struct::apply_seasick(double factor)
+void player_struct::apply_seasick()
 {
 	if (isRRRA() && SeaSick && (dead_flag == 0 || (dead_flag && resurrected)))
 	{
 		if (SeaSick < 250)
 		{
 			if (SeaSick >= 180)
-				Angles.ViewAngles.Roll -= DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ViewAngles.Roll -= DAngle::fromDeg(24 * BAngToDegree);
 			else if (SeaSick >= 130)
-				Angles.ViewAngles.Roll += DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ViewAngles.Roll += DAngle::fromDeg(24 * BAngToDegree);
 			else if (SeaSick >= 70)
-				Angles.ViewAngles.Roll -= DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ViewAngles.Roll -= DAngle::fromDeg(24 * BAngToDegree);
 			else if (SeaSick >= 20)
-				Angles.ViewAngles.Roll += DAngle::fromDeg(24 * factor * BAngToDegree);
+				Angles.ViewAngles.Roll += DAngle::fromDeg(24 * BAngToDegree);
 		}
 		if (SeaSick < 250)
-			Angles.ViewAngles.Yaw = DAngle::fromDeg(((krand() & 255) - 128) * factor * BAngToDegree);
+			Angles.ViewAngles.Yaw = DAngle::fromDeg(((krand() & 255) - 128) * BAngToDegree);
 	}
 }
 

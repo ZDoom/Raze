@@ -980,6 +980,8 @@ void AIPlayer::Tick(RunListEvent* ev)
         }
     }
 
+    PlayerList[nPlayer].Angles.doViewYaw(sPlayerInput[nLocalPlayer].actions);
+
     // loc_1A494:
     if (SyncInput())
     {
