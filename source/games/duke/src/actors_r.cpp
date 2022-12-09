@@ -1311,7 +1311,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case SE_19_EXPLOSION_LOWERS_CEILING:
-			handle_se19(act, RTILE_BIGFORCE);
+			handle_se19(act);
 			break;
 
 		case SE_20_STRETCH_BRIDGE:

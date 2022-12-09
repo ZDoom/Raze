@@ -63,7 +63,7 @@ void handle_se15(DDukeActor* i);
 void handle_se16(DDukeActor* i);
 void handle_se17(DDukeActor* i);
 void handle_se18(DDukeActor* i, bool morecheck);
-void handle_se19(DDukeActor* i, int BIGFORCE);
+void handle_se19(DDukeActor* i);
 void handle_se20(DDukeActor* i);
 void handle_se21(DDukeActor* i);
 void handle_se22(DDukeActor* i);

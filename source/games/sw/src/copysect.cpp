@@ -63,7 +63,6 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
 
         dwall->xrepeat =       swall->xrepeat;
         dwall->yrepeat =       swall->yrepeat;
-        dwall->overpicnum =    swall->overpicnum;
         dwall->pal =           swall->pal;
         dwall->cstat =         swall->cstat;
         dwall->shade =         swall->shade;

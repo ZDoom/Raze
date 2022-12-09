@@ -2142,7 +2142,7 @@ DDukeActor* ifhitsectors(sectortype* sect)
 //
 //---------------------------------------------------------------------------
 
-void handle_se19(DDukeActor *actor, int BIGFORCE)
+void handle_se19(DDukeActor *actor)
 {
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
@@ -2152,16 +2152,17 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 		if (actor->temp_data[0] == 1)
 		{
 			actor->temp_data[0]++;
+			auto bigforce = TexMan.CheckForTexture("BIGFORCE", ETextureType::Any);
 			for (auto& wal : sc->walls)
 			{
-				if (wal.overpicnum == BIGFORCE)
+				if (wal.overtexture() == bigforce)
 				{
 					wal.cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
-					wal.overpicnum = 0;
+					wal.setovertexture(FNullTextureID());
 					auto nextwal = wal.nextWall();
 					if (nextwal != nullptr)
 					{
-						nextwal->overpicnum = 0;
+						nextwal->setovertexture(FNullTextureID());
 						nextwal->cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
 					}
 				}

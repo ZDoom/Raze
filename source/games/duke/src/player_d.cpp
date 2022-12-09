@@ -2002,7 +2002,7 @@ int operateTripbomb(int snum)
 	if (hit.hitWall != nullptr && hit.hitSector->lotag > 2)
 		return 0;
 
-	if (hit.hitWall != nullptr && hit.hitWall->overpicnum >= 0)
+	if (hit.hitWall != nullptr)
 		if (hit.hitWall->overpicnum == DTILE_BIGFORCE)
 			return 0;
 

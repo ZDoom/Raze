@@ -611,17 +611,17 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
     }
 
     // change the wall
-    if (wallp->overpicnum > 0 && (wallp->cstat & CSTAT_WALL_MASKED))
+    if (wallp->overtexture().isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
     {
         if (break_info->breaknum == -1)
         {
             wallp->cstat &= ~(CSTAT_WALL_MASKED|CSTAT_WALL_1WAY|CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
-            wallp->overpicnum = 0;
+            wallp->setovertexture(FNullTextureID());
             if (wallp->twoSided())
             {
                 nwp = wallp->nextWall();
                 nwp->cstat &= ~(CSTAT_WALL_MASKED|CSTAT_WALL_1WAY|CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
-                nwp->overpicnum = 0;
+                nwp->setovertexture(FNullTextureID());
             }
         }
         else
