@@ -98,12 +98,12 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 			else switch (l)
 			{
 			case 2:
-				k = angletorotation1(h->spr.Angles.Yaw, viewang, 8, 1);
+				k = angletorotation1(t->Angles.Yaw, viewang, 8, 1);
 				break;
 
 			case 3:
 			case 4:
-				k = angletorotation1(h->spr.Angles.Yaw, viewang, 7);
+				k = angletorotation1(t->Angles.Yaw, viewang, 7);
 				if (k > 3)
 				{
 					t->cstat |= CSTAT_SPRITE_XFLIP;
@@ -113,8 +113,8 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 				break;
 
 			case 5:
-				kang = (h->spr.pos - viewVec).Angle();
-				k = angletorotation1(h->spr.Angles.Yaw, kang);
+				kang = (t->pos.XY() - viewVec).Angle();
+				k = angletorotation1(t->Angles.Yaw, kang);
 				if (k > 4)
 				{
 					k = 8 - k;
@@ -123,8 +123,8 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			case 7:
-				kang = (h->spr.pos - viewVec).Angle();
-				k = angletorotation2(h->spr.Angles.Yaw, kang);
+				kang = (t->pos.XY() - viewVec).Angle();
+				k = angletorotation2(t->Angles.Yaw, kang);
 				if (k > 6)
 				{
 					k = 12 - k;
@@ -133,7 +133,7 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			case 8:
-				k = angletorotation1(h->spr.Angles.Yaw, viewang);
+				k = angletorotation1(t->Angles.Yaw, viewang);
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			default:
@@ -142,8 +142,8 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 					bool bg = badguy(h);
 					if (bg && h->spr.statnum == 2 && h->spr.extra > 0)
 					{
-						kang = (h->spr.pos - viewVec).Angle();
-						k = angletorotation1(h->spr.Angles.Yaw, kang);
+						kang = (t->pos.XY() - viewVec).Angle();
+						k = angletorotation1(t->Angles.Yaw, kang);
 						if (k > 4)
 						{
 							k = 8 - k;

@@ -93,17 +93,9 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (t->statnum == STAT_TEMP) continue;
 		auto pp = &ps[h->PlayerIndex()];
-		if (h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner())
+		if ((h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner()) || !actorflag(h, SFLAG_NOINTERPOLATE))
 		{
 			t->pos = h->interpolatedpos(interpfrac);
-		}
-		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
-		{
-			t->pos = h->interpolatedpos(interpfrac);
-		}
-
-		if (actorflag(h, SFLAG2_INTERPOLATEANGLE))
-		{
 			t->Angles.Yaw = h->interpolatedyaw(interpfrac);
 		}
 
@@ -229,7 +221,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				}
 				else
 				{
-					k = angletorotation1(h->spr.Angles.Yaw, viewang);
+					k = angletorotation1(t->Angles.Yaw, viewang);
 					if (k > 4)
 					{
 						k = 8 - k;

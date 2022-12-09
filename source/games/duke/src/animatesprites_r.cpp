@@ -88,15 +88,12 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		if (h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner())
 		{
 			t->pos = h->interpolatedpos(interpfrac);
+			t->Angles.Yaw = h->interpolatedyaw(interpfrac);
 			h->spr.scale = DVector2(0.375, 0.265625);
 		}
 		else if (!actorflag(h, SFLAG_NOINTERPOLATE))
 		{
 			t->pos = h->interpolatedpos(interpfrac);
-		}
-
-		if (actorflag(h, SFLAG2_INTERPOLATEANGLE))
-		{
 			t->Angles.Yaw = h->interpolatedyaw(interpfrac);
 		}
 
@@ -223,7 +220,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				} else
 				{
-					k = angletorotation1(h->spr.Angles.Yaw, viewang);
+					k = angletorotation1(t->Angles.Yaw, viewang);
 					if (k > 4)
 					{
 						k = 8 - k;
