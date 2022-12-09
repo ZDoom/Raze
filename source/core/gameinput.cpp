@@ -48,8 +48,8 @@ static constexpr DAngle YAW_SPINSTAND = DAngle::fromDeg(675.);
 static constexpr DAngle YAW_SPINCROUCH = YAW_SPINSTAND * 0.5;
 static constexpr DAngle PITCH_LOOKSPEED = DAngle::fromDeg(222.83185);
 static constexpr DAngle PITCH_AIMSPEED = PITCH_LOOKSPEED * 0.5;
-static constexpr DAngle PITCH_CENTERSPEED = DAngle::fromDeg(10.25);
-static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle::fromDeg(90. + 11.25);
+static constexpr DAngle PITCH_CENTERSPEED = DAngle::fromDeg(10.775);
+static constexpr DAngle PITCH_CNTRSINEOFFSET = DAngle90 / 8.;
 static constexpr DAngle PITCH_HORIZOFFSPEED = DAngle::fromDeg(4.375);
 static constexpr DAngle PITCH_HORIZOFFCLIMB = DAngle::fromDeg(-38.);
 static constexpr DAngle PITCH_HORIZOFFPUSH = DAngle::fromDeg(0.4476);
@@ -200,7 +200,9 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		// Do return to centre.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
-			scaletozero(horiz, PITCH_CENTERSPEED * (PITCH_CNTRSINEOFFSET - abs(horiz)).Sin(), scaleAdjust);
+			const auto pitch = abs(horiz);
+			const auto scale = pitch > PITCH_CNTRSINEOFFSET ? (pitch - PITCH_CNTRSINEOFFSET).Cos() : 1.;
+			scaletozero(horiz, PITCH_CENTERSPEED * scale, scaleAdjust);
 			if (!horiz.Sgn()) *actions &= ~SB_CENTERVIEW;
 		}
 
