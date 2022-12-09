@@ -289,9 +289,9 @@ void PlayerHorizon::calcviewpitch(const DVector2& pos, DAngle const ang, bool co
 			if (tempsect != nullptr) // If the new point is inside a valid sector...
 			{
 				// Get the floorz as if the new (x,y) point was still in
-				// your sector
+				// your sector, unless it's Blood.
 				double const j = getflorzofslopeptr(cursectnum, pos);
-				double const k = getflorzofslopeptr(tempsect, rotpt);
+				double const k = getflorzofslopeptr(!isBlood() ? cursectnum : tempsect, rotpt);
 
 				// If extended point is in same sector as you or the slopes
 				// of the sector of the extended point and your sector match
