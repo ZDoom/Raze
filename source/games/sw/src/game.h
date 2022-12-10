@@ -891,6 +891,7 @@ enum ESurfType
 {
     TSURF_WATER         = 1,
     TSURF_LAVA          = 2,
+    TSURF_SHALLOWWATER  = 3,
 };
 
 // User->Flags flags

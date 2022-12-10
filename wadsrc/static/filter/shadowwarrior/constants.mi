@@ -6,7 +6,8 @@ constants
 	TFLAG_BUNNYFRIENDLY			= 1
 
 	// surface types
-    TSURF_WATER         = 1
-    TSURF_LAVA          = 2
+	TSURF_WATER         = 1
+	TSURF_LAVA          = 2
+	TSURF_SHALLOWWATER	= 3
 }
 

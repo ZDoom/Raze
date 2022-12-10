@@ -465,7 +465,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 				goto SKIPBULLETHOLE;
 
 			if (hit.hitSector && hit.hitSector->lotag == 0)
-				if (hit.hitWall->overpicnum != DTILE_BIGFORCE)
+				if (!(tileflags(hit.hitWall->overtexture()) & TFLAG_FORCEFIELD))
 					if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag == 0) ||
 						(!hit.hitWall->twoSided() && hit.hitSector->lotag == 0))
 						if ((hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
@@ -1987,7 +1987,7 @@ int operateTripbomb(int snum)
 		return 0;
 
 	if (hit.hitWall != nullptr)
-		if (hit.hitWall->overpicnum == DTILE_BIGFORCE)
+		if (tileflags(hit.hitWall->overtexture()) & TFLAG_FORCEFIELD)
 			return 0;
 
 	DDukeActor* act;

@@ -36,6 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 
 #include "break.h"
+#include "buildtiles.h"
+
 
 BEGIN_SW_NS
 
@@ -435,8 +437,9 @@ int CompareSearchBreakInfo(int* picnum, BREAK_INFO* break_info)
     return(*picnum - break_info->picnum);
 }
 
-BREAK_INFO* FindWallBreakInfo(int picnum)
+BREAK_INFO* FindWallBreakInfo(FTextureID texid)
 {
+    int picnum = legacyTileNum(texid);
     return(BREAK_INFO*)(bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*, const void*))CompareSearchBreakInfo));
 }
 
@@ -465,7 +468,7 @@ BREAK_INFO* SetupWallForBreak(walltype* wallp)
 {
     BREAK_INFO* break_info;
 
-    break_info = FindWallBreakInfo(wallp->wallpicnum);
+    break_info = FindWallBreakInfo(wallp->walltexture());
     if (break_info)
     {
         wallp->lotag = TAG_WALL_BREAK;
@@ -474,7 +477,7 @@ BREAK_INFO* SetupWallForBreak(walltype* wallp)
 
     if (wallp->overtexture().isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
     {
-        break_info = FindWallBreakInfo(wallp->overpicnum);
+        break_info = FindWallBreakInfo(wallp->overtexture());
         if (break_info)
         {
             wallp->lotag = TAG_WALL_BREAK;
@@ -565,7 +568,7 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
         // only break ONE of the walls
 
         if (nwp->lotag == TAG_WALL_BREAK &&
-            nwp->overpicnum > 0 &&
+            nwp->overtexture().isValid() &&
             (nwp->cstat & CSTAT_WALL_MASKED))
         {
             nwp->lotag = 0;
@@ -573,9 +576,9 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
     }
 
     if (wallp->overtexture().isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
-        break_info = FindWallBreakInfo(wallp->overpicnum);
+        break_info = FindWallBreakInfo(wallp->overtexture());
     else
-        break_info = FindWallBreakInfo(wallp->wallpicnum);
+        break_info = FindWallBreakInfo(wallp->walltexture());
 
     if (!break_info)
     {
@@ -616,12 +619,12 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
         else
         {
             wallp->cstat &= ~(CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
-            wallp->overpicnum = break_info->breaknum;
+            wallp->setovertexture(tileGetTextureID(break_info->breaknum));
             if (wallp->twoSided())
             {
                 nwp = wallp->nextWall();
                 nwp->cstat &= ~(CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
-                nwp->overpicnum = break_info->breaknum;
+                nwp->setovertexture(tileGetTextureID(break_info->breaknum));
             }
         }
     }
@@ -631,7 +634,7 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
             wallp->setwalltexture(FNullTextureID()); // temporary break pic
         else
         {
-            wallp->wallpicnum = break_info->breaknum;
+            wallp->setwalltexture(tileGetTextureID(break_info->breaknum));
             if (wallp->hitag < 0)
                 DoWallBreakSpriteMatch(wallp->hitag);
         }

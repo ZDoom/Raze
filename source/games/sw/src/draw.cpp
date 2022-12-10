@@ -1142,7 +1142,7 @@ void UpdateWallPortalState()
             continue;
         }
          walltype* wal = mirror[i].mirrorWall;
-        if (wal->wallpicnum != MIRRORLABEL)
+        if (wal->walltexture() != tileGetTextureID(MIRRORLABEL))
         {
             wal->portalflags = 0;
             continue;

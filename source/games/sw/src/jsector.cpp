@@ -218,25 +218,9 @@ void JS_SpriteSetup(void)
     // Check for certain walls to make sounds
     for(auto& wal : wall)
     {
-        int picnum = wal.wallpicnum;
-
-        // Set the don't stick bit for liquid tiles
-        switch (picnum)
-        {
-        case 175:
-        case 179:
-        case 300:
-        case 320:
-        case 330:
-        case 352:
-        case 780:
-        case 890:
-        case 2608:
-        case 2616:
-            //case 3834:
+        int surf = tilesurface(wal.walltexture());
+        if (surf == TSURF_WATER || surf == TSURF_LAVA || surf == TSURF_SHALLOWWATER)
             wal.extra |= WALLFX_DONT_STICK;
-            break;
-        }
     }
 }
 
@@ -269,9 +253,10 @@ void JS_InitMirrors(void)
         mirror[i].ismagic = false;
     }
 
+    auto mi = tileGetTextureID(MIRROR);
     for(auto& wal : wall)
     {
-        if (wal.twoSided() && (wal.overpicnum == MIRROR) && (wal.cstat & CSTAT_WALL_1WAY))
+        if (wal.twoSided() && (wal.overtexture() == mi) && (wal.cstat & CSTAT_WALL_1WAY))
         {
             auto sec = wal.nextSector();
             if ((sec->floorstat & CSTAT_SECTOR_SKY) == 0)
@@ -282,9 +267,9 @@ void JS_InitMirrors(void)
                     wal.setovertexture(sec->ceilingtexture);
                     continue;
                 }
-
-                wal.overpicnum = MIRRORLABEL;
-                wal.wallpicnum = MIRRORLABEL;
+                auto ml = tileGetTextureID(MIRRORLABEL);
+                wal.setovertexture(ml);
+                wal.setwalltexture(ml);
                 sec->floorstat |= CSTAT_SECTOR_SKY;
                 mirror[mirrorcnt].mirrorWall = &wal;
                 mirror[mirrorcnt].mirrorSector = sec;

@@ -45,7 +45,6 @@ struct BREAK_INFO
     int16_t flags, shrap_amt;
 };
 
-BREAK_INFO* FindWallBreakInfo(int picnum);
 BREAK_INFO* FindSpriteBreakInfo(int picnum);
 void SortBreakInfo(void);
 BREAK_INFO* SetupWallForBreak(walltype* wallp);

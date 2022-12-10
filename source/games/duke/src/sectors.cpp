@@ -1248,7 +1248,7 @@ void operateforcefields(DDukeActor *effector, int low)
 		auto wal = animwall[p].wall;
 
 		if (low == wal->lotag || low == -1)
-			if (tileflags(wal->overtexture()) & TFLAG_FORCEFIELD)
+			if (tileflags(wal->overtexture()) & (TFLAG_FORCEFIELD | TFLAG_ANIMFORCEFIELD))
 			{
 				animwall[p].tag = 0;
 
@@ -1277,7 +1277,7 @@ void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 	{
 		lotsofglass(spr, wal, 70);
 		wal->cstat &= ~CSTAT_WALL_MASKED;
-		wal->overpicnum = TILE_MIRRORBROKE;
+		wal->setovertexture(TexMan.CheckForTexture("MIRRORBROKE", ETextureType::Any));
 		wal->portalflags = 0;
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;

@@ -141,13 +141,14 @@ void checkplayerhurt_r(player_struct* p, const Collision &coll)
 		auto wal = coll.hitWall;
 
 		if (p->hurt_delay > 0) p->hurt_delay--;
-		else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN)) switch (wal->overpicnum)
+		else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN))
 		{
-		case RTILE_BIGFORCE:
-			p->hurt_delay = 26;
-			checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
-			break;
-
+			int tf = tileflags(wal->overtexture());
+			if (tf & TFLAG_FORCEFIELD)
+			{
+				p->hurt_delay = 26;
+				checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
+			}
 		}
 	}
 }

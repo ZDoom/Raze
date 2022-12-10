@@ -130,27 +130,26 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 	auto wal = coll.hitWall;
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
-	else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN)) switch (wal->overpicnum)
+	else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN))
 	{
-	case DTILE_W_FORCEFIELD:
-	case DTILE_W_FORCEFIELD + 1:
-	case DTILE_W_FORCEFIELD + 2:
-		p->GetActor()->spr.extra -= 5;
+		int tf = tileflags(wal->overtexture());
+		if (tf & TFLAG_ANIMFORCEFIELD)
+		{
+			p->GetActor()->spr.extra -= 5;
 
-		p->hurt_delay = 16;
-		SetPlayerPal(p, PalEntry(32, 32, 0, 0));
+			p->hurt_delay = 16;
+			SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 
-		p->vel.XY() = -p->GetActor()->spr.Angles.Yaw.ToVector() * 16;
-		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
+			p->vel.XY() = -p->GetActor()->spr.Angles.Yaw.ToVector() * 16;
+			S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
-		checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
-		break;
-
-	case DTILE_BIGFORCE:
-		p->hurt_delay = 26;
-		checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
-		break;
-
+			checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
+		}
+		else if (tf & TFLAG_FORCEFIELD)
+		{
+			p->hurt_delay = 26;
+			checkhitwall(p->GetActor(), wal, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 2);
+		}
 	}
 }
 
