@@ -716,12 +716,12 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaythrowingdynamite = [&]
 		{
-			int dx;
-			int x;
-			int dy;
-			dx = 25;
-			x = 100;
-			dy = 20;
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
+			int dx = 25;
+			int dy = 20;
+
 			if ((*kb) < 20)
 			{
 				if (!(gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
@@ -731,21 +731,17 @@ void displayweapon_r(int snum, double interpfrac)
 				{
 					if ((*kb) < 5)
 					{
-						rdmyospal(weapon_xoffset + x + 190 - look_anghalf - dx,
-							looking_arc + 258 - gun_pos - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal);
+						rdmyospal(290 + offsets.X - dx, 258 + offsets.Y - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal, angle);
 					}
-					rdmyospal(weapon_xoffset + x + 190 - look_anghalf,
-						looking_arc + 258 - gun_pos - dy, RTILE_HANDTHROW + remote_frames[*kb], shade, o |  pin, pal);
+					rdmyospal(290 + offsets.X, 258 + offsets.Y - dy, RTILE_HANDTHROW + remote_frames[*kb], shade, o |  pin, pal, angle);
 				}
 				else
 				{
 					if ((*kb) < 5)
 					{
-						rdmyospal(weapon_xoffset + x + 190 - look_anghalf - dx,
-							looking_arc + 258 - gun_pos - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal);
+						rdmyospal(290 + offsets.X - dx, 258 + offsets.Y - 64 + p->detonate_count - dy, RTILE_RRTILE1752, 0, o |  pin, pal, angle);
 					}
-					rdmyospal(weapon_xoffset + x + 190 - look_anghalf,
-						looking_arc + 258 - gun_pos - dy, RTILE_HANDTHROW + 1, shade, o |  pin, pal);
+					rdmyospal(290 + offsets.X, 258 + offsets.Y - dy, RTILE_HANDTHROW + 1, shade, o |  pin, pal, angle);
 				}
 			}
 		};
