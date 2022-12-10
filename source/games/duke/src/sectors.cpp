@@ -355,6 +355,7 @@ void doanimations(void)
 		double a = getanimatevalue(i);
 		double const v = animates[i].vel * TICSPERFRAME;
 		auto dasectp = animates[i].sect;
+		int type = animates[i].type;
 
 		if (a == animates[i].goal)
 		{
@@ -362,9 +363,8 @@ void doanimations(void)
 
 			animates[i] = animates.Last();
 			animates.Pop();
-			dasectp = animates[i].sect;
 			if (dasectp->lotag == ST_18_ELEVATOR_DOWN || dasectp->lotag == ST_19_ELEVATOR_UP)
-				if (animates[i].type == anim_ceilingz)
+				if (type == anim_ceilingz)
 					continue;
 
 			if ((dasectp->lotag & 0xff) != ST_22_SPLITTING_DOOR)
@@ -376,7 +376,7 @@ void doanimations(void)
 		if (v > 0) { a = min(a + v, animates[i].goal); }
 		else { a = max(a + v, animates[i].goal); }
 
-		if (animates[i].type == anim_floorz)
+		if (type == anim_floorz)
 		{
 			for (auto p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursector == dasectp)

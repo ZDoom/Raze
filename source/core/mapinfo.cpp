@@ -81,6 +81,15 @@ MapRecord *FindMapByName(const char *nm)
 			return map.Data();
 		}
 	}
+	// retry with the path being removed.
+	FString s = ExtractFileBase(nm);
+	for (auto& map : mapList)
+	{
+		if (map->labelName.CompareNoCase(s) == 0)
+		{
+			return map.Data();
+		}
+	}
 	return nullptr;
 }
 

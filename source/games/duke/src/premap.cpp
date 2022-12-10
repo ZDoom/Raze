@@ -426,6 +426,7 @@ void resetprestat(int snum,int g)
 	paused             = 0;
 	ud.cameraactor =nullptr;
 	mspos.Clear();
+	animates.Clear();
 	camsprite               =nullptr;
 	earthquaketime          = 0;
 
