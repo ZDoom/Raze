@@ -108,7 +108,7 @@ inline static void ShowBoat(double x, double y, int tilenum, int shade, int orie
 void displayweapon_r(int snum, double interpfrac)
 {
 	int cw;
-	int i, j;
+	int j;
 	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, hard_landing, TiltStatus;
 	int pal;
 	int8_t shade;
@@ -585,27 +585,26 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displayrifle = [&]
 		{
-			if (*kb > 0)
-				gun_pos -= BobVal((*kb) << 7) * 4;
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
 
-			if (*kb > 0 && p->GetActor()->spr.pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0)
+				offsets.Y += BobVal((*kb) << 7) * 4;
+
+			if (*kb > 0 && p->GetActor()->spr.pal != 1) offsets.X += 1 - (rand() & 3);
 
 			switch (*kb)
 			{
 			case 0:
-				hud_drawpal(weapon_xoffset + 178 - look_anghalf + 30, looking_arc + 233 - gun_pos + 5,
-					RTILE_CHAINGUN, shade, o, pal);
+				hud_drawpal(208 + offsets.X, 238 + offsets.Y, RTILE_CHAINGUN, shade, o, pal, angle);
 				break;
 			default:
 				shade = 0;
 				if (*kb < 8)
 				{
-					i = rand() & 7;
-					hud_drawpal(weapon_xoffset + 178 - look_anghalf + 30, looking_arc + 233 - gun_pos + 5,
-						RTILE_CHAINGUN + 1, shade, o, pal);
+					hud_drawpal(208 + offsets.X, 238 + offsets.Y, RTILE_CHAINGUN + 1, shade, o, pal, angle);
 				}
-				else hud_drawpal(weapon_xoffset + 178 - look_anghalf + 30, looking_arc + 233 - gun_pos + 5,
-					RTILE_CHAINGUN + 2, shade, o, pal);
+				else hud_drawpal(208 + offsets.X, 238 + offsets.Y, RTILE_CHAINGUN + 2, shade, o, pal, angle);
 				break;
 			}
 		};
