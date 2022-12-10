@@ -207,72 +207,29 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		switchpal = wwal->pal;
 	}
 	texid = tileGetTextureID(picnum);
+	auto& ext = GetExtInfo(texid);
+	auto& swdef = switches[ext.switchindex];
 
-	switch (picnum)
+	switch (swdef.type)
 	{
-	case RTILE_DIPSWITCH:
-	case RTILE_DIPSWITCHON:
-	case RTILE_TECHSWITCH:
-	case RTILE_TECHSWITCHON:
-	case RTILE_ALIENSWITCH:
-	case RTILE_ALIENSWITCHON:
+	case SwitchDef::Combo:
 		break;
-	case RTILE_ACCESSSWITCH:
-	case RTILE_ACCESSSWITCH2:
+
+	case SwitchDef::Access:
 		if (checkaccessswitch_r(snum, switchpal, act, wwal))
 			return 0;
-		goto goOn1;
-
-	case RTILE_MULTISWITCH2:
-	case RTILE_MULTISWITCH2_2:
-	case RTILE_MULTISWITCH2_3:
-	case RTILE_MULTISWITCH2_4:
-	case RTILE_IRONWHEELSWITCH:
-	case RTILE_BELLSWITCH:
-		if (!isRRRA()) break;
 		[[fallthrough]];
-	case RTILE_DIPSWITCH2:
-	case RTILE_DIPSWITCH2ON:
-	case RTILE_DIPSWITCH3:
-	case RTILE_DIPSWITCH3ON:
-	case RTILE_MULTISWITCH:
-	case RTILE_MULTISWITCH_2:
-	case RTILE_MULTISWITCH_3:
-	case RTILE_MULTISWITCH_4:
-	case RTILE_PULLSWITCH:
-	case RTILE_PULLSWITCHON:
-	case RTILE_HANDSWITCH:
-	case RTILE_HANDSWITCHON:
-	case RTILE_SLOTDOOR:
-	case RTILE_SLOTDOORON:
-	case RTILE_LIGHTSWITCH:
-	case RTILE_LIGHTSWITCHON:
-	case RTILE_SPACELIGHTSWITCH:
-	case RTILE_SPACELIGHTSWITCHON:
-	case RTILE_SPACEDOORSWITCH:
-	case RTILE_SPACEDOORSWITCHON:
-	case RTILE_FRANKENSTINESWITCH:
-	case RTILE_FRANKENSTINESWITCHON:
-	case RTILE_LIGHTSWITCH2:
-	case RTILE_LIGHTSWITCH2ON:
-	case RTILE_POWERSWITCH1:
-	case RTILE_POWERSWITCH1ON:
-	case RTILE_LOCKSWITCH1:
-	case RTILE_LOCKSWITCH1ON:
-	case RTILE_POWERSWITCH2:
-	case RTILE_POWERSWITCH2ON:
-	case RTILE_CONTESTSWITCH:
-	case RTILE_ALERTSWITCH:
-	case RTILE_ALERTSWITCHON:
-	case RTILE_HANDLESWITCH:
-	case RTILE_HANDLESWITCHON:
-		goOn1:
+
+	case SwitchDef::Regular:
+	case SwitchDef::Multi:
 		if (check_activator_motion(lotag)) return 0;
 		break;
+
 	default:
 		if (isadoorwall(texid) == 0) return 0;
 		break;
 	}
+
 
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto other = it.Next())

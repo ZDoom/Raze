@@ -237,53 +237,24 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		switchpal = wwal->pal;
 	}
 	texid = tileGetTextureID(picnum);
+	auto& ext = GetExtInfo(texid);
+	auto& swdef = switches[ext.switchindex];
 
-	switch (picnum)
+	switch (swdef.type)
 	{
-	case DTILE_DIPSWITCH:
-	case DTILE_DIPSWITCHON:
-	case DTILE_TECHSWITCH:
-	case DTILE_TECHSWITCHON:
-	case DTILE_ALIENSWITCH:
-	case DTILE_ALIENSWITCHON:
+	case SwitchDef::Combo:
 		break;
-	case DTILE_ACCESSSWITCH:
-	case DTILE_ACCESSSWITCH2:
+
+	case SwitchDef::Access:
 		if (checkaccessswitch_d(snum, switchpal, act, wwal))
 			return 0;
 		[[fallthrough]];
-	case DTILE_DIPSWITCH2:
-	case DTILE_DIPSWITCH2ON:
-	case DTILE_DIPSWITCH3:
-	case DTILE_DIPSWITCH3ON:
-	case DTILE_MULTISWITCH:
-	case DTILE_MULTISWITCH_2:
-	case DTILE_MULTISWITCH_3:
-	case DTILE_MULTISWITCH_4:
-	case DTILE_PULLSWITCH:
-	case DTILE_PULLSWITCHON:
-	case DTILE_HANDSWITCH:
-	case DTILE_HANDSWITCHON:
-	case DTILE_SLOTDOOR:
-	case DTILE_SLOTDOORON:
-	case DTILE_LIGHTSWITCH:
-	case DTILE_LIGHTSWITCHON:
-	case DTILE_SPACELIGHTSWITCH:
-	case DTILE_SPACELIGHTSWITCHON:
-	case DTILE_SPACEDOORSWITCH:
-	case DTILE_SPACEDOORSWITCHON:
-	case DTILE_FRANKENSTINESWITCH:
-	case DTILE_FRANKENSTINESWITCHON:
-	case DTILE_LIGHTSWITCH2:
-	case DTILE_LIGHTSWITCH2ON:
-	case DTILE_POWERSWITCH1:
-	case DTILE_POWERSWITCH1ON:
-	case DTILE_LOCKSWITCH1:
-	case DTILE_LOCKSWITCH1ON:
-	case DTILE_POWERSWITCH2:
-	case DTILE_POWERSWITCH2ON:
+
+	case SwitchDef::Regular:
+	case SwitchDef::Multi:
 		if (check_activator_motion(lotag)) return 0;
 		break;
+
 	default:
 		if (isadoorwall(texid) == 0) return 0;
 		break;
