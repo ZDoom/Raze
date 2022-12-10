@@ -776,12 +776,16 @@ void displayweapon_r(int snum, double interpfrac)
 		auto displayblaster = [&]
 		{
 			if (!(gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
+
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
 			if ((*kb))
 			{
 				static const uint8_t cat_frames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-				rdmyospal(weapon_xoffset + 260 - look_anghalf, looking_arc + 215 - gun_pos, RTILE_FREEZE + cat_frames[*kb], -32, o |  pin, pal);
+				rdmyospal(260 + offsets.X, 215 + offsets.Y, RTILE_FREEZE + cat_frames[*kb], -32, o |  pin, pal, angle);
 			}
-			else rdmyospal(weapon_xoffset + 260 - look_anghalf, looking_arc + 215 - gun_pos, RTILE_FREEZE, shade, o |  pin, pal);
+			else rdmyospal(260 + offsets.X, 215 + offsets.Y, RTILE_FREEZE, shade, o |  pin, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
