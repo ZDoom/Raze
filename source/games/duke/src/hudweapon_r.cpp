@@ -617,35 +617,36 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaypistol = [&]
 		{
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
+			double x, y;
+
 			if ((*kb) < 22)
 			{
 				static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,6,6,6,6,5,5,4,4,3,3,0,0 };
 				static const uint16_t kb_ox[] = { 194,190,185,208,215,215,216,216,201,170 };
 				static const uint16_t kb_oy[] = { 256,249,248,238,228,218,208,256,245,258 };
-				double x;
-				int y;
 
-				x = weapon_xoffset + (kb_ox[kb_frames[*kb]] - 12);
-				y = 244 - (244 - kb_oy[kb_frames[*kb]]);
+				x = (kb_ox[kb_frames[*kb]] - 12) + offsets.X;
+				y = 244 - (244 - kb_oy[kb_frames[*kb]]) + offsets.Y;
 
 				if (kb_frames[*kb])
 					shade = 0;
 
-				rdmyospal(x - look_anghalf,
-					y + looking_arc - gun_pos, RTILE_FIRSTGUN + kb_frames[*kb], shade, 0, pal);
+				rdmyospal(x, y, RTILE_FIRSTGUN + kb_frames[*kb], shade, 0, pal, angle);
 			}
 			else
 			{
 				static const uint8_t kb_frames[] = { 0,0,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0 };
 				static const uint16_t kb_ox[] = { 244,244,244 };
 				static const uint16_t kb_oy[] = { 256,249,248 };
-				double x;
-				int dx;
-				int y;
-				int dy;
 
-				x = weapon_xoffset + (kb_ox[kb_frames[(*kb) - 22]] - 12);
-				y = 244 - (244 - kb_oy[kb_frames[(*kb) - 22]]);
+				x = (kb_ox[kb_frames[(*kb) - 22]] - 12) + offsets.X;
+				y = 244 - (244 - kb_oy[kb_frames[(*kb) - 22]]) + offsets.Y;
+
+				int dx, dy;
+
 				switch (*kb)
 				{
 				case 28:
@@ -689,8 +690,7 @@ void displayweapon_r(int snum, double interpfrac)
 					dx = 0;
 					break;
 				}
-				rdmyospal(x - look_anghalf - dx,
-					y + looking_arc - gun_pos + dy, RTILE_FIRSTGUNRELOAD + kb_frames[(*kb) - 22], shade, 0, pal);
+				rdmyospal(x - dx, y + dy, RTILE_FIRSTGUNRELOAD + kb_frames[(*kb) - 22], shade, 0, pal, angle);
 			}
 		};
 
