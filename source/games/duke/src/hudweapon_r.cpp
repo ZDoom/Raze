@@ -373,19 +373,17 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaypowderkeg = [&]
 		{
-			weapon_xoffset += 8;
-			gun_pos -= 10;
+			offsets.X += weapon_xoffset + 8;
+			offsets.Y -= gun_pos - 10;
+
 			if (p->ammo_amount[POWDERKEG_WEAPON])
 			{
-				rdmyospal(weapon_xoffset + 180 - look_anghalf,
-					looking_arc + 214 - gun_pos + (*kb << 3), RTILE_POWDERH, shade, o, pal);
-				rdmyospal(weapon_xoffset + 90 - look_anghalf,
-					looking_arc + 214 - gun_pos + (*kb << 3), RTILE_POWDERH, shade, o | 4, pal);
+				rdmyospal(180 + offsets.X, 214 + offsets.Y + (*kb << 3), RTILE_POWDERH, shade, o, pal, angle);
+				rdmyospal(90 + offsets.X, 214 + offsets.Y + (*kb << 3), RTILE_POWDERH, shade, o | 4, pal, angle);
 			}
 			else
 			{
-				rdmyospal(weapon_xoffset + 162 - look_anghalf,
-					looking_arc + 214 - gun_pos, RTILE_HANDTHROW + 5, shade, o, pal);
+				rdmyospal(162 + offsets.X, 214 + offsets.Y, RTILE_HANDTHROW + 5, shade, o, pal, angle);
 			}
 		};
 
