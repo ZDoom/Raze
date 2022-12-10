@@ -190,9 +190,9 @@ class DeveloperCommentary : DukeActor
 		spriteset "DEVELOPERCOMMENTARY", "DEVELOPERCOMMENTARYON";
 	}
 	
-	override bool OnUse(DukePlayer p)
+	override bool TriggerSwitch(DukePlayer p)
 	{
-		if (!wt_commentary) return false;
+		if (!wt_commentary) return true;
 		if (self.spriteSetIndex == 0)
 		{
 			if (Duke.StartCommentary(self.lotag, self))

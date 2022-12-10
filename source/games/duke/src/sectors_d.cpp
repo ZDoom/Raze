@@ -223,6 +223,9 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		spos = act->spr.pos.XY();
 		picnum = act->spr.picnum;
 		switchpal = act->spr.pal;
+
+		// custom switches that maintain themselves can immediately abort.
+		if (CallTriggerSwitch(act, &ps[snum])) return true;
 	}
 	else
 	{

@@ -518,10 +518,6 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		{
 			ps[0].Exit = ac->spr.pos.XY();
 		}
-		else if (ac->spr.picnum == RTILE_CHICKENPLANTBUTTON)
-		{
-			ud.chickenplant = 1;
-		}
 		else
 		{
 			premapcontroller(ac);
@@ -612,8 +608,6 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		case RTILE_POWERSWITCH1ON:
 		case RTILE_LOCKSWITCH1ON:
 		case RTILE_POWERSWITCH2ON:
-		case RTILE_CHICKENPLANTBUTTON:
-		case RTILE_CHICKENPLANTBUTTONON:
 
 			j = lotags.Find(ac->spr.lotag);
 			if (j == lotags.Size()) 

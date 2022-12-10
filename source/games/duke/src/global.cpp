@@ -65,7 +65,6 @@ int ufocnt;									// UFO spawn count
 int hulkspawn;								// Spawn a hulk?
 int lastlevel;								// Set at the end of RRRA's E2L7.
 short fakebubba_spawn, mamaspawn_count, banjosound; // RRRA special effects
-short BellTime;
 int WindTime;
 DAngle WindDir;
 uint8_t enemysizecheat /*raat607*/, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;

@@ -236,7 +236,8 @@ spawnclasses
 	2654 = DukeGenericDestructible, "RRTILE2654", "", "GLASS_BREAKING", spawnglass
 	2656 = DukeGenericDestructible, "RRTILE2656", "", "GLASS_BREAKING", spawnglass
 	3172 = DukeGenericDestructible, "RRTILE3172", "", "GLASS_BREAKING", spawnglass
-	
+	94 = RedneckChickenPlantButton
+		
 	1878 = DukeActor, "*RRTILE1878"
 	1952 = DukeActor, "*RRTILE1952"
 	1953 = DukeActor, "*RRTILE1953"

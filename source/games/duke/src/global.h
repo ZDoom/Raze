@@ -129,7 +129,6 @@ extern TArray<DVector2> mspos;
 extern int WindTime;
 extern DAngle WindDir;
 extern short fakebubba_spawn, mamaspawn_count, banjosound;
-extern short BellTime;
 extern uint8_t enemysizecheat /*raat607*/, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
 extern uint32_t everyothertime;
 extern player_orig po[MAXPLAYERS];

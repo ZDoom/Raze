@@ -389,3 +389,23 @@ class RedneckChickenHead : DukeActor
 	}
 }
 
+class RedneckChickenplantButton : DukeActor
+{
+	default
+	{
+		spriteset "CHICKENPLANTBUTTON", "CHICKENPLANTBUTTONON";
+	}
+
+	override void Initialize()
+	{
+		ud.chickenplant = 1;
+	}
+
+	override bool TriggerSwitch(DukePlayer activator)
+	{
+		ud.chickenplant = self.spritesetindex;
+		self.setSpriteSetImage(1 - self.spritesetindex);
+		self.PlayActorSound("SWITCH_ON");
+		return true;
+	}
+}

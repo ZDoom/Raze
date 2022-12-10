@@ -79,7 +79,6 @@ size_t DDukeActor::PropagateMark()
 static void markgcroots()
 {
 	GC::Mark(camsprite);
-	GC::Mark(BellSprite);
 	GC::MarkArray(spriteq, 1024);
 	GC::Mark(currentCommentarySprite);
 	GC::Mark(ud.cameraactor);
@@ -559,6 +558,18 @@ void CallStandingOn(DDukeActor* actor, player_struct* p)
 		VMValue val[] = { actor, p };
 		VMCall(func, val, 2, nullptr, 0);
 	}
+}
+
+bool CallTriggerSwitch(DDukeActor* actor, player_struct* p)
+{
+	int nval = false;
+	IFVIRTUALPTR(actor, DDukeActor, TriggerSwitch)
+	{
+		VMReturn ret(&nval);
+		VMValue val[] = { actor, p };
+		VMCall(func, val, 2, &ret, 1);
+	}
+	return nval;
 }
 
 

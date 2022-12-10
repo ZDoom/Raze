@@ -125,6 +125,7 @@ void CallStaticSetup(DDukeActor* actor);
 void CallPlayFTASound(DDukeActor* actor);
 void CallStandingOn(DDukeActor* actor, player_struct* p);
 void CallRunState(DDukeActor* actor);
+bool CallTriggerSwitch(DDukeActor* actor, player_struct* p);
 
 extern FTextureID mirrortex, foftex;
 

@@ -195,8 +195,18 @@ bool initspriteforspawn(DDukeActor* act)
 	act->temp_pos = DVector3(0, 0, 0);
 
 	auto ext = GetExtInfo(act->spr.spritetexture());
+	bool overrideswitch = false;
 
-	if (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL && (wallswitchcheck(act) || ext.switchindex > 0))
+	// The STAT_FALLER code below would render any switch actor inoperable so we must also include everything that overrides TriggerSwitch, 
+	// even if it got no other hint for being a switch. A bit dirty but it makes it unnecessary to explicitly mark such switches.
+
+	IFVIRTUALPTR(act, DDukeActor, TriggerSwitch)
+	{
+		if (func->PrintableName.CompareNoCase("DukeActor.TriggerSwitch") != 0)
+			overrideswitch = true;
+	}
+
+	if (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL && (wallswitchcheck(act) || ext.switchindex > 0 || overrideswitch))
 	{
 		// this is a bit more complicated than needed thanks to some bugs in the original code that must be retained for the multiplayer filter. 
 		// Not all switches were properly included here.
@@ -214,7 +224,7 @@ bool initspriteforspawn(DDukeActor* act)
 			act->spr.pal = 0;
 		}
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		return false;
+		return true;
 
 	}
 

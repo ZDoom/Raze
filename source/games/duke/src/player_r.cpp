@@ -1154,12 +1154,6 @@ int doincrements_r(player_struct* p)
 			WindDir = randomAngle();
 		}
 
-		if (BellTime > 0)
-		{
-			BellTime--;
-			if (BellTime == 0 && BellSprite)
-				BellSprite->spr.picnum++;
-		}
 		if (chickenphase > 0)
 			chickenphase--;
 		if (p->SeaSick)

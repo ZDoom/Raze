@@ -193,6 +193,9 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		pos = act->spr.pos.XY();
 		picnum = act->spr.picnum;
 		switchpal = act->spr.pal;
+
+		// custom switches that maintain themselves can immediately abort.
+		if (CallTriggerSwitch(act, &ps[snum])) return true;
 	}
 	else
 	{
@@ -258,8 +261,6 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	case RTILE_LOCKSWITCH1ON:
 	case RTILE_POWERSWITCH2:
 	case RTILE_POWERSWITCH2ON:
-	case RTILE_CHICKENPLANTBUTTON:
-	case RTILE_CHICKENPLANTBUTTONON:
 	case RTILE_CONTESTSWITCH:
 	case RTILE_ALERTSWITCH:
 	case RTILE_ALERTSWITCHON:
@@ -331,7 +332,6 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		case RTILE_PULLSWITCH:
 		case RTILE_DIPSWITCH2:
 		case RTILE_DIPSWITCH3:
-		case RTILE_CHICKENPLANTBUTTON:
 		case RTILE_ALERTSWITCH:
 		case RTILE_HANDLESWITCH:
 			if (other->spr.picnum == RTILE_DIPSWITCH3)
@@ -345,13 +345,6 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					other->spr.picnum++;
 					break;
 				}
-			if (other->spr.picnum == RTILE_CHICKENPLANTBUTTON)
-				ud.chickenplant = 0;
-			if (other->spr.picnum == RTILE_BELLSWITCH)
-			{
-				BellTime = 132;
-				BellSprite = other;
-			}
 			other->spr.picnum++;
 			break;
 		case RTILE_PULLSWITCHON:
@@ -367,11 +360,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		case RTILE_FRANKENSTINESWITCHON:
 		case RTILE_DIPSWITCH2ON:
 		case RTILE_DIPSWITCH3ON:
-		case RTILE_CHICKENPLANTBUTTONON:
 		case RTILE_ALERTSWITCHON:
 		case RTILE_HANDLESWITCHON:
-			if (other->spr.picnum == RTILE_CHICKENPLANTBUTTONON)
-				ud.chickenplant = 1;
 			if (other->spr.hitag != 999)
 				other->spr.picnum--;
 			break;
@@ -538,13 +528,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		goOn2:
 		if (isRRRA())
 		{
-			if (picnum == RTILE_BELLSWITCH && act)
-			{
-				BellTime = 132;
-				BellSprite = act;
-				act->spr.picnum++;
-			}
-			else if (picnum == RTILE_IRONWHEELSWITCH)
+			if (picnum == RTILE_IRONWHEELSWITCH)
 			{
 				act->spr.picnum = act->spr.picnum + 1;
 				if (hitag == 10001)

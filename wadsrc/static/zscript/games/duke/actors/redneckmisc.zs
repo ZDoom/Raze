@@ -70,3 +70,33 @@ class RedneckPopcorn : DukeActor
 		pic "POPCORN";
 	}
 }
+
+
+class RedneckBellSwitch : DukeActor
+{
+	default
+	{
+		spriteset "BELLSWITCH", "BELLSWITCHON", "BELLSWITCHOFF";
+	}
+	
+	override bool TriggerSwitch(DukePlayer activator)
+	{
+		if (self.spritesetindex == 1 || dlevel.check_activator_motion(lotag)) return true;
+	
+		self.detail = 132;
+		self.setSpriteSetImage(1);
+		self.changeStat(STAT_MISC);	// needs to be made to call Tick
+		return false; // still needs to act as a switch.
+	}
+	
+	override void Tick()
+	{
+		if (self.detail > 0)
+		{
+			self.detail--;
+			if (self.detail == 0)
+				self.SetSpritesetImage(2);	// stop animating
+		}
+	}
+}	
+

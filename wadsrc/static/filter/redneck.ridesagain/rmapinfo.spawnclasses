@@ -158,5 +158,6 @@ spawnclasses
 	3795 = DukeActor, "*RRTILE3795"
 	7505 = DukeActor, "*RRTILE7505"
 	7506 = DukeActor, "*RRTILE7506"
+	8860 = RedneckBellSwitch
 
 }

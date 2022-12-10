@@ -427,8 +427,6 @@ void resetprestat(int snum,int g)
 	WindDir = nullAngle;
 	fakebubba_spawn = 0;
 	RRRA_ExitedLevel = 0;
-	BellTime = 0;
-	BellSprite = nullptr;
 
 	if(p->curr_weapon == HANDREMOTE_WEAPON)
 	{
@@ -661,8 +659,6 @@ void prelevel_common(int g)
 	fakebubba_spawn = 0;
 	RRRA_ExitedLevel = 0;
 	mamaspawn_count = currentLevel->rr_mamaspawn;
-	BellTime = 0;
-	BellSprite = nullptr;
 
 	// RRRA E2L1 fog handling.
 	fogactive = 0;
