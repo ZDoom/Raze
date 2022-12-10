@@ -335,12 +335,13 @@ void displayweapon_r(int snum, double interpfrac)
 			static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7 };
 			static const uint16_t kb_ox[] = { 580,676,310,491,356,210,310,614 };
 			static const uint16_t kb_oy[] = { 369,363,300,323,371,400,300,440 };
-			double x;
-			int y;
-			x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
-			y = 210 - (244 - kb_oy[kb_frames[*kb]]);
-			hud_drawpal(x - look_anghalf + 20, looking_arc + y - gun_pos - 80,
-				RTILE_SLINGBLADE + kb_frames[*kb], shade, 0, pal);
+
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
+			double x = ((kb_ox[kb_frames[*kb]] >> 1) - 12) + 20 + offsets.X;
+			double y = 210 - (244 - kb_oy[kb_frames[*kb]]) - 80 + offsets.Y;
+			hud_drawpal(x, y, RTILE_SLINGBLADE + kb_frames[*kb], shade, 0, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
