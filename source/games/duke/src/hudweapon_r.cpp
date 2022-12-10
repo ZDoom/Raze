@@ -754,13 +754,17 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaytits = [&]
 		{
+			offsets.X += weapon_xoffset * 0.5;
+			offsets.Y *= 0.5;
+			offsets.Y -= gun_pos;
+
 			if (*kb)
 			{
 				shade = 0;
-				rd3myospal(150 + (weapon_xoffset / 2.) - look_anghalf, 266 + (looking_arc / 2.) - gun_pos, RTILE_DEVISTATOR, shade, o, pal);
+				rd3myospal(150 + offsets.X, 266 + offsets.Y, RTILE_DEVISTATOR, shade, o, pal, angle);
 			}
 			else
-				rd3myospal(150 + (weapon_xoffset / 2.) - look_anghalf, 266 + (looking_arc / 2.) - gun_pos, RTILE_DEVISTATOR + 1, shade, o, pal);
+				rd3myospal(150 + offsets.X, 266 + offsets.Y, RTILE_DEVISTATOR + 1, shade, o, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
