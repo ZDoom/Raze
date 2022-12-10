@@ -249,7 +249,7 @@ void spriteinit_d(DDukeActor* actor, TArray<DDukeActor*>& actors)
 
 void prelevel_d(int g, TArray<DDukeActor*>& actors)
 {
-	int i, j, lotaglist;
+	int j, lotaglist;
 	TArray<short> lotags;
 
 	prelevel_common(g);
@@ -305,133 +305,6 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 						ac->temp_data[0] = 1;
 				}
 			}
-		}
-	}
-
-	mirrorcnt = 0;
-
-	for (auto& wal : wall)
-	{
-		if (wal.overtexture() == mirrortex && (wal.cstat & CSTAT_WALL_1WAY) != 0)
-		{
-			auto sectp = wal.nextSector();
-
-			if (mirrorcnt > 63)
-				I_Error("Too many mirrors (64 max.)");
-			if (sectp && sectp->ceilingtexture != mirrortex)
-			{
-				sectp->setceilingtexture(mirrortex);
-				sectp->setfloortexture(mirrortex);
-				mirrorwall[mirrorcnt] = &wal;
-				mirrorsector[mirrorcnt] = sectp;
-				mirrorcnt++;
-				continue;
-			}
-		}
-
-		if (numanimwalls >= MAXANIMWALLS)
-			I_Error("Too many 'anim' walls (max 512.)");
-
-		animwall[numanimwalls].tag = 0;
-		animwall[numanimwalls].wall = nullptr;
-
-		switch (wal.overpicnum)
-		{
-		case DTILE_FANSHADOW:
-		case DTILE_FANSPRITE:
-			//wal.cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN; Original code assigned this to 'wall', i.e. wall[0]
-			animwall[numanimwalls].wall = &wal;
-			numanimwalls++;
-			break;
-
-		case DTILE_W_FORCEFIELD:
-			for (int jj = 0; jj < 3; jj++)
-				tloadtile(DTILE_W_FORCEFIELD + jj);
-			[[fallthrough]];
-		case DTILE_W_FORCEFIELD + 1:
-		case DTILE_W_FORCEFIELD + 2:
-			if (wal.shade > 31)
-				wal.cstat = 0;
-			else wal.cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN | CSTAT_WALL_YFLIP;
-
-			if (wal.lotag && wal.twoSided())
-				wal.nextWall()->lotag = wal.lotag;
-			[[fallthrough]];
-
-		case DTILE_BIGFORCE:
-
-			animwall[numanimwalls].wall = &wal;
-			numanimwalls++;
-
-			continue;
-		}
-
-		wal.extra = -1;
-
-		switch (wal.wallpicnum)
-		{
-		case DTILE_W_TECHWALL1:
-		case DTILE_W_TECHWALL2:
-		case DTILE_W_TECHWALL3:
-		case DTILE_W_TECHWALL4:
-			animwall[numanimwalls].wall = &wal;
-			//                animwall[numanimwalls].tag = -1;
-			numanimwalls++;
-			break;
-		case DTILE_SCREENBREAK6:
-		case DTILE_SCREENBREAK7:
-		case DTILE_SCREENBREAK8:
-			for (int jj = DTILE_SCREENBREAK6; jj < DTILE_SCREENBREAK9; jj++)
-				tloadtile(jj);
-			animwall[numanimwalls].wall = &wal;
-			animwall[numanimwalls].tag = -1;
-			numanimwalls++;
-			break;
-
-		case DTILE_FEMPIC1:
-		case DTILE_FEMPIC2:
-		case DTILE_FEMPIC3:
-
-			wal.extra = wal.wallpicnum;
-			animwall[numanimwalls].tag = -1;
-
-			animwall[numanimwalls].wall = &wal;
-			animwall[numanimwalls].tag = wal.wallpicnum;
-			numanimwalls++;
-			break;
-
-		case DTILE_SCREENBREAK1:
-		case DTILE_SCREENBREAK2:
-		case DTILE_SCREENBREAK3:
-		case DTILE_SCREENBREAK4:
-		case DTILE_SCREENBREAK5:
-
-		case DTILE_SCREENBREAK9:
-		case DTILE_SCREENBREAK10:
-		case DTILE_SCREENBREAK11:
-		case DTILE_SCREENBREAK12:
-		case DTILE_SCREENBREAK13:
-		case DTILE_SCREENBREAK14:
-		case DTILE_SCREENBREAK15:
-		case DTILE_SCREENBREAK16:
-		case DTILE_SCREENBREAK17:
-		case DTILE_SCREENBREAK18:
-		case DTILE_SCREENBREAK19:
-
-			animwall[numanimwalls].wall = &wal;
-			animwall[numanimwalls].tag = wal.wallpicnum;
-			numanimwalls++;
-			break;
-		}
-	}
-
-	//Invalidate textures in sector behind mirror
-	for (i = 0; i < mirrorcnt; i++)
-	{
-		for (auto& wal : mirrorsector[i]->walls)
-		{
-			wal.setwalltexture(mirrortex);
-			wal.setovertexture(mirrortex);
 		}
 	}
 }

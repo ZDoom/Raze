@@ -462,7 +462,7 @@ void Display()
 			if (!tex.isValid()) tex = tileGetTextureID(atoi(drawtile));
 			if (tex.isValid())
 			{
-				auto tx = TexMan.GetGameTexture(tex);
+				auto tx = TexMan.GetGameTexture(tex, true);
 				if (tx)
 				{
 					int width = (int)tx->GetDisplayWidth();

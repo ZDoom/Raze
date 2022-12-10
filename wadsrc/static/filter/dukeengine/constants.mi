@@ -10,7 +10,11 @@ constants
 	TFLAG_BLOCKDOOR				= 16
 	TFLAG_NOBLOODSPLAT			= 32
 	TFLAG_NOCIRCLEREFLECT		= 64
-	TFLAG_INTERPOLATEWALL		= 128
+	TFLAG_SEASICKWALL			= 128
+	TFLAG_FORCEFIELD			= 256
+	TFLAG_ANIMFORCEFIELD		= 512	// do not use in user data! These flags only exist to speed up internal lookups.
+	TFLAG_ANIMSCREEN			= 1024	// ''
+	TFLAG_ANIMSCREENNOISE		= 2048  // ''
 
 	// surface (terrain/environment) types
 	TSURF_NONE					= 0

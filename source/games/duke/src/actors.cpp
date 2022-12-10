@@ -1108,7 +1108,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				actor->SetOwner(nullptr);
 				actor->spr.Angles.Yaw += DAngle180;
 				actor->temp_data[4] = 0;
-				fi.operateforcefields(actor, actor->spr.hitag);
+				operateforcefields(actor, actor->spr.hitag);
 			}
 		}
 	}

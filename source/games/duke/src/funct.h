@@ -15,6 +15,7 @@ BEGIN_DUKE_NS
 // dumping ground for all external function prototypes to keep them out of the important headers.
 // This list is not sorted in any way.
 
+void animatewalls(void);
 void lava_cleararrays();
 void addjaildoor(int p1, int p2, int iht, int jlt, int p3, sectortype* h);
 void addminecart(int p1, int p2, sectortype* i, int iht, int p3, sectortype* childsectnum);
@@ -129,7 +130,7 @@ bool isablockdoor(int tileNum);
 bool activatewarpelevators(DDukeActor* s, int w);
 int check_activator_motion(int lotag);
 void operateactivators(int l, player_struct* w);
-void operateforcefields_common(DDukeActor* s, int low, const std::initializer_list<int>& tiles);
+void operateforcefields(DDukeActor* s, int low);
 void operatemasterswitches(int lotag);
 void operatesectors(sectortype* s, DDukeActor* i);
 void hud_input(int playerNum);

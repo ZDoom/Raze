@@ -141,6 +141,8 @@ struct animwalltype
 {
 	walltype* wall;
 	int tag;
+	FTextureID origtex;
+	bool overpic;
 };
 
 // legacy CON baggage which needs to be refactored later.

@@ -73,8 +73,6 @@ struct Dispatcher
 	void (*think)();
 	void (*movetransports)();
 	void (*initactorflags)();
-	void (*animatewalls)();
-	void (*operateforcefields)(DDukeActor* act, int low);
 	bool (*checkaccessswitch)(int snum, int switchpal, DDukeActor* act, walltype* w);
 	void (*activatebysector)(sectortype* sect, DDukeActor* j);
 	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);

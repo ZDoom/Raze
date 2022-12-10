@@ -1241,14 +1241,14 @@ void operatemasterswitches(int low)
 //
 //---------------------------------------------------------------------------
 
-void operateforcefields_common(DDukeActor *effector, int low, const std::initializer_list<int> &tiles)
+void operateforcefields(DDukeActor *effector, int low)
 {
 	for (int p = numanimwalls-1; p >= 0; p--)
 	{
 		auto wal = animwall[p].wall;
 
 		if (low == wal->lotag || low == -1)
-			if (isIn(wal->overpicnum, tiles))
+			if (tileflags(wal->overtexture()) & TFLAG_FORCEFIELD)
 			{
 				animwall[p].tag = 0;
 
@@ -1746,7 +1746,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		}
 
 		operateactivators(lotag, &ps[snum]);
-		fi.operateforcefields(ps[snum].GetActor(), lotag);
+		operateforcefields(ps[snum].GetActor(), lotag);
 		operatemasterswitches(lotag);
 
 		if (swdef.type == SwitchDef::Combo) return 1;
@@ -1772,5 +1772,97 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 	return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void animatewalls(void)
+{
+	static FTextureID noise, ff1, ff2;
+
+	// all that was done here is to open the system up sufficiently to allow replacing the textures being used without having to use ART files.
+	// Custom animated textures are better done with newly written controller actors.
+	if (!noise.isValid()) noise = TexMan.CheckForTexture("SCREENBREAK6", ETextureType::Any);
+	if (!ff1.isValid()) ff1 = TexMan.CheckForTexture("W_FORCEFIELD", ETextureType::Any);
+	if (!ff2.isValid()) ff2 = TexMan.CheckForTexture("W_FORCEFIELD2", ETextureType::Any);
+
+	if (ps[screenpeek].sea_sick_stat == 1)
+	{
+		for (auto& wal : wall)
+		{
+			if (tileflags(wal.walltexture()) & TFLAG_SEASICKWALL)
+				wal.addxpan(6);
+		}
+	}
+
+	int t;
+
+	for (int p = 0; p < numanimwalls; p++)
+	{
+		auto wal = animwall[p].wall;
+		auto texid = wal->walltexture();
+
+		if (!animwall[p].overpic)
+		{
+			if (tileflags(wal->walltexture()) & TFLAG_ANIMSCREEN)
+			{
+				if ((krand() & 255) < 16)
+				{
+					wal->setwalltexture(noise);
+				}
+			}
+			else if (tileflags(wal->walltexture()) & TFLAG_ANIMSCREENNOISE)
+			{
+				if (animwall[p].origtex.isValid())
+					wal->setwalltexture(animwall[p].origtex);
+				else
+				{
+					texid = texid + 1;
+					if (texid.GetIndex() > noise.GetIndex() + 3 || texid.GetIndex() < noise.GetIndex()) texid = noise;
+					wal->setwalltexture(texid);
+				}
+			}
+		}
+		else
+		{
+			if (tileflags(wal->overtexture()) & TFLAG_ANIMFORCEFIELD && wal->cstat & CSTAT_WALL_MASKED)
+			{
+
+				t = animwall[p].tag;
+
+				if (wal->cstat & CSTAT_WALL_ANY_EXCEPT_BLOCK)
+				{
+					wal->addxpan(-t / 4096.f);
+					wal->addypan(-t / 4096.f);
+
+					if (wal->extra == 1)
+					{
+						wal->extra = 0;
+						animwall[p].tag = 0;
+					}
+					else
+						animwall[p].tag += 128;
+
+					if (animwall[p].tag < (128 << 4))
+					{
+						if (animwall[p].tag & 128)
+							wal->setovertexture(ff1);
+						else wal->setovertexture(ff2);
+					}
+					else
+					{
+						if ((krand() & 255) < 32)
+							animwall[p].tag = 128 << (krand() & 3);
+						else wal->setovertexture(ff2);
+					}
+				}
+			}
+
+		}
+	}
+
+}
 
 END_DUKE_NS

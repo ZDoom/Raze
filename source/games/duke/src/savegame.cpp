@@ -53,7 +53,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, a
 	{
 	  arc("wall", w.wall)
 		("tag", w.tag)
-		.EndObject();
+		("texid", w.origtex)
+		("overpic", w.overpic)
+		  .EndObject();
 	}
 	return arc;
 }

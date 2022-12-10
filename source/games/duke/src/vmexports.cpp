@@ -691,14 +691,14 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, insertspriteq, insertspriteq)
 
 void DukeActor_operateforcefields(DDukeActor* self, int tag)
 {
-	fi.operateforcefields(self, tag);
+	operateforcefields(self, tag);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, operateforcefields, DukeActor_operateforcefields)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(tag);
-	fi.operateforcefields(self, tag);
+	operateforcefields(self, tag);
 	return 0;
 }
 
@@ -1122,7 +1122,7 @@ DEFINE_ACTION_FUNCTION(_DukePlayer, hitablockingwall)
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
 	walltype* pwal;
 	hitawall(self, &pwal);
-	ACTION_RETURN_BOOL(pwal && pwal->overpicnum > 0);
+	ACTION_RETURN_BOOL(pwal && pwal->overtexture().isValid());
 }
 
 inline double DukePlayer_GetPitchwithView(player_struct* pl)

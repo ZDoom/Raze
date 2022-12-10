@@ -35,10 +35,6 @@ BEGIN_DUKE_NS
 void initactorflags_d();
 void initactorflags_r();
 
-void animatewalls_d(void);
-void animatewalls_r(void);
-void operateforcefields_r(DDukeActor* act, int low);
-void operateforcefields_d(DDukeActor* act, int low);
 bool checkaccessswitch_d(int snum, int pal, DDukeActor *act, walltype* w);
 bool checkaccessswitch_r(int snum, int pal, DDukeActor* act, walltype* w);
 void activatebysector_d(sectortype* sect, DDukeActor* j);
@@ -99,8 +95,6 @@ void SetDispatcher()
 		think_d,
 		movetransports_d,
 		initactorflags_d,
-		animatewalls_d,
-		operateforcefields_d,
 		checkaccessswitch_d,
 		activatebysector_d,
 		checkhitsprite_d,
@@ -135,8 +129,6 @@ void SetDispatcher()
 		think_r,
 		movetransports_r,
 		initactorflags_r,
-		animatewalls_r,
-		operateforcefields_r,
 		checkaccessswitch_r,
 		activatebysector_r,
 		checkhitsprite_r,

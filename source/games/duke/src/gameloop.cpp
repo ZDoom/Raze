@@ -101,7 +101,7 @@ void GameInterface::Ticker()
 
 		if ((everyothertime & 1) == 0)
 		{
-			fi.animatewalls();
+			animatewalls();
 			movecyclers();
 		}
 
