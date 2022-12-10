@@ -397,20 +397,21 @@ void displayweapon_r(int snum, double interpfrac)
 		{
 			if (!(gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
 			static const uint8_t kb_frames[] = { 0,1,1,2,2,3,2,3,2,3,2,2,2,2,2,2,2,2,2,4,4,4,4,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7 };
+
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
 			if (kb_frames[*kb] == 2 || kb_frames[*kb] == 3)
 			{
-				rdmyospal((weapon_xoffset + 200) - look_anghalf,
-					looking_arc + 250 - gun_pos, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal);
+				rdmyospal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal, angle);
 			}
 			else if (kb_frames[*kb] == 1)
 			{
-				rdmyospal((weapon_xoffset + 200) - look_anghalf,
-					looking_arc + 250 - gun_pos, RTILE_RPGGUN + kb_frames[*kb], 0, o | pin, pal);
+				rdmyospal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], 0, o | pin, pal, angle);
 			}
 			else
 			{
-				rdmyospal((weapon_xoffset + 210) - look_anghalf,
-					looking_arc + 255 - gun_pos, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal);
+				rdmyospal(210 + offsets.X, 255 + offsets.Y, RTILE_RPGGUN + kb_frames[*kb], shade, o | pin, pal, angle);
 			}
 		};
 
