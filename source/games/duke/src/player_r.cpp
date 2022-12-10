@@ -160,7 +160,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
 				wpn->spr.extra += (gs.max_player_health >> 2);
 
-			if (hit.actor() && hit.actor()->spr.picnum != RTILE_ACCESSSWITCH && hit.actor()->spr.picnum != RTILE_ACCESSSWITCH2)
+			if (hit.actor() && !isaccessswitch(hit.actor()->spr.spritetexture()))
 			{
 				fi.checkhitsprite(hit.actor(), wpn);
 				if (p >= 0) fi.checkhitswitch(p, nullptr, hit.actor());
@@ -172,7 +172,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 						if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
 							hit.hitWall = hit.hitWall->nextWall();
 
-				if (hit.hitWall->wallpicnum != RTILE_ACCESSSWITCH && hit.hitWall->wallpicnum != RTILE_ACCESSSWITCH2)
+				if (!isaccessswitch(hit.hitWall->walltexture()))
 				{
 					checkhitwall(wpn, hit.hitWall, hit.hitpos);
 					if (p >= 0) fi.checkhitswitch(p, hit.hitWall, nullptr);
@@ -334,16 +334,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 			}
 			else spawn(spark, RTILE_SMALLSMOKE);
 
-			if (p >= 0 && (
-				hit.actor()->spr.picnum == RTILE_DIPSWITCH ||
-				hit.actor()->spr.picnum == RTILE_DIPSWITCHON ||
-				hit.actor()->spr.picnum == RTILE_DIPSWITCH2 ||
-				hit.actor()->spr.picnum == RTILE_DIPSWITCH2ON ||
-				hit.actor()->spr.picnum == RTILE_DIPSWITCH3 ||
-				hit.actor()->spr.picnum == RTILE_DIPSWITCH3ON ||
-				(isRRRA() && hit.actor()->spr.picnum == RTILE_BELLSWITCH) ||
-				hit.actor()->spr.picnum == RTILE_HANDSWITCH ||
-				hit.actor()->spr.picnum == RTILE_HANDSWITCHON))
+			if (p >= 0 && isshootableswitch(hit.actor()->spr.spritetexture()))
 			{
 				fi.checkhitswitch(p, nullptr, hit.actor());
 				return;
@@ -357,16 +348,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				goto SKIPBULLETHOLE;
 			if (isablockdoor(hit.hitWall->walltexture()) == 1)
 				goto SKIPBULLETHOLE;
-			if (p >= 0 && (
-				hit.hitWall->wallpicnum == RTILE_DIPSWITCH ||
-				hit.hitWall->wallpicnum == RTILE_DIPSWITCHON ||
-				hit.hitWall->wallpicnum == RTILE_DIPSWITCH2 ||
-				hit.hitWall->wallpicnum == RTILE_DIPSWITCH2ON ||
-				hit.hitWall->wallpicnum == RTILE_DIPSWITCH3 ||
-				hit.hitWall->wallpicnum == RTILE_DIPSWITCH3ON ||
-				(isRRRA() && hit.hitWall->wallpicnum == RTILE_BELLSWITCH) ||
-				hit.hitWall->wallpicnum == RTILE_HANDSWITCH ||
-				hit.hitWall->wallpicnum == RTILE_HANDSWITCHON))
+			if (p >= 0 && isshootableswitch(hit.hitWall->walltexture()))
 			{
 				fi.checkhitswitch(p, hit.hitWall, nullptr);
 				return;

@@ -590,25 +590,9 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	it.Reset(STAT_DEFAULT);
 	while (auto ac = it.Next())
 	{
-		switch (ac->spr.picnum)
+		auto ext = GetExtInfo(ac->spr.spritetexture());
+		if (ext.switchphase == 1 && switches[ext.switchindex].type == SwitchDef::Regular)
 		{
-		case RTILE_IRONWHEELSWITCHON:
-			if (!isRRRA()) break;
-			[[fallthrough]];
-		case RTILE_DIPSWITCHON:
-		case RTILE_DIPSWITCH2ON:
-		case RTILE_PULLSWITCHON:
-		case RTILE_HANDSWITCHON:
-		case RTILE_SLOTDOORON:
-		case RTILE_LIGHTSWITCHON:
-		case RTILE_SPACELIGHTSWITCHON:
-		case RTILE_SPACEDOORSWITCHON:
-		case RTILE_FRANKENSTINESWITCHON:
-		case RTILE_LIGHTSWITCH2ON:
-		case RTILE_POWERSWITCH1ON:
-		case RTILE_LOCKSWITCH1ON:
-		case RTILE_POWERSWITCH2ON:
-
 			j = lotags.Find(ac->spr.lotag);
 			if (j == lotags.Size()) 
 			{
@@ -620,7 +604,6 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 						actj->temp_data[0] = 1;
 				}
 			}
-			break;
 		}
 	}
 

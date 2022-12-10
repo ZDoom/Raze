@@ -50,7 +50,6 @@ struct DukeGameInfo
 extern DukeGameInfo gs;
 
 inline TObjPtr<DDukeActor*> camsprite;
-inline TObjPtr<DDukeActor*> BellSprite;
 inline TObjPtr<DDukeActor*> spriteq[1024];
 inline TObjPtr<DDukeActor*> currentCommentarySprite;
 
