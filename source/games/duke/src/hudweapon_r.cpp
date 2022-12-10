@@ -352,17 +352,16 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaybowlingball = [&]
 		{
-			weapon_xoffset += 8;
-			gun_pos -= 10;
+			offsets.X += weapon_xoffset + 8;
+			offsets.Y -= gun_pos - 10;
+
 			if (p->ammo_amount[BOWLING_WEAPON])
 			{
-				hud_drawpal(weapon_xoffset + 162 - look_anghalf,
-					looking_arc + 214 - gun_pos + (*kb << 3), RTILE_BOWLINGBALLHUD, shade, o, pal);
+				hud_drawpal(162 + offsets.X, 214 + offsets.Y + (*kb << 3), RTILE_BOWLINGBALLHUD, shade, o, pal, angle);
 			}
 			else
 			{
-				rdmyospal(weapon_xoffset + 162 - look_anghalf,
-					looking_arc + 214 - gun_pos, RTILE_HANDTHROW + 5, shade, o, pal);
+				rdmyospal(162 + offsets.X, 214 + offsets.Y, RTILE_HANDTHROW + 5, shade, o, pal, angle);
 			}
 		};
 
