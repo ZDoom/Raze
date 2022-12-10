@@ -479,103 +479,100 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displayshotgun = [&]
 		{
-			weapon_xoffset -= 8;
+			offsets.X += weapon_xoffset - 8;
+			offsets.Y -= gun_pos;
 
+			double x;
+			double y;
+
+			static const uint8_t kb_frames3[] = { 0,0,1,1,2,2,5,5,6,6,7,7,8,8,0,0,0,0,0,0,0 };
+			static const uint8_t kb_frames2[] = { 0,0,3,3,4,4,5,5,6,6,7,7,8,8,0,0,20,20,21,21,21,21,20,20,20,20,0,0 };
+			static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,0,0,20,20,21,21,21,21,20,20,20,20,0,0 };
+			static const uint16_t kb_ox[] = { 300,300,300,300,300,330,320,310,305,306,302 };
+			static const uint16_t kb_oy[] = { 315,300,302,305,302,302,303,306,302,404,384 };
+			int tm = 180;
+
+			if (p->shotgun_state[1])
 			{
-				double x;
-				int y;
-				static const uint8_t kb_frames3[] = { 0,0,1,1,2,2,5,5,6,6,7,7,8,8,0,0,0,0,0,0,0 };
-				static const uint8_t kb_frames2[] = { 0,0,3,3,4,4,5,5,6,6,7,7,8,8,0,0,20,20,21,21,21,21,20,20,20,20,0,0 };
-				static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,0,0,20,20,21,21,21,21,20,20,20,20,0,0 };
-				static const uint16_t kb_ox[] = { 300,300,300,300,300,330,320,310,305,306,302 };
-				static const uint16_t kb_oy[] = { 315,300,302,305,302,302,303,306,302,404,384 };
-				int tm;
-				tm = 180;
-				if (p->shotgun_state[1])
+				if ((*kb) < 26)
 				{
-					if ((*kb) < 26)
-					{
-						if (kb_frames[*kb] == 3 || kb_frames[*kb] == 4)
-							shade = 0;
-						x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
-						y = tm - (244 - kb_oy[kb_frames[*kb]]);
-						hud_drawpal(x + 64 - look_anghalf,
-							y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames[*kb], shade, 0, pal);
-					}
-					else
-					{
-						if (kb_frames[*kb] > 0)
-						{
-							x = weapon_xoffset + ((kb_ox[kb_frames[(*kb) - 11]] >> 1) - 12);
-							y = tm - (244 - kb_oy[kb_frames[(*kb) - 11]]);
-						}
-						else
-						{
-							x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
-							y = tm - (244 - kb_oy[kb_frames[*kb]]);
-						}
-						switch (*kb)
-						{
-						case 23:
-							y += 60;
-							break;
-						case 24:
-							y += 30;
-							break;
-						}
-						hud_drawpal(x + 64 - look_anghalf, y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames[*kb], shade, 0, pal);
-						if (kb_frames[*kb] == 21)
-							hud_drawpal(x + 96 - look_anghalf, y + looking_arc - gun_pos, RTILE_SHOTGUNSHELLS, shade, 0, pal);
-					}
+					if (kb_frames[*kb] == 3 || kb_frames[*kb] == 4)
+						shade = 0;
+					x = ((kb_ox[kb_frames[*kb]] >> 1) - 12) + offsets.X;
+					y = tm - (244 - kb_oy[kb_frames[*kb]]) + offsets.Y;
+					hud_drawpal(x + 64,	y, RTILE_SHOTGUN + kb_frames[*kb], shade, 0, pal, angle);
 				}
 				else
 				{
-					if ((*kb) < 16)
+					if (kb_frames[*kb] > 0)
 					{
-						if (p->shotgun_state[0])
-						{
-							if (kb_frames2[*kb] == 3 || kb_frames2[*kb] == 4)
-								shade = 0;
-							x = weapon_xoffset + ((kb_ox[kb_frames2[*kb]] >> 1) - 12);
-							y = tm - (244 - kb_oy[kb_frames2[*kb]]);
-							hud_drawpal(x + 64 - look_anghalf,
-								y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames2[*kb], shade, 0, pal);
-						}
-						else
-						{
-							if (kb_frames3[*kb] == 1 || kb_frames3[*kb] == 2)
-								shade = 0;
-							x = weapon_xoffset + ((kb_ox[kb_frames3[*kb]] >> 1) - 12);
-							y = tm - (244 - kb_oy[kb_frames3[*kb]]);
-							hud_drawpal(x + 64 - look_anghalf,
-								y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames3[*kb], shade, 0, pal);
-						}
+						x = ((kb_ox[kb_frames[(*kb) - 11]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames[(*kb) - 11]]) + offsets.Y;
 					}
-					else if (p->shotgun_state[0])
+					else
 					{
-						if (kb_frames2[*kb] > 0)
-						{
-							x = weapon_xoffset + ((kb_ox[kb_frames2[(*kb) - 11]] >> 1) - 12);
-							y = tm - (244 - kb_oy[kb_frames2[(*kb) - 11]]);
-						}
-						else
-						{
-							x = weapon_xoffset + ((kb_ox[kb_frames2[*kb]] >> 1) - 12);
-							y = tm - (244 - kb_oy[kb_frames2[*kb]]);
-						}
-						switch (*kb)
-						{
-						case 23:
-							y += 60;
-							break;
-						case 24:
-							y += 30;
-							break;
-						}
-						hud_drawpal(x + 64 - look_anghalf, y + looking_arc - gun_pos, RTILE_SHOTGUN + kb_frames2[*kb], shade, 0, pal);
-						if (kb_frames2[*kb] == 21)
-							hud_drawpal(x + 96 - look_anghalf, y + looking_arc - gun_pos, RTILE_SHOTGUNSHELLS, shade, 0, pal);
+						x = ((kb_ox[kb_frames[*kb]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames[*kb]]) + offsets.Y;
 					}
+					switch (*kb)
+					{
+					case 23:
+						y += 60;
+						break;
+					case 24:
+						y += 30;
+						break;
+					}
+					hud_drawpal(x + 64, y, RTILE_SHOTGUN + kb_frames[*kb], shade, 0, pal, angle);
+					if (kb_frames[*kb] == 21)
+						hud_drawpal(x + 96, y, RTILE_SHOTGUNSHELLS, shade, 0, pal, angle);
+				}
+			}
+			else
+			{
+				if ((*kb) < 16)
+				{
+					if (p->shotgun_state[0])
+					{
+						if (kb_frames2[*kb] == 3 || kb_frames2[*kb] == 4)
+							shade = 0;
+						x = ((kb_ox[kb_frames2[*kb]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames2[*kb]]) + offsets.Y;
+						hud_drawpal(x + 64, y, RTILE_SHOTGUN + kb_frames2[*kb], shade, 0, pal, angle);
+					}
+					else
+					{
+						if (kb_frames3[*kb] == 1 || kb_frames3[*kb] == 2)
+							shade = 0;
+						x = ((kb_ox[kb_frames3[*kb]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames3[*kb]]) + offsets.Y;
+						hud_drawpal(x + 64, y, RTILE_SHOTGUN + kb_frames3[*kb], shade, 0, pal, angle);
+					}
+				}
+				else if (p->shotgun_state[0])
+				{
+					if (kb_frames2[*kb] > 0)
+					{
+						x = ((kb_ox[kb_frames2[(*kb) - 11]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames2[(*kb) - 11]]) + offsets.Y;
+					}
+					else
+					{
+						x = ((kb_ox[kb_frames2[*kb]] >> 1) - 12) + offsets.X;
+						y = tm - (244 - kb_oy[kb_frames2[*kb]]) + offsets.Y;
+					}
+					switch (*kb)
+					{
+					case 23:
+						y += 60;
+						break;
+					case 24:
+						y += 30;
+						break;
+					}
+					hud_drawpal(x + 64, y, RTILE_SHOTGUN + kb_frames2[*kb], shade, 0, pal, angle);
+					if (kb_frames2[*kb] == 21)
+						hud_drawpal(x + 96, y, RTILE_SHOTGUNSHELLS, shade, 0, pal, angle);
 				}
 			}
 		};
