@@ -424,23 +424,25 @@ void displayweapon_r(int snum, double interpfrac)
 		auto displaychicken = [&]
 		{
 			if (!(gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
+
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
 			if (*kb)
 			{
 				static const uint8_t kb_frames[] = { 0,1,1,2,2,3,2,3,2,3,2,2,2,2,2,2,2,2,2,4,4,4,4,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7 };
+
 				if (kb_frames[*kb] == 2 || kb_frames[*kb] == 3)
 				{
-					rdmyospal((weapon_xoffset + 200) - look_anghalf,
-						looking_arc + 250 - gun_pos, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal);
+					rdmyospal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal, angle);
 				}
 				else if (kb_frames[*kb] == 1)
 				{
-					rdmyospal((weapon_xoffset + 200) - look_anghalf,
-						looking_arc + 250 - gun_pos, RTILE_RPGGUN2 + kb_frames[*kb], 0, o |  pin, pal);
+					rdmyospal(200 + offsets.X, 250 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], 0, o |  pin, pal, angle);
 				}
 				else
 				{
-					rdmyospal((weapon_xoffset + 210) - look_anghalf,
-						looking_arc + 255 - gun_pos, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal);
+					rdmyospal(210 + offsets.X, 255 + offsets.Y, RTILE_RPGGUN2 + kb_frames[*kb], shade, o |  pin, pal, angle);
 				}
 			}
 			else
@@ -449,26 +451,22 @@ void displayweapon_r(int snum, double interpfrac)
 				{
 					if (chickenphase)
 					{
-						rdmyospal((weapon_xoffset + 210) - look_anghalf,
-							looking_arc + 222 - gun_pos, RTILE_RPGGUN2 + 7, shade, o |  pin, pal);
+						rdmyospal(210 + offsets.X, 222 + offsets.Y, RTILE_RPGGUN2 + 7, shade, o |  pin, pal, angle);
 					}
 					else if ((krand() & 15) == 5)
 					{
 						S_PlayActorSound(327, p->GetActor());
-						rdmyospal((weapon_xoffset + 210) - look_anghalf,
-							looking_arc + 222 - gun_pos, RTILE_RPGGUN2 + 7, shade, o |  pin, pal);
+						rdmyospal(210 + offsets.X, 222 + offsets.Y, RTILE_RPGGUN2 + 7, shade, o |  pin, pal, angle);
 						chickenphase = 6;
 					}
 					else
 					{
-						rdmyospal((weapon_xoffset + 210) - look_anghalf,
-							looking_arc + 225 - gun_pos, RTILE_RPGGUN2, shade, o |  pin, pal);
+						rdmyospal(210 + offsets.X, 225 + offsets.Y, RTILE_RPGGUN2, shade, o |  pin, pal, angle);
 					}
 				}
 				else
 				{
-					rdmyospal((weapon_xoffset + 210) - look_anghalf,
-						looking_arc + 225 - gun_pos, RTILE_RPGGUN2, shade, o |  pin, pal);
+					rdmyospal(210 + offsets.X, 225 + offsets.Y, RTILE_RPGGUN2, shade, o |  pin, pal, angle);
 				}
 			}
 		};
