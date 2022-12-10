@@ -597,7 +597,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				spriteinit_r(actor, actors);
 			if (actor->GetClass()->TypeName == NAME_RedneckGeometryEffect)
 				actor->Destroy();
-			if (actor->spr.picnum == NAME_RedneckKeyinfoSetter)
+			if (actor->GetClass()->TypeName == NAME_RedneckKeyinfoSetter)
 			{
 				actor->sector()->keyinfo = uint8_t(actor->spr.lotag);
 				actor->Destroy();
