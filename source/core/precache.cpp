@@ -164,11 +164,11 @@ void precacheMap()
 
 	for (auto& wal : wall)
 	{
-		markTextureForPrecache(wal.walltexture(), wal.pal);
+		markTextureForPrecache(wal.walltexture, wal.pal);
 
 		if (wal.twoSided())
 		{
-			markTextureForPrecache(wal.overtexture(), wal.pal);
+			markTextureForPrecache(wal.overtexture, wal.pal);
 		}
 	}
 }

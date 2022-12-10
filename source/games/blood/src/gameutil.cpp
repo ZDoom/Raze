@@ -345,7 +345,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 			if (pWall->cstat & CSTAT_WALL_YFLIP)
 				nOfs = -nOfs;
 
-			auto nTex = TexMan.GetGameTexture(pWall->overtexture());
+			auto nTex = TexMan.GetGameTexture(pWall->overtexture);
 			int nSizX = int(nTex->GetDisplayWidth());
 			int nSizY = int(nTex->GetDisplayHeight());
 			if (!nSizX || !nSizY)
@@ -362,7 +362,7 @@ int VectorScan(DBloodActor* actor, double nOffset, double nZOffset, const DVecto
 
 			int nHOffset = int(pWall->xpan_ + ((fHOffset * pWall->xrepeat) * 8) / nLength) % nSizX;
 			nnOfs %= nSizY;
-			auto pData = GetRawPixels(pWall->overtexture());
+			auto pData = GetRawPixels(pWall->overtexture);
 			int nPixel = nHOffset * nSizY + nnOfs;
 
 			if (pData[nPixel] == TRANSPARENT_INDEX)

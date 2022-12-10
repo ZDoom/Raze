@@ -281,7 +281,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 						if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
 							hit.hitWall =hit.hitWall->nextWall();
 
-				if (!isaccessswitch(hit.hitWall->walltexture()))
+				if (!isaccessswitch(hit.hitWall->walltexture))
 				{
 					checkhitwall(knee, hit.hitWall, hit.hitpos);
 					if (p >= 0) checkhitswitch(p, hit.hitWall, nullptr);
@@ -451,11 +451,11 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 		{
 			spawn(spark, DTILE_SMALLSMOKE);
 
-			if (isadoorwall(hit.hitWall->walltexture()) == 1)
+			if (isadoorwall(hit.hitWall->walltexture) == 1)
 				goto SKIPBULLETHOLE;
-			if (isablockdoor(hit.hitWall->walltexture()) == 1)
+			if (isablockdoor(hit.hitWall->walltexture) == 1)
 				goto SKIPBULLETHOLE;
-			if (p >= 0 && isshootableswitch(hit.hitWall->walltexture()))
+			if (p >= 0 && isshootableswitch(hit.hitWall->walltexture))
 			{
 				checkhitswitch(p, hit.hitWall, nullptr);
 				return;
@@ -465,7 +465,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 				goto SKIPBULLETHOLE;
 
 			if (hit.hitSector && hit.hitSector->lotag == 0)
-				if (!(tileflags(hit.hitWall->overtexture()) & TFLAG_FORCEFIELD))
+				if (!(tileflags(hit.hitWall->overtexture) & TFLAG_FORCEFIELD))
 					if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag == 0) ||
 						(!hit.hitWall->twoSided() && hit.hitSector->lotag == 0))
 						if ((hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
@@ -940,7 +940,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 	else if (hit.actor() != nullptr) fi.checkhitsprite(hit.actor(), spark);
 	else if (hit.hitWall != nullptr)
 	{
-		if (!isaccessswitch(hit.hitWall->walltexture()))
+		if (!isaccessswitch(hit.hitWall->walltexture))
 		{
 			checkhitwall(spark, hit.hitWall, hit.hitpos);
 		}
@@ -1987,7 +1987,7 @@ int operateTripbomb(int snum)
 		return 0;
 
 	if (hit.hitWall != nullptr)
-		if (tileflags(hit.hitWall->overtexture()) & TFLAG_FORCEFIELD)
+		if (tileflags(hit.hitWall->overtexture) & TFLAG_FORCEFIELD)
 			return 0;
 
 	DDukeActor* act;

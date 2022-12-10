@@ -132,7 +132,7 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll)
 	if (p->hurt_delay > 0) p->hurt_delay--;
 	else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN))
 	{
-		int tf = tileflags(wal->overtexture());
+		int tf = tileflags(wal->overtexture);
 		if (tf & TFLAG_ANIMFORCEFIELD)
 		{
 			p->GetActor()->spr.extra -= 5;
@@ -390,7 +390,7 @@ void checksectors_d(int snum)
 
 		if (hitscanwall != nullptr)
 		{
-			if (dist < 80 && hitscanwall->overtexture() == mirrortex)
+			if (dist < 80 && hitscanwall->overtexture == mirrortex)
 				if (hitscanwall->lotag > 0 && S_CheckSoundPlaying(hitscanwall->lotag) == 0 && snum == screenpeek)
 				{
 					S_PlayActorSound(hitscanwall->lotag, pact);
@@ -467,7 +467,7 @@ void checksectors_d(int snum)
 
 		if (near.hitWall)
 		{
-			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->walltexture()))
+			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->walltexture))
 			{
 				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
 					checkhitswitch(snum, near.hitWall, nullptr);

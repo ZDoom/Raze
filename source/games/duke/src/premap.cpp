@@ -709,7 +709,7 @@ void prelevel_common(int g)
 	numanimwalls = 0;
 	for (auto& wal : wall)
 	{
-		if (wal.overtexture() == mirrortex && (wal.cstat & CSTAT_WALL_1WAY) != 0)
+		if (wal.overtexture == mirrortex && (wal.cstat & CSTAT_WALL_1WAY) != 0)
 		{
 			auto sectp = wal.nextSector();
 
@@ -726,15 +726,15 @@ void prelevel_common(int g)
 			}
 		}
 
-		if (tileflags(wal.overtexture()) & (TFLAG_FORCEFIELD | TFLAG_ANIMFORCEFIELD))
+		if (tileflags(wal.overtexture) & (TFLAG_FORCEFIELD | TFLAG_ANIMFORCEFIELD))
 		{
 			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = 0;
-			animwall[numanimwalls].origtex = wal.overtexture();
+			animwall[numanimwalls].origtex = wal.overtexture;
 			animwall[numanimwalls].overpic = true;
 			numanimwalls++;
 
-			if (tileflags(wal.overtexture()) & TFLAG_ANIMFORCEFIELD)
+			if (tileflags(wal.overtexture) & TFLAG_ANIMFORCEFIELD)
 			{
 				if (wal.shade > 31)
 					wal.cstat = 0;
@@ -744,11 +744,11 @@ void prelevel_common(int g)
 					wal.nextWall()->lotag = wal.lotag;
 			}
 		}
-		if (tileflags(wal.walltexture()) & (TFLAG_ANIMSCREEN | TFLAG_ANIMSCREENNOISE))
+		if (tileflags(wal.walltexture) & (TFLAG_ANIMSCREEN | TFLAG_ANIMSCREENNOISE))
 		{
 			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = -1;
-			animwall[numanimwalls].origtex = wal.walltexture();
+			animwall[numanimwalls].origtex = wal.walltexture;
 			animwall[numanimwalls].overpic = false;
 			numanimwalls++;
 		}
@@ -864,7 +864,7 @@ static void SpawnPortals()
 {
 	for (auto& wal : wall)
 	{
-		if (wal.overtexture() == mirrortex && (wal.cstat & CSTAT_WALL_1WAY)) wal.portalflags |= PORTAL_WALL_MIRROR;
+		if (wal.overtexture == mirrortex && (wal.cstat & CSTAT_WALL_1WAY)) wal.portalflags |= PORTAL_WALL_MIRROR;
 	}
 
 	portalClear();
@@ -1147,7 +1147,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	setLevelStarted(mi);
 	for (auto& wal : wall)
 	{
-		if (tileflags(wal.walltexture()) & TFLAG_SEASICKWALL)
+		if (tileflags(wal.walltexture) & TFLAG_SEASICKWALL)
 			StartInterpolation(&wal, Interp_Wall_PanX);
 	}
 }

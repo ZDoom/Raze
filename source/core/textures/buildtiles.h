@@ -14,16 +14,6 @@
 // all that's left here is the wrappers that need to go away.
 
 
-// wrappers that allow partial migration to a textureID-based setup.
-inline const FTextureID walltype::walltexture() const
-{
-	return tileGetTextureID(wallpicnum);
-}
-inline const FTextureID walltype::overtexture() const
-{
-	return tileGetTextureID(overpicnum);
-}
-
 inline const FTextureID spritetypebase::spritetexture() const
 {
 	return tileGetTextureID(picnum);
@@ -33,19 +23,6 @@ inline void spritetypebase::setspritetexture(FTextureID tex)
 {
 	picnum = legacyTileNum(tex);
 }
-
-
-inline void walltype::setwalltexture(FTextureID tex)
-{
-	wallpicnum = legacyTileNum(tex);
-}
-
-inline void walltype::setovertexture(FTextureID tex)
-{
-	if (tex.isValid()) overpicnum = legacyTileNum(tex);
-	else overpicnum = -1;	// unlike the others this one can be invalid.
-}
-
 
 //[[deprecated]]
 inline int tileForName(const char* name)

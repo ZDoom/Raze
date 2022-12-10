@@ -1012,7 +1012,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		// normal texture
 
-		auto tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overtexture() : wal->walltexture();
+		auto tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overtexture : wal->walltexture;
 		texture = TexMan.GetGameTexture(tilenum, true);
 		if (texture && texture->isValid())
 		{
@@ -1048,7 +1048,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 			if (bch1a < fch1 || bch2a < fch2)
 			{
-				auto tilenum = wal->walltexture();
+				auto tilenum = wal->walltexture;
 				texture = TexMan.GetGameTexture(tilenum, true);
 				if (texture && texture->isValid())
 				{
@@ -1059,7 +1059,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		if (wal->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY))
 		{
-			auto tilenum = wal->overtexture();
+			auto tilenum = wal->overtexture;
 			texture = TexMan.GetGameTexture(tilenum, true);
 			if (texture && texture->isValid())
 			{
@@ -1083,7 +1083,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 			if (bfh1 > ffh1 || bfh2 > ffh2)
 			{
 				auto w = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? backwall : wal;
-				auto tilenum = w->walltexture();
+				auto tilenum = w->walltexture;
 				texture = TexMan.GetGameTexture(tilenum, true);
 				if (texture && texture->isValid())
 				{

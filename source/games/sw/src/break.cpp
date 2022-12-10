@@ -468,16 +468,16 @@ BREAK_INFO* SetupWallForBreak(walltype* wallp)
 {
     BREAK_INFO* break_info;
 
-    break_info = FindWallBreakInfo(wallp->walltexture());
+    break_info = FindWallBreakInfo(wallp->walltexture);
     if (break_info)
     {
         wallp->lotag = TAG_WALL_BREAK;
         wallp->extra |= (WALLFX_DONT_STICK);
     }
 
-    if (wallp->overtexture().isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
+    if (wallp->overtexture.isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
     {
-        break_info = FindWallBreakInfo(wallp->overtexture());
+        break_info = FindWallBreakInfo(wallp->overtexture);
         if (break_info)
         {
             wallp->lotag = TAG_WALL_BREAK;
@@ -568,17 +568,17 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
         // only break ONE of the walls
 
         if (nwp->lotag == TAG_WALL_BREAK &&
-            nwp->overtexture().isValid() &&
+            nwp->overtexture.isValid() &&
             (nwp->cstat & CSTAT_WALL_MASKED))
         {
             nwp->lotag = 0;
         }
     }
 
-    if (wallp->overtexture().isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
-        break_info = FindWallBreakInfo(wallp->overtexture());
+    if (wallp->overtexture.isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
+        break_info = FindWallBreakInfo(wallp->overtexture);
     else
-        break_info = FindWallBreakInfo(wallp->walltexture());
+        break_info = FindWallBreakInfo(wallp->walltexture);
 
     if (!break_info)
     {
@@ -603,7 +603,7 @@ int AutoBreakWall(walltype* wallp, const DVector3& hit_pos, DAngle ang, int type
     }
 
     // change the wall
-    if (wallp->overtexture().isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
+    if (wallp->overtexture.isValid() && (wallp->cstat & CSTAT_WALL_MASKED))
     {
         if (break_info->breaknum == -1)
         {
@@ -673,7 +673,7 @@ bool UserBreakWall(walltype* wp)
         return true;
     }
 
-    if (wp->walltexture() == actor->texparam)
+    if (wp->walltexture == actor->texparam)
         return true;
 
     // make it BROKEN
@@ -727,7 +727,7 @@ bool UserBreakWall(walltype* wp)
     else
     {
         // increment picnum
-        wp->setwalltexture(wp->walltexture() + 1);
+        wp->setwalltexture(wp->walltexture + 1);
 
         DoSpawnSpotsForDamage(match);
     }

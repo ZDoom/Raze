@@ -218,7 +218,7 @@ void JS_SpriteSetup(void)
     // Check for certain walls to make sounds
     for(auto& wal : wall)
     {
-        int surf = tilesurface(wal.walltexture());
+        int surf = tilesurface(wal.walltexture);
         if (surf == TSURF_WATER || surf == TSURF_LAVA || surf == TSURF_SHALLOWWATER)
             wal.extra |= WALLFX_DONT_STICK;
     }
@@ -256,7 +256,7 @@ void JS_InitMirrors(void)
     auto mi = tileGetTextureID(MIRROR);
     for(auto& wal : wall)
     {
-        if (wal.twoSided() && (wal.overtexture() == mi) && (wal.cstat & CSTAT_WALL_1WAY))
+        if (wal.twoSided() && (wal.overtexture == mi) && (wal.cstat & CSTAT_WALL_1WAY))
         {
             auto sec = wal.nextSector();
             if ((sec->floorstat & CSTAT_SECTOR_SKY) == 0)

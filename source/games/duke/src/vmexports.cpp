@@ -1122,7 +1122,7 @@ DEFINE_ACTION_FUNCTION(_DukePlayer, hitablockingwall)
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
 	walltype* pwal;
 	hitawall(self, &pwal);
-	ACTION_RETURN_BOOL(pwal && pwal->overtexture().isValid());
+	ACTION_RETURN_BOOL(pwal && pwal->overtexture.isValid());
 }
 
 inline double DukePlayer_GetPitchwithView(player_struct* pl)
@@ -1334,7 +1334,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ceilingsurface, duke_ceilingsurface)
 
 int duke_wallflags(walltype* wal, int which)
 {
-	return tileflags(which? wal->overtexture() : wal->walltexture());
+	return tileflags(which? wal->overtexture : wal->walltexture);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, wallflags, duke_wallflags)
@@ -1347,7 +1347,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, wallflags, duke_wallflags)
 
 int duke_ismirror(walltype* wal)
 {
-	return wal->walltexture() == mirrortex || wal->overtexture() == mirrortex;
+	return wal->walltexture == mirrortex || wal->overtexture == mirrortex;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ismirror, duke_ismirror)

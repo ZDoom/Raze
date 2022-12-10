@@ -244,8 +244,8 @@ struct walltype
 	float ypan_;
 
 	EWallFlags cstat;
-	int16_t wallpicnum;
-	int16_t overpicnum;
+	FTextureID walltexture;
+	FTextureID overtexture;
 	union { int16_t lotag, type; }; // type is for Blood
 	int16_t hitag;
 	int16_t extra;
@@ -296,10 +296,8 @@ struct walltype
 	bool hasX() const { return _xw != nullptr; }
 	void allocX();
 
-	const FTextureID walltexture() const;
-	const FTextureID overtexture() const;
-	void setwalltexture(FTextureID tex);
-	void setovertexture(FTextureID tex);
+	void setwalltexture(FTextureID tex) { walltexture = tex; }
+	void setovertexture(FTextureID tex) { overtexture = tex; }
 };
 
 // enable for running a compile-check to ensure that renderer-critical variables are not being written to directly.

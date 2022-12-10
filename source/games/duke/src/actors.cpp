@@ -2152,10 +2152,9 @@ void handle_se19(DDukeActor *actor)
 		if (actor->temp_data[0] == 1)
 		{
 			actor->temp_data[0]++;
-			auto bigforce = TexMan.CheckForTexture("BIGFORCE", ETextureType::Any);
 			for (auto& wal : sc->walls)
 			{
-				if (wal.overtexture() == bigforce)
+				if (tileflags(wal.overtexture) & TFLAG_FORCEFIELD)
 				{
 					wal.cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
 					wal.setovertexture(FNullTextureID());
@@ -2696,7 +2695,7 @@ void handle_se128(DDukeActor *actor)
 	}
 //	else return;
 
-	auto data = breakWallMap.CheckKey(wal->overtexture().GetIndex());
+	auto data = breakWallMap.CheckKey(wal->overtexture.GetIndex());
 	FTextureID newtex = data? data->brokentex : FNullTextureID();
 	wal->setovertexture(newtex);
 	auto nextwal = wal->nextWall();

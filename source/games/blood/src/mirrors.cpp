@@ -51,7 +51,7 @@ void InitMirrors(void)
 		auto pWalli = &wall[i];
 		if (mirrorcnt == 16)
 			break;
-		if (pWalli->overtexture() == mirrortile)
+		if (pWalli->overtexture == mirrortile)
 		{
 			if (pWalli->extra > 0 && pWalli->type == kWallStack)
 			{
@@ -88,7 +88,7 @@ void InitMirrors(void)
 			}
 			continue;
 		}
-		if (pWalli->walltexture() == mirrortile)
+		if (pWalli->walltexture == mirrortile)
 		{
 			mirror[mirrorcnt].link = i;
 			mirror[mirrorcnt].mynum = i;

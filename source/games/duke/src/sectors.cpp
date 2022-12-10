@@ -1248,7 +1248,7 @@ void operateforcefields(DDukeActor *effector, int low)
 		auto wal = animwall[p].wall;
 
 		if (low == wal->lotag || low == -1)
-			if (tileflags(wal->overtexture()) & (TFLAG_FORCEFIELD | TFLAG_ANIMFORCEFIELD))
+			if (tileflags(wal->overtexture) & (TFLAG_FORCEFIELD | TFLAG_ANIMFORCEFIELD))
 			{
 				animwall[p].tag = 0;
 
@@ -1273,7 +1273,7 @@ void operateforcefields(DDukeActor *effector, int low)
 
 void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 {
-	if (wal->overtexture() == mirrortex && actorflag(spr, SFLAG2_BREAKMIRRORS))
+	if (wal->overtexture == mirrortex && actorflag(spr, SFLAG2_BREAKMIRRORS))
 	{
 		lotsofglass(spr, wal, 70);
 		wal->cstat &= ~CSTAT_WALL_MASKED;
@@ -1301,14 +1301,14 @@ void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos)
 
 	if (wal->twoSided() && wal->nextSector()->floorz > pos.Z && wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 	{
-		auto data = breakWallMap.CheckKey(wal->overtexture().GetIndex());
+		auto data = breakWallMap.CheckKey(wal->overtexture.GetIndex());
 		if (data && (data->flags & 1) && (!(data->flags & 2) || wal->cstat & CSTAT_WALL_MASKED))
 		{
 			if (handler(data)) wal->setovertexture(data->brokentex);
 		}
 	}
 
-	auto data = breakWallMap.CheckKey(wal->walltexture().GetIndex());
+	auto data = breakWallMap.CheckKey(wal->walltexture.GetIndex());
 	if (data && !(data->flags & 1))
 	{
 		if (handler(data)) wal->setwalltexture(data->brokentex);
@@ -1565,7 +1565,7 @@ void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& c
 	{
 		if (lotag != wal.lotag) continue;
 
-		auto& other_ext = GetExtInfo(wal.walltexture());
+		auto& other_ext = GetExtInfo(wal.walltexture);
 		auto& other_swdef = switches[other_ext.switchindex];
 
 		switch (other_swdef.type)
@@ -1635,7 +1635,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
 		spos = wwal->pos;
-		texid = wwal->walltexture();
+		texid = wwal->walltexture;
 		switchpal = wwal->pal;
 	}
 	auto& ext = GetExtInfo(texid);
@@ -1792,7 +1792,7 @@ void animatewalls(void)
 	{
 		for (auto& wal : wall)
 		{
-			if (tileflags(wal.walltexture()) & TFLAG_SEASICKWALL)
+			if (tileflags(wal.walltexture) & TFLAG_SEASICKWALL)
 				wal.addxpan(6);
 		}
 	}
@@ -1802,18 +1802,18 @@ void animatewalls(void)
 	for (int p = 0; p < numanimwalls; p++)
 	{
 		auto wal = animwall[p].wall;
-		auto texid = wal->walltexture();
+		auto texid = wal->walltexture;
 
 		if (!animwall[p].overpic)
 		{
-			if (tileflags(wal->walltexture()) & TFLAG_ANIMSCREEN)
+			if (tileflags(wal->walltexture) & TFLAG_ANIMSCREEN)
 			{
 				if ((krand() & 255) < 16)
 				{
 					wal->setwalltexture(noise);
 				}
 			}
-			else if (tileflags(wal->walltexture()) & TFLAG_ANIMSCREENNOISE)
+			else if (tileflags(wal->walltexture) & TFLAG_ANIMSCREENNOISE)
 			{
 				if (animwall[p].origtex.isValid())
 					wal->setwalltexture(animwall[p].origtex);
@@ -1827,7 +1827,7 @@ void animatewalls(void)
 		}
 		else
 		{
-			if (tileflags(wal->overtexture()) & TFLAG_ANIMFORCEFIELD && wal->cstat & CSTAT_WALL_MASKED)
+			if (tileflags(wal->overtexture) & TFLAG_ANIMFORCEFIELD && wal->cstat & CSTAT_WALL_MASKED)
 			{
 
 				t = animwall[p].tag;

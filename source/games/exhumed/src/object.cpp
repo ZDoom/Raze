@@ -1249,13 +1249,13 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
             if (sTrap[nTrap].pWall1 != nullptr)
             {
                 sTrap[nTrap].pWall2 = &wal;
-                sTrap[nTrap].nPicnum2 = wal.walltexture();
+                sTrap[nTrap].nPicnum2 = wal.walltexture;
                 break;
             }
             else
             {
                 sTrap[nTrap].pWall1 = &wal;
-                sTrap[nTrap].nPicnum1 = wal.walltexture();
+                sTrap[nTrap].nPicnum1 = wal.walltexture;
             }
         }
     }
@@ -2619,7 +2619,7 @@ void PostProcess()
 
             for(auto& wal : sect.walls)
             {
-                if (wal.walltexture() == texid3603)
+                if (wal.walltexture == texid3603)
                 {
                     wal.pal = 1;
                     auto pActor = insertActor(&sect, 407);

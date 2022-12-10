@@ -172,7 +172,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 						if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
 							hit.hitWall = hit.hitWall->nextWall();
 
-				if (!isaccessswitch(hit.hitWall->walltexture()))
+				if (!isaccessswitch(hit.hitWall->walltexture))
 				{
 					checkhitwall(wpn, hit.hitWall, hit.hitpos);
 					if (p >= 0) checkhitswitch(p, hit.hitWall, nullptr);
@@ -344,11 +344,11 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		{
 			spawn(spark, RTILE_SMALLSMOKE);
 
-			if (isadoorwall(hit.hitWall->walltexture()) == 1)
+			if (isadoorwall(hit.hitWall->walltexture) == 1)
 				goto SKIPBULLETHOLE;
-			if (isablockdoor(hit.hitWall->walltexture()) == 1)
+			if (isablockdoor(hit.hitWall->walltexture) == 1)
 				goto SKIPBULLETHOLE;
-			if (p >= 0 && isshootableswitch(hit.hitWall->walltexture()))
+			if (p >= 0 && isshootableswitch(hit.hitWall->walltexture))
 			{
 				checkhitswitch(p, hit.hitWall, nullptr);
 				return;
@@ -358,7 +358,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				goto SKIPBULLETHOLE;
 
 			if (hit.hitSector != nullptr && hit.hitSector->lotag == 0)
-				if (!(tileflags(hit.hitWall->overtexture()) & TFLAG_FORCEFIELD))
+				if (!(tileflags(hit.hitWall->overtexture) & TFLAG_FORCEFIELD))
 					if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag == 0) ||
 						(!hit.hitWall->twoSided() && hit.hitSector->lotag == 0))
 						if ((hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)

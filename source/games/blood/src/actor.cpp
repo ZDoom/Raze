@@ -6645,11 +6645,11 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 		case 0:
 		{
 			auto pWall = gHitInfo.hitWall;
-			nSurf = GetExtInfo(pWall->walltexture()).surftype;
+			nSurf = GetExtInfo(pWall->walltexture).surftype;
 			if (actCanSplatWall(pWall))
 			{
 				auto ppos = gHitInfo.hitpos - dv;
-				int nnSurf = GetExtInfo(pWall->walltexture()).surftype;
+				int nnSurf = GetExtInfo(pWall->walltexture).surftype;
 				assert(nnSurf < kSurfMax);
 				if (pVectorData->surfHit[nnSurf].fx1 >= 0)
 				{
@@ -6667,7 +6667,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 		case 4:
 		{
 			auto pWall = gHitInfo.hitWall;
-			nSurf = GetExtInfo(pWall->overtexture()).surftype;
+			nSurf = GetExtInfo(pWall->overtexture).surftype;
 			if (pWall->hasX())
 			{
 				if (pWall->xw().triggerVector)
@@ -6742,7 +6742,7 @@ void actFireVector(DBloodActor* shooter, double offset, double zoffset, DVector3
 							if (actCanSplatWall(pWall))
 							{
 								auto ppos = gHitInfo.hitpos - dv;
-								int nnSurf = GetExtInfo(pWall->walltexture()).surftype;
+								int nnSurf = GetExtInfo(pWall->walltexture).surftype;
 								const VECTORDATA* pVectorData1 = &gVectorData[19];
 								FX_ID t2 = pVectorData1->surfHit[nnSurf].fx2;
 								FX_ID t3 = pVectorData1->surfHit[nnSurf].fx3;

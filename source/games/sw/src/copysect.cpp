@@ -58,8 +58,8 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
     // this looks broken.
     do
     {
-        dwall->setwalltexture(swall->walltexture());
-        dwall->setovertexture(swall->overtexture());
+        dwall->setwalltexture(swall->walltexture);
+        dwall->setovertexture(swall->overtexture);
 
         dwall->xrepeat =       swall->xrepeat;
         dwall->yrepeat =       swall->yrepeat;
@@ -76,10 +76,10 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
         {
             auto const dest_nextwall = dwall->nextWall();
             auto const src_nextwall = swall->nextWall();
-            dest_nextwall->setwalltexture(src_nextwall->walltexture());
+            dest_nextwall->setwalltexture(src_nextwall->walltexture);
             dest_nextwall->xrepeat = src_nextwall->xrepeat;
             dest_nextwall->yrepeat = src_nextwall->yrepeat;
-            dest_nextwall->setovertexture(src_nextwall->overtexture());
+            dest_nextwall->setovertexture(src_nextwall->overtexture);
             dest_nextwall->pal = src_nextwall->pal;
             dest_nextwall->cstat = src_nextwall->cstat;
             dest_nextwall->shade = src_nextwall->shade;

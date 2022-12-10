@@ -388,7 +388,7 @@ int checkTranslucentReplacement(FTextureID picnum, int pal);
 
 inline bool maskWallHasTranslucency(const walltype* wall)
 {
-	return (wall->cstat & CSTAT_WALL_TRANSLUCENT) || checkTranslucentReplacement(wall->walltexture(), wall->pal);
+	return (wall->cstat & CSTAT_WALL_TRANSLUCENT) || checkTranslucentReplacement(wall->walltexture, wall->pal);
 }
 
 inline bool spriteHasTranslucency(const tspritetype* tspr)

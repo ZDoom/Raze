@@ -3956,8 +3956,8 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 			walltype* pObj = eob.wall();
 			switch (cond)
 			{
-			case 24: return condCmp(GetExtInfo(pObj->walltexture()).surftype, arg1, arg2, cmpOp);
-			case 25: return condCmp(legacyTileNum(pObj->walltexture()), arg1, arg2, cmpOp);
+			case 24: return condCmp(GetExtInfo(pObj->walltexture).surftype, arg1, arg2, cmpOp);
+			case 25: return condCmp(legacyTileNum(pObj->walltexture), arg1, arg2, cmpOp);
 			case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
 			case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
 			case 28: return (arg3) ? condCmp((pObj->cstat & EWallFlags::FromInt(arg3)), arg1, arg2, cmpOp) : (pObj->cstat & EWallFlags::FromInt(arg1));
@@ -4271,7 +4271,7 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
 		{
 		default: break;
 		case 0:
-			return condCmp(legacyTileNum(pWall->overtexture()), arg1, arg2, cmpOp);
+			return condCmp(legacyTileNum(pWall->overtexture), arg1, arg2, cmpOp);
 		case 5:
 			if (PUSH) condPush(aCond, pWall->sectorp());
 			return true;
