@@ -341,7 +341,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				hit.actor()->spr.picnum == RTILE_DIPSWITCH2ON ||
 				hit.actor()->spr.picnum == RTILE_DIPSWITCH3 ||
 				hit.actor()->spr.picnum == RTILE_DIPSWITCH3ON ||
-				(isRRRA() && hit.actor()->spr.picnum == RTILE_RRTILE8660) ||
+				(isRRRA() && hit.actor()->spr.picnum == RTILE_BELLSWITCH) ||
 				hit.actor()->spr.picnum == RTILE_HANDSWITCH ||
 				hit.actor()->spr.picnum == RTILE_HANDSWITCHON))
 			{
@@ -364,7 +364,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				hit.hitWall->wallpicnum == RTILE_DIPSWITCH2ON ||
 				hit.hitWall->wallpicnum == RTILE_DIPSWITCH3 ||
 				hit.hitWall->wallpicnum == RTILE_DIPSWITCH3ON ||
-				(isRRRA() && hit.hitWall->wallpicnum == RTILE_RRTILE8660) ||
+				(isRRRA() && hit.hitWall->wallpicnum == RTILE_BELLSWITCH) ||
 				hit.hitWall->wallpicnum == RTILE_HANDSWITCH ||
 				hit.hitWall->wallpicnum == RTILE_HANDSWITCHON))
 			{

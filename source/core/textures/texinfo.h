@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "gamefuncs.h"
 #include "tiletexture.h"
+#include "s_soundinternal.h"
 
 // extended texture info for which there is no room in the texture manager.
 
@@ -55,16 +56,47 @@ struct TileOffs
 	int16_t xsize, ysize, xoffs, yoffs;
 };
 
+// probably only useful for Duke. We'll see
+struct SwitchDef
+{
+	enum
+	{
+		shootable = 1,
+		oneway = 2,
+		resettable = 4,
+		nofilter = 8,
+	};
+	enum
+	{
+		None = 0,	// no switch, so that all non-switches can use an empty entry to avoid validation checks
+		Regular = 1,
+		Combo = 2,
+		Multi = 3,
+		Access = 4
+	};
+	uint8_t type;
+	uint8_t flags;
+	FSoundID soundid;
+	FTextureID states[4];
+};
+
+inline TArray<SwitchDef> switches;
+
 struct TexExtInfo
 {
-	// TexAnim *texanim // todo: extended texture animation like ZDoom's ANIMDEFS.
+	uint16_t animindex;	// not used yet - for ZDoom-style animations.
+	uint16_t switchindex;
 	uint8_t surftype;	// Contents depend on the game, e.g. this holds Blood's surfType. Other games have hard coded handling for similar effects.
-	uint8_t tileshade;	// Blood's shade.dat
+	union
+	{
+		uint8_t switchphase;	// For Duke: index of texture in switch sequence.
+		uint8_t tileshade;		// Blood's shade.dat
+	};
 	int16_t tiletovox;	// engine-side voxel index
 	picanm_t picanm;	// tile-based animation data.
 	uint32_t flags;		// contents are game dependent.
 	TileOffs hiofs;
-};
+}; 
 
 inline TArray<TexExtInfo> texExtInfo;
 inline int firstarttile, maxarttile;	// we need this for conversion between tile numbers and texture IDs
@@ -108,6 +140,16 @@ inline TexExtInfo& AccessExtInfo(FTextureID tex) // this is for modifying and sh
 		for (; now <= index; now++) texExtInfo[now] = texExtInfo[0];
 	}
 	return texExtInfo[index];
+}
+
+inline bool isaccessswitch(FTextureID texid)
+{
+	return switches[GetExtInfo(texid).switchindex].type == SwitchDef::Access;
+}
+
+inline bool isshootableswitch(FTextureID texid)
+{
+	return switches[GetExtInfo(texid).switchindex].flags & SwitchDef::shootable;
 }
 
 inline int tilehasvoxel(FTextureID texid)

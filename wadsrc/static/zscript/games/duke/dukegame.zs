@@ -474,9 +474,9 @@ struct DukeUserDefs native
 	native readonly int coop;
 	native readonly int respawn_monsters, respawn_items, respawn_inventory, recstat, monsters_off, brightness;
 	native readonly int ffire, multimode;
-	native readonly int player_skill, marker, chickenplant;
+	native readonly int player_skill, marker;
 	
-	native int earthquaketime;
+	native int earthquaketime, chickenplant;
 	native uint8 ufospawnsminion;
 	native int16 bomb_tag;
 	native DukeActor cameraactor;

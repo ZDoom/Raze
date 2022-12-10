@@ -2489,8 +2489,7 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 					continue;
 				}
 
-				if (actorflag(a2, SFLAG_SE24_NOCARRY) ||
-					wallswitchcheck(a2))
+				if (actorflag(a2, SFLAG_SE24_NOCARRY) || wallswitchcheck(a2) || GetExtInfo(a2->spr.spritetexture()).switchindex > 0)
 					continue;
 
 				if (a2->spr.pos.Z > a2->floorz - 16)

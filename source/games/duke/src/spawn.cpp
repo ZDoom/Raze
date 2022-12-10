@@ -194,9 +194,15 @@ bool initspriteforspawn(DDukeActor* act)
 	act->temp_angle = nullAngle;
 	act->temp_pos = DVector3(0, 0, 0);
 
-	if (wallswitchcheck(act) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+	auto ext = GetExtInfo(act->spr.spritetexture());
+
+	if (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL && (wallswitchcheck(act) || ext.switchindex > 0))
 	{
-		if (act->spr.picnum != TILE_ACCESSSWITCH && act->spr.picnum != TILE_ACCESSSWITCH2 && act->spr.pal)
+		// this is a bit more complicated than needed thanks to some bugs in the original code that must be retained for the multiplayer filter. 
+		// Not all switches were properly included here.
+		bool shouldfilter = wallswitchcheck(act) || !(switches[ext.switchindex].flags & SwitchDef::nofilter);
+
+		if (shouldfilter && act->spr.pal > 0)
 		{
 			if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
 			{
@@ -205,11 +211,11 @@ bool initspriteforspawn(DDukeActor* act)
 				act->spr.lotag = act->spr.hitag = 0;
 				return false;
 			}
+			act->spr.pal = 0;
 		}
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		if (act->spr.pal && act->spr.picnum != TILE_ACCESSSWITCH && act->spr.picnum != TILE_ACCESSSWITCH2)
-			act->spr.pal = 0;
 		return false;
+
 	}
 
 	if (!actorflag(act, SFLAG_NOFALLER) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))

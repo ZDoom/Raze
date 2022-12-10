@@ -225,7 +225,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	case RTILE_MULTISWITCH2_3:
 	case RTILE_MULTISWITCH2_4:
 	case RTILE_IRONWHEELSWITCH:
-	case RTILE_RRTILE8660:
+	case RTILE_BELLSWITCH:
 		if (!isRRRA()) break;
 		[[fallthrough]];
 	case RTILE_DIPSWITCH2:
@@ -260,11 +260,11 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	case RTILE_POWERSWITCH2ON:
 	case RTILE_CHICKENPLANTBUTTON:
 	case RTILE_CHICKENPLANTBUTTONON:
-	case RTILE_RRTILE2214:
-	case RTILE_RRTILE2697:
-	case RTILE_RRTILE2697 + 1:
-	case RTILE_RRTILE2707:
-	case RTILE_RRTILE2707 + 1:
+	case RTILE_CONTESTSWITCH:
+	case RTILE_ALERTSWITCH:
+	case RTILE_ALERTSWITCHON:
+	case RTILE_HANDLESWITCH:
+	case RTILE_HANDLESWITCHON:
 		goOn1:
 		if (check_activator_motion(lotag)) return 0;
 		break;
@@ -310,10 +310,10 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 				other->spr.picnum = RTILE_MULTISWITCH2;
 			break;
 
-		case RTILE_RRTILE2214:
+		case RTILE_CONTESTSWITCH:
 			other->spr.picnum++;
 			break;
-		case RTILE_RRTILE8660:
+		case RTILE_BELLSWITCH:
 			if (!isRRRA()) break;
 			[[fallthrough]];
 		case RTILE_ACCESSSWITCH:
@@ -332,8 +332,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		case RTILE_DIPSWITCH2:
 		case RTILE_DIPSWITCH3:
 		case RTILE_CHICKENPLANTBUTTON:
-		case RTILE_RRTILE2697:
-		case RTILE_RRTILE2707:
+		case RTILE_ALERTSWITCH:
+		case RTILE_HANDLESWITCH:
 			if (other->spr.picnum == RTILE_DIPSWITCH3)
 				if (other->spr.hitag == 999)
 				{
@@ -347,7 +347,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 				}
 			if (other->spr.picnum == RTILE_CHICKENPLANTBUTTON)
 				ud.chickenplant = 0;
-			if (other->spr.picnum == RTILE_RRTILE8660)
+			if (other->spr.picnum == RTILE_BELLSWITCH)
 			{
 				BellTime = 132;
 				BellSprite = other;
@@ -368,8 +368,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		case RTILE_DIPSWITCH2ON:
 		case RTILE_DIPSWITCH3ON:
 		case RTILE_CHICKENPLANTBUTTONON:
-		case RTILE_RRTILE2697 + 1:
-		case RTILE_RRTILE2707 + 1:
+		case RTILE_ALERTSWITCHON:
+		case RTILE_HANDLESWITCHON:
 			if (other->spr.picnum == RTILE_CHICKENPLANTBUTTONON)
 				ud.chickenplant = 1;
 			if (other->spr.hitag != 999)
@@ -414,7 +414,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 				if (wal.wallpicnum > (RTILE_MULTISWITCH2_4))
 					wal.wallpicnum = RTILE_MULTISWITCH2;
 				break;
-			case RTILE_RRTILE8660:
+			case RTILE_BELLSWITCH:
 				if (!isRRRA()) break;
 				[[fallthrough]];
 			case RTILE_ACCESSSWITCH:
@@ -431,8 +431,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 			case RTILE_HANDSWITCH:
 			case RTILE_DIPSWITCH2:
 			case RTILE_DIPSWITCH3:
-			case RTILE_RRTILE2697:
-			case RTILE_RRTILE2707:
+			case RTILE_ALERTSWITCH:
+			case RTILE_HANDLESWITCH:
 				wal.wallpicnum++;
 				break;
 			case RTILE_HANDSWITCHON:
@@ -447,8 +447,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 			case RTILE_SPACEDOORSWITCHON:
 			case RTILE_DIPSWITCH2ON:
 			case RTILE_DIPSWITCH3ON:
-			case RTILE_RRTILE2697 + 1:
-			case RTILE_RRTILE2707 + 1:
+			case RTILE_ALERTSWITCHON:
+			case RTILE_HANDLESWITCHON:
 				wal.wallpicnum--;
 				break;
 			}
@@ -496,7 +496,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	case RTILE_MULTISWITCH2_3:
 	case RTILE_MULTISWITCH2_4:
 	case RTILE_IRONWHEELSWITCH:
-	case RTILE_RRTILE8660:
+	case RTILE_BELLSWITCH:
 		if (!isRRRA()) break;
 		[[fallthrough]];
 	case RTILE_DIPSWITCH2:
@@ -531,14 +531,14 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	case RTILE_HANDSWITCHON:
 	case RTILE_PULLSWITCH:
 	case RTILE_PULLSWITCHON:
-	case RTILE_RRTILE2697:
-	case RTILE_RRTILE2697 + 1:
-	case RTILE_RRTILE2707:
-	case RTILE_RRTILE2707 + 1:
+	case RTILE_ALERTSWITCH:
+	case RTILE_ALERTSWITCHON:
+	case RTILE_HANDLESWITCH:
+	case RTILE_HANDLESWITCHON:
 		goOn2:
 		if (isRRRA())
 		{
-			if (picnum == RTILE_RRTILE8660 && act)
+			if (picnum == RTILE_BELLSWITCH && act)
 			{
 				BellTime = 132;
 				BellSprite = act;

@@ -484,6 +484,101 @@ void FMapInfoParser::ParseBreakCeiling()
 //
 //==========================================================================
 
+void FMapInfoParser::ParseSwitches()
+{
+
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		SwitchDef sd{};
+		if (switches.Size() == 0) switches.Push(sd); // entry 0 is a non-switch
+		sc.MustGetString();
+		static const char* types[] = { "switch", "comboswitch", "multiswitch", "accessswitch", nullptr };
+		int type = sc.MatchString(types);
+		int count = type == 2 ? 4 : 2;
+		sd.type = type + 1;
+
+		bool more = false;
+		int state = 0;
+		ParseAssign();
+		for (int i = 0; i < count; i++)
+		{
+		next:
+			sc.MustGetString();
+			auto thisframe = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+			if (!thisframe.isValid())
+			{
+				sc.ScriptMessage("Unknown texture '%s' in switch definition", sc.String);
+			}
+			sd.states[state++] = thisframe;
+			if (!sc.CheckString(","))
+			{
+				more = false;
+				if (i < count - 1)
+				{
+					sc.ScriptMessage("Insufficient arguments in switch definition");
+					goto next;
+				}
+			}
+			else more = true;
+		}
+		if (more)
+		{
+			do
+			{
+				sc.MustGetString();
+				if (more)
+				{
+					// check if this is a sound
+					auto sound = S_FindSound(sc.String);
+					if (sound == NO_SOUND) more = false;
+					sd.soundid = sound;
+				}
+				if (!more)
+				{
+					if (sc.Compare("shootable"))
+					{
+						sd.flags |= SwitchDef::shootable;
+					}
+					else if (sc.Compare("oneway"))
+					{
+						sd.flags |= SwitchDef::oneway;
+					}
+					else if (sc.Compare("resettable"))
+					{
+						sd.flags |= SwitchDef::resettable;
+					}
+					else if (sc.Compare("nofilter"))
+					{
+						sd.flags |= SwitchDef::nofilter;
+					}
+					else
+					{
+						sc.ScriptMessage("%s: Unknown switch flag ", sc.String);
+					}
+				}
+				more = false;
+			} while (sc.CheckString(","));
+		}
+		unsigned ndx = switches.Push(sd);
+		if (sd.flags & SwitchDef::oneway)
+		{
+			count = 1;
+		}
+		for (int i = 0; i < count; i++)
+		{
+			AccessExtInfo(sd.states[i]).switchindex = ndx;
+			AccessExtInfo(sd.states[i]).switchphase = i;
+		}
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void FMapInfoParser::ParseTextureFlags()
 {
 	int num = -1;
@@ -1620,6 +1715,10 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		else if (sc.Compare("breakceiling"))
 		{
 			ParseBreakCeiling();
+		}
+		else if (sc.Compare("switches"))
+		{
+			ParseSwitches();
 		}
 		else if (sc.Compare("textureflags"))
 		{

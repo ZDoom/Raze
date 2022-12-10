@@ -498,6 +498,7 @@ struct spritetypebase
 	}
 
 	const FTextureID spritetexture() const;
+	void setspritetexture(FTextureID tex);
 };
 
 

@@ -81,7 +81,7 @@ $conreserve LN_BNCH      72
 $conreserve GBELEV02     73
 $conreserve FROG1        74
 $conreserve TRUCK_LP     75
-$conreserve SWITCH1      76
+$conreserve SWITCH_ON      76
 $conreserve E1L3         77
 $conreserve LN_HOTDM     78
 $conreserve FLUSH        79

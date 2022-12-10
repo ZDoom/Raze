@@ -29,6 +29,12 @@ inline const FTextureID spritetypebase::spritetexture() const
 	return tileGetTextureID(picnum);
 }
 
+inline void spritetypebase::setspritetexture(FTextureID tex)
+{
+	picnum = legacyTileNum(tex);
+}
+
+
 inline void walltype::setwalltexture(FTextureID tex)
 {
 	wallpicnum = legacyTileNum(tex);
