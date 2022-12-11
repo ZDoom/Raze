@@ -505,7 +505,7 @@ void FMapInfoParser::ParseSwitches()
 		{
 		next:
 			sc.MustGetString();
-			auto thisframe = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+			auto thisframe = TexMan.CheckForTexture(sc.String, ETextureType::Any, texlookupflags);
 			if (!thisframe.isValid())
 			{
 				sc.ScriptMessage("Unknown texture '%s' in switch definition", sc.String);
