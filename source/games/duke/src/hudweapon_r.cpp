@@ -39,22 +39,22 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle, int scale = 32768)
+inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle, int scale = 32768)
 {
 	hud_drawsprite(x, y, scale, angle.Buildfang(), tilenum, shade, p, 2 | orientation);
 }
 
-inline static void rdmyospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle)
+inline static void rdmyospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
 {
 	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 36700);
 }
 
-inline static void rd2myospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle)
+inline static void rd2myospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
 {
 	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 44040);
 }
 
-inline static void rd3myospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle)
+inline static void rd3myospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
 {
 	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 47040);
 }
@@ -107,11 +107,7 @@ inline static void ShowBoat(double x, double y, int tilenum, int shade, int orie
 
 void displayweapon_r(int snum, double interpfrac)
 {
-	int cw;
-	int j;
-	double weapon_sway, weapon_xoffset, gun_pos, hard_landing, TiltStatus;
-	int pal;
-	int8_t shade;
+	double weapon_sway, gun_pos, hard_landing, TiltStatus;
 
 	auto p = &ps[snum];
 	auto kb = &p->kickback_pic;
@@ -134,40 +130,22 @@ void displayweapon_r(int snum, double interpfrac)
 	}
 
 	hard_landing *= 8.;
-
-	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);
-	gun_pos -= hard_landing;
+	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16) + hard_landing;
 
 	auto offpair = p->Angles.getWeaponOffsets(interpfrac);
 	auto offsets = offpair.first;
 	auto angle = -offpair.second;
+	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;
+	auto shade = min(p->insector() && p->cursector->shadedsector == 1 ? 16 : p->GetActor()->spr.shade, 24);
+	auto pal = !p->insector()? 0 : p->GetActor()->spr.pal == 1? 1 : p->cursector->floorpal;
+	auto cw = p->last_weapon >= 0 ? p->last_weapon : p->curr_weapon;
 
-	weapon_xoffset = (160)-90;
-	weapon_xoffset -= BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.);
-	weapon_xoffset -= 58 + p->weapon_ang;
-
-	if (p->insector() && p->cursector->shadedsector == 1)
-		shade = 16;
-	else
-		shade = p->GetActor()->spr.shade;
-	if(shade > 24) shade = 24;
-
-	pal = !p->insector()? 0 : p->GetActor()->spr.pal == 1? 1 : p->cursector->floorpal;
-
-	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
+	if (p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
 		return;
 
-	if(p->last_weapon >= 0)
-		cw = p->last_weapon;
-	else cw = p->curr_weapon;
-
-	j = 14-p->quick_kick;
-	if(j != 14)
+	if ((14 - p->quick_kick) != 14)
 	{
-		if(p->GetActor()->spr.pal == 1)
-			pal = 1;
-		else
-			pal = p->palookup;
+		pal = p->GetActor()->spr.pal == 1 ? 1 : p->palookup;
 	}
 
 	if (p->OnMotorcycle)
