@@ -174,6 +174,8 @@ bool checkaccessswitch_r(int snum, int switchpal, DDukeActor* act, walltype* wwa
 //
 //---------------------------------------------------------------------------
 void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v);
+void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
+
 bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 {
 	uint8_t switchpal;
@@ -230,100 +232,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		break;
 	}
 
-
-	DukeStatIterator it(STAT_DEFAULT);
-	while (auto other = it.Next())
-	{
-		if (lotag == other->spr.lotag) switch (other->spr.picnum)
-		{
-		case RTILE_DIPSWITCH:
-		case RTILE_TECHSWITCH:
-		case RTILE_ALIENSWITCH:
-			if (act && act == other) other->spr.picnum++;
-			else if (other->spr.hitag == 0) correctdips++;
-			numdips++;
-			break;
-		case RTILE_TECHSWITCHON:
-		case RTILE_DIPSWITCHON:
-		case RTILE_ALIENSWITCHON:
-			if (act && act == other) other->spr.picnum--;
-			else if (other->spr.hitag == 1) correctdips++;
-			numdips++;
-			break;
-		case RTILE_MULTISWITCH:
-		case RTILE_MULTISWITCH_2:
-		case RTILE_MULTISWITCH_3:
-		case RTILE_MULTISWITCH_4:
-			other->spr.picnum++;
-			if (other->spr.picnum > (RTILE_MULTISWITCH_4))
-				other->spr.picnum = RTILE_MULTISWITCH;
-			break;
-		case RTILE_MULTISWITCH2:
-		case RTILE_MULTISWITCH2_2:
-		case RTILE_MULTISWITCH2_3:
-		case RTILE_MULTISWITCH2_4:
-			if (!isRRRA()) break;
-			other->spr.picnum++;
-			if (other->spr.picnum > (RTILE_MULTISWITCH2_4))
-				other->spr.picnum = RTILE_MULTISWITCH2;
-			break;
-
-		case RTILE_CONTESTSWITCH:
-			other->spr.picnum++;
-			break;
-		case RTILE_BELLSWITCH:
-			if (!isRRRA()) break;
-			[[fallthrough]];
-		case RTILE_ACCESSSWITCH:
-		case RTILE_ACCESSSWITCH2:
-		case RTILE_SLOTDOOR:
-		case RTILE_LIGHTSWITCH:
-		case RTILE_SPACELIGHTSWITCH:
-		case RTILE_SPACEDOORSWITCH:
-		case RTILE_FRANKENSTINESWITCH:
-		case RTILE_LIGHTSWITCH2:
-		case RTILE_POWERSWITCH1:
-		case RTILE_LOCKSWITCH1:
-		case RTILE_POWERSWITCH2:
-		case RTILE_HANDSWITCH:
-		case RTILE_PULLSWITCH:
-		case RTILE_DIPSWITCH2:
-		case RTILE_DIPSWITCH3:
-		case RTILE_ALERTSWITCH:
-		case RTILE_HANDLESWITCH:
-			if (other->spr.picnum == RTILE_DIPSWITCH3)
-				if (other->spr.hitag == 999)
-				{
-					DukeStatIterator it1(STAT_LUMBERMILL);
-					while (auto other2 = it1.Next())
-					{
-						CallOnUse(other2, nullptr);
-					}
-					other->spr.picnum++;
-					break;
-				}
-			other->spr.picnum++;
-			break;
-		case RTILE_PULLSWITCHON:
-		case RTILE_HANDSWITCHON:
-		case RTILE_LIGHTSWITCH2ON:
-		case RTILE_POWERSWITCH1ON:
-		case RTILE_LOCKSWITCH1ON:
-		case RTILE_POWERSWITCH2ON:
-		case RTILE_SLOTDOORON:
-		case RTILE_LIGHTSWITCHON:
-		case RTILE_SPACELIGHTSWITCHON:
-		case RTILE_SPACEDOORSWITCHON:
-		case RTILE_FRANKENSTINESWITCHON:
-		case RTILE_DIPSWITCH2ON:
-		case RTILE_DIPSWITCH3ON:
-		case RTILE_ALERTSWITCHON:
-		case RTILE_HANDLESWITCHON:
-			if (other->spr.hitag != 999)
-				other->spr.picnum--;
-			break;
-		}
-	}
+	togglespriteswitches(act, ext, lotag, correctdips, numdips);
 
 	for (auto& wal : wall)
 	{

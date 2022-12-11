@@ -203,6 +203,7 @@ bool checkaccessswitch_d(int snum, int switchpal, DDukeActor* act, walltype* wwa
 // how NOT to implement switch animations...
 //
 //---------------------------------------------------------------------------
+void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
 
 bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 {
@@ -260,67 +261,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		break;
 	}
 
-	DukeStatIterator it(STAT_DEFAULT);
-	while (auto other = it.Next())
-	{
-		if (lotag == other->spr.lotag) switch (other->spr.picnum)
-		{
-		case DTILE_DIPSWITCH:
-		case DTILE_TECHSWITCH:
-		case DTILE_ALIENSWITCH:
-			if (act && act == other) other->spr.picnum++;
-			else if (other->spr.hitag == 0) correctdips++;
-			numdips++;
-			break;
-		case DTILE_TECHSWITCHON:
-		case DTILE_DIPSWITCHON:
-		case DTILE_ALIENSWITCHON:
-			if (act && act == other) other->spr.picnum--;
-			else if (other->spr.hitag == 1) correctdips++;
-			numdips++;
-			break;
-		case DTILE_MULTISWITCH:
-		case DTILE_MULTISWITCH_2:
-		case DTILE_MULTISWITCH_3:
-		case DTILE_MULTISWITCH_4:
-			other->spr.picnum++;
-			if (other->spr.picnum > (DTILE_MULTISWITCH_4))
-				other->spr.picnum = DTILE_MULTISWITCH;
-			break;
-		case DTILE_ACCESSSWITCH:
-		case DTILE_ACCESSSWITCH2:
-		case DTILE_SLOTDOOR:
-		case DTILE_LIGHTSWITCH:
-		case DTILE_SPACELIGHTSWITCH:
-		case DTILE_SPACEDOORSWITCH:
-		case DTILE_FRANKENSTINESWITCH:
-		case DTILE_LIGHTSWITCH2:
-		case DTILE_POWERSWITCH1:
-		case DTILE_LOCKSWITCH1:
-		case DTILE_POWERSWITCH2:
-		case DTILE_HANDSWITCH:
-		case DTILE_PULLSWITCH:
-		case DTILE_DIPSWITCH2:
-		case DTILE_DIPSWITCH3:
-			other->spr.picnum++;
-			break;
-		case DTILE_PULLSWITCHON:
-		case DTILE_HANDSWITCHON:
-		case DTILE_LIGHTSWITCH2ON:
-		case DTILE_POWERSWITCH1ON:
-		case DTILE_LOCKSWITCH1ON:
-		case DTILE_POWERSWITCH2ON:
-		case DTILE_SLOTDOORON:
-		case DTILE_LIGHTSWITCHON:
-		case DTILE_SPACELIGHTSWITCHON:
-		case DTILE_SPACEDOORSWITCHON:
-		case DTILE_FRANKENSTINESWITCHON:
-		case DTILE_DIPSWITCH2ON:
-		case DTILE_DIPSWITCH3ON:
-			other->spr.picnum--;
-			break;
-		}
-	}
+	togglespriteswitches(act, ext, lotag, correctdips, numdips);
 
 	for (auto& wal : wall)
 	{

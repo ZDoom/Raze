@@ -1494,4 +1494,63 @@ void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips)
+{
+	auto& swdef = switches[ext.switchindex];
+
+	DukeStatIterator it(STAT_DEFAULT);
+	while (auto other = it.Next())
+	{
+		if (lotag != other->spr.lotag) continue;
+
+		auto& other_ext = GetExtInfo(other->spr.spritetexture());
+		auto& other_swdef = switches[other_ext.switchindex];
+
+		switch (other_swdef.type)
+		{
+		case SwitchDef::Combo:
+			if (other_ext.switchphase == 0)
+			{
+				if (act && act == other) other->spr.setspritetexture(other_swdef.states[1]);
+				else if (other->spr.hitag == 0) correctdips++;
+				numdips++;
+			}
+			else
+			{
+				if (act && act == other) other->spr.setspritetexture(other_swdef.states[0]);
+				else if (other->spr.hitag == 1) correctdips++;
+				numdips++;
+			}
+			break;
+
+		case SwitchDef::Multi:
+			other->spr.setspritetexture(other_swdef.states[(other_ext.switchphase + 1) & 3]);
+			break;
+
+		case SwitchDef::Access:
+		case SwitchDef::Regular:
+			if (other->spr.hitag != 999 || other_ext.switchphase != 1 || !(other_swdef.flags & SwitchDef::resettable))
+			{
+				other->spr.setspritetexture(other_swdef.states[1 - other_ext.switchphase]);
+			}
+			// one of RR's ugly hacks.
+			if (other->spr.hitag == 999 && other_ext.switchphase == 0 && (other_swdef.flags & SwitchDef::resettable))
+			{
+				DukeStatIterator it1(STAT_LUMBERMILL);
+				while (auto other2 = it1.Next())
+				{
+					CallOnUse(other2, nullptr);
+				}
+			}
+			break;
+		}
+	}
+}
+
 END_DUKE_NS
