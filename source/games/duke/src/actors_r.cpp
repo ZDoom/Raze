@@ -1012,24 +1012,6 @@ static void rrra_specialstats()
 
 //---------------------------------------------------------------------------
 //
-// this one's a hack. Can only be replaced with something better when
-// the switch code has been redone.
-//
-//---------------------------------------------------------------------------
-
-void resetswitch(int tag)
-{
-	DukeStatIterator it2(STAT_DEFAULT);
-	while (auto act2 = it2.Next())
-	{
-		if (act2->spr.picnum == RTILE_DIPSWITCH3ON)
-			if (act2->spr.hitag == tag)
-				act2->spr.picnum = RTILE_DIPSWITCH3;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------

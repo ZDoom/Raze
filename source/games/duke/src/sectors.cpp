@@ -1429,7 +1429,28 @@ void moveclouds(double interpfrac)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void resetswitch(int tag)
+{
+	DukeStatIterator it2(STAT_DEFAULT);
+	while (auto act2 = it2.Next())
+	{
+		auto& ext = GetExtInfo(act2->spr.spritetexture());
+		if (ext.switchindex > 0 && ext.switchphase == 1 && act2->spr.hitag == tag)
+		{
+			auto& swdef = switches[ext.switchindex];
+			if (swdef.type == SwitchDef::Regular && swdef.flags & SwitchDef::resettable)
+			{
+				act2->spr.setspritetexture(swdef.states[0]);
+			}
+		}
+	}
+}
 
 
 END_DUKE_NS
