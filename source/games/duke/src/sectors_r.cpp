@@ -173,7 +173,7 @@ bool checkaccessswitch_r(int snum, int switchpal, DDukeActor* act, walltype* wwa
 // 
 //
 //---------------------------------------------------------------------------
-
+void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v);
 bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 {
 	uint8_t switchpal;
@@ -498,50 +498,10 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					return 1;
 				}
 			}
-			else if (hitag == 10000)
+			else if (hitag == 10000 && swdef.type == SwitchDef::Multi)
 			{
-				if (picnum == RTILE_MULTISWITCH || picnum == (RTILE_MULTISWITCH_2) ||
-					picnum == (RTILE_MULTISWITCH_3) || picnum == (RTILE_MULTISWITCH_4) ||
-					picnum == RTILE_MULTISWITCH2 || picnum == (RTILE_MULTISWITCH2_2) ||
-					picnum == (RTILE_MULTISWITCH2_3) || picnum == (RTILE_MULTISWITCH2_4))
-				{
-					DDukeActor* switches[3];
-					int switchcount = 0, j;
-					S_PlaySound3D(SWITCH_ON, act, v);
-					DukeSpriteIterator itr;
-					while (auto actt = itr.Next())
-					{
-						int jpn = actt->spr.picnum;
-						int jht = actt->spr.hitag;
-						if ((jpn == RTILE_MULTISWITCH || jpn == RTILE_MULTISWITCH2) && jht == 10000)
-						{
-							if (switchcount < 3)
-							{
-								switches[switchcount] = actt;
-								switchcount++;
-							}
-						}
-					}
-					if (switchcount == 3)
-					{
-						// This once was a linear search over sprites[] so bring things back in order, just to be safe.
-						if (switches[0]->GetIndex() > switches[1]->GetIndex()) std::swap(switches[0], switches[1]);
-						if (switches[0]->GetIndex() > switches[2]->GetIndex()) std::swap(switches[0], switches[2]);
-						if (switches[1]->GetIndex() > switches[2]->GetIndex()) std::swap(switches[1], switches[2]);
-
-						S_PlaySound3D(78, act, v);
-						for (j = 0; j < switchcount; j++)
-						{
-							switches[j]->spr.hitag = 0;
-							if (picnum >= RTILE_MULTISWITCH2)
-								switches[j]->spr.picnum = RTILE_MULTISWITCH2_4;
-							else
-								switches[j]->spr.picnum = RTILE_MULTISWITCH_4;
-							checkhitswitch_r(snum, nullptr, switches[j]);
-						}
-					}
-					return 1;
-				}
+				tag10000specialswitch(snum, act, v);
+				return 1;
 			}
 		}
 		if (picnum == RTILE_MULTISWITCH || picnum == (RTILE_MULTISWITCH_2) ||

@@ -1452,5 +1452,46 @@ void resetswitch(int tag)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v)
+{
+	DDukeActor* switches[3];
+	int switchcount = 0, j;
+	S_PlaySound3D(SWITCH_ON, act, v);
+	DukeSpriteIterator itr;
+	while (auto actt = itr.Next())
+	{
+		int jht = actt->spr.hitag;
+		auto ext = GetExtInfo(actt->spr.spritetexture());
+		if (jht == 10000 && ext.switchphase == 0 && ::switches[ext.switchindex].type == SwitchDef::Multi)
+		{
+			if (switchcount < 3)
+			{
+				switches[switchcount] = actt;
+				switchcount++;
+			}
+		}
+	}
+	if (switchcount == 3)
+	{
+		// This once was a linear search over sprites[] so bring things back in order, just to be safe.
+		if (switches[0]->GetIndex() > switches[1]->GetIndex()) std::swap(switches[0], switches[1]);
+		if (switches[0]->GetIndex() > switches[2]->GetIndex()) std::swap(switches[0], switches[2]);
+		if (switches[1]->GetIndex() > switches[2]->GetIndex()) std::swap(switches[1], switches[2]);
+
+		S_PlaySound3D(78, act, v);
+		for (j = 0; j < switchcount; j++)
+		{
+			switches[j]->spr.hitag = 0;
+			switches[j]->spr.setspritetexture(::switches[GetExtInfo(switches[j]->spr.spritetexture()).switchindex].states[3]);
+			fi.checkhitswitch(snum, nullptr, switches[j]);
+		}
+	}
+}
 
 END_DUKE_NS
