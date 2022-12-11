@@ -1648,9 +1648,7 @@ OptionValue PreferBackend
 {
 	0, "$OPTVAL_OPENGL"
 	1, "$OPTVAL_VULKAN"
-	// Enable when HAVE_SOFTPOLY will be defined
-	//2, "$OPTVAL_SOFTPOLY"
-	3, "$OPTVAL_OPENGLES"
+	2, "$OPTVAL_OPENGLES"
 }
 
 OptionMenu VideoModeMenu protected
