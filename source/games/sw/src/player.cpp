@@ -6026,7 +6026,6 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
 		plActor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
         plActor->user.ID = NINJA_RUN_R0;
-        PlayerDeathReset(pp);
 
         if (pp == Player + screenpeek)
         {
@@ -6040,6 +6039,8 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
 
         if (numplayers > 1)
         {
+            PlayerDeathReset(pp);
+
             // need to call this routine BEFORE resetting DEATH flag
             DoPlayerBeginRun(pp);
         }
