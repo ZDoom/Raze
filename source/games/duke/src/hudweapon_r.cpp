@@ -796,32 +796,29 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaysaw = [&]
 		{
-			weapon_xoffset += 28;
-			looking_arc += 18;
+			offsets.X += weapon_xoffset + 28;
+			offsets.Y -= gun_pos - 18;
+
 			if ((*kb) == 0)
 			{
-				rd2myospal(weapon_xoffset + 188 - look_anghalf,
-					looking_arc + 240 - gun_pos, RTILE_SHRINKER, shade, o, pal);
+				rd2myospal(188 + offsets.X, 240 + offsets.Y, RTILE_SHRINKER, shade, o, pal, angle);
 			}
 			else
 			{
 				if (p->GetActor()->spr.pal != 1)
 				{
-					weapon_xoffset += rand() & 3;
-					gun_pos += (rand() & 3);
+					offsets.X += rand() & 3;
+					offsets.Y -= rand() & 3;
 				}
 
 				if (cw == BUZZSAW_WEAPON)
 				{
-					rd2myospal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, RTILE_GROWSPARK + ((*kb) & 2), shade, o, 0);
+					rd2myospal(184 + offsets.X, 240 + offsets.Y, RTILE_GROWSPARK + ((*kb) & 2), shade, o, 0, angle);
 				}
 				else
 				{
 					static const int8_t kb_frames[] = { 1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0 };
-					int frm = kb_frames[*kb];
-					rd2myospal(weapon_xoffset + 184 - look_anghalf,
-						looking_arc + 240 - gun_pos, RTILE_SHRINKER + frm, shade, o, 0);
+					rd2myospal(184 + offsets.X, 240 + offsets.Y, RTILE_SHRINKER + kb_frames[*kb], shade, o, 0, angle);
 				}
 			}
 		};
