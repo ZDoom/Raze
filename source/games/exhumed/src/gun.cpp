@@ -967,7 +967,7 @@ void DrawWeapons(double interpfrac)
 
         if (cl_hudinterpolation)
         {
-            nBobAngle = interpolatedvalue<double>(obobangle, bobangle, interpfrac) * BAngToDegree;
+            nBobAngle = interpolatedvalue<double>(obobangle, bobangle, interpfrac);
             nVal = interpolatedvalue<double>(PlayerList[nLocalPlayer].ototalvel, PlayerList[nLocalPlayer].totalvel, interpfrac);
         }
         else
@@ -976,11 +976,11 @@ void DrawWeapons(double interpfrac)
             nVal = PlayerList[nLocalPlayer].totalvel;
         }
 
-        yOffset = nVal * fabs(g_sindeg(nBobAngle)) * (1. / 16.);
+        yOffset = nVal * fabs(BobVal(nBobAngle)) * (1. / 16.);
 
         if (var_34 == 1)
         {
-            xOffset = nVal * g_cosdeg(nBobAngle) * (1. / 8.);
+            xOffset = nVal * BobVal(nBobAngle + 512) * (1. / 8.);
         }
     }
     else

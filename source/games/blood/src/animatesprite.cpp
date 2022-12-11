@@ -529,7 +529,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 	PLAYER* pPlayer = &gPlayer[gViewIndex];
 	int nViewSprites = tsprites.Size();
 	// shift before interpolating to increase precision.
-	DAngle myclock = DAngle::fromDeg(((PlayClock << 3) + (4 << 3) * interpfrac) * BAngToDegree);
+	DAngle myclock = DAngle::fromBuild((PlayClock << 3) + (4 << 3) * interpfrac);
 	gCameraAng = cA;
 	for (int nTSprite = int(tsprites.Size()) - 1; nTSprite >= 0; nTSprite--)
 	{

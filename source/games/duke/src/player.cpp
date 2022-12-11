@@ -730,17 +730,19 @@ void player_struct::apply_seasick()
 	{
 		if (SeaSick < 250)
 		{
+			static constexpr DAngle adjustment = DAngle::fromDeg(4.21875);
+
 			if (SeaSick >= 180)
-				Angles.ViewAngles.Roll -= DAngle::fromDeg(24 * BAngToDegree);
+				Angles.ViewAngles.Roll -= adjustment;
 			else if (SeaSick >= 130)
-				Angles.ViewAngles.Roll += DAngle::fromDeg(24 * BAngToDegree);
+				Angles.ViewAngles.Roll += adjustment;
 			else if (SeaSick >= 70)
-				Angles.ViewAngles.Roll -= DAngle::fromDeg(24 * BAngToDegree);
+				Angles.ViewAngles.Roll -= adjustment;
 			else if (SeaSick >= 20)
-				Angles.ViewAngles.Roll += DAngle::fromDeg(24 * BAngToDegree);
+				Angles.ViewAngles.Roll += adjustment;
 		}
 		if (SeaSick < 250)
-			Angles.ViewAngles.Yaw = DAngle::fromDeg(((krand() & 255) - 128) * BAngToDegree);
+			Angles.ViewAngles.Yaw = DAngle::fromDeg(krandf(45) - 22.5);
 	}
 }
 

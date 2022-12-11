@@ -555,7 +555,7 @@ static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 //
 //---------------------------------------------------------------------------
 
-static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool const kbdLeft, bool const kbdRight, double const factor)
+static FAngle motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool const kbdLeft, bool const kbdRight, double const factor)
 {
 	double turnvel = 0;
 	p->oTiltStatus = p->TiltStatus;
@@ -636,7 +636,7 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 	if (fabs(p->TiltStatus) < factor)
 		p->TiltStatus = 0;
 
-	return turnvel * factor;
+	return FAngle::fromBuild(turnvel * factor);
 }
 
 //---------------------------------------------------------------------------
@@ -645,7 +645,7 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 //
 //---------------------------------------------------------------------------
 
-static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool const kbdLeft, bool const kbdRight, double const factor)
+static FAngle boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool const kbdLeft, bool const kbdRight, double const factor)
 {
 	double turnvel = 0;
 	p->oTiltStatus = p->TiltStatus;
@@ -722,7 +722,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 	if (fabs(p->TiltStatus) < factor)
 		p->TiltStatus = 0;
 
-	return turnvel * factor;
+	return FAngle::fromBuild(turnvel * factor);
 }
 
 //---------------------------------------------------------------------------
@@ -751,16 +751,15 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 	if (p->OnMotorcycle)
 	{
-		input.avel = (float)motoApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
+		input.avel = motoApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust).Degrees();
 		if (p->moto_underwater) p->MotoSpeed = 0;
 	}
 	else
 	{
-		input.avel = (float)boatApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
+		input.avel = boatApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust).Degrees();
 	}
 
 	loc.fvel = clamp<float>((float)p->MotoSpeed, -(MAXVELMOTO >> 3), MAXVELMOTO) * (1.f / 40.f);
-	input.avel *= BAngToDegree;
 	loc.avel += input.avel;
 }
 

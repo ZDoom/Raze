@@ -87,15 +87,15 @@ void displaymasks_r(int snum, int p, double interpfrac)
 //
 //---------------------------------------------------------------------------
 
-inline static void ShowMotorcycle(double x, double y, int tilenum, int shade, int orientation, int p, double a)
+inline static void ShowMotorcycle(double x, double y, int tilenum, int shade, int orientation, int p, DAngle a)
 {
-	hud_drawsprite(x, y, 34816, a * -BAngToDegree, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 34816, a.Degrees(), tilenum, shade, p, 2 | orientation);
 }
 
 
-inline static void ShowBoat(double x, double y, int tilenum, int shade, int orientation, int p, double a)
+inline static void ShowBoat(double x, double y, int tilenum, int shade, int orientation, int p, DAngle a)
 {
-	hud_drawsprite(x, y, 66048, a * -BAngToDegree, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 66048, a.Degrees(), tilenum, shade, p, 2 | orientation);
 }
 
 
@@ -150,6 +150,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 	if (p->OnMotorcycle)
 	{
+		angle = DAngle::fromBuild(-TiltStatus);
 		int temp_kb;
 		if (numplayers == 1)
 		{
@@ -198,11 +199,12 @@ void displayweapon_r(int snum, double interpfrac)
 				temp_kb = RTILE_MOTOHIT;
 		}
 
-		ShowMotorcycle(160 + offsets.X, 174, temp_kb, shade, 0, pal, TiltStatus*5);
+		ShowMotorcycle(160 + offsets.X, 174, temp_kb, shade, 0, pal, angle * 5);
 		return;
 	}
 	if (p->OnBoat)
 	{
+		angle = DAngle::fromBuild(-TiltStatus);
 		int temp2, temp_kb, temp3;
 		temp2 = 0;
 		if (TiltStatus > 0)
@@ -265,7 +267,7 @@ void displayweapon_r(int snum, double interpfrac)
 		if (temp2)
 			shade = -96;
 
-		ShowBoat(160 + offsets.X, temp3, temp_kb, shade, 0, pal, TiltStatus);
+		ShowBoat(160 + offsets.X, temp3, temp_kb, shade, 0, pal, angle);
 		return;
 	}
 

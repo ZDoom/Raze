@@ -210,8 +210,6 @@ enum
 };
 
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
-constexpr double BAngToDegree = 360. / 2048.;
-constexpr DAngle DAngleBuildToDeg = DAngle::fromDeg(BAngToDegree);
 
 //---------------------------------------------------------------------------
 //
