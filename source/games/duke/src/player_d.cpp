@@ -140,91 +140,6 @@ static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
 //
 //---------------------------------------------------------------------------
 
-static void shootflamethrowerflame(DDukeActor* actor, int p, DVector3 spos, DAngle sang)
-{
-	double vel, zvel = 0;
-
-	if (actor->spr.extra >= 0)
-		actor->spr.shade = -96;
-	vel = 25;
-
-	DDukeActor* spawned = nullptr;
-	if (p < 0)
-	{
-		double x;
-		int j = findplayer(actor, &x);
-		sang = (ps[j].GetActor()->opos.XY() - spos.XY()).Angle();
-
-		if (actor->spr.picnum == DTILE_BOSS5)
-		{
-			vel = 33;
-			spos.Z += 24;
-		}
-		else if (actor->spr.picnum == DTILE_BOSS3)
-			spos.Z -= 32;
-
-		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		if (dist != 0)
-			zvel = (((ps[j].GetActor()->getPrevOffsetZ() - spos.Z) * vel) / dist);
-
-		if (badguy(actor) && (actor->spr.hitag & face_player_smart) != 0)
-			sang = actor->spr.Angles.Yaw + mapangle((krand() & 31) - 16);
-
-		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
-			spawned = spawn(actor, DTILE_WATERBUBBLE);
-	}
-	else
-	{
-		setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 40.5);
-		
-		// WTF???
-		DAngle myang = DAngle90 - (DAngle180 - abs(abs((spos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle() - sang) - DAngle180));
-		if (ps[p].GetActor()->vel.X != 0)
-			vel = ((myang / DAngle90) * ps[p].GetActor()->vel.X) + 25;
-		if (actor->sector()->lotag == 2 && (krand() % 5) == 0)
-			spawned = spawn(actor, DTILE_WATERBUBBLE);
-	}
-
-	if (spawned == nullptr)
-	{
-		spawned = spawn(actor, DTILE_FLAMETHROWERFLAME);
-		if (!spawned) return;
-		spawned->vel.X = vel;
-		spawned->vel.Z = zvel;
-	}
-
-
-	DVector3 offset;
-	offset.X = (sang + DAngle::fromBuild(118)).Cos() * (1024 / 448.); // Yes, these angles are really different!
-	offset.Y = (sang + DAngle::fromBuild(112)).Sin() * (1024 / 448.);
-	offset.Z = -1;
-
-	spawned->spr.pos = spos + offset;
-	spawned->spr.pos.Z--;
-	spawned->setsector(actor->sector());
-	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-	spawned->spr.Angles.Yaw = sang;
-	spawned->spr.scale = DVector2(0.03125, 0.03125);
-	spawned->clipdist = 10;
-	spawned->spr.yint = p;
-	spawned->SetOwner(actor);
-
-	if (p == -1)
-	{
-		if (actor->spr.picnum == DTILE_BOSS5)
-		{
-			spawned->spr.pos += sang.ToVector() * (128. / 7);
-			spawned->spr.scale = DVector2(0.15625, 0.15625);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 {
 	auto sectp = actor->sector();
@@ -1072,10 +987,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 		{
 		case DTILE_FIREBALL:
 			shootfireball(actor, p, spos, sang);
-			return;
-
-		case DTILE_FLAMETHROWERFLAME:
-			shootflamethrowerflame(actor, p, spos, sang);
 			return;
 
 		case DTILE_FIREFLY: // DTILE_BOSS5 shot

@@ -991,138 +991,6 @@ void movetransports_d(void)
 //
 //---------------------------------------------------------------------------
 
-static void flamethrowerflame(DDukeActor *actor)
-{
-	auto sectp = actor->sector();
-	double xx;
-	int p = findplayer(actor, &xx);
-	execute(actor, p, xx);
-	if (actor->ObjectFlags & OF_EuthanizeMe) return;	// killed by script.
-	actor->temp_data[0]++;
-	if (sectp->lotag == 2)
-	{
-		spawn(actor, DTILE_EXPLOSION2)->spr.shade = 127;
-		actor->Destroy();
-		return;
-	}
-
-	auto dapos = actor->spr.pos;
-
-	getglobalz(actor);
-
-	int ds = actor->temp_data[0] / 6;
-	if (actor->spr.scale.X < 0.1250)
-	{
-		actor->spr.scale.X += (ds * REPEAT_SCALE);
-		actor->spr.scale.Y = (actor->spr.scale.X);
-	}
-	actor->clipdist += ds * 0.25;
-	if (actor->temp_data[0] <= 2)
-		actor->temp_data[3] = krand() % 10;
-	if (actor->temp_data[0] > 30) 
-	{
-		spawn(actor, DTILE_EXPLOSION2)->spr.shade = 127;
-		actor->Destroy();
-		return;
-	}
-
-	Collision coll;
-	movesprite_ex(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, actor->vel.Z), CLIPMASK1, coll);
-
-	if (!actor->insector())
-	{
-		actor->Destroy();
-		return;
-	}
-
-	if (coll.type != kHitSprite)
-	{
-		if (actor->spr.pos.Z < actor->ceilingz)
-		{
-			coll.setSector(actor->sector());
-			actor->vel.Z -= 1/256.;
-		}
-		else if ((actor->spr.pos.Z > actor->floorz && actor->sector()->lotag != 1)
-			|| (actor->spr.pos.Z > actor->floorz + 16 && actor->sector()->lotag == 1))
-		{
-			coll.setSector(actor->sector());
-			if (actor->sector()->lotag != 1)
-				actor->vel.Z += 1/256.;
-		}
-	}
-
-	if (coll.type != 0) {
-		actor->vel.XY().Zero();
-		actor->vel.Z = 0;
-		if (coll.type == kHitSprite)
-		{
-			fi.checkhitsprite(coll.actor(), actor);
-			if (coll.actor()->isPlayer())
-				S_PlayActorSound(PISTOL_BODYHIT, coll.actor());
-		}
-		else if (coll.type == kHitWall)
-		{
-			SetActor(actor, dapos);
-			checkhitwall(actor, coll.hitWall, actor->spr.pos);
-		}
-		else if (coll.type == kHitSector)
-		{
-			SetActor(actor, dapos);
-			if (actor->vel.Z < 0)
-				checkhitceiling(actor->sector());
-		}
-
-		if (actor->spr.scale.X >= 0.15625)
-		{
-			int x = actor->spr.extra;
-			fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
-		}
-		else
-		{
-			int x = actor->spr.extra + (global_random & 3);
-			fi.hitradius(actor, (gs.rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
-		}
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void moveactors_d(void)
-{
-	DukeStatIterator it(STAT_ACTOR);
-	while (auto act = it.Next())
-	{
-		if (act->spr.scale.X == 0 || act->spr.sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
-		{ 
-			act->Destroy();
-		}
-		else if (monsterCheatCheck(act) && badguy(act))
-		{
-			continue;
-		}
-		else if (isWorldTour() && act->spr.picnum == DTILE_FLAMETHROWERFLAME)
-		{
-			flamethrowerflame(act);
-		}
-		else
-		{
-			CallTick(act);
-		}
-	}
-
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 static void fireflyflyingeffect(DDukeActor *actor)
 {
 	double xx;
@@ -1745,7 +1613,7 @@ void think_d(void)
 
 	actortime.Reset();
 	actortime.Clock();
-	moveactors_d();			//ST 1
+	tickstat(STAT_ACTOR);			//ST 1
 	actortime.Unclock();
 
 	moveeffectors_d();		//ST 3

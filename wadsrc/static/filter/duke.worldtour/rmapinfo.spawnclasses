@@ -5,4 +5,5 @@ spawnclasses
 	5736 = DukeGenericDestructible, "WTGLASS1", "", "GLASS_BREAKING", spawnglass
 	5737 = DukeGenericDestructible, "WTGLASS2", "", "GLASS_BREAKING", spawnglass
 	5294 = DeveloperCommentary
+	1891 = DukeFlamethrowerFlame
 }

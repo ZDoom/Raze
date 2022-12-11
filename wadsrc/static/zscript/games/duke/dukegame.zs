@@ -170,6 +170,7 @@ struct Duke native
 	native static void updatepindisplay(int tag, int pinmask);
 	native static bool StartCommentary(int tag, DukeActor act);
 	native static void StopCommentary();
+	static native int getPlayerIndex(DukePlayer p);
 	static int rnd(int val)
 	{
 		return (random(0, 255) >= (255 - (val)));
@@ -216,6 +217,7 @@ struct Duke native
 		if (align != -1) x -= myfont.StringWidth(t) * (align == 0 ? 0.5 : 1);
 		Screen.DrawText(myfont, Font.CR_NATIVEPAL, x, y + 2, t, DTA_FullscreenScale, fsmode, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, trans), DTA_Color, Raze.shadeToLight(shade));
 	}
+
 }
 
 struct DukePlayer native

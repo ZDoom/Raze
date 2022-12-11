@@ -115,6 +115,28 @@ class DukeActor : CoreActor native
 		STAT_REMOVED		= MAXSTATUS-2,
 
 	};
+
+	enum amoveflags_t
+	{
+		face_player       = 1,
+		geth              = 2,
+		getv              = 4,
+		random_angle      = 8,
+		face_player_slow  = 16,
+		spin              = 32,
+		face_player_smart = 64,
+		fleeenemy         = 128,
+		jumptoplayer_only = 256,
+		justjump1 = 256,
+		jumptoplayer      = 257,
+		seekplayer        = 512,
+		furthestdir       = 1024,
+		dodgebullet       = 4096,
+		justjump2         = 8192,
+		windang           = 16384,
+		antifaceplayerslow = 32768
+	};
+
 	
 	native void SetSpritesetImage(int index);
 	native int GetSpritesetSize();

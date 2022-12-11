@@ -577,9 +577,11 @@ void tickstat(int stat, bool deleteinvalid)
 		if (actorflag(act, SFLAG2_DIENOW) || act->sector() == nullptr || (deleteinvalid && act->spr.scale.X == 0))
 		{
 			act->Destroy();
-			continue;
 		}
-		CallTick(act);
+		else if (stat != STAT_ACTOR || !badguy(act) || !monsterCheatCheck(act))
+		{
+			CallTick(act);
+		}
 	}
 }
 

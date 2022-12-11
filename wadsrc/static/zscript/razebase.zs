@@ -264,6 +264,11 @@ struct Raze
 		// Right now, with no MP support there is no need, though.
 	}
 	
+	static double, double setFreeAimVelocity(double vel, double zvel, double pitch, double zvspeed)
+	{
+		return vel * cos(pitch), sin(pitch) * zvspeed;
+	}
+	
 }
 
 /*

@@ -212,6 +212,20 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, StopCommentary, StopCommentary)
 	return 0;
 }
 
+int getPlayerIndex(player_struct* p)
+{
+	if (!p) return -1;
+	return int(p - ps);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getPlayerIndex, getPlayerIndex)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(p, player_struct);
+	ACTION_RETURN_INT(getPlayerIndex(p));
+	return 0;
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 

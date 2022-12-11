@@ -57,6 +57,7 @@ class CoreActor native
 	native double pitch;
 	native Vector3 vel;
 	native double viewzoffset;
+	native double oviewzoffset;
 
 	native readonly int16 spritesetindex;
 	native readonly int spawnindex;

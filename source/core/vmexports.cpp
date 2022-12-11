@@ -822,6 +822,7 @@ DEFINE_FIELD_NAMED(DCoreActor, spr.Angles.Yaw, angle)
 DEFINE_FIELD_NAMED(DCoreActor, spr.Angles.Pitch, pitch)
 DEFINE_FIELD(DCoreActor, vel)
 DEFINE_FIELD(DCoreActor, viewzoffset)
+DEFINE_FIELD(DCoreActor, oviewzoffset)
 DEFINE_FIELD(DCoreActor, opos)
 
 void coreactor_setpos(DCoreActor* self, double x, double y, double z, int relink)
