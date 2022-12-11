@@ -299,7 +299,11 @@ static FImageSource* GetTileImage(const TArray<uint8_t>& backingstore, uint32_t 
 	void* mem = nullptr;
 	if (freelist.Size() > 0) freelist.Pop(mem);
 	// recycle discarded image sources if available. They are all the same type so this is safe.
-	if (mem) tex = new(mem) FArtTile(backingstore, offset, width, height);
+	if (mem)
+	{
+		memset(mem, 0, sizeof(FArtTile));
+		tex = new(mem) FArtTile(backingstore, offset, width, height);
+	}
 	else tex = new FArtTile(backingstore, offset, width, height);
 	auto p = &backingstore[offset];
 	auto siz = width * height;
@@ -361,7 +365,10 @@ static void GetImagesFromFile(TArray<FImageSource*>& array, TArray<unsigned>& pi
 			if (array[i] && i < oldsize)
 			{
 				array[i]->~FImageSource();	// really a no-op but let's stay on the safe side.
+#if 0
+				// recycling items causes corruption so disable for now and revisit later.
 				freelist.Push(array[i]);
+#endif
 			}
 			array[i] = nullptr;
 			continue;
