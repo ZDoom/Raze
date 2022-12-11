@@ -28,6 +28,16 @@ BitArray clipsectormap;
 
 int32_t quickloadboard=0;
 
+static inline int bsin(const int ang)
+{
+    return int(g_sinbam(ang * (1 << 21)) * 16384);
+}
+
+static inline int bcos(const int ang)
+{
+    return int(g_cosbam(ang * (1 << 21)) * 16384);
+}
+
 ////////// CLIPMOVE //////////
 inline uint8_t bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 

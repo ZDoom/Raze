@@ -1675,7 +1675,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
 		velAdjustment = p->vehTurnLeft ? -adjust : adjust;
-		auto angAdjustment = (velAdjustment > nullAngle ? 350 : -350) << BAMBITS;
+		auto angAdjustment = velAdjustment > nullAngle ? 734003200 : -734003200;
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
 		{
@@ -1712,7 +1712,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		}
 
 		p->vel.XY() += (p->GetActor()->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
-		p->GetActor()->spr.Angles.Yaw += deltaangle(p->GetActor()->spr.Angles.Yaw, p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment));
+		p->GetActor()->spr.Angles.Yaw = (p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment)).Normalized360();
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
@@ -1942,7 +1942,7 @@ static void onBoat(int snum, ESyncBits &actions)
 
 		int currSpeed = int(p->MotoSpeed * 4.);
 		DAngle velAdjustment = p->vehTurnLeft ? -adjust : adjust;
-		auto angAdjustment = (velAdjustment > nullAngle ? 350 : -350) << BAMBITS;
+		auto angAdjustment = velAdjustment > nullAngle ? 734003200 : -734003200;
 
 		if (p->moto_do_bump)
 		{
@@ -1956,7 +1956,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 
 		p->vel.XY() += (p->GetActor()->spr.Angles.Yaw + velAdjustment).ToVector() * currSpeed;
-		p->GetActor()->spr.Angles.Yaw += deltaangle(p->GetActor()->spr.Angles.Yaw, p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment));
+		p->GetActor()->spr.Angles.Yaw = (p->GetActor()->spr.Angles.Yaw - DAngle::fromBam(angAdjustment)).Normalized360();
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
