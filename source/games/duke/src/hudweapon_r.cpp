@@ -702,9 +702,10 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaydynamite = [&]
 		{
-			gun_pos -= 9 * (*kb);
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos - 9 * (*kb);
 
-			rdmyospal(weapon_xoffset + 190 - look_anghalf, looking_arc + 260 - gun_pos, RTILE_HANDTHROW, shade, o, pal);
+			rdmyospal(190 + offsets.X, 260 + offsets.Y, RTILE_HANDTHROW, shade, o, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
