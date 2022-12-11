@@ -775,7 +775,7 @@ static TArray<GrpEntry> SetupGame()
 			{
 				for (unsigned i = 0; i < groups.Size(); ++i)
 				{
-					FString& basename = groups[i].FileName;
+					FString& basename = groups[i].FileInfo.name;
 					if (stricmp(basename, defaultiwad) == 0)
 					{
 						pick = i;
@@ -808,7 +808,7 @@ static TArray<GrpEntry> SetupGame()
 					autoloadbrightmaps = !!(flags & 4);
 					autoloadwidescreen = !!(flags & 8);
 					// The newly selected IWAD becomes the new default
-					defaultiwad = groups[pick].FileName;
+					defaultiwad = groups[pick].FileInfo.name;
 				}
 				groupno = pick;
 			}
