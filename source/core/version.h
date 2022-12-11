@@ -41,7 +41,7 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "1.5pre"
+#define VERSIONSTR "1.6pre"
 
 // The version as seen in the Windows resource
 #define RC_FILEVERSION 1,5,9999,0
@@ -71,15 +71,15 @@ const char *GetVersionString();
 
 #define SAVEGAME_EXT "dsave"
 
-#define MINSAVEVER_DN3D 16
-#define MINSAVEVER_BLD 16
-#define MINSAVEVER_SW 17
-#define MINSAVEVER_PS 16
+#define MINSAVEVER_DN3D 18
+#define MINSAVEVER_BLD 18
+#define MINSAVEVER_SW 18
+#define MINSAVEVER_PS 18
 
-#define SAVEVER_DN3D 16
-#define SAVEVER_BLD 16
-#define SAVEVER_SW 17
-#define SAVEVER_PS 16
+#define SAVEVER_DN3D 18
+#define SAVEVER_BLD 18
+#define SAVEVER_SW 18
+#define SAVEVER_PS 18
 
 #define NETGAMEVERSION 1
 
