@@ -163,7 +163,7 @@ void feebtag(const DVector3& pos, sectortype* pSector, DExhumedActor **nSprite, 
         }
 
         nWalls--;
-        if (nWalls < -1)
+        if (nWalls < 0)
             return;
 
         pSector = startwall->nextSector();
