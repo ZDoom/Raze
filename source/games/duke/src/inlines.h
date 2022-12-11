@@ -256,12 +256,12 @@ inline void hud_draw(double x, double y, int tilenum, int shade, int orientation
 	hud_drawsprite(x, y, 65536, 0, tilenum, shade, p, 2 | orientation);
 }
 
-inline void animateshrunken(player_struct* p, double weapon_xoffset, double looking_arc, double look_anghalf, int tilenum, int8_t shade, int o, double interpfrac)
+inline void animateshrunken(player_struct* p, double xoffset, double yoffset, int tilenum, int8_t shade, int o, double interpfrac)
 {
 	const double fistsign = BobVal(interpolatedvalue<double>(p->ofistsign, p->fistsign, interpfrac)) * 16;
-	if (p->jetpack_on == 0)	looking_arc += 32 - (p->GetActor()->vel.X * 8);
-	hud_draw(weapon_xoffset + fistsign + 250 - look_anghalf, looking_arc + 258 - fabs(fistsign * 4), tilenum, shade, o);
-	hud_draw(weapon_xoffset - fistsign + 40 - look_anghalf, looking_arc + 200 + fabs(fistsign * 4), tilenum, shade, o | 4);
+	if (p->jetpack_on == 0)	yoffset += 32 - (p->GetActor()->vel.X * 8);
+	hud_draw(250 + fistsign + xoffset, 258 - fabs(fistsign * 4) + yoffset, tilenum, shade, o);
+	hud_draw(40 - fistsign + xoffset, 200 + fabs(fistsign * 4) + yoffset, tilenum, shade, o | 4);
 }
 
 inline ESpriteFlags randomFlip()

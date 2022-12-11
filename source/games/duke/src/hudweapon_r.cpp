@@ -296,7 +296,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 	if (p->GetActor()->spr.scale.X < 0.125)
 	{
-		animateshrunken(p, 0, offsets.Y + gun_pos, -offsets.X, RTILE_FIST, shade, o, interpfrac);
+		animateshrunken(p, offsets.X, offsets.Y + gun_pos, RTILE_FIST, shade, o, interpfrac);
 	}
 	else
 	{
