@@ -1489,7 +1489,7 @@ void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v)
 		{
 			switches[j]->spr.hitag = 0;
 			switches[j]->spr.setspritetexture(::switches[GetExtInfo(switches[j]->spr.spritetexture()).switchindex].states[3]);
-			fi.checkhitswitch(snum, nullptr, switches[j]);
+			checkhitswitch(snum, nullptr, switches[j]);
 		}
 	}
 }
@@ -1596,5 +1596,174 @@ void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& c
 		}
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// how NOT to implement switches...
+// (even after cleaning up the hard coded texture checks it's still a disaster)
+//
+//---------------------------------------------------------------------------
+
+bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
+{
+	uint8_t switchpal;
+	int lotag, hitag, correctdips, numdips;
+	DVector2 spos;
+	FTextureID texid;
+
+	if (wwal == nullptr && act == nullptr) return 0;
+	correctdips = 1;
+	numdips = 0;
+
+	if (act)
+	{
+		lotag = act->spr.lotag;
+		if (lotag == 0) return 0;
+		hitag = act->spr.hitag;
+		spos = act->spr.pos.XY();
+		texid = act->spr.spritetexture();
+		switchpal = act->spr.pal;
+
+		// custom switches that maintain themselves can immediately abort.
+		if (CallTriggerSwitch(act, &ps[snum])) return true;
+	}
+	else
+	{
+		lotag = wwal->lotag;
+		if (lotag == 0) return 0;
+		hitag = wwal->hitag;
+		spos = wwal->pos;
+		texid = wwal->walltexture();
+		switchpal = wwal->pal;
+	}
+	auto& ext = GetExtInfo(texid);
+	auto& swdef = switches[ext.switchindex];
+
+	// check if the switch may be activated.
+	switch (swdef.type)
+	{
+	case SwitchDef::Combo:
+		break;
+
+	case SwitchDef::Access:
+		if (!fi.checkaccessswitch(snum, switchpal, act, wwal))
+			return 0;
+		[[fallthrough]];
+
+	case SwitchDef::Regular:
+	case SwitchDef::Multi:
+		if (check_activator_motion(lotag)) return 0;
+		break;
+
+	default:
+		if (isadoorwall(texid) == 0) return 0;
+		break;
+	}
+
+	togglespriteswitches(act, ext, lotag, correctdips, numdips);
+	togglewallswitches(wwal, ext, lotag, correctdips, numdips);
+
+	if (lotag == -1)
+	{
+		setnextmap(false);
+		return 1;
+	}
+
+	DVector3 v(spos, ps[snum].GetActor()->getOffsetZ());
+
+	// Yet another crude RRRA hack that cannot be fully generalized.
+	if (hitag == 10001 && swdef.flags & SwitchDef::oneway && isRRRA())
+	{
+		act->spr.setspritetexture(swdef.states[1]);
+		if (ps[snum].SeaSick == 0)
+			ps[snum].SeaSick = 350;
+		operateactivators(668, &ps[snum]);
+		operatemasterswitches(668);
+		S_PlayActorSound(328, ps[snum].GetActor());
+		return 1;
+	}
+
+	if (swdef.type != SwitchDef::None || isadoorwall(texid))
+	{
+		if (swdef.type == SwitchDef::Combo)
+		{
+			FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
+			if (act) S_PlaySound3D(sound, act, v);
+			else S_PlaySound3D(sound, ps[snum].GetActor(), v);
+			if (numdips != correctdips) return 0;
+			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
+		}
+		if (swdef.type == SwitchDef::Multi)
+		{
+			lotag += ext.switchphase;
+			if (hitag == 10000 && act && isRRRA())	// no idea if the game check is really needed for something this far off the beaten path...
+			{
+				tag10000specialswitch(snum, act, v);
+				return 1;
+			}
+		}
+
+		DukeStatIterator itr(STAT_EFFECTOR);
+		while (auto other = itr.Next())
+		{
+			if (other->spr.hitag == lotag)
+			{
+				switch (other->spr.lotag)
+				{
+				case 46:
+				case SE_47_LIGHT_SWITCH:
+				case SE_48_LIGHT_SWITCH:
+					if (!isRRRA()) break;
+					[[fallthrough]];
+
+				case SE_12_LIGHT_SWITCH:
+					other->sector()->floorpal = 0;
+					other->temp_data[0]++;
+					if (other->temp_data[0] == 2)
+						other->temp_data[0]++;
+
+					break;
+				case SE_24_CONVEYOR:
+				case SE_34:
+				case SE_25_PISTON:
+					other->temp_data[4] = !other->temp_data[4];
+					if (other->temp_data[4])
+						FTA(15, &ps[snum]);
+					else FTA(2, &ps[snum]);
+					break;
+				case SE_21_DROP_FLOOR:
+					FTA(2, &ps[screenpeek]);
+					break;
+				}
+			}
+		}
+
+		operateactivators(lotag, &ps[snum]);
+		fi.operateforcefields(ps[snum].GetActor(), lotag);
+		operatemasterswitches(lotag);
+
+		if (swdef.type == SwitchDef::Combo) return 1;
+
+		if (hitag == 0 && isadoorwall(texid) == 0)
+		{
+			FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
+			if (act) S_PlaySound3D(sound, act, v);
+			else S_PlaySound3D(sound, ps[snum].GetActor(), v);
+		}
+		else if (hitag != 0)
+		{
+			auto flags = S_GetUserFlags(hitag);
+
+			if (act && (flags & SF_TALK) == 0)
+				S_PlaySound3D(hitag, act, v);
+			else
+				S_PlayActorSound(hitag, ps[snum].GetActor());
+		}
+
+		return 1;
+	}
+	return 0;
+}
+
 
 END_DUKE_NS

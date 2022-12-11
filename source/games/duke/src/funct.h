@@ -220,6 +220,7 @@ bool movementBlocked(player_struct *p);
 void loadcons();
 void DrawStatusBar();
 void thunder(void);
+bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act);
 
 void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h);
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang);

@@ -173,251 +173,6 @@ bool checkaccessswitch_r(int snum, int switchpal, DDukeActor* act, walltype* wwa
 // 
 //
 //---------------------------------------------------------------------------
-void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v);
-void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
-void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
-
-bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
-{
-	uint8_t switchpal;
-	int lotag, hitag, picnum, correctdips, numdips;
-	DVector2 pos;
-	FTextureID texid;
-
-	if (wwal == nullptr && act == nullptr) return 0;
-	correctdips = 1;
-	numdips = 0;
-
-	if (act)
-	{
-		lotag = act->spr.lotag;
-		if (lotag == 0) return 0;
-		hitag = act->spr.hitag;
-		pos = act->spr.pos.XY();
-		picnum = act->spr.picnum;
-		switchpal = act->spr.pal;
-
-		// custom switches that maintain themselves can immediately abort.
-		if (CallTriggerSwitch(act, &ps[snum])) return true;
-	}
-	else
-	{
-		lotag = wwal->lotag;
-		if (lotag == 0) return 0;
-		hitag = wwal->hitag;
-		pos = wwal->pos;
-		picnum = wwal->wallpicnum;
-		switchpal = wwal->pal;
-	}
-	texid = tileGetTextureID(picnum);
-	auto& ext = GetExtInfo(texid);
-	auto& swdef = switches[ext.switchindex];
-
-	switch (swdef.type)
-	{
-	case SwitchDef::Combo:
-		break;
-
-	case SwitchDef::Access:
-		if (checkaccessswitch_r(snum, switchpal, act, wwal))
-			return 0;
-		[[fallthrough]];
-
-	case SwitchDef::Regular:
-	case SwitchDef::Multi:
-		if (check_activator_motion(lotag)) return 0;
-		break;
-
-	default:
-		if (isadoorwall(texid) == 0) return 0;
-		break;
-	}
-
-	togglespriteswitches(act, ext, lotag, correctdips, numdips);
-	togglewallswitches(wwal, ext, lotag, correctdips, numdips);
-
-	if (lotag == -1)
-	{
-		setnextmap(false);
-		return 1;
-	}
-
-	DVector3 v(pos, ps[snum].GetActor()->getOffsetZ());
-	switch (picnum)
-	{
-	default:
-		if (isadoorwall(texid) == 0) break;
-		[[fallthrough]];
-	case RTILE_DIPSWITCH:
-	case RTILE_DIPSWITCHON:
-	case RTILE_TECHSWITCH:
-	case RTILE_TECHSWITCHON:
-	case RTILE_ALIENSWITCH:
-	case RTILE_ALIENSWITCHON:
-		if (picnum == RTILE_DIPSWITCH || picnum == RTILE_DIPSWITCHON ||
-			picnum == RTILE_ALIENSWITCH || picnum == RTILE_ALIENSWITCHON ||
-			picnum == RTILE_TECHSWITCH || picnum == RTILE_TECHSWITCHON)
-		{
-			if (picnum == RTILE_ALIENSWITCH || picnum == RTILE_ALIENSWITCHON)
-			{
-				if (act)
-					S_PlaySound3D(ALIEN_SWITCH1, act, v);
-				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].GetActor(), v);
-			}
-			else
-			{
-				if (act)
-					S_PlaySound3D(SWITCH_ON, act, v);
-				else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), v);
-			}
-			if (numdips != correctdips) break;
-			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
-		}
-		goto goOn2;
-	case RTILE_MULTISWITCH2:
-	case RTILE_MULTISWITCH2_2:
-	case RTILE_MULTISWITCH2_3:
-	case RTILE_MULTISWITCH2_4:
-	case RTILE_IRONWHEELSWITCH:
-	case RTILE_BELLSWITCH:
-		if (!isRRRA()) break;
-		[[fallthrough]];
-	case RTILE_DIPSWITCH2:
-	case RTILE_DIPSWITCH2ON:
-	case RTILE_DIPSWITCH3:
-	case RTILE_DIPSWITCH3ON:
-	case RTILE_MULTISWITCH:
-	case RTILE_MULTISWITCH_2:
-	case RTILE_MULTISWITCH_3:
-	case RTILE_MULTISWITCH_4:
-	case RTILE_ACCESSSWITCH:
-	case RTILE_ACCESSSWITCH2:
-	case RTILE_SLOTDOOR:
-	case RTILE_SLOTDOORON:
-	case RTILE_LIGHTSWITCH:
-	case RTILE_LIGHTSWITCHON:
-	case RTILE_SPACELIGHTSWITCH:
-	case RTILE_SPACELIGHTSWITCHON:
-	case RTILE_SPACEDOORSWITCH:
-	case RTILE_SPACEDOORSWITCHON:
-	case RTILE_FRANKENSTINESWITCH:
-	case RTILE_FRANKENSTINESWITCHON:
-	case RTILE_LIGHTSWITCH2:
-	case RTILE_LIGHTSWITCH2ON:
-	case RTILE_POWERSWITCH1:
-	case RTILE_POWERSWITCH1ON:
-	case RTILE_LOCKSWITCH1:
-	case RTILE_LOCKSWITCH1ON:
-	case RTILE_POWERSWITCH2:
-	case RTILE_POWERSWITCH2ON:
-	case RTILE_HANDSWITCH:
-	case RTILE_HANDSWITCHON:
-	case RTILE_PULLSWITCH:
-	case RTILE_PULLSWITCHON:
-	case RTILE_ALERTSWITCH:
-	case RTILE_ALERTSWITCHON:
-	case RTILE_HANDLESWITCH:
-	case RTILE_HANDLESWITCHON:
-		goOn2:
-		if (isRRRA())
-		{
-			if (picnum == RTILE_IRONWHEELSWITCH)
-			{
-				act->spr.picnum = act->spr.picnum + 1;
-				if (hitag == 10001)
-				{
-					if (ps[snum].SeaSick == 0)
-						ps[snum].SeaSick = 350;
-					operateactivators(668, &ps[snum]);
-					operatemasterswitches(668);
-					S_PlayActorSound(328, ps[snum].GetActor());
-					return 1;
-				}
-			}
-			else if (hitag == 10000 && swdef.type == SwitchDef::Multi)
-			{
-				tag10000specialswitch(snum, act, v);
-				return 1;
-			}
-		}
-		if (picnum == RTILE_MULTISWITCH || picnum == (RTILE_MULTISWITCH_2) ||
-			picnum == (RTILE_MULTISWITCH_3) || picnum == (RTILE_MULTISWITCH_4))
-			lotag += picnum - RTILE_MULTISWITCH;
-		if (isRRRA())
-		{
-			if (picnum == RTILE_MULTISWITCH2 || picnum == (RTILE_MULTISWITCH2_2) ||
-				picnum == (RTILE_MULTISWITCH2_3) || picnum == (RTILE_MULTISWITCH2_4))
-				lotag += picnum - RTILE_MULTISWITCH2;
-		}
-
-		DukeStatIterator itr(STAT_EFFECTOR);
-		while (auto other = itr.Next())
-		{
-			if (other->spr.hitag == lotag)
-			{
-				switch (other->spr.lotag)
-				{
-				case 46:
-				case SE_47_LIGHT_SWITCH:
-				case SE_48_LIGHT_SWITCH:
-					if (!isRRRA()) break;
-					[[fallthrough]];
-				case SE_12_LIGHT_SWITCH:
-					other->sector()->floorpal = 0;
-					other->temp_data[0]++;
-					if (other->temp_data[0] == 2)
-						other->temp_data[0]++;
-
-					break;
-				case SE_24_CONVEYOR:
-				case SE_34:
-				case SE_25_PISTON:
-					other->temp_data[4] = !other->temp_data[4];
-					if (other->temp_data[4])
-						FTA(15, &ps[snum]);
-					else FTA(2, &ps[snum]);
-					break;
-				case SE_21_DROP_FLOOR:
-					FTA(2, &ps[screenpeek]);
-					break;
-				}
-			}
-		}
-
-		operateactivators(lotag, &ps[snum]);
-		fi.operateforcefields(ps[snum].GetActor(), lotag);
-		operatemasterswitches(lotag);
-
-		if (picnum == RTILE_DIPSWITCH || picnum == RTILE_DIPSWITCHON ||
-			picnum == RTILE_ALIENSWITCH || picnum == RTILE_ALIENSWITCHON ||
-			picnum == RTILE_TECHSWITCH || picnum == RTILE_TECHSWITCHON) return 1;
-
-		if (hitag == 0 && isadoorwall(texid) == 0)
-		{
-			if (act)
-				S_PlaySound3D(SWITCH_ON, act, v);
-			else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), v);
-		}
-		else if (hitag != 0)
-		{
-			auto flags = S_GetUserFlags(hitag);
-
-			if (act && (flags & SF_TALK) == 0)
-				S_PlaySound3D(hitag, act, v);
-			else
-				S_PlayActorSound(hitag, ps[snum].GetActor());
-		}
-
-		return 1;
-	}
-	return 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
 
 void activatebysector_r(sectortype* sect, DDukeActor* activator)
 {
@@ -757,7 +512,7 @@ void checksectors_r(int snum)
 		auto const neartagsprite = near.actor();
 		if (neartagsprite != nullptr)
 		{
-			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
+			if (checkhitswitch(snum, nullptr, neartagsprite)) return;
 
 			if (neartagsprite->GetClass() != RUNTIME_CLASS(DDukeActor))
 			{
@@ -782,7 +537,7 @@ void checksectors_r(int snum)
 			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->walltexture()))
 			{
 				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
-					fi.checkhitswitch(snum, near.hitWall, nullptr);
+					checkhitswitch(snum, near.hitWall, nullptr);
 				return;
 			}
 		}
@@ -827,7 +582,7 @@ void checksectors_r(int snum)
 					FTA(41, p);
 				}
 			}
-			else fi.checkhitswitch(snum, near.hitWall, nullptr);
+			else checkhitswitch(snum, near.hitWall, nullptr);
 		}
 	}
 }

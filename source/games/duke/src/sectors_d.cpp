@@ -200,206 +200,6 @@ bool checkaccessswitch_d(int snum, int switchpal, DDukeActor* act, walltype* wwa
 
 //---------------------------------------------------------------------------
 //
-// how NOT to implement switch animations...
-//
-//---------------------------------------------------------------------------
-void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
-void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
-
-bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
-{
-	uint8_t switchpal;
-	int lotag, hitag, picnum, correctdips, numdips;
-	DVector2 spos;
-	FTextureID texid;
-
-	if (wwal == nullptr && act == nullptr) return 0;
-	correctdips = 1;
-	numdips = 0;
-
-	if (act)
-	{
-		lotag = act->spr.lotag;
-		if (lotag == 0) return 0;
-		hitag = act->spr.hitag;
-		spos = act->spr.pos.XY();
-		picnum = act->spr.picnum;
-		switchpal = act->spr.pal;
-
-		// custom switches that maintain themselves can immediately abort.
-		if (CallTriggerSwitch(act, &ps[snum])) return true;
-	}
-	else
-	{
-		lotag = wwal->lotag;
-		if (lotag == 0) return 0;
-		hitag = wwal->hitag;
-		spos = wwal->pos;
-		picnum = wwal->wallpicnum;
-		switchpal = wwal->pal;
-	}
-	texid = tileGetTextureID(picnum);
-	auto& ext = GetExtInfo(texid);
-	auto& swdef = switches[ext.switchindex];
-
-	switch (swdef.type)
-	{
-	case SwitchDef::Combo:
-		break;
-
-	case SwitchDef::Access:
-		if (checkaccessswitch_d(snum, switchpal, act, wwal))
-			return 0;
-		[[fallthrough]];
-
-	case SwitchDef::Regular:
-	case SwitchDef::Multi:
-		if (check_activator_motion(lotag)) return 0;
-		break;
-
-	default:
-		if (isadoorwall(texid) == 0) return 0;
-		break;
-	}
-
-	togglespriteswitches(act, ext, lotag, correctdips, numdips);
-	togglewallswitches(wwal, ext, lotag, correctdips, numdips);
-
-	if (lotag == -1)
-	{
-		setnextmap(false);
-		return 1;
-	}
-
-	DVector3 v(spos, ps[snum].GetActor()->getOffsetZ());
-	switch (picnum)
-	{
-	default:
-		if (isadoorwall(texid) == 0) break;
-		[[fallthrough]];
-	case DTILE_DIPSWITCH:
-	case DTILE_DIPSWITCHON:
-	case DTILE_TECHSWITCH:
-	case DTILE_TECHSWITCHON:
-	case DTILE_ALIENSWITCH:
-	case DTILE_ALIENSWITCHON:
-		if (picnum == DTILE_DIPSWITCH || picnum == DTILE_DIPSWITCHON ||
-			picnum == DTILE_ALIENSWITCH || picnum == DTILE_ALIENSWITCHON ||
-			picnum == DTILE_TECHSWITCH || picnum == DTILE_TECHSWITCHON)
-		{
-			if (picnum == DTILE_ALIENSWITCH || picnum == DTILE_ALIENSWITCHON)
-			{
-				if (act)
-					S_PlaySound3D(ALIEN_SWITCH1, act, v);
-				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].GetActor(), v);
-			}
-			else
-			{
-				if (act)
-					S_PlaySound3D(SWITCH_ON, act, v);
-				else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), v);
-			}
-			if (numdips != correctdips) break;
-			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
-		}
-		[[fallthrough]];
-	case DTILE_DIPSWITCH2:
-	case DTILE_DIPSWITCH2ON:
-	case DTILE_DIPSWITCH3:
-	case DTILE_DIPSWITCH3ON:
-	case DTILE_MULTISWITCH:
-	case DTILE_MULTISWITCH_2:
-	case DTILE_MULTISWITCH_3:
-	case DTILE_MULTISWITCH_4:
-	case DTILE_ACCESSSWITCH:
-	case DTILE_ACCESSSWITCH2:
-	case DTILE_SLOTDOOR:
-	case DTILE_SLOTDOORON:
-	case DTILE_LIGHTSWITCH:
-	case DTILE_LIGHTSWITCHON:
-	case DTILE_SPACELIGHTSWITCH:
-	case DTILE_SPACELIGHTSWITCHON:
-	case DTILE_SPACEDOORSWITCH:
-	case DTILE_SPACEDOORSWITCHON:
-	case DTILE_FRANKENSTINESWITCH:
-	case DTILE_FRANKENSTINESWITCHON:
-	case DTILE_LIGHTSWITCH2:
-	case DTILE_LIGHTSWITCH2ON:
-	case DTILE_POWERSWITCH1:
-	case DTILE_POWERSWITCH1ON:
-	case DTILE_LOCKSWITCH1:
-	case DTILE_LOCKSWITCH1ON:
-	case DTILE_POWERSWITCH2:
-	case DTILE_POWERSWITCH2ON:
-	case DTILE_HANDSWITCH:
-	case DTILE_HANDSWITCHON:
-	case DTILE_PULLSWITCH:
-	case DTILE_PULLSWITCHON:
-
-		if (picnum == DTILE_MULTISWITCH || picnum == (DTILE_MULTISWITCH_2) ||
-			picnum == (DTILE_MULTISWITCH_3) || picnum == (DTILE_MULTISWITCH_4))
-			lotag += picnum - DTILE_MULTISWITCH;
-
-		DukeStatIterator itr(STAT_EFFECTOR);
-		while (auto other = itr.Next())
-		{
-			if (other->spr.hitag == lotag)
-			{
-				switch (other->spr.lotag)
-				{
-				case SE_12_LIGHT_SWITCH:
-					other->sector()->floorpal = 0;
-					other->temp_data[0]++;
-					if (other->temp_data[0] == 2)
-						other->temp_data[0]++;
-
-					break;
-				case SE_24_CONVEYOR:
-				case SE_34:
-				case SE_25_PISTON:
-					other->temp_data[4] = !other->temp_data[4];
-					if (other->temp_data[4])
-						FTA(15, &ps[snum]);
-					else FTA(2, &ps[snum]);
-					break;
-				case SE_21_DROP_FLOOR:
-					FTA(2, &ps[screenpeek]);
-					break;
-				}
-			}
-		}
-
-		operateactivators(lotag, &ps[snum]);
-		fi.operateforcefields(ps[snum].GetActor(), lotag);
-		operatemasterswitches(lotag);
-
-		if (picnum == DTILE_DIPSWITCH || picnum == DTILE_DIPSWITCHON ||
-			picnum == DTILE_ALIENSWITCH || picnum == DTILE_ALIENSWITCHON ||
-			picnum == DTILE_TECHSWITCH || picnum == DTILE_TECHSWITCHON) return 1;
-
-		if (hitag == 0 && isadoorwall(texid) == 0)
-		{
-			if (act)
-				S_PlaySound3D(SWITCH_ON, act, v);
-			else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), v);
-		}
-		else if (hitag != 0)
-		{
-			auto flags = S_GetUserFlags(hitag);
-
-			if (act && (flags & SF_TALK) == 0)
-				S_PlaySound3D(hitag, act, v);
-			else
-				S_PlayActorSound(hitag, ps[snum].GetActor());
-		}
-
-		return 1;
-	}
-	return 0;
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
@@ -755,7 +555,7 @@ void checksectors_d(int snum)
 		auto const neartagsprite = near.actor();
 		if (neartagsprite != nullptr)
 		{
-			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
+			if (checkhitswitch(snum, nullptr, neartagsprite)) return;
 
 			if (CallOnUse(neartagsprite, p))
 				return;
@@ -782,7 +582,7 @@ void checksectors_d(int snum)
 			if (near.hitWall->lotag > 0 && isadoorwall(near.hitWall->walltexture()))
 			{
 				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
-					fi.checkhitswitch(snum, near.hitWall, nullptr);
+					checkhitswitch(snum, near.hitWall, nullptr);
 				return;
 			}
 			else if (p->newOwner != nullptr)
@@ -813,7 +613,7 @@ void checksectors_d(int snum)
 				}
 				operatesectors(p->GetActor()->sector(), p->GetActor());
 			}
-			else fi.checkhitswitch(snum, near.hitWall, nullptr);
+			else checkhitswitch(snum, near.hitWall, nullptr);
 		}
 	}
 }

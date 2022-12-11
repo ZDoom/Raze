@@ -163,7 +163,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			if (hit.actor() && !isaccessswitch(hit.actor()->spr.spritetexture()))
 			{
 				fi.checkhitsprite(hit.actor(), wpn);
-				if (p >= 0) fi.checkhitswitch(p, nullptr, hit.actor());
+				if (p >= 0) checkhitswitch(p, nullptr, hit.actor());
 			}
 			else if (hit.hitWall)
 			{
@@ -175,7 +175,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 				if (!isaccessswitch(hit.hitWall->walltexture()))
 				{
 					checkhitwall(wpn, hit.hitWall, hit.hitpos);
-					if (p >= 0) fi.checkhitswitch(p, hit.hitWall, nullptr);
+					if (p >= 0) checkhitswitch(p, hit.hitWall, nullptr);
 				}
 			}
 		}
@@ -336,7 +336,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 
 			if (p >= 0 && isshootableswitch(hit.actor()->spr.spritetexture()))
 			{
-				fi.checkhitswitch(p, nullptr, hit.actor());
+				checkhitswitch(p, nullptr, hit.actor());
 				return;
 			}
 		}
@@ -350,7 +350,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 				goto SKIPBULLETHOLE;
 			if (p >= 0 && isshootableswitch(hit.hitWall->walltexture()))
 			{
-				fi.checkhitswitch(p, hit.hitWall, nullptr);
+				checkhitswitch(p, hit.hitWall, nullptr);
 				return;
 			}
 
@@ -1286,7 +1286,7 @@ int doincrements_r(player_struct* p)
 		{
 			if (p->access_spritenum != nullptr)
 			{
-				fi.checkhitswitch(snum, nullptr, p->access_spritenum);
+				checkhitswitch(snum, nullptr, p->access_spritenum);
 				switch (p->access_spritenum->spr.pal)
 				{
 				case 0:p->keys[1] = 1; break;
@@ -1297,7 +1297,7 @@ int doincrements_r(player_struct* p)
 			}
 			else
 			{
-				fi.checkhitswitch(snum, p->access_wall, nullptr);
+				checkhitswitch(snum, p->access_wall, nullptr);
 				switch (p->access_wall->pal)
 				{
 				case 0:p->keys[1] = 1; break;
