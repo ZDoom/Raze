@@ -109,7 +109,7 @@ void displayweapon_r(int snum, double interpfrac)
 {
 	int cw;
 	int j;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, hard_landing, TiltStatus;
+	double weapon_sway, weapon_xoffset, gun_pos, hard_landing, TiltStatus;
 	int pal;
 	int8_t shade;
 
@@ -133,10 +133,6 @@ void displayweapon_r(int snum, double interpfrac)
 		TiltStatus = p->TiltStatus;
 	}
 
-	auto playerLook = interpolatedvalue(p->Angles.PrevViewAngles.Yaw, p->Angles.ViewAngles.Yaw, interpfrac);
-
-	look_anghalf = playerLook.Normalized180().Degrees() * (128. / 45.);
-	looking_arc = fabs(playerLook.Normalized180().Degrees() * (1024. / 1620.));
 	hard_landing *= 8.;
 
 	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);
@@ -224,7 +220,7 @@ void displayweapon_r(int snum, double interpfrac)
 				temp_kb = RTILE_MOTOHIT;
 		}
 
-		ShowMotorcycle(160-look_anghalf, 174, temp_kb, shade, 0, pal, TiltStatus*5);
+		ShowMotorcycle(160 + offsets.X, 174, temp_kb, shade, 0, pal, TiltStatus*5);
 		return;
 	}
 	if (p->OnBoat)
@@ -291,13 +287,16 @@ void displayweapon_r(int snum, double interpfrac)
 		if (temp2)
 			shade = -96;
 
-		ShowBoat(160-look_anghalf, temp3, temp_kb, shade, 0, pal, TiltStatus);
+		ShowBoat(160 + offsets.X, temp3, temp_kb, shade, 0, pal, TiltStatus);
 		return;
 	}
 
+	offsets.X += weapon_xoffset;
+	offsets.Y -= gun_pos;
+
 	if (p->GetActor()->spr.scale.X < 0.125)
 	{
-		animateshrunken(p, weapon_xoffset, looking_arc, look_anghalf, RTILE_FIST, shade, o, interpfrac);
+		animateshrunken(p, 0, offsets.Y + gun_pos, -offsets.X, RTILE_FIST, shade, o, interpfrac);
 	}
 	else
 	{
@@ -316,9 +315,6 @@ void displayweapon_r(int snum, double interpfrac)
 			static const uint16_t kb_ox[] = { 310,342,364,418,350,316,282,288,0,0 };
 			static const uint16_t kb_oy[] = { 300,362,320,268,248,248,277,420,0,0 };
 
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			double x = ((kb_ox[kb_frames[*kb]] >> 1) - 12) + offsets.X;
 			double y = 200 - (244 - kb_oy[kb_frames[*kb]]) + offsets.Y;
 			hud_drawpal(x, y, RTILE_KNEE + kb_frames[*kb], shade, 0, pal, angle);
@@ -336,9 +332,6 @@ void displayweapon_r(int snum, double interpfrac)
 			static const uint16_t kb_ox[] = { 580,676,310,491,356,210,310,614 };
 			static const uint16_t kb_oy[] = { 369,363,300,323,371,400,300,440 };
 
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			double x = ((kb_ox[kb_frames[*kb]] >> 1) - 12) + 20 + offsets.X;
 			double y = 210 - (244 - kb_oy[kb_frames[*kb]]) - 80 + offsets.Y;
 			hud_drawpal(x, y, RTILE_SLINGBLADE + kb_frames[*kb], shade, 0, pal, angle);
@@ -352,8 +345,8 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaybowlingball = [&]
 		{
-			offsets.X += weapon_xoffset + 8;
-			offsets.Y -= gun_pos - 10;
+			offsets.X += 8;
+			offsets.Y += 10;
 
 			if (p->ammo_amount[BOWLING_WEAPON])
 			{
@@ -373,8 +366,8 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaypowderkeg = [&]
 		{
-			offsets.X += weapon_xoffset + 8;
-			offsets.Y -= gun_pos - 10;
+			offsets.X += 8;
+			offsets.Y += 10;
 
 			if (p->ammo_amount[POWDERKEG_WEAPON])
 			{
@@ -397,9 +390,6 @@ void displayweapon_r(int snum, double interpfrac)
 		{
 			if (!(gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
 			static const uint8_t kb_frames[] = { 0,1,1,2,2,3,2,3,2,3,2,2,2,2,2,2,2,2,2,4,4,4,4,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7 };
-
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
 
 			if (kb_frames[*kb] == 2 || kb_frames[*kb] == 3)
 			{
@@ -424,9 +414,6 @@ void displayweapon_r(int snum, double interpfrac)
 		auto displaychicken = [&]
 		{
 			if (!(gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
-
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
 
 			if (*kb)
 			{
@@ -479,8 +466,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displayshotgun = [&]
 		{
-			offsets.X += weapon_xoffset - 8;
-			offsets.Y -= gun_pos;
+			offsets.X -= 8;
 
 			double x;
 			double y;
@@ -585,9 +571,6 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displayrifle = [&]
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if (*kb > 0)
 				offsets.Y += BobVal((*kb) << 7) * 4;
 
@@ -617,9 +600,6 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaypistol = [&]
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			double x, y;
 
 			if ((*kb) < 22)
@@ -702,8 +682,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaydynamite = [&]
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos - 9 * (*kb);
+			offsets.Y += 9 * (*kb);
 
 			rdmyospal(190 + offsets.X, 260 + offsets.Y, RTILE_HANDTHROW, shade, o, pal, angle);
 		};
@@ -716,9 +695,6 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaythrowingdynamite = [&]
 		{
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			int dx = 25;
 			int dy = 20;
 
@@ -754,9 +730,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaytits = [&]
 		{
-			offsets.X += weapon_xoffset * 0.5;
-			offsets.Y *= 0.5;
-			offsets.Y -= gun_pos;
+			offsets.X -= weapon_xoffset * 0.5;
 
 			if (*kb)
 			{
@@ -777,9 +751,6 @@ void displayweapon_r(int snum, double interpfrac)
 		{
 			if (!(gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
 
-			offsets.X += weapon_xoffset;
-			offsets.Y -= gun_pos;
-
 			if ((*kb))
 			{
 				static const uint8_t cat_frames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
@@ -796,8 +767,8 @@ void displayweapon_r(int snum, double interpfrac)
 
 		auto displaysaw = [&]
 		{
-			offsets.X += weapon_xoffset + 28;
-			offsets.Y -= gun_pos - 18;
+			offsets.X += 28;
+			offsets.Y += 18;
 
 			if ((*kb) == 0)
 			{
