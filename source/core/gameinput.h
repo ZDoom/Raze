@@ -111,10 +111,6 @@ struct PlayerAngles
 		}
 	}
 
-	// Miscellaneous helpers.
-	double angLOOKANGHALF(double const interpfrac) { return angLERPLOOKANG(interpfrac).Normalized180().Degrees() * (128. / 45.); }
-	double angLOOKINGARC(double const interpfrac) { return fabs(angLERPLOOKANG(interpfrac).Normalized180().Degrees() * (1024. / 1620.)); }
-
 
 	// Legacy, to be removed.
 	DAngle horizSUM(const double interpfrac = 1) { return ZzHORIZON() + interpolatedvalue(PrevViewAngles.Pitch, ViewAngles.Pitch, interpfrac); }

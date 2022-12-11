@@ -133,8 +133,10 @@ void displayweapon_r(int snum, double interpfrac)
 		TiltStatus = p->TiltStatus;
 	}
 
-	look_anghalf = p->Angles.angLOOKANGHALF(interpfrac);
-	looking_arc = p->Angles.angLOOKINGARC(interpfrac);
+	auto playerLook = interpolatedvalue(p->Angles.PrevViewAngles.Yaw, p->Angles.ViewAngles.Yaw, interpfrac);
+
+	look_anghalf = playerLook.Normalized180().Degrees() * (128. / 45.);
+	looking_arc = fabs(playerLook.Normalized180().Degrees() * (1024. / 1620.));
 	hard_landing *= 8.;
 
 	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);

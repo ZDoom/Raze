@@ -1000,13 +1000,12 @@ void DrawWeapons(double interpfrac)
         nShade = PlayerList[nLocalPlayer].pActor->spr.shade;
     }
 
-    double const look_anghalf = PlayerList[nLocalPlayer].Angles.angLOOKANGHALF(interpfrac);
-    double const looking_arc = PlayerList[nLocalPlayer].Angles.angLOOKINGARC(interpfrac);
+    const auto weaponOffsets = PlayerList[nLocalPlayer].Angles.getWeaponOffsets(interpfrac);
+    const auto angle = -weaponOffsets.second;
+    xOffset += weaponOffsets.first.X;
+    yOffset += weaponOffsets.first.Y;
 
-    xOffset -= look_anghalf;
-    yOffset += looking_arc;
-
-    seq_DrawGunSequence(var_28, PlayerList[nLocalPlayer].nSeqSize2, xOffset, yOffset, nShade, nPal, screenalign);
+    seq_DrawGunSequence(var_28, PlayerList[nLocalPlayer].nSeqSize2, xOffset, yOffset, nShade, nPal, angle, screenalign);
 
     if (nWeapon != kWeaponM60)
         return;
@@ -1042,7 +1041,7 @@ void DrawWeapons(double interpfrac)
                 nSeqOffset = var_30 + 4;
             }
 
-            seq_DrawGunSequence(nSeqOffset, PlayerList[nLocalPlayer].nSeqSize2, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(nSeqOffset, PlayerList[nLocalPlayer].nSeqSize2, xOffset, yOffset, nShade, nPal, angle);
             return;
         }
         case 1:
@@ -1055,25 +1054,25 @@ void DrawWeapons(double interpfrac)
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 8, edx, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(var_30 + 8, edx, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 3) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 9, edx, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(var_30 + 9, edx, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 6) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 10, edx, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(var_30 + 10, edx, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 25) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 11, edx, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(var_30 + 11, edx, xOffset, yOffset, nShade, nPal, angle);
             return;
         }
         case 2:
@@ -1086,25 +1085,25 @@ void DrawWeapons(double interpfrac)
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 8, dx, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(var_30 + 8, dx, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 3) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 9, dx, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(var_30 + 9, dx, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 6) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 10, dx, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(var_30 + 10, dx, xOffset, yOffset, nShade, nPal, angle);
 
             if (nClip <= 25) {
                 return;
             }
 
-            seq_DrawGunSequence(var_30 + 11, dx, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(var_30 + 11, dx, xOffset, yOffset, nShade, nPal, angle);
             return;
         }
 
@@ -1141,7 +1140,7 @@ void DrawWeapons(double interpfrac)
                 nSeqOffset = var_30 + 17;
             }
 
-            seq_DrawGunSequence(nSeqOffset, ax, xOffset, yOffset, nShade, nPal);
+            seq_DrawGunSequence(nSeqOffset, ax, xOffset, yOffset, nShade, nPal, angle);
             return;
         }
     }

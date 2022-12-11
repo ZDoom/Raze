@@ -426,7 +426,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 //
 //---------------------------------------------------------------------------
 
-int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, bool align)
+int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal, DAngle angle, bool align)
 {
     int nFrame = SeqBase[nSeqOffset] + dx;
     int nFrameBase = FrameBase[nFrame];
@@ -461,7 +461,7 @@ int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, 
             alpha = 0.3;
         }
 
-        hud_drawsprite(x + xOffs, y + yOffs, 65536, 0, nTile, nShade, nPal, stat, alpha);
+        hud_drawsprite(x + xOffs, y + yOffs, 65536, angle.Buildfang(), nTile, nShade, nPal, stat, alpha);
         nFrameBase++;
     }
 
