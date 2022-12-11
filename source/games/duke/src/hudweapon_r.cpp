@@ -39,24 +39,24 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, int scale = 32768)
+inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle, int scale = 32768)
 {
-	hud_drawsprite(x, y, scale, 0, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, scale, angle.Buildfang(), tilenum, shade, p, 2 | orientation);
 }
 
-inline static void rdmyospal(double x, double y, int tilenum, int shade, int orientation, int p)
+inline static void rdmyospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle)
 {
-	hud_drawpal(x, y, tilenum, shade, orientation, p, 36700);
+	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 36700);
 }
 
-inline static void rd2myospal(double x, double y, int tilenum, int shade, int orientation, int p)
+inline static void rd2myospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle)
 {
-	hud_drawpal(x, y, tilenum, shade, orientation, p, 44040);
+	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 44040);
 }
 
-inline static void rd3myospal(double x, double y, int tilenum, int shade, int orientation, int p)
+inline static void rd3myospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle = nullAngle)
 {
-	hud_drawpal(x, y, tilenum, shade, orientation, p, 47040);
+	hud_drawpal(x, y, tilenum, shade, orientation, p, angle, 47040);
 }
 
 //---------------------------------------------------------------------------
@@ -141,6 +141,10 @@ void displayweapon_r(int snum, double interpfrac)
 
 	gun_pos -= fabs(p->GetActor()->spr.scale.X < 0.125 ? BobVal(weapon_sway * 4.) * 32 : BobVal(weapon_sway * 0.5) * 16);
 	gun_pos -= hard_landing;
+
+	auto offpair = p->Angles.getWeaponOffsets(interpfrac);
+	auto offsets = offpair.first;
+	auto angle = -offpair.second;
 
 	weapon_xoffset = (160)-90;
 	weapon_xoffset -= BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.);
@@ -311,12 +315,13 @@ void displayweapon_r(int snum, double interpfrac)
 			static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7 };
 			static const uint16_t kb_ox[] = { 310,342,364,418,350,316,282,288,0,0 };
 			static const uint16_t kb_oy[] = { 300,362,320,268,248,248,277,420,0,0 };
-			double x;
-			int y;
-			x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
-			y = 200 - (244 - kb_oy[kb_frames[*kb]]);
-			hud_drawpal(x - look_anghalf, looking_arc + y - gun_pos,
-				RTILE_KNEE + kb_frames[*kb], shade, 0, pal);
+
+			offsets.X += weapon_xoffset;
+			offsets.Y -= gun_pos;
+
+			double x = ((kb_ox[kb_frames[*kb]] >> 1) - 12) + offsets.X;
+			double y = 200 - (244 - kb_oy[kb_frames[*kb]]) + offsets.Y;
+			hud_drawpal(x, y, RTILE_KNEE + kb_frames[*kb], shade, 0, pal, angle);
 		};
 
 		//---------------------------------------------------------------------------
