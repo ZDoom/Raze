@@ -55,7 +55,11 @@
 #endif
 
 #ifdef HAVE_VULKAN
-#include "vulkan/system/vk_framebuffer.h"
+#include "vulkan/system/vk_renderdevice.h"
+#include <zvulkan/vulkaninstance.h>
+#include <zvulkan/vulkansurface.h>
+#include <zvulkan/vulkandevice.h>
+#include <zvulkan/vulkanbuilders.h>
 #endif
 
 // MACROS ------------------------------------------------------------------
@@ -78,6 +82,7 @@ EXTERN_CVAR (Int, vid_displaybits)
 EXTERN_CVAR (Int, vid_defwidth)
 EXTERN_CVAR (Int, vid_defheight)
 EXTERN_CVAR (Bool, cl_capfps)
+EXTERN_CVAR(Bool, vk_debug)
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 
@@ -199,7 +204,7 @@ public:
 
 private:
 #ifdef HAVE_VULKAN
-	VulkanDevice *device = nullptr;
+	std::shared_ptr<VulkanSurface> surface;
 #endif
 };
 
@@ -261,7 +266,7 @@ SDLVideo::SDLVideo ()
 SDLVideo::~SDLVideo ()
 {
 #ifdef HAVE_VULKAN
-	delete device;
+	surface.reset();
 #endif
 }
 
@@ -275,9 +280,24 @@ DFrameBuffer *SDLVideo::CreateFrameBuffer ()
 	{
 		try
 		{
-			assert(device == nullptr);
-			device = new VulkanDevice();
-			fb = new VulkanFrameBuffer(nullptr, vid_fullscreen, device);
+			unsigned int count = 64;
+			const char* names[64];
+			if (!I_GetVulkanPlatformExtensions(&count, names))
+				VulkanError("I_GetVulkanPlatformExtensions failed");
+
+			VulkanInstanceBuilder builder;
+			builder.DebugLayer(vk_debug);
+			for (unsigned int i = 0; i < count; i++)
+				builder.RequireExtension(names[i]);
+			auto instance = builder.Create();
+
+			VkSurfaceKHR surfacehandle = nullptr;
+			if (!I_CreateVulkanSurface(instance->Instance, &surfacehandle))
+				VulkanError("I_CreateVulkanSurface failed");
+
+			surface = std::make_shared<VulkanSurface>(instance, surfacehandle);
+
+			fb = new VulkanRenderDevice(nullptr, vid_fullscreen, surface);
 		}
 		catch (CVulkanError const &error)
 		{
