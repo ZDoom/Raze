@@ -59,6 +59,7 @@ static ClusterDef TheDefaultClusterInfo;
 
 TArray<int> ParsedLumps(8);
 
+constexpr int texlookupflags = FTextureManager::TEXMAN_ReturnAll | FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup;
 //==========================================================================
 //
 //
@@ -366,7 +367,7 @@ void FMapInfoParser::ParseBreakWall()
 
 		sc.MustGetString();
 		FString basename = sc.String; // save for printing error messages.
-		basetile = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		basetile = TexMan.CheckForTexture(sc.String, ETextureType::Any, texlookupflags);
 		if (!basetile.isValid())
 		{
 			sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String);
@@ -374,8 +375,9 @@ void FMapInfoParser::ParseBreakWall()
 		}
 		ParseAssign();
 		sc.MustGetString();
-		breaktile = TexMan.CheckForTexture(sc.String, ETextureType::Any);
-		if (*sc.String && !breaktile.isValid()) sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String);
+		breaktile = TexMan.CheckForTexture(sc.String, ETextureType::Any, texlookupflags);
+		if (*sc.String && !breaktile.isValid()) 
+			sc.ScriptMessage("Unknown texture '%s' in breakwall definition", sc.String);
 		if (sc.CheckString(","))
 		{
 			sc.MustGetString();
@@ -431,7 +433,7 @@ void FMapInfoParser::ParseBreakCeiling()
 
 		sc.MustGetString();
 		FString basename = sc.String; // save for printing error messages.
-		basetile = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		basetile = TexMan.CheckForTexture(sc.String, ETextureType::Any, texlookupflags);
 		if (!basetile.isValid())
 		{
 			sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String);
@@ -439,7 +441,7 @@ void FMapInfoParser::ParseBreakCeiling()
 		}
 		ParseAssign();
 		sc.MustGetString();
-		breaktile = TexMan.CheckForTexture(sc.String, ETextureType::Any);
+		breaktile = TexMan.CheckForTexture(sc.String, ETextureType::Any, texlookupflags);
 		if (*sc.String && !breaktile.isValid()) sc.ScriptMessage("Unknown texture '%s' in breakceiling definition", sc.String);
 		if (sc.CheckString(","))
 		{
@@ -504,7 +506,7 @@ void FMapInfoParser::ParseTextureFlags()
 		{
 			sc.MustGetString();
 			// this must also get null textures and ones not yet loaded.
-			auto tex = TexMan.CheckForTexture(sc.String, ETextureType::Any, FTextureManager::TEXMAN_ReturnAll | FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
+			auto tex = TexMan.CheckForTexture(sc.String, ETextureType::Any, texlookupflags);
 
 			if (!tex.isValid())
 			{
@@ -547,7 +549,7 @@ void FMapInfoParser::ParseSurfaceTypes()
 		{
 			sc.MustGetString();
 			// this must also get null textures and ones not yet loaded.
-			auto tex = TexMan.CheckForTexture(sc.String, ETextureType::Any, FTextureManager::TEXMAN_ReturnAll | FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
+			auto tex = TexMan.CheckForTexture(sc.String, ETextureType::Any, texlookupflags);
 
 			if (!tex.isValid())
 			{

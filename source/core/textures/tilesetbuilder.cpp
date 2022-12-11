@@ -319,6 +319,6 @@ void ConstructTileset()
 
 	for (auto& a : info.aliases)
 	{
-		TexMan.AddAlias(a.first.GetChars(), a.second + firstarttile);
+		TexMan.AddAlias(a.first.GetChars(), min(maxarttile, a.second) + firstarttile);
 	}
 }

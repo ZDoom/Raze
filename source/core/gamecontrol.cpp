@@ -984,7 +984,6 @@ static void InitTextures(TArray<GrpEntry>& usedgroups)
 
 	ConstructTileset();
 	InitFont();				// InitFonts may only be called once all texture data has been initialized.
-	//TileFiles.SetAliases();
 
 	lookups.postLoadTables();
 	highTileSetup();
