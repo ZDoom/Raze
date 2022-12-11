@@ -1428,11 +1428,6 @@ public:
 		return int(Degrees_ * (512 / 90.0));
 	}
 
-	constexpr double Buildfang() const
-	{
-		return Degrees_ * (512 / 90.0);
-	}
-
 	constexpr int Q16() const
 	{
 		return int(Degrees_ * (16384 / 90.0));

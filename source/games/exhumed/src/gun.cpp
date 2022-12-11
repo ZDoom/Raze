@@ -1001,7 +1001,7 @@ void DrawWeapons(double interpfrac)
     }
 
     const auto weaponOffsets = PlayerList[nLocalPlayer].Angles.getWeaponOffsets(interpfrac);
-    const auto angle = -weaponOffsets.second;
+    const auto angle = weaponOffsets.second;
     xOffset += weaponOffsets.first.X;
     yOffset += weaponOffsets.first.Y;
 

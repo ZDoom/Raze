@@ -72,7 +72,7 @@ static void drawElement(int x, int y, int tile, double scale = 1, int flipx = 0,
 	if (flipy) flags |= RS_YFLIPHUD;
 	if (pin == -1) flags |= RS_ALIGN_L;
 	else if (pin == 1) flags |= RS_ALIGN_R;
-	hud_drawsprite(x, y, int(scale * 65536), 0, tile, 0, basepal, flags, alpha);
+	hud_drawsprite(x, y, FloatToFixed(scale), 0, tile, 0, basepal, flags, alpha);
 }
 
 

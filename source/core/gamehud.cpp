@@ -73,7 +73,7 @@ void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int d
 		DTA_FlipX, !!(dastat & RS_XFLIPHUD),
 		DTA_FlipY, !!(dastat & RS_YFLIPHUD),
 		DTA_Pin, (dastat & RS_ALIGN_R) ? 1 : (dastat & RS_ALIGN_L) ? -1 : 0,
-		DTA_Rotate, a * -BAngToDegree,
+		DTA_Rotate, a,
 		DTA_FlipOffsets, !(dastat & (/*RS_TOPLEFT |*/ RS_CENTER)),
 		DTA_Alpha, alpha,
 		TAG_DONE);

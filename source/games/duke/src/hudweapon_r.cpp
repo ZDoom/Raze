@@ -41,7 +41,7 @@ BEGIN_DUKE_NS
 
 inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle, int scale = 32768)
 {
-	hud_drawsprite(x, y, scale, angle.Buildfang(), tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, scale, angle.Degrees(), tilenum, shade, p, 2 | orientation);
 }
 
 inline static void rdmyospal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
@@ -77,7 +77,7 @@ void displaymasks_r(int snum, int p, double interpfrac)
 		hud_drawsprite((320 - tileWidth(RTILE_SCUBAMASK + 4)), (200 - tileHeight(RTILE_SCUBAMASK + 4)), 65536, 0, RTILE_SCUBAMASK + 4, 0, p, 2 + 16 + pin);
 		hud_drawsprite(tileWidth(RTILE_SCUBAMASK + 4), (200 - tileHeight(RTILE_SCUBAMASK + 4)), 65536, 0, RTILE_SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
 		hud_drawsprite(35, (-1), 65536, 0, RTILE_SCUBAMASK + 3, 0, p, 2 + 16 + pin);
-		hud_drawsprite(285, 200, 65536, 1024, RTILE_SCUBAMASK + 3, 0, p, 2 + 16 + pin);
+		hud_drawsprite(285, 200, 65536, -180, RTILE_SCUBAMASK + 3, 0, p, 2 + 16 + pin);
 	}
 }
 
@@ -89,13 +89,13 @@ void displaymasks_r(int snum, int p, double interpfrac)
 
 inline static void ShowMotorcycle(double x, double y, int tilenum, int shade, int orientation, int p, double a)
 {
-	hud_drawsprite(x, y, 34816, a, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 34816, a * -BAngToDegree, tilenum, shade, p, 2 | orientation);
 }
 
 
 inline static void ShowBoat(double x, double y, int tilenum, int shade, int orientation, int p, double a)
 {
-	hud_drawsprite(x, y, 66048, a, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 66048, a * -BAngToDegree, tilenum, shade, p, 2 | orientation);
 }
 
 
@@ -134,7 +134,7 @@ void displayweapon_r(int snum, double interpfrac)
 
 	auto offpair = p->Angles.getWeaponOffsets(interpfrac);
 	auto offsets = offpair.first;
-	auto angle = -offpair.second;
+	auto angle = offpair.second;
 	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;
 	auto shade = min(p->insector() && p->cursector->shadedsector == 1 ? 16 : p->GetActor()->spr.shade, 24);
 	auto pal = !p->insector()? 0 : p->GetActor()->spr.pal == 1? 1 : p->cursector->floorpal;

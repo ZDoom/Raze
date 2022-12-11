@@ -52,7 +52,7 @@ inline static double getavel(int snum)
 
 inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, DAngle angle)
 {
-	hud_drawsprite(x, y, 65536, angle.Buildfang(), tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 65536, angle.Degrees(), tilenum, shade, p, 2 | orientation);
 }
 
 //---------------------------------------------------------------------------
@@ -70,11 +70,11 @@ static void displayloogie(player_struct* p, double const interpfrac)
 
 	for (int i = 0; i < p->numloogs; i++)
 	{
-		const double a = fabs(BobVal((loogi + i) * 32.) * 512);
+		const double a = fabs(BobVal((loogi + i) * 32.) * 90);
 		const double z = 4096. + ((loogi + i) * 512.);
 		const double x = -getavel(p->GetPlayerNum()) + BobVal((loogi + i) * 64.) * 16;
 
-		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), z - (i << 8), 256 - a, DTILE_LOOGIE, 0, 0, 2);
+		hud_drawsprite((p->loogie[i].X + x), (200 + p->loogie[i].Y - y), z - (i << 8), a - 22.5, DTILE_LOOGIE, 0, 0, 2);
 	}
 }
 
@@ -232,7 +232,7 @@ void displayweapon_d(int snum, double interpfrac)
 	auto offsets = offpair.first;
 	auto pitchoffset = interpolatedvalue(0., 16., p->Angles.getRenderAngles(interpfrac).Pitch / DAngle90);
 	auto yawinput = getavel(snum) * (1. / 16.);
-	auto angle = -offpair.second;
+	auto angle = offpair.second;
 	auto weapon_xoffset = 160 - 90 - (BobVal(512 + weapon_sway * 0.5) * (16384. / 1536.)) - 58 - p->weapon_ang;
 	auto shade = min(p->GetActor()->spr.shade, (int8_t)24);
 

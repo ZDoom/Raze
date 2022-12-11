@@ -7382,17 +7382,15 @@ void pDisplaySprites(PLAYER* pp, double interpfrac)
     unsigned i;
 
     uint8_t pal = 0;
-    double ang;
     int flags;
 
     const auto offpair = pp->Angles.getWeaponOffsets(interpfrac);
     const auto offsets = offpair.first;
-    const auto angle = -offpair.second.Buildfang();
 
     auto list = pp->GetPanelSpriteList();
     for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
-        ang = angle + psp->rotate_ang;
+        double ang = (offpair.second - DAngle::fromBuild(psp->rotate_ang)).Degrees();
         shade = 0;
         flags = 0;
         if (cl_hudinterpolation)
