@@ -6023,10 +6023,8 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
         pp->Flags &= ~(PF_DEAD);
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        pp->input.actions |= SB_CENTERVIEW;
 		plActor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);
 
-        pp->actor->spr.Angles.Pitch = nullAngle;
         plActor->user.ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
 
@@ -7086,7 +7084,6 @@ void InitAllPlayers(void)
         pp->FadeAmt = 0;
         pp->FadeTics = 0;
         pp->StartColor = 0;
-        pp->Angles.ViewAngles.Pitch = nullAngle;
 
         INITLIST(&pp->PanelSpriteList);
     }
