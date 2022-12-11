@@ -1529,7 +1529,7 @@ void MovePlayer(PLAYER* pp, SECTOR_OBJECT* sop, const DVector2& move)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->actor->spr.Angles.Yaw += deltaangle(pp->RevolveAng + pp->RevolveDeltaAng, pp->actor->spr.Angles.Yaw);
+    pp->actor->spr.Angles.Yaw = (pp->RevolveAng + pp->RevolveDeltaAng).Normalized360();
 
     UpdatePlayerSprite(pp);
 }

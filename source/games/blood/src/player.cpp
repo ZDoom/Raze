@@ -1542,11 +1542,11 @@ void ProcessInput(PLAYER* pPlayer)
 		DBloodActor* fragger = pPlayer->fragger;
 		if (fragger)
 		{
-			pPlayer->actor->spr.Angles.Yaw += deltaangle(pPlayer->actor->spr.Angles.Yaw, (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle());
+			pPlayer->actor->spr.Angles.Yaw = (fragger->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 		}
 		pPlayer->deathTime += 4;
 		if (!bSeqStat)
-			pPlayer->actor->spr.Angles.Pitch += deltaangle(pPlayer->actor->spr.Angles.Pitch, gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5);
+			pPlayer->actor->spr.Angles.Pitch = gi->playerPitchMax() * (1. - BobVal(min((pPlayer->deathTime << 3) + 512, 1536))) * 0.5;
 		if (pPlayer->curWeapon)
 			pInput->setNewWeapon(pPlayer->curWeapon);
 		if (pInput->actions & SB_OPEN)

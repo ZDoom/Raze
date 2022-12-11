@@ -381,7 +381,7 @@ void dokneeattack(int snum)
 	{
 		p->oknee_incs = p->knee_incs;
 		p->knee_incs++;
-		pact->spr.Angles.Pitch += deltaangle(pact->spr.Angles.Pitch, (pact->getPosWithOffsetZ() - p->actorsqu->spr.pos.plusZ(-4)).Pitch());
+		pact->spr.Angles.Pitch = (pact->getPosWithOffsetZ() - p->actorsqu->spr.pos.plusZ(-4)).Pitch();
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
