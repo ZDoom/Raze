@@ -159,7 +159,7 @@ void feebtag(int x, int y, int z, sectortype* pSector, DExhumedActor **nSprite, 
         }
 
         nWalls--;
-        if (nWalls < -1)
+        if (nWalls < 0)
             return;
 
         pSector = wall[startwall].nextSector();
