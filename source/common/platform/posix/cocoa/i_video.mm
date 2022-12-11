@@ -34,9 +34,8 @@
 #include "gl_load.h"
 
 #ifdef HAVE_VULKAN
-#define VK_USE_PLATFORM_MACOS_MVK
-#define VK_USE_PLATFORM_METAL_EXT
-#include "volk/volk.h"
+#include <zvulkan/vulkansurface.h>
+#include <zvulkan/vulkanbuilders.h>
 #endif
 
 #include "i_common.h"
@@ -58,8 +57,10 @@
 #endif
 
 #ifdef HAVE_VULKAN
-#include "vulkan/system/vk_framebuffer.h"
+#include "vulkan/system/vk_renderdevice.h"
 #endif
+
+bool I_CreateVulkanSurface(VkInstance instance, VkSurfaceKHR *surface);
 
 extern bool ToggleFullscreen;
 
@@ -377,9 +378,7 @@ public:
 
 	~CocoaVideo()
 	{
-#ifdef HAVE_VULKAN
-		delete m_vulkanDevice;
-#endif
+		m_vulkanSurface.reset();
 		ms_window = nil;
 	}
 
@@ -433,8 +432,20 @@ public:
 
 			try
 			{
-				m_vulkanDevice = new VulkanDevice();
-				fb = new VulkanFrameBuffer(nullptr, vid_fullscreen, m_vulkanDevice);
+				VulkanInstanceBuilder builder;
+				builder.DebugLayer(vk_debug);
+				builder.RequireExtension(VK_KHR_SURFACE_EXTENSION_NAME); // KHR_surface, required
+				builder.OptionalExtension(VK_EXT_METAL_SURFACE_EXTENSION_NAME); // EXT_metal_surface, optional, preferred
+				builder.OptionalExtension(VK_MVK_MACOS_SURFACE_EXTENSION_NAME); // MVK_macos_surface, optional, deprecated
+				auto vulkanInstance = builder.Create();
+
+				VkSurfaceKHR surfacehandle = nullptr;
+				if (!I_CreateVulkanSurface(vulkanInstance->Instance, &surfacehandle))
+					VulkanError("I_CreateVulkanSurface failed");
+
+				m_vulkanSurface = std::make_shared<VulkanSurface>(vulkanInstance, surfacehandle);
+
+				fb = new VulkanRenderDevice(nullptr, vid_fullscreen, m_vulkanSurface);
 			}
 			catch (std::exception const&)
 			{
@@ -484,7 +495,7 @@ public:
 
 private:
 #ifdef HAVE_VULKAN
-	VulkanDevice *m_vulkanDevice = nullptr;
+	std::shared_ptr<VulkanSurface> m_vulkanSurface;
 #endif
 	static CocoaWindow* ms_window;
 
@@ -905,63 +916,6 @@ void I_GetVulkanDrawableSize(int *width, int *height)
 	if (height != nullptr)
 	{
 		*height = int(size.height);
-	}
-}
-
-bool I_GetVulkanPlatformExtensions(unsigned int *count, const char **names)
-{
-	static std::vector<const char*> extensions;
-
-	if (extensions.empty())
-	{
-		uint32_t extensionPropertyCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionPropertyCount, nullptr);
-
-		std::vector<VkExtensionProperties> extensionProperties(extensionPropertyCount);
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionPropertyCount, extensionProperties.data());
-
-		static const char* const EXTENSION_NAMES[] =
-		{
-			VK_KHR_SURFACE_EXTENSION_NAME,        // KHR_surface, required
-			VK_EXT_METAL_SURFACE_EXTENSION_NAME,  // EXT_metal_surface, optional, preferred
-			VK_MVK_MACOS_SURFACE_EXTENSION_NAME,  // MVK_macos_surface, optional, deprecated
-		};
-
-		for (const VkExtensionProperties &currentProperties : extensionProperties)
-		{
-			for (const char *const extensionName : EXTENSION_NAMES)
-			{
-				if (strcmp(currentProperties.extensionName, extensionName) == 0)
-				{
-					extensions.push_back(extensionName);
-				}
-			}
-		}
-	}
-
-	static const unsigned int extensionCount = static_cast<unsigned int>(extensions.size());
-	assert(extensionCount >= 2); // KHR_surface + at least one of the platform surface extentions
-
-	if (count == nullptr && names == nullptr)
-	{
-		return false;
-	}
-	else if (names == nullptr)
-	{
-		*count = extensionCount;
-		return true;
-	}
-	else
-	{
-		const bool result = *count >= extensionCount;
-		*count = min(*count, extensionCount);
-
-		for (unsigned int i = 0; i < *count; ++i)
-		{
-			names[i] = extensions[i];
-		}
-
-		return result;
 	}
 }
 
