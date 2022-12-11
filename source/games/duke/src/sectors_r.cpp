@@ -175,6 +175,7 @@ bool checkaccessswitch_r(int snum, int switchpal, DDukeActor* act, walltype* wwa
 //---------------------------------------------------------------------------
 void tag10000specialswitch(int snum, DDukeActor* act, const DVector3& v);
 void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
+void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
 
 bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 {
@@ -233,86 +234,12 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 	}
 
 	togglespriteswitches(act, ext, lotag, correctdips, numdips);
-
-	for (auto& wal : wall)
-	{
-		if (lotag == wal.lotag)
-			switch (wal.wallpicnum)
-			{
-			case RTILE_DIPSWITCH:
-			case RTILE_TECHSWITCH:
-			case RTILE_ALIENSWITCH:
-				if (!act && &wal == wwal) wal.wallpicnum++;
-				else if (wal.hitag == 0) correctdips++;
-				numdips++;
-				break;
-			case RTILE_DIPSWITCHON:
-			case RTILE_TECHSWITCHON:
-			case RTILE_ALIENSWITCHON:
-				if (!act && &wal == wwal) wal.wallpicnum--;
-				else if (wal.hitag == 1) correctdips++;
-				numdips++;
-				break;
-			case RTILE_MULTISWITCH:
-			case RTILE_MULTISWITCH_2:
-			case RTILE_MULTISWITCH_3:
-			case RTILE_MULTISWITCH_4:
-				wal.wallpicnum++;
-				if (wal.wallpicnum > (RTILE_MULTISWITCH_4))
-					wal.wallpicnum = RTILE_MULTISWITCH;
-				break;
-			case RTILE_MULTISWITCH2:
-			case RTILE_MULTISWITCH2_2:
-			case RTILE_MULTISWITCH2_3:
-			case RTILE_MULTISWITCH2_4:
-				if (!isRRRA()) break;
-				wal.wallpicnum++;
-				if (wal.wallpicnum > (RTILE_MULTISWITCH2_4))
-					wal.wallpicnum = RTILE_MULTISWITCH2;
-				break;
-			case RTILE_BELLSWITCH:
-				if (!isRRRA()) break;
-				[[fallthrough]];
-			case RTILE_ACCESSSWITCH:
-			case RTILE_ACCESSSWITCH2:
-			case RTILE_SLOTDOOR:
-			case RTILE_LIGHTSWITCH:
-			case RTILE_SPACELIGHTSWITCH:
-			case RTILE_SPACEDOORSWITCH:
-			case RTILE_LIGHTSWITCH2:
-			case RTILE_POWERSWITCH1:
-			case RTILE_LOCKSWITCH1:
-			case RTILE_POWERSWITCH2:
-			case RTILE_PULLSWITCH:
-			case RTILE_HANDSWITCH:
-			case RTILE_DIPSWITCH2:
-			case RTILE_DIPSWITCH3:
-			case RTILE_ALERTSWITCH:
-			case RTILE_HANDLESWITCH:
-				wal.wallpicnum++;
-				break;
-			case RTILE_HANDSWITCHON:
-			case RTILE_PULLSWITCHON:
-			case RTILE_LIGHTSWITCH2ON:
-			case RTILE_POWERSWITCH1ON:
-			case RTILE_LOCKSWITCH1ON:
-			case RTILE_POWERSWITCH2ON:
-			case RTILE_SLOTDOORON:
-			case RTILE_LIGHTSWITCHON:
-			case RTILE_SPACELIGHTSWITCHON:
-			case RTILE_SPACEDOORSWITCHON:
-			case RTILE_DIPSWITCH2ON:
-			case RTILE_DIPSWITCH3ON:
-			case RTILE_ALERTSWITCHON:
-			case RTILE_HANDLESWITCHON:
-				wal.wallpicnum--;
-				break;
-			}
-	}
+	togglewallswitches(wwal, ext, lotag, correctdips, numdips);
 
 	if (lotag == -1)
 	{
 		setnextmap(false);
+		return 1;
 	}
 
 	DVector3 v(pos, ps[snum].GetActor()->getOffsetZ());

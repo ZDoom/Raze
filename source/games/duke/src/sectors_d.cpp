@@ -204,6 +204,7 @@ bool checkaccessswitch_d(int snum, int switchpal, DDukeActor* act, walltype* wwa
 //
 //---------------------------------------------------------------------------
 void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
+void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips);
 
 bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 {
@@ -262,66 +263,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	}
 
 	togglespriteswitches(act, ext, lotag, correctdips, numdips);
-
-	for (auto& wal : wall)
-	{
-		if (lotag == wal.lotag)
-			switch (wal.wallpicnum)
-			{
-			case DTILE_DIPSWITCH:
-			case DTILE_TECHSWITCH:
-			case DTILE_ALIENSWITCH:
-				if (!act && &wal == wwal) wal.wallpicnum++;
-				else if (wal.hitag == 0) correctdips++;
-				numdips++;
-				break;
-			case DTILE_DIPSWITCHON:
-			case DTILE_TECHSWITCHON:
-			case DTILE_ALIENSWITCHON:
-				if (!act && &wal == wwal) wal.wallpicnum--;
-				else if (wal.hitag == 1) correctdips++;
-				numdips++;
-				break;
-			case DTILE_MULTISWITCH:
-			case DTILE_MULTISWITCH_2:
-			case DTILE_MULTISWITCH_3:
-			case DTILE_MULTISWITCH_4:
-				wal.wallpicnum++;
-				if (wal.wallpicnum > (DTILE_MULTISWITCH_4))
-					wal.wallpicnum = DTILE_MULTISWITCH;
-				break;
-			case DTILE_ACCESSSWITCH:
-			case DTILE_ACCESSSWITCH2:
-			case DTILE_SLOTDOOR:
-			case DTILE_LIGHTSWITCH:
-			case DTILE_SPACELIGHTSWITCH:
-			case DTILE_SPACEDOORSWITCH:
-			case DTILE_LIGHTSWITCH2:
-			case DTILE_POWERSWITCH1:
-			case DTILE_LOCKSWITCH1:
-			case DTILE_POWERSWITCH2:
-			case DTILE_PULLSWITCH:
-			case DTILE_HANDSWITCH:
-			case DTILE_DIPSWITCH2:
-			case DTILE_DIPSWITCH3:
-				wal.wallpicnum++;
-				break;
-			case DTILE_HANDSWITCHON:
-			case DTILE_PULLSWITCHON:
-			case DTILE_LIGHTSWITCH2ON:
-			case DTILE_POWERSWITCH1ON:
-			case DTILE_LOCKSWITCH1ON:
-			case DTILE_POWERSWITCH2ON:
-			case DTILE_SLOTDOORON:
-			case DTILE_LIGHTSWITCHON:
-			case DTILE_SPACELIGHTSWITCHON:
-			case DTILE_SPACEDOORSWITCHON:
-			case DTILE_DIPSWITCH2ON:
-			case DTILE_DIPSWITCH3ON:
-				wal.wallpicnum--;
-				break;
-			}
-	}
+	togglewallswitches(wwal, ext, lotag, correctdips, numdips);
 
 	if (lotag == -1)
 	{

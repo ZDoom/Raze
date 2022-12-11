@@ -1517,13 +1517,13 @@ void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int
 		case SwitchDef::Combo:
 			if (other_ext.switchphase == 0)
 			{
-				if (act && act == other) other->spr.setspritetexture(other_swdef.states[1]);
+				if (act == other) other->spr.setspritetexture(other_swdef.states[1]);
 				else if (other->spr.hitag == 0) correctdips++;
 				numdips++;
 			}
 			else
 			{
-				if (act && act == other) other->spr.setspritetexture(other_swdef.states[0]);
+				if (act == other) other->spr.setspritetexture(other_swdef.states[0]);
 				else if (other->spr.hitag == 1) correctdips++;
 				numdips++;
 			}
@@ -1548,6 +1548,50 @@ void togglespriteswitches(DDukeActor* act, const TexExtInfo& ext, int lotag, int
 					CallOnUse(other2, nullptr);
 				}
 			}
+			break;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void togglewallswitches(walltype* wwal, const TexExtInfo& ext, int lotag, int& correctdips, int& numdips)
+{
+	for (auto& wal : wall)
+	{
+		if (lotag != wal.lotag) continue;
+
+		auto& other_ext = GetExtInfo(wal.walltexture());
+		auto& other_swdef = switches[other_ext.switchindex];
+
+		switch (other_swdef.type)
+		{
+		case SwitchDef::Combo:
+			if (other_ext.switchphase == 0)
+			{
+				if (&wal == wwal) wal.setwalltexture(other_swdef.states[1]);
+				else if (wal.hitag == 0) correctdips++;
+				numdips++;
+			}
+			else
+			{
+				if (&wal == wwal) wal.setwalltexture(other_swdef.states[0]);
+				else if (wal.hitag == 1) correctdips++;
+				numdips++;
+			}
+			break;
+
+		case SwitchDef::Multi:
+			wal.setwalltexture(other_swdef.states[(other_ext.switchphase + 1) & 3]);
+			break;
+
+		case SwitchDef::Access:
+		case SwitchDef::Regular:
+			wal.setwalltexture(other_swdef.states[1 - other_ext.switchphase]);
 			break;
 		}
 	}
