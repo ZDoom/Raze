@@ -105,6 +105,7 @@ version "4.10"
 #include "zscript/games/duke/actors/flamethrowerflame.zs"
 #include "zscript/games/duke/actors/firefly.zs"
 
+#include "zscript/games/duke/actors/powderkeg.zs"
 #include "zscript/games/duke/actors/redneckmisc.zs"
 #include "zscript/games/duke/actors/emptybike.zs"
 #include "zscript/games/duke/actors/rrteleport.zs"

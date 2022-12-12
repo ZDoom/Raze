@@ -816,17 +816,6 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 		shootweapon(actor, p, spos, sang, atwith);
 		return;
 
-	case RTILE_POWDERKEG:
-	{
-		auto j = spawn(actor, atwith);
-		if (j)
-		{
-			j->vel.X = 2;
-			j->spr.Angles.Yaw = actor->spr.Angles.Yaw;
-			j->spr.pos.Z -= 5;
-		}
-		break;
-	}
 	case RTILE_OWHIP:
 	case RTILE_UWHIP:
 		shootwhip(actor, p, spos, sang, atwith);

@@ -126,8 +126,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (h->spr.extra > 0)
 				t->pos.Z += 6;
 			break;
-		case RTILE_POWDERKEG:
-			continue;
 		case RTILE_BURNING:
 			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
 			{

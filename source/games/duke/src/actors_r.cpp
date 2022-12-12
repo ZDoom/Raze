@@ -1018,10 +1018,6 @@ static void rrra_specialstats()
 
 void moveactors_r(void)
 {
-	double xx;
-	int p;
-	Collision coll;
-
 	dojaildoor();
 	moveminecart();
 
@@ -1033,46 +1029,7 @@ void moveactors_r(void)
 	if (ud.chickenplant) tickstat(STAT_CHICKENPLANT);
 	tickstat(STAT_BOWLING);
 	tickstat(STAT_TELEPORT);
-
-	DukeStatIterator it(STAT_ACTOR);
-	while (auto act = it.Next())
-	{
-		if( act->spr.scale.X == 0 || !act->insector() || actorflag(act, SFLAG2_DIENOW))
-		{
-			act->Destroy();
-			continue;
-		}
-		if (monsterCheatCheck(act) && badguy(act))
-		{
-			continue;
-		}
-
-		auto sectp = act->sector();
-
-		if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
-		{
-			CallTick(act);
-			continue;
-		}
-		else switch(act->spr.picnum)
-		{
-			case RTILE_POWDERKEG:
-				if (!isRRRA() || (sectp->lotag != ST_1_ABOVE_WATER && sectp->lotag != ST_160_FLOOR_TELEPORT))
-					if (act->vel.X != 0)
-					{
-						movesprite_ex(act, DVector3(act->spr.Angles.Yaw.ToVector()* act->vel.X, act->vel.Z), CLIPMASK0, coll);
-						act->vel.X -= 1. / 16.;
-					}
-				break;
-		}
-
-
-
-		p = findplayer(act, &xx);
-
-		execute(act,p,xx);
-	}
-
+	tickstat(STAT_ACTOR);
 }
 
 //---------------------------------------------------------------------------
