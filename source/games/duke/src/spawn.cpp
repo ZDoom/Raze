@@ -346,31 +346,6 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 //
 //---------------------------------------------------------------------------
 
-int spawnbloodpoolpart1(DDukeActor* act)
-{
-	bool away = isAwayFromWall(act, 6.75);
-	
-	if (!away)
-	{
-		act->spr.scale = DVector2(0, 0); 
-		ChangeActorStat(act, STAT_MISC); 
-		return true;
-	}
-
-	if (act->sector()->lotag == 1)
-	{
-		ChangeActorStat(act, STAT_MISC);
-		return true;
-	}
-	return false;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 {
 	auto sectp = actor->sector();

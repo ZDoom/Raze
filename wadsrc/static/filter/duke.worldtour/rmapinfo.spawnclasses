@@ -7,4 +7,6 @@ spawnclasses
 	5294 = DeveloperCommentary
 	1891 = DukeFlamethrowerFlame
 	5296 = DukeFireflyFlyingEffect
+	5304 = DukeLavaPool
+	5207 = DukeLavaPoolBubble
 }

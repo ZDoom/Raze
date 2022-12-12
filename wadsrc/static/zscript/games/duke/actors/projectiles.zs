@@ -1048,3 +1048,12 @@ class RedneckSawBlade : DukeProjectile
 		return true;
 	}
 }
+
+
+class RedneckCircleStuck : DukeActor
+{
+	default
+	{
+		pic "CIRCLESTUCK";
+	}
+}

@@ -123,15 +123,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 					ChangeActorStat(act, STAT_ZOMBIEACTOR);
 			}
 			return act;
-		case DTILE_LAVAPOOLBUBBLE:
-			if (actj->spr.scale.X < 0.46875)
-				return act;
-			act->SetOwner(actj);
-			ChangeActorStat(act, STAT_MISC);
-			act->spr.pos.X += krandf(32) - 16;
-			act->spr.pos.Y += krandf(32) - 16;
-			act->spr.scale = DVector2(0.25, 0.25);
-			return act;
 		case DTILE_WHISPYSMOKE:
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krandf(16) - 8;
@@ -163,16 +154,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.pal = 6;
 		ChangeActorStat(act, STAT_MISC);
 		break;
-	case DTILE_LAVAPOOL:
-		if (!isWorldTour()) // Twentieth Anniversary World Tour
-			return act;
-
-		if (spawnbloodpoolpart1(act)) break;
-
-		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		act->spr.pos.Z = getflorzofslopeptr(act->sector(), act->spr.pos) - 0.78125;
-		[[fallthrough]];
-
 	case DTILE_FECES:
 		if (actj)
 			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
