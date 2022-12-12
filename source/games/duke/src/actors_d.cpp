@@ -1372,11 +1372,6 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		return;
 	}
 
-	if (actor->spr.picnum == DTILE_WATERBUBBLE)
-	{
-		int a = 0;
-	}
-
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
 	if (a & geth) actor->vel.X += (moveptr[0] / 16. - actor->vel.X) * 0.5;
