@@ -106,6 +106,7 @@ version "4.10"
 #include "zscript/games/duke/actors/toiletwater.zs"
 #include "zscript/games/duke/actors/burning.zs"
 #include "zscript/games/duke/actors/explosion2.zs"
+#include "zscript/games/duke/actors/waterbubble.zs"
 
 #include "zscript/games/duke/actors/batteryammo.zs"
 #include "zscript/games/duke/actors/sixpak.zs"

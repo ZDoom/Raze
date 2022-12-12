@@ -272,13 +272,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			break;
 
-		case DTILE_WATERBUBBLE:
-			if (tilesurface(t->sectp->floortexture) == TSURF_SLIME)
-			{
-				t->pal = 7;
-				break;
-			}
-			[[fallthrough]];
 		default:
 
 			if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL))
@@ -302,7 +295,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		{
 		case DTILE_GROWSPARK:
 		case DTILE_CHAINGUN:
-		case DTILE_SHRINKEREXPLOSION:
 		case DTILE_FLOORFLAME:
 			t->shade = -127;
 			break;

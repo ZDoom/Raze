@@ -907,8 +907,6 @@ void movetransports_d(void)
 							[[fallthrough]];
 
 						case DTILE_WATERBUBBLE:
-							//if( rnd(192) && a2->s.picnum == DTILE_WATERBUBBLE)
-							// break;
 
 							if (sectlotag > 0)
 							{

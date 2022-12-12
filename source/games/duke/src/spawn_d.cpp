@@ -228,7 +228,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		[[fallthrough]];
 	case DTILE_SMALLSMOKE:
-	case DTILE_SHRINKEREXPLOSION:
 
 		if (actj)
 		{
@@ -236,15 +235,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.shade = -64;
 			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
-
-		else if (act->spr.picnum == DTILE_SHRINKEREXPLOSION)
-		{
-			act->spr.scale = DVector2(0.5, 0.5);
-		}
-		else if (act->spr.picnum == DTILE_SMALLSMOKE || act->spr.picnum == DTILE_ONFIRE)
-		{
-			act->spr.scale = DVector2(0.375, 0.375);
-		}
+		act->spr.scale = DVector2(0.375, 0.375);
 
 		if (actj)
 		{
@@ -288,20 +279,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_PLAYER);
 		break;
 	}
-	case DTILE_WATERBUBBLE:
-		if (actj && actj->isPlayer())
-			act->spr.pos.Z -= 16;
-		if (act->spr.picnum == DTILE_WATERBUBBLE)
-		{
-			if (actj)
-				act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-			act->spr.scale = DVector2(0.0625, 0.0625);
-		}
-		else act->spr.scale = DVector2(0.5, 0.5);
-
-		ChangeActorStat(act, STAT_MISC);
-		break;
-
 	case DTILE_WATERDRIPSPLASH: // ok
 		act->spr.scale = DVector2(0.375, 0.375);
 		ChangeActorStat(act, STAT_STANDABLE);

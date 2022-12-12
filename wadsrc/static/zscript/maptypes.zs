@@ -343,6 +343,7 @@ struct tspritetype native
 
 	native void setSpritePic(CoreActor actor, int index); // index into actor's spriteset.
 	native void setWeaponOrAmmoSprite(int num);
+	native void copyfloorpal(sectortype sect);
 
 }
 

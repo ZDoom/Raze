@@ -247,4 +247,7 @@ spawnclasses
 	41 = DukeBatteryAmmo
 	52 = DukeSixpak
 	100 = DukeAtomicHealth
+	1656 = DukeShrinkerExplosion
+	661 = DukeWaterBubble
+	
 }

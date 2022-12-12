@@ -14,9 +14,6 @@ int PicForName(int intname)
 	if (classnameToTile.CountUsed() == 0)
 	{
 		static std::pair<const char*, const char*> classes[] = {
-			{"DukeAtomicHealth", "ATOMICHEALTH"},
-			{"DukeShrinkerExplosion", "SHRINKEREXPLOSION" },
-			{"DukeWaterBubble", "WATERBUBBLE"},
 			{"DukeLavaPool", "LAVAPOOL"},
 			{"RedneckCircleStuck", "CIRCLESTUCK"},
 			{"DukePigCop", "PIGCOP"},
@@ -1549,6 +1546,14 @@ DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, setWeaponOrAmmoSprite, tspritetype_s
 	PARAM_SELF_STRUCT_PROLOGUE(tspritetype);
 	PARAM_INT(z);
 	tspritetype_setWeaponOrAmmoSprite(self, z);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, copyfloorpal, copyfloorpal)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(tspritetype);
+	PARAM_POINTER(s, sectortype);
+	copyfloorpal(self, s);
 	return 0;
 }
 

@@ -284,6 +284,37 @@ class DukeShrinkSpark : DukeProjectile
 }
 
 
+class DukeShrinkerExplosion : DukeActor
+{
+	default
+	{
+		spriteset "SHRINKEREXPLOSION";
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		tspr.shade = -127;
+		return false;
+	}
+	
+	override void Initialize()
+	{
+		let owner = self.ownerActor;
+		if (owner != self)
+		{
+			self.Angle = owner.Angle;
+			self.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
+			double c,f;
+			[c, f] = self.sector.getSlopes(self.pos.XY);
+			self.pos.Z = min(self.pos.Z, f - 12);
+		}
+		self.shade = -64;
+		self.scale = (0.5, 0.5);
+		self.ChangeStat(STAT_MISC);
+	}
+	
+}
+
 //---------------------------------------------------------------------------
 //
 // 

@@ -172,21 +172,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_PLAYER);
 		break;
 	}
-	case RTILE_WATERBUBBLE:
-		if (actj && actj->isPlayer())
-			act->spr.pos.Z -= 16;
-		if (act->spr.picnum == RTILE_WATERBUBBLE)
-		{
-			if (actj)
-				act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-			double s = REPEAT_SCALE + (krand() & 7) * REPEAT_SCALE;
-			act->spr.scale = DVector2(s, s);
-		}
-		else
-			act->spr.scale = DVector2(0.5, 0.5);
-		ChangeActorStat(act, STAT_MISC);
-		break;
-
 	case RTILE_WATERBUBBLEMAKER:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_STANDABLE);
