@@ -6,4 +6,5 @@ spawnclasses
 	5737 = DukeGenericDestructible, "WTGLASS2", "", "GLASS_BREAKING", spawnglass
 	5294 = DeveloperCommentary
 	1891 = DukeFlamethrowerFlame
+	5296 = DukeFireflyFlyingEffect
 }

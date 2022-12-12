@@ -991,69 +991,6 @@ void movetransports_d(void)
 //
 //---------------------------------------------------------------------------
 
-static void fireflyflyingeffect(DDukeActor *actor)
-{
-	double xx;
-	int p = findplayer(actor, &xx);
-	execute(actor, p, xx);
-	if (actor->ObjectFlags & OF_EuthanizeMe) return;	// killed by script.
-
-	auto Owner = actor->GetOwner();
-	if (!Owner || Owner->spr.picnum != DTILE_FIREFLY) 
-	{
-		actor->Destroy();
-		return;
-	}
-
-	if (Owner->spr.scale.X >= 0.375 || Owner->spr.pal == 1)
-		actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-	else
-		actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-
-	auto dvec = Owner->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY();
-	double dist = dvec.Length();
-
-	if (dist != 0.0) dvec /= dist;
-	actor->spr.pos = Owner->spr.pos + DVector3(dvec.X * -0.625, dvec.Y * -0.625, 8);
-
-	if (Owner->spr.extra <= 0) 
-	{
-		actor->Destroy();
-	}
-
-}
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void moveexplosions_d(void)  // STATNUM 5
-{
-	DukeStatIterator it(STAT_MISC);
-	while (auto act = it.Next())
-	{
-		if (act->spr.scale.X == 0 || act->spr.sectp == nullptr || actorflag(act, SFLAG2_DIENOW))
-		{
-			act->Destroy();
-		}
-		else if (isWorldTour() && act->spr.picnum == DTILE_FIREFLYFLYINGEFFECT)
-		{
-			fireflyflyingeffect(act);
-		}
-		else
-		{
-			CallTick(act);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void handle_se06_d(DDukeActor* actor)
 {
 	auto sc = actor->sector();
@@ -1609,7 +1546,7 @@ void think_d(void)
 	tickstat(STAT_PROJECTILE);		//ST 4
 	moveplayers();			//ST 10
 	movefallers_d();		//ST 12
-	moveexplosions_d();		//ST 5
+	tickstat(STAT_MISC, true);		//ST 5
 
 	actortime.Reset();
 	actortime.Clock();
