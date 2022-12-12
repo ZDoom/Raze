@@ -270,6 +270,11 @@ spawnclasses
 	3171 = DukeActor, "*RRTILE3171"
 	3216 = DukeActor, "*RRTILE3216"
 	3720 = DukeActor, "*RRTILE3720"
+
+	// the following actors use CON
+	
+	1398 = DukeTransporterStar
+	1338 = DukeTransporterBeam
 	
 }
 

@@ -156,11 +156,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.scale = DVector2(0, 0);
 		ChangeActorStat(act, STAT_MISC);
 		break;
-	case DTILE_TRANSPORTERSTAR:
-	case DTILE_TRANSPORTERBEAM:
-		spawntransporter(actj, act, act->spr.picnum == DTILE_TRANSPORTERBEAM);
-		break;
-
 	case DTILE_BLOOD:
 		act->spr.scale = DVector2(0.25, 0.25);
 		act->spr.pos.Z -= 26;

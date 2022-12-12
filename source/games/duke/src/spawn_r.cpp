@@ -80,11 +80,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		pistonsound = 1;
 		break;
 
-	case RTILE_TRANSPORTERSTAR:
-	case RTILE_TRANSPORTERBEAM:
-		spawntransporter(actj, act, act->spr.picnum == RTILE_TRANSPORTERBEAM);
-		break;
-
 	case RTILE_BLOOD:
 		act->spr.scale = DVector2(0.0625, 0.0625);
 		act->spr.pos.Z -= 26;

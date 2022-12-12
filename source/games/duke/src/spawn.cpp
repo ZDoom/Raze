@@ -346,44 +346,6 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 //
 //---------------------------------------------------------------------------
 
-void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
-{
-	if (actj == nullptr) return;
-	if (beam)
-	{
-		act->spr.scale = DVector2(0.484375, REPEAT_SCALE);
-		act->spr.pos.Z = actj->sector()->floorz - gs.playerheight;
-	}
-	else
-	{
-		if (actj->spr.statnum == 4)
-		{
-			act->spr.scale = DVector2(0.125, 0.125);
-		}
-		else
-		{
-			act->spr.scale = DVector2(0.75, 1);
-			if (actj->spr.statnum == 10 || badguy(actj))
-				act->spr.pos.Z -= 32;
-		}
-	}
-
-	act->spr.shade = -127;
-	act->spr.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-	act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-
-	act->vel.X = 8;
-	ChangeActorStat(act, STAT_MISC);
-	ssp(act, CLIPMASK0);
-	SetActor(act, act->spr.pos);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 int spawnbloodpoolpart1(DDukeActor* act)
 {
 	bool away = isAwayFromWall(act, 6.75);

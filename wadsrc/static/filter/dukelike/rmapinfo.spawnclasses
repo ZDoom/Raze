@@ -237,4 +237,7 @@ spawnclasses
 	
 	// the following actors use CON.
 	1671 = DukeForceRipple
+	1630 = DukeTransporterStar
+	1261 = DukeTransporterBeam
+
 }
