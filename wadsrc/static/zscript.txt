@@ -111,6 +111,7 @@ version "4.10"
 #include "zscript/games/duke/actors/batteryammo.zs"
 #include "zscript/games/duke/actors/sixpak.zs"
 #include "zscript/games/duke/actors/atomichealth.zs"
+#include "zscript/games/duke/actors/pigcop.zs"
 
 #include "zscript/games/duke/actors/flamethrowerflame.zs"
 #include "zscript/games/duke/actors/firefly.zs"

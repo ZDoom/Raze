@@ -69,10 +69,6 @@ void check_fta_sounds_d(DDukeActor* actor)
 	case DTILE_LIZMANJUMP:
 		S_PlayActorSound(CAPT_RECOG, actor);
 		break;
-	case DTILE_PIGCOP:
-	case DTILE_PIGCOPDIVE:
-		S_PlayActorSound(PIG_RECOG, actor);
-		break;
 	case DTILE_RECON:
 		S_PlayActorSound(RECO_RECOG, actor);
 		break;

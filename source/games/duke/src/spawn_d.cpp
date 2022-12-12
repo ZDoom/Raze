@@ -276,10 +276,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case DTILE_OCTABRAINSTAYPUT:
 	case DTILE_LIZTROOPSTAYPUT:
-	case DTILE_PIGCOPSTAYPUT:
 	case DTILE_LIZMANSTAYPUT:
 	case DTILE_BOSS1STAYPUT:
-	case DTILE_PIGCOPDIVE:
 	case DTILE_COMMANDERSTAYPUT:
 	case DTILE_BOSS4STAYPUT:
 		act->actorstayput = act->sector();
@@ -299,7 +297,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DTILE_LIZTROOP:
 	case DTILE_OCTABRAIN:
 	case DTILE_COMMANDER:
-	case DTILE_PIGCOP:
 	case DTILE_LIZMAN:
 	case DTILE_LIZMANSPITTING:
 	case DTILE_LIZMANFEEDING:

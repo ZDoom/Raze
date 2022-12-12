@@ -14,7 +14,6 @@ int PicForName(int intname)
 	if (classnameToTile.CountUsed() == 0)
 	{
 		static std::pair<const char*, const char*> classes[] = {
-			{"DukePigCop", "PIGCOP"},
 			{"DukeSmallSmoke", "SMALLSMOKE"},
 			{"RedneckBowlingBallSprite", "BOWLINGBALLSPRITE"},
 			{"DukeSteam", "STEAM"},

@@ -9,7 +9,7 @@ class DukeRecon : DukeActor
 	Sound PainSnd;
 	Sound RoamSnd;
 	int shift;
-	String spawntype;	// should be 'class<DukeActor>' but the spawned types have not been converted yet.
+	String spawntype;	// should be 'class<DukeActor>' but the spawned types have not all been converted yet.
 	
 	override void initialize()
 	{
