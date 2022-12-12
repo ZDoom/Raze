@@ -43,28 +43,6 @@ void moveminecart();
 //
 //---------------------------------------------------------------------------
 
-void check_fta_sounds_r(DDukeActor* actor)
-{
-	if (actor->spr.extra > 0) switch (actor->spr.picnum)
-	{
-	case RTILE_COOT: // LIZTROOP
-		if (!isRRRA() && (krand() & 3) == 2)
-			S_PlayActorSound(PRED_RECOG, actor);
-		break;
-	case RTILE_BILLYCOCK:
-	case RTILE_BILLYRAY:
-	case RTILE_BRAYSNIPER: // PIGCOP
-		S_PlayActorSound(PIG_RECOG, actor);
-		break;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void addweapon_r(player_struct* p, int weapon, bool wswitch)
 {
 	int cw = p->curr_weapon;
@@ -949,46 +927,8 @@ static void rrra_specialstats()
 		DukeSpriteIterator itr;
 		while (auto act = itr.Next())
 		{
-			switch (act->spr.picnum)
+			if (badguy(act))
 			{
-				//case 4049:
-				//case 4050:
-			case RTILE_BILLYCOCK:
-			case RTILE_BILLYRAY:
-			case RTILE_BILLYRAYSTAYPUT:
-			case RTILE_BRAYSNIPER:
-			case RTILE_DOGRUN:
-			case RTILE_LTH:
-			case RTILE_HULKJUMP:
-			case RTILE_HULK:
-			case RTILE_HULKSTAYPUT:
-			case RTILE_HEN:
-			case RTILE_DRONE:
-			case RTILE_PIG:
-			case RTILE_MINION:
-			case RTILE_MINIONSTAYPUT:
-			case RTILE_UFO1_RRRA:
-			case RTILE_UFO2:
-			case RTILE_UFO3:
-			case RTILE_UFO4:
-			case RTILE_UFO5:
-			case RTILE_COOT:
-			case RTILE_COOTSTAYPUT:
-			case RTILE_VIXEN:
-			case RTILE_BIKERB:
-			case RTILE_BIKERBV2:
-			case RTILE_BIKER:
-			case RTILE_MAKEOUT:
-			case RTILE_CHEERB:
-			case RTILE_CHEER:
-			case RTILE_CHEERSTAYPUT:
-			case RTILE_COOTPLAY:
-			case RTILE_BILLYPLAY:
-			case RTILE_MINIONBOAT:
-			case RTILE_HULKBOAT:
-			case RTILE_CHEERBOAT:
-			case RTILE_RABBIT:
-			case RTILE_MAMA:
 				if (enemysizecheat == 3)
 				{
 					act->spr.scale *= 2;
@@ -998,11 +938,10 @@ static void rrra_specialstats()
 				{
 					act->spr.scale *= 0.5;
 					auto tex = TexMan.GetGameTexture(act->spr.spritetexture());
-					act->clipdist = act->spr.scale.X, tex->GetDisplayHeight() * 0.125;
+					act->setClipDistFromTile();
 				}
 				break;
 			}
-
 		}
 		enemysizecheat = 0;
 	}

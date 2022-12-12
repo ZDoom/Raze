@@ -364,22 +364,11 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (t->picnum >= RTILE_CHEER + 102 && t->picnum <= RTILE_CHEER + 151)
 				t->shade = -127;
 			break;
-		case RTILE_MINION:
-			if (!isRRRA()) break;
-			if (t->pal == 19)
-				t->shade = -127;
-			break;
 		case RTILE_BIKER:
 			if (!isRRRA()) break;
 			if (t->picnum >= RTILE_BIKER + 54 && t->picnum <= RTILE_BIKER + 58)
 				t->shade = -127;
 			else if (t->picnum >= RTILE_BIKER + 84 && t->picnum <= RTILE_BIKER + 88)
-				t->shade = -127;
-			break;
-		case RTILE_BILLYRAY:
-		case RTILE_BILLYRAYSTAYPUT:
-			if (!isRRRA()) break;
-			if (t->picnum >= RTILE_BILLYRAY + 5 && t->picnum <= RTILE_BILLYRAY + 9)
 				t->shade = -127;
 			break;
 		case RTILE_RRTILE2034:

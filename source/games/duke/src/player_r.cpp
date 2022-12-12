@@ -560,7 +560,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 		{
 			if (isRRRA() && atwith == RTILE_RPG2)
 			{
-				if (aimed->spr.picnum == RTILE_HEN || aimed->spr.picnum == RTILE_HENSTAYPUT)
+				if (aimed->IsKindOf(NAME_RedneckHen))
 					act90 = ps[screenpeek].GetActor();
 				else
 					act90 = aimed;
@@ -3605,13 +3605,13 @@ HORIZONLY:
 		}
 		else if (badguy(clip.actor()))
 		{
-			if (clip.actor()->spr.statnum != 1)
+			if (clip.actor()->spr.statnum != STAT_ACTOR)
 			{
 				clip.actor()->timetosleep = 0;
 				if (clip.actor()->spr.picnum == RTILE_BILLYRAY)
 					S_PlayActorSound(404, clip.actor());
 				else
-					check_fta_sounds_r(clip.actor());
+					CallPlayFTASound(clip.actor());
 				ChangeActorStat(clip.actor(), 1);
 			}
 		}

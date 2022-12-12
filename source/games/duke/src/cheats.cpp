@@ -119,7 +119,7 @@ static const char *cheatKfc(int player)
 {
 	for (int i = 0; i < 7; i++)
 	{
-		auto spr = spawn(ps[player].GetActor(), TILE_HEN);
+		auto spr = spawn(ps[player].GetActor(), PClass::FindActor(NAME_RedneckHen));
 		if (spr)
 		{
 			spr->spr.pal = 1;

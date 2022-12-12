@@ -17,7 +17,6 @@ extern int TILE_WATERBUBBLE;
 extern int TILE_SMALLSMOKE;
 extern int TILE_BLOODPOOL;
 extern int TILE_CLOUDYSKIES;
-extern int TILE_HEN;
 extern int TILE_MIRRORBROKE;
 extern int TILE_LOADSCREEN;
 extern int TILE_CROSSHAIR;

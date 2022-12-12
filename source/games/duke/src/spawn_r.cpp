@@ -204,31 +204,18 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (isRRRA()) goto default_case;
 		[[fallthrough]];
 
-	case RTILE_BILLYRAYSTAYPUT:
-	case RTILE_BRAYSNIPER:
 	case RTILE_BUBBASTAND:
 	case RTILE_HULKSTAYPUT:
-	case RTILE_HENSTAYPUT:
-	case RTILE_PIGSTAYPUT:
-	case RTILE_MINIONSTAYPUT:
-	case RTILE_COOTSTAYPUT:
 	rrra_stayput:
 		act->actorstayput = act->sector();
 		[[fallthrough]];
 	case RTILE_BOULDER:
 	case RTILE_BOULDER1:
 	case RTILE_TORNADO:
-	case RTILE_BILLYCOCK:
-	case RTILE_BILLYRAY:
 	case RTILE_DOGRUN:
 	case RTILE_LTH:
 	case RTILE_HULK:
-	case RTILE_HEN:
 	case RTILE_DRONE:
-	case RTILE_PIG:
-	case RTILE_MINION:
-	case RTILE_COW:
-	case RTILE_COOT:
 	case RTILE_VIXEN:
 	rrra_badguy2:
 		act->spr.scale = DVector2(0.625, 0.625);
@@ -255,8 +242,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->setClipDistFromTile();
 			break;
 		case RTILE_COOTPLAY:
-		case RTILE_COOT:
-		case RTILE_COOTSTAYPUT:
 			act->spr.scale = DVector2(0.375, 0.28125);
 			act->setClipDistFromTile();
 			act->clipdist *= 4;
@@ -267,40 +252,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case RTILE_SBSWIPE:
 		case RTILE_BILLYPLAY:
-		case RTILE_BILLYCOCK:
-		case RTILE_BILLYRAY:
-		case RTILE_BILLYRAYSTAYPUT:
-		case RTILE_BRAYSNIPER:
 		case RTILE_BUBBASTAND:
 			act->spr.scale = DVector2(0.390625, 0.328125);
 			act->setClipDistFromTile();
 			break;
-		case RTILE_COW:
-			act->spr.scale = DVector2(0.5, 0.5);
-			act->setClipDistFromTile();
-			break;
-		case RTILE_HEN:
-		case RTILE_HENSTAYPUT:
-			if (act->spr.pal == 35)
-			{
-				act->spr.scale = DVector2(0.65625, 0.46875);
-				act->setClipDistFromTile();
-			}
-			else
-			{
-				act->spr.scale = DVector2(0.328125, 0.234375);
-				act->clipdist = 16;
-			}
-			break;
-		case RTILE_MINION:
-		case RTILE_MINIONSTAYPUT:
-			act->spr.scale = DVector2(0.25, 0.25);
-			act->setClipDistFromTile();
-			if (isRRRA() && ud.ufospawnsminion)
-				act->spr.pal = 8;
-			break;
 		case RTILE_DOGRUN:
-		case RTILE_PIG:
 			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
 			break;
@@ -420,7 +376,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (actj)
 			{
 				act->timetosleep = 0;
-				check_fta_sounds_r(act);
+				CallPlayFTASound(act);
 				ChangeActorStat(act, STAT_ACTOR);
 				act->spr.shade = actj->spr.shade;
 			}

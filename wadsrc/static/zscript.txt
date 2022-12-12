@@ -132,6 +132,12 @@ version "4.10"
 #include "zscript/games/duke/actors/airplane.zs"
 #include "zscript/games/duke/actors/piano.zs"
 
+#include "zscript/games/duke/actors/coot.zs"
+#include "zscript/games/duke/actors/billyray.zs"
+#include "zscript/games/duke/actors/minion.zs"
+#include "zscript/games/duke/actors/hen.zs"
+#include "zscript/games/duke/actors/cow.zs"
+#include "zscript/games/duke/actors/pig.zs"
 #include "zscript/games/duke/actors/rabbit.zs"
 
 #include "zscript/games/duke/world/dukebreak.zs"

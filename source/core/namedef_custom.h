@@ -37,6 +37,7 @@ xx(RedneckKeyinfoSetter)
 xx(DukeSectorEffector)
 xx(RedneckGoogooCluster)
 xx(DukeAtomicHealth)
+xx(RedneckHen)
 
 xx(spawnstate)
 xx(brokenstate)

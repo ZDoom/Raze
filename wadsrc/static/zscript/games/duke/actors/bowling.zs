@@ -39,8 +39,7 @@ class RedneckBowlingPin : DukeActor
 					let hitact = DukeActor(coll.hitActor());
 					// avoid checkhitsprite here. The way this was handled was just wrong on all accounts
 					self.collide(hitact);
-					//if (hitact is "RedneckHen")	// does not work yet - Hen is not scriptified.
-					if (hitact.checkType("HEN"))	// Temporary workaround
+					if (hitact is "RedneckHen")
 					{
 						let ns = hitact.spawn("RedneckHenstand");
 						hitact.scale = (0,0);

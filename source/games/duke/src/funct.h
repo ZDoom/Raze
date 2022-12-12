@@ -80,7 +80,6 @@ void handle_se128(DDukeActor* i);
 void handle_se130(DDukeActor* i, int countmax, int EXPLOSION2);
 
 void check_fta_sounds_d(DDukeActor* i);
-void check_fta_sounds_r(DDukeActor* i);
 
 int dodge(DDukeActor*);
 void alterang(int ang, DDukeActor* actor, int g_p);
