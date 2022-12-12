@@ -15,7 +15,7 @@ int PicForName(int intname)
 	{
 		static std::pair<const char*, const char*> classes[] = {
 			{ "DukeToiletWater", "TOILETWATER" },
-			{ "DukeBurning", "BURNIMG"},
+			{ "DukeBurning", "BURNING"},
 			{"DukeExplosion2","EXPLOSION2"},
 			{"DukeExplosion2Bot","EXPLOSION2BOT"},
 			{"DukeTransporterStar",	"TRANSPORTERSTAR"},
