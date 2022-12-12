@@ -207,8 +207,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		// Twentieth Anniversary World Tour
 		if (!isWorldTour())
 			break;
-		[[fallthrough]];
-	case DTILE_SMALLSMOKE:
 
 		if (actj)
 		{
@@ -225,16 +223,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				act->spr.pos.Z = x - 12;
 		}
 
-		if (act->spr.picnum == DTILE_ONFIRE)
-		{
-			act->spr.pos.X += krandf(32) - 16;
-			act->spr.pos.Y += krandf(32) - 16;
-			act->spr.pos.Z -= krandf(40);
-			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-		}
+		act->spr.pos.X += krandf(32) - 16;
+		act->spr.pos.Y += krandf(32) - 16;
+		act->spr.pos.Z -= krandf(40);
+		act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 
 		ChangeActorStat(act, STAT_MISC);
-
 		break;
 
 	case DTILE_PLAYERONWATER:
@@ -470,16 +464,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
-	case DTILE_STEAM:
-		if (actj)
-		{
-			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
-			act->vel.X = -0.5;
-			ssp(act, CLIPMASK0);
-		}
-		[[fallthrough]];
 	case DTILE_CEILINGSTEAM:
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;

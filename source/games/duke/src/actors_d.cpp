@@ -471,17 +471,17 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 
 void lotsofmoney_d(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, DTILE_MONEY);
+	lotsofstuff(actor, n, PClass::FindActor(NAME_DukeMoney));
 }
 
 void lotsofmail_d(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, DTILE_MAIL);
+	lotsofstuff(actor, n, PClass::FindActor(NAME_DukeMail));
 }
 
 void lotsofpaper_d(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, DTILE_PAPER);
+	lotsofstuff(actor, n, PClass::FindActor(NAME_DukePaper));
 }
 
 //---------------------------------------------------------------------------
@@ -1095,7 +1095,7 @@ static void handle_se28(DDukeActor* actor)
 					if (rnd(32) && (actor->temp_data[2] & 1))
 					{
 						act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-						spawn(act2, DTILE_SMALLSMOKE);
+						spawn(act2, PClass::FindActor(NAME_DukeSmallSmoke));
 
 						double x;
 						int p = findplayer(actor, &x);
@@ -1235,7 +1235,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 		}
 		case SE_35:
-			handle_se35(act, DTILE_SMALLSMOKE, DTILE_EXPLOSION2);
+			handle_se35(act);
 			break;
 
 		case SE_25_PISTON: //PISTONS
@@ -1287,10 +1287,10 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case 130:
-			handle_se130(act, 80, DTILE_EXPLOSION2);
+			handle_se130(act, 80);
 			break;
 		case 131:
-			handle_se130(act, 40, DTILE_EXPLOSION2);
+			handle_se130(act, 40);
 			break;
 		}
 	}

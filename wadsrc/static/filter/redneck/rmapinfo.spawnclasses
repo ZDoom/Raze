@@ -283,6 +283,9 @@ spawnclasses
 	5595 = RedneckGoogooCluster
 	240 = DukeWaterBubble
 	3388 = RedneckCircleStuck
+	1554 = DukeSmallSmoke
+	1327 = DukeSteam
+	3437 = RedneckBowlingBallSprite
 	
 	4861 = RedneckHen
 	4862 = RedneckHenStayput

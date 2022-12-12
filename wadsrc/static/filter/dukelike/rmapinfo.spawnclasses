@@ -249,6 +249,8 @@ spawnclasses
 	100 = DukeAtomicHealth
 	1656 = DukeShrinkerExplosion
 	661 = DukeWaterBubble
+	2329 = DukeSmallSmoke
+	1250 = DukeSteam
 
 	2000 = DukePigCop
 	2001 = DukePigCopStayPut

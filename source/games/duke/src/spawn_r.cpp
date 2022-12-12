@@ -119,7 +119,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case RTILE_EXPLOSION3:
-	case RTILE_SMALLSMOKE:
 		if (actj)
 		{
 			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
@@ -132,10 +131,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.scale = DVector2(2, 2);
 			act->spr.shade = -127;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-		}
-		else if (act->spr.picnum == RTILE_SMALLSMOKE)
-		{
-			act->spr.scale = DVector2(0.1875, 0.1875);
 		}
 
 		if (actj)
@@ -422,19 +417,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RTILE_FIRSTAID:
 
 	case RTILE_SAWAMMO:
-	case RTILE_BOWLINGBALLSPRITE:
 		if (actj)
 		{
 			act->spr.lotag = 0;
-			if (act->spr.picnum != RTILE_BOWLINGBALLSPRITE)
-			{
-				act->spr.pos.Z -= 32;
-				act->vel.Z = -4;
-			}
-			else
-			{
-				act->vel.Z = 0;
-			}
+			act->spr.pos.Z -= 32;
+			act->vel.Z = -4;
 			ssp(act, CLIPMASK0);
 			act->spr.cstat = randomXFlip();
 		}
@@ -518,14 +505,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case RTILE_AIRTANK:
 			act->spr.scale = DVector2(0.296875, 0.25);
 			break;
-		case RTILE_BOWLINGBALLSPRITE:
-			act->spr.scale = DVector2(0.171875, 0.171875);
-			break;
-		case RTILE_POWDERKEG:
-			act->spr.scale = DVector2(0.171875, 0.171875);
-			act->spr.yint = 4;
-			act->vel.X = 2;
-			break;
 		case RTILE_CROSSBOWSPRITE:
 			act->spr.scale = DVector2(0.25, 0.21875);
 			break;
@@ -557,16 +536,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		act->spr.shade = act->sector()->floorshade;
 		break;
-	case RTILE_STEAM:
-		if (actj)
-		{
-			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-			act->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
-			act->vel.X = -0.5;
-			ssp(act, CLIPMASK0);
-		}
-		[[fallthrough]];
 	case RTILE_CEILINGSTEAM:
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;

@@ -151,7 +151,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 			}
 			if (p >= 0)
 			{
-				auto k = spawn(wpn, RTILE_SMALLSMOKE);
+				auto k = spawn(wpn, PClass::FindActor(NAME_DukeSmallSmoke));
 				if (k) k->spr.pos.Z -= 8;
 				if (atwith == RTILE_KNEE) S_PlayActorSound(KICK_HIT, wpn);
 				else if (isRRRA() && atwith == RTILE_SLINGBLADE)	S_PlayActorSound(260, wpn);
@@ -312,7 +312,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 					checkhitceiling(hit.hitSector);
 			}
 			if (hit.hitSector->lotag != 1)
-				spawn(spark, RTILE_SMALLSMOKE);
+				spawn(spark, PClass::FindActor(NAME_DukeSmallSmoke));
 		}
 
 		if (hit.actor())
@@ -332,7 +332,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 					jib->spr.Angles.Yaw += DAngle22_5 / 2 - randomAngle(22.5);
 				}
 			}
-			else spawn(spark, RTILE_SMALLSMOKE);
+			else spawn(spark, PClass::FindActor(NAME_DukeSmallSmoke));
 
 			if (p >= 0 && isshootableswitch(hit.actor()->spr.spritetexture()))
 			{
@@ -342,7 +342,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		}
 		else if (hit.hitWall != nullptr)
 		{
-			spawn(spark, RTILE_SMALLSMOKE);
+			spawn(spark, PClass::FindActor(NAME_DukeSmallSmoke));
 
 			if (isadoorwall(hit.hitWall->walltexture) == 1)
 				goto SKIPBULLETHOLE;
@@ -410,7 +410,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		{
 			fi.checkhitsprite(hit.actor(), spark);
 			if (!hit.actor()->isPlayer())
-				spawn(spark, RTILE_SMALLSMOKE);
+				spawn(spark, PClass::FindActor(NAME_DukeSmallSmoke));
 			else spark->spr.scale = DVector2(0, 0);
 		}
 		else if (hit.hitWall != nullptr)
@@ -1427,7 +1427,7 @@ void checkweapons_r(player_struct* p)
 			[[fallthrough]];
 		case DYNAMITE_WEAPON:
 		case CROSSBOW_WEAPON:
-			spawn(p->GetActor(), RTILE_EXPLOSION2);
+			spawn(p->GetActor(), PClass::FindActor(NAME_DukeExplosion2));
 			break;
 		}
 	}

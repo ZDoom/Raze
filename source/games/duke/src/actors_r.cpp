@@ -357,7 +357,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 
 void lotsoffeathers_r(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, RTILE_FEATHER);
+	lotsofstuff(actor, n, PClass::FindActor(NAME_RedneckFeather));
 }
 
 
@@ -1215,7 +1215,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		}
 
 		case SE_35:
-			handle_se35(act, RTILE_SMALLSMOKE, RTILE_EXPLOSION2);
+			handle_se35(act);
 			break;
 
 		case SE_25_PISTON: //PISTONS
@@ -1264,10 +1264,10 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case SE_130:
-			handle_se130(act, 80, RTILE_EXPLOSION2);
+			handle_se130(act, 80);
 			break;
 		case SE_131:
-			handle_se130(act, 40, RTILE_EXPLOSION2);
+			handle_se130(act, 40);
 			break;
 		}
 	}

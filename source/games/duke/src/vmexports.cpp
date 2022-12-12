@@ -7,34 +7,6 @@ BEGIN_DUKE_NS
 
 void resetswitch(int tag);
 
-static TMap<FName, int> classnameToTile;
-// Workaround so that the script code can be written in its final form. This must go away later.
-int PicForName(int intname)
-{
-	if (classnameToTile.CountUsed() == 0)
-	{
-		static std::pair<const char*, const char*> classes[] = {
-			{"DukeSmallSmoke", "SMALLSMOKE"},
-			{"RedneckBowlingBallSprite", "BOWLINGBALLSPRITE"},
-			{"DukeSteam", "STEAM"},
-			{"RedneckHen", "HEN"},
-			{"RedneckCow", "COW"},
-			{"RedneckPig", "PIG"},
-			{"RedneckBillyRay", "BILLYRAY"},
-			{"RedneckMinion", "MINION"},
-
-		};
-
-		for (auto& p : classes)
-		{
-			classnameToTile.Insert(FName(p.first), tileForName(p.second));
-		}
-	}
-	auto p = classnameToTile.CheckKey(FName(ENamedName(intname)));
-	if (p) return *p;
-	return -1;
-}
-
 //---------------------------------------------------------------------------
 //
 // global exports
@@ -391,42 +363,29 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, StopSound, DukeActor_StopSound)
 	return 0;
 }
 
-DDukeActor* DukeActor_Spawn(DDukeActor* origin, int intname)
+DDukeActor* DukeActor_Spawn(DDukeActor* origin, PClassActor* cls)
 {
-	int picnum = PicForName(intname);
-
-	if (picnum == -1)
-	{
-		auto cls = PClass::FindActor(FName(ENamedName(intname)));
-		if (cls) return spawn(origin, cls);
-	}
-	else
-	{
-		return spawn(origin, picnum);
-	}
-	return nullptr;
+	return spawn(origin, cls);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawn, DukeActor_Spawn)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(type);
+	PARAM_POINTER(type, PClassActor);
 	ACTION_RETURN_POINTER(DukeActor_Spawn(self, type));
 }
 
-void DukeActor_Lotsofstuff(DDukeActor* actor, int count, int intname)
+void DukeActor_Lotsofstuff(DDukeActor* actor, PClassActor* intname, int count)
 {
-	int picnum = PicForName(intname);
-	// Todo: make this class aware.
-	lotsofstuff(actor, count, picnum);
+	lotsofstuff(actor, count, intname);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofstuff, DukeActor_Lotsofstuff)
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofstuff, lotsofstuff)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(type);
+	PARAM_POINTER(type, PClassActor);
 	PARAM_INT(count);
-	DukeActor_Lotsofstuff(self, count, type);
+	lotsofstuff(self, count, type);
 	return 0;
 }
 
@@ -664,27 +623,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spritewidth, duke_spw)
 	ACTION_RETURN_INT(duke_spw(self));
 }
 
-void DukeActor_shoot(DDukeActor* act, int intname)
+void DukeActor_shoot(DDukeActor* act, PClassActor* intname)
 {
-	int picnum = PicForName(intname);
-
-	if (picnum == -1)
-	{
-		auto n = FName(ENamedName(intname));
-		auto cls = PClass::FindActor(n);
-		assert(cls);
-		fi.shoot(act, -1, cls);
-	}
-	else
-	{
-		fi.shoot(act, picnum, nullptr);
-	}
+	fi.shoot(act, -1, intname);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, shoot, DukeActor_shoot)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(type);
+	PARAM_POINTER(type, PClassActor);
 	DukeActor_shoot(self, type);
 	return 0;
 }

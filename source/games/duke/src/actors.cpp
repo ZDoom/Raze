@@ -301,7 +301,7 @@ void insertspriteq(DDukeActor* const actor)
 //
 //---------------------------------------------------------------------------
 
-void lotsofstuff(DDukeActor* actor, int n, int spawntype)
+void lotsofstuff(DDukeActor* actor, int n, PClassActor* spawntype)
 {
 	for (int i = n; i > 0; i--)
 	{
@@ -2633,7 +2633,7 @@ void handle_se32(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
+void handle_se35(DDukeActor *actor)
 {
 	auto sc = actor->sector();
 
@@ -2641,14 +2641,14 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 		for (int j = 0; j < 8; j++)
 		{
 			actor->spr.Angles.Yaw = randomAngle(90);
-			auto spawned = spawn(actor, SMALLSMOKE);
+			auto spawned = spawn(actor, PClass::FindActor(NAME_DukeSmallSmoke));
 			if (spawned)
 			{
 				spawned->vel.X = 6 + krandf(8);
 				ssp(spawned, CLIPMASK0);
 				SetActor(spawned, spawned->spr.pos);
 				if (rnd(16))
-					spawn(actor, EXPLOSION2);
+					spawn(actor, PClass::FindActor(NAME_DukeExplosion2));
 			}
 		}
 
@@ -2720,7 +2720,7 @@ void handle_se128(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
+void handle_se130(DDukeActor *actor, int countmax)
 {
 	auto sc = actor->sector();
 
@@ -2735,7 +2735,7 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 
 	if (rnd(64))
 	{
-		auto k = spawn(actor, EXPLOSION2);
+		auto k = spawn(actor, PClass::FindActor(NAME_DukeExplosion2));
 		if (k)
 		{
 			double s = 0.03125 + (krand() & 7) * REPEAT_SCALE;

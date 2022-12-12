@@ -191,7 +191,7 @@ class DukeActor : CoreActor native
 	native int PlayActorSound(Sound snd, int chan = CHAN_AUTO, int flags = 0);
 	native int CheckSoundPlaying(Sound snd, int chan = CHAN_AUTO);
 	native void StopSound(Sound snd, int flags = 0);
-	native DukeActor spawn(Name type);
+	native DukeActor spawn(class<DukeActor> type);
 	native DukeActor spawnsprite(int type);	// for cases where the map has a picnum stored. Avoid when possible.
 	native DukeActor spawnweaponorammo(int type);
 	native void lotsofglass(int count, walltype wal = null);
@@ -235,7 +235,7 @@ class DukeActor : CoreActor native
 	native double gutsoffset();
 	native int movesprite(Vector3 move, int clipmask);
 	native int movesprite_ex(Vector3 move, int clipmask, CollisionData coll);
-	native void shoot(Name spawnclass);
+	native void shoot(class<DukeActor> spawnclass);
 	native void setClipDistFromTile();
 	native void insertspriteq();
 	native void operateforcefields(int tag);
@@ -274,14 +274,19 @@ class DukeActor : CoreActor native
 	}
 	
 	
-	void commonItemSetup(Vector2 scale = (0.5, 0.5), int usefloorshade = -1)
+	void commonItemSetup(Vector2 scale = (0.5, 0.5), int usefloorshade = -1, bool noinitialmove = false)
 	{
 		let owner = self.ownerActor;
 		if (owner != self)
 		{
 			self.lotag = 0;
-			self.pos.Z -= 32;
-			self.vel.Z = -4;
+			if (!noinitialmove)
+			{
+				self.pos.Z -= 32;
+				self.vel.Z = -4;
+			}
+			else
+				self.vel.Z = 0;
 			self.DoMove(CLIPMASK0);
 			self.cstat |= randomxflip();
 		}

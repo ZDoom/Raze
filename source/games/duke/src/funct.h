@@ -39,7 +39,7 @@ void movefta();
 void clearcameras(player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, PClassActor* explosion);
-void lotsofstuff(DDukeActor* s, int n, int spawntype);
+void lotsofstuff(DDukeActor* s, int n, PClassActor* spawntype);
 void watersplash2(DDukeActor* i);
 bool money(DDukeActor* i, int BLOODPOOL);
 bool bloodpool(DDukeActor* i, bool puke);
@@ -75,9 +75,9 @@ void handle_se27(DDukeActor* i);
 void handle_se29(DDukeActor* actor);
 void handle_se31(DDukeActor* a, bool choosedir);
 void handle_se32(DDukeActor* i);
-void handle_se35(DDukeActor* i, int SMALLSMOKE, int EXPLOSION2);
+void handle_se35(DDukeActor* i);
 void handle_se128(DDukeActor* i);
-void handle_se130(DDukeActor* i, int countmax, int EXPLOSION2);
+void handle_se130(DDukeActor* i, int countmax);
 
 void check_fta_sounds_d(DDukeActor* i);
 

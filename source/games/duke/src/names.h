@@ -14,7 +14,6 @@ extern int TILE_STATIC;
 extern int TILE_BOTTOMSTATUSBAR;
 extern int TILE_FIRE;
 extern int TILE_WATERBUBBLE;
-extern int TILE_SMALLSMOKE;
 extern int TILE_BLOODPOOL;
 extern int TILE_CLOUDYSKIES;
 extern int TILE_MIRRORBROKE;

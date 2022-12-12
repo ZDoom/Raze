@@ -150,10 +150,10 @@ void tracers(const DVector3& start, const DVector3& dest, int n)
 			if (sect->lotag == 2)
 			{
 				DVector2 scale(0.0625 + (krand() & 3) * REPEAT_SCALE, 0.0625 + (krand() & 3) * REPEAT_SCALE);
-				CreateActor(sect, pos, TILE_WATERBUBBLE, -32, scale, randomAngle(), 0., 0., ps[0].GetActor(), 5);
+				CreateActor(sect, pos, PClass::FindActor(NAME_DukeWaterBubble), -32, scale, randomAngle(), 0., 0., ps[0].GetActor(), 5);
 			}
 			else
-				CreateActor(sect, pos, TILE_SMALLSMOKE, -32, DVector2(0.21875, 0.21875), nullAngle, 0., 0., ps[0].GetActor(), 5);
+				CreateActor(sect, pos, PClass::FindActor(NAME_DukeSmallSmoke), -32, DVector2(0.21875, 0.21875), nullAngle, 0., 0., ps[0].GetActor(), 5);
 		}
 	}
 }
