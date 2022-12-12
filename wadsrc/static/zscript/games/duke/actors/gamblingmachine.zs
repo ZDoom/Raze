@@ -46,7 +46,7 @@ class RedneckGamblingMachine : DukeActor
 					else
 					{
 						spriteindex = 2;
-						self.spawn("DukeBatteryAmmo");
+						self.spawn("RedneckRifleAmmo");
 						pl.SlotWin |= 1;
 						self.PlayActorSound(winsound);
 					}
@@ -74,7 +74,7 @@ class RedneckGamblingMachine : DukeActor
 					else
 					{
 						spriteindex = 5;
-						self.spawn("DukeSixpak");
+						self.spawn("RedneckPorkRinds");
 						pl.SlotWin |= 4;
 						self.PlayActorSound(winsound);
 					}
@@ -88,7 +88,7 @@ class RedneckGamblingMachine : DukeActor
 					else
 					{
 						spriteindex = 4;
-						spawn("DukeAtomicHealth");
+						spawn("RedneckGoogooCluster");
 						pl.SlotWin |= 8;
 						self.PlayActorSound(winsound);
 					}

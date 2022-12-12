@@ -2011,7 +2011,7 @@ int ParseState::parse(void)
 		if (ps[g_p].drink_amt < 0)
 			ps[g_p].drink_amt = 0;
 		j = ps[g_p].GetActor()->spr.extra;
-		if (g_ac->spr.picnum != TILE_ATOMICHEALTH)
+		if (g_ac->GetClass()->TypeName != NAME_RedneckGoogooCluster)
 		{
 			if (j > gs.max_player_health && *insptr > 0)
 			{
@@ -2072,7 +2072,7 @@ int ParseState::parse(void)
 
 		j = ps[g_p].GetActor()->spr.extra;
 
-		if(g_ac->spr.picnum != TILE_ATOMICHEALTH)
+		if(!g_ac->IsKindOf(NAME_DukeAtomicHealth) && g_ac->GetClass()->TypeName != NAME_RedneckGoogooCluster)
 		{
 			if( j > gs.max_player_health && *insptr > 0 )
 			{

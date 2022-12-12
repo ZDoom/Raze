@@ -433,7 +433,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		[[fallthrough]];
 
-	case DTILE_ATOMICHEALTH:
 	case DTILE_STEROIDS:
 	case DTILE_HEATSENSOR:
 	case DTILE_SHIELD:
@@ -455,7 +454,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DTILE_HBOMBAMMO:
 	case DTILE_CRYSTALAMMO:
 	case DTILE_GROWAMMO:
-	case DTILE_BATTERYAMMO:
 	case DTILE_DEVISTATORAMMO:
 	case DTILE_RPGAMMO:
 	case DTILE_BOOTS:
@@ -463,7 +461,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DTILE_AMMOLOTS:
 	case DTILE_COLA:
 	case DTILE_FIRSTAID:
-	case DTILE_SIXPAK:
 		if (actj)
 		{
 			act->spr.lotag = 0;
@@ -489,9 +486,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 
 	case DTILE_ACCESSCARD:
-
-		if (act->spr.picnum == DTILE_ATOMICHEALTH)
-			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 
 		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == DTILE_ACCESSCARD)
 		{

@@ -244,5 +244,7 @@ spawnclasses
 	2310 = DukeBurning2
 	1890 = DukeExplosion2
 	2219 = DukeExplosion2Bot
-
+	41 = DukeBatteryAmmo
+	52 = DukeSixpak
+	100 = DukeAtomicHealth
 }

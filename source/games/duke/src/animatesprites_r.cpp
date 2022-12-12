@@ -139,9 +139,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			break;
 
-		case RTILE_ATOMICHEALTH:
-			t->pos.Z -= 4;
-			break;
 		case RTILE_CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;
@@ -350,7 +347,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->shade = -127;
 			break;
 
-		case RTILE_ATOMICHEALTH:
 		case RTILE_CHAINGUN:
 		case RTILE_EXPLOSION3:
 			t->shade = -127;

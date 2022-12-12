@@ -274,6 +274,49 @@ class DukeActor : CoreActor native
 	}
 	
 	
+	void commonItemSetup(Vector2 scale = (0.5, 0.5), int usefloorshade = -1)
+	{
+		let owner = self.ownerActor;
+		if (owner != self)
+		{
+			self.lotag = 0;
+			self.pos.Z -= 32;
+			self.vel.Z = -4;
+			self.DoMove(CLIPMASK0);
+			self.cstat |= randomxflip();
+		}
+		else
+		{
+			self.cstat = 0;
+		}
+
+		if ((ud.multimode < 2 && self.pal != 0) || (self.lotag > ud.player_skill))
+		{
+			self.scale = (0, 0);
+			self.ChangeStat(STAT_MISC);
+			return;
+		}
+
+		self.pal = 0;
+		self.shade = -17;
+		self.scale = scale;
+
+		if (owner != self) self.ChangeStat(STAT_ACTOR);
+		else
+		{
+			self.ChangeStat(STAT_ZOMBIEACTOR);
+			self.makeitfall();
+		}
+
+		// RR defaults to using the floor shade here, let's make this configurable.
+		if (usefloorshade == 1 || (usefloorshade == -1 && Raze.isRR()))
+		{
+			self.shade = self.sector.floorshade;
+		}
+		
+	}
+
+	
 	int checkLocationForFloorSprite(double radius)
 	{
 		bool away = self.isAwayFromWall(radius);

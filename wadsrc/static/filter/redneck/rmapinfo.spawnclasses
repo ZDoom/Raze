@@ -278,6 +278,9 @@ spawnclasses
 	1196 = DukeToiletWater
 	1494 = DukeBurning
 	1441 = DukeExplosion2
+	41 = RedneckRifleAmmo
+	52 = RedneckPorkRinds
+	5595 = RedneckGoogooCluster
 	
 }
 

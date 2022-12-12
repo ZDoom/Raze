@@ -160,4 +160,7 @@ spawnclasses
 	7506 = DukeActor, "*RRTILE7506"
 	8860 = RedneckBellSwitch
 
+	// stuff below uses CON
+	
+	7280 = RedneckRabbit
 }

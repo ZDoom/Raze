@@ -107,6 +107,10 @@ version "4.10"
 #include "zscript/games/duke/actors/burning.zs"
 #include "zscript/games/duke/actors/explosion2.zs"
 
+#include "zscript/games/duke/actors/batteryammo.zs"
+#include "zscript/games/duke/actors/sixpak.zs"
+#include "zscript/games/duke/actors/atomichealth.zs"
+
 #include "zscript/games/duke/actors/flamethrowerflame.zs"
 #include "zscript/games/duke/actors/firefly.zs"
 
@@ -124,6 +128,8 @@ version "4.10"
 #include "zscript/games/duke/actors/pigback.zs"
 #include "zscript/games/duke/actors/airplane.zs"
 #include "zscript/games/duke/actors/piano.zs"
+
+#include "zscript/games/duke/actors/rabbit.zs"
 
 #include "zscript/games/duke/world/dukebreak.zs"
 #include "zscript/games/duke/world/redneckbreak.zs"

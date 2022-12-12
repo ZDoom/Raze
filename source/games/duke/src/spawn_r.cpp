@@ -204,7 +204,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RTILE_MINIONBOAT:
 	case RTILE_HULKBOAT:
 	case RTILE_CHEERBOAT:
-	case RTILE_RABBIT:
 	case RTILE_ROCK:
 	case RTILE_ROCK2:
 	case RTILE_MAMACLOUD:
@@ -320,10 +319,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.scale = DVector2(0.25, 0.25);
 			act->setClipDistFromTile();
 			break;
-		case RTILE_RABBIT:
-			act->spr.scale = DVector2(0.28125, 0.28125);
-			act->setClipDistFromTile();
-			break;
 		case RTILE_MAMACLOUD:
 			act->spr.scale = DVector2(1, 1);
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
@@ -434,9 +429,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
-			if (act->spr.picnum != 5501)
-				if (actorfella(act))
-					ps[myconnectindex].max_actors_killed++;
+			if (actorfella(act))
+				ps[myconnectindex].max_actors_killed++;
 
 			if (actj)
 			{
@@ -457,7 +451,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isRRRA()) goto default_case;
 		[[fallthrough]];
 
-	case RTILE_ATOMICHEALTH:
 	case RTILE_STEROIDS:
 	case RTILE_HEATSENSOR:
 	case RTILE_SHIELD:
@@ -479,7 +472,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RTILE_HBOMBAMMO:
 	case RTILE_CRYSTALAMMO:
 	case RTILE_GROWAMMO:
-	case RTILE_BATTERYAMMO:
 	case RTILE_DEVISTATORAMMO:
 	case RTILE_RPGAMMO:
 	case RTILE_BOOTS:
@@ -487,7 +479,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RTILE_AMMOLOTS:
 	case RTILE_BEER:
 	case RTILE_FIRSTAID:
-	case RTILE_SIXPAK:
 
 	case RTILE_SAWAMMO:
 	case RTILE_BOWLINGBALLSPRITE:
@@ -524,9 +515,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case RTILE_ACCESSCARD:
 
-		if (act->spr.picnum == RTILE_ATOMICHEALTH)
-			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-
 		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == RTILE_ACCESSCARD)
 		{
 			act->spr.scale = DVector2(0, 0);
@@ -555,10 +543,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case RTILE_SHOTGUNAMMO:
 			act->spr.scale = DVector2(0.28125, 0.265625);
-			if (isRRRA()) act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
-			break;
-		case RTILE_SIXPAK:
-			act->spr.scale = DVector2(0.203125, 0.140625);
 			if (isRRRA()) act->spr.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
 		case RTILE_FIRSTAID:
@@ -592,9 +576,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		case RTILE_AIRTANK:
 			act->spr.scale = DVector2(0.296875, 0.25);
-			break;
-		case RTILE_BATTERYAMMO:
-			act->spr.scale = DVector2(0.234375, 0.234375);
 			break;
 		case RTILE_BOWLINGBALLSPRITE:
 			act->spr.scale = DVector2(0.171875, 0.171875);

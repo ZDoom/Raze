@@ -12,7 +12,6 @@ extern int TILE_CAMCORNER;
 extern int TILE_CAMLIGHT;
 extern int TILE_STATIC;
 extern int TILE_BOTTOMSTATUSBAR;
-extern int TILE_ATOMICHEALTH;
 extern int TILE_FIRE;
 extern int TILE_WATERBUBBLE;
 extern int TILE_SMALLSMOKE;
