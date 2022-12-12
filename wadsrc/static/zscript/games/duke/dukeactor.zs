@@ -197,7 +197,7 @@ class DukeActor : CoreActor native
 	native void lotsofglass(int count, walltype wal = null);
 	native void lotsofcolourglass(int count, walltype wal = null);
 	native void makeitfall();
-	native void detonate(name type);
+	native void detonate(class<DukeActor> type);
 	native void checkhitdefault(DukeActor proj);
 	native void operatesectors(sectortype sec);
 	native int SpriteWidth();

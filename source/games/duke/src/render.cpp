@@ -341,7 +341,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	//GLInterface.SetMapFog(false);
 	RestoreInterpolations();
 
-	if (!isRRRA() || !fogactive)
+	if (!fogactive)
 	{
 		if (PlayClock < lastvisinc)
 		{

@@ -14,11 +14,6 @@ int PicForName(int intname)
 	if (classnameToTile.CountUsed() == 0)
 	{
 		static std::pair<const char*, const char*> classes[] = {
-			{ "DukeToiletWater", "TOILETWATER" },
-			{ "DukeBurning", "BURNING"},
-			{"DukeExplosion2","EXPLOSION2"},
-			{"DukeExplosion2Bot","EXPLOSION2BOT"},
-			{"DukeTransporterStar",	"TRANSPORTERSTAR"},
 			{"RedneckRabbit","RABBIT"},
 			{"DukeBatteryAmmo",	"BATTERYAMMO"},
 			{"DukeSixpak", "SIXPAK"},
@@ -29,9 +24,7 @@ int PicForName(int intname)
 			{"RedneckCircleStuck", "CIRCLESTUCK"},
 			{"DukePigCop", "PIGCOP"},
 			{"DukeSmallSmoke", "SMALLSMOKE"},
-			{"DukeBurning", "BURNING"},
 			{"RedneckBowlingBallSprite", "BOWLINGBALLSPRITE"},
-			{"DukeToiletWater", "TOILETWATER"},
 			{"DukeSteam", "STEAM"},
 			{"RedneckHen", "HEN"},
 			{"RedneckCow", "COW"},
@@ -223,6 +216,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, getPlayerIndex, getPlayerIndex)
 	PARAM_PROLOGUE;
 	PARAM_POINTER(p, player_struct);
 	ACTION_RETURN_INT(getPlayerIndex(p));
+}
+
+void setlastvisinc(int v)
+{
+	lastvisinc = PlayClock + v;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, setlastvisinc, setlastvisinc)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	setlastvisinc(v);
 	return 0;
 }
 
@@ -576,17 +581,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, hitasprite, hitasprite)
 	return min(numret, 2);
 }
 
-void DukeActor_detonate(DDukeActor* origin, int intname)
+void DukeActor_detonate(DDukeActor* origin, PClassActor* type)
 {
-	// all callers use "EXPLOSION2", so ignore the parameter for now. This should be fixed once EXPLOSION2 gets scriptified.
-	int picnum = tileForName("EXPLOSION2");
-	detonate(origin, picnum);
+	detonate(origin, type);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, detonate, DukeActor_detonate)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(type);
+	PARAM_POINTER(type, PClassActor);
 	DukeActor_detonate(self, type);
 	return 0;
 }

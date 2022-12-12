@@ -171,6 +171,7 @@ struct Duke native
 	native static bool StartCommentary(int tag, DukeActor act);
 	native static void StopCommentary();
 	static native int getPlayerIndex(DukePlayer p);
+	static native void setlastvisinc(int amount);
 	static int rnd(int val)
 	{
 		return (random(0, 255) >= (255 - (val)));

@@ -227,10 +227,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!isWorldTour())
 			break;
 		[[fallthrough]];
-	case DTILE_EXPLOSION2:
-	case DTILE_EXPLOSION2BOT:
-	case DTILE_BURNING:
-	case DTILE_BURNING2:
 	case DTILE_SMALLSMOKE:
 	case DTILE_SHRINKEREXPLOSION:
 
@@ -241,12 +237,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
 
-		if (act->spr.picnum == DTILE_EXPLOSION2 || act->spr.picnum == DTILE_EXPLOSION2BOT)
-		{
-			act->spr.scale = DVector2(0.75, 0.75);
-			act->spr.shade = -127;
-			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-		}
 		else if (act->spr.picnum == DTILE_SHRINKEREXPLOSION)
 		{
 			act->spr.scale = DVector2(0.5, 0.5);
@@ -254,10 +244,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else if (act->spr.picnum == DTILE_SMALLSMOKE || act->spr.picnum == DTILE_ONFIRE)
 		{
 			act->spr.scale = DVector2(0.375, 0.375);
-		}
-		else if (act->spr.picnum == DTILE_BURNING || act->spr.picnum == DTILE_BURNING2)
-		{
-			act->spr.scale = DVector2(0.0625, 0.0625);
 		}
 
 		if (actj)
@@ -585,10 +571,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
-		break;
-	case DTILE_TOILETWATER:
-		act->spr.shade = -16;
-		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	}
 	return act;

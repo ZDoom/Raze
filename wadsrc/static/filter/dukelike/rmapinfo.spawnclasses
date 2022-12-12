@@ -239,5 +239,10 @@ spawnclasses
 	1671 = DukeForceRipple
 	1630 = DukeTransporterStar
 	1261 = DukeTransporterBeam
+	921 = DukeToiletWater
+	2270 = DukeBurning
+	2310 = DukeBurning2
+	1890 = DukeExplosion2
+	2219 = DukeExplosion2Bot
 
 }

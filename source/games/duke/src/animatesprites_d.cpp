@@ -303,18 +303,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case DTILE_EXPLOSION2:
-		case DTILE_EXPLOSION2BOT:
 		case DTILE_ATOMICHEALTH:
 		case DTILE_GROWSPARK:
 		case DTILE_CHAINGUN:
 		case DTILE_SHRINKEREXPLOSION:
 		case DTILE_FLOORFLAME:
-			if (t->picnum == DTILE_EXPLOSION2)
-			{
-				ps[screenpeek].visibility = -127;
-				lastvisinc = PlayClock + 32;
-			}
 			t->shade = -127;
 			break;
 		case DTILE_FIRE:

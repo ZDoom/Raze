@@ -607,7 +607,7 @@ void operaterespawns(int low)
 //
 //---------------------------------------------------------------------------
 
-void detonate(DDukeActor *actor, int explosion)
+void detonate(DDukeActor *actor, PClassActor* explosion)
 {
 	ud.earthquaketime = 16;
 

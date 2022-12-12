@@ -350,16 +350,9 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->shade = -127;
 			break;
 
-		case RTILE_EXPLOSION2:
 		case RTILE_ATOMICHEALTH:
 		case RTILE_CHAINGUN:
 		case RTILE_EXPLOSION3:
-			if (t->picnum == RTILE_EXPLOSION2)
-			{
-				ps[screenpeek].visibility = -127;
-				lastvisinc = PlayClock + 32;
-				t->pal = 0;
-			}
 			t->shade = -127;
 			break;
 		case RTILE_UFOBEAM:

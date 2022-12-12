@@ -275,6 +275,9 @@ spawnclasses
 	
 	1398 = DukeTransporterStar
 	1338 = DukeTransporterBeam
+	1196 = DukeToiletWater
+	1494 = DukeBurning
+	1441 = DukeExplosion2
 	
 }
 

@@ -118,9 +118,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_ACTOR);
 		break;
 
-	case RTILE_EXPLOSION2:
 	case RTILE_EXPLOSION3:
-	case RTILE_BURNING:
 	case RTILE_SMALLSMOKE:
 		if (actj)
 		{
@@ -129,12 +127,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
 
-		if (act->spr.picnum == RTILE_EXPLOSION2)
-		{
-			act->spr.scale = DVector2(0.75, 0.75);
-			act->spr.shade = -127;
-			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-		}
 		else if (act->spr.picnum == RTILE_EXPLOSION3)
 		{
 			act->spr.scale = DVector2(2, 2);
@@ -144,10 +136,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else if (act->spr.picnum == RTILE_SMALLSMOKE)
 		{
 			act->spr.scale = DVector2(0.1875, 0.1875);
-		}
-		else if (act->spr.picnum == RTILE_BURNING)
-		{
-			act->spr.scale = DVector2(0.0625, 0.0625);
 		}
 
 		if (actj)
@@ -694,10 +682,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
-		break;
-	case RTILE_TOILETWATER:
-		act->spr.shade = -16;
-		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case RTILE_RRTILE63:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
