@@ -479,8 +479,18 @@ void thunder(void)
 	}
 	if (!winderflash && isRR())
 	{
-		auto tex = tileGetTexture(RTILE_CURTAINS);	// this cannot be easily generalized. :(
-		if (tex->isSeen(true))
+		bool seen = false;
+		for (i = 0; i < lightnincnt; i++)
+		{
+			auto sectp = lightninsector[i];
+			if (sectp->exflags & SECTOREX_SEEN)
+			{
+				seen = true;
+				sectp->exflags &= ~SECTOREX_SEEN;
+			}
+		}
+
+		if (seen)
 		{
 			if (krand() > 65000)
 			{
