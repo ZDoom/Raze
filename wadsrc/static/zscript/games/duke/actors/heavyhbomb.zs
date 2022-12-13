@@ -197,9 +197,9 @@ class DukePipeBomb : DukeActor
 						p.pals = Color(32, 0, 32, 0);
 					}
 
-					if (!self.mapSpawned || ud.respawn_items == 0)
+					if (Owner != self || ud.respawn_items == 0)
 					{
-						if (self.mapSpawned && ud.coop >= 1)
+						if (Owner == self && ud.coop >= 1)
 							return false;
 
 						self.Destroy();

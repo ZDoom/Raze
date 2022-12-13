@@ -24,7 +24,7 @@ class DukeWaterDrip : DukeActor
 			self.vel.X = frandom(1, 3);
 			self.DoMove(CLIPMASK0);
 		}
-		else if (owner == self)
+		else if (self.mapSpawned)
 		{
 			self.pos.Z += 4;
 			self.temp_pos.Z = self.pos.Z;
