@@ -125,6 +125,7 @@ class DukeActor : CoreActor native
 	native int16 /*attackertype, hitang,*/ hitextra, movflag;
 	native int16 tempval; /*, dispicnum;*/
 	native int16 timetosleep;
+	native bool mapSpawned;
 	native double floorz, ceilingz;
 	native int saved_ammo;
 	native int palvals;

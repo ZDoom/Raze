@@ -399,6 +399,7 @@ void cacheit_r(void)
 
 void spriteinit_r(DDukeActor* actor, TArray<DDukeActor*>& actors)
 {
+	actor->mapSpawned = true;
 	bool res = initspriteforspawn(actor);
 	if (res) spawninit_r(nullptr, actor, &actors);
 }

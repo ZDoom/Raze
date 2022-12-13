@@ -47,6 +47,7 @@ public:
 	short attackertype, hitextra;
 	short tempval, basepicnum;
 	unsigned short timetosleep;
+	bool mapSpawned;
 	DVector2 ovel;
 	DAngle hitang;
 	double floorz, ceilingz;
