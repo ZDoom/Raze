@@ -1160,7 +1160,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		DukeSectIterator its(actor->sector());
 		while (auto a2 = its.Next())
 		{
-			if (!iseffector(a2) && !islocator(a2))
+			if (!iseffector(a2) && !islocator(a2) && !a2->isPlayer())
 			{
 				a2->spr.pos += vect;
 
