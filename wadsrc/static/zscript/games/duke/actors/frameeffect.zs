@@ -9,7 +9,7 @@ class DukeFrameEffect : DukeActor
 	
 	override void Initialize()
 	{
-		if (self != self.ownerActor)
+		if (!self.mapSpawned && self.ownerActor)
 		{
 			self.scale = self.ownerActor.scale;
 		}
@@ -41,7 +41,7 @@ class DukeFrameEffect : DukeActor
 	override bool animate(tspritetype t)
 	{
 		let OwnerAc = self.ownerActor;
-		if (OwnerAc && OwnerAc.statnum < MAXSTATUS)
+		if (OwnerAc)
 		{
 			if (OwnerAc.isPlayer())
 				if (ud.cameraactor == nullptr)

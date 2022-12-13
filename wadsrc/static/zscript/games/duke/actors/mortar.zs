@@ -15,7 +15,6 @@ class DukeMortar : DukeActor
 	
 	void Common(int itemmode)
 	{
-		let Owner = self.ownerActor;
 		let sectp = self.sector;
 		DukePlayer p;
 		double xx;
@@ -160,7 +159,7 @@ class DukeBounceMine : DukeMortar
 	{
 		// This is only for placed items, not for armed weapons!
 		// Although this can be shot, it doesn't really work for that.
-		if (self.ownerActor == self)
+		if (self.mapSpawned)
 		{
 			self.ownerActor = self;
 			self.extra = gs.impact_damage << 2;

@@ -156,7 +156,7 @@ class DukeRecon : DukeActor
 			self.angle += deltaangle(self.angle, (pactor.pos.XY - self.pos.XY).Angle()) * 0.25;
 		}
 
-		if (self.temp_data[0] != 2 && self.temp_data[0] != 3 && Owner)
+		if (self.temp_data[0] != 2 && self.temp_data[0] != 3 && Owner && Owner != self)
 		{
 			double dist = (Owner.pos.XY - self.pos.XY).Length();
 			if (dist <= 96)

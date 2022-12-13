@@ -11,7 +11,7 @@ class DukeRespawnMarker : DukeActor
 	
 	override void Initialize()
 	{
-		if (ownerActor != self) self.pos.Z = ownerActor.floorZ;
+		if (!self.mapSpawned && ownerActor != null) self.pos.Z = ownerActor.floorZ;
 	}
 	
 	override void Tick()

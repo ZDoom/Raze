@@ -12,7 +12,7 @@ class DukeBloodSplat1 : DukeActor
 		self.scale.X = 0.109375 + random(0, 7) * REPEAT_SCALE;
 		self.scale.Y = 0.109375 + random(0, 7) * REPEAT_SCALE;
 		self.pos.Z -= 16;
-		if (self.ownerActor && self.ownerActor.pal == 6)
+		if (!self.mapSpawned && self.ownerActor && self.ownerActor.pal == 6)
 			self.pal = 6;
 		self.insertspriteq();
 	}

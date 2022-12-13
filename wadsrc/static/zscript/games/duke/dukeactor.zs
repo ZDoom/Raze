@@ -230,7 +230,7 @@ class DukeActor : CoreActor native
 	
 	void commonEnemySetup(bool countkill = true)
 	{
-		if (self.ownerActor != self) self.lotag = 0;
+		if (!self.mapSpawned) self.lotag = 0;
 
 		if ((self.lotag > ud.player_skill) || ud.monsters_off == 1)
 		{
@@ -245,7 +245,7 @@ class DukeActor : CoreActor native
 			if (countkill)
 				Duke.GetLocalPlayer().max_actors_killed++;
 
-			if (self.ownerActor != self)
+			if (!self.mapSpawned)
 			{
 				self.timetosleep = 0;
 				self.PlayFTASound();

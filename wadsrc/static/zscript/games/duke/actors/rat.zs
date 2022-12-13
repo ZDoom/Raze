@@ -12,7 +12,7 @@ class DukeRat : DukeActor
 	
 	override void Initialize()
 	{
-		if (ownerActor) self.lotag = 0;
+		if (!self.mapSpawned) self.lotag = 0;
 
 		if ((self.lotag > ud.player_skill) || ud.monsters_off == 1)
 		{
@@ -25,7 +25,7 @@ class DukeRat : DukeActor
 			self.angle = frandom(0, 360);
 			self.cstat = 0;
 
-			if (self.ownerActor)
+			if (!self.mapSpawned && self.ownerActor)
 			{
 				self.timetosleep = 0;
 				self.ChangeStat(STAT_ACTOR);

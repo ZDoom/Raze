@@ -8,7 +8,7 @@ class DukeForceSphere : DukeActor
 	
 	override void Initialize()
 	{
-		if (ownerActor == self)
+		if (self.mapSpawned)
 		{
 			self.cstat = CSTAT_SPRITE_INVISIBLE;
 			self.ChangeStat(STAT_ZOMBIEACTOR);

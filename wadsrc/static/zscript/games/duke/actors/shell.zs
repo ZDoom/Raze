@@ -11,7 +11,7 @@ class DukeShell : DukeActor
 	void initshell(bool isshell, double direction)
 	{
 		let Owner = self.OwnerActor;
-		if (Owner && Owner != self)
+		if (Owner && !self.mapSpawned)
 		{
 			double ang;
 

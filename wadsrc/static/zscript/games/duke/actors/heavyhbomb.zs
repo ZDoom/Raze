@@ -11,7 +11,7 @@ class DukePipeBomb : DukeActor
 	override void Initialize()
 	{
 		// This is only for placed items, not for armed weapons!
-		if (self.ownerActor == self)
+		if (self.mapSpawned)
 		{
 			self.extra = gs.impact_damage;
 			self.cstat |= CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
@@ -197,9 +197,9 @@ class DukePipeBomb : DukeActor
 						p.pals = Color(32, 0, 32, 0);
 					}
 
-					if (Owner != self || ud.respawn_items == 0)
+					if (!self.mapSpawned || ud.respawn_items == 0)
 					{
-						if (Owner == self && ud.coop >= 1)
+						if (self.mapSpawned && ud.coop >= 1)
 							return false;
 
 						self.Destroy();

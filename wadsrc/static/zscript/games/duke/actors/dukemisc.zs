@@ -74,7 +74,7 @@ class DukeFootprints : DukeActor
 	
 	override void Initialize()
 	{
-		if (self != self.ownerActor)
+		if (!self.mapSpawned)
 		{
 			bool away = self.isAwayFromWall(5.25);
 			if (!away)

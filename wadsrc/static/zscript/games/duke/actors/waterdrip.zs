@@ -11,7 +11,7 @@ class DukeWaterDrip : DukeActor
 	override void Initialize()
 	{
 		let owner = self.ownerActor;
-		if (owner && (owner.statnum == STAT_PLAYER || owner.statnum == STAT_ACTOR))
+		if (!self.mapSpawned && owner && (owner.statnum == STAT_PLAYER || owner.statnum == STAT_ACTOR))
 		{
 			self.shade = 32;
 			if (owner.pal != 1)
@@ -53,7 +53,7 @@ class DukeWaterDrip : DukeActor
 				if (self.pal != 2 && (self.hitag == 0 || Raze.isRR()))
 					self.PlayActorSound("SOMETHING_DRIPPING");
 
-				if (self.ownerActor != self)
+				if (!self.mapSpawned)
 				{
 					self.Destroy();
 				}

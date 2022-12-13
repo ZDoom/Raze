@@ -11,7 +11,7 @@ class DukeOoz : DukeActor
 	{
 		self.shade = -12;
 
-		if (self.ownerActor && self.OwnerActor != self)
+		if (!self.mapSpawned)
 		{
 			if (self.actorflag2(SFLAG2_PAL8OOZ))
 				self.pal = 8;

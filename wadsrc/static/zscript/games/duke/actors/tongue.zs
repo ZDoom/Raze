@@ -9,7 +9,8 @@ class DukeTongue : DukeActor
 
 	override void Initialize()
 	{
-		self.angle = self.ownerActor.angle;
+		if (self.ownerActor && !self.mapSpawned)
+			self.angle = self.ownerActor.angle;
 		self.pos.Z -= gs.playerheight;
 		self.vel.Z = 1 - frandom(0, 2);
 		self.vel.X = 4 - frandom(0, 8);

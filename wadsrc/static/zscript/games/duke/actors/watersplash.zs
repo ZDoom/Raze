@@ -11,7 +11,7 @@ class DukeWatersplash : DukeActor
 	{
 		let Owner = self.ownerActor;
 		let sectp = self.sector;
-		if (Owner)
+		if (Owner && !self.mapSpawned)
 		{
 			self.SetPosition(Owner.pos);
 			double s = 0.125 + random(0, 7) * REPEAT_SCALE;
