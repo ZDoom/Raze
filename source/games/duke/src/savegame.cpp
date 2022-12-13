@@ -294,7 +294,11 @@ void DDukeActor::Serialize(FSerializer& arc)
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler* def)
 {
 	static Cycler nul;
-	if (!def) def = &nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
 	if (arc.BeginObject(keyname))
 	{
 		arc("sector", w.sector, def->sector)
@@ -311,7 +315,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler*
 FSerializer& Serialize(FSerializer& arc, const char* keyname, AmbientTags& w, AmbientTags* def)
 {
 	static AmbientTags nul;
-	if (!def) def = &nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
 	if (arc.BeginObject(keyname))
 	{
 		arc("lotag", w.lo, def->lo)
@@ -324,7 +332,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AmbientTags& w, Am
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animate& w, animate* def)
 {
 	static animate nul;
-	if (!def) def = &nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
 	if (arc.BeginObject(keyname))
 	{
 		arc("sector", w.sect, def->sect)
