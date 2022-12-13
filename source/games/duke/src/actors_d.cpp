@@ -303,7 +303,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					continue;
 				}
 
-				double dist = (actor->getPosWithOffsetZ() - act2->spr.pos).Length();
+				double dist = (act2->getPosWithOffsetZ() - actor->spr.pos).Length();
 
 				if (dist < radius && cansee(act2->spr.pos.plusZ(-8), act2->sector(), actor->spr.pos.plusZ(-12), actor->sector()))
 				{
