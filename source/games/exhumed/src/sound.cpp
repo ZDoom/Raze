@@ -376,7 +376,7 @@ void StartSwirlies()
     nNextFreq = 19000;
     nSwirlyFrames = 0;
 
-    for (int i = 0; i <= 4; i++)
+    for (int i = 0; i < 4; i++)
         StartSwirly(i);
 }
 
@@ -389,7 +389,7 @@ void StartSwirlies()
 void UpdateSwirlies()
 {
     nSwirlyFrames++;
-    for (int i = 0; i <= 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         if (!soundEngine->IsSourcePlayingSomething(SOURCE_Swirly, &swirlysources[i], -1))
             StartSwirly(i);
@@ -462,7 +462,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         {
             int which = *(int*)source;
             *pos = fcampos;
-            // Should be positioned in 90¡ intervals.
+            // Should be positioned in 90Â° intervals.
             switch (which)
             {
             default:
