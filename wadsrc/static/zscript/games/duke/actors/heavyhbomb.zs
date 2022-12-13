@@ -77,13 +77,13 @@ class DukePipeBomb : DukeActor
 				self.PlayActorSound("PIPEBOMB_BOUNCE");
 			}
 			self.vel.Z = -(4 - self.yint);
-			if (sectp.lotag == 2)
+			if (sectp.lotag == ST_2_UNDERWATER)
 				self.vel.Z *= 0.25;
 			self.yint++;
 		}
-		if (self.pos.Z < self.ceilingz + 16 && (!Raze.isRR() || sectp.lotag != ST_2_UNDERWATER)) // underwater check only for RR
+		if (self.pos.Z < self.ceilingz)
 		{
-			self.pos.Z = self.ceilingz + self.detail;
+			self.pos.Z = self.ceilingz + 3;
 			self.vel.Z = 0;
 		}
 
