@@ -134,7 +134,7 @@ class RedneckChickenRoastSpawner : RedneckChickenSpawner1
 		self.lotag--;
 		if (self.lotag < 0)
 		{
-			let spawned = self.spawn('RedneckChickenRoast');
+			let spawned = self.spawn('RedneckRoastedChicken');
 			if (spawned) spawned.angle = self.angle;
 			self.lotag = 512;
 		}
@@ -381,7 +381,7 @@ class RedneckChickenHead : DukeActor
 		{
 			if (self.sector.lotag == 1)
 			{
-				let j = self.spawn('DukeWaterSplash2');
+				let j = self.spawn('DukeWaterSplash');
 				if (j) j.pos.Z = j.sector.floorz;
 			}
 			self.Destroy();

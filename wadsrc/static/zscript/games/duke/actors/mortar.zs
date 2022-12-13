@@ -8,7 +8,7 @@ class DukeMortar : DukeActor
 	
 	override void Tick()
 	{
-		let spawned = self.spawn("DukeFrameEffect1");
+		let spawned = self.spawn("DukeFrameEffect");
 		if (spawned) spawned.temp_data[0] = 3;
 		Common(1);
 	}
@@ -74,7 +74,7 @@ class DukeMortar : DukeActor
 			if (self.temp_data[5] == 0)
 			{
 				self.temp_data[5] = 1;
-				self.spawn("DukeWaterSplash2");
+				self.spawn("DukeWaterSplash");
 			}
 		}
 		else self.temp_data[5] = 0;

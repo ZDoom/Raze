@@ -96,7 +96,7 @@ class DukePipeBomb : DukeActor
 			if (self.temp_data[5] == 0)
 			{
 				self.temp_data[5] = 1;
-				self.spawn("DukeWaterSplash2");
+				self.spawn("DukeWaterSplash");
 			}
 		}
 		else self.temp_data[5] = 0;
