@@ -31,6 +31,7 @@ public:
 	int TotalKills, Kills;
 	void SetCount(int);
 	void AddKill(DBloodActor* actor);
+	void AddKillCount(DBloodActor* actor);
 	void CountTotalKills(void);
 	void Clear(void);
 };
