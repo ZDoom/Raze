@@ -9,7 +9,7 @@ class DukeBloodPool : DukeActor
 	virtual void SetPalette()
 	{
 		let Owner = self.ownerActor;
-		if (Owner)
+		if (Owner && !mapSpawned)
 		{
 			if (Owner.pal == 1)
 				self.pal = 1;	// Blue
@@ -30,7 +30,7 @@ class DukeBloodPool : DukeActor
 		if (!checkLocationForFloorSprite(6.75)) return;
 		SetPalette();
 		self.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		if (self.OwnerActor)
+		if (!self.mapSpawned)
 			self.scale = (REPEAT_SCALE, REPEAT_SCALE);
 	}
 	
