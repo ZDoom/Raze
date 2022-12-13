@@ -782,7 +782,7 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case FIRE:
 		case BURNING:
 			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->pos.Z = t->sectp->floorz;
+				t->pos.Z = getflorzofslopeptr(t->sectp, t->pos);
 			t->shade = -127;
 			break;
 		case WALLLIGHT3:
