@@ -86,25 +86,6 @@ void check_fta_sounds_d(DDukeActor* actor)
 	case DTILE_OCTABRAINSTAYPUT:
 		S_PlayActorSound(OCTA_RECOG, actor);
 		break;
-	case DTILE_BOSS1:
-		S_PlaySound(BOS1_RECOG);
-		break;
-	case DTILE_BOSS2:
-		if (actor->spr.pal == 1)
-			S_PlaySound(BOS2_RECOG);
-		else S_PlaySound(WHIPYOURASS);
-		break;
-	case DTILE_BOSS3:
-		if (actor->spr.pal == 1)
-			S_PlaySound(BOS3_RECOG);
-		else S_PlaySound(RIPHEADNECK);
-		break;
-	case DTILE_BOSS4:
-	case DTILE_BOSS4STAYPUT:
-		if (actor->spr.pal == 1)
-			S_PlaySound(BOS4_RECOG);
-		S_PlaySound(BOSS4_FIRSTSEE);
-		break;
 	}
 }
 

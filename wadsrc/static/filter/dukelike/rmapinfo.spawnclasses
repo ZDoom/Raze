@@ -256,4 +256,13 @@ spawnclasses
 	2001 = DukePigCopStayPut
 	2045 = DukePigCopDive
 
+	2630 = DukeBoss1
+	2631 = DukeBoss1Stayput
+	2710 = DukeBoss2
+	2711 = DukeBoss2Stayput
+	2760 = DukeBoss3
+	2761 = DukeBoss3Stayput
+	4740 = DukeBoss4
+	4741 = DukeBoss4Stayput
+	
 }

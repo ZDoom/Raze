@@ -70,13 +70,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	{
 		switch (act->spr.picnum)
 		{
-		case DTILE_BOSS2STAYPUT:
-		case DTILE_BOSS3STAYPUT:
-		case DTILE_BOSS5STAYPUT:
-			act->actorstayput = act->sector();
-			[[fallthrough]];
 		case DTILE_FIREFLY:
-		case DTILE_BOSS5:
 			if (act->spr.picnum != DTILE_FIREFLY)
 			{
 				if (actj && isrespawncontroller(actj))
@@ -271,15 +265,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DTILE_OCTABRAINSTAYPUT:
 	case DTILE_LIZTROOPSTAYPUT:
 	case DTILE_LIZMANSTAYPUT:
-	case DTILE_BOSS1STAYPUT:
 	case DTILE_COMMANDERSTAYPUT:
-	case DTILE_BOSS4STAYPUT:
 		act->actorstayput = act->sector();
 		[[fallthrough]];
-	case DTILE_BOSS1:
-	case DTILE_BOSS2:
-	case DTILE_BOSS3:
-	case DTILE_BOSS4:
 	case DTILE_ROTATEGUN:
 	case DTILE_DRONE:
 	case DTILE_LIZTROOPONTOILET:
@@ -315,33 +303,15 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 		}
 
-		if (bossguy(act))
+		if (act->spr.picnum != DTILE_SHARK)
 		{
-			if (actj && isrespawncontroller(actj))
-				act->spr.pal = actj->spr.pal;
-			if (act->spr.pal && (!isWorldTour() || !(currentLevel->flags & LEVEL_WT_BOSSSPAWN) || act->spr.pal != 22))
-			{
-				act->clipdist = 20;
-				act->spr.scale = DVector2(0.625, 0.625);
-			}
-			else
-			{
-				act->spr.scale = DVector2(1.25, 1.25);
-				act->clipdist = 41;
-			}
+			act->spr.scale = DVector2(0.625, 0.625);
+			act->clipdist = 20;
 		}
 		else
 		{
-			if (act->spr.picnum != DTILE_SHARK)
-			{
-				act->spr.scale = DVector2(0.625, 0.625);
-				act->clipdist = 20;
-			}
-			else
-			{
-				act->spr.scale = DVector2(0.9375, 0.9375);
-				act->clipdist = 10;
-			}
+			act->spr.scale = DVector2(0.9375, 0.9375);
+			act->clipdist = 10;
 		}
 
 		if (actj) act->spr.lotag = 0;

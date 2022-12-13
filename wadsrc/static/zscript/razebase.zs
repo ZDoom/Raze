@@ -85,6 +85,40 @@ struct MapRecord native
 		USERMAP = 2,
 	}
 
+	enum EMapFlags
+	{
+		LEVEL_NOINTERMISSION = 1,
+		LEVEL_SECRETEXITOVERRIDE = 2,	// when given an explicit level number, override with secret exit in the map, mainly for compiling episodes out of single levels.
+		LEVEL_CLEARINVENTORY = 4,
+		LEVEL_CLEARWEAPONS = 8,
+		LEVEL_FORCENOEOG = 16,			// RR E1L7 needs this to override its boss's death ending the game.
+	};
+
+	enum EMapGameFlags
+	{
+		LEVEL_RR_HULKSPAWN = 1,
+		LEVEL_RR_CLEARMOONSHINE = 2,
+
+		LEVEL_EX_COUNTDOWN = 4,
+		LEVEL_EX_TRAINING = 8,
+		LEVEL_EX_ALTSOUND = 16,
+		LEVEL_EX_MULTI = 32,
+
+		LEVEL_SW_SPAWNMINES = 64,
+		LEVEL_SW_BOSSMETER_SERPENT = 128,
+		LEVEL_SW_BOSSMETER_SUMO = 256,
+		LEVEL_SW_BOSSMETER_ZILLA = 512,
+		LEVEL_SW_DEATHEXIT_SERPENT = 1024,
+		LEVEL_SW_DEATHEXIT_SUMO = 2048,
+		LEVEL_SW_DEATHEXIT_ZILLA = 4096,
+		LEVEL_SW_DEATHEXIT_SERPENT_NEXT = 8192,
+
+		LEVEL_WT_BOSSSPAWN = 16384,
+
+		LEVEL_BOSSONLYCUTSCENE = 32768,
+	};
+
+
 	native readonly int parTime;
 	native readonly int designerTime;
 	native readonly String fileName;
@@ -93,6 +127,7 @@ struct MapRecord native
 	native readonly String music;
 	native readonly int cdSongId;
 	native readonly int flags;
+	native readonly int gameflags;
 	native readonly int levelNumber;
 	native readonly int cluster;
 	native readonly String InterBackground;

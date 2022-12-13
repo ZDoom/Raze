@@ -9,4 +9,7 @@ spawnclasses
 	5296 = DukeFireflyFlyingEffect
 	5304 = DukeLavaPool
 	5207 = DukeLavaPoolBubble
+	
+	5310 = DukeBoss5
+	5311 = DukeBoss5Stayput
 }

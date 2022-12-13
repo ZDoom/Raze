@@ -124,12 +124,12 @@ class DukeFlamethrowerFlame : DukeActor
 			[j, x] = actor.findplayer();
 			sang = (j.Actor.opos.XY - spos.XY).Angle();
 
-			if (actor.checktype("BOSS5"))
+			if (actor is 'DukeBoss5')
 			{
 				vel = 33;
 				spos.Z += 24;
 			}
-			else if (actor.checktype("BOSS3"))
+			else if (actor is 'DukeBoss3')
 				spos.Z -= 32;
 
 			double dist = (j.actor.pos.XY - actor.pos.XY).Length();
@@ -179,7 +179,7 @@ class DukeFlamethrowerFlame : DukeActor
 
 		if (p == null)
 		{
-			if (actor.checktype("BOSS5"))
+			if (actor is 'DukeBoss5')
 			{
 				spawned.pos += sang.ToVector() * (128. / 7);
 				spawned.scale = (0.15625, 0.15625);
