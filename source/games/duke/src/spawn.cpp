@@ -968,6 +968,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_15_SLIDING_DOOR:
 		case SE_16_REACTOR:
 		case SE_26:
+			if(actor->spr.lotag == SE_0_ROTATING_SECTOR) StartInterpolation(actor->sector(), Interp_Sect_Floorz);
 			setsectinterpolate(actor->sector());
 			break;
 
