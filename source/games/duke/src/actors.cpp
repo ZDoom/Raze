@@ -727,7 +727,7 @@ void handle_se00(DDukeActor* actor)
 			if (sect->floorz > actor->spr.pos.Z) //z's are touching
 			{
 				sect->addfloorz(-2);
-				zchange =  2;
+				zchange =  -2;
 				if (sect->floorz < actor->spr.pos.Z)
 					sect->setfloorz(actor->spr.pos.Z);
 			}
