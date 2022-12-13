@@ -319,6 +319,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	PlanesAtPoint(frontsector, vp.Pos.X, -vp.Pos.Y, &ceilz, &florz);
 
 	visibility = sectorVisibility(frontsector);
+	frontsector->exflags |= SECTOREX_SEEN;
 	sec = frontsector;
 	section = section_;
 	Sprite = nullptr;

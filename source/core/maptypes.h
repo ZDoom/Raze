@@ -95,6 +95,7 @@ enum ESectorExBits
 	SECTOREX_CLOUDSCROLL			= 1,
 	SECTOREX_DRAGGED				= 2,
 	SECTOREX_DONTCLIP				= 4,
+	SECTOREX_SEEN					= 8,
 };
 
 // Flags for retriangulation
