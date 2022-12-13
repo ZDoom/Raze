@@ -328,7 +328,11 @@ void DDukeActor::Serialize(FSerializer& arc)
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler* def)
 {
 	static Cycler nul;
-	if (!def) def = &nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
 	if (arc.BeginObject(keyname))
 	{
 		arc("sector", w.sector, def->sector)
