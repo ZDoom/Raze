@@ -324,7 +324,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case DTILE_BURNING:
 		case DTILE_BURNING2:
 			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->pos.Z = t->sectp->floorz;
+				t->pos.Z = getflorzofslopeptr(t->sectp, t->pos);
 			t->shade = -127;
 			break;
 		case DTILE_PLAYERONWATER:
