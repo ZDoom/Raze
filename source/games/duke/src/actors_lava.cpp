@@ -162,7 +162,7 @@ void addtorch(sectortype* sect, int shade, int lotag)
 void addlightning(sectortype* sect, int shade)
 {
 	if (lightnincnt >= 64)
-		I_Error("Too many lightnin effects");
+		I_Error("Too many lightning effects");
 
 	lightninsector[lightnincnt] = sect;
 	lightninsectorshade[lightnincnt] = shade;
@@ -479,7 +479,7 @@ void thunder(void)
 	}
 	if (!winderflash && isRR())
 	{
-		auto tex = tileGetTexture(RTILE_CATACOMB);	// this cannot be easily generalized. :(
+		auto tex = tileGetTexture(RTILE_CURTAINS);	// this cannot be easily generalized. :(
 		if (tex->isSeen(true))
 		{
 			if (krand() > 65000)

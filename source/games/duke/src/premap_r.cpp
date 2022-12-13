@@ -322,12 +322,6 @@ static void cachegoodsprites(void)
 {
 	int i;
 
-	tloadtile(RTILE_BOTTOMSTATUSBAR);
-	if (ud.multimode > 1)
-	{
-		tloadtile(RTILE_FRAGBAR);
-	}
-
 	for (i = RTILE_FOOTPRINTS; i < RTILE_FOOTPRINTS + 3; i++)
 		tloadtile(i);
 

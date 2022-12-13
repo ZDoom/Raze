@@ -50,7 +50,7 @@ BEGIN_DUKE_NS
 
 void UpdateFrame()
 {
-	auto tex = tileGetTexture(TILE_SCREENBORDER);
+	auto tex = TexMan.FindGameTexture(isRRRA()? "RRRABORDER" : "BIGHOLE", ETextureType::Any);
 	if (tex != nullptr && tex->isValid())
 	{
 		// Backdrop.
@@ -74,8 +74,8 @@ void UpdateFrame()
 		// Border.
 		if (hud_size < Hud_Stbar)
 		{
-			auto vb = tileGetTexture(TILE_VIEWBORDER);
-			auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
+			auto vb = TexMan.FindGameTexture("VIEWBORDER", ETextureType::Any);
+			auto ve = TexMan.FindGameTexture("VIEWEDGE", ETextureType::Any);
 			int x1 = viewport3d.Left() - 4;
 			int y1 = viewport3d.Top() - 4;
 			int x2 = viewport3d.Right() + 4;

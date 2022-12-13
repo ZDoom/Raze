@@ -176,12 +176,6 @@ static void cachegoodsprites(void)
 {
 	int i;
 
-	tloadtile(DTILE_BOTTOMSTATUSBAR);
-	if (ud.multimode > 1)
-	{
-		tloadtile(DTILE_FRAGBAR);
-	}
-
 	for(i=DTILE_FOOTPRINTS;i<DTILE_FOOTPRINTS+3;i++)
 			tloadtile(i);
 

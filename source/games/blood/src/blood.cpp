@@ -706,8 +706,13 @@ DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
 	static int bLoadScreenCrcMatch = -1;
 	if (bLoadScreenCrcMatch == -1)
 	{
-		auto tex = tileGetTexture(kLoadScreen)->GetTexture()->GetImage(); // if this is invalid we have a bigger problem on our hand than the inevitable crash.
-		bLoadScreenCrcMatch = tileGetCRC32(tex) == kLoadScreenCRC;
+		auto gtex = TexMan.FindGameTexture("LOADSCREEN", ETextureType::Any);
+		if (gtex)
+		{
+			auto img = gtex->GetTexture()->GetImage();
+			bLoadScreenCrcMatch = tileGetCRC32(img) == kLoadScreenCRC;
+		}
+		else bLoadScreenCrcMatch = true;	// if the LOADSCREEN texture is invalid, allow the widescreen fallback.
 	}
 	ACTION_RETURN_INT(bLoadScreenCrcMatch);
 }

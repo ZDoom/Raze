@@ -126,13 +126,17 @@ void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 {
 	int mclock = I_GetBuildTime();
 	int color = TRANSLATION(Translation_Remap, playercolor2lookup(playercolor));
-	int tile = isRR() ? 3845 + 36 - ((((8 - (mclock >> 4))) & 7) * 5) : 1441 - ((((4 - (mclock >> 4))) & 3) * 5);
-	auto tex = tileGetTexture(tile);
+	auto basetex = TexMan.CheckForTexture("PLAYERWALK", ETextureType::Any);
+	if (!basetex.isValid()) return;
+	// these are normal in-game animations. Duke has 4 frames, RR has 8, each with 5 rotations that must have consecutive IDs.
+	int tileofs = isRR() ? 35 - ((((8 - (mclock >> 4))) & 7) * 5) : 15 - ((((4 - (mclock >> 4))) & 3) * 5);
+	auto tex = TexMan.GetGameTexture(basetex + tileofs);
 	if (!tex) return;
 	double x = origin.X + 250, y = origin.Y + tex->GetDisplayHeight() * (isRR()? 0.25 : 0.5);
 	double scale = isRR() ? 0.375 : 0.75;
+	double scaley = isRR() ? 0.3 : 0.75;
 
-	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, color, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, color, DTA_ScaleX, scale, DTA_ScaleY, scaley, TAG_DONE);
 }
 
 END_DUKE_NS

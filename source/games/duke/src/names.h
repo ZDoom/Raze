@@ -5,13 +5,7 @@ BEGIN_DUKE_NS
 // These are all globally accessed tiles.
 extern int TILE_APLAYER;
 extern int TILE_DRONE;
-extern int TILE_SCREENBORDER;
-extern int TILE_VIEWBORDER;
 extern int TILE_APLAYERTOP;
-extern int TILE_CAMCORNER;
-extern int TILE_CAMLIGHT;
-extern int TILE_STATIC;
-extern int TILE_BOTTOMSTATUSBAR;
 extern int TILE_FIRE;
 extern int TILE_WATERBUBBLE;
 extern int TILE_BLOODPOOL;

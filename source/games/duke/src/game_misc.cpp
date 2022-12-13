@@ -311,26 +311,34 @@ void drawoverlays(double interpfrac)
 
 void cameratext(DDukeActor *cam)
 {
+	static FTextureID texids[4];
+	static const char* texs[] = { "CAMCORNER", "CAMCORNER2", "CAMLIGHT", "STATIC" };
+
+	if (!texids[0].isValid())
+	{
+		for (int i = 0; i < 4; i++) texids[i] = TexMan.CheckForTexture(texs[i], ETextureType::Any);
+	}
+
 	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
 	{
-		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, viewport3d.Left(), DTA_ViewportY, viewport3d.Top(), DTA_ViewportWidth, viewport3d.Width(), 
+		DrawTexture(twod, texids[tile], false, x, y, DTA_ViewportX, viewport3d.Left(), DTA_ViewportY, viewport3d.Top(), DTA_ViewportWidth, viewport3d.Width(), 
 			DTA_ViewportHeight, viewport3d.Height(), DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_CenterOffsetRel, 2, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 	};
 	if (!cam->temp_data[0])
 	{
-		drawitem(TILE_CAMCORNER, 24, 33, false, false);
-		drawitem(TILE_CAMCORNER + 1, 320 - 26, 33, false, false);
-		drawitem(TILE_CAMCORNER + 1, 24, 163, true, true);
-		drawitem(TILE_CAMCORNER + 1, 320 - 26, 163, false, true);
+		drawitem(0, 24, 33, false, false);
+		drawitem(1, 320 - 26, 33, false, false);
+		drawitem(1, 24, 163, true, true);
+		drawitem(1, 320 - 26, 163, false, true);
 
 		if (PlayClock & 16)
-			drawitem(TILE_CAMLIGHT, 46, 32, false, false);
+			drawitem(2, 46, 32, false, false);
 	}
 	else
 	{
 		for (int x = -64; x < 394; x += 64)
 			for (int y = 0; y < 200; y += 64)
-				drawitem(TILE_STATIC, x, y, !!(PlayClock & 8), !!(PlayClock & 16));
+				drawitem(3, x, y, !!(PlayClock & 8), !!(PlayClock & 16));
 	}
 }
 
