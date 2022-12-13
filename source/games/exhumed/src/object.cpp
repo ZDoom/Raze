@@ -161,7 +161,7 @@ TArray<Bob> sBob;
 TArray<Trail> sTrail;
 TArray<TrailPoint> sTrailPoint;
 TArray<Elev> Elevator;
-TArray<DExhumedActor*> ObjectList;
+TArray<TObjPtr<DExhumedActor*>> ObjectList;
 TArray<MoveSect> sMoveSect;
 TArray<slideData> SlideData;
 TArray<wallFace> WallFace;
@@ -172,6 +172,7 @@ TObjPtr<DExhumedActor*> pFinaleSpr;
 size_t MarkObjects()
 {
     GC::Mark(pFinaleSpr);
+    for (auto& d : ObjectList) GC::Mark(d);
     for (auto& d : sDrip) GC::Mark(d.pActor);
     for (auto& d : sTrap) GC::Mark(d.pActor);
     for (auto& d : Elevator) GC::Mark(d.pActor);
@@ -1986,7 +1987,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     pActor->spr.intowner = runlist_AddRunRec(pActor->spr.lotag - 1, pActor, 0x170000);
 
     //	GrabTimeSlot(3);
-    pActor->nPhase = ObjectList.Push(pActor);
+    pActor->nPhase = ObjectList.Push(MakeObjPtr(pActor));
     if (pActor->spr.statnum == kStatDestructibleSprite) {
         pActor->nHealth = 4;
     }
@@ -2275,7 +2276,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
             pActor->nHealth = -1;
             int ax = pActor->nIndex2;
 
-            if (ax < 0 || ObjectList[ax]->nHealth <= 0) {
+            if (ax < 0 || ObjectList[ax] == nullptr || ObjectList[ax]->nHealth <= 0) {
                 return;
             }
 
@@ -2813,7 +2814,7 @@ void PostProcess()
     {
         auto pObjectActor = ObjectList[i];
 
-        if (pObjectActor->spr.statnum == kStatExplodeTarget)
+        if (pObjectActor && pObjectActor->spr.statnum == kStatExplodeTarget)
         {
             if (!pObjectActor->nIndex2) {
                 pObjectActor->nIndex2 = -1;
@@ -2826,7 +2827,7 @@ void PostProcess()
                 for (unsigned j = 0; j < ObjectList.Size(); j++)
                 {
 
-                    if (i != j && ObjectList[j]->spr.statnum == kStatExplodeTarget && edi == ObjectList[j]->nIndex2)
+                    if (i != j && ObjectList[j] && ObjectList[j]->spr.statnum == kStatExplodeTarget && edi == ObjectList[j]->nIndex2)
                     {
                         pObjectActor->nIndex2 = j;
                         ObjectList[j]->nIndex2 = i;
