@@ -193,3 +193,4 @@ class RedneckGeometryEffect : DukeActor
 class RedneckKeyinfoSetter : DukeActor
 {
 }
+

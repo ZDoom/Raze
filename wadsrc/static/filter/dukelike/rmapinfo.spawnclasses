@@ -251,6 +251,22 @@ spawnclasses
 	661 = DukeWaterBubble
 	2329 = DukeSmallSmoke
 	1250 = DukeSteam
+	1312 = DukeFemale1
+	1317 = DukeFemale2
+	1321 = DukeFemale3
+	1325 = DukeFemale4
+	1323 = DukeFemale5
+	1334 = DukeFemale6
+	1395 = DukeFemale7
+	1336 = DukeFemale8
+	3450 = DukeFemale9
+	4864 = DukeFemale10
+	4866 = DukeToughGal
+	603 = DukeNaked
+	1294 = DukePodFemale
+	1324 = DukeBloodyPole
+
+
 
 	2000 = DukePigCop
 	2001 = DukePigCopStayPut

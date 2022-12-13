@@ -119,6 +119,7 @@ version "4.10"
 #include "zscript/games/duke/actors/boss3.zs"
 #include "zscript/games/duke/actors/boss4.zs"
 #include "zscript/games/duke/actors/boss5.zs"
+#include "zscript/games/duke/actors/females.zs"
 
 #include "zscript/games/duke/actors/flamethrowerflame.zs"
 #include "zscript/games/duke/actors/firefly.zs"

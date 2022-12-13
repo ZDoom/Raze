@@ -137,10 +137,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!badguy(act) || commonEnemySetup(act, actj))
 			CallInitialize(act);
 		break;
-	case FOF:
-		act->spr.scale = DVector2(0, 0);
-		ChangeActorStat(act, STAT_MISC);
-		break;
 	case DTILE_BLOOD:
 		act->spr.scale = DVector2(0.25, 0.25);
 		act->spr.pos.Z -= 26;
@@ -152,28 +148,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
 		ChangeActorStat(act, STAT_MISC);
-		break;
-
-	case DTILE_FEM1:
-	case DTILE_FEM2:
-	case DTILE_FEM3:
-	case DTILE_FEM4:
-	case DTILE_FEM5:
-	case DTILE_FEM6:
-	case DTILE_FEM7:
-	case DTILE_FEM8:
-	case DTILE_FEM9:
-	case DTILE_FEM10:
-	case DTILE_PODFEM1:
-	case DTILE_NAKED1:
-	case DTILE_TOUGHGAL:
-		if (act->spr.picnum == DTILE_PODFEM1) act->spr.extra <<= 1;
-		[[fallthrough]];
-
-	case DTILE_BLOODYPOLE:
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 8;
-		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 
 	case DTILE_DUKELYINGDEAD:
