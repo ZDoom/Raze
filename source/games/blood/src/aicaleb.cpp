@@ -322,7 +322,7 @@ static void sub_65F44(DBloodActor* actor)
 	});
 
 	double dz = target->spr.pos.Z - actor->spr.pos.Z;
-	actor->vel.Z -= dz / 256;
+	actor->vel.Z = -dz / 256;
 }
 
 static void sub_661E0(DBloodActor* actor)
@@ -350,7 +350,7 @@ static void sub_661E0(DBloodActor* actor)
 	});
 
 	double dz = target->spr.pos.Z - actor->spr.pos.Z;
-	actor->vel.Z += dz / 32;
+	actor->vel.Z = dz / 32;
 }
 
 END_BLD_NS

@@ -309,7 +309,7 @@ static void sub_6CD74(DBloodActor* actor)
 		t1 += nAccel;
 	});
 
-	actor->vel.Z -= target->spr.pos.Z - actor->spr.pos.Z / 256.;
+	actor->vel.Z = -(target->spr.pos.Z - actor->spr.pos.Z) / 256.;
 }
 
 static void sub_6D03C(DBloodActor* actor)
@@ -336,7 +336,7 @@ static void sub_6D03C(DBloodActor* actor)
 		t1 += nAccel * 0.5;
 	});
 
-	actor->vel.Z += target->spr.pos.Z - actor->spr.pos.Z / 32.;
+	actor->vel.Z = (target->spr.pos.Z - actor->spr.pos.Z) / 32.;
 }
 
 END_BLD_NS
