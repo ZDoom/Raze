@@ -229,6 +229,12 @@ void AIAnubis::Tick(RunListEvent* ev)
                         ap->nFrame = 0;
                     }
                 }
+                else
+                {
+                    // Don't let Anubis get stuck in this state and allow him to acquire a new target.
+                    ap->nAction = 0;
+                    ap->nCount = 50;
+                }
             }
             break;
         }
