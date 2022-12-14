@@ -1,6 +1,4 @@
 
-// for now only the effect is scriptified.
-
 class DukeFireflyFlyingEffect : DukeActor
 {
 	default
@@ -45,3 +43,27 @@ class DukeFireflyFlyingEffect : DukeActor
 		}
 	}
 }
+
+class DukeFirefly : DukeActor
+{
+	default
+	{
+		pic "FIREFLY";
+	}
+	
+	override bool ShootThis(DukeActor shooter, DukePlayer p, Vector3 spos, double sang)
+	{
+		let k = shooter.spawn("DukeFirefly");
+		if (k)
+		{
+			k.sector = shooter.sector;
+			k.pos = spos;
+			k.Angle = sang;
+			k.vel.X = 500 / 16.;
+			k.vel.Z = 0;
+		}
+		return true;
+	}
+}
+
+	

@@ -70,34 +70,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	{
 		switch (act->spr.picnum)
 		{
-		case DTILE_FIREFLY:
-			act->spr.scale = DVector2(0.625, 0.625);
-			act->clipdist = 20;
-
-			if (actj)
-				act->spr.lotag = 0;
-
-			if ((act->spr.lotag > ud.player_skill) || ud.monsters_off)
-			{
-				act->spr.scale = DVector2(0, 0);
-				ChangeActorStat(act, STAT_MISC);
-				break;
-			}
-			else
-			{
-				makeitfall(act);
-
-				act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-
-				if (actj) {
-					act->timetosleep = 0;
-					check_fta_sounds_d(act);
-					ChangeActorStat(act, STAT_ACTOR);
-				}
-				else
-					ChangeActorStat(act, STAT_ZOMBIEACTOR);
-			}
-			return act;
 		case DTILE_WHISPYSMOKE:
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krandf(16) - 8;

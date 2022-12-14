@@ -988,20 +988,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 		case DTILE_FIREBALL:
 			shootfireball(actor, p, spos, sang);
 			return;
-
-		case DTILE_FIREFLY: // DTILE_BOSS5 shot
-		{
-			auto k = spawn(actor, atwith);
-			if (k)
-			{
-				k->setsector(sect);
-				k->spr.pos = spos;
-				k->spr.Angles.Yaw = sang;
-				k->vel.X = 500 / 16.;
-				k->vel.Z = 0;
-			}
-			return;
-		}
 		}
 	}
 

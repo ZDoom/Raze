@@ -379,6 +379,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 			clipmove(ppos, &dasectp, change * 0.5, 64., 4., 4., cliptype, result);
 		else 
 		{
+			// todo: move this mess to the actor definitions once we have them all available.
 			double clipdist;
 			if (actor->spr.picnum == DTILE_LIZMAN)
 				clipdist = 18.25;
@@ -393,7 +394,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 		// conditional code from hell...
 		if (dasectp == nullptr || (dasectp != nullptr &&
 			((actor->actorstayput != nullptr && actor->actorstayput != dasectp) ||
-			 ((actor->spr.picnum == DTILE_BOSS2) && actor->spr.pal == 0 && dasectp->lotag != 3) ||
+			 ((actor->spr.picnum == DTILE_BOSS2) && actor->spr.pal == 0 && dasectp->lotag != ST_3) ||
 			 ((actor->spr.picnum == DTILE_BOSS1 || actor->spr.picnum == DTILE_BOSS2) && dasectp->lotag == ST_1_ABOVE_WATER) ||
 			 (dasectp->lotag == ST_1_ABOVE_WATER && (actor->spr.picnum == DTILE_LIZMAN || (actor->spr.picnum == DTILE_LIZTROOP && actor->vel.Z == 0)))
 			))
