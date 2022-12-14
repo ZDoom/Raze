@@ -64,52 +64,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!badguy(act) || commonEnemySetup(act, actj))
 			CallInitialize(act);
 		break;
-	case RTILE_RRTILE7936:
-		if (!isRRRA()) goto default_case;
-		act->spr.scale = DVector2(0, 0);
-		fogactive = 1;
-		break;
-	case RTILE_RRTILE6144:
-		if (!isRRRA()) goto default_case;
-		act->spr.scale = DVector2(0, 0);
-		ps[screenpeek].sea_sick_stat = 1;
-		break;
-	case RTILE_RRTILE8193:
-		if (!isRRRA()) goto default_case;
-		act->spr.scale = DVector2(0, 0);
-		pistonsound = 1;
-		break;
-
-	case RTILE_GRATE1:
-		act->clipdist = 8;
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		ChangeActorStat(act, 0);
-		break;
-	case RTILE_EXPLOSION3:
-		if (actj)
-		{
-			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-			act->spr.shade = -64;
-			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
-		}
-
-		else if (act->spr.picnum == RTILE_EXPLOSION3)
-		{
-			act->spr.scale = DVector2(2, 2);
-			act->spr.shade = -127;
-			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-		}
-
-		if (actj)
-		{
-			double x = getflorzofslopeptr(act->sector(), act->spr.pos);
-			if (act->spr.pos.Z > x - 12)
-				act->spr.pos.Z = x - 12;
-		}
-
-		ChangeActorStat(act, STAT_MISC);
-
-		break;
 
 	case RTILE_APLAYER:
 	{
@@ -124,6 +78,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	}
 
+
+	/* animate
+		case RTILE_SBMOVE:
+			if (!isRRRA())
+				t->shade = -127;
+			break;
+
+	*/
 		// this is not really nice...
 	case RTILE_BIKERB:
 	case RTILE_BIKERBV2:
@@ -355,8 +317,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RTILE_SHOTGUNAMMO:
 	case RTILE_FREEZEAMMO:
 	case RTILE_HBOMBAMMO:
-	case RTILE_CRYSTALAMMO:
-	case RTILE_GROWAMMO:
 	case RTILE_DEVISTATORAMMO:
 	case RTILE_RPGAMMO:
 	case RTILE_BOOTS:
@@ -366,6 +326,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RTILE_FIRSTAID:
 
 	case RTILE_SAWAMMO:
+
 		if (actj)
 		{
 			act->spr.lotag = 0;
@@ -484,16 +445,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			break;
 		}
 		act->spr.shade = act->sector()->floorshade;
-		break;
-	case RTILE_CEILINGSTEAM:
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-
-	case RTILE_RRTILE63:
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
-		act->clipdist = 0.25;
-		ChangeActorStat(act, 100);
 		break;
 	}
 	return act;

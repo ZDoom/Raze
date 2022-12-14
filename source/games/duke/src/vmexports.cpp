@@ -1478,6 +1478,8 @@ DEFINE_FIELD_X(DukeUserDefs, user_defs, monsters_off);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, brightness);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, ffire);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, multimode);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, pistonsound);
+DEFINE_FIELD_X(DukeUserDefs, user_defs, fogactive);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, player_skill);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, marker);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, bomb_tag);

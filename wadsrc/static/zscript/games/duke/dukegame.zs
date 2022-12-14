@@ -477,7 +477,7 @@ struct DukeUserDefs native
 	native readonly int player_skill, marker;
 	
 	native int earthquaketime, chickenplant;
-	native uint8 ufospawnsminion;
+	native uint8 ufospawnsminion, pistonsound, fogactive;
 	native int16 bomb_tag;
 	native DukeActor cameraactor;
 	native bool joe9000;

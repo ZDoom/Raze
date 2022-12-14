@@ -641,7 +641,7 @@ void prelevel_common(int g)
 	auto p = &ps[screenpeek];
 	p->sea_sick_stat = 0;
 	ud.ufospawnsminion = 0;
-	pistonsound = 0;
+	ud.pistonsound = 0;
 	p->SlotWin = 0;
 	enemysizecheat = 0;
 	p->MamaEnd = 0;
@@ -660,7 +660,7 @@ void prelevel_common(int g)
 	mamaspawn_count = currentLevel->rr_mamaspawn;
 
 	// RRRA E2L1 fog handling.
-	fogactive = 0;
+	ud.fogactive = 0;
 
 	resetprestat(0, g);
 	numclouds = 0;

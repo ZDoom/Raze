@@ -2638,7 +2638,7 @@ void handle_se25(DDukeActor* actor, int snd1, int snd2)
 		if (sec->ceilingz > sec->floorz)
 		{
 			sec->setceilingz(sec->floorz);
-			if (pistonsound && snd1 >= 0)
+			if (ud.pistonsound && snd1 >= 0)
 				S_PlayActorSound(snd1, actor);
 		}
 	}
@@ -2648,7 +2648,7 @@ void handle_se25(DDukeActor* actor, int snd1, int snd2)
 		if (sec->ceilingz < actor->temp_pos.Z)
 		{
 			sec->setceilingz(actor->temp_pos.Z);
-			if (pistonsound && snd2 >= 0)
+			if (ud.pistonsound && snd2 >= 0)
 				S_PlayActorSound(snd2, actor);
 		}
 	}

@@ -227,14 +227,14 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 		return;
 
 	// Do not light up the fog in RRRA's E2L1. Ideally this should apply to all foggy levels but all others use lookup table hacks for their fog.
-	if (isRRRA() && fogactive)
+	if (ud.fogactive)
 	{
 		p->visibility = ud.const_visibility;
 	}
 	g_visibility = ud.const_visibility;
 	g_relvisibility = p->visibility - ud.const_visibility;
-	GlobalMapFog = fogactive ? 0x999999 : 0;
-	GlobalFogDensity = fogactive ? 350.f : 0.f;
+	GlobalMapFog = ud.fogactive ? 0x999999 : 0;
+	GlobalFogDensity = ud.fogactive ? 350.f : 0.f;
 
 	DoInterpolations(interpfrac);
 
@@ -341,7 +341,7 @@ void displayrooms(int snum, double interpfrac, bool sceneonly)
 	//GLInterface.SetMapFog(false);
 	RestoreInterpolations();
 
-	if (!fogactive)
+	if (!ud.fogactive)
 	{
 		if (PlayClock < lastvisinc)
 		{

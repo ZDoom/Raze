@@ -47,3 +47,21 @@ class DukeExplosion2Bot : DukeExplosion2
 	}
 }
 
+class RedneckExplosion3 : DukeExplosion2
+{
+	default
+	{
+		pic "EXPLOSION3";
+	}
+	
+	override void Initialize()
+	{
+		self.scale = (2, 2);
+	}
+	
+	override bool animate(tspritetype t)
+	{
+		t.shade = -127;
+		return false;
+	}
+}

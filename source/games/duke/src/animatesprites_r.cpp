@@ -243,36 +243,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			drawshadows(tsprites, t, h);
 		}
 
-
-		switch (h->spr.picnum)
-		{
-		case RTILE_CRYSTALAMMO:
-			t->shade = int(BobVal(PlayClock << 4) * 16);
-			break;
-
-		case RTILE_SBMOVE:
-			if (!isRRRA())
-				t->shade = -127;
-			break;
-
-		case RTILE_EXPLOSION3:
-			t->shade = -127;
-			break;
-		case RTILE_UFOBEAM:
-		case RTILE_RRTILE3586:
-		case RTILE_LADDER:
-			t->cstat |= CSTAT_SPRITE_INVISIBLE;
-			h->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-			break;
-		case RTILE_DESTRUCTO:
-			t->cstat |= CSTAT_SPRITE_INVISIBLE;
-			break;
-
-		case RTILE_LETSBOWL:
-			t->picnum = RTILE_LETSBOWL + ((PlayClock >> 2) & 1);
-			break;
-		}
-
 		h->dispicnum = t->picnum;
 		if (t->sectp->floortexture == mirrortex)
 			t->scale = DVector2(0, 0);

@@ -1,5 +1,9 @@
 spawnclasses
 {
+	7936 = RedneckFogEnabler
+	6144 = RedneckSeasickEnabler
+	8193 = RedneckPistonSoundEnabler
+
 	3464 = RedneckCheerBomb
 	2430 = RedneckCactusLargeYellow
 	2431 = RedneckCactusLargeGreen

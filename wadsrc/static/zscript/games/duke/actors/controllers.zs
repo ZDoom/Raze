@@ -195,3 +195,106 @@ class RedneckKeyinfoSetter : DukeActor
 {
 }
 
+class RedneckUfoBeam : DukeActor
+{
+	default
+	{
+		pic "UFOBEAM";
+	}
+	
+	override bool animate(tspritetype t)
+	{
+		t.cstat |= CSTAT_SPRITE_INVISIBLE;
+		self.cstat |= CSTAT_SPRITE_INVISIBLE;
+		return true;
+	}
+}
+
+class RedneckInvisible : DukeActor
+{
+	default
+	{
+		pic "RRTILE3586";
+	}
+	
+	override bool animate(tspritetype t)
+	{
+		t.cstat |= CSTAT_SPRITE_INVISIBLE;
+		self.cstat |= CSTAT_SPRITE_INVISIBLE;
+		return true;
+	}
+}
+
+class RedneckLadder : DukeActor
+{
+	default
+	{
+		pic "Ladder";
+	}
+	
+	override bool animate(tspritetype t)
+	{
+		t.cstat |= CSTAT_SPRITE_INVISIBLE;
+		self.cstat |= CSTAT_SPRITE_INVISIBLE;
+		return true;
+	}
+}
+
+class RedneckDestructo : DukeActor
+{
+	default
+	{
+		pic "DESTRUCTO";
+		statnum STAT_DESTRUCT;
+	}
+	
+	override bool animate(tspritetype t)
+	{
+		t.cstat |= CSTAT_SPRITE_INVISIBLE;
+		return true;
+	}
+}
+
+class RedneckDestroyTags : DukeActor
+{
+	default
+	{
+		pic "DESTROYTAGS";
+	}
+	override void Initialize()
+	{
+		self.cstat |= CSTAT_SPRITE_INVISIBLE;
+		self.scale = (REPEAT_SCALE, REPEAT_SCALE);
+		self.clipdist = 0.25;
+		self.ChangeStat(STAT_DESTRUCT);
+	}
+}
+
+class RedneckPistonSoundEnabler : DukeActor
+{
+	override void StaticSetup()
+	{
+		ud.pistonsound = true;
+		self.Destroy();
+	}
+}
+
+class RedneckFogEnabler : DukeActor
+{
+	override void StaticSetup()
+	{
+		ud.fogactive = true;
+		self.Destroy();
+	}
+}
+
+class RedneckSeasickEnabler : DukeActor
+{
+	override void StaticSetup()
+	{
+		// this is so wrong... :(
+		Duke.GetViewPlayer().sea_sick_stat = true;
+		self.Destroy();
+	}
+}
+

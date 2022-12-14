@@ -16,6 +16,15 @@ spawnclasses
 	68 = DukeShadeCtrl
 	67 = DukeMinecartKiller
 	71 = DukeSoundFX
+	252 = RedneckUfoBeam
+	2586 = RedneckInvisible
+	3587 = RedneckLadder
+	36 = RedneckDestructo
+	63 = RedneckDestroyTags
+	7936 = RedneckFogEnabler
+	6144 = RedneckSeasickEnabler
+	8193 = RedneckPistonSoundEnabler
+
 	
 	64 = RedneckMinecartDef
 	65 = RedneckMinecartSound
@@ -271,6 +280,8 @@ spawnclasses
 	3171 = DukeActor, "*RRTILE3171"
 	3216 = DukeActor, "*RRTILE3216"
 	3720 = DukeActor, "*RRTILE3720"
+	2944 = DukeActor, "*PULSELAMP"
+	2034 = RedneckLetsBowl
 
 	// the following actors use CON
 	
@@ -280,6 +291,7 @@ spawnclasses
 	1494 = DukeBurning
 	1495 = RedneckFire
 	1441 = DukeExplosion2
+	1442 = RedneckExplosion3
 	41 = RedneckRifleAmmo
 	52 = RedneckPorkRinds
 	5595 = RedneckGoogooCluster
@@ -292,6 +304,7 @@ spawnclasses
 	1391 = RedneckBlood
 	3998 = RedneckPlayerLyingDead
 	3860 = DukePlayerOnWater
+	1332 = DukeCeilingSteam
 
 	
 	4861 = RedneckHen

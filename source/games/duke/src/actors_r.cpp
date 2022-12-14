@@ -1612,7 +1612,7 @@ void destroyit(DDukeActor *actor)
 	DukeSectIterator it1(actor->sector());
 	while (auto a2 = it1.Next())
 	{
-		if (a2->spr.picnum == RTILE_RRTILE63)
+		if (a2->spr.picnum == RTILE_DESTROYTAGS)
 		{
 			lotag = a2->spr.lotag;
 			spr = a2;
@@ -1691,7 +1691,7 @@ void destroyit(DDukeActor *actor)
 		switch (a2->spr.picnum)
 		{
 		case RTILE_DESTRUCTO:
-		case RTILE_RRTILE63:
+		case RTILE_DESTROYTAGS:
 		case RTILE_TORNADO:
 		case RTILE_APLAYER:
 		case RTILE_COOT:

@@ -157,6 +157,7 @@ struct user_defs
 	uint8_t clipping;
 	uint8_t user_pals[MAXPLAYERS];
 	uint8_t ufospawnsminion;
+	uint8_t pistonsound, fogactive;
 
 	short from_bonus;
 	short last_level, secretlevel;

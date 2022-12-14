@@ -108,3 +108,16 @@ class RedneckBellSwitch : DukeActor
 	}
 }	
 
+class RedneckLetsBowl : DukeActor
+{
+	default
+	{
+		spriteset "LETSBOWL", "LETSBOWL1";
+	}
+
+	override bool animate(tspritetype t)
+	{
+		t.SetspritePic(self, (PlayClock >> 2) & 1);
+		return true;
+	}
+}
