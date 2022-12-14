@@ -124,34 +124,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.yint = act->spr.hitag;
 		ChangeActorStat(act, 1);
 		break;
-	case DTILE_ONFIRE:
-		// Twentieth Anniversary World Tour
-		if (!isWorldTour())
-			break;
-
-		if (actj)
-		{
-			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-			act->spr.shade = -64;
-			act->spr.cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
-		}
-		act->spr.scale = DVector2(0.375, 0.375);
-
-		if (actj)
-		{
-			double x = getflorzofslopeptr(act->sector(), act->spr.pos);
-			if (act->spr.pos.Z > x - 12)
-				act->spr.pos.Z = x - 12;
-		}
-
-		act->spr.pos.X += krandf(32) - 16;
-		act->spr.pos.Y += krandf(32) - 16;
-		act->spr.pos.Z -= krandf(40);
-		act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-
-		ChangeActorStat(act, STAT_MISC);
-		break;
-
 	case DTILE_PLAYERONWATER:
 		if (actj)
 		{
@@ -187,10 +159,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.hitag = 0;
 		}
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-	case DTILE_FLOORFLAME:
-		act->spr.shade = -127;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	}

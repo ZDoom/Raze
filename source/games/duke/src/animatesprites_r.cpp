@@ -126,19 +126,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			if (h->spr.extra > 0)
 				t->pos.Z += 6;
 			break;
-		case RTILE_BURNING:
-			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
-			{
-				if (display_mirror == 0 && OwnerAc->PlayerIndex() == screenpeek && ps[OwnerAc->PlayerIndex()].over_shoulder_on == 0)
-					t->scale = DVector2(0, 0);
-				else
-				{
-					t->Angles.Yaw = (viewVec - t->pos.XY()).Angle();
-					t->pos.XY() = OwnerAc->spr.pos.XY() + t->Angles.Yaw.ToVector();
-				}
-			}
-			break;
-
 		case RTILE_CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;
@@ -352,12 +339,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			break;
 		case RTILE_DESTRUCTO:
 			t->cstat |= CSTAT_SPRITE_INVISIBLE;
-			break;
-		case RTILE_FIRE:
-		case RTILE_BURNING:
-			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->pos.Z = getflorzofslopeptr(t->sectp, t->pos);
-			t->shade = -127;
 			break;
 		case RTILE_CHEER:
 			if (!isRRRA()) break;

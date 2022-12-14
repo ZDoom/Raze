@@ -242,6 +242,8 @@ spawnclasses
 	921 = DukeToiletWater
 	2270 = DukeBurning
 	2310 = DukeBurning2
+	2271 = DukeFire
+	2311 = DukeFire2
 	1890 = DukeExplosion2
 	2219 = DukeExplosion2Bot
 	
@@ -306,6 +308,7 @@ spawnclasses
 	1229 = DukeNukeBarrelLeaked
 	904 = DukeWoodenHorse
 	1062 = DukeRubberCan
+	2333 = DukeFloorFlame
 
 
 

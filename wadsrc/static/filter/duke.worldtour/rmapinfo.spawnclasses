@@ -16,5 +16,7 @@ spawnclasses
 
 	5134 = DukeFlamethrowerSprite
 	5135 = DukeFlamethrowerAmmo
-	
+	5143 = DukeOnFire
+	5152 = DukeOnFireSmoke
+
 }

@@ -126,20 +126,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case DTILE_DUKELYINGDEAD:
 			t->pos.Z += 24;
 			break;
-		case DTILE_BURNING:
-		case DTILE_BURNING2:
-			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
-			{
-				if (display_mirror == 0 && OwnerAc->PlayerIndex() == screenpeek && ps[screenpeek].over_shoulder_on == 0)
-					t->scale = DVector2(0, 0);
-				else
-				{
-					t->Angles.Yaw = (viewVec - t->pos.XY()).Angle();
-					t->pos.XY() = OwnerAc->spr.pos.XY() + t->Angles.Yaw.ToVector();
-				}
-			}
-			break;
-
 		case DTILE_GROWSPARK:
 			t->picnum = DTILE_GROWSPARK + ((PlayClock >> 4) & 3);
 			break;
@@ -292,17 +278,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		{
 		case DTILE_GROWSPARK:
 		case DTILE_CHAINGUN:
-		case DTILE_FLOORFLAME:
-			t->shade = -127;
-			break;
-		case DTILE_FIRE:
-		case DTILE_FIRE2:
-			t->cstat |= CSTAT_SPRITE_YCENTER;
-			[[fallthrough]];
-		case DTILE_BURNING:
-		case DTILE_BURNING2:
-			if (!OwnerAc || !actorflag(OwnerAc, SFLAG_NOFLOORFIRE))
-				t->pos.Z = getflorzofslopeptr(t->sectp, t->pos);
 			t->shade = -127;
 			break;
 		case DTILE_PLAYERONWATER:
