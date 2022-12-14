@@ -2638,16 +2638,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 		if (p->kickback_pic == 4)
 		{
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-			fi.shoot(pact, RTILE_SHOTGUN, nullptr);
+			for (int ii = 0; ii < 10; ii++)
+				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
 
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -2664,16 +2656,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			if (p->shotgun_state[1])
 			{
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
+				for (int ii = 0; ii < 10; ii++)
+					fi.shoot(pact, RTILE_SHOTGUN, nullptr);
 
 				p->ammo_amount[SHOTGUN_WEAPON]--;
 
