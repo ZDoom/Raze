@@ -20,6 +20,13 @@ class DukeBoss4Stayput : DukeBoss4
 	{
 		pic "BOSS4STAYPUT";
 	}
+	
+	override void initialize()
+	{
+		super.initialize();
+		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
+	}
+	
 }
 	
 

@@ -13,6 +13,13 @@ class DukeBoss5Stayput : DukeBoss5
 	{
 		pic "BOSS5STAYPUT";
 	}
+	
+	override void initialize()
+	{
+		super.initialize();
+		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
+	}
+	
 }
 	
 
