@@ -547,21 +547,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		makeitfall(act);
 		if (actj) act->SetOwner(actj);
 		else act->SetOwner(act);
-		[[fallthrough]];
-
-	case RTILE_EGG:
-		if (ud.monsters_off == 1 && act->spr.picnum == RTILE_EGG)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-		}
-		else
-		{
-			if (act->spr.picnum == RTILE_EGG)
-				act->clipdist = 6;
-			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
-			ChangeActorStat(act, STAT_ZOMBIEACTOR);
-		}
+		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
+		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 	case RTILE_RRTILE63:
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;

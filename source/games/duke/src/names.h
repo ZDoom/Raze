@@ -13,7 +13,6 @@ extern int TILE_CLOUDYSKIES;
 extern int TILE_MIRRORBROKE;
 extern int TILE_LOADSCREEN;
 extern int TILE_CROSSHAIR;
-extern int TILE_EGG;
 
 
 
