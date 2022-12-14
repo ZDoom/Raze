@@ -237,45 +237,15 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case DTILE_OCTABRAINSTAYPUT:
-	case DTILE_LIZTROOPSTAYPUT:
-	case DTILE_LIZMANSTAYPUT:
 	case DTILE_COMMANDERSTAYPUT:
 		act->actorstayput = act->sector();
 		[[fallthrough]];
 	case DTILE_ROTATEGUN:
 	case DTILE_DRONE:
-	case DTILE_LIZTROOPONTOILET:
-	case DTILE_LIZTROOPJUSTSIT:
-	case DTILE_LIZTROOPSHOOT:
-	case DTILE_LIZTROOPJETPACK:
-	case DTILE_LIZTROOPDUCKING:
-	case DTILE_LIZTROOPRUNNING:
-	case DTILE_LIZTROOP:
 	case DTILE_OCTABRAIN:
 	case DTILE_COMMANDER:
-	case DTILE_LIZMAN:
-	case DTILE_LIZMANSPITTING:
-	case DTILE_LIZMANFEEDING:
-	case DTILE_LIZMANJUMP:
 	case DTILE_ORGANTIC:
 	case DTILE_SHARK:
-
-		if (act->spr.pal == 0)
-		{
-			switch (act->spr.picnum)
-			{
-			case DTILE_LIZTROOPONTOILET:
-			case DTILE_LIZTROOPSHOOT:
-			case DTILE_LIZTROOPJETPACK:
-			case DTILE_LIZTROOPDUCKING:
-			case DTILE_LIZTROOPRUNNING:
-			case DTILE_LIZTROOPSTAYPUT:
-			case DTILE_LIZTROOPJUSTSIT:
-			case DTILE_LIZTROOP:
-				act->spr.pal = 22;
-				break;
-			}
-		}
 
 		if (act->spr.picnum != DTILE_SHARK)
 		{

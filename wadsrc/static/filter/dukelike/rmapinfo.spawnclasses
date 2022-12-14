@@ -281,4 +281,17 @@ spawnclasses
 	4740 = DukeBoss4
 	4741 = DukeBoss4Stayput
 	
+	2120 = DukeLizMan
+	2121 = DukeLizManStayput
+	2150 = DukeLizManSpitting
+	2160 = DukeLizManFeeding
+	2165 = DukeLizManJump
+	1680 = DukeLiztrooper
+	1681 = DukeLiztrooperRunning
+	1682 = DukeLiztrooperStayput
+	1715 = DukeLiztrooperShoot
+	1725 = DukeLiztrooperJetpack
+	1741 = DukeLiztrooperToilet
+	1742 = DukeLiztrooperSitting
+	1744 = DukeLiztrooperDucking
 }

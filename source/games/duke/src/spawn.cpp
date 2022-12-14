@@ -306,6 +306,7 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 	if (actorflag(self, SFLAG_INTERNAL_BADGUY))
 	{
 		self->spr.scale = DVector2(0.625, 0.625);
+		self->clipdist = 20;
 	}
 	else if (self->spr.scale.X == 0 || self->spr.scale.Y == 0)
 	{

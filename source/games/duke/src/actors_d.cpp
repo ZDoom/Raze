@@ -54,21 +54,6 @@ void check_fta_sounds_d(DDukeActor* actor)
 {
 	if (actor->spr.extra > 0) switch (actor->spr.picnum)
 	{
-	case DTILE_LIZTROOPONTOILET:
-	case DTILE_LIZTROOPJUSTSIT:
-	case DTILE_LIZTROOPSHOOT:
-	case DTILE_LIZTROOPJETPACK:
-	case DTILE_LIZTROOPDUCKING:
-	case DTILE_LIZTROOPRUNNING:
-	case DTILE_LIZTROOP:
-		S_PlayActorSound(PRED_RECOG, actor);
-		break;
-	case DTILE_LIZMAN:
-	case DTILE_LIZMANSPITTING:
-	case DTILE_LIZMANFEEDING:
-	case DTILE_LIZMANJUMP:
-		S_PlayActorSound(CAPT_RECOG, actor);
-		break;
 	case DTILE_RECON:
 		S_PlayActorSound(RECO_RECOG, actor);
 		break;
