@@ -30,6 +30,7 @@ void movecyclers(void);
 void movedummyplayers(void);
 void resetlanepics(void);
 void moveplayers();
+void movefallers();
 void doanimations();
 void tickstat(int stat, bool deleteinvalid = false);
 void operaterespawns(int low);

@@ -569,6 +569,101 @@ void moveplayers(void)
 //
 //---------------------------------------------------------------------------
 
+void movefallers(void)
+{
+	DukeStatIterator iti(STAT_FALLER);
+	while (auto act = iti.Next())
+	{
+		auto sectp = act->sector();
+
+		if (act->temp_data[0] == 0)
+		{
+			act->spr.pos.Z -= 16;
+			DAngle saved_angle = act->spr.Angles.Yaw;
+			int x = act->spr.extra;
+			int j = fi.ifhitbyweapon(act);
+			if (j >= 0)
+			{
+				if (gs.actorinfo[j].flags2 & SFLAG2_EXPLOSIVE)
+				{
+					if (act->spr.extra <= 0)
+					{
+						act->temp_data[0] = 1;
+						DukeStatIterator itj(STAT_FALLER);
+						while (auto a2 = itj.Next())
+						{
+							if (a2->spr.hitag == act->spr.hitag)
+							{
+								a2->temp_data[0] = 1;
+								a2->spr.cstat &= ~CSTAT_SPRITE_ONE_SIDE;
+								if (a2->IsKindOf(NAME_DukeSteamBase))
+									a2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
+							}
+						}
+					}
+				}
+				else
+				{
+					act->hitextra = 0;
+					act->spr.extra = x;
+				}
+			}
+			act->spr.Angles.Yaw = saved_angle;
+			act->spr.pos.Z += 16;
+		}
+		else if (act->temp_data[0] == 1)
+		{
+			if (act->spr.lotag > 0)
+			{
+				act->spr.lotag -= 3;
+				if (act->spr.lotag <= 0 || isRR())
+				{
+					act->vel.X = 2 + krandf(4);
+					act->vel.Z = -4 + krandf(4);
+				}
+			}
+			else
+			{
+				if (act->vel.X > 0)
+				{
+					act->vel.X -= 0.5;
+					ssp(act, CLIPMASK0);
+				}
+
+				double grav;
+				if (floorspace(act->sector())) grav = 0;
+				else
+				{
+					if (ceilingspace(act->sector()))
+						grav = gs.gravity / 6;
+					else
+						grav = gs.gravity;
+				}
+
+				if (act->spr.pos.Z < sectp->floorz - 1)
+				{
+					act->vel.Z += grav;
+					if (act->vel.Z > 24)
+						act->vel.Z = 24;
+					act->spr.pos.Z += act->vel.Z;
+				}
+				if ((sectp->floorz - act->spr.pos.Z) < 16)
+				{
+					int j = 1 + (krand() & 7);
+					for (int x = 0; x < j; x++) RANDOMSCRAP(act);
+					act->Destroy();
+				}
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void tickstat(int stat, bool deleteinvalid)
 {
 	DukeStatIterator iti(stat);

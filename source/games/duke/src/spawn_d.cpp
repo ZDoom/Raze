@@ -193,10 +193,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.shade = -127;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-
-	case DTILE_CEILINGSTEAM:
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
 	}
 	return act;
 }

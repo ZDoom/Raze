@@ -442,98 +442,6 @@ int ifhitbyweapon_r(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void movefallers_r(void)
-{
-	DukeStatIterator it(STAT_FALLER);
-	while (auto act = it.Next())
-	{
-		auto sectp = act->sector();
-
-		if (act->temp_data[0] == 0)
-		{
-			act->spr.pos.Z -= 16;
-			DAngle saved_angle = act->spr.Angles.Yaw;
-			int x = act->spr.extra;
-			int j = fi.ifhitbyweapon(act);
-			if (j >= 0)
-			{
-				if (gs.actorinfo[j].flags2 & SFLAG2_EXPLOSIVE)
-				{
-					if (act->spr.extra <= 0)
-					{
-						act->temp_data[0] = 1;
-						DukeStatIterator itr(STAT_FALLER);
-						while (auto ac2 = itr.Next())
-						{
-							if (ac2->spr.hitag == act->spr.hitag)
-							{
-								ac2->temp_data[0] = 1;
-								ac2->spr.cstat &= ~CSTAT_SPRITE_ONE_SIDE;
-								if (ac2->spr.picnum == RTILE_CEILINGSTEAM || ac2->spr.picnum == RTILE_STEAM)
-									ac2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-							}
-						}
-					}
-				}
-				else
-				{
-					act->hitextra = 0;
-					act->spr.extra = x;
-				}
-			}
-			act->spr.Angles.Yaw = saved_angle;
-			act->spr.pos.Z += 16;
-		}
-		else if (act->temp_data[0] == 1)
-		{
-			if (act->spr.lotag > 0)
-			{
-				act->spr.lotag -= 3;
-				act->vel.X = 4 + krandf(8);
-				act->vel.Z = -4 + krandf(4);
-			}
-			else
-			{
-				if (act->vel.X > 0)
-				{
-					act->vel.X -= 1/8.;
-					ssp(act, CLIPMASK0);
-				}
-
-				double grav;
-				if (floorspace(act->sector())) grav = 0;
-				else
-				{
-					if (ceilingspace(act->sector()))
-						grav = gs.gravity / 6;
-					else
-						grav = gs.gravity;
-				}
-
-				if (act->spr.pos.Z < sectp->floorz - 1)
-				{
-					act->vel.Z += grav;
-					if (act->vel.Z > 24)
-						act->vel.Z = 24;
-					act->spr.pos.Z += act->vel.Z;
-				}
-				if ((sectp->floorz - act->spr.pos.Z) < 16)
-				{
-					int j = 1 + (krand() & 7);
-					for (int x = 0; x < j; x++) RANDOMSCRAP(act);
-					act->Destroy();
-				}
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void movetransports_r(void)
 {
 	uint8_t warpdir = 0, warpspriteto;
@@ -1829,7 +1737,7 @@ void think_r(void)
 	movefta();			//ST 2
 	tickstat(STAT_PROJECTILE);
 	moveplayers();			//ST 10
-	movefallers_r();		//ST 12
+	movefallers();		//ST 12
 	tickstat(STAT_MISC, true);
 
 	actortime.Reset();

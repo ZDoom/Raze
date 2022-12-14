@@ -45,6 +45,7 @@ xx(DukeMoney)
 xx(DukeMail)
 xx(DukePaper)
 xx(RedneckFeather)
+xx(DukeSteamBase)
 
 xx(spawnstate)
 xx(brokenstate)

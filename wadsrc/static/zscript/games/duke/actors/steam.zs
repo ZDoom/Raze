@@ -1,3 +1,20 @@
+class DukeSteamBase : DukeActor // we need this for in-game checking and the shared CON code.
+{
+	default
+	{
+		statnum STAT_STANDABLE;
+	}
+}
+
+class DukeCeilingSteam : DukeSteamBase
+{
+	default
+	{
+		pic "CEILINGSTEAM";
+	}
+}
+
+
 class DukeSteam : DukeActor
 {
 	default

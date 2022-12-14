@@ -282,6 +282,7 @@ spawnclasses
 	661 = DukeWaterBubble
 	2329 = DukeSmallSmoke
 	1250 = DukeSteam
+	1255 = DukeCeilingSteam
 	1312 = DukeFemale1
 	1317 = DukeFemale2
 	1321 = DukeFemale3
