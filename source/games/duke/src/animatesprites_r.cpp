@@ -121,11 +121,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case RTILE_DUKELYINGDEAD:
-			h->spr.scale = DVector2(0.375, 0.265625);
-			if (h->spr.extra > 0)
-				t->pos.Z += 6;
-			break;
 		case RTILE_CRYSTALAMMO:
 			t->shade = int(BobVal(PlayClock << 4) * 16);
 			break;

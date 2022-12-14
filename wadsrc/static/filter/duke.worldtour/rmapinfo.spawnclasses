@@ -18,5 +18,6 @@ spawnclasses
 	5135 = DukeFlamethrowerAmmo
 	5143 = DukeOnFire
 	5152 = DukeOnFireSmoke
-
+	5268 = DukeWhispySmoke
+	5846 = DukeSeriousSam
 }

@@ -287,6 +287,10 @@ spawnclasses
 	1554 = DukeSmallSmoke
 	1327 = DukeSteam
 	3437 = RedneckBowlingBallSprite
+	241 = DukeWaterBubbleMaker
+	1391 = RedneckBlood
+	3998 = RedneckPlayerLyingDead
+
 	
 	4861 = RedneckHen
 	4862 = RedneckHenStayput

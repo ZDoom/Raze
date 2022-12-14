@@ -80,3 +80,137 @@ class DukeRubberCan : DukeExplodingBarrel
 		self.extra = 0;
 	}
 }
+
+class DukeWaterdripSplash : DukeActor
+{
+	default
+	{
+		pic "WATERDRIPSPLASH";
+	}
+	
+	override void Initialize()
+	{
+		self.scale = (0.375, 0.375);
+		self.ChangeStat(STAT_STANDABLE);
+	}	
+}
+
+class DukeWaterbubbleMaker : DukeActor
+{
+	default
+	{
+		pic "WATERBUBBLEMAKER";
+	}
+	
+	override void Initialize()
+	{
+		self.hitag = 0;
+		self.cstat |= CSTAT_SPRITE_INVISIBLE;
+		self.ChangeStat(STAT_STANDABLE);
+	}
+}
+
+class DukeFeces : DukeActor
+{
+	default
+	{
+		pic "FECES";
+	}
+	
+	override void Initialize()
+	{
+		if (!mapSpawned)
+			self.scale = (REPEAT_SCALE, REPEAT_SCALE);
+		self.ChangeStat(STAT_MISC);
+	}
+}
+
+class DukeBlood : DukeActor
+{
+	default
+	{
+		pic "Blood";
+	}
+	
+	override void Initialize()
+	{
+		self.pos.Z -= 26;
+		if (!mapSpawned && self.ownerActor && self.ownerActor.pal == 6)
+			self.pal = 6;
+		self.scale = (0.25, 0.25);
+		self.ChangeStat(STAT_MISC);
+	}
+}
+
+class RedneckBlood : DukeBlood
+{
+	override void Initialize()
+	{
+		Super.Initialize();
+		self.scale = (0.0625, 0.0625);
+		self.pos.Z -= 26;
+	}
+}
+		
+
+class DukeBlimp : DukeActor
+{
+	default
+	{
+		pic "BLIMP";
+	}
+	
+	override void Initialize()
+	{
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 32;
+		self.ChangeStat(STAT_ACTOR);
+	}
+}		
+
+class DukeMike : DukeActor
+{
+	default
+	{
+		pic "MIKE";
+	}
+	
+	override void Initialize()
+	{
+		self.yint = self.hitag;
+		self.ChangeStat(STAT_ACTOR);
+	}
+}		
+
+class DukeWhispySmoke : DukeActor
+{
+	default
+	{
+		pic "WHISPYSMOKE";
+	}
+	
+	override void Initialize()
+	{
+		self.pos.X += frandom(-8, 8);
+		self.pos.Y += frandom(-8, 8);
+		self.scale = (0.3125, 0.3125);
+		self.ChangeStat(STAT_MISC);
+	}
+}		
+
+class DukeSeriousSam : DukeActor
+{
+	default
+	{
+		pic "SERIOSSAM";
+		statnum STAT_ZOMBIEACTOR;
+	}
+	
+	override void Initialize()
+	{
+		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.extra = 150;
+		self.ChangeStat(STAT_ZOMBIEACTOR);
+	}
+}		
+

@@ -66,63 +66,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	auto sectp = act->sector();
 
 
-	if (isWorldTour())
-	{
-		switch (act->spr.picnum)
-		{
-		case DTILE_WHISPYSMOKE:
-			ChangeActorStat(act, STAT_MISC);
-			act->spr.pos.X += krandf(16) - 8;
-			act->spr.pos.Y += krandf(16) - 8;
-			act->spr.scale = DVector2(0.3125, 0.3125);
-			return act;
-		case DTILE_SERIOUSSAM:
-			ChangeActorStat(act, STAT_ZOMBIEACTOR);
-			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
-			act->spr.extra = 150;
-			return act;
-		}
-	}
-
 	switch (act->spr.picnum)
 	{
 	default:
 		if (!badguy(act) || commonEnemySetup(act, actj))
 			CallInitialize(act);
-		break;
-	case DTILE_BLOOD:
-		act->spr.scale = DVector2(0.25, 0.25);
-		act->spr.pos.Z -= 26;
-		if (actj && actj->spr.pal == 6)
-			act->spr.pal = 6;
-		ChangeActorStat(act, STAT_MISC);
-		break;
-	case DTILE_FECES:
-		if (actj)
-			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
-		ChangeActorStat(act, STAT_MISC);
-		break;
-
-	case DTILE_DUKELYINGDEAD:
-		if (actj && actj->isPlayer())
-		{
-			act->spr.scale = actj->spr.scale;
-			act->spr.shade = actj->spr.shade;
-			act->spr.pal = ps[actj->PlayerIndex()].palookup;
-		}
-		act->spr.cstat = 0;
-		act->spr.extra = 1;
-		act->vel.X = 292 / 16.;
-		act->vel.Z = 360 / 256.;
-		[[fallthrough]];
-	case DTILE_BLIMP:
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 32;
-		[[fallthrough]];
-	case DTILE_MIKE:
-		if (act->spr.picnum == DTILE_MIKE)
-			act->spr.yint = act->spr.hitag;
-		ChangeActorStat(act, 1);
 		break;
 	case DTILE_PLAYERONWATER:
 		if (actj)
@@ -147,20 +95,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_PLAYER);
 		break;
 	}
-	case DTILE_WATERDRIPSPLASH: // ok
-		act->spr.scale = DVector2(0.375, 0.375);
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
-
-	case DTILE_WATERBUBBLEMAKER:
-		if (act->spr.hitag && act->spr.picnum == DTILE_WATERBUBBLEMAKER)
-		{	// JBF 20030913: Pisses off move(), eg. in bobsp2
-			Printf(TEXTCOLOR_YELLOW "WARNING: DTILE_WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n", act->GetIndex(), int(act->spr.pos.X), int(act->spr.pos.Y));
-			act->spr.hitag = 0;
-		}
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
 	}
 	return act;
 }

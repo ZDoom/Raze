@@ -80,36 +80,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		pistonsound = 1;
 		break;
 
-	case RTILE_BLOOD:
-		act->spr.scale = DVector2(0.0625, 0.0625);
-		act->spr.pos.Z -= 26;
-		ChangeActorStat(act, STAT_MISC);
-		break;
 	case RTILE_GRATE1:
 		act->clipdist = 8;
 		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 0);
 		break;
-	case RTILE_DUKELYINGDEAD:
-		if (actj && actj->isPlayer())
-		{
-			act->spr.scale = actj->spr.scale;
-			act->spr.shade = actj->spr.shade;
-			act->spr.pal = ps[actj->PlayerIndex()].palookup;
-		}
-		act->spr.cstat = 0;
-		act->spr.extra = 1;
-		act->vel.X = 292 / 16.;
-		act->vel.Z = 360 / 256.;
-		act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-		act->clipdist = 32;
-		[[fallthrough]];
-	case RTILE_MIKE:
-		if (act->spr.picnum == RTILE_MIKE)
-			act->spr.yint = act->spr.hitag;
-		ChangeActorStat(act, STAT_ACTOR);
-		break;
-
 	case RTILE_EXPLOSION3:
 		if (actj)
 		{
@@ -159,10 +134,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_PLAYER);
 		break;
 	}
-	case RTILE_WATERBUBBLEMAKER:
-		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		ChangeActorStat(act, STAT_STANDABLE);
-		break;
 
 		// this is not really nice...
 	case RTILE_BIKERB:

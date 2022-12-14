@@ -246,6 +246,13 @@ spawnclasses
 	2311 = DukeFire2
 	1890 = DukeExplosion2
 	2219 = DukeExplosion2Bot
+	2380 = DukeWaterdripSplash
+	662 = DukeWaterBubbleMaker
+	2200 = DukeFeces
+	1620 = DukeBlood
+	3400 = DukeBlimp
+	762 = DukeMike
+	1518 = DukePlayerLyingDead
 	
 	46 = DukeCrystalAmmo
 	55 = DukeSteroids

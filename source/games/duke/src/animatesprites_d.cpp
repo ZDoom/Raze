@@ -123,9 +123,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case DTILE_DUKELYINGDEAD:
-			t->pos.Z += 24;
-			break;
 		case DTILE_GROWSPARK:
 			t->picnum = DTILE_GROWSPARK + ((PlayClock >> 4) & 3);
 			break;
