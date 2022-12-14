@@ -13,7 +13,7 @@ class DukeBreakWalls
 		sectortype sptr = Raze.updatesector(pos.XY, spr.sector);
 		if (sptr == nullptr) return;
 		
-		double scale = spr.isPlayer()? 0.125 : spr is 'DukeChaingun'? 0.25 : 0.5;					
+		double scale = spr.isPlayer()? 0.125 : spr is 'DukeChaingunShot'? 0.25 : 0.5;					
 		let spawned = dlevel.SpawnActor(sptr, pos, 'DukeForceRipple', -127, (scale, scale), 0, 0., 0., spr, DukeActor.STAT_MISC);
 		if (spawned)
 		{

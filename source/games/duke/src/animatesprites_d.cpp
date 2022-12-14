@@ -47,7 +47,7 @@ BEGIN_DUKE_NS
 
 void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac)
 {
-	int k, p;
+	int p;
 	int t1, t3, t4;
 	tspritetype* t;
 	DDukeActor* h;
@@ -59,7 +59,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (!actorflag(h, SFLAG2_FORCESECTORSHADE) && ((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
 		{
-			if (h->sector()->shadedsector == 1 && h->spr.statnum != 1)
+			if (h->sector()->shadedsector == 1 && h->spr.statnum != STAT_ACTOR)
 			{
 				t->shade = 16;
 			}
@@ -121,13 +121,8 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		t3 = h->temp_data[3];
 		t4 = h->temp_data[4];
 
-		switch (h->spr.picnum)
+		if (h->spr.picnum == DTILE_APLAYER)
 		{
-		case DTILE_GROWSPARK:
-			t->picnum = DTILE_GROWSPARK + ((PlayClock >> 4) & 3);
-			break;
-		case DTILE_APLAYER:
-
 			p = h->PlayerIndex();
 
 			if (t->pal == 1) t->pos.Z -= 18;
@@ -171,7 +166,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				case FREEZE_WEAPON:      newtspr->picnum = DTILE_FREEZESPRITE;         break;
 				case FLAMETHROWER_WEAPON: //Twentieth Anniversary World Tour
 					if (isWorldTour())
-						newtspr->picnum = DTILE_FLAMETHROWERSPRITE;   
+						newtspr->picnum = DTILE_FLAMETHROWERSPRITE;
 					break;
 				case DEVISTATOR_WEAPON:  newtspr->picnum = DTILE_DEVISTATORSPRITE;     break;
 				}
@@ -191,31 +186,14 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (!h->GetOwner())
 			{
-				if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
-				{
-					k = 0;
-					t->cstat &= ~CSTAT_SPRITE_XFLIP;
-				}
-				else
-				{
-					k = angletorotation1(t->Angles.Yaw, viewang);
-					if (k > 4)
-					{
-						k = 8 - k;
-						t->cstat |= CSTAT_SPRITE_XFLIP;
-					}
-					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-				}
+				applyRotation1(h, t, viewang);
 
-				if (t->sectp->lotag == 2) k += 1795 - 1405;
-				else if ((h->floorz - h->spr.pos.Z) > 64) k += 60;
+				if (t->sectp->lotag == ST_2_UNDERWATER) t->picnum += DTILE_APLAYERSWIMMING - DTILE_APLAYER;
+				else if ((h->floorz - h->spr.pos.Z) > 64) t->picnum += DTILE_APLAYERJUMP - DTILE_APLAYER;
 
-				t->picnum += k;
 				t->pal = ps[p].palookup;
-
-				goto PALONLY;
+				continue;
 			}
-
 			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
 				double v = h->spr.pos.Z - ps[p].GetActor()->floorz + 3;
@@ -240,23 +218,13 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 						continue;
 					}
 
-		PALONLY:
 
 			if (sectp->floorpal)
 				copyfloorpal(t, sectp);
 
-			if (!h->GetOwner()) continue;
-
 			if (t->pos.Z > h->floorz && t->scale.X < 0.5)
 				t->pos.Z = h->floorz;
 
-			break;
-
-		default:
-
-			if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL))
-				copyfloorpal(t, sectp);
-			break;
 		}
 
 		applyanimations(t, h, viewVec, viewang);
@@ -269,14 +237,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->pal = 6;
 				t->shade = 0;
 			}
-		}
-
-		switch (h->spr.picnum)
-		{
-		case DTILE_GROWSPARK:
-		case DTILE_CHAINGUN:
-			t->shade = -127;
-			break;
 		}
 
 		h->dispicnum = t->picnum;

@@ -121,9 +121,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
-		case RTILE_CRYSTALAMMO:
-			t->shade = int(BobVal(PlayClock << 4) * 16);
-			break;
 		case RTILE_APLAYER:
 
 			p = h->PlayerIndex();
@@ -191,30 +188,14 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (!h->GetOwner())
 			{
-				if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
-				{
-					k = 0;
-					t->cstat &= ~CSTAT_SPRITE_XFLIP;
-				} else
-				{
-					k = angletorotation1(t->Angles.Yaw, viewang);
-					if (k > 4)
-					{
-						k = 8 - k;
-						t->cstat |= CSTAT_SPRITE_XFLIP;
-					}
-					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-				}
+				applyRotation1(h, t, viewang);
 
-				if (t->sectp->lotag == 2) k += 1795 - 1405;
-				else if ((h->floorz - h->spr.pos.Z) > 64) k += 60;
+				if (t->sectp->lotag == ST_2_UNDERWATER) t->picnum += RTILE_APLAYERSWIMMING - RTILE_APLAYER;
+				else if ((h->floorz - h->spr.pos.Z) > 64) t->picnum += RTILE_APLAYERJUMP - RTILE_APLAYER;
 
-				t->picnum += k;
 				t->pal = ps[p].palookup;
-
-				goto PALONLY;
+				continue;
 			}
-
 			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
 				double v = h->spr.pos.Z - ps[p].GetActor()->floorz + 3;
@@ -238,13 +219,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 						t->scale = DVector2(0, 0);
 						continue;
 					}
-
-		PALONLY:
-
-			if (sectp->floorpal)
-				copyfloorpal(t, sectp);
-
-			if (!h->GetOwner()) continue;
 
 			if (t->pos.Z > h->floorz && t->scale.X < 0.5)
 				t->pos.Z = h->floorz;
@@ -300,12 +274,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 
 			break;
-
-		default:
-
-			if (sectp->floorpal)
-				copyfloorpal(t, sectp);
-			break;
 		}
 		applyanimations(t, h, viewVec, viewang);
 
@@ -317,6 +285,10 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		switch (h->spr.picnum)
 		{
+		case RTILE_CRYSTALAMMO:
+			t->shade = int(BobVal(PlayClock << 4) * 16);
+			break;
+
 		case RTILE_SBMOVE:
 			if (!isRRRA())
 				t->shade = -127;

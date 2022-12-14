@@ -11,7 +11,8 @@ spawnclasses
 	9 = DukeRespawnController
 	10 = DukeGPSpeed
 	4890 = DukeNaturalLightning
-	2536 = DukeChaingun
+	2613 = DukeShotgunShot
+	2536 = DukeChaingunShot
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane
@@ -254,6 +255,7 @@ spawnclasses
 	762 = DukeMike
 	1518 = DukePlayerLyingDead
 	1420 = DukePlayerOnWater
+	2448 = DukeGrowSpark
 	
 	46 = DukeCrystalAmmo
 	55 = DukeSteroids

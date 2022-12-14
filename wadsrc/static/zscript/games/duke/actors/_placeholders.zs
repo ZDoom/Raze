@@ -1,11 +1,29 @@
 
 // dummy items representing certain weapons
-class DukeChaingun : DukeActor
+
+class DukeShotgunShot : DukeActor
+{
+	default
+	{
+		pic "SHOTGUN";
+	}
+}
+
+class RedneckShotgunShot : DukeShotgunShot
+{
+}
+
+
+class DukeChaingunShot : DukeActor
 {
 	default
 	{
 		pic "CHAINGUN";
 	}
+}
+
+class RedneckChaingunShot : DukeChaingunShot
+{
 }
 
 class DukeSectorEffector : DukeActor

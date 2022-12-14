@@ -261,3 +261,19 @@ class DukeAccessCard : DukeItemBase
 	}
 }
 
+
+class DukeGrowSpark : DukeActor
+{
+	default
+	{
+		spriteset "GROWSPARK", "GROWSPARK1", "GROWSPARK2", "GROWSPARK3";
+	}
+	
+	override bool animate(tspritetype t)
+	{
+		t.setSpritePic(self, (PlayClock >> 4) & 3);
+		t.shade = -127;
+		return true;
+	}
+}
+
