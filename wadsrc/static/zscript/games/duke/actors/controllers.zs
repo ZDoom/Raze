@@ -142,12 +142,13 @@ class DukeShadeCtrl : DukeActor
 	}
 }
 
-class DukeDummyCtrl : DukeActor
+class DukeMinecartKiller : DukeActor
 {
 	override void StaticSetup()
 	{
 		self.cstat |= CSTAT_SPRITE_INVISIBLE;
 	}
+	// This has a CON scripted part.
 }
 
 class DukeSoundFX : DukeActor

@@ -14,7 +14,7 @@ spawnclasses
 	18 = DukeTorchCtrl
 	35 = DukeLightningCtrl
 	68 = DukeShadeCtrl
-	67 = DukeDummyCtrl
+	67 = DukeMinecartKiller
 	71 = DukeSoundFX
 	
 	64 = RedneckMinecartDef
