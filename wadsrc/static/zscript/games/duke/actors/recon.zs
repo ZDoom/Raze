@@ -209,6 +209,11 @@ class DukeRecon : DukeActor
 		t.SetSpritePic(self, abs(self.temp_data[3]) > 64);
 		return true;
 	}
+	
+	override void PlayFTASound()
+	{
+		self.PlayActorSound("RECO_RECOG");
+	}
 
 }
 
@@ -241,6 +246,10 @@ class RedneckUFO1 : DukeRecon
 	override bool Animate(tspritetype t)
 	{
 		return true;
+	}
+	
+	override void PlayFTASound()
+	{
 	}
 }
 

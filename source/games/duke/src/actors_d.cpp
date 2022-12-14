@@ -54,9 +54,6 @@ void check_fta_sounds_d(DDukeActor* actor)
 {
 	if (actor->spr.extra > 0) switch (actor->spr.picnum)
 	{
-	case DTILE_RECON:
-		S_PlayActorSound(RECO_RECOG, actor);
-		break;
 	case DTILE_DRONE:
 		S_PlayActorSound(DRON_RECOG, actor);
 		break;
