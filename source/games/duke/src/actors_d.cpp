@@ -50,34 +50,6 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void check_fta_sounds_d(DDukeActor* actor)
-{
-	if (actor->spr.extra > 0) switch (actor->spr.picnum)
-	{
-	case DTILE_DRONE:
-		S_PlayActorSound(DRON_RECOG, actor);
-		break;
-	case DTILE_COMMANDER:
-	case DTILE_COMMANDERSTAYPUT:
-		S_PlayActorSound(COMM_RECOG, actor);
-		break;
-	case DTILE_ORGANTIC:
-		S_PlayActorSound(TURR_RECOG, actor);
-		break;
-	case DTILE_OCTABRAIN:
-	case DTILE_OCTABRAINSTAYPUT:
-		S_PlayActorSound(OCTA_RECOG, actor);
-		break;
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void addweapon_d(player_struct *p, int weapon, bool wswitch)
 {
 	if ( p->gotweapon[weapon] == 0 )

@@ -189,59 +189,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-	case DTILE_OCTABRAINSTAYPUT:
-	case DTILE_COMMANDERSTAYPUT:
-		act->actorstayput = act->sector();
-		[[fallthrough]];
-	case DTILE_ROTATEGUN:
-	case DTILE_DRONE:
-	case DTILE_OCTABRAIN:
-	case DTILE_COMMANDER:
-	case DTILE_ORGANTIC:
-	case DTILE_SHARK:
-
-		if (act->spr.picnum != DTILE_SHARK)
-		{
-			act->spr.scale = DVector2(0.625, 0.625);
-			act->clipdist = 20;
-		}
-		else
-		{
-			act->spr.scale = DVector2(0.9375, 0.9375);
-			act->clipdist = 10;
-		}
-
-		if (actj) act->spr.lotag = 0;
-
-		if ((act->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-		else
-		{
-			makeitfall(act);
-
-			act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-
-			if (act->spr.picnum == DTILE_ORGANTIC) act->spr.cstat |= CSTAT_SPRITE_YCENTER;
-
-			if (actj)
-			{
-				act->timetosleep = 0;
-				check_fta_sounds_d(act);
-				ChangeActorStat(act, STAT_ACTOR);
-			}
-			else ChangeActorStat(act, STAT_ZOMBIEACTOR);
-		}
-
-		if (act->spr.picnum == DTILE_ROTATEGUN)
-			act->vel.Z = 0;
-
-		break;
-
-
 	case DTILE_FLOORFLAME:
 		act->spr.shade = -127;
 		ChangeActorStat(act, STAT_STANDABLE);

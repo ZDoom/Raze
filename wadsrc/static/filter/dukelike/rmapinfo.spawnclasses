@@ -325,4 +325,15 @@ spawnclasses
 	1741 = DukeLiztrooperToilet
 	1742 = DukeLiztrooperSitting
 	1744 = DukeLiztrooperDucking
+	
+	1820 = DukeOctabrain
+	1821 = DukeOctabrainStayput
+	1920 = DukeCommander
+	1921 = DukeCommanderStayput
+	
+	1550 = DukeShark
+	1880 = DukeDrone
+	2420 = DukeTurret
+	2360 = DukeRotateGun
+	
 }

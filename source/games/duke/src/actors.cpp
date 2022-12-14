@@ -3316,11 +3316,7 @@ void movefta(void)
 
 	auto check_fta_sounds = [](DDukeActor* act)
 	{
-		if (act->GetClass() == RUNTIME_CLASS(DDukeActor))
-		{
-			if (!isRR()) check_fta_sounds_d(act);
-		}
-		else if (act->spr.extra > 0)
+		if (act->spr.extra > 0)
 			CallPlayFTASound(act);
 	};
 

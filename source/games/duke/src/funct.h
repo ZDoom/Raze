@@ -79,8 +79,6 @@ void handle_se35(DDukeActor* i);
 void handle_se128(DDukeActor* i);
 void handle_se130(DDukeActor* i, int countmax);
 
-void check_fta_sounds_d(DDukeActor* i);
-
 int dodge(DDukeActor*);
 void alterang(int ang, DDukeActor* actor, int g_p);
 void fall_common(DDukeActor* actor, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int));
