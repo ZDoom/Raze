@@ -2861,16 +2861,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 		if (p->kickback_pic == 4)
 		{
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
-			fi.shoot(pact, SHOTGUN);
+			for (int ii = 0; ii < 10; ii++)
+				fi.shoot(pact, SHOTGUN);
 
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -2887,16 +2879,8 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			if (p->shotgun_state[1])
 			{
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
-				fi.shoot(pact, SHOTGUN);
+				for (int ii = 0; ii < 10; ii++)
+					fi.shoot(pact, SHOTGUN);
 
 				p->ammo_amount[SHOTGUN_WEAPON]--;
 
