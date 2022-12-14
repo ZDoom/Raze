@@ -140,9 +140,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			break;
 
-		case DTILE_CRYSTALAMMO:
-			t->shade = int(BobVal(PlayClock << 4) * 16);
-			continue;
 		case DTILE_GROWSPARK:
 			t->picnum = DTILE_GROWSPARK + ((PlayClock >> 4) & 3);
 			break;

@@ -1,17 +1,12 @@
-class DukeSixpak : DukeActor
+class DukeSixpak : DukeItemBase
 {
 	default
 	{
 		pic "SIXPAK";
 	}
-	
-	override void Initialize()
-	{
-		commonItemSetup();
-	}
 }
 
-class RedneckPorkRinds : DukeActor
+class RedneckPorkRinds : DukeItemBase
 {
 	default
 	{

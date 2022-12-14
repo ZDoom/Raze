@@ -71,26 +71,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		switch (act->spr.picnum)
 		{
 		case DTILE_FIREFLY:
-			if (act->spr.picnum != DTILE_FIREFLY)
-			{
-				if (actj && isrespawncontroller(actj))
-					act->spr.pal = actj->spr.pal;
-				if (act->spr.pal != 0)
-				{
-					act->clipdist = 20;
-					act->spr.scale = DVector2(0.625, 0.625);
-				}
-				else
-				{
-					act->spr.scale = DVector2(1.25, 1.25);
-					act->clipdist = 41;
-				}
-			}
-			else
-			{
-				act->spr.scale = DVector2(0.625, 0.625);
-				act->clipdist = 20;
-			}
+			act->spr.scale = DVector2(0.625, 0.625);
+			act->clipdist = 20;
 
 			if (actj)
 				act->spr.lotag = 0;
@@ -287,88 +269,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case DTILE_FLAMETHROWERSPRITE:
-	case DTILE_FLAMETHROWERAMMO: // Twentieth Anniversary World Tour
-		if (!isWorldTour())
-			break;
-		[[fallthrough]];
-
-	case DTILE_STEROIDS:
-	case DTILE_HEATSENSOR:
-	case DTILE_SHIELD:
-	case DTILE_AIRTANK:
-	case DTILE_TRIPBOMBSPRITE:
-	case DTILE_JETPACK:
-	case DTILE_HOLODUKE:
-
-	case DTILE_FIRSTGUNSPRITE:
-	case DTILE_CHAINGUNSPRITE:
-	case DTILE_SHOTGUNSPRITE:
-	case DTILE_RPGSPRITE:
-	case DTILE_SHRINKERSPRITE:
-	case DTILE_FREEZESPRITE:
-	case DTILE_DEVISTATORSPRITE:
-
-	case DTILE_SHOTGUNAMMO:
-	case DTILE_FREEZEAMMO:
-	case DTILE_HBOMBAMMO:
-	case DTILE_CRYSTALAMMO:
-	case DTILE_GROWAMMO:
-	case DTILE_DEVISTATORAMMO:
-	case DTILE_RPGAMMO:
-	case DTILE_BOOTS:
-	case DTILE_AMMO:
-	case DTILE_AMMOLOTS:
-	case DTILE_COLA:
-	case DTILE_FIRSTAID:
-		if (actj)
-		{
-			act->spr.lotag = 0;
-			act->spr.pos.Z -= 32;
-			act->vel.Z = -4;
-			ssp(act, CLIPMASK0);
-			if (krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;
-		}
-		else
-		{
-			act->SetOwner(act);
-			act->spr.cstat = 0;
-		}
-
-		if ((ud.multimode < 2 && act->spr.pal != 0) || (act->spr.lotag > ud.player_skill))
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-
-		act->spr.pal = 0;
-		[[fallthrough]];
-
-	case DTILE_ACCESSCARD:
-
-		if (ud.multimode > 1 && ud.coop != 1 && act->spr.picnum == DTILE_ACCESSCARD)
-		{
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			break;
-		}
-		else
-		{
-			if (act->spr.picnum == DTILE_AMMO)
-				act->spr.scale = DVector2(0.25, 0.25);
-			else act->spr.scale = DVector2(0.5, 0.5);
-		}
-
-		act->spr.shade = -17;
-
-		if (actj) ChangeActorStat(act, STAT_ACTOR);
-		else
-		{
-			ChangeActorStat(act, STAT_ZOMBIEACTOR);
-			makeitfall(act);
-		}
-		break;
 
 	case DTILE_FLOORFLAME:
 		act->spr.shade = -127;

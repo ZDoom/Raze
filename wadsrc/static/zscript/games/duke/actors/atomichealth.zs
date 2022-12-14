@@ -1,4 +1,4 @@
-class DukeAtomicHealth : DukeActor
+class DukeAtomicHealth : DukeItemBase
 {
 	default
 	{
@@ -19,7 +19,7 @@ class DukeAtomicHealth : DukeActor
 	}
 }
 
-class RedneckGoogooCluster : DukeActor
+class RedneckGoogooCluster : DukeItemBase
 {
 	default
 	{

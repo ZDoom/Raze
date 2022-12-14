@@ -244,9 +244,40 @@ spawnclasses
 	2310 = DukeBurning2
 	1890 = DukeExplosion2
 	2219 = DukeExplosion2Bot
+	
+	46 = DukeCrystalAmmo
+	55 = DukeSteroids
+	59 = DukeHeatSensor
+	54 = DukeShield
+	56 = DukeAirtank
+	27 = DukeTripbombSprite
+	57 = DukeJetpack
+	1348 = DukeHoloDuke
+	21 = DukeFirstgunSprite
+	28 = DukeShotgunSprite
+	22 = DukeChaingunSprite
+	23 = DukeRPGSprite
+	25 = DukeShrinkerSprite
+	24 = DukeFreezeSprite
+	29 = DukeDevastatorSprite
+	49 = DukeShotgunammo
+	37 = DukeFreezeammo
+	47 = DukeHBombammo
+	45 = DukeGrowammo
+	42 = DukeDevastatorammo
+	44 = DukeRPGammo
+	40 = DukeAmmo
+	61 = DukeBoots
+	48 = DukeAmmoLots
+	51 = DukeCola
+	53 = DukeFirstAid
+	60 = DukeAccessCard
+	
 	41 = DukeBatteryAmmo
 	52 = DukeSixpak
 	100 = DukeAtomicHealth
+	
+	
 	1656 = DukeShrinkerExplosion
 	661 = DukeWaterBubble
 	2329 = DukeSmallSmoke
