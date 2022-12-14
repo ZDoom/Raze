@@ -64,7 +64,8 @@ bool ceilingspace(sectortype* sectp)
 
 bool floorspace(sectortype* sectp)
 {
-	return (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->floorpal == 0 && (tileflags(sectp->floorpicnum) & TFLAG_OUTERSPACE));
+	// Yes, ceilingpal in this check is correct...
+	return (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0 && (tileflags(sectp->floorpicnum) & TFLAG_OUTERSPACE));
 }
 
 //---------------------------------------------------------------------------
