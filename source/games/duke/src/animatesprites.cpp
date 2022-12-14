@@ -81,6 +81,32 @@ void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 	}
 }
 
+// ---------------------------------------------------------------------------
+//
+// some ugly stuff here: RRRA forces some animations fullbright, 
+// but there is no good way to set this up for CON in any decent way.
+// These frames are being hacked in here. No need to make this configurable, though. 
+// For our new format this can be done as a real feature.
+//
+// ---------------------------------------------------------------------------
+
+bool RRRAFullbrightHack(tspritetype* t, int k)
+{
+	if (t->ownerActor->IsKindOf(NAME_RedneckBillyRay))
+	{
+		return k >= 102 && k <= 151;
+	}
+	else if (t->ownerActor->IsKindOf(NAME_RedneckBiker))
+	{
+		return (k >= 54 && k <= 58) || (k >= 84 && k <= 88);
+	}
+	else if (t->ownerActor->IsKindOf(NAME_RedneckCheerleader))
+	{
+		return k >= 102 && k <= 151;
+	}
+	return false;
+}
+
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang)
 {
 	if (gs.actorinfo[h->spr.picnum].scriptaddress && !actorflag(h, SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
@@ -160,12 +186,15 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 				}
 			}
 
-			t->picnum += k + ScriptCode[t4] + l * h->temp_data[3];
+			k += ScriptCode[t4] + l * h->temp_data[3];
+			t->picnum += k;
+
+			if (isRRRA() && RRRAFullbrightHack(t, k)) t->shade = -127;
 
 			if (l > 0)
 			{
 				while (t->picnum >= 0 && t->picnum < MAXTILES && !tileGetTexture(t->picnum)->isValid())
-					t->picnum -= l;       //Hack, for actors 
+					t->picnum -= l;       //back up one frame if this one is invald.
 			}
 
 			if (t->picnum < 0 || t->picnum >= MAXTILES)

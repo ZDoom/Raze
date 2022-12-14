@@ -186,7 +186,7 @@ spawnclasses
 	2876 = DukeGenericDestructible, "RRTILE2876", "RRTILE2990", "GLASS_BREAKING", spawnglass
 	3152 = DukeGenericDestructible, "RRTILE3152", "RRTILE3218", "GLASS_BREAKING", spawnglass
 	3153 = DukeGenericDestructible, "RRTILE3153", "RRTILE3219", "GLASS_BREAKING", spawnglass
-	2030 = DukeGenericDestructible, "RRTILE2030", "RRTILE2034", "GLASS_BREAKING", spawnglass
+	2030 = DukeGenericDestructible, "RRTILE2030", "LETSBOWL", "GLASS_BREAKING", spawnglass
 	2915 = DukeGenericDestructible, "RRTILE2915", "RRTILE2977", "GLASS_BREAKING", spawnglass
 	2893 = DukeGenericDestructible, "RRTILE2893", "RRTILE2978", "GLASS_BREAKING", spawnglass
 	3115 = DukeGenericDestructible, "RRTILE3115", "RRTILE3116", "GLASS_BREAKING", spawnglass

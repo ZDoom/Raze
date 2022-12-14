@@ -16,18 +16,6 @@ class RedneckBillyRay : DukeActor
 		self.scale = (0.390625, 0.328125);
 		self.setClipDistFromTile();
 	}
-	
-	override bool animate(tspritetype t)
-	{
-		if (Raze.isRRRA())
-		{
-			/* todo: define this in the animation.
-			if (t->picnum >= RTILE_BILLYRAY + 5 && t->picnum <= RTILE_BILLYRAY + 9)
-				t->shade = -127;
-			*/
-		}
-		return false;
-	}
 }
 
 class RedneckBillyRayStayput: RedneckBillyRay

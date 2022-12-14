@@ -119,10 +119,8 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		t3 = h->temp_data[3];
 		t4 = h->temp_data[4];
 
-		switch (h->spr.picnum)
+		if (h->spr.picnum == RTILE_APLAYER)
 		{
-		case RTILE_APLAYER:
-
 			p = h->PlayerIndex();
 
 			if (t->pal == 1) t->pos.Z -= 18;
@@ -186,29 +184,12 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				newtspr->pal = 0;
 			}
 
-			if (!h->GetOwner())
-			{
-				applyRotation1(h, t, viewang);
-
-				if (t->sectp->lotag == ST_2_UNDERWATER) t->picnum += RTILE_APLAYERSWIMMING - RTILE_APLAYER;
-				else if ((h->floorz - h->spr.pos.Z) > 64) t->picnum += RTILE_APLAYERJUMP - RTILE_APLAYER;
-
-				t->pal = ps[p].palookup;
-				continue;
-			}
 			if (ps[p].on_crane == nullptr && (h->sector()->lotag & 0x7ff) != 1)
 			{
 				double v = h->spr.pos.Z - ps[p].GetActor()->floorz + 3;
 				if (v > 4 && h->spr.scale.Y > 0.5 && h->spr.extra > 0)
 					h->spr.yoffset = (int8_t)(v / h->spr.scale.Y);
 				else h->spr.yoffset = 0;
-			}
-
-			if (ps[p].newOwner != nullptr)
-			{
-				t4 = ScriptCode[gs.actorinfo[RTILE_APLAYER].scriptaddress + 1];
-				t3 = 0;
-				t1 = ScriptCode[gs.actorinfo[RTILE_APLAYER].scriptaddress + 2];
 			}
 
 			if (ud.cameraactor == nullptr && ps[p].newOwner == nullptr)
@@ -225,55 +206,35 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (ps[p].OnMotorcycle && p == screenpeek)
 			{
-				t->picnum = RTILE_RRTILE7219;
+				t->picnum = RTILE_PLAYERONBIKEBACK;
 				t->scale = DVector2(0.28125, 0.28125);
-				t4 = 0;
-				t3 = 0;
-				t1 = 0;
+				drawshadows(tsprites, t, h);
+				continue;
 			}
 			else if (ps[p].OnMotorcycle)
 			{
-				k = angletorotation2(h->spr.Angles.Yaw, viewang);
-				if (k > 6)
-				{
-					k = 12 - k;
-					t->cstat |= CSTAT_SPRITE_XFLIP;
-				}
-				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-
-				t->picnum = RTILE_RRTILE7213 + k;
+				t->picnum = RTILE_PLAYERONBIKE;
+				applyRotation2(h, t, viewang);
 				t->scale = DVector2(0.28125, 0.28125);
-				t4 = 0;
-				t3 = 0;
-				t1 = 0;
+				drawshadows(tsprites, t, h);
+				continue;
 			}
 			else if (ps[p].OnBoat && p == screenpeek)
 			{
-				t->picnum = RTILE_RRTILE7190;
+				t->picnum = RTILE_PLAYERONBOATBACK;
 				t->scale = DVector2(0.5, 0.5);
-				t4 = 0;
-				t3 = 0;
-				t1 = 0;
+				drawshadows(tsprites, t, h);
+				continue;
 			}
 			else if (ps[p].OnBoat)
 			{
+				t->picnum = RTILE_PLAYERONBOAT;
 				k = angletorotation2(h->spr.Angles.Yaw, viewang);
-
-				if (k > 6)
-				{
-					k = 12 - k;
-					t->cstat |= CSTAT_SPRITE_XFLIP;
-				}
-				else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-
-				t->picnum = RTILE_RRTILE7184 + k;
+				applyRotation2(h, t, viewang);
 				t->scale = DVector2(0.5, 0.5);
-				t4 = 0;
-				t3 = 0;
-				t1 = 0;
+				drawshadows(tsprites, t, h);
+				continue;
 			}
-
-			break;
 		}
 		applyanimations(t, h, viewVec, viewang);
 
@@ -294,7 +255,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				t->shade = -127;
 			break;
 
-		case RTILE_CHAINGUN:
 		case RTILE_EXPLOSION3:
 			t->shade = -127;
 			break;
@@ -307,24 +267,9 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case RTILE_DESTRUCTO:
 			t->cstat |= CSTAT_SPRITE_INVISIBLE;
 			break;
-		case RTILE_CHEER:
-			if (!isRRRA()) break;
-			if (t->picnum >= RTILE_CHEER + 102 && t->picnum <= RTILE_CHEER + 151)
-				t->shade = -127;
-			break;
-		case RTILE_BIKER:
-			if (!isRRRA()) break;
-			if (t->picnum >= RTILE_BIKER + 54 && t->picnum <= RTILE_BIKER + 58)
-				t->shade = -127;
-			else if (t->picnum >= RTILE_BIKER + 84 && t->picnum <= RTILE_BIKER + 88)
-				t->shade = -127;
-			break;
-		case RTILE_RRTILE2034:
-			t->picnum = RTILE_RRTILE2034 + ((PlayClock >> 2) & 1);
-			break;
-		case RTILE_RRTILE2944:
-			t->shade = -127;
-			t->picnum = RTILE_RRTILE2944 + ((PlayClock >> 2) & 4);
+
+		case RTILE_LETSBOWL:
+			t->picnum = RTILE_LETSBOWL + ((PlayClock >> 2) & 1);
 			break;
 		}
 
