@@ -354,19 +354,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			t->shade = -127;
 			t->picnum = RTILE_RRTILE2944 + ((PlayClock >> 2) & 4);
 			break;
-		case RTILE_PLAYERONWATER:
-
-			k = angletorotation1(t->Angles.Yaw, viewang);
-			if (k > 4)
-			{
-				k = 8 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-
-			t->picnum = h->spr.picnum + k + ((h->temp_data[0] < 4) * 5);
-			if (OwnerAc) t->shade = OwnerAc->spr.shade;
-			break;
 		}
 
 		h->dispicnum = t->picnum;

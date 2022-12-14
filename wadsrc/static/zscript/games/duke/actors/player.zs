@@ -1,3 +1,22 @@
+class DukePlayerOnWater : DukeActor
+{
+	default
+	{
+		pic "PLAYERONWATER";
+	}
+	
+	override void Initialize()
+	{
+		if (!mapSpawned && self.ownerActor)
+		{
+				self.scale = self.ownerActor.scale;
+				self.vel.Z = 0.5;
+				if (self.sector.lotag != ST_2_UNDERWATER)
+					self.cstat |= CSTAT_SPRITE_INVISIBLE;
+		}
+		self.ChangeStat(STAT_DUMMYPLAYER);
+	}
+}
 
 class DukePlayerLyingDead : DukeActor
 {

@@ -256,7 +256,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		break;
 	}
 
-	if (targ->spr.picnum == RTILE_PLAYERONWATER)
+	if (targ->IsKindOf(NAME_DukePlayerOnWater))
 	{
 		targ = targ->GetOwner();
 		if (!targ) return;

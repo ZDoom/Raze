@@ -47,6 +47,7 @@ xx(DukePaper)
 xx(RedneckFeather)
 xx(DukeSteamBase)
 xx(RedneckFire)
+xx(DukePlayerOnWater)
 
 xx(spawnstate)
 xx(brokenstate)

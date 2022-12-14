@@ -290,6 +290,7 @@ spawnclasses
 	241 = DukeWaterBubbleMaker
 	1391 = RedneckBlood
 	3998 = RedneckPlayerLyingDead
+	3860 = DukePlayerOnWater
 
 	
 	4861 = RedneckHen

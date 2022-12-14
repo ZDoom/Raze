@@ -111,17 +111,6 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		break;
 
-	case RTILE_PLAYERONWATER:
-		if (actj)
-		{
-			act->spr.scale = actj->spr.scale;
-			act->vel.Z = 0.5;
-			if (act->sector()->lotag != 2)
-				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		}
-		ChangeActorStat(act, STAT_DUMMYPLAYER);
-		break;
-
 	case RTILE_APLAYER:
 	{
 		act->spr.scale = DVector2(0, 0);

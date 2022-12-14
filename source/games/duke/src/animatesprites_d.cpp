@@ -277,28 +277,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		case DTILE_CHAINGUN:
 			t->shade = -127;
 			break;
-		case DTILE_PLAYERONWATER:
-			if (hw_models && modelManager.CheckModel(h->spr.picnum, h->spr.pal)) 
-			{
-				k = 0;
-				t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			}
-			else
-			{
-			k = angletorotation1(t->Angles.Yaw, viewang);
-			if (k > 4)
-			{
-				k = 8 - k;
-				t->cstat |= CSTAT_SPRITE_XFLIP;
-			}
-			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-		}
-
-			t->picnum = h->spr.picnum + k + ((h->temp_data[0] < 4) * 5);
-			if (OwnerAc) t->shade = OwnerAc->spr.shade;
-
-			break;
-
 		}
 
 		h->dispicnum = t->picnum;

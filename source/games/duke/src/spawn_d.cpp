@@ -72,17 +72,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (!badguy(act) || commonEnemySetup(act, actj))
 			CallInitialize(act);
 		break;
-	case DTILE_PLAYERONWATER:
-		if (actj)
-		{
-			act->spr.scale = actj->spr.scale;
-			act->vel.Z = 0.5;
-			if (act->sector()->lotag != 2)
-				act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-		}
-		ChangeActorStat(act, STAT_DUMMYPLAYER);
-		break;
-
 	case DTILE_APLAYER:
 	{
 		act->spr.scale = DVector2(0, 0);

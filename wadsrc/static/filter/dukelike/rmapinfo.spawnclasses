@@ -253,6 +253,7 @@ spawnclasses
 	3400 = DukeBlimp
 	762 = DukeMike
 	1518 = DukePlayerLyingDead
+	1420 = DukePlayerOnWater
 	
 	46 = DukeCrystalAmmo
 	55 = DukeSteroids

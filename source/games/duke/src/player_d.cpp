@@ -1630,7 +1630,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 			if (p->on_ground == 1)
 			{
 				if (p->dummyplayersprite == nullptr)
-					p->dummyplayersprite = spawn(pact, DTILE_PLAYERONWATER);
+					p->dummyplayersprite = spawn(pact, PClass::FindActor(NAME_DukePlayerOnWater));
 
 				p->footprintcount = 6;
 				if (tilesurface(p->cursector->floortexture) == TSURF_SLIME)
