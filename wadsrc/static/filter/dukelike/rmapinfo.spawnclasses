@@ -296,6 +296,15 @@ spawnclasses
 	603 = DukeNaked
 	1294 = DukePodFemale
 	1324 = DukeBloodyPole
+	1238 = DukeExplodingBarrel
+	1026 = DukeHorseOnSide
+	1248 = DukeFireBarrel
+	1227 = DukeNukeBarrel
+	1390 = DukeFireVase
+	1228 = DukeNukeBarrelDented
+	1229 = DukeNukeBarrelLeaked
+	904 = DukeWoodenHorse
+	1062 = DukeRubberCan
 
 
 
@@ -335,6 +344,7 @@ spawnclasses
 	1880 = DukeDrone
 	2420 = DukeTurret
 	2360 = DukeRotateGun
-	
 	675 = DukeEgg
+
+	
 }

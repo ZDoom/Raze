@@ -197,28 +197,6 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DTILE_CEILINGSTEAM:
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
-
-	case DTILE_RUBBERCAN:
-		act->spr.extra = 0;
-		[[fallthrough]];
-	case DTILE_EXPLODINGBARREL:
-	case DTILE_HORSEONSIDE:
-	case DTILE_FIREBARREL:
-	case DTILE_NUKEBARREL:
-	case DTILE_FIREVASE:
-	case DTILE_NUKEBARRELDENTED:
-	case DTILE_NUKEBARRELLEAKED:
-	case DTILE_WOODENHORSE:
-
-		if (actj)
-			act->spr.scale = DVector2(0.5, 0.5);
-		act->clipdist = 18;
-		makeitfall(act);
-		if (actj) act->SetOwner(actj);
-		else act->SetOwner(act);
-		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
-		ChangeActorStat(act, STAT_ZOMBIEACTOR);
-		break;
 	}
 	return act;
 }

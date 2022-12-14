@@ -109,6 +109,7 @@ version "4.10"
 #include "zscript/games/duke/actors/waterbubble.zs"
 #include "zscript/games/duke/actors/smallsmoke.zs"
 #include "zscript/games/duke/actors/steam.zs"
+#include "zscript/games/duke/actors/dukedecos.zs"
 
 #include "zscript/games/duke/actors/dukeitems.zs"
 #include "zscript/games/duke/actors/batteryammo.zs"

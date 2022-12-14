@@ -81,9 +81,6 @@ static void cachespritenum(DDukeActor* actor)
 	case RTILE_FORCERIPPLE:
 		maxc = 9;
 		break;
-	case RTILE_RUBBERCAN:
-		maxc = 2;
-		break;
 	case RTILE_TOILETWATER:
 		maxc = 4;
 		break;
@@ -262,12 +259,6 @@ static void cachespritenum(DDukeActor* actor)
 		break;
 	case RTILE_DRONE:
 		maxc = 6;
-		break;
-	case RTILE_EXPLODINGBARREL:
-		maxc = 3;
-		break;
-	case RTILE_NUKEBARREL:
-		maxc = 5;
 		break;
 	case RTILE_VIXEN:
 		maxc = 214;
