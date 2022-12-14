@@ -1238,7 +1238,7 @@ int pushmove(DVector3& pos, sectortype** pSect, double walldist, double ceildist
 
 int FindBestSector(const DVector3& pos)
 {
-	int bestnum = 1;
+	int bestnum = -1;
 	double bestdist = FLT_MAX;
 	for (int secnum = (int)sector.Size() - 1; secnum >= 0; secnum--)
 	{
