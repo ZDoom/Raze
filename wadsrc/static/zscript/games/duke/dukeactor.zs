@@ -250,7 +250,6 @@ class DukeActor : CoreActor native
 	native int actorflag3(int mask);
 	native int attackerflag1(int mask);
 	native int attackerflag2(int mask);
-	deprecated("4.9") native bool checktype(String name);	// this must not stay in the code, so mark it deprecated to keep the annoying warning at startup.
 	
 	
 	

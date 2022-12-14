@@ -732,13 +732,6 @@ DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag2)
 	ACTION_RETURN_BOOL(!!attackerflag(self, EDukeFlags2::FromInt(mask)));
 }
 
-DEFINE_ACTION_FUNCTION(DDukeActor, checktype) // for temporary checking of types that haven't been ported yet.
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_STRING(name);
-	ACTION_RETURN_BOOL(self->spr.picnum == tileForName(name));
-}
-
 
 //---------------------------------------------------------------------------
 //

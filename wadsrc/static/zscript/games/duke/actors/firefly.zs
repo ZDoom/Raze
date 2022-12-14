@@ -19,7 +19,7 @@ class DukeFireflyFlyingEffect : DukeActor
 
 
 		let Owner = self.ownerActor;
-		if (!Owner || !Owner.checkType("FIREFLY"))
+		if (!Owner || !(Owner is 'DukeFirefly'))
 		{
 			self.Destroy();
 			return;
