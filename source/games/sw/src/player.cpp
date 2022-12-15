@@ -3142,7 +3142,8 @@ void DoPlayerFall(PLAYER* pp)
             // i any kind of crawl key get rid of recoil
             if (DoPlayerTestCrawl(pp) || (pp->input.actions & SB_CROUCH))
             {
-                pp->setHeightAndZ(pp->loz, PLAYER_CRAWL_HEIGHTF);
+                pp->actor->spr.pos.Z = pp->loz - PLAYER_CRAWL_HEIGHTF - pp->actor->viewzoffset;
+                pp->height = PLAYER_CRAWL_HEIGHTF;
             }
             else
             {
@@ -3605,7 +3606,8 @@ void DoPlayerCrawl(PLAYER* pp)
 
     if (pp->insector() && (pp->cursector->extra & SECTFX_DYNAMIC_AREA))
     {
-        pp->setHeightAndZ(pp->loz, PLAYER_CRAWL_HEIGHTF);
+        pp->actor->spr.pos.Z = pp->loz - PLAYER_CRAWL_HEIGHTF - pp->actor->viewzoffset;
+        pp->height = PLAYER_CRAWL_HEIGHTF;
     }
 
     DoPlayerBob(pp);
