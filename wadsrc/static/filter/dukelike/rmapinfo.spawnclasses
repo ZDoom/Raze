@@ -11,8 +11,10 @@ spawnclasses
 	9 = DukeRespawnController
 	10 = DukeGPSpeed
 	4890 = DukeNaturalLightning
+	2521 = DukeKneeAttack
 	2613 = DukeShotgunShot
 	2536 = DukeChaingunShot
+	1670 = DukeRadiusExplosion
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane
@@ -354,11 +356,17 @@ spawnclasses
 	1920 = DukeCommander
 	1921 = DukeCommanderStayput
 	
+	4610 = DukeNewBeast
+	4611 = DukeNewBeastStayput
+	
 	1550 = DukeShark
 	1880 = DukeDrone
 	2420 = DukeTurret
 	2360 = DukeRotateGun
 	675 = DukeEgg
-
+	1225 = DukeBarBroke
+	418 = DukeBearingPlate
+	2612 = DukeLaserSite
+	2734 = DukeSpeaker
 	
 }

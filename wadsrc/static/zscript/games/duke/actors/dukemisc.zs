@@ -216,3 +216,71 @@ class DeveloperCommentary : DukeActor
 		return true;
 	}
 }
+
+// These ones are either inert or use CON but also have flags attached
+
+class DukeBarBroke : DukeActor
+{
+	default
+	{
+		pic "BARBROKE";
+	}
+}
+
+class DukeBearingPlate : DukeActor
+{
+	default
+	{
+		pic "BEARINGPLATE";
+	}
+}
+
+class DukeBurnedCorpse : DukeActor
+{
+	default
+	{
+		pic "BURNEDCORPSE";
+	}
+}
+
+class DukeLaserSite : DukeActor
+{
+	default
+	{
+		pic "LASERSITE";
+	}
+}
+
+class DukeSpeaker : DukeActor
+{
+	default
+	{
+		pic "SPEAKER";
+	}
+}
+
+class RedneckUfoLight : DukeActor
+{
+	default
+	{
+		pic "UFOLIGHT";
+	}
+}
+
+class DukeNewBeast : DukeActor
+{
+	default
+	{
+		pic "NEWBEAST";
+	}
+}
+
+class DukeNewBeastStayput : DukeNewBeast
+{
+	default
+	{
+		pic "NEWBEASTSTAYPUT";
+	}
+}
+
+ 

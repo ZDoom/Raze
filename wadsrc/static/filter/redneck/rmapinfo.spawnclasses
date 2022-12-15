@@ -14,7 +14,6 @@ spawnclasses
 	18 = DukeTorchCtrl
 	35 = DukeLightningCtrl
 	68 = DukeShadeCtrl
-	67 = DukeMinecartKiller
 	71 = DukeSoundFX
 	252 = RedneckUfoBeam
 	2586 = RedneckInvisible
@@ -29,12 +28,15 @@ spawnclasses
 	64 = RedneckMinecartDef
 	65 = RedneckMinecartSound
 	66 = RedneckMinecartInner
+	67 = DukeMinecartKiller
 	11 = RedneckJaildoorDef
 	38 = RedneckJaildoorSound
 	19 = RedneckGeometryEffect
 	34 = RedneckKeyinfoSetter
 	3380 = RedneckChaingunShot
 	3350 = RedneckShotgunShot
+	3340 = RedneckCrowbarAttack
+	1426 = DukeRadiusExplosion
 
 	1298 = DukeCranePole
 	1299 = DukeCrane
@@ -327,6 +329,7 @@ spawnclasses
 	3998 = RedneckPlayerLyingDead
 	3860 = DukePlayerOnWater
 	1332 = DukeCeilingSteam
+	3677 = RedneckUfoLight
 
 	
 	4861 = RedneckHen

@@ -1,6 +1,27 @@
 
 // dummy items representing certain weapons
 
+class DukeKneeAttack : DukeActor
+{
+	default
+	{
+		pic "KNEE";
+	}
+}
+
+class RedneckCrowbarAttack : DukeKneeAttack
+{
+}
+
+
+class DukeRadiusExplosion : DukeActor
+{
+	default
+	{
+		pic "RADIUSEXPLOSION";
+	}
+}
+
 class DukeShotgunShot : DukeActor
 {
 	default
