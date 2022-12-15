@@ -118,6 +118,26 @@ void purplelavacheck(player_struct* p);
 bool addphealth(player_struct* p, int amount, bool bigitem);
 bool playereat(player_struct* p, int amount, bool bigitem);
 void playerdrink(player_struct* p, int amount);
+bool playeraddammo(player_struct* p, int weaponindex, int amount);
+bool playeraddweapon(player_struct* p, int weaponindex, int amount);
+void playeraddinventory(player_struct* p, DDukeActor* item, int type, int amount);
+void actorsizeto(DDukeActor* actor, double x, double y);
+void spawndebris(DDukeActor* g_ac, int dnum, int count);
+bool checkp(DDukeActor* self, player_struct* p, int flags);
+bool playercheckinventory(player_struct* p, DDukeActor* item, int type, int amount);
+void playerstomp(player_struct* p, DDukeActor* stomped);
+void playerreset(player_struct* p, DDukeActor* g_ac);
+void wackplayer(player_struct* p);
+void actoroperate(DDukeActor* g_ac);
+void playerkick(player_struct* p, DDukeActor* g_ac);
+void garybanjo(DDukeActor* g_ac);
+bool ifsquished(DDukeActor* i, int p);
+void fakebubbaspawn(DDukeActor* actor, int g_p);
+void tearitup(sectortype* sect);
+void destroyit(DDukeActor* actor);
+void mamaspawn(DDukeActor* actor);
+void forceplayerangle(player_struct* snum);
+
 
 bool checkhitceiling(sectortype* sectp);
 void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos);
@@ -181,9 +201,9 @@ int startrts(int lumpNum, int localPlayer);
 
 void pickrandomspot(int pn);
 void premapcontroller(DDukeActor* ac);
-void resetinventory(int pn);
+void resetinventory(player_struct* pn);
 void resetplayerstats(int pn);
-void resetweapons(int pn);
+void resetweapons(player_struct* pn);
 void resetprestat(int snum, int g);
 void prelevel_common(int g);
 void cacheit_d();

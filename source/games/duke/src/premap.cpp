@@ -260,14 +260,9 @@ void resetplayerstats(int snum)
 //
 //---------------------------------------------------------------------------
 
-void resetweapons(int snum)
+void resetweapons(player_struct* p)
 {
-	int weapon;
-	player_struct* p;
-
-	p = &ps[snum];
-
-	for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
+	for (int weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
 	{
 		p->ammo_amount[weapon] = 0;
 	}
@@ -299,7 +294,7 @@ void resetweapons(int snum)
 		p->gotweapon[SLINGBLADE_WEAPON] = true;
 		p->ammo_amount[SLINGBLADE_WEAPON] = 1;
 	}
-	OnEvent(EVENT_RESETWEAPONS, snum, nullptr, -1);
+	OnEvent(EVENT_RESETWEAPONS, int(p - ps), nullptr, -1);
 }
 
 //---------------------------------------------------------------------------
@@ -308,12 +303,8 @@ void resetweapons(int snum)
 //
 //---------------------------------------------------------------------------
 
-void resetinventory(int snum)
+void resetinventory(player_struct* p)
 {
-	player_struct* p;
-
-	p = &ps[snum];
-
 	p->inven_icon = 0;
 	p->boot_amount = 0;
 	p->scuba_on = 0;
@@ -372,7 +363,7 @@ void resetinventory(int snum)
 		ufocnt = 0;
 		hulkspawn = 2;
 	}
-	OnEvent(EVENT_RESETINVENTORY, snum, p->GetActor());
+	OnEvent(EVENT_RESETINVENTORY, int(p - ps), p->GetActor());
 }
 
 
@@ -1120,19 +1111,19 @@ void enterlevel(MapRecord *mi, int gamemode)
 		auto pn = ps[i].GetActor()->sector()->floortexture;
 		if (tileflags(pn) & TFLAG_CLEARINVENTORY)
 		{
-			resetinventory(i);
+			resetinventory(&ps[i]);
 			clearweapon = true;
 		}
 		if (clearweapon)
 		{
-			resetweapons(i);
+			resetweapons(&ps[i]);
 			ps[i].gotweapon[PISTOL_WEAPON] = false;
 			ps[i].ammo_amount[PISTOL_WEAPON] = 0;
 			ps[i].curr_weapon = KNEE_WEAPON;
 			ps[i].kickback_pic = 0;
 			ps[i].okickback_pic = ps[i].kickback_pic = 0;
 		}
-		if (currentLevel->flags & LEVEL_CLEARINVENTORY) resetinventory(i);
+		if (currentLevel->flags & LEVEL_CLEARINVENTORY) resetinventory(&ps[i]);
 	}
 	resetmys();
 
@@ -1160,8 +1151,8 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
 	{
-		resetweapons(i);
-		resetinventory(i);
+		resetweapons(&ps[i]);
+		resetinventory(&ps[i]);
 	}
 
 	ps[0].last_extra = gs.max_player_health;

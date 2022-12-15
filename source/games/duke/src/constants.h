@@ -500,6 +500,7 @@ enum
 enum miscConstants
 {
 	MAXSLEEPDIST = 16384,
+	MAXSLEEPDISTF = 1024,
 	SLEEPTIME = 1536,
 	ZOFFSET6 = (4 << 8),
 	FOURSLEIGHT = (1 << 8),

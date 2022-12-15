@@ -113,9 +113,8 @@ void quickkill(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void forceplayerangle(int snum)
+void forceplayerangle(player_struct* p)
 {
-	player_struct* p = &ps[snum];
 	const auto ang = (DAngle22_5 - randomAngle(45)) / 2.;
 
 	p->GetActor()->spr.Angles.Pitch -= DAngle::fromDeg(26.566);
@@ -1191,4 +1190,361 @@ void playerdrink(player_struct* p, int amount)
 		p->last_extra = gs.max_player_health;
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+bool playeraddammo(player_struct* p, int weaponindex, int amount)
+{
+	if (p->ammo_amount[weaponindex] >= gs.max_ammo_amount[weaponindex])
+	{
+		return false;
+	}
+	addammo(weaponindex, p, amount);
+	if (p->curr_weapon == KNEE_WEAPON)
+		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - ps) & 1))
+			fi.addweapon(p, weaponindex, true);
+	return true;
+}
+
+bool playeraddweapon(player_struct* p, int weaponindex, int amount)
+{
+	if (p->gotweapon[weaponindex] == 0) fi.addweapon(p, weaponindex, !!(WeaponSwitch(p- ps) & 1));
+	else if (p->ammo_amount[weaponindex] >= gs.max_ammo_amount[weaponindex])
+	{
+		return false;
+	}
+	addammo(weaponindex, p, amount);
+	if (p->curr_weapon == KNEE_WEAPON)
+		if (p->gotweapon[weaponindex] && (WeaponSwitch(p - ps) & 1))
+			fi.addweapon(p, weaponindex, true);
+
+	return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+void playeraddinventory(player_struct* p, DDukeActor* item, int type, int amount)
+{
+	switch (type)
+	{
+	case 0:
+		p->steroids_amount = amount;
+		p->inven_icon = 2;
+		break;
+	case 1:
+		p->shield_amount += amount;// 100;
+		if (p->shield_amount > gs.max_player_health)
+			p->shield_amount = gs.max_player_health;
+		break;
+	case 2:
+		p->scuba_amount = amount;// 1600;
+		p->inven_icon = 6;
+		break;
+	case 3:
+		p->holoduke_amount = amount;// 1600;
+		p->inven_icon = 3;
+		break;
+	case 4:
+		p->jetpack_amount = amount;// 1600;
+		p->inven_icon = 4;
+		break;
+	case 6:
+		if (isRR())
+		{
+			switch (item->spr.lotag)
+			{
+			case 100: p->keys[1] = 1; break;
+			case 101: p->keys[2] = 1; break;
+			case 102: p->keys[3] = 1; break;
+			case 103: p->keys[4] = 1; break;
+			}
+		}
+		else
+		{
+			switch (item->spr.pal)
+			{
+			case  0: p->got_access |= 1; break;
+			case 21: p->got_access |= 2; break;
+			case 23: p->got_access |= 4; break;
+			}
+		}
+		break;
+	case 7:
+		p->heat_amount = amount;
+		p->inven_icon = 5;
+		break;
+	case 9:
+		p->inven_icon = 1;
+		p->firstaid_amount = amount;
+		break;
+	case 10:
+		p->inven_icon = 7;
+		p->boot_amount = amount;
+		break;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+bool checkp(DDukeActor* self, player_struct* p, int flags)
+{
+	bool j = 0;
+
+	double vel = self->vel.X;
+	unsigned plindex = unsigned(p - ps);
+
+	// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
+	if ((flags & pducking) && p->on_ground && PlayerInput(plindex, SB_CROUCH))
+		j = 1;
+	else if ((flags & pfalling) && p->jumping_counter == 0 && !p->on_ground && p->vel.Z > 8)
+		j = 1;
+	else if ((flags & pjumping) && p->jumping_counter > 348)
+		j = 1;
+	else if ((flags & pstanding) && vel >= 0 && vel < 0.5)
+		j = 1;
+	else if ((flags & pwalking) && vel >= 0.5 && !(PlayerInput(plindex, SB_RUN)))
+		j = 1;
+	else if ((flags & prunning) && vel >= 0.5 && PlayerInput(plindex, SB_RUN))
+		j = 1;
+	else if ((flags & phigher) && p->GetActor()->getOffsetZ() < self->spr.pos.Z - 48)
+		j = 1;
+	else if ((flags & pwalkingback) && vel <= -0.5 && !(PlayerInput(plindex, SB_RUN)))
+		j = 1;
+	else if ((flags & prunningback) && vel <= -0.5 && (PlayerInput(plindex, SB_RUN)))
+		j = 1;
+	else if ((flags & pkicking) && (p->quick_kick > 0 || (p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 0)))
+		j = 1;
+	else if ((flags & pshrunk) && p->GetActor()->spr.scale.X < (isRR() ? 0.125 : 0.5))
+		j = 1;
+	else if ((flags & pjetpack) && p->jetpack_on)
+		j = 1;
+	else if ((flags & ponsteroids) && p->steroids_amount > 0 && p->steroids_amount < 400)
+		j = 1;
+	else if ((flags & ponground) && p->on_ground)
+		j = 1;
+	else if ((flags & palive) && p->GetActor()->spr.scale.X > (isRR() ? 0.125 : 0.5) && p->GetActor()->spr.extra > 0 && p->timebeforeexit == 0)
+		j = 1;
+	else if ((flags & pdead) && p->GetActor()->spr.extra <= 0)
+		j = 1;
+	else if ((flags & pfacing))
+	{
+		DAngle ang;
+		if (self->isPlayer() && ud.multimode > 1)
+			ang = absangle(ps[otherp].GetActor()->spr.Angles.Yaw, (p->GetActor()->spr.pos.XY() - ps[otherp].GetActor()->spr.pos.XY()).Angle());
+		else
+			ang = absangle(p->GetActor()->spr.Angles.Yaw, (self->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle());
+
+		j = ang < DAngle22_5;
+	}
+	return j;
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+bool playercheckinventory(player_struct* p, DDukeActor* item, int type, int amount)
+{
+	bool j = 0;
+	switch (type)
+	{
+	case 0:
+		if (p->steroids_amount != amount)
+			j = 1;
+		break;
+	case 1:
+		if (p->shield_amount != gs.max_player_health)
+			j = 1;
+		break;
+	case 2:
+		if (p->scuba_amount != amount) j = 1;
+		break;
+	case 3:
+		if (p->holoduke_amount != amount) j = 1;
+		break;
+	case 4:
+		if (p->jetpack_amount != amount) j = 1;
+		break;
+	case 6:
+		if (isRR())
+		{
+			switch (item->spr.lotag)
+			{
+			case 100:
+				if (p->keys[1]) j = 1;
+				break;
+			case 101:
+				if (p->keys[2]) j = 1;
+				break;
+			case 102:
+				if (p->keys[3]) j = 1;
+				break;
+			case 103:
+				if (p->keys[4]) j = 1;
+				break;
+			}
+		}
+		else
+		{
+			switch (item->spr.pal)
+			{
+			case  0:
+				if (p->got_access & 1) j = 1;
+				break;
+			case 21:
+				if (p->got_access & 2) j = 1;
+				break;
+			case 23:
+				if (p->got_access & 4) j = 1;
+				break;
+			}
+		}
+		break;
+	case 7:
+		if (p->heat_amount != amount) j = 1;
+		break;
+	case 9:
+		if (p->firstaid_amount != amount) j = 1;
+		break;
+	case 10:
+		if (p->boot_amount != amount) j = 1;
+		break;
+	}
+	return j;
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+void playerstomp(player_struct* p, DDukeActor* stomped)
+{
+	if (p->knee_incs == 0 && p->GetActor()->spr.scale.X >= (isRR() ? 0.140625 : 0.625))
+		if (cansee(stomped->spr.pos.plusZ(-4), stomped->sector(), p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector()))
+		{
+			p->knee_incs = 1;
+			if (p->weapon_pos == 0)
+				p->weapon_pos = -1;
+			p->actorsqu = stomped;
+		}
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+void playerreset(player_struct* p, DDukeActor* g_ac)
+{
+	if (ud.multimode < 2)
+	{
+		gameaction = ga_autoloadgame;
+		g_ac->killit_flag = 2;
+	}
+	else
+	{
+		// I am not convinced this is even remotely smart to be executed from here..
+		pickrandomspot(int(p - ps));
+		g_ac->spr.pos = p->GetActor()->getPosWithOffsetZ();
+		p->GetActor()->backuppos();
+		p->setbobpos();
+		g_ac->backuppos();
+		updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
+		SetActor(p->GetActor(), p->GetActor()->spr.pos);
+		g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+
+		g_ac->spr.shade = -12;
+		g_ac->clipdist = 16;
+		g_ac->spr.scale = DVector2(0.65625, 0.5625);
+		g_ac->SetOwner(g_ac);
+		g_ac->spr.xoffset = 0;
+		g_ac->spr.pal = p->palookup;
+
+		p->last_extra = g_ac->spr.extra = gs.max_player_health;
+		p->wantweaponfire = -1;
+		p->GetActor()->PrevAngles.Pitch = p->GetActor()->spr.Angles.Pitch = nullAngle;
+		p->on_crane = nullptr;
+		p->frag_ps = int(p - ps);
+		p->Angles.PrevViewAngles.Pitch = p->Angles.ViewAngles.Pitch = nullAngle;
+		p->opyoff = 0;
+		p->wackedbyactor = nullptr;
+		p->shield_amount = gs.max_armour_amount;
+		p->dead_flag = 0;
+		p->pals.a = 0;
+		p->footprintcount = 0;
+		p->weapreccnt = 0;
+		p->ftq = 0;
+		p->vel.X = p->vel.Y = 0;
+		if (!isRR()) p->Angles.PrevViewAngles.Roll = p->Angles.ViewAngles.Roll = nullAngle;
+
+		p->falling_counter = 0;
+
+		g_ac->hitextra = -1;
+
+		g_ac->cgg = 0;
+		g_ac->movflag = 0;
+		g_ac->tempval = 0;
+		g_ac->actorstayput = nullptr;
+		g_ac->dispicnum = 0;
+		g_ac->SetHitOwner(p->GetActor());
+		g_ac->temp_data[4] = 0;
+
+		resetinventory(p);
+		resetweapons(p);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+void wackplayer(player_struct* p)
+{
+	if (!isRR())
+		forceplayerangle(p);
+	else
+	{
+		p->vel.XY() -= p->GetActor()->spr.Angles.Yaw.ToVector() * 64;
+		p->jumping_counter = 767;
+		p->jumping_toggle = 1;
+	}
+
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+void playerkick(player_struct* p, DDukeActor* g_ac)
+{
+	if (ud.multimode > 1 && g_ac->isPlayer())
+	{
+		if (ps[otherp].quick_kick == 0)
+			ps[otherp].quick_kick = 14;
+	}
+	else if (!g_ac->isPlayer() && p->quick_kick == 0)
+		p->quick_kick = 14;
+}
+
 END_DUKE_NS

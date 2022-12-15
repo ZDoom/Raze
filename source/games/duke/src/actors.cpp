@@ -274,6 +274,7 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 	return movesprite_ex(actor, DVector3(actor->spr.Angles.Yaw.ToVector() * actor->vel.X, actor->vel.Z), cliptype, c) == kHitNone;
 }
 
+
 //---------------------------------------------------------------------------
 //
 // 
@@ -3504,5 +3505,135 @@ void movefta(void)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void actorsizeto(DDukeActor* actor, double x, double y)
+{
+	// JBF 20030805: As I understand it, if repeat becomes 0 it basically kills the
+	// sprite, which is why the "sizeto 0 41" calls in 1.3d became "sizeto 4 41" in
+	// 1.4, so instead of patching the CONs I'll surruptitiously patch the code here
+	//if (!isPlutoPak() && *insptr == 0) *insptr = 4;
+
+	double siz = (x - actor->spr.scale.X);
+	actor->spr.scale.X = (clamp(actor->spr.scale.X + Sgn(siz) * REPEAT_SCALE, 0., 4.));
+
+	auto scale = actor->spr.scale.Y;
+	auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+	if ((actor->isPlayer() && scale < 0.5626) || y < scale || (scale * (tex->GetDisplayHeight() + 8)) < actor->floorz - actor->ceilingz)
+	{
+		siz = (y - actor->spr.scale.Y);
+		actor->spr.scale.Y = (clamp(actor->spr.scale.Y + Sgn(siz) * REPEAT_SCALE, 0., 4.));
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void spawndebris(DDukeActor* g_ac, int dnum, int count)
+{
+	if (dnum < 0 || dnum >= ScrapMax) return;	// this code only works with scrap and nothing else.
+	bool weap = fi.spawnweapondebris(g_ac->spr.picnum);
+
+	if (g_ac->insector())
+		for (int j = count; j >= 0; j--)
+		{
+			int s;
+			if (weap)
+				s = 0;
+			else s = (krand() % 3);
+			DVector3 offs;
+			offs.X = krandf(16) - 8;
+			offs.Y = krandf(16) - 8;
+			offs.Z = -krandf(16) - 8;
+
+			auto a = randomAngle();
+			auto vel = krandf(8) + 2;
+			auto zvel = -krandf(8);
+			DVector2 scale(0.5 + (krand() & 15) * REPEAT_SCALE, 0.5 + (krand() & 15) * REPEAT_SCALE);
+
+			auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs, PClass::FindActor("DukeScrap"), g_ac->spr.shade, scale, a, vel, zvel, g_ac, STAT_MISC);
+			if (spawned)
+			{
+				spawned->spriteextra = dnum + s;
+				if (weap)
+					spawned->spr.yint = (j % 15) + 1;
+				else spawned->spr.yint = -1;
+				spawned->spr.pal = g_ac->spr.pal;
+			}
+		}
+
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void actoroperate(DDukeActor* g_ac)
+{
+	if (g_ac->sector()->lotag == 0)
+	{
+		HitInfo hit{};
+		neartag(g_ac->spr.pos.plusZ(-32), g_ac->sector(), g_ac->spr.Angles.Yaw, hit, 48, NT_Lotag | NT_NoSpriteCheck);
+		auto sectp = hit.hitSector;
+		if (sectp)
+		{
+			if (isanearoperator(sectp->lotag))
+				if ((sectp->lotag & 0xff) == ST_23_SWINGING_DOOR || sectp->floorz == sectp->ceilingz)
+					if ((sectp->lotag & 16384) == 0 && (sectp->lotag & 32768) == 0)
+					{
+						DukeSectIterator it(sectp);
+						DDukeActor* a2;
+						while ((a2 = it.Next()))
+						{
+							if (isactivator(a2))
+								break;
+						}
+						if (a2 == nullptr)
+							operatesectors(sectp, g_ac);
+					}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void garybanjo(DDukeActor* g_ac)
+{
+	if (banjosound == 0)
+	{
+		int rnum = (krand() & 3) + 1;
+		if (rnum == 4)
+		{
+			banjosound = 262;
+		}
+		else if (rnum == 1)
+		{
+			banjosound = 272;
+		}
+		else if (rnum == 2)
+		{
+			banjosound = 273;
+		}
+		else
+		{
+			banjosound = 273;
+		}
+		S_PlayActorSound(banjosound, g_ac, CHAN_WEAPON);
+	}
+	else if (!S_CheckActorSoundPlaying(g_ac, banjosound))
+		S_PlayActorSound(banjosound, g_ac, CHAN_WEAPON);
+}
 END_DUKE_NS

@@ -387,4 +387,15 @@ inline void subkill(DDukeActor* actor)
 	}
 }
 
+inline void dokill(player_struct* p, DDukeActor* g_ac, int amount)
+{
+	if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128 || !isRR())
+	{
+		if (amount > 0) addkill(g_ac);
+		else if (amount < 0) subkill(g_ac);
+	}
+	g_ac->actorstayput = nullptr;
+}
+
+
 END_DUKE_NS
