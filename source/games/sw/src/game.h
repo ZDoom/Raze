@@ -1888,7 +1888,7 @@ struct PLAYER
 
     void setHeightAndZ(const double newz, const double newheight)
     {
-        actor->spr.pos.Z = newz;
+        actor->spr.pos.Z = newz - newheight - actor->viewzoffset;
         height = newheight;
     }
 
