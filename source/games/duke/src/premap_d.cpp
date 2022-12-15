@@ -234,12 +234,6 @@ void cacheit_d(void)
 //
 //
 //---------------------------------------------------------------------------
-void spriteinit_d(DDukeActor* actor, TArray<DDukeActor*>& actors)
-{
-	actor->mapSpawned = true;
-	bool res = initspriteforspawn(actor);
-	if (res) spawninit_d(nullptr, actor, &actors);
-}
 
 void prelevel_d(int g, TArray<DDukeActor*>& actors)
 {
@@ -268,7 +262,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		{
 			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				continue;
-			spriteinit_d(actor, actors);
+			spriteinit(actor, actors);
 		}
 	}
 
@@ -277,7 +271,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		if (actor->exists())
 		{
 			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
-				spriteinit_d(actor, actors);
+				spriteinit(actor, actors);
 		}
 	}
 	lotaglist = 0;

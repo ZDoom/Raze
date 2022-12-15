@@ -165,10 +165,8 @@ void checkplayerhurt_d(player_struct* p, const Collision& coll);
 void checkplayerhurt_r(player_struct* p, const Collision& coll);
 DDukeActor* dospawnsprite(DDukeActor* actj, int pn);
 
-void spriteinit_d(DDukeActor*);
-void spriteinit_r(DDukeActor*);
-DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors);
-DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors);
+void spriteinit(DDukeActor*, TArray<DDukeActor*>& actors);
+DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors);
 
 void addspritetodelete(int spnum=0);
 void checkavailinven(player_struct* p);

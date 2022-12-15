@@ -367,13 +367,6 @@ void cacheit_r(void)
 //
 //---------------------------------------------------------------------------
 
-void spriteinit_r(DDukeActor* actor, TArray<DDukeActor*>& actors)
-{
-	actor->mapSpawned = true;
-	bool res = initspriteforspawn(actor);
-	if (res) spawninit_r(nullptr, actor, &actors);
-}
-
 void prelevel_r(int g, TArray<DDukeActor*>& actors)
 {
 	player_struct* p;
@@ -549,7 +542,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		{
 			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				continue;
-			spriteinit_r(actor, actors);
+			spriteinit(actor, actors);
 		}
 	}
 
@@ -558,7 +551,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		if (actor->exists())
 		{
 			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
-				spriteinit_r(actor, actors);
+				spriteinit(actor, actors);
 			if (actor->GetClass()->TypeName == NAME_RedneckGeometryEffect)
 				actor->Destroy();
 			if (actor->GetClass()->TypeName == NAME_RedneckKeyinfoSetter)

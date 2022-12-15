@@ -738,8 +738,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/sectors_r.cpp
 	games/duke/src/sounds.cpp
 	games/duke/src/spawn.cpp
-	games/duke/src/spawn_d.cpp
-	games/duke/src/spawn_r.cpp
 	games/duke/src/vmexports.cpp
 
 	# Shadow Warrior

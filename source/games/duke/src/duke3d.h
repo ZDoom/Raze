@@ -79,7 +79,6 @@ struct Dispatcher
 	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);
 	void (*checkhitdefault)(DDukeActor* i, DDukeActor* sn);
 	void (*checksectors)(int low);
-	DDukeActor* (*spawninit)(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors);
 
 	void (*addweapon)(player_struct *p, int weapon, bool wswitch);
 	void (*hitradius)(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);

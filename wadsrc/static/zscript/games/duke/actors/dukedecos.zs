@@ -56,7 +56,7 @@ class DukeNukeBarrelLeaked : DukeExplodingBarrel
 {
 	default
 	{
-		pic "DTILE_NUKEBARRELLEAKED";
+		pic "NUKEBARRELLEAKED";
 	}
 }
 class DukeWoodenHorse : DukeExplodingBarrel

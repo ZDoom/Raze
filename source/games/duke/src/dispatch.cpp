@@ -100,7 +100,6 @@ void SetDispatcher()
 		checkhitsprite_d,
 		checkhitdefault_d,
 		checksectors_d,
-		spawninit_d,
 
 		addweapon_d,
 		hitradius_d,
@@ -134,7 +133,6 @@ void SetDispatcher()
 		checkhitsprite_r,
 		checkhitdefault_r,
 		checksectors_r,
-		spawninit_r,
 
 		addweapon_r,
 		hitradius_r,

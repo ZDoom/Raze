@@ -158,7 +158,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, PClassActor* cls, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
 {
 	auto actor = CreateActor(whatsectp, pos, cls, s_shd, scale, s_ang, s_vel, s_zvel, s_ow, s_stat);
-	if (actor) fi.spawninit(s_ow, actor, nullptr);
+	if (actor) spawninit(s_ow, actor, nullptr);
 	return actor;
 }
 
@@ -272,7 +272,7 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 		if (spawned)
 		{
 			spawned->attackertype = actj->spr.picnum;
-			return fi.spawninit(actj, spawned, nullptr);
+			return spawninit(actj, spawned, nullptr);
 		}
 	}
 	return nullptr;
@@ -286,7 +286,7 @@ DDukeActor* spawn(DDukeActor* actj, PClassActor * cls)
 		if (spawned)
 		{
 			spawned->attackertype = actj->spr.picnum;
-			return fi.spawninit(actj, spawned, nullptr);
+			return spawninit(actj, spawned, nullptr);
 		}
 	}
 	return nullptr;
@@ -825,6 +825,59 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 //
 //---------------------------------------------------------------------------
 
+DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
+{
+	if (actorflag(act, SFLAG2_TRIGGERRESPAWN))
+	{
+		act->spr.yint = act->spr.hitag;
+		act->spr.hitag = -1;
+	}
+
+	if (iseffector(act))
+	{
+		// for in-game spawned SE's the init code must not run. The only type ever being spawned that way is SE128 - 
+		// but we cannot check that here as the number has not been set yet.
+		if (actj == 0) spawneffector(act, actors);
+	}
+	else if (!act->isPlayer())
+	{
+		if (!badguy(act) || commonEnemySetup(act, actj))
+			CallInitialize(act);
+	}
+	else
+	{
+		act->spr.scale = DVector2(0, 0);
+		int j = ud.coop;
+		if (j == 2) j = 0;
+
+		if (ud.multimode < 2 || (ud.multimode > 1 && j != act->spr.lotag))
+			ChangeActorStat(act, STAT_MISC);
+		else
+			ChangeActorStat(act, STAT_PLAYER);
+		CallInitialize(act);
+	}
+	return act;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void spriteinit(DDukeActor* actor, TArray<DDukeActor*>& actors)
+{
+	actor->mapSpawned = true;
+	bool res = initspriteforspawn(actor);
+	if (res) spawninit(nullptr, actor, &actors);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 inline PClassActor* GlassClass(int j)
 {
 	static PClassActor* glasses[3];
@@ -975,7 +1028,5 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		if (k) k->spr.pal = krand() & 7;
 	}
 }
-
-
 
 END_DUKE_NS
