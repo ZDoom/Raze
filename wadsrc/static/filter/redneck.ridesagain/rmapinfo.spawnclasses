@@ -167,6 +167,24 @@ spawnclasses
 	// stuff below uses CON
 	
 	7280 = RedneckRabbit
+	5890 = RedneckBikerB
+	5891 = RedneckBikerBV2
+	6225 = RedneckMakeout
+	6401 = RedneckCheerleaderB
+	6658 = RedneckCheerleader
+	7030 = RedneckCootplay
+	7035 = RedneckBillyPlay
+	7192 = RedneckMinionBoat
+	7199 = RedneckHulkBoat
+	7206 = RedneckCheerBoat
+	8035 = RedneckRock
+	8036 = RedneckRock2
+	8663 = RedneckMamaCloud
+	8705 = RedneckMama
+	4770 = RedneckSBSwipe
+	6659 = RedneckCheerStayput
+	
+	
 	
 	78 = RedneckMotoAmmo
 	8460 = RedneckBoatAmmo

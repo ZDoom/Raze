@@ -342,5 +342,16 @@ spawnclasses
 	4249 = RedneckBillyRaySniper
 	5120 = RedneckMinion
 	5121 = RedneckMinionStayput
+	4504 = RedneckBubbaStand
+	4649 = RedneckHulk
+	4650 = RedneckHulkStayput
+	256 = RedneckBoulder
+	264 = RedneckBoulder1
+	1930 = RedneckTornado
+	4260 = RedneckDog
+	4352 = RedneckSheriff
+	4916 = RedneckMosquito
+	5635 = RedneckVixen
+	
 }
 
