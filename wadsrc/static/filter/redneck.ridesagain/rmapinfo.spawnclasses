@@ -167,4 +167,7 @@ spawnclasses
 	// stuff below uses CON
 	
 	7280 = RedneckRabbit
+	
+	78 = RedneckMotoAmmo
+	8460 = RedneckBoatAmmo
 }

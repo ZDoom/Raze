@@ -136,6 +136,28 @@ spawnclasses
 
 	26 = RedneckDynamite
 	27 = RedneckPowderKeg
+	14 = RedneckChickenArrows
+	55 = RedneckMoonshine
+	56 = RedneckSnorkel
+	57 = RedneckCowPie
+	1350 = RedneckSixpack
+	21 = RedneckRevolver
+	22 = RedneckRiflegun
+	28 = RedneckShotgun
+	23 = RedneckCrossbow
+	25 = RedneckRipsaw
+	24 = RedneckTitgun
+	29 = RedneckBlaster
+	49 = RedneckShotgunammo
+	47 = RedneckDynamiteAmmo
+	42 = RedneckBlasterammo
+	61 = RedneckHipWader
+	40 = RedneckAmmo
+	51 = RedneckBeer
+	53 = RedneckWhiskey
+	43 = RedneckSawAmmo
+	60 = RedneckDoorKey
+	
 	1416 = RedneckMortar
 	285 = RedneckChickenSpawner1
 	286 = RedneckChickenSpawner2

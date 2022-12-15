@@ -1,5 +1,5 @@
 
-class RedneckPowderKeg : DukeActor
+class RedneckPowderKeg : DukeItemBase
 {
 	default
 	{
