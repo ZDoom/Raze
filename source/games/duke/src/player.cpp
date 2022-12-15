@@ -1030,4 +1030,165 @@ void purplelavacheck(player_struct* p)
 	}
 }
 
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+bool addphealth(player_struct* p, int amount, bool bigitem)
+{
+	if (p->newOwner != nullptr)
+	{
+		p->newOwner = nullptr;
+		p->GetActor()->restoreloc();
+		updatesector(p->GetActor()->getPosWithOffsetZ(), &p->cursector);
+
+		DukeStatIterator it(STAT_ACTOR);
+		while (auto actj = it.Next())
+		{
+			if (actorflag(actj, SFLAG2_CAMERA))
+				actj->spr.yint = 0;
+		}
+	}
+
+	int curhealth = p->GetActor()->spr.extra;
+
+	if (!bigitem)
+	{
+		if (curhealth > gs.max_player_health && amount > 0)
+		{
+			return false;
+		}
+		else
+		{
+			if (curhealth > 0)
+				curhealth += amount;
+			if (curhealth > gs.max_player_health && amount > 0)
+				curhealth = gs.max_player_health;
+		}
+	}
+	else
+	{
+		if (curhealth > 0)
+			curhealth += amount;
+		if (curhealth > (gs.max_player_health << 1))
+			curhealth = (gs.max_player_health << 1);
+	}
+
+	if (curhealth < 0) curhealth = 0;
+
+	if (ud.god == 0)
+	{
+		if (amount > 0)
+		{
+			if ((curhealth - amount) < (gs.max_player_health >> 2) &&
+				curhealth >= (gs.max_player_health >> 2))
+				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, p->GetActor());
+
+			p->last_extra = curhealth;
+		}
+
+		p->GetActor()->spr.extra = curhealth;
+	}
+	return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+bool playereat(player_struct* p, int amount, bool bigitem)
+{
+	p->eat += amount;
+	if (p->eat > 100)
+	{
+		p->eat = 100;
+	}
+	p->drink_amt -= amount;
+	if (p->drink_amt < 0)
+		p->drink_amt = 0;
+	int curhealth = p->GetActor()->spr.extra;
+	if (!bigitem)
+	{
+		if (curhealth > gs.max_player_health && amount > 0)
+		{
+			return false;
+		}
+		else
+		{
+			if (curhealth > 0)
+				curhealth += (amount) * 3;
+			if (curhealth > gs.max_player_health && amount > 0)
+				curhealth = gs.max_player_health;
+		}
+	}
+	else
+	{
+		if (curhealth > 0)
+			curhealth += amount;
+		if (curhealth > (gs.max_player_health << 1))
+			curhealth = (gs.max_player_health << 1);
+	}
+
+	if (curhealth < 0) curhealth = 0;
+
+	if (ud.god == 0)
+	{
+		if (amount > 0)
+		{
+			if ((curhealth - amount) < (gs.max_player_health >> 2) &&
+				curhealth >= (gs.max_player_health >> 2))
+				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, p->GetActor());
+
+			p->last_extra = curhealth;
+		}
+
+		p->GetActor()->spr.extra = curhealth;
+	}
+	return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// moved out of the CON interpreter.
+//
+//---------------------------------------------------------------------------
+
+void playerdrink(player_struct* p, int amount)
+{
+	p->drink_amt += amount;
+	int curhealth = p->GetActor()->spr.extra;
+	if (curhealth > 0)
+		curhealth += amount;
+	if (curhealth > gs.max_player_health * 2)
+		curhealth = gs.max_player_health * 2;
+	if (curhealth < 0)
+		curhealth = 0;
+
+	if (ud.god == 0)
+	{
+		if (amount > 0)
+		{
+			if ((curhealth - amount) < (gs.max_player_health >> 2) &&
+				curhealth >= (gs.max_player_health >> 2))
+				S_PlayActorSound(PLAYER_GOTHEALTHATLOW, p->GetActor());
+
+			p->last_extra = curhealth;
+		}
+
+		p->GetActor()->spr.extra = curhealth;
+	}
+	if (p->drink_amt > 100)
+		p->drink_amt = 100;
+
+	if (p->GetActor()->spr.extra >= gs.max_player_health)
+	{
+		p->GetActor()->spr.extra = gs.max_player_health;
+		p->last_extra = gs.max_player_health;
+	}
+}
 END_DUKE_NS

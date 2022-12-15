@@ -234,7 +234,7 @@ $conreserve JIBBED4      225
 $conreserve JIBBED5      226
 $conreserve JIBBED6      227
 $conreserve JIBBED7      228
-$conreserve LN_BACON     229
+$conreserve PLAYER_GOTHEALTHATLOW 229
 $conreserve E2L5         230
 $conreserve REGISTER     231
 $conreserve BBQGRILL     232

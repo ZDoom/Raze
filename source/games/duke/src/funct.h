@@ -115,6 +115,9 @@ int setpal(player_struct* p);
 int madenoise(int playerNum);
 int haskey(sectortype* sect, int snum);
 void purplelavacheck(player_struct* p);
+bool addphealth(player_struct* p, int amount, bool bigitem);
+bool playereat(player_struct* p, int amount, bool bigitem);
+void playerdrink(player_struct* p, int amount);
 
 bool checkhitceiling(sectortype* sectp);
 void checkhitwall(DDukeActor* spr, walltype* wal, const DVector3& pos);

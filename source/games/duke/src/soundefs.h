@@ -254,7 +254,7 @@ enum
 	JIBBED_ACTOR5              =226,
 	JIBBED_ACTOR6              =227,
 	JIBBED_ACTOR7              =228,
-	DUKE_GOTHEALTHATLOW        =229,
+	PLAYER_GOTHEALTHATLOW      =229,
 	BOSSTALKTODUKE             =230,
 	WAR_AMBIENCE1              =231,
 	WAR_AMBIENCE2              =232,

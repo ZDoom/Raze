@@ -1931,37 +1931,7 @@ int ParseState::parse(void)
 
 	case concmd_isdrunk: // todo: move out to player_r.
 		insptr++;
-		ps[g_p].drink_amt += *insptr;
-		j = ps[g_p].GetActor()->spr.extra;
-		if (j > 0)
-			j += *insptr;
-		if (j > gs.max_player_health * 2)
-			j = gs.max_player_health * 2;
-		if (j < 0)
-			j = 0;
-
-		if (ud.god == 0)
-		{
-			if (*insptr > 0)
-			{
-				if ((j - *insptr) < (gs.max_player_health >> 2) &&
-					j >= (gs.max_player_health >> 2))
-					S_PlayActorSound(DUKE_GOTHEALTHATLOW, ps[g_p].GetActor());
-
-				ps[g_p].last_extra = j;
-			}
-
-			ps[g_p].GetActor()->spr.extra = j;
-		}
-		if (ps[g_p].drink_amt > 100)
-			ps[g_p].drink_amt = 100;
-
-		if (ps[g_p].GetActor()->spr.extra >= gs.max_player_health)
-		{
-			ps[g_p].GetActor()->spr.extra = gs.max_player_health;
-			ps[g_p].last_extra = gs.max_player_health;
-		}
-		insptr++;
+		playerdrink(&ps[g_p], *insptr++);
 		break;
 	case concmd_strafeleft:
 		insptr++;
@@ -1979,118 +1949,13 @@ int ParseState::parse(void)
 		insptr++;
 		destroyit(g_ac);
 		break;
-	case concmd_iseat: // move out to player_r.
+	case concmd_iseat:
 		insptr++;
-		ps[g_p].eat += *insptr;
-		if (ps[g_p].eat > 100)
-		{
-			ps[g_p].eat = 100;
-		}
-		ps[g_p].drink_amt -= *insptr;
-		if (ps[g_p].drink_amt < 0)
-			ps[g_p].drink_amt = 0;
-		j = ps[g_p].GetActor()->spr.extra;
-		if (g_ac->GetClass()->TypeName != NAME_RedneckGoogooCluster)
-		{
-			if (j > gs.max_player_health && *insptr > 0)
-			{
-				insptr++;
-				break;
-			}
-			else
-			{
-				if (j > 0)
-					j += (*insptr) * 3;
-				if (j > gs.max_player_health && *insptr > 0)
-					j = gs.max_player_health;
-			}
-		}
-		else
-		{
-			if (j > 0)
-				j += *insptr;
-			if (j > (gs.max_player_health << 1))
-				j = (gs.max_player_health << 1);
-		}
-
-		if (j < 0) j = 0;
-
-		if (ud.god == 0)
-		{
-			if (*insptr > 0)
-			{
-				if ((j - *insptr) < (gs.max_player_health >> 2) &&
-					j >= (gs.max_player_health >> 2))
-					S_PlayActorSound(229, ps[g_p].GetActor());
-
-				ps[g_p].last_extra = j;
-			}
-
-			ps[g_p].GetActor()->spr.extra = j;
-		}
-
-		insptr++;
+		playereat(&ps[g_p], *insptr++, actorflag(g_ac, SFLAG3_BIGHEALTH));
 		break;
-
-	case concmd_addphealth: // todo: move out to player.
+	case concmd_addphealth:
 		insptr++;
-
-		if(!isRR() && ps[g_p].newOwner != nullptr)
-		{
-			ps[g_p].newOwner = nullptr;
-			ps[g_p].GetActor()->restoreloc();
-			updatesector(ps[g_p].GetActor()->getPosWithOffsetZ(), &ps[g_p].cursector);
-
-			DukeStatIterator it(STAT_ACTOR);
-			while (auto actj = it.Next())
-			{
-				if (actorflag(actj, SFLAG2_CAMERA))
-					actj->spr.yint = 0;
-			}
-		}
-
-		j = ps[g_p].GetActor()->spr.extra;
-
-		if(!g_ac->IsKindOf(NAME_DukeAtomicHealth) && g_ac->GetClass()->TypeName != NAME_RedneckGoogooCluster)
-		{
-			if( j > gs.max_player_health && *insptr > 0 )
-			{
-				insptr++;
-				break;
-			}
-			else
-			{
-				if(j > 0)
-					j += *insptr;
-				if ( j > gs.max_player_health && *insptr > 0 )
-					j = gs.max_player_health;
-			}
-		}
-		else
-		{
-			if( j > 0 )
-				j += *insptr;
-			if ( j > (gs.max_player_health<<1) )
-				j = (gs.max_player_health<<1);
-		}
-
-		if(j < 0) j = 0;
-
-		if(ud.god == 0)
-		{
-			if(*insptr > 0)
-			{
-				if( ( j - *insptr ) < (gs.max_player_health>>2) &&
-					j >= (gs.max_player_health>>2) )
-						S_PlayActorSound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].GetActor());
-
-				ps[g_p].last_extra = j;
-			}
-
-			ps[g_p].GetActor()->spr.extra = j;
-		}
-
-		insptr++;
+		addphealth(&ps[g_p], *insptr++, actorflag(g_ac, SFLAG3_BIGHEALTH));
 		break;
 
 	case concmd_state:
