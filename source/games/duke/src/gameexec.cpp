@@ -1245,10 +1245,6 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		if (bSet) act->cgg = lValue;
 		else SetGameVarID(lVar2, act->cgg, sActor, sPlayer);
 		break;
-	case ACTOR_HTPICNUM:
-		if (bSet) act->attackertype = lValue;
-		else SetGameVarID(lVar2, act->attackertype, sActor, sPlayer);
-		break;
 	case ACTOR_HTANG:
 		if (bSet) act->hitang = mapangle(lValue);
 		else SetGameVarID(lVar2, act->hitang.Buildang(), sActor, sPlayer);
@@ -1908,7 +1904,7 @@ int ParseState::parse(void)
 	case concmd_ifwasweapon:
 	case concmd_ifspawnedby:	// these two are the same
 		insptr++;
-		parseifelse( g_ac->attackertype == *insptr);
+		parseifelse( g_ac->attackertype == GetSpawnType(*insptr));
 		break;
 	case concmd_ifai:
 		insptr++;
@@ -2079,12 +2075,8 @@ int ParseState::parse(void)
 	case concmd_guts:
 	{
 		insptr += 2;
-		auto info = spawnMap.CheckKey(*(insptr - 1));
-		if (info)
-		{
-			auto clstype = info->cls;
-			if (clstype) spawnguts(g_ac, clstype, *insptr);
-		}
+		auto clstype = GetSpawnType(*(insptr - 1));
+		if (clstype) spawnguts(g_ac, clstype, *insptr);
 		insptr++;
 		break;
 	}

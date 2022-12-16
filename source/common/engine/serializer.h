@@ -308,6 +308,13 @@ inline FSerializer& Serialize(FSerializer& arc, const char* key, BitArray& value
 }
 
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, PClass*& clst, PClass** def);
+template<> inline FSerializer& Serialize(FSerializer& arc, const char* key, PClassActor*& clst, PClassActor** def)
+{
+	PClass* c = (PClass*)clst;
+	Serialize(arc, key, c, (PClass**)def);
+	clst = (PClassActor*)c;
+	return arc;
+}
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, FFont*& font, FFont** def);
 template<> FSerializer &Serialize(FSerializer &arc, const char *key, Dictionary *&dict, Dictionary **def);
 

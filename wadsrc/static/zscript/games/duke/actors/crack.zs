@@ -32,7 +32,7 @@ class DukeCrack : DukeActor
 		{
 			self.temp_data[0] = self.cstat;
 			self.temp_angle = self.angle;
-			if (self.ifhitbyweapon() >= 0 && self.attackerflag2(SFLAG2_EXPLOSIVE))
+			if (self.ifhitbyweapon() == 2) // explosive damage
 			{
 				DukeStatIterator it;
 				for(let a1 = it.First(STAT_STANDABLE); a1; a1 = it.Next())

@@ -25,9 +25,7 @@ struct STATUSBARTYPE
 struct ActorInfo
 {
 	uint32_t scriptaddress;
-	EDukeFlags1 flags;
-	EDukeFlags2 flags2;
-	EDukeFlags3 flags3;
+	EDukeFlags1 enemyflags;	// placeholder during parsing. Since CON gets parsed before the spawn type table we cannot copy these to their final location yet.
 	int aimoffset;
 	int falladjustz;
 	int gutsoffset;
@@ -39,11 +37,17 @@ class DDukeActor : public DCoreActor
 	HAS_OBJECT_POINTERS
 public:
 	TObjPtr<DDukeActor*> ownerActor, hitOwnerActor;
+	PClassActor* attackertype;
+
+	const DDukeActor* attackerDefaults()
+	{
+		return static_cast<DDukeActor*>(GetDefaultByType(attackertype? attackertype : RUNTIME_CLASS(DDukeActor)));
+	}
 
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	uint16_t movflag;
-	short attackertype, hitextra;
+	short hitextra;
 	short tempval, basepicnum;
 	unsigned short timetosleep;
 	bool mapSpawned;

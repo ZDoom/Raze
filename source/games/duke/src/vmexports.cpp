@@ -212,6 +212,7 @@ DEFINE_GLOBAL(camsprite)
 //---------------------------------------------------------------------------
 
 DEFINE_FIELD(DDukeActor, ownerActor)
+DEFINE_FIELD(DDukeActor, attackertype)
 DEFINE_FIELD(DDukeActor, hitOwnerActor)
 DEFINE_FIELD(DDukeActor, cgg)
 DEFINE_FIELD(DDukeActor, spriteextra)
@@ -725,21 +726,6 @@ DEFINE_ACTION_FUNCTION(DDukeActor, actorflag3)
 	PARAM_INT(mask);
 	ACTION_RETURN_BOOL(!!(self->flags3 & EDukeFlags3::FromInt(mask)));
 }
-
-DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag1)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(mask);
-	ACTION_RETURN_BOOL(!!attackerflag(self, EDukeFlags1::FromInt(mask)));
-}
-
-DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag2)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(mask);
-	ACTION_RETURN_BOOL(!!attackerflag(self, EDukeFlags2::FromInt(mask)));
-}
-
 
 //---------------------------------------------------------------------------
 //

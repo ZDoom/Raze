@@ -95,8 +95,8 @@ void initactorflags_r()
 
 	setflag(SFLAG_INTERNAL_BADGUY, { RTILE_PIG, RTILE_HEN });
 
-	gs.actorinfo[RTILE_DRONE].flags |= SFLAG_NOWATERDIP;
-	gs.actorinfo[RTILE_VIXEN].flags |= SFLAG_LOOKALLAROUND;
+	//gs.actorinfo[RTILE_DRONE].flags |= SFLAG_NOWATERDIP;
+	//gs.actorinfo[RTILE_VIXEN].flags |= SFLAG_LOOKALLAROUND;
 	if (isRRRA())
 	{
 		setflag(SFLAG_LOOKALLAROUND, { RTILE_COOT, RTILE_COOTSTAYPUT, RTILE_BIKERB, RTILE_BIKERBV2, RTILE_CHEER, RTILE_CHEERB,
@@ -197,7 +197,7 @@ void initactorflags_r()
 	// Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 	for (auto& ainf : gs.actorinfo)
 	{
-		ainf.flags |= SFLAG_MOVEFTA_WAKEUPCHECK;
+		//ainf.flags |= SFLAG_MOVEFTA_WAKEUPCHECK;
 	}
 
 
@@ -221,11 +221,11 @@ void initactorflags_r()
 		setflag(SFLAG2_FLOATING, { RTILE_UFO1_RR, RTILE_UFO2, RTILE_UFO3, RTILE_UFO4, RTILE_UFO5 });
 	}
 
-	gs.actorinfo[RTILE_RPG2].flags |= SFLAG_FORCEAUTOAIM;
+	//gs.actorinfo[RTILE_RPG2].flags |= SFLAG_FORCEAUTOAIM;
 
 	// clear some bad killcount defaults
-	for (auto t : { RTILE_COW, RTILE_HEN, RTILE_PIG, RTILE_MINECARTKILLER, RTILE_UFOBEAM }) gs.actorinfo[t].flags &= ~SFLAG_KILLCOUNT;
-	if (isRRRA()) gs.actorinfo[RTILE_WACOWINDER].flags &= ~SFLAG_KILLCOUNT;
+	//for (auto t : { RTILE_COW, RTILE_HEN, RTILE_PIG, RTILE_MINECARTKILLER, RTILE_UFOBEAM }) gs.actorinfo[t].flags &= ~SFLAG_KILLCOUNT;
+	//if (isRRRA()) gs.actorinfo[RTILE_WACOWINDER].flags &= ~SFLAG_KILLCOUNT;
 
 	gs.weaponsandammosprites[0] = RTILE_CROSSBOWSPRITE;
 	gs.weaponsandammosprites[1] = RTILE_RIFLEGUNSPRITE;

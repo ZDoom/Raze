@@ -107,7 +107,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 
 	if (s_ow)
 	{
-		act->attackertype = s_ow->spr.picnum;
+		act->attackertype = static_cast<PClassActor*>(s_ow->GetClass());
 		act->floorz = s_ow->floorz;
 		act->ceilingz = s_ow->ceilingz;
 	}
@@ -168,7 +168,7 @@ DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, PClassActor* 
 bool initspriteforspawn(DDukeActor* act)
 {
 	SetupGameVarsForActor(act);
-	act->attackertype = act->spr.picnum;
+	act->attackertype = static_cast<PClassActor*>(act->GetClass());
 	act->timetosleep = 0;
 	act->hitextra = -1;
 
@@ -268,7 +268,7 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 		auto spawned = CreateActor(actj->sector(), actj->spr.pos, pn, 0, DVector2(0, 0), nullAngle, 0., 0., actj, 0);
 		if (spawned)
 		{
-			spawned->attackertype = actj->spr.picnum;
+			spawned->attackertype = static_cast<PClassActor*>(actj->GetClass());
 			return spawninit(actj, spawned, nullptr);
 		}
 	}
@@ -282,7 +282,7 @@ DDukeActor* spawn(DDukeActor* actj, PClassActor * cls)
 		auto spawned = CreateActor(actj->sector(), actj->spr.pos, cls, 0, DVector2(0, 0), nullAngle, 0., 0., actj, 0);
 		if (spawned)
 		{
-			spawned->attackertype = actj->spr.picnum;
+			spawned->attackertype = static_cast<PClassActor*>(actj->GetClass());
 			return spawninit(actj, spawned, nullptr);
 		}
 	}
@@ -322,6 +322,7 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 
 		addtokills(self);
 
+		self->flags1 &= ~SFLAG_KILLCOUNT;
 		self->timetosleep = 0;
 		if (!self->mapSpawned)
 		{

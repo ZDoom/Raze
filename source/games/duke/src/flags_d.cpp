@@ -255,7 +255,6 @@ void initactorflags_d()
 	setflag(SFLAG3_BLOODY, { DTILE_BLOODPOOL });
 
 	// The feature guarded by this flag does not exist in Duke, it always acts as if the flag was set.
-	for (auto& ainf : gs.actorinfo) ainf.flags |= SFLAG_LOOKALLAROUND;
 
 	gs.actorinfo[DTILE_ORGANTIC].aimoffset = 32;
 	gs.actorinfo[DTILE_ROTATEGUN].aimoffset = 32;

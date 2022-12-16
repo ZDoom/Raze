@@ -225,7 +225,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if ((proj->flags2 & SFLAG2_FREEZEDAMAGE) && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
 
-			int hitpic = proj->spr.picnum;
+			auto hitpic = static_cast<PClassActor*>(proj->GetClass());
 			auto Owner = proj->GetOwner();
 			if (Owner && Owner->isPlayer())
 			{
@@ -233,8 +233,8 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 					return;
 
 				auto tOwner = targ->GetOwner();
-				if (isWorldTour() && hitpic == DTILE_FIREBALL && tOwner && tOwner->spr.picnum != DTILE_FIREBALL)
-					hitpic = DTILE_FLAMETHROWERFLAME;
+				if (hitpic->TypeName == NAME_DukeFireball && tOwner && tOwner->GetClass()->TypeName != NAME_DukeFireball)
+					hitpic = PClass::FindActor(NAME_DukeFlamethrowerFlame);
 			}
 
 			targ->attackertype = hitpic;

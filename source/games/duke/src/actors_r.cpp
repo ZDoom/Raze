@@ -231,13 +231,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					}
 
 					act2->hitang = (act2->spr.pos - actor->spr.pos).Angle();
-
-					if (actor->spr.picnum == RTILE_RPG && act2->spr.extra > 0)
-						act2->attackertype = RTILE_RPG;
-					else if ((isRRRA()) && actor->spr.picnum == RTILE_RPG2 && act2->spr.extra > 0)
-						act2->attackertype = RTILE_RPG;
-					else
-						act2->attackertype = RTILE_RADIUSEXPLOSION;
+					act2->attackertype = CallGetRadiusDamageType(actor, act2->spr.extra);
 
 					if (dist < radius / 3)
 					{
@@ -374,6 +368,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 
 	if (actor->hitextra >= 0)
 	{
+		auto adef = actor->attackerDefaults();
 		if (actor->spr.extra >= 0)
 		{
 			if (actor->isPlayer())
@@ -392,7 +387,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 
 				if (hitowner)
 				{
-					if (actor->spr.extra <= 0 && actor->attackertype != RTILE_FREEZEBLAST)
+					if (actor->spr.extra <= 0 && !(adef->flags2 & SFLAG2_FREEZEDAMAGE))
 					{
 						actor->spr.extra = 0;
 
@@ -406,7 +401,7 @@ int ifhitbyweapon_r(DDukeActor *actor)
 					}
 				}
 
-				if (attackerflag(actor, SFLAG2_DOUBLEDMGTHRUST))
+				if (adef->flags2 & SFLAG2_DOUBLEDMGTHRUST)
 				{
 					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
 				}
@@ -428,7 +423,11 @@ int ifhitbyweapon_r(DDukeActor *actor)
 			}
 
 			actor->hitextra = -1;
-			return actor->attackertype;
+			// makeshift damage type reporting. Needs improvement and generalization later.
+			int res = 0;
+			if (adef->flags2 & SFLAG2_FREEZEDAMAGE) res |= 1;
+			if (adef->flags2 & SFLAG2_EXPLOSIVE) res |= 2;
+			return res;
 		}
 	}
 
@@ -1570,7 +1569,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 				addspritetodelete();
 			return 0;
 		}
-		actor->attackertype = RTILE_SHOTSPARK1;
+		actor->attackertype = PClass::FindActor(NAME_DukeShotSpark);
 		actor->hitextra = 1;
 	}
 	else if (tilesurface(actor->sector()->floortexture) == TSURF_MAGMA)
@@ -1579,7 +1578,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		{
 			if ((krand() & 3) == 1)
 			{
-				actor->attackertype = RTILE_SHOTSPARK1;
+				actor->attackertype = PClass::FindActor(NAME_DukeShotSpark);
 				actor->hitextra = 5;
 			}
 		}
@@ -1631,7 +1630,7 @@ void destroyit(DDukeActor *actor)
 			{
 				if (a3->spr.picnum == RTILE_DESTRUCTO)
 				{
-					a3->attackertype = RTILE_SHOTSPARK1;
+					a3->attackertype = PClass::FindActor(NAME_DukeShotSpark);
 					a3->hitextra = 1;
 				}
 			}

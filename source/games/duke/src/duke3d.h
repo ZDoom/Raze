@@ -124,6 +124,9 @@ void CallPlayFTASound(DDukeActor* actor);
 void CallStandingOn(DDukeActor* actor, player_struct* p);
 void CallRunState(DDukeActor* actor);
 int CallTriggerSwitch(DDukeActor* actor, player_struct* p);
+PClassActor* CallGetRadiusDamageType(DDukeActor* actor, int targhealth);
+
+
 
 extern FTextureID mirrortex, foftex;
 

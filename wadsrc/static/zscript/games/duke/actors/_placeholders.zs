@@ -69,6 +69,15 @@ class DukeShotSpark : DukeActor
 	}
 }
 
+class RedneckMotoHit : DukeActor
+{
+	default
+	{
+		pic "MOTOHIT";
+	}
+}
+
+
 // placeholders for CON scripted actors where we need the class.
 
 class DukeForceRipple : DukeActor

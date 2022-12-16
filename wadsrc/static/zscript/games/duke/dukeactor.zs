@@ -145,14 +145,15 @@ class DukeActor : CoreActor native
 	native void SetSpritesetImage(int index);
 	native int GetSpritesetSize();
 
+	native class<DukeActor> attackertype;
 	native DukeActor ownerActor, hitOwnerActor;
 	native uint8 cgg;
 	native uint8 spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	native int16 /*attackertype, hitang,*/ hitextra, movflag;
+	native int16 hitextra, movflag;
 	native int16 tempval; /*, dispicnum;*/
 	native int16 timetosleep;
 	native bool mapSpawned;
-	native double floorz, ceilingz;
+	native double floorz, ceilingz, hitang;
 	native int saved_ammo;
 	native int palvals;
 	native int temp_data[6];
@@ -207,6 +208,10 @@ class DukeActor : CoreActor native
 	{
 		return false;
 	}
+	virtual class<DukeActor> GetRadiusDamageType(int targhealth)
+	{
+		return 'DukeRadiusExplosion';
+	}
 	
 	native void RandomScrap();
 	native void hitradius(int r, int hp1, int hp2, int hp3, int hp4);
@@ -231,8 +236,6 @@ class DukeActor : CoreActor native
 	native int actorflag1(int mask);
 	native int actorflag2(int mask);
 	native int actorflag3(int mask);
-	native int attackerflag1(int mask);
-	native int attackerflag2(int mask);
 	
 	
 	

@@ -585,7 +585,7 @@ void movefallers(void)
 			int j = fi.ifhitbyweapon(act);
 			if (j >= 0)
 			{
-				if (gs.actorinfo[j].flags2 & SFLAG2_EXPLOSIVE)
+				if (j == 2) // explosive
 				{
 					if (act->spr.extra <= 0)
 					{
@@ -3358,7 +3358,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 
 				SKIPJIBS:
 
-					actor->attackertype = SHOTSPARK1;
+					actor->attackertype = PClass::FindActor(NAME_DukeShotSpark);
 					actor->hitextra = 1;
 					actor->vel.Z = 0;
 				}

@@ -210,7 +210,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 			if (proj->spr.picnum == RTILE_FREEZEBLAST && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
 
-			targ->attackertype = proj->spr.picnum;
+			targ->attackertype = static_cast<PClassActor*>(proj->GetClass());
 			targ->hitextra += proj->spr.extra;
 			if (targ->spr.picnum != RTILE_COW)
 				targ->hitang = proj->spr.Angles.Yaw;
@@ -646,7 +646,7 @@ void tearitup(sectortype* sect)
 	{
 		if (act->spr.picnum == RTILE_DESTRUCTO)
 		{
-			act->attackertype = RTILE_SHOTSPARK1;
+			act->attackertype = PClass::FindActor(NAME_DukeShotSpark);
 			act->hitextra = 1;
 		}
 	}

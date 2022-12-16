@@ -571,6 +571,19 @@ int CallTriggerSwitch(DDukeActor* actor, player_struct* p)
 	return nval;
 }
 
+PClassActor* CallGetRadiusDamageType(DDukeActor* actor, int targhealth)
+{
+	PClassActor* nval = nullptr;
+	IFVIRTUALPTR(actor, DDukeActor, GetRadiusDamageType)
+	{
+		VMReturn ret;
+		ret.PointerAt((void**)&nval);
+		VMValue val[] = { actor, targhealth };
+		VMCall(func, val, 2, &ret, 1);
+	}
+	return nval;
+}
+
 
 CCMD(changewalltexture)
 {

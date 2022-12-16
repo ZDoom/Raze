@@ -2281,7 +2281,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		}
 		else
 			victim->SetHitOwner(p->GetActor());
-		victim->attackertype = RTILE_MOTOHIT;
+		victim->attackertype = PClass::FindActor(NAME_RedneckMotoHit);
 		victim->hitextra = int(p->MotoSpeed * 0.5);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
@@ -2315,7 +2315,7 @@ void onBoatHit(int snum, DDukeActor* victim)
 		}
 		else
 			victim->SetHitOwner(p->GetActor());
-		victim->attackertype = RTILE_MOTOHIT;
+		victim->attackertype = PClass::FindActor(NAME_RedneckMotoHit);
 		victim->hitextra = int(p->MotoSpeed * 0.25);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
@@ -3201,7 +3201,7 @@ void processinput_r(int snum)
 		{
 			if (badguy(clz.actor()))
 			{
-				clz.actor()->attackertype = RTILE_MOTOHIT;
+				clz.actor()->attackertype = PClass::FindActor(NAME_RedneckMotoHit);
 				clz.actor()->hitextra = int(2 + (p->MotoSpeed * 0.5));
 				p->MotoSpeed -= p->MotoSpeed * (1. / 16.);
 			}

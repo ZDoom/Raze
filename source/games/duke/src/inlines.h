@@ -52,26 +52,6 @@ inline int iseffector(DDukeActor* actor)
 }
 
 
-inline int badguypic(int const tileNum)
-{
-	return ((gs.actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);
-}
-
-inline int bossguypic(int const tileNum)
-{
-	return ((gs.actorinfo[tileNum].flags & (SFLAG_BOSS)) != 0);
-}
-
-inline int attackerflag(DDukeActor* actor, EDukeFlags1 mask)
-{
-	return (((gs.actorinfo[actor->attackertype].flags) & mask) != 0);
-}
-
-inline int attackerflag(DDukeActor* actor, EDukeFlags2 mask)
-{
-	return (((gs.actorinfo[actor->attackertype].flags2) & mask) != 0);
-}
-
 inline void setflag(EDukeFlags1 flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)

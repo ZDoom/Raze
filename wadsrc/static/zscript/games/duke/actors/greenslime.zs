@@ -70,7 +70,7 @@ class DukeGreenSlime : DukeActor
 			j = self.ifhitbyweapon();
 			if (j >= 0)
 			{
-				if (self.attackerflag2(SFLAG2_FREEZEDAMAGE))
+				if (j == 1) // freeze damage
 					return;
 				for (j = 16; j >= 0; j--)
 				{
@@ -216,7 +216,7 @@ class DukeGreenSlime : DukeActor
 			if (p.somethingonplayer == self)
 				p.somethingonplayer = nullptr;
 
-			if (self.attackerflag2(SFLAG2_FREEZEDAMAGE))
+			if (j == 1)	// freeze damage
 			{
 				self.PlayActorSound("SOMETHINGFROZE"); 
 				self.temp_data[0] = -5; self.temp_data[3] = 0;

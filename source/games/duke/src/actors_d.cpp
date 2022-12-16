@@ -131,7 +131,7 @@ bool ifsquished(DDukeActor* actor, int p)
 
 		if (actor->spr.pal == 1)
 		{
-			actor->attackertype = DTILE_SHOTSPARK1;
+			actor->attackertype = PClass::FindActor(NAME_DukeShotSpark);
 			actor->hitextra = 1;
 			return false;
 		}
@@ -239,29 +239,8 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				if (dist < radius && cansee(act2->spr.pos.plusZ(-8), act2->sector(), actor->spr.pos.plusZ(-12), actor->sector()))
 				{
 					act2->hitang = (act2->spr.pos - actor->spr.pos).Angle();
+					act2->attackertype = CallGetRadiusDamageType(actor, act2->spr.extra);
 
-					if (actor->spr.picnum == DTILE_RPG && act2->spr.extra > 0)
-						act2->attackertype = DTILE_RPG;
-					else if (!isWorldTour())
-					{
-						if (actor->spr.picnum == DTILE_SHRINKSPARK)
-							act2->attackertype = DTILE_SHRINKSPARK;
-						else act2->attackertype = DTILE_RADIUSEXPLOSION;
-					}
-					else
-					{
-						if (actor->spr.picnum == DTILE_SHRINKSPARK || actor->spr.picnum == DTILE_FLAMETHROWERFLAME)
-							act2->	attackertype = actor->spr.picnum;
-						else if (actor->spr.picnum != DTILE_FIREBALL || !Owner || !Owner->isPlayer())
-						{
-							if (actor->spr.picnum == DTILE_LAVAPOOL)
-								act2->attackertype = DTILE_FLAMETHROWERFLAME;
-							else
-								act2->attackertype = DTILE_RADIUSEXPLOSION;
-						}
-						else
-							act2->attackertype = DTILE_FLAMETHROWERFLAME;
-					}
 
 					if (actor->spr.picnum != DTILE_SHRINKSPARK && (!isWorldTour() || actor->spr.picnum != DTILE_LAVAPOOL))
 					{
@@ -298,7 +277,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						{
 							int p = act2->spr.yint;
 
-							if (isWorldTour() && act2->attackertype == DTILE_FLAMETHROWERFLAME && Owner->isPlayer())
+							if (act2->attackertype->TypeName == NAME_DukeFlamethrowerFlame && Owner->isPlayer())
 							{
 								ps[p].numloogs = -1 - actor->spr.yint;
 							}
@@ -433,11 +412,12 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 	if (actor->hitextra >= 0)
 	{
+		auto adef = actor->attackerDefaults();
 		if (actor->spr.extra >= 0)
 		{
 			if (actor->isPlayer())
 			{
-				if (ud.god && actor->attackertype != DTILE_SHRINKSPARK) return -1;
+				if (ud.god && !(adef->flags3 & SFLAG3_LIGHTDAMAGE)) return -1;
 
 				p = actor->PlayerIndex();
 
@@ -451,7 +431,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 				if (hitowner)
 				{
-					if (actor->spr.extra <= 0 && actor->attackertype != DTILE_FREEZEBLAST)
+					if (actor->spr.extra <= 0 && !(adef->flags2 & SFLAG2_FREEZEDAMAGE))
 					{
 						actor->spr.extra = 0;
 
@@ -465,7 +445,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					}
 				}
 
-				if (attackerflag(actor, SFLAG2_DOUBLEDMGTHRUST))
+				if (adef->flags2 & SFLAG2_DOUBLEDMGTHRUST)
 				{
 					ps[p].vel.XY() += actor->hitang.ToVector() * actor->hitextra * 0.25;
 				}
@@ -477,13 +457,12 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			else
 			{
 				if (actor->hitextra == 0)
-					if (actor->attackertype == DTILE_SHRINKSPARK && actor->spr.scale.X < 0.375)
+					if (actor->attackertype->TypeName == NAME_DukeShrinkSpark && actor->spr.scale.X < 0.375)
 						return -1;
 
-				if (isWorldTour() && actor->attackertype == DTILE_FIREFLY && actor->spr.scale.X < 0.75)
+				if (actor->attackertype->TypeName == NAME_DukeFirefly && actor->spr.scale.X < 0.75)
 				{
-					if (actor->attackertype != DTILE_RADIUSEXPLOSION && actor->attackertype != DTILE_RPG)
-						return -1;
+					return -1;
 				}
 
 				actor->spr.extra -= actor->hitextra;
@@ -493,13 +472,18 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			}
 
 			actor->hitextra = -1;
-			return actor->attackertype;
+			// makeshift damage type reporting. Needs improvement and generalization later.
+			int res = 0;
+			if (adef->flags2 & SFLAG2_FREEZEDAMAGE) res |= 1;
+			if (adef->flags2 & SFLAG2_EXPLOSIVE) res |= 2;
+			return res;
 		}
 	}
 
 
-	if (ud.multimode < 2 || !isWorldTour()
-		|| actor->attackertype != DTILE_FLAMETHROWERFLAME
+	if (ud.multimode < 2
+		|| actor->attackertype == nullptr
+		|| actor->attackertype->TypeName != NAME_DukeFlamethrowerFlame
 		|| actor->hitextra >= 0
 		|| actor->spr.extra > 0
 		|| !actor->isPlayer()
@@ -521,7 +505,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 		actor->SetHitOwner(ps[p].GetActor());
 		actor->hitextra = -1;
 
-		return DTILE_FLAMETHROWERFLAME;
+		return 0;
 	}
 }
 
