@@ -15,7 +15,7 @@ spawnclasses
 	2613 = DukeShotgunShot
 	2536 = DukeChaingunShot
 	1670 = DukeRadiusExplosion
-	3384 = DukeShrinker
+	2556 = DukeShrinker
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane
@@ -372,5 +372,50 @@ spawnclasses
 	2612 = DukeLaserSite
 	4397 = DukeSpeaker
 	2595 = DukeShotSpark
-	
+
+	// internal CON stuff referenced by name
+	4535 = DukeFoodObject6
+	4540 = DukeFoodObject11
+	4541 = DukeFoodObject12
+	4542 = DukeFoodObject13
+	4543 = DukeFoodObject14
+	4544 = DukeFoodObject15
+	4545 = DukeFoodObject16
+	4546 = DukeFoodObject17
+	4554 = DukeSkinnedChicken
+	4576 = DukeShoppingCart
+	4560 = DukeRobotDog2
+	4555 = DukeFeatheredChicken
+	4591 = DukeDolphin1
+	4592 = DukeDolphin2
+	4590 = DukeSnakep
+	1045 = DukeDonuts
+	4440 = DukeDonuts2
+	4413 = DukeMailbag
+	4400 = DukeTeddybear
+	1060 = DukeClock
+	1067 = DukeBrokenClock
+	4569 = DukeJollyMeal
+	4458 = DukeGumballMachine
+	4459 = DukeGumballMachineBroke
+	4570 = DukeBurger
+	4377 = DukePoliceLightPole
+	4396 = DukeTopSecret
+	4360 = DukeGunpowderbarrel
+	4388 = DukeFloorbasket
+	4407 = DukeRobotmouse
+	4404 = DukeRobotpirate
+	4510 = DukePirate1A
+	4871 = DukeMan
+	4872 = DukeMan2
+	4512 = DukePirate2A
+	4514 = DukePirate3A
+	4511 = DukePirate4A
+	4513 = DukePirate5A
+	4515 = DukePirate6A
+	4531 = DukeFoodObject2
+	1335 = DukeFem6Pad
+	1817 = DukeCannonball
+
 }
+
