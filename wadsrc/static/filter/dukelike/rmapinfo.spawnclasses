@@ -417,5 +417,45 @@ spawnclasses
 	1335 = DukeFem6Pad
 	1817 = DukeCannonball
 
+	487 = DukeSpaceShuttle
+	489 = DukeSatellite2
+	4497 = DukeMop
+	4496 = DukeBroom
+	4495 = DukeWetFloor
+	4370 = DukeDeskLamp
+	4367 = DukeHatRack
+	4372 = DukeCoffeeMachine
+	4874 = DukeWoman
+	4516 = DukePirateHalf
+	4520 = DukeChestOfGold
+	4402 = DukeRobotDog
+	4887 = DukePleaseWait
+	4530 = DukeFoodObject1
+	4532 = DukeFoodObject3
+	4533 = DukeFoodObject4
+	4534 = DukeFoodObject5
+	4536 = DukeFoodObject7
+	4537 = DukeFoodObject8
+	4538 = DukeFoodObject9
+	4539 = DukeFoodObject10
+	4547 = DukeFoodObject18
+	4548 = DukeFoodObject19
+	4549 = DukeFoodObject20
+	4550 = DukeHeadLamp
+	4374 = DukeGavals
+	4375 = DukeGavals2
+	4373 = DukeCups
+	4453 = DukeMeter
+	4454 = DukeDeskPhone
+	4464 = DukeMace
+	4438 = DukeCoffeeMug
+	1642 = DukeDevastatorBlast
+	1818 = DukeCannonballs
+	1810 = DukeCannon
+	4427 = DukeHotMeat
+	4340 = DukeLavaBubble
+	4671 = DukeNewBeastHangDead
+	4690 = DukeNewBeastJump
+
 }
 

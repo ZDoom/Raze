@@ -303,7 +303,7 @@ class DukeNewBeastHang : DukeNewBeast
 	}
 }
 
- class DukeTank : DukeActor
+class DukeTank : DukeActor
  {
  	default
 	{
@@ -641,6 +641,318 @@ class DukeCannonball: DukeActor
 	default
 	{
 		pic "CANNONBALL";
+	}
+}
+
+class DukeSpaceShuttle : DukeActor // (487)
+{
+	default
+	{
+		pic "SPACESHUTTLE";
+	}
+}
+
+class DukeSatellite2 : DukeActor // (489)
+{
+	default
+	{
+		pic "SATELLITE";
+	}
+}
+
+class DukeMop : DukeActor // (4497)
+{
+	default
+	{
+		pic "MOP";
+	}
+}
+
+class DukeBroom : DukeActor // (4496)
+{
+	default
+	{
+		pic "BROOM";
+	}
+}
+
+class DukeWetFloor : DukeActor // (4495)
+{
+	default
+	{
+		pic "WETFLOOR";
+	}
+}
+
+class DukeDeskLamp : DukeActor // (4370)
+{
+	default
+	{
+		pic "DESKLAMP";
+	}
+}
+
+class DukeHatRack : DukeActor // (4367)
+{
+	default
+	{
+		pic "HATRACK";
+	}
+}
+
+class DukeCoffeeMachine : DukeActor // (4372)
+{
+	default
+	{
+		pic "COFFEEMACHINE";
+	}
+}
+
+class DukeWoman : DukeActor // (4874)
+{
+	default
+	{
+		pic "WOMAN";
+	}
+}
+
+class DukePirateHalf : DukeActor // (4516)
+{
+	default
+	{
+		pic "PIRATEHALF";
+	}
+}
+
+class DukeChestOfGold : DukeActor // (4520)
+{
+	default
+	{
+		pic "CHESTOFGOLD";
+	}
+}
+
+class DukeRobotDog : DukeActor // (4402)
+{
+	default
+	{
+		pic "ROBOTDOG";
+	}
+}
+
+class DukePleaseWait : DukeActor // (4887)
+{
+	default
+	{
+		pic "PLEASEWAIT";
+	}
+}
+
+class DukeFoodObject1 : DukeActor // (4530)
+{
+	default
+	{
+		pic "FOODOBJECT1";
+	}
+}
+
+class DukeFoodObject3 : DukeActor // (4532)
+{
+	default
+	{
+		pic "FOODOBJECT3";
+	}
+}
+
+class DukeFoodObject4 : DukeActor // (4533)
+{
+	default
+	{
+		pic "FOODOBJECT4";
+	}
+}
+
+class DukeFoodObject5 : DukeActor // (4534)
+{
+	default
+	{
+		pic "FOODOBJECT5";
+	}
+}
+
+class DukeFoodObject7 : DukeActor // (4536)
+{
+	default
+	{
+		pic "FOODOBJECT7";
+	}
+}
+
+class DukeFoodObject8 : DukeActor // (4537)
+{
+	default
+	{
+		pic "FOODOBJECT8";
+	}
+}
+
+class DukeFoodObject9 : DukeActor // (4538)
+{
+	default
+	{
+		pic "FOODOBJECT9";
+	}
+}
+
+class DukeFoodObject10 : DukeActor // (4539)
+{
+	default
+	{
+		pic "FOODOBJECT10";
+	}
+}
+
+class DukeFoodObject18 : DukeActor // (4547)
+{
+	default
+	{
+		pic "FOODOBJECT18";
+	}
+}
+
+class DukeFoodObject19 : DukeActor // (4548)
+{
+	default
+	{
+		pic "FOODOBJECT19";
+	}
+}
+
+class DukeFoodObject20 : DukeActor // (4549)
+{
+	default
+	{
+		pic "FOODOBJECT20";
+	}
+}
+
+class DukeHeadLamp : DukeActor // (4550)
+{
+	default
+	{
+		pic "HEADLAMP";
+	}
+}
+
+class DukeGavals : DukeActor // (4374)
+{
+	default
+	{
+		pic "GAVALS";
+	}
+}
+
+class DukeGavals2 : DukeActor // (4375)
+{
+	default
+	{
+		pic "GAVALS2";
+	}
+}
+
+class DukeCups : DukeActor // (4373)
+{
+	default
+	{
+		pic "CUPS";
+	}
+}
+
+class DukeMeter : DukeActor // (4453)
+{
+	default
+	{
+		pic "METER";
+	}
+}
+
+class DukeDeskPhone : DukeActor // (4454)
+{
+	default
+	{
+		pic "DESKPHONE";
+	}
+}
+
+class DukeMace : DukeActor // (4464)
+{
+	default
+	{
+		pic "MACE";
+	}
+}
+
+class DukeCoffeeMug : DukeActor // (4438)
+{
+	default
+	{
+		pic "COFFEEMUG";
+	}
+}
+
+class DukeDevastatorBlast : DukeActor // (1642)
+{
+	default
+	{
+		pic "DEVISTATORBLAST";
+	}
+}
+
+class DukeCannonballs : DukeActor // (1818)
+{
+	default
+	{
+		pic "CANNONBALLS";
+	}
+}
+
+class DukeCannon : DukeActor // (1810)
+{
+	default
+	{
+		pic "CANNON";
+	}
+}
+
+class DukeHotMeat : DukeActor // (4427)
+{
+	default
+	{
+		pic "HOTMEAT";
+	}
+}
+
+class DukeLavaBubble : DukeActor // (4340)
+{
+	default
+	{
+		pic "LAVABUBBLE";
+	}
+}
+
+class DukeNewBeastHangDead : DukeNewBeast // (4671)
+{
+	default
+	{
+		pic "NEWBEASTHANGDEAD";
+	}
+}
+
+class DukeNewBeastJump : DukeNewBeast // (4690)
+{
+	default
+	{
+		pic "NEWBEASTJUMP";
 	}
 }
 
