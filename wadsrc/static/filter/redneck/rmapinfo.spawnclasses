@@ -72,6 +72,8 @@ spawnclasses
 	1344 = DukeRat
 	1759 = DukeForceSphere
 	1529 = DukeOoz
+	1538 = DukeOoz2
+	1427 = DukeForceRipple
 	1525 = DukeBloodSplat1
 	1526 = DukeBloodSplat2
 	1527 = DukeBloodSplat3
@@ -313,9 +315,13 @@ spawnclasses
 	1338 = DukeTransporterBeam
 	1196 = DukeToiletWater
 	1494 = DukeBurning
+	1539 = DukeBurning2
+	1540 = DukeFire2	// not used but referenced
 	1495 = RedneckFire
 	1441 = DukeExplosion2
 	1442 = RedneckExplosion3
+	1204 = DukeBounceMine
+	2272 = DukeExplosion2Bot
 	41 = RedneckRifleAmmo
 	52 = RedneckPorkRinds
 	5595 = RedneckGoogooCluster
@@ -358,4 +364,9 @@ spawnclasses
 
 	1764 = DukeShotSpark
 }
-
+	2094 = RedneckTeslaBall
+	3395 = RedneckBuzSaw
+	//3845 = RedneckPlayerPawn
+	4983 = RedneckPigEat
+	2898 = RedneckBustaWin4a
+	2878 = RedneckBustaWin5a

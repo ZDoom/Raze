@@ -258,6 +258,15 @@ class RedneckSawAmmo : DukeItemBase
 	}
 }
 
+class RedneckTitAmmo : DukeItemBase
+{
+	default
+	{
+		pic "TEATAMMO";
+	}
+}
+
+
 class RedneckDoorkey : DukeAccessCard
 {
 	override void Initialize()

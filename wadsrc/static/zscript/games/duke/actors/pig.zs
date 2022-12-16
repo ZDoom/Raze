@@ -26,3 +26,12 @@ class RedneckPigStayput: RedneckPig
 		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
 	}
 }
+
+class RedneckPigEat : RedneckPig
+{
+	default
+	{
+		pic "PIGEAT";
+	}
+}
+
