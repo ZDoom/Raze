@@ -31,6 +31,10 @@ class DukeLavaPool : DukeActor
 			self.scale = (REPEAT_SCALE, REPEAT_SCALE);
 		self.ChangeStat(STAT_MISC);
 	}
+	override class<DukeActor> GetRadiusDamageType(int targhealth)
+	{
+		return 'DukeFlamethrowerFlame';
+	}
 }
 
 class DukeLavaPoolBubble : DukeActor

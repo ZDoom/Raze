@@ -284,6 +284,11 @@ class DukeShrinkSpark : DukeProjectile
 		tspr.setSpritePic(self, (PlayClock >> 4) & 3);
 		return true;
 	}
+
+	override class<DukeActor> GetRadiusDamageType(int targhealth)
+	{
+		return 'DukeShrinkSpark';
+	}
 	
 }
 
@@ -407,6 +412,12 @@ class DukeRPG : DukeProjectile
 			self.spawn('DukeWaterBubble');
 		
 	}
+	override class<DukeActor> GetRadiusDamageType(int targhealth)
+	{
+		if (targhealth > 0) return 'DukeRPG';
+		return 'DukeRadiusExplosion';
+	}
+
 }
 
 
@@ -623,6 +634,7 @@ class DukeFireball : DukeProjectile // WorldTour only
 	default
 	{
 		pic "FIREBALL";
+		+FULLBRIGHT;
 	}
 	
 	override bool premoveeffect()
@@ -727,12 +739,11 @@ class DukeFireball : DukeProjectile // WorldTour only
 		Super.postHitEffect(coll);
 	}
 	
-	override bool animate(tspritetype tspr)
+	override class<DukeActor> GetRadiusDamageType(int targhealth)
 	{
-		tspr.shade = -127;
-		return true;
+		if (self.detail == 0) return 'DukeFlamethrowerFlame';
+		return 'DukeRadiusExplosion';
 	}
-	
 }
 
 //---------------------------------------------------------------------------
@@ -921,6 +932,10 @@ class RedneckBoatGrenade : RedneckDynamiteArrow // RRRA only
 		self.Destroy();
 	}
 	
+	override class<DukeActor> GetRadiusDamageType(int targhealth)
+	{
+		return 'DukeRadiusExplosion';
+	}
 	
 }
 

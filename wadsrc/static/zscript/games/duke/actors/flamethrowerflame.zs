@@ -187,4 +187,10 @@ class DukeFlamethrowerFlame : DukeActor
 		}
 		return true;
 	}
+
+	override class<DukeActor> GetRadiusDamageType(int targhealth)
+	{
+		return 'DukeFlamethrowerFlame';
+	}
+
 }
