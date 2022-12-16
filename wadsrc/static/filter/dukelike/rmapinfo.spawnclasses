@@ -80,7 +80,7 @@ spawnclasses
 	26 = DukePipeBomb
 	940 = DukeBounceMine
 	1650 = DukeMortar
-	2999 = DukeFrameEffect
+	4095 = DukeFrameEffect
 	925 = DukeNeon
 	926 = DukeNeon, "NEON2"
 	1007 = DukeNeon, "NEON3"
@@ -98,6 +98,7 @@ spawnclasses
 	2533 = DukeShell
 	2535 = DukeShotgunShell
 	1226 = DukeBloodPool
+	4389 = DukePuke
 	407 = DukeFanSprite
 	516 = DukeSatellite
 	517 = DukeFuelPod
@@ -163,9 +164,9 @@ spawnclasses
 	660 = DukeWaterdrip
 	160 = DukeDoorshock
 	1232 = DukeCanWithSomething
-	2807 = DukeCanWithSomething, "CANWITHSOMETHING2"
-	2808 = DukeCanWithSomething, "CANWITHSOMETHING3"
-	2809 = DukeCanWithSomething, "CANWITHSOMETHING4"
+	4580 = DukeCanWithSomething, "CANWITHSOMETHING2"
+	4581 = DukeCanWithSomething, "CANWITHSOMETHING3"
+	4582 = DukeCanWithSomething, "CANWITHSOMETHING4"
 	1647 = DukeTongue
 	1860 = DukeInnerJaw
 	1861 = DukeInnerJaw1

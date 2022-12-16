@@ -81,7 +81,7 @@ spawnclasses
 	1168 = DukeStatue
 	1280 = DukeBottle10
 	1172 = DukeVase
-	4095 = DukeFrameEffect
+	2999 = DukeFrameEffect
 	1200 = DukeNeon
 	1201 = DukeNeon, "NEON2"
 	1241 = DukeNeon, "NEON3"
