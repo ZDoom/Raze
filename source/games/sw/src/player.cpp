@@ -6016,13 +6016,6 @@ void DoPlayerDeathCheckKeys(PLAYER* pp)
 
         DoPlayerZrange(pp);
 
-        pp->sop_control = nullptr;
-        pp->sop_remote = nullptr;
-        pp->sop_riding = nullptr;
-        pp->sop = nullptr;
-
-        pp->Flags &= ~(PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
-        pp->Flags &= ~(PF_DEAD);
         plActor->spr.cstat &= ~(CSTAT_SPRITE_YCENTER);
         plActor->spr.cstat |= (CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 		plActor->spr.scale = DVector2(PLAYER_NINJA_XREPEAT, PLAYER_NINJA_YREPEAT);

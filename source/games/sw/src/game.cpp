@@ -580,7 +580,8 @@ void TerminateLevel(void)
     {
         PLAYER* pp = &Player[pnum];
 
-        PlayerDeathReset(pp);
+        if (pp->Flags & PF_DEAD)
+            PlayerDeathReset(pp);
 
         // Free panel sprites for players
         pClearSpriteList(pp);
