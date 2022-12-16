@@ -38,7 +38,7 @@ class DukeMasterSwitch : DukeActor
 					}
 					else //if (effector.statnum == STAT_STANDABLE) this check is not really needed.
 					{
-						if (effector.actorflag2(SFLAG2_BRIGHTEXPLODE)) // SEENINE and OOZFILTER
+						if (effector.bBRIGHTEXPLODE) // SEENINE and OOZFILTER
 						{
 							effector.shade = -31;
 						}

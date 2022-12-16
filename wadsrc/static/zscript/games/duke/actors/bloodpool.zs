@@ -14,12 +14,12 @@ class DukeBloodPool : DukeActor
 		{
 			if (Owner.pal == 1)
 				self.pal = 1;	// Blue
-			else if (Owner.pal == 6 || Owner.actorflag2(SFLAG2_GREENBLOOD))
+			else if (Owner.pal == 6 || Owner.bGREENBLOOD)
 			{
 				self.pal = 0;	// Green
 				self.temp_data[5] = 1;	// this hurts!
 			}
-			else if (Owner.actorflag3(SFLAG3_BROWNBLOOD))
+			else if (Owner.bBROWNBLOOD)
 				self.pal = 7; 	// Brown
 			else
 				self.pal = 2; // Red

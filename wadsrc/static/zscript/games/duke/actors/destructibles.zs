@@ -160,7 +160,7 @@ class DukeSatellite : DukeActor
 	}
 	override void OnHit(DukeActor proj)
 	{
-		if (!proj.actorflag3(SFLAG3_LIGHTDAMAGE))
+		if (!proj.bLIGHTDAMAGE)
 		{
 			for (int j = 0; j < 15; j++)
 			{

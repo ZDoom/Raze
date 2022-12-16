@@ -24,7 +24,7 @@ class DukeCactus : DukeCactusBroke
 
 	override void onHit(DukeActor hitter)
 	{
-		if (self.spritesetindex == 0 && hitter.actorflag1(SFLAG_INFLAME))
+		if (self.spritesetindex == 0 && hitter.bINFLAME)
 		{
 			let scrap = Raze.isRR()? DukeScrap.Scrap6 : DukeScrap.Scrap3;
 			

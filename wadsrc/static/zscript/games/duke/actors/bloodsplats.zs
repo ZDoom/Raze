@@ -98,7 +98,7 @@ class DukeBloodSplat1 : DukeActor
 			spawned.SetPosition(spawned.pos);
 			spawned.cstat2 |= CSTAT2_SPRITE_DECAL;
 
-			if (shooter.actorflag2(SFLAG2_GREENBLOOD))
+			if (shooter.bGREENBLOOD)
 				spawned.pal = 6;
 		}
 		return true;

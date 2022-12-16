@@ -21,7 +21,7 @@ extend class DukeActor
 
 		if (self.badguy() && self.pal == 6)
 			pal = 6;
-		else if (!self.actorflag2(SFLAG2_TRANSFERPALTOJIBS))
+		else if (!self.bTRANSFERPALTOJIBS)
 			pal = 0;
 		else
 			pal = self.pal;

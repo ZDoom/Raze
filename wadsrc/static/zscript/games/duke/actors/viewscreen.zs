@@ -39,7 +39,7 @@ class DukeViewscreen : DukeActor
 		DukeStatIterator it;
 		for(let acti = it.First(STAT_ACTOR); acti; acti = it.Next())
 		{
-			if (acti.actorflag2(SFLAG2_CAMERA) && acti.yint == 0 && self.hitag == acti.lotag)
+			if (acti.bCAMERA && acti.yint == 0 && self.hitag == acti.lotag)
 			{
 				acti.yint = 1; //Using this camera
 				if (user == Duke.GetViewPlayer()) Duke.PlaySound("MONITOR_ACTIVE");

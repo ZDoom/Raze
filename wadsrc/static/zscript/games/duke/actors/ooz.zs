@@ -11,7 +11,7 @@ class DukeOoz : DukeActor
 
 		if (!self.mapSpawned)
 		{
-			if (self.actorflag2(SFLAG2_PAL8OOZ))
+			if (self.bPAL8OOZ)
 				self.pal = 8;
 			if (!Raze.IsRR()) self.insertspriteq();
 		}

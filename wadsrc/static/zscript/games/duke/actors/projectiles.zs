@@ -90,7 +90,7 @@ class DukeProjectile : DukeActor
 
 	virtual bool weaponhitwall(walltype wal)
 	{
-		if (self.actorflag2(SFLAG2_MIRRORREFLECT) && dlevel.isMirror(wal))
+		if (self.bMIRRORREFLECT && dlevel.isMirror(wal))
 		{
 			let k = wal.delta().Angle();
 			self.angle = k * 2 - self.angle;
@@ -103,7 +103,7 @@ class DukeProjectile : DukeActor
 			self.SetPosition(oldpos);
 			dlevel.checkhitwall(wal, self, self.pos);
 
-			if (self.actorflag2(SFLAG2_REFLECTIVE))
+			if (self.bREFLECTIVE)
 			{
 				if (!dlevel.isMirror(wal))
 				{
@@ -149,7 +149,7 @@ class DukeProjectile : DukeActor
 
 		int p = -1;
 
-		if (self.actorflag2(SFLAG2_UNDERWATERSLOWDOWN) && self.sector.lotag == ST_2_UNDERWATER)
+		if (self.bUNDERWATERSLOWDOWN && self.sector.lotag == ST_2_UNDERWATER)
 		{
 			vel *= 0.5;
 			velz *= 0.5;
@@ -348,7 +348,7 @@ class DukeRPG : DukeProjectile
 	
 	override bool premoveeffect()
 	{
-		if ((!self.ownerActor || !self.ownerActor.actorflag2(SFLAG2_NONSMOKYROCKET)) && self.scale.X >= 0.15625 && self.sector.lotag != ST_2_UNDERWATER)
+		if ((!self.ownerActor || !self.ownerActor.bNONSMOKYROCKET) && self.scale.X >= 0.15625 && self.sector.lotag != ST_2_UNDERWATER)
 		{
 			let spawned = self.spawn("DukeSmallSmoke");
 			if (spawned) spawned.pos.Z += 1;
@@ -794,7 +794,7 @@ class RedneckDynamiteArrow : DukeRPG
 	
 	override bool weaponhitsprite_pre(DukeActor targ)
 	{
-		if (targ.actorflag2(SFLAG2_TRANSFERPALTOJIBS) && targ.pal == 19)
+		if (targ.bTRANSFERPALTOJIBS && targ.pal == 19)
 		{
 			self.PlayActorSound("RPG_EXPLODE");
 			let spawned = self.spawn("DukeExplosion2");
@@ -966,7 +966,7 @@ class RedneckShitBall : DukeSpit
 	}
 	override bool weaponhitplayer(DukeActor targ)
 	{
-		if (ownerActor && ownerActor.actorflag2(SFLAG2_SPAWNRABBITGUTS))
+		if (ownerActor && ownerActor.bSPAWNRABBITGUTS)
 			rabbitguts();
 
 		return Super.weaponhitplayer(targ);
@@ -975,7 +975,7 @@ class RedneckShitBall : DukeSpit
 	override bool weaponhitwall(walltype wal)
 	{
 		self.SetPosition(oldpos);
-		if (ownerActor && ownerActor.actorflag2(SFLAG2_SPAWNRABBITGUTS))
+		if (ownerActor && ownerActor.bSPAWNRABBITGUTS)
 			rabbitguts();
 		
 		return super.weaponhitwall(wal);
@@ -984,7 +984,7 @@ class RedneckShitBall : DukeSpit
 	override bool weaponhitsector()
 	{
 		self.setPosition(oldpos);
-		if (ownerActor && ownerActor.actorflag2(SFLAG2_SPAWNRABBITGUTS))
+		if (ownerActor && ownerActor.bSPAWNRABBITGUTS)
 			rabbitguts();
 
 		return super.weaponhitsector();
@@ -996,7 +996,7 @@ class RedneckShitBall : DukeSpit
 		if (self.ownerActor)
 		{
 			let OwnerAc = self.ownerActor;
-			if (OwnerAc.actorflag2(SFLAG2_TRANSFERPALTOJIBS))
+			if (OwnerAc.bTRANSFERPALTOJIBS)
 			{
 				if (OwnerAc.pal == 8)
 				{
@@ -1008,7 +1008,7 @@ class RedneckShitBall : DukeSpit
 					tspr.shade = -127;
 				}
 			}
-			else if (OwnerAc.actorflag2(SFLAG2_SPAWNRABBITGUTS))
+			else if (OwnerAc.bSPAWNRABBITGUTS)
 			{
 				tspr.clipdist |= TSPR_ROTATE8FRAMES;
 				sprite = 14;
@@ -1043,7 +1043,7 @@ class RedneckSawBlade : DukeProjectile
 		{
 			self.pos += self.angle.ToVector() * 8;
 			let Owner = self.ownerActor;
-			if (!Owner || !(Owner.actorflag2(SFLAG2_ALTPROJECTILESPRITE))) // depends on the shooter. Urgh...
+			if (!Owner || !(Owner.bALTPROJECTILESPRITE)) // depends on the shooter. Urgh...
 			{
 				let j = self.spawn("RedneckCircleStuck");
 				if (j)
@@ -1071,7 +1071,7 @@ class RedneckSawBlade : DukeProjectile
 	override bool animate(tspritetype tspr)
 	{
 		int frame;
-		if (!OwnerActor || !(OwnerActor.actorflag2(SFLAG2_ALTPROJECTILESPRITE))) frame = ((PlayClock >> 4) & 7);
+		if (!OwnerActor || !(OwnerActor.bALTPROJECTILESPRITE)) frame = ((PlayClock >> 4) & 7);
 		else frame = 8 + ((PlayClock >> 4) & 3);
 		tspr.SetSpritePic(self, frame);
 		return true;

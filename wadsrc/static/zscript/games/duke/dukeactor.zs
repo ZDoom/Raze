@@ -232,11 +232,6 @@ class DukeActor : CoreActor native
 	native void subkill();
 	
 
-	// temporary flag accessors - need to be eliminated once we can have true actor flags
-	native int actorflag1(int mask);
-	native int actorflag2(int mask);
-	native int actorflag3(int mask);
-	
 	
 	
 	virtual void Initialize()

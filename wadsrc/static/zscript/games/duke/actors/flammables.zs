@@ -19,7 +19,7 @@ class DukeFlammable : DukeActor
 			self.temp_data[1]++;
 			if ((self.temp_data[1] & 3) > 0) return;
 
-			if (self.actorflag1(SFLAG_FLAMMABLEPOOLEFFECT) && self.temp_data[1] == 32)
+			if (self.bFLAMMABLEPOOLEFFECT && self.temp_data[1] == 32)
 			{
 				self.cstat = 0;
 				let spawned = self.spawn("DukeBloodPool");
@@ -56,7 +56,7 @@ class DukeFlammable : DukeActor
 			}
 			self.scale.Y = scale;
 		}
-		if (self.actorflag1(SFLAG_FALLINGFLAMMABLE))
+		if (self.bFALLINGFLAMMABLE)
 		{
 			self.makeitfall();
 			self.ceilingz = self.sector.ceilingz;
@@ -65,7 +65,7 @@ class DukeFlammable : DukeActor
 	
 	override void onHit(DukeActor hitter)
 	{
-		if (hitter.actorflag1(SFLAG_INFLAME))
+		if (hitter.bINFLAME)
 		{
 			if (self.temp_data[0] == 0)
 			{

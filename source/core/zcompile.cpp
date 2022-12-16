@@ -88,6 +88,7 @@ void LoadScripts()
 
 	FScriptPosition::StrictErrors = true;
 	ParseScripts();
+	SynthesizeFlagFields();
 
 	FunctionBuildList.Build();
 
@@ -99,7 +100,6 @@ void LoadScripts()
 
 	timer.Unclock();
 	if (!batchrun) Printf("script parsing took %.2f ms\n", timer.TimeMS());
-	SynthesizeFlagFields();
 
 	for (int i = PClass::AllClasses.Size() - 1; i >= 0; i--)
 	{

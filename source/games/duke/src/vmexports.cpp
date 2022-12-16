@@ -664,12 +664,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, insertspriteq, insertspriteq)
 	return 0;
 }
 
-void DukeActor_operateforcefields(DDukeActor* self, int tag)
-{
-	operateforcefields(self, tag);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, operateforcefields, DukeActor_operateforcefields)
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, operateforcefields, operateforcefields)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(tag);
@@ -702,29 +697,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, subkill, subkill)
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	subkill(self);
 	return 0;
-}
-
-
-// temporary helpers to hide the fact that these flags are not part of the actor yet.
-DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(mask);
-	ACTION_RETURN_BOOL(!!(self->flags1 & EDukeFlags1::FromInt(mask)));
-}
-
-DEFINE_ACTION_FUNCTION(DDukeActor, actorflag2)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(mask);
-	ACTION_RETURN_BOOL(!!(self->flags2 & EDukeFlags2::FromInt(mask)));
-}
-
-DEFINE_ACTION_FUNCTION(DDukeActor, actorflag3)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(mask);
-	ACTION_RETURN_BOOL(!!(self->flags3 & EDukeFlags3::FromInt(mask)));
 }
 
 //---------------------------------------------------------------------------

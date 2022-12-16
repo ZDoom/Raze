@@ -44,7 +44,7 @@ class DukeOozFilter : DukeActor
 				DukeStatIterator it;
 				for(let act2 = it.first(STAT_STANDABLE); act2; act2 = it.Next())
 				{
-					if (self.hitag == act2.hitag && act2.actorflag2(SFLAG2_BRIGHTEXPLODE))
+					if (self.hitag == act2.hitag && act2.bBRIGHTEXPLODE)
 						act2.shade = -32;
 				}
 			}

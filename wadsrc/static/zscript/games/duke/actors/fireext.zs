@@ -53,7 +53,7 @@ class DukeFireext : DukeActor
 			DukeStatIterator it;
 			for(let a1 = it.First(STAT_STANDABLE); a1; a1 = it.Next())
 			{
-				if (self.hitag == a1.hitag && a1.actorflag2(SFLAG2_BRIGHTEXPLODE))
+				if (self.hitag == a1.hitag && a1.bBRIGHTEXPLODE)
 					if (a1.shade != -32)
 						a1.shade = -32;
 			}

@@ -162,7 +162,7 @@ class DukeGreenSlime : DukeActor
 				DukeStatIterator it;
 				for (let ac = it.First(STAT_ACTOR); ac; ac = it.Next())
 				{
-					if (ac.actorflag2(SFLAG2_CAMERA)) ac.yint = 0;
+					if (ac.bCAMERA) ac.yint = 0;
 				}
 			}
 
@@ -306,7 +306,7 @@ class DukeGreenSlime : DukeActor
 			DukeSectIterator it;
 			for (let a2 = it.First(self.sector); a2; a2 = it.Next())
 			{
-				if (a2.actorflag1(SFLAG_GREENSLIMEFOOD))
+				if (a2.bGREENSLIMEFOOD)
 				{
 					double dist = (self.pos.XY - a2.pos.XY).LengthSquared();
 					if (dist < 48*48 && (abs(self.pos.Z - a2.pos.Z) < 16)) //Gulp them

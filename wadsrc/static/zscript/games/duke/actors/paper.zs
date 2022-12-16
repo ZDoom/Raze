@@ -64,7 +64,7 @@ class DukeMoney : DukeActor
 			DukeStatIterator it;
 			for (let aa = it.First(STAT_MISC); aa; aa = it.Next())
 			{
-				if (aa.actorflag3(SFLAG3_BLOODY))
+				if (aa.bBLOODY)
 				{
 					double dist = (aa.pos.XY - self.pos.XY).Length();
 					if (dist < 348/16.)
