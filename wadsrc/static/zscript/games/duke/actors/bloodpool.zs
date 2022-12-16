@@ -3,6 +3,8 @@ class DukeBloodPool : DukeActor
 	default
 	{
 		pic "BLOODPOOL";
+		+BLOODY;
+		+SE24_REMOVE;
 	}
 	
 	virtual void SetPalette()

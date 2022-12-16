@@ -5,6 +5,7 @@ class DukeFloorFlame : DukeActor
 	{
 		pic "FLOORFLAME";
 		+FULLBRIGHT;
+		+FORCERUNCON;
 	}
 
 	override void Initialize()
@@ -20,6 +21,9 @@ class DukeBurning : DukeActor
 	{
 		pic "BURNING";
 		+FULLBRIGHT;
+		+FORCERUNCON;
+		+NOTELEPORT;
+		+NOFLOORPAL;
 	}
 	
 	override void Initialize()
@@ -72,6 +76,8 @@ class RedneckFire : DukeActor
 	{
 		pic "FIRE";
 		+FULLBRIGHT;
+		+NOTELEPORT;
+		+NOFLOORPAL;
 	}
 	
 	override bool animate(tspritetype t)
@@ -107,6 +113,7 @@ class DukeOnFire : DukeActor
 	default
 	{
 		pic "FLOORFLAME";
+		+FORCERUNCON;
 	}
 
 	override void  Initialize()
@@ -137,5 +144,6 @@ class DukeOnFireSmoke : DukeActor
 	default
 	{
 		pic "ONFIRESMOKE";
+		+FORCERUNCON;
 	}
 }

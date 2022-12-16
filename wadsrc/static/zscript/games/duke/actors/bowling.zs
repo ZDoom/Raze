@@ -4,6 +4,7 @@ class RedneckBowlingPin : DukeActor
 	{
 		RedneckBowlingPin.Behavior 0;
 		spriteset "BOWLINGPIN", "BOWLINGPIN1", "BOWLINGPIN2";
+		+HITRADIUS_FLAG2;
 	}
 
 	meta int behavior;
@@ -123,6 +124,7 @@ class RedneckHenstand : RedneckBowlingPin
 	{
 		spriteset "HENSTAND", "HENSTAND1";
 		RedneckBowlingPin.Behavior 1;
+		-HITRADIUS_FLAG2;
 	}
 	
 	override void Initialize()
@@ -152,6 +154,7 @@ class RedneckBowlingBall : RedneckBowlingPin
 	{
 		pic "BOWLINGBALL";
 		RedneckBowlingPin.Behavior 2;
+		-HITRADIUS_FLAG2;
 	}
 	
 	override void Initialize()

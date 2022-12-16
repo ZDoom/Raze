@@ -4,6 +4,7 @@ class DukeFireflyFlyingEffect : DukeActor
 	default
 	{
 		pic "FIREFLYFLYINGEFFECT";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()
@@ -49,6 +50,8 @@ class DukeFirefly : DukeActor
 	default
 	{
 		pic "FIREFLY";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override bool ShootThis(DukeActor shooter, DukePlayer p, Vector3 spos, double sang)

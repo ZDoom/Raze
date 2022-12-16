@@ -5,6 +5,8 @@ class RedneckMinion : DukeActor
 		pic "MINION";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUNDWITHPAL8;
+		+TRANSFERPALTOJIBS;
 	}
 	
 	override void Initialize()

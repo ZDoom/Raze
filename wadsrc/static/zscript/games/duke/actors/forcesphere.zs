@@ -3,6 +3,7 @@ class DukeForceSphere : DukeActor
 	default
 	{
 		pic "FORCESPHERE";
+		+NOFLOORPAL;
 	}
 	
 	

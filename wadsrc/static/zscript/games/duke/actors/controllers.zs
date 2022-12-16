@@ -144,6 +144,10 @@ class DukeShadeCtrl : DukeActor
 
 class DukeMinecartKiller : DukeActor
 {
+	default
+	{
+		+BADGUY;
+	}
 	override void StaticSetup()
 	{
 		self.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -200,6 +204,7 @@ class RedneckUfoBeam : DukeActor
 	default
 	{
 		pic "UFOBEAM";
+		+BADGUY;
 	}
 	
 	override bool animate(tspritetype t)
@@ -295,6 +300,22 @@ class RedneckSeasickEnabler : DukeActor
 		// this is so wrong... :(
 		Duke.GetViewPlayer().sea_sick_stat = true;
 		self.Destroy();
+	}
+}
+
+class RedneckWacoWinder : DukeActor
+{
+	default
+	{
+		pic "WACOWINDER";
+		+BADGUY;
+	}
+	
+	override bool animate(tspritetype t)
+	{
+		t.cstat |= CSTAT_SPRITE_INVISIBLE;
+		self.cstat |= CSTAT_SPRITE_INVISIBLE;
+		return true;
 	}
 }
 

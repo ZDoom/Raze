@@ -3,6 +3,8 @@ class DukeWaterBubble : DukeActor
 	default
 	{
 		pic "WATERBUBBLE";
+		+FORCERUNCON;
+		+NOFLOORPAL;
 	}
 	
 	override void Initialize()

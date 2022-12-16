@@ -5,6 +5,8 @@ class DukeBoss1 : DukeActor
 		pic "BOSS1";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+NODAMAGEPUSH;
+		+BOSS;
 	}
 	
 	override void Initialize()

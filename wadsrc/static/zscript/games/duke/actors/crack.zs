@@ -4,6 +4,7 @@ class DukeCrack : DukeActor
 	default
 	{
 		pic "CRACK1";
+		+NOFALLER;
 	}
 	
 	override void Initialize()

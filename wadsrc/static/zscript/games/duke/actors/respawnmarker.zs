@@ -5,6 +5,7 @@ class DukeRespawnMarker : DukeActor
 	default
 	{
 		spriteset "RESPAWNMARKERRED", "RESPAWNMARKERYELLOW", "RESPAWNMARKERGREEN";
+		+NOFLOORPAL;
 	}
 	
 	override void Initialize()

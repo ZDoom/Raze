@@ -12,6 +12,7 @@ class DukeCrystalAmmo : DukeItemBase
 	default
 	{
 		pic "CRYSTALAMMO";
+		+NOFLOORPAL;
 	}
 	
 	override bool animate(tspritetype t)
@@ -42,6 +43,7 @@ class DukeSteroids : DukeItemBase
 	default
 	{
 		pic "STEROIDS";
+		+INVENTORY;
 	}
 }
 
@@ -50,6 +52,7 @@ class DukeHeatSensor : DukeItemBase
 	default
 	{
 		pic "HEATSENSOR";
+		+INVENTORY;
 	}
 }
 
@@ -66,6 +69,7 @@ class DukeAirtank : DukeItemBase
 	default
 	{
 		pic "AIRTANK";
+		+INVENTORY;
 	}
 }
 
@@ -82,6 +86,7 @@ class DukeJetpack : DukeItemBase
 	default
 	{
 		pic "JETPACK";
+		+INVENTORY;
 	}
 }
 
@@ -90,6 +95,7 @@ class DukeHoloDuke : DukeItemBase
 	default
 	{
 		pic "HOLODUKE";
+		+INVENTORY;
 	}
 }
 
@@ -206,6 +212,7 @@ class DukeBoots : DukeItemBase
 	default
 	{
 		pic "BOOTS";
+		+INVENTORY;
 	}
 }
 
@@ -230,6 +237,7 @@ class DukeFirstAid : DukeItemBase
 	default
 	{
 		pic "FIRSTAID";
+		+INVENTORY;
 	}
 }
 
@@ -268,6 +276,7 @@ class DukeGrowSpark : DukeActor
 	{
 		spriteset "GROWSPARK", "GROWSPARK1", "GROWSPARK2", "GROWSPARK3";
 		+FULLBRIGHT;
+		+NOFLOORPAL;
 	}
 	
 	override bool animate(tspritetype t)

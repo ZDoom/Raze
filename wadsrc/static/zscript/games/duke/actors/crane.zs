@@ -5,6 +5,7 @@ class DukeCrane : DukeActor
 	{
 		spriteset "CRANE", "CRANE1", "CRANE2";
 		statnum STAT_STANDABLE;
+		+SE24_NOCARRY;
 	}
 	
 	enum EPic
@@ -247,5 +248,6 @@ class DukeCranePole : DukeActor
 	default
 	{
 		pic "CRANEPOLE";
+		+NOINTERPOLATE;
 	}
 }

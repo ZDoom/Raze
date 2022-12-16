@@ -4,6 +4,11 @@ class DukeExplodingBarrel : DukeActor
 	default
 	{
 		pic "EXPLODINGBARREL";
+		+FORCERUNCON;
+		+CHECKSLEEP;
+		+MOVEFTA_MAKESTANDABLE;
+		+DOUBLEDMGTHRUST;
+		+BREAKMIRRORS;
 	}
 	
 	override void Initialize()
@@ -36,6 +41,7 @@ class DukeNukeBarrel : DukeExplodingBarrel
 	default
 	{
 		pic "NUKEBARREL";
+		+GREENBLOOD;
 	}
 }
 class DukeFireVase : DukeExplodingBarrel
@@ -100,6 +106,7 @@ class DukeWaterbubbleMaker : DukeActor
 	default
 	{
 		pic "WATERBUBBLEMAKER";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()
@@ -115,6 +122,8 @@ class DukeFeces : DukeActor
 	default
 	{
 		pic "FECES";
+		+FORCERUNCON;
+		+BROWNBLOOD;
 	}
 	
 	override void Initialize()
@@ -129,7 +138,8 @@ class DukeBlood : DukeActor
 {
 	default
 	{
-		pic "Blood";
+		pic "BLOOD";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()
@@ -187,6 +197,7 @@ class DukeWhispySmoke : DukeActor
 	default
 	{
 		pic "WHISPYSMOKE";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()

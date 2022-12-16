@@ -6,6 +6,8 @@ class DukeLizTrooper : DukeActor
 		pic "LIZTROOP";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+GREENSLIMEFOOD;
+		+TRANSFERPALTOJIBS;
 	}
 	
 	override void Initialize()

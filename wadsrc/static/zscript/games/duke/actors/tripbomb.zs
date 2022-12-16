@@ -14,6 +14,16 @@ class DukeTripBomb : DukeActor
 		pic "TRIPBOMB";
 		// Note: The trip bomb has its health defined through CON! Value is 100. Con-based definitions will take precendence.
 		health 100;
+		+CHECKSLEEP;
+		+HITRADIUS_FLAG2;
+		+MOVEFTA_MAKESTANDABLE;
+		+SE24_NOCARRY;
+		+DONTANIMATE;
+		+NOFALLER;
+		+BLOCK_TRIPBOMB;
+		+NOFLOORPAL;
+
+		+NOTELEPORT;
 	}
 	
 	override void Initialize()
@@ -226,6 +236,12 @@ class DukeLaserLine : DukeActor
 	{
 		pic "LASERLINE";
 		+FULLBRIGHT;
+		+NOROTATEWITHSECTOR;
+		+SHOWWALLSPRITEONMAP;
+		+SE24_NOCARRY;
+		+DONTANIMATE;
+		+NOTELEPORT;
+		+NOFLOORPAL;
 	}
 
 	override void Initialize()

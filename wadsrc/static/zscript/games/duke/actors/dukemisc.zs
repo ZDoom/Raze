@@ -73,6 +73,7 @@ class DukeFootprints : DukeActor
 	default
 	{
 		spriteset "FOOTPRINTS", "FOOTPRINTS2", "FOOTPRINTS3", "FOOTPRINTS4";
+		+SE24_REMOVE;
 	}
 	
 	override void Initialize()
@@ -109,6 +110,8 @@ class DukeBulletHole : DukeActor
 	default
 	{
 		pic "BULLETHOLE";
+		+SE24_REMOVE;
+		+NOTELEPORT;
 	}
 	
 	override void Initialize()
@@ -224,6 +227,7 @@ class DukeBarBroke : DukeActor
 	default
 	{
 		pic "BARBROKE";
+		+SE24_NOCARRY;
 	}
 }
 
@@ -240,6 +244,7 @@ class DukeBurnedCorpse : DukeActor
 	default
 	{
 		pic "BURNEDCORPSE";
+		+FORCERUNCON;
 	}
 }
 
@@ -248,6 +253,7 @@ class DukeLaserSite : DukeActor
 	default
 	{
 		pic "LASERSITE";
+		+FORCERUNCON;
 	}
 }
 
@@ -256,6 +262,7 @@ class DukeSpeaker : DukeActor
 	default
 	{
 		pic "SPEAKER";
+		+NOFALLER;
 	}
 }
 
@@ -274,7 +281,8 @@ class DukeNewBeast : DukeActor
 		pic "NEWBEAST";
 		+BADGUY;
 		+KILLCOUNT;
-
+		+GREENSLIMEFOOD;
+		+GREENBLOOD;
 	}
 }
 
@@ -287,4 +295,14 @@ class DukeNewBeastStayput : DukeNewBeast
 	}
 }
 
- 
+ class DukeTank : DukeActor
+ {
+ 	default
+	{
+		pic "TANK";
+		+BADGUY;
+		+KILLCOUNT;
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
+	}
+}

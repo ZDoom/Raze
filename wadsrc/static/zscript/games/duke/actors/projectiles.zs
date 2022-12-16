@@ -200,7 +200,9 @@ class DukeFirelaser : DukeProjectile // Liztrooper shot
 	default
 	{
 		spriteset "FIRELASER", "FIRELASER2", "FIRELASER3", "FIRELASER4", "FIRELASER5", "FIRELASER6";
+		+INFLAME;
 		+FULLBRIGHT;
+		+MIRRORREFLECT;
 	}
 	override bool postmoveeffect(CollisionData coll)
 	{
@@ -265,6 +267,8 @@ class DukeShrinkSpark : DukeProjectile
 	{
 		spriteset "SHRINKSPARK", "SHRINKSPARK1", "SHRINKSPARK2", "SHRINKSPARK3";
 		+FULLBRIGHT;
+		+MIRRORREFLECT;
+		+NOFLOORPAL;
 	}
 	
 	override void posthiteffect(CollisionData coll)
@@ -290,6 +294,7 @@ class DukeShrinkerExplosion : DukeActor
 	{
 		spriteset "SHRINKEREXPLOSION";
 		+FULLBRIGHT;
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()
@@ -322,6 +327,13 @@ class DukeRPG : DukeProjectile
 	{
 		pic "RPG";
 		+FULLBRIGHT;
+		+INFLAME;
+		+UNDERWATERSLOWDOWN;
+		+ALWAYSROTATE2;
+		+EXPLOSIVE;
+		+DOUBLEDMGTHRUST;
+		+NOFLOORPAL;
+		+BREAKMIRRORS;
 	}
 	
 	override void Initialize()
@@ -410,6 +422,8 @@ class DukeFreezeBlast : DukeProjectile
 	{
 		pic "FREEZEBLAST";
 		+FULLBRIGHT;
+		+FREEZEDAMAGE;
+		+REFLECTIVE;
 	}
 	
 	override bool postmoveeffect(CollisionData coll)
@@ -532,6 +546,7 @@ class DukeCoolExplosion1 : DukeProjectile // octabrain shot.
 			"COOLEXPLOSION11", "COOLEXPLOSION12", "COOLEXPLOSION13", "COOLEXPLOSION14", "COOLEXPLOSION15", 
 			"COOLEXPLOSION16", "COOLEXPLOSION17", "COOLEXPLOSION18", "COOLEXPLOSION19", "COOLEXPLOSION20";
 		+FULLBRIGHT;
+		+MIRRORREFLECT;
 	}
 	
 	override void Initialize()
@@ -732,6 +747,7 @@ class RedneckUWhip : DukeProjectile
 	{
 		pic "UWHIP";
 		+FULLBRIGHT;
+		+INFLAME;
 	}
 }
 
@@ -748,6 +764,7 @@ class RedneckVixenShot : RedneckUWhip // COOLEXPLOSION1
 	default
 	{
 		pic "VIXENSHOT";
+		+INFLAME;
 	}
 }
 
@@ -766,7 +783,7 @@ class RedneckDynamiteArrow : DukeRPG
 	
 	override bool weaponhitsprite_pre(DukeActor targ)
 	{
-		if (targ.actorflag2(SFLAG2_TRANFERPALTOJIBS) && targ.pal == 19)
+		if (targ.actorflag2(SFLAG2_TRANSFERPALTOJIBS) && targ.pal == 19)
 		{
 			self.PlayActorSound("RPG_EXPLODE");
 			let spawned = self.spawn("DukeExplosion2");
@@ -797,6 +814,9 @@ class RedneckChickenArrow : RedneckDynamiteArrow
 	default
 	{
 		pic "RPG2";
+		+FORCEAUTOAIM;
+		+NOFLOORPAL;
+		+ALWAYSROTATE2;
 	}
 	
 	override void Initialize()
@@ -868,6 +888,8 @@ class RedneckBoatGrenade : RedneckDynamiteArrow // RRRA only
 	default
 	{
 		pic "BOATGRENADE";
+		-DOUBLEDMGTHRUST;
+		-ALWAYSROTATE2;
 	}
 	
 	override void Initialize()
@@ -917,6 +939,7 @@ class RedneckShitBall : DukeSpit
 			"FROGBALL1", "FROGBALL2", "FROGBALL3", "FROGBALL4", "FROGBALL5", "FROGBALL6", 
 			"SHITBURN", "SHITBURN2", "SHITBURN3", "SHITBURN4",
 			"RABBITBALL";
+		+NOFLOORPAL;
 	}
 	
 	private void rabbitguts()
@@ -958,7 +981,7 @@ class RedneckShitBall : DukeSpit
 		if (self.ownerActor)
 		{
 			let OwnerAc = self.ownerActor;
-			if (OwnerAc.actorflag2(SFLAG2_TRANFERPALTOJIBS))
+			if (OwnerAc.actorflag2(SFLAG2_TRANSFERPALTOJIBS))
 			{
 				if (OwnerAc.pal == 8)
 				{

@@ -391,7 +391,7 @@ void dokneeattack(int snum)
 			if (p->actorsqu != nullptr && (pact->spr.pos - p->actorsqu->spr.pos).Length() < 1400/16.)
 			{
 				spawnguts(p->actorsqu, PClass::FindActor("DukeJibs6"), 7);
-				spawn(p->actorsqu, TILE_BLOODPOOL);
+				spawn(p->actorsqu, PClass::FindActor("DukeBloodPool"));
 				S_PlayActorSound(SQUISHED, p->actorsqu);
 				if (actorflag(p->actorsqu, SFLAG2_TRIGGERRESPAWN))
 				{

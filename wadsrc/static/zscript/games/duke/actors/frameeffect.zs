@@ -2,7 +2,7 @@ class DukeFrameEffect : DukeActor
 {
 	default
 	{
-		Pic "SMALLSMOKE";
+		Pic "FRAMEEFFECT1";
 	}
 	
 	

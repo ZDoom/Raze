@@ -4,6 +4,8 @@ class DukeTransporterStar : DukeActor
 	default
 	{
 		pic "TRANSPORTERSTAR";
+		+FORCERUNCON;
+		+NOTELEPORT;
 	}
 	
 	override void Initialize()
@@ -42,6 +44,7 @@ class DukeTransporterBeam : DukeActor
 	default
 	{
 		pic "TRANSPORTERBEAM";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()

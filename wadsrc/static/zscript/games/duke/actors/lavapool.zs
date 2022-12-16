@@ -3,6 +3,7 @@ class DukeLavaPool : DukeActor
 	default
 	{
 		pic "LAVAPOOL";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()
@@ -37,6 +38,7 @@ class DukeLavaPoolBubble : DukeActor
 	default
 	{
 		pic "LAVAPOOLBUBBLE";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()

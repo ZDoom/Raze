@@ -4,6 +4,7 @@ class DukeFireext : DukeActor
 	default
 	{
 		pic "FIREEXT";
+		+EXPLOSIVE;
 	}
 
 	override void Initialize()

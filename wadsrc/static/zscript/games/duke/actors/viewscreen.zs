@@ -3,6 +3,8 @@ class DukeViewscreen : DukeActor
 	default
 	{
 		spriteset "VIEWSCREEN", "STATIC", "VIEWSCR";
+		+NOFALLER;
+		+NOFLOORPAL;
 	}
 
 	const VIEWSCR_DIST = 1024;	// was originally 2048, was increased to 8192 by EDuke32 and RedNukem, but with high resolutions the resulting 512 map units are still too low.
@@ -94,6 +96,8 @@ class DukeCamera : DukeActor
 	default
 	{
 		pic "CAMERA1";
+		+CAMERA;
+		+ALWAYSROTATE1;
 	}
 
 	override void Initialize()

@@ -5,6 +5,7 @@ class RedneckRabbit : DukeActor
 		pic "RABBIT";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
 	}
 	
 	override void Initialize()

@@ -4,6 +4,11 @@ class RedneckPowderKeg : DukeItemBase
 	default
 	{
 		pic "POWDERKEG";
+		+NOFLOORPAL;
+		+EXPLOSIVE;
+		+DOUBLEDMGTHRUST;
+		+BREAKMIRRORS;
+		+INFLAME;
 	}
 	
 	override void Tick()

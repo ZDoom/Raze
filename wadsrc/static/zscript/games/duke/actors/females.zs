@@ -4,6 +4,8 @@ class DukeFemale1 : DukeActor
 	default
 	{
 		pic "FEM1";
+		+TRIGGERRESPAWN;
+		+HITRADIUSCHECK;
 	}
 	
 	override void Initialize()
@@ -91,6 +93,7 @@ class DukeNaked : DukeFemale1
 	default
 	{
 		pic "NAKED1";
+		-HITRADIUSCHECK;
 	}
 }
 	
@@ -99,6 +102,7 @@ class DukeToughGal : DukeFemale1
 	default
 	{
 		pic "TOUGHGAL";
+		-HITRADIUSCHECK;
 	}
 }
 	
@@ -107,6 +111,7 @@ class DukeBloodyPole : DukeFemale1
 	default
 	{
 		pic "BLOODYPOLE";
+		-TRIGGERRESPAWN;
 	}
 }
 	

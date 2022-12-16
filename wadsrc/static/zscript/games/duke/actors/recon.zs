@@ -5,6 +5,16 @@ class DukeRecon : DukeActor
 		spriteset "RECON", "RECON2";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+DONTDIVE;
+		+FLOATING;
+
+		+ALWAYSROTATE2;
+		+SPECIALAUTOAIM;
+		+IGNOREHITOWNER;
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
+		+NOFLOORPAL;
+		+NOGRAVITY;
 	}
 	
 	Sound AttackSnd;
@@ -230,6 +240,10 @@ class RedneckUFO1 : DukeRecon
 	default
 	{
 		Pic "UFO1_RR";
+		-ALWAYSROTATE2;
+		-SPECIALAUTOAIM;
+		-IGNOREHITOWNER;
+		-NOFLOORPAL;
 	}
 	
 	override void Initialize()

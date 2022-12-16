@@ -4,6 +4,7 @@ class DukeBolt1 : DukeActor
 	{
 		SpriteSet "BOLT1", "BOLT2", "BOLT3", "BOLT4";
 		spritesetindex 0;
+		+SE24_NOCARRY;
 	}
 	override void Initialize()
 	{

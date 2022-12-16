@@ -3445,9 +3445,9 @@ void movefta(void)
 						double sy = act->spr.pos.Y - xyrand();
 						// The second updatesector call here used px and py again and was redundant as coded.
 
-						// SFLAG_MOVEFTA_CHECKSEE is set for all actors in Duke.
-						if (act->spr.pal == 33 || actorflag(act, SFLAG_MOVEFTA_CHECKSEE) ||
-							(actorflag(act, SFLAG_MOVEFTA_CHECKSEEWITHPAL8) && act->spr.pal == 8) ||
+						// SFLAG_LOOKALLAROUND is set for all actors in Duke.
+						if (act->spr.pal == 33 || actorflag(act, SFLAG_LOOKALLAROUND) ||
+							(actorflag(act, SFLAG_LOOKALLAROUNDWITHPAL8) && act->spr.pal == 8) ||
 							(act->spr.Angles.Yaw.Cos() * (px - sx) + act->spr.Angles.Yaw.Sin() * (py - sy) >= 0))
 						{
 							double r1 = zrand(32);
@@ -3490,7 +3490,7 @@ void movefta(void)
 					act->spr.shade = act->sector()->ceilingshade;
 				else act->spr.shade = act->sector()->floorshade;
 
-				// wakeup is an RR feature, this flag will later allow it to use in Duke, too.
+				// wakeup is an RR feature, this flag will allow it to use in Duke, too.
 				if (actorflag(act, SFLAG_MOVEFTA_WAKEUPCHECK))
 				{
 					if (wakeup(act, p))

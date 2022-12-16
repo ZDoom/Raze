@@ -3,6 +3,7 @@ class DukeFlammable : DukeActor
 	default
 	{
 		statnum STAT_STANDABLE;
+		+HITRADIUS_FLAG1;
 	}
 
 	override void Initialize()
@@ -81,6 +82,7 @@ class DukeBox : DukeFlammable
 	default
 	{
 		pic "BOX";
+		+FALLINGFLAMMABLE;
 	}
 }
 
@@ -89,6 +91,7 @@ class DukeTree1 : DukeFlammable
 	default
 	{
 		pic "TREE1";
+		+NOFLOORFIRE;
 	}
 }
 
@@ -97,6 +100,7 @@ class DukeTree2 : DukeFlammable
 	default
 	{
 		pic "TREE2";
+		+NOFLOORFIRE;
 	}
 }
 
@@ -105,6 +109,7 @@ class DukeTire : DukeFlammable
 	default
 	{
 		pic "TIRE";
+		+FLAMMABLEPOOLEFFECT;
 	}
 }
 

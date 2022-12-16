@@ -6,6 +6,7 @@ class RedneckBikerBV2 : DukeActor
 		pic "BIKERBV2";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
 	}
 	override void Initialize()
 	{
@@ -21,6 +22,7 @@ class RedneckBikerB : DukeActor
 		pic "BIKERB";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
 	}
 	override void Initialize()
 	{
@@ -36,6 +38,7 @@ class RedneckBiker : DukeActor
 		pic "BIKER";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
 	}
 	override void Initialize()
 	{
@@ -51,6 +54,7 @@ class RedneckMakeout : DukeActor
 		pic "MAKEOUT";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
 	}
 	override void Initialize()
 	{
@@ -66,6 +70,7 @@ class RedneckCheerleaderB : DukeActor
 		pic "CHEERB";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
 	}
 	override void Initialize()
 	{
@@ -81,7 +86,9 @@ class RedneckCheerleader : DukeActor
 		pic "CHEER";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
-	}
+		+LOOKALLAROUND;
+		+ALTPROJECTILESPRITE; // owed to CON's shittiness. Todo: Think of something better.
+}
 	override void Initialize()
 	{
 		self.scale = (0.34375, 0.3125);
@@ -95,6 +102,9 @@ class RedneckCootplay : DukeActor
 	{
 		pic "COOTPLAY";
 		+INTERNAL_BADGUY;
+		+LOOKALLAROUND;
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
 	}
 	override void Initialize()
 	{
@@ -110,6 +120,9 @@ class RedneckBillyPlay : DukeActor
 	{
 		pic "BILLYPLAY";
 		+INTERNAL_BADGUY;
+		+LOOKALLAROUND;
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
 	}
 	override void Initialize()
 	{
@@ -125,6 +138,8 @@ class RedneckMinionBoat : DukeActor
 		pic "MINIONBOAT";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
+		+DONTDIVE;
 	}
 	override void Initialize()
 	{
@@ -140,6 +155,8 @@ class RedneckHulkBoat : DukeActor
 		pic "HULKBOAT";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
+		+DONTDIVE;
 	}
 	override void Initialize()
 	{
@@ -155,6 +172,8 @@ class RedneckCheerBoat : DukeActor
 		pic "CHEERBOAT";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
+		+DONTDIVE;
 	}
 	override void Initialize()
 	{
@@ -191,6 +210,8 @@ class RedneckMamaCloud : DukeActor
 	default
 	{
 		pic "MAMACLOUD";
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
 	}
 	override void Initialize()
 	{
@@ -209,6 +230,10 @@ class RedneckMama : DukeActor
 		pic "MAMA";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
+		+SPAWNRABBITGUTS; // owed to CON's shittiness. Todo: Think of something better.
 	}
 
 	override void Initialize()
@@ -277,6 +302,8 @@ class RedneckShitBoss : DukeActor
 		+FULLBRIGHT;
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
 	}
 
 	override void Initialize()
@@ -310,6 +337,8 @@ class RedneckHulk : DukeActor
 		pic "HULK";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
 	}
 
 	override void Initialize()
@@ -404,6 +433,8 @@ class RedneckMosquito : DukeActor
 		pic "DRONE";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+NOWATERDIP;
+		+FLOATING;
 	}
 	override void Initialize()
 	{
@@ -419,5 +450,6 @@ class RedneckVixen : DukeActor
 		pic "VIXEN";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+LOOKALLAROUND;
 	}
 }

@@ -4,6 +4,7 @@ class RedneckEmptyBike : DukeActor
 	default
 	{
 		pic "EMPTYBIKE";
+		+ALWAYSROTATE2;
 	}
 	
 	override void Initialize()
@@ -52,6 +53,7 @@ class RedneckEmptyBoat : DukeActor
 	default
 	{
 		pic "EMPTYBOAT";
+		+ALWAYSROTATE2;
 	}
 	
 	override void Initialize()

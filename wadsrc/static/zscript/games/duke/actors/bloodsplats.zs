@@ -3,6 +3,7 @@ class DukeBloodSplat1 : DukeActor
 	default
 	{
 		Pic "BLOODSPLAT1";
+		+SE24_REMOVE;
 	}
 
 	override void Initialize()

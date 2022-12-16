@@ -160,28 +160,7 @@ class DukeActor : CoreActor native
 	native Vector3 temp_pos, temp_pos2;
 	native double temp_angle;
 
-	// this is not really usable unless all actors are properly scriptified.
-	flagdef Inventory: flags1, 0;
-	flagdef ShrinkAutoaim: flags1, 1;
-	flagdef Badguy: flags1, 2;
-	flagdef ForceAutoaim: flags1, 3;
-	flagdef Boss: flags1, 4;
-	flagdef Badguystayput: flags1, 5;
-	flagdef GreenSlimeFood: flags1, 6;
-	flagdef NoDamagePush: flags1, 7;
-	flagdef NoWaterDrip: flags1, 8;
-	flagdef InternalBadguy: flags1, 9;
-	flagdef Killcount: flags1, 10;
-	flagdef NoCanSeeCheck: flags1, 11;
-	flagdef HitRadiusCheck: flags1, 12;
-	flagdef MoveFTA_CheckSee: flags1, 13;
-	flagdef MoveFTA_MakeStandable: flags1, 14;
-	flagdef TriggerIfHitSector: flags1, 15;
-	//flagdef MoveFTA_WakeupCheck: flags1, 16; // this one needs to be auto-set for RR, not for Duke, should not be exposed unless the feature becomes generally available.
-	flagdef CheckSeeWithPal8: flags1, 17;
-	flagdef NoShadow: flags1, 18;
-	flagdef SE24_NoFloorCheck: flags1, 19;
-	flagdef NoInterpolate: flags1, 20;
+	// flags are implemented natively to avoid the prefixes.
 	
 	native void getglobalz();
 	native DukePlayer, double findplayer();
@@ -429,13 +408,13 @@ enum sflags_t
 	SFLAG_NOWATERDIP			= 0x00000100,
 	SFLAG_INTERNAL_BADGUY		= 0x00000200, // a separate flag is needed for the internal ones because SFLAG_BADGUY has additional semantics.
 	SFLAG_KILLCOUNT				= 0x00000400,
-	SFLAG_NOCANSEECHECK			= 0x00000800,
+	//SFLAG_NOCANSEECHECK			= 0x00000800,
 	SFLAG_HITRADIUSCHECK		= 0x00001000,
-	SFLAG_MOVEFTA_CHECKSEE		= 0x00002000,
+	SFLAG_LOOKALLAROUND		= 0x00002000,
 	SFLAG_MOVEFTA_MAKESTANDABLE = 0x00004000,
 	SFLAG_TRIGGER_IFHITSECTOR	= 0x00008000,
 	SFLAG_MOVEFTA_WAKEUPCHECK	= 0x00010000,
-	SFLAG_MOVEFTA_CHECKSEEWITHPAL8 = 0x00020000,	// let's hope this can be done better later. For now this was what blocked merging the Duke and RR variants of movefta
+	SFLAG_LOOKALLAROUNDWITHPAL8 = 0x00020000,	// let's hope this can be done better later. For now this was what blocked merging the Duke and RR variants of movefta
 	SFLAG_NOSHADOW				= 0x00040000,
 	SFLAG_SE24_NOCARRY			= 0x00080000,
 	SFLAG_NOINTERPOLATE			= 0x00100000,
@@ -468,7 +447,7 @@ enum sflags2_t
 	SFLAG2_GREENBLOOD			= 0x00000800,
 	SFLAG2_ALWAYSROTATE1		= 0x00001000,
 	SFLAG2_DIENOW				= 0x00002000,
-	SFLAG2_TRANFERPALTOJIBS		= 0x00004000,
+	SFLAG2_TRANSFERPALTOJIBS		= 0x00004000,
 	SFLAG2_NORADIUSPUSH			= 0x00008000,
 	SFLAG2_FREEZEDAMAGE			= 0x00010000,
 	SFLAG2_REFLECTIVE			= 0x00020000,

@@ -3,6 +3,7 @@ class DukeSteamBase : DukeActor // we need this for in-game checking and the sha
 	default
 	{
 		statnum STAT_STANDABLE;
+		+FORCERUNCON;
 	}
 }
 
@@ -15,11 +16,12 @@ class DukeCeilingSteam : DukeSteamBase
 }
 
 
-class DukeSteam : DukeActor
+class DukeSteam : DukeSteamBase
 {
 	default
 	{
 		pic "STEAM";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()

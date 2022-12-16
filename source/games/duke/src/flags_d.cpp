@@ -40,8 +40,6 @@ BEGIN_DUKE_NS
 
 void initactorflags_d()
 {
-	setflag(SFLAG3_NOGRAVITY, { DTILE_RECON }); // not ported!!!
-
 	gs.actorinfo[DTILE_COMMANDER].gutsoffset = -24;
 
 	for (auto &fa : gs.actorinfo)
@@ -50,8 +48,6 @@ void initactorflags_d()
 	}
 	gs.actorinfo[DTILE_OCTABRAIN].falladjustz = gs.actorinfo[DTILE_COMMANDER].falladjustz = gs.actorinfo[DTILE_DRONE].falladjustz = 0;
 
-	setflag(SFLAG_INTERNAL_BADGUY, {
-	DTILE_SHARK });
 
 	setflag(SFLAG_INTERNAL_BADGUY | SFLAG_KILLCOUNT, {
 			DTILE_RECON,
@@ -163,7 +159,7 @@ void initactorflags_d()
 	setflag(SFLAG2_ALWAYSROTATE1, { DTILE_RAT, DTILE_CAMERA1, DTILE_CHAIR3, DTILE_PLAYERONWATER });
 	setflag(SFLAG2_ALWAYSROTATE2, { DTILE_RPG });
 	setflag(SFLAG2_DIENOW, { DTILE_RADIUSEXPLOSION, DTILE_KNEE });
-	setflag(SFLAG2_TRANFERPALTOJIBS, { DTILE_LIZTROOP });
+	setflag(SFLAG2_TRANSFERPALTOJIBS, { DTILE_LIZTROOP });
 	setflag(SFLAG2_NORADIUSPUSH, { DTILE_TANK, DTILE_ROTATEGUN, DTILE_RECON });
 	setflag(SFLAG2_FREEZEDAMAGE | SFLAG2_REFLECTIVE, { DTILE_FREEZEBLAST });
 	setflag(SFLAG2_ALWAYSROTATE2, { DTILE_RECON });
@@ -259,7 +255,7 @@ void initactorflags_d()
 	setflag(SFLAG3_BLOODY, { DTILE_BLOODPOOL });
 
 	// The feature guarded by this flag does not exist in Duke, it always acts as if the flag was set.
-	for (auto& ainf : gs.actorinfo) ainf.flags |= SFLAG_MOVEFTA_CHECKSEE;
+	for (auto& ainf : gs.actorinfo) ainf.flags |= SFLAG_LOOKALLAROUND;
 
 	gs.actorinfo[DTILE_ORGANTIC].aimoffset = 32;
 	gs.actorinfo[DTILE_ROTATEGUN].aimoffset = 32;

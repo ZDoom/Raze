@@ -4,6 +4,8 @@ class DukeExplosion2 : DukeActor
 	{
 		pic "EXPLOSION2";
 		+FULLBRIGHT;
+		+FORCERUNCON;
+		+TRIGGER_IFHITSECTOR;
 	}
 	
 	override bool animate(tspritetype t)
@@ -38,7 +40,7 @@ class DukeExplosion2Bot : DukeExplosion2
 	default
 	{
 		pic "EXPLOSION2BOT";
-		+FULLBRIGHT;
+		-TRIGGER_IFHITSECTOR;
 	}
 }
 

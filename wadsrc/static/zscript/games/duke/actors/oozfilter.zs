@@ -4,6 +4,11 @@ class DukeOozFilter : DukeActor
 	default
 	{
 		spriteset "OOZFILTER";
+		+EXPLOSIVE;
+		+BRIGHTEXPLODE;
+		+DOUBLEDMGTHRUST;
+		+BREAKMIRRORS;
+		+GREENBLOOD;
 	}
 	
 	override void Initialize()
@@ -89,6 +94,7 @@ class DukeSeenine : DukeOozFilter
 	default
 	{
 		spriteset "SEENINE", "SEENINEDEAD", "SEENINEDEAD1";
+		-GREENBLOOD;
 	}
 
 }

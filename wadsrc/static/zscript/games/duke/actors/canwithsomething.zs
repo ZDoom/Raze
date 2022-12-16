@@ -4,6 +4,8 @@ class DukeCanWithSomething : DukeActor
 	Default
 	{
 		pic "CANWITHSOMETHING";
+		+CHECKSLEEP;
+		+MOVEFTA_MAKESTANDABLE;
 	}
 		
 	override void Initialize()

@@ -358,6 +358,7 @@ spawnclasses
 	
 	4610 = DukeNewBeast
 	4611 = DukeNewBeastStayput
+	1975 = DukeTank
 	
 	1550 = DukeShark
 	1880 = DukeDrone
@@ -368,5 +369,6 @@ spawnclasses
 	418 = DukeBearingPlate
 	2612 = DukeLaserSite
 	2734 = DukeSpeaker
+	2595 = DukeShotSpark
 	
 }

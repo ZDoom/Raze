@@ -6,6 +6,7 @@ class DukeRat : DukeActor
 	{
 		pic "RAT";
 		+INTERNAL_BADGUY;
+		+ALWAYSROTATE1;
 	}
 	
 	override void Initialize()

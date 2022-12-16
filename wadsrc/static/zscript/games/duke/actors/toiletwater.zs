@@ -3,6 +3,8 @@ class DukeToiletWater : DukeActor
 	default
 	{
 		pic "TOILETWATER";
+		+FORCERUNCON;
+		+NOTELEPORT;
 	}
 	
 	override void Initialize()

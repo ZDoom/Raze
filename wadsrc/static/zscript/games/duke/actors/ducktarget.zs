@@ -3,6 +3,7 @@ class DukeLetter : DukeActor
 	default
 	{
 		pic "LETTER";
+		+NOFALLER;
 	}
 	
 	override void Initialize()

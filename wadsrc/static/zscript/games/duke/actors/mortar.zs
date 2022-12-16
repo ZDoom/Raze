@@ -203,6 +203,7 @@ class RedneckCheerBomb : DukeMortar
 	{
 		spriteset "CHEERBOMB", "CHEERBOMB1", "CHEERBOMB2", "CHEERBOMB3";
 		DukeMortar.ceilingdist 16;
+		+NOFLOORPAL;
 	}
 	
 	override bool Animate(tspritetype t)

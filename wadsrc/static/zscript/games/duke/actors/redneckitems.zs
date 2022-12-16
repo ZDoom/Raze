@@ -41,6 +41,7 @@ class RedneckMoonshine : DukeItemBase
 	default
 	{
 		pic "STEROIDS";
+		+INVENTORY;
 	}
 	override void Initialize()
 	{
@@ -53,6 +54,7 @@ class RedneckSnorkel : DukeItemBase
 	default
 	{
 		pic "AIRTANK";
+		+INVENTORY;
 	}
 
 	override void Initialize()
@@ -66,6 +68,7 @@ class RedneckCowpie : DukeItemBase
 	default
 	{
 		pic "COWPIE";
+		+INVENTORY;
 	}
 	override void Initialize()
 	{
@@ -78,6 +81,7 @@ class RedneckSixpack : DukeItemBase
 	default
 	{
 		pic "HOLODUKE";
+		+INVENTORY;
 	}
 }
 
@@ -200,6 +204,7 @@ class RedneckHipWader : DukeItemBase
 	default
 	{
 		pic "BOOTS";
+		+INVENTORY;
 	}
 }
 
@@ -233,6 +238,7 @@ class RedneckWhiskey : DukeItemBase
 	default
 	{
 		pic "FIRSTAID";
+		+INVENTORY;
 	}
 	override void Initialize()
 	{

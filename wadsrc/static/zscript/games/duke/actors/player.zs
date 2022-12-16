@@ -3,6 +3,7 @@ class DukePlayerOnWater : DukeActor
 	default
 	{
 		pic "PLAYERONWATER";
+		+ALWAYSROTATE1;
 	}
 	
 	override void Initialize()
@@ -23,6 +24,7 @@ class DukePlayerLyingDead : DukeActor
 	default
 	{
 		pic "DUKELYINGDEAD";
+		+HITRADIUS_FLAG2;
 	}
 	
 	override void Initialize()

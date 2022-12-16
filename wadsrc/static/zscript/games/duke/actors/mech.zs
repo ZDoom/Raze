@@ -5,6 +5,8 @@ class DukeDrone : DukeActor
 		pic "DRONE";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+NOWATERDIP;
+		+FLOATING;
 	}
 	
 	override void PlayFTASound()
@@ -40,11 +42,13 @@ class DukeRotateGun : DukeActor
 		pic "ROTATEGUN";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+NODAMAGEPUSH;
+		+NORADIUSPUSH;
 	}
 	
 	override void Initialize()
 	{
-			self.vel.Z = 0;
+		self.vel.Z = 0;
 	}
 }
 
@@ -54,6 +58,8 @@ class DukeShark : DukeActor
 	{
 		pic "SHARK";
 		+INTERNAL_BADGUY;
+		+DONTDIVEALIVE;
+		+FLOATING;
 	}
 	
 	override void Initialize()

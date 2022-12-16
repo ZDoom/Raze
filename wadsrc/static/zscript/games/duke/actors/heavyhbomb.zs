@@ -4,6 +4,10 @@ class DukePipeBomb : DukeActor
 	default
 	{
 		pic "HEAVYHBOMB";
+		+INFLAME;
+		+EXPLOSIVE;
+		+DOUBLEDMGTHRUST;
+		+BREAKMIRRORS;
 		// do not add anything here!
 	}
 
@@ -225,6 +229,7 @@ class RedneckDynamite : DukePipeBomb
 	default
 	{
 		pic "DYNAMITE";
+		+INFLAME;
 	}
 
 	override void pickupCheck(DukePlayer p)

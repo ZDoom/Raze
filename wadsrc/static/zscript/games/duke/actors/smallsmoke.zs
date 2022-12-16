@@ -3,6 +3,7 @@ class DukeSmallSmoke : DukeActor
 	default
 	{
 		pic "SMALLSMOKE";
+		+FORCERUNCON;
 	}
 	
 	override void Initialize()

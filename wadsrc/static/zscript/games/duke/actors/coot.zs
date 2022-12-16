@@ -38,3 +38,26 @@ class RedneckCootStayput: RedneckCoot
 		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
 	}
 }
+
+// CON for this is different in RRRA, so we need the split regardless of the flag.
+class RedneckRACoot : RedneckCoot
+{
+	default
+	{
+		+LOOKALLAROUND
+	}
+}
+
+class RedneckRACootStayput: RedneckRACoot
+{
+	default
+	{
+		pic "COOTSTAYPUT";
+		+BADGUYSTAYPUT;
+	}
+
+	override void PlayFTASound()
+	{
+	}
+}
+

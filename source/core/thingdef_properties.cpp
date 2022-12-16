@@ -45,6 +45,9 @@
 #include "texturemanager.h"
 #include "coreactor.h"
 #include "thingdef.h"
+#include "games/duke/src/duke3d.h"
+
+using Duke3d::DDukeActor;
 
 //==========================================================================
 //
@@ -384,5 +387,18 @@ DEFINE_PROPERTY(health, I, CoreActor)
 {
 	PROP_INT_PARM(i, 0);
 	bag.Info->ActorInfo()->Health = i;
+}
+
+//==========================================================================
+//
+// This is a hack because the FTA sight flag has different defaults in 
+// Duke and RR.
+// 
+//==========================================================================
+DEFINE_PROPERTY(lookallarounddefault,0, DukeActor)
+{
+	PROP_INT_PARM(i, 0);
+	if (!isRR()) defaults->flags1 |= SFLAG_LOOKALLAROUND; // feature comes from RR, but we want the option in Duke as well, so this fake property sets the default
+	else defaults->flags1 |= SFLAG_MOVEFTA_WAKEUPCHECK; // Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
 }
 

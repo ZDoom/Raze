@@ -42,6 +42,7 @@ class DukeStatueFlash : DukeActor
 	default
 	{
 		pic "STATUEFLASH";
+		+HITRADIUSCHECK;
 	}
 
 	override void Initialize()
@@ -65,6 +66,7 @@ class DukeStatue : DukeStatueFlash
 	default
 	{
 		pic "STATUE";
+		+TRIGGERRESPAWN;
 	}
 }
 
@@ -284,6 +286,9 @@ class DukeHydrant : DukeActor
 	Default
 	{
 		spriteset "HYDRENT", "BROKEFIREHYDRENT";
+		+INFLAME;
+		+DOUBLEDMGTHRUST;
+		+BREAKMIRRORS;
 	}
 	
 	override void Initialize()
@@ -373,6 +378,7 @@ class DukeSpaceMarine : DukeActor
 	Default
 	{
 		pic "SPACEMARINE";
+		+HITRADIUSCHECK;
 	}
 	
 	override void Initialize()
@@ -417,6 +423,7 @@ class DukeMonk : DukeSpaceMarine
 	default
 	{
 		pic "MONK";
+		-HITRADIUSCHECK;
 	}
 	
 	override void Initialize()
@@ -463,6 +470,7 @@ class DukeChair3 : DukeActor
 	default
 	{
 		pic "CHAIR3";
+		+ALWAYSROTATE1;
 	}
 	
 	override void OnHit(DukeActor proj)

@@ -6,6 +6,7 @@ class DukeLizMan : DukeActor
 		pic "LIZMAN";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+GREENSLIMEFOOD;
 	}
 	
 	override void PlayFTASound()

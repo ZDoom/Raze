@@ -166,6 +166,8 @@ spawnclasses
 
 	// stuff below uses CON
 	
+	5376 = RedneckRACoot
+	5377 = RedneckRACootStayput
 	7280 = RedneckRabbit
 	5890 = RedneckBikerB
 	5891 = RedneckBikerBV2

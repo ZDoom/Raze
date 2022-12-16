@@ -4,6 +4,8 @@ class DukeAtomicHealth : DukeItemBase
 	{
 		pic "ATOMICHEALTH";
 		+FULLBRIGHT;
+		+BIGHEALTH;
+		+NOFLOORPAL;
 	}
 	
 	override void Initialize()
@@ -25,6 +27,8 @@ class RedneckGoogooCluster : DukeItemBase
 	{
 		pic "ATOMICHEALTH";
 		+FULLBRIGHT;
+		+BIGHEALTH;
+		+NOFLOORPAL;
 	}
 	
 	override void Initialize()

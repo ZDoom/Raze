@@ -8,6 +8,8 @@ class DukeQueball : DukeActor
 	default
 	{
 		pic "QUEBALL";
+		+HITRADIUS_FLAG2;
+		+HITRADIUSCHECK;
 	}
 	
 	override void Initialize()

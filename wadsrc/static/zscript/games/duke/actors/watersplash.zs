@@ -3,6 +3,7 @@ class DukeWatersplash : DukeActor
 	default
 	{
 		spriteset "WATERSPLASH2", "WATERSPLASH2A", "WATERSPLASH2B", "WATERSPLASH2C", "WATERSPLASH2D";
+		+NOTELEPORT;
 	}
 
 	override void Initialize()
@@ -81,6 +82,7 @@ class RedneckMudSplash : DukeWatersplash
 	default
 	{
 		spriteset "MUD", "MUD1", "MUD2", "MUD3", "MUD4";
+		+NOTELEPORT;
 	}
 
 	override void Initialize()
