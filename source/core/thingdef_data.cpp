@@ -42,6 +42,9 @@
 #include "types.h"
 #include "dictionary.h"
 #include "savegamehelp.h"
+#include "games/duke/src/duke3d.h"
+
+using Duke3d::DDukeActor;
 
 static TArray<FPropertyInfo*> properties;
 static TArray<AFuncDesc> AFTable;
@@ -72,27 +75,111 @@ static FFlagDef InternalActorFlagDefs[]=
 };
 
 
-static FFlagDef ActorFlagDefs[]=
+static FFlagDef ActorFlagDefs[] =
 {
 	DEFINE_FLAG2d(CSTAT_SPRITE_BLOCK, BLOCK, DCoreActor, spr.cstat),
 	DEFINE_FLAG2d(CSTAT_SPRITE_TRANSLUCENT, TRANSLUCENT, DCoreActor, spr.cstat),
 	DEFINE_FLAG2d(CSTAT_SPRITE_XFLIP, XFLIP, DCoreActor, spr.cstat),
 	DEFINE_FLAG2d(CSTAT_SPRITE_YFLIP, YFLIP, DCoreActor, spr.cstat),
 	DEFINE_FLAG2d(CSTAT_SPRITE_ONE_SIDE, ONE_SIDE, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_ALIGNMENT_WALL, WALLSPRITE, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_ALIGNMENT_FLOOR, FLOORSPRITE, DCoreActor, spr.cstat),
 	DEFINE_FLAG2d(CSTAT_SPRITE_YCENTER, YCENTER, DCoreActor, spr.cstat),
 	DEFINE_FLAG2d(CSTAT_SPRITE_BLOCK_HITSCAN, BLOCK_HITSCAN, DCoreActor, spr.cstat),
 	DEFINE_FLAG2d(CSTAT_SPRITE_INVISIBLE, INVISIBLE, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_TRANS_FLIP, TRANS_FLIP, DCoreActor, spr.cstat),
+	DEFINE_FLAG2d(CSTAT_SPRITE_BLOCK_ALL, BLOCK_ALL, DCoreActor, spr.cstat),
 	DEFINE_FLAG2(CSTAT2_SPRITE_MAPPED, MAPPED, DCoreActor, spr.cstat2),
 	DEFINE_FLAG2(CSTAT2_SPRITE_NOSHADOW, NOSHADOW, DCoreActor, spr.cstat2),
 	DEFINE_FLAG2(CSTAT2_SPRITE_DECAL, DECAL, DCoreActor, spr.cstat2),
-	// todo: game specific flags
+	DEFINE_FLAG2(CSTAT2_SPRITE_FULLBRIGHT, FULLBRIGHT, DCoreActor, spr.cstat2),
+	DEFINE_FLAG2(CSTAT2_SPRITE_NOANIMATE, NOANIMATE, DCoreActor, spr.cstat2),
+	DEFINE_FLAG2(CSTAT2_SPRITE_NOMODEL, NOMODEL, DCoreActor, spr.cstat2),
+};
+
+	// These are here because we do not want to have a prefix on them.
+static FFlagDef DukeActorFlagDefs[] =
+{
+	DEFINE_FLAG(SFLAG, INVENTORY, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, SHRINKAUTOAIM, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, BADGUY, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, FORCEAUTOAIM, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, BOSS, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, BADGUYSTAYPUT, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, GREENSLIMEFOOD, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, NODAMAGEPUSH, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, NOWATERDIP, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, INTERNAL_BADGUY, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, KILLCOUNT, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, NOCANSEECHECK, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, HITRADIUSCHECK, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, MOVEFTA_CHECKSEE, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, MOVEFTA_MAKESTANDABLE, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, TRIGGER_IFHITSECTOR, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, MOVEFTA_WAKEUPCHECK, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, MOVEFTA_CHECKSEEWITHPAL8, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, NOSHADOW, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, SE24_NOCARRY, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, NOINTERPOLATE, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, FALLINGFLAMMABLE, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, FLAMMABLEPOOLEFFECT, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, INFLAME, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, NOFLOORFIRE, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, HITRADIUS_FLAG1, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, HITRADIUS_FLAG2, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, CHECKSLEEP, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, NOTELEPORT, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, SE24_REMOVE, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, BLOCK_TRIPBOMB, DDukeActor, flags1),
+	DEFINE_FLAG(SFLAG, NOFALLER, DDukeActor, flags1),
+
+	DEFINE_FLAG(SFLAG2, USEACTIVATOR, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, NOROTATEWITHSECTOR, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, SHOWWALLSPRITEONMAP, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, NOFLOORPAL, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, EXPLOSIVE, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, BRIGHTEXPLODE, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, DOUBLEDMGTHRUST, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, BREAKMIRRORS, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, CAMERA, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, DONTANIMATE, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, GREENBLOOD, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, ALWAYSROTATE1, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, DIENOW, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, TRANFERPALTOJIBS, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, NORADIUSPUSH, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, FREEZEDAMAGE, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, REFLECTIVE, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, ALWAYSROTATE2, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, SPECIALAUTOAIM, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, NODAMAGEPUSH, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, IGNOREHITOWNER, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, DONTDIVE, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, FLOATING, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, PAL8OOZ, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, SPAWNRABBITGUTS, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, NONSMOKYROCKET, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, MIRRORREFLECT, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, ALTPROJECTILESPRITE, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, UNDERWATERSLOWDOWN, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, TRIGGERRESPAWN, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, FORCESECTORSHADE, DDukeActor, flags2),
+
+	DEFINE_FLAG(SFLAG3, DONTDIVEALIVE, DDukeActor, flags3),
+	DEFINE_FLAG(SFLAG3, BLOODY, DDukeActor, flags3),
+	DEFINE_FLAG(SFLAG3, BROWNBLOOD, DDukeActor, flags3),
+	DEFINE_FLAG(SFLAG3, LIGHTDAMAGE, DDukeActor, flags3),
+	DEFINE_FLAG(SFLAG3, FORCERUNCON, DDukeActor, flags3),
+	DEFINE_FLAG(SFLAG3, BIGHEALTH, DDukeActor, flags3),
+	
 };
 
 
 static const struct FFlagList { const PClass * const *Type; FFlagDef *Defs; int NumDefs; int Use; } FlagLists[] =
 {
-	{ &RUNTIME_CLASS_CASTLESS(DCoreActor), 		ActorFlagDefs,		countof(ActorFlagDefs), 3 },	// -1 to account for the terminator
+	{ &RUNTIME_CLASS_CASTLESS(DCoreActor), 		ActorFlagDefs,		countof(ActorFlagDefs), 3 },
 	{ &RUNTIME_CLASS_CASTLESS(DCoreActor), 	InternalActorFlagDefs,	countof(InternalActorFlagDefs), 2 },
+	{ &RUNTIME_CLASS_CASTLESS(DDukeActor), 		DukeActorFlagDefs,		countof(DukeActorFlagDefs), 3 },
 };
 #define NUM_FLAG_LISTS (countof(FlagLists))
 

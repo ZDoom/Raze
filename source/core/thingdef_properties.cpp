@@ -347,6 +347,16 @@ DEFINE_PROPERTY(scale, Ff, CoreActor)
 //==========================================================================
 //
 //==========================================================================
+DEFINE_PROPERTY(clearcstat, 0, CoreActor)
+{
+	PROP_INT_PARM(i, 0);
+	defaults->spr.cstat = 0;
+	bag.Info->ActorInfo()->DefaultCstat |= 0xffff;
+}
+
+//==========================================================================
+//
+//==========================================================================
 DEFINE_PROPERTY(spriteset, Sssssssssssssssssssssssssssssss, CoreActor)
 {
 	bag.Info->ActorInfo()->DefaultFlags |= DEFF_PICNUM;	// this also overrides the map's picnum

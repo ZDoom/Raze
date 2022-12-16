@@ -4,6 +4,7 @@
 #include "global.h"
 #include "models/modeldata.h"
 #include "texinfo.h"
+#include "funct.h"
 
 // all inline functions.
 BEGIN_DUKE_NS

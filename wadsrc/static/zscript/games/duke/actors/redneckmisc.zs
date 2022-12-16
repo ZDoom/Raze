@@ -121,3 +121,12 @@ class RedneckLetsBowl : DukeActor
 		return true;
 	}
 }
+
+class RedneckWacoWinder : DukeActor
+{
+	default
+	{
+		pic "WACOWINDER";
+	}
+}
+
