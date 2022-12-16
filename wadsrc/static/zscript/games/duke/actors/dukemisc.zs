@@ -295,6 +295,14 @@ class DukeNewBeastStayput : DukeNewBeast
 	}
 }
 
+class DukeNewBeastHang : DukeNewBeast
+{
+	default
+	{
+		pic "NEWBEASTHANG";
+	}
+}
+
  class DukeTank : DukeActor
  {
  	default

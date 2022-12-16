@@ -15,6 +15,7 @@ spawnclasses
 	2613 = DukeShotgunShot
 	2536 = DukeChaingunShot
 	1670 = DukeRadiusExplosion
+	3384 = DukeShrinker
 	
 	1221 = DukeCranePole
 	1222 = DukeCrane
@@ -358,6 +359,7 @@ spawnclasses
 	
 	4610 = DukeNewBeast
 	4611 = DukeNewBeastStayput
+	4670 = DukeNewBeastHang
 	1975 = DukeTank
 	
 	1550 = DukeShark
