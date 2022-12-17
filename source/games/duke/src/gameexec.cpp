@@ -1552,16 +1552,19 @@ int ParseState::parse(void)
 	}
 	break;
 	case concmd_ai:
+	{
 		insptr++;
-		g_t[5] = *insptr;
-		g_ac->curAction = &actions[ScriptCode[g_t[5]]];		  // Action
-		g_ac->curMove = &moves[ScriptCode[g_t[5] + 1]];		// move
-		g_ac->spr.hitag = ScriptCode[g_t[5] + 2];	  // Ai
+		auto ai = &ais[*insptr];
+		g_ac->curAI = ai->name;
+		g_ac->curAction = &actions[ai->action];
+		g_ac->curMove = &moves[ai->move];
+		g_ac->spr.hitag = ai->moveflags;
 		g_t[0] = g_t[2] = g_t[3] = 0;
 		if (g_ac->spr.hitag & random_angle)
 			g_ac->spr.Angles.Yaw = randomAngle();
 		insptr++;
 		break;
+	}
 	case concmd_action:
 		insptr++;
 		g_t[2] = 0;
@@ -1908,7 +1911,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifai:
 		insptr++;
-		parseifelse(g_t[5] == *insptr);
+		parseifelse(g_ac->curAI == ais[*insptr].name);
 		break;
 	case concmd_ifaction:
 		insptr++;

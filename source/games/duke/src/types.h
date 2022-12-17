@@ -40,8 +40,17 @@ struct ActorAction
 	int16_t delay;
 };
 
+struct ActorAI
+{
+	FName name;
+	uint32_t move;
+	uint32_t action;
+	int moveflags;
+};
+
 inline TArray<ActorMove> moves;
 inline TArray<ActorAction> actions;
+inline TArray<ActorAI> ais;
 
 struct ActorInfo
 {
@@ -91,6 +100,7 @@ public:
 	DVector3 temp_pos, temp_pos2;
 	ActorMove* curMove;
 	ActorAction* curAction;
+	FName curAI;	// no need to store the pointer here.
 
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 

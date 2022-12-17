@@ -1118,28 +1118,25 @@ int ConCompiler::parsecommand()
 				warningcount++;
 				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate ai '%s' ignored.\n", fn, line_number, parselabel.GetChars());
 			}
-			else appendlabeladdress(LABEL_AI);
+			else appendlabelvalue(LABEL_AI, ais.Size());
 
-			for (j = 0; j < 3; j++)
+			ActorAI& ai = ais[ais.Reserve(1)];
+			ai.name = parselabel.GetChars();
+			ai.move = ai.action = ai.moveflags = 0;
+			if (keyword() >= 0) break;
+			transnum(LABEL_ACTION);
+			ai.action = popscriptvalue();
+			if (keyword() >= 0) return 0;
+			transnum(LABEL_MOVE);
+			ai.move = popscriptvalue();
+			if (keyword() >= 0) return 0;
+			k = 0;
+			while (keyword() == -1)
 			{
-				if (keyword() >= 0) break;
-				if (j == 2)
-				{
-					k = 0;
-					while (keyword() == -1)
-					{
-						transnum(LABEL_DEFINE);
-						k |= popscriptvalue();
-					}
-					appendscriptvalue(k);
-					return 0;
-				}
-				else transnum(j==0? LABEL_ACTION : LABEL_MOVE);
+				transnum(LABEL_DEFINE);
+				k |= popscriptvalue();
 			}
-			for (k = j; k < 3; k++)
-			{
-				appendscriptvalue(0);
-			}
+			ai.moveflags = k;
 		}
 		return 0;
 

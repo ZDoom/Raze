@@ -383,6 +383,7 @@ void GameInterface::app_init()
 	ud.cameraactor = nullptr;
 	moves.Push({});		// make sure the first entry in 'moves' is a null move.
 	actions.Push({});	// make sure the first entry in 'actions' is a null action.
+	ais.Push({});	// make sure the first entry in 'actions' is a null action.
 
 	if (fileSystem.FileExists("DUKESW.BIN"))
 		g_gameType |= GAMEFLAG_SHAREWARE;
