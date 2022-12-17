@@ -101,14 +101,14 @@ public:
 	ActorMove* curMove;
 	ActorAction* curAction;
 	FName curAI;	// no need to store the pointer here.
-
-	TObjPtr<DDukeActor*> temp_actor, seek_actor;
-
-	TArray<GameVarValue> uservars;
+	int16_t counter, actioncounter, curframe;	// sprite animation counters - were previously stored in temp_data.
 
 	EDukeFlags1 flags1;
 	EDukeFlags2 flags2;
 	EDukeFlags3 flags3;
+
+	TObjPtr<DDukeActor*> temp_actor, seek_actor;
+	TArray<GameVarValue> uservars;
 
 	// these two variables are only valid while RunState is executed. They are explicitly nulled right afterward and only accessible throgh the CON emulation interface.
 	struct player_struct* state_player;

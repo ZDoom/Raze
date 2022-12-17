@@ -74,11 +74,11 @@ static const char *cheatGod(int myconnectindex, int state)
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 		act->temp_data[0] = 0;
-		act->temp_data[1] = 0;
-		act->temp_data[2] = 0;
 		act->temp_data[3] = 0;
-		act->temp_data[4] = 0;
-		act->temp_data[5] = 0;
+		act->curAction = &actions[0];
+		act->curMove = &moves[0];
+		act->curAI = NAME_None;
+		act->actioncounter = 0;
 
 		act->spr.hitag = 0;
 		act->spr.lotag = 0;

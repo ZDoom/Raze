@@ -186,7 +186,7 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 				}
 			}
 
-			k += action->offset + l * h->temp_data[3];
+			k += action->offset + l * h->curframe;
 			t->picnum += k;
 
 			if (isRRRA() && RRRAFullbrightHack(t, k)) t->shade = -127;

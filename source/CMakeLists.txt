@@ -702,6 +702,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/actors_d.cpp
 	games/duke/src/actors_lava.cpp
 	games/duke/src/actors_r.cpp
+	games/duke/src/animatesprites.cpp
 	games/duke/src/animatesprites_d.cpp
 	games/duke/src/animatesprites_r.cpp
 	games/duke/src/bowling.cpp

@@ -320,7 +320,10 @@ void DDukeActor::Serialize(FSerializer& arc)
 		("flags3", flags3)
 		("curmove", curMove)
 		("curaction", curAction)
-		("curai", curAI);
+		("curai", curAI)
+		("curframe", curframe)
+		("counter", counter)
+		("actioncounter", actioncounter);
 }
 
 

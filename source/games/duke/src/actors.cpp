@@ -92,12 +92,12 @@ void TickActor(DDukeActor* self)
 			self->spr.lotag += TICSPERFRAME;
 			if (self->spr.lotag > delay)
 			{
-				self->temp_data[2]++;
+				self->actioncounter++;
 				self->spr.lotag = 0;
-				self->temp_data[3] += increment;
+				self->curframe += increment;
 			}
-			if (abs(self->temp_data[3]) >= abs(numframes * increment))
-				self->temp_data[3] = 0;
+			if (abs(self->curframe) >= abs(numframes * increment))
+				self->curframe = 0;
 		}
 
 		if (!execute(self, p, pdist))

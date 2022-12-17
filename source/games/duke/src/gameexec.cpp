@@ -1559,7 +1559,8 @@ int ParseState::parse(void)
 		g_ac->curAction = &actions[ai->action];
 		g_ac->curMove = &moves[ai->move];
 		g_ac->spr.hitag = ai->moveflags;
-		g_t[0] = g_t[2] = g_t[3] = 0;
+		g_ac->actioncounter = g_ac->curframe = 0;
+		g_t[0] = 0;
 		if (g_ac->spr.hitag & random_angle)
 			g_ac->spr.Angles.Yaw = randomAngle();
 		insptr++;
@@ -1567,8 +1568,7 @@ int ParseState::parse(void)
 	}
 	case concmd_action:
 		insptr++;
-		g_t[2] = 0;
-		g_t[3] = 0;
+		g_ac->actioncounter = g_ac->curframe = 0;
 		g_ac->curAction = &actions[*insptr];
 		insptr++;
 		break;
@@ -1919,11 +1919,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifactioncount:
 		insptr++;
-		parseifelse(g_t[2] >= *insptr);
+		parseifelse(g_ac->actioncounter >= *insptr);
 		break;
 	case concmd_resetactioncount:
 		insptr++;
-		g_t[2] = 0;
+		g_ac->actioncounter = 0;
 		break;
 	case concmd_debris:
 		insptr++;

@@ -39,6 +39,7 @@ source as it is released.
 #include "automap.h"
 #include "dukeactor.h"
 #include "interpolate.h"
+#include "vm.h"
 
 BEGIN_DUKE_NS
 
