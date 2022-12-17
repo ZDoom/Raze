@@ -1195,10 +1195,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		return;
 	}
 
-	auto moveptr = &ScriptCode[actor->temp_data[1]];
-
-	if (a & geth) actor->vel.X += (moveptr[0] / 16. - actor->vel.X) * 0.5;
-	if (a & getv) actor->vel.Z += (moveptr[1] / 16. - actor->vel.Z) * 0.5;
+	if (a & geth) actor->vel.X += (actor->GetMoveX() - actor->vel.X) * 0.5;
+	if (a & getv) actor->vel.Z += (actor->GetMoveZ() - actor->vel.Z) * 0.5;
 
 	if (a & dodgebullet)
 		dodge(actor);
@@ -1295,7 +1293,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 			else if (!(actor->flags2 & SFLAG2_FLOATING))
 			{
-				if (!*(moveptr + 1))
+				if (actor->GetMoveZ() == 0)
 				{
 					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{

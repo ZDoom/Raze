@@ -3256,10 +3256,10 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 	aang = actor->spr.Angles.Yaw;
 
-	actor->vel.X += (moveptr[0] / 16 - actor->vel.X) / 5;
+	actor->vel.X += (actor->GetMoveX() - actor->vel.X) / 5;
 	if (actor->vel.Z < (648 / 256.))
 	{
-		actor->vel.Z += (moveptr[1] / 16 - actor->vel.Z) / 5;
+		actor->vel.Z += (actor->GetMoveZ() - actor->vel.Z) / 5;
 	}
 
 	if (isRRRA() && (ang & windang))

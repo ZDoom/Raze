@@ -135,6 +135,10 @@ public:
 		clipdist = spr.scale.X * tex->GetDisplayWidth() * 0.125;
 	}
 
+	// Wrappers around CON data.
+
+	double GetMoveX() const;
+	double GetMoveZ() const;
 };
 
 // subclassed to add a game specific actor() method
