@@ -1495,7 +1495,7 @@ void aiThinkTarget(DBloodActor* actor)
 			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->actor->spr.pos;
-			auto dvec = ppos - actor->spr.pos.XY();
+			auto dvec = ppos.XY() - actor->spr.pos.XY();
 			auto pSector = pPlayer->actor->sector();
 
 			double nDist = dvec.Length();
@@ -1540,7 +1540,7 @@ void aiLookForTarget(DBloodActor* actor)
 			if (actor->GetOwner() == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			auto ppos = pPlayer->actor->spr.pos;
-			auto dvec = ppos - actor->spr.pos.XY();
+			auto dvec = ppos.XY() - actor->spr.pos.XY();
 			auto pSector = pPlayer->actor->sector();
 
 			double nDist = dvec.Length();
