@@ -3245,45 +3245,15 @@ bool execute(DDukeActor *actor,int p,double xx)
 {
 	if (gs.actorinfo[actor->spr.picnum].scriptaddress == 0) return false;
 
-	int done;
-
 	ParseState s;
 	s.g_p = p;	// Player ID
 	s.g_x = int(xx / maptoworld);	// ??
 	s.g_ac = actor;
 	s.g_t = &actor->temp_data[0];	// Sprite's 'extra' data
-
 	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->spr.picnum].scriptaddress)];
-
 	s.killit_flag = 0;
 
-	// this must go away.
-	if(!actor->insector())
-	{
-		addkill(actor);
-		actor->Destroy();
-		return true;
-	}
-
-	if (s.g_t[4])
-	{
-		// This code was utterly cryptic in the original source.
-		auto ptr = &ScriptCode[s.g_t[4]];
-		int numframes = ptr[1];
-		int increment = ptr[3];
-		int delay =  ptr[4];
-
-		actor->spr.lotag += TICSPERFRAME;
-		if (actor->spr.lotag > delay)
-		{
-			s.g_t[2]++;
-			actor->spr.lotag = 0;
-			s.g_t[3] += increment;
-		}
-		if (abs(s.g_t[3]) >= abs(numframes * increment))
-			s.g_t[3] = 0;
-	}
-
+	int done;
 	do
 		done = s.parse();
 	while( done == 0 );

@@ -61,14 +61,50 @@ double adjustfall(DDukeActor* actor, double c);
 
 void TickActor(DDukeActor* self)
 {
-	if (self->spr.statnum == STAT_ACTOR || (self->flags3 & SFLAG3_FORCERUNCON))
+	if (self->spr.statnum == STAT_ACTOR || self->spr.statnum == STAT_PLAYER || (self->flags3 & SFLAG3_FORCERUNCON))
 	{
-		double xx;
-		int p = findplayer(self, &xx);
-		if (!execute(self, p, xx))
+		double pdist;
+		int p;
+		
+		if (self->spr.statnum != STAT_PLAYER)
+		{
+			p = findplayer(self, &pdist);
+		}
+		else
+		{
+			if (ud.multimode > 1)
+				p = findotherplayer(self->PlayerIndex(), &pdist);
+			else
+			{
+				p = self->PlayerIndex();
+				pdist = 0;
+			}
+		}
+
+		// Run sprite animations.
+		if (self->temp_data[4])
+		{
+			// This code was utterly cryptic in the original source.
+			auto ptr = &ScriptCode[self->temp_data[4]];
+			int numframes = ptr[1];
+			int increment = ptr[3];
+			int delay = ptr[4];
+
+			self->spr.lotag += TICSPERFRAME;
+			if (self->spr.lotag > delay)
+			{
+				self->temp_data[2]++;
+				self->spr.lotag = 0;
+				self->temp_data[3] += increment;
+			}
+			if (abs(self->temp_data[3]) >= abs(numframes * increment))
+				self->temp_data[3] = 0;
+		}
+
+		if (!execute(self, p, pdist))
 		{
 			self->state_player = &ps[p];
-			self->state_dist = xx;
+			self->state_dist = pdist;
 			IFVIRTUALPTR(self, DDukeActor, RunState)
 			{
 				VMValue val[] = { self };
@@ -453,18 +489,10 @@ void moveplayers(void)
 			}
 			else
 			{
+				TickActor(act);
 				if (ud.multimode > 1)
+				{
 					otherp = findotherplayer(pn, &other);
-				else
-				{
-					otherp = pn;
-					other = 0;
-				}
-
-				execute(act, pn, other);
-
-				if (ud.multimode > 1)
-				{
 					auto psp = ps[otherp].GetActor();
 					if (psp->spr.extra > 0)
 					{
@@ -672,6 +700,7 @@ void tickstat(int stat, bool deleteinvalid)
 	{
 		if ((act->flags2 & SFLAG2_DIENOW) || act->sector() == nullptr || (deleteinvalid && act->spr.scale.X == 0))
 		{
+			addkill(act);
 			act->Destroy();
 		}
 		else if (stat != STAT_ACTOR || !badguy(act) || !monsterCheatCheck(act))
