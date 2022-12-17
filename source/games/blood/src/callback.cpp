@@ -445,7 +445,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 	actor->spr.pos.Z += floorZ - bottom;
 	DAngle nAngle = RandomAngle();
 	int nDist = Random(16);
-	auto pos = nAngle.ToVector() * nDist * 4;
+	auto pos = actor->spr.pos + nAngle.ToVector() * nDist * 4;
 	gFX.fxSpawnActor(FX_48, actor->sector(), DVector3(pos, actor->spr.pos.Z));
 	if (actor->spr.angle == DAngle180)
 	{
