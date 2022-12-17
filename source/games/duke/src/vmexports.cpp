@@ -651,7 +651,8 @@ void DukeActor_shoot(DDukeActor* act, int intname)
 
 	if (picnum == -1)
 	{
-		auto cls = PClass::FindActor(FName(ENamedName(intname)));
+		auto n = FName(ENamedName(intname));
+		auto cls = PClass::FindActor(n);
 		assert(cls);
 		fi.shoot(act, -1, cls);
 	}

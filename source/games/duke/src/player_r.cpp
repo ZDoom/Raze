@@ -815,6 +815,7 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 		}
 	}
 	if (cls && cls->IsDescendantOf(RUNTIME_CLASS(DDukeActor)) && CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, p, spos, sang)) return;
+	if (cls && atwith == -1) atwith = GetDefaultByType(cls)->spr.picnum;
 
 	switch (atwith)
 	{
