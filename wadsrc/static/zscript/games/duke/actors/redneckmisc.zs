@@ -164,3 +164,20 @@ class RedneckBustaWin4a : DukeItemBase
 	}
 }
 
+class RedneckTesla : DukeItemBase
+{
+	default
+	{
+		pic "TESLA";
+		+FULLBRIGHT
+	}
+}
+
+class RedneckTikiLamp : DukeItemBase
+{
+	default
+	{
+		pic "TIKILAMP";
+		+FULLBRIGHT
+	}
+}

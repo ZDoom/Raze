@@ -152,6 +152,7 @@ spawnclasses
 	25 = RedneckRipsaw
 	24 = RedneckTitgun
 	29 = RedneckBlaster
+	32 = RedneckTitAmmo
 	49 = RedneckShotgunammo
 	47 = RedneckDynamiteAmmo
 	42 = RedneckBlasterammo
@@ -278,13 +279,11 @@ spawnclasses
 	1878 = DukeActor, "*RRTILE1878"
 	1952 = DukeActor, "*RRTILE1952"
 	1953 = DukeActor, "*RRTILE1953"
-	1990 = DukeActor, "*RRTILE1990"
 	2050 = DukeActor, "*RRTILE2050"
 	2056 = DukeActor, "*RRTILE2056"
 	2072 = DukeActor, "*RRTILE2072"
 	2075 = DukeActor, "*RRTILE2075"
 	2083 = DukeActor, "*RRTILE2083"
-	2097 = DukeActor, "*RRTILE2097"
 	2357 = DukeActor, "*RRTILE2357"
 	2564 = DukeActor, "*RRTILE2564"
 	2573 = DukeActor, "*RRTILE2573"
@@ -363,10 +362,13 @@ spawnclasses
 	5635 = RedneckVixen
 
 	1764 = DukeShotSpark
-}
 	2094 = RedneckTeslaBall
-	3395 = RedneckBuzSaw
+	3395 = RedneckBuzzSaw
 	//3845 = RedneckPlayerPawn
 	4983 = RedneckPigEat
 	2898 = RedneckBustaWin4a
 	2878 = RedneckBustaWin5a
+	2097 = RedneckTesla
+	1990 = RedneckTikilamp
+
+}

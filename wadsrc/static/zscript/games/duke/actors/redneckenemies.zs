@@ -447,3 +447,14 @@ class RedneckVixen : DukeActor
 		+LOOKALLAROUND;
 	}
 }
+
+// only new thing in Route 66.
+class RedneckGator : DukeActor
+{
+	default
+	{
+		pic "GATOR";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
+	}
+}
