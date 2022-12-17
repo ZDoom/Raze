@@ -70,7 +70,6 @@ struct ParseState
 {
 	int g_p;
 	int g_x;
-	int* g_t;
 	uint8_t killit_flag;
 	DDukeActor *g_ac;
 	int* insptr;
@@ -1560,7 +1559,7 @@ int ParseState::parse(void)
 		g_ac->curMove = &moves[ai->move];
 		g_ac->spr.hitag = ai->moveflags;
 		g_ac->actioncounter = g_ac->curframe = 0;
-		g_t[0] = 0;
+		g_ac->temp_data[0] = 0;
 		if (g_ac->spr.hitag & random_angle)
 			g_ac->spr.Angles.Yaw = randomAngle();
 		insptr++;
@@ -1889,7 +1888,7 @@ int ParseState::parse(void)
 		while (1) if (parse()) break;
 		break;
 	case concmd_move:
-		g_t[0]=0;
+		g_ac->temp_data[0]=0;
 		insptr++;
 		g_ac->curMove = &moves[*insptr];
 		insptr++;
@@ -1932,7 +1931,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_count:
 		insptr++;
-		g_t[0] = (short) *insptr;
+		g_ac->temp_data[0] = (short) *insptr;
 		insptr++;
 		break;
 	case concmd_cstator:
@@ -1995,7 +1994,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifcount:
 		insptr++;
-		parseifelse(g_t[0] >= *insptr);
+		parseifelse(g_ac->temp_data[0] >= *insptr);
 		break;
 	case concmd_ifactor:
 		insptr++;
@@ -2003,7 +2002,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_resetcount:
 		insptr++;
-		g_t[0] = 0;
+		g_ac->temp_data[0] = 0;
 		break;
 	case concmd_addinventory:
 		insptr++;
@@ -3189,7 +3188,6 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	s.g_p = p;	// Player ID
 	s.g_x = x;	// ??
 	s.g_ac = actor;
-	s.g_t = &s.g_ac->temp_data[0];	// Sprite's 'extra' data
 
 	if (actor->spr.picnum < 0 || actor->spr.picnum >= MAXTILES) return;
 	auto addr = gs.tileinfo[actor->spr.picnum].loadeventscriptptr;
@@ -3252,7 +3250,6 @@ bool execute(DDukeActor *actor,int p,double xx)
 	s.g_p = p;	// Player ID
 	s.g_x = int(xx / maptoworld);	// ??
 	s.g_ac = actor;
-	s.g_t = &actor->temp_data[0];	// Sprite's 'extra' data
 	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->spr.picnum].scriptaddress)];
 	s.killit_flag = 0;
 
@@ -3321,7 +3318,6 @@ void OnEvent(int iEventID, int p, DDukeActor *actor, int x)
 	s.g_p = p;	/// current player ID
 	s.g_x = x;	// ?
 	s.g_ac = actor;
-	s.g_t = actor->temp_data;
 
 	s.insptr = &ScriptCode[apScriptGameEvent[iEventID]];
 
