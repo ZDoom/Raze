@@ -2163,10 +2163,10 @@ void AlignSlopes(void)
 {
 	for (auto& sect : sector)
 	{
-		if (sect.slopewallofs)
+		if (sect.slopewallofs > 0)
 		{
-			walltype* pWall = &sect.walls[sect.slopewallofs];
-			if (pWall->twoSided())
+			walltype* pWall = sect.walls.Data() + sect.slopewallofs;	// we must evade range checks here - some maps try to slope to a wall outside their own sector.
+			if (pWall >= wall.Data() && pWall <= &wall.Last() &&  pWall->twoSided())
 			{
 				auto pNextSector = pWall->nextSector();
 
