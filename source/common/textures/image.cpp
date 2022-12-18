@@ -82,9 +82,6 @@ PalettedPixels FImageSource::GetCachedPalettedPixels(int conversion)
 {
 	PalettedPixels ret;
 
-	//FString name;
-	//fileSystem.GetFileShortName(name, SourceLump);
-
 	auto imageID = ImageID;
 
 	// Do we have this image in the cache?
@@ -195,9 +192,6 @@ int FImageSource::CopyTranslatedPixels(FBitmap *bmp, const PalEntry *remap)
 FBitmap FImageSource::GetCachedBitmap(const PalEntry *remap, int conversion, int *ptrans)
 {
 	FBitmap ret;
-
-	//FString name;
-	//fileSystem.GetFileShortName(name, SourceLump);
 
 	int trans = -1;
 	auto imageID = ImageID;

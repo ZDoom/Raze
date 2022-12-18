@@ -61,7 +61,7 @@ enum EGameTexFlags
 	GTexf_AutoMaterialsAdded = 256,			// AddAutoMaterials has been called on this texture.
 	GTexf_OffsetsNotForFont = 512,			// The offsets must be ignored when using this texture in a font.
 	GTexf_NoTrim = 1024,					// Don't perform trimming on this texture.
-	GTexf_Seen = 2024,						// Set to true when the texture is being used for rendering. Must be cleared manually if the check is needed.
+	GTexf_Seen = 2048,						// Set to true when the texture is being used for rendering. Must be cleared manually if the check is needed.
 };
 
 struct FMaterialLayers
@@ -374,6 +374,31 @@ public:
 	{
 		if (!Layers) return nullptr;
 		return Layers->Detailmap.get();
+	}
+	FTexture* GetNormalmap()
+	{
+		if (!Layers) return nullptr;
+		return Layers->Normal.get();
+	}
+	FTexture* GetSpecularmap()
+	{
+		if (!Layers) return nullptr;
+		return Layers->Specular.get();
+	}
+	FTexture* GetMetallic()
+	{
+		if (!Layers) return nullptr;
+		return Layers->Metallic.get();
+	}
+	FTexture* GetRoughness()
+	{
+		if (!Layers) return nullptr;
+		return Layers->Roughness.get();
+	}
+	FTexture* GetAmbientOcclusion()
+	{
+		if (!Layers) return nullptr;
+		return Layers->AmbientOcclusion.get();
 	}
 
 	void SetGlowmap(FTexture *T)

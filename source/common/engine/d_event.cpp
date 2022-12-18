@@ -85,7 +85,7 @@ void D_ProcessEvents (void)
 			UpdateJoystickMenu(I_UpdateDeviceList());
 
 		// allow the game to intercept Escape before dispatching it.
-		if (ev->type != EV_KeyDown || ev->data1 != KEY_ESCAPE || !sysCallbacks.WantEscape())
+		if (ev->type != EV_KeyDown || ev->data1 != KEY_ESCAPE || !sysCallbacks.WantEscape || !sysCallbacks.WantEscape())
 		{
 			if (gamestate != GS_INTRO) // GS_INTRO blocks the UI.
 			{

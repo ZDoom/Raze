@@ -4,10 +4,12 @@
 #include <string.h>
 #include <float.h>
 #include <math.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <zlib.h>
 #include <new>
 #include <type_traits>
 #include <algorithm>
@@ -15,6 +17,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <cassert>
+#ifdef _MSC_VER
+#include <direct.h>
+#include <io.h>
+#endif // _MSC_VER
 #include <limits>
 #include <memory>
 #include <tuple>

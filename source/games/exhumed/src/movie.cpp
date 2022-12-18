@@ -139,7 +139,6 @@ public:
             }
             case kFrameSound:
             {
-                auto sfxx = soundEngine->GetSounds();
                 auto buffer = fp.Read(nSize);
                 assert(buffer.Size() == kSampleSize);
                 auto wbuffer = audio.samples + audio.nWrite * kSampleSize;

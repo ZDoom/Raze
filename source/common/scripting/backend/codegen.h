@@ -560,11 +560,10 @@ public:
 class FxVectorValue : public FxExpression
 {
 	constexpr static int maxVectorDimensions = 4;
-
-	FxExpression *xyzw[maxVectorDimensions];
 	bool isConst;	// gets set to true if all element are const (used by function defaults parser)
 
 public:
+	FxExpression *xyzw[maxVectorDimensions];
 
 	friend class ZCCCompiler;
 
