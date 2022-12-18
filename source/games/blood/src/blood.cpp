@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statusbar.h"
 #include "vm.h"
 #include "tilesetbuilder.h"
+#include "nnexts.h"
 
 BEGIN_BLD_NS
 
@@ -75,6 +76,8 @@ IMPLEMENT_POINTERS_END
 //
 //---------------------------------------------------------------------------
 void MarkSprInSect();
+void MarkSeq();
+
 
 size_t DBloodActor::PropagateMark()
 {
@@ -102,6 +105,15 @@ static void markgcroots()
 		GC::Mark(pl.fragger);
 		GC::Mark(pl.voodooTarget);
 	}
+	for (auto& evobj : rxBucket)
+	{
+		evobj.Mark();
+	}
+	for (auto& cond : gConditions)
+	{
+		for (auto& obj : cond.objects) obj.obj.Mark();
+	}
+	MarkSeq();
 }
 
 

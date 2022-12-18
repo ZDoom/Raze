@@ -138,7 +138,6 @@ void CreateAltHUD()
 {
 	if (AltHud)
 	{
-		GC::DelSoftRoot(AltHud);
 		AltHud->Destroy();
 		AltHud = nullptr;
 	}
@@ -152,7 +151,7 @@ void CreateAltHUD()
 		AltHud = DoCreateAltHUD(NAME_AltHud);
 
 	assert(AltHud);
-	GC::AddSoftRoot(AltHud);
+	GC::AddMarkerFunc([]() { GC::Mark(AltHud); });
 }
 
 
