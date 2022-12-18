@@ -21,6 +21,9 @@ class DukeMortar : DukeActor
 		
 		[p,xx] = self.findplayer();
 
+		if (xx < 1220 / 16.) self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		else self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+
 		if (self.temp_data[3] == 0)
 		{
 			int j = self.ifhitbyweapon();
