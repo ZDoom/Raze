@@ -623,6 +623,17 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, badguy, badguy)
 	ACTION_RETURN_INT(badguy(self));
 }
 
+int duke_scripted(DDukeActor* act)
+{
+	return gs.actorinfo[act->spr.picnum].scriptaddress > 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, scripted, duke_scripted)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(duke_scripted(self));
+}
+
 int duke_isplayer(DDukeActor* act)
 {
 	return act->isPlayer();

@@ -149,7 +149,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	switch (act->spr.picnum)
 	{
 	default:
-		spawninitdefault(actj, act);
+		CallInitialize(act);
 		break;
 	case FOF:
 		act->spr.scale = DVector2(0, 0);

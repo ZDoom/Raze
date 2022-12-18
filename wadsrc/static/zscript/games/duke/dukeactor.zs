@@ -209,7 +209,6 @@ class DukeActor : CoreActor native
 	
 	virtual void BeginPlay() {}
 	virtual void StaticSetup() {}
-	virtual void Initialize() {}
 	virtual void onHit(DukeActor hitter) { checkhitdefault(hitter); }
 	virtual void onHurt(DukePlayer p) {}
 	virtual bool onUse(DukePlayer user) { return false; }
@@ -230,6 +229,7 @@ class DukeActor : CoreActor native
 	native void hitradius(int r, int hp1, int hp2, int hp3, int hp4);
 	native double, DukeActor hitasprite();
 	native int badguy();
+	native int scripted();
 	native int isplayer();
 	native void lotsofstuff(Name type, int count);
 	native double gutsoffset();
@@ -249,6 +249,26 @@ class DukeActor : CoreActor native
 	native int attackerflag1(int mask);
 	native int attackerflag2(int mask);
 	deprecated("4.9") native bool checktype(String name);	// this must not stay in the code, so mark it deprecated to keep the annoying warning at startup.
+	
+	
+	
+	virtual void Initialize()
+	{
+		if (!self.badguy() && self.scripted())
+		{
+			if (!self.mapSpawned) self.lotag = 0;
+
+			if (self.lotag > ud.player_skill)
+			{
+				self.scale = (0, 0);
+				self.ChangeStat(STAT_MISC);
+			}
+			self.clipdist = 10;
+			self.ownerActor = self;
+			self.ChangeStat(STAT_ACTOR);
+		}
+		
+	}
 	
 	
 	int checkLocationForFloorSprite(double radius)

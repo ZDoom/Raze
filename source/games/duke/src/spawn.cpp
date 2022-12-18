@@ -346,47 +346,6 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 //
 //---------------------------------------------------------------------------
 
-bool spawninitdefault(DDukeActor* actj, DDukeActor *act)
-{
-	if (gs.actorinfo[act->spr.picnum].scriptaddress)
-	{
-		if (actj == nullptr && act->spr.lotag > ud.player_skill)
-		{
-			// make it go away...
-			act->spr.scale = DVector2(0, 0);
-			ChangeActorStat(act, STAT_MISC);
-			return false;
-		}
-
-		//  Init the size
-		if (act->spr.scale.X == 0 || act->spr.scale.Y == 0)
-			act->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
-
-		if (actorflag(act, SFLAG_BADGUY))
-		{
-			commonEnemySetup(act, actj);
-		}
-		else
-		{
-			act->clipdist = 10;
-			act->SetOwner(act);
-			ChangeActorStat(act, STAT_ACTOR);
-			if (actj)
-				act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
-		}
-
-		act->timetosleep = 0;
-
-	}
-	return true;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 {
 	if (actj == nullptr) return;

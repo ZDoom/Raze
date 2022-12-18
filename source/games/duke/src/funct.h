@@ -176,7 +176,6 @@ void addspritetodelete(int spnum=0);
 void checkavailinven(player_struct* p);
 bool initspriteforspawn(DDukeActor* spn);
 bool commonEnemySetup(DDukeActor* self, DDukeActor* owner);
-bool spawninitdefault(DDukeActor* actj, DDukeActor* act);
 void spawntransporter(DDukeActor* actj, DDukeActor* acti, bool beam);
 int spawnbloodpoolpart1(DDukeActor* acti);
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell);
