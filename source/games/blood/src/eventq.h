@@ -118,7 +118,7 @@ enum {
 	kChannelMax = 4096,
 };
 
-extern EventObject rxBucket[];
+extern EventObject rxBucket[kChannelMax];
 extern unsigned short bucketHead[];
 
 enum COMMAND_ID {

@@ -464,9 +464,19 @@ struct ActiveList
 		remove(SS_SPRITE, EventObject(actor));
 	}
 
+	void Mark()
+	{
+		for (auto& seqinst : list) seqinst.target.Mark();
+	}
+
 };
 
 static ActiveList activeList;
+
+void MarkSeq()
+{
+	activeList.Mark();
+}
 
 //---------------------------------------------------------------------------
 //
