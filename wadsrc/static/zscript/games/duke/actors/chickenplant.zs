@@ -3,17 +3,15 @@ class RedneckChickenSpawner1 : DukeActor
 {
 	default
 	{
-		scaleX 0;
-		scaleY 0;
-		clipdist 0;
-		lotag 0;
-		statnum STAT_CHICKENPLANT;
 		pic "CHICKENASPAWN";
 	}
 	
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.clipdist = 0;
+		self.lotag = 0;
+		self.ChangeStat(STAT_CHICKENPLANT);
 	}
 	
 	override void Tick()
@@ -187,10 +185,6 @@ class RedneckChickenA : DukeActor
 {
 	default
 	{
-		clipdist 2;
-		scaleX 0.5;
-		scaleY 0.40625;
-		statnum STAT_ACTOR;
 		spriteset "CHICKENA", "CHICKENB", "CHICKENC";
 	}
 	
@@ -198,6 +192,9 @@ class RedneckChickenA : DukeActor
 	{
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		self.vel.X = 2;
+		self.clipdist = 2;
+		self.Scale = (0.5, 0.40625);
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()
@@ -260,10 +257,6 @@ class RedneckChickenLoaf : DukeActor
 {
 	default
 	{
-		statnum STAT_ACTOR;
-		clipdist 2;
-		scaleX 0.1875;
-		scaleY 0.15625;
 		pic "CHICKENLOAF";
 	}
 	
@@ -271,6 +264,9 @@ class RedneckChickenLoaf : DukeActor
 	{
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		self.vel.X = 2;
+		self.Scale = (0.1875, 0.15625);
+		self.clipdist = 2;
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()
@@ -308,15 +304,15 @@ class RedneckRoastedChicken : RedneckChickenLoaf
 {
 	default
 	{
-		scaleX 0.203125;
-		scaleY 0.203125;
-		clipdist 2;
 		pic "ROASTEDCHICKEN";
 	}
 	
 	override void Initialize()
 	{
 		self.vel.X = 1;
+		self.Scale = (0.203125, 0.203125);
+		self.clipdist = 2;
+		self.ChangeStat(STAT_ACTOR);
 	}
 }
 
@@ -324,15 +320,15 @@ class RedneckChickenNugget : RedneckChickenLoaf
 {
 	default
 	{
-		scaleX 0.125;
-		scaleY 0.09375;
-		clipdist 0.5;
 		pic "CHICKENNUGGET";
 	}
 	
 	override void Initialize()
 	{
 		self.vel.X = 1;
+		self.Scale = (0.125, 0.09375);
+		self.clipdist = 0.5;
+		self.ChangeStat(STAT_ACTOR);
 	}
 }
 
@@ -340,15 +336,15 @@ class RedneckBonelessChicken : RedneckChickenLoaf
 {
 	default
 	{
-		scaleX 0.265625;
-		scaleY 0.1875;
-		clipdist 2;
 		pic "BONELESSCHICKEN";
 	}
 	
 	override void Initialize()
 	{
 		self.vel.X = 2;
+		self.Scale = (0.265625, 0.1875);
+		self.clipdist = 2;
+		self.ChangeStat(STAT_ACTOR);
 	}
 }
 
@@ -356,16 +352,15 @@ class RedneckChickenHead : DukeActor
 {
 	default
 	{
-		statnum STAT_ACTOR;
-		scaleX 0.203125;
-		scaleY 0.15625;
-		clipdist 2;
 		pic "CHICKENHEAD";
 	}
 	
 	override void Initialize()
 	{
 		self.vel.X = 0;
+		self.Scale = (0.203125, 0.15625);
+		self.clipdist = 2;
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()

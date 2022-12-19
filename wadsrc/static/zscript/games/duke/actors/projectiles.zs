@@ -232,7 +232,6 @@ class DukeFirelaserTrail : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		spriteset "FIRELASER", "FIRELASER2", "FIRELASER3", "FIRELASER4", "FIRELASER5", "FIRELASER6";
 	}
 	
@@ -776,11 +775,11 @@ class RedneckChickenArrow : RedneckDynamiteArrow
 	default
 	{
 		pic "RPG2";
-		hitag 0;
 	}
 	
 	override void Initialize()
 	{
+		self.hitag = 0;
 		SpawnSound = "CHICKENBOW_FIRE";
 		self.lotsofstuff("RedneckFeather", random(1, 4));
 	}
@@ -847,13 +846,13 @@ class RedneckBoatGrenade : RedneckDynamiteArrow // RRRA only
 	default
 	{
 		pic "BOATGRENADE";
-		extra 10;
 	}
 	
 	override void Initialize()
 	{
 		SpawnSound = "MORTAR";
 		
+		self.extra = 10;
 		self.vel.Z = -10;
 		self.vel.X *= 2;
 		super.Initialize();
