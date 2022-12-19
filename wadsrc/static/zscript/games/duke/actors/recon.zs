@@ -3,6 +3,8 @@ class DukeRecon : DukeActor
 	default
 	{
 		spriteset "RECON", "RECON2";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	Sound AttackSnd;

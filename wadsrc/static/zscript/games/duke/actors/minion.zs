@@ -3,6 +3,8 @@ class RedneckMinion : DukeActor
 	default
 	{
 		pic "MINION";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void Initialize()

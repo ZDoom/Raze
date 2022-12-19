@@ -3,6 +3,8 @@ class RedneckRabbit : DukeActor
 	default
 	{
 		pic "RABBIT";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void Initialize()

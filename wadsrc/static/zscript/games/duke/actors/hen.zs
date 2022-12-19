@@ -3,6 +3,7 @@ class RedneckHen : DukeActor
 	default
 	{
 		pic "HEN";
+		+INTERNAL_BADGUY;
 	}
 	
 	override void Initialize()

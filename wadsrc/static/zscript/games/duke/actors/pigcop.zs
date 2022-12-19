@@ -3,6 +3,8 @@ class DukePigCop : DukeActor
 	default
 	{
 		pic "PIGCOP";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void PlayFTASound()

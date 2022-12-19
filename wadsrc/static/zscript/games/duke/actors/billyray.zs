@@ -4,6 +4,8 @@ class RedneckBillyRay : DukeActor
 	default
 	{
 		pic "BILLYRAY";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void PlayFTASound()

@@ -3,6 +3,8 @@ class DukeCommander : DukeActor
 	default
 	{
 		pic "COMMANDER";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void PlayFTASound()

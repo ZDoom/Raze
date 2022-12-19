@@ -3,6 +3,8 @@ class DukeGreenSlime : DukeActor
 	default
 	{
 		spriteset "GREENSLIME", "GREENSLIME1", "GREENSLIME2", "GREENSLIME3", "GREENSLIME4", "GREENSLIME5", "GREENSLIME6", "GREENSLIME7";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 
 	override void Initialize()

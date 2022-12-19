@@ -3,6 +3,8 @@ class DukeBoss1 : DukeActor
 	default
 	{
 		pic "BOSS1";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void Initialize()

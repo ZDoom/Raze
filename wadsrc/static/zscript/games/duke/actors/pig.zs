@@ -3,6 +3,7 @@ class RedneckPig : DukeActor
 	default
 	{
 		pic "PIG";
+		+INTERNAL_BADGUY;
 	}
 	
 	override void Initialize()

@@ -3,6 +3,8 @@ class DukeOctabrain : DukeActor
 	default
 	{
 		pic "OCTABRAIN";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void PlayFTASound()

@@ -24,6 +24,8 @@ class RedneckCootStayput: RedneckCoot
 	default
 	{
 		pic "COOTSTAYPUT";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 
 	override void PlayFTASound()

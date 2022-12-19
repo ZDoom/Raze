@@ -4,6 +4,8 @@ class RedneckBikerBV2 : DukeActor
 	default
 	{
 		pic "BIKERBV2";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -17,6 +19,8 @@ class RedneckBikerB : DukeActor
 	default
 	{
 		pic "BIKERB";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -30,6 +34,8 @@ class RedneckBiker : DukeActor
 	default
 	{
 		pic "BIKER";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -43,6 +49,8 @@ class RedneckMakeout : DukeActor
 	default
 	{
 		pic "MAKEOUT";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -56,6 +64,8 @@ class RedneckCheerleaderB : DukeActor
 	default
 	{
 		pic "CHEERB";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -69,6 +79,8 @@ class RedneckCheerleader : DukeActor
 	default
 	{
 		pic "CHEER";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -82,6 +94,7 @@ class RedneckCootplay : DukeActor
 	default
 	{
 		pic "COOTPLAY";
+		+INTERNAL_BADGUY;
 	}
 	override void Initialize()
 	{
@@ -96,6 +109,7 @@ class RedneckBillyPlay : DukeActor
 	default
 	{
 		pic "BILLYPLAY";
+		+INTERNAL_BADGUY;
 	}
 	override void Initialize()
 	{
@@ -109,6 +123,8 @@ class RedneckMinionBoat : DukeActor
 	default
 	{
 		pic "MINIONBOAT";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -122,6 +138,8 @@ class RedneckHulkBoat : DukeActor
 	default
 	{
 		pic "HULKBOAT";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -135,6 +153,8 @@ class RedneckCheerBoat : DukeActor
 	default
 	{
 		pic "CHEERBOAT";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -148,6 +168,7 @@ class RedneckRock : DukeActor
 	default
 	{
 		pic "ROCK";
+		+INTERNAL_BADGUY;
 	}
 	override void Initialize()
 	{
@@ -161,6 +182,7 @@ class RedneckRock2 : RedneckRock
 	default
 	{
 		pic "ROCK2";
+		+INTERNAL_BADGUY;
 	}
 }
 
@@ -185,6 +207,8 @@ class RedneckMama : DukeActor
 	default
 	{
 		pic "MAMA";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 
 	override void Initialize()
@@ -218,6 +242,9 @@ class RedneckSBSwipe : DukeActor
 	default
 	{
 		pic "SBSWIPE";
+		+BADGUYSTAYPUT;
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void initialize()
@@ -248,6 +275,8 @@ class RedneckShitBoss : DukeActor
 	{
 		pic "SBMOVE";
 		+FULLBRIGHT;
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 
 	override void Initialize()
@@ -262,6 +291,7 @@ class RedneckBubbaStand : DukeActor
 	default
 	{
 		pic "BUBBASTAND";
+		+INTERNAL_BADGUY;
 	}
 	
 	override void initialize()
@@ -278,6 +308,8 @@ class RedneckHulk : DukeActor
 	default
 	{
 		pic "HULK";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 
 	override void Initialize()
@@ -306,6 +338,7 @@ class RedneckBoulder : DukeActor
 	default
 	{
 		pic "BOULDER";
+		+INTERNAL_BADGUY;
 	}
 }
 
@@ -314,6 +347,7 @@ class RedneckBoulder1 : DukeActor
 	default
 	{
 		pic "BOULDER1";
+		+INTERNAL_BADGUY;
 	}
 }
 
@@ -322,6 +356,7 @@ class RedneckTornado : DukeActor
 	default
 	{
 		pic "TORNADO";
+		+INTERNAL_BADGUY;
 	}
 	override void Initialize()
 	{
@@ -337,6 +372,8 @@ class RedneckDog : DukeActor
 	default
 	{
 		pic "DOGRUN";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -350,6 +387,8 @@ class RedneckSheriff : DukeActor
 	default
 	{
 		pic "LTH";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -363,6 +402,8 @@ class RedneckMosquito : DukeActor
 	default
 	{
 		pic "DRONE";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	override void Initialize()
 	{
@@ -376,5 +417,7 @@ class RedneckVixen : DukeActor
 	default
 	{
 		pic "VIXEN";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 }

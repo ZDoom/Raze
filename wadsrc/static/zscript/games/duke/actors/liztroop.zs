@@ -4,6 +4,8 @@ class DukeLizTrooper : DukeActor
 	default
 	{
 		pic "LIZTROOP";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void Initialize()

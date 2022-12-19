@@ -272,6 +272,9 @@ class DukeNewBeast : DukeActor
 	default
 	{
 		pic "NEWBEAST";
+		+BADGUY;
+		+KILLCOUNT;
+
 	}
 }
 
@@ -280,6 +283,7 @@ class DukeNewBeastStayput : DukeNewBeast
 	default
 	{
 		pic "NEWBEASTSTAYPUT";
+		+BADGUYSTAYPUT;
 	}
 }
 

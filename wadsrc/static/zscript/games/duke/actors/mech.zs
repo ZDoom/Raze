@@ -3,6 +3,8 @@ class DukeDrone : DukeActor
 	default
 	{
 		pic "DRONE";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void PlayFTASound()
@@ -16,6 +18,8 @@ class DukeTurret : DukeActor
 	default
 	{
 		pic "ORGANTIC";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void PlayFTASound()
@@ -34,6 +38,8 @@ class DukeRotateGun : DukeActor
 	default
 	{
 		pic "ROTATEGUN";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void Initialize()
@@ -47,6 +53,7 @@ class DukeShark : DukeActor
 	default
 	{
 		pic "SHARK";
+		+INTERNAL_BADGUY;
 	}
 	
 	override void Initialize()
