@@ -4,7 +4,11 @@ class DukeNukeButton : DukeActor
 	default
 	{
 		spriteset "NUKEBUTTON", "NUKEBUTTON1",  "NUKEBUTTON2",  "NUKEBUTTON3";
-		statnum STAT_MISC;
+	}
+	
+	override void Initialize()
+	{
+		self.ChangeStat(STAT_MISC);
 	}
 	
 	override void Tick()

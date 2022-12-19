@@ -2,14 +2,14 @@ class DukeBolt1 : DukeActor
 {
 	default
 	{
-		yint 0;
-		statnum STAT_STANDABLE;
 		SpriteSet "BOLT1", "BOLT2", "BOLT3", "BOLT4";
 		spritesetindex 0;
 	}
 	override void Initialize()
 	{
 		self.temp_pos.XY = self.scale;
+		self.yint = 0;
+		self.ChangeStat(STAT_STANDABLE);
 	}
 
 	override void Tick()

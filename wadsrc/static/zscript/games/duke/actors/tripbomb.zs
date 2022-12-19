@@ -224,7 +224,6 @@ class DukeLaserLine : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		pic "LASERLINE";
 	}
 

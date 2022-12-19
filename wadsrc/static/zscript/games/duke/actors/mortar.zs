@@ -107,10 +107,10 @@ class DukeMortar : DukeActor
 		{
 			self.temp_data[4]++;
 
-		DukePlayer p;
-		double xx;
-		
-		[p,xx] = self.findplayer();
+			DukePlayer p;
+			double xx;
+			
+			[p,xx] = self.findplayer();
 
 			if (self.temp_data[4] == 2)
 			{

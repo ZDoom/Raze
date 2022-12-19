@@ -1,11 +1,6 @@
 
 class DukeTouchPlate : DukeActor
 {
-	default
-	{
-		statnum STAT_STANDABLE;
-	}
-
 	private bool checkspawn()
 	{
 		if (!Raze.isWorldTour())
@@ -36,6 +31,7 @@ class DukeTouchPlate : DukeActor
 			return;
 		}
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.ChangeStat(STAT_STANDABLE);
 	}
 
 

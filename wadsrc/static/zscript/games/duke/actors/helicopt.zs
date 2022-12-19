@@ -2,17 +2,17 @@ class DukeCar : DukeActor
 {
 	default
 	{
-		extra 1;
-		clipdist 32;
 		pic "DUKECAR";
-		statnum STAT_ACTOR;
 	}
 	
 	override void Initialize()
 	{
+		self.extra = 1;
+		self.clipdist = 32;
 		self.vel.X = 292 / 16.;
 		self.vel.Z = 360 / 256.;
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL;
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()

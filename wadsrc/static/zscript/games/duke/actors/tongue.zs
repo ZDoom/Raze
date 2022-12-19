@@ -3,7 +3,6 @@ class DukeTongue : DukeActor
 {
 	default
 	{
-		statnum STAT_PROJECTILE;
 		pic "TONGUE";
 	}
 
@@ -14,6 +13,7 @@ class DukeTongue : DukeActor
 		self.pos.Z -= gs.playerheight;
 		self.vel.Z = 1 - frandom(0, 2);
 		self.vel.X = 4 - frandom(0, 8);
+		self.ChangeStat(STAT_PROJECTILE);
 	}
 
 	override void Tick()
@@ -65,7 +65,6 @@ class DukeInnerJaw : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		pic "InnerJaw";
 	}
 	
@@ -86,6 +85,7 @@ class DukeInnerJaw : DukeActor
 		{
 			self.Destroy();
 		}
+		self.ChangeStat(STAT_MISC);
 	}
 }
 

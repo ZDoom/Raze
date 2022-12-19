@@ -3,17 +3,16 @@ class RedneckBalloons1 : DukeActor
 {
 	Default
 	{
-		ScaleX 0.5;
-		ScaleY 0.5;
-		Extra 0;
-		Hitag 0;
-		Statnum STAT_ACTOR;
 		Spriteset "BALLOONS1", "BALLOONS1BROKE";
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.Scale = (0.5, 0.5);
+		self.extra = 0;
+		self.hitag = 0;
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()

@@ -2,8 +2,6 @@ class DukeWatersplash : DukeActor
 {
 	default
 	{
-		shade -16;
-		statnum STAT_MISC;
 		spriteset "WATERSPLASH2", "WATERSPLASH2A", "WATERSPLASH2B", "WATERSPLASH2C", "WATERSPLASH2D";
 	}
 
@@ -23,6 +21,7 @@ class DukeWatersplash : DukeActor
 			self.scale = (s, s);
 		}
 
+		self.shade = -16;
 		self.cstat |= CSTAT_SPRITE_YCENTER;
 		if (Owner)
 		{

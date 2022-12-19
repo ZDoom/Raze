@@ -4,10 +4,13 @@ class RedneckTeleportDest : DukeActor
 	default
 	{
 		pic "RRTELEPORTDEST";
-		statnum STAT_TELEPORT;
-		ScaleX 1;
-		ScaleY 1;
-		clipdist 16;
+	}
+	
+	override void Initialize()
+	{
+		self. Scale = (1, 1);
+		self.clipdist = 16;
+		self.ChangeStat(STAT_TELEPORT);
 	}
 }
 

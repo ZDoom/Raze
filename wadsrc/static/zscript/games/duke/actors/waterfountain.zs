@@ -6,7 +6,6 @@ class DukeWaterFountain : DukeActor
 	default
 	{
 		spriteset "WATERFOUNTAIN", "WATERFOUNTAIN1", "WATERFOUNTAIN2", "WATERFOUNTAIN3", "WATERFOUNTAINBROKE";
-		statnum STAT_STANDABLE;
 	}
 	
 	//---------------------------------------------------------------------------
@@ -21,6 +20,7 @@ class DukeWaterFountain : DukeActor
 		self.lotag = 1;
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
 		self.extra = 1;
+		self.ChangeStat(STAT_STANDABLE);
 	}
 	
 	override void Tick()
@@ -99,9 +99,13 @@ class DukeWaterFountainBroke : DukeActor
 	default
 	{
 		pic "WATERFOUNTAINBROKE";
-		statnum STAT_STANDABLE;
 	}
 
+	override void Initialize()
+	{
+		self.ChangeStat(STAT_STANDABLE);
+	}
+	
 	override void onHit(DukeActor hitter)
 	{
 		self.PlayActorSound("GLASS_BREAKING");

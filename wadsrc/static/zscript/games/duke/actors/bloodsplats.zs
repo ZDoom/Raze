@@ -2,7 +2,6 @@ class DukeBloodSplat1 : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		Pic "BLOODSPLAT1";
 	}
 
@@ -15,6 +14,7 @@ class DukeBloodSplat1 : DukeActor
 		if (!self.mapSpawned && self.ownerActor && self.ownerActor.pal == 6)
 			self.pal = 6;
 		self.insertspriteq();
+		self.ChangeStat(STAT_MISC);
 	}
 
 	override void Tick()

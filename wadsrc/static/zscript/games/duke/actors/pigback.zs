@@ -4,16 +4,15 @@ class RedneckPigDisplay : DukeActor
 	default
 	{
 		spriteset "PIGBACK", "PIGBACK1", "PIGBACK2", "PIGBACK3", "PIGBACK4";
-		ScaleX 0.25;
-		ScaleY 0.25;
-		clipdist 0;
-		extra 0;
-		statnum STAT_ACTOR;
 	}
 	
 	override void Initialize()
 	{
 		cstat = 0;
+		self.scale = (0.25, 0.25);
+		self.clipdist = 0;
+		self.extra = 0;
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()

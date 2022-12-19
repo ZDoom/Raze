@@ -3,9 +3,6 @@ class DukeCanWithSomething : DukeActor
 {
 	Default
 	{
-		extra 0;
-		clipdist 18;
-		statnum STAT_ZOMBIEACTOR;
 		pic "CANWITHSOMETHING";
 	}
 		
@@ -15,6 +12,9 @@ class DukeCanWithSomething : DukeActor
 			self.scale = (0.5, 0.5);
 		self.makeitfall();
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
+		self.extra = 0;
+		self.clipdist = 18;
+		self.ChangeStat(STAT_ZOMBIEACTOR);
 	}
 
 

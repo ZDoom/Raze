@@ -3,7 +3,6 @@ class DukeCrack : DukeActor
 {
 	default
 	{
-		statnum STAT_STANDABLE;
 		pic "CRACK1";
 	}
 	
@@ -23,6 +22,7 @@ class DukeCrack : DukeActor
 		self.ownerActor = self;
 		self.vel.X = 0.5;
 		self.DoMove(CLIPMASK0);
+		self.ChangeStat(STAT_STANDABLE);
 	}
 	
 	override void Tick()

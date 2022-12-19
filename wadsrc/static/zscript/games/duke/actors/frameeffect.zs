@@ -2,7 +2,6 @@ class DukeFrameEffect : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		Pic "SMALLSMOKE";
 	}
 	
@@ -17,6 +16,7 @@ class DukeFrameEffect : DukeActor
 		{
 			self.Scale = (0, 0);
 		}
+		self.ChangeStat(STAT_MISC);
 	}
 	
 	override void Tick()

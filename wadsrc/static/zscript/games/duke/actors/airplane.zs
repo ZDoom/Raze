@@ -2,16 +2,15 @@ class RedneckAirplane : DukeActor
 {
 	default
 	{
-		statnum STAT_ACTOR;
 		pic "AIRPLANE";
-		ScaleX 1;
-		ScaleY 1;
 	}
 	
 	override void Initialize()
 	{
 		self.extra = self.lotag;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.Scale = (1, 1);
+		self.ChangeStat(STAT_ACTOR);
 	}
 
 	override void Tick()

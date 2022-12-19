@@ -2,8 +2,6 @@ class DukeOoz : DukeActor
 {
 	default
 	{
-		shade -12;
-		statnum STAT_ACTOR;
 		pic "OOZ";
 	}
 
@@ -24,6 +22,7 @@ class DukeOoz : DukeActor
 
 		self.scale = (max(0., 0.390625 - z * 0.5), z);
 		self.cstat |= randomXFlip();
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()

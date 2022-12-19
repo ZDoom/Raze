@@ -3,9 +3,6 @@ class DukeReactor : DukeActor
 	default
 	{
 		spriteset "REACTOR", "REACTORBURNT";
-		statnum STAT_ZOMBIEACTOR;
-		shade -17;
-		pal 0;
 	}
 		
 
@@ -13,11 +10,14 @@ class DukeReactor : DukeActor
 	{
 		self.extra = gs.impact_damage;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
+		self.shade = -17;
+		self.pal = 0;
 		if (ud.multimode < 2 && self.pal != 0)
 		{
 			self.scale = (0, 0);
 			self.ChangeStat(STAT_MISC);
 		}
+		else self.ChangeStat(STAT_ZOMBIEACTOR);
 	}
 
 

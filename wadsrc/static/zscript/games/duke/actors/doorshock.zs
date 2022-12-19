@@ -2,13 +2,14 @@ class DukeDoorShock : DukeActor
 {
 	default
 	{
-		shade -12;
-		statnum STAT_STANDABLE;
+		pic "DOORSHOCK";
 	}
 
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.shade = -12;
+		self.ChangeStat(STAT_STANDABLE);
 	}
 
 

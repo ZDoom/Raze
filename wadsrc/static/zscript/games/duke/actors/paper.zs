@@ -3,17 +3,16 @@ class DukeMoney : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		spriteset "MONEY", "MONEY1";
-		ScaleX 0.125;
-		ScaleY 0.125;
 	}
 	
 	override void Initialize()
 	{
+		self.scale = (0.125, 0.125);
 		self.temp_data[0] = random(0, 2047);
 		self.cstat = self.randomFlip();
 		self.angle = frandom(0, 360);
+		self.ChangeStat(STAT_MISC);
 	}
 
 	override void Tick()

@@ -1,14 +1,10 @@
 class RedneckRabbitSpawner : DukeActor
 {
-	default
-	{
-		statnum STAT_FX;
-		extra 0;
-	}
-	
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.extra = 0;
+		self.ChangeStat(STAT_FX);
 	}
 	
 	override void Tick()

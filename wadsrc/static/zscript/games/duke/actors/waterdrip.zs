@@ -2,9 +2,6 @@ class DukeWaterDrip : DukeActor
 {
 	default
 	{
-		ScaleX 0.375;
-		ScaleY 0.375;
-		statnum STAT_STANDABLE;
 		pic "WATERDRIP";
 	}
 	
@@ -30,6 +27,8 @@ class DukeWaterDrip : DukeActor
 			self.temp_pos.Z = self.pos.Z;
 			self.temp_data[1] = random(0, 127);
 		}
+		self.Scale = (0.375, 0.375);
+		self.ChangeStat(STAT_STANDABLE);
 	}
 	
 	override void Tick()

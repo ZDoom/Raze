@@ -1,14 +1,10 @@
 class DukeMasterSwitch : DukeActor
 {
-	default
-	{
-		statnum STAT_STANDABLE;
-	}
-
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		self.yint = 0;
+		self.ChangeStat(STAT_STANDABLE);
 	}
 	
 	override void Tick()

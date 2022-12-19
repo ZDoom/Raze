@@ -3,7 +3,6 @@ class RedneckCactusLargeYellow : DukeActor
 {
 	default
 	{
-		statnum STAT_ACTOR;
 		SpriteSet "CACTUSLARGEYELLOW";
 	}
 	
@@ -16,6 +15,7 @@ class RedneckCactusLargeYellow : DukeActor
 			p.pals = Color(32, 32, 0, 0);
 			p.actor.PlayActorSound("PLAYER_LONGTERM_PAIN");
 		}
+		self.ChangeStat(STAT_ACTOR);
 	}
 
 }

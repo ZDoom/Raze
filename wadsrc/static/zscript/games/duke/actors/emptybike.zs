@@ -4,10 +4,6 @@ class RedneckEmptyBike : DukeActor
 	default
 	{
 		pic "EMPTYBIKE";
-		scaleX 0.28125;
-		scaleY 0.28125;
-		lotag 1;
-		statnum STAT_ACTOR;
 	}
 	
 	override void Initialize()
@@ -18,10 +14,13 @@ class RedneckEmptyBike : DukeActor
 			self.ChangeStat(STAT_MISC);
 			return;
 		}
+		self.lotag = 1;
+		self.Scale = (0.28125, 0.28125);
 		self.pal = 0;
 		self.setClipDistFromTile();
 		self.saved_ammo = 100;
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL;
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()
@@ -53,10 +52,6 @@ class RedneckEmptyBoat : DukeActor
 	default
 	{
 		pic "EMPTYBOAT";
-		scaleX 0.5;
-		scaleY 0.5;
-		lotag 1;
-		statnum STAT_ACTOR;
 	}
 	
 	override void Initialize()
@@ -67,10 +62,13 @@ class RedneckEmptyBoat : DukeActor
 			self.ChangeStat(STAT_MISC);
 			return;
 		}
+		self.lotag = 1;
+		self.Scale = (0.5, 0.5);
 		self.pal = 0;
 		self.setClipDistFromTile();
 		self.saved_ammo = 20;
 		self.cstat = CSTAT_SPRITE_BLOCK_ALL;
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	

@@ -7,14 +7,14 @@ class DukeQueball : DukeActor
 {
 	default
 	{
-		clipdist 2;
 		pic "QUEBALL";
-		statnum STAT_ZOMBIEACTOR;
 	}
 	
 	override void Initialize()
 	{
+		self.clipdist = 2;
 		self.cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
+		self.ChangeStat(STAT_ZOMBIEACTOR);
 	}
 	
 	override void Tick()

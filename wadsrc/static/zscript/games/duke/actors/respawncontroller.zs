@@ -1,11 +1,5 @@
 class DukeRespawnController : DukeActor
 {
-	default
-	{
-		statnum STAT_FX;
-		extra 66 - 13;
-	}
-	
 	override void Initialize()
 	{
 		if (ud.multimode < 2 && self.pal == 1)
@@ -14,7 +8,11 @@ class DukeRespawnController : DukeActor
 			self.ChangeStat(STAT_MISC);
 		}
 		else
+		{
 			self.cstat = CSTAT_SPRITE_INVISIBLE;
+			self.extra = 66 - 13;
+			self.ChangeStat(STAT_FX);
+		}
 	}
 
 	override void Tick()

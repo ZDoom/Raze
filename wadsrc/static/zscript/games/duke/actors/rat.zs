@@ -5,9 +5,6 @@ class DukeRat : DukeActor
 	default
 	{
 		pic "RAT";
-		clipdist 10;
-		scaleX 0.75;
-		scaleY 0.75;
 	}
 	
 	override void Initialize()
@@ -32,8 +29,9 @@ class DukeRat : DukeActor
 				if (Raze.isRR()) self.shade = self.ownerActor.shade;
 			}
 			else self.ChangeStat(STAT_ZOMBIEACTOR);
-
 		}
+		self. clipdist = 10;
+		self. scale = (0.75, 0.75);
 	}
 
 	override void Tick()

@@ -1,11 +1,6 @@
 
 class DukeScrap : DukeActor
 {
-	default
-	{
-		statnum STAT_MISC;
-	}
-	
 	enum EScrap
 	{
 		Scrap6 = 0,

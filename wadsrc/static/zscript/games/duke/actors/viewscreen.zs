@@ -2,9 +2,6 @@ class DukeViewscreen : DukeActor
 {
 	default
 	{
-		lotag 1;
-		extra 1;
-		statnum STAT_STANDABLE;
 		spriteset "VIEWSCREEN", "STATIC", "VIEWSCR";
 	}
 
@@ -13,6 +10,9 @@ class DukeViewscreen : DukeActor
 	override void Initialize()
 	{
 		self.ownerActor = self;
+		self.lotag = 1;
+		self.extra = 1;
+		self.ChangeStat(STAT_STANDABLE);
 	}
 	
 	override void Tick()
@@ -93,8 +93,6 @@ class DukeCamera : DukeActor
 	default
 	{
 		pic "CAMERA1";
-		statnum STAT_ACTOR;
-		extra 1;
 	}
 
 	override void Initialize()
@@ -109,6 +107,8 @@ class DukeCamera : DukeActor
 			return;
 		}
 		else self.pal = 0;
+		self.extra = 1;
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()

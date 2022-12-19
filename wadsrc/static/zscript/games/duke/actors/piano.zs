@@ -2,12 +2,16 @@ class RedneckPiano : DukeActor
 {
 	default
 	{
-		lotag 5;
-		clipdist 0;
-		statnum STAT_ACTOR;
 		spriteset "PIANO", "PIANOBUST";
 	}
 
+	override void Initialize()
+	{
+		self.lotag = 5;
+		self.clipdist = 0;
+		self.ChangeStat(STAT_ACTOR);
+	}
+	
 	override void Tick()
 	{
 		if (self.lotag == 5)

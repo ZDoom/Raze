@@ -3,9 +3,13 @@ class RedneckLumberBlade : DukeActor
 {
 	default
 	{
-		statnum STAT_LUMBERMILL;
-		extra 0;
 		spriteset "LUMBERBLADE1", "LUMBERBLADE";
+	}
+	
+	override void Initialize()
+	{
+		self.ChangeStat(STAT_LUMBERMILL);
+		self.extra = 0;
 	}
 
 	override void Tick()
@@ -60,13 +64,13 @@ Class RedneckKegHolder : DukeActor
 {
 	default
 	{
-		statnum STAT_LUMBERMILL;
 		pic "KEGHOLDER";
 	}
 	
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.ChangeStat(STAT_LUMBERMILL);
 	}
 	
 	override bool OnUse(DukePlayer user)

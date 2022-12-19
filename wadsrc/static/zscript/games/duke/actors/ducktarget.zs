@@ -3,13 +3,13 @@ class DukeLetter : DukeActor
 	default
 	{
 		pic "LETTER";
-		statnum STAT_ACTOR;
-		extra 1;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.ChangeStat(STAT_ACTOR);
+		self.extra = 1;
 	}
 }
 

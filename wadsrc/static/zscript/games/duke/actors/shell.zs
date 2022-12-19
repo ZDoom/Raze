@@ -3,8 +3,6 @@ class DukeShell : DukeActor
 {
 	default
 	{
-		shade -8;
-		statnum STAT_MISC;
 		spriteset "SHELL", "SHELL1";
 	}
 
@@ -49,6 +47,8 @@ class DukeShell : DukeActor
 			double scale = Raze.isRR() && isshell ? 0.03125 : 0.0625;
 			self.scale = (scale, scale);
 		}
+		self.shade = -8;
+		self.ChangeStat(STAT_MISC);
 	}
 	
 	override void Initialize()

@@ -3,7 +3,6 @@ class DukeBloodPool : DukeActor
 	default
 	{
 		pic "BLOODPOOL";
-		statnum STAT_MISC;
 	}
 	
 	virtual void SetPalette()
@@ -32,6 +31,7 @@ class DukeBloodPool : DukeActor
 		self.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if (!self.mapSpawned)
 			self.scale = (REPEAT_SCALE, REPEAT_SCALE);
+		self.ChangeStat(STAT_MISC);
 	}
 	
 	override void Tick()

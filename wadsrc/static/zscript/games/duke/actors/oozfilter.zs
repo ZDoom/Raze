@@ -3,7 +3,6 @@ class DukeOozFilter : DukeActor
 {
 	default
 	{
-		statnum STAT_STANDABLE;
 		spriteset "OOZFILTER";
 	}
 	
@@ -18,6 +17,7 @@ class DukeOozFilter : DukeActor
 		else self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		self.extra = gs.impact_damage << 2;
 		self.ownerActor = self;
+		self.ChangeStat(STAT_STANDABLE);
 	}
 	
 	override void Tick()

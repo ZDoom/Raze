@@ -5,13 +5,12 @@ class DukeRespawnMarker : DukeActor
 	default
 	{
 		spriteset "RESPAWNMARKERRED", "RESPAWNMARKERYELLOW", "RESPAWNMARKERGREEN";
-		scalex 0.375;
-		scaley 0.375;
 	}
 	
 	override void Initialize()
 	{
 		if (!self.mapSpawned && ownerActor != null) self.pos.Z = ownerActor.floorZ;
+		self.scale = (0.375, 0.375);
 	}
 	
 	override void Tick()

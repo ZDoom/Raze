@@ -2,15 +2,14 @@ class DukeTrash : DukeActor
 {
 	default
 	{
-		ScaleX 0.375;
-		ScaleY 0.375;
-		statnum STAT_STANDABLE;
 		pic "TRASH";
 	}
 	
 	override void Initialize()
 	{
+		self.Scale = (0.375, 0.375);
 		self.angle = frandom(0, 360);
+		self.ChangeStat(STAT_STANDABLE);
 	}
 	
 	override void Tick()

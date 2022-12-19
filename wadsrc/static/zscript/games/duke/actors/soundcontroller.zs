@@ -2,11 +2,6 @@
 
 class DukeSoundController : DukeActor
 {
-	default
-	{
-		statnum STAT_FX;
-	}
-	
 	override void Initialize()
 	{
 		if (ud.multimode < 2 && self.pal == 1)
@@ -16,6 +11,7 @@ class DukeSoundController : DukeActor
 			return;
 		}
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.ChangeStat(STAT_FX);
 	}
 	
 	override void Tick()
