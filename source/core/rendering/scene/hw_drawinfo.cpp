@@ -281,10 +281,7 @@ void HWDrawInfo::DispatchSprites()
 		auto actor = tspr->ownerActor;
 		auto texid = tspr->spritetexture();
 
-		if (actor == nullptr || tspr->scale.X == 0 || tspr->scale.Y == 0)
-			continue;
-
-		if (!texid.isValid()) return;
+		if (actor == nullptr || tspr->scale.X == 0 || tspr->scale.Y == 0 || !texid.isValid()) continue;
 
 		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 
