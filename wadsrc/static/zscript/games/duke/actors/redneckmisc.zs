@@ -18,8 +18,12 @@ class RedneckMusicNotes : DukeActor
 	default
 	{
 		pic "MUSICNOTES";
-		lotag -1;
-		clipdist 0;
+	}
+	
+	override void Initialize()
+	{
+		self.lotag = -1;
+		self.clipdist = 0;
 	}
 	
 	override bool OnUse(DukePlayer user)
@@ -35,8 +39,12 @@ class RedneckJoe9000 : DukeActor
 	default
 	{
 		pic "JOE9000";
-		lotag 1;
-		clipdist 0;
+	}
+	
+	override void Initialize()
+	{
+		self.lotag = 1;
+		self.clipdist = 0;
 	}
 	
 	override bool OnUse(DukePlayer user)

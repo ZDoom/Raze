@@ -4,14 +4,14 @@ class DukeStall : DukeActor
 	default
 	{
 		spriteset "STALL", "STALLBROKE";
-		lotag 1;
-		clipdist 2;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.OwnerActor = self;
+		self.lotag = 1;
+		self.clipdist = 2;
 	}
 
 	override bool OnUse(DukePlayer p)
@@ -63,8 +63,6 @@ class DukeToilet : DukeStall
 	default
 	{
 		spriteset "TOILET", "TOILETBROKE";
-		lotag 1;
-		clipdist 2;
 	}
 
 	override void StandingOn(DukePlayer p)

@@ -1,14 +1,10 @@
 
 class DukeActivator : DukeActor
 {
-	default
-	{
-		statnum STAT_ACTIVATOR;
-	}
-	
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.ChangeStat(STAT_ACTIVATOR);
 	}
 	
 	/* this first needs work on the sector effectors.
@@ -63,29 +59,21 @@ class DukeActivator : DukeActor
 
 class DukeLocator : DukeActor
 {
-	default
-	{
-		statnum STAT_LOCATOR;
-	}
-	
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.ChangeStat(STAT_LOCATOR);
 	}
 }
 
 class DukeActivatorLocked : DukeActor
 {
-	default
-	{
-		statnum STAT_ACTIVATOR;
-	}
-	
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
 		if (!Raze.IsRR()) self.sector.lotag |= 16384;
 		else self.sector.lotag ^= 16384;
+		self.ChangeStat(STAT_ACTIVATOR);
 	}
 	
 	/* must wait until Activator.onActivate can be done.

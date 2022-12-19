@@ -25,14 +25,14 @@ class DukeHangLight : DukeGenericPole2
 {
 	default
 	{
-		statnum STAT_ACTOR;
-		clipdist 8;
 		pic "HANGLIGHT";
 	}
 	
 	override void Initialize()
 	{
+		self.clipdist = 8;
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.ChangeStat(STAT_ACTOR);
 	}
 
 }
@@ -68,12 +68,12 @@ class DukeBottle10 : DukeActor
 	Default
 	{
 		pic "BOTTLE10";
-		clipdist 8;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
 	}
 	override void OnHit(DukeActor proj)
 	{
@@ -91,12 +91,12 @@ class DukeVase : DukeActor
 	Default
 	{
 		pic "VASE";
-		clipdist 8;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
 	}
 	override void OnHit(DukeActor proj)
 	{
@@ -114,13 +114,13 @@ class DukeFanSprite : DukeActor
 	Default
 	{
 		spriteset "FANSPRITE", "FANSPRITEBROKE";
-		clipdist 8;
-		statnum STAT_DEFAULT;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
+		self.ChangeStat(STAT_DEFAULT);
 	}
 	override void OnHit(DukeActor proj)
 	{
@@ -142,13 +142,13 @@ class DukeSatellite : DukeActor
 	Default
 	{
 		pic "SATELITE";
-		clipdist 8;
-		statnum STAT_DEFAULT;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
+		self.ChangeStat(STAT_DEFAULT);
 	}
 	override void OnHit(DukeActor proj)
 	{
@@ -199,13 +199,13 @@ class DukeFetus : DukeActor
 	Default
 	{
 		spriteset "FETUS", "FETUSBROKE";
-		clipdist 8;
-		statnum STAT_DEFAULT;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
+		self.ChangeStat(STAT_DEFAULT);
 	}
 	override void OnHit(DukeActor proj)
 	{
@@ -278,13 +278,13 @@ class DukeHydrant : DukeActor
 	Default
 	{
 		spriteset "HYDRENT", "BROKEFIREHYDRENT";
-		clipdist 8;
-		statnum STAT_DEFAULT;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
+		self.ChangeStat(STAT_DEFAULT);
 	}
 	override void OnHit(DukeActor proj)
 	{
@@ -302,13 +302,13 @@ class DukePipe1 : DukeActor
 	Default
 	{
 		spriteset "PIPE1", "PIPE1B";
-		clipdist 8;
-		statnum STAT_DEFAULT;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
+		self.ChangeStat(STAT_DEFAULT);
 	}
 	override void OnHit(DukeActor proj)
 	{
@@ -411,12 +411,12 @@ class DukeMonk : DukeSpaceMarine
 	default
 	{
 		pic "MONK";
-		clipdist 8;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
 		ChangeStat(STAT_DEFAULT);
 	}
 	

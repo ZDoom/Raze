@@ -3,14 +3,14 @@ class DukeCactusBroke : DukeActor
 {
 	default
 	{
-		clipdist 8;
-		statnum STAT_ACTOR;
 		pic "CACTUSBROKE";
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 8;
+		self.ChangeStat(STAT_ACTOR);
 	}
 }
 
@@ -18,8 +18,6 @@ class DukeCactus : DukeCactusBroke
 {
 	default
 	{
-		clipdist 8;
-		statnum STAT_ACTOR;
 		spriteset "CACTUS", "CACTUSBROKE";
 	}
 	
@@ -60,4 +58,3 @@ class DukeCactus : DukeCactusBroke
 		}
 	}
 }
-

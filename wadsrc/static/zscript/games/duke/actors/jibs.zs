@@ -554,8 +554,11 @@ class RedneckRabbitJibA : DukeJibs1
 	default
 	{
 		pic "RABBITJIBA";
-		ScaleX 0.28125;
-		ScaleY 0.28125;
+	}
+	
+	override void Initialize()
+	{
+		self.Scale = (0.28125, 0.28125);
 	}
 }
 
@@ -564,8 +567,11 @@ class RedneckRabbitJibB : DukeJibs1
 	default
 	{
 		pic "RABBITJIBB";
-		ScaleX 0.5625;
-		ScaleY 0.5625;
+	}
+	
+	override void Initialize()
+	{
+		self.Scale = (0.5625, 0.5625);
 	}
 }
 
@@ -574,8 +580,11 @@ class RedneckRabbitJibC : DukeJibs1
 	default
 	{
 		pic "RABBITJIBC";
-		ScaleX 0.84375;
-		ScaleY 0.84375;
+	}
+	
+	override void Initialize()
+	{
+		self.Scale = (0.84375, 0.84375);
 	}
 }
 

@@ -4,8 +4,12 @@ class DukePlug : DukeActor
 	default
 	{
 		pic "PLUG";
-		statnum STAT_STANDABLE;
-		lotag 9999;
+	}
+	
+	override void Initialize()
+	{
+		self.lotag = 9999;
+		self.ChangeStat(STAT_STANDABLE);
 	}
 	
 	override bool OnUse(DukePlayer p)
@@ -22,12 +26,12 @@ class DukeFemMag : DukeActor
 	default 
 	{
 		pic "FEMMAG1";
-		statnum STAT_DEFAULT;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		self.ChangeStat(STAT_DEFAULT);
 	}
 }
 
@@ -54,13 +58,13 @@ class DukeMaskWall : DukeActor
 	default
 	{
 		pic "MASKWALL1";
-		statnum STAT_DEFAULT;
 	}
 	
 	override void Initialize()
 	{
 		let j = self.cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 		self.cstat = j | CSTAT_SPRITE_BLOCK;
+		self.ChangeStat(STAT_DEFAULT);
 	}
 }
 
@@ -68,7 +72,6 @@ class DukeFootprints : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		spriteset "FOOTPRINTS", "FOOTPRINTS2", "FOOTPRINTS3", "FOOTPRINTS4";
 	}
 	
@@ -90,6 +93,7 @@ class DukeFootprints : DukeActor
 		if (sect.lotag != ST_1_ABOVE_WATER && sect.lotag != ST_2_UNDERWATER)
 			self.scale = (0.5, 0.5);
 		self.setSpriteSetImage(random(0, 3));
+		self.ChangeStat(STAT_MISC);
 	}
 	
 	override bool animate(tspritetype t)
@@ -104,16 +108,15 @@ class DukeBulletHole : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		pic "BULLETHOLE";
-		scaleX 0.046875;
-		scaleY 0.046875;
 	}
 	
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		self.insertspriteq();
+		self.Scale = (0.046875, 0.046875);
+		self.ChangeStat(STAT_MISC);
 	}
 	
 	override bool animate(tspritetype t)
@@ -146,13 +149,13 @@ class DukeCameraPole : DukeGenericPole
 	default
 	{
 		pic "CAMERAPOLE";
-		extra 1;
 	}
 	
 	override void Initialize()
 	{
 		if (gs.camerashitable) self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 		else self.cstat = 0;
+		self.extra = 1;
 		super.Initialize();
 	}
 }
@@ -161,13 +164,13 @@ class DukeNeon : DukeActor
 {
 	default
 	{
-		statnum STAT_MISC;
 		pic "NEON1";
 	}
 	
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.ChangeStat(STAT_MISC);
 	}
 
 	override void Tick()
