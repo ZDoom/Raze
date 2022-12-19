@@ -2,10 +2,6 @@ class RedneckBowlingPin : DukeActor
 {
 	default
 	{
-		statnum STAT_ZOMBIEACTOR;
-		clipdist 12;
-		scaleX 0.359375;
-		scaleY 0.359375;
 		detail 0;
 		spriteset "BOWLINGPIN", "BOWLINGPIN1";
 	}
@@ -13,6 +9,9 @@ class RedneckBowlingPin : DukeActor
 	override void Initialize()
 	{
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+		self.clipdist = 12;
+		self.scale = (0.359375, 0.359375);
+		self.ChangeStat(STAT_ZOMBIEACTOR);
 	}
 	
 	protected void DoTick(int type)
@@ -115,10 +114,16 @@ class RedneckHenstand : RedneckBowlingPin
 {
 	default
 	{
-		scaleY 0.234375;
 		spriteset "HENSTAND", "HENSTAND1";
 		detail 1;
 	}
+	
+	override void Initialize()
+	{
+		Super.Initialize();
+		self.scale.Y = 234375;
+	}
+	
 	
 	override void Tick()
 	{
@@ -138,12 +143,15 @@ class RedneckBowlingBall : RedneckBowlingPin
 {
 	default
 	{
-		clipdist 17;
-		scaleX 0.171875;
-		scaleY 0.140625;
-		statnum STAT_ACTOR;
 		pic "BOWLINGBALL";
 		detail 2;
+	}
+	
+	override void Initialize()
+	{
+		self.clipdist = 16;
+		self.scale = (0.171875, 0.140625);
+		self.ChangeStat(STAT_ACTOR);
 	}
 	
 	override void Tick()
@@ -226,18 +234,13 @@ class RedneckBowlingBall : RedneckBowlingPin
 
 class RedneckBowlingController : DukeActor
 {
-	default
-	{
-		statnum STAT_BOWLING;
-		scaleX 0;
-		scaleY 0;
-		clipdist 0;
-		extra 0;
-	}
-	
 	override void Initialize()
 	{
 		self.cstat = CSTAT_SPRITE_INVISIBLE;
+		self.clipdist = 0;
+		self.extra = 0;
+		
+		self.ChangeStat(STAT_BOWLING);
 	}
 }
 
