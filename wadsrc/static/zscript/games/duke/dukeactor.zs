@@ -231,7 +231,7 @@ class DukeActor : CoreActor native
 	native int badguy();
 	native int scripted();
 	native int isplayer();
-	native void lotsofstuff(Name type, int count);
+	native void lotsofstuff(class<DukeActor> type, int count);
 	native double gutsoffset();
 	native int movesprite(Vector3 move, int clipmask);
 	native int movesprite_ex(Vector3 move, int clipmask, CollisionData coll);

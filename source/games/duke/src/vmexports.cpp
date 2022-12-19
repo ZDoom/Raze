@@ -380,7 +380,7 @@ void DukeActor_Lotsofstuff(DDukeActor* actor, PClassActor* intname, int count)
 	lotsofstuff(actor, count, intname);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofstuff, lotsofstuff)
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofstuff, DukeActor_Lotsofstuff)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_POINTER(type, PClassActor);
