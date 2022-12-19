@@ -3,13 +3,13 @@ class DukeExplosion2 : DukeActor
 	default
 	{
 		pic "EXPLOSION2";
+		+FULLBRIGHT;
 	}
 	
 	override bool animate(tspritetype t)
 	{
 		Duke.GetViewPlayer().visibility = -127;
 		Duke.setlastvisinc(32);
-		t.shade = -127;
 		return false;
 	}
 
@@ -38,12 +38,7 @@ class DukeExplosion2Bot : DukeExplosion2
 	default
 	{
 		pic "EXPLOSION2BOT";
-	}
-	
-	override bool animate(tspritetype t)
-	{
-		t.shade = -127;
-		return false;
+		+FULLBRIGHT;
 	}
 }
 

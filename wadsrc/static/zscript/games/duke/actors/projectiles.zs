@@ -200,6 +200,7 @@ class DukeFirelaser : DukeProjectile // Liztrooper shot
 	default
 	{
 		spriteset "FIRELASER", "FIRELASER2", "FIRELASER3", "FIRELASER4", "FIRELASER5", "FIRELASER6";
+		+FULLBRIGHT;
 	}
 	override bool postmoveeffect(CollisionData coll)
 	{
@@ -222,7 +223,6 @@ class DukeFirelaser : DukeProjectile // Liztrooper shot
 	override bool animate(tspritetype tspr)
 	{
 		if (Raze.isRR()) tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
-		tspr.shade = -127;
 		return true;
 	}
 
@@ -233,6 +233,7 @@ class DukeFirelaserTrail : DukeActor
 	default
 	{
 		spriteset "FIRELASER", "FIRELASER2", "FIRELASER3", "FIRELASER4", "FIRELASER5", "FIRELASER6";
+		+FULLBRIGHT;
 	}
 	
 	override void Tick()
@@ -247,7 +248,6 @@ class DukeFirelaserTrail : DukeActor
 	{
 		self.extra = 999;
 		if (Raze.isRR()) tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
-		tspr.shade = -127;
 		return true;
 	}
 	
@@ -264,6 +264,7 @@ class DukeShrinkSpark : DukeProjectile
 	default
 	{
 		spriteset "SHRINKSPARK", "SHRINKSPARK1", "SHRINKSPARK2", "SHRINKSPARK3";
+		+FULLBRIGHT;
 	}
 	
 	override void posthiteffect(CollisionData coll)
@@ -277,7 +278,6 @@ class DukeShrinkSpark : DukeProjectile
 	override bool animate(tspritetype tspr)
 	{
 		tspr.setSpritePic(self, (PlayClock >> 4) & 3);
-		tspr.shade = -127;
 		return true;
 	}
 	
@@ -289,12 +289,7 @@ class DukeShrinkerExplosion : DukeActor
 	default
 	{
 		spriteset "SHRINKEREXPLOSION";
-	}
-	
-	override bool animate(tspritetype tspr)
-	{
-		tspr.shade = -127;
-		return false;
+		+FULLBRIGHT;
 	}
 	
 	override void Initialize()
@@ -326,6 +321,7 @@ class DukeRPG : DukeProjectile
 	default
 	{
 		pic "RPG";
+		+FULLBRIGHT;
 	}
 	
 	override void Initialize()
@@ -399,13 +395,6 @@ class DukeRPG : DukeProjectile
 			self.spawn('DukeWaterBubble');
 		
 	}
-
-	override bool animate(tspritetype tspr)
-	{
-		tspr.shade = -127;
-		return true;
-	}
-	
 }
 
 
@@ -420,6 +409,7 @@ class DukeFreezeBlast : DukeProjectile
 	default
 	{
 		pic "FREEZEBLAST";
+		+FULLBRIGHT;
 	}
 	
 	override bool postmoveeffect(CollisionData coll)
@@ -477,13 +467,6 @@ class DukeFreezeBlast : DukeProjectile
 		self.yint--;
 		return true;
 	}
-	
-	override bool animate(tspritetype tspr)
-	{
-		tspr.shade = -127;
-		return true;
-	}
-	
 }
 
 //---------------------------------------------------------------------------
@@ -548,6 +531,7 @@ class DukeCoolExplosion1 : DukeProjectile // octabrain shot.
 			"COOLEXPLOSION6", "COOLEXPLOSION7", "COOLEXPLOSION8", "COOLEXPLOSION9", "COOLEXPLOSION10", 
 			"COOLEXPLOSION11", "COOLEXPLOSION12", "COOLEXPLOSION13", "COOLEXPLOSION14", "COOLEXPLOSION15", 
 			"COOLEXPLOSION16", "COOLEXPLOSION17", "COOLEXPLOSION18", "COOLEXPLOSION19", "COOLEXPLOSION20";
+		+FULLBRIGHT;
 	}
 	
 	override void Initialize()
@@ -608,7 +592,6 @@ class DukeCoolExplosion1 : DukeProjectile // octabrain shot.
 	override bool animate(tspritetype tspr)
 	{
 		tspr.setSpritePic(self, clamp((self.shade >> 1), 0, 19));
-		tspr.shade = -127;
 		return true;
 	}
 
@@ -748,14 +731,8 @@ class RedneckUWhip : DukeProjectile
 	default
 	{
 		pic "UWHIP";
+		+FULLBRIGHT;
 	}
-	
-	override bool animate(tspritetype tspr)
-	{
-		tspr.shade = -127;
-		return true;
-	}
-	
 }
 
 class RedneckOWhip : RedneckUWhip

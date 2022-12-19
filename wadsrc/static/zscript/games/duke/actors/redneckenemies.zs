@@ -247,18 +247,13 @@ class RedneckShitBoss : DukeActor
 	default
 	{
 		pic "SBMOVE";
+		+FULLBRIGHT;
 	}
 
 	override void Initialize()
 	{
 		self.scale = (0.75, 0.75);
 		self.setClipDistFromTile();
-	}
-
-	override bool animate(tspritetype t)
-	{
-		t.shade = -127;
-		return false;
 	}
 }
 

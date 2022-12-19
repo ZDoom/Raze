@@ -3,6 +3,7 @@ class DukeAtomicHealth : DukeItemBase
 	default
 	{
 		pic "ATOMICHEALTH";
+		+FULLBRIGHT;
 	}
 	
 	override void Initialize()
@@ -14,7 +15,6 @@ class DukeAtomicHealth : DukeItemBase
 	override bool animate(tspritetype t)
 	{
 		t.pos.Z -= 4;
-		t.shade = -127;
 		return false;
 	}
 }
@@ -24,6 +24,7 @@ class RedneckGoogooCluster : DukeItemBase
 	default
 	{
 		pic "ATOMICHEALTH";
+		+FULLBRIGHT;
 	}
 	
 	override void Initialize()
@@ -35,7 +36,6 @@ class RedneckGoogooCluster : DukeItemBase
 	override bool animate(tspritetype t)
 	{
 		t.pos.Z -= 4;
-		t.shade = -127;
 		return false;
 	}
 	

@@ -178,8 +178,8 @@ static FFlagDef DukeActorFlagDefs[] =
 static const struct FFlagList { const PClass * const *Type; FFlagDef *Defs; int NumDefs; int Use; } FlagLists[] =
 {
 	{ &RUNTIME_CLASS_CASTLESS(DCoreActor), 		ActorFlagDefs,		countof(ActorFlagDefs), 3 },
-	{ &RUNTIME_CLASS_CASTLESS(DCoreActor), 	InternalActorFlagDefs,	countof(InternalActorFlagDefs), 2 },
 	{ &RUNTIME_CLASS_CASTLESS(DDukeActor), 		DukeActorFlagDefs,		countof(DukeActorFlagDefs), 3 },
+	{ &RUNTIME_CLASS_CASTLESS(DCoreActor), 	InternalActorFlagDefs,	countof(InternalActorFlagDefs), 2 },
 };
 #define NUM_FLAG_LISTS (countof(FlagLists))
 
@@ -267,7 +267,7 @@ FFlagDef *FindFlag (const PClass *type, const char *part1, const char *part2, bo
 
 	if (part2 == NULL)
 	{ // Search all lists
-		int max = strict ? 1 : NUM_FLAG_LISTS;
+		int max = strict ? 2 : NUM_FLAG_LISTS;
 		for (int i = 0; i < max; ++i)
 		{
 			if ((FlagLists[i].Use & 1) && type->IsDescendantOf (*FlagLists[i].Type))

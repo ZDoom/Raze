@@ -225,6 +225,7 @@ class DukeLaserLine : DukeActor
 	default
 	{
 		pic "LASERLINE";
+		+FULLBRIGHT;
 	}
 
 	override void Initialize()
@@ -253,7 +254,6 @@ class DukeLaserLine : DukeActor
 		t.pos.Z = OwnerAc.pos.Z - 3;
 		if (gs.lasermode == 2 && Duke.GetViewPlayer().heat_on == 0)
 			t.scale.Y = 0;
-		t.shade = -127;
 		return true;
 	}
 

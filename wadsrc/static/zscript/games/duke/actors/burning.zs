@@ -4,18 +4,13 @@ class DukeFloorFlame : DukeActor
 	default
 	{
 		pic "FLOORFLAME";
+		+FULLBRIGHT;
 	}
 
 	override void Initialize()
 	{
 		self.shade = -127;
 		self.ChangeStat(STAT_STANDABLE);
-	}
-		
-	override bool animate(tspritetype t)
-	{
-		t.shade = -127;
-		return false;
 	}
 }
 
@@ -24,6 +19,7 @@ class DukeBurning : DukeActor
 	default
 	{
 		pic "BURNING";
+		+FULLBRIGHT;
 	}
 	
 	override void Initialize()
@@ -58,7 +54,6 @@ class DukeBurning : DukeActor
 		double d;
 		if (!OwnerAc || !OwnerAc.actorflag1(SFLAG_NOFLOORFIRE))
 			[d, t.pos.Z] = t.sector.getSlopes(t.pos.XY);
-		t.shade = -127;
 		return false;
 	}
 }
@@ -76,6 +71,7 @@ class RedneckFire : DukeActor
 	default
 	{
 		pic "FIRE";
+		+FULLBRIGHT;
 	}
 	
 	override bool animate(tspritetype t)
@@ -84,7 +80,6 @@ class RedneckFire : DukeActor
 		double d;
 		if (!OwnerAc || !OwnerAc.actorflag1(SFLAG_NOFLOORFIRE))
 			[d, t.pos.Z] = t.sector.getSlopes(t.pos.XY);
-		t.shade = -127;
 		return false;
 	}
 }
