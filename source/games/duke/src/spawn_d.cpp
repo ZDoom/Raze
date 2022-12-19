@@ -59,7 +59,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	if (act->GetClass() != RUNTIME_CLASS(DDukeActor))
 	{
-		if (spawninitdefault(actj, act))
+		if (!badguy(act) || commonEnemySetup(act, actj))
 			CallInitialize(act);
 		return act;
 	}

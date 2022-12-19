@@ -13,36 +13,12 @@ class DukeRecon : DukeActor
 	
 	override void initialize()
 	{
-		if (self.lotag > ud.player_skill)
-		{
-			self.scale = (0, 0);
-			self.ChangeStat(STAT_MISC);
-			return;
-		}
-		if (!Raze.isRR() || self.actorflag1(SFLAG_KILLCOUNT))	// in Duke bad guys always count as kill. RR uses a flag. Needs to be cleaned up.
-			Duke.GetLocalPlayer().max_actors_killed++;
 		self.temp_data[5] = 0;
-		if (ud.monsters_off == 1)
-		{
-			self.scale = (0, 0);
-			self.ChangeStat(STAT_MISC);
-			return;
-		}
 		self.extra = 130;
-
-		self.cstat |= CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
-
-		if (ud.multimode < 2 && self.pal != 0)
-		{
-			self.scale = (0, 0);
-			self.ChangeStat(STAT_MISC);
-			return;
-		}
 		self.pal = 0;
 		self.shade = -17;
 
-		self.ChangeStat(STAT_ZOMBIEACTOR);
-		
+	
 		AttackSnd = "RECO_ATTACK";
 		PainSnd = "RECO_PAIN";
 		RoamSnd = "RECO_ROAM";

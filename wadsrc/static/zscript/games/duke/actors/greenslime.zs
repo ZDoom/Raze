@@ -7,7 +7,6 @@ class DukeGreenSlime : DukeActor
 
 	override void Initialize()
 	{
-		commonEnemySetup();
 		self.scale = (0.625, 0.625);
 		self.clipdist = 20;
 		self.extra = 1;

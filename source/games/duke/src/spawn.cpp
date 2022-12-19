@@ -298,6 +298,54 @@ DDukeActor* spawn(DDukeActor* actj, PClassActor * cls)
 //
 //---------------------------------------------------------------------------
 
+bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
+{
+	if (!self->mapSpawned) self->spr.lotag = 0;
+
+	//  Init the size. This is different for internal and user enemies.
+	if (actorflag(self, SFLAG_INTERNAL_BADGUY))
+	{
+		self->spr.scale = DVector2(0.625, 0.625);
+	}
+	else if (self->spr.scale.X == 0 || self->spr.scale.Y == 0)
+	{
+		self->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
+	}
+
+	if ((self->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
+	{
+		self->spr.scale.Zero();
+		ChangeActorStat(self, STAT_MISC);
+		return false;
+	}
+	else
+	{
+		makeitfall(self);
+
+		self->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
+
+		if (!isRR() && actorflag(self, SFLAG_KILLCOUNT))
+			ps[myconnectindex].max_actors_killed++;
+
+		self->timetosleep = 0;
+		if (!self->mapSpawned)
+		{
+			CallPlayFTASound(self);
+			ChangeActorStat(self, STAT_ACTOR);
+			if (owner && !actorflag(self, SFLAG_INTERNAL_BADGUY)) self->spr.Angles.Yaw = owner->spr.Angles.Yaw;
+		}
+		else ChangeActorStat(self, STAT_ZOMBIEACTOR);
+		return true;
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool spawninitdefault(DDukeActor* actj, DDukeActor *act)
 {
 	if (gs.actorinfo[act->spr.picnum].scriptaddress)
@@ -316,41 +364,19 @@ bool spawninitdefault(DDukeActor* actj, DDukeActor *act)
 
 		if (actorflag(act, SFLAG_BADGUY))
 		{
-			if (ud.monsters_off == 1)
-			{
-				act->spr.scale = DVector2(0, 0);
-				ChangeActorStat(act, STAT_MISC);
-				return false;
-			}
-
-			makeitfall(act);
-
-			if (actorflag(act, SFLAG_BADGUYSTAYPUT))
-				act->actorstayput = act->sector();
-
-			if (!isRR() || actorflag(act, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
-				ps[myconnectindex].max_actors_killed++;
-
-			act->clipdist = 20;
-			if (actj)
-			{
-				if (isrespawncontroller(actj))
-					act->tempval = act->spr.pal = actj->spr.pal;
-				ChangeActorStat(act, STAT_ACTOR);
-			}
-			else ChangeActorStat(act, STAT_ZOMBIEACTOR);
+			commonEnemySetup(act, actj);
 		}
 		else
 		{
 			act->clipdist = 10;
 			act->SetOwner(act);
 			ChangeActorStat(act, STAT_ACTOR);
+			if (actj)
+				act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 		}
 
 		act->timetosleep = 0;
 
-		if (actj)
-			act->spr.Angles.Yaw = actj->spr.Angles.Yaw;
 	}
 	return true;
 }

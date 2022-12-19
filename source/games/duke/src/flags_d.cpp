@@ -40,6 +40,7 @@ BEGIN_DUKE_NS
 
 void initactorflags_d()
 {
+	setflag(SFLAG3_NOGRAVITY, { DTILE_RECON }); // not ported!!!
 
 	gs.actorinfo[DTILE_COMMANDER].gutsoffset = -24;
 

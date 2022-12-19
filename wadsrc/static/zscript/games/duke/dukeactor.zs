@@ -251,33 +251,6 @@ class DukeActor : CoreActor native
 	deprecated("4.9") native bool checktype(String name);	// this must not stay in the code, so mark it deprecated to keep the annoying warning at startup.
 	
 	
-	void commonEnemySetup(bool countkill = true)
-	{
-		if (!self.mapSpawned) self.lotag = 0;
-
-		if ((self.lotag > ud.player_skill) || ud.monsters_off == 1)
-		{
-			self.scale = (0, 0);
-			self.ChangeStat(STAT_MISC);
-		}
-		else
-		{
-			self.makeitfall();
-
-			self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-			if (countkill)
-				Duke.GetLocalPlayer().max_actors_killed++;
-
-			if (!self.mapSpawned)
-			{
-				self.timetosleep = 0;
-				self.PlayFTASound();
-				self.ChangeStat(STAT_ACTOR);
-			}
-			else self.ChangeStat(STAT_ZOMBIEACTOR);
-		}
-	}
-	
 	int checkLocationForFloorSprite(double radius)
 	{
 		bool away = self.isAwayFromWall(radius);
