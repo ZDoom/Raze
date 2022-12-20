@@ -404,7 +404,7 @@ bool GameInterface::DrawAutomapPlayer(const DVector2& mxy, const DVector2& cpos,
 						break;
 
 					case CSTAT_SPRITE_ALIGNMENT_WALL:
-						if (actorflag(act, SFLAG2_SHOWWALLSPRITEONMAP)) DrawAutomapAlignmentWall(act->spr, sprpos, cangvect, czoom, xydim, col);
+						if ((act->flags2 & SFLAG2_SHOWWALLSPRITEONMAP)) DrawAutomapAlignmentWall(act->spr, sprpos, cangvect, czoom, xydim, col);
 						break;
 
 					case CSTAT_SPRITE_ALIGNMENT_FLOOR:

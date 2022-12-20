@@ -85,6 +85,10 @@ enum ESectorTriggers
 
 class DukeActor : CoreActor native
 {
+	default
+	{
+		lookallarounddefault;
+	}
 	enum EStatnums
 	{
 		STAT_DEFAULT        = 0,

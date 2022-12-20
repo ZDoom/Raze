@@ -22,7 +22,6 @@ struct STATUSBARTYPE
 	bool gotweapon[MAX_WEAPONS];
 };
 
-// Todo - put more state in here
 struct ActorInfo
 {
 	uint32_t scriptaddress;

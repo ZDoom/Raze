@@ -569,7 +569,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) + 8;
 			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
 			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
-			if (!actorflag(aimed, SFLAG2_SPECIALAUTOAIM))
+			if (!(aimed->flags2 & SFLAG2_SPECIALAUTOAIM))
 				ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
 		}
 		else
@@ -606,7 +606,7 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 	spawned->seek_actor = act90;
 
 	spawned->spr.extra += (krand() & 7);
-	if (!(actorflag(spawned, SFLAG2_REFLECTIVE)))
+	if (!(spawned->flags2 & SFLAG2_REFLECTIVE))
 		spawned->temp_actor = aimed;
 	else
 	{
@@ -790,13 +790,8 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 	}
 	
 	if (cls == nullptr)
-	{
-		auto info = spawnMap.CheckKey(atwith);
-		if (info)
-		{
-			cls = static_cast<PClassActor*>(info->Class(atwith));
-		}
-	}
+		cls = GetSpawnType(atwith);
+
 	if (cls && cls->IsDescendantOf(RUNTIME_CLASS(DDukeActor)) && CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, p, spos, sang)) return;
 	if (cls && atwith == -1) atwith = GetDefaultByType(cls)->spr.picnum;
 

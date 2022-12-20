@@ -213,7 +213,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				}
 			}
 
-			if (x == 0 || x >= 5 || actorflag(act2, SFLAG_HITRADIUS_FLAG1))
+			if (x == 0 || x >= 5 || (act2->flags1 & SFLAG_HITRADIUS_FLAG1))
 			{
 				if (actor->spr.picnum != DTILE_SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if ((actor->spr.pos - act2->spr.pos).Length() < radius)
@@ -223,7 +223,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						fi.checkhitsprite(act2, actor);
 					}
 			}
-			else if (act2->spr.extra >= 0 && act2 != actor && (actorflag(act2, SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
+			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
 				if (actor->spr.picnum == DTILE_SHRINKSPARK && act2->spr.picnum != DTILE_SHARK && (act2 == Owner || act2->spr.scale.X < 0.375))
 				{
@@ -281,13 +281,13 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							act2->hitextra = hp1 + (krand() % (hp2 - hp1));
 						}
 
-						if (!actorflag(act2, SFLAG2_NORADIUSPUSH) && !bossguy(act2))
+						if (!(act2->flags2 & SFLAG2_NORADIUSPUSH) && !bossguy(act2))
 						{
 							if (act2->vel.X < 0) act2->vel.X = 0;
 							act2->vel.X += ( (actor->spr.extra / 4.));
 						}
 
-						if (actorflag(act2, SFLAG_HITRADIUSCHECK))
+						if ((act2->flags1 & SFLAG_HITRADIUSCHECK))
 							fi.checkhitsprite(act2, actor);
 					}
 					else if (actor->spr.extra == 0) act2->hitextra = 0;
@@ -352,7 +352,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 			double clipdist;
 			if (actor->spr.picnum == DTILE_LIZMAN)
 				clipdist = 18.25;
-			else if (actorflag(actor, SFLAG_BADGUY))
+			else if ((actor->flags1 & SFLAG_BADGUY))
 				clipdist = actor->clipdist;
 			else
 				clipdist = 12;
@@ -488,7 +488,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 				actor->spr.extra -= actor->hitextra;
 				auto Owner = actor->GetOwner();
-				if (!actorflag(actor, SFLAG2_IGNOREHITOWNER) && Owner && Owner->spr.statnum < MAXSTATUS)
+				if (!(actor->flags2 & SFLAG2_IGNOREHITOWNER) && Owner && Owner->spr.statnum < MAXSTATUS)
 					actor->SetOwner(hitowner);
 			}
 
@@ -696,13 +696,13 @@ void movetransports_d(void)
 				break;
 
 			case STAT_ACTOR:
-				if (actorflag(act, SFLAG3_DONTDIVEALIVE) && act2->spr.extra > 0) continue;
+				if ((act->flags3 & SFLAG3_DONTDIVEALIVE) && act2->spr.extra > 0) continue;
 				[[fallthrough]];
 			case STAT_PROJECTILE:
 			case STAT_MISC:
 			case STAT_FALLER:
 			case STAT_DUMMYPLAYER:
-				if (actorflag(act, SFLAG2_DONTDIVE)) continue;
+				if ((act->flags2 & SFLAG2_DONTDIVE)) continue;
 
 				ll = abs(act2->vel.Z);
 
@@ -726,7 +726,7 @@ void movetransports_d(void)
 
 					if (warpspriteto)
 					{
-						if (actorflag(act2, SFLAG_NOTELEPORT)) continue;
+						if ((act2->flags1 & SFLAG_NOTELEPORT)) continue;
 						switch (act2->spr.picnum)
 						{
 						case DTILE_PLAYERONWATER:
@@ -1309,7 +1309,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 					ps[playernum].vel.XY() *= gs.playerfriction - 0.125;
 				}
 			}
-			else if (!actorflag(actor, SFLAG2_FLOATING))
+			else if (!(actor->flags2 & SFLAG2_FLOATING))
 			{
 				if (!*(moveptr + 1))
 				{

@@ -83,10 +83,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	if (!clstype)
 	{
 		info = spawnMap.CheckKey(s_pn);
-		if (info)
-		{
-			clstype = static_cast<PClassActor*>(info->Class(s_pn));
-		}
+		if (info) clstype = static_cast<PClassActor*>(info->cls);
 	}
 
 	auto act = static_cast<DDukeActor*>(InsertActor(clstype? clstype : RUNTIME_CLASS(DDukeActor), whatsectp, s_stat));
@@ -228,7 +225,7 @@ bool initspriteforspawn(DDukeActor* act)
 
 	}
 
-	if (!actorflag(act, SFLAG_NOFALLER) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
+	if (!(act->flags1 & SFLAG_NOFALLER) && (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
 	{
 		if (act->spr.shade == 127) return false;
 
@@ -302,18 +299,13 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 {
 	if (!self->mapSpawned) self->spr.lotag = 0;
 
-	if (gs.actorinfo[self->spr.picnum].scriptaddress)	// default scale only applies to actors with a CON part. Note: needs fixing later!
+	//  Init the size. This is different for internal and user enemies.
+	self->clipdist = 20;
+	if (self->flags1 & SFLAG_INTERNAL_BADGUY)
 	{
-		//  Init the size. This is different for internal and user enemies.
-		if (actorflag(self, SFLAG_INTERNAL_BADGUY))
-		{
-			self->spr.scale = DVector2(0.625, 0.625);
-			self->clipdist = 20;
-		}
-		else if (self->spr.scale.X == 0 || self->spr.scale.Y == 0)
-		{
-			self->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
-		}
+		self->flags1 |= SFLAG_BADGUY; // simplify future checks.
+		self->spr.scale = DVector2(0.625, 0.625);
+
 	}
 
 	if ((self->spr.lotag > ud.player_skill) || ud.monsters_off == 1)
@@ -335,7 +327,7 @@ bool commonEnemySetup(DDukeActor* self, DDukeActor* owner)
 		{
 			CallPlayFTASound(self);
 			ChangeActorStat(self, STAT_ACTOR);
-			if (owner && !actorflag(self, SFLAG_INTERNAL_BADGUY)) self->spr.Angles.Yaw = owner->spr.Angles.Yaw;
+			if (owner && !(self->flags1 & SFLAG_INTERNAL_BADGUY)) self->spr.Angles.Yaw = owner->spr.Angles.Yaw;
 		}
 		else ChangeActorStat(self, STAT_ZOMBIEACTOR);
 		return true;
@@ -830,7 +822,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 DDukeActor* spawninit(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
-	if (actorflag(act, SFLAG2_TRIGGERRESPAWN))
+	if ((act->flags2 & SFLAG2_TRIGGERRESPAWN))
 	{
 		act->spr.yint = act->spr.hitag;
 		act->spr.hitag = -1;

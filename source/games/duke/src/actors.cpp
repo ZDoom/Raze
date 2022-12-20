@@ -61,7 +61,7 @@ double adjustfall(DDukeActor* actor, double c);
 
 void TickActor(DDukeActor* self)
 {
-	if (self->spr.statnum == STAT_ACTOR || actorflag(self, SFLAG3_FORCERUNCON))
+	if (self->spr.statnum == STAT_ACTOR || (self->flags3 & SFLAG3_FORCERUNCON))
 	{
 		double xx;
 		int p = findplayer(self, &xx);
@@ -88,7 +88,7 @@ void TickActor(DDukeActor* self)
 
 void respawnhitag(DDukeActor* actor)
 {
-	if (actorflag(actor, SFLAG2_TRIGGERRESPAWN))
+	if (actor->flags2 & SFLAG2_TRIGGERRESPAWN)
 	{
 		if (actor->spr.yint) operaterespawns(actor->spr.yint);
 	}
@@ -256,7 +256,7 @@ void clearcamera(player_struct* ps)
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto k = it.Next())
 	{
-		if (actorflag(k, SFLAG2_CAMERA))
+		if (k->flags2 & SFLAG2_CAMERA)
 			k->spr.yint = 0;
 	}
 }
@@ -670,7 +670,7 @@ void tickstat(int stat, bool deleteinvalid)
 	DukeStatIterator iti(stat);
 	while (auto act = iti.Next())
 	{
-		if (actorflag(act, SFLAG2_DIENOW) || act->sector() == nullptr || (deleteinvalid && act->spr.scale.X == 0))
+		if ((act->flags2 & SFLAG2_DIENOW) || act->sector() == nullptr || (deleteinvalid && act->spr.scale.X == 0))
 		{
 			act->Destroy();
 		}
@@ -912,7 +912,7 @@ void handle_se00(DDukeActor* actor)
 		DukeSectIterator itp(actor->sector());
 		while (auto act2 = itp.Next())
 		{
-			if (act2->spr.statnum != STAT_EFFECTOR && act2->spr.statnum != STAT_PROJECTILE && !actorflag(act2, SFLAG2_NOROTATEWITHSECTOR))
+			if (act2->spr.statnum != STAT_EFFECTOR && act2->spr.statnum != STAT_PROJECTILE && !(act2->flags2 & SFLAG2_NOROTATEWITHSECTOR))
 			{
 				if (act2->isPlayer() && act2->GetOwner())
 				{
@@ -2228,7 +2228,7 @@ DDukeActor* ifhitsectors(sectortype* sect)
 	DukeStatIterator it(STAT_MISC);
 	while (auto a1 = it.Next())
 	{
-		if (actorflag(a1, SFLAG_TRIGGER_IFHITSECTOR) && sect == a1->sector())
+		if ((a1->flags1 & SFLAG_TRIGGER_IFHITSECTOR) && sect == a1->sector())
 			return a1;
 	}
 	return nullptr;
@@ -2580,13 +2580,13 @@ void handle_se24(DDukeActor *actor, bool scroll, double mult)
 			case STAT_STANDABLE:
 			case STAT_ACTOR:
 			case STAT_DEFAULT:
-				if (actorflag(a2, SFLAG_SE24_REMOVE))
+				if (a2->flags1 & SFLAG_SE24_REMOVE)
 				{
 					a2->spr.scale = DVector2(0, 0);
 					continue;
 				}
 
-				if (actorflag(a2, SFLAG_SE24_NOCARRY) || wallswitchcheck(a2) || GetExtInfo(a2->spr.spritetexture()).switchindex > 0)
+				if ((a2->flags1 & SFLAG_SE24_NOCARRY) || wallswitchcheck(a2) || GetExtInfo(a2->spr.spritetexture()).switchindex > 0)
 					continue;
 
 				if (a2->spr.pos.Z > a2->floorz - 16)
@@ -3062,7 +3062,7 @@ void getglobalz(DDukeActor* actor)
 
 void makeitfall(DDukeActor* actor)
 {
-	if (actorflag(actor, SFLAG3_NOGRAVITY)) return;
+	if (actor->flags3 & SFLAG3_NOGRAVITY) return;
 
 	double grav;
 
@@ -3345,12 +3345,12 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 							goto SKIPJIBS;
 						if (sphit)
 						{
-							spawnguts(actor, PClass::FindActor("DukeJibs6"), 5);
+							spawnguts(actor, PClass::FindActor(NAME_DukeJibs6), 5);
 							S_PlayActorSound(squished, actor);
 						}
 						else
 						{
-							spawnguts(actor, PClass::FindActor("DukeJibs6"), 15);
+							spawnguts(actor, PClass::FindActor(NAME_DukeJibs6), 15);
 							S_PlayActorSound(squished, actor);
 							spawn(actor, BLOODPOOL);
 						}
@@ -3446,8 +3446,8 @@ void movefta(void)
 						// The second updatesector call here used px and py again and was redundant as coded.
 
 						// SFLAG_LOOKALLAROUND is set for all actors in Duke.
-						if (act->spr.pal == 33 || actorflag(act, SFLAG_LOOKALLAROUND) ||
-							(actorflag(act, SFLAG_LOOKALLAROUNDWITHPAL8) && act->spr.pal == 8) ||
+						if (act->spr.pal == 33 || (act->flags1 & SFLAG_LOOKALLAROUND) ||
+							((act->flags1 & SFLAG_LOOKALLAROUNDWITHPAL8) && act->spr.pal == 8) ||
 							(act->spr.Angles.Yaw.Cos() * (px - sx) + act->spr.Angles.Yaw.Sin() * (py - sy) >= 0))
 						{
 							double r1 = zrand(32);
@@ -3465,7 +3465,7 @@ void movefta(void)
 
 					if (canseeme)
 					{
-						if (actorflag(act, SFLAG_MOVEFTA_MAKESTANDABLE))
+						if ((act->flags1 & SFLAG_MOVEFTA_MAKESTANDABLE))
 						{
 							if (act->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 								act->spr.shade = act->sector()->ceilingshade;
@@ -3491,7 +3491,7 @@ void movefta(void)
 				else act->spr.shade = act->sector()->floorshade;
 
 				// wakeup is an RR feature, this flag will allow it to use in Duke, too.
-				if (actorflag(act, SFLAG_MOVEFTA_WAKEUPCHECK))
+				if ((act->flags1 & SFLAG_MOVEFTA_WAKEUPCHECK))
 				{
 					if (wakeup(act, p))
 					{

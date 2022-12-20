@@ -57,7 +57,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		t = tsprites.get(j);
 		h = static_cast<DDukeActor*>(t->ownerActor);
 
-		if (!actorflag(h, SFLAG2_FORCESECTORSHADE) && ((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
+		if (!(h->flags2 & SFLAG2_FORCESECTORSHADE) && ((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguy(static_cast<DDukeActor*>(t->ownerActor)) && t->extra > 0) || t->statnum == STAT_PLAYER)
 		{
 			if (h->sector()->shadedsector == 1 && h->spr.statnum != STAT_ACTOR)
 			{
@@ -93,7 +93,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 		if (t->statnum == STAT_TEMP) continue;
 		auto pp = &ps[h->PlayerIndex()];
-		if ((h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner()) || !actorflag(h, SFLAG_NOINTERPOLATE))
+		if ((h->spr.statnum != STAT_ACTOR && h->isPlayer() && pp->newOwner == nullptr && h->GetOwner()) || !(h->flags1 & SFLAG_NOINTERPOLATE))
 		{
 			t->pos = h->interpolatedpos(interpfrac);
 			t->Angles.Yaw = h->interpolatedyaw(interpfrac);
@@ -103,11 +103,11 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		auto sectp = h->sector();
 		bool res = CallAnimate(h, t);
 		// some actors have 4, some 6 rotation frames - in true Build fashion there's no pointers what to do here without flagging it.
-		if (actorflag(h, SFLAG2_ALWAYSROTATE1) || (t->clipdist & TSPR_ROTATE8FRAMES))
+		if ((h->flags2 & SFLAG2_ALWAYSROTATE1) || (t->clipdist & TSPR_ROTATE8FRAMES))
 			applyRotation1(h, t, viewang);
-		else if (actorflag(h, SFLAG2_ALWAYSROTATE2) || (t->clipdist & TSPR_ROTATE12FRAMES))
+		else if ((h->flags2 & SFLAG2_ALWAYSROTATE2) || (t->clipdist & TSPR_ROTATE12FRAMES))
 			applyRotation2(h, t, viewang);
-		if (sectp->floorpal && !actorflag(h, SFLAG2_NOFLOORPAL) && !(t->clipdist & TSPR_NOFLOORPAL))
+		if (sectp->floorpal && !(h->flags2 & SFLAG2_NOFLOORPAL) && !(t->clipdist & TSPR_NOFLOORPAL))
 			copyfloorpal(t, sectp);
 
 		if (res)

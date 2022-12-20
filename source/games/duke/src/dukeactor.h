@@ -25,12 +25,12 @@ DDukeActor* spawn(DDukeActor* actj, PClassActor* pname);
 
 inline int badguy(DDukeActor* pSprite)
 {
-	return badguypic(pSprite->spr.picnum);
+	return pSprite->flags1 & (SFLAG_BADGUY | SFLAG_INTERNAL_BADGUY);
 }
 
 inline int bossguy(DDukeActor* pSprite)
 {
-	return bossguypic(pSprite->spr.picnum);
+	return pSprite->flags1 & SFLAG_BOSS;
 }
 
 // old interface versions of already changed functions

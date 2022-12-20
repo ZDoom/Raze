@@ -62,21 +62,6 @@ inline int bossguypic(int const tileNum)
 	return ((gs.actorinfo[tileNum].flags & (SFLAG_BOSS)) != 0);
 }
 
-inline int actorflag(DDukeActor * actor, EDukeFlags1 mask)
-{
-	return (((gs.actorinfo[actor->spr.picnum].flags) & mask) != 0);
-}
-
-inline int actorflag(DDukeActor* actor, EDukeFlags2 mask)
-{
-	return (((gs.actorinfo[actor->spr.picnum].flags2) & mask) != 0);
-}
-
-inline int actorflag(DDukeActor* actor, EDukeFlags3 mask)
-{
-	return (((gs.actorinfo[actor->spr.picnum].flags3) & mask) != 0);
-}
-
 inline int attackerflag(DDukeActor* actor, EDukeFlags1 mask)
 {
 	return (((gs.actorinfo[actor->attackertype].flags) & mask) != 0);
@@ -91,7 +76,7 @@ inline void setflag(EDukeFlags1 flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)
 	{
-		gs.actorinfo[val].flags |= flag;
+		//gs.actorinfo[val].flags |= flag;
 	}
 }
 
@@ -99,7 +84,7 @@ inline void setflag(EDukeFlags2 flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)
 	{
-		gs.actorinfo[val].flags2 |= flag;
+		//gs.actorinfo[val].flags2 |= flag;
 	}
 }
 
@@ -107,13 +92,13 @@ inline void setflag(EDukeFlags3 flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)
 	{
-		gs.actorinfo[val].flags3 |= flag;
+		//gs.actorinfo[val].flags3 |= flag;
 	}
 }
 
 inline bool inventory(DDukeActor* S)
 {
-	return actorflag(S, SFLAG_INVENTORY);
+	return S->flags1 & SFLAG_INVENTORY;
 }
 
 inline bool wallswitchcheck(DDukeActor* s)
@@ -363,7 +348,7 @@ inline void setPlayerActorViewZOffset(DDukeActor* const pact)
 // this is still not foolproof because CON requires manually recording the kills.
 inline void addtokills(DDukeActor* actor)
 {
-	if (actorflag(actor, SFLAG_KILLCOUNT))
+	if (actor->flags1 & SFLAG_KILLCOUNT)
 	{
 		ps[myconnectindex].max_actors_killed++;
 		actor->spr.cstat2 |= CSTAT2_SPRITE_COUNTKILL;
@@ -372,7 +357,7 @@ inline void addtokills(DDukeActor* actor)
 
 inline void addkill(DDukeActor* actor)
 {
-	if (actorflag(actor, SFLAG_KILLCOUNT) && (actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILL))
+	if ((actor->flags1 & SFLAG_KILLCOUNT) && (actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILL))
 	{
 		ps[myconnectindex].actors_killed++;
 		actor->spr.cstat2 &= ~CSTAT2_SPRITE_COUNTKILL;
@@ -381,7 +366,7 @@ inline void addkill(DDukeActor* actor)
 
 inline void subkill(DDukeActor* actor)
 {
-	if (actorflag(actor, SFLAG_KILLCOUNT) && !(actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILL))
+	if ((actor->flags1 & SFLAG_KILLCOUNT) && !(actor->spr.cstat2 & CSTAT2_SPRITE_COUNTKILL))
 	{
 		ps[myconnectindex].actors_killed--;
 		actor->spr.cstat2 |= CSTAT2_SPRITE_COUNTKILL;

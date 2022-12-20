@@ -194,13 +194,13 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if (Owner && Owner->isPlayer() && targ->spr.picnum != DTILE_ROTATEGUN && targ->spr.picnum != DTILE_DRONE)
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
-					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat3"));
-					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat1"));
-					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat2"));
-					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat4"));
+					fi.shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat3));
+					fi.shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat1));
+					fi.shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat2));
+					fi.shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat4));
 				}
 
-			if (!actorflag(targ, SFLAG2_NODAMAGEPUSH)) // RR does not have this.
+			if (!(targ->flags2 & SFLAG2_NODAMAGEPUSH)) // RR does not have this.
 			{
 				if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 					targ->spr.Angles.Yaw = proj->spr.Angles.Yaw + DAngle180;
@@ -222,7 +222,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 		if (targ->spr.statnum != STAT_ZOMBIEACTOR)
 		{
-			if (proj->spr.picnum == DTILE_FREEZEBLAST && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
+			if ((proj->flags2 & SFLAG2_FREEZEDAMAGE) && ((targ->isPlayer() && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 				return;
 
 			int hitpic = proj->spr.picnum;
@@ -256,7 +256,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto itActor = it.Next())
 				{
-					if (actorflag(itActor, SFLAG2_CAMERA)) itActor->spr.yint = 0;
+					if (itActor->flags2 & SFLAG2_CAMERA) itActor->spr.yint = 0;
 				}
 			}
 
@@ -305,7 +305,7 @@ void clearcameras(player_struct* p)
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
 	{
-		if (actorflag(act, SFLAG2_CAMERA)) act->spr.yint = 0;
+		if ((act->flags2 & SFLAG2_CAMERA)) act->spr.yint = 0;
 	}
 }
 
@@ -415,7 +415,7 @@ void checksectors_d(int snum)
 				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
-					if (actorflag(near.actor(), SFLAG2_TRIGGERRESPAWN))
+					if (near.actor()->flags2 & SFLAG2_TRIGGERRESPAWN)
 						return;
 				}
 

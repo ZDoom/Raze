@@ -1870,11 +1870,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_iseat:
 		insptr++;
-		playereat(&ps[g_p], *insptr++, actorflag(g_ac, SFLAG3_BIGHEALTH));
+		playereat(&ps[g_p], *insptr++, !!(g_ac->flags3 & SFLAG3_BIGHEALTH));
 		break;
 	case concmd_addphealth:
 		insptr++;
-		addphealth(&ps[g_p], *insptr++, actorflag(g_ac, SFLAG3_BIGHEALTH));
+		addphealth(&ps[g_p], *insptr++, !!(g_ac->flags3 & SFLAG3_BIGHEALTH));
 		break;
 
 	case concmd_state:
@@ -2082,7 +2082,7 @@ int ParseState::parse(void)
 		auto info = spawnMap.CheckKey(*(insptr - 1));
 		if (info)
 		{
-			auto clstype = static_cast<PClassActor*>(info->Class(*(insptr - 1)));
+			auto clstype = info->cls;
 			if (clstype) spawnguts(g_ac, clstype, *insptr);
 		}
 		insptr++;
@@ -3317,7 +3317,7 @@ bool execute(DDukeActor *actor,int p,double xx)
 			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) goto quit;
 		}
 
-		if (actor->spr.statnum == STAT_ACTOR || (actor->spr.statnum == STAT_STANDABLE && actorflag(actor, SFLAG_CHECKSLEEP)))
+		if (actor->spr.statnum == STAT_ACTOR || (actor->spr.statnum == STAT_STANDABLE && (actor->flags1 & SFLAG_CHECKSLEEP)))
 		{
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;

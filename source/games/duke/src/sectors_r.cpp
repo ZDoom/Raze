@@ -230,7 +230,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 				DukeStatIterator it(STAT_EFFECTOR);
 				while (auto act = it.Next())
 				{
-					if (actorflag(act, SFLAG2_CAMERA)) act->spr.yint = 0;
+					if ((act->flags2 & SFLAG2_CAMERA)) act->spr.yint = 0;
 				}
 			}
 			auto Owner = targ->GetHitOwner();
@@ -410,7 +410,7 @@ void checksectors_r(int snum)
 				neartag(p->GetActor()->getPosWithOffsetZ().plusZ(16), p->GetActor()->sector(), p->GetActor()->PrevAngles.Yaw, near, 80., NT_Lotag | NT_Hitag);
 				if (near.actor() != nullptr)
 				{
-					if (actorflag(near.actor(), SFLAG2_TRIGGERRESPAWN))
+					if (near.actor()->flags2 & SFLAG2_TRIGGERRESPAWN)
 						return;
 
 					switch (near.actor()->spr.picnum)

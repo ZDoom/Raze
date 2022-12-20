@@ -46,14 +46,19 @@ struct SpawnRec
 	FSoundID breaksound;
 	int8_t fullbright, clipdist;
 	int16_t flags;
-
-	PClassActor* Class(int pn)
-	{
-		return cls;
-	}
 };
 using SpawnMap = TMap<int, SpawnRec>;
 inline SpawnMap spawnMap;
+
+inline PClassActor* GetSpawnType(int spawnnum)
+{
+	auto info = spawnMap.CheckKey(spawnnum);
+	if (info)
+	{
+		return static_cast<PClassActor*>(info->cls);
+	}
+	return nullptr;
+}
 
 struct BreakWallRec
 {

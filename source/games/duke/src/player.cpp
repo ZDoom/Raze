@@ -328,7 +328,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 							actor != act)
 							continue;
 
-						if (gotshrinker && act->spr.scale.X < 0.46875 && !actorflag(act, SFLAG_SHRINKAUTOAIM)) continue;
+						if (gotshrinker && act->spr.scale.X < 0.46875 && !(act->flags1 & SFLAG_SHRINKAUTOAIM)) continue;
 						if (gotfreezer && act->spr.pal == 1) continue;
 					}
 
@@ -393,7 +393,7 @@ void dokneeattack(int snum)
 				spawnguts(p->actorsqu, PClass::FindActor("DukeJibs6"), 7);
 				spawn(p->actorsqu, PClass::FindActor("DukeBloodPool"));
 				S_PlayActorSound(SQUISHED, p->actorsqu);
-				if (actorflag(p->actorsqu, SFLAG2_TRIGGERRESPAWN))
+				if (p->actorsqu->flags2 & SFLAG2_TRIGGERRESPAWN)
 				{
 					if (p->actorsqu->spr.yint)
 						operaterespawns(p->actorsqu->spr.yint);
@@ -404,12 +404,11 @@ void dokneeattack(int snum)
 					quickkill(&ps[p->actorsqu->PlayerIndex()]);
 					ps[p->actorsqu->PlayerIndex()].frag_ps = snum;
 				}
-				else if (badguy(p->actorsqu))
+				else
 				{
 					addkill(p->actorsqu);
 					p->actorsqu->Destroy();
 				}
-				else p->actorsqu->Destroy();
 			}
 			p->actorsqu = nullptr;
 		}
@@ -1047,7 +1046,7 @@ bool addphealth(player_struct* p, int amount, bool bigitem)
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto actj = it.Next())
 		{
-			if (actorflag(actj, SFLAG2_CAMERA))
+			if (actj->flags2 & SFLAG2_CAMERA)
 				actj->spr.yint = 0;
 		}
 	}

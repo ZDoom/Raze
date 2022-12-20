@@ -43,7 +43,7 @@ void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 		auto sectp = t->sectp;
 		double floorz;
 
-		if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == STAT_PROJECTILE || h->spr.statnum == STAT_MISC || actorflag(h, SFLAG2_FLOATING))
+		if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == STAT_PROJECTILE || h->spr.statnum == STAT_MISC || (h->flags2 & SFLAG2_FLOATING))
 			floorz = sectp->floorz;
 		else
 			floorz = h->floorz;
@@ -109,7 +109,7 @@ bool RRRAFullbrightHack(tspritetype* t, int k)
 
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang)
 {
-	if (gs.actorinfo[h->spr.picnum].scriptaddress && !actorflag(h, SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
+	if (gs.actorinfo[h->spr.picnum].scriptaddress && !(h->flags2 & SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 	{
 		DAngle kang;
 		int t4 = h->temp_data[4];

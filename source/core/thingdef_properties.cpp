@@ -397,7 +397,6 @@ DEFINE_PROPERTY(health, I, CoreActor)
 //==========================================================================
 DEFINE_PROPERTY(lookallarounddefault,0, DukeActor)
 {
-	PROP_INT_PARM(i, 0);
 	if (!isRR()) defaults->flags1 |= SFLAG_LOOKALLAROUND; // feature comes from RR, but we want the option in Duke as well, so this fake property sets the default
 	else
 	{

@@ -134,11 +134,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, GetSoundFlags, duke_GetSoundFlags)
 	ACTION_RETURN_INT(duke_GetSoundFlags(snd));
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, badguyID, badguypic)
+static int Duke_badguypic(int spawnno)
+{
+	auto clstype = GetSpawnType(spawnno);
+	if (clstype->IsDescendantOf(RUNTIME_CLASS(DDukeActor)))
+		return badguy(static_cast<DDukeActor*>(GetDefaultByType(clstype)));
+	return false;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, badguyID, Duke_badguypic)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(p);
-	ACTION_RETURN_INT(badguypic(p));
+	ACTION_RETURN_INT(Duke_badguypic(p));
 }
 
 void updatepindisplay(int tag, int pins);
@@ -701,21 +709,21 @@ DEFINE_ACTION_FUNCTION(DDukeActor, actorflag1)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(mask);
-	ACTION_RETURN_BOOL(!!actorflag(self, EDukeFlags1::FromInt(mask)));
+	ACTION_RETURN_BOOL(!!(self->flags1 & EDukeFlags1::FromInt(mask)));
 }
 
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag2)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(mask);
-	ACTION_RETURN_BOOL(!!actorflag(self, EDukeFlags2::FromInt(mask)));
+	ACTION_RETURN_BOOL(!!(self->flags2 & EDukeFlags2::FromInt(mask)));
 }
 
 DEFINE_ACTION_FUNCTION(DDukeActor, actorflag3)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(mask);
-	ACTION_RETURN_BOOL(!!actorflag(self, EDukeFlags3::FromInt(mask)));
+	ACTION_RETURN_BOOL(!!(self->flags3 & EDukeFlags3::FromInt(mask)));
 }
 
 DEFINE_ACTION_FUNCTION(DDukeActor, attackerflag1)
