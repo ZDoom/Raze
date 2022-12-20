@@ -133,6 +133,7 @@ class DukePuke : DukeBloodPool
 	default
 	{
 		pic "PUKE";
+		-BLOODY;
 	}
 	
 	override bool Animate(tspritetype t)

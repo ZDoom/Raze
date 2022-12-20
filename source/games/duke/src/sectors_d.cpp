@@ -200,7 +200,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 					fi.shoot(targ, -1, PClass::FindActor("DukeBloodSplat4"));
 				}
 
-			if (!actorflag(targ, SFLAG2_NODAMAGEPUSH) && !bossguy(targ)) // RR does not have this.
+			if (!actorflag(targ, SFLAG2_NODAMAGEPUSH)) // RR does not have this.
 			{
 				if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 					targ->spr.Angles.Yaw = proj->spr.Angles.Yaw + DAngle180;

@@ -45,6 +45,7 @@ class DukeTransporterBeam : DukeActor
 	{
 		pic "TRANSPORTERBEAM";
 		+FORCERUNCON;
+		+NOTELEPORT;
 	}
 	
 	override void Initialize()

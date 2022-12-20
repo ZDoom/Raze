@@ -122,11 +122,12 @@ class RedneckLetsBowl : DukeActor
 	}
 }
 
-class RedneckWacoWinder : DukeActor
+class RedneckWacoWindow : DukeActor
 {
 	default
 	{
 		pic "WACOWINDER";
+		+BADGUY;
 	}
 }
 

@@ -313,7 +313,7 @@ spawnclasses
 	1324 = DukeBloodyPole
 	1238 = DukeExplodingBarrel
 	1026 = DukeHorseOnSide
-	1248 = DukeFireBarrel
+	1240 = DukeFireBarrel
 	1227 = DukeNukeBarrel
 	1390 = DukeFireVase
 	1228 = DukeNukeBarrelDented
@@ -368,7 +368,7 @@ spawnclasses
 	1225 = DukeBarBroke
 	418 = DukeBearingPlate
 	2612 = DukeLaserSite
-	2734 = DukeSpeaker
+	4397 = DukeSpeaker
 	2595 = DukeShotSpark
 	
 }

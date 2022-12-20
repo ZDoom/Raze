@@ -303,19 +303,3 @@ class RedneckSeasickEnabler : DukeActor
 	}
 }
 
-class RedneckWacoWinder : DukeActor
-{
-	default
-	{
-		pic "WACOWINDER";
-		+BADGUY;
-	}
-	
-	override bool animate(tspritetype t)
-	{
-		t.cstat |= CSTAT_SPRITE_INVISIBLE;
-		self.cstat |= CSTAT_SPRITE_INVISIBLE;
-		return true;
-	}
-}
-

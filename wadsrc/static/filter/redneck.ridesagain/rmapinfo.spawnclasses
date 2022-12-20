@@ -169,6 +169,7 @@ spawnclasses
 	5376 = RedneckRACoot
 	5377 = RedneckRACootStayput
 	7280 = RedneckRabbit
+	5995 = RedneckBiker
 	5890 = RedneckBikerB
 	5891 = RedneckBikerBV2
 	6225 = RedneckMakeout
@@ -185,7 +186,7 @@ spawnclasses
 	8705 = RedneckMama
 	4770 = RedneckSBSwipe
 	6659 = RedneckCheerStayput
-	8612 = RedneckWacoWinder
+	8612 = RedneckWacoWindow
 	
 	
 	

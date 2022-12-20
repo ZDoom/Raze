@@ -3,6 +3,8 @@ class RedneckCoot : DukeActor
 	default
 	{
 		pic "COOT";
+		+INTERNAL_BADGUY;
+		+KILLCOUNT;
 	}
 	
 	override void PlayFTASound()

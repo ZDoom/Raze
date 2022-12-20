@@ -1,11 +1,8 @@
-
-class DukeFemale1 : DukeActor
+class DukeBloodyPole : DukeActor
 {
 	default
 	{
-		pic "FEM1";
-		+TRIGGERRESPAWN;
-		+HITRADIUSCHECK;
+		pic "BLOODYPOLE";
 	}
 	
 	override void Initialize()
@@ -13,6 +10,16 @@ class DukeFemale1 : DukeActor
 		self.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		self.clipdist = 8;
 		self.ChangeStat(STAT_ZOMBIEACTOR);
+	}
+}
+
+class DukeFemale1 : DukeBloodyPole
+{
+	default
+	{
+		pic "FEM1";
+		+TRIGGERRESPAWN;
+		+HITRADIUSCHECK;
 	}
 }
 		
@@ -103,15 +110,6 @@ class DukeToughGal : DukeFemale1
 	{
 		pic "TOUGHGAL";
 		-HITRADIUSCHECK;
-	}
-}
-	
-class DukeBloodyPole : DukeFemale1
-{
-	default
-	{
-		pic "BLOODYPOLE";
-		-TRIGGERRESPAWN;
 	}
 }
 	

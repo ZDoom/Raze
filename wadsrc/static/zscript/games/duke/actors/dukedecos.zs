@@ -1,16 +1,13 @@
-
-class DukeExplodingBarrel : DukeActor
+class DukeHorseOnSide : DukeActor
 {
 	default
 	{
-		pic "EXPLODINGBARREL";
+		pic "HORSEONSIDE";
 		+FORCERUNCON;
 		+CHECKSLEEP;
 		+MOVEFTA_MAKESTANDABLE;
-		+DOUBLEDMGTHRUST;
-		+BREAKMIRRORS;
 	}
-	
+
 	override void Initialize()
 	{
 		if (!self.mapSpawned)
@@ -21,22 +18,25 @@ class DukeExplodingBarrel : DukeActor
 	}
 }
 
-class DukeHorseOnSide : DukeExplodingBarrel
+
+class DukeExplodingBarrel : DukeHorseOnSide
 {
 	default
 	{
-		pic "HORSEONSIDE";
+		pic "EXPLODINGBARREL";
+		+DOUBLEDMGTHRUST;
+		+BREAKMIRRORS;
 	}
 }
 
-class DukeFireBarrel : DukeExplodingBarrel
+class DukeFireBarrel : DukeHorseOnSide
 {
 	default
 	{
 		pic "FIREBARREL";
 	}
 }
-class DukeNukeBarrel : DukeExplodingBarrel
+class DukeNukeBarrel : DukeHorseOnSide
 {
 	default
 	{
@@ -44,28 +44,28 @@ class DukeNukeBarrel : DukeExplodingBarrel
 		+GREENBLOOD;
 	}
 }
-class DukeFireVase : DukeExplodingBarrel
+class DukeFireVase : DukeHorseOnSide
 {
 	default
 	{
 		pic "FIREVASE";
 	}
 }
-class DukeNukeBarrelDented : DukeExplodingBarrel
+class DukeNukeBarrelDented : DukeHorseOnSide
 {
 	default
 	{
 		pic "NUKEBARRELDENTED";
 	}
 }
-class DukeNukeBarrelLeaked : DukeExplodingBarrel
+class DukeNukeBarrelLeaked : DukeHorseOnSide
 {
 	default
 	{
 		pic "NUKEBARRELLEAKED";
 	}
 }
-class DukeWoodenHorse : DukeExplodingBarrel
+class DukeWoodenHorse : DukeHorseOnSide
 {
 	default
 	{
@@ -73,7 +73,7 @@ class DukeWoodenHorse : DukeExplodingBarrel
 	}
 }
 
-class DukeRubberCan : DukeExplodingBarrel
+class DukeRubberCan : DukeHorseOnSide
 {
 	default
 	{
