@@ -399,6 +399,10 @@ DEFINE_PROPERTY(lookallarounddefault,0, DukeActor)
 {
 	PROP_INT_PARM(i, 0);
 	if (!isRR()) defaults->flags1 |= SFLAG_LOOKALLAROUND; // feature comes from RR, but we want the option in Duke as well, so this fake property sets the default
-	else defaults->flags1 |= SFLAG_MOVEFTA_WAKEUPCHECK; // Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
+	else
+	{
+		defaults->flags1 |= SFLAG_MOVEFTA_WAKEUPCHECK; // Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
+		defaults->flags2 |= SFLAG2_NODAMAGEPUSH;		// RR does not have this feature, so set the flag for everything, this allows disabling it if wanted later.
+	}
 }
 
