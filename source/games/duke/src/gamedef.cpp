@@ -3174,7 +3174,7 @@ void ConCompiler::setmusic()
 
 void loadcons()
 {
-	gs = {};
+	memset(&gs, 0, sizeof(gs));
 	gs.respawnactortime = 768;
 	gs.bouncemineblastradius = 2500;
 	gs.respawnitemtime = 768;
