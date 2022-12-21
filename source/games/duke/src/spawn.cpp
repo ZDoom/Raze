@@ -173,27 +173,14 @@ bool initspriteforspawn(DDukeActor* act)
 {
 	SetupGameVarsForActor(act);
 	act->attackertype = static_cast<PClassActor*>(act->GetClass());
-	act->timetosleep = 0;
 	act->hitextra = -1;
 
 	act->backuppos();
 
 	act->SetOwner(act);
 	act->SetHitOwner(act);
-	act->cgg = 0;
-	act->movflag = 0;
-	act->tempval = 0;
-	act->dispicnum = 0;
 	act->floorz = act->sector()->floorz;
 	act->ceilingz = act->sector()->ceilingz;
-
-	act->ovel.Zero();
-	act->actorstayput = nullptr;
-
-	act->temp_data[0] = act->temp_data[1] = act->temp_data[2] = act->temp_data[3] = act->temp_data[4] = act->temp_data[5] = 0;
-	act->temp_actor = nullptr;
-	act->temp_angle = nullAngle;
-	act->temp_pos = DVector3(0, 0, 0);
 
 	auto ext = GetExtInfo(act->spr.spritetexture());
 	bool overrideswitch = false;
