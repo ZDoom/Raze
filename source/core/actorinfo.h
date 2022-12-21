@@ -25,10 +25,9 @@ struct FActorInfo
 	PClassActor *Replacement = nullptr;
 	PClassActor *Replacee = nullptr;
 	DVector2 DefaultScale = { 0, 0 };
-	int TypeNum = -1;
+	int TypeNum = -1; // game specific identifier.
 	int DefaultFlags = 0;
 	int DefaultCstat = 0;
-	int Health = 0;	// not used yet - this will stand in if no CON defines a health value for Duke.
 	FName DamageType = NAME_None;	// damage type this item inflicts
 
 	// these are temporary. Due to how Build games handle their tiles, we cannot look up the textures when scripts are being parsed.

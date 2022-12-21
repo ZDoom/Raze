@@ -126,22 +126,18 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	if (gs.actorinfo[s_pn].scriptaddress)
 	{
 		auto sa = &ScriptCode[gs.actorinfo[s_pn].scriptaddress];
-		act->spr.extra = sa[0];
 		act->curAction = &actions[sa[1]];
 		act->curMove = &moves[sa[2]];
 		act->spr.hitag = sa[3];
 	}
 	else
 	{
-		act->spr.extra = 0;
 		act->spr.hitag = 0;
 	}
+	act->spr.extra = act->IntVar(NAME_strength);
 
 	if (show2dsector[act->sectno()]) act->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 	else act->spr.cstat2 &= ~CSTAT2_SPRITE_MAPPED;
-
-	act->sprext = {};
-	act->spsmooth = {};
 
 	return act;
 
@@ -234,16 +230,15 @@ bool initspriteforspawn(DDukeActor* act)
 
 	if (act->spr.cstat & CSTAT_SPRITE_BLOCK) act->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
+	act->spr.extra = act->IntVar(NAME_strength);
 	if (gs.actorinfo[s].scriptaddress)
 	{
-		act->spr.extra = ScriptCode[gs.actorinfo[s].scriptaddress];
 		act->curAction = &actions[ScriptCode[gs.actorinfo[s].scriptaddress+1]];
 		act->curMove = &moves[ScriptCode[gs.actorinfo[s].scriptaddress+2]];
 		int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
 		if (s3 && act->spr.hitag == 0)
 			act->spr.hitag = s3;
 	}
-	else act->temp_data[1] = act->temp_data[4] = 0;
 	return true;
 }
 

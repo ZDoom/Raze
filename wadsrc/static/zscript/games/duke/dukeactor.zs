@@ -145,11 +145,13 @@ class DukeActor : CoreActor native
 	meta int gutsoffset;
 	meta int falladjustz;
 	meta int aimoffset;
+	meta int strength;
 
 	property prefix: none;
 	property gutsoffset: gutsoffset;
 	property falladjustz: falladjustz;
 	property aimoffset: aimoffset;
+	property strength: strength;
 
 	
 	native void SetSpritesetImage(int index);

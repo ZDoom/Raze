@@ -44,6 +44,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "vm.h"
 #include "thingdef.h"
 #include "tilesetbuilder.h"
+#include "concmd.h"
 
 BEGIN_DUKE_NS
 
@@ -422,6 +423,63 @@ void GameInterface::app_init()
 	ud.last_level = -1;
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;//bVanilla;
 	S_ParseDeveloperCommentary();
+}
+
+void GameInterface::FinalizeSetup()
+{
+	for (int i = 0; i < MAXTILES; i++)
+	{
+		auto& actinf = gs.actorinfo[i];
+		if (actinf.scriptaddress != 0)
+		{
+			int act = ScriptCode[actinf.scriptaddress + 1];
+			int cmd = ScriptCode[actinf.scriptaddress + 4];
+			auto info = spawnMap.CheckKey(i);
+			PClassActor* cls = nullptr;
+
+			if (info != nullptr && info->basetex <= 0)
+			{
+				cls = info->cls;
+			}
+			else if (info == nullptr || info->basetex <= 0)
+			{
+				// No unique actor exists here. Since we need one, create a new class here, directly derived from DDukeActor.
+				auto newcls = (PClassActor*)RUNTIME_CLASS(DDukeActor)->CreateDerivedClass(FStringf("NewConActor%d", i), RUNTIME_CLASS(DDukeActor)->Size);
+				newcls->InitializeDefaults();
+				spawnMap.Insert(i, { newcls, -1, -1, NO_SOUND, int8_t(0), int8_t(0), int16_t(0x8000) });
+				cls = newcls;
+				GetDefaultByType(newcls)->spr.picnum = i; // make it show the right pic.
+			}
+			else
+			{
+				// the ugly case: This tries to replace a variant of a special actor.
+				// All of Duke's entries falling in this category are coded to not execute scripts at all with no possible override.
+				// this means that none of these actors can ever run its scripts.
+
+			}
+
+			// now copy all data over so that we don't have to do double maintenance.
+			if (cls)
+			{
+				cls->ActorInfo()->TypeNum = i;
+				GetDefaultByType(cls)->IntVar(NAME_strength) = ScriptCode[actinf.scriptaddress];
+				if (actinf.enemyflags &  EDukeFlags1::FromInt(1))
+				{
+					auto def = static_cast<DDukeActor*>(GetDefaultByType(cls));
+					auto fb = (SFLAG_BADGUY | SFLAG_KILLCOUNT | SFLAG_BADGUYSTAYPUT);
+					auto check = (def->flags1 & (SFLAG_BADGUY | SFLAG_KILLCOUNT));
+					// do not enable KILLCOUNT if it the base is a non-counting badguy. This is needed for RR's animals.
+					if (check == EDukeFlags1::FromInt(SFLAG_BADGUY)) fb &= ~SFLAG_KILLCOUNT; 
+					def->flags1 = (def->flags1 & ~fb) | (actinf.enemyflags & fb);
+				}
+
+			}
+		}
+		//ScriptCode[actinf.scriptaddress] = 0; // ignore strength values for hashing the script code. (later, we still need this.)
+		// todo: hash the entire script code and compare against precalculated value for the current game.
+		// If identical, remove all ScriptAddresses from the class list.
+
+	}
 }
 
 

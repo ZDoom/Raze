@@ -382,17 +382,7 @@ DEFINE_PROPERTY(spritesetindex, I, CoreActor)
 
 //==========================================================================
 //
-//==========================================================================
-DEFINE_PROPERTY(health, I, CoreActor)
-{
-	PROP_INT_PARM(i, 0);
-	bag.Info->ActorInfo()->Health = i;
-}
-
-//==========================================================================
-//
-// This is a hack because the FTA sight flag has different defaults in 
-// Duke and RR.
+// Sets up the flag defaults which differ between RR and Duke.
 // 
 //==========================================================================
 DEFINE_PROPERTY(lookallarounddefault,0, DukeActor)

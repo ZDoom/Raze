@@ -1182,6 +1182,7 @@ int RunGame()
 	D_CheckNetGame();
 	UpdateGenericUI(ui_generic);
 	PClassActor::StaticInit();
+	gi->FinalizeSetup();
 	MainLoop();
 	return 0;
 }
