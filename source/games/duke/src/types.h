@@ -54,6 +54,7 @@ inline TArray<ActorAI> ais;
 
 struct ActorInfo
 {
+	uint32_t loadeventscriptptr;
 	uint32_t scriptaddress;
 	EDukeFlags1 enemyflags;	// placeholder during parsing. Since CON gets parsed before the spawn type table we cannot copy these to their final location yet.
 };
@@ -113,7 +114,7 @@ public:
 
 	DDukeActor() = default;
 	size_t PropagateMark() override;
-	const ActorInfo* actorInfo() const;
+	const ActorInfo* conInfo() const;
 
 	// This once was stored in the owner field of the sprite
 	inline DDukeActor* GetOwner()
@@ -176,12 +177,6 @@ struct animwalltype
 	int tag;
 	FTextureID origtex;
 	bool overpic;
-};
-
-// legacy CON baggage which needs to be refactored later.
-struct TileInfo
-{
-	int loadeventscriptptr;
 };
 
 struct user_defs

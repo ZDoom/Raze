@@ -290,6 +290,12 @@ inline void processinputvel(int snum)
 	p->sync.svel = (float)velvect.Y;
 }
 
+inline const ActorInfo* DDukeActor::conInfo() const
+{
+	auto tn = static_cast<PClassActor*>(GetClass())->ActorInfo()->TypeNum;
+	return tn < 0 ? nullptr : &gs.actorinfo[tn];
+}
+
 inline void setPlayerActorViewZOffset(DDukeActor* const pact)
 {
 	if (!PlayClock)

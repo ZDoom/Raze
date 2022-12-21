@@ -40,7 +40,6 @@ struct DukeGameInfo
 	int impact_damage;
 	int firstdebris;
 
-	TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
 	ActorInfo actorinfo[MAXTILES];
 	int16_t max_ammo_amount[MAX_WEAPONS];
 	int16_t weaponsandammosprites[15];

@@ -1213,6 +1213,7 @@ int ConCompiler::parsecommand()
 		gs.actorinfo[lnum].scriptaddress = parsing_actor;	// TRANSITIONAL should only store an index
 		if (tw == concmd_useractor)
 		{
+			gs.actorinfo[lnum].enemyflags |= EDukeFlags1::FromInt(1);
 			if (j & 1)
 				gs.actorinfo[lnum].enemyflags |= SFLAG_BADGUY | SFLAG_KILLCOUNT;
 
@@ -2008,7 +2009,7 @@ int ConCompiler::parsecommand()
 
 		transnum(LABEL_DEFINE);
 		int n = popscriptvalue();
-		gs.tileinfo[n].loadeventscriptptr = parsing_actor;
+		gs.actorinfo[n].loadeventscriptptr = parsing_actor;
 		checking_ifelse = 0;
 		return 0;
 	}
