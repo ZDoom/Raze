@@ -85,6 +85,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 		info = spawnMap.CheckKey(s_pn);
 		if (info) clstype = static_cast<PClassActor*>(info->cls);
 	}
+	if (s_stat < 0) s_stat = clstype ? GetDefaultByType(clstype)->spr.statnum : 0;
 
 	auto act = static_cast<DDukeActor*>(InsertActor(clstype? clstype : RUNTIME_CLASS(DDukeActor), whatsectp, s_stat));
 	if (act == nullptr) return nullptr;
