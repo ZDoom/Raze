@@ -3298,7 +3298,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 //
 //---------------------------------------------------------------------------
 
-void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int))
+void fall_common(DDukeActor *actor, int playernum, int DRONE, int(*fallspecial)(DDukeActor*, int))
 {
 	actor->spr.xoffset = 0;
 	actor->spr.yoffset = 0;
@@ -3346,13 +3346,13 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 						if (sphit)
 						{
 							spawnguts(actor, PClass::FindActor(NAME_DukeJibs6), 5);
-							S_PlayActorSound(squished, actor);
+							S_PlayActorSound(SQUISHED, actor);
 						}
 						else
 						{
 							spawnguts(actor, PClass::FindActor(NAME_DukeJibs6), 15);
-							S_PlayActorSound(squished, actor);
-							spawn(actor, BLOODPOOL);
+							S_PlayActorSound(SQUISHED, actor);
+							spawn(actor, PClass::FindActor(NAME_DukeBloodPool));
 						}
 					}
 
@@ -3370,7 +3370,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 					if (sect != actor->sector() && sect != nullptr)
 						ChangeActorSect(actor, sect);
 
-					S_PlayActorSound(thud, actor);
+					S_PlayActorSound(THUD, actor);
 				}
 			}
 			if (actor->sector()->lotag == 1)

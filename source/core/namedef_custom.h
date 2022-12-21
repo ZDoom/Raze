@@ -62,6 +62,7 @@ xx(DukeBloodSplat3)
 xx(DukeBloodSplat1)
 xx(DukeBloodSplat2)
 xx(DukeBloodSplat4)
+xx(DukeBloodPool)
 
 xx(spawnstate)
 xx(brokenstate)

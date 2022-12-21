@@ -1594,7 +1594,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 
 void fall_r(DDukeActor* ac, int g_p)
 {
-	fall_common(ac, g_p, RTILE_JIBS6, RTILE_DRONE, RTILE_BLOODPOOL, RTILE_SHOTSPARK1, 69, 158, fallspecial);
+	fall_common(ac, g_p, RTILE_DRONE, fallspecial);
 }
 
 //---------------------------------------------------------------------------
