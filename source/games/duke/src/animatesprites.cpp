@@ -112,11 +112,11 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 	if (gs.actorinfo[h->spr.picnum].scriptaddress && !(h->flags2 & SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 	{
 		DAngle kang;
-		int t4 = h->temp_data[4];
+		auto action = h->curAction;
 		int k = 0, l = 0;
-		if (t4)
+		if (h->curAction->name != NAME_None)
 		{
-			l = ScriptCode[t4 + 2];
+			l = action->rotationtype;
 
 			if (tilehasmodelorvoxel(h->spr.spritetexture(), h->spr.pal))
 			{
@@ -168,7 +168,7 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 				if (isRR())
 				{
 					bool bg = badguy(h);
-					if (bg && h->spr.statnum == 2 && h->spr.extra > 0)
+					if (bg && h->spr.statnum == STAT_ZOMBIEACTOR && h->spr.extra > 0)
 					{
 						kang = (t->pos.XY() - viewVec).Angle();
 						k = angletorotation1(t->Angles.Yaw, kang);
@@ -186,7 +186,7 @@ void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAn
 				}
 			}
 
-			k += ScriptCode[t4] + l * h->temp_data[3];
+			k += action->offset + l * h->temp_data[3];
 			t->picnum += k;
 
 			if (isRRRA() && RRRAFullbrightHack(t, k)) t->shade = -127;

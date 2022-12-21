@@ -1155,19 +1155,31 @@ int ConCompiler::parsecommand()
 			if (lnum >= 0)
 			{
 				warningcount++;
-				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate event '%s' ignored.\n", fn, line_number, parselabel.GetChars());
+				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate action '%s' ignored.\n", fn, line_number, parselabel.GetChars());
 			}
-			else appendlabeladdress(LABEL_ACTION);
+			else appendlabelvalue(LABEL_ACTION, actions.Size());
 
-			for (j = 0; j < 5; j++)
-			{
-				if (keyword() >= 0) break;
-				transnum(LABEL_DEFINE);
-			}
-			for (k = j; k < 5; k++)
-			{
-				appendscriptvalue(0);
-			}
+			ActorAction& action = actions[actions.Reserve(1)];
+
+			memset(&action, 0, sizeof(action));
+			action.qualifiedName = FStringf("$con$.%s", parselabel.GetChars());
+			action.name = parselabel.GetChars();
+			action.base.SetNull();	// CON actions are relative to base pic.
+			if (keyword() >= 0) break;
+			transnum(LABEL_DEFINE);
+			action.offset = popscriptvalue();
+			if (keyword() >= 0) break;
+			transnum(LABEL_DEFINE);
+			action.numframes = popscriptvalue();
+			if (keyword() >= 0) break;
+			transnum(LABEL_DEFINE);
+			action.rotationtype = popscriptvalue();
+			if (keyword() >= 0) break;
+			transnum(LABEL_DEFINE);
+			action.increment = popscriptvalue();
+			if (keyword() >= 0) break;
+			transnum(LABEL_DEFINE);
+			action.delay = popscriptvalue();
 		}
 		return 0;
 

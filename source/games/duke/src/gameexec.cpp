@@ -1508,7 +1508,7 @@ int ParseState::parse(void)
 		insptr++;
 		// HACK ALERT! The fire animation uses a broken ifrnd setup to delay its start because original CON has no variables
 		// But the chosen random value of 16/255 is too low and can cause delays of a second or more. (identical in Duke and RR.)
-		if (g_ac->IsKindOf(NAME_RedneckFire) && g_t[4] == 0 && *insptr == 16)
+		if (g_ac->IsKindOf(NAME_RedneckFire) && g_ac->curAction->name == NAME_None && *insptr == 16)
 		{
 			parseifelse(rnd(64));
 			break;
@@ -1554,7 +1554,7 @@ int ParseState::parse(void)
 	case concmd_ai:
 		insptr++;
 		g_t[5] = *insptr;
-		g_t[4] = ScriptCode[g_t[5]];		  // Action
+		g_ac->curAction = &actions[ScriptCode[g_t[5]]];		  // Action
 		g_t[1] = ScriptCode[g_t[5] + 1];		// move
 		g_ac->spr.hitag = ScriptCode[g_t[5] + 2];	  // Ai
 		g_t[0] = g_t[2] = g_t[3] = 0;
@@ -1566,7 +1566,7 @@ int ParseState::parse(void)
 		insptr++;
 		g_t[2] = 0;
 		g_t[3] = 0;
-		g_t[4] = *insptr;
+		g_ac->curAction = &actions[*insptr];
 		insptr++;
 		break;
 
@@ -1912,7 +1912,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifaction:
 		insptr++;
-		parseifelse(g_t[4] == *insptr);
+		parseifelse((g_ac->curAction - actions.Data()) == *insptr);
 		break;
 	case concmd_ifactioncount:
 		insptr++;

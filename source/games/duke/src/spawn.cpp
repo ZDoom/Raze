@@ -45,6 +45,7 @@ BEGIN_DUKE_NS
 
 void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 {
+	act->curAction = &actions[0];
 	if (info)
 	{
 		if (info->basetex > 0 && act->IsKindOf(NAME_DukeGenericDestructible))
@@ -59,6 +60,7 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 		}
 		else
 		{
+			// same for simple sprite replacements with existing implementations.
 			if (info->basetex >= 0 && info->basetex < MAXTILES) act->spr.picnum = info->basetex;
 			if (info->fullbright & 1) act->spr.cstat2 |= CSTAT2_SPRITE_FULLBRIGHT;
 		}
@@ -123,7 +125,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	{
 		auto sa = &ScriptCode[gs.actorinfo[s_pn].scriptaddress];
 		act->spr.extra = sa[0];
-		act->temp_data[4] = sa[1];
+		act->curAction = &actions[sa[1]];
 		act->temp_data[1] = sa[2];
 		act->spr.hitag = sa[3];
 	}
@@ -246,7 +248,7 @@ bool initspriteforspawn(DDukeActor* act)
 	if (gs.actorinfo[s].scriptaddress)
 	{
 		act->spr.extra = ScriptCode[gs.actorinfo[s].scriptaddress];
-		act->temp_data[4] = ScriptCode[gs.actorinfo[s].scriptaddress+1];
+		act->curAction = &actions[ScriptCode[gs.actorinfo[s].scriptaddress+1]];
 		act->temp_data[1] = ScriptCode[gs.actorinfo[s].scriptaddress+2];
 		int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
 		if (s3 && act->spr.hitag == 0)

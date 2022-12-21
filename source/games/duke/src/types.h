@@ -22,6 +22,20 @@ struct STATUSBARTYPE
 	bool gotweapon[MAX_WEAPONS];
 };
 
+struct ActorAction
+{
+	FName qualifiedName;	// this is only used for serialization.
+	FName name;
+	FTextureID base;
+	int offset;
+	int16_t numframes;
+	int16_t rotationtype;
+	int16_t increment;
+	int16_t delay;
+};
+
+inline TArray<ActorAction> actions;
+
 struct ActorInfo
 {
 	uint32_t scriptaddress;
@@ -68,6 +82,7 @@ public:
 	sectortype* temp_sect, *actorstayput;
 	DAngle temp_angle;
 	DVector3 temp_pos, temp_pos2;
+	ActorAction* curAction;
 
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 

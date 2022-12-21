@@ -82,13 +82,12 @@ void TickActor(DDukeActor* self)
 		}
 
 		// Run sprite animations.
-		if (self->temp_data[4])
+		if (self->curAction->name != NAME_None)
 		{
 			// This code was utterly cryptic in the original source.
-			auto ptr = &ScriptCode[self->temp_data[4]];
-			int numframes = ptr[1];
-			int increment = ptr[3];
-			int delay = ptr[4];
+			int numframes = self->curAction->numframes;
+			int increment = self->curAction->increment;
+			int delay = self->curAction->delay;
 
 			self->spr.lotag += TICSPERFRAME;
 			if (self->spr.lotag > delay)
