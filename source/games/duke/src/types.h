@@ -22,6 +22,12 @@ struct STATUSBARTYPE
 	bool gotweapon[MAX_WEAPONS];
 };
 
+struct ActorMove
+{
+	FName qualifiedName;	// this is only used for serialization.
+	FName name;
+	float movex, movez;
+};
 struct ActorAction
 {
 	FName qualifiedName;	// this is only used for serialization.
@@ -34,6 +40,7 @@ struct ActorAction
 	int16_t delay;
 };
 
+inline TArray<ActorMove> moves;
 inline TArray<ActorAction> actions;
 
 struct ActorInfo
@@ -82,6 +89,7 @@ public:
 	sectortype* temp_sect, *actorstayput;
 	DAngle temp_angle;
 	DVector3 temp_pos, temp_pos2;
+	ActorMove* curMove;
 	ActorAction* curAction;
 
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
@@ -149,11 +157,6 @@ public:
 		auto tex = TexMan.GetGameTexture(spr.spritetexture());
 		clipdist = spr.scale.X * tex->GetDisplayWidth() * 0.125;
 	}
-
-	// Wrappers around CON data.
-
-	double GetMoveX() const;
-	double GetMoveZ() const;
 };
 
 // subclassed to add a game specific actor() method

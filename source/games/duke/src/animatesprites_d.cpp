@@ -48,7 +48,6 @@ BEGIN_DUKE_NS
 void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac)
 {
 	int p;
-	int t1, t3, t4;
 	tspritetype* t;
 	DDukeActor* h;
 
@@ -116,10 +115,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				h->dispicnum = t->picnum;
 			continue;
 		}
-
-		t1 = h->temp_data[1];
-		t3 = h->temp_data[3];
-		t4 = h->temp_data[4];
 
 		if (h->spr.picnum == DTILE_APLAYER)
 		{
@@ -200,13 +195,6 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				if (v > 4 && h->spr.scale.Y > 0.5 && h->spr.extra > 0)
 					h->spr.yoffset = (int8_t)(v / h->spr.scale.Y);
 				else h->spr.yoffset = 0;
-			}
-
-			if (ps[p].newOwner != nullptr)
-			{
-				t4 = ScriptCode[gs.actorinfo[DTILE_APLAYER].scriptaddress + 1];
-				t3 = 0;
-				t1 = ScriptCode[gs.actorinfo[DTILE_APLAYER].scriptaddress + 2];
 			}
 
 			if (ud.cameraactor == nullptr && ps[p].newOwner == nullptr)

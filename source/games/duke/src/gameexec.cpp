@@ -1555,7 +1555,7 @@ int ParseState::parse(void)
 		insptr++;
 		g_t[5] = *insptr;
 		g_ac->curAction = &actions[ScriptCode[g_t[5]]];		  // Action
-		g_t[1] = ScriptCode[g_t[5] + 1];		// move
+		g_ac->curMove = &moves[ScriptCode[g_t[5] + 1]];		// move
 		g_ac->spr.hitag = ScriptCode[g_t[5] + 2];	  // Ai
 		g_t[0] = g_t[2] = g_t[3] = 0;
 		if (g_ac->spr.hitag & random_angle)
@@ -1888,7 +1888,7 @@ int ParseState::parse(void)
 	case concmd_move:
 		g_t[0]=0;
 		insptr++;
-		g_t[1] = *insptr;
+		g_ac->curMove = &moves[*insptr];
 		insptr++;
 		g_ac->spr.hitag = *insptr;
 		insptr++;
@@ -1954,7 +1954,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifmove:
 		insptr++;
-		parseifelse(g_t[1] == *insptr);
+		parseifelse((g_ac->curMove - moves.Data()) == *insptr);
 		break;
 	case concmd_resetplayer:
 		insptr++;

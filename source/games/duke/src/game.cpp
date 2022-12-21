@@ -381,6 +381,7 @@ void GameInterface::app_init()
 	ud.m_monsters_off = userConfig.nomonsters;
 	ps[0].aim_mode = 1;
 	ud.cameraactor = nullptr;
+	moves.Push({});		// make sure the first entry in 'moves' is a null move.
 	actions.Push({});	// make sure the first entry in 'actions' is a null action.
 
 	if (fileSystem.FileExists("DUKESW.BIN"))

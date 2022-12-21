@@ -984,24 +984,25 @@ int ConCompiler::parsecommand()
 
 			checkforkeyword();
 
-			for (i = 0; i < (int)labels.Size(); i++)
-				if (labels[i].compare(parselabel) == 0)
-				{
-					warningcount++;
-					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate move '%s' ignored.\n", fn, line_number, parselabel.GetChars());
-					break;
-				}
-			if (i == (int)labels.Size())
-				appendlabeladdress(LABEL_MOVE);
-			for (j = 0; j < 2; j++)
+			lnum = findlabel(parselabel);
+			if (lnum >= 0)
 			{
-				if (keyword() >= 0) break;
-				transnum(LABEL_DEFINE);
+				warningcount++;
+				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate move '%s' ignored.\n", fn, line_number, parselabel.GetChars());
 			}
-			for (k = j; k < 2; k++)
-			{
-				appendscriptvalue(0);
-			}
+
+			else appendlabelvalue(LABEL_MOVE, moves.Size());
+
+			ActorMove& move = moves[moves.Reserve(1)];
+			move.qualifiedName = FStringf("$con$.%s", parselabel.GetChars());
+			move.name = parselabel.GetChars();
+			move.movex = move.movez = 0;
+			if (keyword() >= 0) return 0;
+			transnum(LABEL_DEFINE);
+			move.movex = popscriptvalue() / 16.f;
+			if (keyword() >= 0) return 0;
+			transnum(LABEL_DEFINE);
+			move.movez = popscriptvalue() / 16.f;
 		}
 		return 0;
 

@@ -45,6 +45,7 @@ BEGIN_DUKE_NS
 
 void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 {
+	act->curMove = &moves[0];
 	act->curAction = &actions[0];
 	if (info)
 	{
@@ -126,7 +127,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 		auto sa = &ScriptCode[gs.actorinfo[s_pn].scriptaddress];
 		act->spr.extra = sa[0];
 		act->curAction = &actions[sa[1]];
-		act->temp_data[1] = sa[2];
+		act->curMove = &moves[sa[2]];
 		act->spr.hitag = sa[3];
 	}
 	else
@@ -249,7 +250,7 @@ bool initspriteforspawn(DDukeActor* act)
 	{
 		act->spr.extra = ScriptCode[gs.actorinfo[s].scriptaddress];
 		act->curAction = &actions[ScriptCode[gs.actorinfo[s].scriptaddress+1]];
-		act->temp_data[1] = ScriptCode[gs.actorinfo[s].scriptaddress+2];
+		act->curMove = &moves[ScriptCode[gs.actorinfo[s].scriptaddress+2]];
 		int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
 		if (s3 && act->spr.hitag == 0)
 			act->spr.hitag = s3;

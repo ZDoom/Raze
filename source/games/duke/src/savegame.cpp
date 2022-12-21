@@ -47,22 +47,33 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, GameVarValue& w, G
 void lava_serialize(FSerializer& arc);
 void SerializeGameVars(FSerializer &arc);
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, ActorAction*& w, ActorAction** def)
+template<class T>
+FSerializer& NamedSerialize(FSerializer& arc, const char* keyname, T*& w, TArray<T>& store)
 {
 	if (arc.isWriting())
 	{
-		auto ww = w ? w : &actions[0];
+		auto ww = w ? w : &store[0];
 		if (keyname == nullptr || ww->qualifiedName != NAME_None) Serialize(arc, keyname, ww->qualifiedName, nullptr);
 	}
 	else
 	{
 		FName n = NAME_None;
 		Serialize(arc, keyname, n, nullptr);
-		auto index = actions.FindEx([=](const ActorAction& el) { return el.qualifiedName == n; });
-		if (index >= actions.Size()) index = 0;
-		w = &actions[index];
+		auto index = store.FindEx([=](const auto& el) { return el.qualifiedName == n; });
+		if (index >= store.Size()) index = 0;
+		w = &store[index];
 	}
 	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ActorMove*& w, ActorMove** def)
+{
+	return NamedSerialize(arc, keyname, w, moves);
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ActorAction*& w, ActorAction** def)
+{
+	return NamedSerialize(arc, keyname, w, actions);
 }
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, animwalltype* def)
@@ -307,6 +318,7 @@ void DDukeActor::Serialize(FSerializer& arc)
 		("flags1", flags1)
 		("flags2", flags2)
 		("flags3", flags3)
+		("curmove", curMove)
 		("curaction", curAction);
 }
 

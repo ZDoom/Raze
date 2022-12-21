@@ -1318,7 +1318,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		actor->spr.Angles.Yaw += angdif;
 	}
 
-	if (actor->temp_data[1] == 0 || a == 0)
+	if (actor->curMove->name == NAME_None || a == 0)
 	{
 		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
 		{
@@ -1346,8 +1346,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		return;
 	}
 
-	if (a & geth) actor->vel.X += (actor->GetMoveX() - actor->vel.X) * 0.5;
-	if (a & getv) actor->vel.Z += (actor->GetMoveZ() - actor->vel.Z) * 0.5;
+	if (a & geth) actor->vel.X += (actor->curMove->movex - actor->vel.X) * 0.5;
+	if (a & getv) actor->vel.Z += (actor->curMove->movez - actor->vel.Z) * 0.5;
 
 	if (a & dodgebullet)
 		dodge(actor);
@@ -1420,7 +1420,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			}
 			else if (!(actor->flags2 & SFLAG2_FLOATING))
 			{
-				if (actor->GetMoveZ() == 0)
+				if (actor->curMove->movez == 0)
 				{
 					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{

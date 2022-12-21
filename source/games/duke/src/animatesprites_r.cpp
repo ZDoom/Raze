@@ -41,7 +41,6 @@ BEGIN_DUKE_NS
 void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle viewang, double interpfrac)
 {
 	int k, p;
-	int t1, t3, t4;
 	tspritetype* t;
 	DDukeActor* h;
 
@@ -114,10 +113,6 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				h->dispicnum = t->picnum;
 			continue;
 		}
-
-		t1 = h->temp_data[1];
-		t3 = h->temp_data[3];
-		t4 = h->temp_data[4];
 
 		if (h->spr.picnum == RTILE_APLAYER)
 		{

@@ -314,18 +314,6 @@ inline void processinputvel(int snum)
 	p->sync.svel = (float)velvect.Y;
 }
 
-inline double DDukeActor::GetMoveX() const
-{
-	auto moveptr = &ScriptCode[temp_data[1]];
-	return moveptr[0] / 16.;
-}
-
-inline double DDukeActor::GetMoveZ() const
-{
-	auto moveptr = &ScriptCode[temp_data[1]];
-	return moveptr[1] / 16.;
-}
-
 inline void setPlayerActorViewZOffset(DDukeActor* const pact)
 {
 	if (!PlayClock)
