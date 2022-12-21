@@ -7,6 +7,8 @@ class DukeCommander : DukeActor
 		+KILLCOUNT;
 		+NOWATERDIP;
 		+FLOATING;
+		gutsoffset -24;
+		falladjustz 0;
 	}
 	
 	override void PlayFTASound()

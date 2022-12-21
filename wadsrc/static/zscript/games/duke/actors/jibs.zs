@@ -17,7 +17,7 @@ extend class DukeActor
 		if (gutz > floorz - 8)
 			gutz = floorz - 8;
 
-		gutz += self.gutsoffset();
+		gutz += self.gutsoffset;
 
 		if (self.badguy() && self.pal == 6)
 			pal = 6;

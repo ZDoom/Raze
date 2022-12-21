@@ -88,6 +88,7 @@ class DukeActor : CoreActor native
 	default
 	{
 		lookallarounddefault;
+		falladjustz 24;
 	}
 	enum EStatnums
 	{
@@ -140,6 +141,15 @@ class DukeActor : CoreActor native
 		windang           = 16384,
 		antifaceplayerslow = 32768
 	};
+
+	meta int gutsoffset;
+	meta int falladjustz;
+	meta int aimoffset;
+
+	property prefix: none;
+	property gutsoffset: gutsoffset;
+	property falladjustz: falladjustz;
+	property aimoffset: aimoffset;
 
 	
 	native void SetSpritesetImage(int index);
@@ -220,7 +230,6 @@ class DukeActor : CoreActor native
 	native int scripted();
 	native int isplayer();
 	native void lotsofstuff(class<DukeActor> type, int count);
-	native double gutsoffset();
 	native int movesprite(Vector3 move, int clipmask);
 	native int movesprite_ex(Vector3 move, int clipmask, CollisionData coll);
 	native void shoot(class<DukeActor> spawnclass);

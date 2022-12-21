@@ -7,6 +7,7 @@ class DukeDrone : DukeActor
 		+KILLCOUNT;
 		+NOWATERDIP;
 		+FLOATING;
+		falladjustz 0;
 	}
 	
 	override void PlayFTASound()
@@ -22,6 +23,7 @@ class DukeTurret : DukeActor
 		pic "ORGANTIC";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		aimoffset 32;
 	}
 	
 	override void PlayFTASound()
@@ -44,6 +46,7 @@ class DukeRotateGun : DukeActor
 		+KILLCOUNT;
 		+NODAMAGEPUSH;
 		+NORADIUSPUSH;
+		aimoffset 32;
 	}
 	
 	override void Initialize()

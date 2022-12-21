@@ -39,8 +39,9 @@ class DukeProjectile : DukeActor
 	}
 	
 	Vector3 oldpos;		// holds the position before the current move
-	double velx, vely;	// holds the actual velocity for the current move. This can differ from the actor's internal values.
-	Sound SpawnSound;
+	meta Sound SpawnSound;
+
+	property SpawnSound: SpawnSound;
 	
 	// this large batch of subsequently called virtuals is owed to the spaghetti-like implementation of the orignal moveprojectiles function.
 	
@@ -339,11 +340,7 @@ class DukeRPG : DukeProjectile
 		+DOUBLEDMGTHRUST;
 		+NOFLOORPAL;
 		+BREAKMIRRORS;
-	}
-	
-	override void Initialize()
-	{
-		SpawnSound = "RPG_SHOOT";
+		DukeProjectile.SpawnSound "RPG_SHOOT";
 	}
 	
 	override bool premoveeffect()
@@ -828,12 +825,12 @@ class RedneckChickenArrow : RedneckDynamiteArrow
 		+FORCEAUTOAIM;
 		+NOFLOORPAL;
 		+ALWAYSROTATE2;
+		DukeProjectile.SpawnSound "CHICKENBOW_FIRE";
 	}
 	
 	override void Initialize()
 	{
 		self.hitag = 0;
-		SpawnSound = "CHICKENBOW_FIRE";
 		self.lotsofstuff("RedneckFeather", random(1, 4));
 	}
 	
@@ -901,11 +898,11 @@ class RedneckBoatGrenade : RedneckDynamiteArrow // RRRA only
 		pic "BOATGRENADE";
 		-DOUBLEDMGTHRUST;
 		-ALWAYSROTATE2;
+		DukeProjectile.SpawnSound "MORTAR";
 	}
 	
 	override void Initialize()
 	{
-		SpawnSound = "MORTAR";
 		
 		self.extra = 10;
 		self.vel.Z = -10;

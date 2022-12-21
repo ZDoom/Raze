@@ -349,7 +349,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 								}
 								else check = 1;
 
-								int cans = cansee(act->spr.pos.plusZ(-32 + gs.actorinfo[act->spr.picnum].aimoffset), act->sector(), actor->spr.pos.plusZ(-32), actor->sector());
+								int cans = cansee(act->spr.pos.plusZ(-32 + act->IntVar(NAME_aimoffset)), act->sector(), actor->spr.pos.plusZ(-32), actor->sector());
 
 								if (check && cans)
 								{

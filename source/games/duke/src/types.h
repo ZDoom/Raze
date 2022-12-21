@@ -56,9 +56,6 @@ struct ActorInfo
 {
 	uint32_t scriptaddress;
 	EDukeFlags1 enemyflags;	// placeholder during parsing. Since CON gets parsed before the spawn type table we cannot copy these to their final location yet.
-	int aimoffset;
-	int falladjustz;
-	int gutsoffset;
 };
 
 class DDukeActor : public DCoreActor

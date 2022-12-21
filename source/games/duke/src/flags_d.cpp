@@ -40,20 +40,6 @@ BEGIN_DUKE_NS
 
 void initactorflags_d()
 {
-	gs.actorinfo[DTILE_COMMANDER].gutsoffset = -24;
-
-	for (auto &fa : gs.actorinfo)
-	{
-		fa.falladjustz = 24;
-	}
-	gs.actorinfo[DTILE_OCTABRAIN].falladjustz = gs.actorinfo[DTILE_COMMANDER].falladjustz = gs.actorinfo[DTILE_DRONE].falladjustz = 0;
-
-
-	// The feature guarded by this flag does not exist in Duke, it always acts as if the flag was set.
-
-	gs.actorinfo[DTILE_ORGANTIC].aimoffset = 32;
-	gs.actorinfo[DTILE_ROTATEGUN].aimoffset = 32;
-
 	gs.weaponsandammosprites[0] = DTILE_RPGSPRITE;
 	gs.weaponsandammosprites[1] = DTILE_CHAINGUNSPRITE;
 	gs.weaponsandammosprites[2] = DTILE_DEVISTATORAMMO;

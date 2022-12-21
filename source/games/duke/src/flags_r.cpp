@@ -34,17 +34,6 @@ BEGIN_DUKE_NS
 
 void initactorflags_r()
 {
-	for (auto& fa : gs.actorinfo)
-	{
-		fa.falladjustz = 24;
-	}
-	if (isRRRA())
-	{
-		gs.actorinfo[RTILE_HULKBOAT].falladjustz = 12;
-		gs.actorinfo[RTILE_MINIONBOAT].falladjustz = 3;
-		gs.actorinfo[RTILE_CHEERBOAT].falladjustz = gs.actorinfo[RTILE_EMPTYBOAT].falladjustz = 6;
-	}
-	gs.actorinfo[RTILE_DRONE].falladjustz = 0;
 	gs.weaponsandammosprites[0] = RTILE_CROSSBOWSPRITE;
 	gs.weaponsandammosprites[1] = RTILE_RIFLEGUNSPRITE;
 	gs.weaponsandammosprites[2] = RTILE_DEVISTATORAMMO;

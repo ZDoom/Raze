@@ -398,18 +398,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, lotsofstuff, DukeActor_Lotsofstuff)
 	return 0;
 }
 
-double DukeActor_gutsoffset(DDukeActor* self)
-{
-	return gs.actorinfo[self->spr.picnum].gutsoffset;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, gutsoffset, DukeActor_gutsoffset)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	ACTION_RETURN_FLOAT(DukeActor_gutsoffset(self));
-	return 0;
-}
-
 int DukeActor_movesprite(DDukeActor* actor, double velx, double vely, double velz, int clipmask)
 {
 	Collision coll;

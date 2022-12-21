@@ -138,6 +138,7 @@ class RedneckMinionBoat : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 		+DONTDIVE;
+		falladjustz 3;
 	}
 	override void Initialize()
 	{
@@ -155,6 +156,7 @@ class RedneckHulkBoat : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 		+DONTDIVE;
+		falladjustz 12;
 	}
 	override void Initialize()
 	{
@@ -172,6 +174,7 @@ class RedneckCheerBoat : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 		+DONTDIVE;
+		falladjustz 6;
 	}
 	override void Initialize()
 	{
@@ -429,6 +432,7 @@ class RedneckMosquito : DukeActor
 		+KILLCOUNT;
 		+NOWATERDIP;
 		+FLOATING;
+		falladjustz 0;
 	}
 	override void Initialize()
 	{

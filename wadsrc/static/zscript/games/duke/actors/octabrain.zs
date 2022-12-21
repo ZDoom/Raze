@@ -6,6 +6,7 @@ class DukeOctabrain : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+NOWATERDIP;
+		falladjustz 0;
 	}
 	
 	override void PlayFTASound()

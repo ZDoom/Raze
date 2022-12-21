@@ -794,7 +794,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 	if (gutz > floorz - 8)
 		gutz = floorz - 8;
 
-	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset;
+	gutz += actor->IntVar(NAME_gutsoffset);
 
 	for (int j = 0; j < n; j++)
 	{
@@ -3402,7 +3402,7 @@ void fall_common(DDukeActor *actor, int playernum, int DRONE, int(*fallspecial)(
 				}
 			}
 			if (actor->sector()->lotag == 1)
-				actor->spr.pos.Z += gs.actorinfo[actor->spr.picnum].falladjustz;
+				actor->spr.pos.Z += actor->IntVar(NAME_falladjustz);
 			else actor->vel.Z = 0;
 		}
 	}

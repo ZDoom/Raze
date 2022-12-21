@@ -54,6 +54,7 @@ class RedneckEmptyBoat : DukeActor
 	{
 		pic "EMPTYBOAT";
 		+ALWAYSROTATE2;
+		falladjustz 6;
 	}
 	
 	override void Initialize()
