@@ -52,30 +52,6 @@ inline int iseffector(DDukeActor* actor)
 }
 
 
-inline void setflag(EDukeFlags1 flag, const std::initializer_list<short>& types)
-{
-	for (auto val : types)
-	{
-		//gs.actorinfo[val].flags |= flag;
-	}
-}
-
-inline void setflag(EDukeFlags2 flag, const std::initializer_list<short>& types)
-{
-	for (auto val : types)
-	{
-		//gs.actorinfo[val].flags2 |= flag;
-	}
-}
-
-inline void setflag(EDukeFlags3 flag, const std::initializer_list<short>& types)
-{
-	for (auto val : types)
-	{
-		//gs.actorinfo[val].flags3 |= flag;
-	}
-}
-
 inline bool inventory(DDukeActor* S)
 {
 	return S->flags1 & SFLAG_INVENTORY;
