@@ -646,6 +646,117 @@ PClassActor* CallGetRadiusDamageType(DDukeActor* actor, int targhealth)
 }
 
 
+//==========================================================================
+//
+// Sets up the flag defaults which differ between RR and Duke.
+// 
+//==========================================================================
+
+DEFINE_PROPERTY(lookallarounddefault, 0, DukeActor)
+{
+	if (!isRR()) defaults->flags1 |= SFLAG_LOOKALLAROUND; // feature comes from RR, but we want the option in Duke as well, so this fake property sets the default
+	else
+	{
+		defaults->flags1 |= SFLAG_MOVEFTA_WAKEUPCHECK; // Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
+		defaults->flags2 |= SFLAG2_NODAMAGEPUSH;		// RR does not have this feature, so set the flag for everything, this allows disabling it if wanted later.
+	}
+}
+
+//==========================================================================
+//
+// The 3 major CPN related properties - moves, actions, ais.
+// 
+//==========================================================================
+
+DEFINE_PROPERTY(move, Sii, DukeActor)
+{
+	auto move = &moves[moves.Reserve(1)];
+	move->movex = move->movez = 0;
+	PROP_STRING_PARM(n, 0);
+	move->name = n;
+	move->qualifiedName = FStringf("%s.%s", info->TypeName.GetChars(), n);
+	if (PROP_PARM_COUNT > 1)
+	{
+		PROP_INT_PARM(v, 1);
+		move->movex = v / 16.f;
+		if (PROP_PARM_COUNT > 2)
+		{
+			PROP_INT_PARM(v2, 2);
+			move->movex = v2 / 16.f;
+		}
+	}
+}
+
+DEFINE_PROPERTY(movef, Sff, DukeActor)
+{
+	auto move = &moves[moves.Reserve(1)];
+	move->movex = move->movez = 0;
+	PROP_STRING_PARM(n, 0);
+	move->name = n;
+	move->qualifiedName = FStringf("%s.%s", info->TypeName.GetChars(), n);
+	if (PROP_PARM_COUNT > 1)
+	{
+		PROP_FLOAT_PARM(v, 1);
+		move->movex = v;
+		if (PROP_PARM_COUNT > 2)
+		{
+			PROP_FLOAT_PARM(v2, 2);
+			move->movex = v2;
+		}
+	}
+}
+
+DEFINE_PROPERTY(action, SZIiiii, DukeActor)
+{
+	auto action = &actions[actions.Reserve(1)];
+	memset(&action, 0, sizeof(action));
+	PROP_STRING_PARM(n, 0);
+	action->name = n;
+	action->qualifiedName = FStringf("%s.%s", info->TypeName.GetChars(), n);
+	PROP_STRING_PARM(b, 1);
+	action->base = b == nullptr ? FNullTextureID() : TexMan.CheckForTexture(b, ETextureType::Any, FTextureManager::TEXMAN_ReturnAll | FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
+	PROP_INT_PARM(v2, 2);
+	action->offset = v2;
+
+	if (PROP_PARM_COUNT > 3)
+	{
+		PROP_INT_PARM(v3, 3);
+		action->numframes = v3;
+		if (PROP_PARM_COUNT > 4)
+		{
+			PROP_INT_PARM(v4, 4);
+			action->rotationtype = v4;
+			if (PROP_PARM_COUNT > 5)
+			{
+				PROP_INT_PARM(v5, 5);
+				action->increment = v5;
+				if (PROP_PARM_COUNT > 6)
+				{
+					PROP_INT_PARM(v6, 6);
+					action->delay = v6;
+				}
+			}
+		}
+	}
+}
+
+DEFINE_PROPERTY(ai, SSSi, DukeActor)
+{
+	auto ai = &ais[ais.Reserve(1)];
+	ai->moveflags = 0;
+	PROP_STRING_PARM(n, 0);
+	ai->name = n;
+	PROP_STRING_PARM(a, 1);
+	ai->action = FName(a).GetIndex() | 0x80000000;	// don't look it up yet.
+	PROP_STRING_PARM(m, 2);
+	ai->action = FName(m).GetIndex() | 0x80000000;	// don't look it up yet.
+	if (PROP_PARM_COUNT > 3)
+	{
+		PROP_INT_PARM(v3, 3);
+		ai->moveflags = v3;
+	}
+}
+
 CCMD(changewalltexture)
 {
 	if (argv.argc() < 2) return;
@@ -658,6 +769,7 @@ CCMD(changewalltexture)
 		hit.hitWall->setwalltexture(tile);
 	}
 }
+
 
 
 END_DUKE_NS

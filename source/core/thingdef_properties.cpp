@@ -45,9 +45,6 @@
 #include "texturemanager.h"
 #include "coreactor.h"
 #include "thingdef.h"
-#include "games/duke/src/duke3d.h"
-
-using Duke3d::DDukeActor;
 
 //==========================================================================
 //
@@ -379,19 +376,3 @@ DEFINE_PROPERTY(spritesetindex, I, CoreActor)
 	PROP_INT_PARM(i, 0);
 	defaults->spritesetindex = i;
 }
-
-//==========================================================================
-//
-// Sets up the flag defaults which differ between RR and Duke.
-// 
-//==========================================================================
-DEFINE_PROPERTY(lookallarounddefault,0, DukeActor)
-{
-	if (!isRR()) defaults->flags1 |= SFLAG_LOOKALLAROUND; // feature comes from RR, but we want the option in Duke as well, so this fake property sets the default
-	else
-	{
-		defaults->flags1 |= SFLAG_MOVEFTA_WAKEUPCHECK; // Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.
-		defaults->flags2 |= SFLAG2_NODAMAGEPUSH;		// RR does not have this feature, so set the flag for everything, this allows disabling it if wanted later.
-	}
-}
-
