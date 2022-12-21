@@ -575,7 +575,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, badguy, badguy)
 
 int duke_scripted(DDukeActor* act)
 {
-	return gs.actorinfo[act->spr.picnum].scriptaddress > 0;
+	return act->conInfo() != nullptr;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, scripted, duke_scripted)

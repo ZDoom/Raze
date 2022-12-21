@@ -1949,11 +1949,6 @@ int ParseState::parse(void)
 		g_ac->spr.cstat = ESpriteFlags::FromInt(*insptr);
 		insptr++;
 		break;
-	case concmd_newpic:
-		insptr++;
-		g_ac->spr.picnum = (short)*insptr;
-		insptr++;
-		break;
 	case concmd_ifmove:
 		insptr++;
 		parseifelse((g_ac->curMove - moves.Data()) == *insptr);
@@ -2120,12 +2115,19 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 
+	case concmd_newpic:
 	case concmd_cactor:
+	{
 		insptr++;
-		g_ac->spr.picnum = *insptr;
+		auto info = spawnMap.CheckKey(*insptr);
+		if (info != nullptr)
+		{
+			g_ac->ChangeType(info->cls);
+			g_ac->spr.picnum = *insptr;
+		}
 		insptr++;
 		break;
-
+	}
 	case concmd_ifbulletnear:
 		parseifelse( dodge(g_ac) == 1);
 		break;
@@ -3189,8 +3191,9 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	s.g_x = x;	// ??
 	s.g_ac = actor;
 
-	if (actor->spr.picnum < 0 || actor->spr.picnum >= MAXTILES) return;
-	auto addr = gs.actorinfo[actor->spr.picnum].loadeventscriptptr;
+	auto coninf = actor->conInfo();
+	if (coninf == nullptr) return;
+	auto addr = coninf->loadeventscriptptr;
 	if (addr == 0) return;
 
 	s.killit_flag = 0;
@@ -3244,13 +3247,17 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 bool execute(DDukeActor *actor,int p,double xx)
 {
-	if (gs.actorinfo[actor->spr.picnum].scriptaddress == 0) return false;
+	auto coninf = actor->conInfo();
+	if (coninf == nullptr) 
+		return false;
 
 	ParseState s;
 	s.g_p = p;	// Player ID
 	s.g_x = int(xx / maptoworld);	// ??
 	s.g_ac = actor;
 	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->spr.picnum].scriptaddress)];
+	auto insptr = coninf? &ScriptCode[4 + coninf->scriptaddress] : nullptr;
+	if (insptr != s.insptr)	Printf("%s: %p vs. %p\n", insptr, s.insptr);
 	s.killit_flag = 0;
 
 	int done;

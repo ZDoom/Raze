@@ -121,11 +121,11 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 
 	}
 
-	s_pn = act->spr.picnum;
 	memset(act->temp_data, 0, sizeof(act->temp_data));
-	if (gs.actorinfo[s_pn].scriptaddress)
+	auto coninf = act->conInfo();
+	if (coninf)
 	{
-		auto sa = &ScriptCode[gs.actorinfo[s_pn].scriptaddress];
+		auto sa = &ScriptCode[coninf->scriptaddress];
 		act->curAction = &actions[sa[1]];
 		act->curMove = &moves[sa[2]];
 		act->spr.hitag = sa[3];
@@ -226,16 +226,17 @@ bool initspriteforspawn(DDukeActor* act)
 		}
 	}
 
-	int s = act->spr.picnum;
-
 	if (act->spr.cstat & CSTAT_SPRITE_BLOCK) act->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
 	act->spr.extra = act->IntVar(NAME_strength);
-	if (gs.actorinfo[s].scriptaddress)
+
+	auto coninf = act->conInfo();
+	if (coninf)
 	{
-		act->curAction = &actions[ScriptCode[gs.actorinfo[s].scriptaddress+1]];
-		act->curMove = &moves[ScriptCode[gs.actorinfo[s].scriptaddress+2]];
-		int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
+		auto sa = &ScriptCode[coninf->scriptaddress];
+		act->curAction = &actions[sa[1]];
+		act->curMove = &moves[sa[2]];
+		int s3 = ScriptCode[sa[3]];
 		if (s3 && act->spr.hitag == 0)
 			act->spr.hitag = s3;
 	}
