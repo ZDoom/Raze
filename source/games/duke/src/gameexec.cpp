@@ -1691,10 +1691,22 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_shoot:
+	{
 		insptr++;
-		shoot(g_ac, (short)*insptr, nullptr);
+		int type = *insptr;
+		// hackery to separate RRRA's merged projectiles. We'd prefer not to keep this mess in the core implementation.
+		// Separating it here is easiest as long as the ZScript reimplementation explicitly takes care of these differences.
+		if (isRRRA())
+		{
+			//if (g_ac->GetClass.TypeName == NAME_RedneckCheerleader && type == 3400) typecls = PClass::FindActor(NAME_RedneckCheerBaton);
+			//if (g_ac->GetClass.TypeName == NAME_RedneckMama && type == 3390) typecls = PClass::FindActor(NAME_RedneckRabbitBall);
+			//if (g_ac->GetClass.TypeName == NAME_RedneckMinion && type == 3390 && g_ac->spr.pal == 8) typecls = PClass::FindActor(NAME_RedneckFrogBall);
+			//if (g_ac->GetClass.TypeName == NAME_RedneckMinion && type == 3390 && g_ac->spr.pal == 19)) typecls = PClass::FindActor(NAME_RedneckShitBurn);
+		}
+		shoot(g_ac, *insptr, nullptr);
 		insptr++;
 		break;
+	}
 	case concmd_ifsoundid:
 		insptr++;
 		parseifelse((short)*insptr == ambienttags.SafeGet(g_ac->spr.detail, {}).lo);
