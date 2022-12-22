@@ -185,7 +185,7 @@ static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 			}
 			if (hit.actor() && ! isaccessswitch(hit.actor()->spr.spritetexture()))
 			{
-				fi.checkhitsprite(hit.actor(), knee);
+				checkhitsprite(hit.actor(), knee);
 				if (p >= 0) checkhitswitch(p, nullptr, hit.actor());
 			}
 
@@ -341,7 +341,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 
 		if (hit.actor())
 		{
-			fi.checkhitsprite(hit.actor(), spark);
+			checkhitsprite(hit.actor(), spark);
 			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
 			{
 				spark->spr.scale = DVector2(0, 0);
@@ -431,7 +431,7 @@ static void shootweapon(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int 
 
 			if (hit.actor())
 			{
-				fi.checkhitsprite(hit.actor(), spark);
+				checkhitsprite(hit.actor(), spark);
 				if (!hit.actor()->isPlayer())
 					spawn(spark, PClass::FindActor(NAME_DukeSmallSmoke));
 				else spark->spr.scale = DVector2(0, 0);
@@ -853,7 +853,7 @@ static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 		if (zvel < 0 && (hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY) == 0)
 			checkhitceiling(hit.hitSector);
 	}
-	else if (hit.actor() != nullptr) fi.checkhitsprite(hit.actor(), spark);
+	else if (hit.actor() != nullptr) checkhitsprite(hit.actor(), spark);
 	else if (hit.hitWall != nullptr)
 	{
 		if (!isaccessswitch(hit.hitWall->walltexture))

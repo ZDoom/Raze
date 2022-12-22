@@ -137,7 +137,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, GetSoundFlags, duke_GetSoundFlags)
 static int Duke_badguypic(int spawnno)
 {
 	auto clstype = GetSpawnType(spawnno);
-	if (clstype->IsDescendantOf(RUNTIME_CLASS(DDukeActor)))
+	if (clstype && clstype->IsDescendantOf(RUNTIME_CLASS(DDukeActor)))
 		return badguy(static_cast<DDukeActor*>(GetDefaultByType(clstype)));
 	return false;
 }
@@ -594,19 +594,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, isplayer, duke_isplayer)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	ACTION_RETURN_INT(duke_isplayer(self));
-}
-
-void DukeActor_checkhitsprite(DDukeActor* act, DDukeActor* hitter)
-{
-	fi.checkhitsprite(act, hitter);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, checkhitsprite, DukeActor_checkhitsprite)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_POINTER(h, DDukeActor);
-	DukeActor_checkhitsprite(self, h);
-	return 0;
 }
 
 int duke_spw(DDukeActor* act)

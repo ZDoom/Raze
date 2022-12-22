@@ -370,4 +370,6 @@ spawnclasses
 	2097 = RedneckTesla
 	1990 = RedneckTikilamp
 
+	3845 = DukePlayerPawn, noskill
+
 }

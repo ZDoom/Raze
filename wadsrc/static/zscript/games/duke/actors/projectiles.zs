@@ -72,7 +72,7 @@ class DukeProjectile : DukeActor
 	
 	virtual bool weaponhitsprite_pre(DukeActor targ)
 	{
-		targ.checkhitsprite(self);
+		targ.OnHit(self);
 		return false;
 	}
 	

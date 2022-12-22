@@ -73,7 +73,7 @@ class DukeFlamethrowerFlame : DukeActor
 			if (coll.type == kHitSprite)
 			{
 				let hitact = DukeActor(coll.hitActor());
-				hitact.checkhitsprite(self);
+				hitact.OnHit(self);
 				if (hitact.isPlayer())
 					hitact.PlayActorSound("PISTOL_BODYHIT");
 			}

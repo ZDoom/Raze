@@ -162,7 +162,7 @@ static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int a
 
 			if (hit.actor() && !isaccessswitch(hit.actor()->spr.spritetexture()))
 			{
-				fi.checkhitsprite(hit.actor(), wpn);
+				checkhitsprite(hit.actor(), wpn);
 				if (p >= 0) checkhitswitch(p, nullptr, hit.actor());
 			}
 			else if (hit.hitWall)
@@ -319,7 +319,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 		{
 			if (hit.actor()->spr.picnum == RTILE_TORNADO)
 				return;
-			fi.checkhitsprite(hit.actor(), spark);
+			checkhitsprite(hit.actor(), spark);
 			if (hit.actor()->isPlayer() && (ud.coop != 1 || ud.ffire == 1))
 			{
 				auto jib = spawn(spark, RTILE_JIBS6);
@@ -408,7 +408,7 @@ static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int 
 
 		if (hit.actor())
 		{
-			fi.checkhitsprite(hit.actor(), spark);
+			checkhitsprite(hit.actor(), spark);
 			if (!hit.actor()->isPlayer())
 				spawn(spark, PClass::FindActor(NAME_DukeSmallSmoke));
 			else spark->spr.scale = DVector2(0, 0);

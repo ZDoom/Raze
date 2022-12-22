@@ -220,7 +220,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					{
 						if (badguy(act2) && !cansee(act2->spr.pos.plusZ(q), act2->sector(), actor->spr.pos.plusZ(q), actor->sector()))
 							continue;
-						fi.checkhitsprite(act2, actor);
+						checkhitsprite(act2, actor);
 					}
 			}
 			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
@@ -267,7 +267,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						}
 
 						if ((act2->flags1 & SFLAG_HITRADIUSCHECK))
-							fi.checkhitsprite(act2, actor);
+							checkhitsprite(act2, actor);
 					}
 					else if (actor->spr.extra == 0) act2->hitextra = 0;
 

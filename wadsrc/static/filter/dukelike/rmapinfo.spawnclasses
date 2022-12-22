@@ -456,5 +456,7 @@ spawnclasses
 	4427 = DukeHotMeat
 	4340 = DukeLavaBubble
 
+	1405 = DukePlayerPawn, noskill
+
 }
 

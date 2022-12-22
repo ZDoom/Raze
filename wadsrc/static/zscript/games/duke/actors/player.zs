@@ -1,3 +1,11 @@
+class DukePlayerPawn : DukeActor
+{
+	default
+	{
+		pic "APLAYER";
+	}
+}
+
 class DukePlayerOnWater : DukeActor
 {
 	default
@@ -17,6 +25,14 @@ class DukePlayerOnWater : DukeActor
 		}
 		self.ChangeStat(STAT_DUMMYPLAYER);
 	}
+
+	override void OnHit(DukeActor proj)
+	{
+		// propagate the hit to its owner.
+		let owner = self.ownerActor;
+		if (owner && self != owner) owner.OnHit(proj);
+	}
+
 }
 
 class DukePlayerLyingDead : DukeActor

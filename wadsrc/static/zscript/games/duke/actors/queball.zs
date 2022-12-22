@@ -49,7 +49,7 @@ class DukeQueball : DukeActor
 				// the logic here was inverted, so to set things right the type check had to be added.
 				let targ = DukeActor(colli.hitactor());
 				if (targ is 'DukeQueball')
-					targ.checkhitsprite(self);
+					targ.OnHit(self);
 			}
 
 			self.vel.X -= 1/16.;

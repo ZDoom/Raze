@@ -242,28 +242,6 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 	}
 }
 
-void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
-{
-	if (targ->GetClass() != RUNTIME_CLASS(DDukeActor))
-	{
-		CallOnHit(targ, proj);
-		return;
-	}
-
-	if (isRRRA()) switch (targ->spr.picnum)
-	{
-	case RTILE_IRONWHEELSWITCH:
-		break;
-	}
-
-	if (targ->IsKindOf(NAME_DukePlayerOnWater))
-	{
-		targ = targ->GetOwner();
-		if (!targ) return;
-	}
-	checkhitdefault_r(targ, proj);
-}
-
 //---------------------------------------------------------------------------
 //
 // 

@@ -272,23 +272,6 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 	}
 }
 
-void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
-{
-	if (targ->GetClass() != RUNTIME_CLASS(DDukeActor))
-	{
-		CallOnHit(targ, proj);
-		return;
-	}
-
-
-	if (targ->IsKindOf(NAME_DukePlayerOnWater))
-	{
-		targ = targ->GetOwner();
-		if (!targ) return;
-	}
-	checkhitdefault_d(targ, proj);
-}
-
 //---------------------------------------------------------------------------
 //
 // taken out of checksectors to eliminate some gotos.

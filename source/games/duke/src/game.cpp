@@ -510,7 +510,7 @@ void CallAction(DDukeActor* actor)
 	}
 }
 
-void CallOnHit(DDukeActor* actor, DDukeActor* hitter)
+void checkhitsprite(DDukeActor* actor, DDukeActor* hitter)
 {
 	IFVIRTUALPTR(actor, DDukeActor, onHit)
 	{

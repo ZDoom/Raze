@@ -77,7 +77,6 @@ struct Dispatcher
 	void (*initactorflags)();
 	bool (*checkaccessswitch)(int snum, int switchpal, DDukeActor* act, walltype* w);
 	void (*activatebysector)(sectortype* sect, DDukeActor* j);
-	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);
 	void (*checkhitdefault)(DDukeActor* i, DDukeActor* sn);
 	void (*checksectors)(int low);
 
@@ -112,7 +111,7 @@ void CallInitialize(DDukeActor* actor);
 void CallTick(DDukeActor* actor);
 bool CallOperate(DDukeActor* actor, int plnum);
 void CallAction(DDukeActor* actor);
-void CallOnHit(DDukeActor* actor, DDukeActor* hitter);
+void checkhitsprite(DDukeActor* actor, DDukeActor* hitter);
 void CallOnHurt(DDukeActor* actor, player_struct* hitter);
 void CallOnTouch(DDukeActor* actor, player_struct* hitter);
 bool CallOnUse(DDukeActor* actor, player_struct* user);

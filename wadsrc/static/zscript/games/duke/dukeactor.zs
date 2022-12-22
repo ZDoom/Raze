@@ -199,8 +199,6 @@ class DukeActor : CoreActor native
 	native void operatesectors(sectortype sec);
 	native int SpriteWidth();
 
-	native void checkhitsprite(DukeActor hitter);
-
 	virtual native void Tick();
 
 	
