@@ -159,7 +159,7 @@ static int tileSetHightileReplacement(FScanner& sc, int picnum, int palnum, cons
 //
 //==========================================================================
 
-int tileImportFromTexture(FScanner& sc, const char* fn, int tilenum, int alphacut, int istexture)
+static int tileImportFromTexture(FScanner& sc, const char* fn, int tilenum, int alphacut, int istexture)
 {
 	FTextureID texid = TexMan.CheckForTexture(fn, ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
 	if (!texid.isValid()) return -1;
@@ -201,7 +201,7 @@ struct TileImport
 };
 
 
-void processTileImport(FScanner& sc, const char* cmd, FScriptPosition& pos, TileImport& imp)
+static void processTileImport(FScanner& sc, const char* cmd, FScriptPosition& pos, TileImport& imp)
 {
 	if (!ValidateTilenum(cmd, imp.tile, pos))
 		return;
@@ -256,7 +256,7 @@ struct SetAnim
 	int tile1, tile2, speed, type;
 };
 
-void setAnim(int tile, int type, int speed, int frames)
+static void setAnim(int tile, int type, int speed, int frames)
 {
 	auto& anm = tbuild->tile[tile].extinfo.picanm;
 	anm.sf &= ~(PICANM_ANIMTYPE_MASK | PICANM_ANIMSPEED_MASK);
@@ -264,7 +264,7 @@ void setAnim(int tile, int type, int speed, int frames)
 	anm.num = frames;
 }
 
-void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
+static void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
 {
 	if (!ValidateTilenum(cmd, imp.tile1, pos) ||
 		!ValidateTilenum(cmd, imp.tile2, pos))
@@ -318,12 +318,12 @@ static void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, in
 //===========================================================================
 
 template<int cnt>
-void parseSkip(FScanner& sc, FScriptPosition& pos)
+static void parseSkip(FScanner& sc, FScriptPosition& pos)
 {
 	for (int i = 0; i < cnt; i++) if (!sc.GetString()) return;
 }
 
-void parseDefine(FScanner& sc, FScriptPosition& pos)
+static void parseDefine(FScanner& sc, FScriptPosition& pos)
 {
 	FString name;
 	if (!sc.GetString(name))  return;
@@ -337,7 +337,7 @@ void parseDefine(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
+static void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, palette;
 
@@ -440,7 +440,7 @@ static void parseTextureSpecialBlock(FScanner& sc, int tile, int pal)
 	}
 }
 
-void parseTexture(FScanner& sc, FScriptPosition& pos)
+static void parseTexture(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 	int tile = -1;
@@ -466,7 +466,7 @@ void parseTexture(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseUndefTexture(FScanner& sc, FScriptPosition& pos)
+static void parseUndefTexture(FScanner& sc, FScriptPosition& pos)
 {
 	if (!sc.GetNumber(true)) return;
 	if (ValidateTilenum("undeftexture", sc.Number, pos)) tileRemoveReplacement(sc.Number);
@@ -478,7 +478,7 @@ void parseUndefTexture(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseUndefTextureRange(FScanner& sc, FScriptPosition& pos)
+static void parseUndefTextureRange(FScanner& sc, FScriptPosition& pos)
 {
 	int start, end;
 	if (!sc.GetNumber(start, true)) return;
@@ -493,7 +493,7 @@ void parseUndefTextureRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseTileFromTexture(FScanner& sc, FScriptPosition& pos)
+static void parseTileFromTexture(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 	TileImport imp;
@@ -542,7 +542,7 @@ void parseTileFromTexture(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseCopyTile(FScanner& sc, FScriptPosition& pos)
+static void parseCopyTile(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 	int tile = -1, source = -1;
@@ -603,7 +603,7 @@ void parseCopyTile(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseImportTile(FScanner& sc, FScriptPosition& pos)
+static void parseImportTile(FScanner& sc, FScriptPosition& pos)
 {
 	int tile;
 
@@ -621,7 +621,7 @@ void parseImportTile(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDummyTile(FScanner& sc, FScriptPosition& pos)
+static void parseDummyTile(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, xsiz, ysiz;
 
@@ -640,7 +640,7 @@ void parseDummyTile(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDummyTileRange(FScanner& sc, FScriptPosition& pos)
+static void parseDummyTileRange(FScanner& sc, FScriptPosition& pos)
 {
 	int tile1, tile2, xsiz, ysiz;
 
@@ -665,7 +665,7 @@ void parseDummyTileRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseUndefineTile(FScanner& sc, FScriptPosition& pos)
+static void parseUndefineTile(FScanner& sc, FScriptPosition& pos)
 {
 	int tile;
 
@@ -684,7 +684,7 @@ void parseUndefineTile(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseUndefineTileRange(FScanner& sc, FScriptPosition& pos)
+static void parseUndefineTileRange(FScanner& sc, FScriptPosition& pos)
 {
 	int tile1, tile2;
 
@@ -706,7 +706,7 @@ void parseUndefineTileRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
+static void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, palette;
 	FString fn[6];
@@ -728,7 +728,7 @@ void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseSkybox(FScanner& sc, FScriptPosition& pos)
+static void parseSkybox(FScanner& sc, FScriptPosition& pos)
 {
 	FString faces[6];
 	FScanner::SavedPos blockend;
@@ -760,7 +760,7 @@ void parseSkybox(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseSetupTile(FScanner& sc, FScriptPosition& pos)
+static void parseSetupTile(FScanner& sc, FScriptPosition& pos)
 {
 	int tile;
 	if (!sc.GetNumber(tile, true)) return;
@@ -778,7 +778,7 @@ void parseSetupTile(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseSetupTileRange(FScanner& sc, FScriptPosition& pos)
+static void parseSetupTileRange(FScanner& sc, FScriptPosition& pos)
 {
 	int tilestart, tileend;
 	if (!sc.GetNumber(tilestart, true)) return;
@@ -801,7 +801,7 @@ void parseSetupTileRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseAnimTileRange(FScanner& sc, FScriptPosition& pos)
+static void parseAnimTileRange(FScanner& sc, FScriptPosition& pos)
 {
 	SetAnim set;
 	if (!sc.GetNumber(set.tile1, true)) return;
@@ -817,7 +817,7 @@ void parseAnimTileRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseAlphahack(FScanner& sc, FScriptPosition& pos)
+static void parseAlphahack(FScanner& sc, FScriptPosition& pos)
 {
 	int tile;
 
@@ -832,7 +832,7 @@ void parseAlphahack(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseAlphahackRange(FScanner& sc, FScriptPosition& pos)
+static void parseAlphahackRange(FScanner& sc, FScriptPosition& pos)
 {
 	int tilestart, tileend;
 
@@ -852,7 +852,7 @@ void parseAlphahackRange(FScanner& sc, FScriptPosition& pos)
 //===========================================================================
 static int lastvoxid = -1;
 
-void parseDefineVoxel(FScanner& sc, FScriptPosition& pos)
+static void parseDefineVoxel(FScanner& sc, FScriptPosition& pos)
 {
 	sc.MustGetString();
 
@@ -877,7 +877,7 @@ void parseDefineVoxel(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDefineVoxelTiles(FScanner& sc, FScriptPosition& pos)
+static void parseDefineVoxelTiles(FScanner& sc, FScriptPosition& pos)
 {
 	int tilestart, tileend;
 	if (!sc.GetNumber(tilestart, true)) return;
@@ -898,7 +898,7 @@ void parseDefineVoxelTiles(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseVoxel(FScanner& sc, FScriptPosition& pos)
+static void parseVoxel(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 	int tile0 = MAXTILES, tile1 = -1;
@@ -956,7 +956,7 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDefineTint(FScanner& sc, FScriptPosition& pos)
+static void parseDefineTint(FScanner& sc, FScriptPosition& pos)
 {
 	int pal, r, g, b, f;
 
@@ -974,7 +974,7 @@ void parseDefineTint(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseFogpal(FScanner& sc, FScriptPosition& pos)
+static void parseFogpal(FScanner& sc, FScriptPosition& pos)
 {
 	int pal, r, g, b;
 
@@ -996,7 +996,7 @@ void parseFogpal(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseNoFloorpalRange(FScanner& sc, FScriptPosition& pos)
+static void parseNoFloorpalRange(FScanner& sc, FScriptPosition& pos)
 {
 	int start, end;
 	if (!sc.GetNumber(start, true)) return;
@@ -1013,7 +1013,7 @@ void parseNoFloorpalRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseTint(FScanner& sc, FScriptPosition& pos)
+static void parseTint(FScanner& sc, FScriptPosition& pos)
 {
 	int red = 255, green = 255, blue = 255, shadered = 0, shadegreen = 0, shadeblue = 0, pal = -1, flags = 0;
 	FScanner::SavedPos blockend;
@@ -1046,7 +1046,7 @@ void parseTint(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseMusic(FScanner& sc, FScriptPosition& pos)
+static void parseMusic(FScanner& sc, FScriptPosition& pos)
 {
 	FString id, file;
 	FScanner::SavedPos blockend;
@@ -1067,7 +1067,7 @@ void parseMusic(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseMapinfo(FScanner& sc, FScriptPosition& pos)
+static void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 {
 	FString title;
 	FString mhkfile;
@@ -1106,7 +1106,7 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseEcho(FScanner& sc, FScriptPosition& pos)
+static void parseEcho(FScanner& sc, FScriptPosition& pos)
 {
 	sc.MustGetString();
 	Printf("%s\n", sc.String);
@@ -1118,7 +1118,7 @@ void parseEcho(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseRffDefineId(FScanner& sc, FScriptPosition& pos)
+static void parseRffDefineId(FScanner& sc, FScriptPosition& pos)
 {
 	FString resName;
 	FString resType;
@@ -1138,7 +1138,7 @@ void parseRffDefineId(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseEmptyBlock(FScanner& sc, FScriptPosition& pos)
+static void parseEmptyBlock(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 
@@ -1147,7 +1147,7 @@ void parseEmptyBlock(FScanner& sc, FScriptPosition& pos)
 	sc.CheckString("}");
 }
 
-void parseEmptyBlockWithParm(FScanner& sc, FScriptPosition& pos)
+static void parseEmptyBlockWithParm(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 
@@ -1164,7 +1164,7 @@ void parseEmptyBlockWithParm(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseTexHitscanRange(FScanner& sc, FScriptPosition& pos)
+static void parseTexHitscanRange(FScanner& sc, FScriptPosition& pos)
 {
 	int start, end;
 
@@ -1183,7 +1183,7 @@ void parseTexHitscanRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseNoFullbrightRange(FScanner& sc, FScriptPosition& pos)
+static void parseNoFullbrightRange(FScanner& sc, FScriptPosition& pos)
 {
 	int start, end;
 
@@ -1204,7 +1204,7 @@ void parseNoFullbrightRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseHighpalookup(FScanner& sc, FScriptPosition& pos)
+static void parseHighpalookup(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 	int basepal = -1, pal = -1;
@@ -1252,7 +1252,7 @@ struct ModelStatics
 //
 //===========================================================================
 
-void parseDefineModel(FScanner& sc, FScriptPosition& pos)
+static void parseDefineModel(FScanner& sc, FScriptPosition& pos)
 {
 	FString modelfn;
 	double scale;
@@ -1281,7 +1281,7 @@ void parseDefineModel(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDefineModelFrame(FScanner& sc, FScriptPosition& pos)
+static void parseDefineModelFrame(FScanner& sc, FScriptPosition& pos)
 {
 	FString framename;
 	bool ok = true;
@@ -1314,7 +1314,7 @@ void parseDefineModelFrame(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDefineModelAnim(FScanner& sc, FScriptPosition& pos)
+static void parseDefineModelAnim(FScanner& sc, FScriptPosition& pos)
 {
 	FString startframe, endframe;
 	int32_t flags;
@@ -1341,7 +1341,7 @@ void parseDefineModelAnim(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseDefineModelSkin(FScanner& sc, FScriptPosition& pos)
+static void parseDefineModelSkin(FScanner& sc, FScriptPosition& pos)
 {
 	int palnum;
 	FString skinfn;
@@ -1365,7 +1365,7 @@ void parseDefineModelSkin(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseSelectModelSkin(FScanner& sc, FScriptPosition& pos)
+static void parseSelectModelSkin(FScanner& sc, FScriptPosition& pos)
 {
 	sc.GetNumber(mdglobal.modelskin, true);
 }
@@ -1377,7 +1377,7 @@ void parseSelectModelSkin(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseUndefModel(FScanner& sc, FScriptPosition& pos)
+static void parseUndefModel(FScanner& sc, FScriptPosition& pos)
 {
 	int tile;
 	if (!sc.GetNumber(tile, true)) return;
@@ -1385,7 +1385,7 @@ void parseUndefModel(FScanner& sc, FScriptPosition& pos)
 	modelManager.UndefineTile(tile);
 }
 
-void parseUndefModelRange(FScanner& sc, FScriptPosition& pos)
+static void parseUndefModelRange(FScanner& sc, FScriptPosition& pos)
 {
 	int start, end;
 
@@ -1395,7 +1395,7 @@ void parseUndefModelRange(FScanner& sc, FScriptPosition& pos)
 	for (int i = start; i <= end; i++) modelManager.UndefineTile(i);
 }
 
-void parseUndefModelOf(FScanner& sc, FScriptPosition& pos)
+static void parseUndefModelOf(FScanner& sc, FScriptPosition& pos)
 {
 	int tile;
 	if (!sc.GetNumber(tile, true)) return;
@@ -1585,7 +1585,7 @@ static bool parseModelHudBlock(FScanner& sc)
 	return true;
 }
 
-void parseModel(FScanner& sc, FScriptPosition& pos)
+static void parseModel(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 

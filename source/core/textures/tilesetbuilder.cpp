@@ -222,7 +222,7 @@ void TilesetBuildInfo::MakeCanvas(int tilenum, int width, int height)
 
 void ConstructTileset()
 {
-	TilesetBuildInfo info;
+	TilesetBuildInfo info {};
 	TArray<FImageSource*> images;
 	TArray<unsigned> rawpicanm;
 	GetArtImages(images, rawpicanm);
