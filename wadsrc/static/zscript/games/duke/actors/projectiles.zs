@@ -573,6 +573,55 @@ class DukeFireball : DukeProjectile // WorldTour only
 		+FULLBRIGHT;
 	}
 	
+	
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
+	{
+		// World Tour's values for angles and velocities are quite arbitrary...
+		double vel, zvel;
+
+		if (actor.extra >= 0)
+			actor.shade = -96;
+
+		pos.Z -= 2;
+		if (!(actor is 'DukeBoss5'))
+			vel = 840/16.;
+		else {
+			vel = 968/16.;
+			pos.Z += 24;
+		}
+
+		if (p == null)
+		{
+			ang += 22.5 / 8 - frandom(0, 22.5 / 4);
+			let j = actor.findplayer();
+			double dist = (j.actor.pos.XY - actor.pos.XY).Length();
+			zvel = ((j.actor.opos.z + j.actor.oviewzoffset - pos.Z + 3) * vel) / dist;
+		}
+		else
+		{
+			[vel, zvel] = Raze.setFreeAimVelocity(vel, zvel, p.getPitchWithView(), 49.);
+			pos += (ang + 61.171875).ToVector() * (1024. / 448.);
+			pos.Z += 3;
+		}
+
+		double scale = 0.28125;
+
+		let spawned = dlevel.SpawnActor(actor.sector, pos, GetClass(), -127, (0.28125, 0.28125), ang, vel, zvel, actor, STAT_PROJECTILE);
+		if (spawned)
+		{
+			spawned.extra += random(0, 7);
+			if ((actor is 'DukeBoss5') || p)
+			{
+				spawned.scale = (0.625, 0.625);
+			}
+			//spawned.yint = p;
+			spawned.cstat = CSTAT_SPRITE_YCENTER;
+			spawned.clipdist = 1;
+		}
+		return true;
+	}
+
+	
 	override bool premoveeffect()
 	{
 		let Owner = self.ownerActor;

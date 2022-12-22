@@ -87,59 +87,6 @@ void incur_damage_d(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void shootfireball(DDukeActor *actor, int p, DVector3 pos, DAngle ang)
-{
-	// World Tour's values for angles and velocities are quite arbitrary...
-	double vel, zvel;
-
-	if (actor->spr.extra >= 0)
-		actor->spr.shade = -96;
-
-	pos.Z -= 2;
-	if (actor->spr.picnum != DTILE_BOSS5)
-		vel = 840/16.;
-	else {
-		vel = 968/16.;
-		pos.Z += 24;
-	}
-
-	if (p < 0)
-	{
-		ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-		double scratch;
-		int j = findplayer(actor, &scratch);
-		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].GetActor()->getPrevOffsetZ() - pos.Z + 3) * vel) / dist;
-	}
-	else
-	{
-		setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 49.);
-		pos += (ang + DAngle1 * 61.171875).ToVector() * (1024. / 448.);
-		pos.Z += 3;
-	}
-
-	double scale = p >= 0? 0.109375 : 0.28125;
-
-	auto spawned = CreateActor(actor->sector(), pos, DTILE_FIREBALL, -127, DVector2(scale, scale), ang, vel, zvel, actor, (short)4);
-	if (spawned)
-	{
-		spawned->spr.extra += (krand() & 7);
-		if (actor->spr.picnum == DTILE_BOSS5 || p >= 0)
-		{
-			spawned->spr.scale = DVector2(0.625, 0.625);
-		}
-		spawned->spr.yint = p;
-		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->clipdist = 1;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void shootknee(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 {
 	auto sectp = actor->sector();
@@ -752,16 +699,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 
 	if (cls && cls->IsDescendantOf(RUNTIME_CLASS(DDukeActor)) && CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, p, spos, sang)) return;
 	if (cls && atwith == -1) atwith = GetDefaultByType(cls)->spr.picnum;
-
-	if (isWorldTour()) 
-	{ // Twentieth Anniversary World Tour
-		switch (atwith) 
-		{
-		case DTILE_FIREBALL:
-			shootfireball(actor, p, spos, sang);
-			return;
-		}
-	}
 
 	switch (atwith)
 	{
