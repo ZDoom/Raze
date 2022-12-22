@@ -1103,6 +1103,20 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, StartBoat, OnBoat)
 	return 0;
 }
 
+void pl_checkhitswitch(player_struct* p, walltype* wal, DDukeActor* act)
+{
+	checkhitswitch(p->GetPlayerNum(), wal, act);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, checkhitswitch, pl_checkhitswitch)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_POINTER(wal, walltype);
+	PARAM_POINTER(act, DDukeActor);
+	pl_checkhitswitch(self, wal, act);
+	return 0;
+}
+
 
 static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)
 {

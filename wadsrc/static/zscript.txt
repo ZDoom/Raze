@@ -158,6 +158,7 @@ version "4.10"
 #include "zscript/games/duke/actors/rabbit.zs"
 
 
+#include "zscript/games/duke/actors/dukeweapons/melee.zs"
 #include "zscript/games/duke/actors/dukeweapons/shrinker.zs"
 #include "zscript/games/duke/actors/dukeweapons/grower.zs"
 #include "zscript/games/duke/actors/dukeweapons/tripbomb.zs"

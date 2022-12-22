@@ -83,123 +83,6 @@ void incur_damage_r(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void shootmelee(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atwith)
-{
-	auto sectp = actor->sector();
-	double vel = 1024., zvel;
-	HitInfo hit{};
-
-	if (p >= 0)
-	{
-		setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 16.);
-		pos.Z += 6;
-		ang += DAngle1 * 2.64;
-	}
-	else
-	{
-		double x;
-		auto pactor = ps[findplayer(actor, &x)].GetActor();
-		zvel = ((pactor->spr.pos.Z - pos.Z) * 16) / (x + 1 / 16.);
-		ang = (pactor->spr.pos.XY() - pos.XY()).Angle();
-	}
-
-	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
-
-	if (isRRRA() && hit.hitSector != nullptr && ((hit.hitSector->lotag == ST_160_FLOOR_TELEPORT && zvel > 0) || (hit.hitSector->lotag == ST_161_CEILING_TELEPORT && zvel < 0))
-		&& hit.actor() == nullptr && hit.hitWall == nullptr)
-	{
-		DukeStatIterator its(STAT_EFFECTOR);
-		while (auto effector = its.Next())
-		{
-			if (effector->sector() == hit.hitSector && iseffector(effector) && effector->GetOwner()
-				&& effector->spr.lotag == SE_7_TELEPORT)
-			{
-				DVector3 npos;
-				npos.XY() = hit.hitpos.XY() + (effector->GetOwner()->spr.pos.XY() - effector->spr.pos.XY());
-				if (hit.hitSector->lotag == ST_161_CEILING_TELEPORT)
-				{
-					npos.Z = effector->GetOwner()->sector()->floorz;
-				}
-				else
-				{
-					npos.Z = effector->GetOwner()->sector()->ceilingz;
-				}
-				hitscan(npos, effector->GetOwner()->sector(), DVector3(ang.ToVector() * 1024, zvel * 0.25), hit, CLIPMASK1);
-				break;
-			}
-		}
-	}
-
-	if (hit.hitSector == nullptr) return;
-
-	if ((pos.XY() - hit.hitpos.XY()).Sum() < 64)
-	{
-		if (hit.hitWall != nullptr || hit.actor())
-		{
-			DDukeActor* wpn;
-			if (isRRRA() && atwith == RTILE_SLINGBLADE)
-			{
-				wpn = CreateActor(hit.hitSector, hit.hitpos, RTILE_SLINGBLADE, -15, DVector2(0, 0), ang, 32., 0., actor, 4);
-				if (!wpn) return;
-				wpn->spr.extra += 50;
-			}
-			else
-			{
-				wpn = CreateActor(hit.hitSector, hit.hitpos, RTILE_KNEE, -15, DVector2(0, 0), ang, 32., 0., actor, 4);
-				if (!wpn) return;
-				wpn->spr.extra += (krand() & 7);
-			}
-			if (p >= 0)
-			{
-				auto k = spawn(wpn, PClass::FindActor(NAME_DukeSmallSmoke));
-				if (k) k->spr.pos.Z -= 8;
-				if (atwith == RTILE_KNEE) S_PlayActorSound(KICK_HIT, wpn);
-				else if (isRRRA() && atwith == RTILE_SLINGBLADE)	S_PlayActorSound(260, wpn);
-			}
-
-			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
-				wpn->spr.extra += (gs.max_player_health >> 2);
-
-			if (hit.actor() && !isaccessswitch(hit.actor()->spr.spritetexture()))
-			{
-				checkhitsprite(hit.actor(), wpn);
-				if (p >= 0) checkhitswitch(p, nullptr, hit.actor());
-			}
-			else if (hit.hitWall)
-			{
-				if (hit.hitWall->cstat & CSTAT_WALL_BOTTOM_SWAP)
-					if (hit.hitWall->twoSided())
-						if (hit.hitpos.Z >= hit.hitWall->nextSector()->floorz)
-							hit.hitWall = hit.hitWall->nextWall();
-
-				if (!isaccessswitch(hit.hitWall->walltexture))
-				{
-					checkhitwall(wpn, hit.hitWall, hit.hitpos);
-					if (p >= 0) checkhitswitch(p, hit.hitWall, nullptr);
-				}
-			}
-		}
-		else if (p >= 0 && zvel > 0 && hit.hitSector->lotag == 1)
-		{
-			auto splash = spawn(ps[p].GetActor(), RTILE_WATERSPLASH2);
-			if (splash)
-			{
-				splash->spr.pos.XY() = hit.hitpos.XY();
-				splash->spr.Angles.Yaw = ps[p].GetActor()->spr.Angles.Yaw;
-				splash->vel.X = 2;
-				ssp(actor, 0);
-				splash->vel.X = 0;
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void shootweapon(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sectp = actor->sector();
@@ -772,14 +655,6 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 
 	switch (atwith)
 	{
-	case RTILE_SLINGBLADE:
-		if (!isRRRA()) break;
-		[[fallthrough]];
-	case RTILE_KNEE:
-	case RTILE_GROWSPARK:
-		shootmelee(actor, p, spos, sang, atwith);
-		return;
-
 	case RTILE_SHOTSPARK1:
 	case RTILE_SHOTGUN:
 	case RTILE_CHAINGUN:

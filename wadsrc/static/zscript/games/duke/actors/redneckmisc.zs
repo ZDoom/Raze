@@ -131,14 +131,6 @@ class RedneckTeslaBall : DukeItemBase
 	}
 }
 
-class RedneckBuzzSaw : DukeItemBase
-{
-	default
-	{
-		pic "BUZSAW";
-	}
-}
-
 class RedneckBustaWin5a : DukeItemBase
 {
 	default

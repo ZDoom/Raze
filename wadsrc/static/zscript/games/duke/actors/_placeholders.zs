@@ -1,20 +1,3 @@
-
-// dummy items representing certain weapons
-
-class DukeKneeAttack : DukeActor
-{
-	default
-	{
-		pic "KNEE";
-		+DIENOW;
-	}
-}
-
-class RedneckCrowbarAttack : DukeKneeAttack
-{
-}
-
-
 class DukeRadiusExplosion : DukeActor
 {
 	default

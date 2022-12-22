@@ -193,4 +193,5 @@ spawnclasses
 	78 = RedneckMotoAmmo, noskill
 	8460 = RedneckBoatAmmo, noskill
 	7170 = RedneckMotoHit, noskill
+	3510 = RedneckSlingbladeAttack, noskill
 }

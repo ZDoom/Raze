@@ -69,6 +69,7 @@ class CoreActor native
 	native void setPosition(Vector3 pos);
 	native void setPositionZ(Vector3 pos);
 	native bool isAwayFromWall(double dist);
+	native TextureID spritetexture();
 
 	native void ChangeSector(sectortype s, bool forcetail = false);
 	native void ChangeStat(int s, bool forcetail = false);

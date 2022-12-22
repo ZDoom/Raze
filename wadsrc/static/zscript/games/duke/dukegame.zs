@@ -379,6 +379,7 @@ struct DukePlayer native
 	native void setbobpos();
 	native void StartMotorcycle();
 	native void StartBoat();
+	native void checkhitswitch(walltype wal, DukeActor act);
 
 
 }

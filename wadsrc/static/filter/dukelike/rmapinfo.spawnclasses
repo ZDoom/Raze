@@ -11,7 +11,7 @@ spawnclasses
 	9 = DukeRespawnController, noskill
 	10 = DukeGPSpeed, noskill
 	4890 = DukeNaturalLightning, noskill
-	2521 = DukeKneeAttack, noskill
+	2521 = DukeMeleeAttack, noskill
 	2613 = DukeShotgunShot, noskill
 	2536 = DukeChaingunShot, noskill
 	1670 = DukeRadiusExplosion, noskill

@@ -35,7 +35,7 @@ spawnclasses
 	34 = RedneckKeyinfoSetter, noskill
 	3380 = RedneckChaingunShot, noskill
 	3350 = RedneckShotgunShot, noskill
-	3340 = RedneckCrowbarAttack, noskill
+	3340 = DukeMeleeAttack, noskill
 	1426 = DukeRadiusExplosion, noskill
 
 	1298 = DukeCranePole, noskill

@@ -986,6 +986,16 @@ DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, ChangeStat, ChangeActorStat)
 	return 0;
 }
 
+static int CoreActor_spritetexture(DCoreActor* self)
+{
+	return self->spr.spritetexture().GetIndex();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DCoreActor, spritetexture, CoreActor_spritetexture)
+{
+	PARAM_SELF_PROLOGUE(DCoreActor);
+	ACTION_RETURN_INT(CoreActor_spritetexture(self));
+}
 
 
 
