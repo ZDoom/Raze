@@ -445,9 +445,9 @@ void movedummyplayers(void)
 				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 				act->spr.pos.Z = act->sector()->ceilingz + 27;
 				act->spr.Angles.Yaw = ps[p].GetActor()->spr.Angles.Yaw;
-				if (act->temp_data[0] == 8)
-					act->temp_data[0] = 0;
-				else act->temp_data[0]++;
+				if (act->counter == 8)
+					act->counter = 0;
+				else act->counter++;
 			}
 			else
 			{
@@ -604,7 +604,7 @@ void movefallers(void)
 	{
 		auto sectp = act->sector();
 
-		if (act->temp_data[0] == 0)
+		if (act->counter == 0)
 		{
 			act->spr.pos.Z -= 16;
 			DAngle saved_angle = act->spr.Angles.Yaw;
@@ -616,13 +616,13 @@ void movefallers(void)
 				{
 					if (act->spr.extra <= 0)
 					{
-						act->temp_data[0] = 1;
+						act->counter = 1;
 						DukeStatIterator itj(STAT_FALLER);
 						while (auto a2 = itj.Next())
 						{
 							if (a2->spr.hitag == act->spr.hitag)
 							{
-								a2->temp_data[0] = 1;
+								a2->counter = 1;
 								a2->spr.cstat &= ~CSTAT_SPRITE_ONE_SIDE;
 								if (a2->IsKindOf(NAME_DukeSteamBase))
 									a2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -639,7 +639,7 @@ void movefallers(void)
 			act->spr.Angles.Yaw = saved_angle;
 			act->spr.pos.Z += 16;
 		}
-		else if (act->temp_data[0] == 1)
+		else if (act->counter == 1)
 		{
 			if (act->spr.lotag > 0)
 			{
@@ -749,11 +749,11 @@ void detonate(DDukeActor *actor, PClassActor* explosion)
 				effector->temp_data[4] = 1;
 			else if (effector->spr.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL)
 			{
-				if (effector->temp_data[0] == 0)
-					effector->temp_data[0] = 1;
+				if (effector->counter == 0)
+					effector->counter = 1;
 			}
 			else if (effector->spr.lotag == SE_21_DROP_FLOOR)
-				effector->temp_data[0] = 1;
+				effector->counter = 1;
 		}
 	}
 
@@ -901,8 +901,8 @@ void handle_se00(DDukeActor* actor)
 	}
 	else
 	{
-		if (Owner->temp_data[0] == 0) return;
-		if (Owner->temp_data[0] == 2)
+		if (Owner->counter == 0) return;
+		if (Owner->counter == 2)
 		{
 			actor->Destroy();
 			return;
@@ -980,7 +980,7 @@ void handle_se01(DDukeActor *actor)
 		{
 			if (ac->spr.lotag == SE_19_EXPLOSION_LOWERS_CEILING && ac->spr.hitag == sh)
 			{
-				actor->temp_data[0] = 0;
+				actor->counter = 0;
 				break;
 			}
 		}
@@ -1003,7 +1003,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 	if (actor->GetOwner() == nullptr)
 	{
-		auto NewOwner = LocateTheLocator(actor->temp_data[3], &sector[actor->temp_data[0]]);
+		auto NewOwner = LocateTheLocator(actor->temp_data[3], &sector[actor->counter]);
 
 		if (NewOwner == nullptr)
 		{
@@ -1021,11 +1021,11 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			if (Owner->spr.hitag & 1)
 				actor->temp_data[4] = sc->extra; //Slow it down
 		actor->temp_data[3]++;
-		auto NewOwner = LocateTheLocator(actor->temp_data[3], &sector[actor->temp_data[0]]);
+		auto NewOwner = LocateTheLocator(actor->temp_data[3], &sector[actor->counter]);
 		if (NewOwner == nullptr)
 		{
 			actor->temp_data[3] = 0;
-			NewOwner = LocateTheLocator(0, &sector[actor->temp_data[0]]);
+			NewOwner = LocateTheLocator(0, &sector[actor->counter]);
 		}
 		if (NewOwner) actor->SetOwner(NewOwner);
 	}
@@ -1202,7 +1202,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 	if (Owner == nullptr)
 	{
 		actor->temp_data[3] = !actor->temp_data[3];
-		Owner = LocateTheLocator(actor->temp_data[3], &sector[actor->temp_data[0]]);
+		Owner = LocateTheLocator(actor->temp_data[3], &sector[actor->counter]);
 		actor->SetOwner(Owner);
 	}
 	else
@@ -1356,37 +1356,37 @@ void handle_se02(DDukeActor* actor)
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
-	if (actor->temp_data[4] > 0 && actor->temp_data[0] == 0)
+	if (actor->temp_data[4] > 0 && actor->counter == 0)
 	{
 		if (actor->temp_data[4] < sh)
 			actor->temp_data[4]++;
-		else actor->temp_data[0] = 1;
+		else actor->counter = 1;
 	}
 
-	if (actor->temp_data[0] > 0)
+	if (actor->counter > 0)
 	{
-		actor->temp_data[0]++;
+		actor->counter++;
 
 		actor->vel.X = 3 / 16.;
 
-		if (actor->temp_data[0] > 96)
+		if (actor->counter > 96)
 		{
-			actor->temp_data[0] = -1; //Stop the quake
+			actor->counter = -1; //Stop the quake
 			actor->temp_data[4] = -1;
 			actor->Destroy();
 			return;
 		}
 		else
 		{
-			if ((actor->temp_data[0] & 31) == 8)
+			if ((actor->counter & 31) == 8)
 			{
 				ud.earthquaketime = 48;
 				S_PlayActorSound(EARTHQUAKE, ps[screenpeek].GetActor());
 			}
 
-			if (abs(sc->floorheinum - actor->temp_data[5]) < 8)
-				sc->setfloorslope(actor->temp_data[5]);
-			else sc->setfloorslope(sc->getfloorslope() + (Sgn(actor->temp_data[5] - sc->getfloorslope()) << 4));
+			if (abs(sc->floorheinum - actor->temp_data[0]) < 8)
+				sc->setfloorslope(actor->temp_data[0]);
+			else sc->setfloorslope(sc->getfloorslope() + (Sgn(actor->temp_data[0] - sc->getfloorslope()) << 4));
 		}
 
 		auto vect = actor->spr.Angles.Yaw.ToVector() * actor->vel.X;
@@ -1434,23 +1434,23 @@ void handle_se03(DDukeActor *actor)
 	{
 		sc->ceilingpal = palvals >> 8;
 		sc->floorpal = palvals & 0xff;
-		actor->temp_data[0] = actor->spr.shade + (global_random & 15);
+		actor->counter = actor->spr.shade + (global_random & 15);
 	}
 	else
 	{
 		sc->ceilingpal = actor->spr.pal;
 		sc->floorpal = actor->spr.pal;
-		actor->temp_data[0] = actor->temp_data[3];
+		actor->counter = actor->temp_data[3];
 	}
 
-	sc->ceilingshade = actor->temp_data[0];
-	sc->floorshade = actor->temp_data[0];
+	sc->ceilingshade = actor->counter;
+	sc->floorshade = actor->counter;
 
 	for(auto& wal : sc->walls)
 	{
 		if (wal.hitag != 1)
 		{
-			wal.shade = actor->temp_data[0];
+			wal.shade = actor->counter;
 			if ((wal.cstat & CSTAT_WALL_BOTTOM_SWAP) && wal.twoSided())
 			{
 				wal.nextWall()->shade = wal.shade;
@@ -1476,7 +1476,7 @@ void handle_se04(DDukeActor *actor)
 	if ((global_random / (sh + 1) & 31) < 4)
 	{
 		actor->temp_data[1] = actor->spr.shade + (global_random & 15);//Got really bright
-		actor->temp_data[0] = actor->spr.shade + (global_random & 15);
+		actor->counter = actor->spr.shade + (global_random & 15);
 		sc->ceilingpal = palvals >> 8;
 		sc->floorpal = palvals & 0xff;
 		j = 1;
@@ -1484,7 +1484,7 @@ void handle_se04(DDukeActor *actor)
 	else
 	{
 		actor->temp_data[1] = actor->temp_data[2];
-		actor->temp_data[0] = actor->temp_data[3];
+		actor->counter = actor->temp_data[3];
 
 		sc->ceilingpal = actor->spr.pal;
 		sc->floorpal = actor->spr.pal;
@@ -1502,7 +1502,7 @@ void handle_se04(DDukeActor *actor)
 
 		if (wal.hitag != 1)
 		{
-			wal.shade = actor->temp_data[0];
+			wal.shade = actor->counter;
 			if ((wal.cstat & CSTAT_WALL_BOTTOM_SWAP) && wal.twoSided())
 				wal.nextWall()->shade = wal.shade;
 		}
@@ -1611,7 +1611,7 @@ void handle_se05(DDukeActor* actor)
 
 	actor->spr.pos.Z += actor->vel.Z;
 	sc->setceilingz(actor->vel.Z);
-	sector[actor->temp_data[0]].setceilingz(actor->vel.Z);
+	sector[actor->counter].setceilingz(actor->vel.Z);
 	movesector(actor, actor->temp_data[1], actor->temp_angle);
 	//SetActor(actor, actor->spr.pos);
 }
@@ -1682,8 +1682,8 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 
 				if (sect->floorshade < minshade)
 					sect->floorshade = minshade;
-				else if (sect->floorshade > ac->temp_data[0])
-					sect->floorshade = ac->temp_data[0];
+				else if (sect->floorshade > ac->counter)
+					sect->floorshade = ac->counter;
 
 				if (sect->ceilingshade < minshade)
 					sect->ceilingshade = minshade;
@@ -1721,7 +1721,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 
 		if (j == 1)
 		{
-			if (actor->temp_data[0] > sh)
+			if (actor->counter > sh)
 			{
 				if (specialtags) for (int i = 0; specialtags[i]; i++)
 				{
@@ -1731,12 +1731,12 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 					}
 				}
 				fi.activatebysector(actor->sector(), actor);
-				actor->temp_data[0] = 0;
+				actor->counter = 0;
 			}
-			else actor->temp_data[0]++;
+			else actor->counter++;
 		}
 	}
-	else actor->temp_data[0] = 0;
+	else actor->counter = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -1748,9 +1748,9 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 void handle_se11(DDukeActor *actor)
 {
 	auto sc = actor->sector();
-	if (actor->temp_data[5] > 0)
+	if (actor->temp_data[0] > 0)
 	{
-		actor->temp_data[5]--;
+		actor->temp_data[0]--;
 		return;
 	}
 
@@ -1779,7 +1779,7 @@ void handle_se11(DDukeActor *actor)
 			{
 				if (ac->GetOwner() && IsCloseToWall(ac->spr.pos.XY(), &wal, 9) == EClose::InFront)
 				{
-					actor->temp_data[5] = 8; // Delay
+					actor->temp_data[0] = 8; // Delay
 					actor->temp_angle -= mapangle(k);
 					actor->temp_data[4] -= k;
 					movesector(actor, actor->temp_data[1], actor->temp_angle);
@@ -1808,7 +1808,7 @@ void handle_se11(DDukeActor *actor)
 void handle_se12(DDukeActor *actor, int planeonly)
 {
 	auto sc = actor->sector();
-	if (actor->temp_data[0] == 3 || actor->temp_data[3] == 1) //Lights going off
+	if (actor->counter == 3 || actor->temp_data[3] == 1) //Lights going off
 	{
 		sc->floorpal = 0;
 		sc->ceilingpal = 0;
@@ -1823,7 +1823,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 		}
 		sc->floorshade = actor->temp_data[1];
 		sc->ceilingshade = actor->temp_data[2];
-		actor->temp_data[0] = 0;
+		actor->counter = 0;
 
 		DukeSectIterator it(sc);
 		while (auto a2 = it.Next())
@@ -1842,7 +1842,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 			return;
 		}
 	}
-	if (actor->temp_data[0] == 1) //Lights flickering on
+	if (actor->counter == 1) //Lights flickering on
 	{
 		// planeonly 1 is RRRA SE47, planeonly 2 is SE48
 		int compshade = planeonly == 2 ? sc->ceilingshade : sc->floorshade;
@@ -1863,7 +1863,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 				}
 			}
 		}
-		else actor->temp_data[0] = 2;
+		else actor->counter = 2;
 
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
@@ -2044,7 +2044,7 @@ void handle_se17(DDukeActor* actor)
 	int sh = actor->spr.hitag;
 	double refheight = actor->spr.yint * zmaptoworld;
 
-	double q = actor->temp_data[0] * refheight * 4;
+	double q = actor->counter * refheight * 4;
 
 	sc->addceilingz(q);
 	sc->addfloorz(q);
@@ -2068,7 +2068,7 @@ void handle_se17(DDukeActor* actor)
 		act1->ceilingz = sc->ceilingz;
 	}
 
-	if (actor->temp_data[0]) //If in motion
+	if (actor->counter) //If in motion
 	{
 		if (abs(sc->floorz - actor->temp_pos.X) <= refheight)
 		{
@@ -2076,7 +2076,7 @@ void handle_se17(DDukeActor* actor)
 			return;
 		}
 
-		if (actor->temp_data[0] == -1)
+		if (actor->counter == -1)
 		{
 			if (sc->floorz > actor->temp_pos.Y)
 				return;
@@ -2091,7 +2091,7 @@ void handle_se17(DDukeActor* actor)
 		while ((act2 = itr.Next()))
 		{
 			if (actor != act2 && (act2->spr.lotag) == 17)
-				if ((sc->hitag - actor->temp_data[0]) == (act2->sector()->hitag) && sh == (act2->spr.hitag))
+				if ((sc->hitag - actor->counter) == (act2->sector()->hitag) && sh == (act2->spr.hitag))
 					break;
 		}
 
@@ -2155,7 +2155,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 
 	double extra = sc->extra * zmaptoworld;
 	double goal = FixedToFloat<8>(actor->temp_data[1]);
-	if (actor->temp_data[0])
+	if (actor->counter)
 	{
 		if (actor->spr.pal)
 		{
@@ -2240,7 +2240,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 		if (actor->temp_data[2] >= actor->spr.hitag)
 		{
 			actor->temp_data[2] = 0;
-			actor->temp_data[0] = 0;
+			actor->counter = 0;
 		}
 	}
 }
@@ -2273,11 +2273,11 @@ void handle_se19(DDukeActor *actor)
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
-	if (actor->temp_data[0])
+	if (actor->counter)
 	{
-		if (actor->temp_data[0] == 1)
+		if (actor->counter == 1)
 		{
-			actor->temp_data[0]++;
+			actor->counter++;
 			for (auto& wal : sc->walls)
 			{
 				if (tileflags(wal.overtexture) & TFLAG_FORCEFIELD)
@@ -2309,7 +2309,7 @@ void handle_se19(DDukeActor *actor)
 					auto sectp = a2Owner->sector(); 
 					a2->sector()->floorpal = a2->sector()->ceilingpal =	sectp->floorpal;
 					a2->sector()->floorshade = a2->sector()->ceilingshade = sectp->floorshade;
-					a2Owner->temp_data[0] = 2;
+					a2Owner->counter = 2;
 				}
 			}
 			actor->Destroy();
@@ -2344,9 +2344,9 @@ void handle_se19(DDukeActor *actor)
 				case 19:
 
 					if (sh == ac->spr.hitag)
-						if (ac->temp_data[0] == 0)
+						if (ac->counter == 0)
 						{
-							ac->temp_data[0] = 1; //Shut them all on
+							ac->counter = 1; //Shut them all on
 							ac->SetOwner(actor);
 						}
 
@@ -2367,20 +2367,20 @@ void handle_se20(DDukeActor* actor)
 {
 	auto sc = actor->sector();
 
-	if (actor->temp_data[0] == 0) return;
+	if (actor->counter == 0) return;
 
 	//if(actor->vel.X != 0) //Moving
 	{
-		auto vec = actor->spr.Angles.Yaw.ToVector() * (actor->temp_data[0] == 1 ? 0.5 : -0.5);
+		auto vec = actor->spr.Angles.Yaw.ToVector() * (actor->counter == 1 ? 0.5 : -0.5);
 
-		actor->temp_data[3] += actor->temp_data[0] == 1? 8 :- 8;
+		actor->temp_data[3] += actor->counter == 1? 8 :- 8;
 
 		actor->spr.pos += vec;
 
 		if (actor->temp_data[3] <= 0 || (actor->temp_data[3] >> 6) >= (actor->spr.yint >> 6))
 		{
 			actor->spr.pos -= vec;
-			actor->temp_data[0] = 0;
+			actor->counter = 0;
 			callsound(actor->sector(), actor);
 			return;
 		}
@@ -2429,17 +2429,17 @@ void handle_se21(DDukeActor* actor)
 	auto sc = actor->sector();
 	double lp;
 
-	if (actor->temp_data[0] == 0) return;
+	if (actor->counter == 0) return;
 
 	if (actor->spr.intangle == 1536)
 		lp = sc->ceilingz;
 	else
 		lp = sc->floorz;
 
-	if (actor->temp_data[0] == 1) //Decide if the sector should go up or down
+	if (actor->counter == 1) //Decide if the sector should go up or down
 	{
 		actor->vel.Z = (Sgn(actor->spr.pos.Z - lp) * (actor->spr.yint << 4) * zmaptoworld);
-		actor->temp_data[0]++;
+		actor->counter++;
 	}
 
 	if (sc->extra == 0)
@@ -2472,7 +2472,7 @@ void handle_se22(DDukeActor* actor)
 	auto sc = actor->sector();
 	if (actor->temp_data[1])
 	{
-		if (getanimationindex(anim_ceilingz, &sector[actor->temp_data[0]]) >= 0)
+		if (getanimationindex(anim_ceilingz, &sector[actor->counter]) >= 0)
 			sc->addceilingz(sc->extra * 9 * zmaptoworld);
 		else actor->temp_data[1] = 0;
 	}
@@ -2543,10 +2543,10 @@ void handle_se27(DDukeActor* actor)
 	p = findplayer(actor, &xx);
 	if (ps[p].GetActor()->spr.extra > 0 && myconnectindex == screenpeek)
 	{
-		if (actor->temp_data[0] < 0)
+		if (actor->counter < 0)
 		{
 			ud.cameraactor = actor;
-			actor->temp_data[0]++;
+			actor->counter++;
 		}
 		else if (ud.recstat == 2 && ps[p].newOwner == nullptr)
 		{
@@ -2555,16 +2555,16 @@ void handle_se27(DDukeActor* actor)
 				if (xx < sh * maptoworld)
 				{
 					ud.cameraactor = actor;
-					actor->temp_data[0] = 999;
+					actor->counter = 999;
 					actor->spr.Angles.Yaw += deltaangle(actor->spr.Angles.Yaw, (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle()) * 0.125;
 					actor->spr.yint = 100 + int((actor->spr.pos.Z - ps[p].GetActor()->getOffsetZ()) * (256. / 257.));
 
 				}
-				else if (actor->temp_data[0] == 999)
+				else if (actor->counter == 999)
 				{
 					if (ud.cameraactor == actor)
-						actor->temp_data[0] = 0;
-					else actor->temp_data[0] = -10;
+						actor->counter = 0;
+					else actor->counter = -10;
 					ud.cameraactor = actor;
 
 				}
@@ -2573,11 +2573,11 @@ void handle_se27(DDukeActor* actor)
 			{
 				actor->spr.Angles.Yaw = (ps[p].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
-				if (actor->temp_data[0] == 999)
+				if (actor->counter == 999)
 				{
 					if (ud.cameraactor == actor)
-						actor->temp_data[0] = 0;
-					else actor->temp_data[0] = -20;
+						actor->counter = 0;
+					else actor->counter = -20;
 					ud.cameraactor = actor;
 				}
 			}
@@ -2693,7 +2693,7 @@ void handle_se32(DDukeActor *actor)
 {
 	auto sc = actor->sector();
 
-	if (actor->temp_data[0] == 1)
+	if (actor->counter == 1)
 	{
 		// Choose dir
 
@@ -2708,7 +2708,7 @@ void handle_se32(DDukeActor *actor)
 					sc->setceilingz(actor->spr.pos.Z);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
-					actor->temp_data[0] = 0;
+					actor->counter = 0;
 				}
 				else sc->addceilingz(Sgn(actor->spr.pos.Z - sc->ceilingz) * targetval);
 			}
@@ -2719,7 +2719,7 @@ void handle_se32(DDukeActor *actor)
 					sc->setceilingz(actor->temp_pos.Z);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
-					actor->temp_data[0] = 0;
+					actor->counter = 0;
 				}
 				else sc->addceilingz(Sgn(actor->temp_pos.Z - sc->ceilingz) * targetval);
 			}
@@ -2730,7 +2730,7 @@ void handle_se32(DDukeActor *actor)
 		{
 			if (abs(sc->ceilingz - actor->spr.pos.Z) < targetval * 2)
 			{
-				actor->temp_data[0] = 0;
+				actor->counter = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
 				sc->setceilingz(actor->spr.pos.Z);
@@ -2741,7 +2741,7 @@ void handle_se32(DDukeActor *actor)
 		{
 			if (abs(sc->ceilingz - actor->temp_pos.Z) < targetval * 2)
 			{
-				actor->temp_data[0] = 0;
+				actor->counter = 0;
 				actor->temp_data[2] = !actor->temp_data[2];
 				callsound(actor->sector(), actor);
 			}
@@ -2778,21 +2778,21 @@ void handle_se35(DDukeActor *actor)
 
 
 	double targetval = actor->spr.yint * zmaptoworld;
-	switch (actor->temp_data[0])
+	switch (actor->counter)
 	{
 	case 0:
 		sc->addceilingz(targetval);
 		if (sc->ceilingz > sc->floorz)
 			sc->setfloorz(sc->ceilingz);
 		if (sc->ceilingz > actor->spr.pos.Z + 32)
-			actor->temp_data[0]++;
+			actor->counter++;
 		break;
 	case 1:
 		sc->addceilingz(-targetval * 4);
 		if (sc->ceilingz < actor->temp_pos.Y)
 		{
 			sc->setceilingz(actor->temp_pos.Y);
-			actor->temp_data[0] = 0;
+			actor->counter = 0;
 		}
 		break;
 	}
@@ -2828,7 +2828,7 @@ void handle_se128(DDukeActor *actor)
 	if (nextwal)
 		nextwal->setovertexture(newtex);
 
-	if (actor->temp_data[0] < actor->temp_data[1]) actor->temp_data[0]++;
+	if (actor->counter < actor->temp_data[1]) actor->counter++;
 	else
 	{
 		wal->cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
@@ -2848,12 +2848,12 @@ void handle_se130(DDukeActor *actor, int countmax)
 {
 	auto sc = actor->sector();
 
-	if (actor->temp_data[0] > countmax)
+	if (actor->counter > countmax)
 	{
 		actor->Destroy();
 		return;
 	}
-	else actor->temp_data[0]++;
+	else actor->counter++;
 
 	double x = sc->floorz - sc->ceilingz;
 
@@ -2896,7 +2896,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 {
 	auto sec = actor->sector();
 
-	if (actor->temp_data[0] == 1)
+	if (actor->counter == 1)
 	{
 		// Choose dir
 
@@ -2914,7 +2914,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				{
 					sec->setfloorz(actor->spr.pos.Z);
 					actor->temp_data[2] = 0;
-					actor->temp_data[0] = 0;
+					actor->counter = 0;
 					if (choosedir) actor->temp_data[3] = actor->spr.hitag;
 					callsound(actor->sector(), actor);
 				}
@@ -2944,7 +2944,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					sec->setfloorz(actor->temp_pos.Y);
 					callsound(actor->sector(), actor);
 					actor->temp_data[2] = 0;
-					actor->temp_data[0] = 0;
+					actor->counter = 0;
 					if (choosedir) actor->temp_data[3] = actor->spr.hitag;
 				}
 				else
@@ -2974,7 +2974,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			if (abs(actor->spr.pos.Z - sec->floorz) < actor->temp_pos.Z)
 			{
 				callsound(actor->sector(), actor);
-				actor->temp_data[0] = 0;
+				actor->counter = 0;
 				actor->temp_data[2] = 1;
 				if (choosedir) actor->temp_data[3] = actor->spr.hitag;
 			}
@@ -3001,7 +3001,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 		{
 			if (abs(sec->floorz - actor->temp_pos.Y) < actor->temp_pos.Z)
 			{
-				actor->temp_data[0] = 0;
+				actor->counter = 0;
 				callsound(actor->sector(), actor);
 				actor->temp_data[2] = 1;
 				actor->temp_data[3] = actor->spr.hitag;
@@ -3186,7 +3186,7 @@ DAngle furthestangle(DDukeActor *actor, int angs)
 	DAngle angincs = DAngle360 / angs;
 
 	if (!actor->isPlayer())
-		if ((actor->temp_data[0] & 63) > 2) return(actor->spr.Angles.Yaw + DAngle180);
+		if ((actor->counter & 63) > 2) return(actor->spr.Angles.Yaw + DAngle180);
 
 	for (DAngle j = actor->spr.Angles.Yaw; j < DAngle360 + actor->spr.Angles.Yaw; j += angincs)
 	{
@@ -3214,7 +3214,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, DVector2& pos)
 	DAngle angincs;
 	HitInfo hit{};
 
-	if ((actor->temp_data[0] & 63)) return -1;
+	if ((actor->counter & 63)) return -1;
 
 	if (ud.multimode < 2 && ud.player_skill < 3)
 		angincs = DAngle180;
@@ -3251,7 +3251,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 	auto moveptr = &ScriptCode[actor->temp_data[1]];
 
-	ticselapsed = (actor->temp_data[0]) & 31;
+	ticselapsed = (actor->counter) & 31;
 
 	aang = actor->spr.Angles.Yaw;
 

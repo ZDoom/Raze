@@ -24,15 +24,15 @@ class DukeFrameEffect : DukeActor
 		let Owner = self.ownerActor;
 		if (Owner)
 		{
-			self.temp_data[0]++;
+			self.counter++;
 
-			if (self.temp_data[0] > 7)
+			if (self.counter > 7)
 			{
 				self.Destroy();
 				return;
 			}
-			else if (self.temp_data[0] > 4) self.cstat |= CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
-			else if (self.temp_data[0] > 2) self.cstat |= CSTAT_SPRITE_TRANSLUCENT;
+			else if (self.counter > 4) self.cstat |= CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
+			else if (self.counter > 2) self.cstat |= CSTAT_SPRITE_TRANSLUCENT;
 			self.xoffset = Owner.xoffset;
 			self.yoffset = Owner.yoffset;
 		}

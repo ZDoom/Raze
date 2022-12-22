@@ -18,11 +18,11 @@ class DukeCar : DukeActor
 	override void Tick()
 	{
 		self.pos.Z += self.vel.Z;
-		self.temp_data[0]++;
+		self.counter++;
 
-		if (self.temp_data[0] == 4) self.PlayActorSound("WAR_AMBIENCE2");
+		if (self.counter == 4) self.PlayActorSound("WAR_AMBIENCE2");
 
-		if (self.temp_data[0] > (26 * 8))
+		if (self.counter > (26 * 8))
 		{
 			Duke.PlaySound("RPG_EXPLODE");
 			for (int j = 0; j < 32; j++) 
@@ -31,7 +31,7 @@ class DukeCar : DukeActor
 			self.Destroy();
 			return;
 		} 
-		else if ((self.temp_data[0] & 3) == 0)
+		else if ((self.counter & 3) == 0)
 			self.spawn("DukeExplosion2");
 		self.DoMove(CLIPMASK0);
 	}

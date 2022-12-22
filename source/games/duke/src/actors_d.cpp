@@ -350,7 +350,7 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 		{
 			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && actor->spr.picnum == DTILE_LIZMAN)
 				actor->spr.Angles.Yaw = randomAngle();
-			else if ((actor->temp_data[0]&3) == 1 && actor->spr.picnum != DTILE_COMMANDER)
+			else if ((actor->counter&3) == 1 && actor->spr.picnum != DTILE_COMMANDER)
 				actor->spr.Angles.Yaw = randomAngle();
 			SetActor(actor,actor->spr.pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
@@ -536,7 +536,7 @@ void movetransports_d(void)
 		int sectlotag = sectp->lotag;
 		int onfloorz = act->temp_data[4];
 
-		if (act->temp_data[0] > 0) act->temp_data[0]--;
+		if (act->counter > 0) act->counter--;
 
 		DukeSectIterator itj(act->sector());
 		while (auto act2 = itj.Next()) 
@@ -572,8 +572,8 @@ void movetransports_d(void)
 
 							if (Owner->GetOwner() != Owner)
 							{
-								act->temp_data[0] = 13;
-								Owner->temp_data[0] = 13;
+								act->counter = 13;
+								Owner->counter = 13;
 								ps[p].transporter_hold = 13;
 							}
 
@@ -700,9 +700,9 @@ void movetransports_d(void)
 
 					if (sectlotag == 0 && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
 					{
-						if ((!Owner || Owner->GetOwner() != Owner) && onfloorz && act->temp_data[0] > 0 && act2->spr.statnum != STAT_MISC)
+						if ((!Owner || Owner->GetOwner() != Owner) && onfloorz && act->counter > 0 && act2->spr.statnum != STAT_MISC)
 						{
-							act->temp_data[0]++;
+							act->counter++;
 							goto BOLT;
 						}
 						warpspriteto = 1;
@@ -761,8 +761,8 @@ void movetransports_d(void)
 
 										if (Owner && Owner->GetOwner() == Owner)
 										{
-											act->temp_data[0] = 13;
-											Owner->temp_data[0] = 13;
+											act->counter = 13;
+											Owner->counter = 13;
 										}
 
 										ChangeActorSect(act2, Owner->sector());
@@ -835,7 +835,7 @@ void handle_se06_d(DDukeActor* actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->spr.lotag == SE_14_SUBWAY_CAR) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
+		if ((act2->spr.lotag == SE_14_SUBWAY_CAR) && (sh == act2->spr.hitag) && (act2->counter == actor->counter))
 		{
 			act2->vel.X = actor->vel.X;
 			//if( actor->temp_data[4] == 1 )
@@ -862,19 +862,19 @@ void handle_se06_d(DDukeActor* actor)
 
 static void handle_se28(DDukeActor* actor)
 {
-	if (actor->temp_data[5] > 0)
+	if (actor->temp_data[0] > 0)
 	{
-		actor->temp_data[5]--;
+		actor->temp_data[0]--;
 		return;
 	}
 
-	if (actor->temp_data[0] == 0)
+	if (actor->counter == 0)
 	{
 		double x;
 		findplayer(actor, &x);
 		if (x > 15500 / 16.)
 			return;
-		actor->temp_data[0] = 1;
+		actor->counter = 1;
 		actor->temp_data[1] = 64 + (krand() & 511);
 		actor->temp_data[2] = 0;
 	}
@@ -883,7 +883,7 @@ static void handle_se28(DDukeActor* actor)
 		actor->temp_data[2]++;
 		if (actor->temp_data[2] > actor->temp_data[1])
 		{
-			actor->temp_data[0] = 0;
+			actor->counter = 0;
 			ps[screenpeek].visibility = ud.const_visibility;
 			return;
 		}
@@ -1095,13 +1095,13 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 		case SE_36_PROJ_SHOOTER:
 
-			if (act->temp_data[0])
+			if (act->counter)
 			{
-				if (act->temp_data[0] == 1)
+				if (act->counter == 1)
 					fi.shoot(act, sc->extra, nullptr);
-				else if (act->temp_data[0] == 26 * 5)
-					act->temp_data[0] = 0;
-				act->temp_data[0]++;
+				else if (act->counter == 26 * 5)
+					act->counter = 0;
+				act->counter++;
 			}
 			break;
 
@@ -1145,7 +1145,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a == -1) a = 0;
 
-	actor->temp_data[0]++;
+	actor->counter++;
 
 	if (a & face_player)
 	{
@@ -1158,7 +1158,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	}
 
 	if (a & spin)
-		actor->spr.Angles.Yaw += DAngle45 * BobVal(actor->temp_data[0] << 3);
+		actor->spr.Angles.Yaw += DAngle45 * BobVal(actor->counter << 3);
 
 	if (a & face_player_slow)
 	{
@@ -1172,8 +1172,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if ((a & jumptoplayer) == jumptoplayer)
 	{
-		if (actor->temp_data[0] < 16)
-			actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2;
+		if (actor->counter < 16)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2;
 	}
 
 	if (a & face_player_smart)
@@ -1297,12 +1297,12 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				{
 					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{
-						if ((actor->temp_data[0] & 1) || ps[playernum].actorsqu == actor) return;
+						if ((actor->counter & 1) || ps[playernum].actorsqu == actor) return;
 						else daxvel *= 2;
 					}
 					else
 					{
-						if ((actor->temp_data[0] & 3) || ps[playernum].actorsqu == actor) return;
+						if ((actor->counter & 3) || ps[playernum].actorsqu == actor) return;
 						else daxvel *= 4;
 					}
 				}

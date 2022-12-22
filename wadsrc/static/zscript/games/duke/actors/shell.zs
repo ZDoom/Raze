@@ -19,7 +19,7 @@ class DukeShell : DukeActor
 				let pactor = plr.actor;
 				ang = pactor.angle - Raze.BAngToDegree * (random(8, 71));  //Fine tune
 
-				self.temp_data[0] = random(0, 1);
+				self.counter = random(0, 1);
 				self.pos.Z = 3 + pactor.pos.Z + pactor.viewzoffset + plr.pyoff + tan(plr.getPitchWithView()) * 8. + (!isshell ? 3 : 0);
 				self.vel.Z = -frandom(0, 1);
 			}
@@ -74,8 +74,8 @@ class DukeShell : DukeActor
 			if (self.temp_data[1] > 8)
 			{
 				self.temp_data[1] = 0;
-				self.temp_data[0]++;
-				self.temp_data[0] &= 3;
+				self.counter++;
+				self.counter &= 3;
 			}
 			if (self.vel.Z < 0.5) self. vel.Z += (gs.gravity / 13); // 8
 			else self.vel.Z -= 0.25;
@@ -89,8 +89,8 @@ class DukeShell : DukeActor
 			if (self.temp_data[1] > 3)
 			{
 				self.temp_data[1] = 0;
-				self.temp_data[0]++;
-				self.temp_data[0] &= 3;
+				self.counter++;
+				self.counter &= 3;
 			}
 			if (self.vel.Z < 2) self.vel.Z += (gs.gravity / 3); // 52;
 			if(self.vel.X > 0)
@@ -104,10 +104,10 @@ class DukeShell : DukeActor
 
 	override bool animate(tspritetype t)
 	{
-		if (self.GetSpriteSetsize() > 0) t.setspritepic(self,  self.temp_data[0] & 1);
+		if (self.GetSpriteSetsize() > 0) t.setspritepic(self,  self.counter & 1);
 		t.cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
-		if (self.temp_data[0] > 1) t.cstat &= ~CSTAT_SPRITE_XFLIP;
-		if (self.temp_data[0] > 2) t.cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
+		if (self.counter > 1) t.cstat &= ~CSTAT_SPRITE_XFLIP;
+		if (self.counter > 2) t.cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 		return true;
 	}
 }

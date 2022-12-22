@@ -324,7 +324,7 @@ void cameratext(DDukeActor *cam)
 		DrawTexture(twod, texids[tile], false, x, y, DTA_ViewportX, viewport3d.Left(), DTA_ViewportY, viewport3d.Top(), DTA_ViewportWidth, viewport3d.Width(), 
 			DTA_ViewportHeight, viewport3d.Height(), DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_CenterOffsetRel, 2, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 	};
-	if (!cam->temp_data[0])
+	if (!cam->counter)
 	{
 		drawitem(0, 24, 33, false, false);
 		drawitem(1, 320 - 26, 33, false, false);

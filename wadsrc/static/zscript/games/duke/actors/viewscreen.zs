@@ -29,7 +29,7 @@ class DukeViewscreen : DukeActor
 			{
 				camsprite = null;
 				self.yint = 0;
-				self.temp_data[0] = 0;
+				self.counter = 0;
 			}
 		}
 	}
@@ -61,7 +61,7 @@ class DukeViewscreen : DukeActor
 	{
 		let actor = DukeActor(tspr.ownerActor);
 		let hitowner = actor.hitOwnerActor;
-		if (camsprite != null && hitowner && hitowner.temp_data[0] == 1)
+		if (camsprite != null && hitowner && hitowner.counter == 1)
 		{
 			tspr.SetSpritePic(self, 1);
 			tspr.cstat &= ~ (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
@@ -118,7 +118,7 @@ class DukeCamera : DukeActor
 	
 	override void Tick()
 	{
-		if (self.temp_data[0] == 0)
+		if (self.counter == 0)
 		{
 			self.temp_data[1] += 8;
 			if (gs.camerashitable)
@@ -126,7 +126,7 @@ class DukeCamera : DukeActor
 				int j = self.ifhitbyweapon();
 				if (j >= 0)
 				{
-					self.temp_data[0] = 1; // static
+					self.counter = 1; // static
 					self.cstat = CSTAT_SPRITE_INVISIBLE;
 					for (int x = 0; x < 5; x++)
 						self.RANDOMSCRAP();

@@ -582,7 +582,7 @@ void S_StopSound(FSoundID soundid, DDukeActor* actor, int channel)
 
 		// StopSound kills the actor reference so this cannot be delayed until ChannelEnded gets called. At that point the actor may also not be valid anymore.
 		if (S_IsAmbientSFX(actor) && actor->sector()->lotag < 3)  // ST_2_UNDERWATER
-			actor->temp_data[0] = 0;
+			actor->counter = 0;
 	}
 }
 

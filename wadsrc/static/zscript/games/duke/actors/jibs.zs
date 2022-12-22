@@ -65,8 +65,8 @@ class DukeJibs1 : DukeActor
 
 		if (!Raze.IsRR())
 		{
-			if (self.temp_data[5] < 30 * 10)
-				self.temp_data[5]++;
+			if (self.temp_data[0] < 30 * 10)
+				self.temp_data[0]++;
 			else
 			{
 				self.Destroy();
@@ -101,14 +101,14 @@ class DukeJibs1 : DukeActor
 				self.temp_data[1] = 0;
 				if (self.behavior == 1)
 				{
-					if (self.temp_data[0] > 6) self.temp_data[0] = 0;
-					else self.temp_data[0]++;
+					if (self.counter > 6) self.counter = 0;
+					else self.counter++;
 				}
 				else
 				{
-					if (self.temp_data[0] > 2)
-						self.temp_data[0] = 0;
-					else self.temp_data[0]++;
+					if (self.counter > 2)
+						self.counter = 0;
+					else self.counter++;
 				}
 			}
 
@@ -155,8 +155,8 @@ class DukeJibs1 : DukeActor
 			if (self.spritesetindex == 1)
 			{
 				self.temp_data[1]++;
-				if ((self.temp_data[1] & 3) == 0 && self.temp_data[0] < 7)
-					self.temp_data[0]++;
+				if ((self.temp_data[1] & 3) == 0 && self.counter < 7)
+					self.counter++;
 				if (self.temp_data[1] > 20)
 				{
 					self.Destroy();
@@ -166,7 +166,7 @@ class DukeJibs1 : DukeActor
 			else if (self.getspritesetsize() > 1)
 			{ 
 				self.setSpritesetImage(1);
-				self.temp_data[0] = 0; 
+				self.counter = 0; 
 				self.temp_data[1] = 0; 
 			}
 			else
@@ -191,7 +191,7 @@ class DukeJibs1 : DukeActor
 	
 		if (spritesetindex == 1)
 		{
-			tspr.SetSpritePic(self, 1 + self.temp_data[0]);
+			tspr.SetSpritePic(self, 1 + self.counter);
 		}
 		if (tspr.pal == 6) tspr.shade = -120;
 

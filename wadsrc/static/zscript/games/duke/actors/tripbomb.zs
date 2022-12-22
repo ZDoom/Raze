@@ -100,15 +100,15 @@ class DukeTripBomb : DukeActor
 			self.angle = ang;
 		}
 
-		if (self.temp_data[0] < 32)
+		if (self.counter < 32)
 		{
 			DukePlayer p;
 			double x;
 			[p, x] = self.findplayer();
-			if (x > 48) self.temp_data[0]++;
-			else if (self.temp_data[0] > 16) self.temp_data[0]++;
+			if (x > 48) self.counter++;
+			else if (self.counter > 16) self.counter++;
 		}
-		if (self.temp_data[0] == 32)
+		if (self.counter == 32)
 		{
 			let ang = self.angle;
 			self.angle = self.temp_angle;
@@ -164,7 +164,7 @@ class DukeTripBomb : DukeActor
 				}
 			}
 
-			self.temp_data[0]++;
+			self.counter++;
 			self.pos = self.temp_pos;
 			self.ChangeSector(oldSect);
 			self.temp_data[3] = 0;
@@ -175,7 +175,7 @@ class DukeTripBomb : DukeActor
 			}
 			else self.temp_data[2] = 0;
 		}
-		if (self.temp_data[0] == 33)
+		if (self.counter == 33)
 		{
 			self.temp_data[1]++;
 
@@ -211,7 +211,7 @@ class DukeTripBombPlaced : DukeTripBomb
 		self.ownerActor = self;
 		self.vel.X = 1;
 		self.DoMove(CLIPMASK0);
-		self.temp_data[0] = 17;
+		self.counter = 17;
 		self.temp_data[2] = 0;
 		self.temp_angle = self.angle;
 		self.ChangeStat(STAT_ZOMBIEACTOR);

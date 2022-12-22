@@ -42,7 +42,7 @@ class DukeActivator : DukeActor
 				case SE_36_PROJ_SHOOTER:
 				case SE_31_FLOOR_RISE_FALL:
 				case SE_32_CEILING_RISE_FALL:
-					a2.temp_data[0] = 1 - a2.temp_data[0];
+					a2.counter = 1 - a2.counter;
 					a2.callsound(self.sector());
 					break;
 				}

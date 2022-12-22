@@ -770,7 +770,7 @@ void resettimevars(void)
 	cloudclock = 0;
 	PlayClock = 0;
 	if (camsprite != nullptr)
-		camsprite->temp_data[0] = 0;
+		camsprite->counter = 0;
 }
 
 //---------------------------------------------------------------------------

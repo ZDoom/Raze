@@ -82,14 +82,14 @@ class DukeTouchPlate : DukeActor
 			return;
 		}
 
-		if (self.temp_data[5] == 1) return;
+		if (self.temp_data[0] == 1) return;
 
 		p = Duke.checkcursectnums(sectp);
 		if (p != null && (p.on_ground || self.intangle == 512))
 		{
-			if (self.temp_data[0] == 0 && !dlevel.check_activator_motion(self.lotag))
+			if (self.counter == 0 && !dlevel.check_activator_motion(self.lotag))
 			{
-				self.temp_data[0] = 1;
+				self.counter = 1;
 				self.temp_data[1] = 1;
 				self.temp_data[3] = !self.temp_data[3];
 				dlevel.operatemasterswitches(self.lotag);
@@ -97,11 +97,11 @@ class DukeTouchPlate : DukeActor
 				if (self.hitag > 0)
 				{
 					self.hitag--;
-					if (self.hitag == 0) self.temp_data[5] = 1;
+					if (self.hitag == 0) self.temp_data[0] = 1;
 				}
 			}
 		}
-		else self.temp_data[0] = 0;
+		else self.counter = 0;
 
 		if (self.temp_data[1] == 1)
 		{

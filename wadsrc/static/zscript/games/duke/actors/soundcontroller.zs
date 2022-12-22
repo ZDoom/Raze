@@ -21,23 +21,23 @@ class DukeSoundController : DukeActor
 		if (self.temp_data[1] != Raze.SoundEnabled())
 		{
 			self.temp_data[1] = Raze.SoundEnabled();
-			self.temp_data[0] = 0;
+			self.counter = 0;
 		}
 
 		let p = Duke.GetViewPlayer();
 		if (self.lotag >= 1000 && self.lotag < 2000)
 		{
 			double dist = (p.actor.pos.XY - self.pos.XY).LengthSquared();
-			if (dist < maxdist * maxdist && self.temp_data[0] == 0)
+			if (dist < maxdist * maxdist && self.counter == 0)
 			{
 				Raze.SetReverb(self.lotag - 1100);
-				self.temp_data[0] = 1;
+				self.counter = 1;
 			}
-			if (dist >= maxdist * maxdist && self.temp_data[0] == 1)
+			if (dist >= maxdist * maxdist && self.counter == 1)
 			{
 				Raze.SetReverb(0);
 				Raze.SetReverbDelay(0);
-				self.temp_data[0] = 0;
+				self.counter = 0;
 			}
 		}
 		else 
@@ -50,13 +50,13 @@ class DukeSoundController : DukeActor
 				{
 					double distance = (p.actor.pos - self.pos).Length();
 
-					if (distance < maxdist && self.temp_data[0] == 0)
+					if (distance < maxdist && self.counter == 0)
 					{
 						// Start playing an ambience sound.
 						self.PlayActorSound(Raze.FindSoundByResID(self.lotag), CHAN_AUTO, CHANF_LOOP);
-						self.temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
+						self.counter = 1;  // AMBIENT_SFX_PLAYING
 					}
-					else if (distance >= maxdist && self.temp_data[0] == 1)
+					else if (distance >= maxdist && self.counter == 1)
 					{
 						// Stop playing ambience sound because we're out of its range.
 						self.StopSound(self.lotag);
@@ -78,7 +78,7 @@ class DukeSoundController : DukeActor
 	
 	override void OnDestroy()
 	{
-		if (self.temp_data[0] == 1)
+		if (self.counter == 1)
 			self.StopSound(-1);
 		Super.OnDestroy();
 	}

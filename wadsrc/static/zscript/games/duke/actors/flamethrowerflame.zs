@@ -11,7 +11,7 @@ class DukeFlamethrowerFlame : DukeActor
 		double xx;
 		Super.Tick();	// Run CON or its replacement.
 		if (self.bDestroyed) return;	// killed by script.
-		self.temp_data[0]++;
+		self.counter++;
 		if (sectp.lotag == ST_2_UNDERWATER)
 		{
 			let spawned = self.spawn("DukeExplosion2");
@@ -24,16 +24,16 @@ class DukeFlamethrowerFlame : DukeActor
 
 		self.getglobalz();
 
-		int ds = self.temp_data[0] / 6;
+		int ds = self.counter / 6;
 		if (self.scale.X < 0.1250)
 		{
 			self.scale.X += (ds * REPEAT_SCALE);
 			self.scale.Y = (self.scale.X);
 		}
 		self.clipdist += ds * 0.25;
-		if (self.temp_data[0] <= 2)
+		if (self.counter <= 2)
 			self.temp_data[3] = random(0, 9);
-		if (self.temp_data[0] > 30) 
+		if (self.counter > 30) 
 		{
 			let spawned = self.spawn("DukeExplosion2");
 			if (spawned) spawned.shade = 127;

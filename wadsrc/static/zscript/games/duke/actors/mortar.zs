@@ -12,7 +12,7 @@ class DukeMortar : DukeActor
 	override void Tick()
 	{
 		let spawned = self.spawn("DukeFrameEffect");
-		if (spawned) spawned.temp_data[0] = 3;
+		if (spawned) spawned.counter = 3;
 		Common(1);
 	}
 	
@@ -77,13 +77,13 @@ class DukeMortar : DukeActor
 		if (sectp.lotag == ST_1_ABOVE_WATER && self.vel.Z == 0)
 		{
 			self.pos.Z += 32;
-			if (self.temp_data[5] == 0)
+			if (self.temp_data[0] == 0)
 			{
-				self.temp_data[5] = 1;
+				self.temp_data[0] = 1;
 				self.spawn("DukeWaterSplash");
 			}
 		}
-		else self.temp_data[5] = 0;
+		else self.temp_data[0] = 0;
 
 		if (self.temp_data[3] == 0 && (coll.type || xx < 844 / 16.))
 		{
@@ -149,7 +149,7 @@ class DukeMortar : DukeActor
 				return;
 			}
 		}
-		if (self.temp_data[0] < 8) self.temp_data[0]++;
+		if (self.counter < 8) self.counter++;
 	}
 	
 }

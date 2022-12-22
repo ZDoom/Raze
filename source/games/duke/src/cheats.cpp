@@ -73,7 +73,7 @@ static const char *cheatGod(int myconnectindex, int state)
 		if (isRRRA()) S_PlaySound(218, CHAN_AUTO, CHANF_UI);
 		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
-		act->temp_data[0] = 0;
+		act->counter = 0;
 		act->temp_data[3] = 0;
 		act->curAction = &actions[0];
 		act->curMove = &moves[0];

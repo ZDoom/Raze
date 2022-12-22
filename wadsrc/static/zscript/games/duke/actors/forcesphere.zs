@@ -86,28 +86,28 @@ class DukeForceSphere : DukeActor
 		if (!Owner) return;
 		if (Owner.temp_data[1] == 0)
 		{
-			if (self.temp_data[0] < 64)
+			if (self.counter < 64)
 			{
-				self.temp_data[0]++;
+				self.counter++;
 				size += 0.046875;
 			}
 		}
 		else
-			if (self.temp_data[0] > 64)
+			if (self.counter > 64)
 			{
-				self.temp_data[0]--;
+				self.counter--;
 				size -= 0.046875;
 			}
 
 		self.pos = Owner.pos;;
-		self.angle += Raze.BAngToDegree * Owner.temp_data[0];
+		self.angle += Raze.BAngToDegree * Owner.counter;
 
 		size = clamp(size, 1 / 64., 1.);
 
 		self.scale = (size, size);
 		self.shade = ((size * 32) - 48);
 
-		for (int j = self.temp_data[0]; j > 0; j--)
+		for (int j = self.counter; j > 0; j--)
 			self.DoMove(CLIPMASK0);
 	}
 	
@@ -143,7 +143,7 @@ class DukeForceSphere : DukeActor
 		let Owner = self.ownerActor;
 		if (Owner)
 		{
-			Owner.temp_data[0] = 32;
+			Owner.counter = 32;
 			Owner.temp_data[1] = !Owner.temp_data[1];
 			Owner.temp_data[2] ++;
 		}

@@ -25,7 +25,7 @@ class DukeRecon : DukeActor
 	
 	override void initialize()
 	{
-		self.temp_data[5] = 0;
+		self.temp_data[0] = 0;
 		self.extra = 130;
 		self.pal = 0;
 		self.shade = -17;
@@ -54,16 +54,16 @@ class DukeRecon : DukeActor
 
 		if (self.ifhitbyweapon() >= 0)
 		{
-			if (self.extra < 0 && self.temp_data[0] != -1)
+			if (self.extra < 0 && self.counter != -1)
 			{
-				self.temp_data[0] = -1;
+				self.counter = -1;
 				self.extra = 0;
 			}
 			if (painsnd >= 0) self.PlayActorSound(painsnd);
 			self.RANDOMSCRAP();
 		}
 
-		if (self.temp_data[0] == -1)
+		if (self.counter == -1)
 		{
 			self.pos.Z += 4;
 			self.temp_data[2]++;
@@ -97,7 +97,7 @@ class DukeRecon : DukeActor
 
 		// 3 = findplayerz, 4 = shoot
 
-		if (self.temp_data[0] >= 4)
+		if (self.counter >= 4)
 		{
 			self.temp_data[2]++;
 			if ((self.temp_data[2] & 15) == 0)
@@ -110,21 +110,21 @@ class DukeRecon : DukeActor
 			}
 			if (self.temp_data[2] > (26 * 3) || !Raze.cansee(self.pos.plusZ(-16), self.sector, pactor.pos.plusZ(pactor.viewzoffset), p.cursector))
 			{
-				self.temp_data[0] = 0;
+				self.counter = 0;
 				self.temp_data[2] = 0;
 			}
 			else self.temp_angle +=
 				deltaangle(self.temp_angle, (pactor.pos.XY - self.pos.XY).Angle()) / 3;
 		}
-		else if (self.temp_data[0] == 2 || self.temp_data[0] == 3)
+		else if (self.counter == 2 || self.counter == 3)
 		{
 			if(self.vel.X > 0) self.vel.X -= 1;
 			else self.vel.X = 0;
 
-			if (self.temp_data[0] == 2)
+			if (self.counter == 2)
 			{
 				double l = pactor.pos.Z + pactor.viewzoffset - self.pos.Z;
-				if (abs(l) < 48) self.temp_data[0] = 3;
+				if (abs(l) < 48) self.counter = 3;
 				else self.pos.Z += l < 0? -shift : shift; // The shift here differs between Duke and RR.
 			}
 			else
@@ -132,7 +132,7 @@ class DukeRecon : DukeActor
 				self.temp_data[2]++;
 				if (self.temp_data[2] > (26 * 3) || !Raze.cansee(self.pos.plusZ(-16), self.sector, pactor.pos.plusZ(pactor.viewzoffset), p.cursector))
 				{
-					self.temp_data[0] = 1;
+					self.counter = 1;
 					self.temp_data[2] = 0;
 				}
 				else if ((self.temp_data[2] & 15) == 0 && attacksnd >= 0)
@@ -144,7 +144,7 @@ class DukeRecon : DukeActor
 			self.angle += deltaangle(self.angle, (pactor.pos.XY - self.pos.XY).Angle()) * 0.25;
 		}
 
-		if (self.temp_data[0] != 2 && self.temp_data[0] != 3 && Owner)
+		if (self.counter != 2 && self.counter != 3 && Owner)
 		{
 			double dist = (Owner.pos.XY - self.pos.XY).Length();
 			if (dist <= 96)
@@ -154,11 +154,11 @@ class DukeRecon : DukeActor
 			}
 			else a = (Owner.pos.XY - self.pos.XY).Angle();
 
-			if (self.temp_data[0] == 1 || self.temp_data[0] == 4) // Found a locator and going with it
+			if (self.counter == 1 || self.counter == 4) // Found a locator and going with it
 			{
 				dist = (Owner.pos - self.pos).Length();
 
-				if (dist <= 96) { if (self.temp_data[0] == 1) self.temp_data[0] = 0; else self.temp_data[0] = 5; }
+				if (dist <= 96) { if (self.counter == 1) self.counter = 0; else self.counter = 5; }
 				else
 				{
 					// Control speed here
@@ -170,25 +170,25 @@ class DukeRecon : DukeActor
 					}
 				}
 
-				if (self.temp_data[0] < 2) self.temp_data[2]++;
+				if (self.counter < 2) self.temp_data[2]++;
 
-				if (xx < 384 && self.temp_data[0] < 2 && self.temp_data[2] > (26 * 4))
+				if (xx < 384 && self.counter < 2 && self.temp_data[2] > (26 * 4))
 				{
-					self.temp_data[0] = 2 + random(0, 1) * 2;
+					self.counter = 2 + random(0, 1) * 2;
 					self.temp_data[2] = 0;
 					self.temp_angle = self.angle;
 				}
 			}
 
-			if (self.temp_data[0] == 0 || self.temp_data[0] == 5)
+			if (self.counter == 0 || self.counter == 5)
 			{
-				if (self.temp_data[0] == 0)
-					self.temp_data[0] = 1;
-				else self.temp_data[0] = 4;
+				if (self.counter == 0)
+					self.counter = 1;
+				else self.counter = 4;
 				let NewOwner = dlevel.LocateTheLocator(self.hitag, nullptr);
 				if (!NewOwner)
 				{
-					self.hitag = self.temp_data[5];
+					self.hitag = self.temp_data[0];
 					NewOwner = dlevel.LocateTheLocator(self.hitag, nullptr);
 					if (!NewOwner)
 					{

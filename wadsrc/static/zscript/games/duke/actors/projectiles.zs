@@ -646,9 +646,9 @@ class DukeFireball : DukeProjectile // WorldTour only
 
 		if (self.detail != 1)
 		{
-			if (self.temp_data[0] >= 1 && self.temp_data[0] < 6)
+			if (self.counter >= 1 && self.counter < 6)
 			{
-				double siz = 1.0 - (self.temp_data[0] * 0.2);
+				double siz = 1.0 - (self.counter * 0.2);
 				DukeActor trail = self.temp_actor;
 				let ball = self.spawn('DukeFireball');
 				if (ball)
@@ -658,7 +658,7 @@ class DukeFireball : DukeProjectile // WorldTour only
 					ball.vel.X = self.vel.X;
 					ball.vel.Z = self.vel.Z;
 					ball.angle = self.angle;
-					if (self.temp_data[0] > 1)
+					if (self.counter > 1)
 					{
 						if (trail)
 						{
@@ -678,7 +678,7 @@ class DukeFireball : DukeProjectile // WorldTour only
 					ball.ChangeStat(STAT_PROJECTILE);
 				}
 			}
-			self.temp_data[0]++;
+			self.counter++;
 		}
 		if (self.vel.Z < 15000. / 256.)
 			self.vel.Z += 200 / 256.;

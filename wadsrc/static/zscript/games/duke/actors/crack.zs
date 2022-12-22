@@ -30,7 +30,7 @@ class DukeCrack : DukeActor
 	{
 		if (self.hitag > 0)
 		{
-			self.temp_data[0] = self.cstat;
+			self.counter = self.cstat;
 			self.temp_angle = self.angle;
 			if (self.ifhitbyweapon() == 2) // explosive damage
 			{
@@ -45,7 +45,7 @@ class DukeCrack : DukeActor
 			}
 			else
 			{
-				self.cstat = self.temp_data[0];
+				self.cstat = self.counter;
 				self.angle = self.temp_angle;
 				self.extra = 0;
 			}

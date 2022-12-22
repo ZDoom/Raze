@@ -48,15 +48,15 @@ class DukeScrap : DukeActor
 
 				if (self.spriteextra < Scrap6 + 8)
 				{
-					if (self.temp_data[0] > 6)
-						self.temp_data[0] = 0;
-					else self.temp_data[0]++;
+					if (self.counter > 6)
+						self.counter = 0;
+					else self.counter++;
 				}
 				else
 				{
-					if (self.temp_data[0] > 2)
-						self.temp_data[0] = 0;
-					else self.temp_data[0]++;
+					if (self.counter > 2)
+						self.counter = 0;
+					else self.counter++;
 				}
 			}
 			if (self.vel.Z < 16) self.vel.Z += (gs.gravity - 50 / 256.);
@@ -87,7 +87,7 @@ class DukeScrap : DukeActor
 		}
 		else 
 		{
-			let frame = self.spriteextra + self.temp_data[0];
+			let frame = self.spriteextra + self.counter;
 			if (frame < 0 || frame >= ScrapMax) frame = Scrap3;
 			tspr.setSpritePic(self, frame);
 			if (brighter[frame]) tspr.shade -= 6;

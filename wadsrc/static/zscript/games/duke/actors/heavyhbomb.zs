@@ -96,13 +96,13 @@ class DukePipeBomb : DukeActor
 		if (sectp.lotag == ST_1_ABOVE_WATER && self.vel.Z == 0)
 		{
 			self.pos.Z += 32;
-			if (self.temp_data[5] == 0)
+			if (self.temp_data[0] == 0)
 			{
-				self.temp_data[5] = 1;
+				self.temp_data[0] = 1;
 				self.spawn("DukeWaterSplash");
 			}
 		}
-		else self.temp_data[5] = 0;
+		else self.temp_data[0] = 0;
 
 		if(self.vel.X > 0)
 		{
@@ -140,7 +140,7 @@ class DukePipeBomb : DukeActor
 		if (bBoom) self.DetonateIt();
 		else self.pickupCheck(p);
 
-		if (self.temp_data[0] < 8) self.temp_data[0]++;
+		if (self.counter < 8) self.counter++;
 	}
 
 	void DetonateIt()
@@ -179,7 +179,7 @@ class DukePipeBomb : DukeActor
 		let xx = (p.actor.pos - self.pos).Sum();
 		let Owner = self.ownerActor;
 		// Duke
-		if (xx < 788 / 16. && self.temp_data[0] > 7 && self.vel.X == 0)
+		if (xx < 788 / 16. && self.counter > 7 && self.vel.X == 0)
 			if (Raze.cansee(self.pos.plusZ(-8), self.sector, p.actor.pos.plusZ(p.actor.viewzoffset), p.cursector))
 				if (p.ammo_amount[weapon1] < gs.max_ammo_amount[weapon1])
 				{

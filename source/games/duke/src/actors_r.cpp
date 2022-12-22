@@ -314,7 +314,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 		{
 			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER)
 				actor->spr.Angles.Yaw = randomAngle();
-			else if ((actor->temp_data[0] & 3) == 1)
+			else if ((actor->counter & 3) == 1)
 				actor->spr.Angles.Yaw = randomAngle();
 			SetActor(actor, actor->spr.pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
@@ -465,7 +465,7 @@ void movetransports_r(void)
 
 		onfloorz = act->temp_data[4];
 
-		if (act->temp_data[0] > 0) act->temp_data[0]--;
+		if (act->counter > 0) act->counter--;
 
 		DukeSectIterator itj(act->sector());
 		while (auto act2 = itj.Next())
@@ -498,8 +498,8 @@ void movetransports_r(void)
 
 							if (Owner->GetOwner() != Owner)
 							{
-								act->temp_data[0] = 13;
-								Owner->temp_data[0] = 13;
+								act->counter = 13;
+								Owner->counter = 13;
 								ps[p].transporter_hold = 13;
 							}
 
@@ -663,9 +663,9 @@ void movetransports_r(void)
 
 					if (sectlotag == 0 && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
 					{
-						if (Owner->GetOwner() != Owner && onfloorz && act->temp_data[0] > 0 && act2->spr.statnum != 5)
+						if (Owner->GetOwner() != Owner && onfloorz && act->counter > 0 && act2->spr.statnum != 5)
 						{
-							act->temp_data[0]++;
+							act->counter++;
 							continue;
 						}
 						warpspriteto = 1;
@@ -723,8 +723,8 @@ void movetransports_r(void)
 
 										if (Owner->GetOwner() != Owner)
 										{
-											act->temp_data[0] = 13;
-											Owner->temp_data[0] = 13;
+											act->counter = 13;
+											Owner->counter = 13;
 										}
 
 										ChangeActorSect(act2, Owner->sector());
@@ -975,7 +975,7 @@ void handle_se06_r(DDukeActor *actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->spr.lotag == SE_14_SUBWAY_CAR) && (sh == act2->spr.hitag) && (act2->temp_data[0] == actor->temp_data[0]))
+		if ((act2->spr.lotag == SE_14_SUBWAY_CAR) && (sh == act2->spr.hitag) && (act2->counter == actor->counter))
 		{
 			act2->vel.X = actor->vel.X;
 			//if( actor->temp_data[4] == 1 )
@@ -1156,13 +1156,13 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 		case SE_36_PROJ_SHOOTER:
 
-			if (act->temp_data[0])
+			if (act->counter)
 			{
-				if (act->temp_data[0] == 1)
+				if (act->counter == 1)
 					fi.shoot(act, sc->extra, nullptr);
-				else if (act->temp_data[0] == 26 * 5)
-					act->temp_data[0] = 0;
-				act->temp_data[0]++;
+				else if (act->counter == 26 * 5)
+					act->counter = 0;
+				act->counter++;
 			}
 			break;
 
@@ -1222,7 +1222,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a == -1) a = 0;
 
-	actor->temp_data[0]++;
+	actor->counter++;
 
 	if (a & face_player)
 	{
@@ -1235,7 +1235,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	}
 
 	if (a & spin)
-		actor->spr.Angles.Yaw += DAngle45 * BobVal(actor->temp_data[0] << 3);
+		actor->spr.Angles.Yaw += DAngle45 * BobVal(actor->counter << 3);
 
 	if (a & face_player_slow)
 	{
@@ -1261,51 +1261,51 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		{
 			if (actor->spr.picnum == RTILE_CHEER)
 			{
-				if (actor->temp_data[0] < 16)
-					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 1.6;
+				if (actor->counter < 16)
+					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 1.6;
 			}
 			else
 			{
-				if (actor->temp_data[0] < 16)
-					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2;
+				if (actor->counter < 16)
+					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2;
 			}
 		}
 		if (a & justjump1)
 		{
 			if (actor->spr.picnum == RTILE_RABBIT)
 			{
-				if (actor->temp_data[0] < 8)
-					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2.133;
+				if (actor->counter < 8)
+					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2.133;
 			}
 			else if (actor->spr.picnum == RTILE_MAMA)
 			{
-				if (actor->temp_data[0] < 8)
-					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 1.83;
+				if (actor->counter < 8)
+					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 1.83;
 			}
 		}
 		if (a & justjump2)
 		{
 			if (actor->spr.picnum == RTILE_RABBIT)
 			{
-				if (actor->temp_data[0] < 8)
-					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2.667;
+				if (actor->counter < 8)
+					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2.667;
 			}
 			else if (actor->spr.picnum == RTILE_MAMA)
 			{
-				if (actor->temp_data[0] < 8)
-					actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2.286;
+				if (actor->counter < 8)
+					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2.286;
 			}
 		}
 		if (a & windang)
 		{
-			if (actor->temp_data[0] < 8)
-				actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4) * 2.667);
+			if (actor->counter < 8)
+				actor->vel.Z -= BobVal(512 + (actor->counter << 4) * 2.667);
 		}
 	}
 	else if ((a & jumptoplayer) == jumptoplayer)
 	{
-		if (actor->temp_data[0] < 16)
-			actor->vel.Z -= BobVal(512 + (actor->temp_data[0] << 4)) * 2;
+		if (actor->counter < 16)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2;
 	}
 
 
@@ -1424,12 +1424,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				{
 					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 					{
-						if ((actor->temp_data[0] & 1) || ps[pnum].actorsqu == actor) return;
+						if ((actor->counter & 1) || ps[pnum].actorsqu == actor) return;
 						else daxvel *= 2;
 					}
 					else
 					{
-						if ((actor->temp_data[0] & 3) || ps[pnum].actorsqu == actor) return;
+						if ((actor->counter & 3) || ps[pnum].actorsqu == actor) return;
 						else daxvel *= 4;
 					}
 				}

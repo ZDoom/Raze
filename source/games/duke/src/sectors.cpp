@@ -95,13 +95,13 @@ int callsound(sectortype* sn, DDukeActor* whatsprite, bool endstate)
 
 			// Reset if the desired actor isn't playing anything.
 			bool hival = S_IsSoundValid(act->spr.hitag);
-			if (act->temp_data[0] == 1 && !hival && !endstate)
+			if (act->counter == 1 && !hival && !endstate)
 			{
 				if (!S_CheckActorSoundPlaying(act->temp_actor, snum))
-					act->temp_data[0] = 0;
+					act->counter = 0;
 			}
 
-			if (act->temp_data[0] == 0)
+			if (act->counter == 0)
 			{
 				if ((flags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL)
 				{
@@ -114,7 +114,7 @@ int callsound(sectortype* sn, DDukeActor* whatsprite, bool endstate)
 					}
 
 					if ((act->sector()->lotag & 0xff) != ST_22_SPLITTING_DOOR)
-						act->temp_data[0] = 1;
+						act->counter = 1;
 				}
 			}
 			else if (act->spr.hitag < 1000)
@@ -129,7 +129,7 @@ int callsound(sectortype* sn, DDukeActor* whatsprite, bool endstate)
 					if (act->spr.hitag == act->spr.lotag) stopped = true;
 				}
 				if (act->spr.hitag && !stopped) S_PlayActorSound(act->spr.hitag, whatsprite);
-				act->temp_data[0] = 0;
+				act->counter = 0;
 				act->temp_actor = whatsprite;
 			}
 			return act->spr.lotag;
@@ -173,7 +173,7 @@ int check_activator_motion(int lotag)
 					case SE_20_STRETCH_BRIDGE:
 					case SE_31_FLOOR_RISE_FALL:
 					case SE_32_CEILING_RISE_FALL:
-						if (act2->temp_data[0])
+						if (act2->counter)
 							return(1);
 						break;
 					}
@@ -537,7 +537,7 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 		if (act2->spr.lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->spr.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
 			if (act2->spr.hitag == actor->spr.hitag)
 			{
-				act2->temp_data[0] = d;
+				act2->counter = d;
 				if (act2->spr.lotag == SE_17_WARP_ELEVATOR) act2->temp_data[1] = d; //Make all check warp (only SE17, in SE18 this is a coordinate)
 			}
 	}
@@ -739,7 +739,7 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 		{
 			act2->sector()->extra = -act2->sector()->extra;
 
-			act2->temp_data[0] = sectindex(sptr);
+			act2->counter = sectindex(sptr);
 			act2->temp_data[1] = 1;
 		}
 	}
@@ -965,8 +965,8 @@ static void handle_st27(sectortype* sptr, DDukeActor* actor)
 
 			sptr->lotag ^= 0x8000;
 			if (sptr->lotag & 0x8000) //OPENING
-				act2->temp_data[0] = 1;
-			else act2->temp_data[0] = 2;
+				act2->counter = 1;
+			else act2->counter = 2;
 			callsound(sptr, actor);
 			break;
 		}
@@ -997,9 +997,9 @@ static void handle_st28(sectortype* sptr, DDukeActor* actor)
 	DukeStatIterator it1(STAT_EFFECTOR);
 	while (auto act3 = it.Next())
 	{
-		if ((act3->spr.lotag & 0xff) == 21 && !act3->temp_data[0] &&
+		if ((act3->spr.lotag & 0xff) == 21 && !act3->counter &&
 			(act3->spr.hitag) == j)
-			act3->temp_data[0] = 1;
+			act3->counter = 1;
 	}
 	callsound(sptr, actor);
 }
@@ -1199,7 +1199,7 @@ void operateactivators(int low, player_struct* plr)
 						case SE_36_PROJ_SHOOTER:
 						case SE_31_FLOOR_RISE_FALL:
 						case SE_32_CEILING_RISE_FALL:
-							a2->temp_data[0] = 1 - a2->temp_data[0];
+							a2->counter = 1 - a2->counter;
 							callsound(act->sector(), a2);
 							break;
 						}
@@ -1725,9 +1725,9 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 
 				case SE_12_LIGHT_SWITCH:
 					other->sector()->floorpal = 0;
-					other->temp_data[0]++;
-					if (other->temp_data[0] == 2)
-						other->temp_data[0]++;
+					other->counter++;
+					if (other->counter == 2)
+						other->counter++;
 
 					break;
 				case SE_24_CONVEYOR:

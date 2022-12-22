@@ -71,12 +71,12 @@ class DukeCrane : DukeActor
 		let sectp = self.sector;
 		double xx;
 
-		//self.temp_data[0] = state
+		//self.counter = state
 		//self.temp_data[1] = checking sector number
 
 		if (self.vel.X != 0) self.getGlobalZ();
 
-		if (self.temp_data[0] == 0) //Waiting to check the sector
+		if (self.counter == 0) //Waiting to check the sector
 		{
 			DukeSectIterator it;
 			for (DukeActor a2 = it.First(self.temp_sect); a2; a2 = it.Next())
@@ -89,13 +89,13 @@ class DukeCrane : DukeActor
 				case STAT_PLAYER:
 					self.angle = (self.polepos - self.pos.XY).Angle();
 					if (a2.statnum != STAT_PLAYER) a2.SetPosition(( self.polepos, a2.pos.Z ));
-					self.temp_data[0]++;
+					self.counter++;
 					return;
 				}
 			}
 		}
 
-		else if (self.temp_data[0] == 1)
+		else if (self.counter == 1)
 		{
 			if (self.vel.X < 11.5)
 			{
@@ -104,21 +104,21 @@ class DukeCrane : DukeActor
 			}
 			self.DoMove(CLIPMASK0);
 			if (self.sector == self.temp_sect)
-				self.temp_data[0]++;
+				self.counter++;
 		}
-		else if (self.temp_data[0] == 2 || self.temp_data[0] == 7)
+		else if (self.counter == 2 || self.counter == 7)
 		{
 			self.pos.Z += 6;
 
-			if (self.temp_data[0] == 2)
+			if (self.counter == 2)
 			{
 				if ((sectp.floorz - self.pos.Z) < 64)
 					if (self.spritesetindex != PIC_DEFAULT) self.setSpritesetImage(self.spritesetindex - 1);
 
 				if ((sectp.floorz - self.pos.Z) < 20)
-					self.temp_data[0]++;
+					self.counter++;
 			}
-			if (self.temp_data[0] == 7)
+			if (self.counter == 7)
 			{
 				if ((sectp.floorz - self.pos.Z) < 64)
 				{
@@ -132,14 +132,14 @@ class DukeCrane : DukeActor
 							if (pp.on_crane == self)
 								pp.on_crane = null;
 						}
-						self.temp_data[0]++;
+						self.counter++;
 						self.isactive = false;
 						self.ownerActor = null;
 					}
 				}
 			}
 		}
-		else if (self.temp_data[0] == 3)
+		else if (self.counter == 3)
 		{
 			self.setSpritesetImage(self.spritesetindex + 1);
 			if (self.spritesetindex == PIC_CLOSED)
@@ -169,43 +169,43 @@ class DukeCrane : DukeActor
 					}
 				}
 
-				self.temp_data[0]++;//Grabbed the sprite
+				self.counter++;//Grabbed the sprite
 				self.temp_data[2] = 0;
 				return;
 			}
 		}
-		else if (self.temp_data[0] == 4) //Delay before going up
+		else if (self.counter == 4) //Delay before going up
 		{
 			self.temp_data[2]++;
 			if (self.temp_data[2] > 10)
-				self.temp_data[0]++;
+				self.counter++;
 		}
-		else if (self.temp_data[0] == 5 || self.temp_data[0] == 8)
+		else if (self.counter == 5 || self.counter == 8)
 		{
-			if (self.temp_data[0] == 8 && self.spritesetindex < PIC_CLOSED)
+			if (self.counter == 8 && self.spritesetindex < PIC_CLOSED)
 				if ((sectp.floorz - self.pos.Z) > 32)
 					self.setSpritesetImage(self.spritesetindex + 1);
 
 			if (self.pos.Z < self.cranepos.Z)
 			{
-				self.temp_data[0]++;
+				self.counter++;
 				self.vel.X = 0;
 			}
 			else
 				self.pos.Z -= 6;
 		}
-		else if (self.temp_data[0] == 6)
+		else if (self.counter == 6)
 		{
 			if (self.vel.X < 12)
 				self.vel.X += 0.5;
 			self.angle = (self.cranepos.XY - self.pos.XY).Angle();
 			self.DoMove(CLIPMASK0);
 			if ((self.pos.XY - self.cranepos.XY).LengthSquared() < 8 * 8)
-				self.temp_data[0]++;
+				self.counter++;
 		}
 
-		else if (self.temp_data[0] == 9)
-			self.temp_data[0] = 0;
+		else if (self.counter == 9)
+			self.counter = 0;
 
 		if (self.poleactor)
 			self.poleactor.SetPosition(self.pos.plusZ(-34));

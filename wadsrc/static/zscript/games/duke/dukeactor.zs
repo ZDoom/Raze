@@ -168,7 +168,8 @@ class DukeActor : CoreActor native
 	native double floorz, ceilingz, hitang;
 	native int saved_ammo;
 	native int palvals;
-	native int temp_data[6];
+	native int counter;
+	native int temp_data[5];
 	native private int flags1, flags2, flags3;
 	native walltype temp_walls[2];
 	native sectortype temp_sect, actorstayput;

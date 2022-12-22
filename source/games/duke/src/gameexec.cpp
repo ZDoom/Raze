@@ -1293,8 +1293,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, int(act->ovel.Y / maptoworld), sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T0:
-		if (bSet) act->temp_data[0] = lValue;
-		else SetGameVarID(lVar2, act->temp_data[0], sActor, sPlayer);
+		if (bSet) act->counter = lValue;
+		else SetGameVarID(lVar2, act->counter, sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T1:
 		if (bSet) act->temp_data[1] = lValue;
@@ -1313,8 +1313,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->temp_data[4], sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T5:
-		if (bSet) act->temp_data[5] = lValue;
-		else SetGameVarID(lVar2, act->temp_data[5], sActor, sPlayer);
+		if (bSet) act->temp_data[0] = lValue;
+		else SetGameVarID(lVar2, act->temp_data[0], sActor, sPlayer);
 		break;
 
 	default:
@@ -1559,7 +1559,7 @@ int ParseState::parse(void)
 		g_ac->curMove = &moves[ai->move];
 		g_ac->spr.hitag = ai->moveflags;
 		g_ac->actioncounter = g_ac->curframe = 0;
-		g_ac->temp_data[0] = 0;
+		g_ac->counter = 0;
 		if (g_ac->spr.hitag & random_angle)
 			g_ac->spr.Angles.Yaw = randomAngle();
 		insptr++;
@@ -1888,7 +1888,7 @@ int ParseState::parse(void)
 		while (1) if (parse()) break;
 		break;
 	case concmd_move:
-		g_ac->temp_data[0]=0;
+		g_ac->counter=0;
 		insptr++;
 		g_ac->curMove = &moves[*insptr];
 		insptr++;
@@ -1931,7 +1931,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_count:
 		insptr++;
-		g_ac->temp_data[0] = (short) *insptr;
+		g_ac->counter = (short) *insptr;
 		insptr++;
 		break;
 	case concmd_cstator:
@@ -1989,7 +1989,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifcount:
 		insptr++;
-		parseifelse(g_ac->temp_data[0] >= *insptr);
+		parseifelse(g_ac->counter >= *insptr);
 		break;
 	case concmd_ifactor:
 		insptr++;
@@ -1997,7 +1997,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_resetcount:
 		insptr++;
-		g_ac->temp_data[0] = 0;
+		g_ac->counter = 0;
 		break;
 	case concmd_addinventory:
 		insptr++;

@@ -18,7 +18,7 @@ class DukeTongue : DukeActor
 
 	override void Tick()
 	{
-		self.temp_data[0] = int(Raze.BobVal(self.temp_data[1]) * 32);
+		self.counter = int(Raze.BobVal(self.temp_data[1]) * 32);
 		self.temp_data[1] += 32;
 		if (self.temp_data[1] > 2047 || statnum == STAT_MISC)
 		{
@@ -35,7 +35,7 @@ class DukeTongue : DukeActor
 		self.angle = Owner.angle;
 		self.pos = Owner.pos.plusZ(Owner.isPlayer() ? -34 : 0);
 
-		for (int k = 0; k < self.temp_data[0]; k++)
+		for (int k = 0; k < self.counter; k++)
 		{
 			let pos = self.pos + self.angle.ToVector() * 2 * k;
 			pos.Z += k * self.vel.Z / 12;
@@ -48,7 +48,7 @@ class DukeTongue : DukeActor
 				q.pal = 8;
 			}
 		}
-		int k = self.temp_data[0];	// do not depend on the above loop counter.
+		int k = self.counter;	// do not depend on the above loop counter.
 		let pos = self.pos + self.angle.ToVector() * 2 * k;
 		pos.Z += k * self.vel.Z / 12;
 		let jaw = 'DukeInnerJaw';

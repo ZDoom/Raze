@@ -90,7 +90,8 @@ public:
 		int tempsound;
 	};
 	// note: all this temp shit needs to be moved to subclass specific variables once things get cleaned up. This is a major issue with code readability.
-	int temp_data[6];
+	int counter;	// sprite animation counters - were previously stored in temp_data.
+	int temp_data[5];
 	// Some SE's stored indices in temp_data. For purposes of clarity avoid that. These variables are meant to store these elements now
 	walltype* temp_walls[2]; // SE20 + SE128
 	sectortype* temp_sect, *actorstayput;
@@ -99,7 +100,7 @@ public:
 	ActorMove* curMove;
 	ActorAction* curAction;
 	FName curAI;	// no need to store the pointer here.
-	int16_t counter, actioncounter, curframe;	// sprite animation counters - were previously stored in temp_data.
+	int16_t actioncounter, curframe;	// sprite animation counters - were previously stored in temp_data.
 
 	EDukeFlags1 flags1;
 	EDukeFlags2 flags2;

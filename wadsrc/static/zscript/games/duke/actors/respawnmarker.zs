@@ -16,15 +16,15 @@ class DukeRespawnMarker : DukeActor
 	
 	override void Tick()
 	{
-		self.temp_data[0]++;
-		if (self.temp_data[0] > gs.respawnitemtime)
+		self.counter++;
+		if (self.counter > gs.respawnitemtime)
 		{
 			self.Destroy();
 			return;
 		}
-		if (self.temp_data[0] >= (gs.respawnitemtime >> 1) && self.temp_data[0] < ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
+		if (self.counter >= (gs.respawnitemtime >> 1) && self.counter < ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
 			self.setSpritesetImage(1);
-		else if (self.temp_data[0] > ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
+		else if (self.counter > ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
 			self.setSpritesetImage(2);
 		self.makeitfall();
 	}

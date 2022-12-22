@@ -25,12 +25,12 @@ class DukeWaterFountain : DukeActor
 	
 	override void Tick()
 	{
-		if (self.temp_data[0] > 0 && self.spritesetindex < 4)
+		if (self.counter > 0 && self.spritesetindex < 4)
 		{
 			int frame = self.spritesetindex;
-			if (self.temp_data[0] < 20)
+			if (self.counter < 20)
 			{
-				self.temp_data[0]++;
+				self.counter++;
 
 				frame++;
 
@@ -45,10 +45,10 @@ class DukeWaterFountain : DukeActor
 				// this does not really work, but fixing this will probably draw complaints for not being authentic.
 				if ((self.pos - p.actor.pos.plusZ(28)).Sum() > 32)
 				{
-					self.temp_data[0] = 0;
+					self.counter = 0;
 					self.setSpritesetImage(0);
 				}
-				else self.temp_data[0] = 1;
+				else self.counter = 1;
 			}
 		}
 	}
@@ -71,9 +71,9 @@ class DukeWaterFountain : DukeActor
 
 	override bool onUse(DukePlayer user)
 	{
-		if (self.temp_data[0] != 1)
+		if (self.counter != 1)
 		{
-			self.temp_data[0] = 1;
+			self.counter = 1;
 			let act = user.actor;
 			self.ownerActor = act;
 

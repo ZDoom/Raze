@@ -45,8 +45,8 @@ class DukeWatersplash : DukeActor
 	void DoTick(bool check)
 	{
 		let sectp = self.sector;
-		self.temp_data[0]++;
-		if (self.temp_data[0] == 1)
+		self.counter++;
+		if (self.counter == 1)
 		{
 			if (check)
 			{
@@ -56,9 +56,9 @@ class DukeWatersplash : DukeActor
 			if (!Duke.CheckSoundPlaying("ITEM_SPLASH"))
 				self.PlayActorSound("ITEM_SPLASH");
 		}
-		if (self.temp_data[0] == 3)
+		if (self.counter == 3)
 		{
-			self.temp_data[0] = 0;
+			self.counter = 0;
 			self.temp_data[1]++;
 		}
 		if (self.temp_data[1] == 5)

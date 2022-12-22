@@ -24,10 +24,10 @@ class DukeDuck : DukeLetter // shooting gallery target
 	{
 		if (self.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
 		{
-			self.temp_data[0]++;
-			if (self.temp_data[0] > 60)
+			self.counter++;
+			if (self.counter > 60)
 			{
-				self.temp_data[0] = 0;
+				self.counter = 0;
 				self.cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ALIGNMENT_WALL;
 				self.extra = 1;
 			}

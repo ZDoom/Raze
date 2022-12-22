@@ -9,7 +9,7 @@ class DukeMoney : DukeActor
 	override void Initialize()
 	{
 		self.scale = (0.125, 0.125);
-		self.temp_data[0] = random(0, 2047);
+		self.counter = random(0, 2047);
 		self.cstat = self.randomFlip();
 		self.angle = frandom(0, 360);
 		self.ChangeStat(STAT_MISC);
@@ -27,9 +27,9 @@ class DukeMoney : DukeActor
 			return;
 		}
 
-		self.vel.X = frandom(0, 0.5) + Raze.BobVal(self.temp_data[0]) * 2;
-		self.temp_data[0] += random(0, 63);
-		if ((self.temp_data[0] & 2047) > 512 && (self.temp_data[0] & 2047) < 1596)
+		self.vel.X = frandom(0, 0.5) + Raze.BobVal(self.counter) * 2;
+		self.counter += random(0, 63);
+		if ((self.counter & 2047) > 512 && (self.counter & 2047) < 1596)
 		{
 			if (sectp.lotag == ST_2_UNDERWATER)
 			{

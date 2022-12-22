@@ -78,7 +78,7 @@ class DukeReactor : DukeActor
 				p.actor.extra--;
 				p.pals = Color(32, 32, 0, 0);
 			}
-			self.temp_data[0] += 128;
+			self.counter += 128;
 			if (self.temp_data[3] == 0)
 				self.temp_data[3] = 1;
 		}

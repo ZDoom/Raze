@@ -336,7 +336,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 	switch (actor->spr.lotag)
 	{
 		case SE_28_LIGHTNING:
-			if (!isRR()) actor->temp_data[5] = 65;// Delay for lightning
+			if (!isRR()) actor->temp_data[0] = 65;// Delay for lightning
 			break;
 		case SE_7_TELEPORT: // Transporters!!!!
 		case SE_23_ONE_WAY_TELEPORT:// XPTR END
@@ -361,7 +361,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			return;
 		case SE_1_PIVOT:
 			actor->SetOwner(nullptr);
-			actor->temp_data[0] = 1;
+			actor->counter = 1;
 			break;
 		case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 
@@ -603,7 +603,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_8_UP_OPEN_DOOR_LIGHTS:
 			//First, get the ceiling-floor shade
 
-			actor->temp_data[0] = sectp->floorshade;
+			actor->counter = sectp->floorshade;
 			actor->temp_data[1] = sectp->ceilingshade;
 
 			for (auto& wal : sectp->walls)
@@ -618,7 +618,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			//First, get the ceiling-floor shade
 			if (!isRR()) break;
 
-			actor->temp_data[0] = sectp->floorshade;
+			actor->counter = sectp->floorshade;
 			actor->temp_data[1] = sectp->ceilingshade;
 
 			for (auto& wal : sectp->walls)
@@ -713,7 +713,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				}
 
 				actor->SetOwner(nullptr);
-				actor->temp_data[0] = sectindex(s);
+				actor->counter = sectindex(s);
 
 				if (actor->spr.lotag != SE_30_TWO_WAY_TRAIN)
 					actor->temp_data[3] = actor->spr.hitag;
@@ -734,7 +734,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			}
 			else if (actor->spr.lotag == SE_2_EARTHQUAKE)
 			{
-				actor->temp_data[5] = actor->sector()->getfloorslope();
+				actor->temp_data[0] = actor->sector()->getfloorslope();
 				actor->sector()->setfloorslope(0);
 			}
 			break;

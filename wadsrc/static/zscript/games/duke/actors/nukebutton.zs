@@ -13,12 +13,12 @@ class DukeNukeButton : DukeActor
 	
 	override void Tick()
 	{
-		if (self.temp_data[0])
+		if (self.counter)
 		{
-			self.temp_data[0]++;
+			self.counter++;
 			let Owner = self.ownerActor;
-			if (self.temp_data[0] == 8) self.setSpritesetImage(1);
-			else if (self.temp_data[0] == 16 && Owner)
+			if (self.counter == 8) self.setSpritesetImage(1);
+			else if (self.counter == 16 && Owner)
 			{
 				self.setSpritesetImage(2);
 				Owner.GetPlayer().fist_incs = 1;
@@ -30,9 +30,9 @@ class DukeNukeButton : DukeActor
 	
 	override bool OnUse(DukePlayer p)
 	{
-		if (self.temp_data[0] == 0 && !p.hitablockingwall())
+		if (self.counter == 0 && !p.hitablockingwall())
 		{
-			self.temp_data[0] = 1;
+			self.counter = 1;
 			self.ownerActor = p.actor;
 			p.buttonpalette = self.pal;
 			if (p.buttonpalette)

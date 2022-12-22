@@ -3630,7 +3630,7 @@ HORIZONLY:
 		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
 			auto act = barrier_cast<DDukeActor*>(psectp->hitagactor);
-			if (act && act->vel.X != 0 && act->temp_data[0] == 0)
+			if (act && act->vel.X != 0 && act->counter == 0)
 			{
 				quickkill(p);
 				return;

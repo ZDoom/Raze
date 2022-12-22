@@ -2905,7 +2905,7 @@ HORIZONLY:
 		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
 			auto secact = barrier_cast<DDukeActor*>(psectp->hitagactor);
-			if (secact && secact->vel.X != 0 && secact->temp_data[0] == 0)
+			if (secact && secact->vel.X != 0 && secact->counter == 0)
 			{
 				quickkill(p);
 				return;

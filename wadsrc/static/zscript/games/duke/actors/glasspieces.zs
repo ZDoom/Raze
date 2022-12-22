@@ -18,18 +18,18 @@ class DukeGlassPieces : DukeActor
 			return;
 		}
 
-		if (self.pos.Z == self.floorz - 1 && self.temp_data[0] < 3)
+		if (self.pos.Z == self.floorz - 1 && self.counter < 3)
 		{
-			self.vel.Z = -(3 - self.temp_data[0]) - frandom(0, 2);
+			self.vel.Z = -(3 - self.counter) - frandom(0, 2);
 			if (sectp.lotag == 2)
 				self.vel.Z *= 0.5;
 
 			self.scale *= 0.5;
 			if (Duke.rnd(96))
 				self.SetPosition(self.pos);
-			self.temp_data[0]++;//Number of bounces
+			self.counter++;//Number of bounces
 		}
-		else if (self.temp_data[0] == 3)
+		else if (self.counter == 3)
 		{
 			self.Destroy();
 			return;

@@ -53,13 +53,13 @@ class DukeGreenSlime : DukeActor
 			}
 		}
 
-		if (self.temp_data[0] == -5) // FROZEN
+		if (self.counter == -5) // FROZEN
 		{
 			self.temp_data[3]++;
 			if (self.temp_data[3] > 280)
 			{
 				self.pal = 0;
-				self.temp_data[0] = 0;
+				self.counter = 0;
 				return;
 			}
 			self.makeitfall();
@@ -100,11 +100,11 @@ class DukeGreenSlime : DukeActor
 			self.cstat = 0;
 		else self.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
-		if (self.temp_data[0] == -4) //On the player
+		if (self.counter == -4) //On the player
 		{
 			if (pactor.extra < 1)
 			{
-				self.temp_data[0] = 0;
+				self.counter = 0;
 				return;
 			}
 
@@ -137,7 +137,7 @@ class DukeGreenSlime : DukeActor
 						if (spawned) spawned.pal = 0;
 					}
 					self.addkill();
-					self.temp_data[0] = -3;
+					self.counter = -3;
 					if (p.somethingonplayer == self)
 						p.somethingonplayer = nullptr;
 					self.Destroy();
@@ -201,10 +201,10 @@ class DukeGreenSlime : DukeActor
 			if (p.somethingonplayer == nullptr)
 			{
 				p.somethingonplayer = self;
-				if (self.temp_data[0] == 3 || self.temp_data[0] == 2) //Falling downward
+				if (self.counter == 3 || self.counter == 2) //Falling downward
 					self.temp_data[2] = (12 << 8);
 				else self.temp_data[2] = -(13 << 8); //Climbing up duke
-				self.temp_data[0] = -4;
+				self.counter = -4;
 			}
 		}
 
@@ -219,7 +219,7 @@ class DukeGreenSlime : DukeActor
 			if (j == 1)	// freeze damage
 			{
 				self.PlayActorSound("SOMETHINGFROZE"); 
-				self.temp_data[0] = -5; self.temp_data[3] = 0;
+				self.counter = -5; self.temp_data[3] = 0;
 				return;
 			}
 			self.addkill();
@@ -243,12 +243,12 @@ class DukeGreenSlime : DukeActor
 					spawned.pal = 6;
 				}
 			}
-			self.temp_data[0] = -3;
+			self.counter = -3;
 			self.Destroy();
 			return;
 		}
 		// All weap
-		if (self.temp_data[0] == -1) //Shrinking down
+		if (self.counter == -1) //Shrinking down
 		{
 			self.makeitfall();
 
@@ -260,14 +260,14 @@ class DukeGreenSlime : DukeActor
 			else
 			{
 				self.scale = (0.625, 0.25);
-				self.temp_data[0] = 0;
+				self.counter = 0;
 			}
 
 			return;
 		}
-		else if (self.temp_data[0] != -2) self.getglobalz();
+		else if (self.counter != -2) self.getglobalz();
 
-		if (self.temp_data[0] == -2) //On top of somebody (an enemy)
+		if (self.counter == -2) //On top of somebody (an enemy)
 		{
 			DukeActor s5 = self.temp_actor;
 			self.makeitfall();
@@ -284,7 +284,7 @@ class DukeGreenSlime : DukeActor
 					if (self.scale.X < 0.5) self.scale.X += (0.0625);
 					else
 					{
-						self.temp_data[0] = -1;
+						self.counter = -1;
 						self.temp_actor = nullptr;
 						double dist = (self.pos.XY - s5.pos.XY).LengthSquared();
 						if (dist < 48*48) {
@@ -312,7 +312,7 @@ class DukeGreenSlime : DukeActor
 					if (dist < 48*48 && (abs(self.pos.Z - a2.pos.Z) < 16)) //Gulp them
 					{
 						self.temp_actor = a2;
-						self.temp_data[0] = -2;
+						self.counter = -2;
 						self.temp_data[1] = 0;
 						return;
 					}
@@ -322,14 +322,14 @@ class DukeGreenSlime : DukeActor
 
 		//Moving on the ground or ceiling
 
-		if (self.temp_data[0] == 0 || self.temp_data[0] == 2)
+		if (self.counter == 0 || self.counter == 2)
 		{
 			self.setspriteSetImage(0);
 
 			if (random(0, 511) == 0)
 				self.PlayActorSound("SLIM_ROAM");
 
-			if (self.temp_data[0] == 2)
+			if (self.counter == 2)
 			{
 				self.vel.Z = 0;
 				self.cstat &= ~CSTAT_SPRITE_YFLIP;
@@ -337,7 +337,7 @@ class DukeGreenSlime : DukeActor
 				if ((sectp.ceilingstat & CSTAT_SECTOR_SKY) || (self.ceilingz + 24) < self.pos.Z)
 				{
 					self.pos.Z += 8;
-					self.temp_data[0] = 3;
+					self.counter = 3;
 					return;
 				}
 			}
@@ -369,12 +369,12 @@ class DukeGreenSlime : DukeActor
 				abs(self.floorz - self.ceilingz) < 192)
 			{
 				self.vel.Z = 0;
-				self.temp_data[0]++;
+				self.counter++;
 			}
 
 		}
 
-		if (self.temp_data[0] == 1)
+		if (self.counter == 1)
 		{
 			self.setspriteSetImage(0);
 			if (self.scale.Y < 0.625) self.scale.Y += (0.125);
@@ -386,11 +386,11 @@ class DukeGreenSlime : DukeActor
 			{
 				self.pos.Z = self.ceilingz + 16;
 				self.vel.X = 0;
-				self.temp_data[0] = 2;
+				self.counter = 2;
 			}
 		}
 
-		if (self.temp_data[0] == 3)
+		if (self.counter == 3)
 		{
 			self.setspriteSetImage(1);
 			self.makeitfall();
@@ -409,7 +409,7 @@ class DukeGreenSlime : DukeActor
 			if (self.pos.Z > self.floorz - 8)
 			{
 				self.pos.Z = self.floorz - 8;
-				self.temp_data[0] = 0;
+				self.counter = 0;
 				self.vel.X = 0;
 			}
 		}

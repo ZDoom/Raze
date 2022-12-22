@@ -20,15 +20,15 @@ class DukeBloodSplat1 : DukeActor
 
 	override void Tick()
 	{
-		if (self.temp_data[0] < 14 * 26)
+		if (self.counter < 14 * 26)
 		{
 			let offset = frandom(0, 1);
-			let lerp = 1. - (double(self.temp_data[0]) / (14 * 26));
+			let lerp = 1. - (double(self.counter) / (14 * 26));
 			let zadj = (1. / 16.) * lerp;
 			let sadj = (1. / 12.) * lerp * REPEAT_SCALE;
 			self.pos.Z += zadj + offset * zadj;
 			self.scale.Y += sadj + offset * sadj;
-			self.temp_data[0]++;
+			self.counter++;
 		}
 	}
 	

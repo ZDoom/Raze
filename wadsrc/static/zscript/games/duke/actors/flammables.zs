@@ -14,7 +14,7 @@ class DukeFlammable : DukeActor
 	
 	override void Tick()
 	{
-		if (self.temp_data[0] == 1)
+		if (self.counter == 1)
 		{
 			self.temp_data[1]++;
 			if ((self.temp_data[1] & 3) > 0) return;
@@ -67,10 +67,10 @@ class DukeFlammable : DukeActor
 	{
 		if (hitter.bINFLAME)
 		{
-			if (self.temp_data[0] == 0)
+			if (self.counter == 0)
 			{
 				self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-				self.temp_data[0] = 1;
+				self.counter = 1;
 				self.spawn("DukeBurning");
 			}
 		}

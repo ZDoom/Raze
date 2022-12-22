@@ -29,7 +29,7 @@ class DukeMasterSwitch : DukeActor
 						case SE_31_FLOOR_RISE_FALL:
 						case SE_32_CEILING_RISE_FALL:
 						case SE_36_PROJ_SHOOTER:
-							effector.temp_data[0] = 1;
+							effector.counter = 1;
 							break;
 						case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
 							effector.temp_data[4] = 1;

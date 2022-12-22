@@ -17,7 +17,7 @@ class DukeBloodPool : DukeActor
 			else if (Owner.pal == 6 || Owner.bGREENBLOOD)
 			{
 				self.pal = 0;	// Green
-				self.temp_data[5] = 1;	// this hurts!
+				self.temp_data[0] = 1;	// this hurts!
 			}
 			else if (Owner.bBROWNBLOOD)
 				self.pal = 7; 	// Brown
@@ -40,9 +40,9 @@ class DukeBloodPool : DukeActor
 	{
 		let sectp = self.sector;
 
-		if (self.temp_data[0] == 0)
+		if (self.counter == 0)
 		{
-			self.temp_data[0] = 1;
+			self.counter = 1;
 			if (sectp.floorstat & CSTAT_SECTOR_SLOPE)
 			{
 				self.Destroy();
@@ -87,7 +87,7 @@ class DukeBloodPool : DukeActor
 
 		if (xx < 844 / 16. && self.scale.X > 0.09375 && self.scale.Y > 0.09375)
 		{
-			if (random(0, 256) < 16 && self.temp_data[5])
+			if (random(0, 256) < 16 && self.temp_data[0])
 			{
 				if (plr.boot_amount > 0)
 					plr.boot_amount--;

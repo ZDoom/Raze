@@ -578,7 +578,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				while (auto actj = it1.Next())
 				{
 					if (actj->spr.lotag == SE_12_LIGHT_SWITCH && actj->spr.hitag == ac->spr.lotag)
-						actj->temp_data[0] = 1;
+						actj->counter = 1;
 				}
 			}
 		}
