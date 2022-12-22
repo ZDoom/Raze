@@ -209,6 +209,14 @@ class DukeWhispySmoke : DukeActor
 	}
 }		
 
+class DukeLavaSplash : DukeActor
+{
+	default
+	{
+		pic "LAVASPLASH";
+	}
+}		
+
 class DukeSeriousSam : DukeActor
 {
 	default

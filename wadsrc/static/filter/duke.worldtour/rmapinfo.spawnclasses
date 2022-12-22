@@ -13,12 +13,16 @@ spawnclasses
 	5310 = DukeBoss5
 	5311 = DukeBoss5Stayput
 	5180 = DukeFirefly
+	5360 = DukeFireflyShrinkEffect
+	5367 = DukeFireflyGrowEffect
+
 
 	5134 = DukeFlamethrowerSprite
 	5135 = DukeFlamethrowerAmmo
 	5143 = DukeOnFire, noskill
 	5152 = DukeOnFireSmoke
 	5268 = DukeWhispySmoke, noskill
+	5371 = DukeLavaSplash
 	5846 = DukeSeriousSam, noskill
 	5173 = DukeBurnedCorpse
 }

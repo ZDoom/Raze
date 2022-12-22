@@ -1,4 +1,23 @@
 
+class DukeFireflyShrinkEffect : DukeActor
+{
+	default
+	{
+		pic "FIREFLYSHRINKEFFECT";
+	}
+	
+}
+
+
+class DukeFireflyGrowEffect : DukeActor
+{
+	default
+	{
+		pic "FIREFLYGROWEFFECT";
+	}
+	
+}
+
 class DukeFireflyFlyingEffect : DukeActor
 {
 	default
