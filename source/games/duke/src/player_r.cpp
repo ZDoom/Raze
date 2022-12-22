@@ -735,31 +735,6 @@ static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int at
 //
 //---------------------------------------------------------------------------
 
-static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
-{
-	auto sect = actor->sector();
-	if (actor->spr.extra >= 0) actor->spr.shade = -96;
-
-	double x;
-	auto plActor = ps[findplayer(actor, &x)].GetActor();
-	x = (plActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
-
-	double zvel = -x * 0.5;
-
-	if (zvel < -8)
-		zvel = -4;
-	double vel = x / 16.;
-	double size = atwith == RTILE_CHEERBOMB ? 0.25 : 0.5;
-
-	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, DVector2(size, size), ang, vel, zvel, actor, 1);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 {
 	int p;
@@ -831,12 +806,6 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 	case RTILE_SAWBLADE:
 	rrra_rpg2:
 		shootrpg(actor, p, spos, sang, atwith);
-		break;
-
-	case RTILE_CHEERBOMB:
-		if (!isRRRA()) break;
-	case RTILE_MORTER:
-		shootmortar(actor, p, spos, sang, atwith);
 		break;
 	}
 	return;

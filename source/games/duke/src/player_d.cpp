@@ -714,30 +714,6 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 //
 //---------------------------------------------------------------------------
 
-static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
-{
-	auto sect = actor->sector();
-	if (actor->spr.extra >= 0) actor->spr.shade = -96;
-
-	double x;
-	auto plActor = ps[findplayer(actor, &x)].GetActor();
-	x = (plActor->spr.pos.XY() - actor->spr.pos.XY()).Length();
-
-	double zvel = -x * 0.5;
-
-	if (zvel < -8)
-		zvel = -4;
-	double vel = x / 16.;
-
-	CreateActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, atwith, -64, DVector2(0.5, 0.5), ang, vel, zvel, actor, 1);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 {
 	int p;
@@ -812,11 +788,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 	case DTILE_RPG:
 		shootrpg(actor, p, spos, sang, atwith);
 		break;
-
-	case DTILE_BOUNCEMINE:
-	case DTILE_MORTER:
-		shootmortar(actor, p, spos, sang, atwith);
-		return;
 	}
 	return;
 }

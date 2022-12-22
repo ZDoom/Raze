@@ -2,13 +2,37 @@ class DukeMortar : DukeActor
 {
 	default
 	{
-		pic "MORTAR";
+		pic "MORTER";
 		DukeMortar.ceilingdist 3;
+		DukeMortar.spawnscale 0.5;
 	}
 
 	meta int ceilingdist;
+	meta double spawnscale;
 	property ceilingdist: ceilingdist;
+	property spawnscale: spawnscale;
 	
+
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
+	{
+		let sect = actor.sector;
+		if (actor.extra >= 0) actor.shade = -96;
+
+		double x;
+		DukePlayer p;
+		[p, x] = actor.findplayer();
+		let plActor = p.Actor;
+		x = (plActor.pos.XY - actor.pos.XY).Length();
+
+		double zvel = -x * 0.5;
+
+		if (zvel < -8)
+			zvel = -4;
+		double vel = x / 16.;
+		dlevel.SpawnActor(sect, pos.plusZ(-6) + ang.ToVector() * 4, GetClass(), -64, (self.spawnscale, self.spawnscale), ang, vel, zvel, actor, STAT_ACTOR);
+		return true;
+	}
+
 	override void Tick()
 	{
 		let spawned = self.spawn("DukeFrameEffect");
@@ -186,7 +210,6 @@ class RedneckMortar : DukeMortar
 {
 	default
 	{
-		pic "MORTAR";
 		DukeMortar.ceilingdist 16;
 	}
 	
@@ -204,6 +227,7 @@ class RedneckCheerBomb : DukeMortar
 		spriteset "CHEERBOMB", "CHEERBOMB1", "CHEERBOMB2", "CHEERBOMB3";
 		DukeMortar.ceilingdist 16;
 		+NOFLOORPAL;
+		DukeMortar.spawnscale 0.25;
 	}
 	
 	override bool Animate(tspritetype t)
