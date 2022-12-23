@@ -29,7 +29,7 @@ class DukeShrinker : DukeActor
 			DukePlayer j;
 			[j, x] = shooter.findplayer();
 			double dist = (j.actor.pos.XY - shooter.pos.XY).Length();
-			zvel = ((j.actor.viewzoffset - pos.Z) * 32) / dist;
+			zvel = ((j.actor.pos.Z + j.actor.viewzoffset - pos.Z) * 32) / dist;
 		}
 		else zvel = 0;
 
