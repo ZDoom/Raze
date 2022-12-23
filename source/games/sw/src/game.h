@@ -1894,54 +1894,9 @@ struct PLAYER
         return actor->viewzoffset + height;
     }
 
-    void setHeightAndZ(const double newz, const double newheight)
+    void posZset(const double val)
     {
-        actor->spr.pos.Z = newz;
-        height = newheight;
-    }
-
-    bool belowFloorZ(const double floorz, const double newheight = DBL_MAX)
-    {
-        if (newheight == DBL_MAX)
-        {
-            if (actor->getOffsetZ() > floorz)
-            {
-                actor->spr.pos.Z = floorz - actor->viewzoffset;
-                return true;
-            }
-        }
-        else
-        {
-            if (actor->spr.pos.Z > floorz)
-            {
-                setHeightAndZ(floorz, newheight);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool aboveCeilZ(const double ceilz, const double newheight = DBL_MAX)
-    {
-        if (newheight == DBL_MAX)
-        {
-            if (actor->getOffsetZ() < ceilz)
-            {
-                actor->spr.pos.Z = ceilz - actor->viewzoffset;
-                return true;
-            }
-        }
-        else
-        {
-            if (actor->spr.pos.Z < ceilz)
-            {
-                setHeightAndZ(ceilz, newheight);
-                return true;
-            }
-        }
-
-        return false;
+        actor->spr.pos.Z = val - actor->viewzoffset;
     }
 };
 
