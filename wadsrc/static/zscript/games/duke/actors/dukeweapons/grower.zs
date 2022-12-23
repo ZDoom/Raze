@@ -42,7 +42,7 @@ class DukeGrowSpark : DukeActor
 			[j, x] = self.findplayer();
 			pos.Z -= 4;
 			double dist = (j.actor.pos.XY - shooter.pos.XY).Length();
-			zvel = ((j.actor.viewzoffset - pos.Z) * 16) / dist;
+			zvel = ((j.actor.pos.Z + j.actor.viewzoffset - pos.Z) * 16) / dist;
 			zvel += 0.5 - frandom(0, 1);
 			ang += 22.5 / 4 - frandom(0, 22.5 / 2);
 		}
