@@ -158,6 +158,10 @@ version "4.10"
 #include "zscript/games/duke/actors/pig.zs"
 #include "zscript/games/duke/actors/rabbit.zs"
 
+
+#include "zscript/games/duke/actors/dukeweapons/shrinker.zs"
+
+
 #include "zscript/games/duke/world/dukebreak.zs"
 #include "zscript/games/duke/world/redneckbreak.zs"
 

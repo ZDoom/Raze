@@ -893,50 +893,6 @@ static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle an
 //
 //---------------------------------------------------------------------------
 
-static void shootshrinker(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
-{
-	double vel = 48.;
-	double zvel;
-	if (actor->spr.extra >= 0) actor->spr.shade = -96;
-	if (p >= 0)
-	{
-		auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
-		if (aimed)
-		{
-			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
-			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5);
-			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
-			zvel = ((aimed->spr.pos.Z - pos.Z - dal - 4) * 48) / dist;
-			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
-		}
-		else
-			setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 49.);
-	}
-	else if (actor->spr.statnum != 3)
-	{
-		double x;
-		int j = findplayer(actor, &x);
-		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].GetActor()->getOffsetZ() - pos.Z) * 32) / dist;
-	}
-	else zvel = 0;
-
-	auto spawned = CreateActor(actor->sector(),
-		pos.plusZ(2) + ang.ToVector() * 0.25, PClass::FindActor("DukeShrinkSpark"), -16, DVector2(0.4375, 0.4375), ang, vel, zvel, actor, 4);
-
-	if (spawned)
-	{
-		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->clipdist = 8;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 {
 	int p;
@@ -1023,10 +979,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 
 	case DTILE_GROWSPARK:
 		shootgrowspark(actor, p, spos, sang);
-		break;
-
-	case DTILE_SHRINKER:
-		shootshrinker(actor, p, spos, sang, atwith);
 		break;
 	}
 	return;

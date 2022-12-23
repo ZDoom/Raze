@@ -36,14 +36,6 @@ class DukeShotgunShot : DukeActor
 	}
 }
 
-class DukeShrinker : DukeActor
-{
-	default
-	{
-		pic "SHRINKER";
-	}
-}
-
 class RedneckShotgunShot : DukeShotgunShot
 {
 }
