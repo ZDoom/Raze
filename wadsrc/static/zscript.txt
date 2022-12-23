@@ -72,7 +72,6 @@ version "4.10"
 #include "zscript/games/duke/actors/flammables.zs"
 #include "zscript/games/duke/actors/scrap.zs"
 #include "zscript/games/duke/actors/cactus.zs"
-#include "zscript/games/duke/actors/tripbomb.zs"
 #include "zscript/games/duke/actors/crack.zs"
 #include "zscript/games/duke/actors/fireext.zs"
 #include "zscript/games/duke/actors/oozfilter.zs"
@@ -161,6 +160,7 @@ version "4.10"
 
 #include "zscript/games/duke/actors/dukeweapons/shrinker.zs"
 #include "zscript/games/duke/actors/dukeweapons/grower.zs"
+#include "zscript/games/duke/actors/dukeweapons/tripbomb.zs"
 
 
 #include "zscript/games/duke/world/dukebreak.zs"
