@@ -143,6 +143,7 @@ static FFlagDef DukeActorFlagDefs[] =
 	DEFINE_FLAG(SFLAG2, BREAKMIRRORS, DDukeActor, flags2),
 	DEFINE_FLAG(SFLAG2, CAMERA, DDukeActor, flags2),
 	DEFINE_FLAG(SFLAG2, DONTANIMATE, DDukeActor, flags2),
+	DEFINE_FLAG(SFLAG2, ALTHITSCANDIRECTION, DDukeActor, flags2),
 	DEFINE_FLAG(SFLAG2, GREENBLOOD, DDukeActor, flags2),
 	DEFINE_FLAG(SFLAG2, ALWAYSROTATE1, DDukeActor, flags2),
 	DEFINE_FLAG(SFLAG2, DIENOW, DDukeActor, flags2),
@@ -173,6 +174,7 @@ static FFlagDef DukeActorFlagDefs[] =
 	DEFINE_FLAG(SFLAG3, BIGHEALTH, DDukeActor, flags3),
 	DEFINE_FLAG(SFLAG3, NOGRAVITY, DDukeActor, flags3),
 	DEFINE_FLAG(SFLAG3, SIMPLEINIT, DDukeActor, flags3),
+	DEFINE_FLAG(SFLAG3, NOHITSCANHIT, DDukeActor, flags1),
 
 };
 

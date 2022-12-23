@@ -7,6 +7,7 @@ class DukeBoss1 : DukeActor
 		+KILLCOUNT;
 		+NODAMAGEPUSH;
 		+BOSS;
+		+ALTHITSCANDIRECTION;
 	}
 	
 	override void Initialize()

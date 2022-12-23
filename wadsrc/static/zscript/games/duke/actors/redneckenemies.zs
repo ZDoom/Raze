@@ -383,6 +383,7 @@ class RedneckTornado : DukeActor
 	{
 		pic "TORNADO";
 		+INTERNAL_BADGUY;
+		+NOHITSCANHIT;
 	}
 	override void Initialize()
 	{

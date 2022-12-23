@@ -3,6 +3,7 @@ class DukeBoss5 : DukeBoss1
 	default
 	{
 		pic "BOSS5";
+		-ALTHITSCANDIRECTION;
 	}
 }
 

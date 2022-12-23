@@ -3,6 +3,7 @@ class DukeBoss4 : DukeBoss1
 	default
 	{
 		pic "BOSS4";
+		-ALTHITSCANDIRECTION;
 	}
 	
 	override void PlayFTASound()
