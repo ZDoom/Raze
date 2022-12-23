@@ -1019,7 +1019,7 @@ class RedneckSawBlade : DukeProjectile
 
 	override bool weaponhitwall(walltype wal)
 	{
-		if (dlevel.wallflags(wal, 0) & Duke.TFLAG_NOCIRCLEREFLECT)
+		if (Raze.tileflags(wal.walltexture) & Duke.TFLAG_NOCIRCLEREFLECT)
 		{
 			self.Destroy();
 			return true;

@@ -154,6 +154,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, FindSoundByResID, Raze_FindSoundByResID)
 	ACTION_RETURN_INT(Raze_FindSoundByResID(i));
 }
 
+int raze_tileflags(int tex)
+{
+	return tileflags(FSetTextureID(tex));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, tileflags, raze_tileflags)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(which);
+	ACTION_RETURN_INT(raze_tileflags(which));
+}
+
+
 //=============================================================================
 //
 // internal sector struct - no longer identical with on-disk format

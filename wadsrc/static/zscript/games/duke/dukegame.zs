@@ -77,6 +77,11 @@ struct Duke native
 		TFLAG_BLOCKDOOR				= 1 << 4,
 		TFLAG_NOBLOODSPLAT			= 1 << 5,
 		TFLAG_NOCIRCLEREFLECT		= 1 << 6,
+		TFLAG_SEASICKWALL			= 1 << 7,
+		TFLAG_FORCEFIELD			= 1 << 8,
+		TFLAG_ANIMFORCEFIELD		= 1 << 9,
+		TFLAG_ANIMSCREEN			= 1 << 10,
+		TFLAG_ANIMSCREENNOISE		= 1 << 11,
 	};
 
 	enum ETexSurfaces
@@ -174,6 +179,7 @@ struct Duke native
 	static native int getPlayerIndex(DukePlayer p);
 	static native void setlastvisinc(int amount);
 	static native bool isaccessswitch(TextureID tex);
+	static native bool isshootableswitch(TextureID tex);
 	static int rnd(int val)
 	{
 		return (random(0, 255) >= (255 - (val)));

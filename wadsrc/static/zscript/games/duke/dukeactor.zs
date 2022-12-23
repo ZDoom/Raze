@@ -364,10 +364,7 @@ struct DukeLevel
 	native static void operatemasterswitches(int lotag);
 	native static void operateactivators(int lotag, DukePlayer p);
 	native static int floorsurface(sectortype s);
-	native static int floorflags(sectortype s);
 	native static int ceilingsurface(sectortype s);
-	native static int ceilingflags(sectortype s);
-	native static int wallflags(walltype s, int which);
 	native static void AddCycler(sectortype sector, int lotag, int shade, int shade2, int hitag, int state);
 	native static void addtorch(sectortype sector, int shade, int lotag);
 	native static void addlightning(sectortype sector, int shade);

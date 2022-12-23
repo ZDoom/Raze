@@ -215,6 +215,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, isaccessswitch, Duke_isaccessswitch)
 	return 0;
 }
 
+int Duke_isshootableswitch(int texint)
+{
+	return isshootableswitch(FSetTextureID(texint));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, isshootableswitch, Duke_isshootableswitch)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	ACTION_RETURN_BOOL(Duke_isshootableswitch(v));
+	return 0;
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
@@ -1251,30 +1264,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, floorsurface, duke_floorsurface)
 	ACTION_RETURN_INT(duke_floorsurface(sect));
 }
 
-int duke_floorflags(sectortype* sector)
-{
-	return tileflags(sector->floortexture);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, floorflags, duke_floorflags)
-{
-	PARAM_PROLOGUE;
-	PARAM_POINTER(sect, sectortype);
-	ACTION_RETURN_INT(duke_floorflags(sect));
-}
-
-int duke_ceilingflags(sectortype* sector)
-{
-	return tileflags(sector->ceilingtexture);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ceilingflags, duke_ceilingflags)
-{
-	PARAM_PROLOGUE;
-	PARAM_POINTER(sect, sectortype);
-	ACTION_RETURN_INT(duke_ceilingflags(sect));
-}
-
 int duke_ceilingsurface(sectortype* sector)
 {
 	return tilesurface(sector->ceilingtexture);
@@ -1285,19 +1274,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, ceilingsurface, duke_ceilingsurface)
 	PARAM_PROLOGUE;
 	PARAM_POINTER(sect, sectortype);
 	ACTION_RETURN_INT(duke_ceilingsurface(sect));
-}
-
-int duke_wallflags(walltype* wal, int which)
-{
-	return tileflags(which? wal->overtexture : wal->walltexture);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, wallflags, duke_wallflags)
-{
-	PARAM_PROLOGUE;
-	PARAM_POINTER(sect, walltype);
-	PARAM_INT(which);
-	ACTION_RETURN_INT(duke_wallflags(sect, which));
 }
 
 int duke_ismirror(walltype* wal)

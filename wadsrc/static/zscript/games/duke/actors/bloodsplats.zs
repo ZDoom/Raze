@@ -62,7 +62,7 @@ class DukeBloodSplat1 : DukeActor
 			return true;
 		if (wal.hitag != 0)
 			return true;
-		if (dlevel.wallflags(wal, 1) & Duke.TFLAG_NOBLOODSPLAT)
+		if (Raze.tileflags(wal.walltexture) & Duke.TFLAG_NOBLOODSPLAT)
 			return true;
 		if ((wal.cstat & CSTAT_WALL_MASKED) != 0)
 			return true;
