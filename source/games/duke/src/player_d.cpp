@@ -787,88 +787,6 @@ static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
 //
 //---------------------------------------------------------------------------
 
-static void shootgrowspark(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
-{
-	auto sect = actor->sector();
-	double vel = 1024., zvel;
-	int k;
-	HitInfo hit{};
-
-	if (p >= 0)
-	{
-		auto aimed = aim(actor, AUTO_AIM_ANGLE);
-		if (aimed)
-		{
-			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
-			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) + 5;
-			switch (aimed->spr.picnum)
-			{
-			case DTILE_GREENSLIME:
-			case DTILE_ROTATEGUN:
-				dal -= 8;
-				break;
-			}
-			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
-			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * 16) / dist;
-			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
-		}
-		else
-		{
-			ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-			setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 16.);
-			zvel += 0.5 - krandf(1);
-		}
-
-		pos.Z -= 2;
-	}
-	else
-	{
-		double x;
-		int j = findplayer(actor, &x);
-		pos.Z -= 4;
-		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].GetActor()->getOffsetZ() - pos.Z) * 16) / dist;
-		zvel += 0.5 - krandf(1);
-		ang += DAngle22_5 / 4 - randomAngle(22.5 / 2);
-	}
-
-	k = 0;
-
-	//RESHOOTGROW:
-
-	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-	hitscan(pos, sect, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
-
-	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
-
-	auto spark = CreateActor(sect, hit.hitpos, DTILE_GROWSPARK, -16, DVector2(0.4375, 0.4375), ang, 0., 0., actor, 1);
-	if (!spark) return;
-
-	spark->spr.pal = 2;
-	spark->spr.cstat |= CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
-	spark->spr.scale = DVector2(REPEAT_SCALE, REPEAT_SCALE);
-
-	if (hit.hitWall == nullptr && hit.actor() == nullptr && hit.hitSector != nullptr)
-	{
-		if (zvel < 0 && (hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY) == 0)
-			checkhitceiling(hit.hitSector);
-	}
-	else if (hit.actor() != nullptr) checkhitsprite(hit.actor(), spark);
-	else if (hit.hitWall != nullptr)
-	{
-		if (!isaccessswitch(hit.hitWall->walltexture))
-		{
-			checkhitwall(spark, hit.hitWall, hit.hitpos);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
 {
 	auto sect = actor->sector();
@@ -976,10 +894,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 	case DTILE_MORTER:
 		shootmortar(actor, p, spos, sang, atwith);
 		return;
-
-	case DTILE_GROWSPARK:
-		shootgrowspark(actor, p, spos, sang);
-		break;
 	}
 	return;
 }
