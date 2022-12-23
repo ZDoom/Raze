@@ -288,10 +288,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 
 	switch (atwith)
 	{
-	case DTILE_FREEZEBLAST:
-		spos.Z += 3;
-		[[fallthrough]];
-
 	case DTILE_RPG:
 		shootrpg(actor, p, spos, sang, atwith);
 		break;
