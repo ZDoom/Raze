@@ -106,7 +106,6 @@ void playerLookUp(int snum, ESyncBits actions);
 void playerLookDown(int snum, ESyncBits actions);
 void playerAimUp(int snum, ESyncBits actions);
 void playerAimDown(int snum, ESyncBits actions);
-void tracers(const DVector3& start, const DVector3& dest, int n);
 DDukeActor* aim(DDukeActor* s, int aang, bool force = true);
 DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon);
 void checkweapons(player_struct* const p);

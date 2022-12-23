@@ -129,40 +129,6 @@ void forceplayerangle(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void tracers(const DVector3& start, const DVector3& dest, int n)
-{
-	sectortype* sect = nullptr;
-
-	auto direction = dest - start;
-
-	if (direction.XY().Sum() < 192.75)
-		return;
-
-	auto pos = start;
-	auto add = direction / (n + 1);
-	for (int i = n; i > 0; i--)
-	{
-		pos += add;
-		updatesector(pos, &sect);
-		if (sect)
-		{
-			if (sect->lotag == 2)
-			{
-				DVector2 scale(0.0625 + (krand() & 3) * REPEAT_SCALE, 0.0625 + (krand() & 3) * REPEAT_SCALE);
-				CreateActor(sect, pos, PClass::FindActor(NAME_DukeWaterBubble), -32, scale, randomAngle(), 0., 0., ps[0].GetActor(), 5);
-			}
-			else
-				CreateActor(sect, pos, PClass::FindActor(NAME_DukeSmallSmoke), -32, DVector2(0.21875, 0.21875), nullAngle, 0., 0., ps[0].GetActor(), 5);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 double hits(DDukeActor* actor)
 {
 	double zoff;

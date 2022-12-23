@@ -11,45 +11,9 @@ class DukeRadiusExplosion : DukeActor
 	}
 }
 
-class DukeShotgunShot : DukeActor
-{
-	default
-	{
-		pic "SHOTGUN";
-	}
-}
-
-class RedneckShotgunShot : DukeShotgunShot
-{
-}
-
-
-class DukeChaingunShot : DukeActor
-{
-	default
-	{
-		pic "CHAINGUN";
-	}
-}
-
-class RedneckChaingunShot : DukeChaingunShot
-{
-}
-
 class DukeSectorEffector : DukeActor
 {
 	//This never gets ticked, the handler goes directly to the native implementations.
-}
-
-class DukeShotSpark : DukeActor
-{
-	default
-	{
-		pic "SHOTSPARK1";
-		+FORCERUNCON;
-		+LIGHTDAMAGE;
-		statnum STAT_MISC;
-	}
 }
 
 class RedneckMotoHit : DukeActor
