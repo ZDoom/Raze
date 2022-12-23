@@ -73,7 +73,7 @@ class DukeFirefly : DukeActor
 		+KILLCOUNT;
 	}
 	
-	override bool ShootThis(DukeActor shooter, DukePlayer p, Vector3 spos, double sang)
+	override bool ShootThis(DukeActor shooter, DukePlayer p, Vector3 spos, double sang) const
 	{
 		let k = shooter.spawn("DukeFirefly");
 		if (k)

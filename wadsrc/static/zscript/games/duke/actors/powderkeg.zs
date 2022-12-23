@@ -24,7 +24,7 @@ class RedneckPowderKeg : DukeItemBase
 	}
 	
 	
-	override bool shootthis(DukeActor actor, DukePlayer p, Vector3 spos, double sang)
+	override bool shootthis(DukeActor actor, DukePlayer p, Vector3 spos, double sang) const
 	{
 		let j = actor.spawn("RedneckPowderKeg");
 		if (j)

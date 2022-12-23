@@ -265,16 +265,14 @@ struct walltype native
 	native readonly int nextwall;
 	native readonly int sector;	// Build never had this...
 	native readonly int nextsector;
+	native readonly TextureID walltexture, overtexture;	
 
 	// Again, panning fields extended for interpolation.
 	native readonly float xpan;
 	native readonly float ypan;
 
 	native int16 cstat;
-	
-	// no access to pics!
-	//int16 picnum;
-	//int16 overpicnum;
+
 	native int16 lotag;
 	native int16 type; // type is an alias of lotag for Blood.
 	native int16 hitag;

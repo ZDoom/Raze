@@ -225,9 +225,9 @@ double hitawall(player_struct* p, walltype** hitw)
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* aim(DDukeActor* actor, int abase)
+DDukeActor* aim(DDukeActor* actor, int abase, bool force)
 {
-	DAngle aang = DAngle90 * (+AUTO_AIM_ANGLE / 512.);
+	DAngle aang = mapangle(abase);
 
 	bool gotshrinker, gotfreezer;
 	static const int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
@@ -238,7 +238,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 	if (actor->isPlayer())
 	{
 		auto* plr = &ps[actor->PlayerIndex()];
-		int autoaim = Autoaim(actor->PlayerIndex());
+		int autoaim = force? 1 : Autoaim(actor->PlayerIndex());
 		if (!autoaim)
 		{
 			// Some fudging to avoid aim randomization when autoaim is off.
@@ -363,6 +363,13 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 	}
 
 	return aimed;
+}
+
+// This is what aim should be. 
+DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon)
+{
+	if (!weapon || (weapon->flags1 & SFLAG_NOAUTOAIM)) return nullptr;
+	return aim(actor, int(weapon->FloatVar(NAME_autoaimangle) * (512 / 90.)), (weapon->flags1 & SFLAG_FORCEAUTOAIM));
 }
 
 //---------------------------------------------------------------------------

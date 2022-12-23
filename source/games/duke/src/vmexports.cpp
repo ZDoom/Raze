@@ -202,6 +202,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, setlastvisinc, setlastvisinc)
 	return 0;
 }
 
+int Duke_isaccessswitch(int texint)
+{
+	return isaccessswitch(FSetTextureID(texint));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, isaccessswitch, Duke_isaccessswitch)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	ACTION_RETURN_BOOL(Duke_isaccessswitch(v));
+	return 0;
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
@@ -608,6 +621,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spritewidth, duke_spw)
 	ACTION_RETURN_INT(duke_spw(self));
 }
 
+int duke_sph(DDukeActor* act)
+{
+	auto tex = TexMan.GetGameTexture(act->spr.spritetexture());
+	return (int)tex->GetDisplayHeight();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spriteheight, duke_sph)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(duke_sph(self));
+}
+
 void DukeActor_shoot(DDukeActor* act, PClassActor* intname)
 {
 	fi.shoot(act, -1, intname);
@@ -660,6 +685,14 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, restoreloc, DukeActor_restoreloc)
 	DukeActor_restoreloc(self);
 	return 0;
 }
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, aim, aim_)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(weapon, DDukeActor);
+	ACTION_RETURN_POINTER(aim_(self, weapon));
+}
+
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, addkill, addkill)
 {

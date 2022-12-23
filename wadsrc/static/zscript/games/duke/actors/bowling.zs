@@ -232,7 +232,7 @@ class RedneckBowlingBall : RedneckBowlingPin
 		targ.PlayActorSound("BOWLPIN");
 	}
 
-	override bool ShootThis(DukeActor actor, DukePlayer plr, Vector3 spos, double sang)
+	override bool ShootThis(DukeActor actor, DukePlayer plr, Vector3 spos, double sang) const
 	{
 		let j = actor.spawn(self.GetClassName());
 		if (j)

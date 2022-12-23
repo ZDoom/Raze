@@ -89,6 +89,7 @@ class DukeActor : CoreActor native
 	{
 		lookallarounddefault;
 		falladjustz 24;
+		autoaimangle 8.4375;
 	}
 	enum EStatnums
 	{
@@ -146,12 +147,16 @@ class DukeActor : CoreActor native
 	meta int falladjustz;
 	meta int aimoffset;
 	meta int strength;
+	meta double autoaimangle;
+	meta double sparkoffset;
 
 	property prefix: none;
 	property gutsoffset: gutsoffset;
 	property falladjustz: falladjustz;
 	property aimoffset: aimoffset;
 	property strength: strength;
+	property autoaimangle: autoaimangle;
+	property sparkoffset: sparkoffset;
 
 	
 	native void SetSpritesetImage(int index);
@@ -198,6 +203,8 @@ class DukeActor : CoreActor native
 	native void checkhitdefault(DukeActor proj);
 	native void operatesectors(sectortype sec);
 	native int SpriteWidth();
+	native int SpriteHeight();
+	native DukeActor aim(readonly<DukeActor> weapon);
 
 	virtual native void Tick();
 

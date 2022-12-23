@@ -46,6 +46,7 @@ class DukeRotateGun : DukeActor
 		+KILLCOUNT;
 		+NODAMAGEPUSH;
 		+NORADIUSPUSH;
+		sparkoffset -8;
 		aimoffset 32;
 	}
 	

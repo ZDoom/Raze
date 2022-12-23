@@ -187,6 +187,8 @@ DEFINE_FIELD_X(sectortype, sectortype, shadedsector)
 
 DEFINE_FIELD_NAMED_X(walltype, walltype, xpan_, xpan)
 DEFINE_FIELD_NAMED_X(walltype, walltype, ypan_, ypan)
+DEFINE_FIELD_X(walltype, walltype, walltexture)
+DEFINE_FIELD_X(walltype, walltype, overtexture)
 DEFINE_FIELD_X(walltype, walltype, pos)
 DEFINE_FIELD_X(walltype, walltype, point2)
 DEFINE_FIELD_X(walltype, walltype, nextwall)

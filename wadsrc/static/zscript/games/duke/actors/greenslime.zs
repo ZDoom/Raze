@@ -8,6 +8,7 @@ class DukeGreenSlime : DukeActor
 		+DONTDIVEALIVE;
 		+FORCESECTORSHADE;
 		+SHRINKAUTOAIM;
+		sparkoffset -8;
 	}
 
 	override void Initialize()
