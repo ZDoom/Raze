@@ -338,7 +338,6 @@ class DukeActor : CoreActor native
 		}
 		return true;
 	}
-	
 }
 
 extend struct _
