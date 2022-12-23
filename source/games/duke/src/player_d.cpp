@@ -87,107 +87,6 @@ void incur_damage_d(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
-{
-	sectortype* sect = actor->sector();
-	double vel, zvel;
-	int scount;
-
-	if (actor->spr.extra >= 0) actor->spr.shade = -96;
-
-	scount = 1;
-	if (atwith == DTILE_SPIT) vel = 292 / 16.;
-	else
-	{
-		if (atwith == DTILE_COOLEXPLOSION1)
-		{
-			if (actor->spr.picnum == DTILE_BOSS2) vel = 644 / 16.;
-			else vel = 348 / 16.;
-			pos.Z -= 2;
-		}
-		else
-		{
-			vel = 840 / 16.;
-			pos.Z -= 2;
-		}
-	}
-
-	if (p >= 0)
-	{
-		auto aimed = aim(actor, AUTO_AIM_ANGLE);
-
-		if (aimed)
-		{
-			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
-			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) - 12;
-			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
-
-			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
-			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
-		}
-		else
-			setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 49.);
-	}
-	else
-	{
-		double x;
-		int j = findplayer(actor, &x);
-		ang += DAngle22_5 / 8 - randomAngle(22.5 / 4);
-#if 1
-		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].GetActor()->getPrevOffsetZ() - pos.Z + 3) * vel) / dist;
-#else
-		// this is for pitch corrected velocity
-		auto dist = (ps[j].GetActor()->spr.pos - actor->spr.pos).Resized(vel);
-		vel = dist.XY().Length();
-		zvel = dist.Z;
-#endif
-	}
-
-	double oldzvel = zvel;
-	double scale = p >= 0? 0.109375 : 0.28125;
-	if (atwith == DTILE_SPIT)
-	{
-		pos.Z -= 10;
-	}
-	// Whatever else was here always got overridden by the final 'p>=0' check.
-
-
-	while (scount > 0)
-	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, DVector2(scale, scale), ang, vel, zvel, actor, 4);
-		if (!spawned) return;
-		spawned->spr.extra += (krand() & 7);
-
-		if (atwith == DTILE_COOLEXPLOSION1)
-		{
-			spawned->spr.shade = 0;
-			if (actor->spr.picnum == DTILE_BOSS2)
-			{
-				auto ovel = spawned->vel.X;
-				spawned->vel.X = 64;
-				ssp(spawned, CLIPMASK0);
-				spawned->vel.X = ovel;
-				spawned->spr.Angles.Yaw += DAngle22_5 - randomAngle(45);
-			}
-		}
-
-		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->clipdist = 1;
-
-		ang = actor->spr.Angles.Yaw + DAngle22_5 / 4 - randomAngle(22.5 / 2);
-		zvel = oldzvel + 2 - krandf(4);
-
-		scount--;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sect = actor->sector();
@@ -389,12 +288,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 
 	switch (atwith)
 	{
-	case DTILE_FIRELASER:
-	case DTILE_SPIT:
-	case DTILE_COOLEXPLOSION1:
-		shootstuff(actor, p, spos, sang, atwith);
-		return;
-
 	case DTILE_FREEZEBLAST:
 		spos.Z += 3;
 		[[fallthrough]];

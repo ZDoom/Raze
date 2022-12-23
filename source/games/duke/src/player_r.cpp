@@ -83,116 +83,6 @@ void incur_damage_r(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void shootstuff(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
-{
-	auto sect = actor->sector();
-	double vel = 0, zvel;
-	int scount;
-
-	if (isRRRA())
-	{
-		if (atwith != RTILE_SHITBALL && actor->spr.extra >= 0) actor->spr.shade = -96;
-
-		scount = 1;
-		if (atwith == RTILE_SHITBALL)
-		{
-			if (actor->spr.picnum == RTILE_MAMA)
-				vel = 37.5;
-			else
-				vel = 25;
-		}
-	}
-	else
-	{
-		if (actor->spr.extra >= 0) actor->spr.shade = -96;
-
-		scount = 1;
-		if (atwith == RTILE_SHITBALL) vel = 25;
-	}
-	if (atwith != RTILE_SHITBALL)
-	{
-		vel = 52.5;
-		pos.Z -= 4;
-		if (actor->spr.picnum == RTILE_HULK)
-		{
-			pos += (actor->spr.Angles.Yaw + DAngle45).ToVector() * 16;
-			pos.Z += 12;
-		}
-		if (actor->spr.picnum == RTILE_VIXEN)
-		{
-			pos.Z -= 12;
-		}
-	}
-
-	if (p >= 0)
-	{
-		auto aimed = aim(actor, AUTO_AIM_ANGLE);
-
-		pos += (actor->spr.Angles.Yaw + DAngle22_5 * 1.25).ToVector() * 16;
-
-		if (aimed)
-		{
-			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
-			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) - 12;
-			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
-
-			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
-			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
-		}
-		else
-		{
-			setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 49.);
-		}
-	}
-	else
-	{
-		double x;
-		int j = findplayer(actor, &x);
-		if (actor->spr.picnum == RTILE_HULK)
-			ang -= randomAngle(22.5 / 4);
-		else if (actor->spr.picnum == RTILE_VIXEN)
-			ang -= randomAngle(22.5 / 8);
-		else if (actor->spr.picnum != RTILE_UFOBEAM)
-			ang += DAngle22_5 / 8. - randomAngle(22.5 / 4);
-
-		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].GetActor()->getPrevOffsetZ() - pos.Z + 3) * vel) / dist;
-	}
-
-	double oldzvel = zvel;
-	double scale = p >= 0? 0.109375 : atwith == RTILE_VIXENSHOT? 0.125 : 0.28125;
-
-	if (atwith == RTILE_SHITBALL)
-	{
-		if (!isRRRA() || actor->spr.picnum != RTILE_MAMA) pos.Z -= 10; else pos.Z -= 20;
-	}
-
-	while (scount > 0)
-	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, DVector2(scale, scale), ang, vel, zvel, actor, 4);
-		if (!spawned) return;
-		spawned->spr.extra += (krand() & 7);
-		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->clipdist = 1;
-
-		ang = actor->spr.Angles.Yaw + DAngle22_5 / 4 + randomAngle(22.5 / 2);
-		zvel = oldzvel + 2 - krandf(4);
-
-		if (atwith == RTILE_FIRELASER)
-		{
-			spawned->spr.scale = DVector2(0.125, 0.125);
-		}
-
-		scount--;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
 {
 	auto sect = actor->sector();
@@ -352,12 +242,6 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 
 	switch (atwith)
 	{
-	case RTILE_FIRELASER:
-	case RTILE_SHITBALL:
-	case RTILE_VIXENSHOT:
-		shootstuff(actor, p, spos, sang, atwith);
-		return;
-
 	case RTILE_RPG2:
 	case RTILE_BOATGRENADE:
 		if (isRRRA()) goto rrra_rpg2;

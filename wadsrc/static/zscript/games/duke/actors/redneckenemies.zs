@@ -336,6 +336,7 @@ class RedneckHulk : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+NORADIUSPUSH;
+		ProjectileSpread -5.625;
 	}
 
 	override void Initialize()
@@ -343,6 +344,12 @@ class RedneckHulk : DukeActor
 		self.scale = (0.5, 0.5);
 		self.setClipDistFromTile();
 	}
+
+	override Vector3 SpecialProjectileOffset()
+	{
+		return ((self.Angle + 45).ToVector() * 16, 12);
+	}
+
 }
 
 class RedneckHulkStayput : RedneckHulk

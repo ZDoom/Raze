@@ -227,12 +227,14 @@ class DukeFirelaser : DukeProjectile // Liztrooper shot
 		return false;
 	}
 	
-	override bool animate(tspritetype tspr)
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
 	{
-		if (Raze.isRR()) tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
+		pos.Z -= 2;
+		shootprojectile1(actor, p, pos, ang, 52.5, 0);
 		return true;
 	}
-
+	
+	
 }
 
 class DukeFirelaserTrail : DukeActor
@@ -255,6 +257,29 @@ class DukeFirelaserTrail : DukeActor
 	{
 		self.extra = 999;
 		if (Raze.isRR()) tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
+		return true;
+	}
+		
+	
+}
+
+class RedneckFirelaser : DukeFirelaser
+{
+	default
+	{
+		spriteset "FIRELASER", "FIRELASER2", "FIRELASER3", "FIRELASER4", "FIRELASER5", "FIRELASER6";
+	}
+	
+	override bool animate(tspritetype tspr)
+	{
+		tspr.setSpritePic(self, ((PlayClock >> 2) % 6));
+		return true;
+	}
+	
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
+	{
+		pos.Z -= 4;
+		shootprojectile1(actor, p, pos, ang, 52.5, 0, 0.125);
 		return true;
 	}
 	
@@ -476,6 +501,13 @@ class DukeSpit : DukeProjectile
 		}
 		return false;
 	}
+	
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
+	{
+		pos.Z -= 10;
+		shootprojectile1(actor, p, pos, ang, 292/16., 0);
+		return true;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -494,18 +526,23 @@ class DukeCoolExplosion1 : DukeProjectile // octabrain shot.
 			"COOLEXPLOSION16", "COOLEXPLOSION17", "COOLEXPLOSION18", "COOLEXPLOSION19", "COOLEXPLOSION20";
 		+FULLBRIGHT;
 		+MIRRORREFLECT;
+		+SPECIALINIT;
 	}
 	
 	override void Initialize()
 	{
-		self.angle = self.ownerActor.angle;
-		self.shade = -64;
-		self.cstat = CSTAT_SPRITE_YCENTER | self.randomXFlip();
+		if (!bSIMPLEINIT)
+		{
+			// looks like this case is never used anywhere.
+			self.cstat = CSTAT_SPRITE_YCENTER | self.randomXFlip();
+			self.angle = self.ownerActor.angle;
+			self.shade = -64;
 
-		double c, f;
-		[c, f] = self.sector.getSlopes(self.pos.XY);
-		if (self.pos.Z > f - 12)
-			self.pos.Z = f - 12;
+			double c, f;
+			[c, f] = self.sector.getSlopes(self.pos.XY);
+			if (self.pos.Z > f - 12)
+				self.pos.Z = f - 12;
+		}
 	}
 	
 	override bool premoveeffect()
@@ -554,6 +591,27 @@ class DukeCoolExplosion1 : DukeProjectile // octabrain shot.
 	override bool animate(tspritetype tspr)
 	{
 		tspr.setSpritePic(self, clamp((self.shade >> 1), 0, 19));
+		return true;
+	}
+
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
+	{
+		pos.Z -= 10;
+		let spawned = shootprojectile1(actor, p, pos, ang, 292/16., 0);
+		if (spawned) 
+		{
+			spawned.shade = 0;
+			// special hack case.
+			if (actor.bSPECIALINIT)
+			{
+				let ovel = spawned.vel.X;
+				spawned.vel.X = 64;
+				spawned.DoMove(CLIPMASK0);
+				spawned.vel.X = ovel;
+				spawned.Angle += frandom(-22.5, 22.5);
+			}
+		}
+
 		return true;
 	}
 
@@ -728,21 +786,6 @@ class DukeFireball : DukeProjectile // WorldTour only
 	{
 		if (self.detail == 0) return 'DukeFlamethrowerFlame';
 		return 'DukeRadiusExplosion';
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// These 3 just use the base projectile code...
-//
-//---------------------------------------------------------------------------
-
-class RedneckVixenShot : RedneckUWhip // COOLEXPLOSION1
-{
-	default
-	{
-		pic "VIXENSHOT";
-		+INFLAME;
 	}
 }
 
@@ -983,6 +1026,20 @@ class RedneckShitBall : DukeSpit
 		}
 		return true;
 	}
+	
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
+	{
+		if (actor.bSPAWNRABBITGUTS)
+		{
+			shootprojectile1(actor, p, pos, ang, 37.5, -20);
+		}
+		else
+		{
+			shootprojectile1(actor, p, pos, ang, 25, -10);
+		}
+		return true;
+	}
+	
 }
 
 //---------------------------------------------------------------------------

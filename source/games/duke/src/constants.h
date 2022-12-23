@@ -408,6 +408,9 @@ enum sflags3_t
 	SFLAG3_NOGRAVITY = 0x00000040,		// disables makeitfall.
 	SFLAG3_SIMPLEINIT = 0x00000080,		// Internal: skip default init stuff in DukeActor::Initialize.
 	SFLAG3_NOHITSCANHIT			= 0x00000100, // just pretend the hit never happened. RR's tornado uses it.
+	SFLAG3_SPECIALINIT = 0x00000200,		// special aiming case for Duke's BOSS2
+	SFLAG3_DONTLIGHTSHOOTER = 0x00000400,
+
 };
 
 using EDukeFlags3 = TFlags<sflags3_t, uint32_t>;

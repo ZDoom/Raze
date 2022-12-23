@@ -78,7 +78,7 @@ spawnclasses
 	1526 = DukeBloodSplat2, noskill
 	1527 = DukeBloodSplat3, noskill
 	1528 = DukeBloodSplat4, noskill
-	3420 = DukeFireLaser, noskill
+	3420 = RedneckFireLaser, noskill
 	3471 = RedneckOWhip, noskill
 	3475 = RedneckUWhip, noskill
 	2095 = RedneckVixenShot, noskill

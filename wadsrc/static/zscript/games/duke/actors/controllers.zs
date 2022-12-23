@@ -205,6 +205,7 @@ class RedneckUfoBeam : DukeActor
 	{
 		pic "UFOBEAM";
 		+BADGUY;
+		ProjectileSpread 0;
 	}
 	
 	override bool animate(tspritetype t)

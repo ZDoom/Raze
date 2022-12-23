@@ -6,16 +6,7 @@ class RedneckVixen : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+LOOKALLAROUND;
-	}
-	
-class RedneckVixen : DukeActor
-{
-	default
-	{
-		pic "VIXEN";
-		+INTERNAL_BADGUY;
-		+KILLCOUNT;
-		+LOOKALLAROUND;
+		ProjectileSpread -2.8125;
 	}
 
 	override void Initialize()
@@ -31,6 +22,12 @@ class RedneckVixen : DukeActor
 		self.setClipDistFromTile();
 	}
 
+	
+	override Vector3 SpecialProjectileOffset()
+	{
+		return (0, 0, -12);
+	}
+	
 }
 
 
@@ -68,10 +65,10 @@ class RedneckUWhip : DukeProjectile
 		else
 		{
 			let j = actor.findplayer();
-			if (actor is 'RedneckVixen')
-				ang -= frandom(0, 22.5 / 8);
+			if (actor.projectilespread < 0)
+				ang += frandom(self.projectilespread, 0);
 			else
-				ang += frandom(-22.5 / 8, 22.5 / 8);
+				ang += frandom(-self.projectilespread / 2, self.projectilespread / 2);
 
 			double dist = (j.actor.pos.XY - actor.pos.XY).Length();
 			zvel = ((j.actor.opos.Z + j.actor.oviewzoffset - pos.Z + 3) * vel) / dist;
@@ -112,3 +109,28 @@ class RedneckOWhip : RedneckUWhip
 		return true;
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class RedneckVixenShot : DukeActor
+{
+	default
+	{
+		pic "VIXENSHOT";
+		+INFLAME;
+		+FULLBRIGHT;
+	}
+	
+	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang) const
+	{
+		pos.Z -= 4;
+		shootprojectile1(actor, p, pos, ang, 52.5, 0, 0.125);
+		return true;
+	}
+	
+}
+
