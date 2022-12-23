@@ -112,14 +112,10 @@ constexpr double PLAYER_FALL_HEIGHTF = 28;
 // dead head height - used in DeathFall
 #define PLAYER_DEATH_HEIGHT (Z(16))
 constexpr double PLAYER_DEATH_HEIGHTF = 16;
-constexpr double PLAYER_DEAD_HEAD_FLOORZ_OFFSET = PLAYER_DEATH_HEIGHTF * 0.5;
+constexpr double PLAYER_DEAD_HEAD_FLOORZ_OFFSET = 7;
 
 constexpr double PLAYER_NINJA_XREPEAT = 0.734375;
 constexpr double PLAYER_NINJA_YREPEAT = 0.515625;
-
-// Fall rates
-constexpr double PLAYER_NORMAL_FALL_VALUEF = (96. / 256.);
-constexpr double PLAYER_DEATH_FALL_VALUEF = PLAYER_NORMAL_FALL_VALUEF * 0.5;
 
 BEGIN_SW_NS
 
