@@ -315,80 +315,6 @@ static void shootrpg(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atw
 //
 //---------------------------------------------------------------------------
 
-static void shootwhip(DDukeActor* actor, int p, DVector3 pos, DAngle ang, int atwith)
-{
-	auto sect = actor->sector();
-	double vel = 0, zvel;
-	int scount;
-
-	if (actor->spr.extra >= 0) actor->spr.shade = -96;
-
-	scount = 1;
-	if (atwith == RTILE_OWHIP)
-	{
-		vel = 300/16.;
-		pos.Z -= 15;
-		scount = 1;
-	}
-	else if (atwith == RTILE_UWHIP)
-	{
-		vel = 300/16;
-		pos.Z += 4;
-		scount = 1;
-	}
-
-	if (p >= 0)
-	{
-		auto aimed = aim(actor, AUTO_AIM_ANGLE);
-
-		if (aimed)
-		{
-			auto tex = TexMan.GetGameTexture(aimed->spr.spritetexture());
-			double dal = ((aimed->spr.scale.X * tex->GetDisplayHeight()) * 0.5) - 12;
-			double dist = (ps[p].GetActor()->spr.pos.XY() - aimed->spr.pos.XY()).Length();
-			zvel = ((aimed->spr.pos.Z - pos.Z - dal) * vel) / dist;
-			ang = (aimed->spr.pos.XY() - pos.XY()).Angle();
-		}
-		else
-			setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 49.);
-	}
-	else
-	{
-		double x;
-		int j = findplayer(actor, &x);
-		if (actor->spr.picnum == RTILE_VIXEN)
-			ang -= randomAngle(22.5 / 8);
-		else
-			ang += DAngle22_5/8 - randomAngle(22.5 / 4);
-
-		double dist = (ps[j].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Length();
-		zvel = ((ps[j].GetActor()->getPrevOffsetZ() - pos.Z + 3) * vel) / dist;
-	}
-
-	double oldzvel = zvel;
-	double scale = p >= 0? 0.109375 : 0.125;
-
-	while (scount > 0)
-	{
-		auto spawned = CreateActor(sect, pos, atwith, -127, DVector2(scale,scale), ang, vel, zvel, actor, 4);
-		if (!spawned) return;
-		spawned->spr.extra += (krand() & 7);
-		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-		spawned->clipdist = 1;
-
-		ang = actor->spr.Angles.Yaw + DAngle22_5/4 - randomAngle(DAngle22_5/2);
-		zvel = oldzvel + 2 - krandf(4);
-
-		scount--;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 {
 	int p;
@@ -426,11 +352,6 @@ void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
 
 	switch (atwith)
 	{
-	case RTILE_OWHIP:
-	case RTILE_UWHIP:
-		shootwhip(actor, p, spos, sang, atwith);
-		return;
-
 	case RTILE_FIRELASER:
 	case RTILE_SHITBALL:
 	case RTILE_VIXENSHOT:

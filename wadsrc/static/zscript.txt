@@ -164,6 +164,7 @@ version "4.10"
 #include "zscript/games/duke/actors/dukeweapons/grower.zs"
 #include "zscript/games/duke/actors/dukeweapons/tripbomb.zs"
 
+#include "zscript/games/duke/actors/redneckenemies/vixen.zs"
 
 #include "zscript/games/duke/world/dukebreak.zs"
 #include "zscript/games/duke/world/redneckbreak.zs"

@@ -442,31 +442,6 @@ class RedneckMosquito : DukeActor
 	}
 }
 
-class RedneckVixen : DukeActor
-{
-	default
-	{
-		pic "VIXEN";
-		+INTERNAL_BADGUY;
-		+KILLCOUNT;
-		+LOOKALLAROUND;
-	}
-
-	override void Initialize()
-	{
-		if (self.pal == 34)
-		{
-			self.scale = (0.34375, 0.328125);
-		}
-		else
-		{
-			self.scale = (0.34375, 0.3125);
-		}
-		self.setClipDistFromTile();
-	}
-
-}
-
 // only new thing in Route 66.
 class RedneckGator : DukeActor
 {

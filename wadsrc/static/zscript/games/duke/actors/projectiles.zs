@@ -737,24 +737,6 @@ class DukeFireball : DukeProjectile // WorldTour only
 //
 //---------------------------------------------------------------------------
 
-class RedneckUWhip : DukeProjectile
-{
-	default
-	{
-		pic "UWHIP";
-		+FULLBRIGHT;
-		+INFLAME;
-	}
-}
-
-class RedneckOWhip : RedneckUWhip
-{
-	default
-	{
-		pic "OWHIP";
-	}
-}
-
 class RedneckVixenShot : RedneckUWhip // COOLEXPLOSION1
 {
 	default
