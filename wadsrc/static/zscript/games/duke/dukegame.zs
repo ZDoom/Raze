@@ -462,6 +462,12 @@ struct DukeGameInfo native
 	readonly native double playerheight;
 	readonly native double gutsscale;
 	readonly native int displayflags;
+	readonly native int tripbombcontrol;
+	readonly native int stickybomb_lifetime;
+	readonly native int stickybomb_lifetime_var;
+	readonly native int grenade_lifetime;
+	readonly native int grenade_lifetime_var;
+
 }
 
 

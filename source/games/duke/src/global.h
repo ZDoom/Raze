@@ -44,6 +44,13 @@ struct DukeGameInfo
 	int16_t max_ammo_amount[MAX_WEAPONS];
 	int16_t weaponsandammosprites[15];
 	int displayflags;
+
+	// global gamevars from WW2GI. Put here so we can modify these values without having to depend on CON.
+	int tripbombcontrol;
+	int stickybomb_lifetime;
+	int stickybomb_lifetime_var;
+	int grenade_lifetime;
+	int grenade_lifetime_var;
 };
 
 extern DukeGameInfo gs;

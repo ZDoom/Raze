@@ -3272,6 +3272,11 @@ void loadcons()
 		}
 	}
 
+	gs.tripbombcontrol = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1).value();
+	gs.stickybomb_lifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, 0).value();
+	gs.stickybomb_lifetime_var = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, 0).value();
+
+
 	if (isWorldTour())
 	{
 		// fix broken secret exit in WT's super secret map. 

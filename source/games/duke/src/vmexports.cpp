@@ -1426,6 +1426,12 @@ DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, impact_damage);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerheight);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, gutsscale);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, displayflags);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, tripbombcontrol);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, stickybomb_lifetime);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, stickybomb_lifetime_var);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, grenade_lifetime);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, grenade_lifetime_var);
+
 DEFINE_GLOBAL_UNSIZED(gs)
 
 DEFINE_FIELD_X(DukeUserDefs, user_defs, god);
