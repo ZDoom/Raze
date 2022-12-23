@@ -1098,7 +1098,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			if (act->counter)
 			{
 				if (act->counter == 1)
-					fi.shoot(act, sc->extra, nullptr);
+					shoot(act, sc->extra, nullptr);
 				else if (act->counter == 26 * 5)
 					act->counter = 0;
 				act->counter++;

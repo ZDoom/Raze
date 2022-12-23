@@ -652,9 +652,13 @@ PClassActor* CallGetRadiusDamageType(DDukeActor* actor, int targhealth)
 // 
 //==========================================================================
 
-DEFINE_PROPERTY(lookallarounddefault, 0, DukeActor)
+DEFINE_PROPERTY(setgamedefaults, 0, DukeActor)
 {
-	if (!isRR()) defaults->flags1 |= SFLAG_LOOKALLAROUND; // feature comes from RR, but we want the option in Duke as well, so this fake property sets the default
+	if (!isRR())
+	{
+		defaults->flags1 |= SFLAG_LOOKALLAROUND; // feature comes from RR, but we want the option in Duke as well, so this fake property sets the default
+		defaults->FloatVar(NAME_shootzoffset) = -7;
+	}
 	else
 	{
 		defaults->flags1 |= SFLAG_MOVEFTA_WAKEUPCHECK; // Animals were not supposed to have this, but due to a coding bug the logic was unconditional for everything in the game.

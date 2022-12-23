@@ -410,6 +410,7 @@ enum sflags3_t
 	SFLAG3_NOHITSCANHIT			= 0x00000100, // just pretend the hit never happened. RR's tornado uses it.
 	SFLAG3_SPECIALINIT = 0x00000200,		// special aiming case for Duke's BOSS2
 	SFLAG3_DONTLIGHTSHOOTER = 0x00000400,
+	SFLAG3_SHOOTCENTERED = 0x00000800,	// enemies default to right hand shooting. This disables it.
 
 };
 

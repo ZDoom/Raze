@@ -87,7 +87,7 @@ class DukeActor : CoreActor native
 {
 	default
 	{
-		lookallarounddefault;
+		setgamedefaults;
 		falladjustz 24;
 		autoaimangle 8.4375;
 		projectilespread 5.625;
@@ -151,6 +151,7 @@ class DukeActor : CoreActor native
 	meta double autoaimangle;
 	meta double sparkoffset;
 	meta double projectilespread;
+	meta double shootzoffset;
 
 	property prefix: none;
 	property gutsoffset: gutsoffset;
@@ -160,6 +161,7 @@ class DukeActor : CoreActor native
 	property autoaimangle: autoaimangle;
 	property sparkoffset: sparkoffset;
 	property projectilespread: projectilespread;
+	property shootzoffset: shootzoffset;
 	
 	native void SetSpritesetImage(int index);
 	native int GetSpritesetSize();

@@ -79,47 +79,6 @@ void incur_damage_r(player_struct* p)
 
 //---------------------------------------------------------------------------
 //
-//
-//
-//---------------------------------------------------------------------------
-
-void shoot_r(DDukeActor* actor, int atwith, PClass* cls)
-{
-	int p;
-	DVector3 spos;
-	DAngle sang;
-
-	auto const sect = actor->sector();
-
-	sang = actor->spr.Angles.Yaw;
-	if (actor->isPlayer())
-	{
-		p = actor->PlayerIndex();
-		spos = actor->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
-
-		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
-	}
-	else
-	{
-		p = -1;
-		auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
-		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tex->GetDisplayHeight() * 0.5) - 3);
-
-		if (badguy(actor))
-		{
-			spos.X -= (sang + DAngle22_5 * 0.75).Sin() * 8;
-			spos.Y += (sang + DAngle22_5 * 0.75).Cos() * 8;
-		}
-	}
-	
-	if (cls == nullptr)
-		cls = GetSpawnType(atwith);
-
-	CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, p, spos, sang);
-}
-
-//---------------------------------------------------------------------------
-//
 // this is one lousy hack job...
 //
 //---------------------------------------------------------------------------
@@ -1844,7 +1803,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case PISTOL_WEAPON:
 		if (p->kickback_pic == 1)
 		{
-			fi.shoot(pact, RTILE_SHOTSPARK1, nullptr);
+			shoot(pact, RTILE_SHOTSPARK1, nullptr);
 			S_PlayActorSound(PISTOL_FIRE, pact);
 			p->noise_radius = 512;
 			madenoise(snum);
@@ -1910,7 +1869,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic == 4)
 		{
 			for (int ii = 0; ii < 10; ii++)
-				fi.shoot(pact, RTILE_SHOTGUN, nullptr);
+				shoot(pact, RTILE_SHOTGUN, nullptr);
 
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -1928,7 +1887,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			if (p->shotgun_state[1])
 			{
 				for (int ii = 0; ii < 10; ii++)
-					fi.shoot(pact, RTILE_SHOTGUN, nullptr);
+					shoot(pact, RTILE_SHOTGUN, nullptr);
 
 				p->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -2019,7 +1978,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				}
 
 				S_PlayActorSound(CHAINGUN_FIRE, pact);
-				fi.shoot(pact, RTILE_CHAINGUN, nullptr);
+				shoot(pact, RTILE_CHAINGUN, nullptr);
 				p->noise_radius = 512;
 				madenoise(snum);
 				lastvisinc = PlayClock + 32;
@@ -2051,7 +2010,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic > 3)
 		{
 			p->okickback_pic = p->kickback_pic = 0;
-			fi.shoot(pact, RTILE_GROWSPARK, nullptr);
+			shoot(pact, RTILE_GROWSPARK, nullptr);
 			p->noise_radius = 64;
 			madenoise(snum);
 			checkavailweapon(p);
@@ -2064,7 +2023,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		if (p->kickback_pic == 1)
 		{
 			p->ammo_amount[THROWSAW_WEAPON]--;
-			fi.shoot(pact, RTILE_SAWBLADE, nullptr);
+			shoot(pact, RTILE_SAWBLADE, nullptr);
 			checkavailweapon(p);
 		}
 		p->kickback_pic++;
@@ -2079,7 +2038,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			lastvisinc = PlayClock + 32;
 			S_PlayActorSound(CHAINGUN_FIRE, pact);
-			fi.shoot(pact, RTILE_SHOTSPARK1, nullptr);
+			shoot(pact, RTILE_SHOTSPARK1, nullptr);
 			p->noise_radius = 1024;
 			madenoise(snum);
 			p->ammo_amount[TIT_WEAPON]--;
@@ -2106,7 +2065,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->visibility = 0;
 			lastvisinc = PlayClock + 32;
 			S_PlayActorSound(CHAINGUN_FIRE, pact);
-			fi.shoot(pact, RTILE_CHAINGUN, nullptr);
+			shoot(pact, RTILE_CHAINGUN, nullptr);
 			p->noise_radius = 1024;
 			madenoise(snum);
 			p->ammo_amount[MOTORCYCLE_WEAPON]--;
@@ -2133,7 +2092,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			p->MotoSpeed -= 20;
 			p->ammo_amount[BOAT_WEAPON]--;
-			fi.shoot(pact, RTILE_BOATGRENADE, nullptr);
+			shoot(pact, RTILE_BOATGRENADE, nullptr);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
@@ -2150,7 +2109,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	case ALIENBLASTER_WEAPON:
 		p->kickback_pic++;
 		if (p->kickback_pic >= 7 && p->kickback_pic <= 11)
-			fi.shoot(pact, RTILE_FIRELASER, nullptr);
+			shoot(pact, RTILE_FIRELASER, nullptr);
 
 		if (p->kickback_pic == 5)
 		{
@@ -2208,7 +2167,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 		{
 			p->ammo_amount[BOWLING_WEAPON]--;
 			S_PlayActorSound(354, pact);
-			fi.shoot(pact, RTILE_BOWLINGBALL, nullptr);
+			shoot(pact, RTILE_BOWLINGBALL, nullptr);
 			p->noise_radius = 64;
 			madenoise(snum);
 		}
@@ -2231,7 +2190,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			S_PlayActorSound(426, pact);
 		if (p->kickback_pic == 12)
 		{
-			fi.shoot(pact, RTILE_KNEE, nullptr);
+			shoot(pact, RTILE_KNEE, nullptr);
 			p->noise_radius = 64;
 			madenoise(snum);
 		}
@@ -2249,7 +2208,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			S_PlayActorSound(252, pact);
 		if (p->kickback_pic == 8)
 		{
-			fi.shoot(pact, RTILE_SLINGBLADE, nullptr);
+			shoot(pact, RTILE_SLINGBLADE, nullptr);
 			p->noise_radius = 64;
 			madenoise(snum);
 		}
@@ -2269,7 +2228,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				p->ammo_amount[DYNAMITE_WEAPON]--;
 			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
-			fi.shoot(pact, RTILE_RPG, nullptr);
+			shoot(pact, RTILE_RPG, nullptr);
 			p->noise_radius = 2048;
 			madenoise(snum);
 			checkavailweapon(p);
@@ -2287,7 +2246,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 			p->ammo_amount[CHICKEN_WEAPON]--;
 			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
-			fi.shoot(pact, RTILE_RPG2, nullptr);
+			shoot(pact, RTILE_RPG2, nullptr);
 			p->noise_radius = 2048;
 			madenoise(snum);
 			checkavailweapon(p);

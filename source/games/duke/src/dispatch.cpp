@@ -62,8 +62,6 @@ void move_d(DDukeActor* i, int g_p, int g_x);
 void move_r(DDukeActor* i, int g_p, int g_x);
 void incur_damage_d(player_struct* p);
 void incur_damage_r(player_struct* p);
-void shoot_d(DDukeActor* i, int atwith, PClass* cls);
-void shoot_r(DDukeActor* i, int atwith, PClass* cls);
 void selectweapon_d(int snum, int j);
 void selectweapon_r(int snum, int j);
 int doincrements_d(player_struct* p);
@@ -109,7 +107,6 @@ void SetDispatcher()
 		move_d,
 
 		incur_damage_d,
-		shoot_d,
 		selectweapon_d,
 		doincrements_d,
 		checkweapons_d,
@@ -141,7 +138,6 @@ void SetDispatcher()
 		move_r,
 
 		incur_damage_r,
-		shoot_r,
 		selectweapon_r,
 		doincrements_r,
 		checkweapons_r,

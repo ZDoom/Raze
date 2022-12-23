@@ -46,8 +46,10 @@ class DukeRotateGun : DukeActor
 		+KILLCOUNT;
 		+NODAMAGEPUSH;
 		+NORADIUSPUSH;
+		+SHOOTCENTERED;
 		sparkoffset -8;
 		aimoffset 32;
+		shootzoffset 0;
 	}
 	
 	override void Initialize()

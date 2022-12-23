@@ -1055,7 +1055,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				{
 					auto saved_angle = actor->spr.Angles.Yaw;
 					actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-					fi.shoot(actor, RPG, nullptr);
+					shoot(actor, RPG, nullptr);
 					actor->spr.Angles.Yaw = saved_angle;
 				}
 			}
@@ -1541,7 +1541,7 @@ void handle_se05(DDukeActor* actor)
 	{
 		auto ang = actor->spr.Angles.Yaw;
 		actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-		fi.shoot(actor, -1, PClass::FindActor("DukeFireLaser"));
+		shoot(actor, -1, PClass::FindActor(isRR()? NAME_RedneckFirelaser : NAME_DukeFirelaser));
 		actor->spr.Angles.Yaw = ang;
 	}
 

@@ -1692,7 +1692,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_shoot:
 		insptr++;
-		fi.shoot(g_ac, (short)*insptr, nullptr);
+		shoot(g_ac, (short)*insptr, nullptr);
 		insptr++;
 		break;
 	case concmd_ifsoundid:

@@ -7,6 +7,7 @@ class DukeCommander : DukeActor
 		+KILLCOUNT;
 		+NOWATERDIP;
 		+FLOATING;
+		+SHOOTCENTERED;
 		gutsoffset -24;
 		falladjustz 0;
 	}

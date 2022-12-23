@@ -92,7 +92,6 @@ struct Dispatcher
 
 	// player
 	void (*incur_damage)(player_struct* p);
-	void (*shoot)(DDukeActor*, int, PClass* cls);
 	void (*selectweapon)(int snum, int j);
 	int (*doincrements)(player_struct* p);
 	void (*checkweapons)(player_struct* p);

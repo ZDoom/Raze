@@ -910,6 +910,48 @@ void playerAimDown(int snum, ESyncBits actions)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+void shoot(DDukeActor* actor, int atwith, PClass* cls)
+{
+	int p;
+	DVector3 spos;
+	DAngle sang;
+
+	auto const sect = actor->sector();
+
+	sang = actor->spr.Angles.Yaw;
+	if (actor->isPlayer())
+	{
+		p = actor->PlayerIndex();
+		spos = actor->getPosWithOffsetZ().plusZ(ps[p].pyoff + 4);
+
+		ps[p].crack_time = CRACK_TIME;
+	}
+	else
+	{
+		p = -1;
+		auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+		spos = actor->spr.pos.plusZ(-(actor->spr.scale.Y * tex->GetDisplayHeight() * 0.5) + 4);
+
+		spos.Z += actor->FloatVar(NAME_shootzoffset);
+		if (badguy(actor) && !(actor->flags3 & SFLAG3_SHOOTCENTERED))
+		{
+			spos.X -= (sang + DAngle22_5 * 0.75).Sin() * 8;
+			spos.Y += (sang + DAngle22_5 * 0.75).Cos() * 8;
+		}
+	}
+
+	if (cls == nullptr)
+		cls = GetSpawnType(atwith);
+
+	CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, p, spos, sang);
+}
+
+//---------------------------------------------------------------------------
+//
 // split out so that the weapon check can be done right.
 //
 //---------------------------------------------------------------------------

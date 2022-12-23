@@ -648,7 +648,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spriteheight, duke_sph)
 
 void DukeActor_shoot(DDukeActor* act, PClassActor* intname)
 {
-	fi.shoot(act, -1, intname);
+	shoot(act, -1, intname);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, shoot, DukeActor_shoot)
