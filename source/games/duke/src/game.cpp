@@ -517,7 +517,7 @@ bool CallAnimate(DDukeActor* actor, tspritetype* tspr)
 	{
 		VMReturn ret(& nval);
 		VMValue val[3] = { actor, tspr };
-		VMCall(func, val, 3, &ret, 1);
+		VMCall(func, val, 2, &ret, 1);
 	}
 	return nval;
 }
