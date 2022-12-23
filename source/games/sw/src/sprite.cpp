@@ -1504,6 +1504,7 @@ void PreMapCombineFloors(void)
             while (auto jActor = it2.Next())
             {
                 jActor->spr.pos += dv;
+                jActor->backupvec2();
             }
 
             for (auto& wal : dasect->walls)
@@ -1514,23 +1515,6 @@ void PreMapCombineFloors(void)
                     search.Add(wal.nextSector());
             }
         }
-
-        TRAVERSE_CONNECT(pnum)
-        {
-            PLAYER* pp = &Player[pnum];
-            auto dasect = pp->cursector;
-            search.Rewind();
-            while (auto itsect = search.GetNext())
-            {
-                if (itsect == dasect)
-                {
-                    pp->actor->spr.pos.XY() += dv;
-                    pp->actor->backupvec2();
-                    break;
-                }
-            }
-        }
-
     }
 
     // get rid of the sprites used

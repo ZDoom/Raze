@@ -455,9 +455,9 @@ void InitLevel(MapRecord *maprec)
     InitAllPlayers();
 
     QueueReset();
-    PreMapCombineFloors();
     InitMultiPlayerInfo(ppos, mapangle(ang));
     InitAllPlayerSprites(ppos, mapangle(ang));
+    PreMapCombineFloors();
 
     //
     // Do setup for sprite, track, panel, sector, etc
