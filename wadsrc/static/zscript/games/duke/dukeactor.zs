@@ -253,7 +253,7 @@ class DukeActor : CoreActor native
 	
 	virtual void Initialize()
 	{
-		if (!self.badguy() && self.scripted())
+		if (!self.bSIMPLEINIT && !self.badguy() && self.scripted())
 		{
 			if (!self.mapSpawned) self.lotag = 0;
 

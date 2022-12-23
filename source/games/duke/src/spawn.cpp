@@ -129,6 +129,12 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 		act->curAction = &actions[sa[1]];
 		act->curMove = &moves[sa[2]];
 		act->spr.hitag = sa[3];
+
+		// remove script info if it is completely empty and no animation is set.
+		if (act->curAction->name == NAME_Name && act->curMove->name == NAME_Name && *sa == concmd_enda)
+		{
+			sa = nullptr;
+		}
 	}
 	else
 	{
@@ -156,7 +162,12 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, PClassActor* cls, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
 {
 	auto actor = CreateActor(whatsectp, pos, cls, s_shd, scale, s_ang, s_vel, s_zvel, s_ow, s_stat);
-	if (actor) spawninit(s_ow, actor, nullptr);
+	if (actor)
+	{
+		actor->flags3 |= SFLAG3_SIMPLEINIT; // at this point we only want to run custom Initialize code, but not the default for scripted actors, even if this one has scripts.
+		spawninit(s_ow, actor, nullptr);
+		actor->flags3 &= ~SFLAG3_SIMPLEINIT; // from now on act normally.
+	}
 	return actor;
 }
 

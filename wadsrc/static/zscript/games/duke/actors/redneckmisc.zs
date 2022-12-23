@@ -71,15 +71,6 @@ class RedneckJoe9000 : DukeActor
 	}
 }
 
-class RedneckPopcorn : DukeActor
-{
-	default
-	{
-		pic "POPCORN";
-	}
-}
-
-
 class RedneckBellSwitch : DukeActor
 {
 	default

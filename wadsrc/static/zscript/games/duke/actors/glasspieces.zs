@@ -62,3 +62,11 @@ class DukeGlassPieces2 : DukeGlassPieces
 	}
 }
 
+class RedneckPopcorn : DukeGlassPieces
+{
+	default
+	{
+		pic "POPCORN";
+	}
+}
+
