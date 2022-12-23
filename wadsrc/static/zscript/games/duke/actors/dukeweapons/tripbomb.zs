@@ -266,8 +266,74 @@ class DukeLaserLine : DukeActor
 			t.scale.Y = 0;
 		return true;
 	}
-
-
-	
 }
 
+class DukeHandHoldingLaser : DukeActor
+{
+	default
+	{
+		pic "HANDHOLDINGLASER";
+	}
+
+	override bool ShootThis(DukeActor shooter, DukePlayer p, Vector3 pos, double ang) const
+	{
+		let sectp = shooter.sector;
+		double vel = 1024., zvel;
+		int j;
+		HitInfo hit;
+
+		if (p != null)
+			[vel, zvel] = Raze.setFreeAimVelocity(vel, zvel, p.getPitchWithView(), 16.);
+		else zvel = 0;
+
+		Raze.hitscan(pos, sectp, (ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
+
+		j = 0;
+		if (hit.hitActor) return true;
+
+		if (hit.hitWall && hit.hitSector)
+		{
+			if ((hit.hitpos.XY - pos.XY).LengthSquared() < 18.125 * 18.125)
+			{
+				if (hit.hitWall.twoSided())
+				{
+					if (hit.hitWall.nextSectorp().lotag <= 2 && hit.hitSector.lotag <= 2)
+						j = 1;
+				}
+				else if (hit.hitSector.lotag <= 2)
+					j = 1;
+			}
+
+			if (j == 1)
+			{
+				let bomb = dlevel.SpawnActor(hit.hitSector, hit.hitpos, "DukeTripBomb", -16, (0.0625, 0.078125), ang, 0., 0., shooter, STAT_STANDABLE);
+				if (!bomb) return true;
+
+				if (gs.TripBombControl & DukeTripBomb.TRIPBOMB_TIMER)
+				{
+					// set timer.  blows up when at zero....
+					bomb.extra = gs.stickybomb_lifetime + ((random(0, 65535) * gs.stickybomb_lifetime_var) >> 14) - gs.stickybomb_lifetime_var;
+					bomb.detail = DukeTripBomb.TRIPBOMB_TIMER;
+				}
+				else
+					bomb.detail = DukeTripBomb.TRIPBOMB_TRIPWIRE;	// this also covers the originally undefined case of tripbombcontrol == 0.
+
+				// this originally used the sprite index as tag to link the laser segments.
+				// This value is never used again to reference an shooter by index. Decouple this for robustness.
+				ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
+				bomb.hitag = ud.bomb_tag;
+				bomb.PlayActorSound("LASERTRIP_ONWALL");
+				bomb.vel.X = -1.25;
+				bomb.DoMove(CLIPMASK0);
+				bomb.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
+				let delta = -hit.hitWall.delta();
+				bomb.Angle = delta.Angle() - 90;
+				bomb.temp_angle = bomb.Angle;
+
+				if (p)
+					p.ammo_amount[DukeWpn.TRIPBOMB_WEAPON]--; // this should be elsewhere.
+			}
+		}
+		return true;
+	}
+}

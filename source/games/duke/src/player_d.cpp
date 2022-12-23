@@ -714,79 +714,6 @@ static void shootrpg(DDukeActor *actor, int p, DVector3 pos, DAngle ang, int atw
 //
 //---------------------------------------------------------------------------
 
-static void shootlaser(DDukeActor* actor, int p, DVector3 pos, DAngle ang)
-{
-	auto sectp = actor->sector();
-	double vel = 1024., zvel;
-	int j;
-	HitInfo hit{};
-
-	if (p >= 0)
-		setFreeAimVelocity(vel, zvel, ps[p].Angles.getPitchWithView(), 16.);
-	else zvel = 0;
-
-	hitscan(pos, sectp, DVector3(ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
-
-	j = 0;
-	if (hit.actor()) return;
-
-	if (hit.hitWall && hit.hitSector)
-	{
-		if ((hit.hitpos.XY() - pos.XY()).LengthSquared() < 18.125 * 18.125)
-		{
-			if (hit.hitWall->twoSided())
-			{
-				if (hit.hitWall->nextSector()->lotag <= 2 && hit.hitSector->lotag <= 2)
-					j = 1;
-			}
-			else if (hit.hitSector->lotag <= 2)
-				j = 1;
-		}
-
-		if (j == 1)
-		{
-			auto bomb = CreateActor(hit.hitSector, hit.hitpos, DTILE_TRIPBOMB, -16, DVector2(0.0625, 0.078125), ang, 0., 0., actor, STAT_STANDABLE);
-			if (!bomb) return;
-			if (isWW2GI())
-			{
-				int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1).value();
-				if (lTripBombControl & TRIPBOMB_TIMER)
-				{
-					int lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, p).value();
-					int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p).value();
-					// set timer.  blows up when at zero....
-					bomb->spr.extra = lLifetime
-					+ MulScale(krand(), lLifetimeVar, 14)
-					- lLifetimeVar;
-				}
-				bomb->spr.detail = lTripBombControl;
-			}
-			else bomb->spr.detail = TRIPBOMB_TRIPWIRE;
-
-			// this originally used the sprite index as tag to link the laser segments.
-			// This value is never used again to reference an actor by index. Decouple this for robustness.
-			ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
-			bomb->spr.hitag = ud.bomb_tag;
-			S_PlayActorSound(LASERTRIP_ONWALL, bomb);
-			bomb->vel.X = -1.25;
-			ssp(bomb, CLIPMASK0);
-			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
-			auto delta = -hit.hitWall->delta();
-			bomb->spr.Angles.Yaw = delta.Angle() - DAngle90;
-			bomb->temp_angle = bomb->spr.Angles.Yaw;
-
-			if (p >= 0)
-				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void shootmortar(DDukeActor* actor, int p, const DVector3& pos, DAngle ang, int atwith)
 {
 	auto sect = actor->sector();
@@ -885,10 +812,6 @@ void shoot_d(DDukeActor* actor, int atwith, PClass *cls)
 	case DTILE_RPG:
 		shootrpg(actor, p, spos, sang, atwith);
 		break;
-
-	case DTILE_HANDHOLDINGLASER:
-		shootlaser(actor, p, spos, sang);
-		return;
 
 	case DTILE_BOUNCEMINE:
 	case DTILE_MORTER:

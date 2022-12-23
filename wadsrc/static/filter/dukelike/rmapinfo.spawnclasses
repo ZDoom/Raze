@@ -455,6 +455,7 @@ spawnclasses
 	1810 = DukeCannon
 	4427 = DukeHotMeat
 	4340 = DukeLavaBubble
+	2563 = DukeHandHoldingLaser
 
 	1405 = DukePlayerPawn, noskill
 
