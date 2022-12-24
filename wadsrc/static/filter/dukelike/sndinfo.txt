@@ -396,9 +396,5 @@ $conreserve SMACKIT            394
 $conreserve BELLSND            395
 $conreserve GOAWAY             396
 $conreserve JOKE               397
-$conreserve FLAMETHROWER_INTRO 398
-$conreserve FLAMETHROWER_LOOP  399
-$conreserve FLAMETHROWER_END   400
-$conreserve E5L7_PLAYER_QUIT_YOU 401
 
 $alias CRANEGRAB PLAYER_GRUNT
