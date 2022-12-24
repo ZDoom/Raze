@@ -1,0 +1,7 @@
+spawnclasses
+{
+	2556 = NamShrinker
+	2533 = NamShell, noskill
+	2535 = NamShotgunShell, noskill
+}
+

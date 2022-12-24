@@ -53,7 +53,7 @@ class DukeShell : DukeActor
 	
 	override void Initialize()
 	{
-		initshell(true, Raze.isNamWW2GI()? 1.875 : -1.25);
+		initshell(true, -1.25);
 	}
 
 	override void Tick()
@@ -112,15 +112,26 @@ class DukeShell : DukeActor
 	}
 }
 
+class NamShell : DukeShell
+{
+	override void Initialize()
+	{
+		initshell(true, 1.875);
+	}
+}
+
 class DukeShotgunShell : DukeShell
 {
 	default
 	{
 		spriteset "SHOTGUNSHELL";
 	}
-	
-	override void Initialize()
+}
+
+class NamShotgunShell : NamShell
+{
+	default
 	{
-		initshell(false, Raze.isNamWW2GI()? 1.875 : -1.25);
+		spriteset "SHOTGUNSHELL";
 	}
 }
