@@ -4942,10 +4942,6 @@ void DoPlayerWade(PLAYER* pp)
         if (pp->KeyPressBits & SB_JUMP)
         {
             pp->KeyPressBits &= ~SB_JUMP;
-            //DoPlayerHeight(pp);
-            //DoPlayerHeight(pp);
-            //DoPlayerHeight(pp);
-            //DoPlayerHeight(pp);
             DoPlayerBeginJump(pp);
             pp->pbob_amt = 0;
             pp->bob_ndx = 0;
@@ -6559,11 +6555,6 @@ void DoPlayerRun(PLAYER* pp)
         {
             pp->KeyPressBits &= ~SB_JUMP;
             // make sure you stand at full heights for jumps/double jumps
-            //DoPlayerHeight(pp);
-            //DoPlayerHeight(pp);
-            //DoPlayerHeight(pp);
-            //DoPlayerHeight(pp);
-            //DoPlayerHeight(pp);
             pp->posZset(pp->loz - PLAYER_HEIGHTF);
             DoPlayerBeginJump(pp);
             return;
