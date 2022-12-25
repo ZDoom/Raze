@@ -3769,6 +3769,9 @@ void DoPlayerFly(PLAYER* pp)
     }
 
     DoPlayerMove(pp);
+
+    // Adjust view height moving up and down sectors
+    DoPlayerViewOffset(pp);
 }
 
 
