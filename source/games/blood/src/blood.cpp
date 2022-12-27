@@ -434,16 +434,17 @@ void GameInterface::Ticker()
 	{
 		thinktime.Reset();
 		thinktime.Clock();
+
+		PLAYER* pPlayer = &gPlayer[myconnectindex];
+
+		// this must be done before the view is backed up.
+		pPlayer->Angles.resetRenderAngles();
+
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			// this must be done before the view is backed up.
-			gPlayer[i].Angles.resetRenderAngles();
-
 			viewBackupView(i);
 			playerProcess(&gPlayer[i]);
 		}
-
-		PLAYER* pPlayer = &gPlayer[myconnectindex];
 
 		trProcessBusy();
 		evProcess(PlayClock);
