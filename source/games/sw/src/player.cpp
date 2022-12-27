@@ -6000,8 +6000,6 @@ void DoPlayerDeathFollowKiller(PLAYER* pp)
         {
             pp->actor->spr.Angles.Yaw += DAngle::fromDeg(pp->input.avel);
         }
-
-        pp->Angles.doYawKeys(&pp->input.actions);
         UpdatePlayerSpriteAngle(pp);
     }
 
