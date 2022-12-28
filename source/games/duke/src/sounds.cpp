@@ -448,6 +448,8 @@ int S_PlaySound3D(FSoundID soundid, DDukeActor* actor, const DVector3& pos, int 
 	if (!soundEngine->isValidSoundId(soundid) || !SoundEnabled() || actor == nullptr || !playrunning() ||
 		(pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;
 
+	if (flags & CHANF_LOCAL && actor != ps[screenpeek].actor && !ud.coop) return -1;	// makes no sense...
+
 	soundid = GetReplacementSound(soundid);
 	int userflags = S_GetUserFlags(soundid);
 
