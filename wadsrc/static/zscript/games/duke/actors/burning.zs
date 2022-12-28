@@ -56,7 +56,7 @@ class DukeBurning : DukeActor
 		}
 		t.cstat |= CSTAT_SPRITE_YCENTER;
 		double d;
-		if (!OwnerAc || !OwnerAc.bNOFLOORFIRE)
+		if (!bNOFLOORFIRE)
 			[d, t.pos.Z] = t.sector.getSlopes(t.pos.XY);
 		return false;
 	}
@@ -84,8 +84,7 @@ class RedneckFire : DukeActor
 	{
 		let OwnerAc = self.ownerActor;
 		double d;
-		if (!OwnerAc || !OwnerAc.bNOFLOORFIRE)
-			[d, t.pos.Z] = t.sector.getSlopes(t.pos.XY);
+		[d, t.pos.Z] = t.sector.getSlopes(t.pos.XY);
 		return false;
 	}
 }

@@ -71,7 +71,8 @@ class DukeFlammable : DukeActor
 			{
 				self.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				self.counter = 1;
-				self.spawn("DukeBurning");
+				let burn = self.spawn("DukeBurning");
+				if (burn) burn.bNoFloorFire = self.bNoFloorFire;
 			}
 		}
 	}
