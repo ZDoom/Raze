@@ -1447,7 +1447,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 //
 //---------------------------------------------------------------------------
 
-bool ifcansee(DDukeActor* actor, int pnum)
+int ifcansee(DDukeActor* actor, player_struct* p)
 {
 	int j;
 	DDukeActor* tosee;
@@ -1455,19 +1455,19 @@ bool ifcansee(DDukeActor* actor, int pnum)
 	// select sprite for monster to target
 	// if holoduke is on, let them target holoduke first.
 	// 
-	if (ps[pnum].holoduke_on != nullptr && !isRR())
+	if (p->holoduke_on != nullptr && !isRR())
 	{
-		tosee = ps[pnum].holoduke_on;
+		tosee = p->holoduke_on;
 		j = cansee(actor->spr.pos.plusZ(-zrand(32)), actor->sector(), tosee->spr.pos, tosee->sector());
 
 		if (j == 0)
 		{
 			// they can't see player's holoduke
 			// check for player..
-			tosee = ps[pnum].GetActor();
+			tosee = p->GetActor();
 		}
 	}
-	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
+	else tosee = p->GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
 	j = cansee(actor->spr.pos.plusZ(-zrand(48)), actor->sector(), tosee->spr.pos.plusZ(isRR()? -28 : -24), tosee->sector());
@@ -1533,7 +1533,7 @@ int ParseState::parse(void)
 		parseifelse(g_ac->actorstayput == nullptr);
 		break;
 	case concmd_ifcansee:
-		parseifelse(ifcansee(g_ac, g_p));
+		parseifelse(ifcansee(g_ac, &ps[g_p]));
 		break;
 
 	case concmd_ifhitweapon:
@@ -1611,7 +1611,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_fakebubba:
 		insptr++;
-		fakebubbaspawn(g_ac, g_p);
+		fakebubbaspawn(g_ac, &ps[g_p]);
 		break;
 
 	case concmd_rndmove:

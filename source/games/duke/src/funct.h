@@ -116,24 +116,24 @@ int setpal(player_struct* p);
 int madenoise(int playerNum);
 int haskey(sectortype* sect, int snum);
 void purplelavacheck(player_struct* p);
-bool addphealth(player_struct* p, int amount, bool bigitem);
-bool playereat(player_struct* p, int amount, bool bigitem);
+void addphealth(player_struct* p, int amount, bool bigitem);
+int playereat(player_struct* p, int amount, bool bigitem);
 void playerdrink(player_struct* p, int amount);
-bool playeraddammo(player_struct* p, int weaponindex, int amount);
-bool playeraddweapon(player_struct* p, int weaponindex, int amount);
+int playeraddammo(player_struct* p, int weaponindex, int amount);
+int playeraddweapon(player_struct* p, int weaponindex, int amount);
 void playeraddinventory(player_struct* p, DDukeActor* item, int type, int amount);
 void actorsizeto(DDukeActor* actor, double x, double y);
 void spawndebris(DDukeActor* g_ac, int dnum, int count);
-bool checkp(DDukeActor* self, player_struct* p, int flags);
-bool playercheckinventory(player_struct* p, DDukeActor* item, int type, int amount);
+int checkp(DDukeActor* self, player_struct* p, int flags);
+int playercheckinventory(player_struct* p, DDukeActor* item, int type, int amount);
 void playerstomp(player_struct* p, DDukeActor* stomped);
 void playerreset(player_struct* p, DDukeActor* g_ac);
 void wackplayer(player_struct* p);
 void actoroperate(DDukeActor* g_ac);
 void playerkick(player_struct* p, DDukeActor* g_ac);
 void garybanjo(DDukeActor* g_ac);
-bool ifsquished(DDukeActor* i, int p);
-void fakebubbaspawn(DDukeActor* actor, int g_p);
+int ifsquished(DDukeActor* i, int p);
+void fakebubbaspawn(DDukeActor* actor, player_struct* p);
 void tearitup(sectortype* sect);
 void destroyit(DDukeActor* actor);
 void mamaspawn(DDukeActor* actor);
@@ -225,7 +225,7 @@ void displayrooms(int32_t playerNum, double interpfrac, bool sceneonly);
 void setgamepalette(int palid);
 void resetmys();
 void resettimevars();
-bool setnextmap(bool checksecretexit);
+int setnextmap(bool checksecretexit);
 void prelevel_d(int g, TArray<DDukeActor*>&);
 void prelevel_r(int g, TArray<DDukeActor*>&);
 void e4intro(const CompletionFunc& completion);
@@ -242,6 +242,11 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act);
 
 void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h);
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang);
+
+int LookupAction(DDukeActor* self, FName name);
+int LookupMove(DDukeActor* self, FName name);
+int LookupAI(DDukeActor* self, FName name);
+
 
 inline int32_t krand(void)
 {

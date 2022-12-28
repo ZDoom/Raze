@@ -103,7 +103,7 @@ void addweapon_d(player_struct *p, int weapon, bool wswitch)
 //
 //---------------------------------------------------------------------------
 
-bool ifsquished(DDukeActor* actor, int p)
+int ifsquished(DDukeActor* actor, int p)
 {
 	if (isRR()) return false;	// this function is a no-op in RR's source.
 

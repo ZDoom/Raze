@@ -215,13 +215,14 @@ struct Raze
 	native static Sound FindSoundByResID(int id);
 
 	native static int tileflags(TextureID tex);
+	native static int tilesurface(TextureID tex);
 	
 	native static sectortype updatesector(Vector2 pos, sectortype lastsect, double maxdist = 96);
 	native static sectortype, Vector3 clipmove(Vector3 pos, sectortype sect, Vector2 move, double walldist, double ceildist, double flordist, uint cliptype, CollisionData coll, int clipmoveboxtracenum = 3);
 	native static bool cansee(Vector3 start, sectortype startsec, Vector3 end, sectortype endsec);
 	native static int hitscan(Vector3 start, sectortype startsect, Vector3 vect, HitInfo hitinfo, uint cliptype, double maxrange = -1);
 
-	// game check shortcuts
+	// game check shortcuts (todo: meake these compile time constant intrinsics)
 
 	static bool isDuke()
 	{
@@ -248,6 +249,11 @@ struct Raze
 		return gameinfo.gametype & (GAMEFLAG_RRALL);
 	}
 
+	static bool isRoute66()
+	{
+		return gameinfo.gametype & (GAMEFLAG_ROUTE66);
+	}
+
 	static bool isRRRA()
 	{
 		return gameinfo.gametype & (GAMEFLAG_RRRA);
@@ -261,6 +267,11 @@ struct Raze
 	static bool isPlutoPak()
 	{
 		return gameinfo.gametype & GAMEFLAG_PLUTOPAK;
+	}
+
+	static bool isVacation()
+	{
+		return gameinfo.gametype & GAMEFLAG_DUKEVACA;
 	}
 
 	static bool isShareware()

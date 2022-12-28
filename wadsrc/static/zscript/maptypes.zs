@@ -148,6 +148,9 @@ struct sectortype native
 	native readonly int16 ceilingheinum;
 	native readonly int16 floorheinum;
 
+	native readonly TextureID ceilingtexture;
+	native readonly TextureID floortexture;
+
 	native Array<@walltype> walls;
 	native int16 ceilingstat;
 	native int16 floorstat;

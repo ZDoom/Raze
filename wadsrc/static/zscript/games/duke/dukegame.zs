@@ -180,6 +180,8 @@ struct Duke native
 	static native void setlastvisinc(int amount);
 	static native bool isaccessswitch(TextureID tex);
 	static native bool isshootableswitch(TextureID tex);
+	static native bool CheckSprite(class<DukeActor> tex);
+	static native bool setnextmap(bool checksecret);
 	static int rnd(int val)
 	{
 		return (random(0, 255) >= (255 - (val)));
@@ -239,6 +241,7 @@ struct DukePlayer native
 	uint16_t frags[MAXPLAYERS];
 	*/
 
+	native vector3 vel;
 	native bool gotweapon[DukeWpn.MAX_WEAPONS];
 
 	// Palette management uses indices into the engine's palette table now.
@@ -387,7 +390,20 @@ struct DukePlayer native
 	native void StartBoat();
 	native void checkhitswitch(walltype wal, DukeActor act);
 
-
+	native void playerkick(DukeActor target);
+	native void playerstomp(DukeActor target);
+	native void addphealth(int amount, bool bigitem = false);
+	native void wackplayer();
+	native void checkweapons();
+	native void playerreset(DukeActor ac);
+	native void FTA(int num);
+	native bool playercheckinventory(DukeActor item, int type, int amount);
+	native void playeraddinventory(DukeActor item, int type, int amount);
+	native bool playeraddweapon(int type, int amount);
+	native bool playeraddammo(int type, int amount);
+	native void forceplayerangle();
+	native bool playereat(int amount, bool bigitem);
+	native void playerdrink(int amount);
 }
 
 struct DukeWpn
@@ -480,7 +496,7 @@ struct DukeGameInfo native
 
 struct DukeUserDefs native
 {
-	native readonly uint8 god, cashman, eog;
+	native uint8 god, cashman, eog;
 	native readonly uint8 clipping;
 	native readonly uint8 user_pals[MAXPLAYERS];
 	native readonly int16 from_bonus;
@@ -497,3 +513,22 @@ struct DukeUserDefs native
 	native DukeActor cameraactor;
 	native bool joe9000;
 }
+
+struct ActorMove native
+{
+	native Name qualifiedName;	// this is only used for serialization.
+	native Name name;
+	native float movex, movez;
+}
+
+struct ActorAction native 
+{
+	native Name qualifiedName;	// this is only used for serialization.
+	native Name name;
+	native TextureID base;
+	native int offset;
+	native int16 numframes;
+	native int16 rotationtype;
+	native int16 increment;
+	native int16 delay;
+};

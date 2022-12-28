@@ -483,6 +483,26 @@ void GameInterface::FinalizeSetup()
 }
 
 
+int LookupAction(DDukeActor* self, FName name)
+{
+	// todo
+	return 0;
+}
+
+int LookupMove(DDukeActor* self, FName name)
+{
+	// todo
+	return 0;
+}
+
+int LookupAI(DDukeActor* self, FName name)
+{
+	// todo
+	return 0;
+}
+
+
+
 void CallInitialize(DDukeActor* actor)
 {
 	IFVIRTUALPTR(actor, DDukeActor, Initialize)
@@ -713,7 +733,7 @@ DEFINE_PROPERTY(movef, Sff, DukeActor)
 DEFINE_PROPERTY(action, SZIiiii, DukeActor)
 {
 	auto action = &actions[actions.Reserve(1)];
-	memset(&action, 0, sizeof(action));
+	memset(action, 0, sizeof(*action));
 	PROP_STRING_PARM(n, 0);
 	action->name = n;
 	action->qualifiedName = FStringf("%s.%s", info->TypeName.GetChars(), n);
@@ -759,6 +779,24 @@ DEFINE_PROPERTY(ai, SSSi, DukeActor)
 		PROP_INT_PARM(v3, 3);
 		ai->moveflags = v3;
 	}
+}
+
+DEFINE_PROPERTY(startaction, S, DukeActor)
+{
+	PROP_STRING_PARM(n, 0);
+	bag.DefaultAction = n;
+}
+
+DEFINE_PROPERTY(startmove, S, DukeActor)
+{
+	PROP_STRING_PARM(n, 0);
+	bag.DefaultMove = n;
+}
+
+DEFINE_PROPERTY(moveflags, I, DukeActor)
+{
+	PROP_INT_PARM(n, 0);
+	bag.moveflags = n;
 }
 
 CCMD(changewalltexture)

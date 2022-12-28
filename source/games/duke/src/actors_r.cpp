@@ -1485,7 +1485,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	}
 }
 
-void fakebubbaspawn(DDukeActor *actor, int g_p)
+void fakebubbaspawn(DDukeActor *actor, player_struct* p)
 {
 	fakebubba_spawn++;
 	switch (fakebubba_spawn)
@@ -1503,7 +1503,7 @@ void fakebubbaspawn(DDukeActor *actor, int g_p)
 		break;
 	case 4:
 		spawn(actor, RTILE_VIXEN);
-		operateactivators(666, &ps[g_p]);
+		operateactivators(666, p);
 		break;
 	}
 }

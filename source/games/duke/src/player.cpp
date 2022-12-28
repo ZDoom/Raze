@@ -1050,7 +1050,7 @@ void purplelavacheck(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-bool addphealth(player_struct* p, int amount, bool bigitem)
+void addphealth(player_struct* p, int amount, bool bigitem)
 {
 	if (p->newOwner != nullptr)
 	{
@@ -1072,7 +1072,7 @@ bool addphealth(player_struct* p, int amount, bool bigitem)
 	{
 		if (curhealth > gs.max_player_health && amount > 0)
 		{
-			return false;
+			return;// false;
 		}
 		else
 		{
@@ -1103,9 +1103,9 @@ bool addphealth(player_struct* p, int amount, bool bigitem)
 			p->last_extra = curhealth;
 		}
 
+
 		p->GetActor()->spr.extra = curhealth;
 	}
-	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -1114,7 +1114,7 @@ bool addphealth(player_struct* p, int amount, bool bigitem)
 //
 //---------------------------------------------------------------------------
 
-bool playereat(player_struct* p, int amount, bool bigitem)
+int playereat(player_struct* p, int amount, bool bigitem)
 {
 	p->eat += amount;
 	if (p->eat > 100)
@@ -1211,7 +1211,7 @@ void playerdrink(player_struct* p, int amount)
 //
 //---------------------------------------------------------------------------
 
-bool playeraddammo(player_struct* p, int weaponindex, int amount)
+int playeraddammo(player_struct* p, int weaponindex, int amount)
 {
 	if (p->ammo_amount[weaponindex] >= gs.max_ammo_amount[weaponindex])
 	{
@@ -1224,7 +1224,7 @@ bool playeraddammo(player_struct* p, int weaponindex, int amount)
 	return true;
 }
 
-bool playeraddweapon(player_struct* p, int weaponindex, int amount)
+int playeraddweapon(player_struct* p, int weaponindex, int amount)
 {
 	if (p->gotweapon[weaponindex] == 0) fi.addweapon(p, weaponindex, !!(WeaponSwitch(p- ps) & 1));
 	else if (p->ammo_amount[weaponindex] >= gs.max_ammo_amount[weaponindex])
@@ -1312,7 +1312,7 @@ void playeraddinventory(player_struct* p, DDukeActor* item, int type, int amount
 //
 //---------------------------------------------------------------------------
 
-bool checkp(DDukeActor* self, player_struct* p, int flags)
+int checkp(DDukeActor* self, player_struct* p, int flags)
 {
 	bool j = 0;
 
@@ -1371,7 +1371,7 @@ bool checkp(DDukeActor* self, player_struct* p, int flags)
 //
 //---------------------------------------------------------------------------
 
-bool playercheckinventory(player_struct* p, DDukeActor* item, int type, int amount)
+int playercheckinventory(player_struct* p, DDukeActor* item, int type, int amount)
 {
 	bool j = 0;
 	switch (type)
@@ -1470,7 +1470,6 @@ void playerreset(player_struct* p, DDukeActor* g_ac)
 	if (ud.multimode < 2)
 	{
 		gameaction = ga_autoloadgame;
-		g_ac->killit_flag = 2;
 	}
 	else
 	{

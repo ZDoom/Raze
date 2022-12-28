@@ -166,6 +166,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, tileflags, raze_tileflags)
 	ACTION_RETURN_INT(raze_tileflags(which));
 }
 
+int raze_tilesurface(int tex)
+{
+	return tilesurface(FSetTextureID(tex));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, tilesurface, raze_tilesurface)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(which);
+	ACTION_RETURN_INT(raze_tilesurface(which));
+}
+
 
 //=============================================================================
 //
@@ -185,6 +197,8 @@ DEFINE_FIELD_X(sectortype, sectortype, type)
 DEFINE_FIELD_X(sectortype, sectortype, hitag)
 DEFINE_FIELD_X(sectortype, sectortype, ceilingheinum)
 DEFINE_FIELD_X(sectortype, sectortype, floorheinum)
+DEFINE_FIELD_X(sectortype, sectortype, ceilingtexture)
+DEFINE_FIELD_X(sectortype, sectortype, floortexture)
 DEFINE_FIELD_X(sectortype, sectortype, extra)
 DEFINE_FIELD_X(sectortype, sectortype, ceilingshade)
 DEFINE_FIELD_X(sectortype, sectortype, ceilingpal)

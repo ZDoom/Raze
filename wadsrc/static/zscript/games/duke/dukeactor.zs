@@ -83,6 +83,31 @@ enum ESectorTriggers
 	// left: ST 32767, 65534, 65535
 };
 
+enum dukeinv_t
+{
+	GET_STEROIDS,  // 0
+	GET_SHIELD,
+	GET_SCUBA,
+	GET_HOLODUKE,
+	GET_JETPACK,
+	GET_DUMMY1,  // 5
+	GET_ACCESS,
+	GET_HEATS,
+	GET_DUMMY2,
+	GET_FIRSTAID,
+	GET_BOOTS,  // 10
+	GET_MAX,
+
+	GET_MOONSHINE   = 0,
+	GET_KELVAR      = 1,
+	GET_BEER        = 3,
+	GET_COWPIE      = 4,
+	GET_KEYS        = 6,
+	GET_WHISKEY     = 9,
+
+
+};
+
 class DukeActor : CoreActor native
 {
 	default
@@ -126,12 +151,16 @@ class DukeActor : CoreActor native
 	enum amoveflags_t
 	{
 		face_player       = 1,
+		faceplayer        = 1,
 		geth              = 2,
 		getv              = 4,
 		random_angle      = 8,
+		randomangle      = 8,
 		face_player_slow  = 16,
+		faceplayerslow	  = 16,
 		spin              = 32,
 		face_player_smart = 64,
+		faceplayersmart = 64,
 		fleeenemy         = 128,
 		jumptoplayer_only = 256,
 		justjump1 = 256,
@@ -143,6 +172,66 @@ class DukeActor : CoreActor native
 		windang           = 16384,
 		antifaceplayerslow = 32768
 	};
+
+	enum pstateflags
+	{
+		pstanding = 1,
+		pwalking = 2,
+		prunning = 4,
+		pducking = 8,
+		pfalling = 16,
+		pjumping = 32,
+		phigher = 64,
+		pwalkingback = 128,
+		prunningback = 256,
+		pkicking = 512,
+		pshrunk = 1024,
+		pjetpack = 2048,
+		ponsteroids = 4096,
+		ponground = 8192,
+		palive = 16384,
+		pdead = 32768,
+		pfacing = 65536
+	}
+
+	const ONFIRETIME = 164;
+	const FIREPAINFREQ = 16;
+	const SHRUNKDONECOUNT = 304;
+	const SPAWNAMMOODDS = 96;
+	const SWEARFREQUENCY = 100;
+	const MAXSLEEPDISTF = 1024;
+	const SHRUNKCOUNT = 270;
+	const SLEEPTIME = 1536;
+	const THAWTIME = 138;
+	const FROZENQUICKKICKDIST = 980;
+	const FROZENDRIPTIME = 90;
+	const PLAYDEADTIME = 120;
+	const RESPAWNACTORTIME = 768;
+	const MAXXSTRETCH = 70;
+	const MAXYSTRETCH = 70;
+	const MINXSTRETCH = 9;
+	const MINYSTRETCH = 8;
+	const SQUISHABLEDISTANCE = 1024;
+	const RETRIEVEDISTANCE = 844;
+	const RESPAWNITEMTIME = 768;
+
+	const WEAKEST = 1;
+	const WEAK = 5;
+	const MEDIUMSTRENGTH = 10;
+	const TOUGH = 20;
+	const REALLYTOUGH = 30;
+	const MAXPLAYERHEALTH = 100;
+	const MEGASTRENGTH = 10000;
+
+
+	const STEROID_AMOUNT = 400;
+	const SHIELD_AMOUNT = 100;
+	const SCUBA_AMOUNT = 6400;
+	const HOLODUKE_AMOUNT = 2400;
+	const JETPACK_AMOUNT = 1600;
+	const HEAT_AMOUNT = 1200;
+	const FIRSTAID_AMOUNT = MAXPLAYERHEALTH;
+	const BOOT_AMOUNT = 200;
 
 	meta int gutsoffset;
 	meta int falladjustz;
@@ -187,6 +276,12 @@ class DukeActor : CoreActor native
 	native Vector3 temp_pos, temp_pos2;
 	native double temp_angle;
 
+	native ActorAction curAction;
+	native ActorMove curMove;
+	native Name curAI;
+	native int16 actioncounter;
+	native uint8 killit_flag;
+
 	// flags are implemented natively to avoid the prefixes.
 	
 	native void getglobalz();
@@ -196,6 +291,7 @@ class DukeActor : CoreActor native
 	native int domove(int clipmask);
 	native int PlayActorSound(Sound snd, int chan = CHAN_AUTO, int flags = 0);
 	native int CheckSoundPlaying(Sound snd, int chan = CHAN_AUTO);
+	native bool CheckAnyActorSoundPlaying();
 	native void StopSound(Sound snd, int flags = 0);
 	native DukeActor spawn(class<DukeActor> type);
 	native DukeActor spawnsprite(int type);	// for cases where the map has a picnum stored. Avoid when possible.
@@ -210,6 +306,24 @@ class DukeActor : CoreActor native
 	native int SpriteHeight();
 	native DukeActor aim(readonly<DukeActor> weapon, double aimangle = -1);
 
+	// CON simulation
+	native void SetAction(Name act);
+	native void SetAI(Name ai);
+	native void SetMove(Name mov, int flags = 0);
+	native bool checkp(DukePlayer p, int flags);
+	native bool cansee(DukePlayer p);
+	native void actoroperate();
+	native bool ifsquished(DukePlayer p);
+	native void ChangeType(class<DukeActor> newtype);
+	native void fall(DukePlayer p);
+	native void actorsizeto(double x, double y);
+	native bool dodge();
+	native bool ifcanshoottarget(DukePlayer p, double pdist);
+	native void spriteglass(int n);
+	native void spawndebris(int dnum, int count);
+	native void respawnhitag();
+
+
 	virtual native void Tick();
 
 	
@@ -222,7 +336,7 @@ class DukeActor : CoreActor native
 	virtual void onMotoSmash(DukePlayer toucher) {}
 	virtual void onRespawn(int tag) { }
 	virtual bool animate(tspritetype tspr) { return false; }
-	virtual void RunState() {}	// this is the CON function.
+	virtual void RunState(DukePlayer p, double pdist) {}	// this is the CON function.
 	virtual void PlayFTASound() {}
 	virtual void StandingOn(DukePlayer p) {}
 	virtual bool TriggerSwitch(DukePlayer activator) { return false; }
@@ -249,6 +363,12 @@ class DukeActor : CoreActor native
 	native void insertspriteq();
 	native void operateforcefields(int tag);
 	native void restoreloc();
+	native void fakebubbaspawn(DukePlayer p);
+	native void destroyit();
+	native void mamaspawn();
+	native void garybanjo();
+	native Sound GetAmbientSound();
+	native double GetAmbientDist();
 	native void addkill();
 	native void subkill();
 	
@@ -379,6 +499,7 @@ struct DukeLevel
 	native static DukeActor LocateTheLocator(int n, sectortype sect);
 	native static int getanimationindex(int type, sectortype sec);
 	native static int setanimation(sectortype animsect, int type, sectortype sec, double target, double vel);
+	native static void tearitup(sectortype sect);
 }
 
 struct DukeStatIterator

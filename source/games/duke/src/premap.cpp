@@ -1186,7 +1186,7 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 //
 //---------------------------------------------------------------------------
 
-bool setnextmap(bool checksecretexit)
+int setnextmap(bool checksecretexit)
 {
 	MapRecord* map = nullptr;
 	MapRecord* from_bonus = nullptr;

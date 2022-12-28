@@ -228,6 +228,29 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, isshootableswitch, Duke_isshootableswitch)
 	return 0;
 }
 
+int Duke_checksprite(PClassActor* self)
+{
+	auto texid = GetDefaultByType(self)->spr.spritetexture();
+	auto tex = TexMan.GetGameTexture(texid);
+	return tex && tex->isValid();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, checksprite, Duke_checksprite)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(v, PClassActor);
+	ACTION_RETURN_BOOL(Duke_checksprite(v));
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, setnextmap, setnextmap)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	ACTION_RETURN_BOOL(setnextmap(v));
+	return 0;
+}
+
 DEFINE_GLOBAL_UNSIZED(dlevel)
 DEFINE_GLOBAL(camsprite)
 
@@ -266,6 +289,11 @@ DEFINE_FIELD(DDukeActor, actorstayput)
 DEFINE_FIELD(DDukeActor, temp_pos)
 DEFINE_FIELD(DDukeActor, temp_pos2)
 DEFINE_FIELD(DDukeActor, temp_angle)
+DEFINE_FIELD(DDukeActor, curAction)
+DEFINE_FIELD(DDukeActor, curMove)
+DEFINE_FIELD(DDukeActor, curAI)
+DEFINE_FIELD(DDukeActor, actioncounter)
+DEFINE_FIELD(DDukeActor, killit_flag)
 
 void TickActor(DDukeActor*);
 DEFINE_ACTION_FUNCTION(DDukeActor, Tick)
@@ -383,6 +411,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, CheckSoundPlaying, DukeActor_IsSoundPl
 	PARAM_INT(snd);
 	PARAM_INT(chan);
 	ACTION_RETURN_INT(DukeActor_IsSoundPlaying(self, snd, chan));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, CheckAnyActorSoundPlaying, S_CheckAnyActorSoundPlaying)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(S_CheckAnyActorSoundPlaying(self));
 }
 
 void DukeActor_StopSound(DDukeActor* self, int snd, int flags)
@@ -699,6 +733,14 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, restoreloc, DukeActor_restoreloc)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, fakebubbaspawn, fakebubbaspawn)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(p, player_struct);
+	fakebubbaspawn(self, p);
+	return 0;
+}
+
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, aim, aim_)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
@@ -707,6 +749,200 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, aim, aim_)
 	ACTION_RETURN_POINTER(aim_(self, weapon, aimangle));
 }
 
+void Duke_SetAction(DDukeActor* self, int intname)
+{
+	int ndx = LookupAction(self, FName(ENamedName(intname)));
+	self->curAction = &actions[ndx];
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetAction, Duke_SetAction)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(n);
+	Duke_SetAction(self, n);
+	return 0;
+}
+
+void Duke_SetMove(DDukeActor* self, int intname, int flags)
+{
+	int ndx = LookupMove(self, FName(ENamedName(intname)));
+	self->curMove = &moves[ndx];
+	self->spr.hitag = flags;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetMove, Duke_SetMove)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(n);
+	PARAM_INT(f);
+	Duke_SetMove(self, n, f);
+	return 0;
+}
+
+void Duke_SetAI(DDukeActor* self, int intname)
+{
+	int ndx = LookupAI(self, FName(ENamedName(intname)));
+	self->curMove = &moves[ais[ndx].move];
+	self->curAction = &actions[ais[ndx].action];
+	self->spr.hitag = ais[ndx].moveflags;
+	self->curAI = ais[ndx].name;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, SetAI, Duke_SetAI)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(n);
+	Duke_SetAI(self, n);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, checkp, checkp)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(p, player_struct);
+	PARAM_INT(n);
+	ACTION_RETURN_INT(checkp(self, p, n));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, cansee, ifcansee)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(p, player_struct);
+	PARAM_INT(n);
+	ACTION_RETURN_INT(ifcansee(self, p));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, actoroperate, actoroperate)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	actoroperate(self);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ifsquished, ifsquished)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(p, player_struct);
+	ACTION_RETURN_INT(ifcansee(self, p));
+}
+
+void Duke_ChangeType(DDukeActor* self, PClassActor* type)
+{
+	self->ChangeType(type);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ChangeType, Duke_ChangeType)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(type, PClassActor);
+	self->ChangeType(type);
+	return 0;
+}
+
+void Duke_fall(DDukeActor* self, player_struct* p)
+{
+	fi.fall(self, p->GetPlayerNum());
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, fall, Duke_fall)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(p, player_struct);
+	Duke_fall(self, p);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, actorsizeto, actorsizeto)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	actorsizeto(self, x, y);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, dodge, dodge)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(dodge(self));
+}
+
+int Duke_ifcanshoottarget(DDukeActor* self, player_struct* p, double dist)
+{
+	return ifcanshoottarget(self, p->GetPlayerNum(), int(dist * worldtoint));
+}
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ifcanshoottarget, Duke_ifcanshoottarget)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_POINTER(p, player_struct);
+	PARAM_FLOAT(x);
+	ACTION_RETURN_INT(Duke_ifcanshoottarget(self, p, x));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spriteglass, spriteglass)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(x);
+	spriteglass(self, x);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawndebris, spawndebris)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	PARAM_INT(x);
+	PARAM_INT(y);
+	spawndebris(self, x, y);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, respawnhitag, respawnhitag)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	respawnhitag(self);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, destroyit, destroyit)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	destroyit(self);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, mamaspawn, mamaspawn)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	mamaspawn(self);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, garybanjo, garybanjo)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	garybanjo(self);
+	return 0;
+}
+
+int duke_GetambientSound(DDukeActor* actor)
+{
+	return ambienttags.SafeGet(actor->spr.detail, {}).lo;
+}
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, GetAmbientSound, duke_GetambientSound)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_INT(duke_GetambientSound(self));
+}
+
+double duke_GetambientDist(DDukeActor* actor)
+{
+	return ambienttags.SafeGet(actor->spr.detail, {}).hi * maptoworld;
+}
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, GetAmbientDist, duke_GetambientDist)
+{
+	PARAM_SELF_PROLOGUE(DDukeActor);
+	ACTION_RETURN_FLOAT(duke_GetambientDist(self));
+}
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, addkill, addkill)
 {
@@ -751,9 +987,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, invdisptime)
 //DEFINE_FIELD_X(DukePlayer, player_struct, bobposy)
 DEFINE_FIELD_X(DukePlayer, player_struct, pyoff)
 DEFINE_FIELD_X(DukePlayer, player_struct, opyoff)
-//DEFINE_FIELD_X(DukePlayer, player_struct, posxv)
-//DEFINE_FIELD_X(DukePlayer, player_struct, posyv)
-//DEFINE_FIELD_X(DukePlayer, player_struct, poszv)
+DEFINE_FIELD_X(DukePlayer, player_struct, vel)
 DEFINE_FIELD_X(DukePlayer, player_struct, last_pissed_time)
 DEFINE_FIELD_X(DukePlayer, player_struct, truefz)
 DEFINE_FIELD_X(DukePlayer, player_struct, truecz)
@@ -1131,6 +1365,127 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, checkhitswitch, pl_checkhitswitch)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playerkick, playerkick)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_POINTER(act, DDukeActor);
+	playerkick(self, act);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playerstomp, playerstomp)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_POINTER(act, DDukeActor);
+	playerstomp(self, act);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playerreset, playerreset)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_POINTER(act, DDukeActor);
+	playerreset(self, act);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, addphealth, addphealth)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(amt);
+	PARAM_INT(big);
+	addphealth(self, amt, big);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, wackplayer, wackplayer)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	wackplayer(self);
+	return 0;
+}
+
+static void duke_checkweapons(player_struct* p)
+{
+	fi.checkweapons(p);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, checkweapons, duke_checkweapons)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	duke_checkweapons(self);
+	return 0;
+}
+
+static void msg(player_struct* p, int num)
+{
+	FTA(num, p);
+}
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, FTA, msg)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(num);
+	FTA(num, self);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playercheckinventory, playercheckinventory)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_POINTER(act, DDukeActor);
+	PARAM_INT(num);
+	PARAM_INT(amt);
+	ACTION_RETURN_BOOL(playercheckinventory(self, act, num, amt));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playeraddinventory, playeraddinventory)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_POINTER(act, DDukeActor);
+	PARAM_INT(num);
+	PARAM_INT(amt);
+	playeraddinventory(self, act, num, amt);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playeraddweapon, playeraddweapon)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(num);
+	PARAM_INT(amt);
+	ACTION_RETURN_BOOL(playeraddweapon(self, num, amt));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playeraddammo, playeraddammo)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(num);
+	PARAM_INT(amt);
+	ACTION_RETURN_BOOL(playeraddammo(self, num, amt));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, forceplayerangle, forceplayerangle)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	forceplayerangle(self);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playereat, playereat)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(amt);
+	PARAM_BOOL(big);
+	ACTION_RETURN_BOOL(playereat(self, amt, big));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_DukePlayer, playerdrink, playerdrink)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
+	PARAM_INT(amt);
+	playerdrink(self, amt);
+	return 0;
+}
 
 static DDukeActor* duke_firstStat(DukeStatIterator* it, int statnum)
 {
@@ -1395,6 +1750,15 @@ DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, setanimation, static_cast<int(*)(secto
 	ACTION_RETURN_INT(setanimation(asect, tag, sect, dest, vel));
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_DukeLevel, tearitup, tearitup)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(sect, sectortype);
+	tearitup(sect);
+	return 0;
+}
+
+
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, max_ammo_amount);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, playerfriction);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, gravity);
@@ -1454,6 +1818,20 @@ DEFINE_FIELD_X(DukeUserDefs, user_defs, earthquaketime);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, ufospawnsminion);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, joe9000);
 DEFINE_GLOBAL_UNSIZED(ud)
+
+DEFINE_FIELD_X(ActorMove, ActorMove, qualifiedName);
+DEFINE_FIELD_X(ActorMove, ActorMove, name);
+DEFINE_FIELD_X(ActorMove, ActorMove, movex);
+DEFINE_FIELD_X(ActorMove, ActorMove, movez);
+
+DEFINE_FIELD_X(ActorAction, ActorAction, qualifiedName);
+DEFINE_FIELD_X(ActorAction, ActorAction, name);
+DEFINE_FIELD_X(ActorAction, ActorAction, base);
+DEFINE_FIELD_X(ActorAction, ActorAction, offset);
+DEFINE_FIELD_X(ActorAction, ActorAction, numframes);
+DEFINE_FIELD_X(ActorAction, ActorAction, rotationtype);
+DEFINE_FIELD_X(ActorAction, ActorAction, increment);
+DEFINE_FIELD_X(ActorAction, ActorAction, delay);
 
 
 // this is only a temporary helper until weaponsandammosprites can be migrated to real class types. We absolutely do not want any access to tile numbers in the scripts - even now.
