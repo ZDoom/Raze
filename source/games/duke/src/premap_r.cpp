@@ -89,9 +89,9 @@ static void cachespritenum(DDukeActor* actor)
 			tloadtile(j, pal);
 		maxc = 0;
 		break;
-	case RTILE_SBSWIPE:
+	case RTILE_BUBBAELVIS:
 		if (isRRRA())
-			for (j = RTILE_SBSWIPE; j <= (RTILE_SBSWIPE + 29); j++)
+			for (j = RTILE_BUBBAELVIS; j <= (RTILE_BUBBAELVIS + 29); j++)
 				tloadtile(j, pal);
 		maxc = 0;
 		break;

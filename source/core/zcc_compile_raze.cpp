@@ -674,6 +674,8 @@ void ZCCRazeCompiler::InitDefaults()
 				bag.Namespace = OutNamespace;
 				bag.Info = ti;
 				bag.Lumpnum = c->cls->SourceLump;
+				bag.DefaultAction = NAME_Null;	// 'none' is valíd content here so use 'null' as 'not set'.
+				bag.DefaultMove = NAME_Null;
 				// The actual script position needs to be set per property.
 
 				for (auto d : c->Defaults)
