@@ -557,7 +557,7 @@ void movetransports_d(void)
 						{
 							if (act->spr.pal == 0)
 							{
-								spawn(act, DTILE_TRANSPORTERBEAM);
+								spawn(act, PClass::FindActor(NAME_DukeTransporterBeam));
 								S_PlayActorSound(TELEPORTER, act);
 							}
 
@@ -586,7 +586,7 @@ void movetransports_d(void)
 
 							if (act->spr.pal == 0)
 							{
-								auto k = spawn(Owner, DTILE_TRANSPORTERBEAM);
+								auto k = spawn(Owner, PClass::FindActor(NAME_DukeTransporterBeam));
 								if (k) S_PlayActorSound(TELEPORTER, k);
 							}
 
@@ -667,12 +667,12 @@ void movetransports_d(void)
 						SetActor(act2, act2->spr.pos);
 
 						if ((krand() & 255) < 32)
-							spawn(act2, DTILE_WATERSPLASH2);
+							spawn(act2, PClass::FindActor(NAME_DukeWaterSplash));
 
 						if (sectlotag == 1)
 							for (int l = 0; l < 9; l++)
 						{
-							auto q = spawn(ps[p].GetActor(), DTILE_WATERBUBBLE);
+							auto q = spawn(ps[p].GetActor(), PClass::FindActor(NAME_DukeWaterBubble));
 							if (q) q->spr.pos.Z += krandf(64);
 						}
 					}
@@ -729,7 +729,7 @@ void movetransports_d(void)
 
 							if (sectlotag > 0)
 							{
-								auto k = spawn(act2, DTILE_WATERSPLASH2);
+								auto k = spawn(act2, PClass::FindActor(NAME_DukeWaterSplash));
 								if (k && sectlotag == 1 && act2->spr.statnum == 4)
 								{
 									k->vel.X = act2->vel.X * 0.5;
@@ -752,10 +752,10 @@ void movetransports_d(void)
 
 										if (act->spr.pal == 0)
 										{
-											auto k = spawn(act, DTILE_TRANSPORTERBEAM);
+											auto k = spawn(act, PClass::FindActor(NAME_DukeTransporterBeam));
 											if (k) S_PlayActorSound(TELEPORTER, k);
 
-											k = spawn(Owner, DTILE_TRANSPORTERBEAM);
+											k = spawn(Owner, PClass::FindActor(NAME_DukeTransporterBeam));
 											if (k) S_PlayActorSound(TELEPORTER, k);
 										}
 
@@ -850,7 +850,7 @@ void handle_se06_d(DDukeActor* actor)
 			act2->temp_data[4] = actor->temp_data[4];
 		}
 	}
-	handle_se14(actor, true, DTILE_RPG, DTILE_JIBS6);
+	handle_se14(actor, true, PClass::FindActor(NAME_DukeRPG));
 }
 
 
@@ -970,11 +970,11 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_14_SUBWAY_CAR:
-			handle_se14(act, true, DTILE_RPG, DTILE_JIBS6);
+			handle_se14(act, true, PClass::FindActor(NAME_DukeRPG));
 			break;
 
 		case SE_30_TWO_WAY_TRAIN:
-			handle_se30(act, DTILE_JIBS6);
+			handle_se30(act);
 			break;
 
 		case SE_2_EARTHQUAKE:

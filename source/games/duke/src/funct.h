@@ -50,8 +50,8 @@ void spawnguts(DDukeActor* origin, PClass* type, int count);
 
 void handle_se00(DDukeActor* i);
 void handle_se01(DDukeActor* i);
-void handle_se14(DDukeActor* i, bool checkstat, int RPG, int JIBS6);
-void handle_se30(DDukeActor* i, int JIBS6);
+void handle_se14(DDukeActor* i, bool checkstat, PClassActor* RPG);
+void handle_se30(DDukeActor* i);
 void handle_se02(DDukeActor* i);
 void handle_se03(DDukeActor* i);
 void handle_se04(DDukeActor* i);

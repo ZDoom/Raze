@@ -177,7 +177,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				if (proj->spr.picnum != DTILE_FREEZEBLAST)
 					//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL.
 				{
-					auto spawned = spawn(proj, DTILE_JIBS6);
+					auto spawned = spawn(proj, PClass::FindActor(NAME_DukeJibs6));
 					if (spawned)
 					{
 						if (proj->spr.pal == 6)

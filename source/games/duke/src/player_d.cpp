@@ -539,9 +539,9 @@ int doincrements_d(player_struct* p)
 
 void checkweapons_d(player_struct* p)
 {
-	static const uint16_t weapon_sprites[MAX_WEAPONS] = { DTILE_KNEE, DTILE_FIRSTGUNSPRITE, DTILE_SHOTGUNSPRITE,
-			DTILE_CHAINGUNSPRITE, DTILE_RPGSPRITE, DTILE_HEAVYHBOMB, DTILE_SHRINKERSPRITE, DTILE_DEVISTATORSPRITE,
-			DTILE_TRIPBOMBSPRITE, DTILE_FREEZESPRITE, DTILE_HEAVYHBOMB, DTILE_SHRINKERSPRITE };
+	static const FName weapon_sprites[MAX_WEAPONS] = { NAME_DukeMeleeAttack, NAME_DukeFirstgunSprite, NAME_DukeShotgunSprite,
+			NAME_DukeChaingunSprite, NAME_DukeRPGSprite, NAME_DukePipeBomb, NAME_DukeShrinkerSprite, NAME_DukeDevastatorSprite,
+			NAME_DukeTripBombSprite, NAME_DukeFreezeSprite, NAME_DukePipeBomb, NAME_DukeShrinkerSprite };
 
 	int cw;
 
@@ -559,7 +559,7 @@ void checkweapons_d(player_struct* p)
 	if (cw)
 	{
 		if (krand() & 1)
-			spawn(p->GetActor(), weapon_sprites[cw]);
+			spawn(p->GetActor(), PClass::FindActor(weapon_sprites[cw]));
 		else switch (cw)
 		{
 		case RPG_WEAPON:
@@ -892,7 +892,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
-		auto j = spawn(pact, DTILE_WATERBUBBLE);
+		auto j = spawn(pact, PClass::FindActor(NAME_DukeWaterBubble));
 		if (j)
 		{
 			j->spr.pos += (p->GetActor()->spr.Angles.Yaw.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
@@ -1185,7 +1185,7 @@ static void operateweapon(int snum, ESyncBits actions)
 		}
 
 		else if (p->kickback_pic == 2)
-			spawn(pact, DTILE_SHELL);
+			spawn(pact, PClass::FindActor(NAME_DukeShell));
 
 		p->kickback_pic++;
 
@@ -1253,7 +1253,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			break;
 		case 24:
 		{
-			auto j = spawn(pact, DTILE_SHOTGUNSHELL);
+			auto j = spawn(pact, PClass::FindActor(NAME_DukeShotgunShell));
 			if (j)
 			{
 				j->spr.Angles.Yaw += DAngle180;
@@ -1287,7 +1287,7 @@ static void operateweapon(int snum, ESyncBits actions)
 
 				if ((p->kickback_pic % 3) == 0)
 				{
-					auto j = spawn(pact, DTILE_SHELL);
+					auto j = spawn(pact, PClass::FindActor(NAME_DukeShell));
 					if (j)
 					{
 						j->spr.Angles.Yaw += DAngle180;

@@ -666,7 +666,7 @@ void checkweapons_r(player_struct* p)
 	{
 		if (p->keys[i] == 1)
 		{
-			auto j = spawn(p->GetActor(), RTILE_ACCESSCARD);
+			auto j = spawn(p->GetActor(), PClass::FindActor(NAME_RedneckDoorkey));
 			if (j) switch (i)
 			{
 			case 1:
@@ -1385,7 +1385,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
-		auto j = spawn(pact, RTILE_WATERBUBBLE);
+		auto j = spawn(pact, PClass::FindActor(NAME_DukeWaterBubble));
 		if (j)
 		{
 			j->spr.pos += (p->GetActor()->spr.Angles.Yaw.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
@@ -3060,7 +3060,7 @@ void OffMotorcycle(player_struct *p)
 		p->TurbCount = 0;
 		p->vel.XY() = p->GetActor()->spr.Angles.Yaw.ToVector() / 2048.;
 		p->moto_underwater = 0;
-		auto spawned = spawn(p->GetActor(), RTILE_EMPTYBIKE);
+		auto spawned = spawn(p->GetActor(), PClass::FindActor(NAME_RedneckEmptyBike));
 		if (spawned)
 		{
 			spawned->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
@@ -3114,7 +3114,7 @@ void OffBoat(player_struct *p)
 		p->TurbCount = 0;
 		p->vel.XY() = p->GetActor()->spr.Angles.Yaw.ToVector() / 2048.;
 		p->moto_underwater = 0;
-		auto spawned = spawn(p->GetActor(), RTILE_EMPTYBOAT);
+		auto spawned = spawn(p->GetActor(), PClass::FindActor(NAME_RedneckEmptyBoat));
 		if (spawned)
 		{
 			spawned->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;

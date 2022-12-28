@@ -780,7 +780,7 @@ void detonate(DDukeActor *actor, PClassActor* explosion)
 //
 //---------------------------------------------------------------------------
 
-void gutsdir(DDukeActor* actor, int gtype, int n, int p)
+void gutsdir(DDukeActor* actor, PClassActor* gtype, int n, int p)
 {
 	double scale;
 
@@ -996,7 +996,7 @@ void handle_se01(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
+void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 {
 	auto sc = actor->sector();
 	int st = actor->spr.lotag;
@@ -1055,7 +1055,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				{
 					auto saved_angle = actor->spr.Angles.Yaw;
 					actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-					shoot(actor, RPG, nullptr);
+					shoot(actor, -1, RPG);
 					actor->spr.Angles.Yaw = saved_angle;
 				}
 			}
@@ -1173,7 +1173,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						updatesector(a2->spr.pos, &k);
 						if (a2->spr.extra >= 0 && k == actor->sector())
 						{
-							gutsdir(a2, JIBS6, 72, myconnectindex);
+							gutsdir(a2, PClass::FindActor(NAME_DukeJibs6), 72, myconnectindex);
 							S_PlayActorSound(SQUISHED, actor);
 							a2->Destroy();
 						}
@@ -1194,7 +1194,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 //
 //---------------------------------------------------------------------------
 
-void handle_se30(DDukeActor *actor, int JIBS6)
+void handle_se30(DDukeActor *actor)
 {
 	auto sc = actor->sector();
 
@@ -1333,7 +1333,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 							updatesector(a2->spr.pos, &k);
 							if (a2->spr.extra >= 0 && k == actor->sector())
 							{
-								gutsdir(a2, JIBS6, 24, myconnectindex);
+								gutsdir(a2, PClass::FindActor(NAME_DukeJibs6), 24, myconnectindex);
 								S_PlayActorSound(SQUISHED, a2);
 								a2->Destroy();
 						}

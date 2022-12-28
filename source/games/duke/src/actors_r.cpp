@@ -484,7 +484,7 @@ void movetransports_r(void)
 					{
 						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
 						{
-							spawn(act,  RTILE_TRANSPORTERBEAM);
+							spawn(act, PClass::FindActor(NAME_DukeTransporterBeam));
 							S_PlayActorSound(TELEPORTER, act);
 
 							for (k = connecthead; k >= 0; k = connectpoint2[k])
@@ -510,7 +510,7 @@ void movetransports_r(void)
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->sector());
 
-							auto beam = spawn(Owner, RTILE_TRANSPORTERBEAM);
+							auto beam = spawn(Owner, PClass::FindActor(NAME_DukeTransporterBeam));
 							if (beam) S_PlayActorSound(TELEPORTER, beam);
 
 							break;
@@ -598,7 +598,7 @@ void movetransports_r(void)
 						ChangeActorSect(act2, Owner->sector());
 
 						if ((krand() & 255) < 32)
-							spawn(ps[p].GetActor(), RTILE_WATERSPLASH2);
+							spawn(ps[p].GetActor(), PClass::FindActor(NAME_DukeWaterSplash));
 					}
 					else if (isRRRA() && k == 2)
 					{
@@ -694,7 +694,7 @@ void movetransports_r(void)
 
 							if (sectlotag > 0)
 							{
-								auto spawned = spawn(act2, RTILE_WATERSPLASH2);
+								auto spawned = spawn(act2, PClass::FindActor(NAME_DukeWaterSplash));
 								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 								{
 									spawned->vel.X = act2->vel.X * 0.5;
@@ -715,10 +715,10 @@ void movetransports_r(void)
 
 										act2->backupang();
 
-										auto beam = spawn(act, RTILE_TRANSPORTERBEAM);
+										auto beam = spawn(act, PClass::FindActor(NAME_DukeTransporterBeam));
 										if (beam) S_PlayActorSound(TELEPORTER, beam);
 
-										beam = spawn(Owner, RTILE_TRANSPORTERBEAM);
+										beam = spawn(Owner, PClass::FindActor(NAME_DukeTransporterBeam));
 										if (beam) S_PlayActorSound(TELEPORTER, beam);
 
 										if (Owner->GetOwner() != Owner)
@@ -907,7 +907,7 @@ void handle_se06_r(DDukeActor *actor)
 			if ((!isRRRA() || lastlevel) && hulkspawn)
 			{
 				hulkspawn--;
-				auto ns = spawn(actor, RTILE_HULK);
+				auto ns = spawn(actor, PClass::FindActor(NAME_RedneckHulk));
 				if (ns)
 				{
 					ns->spr.pos.Z = ns->sector()->ceilingz;
@@ -989,7 +989,7 @@ void handle_se06_r(DDukeActor *actor)
 			act2->temp_data[4] = actor->temp_data[4];
 		}
 	}
-	handle_se14(actor, false, RTILE_RPG, RTILE_JIBS6);
+	handle_se14(actor, false, PClass::FindActor(NAME_RedneckDynamiteArrow));
 }
 
 //---------------------------------------------------------------------------
@@ -1023,11 +1023,11 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case SE_14_SUBWAY_CAR:
-			handle_se14(act, false, RTILE_RPG, RTILE_JIBS6);
+			handle_se14(act, false, PClass::FindActor(NAME_RedneckDynamiteArrow));
 			break;
 
 		case SE_30_TWO_WAY_TRAIN:
-			handle_se30(act, RTILE_JIBS6);
+			handle_se30(act);
 			break;
 
 
@@ -1437,7 +1437,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		}
 		if (isRRRA())
 		{
-			if (actor->sector()->lotag != 1)
+			if (actor->sector()->lotag != ST_1_ABOVE_WATER)
 			{
 				switch (actor->spr.picnum)
 				{
@@ -1448,7 +1448,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					break;
 				}
 			}
-			else if (actor->sector()->lotag == 1)
+			else if (actor->sector()->lotag == ST_1_ABOVE_WATER)
 			{
 				switch (actor->spr.picnum)
 				{
@@ -1493,16 +1493,16 @@ void fakebubbaspawn(DDukeActor *actor, player_struct* p)
 	default:
 		break;
 	case 1:
-		spawn(actor, RTILE_PIG);
+		spawn(actor, PClass::FindActor(NAME_RedneckPig));
 		break;
 	case 2:
-		spawn(actor, RTILE_MINION);
+		spawn(actor, PClass::FindActor(NAME_RedneckMinion));
 		break;
 	case 3:
-		spawn(actor, RTILE_CHEER);
+		spawn(actor, PClass::FindActor(NAME_RedneckCheerleader));
 		break;
 	case 4:
-		spawn(actor, RTILE_VIXEN);
+		spawn(actor, PClass::FindActor(NAME_RedneckVixen));
 		operateactivators(666, p);
 		break;
 	}
@@ -1533,7 +1533,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		{
 			if (!actor->isPlayer() && badguy(actor) && actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F)
 			{
-				spawnguts(actor, PClass::FindActor("DukeJibs6"), 5);
+				spawnguts(actor, PClass::FindActor(NAME_DukeJibs6), 5);
 				S_PlayActorSound(SQUISHED, actor);
 				addspritetodelete();
 			}
@@ -1711,7 +1711,7 @@ void mamaspawn(DDukeActor *actor)
 	if (mamaspawn_count)
 	{
 		mamaspawn_count--;
-		spawn(actor, RTILE_RABBIT);
+		spawn(actor, PClass::FindActor(NAME_RedneckRabbit));
 	}
 }
 
