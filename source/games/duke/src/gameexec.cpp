@@ -1507,7 +1507,7 @@ int ParseState::parse(void)
 		insptr++;
 		// HACK ALERT! The fire animation uses a broken ifrnd setup to delay its start because original CON has no variables
 		// But the chosen random value of 16/255 is too low and can cause delays of a second or more. (identical in Duke and RR.)
-		if (g_ac->IsKindOf(NAME_RedneckFire) && g_ac->curAction->name == NAME_None && *insptr == 16)
+		if (g_ac->IsKindOf(RedneckFireClass) && g_ac->curAction->name == NAME_None && *insptr == 16)
 		{
 			parseifelse(rnd(64));
 			break;
@@ -1698,10 +1698,10 @@ int ParseState::parse(void)
 		// Separating it here is easiest as long as the ZScript reimplementation explicitly takes care of these differences.
 		if (isRRRA())
 		{
-			//if (g_ac->GetClass.TypeName == NAME_RedneckCheerleader && type == 3400) typecls = PClass::FindActor(NAME_RedneckCheerBaton);
-			//if (g_ac->GetClass.TypeName == NAME_RedneckMama && type == 3390) typecls = PClass::FindActor(NAME_RedneckRabbitBall);
-			//if (g_ac->GetClass.TypeName == NAME_RedneckMinion && type == 3390 && g_ac->spr.pal == 8) typecls = PClass::FindActor(NAME_RedneckFrogBall);
-			//if (g_ac->GetClass.TypeName == NAME_RedneckMinion && type == 3390 && g_ac->spr.pal == 19)) typecls = PClass::FindActor(NAME_RedneckShitBurn);
+			//if (g_ac->GetClass.TypeName == NAME_RedneckCheerleader && type == 3400) typecls = RedneckCheerBatonClass);
+			//if (g_ac->GetClass.TypeName == NAME_RedneckMama && type == 3390) typecls = RedneckRabbitBallClass);
+			//if (g_ac->GetClass.TypeName == NAME_RedneckMinion && type == 3390 && g_ac->spr.pal == 8) typecls = RedneckFrogBallClass);
+			//if (g_ac->GetClass.TypeName == NAME_RedneckMinion && type == 3390 && g_ac->spr.pal == 19)) typecls = RedneckShitBurnClass);
 		}
 		shoot(g_ac, *insptr, nullptr);
 		insptr++;

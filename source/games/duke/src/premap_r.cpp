@@ -418,13 +418,13 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			dist = 0;
 			while (auto act = it.Next())
 			{
-				if (act->GetClass()->TypeName == NAME_RedneckJaildoorDef)
+				if (act->GetClass() == RedneckJaildoorDefClass)
 				{
 					dist = act->spr.lotag;
 					speed = act->spr.hitag;
 					act->Destroy();
 				}
-				if (act->GetClass()->TypeName == NAME_RedneckJaildoorSound)
+				if (act->GetClass() == RedneckJaildoorSoundClass)
 				{
 					sound = act->spr.lotag;
 					act->Destroy();
@@ -458,14 +458,14 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			DukeSectIterator it(sectp);
 			while (auto act = it.Next())
 			{
-				if (act->GetClass()->TypeName == NAME_RedneckMinecartDef)
+				if (act->GetClass() == RedneckMinecartDefClass)
 				{
 					dist = act->spr.lotag;
 					speed = act->spr.hitag;
 					DukeSpriteIterator itt;
 					while(auto act1 = itt.Next())
 					{
-						if (act1->GetClass()->TypeName == NAME_RedneckMinecartInner)
+						if (act1->GetClass() == RedneckMinecartInnerClass)
 							if (act1->spr.lotag == act->sectno()) // bad map format design... Should have used a tag instead...
 							{
 								childsectnum = act1->sector();
@@ -474,7 +474,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 					}
 					act->Destroy();
 				}
-				if (act->GetClass()->TypeName == NAME_RedneckMinecartSound)
+				if (act->GetClass() == RedneckMinecartSoundClass)
 				{
 					sound = act->spr.lotag;
 					act->Destroy();
@@ -504,7 +504,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	for (auto actor : actors)
 	{
 		if (!actor->exists()) continue;
-		if (actor->GetClass()->TypeName == NAME_RedneckGeometryEffect)
+		if (actor->GetClass() == RedneckGeometryEffectClass)
 		{
 			if (geocnt >= MAXGEOSECTORS)
 				I_Error("Too many geometry effects");
@@ -552,9 +552,9 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		{
 			if (iseffector(actor) && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				spriteinit(actor, actors);
-			if (actor->GetClass()->TypeName == NAME_RedneckGeometryEffect)
+			if (actor->GetClass() == RedneckGeometryEffectClass)
 				actor->Destroy();
-			if (actor->GetClass()->TypeName == NAME_RedneckKeyinfoSetter)
+			if (actor->GetClass() == RedneckKeyinfoSetterClass)
 			{
 				actor->sector()->keyinfo = uint8_t(actor->spr.lotag);
 				actor->Destroy();

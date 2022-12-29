@@ -115,4 +115,32 @@ double geoy2[MAXGEOSECTORS];
 int geocnt;
 
 
+
+// Register all internally used classes at game startup so that we can find naming errors right away without having them cause bugs later.
+void RegisterClasses()
+{
+#define xx(n) { #n, &n##Class},
+	static std::pair<const char*, PClassActor**> classreg[] = {
+	#include "classnames.h"
+	};
+#undef xx
+
+	int error = 0;
+	for (auto& classdef : classreg)
+	{
+		auto cls = PClass::FindActor(classdef.first);
+		if (cls == nullptr || !cls->IsDescendantOf(RUNTIME_CLASS(DDukeActor)))
+		{
+			Printf(TEXTCOLOR_RED, "%s: Attempt to register unknown actor class '%s'\n", classdef.first);
+			error++;
+		}
+
+		*classdef.second = cls;
+	}
+	if (error > 0)
+	{
+		I_FatalError("Unable to register %d actor classes", error);
+	}
+}
+
 END_DUKE_NS

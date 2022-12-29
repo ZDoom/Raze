@@ -351,7 +351,7 @@ int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int clip
 
 void lotsoffeathers_r(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, PClass::FindActor(NAME_RedneckFeather));
+	lotsofstuff(actor, n, RedneckFeatherClass);
 }
 
 
@@ -484,7 +484,7 @@ void movetransports_r(void)
 					{
 						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
 						{
-							spawn(act, PClass::FindActor(NAME_DukeTransporterBeam));
+							spawn(act, DukeTransporterBeamClass);
 							S_PlayActorSound(TELEPORTER, act);
 
 							for (k = connecthead; k >= 0; k = connectpoint2[k])
@@ -510,7 +510,7 @@ void movetransports_r(void)
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->sector());
 
-							auto beam = spawn(Owner, PClass::FindActor(NAME_DukeTransporterBeam));
+							auto beam = spawn(Owner, DukeTransporterBeamClass);
 							if (beam) S_PlayActorSound(TELEPORTER, beam);
 
 							break;
@@ -598,7 +598,7 @@ void movetransports_r(void)
 						ChangeActorSect(act2, Owner->sector());
 
 						if ((krand() & 255) < 32)
-							spawn(ps[p].GetActor(), PClass::FindActor(NAME_DukeWaterSplash));
+							spawn(ps[p].GetActor(), DukeWaterSplashClass);
 					}
 					else if (isRRRA() && k == 2)
 					{
@@ -694,7 +694,7 @@ void movetransports_r(void)
 
 							if (sectlotag > 0)
 							{
-								auto spawned = spawn(act2, PClass::FindActor(NAME_DukeWaterSplash));
+								auto spawned = spawn(act2, DukeWaterSplashClass);
 								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 								{
 									spawned->vel.X = act2->vel.X * 0.5;
@@ -715,10 +715,10 @@ void movetransports_r(void)
 
 										act2->backupang();
 
-										auto beam = spawn(act, PClass::FindActor(NAME_DukeTransporterBeam));
+										auto beam = spawn(act, DukeTransporterBeamClass);
 										if (beam) S_PlayActorSound(TELEPORTER, beam);
 
-										beam = spawn(Owner, PClass::FindActor(NAME_DukeTransporterBeam));
+										beam = spawn(Owner, DukeTransporterBeamClass);
 										if (beam) S_PlayActorSound(TELEPORTER, beam);
 
 										if (Owner->GetOwner() != Owner)
@@ -907,7 +907,7 @@ void handle_se06_r(DDukeActor *actor)
 			if ((!isRRRA() || lastlevel) && hulkspawn)
 			{
 				hulkspawn--;
-				auto ns = spawn(actor, PClass::FindActor(NAME_RedneckHulk));
+				auto ns = spawn(actor, RedneckHulkClass);
 				if (ns)
 				{
 					ns->spr.pos.Z = ns->sector()->ceilingz;
@@ -945,28 +945,28 @@ void handle_se06_r(DDukeActor *actor)
 			{
 				ufocnt = 0;
 				ufospawn--;
-				const char* pn;
+				PClassActor* pn;
 				if (!isRRRA())
 				{
 					switch (krand() & 3)
 					{
 					default:
 					case 0:
-						pn = "RedneckUfo1";
+						pn = RedneckUfo1Class;
 						break;
 					case 1:
-						pn = "RedneckUfo2";
+						pn = RedneckUfo2Class;
 						break;
 					case 2:
-						pn = "RedneckUfo3";
+						pn = RedneckUfo3Class;
 						break;
 					case 3:
-						pn = "RedneckUfo4";
+						pn = RedneckUfo4Class;
 						break;
 					}
 				}
-				else pn = "RedneckUfoRRRA";
-				auto ns = spawn(actor, PClass::FindActor(pn));
+				else pn = RedneckUfoRRRAClass;
+				auto ns = spawn(actor, pn);
 				if (ns) ns->spr.pos.Z = ns->sector()->ceilingz;
 			}
 		}
@@ -989,7 +989,7 @@ void handle_se06_r(DDukeActor *actor)
 			act2->temp_data[4] = actor->temp_data[4];
 		}
 	}
-	handle_se14(actor, false, PClass::FindActor(NAME_RedneckDynamiteArrow));
+	handle_se14(actor, false, RedneckDynamiteArrowClass);
 }
 
 //---------------------------------------------------------------------------
@@ -1023,7 +1023,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case SE_14_SUBWAY_CAR:
-			handle_se14(act, false, PClass::FindActor(NAME_RedneckDynamiteArrow));
+			handle_se14(act, false, RedneckDynamiteArrowClass);
 			break;
 
 		case SE_30_TWO_WAY_TRAIN:
@@ -1493,16 +1493,16 @@ void fakebubbaspawn(DDukeActor *actor, player_struct* p)
 	default:
 		break;
 	case 1:
-		spawn(actor, PClass::FindActor(NAME_RedneckPig));
+		spawn(actor, RedneckPigClass);
 		break;
 	case 2:
-		spawn(actor, PClass::FindActor(NAME_RedneckMinion));
+		spawn(actor, RedneckMinionClass);
 		break;
 	case 3:
-		spawn(actor, PClass::FindActor(NAME_RedneckCheerleader));
+		spawn(actor, RedneckCheerleaderClass);
 		break;
 	case 4:
-		spawn(actor, PClass::FindActor(NAME_RedneckVixen));
+		spawn(actor, RedneckVixenClass);
 		operateactivators(666, p);
 		break;
 	}
@@ -1533,7 +1533,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		{
 			if (!actor->isPlayer() && badguy(actor) && actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F)
 			{
-				spawnguts(actor, PClass::FindActor(NAME_DukeJibs6), 5);
+				spawnguts(actor, DukeJibs6Class, 5);
 				S_PlayActorSound(SQUISHED, actor);
 				addspritetodelete();
 			}
@@ -1567,7 +1567,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 				addspritetodelete();
 			return 0;
 		}
-		actor->attackertype = PClass::FindActor(NAME_DukeShotSpark);
+		actor->attackertype = DukeShotSparkClass;
 		actor->hitextra = 1;
 	}
 	else if (tilesurface(actor->sector()->floortexture) == TSURF_MAGMA)
@@ -1576,7 +1576,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		{
 			if ((krand() & 3) == 1)
 			{
-				actor->attackertype = PClass::FindActor(NAME_DukeShotSpark);
+				actor->attackertype = DukeShotSparkClass;
 				actor->hitextra = 5;
 			}
 		}
@@ -1628,7 +1628,7 @@ void destroyit(DDukeActor *actor)
 			{
 				if (a3->spr.picnum == RTILE_DESTRUCTO)
 				{
-					a3->attackertype = PClass::FindActor(NAME_DukeShotSpark);
+					a3->attackertype = DukeShotSparkClass;
 					a3->hitextra = 1;
 				}
 			}
@@ -1711,7 +1711,7 @@ void mamaspawn(DDukeActor *actor)
 	if (mamaspawn_count)
 	{
 		mamaspawn_count--;
-		spawn(actor, PClass::FindActor(NAME_RedneckRabbit));
+		spawn(actor, RedneckRabbitClass);
 	}
 }
 

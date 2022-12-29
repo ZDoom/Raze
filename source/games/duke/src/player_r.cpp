@@ -657,7 +657,7 @@ void checkweapons_r(player_struct* p)
 			[[fallthrough]];
 		case DYNAMITE_WEAPON:
 		case CROSSBOW_WEAPON:
-			spawn(p->GetActor(), PClass::FindActor(NAME_DukeExplosion2));
+			spawn(p->GetActor(), DukeExplosion2Class);
 			break;
 		}
 	}
@@ -666,7 +666,7 @@ void checkweapons_r(player_struct* p)
 	{
 		if (p->keys[i] == 1)
 		{
-			auto j = spawn(p->GetActor(), PClass::FindActor(NAME_RedneckDoorkey));
+			auto j = spawn(p->GetActor(), RedneckDoorkeyClass);
 			if (j) switch (i)
 			{
 			case 1:
@@ -1128,7 +1128,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 			if (p->on_ground == 1)
 			{
 				if (p->dummyplayersprite == nullptr)
-					p->dummyplayersprite = spawn(pact, PClass::FindActor(NAME_DukePlayerOnWater));
+					p->dummyplayersprite = spawn(pact, DukePlayerOnWaterClass);
 
 				p->footprintcount = 6;
 				if (tilesurface(p->cursector->floortexture) == TSURF_SLIME)
@@ -1385,7 +1385,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
-		auto j = spawn(pact, PClass::FindActor(NAME_DukeWaterBubble));
+		auto j = spawn(pact, DukeWaterBubbleClass);
 		if (j)
 		{
 			j->spr.pos += (p->GetActor()->spr.Angles.Yaw.ToVector() + DVector2(12 - (global_random & 8), 12 - (global_random & 8))) * 16;
@@ -1516,7 +1516,7 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		}
 		else
 			victim->SetHitOwner(p->GetActor());
-		victim->attackertype = PClass::FindActor(NAME_RedneckMotoHit);
+		victim->attackertype = RedneckMotoHitClass;
 		victim->hitextra = int(p->MotoSpeed * 0.5);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
@@ -1550,7 +1550,7 @@ void onBoatHit(int snum, DDukeActor* victim)
 		}
 		else
 			victim->SetHitOwner(p->GetActor());
-		victim->attackertype = PClass::FindActor(NAME_RedneckMotoHit);
+		victim->attackertype = RedneckMotoHitClass;
 		victim->hitextra = int(p->MotoSpeed * 0.25);
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
@@ -2440,7 +2440,7 @@ void processinput_r(int snum)
 		{
 			if (badguy(clz.actor()))
 			{
-				clz.actor()->attackertype = PClass::FindActor(NAME_RedneckMotoHit);
+				clz.actor()->attackertype = RedneckMotoHitClass;
 				clz.actor()->hitextra = int(2 + (p->MotoSpeed * 0.5));
 				p->MotoSpeed -= p->MotoSpeed * (1. / 16.);
 			}
@@ -3060,7 +3060,7 @@ void OffMotorcycle(player_struct *p)
 		p->TurbCount = 0;
 		p->vel.XY() = p->GetActor()->spr.Angles.Yaw.ToVector() / 2048.;
 		p->moto_underwater = 0;
-		auto spawned = spawn(p->GetActor(), PClass::FindActor(NAME_RedneckEmptyBike));
+		auto spawned = spawn(p->GetActor(), RedneckEmptyBikeClass);
 		if (spawned)
 		{
 			spawned->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
@@ -3114,7 +3114,7 @@ void OffBoat(player_struct *p)
 		p->TurbCount = 0;
 		p->vel.XY() = p->GetActor()->spr.Angles.Yaw.ToVector() / 2048.;
 		p->moto_underwater = 0;
-		auto spawned = spawn(p->GetActor(), PClass::FindActor(NAME_RedneckEmptyBoat));
+		auto spawned = spawn(p->GetActor(), RedneckEmptyBoatClass);
 		if (spawned)
 		{
 			spawned->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;

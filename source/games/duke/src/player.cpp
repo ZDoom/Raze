@@ -103,7 +103,7 @@ void quickkill(player_struct* p)
 	auto pa = p->GetActor();
 	pa->spr.extra = 0;
 	pa->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
-	if (ud.god == 0) spawnguts(pa, PClass::FindActor("DukeJibs6"), 8);
+	if (ud.god == 0) spawnguts(pa, DukeJibs6Class, 8);
 	return;
 }
 
@@ -363,8 +363,8 @@ void dokneeattack(int snum)
 				p->weapon_pos = -p->weapon_pos;
 			if (p->actorsqu != nullptr && (pact->spr.pos - p->actorsqu->spr.pos).Length() < 1400/16.)
 			{
-				spawnguts(p->actorsqu, PClass::FindActor("DukeJibs6"), 7);
-				spawn(p->actorsqu, PClass::FindActor("DukeBloodPool"));
+				spawnguts(p->actorsqu, DukeJibs6Class, 7);
+				spawn(p->actorsqu, DukeBloodPoolClass);
 				S_PlayActorSound(SQUISHED, p->actorsqu);
 				if (p->actorsqu->flags2 & SFLAG2_TRIGGERRESPAWN)
 				{
@@ -480,7 +480,7 @@ void footprints(int snum)
 			DukeSectIterator it(actor->sector());
 			while (auto act = it.Next())
 			{
-				if (act->IsKindOf(NAME_DukeFootprints))
+				if (act->IsKindOf(DukeFootprintsClass))
 					if (abs(act->spr.pos.X - p->GetActor()->spr.pos.X) < 24)
 						if (abs(act->spr.pos.Y - p->GetActor()->spr.pos.Y) < 24)
 						{
@@ -493,7 +493,7 @@ void footprints(int snum)
 				p->footprintcount--;
 				if (p->cursector->lotag == 0 && p->cursector->hitag == 0)
 				{
-					DDukeActor* fprint = spawn(actor, PClass::FindActor(NAME_DukeFootprints));
+					DDukeActor* fprint = spawn(actor, DukeFootprintsClass);
 					if (fprint)
 					{
 						fprint->spr.Angles.Yaw = p->actor->spr.Angles.Yaw;

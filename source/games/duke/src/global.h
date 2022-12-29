@@ -138,6 +138,15 @@ extern uint8_t enemysizecheat /*raat607*/, chickenphase /* raat605*/, RRRA_Exite
 extern player_orig po[MAXPLAYERS];
 extern int32_t g_cdTrack;
 
+
+
+#define xx(n) inline PClassActor* n##Class;
+#include "classnames.h"
+#undef xx
+
+void RegisterClasses();
+
+
 END_DUKE_NS
 
 #include "inlines.h"

@@ -359,6 +359,7 @@ void setTextureIDs()
 
 void GameInterface::app_init()
 {
+	RegisterClasses();
 	GC::AddMarkerFunc(markgcroots);
 
 	if (isRR()) C_SetNotifyFontScale(0.5);

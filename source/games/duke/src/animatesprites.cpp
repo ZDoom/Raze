@@ -92,15 +92,15 @@ void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 
 bool RRRAFullbrightHack(tspritetype* t, int k)
 {
-	if (t->ownerActor->IsKindOf(NAME_RedneckBillyRay))
+	if (t->ownerActor->IsKindOf(RedneckBillyRayClass))
 	{
 		return k >= 102 && k <= 151;
 	}
-	else if (t->ownerActor->IsKindOf(NAME_RedneckBiker))
+	else if (t->ownerActor->IsKindOf(RedneckBikerClass))
 	{
 		return (k >= 54 && k <= 58) || (k >= 84 && k <= 88);
 	}
-	else if (t->ownerActor->IsKindOf(NAME_RedneckCheerleader))
+	else if (t->ownerActor->IsKindOf(RedneckCheerleaderClass))
 	{
 		return k >= 102 && k <= 151;
 	}

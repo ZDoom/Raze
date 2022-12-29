@@ -175,7 +175,7 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 				if (proj->spr.picnum != RTILE_FREEZEBLAST)
 					//if (actortype[targ->spr.picnum] == 0)  
 				{
-					auto spawned = spawn(proj, PClass::FindActor(NAME_DukeJibs6));
+					auto spawned = spawn(proj, DukeJibs6Class);
 					if (spawned)
 					{
 						if (proj->spr.pal == 6)
@@ -192,10 +192,10 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 			if (Owner && Owner->isPlayer() && targ->spr.picnum != RTILE_DRONE)
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
-					shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat3));
-					shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat1));
-					shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat2));
-					shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat4));
+					shoot(targ, -1, DukeBloodSplat3Class);
+					shoot(targ, -1, DukeBloodSplat1Class);
+					shoot(targ, -1, DukeBloodSplat2Class);
+					shoot(targ, -1, DukeBloodSplat4Class);
 				}
 
 			if (targ->spr.statnum == STAT_ZOMBIEACTOR)
@@ -624,7 +624,7 @@ void tearitup(sectortype* sect)
 	{
 		if (act->spr.picnum == RTILE_DESTRUCTO)
 		{
-			act->attackertype = PClass::FindActor(NAME_DukeShotSpark);
+			act->attackertype = DukeShotSparkClass;
 			act->hitextra = 1;
 		}
 	}

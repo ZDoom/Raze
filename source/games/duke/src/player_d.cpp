@@ -531,7 +531,7 @@ int doincrements_d(player_struct* p)
 }
 
 
-//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------NAM
 //
 //
 //
@@ -539,9 +539,9 @@ int doincrements_d(player_struct* p)
 
 void checkweapons_d(player_struct* p)
 {
-	static const FName weapon_sprites[MAX_WEAPONS] = { NAME_DukeMeleeAttack, NAME_DukeFirstgunSprite, NAME_DukeShotgunSprite,
-			NAME_DukeChaingunSprite, NAME_DukeRPGSprite, NAME_DukePipeBomb, NAME_DukeShrinkerSprite, NAME_DukeDevastatorSprite,
-			NAME_DukeTripBombSprite, NAME_DukeFreezeSprite, NAME_DukePipeBomb, NAME_DukeShrinkerSprite };
+	static PClassActor* const * const weapon_sprites[MAX_WEAPONS] = { &DukeMeleeAttackClass, &DukeFirstgunSpriteClass, &DukeShotgunSpriteClass,
+			&DukeChaingunSpriteClass, &DukeRPGSpriteClass, &DukePipeBombClass, &DukeShrinkerSpriteClass, &DukeDevastatorSpriteClass,
+			&DukeTripBombSpriteClass, &DukeFreezeSpriteClass, &DukePipeBombClass, &DukeShrinkerSpriteClass };
 
 	int cw;
 
@@ -559,12 +559,12 @@ void checkweapons_d(player_struct* p)
 	if (cw)
 	{
 		if (krand() & 1)
-			spawn(p->GetActor(), PClass::FindActor(weapon_sprites[cw]));
+			spawn(p->GetActor(), *weapon_sprites[cw]);
 		else switch (cw)
 		{
 		case RPG_WEAPON:
 		case HANDBOMB_WEAPON:
-			spawn(p->GetActor(), PClass::FindActor(NAME_DukeExplosion2));
+			spawn(p->GetActor(), DukeExplosion2Class);
 			break;
 		}
 	}
@@ -674,7 +674,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, double floo
 			if (p->on_ground == 1)
 			{
 				if (p->dummyplayersprite == nullptr)
-					p->dummyplayersprite = spawn(pact, PClass::FindActor(NAME_DukePlayerOnWater));
+					p->dummyplayersprite = spawn(pact, DukePlayerOnWaterClass);
 
 				p->footprintcount = 6;
 				if (tilesurface(p->cursector->floortexture) == TSURF_SLIME)
@@ -892,7 +892,7 @@ static void underwater(int snum, ESyncBits actions, double floorz, double ceilin
 
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
-		auto j = spawn(pact, PClass::FindActor(NAME_DukeWaterBubble));
+		auto j = spawn(pact, DukeWaterBubbleClass);
 		if (j)
 		{
 			j->spr.pos += (p->GetActor()->spr.Angles.Yaw.ToVector() + DVector2(4 - (global_random & 8), 4 - (global_random & 8))) * 16;
@@ -1185,7 +1185,7 @@ static void operateweapon(int snum, ESyncBits actions)
 		}
 
 		else if (p->kickback_pic == 2)
-			spawn(pact, PClass::FindActor(NAME_DukeShell));
+			spawn(pact, DukeShellClass);
 
 		p->kickback_pic++;
 
@@ -1253,7 +1253,7 @@ static void operateweapon(int snum, ESyncBits actions)
 			break;
 		case 24:
 		{
-			auto j = spawn(pact, PClass::FindActor(NAME_DukeShotgunShell));
+			auto j = spawn(pact, DukeShotgunShellClass);
 			if (j)
 			{
 				j->spr.Angles.Yaw += DAngle180;
@@ -1287,7 +1287,7 @@ static void operateweapon(int snum, ESyncBits actions)
 
 				if ((p->kickback_pic % 3) == 0)
 				{
-					auto j = spawn(pact, PClass::FindActor(NAME_DukeShell));
+					auto j = spawn(pact, DukeShellClass);
 					if (j)
 					{
 						j->spr.Angles.Yaw += DAngle180;

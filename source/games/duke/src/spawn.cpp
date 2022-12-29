@@ -50,7 +50,7 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 	act->curAction = &actions[0];
 	if (info)
 	{
-		if (info->basetex > 0 && act->IsKindOf(NAME_DukeGenericDestructible))
+		if (info->basetex > 0 && act->IsKindOf(DukeGenericDestructibleClass))
 		{
 			// allow defining simple destructibles without actual actor definitions.
 			act->IntVar(NAME_spawnstate) = info->basetex;
@@ -887,16 +887,8 @@ void spriteinit(DDukeActor* actor, TArray<DDukeActor*>& actors)
 
 inline PClassActor* GlassClass(int j)
 {
-	static PClassActor* glasses[3];
-	if (glasses[0] == nullptr)
-	{
-		static const FName glassnames[] = { NAME_DukeGlassPieces, NAME_DukeGlassPieces1, NAME_DukeGlassPieces2 };
-		for (int i = 0; i < 3; i++)
-		{
-			glasses[i] = PClass::FindActor(glassnames[i]);
-		}
-	}
-	return glasses[j % 3];
+	static PClassActor* const* glasses[] = { &DukeGlassPiecesClass, &DukeGlassPieces1Class, &DukeGlassPieces2Class };
+	return *glasses[j % 3];
 }
 
 void lotsofglass(DDukeActor *actor, walltype* wal, int n)

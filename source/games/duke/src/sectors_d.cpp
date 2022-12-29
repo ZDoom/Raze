@@ -177,7 +177,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				if (proj->spr.picnum != DTILE_FREEZEBLAST)
 					//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL.
 				{
-					auto spawned = spawn(proj, PClass::FindActor(NAME_DukeJibs6));
+					auto spawned = spawn(proj, DukeJibs6Class);
 					if (spawned)
 					{
 						if (proj->spr.pal == 6)
@@ -194,10 +194,10 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 			if (Owner && Owner->isPlayer() && targ->spr.picnum != DTILE_ROTATEGUN && targ->spr.picnum != DTILE_DRONE)
 				if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 				{
-					shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat3));
-					shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat1));
-					shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat2));
-					shoot(targ, -1, PClass::FindActor(NAME_DukeBloodSplat4));
+					shoot(targ, -1, DukeBloodSplat3Class);
+					shoot(targ, -1, DukeBloodSplat1Class);
+					shoot(targ, -1, DukeBloodSplat2Class);
+					shoot(targ, -1, DukeBloodSplat4Class);
 				}
 
 			if (!(targ->flags2 & SFLAG2_NODAMAGEPUSH)) // RR does not have this.
@@ -233,8 +233,8 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 					return;
 
 				auto tOwner = targ->GetOwner();
-				if (hitpic->TypeName == NAME_DukeFireball && tOwner && tOwner->GetClass()->TypeName != NAME_DukeFireball)
-					hitpic = PClass::FindActor(NAME_DukeFlamethrowerFlame);
+				if (hitpic == DukeFireballClass && tOwner && tOwner->GetClass() != DukeFireballClass)
+					hitpic = DukeFlamethrowerFlameClass;
 			}
 
 			targ->attackertype = hitpic;

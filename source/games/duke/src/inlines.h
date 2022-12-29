@@ -18,37 +18,37 @@ inline int rnd(int X)
 inline int ismasterswitch(DDukeActor* actor)
 {
 	// The STAT_REMOVED check here is important!
-	return actor->GetClass()->TypeName == NAME_DukeMasterSwitch && actor->spr.statnum != STAT_REMOVED;
+	return actor->GetClass() == DukeMasterSwitchClass && actor->spr.statnum != STAT_REMOVED;
 }
 
 inline int issoundcontroller(DDukeActor* actor)
 {
-	return actor->GetClass()->TypeName == NAME_DukeSoundController;
+	return actor->GetClass() == DukeSoundControllerClass;
 }
 
 inline int isrespawncontroller(DDukeActor* actor)
 {
-	return actor->GetClass()->TypeName == NAME_DukeRespawnController;
+	return actor->GetClass() == DukeRespawnControllerClass;
 }
 
 inline int isactivator(DDukeActor* actor)
 {
-	return actor->GetClass()->TypeName == NAME_DukeActivator;
+	return actor->GetClass() == DukeActivatorClass;
 }
 
 inline int islockedactivator(DDukeActor* actor)
 {
-	return actor->GetClass()->TypeName == NAME_DukeActivatorLocked;
+	return actor->GetClass() == DukeActivatorLockedClass;
 }
 
 inline int islocator(DDukeActor* actor)
 {
-	return actor->GetClass()->TypeName == NAME_DukeLocator;
+	return actor->GetClass() == DukeLocatorClass;
 }
 
 inline int iseffector(DDukeActor* actor)
 {
-	return actor->GetClass()->TypeName == NAME_DukeSectorEffector;
+	return actor->GetClass() == DukeSectorEffectorClass;
 }
 
 

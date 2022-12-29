@@ -153,7 +153,7 @@ void RANDOMSCRAP(DDukeActor* origin)
 	auto vel = krandf(4) + 4;
 	auto zvel = -krandf(8) - 2;
 
-	auto spawned = CreateActor(origin->sector(), origin->spr.pos + offset, PClass::FindActor("DukeScrap"), -8, DVector2(v, v), a, vel, zvel, origin, STAT_MISC);
+	auto spawned = CreateActor(origin->sector(), origin->spr.pos + offset, DukeScrapClass, -8, DVector2(v, v), a, vel, zvel, origin, STAT_MISC);
 	if (spawned)
 	{
 		spawned->spriteextra = (r4 & 15);
@@ -624,7 +624,7 @@ void movefallers(void)
 							{
 								a2->counter = 1;
 								a2->spr.cstat &= ~CSTAT_SPRITE_ONE_SIDE;
-								if (a2->IsKindOf(NAME_DukeSteamBase))
+								if (a2->IsKindOf(DukeSteamBaseClass))
 									a2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 							}
 						}
@@ -1173,7 +1173,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 						updatesector(a2->spr.pos, &k);
 						if (a2->spr.extra >= 0 && k == actor->sector())
 						{
-							gutsdir(a2, PClass::FindActor(NAME_DukeJibs6), 72, myconnectindex);
+							gutsdir(a2, DukeJibs6Class, 72, myconnectindex);
 							S_PlayActorSound(SQUISHED, actor);
 							a2->Destroy();
 						}
@@ -1333,7 +1333,7 @@ void handle_se30(DDukeActor *actor)
 							updatesector(a2->spr.pos, &k);
 							if (a2->spr.extra >= 0 && k == actor->sector())
 							{
-								gutsdir(a2, PClass::FindActor(NAME_DukeJibs6), 24, myconnectindex);
+								gutsdir(a2, DukeJibs6Class, 24, myconnectindex);
 								S_PlayActorSound(SQUISHED, a2);
 								a2->Destroy();
 						}
@@ -1541,7 +1541,7 @@ void handle_se05(DDukeActor* actor)
 	{
 		auto ang = actor->spr.Angles.Yaw;
 		actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-		shoot(actor, -1, PClass::FindActor(isRR()? NAME_RedneckFirelaser : NAME_DukeFirelaser));
+		shoot(actor, -1, isRR()? RedneckFirelaserClass : DukeFirelaserClass);
 		actor->spr.Angles.Yaw = ang;
 	}
 
@@ -2014,7 +2014,7 @@ void handle_se16(DDukeActor* actor)
 		DDukeActor* a2;
 		while ((a2 = it.Next()))
 		{
-			if (a2->IsKindOf(NAME_DukeReactor) && a2->spritesetindex == 0)
+			if (a2->IsKindOf(DukeReactorClass) && a2->spritesetindex == 0)
 				return;
 		}
 		if (a2 == nullptr)
@@ -2765,14 +2765,14 @@ void handle_se35(DDukeActor *actor)
 		for (int j = 0; j < 8; j++)
 		{
 			actor->spr.Angles.Yaw = randomAngle(90);
-			auto spawned = spawn(actor, PClass::FindActor(NAME_DukeSmallSmoke));
+			auto spawned = spawn(actor, DukeSmallSmokeClass);
 			if (spawned)
 			{
 				spawned->vel.X = 6 + krandf(8);
 				ssp(spawned, CLIPMASK0);
 				SetActor(spawned, spawned->spr.pos);
 				if (rnd(16))
-					spawn(actor, PClass::FindActor(NAME_DukeExplosion2));
+					spawn(actor, DukeExplosion2Class);
 			}
 		}
 
@@ -2859,7 +2859,7 @@ void handle_se130(DDukeActor *actor, int countmax)
 
 	if (rnd(64))
 	{
-		auto k = spawn(actor, PClass::FindActor(NAME_DukeExplosion2));
+		auto k = spawn(actor, DukeExplosion2Class);
 		if (k)
 		{
 			double s = 0.03125 + (krand() & 7) * REPEAT_SCALE;
@@ -3373,20 +3373,20 @@ void fall_common(DDukeActor *actor, int playernum, int DRONE, int(*fallspecial)(
 							goto SKIPJIBS;
 						if (sphit)
 						{
-							spawnguts(actor, PClass::FindActor(NAME_DukeJibs6), 5);
+							spawnguts(actor, DukeJibs6Class, 5);
 							S_PlayActorSound(SQUISHED, actor);
 						}
 						else
 						{
-							spawnguts(actor, PClass::FindActor(NAME_DukeJibs6), 15);
+							spawnguts(actor, DukeJibs6Class, 15);
 							S_PlayActorSound(SQUISHED, actor);
-							spawn(actor, PClass::FindActor(NAME_DukeBloodPool));
+							spawn(actor, DukeBloodPoolClass);
 						}
 					}
 
 				SKIPJIBS:
 
-					actor->attackertype = PClass::FindActor(NAME_DukeShotSpark);
+					actor->attackertype = DukeShotSparkClass;
 					actor->hitextra = 1;
 					actor->vel.Z = 0;
 				}
@@ -3586,7 +3586,7 @@ void spawndebris(DDukeActor* g_ac, int dnum, int count)
 			auto zvel = -krandf(8);
 			DVector2 scale(0.5 + (krand() & 15) * REPEAT_SCALE, 0.5 + (krand() & 15) * REPEAT_SCALE);
 
-			auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs, PClass::FindActor("DukeScrap"), g_ac->spr.shade, scale, a, vel, zvel, g_ac, STAT_MISC);
+			auto spawned = CreateActor(g_ac->sector(), g_ac->spr.pos + offs, DukeScrapClass, g_ac->spr.shade, scale, a, vel, zvel, g_ac, STAT_MISC);
 			if (spawned)
 			{
 				spawned->spriteextra = dnum + s;

@@ -131,7 +131,7 @@ int ifsquished(DDukeActor* actor, int p)
 
 		if (actor->spr.pal == 1)
 		{
-			actor->attackertype = PClass::FindActor(NAME_DukeShotSpark);
+			actor->attackertype = DukeShotSparkClass;
 			actor->hitextra = 1;
 			return false;
 		}
@@ -277,7 +277,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						{
 							int p = act2->spr.yint;
 
-							if (act2->attackertype->TypeName == NAME_DukeFlamethrowerFlame && Owner->isPlayer())
+							if (act2->attackertype == DukeFlamethrowerFlameClass && Owner->isPlayer())
 							{
 								ps[p].numloogs = -1 - actor->spr.yint;
 							}
@@ -386,17 +386,17 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 
 void lotsofmoney_d(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, PClass::FindActor(NAME_DukeMoney));
+	lotsofstuff(actor, n, DukeMoneyClass);
 }
 
 void lotsofmail_d(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, PClass::FindActor(NAME_DukeMail));
+	lotsofstuff(actor, n, DukeMailClass);
 }
 
 void lotsofpaper_d(DDukeActor *actor, int n)
 {
-	lotsofstuff(actor, n, PClass::FindActor(NAME_DukePaper));
+	lotsofstuff(actor, n, DukePaperClass);
 }
 
 //---------------------------------------------------------------------------
@@ -457,10 +457,10 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			else
 			{
 				if (actor->hitextra == 0)
-					if (actor->attackertype->TypeName == NAME_DukeShrinkSpark && actor->spr.scale.X < 0.375)
+					if (actor->attackertype == DukeShrinkSparkClass && actor->spr.scale.X < 0.375)
 						return -1;
 
-				if (actor->attackertype->TypeName == NAME_DukeFirefly && actor->spr.scale.X < 0.75)
+				if (actor->attackertype == DukeFireflyClass && actor->spr.scale.X < 0.75)
 				{
 					return -1;
 				}
@@ -483,7 +483,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 	if (ud.multimode < 2
 		|| actor->attackertype == nullptr
-		|| actor->attackertype->TypeName != NAME_DukeFlamethrowerFlame
+		|| actor->attackertype != DukeFlamethrowerFlameClass
 		|| actor->hitextra >= 0
 		|| actor->spr.extra > 0
 		|| !actor->isPlayer()
@@ -557,7 +557,7 @@ void movetransports_d(void)
 						{
 							if (act->spr.pal == 0)
 							{
-								spawn(act, PClass::FindActor(NAME_DukeTransporterBeam));
+								spawn(act, DukeTransporterBeamClass);
 								S_PlayActorSound(TELEPORTER, act);
 							}
 
@@ -586,7 +586,7 @@ void movetransports_d(void)
 
 							if (act->spr.pal == 0)
 							{
-								auto k = spawn(Owner, PClass::FindActor(NAME_DukeTransporterBeam));
+								auto k = spawn(Owner, DukeTransporterBeamClass);
 								if (k) S_PlayActorSound(TELEPORTER, k);
 							}
 
@@ -667,12 +667,12 @@ void movetransports_d(void)
 						SetActor(act2, act2->spr.pos);
 
 						if ((krand() & 255) < 32)
-							spawn(act2, PClass::FindActor(NAME_DukeWaterSplash));
+							spawn(act2, DukeWaterSplashClass);
 
 						if (sectlotag == 1)
 							for (int l = 0; l < 9; l++)
 						{
-							auto q = spawn(ps[p].GetActor(), PClass::FindActor(NAME_DukeWaterBubble));
+							auto q = spawn(ps[p].GetActor(), DukeWaterBubbleClass);
 							if (q) q->spr.pos.Z += krandf(64);
 						}
 					}
@@ -729,7 +729,7 @@ void movetransports_d(void)
 
 							if (sectlotag > 0)
 							{
-								auto k = spawn(act2, PClass::FindActor(NAME_DukeWaterSplash));
+								auto k = spawn(act2, DukeWaterSplashClass);
 								if (k && sectlotag == 1 && act2->spr.statnum == 4)
 								{
 									k->vel.X = act2->vel.X * 0.5;
@@ -752,10 +752,10 @@ void movetransports_d(void)
 
 										if (act->spr.pal == 0)
 										{
-											auto k = spawn(act, PClass::FindActor(NAME_DukeTransporterBeam));
+											auto k = spawn(act, DukeTransporterBeamClass);
 											if (k) S_PlayActorSound(TELEPORTER, k);
 
-											k = spawn(Owner, PClass::FindActor(NAME_DukeTransporterBeam));
+											k = spawn(Owner, DukeTransporterBeamClass);
 											if (k) S_PlayActorSound(TELEPORTER, k);
 										}
 
@@ -850,7 +850,7 @@ void handle_se06_d(DDukeActor* actor)
 			act2->temp_data[4] = actor->temp_data[4];
 		}
 	}
-	handle_se14(actor, true, PClass::FindActor(NAME_DukeRPG));
+	handle_se14(actor, true, DukeRPGClass);
 }
 
 
@@ -896,7 +896,7 @@ static void handle_se28(DDukeActor* actor)
 			DukeStatIterator it(STAT_DEFAULT);
 			while (auto act2 = it.Next())
 			{
-				if (act2->GetClass()->TypeName == NAME_DukeNaturalLightning && act2->spr.hitag == actor->spr.hitag)
+				if (act2->GetClass() == DukeNaturalLightningClass && act2->spr.hitag == actor->spr.hitag)
 					act2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 			}
 		}
@@ -913,12 +913,12 @@ static void handle_se28(DDukeActor* actor)
 			DukeStatIterator it(STAT_DEFAULT);
 			while (auto act2 = it.Next())
 			{
-				if (act2->GetClass()->TypeName == NAME_DukeNaturalLightning && act2->spr.hitag == actor->spr.hitag)
+				if (act2->GetClass() == DukeNaturalLightningClass && act2->spr.hitag == actor->spr.hitag)
 				{
 					if (rnd(32) && (actor->temp_data[2] & 1))
 					{
 						act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-						spawn(act2, PClass::FindActor(NAME_DukeSmallSmoke));
+						spawn(act2, DukeSmallSmokeClass);
 
 						double x;
 						int p = findplayer(actor, &x);
@@ -970,7 +970,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_14_SUBWAY_CAR:
-			handle_se14(act, true, PClass::FindActor(NAME_DukeRPG));
+			handle_se14(act, true, DukeRPGClass);
 			break;
 
 		case SE_30_TWO_WAY_TRAIN:
