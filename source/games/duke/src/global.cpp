@@ -141,6 +141,11 @@ void RegisterClasses()
 	{
 		I_FatalError("Unable to register %d actor classes", error);
 	}
+
+	if (isRR()) // save some mess elsewhere
+	{
+		DukeMoneyClass = DukeMailClass = DukePaperClass = RedneckFeatherClass;
+	}
 }
 
 END_DUKE_NS

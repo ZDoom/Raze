@@ -297,7 +297,7 @@ void checksectors_r(int snum)
 	if (chatmodeon || p->GetActor()->spr.extra <= 0) return;
 
 	if (ud.cashman && PlayerInput(snum, SB_OPEN))
-		fi.lotsofmoney(p->GetActor(), 2);
+		lotsofstuff(p->GetActor(), 2, DukeMailClass);
 
 
 	if (!(PlayerInput(snum, SB_OPEN)))

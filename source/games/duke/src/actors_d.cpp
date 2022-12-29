@@ -143,27 +143,6 @@ int ifsquished(DDukeActor* actor, int p)
 
 //---------------------------------------------------------------------------
 //
-//
-//
-//---------------------------------------------------------------------------
-
-void lotsofmoney_d(DDukeActor *actor, int n)
-{
-	lotsofstuff(actor, n, DukeMoneyClass);
-}
-
-void lotsofmail_d(DDukeActor *actor, int n)
-{
-	lotsofstuff(actor, n, DukeMailClass);
-}
-
-void lotsofpaper_d(DDukeActor *actor, int n)
-{
-	lotsofstuff(actor, n, DukePaperClass);
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------

@@ -1809,12 +1809,12 @@ int ParseState::parse(void)
 		break;
 	case concmd_money:
 		insptr++;
-		fi.lotsofmoney(g_ac,*insptr);
+		lotsofstuff(g_ac,*insptr, DukeMoneyClass);
 		insptr++;
 		break;
 	case concmd_mail:
 		insptr++;
-		fi.lotsofmail(g_ac,*insptr);
+		lotsofstuff(g_ac,*insptr, DukeMailClass);
 		insptr++;
 		break;
 	case concmd_sleeptime:
@@ -1824,7 +1824,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_paper:
 		insptr++;
-		fi.lotsofpaper(g_ac,*insptr);
+		lotsofstuff(g_ac,*insptr, DukePaperClass);
 		insptr++;
 		break;
 	case concmd_addkills:

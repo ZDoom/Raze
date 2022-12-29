@@ -81,9 +81,6 @@ struct Dispatcher
 	void (*checksectors)(int low);
 
 	void (*addweapon)(player_struct *p, int weapon, bool wswitch);
-	void (*lotsofmoney)(DDukeActor *s, int n);
-	void (*lotsofmail)(DDukeActor *s, int n);
-	void (*lotsofpaper)(DDukeActor *s, int n);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
 	void (*fall)(DDukeActor* actor, int g_p);
 	bool (*spawnweapondebris)(int picnum);
