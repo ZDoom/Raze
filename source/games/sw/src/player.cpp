@@ -6805,7 +6805,8 @@ void ChopsCheck(PLAYER* pp)
                 {
                     ChopTics = 0;
                     // bring weapon back up
-                    pp->Flags &= ~(PF_WEAPON_DOWN);
+                    if (!pp->sop || !(pp->sop->flags & SOBJ_HAS_WEAPON))
+                        pp->Flags &= ~(PF_WEAPON_DOWN);
                     ChopsSetRetract(pp);
                 }
             }
