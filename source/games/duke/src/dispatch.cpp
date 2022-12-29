@@ -136,10 +136,6 @@ void SetDispatcher()
 }
 
 
-int TILE_APLAYER;
-int TILE_DRONE;
-int TILE_WATERBUBBLE;
-int TILE_BLOODPOOL;
 int TILE_CROSSHAIR;
 
 END_DUKE_NS

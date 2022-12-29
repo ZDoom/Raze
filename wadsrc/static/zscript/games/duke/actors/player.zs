@@ -1,4 +1,8 @@
-class DukePlayerPawn : DukeActor
+class DukePlayerBase : DukeActor
+{
+}
+
+class DukePlayerPawn : DukePlayerBase
 {
 	default
 	{

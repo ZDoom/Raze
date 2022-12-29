@@ -116,7 +116,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			continue;
 		}
 
-		if (h->spr.picnum == DTILE_APLAYER)
+		if (h->isPlayer())
 		{
 			p = h->PlayerIndex();
 

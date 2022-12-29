@@ -57,10 +57,6 @@ void initactorflags_d()
 	gs.weaponsandammosprites[14] = DukeFreezeAmmoClass;
 	gs.firstdebris = DTILE_SCRAP6;
 
-	TILE_APLAYER = DTILE_APLAYER;
-	TILE_DRONE = DTILE_DRONE;
-	TILE_WATERBUBBLE = DTILE_WATERBUBBLE;
-	TILE_BLOODPOOL = DTILE_BLOODPOOL;
 	TILE_CROSSHAIR = DTILE_CROSSHAIR;
 
 }

@@ -3553,7 +3553,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		else
 			goalang = (Owner->spr.pos.XY() - actor->spr.pos.XY()).Angle();
 
-		if (actor->vel.X != 0 && actor->spr.picnum != TILE_DRONE)
+		if (actor->vel.X != 0 && !(actor->flags3 & SFLAG3_QUICKALTERANG))
 		{
 			angdif = deltaangle(aang, goalang);
 

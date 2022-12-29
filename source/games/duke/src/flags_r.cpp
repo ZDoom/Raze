@@ -50,10 +50,6 @@ void initactorflags_r()
 	gs.weaponsandammosprites[13] = RedneckTitgunClass;
 	gs.weaponsandammosprites[14] = RedneckTitAmmoClass;
 
-	TILE_APLAYER = RTILE_APLAYER;
-	TILE_DRONE = RTILE_DRONE;
-	TILE_WATERBUBBLE = RTILE_WATERBUBBLE;
-	TILE_BLOODPOOL = RTILE_BLOODPOOL;
 	TILE_CROSSHAIR = RTILE_CROSSHAIR;
 
 	gs.firstdebris = RTILE_SCRAP6;

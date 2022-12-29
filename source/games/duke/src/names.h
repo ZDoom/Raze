@@ -3,10 +3,6 @@
 BEGIN_DUKE_NS
 
 // These are all globally accessed tiles.
-extern int TILE_APLAYER;
-extern int TILE_DRONE;
-extern int TILE_WATERBUBBLE;
-extern int TILE_BLOODPOOL;
 extern int TILE_CROSSHAIR;
 
 

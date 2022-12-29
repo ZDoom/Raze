@@ -144,10 +144,7 @@ public:
 		return spr.yint;
 	}
 
-	bool isPlayer() const
-	{
-		return spr.picnum == TILE_APLAYER;
-	}
+	bool isPlayer() const;
 
 	void Serialize(FSerializer& arc) override;
 

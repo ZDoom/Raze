@@ -296,6 +296,12 @@ inline const ActorInfo* DDukeActor::conInfo() const
 	return tn < 0 ? nullptr : &gs.actorinfo[tn];
 }
 
+inline bool DDukeActor::isPlayer() const
+{
+	return IsKindOf(DukePlayerBaseClass);
+}
+
+
 inline void setPlayerActorViewZOffset(DDukeActor* const pact)
 {
 	if (!PlayClock)

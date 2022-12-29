@@ -495,7 +495,7 @@ void resetpspritevars(int g, const DVector3& startpos, const DAngle startang)
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
 	auto newActor = CreateActor(ps[0].cursector, startpos,
-		TILE_APLAYER, 0, DVector2(0, 0), startang, 0., 0., nullptr, 10);
+		DukePlayerPawnClass /*fixme for RR later!*/, 0, DVector2(0, 0), startang, 0., 0., nullptr, 10);
 
 	newActor->spr.Angles.Pitch = DAngle::fromDeg(-17.354);
 	newActor->backuploc();
