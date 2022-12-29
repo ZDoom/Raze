@@ -980,6 +980,91 @@ void hitradius(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4
 
 //---------------------------------------------------------------------------
 //
+// 
+//
+//---------------------------------------------------------------------------
+
+
+int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision& result)
+{
+	int bg = badguy(actor);
+
+	if (actor->spr.statnum == STAT_MISC || (bg && actor->spr.scale.X < 0.0625))
+	{
+		actor->spr.pos += change;
+		if (bg)
+			SetActor(actor, actor->spr.pos);
+		return result.setNone();
+	}
+
+	auto dasectp = actor->sector();
+
+	auto ppos = actor->spr.pos;
+
+	auto tex = TexMan.GetGameTexture(actor->spr.spritetexture());
+	ppos.Z -= tex->GetDisplayHeight() * actor->spr.scale.Y * 0.5;
+
+	if (bg)
+	{
+		if (actor->spr.scale.X > 0.9375)
+			clipmove(ppos, &dasectp, change * 0.5, 64., 4., 4., cliptype, result);
+		else
+		{
+			// todo: move this mess to the actor definitions once we have them all available.
+			double clipdist = actor->FloatVar(NAME_moveclipdist);
+			if (clipdist == 0)
+			{
+				if ((actor->flags1 & SFLAG_BADGUY) && !isRR())
+					clipdist = actor->clipdist;
+				else
+					clipdist = 12;
+			}
+
+			clipmove(ppos, &dasectp, change * 0.5, clipdist, 4., 4., cliptype, result);
+		}
+
+		// conditional code from hell...
+		if (dasectp == nullptr || (dasectp != nullptr &&
+			((actor->actorstayput != nullptr && actor->actorstayput != dasectp) ||
+				((actor->flags3 & SFLAG3_ST3CONFINED) && actor->spr.pal == 0 && dasectp->lotag != ST_3_BOSS2) ||
+				((actor->flags3 & SFLAG3_DONTENTERWATER) && dasectp->lotag == ST_1_ABOVE_WATER) ||
+				((actor->flags3 & SFLAG3_DONTENTERWATERONGROUND) && actor->vel.Z == 0 && dasectp->lotag == ST_1_ABOVE_WATER))
+			)
+			)
+		{
+			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && (actor->flags3 & SFLAG3_RANDOMANGLEONWATER))
+				actor->spr.Angles.Yaw = randomAngle();
+			else if ((actor->counter & 3) == 1 && !(actor->flags3 & SFLAG3_NORANDOMANGLEWHENBLOCKED))
+				actor->spr.Angles.Yaw = randomAngle();
+			SetActor(actor, actor->spr.pos);
+			if (dasectp == nullptr) dasectp = &sector[0];
+			return result.setSector(dasectp);
+		}
+		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->spr.Angles.Yaw += DAngle90 + DAngle45;
+	}
+	else
+	{
+		if (actor->spr.statnum == STAT_PROJECTILE)
+			clipmove(ppos, &dasectp, change * 0.5, 0.5, 4., 4., cliptype, result);
+		else
+			clipmove(ppos, &dasectp, change * 0.5, actor->clipdist, 4., 4., cliptype, result);
+	}
+	actor->spr.pos.XY() = ppos.XY();
+
+	if (dasectp != nullptr && dasectp != actor->sector())
+		ChangeActorSect(actor, dasectp);
+
+	double daz = actor->spr.pos.Z + change.Z * 0.5;
+	if (daz > actor->ceilingz && daz <= actor->floorz)
+		actor->spr.pos.Z = daz;
+	else if (result.type == kHitNone)
+		return result.setSector(dasectp);
+
+	return result.type;
+}
+
+//---------------------------------------------------------------------------
+//
 // Rotating sector
 // 
 // temp_data[1]: mspos index

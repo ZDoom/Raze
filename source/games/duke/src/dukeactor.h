@@ -33,16 +33,4 @@ inline int bossguy(const DDukeActor* pSprite)
 	return !!(pSprite->flags1 & SFLAG_BOSS);
 }
 
-// old interface versions of already changed functions
-
-int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision& result);
-int movesprite_ex_r(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision& result);
-
-inline int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision& result)
-{
-	auto f = isRR() ? movesprite_ex_r : movesprite_ex_d;
-	return f(actor, change, cliptype, result);
-}
-
-
 END_DUKE_NS
