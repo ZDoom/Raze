@@ -209,7 +209,7 @@ bool BunnyCheat(cheatseq_t* c)
         return false;
 
     sw_bunnyrockets = !sw_bunnyrockets;
-    PutStringInfo(&Player[myconnectindex], GStrings(Pachinko_Win_Cheat ? "TXTS_BUNNYENABLED" : "TXTS_BUNNYDISABLED"));
+    PutStringInfo(&Player[myconnectindex], GStrings(sw_bunnyrockets ? "TXTS_BUNNYENABLED" : "TXTS_BUNNYDISABLED"));
     return true;
 }
 
