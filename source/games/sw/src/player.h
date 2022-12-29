@@ -35,8 +35,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 constexpr double PLAYER_HEIGHTF = 58;
 #define PLAYER_CRAWL_HEIGHT Z(36)
 constexpr double PLAYER_CRAWL_HEIGHTF = 36;
-#define PLAYER_SWIM_HEIGHT Z(26)
-constexpr double PLAYER_SWIM_HEIGHTF = 26;
 #define PLAYER_DIVE_HEIGHT Z(26)
 constexpr double PLAYER_DIVE_HEIGHTF = 26;
 #define PLAYER_DIE_DOWN_HEIGHT Z(4)

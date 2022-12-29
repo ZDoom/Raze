@@ -1483,11 +1483,15 @@ void DoPlayerSetWadeDepth(PLAYER* pp)
 //
 //---------------------------------------------------------------------------
 
+void DoPlayerViewOffset(PLAYER* pp)
+{
+    pp->actor->viewzoffset -= pp->getViewHeightDiff() * 0.375;
+}
+
 void DoPlayerHeight(PLAYER* pp)
 {
-    constexpr double scale = 0.375;
-    pp->actor->viewzoffset -= pp->getViewHeightDiff() * scale;
-    pp->actor->spr.pos.Z -= (pp->actor->spr.pos.Z - pp->loz) * scale;
+    DoPlayerViewOffset(pp);
+    pp->actor->spr.pos.Z -= (pp->actor->spr.pos.Z - pp->loz) * 0.375;
 }
 
 void DoPlayerJumpHeight(PLAYER* pp)
@@ -1855,8 +1859,7 @@ void UpdatePlayerSprite(PLAYER* pp)
     }
     else if (pp->DoPlayerAction == DoPlayerDive)
     {
-        // bobbing and sprite position taken care of in DoPlayerDive
-        pp->height = 10;
+        pp->height = PLAYER_DIVE_HEIGHTF;
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
@@ -2215,10 +2218,10 @@ void DoPlayerMove(PLAYER* pp)
         else if (pp->Flags & (PF_SWIMMING|PF_DIVING))
         {
             if (pp->actor->getOffsetZ() > pp->loz)
-                pp->posZset(pp->loz - PLAYER_SWIM_HEIGHTF);
+                pp->posZset(pp->loz - PLAYER_DIVE_HEIGHTF);
 
             if (pp->actor->getOffsetZ() < pp->hiz)
-                pp->posZset(pp->hiz + PLAYER_SWIM_HEIGHTF);
+                pp->posZset(pp->hiz + PLAYER_DIVE_HEIGHTF);
         }
     }
 }
@@ -4733,6 +4736,9 @@ void DoPlayerDive(PLAYER* pp)
             move_sprite(bubble, DVector3(vec, 0), plActor->user.ceiling_dist, plActor->user.floor_dist, 0, synctics);
         }
     }
+
+    // Adjust view height moving up and down sectors
+    DoPlayerViewOffset(pp);
 }
 
 //---------------------------------------------------------------------------

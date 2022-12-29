@@ -800,7 +800,13 @@ static void analyzesprites(tspriteArray& tsprites, const DVector3& viewpos, doub
                     pos.Z = tsp->pos.Z + pp->si.Z + pp->getViewHeightDiff();
 
                     if ((pp->Flags & PF_DEAD) && pos.Z > pp->actor->user.loz - pp->actor->user.floor_dist)
+                    {
                         pos.Z = pp->actor->user.loz - pp->actor->user.floor_dist;
+                    }
+                    else if (pp->Flags & (PF_SWIMMING|PF_DIVING))
+                    {
+                        pos.Z -= PLAYER_DIVE_HEIGHTF - 10.;
+                    }
 
 					tsp->pos = pos;
                     tsp->Angles.Yaw = pp->siang;
