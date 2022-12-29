@@ -8,6 +8,7 @@ class DukeDrone : DukeActor
 		+NOWATERDIP;
 		+FLOATING;
 		+QUICKALTERANG;
+		+NOJIBS;
 		falladjustz 0;
 	}
 	

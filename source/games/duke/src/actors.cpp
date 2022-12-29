@@ -3600,7 +3600,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 //
 //---------------------------------------------------------------------------
 
-void fall_common(DDukeActor *actor, int playernum, int DRONE, int(*fallspecial)(DDukeActor*, int))
+void fall_common(DDukeActor *actor, int playernum, int(*fallspecial)(DDukeActor*, int))
 {
 	actor->spr.xoffset = 0;
 	actor->spr.yoffset = 0;
@@ -3641,7 +3641,7 @@ void fall_common(DDukeActor *actor, int playernum, int DRONE, int(*fallspecial)(
 
 				if (actor->vel.Z > (3084/256.) && actor->spr.extra <= 1)
 				{
-					if (actor->spr.pal != 1 && actor->spr.picnum != DRONE)
+					if (actor->spr.pal != 1 && !(actor->flags3 & SFLAG3_NOJIBS))
 					{
 						if (actor->isPlayer() && actor->spr.extra > 0)
 							goto SKIPJIBS;
@@ -3841,7 +3841,7 @@ void actorsizeto(DDukeActor* actor, double x, double y)
 void spawndebris(DDukeActor* g_ac, int dnum, int count)
 {
 	if (dnum < 0 || dnum >= ScrapMax) return;	// this code only works with scrap and nothing else.
-	bool weap = fi.spawnweapondebris(g_ac->spr.picnum);
+	bool weap = (g_ac->flags3 & SFLAG3_SPAWNWEAPONDEBRIS);
 
 	if (g_ac->insector())
 		for (int j = count; j >= 0; j--)

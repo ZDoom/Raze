@@ -1067,12 +1067,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 void fall_d(DDukeActor *actor, int g_p)
 {
-	fall_common(actor, g_p, DTILE_DRONE, nullptr);
-}
-
-bool spawnweapondebris_d(int picnum)
-{
-	return picnum == DTILE_BLIMP;
+	fall_common(actor, g_p, nullptr);
 }
 
 //---------------------------------------------------------------------------

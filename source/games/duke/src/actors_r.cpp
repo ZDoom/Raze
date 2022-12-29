@@ -1381,7 +1381,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 
 void fall_r(DDukeActor* ac, int g_p)
 {
-	fall_common(ac, g_p, RTILE_DRONE, fallspecial);
+	fall_common(ac, g_p, fallspecial);
 }
 
 //---------------------------------------------------------------------------
@@ -1502,11 +1502,6 @@ void mamaspawn(DDukeActor *actor)
 		mamaspawn_count--;
 		spawn(actor, RedneckRabbitClass);
 	}
-}
-
-bool spawnweapondebris_r(int picnum)
-{
-	return true;
 }
 
 //---------------------------------------------------------------------------

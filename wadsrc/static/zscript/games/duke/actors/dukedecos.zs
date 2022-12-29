@@ -168,6 +168,7 @@ class DukeBlimp : DukeActor
 	default
 	{
 		pic "BLIMP";
+		+SPAWNWEAPONDEBRIS;
 	}
 	
 	override void Initialize()

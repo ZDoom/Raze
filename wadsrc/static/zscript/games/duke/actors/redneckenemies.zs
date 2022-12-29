@@ -441,6 +441,7 @@ class RedneckMosquito : DukeActor
 		+NOWATERDIP;
 		+FLOATING;
 		+QUICKALTERANG;
+		+NOJIBS;
 		falladjustz 0;
 	}
 	override void Initialize()

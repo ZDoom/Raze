@@ -85,7 +85,7 @@ void handle_se130(DDukeActor* i, int countmax);
 
 int dodge(DDukeActor*);
 void alterang(int ang, DDukeActor* actor, int g_p);
-void fall_common(DDukeActor* actor, int g_p, int DRONE, int(*fallspecial)(DDukeActor*, int));
+void fall_common(DDukeActor* actor, int g_p, int(*fallspecial)(DDukeActor*, int));
 void checkavailweapon(player_struct* p);
 void addammo(int weapon, player_struct* p, int amount);
 
