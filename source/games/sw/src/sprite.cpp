@@ -2516,8 +2516,9 @@ void SpriteSetup(void)
 
 
                 case SECT_WALL_MOVE:
-                    if (SP_TAG5(actor) >= 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG5(actor));
-                    if (SP_TAG6(actor) >= 0 && !actor->texparam.isValid()) actor->texparam2 = tileGetTextureID(SP_TAG6(actor));
+                    // this type considers tilenum 0 invalid.
+                    if (SP_TAG5(actor) > 0 && !actor->texparam.isValid()) actor->texparam = tileGetTextureID(SP_TAG5(actor));
+                    if (SP_TAG6(actor) > 0 && !actor->texparam.isValid()) actor->texparam2 = tileGetTextureID(SP_TAG6(actor));
                     change_actor_stat(actor, STAT_WALL_MOVE);
                     break;
                 case SECT_WALL_MOVE_CANSEE:
