@@ -15,6 +15,10 @@ class RedneckMinion : DukeActor
 		self.setClipDistFromTile();
 		if (Raze.isRRRA() && ud.ufospawnsminion)
 			self.pal = 8;
+		if (self.pal == 19)
+		{
+			self.bHitradius_NoEffect = true;
+		}
 	}
 	
 	override bool animate(tspritetype t)

@@ -8,7 +8,7 @@ class DukeQueball : DukeActor
 	default
 	{
 		pic "QUEBALL";
-		+HITRADIUS_FLAG2;
+		+HITRADIUS_FORCEEFFECT;
 		+HITRADIUSCHECK;
 	}
 	

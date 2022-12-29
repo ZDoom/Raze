@@ -15,7 +15,7 @@ class DukeTripBomb : DukeActor
 		// Note: The trip bomb has its health defined through CON! Value is 100. Con-based definitions will take precendence.
 		strength 100;
 		+CHECKSLEEP;
-		+HITRADIUS_FLAG2;
+		+HITRADIUS_FORCEEFFECT;
 		+MOVEFTA_MAKESTANDABLE;
 		+SE24_NOCARRY;
 		+DONTANIMATE;

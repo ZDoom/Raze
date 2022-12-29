@@ -174,13 +174,13 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					checkhitsprite(act2, actor);
 				}
 			}
-			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
+			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FORCEEFFECT) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
 				if (actor->flags3 & SFLAG3_HITRADIUS_DONTHURTSHOOTER && act2 == Owner)
 				{
 					continue;
 				}
-				if ((isRRRA()) && act2->spr.picnum == RTILE_MINION && act2->spr.pal == 19)
+				if (actor->flags3 & SFLAG3_HITRADIUS_NOEFFECT)
 				{
 					continue;
 				}

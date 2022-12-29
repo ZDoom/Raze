@@ -188,7 +188,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						checkhitsprite(act2, actor);
 					}
 			}
-			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
+			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FORCEEFFECT) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
 				if (actor->spr.picnum == DTILE_SHRINKSPARK && act2->spr.picnum != DTILE_SHARK && (act2->spr.scale.X < 0.375))
 				{

@@ -40,7 +40,7 @@ class DukePlayerLyingDead : DukeActor
 	default
 	{
 		pic "DUKELYINGDEAD";
-		+HITRADIUS_FLAG2;
+		+HITRADIUS_FORCEEFFECT;
 	}
 	
 	override void Initialize()

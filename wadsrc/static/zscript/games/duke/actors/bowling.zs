@@ -4,7 +4,7 @@ class RedneckBowlingPin : DukeActor
 	{
 		RedneckBowlingPin.Behavior 0;
 		spriteset "BOWLINGPIN", "BOWLINGPIN1", "BOWLINGPIN2";
-		+HITRADIUS_FLAG2;
+		+HITRADIUS_FORCEEFFECT;
 		+HITRADIUSCHECK;
 	}
 
@@ -125,7 +125,7 @@ class RedneckHenstand : RedneckBowlingPin
 	{
 		spriteset "HENSTAND", "HENSTAND1";
 		RedneckBowlingPin.Behavior 1;
-		-HITRADIUS_FLAG2;
+		-HITRADIUS_FORCEEFFECT;
 		-HITRADIUSCHECK;
 	}
 	
@@ -156,7 +156,7 @@ class RedneckBowlingBall : RedneckBowlingPin
 	{
 		pic "BOWLINGBALL";
 		RedneckBowlingPin.Behavior 2;
-		-HITRADIUS_FLAG2;
+		-HITRADIUS_FORCEEFFECT;
 		-HITRADIUSCHECK;
 	}
 	
