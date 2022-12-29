@@ -8,6 +8,7 @@ class DukeLizTrooper : DukeActor
 		+KILLCOUNT;
 		+GREENSLIMEFOOD;
 		+TRANSFERPALTOJIBS;
+		+DONTENTERWATERONGROUND;
 	}
 	
 	override void Initialize()

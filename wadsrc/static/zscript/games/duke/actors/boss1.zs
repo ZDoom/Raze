@@ -8,6 +8,7 @@ class DukeBoss1 : DukeActor
 		+NODAMAGEPUSH;
 		+BOSS;
 		+ALTHITSCANDIRECTION;
+		+DONTENTERWATER;
 	}
 	
 	override void Initialize()

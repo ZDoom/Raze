@@ -4,6 +4,7 @@ class DukeBoss5 : DukeBoss1
 	{
 		pic "BOSS5";
 		-ALTHITSCANDIRECTION;
+		-DONTENTERWATER;
 	}
 }
 

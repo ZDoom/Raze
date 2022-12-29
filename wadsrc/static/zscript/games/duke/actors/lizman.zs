@@ -7,6 +7,9 @@ class DukeLizMan : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+GREENSLIMEFOOD;
+		+DONTENTERWATER;
+		+RANDOMANGLEONWATER;
+		moveclipdist 18.25;
 	}
 	
 	override void PlayFTASound()

@@ -241,6 +241,7 @@ class DukeActor : CoreActor native
 	meta double sparkoffset;
 	meta double projectilespread;
 	meta double shootzoffset;
+	meta double moveclipdist;
 
 	property prefix: none;
 	property gutsoffset: gutsoffset;
@@ -251,6 +252,7 @@ class DukeActor : CoreActor native
 	property sparkoffset: sparkoffset;
 	property projectilespread: projectilespread;
 	property shootzoffset: shootzoffset;
+	property moveclipdist: moveclipdist;
 	
 	native void SetSpritesetImage(int index);
 	native int GetSpritesetSize();

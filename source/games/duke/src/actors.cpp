@@ -902,7 +902,7 @@ void hitradius(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4
 			}
 			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FORCEEFFECT) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
-				// this is a damage type check, not a projectile type check.
+				// this should be a damage type check, not a projectile type check.
 				// It's also quite broken because it doesn't check for being shrunk but tries to guess it from the size.
 				// Unfortunately, with CON there is no way to retrieve proper shrunk state in any way.
 				if (actor->GetClass() == DukeShrinkSparkClass && (act2->spr.scale.X < 0.375)) 

@@ -6,6 +6,8 @@ class DukeBoss2 : DukeBoss1
 		-ALTHITSCANDIRECTION;
 		+NONSMOKYROCKET; // If this wasn't needed for a CON defined actor it could be handled better
 		+SPECIALINIT;
+		+ST3CONFINED;
+		+DONTENTERWATER;
 	}
 	
 	override void PlayFTASound()

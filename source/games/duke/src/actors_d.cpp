@@ -174,13 +174,14 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 		else 
 		{
 			// todo: move this mess to the actor definitions once we have them all available.
-			double clipdist;
-			if (actor->spr.picnum == DTILE_LIZMAN)
-				clipdist = 18.25;
-			else if ((actor->flags1 & SFLAG_BADGUY))
-				clipdist = actor->clipdist;
-			else
-				clipdist = 12;
+			double clipdist = actor->FloatVar(NAME_moveclipdist);
+			if (clipdist == 0)
+			{
+				if ((actor->flags1 & SFLAG_BADGUY) && !isRR())
+					clipdist = actor->clipdist;
+				else
+					clipdist = 12;
+			}
 
 			clipmove(ppos, &dasectp, change * 0.5, clipdist, 4., 4., cliptype, result);
 		}
@@ -188,15 +189,15 @@ int movesprite_ex_d(DDukeActor* actor, const DVector3& change, unsigned int clip
 		// conditional code from hell...
 		if (dasectp == nullptr || (dasectp != nullptr &&
 			((actor->actorstayput != nullptr && actor->actorstayput != dasectp) ||
-			 ((actor->spr.picnum == DTILE_BOSS2) && actor->spr.pal == 0 && dasectp->lotag != ST_3) ||
-			 ((actor->spr.picnum == DTILE_BOSS1 || actor->spr.picnum == DTILE_BOSS2) && dasectp->lotag == ST_1_ABOVE_WATER) ||
-			 (dasectp->lotag == ST_1_ABOVE_WATER && (actor->spr.picnum == DTILE_LIZMAN || (actor->spr.picnum == DTILE_LIZTROOP && actor->vel.Z == 0)))
-			))
+			 ((actor->flags3 & SFLAG3_ST3CONFINED) && actor->spr.pal == 0 && dasectp->lotag != ST_3_BOSS2) ||
+			 ((actor->flags3 & SFLAG3_DONTENTERWATER) && dasectp->lotag == ST_1_ABOVE_WATER) ||
+			 ((actor->flags3 & SFLAG3_DONTENTERWATERONGROUND) && actor->vel.Z == 0 && dasectp->lotag == ST_1_ABOVE_WATER))
+			)
 		 )
 		{
-			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && actor->spr.picnum == DTILE_LIZMAN)
+			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && (actor->flags3 & SFLAG3_RANDOMANGLEONWATER))
 				actor->spr.Angles.Yaw = randomAngle();
-			else if ((actor->counter&3) == 1 && actor->spr.picnum != DTILE_COMMANDER)
+			else if ((actor->counter&3) == 1 && !(actor->flags3 & SFLAG3_NORANDOMANGLEWHENBLOCKED))
 				actor->spr.Angles.Yaw = randomAngle();
 			SetActor(actor,actor->spr.pos);
 			if (dasectp == nullptr) dasectp = &sector[0];

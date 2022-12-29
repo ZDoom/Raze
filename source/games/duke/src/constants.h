@@ -115,7 +115,7 @@ enum
 	ST_0_NO_EFFECT   = 0,
 	ST_1_ABOVE_WATER = 1,
 	ST_2_UNDERWATER  = 2,
-	ST_3             = 3,
+	ST_3_BOSS2             = 3,
 	// ^^^ maybe not complete substitution in code
 	ST_9_SLIDING_ST_DOOR     = 9,
 	ST_15_WARP_ELEVATOR      = 15,
@@ -416,6 +416,11 @@ enum sflags3_t
 	SFLAG3_HITRADIUS_NODAMAGE = 0x00004000,		// Hitradius inflicts no damage, only a damage type.
 	SFLAG3_HITRADIUS_NOEFFECT = 0x00008000,		// Completely immune to hitradius
 	SFLAG3_HITRADIUS_DONTHURTSPECIES = 0x00010000,	// don't hurt others of the shooter's species.
+	SFLAG3_ST3CONFINED = 0x00020000,
+	SFLAG3_DONTENTERWATER = 0x00040000,
+	SFLAG3_DONTENTERWATERONGROUND = 0x00080000,
+	SFLAG3_RANDOMANGLEONWATER = 0x00100000,
+	SFLAG3_NORANDOMANGLEWHENBLOCKED = 0x00200000,
 
 
 };
