@@ -1055,7 +1055,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, PClassActor* RPG)
 				{
 					auto saved_angle = actor->spr.Angles.Yaw;
 					actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-					shoot(actor, -1, RPG);
+					shoot(actor, RPG);
 					actor->spr.Angles.Yaw = saved_angle;
 				}
 			}
@@ -1541,7 +1541,7 @@ void handle_se05(DDukeActor* actor)
 	{
 		auto ang = actor->spr.Angles.Yaw;
 		actor->spr.Angles.Yaw = (actor->spr.pos.XY() - ps[p].GetActor()->spr.pos.XY()).Angle();
-		shoot(actor, -1, isRR()? RedneckFirelaserClass : DukeFirelaserClass);
+		shoot(actor, isRR()? RedneckFirelaserClass : DukeFirelaserClass);
 		actor->spr.Angles.Yaw = ang;
 	}
 
@@ -2795,6 +2795,24 @@ void handle_se35(DDukeActor *actor)
 			actor->counter = 0;
 		}
 		break;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void handle_se36(DDukeActor* actor)
+{
+	if (actor->counter)
+	{
+		if (actor->counter == 1)
+			shoot(actor, GetSpawnType(actor->sector()->extra));
+		else if (actor->counter == 26 * 5)
+			actor->counter = 0;
+		actor->counter++;
 	}
 }
 

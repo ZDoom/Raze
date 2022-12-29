@@ -680,16 +680,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spriteheight, duke_sph)
 	ACTION_RETURN_INT(duke_sph(self));
 }
 
-void DukeActor_shoot(DDukeActor* act, PClassActor* intname)
-{
-	shoot(act, -1, intname);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, shoot, DukeActor_shoot)
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, shoot, shoot)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_POINTER(type, PClassActor);
-	DukeActor_shoot(self, type);
+	shoot(self, type);
 	return 0;
 }
 

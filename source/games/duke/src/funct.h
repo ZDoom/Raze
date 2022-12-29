@@ -77,6 +77,7 @@ void handle_se29(DDukeActor* actor);
 void handle_se31(DDukeActor* a, bool choosedir);
 void handle_se32(DDukeActor* i);
 void handle_se35(DDukeActor* i);
+void handle_se36(DDukeActor* i);
 void handle_se128(DDukeActor* i);
 void handle_se130(DDukeActor* i, int countmax);
 
@@ -108,7 +109,7 @@ void playerAimUp(int snum, ESyncBits actions);
 void playerAimDown(int snum, ESyncBits actions);
 DDukeActor* aim(DDukeActor* s, int aang, bool force = true);
 DDukeActor* aim_(DDukeActor* actor, DDukeActor* weapon, double aimangle);
-void shoot(DDukeActor* actor, int atwith, PClass* cls);
+void shoot(DDukeActor* actor, PClass* cls);
 void checkweapons(player_struct* const p);
 int findotherplayer(int p, double* d);
 void quickkill(player_struct* p);

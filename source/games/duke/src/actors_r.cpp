@@ -1155,15 +1155,7 @@ void moveeffectors_r(void)   //STATNUM 3
 				RANDOMSCRAP(act);
 			break;
 		case SE_36_PROJ_SHOOTER:
-
-			if (act->counter)
-			{
-				if (act->counter == 1)
-					shoot(act, sc->extra, nullptr);
-				else if (act->counter == 26 * 5)
-					act->counter = 0;
-				act->counter++;
-			}
+			handle_se36(act);
 			break;
 
 		case SE_128_GLASS_BREAKING:

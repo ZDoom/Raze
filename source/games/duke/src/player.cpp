@@ -914,7 +914,7 @@ void playerAimDown(int snum, ESyncBits actions)
 //
 //---------------------------------------------------------------------------
 
-void shoot(DDukeActor* actor, int atwith, PClass* cls)
+void shoot(DDukeActor* actor, PClass* cls)
 {
 	int p;
 	DVector3 spos;
@@ -945,7 +945,7 @@ void shoot(DDukeActor* actor, int atwith, PClass* cls)
 	}
 
 	if (cls == nullptr)
-		cls = GetSpawnType(atwith);
+		return;
 
 	CallShootThis(static_cast<DDukeActor*>(GetDefaultByType(cls)), actor, p, spos, sang);
 }

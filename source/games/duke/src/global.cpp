@@ -131,7 +131,7 @@ void RegisterClasses()
 		auto cls = PClass::FindActor(classdef.first);
 		if (cls == nullptr || !cls->IsDescendantOf(RUNTIME_CLASS(DDukeActor)))
 		{
-			Printf(TEXTCOLOR_RED, "%s: Attempt to register unknown actor class '%s'\n", classdef.first);
+			Printf(TEXTCOLOR_RED "%s: Attempt to register unknown actor class\n", classdef.first);
 			error++;
 		}
 

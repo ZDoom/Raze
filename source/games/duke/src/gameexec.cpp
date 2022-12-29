@@ -1703,7 +1703,7 @@ int ParseState::parse(void)
 			//if (g_ac->GetClass.TypeName == NAME_RedneckMinion && type == 3390 && g_ac->spr.pal == 8) typecls = RedneckFrogBallClass);
 			//if (g_ac->GetClass.TypeName == NAME_RedneckMinion && type == 3390 && g_ac->spr.pal == 19)) typecls = RedneckShitBurnClass);
 		}
-		shoot(g_ac, *insptr, nullptr);
+		shoot(g_ac, GetSpawnType(*insptr));
 		insptr++;
 		break;
 	}

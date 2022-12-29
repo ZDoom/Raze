@@ -65,10 +65,10 @@ void DoFire(player_struct* p, int snum)
 
 	SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
 	SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, snum), p->GetActor(), snum);
-	shoot(p->GetActor(), aplWeaponShoots(p->curr_weapon, snum), nullptr);
+	shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, snum)));
 	for (i = 1; i < aplWeaponShotsPerBurst(p->curr_weapon, snum); i++)
 	{
-		shoot(p->GetActor(), aplWeaponShoots(p->curr_weapon, snum), nullptr);
+		shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, snum)));
 		if (aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_AMMOPERSHOT)
 		{
 			p->ammo_amount[p->curr_weapon]--;
@@ -405,7 +405,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 				}
 				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
 				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, snum), p->GetActor(), snum);
-				shoot(p->GetActor(), aplWeaponShoots(p->curr_weapon, snum), nullptr);
+				shoot(p->GetActor(), GetSpawnType(aplWeaponShoots(p->curr_weapon, snum)));
 			}
 		}
 
