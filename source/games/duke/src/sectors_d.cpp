@@ -246,7 +246,8 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		break;
 	case DTILE_ACCESSSWITCH:
 	case DTILE_ACCESSSWITCH2:
-		checkaccessswitch_d(snum, switchpal, act, wwal);
+		if (checkaccessswitch_d(snum, switchpal, act, wwal))
+			return 0;
 		[[fallthrough]];
 	case DTILE_DIPSWITCH2:
 	case DTILE_DIPSWITCH2ON:

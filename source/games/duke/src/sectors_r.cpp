@@ -216,7 +216,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		break;
 	case RTILE_ACCESSSWITCH:
 	case RTILE_ACCESSSWITCH2:
-		checkaccessswitch_r(snum, switchpal, act, wwal);
+		if (checkaccessswitch_r(snum, switchpal, act, wwal))
+			return 0;
 		goto goOn1;
 
 	case RTILE_MULTISWITCH2:
