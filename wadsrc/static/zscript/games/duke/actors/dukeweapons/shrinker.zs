@@ -68,6 +68,8 @@ class DukeShrinkSpark : DukeProjectile
 		+MIRRORREFLECT;
 		+NOFLOORPAL;
 		+NOCEILINGBLAST;
+		+HITRADIUS_DONTHURTSHOOTER;
+		+HITRADIUS_NODAMAGE;
 	}
 	
 	override void posthiteffect(CollisionData coll)

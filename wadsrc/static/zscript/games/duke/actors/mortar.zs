@@ -5,6 +5,7 @@ class DukeMortar : DukeActor
 		pic "MORTER";
 		DukeMortar.ceilingdist 3;
 		DukeMortar.spawnscale 0.5;
+		+HITRADIUS_DONTHURTSHOOTER;
 	}
 
 	meta int ceilingdist;

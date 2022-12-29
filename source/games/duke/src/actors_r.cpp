@@ -164,24 +164,23 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 		DukeStatIterator it1(statlist[x]);
 		while (auto act2 = it1.Next())
 		{
-			if (x == 0 || x >= 5 || (act2->flags1 & SFLAG_HITRADIUS_FLAG1))
+			if (x == 0 || x >= 5 || (act2->flags1 & SFLAG_HITRADIUS_CHECKHITONLY))
 			{
-				if (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)
-					if ((actor->spr.pos - act2->spr.pos).Length() < radius)
-					{
-						if (badguy(act2) && !cansee(act2->spr.pos.plusZ(q), act2->sector(), actor->spr.pos.plusZ(q), actor->sector()))
-							continue;
+				if ((actor->spr.pos - act2->spr.pos).Length() < radius)
+				{
+					if (badguy(act2) && !cansee(act2->spr.pos.plusZ(q), act2->sector(), actor->spr.pos.plusZ(q), actor->sector()))
+						continue;
 
-						checkhitsprite(act2, actor);
-					}
+					checkhitsprite(act2, actor);
+				}
 			}
 			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
-				if (actor->spr.picnum == RTILE_MORTER && act2 == Owner)
+				if (actor->flags3 & SFLAG3_HITRADIUS_DONTHURTSHOOTER && act2 == Owner)
 				{
 					continue;
 				}
-				if ((isRRRA()) && actor->spr.picnum == RTILE_CHEERBOMB && act2 == Owner)
+				if ((isRRRA()) && act2->spr.picnum == RTILE_MINION && act2->spr.pal == 19)
 				{
 					continue;
 				}
@@ -190,10 +189,6 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 				if (dist < radius && cansee(act2->spr.pos.plusZ(-8), act2->sector(), actor->spr.pos.plusZ(-12), actor->sector()))
 				{
-					if ((isRRRA()) && act2->spr.picnum == RTILE_MINION && act2->spr.pal == 19)
-					{
-						continue;
-					}
 
 					act2->hitang = (act2->spr.pos - actor->spr.pos).Angle();
 					act2->attackertype = CallGetRadiusDamageType(actor, act2->spr.extra);

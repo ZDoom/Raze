@@ -4,6 +4,7 @@ class DukeLavaPool : DukeActor
 	{
 		pic "LAVAPOOL";
 		+FORCERUNCON;
+		+HITRADIUS_NODAMAGE;
 	}
 	
 	override void Initialize()

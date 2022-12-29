@@ -178,7 +178,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				}
 			}
 
-			if (x == 0 || x >= 5 || (act2->flags1 & SFLAG_HITRADIUS_FLAG1))
+			if (x == 0 || x >= 5 || (act2->flags1 & SFLAG_HITRADIUS_CHECKHITONLY))
 			{
 				if (actor->spr.picnum != DTILE_SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if ((actor->spr.pos - act2->spr.pos).Length() < radius)
@@ -190,11 +190,11 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			}
 			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FLAG2) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
-				if (actor->spr.picnum == DTILE_SHRINKSPARK && act2->spr.picnum != DTILE_SHARK && (act2 == Owner || act2->spr.scale.X < 0.375))
+				if (actor->spr.picnum == DTILE_SHRINKSPARK && act2->spr.picnum != DTILE_SHARK && (act2->spr.scale.X < 0.375))
 				{
 					continue;
 				}
-				if (actor->spr.picnum == DTILE_MORTER && act2 == Owner)
+				if (actor->flags3 & SFLAG3_HITRADIUS_DONTHURTSHOOTER && act2 == Owner)
 				{
 					continue;
 				}
@@ -206,8 +206,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					act2->hitang = (act2->spr.pos - actor->spr.pos).Angle();
 					act2->attackertype = CallGetRadiusDamageType(actor, act2->spr.extra);
 
-
-					if (actor->spr.picnum != DTILE_SHRINKSPARK && (!isWorldTour() || actor->spr.picnum != DTILE_LAVAPOOL))
+					if (!(actor->flags3 & SFLAG3_HITRADIUS_NODAMAGE))
 					{
 						if (dist < radius / 3)
 						{

@@ -3,7 +3,7 @@ class DukeFlammable : DukeActor
 	default
 	{
 		statnum STAT_STANDABLE;
-		+HITRADIUS_FLAG1;
+		+HITRADIUS_CHECKHITONLY;
 	}
 
 	override void Initialize()
