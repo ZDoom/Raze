@@ -1829,47 +1829,10 @@ void UpdatePlayerUnderSprite(PLAYER* pp)
 
 void UpdatePlayerSprite(PLAYER* pp)
 {
-    DSWActor* actor = pp->actor;
-    if (!actor) return;
-
-    // there are multiple death functions
-    if (pp->Flags & (PF_DEAD))
+    // Adjust player height according to the next action.
+    if (!(pp->Flags & PF_DEAD))
     {
-        ChangeActorSect(pp->actor, pp->cursector);
-        UpdatePlayerUnderSprite(pp);
-        return;
-    }
-
-    if (pp->sop_control)
-    {
-        pp->height = PLAYER_HEIGHTF;
-    }
-    else if (pp->DoPlayerAction == DoPlayerCrawl)
-    {
-        pp->height = PLAYER_CRAWL_HEIGHTF;
-    }
-    else if (pp->DoPlayerAction == DoPlayerWade)
-    {
-        pp->height = PLAYER_HEIGHTF;
-
-        if (pp->WadeDepth > Z(29))
-        {
-            DoPlayerSpriteBob(pp, pp->height, 3, 3);
-        }
-    }
-    else if (pp->DoPlayerAction == DoPlayerDive)
-    {
-        pp->height = PLAYER_DIVE_HEIGHTF;
-    }
-    else if (pp->DoPlayerAction == DoPlayerFly)
-    {
-        // bobbing and sprite position taken care of in DoPlayerFly
-        pp->height = PLAYER_HEIGHTF;
-        DoPlayerSpriteBob(pp, pp->height, 6, 3);
-    }
-    else
-    {
-        pp->height = PLAYER_HEIGHTF;
+        pp->height = (pp->DoPlayerAction == DoPlayerCrawl) ? PLAYER_CRAWL_HEIGHTF : (pp->DoPlayerAction == DoPlayerDive) ? PLAYER_DIVE_HEIGHTF : PLAYER_HEIGHTF;
     }
 
     ChangeActorSect(pp->actor, pp->cursector);
@@ -3767,6 +3730,8 @@ void DoPlayerFly(PLAYER* pp)
 
     // Adjust view height moving up and down sectors
     DoPlayerViewOffset(pp);
+
+    DoPlayerSpriteBob(pp, PLAYER_HEIGHTF, 6, 3);
 }
 
 
@@ -5030,6 +4995,10 @@ void DoPlayerWade(PLAYER* pp)
     {
         DoPlayerBeginRun(pp);
         return;
+    }
+    else if (pp->WadeDepth > Z(29))
+    {
+        DoPlayerSpriteBob(pp, PLAYER_HEIGHTF, 3, 3);
     }
 }
 
