@@ -81,7 +81,6 @@ struct Dispatcher
 	void (*checksectors)(int low);
 
 	void (*addweapon)(player_struct *p, int weapon, bool wswitch);
-	void (*hitradius)(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 	void (*lotsofmoney)(DDukeActor *s, int n);
 	void (*lotsofmail)(DDukeActor *s, int n);
 	void (*lotsofpaper)(DDukeActor *s, int n);

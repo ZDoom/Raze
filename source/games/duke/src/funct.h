@@ -40,7 +40,7 @@ void movefta();
 void clearcameras(player_struct* p);
 void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, PClassActor* explosion);
-void blastceiling(DDukeActor* actor, double radius);
+void hitradius(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 void lotsofstuff(DDukeActor* s, int n, PClassActor* spawntype);
 void watersplash2(DDukeActor* i);
 bool money(DDukeActor* i, int BLOODPOOL);

@@ -46,8 +46,6 @@ void checksectors_r(int snum);
 
 void addweapon_d(player_struct* p, int weapon, bool wswitch);
 void addweapon_r(player_struct* p, int weapon, bool wswitch);
-void hitradius_d(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-void hitradius_r(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 void lotsofmoney_d(DDukeActor* s, int n);
 void lotsofmail_d(DDukeActor* s, int n);
 void lotsofpaper_d(DDukeActor* s, int n);
@@ -97,7 +95,6 @@ void SetDispatcher()
 		checksectors_d,
 
 		addweapon_d,
-		hitradius_d,
 		lotsofmoney_d,
 		lotsofmail_d,
 		lotsofpaper_d,
@@ -128,7 +125,6 @@ void SetDispatcher()
 		checksectors_r,
 
 		addweapon_r,
-		hitradius_r,
 		lotsoffeathers_r,
 		lotsoffeathers_r,
 		lotsoffeathers_r,

@@ -549,12 +549,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, RandomScrap, RANDOMSCRAP)
 	return 0;
 }
 
-void DukeActor_hitradius(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
-{
-	fi.hitradius(actor, r, hp1, hp2, hp3, hp4);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, hitradius, DukeActor_hitradius)
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, hitradius, hitradius)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(r);
@@ -562,7 +557,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, hitradius, DukeActor_hitradius)
 	PARAM_INT(h2);
 	PARAM_INT(h3);
 	PARAM_INT(h4);
-	DukeActor_hitradius(self, r, h1, h2, h3, h4);
+	hitradius(self, r, h1, h2, h3, h4);
 	return 0;
 }
 
