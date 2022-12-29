@@ -276,7 +276,7 @@ DDukeActor* aim(DDukeActor* actor, int abase)
 			// The chickens in RRRA are homing and must always autoaim.
 			if (!isRRRA() || plr->curr_weapon != CHICKEN_WEAPON)
 			{
-				if (weap > CHAINGUN_WEAPON || weap == KNEE_WEAPON)
+				if ((weap > CHAINGUN_WEAPON && weap != GROW_WEAPON) || weap == KNEE_WEAPON)
 				{
 					return nullptr;
 				}
