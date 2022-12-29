@@ -178,6 +178,7 @@ static FFlagDef DukeActorFlagDefs[] =
 	DEFINE_FLAG(SFLAG3, SPECIALINIT, DDukeActor, flags3),
 	DEFINE_FLAG(SFLAG3, DONTLIGHTSHOOTER, DDukeActor, flags3),
 	DEFINE_FLAG(SFLAG3, SHOOTCENTERED, DDukeActor, flags3),
+	DEFINE_FLAG(SFLAG3, NOCEILINGBLAST, DDukeActor, flags3),
 
 };
 

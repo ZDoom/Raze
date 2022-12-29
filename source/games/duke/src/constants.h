@@ -411,6 +411,7 @@ enum sflags3_t
 	SFLAG3_SPECIALINIT = 0x00000200,		// special aiming case for Duke's BOSS2
 	SFLAG3_DONTLIGHTSHOOTER = 0x00000400,
 	SFLAG3_SHOOTCENTERED = 0x00000800,	// enemies default to right hand shooting. This disables it.
+	SFLAG3_NOCEILINGBLAST = 0x00001000,	// do not damage ceilings when exploding
 
 };
 

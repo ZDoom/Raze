@@ -152,44 +152,9 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	double radius = r * inttoworld;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
-	if(actor->spr.picnum != DTILE_SHRINKSPARK && !(actor->spr.picnum == DTILE_RPG && actor->spr.scale.X < 0.171875))
+	if(!(actor->flags3 & SFLAG3_NOCEILINGBLAST))
 	{
-		BFSSectorSearch search(actor->sector());
-
-		while (auto dasectp = search.GetNext())
-		{
-			if ((dasectp->ceilingz- actor->spr.pos.Z) < radius * 16) // what value range is this supposed to be? The check that was here did not multiply correctly
-			{
-				auto wal = dasectp->walls.Data();
-				double d = (wal->pos - actor->spr.pos.XY()).Sum();
-				if (d < radius)
-					checkhitceiling(dasectp);
-				else
-				{
-					auto thirdpoint = wal->point2Wall()->point2Wall();
-					d = (thirdpoint->pos - actor->spr.pos.XY()).Sum();
-					if (d < radius)
-						checkhitceiling(dasectp);
-				}
-			}
-
-			for (auto& wal : dasectp->walls)
-			{
-				if ((wal.pos - actor->spr.pos.XY()).Sum() < radius)
-				{
-					if (wal.twoSided())
-					{
-						search.Add(wal.nextSector());
-					}
-					DVector3 w1(((wal.pos + wal.point2Wall()->pos) * 0.5 + actor->spr.pos) * 0.5, actor->spr.pos.Z); // half way between the actor and the wall's center.
-					sectortype* sect = wal.sectorp();
-					updatesector(w1, &sect);
-
-					if (sect && cansee(w1, sect, actor->spr.pos, actor->sector()))
-						checkhitwall(actor, &wal, DVector3(wal.pos, actor->spr.pos.Z));
-				}
-			}
-		}
+		blastceiling(actor, radius);
 	}
 
 	double q = zrand(32) - 16;

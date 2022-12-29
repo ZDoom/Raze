@@ -126,14 +126,14 @@ class DukeRPG : DukeProjectile
 					else
 						act90 = aimed;
 				}
-					double dal = ((aimed.scale.X * aimed.spriteHeight()) * 0.5) + 8;
-					double dist = (p.actor.pos.XY - aimed.pos.XY).Length();
-					zvel = ((aimed.pos.Z - pos.Z - dal) * vel) / dist;
-					if (!(aimed.bSPECIALAUTOAIM))
-						ang = (aimed.pos.XY - pos.XY).Angle();
-				}
-				else
-					[vel, zvel] = Raze.setFreeAimVelocity(vel, zvel, p.getPitchWithView(), 40.5);
+				double dal = ((aimed.scale.X * aimed.spriteHeight()) * 0.5) + 8;
+				double dist = (p.actor.pos.XY - aimed.pos.XY).Length();
+				zvel = ((aimed.pos.Z - pos.Z - dal) * vel) / dist;
+				if (!(aimed.bSPECIALAUTOAIM))
+					ang = (aimed.pos.XY - pos.XY).Angle();
+			}
+			else
+				[vel, zvel] = Raze.setFreeAimVelocity(vel, zvel, p.getPitchWithView(), 40.5);
 		}
 		else
 		{
@@ -186,6 +186,7 @@ class DukeRPG : DukeProjectile
 			if (actor is 'RedneckHulk')
 			{
 				spawned.scale = (0.125, 0.125);
+				spawned.bNoCeilingBlast = true;
 			}
 			else if (actor is 'DukeBoss3')
 			{
@@ -233,11 +234,12 @@ class DukeRPG : DukeProjectile
 				spawned.extra >>= 2;
 			}
 		}
-		else if (p.curr_weapon == DukeWpn.DEVISTATOR_WEAPON)
+		else if (p.curr_weapon == DukeWpn.DEVISTATOR_WEAPON && !Raze.isRR())
 		{
 			spawned.extra >>= 2;
 			spawned.Angle += frandom(-22.5 / 8, 22.5 / 8);
 			spawned.vel.Z += frandom(-1, 1);
+			spawned.bNoCeilingBlast = true;
 
 			if (p.hbomb_hold_delay)
 			{
