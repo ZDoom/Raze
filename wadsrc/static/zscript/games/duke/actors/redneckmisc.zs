@@ -86,7 +86,7 @@ class RedneckBellSwitch : DukeActor
 		self.detail = 132;
 		self.setSpriteSetImage(1);
 		self.changeStat(STAT_MISC);	// needs to be made to call Tick
-		return false; // still needs to act as a switch.
+		return 2; // 2 lets the switch code perform the trigger action without messing around with this actor.
 	}
 	
 	override void Tick()

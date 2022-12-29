@@ -1610,6 +1610,7 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 	int lotag, hitag, correctdips, numdips;
 	DVector2 spos;
 	FTextureID texid;
+	int swresult = 0;
 
 	if (wwal == nullptr && act == nullptr) return 0;
 	correctdips = 1;
@@ -1625,7 +1626,8 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 		switchpal = act->spr.pal;
 
 		// custom switches that maintain themselves can immediately abort.
-		if (CallTriggerSwitch(act, &ps[snum])) return true;
+		swresult = CallTriggerSwitch(act, &ps[snum]);
+		if (swresult == 1) return true;
 	}
 	else
 	{
@@ -1639,67 +1641,72 @@ bool checkhitswitch(int snum, walltype* wwal, DDukeActor* act)
 	auto& ext = GetExtInfo(texid);
 	auto& swdef = switches[ext.switchindex];
 
-	// check if the switch may be activated.
-	switch (swdef.type)
+	if (swresult == 0)
 	{
-	case SwitchDef::Combo:
-		break;
+		// check if the switch may be activated.
+		switch (swdef.type)
+		{
+		case SwitchDef::Combo:
+			break;
 
-	case SwitchDef::Access:
-		if (!fi.checkaccessswitch(snum, switchpal, act, wwal))
-			return 0;
-		[[fallthrough]];
+		case SwitchDef::Access:
+			if (!fi.checkaccessswitch(snum, switchpal, act, wwal))
+				return 0;
+			[[fallthrough]];
 
-	case SwitchDef::Regular:
-	case SwitchDef::Multi:
-		if (check_activator_motion(lotag)) return 0;
-		break;
+		case SwitchDef::Regular:
+		case SwitchDef::Multi:
+			if (check_activator_motion(lotag)) return 0;
+			break;
 
-	default:
-		if (isadoorwall(texid) == 0) return 0;
-		break;
+		default:
+			if (isadoorwall(texid) == 0) return 0;
+			break;
+		}
+
+		togglespriteswitches(act, ext, lotag, correctdips, numdips);
+		togglewallswitches(wwal, ext, lotag, correctdips, numdips);
+
+		if (lotag == -1)
+		{
+			setnextmap(false);
+			return 1;
+		}
+
+		// Yet another crude RRRA hack that cannot be fully generalized.
+		if (hitag == 10001 && swdef.flags & SwitchDef::oneway && isRRRA())
+		{
+			act->spr.setspritetexture(swdef.states[1]);
+			if (ps[snum].SeaSick == 0)
+				ps[snum].SeaSick = 350;
+			operateactivators(668, &ps[snum]);
+			operatemasterswitches(668);
+			S_PlayActorSound(328, ps[snum].GetActor());
+			return 1;
+		}
 	}
-
-	togglespriteswitches(act, ext, lotag, correctdips, numdips);
-	togglewallswitches(wwal, ext, lotag, correctdips, numdips);
-
-	if (lotag == -1)
-	{
-		setnextmap(false);
-		return 1;
-	}
-
 	DVector3 v(spos, ps[snum].GetActor()->getOffsetZ());
-
-	// Yet another crude RRRA hack that cannot be fully generalized.
-	if (hitag == 10001 && swdef.flags & SwitchDef::oneway && isRRRA())
-	{
-		act->spr.setspritetexture(swdef.states[1]);
-		if (ps[snum].SeaSick == 0)
-			ps[snum].SeaSick = 350;
-		operateactivators(668, &ps[snum]);
-		operatemasterswitches(668);
-		S_PlayActorSound(328, ps[snum].GetActor());
-		return 1;
-	}
 
 	if (swdef.type != SwitchDef::None || isadoorwall(texid))
 	{
-		if (swdef.type == SwitchDef::Combo)
+		if (swresult == 0)
 		{
-			FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
-			if (act) S_PlaySound3D(sound, act, v);
-			else S_PlaySound3D(sound, ps[snum].GetActor(), v);
-			if (numdips != correctdips) return 0;
-			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
-		}
-		if (swdef.type == SwitchDef::Multi)
-		{
-			lotag += ext.switchphase;
-			if (hitag == 10000 && act && isRRRA())	// no idea if the game check is really needed for something this far off the beaten path...
+			if (swdef.type == SwitchDef::Combo)
 			{
-				tag10000specialswitch(snum, act, v);
-				return 1;
+				FSoundID sound = swdef.soundid != NO_SOUND ? swdef.soundid : S_FindSoundByResID(SWITCH_ON);
+				if (act) S_PlaySound3D(sound, act, v);
+				else S_PlaySound3D(sound, ps[snum].GetActor(), v);
+				if (numdips != correctdips) return 0;
+				S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), v);
+			}
+			if (swdef.type == SwitchDef::Multi)
+			{
+				lotag += ext.switchphase;
+				if (hitag == 10000 && act && isRRRA())	// no idea if the game check is really needed for something this far off the beaten path...
+				{
+					tag10000specialswitch(snum, act, v);
+					return 1;
+				}
 			}
 		}
 

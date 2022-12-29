@@ -560,7 +560,7 @@ void CallStandingOn(DDukeActor* actor, player_struct* p)
 	}
 }
 
-bool CallTriggerSwitch(DDukeActor* actor, player_struct* p)
+int CallTriggerSwitch(DDukeActor* actor, player_struct* p)
 {
 	int nval = false;
 	IFVIRTUALPTR(actor, DDukeActor, TriggerSwitch)
