@@ -32,6 +32,7 @@ CRC
 	BLOOD10_CRC 0xB291418f
 	BLOOD11_CRC 0xC3A99936
 	BLOOD_CRC 0xA8FDDA84
+	BLOODCP_CRC 0xC6DF85ED
 	SWREG12_CRC 0x7545319F
 	SWWD_CRC 0xA9AAA7B7
 	SWTD_CRC 0xA1A65BE8
@@ -522,6 +523,21 @@ grpinfo
 	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON|GAMEFLAG_BLOODCP
 	dependency BLOOD_CRC
+	loadart "CPART07.AR_", "CPART15.AR_"
+	gamefilter "Blood.Cryptic"
+	GameID "CrypticPassage"
+}
+
+grpinfo
+{
+	// This is for detecting SSI versions of the mod.
+	name "BLOOD: Cryptic Passage"
+	scriptname "CRYPTIC.INI"
+	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON|GAMEFLAG_BLOODCP
+	dependency BLOOD_CRC
+	size 9753361
+	crc BLOODCP_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
 	GameID "CrypticPassage"
