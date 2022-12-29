@@ -1861,10 +1861,6 @@ void UpdatePlayerSprite(PLAYER* pp)
     {
         pp->height = PLAYER_DIVE_HEIGHTF;
     }
-    else if (pp->DoPlayerAction == DoPlayerClimb)
-    {
-        pp->height = 17;
-    }
     else if (pp->DoPlayerAction == DoPlayerFly)
     {
         // bobbing and sprite position taken care of in DoPlayerFly
@@ -3425,7 +3421,6 @@ void DoPlayerClimb(PLAYER* pp)
     }
 
     // setsprite to players location
-    plActor->spr.pos.Z = pp->actor->getOffsetZ() + PLAYER_HEIGHTF;
     ChangeActorSect(pp->actor, pp->cursector);
 
     if (!SyncInput())
