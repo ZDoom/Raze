@@ -185,6 +185,40 @@ bool WarpCheat(cheatseq_t* c)
 //
 //---------------------------------------------------------------------------
 
+EXTERN_CVAR(Bool, Pachinko_Win_Cheat)
+
+bool WinPachinkoCheat(cheatseq_t* c)
+{
+    if (CommEnabled)
+        return false;
+
+    Pachinko_Win_Cheat = !Pachinko_Win_Cheat;
+    PutStringInfo(&Player[myconnectindex], GStrings(Pachinko_Win_Cheat ? "TXTS_WINPACHINKOEN" : "TXTS_WINPACHINKODIS"));
+    return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool BunnyCheat(cheatseq_t* c)
+{
+    if (CommEnabled)
+        return false;
+
+    sw_bunnyrockets = !sw_bunnyrockets;
+    PutStringInfo(&Player[myconnectindex], GStrings(Pachinko_Win_Cheat ? "TXTS_BUNNYENABLED" : "TXTS_BUNNYDISABLED"));
+    return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool EveryCheatToggle(cheatseq_t* c)
 {
     EveryCheat = !EveryCheat;
@@ -212,6 +246,8 @@ static cheatseq_t swcheats[] = {
     {"lwloc",      "stat coord", nullptr, true},
     {"lwmap",      nullptr,     MapCheat, 0},
     {"lwroom",     nullptr,     RoomCheat, true}, // Room above room debug
+    {"lwtrix",     nullptr,     BunnyCheat, true}, // Bunny rockets cheat
+    {"winpachinko",nullptr,     WinPachinkoCheat, true},
 };
 
 //---------------------------------------------------------------------------
