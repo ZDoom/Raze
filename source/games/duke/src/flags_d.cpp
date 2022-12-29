@@ -40,21 +40,21 @@ BEGIN_DUKE_NS
 
 void initactorflags_d()
 {
-	gs.weaponsandammosprites[0] = DTILE_RPGSPRITE;
-	gs.weaponsandammosprites[1] = DTILE_CHAINGUNSPRITE;
-	gs.weaponsandammosprites[2] = DTILE_DEVISTATORAMMO;
-	gs.weaponsandammosprites[3] = DTILE_RPGAMMO;
-	gs.weaponsandammosprites[4] = DTILE_RPGAMMO;
-	gs.weaponsandammosprites[5] = DTILE_JETPACK;
-	gs.weaponsandammosprites[6] = DTILE_SHIELD;
-	gs.weaponsandammosprites[7] = DTILE_FIRSTAID;
-	gs.weaponsandammosprites[8] = DTILE_STEROIDS;
-	gs.weaponsandammosprites[9] = DTILE_RPGAMMO;
-	gs.weaponsandammosprites[10] = DTILE_RPGAMMO;
-	gs.weaponsandammosprites[11] = DTILE_RPGSPRITE;
-	gs.weaponsandammosprites[12] = DTILE_RPGAMMO;
-	gs.weaponsandammosprites[13] = DTILE_FREEZESPRITE;
-	gs.weaponsandammosprites[14] = DTILE_FREEZEAMMO;
+	gs.weaponsandammosprites[0] = DukeRPGSpriteClass;
+	gs.weaponsandammosprites[1] = DukeChaingunSpriteClass;
+	gs.weaponsandammosprites[2] = DukeDevastatorAmmoClass;
+	gs.weaponsandammosprites[3] = DukeRPGAmmoClass;
+	gs.weaponsandammosprites[4] = DukeRPGAmmoClass;
+	gs.weaponsandammosprites[5] = DukeJetpackClass;
+	gs.weaponsandammosprites[6] = DukeShieldClass;
+	gs.weaponsandammosprites[7] = DukeFirstAidClass;
+	gs.weaponsandammosprites[8] = DukeSteroidsClass;
+	gs.weaponsandammosprites[9] = DukeRPGAmmoClass;
+	gs.weaponsandammosprites[10] = DukeRPGAmmoClass;
+	gs.weaponsandammosprites[11] = DukeRPGSpriteClass;
+	gs.weaponsandammosprites[12] = DukeRPGAmmoClass;
+	gs.weaponsandammosprites[13] = DukeFreezeSpriteClass;
+	gs.weaponsandammosprites[14] = DukeFreezeAmmoClass;
 	gs.firstdebris = DTILE_SCRAP6;
 
 	TILE_APLAYER = DTILE_APLAYER;

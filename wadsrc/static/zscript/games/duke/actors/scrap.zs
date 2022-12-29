@@ -65,9 +65,9 @@ class DukeScrap : DukeActor
 		}
 		else
 		{
-			if (self.spriteextra == Scrap1 && self.yint > 0)
+			if (self.spriteextra == Scrap1 && self.yint > 0 && self.yint <= 15)
 			{
-				let spawned = self.spawnweaponorammo(self.yint - 1); // fixme later!
+				let spawned = self.spawn(gs.weaponsandammosprites[self.yint - 1]);
 				if (spawned)
 				{
 					spawned.SetPosition(self.pos);
@@ -83,7 +83,7 @@ class DukeScrap : DukeActor
 	{
 		if (self.spriteextra == Scrap1 && self.yint > 0)
 		{
-			tspr.setWeaponOrAmmoSprite(self.yint - 1); // needed so that we don't have to export tile numbers to scripting.
+			tspr.setWeaponOrAmmoSprite(self.yint - 1); // needed so that we don't have to export 'picnum' to scripting.
 		}
 		else 
 		{

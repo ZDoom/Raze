@@ -507,19 +507,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnsprite, DukeActor_Spawnsprite)
 	ACTION_RETURN_POINTER(DukeActor_Spawnsprite(self, type));
 }
 
-DDukeActor* DukeActor_spawnweaponorammo(DDukeActor* origin, unsigned intname)
-{
-	if (intname > 14) return nullptr;
-	return spawn(origin, gs.weaponsandammosprites[intname]);
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnweaponorammo, DukeActor_spawnweaponorammo)
-{
-	PARAM_SELF_PROLOGUE(DDukeActor);
-	PARAM_INT(type);
-	ACTION_RETURN_POINTER(DukeActor_spawnweaponorammo(self, type));
-}
-
 void DukeActor_Lotsofglass(DDukeActor* origin, int count, walltype* wal)
 {
 	lotsofglass(origin, wal, count);
@@ -1781,6 +1768,7 @@ DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, stickybomb_lifetime);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, stickybomb_lifetime_var);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, grenade_lifetime);
 DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, grenade_lifetime_var);
+DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, weaponsandammosprites);
 
 DEFINE_GLOBAL_UNSIZED(gs)
 
@@ -1829,12 +1817,11 @@ DEFINE_FIELD_X(ActorAction, ActorAction, increment);
 DEFINE_FIELD_X(ActorAction, ActorAction, delay);
 
 
-// this is only a temporary helper until weaponsandammosprites can be migrated to real class types. We absolutely do not want any access to tile numbers in the scripts - even now.
 void tspritetype_setWeaponOrAmmoSprite(tspritetype* targ, unsigned z)
 {
 	if (z < 15)
 	{
-		targ->picnum = gs.weaponsandammosprites[z];
+		targ->setspritetexture(GetDefaultByType(gs.weaponsandammosprites[z])->spr.spritetexture());
 	}
 }
 

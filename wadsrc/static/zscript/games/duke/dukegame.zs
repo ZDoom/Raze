@@ -490,6 +490,7 @@ struct DukeGameInfo native
 	readonly native int stickybomb_lifetime_var;
 	readonly native int grenade_lifetime;
 	readonly native int grenade_lifetime_var;
+	readonly native class<DukeActor> weaponsandammosprites[15];
 
 }
 

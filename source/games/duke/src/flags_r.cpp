@@ -34,21 +34,21 @@ BEGIN_DUKE_NS
 
 void initactorflags_r()
 {
-	gs.weaponsandammosprites[0] = RTILE_CROSSBOWSPRITE;
-	gs.weaponsandammosprites[1] = RTILE_RIFLEGUNSPRITE;
-	gs.weaponsandammosprites[2] = RTILE_DEVISTATORAMMO;
-	gs.weaponsandammosprites[3] = RTILE_RPGAMMO;
-	gs.weaponsandammosprites[4] = RTILE_RPGAMMO;
-	gs.weaponsandammosprites[5] = RTILE_COWPIE;
-	gs.weaponsandammosprites[6] = RTILE_SHIELD;
-	gs.weaponsandammosprites[7] = RTILE_FIRSTAID;
-	gs.weaponsandammosprites[8] = RTILE_STEROIDS;
-	gs.weaponsandammosprites[9] = RTILE_RPGAMMO;
-	gs.weaponsandammosprites[10] = RTILE_RPGAMMO;
-	gs.weaponsandammosprites[11] = RTILE_CROSSBOWSPRITE;
-	gs.weaponsandammosprites[12] = RTILE_RPGAMMO;
-	gs.weaponsandammosprites[13] = RTILE_TITSPRITE;
-	gs.weaponsandammosprites[14] = RTILE_FREEZEAMMO;
+	gs.weaponsandammosprites[0] = RedneckCrossbowClass;
+	gs.weaponsandammosprites[1] = RedneckRiflegunClass;
+	gs.weaponsandammosprites[2] = RedneckBlasterammoClass;
+	gs.weaponsandammosprites[3] = RedneckDynamiteAmmoClass;
+	gs.weaponsandammosprites[4] = RedneckDynamiteAmmoClass;
+	gs.weaponsandammosprites[5] = RedneckCowpieClass;
+	gs.weaponsandammosprites[6] = RedneckWhiskeyClass;
+	gs.weaponsandammosprites[7] = RedneckPorkRindsClass;
+	gs.weaponsandammosprites[8] = RedneckMoonshineClass;
+	gs.weaponsandammosprites[9] = RedneckDynamiteAmmoClass;
+	gs.weaponsandammosprites[10] = RedneckDynamiteAmmoClass;
+	gs.weaponsandammosprites[11] = RedneckCrossbowClass;
+	gs.weaponsandammosprites[12] = RedneckDynamiteAmmoClass;
+	gs.weaponsandammosprites[13] = RedneckTitgunClass;
+	gs.weaponsandammosprites[14] = RedneckTitAmmoClass;
 
 	TILE_APLAYER = RTILE_APLAYER;
 	TILE_DRONE = RTILE_DRONE;

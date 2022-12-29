@@ -42,7 +42,7 @@ struct DukeGameInfo
 
 	ActorInfo actorinfo[MAXTILES];
 	int16_t max_ammo_amount[MAX_WEAPONS];
-	int16_t weaponsandammosprites[15];
+	PClassActor* weaponsandammosprites[15];
 	int displayflags;
 
 	// global gamevars from WW2GI. Put here so we can modify these values without having to depend on CON.
