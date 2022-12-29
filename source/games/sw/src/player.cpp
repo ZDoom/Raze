@@ -2784,7 +2784,9 @@ void DoPlayerMoveVehicle(PLAYER* pp)
         if (pp->sop->clipdist)
         {
             Collision coll;
-            clipmove(pp->pos, &pp->cursector, pp->vect, pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
+            auto temppos = DVector3(pp->pos.XY(), zz);
+            clipmove(temppos, &pp->cursector, pp->vect, pp->sop->clipdist, 4., floordist, CLIPMASK_PLAYER, actor->user.coll);
+            pp->pos.XY() = temppos.XY();
         }
         else
         {
