@@ -168,8 +168,8 @@ Sound Ambience,SNDMNU_AMBIENCE,,,,Okolní zvuky,Umgebungsgeräusche,,,Sonidos de
 "Player Speech
 ",SNDMNU_SPEECH,,,,Hráčův hlas,Spielerkommentare,,,Voz de Jugador,,Pelaajan puhe,Paroles du Joueur,Játékos beszéd,,,,,Teksty Gracza,Fala do jogador,,Comentariu caracter jucător,,
 Flip Stereo Channels,ADVSNDMNU_FLIPSTEREO,,,,Prohodit stereo kanály,Stereo Kanäle vertauschen,,,Alternar Canales Estéreo,,Käännä stereokanavat,Inverser Canaux Stéréo,Sztereó csatornák megcserélése,,,,,Odwróć Kanały Stereo,Inverter canais estéreo,,Inversează canalele stereo,,
-Ninja Slice Animation,MISCMNU_NINJA,,,,Animace rozseknutí ninjy,Ninja-Zerteilanimation,,,Animación de Corte Ninja,,Ninjan pilkkoutumisanimaatio,Animation Ninja Slice,Nindzsa kardcsapás animáció,,,,,Cenzura Ścięcia Ninji,Animação de corte ninja,,Animație feliere Ninja,,
-Use Darts instead of Shurikens,MISCMNU_DARTS,,,,Používat šipky místo šurikenů,Darts statt Wurfsterne,,,Usar Dardos en lugar de Shurikens,,Käytä tikkoja heittotähtien sijaan,Utiliser des fléchettes au lieu de shurikens,Dártok használata surikenek helyett,Usa i Dardi al posto degli Shuriken,,,,Używaj Rzutek zamiast Shurikenów,Usar Dardos ao invés de Shurikens,,Săgeți în loc de shurikeni,,
+Alternative Ninja Animation,MISCMNU_NINJA,,,,Animace rozseknutí ninjy,Ninja-Zerteilanimation,,,Animación de Corte Ninja,,Ninjan pilkkoutumisanimaatio,Animation Ninja Slice,Nindzsa kardcsapás animáció,,,,,Cenzura Ścięcia Ninji,Animação de corte ninja,,Animație feliere Ninja,,
+Use Darts Instead of Shurikens,MISCMNU_DARTS,,,,Používat šipky místo šurikenů,Darts statt Wurfsterne,,,Usar Dardos en lugar de Shurikens,,Käytä tikkoja heittotähtien sijaan,Utiliser des fléchettes au lieu de shurikens,Dártok használata surikenek helyett,Usa i Dardi al posto degli Shuriken,,,,Używaj Rzutek zamiast Shurikenów,Usar Dardos ao invés de Shurikens,,Săgeți în loc de shurikeni,,
 ,,Miscellaneous,,,,,,,,,,,,,,,,,,,,,
 "You are playing the shareware
 version of Duke Nukem 3D.  While
@@ -1350,10 +1350,10 @@ You need a SILVER key for this door.,TXTS_DOOR6,,,,Pro otevření potřebuješ S
 You need a BRONZE key for this door.,TXTS_DOOR7,,,,Pro otevření potřebuješ BRONZOVÝ klíč.,Du brauchst einen BRONZENEN Schlüssel für diese Tür,,,Necesitas una llave de BRONCE para esta puerta.,,,,Ez az ajtó a BRONZ kulccsal nyílik.,,,,,Potrzebujesz BRĄZOWEGO klucza do tych drzwi.,Você precisa de uma chave de BRONZE para esta porta.,,Ai nevoie de cheia de BRONZ pentru ușa asta.,,
 You need a RED key for this door.,TXTS_DOOR8,,,,Pro otevření potřebuješ ČERVENÝ klíč.,Du brauchst einen ROTEN Schlüssel für diese Tür,,,Necesitas una llave ROJA para esta puerta.,,,,Ez az ajtó a VÖRÖS kulccsal nyílik.,,,,,Potrzebujesz CZERWONEGO klucza do tych drzwi.,Você precisa de uma chave VERMELHA para esta porta.,,Ai nevoie de cheia ROȘIE pentru ușa asta.,,
 You never going to score.,TXTS_COOKIE1,"If these cannot be translated literally, think of something fitting in your language.",,,Vy nikdy nezaboduješ.,Du es nie zu etwas bringen wirst.,,,Jamás mojarás el churro.,,,,Soha nem fogsz tudni leakasztani egyet.,,,,,Nigdy nie zaliczysz.,Você nunca vai se dar bem na vida.,,Nu înscrii niciodată.,,
-Bunny rockets enabled!,TXTS_BUNNYENABLED,,,,,,,,,,,,,,,,,,,,,,
-Bunny rockets disabled!,TXTS_BUNNYDISABLED,,,,,,,,,,,,,,,,,,,,,,
-Pachinko Win Cheat Enabled,TXTS_WINPACHINKOEN,,,,,,,,,,,,,,,,,,,,,,
-Pachinko Win Cheat Disabled,TXTS_WINPACHINKODIS,,,,,,,,,,,,,,,,,,,,,,
+Bunny rockets enabled!,TXTS_BUNNYENABLED,,,,,Kaninchenraketen aktiviert!,,,,,,,,,,,,,,,,,
+Bunny rockets disabled!,TXTS_BUNNYDISABLED,,,,,Kaninchenraketen deaktiviert!,,,,,,,,,,,,,,,,,
+Pachinko Win Cheat Enabled,TXTS_WINPACHINKOEN,,,,,Pachinko Cheat an,,,,,,,,,,,,,,,,,
+Pachinko Win Cheat Disabled,TXTS_WINPACHINKODIS,,,,,Pachinko Cheat aus,,,,,,,,,,,,,,,,,
 26-31-43-82-16-29,TXTS_COOKIE2,,,,,,,,,,,,,,,,,,,,,,
 "Sorry, you no win this time, try again.",TXTS_COOKIE3,,,,"Promiň, ty dnes nevyhráváte, zkusit znovu.","Schade, du nicht gewinnen dieses Mal, versuch nochmal.",,,"Lo siento, no has ganado esta vez, inténtalo de nuevo.",,,,"Sajnálom de nyertél, próbáld újra.",,,,,Przepraszać. Ty nie wygrać. Spróbować innym razem.,"Foi mal, você não ganhou desta vez. Tenta de novo.",,"Scuze, nu câștigi acum, vezi data viitoare.",,
 You try harder get along. Be a nice man.,TXTS_COOKIE4,,,,Zkuste lépe žít spolu. Buďte dobré člověk.,"Gib mehr Mühe, netter Mann zu sein.",,,Intenta con más ahínco llevarte bien. Sé un buen hombre.,,,,"Legyél jó, és próbálj vele kijönni.",,,,,Spróbuj się z innymi dogadać. Bądź miłym człowiekiem.,Vê se tenta se comportar. Seja bom homem.,,Încerci fi de treabă mai mult. Fi drăguț.,,
