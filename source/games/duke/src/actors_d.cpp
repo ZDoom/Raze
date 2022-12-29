@@ -165,14 +165,14 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 		DukeStatIterator itj(statlist[x]);
 		while (auto act2 = itj.Next())
 		{
-			if (isWorldTour() && Owner)
+			if (Owner)
 			{
-				if (Owner->isPlayer() && act2->isPlayer() && ud.coop != 0 && ud.ffire == 0 && Owner != act2)
+				if (Owner->isPlayer() && act2->isPlayer() && ud.coop != 0 && ud.ffire == 0 && Owner != act2 /* && (dmflags & NOFRIENDLYRADIUSDMG)*/)
 				{
 					continue;
 				}
 
-				if (actor->spr.picnum == DTILE_FLAMETHROWERFLAME && ((Owner->spr.picnum == DTILE_FIREFLY && act2->spr.picnum == DTILE_FIREFLY) || (Owner->spr.picnum == DTILE_BOSS5 && act2->spr.picnum == DTILE_BOSS5)))
+				if (actor->flags3 & SFLAG3_HITRADIUS_DONTHURTSPECIES && !Owner->isPlayer() && Owner->GetClass() == act2->GetClass())
 				{
 					continue;
 				}
@@ -180,7 +180,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 			if (x == 0 || x >= 5 || (act2->flags1 & SFLAG_HITRADIUS_CHECKHITONLY))
 			{
-				if (actor->spr.picnum != DTILE_SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
+				if (!(actor->flags3 & SFLAG3_HITRADIUS_NODAMAGE) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if ((actor->spr.pos - act2->spr.pos).Length() < radius)
 					{
 						if (badguy(act2) && !cansee(act2->spr.pos.plusZ(q), act2->sector(), actor->spr.pos.plusZ(q), actor->sector()))
@@ -190,10 +190,6 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			}
 			else if (act2->spr.extra >= 0 && act2 != actor && ((act2->flags1 & SFLAG_HITRADIUS_FORCEEFFECT) || badguy(act2) || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
 			{
-				if (actor->spr.picnum == DTILE_SHRINKSPARK && act2->spr.picnum != DTILE_SHARK && (act2->spr.scale.X < 0.375))
-				{
-					continue;
-				}
 				if (actor->flags3 & SFLAG3_HITRADIUS_DONTHURTSHOOTER && act2 == Owner)
 				{
 					continue;
@@ -235,11 +231,11 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					}
 					else if (actor->spr.extra == 0) act2->hitextra = 0;
 
-					if (act2->spr.picnum != DTILE_RADIUSEXPLOSION && Owner && Owner->spr.statnum < MAXSTATUS)
+					if (act2->GetClass() != DukeRadiusExplosionClass && Owner && Owner->spr.statnum < MAXSTATUS)
 					{
 						if (act2->isPlayer())
 						{
-							int p = act2->spr.yint;
+							int p = act2->PlayerIndex();
 
 							if (act2->attackertype == DukeFlamethrowerFlameClass && Owner->isPlayer())
 							{

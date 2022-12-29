@@ -415,6 +415,7 @@ enum sflags3_t
 	SFLAG3_HITRADIUS_DONTHURTSHOOTER = 0x00002000,
 	SFLAG3_HITRADIUS_NODAMAGE = 0x00004000,		// Hitradius inflicts no damage, only a damage type.
 	SFLAG3_HITRADIUS_NOEFFECT = 0x00008000,		// Completely immune to hitradius
+	SFLAG3_HITRADIUS_DONTHURTSPECIES = 0x00010000,	// don't hurt others of the shooter's species.
 
 
 };

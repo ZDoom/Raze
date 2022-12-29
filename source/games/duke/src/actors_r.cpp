@@ -218,8 +218,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					if ((act2->flags1 & SFLAG_HITRADIUSCHECK))
 						checkhitsprite(act2, actor);
 
-					if (act2->spr.picnum != RTILE_RADIUSEXPLOSION &&
-						Owner && Owner->spr.statnum < MAXSTATUS)
+					if (act2->GetClass() != DukeRadiusExplosionClass && Owner && Owner->spr.statnum < MAXSTATUS)
 					{
 						if (act2->isPlayer())
 						{

@@ -3,6 +3,7 @@ class DukeFlamethrowerFlame : DukeActor
 	default
 	{
 		pic "FLAMETHROWERFLAME";
+		+HITRADIUS_DONTHURTSPECIES;
 	}
 	
 	override void Tick()
