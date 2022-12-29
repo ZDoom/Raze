@@ -2090,7 +2090,7 @@ void DoPlayerMove(PLAYER* pp)
     }
     else
     {
-        push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - 16., CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2118,7 +2118,7 @@ void DoPlayerMove(PLAYER* pp)
         actor->spr.cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(pp->actor->spr.pos.XY(), pp->actor->getOffsetZ(), &pp->cursector, actor->clipdist, pp->p_ceiling_dist, pp->p_floor_dist - 16., CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
