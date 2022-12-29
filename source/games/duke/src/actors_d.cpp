@@ -453,85 +453,79 @@ void movetransports_d(void)
 					if (warpspriteto)
 					{
 						if ((act2->flags1 & SFLAG_NOTELEPORT)) continue;
-						switch (act2->spr.picnum)
+						if (act2->GetClass() == DukePlayerOnWaterClass)
 						{
-						case DTILE_PLAYERONWATER:
-							if (sectlotag == 2)
+							if (sectlotag == ST_2_UNDERWATER)
 							{
 								act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-								break;
+								continue;
 							}
-							[[fallthrough]];
-						default:
-							if (act2->spr.statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
-								break;
-							[[fallthrough]];
-
-						case DTILE_WATERBUBBLE:
-
-							if (sectlotag > 0)
+						}
+						if (act2->GetClass() != DukeWaterBubbleClass)
+						{
+							if (act2->spr.statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER))
+								continue;
+						}
+						if (sectlotag > 0)
+						{
+							auto k = spawn(act2, DukeWaterSplashClass);
+							if (k && sectlotag == 1 && act2->spr.statnum == 4)
 							{
-								auto k = spawn(act2, DukeWaterSplashClass);
-								if (k && sectlotag == 1 && act2->spr.statnum == 4)
-								{
-									k->vel.X = act2->vel.X * 0.5;
-									k->spr.Angles.Yaw = act2->spr.Angles.Yaw;
-									ssp(k, CLIPMASK0);
-								}
+								k->vel.X = act2->vel.X * 0.5;
+								k->spr.Angles.Yaw = act2->spr.Angles.Yaw;
+								ssp(k, CLIPMASK0);
 							}
+						}
 
-							switch (sectlotag)
+						switch (sectlotag)
+						{
+						case ST_0_NO_EFFECT:
+							if (onfloorz)
 							{
-							case ST_0_NO_EFFECT:
-								if (onfloorz)
+								if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
 								{
-									if (act2->spr.statnum == STAT_PROJECTILE || (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
+									act2->spr.pos += (Owner->spr.pos - act->spr.pos.XY()).plusZ(-Owner->sector()->floorz);
+									act2->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
+
+									act2->backupang();
+
+									if (act->spr.pal == 0)
 									{
-										act2->spr.pos += (Owner->spr.pos - act->spr.pos.XY()).plusZ(-Owner->sector()->floorz);
-										act2->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
+										auto k = spawn(act, DukeTransporterBeamClass);
+										if (k) S_PlayActorSound(TELEPORTER, k);
 
-										act2->backupang();
-
-										if (act->spr.pal == 0)
-										{
-											auto k = spawn(act, DukeTransporterBeamClass);
-											if (k) S_PlayActorSound(TELEPORTER, k);
-
-											k = spawn(Owner, DukeTransporterBeamClass);
-											if (k) S_PlayActorSound(TELEPORTER, k);
-										}
-
-										if (Owner && Owner->GetOwner() == Owner)
-										{
-											act->counter = 13;
-											Owner->counter = 13;
-										}
-
-										ChangeActorSect(act2, Owner->sector());
+										k = spawn(Owner, DukeTransporterBeamClass);
+										if (k) S_PlayActorSound(TELEPORTER, k);
 									}
-								}
-								else
-								{
-									act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-									act2->spr.pos.Z = Owner->spr.pos.Z + 16;
-									act2->backupz();
+
+									if (Owner && Owner->GetOwner() == Owner)
+									{
+										act->counter = 13;
+										Owner->counter = 13;
+									}
+
 									ChangeActorSect(act2, Owner->sector());
 								}
-								break;
-							case ST_1_ABOVE_WATER:
-								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-								act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
-								act2->backupz();
-								ChangeActorSect(act2, Owner->sector());
-								break;
-							case ST_2_UNDERWATER:
-								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-								act2->spr.pos.Z = Owner->sector()->ceilingz - ll;
-								act2->backupz();
-								ChangeActorSect(act2, Owner->sector());
-								break;
 							}
-
+							else
+							{
+								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+								act2->spr.pos.Z = Owner->spr.pos.Z + 16;
+								act2->backupz();
+								ChangeActorSect(act2, Owner->sector());
+							}
+							break;
+						case ST_1_ABOVE_WATER:
+							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
+							act2->backupz();
+							ChangeActorSect(act2, Owner->sector());
+							break;
+						case ST_2_UNDERWATER:
+							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->spr.pos.Z = Owner->sector()->ceilingz - ll;
+							act2->backupz();
+							ChangeActorSect(act2, Owner->sector());
 							break;
 						}
 					}
@@ -723,7 +717,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			handle_se02(act);
 			break;
 
-			//Flashing sector lights after reactor DTILE_EXPLOSION2
+			//Flashing sector lights after reactor explosion
 		case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
 			handle_se03(act);
 			break;
