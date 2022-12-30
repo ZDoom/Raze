@@ -553,7 +553,7 @@ void movetransports_r(void)
 
 								break;
 
-							case 160:
+							case ST_160_FLOOR_TELEPORT:
 								if (!isRRRA()) break;
 								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 								act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
@@ -564,7 +564,7 @@ void movetransports_r(void)
 								movesprite_ex(act2, DVector3(act2->spr.Angles.Yaw.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
 
 								break;
-							case 161:
+							case ST_161_CEILING_TELEPORT:
 								if (!isRRRA()) break;
 								act2->spr.pos += Owner->spr.pos.XY() - act->spr.pos.XY();
 								act2->spr.pos.Z = Owner->sector()->floorz - ll;
