@@ -974,6 +974,7 @@ int ConCompiler::parsecommand()
 				transnum(LABEL_DEFINE);
 				j |= popscriptvalue();
 			}
+			if (!isRRRA()) j &= 8191;	// clean out RRRA only moves in other games.
 			appendscriptvalue(j);
 		}
 		else
@@ -1136,6 +1137,7 @@ int ConCompiler::parsecommand()
 				transnum(LABEL_DEFINE);
 				k |= popscriptvalue();
 			}
+			if (!isRRRA()) k &= 8191;	// clean out RRRA only moves in other games.
 			ai.moveflags = k;
 		}
 		return 0;
@@ -1232,6 +1234,7 @@ int ConCompiler::parsecommand()
 
 					j |= popscriptvalue();
 				}
+				if (!isRRRA()) j &= 8191;	// clean out RRRA only moves in other games.
 				appendscriptvalue(j);
 				break;
 			}
