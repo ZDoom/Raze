@@ -499,7 +499,6 @@ int g_iWorksLikeVarID = -1;	// var ID of "WORKSLIKE"
 int g_iZRangeVarID = -1;	// var ID of "ZRANGE"
 int g_iAngRangeVarID = -1;	// var ID of "ANGRANGE"
 int g_iAimAngleVarID = -1;	// var ID of "AUTOAIMANGLE"
-int g_iAtWithVarID = -1;	// var ID of "AtWith"
 int g_iLoTagID = -1;			// var ID of "LOTAG"
 int g_iHiTagID = -1;			// ver ID of "HITAG"
 int g_iTextureID = -1;		// var ID of "TEXTURE"
@@ -1234,7 +1233,6 @@ void FinalizeGameVars(void)
 	g_iZRangeVarID=GetGameID("ZRANGE");
 	g_iAngRangeVarID=GetGameID("ANGRANGE");
 	g_iAimAngleVarID=GetGameID("AUTOAIMANGLE");
-	g_iAtWithVarID = GetGameID("ATWITH");
 	g_iLoTagID = GetGameID("LOTAG");
 	g_iHiTagID = GetGameID("HITAG");
 	g_iTextureID = GetGameID("TEXTURE");
