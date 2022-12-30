@@ -463,7 +463,7 @@ void movetransports_d(void)
 						}
 						if (act2->GetClass() != DukeWaterBubbleClass)
 						{
-							if (act2->spr.statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER))
+							if (act2->spr.statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || ((ud.mapflags & MFLAG_ALLSECTORTYPES) && (sectlotag == ST_160_FLOOR_TELEPORT || sectlotag == ST_161_CEILING_TELEPORT))))
 								continue;
 						}
 						if (sectlotag > 0)

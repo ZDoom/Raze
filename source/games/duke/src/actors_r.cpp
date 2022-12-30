@@ -471,114 +471,108 @@ void movetransports_r(void)
 					if (warpspriteto)
 					{
 						if ((act2->flags1 & SFLAG_NOTELEPORT)) continue;
-						switch (act2->spr.picnum)
+						if (act2->GetClass() == DukePlayerOnWaterClass)
 						{
-						case RTILE_PLAYERONWATER:
 							if (sectlotag == ST_2_UNDERWATER)
 							{
 								act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-								break;
+								continue;
 							}
-							[[fallthrough]];
-						default:
+						}
+						if (act2->GetClass() != DukeWaterBubbleClass)
+						{
 							if (act2->spr.statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || ((ud.mapflags & MFLAG_ALLSECTORTYPES) && (sectlotag == ST_160_FLOOR_TELEPORT || sectlotag == ST_161_CEILING_TELEPORT))))
-								break;
-							[[fallthrough]];
-
-						case RTILE_WATERBUBBLE:
-							if (rnd(192) && act2->spr.picnum == RTILE_WATERBUBBLE)
-								break;
-
-							if (sectlotag > 0)
+								continue;
+						}
+						if (sectlotag > 0)
+						{
+							auto spawned = spawn(act2, DukeWaterSplashClass);
+							if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
 							{
-								auto spawned = spawn(act2, DukeWaterSplashClass);
-								if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
-								{
-									spawned->vel.X = act2->vel.X * 0.5;
-									spawned->spr.Angles.Yaw = act2->spr.Angles.Yaw;
-									ssp(spawned, CLIPMASK0);
-								}
+								spawned->vel.X = act2->vel.X * 0.5;
+								spawned->spr.Angles.Yaw = act2->spr.Angles.Yaw;
+								ssp(spawned, CLIPMASK0);
 							}
+						}
 
-							switch (sectlotag)
+						switch (sectlotag)
+						{
+						case ST_0_NO_EFFECT:
+							if (onfloorz)
 							{
-							case ST_0_NO_EFFECT:
-								if (onfloorz)
+								if (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1)
 								{
-									if (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1)
+									act2->spr.pos += (Owner->spr.pos - act->spr.pos.XY()).plusZ(-Owner->sector()->floorz);
+									act2->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
+
+									act2->backupang();
+
+									auto beam = spawn(act, DukeTransporterBeamClass);
+									if (beam) S_PlayActorSound(TELEPORTER, beam);
+
+									beam = spawn(Owner, DukeTransporterBeamClass);
+									if (beam) S_PlayActorSound(TELEPORTER, beam);
+
+									if (Owner->GetOwner() != Owner)
 									{
-										act2->spr.pos += (Owner->spr.pos - act->spr.pos.XY()).plusZ(-Owner->sector()->floorz);
-										act2->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
-
-										act2->backupang();
-
-										auto beam = spawn(act, DukeTransporterBeamClass);
-										if (beam) S_PlayActorSound(TELEPORTER, beam);
-
-										beam = spawn(Owner, DukeTransporterBeamClass);
-										if (beam) S_PlayActorSound(TELEPORTER, beam);
-
-										if (Owner->GetOwner() != Owner)
-										{
-											act->counter = 13;
-											Owner->counter = 13;
-										}
-
-										ChangeActorSect(act2, Owner->sector());
+										act->counter = 13;
+										Owner->counter = 13;
 									}
-								}
-								else
-								{
-									act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-									act2->spr.pos.Z = Owner->spr.pos.Z + 16;
-									act2->backupz();
 
 									ChangeActorSect(act2, Owner->sector());
 								}
-								break;
-							case ST_1_ABOVE_WATER:
-								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-								act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
-								act2->backupz();
-
-								ChangeActorSect(act2, Owner->sector());
-
-								break;
-							case ST_2_UNDERWATER:
-								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-								act2->spr.pos.Z = Owner->sector()->ceilingz - ll;
-								act2->backupz();
-
-								ChangeActorSect(act2, Owner->sector());
-
-								break;
-
-							case ST_160_FLOOR_TELEPORT:
-								if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
-								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-								act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
-								act2->backupz();
-
-								ChangeActorSect(act2, Owner->sector());
-
-								movesprite_ex(act2, DVector3(act2->spr.Angles.Yaw.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
-
-								break;
-							case ST_161_CEILING_TELEPORT:
-								if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
-								act2->spr.pos += Owner->spr.pos.XY() - act->spr.pos.XY();
-								act2->spr.pos.Z = Owner->sector()->floorz - ll;
-								act2->backupz();
-
-								ChangeActorSect(act2, Owner->sector());
-
-								movesprite_ex(act2, DVector3(act2->spr.Angles.Yaw.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
-
-								break;
 							}
+							else
+							{
+								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+								act2->spr.pos.Z = Owner->spr.pos.Z + 16;
+								act2->backupz();
+
+								ChangeActorSect(act2, Owner->sector());
+							}
+							break;
+						case ST_1_ABOVE_WATER:
+							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
+							act2->backupz();
+
+							ChangeActorSect(act2, Owner->sector());
+
+							break;
+						case ST_2_UNDERWATER:
+							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->spr.pos.Z = Owner->sector()->ceilingz - ll;
+							act2->backupz();
+
+							ChangeActorSect(act2, Owner->sector());
+
+							break;
+
+						case ST_160_FLOOR_TELEPORT:
+							if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
+							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
+							act2->backupz();
+
+							ChangeActorSect(act2, Owner->sector());
+
+							movesprite_ex(act2, DVector3(act2->spr.Angles.Yaw.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
+
+							break;
+						case ST_161_CEILING_TELEPORT:
+							if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
+							act2->spr.pos += Owner->spr.pos.XY() - act->spr.pos.XY();
+							act2->spr.pos.Z = Owner->sector()->floorz - ll;
+							act2->backupz();
+
+							ChangeActorSect(act2, Owner->sector());
+
+							movesprite_ex(act2, DVector3(act2->spr.Angles.Yaw.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
 
 							break;
 						}
+
+						break;
 					}
 				}
 				break;
