@@ -82,7 +82,7 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		{
 			if (t->lotag == SE_27_DEMO_CAM && ud.recstat == 1)
 			{
-				t->picnum = 11 + ((PlayClock >> 3) & 1);
+				t->setspritetexture(TexMan.CheckForTexture("DEMOCAM", ETextureType::Any));
 				t->cstat |= CSTAT_SPRITE_YCENTER;
 			}
 			else
@@ -147,24 +147,23 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				newtspr->shade = t->shade;
 				newtspr->cstat = 0;
 
+				const char* texname = nullptr;
 				switch (ps[p].curr_weapon)
 				{
-				case PISTOL_WEAPON:      newtspr->picnum = DTILE_FIRSTGUNSPRITE;       break;
-				case SHOTGUN_WEAPON:     newtspr->picnum = DTILE_SHOTGUNSPRITE;        break;
-				case CHAINGUN_WEAPON:    newtspr->picnum = DTILE_CHAINGUNSPRITE;       break;
-				case RPG_WEAPON:         newtspr->picnum = DTILE_RPGSPRITE;            break;
-				case HANDREMOTE_WEAPON:
-				case HANDBOMB_WEAPON:    newtspr->picnum = DTILE_HEAVYHBOMB;           break;
-				case TRIPBOMB_WEAPON:    newtspr->picnum = DTILE_TRIPBOMBSPRITE;       break;
-				case GROW_WEAPON:        newtspr->picnum = DTILE_GROWSPRITEICON;       break;
-				case SHRINKER_WEAPON:    newtspr->picnum = DTILE_SHRINKERSPRITE;       break;
-				case FREEZE_WEAPON:      newtspr->picnum = DTILE_FREEZESPRITE;         break;
-				case FLAMETHROWER_WEAPON: //Twentieth Anniversary World Tour
-					if (isWorldTour())
-						newtspr->picnum = DTILE_FLAMETHROWERSPRITE;
-					break;
-				case DEVISTATOR_WEAPON:  newtspr->picnum = DTILE_DEVISTATORSPRITE;     break;
+				case PISTOL_WEAPON:      texname = "FIRSTGUNSPRITE";       break;
+				case SHOTGUN_WEAPON:     texname = "SHOTGUNSPRITE";        break;
+				case CHAINGUN_WEAPON:    texname = "CHAINGUNSPRITE";       break;
+				case RPG_WEAPON:         texname = "RPGSPRITE";            break;
+				case HANDREMOTE_WEAPON:	 
+				case HANDBOMB_WEAPON:    texname = "HEAVYHBOMB";           break;
+				case TRIPBOMB_WEAPON:    texname = "TRIPBOMBSPRITE";       break;
+				case GROW_WEAPON:        texname = "GROWSPRITEICON";       break;
+				case SHRINKER_WEAPON:    texname = "SHRINKERSPRITE";       break;
+				case FREEZE_WEAPON:      texname = "FREEZESPRITE";         break;
+				case FLAMETHROWER_WEAPON:texname = "FLAMETHROWERSPRITE";   break;
+				case DEVISTATOR_WEAPON:  texname = "DEVISTATORSPRITE";     break;
 				}
+				t->setspritetexture(TexMan.CheckForTexture(texname, ETextureType::Any));
 
 				if (h->GetOwner()) newtspr->pos.Z = ps[p].GetActor()->getOffsetZ() - 12;
 				else newtspr->pos.Z = h->spr.pos.Z - 51;

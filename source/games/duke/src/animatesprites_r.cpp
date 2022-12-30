@@ -75,11 +75,12 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 		{
 			if (t->lotag == SE_27_DEMO_CAM && ud.recstat == 1)
 			{
-				t->picnum = 11 + ((PlayClock >> 3) & 1);
+				t->setspritetexture(TexMan.CheckForTexture("DEMOCAM", ETextureType::Any));
 				t->cstat |= CSTAT_SPRITE_YCENTER;
 			}
 			else
 				t->scale = DVector2(0, 0);
+			break;
 		}
 
 		if (t->statnum == STAT_TEMP) continue;
@@ -145,22 +146,24 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 				newtspr->shade = t->shade;
 				newtspr->cstat = 0;
 
+				const char* texname = nullptr;
 				switch (ps[p].curr_weapon)
 				{
-				case PISTOL_WEAPON:      newtspr->picnum = RTILE_FIRSTGUNSPRITE;       break;
-				case SHOTGUN_WEAPON:     newtspr->picnum = RTILE_SHOTGUNSPRITE;        break;
-				case RIFLEGUN_WEAPON:    newtspr->picnum = RTILE_RIFLEGUNSPRITE;       break;
-				case CROSSBOW_WEAPON:         newtspr->picnum = RTILE_CROSSBOWSPRITE;            break;
-				case CHICKEN_WEAPON:        newtspr->picnum = RTILE_CROSSBOWSPRITE; break;
+				case PISTOL_WEAPON:           texname = "FIRSTGUNSPRITE";       break;
+				case SHOTGUN_WEAPON:          texname = "SHOTGUNSPRITE";        break;
+				case RIFLEGUN_WEAPON:         texname = "RIFLEGUNSPRITE";       break;
+				case CROSSBOW_WEAPON:         texname = "CROSSBOWSPRITE";       break;
+				case CHICKEN_WEAPON:          texname = "CROSSBOWSPRITE";       break;
 				case THROWINGDYNAMITE_WEAPON:
-				case DYNAMITE_WEAPON:    newtspr->picnum = RTILE_DYNAMITE;           break;
-				case POWDERKEG_WEAPON:    newtspr->picnum = RTILE_POWDERKEG;       break;
-				case BOWLING_WEAPON:     newtspr->picnum = RTILE_BOWLINGBALLSPRITE;                 break;
-				case THROWSAW_WEAPON:    newtspr->picnum = RTILE_RIPSAWSPRITE;          break;
-				case BUZZSAW_WEAPON:        newtspr->picnum = RTILE_RIPSAWSPRITE;          break;
-				case ALIENBLASTER_WEAPON:      newtspr->picnum = RTILE_ALIENBLASTERSPRITE;     break;
-				case TIT_WEAPON:  newtspr->picnum = RTILE_TITSPRITE;         break;
+				case DYNAMITE_WEAPON:         texname = "DYNAMITE";             break;
+				case POWDERKEG_WEAPON:        texname = "POWDERKEG";            break;
+				case BOWLING_WEAPON:          texname = "BOWLINGBALLSPRITE";    break;
+				case THROWSAW_WEAPON:         texname = "RIPSAWSPRITE";         break;
+				case BUZZSAW_WEAPON:          texname = "RIPSAWSPRITE";         break;
+				case ALIENBLASTER_WEAPON:     texname = "ALIENBLASTERSPRITE";   break;
+				case TIT_WEAPON:              texname = "TITSPRITE";            break;
 				}
+				t->setspritetexture(TexMan.CheckForTexture(texname, ETextureType::Any));
 
 				if (h->GetOwner()) newtspr->pos.Z = ps[p].GetActor()->getOffsetZ() - 12;
 				else newtspr->pos.Z = h->spr.pos.Z - 51;
@@ -201,14 +204,14 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (ps[p].OnMotorcycle && p == screenpeek)
 			{
-				t->picnum = RTILE_PLAYERONBIKEBACK;
+				t->setspritetexture(TexMan.CheckForTexture("PLAYERONBIKEBACK", ETextureType::Any));
 				t->scale = DVector2(0.28125, 0.28125);
 				drawshadows(tsprites, t, h);
 				continue;
 			}
 			else if (ps[p].OnMotorcycle)
 			{
-				t->picnum = RTILE_PLAYERONBIKE;
+				t->setspritetexture(TexMan.CheckForTexture("PLAYERONBIKE", ETextureType::Any));
 				applyRotation2(h, t, viewang);
 				t->scale = DVector2(0.28125, 0.28125);
 				drawshadows(tsprites, t, h);
@@ -216,14 +219,14 @@ void animatesprites_r(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 			}
 			else if (ps[p].OnBoat && p == screenpeek)
 			{
-				t->picnum = RTILE_PLAYERONBOATBACK;
+				t->setspritetexture(TexMan.CheckForTexture("PLAYERONBOATBACK", ETextureType::Any));
 				t->scale = DVector2(0.5, 0.5);
 				drawshadows(tsprites, t, h);
 				continue;
 			}
 			else if (ps[p].OnBoat)
 			{
-				t->picnum = RTILE_PLAYERONBOAT;
+				t->setspritetexture(TexMan.CheckForTexture("PLAYERONBOAT", ETextureType::Any));
 				k = angletorotation2(h->spr.Angles.Yaw, viewang);
 				applyRotation2(h, t, viewang);
 				t->scale = DVector2(0.5, 0.5);
