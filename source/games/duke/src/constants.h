@@ -426,8 +426,6 @@ enum sflags3_t
 	SFLAG3_NOJIBS = 0x01000000,
 	SFLAG3_NOVERTICALMOVE = 0x02000000,
 	SFLAG3_MOVE_NOPLAYERINTERACT = 0x04000000,
-
-
 };
 
 using EDukeFlags3 = TFlags<sflags3_t, uint32_t>;

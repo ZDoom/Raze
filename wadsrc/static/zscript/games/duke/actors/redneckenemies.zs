@@ -7,6 +7,7 @@ class RedneckBikerBV2 : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+LOOKALLAROUND;
+		watermovefactor 0.5;
 	}
 	override void Initialize()
 	{
@@ -23,6 +24,7 @@ class RedneckBikerB : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+LOOKALLAROUND;
+		watermovefactor 0.5;
 	}
 	override void Initialize()
 	{
@@ -71,6 +73,7 @@ class RedneckCheerleaderB : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+LOOKALLAROUND;
+		watermovefactor 0.5;
 	}
 	override void Initialize()
 	{
@@ -140,6 +143,7 @@ class RedneckMinionBoat : DukeActor
 		+LOOKALLAROUND;
 		+DONTDIVE;
 		falladjustz 3;
+		landmovefactor 0.5;
 	}
 	override void Initialize()
 	{
@@ -158,6 +162,7 @@ class RedneckHulkBoat : DukeActor
 		+LOOKALLAROUND;
 		+DONTDIVE;
 		falladjustz 12;
+		landmovefactor 0.5;
 	}
 	override void Initialize()
 	{
@@ -176,6 +181,7 @@ class RedneckCheerBoat : DukeActor
 		+LOOKALLAROUND;
 		+DONTDIVE;
 		falladjustz 6;
+		landmovefactor 0.5;
 	}
 	override void Initialize()
 	{

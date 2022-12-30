@@ -1049,7 +1049,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (actor->counter < 16)
 				actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_jumptoplayer_factor);
 	}
-	if (a & justjump1)
+	else if (a & justjump1)
 	{
 		if (actor->counter < 8)
 			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_justjump1_factor);
@@ -1196,30 +1196,13 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				}
 			}
 		}
-		if (isRRRA())
+		if (actor->sector()->lotag != ST_1_ABOVE_WATER)
 		{
-			if (actor->sector()->lotag != ST_1_ABOVE_WATER)
-			{
-				switch (actor->spr.picnum)
-				{
-				case RTILE_MINIONBOAT:
-				case RTILE_HULKBOAT:
-				case RTILE_CHEERBOAT:
-					daxvel *= 0.5;
-					break;
-				}
-			}
-			else if (actor->sector()->lotag == ST_1_ABOVE_WATER)
-			{
-				switch (actor->spr.picnum)
-				{
-				case RTILE_BIKERB:
-				case RTILE_BIKERBV2:
-				case RTILE_CHEERB:
-					daxvel *= 0.5;
-					break;
-				}
-			}
+			daxvel *= actor->FloatVar(NAME_landmovefactor);
+		}
+		else
+		{
+			daxvel *= actor->FloatVar(NAME_watermovefactor);
 		}
 
 		Collision coll;
