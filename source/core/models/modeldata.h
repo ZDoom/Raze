@@ -56,9 +56,9 @@ struct ModelManager
 	TArray<ModelDescriptor> modelDescs;
 	TMap<unsigned, ModelTileFrame> frameMap;
 
-	unsigned FrameMapKey(unsigned tilenum, unsigned palette)
+	unsigned FrameMapKey(FTextureID tilenum, unsigned palette)
 	{
-		return tilenum + (palette < 16);	// good enough for now - should later be redirected to the underlying texture ID.
+		return tilenum.GetIndex() + (palette < 20);
 	}
 
 	// Interface for the .def parser
@@ -70,11 +70,11 @@ struct ModelManager
 	int DefineHud(int modelid, int tilex, FVector3 add, int angadd, int flags, int fov);
 	int UndefineTile(int tile);
 	int UndefineModel(int modelid);
-	bool CheckModel(int tilenum, int pal)
+	bool CheckModel(FTextureID tilenum, int pal)
 	{
 		return frameMap.CheckKey(FrameMapKey(tilenum, pal)) != nullptr;
 	}
-	ModelTileFrame* GetModel(int tilenum, int pal)
+	ModelTileFrame* GetModel(FTextureID tilenum, int pal)
 	{
 		return frameMap.CheckKey(FrameMapKey(tilenum, pal));
 	}

@@ -5,6 +5,7 @@
 #include "hw_voxels.h"
 #include "gamefuncs.h"
 #include "tiletexture.h"
+#include "buildtiles.h"
 
 #include "build.h"
 
@@ -57,7 +58,7 @@ int ModelManager::DefineFrame(int modelid, const char* framename, int tilenum, i
     mframe.framenum = frm;
     mframe.skinnum = skinnum;
     mframe.smoothduration = smoothduration;
-    auto key = FrameMapKey(tilenum, pal);
+    auto key = FrameMapKey(tileGetTextureID(tilenum), pal);
     frameMap.Insert(key, mframe);
     return key;
 }
@@ -151,7 +152,7 @@ int ModelManager::UndefineTile(int tile)
     // delete all entries from the map that reference this tile
     for (int i = 0; i < MAXPALOOKUPS; i++)
     {
-        frameMap.Remove(FrameMapKey(tile, i));
+        frameMap.Remove(FrameMapKey(tileGetTextureID(tile), i));
     }
     return 0;
 }

@@ -635,7 +635,7 @@ void viewProcessSprites(tspriteArray& tsprites, const DVector3& cPos, DAngle cA,
 		case 6:
 		case 7:
 		{
-			if (hw_models && modelManager.CheckModel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
+			if (hw_models && modelManager.CheckModel(pTSprite->spritetexture(), pTSprite->pal) && !(owneractor->sprext.renderflags & SPREXT_NOTMD))
 				break;
 
 			// Can be overridden by def script

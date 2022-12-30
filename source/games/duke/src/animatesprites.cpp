@@ -63,11 +63,11 @@ void drawshadows(tspriteArray& tsprites, tspritetype* t, DDukeActor* h)
 			shadowspr->pos.Z = floorz;
 			shadowspr->pal = 4;
 
-			if (hw_models && modelManager.CheckModel(t->picnum, t->pal))
+			if (hw_models && modelManager.CheckModel(t->spritetexture(), t->pal))
 			{
 				shadowspr->scale.Y = (0);
 				// 512:trans reverse
-				//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
+				//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues (todo: use a stencil to do this right.)
 				shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
 				shadowspr->cstat |= CSTAT_SPRITE_TRANS_FLIP;
 			}

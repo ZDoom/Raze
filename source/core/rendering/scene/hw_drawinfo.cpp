@@ -297,7 +297,7 @@ void HWDrawInfo::DispatchSprites()
 
 		if (!(actor->sprext.renderflags & SPREXT_NOTMD) && !(tspr->cstat2 & CSTAT2_SPRITE_NOMODEL))
 		{
-			auto pt = modelManager.GetModel(tspr->picnum, tspr->pal);
+			auto pt = modelManager.GetModel(tspr->spritetexture(), tspr->pal);
 			if (hw_models && pt && pt->modelid >= 0 && pt->framenum >= 0)
 			{
 				//HWSprite hwsprite;
