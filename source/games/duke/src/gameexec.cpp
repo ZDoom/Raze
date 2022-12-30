@@ -1390,7 +1390,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 		}
 		if (hs > sclip)
 		{
-			if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
+			if (hit != nullptr && hit->GetClass() == actor->GetClass())
 				return 0;
 			else
 			{
@@ -1399,7 +1399,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 				actor->spr.Angles.Yaw -= angdif;
 				if (hs > sclip)
 				{
-					if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
+					if (hit != nullptr && hit->GetClass() == actor->GetClass())
 						return 0;
 					else
 					{
@@ -1408,7 +1408,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 						actor->spr.Angles.Yaw -= angdif;
 						if (hs > 48)
 						{
-							if (hit != nullptr && hit->spr.picnum == actor->spr.picnum)
+							if (hit != nullptr && hit->GetClass() == actor->GetClass())
 								return 0;
 							return 1;
 						}
@@ -1987,7 +1987,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifactor:
 		insptr++;
-		parseifelse(g_ac->spr.picnum == *insptr);
+		parseifelse(g_ac->GetClass() == GetSpawnType(*insptr));
 		break;
 	case concmd_resetcount:
 		insptr++;
@@ -2117,7 +2117,7 @@ int ParseState::parse(void)
 		if (info != nullptr)
 		{
 			g_ac->ChangeType(info->cls);
-			g_ac->spr.picnum = *insptr;
+			g_ac->spr.setspritetexture(tileGetTextureID(*insptr));
 		}
 		insptr++;
 		break;
@@ -2461,7 +2461,7 @@ int ParseState::parse(void)
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto actj = it.Next())
 		{
-			if (actj->spr.picnum == lType)
+			if (actj->GetClass() == GetSpawnType(lType))
 			{
 				lTemp = (g_ac->spr.pos.XY() - actj->spr.pos.XY()).Length();
 				if (lTemp < lMaxDist)
@@ -2504,7 +2504,7 @@ int ParseState::parse(void)
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto actj = it.Next())
 		{
-			if (actj->spr.picnum == lType)
+			if (actj->GetClass() == GetSpawnType(lType))
 			{
 				lTemp = (g_ac->spr.pos.XY() - actj->spr.pos.XY()).Length();
 				if (lTemp < lMaxDist)
@@ -3223,10 +3223,7 @@ bool execute(DDukeActor *actor,int p,double pdist)
 	s.g_p = p;	// Player ID
 	s.g_x = int(pdist / maptoworld);	// ??
 	s.g_ac = actor;
-	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->spr.picnum].scriptaddress)];
-	auto insptr = coninf? &ScriptCode[4 + coninf->scriptaddress] : nullptr;
-	if (insptr != s.insptr)	
-		Printf("%s: %p vs. %p\n", actor->GetClass()->TypeName.GetChars(), insptr, s.insptr);
+	s.insptr = coninf? &ScriptCode[4 + coninf->scriptaddress] : nullptr;
 	s.killit_flag = 0;
 
 	int done;
