@@ -171,20 +171,19 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 			if (proj->spr.picnum == RTILE_RPG) proj->spr.extra <<= 1;
 			else if (isRRRA() && proj->spr.picnum == RTILE_RPG2) proj->spr.extra <<= 1;
 
-			if ((targ->spr.picnum != RTILE_DRONE))
-				if (proj->spr.picnum != RTILE_FREEZEBLAST)
+			if (!(targ->flags3 & SFLAG3_NOHITJIBS) && !(proj->flags3 & SFLAG3_NOHITJIBS))
+			{
+				auto spawned = spawn(proj, DukeJibs6Class);
+				if (spawned)
 				{
-					auto spawned = spawn(proj, DukeJibs6Class);
-					if (spawned)
-					{
-						if (proj->spr.pal == 6)
-							spawned->spr.pal = 6;
-						spawned->spr.pos.Z += 4;
-						spawned->vel.X = 1;
-						spawned->spr.scale = DVector2(0.375, 0.375);
-						spawned->spr.Angles.Yaw = DAngle22_5 / 4 - randomAngle(22.5 / 2);
-					}
+					if (proj->spr.pal == 6)
+						spawned->spr.pal = 6;
+					spawned->spr.pos.Z += 4;
+					spawned->vel.X = 1;
+					spawned->spr.scale = DVector2(0.375, 0.375);
+					spawned->spr.Angles.Yaw = DAngle22_5 / 4 - randomAngle(22.5 / 2);
 				}
+			}
 
 			auto Owner = proj->GetOwner();
 

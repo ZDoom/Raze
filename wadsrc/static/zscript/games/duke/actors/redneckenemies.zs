@@ -456,6 +456,7 @@ class RedneckMosquito : DukeActor
 		+FLOATING;
 		+QUICKALTERANG;
 		+NOJIBS;
+		+NOHITJIBS;
 		falladjustz 0;
 		floating_floordist 30;
 		floating_ceilingdist 50;

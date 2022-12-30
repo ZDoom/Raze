@@ -195,6 +195,7 @@ static FFlagDef DukeActorFlagDefs[] =
 	DEFINE_FLAG(SFLAG3, MOVE_NOPLAYERINTERACT, DDukeActor, flags3),
 	DEFINE_FLAG(SFLAG3, MAGMAIMMUNE, DDukeActor, flags3),
 	DEFINE_FLAG(SFLAG3, DESTRUCTOIMMUNE, DDukeActor, flags3),
+	DEFINE_FLAG(SFLAG3, NOHITJIBS, DDukeActor, flags3),
 
 };
 

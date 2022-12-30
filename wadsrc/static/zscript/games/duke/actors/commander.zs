@@ -9,6 +9,7 @@ class DukeCommander : DukeActor
 		+FLOATING;
 		+SHOOTCENTERED;
 		+NORANDOMANGLEWHENBLOCKED;
+		+NOHITJIBS;
 		gutsoffset -24;
 		falladjustz 0;
 		floating_floordist 8;

@@ -9,6 +9,7 @@ class DukeDrone : DukeActor
 		+FLOATING;
 		+QUICKALTERANG;
 		+NOJIBS;
+		+NOHITJIBS;
 		falladjustz 0;
 		floating_floordist 30;
 		floating_ceilingdist 50;
@@ -28,6 +29,7 @@ class DukeTurret : DukeActor
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+NOVERTICALMOVE;
+		+NOHITJIBS;
 		aimoffset 32;
 	}
 	
@@ -54,6 +56,7 @@ class DukeRotateGun : DukeActor
 		+SHOOTCENTERED;
 		+NOVERTICALMOVE;
 		+MOVE_NOPLAYERINTERACT;
+		+NOHITJIBS;
 		sparkoffset -8;
 		aimoffset 32;
 		shootzoffset 0;

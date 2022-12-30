@@ -8,6 +8,7 @@ class DukeGreenSlime : DukeActor
 		+DONTDIVEALIVE;
 		+FORCESECTORSHADE;
 		+SHRINKAUTOAIM;
+		+NOHITJIBS;
 		sparkoffset -8;
 	}
 
