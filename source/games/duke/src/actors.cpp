@@ -688,6 +688,172 @@ void movefallers(void)
 
 //---------------------------------------------------------------------------
 //
+//  well, also surfacing...
+//
+//---------------------------------------------------------------------------
+
+void checkdive(DDukeActor* transporter, DDukeActor* transported)
+{
+	auto sectp = transporter->sector();
+	int sectlotag = sectp->lotag;
+	auto Owner = transporter->GetOwner();
+	int warpdir;
+	int onfloorz = transporter->temp_data[4];
+	Collision coll;
+
+	double ll = abs(transported->vel.Z), ll2;
+	if (transported->vel.Z >= 0)
+		warpdir = 2;
+	else
+		warpdir = 1;
+
+	int warpspriteto = 0;
+	if (ll && sectlotag == ST_2_UNDERWATER && transported->spr.pos.Z < sectp->ceilingz + ll && warpdir == 1)
+		warpspriteto = 1;
+
+	if (ll && sectlotag == ST_1_ABOVE_WATER && transported->spr.pos.Z > sectp->floorz - ll && warpdir == 2)
+		warpspriteto = 1;
+
+	if (ud.mapflags & MFLAG_ALLSECTORTYPES)
+	{
+		if (ll && sectlotag == ST_161_CEILING_TELEPORT && transported->spr.pos.Z < (sectp->ceilingz + ll) && warpdir == 1)
+		{
+			warpspriteto = 1;
+			ll2 = ll - abs(transported->spr.pos.Z - sectp->ceilingz);
+		}
+		else if (sectlotag == ST_161_CEILING_TELEPORT && transported->spr.pos.Z < (sectp->ceilingz + 3.90625) && warpdir == 1)
+		{
+			warpspriteto = 1;
+			ll2 = zmaptoworld;
+		}
+		if (ll && sectlotag == ST_160_FLOOR_TELEPORT && transported->spr.pos.Z > (sectp->floorz - ll) && warpdir == 2)
+		{
+			warpspriteto = 1;
+			ll2 = ll - abs(sectp->floorz - transported->spr.pos.Z);
+		}
+		else if (sectlotag == ST_160_FLOOR_TELEPORT && transported->spr.pos.Z > (sectp->floorz - 3.90625) && warpdir == 2)
+		{
+			warpspriteto = 1;
+			ll2 = zmaptoworld;
+		}
+	}
+
+	if (sectlotag == ST_0_NO_EFFECT && (onfloorz || abs(transported->spr.pos.Z - transporter->spr.pos.Z) < 16))
+	{
+		if ((!Owner || Owner->GetOwner() != Owner) && onfloorz && transporter->counter > 0 && transported->spr.statnum != STAT_MISC)
+		{
+			transporter->counter++;
+			return;
+		}
+		warpspriteto = 1;
+	}
+
+	if (warpspriteto)
+	{
+		if ((transported->flags1 & SFLAG_NOTELEPORT)) return;
+		if (transported->GetClass() == DukePlayerOnWaterClass)
+		{
+			if (sectlotag == ST_2_UNDERWATER)
+			{
+				transported->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
+				return;
+			}
+		}
+		if (transported->GetClass() != DukeWaterBubbleClass)
+		{
+			if (transported->spr.statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || ((ud.mapflags & MFLAG_ALLSECTORTYPES) && (sectlotag == ST_160_FLOOR_TELEPORT || sectlotag == ST_161_CEILING_TELEPORT))))
+				return;
+		}
+		if (sectlotag > 0)
+		{
+			auto spawned = spawn(transported, DukeWaterSplashClass);
+			if (spawned && sectlotag == 1 && transported->spr.statnum == 4)
+			{
+				spawned->vel.X = transported->vel.X * 0.5;
+				spawned->spr.Angles.Yaw = transported->spr.Angles.Yaw;
+				ssp(spawned, CLIPMASK0);
+			}
+		}
+
+		switch (sectlotag)
+		{
+		case ST_0_NO_EFFECT:
+			if (onfloorz)
+			{
+				if (transported->spr.statnum == STAT_PROJECTILE || (checkcursectnums(transporter->sector()) == -1 && checkcursectnums(Owner->sector()) == -1))
+				{
+					transported->spr.pos += (Owner->spr.pos - transporter->spr.pos.XY()).plusZ(-Owner->sector()->floorz);
+					transported->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
+
+					transported->backupang();
+
+					if (transporter->spr.pal == 0 || isRR())
+					{
+						auto beam = spawn(transporter, DukeTransporterBeamClass);
+						if (beam) S_PlayActorSound(TELEPORTER, beam);
+
+						beam = spawn(Owner, DukeTransporterBeamClass);
+						if (beam) S_PlayActorSound(TELEPORTER, beam);
+					}
+
+					if (Owner && Owner->GetOwner() == Owner)
+					{
+						transporter->counter = 13;
+						Owner->counter = 13;
+					}
+
+					ChangeActorSect(transported, Owner->sector());
+				}
+			}
+			else
+			{
+				transported->spr.pos.XY() += Owner->spr.pos.XY() - transporter->spr.pos.XY();
+				transported->spr.pos.Z = Owner->spr.pos.Z + 16;
+				transported->backupz();
+				ChangeActorSect(transported, Owner->sector());
+			}
+			break;
+		case ST_1_ABOVE_WATER:
+			transported->spr.pos.XY() += Owner->spr.pos.XY() - transporter->spr.pos.XY();
+			transported->spr.pos.Z = Owner->sector()->ceilingz + ll;
+			transported->backupz();
+			ChangeActorSect(transported, Owner->sector());
+			break;
+		case ST_2_UNDERWATER:
+			transported->spr.pos.XY() += Owner->spr.pos.XY() - transporter->spr.pos.XY();
+			transported->spr.pos.Z = Owner->sector()->ceilingz - ll;
+			transported->backupz();
+			ChangeActorSect(transported, Owner->sector());
+			break;
+
+		case ST_160_FLOOR_TELEPORT:
+			if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
+			transported->spr.pos.XY() += Owner->spr.pos.XY() - transporter->spr.pos.XY();
+			transported->spr.pos.Z = Owner->sector()->ceilingz + ll2;
+			transported->backupz();
+
+			ChangeActorSect(transported, Owner->sector());
+
+			movesprite_ex(transported, DVector3(transported->spr.Angles.Yaw.ToVector() * transported->vel.X, 0), CLIPMASK1, coll);
+
+			break;
+		case ST_161_CEILING_TELEPORT:
+			if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
+			transported->spr.pos += Owner->spr.pos.XY() - transporter->spr.pos.XY();
+			transported->spr.pos.Z = Owner->sector()->floorz - ll;
+			transported->backupz();
+
+			ChangeActorSect(transported, Owner->sector());
+
+			movesprite_ex(transported, DVector3(transported->spr.Angles.Yaw.ToVector() * transported->vel.X, 0), CLIPMASK1, coll);
+
+			break;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------

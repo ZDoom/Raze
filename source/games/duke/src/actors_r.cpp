@@ -240,11 +240,9 @@ int ifhitbyweapon_r(DDukeActor *actor)
 
 void movetransports_r(void)
 {
-	uint8_t warpdir = 0, warpspriteto;
+	uint8_t warpdir = 0;
 	int k, p, sectlotag;
 	int onfloorz;
-	double ll, ll2 = 0;
-	Collision coll;
 
 	 //Transporters
 
@@ -415,166 +413,8 @@ void movetransports_r(void)
 			case STAT_PROJECTILE:
 			case STAT_MISC:
 			case STAT_DUMMYPLAYER:
-				if ((act->flags2 & SFLAG2_DONTDIVE)) continue;
-
-				ll = abs(act2->vel.Z);
-				if (isRRRA())
-				{
-					if (act2->vel.Z >= 0)
-						warpdir = 2;
-					else
-						warpdir = 1;
-				}
-
-				{
-					warpspriteto = 0;
-					if (ll && sectlotag == ST_2_UNDERWATER && act2->spr.pos.Z < (sectp->ceilingz + ll))
-						warpspriteto = 1;
-
-					if (ll && sectlotag == ST_1_ABOVE_WATER && act2->spr.pos.Z > (sectp->floorz - ll))
-						warpspriteto = 1;
-
-					if (ud.mapflags & MFLAG_ALLSECTORTYPES)
-					{
-						if (ll && sectlotag == ST_161_CEILING_TELEPORT && act2->spr.pos.Z < (sectp->ceilingz + ll) && warpdir == 1)
-						{
-							warpspriteto = 1;
-							ll2 = ll - abs(act2->spr.pos.Z - sectp->ceilingz);
-						}
-						else if (sectlotag == ST_161_CEILING_TELEPORT && act2->spr.pos.Z < (sectp->ceilingz + 3.90625) && warpdir == 1)
-						{
-							warpspriteto = 1;
-							ll2 = zmaptoworld;
-						}
-						if (ll && sectlotag == ST_160_FLOOR_TELEPORT && act2->spr.pos.Z > (sectp->floorz - ll) && warpdir == 2)
-						{
-							warpspriteto = 1;
-							ll2 = ll - abs(sectp->floorz - act2->spr.pos.Z);
-						}
-						else if (sectlotag == ST_160_FLOOR_TELEPORT && act2->spr.pos.Z > (sectp->floorz - 3.90625) && warpdir == 2)
-						{
-							warpspriteto = 1;
-							ll2 = zmaptoworld;
-						}
-					}
-
-					if (sectlotag == ST_0_NO_EFFECT && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
-					{
-						if (Owner->GetOwner() != Owner && onfloorz && act->counter > 0 && act2->spr.statnum != 5)
-						{
-							act->counter++;
-							continue;
-						}
-						warpspriteto = 1;
-					}
-
-					if (warpspriteto)
-					{
-						if ((act2->flags1 & SFLAG_NOTELEPORT)) continue;
-						if (act2->GetClass() == DukePlayerOnWaterClass)
-						{
-							if (sectlotag == ST_2_UNDERWATER)
-							{
-								act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
-								continue;
-							}
-						}
-						if (act2->GetClass() != DukeWaterBubbleClass)
-						{
-							if (act2->spr.statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || ((ud.mapflags & MFLAG_ALLSECTORTYPES) && (sectlotag == ST_160_FLOOR_TELEPORT || sectlotag == ST_161_CEILING_TELEPORT))))
-								continue;
-						}
-						if (sectlotag > 0)
-						{
-							auto spawned = spawn(act2, DukeWaterSplashClass);
-							if (spawned && sectlotag == 1 && act2->spr.statnum == 4)
-							{
-								spawned->vel.X = act2->vel.X * 0.5;
-								spawned->spr.Angles.Yaw = act2->spr.Angles.Yaw;
-								ssp(spawned, CLIPMASK0);
-							}
-						}
-
-						switch (sectlotag)
-						{
-						case ST_0_NO_EFFECT:
-							if (onfloorz)
-							{
-								if (checkcursectnums(act->sector()) == -1 && checkcursectnums(Owner->sector()) == -1)
-								{
-									act2->spr.pos += (Owner->spr.pos - act->spr.pos.XY()).plusZ(-Owner->sector()->floorz);
-									act2->spr.Angles.Yaw = Owner->spr.Angles.Yaw;
-
-									act2->backupang();
-
-									auto beam = spawn(act, DukeTransporterBeamClass);
-									if (beam) S_PlayActorSound(TELEPORTER, beam);
-
-									beam = spawn(Owner, DukeTransporterBeamClass);
-									if (beam) S_PlayActorSound(TELEPORTER, beam);
-
-									if (Owner->GetOwner() != Owner)
-									{
-										act->counter = 13;
-										Owner->counter = 13;
-									}
-
-									ChangeActorSect(act2, Owner->sector());
-								}
-							}
-							else
-							{
-								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-								act2->spr.pos.Z = Owner->spr.pos.Z + 16;
-								act2->backupz();
-
-								ChangeActorSect(act2, Owner->sector());
-							}
-							break;
-						case ST_1_ABOVE_WATER:
-							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-							act2->spr.pos.Z = Owner->sector()->ceilingz + ll;
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							break;
-						case ST_2_UNDERWATER:
-							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-							act2->spr.pos.Z = Owner->sector()->ceilingz - ll;
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							break;
-
-						case ST_160_FLOOR_TELEPORT:
-							if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
-							act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
-							act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							movesprite_ex(act2, DVector3(act2->spr.Angles.Yaw.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
-
-							break;
-						case ST_161_CEILING_TELEPORT:
-							if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
-							act2->spr.pos += Owner->spr.pos.XY() - act->spr.pos.XY();
-							act2->spr.pos.Z = Owner->sector()->floorz - ll;
-							act2->backupz();
-
-							ChangeActorSect(act2, Owner->sector());
-
-							movesprite_ex(act2, DVector3(act2->spr.Angles.Yaw.ToVector() * act2->vel.X, 0), CLIPMASK1, coll);
-
-							break;
-						}
-
-						break;
-					}
-				}
+				if ((act2->flags2 & SFLAG2_DONTDIVE)) continue;
+				checkdive(act, act2);
 				break;
 
 			}

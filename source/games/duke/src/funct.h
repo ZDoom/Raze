@@ -32,6 +32,7 @@ void resetlanepics(void);
 void moveplayers();
 void movefallers();
 void doanimations();
+void checkdive(DDukeActor* transporter, DDukeActor* transported);
 void tickstat(int stat, bool deleteinvalid = false);
 void operaterespawns(int low);
 void moveclouds(double interpfrac);
