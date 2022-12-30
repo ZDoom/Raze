@@ -629,6 +629,8 @@ void lava_cleararrays();
 
 void prelevel_common(int g)
 {
+	if (isRRRA()) ud.mapflags = MFLAG_ALLSECTORTYPES;
+	else if (isRR()) ud.mapflags = MFLAG_SECTORTYPE800;
 	auto p = &ps[screenpeek];
 	p->sea_sick_stat = 0;
 	ud.ufospawnsminion = 0;

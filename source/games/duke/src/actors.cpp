@@ -2197,13 +2197,13 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 	auto sc = actor->sector();
 	int sh = actor->spr.hitag;
 
-	if ((sc->lotag & 0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag & 0xff) != 23) || sc->lotag == 32791 - 65536)
+	if ((sc->lotag & 0xff) == ST_27_STRETCH_BRIDGE || (sc->floorz > sc->ceilingz && (sc->lotag & 0xff) != ST_23_SWINGING_DOOR) || sc->lotag == 32791 - 65536)
 	{
 		int j = 1;
 
-		if ((sc->lotag & 0xff) != 27)
+		if ((sc->lotag & 0xff) != ST_27_STRETCH_BRIDGE)
 			for (int p = connecthead; p >= 0; p = connectpoint2[p])
-				if (sc->lotag != 30 && sc->lotag != 31 && sc->lotag != 0)
+				if (sc->lotag != ST_30_ROTATE_RISE_BRIDGE && sc->lotag != ST_31_TWO_WAY_TRAIN && sc->lotag != ST_0_NO_EFFECT)
 					if (actor->sector() == ps[p].GetActor()->sector())
 						j = 0;
 
@@ -4113,7 +4113,7 @@ void spawndebris(DDukeActor* g_ac, int dnum, int count)
 
 void actoroperate(DDukeActor* g_ac)
 {
-	if (g_ac->sector()->lotag == 0)
+	if (g_ac->sector()->lotag == ST_0_NO_EFFECT)
 	{
 		HitInfo hit{};
 		neartag(g_ac->spr.pos.plusZ(-32), g_ac->sector(), g_ac->spr.Angles.Yaw, hit, 48, NT_Lotag | NT_NoSpriteCheck);

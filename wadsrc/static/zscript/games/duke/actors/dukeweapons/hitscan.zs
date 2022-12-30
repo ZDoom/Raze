@@ -83,7 +83,8 @@ extend class DukeActor
 		actor.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		Raze.hitscan(pos, sectp, (ang.ToVector() * vel, zvel * 64), hit, CLIPMASK1);
 
-		if (Raze.isRRRA() && hit.hitSector != nullptr && ((hit.hitSector.lotag == ST_160_FLOOR_TELEPORT && zvel > 0) || (hit.hitSector.lotag == ST_161_CEILING_TELEPORT && zvel < 0))
+		if ((ud.mapflags & MFLAG_ALLSECTORTYPES) && hit.hitSector != nullptr && 
+			((hit.hitSector.lotag == ST_160_FLOOR_TELEPORT && zvel > 0) || (hit.hitSector.lotag == ST_161_CEILING_TELEPORT && zvel < 0))
 			&& hit.hitActor == nullptr && hit.hitWall == nullptr)
 		{
 			DukeStatIterator its;

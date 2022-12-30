@@ -494,9 +494,14 @@ struct DukeGameInfo native
 
 }
 
+enum mapflags_t
+{
+	MFLAG_ALLSECTORTYPES =2,					// enables RRRA's sector types regardless of the game being played.
+};
 
 struct DukeUserDefs native
 {
+	native readonly int mapflags;
 	native uint8 god, cashman, eog;
 	native readonly uint8 clipping;
 	native readonly uint8 user_pals[MAXPLAYERS];

@@ -491,7 +491,7 @@ void footprints(int snum)
 			if (j < 0)
 			{
 				p->footprintcount--;
-				if (p->cursector->lotag == 0 && p->cursector->hitag == 0)
+				if (p->cursector->lotag == ST_0_NO_EFFECT && p->cursector->hitag == 0)
 				{
 					DDukeActor* fprint = spawn(actor, DukeFootprintsClass);
 					if (fprint)

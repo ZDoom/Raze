@@ -70,7 +70,7 @@ class DukeMortar : DukeActor
 			self.makeitfall();
 
 			// Feature check later needs to be map controlled, not game controlled.
-			if (sectp.lotag != ST_1_ABOVE_WATER && (!Raze.isRRRA() || sectp.lotag != ST_160_FLOOR_TELEPORT) && self.pos.Z >= self.floorz - 1 && self.yint < 3)
+			if (sectp.lotag != ST_1_ABOVE_WATER && (!(ud.mapflags & MFLAG_ALLSECTORTYPES) || sectp.lotag != ST_160_FLOOR_TELEPORT) && self.pos.Z >= self.floorz - 1 && self.yint < 3)
 			{
 				if (self.yint > 0 || (self.yint == 0 && self.floorz == sectp.floorz))
 				{

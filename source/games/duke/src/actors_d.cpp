@@ -295,7 +295,7 @@ void movetransports_d(void)
 
 					if (ps[p].transporter_hold == 0 && ps[p].jumping_counter == 0)
 					{
-						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
+						if (ps[p].on_ground && sectlotag == ST_0_NO_EFFECT && onfloorz && ps[p].jetpack_on == 0)
 						{
 							if (act->spr.pal == 0)
 							{
@@ -440,7 +440,7 @@ void movetransports_d(void)
 					if (ll && sectlotag == 1 && act2->spr.pos.Z > (sectp->floorz - ll) && act2->vel.Z > 0)
 						warpspriteto = 1;
 
-					if (sectlotag == 0 && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
+					if (sectlotag == ST_0_NO_EFFECT && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
 					{
 						if ((!Owner || Owner->GetOwner() != Owner) && onfloorz && act->counter > 0 && act2->spr.statnum != STAT_MISC)
 						{

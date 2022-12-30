@@ -1767,6 +1767,7 @@ DEFINE_FIELD_X(DukeGameInfo, DukeGameInfo, weaponsandammosprites);
 
 DEFINE_GLOBAL_UNSIZED(gs)
 
+DEFINE_FIELD_X(DukeUserDefs, user_defs, mapflags);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, god);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, cashman);
 DEFINE_FIELD_X(DukeUserDefs, user_defs, eog);

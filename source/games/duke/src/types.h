@@ -179,6 +179,7 @@ struct animwalltype
 
 struct user_defs
 {
+	int mapflags;
 	uint8_t god, cashman, eog;
 	uint8_t clipping;
 	uint8_t user_pals[MAXPLAYERS];

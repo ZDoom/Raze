@@ -140,6 +140,12 @@ enum
 
 	ST_160_FLOOR_TELEPORT	= 160,
 	ST_161_CEILING_TELEPORT = 161,
+
+	ST_800_KILLSTUFF		= 800,
+	ST_801_ROCKY			= 801,
+	ST_802_KILLBADGUYS		= 802,
+	ST_803_KILLROCKS		= 803,
+
 	// left: ST 32767, 65534, 65535
 };
 
@@ -316,6 +322,12 @@ enum amoveflags_t
 	justjump2         = 8192,
 	windang           = 16384,
 	antifaceplayerslow = 32768
+};
+
+enum mapflags_t
+{
+	MFLAG_SECTORTYPE800 = 1,					// RR only needs 800 by default - this flag is purely internal. For new content ALLSECTORTYPES will do better.
+	MFLAG_ALLSECTORTYPES =2,					// enables RRRA's sector types regardless of the game being played.
 };
 
 enum sflags_t

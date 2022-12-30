@@ -711,7 +711,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				{
 					if (wal.twoSided() &&
 						wal.nextSector()->hitag == 0 &&
-						(wal.nextSector()->lotag < 3 || (isRRRA() && wal.nextSector()->lotag == ST_160_FLOOR_TELEPORT)))
+						(wal.nextSector()->lotag < 3 || ((ud.mapflags & MFLAG_ALLSECTORTYPES) && wal.nextSector()->lotag == ST_160_FLOOR_TELEPORT)))
 					{
 						s = wal.nextSector();
 						break;

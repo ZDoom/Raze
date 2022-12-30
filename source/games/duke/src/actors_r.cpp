@@ -279,7 +279,7 @@ void movetransports_r(void)
 
 					if (ps[p].transporter_hold == 0 && ps[p].jumping_counter == 0)
 					{
-						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
+						if (ps[p].on_ground && sectlotag == ST_0_NO_EFFECT && onfloorz && ps[p].jetpack_on == 0)
 						{
 							spawn(act, DukeTransporterBeamClass);
 							S_PlayActorSound(TELEPORTER, act);
@@ -335,7 +335,7 @@ void movetransports_r(void)
 
 					k = 0;
 
-					if (isRRRA())
+					if (ud.mapflags & MFLAG_ALLSECTORTYPES)
 					{
 						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && ps[p].GetActor()->getOffsetZ() > sectp->floorz - 48)
 						{
@@ -434,7 +434,7 @@ void movetransports_r(void)
 					if (ll && sectlotag == ST_1_ABOVE_WATER && act2->spr.pos.Z > (sectp->floorz - ll))
 						warpspriteto = 1;
 
-					if (isRRRA())
+					if (ud.mapflags & MFLAG_ALLSECTORTYPES)
 					{
 						if (ll && sectlotag == ST_161_CEILING_TELEPORT && act2->spr.pos.Z < (sectp->ceilingz + ll) && warpdir == 1)
 						{
@@ -458,7 +458,7 @@ void movetransports_r(void)
 						}
 					}
 
-					if (sectlotag == 0 && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
+					if (sectlotag == ST_0_NO_EFFECT && (onfloorz || abs(act2->spr.pos.Z - act->spr.pos.Z) < 16))
 					{
 						if (Owner->GetOwner() != Owner && onfloorz && act->counter > 0 && act2->spr.statnum != 5)
 						{
@@ -481,7 +481,7 @@ void movetransports_r(void)
 							}
 							[[fallthrough]];
 						default:
-							if (act2->spr.statnum == 5 && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || (isRRRA() && (sectlotag == ST_160_FLOOR_TELEPORT || sectlotag == ST_161_CEILING_TELEPORT))))
+							if (act2->spr.statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || ((ud.mapflags & MFLAG_ALLSECTORTYPES) && (sectlotag == ST_160_FLOOR_TELEPORT || sectlotag == ST_161_CEILING_TELEPORT))))
 								break;
 							[[fallthrough]];
 
@@ -554,7 +554,7 @@ void movetransports_r(void)
 								break;
 
 							case ST_160_FLOOR_TELEPORT:
-								if (!isRRRA()) break;
+								if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
 								act2->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 								act2->spr.pos.Z = Owner->sector()->ceilingz + ll2;
 								act2->backupz();
@@ -565,7 +565,7 @@ void movetransports_r(void)
 
 								break;
 							case ST_161_CEILING_TELEPORT:
-								if (!isRRRA()) break;
+								if (!(ud.mapflags & MFLAG_ALLSECTORTYPES)) break;
 								act2->spr.pos += Owner->spr.pos.XY() - act->spr.pos.XY();
 								act2->spr.pos.Z = Owner->sector()->floorz - ll;
 								act2->backupz();
@@ -1034,9 +1034,9 @@ void fakebubbaspawn(DDukeActor *actor, player_struct* p)
 static int fallspecial(DDukeActor *actor, int playernum)
 {
 	int sphit = 0;
-	if (isRRRA())
+	if (ud.mapflags & MFLAG_ALLSECTORTYPES)
 	{
-		if (actor->sector()->lotag == 801)
+		if (actor->sector()->lotag == ST_801_ROCKY)
 		{
 			if (actor->spr.picnum == RTILE_ROCK)
 			{
@@ -1046,7 +1046,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 			}
 			return 0;
 		}
-		else if (actor->sector()->lotag == 802)
+		else if (actor->sector()->lotag == ST_802_KILLBADGUYS)
 		{
 			if (!actor->isPlayer() && badguy(actor) && actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F)
 			{
@@ -1056,38 +1056,41 @@ static int fallspecial(DDukeActor *actor, int playernum)
 			}
 			return 0;
 		}
-		else if (actor->sector()->lotag == 803)
+		else if (actor->sector()->lotag == ST_803_KILLROCKS)
 		{
 			if (actor->spr.picnum == RTILE_ROCK2)
 				addspritetodelete();
 			return 0;
 		}
 	}
-	if (actor->sector()->lotag == 800)
+	if (ud.mapflags & (MFLAG_ALLSECTORTYPES | MFLAG_SECTORTYPE800))
 	{
-		if (actor->spr.picnum == RTILE_AMMO)
+		if (actor->sector()->lotag == ST_800_KILLSTUFF)
 		{
-			addspritetodelete();
-			return 0;
-		}
-		if (!actor->isPlayer() && (badguy(actor) || actor->spr.picnum == RTILE_HEN || actor->spr.picnum == RTILE_COW || actor->spr.picnum == RTILE_PIG || actor->spr.picnum == RTILE_DOGRUN || actor->spr.picnum == RTILE_RABBIT) && (!isRRRA() || actor->spriteextra < 128))
-		{
-			actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
-			actor->vel.Z = 8000 / 256.;
-			actor->spr.extra = 0;
-			actor->spriteextra++;
-			sphit = 1;
-		}
-		else if (!actor->isPlayer())
-		{
-			if (!actor->spriteextra)
+			if (actor->spr.picnum == RTILE_AMMO)
+			{
 				addspritetodelete();
-			return 0;
+				return 0;
+			}
+			if (!actor->isPlayer() && (badguy(actor)) && (!isRRRA() || actor->spriteextra < 128))
+			{
+				actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
+				actor->vel.Z = 8000 / 256.;
+				actor->spr.extra = 0;
+				actor->spriteextra++;
+				sphit = 1;
+			}
+			else if (!actor->isPlayer())
+			{
+				if (!actor->spriteextra)
+					addspritetodelete();
+				return 0;
+			}
+			actor->attackertype = DukeShotSparkClass;
+			actor->hitextra = 1;
 		}
-		actor->attackertype = DukeShotSparkClass;
-		actor->hitextra = 1;
 	}
-	else if (tilesurface(actor->sector()->floortexture) == TSURF_MAGMA)
+	if (tilesurface(actor->sector()->floortexture) == TSURF_MAGMA)
 	{
 		if (actor->spr.picnum != RTILE_MINION && actor->spr.pal != 19)
 		{

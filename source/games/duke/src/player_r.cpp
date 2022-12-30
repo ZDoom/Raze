@@ -2866,7 +2866,7 @@ HORIZONLY:
 	// RBG***
 	SetActor(pact, pact->spr.pos);
 
-	if (psectlotag == 800 && (!isRRRA() || !p->lotag800kill))
+	if (psectlotag == ST_800_KILLSTUFF && (!isRRRA() || !p->lotag800kill))
 	{
 		if (isRRRA()) p->lotag800kill = 1;
 		quickkill(p);

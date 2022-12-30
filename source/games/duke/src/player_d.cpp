@@ -626,7 +626,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, double f
 	}
 
 	int k;
-	if (shrunk == 0 && (psectlotag == 0 || psectlotag == 2)) k = 32;
+	if (shrunk == 0 && (psectlotag == ST_0_NO_EFFECT || psectlotag == ST_2_UNDERWATER)) k = 32;
 	else k = 16;
 
 	if (psectlotag != 2 && p->scuba_on == 1)
