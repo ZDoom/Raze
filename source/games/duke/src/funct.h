@@ -42,6 +42,7 @@ void RANDOMSCRAP(DDukeActor* i);
 void detonate(DDukeActor* i, PClassActor* explosion);
 void hitradius(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int cliptype, Collision& result);
+void move(DDukeActor* actor, int pnum, double xvel);
 void lotsofstuff(DDukeActor* s, int n, PClassActor* spawntype);
 void watersplash2(DDukeActor* i);
 bool money(DDukeActor* i, int BLOODPOOL);

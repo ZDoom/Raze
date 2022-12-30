@@ -3221,34 +3221,8 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 	if (s.killit_flag == 1)
 	{
-		// if player was set to squish, first stop that..
-		if (p >= 0)
-		{
-			if (ps[p].actorsqu == actor)
-				ps[p].actorsqu = nullptr;
-		}
 		actor->Destroy();
 	}
-	else
-	{
-		fi.move(actor, p, x);
-
-		if (actor->spr.statnum == STAT_ACTOR)
-		{
-			if (badguy(actor))
-			{
-				if (actor->spr.scale.X > 0.9375 ) return;
-				if (ud.respawn_monsters == 1 && actor->spr.extra <= 0) return;
-			}
-			else if (ud.respawn_items == 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)) return;
-
-			if (actor->timetosleep > 1)
-				actor->timetosleep--;
-			else if (actor->timetosleep == 1)
-				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
-		}
-	}
-
 }
 
 //---------------------------------------------------------------------------
@@ -3257,7 +3231,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 //
 //---------------------------------------------------------------------------
 
-bool execute(DDukeActor *actor,int p,double xx)
+bool execute(DDukeActor *actor,int p,double pdist)
 {
 	auto coninf = actor->conInfo();
 	if (coninf == nullptr) 
@@ -3265,7 +3239,7 @@ bool execute(DDukeActor *actor,int p,double xx)
 
 	ParseState s;
 	s.g_p = p;	// Player ID
-	s.g_x = int(xx / maptoworld);	// ??
+	s.g_x = int(pdist / maptoworld);	// ??
 	s.g_ac = actor;
 	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->spr.picnum].scriptaddress)];
 	auto insptr = coninf? &ScriptCode[4 + coninf->scriptaddress] : nullptr;
@@ -3287,7 +3261,7 @@ bool execute(DDukeActor *actor,int p,double xx)
 	}
 	else
 	{
-		fi.move(actor, p, int(xx / maptoworld));
+		move(actor, p, pdist);
 
 		if (actor->spr.statnum == STAT_ACTOR)
 		{

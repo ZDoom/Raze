@@ -1065,6 +1065,238 @@ int movesprite_ex(DDukeActor* actor, const DVector3& change, unsigned int clipty
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+void move(DDukeActor* actor, int pnum, double pdist)
+{
+	DAngle goalang, angdif;
+	double daxvel;
+
+	int a = actor->spr.hitag;
+
+	if (a == -1) a = 0;
+
+	actor->counter++;
+
+	if (a & face_player)
+	{
+		if (ps[pnum].newOwner != nullptr)
+			goalang = (ps[pnum].GetActor()->opos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+		angdif = deltaangle(actor->spr.Angles.Yaw, goalang) * 0.25;
+		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
+		actor->spr.Angles.Yaw += angdif;
+	}
+
+	if (a & spin)
+		actor->spr.Angles.Yaw += DAngle45 * BobVal(actor->counter << 3);
+
+	if (a & face_player_slow)
+	{
+		if (ps[pnum].newOwner != nullptr)
+			goalang = (ps[pnum].GetActor()->opos.XY() - actor->spr.pos.XY()).Angle();
+		else goalang = (ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.Angles.Yaw, goalang).Degrees()); // this looks very wrong...
+		actor->spr.Angles.Yaw += angdif;
+	}
+
+	if (a & antifaceplayerslow)
+	{
+		if (ps[pnum].newOwner != nullptr)
+			goalang = ((ps[pnum].GetActor()->opos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
+		else goalang = ((ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
+		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.Angles.Yaw, goalang).Degrees()); // this looks very wrong...
+		actor->spr.Angles.Yaw += angdif;
+	}
+
+	if ((a & jumptoplayer) == jumptoplayer)
+	{
+		if (actor->counter < 16)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_jumptoplayer_factor);
+	}
+	else if (a & justjump1)
+	{
+		if (actor->counter < 8)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_justjump1_factor);
+	}
+	if (a & justjump2)
+	{
+		if (actor->counter < 8)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_justjump2_factor);
+	}
+	if (a & windang)
+	{
+		if (actor->counter < 8)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_windang_factor);
+	}
+
+
+	if (a & face_player_smart)
+	{
+		DVector2 newpos = ps[pnum].GetActor()->spr.pos.XY() + (ps[pnum].vel.XY() * (4. / 3.));
+		goalang = (newpos - actor->spr.pos.XY()).Angle();
+		angdif = deltaangle(actor->spr.Angles.Yaw, goalang) * 0.25;
+		if (angdif > -DAngle22_5 / 16 && angdif < nullAngle) angdif = nullAngle;
+		actor->spr.Angles.Yaw += angdif;
+	}
+
+	if (actor->curMove->name == NAME_None || a == 0)
+	{
+		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->opos.X != actor->spr.pos.X) || (actor->opos.Y != actor->spr.pos.Y))
+		{
+			if (!actor->isPlayer()) actor->backupvec2();
+			SetActor(actor, actor->spr.pos);
+		}
+		if (badguy(actor) && actor->spr.extra <= 0)
+		{
+			if (actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+			{
+				if (actor->sector()->shadedsector == 1)
+				{
+					actor->spr.shade += (16 - actor->spr.shade) >> 1;
+				}
+				else
+				{
+					actor->spr.shade += (actor->sector()->ceilingshade - actor->spr.shade) >> 1;
+				}
+			}
+			else
+			{
+				actor->spr.shade += (actor->sector()->floorshade - actor->spr.shade) >> 1;
+			}
+		}
+		return;
+	}
+
+	if (a & geth) actor->vel.X += (actor->curMove->movex - actor->vel.X) * 0.5;
+	if (a & getv) actor->vel.Z += (actor->curMove->movez - actor->vel.Z) * 0.5;
+
+	if (a & dodgebullet)
+		dodge(actor);
+
+	if (!actor->isPlayer())
+		alterang(a, actor, pnum);
+
+	if (abs(actor->vel.X) < 6 / 16.) actor->vel.X = 0;
+
+	a = badguy(actor);
+
+	if (actor->vel.X != 0 || actor->vel.Z != 0)
+	{
+		if (a && !(actor->flags3 & SFLAG3_NOVERTICALMOVE))
+		{
+			if ((actor->flags2 & SFLAG2_FLOATING) && actor->spr.extra > 0)
+			{
+				double fdist = actor->FloatVar(NAME_floating_floordist);
+				double cdist = actor->FloatVar(NAME_floating_ceilingdist);
+				double c, f;
+				calcSlope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &c, &f);
+				actor->floorz = f;
+				actor->ceilingz = c;
+
+				if (actor->spr.pos.Z > f - fdist)
+				{
+					actor->spr.pos.Z = f - fdist;
+					actor->vel.Z = 0;
+				}
+
+				if (actor->spr.pos.Z < c + cdist)
+				{
+					actor->spr.pos.Z = c + cdist;
+					actor->vel.Z = 0;
+				}
+			}
+			else
+			{
+				if (actor->vel.Z > 0 && actor->floorz < actor->spr.pos.Z)
+					actor->spr.pos.Z = actor->floorz;
+				if (actor->vel.Z < 0)
+				{
+					double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					if (actor->spr.pos.Z < c + 66)
+					{
+						actor->spr.pos.Z = c + 66;
+						actor->vel.Z *= 0.5;
+					}
+				}
+			}
+		}
+
+		daxvel = actor->vel.X;
+		angdif = actor->spr.Angles.Yaw;
+
+		if (a && !(actor->flags3 & SFLAG3_MOVE_NOPLAYERINTERACT))
+		{
+			if (pdist < 60 && actor->spr.scale.X > 0.25)
+			{
+
+				daxvel = -(64 - pdist);
+				angdif = (ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle();
+
+				if (pdist < 32)
+				{
+					ps[pnum].vel.X = 0;
+					ps[pnum].vel.Y = 0;
+				}
+				else
+				{
+					ps[pnum].vel.XY() *= gs.playerfriction - 0.125;
+				}
+			}
+			else if (!(actor->flags2 & SFLAG2_FLOATING))
+			{
+				if (actor->curMove->movez == 0)
+				{
+					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
+					{
+						if ((actor->counter & 1) || ps[pnum].actorsqu == actor) return;
+						else daxvel *= 2;
+					}
+					else
+					{
+						if ((actor->counter & 3) || ps[pnum].actorsqu == actor) return;
+						else daxvel *= 4;
+					}
+				}
+			}
+		}
+		if (actor->sector()->lotag != ST_1_ABOVE_WATER)
+		{
+			daxvel *= actor->FloatVar(NAME_landmovefactor);
+		}
+		else
+		{
+			daxvel *= actor->FloatVar(NAME_watermovefactor);
+		}
+
+		Collision coll;
+		actor->movflag = movesprite_ex(actor, DVector3(angdif.ToVector() * daxvel, actor->vel.Z), CLIPMASK0, coll);
+	}
+
+	if (a)
+	{
+		if (actor->sector()->ceilingstat & CSTAT_SECTOR_SKY)
+		{
+			if (actor->sector()->shadedsector == 1)
+			{
+				actor->spr.shade += (16 - actor->spr.shade) >> 1;
+			}
+			else
+			{
+				actor->spr.shade += (actor->sector()->ceilingshade - actor->spr.shade) >> 1;
+			}
+		}
+		else actor->spr.shade += (actor->sector()->floorshade - actor->spr.shade) >> 1;
+
+		if (actor->sector()->floortexture == mirrortex)
+			actor->Destroy();
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // Rotating sector
 // 
 // temp_data[1]: mspos index
