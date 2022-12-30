@@ -1038,10 +1038,10 @@ static int fallspecial(DDukeActor *actor, int playernum)
 	{
 		if (actor->sector()->lotag == ST_801_ROCKY)
 		{
-			if (actor->spr.picnum == RTILE_ROCK)
+			if (actor->GetClass() == RedneckRockClass)
 			{
-				spawn(actor, RTILE_ROCK2);
-				spawn(actor, RTILE_ROCK2);
+				spawn(actor, RedneckRock2Class);
+				spawn(actor, RedneckRock2Class);
 				addspritetodelete();
 			}
 			return 0;
@@ -1058,7 +1058,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		}
 		else if (actor->sector()->lotag == ST_803_KILLROCKS)
 		{
-			if (actor->spr.picnum == RTILE_ROCK2)
+			if (actor->GetClass() == RedneckRock2Class)
 				addspritetodelete();
 			return 0;
 		}
