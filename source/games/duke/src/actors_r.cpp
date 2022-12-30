@@ -546,7 +546,7 @@ void handle_se06_r(DDukeActor *actor)
 				}
 				if (!hulkspawn)
 				{
-					ns = CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz + 466.5), RTILE_UFOLIGHT, -8, DVector2(0.25, 0.25), nullAngle, 0., 0., actor, 5);
+					ns = CreateActor(actor->sector(), DVector3(actor->spr.pos.XY(), actor->sector()->ceilingz + 466.5), RedneckUfoLightClass, -8, DVector2(0.25, 0.25), nullAngle, 0., 0., actor, 5);
 					if (ns)
 					{
 						ns->spr.cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
@@ -572,7 +572,7 @@ void handle_se06_r(DDukeActor *actor)
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
-			if (a2->spr.picnum == RTILE_UFOBEAM && ufospawn && ++ufocnt == 64)
+			if (a2->GetClass() == RedneckUfoBeamClass && ufospawn && ++ufocnt == 64)
 			{
 				ufocnt = 0;
 				ufospawn--;

@@ -49,9 +49,6 @@ This file is a combination of code from the following sources:
 
 BEGIN_DUKE_NS
 
-double adjustfall(DDukeActor* actor, double c);
-
-
 //---------------------------------------------------------------------------
 //
 // this is the implementation of DDukeActor::Tick. It is native so that
@@ -3770,14 +3767,9 @@ void makeitfall(DDukeActor* actor)
 		grav = 0;
 	else
 	{
-		if( ceilingspace(actor->sector()) || actor->sector()->lotag == ST_2_UNDERWATER)
-			grav = gs.gravity/6;
-		else grav = gs.gravity;
-	}
-
-	if (isRRRA())
-	{
-		grav = adjustfall(actor, grav); // this accesses sprite indices and cannot be in shared code. Should be done better. (todo: turn into actor flags)
+		if (ceilingspace(actor->sector()) || actor->sector()->lotag == ST_2_UNDERWATER)
+			grav = gs.gravity / 6;
+		else grav = gs.gravity * actor->FloatVar(NAME_gravityfactor);
 	}
 
 	if ((actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_PLAYER || actor->spr.statnum == STAT_ZOMBIEACTOR || actor->spr.statnum == STAT_STANDABLE))

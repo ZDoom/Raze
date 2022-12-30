@@ -124,6 +124,7 @@ class DukeActor : CoreActor native
 		floating_ceilingdist 66;
 		landmovefactor 1;
 		watermovefactor 1;
+		gravityfactor 1;
 	}
 	enum EStatnums
 	{
@@ -258,6 +259,7 @@ class DukeActor : CoreActor native
 	meta double floating_ceilingdist;
 	meta double landmovefactor;
 	meta double watermovefactor;
+	meta double gravityfactor;
 
 	property prefix: none;
 	property gutsoffset: gutsoffset;
@@ -277,6 +279,7 @@ class DukeActor : CoreActor native
 	property floating_ceilingdist: floating_ceilingdist;
 	property landmovefactor: landmovefactor;
 	property watermovefactor: watermovefactor;
+	property gravityfactor: gravityfactor;
 
 	
 	native void SetSpritesetImage(int index);

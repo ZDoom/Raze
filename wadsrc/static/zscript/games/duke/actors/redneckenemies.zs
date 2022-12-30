@@ -8,6 +8,7 @@ class RedneckBikerBV2 : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 		watermovefactor 0.5;
+		gravityfactor 0.125;
 	}
 	override void Initialize()
 	{
@@ -25,6 +26,7 @@ class RedneckBikerB : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 		watermovefactor 0.5;
+		gravityfactor 0.25;
 	}
 	override void Initialize()
 	{
@@ -74,6 +76,7 @@ class RedneckCheerleaderB : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 		watermovefactor 0.5;
+		gravityfactor 0.25;
 	}
 	override void Initialize()
 	{
