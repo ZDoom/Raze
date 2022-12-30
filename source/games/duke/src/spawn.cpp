@@ -76,26 +76,20 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor* clstype, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
+DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor* clstype, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
 {
 	// sector pointer must be strictly validated here or the engine will crash.
 	if (whatsectp == nullptr || !validSectorIndex(sectindex(whatsectp))) return nullptr;
 	// spawning out of range sprites will also crash.
-	if (clstype == nullptr && (s_pn < 0 || s_pn >= MAXTILES)) return nullptr;
+	if (clstype == nullptr) return nullptr;
 	SpawnRec* info = nullptr;
 
-	if (!clstype)
-	{
-		info = spawnMap.CheckKey(s_pn);
-		if (info) clstype = static_cast<PClassActor*>(info->cls);
-	}
 	if (s_stat < 0) s_stat = clstype ? GetDefaultByType(clstype)->spr.statnum : 0;
 
 	auto act = static_cast<DDukeActor*>(InsertActor(clstype? clstype : RUNTIME_CLASS(DDukeActor), whatsectp, s_stat));
 	if (act == nullptr) return nullptr;
 	SetupGameVarsForActor(act);
 
-	if (s_pn != -1) act->spr.picnum = s_pn;	// if -1 use the class default.
 	setFromSpawnRec(act, info);
 	act->spr.pos = pos;
 	act->spr.shade = s_shd;
@@ -147,16 +141,6 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 
 	return act;
 
-}
-
-DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, int s_pn, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
-{
-	return CreateActor(whatsectp, pos, nullptr, s_pn, s_shd, scale, s_ang, s_vel, s_zvel, s_ow, s_stat);
-}
-
-DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor* cls, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)
-{
-	return CreateActor(whatsectp, pos, cls, -1, s_shd, scale, s_ang, s_vel, s_zvel, s_ow, s_stat);
 }
 
 DDukeActor* SpawnActor(sectortype* whatsectp, const DVector3& pos, PClassActor* cls, int8_t s_shd, const DVector2& scale, DAngle s_ang, double s_vel, double s_zvel, DDukeActor* s_ow, int8_t s_stat)

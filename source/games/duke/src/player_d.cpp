@@ -1112,7 +1112,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, DTILE_HEAVYHBOMB, -16, DVector2(0.140625, 0.140625),
+			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, DukePipeBombClass, -16, DVector2(0.140625, 0.140625),
 				p->GetActor()->spr.Angles.Yaw, vel + p->hbomb_hold_delay * 2, zvel, pact, STAT_ACTOR);
 
 			if (isNam())

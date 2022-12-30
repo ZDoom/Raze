@@ -1760,7 +1760,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel -= 4;
 			}
 
-			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, RTILE_DYNAMITE, -16, DVector2(0.140625, 0.140625),
+			auto spawned = CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, RedneckDynamiteClass, -16, DVector2(0.140625, 0.140625),
 				p->GetActor()->spr.Angles.Yaw, (vel + p->hbomb_hold_delay * 2) * 2, zvel, pact, 1);
 
 			if (spawned)
@@ -2152,7 +2152,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				zvel -= 4;
 			}
 
-			CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, RTILE_POWDERKEG, -16, DVector2(0.140625, 0.140625), p->GetActor()->spr.Angles.Yaw, vel * 2, zvel, pact, 1);
+			CreateActor(p->cursector, p->GetActor()->getPosWithOffsetZ() + p->GetActor()->spr.Angles.Yaw.ToVector() * 16, RedneckPowderKegClass, -16, DVector2(0.140625, 0.140625), p->GetActor()->spr.Angles.Yaw, vel * 2, zvel, pact, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
