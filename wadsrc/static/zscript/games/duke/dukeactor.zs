@@ -116,6 +116,12 @@ class DukeActor : CoreActor native
 		falladjustz 24;
 		autoaimangle 8.4375;
 		projectilespread 5.625;
+		jumptoplayer_factor 2.0;
+		justjump1_factor 2.133;
+		justjump2_factor 2.667;
+		windang_factor 2.667;
+		floating_floordist 0;
+		floating_ceilingdist 66;
 	}
 	enum EStatnums
 	{
@@ -242,6 +248,12 @@ class DukeActor : CoreActor native
 	meta double projectilespread;
 	meta double shootzoffset;
 	meta double moveclipdist;
+	meta double jumptoplayer_factor;
+	meta double justjump1_factor;
+	meta double justjump2_factor;
+	meta double windang_factor;
+	meta double floating_floordist;
+	meta double floating_ceilingdist;
 
 	property prefix: none;
 	property gutsoffset: gutsoffset;
@@ -253,6 +265,12 @@ class DukeActor : CoreActor native
 	property projectilespread: projectilespread;
 	property shootzoffset: shootzoffset;
 	property moveclipdist: moveclipdist;
+	property jumptoplayer_factor: jumptoplayer_factor;
+	property justjump1_factor: justjump1_factor;
+	property justjump2_factor: justjump2_factor;
+	property windang_factor: windang_factor;
+	property floating_floordist: floating_floordist;
+	property floating_ceilingdist: floating_ceilingdist;
 	
 	native void SetSpritesetImage(int index);
 	native int GetSpritesetSize();

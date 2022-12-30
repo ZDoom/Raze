@@ -10,6 +10,8 @@ class DukeDrone : DukeActor
 		+QUICKALTERANG;
 		+NOJIBS;
 		falladjustz 0;
+		floating_floordist 30;
+		floating_ceilingdist 50;
 	}
 	
 	override void PlayFTASound()
@@ -25,6 +27,7 @@ class DukeTurret : DukeActor
 		pic "ORGANTIC";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+NOVERTICALMOVE;
 		aimoffset 32;
 	}
 	
@@ -49,6 +52,8 @@ class DukeRotateGun : DukeActor
 		+NODAMAGEPUSH;
 		+NORADIUSPUSH;
 		+SHOOTCENTERED;
+		+NOVERTICALMOVE;
+		+MOVE_NOPLAYERINTERACT;
 		sparkoffset -8;
 		aimoffset 32;
 		shootzoffset 0;

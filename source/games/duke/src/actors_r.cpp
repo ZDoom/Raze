@@ -1035,66 +1035,35 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		actor->spr.Angles.Yaw += angdif;
 	}
 
-	if (isRRRA())
+	if (a & antifaceplayerslow)
 	{
-		if (a & antifaceplayerslow)
-		{
-			if (ps[pnum].newOwner != nullptr)
-				goalang = ((ps[pnum].GetActor()->opos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
-			else goalang = ((ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
-			angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.Angles.Yaw, goalang).Degrees()); // this looks very wrong...
-			actor->spr.Angles.Yaw += angdif;
-		}
-
-		if ((a & jumptoplayer) == jumptoplayer)
-		{
-			if (actor->spr.picnum == RTILE_CHEER)
-			{
-				if (actor->counter < 16)
-					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 1.6;
-			}
-			else
-			{
-				if (actor->counter < 16)
-					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2;
-			}
-		}
-		if (a & justjump1)
-		{
-			if (actor->spr.picnum == RTILE_RABBIT)
-			{
-				if (actor->counter < 8)
-					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2.133;
-			}
-			else if (actor->spr.picnum == RTILE_MAMA)
-			{
-				if (actor->counter < 8)
-					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 1.83;
-			}
-		}
-		if (a & justjump2)
-		{
-			if (actor->spr.picnum == RTILE_RABBIT)
-			{
-				if (actor->counter < 8)
-					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2.667;
-			}
-			else if (actor->spr.picnum == RTILE_MAMA)
-			{
-				if (actor->counter < 8)
-					actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2.286;
-			}
-		}
-		if (a & windang)
-		{
-			if (actor->counter < 8)
-				actor->vel.Z -= BobVal(512 + (actor->counter << 4) * 2.667);
-		}
+		if (ps[pnum].newOwner != nullptr)
+			goalang = ((ps[pnum].GetActor()->opos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
+		else goalang = ((ps[pnum].GetActor()->spr.pos.XY() - actor->spr.pos.XY()).Angle() + DAngle180);
+		angdif = DAngle22_5 * 0.25 * Sgn(deltaangle(actor->spr.Angles.Yaw, goalang).Degrees()); // this looks very wrong...
+		actor->spr.Angles.Yaw += angdif;
 	}
-	else if ((a & jumptoplayer) == jumptoplayer)
+
+	if ((a & jumptoplayer) == jumptoplayer)
 	{
 		if (actor->counter < 16)
-			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * 2;
+				actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_jumptoplayer_factor);
+	}
+	if (a & justjump1)
+	{
+		if (actor->counter < 8)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_justjump1_factor);
+	}
+	if (a & justjump2)
+	{
+		if (actor->counter < 8)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_justjump2_factor);
+	}
+	if (a & windang)
+	{
+		if (actor->counter < 8)
+			actor->vel.Z -= BobVal(512 + (actor->counter << 4)) * actor->FloatVar(NAME_windang_factor);
+		actor->vel.Z -= BobVal(512 + (actor->counter << 4) * 2.667);
 	}
 
 
@@ -1152,36 +1121,39 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (a)
 		{
-			if (actor->spr.picnum == RTILE_DRONE && actor->spr.extra > 0)
+			if ((actor->flags2 & SFLAG2_FLOATING) && actor->spr.extra > 0)
 			{
-				if (actor->vel.Z > 0)
+				double fdist = actor->FloatVar(NAME_floating_floordist);
+				double cdist = actor->FloatVar(NAME_floating_ceilingdist);
+				double c, f;
+				calcSlope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &c, &f);
+				actor->floorz = f;
+				actor->ceilingz = c;
+
+				if (actor->spr.pos.Z > f - fdist)
 				{
-					double dist = isRRRA() ? 28 : 30;
-					double f = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-					actor->floorz = f;
-					if (actor->spr.pos.Z > f - dist)
-						actor->spr.pos.Z = f - dist;
+					actor->spr.pos.Z = f - fdist;
+					actor->vel.Z = 0;
 				}
-				else
+
+				if (actor->spr.pos.Z < c + cdist)
 				{
-					double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-					actor->ceilingz = c;
-					if (actor->spr.pos.Z < c + 50)
-					{
-						actor->spr.pos.Z = c + 50;
-						actor->vel.Z = 0;
-					}
+					actor->spr.pos.Z = c + cdist;
+					actor->vel.Z = 0;
 				}
 			}
-			if (actor->vel.Z > 0 && actor->floorz < actor->spr.pos.Z)
-				actor->spr.pos.Z = actor->floorz;
-			if (actor->vel.Z < 0)
+			else
 			{
-				double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-				if (actor->spr.pos.Z < c + 66)
+				if (actor->vel.Z > 0 && actor->floorz < actor->spr.pos.Z)
+					actor->spr.pos.Z = actor->floorz;
+				if (actor->vel.Z < 0)
 				{
-					actor->spr.pos.Z = c + 66;
-					actor->vel.Z *= 0.5;
+					double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
+					if (actor->spr.pos.Z < c + 66)
+					{
+						actor->spr.pos.Z = c + 66;
+						actor->vel.Z *= 0.5;
+					}
 				}
 			}
 		}

@@ -944,51 +944,30 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (actor->vel.X != 0 || actor->vel.Z != 0)
 	{
-		if (a && actor->spr.picnum != DTILE_ROTATEGUN)
+		if (a && !(actor->flags3 & SFLAG3_NOVERTICALMOVE))
 		{
-			if ((actor->spr.picnum == DTILE_DRONE || actor->spr.picnum == DTILE_COMMANDER) && actor->spr.extra > 0)
+			if ((actor->flags2 & SFLAG2_FLOATING) && actor->spr.extra > 0)
 			{
-				if (actor->spr.picnum == DTILE_COMMANDER)
+				double fdist = actor->FloatVar(NAME_floating_floordist);
+				double cdist = actor->FloatVar(NAME_floating_ceilingdist);
+				double c, f;
+				calcSlope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &c, &f);
+				actor->floorz = f;
+				actor->ceilingz = c;
+
+				if (actor->spr.pos.Z > f - fdist)
 				{
-					double c, f;
-					calcSlope(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y, &c, &f);
-					actor->floorz = f;
-					actor->ceilingz = c;
-
-					if (actor->spr.pos.Z > f - 8)
-					{
-						actor->spr.pos.Z = f - 8;
-						actor->vel.Z = 0;
-					}
-
-					if (actor->spr.pos.Z < c + 80)
-					{
-						actor->spr.pos.Z = c + 80;
-						actor->vel.Z = 0;
-					}
+					actor->spr.pos.Z = f - fdist;
+					actor->vel.Z = 0;
 				}
-				else
+
+				if (actor->spr.pos.Z < c + cdist)
 				{
-					if (actor->vel.Z > 0)
-					{
-						double f = getflorzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-						actor->floorz = f;
-						if (actor->spr.pos.Z > f - 30)
-							actor->spr.pos.Z = f - 30;
-					}
-					else
-					{
-						double c = getceilzofslopeptr(actor->sector(), actor->spr.pos.X, actor->spr.pos.Y);
-						actor->ceilingz = c;
-						if (actor->spr.pos.Z < c + 50)
-						{
-							actor->spr.pos.Z = c + 50;
-							actor->vel.Z = 0;
-						}
-					}
+					actor->spr.pos.Z = c + cdist;
+					actor->vel.Z = 0;
 				}
 			}
-			else if (actor->spr.picnum != DTILE_ORGANTIC)
+			else
 			{
 				if (actor->vel.Z > 0 && actor->floorz < actor->spr.pos.Z)
 					actor->spr.pos.Z = actor->floorz;
@@ -1007,7 +986,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		daxvel = actor->vel.X;
 		angdif = actor->spr.Angles.Yaw;
 
-		if (a && actor->spr.picnum != DTILE_ROTATEGUN)
+		if (a && !(actor->flags3 & SFLAG3_MOVE_NOPLAYERINTERACT))
 		{
 			if (xvel < 960 && actor->spr.scale.X > 0.25 )
 			{

@@ -88,6 +88,7 @@ class RedneckCheerleader : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 		+ALTPROJECTILESPRITE; // owed to CON's shittiness. Todo: Think of something better.
+		jumptoplayer_factor 1.6;
 }
 	override void Initialize()
 	{
@@ -233,6 +234,8 @@ class RedneckMama : DukeActor
 		+LOOKALLAROUND;
 		+NORADIUSPUSH;
 		+SPAWNRABBITGUTS; // owed to CON's shittiness. Todo: Think of something better.
+		justjump1_factor 1.83;
+		justjump2_factor 2.286;
 	}
 
 	override void Initialize()
@@ -284,6 +287,7 @@ class RedneckCheerStayput : RedneckCheerleader
 	default
 	{
 		pic "CHEERSTAYPUT";
+		jumptoplayer_factor 2.0;
 	}
 	
 	override void initialize()
@@ -443,6 +447,8 @@ class RedneckMosquito : DukeActor
 		+QUICKALTERANG;
 		+NOJIBS;
 		falladjustz 0;
+		floating_floordist 30;
+		floating_ceilingdist 50;
 	}
 	override void Initialize()
 	{

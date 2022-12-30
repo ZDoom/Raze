@@ -11,6 +11,8 @@ class DukeCommander : DukeActor
 		+NORANDOMANGLEWHENBLOCKED;
 		gutsoffset -24;
 		falladjustz 0;
+		floating_floordist 8;
+		floating_ceilingdist 80;
 	}
 	
 	override void PlayFTASound()
