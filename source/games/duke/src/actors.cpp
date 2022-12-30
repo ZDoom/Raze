@@ -3828,11 +3828,85 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 //---------------------------------------------------------------------------
 //
+// special checks for RR's extended sector types, now available everywhere
+//
+//---------------------------------------------------------------------------
+
+static int fallspecial(DDukeActor* actor, int playernum)
+{
+	int sphit = 0;
+	if (ud.mapflags & MFLAG_ALLSECTORTYPES)
+	{
+		if (actor->sector()->lotag == ST_801_ROCKY)
+		{
+			if (actor->GetClass() == RedneckRockClass)
+			{
+				spawn(actor, RedneckRock2Class);
+				spawn(actor, RedneckRock2Class);
+				addspritetodelete();
+			}
+			return 0;
+		}
+		else if (actor->sector()->lotag == ST_802_KILLBADGUYS)
+		{
+			if (!actor->isPlayer() && badguy(actor) && actor->spr.pos.Z == actor->floorz - FOURSLEIGHT_F)
+			{
+				spawnguts(actor, DukeJibs6Class, 5);
+				S_PlayActorSound(SQUISHED, actor);
+				addspritetodelete();
+			}
+			return 0;
+		}
+		else if (actor->sector()->lotag == ST_803_KILLROCKS)
+		{
+			if (actor->GetClass() == RedneckRock2Class)
+				addspritetodelete();
+			return 0;
+		}
+	}
+	if (ud.mapflags & (MFLAG_ALLSECTORTYPES | MFLAG_SECTORTYPE800))
+	{
+		if (actor->sector()->lotag == ST_800_KILLSTUFF)
+		{
+			if (!actor->isPlayer() && badguy(actor) && actor->spriteextra < 128)
+			{
+				actor->spr.pos.Z = actor->floorz - FOURSLEIGHT_F;
+				actor->vel.Z = 8000 / 256.;
+				actor->spr.extra = 0;
+				actor->spriteextra++;
+				sphit = 1;
+			}
+			else if (!actor->isPlayer())
+			{
+				if (!actor->spriteextra)
+					addspritetodelete();
+				return 0;
+			}
+			actor->attackertype = DukeShotSparkClass;
+			actor->hitextra = 1;
+		}
+	}
+	if (tilesurface(actor->sector()->floortexture) == TSURF_MAGMA)
+	{
+		if (!(actor->flags3 & SFLAG3_MAGMAIMMUNE) && actor->spr.pal != 19)
+		{
+			if ((krand() & 3) == 1)
+			{
+				actor->attackertype = DukeShotSparkClass;
+				actor->hitextra = 5;
+			}
+		}
+	}
+	return sphit;
+}
+
+//---------------------------------------------------------------------------
+//
 // the indirections here are to keep this core function free of game references
 //
 //---------------------------------------------------------------------------
 
-void fall_common(DDukeActor *actor, int playernum, int(*fallspecial)(DDukeActor*, int))
+void fall(DDukeActor *actor, int playernum)
 {
 	actor->spr.xoffset = 0;
 	actor->spr.yoffset = 0;
@@ -3840,7 +3914,7 @@ void fall_common(DDukeActor *actor, int playernum, int(*fallspecial)(DDukeActor*
 	{
 		double grav;
 
-		int sphit = fallspecial? fallspecial(actor, playernum) : 0;
+		int sphit = fallspecial(actor, playernum);
 		if (floorspace(actor->sector()))
 			grav = 0;
 		else

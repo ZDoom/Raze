@@ -82,7 +82,6 @@ struct Dispatcher
 
 	void (*addweapon)(player_struct *p, int weapon, bool wswitch);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
-	void (*fall)(DDukeActor* actor, int g_p);
 
 	// player
 	void (*incur_damage)(player_struct* p);

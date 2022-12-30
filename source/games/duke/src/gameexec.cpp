@@ -1792,7 +1792,7 @@ int ParseState::parse(void)
 		insptr++;
 		g_ac->spr.xoffset = 0;
 		g_ac->spr.yoffset = 0;
-		fi.fall(g_ac, g_p);
+		fall(g_ac, g_p);
 		break;
 	case concmd_enda:
 	case concmd_break:

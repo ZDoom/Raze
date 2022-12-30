@@ -818,7 +818,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, ChangeType, Duke_ChangeType)
 
 void Duke_fall(DDukeActor* self, player_struct* p)
 {
-	fi.fall(self, p->GetPlayerNum());
+	fall(self, p->GetPlayerNum());
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, fall, Duke_fall)

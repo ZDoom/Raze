@@ -13,11 +13,16 @@ class RedneckMinion : DukeActor
 	{
 		self.scale = (0.25, 0.25);
 		self.setClipDistFromTile();
-		if (Raze.isRRRA() && ud.ufospawnsminion)
-			self.pal = 8;
-		if (self.pal == 19)
+		if (Raze.isRRRA())
 		{
-			self.bHitradius_NoEffect = true;
+			if (ud.ufospawnsminion)
+				self.pal = 8;
+
+			if (self.pal == 19)
+			{
+				self.bHitradius_NoEffect = true;
+				self.bMagmaImmune = true;
+			}
 		}
 	}
 	
