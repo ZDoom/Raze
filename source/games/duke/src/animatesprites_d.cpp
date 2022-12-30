@@ -180,10 +180,13 @@ void animatesprites_d(tspriteArray& tsprites, const DVector2& viewVec, DAngle vi
 
 			if (!h->GetOwner())
 			{
-				applyRotation1(h, t, viewang);
+				FTextureID base = FNullTextureID();
+				if (t->sectp->lotag == ST_2_UNDERWATER) base = TexMan.CheckForTexture("APLAYERSWIMMING", ETextureType::Any);
+				else if ((h->floorz - h->spr.pos.Z) > 64) base = TexMan.CheckForTexture("APLAYERJUMP", ETextureType::Any);
+				if (!base.isValid()) base = h->spr.spritetexture();
 
-				if (t->sectp->lotag == ST_2_UNDERWATER) t->picnum += DTILE_APLAYERSWIMMING - DTILE_APLAYER;
-				else if ((h->floorz - h->spr.pos.Z) > 64) t->picnum += DTILE_APLAYERJUMP - DTILE_APLAYER;
+				applyRotation1(h, t, viewang, base);
+
 
 				t->pal = ps[p].palookup;
 				continue;

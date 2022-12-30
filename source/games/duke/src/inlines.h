@@ -231,7 +231,7 @@ inline int angletorotation2(DAngle sprang, DAngle viewang)
 }
 
 // 4 (8) frame rotation.
-inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang)
+inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang, FTextureID base = FNullTextureID())
 {
 	if (tilehasmodelorvoxel(h->spr.spritetexture(), h->spr.pal))
 	{
@@ -246,11 +246,12 @@ inline void applyRotation1(DDukeActor* h, tspritetype* t, DAngle viewang)
 		t->cstat |= CSTAT_SPRITE_XFLIP;
 	}
 	else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-	t->picnum = h->spr.picnum + k;
+	if (base.isNull()) base = h->spr.spritetexture();
+	t->setspritetexture(base + k);
 }
 
 // 6 (12) frame rotation.
-inline void applyRotation2(DDukeActor* h, tspritetype* t, DAngle viewang)
+inline void applyRotation2(DDukeActor* h, tspritetype* t, DAngle viewang, FTextureID base = FNullTextureID())
 {
 	if (tilehasmodelorvoxel(h->spr.spritetexture(), h->spr.pal))
 	{
@@ -265,7 +266,8 @@ inline void applyRotation2(DDukeActor* h, tspritetype* t, DAngle viewang)
 		t->cstat |= CSTAT_SPRITE_XFLIP;
 	}
 	else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-	t->picnum = h->spr.picnum + k;
+	if (base.isNull()) base = h->spr.spritetexture();
+	t->setspritetexture(base + k);
 }
 
 inline int monsterCheatCheck(DDukeActor* self)

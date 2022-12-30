@@ -44,7 +44,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 {
 	int x = 0, y = 0, z = 0;
 	ESpriteFlags cstat = 0;
-	int picnum = 0;
+	PClassActor* cls = nullptr;
 	unsigned int pal = 0;
 	DAngle ang = nullAngle;
 	int set = 0;
@@ -74,24 +74,25 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		[[fallthrough]];
 	case 1: // tile number
 		if (isdigit((uint8_t)parm->parms[0][0])) {
-			picnum = (unsigned short)atol(parm->parms[0]);
+			cls = GetSpawnType((unsigned short)atol(parm->parms[0]));
 		}
 		else 
 		{
-			picnum = tileForName(parm->parms[0]);
-			if (picnum < 0) 
+			cls = PClass::FindActor(parm->parms[0]);
+			if (!cls)
 			{
-				picnum = getlabelvalue(parm->parms[0]);
-				if (picnum < 0)
+				int picno = tileForName(parm->parms[0]);
+				if (picno < 0)
 				{
-					Printf("spawn: Invalid tile label given\n");
-					return CCMD_OK;
+					picno = getlabelvalue(parm->parms[0]);
 				}
+				cls = GetSpawnType(picno);
 			}
 		}
 
-		if (picnum >= MAXTILES) {
-			Printf("spawn: Invalid tile number\n");
+		if (cls == nullptr)
+		{
+			Printf("spawn: Invalid actor type '%s'\n", parm->parms[0]);
 			return CCMD_OK;
 		}
 		break;
@@ -99,7 +100,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		return CCMD_SHOWHELP;
 	}
 
-	auto spawned = spawn(ps[myconnectindex].GetActor(), picnum);
+	auto spawned = spawn(ps[myconnectindex].GetActor(), cls);
 	if (spawned)
 	{
 		if (set & 1) spawned->spr.pal = (uint8_t)pal;
@@ -160,7 +161,7 @@ bool GameInterface::WantEscape()
 
 int registerosdcommands(void)
 {
-	C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);
+	C_RegisterFunction("spawn","spawn <typename> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);
 	return 0;
 }
 
