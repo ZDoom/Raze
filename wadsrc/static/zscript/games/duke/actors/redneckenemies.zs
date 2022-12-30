@@ -402,6 +402,7 @@ class RedneckTornado : DukeActor
 	default
 	{
 		pic "TORNADO";
+		+DESTRUCTOIMMUNE;
 		+INTERNAL_BADGUY;
 		+NOHITSCANHIT;
 	}

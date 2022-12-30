@@ -1,13 +1,14 @@
 class DukePlayerBase : DukeActor
 {
+	default
+	{
+		pic "APLAYER";
+		+DESTRUCTOIMMUNE;
+	}
 }
 
 class DukePlayerPawn : DukePlayerBase
 {
-	default
-	{
-		pic "APLAYER";
-	}
 }
 
 class DukePlayerOnWater : DukeActor

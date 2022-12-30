@@ -250,6 +250,7 @@ class RedneckDestructo : DukeActor
 {
 	default
 	{
+		+DESTRUCTOIMMUNE;
 		pic "DESTRUCTO";
 		statnum STAT_DESTRUCT;
 	}
@@ -265,6 +266,7 @@ class RedneckDestroyTags : DukeActor
 {
 	default
 	{
+		+DESTRUCTOIMMUNE;
 		pic "DESTROYTAGS";
 	}
 	override void Initialize()

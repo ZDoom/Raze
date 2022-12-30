@@ -666,7 +666,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			handle_se02(act);
 			break;
 
-			//Flashing sector lights after reactor RTILE_EXPLOSION2
+			//Flashing sector lights after reactor explosion
 		case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
 			handle_se03(act);
 			break;
@@ -817,21 +817,6 @@ void moveeffectors_r(void)   //STATNUM 3
 
 //---------------------------------------------------------------------------
 //
-// game specific part of makeitfall.
-//
-//---------------------------------------------------------------------------
-
-double adjustfall(DDukeActor *actor, double c)
-{
-	if ((actor->spr.picnum == RTILE_BIKERB || actor->spr.picnum == RTILE_CHEERB) && c == gs.gravity)
-		c = gs.gravity * 0.25;
-	else if (actor->spr.picnum == RTILE_BIKERBV2 && c == gs.gravity)
-		c = gs.gravity * 0.125;
-	return c;
-}
-
-//---------------------------------------------------------------------------
-//
 //
 //
 //---------------------------------------------------------------------------
@@ -873,7 +858,7 @@ void destroyit(DDukeActor *actor)
 	DukeSectIterator it1(actor->sector());
 	while (auto a2 = it1.Next())
 	{
-		if (a2->spr.picnum == RTILE_DESTROYTAGS)
+		if (a2->GetClass() == RedneckDestroyTagsClass)
 		{
 			lotag = a2->spr.lotag;
 			spr = a2;
@@ -890,7 +875,7 @@ void destroyit(DDukeActor *actor)
 			DukeSectIterator its(it_sect);
 			while (auto a3 = its.Next())
 			{
-				if (a3->spr.picnum == RTILE_DESTRUCTO)
+				if (a3->GetClass() == RedneckDestructoClass)
 				{
 					a3->attackertype = DukeShotSparkClass;
 					a3->hitextra = 1;
@@ -949,18 +934,8 @@ void destroyit(DDukeActor *actor)
 	it1.Reset(actor->sector());
 	while (auto a2 = it1.Next())
 	{
-		switch (a2->spr.picnum)
-		{
-		case RTILE_DESTRUCTO:
-		case RTILE_DESTROYTAGS:
-		case RTILE_TORNADO:
-		case RTILE_APLAYER:
-		case RTILE_COOT:
-			break;
-		default:
+		if (!(a2->flags3 & SFLAG3_DESTRUCTOIMMUNE))
 			a2->Destroy();
-			break;
-		}
 	}
 }
 

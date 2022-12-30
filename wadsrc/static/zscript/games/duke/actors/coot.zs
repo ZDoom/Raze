@@ -5,6 +5,7 @@ class RedneckCoot : DukeActor
 		pic "COOT";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		+DESTRUCTOIMMUNE;
 	}
 	
 	override void PlayFTASound()
