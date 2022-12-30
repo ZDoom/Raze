@@ -686,16 +686,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, ps[iPlayer].customexitsound, sActor, sPlayer);
 		break;
 
-	case PLAYER_WEAPRECS:
-		if (bSet) ps[iPlayer].weaprecs[lParm2] = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].weaprecs[lParm2], sActor, sPlayer);
-		break;
-
-	case PLAYER_WEAPRECCNT:
-		if (bSet) ps[iPlayer].weapreccnt = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].weapreccnt, sActor, sPlayer);
-		break;
-
 	case PLAYER_INTERFACE_TOGGLE_FLAG:
 		if (bSet) ps[iPlayer].interface_toggle_flag = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].interface_toggle_flag, sActor, sPlayer);
@@ -1325,7 +1315,7 @@ int CheckWeapRec(player_struct* p, DDukeActor* g_ac, int testonly)
 {
 	int j;
 	for (j = 0; j < p->weapreccnt; j++)
-		if (p->weaprecs[j] == g_ac->spr.picnum)
+		if (p->weaprecs[j] == g_ac->GetClass())
 			break;
 
 	if (testonly)
@@ -1334,7 +1324,7 @@ int CheckWeapRec(player_struct* p, DDukeActor* g_ac, int testonly)
 	}
 	else if (p->weapreccnt < 32)
 	{
-		p->weaprecs[p->weapreccnt++] = g_ac->spr.picnum;
+		p->weaprecs[p->weapreccnt++] = g_ac->GetClass();
 		return (g_ac->GetOwner() == g_ac);
 	}
 	return false;
