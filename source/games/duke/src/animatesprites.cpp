@@ -109,7 +109,7 @@ bool RRRAFullbrightHack(tspritetype* t, int k)
 
 void applyanimations(tspritetype* t, DDukeActor* h, const DVector2& viewVec, DAngle viewang)
 {
-	if (gs.actorinfo[h->spr.picnum].scriptaddress && !(h->flags2 & SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
+	if (GetActorInfo(h)->scriptaddress && !(h->flags2 & SFLAG2_DONTANIMATE))// && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 	{
 		DAngle kang;
 		auto action = h->curAction;

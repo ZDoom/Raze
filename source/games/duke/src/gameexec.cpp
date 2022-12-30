@@ -1162,10 +1162,6 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		if (bSet) act->spr.cstat = ESpriteFlags::FromInt(lValue);
 		else SetGameVarID(lVar2, act->spr.cstat, sActor, sPlayer);
 		break;
-	case ACTOR_PICNUM:
-		if (bSet) act->spr.picnum = lValue;
-		else SetGameVarID(lVar2, act->spr.picnum, sActor, sPlayer);
-		break;
 	case ACTOR_SHADE:
 		if (bSet) act->spr.shade = lValue;
 		else SetGameVarID(lVar2, act->spr.shade, sActor, sPlayer);
