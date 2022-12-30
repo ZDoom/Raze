@@ -617,8 +617,8 @@ void AddSystemVars()
 {
 	// only call ONCE
 	char aszBuf[64];
-
-/////////////////////////////		
+	if (isWW2GI())
+	{
 		sprintf(aszBuf, "WEAPON%d_WORKSLIKE", KNEE_WEAPON);
 		AddGameVar(aszBuf, KNEE_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
@@ -1177,6 +1177,7 @@ void AddSystemVars()
 
 		sprintf(aszBuf, "WEAPON%d_SOUND2SOUND", GROW_WEAPON);
 		AddGameVar(aszBuf, 0, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
+	}
 	AddGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 	AddGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
 
