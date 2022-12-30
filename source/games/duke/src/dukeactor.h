@@ -19,7 +19,6 @@ inline int player_struct::GetPlayerNum()
 	return actor->PlayerIndex();
 }
 
-DDukeActor* spawn(DDukeActor* spawner, int type);
 DDukeActor* spawn(DDukeActor* spawner, PClassActor* pname);
 
 // return type is int for scripting - the value must still be true or false!

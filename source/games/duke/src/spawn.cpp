@@ -260,20 +260,6 @@ bool initspriteforspawn(DDukeActor* act)
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* spawn(DDukeActor* actj, int pn)
-{
-	if (actj)
-	{
-		auto spawned = CreateActor(actj->sector(), actj->spr.pos, pn, 0, DVector2(0, 0), nullAngle, 0., 0., actj, 0);
-		if (spawned)
-		{
-			spawned->attackertype = static_cast<PClassActor*>(actj->GetClass());
-			return spawninit(actj, spawned, nullptr);
-		}
-	}
-	return nullptr;
-}
-
 DDukeActor* spawn(DDukeActor* actj, PClassActor * cls)
 {
 	if (actj && cls)

@@ -175,7 +175,6 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 
 			if ((targ->spr.picnum != DTILE_DRONE) && (targ->spr.picnum != DTILE_ROTATEGUN) && (targ->spr.picnum != DTILE_COMMANDER) && targ->spr.picnum != DTILE_GREENSLIME)
 				if (proj->spr.picnum != DTILE_FREEZEBLAST)
-					//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL.
 				{
 					auto spawned = spawn(proj, DukeJibs6Class);
 					if (spawned)
@@ -260,7 +259,7 @@ void checkhitdefault_d(DDukeActor* targ, DDukeActor* proj)
 				}
 			}
 
-			if (targ->spr.scale.X < 0.375 && proj->spr.picnum == DTILE_SHRINKSPARK)
+			if (targ->spr.scale.X < 0.375 && proj->GetClass() == DukeShrinkSparkClass)
 				return;
 
 			auto hitowner = targ->GetHitOwner();

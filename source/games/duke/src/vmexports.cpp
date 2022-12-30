@@ -491,11 +491,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, movesprite_ex, DukeActor_movesprite_ex
 	ACTION_RETURN_INT(DukeActor_movesprite_ex(self, velx, vely, velz, clipmask, coll));
 }
 
-DDukeActor* DukeActor_Spawnsprite(DDukeActor* origin, int picnum)
+DDukeActor* DukeActor_Spawnsprite(DDukeActor* origin, int typeId)
 {
-	if (picnum >= 0 && picnum < MAXTILES)
+	auto st = GetSpawnType(typeId);
+	if (st)
 	{
-		return spawn(origin, picnum);
+		return spawn(origin, st);
 	}
 	return nullptr;
 }

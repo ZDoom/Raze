@@ -173,7 +173,6 @@ void checkhitdefault_r(DDukeActor* targ, DDukeActor* proj)
 
 			if ((targ->spr.picnum != RTILE_DRONE))
 				if (proj->spr.picnum != RTILE_FREEZEBLAST)
-					//if (actortype[targ->spr.picnum] == 0)  
 				{
 					auto spawned = spawn(proj, DukeJibs6Class);
 					if (spawned)
@@ -622,7 +621,7 @@ void tearitup(sectortype* sect)
 	DukeSectIterator it(sect);
 	while (auto act = it.Next())
 	{
-		if (act->spr.picnum == RTILE_DESTRUCTO)
+		if (act->GetClass() == RedneckDestructoClass)
 		{
 			act->attackertype = DukeShotSparkClass;
 			act->hitextra = 1;

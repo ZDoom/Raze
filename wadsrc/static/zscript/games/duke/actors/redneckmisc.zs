@@ -164,3 +164,11 @@ class RedneckTikiLamp : DukeItemBase
 		+FULLBRIGHT
 	}
 }
+
+class RedneckWaterSurface : DukeActor
+{
+	default
+	{
+		pic "WATERSURFACE";
+	}
+}

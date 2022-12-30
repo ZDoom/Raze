@@ -194,7 +194,7 @@ void selectweapon_r(int snum, int weap)
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto act = it.Next())
 				{
-					if (act->spr.picnum == RTILE_DYNAMITE && act->GetOwner() == p->GetActor())
+					if (act->GetClass() == RedneckDynamiteClass && act->GetOwner() == p->GetActor())
 					{
 						p->gotweapon[DYNAMITE_WEAPON] = true;
 						j = THROWINGDYNAMITE_WEAPON;
@@ -600,15 +600,15 @@ int doincrements_r(player_struct* p)
 
 void checkweapons_r(player_struct* p)
 {
-	static const uint16_t weapon_sprites[MAX_WEAPONS] = { RTILE_KNEE, RTILE_FIRSTGUNSPRITE, RTILE_SHOTGUNSPRITE,
-		RTILE_RIFLEGUNSPRITE, RTILE_DYNAMITE, RTILE_CROSSBOWSPRITE, RTILE_RIPSAWSPRITE, RTILE_ALIENBLASTERSPRITE,
-			RTILE_POWDERKEG, RTILE_BOWLINGBALLSPRITE, RTILE_TITSPRITE, RTILE_DYNAMITE };
+	static  PClassActor* const* const weapon_sprites[MAX_WEAPONS] = { &DukeMeleeAttackClass, &RedneckRevolverClass, &RedneckShotgunClass,
+		&RedneckRiflegunClass, &RedneckDynamiteClass, &RedneckCrossbowClass, &RedneckRipsawClass, &RedneckBlasterClass,
+			&RedneckPowderKegClass, &RedneckBowlingBallClass, &RedneckTitgunClass, &RedneckDynamiteClass };
 
 	if (isRRRA())
 	{
 		if (p->OnMotorcycle && numplayers > 1)
 		{
-			auto j = spawn(p->GetActor(), 7220);
+			auto j = spawn(p->GetActor(), RedneckEmptyBikeClass);
 			if (j)
 			{
 				j->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
@@ -627,7 +627,7 @@ void checkweapons_r(player_struct* p)
 		}
 		else if (p->OnBoat && numplayers > 1)
 		{
-			auto j = spawn(p->GetActor(), 7233);
+			auto j = spawn(p->GetActor(), RedneckEmptyBoatClass);
 			if (j)
 			{
 				j->spr.Angles.Yaw = p->GetActor()->spr.Angles.Yaw;
@@ -649,7 +649,7 @@ void checkweapons_r(player_struct* p)
 	if (p->curr_weapon > 0)
 	{
 		if (krand() & 1)
-			spawn(p->GetActor(), weapon_sprites[p->curr_weapon]);
+			spawn(p->GetActor(), *weapon_sprites[p->curr_weapon]);
 		else switch (p->curr_weapon)
 		{
 		case CHICKEN_WEAPON:
@@ -1966,7 +1966,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 
 				if ((p->kickback_pic % 3) == 0)
 				{
-					auto j = spawn(pact, RTILE_SHELL);
+					auto j = spawn(pact, DukeShellClass);
 					if (j)
 					{
 
@@ -2369,7 +2369,7 @@ void processinput_r(int snum)
 		DukeSectIterator it(psectp);
 		while (auto act2 = it.Next())
 		{
-			if (act2->spr.picnum == RTILE_WATERSURFACE)
+			if (act2->GetClass() == RedneckWaterSurfaceClass)
 				if (act2->spr.pos.Z - 8 < p->GetActor()->getOffsetZ())
 					psectlotag = ST_2_UNDERWATER;
 		}
@@ -2418,7 +2418,7 @@ void processinput_r(int snum)
 			chz.setNone();
 			ceilingz = p->truecz;
 		}
-		else if (chz.actor()->spr.picnum == RTILE_LADDER)
+		else if (chz.actor()->GetClass() == RedneckLadderClass)
 		{
 			if (!p->stairs)
 			{
@@ -2463,7 +2463,7 @@ void processinput_r(int snum)
 			auto ang = (clz.actor()->spr.pos.XY() - p->GetActor()->spr.pos.XY()).Angle();
 			p->vel.XY() -= ang.ToVector();
 		}
-		if (clz.actor()->spr.picnum == RTILE_LADDER)
+		if (clz.actor()->GetClass() == RedneckLadderClass)
 		{
 			if (!p->stairs)
 			{

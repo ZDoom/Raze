@@ -1894,7 +1894,7 @@ int ParseState::parse(void)
 	case concmd_spawn:
 		insptr++;
 		if(g_ac->insector())
-			spawn(g_ac,*insptr);
+			spawn(g_ac, GetSpawnType(*insptr));
 		insptr++;
 		break;
 	case concmd_ifwasweapon:
@@ -2388,7 +2388,7 @@ int ParseState::parse(void)
 		lIn = *insptr++;
 		lIn = GetGameVarID(lIn, g_ac, g_p).safeValue();
 		if(g_ac->insector())
-			lReturn = spawn(g_ac, lIn);
+			lReturn = spawn(g_ac, GetSpawnType(lIn));
 
 		SetGameVarID(g_iReturnVarID, (lReturn), g_ac, g_p);
 		break;
@@ -2398,7 +2398,7 @@ int ParseState::parse(void)
 		DDukeActor* lReturn = nullptr;
 		insptr++;
 		if(g_ac->insector())
-			lReturn = spawn(g_ac, *insptr);
+			lReturn = spawn(g_ac, GetSpawnType(*insptr));
 		insptr++;
 		SetGameVarID(g_iReturnVarID, (lReturn), g_ac, g_p);
 		break;

@@ -371,5 +371,6 @@ spawnclasses
 	1990 = RedneckTikilamp
 
 	3845 = DukePlayerPawn, noskill
+	380 = RedneckWaterSurface, noskill
 
 }

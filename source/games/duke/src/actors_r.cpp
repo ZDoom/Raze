@@ -553,7 +553,7 @@ void handle_se06_r(DDukeActor *actor)
 						ns->spr.pal = 7;
 						ns->spr.scale = DVector2(1.25, 3.984375);
 					}
-					ns = spawn(actor, 296);
+					ns = spawn(actor, RedneckTeleportClass);
 					if (ns)
 					{
 						ns->spr.cstat = 0;
