@@ -357,6 +357,25 @@ void movetransports_d(void)
 
 					int k = 0;
 
+					if (ud.mapflags & MFLAG_ALLSECTORTYPES)
+					{
+						if (onfloorz && sectlotag == ST_160_FLOOR_TELEPORT && ps[p].GetActor()->getOffsetZ() > sectp->floorz - 48)
+						{
+							k = 2;
+							ps[p].GetActor()->spr.pos.Z = Owner->sector()->ceilingz + 7 + gs.playerheight;
+							ps[p].GetActor()->backupz();
+						}
+
+						if (onfloorz && sectlotag == ST_161_CEILING_TELEPORT && ps[p].GetActor()->getOffsetZ() < sectp->ceilingz + 6)
+						{
+							k = 2;
+							if (ps[p].GetActor()->spr.extra <= 0) break;
+							ps[p].GetActor()->spr.pos.Z = Owner->sector()->floorz - 49 + gs.playerheight;
+							ps[p].GetActor()->backupz();
+						}
+					}
+
+
 					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].GetActor()->getOffsetZ() > (sectp->floorz - 16) && (PlayerInput(p, SB_CROUCH) || ps[p].vel.Z > 8))
 						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
@@ -414,6 +433,17 @@ void movetransports_d(void)
 							auto q = spawn(ps[p].GetActor(), DukeWaterBubbleClass);
 							if (q) q->spr.pos.Z += krandf(64);
 						}
+					}
+					else if (k == 2)
+					{
+						ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
+						ps[p].GetActor()->backupvec2();
+
+						if (Owner->GetOwner() != Owner)
+							ps[p].transporter_hold = -2;
+						ps[p].setCursector(Owner->sector());
+
+						ChangeActorSect(act2, Owner->sector());
 					}
 				}
 				break;

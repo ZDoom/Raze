@@ -395,7 +395,7 @@ void movetransports_r(void)
 						if ((krand() & 255) < 32)
 							spawn(ps[p].GetActor(), DukeWaterSplashClass);
 					}
-					else if (isRRRA() && k == 2)
+					else if (k == 2)
 					{
 						ps[p].GetActor()->spr.pos.XY() += Owner->spr.pos.XY() - act->spr.pos.XY();
 						ps[p].GetActor()->backupvec2();
