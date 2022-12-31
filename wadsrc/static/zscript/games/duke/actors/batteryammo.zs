@@ -1,16 +1,3 @@
-class DukeBatteryAmmo : DukeActor
-{
-	default
-	{
-		pic "BATTERYAMMO";
-	}
-	
-	override void Initialize()
-	{
-		commonItemSetup();
-	}
-}
-
 class RedneckRifleAmmo : DukeActor
 {
 	default

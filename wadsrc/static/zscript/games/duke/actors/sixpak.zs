@@ -1,11 +1,3 @@
-class DukeSixpak : DukeItemBase
-{
-	default
-	{
-		pic "SIXPAK";
-	}
-}
-
 class RedneckPorkRinds : DukeItemBase
 {
 	default
