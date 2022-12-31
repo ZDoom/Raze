@@ -4,18 +4,19 @@ class DukeFireflyShrinkEffect : DukeActor
 	default
 	{
 		pic "FIREFLYSHRINKEFFECT";
+		Strength 0;
 	}
 	
 }
-
 
 class DukeFireflyGrowEffect : DukeActor
 {
 	default
 	{
 		pic "FIREFLYGROWEFFECT";
+		Strength 0;
 	}
-	
+
 }
 
 class DukeFireflyFlyingEffect : DukeActor
@@ -24,6 +25,7 @@ class DukeFireflyFlyingEffect : DukeActor
 	{
 		pic "FIREFLYFLYINGEFFECT";
 		+FORCERUNCON;
+		Strength 0;
 	}
 	
 	override void Initialize()
@@ -32,6 +34,12 @@ class DukeFireflyFlyingEffect : DukeActor
 		self.ChangeStat(STAT_MISC);
 	}
 	
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
 	override void Tick()
 	{
 		Super.Tick();
@@ -64,13 +72,22 @@ class DukeFireflyFlyingEffect : DukeActor
 	}
 }
 
-class DukeFirefly : DukeActor
+class DukeFirefly : DukeLizTrooper // recycles part of the Liztrooper code and data
 {
+	const FF_STRENGTH = 50;
+	const FF_SIZEX = 48;
+	const FF_SIZEY = 40;
+	const FF_SHRUNKSIZEX = 12;
+	const FF_SHRUNKSIZEY = 10;
+	
 	default
 	{
 		pic "FIREFLY";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
+		-DONTENTERWATERONGROUND;
+	
+		Strength FF_STRENGTH;
 	}
 	
 	override bool ShootThis(DukeActor shooter, DukePlayer p, Vector3 spos, double sang) const
@@ -86,6 +103,10 @@ class DukeFirefly : DukeActor
 		}
 		return true;
 	}
-}
-
 	
+	override void Initialize()
+	{
+	}
+	
+
+}

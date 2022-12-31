@@ -60,23 +60,14 @@ version "4.10"
 #include "zscript/games/duke/actors/genericdestructible.zs"
 
 #include "zscript/games/duke/actors/_placeholders.zs"
-#include "zscript/games/duke/actors/projectiles.zs"
 #include "zscript/games/duke/actors/recon.zs"
 #include "zscript/games/duke/actors/greenslime.zs"
 
-#include "zscript/games/duke/actors/burning.zs"
-#include "zscript/games/duke/actors/dukedecos.zs"
 #include "zscript/games/duke/actors/player.zs"
 
-#include "zscript/games/duke/actors/dukeitems.zs"
 #include "zscript/games/duke/actors/batteryammo.zs"
 #include "zscript/games/duke/actors/sixpak.zs"
 #include "zscript/games/duke/actors/atomichealth.zs"
-#include "zscript/games/duke/actors/boss5.zs"
-
-#include "zscript/games/duke/actors/flamethrowerflame.zs"
-#include "zscript/games/duke/actors/firefly.zs"
-#include "zscript/games/duke/actors/lavapool.zs"
 
 #include "zscript/games/duke/actors/powderkeg.zs"
 #include "zscript/games/duke/actors/redneckmisc.zs"
@@ -164,6 +155,10 @@ version "4.10"
 #include "zscript/games/duke/actors/dukeweapons/rpg.zs"
 #include "zscript/games/duke/actors/dukeweapons/shrinker.zs"
 #include "zscript/games/duke/actors/dukeweapons/tripbomb.zs"
+
+#include "zscript/games/duke/actors/worldtour/boss5.zs"
+#include "zscript/games/duke/actors/worldtour/firefly.zs"
+#include "zscript/games/duke/actors/worldtour/flamethrower.zs"
 
 #include "zscript/games/duke/actors/redneckcstuff/airplane.zs"
 #include "zscript/games/duke/actors/redneckcstuff/balloons.zs"
