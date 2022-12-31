@@ -65,8 +65,6 @@ version "4.10"
 
 #include "zscript/games/duke/actors/player.zs"
 
-#include "zscript/games/duke/actors/nwinter.zs"
-
 #include "zscript/games/duke/actors/dukecstuff/bloodpool.zs"
 #include "zscript/games/duke/actors/dukecstuff/bloodsplats.zs"
 #include "zscript/games/duke/actors/dukecstuff/bolt.zs"
@@ -146,6 +144,23 @@ version "4.10"
 #include "zscript/games/duke/actors/worldtour/boss5.zs"
 #include "zscript/games/duke/actors/worldtour/firefly.zs"
 #include "zscript/games/duke/actors/worldtour/flamethrower.zs"
+
+#include "zscript/games/duke/actors/vacation/beachbabe.zs"
+#include "zscript/games/duke/actors/vacation/beachball.zs"
+#include "zscript/games/duke/actors/vacation/beachbather.zs"
+#include "zscript/games/duke/actors/vacation/dragon.zs"
+#include "zscript/games/duke/actors/vacation/seagull.zs"
+#include "zscript/games/duke/actors/vacation/vacashark.zs"
+
+#include "zscript/games/duke/actors/nwinter/breakables.zs"
+#include "zscript/games/duke/actors/nwinter/elfgun.zs"
+#include "zscript/games/duke/actors/nwinter/elfuzi.zs"
+#include "zscript/games/duke/actors/nwinter/commander.zs"
+#include "zscript/games/duke/actors/nwinter/jetpack.zs"
+#include "zscript/games/duke/actors/nwinter/misc.zs"
+#include "zscript/games/duke/actors/nwinter/santaboss.zs"
+#include "zscript/games/duke/actors/nwinter/snowman.zs"
+#include "zscript/games/duke/actors/nwinter/xmaspresent.zs"
 
 #include "zscript/games/duke/actors/redneckcstuff/airplane.zs"
 #include "zscript/games/duke/actors/redneckcstuff/balloons.zs"

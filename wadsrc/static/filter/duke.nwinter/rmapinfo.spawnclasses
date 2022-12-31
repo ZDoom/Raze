@@ -29,5 +29,11 @@ spawnclasses
 	3823= NWinterFemaleGeek                                   
 	3787= NWinterSnowmaker                                    
 	3789= NWinterSnowmakerNomove                              
-	3697= NWinterSnowflake                                    
+	3697= NWinterSnowflake          
+	// actors that were altered.
+	1975 = NWinterTank
+	1920 = NWinterCommander
+	1921 = NWinterCommanderStayput
+	57 = NWinterJetpack
+
 }
