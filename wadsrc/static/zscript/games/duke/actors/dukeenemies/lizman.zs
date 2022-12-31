@@ -47,17 +47,12 @@ class DukeLizManStayput : DukeLizMan
 	default
 	{
 		pic "LIZMANSTAYPUT";
+		+BADGUYSTAYPUT;
 	}
 	
 	override void PlayFTASound()
 	{
 	}
-	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
-	}
-	
+
 }
 

@@ -13,7 +13,7 @@ class DukeLizTrooper : DukeActor
 	
 	override void Initialize()
 	{
-		if (pal == 0) pal = 22;
+		if (self.pal == 0 || self.pal == 2) self.pal = 22;
 	}
 	
 	override void PlayFTASound()
@@ -27,7 +27,9 @@ class DukeLizTrooperToilet : DukeLizTrooper
 	default
 	{
 		pic "LIZTROOPONTOILET";
+		StartAction "none";
 	}
+	
 }
 
 class DukeLizTrooperSitting : DukeLizTrooper
@@ -35,7 +37,9 @@ class DukeLizTrooperSitting : DukeLizTrooper
 	default
 	{
 		pic "LIZTROOPJUSTSIT";
+		StartAction "none";
 	}
+
 }
 
 class DukeLizTrooperShoot : DukeLizTrooper
@@ -75,16 +79,12 @@ class DukeLizTrooperStayput : DukeLizTrooper
 	default
 	{
 		pic "LIZTROOPSTAYPUT";
+		+BADGUYSTAYPUT;
 	}
 	
 	override void PlayFTASound()
 	{
 	}
 	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
-	}
 	
 }

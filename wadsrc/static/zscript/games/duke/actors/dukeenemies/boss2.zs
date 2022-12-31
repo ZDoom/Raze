@@ -1,5 +1,8 @@
-class DukeBoss2 : DukeBoss1
+class DukeBoss2 : DukeBossBase
 {
+	const BOSS2STRENGTH = 4500;
+	const BOSS2PALSTRENGTH = 1000;
+
 	default
 	{
 		pic "BOSS2";
@@ -8,14 +11,23 @@ class DukeBoss2 : DukeBoss1
 		+SPECIALINIT;
 		+ST3CONFINED;
 		+DONTENTERWATER;
+		Strength BOSS2STRENGTH;
+
 	}
 	
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
 	override void PlayFTASound()
 	{
 		if (self.pal == 1)
 			Duke.PlaySound("BOS2_RECOG");
 		else Duke.PlaySound("WHIPYOURASS");
 	}
+	
 }
 
 
@@ -24,12 +36,7 @@ class DukeBoss2Stayput : DukeBoss2
 	default
 	{
 		pic "BOSS2STAYPUT";
-	}
-	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
+		+BADGUYSTAYPUT;
 	}
 	
 }

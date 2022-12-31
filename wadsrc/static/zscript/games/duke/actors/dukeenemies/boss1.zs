@@ -1,16 +1,17 @@
-class DukeBoss1 : DukeActor
+class DukeBossBase : DukeActor
 {
+	const PIGCOPSTRENGTH = 100;
+
 	default
 	{
-		pic "BOSS1";
 		+INTERNAL_BADGUY;
 		+KILLCOUNT;
 		+NODAMAGEPUSH;
 		+BOSS;
 		+ALTHITSCANDIRECTION;
-		+DONTENTERWATER;
+
 	}
-	
+
 	override void Initialize()
 	{
 		let owner = self.ownerActor;
@@ -29,10 +30,27 @@ class DukeBoss1 : DukeActor
 		}
 	}
 	
+}
+
+class DukeBoss1 : DukeBossBase
+{
+	const BOSS1STRENGTH = 4500;
+	const BOSS1PALSTRENGTH = 1000;
+
+	default
+	{
+		pic "BOSS1";
+		+DONTENTERWATER;
+		Strength BOSS1STRENGTH;
+		
+	}
+	
 	override void PlayFTASound()
 	{
 		Duke.PlaySound("BOS1_RECOG");
 	}
+	
+	
 }
 
 
@@ -41,16 +59,11 @@ class DukeBoss1Stayput : DukeBoss1
 	default
 	{
 		pic "BOSS1STAYPUT";
+		+BADGUYSTAYPUT;
 	}
 	
 	override void PlayFTASound()
 	{
-	}
-	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
 	}
 	
 }

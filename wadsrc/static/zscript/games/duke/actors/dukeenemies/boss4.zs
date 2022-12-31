@@ -1,10 +1,16 @@
-class DukeBoss4 : DukeBoss1
+
+
+class DukeBoss4 : DukeBossBase
 {
+	const BOSS4STRENGTH = 6000;
+	const BOSS4PALSTRENGTH = 1000;
+
 	default
 	{
 		pic "BOSS4";
 		-ALTHITSCANDIRECTION;
-		-DONTENTERWATER;
+		Strength BOSS4STRENGTH;
+
 	}
 	
 	override void PlayFTASound()
@@ -21,15 +27,9 @@ class DukeBoss4Stayput : DukeBoss4
 	default
 	{
 		pic "BOSS4STAYPUT";
+		+BADGUYSTAYPUT;
 	}
 	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
-	}
 	
 }
 	
-
-

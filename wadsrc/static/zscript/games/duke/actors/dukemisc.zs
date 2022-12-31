@@ -274,46 +274,6 @@ class RedneckUfoLight : DukeActor
 	}
 }
 
-class DukeNewBeast : DukeActor
-{
-	default
-	{
-		pic "NEWBEAST";
-		+BADGUY;
-		+KILLCOUNT;
-		+GREENSLIMEFOOD;
-		+GREENBLOOD;
-	}
-}
-
-class DukeNewBeastStayput : DukeNewBeast
-{
-	default
-	{
-		pic "NEWBEASTSTAYPUT";
-		+BADGUYSTAYPUT;
-	}
-}
-
-class DukeNewBeastHang : DukeNewBeast
-{
-	default
-	{
-		pic "NEWBEASTHANG";
-	}
-}
-
-class DukeTank : DukeActor
- {
- 	default
-	{
-		pic "TANK";
-		+BADGUY;
-		+KILLCOUNT;
-		+NODAMAGEPUSH;
-		+NORADIUSPUSH;
-	}
-}
 
 class DukeFoodObject6: DukeActor
 {
@@ -636,14 +596,6 @@ class DukeFem6Pad: DukeActor
 	}
 }
 
-class DukeCannonball: DukeActor
-{
-	default
-	{
-		pic "CANNONBALL";
-	}
-}
-
 class DukeSpaceShuttle : DukeActor // (487)
 {
 	default
@@ -908,22 +860,6 @@ class DukeDevastatorBlast : DukeActor // (1642)
 	}
 }
 
-class DukeCannonballs : DukeActor // (1818)
-{
-	default
-	{
-		pic "CANNONBALLS";
-	}
-}
-
-class DukeCannon : DukeActor // (1810)
-{
-	default
-	{
-		pic "CANNON";
-	}
-}
-
 class DukeHotMeat : DukeActor // (4427)
 {
 	default
@@ -937,22 +873,6 @@ class DukeLavaBubble : DukeActor // (4340)
 	default
 	{
 		pic "LAVABUBBLE";
-	}
-}
-
-class DukeNewBeastHangDead : DukeNewBeast // (4671)
-{
-	default
-	{
-		pic "NEWBEASTHANGDEAD";
-	}
-}
-
-class DukeNewBeastJump : DukeNewBeast // (4690)
-{
-	default
-	{
-		pic "NEWBEASTJUMP";
 	}
 }
 

@@ -1,10 +1,14 @@
-class DukeBoss3 : DukeBoss1
+class DukeBoss3 : DukeBossBase
 {
+	const BOSS3STRENGTH = 4500;
+	const BOSS3PALSTRENGTH = 1000;
+	
 	default
 	{
 		pic "BOSS3";
 		-ALTHITSCANDIRECTION;
-		-DONTENTERWATER;
+		Strength BOSS3STRENGTH;
+		
 	}
 		
 	override void PlayFTASound()
@@ -13,6 +17,8 @@ class DukeBoss3 : DukeBoss1
 			Duke.PlaySound("BOS3_RECOG");
 		else Duke.PlaySound("RIPHEADNECK");
 	}
+
+
 }
 
 
@@ -21,12 +27,7 @@ class DukeBoss3Stayput : DukeBoss3
 	default
 	{
 		pic "BOSS3STAYPUT";
-	}
-	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
+		+BADGUYSTAYPUT;
 	}
 	
 }

@@ -1,0 +1,4 @@
+extend class DukeActor
+{
+
+}

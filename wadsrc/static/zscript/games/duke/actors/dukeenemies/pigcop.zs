@@ -19,14 +19,10 @@ class DukePigCopStayput: DukePigCop
 	default
 	{
 		pic "PIGCOPSTAYPUT";
-	}
-	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
+		+BADGUYSTAYPUT;
 	}
 }
+
 
 class DukePigCopDive : DukePigCopStayput
 {
@@ -39,3 +35,4 @@ class DukePigCopDive : DukePigCopStayput
 	{
 	}
 }
+

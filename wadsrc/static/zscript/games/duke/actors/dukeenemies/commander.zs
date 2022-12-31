@@ -1,5 +1,8 @@
 class DukeCommander : DukeActor
 {
+	const COMMANDERSTRENGTH = 350;
+	const CAPTSPINNINGPLAYER = -11;
+	
 	default
 	{
 		pic "COMMANDER";
@@ -14,12 +17,16 @@ class DukeCommander : DukeActor
 		falladjustz 0;
 		floating_floordist 8;
 		floating_ceilingdist 80;
+		Strength COMMANDERSTRENGTH;
+		
 	}
 	
 	override void PlayFTASound()
 	{
 		self.PlayActorSound("COMM_RECOG");
 	}
+
+	
 }
 
 class DukeCommanderStayput: DukeCommander
@@ -27,11 +34,7 @@ class DukeCommanderStayput: DukeCommander
 	default
 	{
 		pic "COMMANDERSTAYPUT";
+		+BADGUYSTAYPUT;
 	}
-	
-	override void initialize()
-	{
-		super.initialize();
-		self.actorstayput = self.sector;	// make this a flag once everything has been exported.
-	}
+
 }
