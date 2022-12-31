@@ -9,6 +9,7 @@ class DukeFreezeBlast : DukeProjectile
 	default
 	{
 		pic "FREEZEBLAST";
+		Strength FREEZETHROWER_WEAPON_STRENGTH;
 		+FULLBRIGHT;
 		+FREEZEDAMAGE;
 		+REFLECTIVE;

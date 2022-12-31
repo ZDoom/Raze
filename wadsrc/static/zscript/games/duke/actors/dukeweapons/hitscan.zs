@@ -284,12 +284,14 @@ class DukeShotSpark : DukeActor
 		+FORCERUNCON;
 		+LIGHTDAMAGE;
 		statnum STAT_MISC;
+		Strength PISTOL_WEAPON_STRENGTH;
 	}
 	
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
 		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 11.25, false);
 	}
+	
 }
 
 class DukeShotgunShot : DukeActor
@@ -297,6 +299,7 @@ class DukeShotgunShot : DukeActor
 	default
 	{
 		pic "SHOTGUN";
+		Strength SHOTGUN_WEAPON_STRENGTH;
 	}
 	
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
@@ -310,6 +313,7 @@ class DukeChaingunShot : DukeActor
 	default
 	{
 		pic "CHAINGUN";
+		Strength CHAINGUN_WEAPON_STRENGTH;
 	}
 	
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
@@ -321,6 +325,11 @@ class DukeChaingunShot : DukeActor
 // RR'  damage properties are a bit different.
 class RedneckShotSpark : DukeShotSpark
 {
+	default
+	{
+		Strength CASUL_WEAPON_STRENGTH;
+	}
+
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
 		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 11.25, false);
@@ -339,6 +348,10 @@ class RedneckShotgunShot : DukeShotgunShot
 
 class RedneckChaingunShot : DukeChaingunShot
 {
+	default
+	{
+		Strength RIFLE_WEAPON_STRENGTH;
+	}
 	override bool ShootThis(DukeActor actor, DukePlayer p, Vector3 pos, double ang)
 	{
 		return HitscanAttack(actor, p, pos, ang, 5.625, 4, 11.25, true);

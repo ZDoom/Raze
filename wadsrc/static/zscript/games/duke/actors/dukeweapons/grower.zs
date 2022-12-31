@@ -4,6 +4,7 @@ class DukeGrowSpark : DukeActor
 	default
 	{
 		spriteset "GROWSPARK", "GROWSPARK1", "GROWSPARK2", "GROWSPARK3";
+		Strength GROWSPARK_WEAPON_STRENGTH;
 		+FULLBRIGHT;
 		+NOFLOORPAL;
 	}
@@ -85,4 +86,3 @@ class DukeGrowSpark : DukeActor
 		return true;
 	}
 }
-

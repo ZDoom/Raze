@@ -64,6 +64,7 @@ class DukeShrinkSpark : DukeProjectile
 	default
 	{
 		spriteset "SHRINKSPARK", "SHRINKSPARK1", "SHRINKSPARK2", "SHRINKSPARK3";
+		Strength SHRINKER_WEAPON_STRENGTH;
 		+FULLBRIGHT;
 		+MIRRORREFLECT;
 		+NOFLOORPAL;

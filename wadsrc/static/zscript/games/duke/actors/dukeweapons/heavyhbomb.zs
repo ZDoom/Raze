@@ -4,6 +4,7 @@ class DukePipeBomb : DukeActor
 	default
 	{
 		pic "HEAVYHBOMB";
+		Strength HANDBOMB_WEAPON_STRENGTH;
 		+INFLAME;
 		+EXPLOSIVE;
 		+DOUBLEDMGTHRUST;

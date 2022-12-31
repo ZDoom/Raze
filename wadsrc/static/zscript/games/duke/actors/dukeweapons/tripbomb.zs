@@ -12,7 +12,7 @@ class DukeTripBomb : DukeActor
 	default
 	{
 		pic "TRIPBOMB";
-		// Note: The trip bomb has its health defined through CON! Value is 100. Con-based definitions will take precendence.
+		Strength TRIPBOMB_STRENGTH;
 		strength 100;
 		+CHECKSLEEP;
 		+HITRADIUS_FORCEEFFECT;

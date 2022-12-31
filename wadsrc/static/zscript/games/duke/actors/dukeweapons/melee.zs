@@ -10,6 +10,7 @@ class DukeMeleeAttack : DukeActor
 		pic "KNEE";
 		+DIENOW;
 		DukeMeleeAttack.extradamage 0;
+		Strength KNEE_WEAPON_STRENGTH;
 		DukeMeleeAttack.attacksound "KICK_HIT";
 	}
 
@@ -131,6 +132,7 @@ class RedneckBuzzSaw : DukeMeleeAttack
 	default
 	{
 		pic "BUZSAW";
+		Strength BUZSAW_WEAPON_STRENGTH;
 	}
 }
 
@@ -141,6 +143,7 @@ class RedneckSlingbladeAttack : DukeMeleeAttack
 		pic "SLINGBLADE";
 		DukeMeleeAttack.extradamage 50; // extra attack power.
 		DukeMeleeAttack.attacksound "SLINGHIT";
+		Strength SLINGBLADE_WEAPON_STRENGTH;
 	}
 }
 

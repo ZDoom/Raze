@@ -3,6 +3,8 @@ class DukeMortar : DukeActor
 	default
 	{
 		pic "MORTER";
+		Strength MORTER_WEAPON_STRENGTH;
+
 		DukeMortar.ceilingdist 3;
 		DukeMortar.spawnscale 0.5;
 		+HITRADIUS_DONTHURTSHOOTER;
@@ -184,6 +186,7 @@ class DukeBounceMine : DukeMortar
 	default
 	{
 		pic "BOUNCEMINE";
+		Strength BOUNCEMINE_WEAPON_STRENGTH;
 	}
 	
 	override void Initialize()

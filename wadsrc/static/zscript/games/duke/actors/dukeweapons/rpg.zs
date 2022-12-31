@@ -9,6 +9,7 @@ class DukeRPG : DukeProjectile
 	default
 	{
 		pic "RPG";
+		Strength RPG_WEAPON_STRENGTH;
 		+FULLBRIGHT;
 		+INFLAME;
 		+UNDERWATERSLOWDOWN;
