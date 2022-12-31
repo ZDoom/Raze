@@ -388,9 +388,8 @@ void checksectors_r(int snum)
 					if (near.actor()->flags2 & SFLAG2_TRIGGERRESPAWN)
 						return;
 
-					switch (near.actor()->spr.picnum)
+					if (near.actor()->IsKindOf(RedneckCowClass)) // This is for a VERY poorly implemented CON hack. See 'iftipcow'.
 					{
-					case RTILE_COW:
 						near.actor()->spriteextra = 1;
 						return;
 					}
@@ -408,7 +407,7 @@ void checksectors_r(int snum)
 			return;
 
 		if (near.actor() == nullptr && near.hitWall == nullptr)
-			if (p->cursector->lotag == 2)
+			if (p->cursector->lotag == ST_2_UNDERWATER)
 			{
 				DDukeActor* hit;
 				double dist = hitasprite(p->GetActor(), &hit);
@@ -457,7 +456,7 @@ void checksectors_r(int snum)
 				if (isactivator(act) || ismasterswitch(act))
 					return;
 			}
-			if (haskey(near.hitSector, snum))
+			if (haslock(near.hitSector, snum))
 				operatesectors(near.hitSector, p->GetActor());
 			else
 			{
@@ -478,7 +477,7 @@ void checksectors_r(int snum)
 					if (isactivator(act) || ismasterswitch(act))
 						return;
 				}
-				if (haskey(near.hitSector, snum))
+				if (haslock(near.hitSector, snum))
 					operatesectors(p->GetActor()->sector(), p->GetActor());
 				else
 				{

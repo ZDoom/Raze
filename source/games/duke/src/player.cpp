@@ -988,22 +988,22 @@ bool movementBlocked(player_struct *p)
 //
 //---------------------------------------------------------------------------
 
-int haskey(sectortype* sectp, int snum)
+int haslock(sectortype* sectp, int snum)
 {
 	auto p = &ps[snum];
 	if (!sectp)
 		return 0;
-	if (!sectp->keyinfo)
+	if (!sectp->lockinfo)
 		return 1;
-	if (sectp->keyinfo > 6)
+	if (sectp->lockinfo > 6)
 		return 1;
-	int wk = sectp->keyinfo;
+	int wk = sectp->lockinfo;
 	if (wk > 3)
 		wk -= 3;
 
 	if (p->keys[wk] == 1)
 	{
-		sectp->keyinfo = 0;
+		sectp->lockinfo = 0;
 		return 1;
 	}
 

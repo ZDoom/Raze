@@ -438,16 +438,16 @@ void GameInterface::FinalizeSetup()
 			auto info = spawnMap.CheckKey(i);
 			PClassActor* cls = nullptr;
 
-			if (info != nullptr && info->basetex <= 0)
+			if (info != nullptr && !info->basetex.isValid())
 			{
 				cls = info->cls;
 			}
-			else if (info == nullptr || info->basetex <= 0)
+			else if (info == nullptr || !info->basetex.isValid())
 			{
 				// No unique actor exists here. Since we need one, create a new class here, directly derived from DDukeActor.
 				auto newcls = (PClassActor*)RUNTIME_CLASS(DDukeActor)->CreateDerivedClass(FStringf("NewConActor%d", i), RUNTIME_CLASS(DDukeActor)->Size);
 				newcls->InitializeDefaults();
-				spawnMap.Insert(i, { newcls, -1, -1, NO_SOUND, int8_t(0), int8_t(0), int16_t(0x8000) });
+				spawnMap.Insert(i, { newcls, FNullTextureID(), FNullTextureID(), NO_SOUND, int8_t(0), int8_t(0), int16_t(0x8000) });
 				cls = newcls;
 				GetDefaultByType(newcls)->spr.picnum = i; // make it show the right pic.
 			}

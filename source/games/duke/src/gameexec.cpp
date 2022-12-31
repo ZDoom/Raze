@@ -1756,7 +1756,7 @@ int ParseState::parse(void)
 		ps[g_p].tipincs = 26;
 		break;
 	case concmd_iftipcow:
-	case concmd_ifhittruck: // both have the same code.
+	case concmd_ifhittruck: // both have the same code. Note that 'iftipcpw' ONLY works when used on the cow!
 		if (g_ac->spriteextra == 1) // 
 		{
 			j = 1;

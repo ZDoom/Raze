@@ -385,7 +385,7 @@ struct sectortype
 	{
 		struct // DukeRR
 		{
-			uint8_t keyinfo; // This was originally the repurposed filler byte.
+			uint8_t lockinfo; // This was originally the repurposed filler byte.
 			uint8_t shadedsector;
 			TObjPtr<DCoreActor*> hitagactor;    // we need this because Duke stores an actor in the hitag field. Is really a DDukeActor, but cannot be declared here safely.
 		};

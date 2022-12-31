@@ -920,7 +920,7 @@ void destroyit(DDukeActor *actor)
 				destsect->floorxpan_ = srcsect->floorxpan_;
 				destsect->floorypan_ = srcsect->floorypan_;
 				destsect->visibility = srcsect->visibility;
-				destsect->keyinfo = srcsect->keyinfo;
+				destsect->lockinfo = srcsect->lockinfo;
 				destsect->lotag = srcsect->lotag;
 				destsect->hitag = srcsect->hitag;
 				destsect->extra = srcsect->extra;

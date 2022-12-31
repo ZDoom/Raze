@@ -556,7 +556,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				actor->Destroy();
 			if (actor->GetClass() == RedneckKeyinfoSetterClass)
 			{
-				actor->sector()->keyinfo = uint8_t(actor->spr.lotag);
+				actor->sector()->lockinfo = uint8_t(actor->spr.lotag);
 				actor->Destroy();
 			}
 		}

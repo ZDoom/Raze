@@ -42,7 +42,7 @@
 struct SpawnRec
 {
 	PClassActor* cls;
-	int basetex, brokentex;
+	FTextureID basetex, brokentex;
 	FSoundID breaksound;
 	int8_t fullbright, clipdist;
 	int16_t flags;

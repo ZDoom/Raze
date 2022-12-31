@@ -479,7 +479,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 		// Save the extensions only when playing their respective games.
 		if (isDukeEngine())
 		{
-			arc("keyinfo", c.keyinfo, def->keyinfo)
+			arc("keyinfo", c.lockinfo, def->lockinfo)
 				("shadedsector", c.shadedsector, def->shadedsector)
 				("hitagactor", c.hitagactor, def->hitagactor);
 

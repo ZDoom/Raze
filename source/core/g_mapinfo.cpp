@@ -266,8 +266,8 @@ void FMapInfoParser::ParseSpawnClasses()
 		int clipdist = -1;
 		int num = -1;
 		int base = -1;
-		int basetex = -1;
-		int brokentex = -1;
+		FTextureID basetex = FNullTextureID();
+		FTextureID brokentex = FNullTextureID();
 		int fullbright = 0;
 		int flags = 0;
 		FSoundID sound = NO_SOUND;
@@ -305,8 +305,8 @@ void FMapInfoParser::ParseSpawnClasses()
 			}
 			const char* p = sc.String;
 			if (*p == '*') { fullbright |= 1; p++; }
-			basetex = tileForName(p);
-			if (basetex < 0) sc.ScriptMessage("Unknown texture '%s' in definition for spawn ID # %d", sc.String, num);
+			basetex = TexMan.CheckForTexture(p, ETextureType::Any, FTextureManager::TEXMAN_TryAny);
+			if (!basetex.isValid()) sc.ScriptMessage("Unknown texture '%s' in definition for spawn ID # %d", sc.String, num);
 			if (sc.CheckString(","))
 			{
 				sc.MustGetString();
@@ -314,8 +314,8 @@ void FMapInfoParser::ParseSpawnClasses()
 				if (*p)
 				{
 					if (*p == '*') { fullbright |= 2; p++; }
-					brokentex = tileForName(p);
-					if (brokentex < 0) sc.ScriptMessage("Unknown texture '%s' in definition for spawn ID # %d", sc.String, num);
+					brokentex = TexMan.CheckForTexture(p, ETextureType::Any, FTextureManager::TEXMAN_TryAny);
+					if (!brokentex.isValid()) sc.ScriptMessage("Unknown texture '%s' in definition for spawn ID # %d", sc.String, num);
 				}
 				if (sc.CheckString(","))
 				{

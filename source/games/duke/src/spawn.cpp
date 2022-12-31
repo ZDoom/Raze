@@ -50,11 +50,11 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 	act->curAction = &actions[0];
 	if (info)
 	{
-		if (info->basetex > 0 && act->IsKindOf(DukeGenericDestructibleClass))
+		if (info->basetex.isValid() && act->IsKindOf(DukeGenericDestructibleClass))
 		{
 			// allow defining simple destructibles without actual actor definitions.
-			act->IntVar(NAME_spawnstate) = info->basetex;
-			act->IntVar(NAME_brokenstate) = info->brokentex;
+			act->IntVar(NAME_spawnstate) = info->basetex.GetIndex();
+			act->IntVar(NAME_brokenstate) = info->brokentex.GetIndex();
 			act->IntVar(NAME_breaksound) = info->breaksound.index();
 			act->IntVar(NAME_fullbright) = info->fullbright;
 			act->spr.inittype = info->flags;
@@ -63,7 +63,7 @@ void setFromSpawnRec(DDukeActor* act, SpawnRec* info)
 		else
 		{
 			// same for simple sprite replacements with existing implementations.
-			if (info->basetex >= 0 && info->basetex < MAXTILES) act->spr.picnum = info->basetex;
+			if (info->basetex.isValid()) act->spr.setspritetexture(info->basetex);
 			if (info->fullbright & 1) act->spr.cstat2 |= CSTAT2_SPRITE_FULLBRIGHT;
 		}
 	}

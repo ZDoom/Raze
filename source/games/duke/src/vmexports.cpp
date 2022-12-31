@@ -1838,14 +1838,14 @@ DEFINE_ACTION_FUNCTION_NATIVE(_tspritetype, copyfloorpal, copyfloorpal)
 	return 0;
 }
 
-// this must still work around the lack of proper texture support on the script side.
+// this must still work around the lack of proper texture support on the script side and should go away once sprites have proper texture support
 DEFINE_ACTION_FUNCTION(DDukeGenericDestructible, SetBroken)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(DDukeActor);
 	PARAM_INT(bust);
-	int tilenum = self->IntVar(bust ? NAME_brokenstate : NAME_spawnstate);
-	if (tilenum >= 0) self->spr.picnum = tilenum;
-	ACTION_RETURN_BOOL(tilenum < 0);
+	FSetTextureID tilenum(self->IntVar(bust ? NAME_brokenstate : NAME_spawnstate));
+	if (tilenum.isValid()) self->spr.setspritetexture(tilenum);
+	ACTION_RETURN_BOOL(!tilenum.isValid());
 }
 
 

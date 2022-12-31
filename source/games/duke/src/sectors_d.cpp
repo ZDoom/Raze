@@ -412,7 +412,7 @@ void checksectors_d(int snum)
 			return;
 
 		if (near.actor() == nullptr && near.hitWall == nullptr)
-			if (p->cursector->lotag == 2)
+			if (p->cursector->lotag == ST_2_UNDERWATER)
 			{
 				DDukeActor* hit;
 				dist = hitasprite(p->GetActor(), &hit);

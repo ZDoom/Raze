@@ -119,7 +119,7 @@ int findotherplayer(int p, double* d);
 void quickkill(player_struct* p);
 int setpal(player_struct* p);
 int madenoise(int playerNum);
-int haskey(sectortype* sect, int snum);
+int haslock(sectortype* sect, int snum);
 void purplelavacheck(player_struct* p);
 void addphealth(player_struct* p, int amount, bool bigitem);
 int playereat(player_struct* p, int amount, bool bigitem);
