@@ -1894,7 +1894,7 @@ int ParseState::parse(void)
 	case concmd_spawn:
 		insptr++;
 		if(g_ac->insector())
-			spawn(g_ac, GetSpawnType(*insptr));
+			spawnsprite(g_ac, *insptr);
 		insptr++;
 		break;
 	case concmd_ifwasweapon:

@@ -82,7 +82,6 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	if (whatsectp == nullptr || !validSectorIndex(sectindex(whatsectp))) return nullptr;
 	// spawning out of range sprites will also crash.
 	if (clstype == nullptr) return nullptr;
-	SpawnRec* info = nullptr;
 
 	if (s_stat < 0) s_stat = clstype ? GetDefaultByType(clstype)->spr.statnum : 0;
 
@@ -90,7 +89,7 @@ DDukeActor* CreateActor(sectortype* whatsectp, const DVector3& pos, PClassActor*
 	if (act == nullptr) return nullptr;
 	SetupGameVarsForActor(act);
 
-	setFromSpawnRec(act, info);
+	setFromSpawnRec(act, nullptr);
 	act->spr.pos = pos;
 	act->spr.shade = s_shd;
 	if (!scale.isZero()) act->spr.scale = DVector2(scale.X, scale.Y);
@@ -257,6 +256,26 @@ DDukeActor* spawn(DDukeActor* actj, PClassActor * cls)
 	}
 	return nullptr;
 }
+
+//---------------------------------------------------------------------------
+//
+// This spawns an actor from a spawnclasses type ID.
+//
+//---------------------------------------------------------------------------
+
+DDukeActor* spawnsprite(DDukeActor* origin, int typeId)
+{
+	auto srec = spawnMap.CheckKey(typeId);
+	if (srec && !srec->basetex.isValid()) return spawn(origin, srec->cls);
+
+	PClassActor* cls = srec ? srec->cls : (PClassActor*)RUNTIME_CLASS(DDukeActor);
+	auto spawned = spawn(origin, cls);
+	if (!spawned) return nullptr;
+	setFromSpawnRec(spawned, srec);
+	if (!srec) spawned->spr.setspritetexture(tileGetTextureID(typeId));
+	return spawned;
+}
+
 
 //---------------------------------------------------------------------------
 //

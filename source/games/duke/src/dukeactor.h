@@ -20,6 +20,7 @@ inline int player_struct::GetPlayerNum()
 }
 
 DDukeActor* spawn(DDukeActor* spawner, PClassActor* pname);
+DDukeActor* spawnsprite(DDukeActor* origin, int typeId);
 
 // return type is int for scripting - the value must still be true or false!
 inline int badguy(const DDukeActor* pSprite)

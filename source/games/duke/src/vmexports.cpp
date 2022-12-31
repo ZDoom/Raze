@@ -491,21 +491,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, movesprite_ex, DukeActor_movesprite_ex
 	ACTION_RETURN_INT(DukeActor_movesprite_ex(self, velx, vely, velz, clipmask, coll));
 }
 
-DDukeActor* DukeActor_Spawnsprite(DDukeActor* origin, int typeId)
-{
-	auto st = GetSpawnType(typeId);
-	if (st)
-	{
-		return spawn(origin, st);
-	}
-	return nullptr;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnsprite, DukeActor_Spawnsprite)
+DEFINE_ACTION_FUNCTION_NATIVE(DDukeActor, spawnsprite, spawnsprite)
 {
 	PARAM_SELF_PROLOGUE(DDukeActor);
 	PARAM_INT(type);
-	ACTION_RETURN_POINTER(DukeActor_Spawnsprite(self, type));
+	ACTION_RETURN_POINTER(spawnsprite(self, type));
 }
 
 void DukeActor_Lotsofglass(DDukeActor* origin, int count, walltype* wal)

@@ -42,6 +42,8 @@ int getlabelvalue(const char* text);
 
 static int ccmd_spawn(CCmdFuncPtr parm)
 {
+	FTextureID texid = FNullTextureID();
+	int picno = -1;
 	int x = 0, y = 0, z = 0;
 	ESpriteFlags cstat = 0;
 	PClassActor* cls = nullptr;
@@ -74,14 +76,19 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		[[fallthrough]];
 	case 1: // tile number
 		if (isdigit((uint8_t)parm->parms[0][0])) {
-			cls = GetSpawnType((unsigned short)atol(parm->parms[0]));
+			picno = (unsigned short)atol(parm->parms[0]);
+			cls = GetSpawnType(picno);
 		}
 		else 
 		{
 			cls = PClass::FindActor(parm->parms[0]);
 			if (!cls)
 			{
-				int picno = tileForName(parm->parms[0]);
+				texid = TexMan.CheckForTexture(parm->parms[0], ETextureType::Any, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ReturnAll);
+				if (texid.isValid())
+				{
+					picno = legacyTileNum(texid);
+				}
 				if (picno < 0)
 				{
 					picno = getlabelvalue(parm->parms[0]);
@@ -90,7 +97,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 			}
 		}
 
-		if (cls == nullptr)
+		if (cls == nullptr && !texid.isValid())
 		{
 			Printf("spawn: Invalid actor type '%s'\n", parm->parms[0]);
 			return CCMD_OK;
@@ -100,7 +107,9 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		return CCMD_SHOWHELP;
 	}
 
-	auto spawned = spawn(ps[myconnectindex].GetActor(), cls);
+	DDukeActor* spawned;
+	if (!cls) spawned = spawnsprite(ps[myconnectindex].GetActor(), picno);
+	else spawned = spawn(ps[myconnectindex].GetActor(), cls);
 	if (spawned)
 	{
 		if (set & 1) spawned->spr.pal = (uint8_t)pal;
