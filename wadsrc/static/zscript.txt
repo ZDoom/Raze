@@ -65,16 +65,6 @@ version "4.10"
 
 #include "zscript/games/duke/actors/player.zs"
 
-#include "zscript/games/duke/actors/batteryammo.zs"
-#include "zscript/games/duke/actors/sixpak.zs"
-#include "zscript/games/duke/actors/atomichealth.zs"
-
-#include "zscript/games/duke/actors/powderkeg.zs"
-#include "zscript/games/duke/actors/redneckmisc.zs"
-#include "zscript/games/duke/actors/redneckitems.zs"
-#include "zscript/games/duke/actors/redneckenemies.zs"
-#include "zscript/games/duke/actors/bowling.zs"
-
 #include "zscript/games/duke/actors/nwinter.zs"
 
 #include "zscript/games/duke/actors/dukecstuff/bloodpool.zs"
@@ -205,6 +195,13 @@ version "4.10"
 #include "zscript/games/duke/actors/rrraenemies/rabbit.zs"
 #include "zscript/games/duke/actors/rrraenemies/rabbitspawner.zs"
 #include "zscript/games/duke/actors/rrraenemies/shootout.zs"
+
+#include "zscript/games/duke/actors/redneckstuff/ambient_rr.zs"
+#include "zscript/games/duke/actors/redneckstuff/ambient_rrra.zs"
+#include "zscript/games/duke/actors/redneckstuff/items.zs"
+#include "zscript/games/duke/actors/redneckstuff/player.zs"
+#include "zscript/games/duke/actors/redneckstuff/stuff.zs"
+
 #include "zscript/games/duke/actors/redneckweapons/boatcannon.zs"
 #include "zscript/games/duke/actors/redneckweapons/crossbow.zs"
 #include "zscript/games/duke/actors/redneckweapons/ripsaw.zs"

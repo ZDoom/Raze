@@ -14,7 +14,6 @@ spawnclasses
 	18 = DukeTorchCtrl, noskill
 	35 = DukeLightningCtrl, noskill
 	68 = DukeShadeCtrl, noskill
-	71 = DukeSoundFX, noskill
 	252 = RedneckUfoBeam, noskill
 	2586 = RedneckInvisible, noskill
 	3587 = RedneckLadder, noskill
@@ -143,7 +142,6 @@ spawnclasses
 	55 = RedneckMoonshine
 	56 = RedneckSnorkel
 	57 = RedneckCowPie
-	1350 = RedneckSixpack
 	21 = RedneckRevolver
 	22 = RedneckRiflegun
 	28 = RedneckShotgun
@@ -360,14 +358,13 @@ spawnclasses
 	1764 = DukeShotSpark, noskill
 	2094 = RedneckTeslaBall, noskill
 	3395 = RedneckBuzzSaw, noskill
-	//3845 = RedneckPlayerPawn
+	3845 = RedneckPlayerPawn, noskill
 	4983 = RedneckPigEat
 	2898 = RedneckBustaWin4a
 	2878 = RedneckBustaWin5a
 	2097 = RedneckTesla
 	1990 = RedneckTikilamp
 
-	3845 = DukePlayerPawn, noskill
 	380 = RedneckWaterSurface, noskill
 
 }

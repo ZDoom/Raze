@@ -142,35 +142,6 @@ class DukeShadeCtrl : DukeActor
 	}
 }
 
-class DukeMinecartKiller : DukeActor
-{
-	default
-	{
-		+BADGUY;
-	}
-	override void StaticSetup()
-	{
-		self.cstat |= CSTAT_SPRITE_INVISIBLE;
-	}
-	// This has a CON scripted part.
-}
-
-class DukeSoundFX : DukeActor
-{
-	override void StaticSetup()
-	{
-		self.cstat = CSTAT_SPRITE_INVISIBLE;
-		self.detail = dlevel.addambient(self.hitag, self.lotag);
-		self.lotag = self.hitag = 0;
-	}
-	
-	// this actor needs to start on STAT_DEFAULT.
-	override void Initialize()
-	{
-		self.ChangeStat(STAT_ZOMBIEACTOR);
-	}
-}
-
 class RedneckMinecartDef : DukeActor
 {
 }
@@ -197,23 +168,6 @@ class RedneckGeometryEffect : DukeActor
 
 class RedneckKeyinfoSetter : DukeActor
 {
-}
-
-class RedneckUfoBeam : DukeActor
-{
-	default
-	{
-		pic "UFOBEAM";
-		+BADGUY;
-		ProjectileSpread 0;
-	}
-	
-	override bool animate(tspritetype t)
-	{
-		t.cstat |= CSTAT_SPRITE_INVISIBLE;
-		self.cstat |= CSTAT_SPRITE_INVISIBLE;
-		return true;
-	}
 }
 
 class RedneckInvisible : DukeActor
