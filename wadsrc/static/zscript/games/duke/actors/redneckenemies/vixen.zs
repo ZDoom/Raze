@@ -1,5 +1,14 @@
 class RedneckVixen : DukeActor
 {
+	const VIXENWACKAMOUNT = -10;
+	const VIXEN_STRENGTH = 800;
+	const VIXENSNDAMB = 1;
+	const GREEN = 22;
+	const BROWN = 15;
+	const BLUE = 0;
+	const QUEEN = 34;
+	const SPECIAL = 25;
+
 	default
 	{
 		pic "VIXEN";
@@ -7,6 +16,9 @@ class RedneckVixen : DukeActor
 		+KILLCOUNT;
 		+LOOKALLAROUND;
 		ProjectileSpread -2.8125;
+		Strength VIXEN_STRENGTH;
+		
+		
 	}
 
 	override void Initialize()

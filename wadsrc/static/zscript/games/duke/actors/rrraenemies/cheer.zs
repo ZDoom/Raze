@@ -9,6 +9,7 @@ class RedneckCheerleader : DukeActor
 		+LOOKALLAROUND;
 		+ALTPROJECTILESPRITE; // owed to CON's shittiness. Todo: Think of something better.
 		jumptoplayer_factor 1.6;
+		Strength 200;
 	}
 	override void Initialize()
 	{

@@ -278,7 +278,7 @@ class DukeDevastatorBlast : DukeActor // (1642) looks dead.
 	default
 	{
 		pic "DEVISTATORBLAST";
-		//Strength FREEZETHROWER_WEAPON_STRENGTH;
+		Strength FREEZETHROWER_WEAPON_STRENGTH;
 	}
 }
 
