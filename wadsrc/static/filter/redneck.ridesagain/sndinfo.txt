@@ -1,0 +1,2 @@
+$alias HULK_WHACK HULK_ATTACK
+
