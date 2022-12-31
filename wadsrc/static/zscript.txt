@@ -184,11 +184,13 @@ version "4.10"
 #include "zscript/games/duke/actors/redneckcstuff/rrcactus.zs"
 #include "zscript/games/duke/actors/redneckcstuff/rrteleport.zs"
 
-
-#include "zscript/games/duke/actors/redneckweapons/crossbow.zs"
-#include "zscript/games/duke/actors/redneckweapons/boatcannon.zs"
-
 #include "zscript/games/duke/actors/redneckenemies/vixen.zs"
+
+#include "zscript/games/duke/actors/redneckweapons/boatcannon.zs"
+#include "zscript/games/duke/actors/redneckweapons/crossbow.zs"
+#include "zscript/games/duke/actors/redneckweapons/ripsaw.zs"
+#include "zscript/games/duke/actors/redneckweapons/shitball.zs"
+#include "zscript/games/duke/actors/redneckweapons/vixenatk.zs"
 
 #include "zscript/games/duke/world/dukebreak.zs"
 #include "zscript/games/duke/world/redneckbreak.zs"
