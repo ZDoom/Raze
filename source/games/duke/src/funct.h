@@ -210,8 +210,7 @@ void resetplayerstats(int pn);
 void resetweapons(player_struct* pn);
 void resetprestat(int snum, int g);
 void prelevel_common(int g);
-void cacheit_d();
-void cacheit_r();
+void cacheit();
 
 void FTA(int q, player_struct* p);
 void OnMotorcycle(player_struct *pl);

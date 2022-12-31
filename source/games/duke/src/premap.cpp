@@ -1015,6 +1015,54 @@ static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& sprites)
 //
 //---------------------------------------------------------------------------
 
+static TMap<uint64_t, bool> checked;
+static void markClassForPrecache(PClass* cls, unsigned pal)
+{
+	uint64_t key = cls->TypeName.GetIndex() + pal * (1ull << 32);
+	if (checked.CheckKey(key)) return;
+	checked.Insert(key, true);
+	auto ainf = static_cast<PClassActor*>(cls)->ActorInfo();
+	for (auto clss : ainf->precacheClasses)
+	{
+		markClassForPrecache(clss, pal);
+	}
+	for (auto tex : ainf->SpriteSet)
+	{
+		markTextureForPrecache(tex, pal);
+	}
+
+}
+void cacheit(void)
+{
+	checked.Clear();
+	for (auto tex : gameinfo.precacheTextures)
+	{
+		markTextureForPrecache(tex.GetChars());
+	}
+	for (auto tex : gameinfo.precacheClasses)
+	{
+		auto cls = PClass::FindActor(tex);
+		if (cls) markClassForPrecache(cls, 0);
+	}
+	DukeSpriteIterator it;
+	while (auto act = it.Next())
+	{
+		if (act->spr.scale.X != 0 && act->spr.scale.Y != 0 && (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
+		{
+			markClassForPrecache(act->GetClass(), act->spr.pal);
+		}
+
+		// todo: scan the actions and precache all textures referenced in there as well.
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 {
 	int16_t lbang;
@@ -1052,7 +1100,7 @@ static int LoadTheMap(MapRecord *mi, player_struct*p, int gamemode)
 
 	if (r_precache)
 	{
-		if (isRR()) cacheit_r(); else cacheit_d();
+		cacheit();
 
 		precacheMap();
 		precacheMarkedTiles();
