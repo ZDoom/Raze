@@ -112,7 +112,7 @@ void CallOnRespawn(DDukeActor* actor, int low);
 bool CallAnimate(DDukeActor* actor, tspritetype* hitter);
 bool CallShootThis(DDukeActor* clsdef, DDukeActor* actor, int pn, const DVector3& spos, DAngle sang);
 void CallStaticSetup(DDukeActor* actor);
-void CallPlayFTASound(DDukeActor* actor);
+void CallPlayFTASound(DDukeActor* actor, int mode = 0);
 void CallStandingOn(DDukeActor* actor, player_struct* p);
 void CallRunState(DDukeActor* actor);
 int CallTriggerSwitch(DDukeActor* actor, player_struct* p);

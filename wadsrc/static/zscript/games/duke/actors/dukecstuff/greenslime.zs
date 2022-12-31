@@ -20,7 +20,7 @@ class DukeGreenSlime : DukeActor
 
 	}
 
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("SLIM_RECOG");
 	}

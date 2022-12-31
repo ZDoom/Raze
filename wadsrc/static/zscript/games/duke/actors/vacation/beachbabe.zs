@@ -9,7 +9,7 @@ class VacationBeachBabe : DukeLizmanJump
 		+INTERNAL_BADGUY;
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("CAPT_RECOG");
 	}

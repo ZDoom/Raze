@@ -14,7 +14,7 @@ class DukeLizMan : DukeActor
 
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("CAPT_RECOG");
 	}
@@ -82,7 +82,7 @@ class DukeLizManStayput : DukeLizMan
 		+BADGUYSTAYPUT;
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 	}
 

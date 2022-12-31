@@ -13,7 +13,7 @@ class DukeTurret : DukeActor
 		aimoffset 32;
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("TURR_RECOG");
 	}

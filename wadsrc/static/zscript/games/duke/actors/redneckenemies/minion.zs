@@ -42,7 +42,7 @@ class RedneckMinionStayput: RedneckMinion
 		+BADGUYSTAYPUT;
 	}
 
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 	}
 

@@ -12,7 +12,7 @@ class DukePigCop : DukeActor
 		
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("PIG_RECOG");
 	}
@@ -48,7 +48,7 @@ class DukePigCopDive : DukePigCopStayput
 		pic "PIGCOPDIVE";
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 	}
 	

@@ -21,7 +21,7 @@ class DukeBoss2 : DukeBossBase
 	//
 	//---------------------------------------------------------------------------
 
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		if (self.pal == 1)
 			Duke.PlaySound("BOS2_RECOG");

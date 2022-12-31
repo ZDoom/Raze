@@ -11,9 +11,10 @@ class RedneckBillyRay : DukeActor
 		
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
-		self.PlayActorSound("BR_RECOG");
+		if (mode == 0) self.PlayActorSound("BR_RECOG");
+		else self.PlayActorSound("FART1");
 	}
 	
 	override void Initialize()
@@ -33,7 +34,7 @@ class RedneckBillyRayStayput: RedneckBillyRay
 		+BADGUYSTAYPUT
 	}
 
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 	}
 

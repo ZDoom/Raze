@@ -2762,11 +2762,8 @@ HORIZONLY:
 			if (clip.actor()->spr.statnum != STAT_ACTOR)
 			{
 				clip.actor()->timetosleep = 0;
-				if (clip.actor()->spr.picnum == RTILE_BILLYRAY)
-					S_PlayActorSound(404, clip.actor());
-				else
-					CallPlayFTASound(clip.actor());
-				ChangeActorStat(clip.actor(), 1);
+				CallPlayFTASound(clip.actor(), 1);
+				ChangeActorStat(clip.actor(), STAT_ACTOR);
 			}
 		}
 		CallOnTouch(clip.actor(), p);

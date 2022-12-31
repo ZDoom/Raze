@@ -222,7 +222,7 @@ class DukeRecon : DukeActor
 		return true;
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("RECO_RECOG");
 	}
@@ -264,7 +264,7 @@ class RedneckUFO1 : DukeRecon
 		return true;
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 	}
 }

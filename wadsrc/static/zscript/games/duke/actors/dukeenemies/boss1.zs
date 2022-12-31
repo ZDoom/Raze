@@ -45,7 +45,7 @@ class DukeBoss1 : DukeBossBase
 		
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		Duke.PlaySound("BOS1_RECOG");
 	}
@@ -62,7 +62,7 @@ class DukeBoss1Stayput : DukeBoss1
 		+BADGUYSTAYPUT;
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 	}
 	

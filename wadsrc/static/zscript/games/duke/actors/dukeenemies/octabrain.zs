@@ -14,7 +14,7 @@ class DukeOctabrain : DukeActor
 		
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("OCTA_RECOG");
 	}

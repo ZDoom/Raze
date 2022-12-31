@@ -13,7 +13,7 @@ class RedneckCoot : DukeActor
 		+DESTRUCTOIMMUNE;
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		if (!Raze.isRRRA() && (random(0, 3)) == 2)
 			self.PlayActorSound("CT_GET");
@@ -40,7 +40,7 @@ class RedneckCootStayput: RedneckCoot
 		+BADGUYSTAYPUT;
 	}
 
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 	}
 	

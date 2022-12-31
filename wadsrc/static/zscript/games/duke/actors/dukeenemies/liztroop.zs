@@ -26,7 +26,7 @@ class DukeLizTrooper : DukeActor
 	//
 	//---------------------------------------------------------------------------
 
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("PRED_RECOG");
 	}
@@ -139,7 +139,7 @@ class DukeLizTrooperStayput : DukeLizTrooper
 		+BADGUYSTAYPUT;
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 	}
 	

@@ -21,7 +21,7 @@ class DukeCommander : DukeActor
 		
 	}
 	
-	override void PlayFTASound()
+	override void PlayFTASound(int mode)
 	{
 		self.PlayActorSound("COMM_RECOG");
 	}
